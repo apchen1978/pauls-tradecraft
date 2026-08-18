@@ -85,10 +85,10 @@ export default function Works() {
               className={`group flex flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 ${w.span}`}
             >
               <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
-                {w.image ? (
+                {w.cover ? (
                   <div className="overflow-hidden">
                     <img
-                      src={w.image}
+                      src={w.cover}
                       alt={w.imageAlt}
                       loading="lazy"
                       className="aspect-[16/9] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"

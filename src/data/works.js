@@ -6,10 +6,52 @@
 // Case Study schema（P1.5）：
 //   - case.stage 只能是：Prototype / Simulation / Shadow Pilot / Technical Validation（依證據選）
 //   - 禁止虛構 ROI / conversion / customer result / usage metrics / commercial outcome。
+// 封面（cover）：真實截圖裁切 16:9，或品牌設計封面（Forest family）。
 export const works = [
   {
+    id: "tracker",
+    cover: "/images/cover-tracker.png",
+    imageAlt: "窗簾軟裝 Pilot 追蹤器儀表板",
+    span: "col-span-2",
+    verified: true,
+    link: null,
+    zh: {
+      title: "窗簾軟裝 Pilot 追蹤器",
+      desc: "從商機、報價到跟進的單一追蹤器。3 期模擬 + 23/23 零依賴驗證通過，產出含 inspect 證據檔。",
+      tag: "商務工具 · Excel",
+    },
+    en: {
+      title: "Curtain Soft-Furnishing Pilot Tracker",
+      desc: "One tracker from lead to quote to follow-up. Three simulation rounds, 23/23 dependency-free checks pass, with inspect evidence files.",
+      tag: "Business tool · Excel",
+    },
+    case: {
+      stage: "Technical Validation",
+      problem: {
+        zh: "窗簾軟裝銷售的商機、報價、跟進流程分散在多處，無法單一追蹤。",
+        en: "Lead, quote, and follow-up flows were scattered, with no single tracking view.",
+      },
+      approach: {
+        zh: "建單一 Excel 追蹤器，覆蓋從商機到跟進的完整流程；以 3 期模擬驗證資料模型。",
+        en: "Built a single Excel tracker covering lead-to-follow-up, validated through three simulation rounds.",
+      },
+      tools: {
+        zh: "AI 協作（Codex/DSH）· Excel · 零依賴驗證腳本",
+        en: "AI collaboration (Codex/DSH) · Excel · dependency-free verification scripts",
+      },
+      result: {
+        zh: "23/23 零依賴驗證通過；3 期模擬（基礎/資料模型/報價版本）完成，附 inspect 證據檔。未上線生產（UNKNOWN）。",
+        en: "23/23 dependency-free checks pass; three simulation rounds complete with inspect evidence files. Not in production (UNKNOWN).",
+      },
+      evidence: {
+        zh: "工作區 outputs/ 含 3 組 xlsx + inspect.ndjson；RUNME.md + verify 23/23。無公開 URL。",
+        en: "Workspace outputs/ contains 3 xlsx + inspect.ndjson pairs; RUNME.md + verify 23/23. No public URL.",
+      },
+    },
+  },
+  {
     id: "casebrief",
-    image: "/images/case-brief.png",
+    cover: "/images/cover-casebrief.png",
     imageAlt: "銷售 Pilot 案例簡報",
     span: "col-span-1",
     verified: true,
@@ -50,49 +92,8 @@ export const works = [
     },
   },
   {
-    id: "tracker",
-    image: "/images/tracker-dashboard.png",
-    imageAlt: "窗簾軟裝 Pilot 追蹤器儀表板",
-    span: "col-span-2",
-    verified: true,
-    link: null,
-    zh: {
-      title: "窗簾軟裝 Pilot 追蹤器",
-      desc: "從商機、報價到跟進的單一追蹤器。3 期模擬 + 23/23 零依賴驗證通過，產出含 inspect 證據檔。",
-      tag: "商務工具 · Excel",
-    },
-    en: {
-      title: "Curtain Soft-Furnishing Pilot Tracker",
-      desc: "One tracker from lead to quote to follow-up. Three simulation rounds, 23/23 dependency-free checks pass, with inspect evidence files.",
-      tag: "Business tool · Excel",
-    },
-    case: {
-      stage: "Technical Validation",
-      problem: {
-        zh: "窗簾軟裝銷售的商機、報價、跟進流程分散在多處，無法單一追蹤。",
-        en: "Lead, quote, and follow-up flows were scattered, with no single tracking view.",
-      },
-      approach: {
-        zh: "建單一 Excel 追蹤器，覆蓋從商機到跟進的完整流程；以 3 期模擬驗證資料模型。",
-        en: "Built a single Excel tracker covering lead-to-follow-up, validated through three simulation rounds.",
-      },
-      tools: {
-        zh: "AI 協作（Codex/DSH）· Excel · 零依賴驗證腳本",
-        en: "AI collaboration (Codex/DSH) · Excel · dependency-free verification scripts",
-      },
-      result: {
-        zh: "23/23 零依賴驗證通過；3 期模擬（基礎/資料模型/報價版本）完成，附 inspect 證據檔。未上線生產（UNKNOWN）。",
-        en: "23/23 dependency-free checks pass; three simulation rounds complete with inspect evidence files. Not in production (UNKNOWN).",
-      },
-      evidence: {
-        zh: "工作區 outputs/ 含 3 組 xlsx + inspect.ndjson；RUNME.md + verify 23/23。無公開 URL。",
-        en: "Workspace outputs/ contains 3 xlsx + inspect.ndjson pairs; RUNME.md + verify 23/23. No public URL.",
-      },
-    },
-  },
-  {
     id: "simulations",
-    image: "/images/tracker-timeline.png",
+    cover: "/images/cover-simulations.png",
     imageAlt: "Pilot 模擬時間軸",
     span: "col-span-1",
     verified: true,
@@ -132,48 +133,9 @@ export const works = [
     },
   },
   {
-    id: "deck",
-    icon: "presentation",
-    span: "col-span-1",
-    verified: true,
-    link: null,
-    zh: {
-      title: "DSH 快速指南簡報",
-      desc: "spec JSON → PPTX → PDF 簡報管線，三版迭代，McKinsey/a16z 編輯系統。",
-      tag: "簡報管線",
-    },
-    en: {
-      title: "DSH Guide Deck",
-      desc: "A spec-to-PPTX-to-PDF deck pipeline across three iterations with an editorial design system.",
-      tag: "Deck pipeline",
-    },
-    case: {
-      stage: "Technical Validation",
-      problem: {
-        zh: "簡報製作耗時且版本難控，缺乏可重跑的產出管線。",
-        en: "Deck production was slow and hard to version, with no rerunnable output pipeline.",
-      },
-      approach: {
-        zh: "以 spec JSON 定義內容，經由 PPTX 管線產出並轉 PDF；三版迭代改善編輯系統。",
-        en: "Defined content in spec JSON, generated PPTX via pipeline, rendered PDF; three iterations of the editorial system.",
-      },
-      tools: {
-        zh: "ppt-toolkit（pptxgenjs）· spec JSON 管線 · AI 協作",
-        en: "ppt-toolkit (pptxgenjs) · spec JSON pipeline · AI collaboration",
-      },
-      result: {
-        zh: "三版簡報產出完成（含 PDF 渲染）。屬工具驗證，無觀眾/業務數據（UNKNOWN）。",
-        en: "Three deck versions produced, with PDF rendering. Tool validation; no audience/business data (UNKNOWN).",
-      },
-      evidence: {
-        zh: "ppt-toolkit/ 內含 spec-dsh-guide.json、make-pptx.mjs、demo 簡報與 PDF。無公開 URL。",
-        en: "ppt-toolkit/ contains spec-dsh-guide.json, make-pptx.mjs, demo deck, and PDF. No public URL.",
-      },
-    },
-  },
-  {
     id: "game",
-    icon: "game",
+    cover: "/images/cover-game.png",
+    imageAlt: "小麥遊戲世界打字挑戰",
     span: "col-span-1",
     verified: true,
     link: "https://apchen1978.github.io/signal-rift-typing-demo/",
@@ -213,8 +175,91 @@ export const works = [
     },
   },
   {
+    id: "lyrics",
+    cover: "/images/cover-lyrics.png",
+    imageAlt: "AI Lyrics Generator 桌面應用",
+    span: "col-span-1",
+    verified: true,
+    link: null,
+    zh: {
+      title: "AI Lyrics Generator",
+      desc: "Python + PySide6 桌面 App：本機 AI 歌詞生成、100 分評分、批評與自動重寫，支援 Ollama 本地模型與離線模式。",
+      tag: "桌面 App · AI",
+    },
+    en: {
+      title: "AI Lyrics Generator",
+      desc: "Python + PySide6 desktop app: local AI lyric generation, 100-point scoring, critique and auto-rewrite, with Ollama local models and offline mode.",
+      tag: "Desktop app · AI",
+    },
+    case: {
+      stage: "Technical Validation",
+      problem: {
+        zh: "歌詞創作缺乏本機、可離線的 AI 輔助流程：生成、評分、批評、重寫各自分散。",
+        en: "Lyric writing lacked a local, offline-capable AI workflow: generation, scoring, critique, and rewrite were disconnected.",
+      },
+      approach: {
+        zh: "Python + PySide6 桌面 App：生成 → 批評 → 自動重寫 → 輸出；100 分品質評分（Hook/可唱性/押韻等六軸）；版本歷史與 A/B 比較；Ollama 本地模型或離線草稿模式。",
+        en: "Python + PySide6 desktop app: generate → critique → auto-rewrite → output; 100-point quality score across six axes; version history and A/B compare; Ollama local models or offline draft mode.",
+      },
+      tools: {
+        zh: "Python · PySide6 · Ollama（qwen2.5 / llama3.2）· TXT/DOCX 匯出",
+        en: "Python · PySide6 · Ollama (qwen2.5 / llama3.2) · TXT/DOCX export",
+      },
+      result: {
+        zh: "V3 功能集完成，本機 exe 產物已建置（40.9MB）。屬技術驗證，無使用者/商業數據（UNKNOWN）。",
+        en: "V3 feature set complete; local EXE build produced (40.9MB). Technical validation; no user/commercial data (UNKNOWN).",
+      },
+      evidence: {
+        zh: "本地 OneDrive 專案資料夾 + private repo（apchen1978/ai-lyrics-generator）。無公開 URL。",
+        en: "Local OneDrive project folder + private repo (apchen1978/ai-lyrics-generator). No public URL.",
+      },
+    },
+  },
+  {
+    id: "deck",
+    cover: "/images/cover-deck.png",
+    imageAlt: "DSH 快速指南簡報",
+    span: "col-span-1",
+    verified: true,
+    link: null,
+    zh: {
+      title: "DSH 快速指南簡報",
+      desc: "spec JSON → PPTX → PDF 簡報管線，三版迭代，McKinsey/a16z 編輯系統。",
+      tag: "簡報管線",
+    },
+    en: {
+      title: "DSH Guide Deck",
+      desc: "A spec-to-PPTX-to-PDF deck pipeline across three iterations with an editorial design system.",
+      tag: "Deck pipeline",
+    },
+    case: {
+      stage: "Technical Validation",
+      problem: {
+        zh: "簡報製作耗時且版本難控，缺乏可重跑的產出管線。",
+        en: "Deck production was slow and hard to version, with no rerunnable output pipeline.",
+      },
+      approach: {
+        zh: "以 spec JSON 定義內容，經由 PPTX 管線產出並轉 PDF；三版迭代改善編輯系統。",
+        en: "Defined content in spec JSON, generated PPTX via pipeline, rendered PDF; three iterations of the editorial system.",
+      },
+      tools: {
+        zh: "ppt-toolkit（pptxgenjs）· spec JSON 管線 · AI 協作",
+        en: "ppt-toolkit (pptxgenjs) · spec JSON pipeline · AI collaboration",
+      },
+      result: {
+        zh: "三版簡報產出完成（含 PDF 渲染）。屬工具驗證，無觀眾/業務數據（UNKNOWN）。",
+        en: "Three deck versions produced, with PDF rendering. Tool validation; no audience/business data (UNKNOWN).",
+      },
+      evidence: {
+        zh: "ppt-toolkit/ 內含 spec-dsh-guide.json、make-pptx.mjs、demo 簡報與 PDF。無公開 URL。",
+        en: "ppt-toolkit/ contains spec-dsh-guide.json, make-pptx.mjs, demo deck, and PDF. No public URL.",
+      },
+    },
+  },
+  {
     id: "expense",
-    icon: "receipt",
+    cover: "/images/cover-expense.png",
+    imageAlt: "Expense Tracker 收支實驗",
     span: "col-span-3",
     verified: true,
     link: null,

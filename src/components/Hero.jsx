@@ -44,7 +44,7 @@ export default function Hero() {
         className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_24px_60px_-24px_rgba(31,77,58,0.35)]"
       >
         <img
-          src="/images/tracker-dashboard.png"
+          src="/images/cover-tracker.png"
           alt={t.hero.imgCaption}
           className="aspect-[16/10] w-full object-cover object-top"
           loading="eager"
