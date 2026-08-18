@@ -135,38 +135,38 @@ export const works = [
   {
     id: "game",
     cover: "/images/cover-game.webp",
-    imageAlt: "小麥遊戲世界打字挑戰",
+    imageAlt: "Lil Matt's Gaming World 遊戲",
     span: "col-span-1",
     verified: true,
     link: "https://apchen1978.github.io/signal-rift-typing-demo/",
-    linkLabel: "Play the demo",
+    linkLabel: "Play the game",
     zh: {
-      title: "小麥遊戲世界 · 打字挑戰",
-      desc: "SIGNAL//RIFT 內建英文打字挑戰：七大功能 + Adaptive Learning Shadow Mode，可即時遊玩。",
-      tag: "遊戲 · 學習",
+      title: "Lil Matt's Gaming World",
+      desc: "雙模式原創遊戲：「Read the Signal」精準節奏平台遊戲 + 內建英語學習打字挑戰（32 篇文章、92 筆道地美式英語字彙）。",
+      tag: "遊戲 · 英語學習",
     },
     en: {
       title: "Lil Matt's Gaming World",
-      desc: "English typing challenge inside SIGNAL//RIFT: seven features plus an Adaptive Learning Shadow Mode, playable live.",
-      tag: "Game · Learning",
+      desc: "A dual-mode original game: the Read the Signal precision rhythm platformer, plus a built-in English learning typing challenge with 32 passages and 92 authentic American English vocabulary notes.",
+      tag: "Game · English Learning",
     },
     case: {
       stage: "Shadow Pilot",
       problem: {
-        zh: "打字練習缺乏即時回饋與個人化學習機制，且中文輸入法環境導致輸入錯誤。",
-        en: "Typing practice lacked real-time feedback and personalization, and the Chinese IME environment caused input errors.",
+        zh: "打字練習缺乏即時回饋與個人化學習，且中文輸入法環境導致輸入錯誤；同時需要一個有吸引力的遊戲化載體。",
+        en: "Typing practice lacked real-time feedback and personalization, the Chinese IME environment caused input errors, and the whole experience needed a compelling gamified shell.",
       },
       approach: {
-        zh: "落地七大功能：音效、Live 指標、TTS 發音、IME 全紅 bug 根治、小知識卡、流暢度修復、Adaptive Learning Shadow Mode。",
-        en: "Shipped seven features: sound, live metrics, TTS, IME red-text fix, fun facts, smoothness, and an Adaptive Learning Shadow Mode.",
+        zh: "以「Read the Signal」精準節奏平台遊戲為主體（6 種移動模式、11 關原型、Level Editor），內建英語打字挑戰：32 篇分級文章 + 92 筆道地美式英語字彙（定義/中文/例句）、TTS 發音、DID YOU KNOW 知識卡、IME 全紅 bug 根治、Adaptive Learning Shadow Mode。",
+        en: "Built the Read the Signal precision rhythm platformer as the core (6 movement modes, 11 level prototypes, level editor), with a built-in English typing challenge: 32 graded passages, 92 authentic American English vocabulary notes (definition/translation/example), TTS pronunciation, DID YOU KNOW cards, IME red-text fixes, and an Adaptive Learning Shadow Mode.",
       },
       tools: {
         zh: "Vite + TypeScript + Canvas 2D · WebAudio · speechSynthesis（零後端、零依賴）",
         en: "Vite + TypeScript + Canvas 2D · WebAudio · speechSynthesis (no backend, zero runtime deps)",
       },
       result: {
-        zh: "Shadow Mode 確定性驗證通過（seeded data → 穩定弱點排名）；headless Chrome 四路輸入測試通過。屬技術驗證/Shadow Pilot，無真實使用者數據（UNKNOWN）。",
-        en: "Shadow Mode determinism verified on seeded data; four input paths tested in headless Chrome. Technical validation / shadow pilot; no real usage data (UNKNOWN).",
+        zh: "雙模式皆完成；Shadow Mode 確定性驗證通過；headless Chrome 四路輸入測試通過。屬技術驗證/Shadow Pilot，無真實使用者數據（UNKNOWN）。",
+        en: "Both modes complete; Shadow Mode determinism verified; four input paths tested in headless Chrome. Technical validation / shadow pilot; no real usage data (UNKNOWN).",
       },
       evidence: {
         zh: "公開 demo：https://apchen1978.github.io/signal-rift-typing-demo/",
