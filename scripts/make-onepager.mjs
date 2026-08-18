@@ -131,6 +131,7 @@ const r = spawnSync(chrome, [
   "--headless=new",
   "--disable-gpu",
   "--no-first-run",
+  "--no-sandbox", // GitHub Actions runner 無 sandbox 權限，需停用
   "--no-pdf-header-footer",
   `--print-to-pdf=${outPdf}`,
   `file://${tmpHtml.replace(/\\/g, "/")}`,
