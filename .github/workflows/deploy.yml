@@ -31,7 +31,14 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends fonts-noto-cjk
+      - name: Cache Chrome binary
+        id: cache-chrome
+        uses: actions/cache@v4
+        with:
+          path: .chrome/chrome-linux64
+          key: chrome-linux64-${{ runner.os }}
       - name: Download headless Chrome (fast, no snap)
+        if: steps.cache-chrome.outputs.cache-hit != 'true'
         run: |
           mkdir -p .chrome
           curl -sL -o /tmp/cft.json "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
@@ -46,6 +53,19 @@ jobs:
           CHROME_PATH: ${{ github.workspace }}/.chrome/chrome-linux64/chrome
       - name: Build
         run: npm run build
+      - name: Health check before deploy (fail fast)
+        run: |
+          set -e
+          echo "== Checking dist artifacts =="
+          test -f dist/robots.txt && echo "OK robots.txt" || { echo "FAIL robots.txt missing"; exit 1; }
+          test -f dist/sitemap.xml && echo "OK sitemap.xml" || { echo "FAIL sitemap.xml missing"; exit 1; }
+          test -f dist/files/Paul-Tradecraft-OnePager.pdf && echo "OK one-pager.pdf" || { echo "FAIL one-pager.pdf missing"; exit 1; }
+          SIZE=$(stat -c%s dist/files/Paul-Tradecraft-OnePager.pdf)
+          echo "one-pager.pdf size: $SIZE bytes"
+          test "$SIZE" -gt 10240 || { echo "FAIL one-pager.pdf too small (possibly blank render)"; exit 1; }
+          grep -q '<title>' dist/index.html && echo "OK <title> present" || { echo "FAIL <title> missing"; exit 1; }
+          grep -q 'og:image' dist/index.html && echo "OK og:image present" || { echo "FAIL og:image missing"; exit 1; }
+          echo "== All health checks passed =="
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

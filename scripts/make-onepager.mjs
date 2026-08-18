@@ -1,51 +1,30 @@
-// make-onepager.mjs — 從網站資料自動產生「AI 協作能力」一頁 PDF
-// 資料來源：src/i18n.jsx（dict）+ src/data/works.js（works）
+// make-onepager.mjs — 從 JSON 資料檔產生「AI 協作能力」一頁 PDF
+// 資料來源：content/onepager-data.json（可經 CLI 參數指定其他資料檔，供多客戶/多支柱客製）
+// 用法：
+//   node scripts/make-onepager.mjs                        -> 用預設 content/onepager-data.json
+//   node scripts/make-onepager.mjs path/to/other.json     -> 用指定資料檔
 // 每次網站更新時由 GitHub Actions 自動重跑 → PDF 永遠同步
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { build } from "esbuild";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
+const dataArg = process.argv[2];
+const dataPath = dataArg
+  ? path.resolve(dataArg)
+  : path.join(ROOT, "content", "onepager-data.json");
 
-// i18n.jsx / works.js 是 ESM+JSX，先用 esbuild（vite 依賴，無新增）轉成臨時 CJS
-async function loadModule(relPath) {
-  const outFile = path.join(ROOT, ".tmp-" + path.basename(relPath).replace(/\.jsx?$/, ".cjs"));
-  await build({
-    entryPoints: [path.join(ROOT, relPath)],
-    outfile: outFile,
-    bundle: true,
-    format: "cjs",
-    platform: "node",
-    loader: { ".jsx": "jsx" },
-    jsx: "transform",
-    logLevel: "silent",
-  });
-  const mod = await import(pathToFileURL(outFile).href);
-  fs.rmSync(outFile, { force: true });
-  return mod;
-}
+const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
 
-const { dict } = await loadModule("src/i18n.jsx");
-const { works } = await loadModule("src/data/works.js");
-
-const zh = dict.zh;
-const en = dict.en;
-
-// ---- 組 HTML（A4 單頁，深墨藍 McKinsey 風格，與網站品牌一致）----
-const worksList = works
-  .map(
-    (w) => `<li>${w.zh.title} · ${w.zh.tag}${w.link ? " · 可即時遊玩" : ""}</li>`
-  )
+const worksList = (data.works || [])
+  .map((w) => `<li>${w}</li>`)
   .join("");
-
-const servicesList = zh.capabilities.items
-  .map((s) => `<li><b>${s.title}</b> — ${s.desc}</li>`)
+const servicesList = (data.services || [])
+  .map((s) => `<li>${s}</li>`)
   .join("");
-
-const stats = zh.about.stats
+const stats = (data.stats || [])
   .map((s) => `<div class="stat"><b>${s.value}</b><span>${s.label}</span></div>`)
   .join("");
 
@@ -58,7 +37,7 @@ const html = `<!doctype html>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     width: 210mm; height: 297mm; overflow: hidden;
-    font-family: "Geist Variable", "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+    font-family: "Geist Variable", "Segoe UI", "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif;
     background: #0B1B33; color: #fff; padding: 16mm 16mm 14mm;
     display: flex; flex-direction: column;
   }
@@ -76,28 +55,29 @@ const html = `<!doctype html>
   li::before { content: "▪"; color: #C9A227; position: absolute; left: 0; }
   .works { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; }
   .works li { font-size: 9pt; }
+  .process { font-size: 11pt; color: #E2E8F0; line-height: 1.7; }
   .footer { margin-top: auto; border-top: 0.3mm solid #24405F; padding-top: 4mm; display: flex; justify-content: space-between; font-size: 8.5pt; color: #C7D2E0; }
 </style>
 </head>
 <body>
   <div class="topline"></div>
-  <div class="kicker">${zh.hero.headlineA}${zh.hero.headlineB} · ONE-PAGER</div>
-  <h1>${zh.contact.headline} — ${zh.capabilities.tagline}</h1>
-  <p class="sub">${zh.about.intro} ${zh.about.body}</p>
+  <div class="kicker">${data.kicker || ""}</div>
+  <h1>${data.title || ""}</h1>
+  <p class="sub">${data.subtitle || ""}</p>
   <div class="stats">${stats}</div>
 
-  <h2>${zh.capabilities.eyebrow} · ${zh.capabilities.headline}</h2>
+  <h2>${data.servicesTitle || ""}</h2>
   <ul>${servicesList}</ul>
 
-  <h2>${zh.works.eyebrow} · ${zh.works.headline}</h2>
+  <h2>${data.worksTitle || ""}</h2>
   <ul class="works">${worksList}</ul>
 
-  <h2>${zh.how.eyebrow}</h2>
-  <p class="sub" style="margin-top:2mm">${zh.how.steps.map((s) => s.title).join(" → ")}</p>
+  <h2>${data.processTitle || ""}</h2>
+  <p class="process">${data.process || ""}</p>
 
   <div class="footer">
-    <span>${zh.brand} · paulstradecraft.com</span>
-    <span>${zh.contact.note}</span>
+    <span>${data.brand || ""} · ${data.url || ""}</span>
+    <span>${data.email || ""}</span>
   </div>
 </body>
 </html>`;
@@ -132,10 +112,14 @@ const r = spawnSync(chrome, [
   "--disable-gpu",
   "--no-first-run",
   "--no-sandbox", // GitHub Actions runner 無 sandbox 權限，需停用
+  "--disable-setuid-sandbox",
+  "--disable-dev-shm-usage", // 解決 CI /dev/shm 記憶體不足崩潰
+  "--font-render-hinting=none",
   "--no-pdf-header-footer",
+  "--virtual-time-budget=5000", // 等字型/網路載入
   `--print-to-pdf=${outPdf}`,
   `file://${tmpHtml.replace(/\\/g, "/")}`,
-], { stdio: "inherit", timeout: 60000 });
+], { stdio: "inherit", timeout: 90000 });
 
 fs.rmSync(tmpHtml, { force: true });
 

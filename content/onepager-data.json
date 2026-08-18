@@ -1,0 +1,32 @@
+{
+  "brand": "Paul's Tradecraft",
+  "url": "paulstradecraft.com",
+  "email": "paulchen1978@gmail.com",
+  "kicker": "AI COLLABORATION ONE-PAGER",
+  "title": "把商業問題，轉化成 AI 可以參與、人工可以掌控的流程與產品",
+  "subtitle": "15 年國際貿易總監 × AI 協作 | TOEIC 955 | Human-led, AI-accelerated",
+  "stats": [
+    { "value": "955", "label": "TOEIC (2019)" },
+    { "value": "15年", "label": "國際貿易總監" },
+    { "value": "23/23", "label": "Pilot 驗證通過" }
+  ],
+  "servicesTitle": "SERVICES · 我能幫你解決什麼",
+  "services": [
+    "AI Workflow Design — 把重複流程改造成 Human + AI 協作",
+    "AI-Native Prototyping — 想法快速變成可操作的 Web App / 工具",
+    "Trade & Business Systems — 把貿易實務變成 AI 可執行的系統",
+    "AI Agent Orchestration — 設計多 AI 之間的分工與審計"
+  ],
+  "worksTitle": "SELECTED WORKS · 精選作品",
+  "works": [
+    "窗簾軟裝 Pilot 追蹤器 · 23/23 驗證，3 期模擬",
+    "銷售 Pilot 案例簡報 · 公開 live demo",
+    "Lil Matt's Gaming World · 打字挑戰，可即時遊玩",
+    "AI Lyrics Generator · Python 桌面 App，本機生成",
+    "DSH Guide Deck · 簡報管線三版迭代",
+    "Expense Tracker · vanilla 實驗 16/16 驗證"
+  ],
+  "processTitle": "HOW I WORK · 人類主導，AI 加速",
+  "process": "人類決策 → AI 分工 → 人類審核 → 部署上線 → 冷審計",
+  "footer": "PAUL'S TRADECRAFT | AI COLLABORATION | paulstradecraft.com · paulchen1978@gmail.com"
+}
