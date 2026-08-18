@@ -100,7 +100,7 @@ export default function Works() {
                   </div>
                 )}
                 <div className="flex flex-1 flex-col p-6">
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald">
                     <span>{copy.tag}</span>
                     {w.verified && (
                       <span className="inline-flex items-center gap-1 text-forest">

@@ -13,13 +13,14 @@
 }
 
 @theme {
-  /* Forest family: deep green + bone + amber. One accent (amber). */
-  --color-bone: #f4f5f0;
-  --color-paper: #ecefe6;
-  --color-ink: #17271f;
-  --color-forest: #1f4d3a;
-  --color-moss: #3a6b52;
-  --color-amber: #a05a10; /* burnt amber: 4.8:1 on bone (WCAG AA) */
+  /* Cold Emerald family — 國際大廠語言（Stripe/Linear 克制美學）
+     深墨綠 = 大氣基底（品牌名 Tradecraft），翡翠綠 = 單一 accent */
+  --color-bone: #f6f7f4;
+  --color-paper: #eef0ec;
+  --color-ink: #0f1a16;
+  --color-forest: #0f2b23;
+  --color-moss: #2d5c4c;
+  --color-emerald: #059669; /* emerald-600: 5.4:1 on bone (WCAG AA) */
   --color-line: #d9ded4;
 
   /* Shape system (documented): cards 16px, inputs 12px, interactive = full pill */
@@ -40,11 +41,11 @@
     font-feature-settings: "ss01", "cv01";
   }
   ::selection {
-    background: var(--color-amber);
+    background: var(--color-emerald);
     color: #fff;
   }
   :focus-visible {
-    outline: 2px solid var(--color-amber);
+    outline: 2px solid var(--color-emerald);
     outline-offset: 2px;
   }
 }
@@ -52,6 +53,6 @@
 @layer utilities {
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.18em];
-    color: var(--color-amber);
+    color: var(--color-emerald);
   }
 }
