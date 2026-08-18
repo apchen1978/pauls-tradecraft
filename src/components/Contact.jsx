@@ -42,7 +42,7 @@ export default function Contact() {
           <a
             href="/files/Paul-Tradecraft-OnePager.pdf"
             download
-            className="inline-flex items-center gap-2 text-sm font-semibold text-emerald underline decoration-emerald/40 underline-offset-4 transition-colors hover:text-forest"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-forest underline decoration-forest/40 underline-offset-4 transition-colors hover:text-moss"
           >
             <FilePdf size={16} weight="bold" />
             {t.contact.onePager}

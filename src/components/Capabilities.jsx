@@ -32,7 +32,7 @@ export default function Capabilities() {
                   </span>
                   <div className="min-w-0">
                     <div className="flex items-baseline gap-2.5">
-                      <span className="text-xs font-bold tabular-nums text-emerald">
+                      <span className="text-xs font-bold tabular-nums text-amber">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <h3 className="text-base font-bold tracking-tight">{item.title}</h3>

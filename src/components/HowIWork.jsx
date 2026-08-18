@@ -21,7 +21,7 @@ export default function HowIWork() {
             transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.08 }}
             className="relative border-t-2 border-forest/15 pt-5"
           >
-            <span className="text-xs font-bold tabular-nums text-emerald">
+            <span className="text-xs font-bold tabular-nums text-amber">
               {String(i + 1).padStart(2, "0")}
             </span>
             <h3 className="mt-1.5 text-base font-bold tracking-tight">{s.title}</h3>

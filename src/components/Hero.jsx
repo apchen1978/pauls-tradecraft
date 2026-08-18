@@ -17,7 +17,7 @@ export default function Hero() {
         >
           {t.hero.headlineA}
           <br />
-          <span className="font-semibold text-emerald">{t.hero.headlineB}</span>
+          <span className="font-semibold text-forest">{t.hero.headlineB}</span>
         </motion.h1>
         <motion.p variants={fadeUp} className="mt-6 max-w-[52ch] text-base leading-relaxed text-ink/65 md:text-lg">
           {t.hero.sub}
@@ -31,7 +31,7 @@ export default function Hero() {
           </a>
           <a
             href="#about"
-            className="rounded-pill border border-emerald/40 px-6 py-3 text-sm font-semibold text-emerald transition-colors hover:border-emerald"
+            className="rounded-pill border border-forest/30 px-6 py-3 text-sm font-semibold text-forest transition-colors hover:border-forest"
           >
             {t.hero.ctaSecondary}
           </a>
@@ -41,7 +41,7 @@ export default function Hero() {
       <motion.figure
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.15 } }}
-        className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_24px_60px_-24px_rgba(15,43,35,0.4)]"
+        className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_24px_60px_-24px_rgba(31,77,58,0.35)]"
       >
         <img
           src="/images/cover-tracker.png"
@@ -49,7 +49,7 @@ export default function Hero() {
           className="aspect-[16/10] w-full object-cover object-top"
           loading="eager"
         />
-        <figcaption className="border-t border-line px-5 py-3.5 text-sm text-ink/65">{t.hero.imgCaption}</figcaption>
+        <figcaption className="border-t border-line px-5 py-3.5 text-sm text-ink/60">{t.hero.imgCaption}</figcaption>
       </motion.figure>
     </section>
   );

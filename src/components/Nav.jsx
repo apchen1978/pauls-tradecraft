@@ -23,7 +23,7 @@ export default function Nav() {
 
         <div className="hidden items-center gap-7 text-sm font-medium text-ink/75 lg:flex">
           {links.map((l) => (
-            <a key={l.href} href={l.href} className="transition-colors hover:text-emerald">
+            <a key={l.href} href={l.href} className="transition-colors hover:text-forest">
               {l.label}
             </a>
           ))}
@@ -32,7 +32,7 @@ export default function Nav() {
         <div className="flex items-center gap-3">
           <button
             onClick={toggle}
-            className="rounded-pill border border-line px-3 py-1.5 text-sm font-semibold text-ink/70 transition-colors hover:border-emerald hover:text-emerald"
+            className="rounded-pill border border-line px-3 py-1.5 text-sm font-semibold text-ink/70 transition-colors hover:border-forest hover:text-forest"
             aria-label="Switch language"
           >
             {t.langLabel}
