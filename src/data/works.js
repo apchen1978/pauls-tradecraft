@@ -1,6 +1,28 @@
 // 作品資料：全部來自 WORKLOG.md 與工作區實際產出。
-// 公開連結未知者誠實標 null，UI 顯示「公開連結待補」，不造假網址。
+// 公開連結規則（evidence-first）：
+//   - 只有從 GitHub/線上實測確認的公開 URL 才填入 link。
+//   - 未驗證者維持 null，UI 顯示「PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED」。
+//   - 禁止猜測 URL、禁止把 private repo 當作公開證據。
 export const works = [
+  {
+    id: "casebrief",
+    image: "/images/case-brief.png",
+    imageAlt: "銷售 Pilot 案例簡報",
+    span: "col-span-1",
+    verified: true,
+    link: "https://apchen1978.github.io/curtain-sales-pilot-demo/",
+    linkLabel: "Live demo",
+    zh: {
+      title: "銷售 Pilot 案例簡報",
+      desc: "單頁 A4 案例簡報，把 Pilot 成果濃縮成可對客戶交付的一頁證據。",
+      tag: "案例簡報 · PDF",
+    },
+    en: {
+      title: "Sales Pilot Case Brief",
+      desc: "A one-page A4 case brief distilling the pilot into a client-ready page of evidence.",
+      tag: "Case brief · PDF",
+    },
+  },
   {
     id: "tracker",
     image: "/images/tracker-dashboard.png",
@@ -17,24 +39,6 @@ export const works = [
       title: "Curtain Soft-Furnishing Pilot Tracker",
       desc: "One tracker from lead to quote to follow-up. Three simulation rounds, 23/23 dependency-free checks pass, with inspect evidence files.",
       tag: "Business tool · Excel",
-    },
-  },
-  {
-    id: "casebrief",
-    image: "/images/case-brief.png",
-    imageAlt: "銷售 Pilot 案例簡報",
-    span: "col-span-1",
-    verified: true,
-    link: null,
-    zh: {
-      title: "銷售 Pilot 案例簡報",
-      desc: "單頁 A4 案例簡報，把 Pilot 成果濃縮成可對客戶交付的一頁證據。",
-      tag: "案例簡報 · PDF",
-    },
-    en: {
-      title: "Sales Pilot Case Brief",
-      desc: "A one-page A4 case brief distilling the pilot into a client-ready page of evidence.",
-      tag: "Case brief · PDF",
     },
   },
   {

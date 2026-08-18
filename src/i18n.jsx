@@ -17,7 +17,7 @@ const dict = {
       eyebrow: "Selected Works",
       headline: "精選作品",
       sub: "每一件都有證據鏈：可重跑驗證、可檢視產出，不是 PPT 上的口號。",
-      linkPending: "公開連結待補",
+      linkPending: "PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED",
       statusVerified: "已驗證",
     },
     capabilities: {
@@ -81,7 +81,7 @@ const dict = {
       eyebrow: "Selected Works",
       headline: "Selected work",
       sub: "Every piece ships with an evidence chain: rerunnable checks, inspectable outputs, no empty claims.",
-      linkPending: "Public link pending",
+      linkPending: "PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED",
       statusVerified: "Verified",
     },
     capabilities: {
