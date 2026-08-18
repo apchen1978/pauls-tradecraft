@@ -1,5 +1,12 @@
 import { motion } from "motion/react";
-import { CheckCircle, ArrowUpRight, PresentationChart, GameController, Receipt } from "@phosphor-icons/react";
+import {
+  CheckCircle,
+  ArrowUpRight,
+  PresentationChart,
+  GameController,
+  Receipt,
+  CaretDown,
+} from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
 
@@ -8,6 +15,42 @@ const iconMap = {
   game: GameController,
   receipt: Receipt,
 };
+
+function CaseStudy({ c }) {
+  const { lang } = useLang();
+  const f = (field) => (field ? field[lang] : "");
+  return (
+    <details className="group mt-4 border-t border-line pt-4">
+      <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-forest [&::-webkit-details-marker]:hidden">
+        <span className="rounded-pill bg-forest/10 px-2.5 py-0.5 text-xs font-bold text-forest">{c.stage}</span>
+        <span className="flex-1">Case Study</span>
+        <CaretDown size={14} weight="bold" className="transition-transform group-open:rotate-180" />
+      </summary>
+      <dl className="mt-3 space-y-3 text-sm">
+        <div>
+          <dt className="font-semibold text-ink/80">Problem</dt>
+          <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.problem)}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-ink/80">Approach</dt>
+          <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.approach)}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-ink/80">AI / Tools</dt>
+          <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.tools)}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-ink/80">Result</dt>
+          <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.result)}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-ink/80">Evidence</dt>
+          <dd className="mt-0.5 break-words leading-relaxed text-ink/65">{f(c.evidence)}</dd>
+        </div>
+      </dl>
+    </details>
+  );
+}
 
 export default function Works() {
   const { lang, t } = useLang();
@@ -41,7 +84,7 @@ export default function Works() {
               transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
               className={`group flex flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 ${w.span}`}
             >
-              <Wrapper {...wrapperProps} className={w.link ? "flex flex-1 flex-col" : "flex flex-1 flex-col"}>
+              <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
                 {w.image ? (
                   <div className="overflow-hidden">
                     <img
@@ -69,10 +112,15 @@ export default function Works() {
                   <h3 className="mt-2.5 flex items-center gap-2 text-lg font-bold tracking-tight">
                     {copy.title}
                     {w.link && (
-                      <ArrowUpRight size={18} weight="bold" className="text-forest transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                      <ArrowUpRight
+                        size={18}
+                        weight="bold"
+                        className="text-forest transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                      />
                     )}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-ink/65">{copy.desc}</p>
+                  {w.case && <CaseStudy c={w.case} />}
                   <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
                     {w.link ? (
                       <span className="inline-flex items-center gap-1 text-forest">
