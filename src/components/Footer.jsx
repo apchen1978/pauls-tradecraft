@@ -11,7 +11,7 @@ export default function Footer() {
         </p>
       </div>
       <div className="mx-auto max-w-7xl px-4 pb-6 md:px-6">
-        <p className="border-t border-line pt-4 text-center text-xs text-ink/55">{t.footer.builtWith}</p>
+        <p className="border-t border-line pt-4 text-center text-xs text-ink/65">{t.footer.builtWith}</p>
       </div>
     </footer>
   );
