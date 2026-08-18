@@ -49,7 +49,7 @@ const dict = {
       body: "我用 AI 協作把貿易實務變成可交付的工具。風格是：專業，偶爾風趣；數字有據，說法不誇。",
       stats: [
         { value: "955", label: "TOEIC (2019)" },
-        { value: "15", label: "國際貿易總監" },
+        { value: "15年", label: "國際貿易總監" },
         { value: "23/23", label: "Pilot 驗證通過" },
       ],
     },
@@ -113,7 +113,7 @@ const dict = {
       body: "I use AI collaboration to turn trade practice into shippable tools. Style: professional, occasionally witty; numbers with receipts, claims without fluff.",
       stats: [
         { value: "955", label: "TOEIC (2019)" },
-        { value: "15", label: "Trade director" },
+        { value: "15 years", label: "Trade director" },
         { value: "23/23", label: "Pilot checks passed" },
       ],
     },
