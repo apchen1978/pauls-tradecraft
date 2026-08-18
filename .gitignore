@@ -3,3 +3,8 @@ dist
 .npm-cache
 *.local
 .DS_Store
+# one-pager PDF 由 CI 自動生成，不入庫
+public/files/
+.preview-onepager2
+.onepager.html
+.tmp-*

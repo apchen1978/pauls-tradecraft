@@ -239,3 +239,7 @@ export function LangProvider({ children }) {
 export function useLang() {
   return useContext(LangContext);
 }
+
+// 供自動化腳本（onepager 產生器）讀取資料
+export { dict };
+
