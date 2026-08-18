@@ -134,7 +134,7 @@ export const works = [
   },
   {
     id: "game",
-    cover: "/images/cover-game.png",
+    cover: "/images/cover-game.webp",
     imageAlt: "小麥遊戲世界打字挑戰",
     span: "col-span-1",
     verified: true,
@@ -176,7 +176,7 @@ export const works = [
   },
   {
     id: "lyrics",
-    cover: "/images/cover-lyrics.png",
+    cover: "/images/cover-lyrics.webp",
     imageAlt: "AI Lyrics Generator 桌面應用",
     span: "col-span-1",
     verified: true,
@@ -217,7 +217,7 @@ export const works = [
   },
   {
     id: "deck",
-    cover: "/images/cover-deck.png",
+    cover: "/images/cover-deck.webp",
     imageAlt: "DSH 快速指南簡報",
     span: "col-span-1",
     verified: true,
@@ -258,7 +258,7 @@ export const works = [
   },
   {
     id: "expense",
-    cover: "/images/cover-expense.png",
+    cover: "/images/cover-expense.webp",
     imageAlt: "Expense Tracker 收支實驗",
     span: "col-span-3",
     verified: true,

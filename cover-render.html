@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: "Geist";
+    src: url("file:///C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/public/fonts/geist-latin-wght-normal.woff2") format("woff2-variations");
+    font-weight: 100 900;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 800px; height: 450px; overflow: hidden; font-family: "Geist", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+  .cover { position: relative; width: 800px; height: 450px; display: flex; flex-direction: column; justify-content: space-between; padding: 44px 48px; color: #fff; overflow: hidden; }
+  .bg { position: absolute; inset: 0; background: var(--grad); }
+  .bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 85% -10%, rgba(255,255,255,0.16), transparent 55%); }
+  .deco { position: absolute; border: 1.5px solid rgba(255,255,255,0.14); border-radius: 50%; }
+  .deco.d1 { width: 340px; height: 340px; right: -90px; top: -110px; }
+  .deco.d2 { width: 220px; height: 220px; right: 40px; bottom: -80px; border-color: rgba(255,255,255,0.10); }
+  .deco.d3 { width: 90px; height: 90px; right: 200px; top: 60px; border-color: rgba(255,255,255,0.18); }
+  .grid-lines { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px); background-size: 56px 56px; }
+  .top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; }
+  .brand { font-size: 13px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
+  .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; padding: 5px 12px; border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.08); backdrop-filter: blur(6px); }
+  .main { position: relative; }
+  .kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent, #e8c48a); margin-bottom: 14px; }
+  .title { font-size: 40px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; max-width: 640px; }
+  .sub { margin-top: 12px; font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.74); max-width: 560px; line-height: 1.5; }
+  .bottom { position: relative; display: flex; justify-content: space-between; align-items: flex-end; }
+  .meta { font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+  .status { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #7dd3a0; box-shadow: 0 0 10px rgba(125,211,160,0.7); }
+</style>
+</head>
+<body>
+<div class="cover" style="--grad: linear-gradient(135deg,#1f4d3a,#17271f); --accent: #e8c48a;">
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="deco d1"></div><div class="deco d2"></div><div class="deco d3"></div>
+  <div class="top">
+    <span class="brand">Paul's Tradecraft</span>
+    <span class="badge">PROJECT</span>
+  </div>
+  <div class="main">
+    <div class="kicker">CASE STUDY</div>
+    <div class="title">Project Title</div>
+    <div class="sub">Description</div>
+  </div>
+  <div class="bottom">
+    <span class="meta">2026</span>
+    <span class="status"><span class="dot"></span>Verified</span>
+  </div>
+</div>
+<script>
+  const p = new URLSearchParams(location.search);
+  const g = p.get('grad') || 'linear-gradient(135deg,#1f4d3a,#17271f)';
+  const accent = p.get('accent') || '#e8c48a';
+  document.querySelector('.cover').style.setProperty('--grad', g);
+  document.querySelector('.cover').style.setProperty('--accent', accent);
+  document.querySelector('.brand').textContent = p.get('brand') || "Paul's Tradecraft";
+  document.querySelector('.badge').textContent = p.get('badge') || 'PROJECT';
+  document.querySelector('.kicker').textContent = p.get('kicker') || 'CASE STUDY';
+  document.querySelector('.title').textContent = p.get('title') || 'Project Title';
+  document.querySelector('.sub').textContent = p.get('sub') || 'Description';
+  document.querySelector('.meta').textContent = p.get('meta') || '2026';
+  document.querySelector('.status').lastChild.textContent = p.get('status') || 'Verified';
+</script>
+</body>
+</html>
