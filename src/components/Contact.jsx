@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { FilePdf } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
 export default function Contact() {
@@ -37,6 +38,14 @@ export default function Contact() {
             className="rounded-pill bg-forest px-7 py-3 text-sm font-bold text-bone transition-all hover:bg-moss active:scale-[0.98]"
           >
             {t.contact.cta}
+          </a>
+          <a
+            href="/files/Paul-Tradecraft-OnePager.pdf"
+            download
+            className="inline-flex items-center gap-2 text-sm font-semibold text-forest underline decoration-forest/40 underline-offset-4 transition-colors hover:text-moss"
+          >
+            <FilePdf size={16} weight="bold" />
+            {t.contact.onePager}
           </a>
           <p className="text-xs text-ink/65">{t.contact.note}</p>
         </motion.div>

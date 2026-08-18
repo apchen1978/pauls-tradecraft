@@ -96,6 +96,7 @@ const dict = {
       sub: "不管是貿易流程、簡報還是工具，談談你手上卡住的事。",
       cta: "聯絡我",
       note: "paulchen1978@gmail.com",
+      onePager: "下載一頁簡介 (PDF)",
     },
     footer: {
       line: "把貿易實務，做成看得見的工具。",
@@ -199,6 +200,7 @@ const dict = {
       sub: "Trade flows, decks, or tools: tell me what is stuck on your desk.",
       cta: "Contact",
       note: "paulchen1978@gmail.com",
+      onePager: "Download one-pager (PDF)",
     },
     footer: {
       line: "Turning trade practice into visible tools.",
