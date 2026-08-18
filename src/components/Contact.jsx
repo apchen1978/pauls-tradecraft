@@ -31,9 +31,9 @@ export default function Contact() {
           transition={{ duration: 0.5, ease: "easeOut", delay: 0.16 }}
           className="mt-8 flex flex-col items-center gap-3"
         >
-          {/* TODO: replace with the real public email address when ready */}
+          {/* 公開信箱：paulchen1978@gmail.com */}
           <a
-            href="mailto:contact@example.com"
+            href="mailto:paulchen1978@gmail.com"
             className="rounded-pill bg-forest px-7 py-3 text-sm font-bold text-bone transition-all hover:bg-moss active:scale-[0.98]"
           >
             {t.contact.cta}
