@@ -29,7 +29,7 @@ export default function Hero() {
           >
             {t.hero.headlineA}
             <br />
-            <span className="font-semibold text-gold">{t.hero.headlineB}</span>
+            <span className="font-semibold text-bone">{t.hero.headlineB}</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-6 max-w-[52ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}
