@@ -34,16 +34,16 @@ jobs:
       - name: Download headless Chrome (fast, no snap)
         run: |
           mkdir -p .chrome
-          curl -sL -o /tmp/cft.json "https://storage.googleapis.com/chrome-for-testing-public/last-known-good-versions-with-downloads.json"
-          CHROME_URL=$(node -e "const j=require('/tmp/cft.json');console.log(j.channels.Stable.downloads.chromeHeadlessShell.find(d=>d.platform==='linux64').url)")
+          curl -sL -o /tmp/cft.json "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
+          CHROME_URL=$(node -e "const j=require('/tmp/cft.json');console.log(j.channels.Stable.downloads.chrome.find(d=>d.platform==='linux64').url)")
           echo "CHROME_URL=$CHROME_URL" >> "$GITHUB_ENV"
-          curl -sL -o .chrome/shell.zip "$CHROME_URL"
-          cd .chrome && unzip -q shell.zip && rm shell.zip && cd ..
-          ls .chrome/chrome-headless-shell-linux64/
+          curl -sL -o .chrome/chrome.zip "$CHROME_URL"
+          cd .chrome && unzip -q chrome.zip && rm chrome.zip && cd ..
+          ls .chrome/chrome-linux64/chrome
       - name: Generate one-pager PDF (data-driven)
         run: node scripts/make-onepager.mjs
         env:
-          CHROME_PATH: ${{ github.workspace }}/.chrome/chrome-headless-shell-linux64/chrome-headless-shell
+          CHROME_PATH: ${{ github.workspace }}/.chrome/chrome-linux64/chrome
       - name: Build
         run: npm run build
       - name: Setup Pages
