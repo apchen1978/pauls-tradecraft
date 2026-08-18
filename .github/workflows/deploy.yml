@@ -27,13 +27,23 @@ jobs:
           cache: "npm"
       - name: Install dependencies
         run: npm ci
-      - name: Install Chromium for one-pager PDF
+      - name: Install CJK fonts (small, fast apt)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends chromium-browser fonts-noto-cjk
-          echo "CHROME_PATH=/usr/bin/chromium" >> "$GITHUB_ENV"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends fonts-noto-cjk
+      - name: Download headless Chrome (fast, no snap)
+        run: |
+          mkdir -p .chrome
+          curl -sL -o /tmp/cft.json "https://storage.googleapis.com/chrome-for-testing-public/last-known-good-versions-with-downloads.json"
+          CHROME_URL=$(node -e "const j=require('/tmp/cft.json');console.log(j.channels.Stable.downloads.chromeHeadlessShell.find(d=>d.platform==='linux64').url)")
+          echo "CHROME_URL=$CHROME_URL" >> "$GITHUB_ENV"
+          curl -sL -o .chrome/shell.zip "$CHROME_URL"
+          cd .chrome && unzip -q shell.zip && rm shell.zip && cd ..
+          ls .chrome/chrome-headless-shell-linux64/
       - name: Generate one-pager PDF (data-driven)
         run: node scripts/make-onepager.mjs
+        env:
+          CHROME_PATH: ${{ github.workspace }}/.chrome/chrome-headless-shell-linux64/chrome-headless-shell
       - name: Build
         run: npm run build
       - name: Setup Pages
