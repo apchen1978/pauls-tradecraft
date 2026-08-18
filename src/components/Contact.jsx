@@ -33,12 +33,20 @@ export default function Contact() {
           className="mt-8 flex flex-col items-center gap-3"
         >
           {/* 公開信箱：paulchen1978@gmail.com */}
-          <a
-            href="mailto:paulchen1978@gmail.com"
-            className="rounded-pill bg-forest px-7 py-3 text-sm font-bold text-bone transition-all hover:bg-moss active:scale-[0.98]"
-          >
-            {t.contact.cta}
-          </a>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <a
+              href="mailto:paulchen1978@gmail.com"
+              className="rounded-pill bg-forest px-7 py-3 text-sm font-bold text-bone transition-all hover:bg-moss active:scale-[0.98]"
+            >
+              {t.contact.cta}
+            </a>
+            <a
+              href={`mailto:paulchen1978@gmail.com?subject=${encodeURIComponent(t.contact.callSubject)}`}
+              className="rounded-pill border border-amber/50 px-7 py-3 text-sm font-semibold text-amber transition-colors hover:border-amber"
+            >
+              {t.contact.callCta}
+            </a>
+          </div>
           <a
             href="/files/Paul-Tradecraft-OnePager.pdf"
             download
