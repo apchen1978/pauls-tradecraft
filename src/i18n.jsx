@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { works: "作品", services: "能做什麼", about: "關於我", contact: "聯絡我" },
+    nav: { works: "作品", services: "服務", about: "關於我", contact: "聯絡我" },
     hero: {
       headlineA: "把貿易實務，",
       headlineB: "做成看得見的工具",
@@ -21,24 +21,29 @@ const dict = {
       statusVerified: "已驗證",
     },
     capabilities: {
-      eyebrow: "What I Can Do",
-      headline: "能做什麼",
+      eyebrow: "Services",
+      headline: "我能幫你解決什麼",
+      tagline: "把商業問題，轉化成 AI 可以參與、人工可以掌控、真正能運作的流程與產品。",
       items: [
         {
-          title: "貿易流程工具化",
-          desc: "報價、追蹤、跟進流程，產出可直接使用的 Excel 與工具，附驗證腳本。",
+          title: "AI Workflow Design",
+          desc: "把重複的商業流程，重新設計成 Human + AI 協作流程：從詢問、研究、資料整理、跟進到交付，找出 AI 適合介入的位置，同時保留人工審核與決策權。",
+          tags: "Workflow Audit · Human-in-the-loop · Automation · SOP",
         },
         {
-          title: "簡報與案例產出",
-          desc: "從 spec 到 PPTX 到 PDF 的簡報管線；單頁案例簡報、策略簡報皆可交付。",
+          title: "AI-Native Prototyping",
+          desc: "把一個想法快速變成可操作的產品：從需求拆解、prototype 到可部署的 Web App 與 internal tool，用 AI coding agents 加速迭代，不停留在簡報或概念。",
+          tags: "Prototype · Web App · Internal Tool · Vibe Coding",
         },
         {
-          title: "模擬與證據鏈",
-          desc: "每件作品可重跑模擬、逐項驗證，成果有據可查。",
+          title: "Trade & Business Systems",
+          desc: "把實際商業經驗轉成 AI 可執行與輔助的系統：lead qualification、supplier research、quotation preparation、follow-up、evidence tracking。",
+          tags: "Lead · Qualify · Research · Quote · Follow-up",
         },
         {
-          title: "中英雙語溝通",
-          desc: "國際貿易實務經驗，TOEIC 955，與客戶、供應商溝通零落差。",
+          title: "AI Agent Orchestration",
+          desc: "不是只使用一個 AI，而是設計 AI 之間如何協作：以不同 agents 建立 project context、handoff、audit、validation 與可追溯的工作流程。",
+          tags: "Agents · Context · Handoff · Audit · Validation",
         },
       ],
     },
@@ -85,24 +90,29 @@ const dict = {
       statusVerified: "Verified",
     },
     capabilities: {
-      eyebrow: "What I Can Do",
-      headline: "Capabilities",
+      eyebrow: "Services",
+      headline: "What I can help with",
+      tagline: "I turn business problems into AI-assisted workflows, prototypes, and working systems.",
       items: [
         {
-          title: "Trade workflow tooling",
-          desc: "Quotes, tracking, and follow-up flows turned into working Excel tools with verification scripts.",
+          title: "AI Workflow Design",
+          desc: "Redesign repetitive business processes into Human + AI collaboration: from inquiry, research, data organization, follow-up to delivery, finding where AI fits while keeping human review and decision authority.",
+          tags: "Workflow Audit · Human-in-the-loop · Automation · SOP",
         },
         {
-          title: "Decks & case briefs",
-          desc: "A spec-to-PPTX-to-PDF deck pipeline; one-page case briefs and strategy decks, ready to ship.",
+          title: "AI-Native Prototyping",
+          desc: "Turn an idea into a working product fast: from requirements breakdown and prototype to deployable web apps and internal tools, accelerated by AI coding agents instead of staying at the deck or concept stage.",
+          tags: "Prototype · Web App · Internal Tool · Vibe Coding",
         },
         {
-          title: "Simulation & evidence",
-          desc: "Every work can be rerun and checked item by item. Results are traceable, not decorative.",
+          title: "Trade & Business Systems",
+          desc: "Turn real business experience into systems AI can execute and assist: lead qualification, supplier research, quotation preparation, follow-up, evidence tracking.",
+          tags: "Lead · Qualify · Research · Quote · Follow-up",
         },
         {
-          title: "Bilingual communication",
-          desc: "International trade experience, TOEIC 955, zero-friction communication with clients and suppliers.",
+          title: "AI Agent Orchestration",
+          desc: "Design how multiple AIs collaborate, not just use one: project context, handoff, audit, validation, and traceable workflows across different agents.",
+          tags: "Agents · Context · Handoff · Audit · Validation",
         },
       ],
     },
