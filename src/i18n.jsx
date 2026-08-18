@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const dict = {
   zh: {
@@ -133,10 +133,22 @@ const dict = {
 
 const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 
+// 語言切換時同步 <html lang> 與 <title>（SEO / a11y）
+const titles = {
+  zh: "Paul's Tradecraft · 作品集總覽",
+  en: "Paul's Tradecraft · Portfolio",
+};
+
 export function LangProvider({ children }) {
   const [lang, setLang] = useState("zh");
   const t = dict[lang];
   const toggle = () => setLang((l) => (l === "zh" ? "en" : "zh"));
+
+  useEffect(() => {
+    document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+    document.title = titles[lang];
+  }, [lang]);
+
   return (
     <LangContext.Provider value={{ lang, t, toggle }}>
       {children}
