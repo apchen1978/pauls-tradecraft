@@ -45,14 +45,16 @@ const covers = [
   },
   {
     file: 'cover-game.webp',
-    grad: 'linear-gradient(135deg,#12402e,#071710)',
+    grad: 'linear-gradient(135deg,#0e2a3d,#061218)',
     accent: '#7dd3a0',
     badge: 'PLAYABLE',
     kicker: 'Typing Challenge',
-    title: "Lil Matt's World",
+    title: "Lil Matt's Gaming World",
     sub: 'English typing challenge with sound, live metrics, TTS and an adaptive learning shadow mode.',
     meta: 'Vite · TypeScript',
     status: 'Live demo',
+    gaming: '1',
+    hud: 'SCORE 042880,COMBO ×12,WPM 86',
   },
 ];
 
@@ -94,10 +96,12 @@ await send('Page.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: 800, height: 450, deviceScaleFactor: 1, mobile: false });
 
 for (const c of covers) {
-  const q = new URLSearchParams({
+  const params = {
     grad: c.grad, accent: c.accent, badge: c.badge, kicker: c.kicker,
     title: c.title, sub: c.sub, meta: c.meta, status: c.status,
-  }).toString();
+  };
+  if (c.gaming) { params.gaming = c.gaming; params.hud = c.hud; }
+  const q = new URLSearchParams(params).toString();
   const url = `${RENDER}?${q}`;
   await send('Page.navigate', { url });
   // 等字型與畫面完整載入

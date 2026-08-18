@@ -146,7 +146,7 @@ export const works = [
       tag: "遊戲 · 學習",
     },
     en: {
-      title: "Lil Matt's Typing Challenge",
+      title: "Lil Matt's Gaming World",
       desc: "English typing challenge inside SIGNAL//RIFT: seven features plus an Adaptive Learning Shadow Mode, playable live.",
       tag: "Game · Learning",
     },
