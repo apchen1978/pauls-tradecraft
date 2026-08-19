@@ -27,11 +27,12 @@ jobs:
           cache: "npm"
       - name: Install dependencies
         run: npm ci
-      - name: Install CJK fonts (fast apt with IPv4)
+      - name: Install CJK fonts (best-effort, never blocks deploy)
         run: |
-          sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=3 update -qq
-          sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=3 install -y -qq --no-install-recommends fonts-noto-cjk
-          fc-list | grep -i noto | head -3
+          # apt 偶發 hang：限時 90 秒，失敗不阻塞（PDF 由 health check 把關）
+          timeout 90 sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 update -qq || true
+          timeout 90 sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 install -y -qq --no-install-recommends fonts-noto-cjk || true
+          fc-list | grep -i noto | head -3 || true
       - name: Cache Chrome binary
         id: cache-chrome
         uses: actions/cache@v4
