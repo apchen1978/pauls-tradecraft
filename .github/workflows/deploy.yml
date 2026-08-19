@@ -27,12 +27,22 @@ jobs:
           cache: "npm"
       - name: Install dependencies
         run: npm ci
-      - name: Install CJK fonts (best-effort, never blocks deploy)
+      - name: Install CJK fonts (apt, with direct-download fallback)
         run: |
-          # apt 偶發 hang：限時 90 秒，失敗不阻塞（PDF 由 health check 把關）
-          timeout 90 sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 update -qq || true
-          timeout 90 sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 install -y -qq --no-install-recommends fonts-noto-cjk || true
-          fc-list | grep -i noto | head -3 || true
+          # 1) 嘗試 apt（限時，避免 hang）
+          timeout 120 sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 update -qq || echo "apt update failed, trying fallback"
+          timeout 120 sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 install -y -qq --no-install-recommends fonts-noto-cjk || echo "apt install failed, trying fallback"
+          # 2) 驗證；若 Noto CJK 未就緒，直接下載字型檔（雙保險）
+          if ! fc-list 2>/dev/null | grep -qi "Noto Sans CJK"; then
+            echo "Noto CJK missing, downloading directly"
+            sudo mkdir -p /usr/share/fonts/truetype/noto-cjk
+            curl -sL -o /tmp/NotoSansTC.zip "https://fonts.google.com/download?family=Noto%20Sans%20TC"
+            sudo unzip -o /tmp/NotoSansTC.zip -d /usr/share/fonts/truetype/noto-cjk > /dev/null 2>&1 || true
+            sudo fc-cache -f > /dev/null 2>&1 || true
+          fi
+          # 3) 最終驗證：沒有 CJK 字型就明確失敗（不讓壞 artifact 上線）
+          fc-list 2>/dev/null | grep -i "noto sans cjk" | head -3
+          fc-list 2>/dev/null | grep -qi "noto sans cjk" || { echo "FATAL: no CJK font available"; exit 1; }
       - name: Cache Chrome binary
         id: cache-chrome
         uses: actions/cache@v4
@@ -65,6 +75,23 @@ jobs:
           SIZE=$(stat -c%s dist/files/Paul-Tradecraft-OnePager.pdf)
           echo "one-pager.pdf size: $SIZE bytes"
           test "$SIZE" -gt 10240 || { echo "FAIL one-pager.pdf too small (possibly blank render)"; exit 1; }
+          # PDF 字形驗證：解壓流後必須含 CJK 字型名稱（Noto/JhengHei/PingFang），否則中文是 tofu
+          python3 -c "
+import zlib, re, sys
+data = open('dist/files/Paul-Tradecraft-OnePager.pdf','rb').read()
+streams = re.findall(rb'stream\r?\n(.*?)\r?\nendstream', data, re.DOTALL)
+allb = b''
+for s in streams:
+    try: allb += zlib.decompress(s)
+    except: pass
+blob = allb + data
+names = [b'Noto', b'JhengHei', b'PingFang', b'NotoSansCJK']
+found = [n.decode() for n in names if n in blob]
+print('PDF CJK font markers:', found if found else 'NONE')
+if not found:
+    print('FAIL: PDF missing CJK font (tofu risk)'); sys.exit(1)
+print('OK PDF embeds CJK font')
+" || { echo "FAIL PDF CJK font check"; exit 1; }
           grep -q '<title>' dist/index.html && echo "OK <title> present" || { echo "FAIL <title> missing"; exit 1; }
           grep -q 'og:image' dist/index.html && echo "OK og:image present" || { echo "FAIL og:image missing"; exit 1; }
           echo "== All health checks passed =="

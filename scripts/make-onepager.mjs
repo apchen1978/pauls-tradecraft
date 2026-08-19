@@ -37,7 +37,8 @@ const html = `<!doctype html>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     width: 210mm; height: 297mm; overflow: hidden;
-    font-family: "Geist Variable", "Segoe UI", "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif;
+    /* CJK 優先：Noto Sans CJK TC 是 Linux CI 裝的字型；本機 Windows 用 Microsoft JhengHei */
+    font-family: "Noto Sans CJK TC", "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", "Geist Variable", "Segoe UI", sans-serif;
     background: #0B1B33; color: #fff; padding: 16mm 16mm 14mm;
     display: flex; flex-direction: column;
   }
@@ -79,6 +80,16 @@ const html = `<!doctype html>
     <span>${data.brand || ""} · ${data.url || ""}</span>
     <span>${data.email || ""}</span>
   </div>
+  <script>
+    // 確保所有字型（含 CJK）載入完成，避免 PDF 產生 tofu
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        document.body.classList.add("fonts-ready");
+      });
+    } else {
+      document.body.classList.add("fonts-ready");
+    }
+  </script>
 </body>
 </html>`;
 
