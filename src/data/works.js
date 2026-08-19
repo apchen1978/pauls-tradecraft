@@ -153,20 +153,20 @@ export const works = [
     case: {
       stage: "Shadow Pilot",
       problem: {
-        zh: "打字練習缺乏即時回饋與個人化學習，且中文輸入法環境導致輸入錯誤；同時需要一個有吸引力的遊戲化載體。",
-        en: "Typing practice lacked real-time feedback and personalization, the Chinese IME environment caused input errors, and the whole experience needed a compelling gamified shell.",
+        zh: "英文打字練習往往枯燥、缺乏回饋，學習者很難持續；中文輸入法環境還常讓練習畫面誤判成「全部打錯」。",
+        en: "English typing practice tends to be dry and feedback-light, so learners struggle to stay engaged; in Chinese IME environments, the screen can even misjudge every key as wrong.",
       },
       approach: {
-        zh: "以「Read the Signal」精準節奏平台遊戲為主體（6 種移動模式、11 關原型、Level Editor），內建英語打字挑戰：32 篇分級文章 + 92 筆道地美式英語字彙（定義/中文/例句）、TTS 發音、DID YOU KNOW 知識卡、IME 全紅 bug 根治、Adaptive Learning Shadow Mode。",
-        en: "Built the Read the Signal precision rhythm platformer as the core (6 movement modes, 11 level prototypes, level editor), with a built-in English typing challenge: 32 graded passages, 92 authentic American English vocabulary notes (definition/translation/example), TTS pronunciation, DID YOU KNOW cards, IME red-text fixes, and an Adaptive Learning Shadow Mode.",
+        zh: "把打字練習包裝成真正好玩的遊戲：每打完一段立刻看到 WPM 與準確率、關卡循序漸進、用聲音與知識卡維持節奏。內建 32 篇分級挑戰與 92 筆美式英語字彙（定義/中文/例句），讓「練打字」同時「學英語」。",
+        en: "Turned typing practice into a genuinely fun game: instant WPM and accuracy feedback after every passage, progressive challenge levels, and audio plus knowledge cards to keep the rhythm. It ships with 32 graded challenges and 92 authentic American English vocabulary notes (definition/translation/example), so practicing typing also means learning real English.",
       },
       tools: {
         zh: "Vite + TypeScript + Canvas 2D · WebAudio · speechSynthesis（零後端、零依賴）",
         en: "Vite + TypeScript + Canvas 2D · WebAudio · speechSynthesis (no backend, zero runtime deps)",
       },
       result: {
-        zh: "雙模式皆完成；Shadow Mode 確定性驗證通過；headless Chrome 四路輸入測試通過。",
-        en: "Both modes complete; Shadow Mode determinism verified; four input paths tested in headless Chrome.",
+        zh: "經過多輪迭代測試與改進（IME 輸入修正、音效調整、版面優化），打字體驗穩定流暢；Shadow Mode 用可解釋的方式推薦練習方向。",
+        en: "Iterative testing and improvement (IME input fixes, audio tuning, layout refinements) made the typing experience stable and smooth; the Shadow Mode offers explainable practice recommendations.",
       },
       evidence: {
         zh: "公開 demo：https://apchen1978.github.io/signal-rift-typing-demo/",
