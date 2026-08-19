@@ -60,8 +60,12 @@ jobs:
           curl -sL -o .chrome/chrome.zip "$CHROME_URL"
           cd .chrome && unzip -q chrome.zip && rm chrome.zip && cd ..
           ls .chrome/chrome-linux64/chrome
-      - name: Generate one-pager PDF (data-driven)
-        run: node scripts/make-onepager.mjs
+      - name: Generate one-pager PDFs (ZH + EN, data-driven)
+        run: |
+          node scripts/make-onepager.mjs zh
+          node scripts/make-onepager.mjs en
+          # 相容 alias：舊檔名指向 ZH（避免已分享連結斷掉）
+          cp public/files/Paul-Tradecraft-OnePager-ZH.pdf public/files/Paul-Tradecraft-OnePager.pdf
         env:
           CHROME_PATH: ${{ github.workspace }}/.chrome/chrome-linux64/chrome
       - name: Build
@@ -72,12 +76,15 @@ jobs:
           echo "== Checking dist artifacts =="
           test -f dist/robots.txt && echo "OK robots.txt" || { echo "FAIL robots.txt missing"; exit 1; }
           test -f dist/sitemap.xml && echo "OK sitemap.xml" || { echo "FAIL sitemap.xml missing"; exit 1; }
-          test -f dist/files/Paul-Tradecraft-OnePager.pdf && echo "OK one-pager.pdf" || { echo "FAIL one-pager.pdf missing"; exit 1; }
-          SIZE=$(stat -c%s dist/files/Paul-Tradecraft-OnePager.pdf)
-          echo "one-pager.pdf size: $SIZE bytes"
-          test "$SIZE" -gt 10240 || { echo "FAIL one-pager.pdf too small (possibly blank render)"; exit 1; }
-          # PDF 字形驗證：內嵌 CJK 字型（Noto/JhengHei/PingFang）否則中文是 tofu
-          python3 scripts/check-pdf-font.py dist/files/Paul-Tradecraft-OnePager.pdf || { echo "FAIL PDF CJK font check"; exit 1; }
+          test -f dist/files/Paul-Tradecraft-OnePager-ZH.pdf && echo "OK one-pager-ZH.pdf" || { echo "FAIL one-pager-ZH.pdf missing"; exit 1; }
+          test -f dist/files/Paul-Tradecraft-OnePager-EN.pdf && echo "OK one-pager-EN.pdf" || { echo "FAIL one-pager-EN.pdf missing"; exit 1; }
+          SIZE=$(stat -c%s dist/files/Paul-Tradecraft-OnePager-ZH.pdf)
+          echo "one-pager-ZH.pdf size: $SIZE bytes"
+          test "$SIZE" -gt 10240 || { echo "FAIL one-pager-ZH.pdf too small (possibly blank render)"; exit 1; }
+          # ZH 字形驗證：內嵌 CJK 字型（Noto/JhengHei/PingFang）否則中文是 tofu
+          python3 scripts/check-pdf-font.py dist/files/Paul-Tradecraft-OnePager-ZH.pdf || { echo "FAIL ZH PDF CJK font check"; exit 1; }
+          # EN 驗證：單頁、可抽出英文、含預期 section（不要求 CJK）
+          python3 scripts/check-pdf-en.py dist/files/Paul-Tradecraft-OnePager-EN.pdf || { echo "FAIL EN PDF check"; exit 1; }
           grep -q '<title>' dist/index.html && echo "OK <title> present" || { echo "FAIL <title> missing"; exit 1; }
           grep -q 'og:image' dist/index.html && echo "OK og:image present" || { echo "FAIL og:image missing"; exit 1; }
           echo "== All health checks passed =="

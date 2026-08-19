@@ -3,7 +3,12 @@ import { FilePdf } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
 export default function Contact() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
+  // 依語言切換 One-Pager：中文模式 → ZH PDF，EN 模式 → EN PDF
+  const onePagerUrl =
+    lang === "en"
+      ? "/files/Paul-Tradecraft-OnePager-EN.pdf"
+      : "/files/Paul-Tradecraft-OnePager-ZH.pdf";
   return (
     <section id="contact" className="scroll-mt-24 border-t border-line bg-bone">
       <div className="mx-auto max-w-7xl px-4 py-20 text-center md:px-6 md:py-28">
@@ -48,7 +53,7 @@ export default function Contact() {
             </a>
           </div>
           <a
-            href="/files/Paul-Tradecraft-OnePager.pdf"
+            href={onePagerUrl}
             download
             className="inline-flex items-center gap-2 text-sm font-semibold text-forest underline decoration-forest/40 underline-offset-4 transition-colors hover:text-moss"
           >

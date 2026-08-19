@@ -1,0 +1,35 @@
+{
+  "locale": "en",
+  "lang": "en",
+  "brand": "Paul's Tradecraft",
+  "url": "paulstradecraft.com",
+  "email": "paulchen1978@gmail.com",
+  "kicker": "AI COLLABORATION ONE-PAGER",
+  "title": "Turning business problems into AI-assisted workflows, prototypes, and working systems",
+  "subtitle": "15 years as an international trade director, working with AI | TOEIC 955 | Human-led, AI-accelerated",
+  "stats": [
+    { "value": "955", "label": "TOEIC (2019)" },
+    { "value": "15", "label": "Years as trade director" },
+    { "value": "23/23", "label": "Pilot checks passed" }
+  ],
+  "servicesTitle": "SERVICES",
+  "services": [
+    "AI Workflow Design — reshape repetitive business processes into Human + AI collaboration",
+    "AI-Native Prototyping — turn an idea into a working web app or internal tool, fast",
+    "Trade & Business Systems — turn real trade practice into systems AI can execute and assist",
+    "AI Agent Orchestration — design how multiple AI agents divide work, with audit and validation"
+  ],
+  "worksTitle": "SELECTED WORKS",
+  "works": [
+    "Waste Time — a fun idle clicker with satisfying loops and level systems",
+    "Lil Matt's Gaming World — dual-mode original game, playable live",
+    "Curtain Soft-Furnishing Pilot Tracker — 23/23 verified, 3 simulation rounds",
+    "Sales Pilot Case Brief — public live demo",
+    "AI Lyrics Generator — Python desktop app, local generation",
+    "DSH Guide Deck — spec-to-deck pipeline, three iterations",
+    "Expense Tracker — vanilla experiments, 16/16 verified"
+  ],
+  "processTitle": "HOW I WORK",
+  "process": "Human decides → AI collaborates → Human reviews → Deploy → Cold audit",
+  "footer": "PAUL'S TRADECRAFT | AI COLLABORATION | paulstradecraft.com · paulchen1978@gmail.com"
+}
