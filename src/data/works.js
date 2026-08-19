@@ -181,7 +181,8 @@ export const works = [
     span: "col-span-2",
     icon: "game",
     verified: true,
-    link: null,
+    link: "https://apchen1978.github.io/wastetime/",
+    linkLabel: "Play the game",
     zh: {
       title: "浪費時間 (Waste Time)",
       desc: "點擊/放置小遊戲：Q 彈打擊感、CPS 聯動時鐘、WebAudio 晶片音、摸魚狂熱事件與關卡系統（8 套主題）。",
@@ -211,8 +212,8 @@ export const works = [
         en: "Rebuilt and playable; click, upgrade, frenzy, and level systems pass end-to-end headless Chrome tests.",
       },
       evidence: {
-        zh: "GitHub private repo（apchen1978/wastetime）＋本機專案資料夾，含自動化煙霧測試腳本與遊戲截圖。",
-        en: "GitHub private repo (apchen1978/wastetime) plus local project folder, with automation smoke-test scripts and game screenshots.",
+        zh: "公開 demo：https://apchen1978.github.io/wastetime/",
+        en: "Public demo: https://apchen1978.github.io/wastetime/",
       },
     },
   },
