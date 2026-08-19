@@ -17,34 +17,35 @@ const iconMap = {
 };
 
 function CaseStudy({ c }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
+  const labels = t.works.caseStudy;
   return (
-    <details className="group mt-4 border-t border-line pt-4">
+    <details className="group mt-4 border-t border-line px-6 pt-4 pb-6">
       <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-forest [&::-webkit-details-marker]:hidden">
         <span className="rounded-pill bg-forest/10 px-2.5 py-0.5 text-xs font-bold text-forest">{c.stage}</span>
-        <span className="flex-1">Case Study</span>
+        <span className="flex-1">{labels.label}</span>
         <CaretDown size={14} weight="bold" className="transition-transform group-open:rotate-180" />
       </summary>
       <dl className="mt-3 space-y-3 text-sm">
         <div>
-          <dt className="font-semibold text-ink/80">Problem</dt>
+          <dt className="font-semibold text-ink/80">{labels.problem}</dt>
           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.problem)}</dd>
         </div>
         <div>
-          <dt className="font-semibold text-ink/80">Approach</dt>
+          <dt className="font-semibold text-ink/80">{labels.approach}</dt>
           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.approach)}</dd>
         </div>
         <div>
-          <dt className="font-semibold text-ink/80">AI / Tools</dt>
+          <dt className="font-semibold text-ink/80">{labels.tools}</dt>
           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.tools)}</dd>
         </div>
         <div>
-          <dt className="font-semibold text-ink/80">Result</dt>
+          <dt className="font-semibold text-ink/80">{labels.result}</dt>
           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.result)}</dd>
         </div>
         <div>
-          <dt className="font-semibold text-ink/80">Evidence</dt>
+          <dt className="font-semibold text-ink/80">{labels.evidence}</dt>
           <dd className="mt-0.5 break-words leading-relaxed text-ink/65">{f(c.evidence)}</dd>
         </div>
       </dl>
@@ -120,7 +121,6 @@ export default function Works() {
                     )}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-ink/65">{copy.desc}</p>
-                  {w.case && <CaseStudy c={w.case} />}
                   <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
                     {w.link ? (
                       <span className="inline-flex items-center gap-1 text-forest">
@@ -133,6 +133,7 @@ export default function Works() {
                   </p>
                 </div>
               </Wrapper>
+              {w.case && <CaseStudy c={w.case} />}
             </motion.article>
           );
         })}

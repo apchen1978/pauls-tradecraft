@@ -19,6 +19,14 @@ const dict = {
       sub: "每一件都有證據鏈：可重跑驗證、可檢視產出，不是 PPT 上的口號。",
       linkPending: "PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED",
       statusVerified: "已驗證",
+      caseStudy: {
+        label: "案例研究",
+        problem: "問題",
+        approach: "方法",
+        tools: "AI／工具",
+        result: "結果",
+        evidence: "證據",
+      },
     },
     capabilities: {
       eyebrow: "Services",
@@ -125,6 +133,14 @@ const dict = {
       sub: "Every piece ships with an evidence chain: rerunnable checks, inspectable outputs, no empty claims.",
       linkPending: "PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED",
       statusVerified: "Verified",
+      caseStudy: {
+        label: "Case Study",
+        problem: "Problem",
+        approach: "Approach",
+        tools: "AI / Tools",
+        result: "Result",
+        evidence: "Evidence",
+      },
     },
     capabilities: {
       eyebrow: "Services",
@@ -246,4 +262,3 @@ export function useLang() {
 
 // 供自動化腳本（onepager 產生器）讀取資料
 export { dict };
-
