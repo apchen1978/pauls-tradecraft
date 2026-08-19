@@ -32,12 +32,13 @@ jobs:
           # 1) 嘗試 apt（限時，避免 hang）
           timeout 120 sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 update -qq || echo "apt update failed, trying fallback"
           timeout 120 sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 install -y -qq --no-install-recommends fonts-noto-cjk || echo "apt install failed, trying fallback"
-          # 2) 驗證；若 Noto CJK 未就緒，直接下載字型檔（雙保險）
+          # 2) 驗證；若 Noto CJK 未就緒，直接下載正式 OTF（雙保險）
           if ! fc-list 2>/dev/null | grep -qi "Noto Sans CJK"; then
-            echo "Noto CJK missing, downloading directly"
-            sudo mkdir -p /usr/share/fonts/truetype/noto-cjk
-            curl -sL -o /tmp/NotoSansTC.zip "https://fonts.google.com/download?family=Noto%20Sans%20TC"
-            sudo unzip -o /tmp/NotoSansTC.zip -d /usr/share/fonts/truetype/noto-cjk > /dev/null 2>&1 || true
+            echo "Noto CJK missing, downloading official OTF"
+            sudo mkdir -p /usr/share/fonts/opentype/noto-cjk
+            curl -sL --retry 3 -o /tmp/NotoSansCJKtc.otf "https://github.com/notofonts/noto-cjk/raw/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf"
+            ls -la /tmp/NotoSansCJKtc.otf
+            sudo cp /tmp/NotoSansCJKtc.otf /usr/share/fonts/opentype/noto-cjk/
             sudo fc-cache -f > /dev/null 2>&1 || true
           fi
           # 3) 最終驗證：沒有 CJK 字型就明確失敗（不讓壞 artifact 上線）
