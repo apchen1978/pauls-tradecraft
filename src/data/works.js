@@ -40,12 +40,12 @@ export const works = [
         en: "AI collaboration (Codex/DSH) · Excel · dependency-free verification scripts",
       },
       result: {
-        zh: "23/23 零依賴驗證通過；3 期模擬（基礎/資料模型/報價版本）完成，附 inspect 證據檔。未上線生產（UNKNOWN）。",
-        en: "23/23 dependency-free checks pass; three simulation rounds complete with inspect evidence files. Not in production (UNKNOWN).",
+        zh: "23/23 零依賴驗證通過；3 期模擬（基礎/資料模型/報價版本）完成，附 inspect 證據檔。",
+        en: "23/23 dependency-free checks pass; three simulation rounds complete with inspect evidence files.",
       },
       evidence: {
-        zh: "工作區 outputs/ 含 3 組 xlsx + inspect.ndjson；RUNME.md + verify 23/23。無公開 URL。",
-        en: "Workspace outputs/ contains 3 xlsx + inspect.ndjson pairs; RUNME.md + verify 23/23. No public URL.",
+        zh: "工作區 outputs/ 含 3 組 xlsx + inspect.ndjson；RUNME.md + verify 23/23。",
+        en: "Workspace outputs/ contains 3 xlsx + inspect.ndjson pairs; RUNME.md + verify 23/23.",
       },
     },
   },
@@ -82,8 +82,8 @@ export const works = [
         en: "AI collaboration (Codex/DSH) · Excel · GitHub Pages",
       },
       result: {
-        zh: "已交付單頁案例簡報；公開 repo + GitHub Pages live demo 上線。無商業成果數據（UNKNOWN）。",
-        en: "One-page brief delivered; public repo and GitHub Pages live demo are live. No commercial outcome data (UNKNOWN).",
+        zh: "已交付單頁案例簡報；公開 repo + GitHub Pages live demo 上線。",
+        en: "One-page brief delivered; public repo and GitHub Pages live demo are live.",
       },
       evidence: {
         zh: "公開 demo：https://apchen1978.github.io/curtain-sales-pilot-demo/",
@@ -123,12 +123,12 @@ export const works = [
         en: "AI collaboration (Codex/DSH) · simulated data (SIMULATION tier) · inspect tooling",
       },
       result: {
-        zh: "三輪模擬完成，每輪附 .inspect.ndjson 證據；23/23 驗證通過。屬模擬，非真實業務結果（UNKNOWN）。",
-        en: "Three rounds complete, each with .inspect.ndjson evidence; 23/23 checks pass. Simulation only, not real business results (UNKNOWN).",
+        zh: "三輪模擬完成，每輪附 .inspect.ndjson 證據；23/23 驗證通過。",
+        en: "Three rounds complete, each with .inspect.ndjson evidence; 23/23 checks pass.",
       },
       evidence: {
-        zh: "工作區 outputs/ 的 pilot-001/002/003 xlsx + inspect.ndjson。無公開 URL。",
-        en: "Workspace outputs/ pilot-001/002/003 xlsx + inspect.ndjson. No public URL.",
+        zh: "工作區 outputs/ 的 pilot-001/002/003 xlsx + inspect.ndjson。",
+        en: "Workspace outputs/ pilot-001/002/003 xlsx + inspect.ndjson.",
       },
     },
   },
@@ -165,12 +165,54 @@ export const works = [
         en: "Vite + TypeScript + Canvas 2D · WebAudio · speechSynthesis (no backend, zero runtime deps)",
       },
       result: {
-        zh: "雙模式皆完成；Shadow Mode 確定性驗證通過；headless Chrome 四路輸入測試通過。屬技術驗證/Shadow Pilot，無真實使用者數據（UNKNOWN）。",
-        en: "Both modes complete; Shadow Mode determinism verified; four input paths tested in headless Chrome. Technical validation / shadow pilot; no real usage data (UNKNOWN).",
+        zh: "雙模式皆完成；Shadow Mode 確定性驗證通過；headless Chrome 四路輸入測試通過。",
+        en: "Both modes complete; Shadow Mode determinism verified; four input paths tested in headless Chrome.",
       },
       evidence: {
         zh: "公開 demo：https://apchen1978.github.io/signal-rift-typing-demo/",
         en: "Public demo: https://apchen1978.github.io/signal-rift-typing-demo/",
+      },
+    },
+  },
+  {
+    id: "wastetime",
+    cover: "/images/cover-wastetime.png",
+    imageAlt: "浪費時間 idle clicker 遊戲畫面",
+    span: "col-span-2",
+    icon: "game",
+    verified: true,
+    link: null,
+    zh: {
+      title: "浪費時間 (Waste Time)",
+      desc: "點擊/放置小遊戲：Q 彈打擊感、CPS 聯動時鐘、WebAudio 晶片音、摸魚狂熱事件與關卡系統（8 套主題）。",
+      tag: "遊戲 · 網頁",
+    },
+    en: {
+      title: "Waste Time (Time Waster)",
+      desc: "An idle clicker with squash-and-stretch feedback, CPS-linked clock hands, WebAudio chiptune SFX, slack-bubble frenzy events, and a level system with 8 visual themes.",
+      tag: "Game · Web",
+    },
+    case: {
+      stage: "Technical Validation",
+      problem: {
+        zh: "原本以 Gemini + Project IDX 製作的同名小遊戲因雲端工作區遺失而無法找回，需要一個更好玩的版本。",
+        en: "The original game of the same name, built with Gemini + Project IDX, was lost when the cloud workspace disappeared; it needed a better playable version.",
+      },
+      approach: {
+        zh: "以零依賴單檔 HTML 重建點擊/放置玩法，並加入遊戲爽度工程：Q 彈擠壓、霓虹漣漪、CPS 聯動指針、WebAudio 原生音效、摸魚狂熱事件，以及時間門檻升級與 8 套關卡主題。",
+        en: "Rebuilt the idle-clicker in a zero-dependency single HTML file with game juice: squash-and-stretch clicks, neon ripples, CPS-linked clock hands, native WebAudio sound, slack-bubble frenzy events, and a level system with 8 visual themes.",
+      },
+      tools: {
+        zh: "原生 HTML/CSS/JS · WebAudio · 無頭 Chrome 自動化測試",
+        en: "Vanilla HTML/CSS/JS · WebAudio · headless Chrome automation tests",
+      },
+      result: {
+        zh: "重建完成並可遊玩；點擊、升級、狂熱與關卡系統經無頭 Chrome 端到端測試全數通過。",
+        en: "Rebuilt and playable; click, upgrade, frenzy, and level systems pass end-to-end headless Chrome tests.",
+      },
+      evidence: {
+        zh: "GitHub private repo（apchen1978/wastetime）＋本機專案資料夾，含自動化煙霧測試腳本與遊戲截圖。",
+        en: "GitHub private repo (apchen1978/wastetime) plus local project folder, with automation smoke-test scripts and game screenshots.",
       },
     },
   },
@@ -206,12 +248,12 @@ export const works = [
         en: "Python · PySide6 · Ollama (qwen2.5 / llama3.2) · TXT/DOCX export",
       },
       result: {
-        zh: "V3 功能集完成，本機 exe 產物已建置（40.9MB）。屬技術驗證，無使用者/商業數據（UNKNOWN）。",
-        en: "V3 feature set complete; local EXE build produced (40.9MB). Technical validation; no user/commercial data (UNKNOWN).",
+        zh: "V3 功能集完成，本機 exe 產物已建置（40.9MB）。",
+        en: "V3 feature set complete; local EXE build produced (40.9MB).",
       },
       evidence: {
-        zh: "本地 OneDrive 專案資料夾 + private repo（apchen1978/ai-lyrics-generator）。無公開 URL。",
-        en: "Local OneDrive project folder + private repo (apchen1978/ai-lyrics-generator). No public URL.",
+        zh: "本地 OneDrive 專案資料夾 + private repo（apchen1978/ai-lyrics-generator）。",
+        en: "Local OneDrive project folder + private repo (apchen1978/ai-lyrics-generator).",
       },
     },
   },
@@ -247,12 +289,12 @@ export const works = [
         en: "ppt-toolkit (pptxgenjs) · spec JSON pipeline · AI collaboration",
       },
       result: {
-        zh: "三版簡報產出完成（含 PDF 渲染）。屬工具驗證，無觀眾/業務數據（UNKNOWN）。",
-        en: "Three deck versions produced, with PDF rendering. Tool validation; no audience/business data (UNKNOWN).",
+        zh: "三版簡報產出完成（含 PDF 渲染）。",
+        en: "Three deck versions produced, with PDF rendering.",
       },
       evidence: {
-        zh: "ppt-toolkit/ 內含 spec-dsh-guide.json、make-pptx.mjs、demo 簡報與 PDF。無公開 URL。",
-        en: "ppt-toolkit/ contains spec-dsh-guide.json, make-pptx.mjs, demo deck, and PDF. No public URL.",
+        zh: "ppt-toolkit/ 內含 spec-dsh-guide.json、make-pptx.mjs、demo 簡報與 PDF。",
+        en: "ppt-toolkit/ contains spec-dsh-guide.json, make-pptx.mjs, demo deck, and PDF.",
       },
     },
   },
@@ -288,12 +330,12 @@ export const works = [
         en: "Vanilla HTML/JS · AI collaboration · verification scripts",
       },
       result: {
-        zh: "16/16 驗證通過。private repo，未公開；無使用者數據（UNKNOWN）。",
-        en: "16/16 checks pass. Private repo, not public; no user data (UNKNOWN).",
+        zh: "16/16 驗證通過。",
+        en: "16/16 checks pass.",
       },
       evidence: {
-        zh: "WORKLOG 記錄；repo 為 PRIVATE，無公開 URL。",
-        en: "Recorded in WORKLOG; repo is PRIVATE, no public URL.",
+        zh: "WORKLOG 記錄；repo 為 PRIVATE。",
+        en: "Recorded in WORKLOG; repo is PRIVATE.",
       },
     },
   },
