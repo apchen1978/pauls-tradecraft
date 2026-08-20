@@ -9,6 +9,47 @@
 // 封面（cover）：真實截圖裁切 16:9，或品牌設計封面（Forest family）。
 export const works = [
   {
+    id: "trade-deal-desk",
+    span: "col-span-2",
+    icon: "briefcase",
+    verified: true,
+    link: "https://apchen1978.github.io/ai-trade-deal-desk-demo/",
+    linkLabel: { zh: "查看公開 Demo", en: "Live demo" },
+    zh: {
+      title: "AI Trade Deal Desk",
+      desc: "把國際貿易 RFQ 判斷轉成 evidence-backed、human-in-the-loop 的商業決策工作流。",
+      tag: "貿易決策 · AI",
+    },
+    en: {
+      title: "AI Trade Deal Desk",
+      desc: "Turning trade RFQ judgment into an evidence-backed, human-in-the-loop commercial decision workflow.",
+      tag: "Trade decision · AI",
+    },
+    case: {
+      stage: { zh: "技術驗證", en: "Technical Validation" },
+      problem: {
+        zh: "外貿 RFQ 常包含缺漏資訊、供應商條件衝突與不能只靠最低價格判斷的商業風險。",
+        en: "Trade RFQs often arrive with incomplete information, conflicting supplier terms, and commercial risks that cannot be resolved by price alone.",
+      },
+      approach: {
+        zh: "把實務貿易判斷拆成 deterministic decision rules、UNKNOWN handling、供應商比較、evidence checks 與 human approval boundary。",
+        en: "I translated practical trade judgment into deterministic decision rules, UNKNOWN handling, supplier comparison, evidence checks, and explicit human approval boundaries.",
+      },
+      tools: {
+        zh: "React · Fixture-driven simulation · Deterministic decision engine · Evidence-first workflow · Cross-agent validation",
+        en: "React · Fixture-driven simulation · Deterministic decision engine · Evidence-first workflow · Cross-agent validation",
+      },
+      result: {
+        zh: "完成一套可操作的模擬 Trade Deal Desk，12 個商業案例全部通過預期決策驗證，並完成 Human-in-the-Loop decision snapshot。",
+        en: "A working Trade Deal Desk simulation with 12 validated commercial decision cases and an auditable local human decision snapshot.",
+      },
+      evidence: {
+        zh: "12/12 fixture cases PASS · 3/3 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Independent cross-agent audit PASS",
+        en: "12/12 fixture cases PASS · 3/3 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Independent cross-agent audit PASS",
+      },
+    },
+  },
+  {
     id: "tracker",
     cover: "/images/cover-tracker.png",
     imageAlt: { zh: "窗簾軟裝 Pilot 追蹤器儀表板", en: "Curtain soft-furnishing pilot tracker dashboard" },

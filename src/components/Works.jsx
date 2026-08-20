@@ -5,6 +5,7 @@ import {
   PresentationChart,
   GameController,
   Receipt,
+  Briefcase,
   CaretDown,
 } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
@@ -14,6 +15,7 @@ const iconMap = {
   presentation: PresentationChart,
   game: GameController,
   receipt: Receipt,
+  briefcase: Briefcase,
 };
 
 function CaseStudy({ c }) {
@@ -66,6 +68,7 @@ export default function Works() {
       <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
         {works.map((w, i) => {
           const copy = lang === "zh" ? w.zh : w.en;
+          const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
           const Icon = w.icon ? iconMap[w.icon] : null;
           const Wrapper = w.link ? "a" : "div";
           const wrapperProps = w.link
@@ -125,7 +128,7 @@ export default function Works() {
                     {w.link ? (
                       <span className="inline-flex items-center gap-1 text-forest">
                         <ArrowUpRight size={13} weight="bold" />
-                        {w.linkLabel}
+                        {linkLabel}
                       </span>
                     ) : (
                       t.works.linkPending
