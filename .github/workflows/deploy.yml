@@ -78,6 +78,8 @@ jobs:
           test -f dist/sitemap.xml && echo "OK sitemap.xml" || { echo "FAIL sitemap.xml missing"; exit 1; }
           test -f dist/files/Paul-Tradecraft-OnePager-ZH.pdf && echo "OK one-pager-ZH.pdf" || { echo "FAIL one-pager-ZH.pdf missing"; exit 1; }
           test -f dist/files/Paul-Tradecraft-OnePager-EN.pdf && echo "OK one-pager-EN.pdf" || { echo "FAIL one-pager-EN.pdf missing"; exit 1; }
+          test -f dist/files/Paul-Tradecraft-OnePager.pdf && echo "OK legacy one-pager alias" || { echo "FAIL legacy one-pager alias missing"; exit 1; }
+          cmp -s dist/files/Paul-Tradecraft-OnePager-ZH.pdf dist/files/Paul-Tradecraft-OnePager.pdf && echo "OK legacy alias matches ZH" || { echo "FAIL legacy alias differs from ZH PDF"; exit 1; }
           SIZE=$(stat -c%s dist/files/Paul-Tradecraft-OnePager-ZH.pdf)
           echo "one-pager-ZH.pdf size: $SIZE bytes"
           test "$SIZE" -gt 10240 || { echo "FAIL one-pager-ZH.pdf too small (possibly blank render)"; exit 1; }

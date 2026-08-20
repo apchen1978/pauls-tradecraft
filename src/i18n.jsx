@@ -238,6 +238,10 @@ const titles = {
   zh: "Paul's Tradecraft · 作品集總覽",
   en: "Paul's Tradecraft · Portfolio",
 };
+const ogDescriptions = {
+  zh: "國際貿易總監的作品集：用 AI 協作把貿易實務工具化。窗簾 Pilot 追蹤器、簡報管線、遊戲化學習。",
+  en: "A trade director's portfolio: turning trade practice into practical tools with AI collaboration.",
+};
 
 export function LangProvider({ children }) {
   const [lang, setLang] = useState("zh");
@@ -247,6 +251,8 @@ export function LangProvider({ children }) {
   useEffect(() => {
     document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
     document.title = titles[lang];
+    document.querySelector('meta[property="og:title"]')?.setAttribute("content", titles[lang]);
+    document.querySelector('meta[property="og:description"]')?.setAttribute("content", ogDescriptions[lang]);
   }, [lang]);
 
   return (

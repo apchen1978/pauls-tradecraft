@@ -11,7 +11,7 @@ export const works = [
   {
     id: "tracker",
     cover: "/images/cover-tracker.png",
-    imageAlt: "窗簾軟裝 Pilot 追蹤器儀表板",
+    imageAlt: { zh: "窗簾軟裝 Pilot 追蹤器儀表板", en: "Curtain soft-furnishing pilot tracker dashboard" },
     span: "col-span-2",
     verified: true,
     link: null,
@@ -26,7 +26,7 @@ export const works = [
       tag: "Business tool · Excel",
     },
     case: {
-      stage: "Technical Validation",
+      stage: { zh: "技術驗證", en: "Technical Validation" },
       problem: {
         zh: "窗簾軟裝銷售的商機、報價、跟進流程分散在多處，無法單一追蹤。",
         en: "Lead, quote, and follow-up flows were scattered, with no single tracking view.",
@@ -52,7 +52,7 @@ export const works = [
   {
     id: "casebrief",
     cover: "/images/cover-casebrief.png",
-    imageAlt: "銷售 Pilot 案例簡報",
+    imageAlt: { zh: "銷售 Pilot 案例簡報", en: "Sales Pilot case brief" },
     span: "col-span-1",
     verified: true,
     link: "https://apchen1978.github.io/curtain-sales-pilot-demo/",
@@ -68,7 +68,7 @@ export const works = [
       tag: "Case brief · PDF",
     },
     case: {
-      stage: "Shadow Pilot",
+      stage: { zh: "影子試點", en: "Shadow Pilot" },
       problem: {
         zh: "窗簾軟裝銷售的 Pilot 成果缺乏單頁可交付的證據形式，難以對客戶快速說明。",
         en: "Pilot results lacked a one-page, client-ready evidence format for quick explanation.",
@@ -94,7 +94,7 @@ export const works = [
   {
     id: "simulations",
     cover: "/images/cover-simulations.png",
-    imageAlt: "Pilot 模擬時間軸",
+    imageAlt: { zh: "Pilot 模擬時間軸", en: "Pilot simulation timeline" },
     span: "col-span-1",
     verified: true,
     link: null,
@@ -109,7 +109,7 @@ export const works = [
       tag: "Simulation · Verification",
     },
     case: {
-      stage: "Simulation",
+      stage: { zh: "模擬", en: "Simulation" },
       problem: {
         zh: "追蹤器的資料模型與報價版本機制未經真實資料驗證。",
         en: "The tracker's data model and quote-versioning mechanism were unvalidated against real data.",
@@ -135,7 +135,7 @@ export const works = [
   {
     id: "game",
     cover: "/images/cover-game.webp",
-    imageAlt: "Lil Matt's Gaming World 遊戲",
+    imageAlt: { zh: "Lil Matt's Gaming World 遊戲", en: "Lil Matt's Gaming World game" },
     span: "col-span-1",
     verified: true,
     link: "https://apchen1978.github.io/signal-rift-typing-demo/",
@@ -151,7 +151,7 @@ export const works = [
       tag: "Game · English Learning",
     },
     case: {
-      stage: "Shadow Pilot",
+      stage: { zh: "影子試點", en: "Shadow Pilot" },
       problem: {
         zh: "英文打字練習往往枯燥、缺乏回饋，學習者很難持續；中文輸入法環境還常讓練習畫面誤判成「全部打錯」。",
         en: "English typing practice tends to be dry and feedback-light, so learners struggle to stay engaged; in Chinese IME environments, the screen can even misjudge every key as wrong.",
@@ -177,7 +177,7 @@ export const works = [
   {
     id: "wastetime",
     cover: "/images/cover-wastetime.png",
-    imageAlt: "浪費時間 idle clicker 遊戲畫面",
+    imageAlt: { zh: "浪費時間 idle clicker 遊戲畫面", en: "Waste Time idle clicker game screen" },
     span: "col-span-2",
     icon: "game",
     verified: true,
@@ -194,7 +194,7 @@ export const works = [
       tag: "Game · Web",
     },
     case: {
-      stage: "Technical Validation",
+      stage: { zh: "技術驗證", en: "Technical Validation" },
       problem: {
         zh: "原本以 Gemini + Project IDX 製作的同名小遊戲因雲端工作區遺失而無法找回，需要一個更好玩的版本。",
         en: "The original game of the same name, built with Gemini + Project IDX, was lost when the cloud workspace disappeared; it needed a better playable version.",
@@ -220,7 +220,7 @@ export const works = [
   {
     id: "lyrics",
     cover: "/images/cover-lyrics.webp",
-    imageAlt: "AI Lyrics Generator 桌面應用",
+    imageAlt: { zh: "AI Lyrics Generator 桌面應用", en: "AI Lyrics Generator desktop app" },
     span: "col-span-1",
     verified: true,
     link: null,
@@ -235,7 +235,7 @@ export const works = [
       tag: "Desktop app · AI",
     },
     case: {
-      stage: "Technical Validation",
+      stage: { zh: "技術驗證", en: "Technical Validation" },
       problem: {
         zh: "歌詞創作缺乏本機、可離線的 AI 輔助流程：生成、評分、批評、重寫各自分散。",
         en: "Lyric writing lacked a local, offline-capable AI workflow: generation, scoring, critique, and rewrite were disconnected.",
@@ -261,7 +261,7 @@ export const works = [
   {
     id: "deck",
     cover: "/images/cover-deck.webp",
-    imageAlt: "DSH 快速指南簡報",
+    imageAlt: { zh: "DSH 快速指南簡報", en: "DSH quick guide deck" },
     span: "col-span-1",
     verified: true,
     link: null,
@@ -276,7 +276,7 @@ export const works = [
       tag: "Deck pipeline",
     },
     case: {
-      stage: "Technical Validation",
+      stage: { zh: "技術驗證", en: "Technical Validation" },
       problem: {
         zh: "簡報製作耗時且版本難控，缺乏可重跑的產出管線。",
         en: "Deck production was slow and hard to version, with no rerunnable output pipeline.",
@@ -302,7 +302,7 @@ export const works = [
   {
     id: "expense",
     cover: "/images/cover-expense.webp",
-    imageAlt: "Expense Tracker 收支實驗",
+    imageAlt: { zh: "Expense Tracker 收支實驗", en: "Expense Tracker experiments" },
     span: "col-span-3",
     verified: true,
     link: null,
@@ -317,7 +317,7 @@ export const works = [
       tag: "Experiments · Finance",
     },
     case: {
-      stage: "Technical Validation",
+      stage: { zh: "技術驗證", en: "Technical Validation" },
       problem: {
         zh: "個人收支追蹤的資料模型與 UI 形式未定，先以多個 vanilla 方案比較。",
         en: "Personal expense data model and UI form were undecided; compared multiple vanilla approaches.",

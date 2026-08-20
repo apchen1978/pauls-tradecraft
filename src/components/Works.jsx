@@ -23,7 +23,7 @@ function CaseStudy({ c }) {
   return (
     <details className="group mt-4 border-t border-line px-6 pt-4 pb-6">
       <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-forest [&::-webkit-details-marker]:hidden">
-        <span className="rounded-pill bg-forest/10 px-2.5 py-0.5 text-xs font-bold text-forest">{c.stage}</span>
+        <span className="rounded-pill bg-forest/10 px-2.5 py-0.5 text-xs font-bold text-forest">{f(c.stage)}</span>
         <span className="flex-1">{labels.label}</span>
         <CaretDown size={14} weight="bold" className="transition-transform group-open:rotate-180" />
       </summary>
@@ -90,7 +90,7 @@ export default function Works() {
                   <div className="overflow-hidden">
                     <img
                       src={w.cover}
-                      alt={w.imageAlt}
+                      alt={w.imageAlt[lang]}
                       loading="lazy"
                       className="aspect-[16/9] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
                     />
