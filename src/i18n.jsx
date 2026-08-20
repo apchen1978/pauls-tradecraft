@@ -97,7 +97,7 @@ const dict = {
           evidence: "HANDOFF 對齊 · 證據優先",
         },
       ],
-      note: "這個網站本身就是證據：Codex 建立 → DSH 接手 → 人工 review → 部署 → 待冷審計。",
+      note: "這個網站本身就是證據：Codex 建立 → DSH 接手 → 人工 review → 部署 → 已完成獨立審計 · PASS。",
     },
     contact: {
       headline: "一起做點有用的東西",
@@ -211,7 +211,7 @@ const dict = {
           evidence: "Handoff alignment · Evidence-first",
         },
       ],
-      note: "This site is its own evidence: Codex built it, DSH took over, a human reviewed, it deployed, and a cold audit is pending.",
+      note: "This site is its own evidence: Codex built it, DSH took over, a human reviewed, it deployed, and Independent Audit · PASS.",
     },
     contact: {
       headline: "Let's build something useful",
