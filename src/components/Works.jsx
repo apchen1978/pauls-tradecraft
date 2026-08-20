@@ -113,7 +113,7 @@ export default function Works() {
                       </span>
                     )}
                   </div>
-                  <h3 className="mt-2.5 flex items-center gap-2 text-lg font-bold tracking-tight">
+                  <h3 className={`mt-2.5 flex items-center gap-2 font-bold tracking-tight ${w.id === "trade-deal-desk" ? "text-xl md:text-[21px]" : "text-lg"}`}>
                     {copy.title}
                     {w.link && (
                       <ArrowUpRight
