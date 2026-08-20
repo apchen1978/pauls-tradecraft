@@ -10,7 +10,7 @@
 export const works = [
   {
     id: "trade-deal-desk",
-    span: "col-span-2",
+    span: "col-span-3 md:col-span-2",
     icon: "briefcase",
     verified: true,
     link: "https://apchen1978.github.io/ai-trade-deal-desk-demo/",
