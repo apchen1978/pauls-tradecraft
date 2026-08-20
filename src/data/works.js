@@ -4,7 +4,7 @@
 //   - 未驗證者維持 null，UI 顯示「PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED」。
 //   - 禁止猜測 URL、禁止把 private repo 當作公開證據。
 // Case Study schema（P1.5）：
-//   - case.stage 只能是：Prototype / Simulation / Shadow Pilot / Technical Validation（依證據選）
+//   - case.stage 只能是：Prototype / Simulation / Shadow Pilot / Technical Validation / Creative Build（依證據選）
 //   - 禁止虛構 ROI / conversion / customer result / usage metrics / commercial outcome。
 // 封面（cover）：真實截圖裁切 16:9，或品牌設計封面（Forest family）。
 export const works = [
@@ -380,6 +380,46 @@ export const works = [
       evidence: {
         zh: "WORKLOG 記錄；repo 為 PRIVATE。",
         en: "Recorded in WORKLOG; repo is PRIVATE.",
+      },
+    },
+  },
+  {
+    id: "mg-desktop-pet",
+    span: "col-span-1",
+    icon: "game",
+    verified: true,
+    link: null,
+    zh: {
+      title: "MG Desktop Pet",
+      desc: "把桌面寵物的想法做成可運行的小型桌面應用，結合角色動畫、桌面互動與多種寵物狀態。",
+      tag: "創意實作 · 桌面 App",
+    },
+    en: {
+      title: "MG Desktop Pet",
+      desc: "Turning a desktop-pet idea into a working desktop application with character animation, desktop interaction, and multiple pet states.",
+      tag: "Creative Build · Desktop App",
+    },
+    case: {
+      stage: { zh: "創意實作", en: "Creative Build" },
+      problem: {
+        zh: "將桌面寵物的概念落實為可執行的小型桌面應用。",
+        en: "Turn a desktop-pet idea into a runnable small desktop application.",
+      },
+      approach: {
+        zh: "以 Python + PySide6 實作透明、無邊框、置頂視窗，並以 QTimer 驅動既有 PNG 角色動畫影格與多種狀態。",
+        en: "Implemented a transparent, frameless, always-on-top window in Python + PySide6, using QTimer to drive existing PNG character frames across multiple states.",
+      },
+      tools: {
+        zh: "Python · PySide6 · QTimer · PNG 動畫影格",
+        en: "Python · PySide6 · QTimer · PNG animation frames",
+      },
+      result: {
+        zh: "Python 應用已成功啟動；來源實作包含拖曳、右鍵選單與鍵盤控制。",
+        en: "The Python application launches successfully; the source implementation includes drag, right-click menu, and keyboard controls.",
+      },
+      evidence: {
+        zh: "已驗證：PySide6 實作、透明無邊框置頂視窗、多種狀態動畫資產與 QTimer 動畫。未獨立驗證：畫面渲染、拖曳、右鍵及鍵盤互動行為。",
+        en: "Verified: PySide6 implementation, transparent frameless always-on-top window, multi-state animation assets, and QTimer animation. Not independently exercised: visual rendering, drag, right-click, and keyboard interaction behavior.",
       },
     },
   },
