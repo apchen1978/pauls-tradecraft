@@ -10,6 +10,8 @@
 export const works = [
   {
     id: "trade-deal-desk",
+    cover: "/images/cover-trade-deal-desk.png",
+    imageAlt: { zh: "AI Trade Deal Desk RFQ 決策工作區畫面", en: "AI Trade Deal Desk RFQ decision workspace" },
     span: "col-span-3 md:col-span-2",
     icon: "briefcase",
     verified: true,
