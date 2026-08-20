@@ -16,7 +16,7 @@ export const works = [
     icon: "briefcase",
     verified: true,
     link: "https://apchen1978.github.io/ai-trade-deal-desk-demo/",
-    linkLabel: { zh: "查看公開 Demo", en: "Live demo" },
+    linkLabel: { zh: "線上體驗", en: "Live Demo" },
     zh: {
       title: "AI Trade Deal Desk",
       desc: "把國際貿易 RFQ 判斷轉成 evidence-backed、human-in-the-loop 的商業決策工作流。",
@@ -99,7 +99,7 @@ export const works = [
     span: "col-span-1",
     verified: true,
     link: "https://apchen1978.github.io/curtain-sales-pilot-demo/",
-    linkLabel: "Live demo",
+    linkLabel: { zh: "線上體驗", en: "Live Demo" },
     zh: {
       title: "銷售 Pilot 案例簡報",
       desc: "單頁 A4 案例簡報，把 Pilot 成果濃縮成可對客戶交付的一頁證據。",
@@ -182,7 +182,7 @@ export const works = [
     span: "col-span-1",
     verified: true,
     link: "https://apchen1978.github.io/signal-rift-typing-demo/",
-    linkLabel: "Play the game",
+    linkLabel: { zh: "立即玩", en: "Play Now" },
     zh: {
       title: "Lil Matt's Gaming World",
       desc: "雙模式原創遊戲：「Read the Signal」精準節奏平台遊戲 + 內建英語學習打字挑戰（32 篇文章、92 筆道地美式英語字彙）。",
@@ -225,7 +225,7 @@ export const works = [
     icon: "game",
     verified: true,
     link: "https://apchen1978.github.io/wastetime/",
-    linkLabel: "Play the game",
+    linkLabel: { zh: "立即玩", en: "Play Now" },
     zh: {
       title: "浪費時間 (Waste Time)",
       desc: "點擊/放置小遊戲：Q 彈打擊感、CPS 聯動時鐘、WebAudio 晶片音、摸魚狂熱事件與關卡系統（8 套主題）。",
