@@ -385,10 +385,14 @@ export const works = [
   },
   {
     id: "mg-desktop-pet",
+    cover: "/images/cover-mg-desktop-pet.png",
+    imageAlt: { zh: "MG Desktop Pet 正面待機角色動畫影格", en: "MG Desktop Pet front-facing idle animation frame" },
+    imageFit: "contain",
     span: "col-span-1",
     icon: "game",
     verified: true,
     link: null,
+    hidePendingLink: true,
     zh: {
       title: "MG Desktop Pet",
       desc: "把桌面寵物的想法做成可運行的小型桌面應用，結合角色動畫、桌面互動與多種寵物狀態。",
@@ -418,8 +422,8 @@ export const works = [
         en: "The Python application launches successfully; the source implementation includes drag, right-click menu, and keyboard controls.",
       },
       evidence: {
-        zh: "已驗證：PySide6 實作、透明無邊框置頂視窗、多種狀態動畫資產與 QTimer 動畫。未獨立驗證：畫面渲染、拖曳、右鍵及鍵盤互動行為。",
-        en: "Verified: PySide6 implementation, transparent frameless always-on-top window, multi-state animation assets, and QTimer animation. Not independently exercised: visual rendering, drag, right-click, and keyboard interaction behavior.",
+        zh: "已確認應用程式可啟動並核對主要功能實作；目前未提供公開 Demo。畫面呈現與拖曳、右鍵、鍵盤互動尚未獨立實測。",
+        en: "The application launch and core implementation have been verified; no public demo is currently available. Visual rendering and drag, right-click, and keyboard interaction behavior have not been independently exercised.",
       },
     },
   },

@@ -95,7 +95,7 @@ export default function Works() {
                       src={w.cover}
                       alt={w.imageAlt[lang]}
                       loading="lazy"
-                      className="aspect-[16/9] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+                      className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02]`}
                     />
                   </div>
                 ) : (
@@ -130,9 +130,9 @@ export default function Works() {
                         <ArrowUpRight size={13} weight="bold" />
                         {linkLabel}
                       </span>
-                    ) : (
+                    ) : !w.hidePendingLink ? (
                       t.works.linkPending
-                    )}
+                    ) : null}
                   </p>
                 </div>
               </Wrapper>
