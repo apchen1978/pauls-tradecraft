@@ -22,13 +22,14 @@
   "servicesTitle": "SERVICES · 我能幫你解決什麼",
   "services": [
     "AI Workflow Design — 把重複流程改造成 Human + AI 協作",
-    "AI-Native Prototyping — 想法快速變成可操作的 Web App / 工具",
+    "軟裝品牌網站與銷售工具 — 對齊行銷、諮詢、報價與跟進的網站及輔助工具",
     "Trade & Business Systems — 把貿易實務變成 AI 可執行的系統",
     "AI Agent Orchestration — 設計多 AI 之間的分工與審計"
   ],
   "worksTitle": "SELECTED WORKS · 精選作品",
   "reviewedWorkIds": [
     "trade-deal-desk",
+    "mori-soft-furnishing-website",
     "tracker",
     "casebrief",
     "simulations",
@@ -42,6 +43,7 @@
   ],
   "works": [
     "AI Trade Deal Desk · 旗艦案例：貿易決策工作台，AI 建議＋人類審批，公開線上體驗",
+    "MORI 軟裝品牌網站與工作流程 · 私有交付案例：支援行銷與銷售推進的品牌網站及可重複流程",
     "窗簾軟裝 Pilot 追蹤器 · 商機到跟進的單一追蹤器，23/23 驗證",
     "銷售 Pilot 案例簡報 · 公開 live demo",
     "Lil Matt's Gaming World · 遊戲化英語學習，立即玩",

@@ -8,7 +8,7 @@ const dict = {
     hero: {
       headlineA: "把貿易實務，",
       headlineB: "做成看得見的工具",
-      sub: "國際貿易總監 × AI 協作：報價、追蹤、簡報，件件可驗證、可交付。",
+      sub: "國際貿易總監 × AI 協作：以品牌網站、銷售工具與可驗證流程，讓行銷、諮詢、報價與跟進更清楚。",
       ctaPrimary: "看作品",
       ctaSecondary: "認識我",
       imgCaption: "窗簾軟裝 Pilot 追蹤器 · 實際畫面",
@@ -49,9 +49,9 @@ const dict = {
           tags: "Workflow Audit · Human-in-the-loop · Automation · SOP",
         },
         {
-          title: "AI-Native Prototyping",
-          desc: "把一個想法快速變成可操作的產品：從需求拆解、prototype 到可部署的 Web App 與 internal tool，用 AI coding agents 加速迭代，不停留在簡報或概念。",
-          tags: "Prototype · Web App · Internal Tool · Vibe Coding",
+          title: "軟裝品牌網站與銷售工具",
+          desc: "不是為了多一個網站而做網站。協助窗簾與軟裝品牌把品味、服務、案例與諮詢入口做成清楚的銷售路徑，並建立 LINE、表單、報價、跟進與交付檢查等輔助工具，讓行銷與接單更能推進。",
+          tags: "Brand Website · Sales Enablement · LINE · Quote · Follow-up",
         },
         {
           title: "Trade & Business Systems",
@@ -132,7 +132,7 @@ const dict = {
     hero: {
       headlineA: "Turning trade practice",
       headlineB: "into visible tools",
-      sub: "Trade director × AI collaboration: quotes, tracking, decks. Every piece is verifiable and shippable.",
+      sub: "Trade director × AI collaboration: brand sites, sales tools, and verifiable workflows that clarify marketing, consultation, quoting, and follow-up.",
       ctaPrimary: "See the work",
       ctaSecondary: "About me",
       imgCaption: "Curtain soft-furnishing pilot tracker · live view",
@@ -173,9 +173,9 @@ const dict = {
           tags: "Workflow Audit · Human-in-the-loop · Automation · SOP",
         },
         {
-          title: "AI-Native Prototyping",
-          desc: "Turn an idea into a working product fast: from requirements breakdown and prototype to deployable web apps and internal tools, accelerated by AI coding agents instead of staying at the deck or concept stage.",
-          tags: "Prototype · Web App · Internal Tool · Vibe Coding",
+          title: "Soft-Furnishing Brand Sites & Sales Tools",
+          desc: "A website is not useful just because it exists. Help curtain and soft-furnishing brands turn their visual language, services, work, and consultation path into a clear sales journey, with supporting LINE, form, quote, follow-up, delivery, and launch-check tools.",
+          tags: "Brand Website · Sales Enablement · LINE · Quote · Follow-up",
         },
         {
           title: "Trade & Business Systems",

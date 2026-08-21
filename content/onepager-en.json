@@ -24,13 +24,14 @@
   "servicesTitle": "SERVICES",
   "services": [
     "AI Workflow Design — reshape repetitive business processes into Human + AI collaboration",
-    "AI-Native Prototyping — turn an idea into a working web app or internal tool, fast",
+    "Soft-Furnishing Brand Sites & Sales Tools — sites and support tools aligned to marketing, consultation, quoting, and follow-up",
     "Trade & Business Systems — turn real trade practice into systems AI can execute and assist",
     "AI Agent Orchestration — design how multiple AI agents divide work, with audit and validation"
   ],
   "worksTitle": "SELECTED WORKS",
   "reviewedWorkIds": [
     "trade-deal-desk",
+    "mori-soft-furnishing-website",
     "tracker",
     "casebrief",
     "simulations",
@@ -44,6 +45,7 @@
   ],
   "works": [
     "AI Trade Deal Desk — flagship: a trade decision workspace where AI recommends and a human approves, with a live public demo",
+    "MORI Soft-Furnishing Brand Website & Workflow — private delivery case: a brand site and repeatable workflow supporting marketing and sales progress",
     "Curtain Soft-Furnishing Pilot Tracker — one tracker from lead to follow-up, 23/23 verified",
     "Sales Pilot Case Brief — public live demo",
     "Lil Matt's Gaming World — gamified English learning, play now",
