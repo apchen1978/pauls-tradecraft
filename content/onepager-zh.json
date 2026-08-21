@@ -19,15 +19,14 @@
   ],
   "worksTitle": "SELECTED WORKS · 精選作品",
   "works": [
-    "浪費時間 · 點擊/放置小遊戲，爽度與關卡系統",
-    "Lil Matt's Gaming World · 雙模式原創遊戲，可即時遊玩",
-    "窗簾軟裝 Pilot 追蹤器 · 23/23 驗證，3 期模擬",
+    "AI Trade Deal Desk · 旗艦案例：貿易決策工作台，AI 建議＋人類審批，公開線上體驗",
+    "窗簾軟裝 Pilot 追蹤器 · 商機到跟進的單一追蹤器，23/23 驗證",
     "銷售 Pilot 案例簡報 · 公開 live demo",
+    "Lil Matt's Gaming World · 遊戲化英語學習，立即玩",
     "AI Lyrics Generator · Python 桌面 App，本機生成",
-    "DSH Guide Deck · 簡報管線三版迭代",
-    "Expense Tracker · vanilla 實驗 16/16 驗證"
+    "MG Desktop Pet · 桌面寵物創作實驗（輕量個人專案）"
   ],
   "processTitle": "HOW I WORK · 人類主導，AI 加速",
-  "process": "人類決策 → AI 分工 → 人類審核 → 部署上線 → 冷審計",
+  "process": "人類決策 → AI 分工 → 人類審核 → 部署上線 → 獨立複查",
   "footer": "PAUL'S TRADECRAFT | AI COLLABORATION | paulstradecraft.com · paulchen1978@gmail.com"
 }

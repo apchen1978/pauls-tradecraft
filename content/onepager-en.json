@@ -21,15 +21,14 @@
   ],
   "worksTitle": "SELECTED WORKS",
   "works": [
-    "Waste Time — a fun idle clicker with satisfying loops and level systems",
-    "Lil Matt's Gaming World — dual-mode original game, playable live",
-    "Curtain Soft-Furnishing Pilot Tracker — 23/23 verified, 3 simulation rounds",
+    "AI Trade Deal Desk — flagship: a trade decision workspace where AI recommends and a human approves, with a live public demo",
+    "Curtain Soft-Furnishing Pilot Tracker — one tracker from lead to follow-up, 23/23 verified",
     "Sales Pilot Case Brief — public live demo",
+    "Lil Matt's Gaming World — gamified English learning, play now",
     "AI Lyrics Generator — Python desktop app, local generation",
-    "DSH Guide Deck — spec-to-deck pipeline, three iterations",
-    "Expense Tracker — vanilla experiments, 16/16 verified"
+    "MG Desktop Pet — lightweight personal desktop-pet creative build"
   ],
   "processTitle": "HOW I WORK",
-  "process": "Human decides → AI collaborates → Human reviews → Deploy → Cold audit",
+  "process": "Human decides → AI collaborates → Human reviews → Deploy → Independent re-check",
   "footer": "PAUL'S TRADECRAFT | AI COLLABORATION | paulstradecraft.com · paulchen1978@gmail.com"
 }
