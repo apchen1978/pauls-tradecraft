@@ -9,7 +9,7 @@
     idle: { frames: ["idle/00", "idle/01", "idle/02", "idle/03", "idle/04", "idle/05"], delay: 220, loop: true },
     run: { frames: ["idle/00", "idle/01", "idle/02", "idle/03", "idle/04", "idle/05"], delay: 85, loop: true },
     wave: { frames: ["waving/00", "waving/01", "waving/02", "waving/03"], delay: 170, loop: false },
-    cute: { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04", "waving/00", "waving/01", "waving/02", "waving/03"], delay: 150, loop: false },
+    cute: { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04", "waving/00", "waving/01", "waving/02", "waving/03"], delay: 150, loop: true },
     jump: { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04"], delay: 110, loop: false },
     sleep: { frames: ["failed/00", "failed/01", "failed/02", "failed/03", "failed/04", "failed/05", "failed/06", "failed/07"], delay: 260, loop: true },
     wake: { frames: ["waiting/00", "waiting/01", "waiting/02", "waiting/03", "waiting/04", "waiting/05"], delay: 170, loop: false },
@@ -44,6 +44,8 @@
   function play(name, label, loop) {
     if (timer) { clearTimeout(timer); timer = null; }
     current = name;
+    pet.classList.toggle("running", name === "run");
+    pet.classList.toggle("cute-mode", name === "cute");
     var spec = ASSETS[name];
     var frames = preloaded[name];
     var i = 0;
