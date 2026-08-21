@@ -71,6 +71,10 @@ export default function Works() {
           const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
           const Icon = w.icon ? iconMap[w.icon] : null;
           const Wrapper = w.link ? "a" : "div";
+          const desktopSpan = w.span
+            .split(" ")
+            .filter((token) => token.startsWith("md:") || !token.startsWith("col-span-"))
+            .join(" ");
           const wrapperProps = w.link
             ? {
                 href: w.link,
@@ -86,7 +90,7 @@ export default function Works() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
-              className={`group flex flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 ${w.span}`}
+              className={`group flex flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 col-span-1 ${desktopSpan}`}
             >
               <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
                 {w.cover ? (
