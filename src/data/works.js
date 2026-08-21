@@ -32,24 +32,24 @@ export const works = [
     case: {
       stage: { zh: "創意建置", en: "Creative Build" },
       problem: {
-        zh: "核心問題不是缺少一個網站，而是品牌品味、服務說明、案例證明與聯絡入口彼此斷裂；行銷流量因而難以自然進入諮詢、報價與跟進節奏。",
-        en: "The core issue is not the absence of a website. Brand expression, service explanation, proof of work, and contact entry points are often disconnected, so marketing attention does not naturally move into consultation, quoting, and follow-up.",
+        zh: "核心問題不是缺少一個網站，而是缺少把「審美偏好」轉譯成「可以開始對話的商業訊號」的結構。當品牌品味、服務說明、案例證明與聯絡入口彼此斷裂，訪客無法快速判斷是否適合自己，也沒有清楚的下一步；行銷投入便容易停在注意力，而不是進入可管理的諮詢、報價與跟進節奏。對第一版而言，真正要解的是客戶路徑，而不是頁面數量。",
+        en: "The core issue is not the absence of a website, but the lack of a structure that translates aesthetic preference into a commercial signal worth acting on. When brand expression, service explanation, proof of work, and contact entry points are disconnected, visitors cannot quickly judge fit or see a clear next step; marketing attention can then stop short of manageable consultation, quoting, and follow-up. For a first version, the customer path matters more than the number of pages.",
       },
       approach: {
-        zh: "先定義最短可行客戶路徑：以生活感視覺建立第一信任，用服務與案例收斂需求，再以諮詢與 LINE 預留連接下一步。接著把素材、表單狀態、GitHub 交付與上線檢查模組化，讓後續可延伸至報價與跟進工具。",
-        en: "Defined the shortest viable customer path first: use interior imagery to establish initial trust, services and work to narrow the need, then consultation and a LINE placeholder to connect the next step. The asset, form-state, GitHub delivery, and launch-check flow was then modularized for later quoting and follow-up tools.",
+        zh: "策略上先做兩個取捨。第一，不以功能堆疊為目標，而是先打通最短可行客戶路徑：以室內情境建立第一信任，以服務與案例協助訪客定位需求，再以諮詢與 LINE 預留接到下一步。第二，不在缺少真實資料時虛構聯絡方式或收件服務；把未配置項目明確保留，避免把展示效果誤寫成已可運作的銷售系統。最後，將素材、前端表單狀態、GitHub 交付與上線檢查模組化，讓網站日後可接續報價與跟進工具。",
+        en: "The strategy made two deliberate choices. First, it avoided feature accumulation and opened the shortest viable customer path: interior scenes establish initial trust, services and work help visitors locate their need, and consultation plus a LINE placeholder connect the next step. Second, it does not invent contact destinations or receiving services when real data is missing; unconfigured items remain explicit so a showcase is not misrepresented as a live sales system. Assets, front-end form states, GitHub delivery, and launch checks were then modularized so the site can later connect to quoting and follow-up tools.",
       },
       tools: {
-        zh: "HTML · CSS · JavaScript · 圖像生成 · GitHub · 手機版檢視",
-        en: "HTML · CSS · JavaScript · Image generation · GitHub · Mobile review",
+        zh: "客戶路徑與內容架構 · 品牌視覺方向 · 響應式 HTML／CSS／JavaScript · 前端表單狀態 · 安全 LINE 預留 · GitHub 私有交付 · 手機版檢視",
+        en: "Customer-path and content architecture · Brand visual direction · Responsive HTML/CSS/JavaScript · Front-end form states · Safe LINE placeholder · Private GitHub delivery · Mobile review",
       },
       result: {
-        zh: "交付可本機檢視的 MORI 第一版品牌網站與可重複使用的軟裝網站建置 Skill。它是銷售輔助的基礎設施，而非對即時詢問、轉換或訂單成果的承諾；LINE／Email 未提供時，仍保留可見但不虛構的聯絡按鈕。",
-        en: "Delivered a locally viewable first MORI brand site and a reusable soft-furnishing site-building skill. It is sales-enablement infrastructure, not a claim of immediate inquiries, conversion, or orders; when LINE or email is not supplied, the contact button remains visible without inventing a destination.",
+        zh: "交付可本機檢視的 MORI 第一版品牌網站與可重複使用的軟裝網站建置 Skill。成品不只是首頁視覺，而是一個可移交的銷售輔助起點：客戶可在補齊 LINE、Email、表單收件與正式網域後，沿用既有結構推進諮詢與後續工具。已刻意把成果界定為「可部署、可延伸的基礎設施」；它不是對即時詢問、轉換或訂單成果的承諾。",
+        en: "Delivered a locally viewable first MORI brand site and a reusable soft-furnishing site-building skill. The output is more than homepage visuals: it is a handoff-ready sales-enablement starting point. Once LINE, email, form receiving, and a formal domain are supplied, the same structure can support consultation and subsequent tools. The result is deliberately defined as deployable, extensible infrastructure—not a claim of immediate inquiries, conversion, or orders.",
       },
       evidence: {
-        zh: "私有 GitHub repo：apchen1978/great-soft-furnishing-website，commit cb68c69；git diff --check 與 node --check script.js 已通過。尚未設定公開品牌網址、實際 LINE 或表單收件服務。",
-        en: "Private GitHub repo: apchen1978/great-soft-furnishing-website, commit cb68c69; git diff --check and node --check script.js passed. No public brand hosting, live LINE destination, or form-receiving service has been configured.",
+        zh: "已驗證的是交付物與程式基本品質：私有 GitHub repo `apchen1978/great-soft-furnishing-website` 的 commit `cb68c69`，以及 `git diff --check`、`node --check script.js`。尚未證明的項目也明確保留：沒有公開品牌網址、實際 LINE、表單收件服務、真實流量、詢問量、轉換率或訂單成果。因此，此案例證明的是建置與交付能力，而不是市場成效。",
+        en: "What is verified is the delivered artifact and basic code quality: private GitHub repo `apchen1978/great-soft-furnishing-website` at commit `cb68c69`, plus `git diff --check` and `node --check script.js`. What remains unproven is also explicit: no public brand domain, live LINE destination, form-receiving service, real traffic, inquiry volume, conversion rate, or order outcome. This case therefore evidences build and delivery capability—not market performance.",
       },
     },
   },
