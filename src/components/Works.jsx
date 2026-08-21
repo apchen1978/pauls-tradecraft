@@ -128,6 +128,12 @@ export default function Works() {
                     )}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-ink/65">{copy.desc}</p>
+                  {copy.caseSummary && (
+                    <p className="mt-4 border-l-2 border-amber/70 pl-3 text-sm leading-relaxed text-ink/75">
+                      <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}：</span>
+                      {copy.caseSummary}
+                    </p>
+                  )}
                   <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
                     {w.link ? (
                       <span className="inline-flex items-center gap-1 text-forest">
