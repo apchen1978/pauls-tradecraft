@@ -3,6 +3,7 @@
 //  - identity preserved; featured hook visible in ZH and EN
 //  - 83k → +52k → 135k visible; disclosure visible; CTA → Try surface (1 click)
 //  - Trade Deal Desk link unchanged + evidence 13/13 + 5/5
+//  - Trade Deal Desk execution-safety fixture disclosed as local-only 9/9 evidence
 //  - Payment Concentration card links to Try surface, prototype-only disclosure
 //  - no horizontal overflow
 import { spawn } from "node:child_process";
@@ -84,6 +85,8 @@ async function check(viewport, lang) {
   })()`);
   results.tddEvidence1313 = tddText.includes("13/13");
   results.tddEvidence55 = tddText.includes("5/5");
+  results.tddFixtureSafety = tddText.includes("9/9")
+    && (tddText.includes("no external adapter") || tddText.includes("無外部 Adapter"));
 
   results.pcLink = await ev(`(() => {
     const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Payment Concentration'));
@@ -125,7 +128,7 @@ try {
 
   const pass = (r) => r.identityHeadline && r.featuredHook && r.featured83k && r.featured52k && r.featured135k
     && r.featuredCaption && r.featuredDisclosure && r.featuredCtaText && r.featuredCtaHref === TRY
-    && r.tddLink === TDD && r.tddEvidence1313 && r.tddEvidence55
+    && r.tddLink === TDD && r.tddEvidence1313 && r.tddEvidence55 && r.tddFixtureSafety
     && r.pcLink === TRY && r.pcPrototypeOnly
     && r.noHorizontalOverflow && r.overflowAtBottom;
   const ok = pass(zd) && pass(zm) && pass(ed);

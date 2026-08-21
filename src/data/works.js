@@ -34,20 +34,20 @@ export const works = [
         en: "Trade RFQs often arrive with incomplete information, conflicting supplier terms, and commercial risks that cannot be resolved by price alone.",
       },
       approach: {
-        zh: "把實務貿易判斷拆成 deterministic decision rules、UNKNOWN handling、供應商比較、evidence checks 與 human approval boundary。",
-        en: "I translated practical trade judgment into deterministic decision rules, UNKNOWN handling, supplier comparison, evidence checks, and explicit human approval boundaries.",
+        zh: "把實務貿易判斷拆成 deterministic decision rules、UNKNOWN handling、供應商比較、evidence checks 與 human approval boundary；再以 fixture-only gateway 檢驗授權、版本與執行回執如何保持一致。",
+        en: "I translated practical trade judgment into deterministic decision rules, UNKNOWN handling, supplier comparison, evidence checks, and explicit human approval boundaries, then used a fixture-only gateway to test how authorization, version scope, and execution receipts remain aligned.",
       },
       tools: {
-        zh: "React · Fixture-driven simulation · Deterministic decision engine · Evidence-first workflow · Cross-agent validation",
-        en: "React · Fixture-driven simulation · Deterministic decision engine · Evidence-first workflow · Cross-agent validation",
+        zh: "React · Fixture-driven simulation · Deterministic decision engine · Local fixture gateway · Evidence-first workflow · Cross-agent validation",
+        en: "React · Fixture-driven simulation · Deterministic decision engine · Local fixture gateway · Evidence-first workflow · Cross-agent validation",
       },
       result: {
-        zh: "完成一套可操作的模擬 Trade Deal Desk，13 個商業案例全部通過預期決策驗證，並完成 Human-in-the-Loop decision snapshot。",
-        en: "A working Trade Deal Desk simulation with 13 validated commercial decision cases and an auditable local human decision snapshot.",
+        zh: "完成一套可操作的模擬 Trade Deal Desk，13 個商業案例全部通過預期決策驗證，並完成 Human-in-the-Loop decision snapshot；另完成只限本地模擬的 execution-safety fixture，驗證未授權動作不會跨出系統邊界。",
+        en: "A working Trade Deal Desk simulation with 13 validated commercial decision cases and an auditable local human decision snapshot, plus a local-only execution-safety fixture that verifies unauthorized actions do not cross the system boundary.",
       },
       evidence: {
-        zh: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Independent cross-agent audit PASS",
-        en: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Independent cross-agent audit PASS",
+        zh: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Execution-safety fixture 9/9 PASS（授權、重放、payload／版本調包、回執完整性；無外部 Adapter）· Independent cross-agent audit PASS",
+        en: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Execution-safety fixture 9/9 PASS (authorization, replay, payload/version swaps, receipt integrity; no external adapter) · Independent cross-agent audit PASS",
       },
     },
   },

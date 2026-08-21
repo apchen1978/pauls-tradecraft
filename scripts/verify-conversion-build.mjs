@@ -6,6 +6,7 @@
 //  - Trade Deal Desk card link unchanged
 //  - Payment Concentration card now links to the Try surface
 //  - Trade Deal Desk evidence corrected: 13/13 + 5/5
+//  - Trade Deal Desk execution-safety fixture disclosed as local-only 9/9 evidence
 //  - no horizontal overflow
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
@@ -110,6 +111,7 @@ async function check(viewport) {
   })()`);
   results.tddEvidence1313 = tddText.includes("13/13");
   results.tddEvidence55 = tddText.includes("5/5");
+  results.tddFixtureSafety = tddText.includes("9/9") && tddText.includes("無外部 Adapter");
   results.tddNoStale1212 = !tddText.includes("12/12") && !tddText.includes("3/3");
 
   // Payment Concentration evidence: published + prototype-only status
@@ -156,7 +158,7 @@ try {
     && r.tddLink === EXPECTED_TDD
     && r.pcLink === EXPECTED_TRY
     && r.pcLinkLabel && /Payment Prototype|付款原型/.test(r.pcLinkLabel)
-    && r.tddEvidence1313 && r.tddEvidence55 && r.tddNoStale1212
+    && r.tddEvidence1313 && r.tddEvidence55 && r.tddFixtureSafety && r.tddNoStale1212
     && r.pcPublishedEvidence && r.pcPrototypeOnly
     && r.noHorizontalOverflow && r.overflowAtBottom;
   const ok = pass(d) && pass(m);
