@@ -66,6 +66,43 @@ export default function Hero() {
           </figcaption>
         </motion.figure>
       </div>
+
+      {/* 20-second featured business proof — Payment Concentration (featured hook, not identity) */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.35 } }}
+        className="relative mx-auto max-w-7xl px-4 pb-16 md:px-6 md:pb-20"
+      >
+        <div className="rounded-card border border-bone/15 bg-pine/60 px-6 py-6 md:px-8 md:py-7">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{t.hero.featuredKicker}</p>
+          <p className="mt-2 max-w-2xl text-xl font-bold leading-snug text-bone md:text-2xl">
+            {t.hero.featuredHook1}
+            <br />
+            <span className="text-gold">{t.hero.featuredHook2}</span>
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-lg font-bold md:text-2xl">
+            <span className="text-bone">{t.hero.featuredBefore}</span>
+            <span aria-hidden className="text-bone/50">{t.hero.featuredArrow}</span>
+            <span className="text-gold">{t.hero.featuredIncrement}</span>
+            <span aria-hidden className="text-bone/50">{t.hero.featuredArrow}</span>
+            <span className="text-bone">{t.hero.featuredAfter}</span>
+          </div>
+          <p className="mt-2 text-sm text-bone/70">{t.hero.featuredCaption}</p>
+
+          <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p className="max-w-xl text-xs leading-relaxed text-bone/55">{t.hero.featuredDisclosure}</p>
+            <a
+              href="https://apchen1978.github.io/payment-concentration-demo/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex shrink-0 items-center justify-center rounded-pill bg-gold px-6 py-2.5 text-sm font-bold text-pine transition-all hover:brightness-110 active:scale-[0.98]"
+            >
+              {t.hero.featuredCta}
+            </a>
+          </div>
+        </div>
+      </motion.div>
     </section>
   );
 }

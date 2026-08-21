@@ -42,12 +42,12 @@ export const works = [
         en: "React · Fixture-driven simulation · Deterministic decision engine · Evidence-first workflow · Cross-agent validation",
       },
       result: {
-        zh: "完成一套可操作的模擬 Trade Deal Desk，12 個商業案例全部通過預期決策驗證，並完成 Human-in-the-Loop decision snapshot。",
-        en: "A working Trade Deal Desk simulation with 12 validated commercial decision cases and an auditable local human decision snapshot.",
+        zh: "完成一套可操作的模擬 Trade Deal Desk，13 個商業案例全部通過預期決策驗證，並完成 Human-in-the-Loop decision snapshot。",
+        en: "A working Trade Deal Desk simulation with 13 validated commercial decision cases and an auditable local human decision snapshot.",
       },
       evidence: {
-        zh: "12/12 fixture cases PASS · 3/3 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Independent cross-agent audit PASS",
-        en: "12/12 fixture cases PASS · 3/3 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Independent cross-agent audit PASS",
+        zh: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Independent cross-agent audit PASS",
+        en: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Independent cross-agent audit PASS",
       },
     },
   },
@@ -390,7 +390,8 @@ export const works = [
     span: "col-span-2",
     icon: "receipt",
     verified: true,
-    link: null,
+    link: "https://apchen1978.github.io/payment-concentration-demo/",
+    linkLabel: { zh: "試試付款原型", en: "Try the Payment Prototype" },
     zh: {
       title: "Payment Concentration",
       desc: "把「這個月哪 7 天的付款承諾最集中」變成可編輯、可對帳的確定性計算，逐幣別分開算，不用猜。",
@@ -420,8 +421,8 @@ export const works = [
         en: "The six-event fixture reproduces the contract result exactly: USD 83,000 before Deal C → USD 52,000 Deal C incremental in peak → USD 135,000 after (peak window Oct 12–18; contributors A 45,000 / B 38,000 / C 52,000). Editing dates or amounts recalculates instantly, and currencies never mix.",
       },
       evidence: {
-        zh: "六事件 canonical fixture 精確匹配 · 51/51 驗證通過 · 幣別分離驗證 · 無持久化／無外部服務 · 390px 手機驗證通過。此原型為本機 disposable prototype，尚未發布公開 demo（PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED）。",
-        en: "Six-event canonical fixture matches exactly · 51/51 checks pass · per-currency separation verified · no persistence / no external services · 390px mobile verification passes. This prototype is a local disposable build; no public demo is published yet (PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED).",
+        zh: "已發布為靜態合成 Try surface（公開 demo）。六事件 canonical fixture 精確匹配 · 51/51 驗證通過 · 幣別分離驗證 · 無持久化／無外部服務 · 390px 手機驗證通過。此為 prototype evidence：尚未證明優於 Excel、商業採用或支付意願。",
+        en: "Published as a static synthetic Try surface (public demo). Six-event canonical fixture matches exactly · 51/51 checks pass · per-currency separation verified · no persistence / no external services · 390px mobile verification passes. Prototype evidence only: Excel superiority, commercial adoption, and willingness-to-pay are not proven.",
       },
     },
   },
