@@ -1,11 +1,13 @@
 import { motion } from "motion/react";
 import { FlowArrow, Rocket, GlobeHemisphereWest, Network } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { softFurnishingService } from "../data/softFurnishingService.js";
 
 const icons = [FlowArrow, Rocket, GlobeHemisphereWest, Network];
 
 export default function Capabilities() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
+  const softFurnishing = softFurnishingService[lang];
   return (
     <section id="capabilities" className="scroll-mt-24 border-y border-line bg-paper/60">
       <div className="mx-auto max-w-7xl px-4 py-20 md:px-6 md:py-28">
@@ -14,6 +16,25 @@ export default function Capabilities() {
           <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.capabilities.headline}</h2>
           <p className="mt-4 text-base leading-relaxed text-ink/70">{t.capabilities.tagline}</p>
         </div>
+
+        <div className="mt-12 rounded-card border border-forest/20 bg-forest px-6 py-8 text-bone shadow-[0_20px_60px_-36px_rgba(11,27,51,0.8)] md:px-8 md:py-10">
+          <p className="text-[11px] font-bold tracking-[0.2em] text-gold">{softFurnishing.eyebrow}</p>
+          <h3 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight md:text-3xl">{softFurnishing.title}</h3>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-bone/75">{softFurnishing.summary}</p>
+
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+            {softFurnishing.pillars.map((pillar, index) => (
+              <div key={pillar.title} className="border-t border-bone/20 pt-4">
+                <p className="text-xs font-bold tracking-[0.16em] text-gold">{String(index + 1).padStart(2, "0")}</p>
+                <h4 className="mt-2 text-base font-bold tracking-tight text-bone">{pillar.title}</h4>
+                <p className="mt-2 text-sm leading-relaxed text-bone/70">{pillar.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-8 border-t border-bone/20 pt-5 text-sm leading-relaxed text-bone/80">{softFurnishing.boundary}</p>
+        </div>
+
         <div className="mt-12 grid grid-cols-1 gap-x-12 gap-y-10 sm:grid-cols-2">
           {t.capabilities.items.map((item, i) => {
             const Icon = icons[i % icons.length];
