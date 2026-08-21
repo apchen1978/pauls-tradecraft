@@ -444,7 +444,7 @@ export const works = [
     en: {
       title: "MG Desktop Pet",
       desc: "Turning a desktop-pet idea into a working desktop application with character animation, desktop interaction, and multiple pet states.",
-      tag: "Creative Build · Desktop App",
+      tag: "Creative Build · Cute Desktop Pet · Desktop App",
     },
     case: {
       stage: { zh: "創意實作", en: "Creative Build" },

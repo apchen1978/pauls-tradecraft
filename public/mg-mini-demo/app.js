@@ -7,7 +7,9 @@
 
   var ASSETS = {
     idle: { frames: ["idle/00", "idle/01", "idle/02", "idle/03", "idle/04", "idle/05"], delay: 220, loop: true },
+    run: { frames: ["idle/00", "idle/01", "idle/02", "idle/03", "idle/04", "idle/05"], delay: 85, loop: true },
     wave: { frames: ["waving/00", "waving/01", "waving/02", "waving/03"], delay: 170, loop: false },
+    cute: { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04", "waving/00", "waving/01", "waving/02", "waving/03"], delay: 150, loop: false },
     jump: { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04"], delay: 110, loop: false },
     sleep: { frames: ["failed/00", "failed/01", "failed/02", "failed/03", "failed/04", "failed/05", "failed/06", "failed/07"], delay: 260, loop: true },
     wake: { frames: ["waiting/00", "waiting/01", "waiting/02", "waiting/03", "waiting/04", "waiting/05"], delay: 170, loop: false },
@@ -73,6 +75,10 @@
     play("idle", null, true);
   }
 
+  function startRunning() {
+    if (current !== "run") play("run", "Running!", true);
+  }
+
   // Wake from sleep on click/tap (idle state follows).
   function wake() {
     if (current !== "sleep") return;
@@ -92,6 +98,7 @@
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
     try { pet.setPointerCapture(e.pointerId); } catch (_) {}
+    startRunning();
   });
 
   pet.addEventListener("pointermove", function (e) {
@@ -116,6 +123,7 @@
     if (e && e.pointerId !== undefined) {
       try { pet.releasePointerCapture(e.pointerId); } catch (_) {}
     }
+    returnToIdle();
   }
   pet.addEventListener("pointerup", endDrag);
   pet.addEventListener("pointercancel", endDrag);
@@ -127,6 +135,7 @@
 
   // --- Controls ---
   document.getElementById("btnWave").addEventListener("click", function () { play("wave", "Wave!", false); });
+  document.getElementById("btnCute").addEventListener("click", function () { play("cute", "Cute!", false); });
   document.getElementById("btnJump").addEventListener("click", function () { play("jump", "Jump!", false); });
   document.getElementById("btnSleep").addEventListener("click", function () { play("sleep", "Sleeping — click to wake", true); });
   document.getElementById("btnReset").addEventListener("click", function () {
