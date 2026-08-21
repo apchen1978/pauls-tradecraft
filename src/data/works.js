@@ -434,8 +434,8 @@ export const works = [
     span: "col-span-1",
     icon: "game",
     verified: true,
-    link: null,
-    hidePendingLink: true,
+    link: "/mg-mini-demo/",
+    linkLabel: { zh: "試用 Web Mini Demo", en: "Try Web Mini Demo" },
     zh: {
       title: "MG Desktop Pet",
       desc: "把桌面寵物的想法做成可運行的小型桌面應用，結合角色動畫、桌面互動與多種寵物狀態。",
@@ -465,8 +465,8 @@ export const works = [
         en: "The Python application launches successfully; the source implementation includes drag, right-click menu, and keyboard controls.",
       },
       evidence: {
-        zh: "已確認應用程式可啟動並核對主要功能實作；目前未提供公開 Demo。畫面呈現與拖曳、右鍵、鍵盤互動尚未獨立實測。",
-        en: "The application launch and core implementation have been verified; no public demo is currently available. Visual rendering and drag, right-click, and keyboard interaction behavior have not been independently exercised.",
+        zh: "已確認應用程式可啟動並核對主要功能實作；另提供 Web Mini Demo / Portfolio Adaptation，已驗證 390px、拖曳、Wave、Jump、Sleep 與 Reset。這不是完整 desktop app，原始桌面互動仍不宣稱已在 web 重現。",
+        en: "The desktop application launch and core implementation are verified; a Web Mini Demo / Portfolio Adaptation is also provided with 390px, drag, Wave, Jump, Sleep, and Reset checks. It is not the complete desktop application, and desktop-only behavior is not claimed as reproduced on the web.",
       },
     },
   },
