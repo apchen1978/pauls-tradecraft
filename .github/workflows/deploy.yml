@@ -70,6 +70,10 @@ jobs:
           CHROME_PATH: ${{ github.workspace }}/.chrome/chrome-linux64/chrome
       - name: Build
         run: npm run build
+      - name: One-Pager editorial review guardrail
+        run: |
+          # inventory 變更（新增/移除 Works）時要求編輯審查 One-Pager
+          python3 scripts/check-onepager-sync.py
       - name: Health check before deploy (fail fast)
         run: |
           set -e

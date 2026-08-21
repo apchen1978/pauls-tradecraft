@@ -18,6 +18,18 @@
     "AI Agent Orchestration — 設計多 AI 之間的分工與審計"
   ],
   "worksTitle": "SELECTED WORKS · 精選作品",
+  "reviewedWorkIds": [
+    "trade-deal-desk",
+    "tracker",
+    "casebrief",
+    "simulations",
+    "game",
+    "wastetime",
+    "lyrics",
+    "deck",
+    "expense",
+    "mg-desktop-pet"
+  ],
   "works": [
     "AI Trade Deal Desk · 旗艦案例：貿易決策工作台，AI 建議＋人類審批，公開線上體驗",
     "窗簾軟裝 Pilot 追蹤器 · 商機到跟進的單一追蹤器，23/23 驗證",

@@ -20,6 +20,18 @@
     "AI Agent Orchestration — design how multiple AI agents divide work, with audit and validation"
   ],
   "worksTitle": "SELECTED WORKS",
+  "reviewedWorkIds": [
+    "trade-deal-desk",
+    "tracker",
+    "casebrief",
+    "simulations",
+    "game",
+    "wastetime",
+    "lyrics",
+    "deck",
+    "expense",
+    "mg-desktop-pet"
+  ],
   "works": [
     "AI Trade Deal Desk — flagship: a trade decision workspace where AI recommends and a human approves, with a live public demo",
     "Curtain Soft-Furnishing Pilot Tracker — one tracker from lead to follow-up, 23/23 verified",
