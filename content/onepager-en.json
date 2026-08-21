@@ -8,9 +8,18 @@
   "title": "Turning business problems into AI-assisted workflows, prototypes, and working systems",
   "subtitle": "15 years as an international trade director, working with AI | TOEIC 955 | Human-led, AI-accelerated",
   "stats": [
-    { "value": "955", "label": "TOEIC (2019)" },
-    { "value": "15", "label": "Years as trade director" },
-    { "value": "23/23", "label": "Pilot checks passed" }
+    {
+      "value": "955",
+      "label": "TOEIC (2019)"
+    },
+    {
+      "value": "15",
+      "label": "Years as trade director"
+    },
+    {
+      "value": "23/23",
+      "label": "Pilot checks passed"
+    }
   ],
   "servicesTitle": "SERVICES",
   "services": [
@@ -30,7 +39,8 @@
     "lyrics",
     "deck",
     "expense",
-    "mg-desktop-pet"
+    "mg-desktop-pet",
+    "payment-concentration"
   ],
   "works": [
     "AI Trade Deal Desk — flagship: a trade decision workspace where AI recommends and a human approves, with a live public demo",

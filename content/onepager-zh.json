@@ -6,9 +6,18 @@
   "title": "把商業問題，轉化成 AI 可以參與、人工可以掌控的流程與產品",
   "subtitle": "15 年國際貿易總監 × AI 協作 | TOEIC 955 | Human-led, AI-accelerated",
   "stats": [
-    { "value": "955", "label": "TOEIC (2019)" },
-    { "value": "15年", "label": "國際貿易總監" },
-    { "value": "23/23", "label": "Pilot 驗證通過" }
+    {
+      "value": "955",
+      "label": "TOEIC (2019)"
+    },
+    {
+      "value": "15年",
+      "label": "國際貿易總監"
+    },
+    {
+      "value": "23/23",
+      "label": "Pilot 驗證通過"
+    }
   ],
   "servicesTitle": "SERVICES · 我能幫你解決什麼",
   "services": [
@@ -28,7 +37,8 @@
     "lyrics",
     "deck",
     "expense",
-    "mg-desktop-pet"
+    "mg-desktop-pet",
+    "payment-concentration"
   ],
   "works": [
     "AI Trade Deal Desk · 旗艦案例：貿易決策工作台，AI 建議＋人類審批，公開線上體驗",

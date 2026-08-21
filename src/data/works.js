@@ -384,6 +384,48 @@ export const works = [
     },
   },
   {
+    id: "payment-concentration",
+    cover: "/images/cover-payment-concentration.png",
+    imageAlt: { zh: "Payment Concentration 原型：滾動 7 日付款承諾高峰畫面", en: "Payment Concentration prototype: rolling 7-day payment-commitment peak" },
+    span: "col-span-2",
+    icon: "receipt",
+    verified: true,
+    link: null,
+    zh: {
+      title: "Payment Concentration",
+      desc: "把「這個月哪 7 天的付款承諾最集中」變成可編輯、可對帳的確定性計算，逐幣別分開算，不用猜。",
+      tag: "付款承諾 · 工具原型",
+    },
+    en: {
+      title: "Payment Concentration",
+      desc: "Turning “which 7 days this month carry the most payment commitment” into an editable, auditable, deterministic calculation — computed per currency, not guessed.",
+      tag: "Payment commitments · Tool prototype",
+    },
+    case: {
+      stage: { zh: "技術驗證", en: "Technical Validation" },
+      problem: {
+        zh: "談判新合約（Deal C）時，真正要回答的不是「整月付多少」，而是「把它加進來後，最集中的連續 7 個日曆日會多出多少付款承諾」。用試算表算很容易算錯窗、混幣別、而且無法快速對帳。",
+        en: "When negotiating a new deal (Deal C), the real question is not “what does the month total” but “how much extra payment commitment lands in the most concentrated 7-calendar-day window once it is added.” Spreadsheet answers are easy to get wrong — wrong window, mixed currencies, hard to audit quickly.",
+      },
+      approach: {
+        zh: "做一個刻意樸素、可與 Excel 公平對照的原型：一張可編輯的付款事件表（正好 Deal A / B / C），用確定性的滾動 7 日曆日演算法逐幣別算出三個數字——加入 Deal C 前的高峰、Deal C 在高峰中的增量、加入後的高峰——並列出貢獻事件與永久揭露。",
+        en: "Built a deliberately plain, Excel-fair prototype: one editable payment-event table (exactly Deal A / B / C) and a deterministic rolling 7-calendar-day calculation per currency producing three numbers — the peak before Deal C, Deal C's incremental commitment inside the peak, and the peak after — plus contributing events and a permanent disclosure.",
+      },
+      tools: {
+        zh: "原生 HTML/CSS/JS · 零依賴 · 確定性計算引擎 · Node 驗證套件 · 無頭 Chrome 驗證",
+        en: "Vanilla HTML/CSS/JS · zero dependencies · deterministic calculation engine · Node validation suite · headless Chrome verification",
+      },
+      result: {
+        zh: "預設六事件 fixture 精確重現契約結果：加入 Deal C 前 USD 83,000 → Deal C 高峰增量 USD 52,000 → 加入後 USD 135,000（高峰窗 Oct 12–18，貢獻者 A 45,000 / B 38,000 / C 52,000）；改日期或金額即時重算，幣別互不污染。",
+        en: "The six-event fixture reproduces the contract result exactly: USD 83,000 before Deal C → USD 52,000 Deal C incremental in peak → USD 135,000 after (peak window Oct 12–18; contributors A 45,000 / B 38,000 / C 52,000). Editing dates or amounts recalculates instantly, and currencies never mix.",
+      },
+      evidence: {
+        zh: "六事件 canonical fixture 精確匹配 · 51/51 驗證通過 · 幣別分離驗證 · 無持久化／無外部服務 · 390px 手機驗證通過。此原型為本機 disposable prototype，尚未發布公開 demo（PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED）。",
+        en: "Six-event canonical fixture matches exactly · 51/51 checks pass · per-currency separation verified · no persistence / no external services · 390px mobile verification passes. This prototype is a local disposable build; no public demo is published yet (PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED).",
+      },
+    },
+  },
+  {
     id: "mg-desktop-pet",
     cover: "/images/cover-mg-desktop-pet.png",
     imageAlt: { zh: "MG Desktop Pet 正面待機角色動畫影格", en: "MG Desktop Pet front-facing idle animation frame" },
