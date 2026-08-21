@@ -19,12 +19,12 @@ export const works = [
     linkLabel: { zh: "線上體驗", en: "Live Demo" },
     zh: {
       title: "AI Trade Deal Desk",
-      desc: "把國際貿易 RFQ 判斷轉成 evidence-backed、human-in-the-loop 的商業決策工作流。",
+      desc: "把國際貿易 RFQ 判斷轉成 evidence-backed、human-in-the-loop 的商業決策工作流，並延伸到可追溯的執行前安全檢查。",
       tag: "貿易決策 · AI",
     },
     en: {
       title: "AI Trade Deal Desk",
-      desc: "Turning trade RFQ judgment into an evidence-backed, human-in-the-loop commercial decision workflow.",
+      desc: "Turning trade RFQ judgment into an evidence-backed, human-in-the-loop commercial decision workflow, extended with traceable pre-execution safety checks.",
       tag: "Trade decision · AI",
     },
     case: {
