@@ -12,7 +12,7 @@
     "run-left": { frames: ["running-left/00", "running-left/01", "running-left/02", "running-left/03", "running-left/04", "running-left/05", "running-left/06", "running-left/07"], delay: 85, loop: true },
     "run-right": { frames: ["running-right/00", "running-right/01", "running-right/02", "running-right/03", "running-right/04", "running-right/05", "running-right/06", "running-right/07"], delay: 85, loop: true },
     wave: { frames: ["waving/00", "waving/01", "waving/02", "waving/03"], delay: 170, loop: false },
-    cute: { frames: ["waiting/00", "waiting/01", "waiting/02", "waiting/03", "waiting/04", "waiting/05"], delay: 170, loop: true },
+    cute: { frames: ["cute/00"], delay: 700, loop: true },
     jump: { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04"], delay: 110, loop: false },
     sleep: { frames: ["failed/00", "failed/01", "failed/02", "failed/03", "failed/04", "failed/05", "failed/06", "failed/07"], delay: 260, loop: true },
     wake: { frames: ["waiting/00", "waiting/01", "waiting/02", "waiting/03", "waiting/04", "waiting/05"], delay: 170, loop: false },
