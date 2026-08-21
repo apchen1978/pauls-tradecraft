@@ -9,6 +9,49 @@
 // 封面（cover）：真實截圖裁切 16:9，或品牌設計封面（Forest family）。
 export const works = [
   {
+    id: "mori-soft-furnishing-website",
+    cover: "/images/cover-mori-soft-furnishing.png",
+    imageAlt: { zh: "MORI 軟裝品牌網站首頁", en: "MORI soft-furnishing brand website homepage" },
+    span: "col-span-3 md:col-span-2",
+    icon: "briefcase",
+    verified: true,
+    link: null,
+    hidePendingLink: true,
+    zh: {
+      title: "MORI 軟裝品牌網站與工作流程",
+      desc: "以真實室內素材建立窗簾與軟裝品牌網站，並整理諮詢、LINE 預留、表單狀態與交付檢查，支援行銷與銷售推進。",
+      tag: "品牌網站 · 銷售輔助 · 軟裝工作流程",
+    },
+    en: {
+      title: "MORI Soft-Furnishing Brand Website & Workflow",
+      desc: "A curtain and soft-furnishing brand site built around interior imagery, with reusable consultation, LINE placeholder, form-state, and delivery checks that support marketing and sales progress.",
+      tag: "Brand website · Sales enablement · Soft-furnishing workflow",
+    },
+    case: {
+      stage: { zh: "創意建置", en: "Creative Build" },
+      problem: {
+        zh: "軟裝服務需要把風格、服務內容、案例與諮詢入口，串成能支援行銷、報價與跟進的銷售路徑；若沒有固定流程，每次建置也會重複摸索素材、聯絡方式與發布檢查。",
+        en: "Soft-furnishing services need to connect style, services, work, and consultation into a sales path that supports marketing, quoting, and follow-up. Without a repeatable process, each build also re-solves imagery, contact handling, and release checks.",
+      },
+      approach: {
+        zh: "以響應式靜態網站建立首頁、服務、案例、流程與諮詢結構；將視覺素材、LINE 安全預留、表單前端狀態、私有 GitHub 交付與基礎驗證整理為可複用工作流，後續可延伸至報價與跟進工具。",
+        en: "Built a responsive static site with home, services, work, process, and consultation sections; documented a reusable flow for visual assets, a safe LINE placeholder, front-end form states, private GitHub delivery, and basic checks, ready to extend into quoting and follow-up tools.",
+      },
+      tools: {
+        zh: "HTML · CSS · JavaScript · 圖像生成 · GitHub · 手機版檢視",
+        en: "HTML · CSS · JavaScript · Image generation · GitHub · Mobile review",
+      },
+      result: {
+        zh: "完成可本機檢視的 MORI 品牌網站，以及可重複使用的軟裝網站建置 Skill；LINE／Email 未提供時，保留可見但不虛構的聯絡按鈕。",
+        en: "Delivered a locally viewable MORI brand website and a reusable soft-furnishing site-building skill. When LINE or email is not supplied, the contact button remains visible without inventing a destination.",
+      },
+      evidence: {
+        zh: "私有 GitHub repo：apchen1978/great-soft-furnishing-website，commit cb68c69；git diff --check 與 node --check script.js 已通過。尚未設定公開品牌網址、實際 LINE 或表單收件服務。",
+        en: "Private GitHub repo: apchen1978/great-soft-furnishing-website, commit cb68c69; git diff --check and node --check script.js passed. No public brand hosting, live LINE destination, or form-receiving service has been configured.",
+      },
+    },
+  },
+  {
     id: "trade-deal-desk",
     cover: "/images/cover-trade-deal-desk.png",
     imageAlt: { zh: "AI Trade Deal Desk RFQ 決策工作區畫面", en: "AI Trade Deal Desk RFQ decision workspace" },
