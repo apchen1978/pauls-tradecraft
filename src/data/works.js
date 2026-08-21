@@ -21,29 +21,31 @@ export const works = [
       title: "MORI 軟裝品牌網站與工作流程",
       desc: "以真實室內素材建立窗簾與軟裝品牌網站，並整理諮詢、LINE 預留、表單狀態與交付檢查，支援行銷與銷售推進。",
       tag: "品牌網站 · 銷售輔助 · 軟裝工作流程",
+      caseSummary: "軟裝網站的價值不在於「有沒有做」，而在於能否把品牌信任、諮詢入口、案例佐證與後續跟進，串成一條可推進的客戶路徑。",
     },
     en: {
       title: "MORI Soft-Furnishing Brand Website & Workflow",
       desc: "A curtain and soft-furnishing brand site built around interior imagery, with reusable consultation, LINE placeholder, form-state, and delivery checks that support marketing and sales progress.",
       tag: "Brand website · Sales enablement · Soft-furnishing workflow",
+      caseSummary: "The value of a soft-furnishing website is not that it exists; it is whether it connects brand trust, consultation, proof of work, and follow-up into a customer path that can move forward.",
     },
     case: {
       stage: { zh: "創意建置", en: "Creative Build" },
       problem: {
-        zh: "軟裝服務需要把風格、服務內容、案例與諮詢入口，串成能支援行銷、報價與跟進的銷售路徑；若沒有固定流程，每次建置也會重複摸索素材、聯絡方式與發布檢查。",
-        en: "Soft-furnishing services need to connect style, services, work, and consultation into a sales path that supports marketing, quoting, and follow-up. Without a repeatable process, each build also re-solves imagery, contact handling, and release checks.",
+        zh: "核心問題不是缺少一個網站，而是品牌品味、服務說明、案例證明與聯絡入口彼此斷裂；行銷流量因而難以自然進入諮詢、報價與跟進節奏。",
+        en: "The core issue is not the absence of a website. Brand expression, service explanation, proof of work, and contact entry points are often disconnected, so marketing attention does not naturally move into consultation, quoting, and follow-up.",
       },
       approach: {
-        zh: "以響應式靜態網站建立首頁、服務、案例、流程與諮詢結構；將視覺素材、LINE 安全預留、表單前端狀態、私有 GitHub 交付與基礎驗證整理為可複用工作流，後續可延伸至報價與跟進工具。",
-        en: "Built a responsive static site with home, services, work, process, and consultation sections; documented a reusable flow for visual assets, a safe LINE placeholder, front-end form states, private GitHub delivery, and basic checks, ready to extend into quoting and follow-up tools.",
+        zh: "先定義最短可行客戶路徑：以生活感視覺建立第一信任，用服務與案例收斂需求，再以諮詢與 LINE 預留連接下一步。接著把素材、表單狀態、GitHub 交付與上線檢查模組化，讓後續可延伸至報價與跟進工具。",
+        en: "Defined the shortest viable customer path first: use interior imagery to establish initial trust, services and work to narrow the need, then consultation and a LINE placeholder to connect the next step. The asset, form-state, GitHub delivery, and launch-check flow was then modularized for later quoting and follow-up tools.",
       },
       tools: {
         zh: "HTML · CSS · JavaScript · 圖像生成 · GitHub · 手機版檢視",
         en: "HTML · CSS · JavaScript · Image generation · GitHub · Mobile review",
       },
       result: {
-        zh: "完成可本機檢視的 MORI 品牌網站，以及可重複使用的軟裝網站建置 Skill；LINE／Email 未提供時，保留可見但不虛構的聯絡按鈕。",
-        en: "Delivered a locally viewable MORI brand website and a reusable soft-furnishing site-building skill. When LINE or email is not supplied, the contact button remains visible without inventing a destination.",
+        zh: "交付可本機檢視的 MORI 第一版品牌網站與可重複使用的軟裝網站建置 Skill。它是銷售輔助的基礎設施，而非對即時詢問、轉換或訂單成果的承諾；LINE／Email 未提供時，仍保留可見但不虛構的聯絡按鈕。",
+        en: "Delivered a locally viewable first MORI brand site and a reusable soft-furnishing site-building skill. It is sales-enablement infrastructure, not a claim of immediate inquiries, conversion, or orders; when LINE or email is not supplied, the contact button remains visible without inventing a destination.",
       },
       evidence: {
         zh: "私有 GitHub repo：apchen1978/great-soft-furnishing-website，commit cb68c69；git diff --check 與 node --check script.js 已通過。尚未設定公開品牌網址、實際 LINE 或表單收件服務。",

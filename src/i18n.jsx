@@ -31,6 +31,7 @@ const dict = {
       statusVerified: "已驗證",
       caseStudy: {
         label: "案例研究",
+        takeaway: "核心判斷",
         problem: "挑戰",
         approach: "我的做法",
         tools: "技術與 AI",
@@ -155,6 +156,7 @@ const dict = {
       statusVerified: "Verified",
       caseStudy: {
         label: "Case Study",
+        takeaway: "Key takeaway",
         problem: "Challenge",
         approach: "Approach",
         tools: "Technology & AI",
