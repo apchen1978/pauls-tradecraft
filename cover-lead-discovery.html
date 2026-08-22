@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: "Geist Variable";
+    src: url("file:///C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/public/fonts/geist-latin-wght-normal.woff2") format("woff2-variations");
+    font-weight: 100 900;
+  }
+  :root {
+    --bone: #f4f5f0;
+    --paper: #ecefe6;
+    --ink: #17271f;
+    --forest: #1f4d3a;
+    --moss: #3a6b52;
+    --amber: #a05a10;
+    --gold: #c9973f;
+    --line: #d9ded4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1440px; height: 810px; overflow: hidden;
+    font-family: "Geist Variable", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: var(--bone); color: var(--ink);
+  }
+  .cover {
+    position: relative; width: 1440px; height: 810px;
+    padding: 48px 72px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  /* 網格紋理 */
+  .grid {
+    position: absolute; inset: 0; opacity: 0.05;
+    background-image: linear-gradient(rgba(23,39,31,0.6) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(23,39,31,0.6) 1px, transparent 1px);
+    background-size: 56px 56px; pointer-events: none;
+  }
+  .deco {
+    position: absolute; border: 1.5px solid rgba(31,77,58,0.10); border-radius: 50%;
+  }
+  .deco.d1 { width: 360px; height: 360px; right: -110px; top: -130px; }
+  .deco.d2 { width: 220px; height: 220px; left: -70px; bottom: -90px; border-color: rgba(160,90,16,0.10); }
+
+  .top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; }
+  .brand { font-size: 14px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--moss); }
+  .kicker { font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); }
+
+  .main { position: relative; margin-top: 20px; }
+  .title {
+    font-size: 54px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05;
+    color: var(--forest); max-width: 900px;
+  }
+  .flow {
+    display: flex; align-items: center; gap: 16px; margin-top: 20px; flex-wrap: nowrap;
+  }
+  .flow .step { display: flex; align-items: center; gap: 10px; }
+  .flow .num {
+    font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.03em;
+    color: var(--forest); font-variant-numeric: tabular-nums;
+  }
+  .flow .num.gold { color: var(--amber); }
+  .flow .lbl { font-size: 15px; font-weight: 600; color: var(--moss); max-width: 120px; line-height: 1.2; }
+  .flow .arrow { font-size: 26px; color: var(--gold); font-weight: 700; }
+
+  .chips { display: flex; gap: 12px; margin-top: 22px; flex-wrap: nowrap; }
+  .chip {
+    border: 1px solid var(--line); border-radius: 12px; background: #fff;
+    padding: 10px 16px; min-width: 150px;
+  }
+  .chip .k { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--moss); }
+  .chip .v { font-size: 16px; font-weight: 700; margin-top: 3px; color: var(--ink); }
+  .chip.amber { border-color: #e3cdb0; background: #fbf6ee; }
+  .chip.amber .v { color: var(--amber); }
+
+  .bottom { position: relative; display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 24px; }
+  .tagline { font-size: 17px; font-weight: 600; color: var(--moss); }
+  .disclaimer { font-size: 12px; color: #8a958d; text-align: right; max-width: 360px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div class="cover">
+    <div class="grid"></div>
+    <div class="deco d1"></div>
+    <div class="deco d2"></div>
+
+    <div class="top">
+      <span class="brand">Paul's Tradecraft</span>
+      <span class="kicker">Evidence before outreach</span>
+    </div>
+
+    <div class="main">
+      <div class="title">Overseas Lead Discovery</div>
+
+      <div class="flow">
+        <div class="step">
+          <span class="num">44</span>
+          <span class="lbl">discovered</span>
+        </div>
+        <span class="arrow">→</span>
+        <div class="step">
+          <span class="lbl">evidence<br>qualification</span>
+        </div>
+        <span class="arrow">→</span>
+        <div class="step">
+          <span class="num gold">20</span>
+          <span class="lbl">qualified</span>
+        </div>
+      </div>
+
+      <div class="chips">
+        <div class="chip"><div class="k">WHY</div><div class="v">sourced claims</div></div>
+        <div class="chip"><div class="k">WHY NOT</div><div class="v">contradictions</div></div>
+        <div class="chip amber"><div class="k">UNKNOWN</div><div class="v">kept explicit</div></div>
+        <div class="chip"><div class="k">Evidence</div><div class="v">tiered sources</div></div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <span class="tagline">AI finds companies. Judgment finds buyers.</span>
+      <span class="disclaimer">Anonymized records · public-web evidence · REAL OWNER PRECISION@20: PENDING</span>
+    </div>
+  </div>
+</body>
+</html>
