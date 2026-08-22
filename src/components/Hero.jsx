@@ -42,7 +42,7 @@ export default function Hero() {
               {t.hero.ctaPrimary}
             </a>
             <a
-              href="#about"
+              href="#contact"
               className="rounded-pill border border-bone/35 px-7 py-3 text-sm font-semibold text-bone transition-colors hover:border-bone/70"
             >
               {t.hero.ctaSecondary}

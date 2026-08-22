@@ -17,8 +17,8 @@ export default function App() {
           <Nav />
           <main>
             <Hero />
-            <Works />
             <Capabilities />
+            <Works />
             <HowIWork />
             <About />
             <Contact />

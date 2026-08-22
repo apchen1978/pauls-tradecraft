@@ -1,13 +1,13 @@
 import { motion } from "motion/react";
-import { FlowArrow, Rocket, GlobeHemisphereWest, Network } from "@phosphor-icons/react";
+import { FlowArrow, Rocket, GlobeHemisphereWest, Network, ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
-import { softFurnishingService } from "../data/softFurnishingService.js";
+import { softFurnishingService as flagshipServiceData } from "../data/softFurnishingService.js";
 
 const icons = [FlowArrow, Rocket, GlobeHemisphereWest, Network];
 
 export default function Capabilities() {
   const { lang, t } = useLang();
-  const softFurnishing = softFurnishingService[lang];
+  const flagship = flagshipServiceData[lang];
   return (
     <section id="capabilities" className="scroll-mt-24 border-y border-line bg-paper/60">
       <div className="mx-auto max-w-7xl px-4 py-20 md:px-6 md:py-28">
@@ -18,12 +18,12 @@ export default function Capabilities() {
         </div>
 
         <div className="mt-12 rounded-card border border-forest/20 bg-forest px-6 py-8 text-bone shadow-[0_20px_60px_-36px_rgba(11,27,51,0.8)] md:px-8 md:py-10">
-          <p className="text-[11px] font-bold tracking-[0.2em] text-gold">{softFurnishing.eyebrow}</p>
-          <h3 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight md:text-3xl">{softFurnishing.title}</h3>
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-bone/75">{softFurnishing.summary}</p>
+          <p className="text-[11px] font-bold tracking-[0.2em] text-gold">{flagship.eyebrow}</p>
+          <h3 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight md:text-3xl">{flagship.title}</h3>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-bone/75">{flagship.summary}</p>
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
-            {softFurnishing.pillars.map((pillar, index) => (
+            {flagship.pillars.map((pillar, index) => (
               <div key={pillar.title} className="border-t border-bone/20 pt-4">
                 <p className="text-xs font-bold tracking-[0.16em] text-gold">{String(index + 1).padStart(2, "0")}</p>
                 <h4 className="mt-2 text-base font-bold tracking-tight text-bone">{pillar.title}</h4>
@@ -32,7 +32,15 @@ export default function Capabilities() {
             ))}
           </div>
 
-          <p className="mt-8 border-t border-bone/20 pt-5 text-sm leading-relaxed text-bone/80">{softFurnishing.boundary}</p>
+          <p className="mt-8 border-t border-bone/20 pt-5 text-sm leading-relaxed text-bone/80">{flagship.boundary}</p>
+
+          <a
+            href="#contact"
+            className="mt-7 inline-flex items-center justify-center gap-2 rounded-pill bg-gold px-7 py-3 text-sm font-bold text-pine transition-all hover:brightness-110 active:scale-[0.98]"
+          >
+            {flagship.cta}
+            <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+          </a>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-x-12 gap-y-10 sm:grid-cols-2">

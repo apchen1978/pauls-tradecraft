@@ -10,7 +10,8 @@
 export const works = [
   {
     id: "mori-soft-furnishing-website",
-    cover: "/images/cover-mori-soft-furnishing.png",
+    featuredRank: 4,
+    cover: "/images/cover-mori-soft-furnishing.webp",
     imageAlt: { zh: "MORI 軟裝品牌網站首頁", en: "MORI soft-furnishing brand website homepage" },
     span: "col-span-3 md:col-span-2",
     icon: "briefcase",
@@ -55,6 +56,7 @@ export const works = [
   },
   {
     id: "trade-deal-desk",
+    featuredRank: 1,
     cover: "/images/cover-trade-deal-desk.png",
     imageAlt: { zh: "AI Trade Deal Desk RFQ 決策工作區畫面", en: "AI Trade Deal Desk RFQ decision workspace" },
     span: "col-span-3 md:col-span-2",
@@ -98,6 +100,7 @@ export const works = [
   },
   {
     id: "tracker",
+    featuredRank: 3,
     cover: "/images/cover-tracker.png",
     imageAlt: { zh: "窗簾軟裝 Pilot 追蹤器儀表板", en: "Curtain soft-furnishing pilot tracker dashboard" },
     span: "col-span-2",
@@ -181,7 +184,7 @@ export const works = [
   },
   {
     id: "simulations",
-    cover: "/images/cover-simulations.png",
+    cover: "/images/cover-simulations.webp",
     imageAlt: { zh: "Pilot 模擬時間軸", en: "Pilot simulation timeline" },
     span: "col-span-1",
     verified: true,
@@ -264,7 +267,7 @@ export const works = [
   },
   {
     id: "wastetime",
-    cover: "/images/cover-wastetime.png",
+    cover: "/images/cover-wastetime.webp",
     imageAlt: { zh: "浪費時間 idle clicker 遊戲畫面", en: "Waste Time idle clicker game screen" },
     span: "col-span-2",
     icon: "game",
@@ -430,6 +433,7 @@ export const works = [
   },
   {
     id: "payment-concentration",
+    featuredRank: 2,
     cover: "/images/cover-payment-concentration.png",
     imageAlt: { zh: "Payment Concentration 原型：滾動 7 日付款承諾高峰畫面", en: "Payment Concentration prototype: rolling 7-day payment-commitment peak" },
     span: "col-span-2",

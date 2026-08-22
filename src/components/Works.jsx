@@ -57,6 +57,9 @@ function CaseStudy({ c }) {
 
 export default function Works() {
   const { lang, t } = useLang();
+  const orderedWorks = [...works].sort(
+    (a, b) => (a.featuredRank ?? Number.MAX_SAFE_INTEGER) - (b.featuredRank ?? Number.MAX_SAFE_INTEGER),
+  );
   return (
     <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-28">
       <div className="max-w-2xl">
@@ -66,7 +69,7 @@ export default function Works() {
       </div>
 
       <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {works.map((w, i) => {
+        {orderedWorks.map((w, i) => {
           const copy = lang === "zh" ? w.zh : w.en;
           const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
           const Icon = w.icon ? iconMap[w.icon] : null;
