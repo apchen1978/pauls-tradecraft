@@ -51,7 +51,7 @@ export default function Contact() {
               {t.contact.callCta}
             </a>
             <a
-              href="https://line.me/R/ti/p/andypaulshanghai"
+              href="https://line.me/ti/p/zSJdkOeQgS"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-pill px-6 py-3 text-sm font-bold text-white transition-all hover:brightness-110 active:scale-[0.98]"
