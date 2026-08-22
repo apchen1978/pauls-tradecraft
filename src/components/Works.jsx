@@ -7,6 +7,7 @@ import {
   Receipt,
   Briefcase,
   CaretDown,
+  Info,
 } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
@@ -126,9 +127,14 @@ export default function Works() {
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
                     <span>{copy.tag}</span>
                     {w.verified && (
-                      <span className="inline-flex items-center gap-1 text-forest">
+                      <span
+                        className="inline-flex items-center gap-1 text-forest"
+                        title={t.works.verifiedExplain}
+                        aria-label={`${t.works.statusVerified}：${t.works.verifiedExplain}`}
+                      >
                         <CheckCircle size={13} weight="fill" />
                         {t.works.statusVerified}
+                        <Info size={12} weight="bold" aria-hidden="true" />
                       </span>
                     )}
                   </div>

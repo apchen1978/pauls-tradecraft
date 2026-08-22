@@ -29,6 +29,7 @@ const dict = {
       sub: "每一件都有證據鏈：可重跑驗證、可檢視產出，不是 PPT 上的口號。",
       linkPending: "PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED",
       statusVerified: "已驗證",
+      verifiedExplain: "「已驗證」＝通過預先定義的功能、回歸、建置與使用性檢查，附可重跑證據鏈 — AI 協作時代的驗證式交付：人決策、AI 產出、證據可複驗。不代表商業採用或市場驗證。",
       caseStudy: {
         label: "案例研究",
         takeaway: "核心判斷",
@@ -166,6 +167,7 @@ const dict = {
       sub: "Every piece ships with an evidence chain: rerunnable checks, inspectable outputs, no empty claims.",
       linkPending: "PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED",
       statusVerified: "Verified",
+      verifiedExplain: "\u201CVerified\u201D = passed defined functional, regression, build, and usability checks, with a rerunnable evidence chain \u2014 a verification-first delivery model for the AI-collaboration era: humans decide, AI builds, evidence re-verifiable. It does not imply commercial adoption or market validation.",
       caseStudy: {
         label: "Case Study",
         takeaway: "Key takeaway",
