@@ -37,7 +37,6 @@ export default function Contact() {
           transition={{ duration: 0.5, ease: "easeOut", delay: 0.16 }}
           className="mt-8 flex flex-col items-center gap-3"
         >
-          {/* 公開信箱：paulchen1978@gmail.com */}
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a
               href="mailto:paulchen1978@gmail.com"
