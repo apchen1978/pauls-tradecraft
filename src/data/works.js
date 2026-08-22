@@ -322,44 +322,50 @@ export const works = [
   },
   {
     id: "lyrics",
-    cover: "/images/cover-lyrics.webp",
-    imageAlt: { zh: "AI Lyrics Generator 桌面應用", en: "AI Lyrics Generator desktop app" },
+    cover: "/images/cover-lyrics-v2.png",
+     imageAlt: { zh: "AI Lyrics Generator Desktop V3 與 Live Web Demo", en: "AI Lyrics Generator Desktop V3 and live web demo" },
     span: "col-span-1",
     verified: true,
-    link: null,
+     link: "https://deploy-lake-zeta.vercel.app",
+     linkLabel: { zh: "試玩 Live AI Demo", en: "Try Live AI Demo" },
     zh: {
       title: "AI Lyrics Generator",
-      desc: "Python + PySide6 桌面 App：本機 AI 歌詞生成、100 分評分、批評與自動重寫，支援 Ollama 本地模型與離線模式。",
-      tag: "桌面 App · AI",
+       desc: "從 Python + PySide6 Desktop V3 演進成可公開試玩的 AI Web Demo，保留同一套生成、批評、評分與迭代工作流。",
+       tag: "Desktop + Web · AI",
     },
     en: {
       title: "AI Lyrics Generator",
-      desc: "Python + PySide6 desktop app: local AI lyric generation, 100-point scoring, critique and auto-rewrite, with Ollama local models and offline mode.",
-      tag: "Desktop app · AI",
+       desc: "Evolved from a Python + PySide6 Desktop V3 app into a public AI Web Demo while preserving the same generation, critique, scoring, and iteration workflow.",
+       tag: "Desktop + Web · AI",
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
-      stageTag: "V3 · exe built",
-      problem: {
-        zh: "歌詞創作缺乏本機、可離線的 AI 輔助流程：生成、評分、批評、重寫各自分散。",
-        en: "Lyric writing lacked a local, offline-capable AI workflow: generation, scoring, critique, and rewrite were disconnected.",
-      },
-      approach: {
-        zh: "Python + PySide6 桌面 App：生成 → 批評 → 自動重寫 → 輸出；100 分品質評分（Hook/可唱性/押韻等六軸）；版本歷史與 A/B 比較；Ollama 本地模型或離線草稿模式。",
-        en: "Python + PySide6 desktop app: generate → critique → auto-rewrite → output; 100-point quality score across six axes; version history and A/B compare; Ollama local models or offline draft mode.",
-      },
-      tools: {
-        zh: "Python · PySide6 · Ollama（qwen2.5 / llama3.2）· TXT/DOCX 匯出",
-        en: "Python · PySide6 · Ollama (qwen2.5 / llama3.2) · TXT/DOCX export",
-      },
-      result: {
-        zh: "V3 功能集完成，本機 exe 產物已建置（40.9MB）。",
-        en: "V3 feature set complete; local EXE build produced (40.9MB).",
-      },
-      evidence: {
-        zh: "V3 功能集與本機 exe 已建置（40.9MB，本機驗證可啟動）；來源：本地 OneDrive 專案資料夾 + private repo（apchen1978/ai-lyrics-generator）。公開 demo 尚未發布。",
-        en: "V3 feature set and local EXE build verified (40.9MB, launches locally); source: local OneDrive project folder + private repo (apchen1978/ai-lyrics-generator). No public demo published yet.",
-      },
+       stageTag: { zh: "Desktop V3 + Live Web Demo", en: "Desktop V3 + Live Web Demo" },
+       compact: true,
+       problem: {
+         zh: "歌詞創作工具往往只停留在單次生成，缺少可實際操作的品質控制與迭代流程。",
+         en: "Lyric tools often stop at one-shot generation, without a practical quality-control and iteration workflow.",
+       },
+       approach: {
+         zh: "Desktop V3 canonical core → Python serverless adapter → DeepSeek API → Vercel deployment；Web 只負責 presentation 與安全 API boundary。",
+         en: "Desktop V3 canonical core → Python serverless adapter → DeepSeek API → Vercel deployment; the Web layer owns presentation and the secure API boundary.",
+       },
+       highlights: {
+         zh: ["Generate → Critic → 100 分 Quality Score → Auto Rewrite", "Rewrite Directions 與 Chorus Hooks", "Version History 與 A/B Comparison", "Desktop canonical core 延伸至公開 Web", "DeepSeek-powered 真實生成，API key 僅存在 server-side", "390px / 1280px、rate-limit rejection 與 client bundle 已驗證"],
+         en: ["Generate → Critic → 100-point Quality Score → Auto Rewrite", "Rewrite Directions and Chorus Hooks", "Version History and A/B Comparison", "Desktop canonical core extended to a public Web Demo", "DeepSeek-powered live generation with the API key server-side only", "390px / 1280px, rate-limit rejection, and client-bundle checks verified"],
+       },
+       tools: {
+         zh: "Python · PySide6 · DeepSeek API · Vercel Serverless · Ollama · HTML/CSS/JavaScript",
+         en: "Python · PySide6 · DeepSeek API · Vercel Serverless · Ollama · HTML/CSS/JavaScript",
+       },
+       result: {
+         zh: "Desktop V3 可獨立執行，Windows EXE 已建置（40.9MB）；公開 Live Web Demo 已部署，Desktop 與 Web 共用同一套 Python V3 核心。",
+         en: "Desktop V3 runs independently with a built Windows EXE (40.9MB); the public Live Web Demo is deployed, with Desktop and Web sharing the same Python V3 core.",
+       },
+       evidence: {
+         zh: "Production Web Demo 已完成端到端實測：Idea → Generate → Critic → Score → Rewrite → Hooks → Version History → A/B Comparison。已驗證真實 DeepSeek AI generation、390px / 1280px 響應式版面、0 material console errors、client bundle 無 API key、provider / model 不由訪客控制，以及 rate-limit rejection path。來源：private repo apchen1978/ai-lyrics-generator。",
+         en: "Production Web Demo verified end to end: Idea → Generate → Critic → Score → Rewrite → Hooks → Version History → A/B Comparison. Verified: real DeepSeek AI generation, responsive 390px / 1280px layouts, 0 material console errors, no API key in the client bundle, visitor cannot control provider or model, and the rate-limit rejection path. Source: private repo apchen1978/ai-lyrics-generator.",
+       },
     },
   },
   {

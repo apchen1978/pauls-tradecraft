@@ -19,37 +19,50 @@ const iconMap = {
   briefcase: Briefcase,
 };
 
-function CaseStudy({ c, related }) {
+function CaseStudy({ c, related, link, linkLabel }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
+  const stageTag = typeof c.stageTag === "string" ? c.stageTag : c.stageTag?.[lang];
   const labels = t.works.caseStudy;
   return (
     <details className="group mt-4 border-t border-line px-6 pt-4 pb-6">
       <summary className="flex cursor-pointer list-none items-center gap-2 rounded-pill border border-forest/25 bg-forest/[0.06] px-4 py-2.5 text-sm font-bold text-forest transition-colors hover:bg-forest/10 [&::-webkit-details-marker]:hidden">
         <span className="rounded-pill bg-forest/10 px-2.5 py-0.5 text-xs font-bold text-forest">
           {f(c.stage)}
-          {c.stageTag ? ` · ${c.stageTag}` : ""}
+           {stageTag ? ` · ${stageTag}` : ""}
         </span>
         <span className="flex-1">{labels.label}</span>
         <CaretDown size={14} weight="bold" className="transition-transform group-open:rotate-180" />
       </summary>
-      <dl className="mt-3 space-y-3 text-sm">
+       <dl className="mt-3 space-y-3 text-sm">
         <div>
           <dt className="font-semibold text-ink/80">{labels.problem}</dt>
           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.problem)}</dd>
         </div>
-        <div>
-          <dt className="font-semibold text-ink/80">{labels.approach}</dt>
-          <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.approach)}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold text-ink/80">{labels.tools}</dt>
-          <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.tools)}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold text-ink/80">{labels.result}</dt>
-          <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.result)}</dd>
-        </div>
+         <div>
+           <dt className="font-semibold text-ink/80">{labels.approach}</dt>
+           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.approach)}</dd>
+         </div>
+         {c.highlights && (
+           <div>
+             <dt className="font-semibold text-ink/80">{labels.capabilities ?? "Capabilities"}</dt>
+             <dd className="mt-1">
+               <ul className="grid gap-1.5 text-ink/65 sm:grid-cols-2">
+                 {c.highlights[lang].map((item) => <li key={item} className="flex gap-2 leading-relaxed"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />{item}</li>)}
+               </ul>
+             </dd>
+           </div>
+         )}
+         {!c.compact && (
+           <div>
+             <dt className="font-semibold text-ink/80">{labels.tools}</dt>
+             <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.tools)}</dd>
+           </div>
+         )}
+         {!c.compact && <div>
+           <dt className="font-semibold text-ink/80">{labels.result}</dt>
+           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.result)}</dd>
+         </div>}
         <div>
           <dt className="font-semibold text-ink/80">{labels.evidence}</dt>
           <dd className="mt-0.5 break-words leading-relaxed text-ink/65">{f(c.evidence)}</dd>
@@ -65,6 +78,14 @@ function CaseStudy({ c, related }) {
               {typeof related.label === "string" ? related.label : related.label?.[lang]}
             </a>
             {related.note && <p className="mt-1 text-xs leading-relaxed text-ink/55">{typeof related.note === "string" ? related.note : related.note?.[lang]}</p>}
+         </div>
+        )}
+        {c.compact && link && (
+          <div className="border-t border-line pt-3">
+            <a href={link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-forest transition-colors hover:text-amber">
+              <ArrowUpRight size={14} weight="bold" />
+              {typeof linkLabel === "string" ? linkLabel : linkLabel?.[lang]}
+            </a>
           </div>
         )}
       </dl>
@@ -107,7 +128,6 @@ export default function Works() {
             <motion.article
               key={w.id}
               id={w.id}
-              className="scroll-mt-28"
               onClick={
                 w.link
                   ? undefined
@@ -121,7 +141,7 @@ export default function Works() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
-              className={`group flex flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 col-span-1 ${desktopSpan} ${w.link ? "" : "cursor-pointer"}`}
+               className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 col-span-1 ${desktopSpan} ${w.link ? "" : "cursor-pointer"}`}
             >
               <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
                 {w.cover ? (
@@ -185,7 +205,7 @@ export default function Works() {
                   )}
                 </div>
               </Wrapper>
-              {w.case && <CaseStudy c={w.case} related={w.related} />}
+         {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} />}
             </motion.article>
           );
         })}
