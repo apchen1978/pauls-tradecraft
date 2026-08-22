@@ -543,4 +543,51 @@ export const works = [
       },
     },
   },
+  {
+    id: "overseas-lead-discovery",
+    featuredRank: 5,
+    cover: "/images/cover-lead-discovery.png",
+    imageAlt: { zh: "Overseas Lead Discovery 資格篩選 demo 畫面", en: "Overseas Lead Discovery qualification demo" },
+    span: "col-span-2",
+    icon: "briefcase",
+    verified: true,
+    link: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
+    linkLabel: { zh: "試用潛在客戶篩選 Demo", en: "Try Qualification Demo" },
+    zh: {
+      title: "AI 輔助海外客戶開發",
+      desc: "從公開網路名單，篩出真正值得業務投入時間的潛在客戶。",
+      tag: "客戶開發 · AI 資格篩選",
+      caseSummary: "AI 能找出幾百家公司的名字，但找得到不等於值得開發。這個工作流把貿易判斷變成可驗證的證據式篩選。",
+    },
+    en: {
+      title: "AI-Assisted Overseas Lead Discovery",
+      desc: "From public-web discovery to evidence-qualified prospects.",
+      tag: "Lead discovery · AI qualification",
+      caseSummary: "AI can find hundreds of companies. Finding them is not the same as identifying buyers worth a sales team's time.",
+    },
+    case: {
+      stage: { zh: "技術驗證", en: "Technical Validation" },
+      stageTag: "44 → 20 shortlist",
+      problem: {
+        zh: "AI 可以找到幾百家公司的名字，但「找到公司」不等於「找到值得業務花時間開發的買家」。",
+        en: "AI can find hundreds of companies — but finding companies is not the same as identifying buyers worth a sales team's time.",
+      },
+      approach: {
+        zh: "公開網路發現 → Buyer Fit → Category Fit → Import Openness → Asia Sourcing Evidence → Evidence Quality → WHY／WHY NOT → 領域學習迭代。",
+        en: "Public-web discovery → Buyer Fit → Category Fit → Import Openness → Asia Sourcing Evidence → Evidence Quality → WHY / WHY NOT → domain-learning iteration.",
+      },
+      tools: {
+        zh: "公開網路多來源發現 · 證據分級（PRIMARY / SUPPORTING / VERIFICATION_REQUIRED）· 矛盾證據檢查 · 領域專家校準",
+        en: "Multi-source public-web discovery · evidence-source tiering · contradiction checking · domain-expert calibration",
+      },
+      result: {
+        zh: "44 家候選經證據式資格篩選 → 20 家入選短名單；M3 rubric-v2 迭代後，弱-adjacent 假陽性在短名單中減少；8 家脫敏代表性 records 以互動 demo 公開。",
+        en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after M3 rubric-v2 iteration, weak-adjacent false positives were reduced in the shortlist; 8 anonymized representative records published as an interactive demo.",
+      },
+      evidence: {
+        zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records。揭露：REAL OWNER PRECISION@20: PENDING · 脫敏代表性 records · 公開網路證據流程 · 含模擬/領域學習元素 · 未進行 outreach · 商業採用與支付意願未證明。",
+        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records in the interactive demo. Disclosure: REAL OWNER PRECISION@20: PENDING · representative/anonymized records · public-web evidence workflow · simulated/domain-learning elements included · no outreach performed · commercial adoption and willingness-to-pay not proven.",
+      },
+    },
+  },
 ];
