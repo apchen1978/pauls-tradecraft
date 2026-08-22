@@ -16,8 +16,9 @@ export const works = [
     span: "col-span-3 md:col-span-2",
     icon: "briefcase",
     verified: true,
-    link: null,
-    hidePendingLink: true,
+    link: "https://apchen1978.github.io/mori-soft-furnishing-demo/",
+    linkLabel: { zh: "觀看品牌網站", en: "View brand site" },
+    hidePendingLink: false,
     zh: {
       title: "MORI 軟裝品牌網站與工作流程",
       desc: "以真實室內素材建立窗簾與軟裝品牌網站，並整理諮詢、LINE 預留、表單狀態與交付檢查，支援行銷與銷售推進。",
@@ -49,8 +50,8 @@ export const works = [
         en: "Delivered a locally viewable first MORI brand site and a reusable soft-furnishing site-building skill. The output is more than homepage visuals: it is a handoff-ready sales-enablement starting point. Once LINE, email, form receiving, and a formal domain are supplied, the same structure can support consultation and subsequent tools. The result is deliberately defined as deployable, extensible infrastructure—not a claim of immediate inquiries, conversion, or orders.",
       },
       evidence: {
-        zh: "已驗證的是交付物與程式基本品質：私有 GitHub repo `apchen1978/great-soft-furnishing-website` 的 commit `cb68c69`，以及 `git diff --check`、`node --check script.js`。尚未證明的項目也明確保留：沒有公開品牌網址、實際 LINE、表單收件服務、真實流量、詢問量、轉換率或訂單成果。因此，此案例證明的是建置與交付能力，而不是市場成效。",
-        en: "What is verified is the delivered artifact and basic code quality: private GitHub repo `apchen1978/great-soft-furnishing-website` at commit `cb68c69`, plus `git diff --check` and `node --check script.js`. What remains unproven is also explicit: no public brand domain, live LINE destination, form-receiving service, real traffic, inquiry volume, conversion rate, or order outcome. This case therefore evidences build and delivery capability—not market performance.",
+        zh: "已驗證的是交付物與程式基本品質：私有 GitHub repo `apchen1978/great-soft-furnishing-website` commit `cb68c69`、`git diff --check`、`node --check script.js`，以及公開展示 https://apchen1978.github.io/mori-soft-furnishing-demo/（HTTP 200，線上實測）。尚未證明：實際 LINE、表單收件服務、自有網域、真實流量、詢問量、轉換率或訂單成果。此案例證明建置與交付能力，而非市場成效。",
+        en: "What is verified is the delivered artifact and basic code quality: private GitHub repo `apchen1978/great-soft-furnishing-website` at commit `cb68c69`, plus `git diff --check`, `node --check script.js`, and the public showcase https://apchen1978.github.io/mori-soft-furnishing-demo/ (HTTP 200, verified live). What remains unproven is explicit: live LINE, form-receiving service, custom domain, real traffic, inquiry volume, conversion rate, or order outcome. This case evidences build and delivery capability—not market performance.",
       },
     },
   },
