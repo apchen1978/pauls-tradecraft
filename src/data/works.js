@@ -77,6 +77,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
+      stageTag: "13/13 + 5/5 PASS",
       problem: {
         zh: "外貿 RFQ 常包含缺漏資訊、供應商條件衝突與不能只靠最低價格判斷的商業風險。",
         en: "Trade RFQs often arrive with incomplete information, conflicting supplier terms, and commercial risks that cannot be resolved by price alone.",
@@ -119,6 +120,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
+      stageTag: "23/23 PASS",
       problem: {
         zh: "窗簾軟裝銷售的商機、報價、跟進流程分散在多處，無法單一追蹤。",
         en: "Lead, quote, and follow-up flows were scattered, with no single tracking view.",
@@ -287,6 +289,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
+      stageTag: "E2E PASS",
       problem: {
         zh: "原本以 Gemini + Project IDX 製作的同名小遊戲因雲端工作區遺失而無法找回，需要一個更好玩的版本。",
         en: "The original game of the same name, built with Gemini + Project IDX, was lost when the cloud workspace disappeared; it needed a better playable version.",
@@ -304,8 +307,8 @@ export const works = [
         en: "Rebuilt and playable; click, upgrade, frenzy, and level systems pass end-to-end headless Chrome tests.",
       },
       evidence: {
-        zh: "公開 demo：https://apchen1978.github.io/wastetime/",
-        en: "Public demo: https://apchen1978.github.io/wastetime/",
+        zh: "點擊、升級、狂熱與關卡系統經無頭 Chrome 端到端測試全數通過；公開 demo：https://apchen1978.github.io/wastetime/（HTTP 200，線上實測）。",
+        en: "Click, upgrade, frenzy, and level systems pass end-to-end headless Chrome tests; public demo: https://apchen1978.github.io/wastetime/ (HTTP 200, verified live).",
       },
     },
   },
@@ -328,6 +331,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
+      stageTag: "V3 · exe built",
       problem: {
         zh: "歌詞創作缺乏本機、可離線的 AI 輔助流程：生成、評分、批評、重寫各自分散。",
         en: "Lyric writing lacked a local, offline-capable AI workflow: generation, scoring, critique, and rewrite were disconnected.",
@@ -345,8 +349,8 @@ export const works = [
         en: "V3 feature set complete; local EXE build produced (40.9MB).",
       },
       evidence: {
-        zh: "本地 OneDrive 專案資料夾 + private repo（apchen1978/ai-lyrics-generator）。",
-        en: "Local OneDrive project folder + private repo (apchen1978/ai-lyrics-generator).",
+        zh: "V3 功能集與本機 exe 已建置（40.9MB，本機驗證可啟動）；來源：本地 OneDrive 專案資料夾 + private repo（apchen1978/ai-lyrics-generator）。公開 demo 尚未發布。",
+        en: "V3 feature set and local EXE build verified (40.9MB, launches locally); source: local OneDrive project folder + private repo (apchen1978/ai-lyrics-generator). No public demo published yet.",
       },
     },
   },
@@ -369,6 +373,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
+      stageTag: "3 versions",
       problem: {
         zh: "簡報製作耗時且版本難控，缺乏可重跑的產出管線。",
         en: "Deck production was slow and hard to version, with no rerunnable output pipeline.",
@@ -386,8 +391,8 @@ export const works = [
         en: "Three deck versions produced, with PDF rendering.",
       },
       evidence: {
-        zh: "ppt-toolkit/ 內含 spec-dsh-guide.json、make-pptx.mjs、demo 簡報與 PDF。",
-        en: "ppt-toolkit/ contains spec-dsh-guide.json, make-pptx.mjs, demo deck, and PDF.",
+        zh: "三版簡報（含 PDF 渲染）由 spec JSON 管線產出、可重跑；產物位於 ppt-toolkit/（spec-dsh-guide.json、make-pptx.mjs、demo 簡報與 PDF）。",
+        en: "Three deck versions (with PDF rendering) are produced by the spec JSON pipeline and rerunnable; artifacts live in ppt-toolkit/ (spec-dsh-guide.json, make-pptx.mjs, demo deck, and PDF).",
       },
     },
   },
@@ -410,6 +415,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
+      stageTag: "16/16 PASS",
       problem: {
         zh: "個人收支追蹤的資料模型與 UI 形式未定，先以多個 vanilla 方案比較。",
         en: "Personal expense data model and UI form were undecided; compared multiple vanilla approaches.",
@@ -454,6 +460,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
+      stageTag: "51/51 PASS",
       problem: {
         zh: "談判新合約（Deal C）時，真正要回答的不是「整月付多少」，而是「把它加進來後，最集中的連續 7 個日曆日會多出多少付款承諾」。用試算表算很容易算錯窗、混幣別、而且無法快速對帳。",
         en: "When negotiating a new deal (Deal C), the real question is not “what does the month total” but “how much extra payment commitment lands in the most concentrated 7-calendar-day window once it is added.” Spreadsheet answers are easy to get wrong — wrong window, mixed currencies, hard to audit quickly.",

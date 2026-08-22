@@ -24,8 +24,11 @@ function CaseStudy({ c }) {
   const labels = t.works.caseStudy;
   return (
     <details className="group mt-4 border-t border-line px-6 pt-4 pb-6">
-      <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-forest [&::-webkit-details-marker]:hidden">
-        <span className="rounded-pill bg-forest/10 px-2.5 py-0.5 text-xs font-bold text-forest">{f(c.stage)}</span>
+      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-pill border border-forest/25 bg-forest/[0.06] px-4 py-2.5 text-sm font-bold text-forest transition-colors hover:bg-forest/10 [&::-webkit-details-marker]:hidden">
+        <span className="rounded-pill bg-forest/10 px-2.5 py-0.5 text-xs font-bold text-forest">
+          {f(c.stage)}
+          {c.stageTag ? ` · ${c.stageTag}` : ""}
+        </span>
         <span className="flex-1">{labels.label}</span>
         <CaretDown size={14} weight="bold" className="transition-transform group-open:rotate-180" />
       </summary>
@@ -89,11 +92,20 @@ export default function Works() {
           return (
             <motion.article
               key={w.id}
+              onClick={
+                w.link
+                  ? undefined
+                  : (e) => {
+                      if (e.target.closest("summary")) return;
+                      const det = e.currentTarget.querySelector("details");
+                      if (det) det.open = !det.open;
+                    }
+              }
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
-              className={`group flex flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 col-span-1 ${desktopSpan}`}
+              className={`group flex flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 col-span-1 ${desktopSpan} ${w.link ? "" : "cursor-pointer"}`}
             >
               <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
                 {w.cover ? (
