@@ -180,6 +180,9 @@ export default function Works() {
                       t.works.linkPending
                     ) : null}
                   </p>
+                  {w.demoNote && (
+                    <p className="mt-1.5 text-[11px] leading-snug text-ink/50">{w.demoNote[lang]}</p>
+                  )}
                 </div>
               </Wrapper>
               {w.case && <CaseStudy c={w.case} related={w.related} />}

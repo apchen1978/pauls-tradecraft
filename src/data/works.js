@@ -553,17 +553,18 @@ export const works = [
     verified: true,
     link: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
     linkLabel: { zh: "試用潛在客戶篩選 Demo", en: "Try Qualification Demo" },
+    demoNote: { zh: "Demo 以美國市場英文公開資料情境呈現。", en: "Demo uses an English-language U.S. market scenario." },
     zh: {
       title: "AI 輔助海外客戶開發",
       desc: "從公開網路名單，篩出真正值得業務投入時間的潛在客戶。",
       tag: "客戶開發 · AI 資格篩選",
-      caseSummary: "AI 能找出幾百家公司的名字，但找得到不等於值得開發。這個工作流把貿易判斷變成可驗證的證據式篩選。",
+      caseSummary: "AI 不只是替業務找更多名單，而是把公開線索轉成可檢視、可質疑、可決定的潛在客戶短名單。",
     },
     en: {
       title: "AI-Assisted Overseas Lead Discovery",
       desc: "From public-web discovery to evidence-qualified prospects.",
       tag: "Lead discovery · AI qualification",
-      caseSummary: "AI can find hundreds of companies. Finding them is not the same as identifying buyers worth a sales team's time.",
+      caseSummary: "AI doesn't just find more leads. It turns public signals into a shortlist people can inspect, challenge, and act on.",
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
@@ -585,8 +586,8 @@ export const works = [
         en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after M3 rubric-v2 iteration, weak-adjacent false positives were reduced in the shortlist; 8 anonymized representative records published as an interactive demo.",
       },
       evidence: {
-        zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records。揭露：REAL OWNER PRECISION@20: PENDING · 脫敏代表性 records · 公開網路證據流程 · 含模擬/領域學習元素 · 未進行 outreach · 商業採用與支付意願未證明。",
-        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records in the interactive demo. Disclosure: REAL OWNER PRECISION@20: PENDING · representative/anonymized records · public-web evidence workflow · simulated/domain-learning elements included · no outreach performed · commercial adoption and willingness-to-pay not proven.",
+        zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records。揭露：REAL OWNER PRECISION@20: PENDING · 脫敏代表性 records · 公開網路證據流程 · 含模擬/領域學習元素 · 未進行 outreach · 商業採用與支付意願未證明 · 沒有證據支持的資訊，不會被標示為已確認事實。",
+        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records in the interactive demo. Disclosure: REAL OWNER PRECISION@20: PENDING · representative/anonymized records · public-web evidence workflow · simulated/domain-learning elements included · no outreach performed · commercial adoption and willingness-to-pay not proven · No unsupported claim is presented as confirmed.",
       },
     },
   },
