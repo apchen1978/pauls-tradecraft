@@ -22,6 +22,7 @@ export const softFurnishingService = {
       },
     ],
     boundary: "目標不是讓團隊依賴更多工具，而是讓每一個人學會用 AI 更快做出內容、推進客戶、看清進度，並把生意經營得更有系統。",
+    cta: "把這條路徑接到你的品牌，預約聊聊",
   },
   en: {
     eyebrow: "FOR SOFT-FURNISHING TEAMS",
@@ -46,5 +47,6 @@ export const softFurnishingService = {
       },
     ],
     boundary: "The goal is not to make a team depend on more tools. It is to help each person use AI to create faster, move clients forward, see progress clearly, and run the business with more discipline.",
+    cta: "Connect this path to your brand — book a chat",
   },
 };

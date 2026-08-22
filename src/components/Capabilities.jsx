@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { FlowArrow, Rocket, GlobeHemisphereWest, Network } from "@phosphor-icons/react";
+import { FlowArrow, Rocket, GlobeHemisphereWest, Network, ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { softFurnishingService } from "../data/softFurnishingService.js";
 
@@ -33,6 +33,14 @@ export default function Capabilities() {
           </div>
 
           <p className="mt-8 border-t border-bone/20 pt-5 text-sm leading-relaxed text-bone/80">{softFurnishing.boundary}</p>
+
+          <a
+            href="#contact"
+            className="mt-7 inline-flex items-center justify-center gap-2 rounded-pill bg-gold px-7 py-3 text-sm font-bold text-pine transition-all hover:brightness-110 active:scale-[0.98]"
+          >
+            {softFurnishing.cta}
+            <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+          </a>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-x-12 gap-y-10 sm:grid-cols-2">
