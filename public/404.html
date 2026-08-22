@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page not found · Paul's Tradecraft</title>
+    <style>
+      :root { --ink: #17271f; --bone: #f4f5f0; --forest: #1f4d3a; --amber: #a05a10; --line: #d9ded4; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bone);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", sans-serif;
+        line-height: 1.6;
+      }
+      .card { max-width: 420px; padding: 40px 32px; text-align: center; }
+      .code { font-size: 64px; font-weight: 700; letter-spacing: -0.05em; color: var(--forest); line-height: 1; }
+      h1 { font-size: 20px; margin: 16px 0 8px; }
+      p { color: var(--ink); opacity: 0.75; font-size: 15px; margin: 0 0 24px; }
+      a {
+        display: inline-block;
+        background: var(--forest);
+        color: var(--bone);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 11px 22px;
+        border-radius: 999px;
+        transition: opacity 0.15s ease;
+      }
+      a:hover { opacity: 0.85; }
+      a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+      .alt { margin-top: 16px; font-size: 13px; opacity: 0.6; }
+      .alt a { background: none; color: var(--forest); padding: 0; text-decoration: underline; border-radius: 0; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="code">404</div>
+      <h1>這頁不存在</h1>
+      <p>連結可能已失效，或網址有誤。回到首頁看看吧。</p>
+      <a href="/">Paul's Tradecraft 首頁</a>
+      <p class="alt">或寫信給我：<a href="mailto:paulchen1978@gmail.com">paulchen1978@gmail.com</a></p>
+    </div>
+  </body>
+</html>

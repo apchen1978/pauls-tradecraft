@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { works: "作品", services: "服務", process: "流程", about: "關於我", contact: "聯絡我" },
+    nav: { works: "作品", services: "服務", process: "流程", about: "關於我", contact: "聯絡我", skipToContent: "跳至主要內容" },
     hero: {
       headlineA: "把國際貿易流程，",
       headlineB: "做成真正能運作的工具",
@@ -128,6 +128,7 @@ const dict = {
       callSubject: "想約時間聊聊合作",
       note: "paulchen1978@gmail.com",
       onePager: "下載一頁簡介 (PDF)",
+      capabilityBrief: "下載能力簡報 (PDF)",
     },
     footer: {
       line: "把貿易實務，做成看得見的工具。",
@@ -139,7 +140,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { works: "Work", services: "Services", process: "Process", about: "About", contact: "Contact" },
+    nav: { works: "Work", services: "Services", process: "Process", about: "About", contact: "Contact", skipToContent: "Skip to content" },
     hero: {
       headlineA: "Turn trade workflows",
       headlineB: "into tools that actually run",
@@ -263,6 +264,7 @@ const dict = {
       callSubject: "Scheduling a conversation",
       note: "paulchen1978@gmail.com",
       onePager: "Download one-pager (PDF)",
+      capabilityBrief: "Download capability brief (PDF)",
     },
     footer: {
       line: "Turning trade practice into visible tools.",

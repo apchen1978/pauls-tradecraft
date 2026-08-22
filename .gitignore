@@ -3,8 +3,9 @@ dist
 .npm-cache
 *.local
 .DS_Store
-# one-pager PDF 由 CI 自動生成，不入庫
-public/files/
+# one-pager PDF 由 CI 自動生成，不入庫；能力簡報例外（手動維護、進 repo）
+public/files/*
+!public/files/PaulTradecraft-Capability-Brief.pdf
 .preview-onepager2
 .onepager.html
 .tmp-*

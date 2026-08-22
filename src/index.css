@@ -56,4 +56,21 @@
     @apply text-xs font-semibold uppercase tracking-[0.18em];
     color: var(--color-amber);
   }
+  /* Keyboard / screen-reader skip link: hidden until focused */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100;
+    background: var(--color-forest);
+    color: var(--color-bone);
+    padding: 0.6rem 1.1rem;
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: top 0.15s ease;
+  }
+  .skip-link:focus {
+    top: 0;
+  }
 }
