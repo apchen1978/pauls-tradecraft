@@ -51,6 +51,21 @@ export default function Contact() {
             >
               {t.contact.callCta}
             </a>
+            <a
+              href="https://line.me/R/ti/p/andypaulshanghai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-pill px-6 py-3 text-sm font-bold text-white transition-all hover:brightness-110 active:scale-[0.98]"
+              style={{ backgroundColor: "#06c755" }}
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-4 items-center justify-center rounded-[4px] bg-white/20 px-1 text-[9px] font-extrabold tracking-tight"
+              >
+                LINE
+              </span>
+              {t.contact.line}
+            </a>
           </div>
           <a
             href={onePagerUrl}
