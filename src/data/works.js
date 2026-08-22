@@ -10,7 +10,7 @@
 export const works = [
   {
     id: "mori-soft-furnishing-website",
-    cover: "/images/cover-mori-soft-furnishing.png",
+    cover: "/images/cover-mori-soft-furnishing.webp",
     imageAlt: { zh: "MORI 軟裝品牌網站首頁", en: "MORI soft-furnishing brand website homepage" },
     span: "col-span-3 md:col-span-2",
     icon: "briefcase",
@@ -181,7 +181,7 @@ export const works = [
   },
   {
     id: "simulations",
-    cover: "/images/cover-simulations.png",
+    cover: "/images/cover-simulations.webp",
     imageAlt: { zh: "Pilot 模擬時間軸", en: "Pilot simulation timeline" },
     span: "col-span-1",
     verified: true,
@@ -264,7 +264,7 @@ export const works = [
   },
   {
     id: "wastetime",
-    cover: "/images/cover-wastetime.png",
+    cover: "/images/cover-wastetime.webp",
     imageAlt: { zh: "浪費時間 idle clicker 遊戲畫面", en: "Waste Time idle clicker game screen" },
     span: "col-span-2",
     icon: "game",
