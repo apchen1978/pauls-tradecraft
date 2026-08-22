@@ -1,7 +1,7 @@
 // 作品資料：全部來自 WORKLOG.md 與工作區實際產出。
 // 公開連結規則（evidence-first）：
 //   - 只有從 GitHub/線上實測確認的公開 URL 才填入 link。
-//   - 未驗證者維持 null，UI 顯示「PUBLIC EVIDENCE: UNKNOWN / NOT YET PUBLISHED」。
+//   - 未驗證者維持 null；公開呈現使用中性的 evidence status copy。
 //   - 禁止猜測 URL、禁止把 private repo 當作公開證據。
 // Case Study schema（P1.5）：
 //   - case.stage 只能是：Prototype / Simulation / Shadow Pilot / Technical Validation / Creative Build（依證據選）
@@ -10,7 +10,6 @@
 export const works = [
   {
     id: "mori-soft-furnishing-website",
-    featuredRank: 4,
     cover: "/images/cover-mori-soft-furnishing.webp",
     imageAlt: { zh: "MORI 軟裝品牌網站首頁", en: "MORI soft-furnishing brand website homepage" },
     span: "col-span-3 md:col-span-2",
@@ -110,7 +109,6 @@ export const works = [
   },
   {
     id: "tracker",
-    featuredRank: 3,
     cover: "/images/cover-tracker.png",
     imageAlt: { zh: "窗簾軟裝 Pilot 追蹤器儀表板", en: "Curtain soft-furnishing pilot tracker dashboard" },
     span: "col-span-2",
@@ -322,6 +320,7 @@ export const works = [
   },
   {
     id: "lyrics",
+    featuredRank: 3,
     cover: "/images/cover-lyrics-v2.png",
      imageAlt: { zh: "AI Lyrics Generator Desktop V3 與 Live Web Demo", en: "AI Lyrics Generator Desktop V3 and live web demo" },
     span: "col-span-1",
@@ -340,7 +339,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
-       stageTag: { zh: "Desktop V3 + Live Web Demo", en: "Desktop V3 + Live Web Demo" },
+       stageTag: { zh: "Live Production Demo · DeepSeek", en: "Live Production Demo · DeepSeek" },
        compact: true,
        problem: {
          zh: "歌詞創作工具往往只停留在單次生成，缺少可實際操作的品質控制與迭代流程。",
@@ -370,24 +369,26 @@ export const works = [
   },
   {
     id: "deck",
+    featuredRank: 4,
     cover: "/images/cover-deck.webp",
     imageAlt: { zh: "DSH 快速指南簡報", en: "DSH quick guide deck" },
     span: "col-span-1",
     verified: true,
     link: null,
+    hidePendingLink: true,
     zh: {
       title: "DSH 快速指南簡報",
-      desc: "spec JSON → PPTX → PDF 簡報管線，三版迭代，McKinsey/a16z 編輯系統。",
+      desc: "可重跑的 spec JSON → PPTX → PDF 簡報管線，三版迭代，McKinsey/a16z 編輯系統。",
       tag: "簡報管線",
     },
     en: {
       title: "DSH Guide Deck",
-      desc: "A spec-to-PPTX-to-PDF deck pipeline across three iterations with an editorial design system.",
+      desc: "A rerunnable spec-to-PPTX-to-PDF deck pipeline across three iterations with an editorial design system.",
       tag: "Deck pipeline",
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
-      stageTag: "3 versions",
+      stageTag: { zh: "已驗證產物 · 可重現工作流", en: "Verified Artifact · Reproducible Workflow" },
       problem: {
         zh: "簡報製作耗時且版本難控，缺乏可重跑的產出管線。",
         en: "Deck production was slow and hard to version, with no rerunnable output pipeline.",
@@ -405,8 +406,8 @@ export const works = [
         en: "Three deck versions produced, with PDF rendering.",
       },
       evidence: {
-        zh: "三版簡報（含 PDF 渲染）由 spec JSON 管線產出、可重跑；產物位於 ppt-toolkit/（spec-dsh-guide.json、make-pptx.mjs、demo 簡報與 PDF）。",
-        en: "Three deck versions (with PDF rendering) are produced by the spec JSON pipeline and rerunnable; artifacts live in ppt-toolkit/ (spec-dsh-guide.json, make-pptx.mjs, demo deck, and PDF).",
+        zh: "三版簡報（含 PDF 渲染）由 spec JSON 管線產出、可重跑；產物位於 ppt-toolkit/（spec-dsh-guide.json、make-pptx.mjs、指南簡報與 PDF）。",
+        en: "Three deck versions (with PDF rendering) are produced by the spec JSON pipeline and rerunnable; artifacts live in ppt-toolkit/ (spec-dsh-guide.json, make-pptx.mjs, guide deck, and PDF).",
       },
     },
   },
