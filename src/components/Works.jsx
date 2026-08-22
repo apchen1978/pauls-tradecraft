@@ -19,7 +19,7 @@ const iconMap = {
   briefcase: Briefcase,
 };
 
-function CaseStudy({ c }) {
+function CaseStudy({ c, related }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
   const labels = t.works.caseStudy;
@@ -54,6 +54,19 @@ function CaseStudy({ c }) {
           <dt className="font-semibold text-ink/80">{labels.evidence}</dt>
           <dd className="mt-0.5 break-words leading-relaxed text-ink/65">{f(c.evidence)}</dd>
         </div>
+        {related && (
+          <div className="border-t border-line pt-3">
+            <a
+              href={`#${related.id}`}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ArrowUpRight size={14} weight="bold" />
+              {typeof related.label === "string" ? related.label : related.label?.[lang]}
+            </a>
+            {related.note && <p className="mt-1 text-xs leading-relaxed text-ink/55">{typeof related.note === "string" ? related.note : related.note?.[lang]}</p>}
+          </div>
+        )}
       </dl>
     </details>
   );
@@ -93,6 +106,8 @@ export default function Works() {
           return (
             <motion.article
               key={w.id}
+              id={w.id}
+              className="scroll-mt-28"
               onClick={
                 w.link
                   ? undefined
@@ -167,7 +182,7 @@ export default function Works() {
                   </p>
                 </div>
               </Wrapper>
-              {w.case && <CaseStudy c={w.case} />}
+              {w.case && <CaseStudy c={w.case} related={w.related} />}
             </motion.article>
           );
         })}

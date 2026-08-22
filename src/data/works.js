@@ -58,6 +58,14 @@ export const works = [
   {
     id: "trade-deal-desk",
     featuredRank: 1,
+    related: {
+      id: "payment-concentration",
+      label: { zh: "下一步：這個決策會如何影響 7 天付款高峰？", en: "Next: how does this decision move your 7-day payment peak?" },
+      note: {
+        zh: "portfolio 層演示接合：以同一 Deal C 概念，串接決策 → 付款承諾影響。兩者皆為合成模擬。",
+        en: "Portfolio-level demo bridge: same Deal C concept, linking decision to payment-commitment impact. Both are synthetic simulations.",
+      },
+    },
     cover: "/images/cover-trade-deal-desk.png",
     imageAlt: { zh: "AI Trade Deal Desk RFQ 決策工作區畫面", en: "AI Trade Deal Desk RFQ decision workspace" },
     span: "col-span-3 md:col-span-2",
@@ -441,6 +449,14 @@ export const works = [
   {
     id: "payment-concentration",
     featuredRank: 2,
+    related: {
+      id: "trade-deal-desk",
+      label: { zh: "回到源頭：這個 Deal C 是怎麼被評估與核准的？", en: "Back to the source: how was this Deal C assessed and approved?" },
+      note: {
+        zh: "portfolio 層演示接合：Deal C 的決策來自 Trade Deal Desk 的合成案例，付款影響為模擬計算。",
+        en: "Portfolio-level demo bridge: Deal C's decision comes from a Trade Deal Desk synthetic case; the payment impact is a simulated calculation.",
+      },
+    },
     cover: "/images/cover-payment-concentration.png",
     imageAlt: { zh: "Payment Concentration 原型：滾動 7 日付款承諾高峰畫面", en: "Payment Concentration prototype: rolling 7-day payment-commitment peak" },
     span: "col-span-2",
