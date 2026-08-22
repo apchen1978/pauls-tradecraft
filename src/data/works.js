@@ -244,12 +244,12 @@ export const works = [
     linkLabel: { zh: "立即玩", en: "Play Now" },
     zh: {
       title: "Lil Matt's Gaming World",
-      desc: "雙模式原創遊戲：「Read the Signal」精準節奏平台遊戲 + 內建英語學習打字挑戰（32 篇文章、92 筆道地美式英語字彙）。",
+      desc: "Lil Matt's Gaming World 旗下兩個獨立遊戲：Jumpverse 平台冒險（Vector Wake 第一關）＋ WordForge 遊戲化英語學習（Typing Challenge 為首個模式）。",
       tag: "遊戲 · 英語學習",
     },
     en: {
       title: "Lil Matt's Gaming World",
-      desc: "A dual-mode original game: the Read the Signal precision rhythm platformer, plus a built-in English learning typing challenge with 32 passages and 92 authentic American English vocabulary notes.",
+      desc: "Two independent games under Lil Matt's Gaming World: Jumpverse platform adventure (Vector Wake = Level 1) + WordForge gamified English learning (Typing Challenge = current first mode).",
       tag: "Game · English Learning",
     },
     case: {
@@ -271,8 +271,8 @@ export const works = [
         en: "Iterative testing and improvement (IME input fixes, audio tuning, layout refinements) made the typing experience stable and smooth; the Shadow Mode offers explainable practice recommendations.",
       },
       evidence: {
-        zh: "公開 demo：https://apchen1978.github.io/signal-rift-typing-demo/",
-        en: "Public demo: https://apchen1978.github.io/signal-rift-typing-demo/",
+        zh: "公開入口（Gaming World hub）：https://apchen1978.github.io/signal-rift-typing-demo/ ；Jumpverse：/jumpverse.html ；WordForge：/wordforge.html",
+        en: "Public hub: https://apchen1978.github.io/signal-rift-typing-demo/ ; Jumpverse: /jumpverse.html ; WordForge: /wordforge.html",
       },
     },
   },
