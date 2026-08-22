@@ -267,8 +267,8 @@ export const works = [
         en: "Vite + TypeScript + Canvas 2D · WebAudio · speechSynthesis (no backend, zero runtime deps)",
       },
       result: {
-        zh: "經過多輪迭代測試與改進（IME 輸入修正、音效調整、版面優化），打字體驗穩定流暢；Shadow Mode 用可解釋的方式推薦練習方向。",
-        en: "Iterative testing and improvement (IME input fixes, audio tuning, layout refinements) made the typing experience stable and smooth; the Shadow Mode offers explainable practice recommendations.",
+        zh: "經過多輪迭代測試與改進（IME 輸入修正、音效調整、版面優化），打字體驗穩定流暢；Shadow Mode 用可解釋的方式推薦練習方向。Lil Matt 真人遊玩測試偏好分離為兩款獨立遊戲；既有玩法與進度相容性已保留。",
+        en: "Iterative testing and improvement (IME input fixes, audio tuning, layout refinements) made the typing experience stable and smooth; the Shadow Mode offers explainable practice recommendations. Lil Matt's real-player playtest preferred splitting into two independent games; existing gameplay and progress compatibility are preserved.",
       },
       evidence: {
         zh: "公開入口（Gaming World hub）：https://apchen1978.github.io/signal-rift-typing-demo/ ；Jumpverse：/jumpverse.html ；WordForge：/wordforge.html",
