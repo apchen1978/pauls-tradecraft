@@ -74,6 +74,8 @@ jobs:
         run: |
           # inventory 變更（新增/移除 Works）時要求編輯審查 One-Pager
           python3 scripts/check-onepager-sync.py
+      - name: Document parity closing gate
+        run: node scripts/check-document-parity.mjs dist/files/PaulTradecraft-Capability-Brief.pdf
       - name: Health check before deploy (fail fast)
         run: |
           set -e

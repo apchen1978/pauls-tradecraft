@@ -5,8 +5,9 @@
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
   "kicker": "AI COLLABORATION ONE-PAGER",
-  "title": "Turning business problems into AI-assisted workflows, prototypes, and working systems",
-  "subtitle": "15 years as an international trade director, working with AI | TOEIC 955 | Human-led, AI-accelerated",
+  "title": "Turning commercial judgment into AI-assisted workflows, decision tools, and working systems",
+  "positioning": "AI-native Commercial Workflow Design × Decision Tools × Agent Orchestration",
+  "subtitle": "15 Years in International Trade Leadership × AI Collaboration | TOEIC 955 | Human-led, AI-accelerated",
   "stats": [
     {
       "value": "955",
@@ -18,7 +19,7 @@
     },
     {
       "value": "23/23",
-      "label": "Pilot checks passed"
+      "label": "Pilot workflow validation checks passed"
     }
   ],
   "servicesTitle": "SERVICES",
@@ -47,15 +48,18 @@
   ],
   "works": [
     "Commercial Decision Desk — evidence-first commercial decision orchestration: opportunity → feasibility → exposure → human decision (synthetic proof)",
-    "AI Trade Deal Desk — flagship: a trade decision workspace where AI recommends and a human approves, with a live public demo",
-    "MORI Soft-Furnishing Brand Website & Workflow — private delivery case: a brand site and repeatable workflow supporting marketing and sales progress",
-    "Curtain Soft-Furnishing Pilot Tracker — one tracker from lead to follow-up, 23/23 verified",
+    "AI Trade Deal Desk — deeper trade-decision workspace where AI recommends and a human approves, with a live public demo",
+    "Curtain Soft-Furnishing Pilot Tracker — one tracker from lead to follow-up, 23/23 pilot workflow validation checks passed",
+    "MORI Soft-Furnishing Brand Website & Workflow — a brand site and repeatable workflow supporting marketing and sales progress"
+  ],
+  "worksSecondaryLabel": "EXPERIMENTS & OTHER WORK",
+  "worksSecondary": [
     "Sales Pilot Case Brief — public live demo",
     "Lil Matt's Gaming World — two independent games live: Jumpverse platform adventure + WordForge English learning",
     "AI Lyrics Generator — Python desktop app, local generation",
     "MG Desktop Pet — lightweight personal desktop-pet creative build"
   ],
   "processTitle": "HOW I WORK",
-  "process": "Human decides → AI collaborates → Human reviews → Deploy → Independent re-check",
+  "process": "Human Defines the Boundary → AI Delegation → Cross-Validation → Human Review → Deployment → Independent Review",
   "footer": "PAUL'S TRADECRAFT | AI COLLABORATION | paulstradecraft.com · paulchen1978@gmail.com"
 }

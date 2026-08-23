@@ -64,7 +64,7 @@ const html = `<!doctype html>
   }
   .topline { width: 100%; height: 2mm; background: #C9A227; margin-bottom: 8mm; }
   .kicker { font-size: 9pt; letter-spacing: 2.5pt; color: #3B82F6; font-weight: 700; text-transform: uppercase; }
-  h1 { font-size: ${isCJK ? "21pt" : "19pt"}; line-height: 1.3; margin-top: 4mm; font-weight: 800; max-width: 175mm; }
+  h1 { font-size: ${isCJK ? "21pt" : "18pt"}; line-height: 1.3; margin-top: 4mm; font-weight: 800; max-width: 175mm; }
   .positioning { font-size: 10pt; font-weight: 700; color: #C9A227; margin-top: 2.5mm; letter-spacing: 0.4pt; }
   .sub { font-size: 10.5pt; color: #C7D2E0; margin-top: 3mm; line-height: 1.6; }
   .stats { display: flex; gap: 6mm; margin-top: 6mm; }
