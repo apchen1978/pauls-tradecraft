@@ -19,6 +19,8 @@ const iconMap = {
   briefcase: Briefcase,
 };
 
+const SECTION_ORDER = ["commercial", "operations", "labs"];
+
 function CaseStudy({ c, related, link, linkLabel }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
@@ -95,9 +97,118 @@ function CaseStudy({ c, related, link, linkLabel }) {
 
 export default function Works() {
   const { lang, t } = useLang();
-  const orderedWorks = [...works].sort(
-    (a, b) => (a.featuredRank ?? Number.MAX_SAFE_INTEGER) - (b.featuredRank ?? Number.MAX_SAFE_INTEGER),
-  );
+  const sections = SECTION_ORDER.map((id) => ({
+    id,
+    label: t.works.sections[id],
+    note: id === "labs" ? t.works.labsNote : "",
+    works: [...works]
+      .filter((w) => w.section === id)
+      .sort((a, b) => (a.featuredRank ?? Number.MAX_SAFE_INTEGER) - (b.featuredRank ?? Number.MAX_SAFE_INTEGER)),
+  }));
+
+  const renderCard = (w, i) => {
+    const copy = lang === "zh" ? w.zh : w.en;
+    const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
+    const Icon = w.icon ? iconMap[w.icon] : null;
+    const Wrapper = w.link ? "a" : "div";
+    const desktopSpan = w.span
+      .split(" ")
+      .filter((token) => token.startsWith("md:") || !token.startsWith("col-span-"))
+      .join(" ");
+    const wrapperProps = w.link
+      ? {
+          href: w.link,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          "aria-label": copy.title,
+        }
+      : {};
+    return (
+      <motion.article
+        key={w.id}
+        id={w.id}
+        onClick={
+          w.link
+            ? undefined
+            : (e) => {
+                if (e.target.closest("summary")) return;
+                const det = e.currentTarget.querySelector("details");
+                if (det) det.open = !det.open;
+              }
+        }
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
+         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 col-span-1 ${desktopSpan} ${w.link ? "" : "cursor-pointer"}`}
+      >
+        <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
+          {w.cover ? (
+            <div className="overflow-hidden">
+              <img
+                src={w.cover}
+                alt={w.imageAlt[lang]}
+                loading="lazy"
+                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02]`}
+              />
+            </div>
+          ) : (
+            <div className="flex aspect-[16/9] items-center justify-center bg-paper">
+              {Icon && <Icon size={44} weight="light" className="text-moss" />}
+            </div>
+          )}
+          <div className="flex flex-1 flex-col p-6">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
+              <span>{copy.tag}</span>
+              {w.verified && (
+                <span
+                  className="inline-flex items-center gap-1 text-forest"
+                  title={t.works.verifiedExplain}
+                  aria-label={`${t.works.statusVerified}：${t.works.verifiedExplain}`}
+                >
+                  <CheckCircle size={13} weight="fill" />
+                  {t.works.statusVerified}
+                  <Info size={12} weight="bold" aria-hidden="true" />
+                </span>
+              )}
+            </div>
+            <h3 className={`mt-2.5 flex items-center gap-2 font-bold tracking-tight ${w.id === "trade-deal-desk" ? "text-xl md:text-[21px]" : "text-lg"}`}>
+              {copy.title}
+              {w.link && (
+                <ArrowUpRight
+                  size={18}
+                  weight="bold"
+                  className="text-forest transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              )}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-ink/65">{copy.desc}</p>
+            {copy.caseSummary && (
+              <p className="mt-4 border-l-2 border-amber/70 pl-3 text-sm leading-relaxed text-ink/75">
+                <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}：</span>
+                {copy.caseSummary}
+              </p>
+            )}
+            <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
+              {w.link ? (
+                <span className="inline-flex items-center gap-1 text-forest">
+                  <ArrowUpRight size={13} weight="bold" />
+                  {linkLabel}
+                </span>
+              ) : !w.hidePendingLink ? (
+                t.works.linkPending
+              ) : null}
+            </p>
+            {w.demoNote && (
+              <p className="mt-1.5 text-[11px] leading-snug text-ink/50">{w.demoNote[lang]}</p>
+            )}
+          </div>
+        </Wrapper>
+   {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} />}
+      </motion.article>
+    );
+  };
+
   return (
     <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-28">
       <div className="max-w-2xl">
@@ -106,110 +217,17 @@ export default function Works() {
         <p className="mt-4 text-base leading-relaxed text-ink/65">{t.works.sub}</p>
       </div>
 
-      <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {orderedWorks.map((w, i) => {
-          const copy = lang === "zh" ? w.zh : w.en;
-          const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
-          const Icon = w.icon ? iconMap[w.icon] : null;
-          const Wrapper = w.link ? "a" : "div";
-          const desktopSpan = w.span
-            .split(" ")
-            .filter((token) => token.startsWith("md:") || !token.startsWith("col-span-"))
-            .join(" ");
-          const wrapperProps = w.link
-            ? {
-                href: w.link,
-                target: "_blank",
-                rel: "noopener noreferrer",
-                "aria-label": copy.title,
-              }
-            : {};
-          return (
-            <motion.article
-              key={w.id}
-              id={w.id}
-              onClick={
-                w.link
-                  ? undefined
-                  : (e) => {
-                      if (e.target.closest("summary")) return;
-                      const det = e.currentTarget.querySelector("details");
-                      if (det) det.open = !det.open;
-                    }
-              }
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
-               className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 col-span-1 ${desktopSpan} ${w.link ? "" : "cursor-pointer"}`}
-            >
-              <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
-                {w.cover ? (
-                  <div className="overflow-hidden">
-                    <img
-                      src={w.cover}
-                      alt={w.imageAlt[lang]}
-                      loading="lazy"
-                      className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02]`}
-                    />
-                  </div>
-                ) : (
-                  <div className="flex aspect-[16/9] items-center justify-center bg-paper">
-                    {Icon && <Icon size={44} weight="light" className="text-moss" />}
-                  </div>
-                )}
-                <div className="flex flex-1 flex-col p-6">
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
-                    <span>{copy.tag}</span>
-                    {w.verified && (
-                      <span
-                        className="inline-flex items-center gap-1 text-forest"
-                        title={t.works.verifiedExplain}
-                        aria-label={`${t.works.statusVerified}：${t.works.verifiedExplain}`}
-                      >
-                        <CheckCircle size={13} weight="fill" />
-                        {t.works.statusVerified}
-                        <Info size={12} weight="bold" aria-hidden="true" />
-                      </span>
-                    )}
-                  </div>
-                  <h3 className={`mt-2.5 flex items-center gap-2 font-bold tracking-tight ${w.id === "trade-deal-desk" ? "text-xl md:text-[21px]" : "text-lg"}`}>
-                    {copy.title}
-                    {w.link && (
-                      <ArrowUpRight
-                        size={18}
-                        weight="bold"
-                        className="text-forest transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                      />
-                    )}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink/65">{copy.desc}</p>
-                  {copy.caseSummary && (
-                    <p className="mt-4 border-l-2 border-amber/70 pl-3 text-sm leading-relaxed text-ink/75">
-                      <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}：</span>
-                      {copy.caseSummary}
-                    </p>
-                  )}
-                  <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
-                    {w.link ? (
-                      <span className="inline-flex items-center gap-1 text-forest">
-                        <ArrowUpRight size={13} weight="bold" />
-                        {linkLabel}
-                      </span>
-                    ) : !w.hidePendingLink ? (
-                      t.works.linkPending
-                    ) : null}
-                  </p>
-                  {w.demoNote && (
-                    <p className="mt-1.5 text-[11px] leading-snug text-ink/50">{w.demoNote[lang]}</p>
-                  )}
-                </div>
-              </Wrapper>
-         {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} />}
-            </motion.article>
-          );
-        })}
-      </div>
+      {sections.map((sec, si) => (
+        <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
+          <div className={`${si === 0 ? "mt-14" : "mt-12"} border-t border-line pt-6`}>
+            <h3 className={`font-bold tracking-tight ${si === 0 ? "text-2xl text-forest md:text-[26px]" : "text-lg text-ink/75"}`}>{sec.label}</h3>
+            {sec.note && <p className="mt-1.5 text-sm leading-relaxed text-ink/60">{sec.note}</p>}
+          </div>
+          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {sec.works.map((w, i) => renderCard(w, i))}
+          </div>
+        </div>
+      ))}
     </section>
   );
 }

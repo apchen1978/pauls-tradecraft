@@ -10,6 +10,8 @@
 export const works = [
   {
     id: "mori-soft-furnishing-website",
+    section: "commercial",
+    featuredRank: 5,
     cover: "/images/cover-mori-soft-furnishing.webp",
     imageAlt: { zh: "MORI 軟裝品牌網站首頁", en: "MORI soft-furnishing brand website homepage" },
     span: "col-span-3 md:col-span-2",
@@ -56,7 +58,8 @@ export const works = [
   },
   {
     id: "trade-deal-desk",
-    featuredRank: 1,
+    featuredRank: 3,
+    section: "commercial",
     related: {
       id: "payment-concentration",
       label: { zh: "下一步：這個決策會如何影響 7 天付款高峰？", en: "Next: how does this decision move your 7-day payment peak?" },
@@ -109,6 +112,8 @@ export const works = [
   },
   {
     id: "tracker",
+    section: "operations",
+    featuredRank: 1,
     cover: "/images/cover-tracker.png",
     imageAlt: { zh: "窗簾軟裝 Pilot 追蹤器儀表板", en: "Curtain soft-furnishing pilot tracker dashboard" },
     span: "col-span-2",
@@ -151,6 +156,8 @@ export const works = [
   },
   {
     id: "casebrief",
+    section: "operations",
+    featuredRank: 2,
     cover: "/images/cover-casebrief.png",
     imageAlt: { zh: "銷售 Pilot 案例簡報", en: "Sales Pilot case brief" },
     span: "col-span-1",
@@ -193,6 +200,8 @@ export const works = [
   },
   {
     id: "simulations",
+    section: "labs",
+    featuredRank: 5,
     cover: "/images/cover-simulations.webp",
     imageAlt: { zh: "Pilot 模擬時間軸", en: "Pilot simulation timeline" },
     span: "col-span-1",
@@ -234,6 +243,8 @@ export const works = [
   },
   {
     id: "game",
+    section: "labs",
+    featuredRank: 1,
     cover: "/images/cover-game.webp",
     imageAlt: { zh: "Lil Matt's Gaming World 遊戲", en: "Lil Matt's Gaming World game" },
     span: "col-span-1",
@@ -276,6 +287,8 @@ export const works = [
   },
   {
     id: "wastetime",
+    section: "labs",
+    featuredRank: 3,
     cover: "/images/cover-wastetime.webp",
     imageAlt: { zh: "浪費時間 idle clicker 遊戲畫面", en: "Waste Time idle clicker game screen" },
     span: "col-span-2",
@@ -320,7 +333,8 @@ export const works = [
   },
   {
     id: "lyrics",
-    featuredRank: 3,
+    featuredRank: 2,
+    section: "labs",
     cover: "/images/cover-lyrics-v2.png",
      imageAlt: { zh: "AI Lyrics Generator Desktop V3 與 Live Web Demo", en: "AI Lyrics Generator Desktop V3 and live web demo" },
     span: "col-span-1",
@@ -369,7 +383,8 @@ export const works = [
   },
   {
     id: "deck",
-    featuredRank: 5,
+    featuredRank: 3,
+    section: "operations",
     cover: "/images/cover-deck.webp",
     imageAlt: { zh: "DSH 快速指南簡報", en: "DSH quick guide deck" },
     span: "col-span-1",
@@ -413,6 +428,8 @@ export const works = [
   },
   {
     id: "expense",
+    section: "labs",
+    featuredRank: 6,
     cover: "/images/cover-expense.webp",
     imageAlt: { zh: "Expense Tracker 收支實驗", en: "Expense Tracker experiments" },
     span: "col-span-3",
@@ -455,7 +472,8 @@ export const works = [
   },
   {
     id: "payment-concentration",
-    featuredRank: 2,
+    featuredRank: 4,
+    section: "commercial",
     related: {
       id: "trade-deal-desk",
       label: { zh: "回到源頭：這個 Deal C 是怎麼被評估與核准的？", en: "Back to the source: how was this Deal C assessed and approved?" },
@@ -508,6 +526,8 @@ export const works = [
   },
   {
     id: "mg-desktop-pet",
+    section: "labs",
+    featuredRank: 4,
     cover: "/images/cover-mg-desktop-pet.png",
     imageAlt: { zh: "MG Desktop Pet 正面待機角色動畫影格", en: "MG Desktop Pet front-facing idle animation frame" },
     imageFit: "contain",
@@ -552,7 +572,8 @@ export const works = [
   },
   {
     id: "overseas-lead-discovery",
-    featuredRank: 4,
+    featuredRank: 2,
+    section: "commercial",
     cover: "/images/cover-lead-discovery.png",
     imageAlt: { zh: "Overseas Lead Discovery 資格篩選 demo 畫面", en: "Overseas Lead Discovery qualification demo" },
     span: "col-span-2",
@@ -600,7 +621,8 @@ export const works = [
   },
   {
     id: "commercial-decision-desk",
-    featuredRank: 6,
+    featuredRank: 1,
+    section: "commercial",
     cover: "/images/cover-commercial-decision-desk.png",
     imageAlt: { zh: "Commercial Decision Desk 決策支援介面", en: "Commercial Decision Desk decision-support interface" },
     span: "col-span-2",
