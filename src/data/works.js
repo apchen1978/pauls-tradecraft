@@ -369,7 +369,7 @@ export const works = [
   },
   {
     id: "deck",
-    featuredRank: 4,
+    featuredRank: 5,
     cover: "/images/cover-deck.webp",
     imageAlt: { zh: "DSH 快速指南簡報", en: "DSH quick guide deck" },
     span: "col-span-1",
@@ -552,7 +552,7 @@ export const works = [
   },
   {
     id: "overseas-lead-discovery",
-    featuredRank: 5,
+    featuredRank: 4,
     cover: "/images/cover-lead-discovery.png",
     imageAlt: { zh: "Overseas Lead Discovery 資格篩選 demo 畫面", en: "Overseas Lead Discovery qualification demo" },
     span: "col-span-2",
@@ -595,6 +595,53 @@ export const works = [
       evidence: {
         zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records。揭露：REAL OWNER PRECISION@20: PENDING · 脫敏代表性 records · 公開網路證據流程 · 含模擬/領域學習元素 · 未進行 outreach · 商業採用與支付意願未證明 · 沒有證據支持的資訊，不會被標示為已確認事實。",
         en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records in the interactive demo. Disclosure: REAL OWNER PRECISION@20: PENDING · representative/anonymized records · public-web evidence workflow · simulated/domain-learning elements included · no outreach performed · commercial adoption and willingness-to-pay not proven · No unsupported claim is presented as confirmed.",
+      },
+    },
+  },
+  {
+    id: "commercial-decision-desk",
+    featuredRank: 6,
+    cover: "/images/cover-commercial-decision-desk.png",
+    imageAlt: { zh: "Commercial Decision Desk 決策支援介面", en: "Commercial Decision Desk decision-support interface" },
+    span: "col-span-2",
+    icon: "briefcase",
+    verified: true,
+    link: "https://apchen1978.github.io/commercial-decision-desk/",
+    linkLabel: { zh: "試用決策 Demo", en: "Try Decision Demo" },
+    zh: {
+      title: "Commercial Decision Desk",
+      desc: "把商機品質、交易條件、付款承諾暴露、矛盾與未知，收斂成一個可追溯、由人最終決定的商業決策狀態。",
+      tag: "商業決策 · 決策支援",
+      caseSummary: "證據、暴露與矛盾收斂成一個可稽核的商業狀態；desk 只建議，人做最終決定。",
+    },
+    en: {
+      title: "Commercial Decision Desk",
+      desc: "Turns opportunity quality, commercial terms, payment commitment exposure, contradictions, and UNKNOWNs into one auditable commercial state for human decision.",
+      tag: "Commercial decision · Decision support",
+      caseSummary: "Evidence, exposure, and contradictions converge into one auditable commercial state — the desk recommends, the human decides.",
+    },
+    case: {
+      stage: { zh: "合成決策設計", en: "Synthetic Decision-Design" },
+      stageTag: "Decision support · Human-in-the-loop",
+      problem: {
+        zh: "商機判斷分散在證據、交易條件、付款風險與人為經驗中，難以一次看全，也難以追溯「為什麼這樣決定」。",
+        en: "Commercial judgment is scattered across evidence, trade terms, payment risk, and experience — hard to see at once and hard to trace why a decision was made.",
+      },
+      approach: {
+        zh: "把商機從外部證據一路收斂到人類決策：DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE。以確定性規則產生決策支援狀態（PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE），矛盾與 UNKNOWN 全程浮現，不產生單一神秘分數。",
+        en: "Traces an opportunity from external evidence to a human decision: DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE. Deterministic rules produce decision-support states (PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE); contradictions and UNKNOWNs stay visible; no opaque overall score.",
+      },
+      tools: {
+        zh: "純 HTML/CSS/JS · 確定性決策規則 · 合成 fixture · 零後端／零持久化",
+        en: "Plain HTML/CSS/JS · deterministic decision rules · synthetic fixture · zero backend / zero persistence",
+      },
+      result: {
+        zh: "以合成商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與 UNKNOWN → Human Decision。8 條硬規則引擎化，38/38 自動檢查通過。",
+        en: "Synthetic decision-design proof connecting evidence qualification, commercial feasibility, payment exposure, contradictions, UNKNOWNs, and mandatory human approval. Eight hard rules enforced in the engine; 38/38 automated checks pass.",
+      },
+      evidence: {
+        zh: "公開 demo：https://apchen1978.github.io/commercial-decision-desk/ 。揭露：SYNTHETIC decision-design proof · 人類決策必要 · 無自主商業動作 · 商業採用／ROI 未證明。",
+        en: "Public demo: https://apchen1978.github.io/commercial-decision-desk/ . Disclosure: SYNTHETIC decision-design proof · human decision required · no autonomous commercial action · commercial adoption / ROI not proven.",
       },
     },
   },
