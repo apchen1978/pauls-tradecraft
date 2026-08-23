@@ -84,7 +84,12 @@ const dict = {
       eyebrow: "About Me",
       headline: "專業，偶爾風趣",
       intro: "政大會計系畢業，多年國際貿易總監經驗。",
-      body: "我用 AI 協作把貿易實務變成可交付的工具。風格是：專業，偶爾風趣；數字有據，說法不誇。",
+      narrative: [
+        "二十多年，我一直在商業現場。",
+        "從製造、財務會計、國際貿易到供應鏈，我長期面對成本、報價、客戶、供應商、付款與風險，也習慣在資訊不完整時做判斷。",
+        "AI 不是離開過去，而是讓這些經驗有了新的實現方式。",
+        "我把累積的商業判斷，轉化為可執行、可驗證、可追溯的系統。",
+      ],
       signature: {
         lead: ["立界 · 賦能 · 證行"],
         support: ["不妄斷，不盲動。", "每一策，皆可追。"],
@@ -228,7 +233,12 @@ const dict = {
       eyebrow: "About Me",
       headline: "Professional, occasionally witty",
       intro: "Accounting degree from NCCU; years as an international trade director.",
-      body: "I use AI collaboration to turn trade practice into shippable tools. Style: professional, occasionally witty; numbers with receipts, claims without fluff.",
+      narrative: [
+        "For more than two decades, I’ve worked on the commercial front line.",
+        "Across manufacturing, finance, international trade, and supply chains, I’ve dealt with costs, quotations, customers, suppliers, payments, risk, and decisions made with incomplete information.",
+        "AI is not a departure from that experience. It is a new way to put it to work.",
+        "I turn commercial judgment into executable, verifiable, and traceable systems.",
+      ],
       signature: {
         lead: ["Judgment defines the boundary.", "AI amplifies capability.", "Evidence determines action."],
         support: ["Less automation for its own sake.", "Less guessing. Better decisions."],
