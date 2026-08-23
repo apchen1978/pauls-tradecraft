@@ -31,6 +31,11 @@ export default function About() {
                 </span>
               ))}
             </p>
+            {t.about.signature.secondary && (
+              <p className="mt-6 max-w-[48ch] text-[11px] font-medium uppercase tracking-[0.16em] text-forest/60 md:text-xs">
+                {t.about.signature.secondary}
+              </p>
+            )}
           </div>
         </motion.div>
 

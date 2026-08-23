@@ -86,6 +86,7 @@ const dict = {
       signature: {
         lead: ["立界 · 賦能 · 證行"],
         support: ["不妄斷，不盲動。", "每一策，皆可追。"],
+        secondary: "JUDGMENT SETS THE BOUNDARY · EVIDENCE MOVES US FORWARD",
       },
       stats: [
         { value: "955", label: "TOEIC (2019)" },
