@@ -32,8 +32,12 @@ export default function About() {
               ))}
             </p>
             {t.about.signature.secondary && (
-              <p className="mt-6 max-w-[48ch] text-[11px] font-medium uppercase tracking-[0.16em] text-forest/60 md:text-xs">
-                {t.about.signature.secondary}
+              <p className="mt-6 max-w-[48ch] text-[11px] font-medium uppercase leading-[1.35] tracking-[0.16em] text-forest/60 md:text-xs">
+                {t.about.signature.secondary.map((line) => (
+                  <span key={line} className="block">
+                    {line}
+                  </span>
+                ))}
               </p>
             )}
           </div>
