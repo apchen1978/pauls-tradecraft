@@ -45,12 +45,6 @@ export default function Contact() {
               {t.contact.cta}
             </a>
             <a
-              href={`mailto:paulchen1978@gmail.com?subject=${encodeURIComponent(t.contact.callSubject)}`}
-              className="rounded-pill border border-amber/50 px-7 py-3 text-sm font-semibold text-amber transition-colors hover:border-amber"
-            >
-              {t.contact.callCta}
-            </a>
-            <a
               href="https://line.me/ti/p/zSJdkOeQgS"
               target="_blank"
               rel="noopener noreferrer"
