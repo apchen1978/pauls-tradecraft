@@ -32,6 +32,9 @@ locale = locale || data.locale || "zh";
 const worksList = (data.works || [])
   .map((w) => `<li>${w}</li>`)
   .join("");
+const worksSecondaryList = (data.worksSecondary || [])
+  .map((w) => `<li>${w}</li>`)
+  .join("");
 const servicesList = (data.services || [])
   .map((s) => `<li>${s}</li>`)
   .join("");
@@ -62,7 +65,8 @@ const html = `<!doctype html>
   .topline { width: 100%; height: 2mm; background: #C9A227; margin-bottom: 8mm; }
   .kicker { font-size: 9pt; letter-spacing: 2.5pt; color: #3B82F6; font-weight: 700; text-transform: uppercase; }
   h1 { font-size: ${isCJK ? "21pt" : "19pt"}; line-height: 1.3; margin-top: 4mm; font-weight: 800; max-width: 175mm; }
-  .sub { font-size: 10.5pt; color: #C7D2E0; margin-top: 4mm; line-height: 1.6; }
+  .positioning { font-size: 10pt; font-weight: 700; color: #C9A227; margin-top: 2.5mm; letter-spacing: 0.4pt; }
+  .sub { font-size: 10.5pt; color: #C7D2E0; margin-top: 3mm; line-height: 1.6; }
   .stats { display: flex; gap: 6mm; margin-top: 6mm; }
   .stat { background: #122B52; border-left: 1.2mm solid #C9A227; padding: 3mm 5mm; min-width: 30mm; }
   .stat b { display: block; font-size: 16pt; color: #fff; }
@@ -73,6 +77,9 @@ const html = `<!doctype html>
   li::before { content: "▪"; color: #C9A227; position: absolute; left: 0; }
   .works { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; }
   .works li { font-size: 9pt; }
+  .works-secondary-label { font-size: 8pt; color: #64748B; letter-spacing: 1pt; text-transform: uppercase; margin-top: 3mm; }
+  .works-secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; margin-top: 1.5mm; }
+  .works-secondary li { font-size: 7.5pt; color: #94A3B8; line-height: 1.55; }
   .process { font-size: 11pt; color: #E2E8F0; line-height: 1.7; }
   .footer { margin-top: auto; border-top: 0.3mm solid #24405F; padding-top: 4mm; display: flex; justify-content: space-between; font-size: 8.5pt; color: #C7D2E0; }
 </style>
@@ -81,6 +88,7 @@ const html = `<!doctype html>
   <div class="topline"></div>
   <div class="kicker">${data.kicker || ""}</div>
   <h1>${data.title || ""}</h1>
+  ${data.positioning ? `<p class="positioning">${data.positioning}</p>` : ""}
   <p class="sub">${data.subtitle || ""}</p>
   <div class="stats">${stats}</div>
 
@@ -89,6 +97,7 @@ const html = `<!doctype html>
 
   <h2>${data.worksTitle || ""}</h2>
   <ul class="works">${worksList}</ul>
+  ${data.worksSecondary && data.worksSecondary.length ? `<p class="works-secondary-label">${data.worksSecondaryLabel || ""}</p><ul class="works-secondary">${worksSecondaryList}</ul>` : ""}
 
   <h2>${data.processTitle || ""}</h2>
   <p class="process">${data.process || ""}</p>

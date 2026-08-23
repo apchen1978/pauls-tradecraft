@@ -14,6 +14,7 @@ const en = JSON.parse(readFileSync("C:/Users/grays/Documents/DeepSeek-Test/portf
 
 function build(data, isCJK) {
   const works = data.works.map((w) => `<li>${w}</li>`).join("");
+  const worksSecondary = (data.worksSecondary || []).map((w) => `<li>${w}</li>`).join("");
   const services = data.services.map((s) => `<li>${s}</li>`).join("");
   const stats = data.stats.map((s) => `<div class="stat"><b>${s.value}</b><span>${s.label}</span></div>`).join("");
   const font = isCJK ? '"Noto Sans CJK TC","Microsoft JhengHei",sans-serif' : '"Geist Variable","Segoe UI",sans-serif';
@@ -27,17 +28,23 @@ function build(data, isCJK) {
     li { font-size: 9.5pt; color: #E2E8F0; line-height: 1.6; padding-left: 4mm; }
     .works { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; }
     .works li { font-size: 9pt; }
+    .works-secondary-label { font-size: 8pt; color: #64748B; letter-spacing: 1pt; text-transform: uppercase; margin-top: 3mm; }
+    .works-secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; margin-top: 1.5mm; }
+    .works-secondary li { font-size: 7.5pt; color: #94A3B8; line-height: 1.55; }
+    .positioning { font-size: 10pt; font-weight: 700; color: #C9A227; margin-top: 2.5mm; }
     .process { font-size: 11pt; color: #E2E8F0; margin-top: 7mm; }
     .footer { margin-top: auto; border-top: 0.3mm solid #24405F; padding-top: 4mm; font-size: 8.5pt; color: #C7D2E0; display: flex; justify-content: space-between; }
   </style></head><body>
     <div class="topline"></div>
     <h1 style="font-size:21pt">${data.title}</h1>
+    ${data.positioning ? `<p class="positioning">${data.positioning}</p>` : ""}
     <p class="sub" style="font-size:10.5pt;color:#C7D2E0">${data.subtitle}</p>
     <div class="stats" style="display:flex;gap:6mm;margin-top:6mm">${stats}</div>
     <h2>${data.servicesTitle || "SERVICES"}</h2>
     <ul>${services}</ul>
     <h2>${data.worksTitle || "SELECTED WORKS"}</h2>
     <ul class="works">${works}</ul>
+    ${data.worksSecondary && data.worksSecondary.length ? `<p class="works-secondary-label">${data.worksSecondaryLabel || ""}</p><ul class="works-secondary">${worksSecondary}</ul>` : ""}
     <h2>${data.processTitle || "HOW I WORK"}</h2>
     <p class="process">${data.process}</p>
     <div class="footer"><span>${data.brand} · ${data.url}</span><span>${data.email}</span></div>
