@@ -16,6 +16,22 @@ export default function About() {
           <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.about.headline}</h2>
           <p className="mt-6 text-lg font-semibold text-ink/80">{t.about.intro}</p>
           <p className="mt-3 max-w-[52ch] text-base leading-relaxed text-ink/65">{t.about.body}</p>
+          <div className="mt-12 border-t border-amber/45 pt-6 md:mt-16 md:pt-7">
+            <p className="max-w-[28ch] text-xl font-semibold leading-[1.25] tracking-[0.04em] text-forest md:text-2xl">
+              {t.about.signature.lead.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </p>
+            <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-ink/60 md:text-base">
+              {t.about.signature.support.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </p>
+          </div>
         </motion.div>
 
         <div className="flex flex-col gap-6">

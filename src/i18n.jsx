@@ -83,6 +83,10 @@ const dict = {
       headline: "專業，偶爾風趣",
       intro: "政大會計系畢業，多年國際貿易總監經驗。",
       body: "我用 AI 協作把貿易實務變成可交付的工具。風格是：專業，偶爾風趣；數字有據，說法不誇。",
+      signature: {
+        lead: ["立界 · 賦能 · 證行"],
+        support: ["不妄斷，不盲動。", "每一策，皆可追。"],
+      },
       stats: [
         { value: "955", label: "TOEIC (2019)" },
         { value: "15年", label: "國際貿易總監" },
@@ -220,6 +224,10 @@ const dict = {
       headline: "Professional, occasionally witty",
       intro: "Accounting degree from NCCU; years as an international trade director.",
       body: "I use AI collaboration to turn trade practice into shippable tools. Style: professional, occasionally witty; numbers with receipts, claims without fluff.",
+      signature: {
+        lead: ["Judgment defines the boundary.", "AI amplifies capability.", "Evidence determines action."],
+        support: ["Less automation for its own sake.", "Less guessing. Better decisions."],
+      },
       stats: [
         { value: "955", label: "TOEIC (2019)" },
         { value: "15 years", label: "Trade director" },
