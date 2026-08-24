@@ -18,7 +18,7 @@
   --color-paper: #ecefe6;
   --color-ink: #17271f;
   --color-forest: #1f4d3a;
-  --color-pine: #0f2b23; /* hero 深色大區塊專用（國際大廠氣勢） */
+  --color-pine: #143329; /* hero / flagship 深暖綠大區塊（比舊值略亮、保留綠 DNA；gold 上對比 7:1） */
   --color-moss: #3a6b52;
   --color-amber: #a05a10; /* burnt amber: 4.8:1 on bone (WCAG AA) */
   --color-gold: #e8b04b; /* 亮金琥珀：7.7:1 on pine（深色 hero 用） */
@@ -52,6 +52,12 @@
 }
 
 @layer utilities {
+  .hero-gradient {
+    background: linear-gradient(95deg, var(--color-gold) 10%, #f0d9a8 60%, var(--color-gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.18em];
     color: var(--color-amber);

@@ -30,6 +30,8 @@ export default function Hero() {
             {t.hero.headlineA}
             <br />
             <span className="font-semibold text-bone">{t.hero.headlineB}</span>
+            <br />
+            <span className="hero-gradient font-semibold">{t.hero.headlineHighlight}</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-6 max-w-[52ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}
@@ -103,6 +105,18 @@ export default function Hero() {
           </div>
         </div>
       </motion.div>
+
+      {/* 工業精度 hairline：版本/狀態細節（大廠式） */}
+      <div className="relative mx-auto max-w-7xl px-4 pb-10 md:px-6 md:pb-12">
+        <div className="flex items-center justify-between border-t border-bone/12 pt-5">
+          <p className="text-[10.5px] font-semibold uppercase tracking-[0.24em] text-bone/45">
+            {t.brand} · {t.brandNote}
+          </p>
+          <p className="text-[10.5px] font-semibold uppercase tracking-[0.24em] text-bone/45">
+            Trade Workflows → Working Tools
+          </p>
+        </div>
+      </div>
     </section>
   );
 }

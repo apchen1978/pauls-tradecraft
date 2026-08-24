@@ -17,7 +17,7 @@ export default function Capabilities() {
           <p className="mt-4 text-base leading-relaxed text-ink/70">{t.capabilities.tagline}</p>
         </div>
 
-        <div className="mt-12 rounded-card border border-forest/20 bg-forest px-6 py-8 text-bone shadow-[0_20px_60px_-36px_rgba(11,27,51,0.8)] md:px-8 md:py-10">
+        <div className="mt-12 rounded-card border border-gold/25 bg-pine px-6 py-8 text-bone shadow-[0_20px_60px_-36px_rgba(11,27,51,0.8)] md:px-8 md:py-10">
           <p className="text-[11px] font-bold tracking-[0.2em] text-gold">{flagship.eyebrow}</p>
           <h3 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight md:text-3xl">{flagship.title}</h3>
           <p className="mt-4 max-w-3xl text-base leading-relaxed text-bone/75">{flagship.summary}</p>
