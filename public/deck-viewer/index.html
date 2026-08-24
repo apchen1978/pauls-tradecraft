@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>執行能力簡報 · Paul's Tradecraft</title>
+    <meta name="description" content="Paul's Tradecraft 執行能力簡報 — 9 頁，可翻閱。" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <a class="back" href="/">← Paul's Tradecraft</a>
+      <div class="title">執行能力簡報 <span class="sub">Executive Capability Deck</span></div>
+      <a class="dl" href="executive-capability-deck.pdf" download>下載 PDF</a>
+    </header>
+
+    <main class="stage" id="stage" aria-label="簡報翻閱器">
+      <button class="nav prev" id="prev" aria-label="上一頁">‹</button>
+      <figure class="slide">
+        <img id="slideImg" alt="簡報頁面" />
+      </figure>
+      <button class="nav next" id="next" aria-label="下一頁">›</button>
+    </main>
+
+    <footer class="foot">
+      <span id="counter">1 / 9</span>
+      <div class="progress"><div class="fill" id="fill"></div></div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
