@@ -22,8 +22,8 @@ const iconMap = {
 const SECTION_ORDER = ["commercial", "operations", "labs"];
 
 const cddSnapshot = {
-  zh: "/images/cdd-executive-snapshot-zh-v01.png",
-  en: "/images/cdd-executive-snapshot-en-v01.png",
+  zh: "/images/cdd-executive-snapshot-zh-v02.png",
+  en: "/images/cdd-executive-snapshot-en-v02.png",
 };
 
 function CaseStudy({ c, related, link, linkLabel }) {
