@@ -37,6 +37,21 @@ function CaseStudy({ c, related, link, linkLabel }) {
         <CaretDown size={14} weight="bold" className="transition-transform group-open:rotate-180" />
       </summary>
        <dl className="mt-3 space-y-3 text-sm">
+        {c.gallery && (
+          <div>
+            <figure>
+              <img
+                src={c.gallery.src}
+                alt={f(c.gallery.alt)}
+                loading="lazy"
+                className="w-full rounded-field border border-line"
+              />
+              {c.gallery.caption && (
+                <figcaption className="mt-1.5 text-xs text-ink/55">{f(c.gallery.caption)}</figcaption>
+              )}
+            </figure>
+          </div>
+        )}
         <div>
           <dt className="font-semibold text-ink/80">{labels.problem}</dt>
           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.problem)}</dd>

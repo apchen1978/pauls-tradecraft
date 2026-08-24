@@ -550,6 +550,11 @@ export const works = [
     },
     case: {
       stage: { zh: "創意實作", en: "Creative Build" },
+      gallery: {
+        src: "/images/mg-poses.webp",
+        alt: { zh: "MG 的 10 種表情與姿態總覽", en: "MG's 10-pose expression and motion overview" },
+        caption: { zh: "10 種姿態 · 56 個動畫影格：待機、可愛、揮手、跳躍、奔跑、向左/右跑、等待、檢視、睡覺", en: "10 poses · 56 animation frames: idle, cute, wave, jump, run, run L/R, wait, review, sleep" },
+      },
       problem: {
         zh: "將桌面寵物的概念落實為可執行的小型桌面應用。",
         en: "Turn a desktop-pet idea into a runnable small desktop application.",
