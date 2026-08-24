@@ -10,7 +10,7 @@ export default function Capabilities() {
   const flagship = flagshipServiceData[lang];
   return (
     <section id="capabilities" className="scroll-mt-24 border-y border-line bg-paper/60">
-      <div className="mx-auto max-w-7xl px-4 py-20 md:px-6 md:py-28">
+      <div className="mx-auto max-w-7xl px-4 py-24 md:px-6 md:py-32">
         <div className="max-w-2xl">
           <p className="eyebrow">{t.capabilities.eyebrow}</p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.capabilities.headline}</h2>

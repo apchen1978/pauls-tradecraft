@@ -4,7 +4,7 @@ import { useLang } from "../i18n.jsx";
 export default function About() {
   const { t } = useLang();
   return (
-    <section id="about" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-28">
+    <section id="about" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-32">
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

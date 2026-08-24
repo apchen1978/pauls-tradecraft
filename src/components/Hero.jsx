@@ -18,34 +18,33 @@ export default function Hero() {
         <div className="absolute inset-0 opacity-[0.05] [background-image:linear-gradient(rgba(255,255,255,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.6)_1px,transparent_1px)] [background-size:64px_64px]" />
       </div>
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 pt-16 pb-20 md:px-6 md:pt-24 md:pb-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 pt-24 pb-28 md:px-6 md:pt-32 md:pb-36 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.1 } } }}>
           <motion.p variants={fadeUp} className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
             {t.brand} · {t.brandNote}
           </motion.p>
           <motion.h1
             variants={fadeUp}
-            className="mt-5 max-w-xl text-4xl font-bold leading-[1.08] tracking-tight text-bone md:text-5xl lg:text-6xl"
+            className="mt-6 max-w-xl text-4xl font-bold leading-[1.1] tracking-tight text-bone md:text-5xl lg:text-6xl"
           >
             {t.hero.headlineA}
             <br />
-            <span className="font-semibold text-bone">{t.hero.headlineB}</span>
-            <br />
+            <span className="font-semibold text-bone">{t.hero.headlineB}</span>{" "}
             <span className="hero-gradient font-semibold">{t.hero.headlineHighlight}</span>
           </motion.h1>
-          <motion.p variants={fadeUp} className="mt-6 max-w-[52ch] text-base leading-relaxed text-bone/75 md:text-lg">
+          <motion.p variants={fadeUp} className="mt-7 max-w-[52ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}
           </motion.p>
-          <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
+          <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
               href="#works"
-              className="rounded-pill bg-gold px-7 py-3 text-sm font-bold text-pine transition-all hover:brightness-110 active:scale-[0.98]"
+              className="rounded-pill bg-gold px-8 py-3.5 text-sm font-bold text-pine transition-all hover:brightness-110 active:scale-[0.98]"
             >
               {t.hero.ctaPrimary}
             </a>
             <a
               href="#contact"
-              className="rounded-pill border border-bone/35 px-7 py-3 text-sm font-semibold text-bone transition-colors hover:border-bone/70"
+              className="rounded-pill border border-bone/35 px-8 py-3.5 text-sm font-semibold text-bone transition-colors hover:border-bone/70"
             >
               {t.hero.ctaSecondary}
             </a>
@@ -69,54 +68,30 @@ export default function Hero() {
         </motion.figure>
       </div>
 
-      {/* 20-second featured business proof — Payment Concentration (featured hook, not identity) */}
+      {/* 極簡底條：featured proof 收成一條 hairline（商業 hook 保留、視覺減重） */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.35 } }}
-        className="relative mx-auto max-w-7xl px-4 pb-16 md:px-6 md:pb-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { duration: 0.6, delay: 0.35 } }}
+        className="relative mx-auto max-w-7xl px-4 pb-14 md:px-6 md:pb-16"
       >
-        <div className="rounded-card border border-bone/15 bg-pine/60 px-6 py-6 md:px-8 md:py-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{t.hero.featuredKicker}</p>
-          <p className="mt-2 max-w-2xl text-xl font-bold leading-snug text-bone md:text-2xl">
-            {t.hero.featuredHook1}
-            <br />
-            <span className="text-gold">{t.hero.featuredHook2}</span>
+        <div className="flex flex-col gap-2 border-t border-bone/12 pt-6 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm leading-relaxed text-bone/60">
+            <span className="font-semibold text-gold">{t.hero.featuredHook1}</span>{" "}
+            <span className="text-gold">{t.hero.featuredIncrement}</span>{" "}
+            <span className="text-bone/80">{t.hero.featuredArrow}</span>{" "}
+            <span className="font-semibold text-bone">{t.hero.featuredAfter}</span>
+            <span className="text-bone/40"> · {t.hero.featuredCaption}</span>
           </p>
-
-          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-lg font-bold md:text-2xl">
-            <span className="text-bone">{t.hero.featuredBefore}</span>
-            <span aria-hidden className="text-bone/50">{t.hero.featuredArrow}</span>
-            <span className="text-gold">{t.hero.featuredIncrement}</span>
-            <span aria-hidden className="text-bone/50">{t.hero.featuredArrow}</span>
-            <span className="text-bone">{t.hero.featuredAfter}</span>
-          </div>
-          <p className="mt-2 text-sm text-bone/70">{t.hero.featuredCaption}</p>
-
-          <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <p className="max-w-xl text-xs leading-relaxed text-bone/55">{t.hero.featuredDisclosure}</p>
-            <a
-              href="https://apchen1978.github.io/payment-concentration-demo/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex shrink-0 items-center justify-center rounded-pill bg-gold px-6 py-2.5 text-sm font-bold text-pine transition-all hover:brightness-110 active:scale-[0.98]"
-            >
-              {t.hero.featuredCta}
-            </a>
-          </div>
+          <a
+            href="https://apchen1978.github.io/payment-concentration-demo/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 text-sm font-semibold text-gold transition-colors hover:text-bone"
+          >
+            {t.hero.featuredCta} →
+          </a>
         </div>
       </motion.div>
-
-      {/* 工業精度 hairline：版本/狀態細節（大廠式） */}
-      <div className="relative mx-auto max-w-7xl px-4 pb-10 md:px-6 md:pb-12">
-        <div className="flex items-center justify-between border-t border-bone/12 pt-5">
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.24em] text-bone/45">
-            {t.brand} · {t.brandNote}
-          </p>
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.24em] text-bone/45">
-            Trade Workflows → Working Tools
-          </p>
-        </div>
-      </div>
     </section>
   );
 }

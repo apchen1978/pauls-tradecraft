@@ -11,7 +11,7 @@ export default function Contact() {
       : "/files/Paul-Tradecraft-OnePager-ZH.pdf";
   return (
     <section id="contact" className="scroll-mt-24 border-t border-line bg-bone">
-      <div className="mx-auto max-w-7xl px-4 py-20 text-center md:px-6 md:py-28">
+      <div className="mx-auto max-w-7xl px-4 py-24 text-center md:px-6 md:py-32">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

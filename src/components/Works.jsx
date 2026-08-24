@@ -115,6 +115,7 @@ export default function Works() {
       .split(" ")
       .filter((token) => token.startsWith("md:") || !token.startsWith("col-span-"))
       .join(" ");
+    const isLarge = (w.span || "").includes("col-span-2") || (w.span || "").includes("col-span-3");
     const wrapperProps = w.link
       ? {
           href: w.link,
@@ -157,7 +158,7 @@ export default function Works() {
               {Icon && <Icon size={44} weight="light" className="text-moss" />}
             </div>
           )}
-          <div className="flex flex-1 flex-col p-6">
+          <div className={`flex flex-1 flex-col ${isLarge ? "p-7 md:p-8" : "p-6"}`}>
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
               <span>{copy.tag}</span>
               {w.verified && (
@@ -172,7 +173,7 @@ export default function Works() {
                 </span>
               )}
             </div>
-            <h3 className={`mt-2.5 flex items-center gap-2 font-bold tracking-tight ${w.id === "trade-deal-desk" ? "text-xl md:text-[21px]" : "text-lg"}`}>
+            <h3 className={`mt-2.5 flex items-center gap-2 font-bold tracking-tight ${w.id === "trade-deal-desk" ? "text-xl md:text-[21px]" : isLarge ? "text-xl md:text-2xl" : "text-lg"}`}>
               {copy.title}
               {w.link && (
                 <ArrowUpRight
@@ -182,7 +183,7 @@ export default function Works() {
                 />
               )}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink/65">{copy.desc}</p>
+            <p className={`mt-2 leading-relaxed text-ink/65 ${isLarge ? "text-[15px] md:text-base" : "text-sm"}`}>{copy.desc}</p>
             {copy.caseSummary && (
               <p className="mt-4 border-l-2 border-amber/70 pl-3 text-sm leading-relaxed text-ink/75">
                 <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}：</span>
@@ -210,7 +211,7 @@ export default function Works() {
   };
 
   return (
-    <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-28">
+    <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-32">
       <div className="max-w-2xl">
         <p className="eyebrow">{t.works.eyebrow}</p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
@@ -223,7 +224,7 @@ export default function Works() {
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-2xl text-forest md:text-[26px]" : "text-lg text-ink/75"}`}>{sec.label}</h3>
             {sec.note && <p className="mt-1.5 text-sm leading-relaxed text-ink/60">{sec.note}</p>}
           </div>
-          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-7 md:grid-cols-3">
             {sec.works.map((w, i) => renderCard(w, i))}
           </div>
         </div>

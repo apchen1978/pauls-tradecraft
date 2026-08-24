@@ -4,7 +4,7 @@ import { useLang } from "../i18n.jsx";
 export default function HowIWork() {
   const { t } = useLang();
   return (
-    <section id="how" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-28">
+    <section id="how" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-32">
       <div className="max-w-2xl">
         <p className="eyebrow">{t.how.eyebrow}</p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.how.headline}</h2>
