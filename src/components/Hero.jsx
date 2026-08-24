@@ -23,7 +23,7 @@ export default function Hero() {
         <div className="absolute inset-x-0 top-0 h-px bg-bone/10" />
       </div>
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 pb-24 pt-24 md:px-6 md:pb-32 md:pt-32 lg:grid-cols-[1.12fr_0.88fr] lg:gap-14">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 pb-24 pt-24 md:px-6 md:pb-32 md:pt-32 lg:grid-cols-[1fr_1fr] lg:gap-14">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.1 } } }}>
           <motion.p variants={fadeUp} className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
             {t.brand} · {t.brandNote}
@@ -69,7 +69,7 @@ export default function Hero() {
             <img
               src={cddSnapshot[lang]}
               alt={cdd.imageAlt[lang]}
-              className="aspect-[4/3] w-full object-cover object-top"
+              className="aspect-[4/3] w-full object-contain object-top"
               loading="eager"
             />
           </div>
