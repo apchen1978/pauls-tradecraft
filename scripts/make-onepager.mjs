@@ -103,8 +103,9 @@ const html = `<!doctype html>
   <p class="process">${data.process || ""}</p>
 
   <div class="footer">
-    <span>${data.brand || ""} · ${data.url || ""}</span>
-    <span>${data.email || ""}</span>
+    ${data.footer
+      ? `<span>${data.footer}</span>`
+      : `<span>${data.brand || ""} · ${data.url || ""}</span><span>${data.email || ""}</span>`}
   </div>
   <script>
     // 確保所有字型載入完成，避免 PDF 產生 tofu / 缺字
