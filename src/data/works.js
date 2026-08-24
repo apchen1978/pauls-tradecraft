@@ -337,7 +337,7 @@ export const works = [
     id: "lyrics",
     featuredRank: 2,
     section: "labs",
-    cover: "/images/cover-lyrics-v2.png",
+    cover: "/images/cover-lyrics-v2.webp",
      imageAlt: { zh: "AI Lyrics Generator Desktop V3 與 Live Web Demo", en: "AI Lyrics Generator Desktop V3 and live web demo" },
     span: "col-span-1",
     verified: true,
