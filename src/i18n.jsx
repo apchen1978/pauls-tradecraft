@@ -157,8 +157,8 @@ const dict = {
     nav: { works: "Work", services: "Services", process: "Process", about: "About", contact: "Contact", skipToContent: "Skip to content" },
     hero: {
       headlineA: "Turn trade workflows",
-      headlineB: "into tools",
-      headlineHighlight: " that actually run",
+      headlineB: "into tools that",
+      headlineHighlight: " actually run",
       sub: "From inquiries, quoting, orders, payment risk, to delivery follow-up—AI-assisted development (Vibe Coding) turns operating needs into practical tools your team can use and improve.",
       ctaPrimary: "Explore the work",
       ctaSecondary: "Let's make something fun",

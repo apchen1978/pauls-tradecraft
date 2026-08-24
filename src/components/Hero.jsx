@@ -25,12 +25,12 @@ export default function Hero() {
           </motion.p>
           <motion.h1
             variants={fadeUp}
-            className="mt-6 max-w-2xl text-[2.2rem] font-bold leading-[1.08] tracking-[-0.045em] text-bone md:text-6xl lg:text-[3.2rem] xl:text-[3.5rem]"
+            className="mt-6 max-w-2xl text-[clamp(1.8rem,8.6vw,2.2rem)] font-bold leading-[1.08] tracking-[-0.045em] text-bone md:text-6xl lg:text-[3.2rem] xl:text-[3.5rem]"
           >
             {t.hero.headlineA}
             <br />
             <span className="font-semibold text-bone">{t.hero.headlineB}</span>
-            <span className="inline-block whitespace-nowrap font-semibold text-gold">{t.hero.headlineHighlight}</span>
+            <span className="inline-block font-semibold text-gold">{t.hero.headlineHighlight}</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/70 md:text-lg">
             {t.hero.sub}
