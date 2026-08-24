@@ -166,11 +166,6 @@ export default function Works() {
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
     const Wrapper = w.link ? "a" : "div";
-    const desktopSpan = w.span
-      .split(" ")
-      .filter((token) => token.startsWith("md:") || !token.startsWith("col-span-"))
-      .join(" ");
-    const isLarge = (w.span || "").includes("col-span-2") || (w.span || "").includes("col-span-3");
     const wrapperProps = w.link
       ? {
           href: w.link,
@@ -196,7 +191,7 @@ export default function Works() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
-         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line bg-[#f8f8f3] transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_20px_40px_-34px_rgba(20,51,41,0.55)] col-span-1 ${desktopSpan} ${w.link ? "" : "cursor-pointer"}`}
+         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line bg-[#f8f8f3] transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_20px_40px_-34px_rgba(20,51,41,0.55)] col-span-1 ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
           {w.cover ? (
@@ -213,7 +208,7 @@ export default function Works() {
               {Icon && <Icon size={44} weight="light" className="text-moss" />}
             </div>
           )}
-          <div className={`flex flex-1 flex-col ${isLarge ? "p-7 md:p-8" : "p-6"}`}>
+          <div className="flex flex-1 flex-col p-7 md:p-8">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
               <span>{copy.tag}</span>
               {w.verified && (
@@ -228,7 +223,7 @@ export default function Works() {
                 </span>
               )}
             </div>
-            <h3 className={`mt-2.5 flex items-center gap-2 font-bold tracking-tight ${w.id === "trade-deal-desk" ? "text-xl md:text-[21px]" : isLarge ? "text-xl md:text-2xl" : "text-lg"}`}>
+            <h3 className="mt-2.5 flex items-center gap-2 text-xl font-bold tracking-tight md:text-2xl">
               {copy.title}
               {w.link && (
                 <ArrowUpRight
@@ -238,7 +233,7 @@ export default function Works() {
                 />
               )}
             </h3>
-            <p className={`mt-2 leading-relaxed text-ink/65 ${isLarge ? "text-[15px] md:text-base" : "text-sm"}`}>{copy.desc}</p>
+            <p className="mt-2 text-[15px] leading-relaxed text-ink/65 md:text-base">{copy.desc}</p>
             {copy.caseSummary && (
               <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink/75">
                 <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}：</span>
@@ -266,8 +261,8 @@ export default function Works() {
   };
 
   return (
-    <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-32">
-      <div className="border-b border-line pb-10">
+    <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-28 md:px-6 md:py-36">
+      <div className="border-b border-line pb-12">
         <div className="max-w-2xl">
           <p className="eyebrow">{t.works.eyebrow}</p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
@@ -275,18 +270,18 @@ export default function Works() {
         </div>
       </div>
 
-      <div className="mt-10">
-        <p className="eyebrow mb-4">{t.works.sections.commercial}</p>
+      <div className="mt-14">
+        <p className="eyebrow mb-5">{t.works.sections.commercial}</p>
         <FeaturedSystem work={featuredSystem} />
       </div>
 
       {sections.map((sec, si) => (
         <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
-          <div className={`${si === 0 ? "mt-14" : "mt-12"} flex flex-col gap-2 border-t border-line pt-6 md:flex-row md:items-baseline md:justify-between`}>
+          <div className={`${si === 0 ? "mt-16" : "mt-14"} flex flex-col gap-2 border-t border-line pt-7 md:flex-row md:items-baseline md:justify-between`}>
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
             {sec.note && <p className="mt-1.5 text-sm leading-relaxed text-ink/60">{sec.note}</p>}
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-7 md:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2">
             {sec.works.map((w, i) => renderCard(w, i))}
           </div>
         </div>

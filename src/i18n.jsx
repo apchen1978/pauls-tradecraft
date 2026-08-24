@@ -6,8 +6,8 @@ const dict = {
     brandNote: "作品集總覽",
     nav: { works: "作品", services: "服務", process: "流程", about: "關於我", contact: "聯絡我", skipToContent: "跳至主要內容" },
     hero: {
-      headlineA: "把國際貿易流程，",
-      headlineB: "做成真正能運作的",
+      headlineA: "把國際貿易流程，做成",
+      headlineB: "真正能運作的",
       headlineHighlight: "工具",
       sub: "從詢價、報價、訂單、付款風險到交期跟進；用 AI 協作開發（Vibe Coding），快速把實務需求轉成團隊能用、可持續優化的流程與工具。",
       ctaPrimary: "查看實戰案例",
@@ -158,7 +158,7 @@ const dict = {
     hero: {
       headlineA: "Turn trade workflows",
       headlineB: "into tools",
-      headlineHighlight: "that actually run",
+      headlineHighlight: " that actually run",
       sub: "From inquiries, quoting, orders, payment risk, to delivery follow-up—AI-assisted development (Vibe Coding) turns operating needs into practical tools your team can use and improve.",
       ctaPrimary: "Explore the work",
       ctaSecondary: "Let's make something fun",
