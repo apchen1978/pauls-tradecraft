@@ -638,13 +638,13 @@ export const works = [
     linkLabel: { zh: "試用決策 Demo", en: "Try Decision Demo" },
     zh: {
       title: "Commercial Decision Desk",
-      desc: "把商機品質、交易條件、付款承諾暴露、矛盾與未知，收斂成一個可追溯、由人最終決定的商業決策狀態。",
+      desc: "把散落的商務資訊，轉成可追溯的交易結構、決策控制因素與下一步行動。",
       tag: "商業決策 · 決策支援",
       caseSummary: "15 年貿易總監的商業判斷，收斂成一個可稽核的工作台：商機品質、交易條件、付款暴露、矛盾與未知一次看全 — desk 只建議，人做最終決定。",
     },
     en: {
       title: "Commercial Decision Desk",
-      desc: "Turns opportunity quality, commercial terms, payment commitment exposure, contradictions, and UNKNOWNs into one auditable commercial state for human decision.",
+      desc: "Turns scattered commercial information into a traceable deal structure, decision control factors, and next actions.",
       tag: "Commercial decision · Decision support",
       caseSummary: "Fifteen years of trade-director judgment, distilled into one auditable workbench: opportunity quality, commercial terms, payment exposure, contradictions, and unknowns at a glance — the desk recommends, the human decides.",
     },
