@@ -21,6 +21,11 @@ const iconMap = {
 
 const SECTION_ORDER = ["commercial", "operations", "labs"];
 
+const cddSnapshot = {
+  zh: "/images/cdd-executive-snapshot-zh-v01.png",
+  en: "/images/cdd-executive-snapshot-en-v01.png",
+};
+
 function CaseStudy({ c, related, link, linkLabel }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
@@ -116,7 +121,7 @@ function FeaturedSystem({ work }) {
   const linkLabel = typeof work.linkLabel === "string" ? work.linkLabel : work.linkLabel?.[lang];
 
   return (
-    <article id={work.id} className="scroll-mt-28 overflow-hidden rounded-[1.35rem] border border-ink/10 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
+    <article id={work.id} className="scroll-mt-28 overflow-hidden rounded-[1rem] border border-ink/10 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
       <div className="grid lg:grid-cols-[0.88fr_1.12fr]">
         <div className="flex flex-col px-6 py-8 md:px-10 md:py-11">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
@@ -139,9 +144,15 @@ function FeaturedSystem({ work }) {
           </a>
           {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/50">{work.demoNote[lang]}</p>}
         </div>
-        <a href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-bone lg:border-l lg:border-t-0">
-          <img src={work.cover} alt={work.imageAlt[lang]} loading="eager" className="aspect-[16/10] h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.015]" />
-          <span className="absolute bottom-4 right-4 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100">{linkLabel} →</span>
+        <a href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-4">
+          <div className="overflow-hidden rounded-field border border-ink/10 bg-bone shadow-[0_18px_36px_-24px_rgba(0,0,0,0.62)]">
+            <div className="flex items-center justify-between border-b border-ink/10 bg-[#edf0e7] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65">
+              <span>Executive Snapshot</span>
+              <span className="text-forest">{t.works.statusVerified}</span>
+            </div>
+            <img src={cddSnapshot[lang]} alt={work.imageAlt[lang]} loading="eager" className="aspect-[4/3] h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.012]" />
+          </div>
+          <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100">{linkLabel} →</span>
         </a>
       </div>
       {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} />}

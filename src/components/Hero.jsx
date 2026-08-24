@@ -7,6 +7,11 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
+const cddSnapshot = {
+  zh: "/images/cdd-executive-snapshot-zh-v01.png",
+  en: "/images/cdd-executive-snapshot-en-v01.png",
+};
+
 export default function Hero() {
   const { lang, t } = useLang();
   const cdd = works.find((work) => work.id === "commercial-decision-desk");
@@ -54,19 +59,21 @@ export default function Hero() {
         <motion.figure
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.15 } }}
-          className="relative overflow-hidden rounded-[1.35rem] border border-bone/15 bg-bone shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)]"
+          className="relative overflow-hidden rounded-[1rem] border border-bone/20 bg-bone shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)]"
         >
-          <div className="flex items-center justify-between border-b border-ink/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink/65">
-            <span>{cddCopy.tag}</span>
-            <span className="text-forest">{t.works.statusVerified}</span>
+          <div className="flex items-center justify-between border-b border-ink/10 bg-[#edf0e7] px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65 md:px-5 md:py-3 md:text-[11px]">
+            <span>Commercial Decision Desk</span>
+            <span className="inline-flex items-center gap-2 text-forest"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.works.statusVerified}</span>
           </div>
-          <img
-            src={cdd.cover}
-            alt={cdd.imageAlt[lang]}
-            className="aspect-[16/10] w-full object-cover object-top"
-            loading="eager"
-          />
-          <figcaption className="flex items-center justify-between gap-4 border-t border-ink/10 px-5 py-3.5 text-sm text-ink/65">
+          <div className="relative bg-[#e9ece4] p-2.5 md:p-3">
+            <img
+              src={cddSnapshot[lang]}
+              alt={cdd.imageAlt[lang]}
+              className="aspect-[4/3] w-full object-cover object-top"
+              loading="eager"
+            />
+          </div>
+          <figcaption className="flex items-center justify-between gap-4 border-t border-ink/10 px-4 py-3 text-xs text-ink/65 md:px-5 md:py-3.5 md:text-sm">
             <span className="font-semibold text-ink">{cddCopy.title}</span>
             <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="shrink-0 font-semibold text-forest transition-colors hover:text-amber">
               {typeof cdd.linkLabel === "string" ? cdd.linkLabel : cdd.linkLabel[lang]} →
