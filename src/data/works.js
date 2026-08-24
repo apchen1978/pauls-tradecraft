@@ -207,8 +207,7 @@ export const works = [
     imageAlt: { zh: "Pilot 模擬時間軸", en: "Pilot simulation timeline" },
     link: "/pilot-evidence/#rounds",
     linkLabel: { zh: "檢視模擬證據", en: "View Simulations" },
-    span: "col-span-1",
-    verified: true,
+    span: "col-span-1",    verified: true,
     zh: {
       title: "Pilot 模擬套件",
       desc: "三輪模擬：基礎、資料模型、報價版本，每輪附 inspect 證據。",
@@ -246,10 +245,10 @@ export const works = [
   {
     id: "game",
     section: "labs",
-    featuredRank: 2,
+    featuredRank: 3,
     cover: "/images/cover-game.webp",
     imageAlt: { zh: "Lil Matt's Gaming World 遊戲", en: "Lil Matt's Gaming World game" },
-    span: "col-span-1",
+    span: "md:col-span-2",
     verified: true,
     link: "https://apchen1978.github.io/signal-rift-typing-demo/",
     linkLabel: { zh: "立即玩", en: "Play Now" },
@@ -290,10 +289,10 @@ export const works = [
   {
     id: "wastetime",
     section: "labs",
-    featuredRank: 3,
+    featuredRank: 4,
     cover: "/images/cover-wastetime.webp",
     imageAlt: { zh: "浪費時間 idle clicker 遊戲畫面", en: "Waste Time idle clicker game screen" },
-    span: "md:col-span-2",
+    span: "col-span-1",
     icon: "game",
     verified: true,
     link: "https://apchen1978.github.io/wastetime/",
@@ -335,7 +334,7 @@ export const works = [
   },
   {
     id: "lyrics",
-    featuredRank: 3,
+    featuredRank: 2,
     section: "labs",
     cover: "/images/cover-lyrics-v2.webp",
      imageAlt: { zh: "AI Lyrics Generator Desktop V3 與 Live Web Demo", en: "AI Lyrics Generator Desktop V3 and live web demo" },
@@ -436,7 +435,7 @@ export const works = [
     imageAlt: { zh: "Expense Tracker 收支實驗", en: "Expense Tracker experiments" },
     link: "https://apchen1978.github.io/expense-tracker-demo/",
     linkLabel: { zh: "試用 Expense Demo", en: "Try Expense Demo" },
-    span: "md:col-span-3",
+    span: "md:col-span-2",
     verified: true,
     zh: {
       title: "Expense Tracker 收支實驗",
