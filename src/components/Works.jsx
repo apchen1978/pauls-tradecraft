@@ -150,7 +150,7 @@ function FeaturedSystem({ work }) {
               <span>Executive Snapshot</span>
               <span className="text-forest">{t.works.statusVerified}</span>
             </div>
-            <img src={cddSnapshot[lang]} alt={work.imageAlt[lang]} loading="eager" className="aspect-[4/3] h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.012]" />
+            <img src={cddSnapshot[lang]} alt={work.imageAlt[lang]} loading="eager" className="aspect-[4/3] h-full w-full object-contain object-top" />
           </div>
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100">{linkLabel} →</span>
         </a>
