@@ -27,8 +27,8 @@ export default function App() {
           <Nav />
           <main id="main">
             <Hero />
-            <Capabilities />
             <Works />
+            <Capabilities />
             <HowIWork />
             <About />
             <Contact />

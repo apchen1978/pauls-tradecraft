@@ -14,14 +14,14 @@ export default function Nav() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line/70 bg-bone/85 backdrop-blur-md">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-[72px] md:px-6">
+    <header className="sticky top-0 z-50 border-b border-line/80 bg-bone/95 backdrop-blur-md">
+      <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
         <a href="#top" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
-          <span className="text-lg font-bold tracking-tight">{t.brand}</span>
-          <span className="hidden text-sm text-ink/65 sm:inline">{t.brandNote}</span>
+          <span className="text-lg font-bold tracking-[-0.035em]">{t.brand}</span>
+          <span className="hidden border-l border-line pl-2 text-xs font-medium uppercase tracking-[0.12em] text-ink/55 sm:inline">{t.brandNote}</span>
         </a>
 
-        <div className="hidden items-center gap-7 text-sm font-medium text-ink/75 lg:flex">
+        <div className="hidden items-center gap-8 text-sm font-medium text-ink/65 lg:flex">
           {links.map((l) => (
             <a key={l.href} href={l.href} className="transition-colors hover:text-forest">
               {l.label}
@@ -32,14 +32,14 @@ export default function Nav() {
         <div className="flex items-center gap-3">
           <button
             onClick={toggle}
-            className="rounded-pill border border-line px-3 py-1.5 text-sm font-semibold text-ink/70 transition-colors hover:border-forest hover:text-forest"
+            className="rounded-field border border-line px-3 py-1.5 text-sm font-semibold text-ink/70 transition-colors hover:border-forest hover:text-forest"
             aria-label="Switch language"
           >
             {t.langLabel}
           </button>
           <a
             href="#contact"
-            className="hidden rounded-pill bg-forest px-4 py-2 text-sm font-semibold text-bone transition-all hover:bg-moss active:scale-[0.98] sm:inline-block"
+            className="hidden rounded-field bg-forest px-4 py-2 text-sm font-semibold text-bone transition-colors hover:bg-moss sm:inline-block"
             onClick={() => setOpen(false)}
           >
             {t.nav.contact}

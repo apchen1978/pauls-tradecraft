@@ -110,14 +110,54 @@ function CaseStudy({ c, related, link, linkLabel }) {
   );
 }
 
+function FeaturedSystem({ work }) {
+  const { lang, t } = useLang();
+  const copy = work[lang];
+  const linkLabel = typeof work.linkLabel === "string" ? work.linkLabel : work.linkLabel?.[lang];
+
+  return (
+    <article id={work.id} className="scroll-mt-28 overflow-hidden rounded-[1.35rem] border border-ink/10 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
+      <div className="grid lg:grid-cols-[0.88fr_1.12fr]">
+        <div className="flex flex-col px-6 py-8 md:px-10 md:py-11">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
+            <span>{copy.tag}</span>
+            {work.verified && (
+              <span className="inline-flex items-center gap-1 text-bone/70" title={t.works.verifiedExplain}>
+                <CheckCircle size={14} weight="fill" className="text-gold" />
+                {t.works.statusVerified}
+              </span>
+            )}
+          </div>
+          <h3 className="mt-5 max-w-md text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-bone md:text-4xl">{copy.title}</h3>
+          <p className="mt-5 max-w-[43ch] text-base leading-relaxed text-bone/72">{copy.desc}</p>
+          {copy.caseSummary && (
+            <p className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
+          )}
+          <a href={work.link} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61]">
+            {linkLabel}
+            <ArrowUpRight size={16} weight="bold" />
+          </a>
+          {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/50">{work.demoNote[lang]}</p>}
+        </div>
+        <a href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-bone lg:border-l lg:border-t-0">
+          <img src={work.cover} alt={work.imageAlt[lang]} loading="eager" className="aspect-[16/10] h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.015]" />
+          <span className="absolute bottom-4 right-4 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100">{linkLabel} →</span>
+        </a>
+      </div>
+      {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} />}
+    </article>
+  );
+}
+
 export default function Works() {
   const { lang, t } = useLang();
+  const featuredSystem = works.find((work) => work.id === "commercial-decision-desk");
   const sections = SECTION_ORDER.map((id) => ({
     id,
     label: t.works.sections[id],
     note: id === "labs" ? t.works.labsNote : "",
     works: [...works]
-      .filter((w) => w.section === id)
+      .filter((w) => w.section === id && w.id !== featuredSystem.id)
       .sort((a, b) => (a.featuredRank ?? Number.MAX_SAFE_INTEGER) - (b.featuredRank ?? Number.MAX_SAFE_INTEGER)),
   }));
 
@@ -156,7 +196,7 @@ export default function Works() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
-         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line bg-bone transition-colors hover:border-forest/40 col-span-1 ${desktopSpan} ${w.link ? "" : "cursor-pointer"}`}
+         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line bg-[#f8f8f3] transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_20px_40px_-34px_rgba(20,51,41,0.55)] col-span-1 ${desktopSpan} ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
           {w.cover ? (
@@ -200,7 +240,7 @@ export default function Works() {
             </h3>
             <p className={`mt-2 leading-relaxed text-ink/65 ${isLarge ? "text-[15px] md:text-base" : "text-sm"}`}>{copy.desc}</p>
             {copy.caseSummary && (
-              <p className="mt-4 border-l-2 border-amber/70 pl-3 text-sm leading-relaxed text-ink/75">
+              <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink/75">
                 <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}：</span>
                 {copy.caseSummary}
               </p>
@@ -227,16 +267,23 @@ export default function Works() {
 
   return (
     <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-32">
-      <div className="max-w-2xl">
-        <p className="eyebrow">{t.works.eyebrow}</p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
-        <p className="mt-4 text-base leading-relaxed text-ink/65">{t.works.sub}</p>
+      <div className="border-b border-line pb-10">
+        <div className="max-w-2xl">
+          <p className="eyebrow">{t.works.eyebrow}</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
+          <p className="mt-4 text-base leading-relaxed text-ink/65">{t.works.sub}</p>
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <p className="eyebrow mb-4">{t.works.sections.commercial}</p>
+        <FeaturedSystem work={featuredSystem} />
       </div>
 
       {sections.map((sec, si) => (
         <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
-          <div className={`${si === 0 ? "mt-14" : "mt-12"} border-t border-line pt-6`}>
-            <h3 className={`font-bold tracking-tight ${si === 0 ? "text-2xl text-forest md:text-[26px]" : "text-lg text-ink/75"}`}>{sec.label}</h3>
+          <div className={`${si === 0 ? "mt-14" : "mt-12"} flex flex-col gap-2 border-t border-line pt-6 md:flex-row md:items-baseline md:justify-between`}>
+            <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
             {sec.note && <p className="mt-1.5 text-sm leading-relaxed text-ink/60">{sec.note}</p>}
           </div>
           <div className="mt-8 grid grid-cols-1 gap-7 md:grid-cols-3">
