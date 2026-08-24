@@ -10,3 +10,7 @@ public/files/*
 .onepager.html
 .tmp-*
 .chrome/
+
+# local tooling (not part of the site)
+.playwright-cli/
+.vercel/
