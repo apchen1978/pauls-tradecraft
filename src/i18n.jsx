@@ -136,7 +136,7 @@ const dict = {
       note: "這個網站本身就是證據：Codex 建立 → DSH 接手 → 人工 review → 部署 → 已完成獨立審計 · PASS。",
     },
     contact: {
-      headline: "一起做點有用的東西",
+      headline: "一起做點有趣的東西",
       sub: "不管是貿易流程、簡報還是工具，談談你手上卡住的事。",
       cta: "聯絡 Paul",
       note: "商務合作與專案洽詢",
@@ -285,7 +285,7 @@ const dict = {
       note: "This site is its own evidence: Codex built it, DSH took over, a human reviewed, it deployed, and Independent Audit · PASS.",
     },
     contact: {
-      headline: "Let's build something useful",
+      headline: "Let's make something fun",
       sub: "Trade flows, decks, or tools: tell me what is stuck on your desk.",
       cta: "Contact Paul",
       note: "Business inquiries & collaboration",
