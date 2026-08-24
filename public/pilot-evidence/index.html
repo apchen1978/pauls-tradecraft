@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>窗簾軟裝 Pilot 追蹤器 · 驗證產物 · Paul's Tradecraft</title>
+    <meta name="description" content="窗簾軟裝 Pilot 追蹤器與模擬套件的可視化驗證產物：4 期模擬、23/23 檢查通過、可下載 xlsx + inspect 證據。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Paul's Tradecraft" />
+    <meta property="og:title" content="窗簾軟裝 Pilot 追蹤器 · 驗證產物" />
+    <meta property="og:description" content="Lead-to-Quote 追蹤器 + 4 期模擬套件；23/23 檢查通過；每期附 .inspect.ndjson 證據檔。" />
+    <meta property="og:url" content="https://paulstradecraft.com/pilot-evidence/" />
+    <meta property="og:locale" content="zh_TW" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <a class="back" href="/">← Paul's Tradecraft</a>
+      <div class="title">窗簾軟裝 Pilot 追蹤器 <span class="sub">Curtain Soft-Furnishing Pilot Tracker — Evidence</span></div>
+      <a class="dl" href="https://github.com/apchen1978/curtain-pilot-tracker-evidence" target="_blank" rel="noopener">GitHub 原始碼</a>
+    </header>
+
+    <main class="wrap">
+      <section class="hero">
+        <p class="kicker">DEMO / SIMULATION — 全部為模擬資料，非真實客戶紀錄</p>
+        <h1>從 Lead 到報價到成交，<br />一條可驗證的追蹤主線。</h1>
+        <p class="lede">
+          一個 Excel 追蹤器（Leads / Follow-ups / Quotes / Measurements / Dashboard），
+          加四期循序模擬：001 基礎流程、002 資料模型修正、003 報價版本化、004 低資訊虛擬 Lead 稽核。
+          每期產出 xlsx + .inspect.ndjson 證據，23/23 檢查全數通過。
+        </p>
+        <div class="stats">
+          <div class="stat"><b>4</b><span>期模擬</span></div>
+          <div class="stat"><b>23/23</b><span>驗證通過</span></div>
+          <div class="stat"><b>11</b><span>工作表上限</span></div>
+          <div class="stat"><b>0</b><span>外部副作用</span></div>
+        </div>
+        <nav class="anchors" aria-label="頁內導覽">
+          <a href="#tracker">① 追蹤器結構</a>
+          <a href="#rounds">② 四期模擬</a>
+          <a href="#verify">③ 23/23 驗證</a>
+          <a href="#files">④ 證據檔下載</a>
+        </nav>
+      </section>
+
+      <section id="tracker" class="card">
+        <h2><span class="no">01</span> 追蹤器結構 <em>Tracker Anatomy</em></h2>
+        <p class="hint">單一 Excel 工作簿：從網站名單（Leads）一路到跟進（Follow-ups）、報價（Quotes）、丈量（Measurements）與每週 KPI（Dashboard）。</p>
+
+        <div class="flow" role="img" aria-label="Lead 到成交流程">
+          <span class="node done">Lead 建立</span><i>→</i>
+          <span class="node">24h 首次聯繫</span><i>→</i>
+          <span class="node">資格評估</span><i>→</i>
+          <span class="node">丈量預約</span><i>→</i>
+          <span class="node">報價</span><i>→</i>
+          <span class="node end">成交 / 失單</span>
+        </div>
+        <p class="hint small">72h 未回覆不判定 lost → 轉 <b>nurture</b> 培育（Pilot #002 慣例）；報價前需（虛擬）丈量（Pilot #001 慣例）。</p>
+
+        <div class="sheets" id="sheets"></div>
+      </section>
+
+      <section id="rounds" class="card">
+        <h2><span class="no">02</span> 四期模擬 <em>Four Simulation Rounds</em></h2>
+        <p class="hint">每一期都在前一期的資料模型上推進：完整流程 → 低資訊培育 → 報價版本化 → 未知值稽核。</p>
+        <div class="rounds" id="rounds"></div>
+      </section>
+
+      <section id="verify" class="card">
+        <h2><span class="no">03</span> 23/23 驗證 <em>Verification</em></h2>
+        <p class="hint">以零依賴 Node 腳本（build / simulate / inspect / verify）產出並驗證追蹤器，跨工作表交叉檢查 + 公式錯誤掃描全數通過。</p>
+        <div class="checks" id="checks"></div>
+        <div class="cmds">
+          <p>本機重跑（zero-dependency, Node）：</p>
+          <pre>node work/build_curtain_pilot_tracker.mjs
+node work/simulate_pilot_001.mjs
+node work/simulate_pilot_002.mjs
+node work/simulate_pilot_003.mjs
+node work/inspect_curtain_tracker.mjs
+node work/verify_pilot_002.mjs
+node work/verify_pilot_003.mjs</pre>
+        </div>
+      </section>
+
+      <section id="files" class="card">
+        <h2><span class="no">04</span> 證據檔下載 <em>Evidence Files</em></h2>
+        <p class="hint">每期輸出 xlsx 與 .inspect.ndjson（結構化檢查軌跡）；simulation-004 另附完整稽核文件。</p>
+        <div class="files" id="files"></div>
+        <p class="note">
+          資料分層：<b>SIMULATION / TEST</b> — 無任何真實客戶或外部通知；未連接 LINE、Make 或 webhook。
+          正式上線前，Leads 中標示 DEMO 的範例資料需刪除。
+        </p>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Paul's Tradecraft · 窗簾軟裝 Pilot 證據頁</span>
+      <span class="muted">Generated from curtain-pilot-tracker-evidence (main)</span>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
