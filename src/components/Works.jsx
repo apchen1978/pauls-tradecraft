@@ -26,15 +26,37 @@ const cddSnapshot = {
   en: "/images/cdd-executive-snapshot-en-v02.png",
 };
 
-function CaseStudy({ c, related, link, linkLabel }) {
+function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
   const stageTag = typeof c.stageTag === "string" ? c.stageTag : c.stageTag?.[lang];
   const labels = t.works.caseStudy;
+  const isDark = tone === "dark";
+  const styles = isDark
+    ? {
+        details: "border-bone/15",
+        summary: "border-bone/25 bg-bone/[0.06] text-bone hover:bg-bone/[0.1]",
+        stage: "bg-gold/15 text-gold",
+        border: "border-bone/15",
+        heading: "text-bone/90",
+        body: "text-bone/70",
+        caption: "text-bone/55",
+        link: "text-gold hover:text-bone",
+      }
+    : {
+        details: "border-line",
+        summary: "border-forest/25 bg-forest/[0.06] text-forest hover:bg-forest/10",
+        stage: "bg-forest/10 text-forest",
+        border: "border-line",
+        heading: "text-ink/80",
+        body: "text-ink/65",
+        caption: "text-ink/55",
+        link: "text-forest hover:text-amber",
+      };
   return (
-    <details className="group mt-4 border-t border-line px-6 pt-4 pb-6">
-      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-pill border border-forest/25 bg-forest/[0.06] px-4 py-2.5 text-sm font-bold text-forest transition-colors hover:bg-forest/10 [&::-webkit-details-marker]:hidden">
-        <span className="rounded-pill bg-forest/10 px-2.5 py-0.5 text-xs font-bold text-forest">
+    <details className={`group mt-4 border-t px-6 pt-4 pb-6 ${styles.details}`}>
+      <summary className={`flex cursor-pointer list-none items-center gap-2 rounded-pill border px-4 py-2.5 text-sm font-bold transition-colors [&::-webkit-details-marker]:hidden ${styles.summary}`}>
+        <span className={`rounded-pill px-2.5 py-0.5 text-xs font-bold ${styles.stage}`}>
           {f(c.stage)}
            {stageTag ? ` · ${stageTag}` : ""}
         </span>
@@ -49,27 +71,27 @@ function CaseStudy({ c, related, link, linkLabel }) {
                 src={c.gallery.src}
                 alt={f(c.gallery.alt)}
                 loading="lazy"
-                className="w-full rounded-field border border-line"
+                className={`w-full rounded-field border ${styles.border}`}
               />
               {c.gallery.caption && (
-                <figcaption className="mt-1.5 text-xs text-ink/55">{f(c.gallery.caption)}</figcaption>
+                <figcaption className={`mt-1.5 text-xs ${styles.caption}`}>{f(c.gallery.caption)}</figcaption>
               )}
             </figure>
           </div>
         )}
         <div>
-          <dt className="font-semibold text-ink/80">{labels.problem}</dt>
-          <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.problem)}</dd>
+          <dt className={`font-semibold ${styles.heading}`}>{labels.problem}</dt>
+          <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.problem)}</dd>
         </div>
          <div>
-           <dt className="font-semibold text-ink/80">{labels.approach}</dt>
-           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.approach)}</dd>
+           <dt className={`font-semibold ${styles.heading}`}>{labels.approach}</dt>
+           <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.approach)}</dd>
          </div>
          {c.highlights && (
            <div>
-             <dt className="font-semibold text-ink/80">{labels.capabilities ?? "Capabilities"}</dt>
+             <dt className={`font-semibold ${styles.heading}`}>{labels.capabilities ?? "Capabilities"}</dt>
              <dd className="mt-1">
-               <ul className="grid gap-1.5 text-ink/65 sm:grid-cols-2">
+               <ul className={`grid gap-1.5 sm:grid-cols-2 ${styles.body}`}>
                  {c.highlights[lang].map((item) => <li key={item} className="flex gap-2 leading-relaxed"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />{item}</li>)}
                </ul>
              </dd>
@@ -77,34 +99,34 @@ function CaseStudy({ c, related, link, linkLabel }) {
          )}
          {!c.compact && (
            <div>
-             <dt className="font-semibold text-ink/80">{labels.tools}</dt>
-             <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.tools)}</dd>
+              <dt className={`font-semibold ${styles.heading}`}>{labels.tools}</dt>
+              <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.tools)}</dd>
            </div>
          )}
          {!c.compact && <div>
-           <dt className="font-semibold text-ink/80">{labels.result}</dt>
-           <dd className="mt-0.5 leading-relaxed text-ink/65">{f(c.result)}</dd>
+            <dt className={`font-semibold ${styles.heading}`}>{labels.result}</dt>
+            <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.result)}</dd>
          </div>}
         <div>
-          <dt className="font-semibold text-ink/80">{labels.evidence}</dt>
-          <dd className="mt-0.5 break-words leading-relaxed text-ink/65">{f(c.evidence)}</dd>
+          <dt className={`font-semibold ${styles.heading}`}>{labels.evidence}</dt>
+          <dd className={`mt-0.5 break-words leading-relaxed ${styles.body}`}>{f(c.evidence)}</dd>
         </div>
         {related && (
-          <div className="border-t border-line pt-3">
+          <div className={`border-t pt-3 ${styles.border}`}>
             <a
               href={`#${related.id}`}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber"
+              className={`inline-flex items-center gap-1.5 text-sm font-semibold transition-colors ${styles.link}`}
               onClick={(e) => e.stopPropagation()}
             >
               <ArrowUpRight size={14} weight="bold" />
               {typeof related.label === "string" ? related.label : related.label?.[lang]}
             </a>
-            {related.note && <p className="mt-1 text-xs leading-relaxed text-ink/55">{typeof related.note === "string" ? related.note : related.note?.[lang]}</p>}
+            {related.note && <p className={`mt-1 text-xs leading-relaxed ${styles.caption}`}>{typeof related.note === "string" ? related.note : related.note?.[lang]}</p>}
          </div>
         )}
         {c.compact && link && (
-          <div className="border-t border-line pt-3">
-            <a href={link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-forest transition-colors hover:text-amber">
+          <div className={`border-t pt-3 ${styles.border}`}>
+            <a href={link} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-1.5 font-semibold transition-colors ${styles.link}`}>
               <ArrowUpRight size={14} weight="bold" />
               {typeof linkLabel === "string" ? linkLabel : linkLabel?.[lang]}
             </a>
@@ -155,7 +177,7 @@ function FeaturedSystem({ work }) {
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100">{linkLabel} →</span>
         </a>
       </div>
-      {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} />}
+      {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} tone="dark" />}
     </article>
   );
 }
