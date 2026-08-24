@@ -539,40 +539,40 @@ export const works = [
     linkLabel: { zh: "試用 Web Mini Demo", en: "Try Web Mini Demo" },
     zh: {
       title: "MG Desktop Pet",
-      desc: "把桌面寵物的想法做成可運行的小型桌面應用，結合角色動畫、桌面互動與多種寵物狀態。",
+      desc: "把桌面寵物的想法做成可運行的小型桌面應用，結合角色動畫、桌面互動與 16 種寵物狀態（含 v2 表情動作包）。",
       tag: "創意實作 · 桌面 App",
     },
     en: {
       title: "MG Desktop Pet",
-      desc: "Turning a desktop-pet idea into a working desktop application with character animation, desktop interaction, and multiple pet states.",
+      desc: "Turning a desktop-pet idea into a working desktop application with character animation, desktop interaction, and 16 pet states including a v2 expression pack.",
       tag: "Creative Build · Cute Desktop Pet · Desktop App",
     },
     case: {
       stage: { zh: "創意實作", en: "Creative Build" },
       gallery: {
         src: "/images/mg-poses.webp",
-        alt: { zh: "MG 的 10 種表情與姿態總覽", en: "MG's 10-pose expression and motion overview" },
-        caption: { zh: "10 種姿態 · 56 個動畫影格：待機、可愛、揮手、跳躍、奔跑、向左/右跑、等待、檢視、睡覺", en: "10 poses · 56 animation frames: idle, cute, wave, jump, run, run L/R, wait, review, sleep" },
+        alt: { zh: "MG 的 16 種表情與姿態總覽", en: "MG's 16-pose expression and motion overview" },
+        caption: { zh: "16 種姿態 · 64 個動畫影格：待機、可愛、揮手、跳躍、奔跑、左/右跑、等待、吃飯、睡覺、跳舞、開心、思考、興奮、愛心、害羞", en: "16 poses · 64 animation frames: idle, cute, wave, jump, run, run L/R, wait, eat, sleep, dance, happy, think, excited, heart, blush" },
       },
       problem: {
         zh: "將桌面寵物的概念落實為可執行的小型桌面應用。",
         en: "Turn a desktop-pet idea into a runnable small desktop application.",
       },
       approach: {
-        zh: "以 Python + PySide6 實作透明、無邊框、置頂視窗，並以 QTimer 驅動既有 PNG 角色動畫影格與多種狀態。",
-        en: "Implemented a transparent, frameless, always-on-top window in Python + PySide6, using QTimer to drive existing PNG character frames across multiple states.",
+        zh: "以 Python + PySide6 實作透明、無邊框、置頂視窗，並以 QTimer 驅動既有 PNG 角色動畫影格；v2 表情動作包以程序化動態（彈跳／漂浮／擠壓）與疊加影格（愛心、臉紅）安全擴充姿態，不改畫風。",
+        en: "Implemented a transparent, frameless, always-on-top window in Python + PySide6, using QTimer to drive existing character frames. The v2 expression pack extends poses safely with procedural motion (bob/float/squash) and generated overlay frames (hearts, blush) — no style changes.",
       },
       tools: {
-        zh: "Python · PySide6 · QTimer · PNG 動畫影格",
-        en: "Python · PySide6 · QTimer · PNG animation frames",
+        zh: "Python · PySide6 · QTimer · WebP 優化動畫影格",
+        en: "Python · PySide6 · QTimer · WebP-optimized animation frames",
       },
       result: {
-        zh: "Python 應用已成功啟動；來源實作包含拖曳、右鍵選單與鍵盤控制。",
-        en: "The Python application launches successfully; the source implementation includes drag, right-click menu, and keyboard controls.",
+        zh: "Python 應用已成功啟動；來源實作包含拖曳、右鍵選單與鍵盤控制（共 16 種狀態）。",
+        en: "The Python application launches successfully; the source implementation includes drag, right-click menu, keyboard controls, and 16 states.",
       },
       evidence: {
-        zh: "已確認應用程式可啟動並核對主要功能實作；另提供 Web Mini Demo / Portfolio Adaptation，已驗證 390px、拖曳、Wave、Jump、Sleep 與 Reset。公開 demo：https://apchen1978.github.io/mg-desktop-pet-demo/（HTTP 200，線上實測通過）。這不是完整 desktop app，原始桌面互動仍不宣稱已在 web 重現。",
-        en: "The desktop application launch and core implementation are verified; a Web Mini Demo / Portfolio Adaptation is also provided with 390px, drag, Wave, Jump, Sleep, and Reset checks. Public demo: https://apchen1978.github.io/mg-desktop-pet-demo/ (HTTP 200, verified live). It is not the complete desktop application, and desktop-only behavior is not claimed as reproduced on the web.",
+        zh: "已確認應用程式可啟動並核對主要功能實作；v2 表情動作包（Dance / Happy / Think / Excited / Heart / Blush）以既有美術安全擴充，64 影格全數 WebP 化（約 0.6 MB）。Web Mini Demo v3 已驗證 390px、拖曳、16 種狀態按鈕、鍵盤快捷鍵與全部影格載入。公開 demo：https://apchen1978.github.io/mg-desktop-pet-demo/（HTTP 200，線上實測通過）。這不是完整 desktop app，原始桌面互動仍不宣稱已在 web 重現。",
+        en: "The desktop application launch and core implementation are verified; the v2 expression pack (Dance / Happy / Think / Excited / Heart / Blush) extends poses safely from existing art, with all 64 frames WebP-optimized (~0.6 MB). Web Mini Demo v3 is verified at 390px, drag, 16 state buttons, keyboard shortcuts, and full frame loading. Public demo: https://apchen1978.github.io/mg-desktop-pet-demo/ (HTTP 200, verified live). It is not the complete desktop application, and desktop-only behavior is not claimed as reproduced on the web.",
       },
     },
   },

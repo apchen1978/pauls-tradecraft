@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="data:," />
-  <title>MG — Mini Demo (Web)</title>
+  <title>MG — Mini Demo v3 (16 poses)</title>
   <style>
     :root {
       --ink: #1c1c1e;
@@ -79,8 +79,23 @@
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.06) rotate(-2deg); }
     }
+    @keyframes mg-v2-bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes mg-v2-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes mg-v2-squash {
+      0%, 100% { transform: scale(1, 1); }
+      50% { transform: scale(1.07, 0.93); }
+    }
     .pet.running img { animation: mg-running-bob 180ms ease-in-out infinite; }
     .pet.cute-mode img { animation: mg-cute-bounce 700ms ease-in-out infinite; }
+    .pet.v2-bob img { animation: mg-v2-bob 240ms ease-in-out infinite; }
+    .pet.v2-float img { animation: mg-v2-float 1.4s ease-in-out infinite; }
+    .pet.v2-squash img { animation: mg-v2-squash 320ms ease-in-out infinite; }
     .pet .state-label {
       position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
       font-size: 11px; font-weight: 600; color: var(--accent-dark);
@@ -145,7 +160,7 @@
 <body>
   <header>
     <h1>MG — Desktop Pet</h1>
-    <p>Drag MG around to make it run. Try Cute / Wave / Jump / Sleep.</p>
+    <p>16 種姿態：拖著跑、Wave / Cute / Jump / Sleep，還有 v2 表情包 Dance / Happy / Think / Excited / Heart / Blush。</p>
   </header>
 
   <div class="stage" id="stage">
@@ -163,13 +178,21 @@
     <button type="button" id="btnSleep">Sleep</button>
     <button type="button" id="btnReset">Reset</button>
   </div>
+  <div class="controls" style="padding-top: 0;">
+    <button type="button" class="primary" id="btnDance">Dance</button>
+    <button type="button" id="btnHappy">Happy</button>
+    <button type="button" id="btnThink">Think</button>
+    <button type="button" id="btnExcited">Excited</button>
+    <button type="button" id="btnHeart">Heart</button>
+    <button type="button" id="btnBlush">Blush</button>
+  </div>
 
   <footer>
-    <span class="tag">Web Mini Demo / Portfolio Adaptation</span><br />
+    <span class="tag">Web Mini Demo v3 · 16 poses · WebP-optimized (~0.6 MB)</span><br />
     Original: Python + PySide6 Desktop App<br />
     Browser demo of the original artwork — not the complete desktop application.
   </footer>
 
-  <script src="app.js?v=20260822-4"></script>
+  <script src="app.js?v=20260824-3"></script>
 </body>
 </html>

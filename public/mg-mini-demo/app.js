@@ -1,21 +1,37 @@
-// MG Mini Demo — plain JS, zero dependencies.
-// States reuse the original desktop app's frame sets and delays:
-//   idle 220ms · run 140ms · wave 170ms · jump 110ms · sleep 260ms
-// Artwork: existing MG PNG frames only (no new artwork).
-// Improvements over v1: directional running frames, a dedicated looping
-// cute pose, drag throttle to avoid accidental taps, and clearer state labels.
+// MG Mini Demo v3 — plain JS, zero dependencies.
+// 16 states (10 original + 6 v2 expression pack), WebP-optimized assets.
+// v2 behaviors (dance/happy/think/excited/heart/blush) reuse existing art:
+// frame sequences + CSS bob/float/squash motion, no new artwork.
 (function () {
   "use strict";
 
+  function interleaveRun() {
+    var L = ["running-left/00", "running-left/01", "running-left/02", "running-left/03", "running-left/04", "running-left/05", "running-left/06", "running-left/07"];
+    var R = ["running-right/00", "running-right/01", "running-right/02", "running-right/03", "running-right/04", "running-right/05", "running-right/06", "running-right/07"];
+    var out = [];
+    for (var i = 0; i < Math.max(L.length, R.length); i++) {
+      if (i < L.length) out.push(L[i]);
+      if (i < R.length) out.push(R[i]);
+    }
+    return out;
+  }
+
   var ASSETS = {
-    idle: { frames: ["idle/00", "idle/01", "idle/02", "idle/03", "idle/04", "idle/05"], delay: 220, loop: true },
-    "run-left": { frames: ["running-left/00", "running-left/01", "running-left/02", "running-left/03", "running-left/04", "running-left/05", "running-left/06", "running-left/07"], delay: 85, loop: true },
-    "run-right": { frames: ["running-right/00", "running-right/01", "running-right/02", "running-right/03", "running-right/04", "running-right/05", "running-right/06", "running-right/07"], delay: 85, loop: true },
-    wave: { frames: ["waving/00", "waving/01", "waving/02", "waving/03"], delay: 170, loop: false },
-    cute: { frames: ["cute/00"], delay: 700, loop: true },
-    jump: { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04"], delay: 110, loop: false },
-    sleep: { frames: ["failed/00", "failed/01", "failed/02", "failed/03", "failed/04", "failed/05", "failed/06", "failed/07"], delay: 260, loop: true },
-    wake: { frames: ["waiting/00", "waiting/01", "waiting/02", "waiting/03", "waiting/04", "waiting/05"], delay: 170, loop: false },
+    idle:       { frames: ["idle/00", "idle/01", "idle/02", "idle/03", "idle/04", "idle/05"], delay: 220, loop: true, cls: "" },
+    "run-left": { frames: ["running-left/00", "running-left/01", "running-left/02", "running-left/03", "running-left/04", "running-left/05", "running-left/06", "running-left/07"], delay: 85, loop: true, cls: "" },
+    "run-right":{ frames: ["running-right/00", "running-right/01", "running-right/02", "running-right/03", "running-right/04", "running-right/05", "running-right/06", "running-right/07"], delay: 85, loop: true, cls: "" },
+    wave:       { frames: ["waving/00", "waving/01", "waving/02", "waving/03"], delay: 170, loop: false, cls: "" },
+    cute:       { frames: ["cute/00"], delay: 700, loop: true, cls: "" },
+    jump:       { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04"], delay: 110, loop: false, cls: "" },
+    sleep:      { frames: ["failed/00", "failed/01", "failed/02", "failed/03", "failed/04", "failed/05", "failed/06", "failed/07"], delay: 260, loop: true, cls: "" },
+    wake:       { frames: ["waiting/00", "waiting/01", "waiting/02", "waiting/03", "waiting/04", "waiting/05"], delay: 170, loop: false, cls: "" },
+    // --- v2 expression pack ---
+    dance:      { frames: interleaveRun(), delay: 85, loop: true, cls: "v2-bob" },
+    happy:      { frames: ["jumping/00", "jumping/01", "jumping/02", "jumping/03", "jumping/04"], delay: 110, loop: true, cls: "v2-squash" },
+    think:      { frames: ["waiting/00", "waiting/01", "waiting/02", "waiting/03", "waiting/04", "waiting/05"], delay: 280, loop: true, cls: "v2-float" },
+    excited:    { frames: ["running/00", "running/01", "running/02", "running/03", "running/04", "running/05"], delay: 55, loop: true, cls: "v2-bob" },
+    heart:      { frames: ["heart/00", "heart/01", "heart/02", "heart/03"], delay: 260, loop: true, cls: "v2-float" },
+    blush:      { frames: ["blush/00", "blush/01"], delay: 400, loop: true, cls: "v2-squash" },
   };
 
   var pet = document.getElementById("pet");
@@ -35,7 +51,7 @@
   Object.keys(ASSETS).forEach(function (name) {
     preloaded[name] = ASSETS[name].frames.map(function (f) {
       var im = new Image();
-      im.src = "assets/" + f + ".png";
+      im.src = "assets/" + f + ".webp";
       return im;
     });
   });
@@ -46,11 +62,18 @@
     stateLabel.classList.add("show");
   }
 
+  function setMotionClass(name) {
+    var cls = ASSETS[name].cls;
+    pet.classList.remove("v2-bob", "v2-float", "v2-squash");
+    if (cls) pet.classList.add(cls);
+  }
+
   function play(name, label, opts) {
     if (timer) { clearTimeout(timer); timer = null; }
     current = name;
     pet.classList.toggle("running", name === "run-left" || name === "run-right");
     pet.classList.toggle("cute-mode", name === "cute");
+    setMotionClass(name);
     var spec = ASSETS[name];
     var frames = preloaded[name];
     var i = 0;
@@ -82,9 +105,10 @@
   }
 
   function startRunning(direction) {
-    if (!dragging || !direction) return;
-    var name = direction === "left" ? "run-left" : "run-right";
-    if (current !== name) play(name, null, {});
+    if (dragging) {
+      var name = direction === "left" ? "run-left" : "run-right";
+      if (current !== name) play(name, null, {});
+    }
   }
 
   // Wake from sleep on click/tap (idle state follows).
@@ -107,7 +131,8 @@
     offsetY = e.clientY - rect.top;
     lastMoveX = e.clientX;
     try { pet.setPointerCapture(e.pointerId); } catch (_) {}
-    // Wait for an actual horizontal movement before switching to a running pose.
+    // If sleeping, wait for movement before leaving sleep (tap should wake, not run).
+    if (current !== "sleep") startRunning();
   });
 
   pet.addEventListener("pointermove", function (e) {
@@ -157,16 +182,34 @@
   });
 
   // --- Controls ---
-  document.getElementById("btnWave").addEventListener("click", function () { play("wave", "Wave!", {}); });
-  document.getElementById("btnCute").addEventListener("click", function () { play("cute", "Cute!", {}); });
-  document.getElementById("btnJump").addEventListener("click", function () { play("jump", "Jump!", {}); });
-  document.getElementById("btnSleep").addEventListener("click", function () { play("sleep", "Sleeping — click to wake", { loop: true }); });
+  function bind(id, state, label) {
+    document.getElementById(id).addEventListener("click", function () { play(state, label, {}); });
+  }
+  bind("btnWave", "wave", "Wave!");
+  bind("btnCute", "cute", "Cute!");
+  bind("btnJump", "jump", "Jump!");
+  bind("btnSleep", "sleep", "Sleeping — click to wake");
+  bind("btnDance", "dance", "Dance!");
+  bind("btnHappy", "happy", "Happy!");
+  bind("btnThink", "think", "Think...");
+  bind("btnExcited", "excited", "Excited!");
+  bind("btnHeart", "heart", "Heart!");
+  bind("btnBlush", "blush", "Blush!");
   document.getElementById("btnReset").addEventListener("click", function () {
     pet.style.left = "";
     pet.style.top = "";
     pet.style.transform = "";
     returnToIdle();
     setLabel(null);
+  });
+
+  // Keyboard: w wave · c cute · j jump · s sleep · d dance · h happy
+  //           k think · x excited · l heart · b blush · Esc reset
+  document.addEventListener("keydown", function (e) {
+    var map = { w: "wave", c: "cute", j: "jump", s: "sleep", d: "dance", h: "happy", k: "think", x: "excited", l: "heart", b: "blush" };
+    var key = e.key.toLowerCase();
+    if (key === "escape") { document.getElementById("btnReset").click(); }
+    else if (map[key]) { play(map[key], null, {}); }
   });
 
   // Start alive immediately.
