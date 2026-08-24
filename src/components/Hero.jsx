@@ -18,19 +18,19 @@ export default function Hero() {
         <div className="absolute inset-x-0 top-0 h-px bg-bone/10" />
       </div>
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 pb-24 pt-24 md:px-6 md:pb-32 md:pt-32 lg:grid-cols-[0.94fr_1.06fr] lg:gap-20">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 pb-24 pt-24 md:px-6 md:pb-32 md:pt-32 lg:grid-cols-[1.12fr_0.88fr] lg:gap-14">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.1 } } }}>
           <motion.p variants={fadeUp} className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
             {t.brand} · {t.brandNote}
           </motion.p>
           <motion.h1
             variants={fadeUp}
-            className="mt-6 max-w-xl text-[2.65rem] font-bold leading-[1.05] tracking-[-0.045em] text-bone md:text-6xl lg:text-[4.2rem]"
+            className="mt-6 max-w-2xl text-[2.2rem] font-bold leading-[1.08] tracking-[-0.045em] text-bone md:text-6xl lg:text-[3.2rem] xl:text-[3.5rem]"
           >
             {t.hero.headlineA}
             <br />
             <span className="font-semibold text-bone">{t.hero.headlineB}</span>
-            <span className="font-semibold text-gold">{t.hero.headlineHighlight}</span>
+            <span className="inline-block whitespace-nowrap font-semibold text-gold">{t.hero.headlineHighlight}</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/70 md:text-lg">
             {t.hero.sub}
