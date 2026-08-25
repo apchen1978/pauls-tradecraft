@@ -104,30 +104,32 @@ def chapter_opener(c, num, title, sub=None):
 
 def light_card(c, x, y_top, w, title, body, min_h=64, body_size=9.5, title_size=12,
                tag=None, tag_color=BLUE, accent=GOLD, body_color=INK, title_color=INK):
-    """Light card: white fill, hairline border, thin accent bar. Sized to content."""
+    """McKinsey/a16z card: NO fill, NO box — hairline top rule + thin accent bar,
+    text floats on whitespace. Height accounts for tag + title + body."""
     pad = 15
     lines = wrap(body, JH, body_size, w - pad * 2)
-    h = max(min_h, pad + 12 + len(lines) * (body_size * 1.62) + 8)
+    tag_h = 13 if tag else 0
+    h = max(min_h, pad + tag_h + 12 + len(lines) * (body_size * 1.62) + 6)
     h = snap(h)
     y_top = snap(y_top)
     y_bottom = y_top - h
-    c.setFillColor(CARD_BG)
-    c.roundRect(x, y_bottom, w, h, 4, stroke=0, fill=1)
+    # hairline top rule (a16z style separator) + thin accent bar
     c.setStrokeColor(LINE)
-    c.setLineWidth(0.6)
-    c.roundRect(x, y_bottom, w, h, 4, stroke=1, fill=0)
+    c.setLineWidth(0.7)
+    c.line(x, y_top, x + w, y_top)
     c.setFillColor(accent)
-    c.rect(x, y_bottom + 4, 2.4, h - 8, stroke=0, fill=1)
-    ty = y_top - pad - 6
+    c.rect(x, y_top - 1.4, 26, 2.2, stroke=0, fill=1)
+    ty = y_top - pad - 4
     if tag:
         c.setFont(JH, 7)
         c.setFillColor(tag_color)
         c.drawString(x + pad, snap(ty), tag)
-        ty -= 11
+        ty -= 14
+    ty -= 2
     c.setFont(JHB, title_size)
     c.setFillColor(title_color)
     c.drawString(x + pad, snap(ty), title)
-    ty -= 15
+    ty -= 16
     c.setFont(JH, body_size)
     c.setFillColor(body_color)
     for ln in lines:
@@ -166,21 +168,17 @@ def dark_card(c, x, y_top, w, title, body, min_h=64, body_size=9.5, title_size=1
     return y_bottom
 
 def stat_card_light(c, x, y_top, w, h, big, label, big_color=NAVY):
+    """Stat without a box: big number + thin gold rule + label on whitespace."""
     y_top = snap(y_top)
     y_bottom = y_top - snap(h)
-    c.setFillColor(CARD_BG)
-    c.roundRect(x, y_bottom, w, y_top - y_bottom, 4, stroke=0, fill=1)
-    c.setStrokeColor(LINE)
-    c.setLineWidth(0.6)
-    c.roundRect(x, y_bottom, w, y_top - y_bottom, 4, stroke=1, fill=0)
     c.setFillColor(GOLD)
-    c.rect(x, y_bottom, w, 2, stroke=0, fill=1)
+    c.rect(x, y_bottom, w, 1.6, stroke=0, fill=1)
     c.setFont(JHB, 15)
     c.setFillColor(big_color)
-    c.drawCentredString(x + w / 2, y_bottom + 24, big)
+    c.drawCentredString(x + w / 2, y_bottom + 22, big)
     c.setFont(JH, 7.6)
     c.setFillColor(MUTED)
-    c.drawCentredString(x + w / 2, y_bottom + 11, label)
+    c.drawCentredString(x + w / 2, y_bottom + 9, label)
 
 def status_line(c, x, y, text, color=GOLD):
     c.setFont(JHB, 7.3)
@@ -342,10 +340,15 @@ agents = [
 for i, (t, b, note) in enumerate(agents):
     x = MARGIN + i * (cw + 24)
     yy = light_card(c, x, y, cw, t, b, min_h=104, title_size=12)
+    # note inside the card bounds, after body, never below the card
+    note_lines = wrap(note, JHB, 8.5, cw - 30)
+    ny = yy + 14
     c.setFont(JHB, 8.5)
     c.setFillColor(NAVY)
-    c.drawString(x + 15, snap(yy) - 6, note)
-y -= 88
+    for ln in note_lines:
+        c.drawString(x + 15, snap(ny), ln)
+        ny += 12
+y -= 128
 y = light_card(c, MARGIN, y, CONTENT_W, '治理與紀律', '一處治理文件定義能力與分工；共享技能層只有一份 canonical；冷審計由獨立執行器執行；UNKNOWN 不腦補、證據優先於判斷。多 Agent 不是多做一次，而是讓第二雙眼睛獨立檢查。', min_h=88, title_size=12, tag='GOVERNANCE', tag_color=BLUE)
 y -= 16
 c.setFont(JHB, 11)
