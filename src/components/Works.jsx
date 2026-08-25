@@ -1,4 +1,6 @@
+import { useLayoutEffect, useRef } from "react";
 import { motion } from "motion/react";
+import { gsap } from "gsap";
 import {
   CheckCircle,
   ArrowUpRight,
@@ -139,14 +141,70 @@ function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
 
 function FeaturedSystem({ work }) {
   const { lang, t } = useLang();
+  const featuredRef = useRef(null);
   const copy = work[lang];
   const linkLabel = typeof work.linkLabel === "string" ? work.linkLabel : work.linkLabel?.[lang];
 
+  useLayoutEffect(() => {
+    const root = featuredRef.current;
+    if (!root) return undefined;
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+      mm.add({ reduceMotion: "(prefers-reduced-motion: reduce)" }, ({ conditions }) => {
+        const timeline = gsap.timeline({ paused: true });
+
+        if (conditions.reduceMotion) {
+          timeline.set("[data-featured-copy], [data-featured-visual]", { autoAlpha: 1 });
+        } else {
+          timeline
+            .from("[data-featured-copy]", {
+              y: 14,
+              autoAlpha: 0,
+              duration: 0.48,
+              ease: "power2.out",
+              stagger: 0.07,
+              immediateRender: false,
+            })
+            .from(
+              "[data-featured-visual]",
+              {
+                y: 10,
+                autoAlpha: 0,
+                duration: 0.52,
+                ease: "power2.out",
+                immediateRender: false,
+              },
+              "<0.12",
+            );
+        }
+
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              timeline.play();
+              observer.disconnect();
+            }
+          },
+          { threshold: 0.2, rootMargin: "0px 0px -8%" },
+        );
+
+        observer.observe(root);
+        return () => {
+          observer.disconnect();
+          timeline.kill();
+        };
+      });
+    }, root);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <article id={work.id} className="scroll-mt-28 overflow-hidden rounded-[1rem] border border-ink/10 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
+    <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-[1rem] border border-ink/10 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
       <div className="grid lg:grid-cols-[0.88fr_1.12fr]">
         <div className="flex flex-col px-6 py-8 md:px-10 md:py-11">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
+          <div data-featured-copy className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
             <span>{copy.tag}</span>
             {work.verified && (
               <span className="inline-flex items-center gap-1 text-bone/70" title={t.works.verifiedExplain}>
@@ -155,18 +213,18 @@ function FeaturedSystem({ work }) {
               </span>
             )}
           </div>
-          <h3 className="mt-5 max-w-md text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-bone md:text-4xl">{copy.title}</h3>
-          <p className="mt-5 max-w-[43ch] text-base leading-relaxed text-bone/72">{copy.desc}</p>
+          <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-bone md:text-4xl">{copy.title}</h3>
+          <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-bone/72">{copy.desc}</p>
           {copy.caseSummary && (
-            <p className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
+            <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
           )}
-          <a href={work.link} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61]">
+          <a data-featured-copy href={work.link} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61]">
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
           </a>
           {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/50">{work.demoNote[lang]}</p>}
         </div>
-        <a href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-4">
+        <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-4">
           <div className="overflow-hidden rounded-field border border-ink/10 bg-bone shadow-[0_18px_36px_-24px_rgba(0,0,0,0.62)]">
             <div className="flex items-center justify-between border-b border-ink/10 bg-[#edf0e7] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65">
               <span>Executive Snapshot</span>
