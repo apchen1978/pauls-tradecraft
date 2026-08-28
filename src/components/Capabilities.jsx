@@ -68,6 +68,24 @@ export default function Capabilities() {
           </div>
         </div>
 
+        <div className="mt-16 border-t border-line pt-8 md:mt-20 md:pt-10">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber">{t.capabilities.demandLab.eyebrow}</p>
+            <h3 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">{t.capabilities.demandLab.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-ink/65 md:text-base">{t.capabilities.demandLab.intro}</p>
+          </div>
+          <div className="mt-8 grid gap-0 border-y border-line md:grid-cols-3 md:divide-x md:divide-line">
+            {t.capabilities.demandLab.cases.map((item) => (
+              <article key={item.label} className="border-b border-line py-5 last:border-b-0 md:border-b-0 md:px-6 md:first:pl-0 md:last:pr-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber">{item.label}</p>
+                <h4 className="mt-2 text-base font-bold tracking-tight">{item.title}</h4>
+                <p className="mt-2 text-sm leading-relaxed text-ink/65">{item.body}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-4 text-xs font-medium tracking-wide text-moss">{t.capabilities.demandLab.note}</p>
+        </div>
+
         <h3 className="mt-16 text-xl font-bold tracking-tight md:text-2xl">{t.capabilities.supportingHeadline}</h3>
         <div className="mt-12 grid grid-cols-1 gap-x-12 gap-y-10 sm:grid-cols-2">
           {t.capabilities.items.map((item, i) => {
