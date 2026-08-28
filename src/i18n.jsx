@@ -88,15 +88,15 @@ const dict = {
         cddCta: "開啟商務決策工作台",
       },
       demandLab: {
-        eyebrow: "SCENARIO READINESS",
-        title: "Before automating, test the next commercial question.",
-        intro: "We simulate emerging client needs, challenge the assumptions, and keep human review at the point where evidence becomes a decision.",
+        eyebrow: "情境準備度",
+        title: "在自動化之前，先測試下一個商業問題。",
+        intro: "我們先模擬客戶可能帶來的新需求，挑戰其中的假設，並在證據轉成決策的地方保留人工審查。",
         cases: [
-          { label: "PAYMENT", title: "90-day terms versus a deposit", body: "Expose the commitment, evidence gap, and next negotiation question." },
-          { label: "TRADE", title: "A quote without a named delivery place", body: "Clarify responsibility before comparing price or making a promise." },
-          { label: "INTAKE", title: "A messy RFQ that needs structure", body: "Propose fields and unknowns for review. Never turn an unverified signal into a decision." },
+          { label: "付款條件", title: "90 天帳期，還是先付訂金？", body: "先看承諾暴露、證據缺口與下一個談判問題。" },
+          { label: "貿易責任", title: "報價沒有寫明交付地點。", body: "先釐清責任，再比較價格或做出承諾。" },
+          { label: "資料整理", title: "一封混亂的 RFQ 需要被整理。", body: "提出待確認欄位與未知，不把未驗證訊號直接變成決策。" },
         ],
-        note: "Synthetic scenario design · AI proposes structure · human judgment remains authoritative",
+        note: "合成情境設計 · AI 提出結構 · 人的判斷仍是最高權限",
       },
       items: [
         {
