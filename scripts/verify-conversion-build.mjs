@@ -1,8 +1,8 @@
 // verify-conversion-build.mjs — verify the Portfolio Conversion Build (pre-commit)
 // Desktop 1440px + mobile 390px:
 //  - identity preserved (hero headline intact, CTA buttons intact)
-//  - featured 20-second hook present: 83k → +52k → 135k, caption, disclosure, CTA
-//  - Try path ≤2 clicks: homepage → featured CTA link (external, direct)
+//  - commercial engagement layer present: three bounded offers + direct CTA
+//  - CDD featured work offers both demo and bring-a-live-case paths
 //  - Trade Deal Desk card link unchanged
 //  - Payment Concentration card now links to the Try surface
 //  - Trade Deal Desk evidence corrected: 13/13 + 5/5
@@ -62,20 +62,25 @@ async function check(viewport) {
   results.heroHeadline = await ev("document.querySelector('h1') ? document.querySelector('h1').innerText : ''");
   results.heroCTAs = await ev(`[...document.querySelectorAll('section#top a')].map(a => a.textContent.trim()).filter(Boolean)`);
 
-  // Featured hook band
   const heroText = await ev("document.querySelector('section#top').innerText");
-  results.featuredHook = heroText.includes("payments collide") || heroText.includes("付款撞在一起");
-  results.featured83k = heroText.includes("USD 83k");
-  results.featured52k = heroText.includes("USD 52k");
-  results.featured135k = heroText.includes("USD 135k");
-  results.featuredCaption = heroText.includes("7-day supplier-payment commitments") || heroText.includes("7 天供應商付款承諾");
-  results.featuredDisclosure = heroText.includes("Synthetic example") || heroText.includes("合成範例");
-  results.featuredCta = heroText.includes("Try the Payment Prototype") || heroText.includes("試試付款原型");
-
-  // Featured CTA link (Try path = 1 click from homepage)
-  results.featuredCtaHref = await ev(`(() => {
-    const a = [...document.querySelectorAll('section#top a')].find(a => /Payment Prototype|付款原型/.test(a.textContent));
+  results.heroPrimaryCta = results.heroCTAs.includes("討論商業 Pilot");
+  results.heroSecondaryCta = results.heroCTAs.includes("查看商業系統");
+  results.engagementLayer = await ev(`(() => {
+    const text = document.querySelector('#capabilities')?.innerText || '';
+    return ['Overseas Growth Pilot', 'Deal Readiness Review', 'Commercial Control Sprint', '支援能力']
+      .every((label) => text.includes(label));
+  })()`);
+  results.engagementCta = await ev(`(() => {
+    const a = [...document.querySelectorAll('#capabilities a[href="#contact"]')].find(a => a.textContent.includes('討論商業 Pilot'));
     return a ? a.href : null;
+  })()`);
+  results.cddCaseInvite = await ev(`(() => {
+    const a = document.querySelector('a[data-featured-copy][href="#contact"]');
+    return a ? a.textContent.trim() : null;
+  })()`);
+  results.contactCta = await ev(`(() => {
+    const a = document.querySelector('#contact a[href^="mailto:"]');
+    return a ? a.textContent.trim() : null;
   })()`);
 
   // Trade Deal Desk card
@@ -151,10 +156,9 @@ try {
   const EXPECTED_TDD = "https://apchen1978.github.io/ai-trade-deal-desk-demo/";
   const pass = (r) =>
     r.heroHeadline && r.heroHeadline.length > 0
-    && r.heroCTAs.length >= 2
-    && r.featuredHook && r.featured83k && r.featured52k && r.featured135k
-    && r.featuredCaption && r.featuredDisclosure && r.featuredCta
-    && r.featuredCtaHref === EXPECTED_TRY
+    && r.heroCTAs.length >= 2 && r.heroPrimaryCta && r.heroSecondaryCta
+    && r.engagementLayer && r.engagementCta === "http://127.0.0.1:9334/#contact"
+    && r.cddCaseInvite && r.contactCta === "討論商業 Pilot"
     && r.tddLink === EXPECTED_TDD
     && r.pcLink === EXPECTED_TRY
     && r.pcLinkLabel && /Payment Prototype|付款原型/.test(r.pcLinkLabel)

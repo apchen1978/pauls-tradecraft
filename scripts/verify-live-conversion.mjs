@@ -1,7 +1,7 @@
 // verify-live-conversion.mjs — LIVE verification of paulstradecraft.com post-deploy
 // Desktop 1440px + mobile 390px:
-//  - identity preserved; featured hook visible in ZH and EN
-//  - 83k → +52k → 135k visible; disclosure visible; CTA → Try surface (1 click)
+//  - commercial positioning and engagement layer visible in ZH and EN
+//  - CDD featured work offers both demo and bring-a-live-case paths
 //  - Trade Deal Desk link unchanged + evidence 13/13 + 5/5
 //  - Trade Deal Desk execution-safety fixture disclosed as local-only 9/9 evidence
 //  - Payment Concentration card links to Try surface, prototype-only disclosure
@@ -53,19 +53,20 @@ async function check(viewport, lang) {
 
   const heroText = await ev("document.querySelector('section#top').innerText");
   results.identityHeadline = await ev("document.querySelector('h1') ? document.querySelector('h1').innerText : ''");
-  results.featuredHook = lang === "zh"
-    ? heroText.includes("每張訂單單看都沒問題") && heroText.includes("當付款撞在一起時")
-    : heroText.includes("Each order looks manageable") && heroText.includes("What happens when the payments collide?");
-  results.featured83k = heroText.includes("USD 83k");
-  results.featured52k = heroText.includes("USD 52k");
-  results.featured135k = heroText.includes("USD 135k");
-  results.featuredCaption = heroText.includes("7-day supplier-payment commitments") || heroText.includes("7 天供應商付款承諾");
-  results.featuredDisclosure = heroText.includes("Synthetic example") || heroText.includes("合成範例");
-  results.featuredCtaText = heroText.includes("Try the Payment Prototype") || heroText.includes("試試付款原型");
-  results.featuredCtaHref = await ev(`(() => {
-    const a = [...document.querySelectorAll('section#top a')].find(a => /Payment Prototype|付款原型/.test(a.textContent));
+  results.heroPrimaryCta = heroText.includes(lang === "zh" ? "討論商業 Pilot" : "Discuss a Commercial Pilot");
+  results.heroSecondaryCta = heroText.includes(lang === "zh" ? "查看商業系統" : "View Commercial Systems");
+  results.engagementLayer = await ev(`(() => {
+    const text = document.querySelector('#capabilities')?.innerText || '';
+    return ['Overseas Growth Pilot', 'Deal Readiness Review', 'Commercial Control Sprint', ${JSON.stringify(lang === "zh" ? "支援能力" : "Supporting capabilities")}]
+      .every((label) => text.includes(label));
+  })()`);
+  results.engagementCta = await ev(`(() => {
+    const label = ${JSON.stringify(lang === "zh" ? "討論商業 Pilot" : "Discuss a Commercial Pilot")};
+    const a = [...document.querySelectorAll('#capabilities a[href="#contact"]')].find(a => a.textContent.includes(label));
     return a ? a.href : null;
   })()`);
+  results.cddCaseInvite = await ev(`document.querySelector('a[data-featured-copy][href="#contact"]')?.textContent.trim() || null`);
+  results.contactCta = await ev(`document.querySelector('#contact a[href^="mailto:"]')?.textContent.trim() || null`);
 
   results.tddLink = await ev(`(() => {
     const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
@@ -126,12 +127,13 @@ try {
   const ed = await check({ w: 1440, h: 900, mobile: false }, "en");
   console.log(JSON.stringify(ed, null, 2));
 
-  const pass = (r) => r.identityHeadline && r.featuredHook && r.featured83k && r.featured52k && r.featured135k
-    && r.featuredCaption && r.featuredDisclosure && r.featuredCtaText && r.featuredCtaHref === TRY
+  const pass = (r, lang) => r.identityHeadline && r.heroPrimaryCta && r.heroSecondaryCta && r.engagementLayer
+    && r.engagementCta && r.cddCaseInvite
+    && r.contactCta === (lang === "zh" ? "討論商業 Pilot" : "Discuss a Commercial Pilot")
     && r.tddLink === TDD && r.tddEvidence1313 && r.tddEvidence55 && r.tddFixtureSafety
     && r.pcLink === TRY && r.pcPrototypeOnly
     && r.noHorizontalOverflow && r.overflowAtBottom;
-  const ok = pass(zd) && pass(zm) && pass(ed);
+  const ok = pass(zd, "zh") && pass(zm, "zh") && pass(ed, "en");
   console.log(ok ? "RESULT: PASS" : "RESULT: FAIL");
   process.exitCode = ok ? 0 : 1;
 } catch (err) {

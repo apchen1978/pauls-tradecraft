@@ -1,4 +1,4 @@
-// verify-conversion-en.mjs — EN locale + click-path check
+// verify-conversion-en.mjs — EN locale + commercial engagement click-path check
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
@@ -50,18 +50,26 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   const results = {};
   const heroText = await ev("document.querySelector('section#top').innerText");
-  results.enHook = heroText.includes("Each order looks manageable") && heroText.includes("What happens when the payments collide?");
-  results.en83k = heroText.includes("USD 83k");
-  results.en52k = heroText.includes("+ USD 52k proposed deal");
-  results.en135k = heroText.includes("USD 135k");
-  results.enCaption = heroText.includes("7-day supplier-payment commitments");
-  results.enDisclosure = heroText.includes("Synthetic example · supplier-payment commitments only — not company cash balance or shortfall");
-  results.enCta = heroText.includes("Try the Payment Prototype");
-  results.enCtaHref = await ev(`(() => {
-    const a = [...document.querySelectorAll('section#top a')].find(a => a.textContent.includes('Try the Payment Prototype'));
+  results.heroHeadline = await ev("document.querySelector('h1')?.innerText || ''");
+  results.heroPrimaryCta = heroText.includes("Discuss a Commercial Pilot");
+  results.heroSecondaryCta = heroText.includes("View Commercial Systems");
+  results.engagementLayer = await ev(`(() => {
+    const text = document.querySelector('#capabilities')?.innerText || '';
+    return ['Overseas Growth Pilot', 'Deal Readiness Review', 'Commercial Control Sprint', 'Supporting capabilities']
+      .every((label) => text.includes(label));
+  })()`);
+  results.engagementCtaHref = await ev(`(() => {
+    const a = [...document.querySelectorAll('#capabilities a[href="#contact"]')].find(a => a.textContent.includes('Discuss a Commercial Pilot'));
     return a ? a.href : null;
   })()`);
-  results.identityPreservedEn = heroText.includes("Turning trade practice") && heroText.includes("into visible tools");
+  results.cddCaseInvite = await ev(`(() => {
+    const a = document.querySelector('a[data-featured-copy][href="#contact"]');
+    return a ? a.textContent.trim() : null;
+  })()`);
+  results.contactCta = await ev(`(() => {
+    const a = document.querySelector('#contact a[href^="mailto:"]');
+    return a ? a.textContent.trim() : null;
+  })()`);
   results.pcLinkLabelEn = await ev(`(() => {
     const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Payment Concentration'));
     const a = h ? h.closest('article').querySelector('a[href]') : null;
@@ -69,22 +77,17 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   })()`);
 
   // Click path: featured CTA → Try surface (≤2 clicks: 1 click on homepage)
-  results.clickPath = await ev(`(() => {
-    const a = [...document.querySelectorAll('section#top a')].find(a => a.textContent.includes('Try the Payment Prototype'));
-    if (!a) return 'no-cta';
-    const href = a.href;
-    // 從 homepage 點一次 CTA 就到 Try surface → 1 click 路徑（≤2 ✓）
-    return href;
-  })()`);
+  results.clickPath = results.engagementCtaHref;
 
   console.log("=== EN LOCALE + CLICK PATH ===");
   console.log(JSON.stringify(results, null, 2));
-  const pass = results.enHook && results.en83k && results.en52k && results.en135k
-    && results.enCaption && results.enDisclosure && results.enCta
-    && results.enCtaHref === "https://apchen1978.github.io/payment-concentration-demo/"
-    && results.identityPreservedEn
+  const pass = results.heroHeadline === "Turn commercial problems\ninto systems teams can act on"
+    && results.heroPrimaryCta && results.heroSecondaryCta && results.engagementLayer
+    && results.engagementCtaHref === "http://127.0.0.1:9335/#contact"
+    && results.cddCaseInvite === "Have a live opportunity to review? Bring it in."
+    && results.contactCta === "Discuss a Commercial Pilot"
     && /Payment Prototype/.test(results.pcLinkLabelEn || "")
-    && results.clickPath === "https://apchen1978.github.io/payment-concentration-demo/";
+    && results.clickPath === "http://127.0.0.1:9335/#contact";
   console.log(pass ? "RESULT: PASS" : "RESULT: FAIL");
   process.exitCode = pass ? 0 : 1;
 

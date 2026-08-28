@@ -222,6 +222,11 @@ function FeaturedSystem({ work }) {
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
           </a>
+          {work.id === "commercial-decision-desk" && (
+            <a data-featured-copy href="#contact" className="mt-4 w-fit text-sm font-semibold text-bone/75 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold">
+              {t.hero.cddInvite}
+            </a>
+          )}
           {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/50">{work.demoNote[lang]}</p>}
         </div>
         <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-4">
