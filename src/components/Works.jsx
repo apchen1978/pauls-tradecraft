@@ -203,7 +203,7 @@ function FeaturedSystem({ work }) {
   return (
     <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-[1rem] border border-ink/10 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
       <div className="grid lg:grid-cols-[0.88fr_1.12fr]">
-        <div className="flex flex-col px-6 py-8 md:px-10 md:py-11">
+        <div className="flex flex-col px-6 py-8 md:px-10 md:py-11 lg:px-9 lg:py-9">
           <div data-featured-copy className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
             <span>{copy.tag}</span>
             {work.verified && (
@@ -229,7 +229,7 @@ function FeaturedSystem({ work }) {
           )}
           {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/50">{work.demoNote[lang]}</p>}
         </div>
-        <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-4">
+        <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-3">
           <div className="overflow-hidden rounded-field border border-ink/10 bg-bone shadow-[0_18px_36px_-24px_rgba(0,0,0,0.62)]">
             <div className="flex items-center justify-between border-b border-ink/10 bg-[#edf0e7] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65">
               <span>Executive Snapshot</span>
@@ -304,7 +304,7 @@ export default function Works() {
               {Icon && <Icon size={44} weight="light" className="text-moss" />}
             </div>
           )}
-          <div className="flex flex-1 flex-col p-7 md:p-8">
+          <div className="flex flex-1 flex-col p-7 md:p-8 lg:p-7">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
               <span>{copy.tag}</span>
               {w.verified && (
@@ -357,7 +357,7 @@ export default function Works() {
   };
 
   return (
-    <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-28 md:px-6 md:py-36">
+    <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-28 md:px-6 md:py-36 lg:py-28">
       <div className="border-b border-line pb-12">
         <div className="max-w-2xl">
           <p className="eyebrow">{t.works.eyebrow}</p>
@@ -366,18 +366,18 @@ export default function Works() {
         </div>
       </div>
 
-      <div className="mt-14">
+      <div className="mt-14 lg:mt-12">
         <p className="eyebrow mb-5">{t.works.sections.commercial}</p>
         <FeaturedSystem work={featuredSystem} />
       </div>
 
       {sections.map((sec, si) => (
         <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
-          <div className={`${si === 0 ? "mt-16" : "mt-14"} flex flex-col gap-2 border-t border-line pt-7 md:flex-row md:items-baseline md:justify-between`}>
+          <div className={`${si === 0 ? "mt-16 lg:mt-12" : "mt-14 lg:mt-12"} flex flex-col gap-2 border-t border-line pt-7 md:flex-row md:items-baseline md:justify-between`}>
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
             {sec.note && <p className="mt-1.5 text-sm leading-relaxed text-ink/60">{sec.note}</p>}
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2">
+          <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2 lg:gap-7">
             {sec.works.map((w, i) => renderCard(w, i))}
           </div>
         </div>
