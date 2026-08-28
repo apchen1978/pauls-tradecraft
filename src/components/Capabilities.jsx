@@ -3,6 +3,10 @@ import { FlowArrow, Rocket, GlobeHemisphereWest, Network, ArrowUpRight } from "@
 import { useLang } from "../i18n.jsx";
 
 const icons = [FlowArrow, Rocket, GlobeHemisphereWest, Network];
+const workflowLinks = {
+  source: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
+  cdd: "https://apchen1978.github.io/commercial-decision-desk/",
+};
 
 export default function Capabilities() {
   const { lang, t } = useLang();
@@ -40,6 +44,28 @@ export default function Capabilities() {
             {engagement.cta}
             <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
           </a>
+        </div>
+
+        <div className="mt-16 border-t border-line pt-8 md:mt-20 md:pt-10">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber">{t.capabilities.delivery.eyebrow}</p>
+              <h3 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">{t.capabilities.delivery.title}</h3>
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-forest">
+              <a href={workflowLinks.source} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.sourceCta} ↗</a>
+              <a href={workflowLinks.cdd} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.cddCta} ↗</a>
+            </div>
+          </div>
+          <div className="mt-8 grid gap-8 md:grid-cols-3">
+            {t.capabilities.delivery.steps.map((step) => (
+              <div key={step.number} className="border-t border-forest/20 pt-4">
+                <p className="text-xs font-bold tabular-nums text-amber">{step.number}</p>
+                <h4 className="mt-2 text-base font-bold tracking-tight">{step.title}</h4>
+                <p className="mt-2 text-sm leading-relaxed text-ink/65">{step.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         <h3 className="mt-16 text-xl font-bold tracking-tight md:text-2xl">{t.capabilities.supportingHeadline}</h3>

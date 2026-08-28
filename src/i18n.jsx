@@ -76,6 +76,17 @@ const dict = {
         ],
       },
       supportingHeadline: "支援能力",
+      delivery: {
+        eyebrow: "從訊號到決策",
+        title: "一條可以交給團隊使用的商業工作流程。",
+        steps: [
+          { number: "01", title: "先確認商機", body: "在投入業務時間前，分開證據、假設與未知。" },
+          { number: "02", title: "立起交易結構", body: "把經濟、貿易責任與關鍵缺口放在同一張圖上。" },
+          { number: "03", title: "交付決策底稿", body: "留下下一步、證據鏈與人的最終判斷。" },
+        ],
+        sourceCta: "查看客戶開發流程",
+        cddCta: "開啟商務決策工作台",
+      },
       items: [
         {
           title: "AI Workflow Design",
@@ -254,6 +265,17 @@ const dict = {
         ],
       },
       supportingHeadline: "Supporting capabilities",
+      delivery: {
+        eyebrow: "FROM SIGNAL TO DECISION",
+        title: "A commercial workflow you can put in front of a team.",
+        steps: [
+          { number: "01", title: "Qualify the lead", body: "Separate evidence from assumptions before sales time is committed." },
+          { number: "02", title: "Structure the deal", body: "Make economics, trade responsibility, and unknowns visible." },
+          { number: "03", title: "Brief the decision", body: "Leave the owner with a next action, evidence trail, and human call." },
+        ],
+        sourceCta: "See lead qualification",
+        cddCta: "Open the decision workbench",
+      },
       items: [
         {
           title: "AI Workflow Design",
