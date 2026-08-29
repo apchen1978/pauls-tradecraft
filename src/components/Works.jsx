@@ -251,7 +251,7 @@ export default function Works() {
   const sections = SECTION_ORDER.map((id) => ({
     id,
     label: t.works.sections[id],
-    note: id === "labs" ? t.works.labsNote : "",
+    note: t.works.sections.notes[id],
     works: [...works]
       .filter((w) => w.section === id && w.id !== featuredSystem.id)
       .sort((a, b) => (a.featuredRank ?? Number.MAX_SAFE_INTEGER) - (b.featuredRank ?? Number.MAX_SAFE_INTEGER)),
