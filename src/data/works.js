@@ -246,7 +246,7 @@ export const works = [
     id: "game",
     section: "labs",
     featuredRank: 3,
-    cover: "/images/cover-game.webp",
+    cover: "/images/cover-game-v2.png",
     imageAlt: { zh: "Lil Matt's Gaming World 遊戲", en: "Lil Matt's Gaming World game" },
     span: "md:col-span-2",
     verified: true,
