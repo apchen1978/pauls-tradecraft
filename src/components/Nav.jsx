@@ -10,6 +10,7 @@ export default function Nav() {
     { href: "#works", label: t.nav.works },
     { href: "#deal-readiness", label: t.nav.services },
     { href: "#verification", label: t.nav.verification },
+    { href: "#method", label: t.nav.method },
     { href: "#how", label: t.nav.process },
     { href: "#about", label: t.nav.about },
   ];

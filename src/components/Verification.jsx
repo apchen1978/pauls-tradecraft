@@ -29,12 +29,12 @@ export default function Verification() {
             >
               <span className="text-sm font-bold text-forest">{t.verification.works[row.key]}</span>
               <span className="font-mono text-sm text-ink/80">{row.tests}</span>
-              <span className="text-xs leading-relaxed text-ink/60">{t.verification.method[row.key]}</span>
+              <span className="text-xs leading-relaxed text-ink/75">{t.verification.method[row.key]}</span>
             </div>
           ))}
         </div>
 
-        <p className="mt-6 max-w-2xl text-xs leading-relaxed text-ink/55">{v.boundary}</p>
+        <p className="mt-6 max-w-2xl text-xs leading-relaxed text-ink/70">{v.boundary}</p>
       </div>
     </section>
   );

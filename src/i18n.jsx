@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { works: "作品", services: "商業合作", verification: "驗證", process: "流程", about: "關於我", contact: "討論商業 Pilot", skipToContent: "跳至主要內容" },
+    nav: { works: "作品", services: "商業合作", verification: "驗證", method: "方法", process: "流程", about: "關於我", contact: "討論商業 Pilot", skipToContent: "跳至主要內容" },
     hero: {
       headlineA: "把商業問題，整理成",
       headlineB: "團隊能推進的",
@@ -99,6 +99,14 @@ const dict = {
         tracker: "Pilot 工作流程驗證",
       },
       boundary: "驗證證明的是工具行為與紀律，不是商業成效；不包含客戶成果、ROI 或採用率宣稱。",
+    },
+    methods: {
+      eyebrow: "METHODOLOGY",
+      headline: "方法論：怎麼判斷、怎麼談、怎麼承諾",
+      intro: "這些文章不是我「相信」的——是工具裡寫下的紀律，從商業流程與工具設計整理出來。每篇都可以追溯到可運作的工作方式。",
+      read: "讀全文",
+      collapse: "收合",
+      disclosure: "方法論分享；不涉及法律意見，亦不宣稱任何客戶成效。",
     },
     capabilities: {
       eyebrow: "COMMERCIAL ENGAGEMENTS",
@@ -266,7 +274,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { works: "Work", services: "Commercial Work", verification: "Verification", process: "Process", about: "About", contact: "Discuss a Commercial Pilot", skipToContent: "Skip to content" },
+    nav: { works: "Work", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", about: "About", contact: "Discuss a Commercial Pilot", skipToContent: "Skip to content" },
     hero: {
       headlineA: "Turn commercial problems",
       headlineB: "into systems teams ",
@@ -361,6 +369,14 @@ const dict = {
         tracker: "Pilot workflow validation",
       },
       boundary: "Verification proves tool behavior and discipline, not commercial outcomes. No client results, ROI, or adoption claims are included.",
+    },
+    methods: {
+      eyebrow: "METHODOLOGY",
+      headline: "How I judge, negotiate, and commit",
+      intro: "These articles are not what I \"believe\" — they are disciplines written into working tools, shaped from commercial workflows and tool design. Each one traces back to a functioning way of working.",
+      read: "Read full article",
+      collapse: "Collapse",
+      disclosure: "Methodology sharing; not legal advice, and no client outcomes are claimed.",
     },
     capabilities: {
       eyebrow: "COMMERCIAL ENGAGEMENTS",
