@@ -16,10 +16,10 @@ export default function Nav() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line/80 bg-bone/95 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-line/80 bg-bone/90 shadow-[0_10px_30px_-28px_rgba(20,51,41,0.8)] backdrop-blur-md">
       <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
         <a href="#top" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
-          <span className="text-lg font-bold tracking-[-0.035em]">{t.brand}</span>
+          <span className="text-lg font-bold tracking-[-0.045em] text-forest">{t.brand}</span>
           <span className="hidden border-l border-line pl-2 text-xs font-medium uppercase tracking-[0.12em] text-ink/55 sm:inline">{t.brandNote}</span>
         </a>
 

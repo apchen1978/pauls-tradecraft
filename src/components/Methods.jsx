@@ -9,7 +9,7 @@ export default function Methods() {
   const [openId, setOpenId] = useState(null);
 
   return (
-    <section id="method" className="scroll-mt-24 border-b border-line bg-paper/40">
+    <section id="method" className="scroll-mt-24 border-b border-line surface-muted">
       <div className="mx-auto max-w-7xl px-4 py-24 md:px-6 md:py-28">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber">{t.methods.eyebrow}</p>
         <h2 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">{t.methods.headline}</h2>

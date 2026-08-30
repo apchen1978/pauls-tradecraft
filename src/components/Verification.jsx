@@ -21,7 +21,7 @@ export default function Verification() {
         <h2 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">{v.headline}</h2>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/70">{v.intro}</p>
 
-        <div className="mt-10 overflow-hidden rounded-card border border-line bg-paper/50">
+        <div className="mt-10 overflow-hidden rounded-card border border-line surface-muted">
           {proofRows.map((row, i) => (
             <div
               key={row.key}

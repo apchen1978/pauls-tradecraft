@@ -17,7 +17,7 @@ export default function Hero() {
   const cdd = works.find((work) => work.id === "commercial-decision-desk");
   const cddCopy = cdd[lang];
   return (
-    <section id="top" className="relative isolate overflow-hidden bg-pine text-bone">
+    <section id="top" className="relative isolate overflow-hidden bg-pine text-bone shadow-[0_28px_80px_-56px_rgba(20,51,41,0.9)]">
       <div aria-hidden className="absolute inset-0">
         <img
           src="/images/paul-art.jpg"
@@ -25,7 +25,7 @@ export default function Hero() {
           className="absolute inset-0 h-full w-full object-cover object-[68%_28%] opacity-55 lg:object-[72%_24%] lg:opacity-70"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,51,41,0.98)_0%,rgba(20,51,41,0.9)_34%,rgba(20,51,41,0.35)_68%,rgba(20,51,41,0.7)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,51,41,0.98)_0%,rgba(20,51,41,0.88)_34%,rgba(20,51,41,0.3)_68%,rgba(20,51,41,0.72)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,51,41,0.18)_0%,rgba(20,51,41,0.08)_48%,rgba(20,51,41,0.8)_100%)]" />
       </div>
       <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -39,7 +39,7 @@ export default function Hero() {
           </motion.p>
           <motion.h1
             variants={fadeUp}
-            className="mt-6 max-w-2xl text-[clamp(2.35rem,7vw,4.7rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-bone md:text-6xl xl:text-[4.7rem]"
+            className="mt-6 max-w-2xl text-[clamp(2.35rem,7vw,4.7rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-bone md:text-6xl xl:text-[4.7rem]"
           >
             {t.hero.headlineA}
             <br />

@@ -201,7 +201,7 @@ function FeaturedSystem({ work }) {
   }, []);
 
   return (
-    <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-[1rem] border border-ink/10 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
+    <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-card border border-forest/25 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
       <div className="grid lg:grid-cols-[0.88fr_1.12fr]">
         <div className="flex flex-col px-6 py-8 md:px-10 md:py-11 lg:px-9 lg:py-9">
           <div data-featured-copy className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
@@ -287,7 +287,7 @@ export default function Works() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
-         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line bg-[#f8f8f3] transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_20px_40px_-34px_rgba(20,51,41,0.55)] col-span-1 ${w.link ? "" : "cursor-pointer"}`}
+         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] col-span-1 ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
           {w.cover ? (
@@ -304,7 +304,7 @@ export default function Works() {
               {Icon && <Icon size={44} weight="light" className="text-moss" />}
             </div>
           )}
-          <div className="flex flex-1 flex-col p-7 md:p-8 lg:p-7">
+          <div className="flex flex-1 flex-col border-t border-ink/5 p-7 md:p-8 lg:p-7">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
               <span>{copy.tag}</span>
               {w.verified && (
