@@ -76,7 +76,7 @@ export const works = [
     link: "https://apchen1978.github.io/ai-trade-deal-desk-demo/",
     linkLabel: { zh: "線上體驗", en: "Live Demo" },
     zh: {
-      title: "AI Trade Deal Desk",
+      title: "貿易交易工作台",
       desc: "把國際貿易 RFQ 判斷轉成 evidence-backed、human-in-the-loop 的商業決策工作流，並延伸到可追溯的執行前安全檢查。",
       tag: "貿易決策 · AI",
     },
@@ -492,7 +492,7 @@ export const works = [
     link: "https://apchen1978.github.io/payment-concentration-demo/",
     linkLabel: { zh: "試試付款原型", en: "Try the Payment Prototype" },
     zh: {
-      title: "Payment Concentration",
+      title: "付款集中度分析",
       desc: "把「這個月哪 7 天的付款承諾最集中」變成可編輯、可對帳的確定性計算，逐幣別分開算，不用猜。",
       tag: "付款承諾 · 工具原型",
     },
@@ -638,7 +638,7 @@ export const works = [
     },
     imageAlt: { zh: "Trade Profit Navigator 商業價值槓桿原型", en: "Trade Profit Navigator value-capture prototype" },
     zh: {
-      title: "Trade Profit Navigator",
+      title: "貿易利潤導航",
       desc: "把一筆貿易拆成價值鏈、成本、現金暴露、風險與證據，找出下一個值得測試的利潤槓桿。",
       tag: "價值捕捉 · Economics · Trade",
       caseSummary: "不是問誰賺走最多，而是問下一步在哪裡可以多捕捉價值，以及為此要承擔、證明或改變什麼。",
@@ -686,7 +686,7 @@ export const works = [
     link: "https://apchen1978.github.io/commercial-decision-desk/",
     linkLabel: { zh: "試用決策 Demo", en: "Try Decision Demo" },
     zh: {
-      title: "Commercial Decision Desk",
+      title: "商務決策工作台",
       desc: "在承諾一筆交易前，先把付款、交付責任、決策權與未知資訊放到同一張桌上，再整理成可追溯的交易結構、控制因素與下一步。",
       tag: "商業決策 · 決策支援",
       caseSummary: "不是替人拍板，而是讓承諾前真正需要確認的事實浮現：付款、交易責任、矛盾、UNKNOWN 與下一步。工作台只建議，人做最終決定。",
