@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { works: "作品", services: "商業合作", process: "流程", about: "關於我", contact: "討論商業 Pilot", skipToContent: "跳至主要內容" },
+    nav: { works: "作品", services: "商業合作", verification: "驗證", process: "流程", about: "關於我", contact: "討論商業 Pilot", skipToContent: "跳至主要內容" },
     hero: {
       headlineA: "把商業問題，整理成",
       headlineB: "團隊能推進的",
@@ -77,6 +77,28 @@ const dict = {
         { title: "下一輪的行動與人的決定", body: "整理下一次會議該問什麼、取得什麼證據、何時重跑評估，以及最後仍需由誰拍板。" },
       ],
       packBoundary: "交付內容依當前可確認的證據而定。系統建議、UNKNOWN 與人的最終決定會被清楚分開。",
+    },
+    verification: {
+      eyebrow: "HOW IT'S VERIFIED",
+      headline: "每一件作品如何驗證",
+      intro: "不是「我說的」——是可重跑的檢查、誠實的未知與可對照的數字。以下為目前作品的驗證方式摘要。",
+      works: {
+        cdd: "Commercial Decision Desk",
+        lead: "AI 海外客戶開發",
+        trade: "AI Trade Deal Desk",
+        payment: "Payment Concentration",
+        mori: "MORI 軟裝品牌網站",
+        tracker: "窗簾軟裝 Pilot 追蹤器",
+      },
+      method: {
+        cdd: "確定性規則引擎，可重跑驗證；UNKNOWN 保留",
+        lead: "匿名代表性資料；來源分層，無捏造事實",
+        trade: "確定性規則，可重跑驗證",
+        payment: "canonical fixture 精確匹配；逐幣別不混算",
+        mori: "本機可檢視的交付基礎；後續工具待客戶補齊",
+        tracker: "Pilot 工作流程驗證",
+      },
+      boundary: "驗證證明的是工具行為與紀律，不是商業成效；不包含客戶成果、ROI 或採用率宣稱。",
     },
     capabilities: {
       eyebrow: "COMMERCIAL ENGAGEMENTS",
@@ -244,7 +266,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { works: "Work", services: "Commercial Work", process: "Process", about: "About", contact: "Discuss a Commercial Pilot", skipToContent: "Skip to content" },
+    nav: { works: "Work", services: "Commercial Work", verification: "Verification", process: "Process", about: "About", contact: "Discuss a Commercial Pilot", skipToContent: "Skip to content" },
     hero: {
       headlineA: "Turn commercial problems",
       headlineB: "into systems teams ",
@@ -317,6 +339,28 @@ const dict = {
         { title: "Next action and human call", body: "Prepare the next meeting questions, evidence to obtain, rerun conditions, and the person who still makes the final call." },
       ],
       packBoundary: "The delivery reflects evidence that is currently confirmable. System recommendations, UNKNOWNs, and the final human decision remain distinct.",
+    },
+    verification: {
+      eyebrow: "HOW IT'S VERIFIED",
+      headline: "How each piece is verified",
+      intro: "Not \"trust me\" — rerunnable checks, honest unknowns, and numbers you can compare. A summary of how the current work is validated.",
+      works: {
+        cdd: "Commercial Decision Desk",
+        lead: "AI-Assisted Overseas Lead Discovery",
+        trade: "AI Trade Deal Desk",
+        payment: "Payment Concentration",
+        mori: "MORI Soft-Furnishing Website",
+        tracker: "Curtain Soft-Furnishing Pilot Tracker",
+      },
+      method: {
+        cdd: "Deterministic rules engine, rerunnable; UNKNOWN preserved",
+        lead: "Anonymized representative data; tiered sources; no fabricated facts",
+        trade: "Deterministic rules, rerunnable",
+        payment: "Canonical fixture matches exactly; per-currency, never mixed",
+        mori: "Locally verifiable delivery basis; follow-up tools pending client setup",
+        tracker: "Pilot workflow validation",
+      },
+      boundary: "Verification proves tool behavior and discipline, not commercial outcomes. No client results, ROI, or adoption claims are included.",
     },
     capabilities: {
       eyebrow: "COMMERCIAL ENGAGEMENTS",

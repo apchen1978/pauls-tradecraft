@@ -4,6 +4,7 @@ import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
 import DealReadiness from "./components/DealReadiness.jsx";
 import Works from "./components/Works.jsx";
+import Verification from "./components/Verification.jsx";
 import Capabilities from "./components/Capabilities.jsx";
 import HowIWork from "./components/HowIWork.jsx";
 import About from "./components/About.jsx";
@@ -30,6 +31,7 @@ export default function App() {
             <Hero />
             <DealReadiness />
             <Works />
+            <Verification />
             <Capabilities />
             <HowIWork />
             <About />
