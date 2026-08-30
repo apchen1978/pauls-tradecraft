@@ -21,6 +21,19 @@ export default function DealReadiness() {
           <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{service.headline}</h2>
           <p className="mt-5 text-base leading-relaxed text-ink/70 md:text-lg">{service.intro}</p>
 
+          <div className="mt-8 border-y border-line py-5">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber">{service.pathTitle}</p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              {service.path.map((step, index) => (
+                <div key={step.title} className="border-t border-forest/15 pt-3">
+                  <p className="text-xs font-bold tabular-nums text-amber">0{index + 1}</p>
+                  <h3 className="mt-2 text-sm font-bold text-forest">{step.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-ink/65">{step.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-9 border-l-2 border-amber/60 pl-5">
             <h3 className="text-base font-bold text-forest">{service.whenTitle}</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink/70">{service.when}</p>

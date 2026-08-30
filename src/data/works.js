@@ -626,6 +626,55 @@ export const works = [
     },
   },
   {
+    id: "trade-profit-navigator",
+    section: "commercial",
+    featuredRank: 5,
+    icon: "receipt",
+    verified: true,
+    hidePendingLink: false,
+    demoNote: {
+      zh: "獨立 local prototype；公開 Demo 待 Owner 3 分鐘試用後決定。",
+      en: "Independent local prototype; public demo release follows the Owner 3-minute test.",
+    },
+    imageAlt: { zh: "Trade Profit Navigator 商業價值槓桿原型", en: "Trade Profit Navigator value-capture prototype" },
+    zh: {
+      title: "Trade Profit Navigator",
+      desc: "把一筆貿易拆成價值鏈、成本、現金暴露、風險與證據，找出下一個值得測試的利潤槓桿。",
+      tag: "價值捕捉 · Economics · Trade",
+      caseSummary: "不是問誰賺走最多，而是問下一步在哪裡可以多捕捉價值，以及為此要承擔、證明或改變什麼。",
+    },
+    en: {
+      title: "Trade Profit Navigator",
+      desc: "Break a trade case into value chain, economics, cash exposure, risk, and evidence to find the next profit lever worth testing.",
+      tag: "Value capture · Economics · Trade",
+      caseSummary: "Not who captures the most value, but where the next credible lever is and what must be risked, proven, or changed to capture it.",
+    },
+    case: {
+      stage: { zh: "技術原型", en: "Technical Prototype" },
+      stageTag: "8/8 + 6/6 PASS",
+      problem: {
+        zh: "貿易團隊常看見單價或毛利，卻看不見為了取得這個 upside 要增加多少現金暴露、庫存與執行風險。",
+        en: "Trade teams may see price or margin, but not the cash exposure, inventory, and execution risk required to capture the upside.",
+      },
+      approach: {
+        zh: "建立一個獨立、證據優先的互動原型，把已知 economics 與 UNKNOWN 拆開，並比較成本、MOQ、供應方案等三個具體槓桿。",
+        en: "Built an isolated, evidence-aware interactive prototype that separates known economics from UNKNOWN and compares three concrete levers across cost, MOQ, and supply-solution moves.",
+      },
+      tools: {
+        zh: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Synthetic USD case · Adversarial harness",
+        en: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Synthetic USD case · Adversarial harness",
+      },
+      result: {
+        zh: "完成可操作的 Trade Profit Navigator v0.1：可調整數量、採購價、銷售價與 MOQ，並將每個槓桿連到 economics、cash、risk、evidence、UNKNOWN 與 Owner decision。",
+        en: "A working Trade Profit Navigator v0.1: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the owner decision.",
+      },
+      evidence: {
+        zh: "Local prototype tests 8/8；adversarial baseline 6/6；390px／1440px 無溢位；案例為 synthetic USD dataset。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
+        en: "Local prototype tests 8/8; adversarial baseline 6/6; no overflow at 390px/1440px; case uses a synthetic USD dataset. Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
+      },
+    },
+  },
+  {
     id: "commercial-decision-desk",
     featuredRank: 1,
     section: "commercial",
