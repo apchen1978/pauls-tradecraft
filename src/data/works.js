@@ -386,7 +386,7 @@ export const works = [
     id: "deck",
     featuredRank: 3,
     section: "operations",
-    cover: "/images/cover-deck.webp",
+    cover: "/images/cover-deck-v2.png",
     imageAlt: { zh: "DSH 快速指南簡報", en: "DSH quick guide deck" },
     link: "/deck-viewer/",
     linkLabel: { zh: "翻閱簡報", en: "Flip Through Deck" },
