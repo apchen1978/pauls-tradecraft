@@ -261,6 +261,7 @@ export default function Works() {
     const copy = lang === "zh" ? w.zh : w.en;
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
+    const spanClass = w.span?.replace(/^col-span-\d+/, "col-span-1") ?? "col-span-1";
     const Wrapper = w.link ? "a" : "div";
     const wrapperProps = w.link
       ? {
@@ -287,11 +288,11 @@ export default function Works() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
-         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] col-span-1 ${w.link ? "" : "cursor-pointer"}`}
+         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
           {w.cover ? (
-            <div className="overflow-hidden">
+            <div className="overflow-hidden bg-ink/[0.04]">
               <img
                 src={w.cover}
                 alt={w.imageAlt[lang]}
@@ -373,11 +374,11 @@ export default function Works() {
 
       {sections.map((sec, si) => (
         <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
-          <div className={`${si === 0 ? "mt-16 lg:mt-12" : "mt-14 lg:mt-12"} flex flex-col gap-2 border-t border-line pt-7 md:flex-row md:items-baseline md:justify-between`}>
+          <div className={`${si === 0 ? "mt-16 lg:mt-12" : "mt-14 lg:mt-12"} border-t border-line pt-7`}>
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
-            {sec.note && <p className="mt-1.5 text-sm leading-relaxed text-ink/60">{sec.note}</p>}
+            {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/60">{sec.note}</p>}
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2 lg:gap-7">
+          <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-6">
             {sec.works.map((w, i) => renderCard(w, i))}
           </div>
         </div>
