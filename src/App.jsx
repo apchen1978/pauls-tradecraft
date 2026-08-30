@@ -2,6 +2,7 @@ import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
+import DealReadiness from "./components/DealReadiness.jsx";
 import Works from "./components/Works.jsx";
 import Capabilities from "./components/Capabilities.jsx";
 import HowIWork from "./components/HowIWork.jsx";
@@ -27,6 +28,7 @@ export default function App() {
           <Nav />
           <main id="main">
             <Hero />
+            <DealReadiness />
             <Works />
             <Capabilities />
             <HowIWork />

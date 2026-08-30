@@ -42,13 +42,13 @@ export default function Hero() {
           </motion.p>
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
-              href="#works"
+              href="#deal-readiness"
               className="rounded-field bg-gold px-7 py-3.5 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61]"
             >
               {t.hero.ctaPrimary}
             </a>
             <a
-              href="#contact"
+              href="#works"
               className="rounded-field border border-bone/30 px-7 py-3.5 text-sm font-semibold text-bone transition-colors hover:border-bone/70"
             >
               {t.hero.ctaSecondary}
