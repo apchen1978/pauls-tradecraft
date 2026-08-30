@@ -431,7 +431,7 @@ export const works = [
     id: "expense",
     section: "labs",
     featuredRank: 6,
-    cover: "/images/cover-expense.webp",
+    cover: "/images/cover-expense-v2.png",
     imageAlt: { zh: "Expense Tracker 收支實驗", en: "Expense Tracker experiments" },
     link: "https://apchen1978.github.io/expense-tracker-demo/",
     linkLabel: { zh: "試用 Expense Demo", en: "Try Expense Demo" },
