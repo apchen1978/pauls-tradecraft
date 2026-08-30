@@ -29,7 +29,6 @@ export default function Hero() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,51,41,0.18)_0%,rgba(20,51,41,0.08)_48%,rgba(20,51,41,0.8)_100%)]" />
       </div>
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-y-0 left-[52%] hidden w-px bg-bone/10 lg:block" />
         <div className="absolute inset-x-0 top-0 h-px bg-bone/10" />
       </div>
 
