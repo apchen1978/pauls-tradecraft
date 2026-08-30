@@ -629,6 +629,7 @@ export const works = [
     id: "trade-profit-navigator",
     section: "commercial",
     featuredRank: 5,
+    cover: "/images/cover-trade-profit-navigator.png",
     icon: "receipt",
     verified: true,
     hidePendingLink: false,
