@@ -6,6 +6,7 @@ const icons = [FlowArrow, Rocket, GlobeHemisphereWest, Network];
 const workflowLinks = {
   source: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
   cdd: "https://apchen1978.github.io/commercial-decision-desk/",
+  payment: "https://apchen1978.github.io/payment-concentration-demo/",
 };
 
 export default function Capabilities() {
@@ -47,25 +48,41 @@ export default function Capabilities() {
         </div>
 
         <div className="mt-16 border-t border-line pt-8 md:mt-20 md:pt-10">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber">{t.capabilities.delivery.eyebrow}</p>
-              <h3 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">{t.capabilities.delivery.title}</h3>
-            </div>
-            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-forest">
-              <a href={workflowLinks.source} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.sourceCta} ↗</a>
-              <a href={workflowLinks.cdd} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.cddCta} ↗</a>
-            </div>
+          <div className="max-w-3xl">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber">{t.capabilities.delivery.eyebrow}</p>
+            <h3 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">{t.capabilities.delivery.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-ink/65 md:text-base">{t.capabilities.delivery.intro}</p>
           </div>
-          <div className="mt-8 grid gap-8 md:grid-cols-3">
-            {t.capabilities.delivery.steps.map((step) => (
-              <div key={step.number} className="border-t border-forest/20 pt-4">
-                <p className="text-xs font-bold tabular-nums text-amber">{step.number}</p>
-                <h4 className="mt-2 text-base font-bold tracking-tight">{step.title}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-ink/65">{step.body}</p>
+          <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-forest">
+            <a href={workflowLinks.source} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.sourceCta} ↗</a>
+            <a href={workflowLinks.cdd} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.cddCta} ↗</a>
+            <a href={workflowLinks.payment} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.paymentCta} ↗</a>
+          </div>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-12">
+            <div className="border-l-2 border-forest/20 pl-5">
+              <h4 className="text-sm font-bold text-forest">{t.capabilities.delivery.discoveryLabel}</h4>
+              <div className="mt-5 grid gap-6">
+                {t.capabilities.delivery.steps.slice(0, 2).map((step) => (
+                  <article key={step.title} className="border-t border-forest/15 pt-4">
+                    <h5 className="text-base font-bold tracking-tight">{step.title}</h5>
+                    <p className="mt-2 text-sm leading-relaxed text-ink/65">{step.body}</p>
+                  </article>
+                ))}
               </div>
-            ))}
+            </div>
+            <div className="border-l-2 border-amber/45 pl-5">
+              <h4 className="text-sm font-bold text-forest">{t.capabilities.delivery.decisionLabel}</h4>
+              <div className="mt-5 grid gap-6 md:grid-cols-3 md:gap-5">
+                {t.capabilities.delivery.steps.slice(2).map((step) => (
+                  <article key={step.title} className="border-t border-forest/15 pt-4">
+                    <h5 className="text-base font-bold tracking-tight">{step.title}</h5>
+                    <p className="mt-2 text-sm leading-relaxed text-ink/65">{step.body}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
+          <p className="mt-7 max-w-3xl text-xs leading-relaxed text-moss">{t.capabilities.delivery.boundary}</p>
         </div>
 
         <div className="mt-16 border-t border-line pt-8 md:mt-20 md:pt-10">
