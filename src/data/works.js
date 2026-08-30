@@ -638,15 +638,15 @@ export const works = [
     linkLabel: { zh: "試用決策 Demo", en: "Try Decision Demo" },
     zh: {
       title: "Commercial Decision Desk",
-      desc: "把散落的商務資訊，轉成可追溯的交易結構、決策控制因素與下一步行動。",
+      desc: "在承諾一筆交易前，先把付款、交付責任、決策權與未知資訊放到同一張桌上，再整理成可追溯的交易結構、控制因素與下一步。",
       tag: "商業決策 · 決策支援",
-      caseSummary: "15 年貿易總監的商業判斷，收斂成一個可稽核的工作台：商機品質、交易條件、付款暴露、矛盾與未知一次看全 — desk 只建議，人做最終決定。",
+      caseSummary: "不是替人拍板，而是讓承諾前真正需要確認的事實浮現：付款、交易責任、矛盾、UNKNOWN 與下一步。工作台只建議，人做最終決定。",
     },
     en: {
       title: "Commercial Decision Desk",
-      desc: "Turns scattered commercial information into a traceable deal structure, decision control factors, and next actions.",
+      desc: "Before committing to a deal, put payment, delivery responsibility, decision authority, and unknowns on the same table, then turn them into a traceable deal structure, control factors, and next actions.",
       tag: "Commercial decision · Decision support",
-      caseSummary: "Fifteen years of trade-director judgment, distilled into one auditable workbench: opportunity quality, commercial terms, payment exposure, contradictions, and unknowns at a glance — the desk recommends, the human decides.",
+      caseSummary: "It does not decide for people. It makes the facts that matter before commitment visible: payment, trade responsibility, contradictions, UNKNOWNs, and the next step. The desk recommends; the human decides.",
     },
     case: {
       stage: { zh: "合成決策設計", en: "Synthetic Decision-Design" },
@@ -656,16 +656,16 @@ export const works = [
         en: "Commercial judgment is scattered across evidence, trade terms, payment risk, and experience — hard to see at once and hard to trace why a decision was made.",
       },
       approach: {
-        zh: "把商機從外部證據一路收斂到人類決策：DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE。以確定性規則產生決策支援狀態（PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE），矛盾與 UNKNOWN 全程浮現，不產生單一神秘分數；結果區以 Executive Deal Snapshot 一屏總覽關鍵決策資訊，只呈現既有證據。",
-        en: "Traces an opportunity from external evidence to a human decision: DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE. Deterministic rules produce decision-support states (PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE); contradictions and UNKNOWNs stay visible; no opaque overall score. An Executive Deal Snapshot summarizes the key decision info on one screen from existing evidence only.",
+        zh: "把商機從外部證據一路收斂到人類決策：DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE。確定性規則產生決策支援狀態（PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE），矛盾與 UNKNOWN 全程浮現；Commercial Momentum 僅作已知商業訊號的 owner-governed context，不能覆蓋目前決策位置。Executive Deal Snapshot 只用既有證據總覽關鍵決策資訊。",
+        en: "Traces an opportunity from external evidence to a human decision: DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE. Deterministic rules produce decision-support states (PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE), while contradictions and UNKNOWNs stay visible. Commercial Momentum is owner-governed context for known commercial signals only; it cannot override the current decision position. The Executive Deal Snapshot summarizes key decision information from existing evidence only.",
       },
       tools: {
         zh: "純 HTML/CSS/JS · 確定性決策規則 · 合成 fixture · 零後端／零持久化",
         en: "Plain HTML/CSS/JS · deterministic decision rules · synthetic fixture · zero backend / zero persistence",
       },
       result: {
-        zh: "以合成商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與 UNKNOWN → Human Decision。8 條硬規則引擎化，38/38 自動檢查通過；並新增 Executive Deal Snapshot：商機、買方、市場、產品、數量、訂單收入、Incoterm、預期淨貢獻、目前建議與控制因素一屏總覽，缺值維持 UNKNOWN、淨貢獻未算即顯示「未計算」，不造假。",
-        en: "Synthetic decision-design proof connecting evidence qualification, commercial feasibility, payment exposure, contradictions, UNKNOWNs, and mandatory human approval. Eight hard rules enforced in the engine; 38/38 automated checks pass. An Executive Deal Snapshot puts deal, buyer, market, product, quantity, deal value, Incoterm, expected net contribution, current recommendation, and control factors on one screen; missing values stay UNKNOWN and uncomputed net contribution shows \"not calculated\" — nothing is invented.",
+        zh: "以合成商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與 UNKNOWN → Human Decision。8 條硬規則引擎化，50/50 自動檢查通過；Executive Deal Snapshot 將商機、買方、市場、產品、數量、訂單收入、Incoterm、預期淨貢獻、目前建議與控制因素放在一屏，缺值維持 UNKNOWN、淨貢獻未算即顯示「未計算」，不造假。",
+        en: "Synthetic decision-design proof connecting evidence qualification, commercial feasibility, payment exposure, contradictions, UNKNOWNs, and mandatory human approval. Eight hard rules are enforced in the engine; 50/50 automated checks pass. An Executive Deal Snapshot puts the deal, buyer, market, product, quantity, deal value, Incoterm, expected net contribution, current recommendation, and control factors on one screen; missing values stay UNKNOWN and uncomputed net contribution shows \"not calculated\". Nothing is invented.",
       },
       evidence: {
         zh: "公開 demo：https://apchen1978.github.io/commercial-decision-desk/ 。Executive Deal Snapshot 已上線並通過瀏覽器實測（ZH/EN、1440px／390px、無水平溢位、無 console 錯誤，Sample 與 Blank 流程、匯出、鍵盤操作正常）；引擎 50/50 測試、Scenario 19 PASS／2 BASELINE_FIX_CONFIRMED／0 FAIL。揭露：SYNTHETIC decision-design proof · 人類決策必要 · 無自主商業動作 · 商業採用／ROI 未證明。",
