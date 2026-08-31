@@ -53,13 +53,13 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_24px_60px_-24px_rgba(31,77,58,0.35)]"
+            className="overflow-hidden rounded-card border border-line surface-paper shadow-[0_24px_60px_-24px_rgba(31,77,58,0.35)]"
           >
             <img
               src="/images/paul-art.jpg"
               alt="Paul"
               loading="lazy"
-              className="aspect-[4/5] w-full object-cover"
+                className="aspect-[4/5] w-full object-cover object-[50%_32%]"
             />
           </motion.figure>
 
@@ -71,7 +71,7 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.08 }}
-                className="flex flex-col items-center justify-center gap-1.5 bg-bone px-6 py-8 text-center"
+                className="flex flex-col items-center justify-center gap-1.5 bg-[#f8f8f3] px-6 py-8 text-center"
               >
                 <span className="text-3xl font-bold tracking-tight text-forest md:text-4xl">{s.value}</span>
                 <span className="text-sm text-ink/65">{s.label}</span>

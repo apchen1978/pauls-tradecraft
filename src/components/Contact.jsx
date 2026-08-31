@@ -10,7 +10,7 @@ export default function Contact() {
       ? "/files/Paul-Tradecraft-OnePager-EN.pdf"
       : "/files/Paul-Tradecraft-OnePager-ZH.pdf";
   return (
-    <section id="contact" className="scroll-mt-24 border-t border-line bg-bone">
+    <section id="contact" className="scroll-mt-24 border-t border-line surface-muted">
       <div className="mx-auto max-w-7xl px-4 py-24 text-center md:px-6 md:py-32">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}

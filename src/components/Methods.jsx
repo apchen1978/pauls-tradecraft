@@ -19,7 +19,7 @@ export default function Methods() {
           {methods.map((m, i) => {
             const open = openId === m.id;
             return (
-              <div key={m.id} className="overflow-hidden rounded-card border border-line bg-bone">
+              <div key={m.id} className="surface-paper overflow-hidden rounded-card border border-line">
                 <button
                   type="button"
                   onClick={() => setOpenId(open ? null : m.id)}

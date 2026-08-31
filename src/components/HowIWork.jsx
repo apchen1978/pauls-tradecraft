@@ -36,7 +36,7 @@ export default function HowIWork() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="mt-12 rounded-card border border-forest/20 bg-paper/60 px-6 py-5 text-sm leading-relaxed text-ink/70"
+        className="mt-12 rounded-card border border-forest/20 surface-paper px-6 py-5 text-sm leading-relaxed text-ink/70"
       >
         {t.how.note}
       </motion.p>
