@@ -27,19 +27,28 @@ export default function Hero() {
         <div className="absolute inset-x-0 top-0 h-px bg-bone/10" />
       </div>
 
-      <div className="relative mx-auto grid min-h-[calc(100dvh-68px)] max-w-7xl items-end gap-12 px-4 pb-12 pt-20 md:min-h-[calc(100dvh-76px)] md:px-6 md:pb-16 md:pt-24 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10 lg:pb-20">
+      <div className="relative mx-auto grid min-h-[calc(100dvh-68px)] max-w-7xl items-end gap-12 px-4 pb-12 pt-20 md:min-h-[calc(100dvh-76px)] md:px-6 md:pb-16 md:pt-24 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:pb-20">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.1 } } }} className="relative z-10 max-w-2xl self-center">
           <motion.p variants={fadeUp} className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
             {t.brand} · {t.brandNote}
           </motion.p>
           <motion.h1
             variants={fadeUp}
-            className="mt-6 max-w-2xl text-[clamp(2.35rem,7vw,4.7rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-bone md:text-6xl xl:text-[4.7rem]"
+            className={`mt-6 max-w-2xl text-[clamp(2.35rem,7vw,4.7rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-bone md:text-6xl lg:text-[3rem] ${lang === "zh" ? "xl:text-[4rem]" : "xl:text-[3rem]"}`}
           >
-            {t.hero.headlineA}
-            <br />
-            <span className="font-semibold text-bone">{t.hero.headlineB}</span>
-            <span className="inline-block font-semibold text-gold">{t.hero.headlineHighlight}</span>
+            <span className="lg:hidden">
+              {t.hero.headlineA}
+              <br />
+              <span className="font-semibold text-bone">{t.hero.headlineB}</span>
+              <span className="inline-block font-semibold text-gold">{t.hero.headlineHighlight}</span>
+            </span>
+            <span className="hidden lg:block">
+              {t.hero.headlineDesktopA}
+              <br />
+              <span className="font-semibold text-bone">{t.hero.headlineDesktopB}</span>
+              <br />
+              <span className="inline-block font-semibold text-gold lg:mt-1">{t.hero.headlineHighlight}</span>
+            </span>
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}

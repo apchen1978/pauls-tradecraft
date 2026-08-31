@@ -26,14 +26,26 @@ export default function Capabilities() {
           <h3 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight md:text-3xl">{engagement.title}</h3>
           <p className="mt-4 max-w-3xl text-base leading-relaxed text-bone/75">{engagement.summary}</p>
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
+          <div className="mt-8 grid gap-6 border-y border-bone/20 py-1 md:grid-cols-3 md:divide-x md:divide-bone/20">
             {engagement.offers.map((offer, index) => (
-              <article key={offer.title} className={`border-t border-bone/20 pt-4 ${index === 0 ? "lg:row-span-2" : ""}`}>
+              <article key={offer.title} className="py-6 md:px-6 md:first:pl-0 md:last:pr-0">
                 <p className="text-xs font-bold tracking-[0.16em] text-gold">{String(index + 1).padStart(2, "0")}</p>
                 <h4 className="mt-2 text-lg font-bold tracking-tight text-bone">{offer.title}</h4>
                 <p className="mt-3 text-sm font-semibold leading-relaxed text-bone/90">{offer.question}</p>
-                <p className="mt-2 text-sm leading-relaxed text-bone/70">{offer.output}</p>
-                <p className="mt-3 text-xs font-semibold leading-relaxed text-gold">{offer.takeaway}</p>
+                <dl className="mt-5 grid gap-4 text-sm leading-relaxed">
+                  <div>
+                    <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-gold">{engagement.bringLabel}</dt>
+                    <dd className="mt-1 text-bone/70">{offer.bring}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-gold">{engagement.workLabel}</dt>
+                    <dd className="mt-1 text-bone/70">{offer.work}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-gold">{engagement.takeawayLabel}</dt>
+                    <dd className="mt-1 font-semibold text-bone/95">{offer.takeaway}</dd>
+                  </div>
+                </dl>
                 <p className="mt-4 text-xs font-medium uppercase tracking-[0.12em] text-bone/65">{offer.proof}</p>
               </article>
             ))}
@@ -46,6 +58,7 @@ export default function Capabilities() {
             {engagement.cta}
             <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
           </a>
+          <p className="mt-4 max-w-3xl text-xs leading-relaxed text-bone/60">{engagement.boundary}</p>
         </div>
 
         <div className="mt-16 border-t border-line pt-8 md:mt-20 md:pt-10">
