@@ -7,11 +7,6 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
-const cddSnapshot = {
-  zh: "/images/cdd-executive-snapshot-zh-v02.png",
-  en: "/images/cdd-executive-snapshot-en-v02.png",
-};
-
 export default function Hero() {
   const { lang, t } = useLang();
   const cdd = works.find((work) => work.id === "commercial-decision-desk");
@@ -71,14 +66,14 @@ export default function Hero() {
           className="relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-bone/25 bg-bone shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)] lg:mb-4"
         >
           <div className="flex items-center justify-between border-b border-ink/10 bg-[#edf0e7] px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65 md:px-5 md:py-3 md:text-[11px]">
-            <span>Commercial Decision Desk</span>
+            <span>Featured Work</span>
             <span className="inline-flex items-center gap-2 text-forest"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.works.statusVerified}</span>
           </div>
           <div className="relative bg-[#e9ece4] p-2.5 md:p-3">
             <img
-              src={cddSnapshot[lang]}
+              src={cdd.cover}
               alt={cdd.imageAlt[lang]}
-              className="aspect-[4/3] w-full object-contain object-top"
+              className="aspect-[16/10] w-full object-cover object-top"
               loading="eager"
             />
           </div>

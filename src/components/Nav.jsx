@@ -3,7 +3,7 @@ import { List, X } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
 export default function Nav() {
-  const { t, toggle } = useLang();
+  const { lang, t, toggle } = useLang();
   const [open, setOpen] = useState(false);
 
   const links = [
@@ -20,7 +20,7 @@ export default function Nav() {
       <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
         <a href="#top" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
           <span className="text-lg font-bold tracking-[-0.045em] text-forest">{t.brand}</span>
-          <span className="hidden border-l border-line pl-2 text-xs font-medium uppercase tracking-[0.12em] text-ink/55 sm:inline">{t.brandNote}</span>
+          <span className="hidden border-l border-line pl-2 text-xs font-medium uppercase tracking-[0.12em] text-ink/65 sm:inline">{t.brandNote}</span>
         </a>
 
         <div className="hidden items-center gap-8 text-sm font-medium text-ink/65 lg:flex">
@@ -35,7 +35,7 @@ export default function Nav() {
           <button
             onClick={toggle}
             className="rounded-field border border-line px-3 py-1.5 text-sm font-semibold text-ink/70 transition-colors hover:border-forest hover:text-forest"
-            aria-label="Switch language"
+            aria-label={lang === "zh" ? "切換語言" : "Switch language"}
           >
             {t.langLabel}
           </button>

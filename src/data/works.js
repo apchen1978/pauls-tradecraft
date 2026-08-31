@@ -390,7 +390,7 @@ export const works = [
     imageAlt: { zh: "DSH 快速指南簡報", en: "DSH quick guide deck" },
     link: "/deck-viewer/",
     linkLabel: { zh: "翻閱簡報", en: "Flip Through Deck" },
-    span: "col-span-1",
+    span: "md:col-span-2 md:col-start-2",
     verified: true,
     zh: {
       title: "執行能力簡報",

@@ -23,11 +23,6 @@ const iconMap = {
 
 const SECTION_ORDER = ["commercial", "operations", "labs"];
 
-const cddSnapshot = {
-  zh: "/images/cdd-executive-snapshot-zh-v02.png",
-  en: "/images/cdd-executive-snapshot-en-v02.png",
-};
-
 function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
@@ -232,10 +227,10 @@ function FeaturedSystem({ work }) {
         <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-3">
           <div className="overflow-hidden rounded-field border border-ink/10 bg-bone shadow-[0_18px_36px_-24px_rgba(0,0,0,0.62)]">
             <div className="flex items-center justify-between border-b border-ink/10 bg-[#edf0e7] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65">
-              <span>Executive Snapshot</span>
+              <span>Featured Work</span>
               <span className="text-forest">{t.works.statusVerified}</span>
             </div>
-            <img src={cddSnapshot[lang]} alt={work.imageAlt[lang]} loading="eager" className="aspect-[4/3] h-full w-full object-contain object-top" />
+            <img src={work.cover} alt={work.imageAlt[lang]} loading="eager" className="aspect-[16/9] h-full w-full object-cover object-top" />
           </div>
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100">{linkLabel} →</span>
         </a>
@@ -348,7 +343,7 @@ export default function Works() {
               ) : null}
             </p>
             {w.demoNote && (
-              <p className="mt-1.5 text-[11px] leading-snug text-ink/50">{w.demoNote[lang]}</p>
+              <p className="mt-1.5 text-[11px] leading-snug text-ink/65">{w.demoNote[lang]}</p>
             )}
           </div>
         </Wrapper>

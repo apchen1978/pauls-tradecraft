@@ -28,7 +28,7 @@ export default function About() {
                 </span>
               ))}
             </p>
-            <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-ink/60 md:text-base">
+            <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-ink/65 md:text-base">
               {t.about.signature.support.map((line) => (
                 <span key={line} className="block">
                   {line}
