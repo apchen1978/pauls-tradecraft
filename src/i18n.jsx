@@ -84,6 +84,20 @@ const dict = {
       ],
       packBoundary: "交付內容依當前可確認的證據而定。系統建議、UNKNOWN 與人的最終決定會被清楚分開。",
     },
+    outcomes: {
+      eyebrow: "COMMERCIAL OUTCOMES",
+      headline: "把一筆商機，轉化為可行動的商業判斷。",
+      intro: "不是展示幾個工具，而是把收入、毛利、現金與決策問題，整理成團隊能使用的工作系統與交付物。",
+      systemLabel: "工作系統",
+      outputLabel: "可交付輸出",
+      boundary: "這些作品展示可運作的判斷流程與輸出，不宣稱保證營收、ROI 或商業採用結果。",
+      items: [
+        { label: "收入機會", question: "哪些商機值得投入？", system: "AI 輔助海外客戶開發", output: "Evidence-qualified shortlist、UNKNOWN 與下一輪研究問題。", linkLabel: "查看客戶開發流程", href: "#overseas-lead-discovery" },
+        { label: "交易決策", question: "這筆交易現在值得推進嗎？", system: "商務決策工作台", output: "交易評估、控制因素、Decision Path 與可帶進會議的 Deal Brief。", linkLabel: "查看決策工作台", href: "#commercial-decision-desk" },
+        { label: "毛利機會", question: "下一個值得捕捉的利潤在哪裡？", system: "貿易利潤導航", output: "Profit levers、economics bridge、現金暴露與需要補足的證據。", linkLabel: "查看利潤導航", href: "#trade-profit-navigator" },
+        { label: "現金與風險", question: "表面有毛利，現金能撐得住嗎？", system: "付款集中度分析", output: "按幣別拆開的付款承諾、集中暴露與承諾前控制點。", linkLabel: "查看付款分析", href: "#payment-concentration" },
+      ],
+    },
     verification: {
       eyebrow: "HOW IT'S VERIFIED",
       headline: "每一件作品如何驗證",
@@ -359,6 +373,20 @@ const dict = {
         { title: "Next action and human call", body: "Prepare the next meeting questions, evidence to obtain, rerun conditions, and the person who still makes the final call." },
       ],
       packBoundary: "The delivery reflects evidence that is currently confirmable. System recommendations, UNKNOWNs, and the final human decision remain distinct.",
+    },
+    outcomes: {
+      eyebrow: "COMMERCIAL OUTCOMES",
+      headline: "Turn one opportunity into an actionable commercial judgment.",
+      intro: "Not a collection of tools. A practical way to connect revenue opportunity, margin, cash, and decision quality to work systems your team can use and review.",
+      systemLabel: "WORK SYSTEM",
+      outputLabel: "DELIVERABLE",
+      boundary: "These pieces demonstrate working judgment flows and deliverables. They do not claim guaranteed revenue, ROI, or commercial adoption.",
+      items: [
+        { label: "REVENUE OPPORTUNITY", question: "Which prospects deserve attention?", system: "AI-Assisted Overseas Lead Discovery", output: "An evidence-qualified shortlist, UNKNOWNs, and the next research questions.", linkLabel: "View lead discovery", href: "#overseas-lead-discovery" },
+        { label: "DEAL DECISION", question: "Is this deal ready to move forward?", system: "Commercial Decision Desk", output: "Deal assessment, control factors, Decision Path, and a meeting-ready Deal Brief.", linkLabel: "View decision desk", href: "#commercial-decision-desk" },
+        { label: "MARGIN OPPORTUNITY", question: "Where is the next credible profit lever?", system: "Trade Profit Navigator", output: "Profit levers, an economics bridge, cash exposure, and evidence still required.", linkLabel: "View profit navigator", href: "#trade-profit-navigator" },
+        { label: "CASH AND RISK", question: "Can the cash position carry the apparent margin?", system: "Payment Concentration", output: "Currency-separated payment commitments, concentration exposure, and pre-commitment controls.", linkLabel: "View payment analysis", href: "#payment-concentration" },
+      ],
     },
     verification: {
       eyebrow: "HOW IT'S VERIFIED",

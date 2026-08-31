@@ -3,6 +3,7 @@ import { LangProvider, useLang } from "./i18n.jsx";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
 import DealReadiness from "./components/DealReadiness.jsx";
+import CommercialOutcomes from "./components/CommercialOutcomes.jsx";
 import Works from "./components/Works.jsx";
 import Verification from "./components/Verification.jsx";
 import Methods from "./components/Methods.jsx";
@@ -31,6 +32,7 @@ export default function App() {
           <main id="main">
             <Hero />
             <DealReadiness />
+            <CommercialOutcomes />
             <Works />
             <Verification />
             <Methods />
