@@ -47,7 +47,7 @@ function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
         border: "border-line",
         heading: "text-ink/80",
         body: "text-ink/65",
-        caption: "text-ink/55",
+        caption: "text-ink/65",
         link: "text-forest hover:text-amber",
       };
   return (
@@ -371,7 +371,7 @@ export default function Works() {
         <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
           <div className={`${si === 0 ? "mt-16 lg:mt-12" : "mt-14 lg:mt-12"} border-t border-line pt-7`}>
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
-            {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/60">{sec.note}</p>}
+            {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/65">{sec.note}</p>}
           </div>
           <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-6">
             {sec.works.map((w, i) => renderCard(w, i))}
