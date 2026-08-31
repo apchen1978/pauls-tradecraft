@@ -44,6 +44,9 @@ export default function Hero() {
           <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}
           </motion.p>
+          <motion.p variants={fadeUp} className="mt-4 max-w-[48ch] border-l border-gold/70 pl-4 text-sm font-medium leading-relaxed text-bone/90 md:text-base">
+            {t.hero.youGet}
+          </motion.p>
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
               href="#deal-readiness"

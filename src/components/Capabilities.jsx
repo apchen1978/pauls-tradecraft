@@ -33,6 +33,7 @@ export default function Capabilities() {
                 <h4 className="mt-2 text-lg font-bold tracking-tight text-bone">{offer.title}</h4>
                 <p className="mt-3 text-sm font-semibold leading-relaxed text-bone/90">{offer.question}</p>
                 <p className="mt-2 text-sm leading-relaxed text-bone/70">{offer.output}</p>
+                <p className="mt-3 text-xs font-semibold leading-relaxed text-gold">{offer.takeaway}</p>
                 <p className="mt-4 text-xs font-medium uppercase tracking-[0.12em] text-bone/65">{offer.proof}</p>
               </article>
             ))}
