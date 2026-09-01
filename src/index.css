@@ -72,6 +72,22 @@
   .surface-muted {
     background-color: rgb(233 237 228 / 0.7);
   }
+  .outcomes-stage {
+    opacity: 1;
+    transition: opacity 180ms ease;
+  }
+  .outcomes-stage-final {
+    border-image: linear-gradient(90deg, rgb(154 90 24 / 0.55), rgb(210 216 206 / 0.4)) 1;
+  }
+  @media (hover: hover) and (min-width: 768px) {
+    .outcomes-rail:hover .outcomes-stage {
+      opacity: 0.68;
+    }
+    .outcomes-rail:hover .outcomes-stage:hover,
+    .outcomes-rail:hover .outcomes-stage:focus-visible {
+      opacity: 1;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
