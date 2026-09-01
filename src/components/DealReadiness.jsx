@@ -52,7 +52,7 @@ export default function DealReadiness() {
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <a
-              href="#contact"
+              href="#outcomes"
               className="inline-flex items-center justify-center gap-2 rounded-pill bg-forest px-7 py-3 text-sm font-bold text-bone transition-all hover:bg-moss active:scale-[0.98]"
             >
               {service.cta}

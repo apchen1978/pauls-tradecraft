@@ -9,6 +9,10 @@ export default function Contact() {
     lang === "en"
       ? "/files/Paul-Tradecraft-OnePager-EN.pdf"
       : "/files/Paul-Tradecraft-OnePager-ZH.pdf";
+  const emailHref =
+    lang === "en"
+      ? "mailto:paulchen1978@gmail.com?subject=Commercial%20Pilot%20Inquiry&body=Hi%20Paul%2C%0A%0AI%27d%20like%20to%20discuss%20a%20commercial%20pilot.%0A%0AContext%3A%20"
+      : "mailto:paulchen1978@gmail.com?subject=%E8%A8%8E%E8%AB%96%E5%95%86%E6%A5%AD%20Pilot&body=Paul%20%E4%BD%A0%E5%A5%BD%EF%BC%8C%0A%0A%E6%88%91%E6%83%B3%E8%A8%8E%E8%AB%96%E4%B8%80%E5%80%8B%E5%95%86%E6%A5%AD%20Pilot%E3%80%82%0A%0A%E5%95%8F%E9%A1%8C%E8%83%8C%E6%99%AF%EF%BC%9A";
   return (
     <section id="contact" className="scroll-mt-24 border-t border-line surface-muted">
       <div className="mx-auto max-w-7xl px-4 py-24 text-center md:px-6 md:py-32">
@@ -39,7 +43,8 @@ export default function Contact() {
         >
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a
-              href="mailto:paulchen1978@gmail.com"
+              href={emailHref}
+              aria-label={`${t.contact.cta} · paulchen1978@gmail.com`}
               className="rounded-pill bg-forest px-7 py-3 text-sm font-bold text-bone transition-all hover:bg-moss active:scale-[0.98]"
             >
               {t.contact.cta}
@@ -75,6 +80,12 @@ export default function Contact() {
           >
             <FilePdf size={16} weight="bold" />
             {t.contact.capabilityBrief}
+          </a>
+          <a
+            href="mailto:paulchen1978@gmail.com"
+            className="text-sm font-medium text-forest underline decoration-forest/30 underline-offset-4 transition-colors hover:text-amber"
+          >
+            paulchen1978@gmail.com
           </a>
           <p className="text-xs text-ink/65">{t.contact.note}</p>
         </motion.div>

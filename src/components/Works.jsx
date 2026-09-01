@@ -218,7 +218,7 @@ function FeaturedSystem({ work }) {
             <ArrowUpRight size={16} weight="bold" />
           </a>
           {work.id === "commercial-decision-desk" && (
-            <a data-featured-copy href="#contact" className="mt-4 w-fit text-sm font-semibold text-bone/75 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold">
+            <a data-featured-copy href="#outcomes" className="mt-4 w-fit text-sm font-semibold text-bone/75 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold">
               {t.hero.cddInvite}
             </a>
           )}
