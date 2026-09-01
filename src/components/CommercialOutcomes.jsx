@@ -1,9 +1,11 @@
+import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
 export default function CommercialOutcomes() {
   const { t } = useLang();
   const content = t.outcomes;
+  const reduceMotion = useReducedMotion();
 
   return (
     <section id="outcomes" className="scroll-mt-24 border-y border-line surface-muted">
@@ -16,12 +18,25 @@ export default function CommercialOutcomes() {
 
         <div className="mt-12 border-y border-forest/20">
           {content.items.map((item, index) => (
-            <a
+            <motion.a
               key={item.question}
               href={item.href}
+              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={reduceMotion ? undefined : { once: true, margin: "-48px" }}
+              transition={reduceMotion ? undefined : { duration: 0.45, ease: "easeOut", delay: index * 0.06 }}
               className="group grid gap-6 border-b border-forest/15 py-7 last:border-b-0 md:grid-cols-[0.18fr_0.34fr_0.2fr_0.28fr] md:items-start md:gap-8 md:py-8"
             >
-              <span className="text-xs font-bold tracking-[0.16em] text-amber">{String(index + 1).padStart(2, "0")}</span>
+              <motion.span
+                aria-hidden="true"
+                initial={reduceMotion ? false : { opacity: 0.35 }}
+                whileInView={reduceMotion ? undefined : { opacity: 1 }}
+                viewport={reduceMotion ? undefined : { once: true }}
+                transition={reduceMotion ? undefined : { duration: 0.35, delay: index * 0.06 + 0.18 }}
+                className="text-xs font-bold tracking-[0.16em] text-amber"
+              >
+                {String(index + 1).padStart(2, "0")}
+              </motion.span>
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-forest/65">{item.label}</p>
                 <h3 className="mt-2 text-xl font-bold tracking-tight text-ink group-hover:text-forest md:text-2xl">{item.question}</h3>
@@ -38,7 +53,7 @@ export default function CommercialOutcomes() {
                   <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
                 </span>
               </div>
-            </a>
+            </motion.a>
           ))}
         </div>
 

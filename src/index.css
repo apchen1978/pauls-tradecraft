@@ -72,6 +72,19 @@
   .surface-muted {
     background-color: rgb(233 237 228 / 0.7);
   }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
   /* Keyboard / screen-reader skip link: hidden until focused */
   .skip-link {
     position: absolute;
