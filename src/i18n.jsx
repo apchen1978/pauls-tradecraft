@@ -29,13 +29,13 @@ const dict = {
       cddInvite: "有一筆正在評估的商機？帶進來一起看。",
     },
     startHere: {
-      eyebrow: "START WITH THE PROBLEM",
-      headline: "你現在最想先釐清哪一件事？",
-      intro: "不必先買一套系統。先帶一個正在卡住的商業情況進來，把下一步判斷做清楚。",
+      eyebrow: "COMMERCIAL PILOTS",
+      headline: "從一個重要的商業問題開始。",
+      intro: "不必先買一套大系統。帶一筆商機、一份報價，或一個反覆卡住的流程進來，先把團隊下一步要做什麼變清楚。",
       items: [
-        { title: "有一筆正在談的商機，不確定該不該承諾。", outcome: "先釐清交易結構、證據缺口與下一步該問什麼。", cta: "看交易審視方式", href: "#deal-readiness" },
-        { title: "報價看起來有毛利，但怕付款與現金壓力吃掉它。", outcome: "先拆開利潤、付款承諾與現金暴露，確認表面毛利是否真的可承擔。", cta: "看利潤與付款判斷", href: "#outcomes" },
-        { title: "團隊一直跟進，卻沒有一致的下一步。", outcome: "先把候選客戶、責任與決策邊界整理成可交接的工作底稿。", cta: "看商業合作方式", href: "#capabilities" },
+        { title: "想找到更值得投入的客戶或市場。", outcome: "帶走候選短名單、來源脈絡，以及下一輪真正要確認的問題。", cta: "看商機審視方式", href: "#capabilities" },
+        { title: "報價看起來有毛利，但不確定是否真的賺錢。", outcome: "拆開交易結構、利潤、付款承諾與現金暴露，再決定是否投入更多資源。", cta: "看交易審視方式", href: "#deal-readiness" },
+        { title: "團隊持續跟進，卻沒有一致的下一步。", outcome: "整理責任、證據、決策界線與可交接的工作底稿，讓流程真正往前走。", cta: "看商業合作方式", href: "#capabilities" },
       ],
     },
     works: {
@@ -343,13 +343,13 @@ const dict = {
       cddInvite: "Have a live opportunity to review? Bring it in.",
     },
     startHere: {
-      eyebrow: "START WITH THE PROBLEM",
-      headline: "What do you need to make clear first?",
-      intro: "You do not need to buy a system first. Bring one stuck commercial situation, and make the next judgment clear.",
+      eyebrow: "COMMERCIAL PILOTS",
+      headline: "Start with one commercial question that matters.",
+      intro: "You do not need to buy a large system first. Bring an opportunity, a quote, or a workflow that keeps getting stuck, and make the team’s next move clear.",
       items: [
-        { title: "A live opportunity is moving, but you are not ready to commit.", outcome: "Clarify the deal structure, evidence gaps, and the next questions before more resources are committed.", cta: "See deal readiness", href: "#deal-readiness" },
-        { title: "The quote shows margin, but payment and cash pressure could consume it.", outcome: "Separate profit, payment commitments, and cash exposure before assuming the apparent margin is carryable.", cta: "See margin and payment review", href: "#outcomes" },
-        { title: "The team keeps following up, but no one agrees on the next move.", outcome: "Turn candidate buyers, ownership, and decision boundaries into a working brief the team can hand over and use.", cta: "See commercial engagement", href: "#capabilities" },
+        { title: "You need to find the customers or markets worth pursuing.", outcome: "Leave with a candidate shortlist, source context, and the questions that need verification next.", cta: "See opportunity review", href: "#capabilities" },
+        { title: "The quote shows margin, but you are not sure it is truly profitable.", outcome: "Separate deal structure, profit, payment commitments, and cash exposure before committing more resources.", cta: "See deal readiness", href: "#deal-readiness" },
+        { title: "The team keeps following up, but no one agrees on the next move.", outcome: "Turn ownership, evidence, decision boundaries, and handoff-ready work into a workflow the team can continue using.", cta: "See commercial engagement", href: "#capabilities" },
       ],
     },
     works: {
