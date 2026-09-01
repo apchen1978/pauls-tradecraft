@@ -153,7 +153,7 @@ const dict = {
         bringLabel: "帶什麼進來",
         workLabel: "一起釐清",
         takeawayLabel: "你最後帶走",
-        cta: "帶一筆問題來談",
+        cta: "先看交易審視內容",
         boundary: "這是以人工審視與工作底稿為主的商業合作；財務、法務、合規、信用與最終承諾，仍須由 owner 與相應專業人士確認。",
         offers: [
           {
@@ -467,7 +467,7 @@ const dict = {
         bringLabel: "BRING",
         workLabel: "WORK THROUGH",
         takeawayLabel: "TAKE AWAY",
-        cta: "Bring a live question",
+        cta: "See the engagement detail",
         boundary: "This is a human-reviewed commercial engagement built around working briefs. Finance, legal, compliance, credit, and final commitments remain with the owner and the appropriate professionals.",
         offers: [
           {
