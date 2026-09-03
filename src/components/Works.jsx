@@ -230,9 +230,9 @@ function FeaturedSystem({ work }) {
               <span>Featured Work</span>
               <span className="text-forest">{t.works.statusVerified}</span>
             </div>
-            <img src={work.cover} alt={work.imageAlt[lang]} loading="eager" className="aspect-[16/9] h-full w-full object-cover object-top" />
+            <img src={work.cover} alt={work.imageAlt[lang]} loading="eager" className="aspect-[16/9] h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]" />
           </div>
-          <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100">{linkLabel} →</span>
+          <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
       </div>
       {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} tone="dark" />}
@@ -256,7 +256,9 @@ export default function Works() {
     const copy = lang === "zh" ? w.zh : w.en;
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
-    const spanClass = w.id === "trade-profit-navigator" ? "md:col-span-2" : "col-span-1";
+    const spanClass = ["payment-concentration", "overseas-lead-discovery", "tracker", "game", "mg-desktop-pet"].includes(w.id)
+      ? "md:col-span-2"
+      : "col-span-1";
     const Wrapper = w.link ? "a" : "div";
     const wrapperProps = w.link
       ? {

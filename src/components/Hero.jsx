@@ -75,23 +75,23 @@ export default function Hero() {
         <motion.figure
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.15 } }}
-          className="relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-bone/25 bg-bone shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)] lg:mb-4"
+          className="group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-bone/25 bg-pine/45 shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)] backdrop-blur-sm lg:mb-4"
         >
-          <div className="flex items-center justify-between border-b border-ink/10 bg-[#edf0e7] px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65 md:px-5 md:py-3 md:text-[11px]">
+          <div className="flex items-center justify-between border-b border-bone/15 bg-ink/20 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-bone/65 md:px-5 md:py-3 md:text-[11px]">
             <span>Featured Work</span>
-            <span className="inline-flex items-center gap-2 text-forest"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.works.statusVerified}</span>
+            <span className="inline-flex items-center gap-2 text-bone/80"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.works.statusVerified}</span>
           </div>
-          <div className="relative bg-[#e9ece4] p-2.5 md:p-3">
+          <div className="relative overflow-hidden bg-ink/20 p-2.5 md:p-3">
             <img
               src={cdd.cover}
               alt={cdd.imageAlt[lang]}
-              className="aspect-[16/10] w-full object-cover object-top"
+              className="aspect-[16/10] w-full rounded-field object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]"
               loading="eager"
             />
           </div>
-          <figcaption className="flex items-center justify-between gap-4 border-t border-ink/10 px-4 py-3 text-xs text-ink/65 md:px-5 md:py-3.5 md:text-sm">
-            <span className="font-semibold text-ink">{cddCopy.title}</span>
-            <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="shrink-0 font-semibold text-forest transition-colors hover:text-amber">
+          <figcaption className="flex items-center justify-between gap-4 border-t border-bone/15 px-4 py-3 text-xs text-bone/65 md:px-5 md:py-3.5 md:text-sm">
+            <span className="font-semibold text-bone/90">{cddCopy.title}</span>
+            <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="shrink-0 font-semibold text-gold transition-colors hover:text-bone">
               {typeof cdd.linkLabel === "string" ? cdd.linkLabel : cdd.linkLabel[lang]} →
             </a>
           </figcaption>
