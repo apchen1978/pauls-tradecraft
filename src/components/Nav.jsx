@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { List, X } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
 export default function Nav() {
   const { lang, t, toggle } = useLang();
   const [open, setOpen] = useState(false);
+
+  // Close the mobile menu with the Escape key (P0-A accessibility).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const links = [
     { href: "#works", label: t.nav.works },
@@ -49,7 +59,7 @@ export default function Nav() {
           <button
             onClick={() => setOpen((v) => !v)}
             className="rounded-field border border-line p-2 text-ink/75 lg:hidden"
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
             aria-expanded={open}
           >
             {open ? <X size={20} /> : <List size={20} />}

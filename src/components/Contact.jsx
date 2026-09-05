@@ -53,7 +53,7 @@ export default function Contact() {
               href="https://line.me/ti/p/zSJdkOeQgS"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-pill px-6 py-3 text-sm font-bold text-white transition-all hover:brightness-110 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-pill px-6 py-3 text-sm font-bold text-pine transition-all hover:brightness-110 active:scale-[0.98]"
               style={{ backgroundColor: "#06c755" }}
             >
               <span
