@@ -633,9 +633,11 @@ export const works = [
     icon: "receipt",
     verified: true,
     hidePendingLink: false,
+    link: "https://apchen1978.github.io/trade-profit-navigator-demo/",
+    linkLabel: { zh: "試試利潤導航", en: "Try Profit Navigator" },
     demoNote: {
-      zh: "獨立 local prototype；公開 Demo 待 Owner 3 分鐘試用後決定。",
-      en: "Independent local prototype; public demo release follows the Owner 3-minute test.",
+      zh: "公開 Demo 為獨立 synthetic prototype：情境為合成 USD 案例，不含真實客戶資料。",
+      en: "Public demo is an independent synthetic prototype: the scenario is a synthetic USD case with no real customer data.",
     },
     imageAlt: { zh: "Trade Profit Navigator 商業價值槓桿原型", en: "Trade Profit Navigator value-capture prototype" },
     zh: {
@@ -652,7 +654,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術原型", en: "Technical Prototype" },
-      stageTag: "8/8 + 6/6 PASS",
+      stageTag: "9/9 + 6/6 PASS",
       problem: {
         zh: "貿易團隊常看見單價或毛利，卻看不見為了取得這個 upside 要增加多少現金暴露、庫存與執行風險。",
         en: "Trade teams may see price or margin, but not the cash exposure, inventory, and execution risk required to capture the upside.",
@@ -670,8 +672,8 @@ export const works = [
         en: "A working Trade Profit Navigator v0.1: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the owner decision.",
       },
       evidence: {
-        zh: "Local prototype tests 8/8；adversarial baseline 6/6；390px／1440px 無溢位；案例為 synthetic USD dataset。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
-        en: "Local prototype tests 8/8; adversarial baseline 6/6; no overflow at 390px/1440px; case uses a synthetic USD dataset. Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
+        zh: "Prototype tests 9/9；adversarial baseline 6/6；390px／1440px 無溢位；案例為 synthetic USD dataset；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
+        en: "Prototype tests 9/9; adversarial baseline 6/6; no overflow at 390px/1440px; case uses a synthetic USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
       },
     },
   },
