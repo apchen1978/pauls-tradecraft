@@ -7,10 +7,10 @@ export default function About() {
     <section id="about" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-32">
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-24px" }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
         >
           <p className="eyebrow">{t.about.eyebrow}</p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.about.headline}</h2>
@@ -49,10 +49,10 @@ export default function About() {
 
         <div className="flex flex-col gap-6">
           <motion.figure
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            viewport={{ once: true, margin: "-24px" }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             className="overflow-hidden rounded-card border border-line surface-paper shadow-[0_24px_60px_-24px_rgba(31,77,58,0.35)]"
           >
             <img
@@ -67,10 +67,10 @@ export default function About() {
             {t.about.stats.map((s, i) => (
               <motion.div
                 key={s.label}
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.08 }}
+                viewport={{ once: true, margin: "-16px" }}
+                transition={{ duration: 0.35, ease: "easeOut", delay: i * 0.05 }}
                 className="flex flex-col items-center justify-center gap-1.5 bg-[#f8f8f3] px-6 py-8 text-center"
               >
                 <span className="text-3xl font-bold tracking-tight text-forest md:text-4xl">{s.value}</span>

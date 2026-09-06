@@ -15,10 +15,10 @@ export default function HowIWork() {
         {t.how.steps.map((s, i) => (
           <motion.li
             key={s.title}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.08 }}
+            viewport={{ once: true, margin: "-16px" }}
+            transition={{ duration: 0.35, ease: "easeOut", delay: i * 0.05 }}
             className="relative border-t-2 border-forest/15 pt-5"
           >
             <span className="text-xs font-bold tabular-nums text-amber">
@@ -32,10 +32,10 @@ export default function HowIWork() {
       </ol>
 
       <motion.p
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 8 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        viewport={{ once: true, margin: "-16px" }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
         className="mt-12 rounded-card border border-forest/20 surface-paper px-6 py-5 text-sm leading-relaxed text-ink/70"
       >
         {t.how.note}

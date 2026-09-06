@@ -22,10 +22,10 @@ export default function CommercialOutcomes() {
             <motion.a
               key={item.question}
               href={item.href}
-              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={reduceMotion ? undefined : { once: true, margin: "-48px" }}
-              transition={reduceMotion ? undefined : { duration: 0.45, ease: "easeOut", delay: index * 0.06 }}
+              viewport={reduceMotion ? undefined : { once: true, margin: "-24px" }}
+              transition={reduceMotion ? undefined : { duration: 0.35, ease: "easeOut", delay: index * 0.04 }}
               className={`outcomes-stage group relative grid grid-cols-[40px_minmax(0,1fr)] gap-0 border-b border-forest/15 py-6 last:border-b-0 md:grid-cols-[56px_minmax(0,1fr)] md:py-7 ${index === content.items.length - 1 ? "outcomes-stage-final" : ""}`}
             >
               <span aria-hidden="true" className={`relative z-10 mt-1 grid size-6 place-items-center rounded-full border bg-bone text-[11px] font-medium tracking-wide ${index === content.items.length - 1 ? "border-amber bg-amber text-white" : "border-forest/50 text-forest"}`}>

@@ -124,10 +124,10 @@ export default function Capabilities() {
             return (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.45, ease: "easeOut", delay: (i % 2) * 0.07 }}
+                viewport={{ once: true, margin: "-16px" }}
+                transition={{ duration: 0.35, ease: "easeOut", delay: (i % 2) * 0.05 }}
                 className="border-t-2 border-forest/15 pt-5"
               >
                 <div className="flex items-start gap-4">

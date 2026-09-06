@@ -70,10 +70,10 @@ export default function DealReadiness() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-24px" }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
           className="rounded-card border border-line bg-paper/65 p-4 md:p-6"
         >
           <div className="border-b border-line pb-5">
