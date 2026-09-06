@@ -139,6 +139,10 @@ function FeaturedSystem({ work }) {
   const featuredRef = useRef(null);
   const copy = work[lang];
   const linkLabel = typeof work.linkLabel === "string" ? work.linkLabel : work.linkLabel?.[lang];
+  // Astra P0-2：主入口先看完成範例；已理解用途的人可用第二入口評估自己的商機。
+  const secondaryLabel = work.secondaryLinkLabel
+    ? (typeof work.secondaryLinkLabel === "string" ? work.secondaryLinkLabel : work.secondaryLinkLabel?.[lang])
+    : null;
 
   useLayoutEffect(() => {
     const root = featuredRef.current;
@@ -244,6 +248,11 @@ function FeaturedSystem({ work }) {
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
           </a>
+          {work.secondaryLink && secondaryLabel && (
+            <a data-featured-copy href={work.secondaryLink} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex w-fit items-center gap-2 rounded-field border border-bone/25 px-4 py-2 text-sm font-semibold text-bone/85 transition-colors hover:border-gold/60 hover:text-gold">
+              {secondaryLabel}
+            </a>
+          )}
           {work.id === "commercial-decision-desk" && (
             <a data-featured-copy href="#outcomes" className="mt-4 w-fit text-sm font-semibold text-bone/75 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold">
               {t.hero.cddInvite}

@@ -686,8 +686,12 @@ export const works = [
     span: "md:col-span-2",
     icon: "briefcase",
     verified: true,
-    link: "https://apchen1978.github.io/commercial-decision-desk/#mode-blank",
-    linkLabel: { zh: "開始 CDD 評估", en: "Start CDD assessment" },
+    // Astra P0-2：陌生客戶先看完成範例（建立興趣），
+    // 評估我的商機（#mode-blank）作為第二層給已理解用途的人。
+    link: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
+    linkLabel: { zh: "看一筆 48 萬美元訂單，為何還不能接", en: "See why a USD 480k order is not yet committable" },
+    secondaryLink: "https://apchen1978.github.io/commercial-decision-desk/#mode-blank",
+    secondaryLinkLabel: { zh: "評估我的商機", en: "Assess my opportunity" },
     zh: {
       title: "商務決策工作台",
       desc: "在承諾一筆交易前，先把付款、交付責任、決策權與未知資訊放到同一張桌上，再整理成可追溯的交易結構、控制因素與下一步。",

@@ -96,7 +96,7 @@ export default function Hero() {
           <figcaption className="flex items-center justify-between gap-4 border-t border-bone/15 px-4 py-3 text-xs text-bone/65 md:px-5 md:py-3.5 md:text-sm">
             <span className="font-semibold text-bone/90">{t.hero.snapshotCaption}</span>
             <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="shrink-0 font-semibold text-gold transition-colors hover:text-bone">
-              {typeof cdd.linkLabel === "string" ? cdd.linkLabel : cdd.linkLabel[lang]} →
+              {t.hero.snapshotCta} →
             </a>
           </figcaption>
         </motion.figure>
