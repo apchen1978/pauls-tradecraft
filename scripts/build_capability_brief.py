@@ -286,11 +286,14 @@ chapter_opener(c, '03', 'Selected Evidence · 精選實證（1/2）', '優先商
 y = PAGE_H - 168
 cases1 = [
     ('Commercial Decision Desk · 商業決策收斂層',
-     '商機、交易條件、付款暴露、矛盾與 UNKNOWN，收斂為可稽核的人類決策。8 條硬規則引擎化、38/38 自動檢查；SYNTHETIC proof，無自主商業動作。',
+     '商機、交易條件、付款暴露、矛盾與 UNKNOWN，收斂為可稽核的人類決策。硬規則引擎化、50/50 自動檢查；另含付款暴露、經濟橋、決策路徑與快照套件（42/42、19/19、21/21、28/28）。SYNTHETIC proof，無自主商業動作。',
      'PENDING — SYNTHETIC proof; adoption / ROI NOT YET PROVEN'),
     ('AI Trade Deal Desk · 報價/匯率決策工作流',
      '把 RFQ 判斷做成 fixture-driven 的決策支援工作流：AI 建議、人類審批、判斷可稽核。13/13 商業案例 + 5/5 負向測試 PASS；human override 已驗證。',
      'TESTED'),
+    ('Trade Profit Navigator · 利潤槓桿導航',
+     '把一筆貿易拆成已知經濟、現金暴露、風險與 UNKNOWN，比較三個槓桿並保留 Owner 決定。9/9 功能 + 6/6 adversarial PASS；公開互動 demo，synthetic USD case。',
+     'TESTED — public demo live'),
 ]
 for i, (t, b, st) in enumerate(cases1):
     # compact cards sized to content; status on its own hairline row
