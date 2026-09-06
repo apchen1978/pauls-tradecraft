@@ -144,6 +144,14 @@ function FeaturedSystem({ work }) {
     const root = featuredRef.current;
     if (!root) return undefined;
 
+    // 錨點直達（#works / #commercial-decision-desk …）時立即顯示內容，
+    // 避免「跳轉後先看到大片空白、之後才淡入」的體驗（Astra ⑤）。
+    const hashTargets = new Set(
+      [...document.querySelectorAll("main [id]")].map((el) => `#${el.id}`),
+    );
+    const jumpedTo = (hash) =>
+      !!hash && hash !== "#top" && (hashTargets.has(hash) || hash === "#works");
+
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
       mm.add({ reduceMotion: "(prefers-reduced-motion: reduce)" }, ({ conditions }) => {
@@ -152,40 +160,59 @@ function FeaturedSystem({ work }) {
         if (conditions.reduceMotion) {
           timeline.set("[data-featured-copy], [data-featured-visual]", { autoAlpha: 1 });
         } else {
+          // 短距離淡入：距離 14→10、時長 0.48→0.35，內容預設仍在原位上方一點點
           timeline
             .from("[data-featured-copy]", {
-              y: 14,
+              y: 10,
               autoAlpha: 0,
-              duration: 0.48,
+              duration: 0.35,
               ease: "power2.out",
-              stagger: 0.07,
+              stagger: 0.06,
               immediateRender: false,
             })
             .from(
               "[data-featured-visual]",
               {
-                y: 10,
+                y: 8,
                 autoAlpha: 0,
-                duration: 0.52,
+                duration: 0.38,
                 ease: "power2.out",
                 immediateRender: false,
               },
-              "<0.12",
+              "<0.1",
             );
         }
 
+        const revealNow = () => {
+          if (conditions.reduceMotion) {
+            timeline.set("[data-featured-copy], [data-featured-visual]", { autoAlpha: 1 });
+          } else {
+            timeline.progress(1);
+          }
+        };
+        // 錨點跳轉抵達時直接完成動畫（不重播）
+        const onHash = () => {
+          if (jumpedTo(window.location.hash)) revealNow();
+        };
+        window.addEventListener("hashchange", onHash);
+
         const observer = new IntersectionObserver(
           ([entry]) => {
-            if (entry.isIntersecting) {
+            if (!entry.isIntersecting) return;
+            // 若這次抵達是錨點直達（含載入時 URL 帶 hash），直接揭示、不重播淡入
+            if (jumpedTo(window.location.hash)) {
+              revealNow();
+            } else {
               timeline.play();
-              observer.disconnect();
             }
+            observer.disconnect();
           },
-          { threshold: 0.2, rootMargin: "0px 0px -8%" },
+          { threshold: 0.05, rootMargin: "0px 0px -4%" },
         );
 
         observer.observe(root);
         return () => {
+          window.removeEventListener("hashchange", onHash);
           observer.disconnect();
           timeline.kill();
         };
@@ -240,6 +267,27 @@ function FeaturedSystem({ work }) {
   );
 }
 
+// ② 旗艦提前：CDD 旗艦展示是獨立頂層區塊（id="#works" 保留給導覽「作品」），
+// 以 works 主標題開場「成果先」；其餘卡片目錄（見 Works）只保留分組標題、不重複大標題。
+export function WorksFlagship() {
+  const { t } = useLang();
+  const featuredSystem = works.find((work) => work.id === "commercial-decision-desk");
+  return (
+    <section id="works" aria-labelledby="works-flagship-heading" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-24">
+      <div className="border-b border-line pb-10">
+        <div className="max-w-2xl">
+          <p className="eyebrow">{t.works.eyebrow}</p>
+          <h2 id="works-flagship-heading" className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
+          <p className="mt-4 text-base leading-relaxed text-ink/65">{t.works.sub}</p>
+        </div>
+      </div>
+      <div className="mt-12">
+        <FeaturedSystem work={featuredSystem} />
+      </div>
+    </section>
+  );
+}
+
 export default function Works() {
   const { lang, t } = useLang();
   const featuredSystem = works.find((work) => work.id === "commercial-decision-desk");
@@ -281,10 +329,10 @@ export default function Works() {
                 if (det) det.open = !det.open;
               }
         }
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.5, ease: "easeOut", delay: (i % 3) * 0.06 }}
+        viewport={{ once: true, margin: "-24px" }}
+        transition={{ duration: 0.35, ease: "easeOut", delay: (i % 3) * 0.04 }}
          className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
@@ -355,23 +403,10 @@ export default function Works() {
   };
 
   return (
-    <section id="works" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-28 md:px-6 md:py-36 lg:py-28">
-      <div className="border-b border-line pb-12">
-        <div className="max-w-2xl">
-          <p className="eyebrow">{t.works.eyebrow}</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
-          <p className="mt-4 text-base leading-relaxed text-ink/65">{t.works.sub}</p>
-        </div>
-      </div>
-
-      <div className="mt-14 lg:mt-12">
-        <p className="eyebrow mb-5">{t.works.sections.commercial}</p>
-        <FeaturedSystem work={featuredSystem} />
-      </div>
-
+    <section id="works-catalog" aria-label={t.works.sub} className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-28">
       {sections.map((sec, si) => (
         <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
-          <div className={`${si === 0 ? "mt-16 lg:mt-12" : "mt-14 lg:mt-12"} border-t border-line pt-7`}>
+          <div className={`${si === 0 ? "mt-0 lg:mt-0" : "mt-14 lg:mt-12"} border-t border-line pt-7`}>
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
             {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/65">{sec.note}</p>}
           </div>
