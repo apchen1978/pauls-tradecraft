@@ -686,8 +686,8 @@ export const works = [
     span: "md:col-span-2",
     icon: "briefcase",
     verified: true,
-    link: "https://apchen1978.github.io/commercial-decision-desk/",
-    linkLabel: { zh: "試用決策 Demo", en: "Try Decision Demo" },
+    link: "https://apchen1978.github.io/commercial-decision-desk/#mode-blank",
+    linkLabel: { zh: "開始 CDD 評估", en: "Start CDD assessment" },
     zh: {
       title: "商務決策工作台",
       desc: "在承諾一筆交易前，先把付款、交付責任、決策權與未知資訊放到同一張桌上，再整理成可追溯的交易結構、控制因素與下一步。",

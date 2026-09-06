@@ -5,7 +5,7 @@ import { useLang } from "../i18n.jsx";
 const icons = [FlowArrow, Rocket, GlobeHemisphereWest, Network];
 const workflowLinks = {
   source: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
-  cdd: "https://apchen1978.github.io/commercial-decision-desk/",
+  cdd: "https://apchen1978.github.io/commercial-decision-desk/#mode-blank",
   payment: "https://apchen1978.github.io/payment-concentration-demo/",
 };
 

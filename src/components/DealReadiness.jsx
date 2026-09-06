@@ -59,7 +59,7 @@ export default function DealReadiness() {
               <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
             </a>
             <a
-              href="https://apchen1978.github.io/commercial-decision-desk/"
+              href="https://apchen1978.github.io/commercial-decision-desk/#mode-blank"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm font-semibold text-forest underline decoration-forest/35 underline-offset-4 transition-colors hover:text-amber"
