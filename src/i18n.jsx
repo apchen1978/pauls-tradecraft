@@ -27,6 +27,9 @@ const dict = {
       featuredDisclosure: "合成範例 · 僅為供應商付款承諾 — 非公司現金餘額或資金缺口。",
       featuredCta: "試試付款原型",
       cddInvite: "先看完整商業決策路徑。",
+      snapshotChromeLabel: "合成案例 · CDD 輸出",
+      snapshotAlt: "商務決策工作台的合成案例輸出：交易摘要與關鍵控制因素一屏檢視",
+      snapshotCaption: "合成案例 · Executive Deal Snapshot — 把承諾前要看的事放在同一屏",
     },
     startHere: {
       eyebrow: "COMMERCIAL PILOTS",
@@ -341,6 +344,9 @@ const dict = {
       featuredDisclosure: "Synthetic example · supplier-payment commitments only — not company cash balance or shortfall.",
       featuredCta: "Try the Payment Prototype",
       cddInvite: "See the full commercial decision path first.",
+      snapshotChromeLabel: "Synthetic case · CDD output",
+      snapshotAlt: "A synthetic Commercial Decision Desk output: deal summary and key control factors on one screen",
+      snapshotCaption: "Synthetic · Executive Deal Snapshot — what matters before commitment on one screen",
     },
     startHere: {
       eyebrow: "COMMERCIAL PILOTS",

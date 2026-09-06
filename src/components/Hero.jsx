@@ -3,14 +3,18 @@ import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
 
 export default function Hero() {
   const { lang, t } = useLang();
   const cdd = works.find((work) => work.id === "commercial-decision-desk");
-  const cddCopy = cdd[lang];
+  // 畫面分工（Astra ①）：Hero 展示「最後得到什麼」——合成案例的
+  // Executive Deal Snapshot 輸出特寫；Featured Work 卡保留工作區畫面「怎麼完成」。
+  const snapshotSrc = lang === "zh"
+    ? "/images/cdd-executive-snapshot-zh-v02.png"
+    : "/images/cdd-executive-snapshot-en-v02.png";
   return (
     <section id="top" className="relative isolate overflow-hidden bg-pine text-bone shadow-[0_28px_80px_-56px_rgba(20,51,41,0.9)]">
       <div aria-hidden className="absolute inset-0">
@@ -28,7 +32,7 @@ export default function Hero() {
       </div>
 
       <div className="relative mx-auto grid min-h-[calc(100dvh-68px)] max-w-7xl items-end gap-12 px-4 pb-12 pt-20 md:min-h-[calc(100dvh-76px)] md:px-6 md:pb-16 md:pt-24 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:pb-20">
-        <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.1 } } }} className="relative z-10 max-w-2xl self-center">
+        <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 max-w-2xl self-center">
           <motion.p variants={fadeUp} className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
             {t.brand} · {t.brandNote}
           </motion.p>
@@ -73,24 +77,24 @@ export default function Hero() {
         </motion.div>
 
         <motion.figure
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.15 } }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut", delay: 0.12 } }}
           className="group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-bone/25 bg-pine/45 shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)] backdrop-blur-sm lg:mb-4"
         >
           <div className="flex items-center justify-between border-b border-bone/15 bg-ink/20 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-bone/65 md:px-5 md:py-3 md:text-[11px]">
-            <span>Featured Work</span>
-            <span className="inline-flex items-center gap-2 text-bone/80"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.works.statusVerified}</span>
+            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.hero.snapshotChromeLabel}</span>
+            <span className="text-bone/80">{t.works.statusVerified}</span>
           </div>
           <div className="relative overflow-hidden bg-ink/20 p-2.5 md:p-3">
             <img
-              src={cdd.cover}
-              alt={cdd.imageAlt[lang]}
-              className="aspect-[16/10] w-full rounded-field object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]"
+              src={snapshotSrc}
+              alt={t.hero.snapshotAlt}
+              className="aspect-[4/3] w-full rounded-field border border-bone/10 object-cover object-top"
               loading="eager"
             />
           </div>
           <figcaption className="flex items-center justify-between gap-4 border-t border-bone/15 px-4 py-3 text-xs text-bone/65 md:px-5 md:py-3.5 md:text-sm">
-            <span className="font-semibold text-bone/90">{cddCopy.title}</span>
+            <span className="font-semibold text-bone/90">{t.hero.snapshotCaption}</span>
             <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="shrink-0 font-semibold text-gold transition-colors hover:text-bone">
               {typeof cdd.linkLabel === "string" ? cdd.linkLabel : cdd.linkLabel[lang]} →
             </a>
