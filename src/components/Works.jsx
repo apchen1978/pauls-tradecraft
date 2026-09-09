@@ -313,7 +313,7 @@ export default function Works() {
     const copy = lang === "zh" ? w.zh : w.en;
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
-    const spanClass = ["payment-concentration", "overseas-lead-discovery", "tracker", "game", "mg-desktop-pet"].includes(w.id)
+    const spanClass = ["payment-concentration", "overseas-lead-discovery", "tracker", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
     const Wrapper = w.link ? "a" : "div";
