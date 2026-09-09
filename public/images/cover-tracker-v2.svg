@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">窗簾軟裝 Pilot 追蹤器</title>
+  <desc id="desc">一個以候選商機、報價進度與跟進節點組成的合成窗簾軟裝銷售追蹤工作台。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#102b25"/>
+      <stop offset="0.58" stop-color="#1a4437"/>
+      <stop offset="1" stop-color="#0b201b"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbfaf5"/>
+      <stop offset="1" stop-color="#eceee8"/>
+    </linearGradient>
+    <pattern id="grid" width="54" height="54" patternUnits="userSpaceOnUse">
+      <path d="M54 0H0V54" fill="none" stroke="#f7f3e8" stroke-opacity=".05"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#061612" flood-opacity=".32"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+  <circle cx="1455" cy="48" r="370" fill="#d9a441" opacity=".08"/>
+  <circle cx="-40" cy="870" r="330" fill="#74a78b" opacity=".08"/>
+  <rect x="88" y="82" width="1424" height="736" rx="26" fill="#0d241e" fill-opacity=".34" stroke="#f4f1e8" stroke-opacity=".16"/>
+
+  <g transform="translate(138 144)">
+    <rect width="260" height="34" rx="17" fill="#d9a441" fill-opacity=".16" stroke="#edc568" stroke-opacity=".72"/>
+    <text x="130" y="22" fill="#f0c96f" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="2">PILOT / TRACKER</text>
+    <text x="0" y="158" fill="#f7f3e8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="70" font-weight="700" letter-spacing="-2">窗簾軟裝</text>
+    <text x="0" y="238" fill="#f7f3e8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="70" font-weight="700" letter-spacing="-2">商機追蹤器</text>
+    <rect y="284" width="94" height="3" fill="#d9a441"/>
+    <text x="0" y="342" fill="#d9e4d8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="25">把候選商機、報價與跟進節點放在同一條可交接的工作流。</text>
+    <text x="0" y="396" fill="#aebfb1" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17" letter-spacing="1.5">LEAD → QUOTE → FOLLOW-UP · EXCEL-BASED PILOT</text>
+    <g transform="translate(0 466)">
+      <circle cx="9" cy="9" r="9" fill="#d9a441"/><text x="30" y="14" fill="#d9e4d8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="18">商機意向與下一步，同步留在同一張追蹤表</text>
+      <circle cx="9" cy="54" r="9" fill="#5e9a78"/><text x="30" y="59" fill="#d9e4d8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="18">每次跟進可檢視，不把進度留在聊天紀錄裡</text>
+    </g>
+    <text x="0" y="628" fill="#f0c96f" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="15" font-weight="700" letter-spacing="3">PAUL'S TRADECRAFT / PILOT EVIDENCE</text>
+  </g>
+
+  <g transform="translate(938 152)" filter="url(#shadow)">
+    <rect width="438" height="558" rx="18" fill="url(#panel)"/>
+    <rect width="438" height="56" rx="18" fill="#e3e8df"/>
+    <circle cx="28" cy="28" r="6" fill="#d9a441"/><circle cx="49" cy="28" r="6" fill="#6f9878"/><circle cx="70" cy="28" r="6" fill="#345b4d"/>
+    <text x="102" y="34" fill="#25463b" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14" font-weight="700" letter-spacing="1.2">SOFT-FURNISHING PILOT TRACKER</text>
+    <text x="32" y="96" fill="#587064" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12" font-weight="700" letter-spacing="1.2">THIS WEEK / COMMERCIAL PULSE</text>
+    <g transform="translate(32 116)">
+      <rect width="116" height="84" rx="10" fill="#edf2ec"/><text x="16" y="27" fill="#587064" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="11">ACTIVE LEADS</text><text x="16" y="66" fill="#173d32" font-family="Arial,sans-serif" font-size="34" font-weight="700">03</text>
+      <rect x="130" width="116" height="84" rx="10" fill="#f8eed6"/><text x="146" y="27" fill="#806127" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="11">QUOTE DUE</text><text x="146" y="66" fill="#8a651d" font-family="Arial,sans-serif" font-size="34" font-weight="700">01</text>
+      <rect x="260" width="114" height="84" rx="10" fill="#e9efec"/><text x="276" y="27" fill="#587064" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="11">FOLLOW-UP</text><text x="276" y="66" fill="#173d32" font-family="Arial,sans-serif" font-size="34" font-weight="700">02</text>
+    </g>
+    <text x="32" y="242" fill="#587064" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12" font-weight="700" letter-spacing="1.2">PIPELINE / NEXT ACTION</text>
+    <g transform="translate(32 262)">
+      <rect width="374" height="60" rx="8" fill="#fff" stroke="#d9e1da"/>
+      <rect width="6" height="60" rx="3" fill="#d9a441"/><text x="22" y="25" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="13" font-weight="700">新北市住宅窗簾提案</text><text x="22" y="45" fill="#708176" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12">報價草案待確認 · 下次跟進：週四</text><rect x="291" y="18" width="62" height="22" rx="11" fill="#f8eed6"/><text x="322" y="33" fill="#8a651d" font-family="Arial,sans-serif" font-size="10" font-weight="700" text-anchor="middle">QUOTE</text>
+      <rect y="72" width="374" height="60" rx="8" fill="#fff" stroke="#d9e1da"/>
+      <rect width="6" height="60" rx="3" fill="#5e9a78" transform="translate(0 72)"/><text x="22" y="97" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="13" font-weight="700">台北商空軟裝詢問</text><text x="22" y="117" fill="#708176" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12">樣品與丈量資訊待補 · 下次跟進：週五</text><rect x="276" y="90" width="77" height="22" rx="11" fill="#e5f0e9"/><text x="314" y="105" fill="#2d7050" font-family="Arial,sans-serif" font-size="10" font-weight="700" text-anchor="middle">FOLLOW-UP</text>
+      <rect y="144" width="374" height="60" rx="8" fill="#fff" stroke="#d9e1da"/>
+      <rect width="6" height="60" rx="3" fill="#789286" transform="translate(0 144)"/><text x="22" y="169" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="13" font-weight="700">桃園居家改造候選</text><text x="22" y="189" fill="#708176" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12">初步需求已整理 · 等待客戶回覆</text><rect x="286" y="162" width="67" height="22" rx="11" fill="#e9efec"/><text x="319" y="177" fill="#587064" font-family="Arial,sans-serif" font-size="10" font-weight="700" text-anchor="middle">ACTIVE</text>
+    </g>
+    <rect x="32" y="494" width="374" height="1" fill="#d4ddd5"/>
+    <text x="32" y="526" fill="#587064" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12">合成展示 · 以工作流程與驗證產物為準</text>
+  </g>
+</svg>

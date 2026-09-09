@@ -114,7 +114,7 @@ export const works = [
     id: "tracker",
     section: "operations",
     featuredRank: 1,
-    cover: "/images/cover-tracker.png",
+    cover: "/images/cover-tracker-v2.svg",
     imageAlt: { zh: "窗簾軟裝 Pilot 追蹤器儀表板", en: "Curtain soft-furnishing pilot tracker dashboard" },
     link: "/pilot-evidence/#tracker",
     linkLabel: { zh: "檢視驗證產物", en: "View Evidence" },
