@@ -313,6 +313,7 @@ export default function Works() {
     const copy = lang === "zh" ? w.zh : w.en;
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
+    const isPrimary = w.primary === true;
     const spanClass = ["payment-concentration", "overseas-lead-discovery", "tracker", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
@@ -342,7 +343,7 @@ export default function Works() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-24px" }}
         transition={{ duration: 0.35, ease: "easeOut", delay: (i % 3) * 0.04 }}
-         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border border-line surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
+         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] ${isPrimary ? "border-forest/35 bg-forest/[0.025]" : "border-line"} ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
           {w.cover ? (
@@ -360,8 +361,9 @@ export default function Works() {
             </div>
           )}
           <div className="flex flex-1 flex-col border-t border-ink/5 p-7 md:p-8 lg:p-7">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
               <span>{copy.tag}</span>
+              {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-[10px] tracking-[0.12em] text-amber">{t.works.primaryEntry}</span>}
               {w.verified && (
                 <span
                   className="inline-flex items-center gap-1 text-forest"
@@ -390,6 +392,12 @@ export default function Works() {
                 <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}：</span>
                 {copy.caseSummary}
               </p>
+            )}
+            {w.deliverable && (
+              <div className="mt-4 border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber">{t.works.deliverableLabel}</p>
+                <p className="mt-1 text-sm leading-relaxed text-ink/80">{w.deliverable[lang]}</p>
+              </div>
             )}
             <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
               {w.link ? (

@@ -587,6 +587,11 @@ export const works = [
     verified: true,
     link: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
     linkLabel: { zh: "試用潛在客戶篩選 Demo", en: "Try Qualification Demo" },
+    primary: true,
+    deliverable: {
+      zh: "一份附來源脈絡的候選短名單、每家公司的 WHY／WHY NOT、UNKNOWN，以及第一次接觸前要先確認的問題。",
+      en: "An evidence-qualified shortlist with source context, WHY / WHY NOT, explicit UNKNOWNs, and the questions to answer before first contact.",
+    },
     demoNote: { zh: "Demo 以美國市場英文公開資料情境呈現。", en: "Demo uses an English-language U.S. market scenario." },
     zh: {
       title: "AI 輔助海外客戶開發",
