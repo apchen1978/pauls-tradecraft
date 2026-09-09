@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">銷售 Pilot 案例簡報</title>
+  <desc id="desc">一份把窗簾軟裝銷售試點的問題、執行方式、證據與下一步整理成單頁案例簡報的合成封面。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f5f2e9"/>
+      <stop offset=".54" stop-color="#e5e9df"/>
+      <stop offset="1" stop-color="#d9e1d7"/>
+    </linearGradient>
+    <linearGradient id="side" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#173d32"/>
+      <stop offset="1" stop-color="#0b201b"/>
+    </linearGradient>
+    <pattern id="fineGrid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" fill="none" stroke="#173d32" stroke-opacity=".045"/>
+    </pattern>
+    <filter id="paperShadow" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#30443a" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#fineGrid)"/>
+  <rect width="500" height="900" fill="url(#side)"/>
+  <circle cx="140" cy="770" r="300" fill="#d9a441" opacity=".08"/>
+  <circle cx="1490" cy="76" r="210" fill="#5e9a78" opacity=".13"/>
+
+  <g transform="translate(104 126)">
+    <rect width="226" height="34" rx="17" fill="#d9a441" fill-opacity=".17" stroke="#f0c96f" stroke-opacity=".75"/>
+    <text x="113" y="22" fill="#f0c96f" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="2">CLIENT-READY / A4</text>
+    <text x="0" y="155" fill="#f7f3e8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="64" font-weight="700" letter-spacing="-2">銷售 Pilot</text>
+    <text x="0" y="230" fill="#f7f3e8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="64" font-weight="700" letter-spacing="-2">案例簡報</text>
+    <rect y="274" width="90" height="3" fill="#d9a441"/>
+    <text x="0" y="334" fill="#d9e4d8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="22">讓客戶一頁看懂：問題、做法、</text>
+    <text x="0" y="370" fill="#d9e4d8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="22">可檢視證據，以及下一步。</text>
+    <g transform="translate(0 458)">
+      <text x="0" y="0" fill="#f0c96f" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">ONE-PAGE DELIVERY</text>
+      <path d="M0 34H286" stroke="#d9e4d8" stroke-opacity=".22"/>
+      <text x="0" y="72" fill="#d9e4d8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17">不是儀表板，也不是追蹤表。</text>
+      <text x="0" y="106" fill="#d9e4d8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17">這是一份可拿去說明的決策交付物。</text>
+    </g>
+    <text x="0" y="640" fill="#f0c96f" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14" font-weight="700" letter-spacing="2.8">PAUL'S TRADECRAFT / CASE BRIEF</text>
+  </g>
+
+  <g transform="translate(680 70)" filter="url(#paperShadow)">
+    <rect width="660" height="760" rx="12" fill="#fffdf7"/>
+    <rect width="660" height="92" rx="12" fill="#f0eee6"/>
+    <rect y="80" width="660" height="12" fill="#d9a441"/>
+    <text x="54" y="42" fill="#50665b" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="2">PAUL'S TRADECRAFT</text>
+    <text x="54" y="70" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="21" font-weight="700">SOFT-FURNISHING SALES PILOT / CASE BRIEF</text>
+    <text x="54" y="148" fill="#8b6a28" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1.8">EXECUTIVE SUMMARY</text>
+    <text x="54" y="194" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="31" font-weight="700">把跟進流程，變成</text>
+    <text x="54" y="235" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="31" font-weight="700">可檢視的商業下一步</text>
+    <text x="54" y="272" fill="#65766c" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="15">合成案例 · 以流程與驗證產物呈現，不代表客戶採用或業績成果。</text>
+
+    <g transform="translate(54 318)">
+      <rect width="170" height="132" rx="8" fill="#eef3ec"/>
+      <text x="18" y="30" fill="#517061" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1">01 / PROBLEM</text>
+      <text x="18" y="67" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17" font-weight="700">進度散在</text>
+      <text x="18" y="93" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17" font-weight="700">多個對話裡</text>
+      <rect x="188" width="170" height="132" rx="8" fill="#f9efd8"/>
+      <text x="206" y="30" fill="#8b6a28" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1">02 / METHOD</text>
+      <text x="206" y="67" fill="#73561f" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17" font-weight="700">Lead → Quote</text>
+      <text x="206" y="93" fill="#73561f" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17" font-weight="700">→ Follow-up</text>
+      <rect x="376" width="170" height="132" rx="8" fill="#eaf0ed"/>
+      <text x="394" y="30" fill="#517061" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1">03 / OUTPUT</text>
+      <text x="394" y="67" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17" font-weight="700">一頁證據</text>
+      <text x="394" y="93" fill="#173d32" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="17" font-weight="700">與下一步</text>
+    </g>
+
+    <g transform="translate(54 492)">
+      <text x="0" y="0" fill="#8b6a28" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1.8">EVIDENCE INCLUDED</text>
+      <path d="M0 20H552" stroke="#d8dfd7"/>
+      <circle cx="10" cy="50" r="7" fill="#5e9a78"/><path d="m7 50 2 2 5-6" fill="none" stroke="#fff" stroke-width="1.5"/><text x="30" y="55" fill="#50665b" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14">三輪模擬與可檢視的 inspect 證據</text>
+      <circle cx="10" cy="84" r="7" fill="#5e9a78"/><path d="m7 84 2 2 5-6" fill="none" stroke="#fff" stroke-width="1.5"/><text x="30" y="89" fill="#50665b" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14">報價、跟進與交接狀態的明確分離</text>
+      <circle cx="10" cy="118" r="7" fill="#d9a441"/><text x="30" y="123" fill="#50665b" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14">下一步由 owner 確認，不自動假設成果</text>
+    </g>
+    <rect x="54" y="666" width="552" height="1" fill="#d8dfd7"/>
+    <text x="54" y="706" fill="#65766c" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="13">CASE BRIEF · DECISION SUPPORT · HUMAN REVIEW</text>
+  </g>
+</svg>

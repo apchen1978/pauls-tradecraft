@@ -159,7 +159,7 @@ export const works = [
     id: "casebrief",
     section: "operations",
     featuredRank: 2,
-    cover: "/images/cover-casebrief-v2.svg",
+    cover: "/images/cover-sales-pilot-casebrief-v3.svg",
     imageAlt: { zh: "銷售 Pilot 案例簡報", en: "Sales Pilot case brief" },
     span: "col-span-1",
     verified: true,
