@@ -592,7 +592,10 @@ export const works = [
       zh: "一份附來源脈絡的候選短名單、每家公司的 WHY／WHY NOT、UNKNOWN，以及第一次接觸前要先確認的問題。",
       en: "An evidence-qualified shortlist with source context, WHY / WHY NOT, explicit UNKNOWNs, and the questions to answer before first contact.",
     },
-    demoNote: { zh: "Demo 以美國市場英文公開資料情境呈現。", en: "Demo uses an English-language U.S. market scenario." },
+    demoNote: {
+      zh: "Demo 以美國市場英文公開資料情境呈現——方法展示，不是 CRM、不含自動發信、不保證成交。",
+      en: "Demo uses an English-language U.S. market scenario — a method showcase, not a CRM; no auto-outreach or guaranteed results.",
+    },
     zh: {
       title: "AI 輔助海外客戶開發",
       desc: "從公開網路名單，篩出真正值得業務投入時間的潛在客戶。",
@@ -607,7 +610,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
-      stageTag: "44 → 20 shortlist",
+      stageTag: { zh: "44 候選 → 20 短名單", en: "44 candidates → 20 shortlist" },
       problem: {
         zh: "AI 可以找到幾百家公司的名字，但「找到公司」不等於「找到值得業務花時間開發的買家」。",
         en: "AI can find hundreds of companies — but finding companies is not the same as identifying buyers worth a sales team's time.",

@@ -389,7 +389,7 @@ export default function Works() {
             <p className="mt-2 text-[15px] leading-relaxed text-ink/65 md:text-base">{copy.desc}</p>
             {copy.caseSummary && (
               <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink/75">
-                <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}：</span>
+                <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}</span>
                 {copy.caseSummary}
               </p>
             )}
