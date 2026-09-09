@@ -23,6 +23,27 @@ const iconMap = {
 
 const SECTION_ORDER = ["commercial", "operations", "labs"];
 
+function ProductFlow({ work, tone = "light" }) {
+  const { lang } = useLang();
+  const flow = work.showcase?.[lang];
+  if (!flow) return null;
+
+  const dark = tone === "dark";
+  return (
+    <div className={`mt-6 border-y py-4 ${dark ? "border-bone/15" : "border-forest/15"}`}>
+      <p className={`text-[10px] font-bold uppercase tracking-[0.18em] ${dark ? "text-gold" : "text-amber"}`}>{flow.label}</p>
+      <div className={`mt-3 grid gap-3 sm:grid-cols-3 ${dark ? "sm:divide-x sm:divide-bone/15" : "sm:divide-x sm:divide-forest/15"}`}>
+        {flow.stages.map((stage, index) => (
+          <div key={stage.label} className={index === 0 ? "sm:pr-3" : index === flow.stages.length - 1 ? "sm:pl-3" : "sm:px-3"}>
+            <p className={`text-[10px] font-bold tracking-[0.14em] ${dark ? "text-bone/55" : "text-moss"}`}>{stage.label}</p>
+            <p className={`mt-1 text-xs leading-relaxed ${dark ? "text-bone/82" : "text-ink/75"}`}>{stage.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
@@ -244,6 +265,7 @@ function FeaturedSystem({ work }) {
           {copy.caseSummary && (
             <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
           )}
+          <ProductFlow work={work} tone="dark" />
           <a data-featured-copy href={work.link} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61]">
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
@@ -393,6 +415,7 @@ export default function Works() {
                 {copy.caseSummary}
               </p>
             )}
+            <ProductFlow work={w} />
             {w.deliverable && (
               <div className="mt-4 border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber">{t.works.deliverableLabel}</p>

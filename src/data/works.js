@@ -588,6 +588,24 @@ export const works = [
     link: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
     linkLabel: { zh: "試用潛在客戶篩選 Demo", en: "Try Qualification Demo" },
     primary: true,
+    showcase: {
+      zh: {
+        label: "產品流程",
+        stages: [
+          { label: "01 發現", value: "公開網路候選" },
+          { label: "02 資格化", value: "來源、WHY／WHY NOT、UNKNOWN" },
+          { label: "03 交接", value: "人工確認後帶入商機評估" },
+        ],
+      },
+      en: {
+        label: "Product flow",
+        stages: [
+          { label: "01 Discover", value: "Public-web candidates" },
+          { label: "02 Qualify", value: "Sources, WHY / WHY NOT, UNKNOWNs" },
+          { label: "03 Hand off", value: "Human-confirmed input for deal assessment" },
+        ],
+      },
+    },
     deliverable: {
       zh: "一份附來源脈絡的候選短名單、每家公司的 WHY／WHY NOT、UNKNOWN，以及第一次接觸前要先確認的問題。",
       en: "An evidence-qualified shortlist with source context, WHY / WHY NOT, explicit UNKNOWNs, and the questions to answer before first contact.",
@@ -700,6 +718,24 @@ export const works = [
     linkLabel: { zh: "看一筆 48 萬美元訂單，為何還不能接", en: "See why a USD 480k order is not yet committable" },
     secondaryLink: "https://apchen1978.github.io/commercial-decision-desk/#mode-blank",
     secondaryLinkLabel: { zh: "評估我的商機", en: "Assess my opportunity" },
+    showcase: {
+      zh: {
+        label: "決策工作流",
+        stages: [
+          { label: "01 帶入", value: "RFQ、報價、付款與交付條件" },
+          { label: "02 看清", value: "控制因素、UNKNOWN 與承諾邊界" },
+          { label: "03 帶走", value: "Deal Brief、下一步與人的決定" },
+        ],
+      },
+      en: {
+        label: "Decision flow",
+        stages: [
+          { label: "01 Bring in", value: "RFQ, quote, payment, and delivery context" },
+          { label: "02 Review", value: "Controls, UNKNOWNs, and commitment boundaries" },
+          { label: "03 Take forward", value: "Deal Brief, next actions, and human decision" },
+        ],
+      },
+    },
     zh: {
       title: "商務決策工作台",
       desc: "在承諾一筆交易前，先把付款、交付責任、決策權與未知資訊放到同一張桌上，再整理成可追溯的交易結構、控制因素與下一步。",
