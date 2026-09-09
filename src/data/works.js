@@ -578,7 +578,7 @@ export const works = [
   },
   {
     id: "overseas-lead-discovery",
-    featuredRank: 2,
+    featuredRank: 1,
     section: "commercial",
     cover: "/images/cover-lead-discovery.png",
     imageAlt: { zh: "Overseas Lead Discovery 資格篩選 demo 畫面", en: "Overseas Lead Discovery qualification demo" },
