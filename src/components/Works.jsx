@@ -328,7 +328,15 @@ export default function Works() {
     note: t.works.sections.notes[id],
     works: [...works]
       .filter((w) => w.section === id && w.id !== featuredSystem.id)
-      .sort((a, b) => (a.featuredRank ?? Number.MAX_SAFE_INTEGER) - (b.featuredRank ?? Number.MAX_SAFE_INTEGER)),
+      .sort((a, b) => {
+        // MORI is the client-facing website showcase for this section. Keep it
+        // first without rewriting the evidence/order data owned in works.js.
+        if (id === "operations") {
+          if (a.id === "mori-soft-furnishing-website") return -1;
+          if (b.id === "mori-soft-furnishing-website") return 1;
+        }
+        return (a.featuredRank ?? Number.MAX_SAFE_INTEGER) - (b.featuredRank ?? Number.MAX_SAFE_INTEGER);
+      }),
   }));
 
   const renderCard = (w, i) => {
@@ -336,7 +344,7 @@ export default function Works() {
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
     const isPrimary = w.primary === true;
-    const spanClass = ["payment-concentration", "overseas-lead-discovery", "tracker", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
+    const spanClass = ["payment-concentration", "overseas-lead-discovery", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
     const Wrapper = w.link ? "a" : "div";
