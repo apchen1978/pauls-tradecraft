@@ -77,12 +77,12 @@ export const works = [
     linkLabel: { zh: "線上體驗", en: "Live Demo" },
     zh: {
       title: "貿易交易工作台",
-      desc: "把貿易判斷變成可重跑、可交接的工作流——接單前先過執行前安全檢查。",
+      desc: "把貿易判斷，收斂成可重跑、可交接的工作流——承諾之前，先走完一輪執行前檢查。",
       tag: "貿易決策 · AI",
     },
     en: {
       title: "AI Trade Deal Desk",
-      desc: "Turn trade judgment into a rerunnable, handoff-ready workflow — with a pre-execution safety check before you commit.",
+      desc: "Trade judgment, turned into a rerunnable, handoff-ready workflow — with a pre-commitment check before execution.",
       tag: "Trade decision · AI",
     },
     case: {
@@ -493,12 +493,12 @@ export const works = [
     linkLabel: { zh: "試試付款原型", en: "Try the Payment Prototype" },
     zh: {
       title: "付款集中度分析",
-      desc: "算清錢集中在哪幾天、哪個幣別——現金流不被一筆大單壓垮，逐幣別可對帳。",
+      desc: "把付款承諾的集中度，算清到每一天、每一個幣別——在現金壓力到來之前，先看得見。",
       tag: "付款承諾 · 工具原型",
     },
     en: {
       title: "Payment Concentration",
-      desc: "See which days and currencies carry the most payment commitment — keep cash flow from being crushed by one big order, auditable per currency.",
+      desc: "Make payment commitments visible down to the day and currency — so cash pressure is seen before it arrives.",
       tag: "Payment commitments · Tool prototype",
     },
     case: {
@@ -616,13 +616,13 @@ export const works = [
     },
     zh: {
       title: "AI 輔助海外客戶開發",
-      desc: "先有對的客戶，才有單可接——從公開線索篩出真正值得投入的海外買家。",
+      desc: "把公開網路訊號，收斂成一份值得業務投入的海外買家短名單。",
       tag: "客戶開發 · AI 資格篩選",
       caseSummary: "AI 不只是替業務找更多名單，而是把公開線索轉成可檢視、可質疑、可決定的潛在客戶短名單。",
     },
     en: {
       title: "AI-Assisted Overseas Lead Discovery",
-      desc: "More revenue starts with the right buyers — public-web discovery turned into an evidence-qualified prospect shortlist.",
+      desc: "Public-web signals, distilled into a shortlist of overseas buyers actually worth a sales team's time.",
       tag: "Lead discovery · AI qualification",
       caseSummary: "AI doesn't just find more leads. It turns public signals into a shortlist people can inspect, challenge, and act on.",
     },
@@ -668,13 +668,13 @@ export const works = [
     imageAlt: { zh: "Trade Profit Navigator 商業價值槓桿原型", en: "Trade Profit Navigator value-capture prototype" },
     zh: {
       title: "貿易利潤導航",
-      desc: "找到下一個真正能多賺的槓桿——把一筆貿易拆開算，不靠感覺報價。",
+      desc: "把一筆貿易拆成價值鏈與利潤槓桿——在下一個決策之前，先看見值得測試的數字。",
       tag: "價值捕捉 · Economics · Trade",
       caseSummary: "不是問誰賺走最多，而是問下一步在哪裡可以多捕捉價值，以及為此要承擔、證明或改變什麼。",
     },
     en: {
       title: "Trade Profit Navigator",
-      desc: "Find the next lever that actually adds profit — break a trade case into numbers instead of pricing by feel.",
+      desc: "Break a trade into its value chain and profit levers — see the number worth testing before the next decision.",
       tag: "Value capture · Economics · Trade",
       caseSummary: "Not who captures the most value, but where the next credible lever is and what must be risked, proven, or changed to capture it.",
     },
@@ -738,13 +738,13 @@ export const works = [
     },
     zh: {
       title: "商務決策工作台",
-      desc: "接單前先算清這筆會不會賠——把淨貢獻、卡點與未知放到同一張桌，避免承諾一筆賠錢的單。",
+      desc: "在承諾之前，把這筆交易的淨貢獻、卡點與未知放到同一張桌——讓承諾建立在算得清的事實上。",
       tag: "商業決策 · 決策支援",
       caseSummary: "不是替人拍板，而是讓承諾前真正需要確認的事實浮現：付款、交易責任、矛盾、UNKNOWN 與下一步。工作台只建議，人做最終決定。",
     },
     en: {
       title: "Commercial Decision Desk",
-      desc: "Know whether a deal actually makes money before you commit — net contribution, blockers, and unknowns on one table, so you don't sign a losing order.",
+      desc: "Before committing, put a deal's net contribution, blockers, and unknowns on one table — so commitment rests on what can actually be verified.",
       tag: "Commercial decision · Decision support",
       caseSummary: "It does not decide for people. It makes the facts that matter before commitment visible: payment, trade responsibility, contradictions, UNKNOWNs, and the next step. The desk recommends; the human decides.",
     },
