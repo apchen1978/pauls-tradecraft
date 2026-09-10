@@ -57,9 +57,18 @@ export default function Hero() {
           <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}
           </motion.p>
-          <motion.p variants={fadeUp} className="mt-4 max-w-[48ch] border-l border-gold/70 pl-4 text-sm font-medium leading-relaxed text-bone/90 md:text-base">
-            {t.hero.youGet}
-          </motion.p>
+          <motion.div variants={fadeUp} className="mt-6 max-w-[48ch] border-y border-bone/15 py-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gold">{t.hero.youGet}</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3 sm:divide-x sm:divide-bone/15">
+              {t.hero.outcomes.map((outcome, index) => (
+                <div key={outcome.title} className={index === 0 ? "sm:pr-3" : index === t.hero.outcomes.length - 1 ? "sm:pl-3" : "sm:px-3"}>
+                  <p className="text-[10px] font-bold tracking-[0.14em] text-bone/55">{String(index + 1).padStart(2, "0")}</p>
+                  <p className="mt-1 text-sm font-semibold text-bone">{outcome.title}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-bone/70">{outcome.body}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
               href="#contact"
