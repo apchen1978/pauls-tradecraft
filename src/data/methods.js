@@ -131,4 +131,60 @@ export const methods = [
       ],
     },
   },
+  {
+    id: "verified",
+    title: { zh: "「已驗證」不等於「商業採用」", en: "Verified does not mean adopted" },
+    summary: {
+      zh: "檢查會過，不代表有人願意付錢。把「交付證明」與「市場證明」分成兩條線。",
+      en: "Passing checks does not mean someone will pay. Keep artifact proof and market proof on two separate lines.",
+    },
+    body: {
+      zh: [
+        "「已驗證」三個字現在到處都是：工具說它已驗證、供應商說它已驗證、AI 產出也說它已驗證。第一個該問的問題不是「可信嗎」，而是「驗證了什麼」。",
+        "我把它拆成兩條線。第一條是交付證明：東西做得出來、規格對得上、可以重跑、能上線。這一條能被客觀檢查——建置會不會過、檢查數字是多少、公開網址打不打得開。",
+        "第二條是市場證明：有人真的用、願意付錢、願意再買一次。這一條沒有檔案可以交，只有行為能證明。",
+        "兩條線混在一起的代價很高。對內會過度樂觀：按「已驗證」去備料、擴編、投資；對外會過度承諾：把「我們做得到」講成「已經很多人買」。兩種錯誤都很貴，而且通常在簽字之後才發現。",
+        "我的做法很簡單，但很少人這樣做：每一項聲明都標明它屬於哪一條線。屬於交付證明的，附上可重跑的檢查；屬於市場證明的，如果還沒有，就寫 PENDING 或 UNKNOWN——不寫成「即將」、也不寫成「預期」。",
+        "對老闆的實際用處：當你知道哪些是交付證明、哪些還沒有市場證明，承諾的邊界就自己出現了——可以先承諾做得到什麼，不能承諾賣得掉什麼。決策不會因此變保守，而是變精確。",
+        "一句話：可以證明「做得出來」，不等於證明「賣得掉」；兩條線分開，你才知道下一步該補哪一種證據。",
+      ],
+      en: [
+        "\"Verified\" is everywhere now: tools say it, suppliers say it, AI output says it. The first question is not \"can I trust it\" but \"verified for what\".",
+        "I split it into two lines. The first is artifact proof: it can be built, it meets the spec, it can be rerun, it can go live. This line can be checked objectively — does the build pass, what do the checks report, does the public URL open.",
+        "The second is market proof: someone actually uses it, pays for it, and buys again. There is no document to hand over for this line — only behaviour proves it.",
+        "Mixing the two lines is expensive. Internally it creates over-optimism: pre-buying, hiring, and investing against the word \"verified\". Externally it creates over-promising: turning \"we can build it\" into \"many people already buy it\". Both mistakes are costly, and both usually surface after signature.",
+        "My practice is simple but rare: label which line every claim belongs to. Artifact proof ships with a rerunnable check; market proof that does not exist yet is written as PENDING or UNKNOWN — never as \"coming soon\", never as \"expected\".",
+        "The practical value for an owner: once you know which claims are artifact proof and which have no market proof yet, the boundary of commitment appears by itself — you can commit to what you can deliver, not to what will sell. Decision-making does not become more cautious; it becomes more precise.",
+        "In one line: proving you can build something is not proof that it sells. Separate the two lines and you know which evidence you need next.",
+      ],
+    },
+  },
+  {
+    id: "authority",
+    title: { zh: "誰有權拍板？把「決策權未知」當成正式狀態", en: "Who can actually sign? Treat decision authority as a first-class unknown" },
+    summary: {
+      zh: "對方很熱情，不代表他有授權。把「最終核准人」當成一個正式欄位，不猜、不假設。",
+      en: "Enthusiasm is not authorization. Make \"final approver\" a real field — never guessed, never assumed.",
+    },
+    body: {
+      zh: [
+        "最貴的誤會之一：談了三個月、條件都說「沒問題」、樣品也確認了——最後一刻才發現，對口的人沒有簽核權，而他上面的人從沒看過這筆單。",
+        "為什麼會這樣？因為我們習慣把「有回應的人」當成「能決定的人」。前者每天回訊息；後者往往根本不知道是誰。",
+        "所以我把它當成一個正式欄位：最終核准人。填不出來，就寫 UNKNOWN——不猜名字、也不假設層級。「應該是採購經理吧」這種假設，正是三個月後翻車的原因。",
+        "決策權要問到三個層次：誰簽名？超過什麼金額或條件要往上報？如果他不簽，誰會反對？第三個問題最常被跳過，但反對者往往才是真正的關卡。",
+        "這件事直接決定你能承諾什麼。決策權未知時，報價可以給、樣品可以送，但產能保留、備料保留、付款條件不放寬——承諾留在自己手上，等授權鏈清楚了再放。",
+        "好消息是它可推進：每次會議都能往前一格——誰參與、誰看過、誰有否決權。這比「感覺快成了」可靠得多。",
+        "一句話：客戶的熱情不是授權；在知道誰能拍板之前，先把承諾留在自己手上。",
+      ],
+      en: [
+        "One of the most expensive misunderstandings: three months of talks, every condition \"no problem\", samples approved — and at the last moment you learn that your contact cannot sign, and the person above them has never seen the deal.",
+        "Why does it happen? Because we treat \"the person who replies\" as \"the person who decides\". One answers messages daily; the other is often not even identifiable.",
+        "So I treat it as a real field: final approver. If it cannot be filled in, it is written as UNKNOWN — no guessed name, no assumed level. \"It is probably the procurement manager\" is exactly the assumption that collapses three months later.",
+        "Decision authority has three layers to ask about: who signs? Above what amount or term does it go higher? And if they do not sign, who objects? The third question is skipped most often, yet the objector is frequently the real gate.",
+        "This directly sets what you can promise. While decision authority is unknown, you can quote and send samples, but keep capacity reserved, keep materials unreserved, and do not loosen payment terms — hold the commitment on your side until the authorization chain is clear.",
+        "The good news is that it can be advanced: every meeting moves it one square — who is involved, who has read it, who holds a veto. That is far more reliable than \"it feels close\".",
+        "In one line: enthusiasm is not authorization. Until you know who can sign, keep the commitment on your side of the table.",
+      ],
+    },
+  },
 ];
