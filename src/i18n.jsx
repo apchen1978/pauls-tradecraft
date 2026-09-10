@@ -56,7 +56,7 @@ const dict = {
         operations: "延伸到營運與品牌",
         labs: "實驗與探索",
         notes: {
-          commercial: "把商業問題整理成可使用、可驗證、可交接的工作系統。",
+          commercial: "從找到對的客戶、算清會不會賠、找到多賺的槓桿，到守住現金——每一步，都對應一件可驗證、可交接的工作系統。",
           operations: "把同一種判斷與交付能力，延伸到品牌、跟進與日常營運。",
           labs: "保留技術廣度、好奇心與快速實作能力。",
         },
@@ -381,7 +381,7 @@ const dict = {
         operations: "Extensions for Operations & Brands",
         labs: "Experiments & Builds",
         notes: {
-          commercial: "Commercial problems turned into usable, verifiable, handoff-ready systems.",
+          commercial: "From finding the right customers, to knowing whether a deal makes money, to finding the next profit lever, to protecting cash — each step maps to one verifiable, handoff-ready system.",
           operations: "The same judgment and delivery capability, extended to brands, follow-up, and daily operations.",
           labs: "Evidence of technical range, curiosity, and execution speed.",
         },

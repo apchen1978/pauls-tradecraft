@@ -10,8 +10,8 @@
 export const works = [
   {
     id: "mori-soft-furnishing-website",
-    section: "commercial",
-    featuredRank: 5,
+    section: "operations",
+    featuredRank: 4,
     cover: "/images/cover-mori-soft-furnishing.webp",
     imageAlt: { zh: "MORI 軟裝品牌網站首頁", en: "MORI soft-furnishing brand website homepage" },
     span: "col-span-1",
@@ -58,7 +58,7 @@ export const works = [
   },
   {
     id: "trade-deal-desk",
-    featuredRank: 3,
+    featuredRank: 4,
     section: "commercial",
     related: {
       id: "payment-concentration",
@@ -77,12 +77,12 @@ export const works = [
     linkLabel: { zh: "線上體驗", en: "Live Demo" },
     zh: {
       title: "貿易交易工作台",
-      desc: "把國際貿易 RFQ 判斷轉成 evidence-backed、human-in-the-loop 的商業決策工作流，並延伸到可追溯的執行前安全檢查。",
+      desc: "把貿易判斷變成可重跑、可交接的工作流——接單前先過執行前安全檢查。",
       tag: "貿易決策 · AI",
     },
     en: {
       title: "AI Trade Deal Desk",
-      desc: "Turning trade RFQ judgment into an evidence-backed, human-in-the-loop commercial decision workflow, extended with traceable pre-execution safety checks.",
+      desc: "Turn trade judgment into a rerunnable, handoff-ready workflow — with a pre-execution safety check before you commit.",
       tag: "Trade decision · AI",
     },
     case: {
@@ -474,7 +474,7 @@ export const works = [
   },
   {
     id: "payment-concentration",
-    featuredRank: 4,
+    featuredRank: 3,
     section: "commercial",
     related: {
       id: "trade-deal-desk",
@@ -493,12 +493,12 @@ export const works = [
     linkLabel: { zh: "試試付款原型", en: "Try the Payment Prototype" },
     zh: {
       title: "付款集中度分析",
-      desc: "把「這個月哪 7 天的付款承諾最集中」變成可編輯、可對帳的確定性計算，逐幣別分開算，不用猜。",
+      desc: "算清錢集中在哪幾天、哪個幣別——現金流不被一筆大單壓垮，逐幣別可對帳。",
       tag: "付款承諾 · 工具原型",
     },
     en: {
       title: "Payment Concentration",
-      desc: "Turning “which 7 days this month carry the most payment commitment” into an editable, auditable, deterministic calculation — computed per currency, not guessed.",
+      desc: "See which days and currencies carry the most payment commitment — keep cash flow from being crushed by one big order, auditable per currency.",
       tag: "Payment commitments · Tool prototype",
     },
     case: {
@@ -616,13 +616,13 @@ export const works = [
     },
     zh: {
       title: "AI 輔助海外客戶開發",
-      desc: "從公開網路名單，篩出真正值得業務投入時間的潛在客戶。",
+      desc: "先有對的客戶，才有單可接——從公開線索篩出真正值得投入的海外買家。",
       tag: "客戶開發 · AI 資格篩選",
       caseSummary: "AI 不只是替業務找更多名單，而是把公開線索轉成可檢視、可質疑、可決定的潛在客戶短名單。",
     },
     en: {
       title: "AI-Assisted Overseas Lead Discovery",
-      desc: "From public-web discovery to evidence-qualified prospects.",
+      desc: "More revenue starts with the right buyers — public-web discovery turned into an evidence-qualified prospect shortlist.",
       tag: "Lead discovery · AI qualification",
       caseSummary: "AI doesn't just find more leads. It turns public signals into a shortlist people can inspect, challenge, and act on.",
     },
@@ -654,7 +654,7 @@ export const works = [
   {
     id: "trade-profit-navigator",
     section: "commercial",
-    featuredRank: 5,
+    featuredRank: 2,
     cover: "/images/cover-trade-profit-navigator.png",
     icon: "receipt",
     verified: true,
@@ -668,13 +668,13 @@ export const works = [
     imageAlt: { zh: "Trade Profit Navigator 商業價值槓桿原型", en: "Trade Profit Navigator value-capture prototype" },
     zh: {
       title: "貿易利潤導航",
-      desc: "把一筆貿易拆成價值鏈、成本、現金暴露、風險與證據，找出下一個值得測試的利潤槓桿。",
+      desc: "找到下一個真正能多賺的槓桿——把一筆貿易拆開算，不靠感覺報價。",
       tag: "價值捕捉 · Economics · Trade",
       caseSummary: "不是問誰賺走最多，而是問下一步在哪裡可以多捕捉價值，以及為此要承擔、證明或改變什麼。",
     },
     en: {
       title: "Trade Profit Navigator",
-      desc: "Break a trade case into value chain, economics, cash exposure, risk, and evidence to find the next profit lever worth testing.",
+      desc: "Find the next lever that actually adds profit — break a trade case into numbers instead of pricing by feel.",
       tag: "Value capture · Economics · Trade",
       caseSummary: "Not who captures the most value, but where the next credible lever is and what must be risked, proven, or changed to capture it.",
     },
@@ -738,13 +738,13 @@ export const works = [
     },
     zh: {
       title: "商務決策工作台",
-      desc: "在承諾一筆交易前，先把付款、交付責任、決策權與未知資訊放到同一張桌上，再整理成可追溯的交易結構、控制因素與下一步。",
+      desc: "接單前先算清這筆會不會賠——把淨貢獻、卡點與未知放到同一張桌，避免承諾一筆賠錢的單。",
       tag: "商業決策 · 決策支援",
       caseSummary: "不是替人拍板，而是讓承諾前真正需要確認的事實浮現：付款、交易責任、矛盾、UNKNOWN 與下一步。工作台只建議，人做最終決定。",
     },
     en: {
       title: "Commercial Decision Desk",
-      desc: "Before committing to a deal, put payment, delivery responsibility, decision authority, and unknowns on the same table, then turn them into a traceable deal structure, control factors, and next actions.",
+      desc: "Know whether a deal actually makes money before you commit — net contribution, blockers, and unknowns on one table, so you don't sign a losing order.",
       tag: "Commercial decision · Decision support",
       caseSummary: "It does not decide for people. It makes the facts that matter before commitment visible: payment, trade responsibility, contradictions, UNKNOWNs, and the next step. The desk recommends; the human decides.",
     },
