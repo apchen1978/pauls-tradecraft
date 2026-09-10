@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { methods } from "../data/methods.js";
 
@@ -15,8 +16,18 @@ export default function Methods() {
         <h2 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">{t.methods.headline}</h2>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/70">{t.methods.intro}</p>
 
-        <div className="mt-10 grid gap-4">
-          {methods.map((m, i) => {
+        <details className="group mt-10">
+          <summary className="flex w-full cursor-pointer list-none items-center justify-between gap-4 rounded-card border border-line surface-paper px-5 py-4 text-sm font-bold text-forest transition-colors hover:border-forest/35 md:px-6 [&::-webkit-details-marker]:hidden">
+            <span className="flex items-baseline gap-3">
+              <span className="group-open:hidden">{t.methods.expandLabel}</span>
+              <span className="hidden group-open:inline">{t.methods.collapseLabel}</span>
+              <span className="font-mono text-xs tabular-nums text-amber">{String(methods.length).padStart(2, "0")}</span>
+            </span>
+            <CaretDown size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform group-open:rotate-180" />
+          </summary>
+
+          <div className="mt-4 grid gap-4">
+            {methods.map((m, i) => {
             const open = openId === m.id;
             return (
               <div key={m.id} className="surface-paper overflow-hidden rounded-card border border-line">
@@ -46,7 +57,8 @@ export default function Methods() {
               </div>
             );
           })}
-        </div>
+          </div>
+        </details>
       </div>
     </section>
   );

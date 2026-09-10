@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
 export default function HowIWork() {
@@ -11,7 +12,14 @@ export default function HowIWork() {
         <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-ink/65">{t.how.sub}</p>
       </div>
 
-      <ol className="mt-12 grid grid-cols-1 gap-y-8 md:grid-cols-5 md:gap-x-6">
+      <details className="group mt-10">
+        <summary className="flex w-full cursor-pointer list-none items-center justify-between gap-4 rounded-card border border-line surface-paper px-5 py-4 text-sm font-bold text-forest transition-colors hover:border-forest/35 md:px-6 [&::-webkit-details-marker]:hidden">
+          <span className="group-open:hidden">{t.how.stepsExpand}</span>
+          <span className="hidden group-open:inline">{t.how.stepsCollapse}</span>
+          <CaretDown size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform group-open:rotate-180" />
+        </summary>
+
+      <ol className="mt-9 grid grid-cols-1 gap-y-8 md:grid-cols-5 md:gap-x-6">
         {t.how.steps.map((s, i) => (
           <motion.li
             key={s.title}
@@ -40,6 +48,7 @@ export default function HowIWork() {
       >
         {t.how.note}
       </motion.p>
+      </details>
     </section>
   );
 }

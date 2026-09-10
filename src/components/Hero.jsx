@@ -57,6 +57,12 @@ export default function Hero() {
           <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}
           </motion.p>
+          <motion.p
+            variants={fadeUp}
+            className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-bone/60"
+          >
+            {t.hero.credentials}
+          </motion.p>
           <motion.div variants={fadeUp} className="mt-6 max-w-[48ch] border-y border-bone/15 py-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gold">{t.hero.youGet}</p>
             <div className="mt-3 grid gap-3 sm:grid-cols-3 sm:divide-x sm:divide-bone/15">

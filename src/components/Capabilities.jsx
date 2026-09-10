@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { FlowArrow, Rocket, GlobeHemisphereWest, Network, ArrowUpRight } from "@phosphor-icons/react";
+import { FlowArrow, Rocket, GlobeHemisphereWest, Network, ArrowUpRight, CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
 const icons = [FlowArrow, Rocket, GlobeHemisphereWest, Network];
@@ -61,6 +61,13 @@ export default function Capabilities() {
           </a>
           <p className="mt-4 max-w-3xl text-xs leading-relaxed text-bone/60">{engagement.boundary}</p>
         </div>
+
+        <details className="group mt-16">
+          <summary className="flex w-full cursor-pointer list-none items-center justify-between gap-4 rounded-card border border-line surface-paper px-5 py-4 text-sm font-bold text-forest transition-colors hover:border-forest/35 md:px-6 [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">{t.capabilities.detailExpand}</span>
+            <span className="hidden group-open:inline">{t.capabilities.detailCollapse}</span>
+            <CaretDown size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform group-open:rotate-180" />
+          </summary>
 
         <div className="mt-16 border-t border-line pt-8 md:mt-20 md:pt-10">
           <div className="max-w-3xl">
@@ -150,6 +157,7 @@ export default function Capabilities() {
             );
           })}
         </div>
+        </details>
       </div>
     </section>
   );

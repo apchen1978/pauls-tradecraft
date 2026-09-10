@@ -6,6 +6,7 @@ const dict = {
     brandNote: "作品集總覽",
     nav: { works: "作品", services: "商業合作", verification: "驗證", method: "方法", process: "流程", about: "關於我", contact: "討論商業 Pilot", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
+      credentials: "政大會計系 · 15 年國際貿易總監 · TOEIC 955",
       headlineA: "把商業問題，整理成",
       headlineB: "團隊一眼看懂的",
       headlineDesktopA: "把商業問題，整理成",
@@ -151,12 +152,16 @@ const dict = {
       intro: "這些文章不是我「相信」的——是工具裡寫下的紀律，從商業流程與工具設計整理出來。每篇都可以追溯到可運作的工作方式。",
       read: "讀全文",
       collapse: "收合",
+      expandLabel: "展開方法文章",
+      collapseLabel: "收合方法文章",
       disclosure: "方法論分享；不涉及法律意見，亦不宣稱任何客戶成效。",
     },
     capabilities: {
       eyebrow: "COMMERCIAL ENGAGEMENTS",
       headline: "從一個重要決策開始",
       tagline: "先把商業問題、證據與下一步整理清楚，再決定需要什麼工具與自動化。",
+      detailExpand: "展開交付流程、需求驗證與支援能力",
+      detailCollapse: "收合詳細內容",
       engagement: {
         eyebrow: "START WITH A COMMERCIAL QUESTION",
         title: "先把一個不能憑直覺承諾的問題看清楚。",
@@ -281,6 +286,8 @@ const dict = {
       eyebrow: "How I Work",
       headline: "人類主導，AI 加速",
       sub: "這不是黑箱自動化。每一步都由人做決定，AI 負責把工作變快、變可驗證、變可追溯。",
+      stepsExpand: "展開五個步驟與驗證方式",
+      stepsCollapse: "收合步驟",
       steps: [
         {
           title: "人類決策",
@@ -331,6 +338,7 @@ const dict = {
     brandNote: "Portfolio",
     nav: { works: "Work", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", about: "About", contact: "Discuss a Commercial Pilot", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
+      credentials: "NCCU Accounting · 15 years international trade director · TOEIC 955",
       headlineA: "Turn commercial problems",
       headlineB: "into a clear next step ",
       headlineDesktopA: "Turn commercial problems",
@@ -476,12 +484,16 @@ const dict = {
       intro: "These articles are not what I \"believe\" — they are disciplines written into working tools, shaped from commercial workflows and tool design. Each one traces back to a functioning way of working.",
       read: "Read full article",
       collapse: "Collapse",
+      expandLabel: "Show method articles",
+      collapseLabel: "Hide method articles",
       disclosure: "Methodology sharing; not legal advice, and no client outcomes are claimed.",
     },
     capabilities: {
       eyebrow: "COMMERCIAL ENGAGEMENTS",
       headline: "Start with one decision that matters",
       tagline: "Clarify the commercial problem, evidence, and next move before deciding what to automate or build.",
+      detailExpand: "Show delivery flow, demand validation, and supporting capabilities",
+      detailCollapse: "Hide detail",
       engagement: {
         eyebrow: "START WITH A COMMERCIAL QUESTION",
         title: "Make one question you cannot commit on by instinct clear first.",
@@ -605,6 +617,8 @@ const dict = {
       eyebrow: "How I Work",
       headline: "Human-led, AI-accelerated",
       sub: "This is not black-box automation. Humans make every decision; AI makes the work faster, verifiable, and traceable.",
+      stepsExpand: "Show the five steps and how each is verified",
+      stepsCollapse: "Hide steps",
       steps: [
         {
           title: "Human decides",
@@ -656,12 +670,12 @@ const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 
 // 語言切換時同步 <html lang> 與 <title>（SEO / a11y）
 const titles = {
-  zh: "Paul's Tradecraft · 作品集總覽",
-  en: "Paul's Tradecraft · Portfolio",
+  zh: "Paul's Tradecraft ｜ 國際貿易與商務決策工作台 · 作品集",
+  en: "Paul's Tradecraft ｜ International Trade & Commercial Decision Desk · Portfolio",
 };
 const ogDescriptions = {
-  zh: "國際貿易總監的作品集：用 AI 協作把貿易實務工具化。窗簾 Pilot 追蹤器、簡報管線、遊戲化學習。",
-  en: "A trade director's portfolio: turning trade practice into practical tools with AI collaboration.",
+  zh: "國際貿易總監 Paul Chen：為台灣 SME 與貿易團隊建立證據驅動的商務決策系統——從海外客戶開發、交易評估、利潤槓桿到付款承諾控制，把商業判斷整理成可驗證、可交接的工作流程。",
+  en: "International trade director Paul Chen builds evidence-driven commercial decision systems for Taiwan SMEs and trade teams — from overseas lead discovery and deal assessment to profit levers and payment commitment control.",
 };
 
 export function LangProvider({ children }) {
