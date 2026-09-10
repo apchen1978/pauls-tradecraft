@@ -19,6 +19,8 @@ export const works = [
     verified: true,
     link: "https://apchen1978.github.io/mori-soft-furnishing-demo/",
     linkLabel: { zh: "觀看品牌網站", en: "View brand site" },
+    secondaryLink: "https://apchen1978.github.io/mori-soft-furnishing-demo/brief/",
+    secondaryLinkLabel: { zh: "體驗互動空間 Brief", en: "Try the interactive space brief" },
     hidePendingLink: false,
     zh: {
       title: "MORI 軟裝品牌網站與工作流程",

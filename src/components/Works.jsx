@@ -342,6 +342,7 @@ export default function Works() {
   const renderCard = (w, i) => {
     const copy = lang === "zh" ? w.zh : w.en;
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
+    const secondaryLabel = typeof w.secondaryLinkLabel === "string" ? w.secondaryLinkLabel : w.secondaryLinkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
     const isPrimary = w.primary === true;
     const spanClass = ["payment-concentration", "overseas-lead-discovery", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
@@ -445,6 +446,12 @@ export default function Works() {
             )}
           </div>
         </Wrapper>
+   {w.secondaryLink && secondaryLabel && (
+     <a href={w.secondaryLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-2 border-t border-line px-6 py-3 text-xs font-semibold text-forest transition-colors hover:text-amber">
+       {secondaryLabel}
+       <ArrowUpRight size={13} weight="bold" />
+     </a>
+   )}
    {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} />}
       </motion.article>
     );
