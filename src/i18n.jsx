@@ -73,13 +73,14 @@ const dict = {
           output: "Current Position、控制因素、Next Best Action 與可帶進會議的 Deal Brief。",
           cta: "看 48 萬美元案例",
           href: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
+          handoff: "同一個 Gulf Coast Hospitality 合成規劃基準，會在下一步重新檢視：USD 480,000 規劃訂單、USD 120,000 已知規劃貢獻；付款條件與釋放量仍待確認。",
         },
         {
           eyebrow: "03 · TEST",
           title: "最後測試，賺得到也扛得住嗎",
           question: "表面毛利之外，MOQ、成本變動與付款承諾會不會把現金壓力帶進來？",
           output: "可測試的利潤槓桿、現金暴露，以及承諾前仍要確認的條件。",
-          cta: "試試利潤導航",
+          cta: "測試同一案例的利潤",
           href: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001",
           secondary: {
             cta: "另看付款承諾壓力",
@@ -446,13 +447,14 @@ const dict = {
           output: "Current Position, control factors, Next Best Action, and a Deal Brief for the meeting.",
           cta: "See the USD 480k case",
           href: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
+          handoff: "The same synthetic Gulf Coast Hospitality planning basis is tested next: a USD 480,000 planning order and USD 120,000 known planning contribution, while payment terms and released volume remain unresolved.",
         },
         {
           eyebrow: "03 · TEST",
           title: "Test whether profit can carry the commitment",
           question: "Beyond apparent margin, could MOQ, cost movement, and payment commitments create cash pressure?",
           output: "Testable profit levers, cash exposure, and the conditions that still need confirmation before commitment.",
-          cta: "Try Profit Navigator",
+          cta: "Test profit on the same case",
           href: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001",
           secondary: {
             cta: "Also inspect payment pressure",

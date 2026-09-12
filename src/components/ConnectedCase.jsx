@@ -49,6 +49,12 @@ export default function ConnectedCase() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-bone/45">{content.outputLabel}</p>
                   <p className="mt-2 text-sm leading-relaxed text-bone/82">{step.output}</p>
                 </div>
+                {step.handoff && (
+                  <div className="mt-5 border-l-2 border-gold/70 bg-gold/[0.06] py-3 pl-3 pr-2">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gold">CDD → PROFIT TEST</p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-bone/78">{step.handoff}</p>
+                  </div>
+                )}
                 <a
                   href={step.href}
                   target="_blank"
