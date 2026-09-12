@@ -661,7 +661,7 @@ export const works = [
     icon: "receipt",
     verified: true,
     hidePendingLink: false,
-    link: "https://apchen1978.github.io/trade-profit-navigator-demo/",
+    link: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001",
     linkLabel: { zh: "試試利潤導航", en: "Try Profit Navigator" },
     demoNote: {
       zh: "公開 Demo 為獨立 synthetic prototype：情境為合成 USD 案例，不含真實客戶資料。",

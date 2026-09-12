@@ -5,7 +5,7 @@ import Hero from "./components/Hero.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
 import Verification from "./components/Verification.jsx";
 import CommercialOutcomes from "./components/CommercialOutcomes.jsx";
-import StartHere from "./components/StartHere.jsx";
+import ConnectedCase from "./components/ConnectedCase.jsx";
 import DealReadiness from "./components/DealReadiness.jsx";
 import Methods from "./components/Methods.jsx";
 import Capabilities from "./components/Capabilities.jsx";
@@ -34,7 +34,7 @@ export default function App() {
             {/* ② 旗艦提前：Hero 之後直接是 CDD 旗艦成果；流程與合作說明往後放（Astra） */}
             <Hero />
             <WorksFlagship />
-            <StartHere />
+            <ConnectedCase />
             <DealReadiness />
             <CommercialOutcomes />
             <Works />
