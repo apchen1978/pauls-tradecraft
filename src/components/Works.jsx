@@ -44,6 +44,128 @@ function ProductFlow({ work, tone = "light" }) {
   );
 }
 
+function MarketEntrySignal({ data }) {
+  const { lang } = useLang();
+  const copy = data?.[lang];
+  if (!copy) return null;
+
+  return (
+    <section className="mt-5 border-y border-forest/15 py-5" aria-label={copy.signalLabel}>
+      <p className="text-base font-semibold leading-relaxed tracking-tight text-forest md:text-lg">
+        {copy.hero}
+      </p>
+      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-amber">{copy.context}</p>
+
+      <div className="mt-5 grid gap-y-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-center sm:gap-x-3">
+        {copy.signature.map((item, index) => (
+          <div key={item.label} className="contents">
+            <div className="border-l-2 border-amber/65 pl-3 sm:border-l-0 sm:border-t-2 sm:pt-3 sm:pl-0">
+              <p className="text-3xl font-bold tracking-tight text-forest">{item.value}</p>
+              <p className="mt-1 text-xs font-semibold leading-snug text-ink/70">{item.label}</p>
+            </div>
+            {index < copy.signature.length - 1 && (
+              <>
+                <span aria-hidden="true" className="my-0.5 text-lg font-semibold text-amber sm:hidden">↓</span>
+                <span aria-hidden="true" className="hidden text-center text-lg font-semibold text-amber sm:block">→</span>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-5 inline-flex border-l-2 border-forest pl-3 text-xs font-semibold uppercase tracking-[0.12em] text-forest">
+        {copy.correction}
+      </p>
+    </section>
+  );
+}
+
+function MarketEntryDetails({ data, tone = "light" }) {
+  const { lang } = useLang();
+  const copy = data?.[lang];
+  if (!copy) return null;
+  const dark = tone === "dark";
+  const border = dark ? "border-bone/15" : "border-line";
+  const heading = dark ? "text-bone/90" : "text-ink/80";
+  const body = dark ? "text-bone/70" : "text-ink/65";
+
+  return (
+    <>
+      <div>
+        <dt className={`font-semibold ${heading}`}>{copy.questionTitle}</dt>
+        <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.question}</dd>
+      </div>
+      <div className={`border-t pt-3 ${border}`}>
+        <dt className={`font-semibold ${heading}`}>{copy.failureTitle}</dt>
+        <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.failure}</dd>
+      </div>
+      <div>
+        <dt className={`font-semibold ${heading}`}>{copy.methodTitle}</dt>
+        <dd className="mt-2">
+          <ol className={`grid gap-1.5 text-sm sm:grid-cols-5 ${body}`}>
+            {copy.method.map((item, index) => (
+              <li key={item} className="flex gap-2 leading-relaxed sm:block">
+                <span className="font-semibold text-amber">{String(index + 1).padStart(2, "0")}</span>
+                <span className="sm:mt-1 sm:block">{item}</span>
+              </li>
+            ))}
+          </ol>
+        </dd>
+      </div>
+      <div>
+        <dt className={`font-semibold ${heading}`}>{copy.structureTitle}</dt>
+        <dd className={`mt-1 leading-relaxed ${body}`}>{copy.structure}</dd>
+      </div>
+      <div className={`border-t pt-3 ${border}`}>
+        <dt className={`font-semibold ${heading}`}>{copy.opportunityTitle}</dt>
+        <dd className="mt-2">
+          <dl className={`grid gap-2 rounded-field border px-4 py-3 ${border} ${dark ? "bg-bone/[0.04]" : "bg-paper/60"}`}>
+            {copy.opportunity.map(([label, value]) => (
+              <div key={label} className="grid gap-0.5 sm:grid-cols-[8rem_1fr] sm:gap-3">
+                <dt className={`text-xs font-semibold ${dark ? "text-gold" : "text-amber"}`}>{label}</dt>
+                <dd className={`leading-relaxed ${body}`}>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </dd>
+      </div>
+      <div className={`border-t pt-3 ${border}`}>
+        <dt className={`font-semibold ${heading}`}>{copy.handoffTitle}</dt>
+        <dd className="mt-2">
+          <ol className={`grid gap-1.5 text-sm sm:grid-cols-4 ${body}`}>
+            {copy.handoff.map((item, index) => (
+              <li key={item} className="flex gap-2 leading-relaxed sm:block">
+                <span className="font-semibold text-amber">{String(index + 1).padStart(2, "0")}</span>
+                <span className="sm:mt-1 sm:block">{item}</span>
+              </li>
+            ))}
+          </ol>
+          <p className={`mt-2 border-l-2 border-amber/70 pl-3 text-xs leading-relaxed ${body}`}>{copy.handoffBoundary}</p>
+        </dd>
+      </div>
+      <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
+        <dt className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
+        <dd className={`mt-1 leading-relaxed ${body}`}>{copy.boundary}</dd>
+        <ul className={`mt-2 grid gap-1 text-xs sm:grid-cols-2 ${body}`}>
+          {copy.notTested.map((item) => <li key={item}>— {item}</li>)}
+        </ul>
+      </div>
+      <div>
+        <dt className={`font-semibold ${heading}`}>{copy.closingTitle}</dt>
+        <dd className={`mt-0.5 font-medium leading-relaxed ${body}`}>{copy.closing}</dd>
+      </div>
+      <div className={`border-t pt-4 ${border}`}>
+        <dt className={`font-semibold ${heading}`}>{copy.ctaTitle}</dt>
+        <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.ctaBody}</dd>
+        <a href="#contact" className={`mt-3 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors ${dark ? "text-gold hover:text-bone" : "text-forest hover:text-amber"}`}>
+          <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+          {copy.ctaLabel}
+        </a>
+      </div>
+    </>
+  );
+}
+
 function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
@@ -97,14 +219,16 @@ function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
             </figure>
           </div>
         )}
-        <div>
-          <dt className={`font-semibold ${styles.heading}`}>{labels.problem}</dt>
-          <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.problem)}</dd>
-        </div>
-         <div>
-           <dt className={`font-semibold ${styles.heading}`}>{labels.approach}</dt>
-           <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.approach)}</dd>
-         </div>
+        {c.marketEntry ? <MarketEntryDetails data={c.marketEntry} tone={tone} /> : <>
+          <div>
+            <dt className={`font-semibold ${styles.heading}`}>{labels.problem}</dt>
+            <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.problem)}</dd>
+          </div>
+          <div>
+            <dt className={`font-semibold ${styles.heading}`}>{labels.approach}</dt>
+            <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.approach)}</dd>
+          </div>
+        </>}
          {c.highlights && (
            <div>
              <dt className={`font-semibold ${styles.heading}`}>{labels.capabilities ?? "Capabilities"}</dt>
@@ -115,20 +239,20 @@ function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
              </dd>
            </div>
          )}
-         {!c.compact && (
+         {!c.compact && !c.marketEntry && (
            <div>
               <dt className={`font-semibold ${styles.heading}`}>{labels.tools}</dt>
               <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.tools)}</dd>
            </div>
          )}
-         {!c.compact && <div>
+         {!c.compact && !c.marketEntry && <div>
             <dt className={`font-semibold ${styles.heading}`}>{labels.result}</dt>
             <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.result)}</dd>
          </div>}
-        <div>
+        {!c.marketEntry && <div>
           <dt className={`font-semibold ${styles.heading}`}>{labels.evidence}</dt>
           <dd className={`mt-0.5 break-words leading-relaxed ${styles.body}`}>{f(c.evidence)}</dd>
-        </div>
+        </div>}
         {related && (
           <div className={`border-t pt-3 ${styles.border}`}>
             <a
@@ -345,7 +469,7 @@ export default function Works() {
     const secondaryLabel = typeof w.secondaryLinkLabel === "string" ? w.secondaryLinkLabel : w.secondaryLinkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
     const isPrimary = w.primary === true;
-    const spanClass = ["payment-concentration", "overseas-lead-discovery", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
+    const spanClass = ["payment-concentration", "overseas-lead-discovery", "ai-native-market-entry", "business-spending-insight", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
     const Wrapper = w.link ? "a" : "div";
@@ -386,7 +510,7 @@ export default function Works() {
                 className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02]`}
               />
             </div>
-          ) : (
+          ) : !w.marketEntry && (
             <div className="flex aspect-[16/9] items-center justify-center bg-paper">
               {Icon && <Icon size={44} weight="light" className="text-moss" />}
             </div>
@@ -418,6 +542,7 @@ export default function Works() {
               )}
             </h3>
             <p className="mt-2 text-[15px] leading-relaxed text-ink/65 md:text-base">{copy.desc}</p>
+            {w.marketEntry && <MarketEntrySignal data={w.marketEntry} />}
             {copy.caseSummary && (
               <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink/75">
                 <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}</span>
