@@ -2,6 +2,7 @@ import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
+import AiWorkValue from "./components/AiWorkValue.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
 import Verification from "./components/Verification.jsx";
 import CommercialOutcomes from "./components/CommercialOutcomes.jsx";
@@ -31,8 +32,9 @@ export default function App() {
         <div className="min-h-[100dvh]">
           <Nav />
           <main id="main">
-            {/* ② 旗艦提前：Hero 之後直接是 CDD 旗艦成果；流程與合作說明往後放（Astra） */}
+            {/* ② 先翻譯 AI 的實際角色，再以 CDD 旗艦成果落地。 */}
             <Hero />
+            <AiWorkValue />
             <WorksFlagship />
             <ConnectedCase />
             <DealReadiness />
