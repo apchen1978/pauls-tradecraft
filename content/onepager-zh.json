@@ -2,10 +2,10 @@
   "brand": "Paul's Tradecraft",
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
-  "kicker": "AI COLLABORATION ONE-PAGER",
-  "title": "把商業問題，轉化成 AI 可以參與、人工可以掌控的流程與產品",
-  "positioning": "AI-native 商業流程設計 × 決策工具 × Agent Orchestration",
-  "subtitle": "15 年國際貿易總監 × AI 協作 | TOEIC 955 | Human-led, AI-accelerated",
+  "kicker": "GLOBAL BUSINESS DEVELOPMENT · OWNER SPECIAL PROJECTS",
+  "title": "把值得投入的海外商機，與模糊但重要的 Owner 問題，推進成可行的下一步。",
+  "positioning": "海外商業開發 · Owner 特案推進 · 商業經濟判斷",
+  "subtitle": "15 年國際貿易領導經驗｜NCCU 會計背景｜AI 用來擴大研究、結構與執行的速度與範圍",
   "stats": [
     {
       "value": "955",
@@ -20,14 +20,15 @@
       "label": "Pilot 流程驗證項目通過"
     }
   ],
-  "servicesTitle": "SERVICES · 我能幫你解決什麼",
+  "servicesTitle": "THREE HUMAN CAPABILITIES · 我真正能一起推進什麼",
   "services": [
-    "AI Workflow Design — 把重複流程改造成 Human + AI 協作",
-    "軟裝品牌網站與銷售工具 — 對齊行銷、諮詢、報價與跟進的網站及輔助工具",
-    "Trade & Business Systems — 把貿易實務變成 AI 可執行的系統",
-    "AI Agent Orchestration — 設計多 AI 之間的分工與審計"
+    "海外商業開發 — 先從供應商真正能交付什麼開始，再判斷哪種市場、買方／通路與產品切入，值得投入商業資源。",
+    "Owner 特案推進 — 把跨部門、資訊不全、暫時沒有明確負責人的重要問題，研究、結構化、挑戰並推向可行的下一步。",
+    "商業經濟／會計視角 — 從利潤、現金、支出、證據與時間點，看見 Owner 在做重大決定前真正該問的問題；稅務與法律結論仍由專業人士確認。"
   ],
-  "worksTitle": "SELECTED WORKS · 精選作品",
+  "leverageTitle": "AI-NATIVE EXECUTION · AI 是槓桿，不是身份",
+  "leverage": "用 AI 擴大研究廣度、比較速度、證據整理、矛盾檢查與原型能力；人類仍決定目標、邊界與後果。",
+  "worksTitle": "SELECTED PROOF · 幾項可檢視的證據",
   "reviewedWorkIds": [
     "trade-deal-desk",
     "mori-soft-furnishing-website",
@@ -45,23 +46,16 @@
     "trade-profit-navigator",
     "commercial-decision-desk",
     "ai-native-market-entry",
-    "business-spending-insight"
+    "business-spending-insight",
+    "global-business-development"
   ],
   "works": [
-    "Commercial Decision Desk · 證據優先的商業決策協作：商機→可行性→付款暴露→人類決策（合成 proof，含 Executive Deal Snapshot）",
-    "AI Trade Deal Desk · 旗艦案例：貿易決策工作台，AI 建議＋人類審批，公開線上體驗",
-    "Trade Profit Navigator · 公開互動工具：把貿易拆成利潤槓桿、現金暴露與 UNKNOWN，比較下一步該測試什麼（synthetic USD case，9/9+6/6 驗證）",
-    "窗簾軟裝 Pilot 追蹤器 · 商機到跟進的單一追蹤器，23/23 驗證",
-    "MORI 軟裝品牌網站與工作流程 · 私有交付案例：支援行銷與銷售推進的品牌網站及可重複流程"
+    "Global Business Development · 合成互動示範：同一組候選因 Owner 目標不同而改變優先路徑；UNKNOWN 導向 VERIFY FIRST 或 HOLD（真人／市場驗證待完成）。",
+    "AI-Native Market Entry · 真實公開市場證據結合合成供應商案例：六家相關帳戶重新分類後，沒有任何一家被足夠證據支持為可能買家。市場相關性不等於取得路徑。",
+    "Commercial Decision Desk · 讓商機、付款暴露、矛盾與 UNKNOWN 收斂成可稽核的人類決策；合成 proof，未宣稱 adoption、ROI 或客戶成果。",
+    "企業支出決策啟發 · 用一般商業語言，協助 SME 老闆在找 CPA 前先理解現金、費用、證據與值得確認的問題；合成案例、真人驗證待完成。"
   ],
-  "worksSecondaryLabel": "實驗與其他",
-  "worksSecondary": [
-    "銷售 Pilot 案例簡報 · 公開 live demo",
-    "Lil Matt's Gaming World · Jumpverse 平台冒險＋WordForge 英語學習（雙獨立遊戲，公開上線）",
-    "AI Lyrics Generator · 公開 Web Demo（DeepSeek 真實生成），並提供桌面 App",
-    "MG Desktop Pet · 桌面寵物創作實驗（16 種姿態，輕量個人專案）"
-  ],
-  "processTitle": "HOW I WORK · 人類主導，AI 加速",
-  "process": "人類定界 → AI 分工 → 交叉驗證 → 人類審核 → 部署 → 獨立複查",
-  "footer": "一起做點有趣的東西 · PAUL'S TRADECRAFT | AI COLLABORATION | paulstradecraft.com · paulchen1978@gmail.com"
+  "processTitle": "A REASON TO TALK · 如果你正卡在一個重要問題",
+  "process": "有產品與供應能力，但不知道海外商業資源先往哪裡投？有一件重要、跨部門又說不清楚的 Owner 問題？先把情境與證據攤開，判斷值得推進的下一步。",
+  "footer": "PAUL'S TRADECRAFT · paulstradecraft.com · paulchen1978@gmail.com"
 }

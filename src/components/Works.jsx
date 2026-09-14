@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
+import GlobalBusinessDevelopment from "./GlobalBusinessDevelopment.jsx";
 
 const iconMap = {
   presentation: PresentationChart,
@@ -51,29 +52,37 @@ function MarketEntrySignal({ data }) {
 
   return (
     <section className="mt-5 border-y border-forest/15 py-5" aria-label={copy.signalLabel}>
-      <p className="text-base font-semibold leading-relaxed tracking-tight text-forest md:text-lg">
+      <p className="text-xl font-bold leading-tight tracking-tight text-forest md:text-2xl">
         {copy.hero}
+      </p>
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">
+        {copy.heroSupport}
       </p>
       <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-amber">{copy.context}</p>
 
-      <div className="mt-5 grid gap-y-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-center sm:gap-x-3">
-        {copy.signature.map((item, index) => (
-          <div key={item.label} className="contents">
-            <div className="border-l-2 border-amber/65 pl-3 sm:border-l-0 sm:border-t-2 sm:pt-3 sm:pl-0">
-              <p className="text-3xl font-bold tracking-tight text-forest">{item.value}</p>
-              <p className="mt-1 text-xs font-semibold leading-snug text-ink/70">{item.label}</p>
-            </div>
-            {index < copy.signature.length - 1 && (
-              <>
-                <span aria-hidden="true" className="my-0.5 text-lg font-semibold text-amber sm:hidden">↓</span>
-                <span aria-hidden="true" className="hidden text-center text-lg font-semibold text-amber sm:block">→</span>
-              </>
-            )}
+      <div className="mt-6 border-y border-forest/15">
+        <div className="grid gap-0 md:grid-cols-[1fr_1.15fr_1fr]">
+          <div className="border-b border-forest/15 py-4 md:border-b-0 md:border-r md:pr-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.beforeLabel}</p>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-forest">{copy.signature[0].value}</p>
+            <p className="mt-1 text-sm font-semibold leading-snug text-ink/75">{copy.signature[0].label}</p>
           </div>
-        ))}
+          <div className="border-b border-forest/15 bg-forest/[0.045] px-0 py-4 md:border-b-0 md:border-r md:border-l-0 md:px-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.zeroLabel}</p>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-forest">{copy.signature[1].value}</p>
+            <p className="mt-1 text-sm font-semibold leading-snug text-ink/75">{copy.signature[1].label}</p>
+            <p className="mt-2 text-xs leading-relaxed text-ink/65">{copy.zeroNote}</p>
+          </div>
+          <div className="py-4 md:pl-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.afterLabel}</p>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-forest">{copy.signature[2].value}</p>
+            <p className="mt-1 text-sm font-semibold leading-snug text-ink/75">{copy.signature[2].label}</p>
+            <p className="mt-2 text-xs leading-relaxed text-ink/65">{copy.afterNote}</p>
+          </div>
+        </div>
       </div>
 
-      <p className="mt-5 inline-flex border-l-2 border-forest pl-3 text-xs font-semibold uppercase tracking-[0.12em] text-forest">
+      <p className="mt-5 inline-flex border-l-2 border-amber pl-3 text-xs font-semibold uppercase tracking-[0.12em] text-forest">
         {copy.correction}
       </p>
     </section>
@@ -219,7 +228,7 @@ function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
             </figure>
           </div>
         )}
-        {c.marketEntry ? <MarketEntryDetails data={c.marketEntry} tone={tone} /> : <>
+        {c.globalBusinessDevelopment ? <GlobalBusinessDevelopment data={c.globalBusinessDevelopment} tone={tone} /> : c.marketEntry ? <MarketEntryDetails data={c.marketEntry} tone={tone} /> : <>
           <div>
             <dt className={`font-semibold ${styles.heading}`}>{labels.problem}</dt>
             <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.problem)}</dd>
@@ -469,7 +478,7 @@ export default function Works() {
     const secondaryLabel = typeof w.secondaryLinkLabel === "string" ? w.secondaryLinkLabel : w.secondaryLinkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
     const isPrimary = w.primary === true;
-    const spanClass = ["payment-concentration", "overseas-lead-discovery", "ai-native-market-entry", "business-spending-insight", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
+    const spanClass = ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
     const Wrapper = w.link ? "a" : "div";

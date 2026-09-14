@@ -4,10 +4,10 @@
   "brand": "Paul's Tradecraft",
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
-  "kicker": "AI COLLABORATION ONE-PAGER",
-  "title": "Turning commercial judgment into AI-assisted workflows, decision tools, and working systems",
-  "positioning": "AI-native Commercial Workflow Design × Decision Tools × Agent Orchestration",
-  "subtitle": "15 Years in International Trade Leadership × AI Collaboration | TOEIC 955 | Human-led, AI-accelerated",
+  "kicker": "GLOBAL BUSINESS DEVELOPMENT · OWNER SPECIAL PROJECTS",
+  "title": "Turning overseas opportunity and important, ambiguous Owner problems into commercial next steps.",
+  "positioning": "Global Business Development · Owner Special Projects · Business Economics Judgment",
+  "subtitle": "15 years in international trade leadership | NCCU accounting background | AI extends the speed and range of research, structure, and execution",
   "stats": [
     {
       "value": "955",
@@ -22,14 +22,15 @@
       "label": "Pilot workflow validation checks passed"
     }
   ],
-  "servicesTitle": "SERVICES",
+  "servicesTitle": "THREE HUMAN CAPABILITIES",
   "services": [
-    "AI Workflow Design — reshape repetitive business processes into Human + AI collaboration",
-    "Soft-Furnishing Brand Sites & Sales Tools — sites and support tools aligned to marketing, consultation, quoting, and follow-up",
-    "Trade & Business Systems — turn real trade practice into systems AI can execute and assist",
-    "AI Agent Orchestration — design how multiple AI agents divide work, with audit and validation"
+    "Global Business Development — start with what the supplier can actually deliver, then decide which markets, buyer or channel types, and product entries deserve commercial effort.",
+    "Owner Special Projects — research, structure, challenge, and move an important cross-functional problem forward when its ownership or next step is unclear.",
+    "Business Economics / Accounting-aware Judgment — see material decisions through profit, cash, spending, evidence, and timing; tax and legal conclusions remain with the appropriate professional."
   ],
-  "worksTitle": "SELECTED WORKS",
+  "leverageTitle": "AI-NATIVE EXECUTION · AI IS LEVERAGE, NOT THE IDENTITY",
+  "leverage": "AI expands research breadth, comparison speed, evidence organization, contradiction checks, and prototyping capacity. A human still sets the objective, boundary, and consequence.",
+  "worksTitle": "SELECTED PROOF",
   "reviewedWorkIds": [
     "trade-deal-desk",
     "mori-soft-furnishing-website",
@@ -47,23 +48,16 @@
     "trade-profit-navigator",
     "commercial-decision-desk",
     "ai-native-market-entry",
-    "business-spending-insight"
+    "business-spending-insight",
+    "global-business-development"
   ],
   "works": [
-    "Commercial Decision Desk — evidence-first commercial decision orchestration: opportunity → feasibility → exposure → human decision (synthetic proof, with Executive Deal Snapshot)",
-    "AI Trade Deal Desk — deeper trade-decision workspace where AI recommends and a human approves, with a live public demo",
-    "Trade Profit Navigator — public interactive tool: breaks a trade into profit levers, cash exposure, and UNKNOWNs to compare what to test next (synthetic USD case, 9/9 + 6/6 checks pass)",
-    "Curtain Soft-Furnishing Pilot Tracker — one tracker from lead to follow-up, 23/23 pilot workflow validation checks passed",
-    "MORI Soft-Furnishing Brand Website & Workflow — a brand site and repeatable workflow supporting marketing and sales progress"
+    "Global Business Development — synthetic interactive demonstration: the same candidates change priority when the Owner objective changes; UNKNOWN leads to VERIFY FIRST or HOLD (human and market validation pending).",
+    "AI-Native Market Entry — public market evidence paired with a synthetic supplier case: after six relevant accounts were reclassified, none had sufficient evidence of a plausible buyer path. Market relevance is not an acquisition path.",
+    "Commercial Decision Desk — turns opportunity, payment exposure, contradictions, and UNKNOWNs into an auditable human decision; synthetic proof only, with no adoption, ROI, or customer-outcome claim.",
+    "Business Spending Insight — helps an SME owner understand cash, expense, evidence, and CPA questions in plain business language before a professional review; synthetic cases, human validation pending."
   ],
-  "worksSecondaryLabel": "EXPERIMENTS & OTHER WORK",
-  "worksSecondary": [
-    "Sales Pilot Case Brief — public live demo",
-    "Lil Matt's Gaming World — two independent games live: Jumpverse platform adventure + WordForge English learning",
-    "AI Lyrics Generator — public live Web Demo (real DeepSeek generation), plus a desktop app",
-    "MG Desktop Pet — lightweight personal desktop-pet creative build (16 poses)"
-  ],
-  "processTitle": "HOW I WORK",
-  "process": "Human Defines the Boundary → AI Delegation → Cross-Validation → Human Review → Deployment → Independent Review",
-  "footer": "Let's make something fun · PAUL'S TRADECRAFT | AI COLLABORATION | paulstradecraft.com · paulchen1978@gmail.com"
+  "processTitle": "A REASON TO TALK",
+  "process": "Do you have products and supply capability but no clear overseas priority? Or an important Owner problem that crosses functions and resists a simple handoff? Start by laying out the situation and evidence, then decide what deserves the next move.",
+  "footer": "PAUL'S TRADECRAFT · paulstradecraft.com · paulchen1978@gmail.com"
 }

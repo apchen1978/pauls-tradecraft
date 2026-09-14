@@ -5,7 +5,7 @@
 1. 檔案存在且非空
 2. 頁數 = 1
 3. 可抽出英文文字（非空白 PDF）
-4. 含預期 section 標題（SERVICES / SELECTED WORKS / HOW I WORK）
+4. 含預期 section 標題（THREE HUMAN CAPABILITIES / SELECTED PROOF / A REASON TO TALK）
 5. 含品牌名
 
 EN artifact 不要求 CJK 驗證（那是 ZH 的 check-pdf-font.py 職責）。
@@ -94,7 +94,7 @@ def main() -> int:
     print(f"Extracted distinct chars: {len(text)}")
 
     # 預期詞組：檢查其所有字母是否都出現在字元集合（Chrome 子集化會分散碼位）
-    expected = ["SERVICES", "SELECTEDWORKS", "HOWIWORK", "TRADECRAFT"]
+    expected = ["THREEHUMANCAPABILITIES", "SELECTEDPROOF", "AREASONTOTALK", "TRADECRAFT"]
     missing = []
     for word in expected:
         chars_of_word = set(word)

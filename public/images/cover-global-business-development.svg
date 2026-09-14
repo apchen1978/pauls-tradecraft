@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Global Business Development synthetic decision demonstrator cover">
+  <rect width="1600" height="900" fill="#f5f1e8"/>
+  <rect x="78" y="64" width="1444" height="1" fill="#c9c2b5"/>
+  <text x="80" y="113" fill="#214c3d" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="4">GLOBAL BUSINESS DEVELOPMENT</text>
+  <text x="80" y="174" fill="#a6543d" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">SYNTHETIC JUDGMENT DEMONSTRATOR</text>
+  <text x="80" y="320" fill="#182019" font-family="Georgia, serif" font-size="92">Same evidence.</text>
+  <text x="80" y="414" fill="#182019" font-family="Georgia, serif" font-size="92">Different objective.</text>
+  <text x="80" y="508" fill="#214c3d" font-family="Georgia, serif" font-size="92" font-style="italic">Different next move.</text>
+  <text x="83" y="566" fill="#5b665d" font-family="Arial, sans-serif" font-size="25">Surface relevance is not yet worth commercial effort.</text>
+  <g transform="translate(962 206)">
+    <rect width="460" height="450" fill="#12362b"/>
+    <text x="35" y="54" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2">OWNER OBJECTIVE</text>
+    <rect x="35" y="83" width="390" height="77" fill="#f5f1e8"/>
+    <text x="55" y="116" fill="#214c3d" font-family="Arial, sans-serif" font-size="14" font-weight="700">A / FILL CAPACITY</text>
+    <text x="55" y="143" fill="#182019" font-family="Georgia, serif" font-size="20">Regional channel</text>
+    <rect x="35" y="180" width="390" height="77" fill="#214c3d" stroke="#e5c988"/>
+    <text x="55" y="213" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700">B / PREMIUM ENTRY</text>
+    <text x="55" y="240" fill="#fff" font-family="Georgia, serif" font-size="20">Design brand</text>
+    <line x1="35" x2="425" y1="295" y2="295" stroke="#7c987f"/>
+    <text x="35" y="330" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="13">PRESTIGE ACCOUNT</text>
+    <text x="35" y="362" fill="#fff" font-family="Georgia, serif" font-size="23">HOLD</text>
+    <text x="35" y="391" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="14">Procurement path: UNKNOWN</text>
+  </g>
+  <rect x="80" y="758" width="1440" height="1" fill="#c9c2b5"/>
+  <text x="80" y="811" fill="#687168" font-family="Arial, sans-serif" font-size="16">SUPPLIER REALITY  →  OWNER OBJECTIVE  →  EVIDENCE  →  HUMAN JUDGMENT</text>
+</svg>

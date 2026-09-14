@@ -38,6 +38,12 @@ const dict = {
       snapshotCaption: "合成案例 · Executive Deal Snapshot — 把承諾前要看的事放在同一屏",
       snapshotCta: "看這筆 48 萬美元訂單為何還不能接",
     },
+    humanAiEditorial: {
+      eyebrow: "HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
+      statement: "人決定方向。\nAI 擴大視野，\n也放大執行能力。\n證據決定下一步。",
+      explanation: "不是讓人憑直覺走得更快，也不是讓 AI 自動作答；而是讓商業判斷擁有更大的研究與執行範圍，同時誠實保留還不知道的事。",
+      closing: "方向由人掌握，能力由 AI 擴張，下一步由證據推動。",
+    },
     startHere: {
       eyebrow: "CONSULTING START POINTS",
       headline: "從一個需要做好的決策開始。",
@@ -158,7 +164,7 @@ const dict = {
       outputLabel: "可交付輸出",
       boundary: "這些作品展示可運作的判斷流程與輸出，不宣稱保證營收、ROI 或商業採用結果。",
       items: [
-        { label: "看見商機", question: "哪些客戶或市場，值得先投入？", system: "AI 輔助海外客戶開發", output: "候選短名單、來源脈絡、UNKNOWN 與下一輪要確認的問題。", linkLabel: "查看客戶開發流程", href: "#overseas-lead-discovery" },
+        { label: "看見商機", question: "哪些海外帳戶，值得先投入商業資源？", system: "海外商業開發", output: "從供應商現實、Owner 目標、候選帳戶與 UNKNOWN，找出下一個值得驗證的商業路徑。", linkLabel: "查看商業開發判斷", href: "#global-business-development" },
         { label: "看清交易", question: "這筆商機，現在能不能推進？", system: "商務決策工作台", output: "交易結構、控制因素、Decision Path 與帶進會議的 Deal Brief。", linkLabel: "查看決策工作台", href: "#commercial-decision-desk" },
         { label: "測試經濟性", question: "表面毛利，是否真的支撐這筆交易？", system: "貿易利潤導航", output: "已知成本、可測試的利潤槓桿、現金暴露與仍需補足的證據。", linkLabel: "查看利潤導航", href: "#trade-profit-navigator" },
         { label: "控制承諾", question: "付款與執行承諾，會不會壓垮現金？", system: "付款集中度分析", output: "按幣別拆開的付款承諾、集中暴露與承諾前控制點。", linkLabel: "查看付款分析", href: "#payment-concentration" },
@@ -411,6 +417,12 @@ const dict = {
       snapshotCaption: "Synthetic · Executive Deal Snapshot — what matters before commitment on one screen",
       snapshotCta: "See why this USD 480k order is not committable yet",
     },
+    humanAiEditorial: {
+      eyebrow: "HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
+      statement: "Human judgment sets direction.\nAI extends what can be seen, compared, and built.\nEvidence decides what deserves the next move.",
+      explanation: "This is neither faster intuition nor automated certainty. It gives commercial judgment a wider field of view and greater execution range, while keeping UNKNOWN honestly visible.",
+      closing: "Human direction. AI-native range. Evidence-led movement.",
+    },
     startHere: {
       eyebrow: "CONSULTING START POINTS",
       headline: "Start with one decision that needs to be done well.",
@@ -531,7 +543,7 @@ const dict = {
       outputLabel: "DELIVERABLE",
       boundary: "These pieces demonstrate working judgment flows and deliverables. They do not claim guaranteed revenue, ROI, or commercial adoption.",
       items: [
-        { label: "SPOT THE OPPORTUNITY", question: "Which customer or market deserves attention first?", system: "AI-Assisted Overseas Lead Discovery", output: "A candidate shortlist, source context, UNKNOWNs, and questions to verify next.", linkLabel: "View lead discovery", href: "#overseas-lead-discovery" },
+        { label: "SPOT THE OPPORTUNITY", question: "Which overseas account deserves commercial effort first?", system: "Global Business Development", output: "Use supplier reality, Owner objective, candidate accounts, and UNKNOWNs to identify the next commercial path worth verifying.", linkLabel: "View business-development judgment", href: "#global-business-development" },
         { label: "UNDERSTAND THE DEAL", question: "Can this opportunity move forward now?", system: "Commercial Decision Desk", output: "Deal structure, control factors, a Decision Path, and a Deal Brief for the meeting.", linkLabel: "View decision desk", href: "#commercial-decision-desk" },
         { label: "TEST THE ECONOMICS", question: "Does the apparent margin really support this deal?", system: "Trade Profit Navigator", output: "Known costs, testable profit levers, cash exposure, and evidence still required.", linkLabel: "View profit navigator", href: "#trade-profit-navigator" },
         { label: "CONTROL COMMITMENT", question: "Could payment and execution commitments overwhelm cash?", system: "Payment Concentration", output: "Currency-separated payment commitments, concentration exposure, and pre-commitment controls.", linkLabel: "View payment analysis", href: "#payment-concentration" },

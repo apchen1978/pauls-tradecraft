@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Paul's Tradecraft — Executive Capability Brief (v6, 7 pages, light-body enterprise).
+"""Paul's Tradecraft — Executive Capability Brief (v7, 7 pages, light-body enterprise).
 
 Same content and evidence status as v4/v5. Two changes this pass:
   1. COLOR: kill the heavy all-dark blocks. Cover + chapter bands stay navy
@@ -200,13 +200,13 @@ c.drawString(MARGIN, PAGE_H - 58, 'PAUL\u2019S TRADECRAFT \u00b7 EXECUTIVE CAPAB
 y = PAGE_H - 126
 c.setFont(JHB, 22)
 c.setFillColor(WHITE)
-for ln in wrap('AI-native 商業流程設計 × 決策工具 × Agent Orchestration', JHB, 22, CONTENT_W - 16):
+for ln in wrap('海外商業開發 × 商業決策 × AI 工作流', JHB, 22, CONTENT_W - 16):
     c.drawString(MARGIN, snap(y), ln)
     y -= 36
 y -= 4
 c.setFont(JH, 10.5)
 c.setFillColor(GOLD)
-for ln in wrap('Trade experience turned into verifiable AI systems.', JH, 10.5, CONTENT_W - 16):
+for ln in wrap('Global commercial judgment made visible through AI-assisted workflows.', JH, 10.5, CONTENT_W - 16):
     c.drawString(MARGIN, snap(y), ln)
     y -= 18
 y -= 6
@@ -225,13 +225,13 @@ c.drawRightString(PAGE_W - MARGIN, 58, 'Paul Chen · paulchen1978@gmail.com')
 footer(c, 1)
 c.showPage()
 
-# ================= Page 2 — Why Paul (LIGHT body) =================
-chapter_opener(c, '01', 'Why Paul · 為什麼是 Paul', '三根柱子：商業經驗 × AI 執行 × 證據紀律。')
+# ================= Page 2 — Primary human capability (LIGHT body) ==========
+chapter_opener(c, '01', 'Global Business Development · 海外商業開發', '找到公司很容易；判斷哪裡值得投入商業資源更難。')
 y = PAGE_H - 168
 pillars = [
-    ('01', '商業經驗', '15 年國際貿易總監：報價、談判、供應鏈、貿易系統——不是履歷關鍵字，是做過千百次的工作。TOEIC 955，能直接面對國際客戶與合約。'),
-    ('02', 'AI-native 執行', '不是把 AI 當打字機，而是用 AI agents、coding tools、workflows 與 orchestration 把商業邏輯變成可運作、可測試的系統。人類主導，AI 加速。'),
-    ('03', '證據紀律', 'Build → test → review → verify。每一項宣稱都有對應的驗證：不知道就寫 UNKNOWN，證據優先於判斷，上線後獨立複查。'),
+    ('01', '先看供應商現實', '產品、技術、MOQ、價格帶、交期、品質、付款與開發能力，是市場開發的起點；不是先列一長串公司，再倒過來找理由。'),
+    ('02', '再選值得追的商業路徑', '買方／通路類型、產品切入、外部採購路徑與 Owner 目標必須一起看。相關公司不等於可能買家；大公司不等於現在優先。'),
+    ('03', '把興趣與訂單分開', '樣品、設計或開發需求，可以支持內部檢視；但不是訂單。技術可行性、資源、經濟性、交期、合規與 Owner 授權仍需分開判斷。'),
 ]
 for i, (num, t, b) in enumerate(pillars):
     y = light_card(c, MARGIN, y, CONTENT_W, t, b, min_h=92, title_size=12.5, tag=num + ' · 支柱', tag_color=BLUE)
@@ -243,153 +243,104 @@ for i, (big, lab) in enumerate([('955', 'TOEIC (2019)'), ('15年', '國際貿易
 y -= 70
 c.setFont(JHB, 11)
 c.setFillColor(NAVY)
-c.drawString(MARGIN, snap(y), '不是技術公司的外包，而是貿易內行人的 AI 加速。')
+c.drawString(MARGIN, snap(y), '從供應商現實出發，才知道哪一個海外機會值得先花業務時間。')
 footer(c, 2)
 c.showPage()
 
-# ================= Page 3 — How Paul Works (LIGHT) =================
-chapter_opener(c, '02', 'How Paul Works · 運作方式', 'Human-led, AI-accelerated：定界、分工、交叉驗證，直到可部署。')
+# ================= Page 3 — Owner projects / economics (LIGHT) =============
+chapter_opener(c, '02', 'Owner Special Projects · Owner 特案推進', '重要但模糊的問題，不必因為暫時沒有明確部門，就停在原地。')
 y = PAGE_H - 168
-steps = ['人類定界', 'AI 分工', '交叉驗證', '人類審核', '部署', '獨立複查']
-bw = (CONTENT_W - 5 * 14) / 6
-bh = 74
-for i, s in enumerate(steps):
-    x = MARGIN + i * (bw + 14)
-    c.setFillColor(CARD_BG)
-    c.roundRect(x, snap(y) - bh, bw, bh, 4, stroke=0, fill=1)
-    c.setStrokeColor(LINE)
-    c.setLineWidth(0.6)
-    c.roundRect(x, snap(y) - bh, bw, bh, 4, stroke=1, fill=0)
-    c.setFillColor(GOLD)
-    c.rect(x, snap(y) - bh, bw, 2, stroke=0, fill=1)
-    c.setFont(JHB, 8.5)
-    c.setFillColor(INK)
-    c.drawCentredString(x + bw / 2, snap(y) - bh / 2 - 5, s)
-    c.setFont(JHB, 9.5)
-    c.setFillColor(NAVY)
-    c.drawCentredString(x + bw / 2, snap(y) - bh + 11, str(i + 1).zfill(2))
-    if i < 5:
-        c.setFont(JHB, 11)
-        c.setFillColor(FAINT)
-        c.drawCentredString(x + bw + 7, snap(y) - bh / 2 - 5, '\u2192')
-y -= bh + 28
-y = light_card(c, MARGIN, y, CONTENT_W, '多 Agent 原則：更少不必要的工作', '重點不是「很多 AI」。獨立 Agent 互相挑戰、驗證、收斂，直到只剩下必要的工作——交叉驗證取代重複勞動，證據取代口頭保證。', min_h=88, title_size=12.5, tag='OPERATING PRINCIPLE', tag_color=BLUE)
-y -= 18
+y = light_card(c, MARGIN, y, CONTENT_W, 'Owner 特案：把事情往前推，而不是把它再交回去', '當一個問題跨部門、資訊零散、沒有既定 SOP，Owner 需要的不是行政協助，而是有人能理解情境、查資料、整理選項、挑戰假設，並把模糊問題收斂成可行的下一步。', min_h=108, title_size=13, tag='IMPORTANT PROBLEM · UNCLEAR OWNERSHIP', tag_color=BLUE)
+y -= 20
+y = light_card(c, MARGIN, y, CONTENT_W, '商業經濟／會計視角：先看懂錢的商業意義', '利潤、現金、支出、時間與證據，往往不是同一件事。這個視角能幫 Owner 在作出重大決定前提出更好的問題；記帳、稅務、法律與個案結論仍交由適當專業人士確認。', min_h=108, title_size=13, tag='OWNER DECISION SUPPORT · NOT PROFESSIONAL ADVICE', tag_color=BLUE)
+y -= 26
 c.setFont(JHB, 11)
 c.setFillColor(NAVY)
-c.drawString(MARGIN, snap(y), '更多 Agent ≠ 更多工作。Better agents → less unnecessary work.')
+c.drawString(MARGIN, snap(y), '重要問題 → 結構與證據 → 可比較選項 → Owner 決定下一步。')
 footer(c, 3)
 c.showPage()
 
-# ================= Page 4 — Selected Evidence (1/2) LIGHT + fixed rhythm =====
-chapter_opener(c, '03', 'Selected Evidence · 精選實證（1/2）', '優先商業案例：先收斂是否值得推進，再深入交易判斷。')
+# ================= Page 4 — AI leverage (LIGHT) =============================
+chapter_opener(c, '03', 'AI-Native Execution · AI 原生執行', 'AI 擴大 Paul 的研究、比較與建構能力；它不是取代商業判斷的主角。')
 y = PAGE_H - 168
-cases1 = [
-    ('Commercial Decision Desk · 商業決策收斂層',
-     '商機、交易條件、付款暴露、矛盾與 UNKNOWN，收斂為可稽核的人類決策。硬規則引擎化、50/50 自動檢查；另含付款暴露、經濟橋、決策路徑與快照套件（42/42、19/19、21/21、28/28）。SYNTHETIC proof，無自主商業動作。',
-     'PENDING — SYNTHETIC proof; adoption / ROI NOT YET PROVEN'),
-    ('AI Trade Deal Desk · 報價/匯率決策工作流',
-     '把 RFQ 判斷做成 fixture-driven 的決策支援工作流：AI 建議、人類審批、判斷可稽核。13/13 商業案例 + 5/5 負向測試 PASS；human override 已驗證。',
-     'TESTED'),
-    ('Trade Profit Navigator · 利潤槓桿導航',
-     '把一筆貿易拆成已知經濟、現金暴露、風險與 UNKNOWN，比較三個槓桿並保留 Owner 決定。9/9 功能 + 6/6 adversarial PASS；公開互動 demo，synthetic USD case。',
-     'TESTED — public demo live'),
-]
-for i, (t, b, st) in enumerate(cases1):
-    # compact cards sized to content; status on its own hairline row
-    y = light_card(c, MARGIN, y, CONTENT_W, t, b, min_h=78, title_size=12.5, tag='CASE %02d' % (i + 1), tag_color=BLUE)
-    y -= 8
-    c.setStrokeColor(LINE)
-    c.setLineWidth(0.5)
-    c.line(MARGIN, snap(y) - 2, MARGIN + 2, snap(y) - 2)  # placeholder kept minimal
-    status_line(c, MARGIN + 15, y - 4, 'STATUS: ' + st, GOLD)
-    y -= 26
+y = light_card(c, MARGIN, y, CONTENT_W, 'AI 能做什麼', '擴大公開研究、整理分散資訊、比較候選、保留反證與 UNKNOWN、檢查矛盾、快速把商業邏輯做成可操作原型。它讓一位有商業判斷的人，能處理更廣的資訊與更快的反覆驗證。', min_h=102, title_size=13, tag='EXECUTION LEVERAGE', tag_color=BLUE)
+y -= 20
+y = light_card(c, MARGIN, y, CONTENT_W, 'AI 不替誰做決定', '供應商能否交付、哪一條市場路徑值得投入、開發是否動用資源、報價與付款能否承諾，仍需要 Owner 的目標、外部證據與明確授權。AI inference 不是買方意圖；開發需求不是訂單。', min_h=102, title_size=13, tag='HUMAN JUDGMENT REMAINS CONSEQUENTIAL', tag_color=BLUE)
+y -= 20
+y = light_card(c, MARGIN, y, CONTENT_W, '運作紀律', '先定義邊界，再分工、驗證、審核與獨立複查。更多 Agent 不等於更多工作；目標是更少不必要的工作，以及更清楚的證據與責任。', min_h=86, title_size=13, tag='EVIDENCE BEFORE CONSEQUENTIAL ACTION', tag_color=BLUE)
+y -= 24
+c.setFont(JHB, 11)
+c.setFillColor(NAVY)
+c.drawString(MARGIN, snap(y), 'AI assists. Owner judges. Evidence moves the decision.')
 footer(c, 4)
 c.showPage()
 
-# ================= Page 5 — Selected Evidence (2/2) LIGHT =================
-chapter_opener(c, '03', 'Selected Evidence · 精選實證（2/2）', '從商機到交付：可驗證的流程、網站與銷售支援。')
+# ================= Page 5 — Selected proof (LIGHT) =========================
+chapter_opener(c, '04', 'Selected Proof · 精選證據', '作品是能力的可檢視證據，不是身份本身。')
 y = PAGE_H - 168
 cases2 = [
-    ('Curtain Soft-Furnishing Pilot Tracker',
-     '窗簾軟裝：商機到報價與跟進的單一追蹤器。23/23 Pilot 流程驗證項目通過；以可檢視的 evidence files 保留流程依據。',
-     'VERIFIED'),
-    ('MORI Soft-Furnishing Brand Website & Workflow',
-     '以品牌網站與可重複流程支援行銷、諮詢與銷售推進。已證明建置與交付能力；市場成效不在宣稱內。',
-     'DELIVERED'),
+    ('Global Business Development · 海外商業開發',
+     '合成互動示範：同一組候選與證據，會因 Owner 目標不同而改變優先研究路徑；沒有採購路徑證據的高知名度帳戶維持 HOLD。供應商現實、產品切入、UNKNOWN 與內部資源關卡保持可檢視。',
+     'METHOD VISIBILITY — synthetic demonstrator; HUMAN / MARKET VALIDATION NOT PERFORMED'),
+    ('AI-Native Market Entry · AI 原生市場開發',
+     '以合成供應商與真實公開市場證據做 bounded research：六家生態系相關帳戶重新分類後，沒有任何一家被足夠證據支持為可能買家。市場相關性不等於商業取得路徑。',
+     'METHOD CASE — no buyer, response, RFQ, order, or revenue claim'),
+    ('Commercial Decision Desk · 商業決策收斂層',
+     '商機、交易條件、付款暴露、矛盾與 UNKNOWN，收斂為可稽核的人類決策。硬規則引擎化，並保留「系統建議」與「人類決定」的分界。',
+     'SYNTHETIC proof; adoption / ROI NOT YET PROVEN'),
 ]
-for i, (t, b, st) in enumerate(cases2, start=3):
+for i, (t, b, st) in enumerate(cases2, start=1):
     y = light_card(c, MARGIN, y, CONTENT_W, t, b, min_h=72, title_size=12, tag='CASE %02d' % i, tag_color=BLUE)
     y -= 8
     status_line(c, MARGIN + 15, y - 4, 'STATUS: ' + st, GOLD)
     y -= 22
 # vocabulary band — light card
-y = light_card(c, MARGIN, y, CONTENT_W, '驗證語彙', 'VERIFIED = 線上實測通過 · TESTED = 自動驗證通過（可重跑）· PENDING = 合成/待真人確認 · NOT YET PROVEN = 未證明（adoption / ROI 不在宣稱內）。', min_h=60, title_size=11, tag=None, accent=BLUE)
+y = light_card(c, MARGIN, y, CONTENT_W, '三個值得記住的判斷', '供應商現實先於買方搜尋 · 市場相關性不等於買方可能性 · UNKNOWN 可以改變下一步。', min_h=60, title_size=11, tag=None, accent=BLUE)
 y -= 16
 c.setFont(JHB, 11)
 c.setFillColor(NAVY)
-c.drawString(MARGIN, snap(y), '每一項宣稱都有對應的驗證；不知道就寫 UNKNOWN。')
+c.drawString(MARGIN, snap(y), '每一項宣稱都要有證據；不知道就維持 UNKNOWN。')
 footer(c, 5)
 c.showPage()
 
-# ================= Page 6 — Paul OS / Multi-Agent Governance (LIGHT) =========
-chapter_opener(c, '04', 'Paul OS · 多 Agent 治理', '不是「很多 AI」，而是會互相挑戰、驗證、收斂的 AI。')
+# ================= Page 6 — Economics / supporting proof (LIGHT) ============
+chapter_opener(c, '05', 'Business Economics · 商業經濟判斷', '把「花了錢」與「這件事對公司代表什麼」分開來看。')
 y = PAGE_H - 168
-cw = (CONTENT_W - 24) / 2
-agents = [
-    ('建構者 · Codex', '負責實作：把想法落地成可運作的系統，build、test、部署。', '第一雙眼睛：做出東西。'),
-    ('獨立驗證者 · DSH', '不看建構者的推理，用同一套技能獨立重審，輸出 PASS / PASS_WITH_GAPS / FAIL 與證據。', '第二雙眼睛：獨立檢查。'),
-]
-for i, (t, b, note) in enumerate(agents):
-    x = MARGIN + i * (cw + 24)
-    yy = light_card(c, x, y, cw, t, b, min_h=104, title_size=12)
-    # note inside the card bounds, after body, never below the card
-    note_lines = wrap(note, JHB, 8.5, cw - 30)
-    ny = yy + 14
-    c.setFont(JHB, 8.5)
-    c.setFillColor(NAVY)
-    for ln in note_lines:
-        c.drawString(x + 15, snap(ny), ln)
-        ny += 12
-y -= 128
-y = light_card(c, MARGIN, y, CONTENT_W, '治理與紀律', '一處治理文件定義能力與分工；共享技能層只有一份 canonical；冷審計由獨立執行器執行；UNKNOWN 不腦補、證據優先於判斷。多 Agent 不是多做一次，而是讓第二雙眼睛獨立檢查。', min_h=88, title_size=12, tag='GOVERNANCE', tag_color=BLUE)
-y -= 16
+y = light_card(c, MARGIN, y, CONTENT_W, 'Business Spending Insight · 企業支出決策啟發', '以 plain business language 幫 SME Owner 在找 CPA 前，先理解一筆支出可能牽涉的現金、費用、證據、時間點與應確認的問題。它不代替記帳、報稅或專業判斷。', min_h=104, title_size=13, tag='SYNTHETIC CASES · HUMAN VALIDATION PENDING', tag_color=BLUE)
+y -= 18
+y = light_card(c, MARGIN, y, CONTENT_W, 'Trade Profit Navigator · 利潤槓桿導航', '把單筆貿易拆成可見的利潤槓桿、現金暴露、風險與 UNKNOWN，讓 Owner 比較下一步要測試什麼，而不是把計算結果偽裝成自動建議。', min_h=94, title_size=13, tag='PUBLIC INTERACTIVE DEMO · SYNTHETIC USD CASE', tag_color=BLUE)
+y -= 18
+y = light_card(c, MARGIN, y, CONTENT_W, 'MORI 與 Pilot Tracker · 可交付的營運／銷售支援', '品牌網站、行銷諮詢、報價與跟進流程，能被整理成清楚、可重複的工作表面。這證明建置與交付能力，不宣稱市場成效。', min_h=88, title_size=13, tag='DELIVERED / TESTED SURFACES', tag_color=BLUE)
+y -= 22
 c.setFont(JHB, 11)
 c.setFillColor(NAVY)
-c.drawString(MARGIN, snap(y), '獨立 Agent 挑戰、驗證、收斂，直到只剩下必要的工作。')
+c.drawString(MARGIN, snap(y), '會計背景增加的是一層看問題的鏡頭，不是取代 CPA 的權限。')
 footer(c, 6)
 c.showPage()
 
 # ================= Page 7 — Engagement / CTA (LIGHT) =================
-chapter_opener(c, '05', '合作與聯絡', '從一個流程開始。')
+chapter_opener(c, '06', '合作與聯絡', '如果你有一個值得被好好看待的商業問題，可以從一段對話開始。')
 y = PAGE_H - 168
 c.setFont(JH, 10.5)
 c.setFillColor(INK)
-y = para(c, MARGIN, y, '合作不是一次「交付」，而是一段流程：先診斷問題，再做可驗證的原型，驗證通過才談規模化。', JH, 10.5, INK, CONTENT_W)
+y = para(c, MARGIN, y, '合作不是先買一套工具，而是先判斷：這個問題是否值得投入、現有事實夠不夠、下一步該由誰做什麼。需要時，再把商業判斷轉成可驗證的原型或工作流程。', JH, 10.5, INK, CONTENT_W)
 y -= 18
-areas = ['商業決策系統', 'AI 工作流設計', 'AI 輔助營運', '快速商業原型', '流程診斷']
-bw = (CONTENT_W - 4 * 14) / 5
-bh = 56
-for i, s in enumerate(areas):
-    x = MARGIN + i * (bw + 14)
-    c.setFillColor(CARD_BG)
-    c.roundRect(x, snap(y) - bh, bw, bh, 4, stroke=0, fill=1)
-    c.setStrokeColor(LINE)
-    c.setLineWidth(0.6)
-    c.roundRect(x, snap(y) - bh, bw, bh, 4, stroke=1, fill=0)
-    c.setFillColor(BLUE)
-    c.rect(x, snap(y) - bh, bw, 2, stroke=0, fill=1)
-    c.setFont(JHB, 9)
-    c.setFillColor(INK)
-    c.drawCentredString(x + bw / 2, snap(y) - bh / 2 - 4, s)
-y -= bh + 30
+areas = [
+    ('我們有產品與供應能力，但海外商業資源該先投在哪裡？', '從供應商現實、Owner 目標與可支持的商業路徑開始。'),
+    ('這件重要事情跨部門、資訊雜亂，又沒有自然的負責人。', '把問題研究、結構化、挑戰，推向一個可判斷的下一步。'),
+    ('我們想把 AI 用在真實商業工作，不想只做工具實驗。', '先定義人類判斷、外部證據與授權邊界，再決定是否值得做成流程。'),
+]
+for i, (t, b) in enumerate(areas, start=1):
+    y = light_card(c, MARGIN, y, CONTENT_W, t, b, min_h=70, title_size=11.5, tag='CONVERSATION %02d' % i, tag_color=BLUE)
+    y -= 12
+y -= 6
 c.setFillColor(CARD_BG)
-c.roundRect(MARGIN, snap(y) - 78, CONTENT_W, 78, 4, stroke=0, fill=1)
+c.roundRect(MARGIN, snap(y) - 70, CONTENT_W, 70, 4, stroke=0, fill=1)
 c.setStrokeColor(LINE)
 c.setLineWidth(0.6)
-c.roundRect(MARGIN, snap(y) - 78, CONTENT_W, 78, 4, stroke=1, fill=0)
+c.roundRect(MARGIN, snap(y) - 70, CONTENT_W, 70, 4, stroke=1, fill=0)
 c.setFillColor(GOLD)
-c.rect(MARGIN, snap(y) - 78, 2.4, 78, stroke=0, fill=1)
+c.rect(MARGIN, snap(y) - 70, 2.4, 70, stroke=0, fill=1)
 c.setFont(JH, 8)
 c.setFillColor(BLUE)
 c.drawString(MARGIN + 16, snap(y) - 24, 'WEBSITE')
@@ -402,12 +353,12 @@ c.drawRightString(PAGE_W - MARGIN - 16, snap(y) - 24, 'EMAIL')
 c.setFont(JHB, 12)
 c.setFillColor(NAVY)
 c.drawRightString(PAGE_W - MARGIN - 16, snap(y) - 43, 'paulchen1978@gmail.com')
-y -= 116
+y -= 104
 c.setFont(JHB, 11)
 c.setFillColor(NAVY)
-c.drawString(MARGIN, snap(y), '人類主導，AI 加速。你的問題，從這裡開始。')
+c.drawString(MARGIN, snap(y), '先把問題攤開；再決定它值不值得推進。')
 footer(c, 7)
 c.showPage()
 
 c.save()
-print('PDF v6 (7 pages, light-body enterprise) saved:', PDF)
+print('PDF v7 (7 pages, identity-led capability brief) saved:', PDF)

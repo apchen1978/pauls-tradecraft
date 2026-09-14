@@ -41,6 +41,9 @@ const servicesList = (data.services || [])
 const stats = (data.stats || [])
   .map((s) => `<div class="stat"><b>${s.value}</b><span>${s.label}</span></div>`)
   .join("");
+const leverage = data.leverage
+  ? `<section class="leverage"><p class="leverage-label">${data.leverageTitle || ""}</p><p>${data.leverage}</p></section>`
+  : "";
 
 // 依 locale 選字型優先序：CJK 內容用 Noto CJK；英文內容用標準 sans
 const isCJK = locale === "zh";
@@ -75,6 +78,9 @@ const html = `<!doctype html>
   ul { list-style: none; }
   li { font-size: 9.5pt; color: #E2E8F0; line-height: 1.6; padding-left: 4mm; position: relative; }
   li::before { content: "▪"; color: #C9A227; position: absolute; left: 0; }
+  .leverage { margin-top: 3.5mm; padding: 3mm 4mm; border-left: 0.8mm solid #C9A227; background: #102545; }
+  .leverage-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.2pt; color: #3B82F6; text-transform: uppercase; }
+  .leverage p:last-child { margin-top: 1mm; font-size: 8.8pt; line-height: 1.55; color: #E2E8F0; }
   .works { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; }
   .works li { font-size: 9pt; }
   .works-secondary-label { font-size: 8pt; color: #64748B; letter-spacing: 1pt; text-transform: uppercase; margin-top: 3mm; }
@@ -94,6 +100,7 @@ const html = `<!doctype html>
 
   <h2>${data.servicesTitle || ""}</h2>
   <ul>${servicesList}</ul>
+  ${leverage}
 
   <h2>${data.worksTitle || ""}</h2>
   <ul class="works">${worksList}</ul>

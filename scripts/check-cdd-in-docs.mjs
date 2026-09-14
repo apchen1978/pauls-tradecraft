@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 
 function textOf(pdfPath) {
   const r = spawnSync("python", ["-c",
-    "import sys;from pypdf import PdfReader;print(' '.join((p.extract_text() or '') for p in PdfReader(sys.argv[1]).pages))",
+    "import sys;sys.stdout.reconfigure(encoding='utf-8');from pypdf import PdfReader;print(' '.join((p.extract_text() or '') for p in PdfReader(sys.argv[1]).pages))",
     pdfPath], { encoding: "utf8", maxBuffer: 2e7 });
   return r.stdout;
 }
@@ -15,6 +15,6 @@ const brief = textOf(base + "PaulTradecraft-Capability-Brief.pdf");
 
 console.log("OnePager-ZH 含 'Commercial Decision Desk':", zh.includes("Commercial Decision Desk"));
 console.log("OnePager-EN 含 'Commercial Decision Desk':", en.includes("Commercial Decision Desk"));
-console.log("OnePager-EN 含 'evidence-first':", /evidence-first/i.test(en));
+console.log("OnePager-EN 含 'auditable human decision':", /auditable human decision/i.test(en));
 console.log("CapabilityBrief 含 'Commercial Decision Desk':", brief.includes("Commercial Decision Desk"));
-console.log("CapabilityBrief 含 '證據優先':", brief.includes("證據優先"));
+console.log("CapabilityBrief 含 '每一項宣稱都要有證據':", brief.includes("每一項宣稱都要有證據"));
