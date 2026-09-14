@@ -43,14 +43,13 @@ export default function Hero() {
             <span className="lg:hidden">
               {t.hero.headlineA}
               <br />
-              <span className="font-semibold text-bone">{t.hero.headlineB}</span>
+              <span className="font-semibold text-bone">{t.hero.headlineB}</span>{lang === "en" ? " " : ""}
               <span className="inline-block font-semibold text-gold">{t.hero.headlineHighlight}</span>
             </span>
             <span className="hidden lg:block">
               {t.hero.headlineDesktopA}
               <br />
-              <span className="font-semibold text-bone">{t.hero.headlineDesktopB}</span>
-              <br />
+              <span className="font-semibold text-bone">{t.hero.headlineDesktopB}</span>{lang === "en" ? " " : ""}
               <span className="inline-block font-semibold text-gold lg:mt-1">{t.hero.headlineHighlight}</span>
             </span>
           </motion.h1>
@@ -63,21 +62,9 @@ export default function Hero() {
           >
             {t.hero.credentials}
           </motion.p>
-          <motion.div variants={fadeUp} className="mt-6 max-w-[48ch] border-y border-bone/15 py-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gold">{t.hero.youGet}</p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3 sm:divide-x sm:divide-bone/15">
-              {t.hero.outcomes.map((outcome, index) => (
-                <div key={outcome.title} className={index === 0 ? "sm:pr-3" : index === t.hero.outcomes.length - 1 ? "sm:pl-3" : "sm:px-3"}>
-                  <p className="text-[10px] font-bold tracking-[0.14em] text-bone/55">{String(index + 1).padStart(2, "0")}</p>
-                  <p className="mt-1 text-sm font-semibold text-bone">{outcome.title}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-bone/70">{outcome.body}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
-              href="#contact"
+              href="#ai-work-value"
               className="rounded-field bg-gold px-7 py-3.5 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61] active:scale-[0.98]"
             >
               {t.hero.ctaPrimary}

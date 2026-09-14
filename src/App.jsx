@@ -2,6 +2,7 @@ import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
+import HeroOutcomes from "./components/HeroOutcomes.jsx";
 import AiWorkValue from "./components/AiWorkValue.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
 import Verification from "./components/Verification.jsx";
@@ -34,6 +35,7 @@ export default function App() {
           <main id="main">
             {/* ② 先翻譯 AI 的實際角色，再以 CDD 旗艦成果落地。 */}
             <Hero />
+            <HeroOutcomes />
             <AiWorkValue />
             <WorksFlagship />
             <ConnectedCase />
