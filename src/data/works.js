@@ -67,6 +67,8 @@ export const works = [
     span: "md:col-span-2",
     icon: "receipt",
     verified: true,
+    link: "https://apchen1978.github.io/sme-business-spending-insight-demo/",
+    linkLabel: { zh: "試用企業支出啟發", en: "Try Spending Insight" },
     related: {
       id: "commercial-decision-desk",
       label: { zh: "回到交易主線：商務決策工作台", en: "Back to the trade thread: Commercial Decision Desk" },
@@ -98,8 +100,8 @@ export const works = [
       en: "An Owner Insight that helps an SME owner understand spending, prepare evidence, and bring better questions to a CPA or professional.",
     },
     demoNote: {
-      zh: "本機 synthetic prototype（未公開發布）：不是記帳、報稅或節稅工具，不替代 CPA 判斷。",
-      en: "A local synthetic prototype (not publicly released): not bookkeeping, filing, or tax-saving software, and not a replacement for CPA judgment.",
+      zh: "公開 Demo 為獨立 synthetic prototype（尚未經真人 SME／CPA 驗證）：不是記帳、報稅或節稅工具，不替代 CPA 判斷。",
+      en: "Public demo is an independent synthetic prototype (not yet validated by real SME owners or CPAs): not bookkeeping, filing, or tax-saving software, and not a replacement for CPA judgment.",
     },
     zh: {
       title: "企業支出決策啟發",
@@ -129,12 +131,12 @@ export const works = [
         en: "Vanilla HTML/CSS/JavaScript · synthetic cases · deterministic local heuristic · layered Owner Insight / Professional Handoff",
       },
       result: {
-        zh: "完成可操作的本機原型：老闆可用一句話描述支出，先看到現金與商業意義，再自行展開證據與 CPA 問題。",
-        en: "A working local prototype: an owner describes spending in one sentence, sees the business meaning first, and can then open the evidence and CPA questions.",
+        zh: "完成可操作的本機原型與公開靜態 Demo：老闆可用一句話描述支出，先看到現金與商業意義，再自行展開證據與 CPA 問題，並可複製成一份會前摘要。",
+        en: "A working local prototype and public static demo: an owner describes spending in one sentence, sees the business meaning first, then opens the evidence and CPA questions and can copy a one-page brief.",
       },
       evidence: {
-        zh: "本機原型（未公開發布）：合成辦公室整修案例、手機版無水平溢位、核心互動與 0 console errors 已通過本機驗證。未驗證：真人 SME 理解度、CPA 省工、節稅效果、ROI 或正式稅務適用性。",
-        en: "Local prototype (not publicly released): the synthetic office-renovation case, mobile no-overflow behavior, core interaction, and 0 console errors pass local verification. SME comprehension, CPA time savings, tax effects, ROI, and formal tax applicability remain unvalidated.",
+        zh: "公開 Demo：https://apchen1978.github.io/sme-business-spending-insight-demo/；已驗證（技術）：14 個支出面向的鏡頭對應、多面向同時呈現、金額可由描述推得、390px 無水平溢位、0 console errors、複製摘要可用、深色底按鈕對比修正（10.75:1）。未驗證：真人 SME 理解度、CPA 省工、節稅效果、ROI 或正式稅務適用性。",
+        en: "Public demo: https://apchen1978.github.io/sme-business-spending-insight-demo/; technically verified: routing across 14 spending lenses, multiple lenses shown together, amount derivable from the description, no 390px overflow, 0 console errors, working copy-summary, and a fixed dark-panel button contrast (10.75:1). Unvalidated: real SME comprehension, CPA time savings, tax effects, ROI, and formal tax applicability.",
       },
     },
   },
