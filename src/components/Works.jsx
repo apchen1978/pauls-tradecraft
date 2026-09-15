@@ -187,6 +187,108 @@ function MarketEntryDetails({ data, tone = "light" }) {
   );
 }
 
+function SpendingInsightSignal({ data }) {
+  const { lang } = useLang();
+  const copy = data?.[lang];
+  if (!copy) return null;
+
+  return (
+    <section className="mt-5 border-y border-forest/15 py-5" aria-label={copy.signalLabel}>
+      <div className="grid gap-5 md:grid-cols-[1.08fr_.92fr] md:gap-8">
+        <div>
+          <p className="text-xl font-bold leading-tight tracking-tight text-forest md:text-2xl">{copy.hero}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">{copy.heroSupport}</p>
+        </div>
+        <div className="border-l-2 border-amber/70 pl-4 md:pl-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.caseLabel}</p>
+          <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{copy.case}</p>
+          <p className="mt-2 text-xs leading-relaxed text-ink/60">{copy.caseBoundary}</p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-0 border-y border-forest/15 md:grid-cols-3">
+        {copy.lenses.map((lens, index) => (
+          <div key={lens.title} className={`py-4 ${index === 0 ? "border-b md:border-r md:border-b-0 md:pr-5" : index === 1 ? "border-b bg-forest/[0.045] md:border-x md:border-b-0 md:px-5" : "md:pl-5"} border-forest/15`}>
+            <p className="text-[10px] font-bold tracking-[0.16em] text-moss">0{index + 1}</p>
+            <p className="mt-2 text-sm font-bold text-forest">{lens.title}</p>
+            <p className="mt-1 text-xs leading-relaxed text-ink/65">{lens.body}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 border-l-2 border-amber bg-amber/[0.06] px-4 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber">{copy.questionLabel}</p>
+        <p className="mt-1 text-sm font-semibold leading-relaxed text-forest">{copy.question}</p>
+      </div>
+    </section>
+  );
+}
+
+function SpendingInsightDetails({ data, tone = "light" }) {
+  const { lang } = useLang();
+  const copy = data?.[lang];
+  if (!copy) return null;
+  const dark = tone === "dark";
+  const border = dark ? "border-bone/15" : "border-line";
+  const heading = dark ? "text-bone/90" : "text-ink/80";
+  const body = dark ? "text-bone/70" : "text-ink/65";
+
+  return (
+    <>
+      <div>
+        <dt className={`font-semibold ${heading}`}>{copy.questionTitle}</dt>
+        <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.question}</dd>
+      </div>
+      <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
+        <dt className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
+        <dd className={`mt-1 font-semibold leading-relaxed ${heading}`}>{copy.lesson}</dd>
+      </div>
+      <div className={`border-t pt-3 ${border}`}>
+        <dt className={`font-semibold ${heading}`}>{copy.exampleTitle}</dt>
+        <dd className={`mt-2 leading-relaxed ${body}`}>{copy.example}</dd>
+        <p className={`mt-2 text-xs leading-relaxed ${body}`}>{copy.exampleBoundary}</p>
+      </div>
+      <div>
+        <dt className={`font-semibold ${heading}`}>{copy.ownerFlowTitle}</dt>
+        <dd className="mt-2">
+          <ol className={`grid gap-2 text-sm sm:grid-cols-4 ${body}`}>
+            {copy.ownerFlow.map((item, index) => (
+              <li key={item} className="flex gap-2 leading-relaxed sm:block">
+                <span className="font-semibold text-amber">{String(index + 1).padStart(2, "0")}</span>
+                <span className="sm:mt-1 sm:block">{item}</span>
+              </li>
+            ))}
+          </ol>
+        </dd>
+      </div>
+      <div className={`border-t pt-3 ${border}`}>
+        <dt className={`font-semibold ${heading}`}>{copy.handoffTitle}</dt>
+        <dd className="mt-2">
+          <dl className={`grid gap-2 rounded-field border px-4 py-3 ${border} ${dark ? "bg-bone/[0.04]" : "bg-paper/60"}`}>
+            {copy.handoff.map(([label, value]) => (
+              <div key={label} className="grid gap-0.5 sm:grid-cols-[9rem_1fr] sm:gap-3">
+                <dt className={`text-xs font-semibold ${dark ? "text-gold" : "text-amber"}`}>{label}</dt>
+                <dd className={`leading-relaxed ${body}`}>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </dd>
+      </div>
+      <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
+        <dt className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
+        <dd className={`mt-1 leading-relaxed ${body}`}>{copy.boundary}</dd>
+        <ul className={`mt-2 grid gap-1 text-xs sm:grid-cols-2 ${body}`}>
+          {copy.notTested.map((item) => <li key={item}>— {item}</li>)}
+        </ul>
+      </div>
+      <div>
+        <dt className={`font-semibold ${heading}`}>{copy.closingTitle}</dt>
+        <dd className={`mt-0.5 font-medium leading-relaxed ${body}`}>{copy.closing}</dd>
+      </div>
+    </>
+  );
+}
+
 function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
@@ -240,7 +342,7 @@ function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
             </figure>
           </div>
         )}
-        {c.globalBusinessDevelopment ? <GlobalBusinessDevelopment data={c.globalBusinessDevelopment} tone={tone} /> : c.marketEntry ? <MarketEntryDetails data={c.marketEntry} tone={tone} /> : <>
+        {c.globalBusinessDevelopment ? <GlobalBusinessDevelopment data={c.globalBusinessDevelopment} tone={tone} /> : c.marketEntry ? <MarketEntryDetails data={c.marketEntry} tone={tone} /> : c.spendingInsight ? <SpendingInsightDetails data={c.spendingInsight} tone={tone} /> : <>
           <div>
             <dt className={`font-semibold ${styles.heading}`}>{labels.problem}</dt>
             <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.problem)}</dd>
@@ -564,6 +666,7 @@ export default function Works() {
             </h3>
             <p className="mt-2 text-[15px] leading-relaxed text-ink/65 md:text-base">{copy.desc}</p>
             {w.marketEntry && <MarketEntrySignal data={w.marketEntry} />}
+            {w.spendingInsight && <SpendingInsightSignal data={w.spendingInsight} />}
             {copy.caseSummary && (
               <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink/75">
                 <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}</span>
