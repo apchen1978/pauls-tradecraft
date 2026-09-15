@@ -565,7 +565,20 @@ export default function Works() {
                 <p className="mt-1 text-sm leading-relaxed text-ink/80">{w.deliverable[lang]}</p>
               </div>
             )}
-            <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
+            {w.id === "global-business-development" ? (
+              <button
+                type="button"
+                className="mt-auto inline-flex w-fit items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-bold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const details = e.currentTarget.closest("article")?.querySelector("details");
+                  if (details) details.open = !details.open;
+                }}
+              >
+                {t.works.viewJudgment}
+                <ArrowUpRight size={15} weight="bold" aria-hidden="true" />
+              </button>
+            ) : <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
               {w.link ? (
                 <span className="inline-flex items-center gap-1 text-forest">
                   <ArrowUpRight size={13} weight="bold" />
@@ -574,7 +587,7 @@ export default function Works() {
               ) : !w.hidePendingLink ? (
                 t.works.linkPending
               ) : null}
-            </p>
+            </p>}
             {w.demoNote && (
               <p className="mt-1.5 text-[11px] leading-snug text-ink/65">{w.demoNote[lang]}</p>
             )}
