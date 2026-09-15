@@ -56,12 +56,23 @@ export default function Hero() {
           <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}
           </motion.p>
-          <motion.p
+          <motion.div
             variants={fadeUp}
-            className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-bone/60"
+            aria-label={lang === "zh" ? "專業基底" : "Professional foundation"}
+            className="mt-7 grid max-w-2xl divide-y divide-bone/15 border-y border-bone/20 sm:grid-cols-3 sm:divide-x sm:divide-y-0"
           >
-            {t.hero.credentials}
-          </motion.p>
+            {t.hero.credentials.map((credential, index) => (
+              <div
+                key={credential.label}
+                className={`flex items-baseline justify-between gap-5 py-3.5 sm:block sm:px-4 sm:py-4 ${index === 0 ? "sm:pl-0" : ""}`}
+              >
+                <span className="text-lg font-semibold tracking-[-0.02em] text-gold sm:text-xl">{credential.value}</span>
+                <span className="text-right text-[10px] font-semibold uppercase leading-snug tracking-[0.13em] text-bone/65 sm:mt-1.5 sm:block sm:text-left">
+                  {credential.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
               href="#ai-work-value"

@@ -6,13 +6,17 @@ const dict = {
     brandNote: "作品集總覽",
     nav: { works: "作品", services: "商業合作", verification: "驗證", method: "方法", process: "流程", about: "關於我", contact: "討論商業 Pilot", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
-      credentials: "政大會計系 · 15 年國際貿易總監 · TOEIC 955",
+      credentials: [
+        { value: "15 年", label: "國際業務總監" },
+        { value: "NCCU", label: "會計專業基底" },
+        { value: "955", label: "TOEIC · 2019" },
+      ],
       headlineA: "把商業機會，",
       headlineB: "變成",
       headlineDesktopA: "把商業機會，",
       headlineDesktopB: "變成",
       headlineHighlight: "可執行的下一步。",
-      sub: "連結製造與市場，協助工廠與 SME 開發值得投入的海外機會，並用 AI-native 工作方式把複雜問題推進到下一步。",
+      sub: "我用 15 年國際業務經驗與會計視角，看買方、毛利、付款、交付與企業支出；再讓 AI 擴大研究與執行，把判斷變成團隊可採取的下一步。",
       youGet: "你可以帶走",
       outcomes: [
         { title: "值得研究的機會", body: "分清相關公司、可能通路與仍待確認的證據。" },
@@ -311,7 +315,7 @@ const dict = {
     about: {
       eyebrow: "About Me",
       headline: "專業，偶爾風趣",
-      intro: "政大會計系畢業，多年國際貿易總監經驗。",
+      intro: "政大會計系畢業，15 年國際業務總監經驗。",
       narrative: [
         "二十多年，我一直在商業現場。",
         "從製造、財務會計、國際貿易到供應鏈，我長期面對成本、報價、客戶、供應商、付款與風險，也習慣在資訊不完整時做判斷。",
@@ -324,9 +328,9 @@ const dict = {
         secondary: ["HUMAN JUDGMENT.", "AI-POWERED EXECUTION."],
       },
       stats: [
-        { value: "955", label: "TOEIC (2019)" },
-        { value: "15年", label: "國際貿易總監" },
-        { value: "23/23", label: "Pilot 驗證通過" },
+        { value: "15 年", label: "國際業務總監" },
+        { value: "NCCU", label: "會計專業基底" },
+        { value: "955", label: "TOEIC（2019）" },
       ],
     },
     how: {
@@ -385,13 +389,17 @@ const dict = {
     brandNote: "Portfolio",
     nav: { works: "Work", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", about: "About", contact: "Discuss a Commercial Pilot", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
-      credentials: "NCCU Accounting · 15 years international trade director · TOEIC 955",
+      credentials: [
+        { value: "15 years", label: "International sales leadership" },
+        { value: "NCCU", label: "Accounting foundation" },
+        { value: "955", label: "TOEIC · 2019" },
+      ],
       headlineA: "Turn commercial opportunities",
       headlineB: "into",
       headlineDesktopA: "Turn commercial opportunities",
       headlineDesktopB: "into",
       headlineHighlight: "an executable next step.",
-      sub: "Connecting manufacturing and markets, I help factories and SMEs pursue worthwhile overseas opportunities and use AI-native ways of working to move complex problems to the next step.",
+      sub: "I use 15 years of international sales leadership and an accounting lens to read buyers, margin, payment, delivery, and business spending—then use AI to extend research and execution into a next step the team can act on.",
       youGet: "You can take away",
       outcomes: [
         { title: "Opportunities worth investigating", body: "Relevant companies, plausible channels, and evidence still to confirm." },
@@ -690,7 +698,7 @@ const dict = {
     about: {
       eyebrow: "About Me",
       headline: "Professional, occasionally witty",
-      intro: "Accounting degree from NCCU; years as an international trade director.",
+      intro: "Accounting degree from NCCU; 15 years as an international sales director.",
       narrative: [
         "For more than two decades, I’ve worked on the commercial front line.",
         "Across manufacturing, finance, international trade, and supply chains, I’ve dealt with costs, quotations, customers, suppliers, payments, risk, and decisions made with incomplete information.",
@@ -702,9 +710,9 @@ const dict = {
         support: ["Less automation for its own sake.", "Less guessing. Better decisions."],
       },
       stats: [
+        { value: "15 years", label: "International sales director" },
+        { value: "NCCU", label: "Accounting foundation" },
         { value: "955", label: "TOEIC (2019)" },
-        { value: "15 years", label: "Trade director" },
-        { value: "23/23", label: "Pilot checks passed" },
       ],
     },
     how: {
