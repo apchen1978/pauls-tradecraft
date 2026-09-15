@@ -142,7 +142,7 @@ export const works = [
   },
   {
     id: "trade-deal-desk",
-    featuredRank: 4,
+    featuredRank: 7,
     section: "commercial",
     related: {
       id: "payment-concentration",
@@ -558,7 +558,7 @@ export const works = [
   },
   {
     id: "payment-concentration",
-    featuredRank: 3,
+    featuredRank: 6,
     section: "commercial",
     related: {
       id: "trade-deal-desk",
@@ -1036,7 +1036,7 @@ export const works = [
   {
     id: "trade-profit-navigator",
     section: "commercial",
-    featuredRank: 2,
+    featuredRank: 5,
     cover: "/images/cover-trade-profit-navigator.png",
     icon: "receipt",
     verified: true,
