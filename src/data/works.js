@@ -244,7 +244,7 @@ export const works = [
     },
     cover: "/images/cover-trade-deal-desk.png",
     imageAlt: { zh: "AI Trade Deal Desk RFQ 決策工作區畫面", en: "AI Trade Deal Desk RFQ decision workspace" },
-    span: "col-span-1",
+    span: "md:col-span-2",
     icon: "briefcase",
     verified: true,
     link: "https://apchen1978.github.io/ai-trade-deal-desk-demo/",

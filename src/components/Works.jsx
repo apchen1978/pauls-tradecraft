@@ -592,7 +592,7 @@ export default function Works() {
     const secondaryLabel = typeof w.secondaryLinkLabel === "string" ? w.secondaryLinkLabel : w.secondaryLinkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
     const isPrimary = w.primary === true;
-    const spanClass = ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
+    const spanClass = ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "trade-deal-desk", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
     const Wrapper = w.link ? "a" : "div";
