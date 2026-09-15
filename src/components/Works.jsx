@@ -734,7 +734,7 @@ export default function Works() {
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
             {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/65">{sec.note}</p>}
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-6">
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-y-8">
             {sec.works.map((w, i) => renderCard(w, i))}
           </div>
         </div>
