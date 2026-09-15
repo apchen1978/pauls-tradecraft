@@ -941,6 +941,8 @@ export const works = [
         signalLabel: "市場開發研究案例",
         hero: "相關，不等於值得追。",
         heroSupport: "找到相關公司不難；證明它值得投入商業時間，才是真正的工作。",
+        caseArcLabel: "研究弧線",
+        caseArc: "6 個相關帳戶 → 0 個證據支持的可能買家 → 4 條仍待人工驗證的通路路徑",
         context: "合成供應商 + 真實公開市場證據 · 裝飾型 PET 吸音牆板 · 美國",
         signature: [
           { value: "6", label: "相關帳戶" },
@@ -953,11 +955,21 @@ export const works = [
         afterLabel: "留下的下一步",
         afterNote: "保留 4 條值得人工驗證、但仍有重大缺口的通路路徑。",
         correction: "方法修正 · 不是成交漏斗",
+        gatesTitle: "三個證據關卡",
+        gates: [
+          { title: "市場相關性", status: "已知訊號", body: "產品、設計、規格或市場角色與研究題目相關。" },
+          { title: "買方角色", status: "待確認", body: "相關市場參與者是否真的可能承接外部供應，仍不能直接假設。" },
+          { title: "商業取得路徑", status: "待確認", body: "在投入樣品、技術工作或業務時間前，仍需找到可支持的採購路徑。" },
+        ],
+        lessonTitle: "這個案例真正修正了什麼",
+        lesson: "它沒有把名單變成更漂亮的答案，而是把「誰值得追」改寫成一個可以被證據檢查的問題。",
       },
       en: {
         signalLabel: "Market-entry research case",
         hero: "Relevant does not mean worth pursuing.",
         heroSupport: "Finding relevant companies is easy. Proving they deserve commercial attention is the real work.",
+        caseArcLabel: "Research arc",
+        caseArc: "6 relevant accounts → 0 evidence-supported potential buyers → 4 channel paths still requiring human verification",
         context: "Synthetic supplier + real public market evidence · Decorative PET Acoustic Wall Panels · United States",
         signature: [
           { value: "6", label: "Relevant accounts" },
@@ -970,6 +982,14 @@ export const works = [
         afterLabel: "What remains worth verifying",
         afterNote: "Four channel paths remain plausible, but each still has major evidence gaps.",
         correction: "Method correction · not a conversion funnel",
+        gatesTitle: "Three evidence gates",
+        gates: [
+          { title: "Market relevance", status: "KNOWN SIGNAL", body: "The product, design, specification, or market role is relevant to the research question." },
+          { title: "Buyer role", status: "UNKNOWN", body: "A relevant participant cannot be assumed to take supply from an external manufacturer." },
+          { title: "Commercial acquisition path", status: "UNKNOWN", body: "A supported procurement path is still required before samples, technical work, or sales time." },
+        ],
+        lessonTitle: "What this case actually corrected",
+        lesson: "It did not turn the list into a prettier answer. It changed “who should we pursue?” into a question that evidence can test.",
       },
     },
     zh: {
@@ -1011,6 +1031,8 @@ export const works = [
         zh: {
           failureTitle: "方法在哪裡修正？",
           failure: "第一輪的六家帳戶在產品、設計、規格或市場生態系中都相關；但這些訊號不能證明它們會向這個合成供應商採購。重新分類後，原本的問題不再足夠。",
+          lessonTitle: "這個案例真正修正了什麼",
+          lesson: "它沒有把名單變成更漂亮的答案，而是把「誰值得追」改寫成一個可以被證據檢查的問題。",
           questionTitle: "商業問題",
           question: "哪些帳戶值得投入業務時間、樣品、技術工作與後續確認？",
           methodTitle: "公開研究方法",
@@ -1040,6 +1062,8 @@ export const works = [
         en: {
           failureTitle: "Where did the method change?",
           failure: "All six first-pass accounts were relevant to the product, design, specification, or market ecosystem. But those signals did not show that they would acquire from this synthetic supplier. Reclassification showed that the original question was not sufficient.",
+          lessonTitle: "What this case actually corrected",
+          lesson: "It did not turn the list into a prettier answer. It changed “who should we pursue?” into a question that evidence can test.",
           questionTitle: "Business question",
           question: "Which accounts are worth sales time, samples, technical work, and further verification?",
           methodTitle: "Public research method",

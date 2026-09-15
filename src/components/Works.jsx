@@ -52,39 +52,47 @@ function MarketEntrySignal({ data }) {
 
   return (
     <section className="mt-5 border-y border-forest/15 py-5" aria-label={copy.signalLabel}>
-      <p className="text-xl font-bold leading-tight tracking-tight text-forest md:text-2xl">
-        {copy.hero}
-      </p>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">
-        {copy.heroSupport}
-      </p>
-      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-amber">{copy.context}</p>
-
-      <div className="mt-6 border-y border-forest/15">
-        <div className="grid gap-0 md:grid-cols-[1fr_1.15fr_1fr]">
-          <div className="border-b border-forest/15 py-4 md:border-b-0 md:border-r md:pr-5">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.beforeLabel}</p>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-forest">{copy.signature[0].value}</p>
-            <p className="mt-1 text-sm font-semibold leading-snug text-ink/75">{copy.signature[0].label}</p>
-          </div>
-          <div className="border-b border-forest/15 bg-forest/[0.045] px-0 py-4 md:border-b-0 md:border-r md:border-l-0 md:px-5">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.zeroLabel}</p>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-forest">{copy.signature[1].value}</p>
-            <p className="mt-1 text-sm font-semibold leading-snug text-ink/75">{copy.signature[1].label}</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink/65">{copy.zeroNote}</p>
-          </div>
-          <div className="py-4 md:pl-5">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.afterLabel}</p>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-forest">{copy.signature[2].value}</p>
-            <p className="mt-1 text-sm font-semibold leading-snug text-ink/75">{copy.signature[2].label}</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink/65">{copy.afterNote}</p>
-          </div>
+      <div className="grid gap-5 md:grid-cols-[1.1fr_.9fr] md:gap-8">
+        <div>
+          <p className="text-xl font-bold leading-tight tracking-tight text-forest md:text-2xl">{copy.hero}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">{copy.heroSupport}</p>
+        </div>
+        <div className="border-l-2 border-amber/70 pl-4 md:pl-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.caseArcLabel}</p>
+          <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{copy.caseArc}</p>
+          <p className="mt-2 text-xs leading-relaxed text-ink/60">{copy.context}</p>
         </div>
       </div>
 
-      <p className="mt-5 inline-flex border-l-2 border-amber pl-3 text-xs font-semibold uppercase tracking-[0.12em] text-forest">
-        {copy.correction}
-      </p>
+      <div className="mt-6 grid gap-0 border-y border-forest/15 md:grid-cols-[1fr_1.15fr_1fr]">
+        {copy.signature.map((item, index) => (
+          <div key={item.label} className={`py-4 ${index === 0 ? "border-b md:border-r md:border-b-0 md:pr-5" : index === 1 ? "border-b bg-forest/[0.045] md:border-x md:border-b-0 md:px-5" : "md:pl-5"} border-forest/15`}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{index === 0 ? copy.beforeLabel : index === 1 ? copy.zeroLabel : copy.afterLabel}</p>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-forest">{item.value}</p>
+            <p className="mt-1 text-sm font-semibold leading-snug text-ink/75">{item.label}</p>
+            {index === 1 && <p className="mt-2 text-xs leading-relaxed text-ink/65">{copy.zeroNote}</p>}
+            {index === 2 && <p className="mt-2 text-xs leading-relaxed text-ink/65">{copy.afterNote}</p>}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.gatesTitle}</p>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          {copy.gates.map((gate, index) => (
+            <div key={gate.title} className="border-t border-forest/20 pt-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[10px] font-bold tracking-[0.16em] text-moss">0{index + 1}</span>
+                <span className={`text-[10px] font-bold uppercase tracking-[0.12em] ${gate.status === "UNKNOWN" || gate.status === "待確認" ? "text-rust" : "text-forest"}`}>{gate.status}</span>
+              </div>
+              <p className="mt-2 text-sm font-bold text-forest">{gate.title}</p>
+              <p className="mt-1 text-xs leading-relaxed text-ink/65">{gate.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p className="mt-6 inline-flex border-l-2 border-amber pl-3 text-xs font-semibold uppercase tracking-[0.12em] text-forest">{copy.correction}</p>
     </section>
   );
 }
@@ -103,6 +111,10 @@ function MarketEntryDetails({ data, tone = "light" }) {
       <div>
         <dt className={`font-semibold ${heading}`}>{copy.questionTitle}</dt>
         <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.question}</dd>
+      </div>
+      <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
+        <dt className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
+        <dd className={`mt-1 font-semibold leading-relaxed ${heading}`}>{copy.lesson}</dd>
       </div>
       <div className={`border-t pt-3 ${border}`}>
         <dt className={`font-semibold ${heading}`}>{copy.failureTitle}</dt>
