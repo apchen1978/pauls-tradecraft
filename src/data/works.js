@@ -61,7 +61,7 @@ export const works = [
   {
     id: "business-spending-insight",
     section: "commercial",
-    featuredRank: 3,
+    featuredRank: 4,
     cover: "/images/cover-business-spending-insight.svg",
     imageAlt: { zh: "企業支出決策啟發：現金、效益、時間、證據與專業確認", en: "Business Spending Insight: cash, benefit, timing, evidence, and professional review" },
     span: "md:col-span-2",
@@ -69,6 +69,11 @@ export const works = [
     verified: true,
     link: "https://apchen1978.github.io/sme-business-spending-insight-demo/",
     linkLabel: { zh: "試用企業支出啟發", en: "Try Spending Insight" },
+    linkType: "demo",
+    decisionQuestion: {
+      zh: "老闆花這筆錢之前，還需要先看清哪些影響？",
+      en: "What should an owner understand before committing company money?",
+    },
     related: {
       id: "commercial-decision-desk",
       label: { zh: "回到交易主線：商務決策工作台", en: "Back to the trade thread: Commercial Decision Desk" },
@@ -249,6 +254,11 @@ export const works = [
     verified: true,
     link: "https://apchen1978.github.io/ai-trade-deal-desk-demo/",
     linkLabel: { zh: "線上體驗", en: "Live Demo" },
+    linkType: "demo",
+    decisionQuestion: {
+      zh: "報價、成本與付款條件放在一起後，這筆交易能否談？",
+      en: "Can this deal be negotiated once quote, cost, and payment terms are seen together?",
+    },
     zh: {
       title: "貿易交易工作台",
       desc: "把貿易判斷，收斂成可重跑、可交接的工作流——承諾之前，先走完一輪執行前檢查。",
@@ -665,6 +675,11 @@ export const works = [
     verified: true,
     link: "https://apchen1978.github.io/payment-concentration-demo/",
     linkLabel: { zh: "試試付款原型", en: "Try the Payment Prototype" },
+    linkType: "demo",
+    decisionQuestion: {
+      zh: "付款承諾會不會在同一週壓垮現金？",
+      en: "Could payment commitments stack up and strain cash in the same week?",
+    },
     zh: {
       title: "付款集中度分析",
       desc: "把付款承諾的集中度，算清到每一天、每一個幣別——在現金壓力到來之前，先看得見。",
@@ -752,7 +767,7 @@ export const works = [
   },
   {
     id: "overseas-lead-discovery",
-    featuredRank: 4,
+    featuredRank: 5,
     section: "commercial",
     cover: "/images/cover-lead-discovery.png",
     imageAlt: { zh: "Overseas Lead Discovery 資格篩選 demo 畫面", en: "Overseas Lead Discovery qualification demo" },
@@ -761,6 +776,11 @@ export const works = [
     verified: true,
     link: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
     linkLabel: { zh: "試用潛在客戶篩選 Demo", en: "Try Qualification Demo" },
+    linkType: "demo",
+    decisionQuestion: {
+      zh: "哪些候選客戶值得先投入業務時間？",
+      en: "Which candidate accounts deserve commercial effort first?",
+    },
     related: {
       id: "global-business-development",
       label: { zh: "延伸：從候選名單到商業資源判斷", en: "Next: from candidate list to commercial-resource judgment" },
@@ -1186,13 +1206,18 @@ export const works = [
   {
     id: "trade-profit-navigator",
     section: "commercial",
-    featuredRank: 5,
+    featuredRank: 3,
     cover: "/images/cover-trade-profit-navigator.png",
     icon: "receipt",
     verified: true,
     hidePendingLink: false,
     link: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001",
     linkLabel: { zh: "試試利潤導航", en: "Try Profit Navigator" },
+    linkType: "demo",
+    decisionQuestion: {
+      zh: "這筆交易還有哪個利潤槓桿值得先測？",
+      en: "Which profit lever is worth testing before the deal moves?",
+    },
     demoNote: {
       zh: "公開 Demo 為獨立 synthetic prototype：情境為合成 USD 案例，不含真實客戶資料。",
       en: "Public demo is an independent synthetic prototype: the scenario is a synthetic USD case with no real customer data.",
@@ -1248,6 +1273,11 @@ export const works = [
     // 評估我的商機（#mode-blank）作為第二層給已理解用途的人。
     link: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
     linkLabel: { zh: "看一筆 48 萬美元訂單，為何還不能接", en: "See why a USD 480k order is not yet committable" },
+    linkType: "demo",
+    decisionQuestion: {
+      zh: "這筆交易現在能不能承諾，還缺哪個關鍵答案？",
+      en: "Can this deal be committed now, or what answer is still missing?",
+    },
     secondaryLink: "https://apchen1978.github.io/commercial-decision-desk/#mode-blank",
     secondaryLinkLabel: { zh: "評估我的商機", en: "Assess my opportunity" },
     showcase: {

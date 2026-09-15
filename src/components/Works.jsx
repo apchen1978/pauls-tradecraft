@@ -664,6 +664,12 @@ export default function Works() {
                 />
               )}
             </h3>
+            {w.decisionQuestion && (
+              <div className="mt-4 border-l-2 border-amber/75 pl-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber">{t.works.decisionQuestionLabel}</p>
+                <p className="mt-1 text-[15px] font-semibold leading-snug text-forest md:text-base">{w.decisionQuestion[lang]}</p>
+              </div>
+            )}
             <p className="mt-2 text-[15px] leading-relaxed text-ink/65 md:text-base">{copy.desc}</p>
             {w.marketEntry && <MarketEntrySignal data={w.marketEntry} />}
             {w.spendingInsight && <SpendingInsightSignal data={w.spendingInsight} />}
@@ -695,7 +701,8 @@ export default function Works() {
               </button>
             ) : <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
               {w.link ? (
-                <span className="inline-flex items-center gap-1 text-forest">
+                <span className="inline-flex items-center gap-2 text-forest">
+                  {w.linkType === "demo" && <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-forest">{t.works.demoLabel}</span>}
                   <ArrowUpRight size={13} weight="bold" />
                   {linkLabel}
                 </span>

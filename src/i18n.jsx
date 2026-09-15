@@ -43,10 +43,10 @@ const dict = {
       snapshotCta: "看這筆 48 萬美元訂單為何還不能接",
     },
     humanAiEditorial: {
-      eyebrow: "HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
-      statement: "人決定方向。\nAI 擴大視野，\n也放大執行能力。\n證據決定下一步。",
-      explanation: "不是讓人憑直覺走得更快，也不是讓 AI 自動作答；而是讓商業判斷擁有更大的研究與執行範圍，同時誠實保留還不知道的事。",
-      closing: "方向由人掌握，能力由 AI 擴張，下一步由證據推動。",
+      eyebrow: "THE LOOP · HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
+      statement: "經驗決定我們該問什麼。\nAI 擴大我們能探索與做到的範圍。\n證據決定什麼值得繼續。",
+      explanation: "這不是一套僵硬的方法，而是一個會被每次研究、建置與現實回饋重新校正的循環：經驗形成問題，AI 擴大探索，證據改變下一個判斷。",
+      closing: "經驗形成問題，AI 擴大能力，證據讓下一次判斷更準。",
     },
     startHere: {
       eyebrow: "CONSULTING START POINTS",
@@ -122,12 +122,12 @@ const dict = {
       headline: "同一種解題能力，在不同場景運作。",
       sub: "旗艦商業系統處理商機、交易與承諾；其餘作品則證明這種能力能延伸到營運、品牌與創意實驗。每一件都有可檢視的產出與證據鏈。",
       sections: {
-        commercial: "成長與商業判斷",
-        operations: "AI-native 團隊與客戶體驗",
-        labs: "Creative Practice｜創意實作",
+        commercial: "Selected Systems｜核心商業判斷",
+        operations: "Supporting Capabilities｜支援能力",
+        labs: "Building & Exploration｜產品實作與探索",
         notes: {
-          commercial: "從工廠與市場之間找到值得投入的客戶、通路與專案，並把承諾條件整理成可決策的工作底稿。",
-          operations: "協助 SME 把重複工作設計成可與 AI 協作的方式，也把複雜價值轉成客戶能理解的體驗。",
+          commercial: "三個互補的主力系統：先判斷應否承諾，再判斷資源該往哪裡去，最後找出值得測試的經濟槓桿。",
+          operations: "支撐商業交付、團隊協作與客戶體驗的能力；每件作品保留自己的工作場景與證據。",
           labs: "把觀察與想法做成可操作、可體驗、值得被看見的成果。",
         },
       },
@@ -136,6 +136,8 @@ const dict = {
       viewJudgment: "查看商業開發判斷",
       deliverableLabel: "你會帶走",
       linkPending: "已驗證產物 · 無公開 demo",
+      decisionQuestionLabel: "這件作品幫你先回答",
+      demoLabel: "公開 Demo",
       statusVerified: "已驗證",
       verifiedExplain: "「已驗證」＝通過預先定義的功能、回歸、建置與使用性檢查，附可重跑證據鏈 — AI 協作時代的驗證式交付：人決策、AI 產出、證據可複驗。不代表商業採用或市場驗證。",
       caseStudy: {
@@ -445,10 +447,10 @@ const dict = {
       snapshotCta: "See why this USD 480k order is not committable yet",
     },
     humanAiEditorial: {
-      eyebrow: "HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
-      statement: "Human judgment sets direction.\nAI extends what can be seen, compared, and built.\nEvidence decides what deserves the next move.",
-      explanation: "This is neither faster intuition nor automated certainty. It gives commercial judgment a wider field of view and greater execution range, while keeping UNKNOWN honestly visible.",
-      closing: "Human direction. AI-native range. Evidence-led movement.",
+      eyebrow: "THE LOOP · HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
+      statement: "Experience shapes the question.\nAI expands what we can explore and build.\nEvidence decides what deserves to move forward.",
+      explanation: "This is not a rigid methodology but a living loop: experience forms the question, AI expands exploration and execution, and evidence changes the next judgment.",
+      closing: "Experience forms the question. AI expands capability. Evidence sharpens the next judgment.",
     },
     startHere: {
       eyebrow: "CONSULTING START POINTS",
@@ -524,12 +526,12 @@ const dict = {
       headline: "One problem-solving capability, working across different contexts.",
       sub: "The flagship commercial systems address opportunities, deals, and commitments. The remaining work shows how the same capability extends into operations, brands, and creative experiments — each with inspectable outputs and an evidence chain.",
       sections: {
-        commercial: "Growth & Commercial Judgment",
-        operations: "AI-native Teams & Customer Experience",
-        labs: "Creative Practice | Builds",
+        commercial: "Selected Systems | Core Commercial Judgment",
+        operations: "Supporting Capabilities | Teams & Experience",
+        labs: "Building & Exploration | Creative Practice",
         notes: {
-          commercial: "Find the customers, channels, and projects worth pursuing, then turn commitment conditions into a decision-ready brief.",
-          operations: "Help SMEs design repeatable AI collaboration and turn complex value into experiences customers can understand.",
+          commercial: "Three complementary systems: decide whether to commit, where effort should go, and which economic lever is worth testing next.",
+          operations: "Supporting work for commercial delivery, team collaboration, and customer experience — each keeping its own context and evidence.",
           labs: "Turn observation and ideas into working, experiential results worth seeing.",
         },
       },
@@ -538,6 +540,8 @@ const dict = {
       viewJudgment: "View business-development judgment",
       deliverableLabel: "You leave with",
       linkPending: "Verified artifact · no public demo",
+      decisionQuestionLabel: "The decision it helps you answer",
+      demoLabel: "Live demo",
       statusVerified: "Verified",
       verifiedExplain: "\u201CVerified\u201D = passed defined functional, regression, build, and usability checks, with a rerunnable evidence chain \u2014 a verification-first delivery model for the AI-collaboration era: humans decide, AI builds, evidence re-verifiable. It does not imply commercial adoption or market validation.",
       caseStudy: {
