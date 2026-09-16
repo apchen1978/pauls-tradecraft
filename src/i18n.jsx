@@ -62,8 +62,8 @@ const dict = {
       featuredCta: "試試付款原型",
       cddInvite: "先看完整商業決策路徑。",
       snapshotChromeLabel: "合成案例 · CDD 輸出",
-      snapshotAlt: "商務決策工作台的合成案例輸出：交易摘要與關鍵控制因素一屏檢視",
-      snapshotCaption: "合成案例 · Executive Deal Snapshot — 把承諾前要看的事放在同一屏",
+      snapshotAlt: "商務決策工作台的合成案例輸出：480,000 USD 預估訂單收入、120,000 USD 預期淨貢獻，以及承諾前的關鍵控制因素",
+      snapshotCaption: "合成案例 · 48 萬美元訂單／12 萬美元預期淨貢獻 — 承諾前先看清條件",
       snapshotCta: "看這筆 48 萬美元訂單為何還不能接",
     },
     humanAiEditorial: {
@@ -490,8 +490,8 @@ const dict = {
       featuredCta: "Try the Payment Prototype",
       cddInvite: "See the full commercial decision path first.",
       snapshotChromeLabel: "Synthetic case · CDD output",
-      snapshotAlt: "A synthetic Commercial Decision Desk output: deal summary and key control factors on one screen",
-      snapshotCaption: "Synthetic · Executive Deal Snapshot — what matters before commitment on one screen",
+      snapshotAlt: "A synthetic Commercial Decision Desk output: a USD 480,000 estimated order, USD 120,000 expected net contribution, and key pre-commitment controls",
+      snapshotCaption: "Synthetic · USD 480k order / USD 120k expected net contribution — inspect terms before commitment",
       snapshotCta: "See why this USD 480k order is not committable yet",
     },
     humanAiEditorial: {
