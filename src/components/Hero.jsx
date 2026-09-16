@@ -75,7 +75,7 @@ export default function Hero() {
           </motion.div>
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
-              href="#ai-work-value"
+              href="#outcomes"
               className="rounded-field bg-gold px-7 py-3.5 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61] active:scale-[0.98]"
             >
               {t.hero.ctaPrimary}
