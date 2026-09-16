@@ -84,7 +84,7 @@ export default function Hero() {
               href={cdd.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-field border border-bone/40 bg-pine/20 px-7 py-3.5 text-sm font-semibold text-bone backdrop-blur-sm transition-colors hover:border-bone/80 active:scale-[0.98]"
+              className="rounded-field border border-bone/55 bg-bone/[0.06] px-7 py-3.5 text-sm font-semibold tracking-[0.025em] text-bone shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-sm transition-colors hover:border-gold/75 hover:bg-bone/[0.1] hover:text-gold active:scale-[0.98]"
             >
               {t.hero.ctaSecondary}
             </a>
