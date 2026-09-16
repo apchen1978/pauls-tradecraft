@@ -586,7 +586,7 @@ export default function Works() {
       }),
   }));
 
-  const renderCard = (w, i) => {
+  const renderCard = (w, i, sectionIndex) => {
     const copy = lang === "zh" ? w.zh : w.en;
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
     const secondaryLabel = typeof w.secondaryLinkLabel === "string" ? w.secondaryLinkLabel : w.secondaryLinkLabel?.[lang];
@@ -629,7 +629,7 @@ export default function Works() {
               <img
                 src={w.cover}
                 alt={w.imageAlt[lang]}
-                loading="lazy"
+                loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
                 className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02]`}
               />
             </div>
@@ -735,7 +735,7 @@ export default function Works() {
             {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/65">{sec.note}</p>}
           </div>
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-y-8">
-            {sec.works.map((w, i) => renderCard(w, i))}
+            {sec.works.map((w, i) => renderCard(w, i, si))}
           </div>
         </div>
       ))}
