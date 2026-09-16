@@ -24,7 +24,7 @@ const dict = {
         { title: "可交接下一步", body: "帶進會議的行動、證據要求與人的決定。" },
       ],
       ctaPrimary: "看看我能怎麼幫上忙",
-      ctaSecondary: "看顧問怎麼工作",
+      ctaSecondary: "See How I Think",
       imgCaption: "窗簾軟裝 Pilot 追蹤器 · 實際畫面",
       featuredKicker: "Featured business proof",
       featuredHook1: "每張訂單單看都沒問題。",
