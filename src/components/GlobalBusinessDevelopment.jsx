@@ -39,9 +39,14 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber">{copy.objectiveEyebrow}</p>
             <h4 id="gbd-objective-title" className={`mt-1 text-xl font-bold tracking-tight ${heading}`}>{copy.objectiveTitle}</h4>
           </div>
-          <p className={`text-sm leading-relaxed ${muted}`}>{copy.objectiveIntro}</p>
+          <div>
+            <p className={`text-sm leading-relaxed ${muted}`}>{copy.objectiveIntro}</p>
+            <p id="gbd-objective-instruction" className={`mt-3 border-l-2 border-amber pl-3 text-xs font-semibold leading-relaxed ${heading}`}>
+              {copy.objectivePrompt}
+            </p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 border-b border-line sm:grid-cols-2" role="group" aria-label={copy.objectiveTitle}>
+        <div className="grid grid-cols-1 border-b border-line sm:grid-cols-2" role="group" aria-label={copy.objectiveTitle} aria-describedby="gbd-objective-instruction">
           {Object.entries(copy.objectives).map(([key, item]) => {
             const activeButton = objective === key;
             return (
