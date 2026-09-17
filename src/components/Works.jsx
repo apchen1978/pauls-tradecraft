@@ -536,7 +536,7 @@ function FeaturedSystem({ work }) {
               <span>Featured Work</span>
               <span className="text-forest">{t.works.statusVerified}</span>
             </div>
-            <img src={cover} alt={work.imageAlt[lang]} loading="eager" className="aspect-[16/9] h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]" />
+            <img src={cover} alt={work.imageAlt[lang]} loading="eager" className={`aspect-[16/9] h-full w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
           </div>
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>

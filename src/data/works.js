@@ -1265,6 +1265,7 @@ export const works = [
     featuredRank: 1,
     section: "commercial",
     cover: { zh: "/images/cover-commercial-decision-desk.svg", en: "/images/cover-commercial-decision-desk-en.svg" },
+    imageFit: "contain",
     imageAlt: { zh: "商務決策工作台的合成高階摘要：48 萬美元商機、12 萬美元預期淨貢獻與付款條件缺口", en: "Commercial Decision Desk synthetic executive reading: a USD 480k opportunity, USD 120k expected contribution, and unresolved payment terms" },
     span: "md:col-span-2",
     icon: "briefcase",
