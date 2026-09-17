@@ -864,10 +864,10 @@ export const works = [
     hidePendingLink: true,
     related: {
       id: "ai-native-market-entry",
-      label: { zh: "延伸閱讀：AI 原生市場開發", en: "Related: AI-Native Market Entry" },
+      label: { zh: "看證據案例：AI 原生市場開發", en: "See the evidence case: AI-Native Market Entry" },
       note: {
-        zh: "市場開發先檢查帳戶是否有可支持的商業取得路徑；本案例則進一步處理：在供應商現實與 Owner 目標已知時，商業資源該往哪裡去。",
-        en: "Market Entry tests whether an account has evidence of a plausible commercial path. This case then asks where commercial effort should go once supplier reality and the Owner objective are explicit.",
+        zh: "先看證據如何挑戰「相關」；再回到本案例，判斷在供應商現實與 Owner 目標已知時，商業資源該往哪裡去。",
+        en: "First see how evidence challenges relevance; then return here to decide where commercial effort belongs once supplier reality and the Owner objective are explicit.",
       },
     },
     deliverable: {
@@ -1202,6 +1202,14 @@ export const works = [
         },
       },
     },
+    related: {
+      id: "global-business-development",
+      label: { zh: "回到商業開發判斷", en: "Back to business-development judgment" },
+      note: {
+        zh: "證據案例回答「為什麼不能只看相關」；回到 GBD，繼續看 Owner 目標如何改變資源優先順序。",
+        en: "This evidence case explains why relevance is not enough; return to GBD to see how the Owner objective changes resource priority.",
+      },
+    },
   },
   {
     id: "trade-profit-navigator",
@@ -1273,14 +1281,14 @@ export const works = [
     // Astra P0-2：陌生客戶先看完成範例（建立興趣），
     // 評估我的商機（#mode-blank）作為第二層給已理解用途的人。
     link: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
-    linkLabel: { zh: "看一筆 48 萬美元訂單，為何還不能接", en: "See why a USD 480k order is not yet committable" },
+    linkLabel: { zh: "先看合成案例", en: "See the synthetic case" },
     linkType: "demo",
     decisionQuestion: {
       zh: "這筆交易現在能不能承諾，還缺哪個關鍵答案？",
       en: "Can this deal be committed now, or what answer is still missing?",
     },
     secondaryLink: "https://apchen1978.github.io/commercial-decision-desk/#mode-blank",
-    secondaryLinkLabel: { zh: "評估我的商機", en: "Assess my opportunity" },
+    secondaryLinkLabel: { zh: "帶入自己的商機", en: "Bring in my opportunity" },
     showcase: {
       zh: {
         label: "決策工作流",
