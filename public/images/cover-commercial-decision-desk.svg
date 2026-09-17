@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Commercial Decision Desk synthetic executive reading</title>
+  <desc id="desc">A synthetic USD 480,000 opportunity with USD 120,000 expected net contribution, unresolved payment terms, and a clear next question.</desc>
+  <rect width="1600" height="1200" fill="#f5f1e8"/>
+  <g transform="translate(0 150)">
+  <rect x="74" y="58" width="1452" height="784" rx="8" fill="#fbf8f1" stroke="#d8d0c1" stroke-width="2"/>
+  <path d="M74 164H1526" stroke="#d8d0c1" stroke-width="2"/>
+  <circle cx="112" cy="111" r="8" fill="#c8942f"/>
+  <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">SYNTHETIC CASE · COMMERCIAL DECISION DESK</text>
+  <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">OWNER-FACING SUMMARY</text>
+  <text x="116" y="235" fill="#9a4a35" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">30-SECOND EXECUTIVE READING</text>
+  <text x="116" y="300" fill="#1d2b24" font-family="Georgia, serif" font-size="45" font-weight="700">這筆交易，現在該怎麼做？</text>
+  <rect x="1138" y="218" width="326" height="74" rx="37" fill="#f3e3bf"/>
+  <text x="1200" y="265" fill="#9a4a35" font-family="Arial, sans-serif" font-size="26" font-weight="700">需要進一步判斷</text>
+  <path d="M116 348H1484" stroke="#ddd5c8" stroke-width="2"/>
+  <text x="116" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">這筆生意有多少規模</text>
+  <text x="116" y="451" fill="#1d2b24" font-family="Arial, sans-serif" font-size="44" font-weight="700">480,000 USD</text>
+  <path d="M522 372V465" stroke="#ddd5c8" stroke-width="2"/>
+  <text x="564" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">目前預期淨貢獻</text>
+  <text x="564" y="451" fill="#1d2b24" font-family="Arial, sans-serif" font-size="44" font-weight="700">120,000 USD</text>
+  <path d="M1038 372V465" stroke="#ddd5c8" stroke-width="2"/>
+  <text x="1080" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">現在卡在哪裡</text>
+  <text x="1080" y="435" fill="#1d2b24" font-family="Arial, sans-serif" font-size="22" font-weight="700">付款條件不一致</text>
+  <text x="1080" y="463" fill="#1d2b24" font-family="Arial, sans-serif" font-size="22" font-weight="700">訂單數量與最後付款仍待確認</text>
+  <path d="M116 505H1484" stroke="#ddd5c8" stroke-width="2"/>
+  <text x="116" y="550" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">下一步先做什麼</text>
+  <text x="116" y="591" fill="#1d2b24" font-family="Arial, sans-serif" font-size="25" font-weight="700">先把付款條件確認清楚：怎麼付款、什麼時候付、出貨前要付到多少。</text>
+  <text x="116" y="627" fill="#7b7368" font-family="Arial, sans-serif" font-size="18">系統整理已知證據與缺口；最後是否承諾，仍由 Owner 決定。</text>
+  <path d="M116 673H1484" stroke="#ddd5c8" stroke-width="2"/>
+  <g font-family="Arial, sans-serif">
+    <text x="116" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">收不收得到錢？</text>
+    <text x="116" y="759" fill="#9a4a35" font-size="26" font-weight="700">還沒鎖定</text>
+    <text x="594" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">做不做得完／交得出？</text>
+    <text x="594" y="759" fill="#315847" font-size="26" font-weight="700">條件已記錄，能力仍待確認</text>
+    <text x="1128" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">現在投入資源？</text>
+    <text x="1128" y="759" fill="#9a4a35" font-size="26" font-weight="700">先升級判斷</text>
+  </g>
+</g>
+</svg>

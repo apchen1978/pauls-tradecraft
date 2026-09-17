@@ -13,8 +13,8 @@ export default function Hero() {
   // 畫面分工（Astra ①）：Hero 展示「最後得到什麼」——合成案例的
   // Executive Deal Snapshot 輸出特寫；Featured Work 卡保留工作區畫面「怎麼完成」。
   const snapshotSrc = lang === "zh"
-    ? "/images/cdd-executive-snapshot-zh-v02.png"
-    : "/images/cdd-executive-snapshot-en-v02.png";
+    ? "/images/cover-commercial-decision-desk.svg"
+    : "/images/cover-commercial-decision-desk-en.svg";
   return (
     <section id="top" className="relative isolate overflow-hidden bg-pine text-bone shadow-[0_28px_80px_-56px_rgba(20,51,41,0.9)]">
       <div aria-hidden className="absolute inset-0">

@@ -1048,7 +1048,7 @@ export const works = [
     imageAlt: { zh: "AI 原生市場開發研究案例：6 到 0 到 4 的方法修正", en: "AI-Native Market Entry method case: the 6 to 0 to 4 correction" },
     marketEntry: {
       zh: {
-        signalLabel: "市場開發研究案例",
+        signalLabel: "海外商業開發的證據案例",
         hero: "相關，不等於值得追。",
         heroSupport: "找到相關公司不難；證明它值得投入商業時間，才是真正的工作。",
         caseArcLabel: "研究弧線",
@@ -1075,7 +1075,7 @@ export const works = [
         lesson: "它沒有把名單變成更漂亮的答案，而是把「誰值得追」改寫成一個可以被證據檢查的問題。",
       },
       en: {
-        signalLabel: "Market-entry research case",
+        signalLabel: "Global business development evidence case",
         hero: "Relevant does not mean worth pursuing.",
         heroSupport: "Finding relevant companies is easy. Proving they deserve commercial attention is the real work.",
         caseArcLabel: "Research arc",
@@ -1105,13 +1105,13 @@ export const works = [
     zh: {
       title: "AI 原生市場開發",
       desc: "用公開證據提高商機研究的品質：先分清相關市場角色，再判斷是否存在值得投入的商業取得路徑。",
-      tag: "市場開發 · 公開證據 · 方法案例",
+      tag: "海外商業開發 · 公開證據 · 證據案例",
       caseSummary: "一個關於如何發現並修正商業誤判的研究案例：相關市場參與者，不等於有理由被當成可能買家。",
     },
     en: {
       title: "AI-Native Market Entry",
       desc: "Evidence-aware opportunity discovery: separate relevant market roles before deciding whether a commercial acquisition path deserves attention.",
-      tag: "Market entry · Public evidence · Method case",
+      tag: "Global business development · Public evidence · Evidence case",
       caseSummary: "A research case in detecting and correcting commercial false positives: a relevant market participant is not automatically a plausible buyer.",
     },
     case: {
@@ -1264,8 +1264,8 @@ export const works = [
     id: "commercial-decision-desk",
     featuredRank: 1,
     section: "commercial",
-    cover: "/images/cover-commercial-decision-desk.png",
-    imageAlt: { zh: "Commercial Decision Desk 決策支援介面", en: "Commercial Decision Desk decision-support interface" },
+    cover: { zh: "/images/cover-commercial-decision-desk.svg", en: "/images/cover-commercial-decision-desk-en.svg" },
+    imageAlt: { zh: "商務決策工作台的合成高階摘要：48 萬美元商機、12 萬美元預期淨貢獻與付款條件缺口", en: "Commercial Decision Desk synthetic executive reading: a USD 480k opportunity, USD 120k expected contribution, and unresolved payment terms" },
     span: "md:col-span-2",
     icon: "briefcase",
     verified: true,

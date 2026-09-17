@@ -406,6 +406,7 @@ function FeaturedSystem({ work }) {
   const { lang, t } = useLang();
   const featuredRef = useRef(null);
   const copy = work[lang];
+  const cover = typeof work.cover === "string" ? work.cover : work.cover?.[lang];
   const linkLabel = typeof work.linkLabel === "string" ? work.linkLabel : work.linkLabel?.[lang];
   // Astra P0-2：主入口先看完成範例；已理解用途的人可用第二入口評估自己的商機。
   const secondaryLabel = work.secondaryLinkLabel
@@ -535,7 +536,7 @@ function FeaturedSystem({ work }) {
               <span>Featured Work</span>
               <span className="text-forest">{t.works.statusVerified}</span>
             </div>
-            <img src={work.cover} alt={work.imageAlt[lang]} loading="eager" className="aspect-[16/9] h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]" />
+            <img src={cover} alt={work.imageAlt[lang]} loading="eager" className="aspect-[16/9] h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]" />
           </div>
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
@@ -588,6 +589,7 @@ export default function Works() {
 
   const renderCard = (w, i, sectionIndex) => {
     const copy = lang === "zh" ? w.zh : w.en;
+    const cover = typeof w.cover === "string" ? w.cover : w.cover?.[lang];
     const linkLabel = typeof w.linkLabel === "string" ? w.linkLabel : w.linkLabel?.[lang];
     const secondaryLabel = typeof w.secondaryLinkLabel === "string" ? w.secondaryLinkLabel : w.secondaryLinkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
@@ -624,10 +626,10 @@ export default function Works() {
          className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] ${isPrimary ? "border-forest/35 bg-forest/[0.025]" : "border-line"} ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
-          {w.cover ? (
+          {cover ? (
             <div className="overflow-hidden bg-ink/[0.04]">
               <img
-                src={w.cover}
+                src={cover}
                 alt={w.imageAlt[lang]}
                 loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
                 className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02]`}
