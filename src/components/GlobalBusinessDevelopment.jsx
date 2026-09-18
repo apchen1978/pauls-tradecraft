@@ -50,7 +50,7 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
           {Object.entries(copy.objectives).map(([key, item]) => {
             const activeButton = objective === key;
             return (
-              <button key={key} type="button" aria-pressed={activeButton} onClick={() => setObjective(key)} className={`relative min-h-24 border-b border-line px-4 py-4 text-left transition-colors last:border-b-0 sm:border-b-0 sm:last:border-l md:px-6 ${activeButton ? "bg-forest text-bone" : dark ? "text-bone/80 hover:bg-bone/[0.08] focus-visible:bg-bone/[0.08]" : "text-forest hover:bg-forest/[0.06] focus-visible:bg-forest/[0.06]"}`}>
+              <button key={key} type="button" aria-pressed={activeButton} onClick={(event) => { event.stopPropagation(); setObjective(key); }} className={`relative min-h-24 border-b border-line px-4 py-4 text-left transition-colors last:border-b-0 sm:border-b-0 sm:last:border-l md:px-6 ${activeButton ? "bg-forest text-bone" : dark ? "text-bone/80 hover:bg-bone/[0.08] focus-visible:bg-bone/[0.08]" : "text-forest hover:bg-forest/[0.06] focus-visible:bg-forest/[0.06]"}`}>
                 <span className="text-[10px] font-bold tracking-[0.18em] text-amber">{item.label}</span>
                 <span className="mt-2 block text-base font-bold">{item.name}</span>
                 <span className={`mt-1 block text-xs leading-relaxed ${activeButton ? "text-bone/70" : muted}`}>{item.objective}</span>
