@@ -6,6 +6,7 @@ import HeroOutcomes from "./components/HeroOutcomes.jsx";
 import AiWorkValue from "./components/AiWorkValue.jsx";
 import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
+import Garage from "./components/Garage.jsx";
 import Verification from "./components/Verification.jsx";
 import CommercialOutcomes from "./components/CommercialOutcomes.jsx";
 import ConnectedCase from "./components/ConnectedCase.jsx";
@@ -44,6 +45,7 @@ export default function App() {
             <DealReadiness />
             <CommercialOutcomes />
             <Works />
+            <Garage />
             <Verification />
             <Methods />
             <Capabilities />

@@ -430,6 +430,22 @@ const dict = {
       rights: "All rights reserved.",
       builtWith: "此站由 Codex → DSH 協作建立並部署，全程可追溯。",
     },
+    garage: {
+      eyebrow: "THE GARAGE",
+      headline: "產品之前，先有火花。",
+      intro: "很多東西，一開始是在車庫裡做出來的：小、合成、還不完整。先直接玩那個原始想法——這就是上方那些系統，還沒被打磨成產品之前的樣子。",
+      playLabel: "玩到那個火花",
+      syntheticTag: "合成玩具",
+      boundary: "僅合成數字——沒有真實帳戶、日期或現金。",
+      items: [
+        {
+          title: "Coincidence Detector · 巧合偵測器",
+          spark: "無關的承諾，會在時間裡相遇——尤其是同一週。",
+          note: "付款集中度分析背後的原始想法，保留成玩具，而不是產品。",
+          href: "https://apchen1978.github.io/coincidence-detector/",
+        },
+      ],
+    },
     langLabel: "EN",
   },
   en: {
@@ -859,6 +875,22 @@ const dict = {
       line: "Turning trade practice into visible tools.",
       rights: "All rights reserved.",
       builtWith: "This site was built and deployed through Codex → DSH collaboration, fully traceable.",
+    },
+    garage: {
+      eyebrow: "THE GARAGE",
+      headline: "The spark, before the product.",
+      intro: "A lot of this started in a garage: small, synthetic, unfinished. Play the raw idea first — this is what the polished systems above looked like before they became products.",
+      playLabel: "Play the spark",
+      syntheticTag: "Synthetic toy",
+      boundary: "Synthetic numbers only — no real accounts, dates, or cash.",
+      items: [
+        {
+          title: "Coincidence Detector",
+          spark: "Unrelated commitments become related the moment they share a week.",
+          note: "The raw idea behind Payment Concentration — kept as a toy, not a product.",
+          href: "https://apchen1978.github.io/coincidence-detector/",
+        },
+      ],
     },
     langLabel: "繁中",
   },
