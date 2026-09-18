@@ -16,6 +16,19 @@ export default function CommercialOutcomes() {
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink/70">{content.intro}</p>
         </div>
 
+        <div className="mt-10 max-w-6xl border-y border-forest/20 py-5 md:mt-12 md:py-6">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber">{content.pathEyebrow}</p>
+          <ol className="mt-4 grid gap-y-3 sm:grid-cols-5 sm:gap-y-0 sm:divide-x sm:divide-forest/15" aria-label={content.pathEyebrow}>
+            {content.pathSteps.map((step, index) => (
+              <li key={step} className={`text-sm font-semibold leading-snug text-forest ${index === 0 ? "sm:pr-4" : index === content.pathSteps.length - 1 ? "sm:pl-4" : "sm:px-4"}`}>
+                <span className="mr-2 text-[10px] font-bold tracking-[0.14em] text-amber">{String(index + 1).padStart(2, "0")}</span>
+                {step}
+              </li>
+            ))}
+          </ol>
+          <p className="mt-4 max-w-3xl border-l-2 border-amber/60 pl-4 text-sm font-semibold leading-relaxed text-forest">{content.pathStatement}</p>
+        </div>
+
         <div className="outcomes-rail relative mx-auto mt-16 max-w-6xl border-y border-forest/20 md:mt-20">
           <div aria-hidden="true" className="absolute bottom-5 left-[19px] top-5 w-px bg-gradient-to-b from-forest/35 via-forest/25 to-amber/70 md:left-[27px]" />
           {content.items.map((item, index) => (
