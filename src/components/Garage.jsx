@@ -16,7 +16,7 @@ export default function Garage() {
       <div className="mt-12 grid gap-6 md:grid-cols-3">
         {g.items.map((item) => (
           <article key={item.title} className="flex flex-col rounded-card border border-line surface-paper p-7">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{g.syntheticTag}</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{item.tag}</p>
             <h3 className="mt-3 text-xl font-bold tracking-tight text-ink">{item.title}</h3>
             <p className="mt-4 border-l-2 border-amber/70 pl-3 text-[15px] font-semibold leading-snug text-forest">{item.spark}</p>
             <p className="mt-4 text-sm leading-relaxed text-ink/65">{item.note}</p>
@@ -26,10 +26,10 @@ export default function Garage() {
               rel="noopener noreferrer"
               className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-field bg-forest px-4 py-2.5 text-sm font-bold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
             >
-              {g.playLabel}
+              {item.cta}
               <ArrowUpRight size={15} weight="bold" aria-hidden="true" />
             </a>
-            <p className="mt-3 text-xs leading-snug text-moss">{g.boundary}</p>
+            <p className="mt-3 text-xs leading-snug text-moss">{item.boundary}</p>
           </article>
         ))}
       </div>
