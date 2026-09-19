@@ -431,7 +431,7 @@ const dict = {
       builtWith: "此站由 Codex → DSH 協作建立並部署，全程可追溯。",
     },
     garage: {
-      eyebrow: "THE GARAGE",
+      eyebrow: "數位車庫",
       headline: "產品之前，先有火花。",
       intro: "很多東西，一開始是在車庫裡做出來的：小、合成、還不完整。先直接玩那個原始想法——這就是上方那些系統，還沒被打磨成產品之前的樣子。",
       items: [
@@ -913,7 +913,7 @@ const dict = {
       builtWith: "This site was built and deployed through Codex → DSH collaboration, fully traceable.",
     },
     garage: {
-      eyebrow: "THE GARAGE",
+      eyebrow: "THE DIGITAL GARAGE",
       headline: "The spark, before the product.",
       intro: "A lot of this started in a garage: small, synthetic, unfinished. Play the raw idea first — this is what the polished systems above looked like before they became products.",
       items: [
