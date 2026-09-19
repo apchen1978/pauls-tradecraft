@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Factory Secret Menu — a synthetic commercial garage experiment." />
+  <title>Factory Secret Menu — Garage Prototype</title>
+  <style>
+    :root {
+      --paper: #f7f5ee;
+      --bone: #efe9db;
+      --ink: #18251f;
+      --forest: #234e3b;
+      --moss: #6a7f6a;
+      --amber: #c98c25;
+      --line: #d9d3c3;
+      --quiet: #fdfbf5;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--paper); }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; }
+    .shell { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 72px; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+    .mark, .status, .eyebrow { font-size: 10px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+    .mark { color: var(--forest); }
+    .status { color: var(--moss); text-align: right; }
+    header { padding: clamp(54px, 10vw, 116px) 0 clamp(42px, 7vw, 78px); max-width: 820px; }
+    .eyebrow { color: var(--amber); margin: 0 0 16px; }
+    h1 { margin: 0; font: 600 clamp(45px, 8vw, 88px)/.95 Georgia, "Noto Serif TC", serif; letter-spacing: -.055em; color: var(--forest); }
+    .lede { max-width: 600px; margin: 24px 0 0; font: 400 clamp(18px, 2.2vw, 25px)/1.45 Georgia, "Noto Serif TC", serif; color: #31463b; }
+    .boundary { margin: 28px 0 0; max-width: 635px; color: var(--moss); font-size: 13px; line-height: 1.65; }
+    .boundary b { color: var(--forest); }
+    .menu { display: grid; grid-template-columns: minmax(240px, .78fr) minmax(0, 1.4fr); border-top: 1px solid var(--forest); border-bottom: 1px solid var(--forest); }
+    .menu-nav { padding: 26px 26px 30px 0; border-right: 1px solid var(--line); }
+    .menu-nav h2 { margin: 0 0 20px; font-size: 13px; font-weight: 700; letter-spacing: .01em; color: var(--forest); }
+    .menu-nav p { margin: 0 0 21px; color: var(--moss); font-size: 13px; line-height: 1.55; }
+    .choice { width: 100%; display: flex; align-items: baseline; gap: 12px; padding: 13px 0; border: 0; border-top: 1px solid var(--line); background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+    .choice:last-child { border-bottom: 1px solid var(--line); }
+    .choice .num { color: var(--amber); font: 700 11px/1 ui-monospace, monospace; }
+    .choice .name { font: 600 16px/1.2 Georgia, "Noto Serif TC", serif; }
+    .choice:hover .name, .choice[aria-pressed="true"] .name { color: var(--forest); }
+    .choice[aria-pressed="true"] .name::after { content: " ↗"; color: var(--amber); }
+    .pressure-label { margin: 27px 0 10px; color: var(--moss); font-size: 10px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    .pressures { display: flex; flex-wrap: wrap; gap: 7px; }
+    .pressure { border: 1px solid var(--line); border-radius: 999px; padding: 8px 10px; background: transparent; color: var(--ink); font-size: 12px; cursor: pointer; }
+    .pressure:hover, .pressure[aria-pressed="true"] { border-color: var(--amber); color: var(--forest); background: rgba(201, 140, 37, .08); }
+    .recombine { margin-top: 20px; width: 100%; border: 1px solid var(--forest); padding: 11px 13px; background: var(--forest); color: var(--bone); font-weight: 750; font-size: 12px; cursor: pointer; }
+    .recombine:hover { background: #1a3b2c; }
+    .panel { min-height: 480px; padding: clamp(26px, 4vw, 54px); background: var(--quiet); display: flex; flex-direction: column; }
+    .panel-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .kind { color: var(--amber); font-size: 10px; font-weight: 750; letter-spacing: .15em; text-transform: uppercase; }
+    .state { color: var(--moss); font-size: 11px; }
+    .verb { margin: clamp(35px, 6vw, 70px) 0 0; max-width: 690px; font: 600 clamp(30px, 5vw, 55px)/1.02 Georgia, "Noto Serif TC", serif; letter-spacing: -.035em; color: var(--forest); }
+    .turn { margin: 22px 0 0; max-width: 580px; font-size: 16px; line-height: 1.65; color: #35473c; }
+    .artifact { margin-top: auto; padding-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .artifact > div { min-height: 112px; padding: 17px; border: 1px solid var(--line); }
+    .artifact .label { margin: 0 0 9px; color: var(--moss); font-size: 10px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    .artifact p { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.45; }
+    .artifact .surprise { background: var(--forest); border-color: var(--forest); }
+    .artifact .surprise .label { color: #d8b467; }
+    .artifact .surprise p { color: var(--bone); font: 600 17px/1.25 Georgia, "Noto Serif TC", serif; }
+    .recipe { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line); opacity: .42; transition: opacity .18s ease; }
+    .recipe.ready { opacity: 1; }
+    .recipe-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .recipe-title { margin: 0; color: var(--forest); font: 600 19px/1.2 Georgia, "Noto Serif TC", serif; }
+    .recipe-status { color: var(--moss); font-size: 11px; }
+    .recipe-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 13px; }
+    .recipe-grid > div { padding: 12px; border-left: 2px solid var(--amber); background: rgba(239, 233, 219, .52); }
+    .recipe-grid .recipe-label { margin: 0 0 6px; color: var(--moss); font-size: 9px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .recipe-grid p:last-child { margin: 0; font-size: 12px; line-height: 1.45; }
+    .question { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 20px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+    .question h2 { margin: 0; max-width: 680px; font: 500 clamp(20px, 3vw, 30px)/1.22 Georgia, "Noto Serif TC", serif; color: var(--forest); }
+    .question p { margin: 7px 0 0; color: var(--moss); font-size: 13px; line-height: 1.55; }
+    .reveal { border: 1px solid var(--forest); border-radius: 999px; padding: 11px 16px; background: transparent; color: var(--forest); font-weight: 750; font-size: 13px; cursor: pointer; white-space: nowrap; }
+    .reveal:hover, .reveal[aria-expanded="true"] { background: var(--forest); color: var(--bone); }
+    .truth { display: none; padding: 0 0 30px; color: var(--ink); font-size: 14px; line-height: 1.7; }
+    .truth.visible { display: block; }
+    .truth b { color: var(--forest); }
+    footer { display: flex; justify-content: space-between; gap: 20px; padding-top: 26px; color: var(--moss); font-size: 12px; line-height: 1.55; }
+    footer p { max-width: 520px; margin: 0; }
+    @media (max-width: 700px) {
+      .shell { width: min(100% - 32px, 1160px); }
+      .menu { grid-template-columns: 1fr; }
+      .menu-nav { padding: 24px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+      .panel { min-height: 500px; padding: 28px 0; background: transparent; }
+      .artifact { grid-template-columns: 1fr; }
+      .recipe-grid { grid-template-columns: 1fr; }
+      .question { grid-template-columns: 1fr; }
+      .reveal { justify-self: start; }
+      footer { display: block; }
+      footer p + p { margin-top: 12px; }
+    }
+    @media (prefers-reduced-motion: no-preference) { .panel { transition: opacity .18s ease; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topline">
+      <span class="mark">Paul's Tradecraft / Digital Garage</span>
+      <span class="status">Synthetic commercial thought experiment</span>
+    </div>
+
+    <header>
+      <p class="eyebrow">Factory Secret Menu</p>
+      <h1>先別急著問工廠做什麼，<br>先看看它還能打開什麼。</h1>
+      <p class="lede">A capability is often mistaken for its current product category. What happens when we treat it as a starting point for a different buyer, moment, or commercial move?</p>
+      <p class="boundary"><b>這是一個 Garage 原型。</b>下方所有能力碎片與機會組合均為 illustrative hypotheses，不代表任何特定工廠、客戶、產品需求或市場驗證。</p>
+    </header>
+
+    <section class="menu" aria-label="Factory Secret Menu experiment">
+      <nav class="menu-nav" aria-label="Choose a capability fragment">
+        <h2>不要選產品。選一個動詞。</h2>
+        <p>每個動詞都是一段可能藏在既有工作裡的能力，而不是一個已被證明的商機。</p>
+        <button class="choice" type="button" data-key="material" aria-pressed="true"><span class="num">01</span><span class="name">讓材質選擇變得有把握</span></button>
+        <button class="choice" type="button" data-key="smallrun" aria-pressed="false"><span class="num">02</span><span class="name">讓小批量看起來有意圖</span></button>
+        <button class="choice" type="button" data-key="test" aria-pressed="false"><span class="num">03</span><span class="name">讓買方在承諾前先感受</span></button>
+        <p class="pressure-label">再加一個買方壓力</p>
+        <div class="pressures" aria-label="Choose a buyer pressure">
+          <button class="pressure" type="button" data-pressure="risk" aria-pressed="true">先少賭一點</button>
+          <button class="pressure" type="button" data-pressure="speed" aria-pressed="false">先更快被理解</button>
+          <button class="pressure" type="button" data-pressure="proof" aria-pressed="false">先證明值得繼續</button>
+        </div>
+        <button class="recombine" id="recombine" type="button">組合一個可能性 ↗</button>
+      </nav>
+
+      <article class="panel" id="panel" aria-live="polite">
+        <div class="panel-top"><span class="kind" id="kind">Capability fragment</span><span class="state">Plausible, not proven</span></div>
+        <h2 class="verb" id="verb"></h2>
+        <p class="turn" id="turn"></p>
+        <div class="artifact">
+          <div><p class="label">Possible buyer moment</p><p id="moment"></p></div>
+          <div class="surprise"><p class="label">Unexpected commercial move</p><p id="move"></p></div>
+        </div>
+        <div class="recipe" id="recipe">
+          <div class="recipe-head"><p class="recipe-title" id="recipeTitle">Agent-shaped output</p><span class="recipe-status" id="recipeStatus">choose two ingredients, then combine</span></div>
+          <div class="recipe-grid">
+            <div><p class="recipe-label">Input</p><p id="recipeInput"></p></div>
+            <div><p class="recipe-label">Unknown</p><p id="recipeUnknown"></p></div>
+            <div><p class="recipe-label">Human decision</p><p id="recipeDecision"></p></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="question" aria-labelledby="question-title">
+      <div>
+        <h2 id="question-title">這不是「這個工廠可以做什麼？」而是「哪些人，會因為它原本沒被命名的能力，而突然有新的下一步？」</h2>
+        <p>用一個最小展示物去測試這個問題，而不是先蓋一套平台。</p>
+      </div>
+      <button class="reveal" id="reveal" type="button" aria-expanded="false" aria-controls="truth">看清事實邊界</button>
+    </section>
+    <div class="truth" id="truth">
+      <b>已知：</b>這個原型只示範「能力 → 意外買方情境 → 最小商業實驗」的敘事方式。<br>
+      <b>推論：</b>當既有能力被從產品分類中抽離，可能會得到較有趣的 buyer conversation。<br>
+      <b>未知：</b>任何特定工廠是否具備這些能力、哪些買方在乎、可行規格、價格、法規、需求與商業結果；都需要在真正接觸市場前另行確認。
+    </div>
+
+    <footer>
+      <p>Grounded Imagination：讓想像提出更好的商業問題；讓證據決定什麼可以被說成事實。</p>
+      <p>Prototype only · no customer data · no market claim · no production workflow</p>
+    </footer>
+  </main>
+
+  <script>
+    const ideas = {
+      material: {
+        kind: "Capability fragment / material literacy",
+        verb: "讓材質選擇，從「我喜歡」變成「我敢決定」。",
+        turn: "意外的方向不是再賣一塊布，而是替設計團隊縮短「看過」到「敢把它放進真實空間」之間的距離。",
+        moment: "小型旅宿或商空團隊，正在為一個不能返工的空間決定材質與氛圍。",
+        move: "做一份可帶進現場的「材質決定樣本」：不是型錄，而是讓三種空間感受能被比較的微型情境。"
+      },
+      smallrun: {
+        kind: "Capability fragment / intentional small runs",
+        verb: "讓小批量，不再像是做不到規模。",
+        turn: "小批量可能不是規模不足，而是一種讓買方更快測試定位、更少賭錯的商業服務。",
+        moment: "海外品牌或通路商想試一個窄眾定位，但不願意用一整季庫存換答案。",
+        move: "提出一個「小系列試探包」：一個精準命名的限定組合，加上一頁清楚的市場假設，而不是先承諾大量生產。"
+      },
+      test: {
+        kind: "Capability fragment / tangible testing",
+        verb: "讓買方，在承諾前先感受一個商業可能。",
+        turn: "有些產品不是被簡報說服，而是當人摸到、看見、放進情境後，才知道問題原來可以這樣被解。",
+        moment: "跨境買方對新定位有興趣，但目前只有 PDF、規格表與太多不確定。",
+        move: "把一次報價前的討論，變成一個可寄送、可展示、可回覆的「買方感受包」；它測的是理解與興趣，不是假裝已取得訂單。"
+      }
+    };
+    const pressures = {
+      risk: {
+        label: "先少賭一點",
+        transform: "reversible commitment",
+        unknown: "買方是否願意為降低第一次承諾的風險付費？",
+        decision: "這個小實驗是否足夠小，值得現在就寄出？"
+      },
+      speed: {
+        label: "先更快被理解",
+        transform: "faster buyer comprehension",
+        unknown: "買方是否能在一次接觸中說出它解決了什麼？",
+        decision: "哪一句話必須先被買方聽懂，才能繼續？"
+      },
+      proof: {
+        label: "先證明值得繼續",
+        transform: "cheaper evidence",
+        unknown: "什麼觀察結果會改變我們是否繼續投入？",
+        decision: "下一個最小觀察是什麼，而不是下一個功能是什麼？"
+      }
+    };
+    let selectedKey = "material";
+    let selectedPressure = "risk";
+    const ids = ["kind", "verb", "turn", "moment", "move"];
+    function show(key) {
+      selectedKey = key;
+      const idea = ideas[key];
+      ids.forEach(id => document.getElementById(id).textContent = idea[id]);
+      document.querySelectorAll(".choice").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.key === key)));
+      renderRecipe(false);
+    }
+    function choosePressure(key) {
+      selectedPressure = key;
+      document.querySelectorAll(".pressure").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.pressure === key)));
+      renderRecipe(false);
+    }
+    function renderRecipe(ready) {
+      const pressure = pressures[selectedPressure];
+      const idea = ideas[selectedKey];
+      document.getElementById("recipeTitle").textContent = ready ? "A commercial possibility, not a conclusion" : "Agent-shaped output";
+      document.getElementById("recipeStatus").textContent = ready ? "hypothesis assembled" : "choose two ingredients, then combine";
+      document.getElementById("recipeInput").textContent = `${idea.kind.replace("Capability fragment / ", "")} + ${pressure.label} → ${pressure.transform}`;
+      document.getElementById("recipeUnknown").textContent = pressure.unknown;
+      document.getElementById("recipeDecision").textContent = pressure.decision;
+      document.getElementById("recipe").classList.toggle("ready", ready);
+    }
+    document.querySelectorAll(".choice").forEach(button => button.addEventListener("click", () => show(button.dataset.key)));
+    document.querySelectorAll(".pressure").forEach(button => button.addEventListener("click", () => choosePressure(button.dataset.pressure)));
+    document.getElementById("recombine").addEventListener("click", () => renderRecipe(true));
+    const reveal = document.getElementById("reveal");
+    reveal.addEventListener("click", () => {
+      const isOpen = reveal.getAttribute("aria-expanded") === "true";
+      reveal.setAttribute("aria-expanded", String(!isOpen));
+      reveal.textContent = isOpen ? "看清事實邊界" : "收起事實邊界";
+      document.getElementById("truth").classList.toggle("visible", !isOpen);
+    });
+    show("material");
+  </script>
+</body>
+</html>

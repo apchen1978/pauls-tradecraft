@@ -70,6 +70,10 @@ jobs:
           CHROME_PATH: ${{ github.workspace }}/.chrome/chrome-linux64/chrome
       - name: Build
         run: npm run build
+      - name: Include Digital Garage prototype
+        run: |
+          mkdir -p dist/prototype/factory-secret-menu
+          cp prototype/factory-secret-menu/index.html dist/prototype/factory-secret-menu/index.html
       - name: One-Pager editorial review guardrail
         run: |
           # inventory 變更（新增/移除 Works）時要求編輯審查 One-Pager
