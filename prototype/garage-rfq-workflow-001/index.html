@@ -429,7 +429,7 @@
         const setAll = (selector, values) => document.querySelectorAll(selector).forEach((el, i) => { if (values[i] !== undefined) el.textContent = values[i]; });
         setAll('.side-note strong', ui.sideHead); setAll('.side-note p', ui.sideBody); setAll('.gate h4', ui.gates); setAll('.gate > p', ui.gateBody);
         setAll('.stale-banner .label, .stale-banner h4, .stale-banner p', ui.stale);
-        setAll('.impact-list strong, .impact-list span', ui.impacts); setAll('.history-card h4, .history-card p', ui.history);
+        setAll('.impact-list strong, .impact-list span', ui.impacts);
         setAll('.comparison h4, .comparison p', ui.comparison); setAll('.resource h4, .resource p', ui.resource);
         setAll('.decision-option strong, .decision-option span', ui.decisions);
         setAll('.evidence-item strong, .evidence-item p', ui.evidence);
@@ -438,13 +438,16 @@
         setAll('.text-button[data-prev]', backLabels);
         const historyCards = document.querySelectorAll('.history-card');
         if (historyCards.length >= 2) {
+          const firstPs = [...historyCards[0].children].filter((el) => el.tagName === 'P');
+          const secondPs = [...historyCards[1].children].filter((el) => el.tagName === 'P');
           historyCards[0].querySelector('h4').textContent = language === 'zh' ? '歷史 · D1' : 'History · D1';
-          historyCards[0].querySelector('p strong').textContent = language === 'zh' ? '可以報價' : 'QUOTE READY';
-          historyCards[0].querySelectorAll('p')[1].textContent = language === 'zh' ? '根據 09:40 的 Evidence V1 有效。' : 'Valid against Evidence V1 at 09:40.';
-          historyCards[0].querySelectorAll('p')[2].textContent = language === 'zh' ? '後續重大證據改變，使其失效。' : 'Later made stale by material evidence change.';
+          firstPs[0].querySelector('strong').textContent = language === 'zh' ? '可以報價' : 'QUOTE READY';
+          firstPs[1].textContent = language === 'zh' ? '根據 09:40 的 Evidence V1 有效。' : 'Valid against Evidence V1 at 09:40.';
+          firstPs[2].textContent = language === 'zh' ? '後續重大證據改變，使其失效。' : 'Later made stale by material evidence change.';
           historyCards[1].querySelector('h4').textContent = language === 'zh' ? '目前 · D2' : 'Current · D2';
-          historyCards[1].querySelectorAll('p')[1].textContent = language === 'zh' ? '根據 14:20 的 Evidence V2。' : 'Based on Evidence V2 at 14:20.';
-          historyCards[1].querySelectorAll('p')[2].textContent = language === 'zh' ? '新的決定不會抹去舊決定。' : 'New decision does not erase the previous one.';
+          secondPs[0].querySelector('strong').textContent = d2Label.textContent;
+          secondPs[1].textContent = language === 'zh' ? '根據 14:20 的 Evidence V2。' : 'Based on Evidence V2 at 14:20.';
+          secondPs[2].textContent = language === 'zh' ? '新的決定不會抹去舊決定。' : 'New decision does not erase the previous one.';
         }
         if (d1Result.classList.contains('show')) d1Result.innerHTML = language === 'zh' ? '<strong>D1 · 可以報價</strong>09:40 的人的判斷是根據 Evidence V1 記錄；AI 準備證據，但沒有做出決定。' : '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
         if (d2Result.classList.contains('show')) {
@@ -502,8 +505,10 @@
       }));
 
       d1Submit.addEventListener('click', () => {
-        d1Result.innerHTML = '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
+        d1Result.innerHTML = language === 'zh' ? '<strong>D1 · 可以報價</strong>09:40 的人的判斷是根據 Evidence V1 記錄；AI 準備證據，但沒有做出決定。' : '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
         d1Result.classList.add('show');
+        const d1HistoryLabel = document.querySelector('.history-card p strong');
+        if (d1HistoryLabel) d1HistoryLabel.textContent = language === 'zh' ? '可以報價' : 'QUOTE READY';
         d1Next.disabled = false;
         unlockedStage = Math.max(unlockedStage, 4);
         show(stage);
@@ -512,11 +517,15 @@
       d2Submit.addEventListener('click', () => {
         const selected = document.querySelector('input[name="re-review"]:checked');
         if (!selected) { d2Result.innerHTML = '<strong>HUMAN RE-REVIEW REQUIRED</strong>Select the current decision against Evidence V2.'; d2Result.classList.add('show'); return; }
-        const copy = {
+        const copy = (language === 'zh' ? {
+          ready: ['D2 · 可以報價', '人的審查確認 Evidence V2 仍支持商業回覆；D1 保留為歷史，不是目前決定。'],
+          hold: ['D2 · 有條件暫停', '人的審查維持探索開放；Rev B 與 90-day OA 不允許完整商業承諾。'],
+          no: ['D2 · 尚未可以報價', '人的審查停止商業準備，直到變更證據釐清。']
+        } : {
           ready: ['D2 · QUOTE READY', 'Human review confirms that Evidence V2 still supports a commercial response. D1 remains historical, not current.'],
           hold: ['D2 · CONDITIONAL HOLD', 'Human review keeps discovery open. Rev B and 90-day OA prevent a full commercial commitment.'],
           no: ['D2 · NOT QUOTE-READY', 'Human review stops commercial preparation until the changed evidence is materially clarified.']
-        }[selected.value];
+        })[selected.value];
         d2Label.textContent = copy[0];
         d2Result.innerHTML = '<strong>' + copy[0] + '</strong>' + copy[1];
         d2Result.classList.add('show');
