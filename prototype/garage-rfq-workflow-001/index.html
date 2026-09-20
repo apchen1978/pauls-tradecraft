@@ -275,13 +275,13 @@
         zh: {
           eyebrow: 'WORKING EVIDENCE · 合成互動原型',
           title: 'RFQ → 報價決策：Human × AI Workflow',
-          intro: '看一筆資訊不完整的海外 RFQ，如何被整理成可檢視的證據、交由人做商業判斷，並在新資訊改變條件後重新進入審查。',
-          synthetic: '已建置並完成 operational red-team · 尚未真人驗證',
+          intro: '一筆資訊未完備的海外 RFQ，如何被整理成可檢視的證據，由人做商業判斷，並在條件改變後回到審查。',
+          synthetic: '已建置並完成營運風險測試 · 尚未經真人驗證',
           workflowTitle: '新加坡經銷商詢問',
-          workflowSubtitle: '區域經銷商 · 商業室內／建材產品 · 無真實客戶或外部溝通',
-          aiLabel: 'AI 執行', aiCopy: '重建脈絡、比較證據、找出缺口、草擬問題、更新狀態。',
-          humanLabel: '人做判斷', humanCopy: '是否繼續、接受哪些風險，以及是否足以報價或做出承諾。',
-          systemLabel: '系統控制', systemCopy: '未知保持未知；外部傳送與商業承諾維持人工授權。',
+          workflowSubtitle: '區域經銷商 · 商業室內／建材產品 · 無真實客戶資料或外部溝通',
+          aiLabel: 'AI 執行', aiCopy: '重建脈絡、比對證據、找出缺口、草擬問題、更新狀態。',
+          humanLabel: '人做判斷', humanCopy: '決定是否繼續、承擔哪些風險，以及是否足以報價或做出承諾。',
+          systemLabel: '系統控制', systemCopy: '未知維持未知；外部傳送與商業承諾仍須人工授權。',
           footer: '合成 workflow prototype — 不代表真實客戶資料、外部溝通、ROI、效率百分比或 production readiness。',
           back: '← AI 原生市場開發 / Paul’s Tradecraft', lang: 'English'
         },
@@ -322,42 +322,45 @@
         const tabsCopy = language === 'zh' ? ['01 RFQ','02 脈絡','03 資格','04 證據','05 V1 判斷','06 反轉','07 重新審查'] : ['01 RFQ','02 Context','03 Qualify','04 Evidence','05 V1 Decision','06 Reversal','07 Re-review'];
         tabs.forEach((tab, index) => { tab.textContent = tabsCopy[index]; });
         const staticCopy = language === 'zh' ? {
-          labels: ['01 / RFQ 收到','02 / 脈絡重建','03 / 資格判斷','04 / 證據缺口','05 / 證據 V1 · 人的判斷 D1','06 / 證據 V2 · 狀態反轉','07 / 人重新審查 · 目前判斷 D2'],
-          headings: ['從實際收到的工作開始。','AI 分離訊號與缺少的脈絡。','準備判斷，不取代判斷。','AI 準備最少必要問題。','在此刻，證據足以做出判斷。','核准之後，世界改變了。','以今天的證據做今天的判斷。'],
-          ledes: ['真實請求很少是完整決策。第一步是保留原始訊號，不急著整理乾淨。','系統不填補缺口，而是讓人更容易看見缺口。','詢問具商業相關性，但相關不等於準備完成。現在的工作是讓判斷變得可檢視。','機器吸收協調工作；人仍審查公司準備向另一方提出的問題。','合成案例現在有足夠一致的基礎做報價判斷。人做決定，證據不會自行決定。','後續買方訊息改變重大商業證據。D1 不被改寫，但目前適用性改變。','舊判斷保留在歷史中；它不再是目前的核准。'],
-          actions: ['用 AI 處理','準備資格證據','準備資格證據','檢視證據缺口','套用合成 Evidence V1','重新開啟人的判斷','重新開始 workflow']
+          labels: ['01 / 收到 RFQ','02 / 重建脈絡','03 / 資格判斷','04 / 證據缺口','05 / Evidence V1 · 人的判斷 D1','06 / Evidence V2 · 狀態反轉','07 / 人工重審 · 目前判斷 D2'],
+          headings: ['從收到的請求開始。','AI 分開訊號與缺口。','準備判斷，不代替判斷。','AI 整理最少必要問題。','此刻，證據足以支持判斷。','核准後，條件改變了。','用今天的證據，做今天的判斷。'],
+          ledes: ['真實請求很少等於完整決策。先保留原始訊號，再開始整理。','系統不填補缺口，只讓人更容易看見缺口。','詢問有商業關聯，但不等於已準備好。現在要做的是讓判斷可檢視。','AI 承接協調工作；人仍審查公司要向對方提出的問題。','這個合成案例已有一致基礎，可進行報價判斷。人做決定，證據不會自行決定。','後續買方訊息改變重大商業證據。D1 不被改寫，但不再適用於目前條件。','舊判斷留在歷史中，不再是目前核准。'],
+          question: '在證據尚未完備前，這個機會值得再投入組織注意力嗎？',
+          actions: ['交由 AI 整理','整理資格證據','整理資格證據','檢視證據缺口','套用合成 Evidence V1','進行人工重審','重新開始 workflow']
         } : {
           labels: ['01 / RFQ arrives','02 / Context reconstruction','03 / Qualification','04 / Evidence gap','05 / Evidence V1 · Human decision D1','06 / Evidence V2 · State reversal','07 / Human re-review · Current decision D2'],
           headings: ['Start with the work as it arrives.','AI separates signal from missing context.','Prepare the judgment. Do not replace it.','AI prepares the minimum questions.','Enough evidence for a decision — at this moment.','The world changed after approval.','Make today’s decision against today’s evidence.'],
           ledes: ['A real-looking request is rarely a complete decision. The first move is to preserve the original signal before anyone cleans it up.','The system does not fill the gaps. It makes the gaps easier for a person to see.','The inquiry is commercially relevant, but relevance is not readiness. The work now is to make the decision legible.','The machine absorbs coordination work. A human still reviews what the company is about to ask another party.','The synthetic case now has a coherent basis for a quote decision. The human decides; the evidence does not decide itself.','A later buyer message changes material commercial evidence. D1 is not rewritten — its current applicability changes.','The old decision remains part of the history. It is no longer the current approval.'],
+          question: 'Does this opportunity deserve more organizational attention before the evidence is complete?',
           actions: ['Process with AI','Prepare qualification evidence','Prepare qualification evidence','Review evidence gaps','Apply synthetic Evidence V1','Re-open human judgment','Restart workflow']
         };
         document.querySelectorAll('.step-label').forEach((el, index) => { el.textContent = staticCopy.labels[index]; });
         document.querySelectorAll('.panel h3').forEach((el, index) => { el.textContent = staticCopy.headings[index]; });
         document.querySelectorAll('.panel-lede').forEach((el, index) => { el.textContent = staticCopy.ledes[index]; });
+        document.querySelector('.handoff p').textContent = staticCopy.question;
         const actionButtons = [...document.querySelectorAll('.panel .button-row button.action')].filter((el) => !['d1-submit','d2-submit'].includes(el.id));
         actionButtons.forEach((el, index) => { if (staticCopy.actions[index]) el.textContent = staticCopy.actions[index]; });
         qualificationNext.textContent = language === 'zh' ? '檢視證據缺口' : 'Review evidence gaps';
-        d1Submit.textContent = language === 'zh' ? '記錄「可以報價」' : 'Record QUOTE READY';
+        d1Submit.textContent = language === 'zh' ? '記錄「可報價」' : 'Record QUOTE READY';
         d1Next.textContent = language === 'zh' ? '收到新的買方證據' : 'Receive new buyer evidence';
         d2Submit.textContent = language === 'zh' ? '套用目前人的判斷' : 'Apply current human decision';
-        document.querySelector('[data-panel="0"] button[data-next="1"]').textContent = language === 'zh' ? '用 AI 處理' : 'Process with AI';
-        document.querySelector('[data-panel="1"] button[data-next="2"]').textContent = language === 'zh' ? '準備資格證據' : 'Prepare qualification evidence';
+        document.querySelector('[data-panel="0"] button[data-next="1"]').textContent = language === 'zh' ? '交由 AI 整理' : 'Process with AI';
+        document.querySelector('[data-panel="1"] button[data-next="2"]').textContent = language === 'zh' ? '整理資格證據' : 'Prepare qualification evidence';
         document.querySelector('[data-panel="3"] button[data-next="4"]').textContent = language === 'zh' ? '套用合成 Evidence V1' : 'Apply synthetic Evidence V1';
         document.querySelector('[data-panel="4"] button[data-next="5"]').textContent = language === 'zh' ? '收到新的買方證據' : 'Receive new buyer evidence';
-        document.querySelector('[data-panel="5"] button[data-next="6"]').textContent = language === 'zh' ? '重新開啟人的判斷' : 'Re-open human judgment';
+        document.querySelector('[data-panel="5"] button[data-next="6"]').textContent = language === 'zh' ? '進行人工重審' : 'Re-open human judgment';
         document.querySelector('[data-panel="6"] button[data-restart]').textContent = language === 'zh' ? '重新開始 workflow' : 'Restart workflow';
         const textMap = language === 'zh' ? {
-          'Case state: reconstructed': '案例狀態：已重建', 'Unknowns preserved': '未知保留', 'Known': '已知', 'Unknown': '未知', 'Conflict / verify': '衝突／待驗證',
-          'Visible input': '可見輸入', 'AI does': 'AI 執行', 'Human decides': '人做判斷', 'System controls': '系統控制',
-          'Prepare the judgment. Do not replace it.': '準備判斷，不取代判斷。', 'Choose a bounded path': '選擇一條有界路徑',
-          'Continue discovery': '繼續探索', 'Hold': '暫停', 'Decline': '婉拒', 'Review evidence gaps': '檢視證據缺口',
-          'Human judgment required': '需要人的判斷', 'Human review before evidence V1': 'Evidence V1 前的人審查',
-          'Apply synthetic Evidence V1': '套用合成 Evidence V1', 'Receive new buyer evidence': '收到新的買方證據',
-          'Re-open human judgment': '重新開啟人的判斷', 'Human judgment gate · Evidence V2': '人的判斷關卡 · Evidence V2',
-          'Quote ready': '可以報價', 'Conditional hold': '有條件暫停', 'Not quote-ready': '尚未可以報價',
-          'Restart workflow': '重新開始 workflow', 'The world changed after approval.': '核准之後，世界改變了。',
-          'What changed': '改變了什麼', 'History · D1': '歷史 · D1', 'Current · D2': '目前 · D2'
+          'Case state: reconstructed': '案例狀態：脈絡已重建', 'Unknowns preserved': '未知資訊已保留', 'Known': '已知', 'Unknown': '未知', 'Conflict / verify': '衝突／待驗證',
+          'Visible input': '原始輸入', 'AI does': 'AI 處理', 'Human decides': '人做決定', 'System controls': '系統管控',
+          'Prepare the judgment. Do not replace it.': '準備判斷，不代替判斷。', 'Choose a bounded path': '選擇可控路徑',
+          'Continue discovery': '繼續釐清', 'Hold': '暫緩', 'Decline': '不再跟進', 'Review evidence gaps': '檢視證據缺口',
+          'Human judgment required': '需要人工判斷', 'Human review before evidence V1': 'Evidence V1 前，先由人審查',
+          'Apply synthetic Evidence V1': '套用合成 Evidence V1', 'Receive new buyer evidence': '收到買方新證據',
+          'Re-open human judgment': '進行人工重審', 'Human judgment gate · Evidence V2': '人工判斷關卡 · Evidence V2',
+          'Quote ready': '可報價', 'Conditional hold': '有條件暫緩', 'Not quote-ready': '尚不可報價',
+          'Restart workflow': '重新開始 workflow', 'The world changed after approval.': '核准後，條件改變了。',
+          'What changed': '變更內容', 'History · D1': '歷史 · D1', 'Current · D2': '目前 · D2'
         } : {
           '案例狀態：已重建': 'Case state: reconstructed', '未知保留': 'Unknowns preserved', '已知': 'Known', '未知': 'Unknown', '衝突／待驗證': 'Conflict / verify',
           '可見輸入': 'Visible input', 'AI 執行': 'AI does', '人做判斷': 'Human decides', '系統控制': 'System controls',
@@ -372,32 +375,32 @@
         nodes.forEach((node) => { const value = node.nodeValue.trim(); if (textMap[value]) node.nodeValue = node.nodeValue.replace(value, textMap[value]); });
 
         const ui = language === 'zh' ? {
-          sideHead: ['可見輸入','AI 執行','人做判斷','系統控制','人做判斷','系統行為','改變了什麼'],
+          sideHead: ['原始輸入','AI 處理','人做決定','系統管控','人做決定','系統行為','變更內容'],
           sideBody: [
-            '產品、估計數量、市場、目的地與需求時點已知；最終規格、簽約主體、認證要求與付款條件仍未知。',
-            '擷取、標準化並標記矛盾；不推定買方已準備好、已符合資格或可以安全報價。',
-            '判斷機會是否值得投入注意力；不是判斷成交、可以報價或已獲准對外承諾。',
-            '允許草擬，但不允許傳送；外部訊息仍須由人核准。',
-            'D1 是針對 Evidence V1 的人的判斷；合成時間與證據基礎會附在決定上。',
-            'AI 偵測到變化；系統保留 V1 與 D1，不會自動選擇新的商業決定。',
-            '當時有效，現在不再有效。證據改變了，因此人的判斷必須重新做出。'
+            '產品、估計數量、市場、目的地與需求時點已知；最終規格、簽約主體、認證要求與付款條件仍未確認。',
+            '擷取、整理並標示衝突；不推定買方已準備好、具備資格或適合報價。',
+            '判斷機會是否值得投入注意力；不是判斷是否成交、可否報價，或是否已獲准對外承諾。',
+            '可先草擬，不可傳送；外部訊息仍須由人核准。',
+            'D1 是針對 Evidence V1 的人工判斷；合成時間與證據基礎均附在決定上。',
+            'AI 偵測到變化；系統保留 V1 與 D1，不自動選擇新的商業決定。',
+            '當時有效，現在需重審。證據已改變，人工判斷必須重新作出。'
           ],
-          gates: ['選擇一條有界路徑','Evidence V1 前的人審查','人的判斷關卡 · 決定 D1','人的判斷關卡 · Evidence V2','準備好的 follow-up · 等待人核准'],
+          gates: ['選擇可控路徑','Evidence V1 前，先由人審查','人工判斷關卡 · 決定 D1','人工判斷關卡 · Evidence V2','已備妥的 follow-up · 等待人核准'],
           gateBody: [
-            '繼續探索不代表核准報價或商業承諾。',
-            'AI 已準備問題。此合成案例現在提供第一個人的判斷所需的確認答案；沒有外部訊息被送出。',
-            'AI 準備證據，但沒有選擇商業決定。',
-            'AI 可以說明改變了什麼；人必須選擇目前狀態。',
+            '繼續釐清不代表核准報價或商業承諾。',
+            'AI 已準備問題。這個合成案例已提供第一次人工判斷所需的確認答案；沒有外部訊息送出。',
+            'AI 準備證據，但不選擇商業決定。',
+            'AI 可以說明變更內容；人必須選擇目前狀態。',
             '「謝謝。我們可以繼續技術審查。在準備有條件的商業回覆前，請確認 Rev B 對防火標準、付款條件與交付規劃的影響。」'
           ],
-          stale: ['先前的決定 · D1','可以報價 → 失效 · 必須重新審查','根據 09:40 的 Evidence V1 核准；決定當時有效，但後續重大證據已改變。'],
-          impacts: ['付款接受','已失效／需要審查','價格假設','需要審查','規格可行性','需要審查','交付可行性','影響未知／需要審查'],
-          history: ['歷史 · D1','根據 09:40 的 Evidence V1 有效。','後續重大證據改變，使其失效。','目前 · D2','根據 14:20 的 Evidence V2。','新的決定不會抹去舊決定。'],
-          comparison: ['之前','RFQ → 閱讀 email → 搜尋訊息 → 詢問工程 → 詢問 Founder → 草擬回覆 → 之後才發現缺口','Human × AI workflow','RFQ → 重建脈絡 → 暴露缺口 → 人的判斷 → 更新證據 → 核准失效 → 人重新審查 → 下一步'],
-          resource: ['注意力如何被保留','AI 吸收閱讀、擷取、比較、脈絡重建、缺口偵測、草擬與狀態更新；人的注意力集中在商業判斷、例外、風險、承諾與授權。'],
-          decisions: ['可以報價','V2 已審查，仍支持由人核准的商業回覆。','有條件暫停','繼續探索；不要承諾價格、毛利、付款接受、產能或交付。','尚未可以報價','在變更證據釐清前，停止商業準備。'],
-          evidence: ['商業相關性','區域經銷商、合理的產品類別與有意義的估計數量。','技術適配','可能適合，但最終規格與防火要求仍未確認。','資源暴露','工程審查、樣品準備、產能可行性與高階商業注意力。','需要確認的問題','買方角色、專案狀態、認證、付款，以及十月底是必要還是偏好。']
-          ,updates: ['規格 · 已驗證','Rev A — 本次審查確認為防火表面吸音牆板。','認證 · 已驗證','目前範圍所需的認證標準已確認。','付款 · 已驗證','本次商業審查確認 30/70 條件。','數量／交付 · 已驗證','2,400 m²；本合成案例確認十月底交付具可行性。']
+          stale: ['先前的決定 · D1','可以報價 → 已失效 · 需重新審查','09:40 依 Evidence V1 核准。當時有效；後續重大證據已改變。'],
+          impacts: ['付款條件接受度','已失效／需審查','價格假設','需審查','規格可行性','需審查','交付可行性','影響未知／需審查'],
+          history: ['歷史 · D1','09:40 依 Evidence V1 有效。','關鍵證據已改變，D1 轉為 STALE。','目前 · D2','14:20 依 Evidence V2。','新決定不會抹去舊決定。'],
+          comparison: ['之前','RFQ → 閱讀 email → 搜尋訊息 → 詢問工程 → 詢問 Founder → 草擬回覆 → 之後才發現缺口','Human × AI workflow','RFQ → 重建脈絡 → 暴露缺口 → 人工判斷 → 更新證據 → 原核准失效 → 人工重審 → 下一步'],
+          resource: ['保留人的注意力','AI 承接閱讀、擷取、比對、脈絡重建、缺口偵測、草擬與狀態更新；人的注意力集中在商業判斷、例外、風險、承諾與授權。'],
+          decisions: ['可報價','V2 已完成審查，仍支持由人核准的商業回覆。','有條件暫緩','繼續釐清；不要承諾價格、毛利、付款接受、產能或交付。','尚不可報價','在變更證據釐清前，停止商業準備。'],
+          evidence: ['商業相關性','區域經銷商、合理的產品類別與具意義的估計數量。','技術適配','可能適合，但最終規格與防火要求仍未確認。','資源暴露','工程審查、樣品準備、產能可行性與高階商業注意力。','需要確認的問題','買方角色、專案狀態、認證、付款，以及十月底是必要還是偏好。']
+          ,updates: ['規格 · 已驗證','Rev A — 本次審查確認為防火表面吸音牆板。','認證 · 已驗證','目前範圍所需的認證標準已確認。','付款 · 已驗證','本次商業審查確認 30/70 條件。','數量／交付 · 已驗證','2,400 m²；本合成案例確認十月底交付可行。']
         } : {
           sideHead: ['Visible input','AI does','Human decides','System controls','Human decides','System behavior','What changed'],
           sideBody: [
@@ -441,18 +444,18 @@
           const firstPs = [...historyCards[0].children].filter((el) => el.tagName === 'P');
           const secondPs = [...historyCards[1].children].filter((el) => el.tagName === 'P');
           historyCards[0].querySelector('h4').textContent = language === 'zh' ? '歷史 · D1' : 'History · D1';
-          firstPs[0].querySelector('strong').textContent = language === 'zh' ? '可以報價' : 'QUOTE READY';
-          firstPs[1].textContent = language === 'zh' ? '根據 09:40 的 Evidence V1 有效。' : 'Valid against Evidence V1 at 09:40.';
-          firstPs[2].textContent = language === 'zh' ? '後續重大證據改變，使其失效。' : 'Later made stale by material evidence change.';
+          firstPs[0].querySelector('strong').textContent = language === 'zh' ? '可報價' : 'QUOTE READY';
+          firstPs[1].textContent = language === 'zh' ? '09:40 依 Evidence V1 有效。' : 'Valid against Evidence V1 at 09:40.';
+          firstPs[2].textContent = language === 'zh' ? '關鍵證據已改變，D1 轉為 STALE。' : 'Later made stale by material evidence change.';
           historyCards[1].querySelector('h4').textContent = language === 'zh' ? '目前 · D2' : 'Current · D2';
           secondPs[0].querySelector('strong').textContent = d2Label.textContent;
-          secondPs[1].textContent = language === 'zh' ? '根據 14:20 的 Evidence V2。' : 'Based on Evidence V2 at 14:20.';
-          secondPs[2].textContent = language === 'zh' ? '新的決定不會抹去舊決定。' : 'New decision does not erase the previous one.';
+          secondPs[1].textContent = language === 'zh' ? '14:20 依 Evidence V2。' : 'Based on Evidence V2 at 14:20.';
+          secondPs[2].textContent = language === 'zh' ? '新決定不會抹去舊決定。' : 'New decision does not erase the previous one.';
         }
-        if (d1Result.classList.contains('show')) d1Result.innerHTML = language === 'zh' ? '<strong>D1 · 可以報價</strong>09:40 的人的判斷是根據 Evidence V1 記錄；AI 準備證據，但沒有做出決定。' : '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
+        if (d1Result.classList.contains('show')) d1Result.innerHTML = language === 'zh' ? '<strong>D1 · 可報價</strong>09:40 已依 Evidence V1 記錄人工判斷；AI 準備證據，但沒有做出決定。' : '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
         if (d2Result.classList.contains('show')) {
           const selected = document.querySelector('input[name="re-review"]:checked')?.value;
-          const labels = language === 'zh' ? { ready: ['D2 · 可以報價','人的審查確認 Evidence V2 仍支持商業回覆。'], hold: ['D2 · 有條件暫停','人的審查維持探索開放；Rev B 與 90-day OA 不允許完整商業承諾。'], no: ['D2 · 尚未可以報價','人的審查停止商業準備，直到變更證據釐清。'] } : { ready: ['D2 · QUOTE READY','Human review confirms that Evidence V2 still supports a commercial response.'], hold: ['D2 · CONDITIONAL HOLD','Human review keeps discovery open. Rev B and 90-day OA prevent a full commercial commitment.'], no: ['D2 · NOT QUOTE-READY','Human review stops commercial preparation until the changed evidence is materially clarified.'] };
+          const labels = language === 'zh' ? { ready: ['D2 · 可報價','人工審查確認 Evidence V2 仍支持商業回覆。'], hold: ['D2 · 有條件暫緩','人工審查維持探索開放；Rev B 與 90-day OA 不允許完整商業承諾。'], no: ['D2 · 尚不可報價','人工審查停止商業準備，直到變更證據釐清。'] } : { ready: ['D2 · QUOTE READY','Human review confirms that Evidence V2 still supports a commercial response.'], hold: ['D2 · CONDITIONAL HOLD','Human review keeps discovery open. Rev B and 90-day OA prevent a full commercial commitment.'], no: ['D2 · NOT QUOTE-READY','Human review stops commercial preparation until the changed evidence is materially clarified.'] };
           if (selected && labels[selected]) { d2Label.textContent = labels[selected][0]; d2Result.innerHTML = `<strong>${labels[selected][0]}</strong>${labels[selected][1]}`; }
         }
         setAll('.comparison h4', language === 'zh' ? ['之前','Human × AI workflow'] : ['Before','With Human × AI']);
@@ -494,21 +497,25 @@
         document.querySelectorAll('[data-qualification]').forEach(item => item.classList.remove('selected'));
         button.classList.add('selected');
         const choice = button.dataset.qualification;
-        const copy = {
+        const qualificationCopy = (language === 'zh' ? {
+          continue: ['CONTINUE DISCOVERY', '繼續釐清。不代表核准報價、價格、產能、付款接受或交付承諾。'],
+          hold: ['HOLD', '案件保留，但不再投入下游資源。證據改變時，人工可重新開啟。'],
+          decline: ['DECLINE', '目前不再投入注意力。這是明確決定，不是系統推定的分數。']
+        } : {
           continue: ['CONTINUE DISCOVERY', 'Discovery continues. This does not authorize a quote, price, capacity, payment acceptance, or delivery promise.'],
           hold: ['HOLD', 'The case stays visible without consuming more downstream resources. A human can reopen it when evidence changes.'],
           decline: ['DECLINE', 'The organization declines further attention for now. The decision is explicit, not an inferred score.']
-        }[choice];
-        qualificationResult.innerHTML = '<strong>' + copy[0] + '</strong>' + copy[1];
+        })[choice];
+        qualificationResult.innerHTML = '<strong>' + qualificationCopy[0] + '</strong>' + qualificationCopy[1];
         qualificationResult.classList.add('show');
         qualificationNext.disabled = false;
       }));
 
       d1Submit.addEventListener('click', () => {
-        d1Result.innerHTML = language === 'zh' ? '<strong>D1 · 可以報價</strong>09:40 的人的判斷是根據 Evidence V1 記錄；AI 準備證據，但沒有做出決定。' : '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
+        d1Result.innerHTML = language === 'zh' ? '<strong>D1 · 可報價</strong>09:40 已依 Evidence V1 記錄人工判斷；AI 準備證據，但沒有做出決定。' : '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
         d1Result.classList.add('show');
         const d1HistoryLabel = document.querySelector('.history-card p strong');
-        if (d1HistoryLabel) d1HistoryLabel.textContent = language === 'zh' ? '可以報價' : 'QUOTE READY';
+        if (d1HistoryLabel) d1HistoryLabel.textContent = language === 'zh' ? '可報價' : 'QUOTE READY';
         d1Next.disabled = false;
         unlockedStage = Math.max(unlockedStage, 4);
         show(stage);
@@ -516,11 +523,11 @@
 
       d2Submit.addEventListener('click', () => {
         const selected = document.querySelector('input[name="re-review"]:checked');
-        if (!selected) { d2Result.innerHTML = '<strong>HUMAN RE-REVIEW REQUIRED</strong>Select the current decision against Evidence V2.'; d2Result.classList.add('show'); return; }
+        if (!selected) { d2Result.innerHTML = language === 'zh' ? '<strong>需要人工重審</strong>請先依 Evidence V2 選擇目前決定。' : '<strong>HUMAN RE-REVIEW REQUIRED</strong>Select the current decision against Evidence V2.'; d2Result.classList.add('show'); return; }
         const copy = (language === 'zh' ? {
-          ready: ['D2 · 可以報價', '人的審查確認 Evidence V2 仍支持商業回覆；D1 保留為歷史，不是目前決定。'],
-          hold: ['D2 · 有條件暫停', '人的審查維持探索開放；Rev B 與 90-day OA 不允許完整商業承諾。'],
-          no: ['D2 · 尚未可以報價', '人的審查停止商業準備，直到變更證據釐清。']
+          ready: ['D2 · 可報價', '人工審查確認 Evidence V2 仍支持商業回覆；D1 保留為歷史，不代表目前決定。'],
+          hold: ['D2 · 有條件暫緩', '人工審查維持探索開放；Rev B 與 90-day OA 不允許完整商業承諾。'],
+          no: ['D2 · 尚不可報價', '人工審查停止商業準備，直到變更證據釐清。']
         } : {
           ready: ['D2 · QUOTE READY', 'Human review confirms that Evidence V2 still supports a commercial response. D1 remains historical, not current.'],
           hold: ['D2 · CONDITIONAL HOLD', 'Human review keeps discovery open. Rev B and 90-day OA prevent a full commercial commitment.'],
