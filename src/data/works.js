@@ -1204,6 +1204,24 @@ export const works = [
         },
       },
     },
+    workingEvidence: {
+      zh: {
+        label: "WORKING EVIDENCE · 合成互動原型",
+        title: "RFQ → 報價決策：Human × AI Workflow",
+        body: "看一筆資訊不完整的海外 RFQ，如何被整理成可檢視的證據、交由人做商業判斷，並在新資訊改變條件後重新進入審查。",
+        cta: "執行 RFQ Workflow",
+        boundary: "Built and operationally red-teamed; not field validated.",
+        href: "./prototype/garage-rfq-workflow-001/",
+      },
+      en: {
+        label: "WORKING EVIDENCE · SYNTHETIC",
+        title: "RFQ → Quote Decision: Human × AI Workflow",
+        body: "See how an incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case.",
+        cta: "Run RFQ Workflow",
+        boundary: "Built and operationally red-teamed; not field validated.",
+        href: "./prototype/garage-rfq-workflow-001/",
+      },
+    },
     related: {
       id: "global-business-development",
       label: { zh: "回到商業開發判斷", en: "Back to business-development judgment" },

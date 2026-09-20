@@ -74,6 +74,8 @@ jobs:
         run: |
           mkdir -p dist/prototype/factory-secret-menu
           cp prototype/factory-secret-menu/index.html dist/prototype/factory-secret-menu/index.html
+          mkdir -p dist/prototype/garage-rfq-workflow-001
+          cp prototype/garage-rfq-workflow-001/index.html dist/prototype/garage-rfq-workflow-001/index.html
       - name: One-Pager editorial review guardrail
         run: |
           # inventory 變更（新增/移除 Works）時要求編輯審查 One-Pager

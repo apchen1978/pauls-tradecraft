@@ -187,6 +187,24 @@ function MarketEntryDetails({ data, tone = "light" }) {
   );
 }
 
+function WorkingEvidence({ data, tone = "light" }) {
+  const { lang } = useLang();
+  const copy = data?.[lang];
+  if (!copy) return null;
+  const dark = tone === "dark";
+  return (
+    <div className={`mt-5 border-t pt-4 ${dark ? "border-bone/15" : "border-line"}`}>
+      <p className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.label}</p>
+      <h4 className={`mt-1 text-lg font-semibold ${dark ? "text-bone/90" : "text-ink/85"}`}>{copy.title}</h4>
+      <p className={`mt-1 max-w-2xl text-sm leading-relaxed ${dark ? "text-bone/70" : "text-ink/65"}`}>{copy.body}</p>
+      <p className={`mt-2 text-[11px] leading-relaxed ${dark ? "text-bone/55" : "text-ink/55"}`}>{copy.boundary}</p>
+      <a href={copy.href} className={`mt-3 inline-flex items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-bold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber`}>
+        {copy.cta}<ArrowUpRight size={15} weight="bold" aria-hidden="true" />
+      </a>
+    </div>
+  );
+}
+
 function SpendingInsightSignal({ data }) {
   const { lang } = useLang();
   const copy = data?.[lang];
@@ -289,7 +307,7 @@ function SpendingInsightDetails({ data, tone = "light" }) {
   );
 }
 
-function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
+function CaseStudy({ c, related, link, linkLabel, workingEvidence, tone = "light" }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
   const stageTag = typeof c.stageTag === "string" ? c.stageTag : c.stageTag?.[lang];
@@ -342,7 +360,7 @@ function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
             </figure>
           </div>
         )}
-        {c.globalBusinessDevelopment ? <GlobalBusinessDevelopment data={c.globalBusinessDevelopment} tone={tone} /> : c.marketEntry ? <MarketEntryDetails data={c.marketEntry} tone={tone} /> : c.spendingInsight ? <SpendingInsightDetails data={c.spendingInsight} tone={tone} /> : <>
+         {c.globalBusinessDevelopment ? <GlobalBusinessDevelopment data={c.globalBusinessDevelopment} tone={tone} /> : c.marketEntry ? <MarketEntryDetails data={c.marketEntry} tone={tone} /> : c.spendingInsight ? <SpendingInsightDetails data={c.spendingInsight} tone={tone} /> : <>
           <div>
             <dt className={`font-semibold ${styles.heading}`}>{labels.problem}</dt>
             <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.problem)}</dd>
@@ -371,7 +389,8 @@ function CaseStudy({ c, related, link, linkLabel, tone = "light" }) {
          {!c.compact && !c.marketEntry && <div>
             <dt className={`font-semibold ${styles.heading}`}>{labels.result}</dt>
             <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.result)}</dd>
-         </div>}
+        </div>}
+        {workingEvidence && <WorkingEvidence data={workingEvidence} tone={tone} />}
         {!c.marketEntry && <div>
           <dt className={`font-semibold ${styles.heading}`}>{labels.evidence}</dt>
           <dd className={`mt-0.5 break-words leading-relaxed ${styles.body}`}>{f(c.evidence)}</dd>
@@ -541,7 +560,7 @@ function FeaturedSystem({ work }) {
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
       </div>
-      {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} tone="dark" />}
+      {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} tone="dark" />}
     </article>
   );
 }
@@ -723,7 +742,7 @@ export default function Works() {
        <ArrowUpRight size={13} weight="bold" />
      </a>
    )}
-   {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} />}
+   {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} workingEvidence={w.workingEvidence} />}
       </motion.article>
     );
   };

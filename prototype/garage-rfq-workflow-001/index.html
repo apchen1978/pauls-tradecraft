@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RFQ → Quote Decision: Human × AI Workflow</title>
+  <meta name="description" content="Working Evidence · Synthetic interactive workflow: an incomplete foreign-trade RFQ moves through evidence reconstruction, human judgment, and state reversal." />
+  <link rel="canonical" href="https://paulstradecraft.com/prototype/garage-rfq-workflow-001/" />
+  <meta property="og:title" content="RFQ → Quote Decision: Human × AI Workflow" />
+  <meta property="og:description" content="An incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case." />
+  <meta property="og:url" content="https://paulstradecraft.com/prototype/garage-rfq-workflow-001/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="RFQ → Quote Decision: Human × AI Workflow" />
+  <meta name="twitter:description" content="Working Evidence · Synthetic interactive workflow." />
+  <style>
+    :root {
+      --paper: #f5f2ea;
+      --white: #fffdf8;
+      --bone: #e9e2d2;
+      --ink: #1c2923;
+      --forest: #214b38;
+      --moss: #64746a;
+      --amber: #b97a26;
+      --amber-soft: #f1e4c7;
+      --line: #d8d0c1;
+      --rust: #9b5237;
+      --blue: #506b79;
+      --green-soft: #e0e9df;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .shell { max-width: 1180px; margin: 0 auto; padding: 28px 18px 62px; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); padding-bottom: 15px; }
+    .top-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+    .back-link, .lang-toggle { color: var(--moss); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
+    .lang-toggle { border: 1px solid var(--line); padding: 6px 8px; background: transparent; cursor: pointer; }
+    .lang-toggle:hover, .back-link:hover { color: var(--forest); }
+    .eyebrow { margin: 0; color: var(--amber); font-size: 10px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; }
+    .case-id { color: var(--moss); font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+    h1, h2, blockquote { font-family: ui-serif, Georgia, "Times New Roman", serif; }
+    h1 { margin: 32px 0 9px; max-width: 18ch; font-size: clamp(37px, 6vw, 68px); line-height: .96; letter-spacing: -.045em; }
+    .intro { max-width: 50rem; margin: 0; color: var(--moss); font-size: 15px; }
+    .synthetic { display: inline-flex; align-items: center; gap: 8px; margin: 18px 0 0; border: 1px solid var(--line); padding: 6px 9px; color: var(--moss); font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .synthetic::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+    .workflow { margin-top: 30px; border: 1px solid var(--line); background: var(--white); }
+    .workflow-head { padding: 18px 18px 13px; border-bottom: 1px solid var(--line); }
+    .workflow-head h2 { margin: 0; font-size: 23px; line-height: 1.1; }
+    .workflow-head p { margin: 6px 0 0; color: var(--moss); font-size: 12px; }
+    .workstrip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+    .workstrip > div { min-height: 92px; padding: 14px 16px; border-right: 1px solid var(--line); }
+    .workstrip > div:last-child { border-right: 0; }
+    .workstrip strong { display: block; margin-bottom: 6px; color: var(--forest); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .workstrip p { margin: 0; color: var(--moss); font-size: 12px; }
+    .stagebar { display: flex; flex-wrap: wrap; gap: 0; padding: 0 12px; border-bottom: 1px solid var(--line); }
+    .stage-tab { flex: 0 0 auto; padding: 12px 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--moss); font: inherit; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+    .stage-tab.active { border-bottom-color: var(--amber); color: var(--forest); }
+    .stage-tab:disabled { color: #a7aaa2; cursor: not-allowed; opacity: .65; }
+    .stage-tab:focus-visible, button:focus-visible { outline: 3px solid #d9a84a; outline-offset: 2px; }
+    .panel { display: none; padding: 25px 18px 28px; animation: appear .35s ease both; }
+    .panel.active { display: block; }
+    @keyframes appear { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .panel-grid { display: grid; gap: 24px; align-items: start; }
+    @media (min-width: 820px) { .panel-grid { grid-template-columns: minmax(0, 1.35fr) minmax(250px, .65fr); } }
+    .step-label { color: var(--amber); font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h3 { margin: 9px 0 9px; font-family: ui-serif, Georgia, serif; font-size: clamp(27px, 4vw, 42px); line-height: 1.02; letter-spacing: -.025em; }
+    .panel-lede { max-width: 48rem; margin: 0 0 20px; color: var(--moss); font-size: 14px; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 22px; }
+    button.action, button.choice { border: 1px solid var(--forest); padding: 12px 15px; background: var(--forest); color: var(--white); font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .04em; cursor: pointer; }
+    button.choice { background: transparent; color: var(--forest); }
+    button.action:hover, button.choice:hover { background: #173828; color: var(--white); }
+    button.text-button { border: 0; padding: 10px 0; background: transparent; color: var(--moss); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+    button.text-button:hover { color: var(--forest); }
+    .email { border: 1px solid var(--line); background: #fbfaf5; }
+    .email-top { display: grid; gap: 7px; padding: 14px 16px; border-bottom: 1px solid var(--line); color: var(--moss); font-size: 12px; }
+    .email-top strong { color: var(--ink); font-size: 11px; }
+    .email-body { padding: 20px 16px 23px; }
+    .email-body p { margin: 0 0 13px; font-size: 13px; }
+    .email-body p:last-child { margin-bottom: 0; }
+    .email-body .sign { color: var(--moss); }
+    .side-note { padding: 17px 16px; border-left: 2px solid var(--amber); background: rgba(185,122,38,.07); }
+    .side-note strong { display: block; margin-bottom: 7px; color: var(--ink); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+    .side-note p { margin: 0; color: var(--moss); font-size: 13px; }
+    .case-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 17px; }
+    .case-head strong { font-size: 14px; }
+    .state-chip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); padding: 5px 8px; color: var(--moss); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .state-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+    .state-chip.verified::before { background: #4f7c59; }
+    .context-grid { display: grid; gap: 10px; }
+    @media (min-width: 640px) { .context-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .context-card { min-height: 132px; padding: 15px; border: 1px solid var(--line); background: var(--white); }
+    .context-card h4 { margin: 0 0 9px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .context-card ul { margin: 0; padding-left: 17px; color: var(--moss); font-size: 12px; }
+    .context-card li { margin: 5px 0; }
+    .context-card.known h4 { color: #4f7c59; }
+    .context-card.unknown h4 { color: var(--rust); }
+    .context-card.conflict h4 { color: var(--amber); }
+    .evidence-row { display: grid; gap: 10px; margin-top: 14px; }
+    @media (min-width: 640px) { .evidence-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .evidence-item { padding: 13px 14px; border: 1px solid var(--line); background: var(--white); }
+    .evidence-item strong { display: block; margin-bottom: 5px; font-size: 11px; }
+    .evidence-item p { margin: 0; color: var(--moss); font-size: 12px; }
+    .handoff { margin-top: 19px; padding: 15px; background: var(--amber-soft); }
+    .handoff strong { display: block; color: var(--forest); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .handoff p { margin: 6px 0 0; color: var(--ink); font-size: 13px; }
+    .gate { margin-top: 18px; padding: 19px 16px; border: 1px solid var(--forest); background: #f2f6ef; }
+    .gate h4 { margin: 0 0 5px; color: var(--forest); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .gate p { margin: 0; color: var(--moss); font-size: 13px; }
+    .gate .button-row { margin-top: 15px; }
+    .selected { outline: 3px solid var(--amber); outline-offset: -3px; }
+    .choice-result { display: none; margin-top: 16px; padding: 13px 14px; border-left: 2px solid var(--forest); background: var(--green-soft); color: var(--ink); font-size: 13px; }
+    .choice-result.show { display: block; }
+    .choice-result strong { display: block; margin-bottom: 5px; color: var(--forest); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+    .questions { display: grid; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; counter-reset: questions; }
+    .questions li { display: grid; grid-template-columns: 27px 1fr; gap: 9px; align-items: start; padding: 11px 12px; border: 1px solid var(--line); background: var(--white); color: var(--ink); font-size: 13px; counter-increment: questions; }
+    .questions li::before { content: counter(questions, decimal-leading-zero); color: var(--amber); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+    .updates { display: grid; gap: 9px; margin-top: 19px; }
+    @media (min-width: 640px) { .updates { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .update { padding: 14px; border: 1px solid var(--line); background: var(--white); }
+    .update h4 { margin: 0 0 6px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .update p { margin: 0; color: var(--moss); font-size: 12px; }
+    .update.verified { background: var(--green-soft); }
+    .update.verified h4 { color: #4f7c59; }
+    .update.updated h4 { color: var(--blue); }
+    .update.unknown h4 { color: var(--rust); }
+    .update.conflict h4 { color: var(--amber); }
+    .buyer-message { margin-top: 18px; padding: 16px; border-left: 2px solid var(--blue); background: #eef2f3; color: var(--ink); font-family: ui-serif, Georgia, serif; font-size: 18px; line-height: 1.25; }
+    .buyer-message small { display: block; margin-bottom: 8px; color: var(--blue); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .change-list { display: grid; gap: 9px; margin-top: 18px; }
+    .change-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; padding: 13px 14px; border: 1px solid var(--line); background: var(--white); }
+    .change-row strong { display: block; grid-column: 1 / -1; color: var(--amber); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .change-row span { font-size: 13px; }
+    .change-row .arrow { color: var(--amber); font-size: 18px; }
+    .stale-banner { margin-top: 20px; padding: 17px; border: 1px solid var(--rust); background: #f8eee9; }
+    .stale-banner .label { display: block; margin-bottom: 7px; color: var(--rust); font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .stale-banner h4 { margin: 0; color: var(--ink); font-family: ui-serif, Georgia, serif; font-size: 24px; line-height: 1.05; }
+    .stale-banner p { margin: 7px 0 0; color: var(--moss); font-size: 12px; }
+    .stale-banner strong { color: var(--rust); }
+    .impact-list { display: grid; gap: 8px; margin-top: 16px; }
+    .impact-list div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 11px; border-bottom: 1px solid var(--line); color: var(--moss); font-size: 12px; }
+    .impact-list strong { color: var(--ink); font-size: 11px; }
+    .history-current { display: grid; gap: 9px; margin-top: 19px; }
+    @media (min-width: 640px) { .history-current { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .history-card { padding: 14px; border: 1px solid var(--line); background: var(--white); }
+    .history-card h4 { margin: 0 0 8px; color: var(--moss); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .history-card p { margin: 4px 0; color: var(--moss); font-size: 12px; }
+    .history-card strong { color: var(--ink); }
+    [hidden] { display: none !important; }
+    .decision-list { display: grid; gap: 9px; margin-top: 19px; }
+    .decision-option { display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: start; padding: 14px; border: 1px solid var(--line); background: var(--white); }
+    .decision-option input { margin-top: 3px; accent-color: var(--forest); }
+    .decision-option label { cursor: pointer; }
+    .decision-option strong { display: block; font-size: 13px; }
+    .decision-option span { display: block; margin-top: 4px; color: var(--moss); font-size: 12px; }
+    .comparison { display: grid; gap: 10px; margin-top: 23px; }
+    @media (min-width: 760px) { .comparison { grid-template-columns: 1fr 1fr; } }
+    .comparison > div { padding: 16px; border-top: 2px solid var(--line); }
+    .comparison > div:last-child { border-top-color: var(--forest); }
+    .comparison h4 { margin: 0 0 8px; color: var(--moss); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
+    .comparison > div:last-child h4 { color: var(--forest); }
+    .comparison p { margin: 0; color: var(--moss); font-size: 12px; }
+    .resource { margin-top: 21px; padding: 16px; border: 1px solid var(--line); background: var(--bone); }
+    .resource h4 { margin: 0 0 9px; color: var(--forest); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
+    .resource p { margin: 0; color: var(--ink); font-size: 13px; }
+    .resource span { color: var(--moss); }
+    .footer { margin-top: 20px; color: var(--moss); font-size: 11px; }
+    @media (max-width: 590px) { .workstrip { grid-template-columns: 1fr; } .workstrip > div { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); } .workstrip > div:last-child { border-bottom: 0; } .topline { align-items: flex-start; flex-direction: column; gap: 7px; } .stage-tab { flex: 1 0 33.333%; padding-inline: 6px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topline"><p class="eyebrow" id="eyebrow">Working Evidence · Synthetic</p><div class="top-actions"><a class="back-link" href="../../">← AI-Native Market Entry / Paul’s Tradecraft</a><button class="lang-toggle" id="lang-toggle" type="button" aria-label="Switch language">繁中</button><span class="case-id">Foreign trade RFQ</span></div></div>
+    <h1 id="page-title">RFQ → Quote Decision: Human × AI Workflow</h1>
+    <p class="intro" id="page-intro">See how an incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case.</p>
+    <p class="synthetic" id="synthetic-label">Built and operationally red-teamed · not field validated</p>
+
+    <section class="workflow" aria-label="Synthetic RFQ workflow">
+      <header class="workflow-head"><h2 id="workflow-title">Singapore distributor inquiry</h2><p id="workflow-subtitle">Regional distributor · commercial interior / building-material product · no live customer or external communication</p></header>
+      <div class="workstrip" aria-label="Work boundaries">
+        <div><strong id="ai-does-label">AI does</strong><p id="ai-does-copy">Reconstructs context, compares evidence, finds gaps, drafts questions, updates state.</p></div>
+        <div><strong id="human-decides-label">Human decides</strong><p id="human-decides-copy">Whether to continue, what risks to accept, and whether a quote or promise is justified.</p></div>
+        <div><strong id="system-controls-label">System controls</strong><p id="system-controls-copy">Unknowns remain unknown; external sending and commercial commitment stay approval-gated.</p></div>
+      </div>
+      <nav class="stagebar" aria-label="Workflow stages">
+        <button class="stage-tab active" data-tab="0">01 RFQ</button><button class="stage-tab" data-tab="1" disabled>02 Context</button><button class="stage-tab" data-tab="2" disabled>03 Qualify</button><button class="stage-tab" data-tab="3" disabled>04 Evidence</button><button class="stage-tab" data-tab="4" disabled>05 V1 Decision</button><button class="stage-tab" data-tab="5" disabled>06 Reversal</button><button class="stage-tab" data-tab="6" disabled>07 Re-review</button>
+      </nav>
+
+      <article class="panel active" data-panel="0">
+        <div class="panel-grid">
+          <div><span class="step-label">01 / RFQ arrives</span><h3>Start with the work as it arrives.</h3><p class="panel-lede">A real-looking request is rarely a complete decision. The first move is to preserve the original signal before anyone cleans it up.</p>
+            <div class="email"><div class="email-top"><span><strong>From:</strong> Lina Tan &lt;lina@meridian-build.sg&gt;</span><span><strong>Subject:</strong> Inquiry — acoustic wall panels for Singapore project</span><span><strong>Received:</strong> Monday, 09:14 · forwarded by sales</span></div><div class="email-body"><p>Hi,</p><p>We are a regional distributor looking for acoustic wall panels for a commercial interior project in Singapore.</p><p>Could you advise availability and pricing for approximately 2,400 m²? Target delivery is late October. We would prefer a fire-rated finish and need samples soon.</p><p>Please let us know if you can support this.</p><p class="sign">Best,<br />Lina</p></div></div>
+            <div class="button-row"><button class="action" data-next="1">Process with AI</button></div>
+          </div>
+          <aside class="side-note"><strong>Visible input</strong><p>Product, estimated quantity, market, destination, and requested timing are present. A final specification, contracting entity, certification requirement, and payment terms are not.</p></aside>
+        </div>
+      </article>
+
+      <article class="panel" data-panel="1">
+        <div class="panel-grid"><div><span class="step-label">02 / Context reconstruction</span><h3>AI separates signal from missing context.</h3><p class="panel-lede">The system does not fill the gaps. It makes the gaps easier for a person to see.</p>
+          <div class="case-head"><strong>Case state: reconstructed</strong><span class="state-chip">Unknowns preserved</span></div>
+          <div class="context-grid"><div class="context-card known"><h4>Known</h4><ul><li>Acoustic wall panels</li><li>Approx. 2,400 m²</li><li>Singapore destination</li><li>Late-October target</li></ul></div><div class="context-card unknown"><h4>Unknown</h4><ul><li>Final technical specification</li><li>Contracting entity / buyer role</li><li>Certification requirement</li><li>Payment terms</li></ul></div><div class="context-card conflict"><h4>Conflict / verify</h4><ul><li>Delivery timing may conflict with an unresolved fire-rating and specification path</li><li>“Target” is not yet a binding date</li></ul></div></div>
+          <div class="button-row"><button class="action" data-next="2">Prepare qualification evidence</button><button class="text-button" data-prev="0">Back to RFQ</button></div></div><aside class="side-note"><strong>AI does</strong><p>Extracts, normalizes, and flags contradictions. It does not infer that the buyer is ready, qualified, or safe to quote.</p></aside></div>
+      </article>
+
+      <article class="panel" data-panel="2">
+        <div class="panel-grid"><div><span class="step-label">03 / Qualification</span><h3>Prepare the judgment. Do not replace it.</h3><p class="panel-lede">The inquiry is commercially relevant, but relevance is not readiness. The work now is to make the decision legible.</p>
+          <div class="evidence-row"><div class="evidence-item"><strong>Commercial relevance</strong><p>Regional distributor, plausible product category, meaningful estimated quantity.</p></div><div class="evidence-item"><strong>Technical fit</strong><p>Potentially suitable, but the final specification and fire-rating requirement remain open.</p></div><div class="evidence-item"><strong>Resource exposure</strong><p>Engineering review, sample preparation, production feasibility, and senior commercial attention.</p></div><div class="evidence-item"><strong>Questions requiring confirmation</strong><p>Buyer role, project status, certification, payment, and whether late October is required or preferred.</p></div></div>
+          <div class="handoff"><strong>Human judgment required</strong><p>Does this opportunity deserve more organizational attention before the evidence is complete?</p></div>
+          <div class="gate"><h4>Choose a bounded path</h4><p>Continue discovery does not authorize a quotation or commercial commitment.</p><div class="button-row"><button class="choice" data-qualification="continue">Continue discovery</button><button class="choice" data-qualification="hold">Hold</button><button class="choice" data-qualification="decline">Decline</button></div><div class="choice-result" id="qualification-result"></div></div>
+          <div class="button-row"><button class="action" id="qualification-next" data-next="3" disabled>Review evidence gaps</button><button class="text-button" data-prev="1">Back to context</button></div>
+        </div><aside class="side-note"><strong>Human decides</strong><p>Whether the opportunity deserves attention. Not whether the opportunity is won, quote-ready, or approved for external commitment.</p></aside></div>
+      </article>
+
+      <article class="panel" data-panel="3">
+        <div class="panel-grid"><div><span class="step-label">04 / Evidence gap</span><h3>AI prepares the minimum questions.</h3><p class="panel-lede">The machine absorbs coordination work. A human still reviews what the company is about to ask another party.</p>
+          <ul class="questions"><li>Confirm the final panel specification and fire-rating requirement.</li><li>Confirm the buyer or contracting entity for this project.</li><li>Confirm whether certification is mandatory and which standard applies.</li><li>Confirm payment terms and whether the target date is required or preferred.</li><li>Confirm project status: budgeted, specified, awarded, or exploratory.</li></ul>
+          <div class="gate"><h4>Human review before evidence V1</h4><p>AI has prepared the questions. This synthetic case now supplies confirmed answers for the first human decision. No external message has been sent.</p><div class="button-row"><button class="action" data-next="4">Apply synthetic Evidence V1</button><button class="text-button" data-prev="2">Back to qualification</button></div></div>
+        </div><aside class="side-note"><strong>System controls</strong><p>Drafting is allowed. Sending is not. The external message remains a human-approved action.</p></aside></div>
+      </article>
+
+      <article class="panel" data-panel="4">
+        <div class="panel-grid"><div><span class="step-label">05 / Evidence V1 · Human decision D1</span><h3>Enough evidence for a decision — at this moment.</h3><p class="panel-lede">The synthetic case now has a coherent basis for a quote decision. The human decides; the evidence does not decide itself.</p>
+          <div class="updates"><div class="update verified"><h4>Specification · VERIFIED</h4><p>Rev A — acoustic wall panel, fire-rated finish confirmed for this review.</p></div><div class="update verified"><h4>Certification · VERIFIED</h4><p>Required certification standard confirmed for the current scope.</p></div><div class="update verified"><h4>Payment · VERIFIED</h4><p>30/70 terms confirmed for the current commercial review.</p></div><div class="update verified"><h4>Quantity / delivery · VERIFIED</h4><p>2,400 m²; late-October delivery is sufficiently confirmed and feasible for this synthetic case.</p></div></div>
+          <div class="gate"><h4>Human judgment gate · Decision D1</h4><p>AI has prepared the evidence. It has not selected the commercial decision.</p><div class="button-row"><button class="action" id="d1-submit">Record QUOTE READY</button></div><div class="choice-result" id="d1-result"></div></div>
+          <div class="button-row"><button class="action" id="d1-next" data-next="5" disabled>Receive new buyer evidence</button><button class="text-button" data-prev="3">Back to evidence questions</button></div></div><aside class="side-note"><strong>Human decides</strong><p>D1 is a human decision against Evidence V1. The synthetic timestamp and evidence basis stay attached to the decision.</p></aside></div>
+      </article>
+
+      <article class="panel" data-panel="5">
+        <div class="panel-grid"><div><span class="step-label">06 / Evidence V2 · State reversal</span><h3>The world changed after approval.</h3><p class="panel-lede">A later buyer message changes material commercial evidence. D1 is not rewritten — its current applicability changes.</p>
+          <div class="buyer-message"><small>New buyer evidence · 14:20</small>“Our finance team requires 90-day OA. Also, please use revised specification Rev B attached to our latest request.”</div>
+          <div class="change-list"><div class="change-row"><strong>Payment terms</strong><span>30/70</span><span class="arrow">→</span><span>90-day OA</span></div><div class="change-row"><strong>Specification</strong><span>Rev A</span><span class="arrow">→</span><span>Rev B</span></div></div>
+          <div class="stale-banner"><span class="label">Previous decision · D1</span><h4>QUOTE READY <strong>→ STALE — REVIEW REQUIRED</strong></h4><p>Approved against Evidence V1 at 09:40. The decision was valid then. Material evidence changed afterwards.</p></div>
+          <div class="impact-list"><div><strong>Payment acceptance</strong><span>INVALIDATED / REQUIRES REVIEW</span></div><div><strong>Pricing assumptions</strong><span>REQUIRES REVIEW</span></div><div><strong>Specification feasibility</strong><span>REQUIRES REVIEW</span></div><div><strong>Delivery feasibility</strong><span>IMPACT UNKNOWN — REVIEW REQUIRED</span></div></div>
+          <div class="button-row"><button class="action" data-next="6">Re-open human judgment</button><button class="text-button" data-prev="4">Back to D1</button></div></div><aside class="side-note"><strong>System behavior</strong><p>AI detected the change. The system preserved V1 and D1. No new commercial decision was selected automatically.</p></aside></div>
+      </article>
+
+      <article class="panel" data-panel="6">
+        <div class="panel-grid"><div><span class="step-label">07 / Human re-review · Current decision D2</span><h3>Make today’s decision against today’s evidence.</h3><p class="panel-lede">The old decision remains part of the history. It is no longer the current approval.</p>
+          <div class="gate"><h4>Human judgment gate · Evidence V2</h4><p>AI may explain what changed. A human must choose the current state.</p><div class="decision-list"><div class="decision-option"><input type="radio" name="re-review" id="d2-ready" value="ready"><label for="d2-ready"><strong>Quote ready</strong><span>V2 has been reviewed and still supports a human-approved commercial response.</span></label></div><div class="decision-option"><input type="radio" name="re-review" id="d2-hold" value="hold"><label for="d2-hold"><strong>Conditional hold</strong><span>Continue discovery; do not promise price, margin, payment acceptance, production capacity, or delivery.</span></label></div><div class="decision-option"><input type="radio" name="re-review" id="d2-no" value="no"><label for="d2-no"><strong>Not quote-ready</strong><span>Stop commercial preparation until the changed evidence is materially clarified.</span></label></div></div><div class="button-row"><button class="action" id="d2-submit">Apply current human decision</button></div><div class="choice-result" id="d2-result"></div></div>
+          <div class="history-current" id="history-current" hidden><div class="history-card"><h4>History · D1</h4><p><strong>QUOTE READY</strong></p><p>Valid against Evidence V1 at 09:40.</p><p>Later made stale by material evidence change.</p></div><div class="history-card"><h4>Current · D2</h4><p><strong id="d2-label">CONDITIONAL HOLD</strong></p><p>Based on Evidence V2 at 14:20.</p><p>New decision does not erase the previous one.</p></div></div>
+          <div id="post-decision" hidden><div class="comparison"><div><h4>Before</h4><p>RFQ → read email → search messages → ask engineering → ask Founder → draft response → discover missing information later</p></div><div><h4>With Human × AI</h4><p>RFQ → reconstruct context → expose gaps → human judgment → evidence update → stale approval → human re-review → next action</p></div></div><div class="resource"><h4>Where attention is preserved</h4><p>AI absorbs <span>reading, extraction, comparison, context reconstruction, missing-information detection, drafting, and state updating.</span> Human attention concentrates on <strong>commercial judgment, exceptions, risk, commitments, and authorization.</strong></p></div><div class="gate"><h4>Prepared follow-up — awaiting human approval</h4><p>“Thank you. We can continue the technical review. Before we prepare a conditional commercial response, could you confirm the impact of Rev B on the required fire-rating standard, payment terms, and delivery planning?”</p><div class="button-row"><button class="action" data-restart>Restart workflow</button></div></div></div>
+        </div><aside class="side-note"><strong>What changed</strong><p>Valid then. Not valid now. The evidence changed; the human decision had to be made again.</p></aside></div>
+      </article>
+    </section>
+    <p class="footer" id="footer-copy">Synthetic workflow prototype — no live customer data, external communication, ROI, efficiency percentage, or production readiness is implied.</p>
+  </main>
+  <script>
+    (() => {
+      const panels = [...document.querySelectorAll('[data-panel]')];
+      const tabs = [...document.querySelectorAll('[data-tab]')];
+      const qualificationNext = document.querySelector('#qualification-next');
+      const qualificationResult = document.querySelector('#qualification-result');
+      const d1Submit = document.querySelector('#d1-submit');
+      const d1Next = document.querySelector('#d1-next');
+      const d1Result = document.querySelector('#d1-result');
+      const d2Submit = document.querySelector('#d2-submit');
+      const d2Result = document.querySelector('#d2-result');
+      const historyCurrent = document.querySelector('#history-current');
+      const postDecision = document.querySelector('#post-decision');
+      const d2Label = document.querySelector('#d2-label');
+      let stage = 0;
+      let unlockedStage = 0;
+      let language = 'en';
+
+      const translations = {
+        zh: {
+          eyebrow: 'WORKING EVIDENCE · 合成互動原型',
+          title: 'RFQ → 報價決策：Human × AI Workflow',
+          intro: '看一筆資訊不完整的海外 RFQ，如何被整理成可檢視的證據、交由人做商業判斷，並在新資訊改變條件後重新進入審查。',
+          synthetic: '已建置並完成 operational red-team · 尚未真人驗證',
+          workflowTitle: '新加坡經銷商詢問',
+          workflowSubtitle: '區域經銷商 · 商業室內／建材產品 · 無真實客戶或外部溝通',
+          aiLabel: 'AI 執行', aiCopy: '重建脈絡、比較證據、找出缺口、草擬問題、更新狀態。',
+          humanLabel: '人做判斷', humanCopy: '是否繼續、接受哪些風險，以及是否足以報價或做出承諾。',
+          systemLabel: '系統控制', systemCopy: '未知保持未知；外部傳送與商業承諾維持人工授權。',
+          footer: '合成 workflow prototype — 不代表真實客戶資料、外部溝通、ROI、效率百分比或 production readiness。',
+          back: '← AI 原生市場開發 / Paul’s Tradecraft', lang: 'English'
+        },
+        en: {
+          eyebrow: 'WORKING EVIDENCE · SYNTHETIC',
+          title: 'RFQ → Quote Decision: Human × AI Workflow',
+          intro: 'See how an incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case.',
+          synthetic: 'Built and operationally red-teamed · not field validated',
+          workflowTitle: 'Singapore distributor inquiry',
+          workflowSubtitle: 'Regional distributor · commercial interior / building-material product · no live customer or external communication',
+          aiLabel: 'AI does', aiCopy: 'Reconstructs context, compares evidence, finds gaps, drafts questions, updates state.',
+          humanLabel: 'Human decides', humanCopy: 'Whether to continue, what risks to accept, and whether a quote or promise is justified.',
+          systemLabel: 'System controls', systemCopy: 'Unknowns remain unknown; external sending and commercial commitment stay approval-gated.',
+          footer: 'Synthetic workflow prototype — no live customer data, external communication, ROI, efficiency percentage, or production readiness is implied.',
+          back: '← AI-Native Market Entry / Paul’s Tradecraft', lang: '繁中'
+        }
+      };
+
+      function setLanguage(next) {
+        language = next;
+        const copy = translations[language];
+        document.documentElement.lang = language === 'zh' ? 'zh-Hant' : 'en';
+        document.querySelector('#eyebrow').textContent = copy.eyebrow;
+        document.querySelector('#page-title').textContent = copy.title;
+        document.querySelector('#page-intro').textContent = copy.intro;
+        document.querySelector('#synthetic-label').textContent = copy.synthetic;
+        document.querySelector('#workflow-title').textContent = copy.workflowTitle;
+        document.querySelector('#workflow-subtitle').textContent = copy.workflowSubtitle;
+        document.querySelector('#ai-does-label').textContent = copy.aiLabel;
+        document.querySelector('#ai-does-copy').textContent = copy.aiCopy;
+        document.querySelector('#human-decides-label').textContent = copy.humanLabel;
+        document.querySelector('#human-decides-copy').textContent = copy.humanCopy;
+        document.querySelector('#system-controls-label').textContent = copy.systemLabel;
+        document.querySelector('#system-controls-copy').textContent = copy.systemCopy;
+        document.querySelector('#footer-copy').textContent = copy.footer;
+        document.querySelector('.back-link').textContent = copy.back;
+        document.querySelector('#lang-toggle').textContent = copy.lang;
+        const tabsCopy = language === 'zh' ? ['01 RFQ','02 脈絡','03 資格','04 證據','05 V1 判斷','06 反轉','07 重新審查'] : ['01 RFQ','02 Context','03 Qualify','04 Evidence','05 V1 Decision','06 Reversal','07 Re-review'];
+        tabs.forEach((tab, index) => { tab.textContent = tabsCopy[index]; });
+        const staticCopy = language === 'zh' ? {
+          labels: ['01 / RFQ 收到','02 / 脈絡重建','03 / 資格判斷','04 / 證據缺口','05 / 證據 V1 · 人的判斷 D1','06 / 證據 V2 · 狀態反轉','07 / 人重新審查 · 目前判斷 D2'],
+          headings: ['從實際收到的工作開始。','AI 分離訊號與缺少的脈絡。','準備判斷，不取代判斷。','AI 準備最少必要問題。','在此刻，證據足以做出判斷。','核准之後，世界改變了。','以今天的證據做今天的判斷。'],
+          ledes: ['真實請求很少是完整決策。第一步是保留原始訊號，不急著整理乾淨。','系統不填補缺口，而是讓人更容易看見缺口。','詢問具商業相關性，但相關不等於準備完成。現在的工作是讓判斷變得可檢視。','機器吸收協調工作；人仍審查公司準備向另一方提出的問題。','合成案例現在有足夠一致的基礎做報價判斷。人做決定，證據不會自行決定。','後續買方訊息改變重大商業證據。D1 不被改寫，但目前適用性改變。','舊判斷保留在歷史中；它不再是目前的核准。'],
+          actions: ['用 AI 處理','準備資格證據','準備資格證據','檢視證據缺口','套用合成 Evidence V1','重新開啟人的判斷','重新開始 workflow']
+        } : {
+          labels: ['01 / RFQ arrives','02 / Context reconstruction','03 / Qualification','04 / Evidence gap','05 / Evidence V1 · Human decision D1','06 / Evidence V2 · State reversal','07 / Human re-review · Current decision D2'],
+          headings: ['Start with the work as it arrives.','AI separates signal from missing context.','Prepare the judgment. Do not replace it.','AI prepares the minimum questions.','Enough evidence for a decision — at this moment.','The world changed after approval.','Make today’s decision against today’s evidence.'],
+          ledes: ['A real-looking request is rarely a complete decision. The first move is to preserve the original signal before anyone cleans it up.','The system does not fill the gaps. It makes the gaps easier for a person to see.','The inquiry is commercially relevant, but relevance is not readiness. The work now is to make the decision legible.','The machine absorbs coordination work. A human still reviews what the company is about to ask another party.','The synthetic case now has a coherent basis for a quote decision. The human decides; the evidence does not decide itself.','A later buyer message changes material commercial evidence. D1 is not rewritten — its current applicability changes.','The old decision remains part of the history. It is no longer the current approval.'],
+          actions: ['Process with AI','Prepare qualification evidence','Prepare qualification evidence','Review evidence gaps','Apply synthetic Evidence V1','Re-open human judgment','Restart workflow']
+        };
+        document.querySelectorAll('.step-label').forEach((el, index) => { el.textContent = staticCopy.labels[index]; });
+        document.querySelectorAll('.panel h3').forEach((el, index) => { el.textContent = staticCopy.headings[index]; });
+        document.querySelectorAll('.panel-lede').forEach((el, index) => { el.textContent = staticCopy.ledes[index]; });
+        const actionButtons = [...document.querySelectorAll('.panel .button-row button.action')].filter((el) => !['d1-submit','d2-submit'].includes(el.id));
+        actionButtons.forEach((el, index) => { if (staticCopy.actions[index]) el.textContent = staticCopy.actions[index]; });
+        qualificationNext.textContent = language === 'zh' ? '檢視證據缺口' : 'Review evidence gaps';
+        d1Submit.textContent = language === 'zh' ? '記錄「可以報價」' : 'Record QUOTE READY';
+        d1Next.textContent = language === 'zh' ? '收到新的買方證據' : 'Receive new buyer evidence';
+        d2Submit.textContent = language === 'zh' ? '套用目前人的判斷' : 'Apply current human decision';
+        document.querySelector('[data-panel="0"] button[data-next="1"]').textContent = language === 'zh' ? '用 AI 處理' : 'Process with AI';
+        document.querySelector('[data-panel="1"] button[data-next="2"]').textContent = language === 'zh' ? '準備資格證據' : 'Prepare qualification evidence';
+        document.querySelector('[data-panel="3"] button[data-next="4"]').textContent = language === 'zh' ? '套用合成 Evidence V1' : 'Apply synthetic Evidence V1';
+        document.querySelector('[data-panel="4"] button[data-next="5"]').textContent = language === 'zh' ? '收到新的買方證據' : 'Receive new buyer evidence';
+        document.querySelector('[data-panel="5"] button[data-next="6"]').textContent = language === 'zh' ? '重新開啟人的判斷' : 'Re-open human judgment';
+        document.querySelector('[data-panel="6"] button[data-restart]').textContent = language === 'zh' ? '重新開始 workflow' : 'Restart workflow';
+        const textMap = language === 'zh' ? {
+          'Case state: reconstructed': '案例狀態：已重建', 'Unknowns preserved': '未知保留', 'Known': '已知', 'Unknown': '未知', 'Conflict / verify': '衝突／待驗證',
+          'Visible input': '可見輸入', 'AI does': 'AI 執行', 'Human decides': '人做判斷', 'System controls': '系統控制',
+          'Prepare the judgment. Do not replace it.': '準備判斷，不取代判斷。', 'Choose a bounded path': '選擇一條有界路徑',
+          'Continue discovery': '繼續探索', 'Hold': '暫停', 'Decline': '婉拒', 'Review evidence gaps': '檢視證據缺口',
+          'Human judgment required': '需要人的判斷', 'Human review before evidence V1': 'Evidence V1 前的人審查',
+          'Apply synthetic Evidence V1': '套用合成 Evidence V1', 'Receive new buyer evidence': '收到新的買方證據',
+          'Re-open human judgment': '重新開啟人的判斷', 'Human judgment gate · Evidence V2': '人的判斷關卡 · Evidence V2',
+          'Quote ready': '可以報價', 'Conditional hold': '有條件暫停', 'Not quote-ready': '尚未可以報價',
+          'Restart workflow': '重新開始 workflow', 'The world changed after approval.': '核准之後，世界改變了。',
+          'What changed': '改變了什麼', 'History · D1': '歷史 · D1', 'Current · D2': '目前 · D2'
+        } : {
+          '案例狀態：已重建': 'Case state: reconstructed', '未知保留': 'Unknowns preserved', '已知': 'Known', '未知': 'Unknown', '衝突／待驗證': 'Conflict / verify',
+          '可見輸入': 'Visible input', 'AI 執行': 'AI does', '人做判斷': 'Human decides', '系統控制': 'System controls',
+          '繼續探索': 'Continue discovery', '暫停': 'Hold', '婉拒': 'Decline', '檢視證據缺口': 'Review evidence gaps',
+          'Evidence V1 前的人審查': 'Human review before evidence V1', '套用合成 Evidence V1': 'Apply synthetic Evidence V1',
+          '收到新的買方證據': 'Receive new buyer evidence', '重新開啟人的判斷': 'Re-open human judgment',
+          '人的判斷關卡 · Evidence V2': 'Human judgment gate · Evidence V2', '可以報價': 'Quote ready', '有條件暫停': 'Conditional hold',
+          '尚未可以報價': 'Not quote-ready', '重新開始 workflow': 'Restart workflow', '改變了什麼': 'What changed', '歷史 · D1': 'History · D1', '目前 · D2': 'Current · D2'
+        };
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach((node) => { const value = node.nodeValue.trim(); if (textMap[value]) node.nodeValue = node.nodeValue.replace(value, textMap[value]); });
+
+        const ui = language === 'zh' ? {
+          sideHead: ['可見輸入','AI 執行','人做判斷','系統控制','人做判斷','系統行為','改變了什麼'],
+          sideBody: [
+            '產品、估計數量、市場、目的地與需求時點已知；最終規格、簽約主體、認證要求與付款條件仍未知。',
+            '擷取、標準化並標記矛盾；不推定買方已準備好、已符合資格或可以安全報價。',
+            '判斷機會是否值得投入注意力；不是判斷成交、可以報價或已獲准對外承諾。',
+            '允許草擬，但不允許傳送；外部訊息仍須由人核准。',
+            'D1 是針對 Evidence V1 的人的判斷；合成時間與證據基礎會附在決定上。',
+            'AI 偵測到變化；系統保留 V1 與 D1，不會自動選擇新的商業決定。',
+            '當時有效，現在不再有效。證據改變了，因此人的判斷必須重新做出。'
+          ],
+          gates: ['選擇一條有界路徑','Evidence V1 前的人審查','人的判斷關卡 · 決定 D1','人的判斷關卡 · Evidence V2','準備好的 follow-up · 等待人核准'],
+          gateBody: [
+            '繼續探索不代表核准報價或商業承諾。',
+            'AI 已準備問題。此合成案例現在提供第一個人的判斷所需的確認答案；沒有外部訊息被送出。',
+            'AI 準備證據，但沒有選擇商業決定。',
+            'AI 可以說明改變了什麼；人必須選擇目前狀態。',
+            '「謝謝。我們可以繼續技術審查。在準備有條件的商業回覆前，請確認 Rev B 對防火標準、付款條件與交付規劃的影響。」'
+          ],
+          stale: ['先前的決定 · D1','可以報價 → 失效 · 必須重新審查','根據 09:40 的 Evidence V1 核准；決定當時有效，但後續重大證據已改變。'],
+          impacts: ['付款接受','已失效／需要審查','價格假設','需要審查','規格可行性','需要審查','交付可行性','影響未知／需要審查'],
+          history: ['歷史 · D1','根據 09:40 的 Evidence V1 有效。','後續重大證據改變，使其失效。','目前 · D2','根據 14:20 的 Evidence V2。','新的決定不會抹去舊決定。'],
+          comparison: ['之前','RFQ → 閱讀 email → 搜尋訊息 → 詢問工程 → 詢問 Founder → 草擬回覆 → 之後才發現缺口','Human × AI workflow','RFQ → 重建脈絡 → 暴露缺口 → 人的判斷 → 更新證據 → 核准失效 → 人重新審查 → 下一步'],
+          resource: ['注意力如何被保留','AI 吸收閱讀、擷取、比較、脈絡重建、缺口偵測、草擬與狀態更新；人的注意力集中在商業判斷、例外、風險、承諾與授權。'],
+          decisions: ['可以報價','V2 已審查，仍支持由人核准的商業回覆。','有條件暫停','繼續探索；不要承諾價格、毛利、付款接受、產能或交付。','尚未可以報價','在變更證據釐清前，停止商業準備。'],
+          evidence: ['商業相關性','區域經銷商、合理的產品類別與有意義的估計數量。','技術適配','可能適合，但最終規格與防火要求仍未確認。','資源暴露','工程審查、樣品準備、產能可行性與高階商業注意力。','需要確認的問題','買方角色、專案狀態、認證、付款，以及十月底是必要還是偏好。']
+          ,updates: ['規格 · 已驗證','Rev A — 本次審查確認為防火表面吸音牆板。','認證 · 已驗證','目前範圍所需的認證標準已確認。','付款 · 已驗證','本次商業審查確認 30/70 條件。','數量／交付 · 已驗證','2,400 m²；本合成案例確認十月底交付具可行性。']
+        } : {
+          sideHead: ['Visible input','AI does','Human decides','System controls','Human decides','System behavior','What changed'],
+          sideBody: [
+            'Product, estimated quantity, market, destination, and requested timing are present. A final specification, contracting entity, certification requirement, and payment terms are not.',
+            'Extracts, normalizes, and flags contradictions. It does not infer that the buyer is ready, qualified, or safe to quote.',
+            'Whether the opportunity deserves attention. Not whether the opportunity is won, quote-ready, or approved for external commitment.',
+            'Drafting is allowed. Sending is not. The external message remains a human-approved action.',
+            'D1 is a human decision against Evidence V1. The synthetic timestamp and evidence basis stay attached to the decision.',
+            'AI detected the change. The system preserved V1 and D1. No new commercial decision was selected automatically.',
+            'Valid then. Not valid now. The evidence changed; the human decision had to be made again.'
+          ],
+          gates: ['Choose a bounded path','Human review before evidence V1','Human judgment gate · Decision D1','Human judgment gate · Evidence V2','Prepared follow-up — awaiting human approval'],
+          gateBody: [
+            'Continue discovery does not authorize a quotation or commercial commitment.',
+            'AI has prepared the questions. This synthetic case now supplies confirmed answers for the first human decision. No external message has been sent.',
+            'AI has prepared the evidence. It has not selected the commercial decision.',
+            'AI may explain what changed. A human must choose the current state.',
+            '“Thank you. We can continue the technical review. Before we prepare a conditional commercial response, could you confirm the impact of Rev B on the required fire-rating standard, payment terms, and delivery planning?”'
+          ],
+          stale: ['Previous decision · D1','QUOTE READY → STALE — REVIEW REQUIRED','Approved against Evidence V1 at 09:40. The decision was valid then. Material evidence changed afterwards.'],
+          impacts: ['Payment acceptance','INVALIDATED / REQUIRES REVIEW','Pricing assumptions','REQUIRES REVIEW','Specification feasibility','REQUIRES REVIEW','Delivery feasibility','IMPACT UNKNOWN — REVIEW REQUIRED'],
+          history: ['History · D1','Valid against Evidence V1 at 09:40.','Later made stale by material evidence change.','Current · D2','Based on Evidence V2 at 14:20.','New decision does not erase the previous one.'],
+          comparison: ['Before','RFQ → read email → search messages → ask engineering → ask Founder → draft response → discover missing information later','With Human × AI','RFQ → reconstruct context → expose gaps → human judgment → evidence update → stale approval → human re-review → next action'],
+          resource: ['Where attention is preserved','AI absorbs reading, extraction, comparison, context reconstruction, missing-information detection, drafting, and state updating. Human attention concentrates on commercial judgment, exceptions, risk, commitments, and authorization.'],
+          decisions: ['Quote ready','V2 has been reviewed and still supports a human-approved commercial response.','Conditional hold','Continue discovery; do not promise price, margin, payment acceptance, production capacity, or delivery.','Not quote-ready','Stop commercial preparation until the changed evidence is materially clarified.'],
+          evidence: ['Commercial relevance','Regional distributor, plausible product category, meaningful estimated quantity.','Technical fit','Potentially suitable, but the final specification and fire-rating requirement remain open.','Resource exposure','Engineering review, sample preparation, production feasibility, and senior commercial attention.','Questions requiring confirmation','Buyer role, project status, certification, payment, and whether late October is required or preferred.']
+          ,updates: ['Specification · VERIFIED','Rev A — acoustic wall panel, fire-rated finish confirmed for this review.','Certification · VERIFIED','Required certification standard confirmed for the current scope.','Payment · VERIFIED','30/70 terms confirmed for the current commercial review.','Quantity / delivery · VERIFIED','2,400 m²; late-October delivery is sufficiently confirmed and feasible for this synthetic case.']
+        };
+        const setAll = (selector, values) => document.querySelectorAll(selector).forEach((el, i) => { if (values[i] !== undefined) el.textContent = values[i]; });
+        setAll('.side-note strong', ui.sideHead); setAll('.side-note p', ui.sideBody); setAll('.gate h4', ui.gates); setAll('.gate > p', ui.gateBody);
+        setAll('.stale-banner .label, .stale-banner h4, .stale-banner p', ui.stale);
+        setAll('.impact-list strong, .impact-list span', ui.impacts); setAll('.history-card h4, .history-card p', ui.history);
+        setAll('.comparison h4, .comparison p', ui.comparison); setAll('.resource h4, .resource p', ui.resource);
+        setAll('.decision-option strong, .decision-option span', ui.decisions);
+        setAll('.evidence-item strong, .evidence-item p', ui.evidence);
+        setAll('.update h4, .update p', ui.updates);
+        const backLabels = language === 'zh' ? ['回到 RFQ','回到脈絡','回到資格判斷','回到證據問題','回到 D1'] : ['Back to RFQ','Back to context','Back to qualification','Back to evidence questions','Back to D1'];
+        setAll('.text-button[data-prev]', backLabels);
+        const historyCards = document.querySelectorAll('.history-card');
+        if (historyCards.length >= 2) {
+          historyCards[0].querySelector('h4').textContent = language === 'zh' ? '歷史 · D1' : 'History · D1';
+          historyCards[0].querySelector('p strong').textContent = language === 'zh' ? '可以報價' : 'QUOTE READY';
+          historyCards[0].querySelectorAll('p')[1].textContent = language === 'zh' ? '根據 09:40 的 Evidence V1 有效。' : 'Valid against Evidence V1 at 09:40.';
+          historyCards[0].querySelectorAll('p')[2].textContent = language === 'zh' ? '後續重大證據改變，使其失效。' : 'Later made stale by material evidence change.';
+          historyCards[1].querySelector('h4').textContent = language === 'zh' ? '目前 · D2' : 'Current · D2';
+          historyCards[1].querySelectorAll('p')[1].textContent = language === 'zh' ? '根據 14:20 的 Evidence V2。' : 'Based on Evidence V2 at 14:20.';
+          historyCards[1].querySelectorAll('p')[2].textContent = language === 'zh' ? '新的決定不會抹去舊決定。' : 'New decision does not erase the previous one.';
+        }
+        if (d1Result.classList.contains('show')) d1Result.innerHTML = language === 'zh' ? '<strong>D1 · 可以報價</strong>09:40 的人的判斷是根據 Evidence V1 記錄；AI 準備證據，但沒有做出決定。' : '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
+        if (d2Result.classList.contains('show')) {
+          const selected = document.querySelector('input[name="re-review"]:checked')?.value;
+          const labels = language === 'zh' ? { ready: ['D2 · 可以報價','人的審查確認 Evidence V2 仍支持商業回覆。'], hold: ['D2 · 有條件暫停','人的審查維持探索開放；Rev B 與 90-day OA 不允許完整商業承諾。'], no: ['D2 · 尚未可以報價','人的審查停止商業準備，直到變更證據釐清。'] } : { ready: ['D2 · QUOTE READY','Human review confirms that Evidence V2 still supports a commercial response.'], hold: ['D2 · CONDITIONAL HOLD','Human review keeps discovery open. Rev B and 90-day OA prevent a full commercial commitment.'], no: ['D2 · NOT QUOTE-READY','Human review stops commercial preparation until the changed evidence is materially clarified.'] };
+          if (selected && labels[selected]) { d2Label.textContent = labels[selected][0]; d2Result.innerHTML = `<strong>${labels[selected][0]}</strong>${labels[selected][1]}`; }
+        }
+        setAll('.comparison h4', language === 'zh' ? ['之前','Human × AI workflow'] : ['Before','With Human × AI']);
+      }
+      document.querySelector('#lang-toggle').addEventListener('click', () => setLanguage(language === 'en' ? 'zh' : 'en'));
+
+      function show(next, unlock = false) {
+        stage = Math.max(0, Math.min(panels.length - 1, next));
+        if (unlock) unlockedStage = Math.max(unlockedStage, stage);
+        panels.forEach((panel, index) => panel.classList.toggle('active', index === stage));
+        tabs.forEach((tab, index) => {
+          const active = index === stage;
+          tab.classList.toggle('active', active);
+          tab.setAttribute('aria-current', active ? 'step' : 'false');
+          const available = index <= unlockedStage;
+          tab.disabled = !available;
+          tab.setAttribute('aria-disabled', available ? 'false' : 'true');
+        });
+        document.querySelector('.workflow').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => show(Number(button.dataset.next), true)));
+      document.querySelectorAll('[data-prev]').forEach(button => button.addEventListener('click', () => show(Number(button.dataset.prev))));
+      tabs.forEach(tab => tab.addEventListener('click', () => { if (!tab.disabled) show(Number(tab.dataset.tab)); }));
+      document.querySelectorAll('[data-restart]').forEach(button => button.addEventListener('click', () => {
+        unlockedStage = 0;
+        show(0);
+        qualificationNext.disabled = true;
+        d1Next.disabled = true;
+        qualificationResult.classList.remove('show');
+        d1Result.classList.remove('show');
+        d2Result.classList.remove('show');
+        historyCurrent.hidden = true;
+        postDecision.hidden = true;
+        document.querySelectorAll('input[name="re-review"]').forEach(input => { input.checked = false; });
+      }));
+
+      document.querySelectorAll('[data-qualification]').forEach(button => button.addEventListener('click', () => {
+        document.querySelectorAll('[data-qualification]').forEach(item => item.classList.remove('selected'));
+        button.classList.add('selected');
+        const choice = button.dataset.qualification;
+        const copy = {
+          continue: ['CONTINUE DISCOVERY', 'Discovery continues. This does not authorize a quote, price, capacity, payment acceptance, or delivery promise.'],
+          hold: ['HOLD', 'The case stays visible without consuming more downstream resources. A human can reopen it when evidence changes.'],
+          decline: ['DECLINE', 'The organization declines further attention for now. The decision is explicit, not an inferred score.']
+        }[choice];
+        qualificationResult.innerHTML = '<strong>' + copy[0] + '</strong>' + copy[1];
+        qualificationResult.classList.add('show');
+        qualificationNext.disabled = false;
+      }));
+
+      d1Submit.addEventListener('click', () => {
+        d1Result.innerHTML = '<strong>D1 · QUOTE READY</strong>Human decision recorded against Evidence V1 at 09:40. AI prepared the evidence; it did not make this decision.';
+        d1Result.classList.add('show');
+        d1Next.disabled = false;
+        unlockedStage = Math.max(unlockedStage, 4);
+        show(stage);
+      });
+
+      d2Submit.addEventListener('click', () => {
+        const selected = document.querySelector('input[name="re-review"]:checked');
+        if (!selected) { d2Result.innerHTML = '<strong>HUMAN RE-REVIEW REQUIRED</strong>Select the current decision against Evidence V2.'; d2Result.classList.add('show'); return; }
+        const copy = {
+          ready: ['D2 · QUOTE READY', 'Human review confirms that Evidence V2 still supports a commercial response. D1 remains historical, not current.'],
+          hold: ['D2 · CONDITIONAL HOLD', 'Human review keeps discovery open. Rev B and 90-day OA prevent a full commercial commitment.'],
+          no: ['D2 · NOT QUOTE-READY', 'Human review stops commercial preparation until the changed evidence is materially clarified.']
+        }[selected.value];
+        d2Label.textContent = copy[0];
+        d2Result.innerHTML = '<strong>' + copy[0] + '</strong>' + copy[1];
+        d2Result.classList.add('show');
+        historyCurrent.hidden = false;
+        postDecision.hidden = false;
+        unlockedStage = Math.max(unlockedStage, 6);
+        show(stage);
+      });
+
+      show(0);
+      setLanguage('en');
+    })();
+  </script>
+</body>
+</html>
