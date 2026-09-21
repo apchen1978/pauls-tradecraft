@@ -13,11 +13,11 @@ const briefSource = fs.readFileSync(path.join(ROOT, "scripts", "build_capability
 const brief = process.argv[2] || path.join(ROOT, "public", "files", "PaulTradecraft-Capability-Brief.pdf");
 
 const expected = {
-  positioningEn: "Commercial judgment · AI-native execution · Evidence-aware work systems",
-  positioningZh: "商業判斷 · AI-native 執行 · 證據導向的工作系統",
+  positioningEn: "Business judgment · Workflow design · Human × AI collaboration",
+  positioningZh: "商業判斷 · 工作流程設計 · Human × AI 協作",
   capabilities: {
-    ZH: ["海外商業開發", "Owner 特案推進", "商業經濟／會計視角"],
-    EN: ["Global Business Development", "Owner Special Projects", "Business Economics / Accounting-aware Judgment"],
+    ZH: ["海外商業開發", "重要決策與工作流程", "商業經濟／會計視角"],
+    EN: ["Global Business Development", "Important Decisions & Workflows", "Business Economics / Accounting-aware Judgment"],
   },
   proofWorks: {
     ZH: ["Commercial Decision Desk", "Global Business Development / AI-Native Market Entry", "Trade Profit Navigator", "企業支出決策啟發"],

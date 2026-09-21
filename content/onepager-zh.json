@@ -2,10 +2,10 @@
   "brand": "Paul's Tradecraft",
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
-  "kicker": "GLOBAL BUSINESS DEVELOPMENT · OWNER SPECIAL PROJECTS",
-  "title": "把重要的商業問題，整理成團隊能推進的下一步。",
-  "positioning": "商業判斷 · AI-native 執行 · 證據導向的工作系統",
-  "subtitle": "15 年國際貿易領導經驗｜NCCU 會計背景｜AI 用來擴大研究、結構與執行的速度與範圍",
+  "kicker": "BUSINESS JUDGMENT · WORKFLOW DESIGN · HUMAN × AI",
+  "title": "重新設計 AI 時代的工作與組織。",
+  "positioning": "商業判斷 · 工作流程設計 · Human × AI 協作",
+  "subtitle": "從商業判斷、工作流程到 Human × AI 協作，讓 AI 成為真正能進入組織運作的工作系統；人仍保有方向、授權與最終判斷。",
   "stats": [
     {
       "value": "955",
@@ -20,15 +20,30 @@
       "label": "Pilot 流程驗證項目通過"
     }
   ],
-  "servicesTitle": "WHAT I HELP TEAMS CLARIFY · 我能一起推進什麼",
+  "servicesTitle": "WHAT I HELP ORGANIZATIONS MOVE FORWARD · 我能一起推進什麼",
   "services": [
-    "海外商業開發 — 從供應商能交付什麼開始，判斷哪些市場、買方／通路與產品切入值得投入。",
-    "Owner 特案推進 — 研究、結構化並挑戰跨部門且資訊不全的重要問題，推向團隊能採取的下一步。",
+    "海外商業開發 — 從供應商真正能交付什麼開始，判斷哪些市場、買方／通路與產品切入值得投入。",
+    "重要決策與工作流程 — 把跨部門、資訊不全又不能憑直覺承諾的問題，整理成團隊能共同推進的工作系統。",
     "商業經濟／會計視角 — 從利潤、現金、支出、證據與時間點，看見重大決定前真正該問的問題；稅務與法律結論仍由專業人士確認。"
+  ],
+  "deliverablesTitle": "WHAT THE TEAM LEAVES WITH · 團隊最後帶走什麼",
+  "deliverables": [
+    {
+      "title": "清楚的決策問題",
+      "body": "目標、限制、已知事實與 UNKNOWN 被放到同一張工作畫面。"
+    },
+    {
+      "title": "可繼續使用的工作系統",
+      "body": "把研究、比較、交接與複核，變成團隊能接手的流程與底稿。"
+    },
+    {
+      "title": "可追溯的下一步",
+      "body": "留下要補的證據、該問的問題、重新評估條件與仍由人拍板的決定。"
+    }
   ],
   "leverageTitle": "AI-NATIVE EXECUTION · AI 是槓桿，不是身份",
   "leverage": "AI 擴大研究、比較、證據整理、矛盾檢查與原型能力；人仍決定目標、邊界與後果，證據決定什麼值得繼續。",
-  "worksTitle": "THREE SELECTED SYSTEMS · 三個主力系統",
+  "worksTitle": "FOUR SELECTED SYSTEMS · 四個主力系統",
   "reviewedWorkIds": [
     "trade-deal-desk",
     "mori-soft-furnishing-website",
@@ -50,12 +65,12 @@
     "global-business-development"
   ],
   "works": [
-    "Commercial Decision Desk · 讓商機、付款暴露、矛盾與 UNKNOWN 收斂成可稽核的人類決策；合成 proof，未宣稱 adoption、ROI 或客戶成果。",
-    "Global Business Development / AI-Native Market Entry · 把相關市場參與者重新分成值得驗證的商業路徑；合成與公開證據案例，真人／市場驗證待完成。",
-    "Trade Profit Navigator · 把毛利、現金暴露與可測試的利潤槓桿放在一起；合成 prototype，未宣稱 adoption、ROI 或客戶成果。",
-    "企業支出決策啟發 · 用一般商業語言，協助 SME 老闆在找 CPA 前先理解現金、費用、證據與值得確認的問題；合成案例、真人驗證待完成。"
+    "Commercial Decision Desk · 承諾前，把淨貢獻、付款暴露、矛盾與 UNKNOWN 放到同一張決策畫面；合成案例與技術驗證，不宣稱客戶成果。",
+    "Global Business Development / AI-Native Market Entry · 從相關名單走到值得驗證的商業路徑；不把市場相關性當成買方證據，保留 UNKNOWN。",
+    "Trade Profit Navigator · 把毛利、現金暴露與可測試的利潤槓桿放在一起；合成 prototype，不宣稱 adoption、ROI 或客戶成果。",
+    "企業支出決策啟發 · 在找 CPA 或專業人士前，先看懂支出如何牽動現金、時間、證據與值得確認的問題；合成案例、真人驗證待完成。"
   ],
-  "processTitle": "START WITH A DECISION · 從一個重要問題開始",
-  "process": "有產品與供應能力，卻不知道海外商業資源先往哪裡投？有一件跨部門、資訊不全又不能憑直覺承諾的問題？把情境與證據攤開，先找出值得推進的下一步。",
+  "processTitle": "START WITH A DECISION · 從一個重要決策開始",
+  "process": "帶進一個真的卡住的商業問題、一段工作流程，或一個需要重新定義的客戶情境。先把真正需要做的決定、證據與人該保留的權責看清楚，再決定 AI 應該幫忙探索、整理、比較或建構什麼。",
   "footer": "PAUL'S TRADECRAFT · paulstradecraft.com · paulchen1978@gmail.com"
 }

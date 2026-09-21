@@ -4,10 +4,10 @@
   "brand": "Paul's Tradecraft",
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
-  "kicker": "GLOBAL BUSINESS DEVELOPMENT · OWNER SPECIAL PROJECTS",
-  "title": "Turn important business questions into next steps a team can act on.",
-  "positioning": "Commercial judgment · AI-native execution · Evidence-aware work systems",
-  "subtitle": "15 years in international trade leadership | NCCU accounting background | AI extends the speed and range of research, structure, and execution",
+  "kicker": "BUSINESS JUDGMENT · WORKFLOW DESIGN · HUMAN × AI",
+  "title": "Designing How Organizations Work with AI.",
+  "positioning": "Business judgment · Workflow design · Human × AI collaboration",
+  "subtitle": "Business judgment, workflow design, and Human × AI collaboration—making AI a working part of the organization while people retain direction, authorization, and final judgment.",
   "stats": [
     {
       "value": "955",
@@ -22,15 +22,30 @@
       "label": "Pilot workflow validation checks passed"
     }
   ],
-  "servicesTitle": "WHAT I HELP TEAMS CLARIFY",
+  "servicesTitle": "WHAT I HELP ORGANIZATIONS MOVE FORWARD",
   "services": [
-    "Global Business Development — start with what the supplier can actually deliver, then decide which markets, buyer or channel types, and product entries deserve effort.",
-    "Owner Special Projects — research, structure, and challenge an important cross-functional problem until the team can act on the next step.",
-    "Business Economics / Accounting-aware Judgment — see material decisions through profit, cash, spending, evidence, and timing; tax and legal conclusions remain with the appropriate professional."
+    "Global Business Development — start with supplier reality, then focus markets, buyer or channel types, and product entries worth effort.",
+    "Important Decisions & Workflows — turn a cross-functional problem that cannot be committed by instinct into a working system the team can move forward together.",
+    "Business Economics / Accounting-aware Judgment — use profit, cash, spending, evidence, and timing to frame material decisions; tax and legal conclusions remain with the appropriate professional."
+  ],
+  "deliverablesTitle": "WHAT THE TEAM LEAVES WITH",
+  "deliverables": [
+    {
+      "title": "A clearer decision question",
+      "body": "Objective, constraints, known facts, and UNKNOWNs placed on one working surface."
+    },
+    {
+      "title": "A working system the team can continue to use",
+      "body": "Research, comparison, handoff, and review translated into a repeatable workflow and brief."
+    },
+    {
+      "title": "A traceable next move",
+      "body": "Evidence to obtain, questions to ask, rerun conditions, and the decision that still belongs to a person."
+    }
   ],
   "leverageTitle": "AI-NATIVE EXECUTION · AI IS LEVERAGE, NOT THE IDENTITY",
   "leverage": "AI expands research, comparison, evidence organization, contradiction checks, and prototyping. A human sets the objective and boundary; evidence decides what deserves to move forward.",
-  "worksTitle": "THREE SELECTED SYSTEMS",
+  "worksTitle": "FOUR SELECTED SYSTEMS",
   "reviewedWorkIds": [
     "trade-deal-desk",
     "mori-soft-furnishing-website",
@@ -52,12 +67,12 @@
     "global-business-development"
   ],
   "works": [
-    "Commercial Decision Desk — turns opportunity, payment exposure, contradictions, and UNKNOWNs into an auditable human decision; synthetic proof only, with no adoption, ROI, or customer-outcome claim.",
-    "Global Business Development / AI-Native Market Entry — reclassifies relevant market participants into commercial paths worth verifying; synthetic and public-evidence cases, with human and market validation pending.",
-    "Trade Profit Navigator — puts margin, cash exposure, and testable profit levers on one surface; synthetic prototype only, with no adoption, ROI, or customer-outcome claim.",
-    "Business Spending Insight — helps an SME owner understand cash, expense, evidence, and CPA questions in plain business language before a professional review; synthetic cases, human validation pending."
+    "Commercial Decision Desk — turns net contribution, payment exposure, contradictions, and UNKNOWNs into one pre-commitment decision surface; synthetic cases, no customer-outcome claim.",
+    "Global Business Development / AI-Native Market Entry — moves from relevant companies to commercial paths worth verifying; it keeps UNKNOWN visible and never treats relevance as buyer evidence.",
+    "Trade Profit Navigator — puts margin, cash exposure, and testable profit levers on one surface; synthetic prototype, with no adoption, ROI, or customer-outcome claim.",
+    "Business Spending Insight — helps an owner clarify cash, timing, evidence, and CPA questions before professional review; synthetic cases, human validation pending."
   ],
   "processTitle": "START WITH A DECISION",
-  "process": "Do you have products and supply capability but no clear overseas priority? Or an important cross-functional problem with incomplete information that cannot be committed by instinct? Lay out the situation and evidence, then decide what deserves the next move.",
+  "process": "Bring one stuck decision, workflow, or client situation. Make the decision, evidence, and human authority clear—then decide where AI should explore, organize, compare, or build.",
   "footer": "PAUL'S TRADECRAFT · paulstradecraft.com · paulchen1978@gmail.com"
 }

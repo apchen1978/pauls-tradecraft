@@ -16,6 +16,7 @@ function build(data, isCJK) {
   const works = data.works.map((w) => `<li>${w}</li>`).join("");
   const worksSecondary = (data.worksSecondary || []).map((w) => `<li>${w}</li>`).join("");
   const services = data.services.map((s) => `<li>${s}</li>`).join("");
+  const deliverables = (data.deliverables || []).map((item, index) => `<article class="deliverable"><span>${String(index + 1).padStart(2, "0")}</span><h3>${item.title}</h3><p>${item.body}</p></article>`).join("");
   const stats = data.stats.map((s) => `<div class="stat"><b>${s.value}</b><span>${s.label}</span></div>`).join("");
   const font = isCJK ? '"Noto Sans CJK TC","Microsoft JhengHei",sans-serif' : '"Geist Variable","Segoe UI",sans-serif';
   return `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -23,9 +24,14 @@ function build(data, isCJK) {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { width: 210mm; height: 297mm; overflow: hidden; font-family: ${font}; background: #0B1B33; color: #fff; padding: 16mm 16mm 14mm; display: flex; flex-direction: column; }
     .topline { height: 2mm; background: #C9A227; margin-bottom: 8mm; }
-    h2 { font-size: 11pt; color: #3B82F6; margin: 7mm 0 3mm; text-transform: uppercase; }
+    h2 { font-size: 10.5pt; color: #3B82F6; margin: 6mm 0 2.5mm; text-transform: uppercase; }
     ul { list-style: none; }
     li { font-size: 9.5pt; color: #E2E8F0; line-height: 1.6; padding-left: 4mm; }
+    .deliverables { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+    .deliverable { border-top: 0.5mm solid #C9A227; padding-top: 2mm; }
+    .deliverable span { display:block; font-size:7.5pt; color:#3B82F6; font-weight:700; letter-spacing:1pt; }
+    .deliverable h3 { font-size:9pt; line-height:1.3; margin-top:1mm; color:#fff; }
+    .deliverable p { font-size:7.8pt; line-height:1.45; color:#C7D2E0; margin-top:1mm; }
     .works { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; }
     .works li { font-size: 9pt; }
     .works-secondary-label { font-size: 8pt; color: #64748B; letter-spacing: 1pt; text-transform: uppercase; margin-top: 3mm; }
@@ -34,7 +40,14 @@ function build(data, isCJK) {
     .positioning { font-size: 10pt; font-weight: 700; color: #C9A227; margin-top: 2.5mm; }
     .process { font-size: 11pt; color: #E2E8F0; margin-top: 7mm; }
     .footer { margin-top: auto; border-top: 0.3mm solid #24405F; padding-top: 4mm; font-size: 8.5pt; color: #C7D2E0; display: flex; justify-content: space-between; }
-  </style></head><body>
+    .latin { padding:13mm 16mm 9mm; }
+    .latin .topline { margin-bottom:6mm; }
+    .latin h2 { margin:5mm 0 2mm; }
+    .latin li { font-size:9pt; line-height:1.48; }
+    .latin .deliverable p { font-size:7.5pt; line-height:1.4; }
+    .latin .works li { font-size:8.5pt; line-height:1.45; }
+    .latin .process { font-size:10.2pt; line-height:1.5; }
+  </style></head><body class="${isCJK ? "cjk" : "latin"}">
     <div class="topline"></div>
     <h1 style="font-size:21pt">${data.title}</h1>
     ${data.positioning ? `<p class="positioning">${data.positioning}</p>` : ""}
@@ -42,6 +55,7 @@ function build(data, isCJK) {
     <div class="stats" style="display:flex;gap:6mm;margin-top:6mm">${stats}</div>
     <h2>${data.servicesTitle || "SERVICES"}</h2>
     <ul>${services}</ul>
+    ${deliverables ? `<h2>${data.deliverablesTitle || ""}</h2><section class="deliverables">${deliverables}</section>` : ""}
     <h2>${data.worksTitle || "SELECTED WORKS"}</h2>
     <ul class="works">${works}</ul>
     ${data.worksSecondary && data.worksSecondary.length ? `<p class="works-secondary-label">${data.worksSecondaryLabel || ""}</p><ul class="works-secondary">${worksSecondary}</ul>` : ""}
@@ -73,6 +87,7 @@ async function measure(locale, html) {
   out.bodyH = await ev("Math.round(document.body.getBoundingClientRect().height)");
   out.footerBottom = await ev("Math.round(document.querySelector('.footer').getBoundingClientRect().bottom)");
   out.processBottom = await ev("Math.round(document.querySelector('.process').getBoundingClientRect().bottom)");
+  out.deliverablesBottom = await ev("Math.round(document.querySelector('.deliverables')?.getBoundingClientRect().bottom || 0)");
   out.worksCount = await ev("document.querySelectorAll('.works li').length");
   out.lastWorkBottom = await ev("Math.round([...document.querySelectorAll('.works li')].at(-1).getBoundingClientRect().bottom)");
   ws.close(); c.kill();
@@ -85,6 +100,6 @@ const zhR = await measure("zh", build(zh, true));
 const enR = await measure("en", build(en, false));
 console.log("ZH:", JSON.stringify(zhR));
 console.log("EN:", JSON.stringify(enR));
-const fit = (r) => r.footerBottom <= r.bodyH && r.processBottom <= r.bodyH;
+const fit = (r) => r.footerBottom <= r.bodyH && r.processBottom <= r.bodyH && r.deliverablesBottom <= r.bodyH;
 console.log("RESULT:", fit(zhR) && fit(enR) ? "PASS" : "FAIL");
 process.exitCode = fit(zhR) && fit(enR) ? 0 : 1;
