@@ -349,7 +349,7 @@ const dict = {
           tags: "Agents · Context · Handoff · Audit · Validation",
         },
         {
-          title: "台灣市場 × 大陸供應鏈策略",
+          title: "全球華語市場 × 大陸／台灣供應鏈策略",
           desc: "把台灣客戶需求、產品定位與交付標準，串接到大陸端的供應商、打樣、成本、品管與交期協作；協助建立雙供應、風險清單與可落地的採購判斷，讓市場承諾與供應能力一致。",
           tags: "Market Strategy · Supplier Sourcing · QC · Delivery · Dual Sourcing",
         },
@@ -832,7 +832,7 @@ const dict = {
           tags: "Agents · Context · Handoff · Audit · Validation",
         },
         {
-          title: "Taiwan Market × Mainland Supply-Chain Strategy",
+          title: "Global Chinese-speaking Markets × Mainland China / Taiwan Supply-Chain Strategy",
           desc: "Connect Taiwan customer demand, product positioning, and delivery standards with mainland supplier sourcing, sampling, cost, quality control, and lead-time coordination. Build dual-sourcing and risk-management decisions that keep market promises aligned with supply capability.",
           tags: "Market Strategy · Supplier Sourcing · QC · Delivery · Dual Sourcing",
         },
