@@ -871,8 +871,8 @@ export const works = [
       },
     },
     deliverable: {
-      zh: "一份可檢視的商業開發判斷示範：供應商現實、Owner 目標、候選帳戶、UNKNOWN、產品切入與內部資源關卡彼此分開。",
-      en: "An inspectable business-development judgment demonstration: supplier reality, Owner objective, candidate accounts, UNKNOWNs, product entry, and internal resource gates remain distinct.",
+      zh: "一份可檢視的商業開發判斷示範：從供應商現實與市場問題出發，尋找可能接得上的買方／通路，再把 Owner 目標、UNKNOWN、產品切入與內部資源關卡分開檢視。",
+      en: "An inspectable business-development judgment demonstration: start with supplier reality and market problems, find buyer or channel paths that may fit, then keep Owner objectives, UNKNOWNs, product entry, and internal resource gates distinct.",
     },
     demoNote: {
       zh: "Synthetic demonstration · 真人驗證與市場驗證尚未進行；不代表真實買方、RFQ、訂單或商業成果。",
@@ -898,15 +898,15 @@ export const works = [
     },
     zh: {
       title: "海外商業開發",
-      desc: "找到海外相關公司只是開始；真正的工作，是依供應商現實、Owner 目標與可支持的證據，判斷哪裡值得投入商業資源。",
+      desc: "找到海外相關公司只是開始；從供應商現實與市場問題出發，主動找出可能接得上的買方，再用 Owner 目標與證據判斷哪裡值得投入商業資源。",
       tag: "海外商業開發 · 商業判斷 · 合成互動示範",
-      caseSummary: "同一組候選與證據，會因 Owner 的目標不同而改變優先路徑；沒有採購路徑證據的高知名度帳戶，仍應維持 HOLD。",
+      caseSummary: "同一組候選與證據，會因 Owner 的目標不同而改變優先路徑；主動尋找不等於直接承諾，沒有採購路徑證據的高知名度帳戶，仍應維持 HOLD。",
     },
     en: {
       title: "Global Business Development",
-      desc: "Finding relevant overseas companies is only the start. The work is deciding where commercial effort belongs, given supplier reality, Owner objectives, and supported evidence.",
+      desc: "Finding relevant overseas companies is only the start. Start with supplier reality and market problems to find plausible buyer paths, then decide where commercial effort belongs given Owner objectives and supported evidence.",
       tag: "Global business development · Commercial judgment · Synthetic interactive demo",
-      caseSummary: "The same candidates and evidence can produce a different priority path when the Owner objective changes; a prestigious account without procurement-path evidence remains HOLD.",
+      caseSummary: "The same candidates and evidence can produce a different priority path when the Owner objective changes; proactive discovery does not equal commitment, and a prestigious account without procurement-path evidence remains HOLD.",
     },
     case: {
       stage: { zh: "合成互動方法示範", en: "Synthetic Interactive Method Demonstration" },
