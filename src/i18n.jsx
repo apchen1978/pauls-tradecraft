@@ -972,12 +972,12 @@ const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 
 // 語言切換時同步 <html lang> 與 <title>（SEO / a11y）
 const titles = {
-  zh: "Paul's Tradecraft ｜ 國際貿易與商務決策工作台 · 作品集",
-  en: "Paul's Tradecraft ｜ International Trade & Commercial Decision Desk · Portfolio",
+  zh: "Paul's Tradecraft｜重新設計 AI 時代的工作與組織 · 商業判斷與工作系統",
+  en: "Paul's Tradecraft | Designing How Organizations Work with AI",
 };
 const ogDescriptions = {
-  zh: "Paul Chen 以商業判斷、工作流程設計與 Human × AI 協作，建立證據驅動的工作系統——從海外客戶開發、交易評估、利潤槓桿到付款承諾控制，把複雜問題整理成可驗證、可交接的下一步。",
-  en: "Paul Chen designs evidence-driven ways of working with AI, combining business judgment, workflow design, and Human × AI collaboration—from overseas lead discovery and deal assessment to profit levers and payment commitment control.",
+  zh: "Paul's Tradecraft 由 Paul Chen 建立：以商業判斷、工作流程設計與 Human × AI 協作，重新設計 AI 時代的工作與組織，把複雜問題整理成可驗證、可交接的下一步。",
+  en: "Paul Chen redesigns how organizations work with AI through business judgment, workflow design, and Human × AI collaboration—turning complex questions into verifiable next steps.",
 };
 
 export function LangProvider({ children }) {
