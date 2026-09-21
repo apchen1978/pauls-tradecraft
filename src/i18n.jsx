@@ -16,7 +16,7 @@ const dict = {
       headlineDesktopA: "把商業機會，",
       headlineDesktopB: "變成",
       headlineHighlight: "可執行的下一步。",
-      sub: "我用 15 年國際業務經驗與會計視角，看買方、毛利、付款、交付與企業支出；再讓 AI 擴大研究與執行，把判斷變成團隊可採取的下一步。",
+      sub: "我從商業判斷、工作流程與 Human × AI 協作出發，把 AI 從工具變成能進入組織運作的工作系統；讓研究、比較與執行更有範圍，也讓證據、授權與人的判斷留在正確位置。",
       youGet: "從一個重要問題開始",
       outcomesHeadline: "你現在最像哪一種情況？",
       outcomesIntro: "不是先挑工具。先從你此刻需要釐清的一個商業問題開始。",
@@ -208,7 +208,7 @@ const dict = {
     outcomes: {
       eyebrow: "THE COMMERCIAL THREAD",
       headline: "從看見商機，到留下能交接的決策。",
-      intro: "國際貿易是最完整的旗艦場景；同一條商業思路，也能延伸到台灣 SME 的客戶、報價、付款與交付問題。先從公司真正能交付什麼開始，讓買方、證據與商業限制逐步變清楚；這不是幾個分散工具，而是一條能被團隊接續使用的判斷路徑。",
+      intro: "國際貿易是最完整的旗艦場景；同一條商業思路，也能延伸到不同產業與組織情境中的客戶、報價、付款與交付問題。先從公司真正能交付什麼開始，讓買方、證據與商業限制逐步變清楚；這不是幾個分散工具，而是一條能被團隊接續使用的判斷路徑。",
       pathEyebrow: "從公司現實，到下一個商業行動",
       pathSteps: ["看懂能力", "找對買方", "說清價值", "判斷機會", "推進下一步"],
       pathStatement: "不是先重做網站。先把公司真正能交付的能力，轉成買方能理解、能帶進內部討論的商業理由。",
@@ -499,7 +499,7 @@ const dict = {
       headlineDesktopA: "Turn commercial opportunities",
       headlineDesktopB: "into",
       headlineHighlight: "an executable next step.",
-      sub: "I use 15 years of international sales leadership and an accounting lens to read buyers, margin, payment, delivery, and business spending—then use AI to extend research and execution into a next step the team can act on.",
+      sub: "I start with business judgment, workflow design, and Human × AI collaboration—turning AI from a tool on the side into a working part of the organization, while keeping evidence, authorization, and human judgment in the right place.",
       youGet: "START WITH ONE IMPORTANT QUESTION",
       outcomesHeadline: "Which situation feels most familiar right now?",
       outcomesIntro: "Do not start with a tool. Start with the commercial question that needs clarity now.",
@@ -691,7 +691,7 @@ const dict = {
     outcomes: {
       eyebrow: "THE COMMERCIAL THREAD",
       headline: "From spotting an opportunity to leaving a decision the team can hand over.",
-      intro: "International trade is the flagship scenario. The same commercial thinking extends to customer, quote, payment, and delivery questions for Taiwan SMEs. It starts with what the company can truly deliver, then makes the buyer context, evidence, and commercial constraints clearer. This is not a collection of tools; it is a decision path the team can continue to use.",
+      intro: "International trade is the flagship scenario. The same commercial thinking extends across industries and organizational contexts—from customer, quote, payment, and delivery questions to the constraints behind them. It starts with what the organization can truly deliver, then makes the buyer context, evidence, and commercial constraints clearer. This is not a collection of tools; it is a decision path a team can continue to use.",
       pathEyebrow: "FROM COMPANY REALITY TO THE NEXT COMMERCIAL MOVE",
       pathSteps: ["Understand capability", "Match the buyer", "Translate the value", "Judge the opportunity", "Move forward"],
       pathStatement: "Not a website rebuild first. First turn what the company can truly deliver into a commercial reason a buyer can understand and take forward internally.",
@@ -976,8 +976,8 @@ const titles = {
   en: "Paul's Tradecraft ｜ International Trade & Commercial Decision Desk · Portfolio",
 };
 const ogDescriptions = {
-  zh: "國際貿易總監 Paul Chen：為台灣 SME 與貿易團隊建立證據驅動的商務決策系統——從海外客戶開發、交易評估、利潤槓桿到付款承諾控制，把商業判斷整理成可驗證、可交接的工作流程。",
-  en: "International trade director Paul Chen builds evidence-driven commercial decision systems for Taiwan SMEs and trade teams — from overseas lead discovery and deal assessment to profit levers and payment commitment control.",
+  zh: "Paul Chen 以商業判斷、工作流程設計與 Human × AI 協作，建立證據驅動的工作系統——從海外客戶開發、交易評估、利潤槓桿到付款承諾控制，把複雜問題整理成可驗證、可交接的下一步。",
+  en: "Paul Chen designs evidence-driven ways of working with AI, combining business judgment, workflow design, and Human × AI collaboration—from overseas lead discovery and deal assessment to profit levers and payment commitment control.",
 };
 
 export function LangProvider({ children }) {
