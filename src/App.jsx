@@ -6,6 +6,7 @@ import HeroOutcomes from "./components/HeroOutcomes.jsx";
 import AiWorkValue from "./components/AiWorkValue.jsx";
 import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
+import GarageBridge from "./components/GarageBridge.jsx";
 import Garage from "./components/Garage.jsx";
 import Verification from "./components/Verification.jsx";
 import CommercialOutcomes from "./components/CommercialOutcomes.jsx";
@@ -37,6 +38,7 @@ export default function App() {
           <main id="main">
             {/* ② 先翻譯 AI 的實際角色，再以 CDD 旗艦成果落地。 */}
             <Hero />
+            <GarageBridge />
             <HeroOutcomes />
             <AiWorkValue />
             <HumanAiEditorial />
