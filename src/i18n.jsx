@@ -441,8 +441,8 @@ const dict = {
         {
           title: "The Witness Tag · 見證標籤",
           tag: "合成實驗",
-          spark: "樣品走了三次；「希望」沒有跟到終點。",
-          note: "看一句客戶期待如何在三次合成交接中，逐漸變成像是已經做出的承諾。",
+          spark: "一句期待，傳過三個人之後，竟像是公司已經答應了。",
+          note: "真正改變的不是樣品，而是團隊對「已承諾什麼」的理解。",
           cta: "讓這句話往下走",
           boundary: "合成情境——不代表真實交接流程，也不取代正式確認。",
           href: "/prototype/the-witness-tag/",
@@ -938,8 +938,8 @@ const dict = {
         {
           title: "The Witness Tag",
           tag: "Synthetic experiment",
-          spark: "The sample moved three times. The word ‘hope’ never reached the end.",
-          note: "Watch a client expectation pass through three synthetic handoffs and begin to sound like a commitment already made.",
+          spark: "An expectation passes through three people and comes out sounding like the company already said yes.",
+          note: "The sample never changed. The team's understanding of what had been promised did.",
           cta: "Pass the sentence on",
           boundary: "Synthetic scenario — not a real handoff process or a substitute for formal confirmation.",
           href: "/prototype/the-witness-tag/",
