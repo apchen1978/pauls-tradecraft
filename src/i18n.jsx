@@ -157,6 +157,7 @@ const dict = {
       },
       labsNote: "快速把想法變成可運行的軟體並測試。",
       primaryEntry: "主力入口",
+      supportingEvidence: "海外商業開發的支援證據",
       expandJudgment: "展開商業開發判斷",
       deliverableLabel: "你會帶走",
       linkPending: "無公開 demo",
@@ -209,7 +210,7 @@ const dict = {
     outcomes: {
       eyebrow: "THE COMMERCIAL THREAD",
       headline: "從看見商機，到留下能交接的決策。",
-      intro: "國際貿易是最完整的旗艦場景；同一條思路也適用於台灣 SME 的客戶、報價、付款與交付。先從公司真正能交付什麼出發，翻譯成買方聽得懂的理由，再進入機會判斷、條件與承諾邊界。這不是一組分散工具，而是一條團隊接得走的判斷路徑。",
+      intro: "國際貿易是最完整的旗艦場景；同一條思路也適用於台灣 SME 的客戶、報價、付款與交付。先從公司真正能交付什麼出發，翻譯成買方聽得懂的理由，再進入機會判斷、條件與承諾邊界。這不是一組分散工具，而是一條概念上的判斷路徑，團隊可以接得走。",
       pathEyebrow: "從公司現實，到下一個商業行動",
       pathSteps: ["公司能交付什麼", "誰會在意、為何在意", "找得到可驗證路徑的買方", "條件與 UNKNOWN", "承諾邊界與交接"],
       pathStatement: "從公司現實，到買方理由，再到能不能承諾——每一步都留下證據與 UNKNOWN，而不是只留下意見。",
@@ -641,6 +642,7 @@ const dict = {
       },
       labsNote: "Rapidly turning ideas into working software and testing them.",
       primaryEntry: "Primary entry",
+      supportingEvidence: "Supporting evidence for Global Business Development",
       expandJudgment: "Expand business-development judgment",
       deliverableLabel: "You leave with",
       linkPending: "No public demo",
@@ -693,7 +695,7 @@ const dict = {
     outcomes: {
       eyebrow: "THE COMMERCIAL THREAD",
       headline: "From spotting an opportunity to leaving a decision the team can hand over.",
-      intro: "International trade is the flagship scenario; the same thinking applies to Taiwan SME questions on customers, quotes, payment, and delivery. Start from what the company can truly deliver, translate that into buyer-relevant reasons, then move into opportunity judgment, terms, and commitment boundaries. This is not a set of scattered tools—it is a decision path a team can continue.",
+      intro: "International trade is the flagship scenario; the same thinking applies to Taiwan SME questions on customers, quotes, payment, and delivery. Start from what the company can truly deliver, translate that into buyer-relevant reasons, then move into opportunity judgment, terms, and commitment boundaries. This is not a set of scattered tools—it is a conceptual judgment path a team can continue.",
       pathEyebrow: "FROM COMPANY REALITY TO THE NEXT COMMERCIAL MOVE",
       pathSteps: ["What we can deliver", "Who cares, and why", "Buyers with a testable path", "Terms and UNKNOWNs", "Commitment boundary & handoff"],
       pathStatement: "From company reality, to a buyer-relevant reason, to whether you can commit—each step leaves evidence and UNKNOWNs, not just opinions.",

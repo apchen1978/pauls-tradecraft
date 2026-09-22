@@ -753,6 +753,7 @@ export default function Works() {
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
               <span>{copy.tag}</span>
               {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-[10px] tracking-[0.12em] text-amber">{t.works.primaryEntry}</span>}
+              {w.id === "ai-native-market-entry" && <span className="rounded-pill border border-forest/25 bg-forest/[0.06] px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-forest">{t.works.supportingEvidence}</span>}
               {w.verified && w.link && <LiveChip t={t} />}
               <MaturityChip label={stageLabel(w, lang)} />
             </div>
