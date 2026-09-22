@@ -16,7 +16,12 @@ export default function Garage() {
       <div className="mt-12 grid gap-6 md:grid-cols-3">
         {g.items.map((item) => (
           <article key={item.title} className="flex flex-col rounded-card border border-line surface-paper p-7">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{item.tag}</p>
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{item.tag}</p>
+              {item.featured ? (
+                <p className="text-[10px] font-bold tracking-[0.12em] text-moss">{g.featuredMark}</p>
+              ) : null}
+            </div>
             <h3 className="mt-3 text-xl font-bold tracking-tight text-ink">{item.title}</h3>
             <p className="mt-4 border-l-2 border-amber/70 pl-3 text-[15px] font-semibold leading-snug text-forest">{item.spark}</p>
             <p className="mt-4 text-sm leading-relaxed text-ink/65">{item.note}</p>

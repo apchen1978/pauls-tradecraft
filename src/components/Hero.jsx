@@ -81,7 +81,7 @@ export default function Hero() {
               {t.hero.ctaPrimary}
             </a>
             <a
-              href="#contact"
+              href="#garage"
               className="rounded-field border border-bone/55 bg-bone/[0.06] px-7 py-3.5 text-sm font-semibold tracking-[0.025em] text-bone shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-sm transition-colors hover:border-gold/75 hover:bg-bone/[0.1] hover:text-gold active:scale-[0.98]"
             >
               {t.hero.ctaSecondary}
@@ -113,9 +113,9 @@ export default function Hero() {
               loading="eager"
             />
           </div>
-          <figcaption className="flex items-center justify-between gap-4 border-t border-bone/15 px-4 py-3 text-xs text-bone/65 md:px-5 md:py-3.5 md:text-sm">
+          <figcaption className="flex flex-col items-start gap-2 border-t border-bone/15 px-4 py-3 text-xs leading-snug text-bone/65 md:px-5 md:py-3.5 md:text-sm">
             <span className="font-semibold text-bone/90">{t.hero.snapshotCaption}</span>
-            <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="shrink-0 font-semibold text-gold transition-colors hover:text-bone">
+            <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-gold transition-colors hover:text-bone">
               {t.hero.snapshotCta} →
             </a>
           </figcaption>
