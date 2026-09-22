@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { works: "作品", services: "商業合作", verification: "驗證", method: "方法", process: "流程", about: "關於我", contact: "討論商業 Pilot", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { works: "作品", services: "商業合作", verification: "驗證", method: "方法", process: "流程", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "15 年", label: "國際業務總監" },
@@ -440,7 +440,7 @@ const dict = {
       bridgeHeadline: "判斷在車庫裡持續被試驗。",
       bridgeLine: "工作台把承諾前的條件留成可看的判斷。車庫是它背後的創作實驗：物件怎麼交接，承諾怎麼在時間裡撞在一起。",
       seeAll: "看全部火花",
-      featuredMark: "呼應判斷",
+      featuredMark: "精選",
       items: [
         {
           title: "The Sample · 樣品",
@@ -496,7 +496,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { works: "Work", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", about: "About", contact: "Discuss a Commercial Pilot", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { works: "Work", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "15 years", label: "International sales leadership" },
@@ -931,7 +931,7 @@ const dict = {
       bridgeHeadline: "The Garage is where that judgment keeps being tested.",
       bridgeLine: "The desk leaves the terms visible before anyone commits. The Garage is the creative lab behind that craft: how an object changes hands, and how commitments collide in time.",
       seeAll: "See all sparks",
-      featuredMark: "Alongside the judgment",
+      featuredMark: "Featured",
       items: [
         {
           title: "The Sample",
