@@ -150,7 +150,7 @@ const dict = {
         operations: "Supporting Capabilities｜支援能力",
         labs: "Building & Exploration｜產品實作與探索",
         notes: {
-          commercial: "對外主線三件：① 商務決策工作台（這單能不能承諾）② 海外商業開發判斷（誰值得先投入）③ 貿易利潤導航（毛利是否撐得住）。其餘為支援或 Garage。",
+          commercial: "對外主線三件：① 商務決策工作台（這單能不能承諾）② 海外商業開發判斷（誰值得先投入）③ 貿易利潤導航（毛利是否撐得住）。其餘是支援作品，或仍在探索中的數位車庫原型。",
           operations: "支撐商業交付、團隊協作與客戶體驗的能力；每件作品保留自己的工作場景與證據。",
           labs: "把觀察與想法做成可操作、可體驗、值得被看見的成果。",
         },
@@ -434,8 +434,8 @@ const dict = {
     },
     garage: {
       eyebrow: "數位車庫",
-      headline: "產品之前，先有火花。",
-      intro: "很多東西，一開始是在車庫裡做出來的：小、合成、還不完整。先直接玩那個原始想法——這就是上方那些系統，還沒被打磨成產品之前的樣子。",
+      headline: "商業點子，先在這裡試出形狀。",
+      intro: "數位車庫收集仍在探索中的商業想法與 AI 原型。從一個小實驗開始，看它打開什麼可能，再想想哪些值得繼續試、走向產品。",
       items: [
         {
           title: "Coincidence Detector · 巧合偵測器",
@@ -635,7 +635,7 @@ const dict = {
         operations: "Supporting Capabilities | Teams & Experience",
         labs: "Building & Exploration | Creative Practice",
         notes: {
-          commercial: "Public narrative top three: (1) Commercial Decision Desk—can we commit? (2) Overseas development judgment—who deserves effort first? (3) Trade Profit Navigator—will the margin hold? Everything else is support or Garage.",
+          commercial: "Public narrative top three: (1) Commercial Decision Desk—can we commit? (2) Overseas development judgment—who deserves effort first? (3) Trade Profit Navigator—will the margin hold? The remaining work supports delivery or explores early ideas in the Digital Garage.",
           operations: "Supporting work for commercial delivery, team collaboration, and customer experience — each keeping its own context and evidence.",
           labs: "Turn observation and ideas into working, experiential results worth seeing.",
         },
@@ -918,8 +918,8 @@ const dict = {
     },
     garage: {
       eyebrow: "THE DIGITAL GARAGE",
-      headline: "The spark, before the product.",
-      intro: "A lot of this started in a garage: small, synthetic, unfinished. Play the raw idea first — this is what the polished systems above looked like before they became products.",
+      headline: "Commercial ideas, given room to take shape.",
+      intro: "The Digital Garage is where early commercial ideas and AI prototypes take shape. Start with a small experiment, see what possibility it opens, and consider what may be worth exploring further or developing into a product.",
       items: [
         {
           title: "Coincidence Detector",
