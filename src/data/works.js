@@ -1,10 +1,14 @@
 // 作品資料：全部來自 WORKLOG.md 與工作區實際產出。
 // 公開連結規則（evidence-first）：
 //   - 只有從 GitHub/線上實測確認的公開 URL 才填入 link。
-//   - 未驗證者維持 null；公開呈現使用中性的 evidence status copy。
+//   - 未實測者維持 null；公開呈現使用中性的 evidence status copy。
 //   - 禁止猜測 URL、禁止把 private repo 當作公開證據。
+//   - verified 只表示公開 link 曾線上實測（連結實測 / LIVE），不是品質、技術或商業驗證。
+//   - 成熟度看 case.stage（原型 / 合成 / 技術驗證，或既有誠實標籤），與 liveness 分開。
 // Case Study schema（P1.5）：
-//   - case.stage 只能是：Prototype / Simulation / Shadow Pilot / Technical Validation / Creative Build（依證據選）
+//   - case.stage 預設只能是：Prototype / Simulation / Shadow Pilot / Technical Validation / Creative Build（依證據選）
+//   - 引擎成熟度與案例成熟度不同時，不得只用單一 Technical Validation。
+//     CDD 使用雙標：引擎：技術驗證 · 案例：合成 / engine: technically validated · case: synthetic
 //   - 禁止虛構 ROI / conversion / customer result / usage metrics / commercial outcome。
 // 封面（cover）：真實截圖裁切 16:9，或品牌設計封面（Forest family）。
 export const works = [
@@ -243,8 +247,8 @@ export const works = [
       id: "payment-concentration",
       label: { zh: "下一步：這個決策會如何影響 7 天付款高峰？", en: "Next: how does this decision move your 7-day payment peak?" },
       note: {
-        zh: "portfolio 層演示接合：以同一 Deal C 概念，串接決策 → 付款承諾影響。兩者皆為合成模擬。",
-        en: "Portfolio-level demo bridge: same Deal C concept, linking decision to payment-commitment impact. Both are synthetic simulations.",
+        zh: "portfolio 層演示接合：以同一 Deal C 概念，串接決策 → 付款承諾影響。兩者皆為合成模擬。這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
+        en: "Portfolio-level demo bridge: same Deal C concept, linking decision to payment-commitment impact. Both are synthetic simulations. These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
       },
     },
     cover: "/images/cover-trade-deal-desk.png",
@@ -588,7 +592,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
-      stageTag: { zh: "已驗證產物 · 可重現工作流", en: "Verified Artifact · Reproducible Workflow" },
+      stageTag: { zh: "可重現工作流", en: "Reproducible Workflow" },
       problem: {
         zh: "簡報製作耗時且版本難控，缺乏可重跑的產出管線。",
         en: "Deck production was slow and hard to version, with no rerunnable output pipeline.",
@@ -664,8 +668,8 @@ export const works = [
       id: "trade-deal-desk",
       label: { zh: "回到源頭：這個 Deal C 是怎麼被評估與核准的？", en: "Back to the source: how was this Deal C assessed and approved?" },
       note: {
-        zh: "portfolio 層演示接合：Deal C 的決策來自 Trade Deal Desk 的合成案例，付款影響為模擬計算。",
-        en: "Portfolio-level demo bridge: Deal C's decision comes from a Trade Deal Desk synthetic case; the payment impact is a simulated calculation.",
+        zh: "portfolio 層演示接合：Deal C 的決策來自 Trade Deal Desk 的合成案例，付款影響為模擬計算。這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
+        en: "Portfolio-level demo bridge: Deal C's decision comes from a Trade Deal Desk synthetic case; the payment impact is a simulated calculation. These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
       },
     },
     cover: "/images/cover-payment-concentration.png",
@@ -1210,8 +1214,8 @@ export const works = [
         title: "RFQ → 報價決策：Human × AI Workflow",
         body: "看一筆資訊不完整的海外 RFQ，如何被整理成可檢視的證據、交由人做商業判斷，並在新資訊改變條件後重新進入審查。",
         cta: "執行 RFQ Workflow",
-        boundary: "Built and operationally red-teamed; not field validated.",
-        href: "./prototype/garage-rfq-workflow-001/",
+        boundary: "已建置並完成營運風險測試 · 尚未經真人驗證",
+        href: "/prototype/garage-rfq-workflow-001/",
       },
       en: {
         label: "WORKING EVIDENCE · SYNTHETIC",
@@ -1219,7 +1223,7 @@ export const works = [
         body: "See how an incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case.",
         cta: "Run RFQ Workflow",
         boundary: "Built and operationally red-teamed; not field validated.",
-        href: "./prototype/garage-rfq-workflow-001/",
+        href: "/prototype/garage-rfq-workflow-001/",
       },
     },
     related: {
@@ -1300,6 +1304,11 @@ export const works = [
     verified: true,
     // Astra P0-2：陌生客戶先看完成範例（建立興趣），
     // 評估我的商機（#mode-blank）作為第二層給已理解用途的人。
+    // 案例頁（sitemap）：https://paulstradecraft.com/cases/commercial-decision-desk/
+    casePage: {
+      href: "/cases/commercial-decision-desk/",
+      label: { zh: "閱讀 CDD 案例頁", en: "Read the CDD case page" },
+    },
     link: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
     linkLabel: { zh: "先看合成案例", en: "See the synthetic case" },
     linkType: "demo",
@@ -1340,7 +1349,7 @@ export const works = [
       caseSummary: "It does not decide for people. It makes the facts that matter before commitment visible: payment, trade responsibility, contradictions, UNKNOWNs, and the next step. The desk recommends; the human decides.",
     },
     case: {
-      stage: { zh: "合成決策設計", en: "Synthetic Decision-Design" },
+      stage: { zh: "引擎：技術驗證 · 案例：合成", en: "engine: technically validated · case: synthetic" },
       stageTag: "Decision support · Human-in-the-loop",
       problem: {
         zh: "商機判斷分散在證據、交易條件、付款風險與人為經驗中，難以一次看全，也難以追溯「為什麼這樣決定」。",

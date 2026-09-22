@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>商務決策工作台 CDD｜承諾前的交易判斷案例 · Paul's Tradecraft</title>
-  <meta name="description" content="在承諾報價或接單前，把交易條件、UNKNOWN 與決策路徑整理成可交接的 Deal Brief。本頁標示已驗證與未驗證邊界；不宣稱營收或 ROI。" />
+  <meta name="description" content="在承諾報價或接單前，把交易條件、UNKNOWN 與決策路徑整理成可交接的 Deal Brief。引擎：技術驗證 · 案例：合成。不宣稱營收或 ROI。" />
   <link rel="canonical" href="https://paulstradecraft.com/cases/commercial-decision-desk/" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="商務決策工作台 CDD｜承諾前的交易判斷案例" />
-  <meta property="og:description" content="承諾前把條件、UNKNOWN 與下一步變成可驗證產物。AI 擴大比較；人負責授權與最終承諾。" />
+  <meta property="og:description" content="承諾前把條件、UNKNOWN 與下一步整理成可交接產物。引擎：技術驗證 · 案例：合成。AI 擴大比較；人負責授權與最終承諾。" />
   <meta property="og:url" content="https://paulstradecraft.com/cases/commercial-decision-desk/" />
   <meta property="og:image" content="https://paulstradecraft.com/og-image.png" />
   <meta property="og:locale" content="zh_TW" />
@@ -24,8 +24,8 @@
     "inLanguage": ["zh-Hant", "en"],
     "author": { "@type": "Person", "name": "Paul Chen", "url": "https://paulstradecraft.com/" },
     "about": ["Commercial decision support", "Export trade", "Commitment gate", "Evidence discipline"],
-    "creativeWorkStatus": "TechnicalValidation",
-    "description": "A pre-commitment decision desk that structures terms, UNKNOWNs, and a Deal Brief for human authorization. Does not claim revenue or ROI outcomes."
+    "creativeWorkStatus": "engine: technically validated; case: synthetic",
+    "description": "A pre-commitment decision desk. Engine: technically validated. Case: synthetic. It structures terms, UNKNOWNs, and a Deal Brief for human authorization. It does not claim revenue, ROI, or field validation of the case."
   }
   </script>
   <style>
@@ -39,7 +39,7 @@
     .eyebrow { margin-top: 18px; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
     h1 { margin: 10px 0 0; font-size: clamp(1.7rem, 4vw, 2.35rem); line-height: 1.2; letter-spacing: -.02em; color: var(--pine); }
     .lede { margin-top: 14px; font-size: 1.05rem; color: var(--muted); }
-    .badge { display:inline-block; margin-top: 14px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--pine); background: #fff; }
+    .badge { display:inline-block; margin-top: 14px; margin-right: 8px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--pine); background: #fff; }
     .ctas { display:flex; flex-wrap:wrap; gap:10px; margin-top: 22px; }
     .btn { display:inline-block; padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration:none; }
     .btn-primary { background: var(--gold); color: var(--pine); }
@@ -66,7 +66,7 @@
     <p class="eyebrow">CASE · COMMERCIAL DECISION</p>
     <h1>訂單看起來不錯——現在能不能承諾？</h1>
     <p class="lede">商務決策工作台（CDD）把報價、付款、交付與責任條件，連同 UNKNOWN，整理成可帶進會議的 Deal Brief。AI 協助結構化比較；人負責授權與最終承諾。</p>
-    <span class="badge">Stage · Technical Validation</span>
+    <span class="badge">引擎：技術驗證 · 案例：合成</span>
     <div class="ctas">
       <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">打開 CDD sample</a>
       <a class="btn btn-secondary" href="/#contact">帶一個真實交易問題來談</a>
@@ -93,11 +93,17 @@
 
     <h2>Evidence ladder</h2>
     <table>
-      <thead><tr><th>已驗證（FACT）</th><th>來源</th><th>未驗證／UNKNOWN</th></tr></thead>
+      <thead><tr><th>可複核事實（FACT）</th><th>來源</th><th>未驗證／UNKNOWN</th></tr></thead>
       <tbody>
         <tr><td>公開 sample／demo 可互動檢視</td><td>commercial-decision-desk demo</td><td>真實客戶成交率、營收、ROI</td></tr>
+      </tbody>
+    </table>
+    <h2>設計主張與用途（不是 FACT）</h2>
+    <table>
+      <thead><tr><th>主張</th><th>來源</th><th>這欄不證明</th></tr></thead>
+      <tbody>
         <tr><td>UNKNOWN 不被自動填成事實（設計主張）</td><td>產品行為／案例說明</td><td>跨產業通用有效性</td></tr>
-        <tr><td>輸出可作為會議交接底稿</td><td>Deal Brief 結構</td><td>替代完整法務或信用調查</td></tr>
+        <tr><td>輸出可作為會議交接底稿（用途主張）</td><td>Deal Brief 結構</td><td>替代完整法務或信用調查</td></tr>
       </tbody>
     </table>
 
@@ -110,13 +116,17 @@
 
     <h2>主線位置</h2>
     <p>上游：<a href="/#global-business-development">海外商業開發判斷</a> · 下游：<a href="/#trade-profit-navigator">貿易利潤導航</a> · 垂直證據：<a href="/pilot-evidence/">窗簾軟裝 Pilot</a></p>
+    <p>這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。</p>
 
     <div class="en" lang="en">
       <p class="eyebrow">ENGLISH SUMMARY</p>
       <h2 style="margin-top:10px">Commercial Decision Desk — can we commit now?</h2>
+      <p class="badge">engine: technically validated · case: synthetic</p>
       <p>CDD structures payment, delivery, liability, and UNKNOWNs into a Deal Brief a team can take into a meeting. AI widens comparison; humans keep authorization and the final commitment.</p>
-      <p><strong>Verified:</strong> inspectable public sample and a decision artifact pattern that preserves UNKNOWNs.<br/>
-      <strong>Not verified:</strong> win rate, revenue, ROI, or replacement of legal/credit diligence.</p>
+      <p><strong>Fact:</strong> the public sample can be inspected interactively.<br/>
+      <strong>Design or usefulness claim, not a fact:</strong> UNKNOWN is not auto-filled into fact; the output is intended as a meeting handoff.<br/>
+      <strong>Not verified:</strong> win rate, revenue, ROI, cross-industry validity, or replacement of legal/credit diligence.</p>
+      <p>These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">Open CDD sample</a>
         <a class="btn btn-secondary" href="/#contact">Bring one live deal question</a>

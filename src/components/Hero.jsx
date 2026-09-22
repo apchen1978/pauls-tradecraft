@@ -94,9 +94,16 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut", delay: 0.12 } }}
           className="group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-bone/25 bg-pine/45 shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)] backdrop-blur-sm lg:mb-4"
         >
-          <div className="flex items-center justify-between border-b border-bone/15 bg-ink/20 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-bone/65 md:px-5 md:py-3 md:text-[11px]">
+          <div className="flex items-center justify-between gap-3 border-b border-bone/15 bg-ink/20 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-bone/65 md:px-5 md:py-3 md:text-[11px]">
             <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.hero.snapshotChromeLabel}</span>
-            <span className="text-bone/80">{t.works.statusVerified}</span>
+            <span className="flex flex-wrap items-center justify-end gap-2 text-right">
+              {cdd?.verified && cdd?.link && (
+                <span className="normal-case tracking-[0.08em] text-bone/80" title={t.works.liveExplain}>{t.works.statusLive}</span>
+              )}
+              <span className="font-bold normal-case tracking-normal text-bone/90">
+                {typeof cdd?.case?.stage === "string" ? cdd.case.stage : cdd?.case?.stage?.[lang]}
+              </span>
+            </span>
           </div>
           <div className="relative overflow-hidden bg-ink/20 p-2.5 md:p-3">
             <img
