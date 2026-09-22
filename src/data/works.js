@@ -61,7 +61,7 @@ export const works = [
   {
     id: "business-spending-insight",
     section: "commercial",
-    featuredRank: 4,
+    featuredRank: 22,
     cover: "/images/cover-business-spending-insight.svg",
     imageAlt: { zh: "企業支出決策啟發：現金、效益、時間、證據與專業確認", en: "Business Spending Insight: cash, benefit, timing, evidence, and professional review" },
     span: "md:col-span-2",
@@ -237,7 +237,7 @@ export const works = [
   },
   {
     id: "trade-deal-desk",
-    featuredRank: 7,
+    featuredRank: 24,
     section: "commercial",
     related: {
       id: "payment-concentration",
@@ -297,7 +297,7 @@ export const works = [
   {
     id: "tracker",
     section: "operations",
-    featuredRank: 1,
+    featuredRank: 21,
     cover: "/images/cover-tracker-v2.svg",
     imageAlt: { zh: "窗簾軟裝 Pilot 追蹤器儀表板", en: "Curtain soft-furnishing pilot tracker dashboard" },
     link: "/pilot-evidence/#tracker",
@@ -767,7 +767,7 @@ export const works = [
   },
   {
     id: "overseas-lead-discovery",
-    featuredRank: 5,
+    featuredRank: 23,
     section: "commercial",
     cover: "/images/cover-lead-discovery.png",
     imageAlt: { zh: "Overseas Lead Discovery 資格篩選 demo 畫面", en: "Overseas Lead Discovery qualification demo" },
@@ -1044,7 +1044,7 @@ export const works = [
   {
     id: "ai-native-market-entry",
     section: "commercial",
-    featuredRank: 2,
+    featuredRank: 20,
     icon: "briefcase",
     hidePendingLink: true,
     imageAlt: { zh: "AI 原生市場開發研究案例：6 到 0 到 4 的方法修正", en: "AI-Native Market Entry method case: the 6 to 0 to 4 correction" },
@@ -1234,7 +1234,7 @@ export const works = [
   {
     id: "trade-profit-navigator",
     section: "commercial",
-    featuredRank: 3,
+    featuredRank: 2,
     cover: "/images/cover-trade-profit-navigator.png",
     icon: "receipt",
     verified: true,

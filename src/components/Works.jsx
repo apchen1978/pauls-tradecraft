@@ -24,6 +24,12 @@ const iconMap = {
 
 const SECTION_ORDER = ["commercial", "operations", "labs"];
 
+// Public narrative top-3 (C): CDD is featured separately; wall shows GBD + TPN only.
+const PUBLIC_COMMERCIAL_WALL_IDS = new Set([
+  "global-business-development",
+  "trade-profit-navigator",
+]);
+
 function ProductFlow({ work, tone = "light" }) {
   const { lang } = useLang();
   const flow = work.showcase?.[lang];
@@ -594,7 +600,7 @@ export default function Works() {
     label: t.works.sections[id],
     note: t.works.sections.notes[id],
     works: [...works]
-      .filter((w) => w.section === id && w.id !== featuredSystem.id)
+      .filter((w) => w.section === id && w.id !== featuredSystem.id && (id !== "commercial" || PUBLIC_COMMERCIAL_WALL_IDS.has(w.id)))
       .sort((a, b) => {
         // MORI is the client-facing website showcase for this section. Keep it
         // first without rewriting the evidence/order data owned in works.js.
