@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>執行能力簡報 · Paul's Tradecraft</title>
-    <meta name="description" content="Paul's Tradecraft 執行能力簡報 — 9 頁，可翻閱。" />
+    <title>把事情講到可以決定 · Paul's Tradecraft</title>
+    <meta name="description" content="把不完整資訊整理成一個可以共同判斷的畫面。9 頁可翻閱。" />
     <link rel="canonical" href="https://paulstradecraft.com/deck-viewer/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Paul's Tradecraft" />
-    <meta property="og:title" content="執行能力簡報 · Paul's Tradecraft" />
-    <meta property="og:description" content="9 頁 McKinsey 風格執行能力簡報 — 可直接翻閱或下載 PDF。" />
+    <meta property="og:title" content="把事情講到可以決定 · Paul's Tradecraft" />
+    <meta property="og:description" content="把不完整資訊整理成一個可以共同判斷的畫面 — 可直接翻閱或下載 PDF。" />
     <meta property="og:url" content="https://paulstradecraft.com/deck-viewer/" />
     <meta property="og:image" content="https://paulstradecraft.com/deck-viewer/page-01.png" />
     <meta property="og:image:width" content="1467" />
@@ -17,8 +17,8 @@
     <meta property="og:locale" content="zh_TW" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="執行能力簡報 · Paul's Tradecraft" />
-    <meta name="twitter:description" content="9 頁 Paul's Tradecraft 執行能力簡報，可直接翻閱或下載 PDF。" />
+    <meta name="twitter:title" content="把事情講到可以決定 · Paul's Tradecraft" />
+    <meta name="twitter:description" content="把不完整資訊整理成一個可以共同判斷的畫面。" />
     <meta name="twitter:image" content="https://paulstradecraft.com/deck-viewer/page-01.png" />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="styles.css" />
@@ -26,9 +26,19 @@
   <body>
     <header class="bar">
       <a class="back" href="/">← Paul's Tradecraft</a>
-      <h1 class="title">執行能力簡報 <span class="sub">Executive Capability Deck</span></h1>
+      <h1 class="title">把事情講到可以決定 <span class="sub">A shared decision surface</span></h1>
       <a class="dl" href="executive-capability-deck.pdf" download>下載 PDF</a>
     </header>
+
+    <section class="intro" aria-label="作品定位">
+      <p class="kicker">不是把文字放進投影片</p>
+      <p class="intro-copy">這份 deck 示範一個更實際的轉換：把散落的資訊、分歧與未知，整理成一群人可以共同挑戰、共同判斷的下一個畫面。</p>
+      <div class="signals" aria-label="閱讀提示">
+        <span>看清楚：事實／推論／未知</span>
+        <span>看見：選項與取捨</span>
+        <span>留下：下一個人類決定</span>
+      </div>
+    </section>
 
     <main class="stage" id="stage" aria-label="簡報翻閱器">
       <button class="nav prev" id="prev" aria-label="上一頁">‹</button>
@@ -41,6 +51,7 @@
     <footer class="foot">
       <span id="counter">1 / 9</span>
       <div class="progress"><div class="fill" id="fill"></div></div>
+      <span class="footnote">spec → PPTX → PDF · 可重跑只是底層能力</span>
     </footer>
 
     <script src="app.js"></script>
