@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商務決策工作台 CDD｜承諾前的交易判斷案例 · Paul's Tradecraft</title>
+  <meta name="description" content="在承諾報價或接單前，把交易條件、UNKNOWN 與決策路徑整理成可交接的 Deal Brief。本頁標示已驗證與未驗證邊界；不宣稱營收或 ROI。" />
+  <link rel="canonical" href="https://paulstradecraft.com/cases/commercial-decision-desk/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="商務決策工作台 CDD｜承諾前的交易判斷案例" />
+  <meta property="og:description" content="承諾前把條件、UNKNOWN 與下一步變成可驗證產物。AI 擴大比較；人負責授權與最終承諾。" />
+  <meta property="og:url" content="https://paulstradecraft.com/cases/commercial-decision-desk/" />
+  <meta property="og:image" content="https://paulstradecraft.com/og-image.png" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CaseStudy",
+    "name": "Commercial Decision Desk (CDD)",
+    "url": "https://paulstradecraft.com/cases/commercial-decision-desk/",
+    "inLanguage": ["zh-Hant", "en"],
+    "author": { "@type": "Person", "name": "Paul Chen", "url": "https://paulstradecraft.com/" },
+    "about": ["Commercial decision support", "Export trade", "Commitment gate", "Evidence discipline"],
+    "creativeWorkStatus": "TechnicalValidation",
+    "description": "A pre-commitment decision desk that structures terms, UNKNOWNs, and a Deal Brief for human authorization. Does not claim revenue or ROI outcomes."
+  }
+  </script>
+  <style>
+    :root { --pine:#143329; --bone:#f4efe6; --gold:#d4a017; --ink:#1c241f; --line:rgba(20,51,41,.14); --muted:rgba(28,36,31,.68); }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif; background: var(--bone); color: var(--ink); line-height: 1.65; }
+    a { color: var(--pine); }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px 80px; }
+    .crumb { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .eyebrow { margin-top: 18px; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+    h1 { margin: 10px 0 0; font-size: clamp(1.7rem, 4vw, 2.35rem); line-height: 1.2; letter-spacing: -.02em; color: var(--pine); }
+    .lede { margin-top: 14px; font-size: 1.05rem; color: var(--muted); }
+    .badge { display:inline-block; margin-top: 14px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--pine); background: #fff; }
+    .ctas { display:flex; flex-wrap:wrap; gap:10px; margin-top: 22px; }
+    .btn { display:inline-block; padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration:none; }
+    .btn-primary { background: var(--gold); color: var(--pine); }
+    .btn-secondary { border: 1px solid var(--line); background: #fff; color: var(--pine); }
+    .grid { display:grid; gap: 12px; margin-top: 28px; }
+    @media (min-width:700px){ .grid { grid-template-columns: 1fr 1fr; } .grid .wide { grid-column: 1 / -1; } }
+    .card { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: #fff; }
+    .card h3 { margin:0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+    .card p { margin: 8px 0 0; font-size: 14px; }
+    h2 { margin: 40px 0 12px; font-size: 1.25rem; color: var(--pine); }
+    ol.method { margin: 0; padding-left: 1.2rem; }
+    ol.method li { margin: 8px 0; }
+    table { width:100%; border-collapse: collapse; font-size: 14px; background:#fff; border:1px solid var(--line); border-radius: 12px; overflow:hidden; }
+    th, td { border-top: 1px solid var(--line); padding: 10px 12px; vertical-align: top; text-align: left; }
+    th { background: rgba(20,51,41,.06); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+    .boundary { border-left: 3px solid var(--gold); padding: 8px 0 8px 14px; color: var(--muted); }
+    .en { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+    footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · CDD</p>
+    <p class="eyebrow">CASE · COMMERCIAL DECISION</p>
+    <h1>訂單看起來不錯——現在能不能承諾？</h1>
+    <p class="lede">商務決策工作台（CDD）把報價、付款、交付與責任條件，連同 UNKNOWN，整理成可帶進會議的 Deal Brief。AI 協助結構化比較；人負責授權與最終承諾。</p>
+    <span class="badge">Stage · Technical Validation</span>
+    <div class="ctas">
+      <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">打開 CDD sample</a>
+      <a class="btn btn-secondary" href="/#contact">帶一個真實交易問題來談</a>
+    </div>
+
+    <div class="grid" aria-label="Snapshot">
+      <div class="card"><h3>Decision question</h3><p>這筆單，現在能不能承諾？</p></div>
+      <div class="card"><h3>Input</h3><p>RFQ／報價條件／付款與交期（可匿名或合成）</p></div>
+      <div class="card"><h3>Output</h3><p>Decision Path + Deal Brief（已知／UNKNOWN／下一步）</p></div>
+      <div class="card"><h3>Human gate</h3><p>Owner／業務主管授權；系統不自動對外承諾</p></div>
+    </div>
+
+    <h2>情境</h2>
+    <p>出口與 B2B 場景裡，單看似「毛利不錯」常被直接推進。真正卡住的是：付款何時進來、工廠何時要錢、交付與違約責任誰控、哪些事實仍是 UNKNOWN。CDD 把這些攤開，而不是用摘要掩蓋。</p>
+
+    <h2>方法（對齊 PAUL OS）</h2>
+    <ol class="method">
+      <li><strong>Intake</strong> — 收斂交易問題與可用輸入</li>
+      <li><strong>Structure terms</strong> — 付款、交付、責任、數量／價格結構</li>
+      <li><strong>Surface UNKNOWN</strong> — 缺資料不補成事實</li>
+      <li><strong>Decision states</strong> — 可推進／有條件／暫緩／拒絕（依系統定義）</li>
+      <li><strong>Human commit</strong> — 人做最終承諾；留下可交接產物</li>
+    </ol>
+
+    <h2>Evidence ladder</h2>
+    <table>
+      <thead><tr><th>已驗證（FACT）</th><th>來源</th><th>未驗證／UNKNOWN</th></tr></thead>
+      <tbody>
+        <tr><td>公開 sample／demo 可互動檢視</td><td>commercial-decision-desk demo</td><td>真實客戶成交率、營收、ROI</td></tr>
+        <tr><td>UNKNOWN 不被自動填成事實（設計主張）</td><td>產品行為／案例說明</td><td>跨產業通用有效性</td></tr>
+        <tr><td>輸出可作為會議交接底稿</td><td>Deal Brief 結構</td><td>替代完整法務或信用調查</td></tr>
+      </tbody>
+    </table>
+
+    <h2>這頁不主張</h2>
+    <div class="boundary">
+      <p>不保證訂單、營收或 ROI。</p>
+      <p>不替代法務、完整 credit DD 或自動對外寄信／下單。</p>
+      <p>合成／示範案例 ≠ 真實客戶結果。</p>
+    </div>
+
+    <h2>主線位置</h2>
+    <p>上游：<a href="/#global-business-development">海外商業開發判斷</a> · 下游：<a href="/#trade-profit-navigator">貿易利潤導航</a> · 垂直證據：<a href="/pilot-evidence/">窗簾軟裝 Pilot</a></p>
+
+    <div class="en" lang="en">
+      <p class="eyebrow">ENGLISH SUMMARY</p>
+      <h2 style="margin-top:10px">Commercial Decision Desk — can we commit now?</h2>
+      <p>CDD structures payment, delivery, liability, and UNKNOWNs into a Deal Brief a team can take into a meeting. AI widens comparison; humans keep authorization and the final commitment.</p>
+      <p><strong>Verified:</strong> inspectable public sample and a decision artifact pattern that preserves UNKNOWNs.<br/>
+      <strong>Not verified:</strong> win rate, revenue, ROI, or replacement of legal/credit diligence.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">Open CDD sample</a>
+        <a class="btn btn-secondary" href="/#contact">Bring one live deal question</a>
+      </div>
+    </div>
+
+    <footer>
+      <p>Paul's Tradecraft · Case page v0.1 · Last reviewed 2026-09-22</p>
+      <p><a href="/">← Back to portfolio</a></p>
+    </footer>
+  </main>
+</body>
+</html>
