@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#173b31" />
+    <title>一筆支出，兩個時鐘 · Paul's Tradecraft</title>
+    <meta name="description" content="互動探索一筆商業支出的付款時間與預期效益觀察時間。合成情境，不是 ROI 或會計工具。" />
+    <style>
+      :root {
+        color-scheme: light;
+        --pine: #173b31;
+        --forest: #285541;
+        --ink: #202a25;
+        --muted: #69736c;
+        --paper: #f5f3ec;
+        --white: #fffefa;
+        --line: #d9ddd4;
+        --gold: #b28437;
+        --gold-soft: #f2e8d4;
+        --green-soft: #e7eee8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+        line-height: 1.55;
+      }
+      a { color: inherit; }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px max(22px, calc((100vw - 1140px) / 2));
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 254, 250, .82);
+      }
+      .brand { color: var(--pine); font-size: 13px; font-weight: 750; letter-spacing: .035em; text-decoration: none; }
+      .top-link { color: var(--muted); font-size: 13px; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+      main { width: min(1050px, calc(100% - 40px)); margin: 0 auto; padding: 52px 0 68px; }
+      .eyebrow { margin: 0; color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+      h1 { max-width: 760px; margin: 12px 0 14px; color: var(--pine); font-size: clamp(36px, 6vw, 62px); line-height: 1.08; letter-spacing: -.055em; }
+      .lede { max-width: 680px; margin: 0; color: #58645c; font-size: 17px; line-height: 1.8; }
+      .demo-tag { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 6px 10px; border: 1px solid #c7d5c9; border-radius: 999px; color: var(--forest); background: var(--green-soft); font-size: 11px; font-weight: 750; letter-spacing: .06em; }
+      .demo-tag::before { width: 6px; height: 6px; border-radius: 50%; background: var(--forest); content: ""; }
+      .workbench { display: grid; grid-template-columns: minmax(245px, .78fr) minmax(0, 1.22fr); gap: 18px; margin-top: 38px; align-items: start; }
+      .panel { border: 1px solid var(--line); border-radius: 16px; background: var(--white); box-shadow: 0 14px 40px -36px rgba(23, 59, 49, .55); }
+      .inputs { padding: 24px; }
+      .panel-kicker { margin: 0 0 18px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+      label { display: block; margin: 15px 0 6px; color: #48534c; font-size: 12px; font-weight: 700; }
+      input, textarea { width: 100%; border: 1px solid #cfd5cd; border-radius: 8px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; }
+      input { min-height: 43px; padding: 9px 11px; }
+      textarea { min-height: 74px; padding: 10px 11px; resize: vertical; }
+      input:focus, textarea:focus { border-color: var(--forest); outline: 2px solid rgba(40, 85, 65, .16); }
+      .amount-wrap { position: relative; }
+      .amount-wrap span { position: absolute; top: 10px; left: 12px; color: var(--muted); font-size: 14px; }
+      .amount-wrap input { padding-left: 57px; font-variant-numeric: tabular-nums; }
+      .timeline-panel { overflow: hidden; }
+      .timeline-head { padding: 23px 25px 18px; border-bottom: 1px solid var(--line); }
+      .timeline-head h2 { margin: 0; color: var(--pine); font-size: 20px; letter-spacing: -.025em; }
+      .timeline-head p { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+      .timeline { display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 23px 25px 25px; }
+      .clock { position: relative; min-width: 0; padding: 0 17px 0 0; }
+      .clock + .clock { padding: 0 0 0 22px; border-left: 1px solid var(--line); }
+      .clock-label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+      .clock-label i { width: 9px; height: 9px; border-radius: 50%; background: var(--forest); }
+      .clock.expected .clock-label i { background: var(--gold); }
+      .event-date { display: block; margin-top: 14px; color: var(--pine); font-size: clamp(19px, 2.4vw, 27px); font-weight: 750; letter-spacing: -.035em; line-height: 1.2; }
+      .event-title { margin: 6px 0 0; color: var(--ink); font-size: 14px; font-weight: 700; }
+      .event-detail { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+      .state { display: inline-block; margin-top: 13px; padding: 4px 8px; border-radius: 999px; background: var(--green-soft); color: var(--forest); font-size: 10px; font-weight: 800; letter-spacing: .06em; }
+      .expected .state { background: var(--gold-soft); color: #806020; }
+      .gap { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; margin: 21px 0 0; color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+      .gap::before, .gap::after { height: 1px; flex: 1; background: #d8c8a6; content: ""; }
+      .review { margin: 0 25px 24px; padding: 15px 17px; border-left: 3px solid var(--gold); background: #f7f4eb; }
+      .review-label { margin: 0; color: #806020; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+      .review-question { margin: 6px 0 0; color: var(--pine); font-size: 15px; font-weight: 700; }
+      .review-note { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+      .reading { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 18px; overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--line); }
+      .reading div { min-height: 94px; padding: 15px 17px; background: var(--white); }
+      .reading strong { display: block; color: var(--pine); font-size: 12px; }
+      .reading span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+      .boundary { margin: 22px 0 0; color: #747b74; font-size: 11px; line-height: 1.75; }
+      .footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 30px; padding-top: 19px; border-top: 1px solid var(--line); }
+      .footer p { margin: 0; color: var(--muted); font-size: 12px; }
+      .footer a { color: var(--forest); font-size: 12px; font-weight: 750; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+      @media (max-width: 720px) {
+        .topbar { padding: 15px 20px; }
+        main { width: min(100% - 28px, 560px); padding: 37px 0 48px; }
+        .lede { font-size: 15px; }
+        .workbench { grid-template-columns: 1fr; gap: 12px; margin-top: 27px; }
+        .inputs { padding: 19px; }
+        .timeline-head { padding: 19px 19px 15px; }
+        .timeline { padding: 19px; }
+        .clock { padding-right: 12px; }
+        .clock + .clock { padding-left: 15px; }
+        .event-date { font-size: 20px; }
+        .review { margin: 0 19px 19px; }
+        .reading { grid-template-columns: 1fr; }
+        .reading div { min-height: 0; }
+        .footer { align-items: flex-start; flex-direction: column; gap: 8px; }
+      }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+    </style>
+  </head>
+  <body>
+    <nav class="topbar" aria-label="主要導覽">
+      <a class="brand" href="/#works">Paul's Tradecraft</a>
+      <a class="top-link" href="/#expense">返回作品集</a>
+    </nav>
+    <main>
+      <p class="eyebrow">COMMERCIAL SPENDING EXPERIMENT · SYNTHETIC SCENARIO</p>
+      <h1>錢先出去；<br />價值何時出現？</h1>
+      <p class="lede">記帳留下付款的那一天。商業判斷還需要另一個時間：預期的改變何時開始、什麼時候回頭看，才知道這筆支出是否正在做原本想做的事。</p>
+      <span class="demo-tag">示意情境 · 請改動日期與金額試試</span>
+
+      <section class="workbench" aria-label="支出雙時鐘互動原型">
+        <form class="panel inputs" id="spend-form">
+          <p class="panel-kicker">先放入一個支出情境</p>
+          <label for="purpose">這筆支出原本想改善什麼？</label>
+          <textarea id="purpose" maxlength="120">縮短備料與報價等待時間</textarea>
+          <label for="amount">已付款金額</label>
+          <div class="amount-wrap"><span>NT$</span><input id="amount" type="number" min="0" step="100" value="120000" inputmode="numeric" /></div>
+          <label for="paid-date">付款日</label>
+          <input id="paid-date" type="date" required />
+          <label for="start-date">預計開始使用</label>
+          <input id="start-date" type="date" required />
+          <label for="review-date">第一次回看</label>
+          <input id="review-date" type="date" required />
+        </form>
+
+        <section class="panel timeline-panel" aria-labelledby="timeline-title">
+          <header class="timeline-head">
+            <h2 id="timeline-title">一筆支出，兩個時鐘</h2>
+            <p>第一個記錄現金；第二個安排觀察。</p>
+          </header>
+          <div class="timeline" aria-live="polite">
+            <article class="clock">
+              <span class="clock-label"><i></i>Cash clock</span>
+              <time class="event-date" id="paid-display"></time>
+              <p class="event-title">現金已支付</p>
+              <p class="event-detail" id="amount-display"></p>
+              <span class="state">已發生 · 輸入事實</span>
+            </article>
+            <article class="clock expected">
+              <span class="clock-label"><i></i>Value clock</span>
+              <time class="event-date" id="start-display"></time>
+              <p class="event-title">預計開始使用</p>
+              <p class="event-detail" id="review-display"></p>
+              <span class="state">預期 · 尚待觀察</span>
+            </article>
+            <p class="gap" id="gap-display"></p>
+          </div>
+          <div class="review">
+            <p class="review-label">回看時可以問</p>
+            <p class="review-question" id="question-display"></p>
+            <p class="review-note">有什麼已觀察到？還缺什麼證據？先把未知留白。</p>
+          </div>
+        </section>
+      </section>
+
+      <section class="reading" aria-label="資訊邊界">
+        <div><strong>已知</strong><span>付款金額與日期，由使用者提供。</span></div>
+        <div><strong>預期</strong><span>開始使用與回看時間，是計畫，不代表效益已發生。</span></div>
+        <div><strong>未知</strong><span>實際改善、節省金額與 ROI，需要日後的真實觀察。</span></div>
+      </section>
+      <p class="boundary">這是本機互動的合成情境，不會儲存或傳送輸入內容。它不計算 ROI，也不判斷費用認列、稅務處理或會計分類。</p>
+      <footer class="footer">
+        <p>想看原始的收支記錄方式？</p>
+        <a href="https://apchen1978.github.io/expense-tracker-demo/" target="_blank" rel="noopener noreferrer">開啟記帳小本子 Demo ↗</a>
+      </footer>
+    </main>
+    <script>
+      (() => {
+        const byId = (id) => document.getElementById(id);
+        const pad = (value) => String(value).padStart(2, "0");
+        const toLocalDate = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        const fromDate = (value) => {
+          const [year, month, day] = value.split("-").map(Number);
+          return new Date(year, month - 1, day);
+        };
+        const showDate = (value) => {
+          if (!value) return "請選日期";
+          const date = fromDate(value);
+          return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+        };
+        const addDays = (date, days) => {
+          const next = new Date(date);
+          next.setDate(next.getDate() + days);
+          return next;
+        };
+        const diffDays = (from, to) => Math.round((fromDate(to) - fromDate(from)) / 86400000);
+        const money = (value) => `NT$${Math.max(0, Number(value) || 0).toLocaleString("zh-TW")}`;
+        const today = new Date();
+        byId("paid-date").value = toLocalDate(today);
+        byId("start-date").value = toLocalDate(addDays(today, 30));
+        byId("review-date").value = toLocalDate(addDays(today, 90));
+
+        function render() {
+          const paid = byId("paid-date").value;
+          const start = byId("start-date").value;
+          const review = byId("review-date").value;
+          const amount = byId("amount").value;
+          const purpose = byId("purpose").value.trim() || "這筆支出原本想改善的問題";
+          byId("paid-display").textContent = showDate(paid);
+          byId("start-display").textContent = showDate(start);
+          byId("amount-display").textContent = `${money(amount)} 離開帳戶`;
+          byId("review-display").textContent = review ? `安排於 ${showDate(review)} 回看` : "尚未安排回看日";
+          byId("question-display").textContent = `「${purpose}」現在有什麼變化？`;
+          const gap = paid && start ? diffDays(paid, start) : 0;
+          const gapText = gap > 0 ? `預計相隔 ${gap} 天才開始使用` : gap === 0 ? "預計付款當日開始使用" : `開始使用日早於付款日 ${Math.abs(gap)} 天`;
+          byId("gap-display").textContent = gapText;
+        }
+        byId("spend-form").addEventListener("input", render);
+        byId("spend-form").addEventListener("change", render);
+        render();
+      })();
+    </script>
+  </body>
+</html>

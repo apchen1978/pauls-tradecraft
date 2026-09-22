@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">一筆支出，兩個時鐘</title>
+  <desc id="desc">付款已發生，預期效益仍待觀察的商業支出時間線示意圖。</desc>
+  <rect width="1200" height="675" fill="#173b31"/>
+  <path d="M835 0h365v675H835c86-111 124-220 99-337S864 116 835 0Z" fill="#21483a"/>
+  <text x="84" y="91" fill="#d7b36e" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="18" font-weight="700" letter-spacing="4">COMMERCIAL SPENDING EXPERIMENT</text>
+  <text x="84" y="188" fill="#fffefa" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="51" font-weight="700">一筆支出，兩個時鐘</text>
+  <text x="84" y="239" fill="#d9e0d8" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="24">錢先出去；價值何時出現？</text>
+  <line x1="132" y1="397" x2="1015" y2="397" stroke="#82968a" stroke-width="2"/>
+  <line x1="132" y1="397" x2="477" y2="397" stroke="#d7b36e" stroke-width="3"/>
+  <circle cx="132" cy="397" r="14" fill="#d7b36e" stroke="#173b31" stroke-width="6"/>
+  <circle cx="1015" cy="397" r="14" fill="#fffefa" stroke="#173b31" stroke-width="6"/>
+  <rect x="84" y="440" width="375" height="137" rx="12" fill="#fffefa"/>
+  <text x="111" y="481" fill="#69736c" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="15" font-weight="700" letter-spacing="2">CASH CLOCK · 已知</text>
+  <text x="111" y="527" fill="#173b31" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="24" font-weight="700">現金已支付</text>
+  <text x="111" y="555" fill="#69736c" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="15">金額與付款日</text>
+  <rect x="741" y="440" width="375" height="137" rx="12" fill="#f1e7d2"/>
+  <text x="768" y="481" fill="#806020" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="15" font-weight="700" letter-spacing="2">VALUE CLOCK · 待觀察</text>
+  <text x="768" y="527" fill="#173b31" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="24" font-weight="700">預期效益尚未確認</text>
+  <text x="768" y="555" fill="#69736c" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="15">安排第一次回看</text>
+  <text x="600" y="378" fill="#e4d0aa" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="15" text-anchor="middle">中間這段，留給真實觀察</text>
+  <text x="84" y="629" fill="#aebbb0" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14">SYNTHETIC SCENARIO · NOT AN ROI OR ACCOUNTING TOOL</text>
+</svg>
