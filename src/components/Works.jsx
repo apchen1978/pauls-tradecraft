@@ -2,7 +2,6 @@ import { useLayoutEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { gsap } from "gsap";
 import {
-  CheckCircle,
   ArrowUpRight,
   PresentationChart,
   GameController,
@@ -24,11 +23,92 @@ const iconMap = {
 
 const SECTION_ORDER = ["commercial", "operations", "labs"];
 
-// Public narrative top-3 (C): CDD is featured separately; wall shows GBD + TPN only.
+// Public narrative top-3 (C): CDD is featured separately; flagship wall is GBD + TPN.
+// AI-Native Market Entry stays on this wall as GBD's evidence case so
+// #ai-native-market-entry resolves. It is not a fourth flagship and not field-validated.
 const PUBLIC_COMMERCIAL_WALL_IDS = new Set([
   "global-business-development",
   "trade-profit-navigator",
+  "ai-native-market-entry",
 ]);
+
+function stageLabel(work, lang) {
+  const stage = work.case?.stage;
+  if (!stage) return "";
+  return typeof stage === "string" ? stage : stage[lang] || "";
+}
+
+function LiveChip({ t, tone = "light" }) {
+  const className = tone === "dark"
+    ? "inline-flex items-center gap-1 rounded-pill border border-bone/30 px-2 py-0.5 text-[10px] font-bold normal-case tracking-[0.08em] text-bone/80"
+    : "inline-flex items-center gap-1 rounded-pill border border-forest/20 px-2 py-0.5 text-[10px] font-bold normal-case tracking-[0.08em] text-forest";
+  return (
+    <span className={className} title={t.works.liveExplain} aria-label={`${t.works.statusLive}. ${t.works.liveExplain}`}>
+      {t.works.statusLive}
+      <Info size={12} weight="bold" aria-hidden="true" />
+    </span>
+  );
+}
+
+function GbdActions() {
+  const { lang, t } = useLang();
+  const gbd = works.find((work) => work.id === "global-business-development");
+  const evidence = works.find((work) => work.id === "ai-native-market-entry");
+  const signal = evidence?.marketEntry?.[lang];
+  const artifact = evidence?.workingEvidence?.[lang];
+  const evidenceLabel = typeof gbd?.related?.label === "string" ? gbd.related.label : gbd?.related?.label?.[lang];
+
+  return (
+    <div className="mt-auto space-y-3 pt-4">
+      <button
+        type="button"
+        className="inline-flex w-fit items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-bold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+        onClick={(e) => {
+          e.stopPropagation();
+          const details = e.currentTarget.closest("article")?.querySelector("details");
+          if (details) details.open = !details.open;
+        }}
+      >
+        {t.works.expandJudgment}
+        <CaretDown size={15} weight="bold" aria-hidden="true" />
+      </button>
+      {signal && (
+        <a
+          href={`#${evidence.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="block rounded-field border border-forest/20 px-4 py-3 transition-colors hover:border-amber/60"
+        >
+          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest">
+            {evidenceLabel}
+            <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+          </span>
+          <span className="mt-1 block text-xs leading-relaxed text-ink/70">{signal.caseArc}</span>
+        </a>
+      )}
+      {artifact?.href && (
+        <div>
+          <a
+            href={artifact.href}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber"
+          >
+            {artifact.cta}
+            <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+          </a>
+          <p className="mt-1 text-xs leading-relaxed text-ink/60">{artifact.boundary}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MaturityChip({ label, tone = "light" }) {
+  if (!label) return null;
+  const className = tone === "dark"
+    ? "inline-flex items-center rounded-pill border border-gold/40 px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-gold"
+    : "inline-flex items-center rounded-pill border border-amber/40 bg-amber/[0.08] px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-amber";
+  return <span className={className}>{label}</span>;
+}
 
 function ProductFlow({ work, tone = "light" }) {
   const { lang } = useLang();
@@ -313,7 +393,7 @@ function SpendingInsightDetails({ data, tone = "light" }) {
   );
 }
 
-function CaseStudy({ c, related, link, linkLabel, workingEvidence, tone = "light" }) {
+function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, tone = "light" }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
   const stageTag = typeof c.stageTag === "string" ? c.stageTag : c.stageTag?.[lang];
@@ -422,6 +502,14 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, tone = "light
             </a>
           </div>
         )}
+        {casePage?.href && (
+          <div className={`border-t pt-3 ${styles.border}`}>
+            <a href={casePage.href} className={`inline-flex items-center gap-1.5 font-semibold transition-colors ${styles.link}`} onClick={(e) => e.stopPropagation()}>
+              <ArrowUpRight size={14} weight="bold" />
+              {typeof casePage.label === "string" ? casePage.label : casePage.label?.[lang]}
+            </a>
+          </div>
+        )}
       </dl>
     </details>
   );
@@ -524,14 +612,10 @@ function FeaturedSystem({ work }) {
     <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-card border border-forest/25 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
       <div className="grid lg:grid-cols-[0.88fr_1.12fr]">
         <div className="flex flex-col px-6 py-8 md:px-10 md:py-11 lg:px-9 lg:py-9">
-          <div data-featured-copy className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
+          <div data-featured-copy className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
             <span>{copy.tag}</span>
-            {work.verified && (
-              <span className="inline-flex items-center gap-1 text-bone/70" title={t.works.verifiedExplain}>
-                <CheckCircle size={14} weight="fill" className="text-gold" />
-                {t.works.statusVerified}
-              </span>
-            )}
+            {work.verified && work.link && <LiveChip t={t} tone="dark" />}
+            <MaturityChip label={stageLabel(work, lang)} tone="dark" />
           </div>
           <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-bone md:text-4xl">{copy.title}</h3>
           <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-bone/72">{copy.desc}</p>
@@ -557,16 +641,16 @@ function FeaturedSystem({ work }) {
         </div>
         <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-3">
           <div className="overflow-hidden rounded-field border border-ink/10 bg-bone shadow-[0_18px_36px_-24px_rgba(0,0,0,0.62)]">
-            <div className="flex items-center justify-between border-b border-ink/10 bg-[#edf0e7] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65">
+            <div className="flex items-center justify-between gap-3 border-b border-ink/10 bg-[#edf0e7] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65">
               <span>Featured Work</span>
-              <span className="text-forest">{t.works.statusVerified}</span>
+              <span className="text-right font-bold normal-case tracking-normal text-forest">{stageLabel(work, lang)}</span>
             </div>
             <img src={cover} alt={work.imageAlt[lang]} loading="eager" className={`aspect-[16/9] h-full w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
           </div>
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
       </div>
-      {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} tone="dark" />}
+      {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} casePage={work.casePage} tone="dark" />}
     </article>
   );
 }
@@ -639,7 +723,7 @@ export default function Works() {
           w.link
             ? undefined
             : (e) => {
-                if (e.target.closest("summary")) return;
+                if (e.target.closest("summary, a, button")) return;
                 const det = e.currentTarget.querySelector("details");
                 if (det) det.open = !det.open;
               }
@@ -669,17 +753,8 @@ export default function Works() {
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
               <span>{copy.tag}</span>
               {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-[10px] tracking-[0.12em] text-amber">{t.works.primaryEntry}</span>}
-              {w.verified && (
-                <span
-                  className="inline-flex items-center gap-1 text-forest"
-                  title={t.works.verifiedExplain}
-                  aria-label={`${t.works.statusVerified}：${t.works.verifiedExplain}`}
-                >
-                  <CheckCircle size={13} weight="fill" />
-                  {t.works.statusVerified}
-                  <Info size={12} weight="bold" aria-hidden="true" />
-                </span>
-              )}
+              {w.verified && w.link && <LiveChip t={t} />}
+              <MaturityChip label={stageLabel(w, lang)} />
             </div>
             <h3 className="mt-2.5 flex items-center gap-2 text-xl font-bold tracking-tight md:text-2xl">
               {copy.title}
@@ -714,18 +789,7 @@ export default function Works() {
               </div>
             )}
             {w.id === "global-business-development" ? (
-              <button
-                type="button"
-                className="mt-auto inline-flex w-fit items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-bold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const details = e.currentTarget.closest("article")?.querySelector("details");
-                  if (details) details.open = !details.open;
-                }}
-              >
-                {t.works.viewJudgment}
-                <ArrowUpRight size={15} weight="bold" aria-hidden="true" />
-              </button>
+              <GbdActions />
             ) : <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
               {w.link ? (
                 <span className="inline-flex items-center gap-2 text-forest">
@@ -748,7 +812,7 @@ export default function Works() {
        <ArrowUpRight size={13} weight="bold" />
      </a>
    )}
-   {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} workingEvidence={w.workingEvidence} />}
+   {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} workingEvidence={w.workingEvidence} casePage={w.casePage} />}
       </motion.article>
     );
   };
@@ -760,6 +824,9 @@ export default function Works() {
           <div className={`${si === 0 ? "mt-0 lg:mt-0" : "mt-14 lg:mt-12"} border-t border-line pt-7`}>
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
             {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/65">{sec.note}</p>}
+            {sec.id === "commercial" && (
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/70">{t.works.independentPrototypes}</p>
+            )}
           </div>
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-y-8">
             {sec.works.map((w, i) => renderCard(w, i, si))}
