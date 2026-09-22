@@ -78,6 +78,8 @@ jobs:
           cp prototype/garage-rfq-workflow-001/index.html dist/prototype/garage-rfq-workflow-001/index.html
           mkdir -p dist/prototype/garage-opportunity-reframing-002
           cp prototype/garage-opportunity-reframing-002/index.html dist/prototype/garage-opportunity-reframing-002/index.html
+          mkdir -p dist/prototype/the-witness-tag
+          cp prototype/the-witness-tag/index.html dist/prototype/the-witness-tag/index.html
       - name: One-Pager editorial review guardrail
         run: |
           # inventory 變更（新增/移除 Works）時要求編輯審查 One-Pager

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>這句話，跟著樣品走 — The Witness Tag</title>
+  <style>
+    :root {
+      --paper: #f3f0e9;
+      --ink: #202c2a;
+      --muted: #66736c;
+      --line: #d5d7cd;
+      --pine: #24433d;
+      --brass: #af8250;
+      --surface: #faf9f5;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; }
+    .page { width: min(100% - 40px, 760px); margin: 0 auto; padding: 42px 0 66px; }
+    .eyebrow, .label, .synthetic, .step, .specimen-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+    }
+    .eyebrow { color: var(--pine); margin: 0 0 14px; text-transform: uppercase; }
+    h1 {
+      max-width: 650px;
+      margin: 0;
+      font-family: "Noto Serif TC", "PMingLiU", Georgia, serif;
+      font-size: clamp(36px, 7vw, 62px);
+      font-weight: 600;
+      letter-spacing: -.055em;
+      line-height: 1.17;
+    }
+    .intro { max-width: 34em; margin: 18px 0 0; color: var(--muted); font-size: 16px; }
+    .synthetic {
+      display: inline-block;
+      margin-top: 21px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+
+    .stage { margin-top: 39px; border-top: 1px solid var(--ink); }
+    .stage-head { display: flex; justify-content: space-between; gap: 12px; padding-top: 13px; }
+    .label { color: var(--pine); }
+    .step { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .specimen {
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 50% 95%, #e5e8de 0, transparent 62%),
+        var(--surface);
+      border: 1px solid var(--line);
+      margin-top: 17px;
+    }
+    .specimen::before, .specimen::after {
+      content: "";
+      position: absolute;
+      inset: 15px;
+      border: 1px solid rgba(36, 67, 61, .07);
+      pointer-events: none;
+    }
+    .specimen::after { inset: 28px; }
+    .sample {
+      width: 168px;
+      height: 116px;
+      position: relative;
+      z-index: 1;
+      border: 1px solid #a6aa9e;
+      border-radius: 3px;
+      transform: rotate(-5deg);
+      background:
+        repeating-linear-gradient(0deg, transparent 0 3px, rgba(37, 58, 50, .06) 3px 4px),
+        repeating-linear-gradient(90deg, transparent 0 3px, rgba(37, 58, 50, .055) 3px 4px),
+        linear-gradient(140deg, #d8dbd0, #bfc7b9 63%, #aeb9aa);
+      box-shadow: 15px 20px 22px -16px rgba(19, 43, 34, .32), 2px 4px 0 #a1ad9e;
+    }
+    .sample::after {
+      content: "";
+      position: absolute;
+      top: 8px;
+      right: 9px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 1px solid rgba(33, 58, 47, .36);
+    }
+    .specimen-label {
+      position: absolute;
+      left: 18px;
+      bottom: 12px;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+
+    .original {
+      min-height: 102px;
+      margin-top: 17px;
+      padding: 16px 0 19px;
+      border-bottom: 1px solid var(--line);
+    }
+    .original .label { color: var(--muted); }
+    .original p { margin: 4px 0 0; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif; font-size: clamp(20px, 4vw, 27px); }
+    .original[hidden] { display: none; }
+    .messages { margin-top: 15px; }
+    .message {
+      display: grid;
+      grid-template-columns: minmax(70px, 104px) 1fr;
+      align-items: start;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding: 17px 0;
+      animation: rise .3s ease both;
+    }
+    .message .who { color: var(--muted); font-size: 12px; padding-top: 3px; }
+    .message p { margin: 0; font-size: clamp(17px, 3.8vw, 21px); line-height: 1.48; }
+    .message:last-child p { color: var(--pine); }
+    .action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      margin-top: 24px;
+      padding: 10px 21px;
+      border: 1px solid var(--pine);
+      border-radius: 2px;
+      background: var(--pine);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .2s ease, transform .2s ease;
+    }
+    .action:hover { background: #35574f; transform: translateY(-1px); }
+    .action:focus-visible { outline: 3px solid var(--brass); outline-offset: 3px; }
+    .action[hidden] { display: none; }
+
+    .reveal { margin-top: 36px; animation: rise .4s ease both; }
+    .reveal[hidden] { display: none; }
+    .reveal h2 {
+      font-family: "Noto Serif TC", "PMingLiU", Georgia, serif;
+      font-size: clamp(25px, 5vw, 37px);
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -.035em;
+      margin: 0 0 21px;
+    }
+    .comparison { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+    .comparison > div { min-height: 143px; padding: 16px 20px 20px 0; }
+    .comparison > div + div { border-left: 1px solid var(--line); padding-left: 20px; }
+    .comparison .label { color: var(--muted); }
+    .comparison p { margin: 10px 0 0; font-size: clamp(18px, 3.3vw, 24px); line-height: 1.5; }
+    .lost { color: #8e6439; border-bottom: 2px solid var(--brass); }
+    .insight { margin: 17px 0 0; color: var(--pine); font-size: 16px; }
+    .judgment {
+      display: grid;
+      grid-template-columns: minmax(95px, 145px) 1fr;
+      gap: 16px;
+      margin-top: 34px;
+      padding: 22px 0 25px;
+      border-top: 2px solid var(--brass);
+      border-bottom: 1px solid var(--line);
+    }
+    .judgment .label { color: #8e6439; }
+    .judgment p {
+      margin: 0;
+      font-family: "Noto Serif TC", "PMingLiU", Georgia, serif;
+      font-size: clamp(19px, 3.4vw, 25px);
+      line-height: 1.55;
+    }
+    .boundary { max-width: 52em; margin-top: 36px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    @keyframes rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 560px) {
+      .page { width: min(100% - 32px, 760px); padding-top: 29px; }
+      .specimen { min-height: 220px; }
+      .sample { width: 145px; height: 102px; }
+      .message { grid-template-columns: 1fr; gap: 3px; }
+      .comparison { grid-template-columns: 1fr; }
+      .comparison > div { min-height: auto; padding: 15px 0 19px; }
+      .comparison > div + div { border-left: 0; border-top: 1px solid var(--line); padding: 15px 0 19px; }
+      .judgment { grid-template-columns: 1fr; gap: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <p class="eyebrow">Digital Garage / The Witness Tag</p>
+    <h1>這句話，跟著樣品走。</h1>
+    <p class="intro">樣品只走了三次。一句話，卻在路上換了意思。</p>
+    <span class="synthetic">合成情境 · 虛構樣品與訊息</span>
+
+    <section class="stage" aria-label="樣品交接實驗">
+      <div class="stage-head">
+        <span class="label">唯一的確認樣</span>
+        <span class="step" id="step">尚未交接</span>
+      </div>
+      <div class="specimen" aria-label="一件虛構的確認樣">
+        <div class="sample" aria-hidden="true"></div>
+        <span class="specimen-label">FICTIONAL SAMPLE / 01</span>
+      </div>
+
+      <div class="original" id="original">
+        <span class="label">客戶原話</span>
+        <p>「希望 10 月底前收到確認樣。」</p>
+      </div>
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <button class="action" id="advance" type="button">讓樣品往下走 →</button>
+    </section>
+
+    <section class="reveal" id="reveal" aria-label="原話與最後一句的對照" hidden>
+      <h2>少了一個詞，這句話就不一樣了。</h2>
+      <div class="comparison">
+        <div>
+          <span class="label">客戶原話</span>
+          <p>「<span class="lost">希望</span> 10 月底前收到確認樣。」</p>
+        </div>
+        <div>
+          <span class="label">最後一句</span>
+          <p>「10 月底前會收到確認樣。」</p>
+        </div>
+      </div>
+      <p class="insight">「希望」沒有跟著樣品走；承諾的語氣卻到了終點。</p>
+      <div class="judgment">
+        <span class="label">留在樣品上的判斷</span>
+        <p>客戶期待 10 月底前收到確認樣；交期尚未確認。</p>
+      </div>
+    </section>
+
+    <p class="boundary">這是合成的敘事實驗，不代表真實客戶、工廠或標準交接流程；也不主張標籤已被驗證能減少錯誤，或可取代正式的交期確認。</p>
+  </main>
+  <script>
+    const handoffs = [
+      { who: "業務 · 第一次交接", line: "客戶希望 10 月底前收到確認樣。" },
+      { who: "工廠 · 第二次交接", line: "10 月底前安排確認樣寄出。" },
+      { who: "出貨 · 第三次交接", line: "10 月底前會收到確認樣。" },
+    ];
+    const advance = document.getElementById("advance");
+    const messages = document.getElementById("messages");
+    const step = document.getElementById("step");
+    const reveal = document.getElementById("reveal");
+    let position = 0;
+
+    advance.addEventListener("click", () => {
+      if (position < handoffs.length) {
+        const handoff = handoffs[position];
+        const row = document.createElement("div");
+        row.className = "message";
+        const who = document.createElement("span");
+        who.className = "who";
+        who.textContent = handoff.who;
+        const line = document.createElement("p");
+        line.textContent = `「${handoff.line}」`;
+        row.append(who, line);
+        messages.append(row);
+        position += 1;
+        document.getElementById("original").hidden = true;
+        step.textContent = `第 ${position} / 3 次交接`;
+        advance.textContent = position === handoffs.length ? "對照客戶原話 →" : "讓樣品往下走 →";
+        return;
+      }
+      reveal.hidden = false;
+      advance.hidden = true;
+      reveal.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+    });
+  </script>
+</body>
+</html>
