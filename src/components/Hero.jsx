@@ -40,18 +40,7 @@ export default function Hero() {
             variants={fadeUp}
             className={`mt-6 max-w-2xl text-[clamp(2.35rem,7vw,4.7rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-bone md:text-6xl lg:text-[3rem] ${lang === "zh" ? "xl:text-[4rem]" : "xl:text-[3rem]"}`}
           >
-            <span className="lg:hidden">
-              {t.hero.headlineA}
-              <br />
-              <span className="font-semibold text-bone">{t.hero.headlineB}</span>{lang === "en" ? " " : ""}
-              <span className="inline-block font-semibold text-gold">{t.hero.headlineHighlight}</span>
-            </span>
-            <span className="hidden lg:block">
-              {t.hero.headlineDesktopA}
-              <br />
-              <span className="font-semibold text-bone">{t.hero.headlineDesktopB}</span>{lang === "en" ? " " : ""}
-              <span className="inline-block font-semibold text-gold lg:mt-1">{t.hero.headlineHighlight}</span>
-            </span>
+            {t.hero.headline}
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/75 md:text-lg">
             {t.hero.sub}
