@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Commitment Gate · 承諾的閘門</title>
+<meta name="description" content="A synthetic commercial judgment experiment. Not a real deal or commitment recommendation." />
+<link rel="icon" href="data:," />
+<style>
+  :root {
+    --paper:#f6f5f0; --ink:#18251f; --ink-2:#42514a; --dim:#8a938d;
+    --line:#d7dcd4; --amber:#9a5a18; --soft:rgba(154,90,24,.08);
+    --sans:"Geist Variable","PingFang TC","Microsoft JhengHei","Noto Sans TC",ui-sans-serif,system-ui,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; }
+  body {
+    background:var(--paper); color:var(--ink);
+    font-family:var(--sans); -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  :focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+
+  .lang {
+    position:fixed; top:14px; right:14px; z-index:20;
+    display:flex; gap:2px; padding:3px;
+    background:rgba(246,245,240,.92); border:1px solid var(--line); border-radius:999px;
+  }
+  .lang button {
+    font:inherit; font-size:.66rem; font-weight:600; letter-spacing:.08em;
+    border:0; background:transparent; color:var(--dim); padding:.3rem .7rem;
+    border-radius:999px; cursor:pointer;
+  }
+  .lang button[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
+
+  .stage { max-width:680px; margin:0 auto; padding:clamp(3rem,11vh,6.5rem) 22px 4rem; }
+  .kicker {
+    font-family:var(--mono); font-size:.62rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--dim); margin:0 0 2.2rem; font-weight:400;
+  }
+  .disclosure { margin:-1.4rem 0 2rem; color:var(--ink-2); font-size:.8rem; line-height:1.6; }
+
+  .sec { display:none; }
+  .sec.on { display:block; animation:in .4s ease both; }
+  @keyframes in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion:reduce){ .sec.on { animation:none; } }
+
+  h2.title { font-size:clamp(1.4rem,3.6vw,2rem); line-height:1.32; letter-spacing:-.01em; font-weight:600; margin:0 0 1.4rem; }
+
+  /* deal */
+  .deal { border:1px solid var(--line); border-radius:1rem; padding:1.3rem 1.4rem; background:#fffdf8; }
+  .deal .row { display:flex; justify-content:space-between; gap:1rem; padding:.55rem 0; border-bottom:1px dashed var(--line); font-size:.98rem; }
+  .deal .row:last-child { border-bottom:0; }
+  .deal .row .k { font-family:var(--mono); font-size:.62rem; letter-spacing:.14em; color:var(--dim); }
+  .deal .row .v { color:var(--ink); font-weight:500; }
+  .claim-line {
+    margin:1.5rem 0 0; font-size:clamp(1.15rem,2.6vw,1.45rem); line-height:1.55; font-weight:600;
+    color:var(--amber); border-left:3px solid var(--amber); padding-left:1rem;
+  }
+  .claim-line .who { display:block; font-family:var(--mono); font-size:.6rem; letter-spacing:.16em; color:var(--dim); font-weight:400; margin-bottom:.4rem; }
+
+  .btn {
+    display:inline-flex; align-items:center; gap:.6rem;
+    font:inherit; font-size:.95rem; font-weight:600;
+    color:var(--paper); background:var(--ink); border:0; border-radius:999px;
+    padding:.9rem 1.6rem; cursor:pointer; margin-top:1.6rem;
+  }
+  .btn:hover { background:#22332b; }
+  .btn.ghost { background:transparent; color:var(--ink); border:1px solid var(--line); }
+  .btn.ghost:hover { border-color:var(--ink); }
+  .btn[disabled] { opacity:.35; cursor:default; }
+  .btn[disabled]:hover { background:var(--ink); }
+
+  /* split fragments */
+  .claimbox { position:relative; margin:0 0 1.6rem; }
+  .claimbox .c { font-size:clamp(1.3rem,3.6vw,1.8rem); line-height:1.45; font-weight:600; margin:0; }
+  .claimbox::after { content:""; position:absolute; left:0; top:54%; height:2px; width:0; background:var(--amber); transition:width .55s cubic-bezier(.22,.9,.3,1); }
+  .struck .claimbox::after { width:100%; }
+  .struck .claimbox .c { color:var(--dim); opacity:.7; }
+  .frags { display:none; }
+  .struck .frags { display:block; }
+  .frag { border-top:1px solid var(--line); padding:.9rem 0; }
+  .frag .lbl { display:block; font-family:var(--mono); font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--dim); margin-bottom:.35rem; }
+  .frag .t { font-size:1rem; line-height:1.6; color:var(--ink-2); }
+  .frag.hot .t { color:var(--amber); }
+
+  .note { font-size:.88rem; color:var(--dim); line-height:1.7; margin:1.4rem 0 0; }
+  .qline { font-size:clamp(1.2rem,3.2vw,1.55rem); line-height:1.5; font-weight:600; margin:0 0 1.2rem; }
+
+  /* exposure fork + gate options */
+  .opts { display:grid; gap:.7rem; margin-top:1.2rem; }
+  .opt {
+    text-align:left; font:inherit; font-size:.98rem; line-height:1.5; color:var(--ink);
+    background:transparent; border:1px solid var(--line); border-radius:.75rem;
+    padding:1rem 1.15rem; cursor:pointer;
+  }
+  .opt:hover { border-color:var(--ink); background:var(--soft); }
+  .opt .o-k { display:block; font-family:var(--mono); font-size:.62rem; letter-spacing:.14em; color:var(--dim); margin-bottom:.3rem; }
+  .resp {
+    display:none; margin-top:1rem; padding:1rem 1.15rem; border-radius:.75rem;
+    background:var(--soft); font-size:.95rem; line-height:1.6; color:var(--ink);
+  }
+  .resp.on { display:block; animation:in .3s ease both; }
+  .resp.refuse { background:rgba(154,90,24,.14); }
+  .resp .r-k { font-family:var(--mono); font-size:.6rem; letter-spacing:.16em; color:var(--dim); display:block; margin-bottom:.3rem; }
+
+  .open .big { font-size:clamp(1.4rem,3.6vw,2rem); line-height:1.4; font-weight:600; color:var(--amber); margin:0 0 1rem; }
+  .open .sub { font-size:.95rem; color:var(--ink-2); line-height:1.7; margin:0 0 1.6rem; }
+</style>
+</head>
+<body>
+
+<div class="lang" role="group" aria-label="Language">
+  <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+  <button type="button" data-lang="en" aria-pressed="false">EN</button>
+</div>
+
+<main class="stage" aria-live="polite">
+  <h1 class="kicker">The Commitment Gate · 承諾的閘門</h1>
+  <p class="disclosure" data-i18n="disclosure">合成情境，不是真實交易；以下只是練習如何檢查承諾，不替你決定是否接單。</p>
+
+  <!-- 0 · the deal -->
+  <section class="sec on" id="s0">
+    <h2 class="title" data-i18n="d.title">一筆交易，一句宣稱。</h2>
+    <div class="deal">
+      <div class="row"><span class="k" data-i18n="d.k1">Program</span><span class="v" data-i18n="d.v1">18 個月自有品牌</span></div>
+      <div class="row"><span class="k" data-i18n="d.k2">Value</span><span class="v" data-i18n="d.v2">€1.4M · 毛利 28%</span></div>
+      <div class="row"><span class="k" data-i18n="d.k3">Terms</span><span class="v" data-i18n="d.v3">120 天帳期</span></div>
+      <div class="row"><span class="k" data-i18n="d.k4">Exposure</span><span class="v" data-i18n="d.v4">€120k 專用模具（我方出）· 每月最低三櫃</span></div>
+    </div>
+    <p class="claim-line"><span class="who" data-i18n="d.who">業務的宣稱</span><span data-i18n="d.claim">「買方主動找上門，證明我們的品質被認可了；量會跟來，因為他們需要我們。」</span></p>
+    <button class="btn" id="to1"><span data-i18n="d.start">開始被審問</span> <span aria-hidden="true">→</span></button>
+  </section>
+
+  <!-- 1 · split -->
+  <section class="sec" id="s1">
+    <h2 class="title" data-i18n="s1.title">第一步：拆開這句宣稱。</h2>
+    <div class="claimbox" id="claimbox"><p class="c" data-i18n="d.claim">「買方主動找上門，證明我們的品質被認可了；量會跟來，因為他們需要我們。」</p></div>
+    <button class="btn ghost" id="split"><span data-i18n="s1.split">拆開它</span> <span aria-hidden="true">→</span></button>
+    <div class="frags" id="frags">
+      <div class="frag"><span class="lbl">Outcome · 結果</span><span class="t" data-i18n="s1.f1">收到一張 €1.4M 的詢價。</span></div>
+      <div class="frag hot"><span class="lbl">Proposed Mechanism · 被提出的機制</span><span class="t" data-i18n="s1.f2">品質被認可，所以找上門；量會跟來，因為他們需要我們。</span></div>
+      <div class="frag"><span class="lbl">Supporting Evidence · 支持的證據</span><span class="t" data-i18n="s1.f3">詢價存在；業務這樣相信。</span></div>
+      <div class="frag"><span class="lbl">Alternatives · 其他解釋</span><span class="t" data-i18n="s1.f4">買方同時在問別家；在比價；在替下一輪談判墊籌碼。</span></div>
+      <div class="frag"><span class="lbl">Chance · 運氣</span><span class="t" data-i18n="s1.f5">這個計畫剛好在找供應商。</span></div>
+      <p class="note" data-i18n="s1.note">機制是唯一沒有證據的一塊——而它在撐起整句話。</p>
+    </div>
+    <button class="btn" id="to2" data-i18n="s1.next" disabled>繼續 →</button>
+  </section>
+
+  <!-- 2 · the discriminating question -->
+  <section class="sec" id="s2">
+    <h2 class="title" data-i18n="s2.title">第二步：致命一問。</h2>
+    <p class="qline" data-i18n="s2.q">在 €120k 模具投下去之前，你能不能拿到一個「會改變決定」的觀察？</p>
+    <p class="note" data-i18n="s2.reveal">買方信用、參考客戶和意向書能幫助判斷風險，但仍不足以證明買方會每月提走三櫃。投入模具前，要問：還有沒有更小的方式驗證需求？</p>
+    <button class="btn" id="to3" data-i18n="s2.next">繼續 →</button>
+  </section>
+
+  <!-- 3 · exposure fork -->
+  <section class="sec" id="s3">
+    <h2 class="title" data-i18n="s3.title">第三步：改不了預測，就只能改結構。</h2>
+    <p class="qline" data-i18n="s3.q">你想改變的是買方的「誘因」，還是只有「責任」？</p>
+    <div class="opts">
+      <button class="opt" data-opt="liability"><span class="o-k" data-i18n="s3.o1k">責任 · 訂金、信用狀、罰則</span><span data-i18n="s3.o1v">出事時，誰賠。</span></button>
+      <button class="opt" data-opt="incentive"><span class="o-k" data-i18n="s3.o2k">誘因 · 最低提貨量、模具分攤掛買方、綁量獨家</span><span data-i18n="s3.o2v">改變的是他們想不想拿量。</span></button>
+    </div>
+    <div class="resp" id="r3"><span class="r-k" data-i18n="s3.rk">後果</span><span id="r3text"></span></div>
+    <button class="btn" id="to4" data-i18n="s3.next" disabled>繼續 →</button>
+  </section>
+
+  <!-- 4 · the gate -->
+  <section class="sec" id="s4">
+    <h2 class="title" data-i18n="s4.title">第四步：閘門。</h2>
+    <p class="qline" data-i18n="s4.q">記錄「已承諾」之前，先寫下：什麼會證明你錯？</p>
+    <div class="opts">
+      <button class="opt" data-ok="0" data-refuse="1"><span data-i18n="s4.o1">「如果最後沒成交。」</span></button>
+      <button class="opt" data-ok="1"><span data-i18n="s4.o2">「如果六個月內，買方沒有簽下最低提貨量。」</span></button>
+      <button class="opt" data-ok="0" data-refuse="2"><span data-i18n="s4.o3">「如果半年後買方還不滿意。」</span></button>
+      <button class="opt" data-ok="1"><span data-i18n="s4.o4">「如果九個月內，沒有第二家獨立買方認可這條產線。」</span></button>
+    </div>
+    <div class="resp" id="r4"><span class="r-k" id="r4k" data-i18n="s4.rk">閘門的回應</span><span id="r4text"></span></div>
+    <button class="btn" id="to5" data-i18n="s4.next" disabled>記錄檢查條件</button>
+  </section>
+
+  <!-- 5 · open -->
+  <section class="sec open" id="s5">
+    <p class="big" data-i18n="s5.big">已記錄。</p>
+    <p class="sub" data-i18n="s5.sub">這不代表交易可以承諾。到了你選定的檢查時間，再對照實際證據；是否投入，仍由你決定。</p>
+    <button class="btn ghost" id="again" data-i18n="s5.again">再走一遍</button>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var I18N = {
+    zh: {
+      "disclosure":"合成情境，不是真實交易；以下只是練習如何檢查承諾，不替你決定是否接單。",
+      "d.title":"一筆交易，一句宣稱。",
+      "d.k1":"Program","d.v1":"18 個月自有品牌",
+      "d.k2":"Value","d.v2":"€1.4M · 毛利 28%",
+      "d.k3":"Terms","d.v3":"120 天帳期",
+      "d.k4":"Exposure","d.v4":"€120k 專用模具（我方出）· 每月最低三櫃",
+      "d.who":"業務的宣稱",
+      "d.claim":"「買方主動找上門，證明我們的品質被認可了；量會跟來，因為他們需要我們。」",
+      "d.start":"開始被審問",
+      "s1.title":"第一步：拆開這句宣稱。",
+      "s1.split":"拆開它",
+      "s1.f1":"收到一張 €1.4M 的詢價。",
+      "s1.f2":"品質被認可，所以找上門；量會跟來，因為他們需要我們。",
+      "s1.f3":"詢價存在；業務這樣相信。",
+      "s1.f4":"買方同時在問別家；在比價；在替下一輪談判墊籌碼。",
+      "s1.f5":"這個計畫剛好在找供應商。",
+      "s1.note":"機制是唯一沒有證據的一塊——而它在撐起整句話。",
+      "s1.next":"繼續 →",
+      "s2.title":"第二步：致命一問。",
+      "s2.q":"在 €120k 模具投下去之前，你能不能拿到一個「會改變決定」的觀察？",
+      "s2.reveal":"買方信用、參考客戶和意向書能幫助判斷風險，但仍不足以證明買方會每月提走三櫃。投入模具前，要問：還有沒有更小的方式驗證需求？",
+      "s2.next":"繼續 →",
+      "s3.title":"第三步：改不了預測，就只能改結構。",
+      "s3.q":"你想改變的是買方的「誘因」，還是只有「責任」？",
+      "s3.o1k":"責任 · 訂金、信用狀、罰則",
+      "s3.o1v":"出事時，誰賠。",
+      "s3.o2k":"誘因 · 最低提貨量、模具分攤掛買方、綁量獨家",
+      "s3.o2v":"改變的是他們想不想拿量。",
+      "s3.rk":"後果",
+      "s3.rliability":"風險沒消失，只是重新分配。買方可能把這些條件算回價格，也可能因此重新考慮合作。",
+      "s3.rincentive":"更難談，但改的是行為，不是出事時誰賠。",
+      "s3.next":"繼續 →",
+      "s4.title":"第四步：閘門。",
+      "s4.q":"記錄「已承諾」之前，先寫下：什麼會證明你錯？",
+      "s4.o1":"「如果最後沒成交。」",
+      "s4.o2":"「如果六個月內，買方沒有簽下最低提貨量。」",
+      "s4.o3":"「如果半年後買方還不滿意。」",
+      "s4.o4":"「如果九個月內，沒有第二家獨立買方認可這條產線。」",
+      "s4.rk":"閘門的回應",
+      "s4.refuse1":"這不是反證。它只描述失敗，沒說我們的信念錯在哪。",
+      "s4.refuse2":"太模糊，無法檢查。",
+      "s4.accept":"這個條件可檢查，也有期限；但它不是接單許可。是否投入，仍須由人判斷。",
+      "s4.next":"記錄檢查條件",
+      "s5.big":"已記錄。",
+      "s5.sub":"這不代表交易可以承諾。到了你選定的檢查時間，再對照實際證據；是否投入，仍由你決定。",
+      "s5.again":"再走一遍"
+    },
+    en: {
+      "disclosure":"Synthetic scenario, not a real deal. This is an exercise in examining a commitment, not a recommendation to accept an order.",
+      "d.title":"One deal, one claim.",
+      "d.k1":"Program","d.v1":"18-month private label",
+      "d.k2":"Value","d.v2":"€1.4M · 28% margin",
+      "d.k3":"Terms","d.v3":"120-day payment",
+      "d.k4":"Exposure","d.v4":"€120k dedicated tooling (ours) · 3 containers/month minimum",
+      "d.who":"The sales claim",
+      "d.claim":"“The buyer came to us, which proves our quality was recognized. The volume will follow, because they need us.”",
+      "d.start":"Begin the interrogation",
+      "s1.title":"Step one — take the claim apart.",
+      "s1.split":"Take it apart",
+      "s1.f1":"An enquiry for €1.4M arrived.",
+      "s1.f2":"Quality was recognized, so they came; volume will follow, because they need us.",
+      "s1.f3":"The enquiry exists; the salesperson believes this.",
+      "s1.f4":"The buyer is also quoting others; comparing price; building leverage for the next round.",
+      "s1.f5":"This program happened to be looking for a supplier.",
+      "s1.note":"The mechanism is the only fragment with no evidence — and it is carrying the whole sentence.",
+      "s1.next":"Continue →",
+      "s2.title":"Step two — the one hard question.",
+      "s2.q":"Before the €120k tooling is committed, can you obtain an observation that would change the decision?",
+      "s2.reveal":"Buyer credit, references, and a letter of intent can inform the risk judgment, but they do not prove the buyer will take three containers each month. Before committing to tooling, ask whether demand can be tested on a smaller scale.",
+      "s2.next":"Continue →",
+      "s3.title":"Step three — if you can't change the forecast, change the structure.",
+      "s3.q":"Do you want to change the buyer's incentive, or only their liability?",
+      "s3.o1k":"Liability · deposit, letter of credit, penalty",
+      "s3.o1v":"Who pays when it fails.",
+      "s3.o2k":"Incentive · take-or-pay minimum, tooling amortization in their name, volume-tied exclusivity",
+      "s3.o2v":"Changes whether they want to take the volume.",
+      "s3.rk":"Consequence",
+      "s3.rliability":"The risk did not disappear; it was reallocated. The buyer may price these terms in or reconsider the partnership.",
+      "s3.rincentive":"Harder to negotiate, but it changes behaviour, not who pays when it breaks.",
+      "s3.next":"Continue →",
+      "s4.title":"Step four — the gate.",
+      "s4.q":"Before I record this as committed, write down: what would prove you wrong?",
+      "s4.o1":"“If it doesn't close.”",
+      "s4.o2":"“If the buyer hasn't signed a minimum-take within six months.”",
+      "s4.o3":"“If the buyer is still unhappy after six months.”",
+      "s4.o4":"“If no second independent buyer validates this line within nine months.”",
+      "s4.rk":"The gate's answer",
+      "s4.refuse1":"That is not a falsification. It describes failure; it says nothing about where the belief was wrong.",
+      "s4.refuse2":"Too vague to check.",
+      "s4.accept":"This condition is checkable and time-bound, but it is not permission to accept the order. The investment decision remains human.",
+      "s4.next":"Record the checkpoint",
+      "s5.big":"Recorded.",
+      "s5.sub":"This does not authorize the deal. At your chosen checkpoint, compare the actual evidence; the decision to invest remains yours.",
+      "s5.again":"Walk it again"
+    }
+  };
+
+  var lang = "zh";
+  function applyLang(next) {
+    lang = next;
+    var dict = I18N[lang];
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n");
+      if (dict[k] !== undefined) el.textContent = dict[k];
+    });
+    document.documentElement.lang = (lang === "zh") ? "zh-Hant" : "en";
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === lang));
+    });
+    if (r3chosen) setResp(r3textEl, I18N[lang]["s3.r" + r3chosen]);
+    if (r4state) setResp(r4textEl, I18N[lang]["s4." + r4state]);
+  }
+  document.querySelectorAll(".lang button").forEach(function (b) {
+    b.addEventListener("click", function () { applyLang(b.getAttribute("data-lang")); });
+  });
+
+  var secs = ["s0","s1","s2","s3","s4","s5"];
+  var step = 0;
+  function show(i) {
+    step = i;
+    secs.forEach(function (id, idx) {
+      document.getElementById(id).classList.toggle("on", idx === i);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  document.getElementById("to1").addEventListener("click", function () { show(1); });
+  document.getElementById("to2").addEventListener("click", function () { show(2); });
+  document.getElementById("to3").addEventListener("click", function () { show(3); });
+  document.getElementById("to4").addEventListener("click", function () { show(4); });
+  document.getElementById("to5").addEventListener("click", function () { show(5); });
+  document.getElementById("again").addEventListener("click", function () {
+    document.getElementById("s1").classList.remove("struck");
+    document.getElementById("r3").classList.remove("on");
+    document.getElementById("r4").classList.remove("on");
+    r3chosen = null; r4state = null;
+    document.getElementById("split").style.display = "";
+    document.getElementById("to2").disabled = true;
+    document.getElementById("to4").disabled = true;
+    document.getElementById("to5").disabled = true;
+    show(0);
+  });
+
+  // split
+  var splitBtn = document.getElementById("split");
+  splitBtn.addEventListener("click", function () {
+    document.getElementById("s1").classList.add("struck");
+    document.getElementById("to2").disabled = false;
+    splitBtn.style.display = "none";
+  });
+
+  // exposure fork
+  var r3chosen = null, r3textEl = document.getElementById("r3text");
+  function setResp(el, text) { el.textContent = text; }
+  document.querySelectorAll("#s3 .opt").forEach(function (b) {
+    b.addEventListener("click", function () {
+      r3chosen = b.getAttribute("data-opt");
+      setResp(r3textEl, I18N[lang]["s3.r" + r3chosen]);
+      document.getElementById("r3").classList.add("on");
+      document.getElementById("to4").disabled = false;
+    });
+  });
+
+  // gate
+  var r4state = null, r4textEl = document.getElementById("r4text");
+  document.querySelectorAll("#s4 .opt").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var ok = b.getAttribute("data-ok") === "1";
+      var resp = document.getElementById("r4");
+      r4state = ok ? "accept" : ("refuse" + b.getAttribute("data-refuse"));
+      setResp(r4textEl, I18N[lang]["s4." + r4state]);
+      resp.classList.toggle("refuse", !ok);
+      resp.classList.add("on");
+      document.getElementById("to5").disabled = !ok;
+    });
+  });
+
+  applyLang("zh");
+  show(0);
+})();
+</script>
+</body>
+</html>

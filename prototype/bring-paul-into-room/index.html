@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A synthetic garage experiment about looking at the decision before building the agent." />
+  <title>Bring Paul Into the Room — synthetic garage experiment</title>
+  <style>
+    :root {
+      --paper: #f6f3eb;
+      --bone: #ebe5d6;
+      --ink: #1c2a24;
+      --forest: #214b38;
+      --moss: #66776c;
+      --amber: #b77926;
+      --line: #d8d0c1;
+      --white: #fffdf8;
+      --rust: #9b5336;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 950px; margin: 0 auto; padding: 42px 20px 72px; }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--amber);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    h1, h2, blockquote { font-family: ui-serif, Georgia, "Times New Roman", serif; }
+    h1 {
+      max-width: 14ch;
+      margin: 0;
+      font-size: clamp(38px, 8vw, 76px);
+      line-height: .98;
+      letter-spacing: -.045em;
+      font-weight: 700;
+    }
+    .lede { max-width: 44rem; margin: 20px 0 0; color: var(--moss); font-size: 16px; }
+    .synthetic {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 25px 0 0;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      color: var(--moss);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .synthetic::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+    .room {
+      margin-top: 42px;
+      border-top: 1px solid var(--line);
+      min-height: 540px;
+    }
+    .stage { display: none; padding: 36px 0 0; animation: enter .45s ease both; }
+    .stage.active { display: block; }
+    @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .stage-grid { display: grid; gap: 38px; align-items: start; }
+    @media (min-width: 760px) { .stage-grid { grid-template-columns: minmax(0, 1.05fr) minmax(260px, .72fr); } }
+    .stage-number { color: var(--amber); font-size: 11px; font-weight: 750; letter-spacing: .16em; }
+    .stage h2 { margin: 10px 0 14px; font-size: clamp(28px, 4vw, 46px); line-height: 1.02; letter-spacing: -.025em; }
+    .stage p { max-width: 39rem; margin: 0 0 20px; color: var(--moss); }
+    .request {
+      margin: 22px 0 26px;
+      padding: 24px 25px 27px;
+      background: var(--forest);
+      color: #f6f1e6;
+    }
+    .request small { display: block; margin-bottom: 10px; color: #d9c79e; font-size: 10px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+    .request blockquote { margin: 0; font-size: clamp(25px, 4vw, 38px); line-height: 1.08; letter-spacing: -.025em; }
+    .note {
+      padding: 20px 0 0;
+      border-top: 1px solid var(--line);
+      color: var(--moss);
+      font-size: 13px;
+    }
+    .note strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 12px; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    button {
+      border: 0;
+      border-radius: 0;
+      padding: 13px 17px;
+      background: var(--forest);
+      color: #fffdf8;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: background .18s ease, transform .18s ease;
+    }
+    button:hover { background: #173828; transform: translateY(-1px); }
+    button:focus-visible { outline: 3px solid #d9a84a; outline-offset: 3px; }
+    button.secondary { background: transparent; color: var(--forest); border: 1px solid var(--forest); }
+    button.secondary:hover { background: rgba(33, 75, 56, .07); }
+    .side-rule { padding-left: 18px; border-left: 2px solid var(--amber); }
+    .side-rule p { font-size: 13px; }
+    .timeline { position: relative; margin: 25px 0 0; padding-left: 24px; border-left: 1px solid var(--line); }
+    .event { position: relative; padding: 0 0 25px 16px; }
+    .event:last-child { padding-bottom: 0; }
+    .event::before { content: ""; position: absolute; left: -29px; top: 5px; width: 8px; height: 8px; border: 2px solid var(--amber); border-radius: 50%; background: var(--paper); }
+    .event time { display: block; margin-bottom: 3px; color: var(--amber); font-size: 10px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    .event strong { display: block; font-size: 14px; }
+    .event span { display: block; margin-top: 3px; color: var(--moss); font-size: 13px; }
+    .evidence-grid { display: grid; gap: 11px; margin: 24px 0 0; }
+    @media (min-width: 660px) { .evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .evidence { padding: 17px 18px; background: var(--white); border: 1px solid var(--line); }
+    .evidence h3 { margin: 0 0 8px; color: var(--amber); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+    .evidence p { margin: 0; color: var(--ink); font-size: 13px; }
+    .quiet { padding: 54px 0 58px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .quiet h2 { max-width: 17ch; margin: 0 0 20px; font-size: clamp(34px, 6vw, 62px); line-height: .99; }
+    .quiet p { max-width: 39rem; margin: 0; color: var(--moss); font-size: 16px; }
+    .do-not { margin-top: 26px; padding: 20px 0 0; border-top: 1px solid var(--line); }
+    .do-not strong { color: var(--rust); font-size: 11px; letter-spacing: .13em; text-transform: uppercase; }
+    .do-not p { margin-top: 8px; color: var(--ink); }
+    .move { max-width: 42rem; padding: 12px 0 0; }
+    .move h2 { max-width: 18ch; }
+    .move ul { margin: 22px 0 0; padding-left: 19px; color: var(--moss); }
+    .move li { margin: 9px 0; padding-left: 4px; }
+    .closing { margin-top: 42px; padding: 30px 26px 34px; background: var(--bone); }
+    .closing blockquote { margin: 0; max-width: 29ch; color: var(--forest); font-size: clamp(24px, 4vw, 38px); line-height: 1.08; }
+    .closing p { margin: 15px 0 0; color: var(--moss); font-size: 13px; }
+    .progress { display: flex; gap: 7px; margin-top: 26px; }
+    .dot { width: 26px; height: 3px; background: var(--line); }
+    .dot.current { background: var(--amber); }
+    .foot { margin: 30px 0 0; color: var(--moss); font-size: 11px; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="eyebrow">Garage experiment · synthetic</p>
+    <h1>Bring Paul Into the Room</h1>
+    <p class="lede">A short exercise for the moment when an organization has a solution in mind — and the decision underneath it has not been examined yet.</p>
+    <p class="synthetic">Illustrative scenario · not a client result</p>
+
+    <section class="room" aria-live="polite">
+      <article class="stage active" data-stage="0">
+        <div class="stage-grid">
+          <div>
+            <span class="stage-number">01 / THE REQUEST</span>
+            <h2>Start with the answer you already have.</h2>
+            <div class="request"><small>Founder says</small><blockquote>“We want an AI sales agent.”</blockquote></div>
+            <p>Paul does not answer yes or no. He asks for one recent decision that still feels expensive, unclear, or difficult to explain.</p>
+            <div class="button-row"><button data-next>Bring one difficult decision into the room</button></div>
+          </div>
+          <div class="side-rule"><p><strong>Why start here?</strong> A solution request can hide several different problems: speed, attention, judgment, capacity, or commitment.</p></div>
+        </div>
+      </article>
+
+      <article class="stage" data-stage="1">
+        <div class="stage-grid">
+          <div>
+            <span class="stage-number">02 / WHAT HAPPENED</span>
+            <h2>Follow one opportunity, before judging the system.</h2>
+            <p class="note"><strong>SYNTHETIC INDUSTRIAL EXPORTER</strong>A promising overseas RFQ moves through the company before the important conditions are clear.</p>
+            <div class="timeline" aria-label="Synthetic decision timeline">
+              <div class="event"><time>Day 1</time><strong>RFQ arrives</strong><span>The opportunity looks promising. Several specifications are still open.</span></div>
+              <div class="event"><time>Day 2</time><strong>Engineering is pulled in</strong><span>Customization is explored before the scope is stable.</span></div>
+              <div class="event"><time>Day 3</time><strong>Founder joins pricing</strong><span>Commercial judgment is requested early.</span></div>
+              <div class="event"><time>Day 4</time><strong>Production checks feasibility</strong><span>Delivery questions now carry operational cost.</span></div>
+              <div class="event"><time>Day 6</time><strong>A missing condition appears</strong><span>The buyer reveals an unresolved requirement. The opportunity stalls while both sides clarify.</span></div>
+            </div>
+            <div class="button-row"><button data-next>Inspect the decision</button><button class="secondary" data-back>Back</button></div>
+          </div>
+          <div class="side-rule"><p><strong>The question is changing.</strong> The team did not simply fail to follow up. It committed several kinds of attention while the opportunity was still moving.</p></div>
+        </div>
+      </article>
+
+      <article class="stage" data-stage="2">
+        <div class="stage-grid">
+          <div>
+            <span class="stage-number">03 / INSIDE THE DECISION</span>
+            <h2>What was known, assumed, and still unknown?</h2>
+            <div class="evidence-grid">
+              <div class="evidence"><h3>What was known</h3><p>Within this scenario, a buyer had made a request, creating a possible commercial opportunity.</p></div>
+              <div class="evidence"><h3>What was assumed</h3><p>The customization was worth exploring before the commercial conditions were stable.</p></div>
+              <div class="evidence"><h3>What was unknown</h3><p>The buyer’s final requirement, delivery fit, and the true cost of responding were not yet clear.</p></div>
+              <div class="evidence"><h3>What was committed</h3><p>Engineering attention, Founder time, pricing judgment, and a production feasibility check.</p></div>
+            </div>
+            <div class="button-row"><button data-next>See what this may mean</button><button class="secondary" data-back>Back</button></div>
+          </div>
+          <div class="side-rule"><p><strong>No score is needed.</strong> The useful question is where meaningful organizational commitment actually began — and whether it began too early.</p></div>
+        </div>
+      </article>
+
+      <article class="stage" data-stage="3">
+        <div class="quiet">
+          <span class="stage-number">04 / THE REFRAME</span>
+          <h2>We may not have an AI problem.</h2>
+          <p>We may have a decision problem that AI could help us see — or handle differently.</p>
+          <div class="do-not"><strong>Don’t build the agent yet.</strong><p>Not because AI is useless. Because faster automation could simply accelerate the wrong commitment.</p></div>
+          <div class="button-row"><button data-next>Find the smallest next move</button><button class="secondary" data-back>Back</button></div>
+        </div>
+      </article>
+
+      <article class="stage" data-stage="4">
+        <div class="move">
+          <span class="stage-number">05 / BEFORE BUILDING</span>
+          <h2>Make the next move reversible.</h2>
+          <p>Review a small set of recent opportunities and locate where meaningful organizational commitment actually began.</p>
+          <ul>
+            <li>What did the team know at the time?</li>
+            <li>What was assumed too early?</li>
+            <li>Which resource or promise became difficult to reverse?</li>
+            <li>What would prove this reframe wrong?</li>
+          </ul>
+          <p class="note"><strong>Only then</strong> decide whether an AI intervention is justified — and what narrow job it should do.</p>
+          <div class="button-row"><button data-next>Finish the room</button><button class="secondary" data-back>Back</button></div>
+        </div>
+      </article>
+
+      <article class="stage" data-stage="5">
+        <div class="closing">
+          <span class="stage-number">06 / LEAVE WITH A BETTER QUESTION</span>
+          <blockquote>“Bring one difficult decision — not an AI brief. Let’s find out what actually needs to change.”</blockquote>
+          <p>Paul’s first contribution may be a clearer decision, not a faster system.</p>
+          <div class="button-row"><button data-restart>Start again</button></div>
+        </div>
+      </article>
+    </section>
+
+    <div class="progress" aria-label="Progress"><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    <p class="foot">Synthetic garage experiment — no client evidence, performance claim, ROI, or production readiness is implied.</p>
+  </main>
+  <script>
+    (() => {
+      const stages = [...document.querySelectorAll('.stage')];
+      const dots = [...document.querySelectorAll('.dot')];
+      let current = 0;
+
+      function render(next) {
+        current = Math.max(0, Math.min(stages.length - 1, next));
+        stages.forEach((stage, index) => stage.classList.toggle('active', index === current));
+        dots.forEach((dot, index) => dot.classList.toggle('current', index === current));
+        document.querySelector('.room').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      }
+
+      document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => render(current + 1)));
+      document.querySelectorAll('[data-back]').forEach(button => button.addEventListener('click', () => render(current - 1)));
+      document.querySelector('[data-restart]').addEventListener('click', () => render(0));
+    })();
+  </script>
+</body>
+</html>

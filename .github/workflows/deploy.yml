@@ -80,6 +80,10 @@ jobs:
           cp prototype/garage-opportunity-reframing-002/index.html dist/prototype/garage-opportunity-reframing-002/index.html
           mkdir -p dist/prototype/the-witness-tag
           cp prototype/the-witness-tag/index.html dist/prototype/the-witness-tag/index.html
+          mkdir -p dist/prototype/bring-paul-into-room
+          cp prototype/bring-paul-into-room/index.html dist/prototype/bring-paul-into-room/index.html
+          mkdir -p dist/prototype/decision-adversary
+          cp prototype/decision-adversary/index.html dist/prototype/decision-adversary/index.html
       - name: One-Pager editorial review guardrail
         run: |
           # inventory 變更（新增/移除 Works）時要求編輯審查 One-Pager

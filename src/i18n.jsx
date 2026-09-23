@@ -439,6 +439,26 @@ const dict = {
       featuredMark: "精選",
       items: [
         {
+          title: "Bring Paul Into the Room · 先把問題帶進來",
+          tag: "合成實驗 · 英文原型",
+          spark: "想做 AI 業務代理？先看團隊究竟在哪一步，太早投入了時間與承諾。",
+          note: "跟著一筆虛構詢價走六步，把『要做什麼工具』改問成『哪個決定需要先釐清』。",
+          cta: "走進判斷現場",
+          boundary: "合成情境；不是客戶成果，也不代表已驗證的改善。",
+          href: "/prototype/bring-paul-into-room/",
+          featured: true,
+        },
+        {
+          title: "The Commitment Gate · 承諾的閘門",
+          tag: "合成實驗 · 雙語原型",
+          spark: "一筆看似誘人的大單，何時才值得動用模具與產能？",
+          note: "拆開業務的宣稱、測試可檢查的條件；保留最終投入由人決定。",
+          cta: "檢查承諾前的問題",
+          boundary: "虛構交易；不提供接單許可、真實買方證據或成果宣稱。",
+          href: "/prototype/decision-adversary/",
+          featured: true,
+        },
+        {
           title: "The Witness Tag · 見證標籤",
           tag: "合成實驗 · 中文原型",
           spark: "一句期待，傳過三個人之後，竟像是公司已經答應了。",
@@ -935,6 +955,26 @@ const dict = {
       seeAll: "See all sparks",
       featuredMark: "Featured",
       items: [
+        {
+          title: "Bring Paul Into the Room",
+          tag: "Synthetic experiment · EN prototype",
+          spark: "Want an AI sales agent? First, find where the team committed attention too early.",
+          note: "Follow a fictional RFQ through six steps, shifting the question from what to build to which decision needs clarity.",
+          cta: "Enter the decision room",
+          boundary: "Synthetic scenario — not client evidence or a validated improvement.",
+          href: "/prototype/bring-paul-into-room/",
+          featured: true,
+        },
+        {
+          title: "The Commitment Gate",
+          tag: "Synthetic experiment · bilingual prototype",
+          spark: "An attractive deal — but when is it worth committing tooling and capacity?",
+          note: "Challenge the sales claim and test a checkable condition; the investment decision remains human.",
+          cta: "Examine the commitment",
+          boundary: "Fictional deal — not an order approval, buyer evidence, or an outcome claim.",
+          href: "/prototype/decision-adversary/",
+          featured: true,
+        },
         {
           title: "The Witness Tag · 見證標籤",
           tag: "Synthetic experiment · ZH prototype",
