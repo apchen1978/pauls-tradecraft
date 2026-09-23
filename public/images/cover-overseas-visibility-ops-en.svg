@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Overseas Visibility Ops method cover: get seen, get found, keep commitment human">
+  <rect width="1600" height="900" fill="#f5f1e8"/>
+  <rect x="78" y="64" width="1444" height="1" fill="#c9c2b5"/>
+  <text x="80" y="113" fill="#214c3d" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="4">OVERSEAS VISIBILITY OPS</text>
+  <text x="80" y="174" fill="#a6543d" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">METHOD CASE · NOT A CUSTOMER RESULT</text>
+  <text x="80" y="320" fill="#182019" font-family="Georgia, serif" font-size="78">Get seen.</text>
+  <text x="80" y="414" fill="#182019" font-family="Georgia, serif" font-size="78">Get found.</text>
+  <text x="80" y="508" fill="#214c3d" font-family="Georgia, serif" font-size="56" font-style="italic">Keep the commit human.</text>
+  <text x="83" y="572" fill="#5b665d" font-family="Arial, sans-serif" font-size="22">A website is enough · VR is optional · no order guarantee</text>
+  <g transform="translate(980 210)">
+    <rect width="460" height="430" fill="#12362b"/>
+    <text x="36" y="52" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2">HUMAN GATE</text>
+    <text x="36" y="112" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="16">AI MAY DRAFT</text>
+    <text x="36" y="150" fill="#fff" font-family="Georgia, serif" font-size="26">Assets · specs · reminders</text>
+    <line x1="36" x2="424" y1="196" y2="196" stroke="#7c987f"/>
+    <text x="36" y="244" fill="#e5c988" font-family="Arial, sans-serif" font-size="16">HUMANS KEEP</text>
+    <text x="36" y="286" fill="#fff" font-family="Georgia, serif" font-size="24">Qualification</text>
+    <text x="36" y="324" fill="#fff" font-family="Georgia, serif" font-size="24">Price · payment</text>
+    <text x="36" y="362" fill="#fff" font-family="Georgia, serif" font-size="24">Acceptance terms</text>
+    <text x="36" y="408" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="15">Upstream of the decision desk</text>
+  </g>
+  <rect x="80" y="758" width="1440" height="1" fill="#c9c2b5"/>
+  <text x="80" y="811" fill="#687168" font-family="Arial, sans-serif" font-size="16">SEEN  ’  FOUND  ’  TERMS LEGIBLE  ’  A PERSON DECIDES THE COMMIT</text>
+</svg>

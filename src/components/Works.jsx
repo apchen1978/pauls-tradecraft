@@ -515,6 +515,51 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
   );
 }
 
+function VisibilityCompanion({ work }) {
+  const { lang } = useLang();
+  const copy = work[lang];
+  const cover = typeof work.cover === "string" ? work.cover : work.cover?.[lang];
+  const caseLabel = typeof work.casePage?.label === "string" ? work.casePage.label : work.casePage?.label?.[lang];
+
+  return (
+    <article id={work.id} className="mt-6 scroll-mt-28 overflow-hidden rounded-card border border-line bg-[#f7f4ee] shadow-[0_18px_48px_-36px_rgba(20,51,41,0.45)]">
+      <div className="grid lg:grid-cols-[1.12fr_0.88fr]">
+        <div className="flex flex-col px-6 py-7 md:px-8 md:py-8">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-amber">
+            <span>{copy.tag}</span>
+            <MaturityChip label={stageLabel(work, lang)} />
+          </div>
+          <p className="mt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-forest/70">{work.companionKicker?.[lang]}</p>
+          <h3 className="mt-2 max-w-xl text-2xl font-bold leading-tight tracking-tight text-ink md:text-3xl">{copy.title}</h3>
+          <p className="mt-4 max-w-[48ch] text-base leading-relaxed text-ink/70">{copy.desc}</p>
+          {copy.caseSummary && (
+            <p className="mt-5 border-l border-amber pl-4 text-sm leading-relaxed text-ink/75">{copy.caseSummary}</p>
+          )}
+          <ProductFlow work={work} />
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <a href={work.casePage.href} className="inline-flex w-fit items-center gap-2 rounded-field bg-forest px-5 py-3 text-sm font-bold text-bone transition-colors hover:bg-forest/90">
+              {caseLabel}
+              <ArrowUpRight size={16} weight="bold" />
+            </a>
+            <a href="#commercial-decision-desk" className="text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">
+              {lang === "zh" ? "旗艦仍是商務決策工作台" : "The flagship stays the decision desk"}
+            </a>
+          </div>
+          {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-ink/55">{work.demoNote[lang]}</p>}
+        </div>
+        <a href={work.casePage.href} aria-label={copy.title} className="group relative block border-t border-line bg-[#e7efe8] lg:border-l lg:border-t-0">
+          <img
+            src={cover}
+            alt={work.imageAlt[lang]}
+            loading="lazy"
+            className="aspect-[16/9] h-full w-full object-contain"
+          />
+        </a>
+      </div>
+    </article>
+  );
+}
+
 function FeaturedSystem({ work }) {
   const { lang, t } = useLang();
   const featuredRef = useRef(null);
@@ -660,6 +705,7 @@ function FeaturedSystem({ work }) {
 export function WorksFlagship() {
   const { t } = useLang();
   const featuredSystem = works.find((work) => work.id === "commercial-decision-desk");
+  const visibility = works.find((work) => work.id === "overseas-visibility-ops");
   return (
     <section id="works" aria-labelledby="works-flagship-heading" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-24">
       <div className="border-b border-line pb-10">
@@ -671,6 +717,7 @@ export function WorksFlagship() {
       </div>
       <div className="mt-12">
         <FeaturedSystem work={featuredSystem} />
+        {visibility && <VisibilityCompanion work={visibility} />}
       </div>
     </section>
   );

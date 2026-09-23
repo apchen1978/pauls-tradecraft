@@ -1295,6 +1295,94 @@ export const works = [
     },
   },
   {
+    id: "overseas-visibility-ops",
+    featuredRank: 2,
+    section: "commercial",
+    cover: {
+      zh: "/images/cover-overseas-visibility-ops.svg",
+      en: "/images/cover-overseas-visibility-ops-en.svg",
+    },
+    imageFit: "contain",
+    imageAlt: {
+      zh: "海外可見度作業的方法封面：被看見、找得到，承諾仍留給人。標明為方法案例，不是客戶成果。",
+      en: "Overseas Visibility Ops method cover: get seen, get found, and keep commitment with people. Labeled as a method case, not a customer result.",
+    },
+    span: "md:col-span-2",
+    icon: "briefcase",
+    // 案例頁本身是作業說明，不是已實測的外部 demo。不標「連結實測」。
+    verified: false,
+    hidePendingLink: true,
+    casePage: {
+      href: "/cases/overseas-visibility-ops/",
+      label: { zh: "閱讀海外可見度案例", en: "Read the visibility case" },
+    },
+    decisionQuestion: {
+      zh: "產品要先被誰看見，而哪些承諾仍必須留人？",
+      en: "Who needs to find the product first — and which commitments stay human?",
+    },
+    demoNote: {
+      zh: "方法案例 · 合成說明。不是 SaaS，沒有客戶詢問、訂單或 ROI。",
+      en: "Method case · synthetic walkthrough. Not a SaaS product, and no customer inquiries, orders, or ROI.",
+    },
+    companionKicker: {
+      zh: "主線上游 · 獲客與曝光",
+      en: "Upstream of the flagship · visibility & acquisition",
+    },
+    showcase: {
+      zh: {
+        label: "可見度作業",
+        stages: [
+          { label: "01 露出", value: "畫面、規格、網站或虛擬展間" },
+          { label: "02 對準", value: "該找的人，與設計過的接觸" },
+          { label: "03 留人", value: "資格、報價、付款與接受條件" },
+        ],
+      },
+      en: {
+        label: "Visibility flow",
+        stages: [
+          { label: "01 Show", value: "Visuals, specs, site or virtual showroom" },
+          { label: "02 Reach", value: "The right people, through a designed approach" },
+          { label: "03 Keep human", value: "Qualification, price, payment, acceptance" },
+        ],
+      },
+    },
+    zh: {
+      title: "海外可見度作業",
+      desc: "被老外看見的方法：讓產品找得到，讓該找的人找得到，並把報價、付款與接受條件留在人的手上。",
+      tag: "可見度 · 獲客作業 · 貿易判斷",
+      caseSummary: "商務決策工作台回答「現在能不能承諾」。這一件在它上游：先被看見、先把條件說清楚，再把交易送進承諾判斷。",
+    },
+    en: {
+      title: "Overseas Visibility Ops",
+      desc: "Getting found by the right buyers: make the product findable, reach the people who should see it, and keep pricing, payment, and acceptance with a person.",
+      tag: "Visibility · Acquisition workflow · Trade judgment",
+      caseSummary: "The Commercial Decision Desk asks whether a deal can be committed. This sits upstream: get found, make the terms legible, then hand the deal to that commit decision.",
+    },
+    case: {
+      stage: { zh: "方法案例 · 合成說明", en: "method case · synthetic walkthrough" },
+      problem: {
+        zh: "舊做法的成本很具體：實體展覽貴、Email／WhatsApp 跟催要堆人力，付費平台與名錄又常常變成唯一的水龍頭。工廠很會做產品，卡在怎麼被看見、怎麼包裝、怎麼把話講到買方聽得懂。",
+        en: "The old mode has concrete costs: expensive physical exhibitions, headcount spent chasing email and WhatsApp, and paid platforms or directories treated as the only faucet. Factories can make the product, then stall on being seen, packaging the offer, and speaking so a buyer can actually understand it.",
+      },
+      approach: {
+        zh: "改成可持續的線上曝光——產品畫面、規格、網站或虛擬展間。網站就夠，VR 可選、不是前提。再配上設計過的開發與資格流程。AI 加速素材與跟催提醒；資格、報價策略、付款與接受條件、交期承諾、談判與例外仍由人裁決。",
+        en: "Shift to sustainable online exposure — product visuals, specs, a site or virtual showroom. A website is enough; VR is optional, not required. Pair that with designed outreach and qualification. AI can speed assets and follow-up reminders; humans keep qualification, pricing strategy, payment and acceptance terms, delivery promises, negotiation, and exceptions.",
+      },
+      tools: {
+        zh: "作業設計 · 產品畫面與規格結構 · 網站／虛擬展間 · 人機邊界表 · 無付費工具名單",
+        en: "Workflow design · Product visuals and spec structure · Site / virtual showroom · Human–AI boundary · No paid-tool roster",
+      },
+      result: {
+        zh: "留下一頁可索引的作業說明：問題、改法、人機邊界、五步以內的方法，以及明確不主張的範圍。它位於商務決策工作台上游，不是另一個承諾引擎，也不是一套可訂閱的產品。",
+        en: "An indexable working note: the problem, the redesign, the human–AI boundary, a method in five steps or fewer, and an explicit list of what is not claimed. It sits upstream of the Commercial Decision Desk. It is not another commit engine, and it is not a subscription product.",
+      },
+      evidence: {
+        zh: "本頁是方法與合成說明，不是客戶專案結案。站上可對照的相關建置（例如 MORI 軟裝網站）只證明「網站能承載畫面與下一步」，不證明本作業帶來詢問、訂單或 ROI。數位車庫裡的實驗維持合成。未驗證：pipeline、成交率、營收、採用率。",
+        en: "This page is a method and a synthetic walkthrough, not a customer close-out. Related builds on the site (for example the MORI soft-furnishing site) show that a website can carry visuals and a next step. They do not show that this workflow produced inquiries, orders, or ROI. Garage experiments stay synthetic. Unverified: pipeline, win rate, revenue, adoption.",
+      },
+    },
+  },
+  {
     id: "commercial-decision-desk",
     featuredRank: 1,
     section: "commercial",
