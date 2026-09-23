@@ -1295,6 +1295,94 @@ export const works = [
     },
   },
   {
+    id: "overseas-visibility-ops",
+    featuredRank: 2,
+    section: "commercial",
+    cover: {
+      zh: "/images/cover-overseas-visibility-ops.svg",
+      en: "/images/cover-overseas-visibility-ops-en.svg",
+    },
+    imageFit: "contain",
+    imageAlt: {
+      zh: "海外可見度作業封面：正在成形的貿易工作平台。露出可以一直在，找得到人，承諾留給人。方法演示，尚未市場驗證。",
+      en: "Overseas Visibility Ops cover: a trade work platform in formation. Visibility stays on, the right people can be found, commitment stays human. Method demo, not yet market validated.",
+    },
+    span: "md:col-span-2",
+    icon: "briefcase",
+    // 案例頁本身是作業說明，不是已實測的外部 demo。不標「連結實測」。
+    verified: false,
+    hidePendingLink: true,
+    casePage: {
+      href: "/cases/overseas-visibility-ops/",
+      label: { zh: "閱讀海外可見度案例", en: "Read the visibility case" },
+    },
+    decisionQuestion: {
+      zh: "露出是買回來再等人問，還是讓它一直在、並且找得到人？",
+      en: "Is exposure something you buy and then wait on — or something that stays on and can find people?",
+    },
+    demoNote: {
+      zh: "成形中 · 方法演示 · 尚未真人／市場驗證。不保證訂單，也不保證名單品質。演示 ≠ 客戶成果。",
+      en: "In formation · method demo · not yet live-market validated. No guaranteed orders, no guaranteed list quality. Demo ≠ client results.",
+    },
+    companionKicker: {
+      zh: "成形中 · 貿易工作平台",
+      en: "In formation · trade work platform",
+    },
+    showcase: {
+      zh: {
+        label: "可見度作業",
+        stages: [
+          { label: "01 露出", value: "畫面、規格、網站或虛擬展間" },
+          { label: "02 對準", value: "該找的人，與設計過的接觸" },
+          { label: "03 留人", value: "資格、報價、付款與接受條件" },
+        ],
+      },
+      en: {
+        label: "Visibility flow",
+        stages: [
+          { label: "01 Show", value: "Visuals, specs, site or virtual showroom" },
+          { label: "02 Reach", value: "The right people, through a designed approach" },
+          { label: "03 Keep human", value: "Qualification, price, payment, acceptance" },
+        ],
+      },
+    },
+    zh: {
+      title: "海外可見度作業",
+      desc: "正在成形的貿易工作平台：找得到客戶、找得到該找的人。露出可以一直在，不必只靠買位子再等人問。承諾仍留在人。",
+      tag: "成形中 · 貿易工作平台",
+      caseSummary: "商務決策工作台回答「現在能不能承諾」。這一件在它上游：先讓產品一直被看見、讓該找的人找得到，再把條件送進承諾。",
+    },
+    en: {
+      title: "Overseas Visibility Ops",
+      desc: "A trade work platform in formation: find customers, find the right people. Visibility can stay on, instead of buying a seat and waiting for inquiries. Commitment stays with a person.",
+      tag: "In formation · Trade work platform",
+      caseSummary: "The Commercial Decision Desk asks whether a deal can be committed. This sits upstream: keep the product findable, reach the people who should see it, then hand the terms to that commit.",
+    },
+    case: {
+      stage: { zh: "成形中 · 方法演示", en: "In formation · method demo" },
+      problem: {
+        zh: "舊的感覺是貴、慢、等人來問。露出要買：展覽、平台年費、很貴的名單，助理一個一個疊上去。買到的是一段位子，然後等待。工廠往往只知道這條路。這裡不寫金額。",
+        en: "The old feeling is expensive, slow, and waiting for someone to ask. Exposure is purchased: a fair, a platform fee, a costly list, assistants stacked on top of each other. What you buy is a stretch of position, then a wait. Many factories only know that route. No amounts are written here.",
+      },
+      approach: {
+        zh: "改成一套還在成形的工作方式：露出可以一直在（畫面、規格、網站或虛擬展間），接觸是設計過的，所以找得到客戶、也找得到該找的人。省下來的是一直買位子、一直等詢問的那種重。展覽上的握手、別人平台裡的排名，流程不假裝取代。AI 處理素材、草稿、結構、篩選協助與跟催提醒；資格、報價策略、付款與接受、交期承諾、談判仍由人做。",
+        en: "Shift to a way of working still in formation: visibility that stays on (visuals, specs, a site or virtual showroom), and reach that is designed, so you can find customers and the right people. What gets lighter is the habit of buying a seat and waiting for inquiries. A handshake at a fair, or a rank inside someone else’s platform, is not something the process pretends to replace. AI handles assets, drafts, structuring, screening assist, and follow-up reminders. Humans keep qualification, pricing strategy, payment and acceptance, delivery promises, and negotiation.",
+      },
+      tools: {
+        zh: "AI 原生流程 · 持續露出 · 設計過的接觸 · 人的承諾 · 兩邊帳",
+        en: "AI-native workflow · Continuous visibility · Designed reach · Human commitment · Both ledgers",
+      },
+      result: {
+        zh: "留下可索引的方法演示：舊與新的對照、五步流程、人機邊界，以及明確不該信的部分。不是報價表，也不是已完成的產品。位於商務決策工作台上游。會不會變成訂單，尚未驗證。",
+        en: "An indexable method demo: the old-versus-new contrast, a five-step flow, the human–AI boundary, and an explicit list of what not to trust yet. Not a price sheet, and not a finished product. Upstream of the Commercial Decision Desk. Whether it becomes orders is unclaimed.",
+      },
+      evidence: {
+        zh: "FACT：舊做法是買露出然後等，新做法是露出持續、接觸被設計、承諾留人。沒有金額。DEMO：本頁流程與邊界，以及可開啟的相關建置（MORI 網站、CDD 合成案例），標成成形中的方法演示 · 尚未真人／市場驗證。UNKNOWN：會不會變成訂單、名單品質、省下多少、詢問量與營收。",
+        en: "FACT: the old mode buys exposure and waits; the new mode keeps visibility on, designs the reach, and leaves commitment human. No amounts. DEMO: this page’s flow and boundary, plus related builds you can open (the MORI site, the synthetic CDD case), labeled a method demo in formation · not yet live-market validated. UNKNOWN: whether it becomes orders, list quality, how much is saved, inquiries, and revenue.",
+      },
+    },
+  },
+  {
     id: "commercial-decision-desk",
     featuredRank: 1,
     section: "commercial",
