@@ -440,7 +440,7 @@ const dict = {
       items: [
         {
           title: "The Witness Tag · 見證標籤",
-          tag: "合成實驗",
+          tag: "合成實驗 · 中文原型",
           spark: "一句期待，傳過三個人之後，竟像是公司已經答應了。",
           note: "真正改變的不是樣品，而是團隊對「已承諾什麼」的理解。",
           cta: "讓這句話往下走",
@@ -936,8 +936,8 @@ const dict = {
       featuredMark: "Featured",
       items: [
         {
-          title: "The Witness Tag",
-          tag: "Synthetic experiment",
+          title: "The Witness Tag · 見證標籤",
+          tag: "Synthetic experiment · ZH prototype",
           spark: "An expectation passes through three people and comes out sounding like the company already said yes.",
           note: "The sample never changed. The team's understanding of what had been promised did.",
           cta: "Pass the sentence on",
