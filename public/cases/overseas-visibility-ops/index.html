@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>海外可見度作業｜不必只買一個位子 · Paul's Tradecraft</title>
-  <meta name="description" content="展覽、平台、名單與名錄賣的是位子。其中一部分可以用流程設計來做。金額待 Paul 填實數。方法演示，尚未真人／市場驗證，不保證訂單或名單品質。" />
+  <title>海外可見度作業｜正在成形的貿易工作平台 · Paul's Tradecraft</title>
+  <meta name="description" content="判斷仍在先。正在成形的 AI 原生貿易工作平台：找得到客戶、找得到該找的人，露出可以一直在。舊的做法是買位子再等人問。方法演示，尚未市場驗證，不保證訂單。" />
   <link rel="canonical" href="https://paulstradecraft.com/cases/overseas-visibility-ops/" />
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="海外可見度作業｜不必只買一個位子" />
-  <meta property="og:description" content="位子買到露出與名單。流程設計接其中一部分。方法演示 · 尚未真人／市場驗證。訂單是否發生，明確不主張。" />
+  <meta property="og:title" content="海外可見度作業｜正在成形的貿易工作平台" />
+  <meta property="og:description" content="找得到客戶、找得到該找的人。露出可以一直在，承諾留在人。成形中的方法演示，不保證訂單。" />
   <meta property="og:url" content="https://paulstradecraft.com/cases/overseas-visibility-ops/" />
   <meta property="og:image" content="https://paulstradecraft.com/og-image.png" />
   <meta property="og:locale" content="zh_TW" />
@@ -24,9 +24,9 @@
     "url": "https://paulstradecraft.com/cases/overseas-visibility-ops/",
     "inLanguage": ["zh-Hant", "en"],
     "author": { "@type": "Person", "name": "Paul Chen", "url": "https://paulstradecraft.com/" },
-    "about": ["International trade", "Paid exposure versus process design", "Human and AI boundary"],
-    "creativeWorkStatus": "method demo; not yet live-market validated; order conversion unknown",
-    "description": "A method demo. Exhibitions, platforms, lists, and directories sell a paid position. Part of that position can be process design. Prices are not invented. Orders and list quality are not claimed."
+    "about": ["International trade", "AI-native trade workflow", "Visibility versus purchased exposure", "Human and AI boundary"],
+    "creativeWorkStatus": "in formation; method demo; not yet live-market validated; order conversion unknown",
+    "description": "An AI-native trade work platform in formation. It is designed to find customers and the right people, and to keep visibility on instead of only buying a seat and waiting. Orders are not claimed. No prices are stated."
   }
   </script>
   <style>
@@ -45,11 +45,17 @@
     .btn { display:inline-block; padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration:none; }
     .btn-primary { background: var(--gold); color: var(--pine); }
     .btn-secondary { border: 1px solid var(--line); background: #fff; color: var(--pine); }
+    .caps { display:flex; flex-wrap:wrap; gap:8px; margin-top: 18px; }
+    .caps span { background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:700; color:var(--pine); }
     .grid { display:grid; gap: 12px; margin-top: 28px; }
-    @media (min-width:700px){ .grid { grid-template-columns: 1fr 1fr; } .grid .wide { grid-column: 1 / -1; } }
+    @media (min-width:700px){ .grid { grid-template-columns: 1fr 1fr; } }
     .card { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: #fff; }
     .card h3 { margin:0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
-    .card p { margin: 8px 0 0; font-size: 14px; }
+    .card p, .card ul { margin: 8px 0 0; font-size: 14px; }
+    .card ul { padding-left: 1.1rem; }
+    .card li { margin: 4px 0; }
+    .old { background: #f3efe6; }
+    .new { background: #fff; border-color: rgba(20,51,41,.28); }
     h2 { margin: 40px 0 12px; font-size: 1.25rem; color: var(--pine); }
     ol.method { margin: 0; padding-left: 1.2rem; }
     ol.method li { margin: 8px 0; }
@@ -57,7 +63,6 @@
     table { width:100%; border-collapse: collapse; font-size: 14px; background:#fff; border:1px solid var(--line); border-radius: 12px; overflow:hidden; }
     th, td { border-top: 1px solid var(--line); padding: 10px 12px; vertical-align: top; text-align: left; }
     th { background: rgba(20,51,41,.06); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
-    .pending { color: var(--muted); font-style: italic; white-space: nowrap; }
     .flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin: 8px 0 0; }
     .flow b { background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13px; color:var(--pine); }
     .flow span { color: var(--muted); font-size: 13px; }
@@ -69,64 +74,56 @@
 <body>
   <main class="wrap">
     <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · Visibility</p>
-    <p class="eyebrow">CASE · SEAT AND PROCESS</p>
-    <h1>海外可見度作業｜不必只買一個位子</h1>
-    <p class="lede">判斷仍是條款、風險與流程。這一頁在承諾之前：海外露出常常是買來的位子。位子買到曝光、名單，或一個人去追。其中一部分，可以用流程設計來做。很多老闆還不知道有這條路。知道怎麼做，本身就有價值。</p>
+    <p class="eyebrow">IN FORMATION · AI-NATIVE TRADE WORK</p>
+    <h1>海外可見度作業｜正在成形的貿易工作平台</h1>
+    <p class="lede">判斷仍是條款、風險與流程。在那之前，露出不必只靠買一個位子。這一頁是平台還在長的那一段：找得到客戶，找得到該找的人，露出可以一直在。貴、慢、等人來問的那種重，可以放下來。承諾仍留在人。</p>
+    <span class="badge">成形中 · 誠實的半成品</span>
     <span class="badge">方法演示 · 尚未真人／市場驗證</span>
-    <span class="badge">金額待填 · 不編數字</span>
+    <div class="caps" aria-label="平台正在長的能力">
+      <span>找得到客戶</span>
+      <span>找得到該找的人</span>
+      <span>露出可以一直在</span>
+      <span>人仍做承諾</span>
+    </div>
     <div class="ctas">
       <a class="btn btn-primary" href="/cases/commercial-decision-desk/">下游：商務決策工作台</a>
       <a class="btn btn-secondary" href="/#overseas-visibility-ops">回到作品牆</a>
     </div>
 
-    <div class="grid" aria-label="Snapshot">
-      <div class="card"><h3>FACT</h3><p>舊做法的價格結構：攤位、年費、名單、名錄、人力。金額先空著。</p></div>
-      <div class="card"><h3>What the money buys</h3><p>位子。露出、名單、或有人去跟。不是整包都能被流程換掉。</p></div>
-      <div class="card"><h3>DEMO</h3><p>流程、產出與人機邊界。標明尚未真人／市場驗證。</p></div>
-      <div class="card"><h3>UNKNOWN</h3><p>會不會變成訂單。這頁不主張。</p></div>
+    <h2>1 · 舊的感覺，和新的感覺</h2>
+    <p>FACT 在這裡是結構，不是報價。舊做法怎麼發生、新做法想換成什麼節奏。沒有金額，也不把「省下很多」寫成已經算過的數字。</p>
+    <div class="grid">
+      <article class="card old">
+        <h3>舊 · 買位子，然後等</h3>
+        <ul>
+          <li>展覽、平台年費、很貴的名單</li>
+          <li>助理一個一個疊上去追</li>
+          <li>貴、慢</li>
+          <li>露出一段時間，然後等人來問</li>
+        </ul>
+      </article>
+      <article class="card new">
+        <h3>新 · 一直在，而且找得到人</h3>
+        <ul>
+          <li>畫面、規格、網站或虛擬展間，露出可以一直在</li>
+          <li>接觸是設計過的：找得到客戶，也找得到該找的人</li>
+          <li>不必把位子一直買回來</li>
+          <li>資格、報價、付款、接受與交期，仍由人承諾</li>
+        </ul>
+      </article>
     </div>
+    <p>省下來的，是一直買位子、一直等詢問的那種重。展覽上的握手、別人平台裡的排名，這套流程不假裝取代。知道可以不必只買位子，本身就是這頁要留下的判斷。</p>
 
-    <h2>1 · FACT · 舊做法的價格結構</h2>
-    <p>這些是位子的種類，來自貿易現場怎麼花錢，不是一份報價單。金額欄等 Paul 填上實數之前，保持空白。這頁不寫任何台幣或美元總額。</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>位子</th><th>這筆錢買到的</th><th>金額</th></tr></thead>
-        <tbody>
-          <tr><td>展覽攤位</td><td>一段時間的現場露出</td><td class="pending">（Paul 填實數）</td></tr>
-          <tr><td>平台年費<br/>Alibaba 這一類平台</td><td>別人平台上的曝光位子</td><td class="pending">（Paul 填實數）</td></tr>
-          <tr><td>名單授權<br/>Apollo 這一類名單</td><td>一批聯絡方式，常常是大公司信箱</td><td class="pending">（Paul 填實數）</td></tr>
-          <tr><td>名錄<br/>Dun &amp; Bradstreet 這一類名錄</td><td>公司資料，以及名錄上的一個位子</td><td class="pending">（Paul 填實數）</td></tr>
-          <tr><td>業務或助理的人力</td><td>有人去寫、去跟、去追</td><td class="pending">（Paul 填實數）</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p>Alibaba、Apollo、Dun &amp; Bradstreet 在這裡只是「買位子」的行業類型。不是這套作業接上的功能，也不是推薦清單。</p>
-
-    <h2>2 · 這些錢買的是位子——哪一部分改由流程</h2>
-    <p>錢買到的是位置：被人看到、拿到一份名單、或僱一個人去追。流程設計接得住的，是其中這一段：自己的露出、設計過的接觸與資格、以及哪裡必須留人。展覽上的握手、別人平台裡的排名，流程不假裝取代。名單好不好，也不在流程裡自動變好。</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>位子買到的</th><th>流程可以接的部分</th><th>流程不假裝取代</th></tr></thead>
-        <tbody>
-          <tr><td>幾天的現場露出</td><td>展覽結束後仍找得到的畫面、規格、網站或虛擬展間。網站就夠，VR 可選。</td><td>攤位上的握手與當場看貨</td></tr>
-          <tr><td>別人平台上的曝光</td><td>自己的站，買方不必先租你的位子才讀得懂產品</td><td>該平台內部的排名與流量規則</td></tr>
-          <tr><td>一批聯絡方式</td><td>接觸節奏、初篩協助、跟催提醒</td><td>名單本身的品質</td></tr>
-          <tr><td>名錄上的一筆資料</td><td>買方讀得懂的第一印象：規格、英文、站得住的露出</td><td>名錄機構的背書</td></tr>
-          <tr><td>一個人天天去追</td><td>草稿與提醒先備好，人把時間留在資格與談判</td><td>人的判斷與例外</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h2>3 · DEMO · 方法與產出</h2>
+    <h2>2 · DEMO · 方法與產出</h2>
     <p><span class="badge">方法演示 · 尚未真人／市場驗證</span></p>
-    <p>下面是作業怎麼走，以及它設計上要留下的東西。這些是演示，不是客戶結案，也還沒有市場驗證。</p>
+    <p>平台還在成形。下面是作業怎麼走，以及它設計上要留下的東西。這些是演示，不是客戶結案。</p>
     <div class="flow" aria-label="方法流程">
       <b>露出</b><span>→</span><b>對準</b><span>→</span><b>接觸</b><span>→</span><b>資格</b><span>→</span><b>交接</b>
     </div>
     <ol class="method">
-      <li><strong>露出</strong> — 產品畫面、規格、網站或虛擬展間。</li>
+      <li><strong>露出</strong> — 產品畫面、規格、網站或虛擬展間。網站就夠；VR 可選。</li>
       <li><strong>對準</strong> — 誰該看見，以及買方聽得懂的理由。相關不等於有採購路徑。</li>
-      <li><strong>接觸</strong> — 設計過的節奏。草稿可以先寫好；承諾不自動送出。</li>
+      <li><strong>接觸</strong> — 設計過的節奏，所以找得到人，而不是等人撞上門。草稿可以先寫好；承諾不自動送出。</li>
       <li><strong>資格</strong> — 人決定要不要報價、要不要繼續。缺的事實維持待確認。</li>
       <li><strong>交接</strong> — 條件說清楚之後，才進商務決策工作台，問現在能不能承諾。</li>
     </ol>
@@ -135,14 +132,14 @@
         <thead><tr><th>產出</th><th>現在拿得到的</th><th>標籤</th></tr></thead>
         <tbody>
           <tr><td>流程與人機邊界</td><td>就是本頁這張圖與下一節的表</td><td>方法演示</td></tr>
-          <tr><td>露出底稿、接觸節奏、交接條件</td><td>設計上要留下的文件。還沒有客戶填好的版本。</td><td>方法演示 · 尚未真人／市場驗證</td></tr>
+          <tr><td>露出底稿、接觸節奏、交接條件</td><td>設計上要留下的文件。還沒有客戶填好的版本。</td><td>成形中 · 尚未真人／市場驗證</td></tr>
           <tr><td>網站能承載畫面與下一步</td><td><a href="https://apchen1978.github.io/mori-soft-furnishing-demo/" target="_blank" rel="noopener noreferrer">MORI 軟裝網站</a></td><td>創意建置。不證明本作業帶來訂單。</td></tr>
           <tr><td>條件清楚後的承諾判斷</td><td><a href="/cases/commercial-decision-desk/">商務決策工作台</a></td><td>下游。案例為合成。不證明訂單。</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h2>4 · 人 × AI 的邊界</h2>
+    <h2>3 · 人 × AI 的邊界</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>機器可以做</th><th>人必須留下</th></tr></thead>
@@ -154,85 +151,98 @@
         </tbody>
       </table>
     </div>
-    <p>AI 在流程裡面加速，不是身份。知道怎麼用 AI，不會因此自動冒出客戶。聊天機器人回得了句子，回不了這張單該不該報、款該怎麼收、貨能不能答應。</p>
+    <p>AI 在流程裡面加速，不是身份，也不是這套平台的產品名稱。知道怎麼用 AI，不會因此自動冒出客戶。聊天機器人回得了句子，回不了這張單該不該報、款該怎麼收、貨能不能答應。</p>
 
-    <h2>5 · 姿態：連不該信的也講清楚</h2>
+    <h2>4 · 姿態：連不該信的也講清楚</h2>
     <div class="boundary">
-      <p>不保證訂單。</p>
+      <p>不保證訂單。找得到人，是這套作業被設計來做的事，不是已經驗證的成交。</p>
       <p>不保證名單品質。買來的名單不會因為流程存在就變準。</p>
-      <p>方法演示 ≠ 客戶成果。可打開的網站與決策工作台，也不是這套作業的成交證明。</p>
+      <p>不把「省下很多」寫成數字。感覺是那條路變輕，不是一張已結算的帳單。</p>
+      <p>方法演示 ≠ 客戶成果。這也不是一套可以訂閱的軟體產品。</p>
       <p>會不會變成訂單，是 UNKNOWN。我們甚至會告訴你，現在還不該信這一段。</p>
     </div>
 
-    <h2>6 · 為什麼是 Paul</h2>
-    <p>我同時看兩本帳。工廠這一側：MOQ、師傅、交期為什麼會爆。買方這一側：老外怎麼讀一家供應商、英文怎麼把第一印象站住、那印象算不算數。不是 AI 行銷人，也不是只負責把訂單簽回來的業務。</p>
+    <h2>5 · 為什麼是 Paul</h2>
+    <p>我同時看兩本帳。工廠這一側：MOQ、師傅、交期為什麼會爆。買方這一側：老外怎麼讀一家供應商、英文怎麼把第一印象站住、那印象算不算數。不是 AI 行銷人，也不是只負責把訂單簽回來的業務。總監級的判斷還是條款、風險與流程；平台是把這個判斷前面的露出與接觸做出來。</p>
 
     <h2>三層證據</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>層</th><th>這裡指什麼</th><th>不包含</th></tr></thead>
         <tbody>
-          <tr><td>FACT</td><td>舊做法是這幾種位子。金額欄是待填，不是已經寫死的價格。</td><td>任何未提供的台幣或美元數字</td></tr>
-          <tr><td>DEMO</td><td>本頁流程、邊界，以及標明的相關建置。</td><td>真人採用或市場驗證</td></tr>
-          <tr><td>UNKNOWN</td><td>這套流程會不會變成訂單。</td><td>詢問量、名單品質、營收</td></tr>
+          <tr><td>FACT</td><td>舊做法是買露出然後等。新做法是露出持續、接觸被設計、承諾留人。</td><td>任何金額、報價或已結算的節省</td></tr>
+          <tr><td>DEMO</td><td>本頁流程、邊界，以及標明的相關建置。平台仍在成形。</td><td>真人採用或市場驗證</td></tr>
+          <tr><td>UNKNOWN</td><td>這套流程會不會變成訂單，以及實際省下多少。</td><td>詢問量、名單品質、營收</td></tr>
         </tbody>
       </table>
     </div>
 
     <h2>在主線上的位置</h2>
-    <p>這一件在<a href="/cases/commercial-decision-desk/">商務決策工作台</a>的上游：先分清位子與流程 → 條件變清楚 → 再進 CDD 做承諾判斷。商務決策工作台仍是判斷旗艦。</p>
+    <p>這一件在<a href="/cases/commercial-decision-desk/">商務決策工作台</a>的上游：先讓產品一直被看見、讓該找的人找得到 → 條件變清楚 → 再進 CDD 做承諾判斷。商務決策工作台仍是判斷旗艦。</p>
     <p>旁邊、但不是同一件事：<a href="/#global-business-development">海外商業開發判斷</a>問的是誰值得先投入。</p>
     <p>這些作品共享一條商業情境，不共用資料，也不互相自動交接。</p>
 
     <div class="en" lang="en">
       <p class="eyebrow">ENGLISH</p>
-      <h2 style="margin-top:10px">Overseas Visibility Ops | You don’t have to only buy a seat</h2>
+      <h2 style="margin-top:10px">Overseas Visibility Ops | A trade work platform, still forming</h2>
+      <p class="badge">In formation · honest WIP</p>
       <p class="badge">Method demo · not yet live-market validated</p>
-      <p class="badge">Figures blank · none invented</p>
-      <p>Judgment stays terms, risk, and process. This page is before the commit. Overseas exposure is often a seat you pay for: a booth, a platform, a list, a directory, or a person hired to chase. That money buys a position. Part of the position can be process design. Many owners do not know the option exists. Knowing how is itself the valuable part.</p>
-
-      <h2>1 · FACT · Old price structure</h2>
-      <p>These are the kinds of seats, from how this spend actually shows up. The amount column stays empty until Paul supplies a real figure. This page invents no totals.</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Seat</th><th>What the money buys</th><th>Amount</th></tr></thead>
-          <tbody>
-            <tr><td>Exhibition slot</td><td>A stretch of on-site exposure</td><td class="pending">(Paul’s figure)</td></tr>
-            <tr><td>Platform annual fee<br/>Alibaba-class platforms</td><td>A position on someone else’s platform</td><td class="pending">(Paul’s figure)</td></tr>
-            <tr><td>List license<br/>Apollo-class lists</td><td>A batch of contacts, often big-company emails</td><td class="pending">(Paul’s figure)</td></tr>
-            <tr><td>Directory<br/>Dun &amp; Bradstreet-class directories</td><td>Company records, and a place in the directory</td><td class="pending">(Paul’s figure)</td></tr>
-            <tr><td>Salesperson or assistant</td><td>A person to write, follow, and chase</td><td class="pending">(Paul’s figure)</td></tr>
-          </tbody>
-        </table>
+      <p>Judgment stays terms, risk, and process. Before that, exposure does not have to be only a seat you buy. This page is the part of the platform still growing: find customers, find the right people, keep visibility on. The expensive, slow, wait-for-inquiries weight can lift. Commitment stays human.</p>
+      <div class="caps" aria-label="Capabilities in formation">
+        <span>Find customers</span>
+        <span>Find the right people</span>
+        <span>Visibility that stays on</span>
+        <span>Humans still commit</span>
       </div>
-      <p>Alibaba, Apollo, and Dun &amp; Bradstreet name the kind of paid-position industry. They are not features this work plugs in, and not a roster we sell.</p>
 
-      <h2>2 · The money buys a position — which part process can take</h2>
-      <p>The fee buys being seen, a list of names, or a person whose job is chase. Process design can take this slice: your own exposure, a designed approach and qualification, and a line for what a person must still decide. It does not pretend to replace a handshake at a fair, a rank inside someone else’s platform, or the quality of a purchased list.</p>
+      <h2>1 · Old feeling, new feeling</h2>
+      <p>The FACT here is structural, not a quote. How the old mode behaves, and the rhythm the new mode is designed to replace. No amounts. “A lot lighter” is not a calculated saving.</p>
+      <div class="grid">
+        <article class="card old">
+          <h3>Old · Buy a seat, then wait</h3>
+          <ul>
+            <li>Fairs, platform fees, expensive lists</li>
+            <li>Assistants stacked on to chase</li>
+            <li>Expensive, slow</li>
+            <li>Exposure for a while, then wait for inquiries</li>
+          </ul>
+        </article>
+        <article class="card new">
+          <h3>New · Stay on, and find people</h3>
+          <ul>
+            <li>Visuals, specs, a site or virtual showroom — visibility can stay on</li>
+            <li>Reach is designed: find customers, and the right people</li>
+            <li>Stop buying the seat back every time</li>
+            <li>Qualification, price, payment, acceptance, and delivery promises stay human</li>
+          </ul>
+        </article>
+      </div>
+      <p>What gets lighter is the habit of buying a seat and waiting to be asked. A handshake at a fair, or a rank inside someone else’s platform, is not something this process pretends to replace. Knowing you do not have to only buy the seat is the judgment this page leaves behind.</p>
 
-      <h2>3 · DEMO · Method and artifacts</h2>
-      <p>Show → aim → approach → a person qualifies → hand legible terms to the <a href="/cases/commercial-decision-desk/">Commercial Decision Desk</a>. Designed artifacts — an exposure draft, a contact rhythm, a handoff of terms — do not yet exist as a client-filled file. The <a href="https://apchen1978.github.io/mori-soft-furnishing-demo/" target="_blank" rel="noopener noreferrer">MORI site</a> shows a website can carry visuals and a next step. It does not show orders from this workflow. Label on all of it: method demo · not yet live-market validated.</p>
+      <h2>2 · DEMO · Method and artifacts</h2>
+      <p>Show → aim → approach → a person qualifies → hand legible terms to the <a href="/cases/commercial-decision-desk/">Commercial Decision Desk</a>. Designed artifacts — an exposure draft, a contact rhythm, a handoff of terms — do not yet exist as a client-filled file. The <a href="https://apchen1978.github.io/mori-soft-furnishing-demo/" target="_blank" rel="noopener noreferrer">MORI site</a> shows a website can carry visuals and a next step. It does not show orders from this workflow. Label: method demo · not yet live-market validated. The platform is still in formation.</p>
 
-      <h2>4 · Human × AI</h2>
+      <h2>3 · Human × AI</h2>
       <p>Machine: assets, drafts, structuring, screening assist, follow-up reminders. Human: qualification, pricing strategy, payment and acceptance, delivery promises, negotiation. AI speeds the workflow. It is not the identity, and it does not find customers by itself.</p>
 
-      <h2>5 · Posture — including what not to trust</h2>
+      <h2>4 · Posture — including what not to trust</h2>
       <div class="boundary">
-        <p>No guaranteed orders.</p>
-        <p>No guaranteed list quality. A purchased list does not become accurate because a process exists.</p>
-        <p>Demo ≠ client results.</p>
-        <p>Whether this becomes orders is UNKNOWN. We will tell you that is the part you should not trust yet.</p>
+        <p>No guaranteed orders. Finding people is what the workflow is designed to do. It is not a proven close.</p>
+        <p>No guaranteed list quality.</p>
+        <p>No dollar figure on the saving. The feeling is that the path gets lighter, not that a bill has been settled.</p>
+        <p>Demo ≠ client results. This is also not a software product you subscribe to.</p>
+        <p>Whether this becomes orders is UNKNOWN. That is the part you should not trust yet.</p>
       </div>
 
-      <h2>6 · Why Paul</h2>
-      <p>Both ledgers. Factory side: MOQ, the craftspeople, and why a lead time blows up. Buyer side: how a foreign buyer reads a supplier, how English carries the first impression, and whether that impression is credible. Not an AI marketer. Not a salesperson whose only job is to bring the order home.</p>
+      <h2>5 · Why Paul</h2>
+      <p>Both ledgers. Factory side: MOQ, the craftspeople, and why a lead time blows up. Buyer side: how a foreign buyer reads a supplier, how English carries the first impression, and whether that impression is credible. Not an AI marketer. Not a salesperson whose only job is to bring the order home. Director-level judgment is still terms, risk, and process. The platform is how the visibility and the reach in front of that judgment get made.</p>
 
       <h2>Three layers</h2>
-      <p><strong>FACT</strong> — these kinds of seats; amounts are “(Paul’s figure)”, not invented prices.<br/>
-      <strong>DEMO</strong> — the flow, the boundary, and the labeled related builds.<br/>
-      <strong>UNKNOWN</strong> — whether the process converts to orders, and any claim about list quality, inquiries, or revenue.</p>
+      <p><strong>FACT</strong> — the old mode buys exposure and waits; the new mode keeps visibility on, designs the reach, and leaves commitment human. No amounts.<br/>
+      <strong>DEMO</strong> — the flow, the boundary, and the labeled related builds. Still in formation.<br/>
+      <strong>UNKNOWN</strong> — whether it becomes orders, and how much is actually saved.</p>
 
-      <p>Upstream of the decision desk: separate seat from process → make the terms legible → then ask whether you can commit. The desk stays the flagship.</p>
+      <p>Upstream of the decision desk: stay findable and reach the right people → make the terms legible → then ask whether you can commit. The desk stays the flagship.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="/cases/commercial-decision-desk/">Downstream: Commercial Decision Desk</a>
         <a class="btn btn-secondary" href="/#overseas-visibility-ops">Back to the work wall</a>
@@ -240,7 +250,7 @@
     </div>
 
     <footer>
-      <p>Paul's Tradecraft · Case page v0.2 · Last reviewed 2026-09-23</p>
+      <p>Paul's Tradecraft · Case page v0.3 · Last reviewed 2026-09-23</p>
       <p><a href="/">← Back to portfolio</a></p>
     </footer>
   </main>

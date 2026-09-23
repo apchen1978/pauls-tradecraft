@@ -12,7 +12,7 @@ const dict = {
         { value: "955", label: "TOEIC · 2019" },
       ],
       headline: "跨國商務決策前的關鍵判斷。",
-      sub: "國際貿易總監級判斷——條款、風險、流程。海外可見度也不必只買一個位子：展覽、平台與名單買的是露出，其中一部分可以用流程設計來做。讓產品被看見、讓該找的人找得到，並清楚哪裡必須留人。",
+      sub: "國際貿易總監級判斷——條款、風險、流程。正在長成一套 AI 原生的貿易工作平台：找得到客戶、找得到該找的人，不必只靠買位子。露出可以一直在，接觸是設計過的，承諾仍留在人。",
       youGet: "從一個重要問題開始",
       outcomesHeadline: "你現在最像哪一種情況？",
       outcomesIntro: "不是先挑工具。先從你此刻需要釐清的一個商業問題開始。",
@@ -214,7 +214,7 @@ const dict = {
       outputLabel: "可交付輸出",
       boundary: "這些作品展示可運作的判斷流程與輸出，不宣稱保證營收、ROI 或商業採用結果。",
       items: [
-        { label: "被看見", question: "這筆露出，一定要買一個位子嗎？", system: "海外可見度作業", output: "展覽、平台與名單買的是位子。其中一部分可以改由流程設計：露出、接觸、資格。金額不在這裡填。資格、報價、付款與接受仍由人裁決。會不會變成訂單，尚未驗證。", linkLabel: "看海外可見度案例", href: "/cases/overseas-visibility-ops/" },
+        { label: "被看見", question: "露出一定要買回來、然後等人問嗎？", system: "海外可見度作業", output: "正在成形的貿易工作平台：露出可以一直在，找得到客戶、找得到該找的人。貴、慢、等人來問的那條路變輕。資格、報價、付款與接受仍由人裁決。會不會變成訂單，尚未驗證。", linkLabel: "看海外可見度案例", href: "/cases/overseas-visibility-ops/" },
         { label: "看見商機", question: "哪些海外帳戶，值得先投入商業資源？", system: "海外商業開發", output: "從供應商現實、Owner 目標、候選帳戶與 UNKNOWN，找出下一個值得驗證的商業路徑。", linkLabel: "查看商業開發判斷", href: "#global-business-development" },
         { label: "看清交易", question: "這筆商機，現在能不能推進？", system: "商務決策工作台", output: "交易結構、控制因素、Decision Path 與帶進會議的 Deal Brief。", linkLabel: "查看決策工作台", href: "#commercial-decision-desk" },
         { label: "測試經濟性", question: "表面毛利，是否真的支撐這筆交易？", system: "貿易利潤導航", output: "已知成本、可測試的利潤槓桿、現金暴露與仍需補足的證據。", linkLabel: "查看利潤導航", href: "#trade-profit-navigator" },
@@ -367,7 +367,7 @@ const dict = {
         "二十多年，我一直在商業現場。",
         "從製造、財務會計、國際貿易到供應鏈，我長期面對成本、報價、客戶、供應商、付款與風險，也習慣在資訊不完整時做判斷。",
         "AI 不是離開過去，而是讓這些經驗有了新的實現方式。",
-        "許多工廠很會磨產品與找供應商，卻卡在「怎麼被海外看見、怎麼包裝、怎麼跟老外溝通」。常見的路是買一個位子：展覽攤位、平台年費、名單或名錄。那些錢買的是露出與名單；其中一部分，可以用流程設計來做。這條路很多老闆還不知道存在，知道怎麼做，本身就有價值。AI 不是聊天機器人，也不是自動變出客戶；要先設計流程——素材與跟催可以加速，資格、報價、付款與接受條件仍由人裁決。我把兩邊的帳都看過：工廠的 MOQ、師傅與交期，以及買方怎麼讀一家供應商。",
+        "許多工廠很會磨產品與找供應商，卻卡在「怎麼被海外看見、怎麼包裝、怎麼跟老外溝通」。舊的感覺是貴、慢、等人來問：展覽、平台年費、很貴的名單，助理一個一個疊上去。我在把這件事做成一套還在成形的 AI 原生貿易工作平台——找得到客戶、找得到該找的人，露出可以一直在，接觸是設計過的，承諾仍由人做。省下來的，是一直買位子、一直等詢問的那種重，不是一張報價。AI 不是聊天機器人，也不會自動變出訂單；素材與跟催可以加速，資格、報價、付款與接受條件仍由人裁決。我看過工廠的 MOQ、師傅與交期，也看過買方怎麼讀一家供應商。",
         "我把累積的商業判斷，轉化為可執行、可驗證、可追溯的系統。",
       ],
       signature: {
@@ -512,7 +512,7 @@ const dict = {
         { value: "955", label: "TOEIC · 2019" },
       ],
       headline: "The critical judgment before cross-border commercial decisions.",
-      sub: "Director-level trade judgment — terms, risk, process. Overseas visibility does not have to be only a purchased seat: exhibitions, platforms, and lists sell exposure, and part of that can be process design. Make the product findable, reach the right people, and keep human gates where commitment lives.",
+      sub: "Director-level trade judgment — terms, risk, process. This is becoming an AI-native trade work platform, still in formation: find customers, find the right people, and stop living only on purchased seats. Visibility can stay on. Reach is designed. Commitment stays human.",
       youGet: "START WITH ONE IMPORTANT QUESTION",
       outcomesHeadline: "Which situation feels most familiar right now?",
       outcomesIntro: "Do not start with a tool. Start with the commercial question that needs clarity now.",
@@ -714,7 +714,7 @@ const dict = {
       outputLabel: "DELIVERABLE",
       boundary: "These pieces demonstrate working judgment flows and deliverables. They do not claim guaranteed revenue, ROI, or commercial adoption.",
       items: [
-        { label: "GET FOUND", question: "Does this exposure have to be a purchased seat?", system: "Overseas Visibility Ops", output: "Exhibitions, platforms, and lists sell a position. Part of that can become process design: exposure, approach, qualification. No figures are filled in here. Qualification, pricing, payment, and acceptance stay human. Whether it becomes orders is not yet shown.", linkLabel: "Read the visibility case", href: "/cases/overseas-visibility-ops/" },
+        { label: "GET FOUND", question: "Does exposure have to be bought, then waited on?", system: "Overseas Visibility Ops", output: "A trade work platform in formation: visibility that stays on, a way to find customers and the right people. The expensive, slow, wait-for-inquiries path gets lighter. Qualification, pricing, payment, and acceptance stay human. Whether it becomes orders is not yet shown.", linkLabel: "Read the visibility case", href: "/cases/overseas-visibility-ops/" },
         { label: "SPOT THE OPPORTUNITY", question: "Which overseas account deserves commercial effort first?", system: "Global Business Development", output: "Use supplier reality, Owner objective, candidate accounts, and UNKNOWNs to identify the next commercial path worth verifying.", linkLabel: "View business-development judgment", href: "#global-business-development" },
         { label: "UNDERSTAND THE DEAL", question: "Can this opportunity move forward now?", system: "Commercial Decision Desk", output: "Deal structure, control factors, a Decision Path, and a Deal Brief for the meeting.", linkLabel: "View decision desk", href: "#commercial-decision-desk" },
         { label: "TEST THE ECONOMICS", question: "Does the apparent margin really support this deal?", system: "Trade Profit Navigator", output: "Known costs, testable profit levers, cash exposure, and evidence still required.", linkLabel: "View profit navigator", href: "#trade-profit-navigator" },
@@ -867,7 +867,7 @@ const dict = {
         "For more than two decades, I’ve worked on the commercial front line.",
         "Across manufacturing, finance, international trade, and supply chains, I’ve dealt with costs, quotations, customers, suppliers, payments, risk, and decisions made with incomplete information.",
         "AI is not a departure from that experience. It is a new way to put it to work.",
-        "Many factories are very good at refining the product and finding suppliers, then stall on being seen overseas, packaging the offer, and talking with foreign buyers. The familiar route is to buy a seat: a booth, a platform fee, a list, or a directory. That money buys exposure and names. Part of it can be done as process design. A lot of owners do not know that option exists, and knowing how is itself the valuable part. AI is not a chatbot, and it does not conjure customers. The workflow has to be designed first — assets and follow-up reminders can move faster; qualification, pricing, payment, and acceptance terms stay human calls. I read both ledgers: the factory’s MOQ, craftspeople, and lead times, and how a buyer reads a supplier.",
+        "Many factories are very good at refining the product and finding suppliers, then stall on being seen overseas, packaging the offer, and talking with foreign buyers. The old feeling is expensive, slow, and waiting for inquiries: a fair, a platform fee, a costly list, assistants stacked one on another. I am turning that into an AI-native trade work platform, still in formation — find customers, find the right people, keep visibility on, design the reach, and leave commitment with a person. What gets lighter is the habit of buying a seat and waiting. Not a quoted saving. AI is not a chatbot, and it does not conjure orders. Assets and follow-up reminders can move faster; qualification, pricing, payment, and acceptance terms stay human calls. I have read the factory’s MOQ, craftspeople, and lead times, and how a buyer reads a supplier.",
         "I turn commercial judgment into executable, verifiable, and traceable systems.",
       ],
       signature: {

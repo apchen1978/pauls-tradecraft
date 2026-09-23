@@ -1304,8 +1304,8 @@ export const works = [
     },
     imageFit: "contain",
     imageAlt: {
-      zh: "海外可見度作業封面：位子的一部分改由流程設計。標明為方法演示，尚未真人／市場驗證。",
-      en: "Overseas Visibility Ops cover: part of a paid position replaced by process design. Labeled method demo, not yet live-market validated.",
+      zh: "海外可見度作業封面：正在成形的貿易工作平台。露出可以一直在，找得到人，承諾留給人。方法演示，尚未市場驗證。",
+      en: "Overseas Visibility Ops cover: a trade work platform in formation. Visibility stays on, the right people can be found, commitment stays human. Method demo, not yet market validated.",
     },
     span: "md:col-span-2",
     icon: "briefcase",
@@ -1317,16 +1317,16 @@ export const works = [
       label: { zh: "閱讀海外可見度案例", en: "Read the visibility case" },
     },
     decisionQuestion: {
-      zh: "這筆露出，是繼續只買位子，還是有一部分改由流程來做？",
-      en: "Is this exposure only a seat you buy — or can part of it be process?",
+      zh: "露出是買回來再等人問，還是讓它一直在、並且找得到人？",
+      en: "Is exposure something you buy and then wait on — or something that stays on and can find people?",
     },
     demoNote: {
-      zh: "方法演示 · 尚未真人／市場驗證。不保證訂單，也不保證名單品質。演示 ≠ 客戶成果。",
-      en: "Method demo · not yet live-market validated. No guaranteed orders, no guaranteed list quality. Demo ≠ client results.",
+      zh: "成形中 · 方法演示 · 尚未真人／市場驗證。不保證訂單，也不保證名單品質。演示 ≠ 客戶成果。",
+      en: "In formation · method demo · not yet live-market validated. No guaranteed orders, no guaranteed list quality. Demo ≠ client results.",
     },
     companionKicker: {
-      zh: "主線上游 · 獲客與曝光",
-      en: "Upstream of the flagship · visibility & acquisition",
+      zh: "成形中 · 貿易工作平台",
+      en: "In formation · trade work platform",
     },
     showcase: {
       zh: {
@@ -1348,37 +1348,37 @@ export const works = [
     },
     zh: {
       title: "海外可見度作業",
-      desc: "不必只買一個位子。展覽、平台年費、名單與名錄買的是露出；其中一部分可以用流程設計來做。金額等實數，先不寫。",
-      tag: "位子與流程 · 貿易判斷",
-      caseSummary: "商務決策工作台回答「現在能不能承諾」。這一件在它上游：先判斷這筆露出是位子還是流程，再把條件送進承諾。",
+      desc: "正在成形的貿易工作平台：找得到客戶、找得到該找的人。露出可以一直在，不必只靠買位子再等人問。承諾仍留在人。",
+      tag: "成形中 · 貿易工作平台",
+      caseSummary: "商務決策工作台回答「現在能不能承諾」。這一件在它上游：先讓產品一直被看見、讓該找的人找得到，再把條件送進承諾。",
     },
     en: {
       title: "Overseas Visibility Ops",
-      desc: "You do not have to only buy a seat. Exhibitions, platform fees, lists, and directories sell exposure; part of that can be process design. Figures stay blank until they are real.",
-      tag: "Seat and process · Trade judgment",
-      caseSummary: "The Commercial Decision Desk asks whether a deal can be committed. This sits upstream: decide which part of exposure is a purchased seat and which part is process, then hand the terms to that commit.",
+      desc: "A trade work platform in formation: find customers, find the right people. Visibility can stay on, instead of buying a seat and waiting for inquiries. Commitment stays with a person.",
+      tag: "In formation · Trade work platform",
+      caseSummary: "The Commercial Decision Desk asks whether a deal can be committed. This sits upstream: keep the product findable, reach the people who should see it, then hand the terms to that commit.",
     },
     case: {
-      stage: { zh: "方法演示 · 尚未真人／市場驗證", en: "Method demo · not yet live-market validated" },
+      stage: { zh: "成形中 · 方法演示", en: "In formation · method demo" },
       problem: {
-        zh: "舊做法是買位子：展覽攤位、平台年費、名單授權、名錄，再加上負責跟催的人力。那些錢買到的是露出、名單或一個人去追。工廠往往只知道這條路。金額尚未寫上，不在作品集裡編數字。",
-        en: "The old mode is buying a seat: a booth, a platform fee, a list license, a directory, plus someone paid to chase. That money buys exposure, names, or a person following up. Many factories only know that route. Amounts are not filled in here, and this portfolio does not invent them.",
+        zh: "舊的感覺是貴、慢、等人來問。露出要買：展覽、平台年費、很貴的名單，助理一個一個疊上去。買到的是一段位子，然後等待。工廠往往只知道這條路。這裡不寫金額。",
+        en: "The old feeling is expensive, slow, and waiting for someone to ask. Exposure is purchased: a fair, a platform fee, a costly list, assistants stacked on top of each other. What you buy is a stretch of position, then a wait. Many factories only know that route. No amounts are written here.",
       },
       approach: {
-        zh: "位子買到的東西裡，有一部分可以改由流程設計：自己的露出（畫面、規格、網站或虛擬展間）、設計過的接觸與資格、以及哪裡必須留人。展覽上的握手、別人平台裡的排名，流程並不假裝取代。AI 處理素材、草稿、結構、篩選協助與跟催提醒；資格、報價策略、付款與接受、交期承諾、談判仍由人做。",
-        en: "Part of what the seat buys can move to process design: your own exposure (visuals, specs, a site or virtual showroom), a designed approach and qualification, and a clear line for what stays human. The process does not pretend to replace a handshake at a fair or a rank inside someone else’s platform. AI handles assets, drafts, structuring, screening assist, and follow-up reminders. Humans keep qualification, pricing strategy, payment and acceptance, delivery promises, and negotiation.",
+        zh: "改成一套還在成形的工作方式：露出可以一直在（畫面、規格、網站或虛擬展間），接觸是設計過的，所以找得到客戶、也找得到該找的人。省下來的是一直買位子、一直等詢問的那種重。展覽上的握手、別人平台裡的排名，流程不假裝取代。AI 處理素材、草稿、結構、篩選協助與跟催提醒；資格、報價策略、付款與接受、交期承諾、談判仍由人做。",
+        en: "Shift to a way of working still in formation: visibility that stays on (visuals, specs, a site or virtual showroom), and reach that is designed, so you can find customers and the right people. What gets lighter is the habit of buying a seat and waiting for inquiries. A handshake at a fair, or a rank inside someone else’s platform, is not something the process pretends to replace. AI handles assets, drafts, structuring, screening assist, and follow-up reminders. Humans keep qualification, pricing strategy, payment and acceptance, delivery promises, and negotiation.",
       },
       tools: {
-        zh: "流程設計 · 兩邊帳（工廠交期與買方怎麼讀你）· 人機邊界 · 方法演示",
-        en: "Process design · Both ledgers (factory lead time and how a buyer reads you) · Human–AI boundary · Method demo",
+        zh: "AI 原生流程 · 持續露出 · 設計過的接觸 · 人的承諾 · 兩邊帳",
+        en: "AI-native workflow · Continuous visibility · Designed reach · Human commitment · Both ledgers",
       },
       result: {
-        zh: "留下可索引的方法演示：價格結構（金額待填）、位子裡哪一段改由流程、五步流程與產出、人機邊界，以及明確不該信的部分。位於商務決策工作台上游。會不會變成訂單，尚未驗證。",
-        en: "An indexable method demo: the price structure with figures still blank, which part of the seat can become process, a five-step flow and its artifacts, the human–AI boundary, and an explicit list of what not to trust yet. Upstream of the Commercial Decision Desk. Whether it becomes orders is unclaimed.",
+        zh: "留下可索引的方法演示：舊與新的對照、五步流程、人機邊界，以及明確不該信的部分。不是報價表，也不是已完成的產品。位於商務決策工作台上游。會不會變成訂單，尚未驗證。",
+        en: "An indexable method demo: the old-versus-new contrast, a five-step flow, the human–AI boundary, and an explicit list of what not to trust yet. Not a price sheet, and not a finished product. Upstream of the Commercial Decision Desk. Whether it becomes orders is unclaimed.",
       },
       evidence: {
-        zh: "FACT：舊做法是這幾種位子，金額欄為（Paul 填實數），沒有編造價格。DEMO：本頁流程、邊界表，以及站上可開啟的相關建置（MORI 網站、CDD 合成案例），標成方法演示 · 尚未真人／市場驗證。UNKNOWN：會不會變成訂單、名單品質、詢問量與營收。",
-        en: "FACT: the old mode is these kinds of seats; the amount column is “(Paul’s figure)” and no prices were invented. DEMO: this page’s flow and boundary, plus related builds you can open (the MORI site, the synthetic CDD case), labeled method demo · not yet live-market validated. UNKNOWN: whether it becomes orders, list quality, inquiries, and revenue.",
+        zh: "FACT：舊做法是買露出然後等，新做法是露出持續、接觸被設計、承諾留人。沒有金額。DEMO：本頁流程與邊界，以及可開啟的相關建置（MORI 網站、CDD 合成案例），標成成形中的方法演示 · 尚未真人／市場驗證。UNKNOWN：會不會變成訂單、名單品質、省下多少、詢問量與營收。",
+        en: "FACT: the old mode buys exposure and waits; the new mode keeps visibility on, designs the reach, and leaves commitment human. No amounts. DEMO: this page’s flow and boundary, plus related builds you can open (the MORI site, the synthetic CDD case), labeled a method demo in formation · not yet live-market validated. UNKNOWN: whether it becomes orders, list quality, how much is saved, inquiries, and revenue.",
       },
     },
   },

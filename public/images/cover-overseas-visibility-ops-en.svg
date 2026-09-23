@@ -1,23 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Overseas Visibility Ops cover: part of a paid seat can be process design. Method demo, not yet market validated.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Overseas Visibility Ops cover: a trade work platform in formation. Visibility stays on. Commitment stays human.">
   <rect width="1600" height="900" fill="#f5f1e8"/>
   <rect x="78" y="64" width="1444" height="1" fill="#c9c2b5"/>
   <text x="80" y="113" fill="#214c3d" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="4">OVERSEAS VISIBILITY OPS</text>
-  <text x="80" y="174" fill="#a6543d" font-family="Arial, sans-serif" font-size="16" letter-spacing="2.2">METHOD DEMO · NOT YET MARKET VALIDATED</text>
-  <text x="80" y="310" fill="#182019" font-family="Georgia, serif" font-size="68">Not only a seat.</text>
-  <text x="80" y="400" fill="#182019" font-family="Georgia, serif" font-size="68">Part is process.</text>
-  <text x="80" y="492" fill="#214c3d" font-family="Georgia, serif" font-size="48" font-style="italic">Keep the commit human.</text>
-  <text x="83" y="560" fill="#5b665d" font-family="Arial, sans-serif" font-size="22">Figures blank · no guaranteed orders · no guaranteed list</text>
+  <text x="80" y="174" fill="#a6543d" font-family="Arial, sans-serif" font-size="16" letter-spacing="2.2">IN FORMATION · NOT YET MARKET VALIDATED</text>
+  <text x="80" y="300" fill="#182019" font-family="Georgia, serif" font-size="58">Visibility stays on.</text>
+  <text x="80" y="386" fill="#182019" font-family="Georgia, serif" font-size="58">Find the right people.</text>
+  <text x="80" y="476" fill="#214c3d" font-family="Georgia, serif" font-size="44" font-style="italic">Keep the commit human.</text>
+  <text x="83" y="548" fill="#5b665d" font-family="Arial, sans-serif" font-size="22">Not only a purchased seat · no amounts · no guaranteed orders</text>
   <g transform="translate(980 210)">
     <rect width="460" height="430" fill="#12362b"/>
-    <text x="36" y="52" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2">BOTH LEDGERS</text>
-    <text x="36" y="112" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="16">FACTORY SIDE</text>
-    <text x="36" y="150" fill="#fff" font-family="Georgia, serif" font-size="26">MOQ · craft · lead time</text>
-    <line x1="36" x2="424" y1="196" y2="196" stroke="#7c987f"/>
-    <text x="36" y="244" fill="#e5c988" font-family="Arial, sans-serif" font-size="16">BUYER SIDE</text>
-    <text x="36" y="286" fill="#fff" font-family="Georgia, serif" font-size="24">How they read you</text>
-    <text x="36" y="328" fill="#fff" font-family="Georgia, serif" font-size="24">English, first look</text>
-    <text x="36" y="390" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="15">Upstream of the decision desk</text>
+    <text x="36" y="52" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2">IN FORMATION</text>
+    <text x="36" y="118" fill="#fff" font-family="Georgia, serif" font-size="28">Find customers</text>
+    <text x="36" y="168" fill="#fff" font-family="Georgia, serif" font-size="28">Find the right people</text>
+    <text x="36" y="218" fill="#fff" font-family="Georgia, serif" font-size="28">Stay visible</text>
+    <line x1="36" x2="424" y1="258" y2="258" stroke="#7c987f"/>
+    <text x="36" y="310" fill="#e5c988" font-family="Arial, sans-serif" font-size="16">HUMANS KEEP</text>
+    <text x="36" y="352" fill="#fff" font-family="Georgia, serif" font-size="24">Qualify · price · pay</text>
+    <text x="36" y="400" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="15">Upstream of the decision desk</text>
   </g>
   <rect x="80" y="758" width="1440" height="1" fill="#c9c2b5"/>
-  <text x="80" y="811" fill="#687168" font-family="Arial, sans-serif" font-size="16">SEAT  →  WHICH PART IS PROCESS  →  HUMAN GATES  →  ORDERS UNKNOWN</text>
+  <text x="80" y="811" fill="#687168" font-family="Arial, sans-serif" font-size="16">BUY AND WAIT  →  STAY ON AND FIND PEOPLE  →  HUMAN COMMIT  →  ORDERS UNKNOWN</text>
 </svg>
