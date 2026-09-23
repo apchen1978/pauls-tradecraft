@@ -1,25 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="w\m��b��~�0��Yf�">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="海外可見度作業封面：位子的一部分改由流程設計。方法演示，尚未市場驗證。">
   <rect width="1600" height="900" fill="#f5f1e8"/>
   <rect x="78" y="64" width="1444" height="1" fill="#c9c2b5"/>
   <text x="80" y="113" fill="#214c3d" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="4">OVERSEAS VISIBILITY OPS</text>
-  <text x="80" y="174" fill="#a6543d" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">��H� � /�6�</text>
-  <text x="80" y="330" fill="#182019" font-family="Georgia, serif" font-size="84">��</text>
-  <text x="80" y="428" fill="#182019" font-family="Georgia, serif" font-size="84">~�0</text>
-  <text x="80" y="526" fill="#214c3d" font-family="Georgia, serif" font-size="64" font-style="italic">��Yf�</text>
-  <text x="83" y="590" fill="#5b665d" font-family="Arial, sans-serif" font-size="24">��1  � VR /M� � �	��I</text>
+  <text x="80" y="174" fill="#a6543d" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">方法演示 · 尚未市場驗證</text>
+  <text x="80" y="318" fill="#182019" font-family="Georgia, serif" font-size="72">不必只買位子。</text>
+  <text x="80" y="412" fill="#182019" font-family="Georgia, serif" font-size="72">一部分改流程。</text>
+  <text x="80" y="510" fill="#214c3d" font-family="Georgia, serif" font-size="52" font-style="italic">承諾仍留給人。</text>
+  <text x="83" y="578" fill="#5b665d" font-family="Arial, sans-serif" font-size="24">金額待填 · 不保證訂單 · 不保證名單品質</text>
   <g transform="translate(980 210)">
     <rect width="460" height="430" fill="#12362b"/>
-    <text x="36" y="52" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2">HUMAN GATE</text>
-    <text x="36" y="112" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="16">AI �wI</text>
-    <text x="36" y="146" fill="#fff" font-family="Georgia, serif" font-size="26"> P � �< � В</text>
-    <line x1="36" x2="424" y1="188" y2="188" stroke="#7c987f"/>
-    <text x="36" y="236" fill="#e5c988" font-family="Arial, sans-serif" font-size="16">��Y</text>
-    <text x="36" y="278" fill="#fff" font-family="Georgia, serif" font-size="24">�<</text>
-    <text x="36" y="316" fill="#fff" font-family="Georgia, serif" font-size="24">1� � �></text>
-    <text x="36" y="354" fill="#fff" font-family="Georgia, serif" font-size="24">�ם�</text>
-    <text x="36" y="400" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="15">
-8�F�zV�\�</text>
+    <text x="36" y="52" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2">BOTH LEDGERS</text>
+    <text x="36" y="112" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="16">工廠這一側</text>
+    <text x="36" y="150" fill="#fff" font-family="Georgia, serif" font-size="26">MOQ · 交期 · 師傅</text>
+    <line x1="36" x2="424" y1="196" y2="196" stroke="#7c987f"/>
+    <text x="36" y="244" fill="#e5c988" font-family="Arial, sans-serif" font-size="16">買方這一側</text>
+    <text x="36" y="286" fill="#fff" font-family="Georgia, serif" font-size="24">怎麼讀你</text>
+    <text x="36" y="328" fill="#fff" font-family="Georgia, serif" font-size="24">英文與第一印象</text>
+    <text x="36" y="390" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="15">上游於商務決策工作台</text>
   </g>
   <rect x="80" y="758" width="1440" height="1" fill="#c9c2b5"/>
-  <text x="80" y="811" fill="#687168" font-family="Arial, sans-serif" font-size="16">��  �  ~�0  �  ��Z  �  �z����</text>
+  <text x="80" y="811" fill="#687168" font-family="Arial, sans-serif" font-size="16">位子  →  哪一段改流程  →  人留資格與承諾  →  訂單仍是未知</text>
 </svg>
