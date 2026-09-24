@@ -6,6 +6,7 @@ import HeroOutcomes from "./components/HeroOutcomes.jsx";
 import AiWorkValue from "./components/AiWorkValue.jsx";
 import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
+import TradeNotes from "./components/TradeNotes.jsx";
 import GarageBridge from "./components/GarageBridge.jsx";
 import Garage from "./components/Garage.jsx";
 import Verification from "./components/Verification.jsx";
@@ -47,6 +48,7 @@ export default function App() {
             <DealReadiness />
             <CommercialOutcomes />
             <Works />
+            <TradeNotes />
             <Garage />
             <Verification />
             <Methods />
