@@ -4,15 +4,15 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { works: "作品", services: "商業合作", verification: "驗證", method: "方法", process: "流程", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { works: "作品", notes: "國貿筆記", services: "商業合作", verification: "驗證", method: "方法", process: "流程", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "15 年", label: "國際業務總監" },
         { value: "NCCU", label: "會計專業基底" },
         { value: "955", label: "TOEIC · 2019" },
       ],
-      headline: "跨國商務決策前的關鍵判斷。",
-      sub: "報價、接單或投入開發之前，先把條件與 UNKNOWN 攤開。Digital Garage 是這套判斷持續被試驗的工坊。",
+      headline: "你缺的不是更好的產品，是讓對的人看見你。",
+      sub: "AI 幫你篩、整理、把產品講漂亮；報價、付款、交期，仍由你拍板。這是一套方法，不是又一個要你花錢買的位子。",
       youGet: "從一個重要問題開始",
       outcomesHeadline: "你現在最像哪一種情況？",
       outcomesIntro: "不是先挑工具。先從你此刻需要釐清的一個商業問題開始。",
@@ -361,7 +361,7 @@ const dict = {
     about: {
       eyebrow: "About Me",
       headline: "專業，偶爾風趣",
-      intro: "政大會計系畢業，15 年國際業務總監經驗。",
+      intro: "政大會計系畢業，15 年國際業務總監，服務歐美、亞太與中東市場。",
       narrative: [
         "二十多年，我一直在商業現場。",
         "從製造、財務會計、國際貿易到供應鏈，我長期面對成本、報價、客戶、供應商、付款與風險，也習慣在資訊不完整時做判斷。",
@@ -522,15 +522,15 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { works: "Work", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { works: "Work", notes: "Trade Notes", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "15 years", label: "International sales leadership" },
         { value: "NCCU", label: "Accounting foundation" },
         { value: "955", label: "TOEIC · 2019" },
       ],
-      headline: "The critical judgment before cross-border commercial decisions.",
-      sub: "Terms and UNKNOWNs are laid out before a quote, an order, or a development push. The Digital Garage is the craft lab where that judgment keeps being tested.",
+      headline: "The problem isn't your product. It's that the right people never see it.",
+      sub: "AI helps you filter, structure, and present the product properly. Pricing, payment, lead times — still your call. This is a method, not another position you have to buy.",
       youGet: "START WITH ONE IMPORTANT QUESTION",
       outcomesHeadline: "Which situation feels most familiar right now?",
       outcomesIntro: "Do not start with a tool. Start with the commercial question that needs clarity now.",
@@ -879,7 +879,7 @@ const dict = {
     about: {
       eyebrow: "About Me",
       headline: "Professional, occasionally witty",
-      intro: "Accounting degree from NCCU; 15 years as an international sales director.",
+      intro: "Accounting degree from NCCU; 15 years as an international sales director across Europe, the Americas, Asia-Pacific, and the Middle East.",
       narrative: [
         "For more than two decades, I’ve worked on the commercial front line.",
         "Across manufacturing, finance, international trade, and supply chains, I’ve dealt with costs, quotations, customers, suppliers, payments, risk, and decisions made with incomplete information.",
