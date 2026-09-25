@@ -272,7 +272,7 @@ const dict = {
           {
             title: "海外商機審視",
             question: "哪些海外客戶值得投入？",
-            bring: "買方名稱、網站、展會名單、詢盤，或目前已有的公開線索。",
+            bring: "產品與供應基本資料即可開始；若已有想嘗試的市場、買方名稱或公開線索，也可一併帶來。沒有目標市場或買家名單，也能先從產品條件開始梳理。",
             work: "把候選訊號、來源、UNKNOWN 與下一輪驗證問題分開。",
             takeaway: "你帶走：候選短名單與下一輪該問誰。",
             proof: "Overseas Lead Discovery",
@@ -790,7 +790,7 @@ const dict = {
           {
             title: "Overseas Opportunity Review",
             question: "Which overseas prospects deserve attention?",
-            bring: "A buyer name, website, trade-show list, inquiry, or the public signals you already have.",
+            bring: "Basic product and supplier information is enough to start. If you have a target market, buyer name, or public lead, bring it too; none is required to begin.",
             work: "Separate candidate signals, source context, UNKNOWNs, and the next verification questions.",
             takeaway: "You take away: a candidate shortlist and the next questions to ask.",
             proof: "Overseas Lead Discovery",

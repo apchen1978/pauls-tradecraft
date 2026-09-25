@@ -26,6 +26,9 @@ const copy = {
     proofTitle: "不是每一步都停在示意圖。",
     proofBody: "海外客戶研究呈現篩選證據；RFQ 與商務決策工作台則展示詢問之後，哪些事仍需人判斷。這些作品不代表已串成一套自動化系統。",
     proofLinks: ["海外客戶研究", "RFQ 工作流", "商務決策工作台"],
+    productStartTitle: "從你的產品開始",
+    productStartBody: "如果你有一項想試著賣到海外的產品，可以先梳理產品條件與供應限制；已有想嘗試的市場就一併帶上，還沒有也可以從產品開始。",
+    productStartLink: "看看合作可以從哪裡開始",
     boundary: "AI 可以協助研究與準備；客戶是否有需求、能否報價與承諾，仍須查證並由人決定。",
   },
   en: {
@@ -43,6 +46,9 @@ const copy = {
     proof: "03 · See existing work",
     proofTitle: "The route is supported by working examples.",
     proofBody: "Overseas Lead Discovery shows the evidence behind qualification. RFQ and the Commercial Decision Desk show where human judgment takes over. These works are not presented as one integrated automation system.",
+    productStartTitle: "Start with your product",
+    productStartBody: "If you have a product you want to sell overseas, start by clarifying its offer and supply constraints. Bring a target market if you have one; if not, begin with the product.",
+    productStartLink: "See where a collaboration can begin",
     proofLinks: ["Overseas Lead Discovery", "RFQ Workflow", "Commercial Decision Desk"],
     boundary: "AI can assist research and preparation. Demand, quotes, and commitments still require verification and human authority.",
   },
@@ -85,6 +91,15 @@ export default function CommercialFrontDoor() {
               <a key={href} href={href} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">{c.proofLinks[index]}<ArrowUpRight size={14} weight="bold" aria-hidden="true" /></a>
             ))}
           </div>
+        <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 md:flex-row md:items-center md:justify-between md:gap-8">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold text-forest">{c.productStartTitle}</p>
+            <p className="mt-1 text-sm leading-relaxed text-ink/65">{c.productStartBody}</p>
+          </div>
+          <a href="#capabilities" className="inline-flex shrink-0 self-start items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:self-auto">
+            {c.productStartLink}<ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+          </a>
+        </div>
         </div>
         <p className="mt-6 max-w-[78ch] text-xs leading-relaxed text-ink/60">{c.boundary}</p>
       </div>
