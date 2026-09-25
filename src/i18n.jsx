@@ -11,7 +11,7 @@ const dict = {
         { value: "NCCU", label: "會計專業基底" },
         { value: "955", label: "TOEIC · 2019" },
       ],
-      headline: "想找海外客戶，先看清誰真的可能買。",
+      headline: "海外客戶開發，從找到對的市場與買家開始。",
       sub: "從找公司、找對人，到讀懂詢價。AI 協助研究與準備；是否值得投入、能否承諾交易，仍由人判斷。",
       youGet: "從一個重要問題開始",
       outcomesHeadline: "你現在最像哪一種情況？",
