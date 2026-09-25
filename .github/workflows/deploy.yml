@@ -70,8 +70,12 @@ jobs:
           CHROME_PATH: ${{ github.workspace }}/.chrome/chrome-linux64/chrome
       - name: Build
         run: npm run build
-      - name: Include Digital Garage prototype
+      - name: Include standalone portfolio experiences
         run: |
+          mkdir -p dist/prototype/ai-native-overseas-customer-roadmap
+          cp prototype/ai-native-overseas-customer-roadmap/index.html dist/prototype/ai-native-overseas-customer-roadmap/index.html
+          mkdir -p dist/prototype/ai-native-commercial-conversion
+          cp prototype/ai-native-commercial-conversion/index.html dist/prototype/ai-native-commercial-conversion/index.html
           mkdir -p dist/prototype/factory-secret-menu
           cp prototype/factory-secret-menu/index.html dist/prototype/factory-secret-menu/index.html
           mkdir -p dist/prototype/garage-rfq-workflow-001

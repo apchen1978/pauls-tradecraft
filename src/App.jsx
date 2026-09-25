@@ -2,6 +2,7 @@ import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
+import CommercialFrontDoor from "./components/CommercialFrontDoor.jsx";
 import HeroOutcomes from "./components/HeroOutcomes.jsx";
 import AiWorkValue from "./components/AiWorkValue.jsx";
 import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
@@ -37,9 +38,8 @@ export default function App() {
         <div className="min-h-[100dvh]">
           <Nav />
           <main id="main">
-            {/* ② 先翻譯 AI 的實際角色，再以 CDD 旗艦成果落地。 */}
             <Hero />
-            <GarageBridge />
+            <CommercialFrontDoor />
             <HeroOutcomes />
             <AiWorkValue />
             <HumanAiEditorial />
@@ -49,6 +49,7 @@ export default function App() {
             <CommercialOutcomes />
             <Works />
             <TradeNotes />
+            <GarageBridge />
             <Garage />
             <Verification />
             <Methods />

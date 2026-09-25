@@ -64,13 +64,13 @@ export default function Hero() {
           </motion.div>
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
-              href="/cases/commercial-decision-desk/"
+              href="/prototype/ai-native-overseas-customer-roadmap/"
               className="rounded-field bg-gold px-7 py-3.5 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61] active:scale-[0.98]"
             >
               {t.hero.ctaPrimary}
             </a>
             <a
-              href="https://apchen1978.github.io/overseas-lead-discovery-demo/"
+              href="/prototype/ai-native-commercial-conversion/"
               className="rounded-field border border-bone/55 bg-bone/[0.06] px-7 py-3.5 text-sm font-semibold tracking-[0.025em] text-bone shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-sm transition-colors hover:border-gold/75 hover:bg-bone/[0.1] hover:text-gold active:scale-[0.98]"
             >
               {t.hero.ctaSecondary}
