@@ -40,6 +40,35 @@
       .email-draft p{font-size:13px}
     }
   </style>
+
+  <style>
+    :root{--research:#536d87;--research-soft:#e8eef3;--exception:#a35c4f;--exception-soft:#f3e9e6}
+    @media(prefers-color-scheme:dark){:root{--research:#9bb2c7;--research-soft:#273540;--exception:#d18d7f;--exception-soft:#3a2d2a}}
+    .evidence{border-left-color:var(--research);background:var(--research-soft)}.evidence strong,.contact-node b{color:var(--research)}
+    .hypothesis-note,.human-gate{border-left:3px solid var(--amber);background:var(--soft-amber)}
+    .unknown,.synthetic-tag{color:var(--amber)}.record-state{border-color:var(--research);color:var(--research)}
+    .channel.active{border-color:var(--research);color:var(--research);background:var(--research-soft)}
+  </style>
+
+  <style>
+    :root{--authority:#46534f;--authority-soft:#e9ece8}
+    @media(prefers-color-scheme:dark){:root{--authority:#c2ccc5;--authority-soft:#2b3731}}
+    .hero{position:relative;border-bottom:1px solid var(--line);padding-bottom:42px}
+    .hero:after{content:"";position:absolute;bottom:-1px;left:0;width:76px;height:2px;background:var(--gold)}
+    .hero .eyebrow{color:var(--amber)}
+    .hero-side{border-left-color:var(--gold)}
+    .walkthrough{border-top-color:color-mix(in srgb,var(--forest) 38%,var(--line))}
+    .rail h2{color:var(--forest)}
+    .sequence{border-left-color:color-mix(in srgb,var(--research) 45%,var(--line))}
+    .step-link[aria-current="step"]:before{border-color:var(--gold);background:var(--gold);box-shadow:0 0 0 3px var(--soft-amber)}
+    .scene{border-top:2px solid var(--research)}
+    .scene-head .kicker{color:var(--research)}
+    .human-gate{border-left-color:var(--authority);background:var(--authority-soft)}
+    .human-gate strong{color:var(--authority)}
+    .architecture{border-top:1px solid var(--line)}
+    @media(max-width:900px){.hero{padding-bottom:34px}}
+    @media(max-width:640px){.hero{padding-top:38px;padding-bottom:30px}.hero:after{width:54px}.hero-side{border-left:0;border-top:1px solid var(--line);padding:13px 0 0}}
+  </style>
 </head>
 <body data-lang="zh">
   <header class="top wrap">
