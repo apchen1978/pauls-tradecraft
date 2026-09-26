@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Paul’s Tradecraft Learning Guide 001 — Overseas Customer Development." />
+  <title>Paul’s Tradecraft · Learning Guide 001</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f3e9;
+      --sheet: #fffdf7;
+      --ink: #202922;
+      --muted: #5d665f;
+      --forest: #214638;
+      --gold: #a77d36;
+      --line: #d8d4c8;
+      --mist: #e9eee9;
+      --blue: #eaf0f2;
+      --soft: #f0ede3;
+      --warning: #8b5d31;
+    }
+    * { box-sizing: border-box; }
+    html { background: #e8e5dc; color: var(--ink); }
+    body {
+      margin: 0;
+      font-family: "Aptos", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.68;
+    }
+    .prototype-banner {
+      max-width: 900px;
+      margin: 18px auto 0;
+      padding: 10px 16px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: .02em;
+    }
+    .book { padding: 0 18px 28px; }
+    .page {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: min(100%, 790px);
+      min-height: 1040px;
+      margin: 16px auto 26px;
+      padding: 70px 76px 66px;
+      overflow: hidden;
+      background: var(--sheet);
+      border: 1px solid #dedacf;
+      box-shadow: 0 8px 28px #26332c12;
+      break-after: page;
+      page-break-after: always;
+    }
+    .page:last-child { break-after: auto; page-break-after: auto; }
+    .page-head, .page-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .page-head { margin-bottom: 36px; }
+    .page-foot { margin-top: auto; padding-top: 24px; }
+    .folio { color: var(--gold); font-variant-numeric: tabular-nums; }
+    .chapter-no, .eyebrow {
+      margin: 0 0 10px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2 {
+      color: var(--forest);
+      font-family: "Noto Serif TC", "Source Han Serif TC", "PMingLiU", serif;
+      font-weight: 600;
+      line-height: 1.32;
+    }
+    h1 { margin-bottom: 20px; font-size: 38px; }
+    h2 { margin-bottom: 19px; font-size: 27px; }
+    h3 { margin-bottom: 10px; font-size: 16px; line-height: 1.45; }
+    p { margin-bottom: 14px; }
+    .lead { color: var(--forest); font-size: 20px; line-height: 1.55; }
+    .body-copy { max-width: 58ch; }
+    .body-copy p:last-child { margin-bottom: 0; }
+    .quiet { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .callout {
+      margin: 18px 0;
+      padding: 14px 17px;
+      border-left: 3px solid var(--gold);
+      background: var(--soft);
+    }
+    .callout p:last-child { margin-bottom: 0; }
+    .example-label {
+      margin: 10px 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .035em;
+    }
+    .action {
+      margin-top: auto;
+      padding: 17px 19px;
+      border-top: 2px solid var(--gold);
+      background: #f7f2e4;
+    }
+    .action .action-label {
+      margin: 0 0 7px;
+      color: var(--forest);
+      font-size: 13px;
+      font-weight: 750;
+      letter-spacing: .04em;
+    }
+    .action p:last-child { margin-bottom: 0; }
+    .visual-label {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .cap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 20px 0; }
+    .cap {
+      min-height: 158px;
+      padding: 16px 13px;
+      border: 1px solid var(--line);
+      background: #fffefa;
+    }
+    .cap:nth-child(1) { border-top: 3px solid var(--forest); }
+    .cap:nth-child(2) { border-top: 3px solid var(--gold); }
+    .cap:nth-child(3) { border-top: 3px solid #8a7162; }
+    .cap h3 { color: var(--forest); }
+    .cap p { margin: 0; font-size: 13px; line-height: 1.55; }
+    .compare-stack { display: grid; gap: 12px; margin: 18px 0; }
+    .candidate {
+      padding: 17px 18px;
+      border: 1px solid var(--line);
+      background: #fffefa;
+    }
+    .candidate h3 { color: var(--forest); }
+    .candidate dl { display: grid; grid-template-columns: 132px 1fr; gap: 5px 13px; margin: 0; font-size: 13px; }
+    .candidate dt { color: var(--muted); }
+    .candidate dd { margin: 0; }
+    .unknown { color: var(--warning); font-style: italic; }
+    .r8-card { margin: 20px 0; padding: 22px; border: 1px solid var(--line); background: #fffefa; }
+    .r8-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .r8-row:last-of-type { border-bottom: 0; }
+    .r8-row span:first-child { color: var(--muted); font-size: 13px; }
+    .r8-row strong { color: var(--forest); }
+    .down { padding: 8px 0; color: var(--gold); text-align: center; font-size: 23px; line-height: 1; }
+    .not-prioritized { padding: 13px; color: var(--forest); background: var(--mist); font-weight: 800; text-align: center; letter-spacing: .04em; }
+    .reply {
+      margin: 12px 0 18px;
+      padding: 19px 20px;
+      border-left: 3px solid var(--forest);
+      background: var(--blue);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+      line-height: 1.45;
+    }
+    .reply-map { display: grid; gap: 9px; margin: 17px 0; }
+    .reply-item { display: grid; grid-template-columns: 118px 1fr; gap: 13px; padding: 11px 13px; border-bottom: 1px solid var(--line); }
+    .reply-item strong { color: var(--forest); }
+    .reply-item p { margin: 0; font-size: 13px; }
+    .trade-groups { display: grid; gap: 11px; margin: 18px 0; }
+    .trade-group { padding: 14px 16px; border-left: 3px solid var(--forest); background: #f5f5ef; }
+    .trade-group:nth-child(2) { border-left-color: var(--gold); }
+    .trade-group:nth-child(3) { border-left-color: #748c9a; }
+    .trade-group h3 { margin-bottom: 4px; }
+    .trade-group p { margin: 0; font-size: 13px; }
+    .timeline { display: grid; gap: 8px; margin: 14px 0; }
+    .time-node { padding: 12px 15px; border: 1px solid var(--line); background: #fffefa; }
+    .time-node h3 { margin: 0 0 4px; color: var(--forest); }
+    .time-node p { margin: 0; font-size: 13px; }
+    .time-node.change { border-color: #c8a36a; background: #faf4e8; }
+    .time-node.stale { border-color: #a47b67; background: #f4ece7; }
+    .connector { height: 8px; color: var(--gold); line-height: 8px; text-align: center; }
+    .decision-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 8px; }
+    .decision-options span { padding: 8px 5px; border: 1px solid var(--line); text-align: center; font-size: 11px; }
+    .fill-lines { margin: 18px 0 0; }
+    .fill-line { padding: 11px 0 7px; border-bottom: 1px solid #aaa99e; }
+    .toc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin: 20px 0; padding: 0; list-style: none; }
+    .toc li { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .toc b { display: inline-block; width: 28px; color: var(--gold); }
+    .cover { justify-content: center; }
+    .cover .cover-mark { width: 56px; height: 3px; margin: 0 0 35px; background: var(--gold); }
+    .cover h1 { max-width: 570px; font-size: 48px; }
+    .cover .subtitle { max-width: 36ch; color: var(--muted); font-size: 19px; }
+    .cover .cover-bottom { margin-top: 110px; color: var(--muted); font-size: 12px; letter-spacing: .1em; }
+    .final-line { margin-top: 24px; color: var(--forest); font-family: "Noto Serif TC", "PMingLiU", serif; font-size: 19px; }
+    .page-index { position: absolute; right: 76px; bottom: 28px; color: #7b817a; font-size: 10px; }
+    .page-foot { position: absolute; right: 76px; bottom: 27px; left: 76px; }
+    .page-foot .folio { margin-left: auto; }
+    a { color: var(--forest); text-decoration-color: #a77d3677; text-underline-offset: 3px; }
+    @media (max-width: 700px) {
+      .prototype-banner { margin: 8px 14px 0; padding-inline: 3px; }
+      .book { padding: 0 10px 20px; }
+      .page { min-height: 0; margin: 10px auto 16px; padding: 31px 23px 58px; }
+      .page-head { margin-bottom: 24px; }
+      h1 { font-size: 31px; }
+      h2 { font-size: 24px; }
+      .lead { font-size: 18px; }
+      .cap-grid { grid-template-columns: 1fr; }
+      .cap { min-height: 0; }
+      .candidate dl { grid-template-columns: 1fr; gap: 1px; }
+      .candidate dd { margin-bottom: 7px; }
+      .reply-item { grid-template-columns: 1fr; gap: 2px; }
+      .toc { grid-template-columns: 1fr; }
+      .decision-options { grid-template-columns: 1fr; }
+      .page-foot { right: 23px; bottom: 21px; left: 23px; }
+      .cover h1 { font-size: 39px; }
+      .cover .cover-bottom { margin-top: 68px; }
+    }
+    @page { size: A4; margin: 0; }
+    @media print {
+      html, body { width: 210mm; margin: 0; background: white; font-size: 11pt; }
+      .prototype-banner { display: none; }
+      .book { padding: 0; }
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        height: 297mm;
+        margin: 0;
+        padding: 18mm 19mm 19mm;
+        border: 0;
+        box-shadow: none;
+        overflow: hidden;
+      }
+      .page-head { margin-bottom: 9mm; }
+      .page-foot { right: 19mm; bottom: 9mm; left: 19mm; }
+      h1 { font-size: 28pt; }
+      h2 { font-size: 21pt; }
+      .lead { font-size: 15pt; }
+      .body-copy { font-size: 11pt; }
+      .cap { min-height: 38mm; }
+      .cover h1 { font-size: 36pt; }
+      .cover .cover-bottom { margin-top: 30mm; }
+      a { color: inherit; text-decoration: none; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="prototype-banner">Learning Guide #001 · Publication Prototype v0.1 · 16-page low-fidelity editorial layout · Not the final PDF</div>
+  <main class="book">
+    <section class="page cover" aria-label="Page 1: Cover">
+      <div class="cover-mark"></div>
+      <p class="eyebrow">PAUL’S TRADECRAFT · LEARNING GUIDE 001</p>
+      <h1>海外客戶開發：<br />從一項產品開始</h1>
+      <p class="subtitle">給想試著開發海外市場的老闆、業務同事與接班夥伴。從一項產品開始，把第一步想清楚。</p>
+      <p class="cover-bottom">PAUL’S TRADECRAFT · LEARNING GUIDE 001</p>
+      <div class="page-foot"><span>Learning Guide #001</span><span class="folio">01</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 2: Opening">
+      <div class="page-head"><span>從一個產品問題開始</span><span class="folio">02</span></div>
+      <p class="eyebrow">先從一個產品問題開始</p>
+      <h2>「我有一項產品，想試著開發海外市場，到底可以怎麼開始？」</h2>
+      <div class="body-copy">
+        <p>很多人會先找名單、寄開發信、參加展覽。這些都可能有用，但先問問公司能穩定供應什麼、哪些買家可能需要，以及接單前有哪些條件要確認，往往更踏實。</p>
+        <p>這份指南從產品出發，接著看市場、公司、買家、聯絡方式與回覆，最後想清楚公司能不能接、下一步要做什麼。AI 能幫忙找資料、整理線索和準備草稿；選市場、談條件和對客戶承諾，還是由人來判斷和負責。</p>
+      </div>
+      <div class="callout quiet">文中的案例各自說明旅程中的一個環節，不是同一筆交易的連續故事。合成案例只供教學，不代表實際客戶或成果。</div>
+      <div class="page-foot"><span>先把第一步想清楚</span><span class="folio">02</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 3: Contents">
+      <div class="page-head"><span>閱讀路線</span><span class="folio">03</span></div>
+      <h2>從產品，一步一步走到下一個決定</h2>
+      <p class="body-copy">不必先懂 AI。先沿著熟悉的生意問題往下看，遇到自己的產品時停下來想一想。</p>
+      <ol class="toc">
+        <li><b>01</b>我有一項產品，第一步該做什麼？</li>
+        <li><b>02</b>誰可能需要它？在哪個市場？</li>
+        <li><b>03</b>找到一家公司，怎麼知道值不值得花時間？</li>
+        <li><b>04</b>公司裡該找誰？</li>
+        <li><b>05</b>怎麼讓對方有理由回覆？</li>
+        <li><b>06</b>買家回覆了，代表什麼？</li>
+        <li><b>07</b>這筆生意，公司真的接得住嗎？</li>
+        <li><b>08</b>現在該問、該試，還是先等等？</li>
+      </ol>
+      <p class="body-copy">AI 能幫忙找資料、整理線索和準備草稿；選市場、談條件和對客戶承諾，還是由人來判斷和負責。</p>
+      <div class="page-foot"><span>八個商業問題 · 不必一次走完</span><span class="folio">03</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 4: Chapter 1">
+      <div class="page-head"><span>01 · 產品</span><span class="folio">04</span></div>
+      <p class="chapter-no">01 / 從供應能力開始</p>
+      <h2>我有一項產品，第一步該做什麼？</h2>
+      <div class="body-copy">
+        <p>先把「我們有這個產品」說清楚：用途和規格是什麼？哪些品質要求做得到？有沒有認證或測試資料？樣品怎麼提供？最小訂購量（MOQ）、產能和交期是多少？哪些條件每次都能做到，哪些要看材料、排程或訂單大小？</p>
+        <p>重點不是先做出完美簡報，而是分清楚「做過」和「現在能穩定供應」的差別。產品資料、工廠確認和公司的市場目標，也不是同一回事。</p>
+      </div>
+      <div class="callout"><strong>找買家前，先知道自己能穩穩交出什麼。</strong></div>
+      <div class="visual-label">產品能力卡 · OEM 零件假設示例</div>
+      <div class="cap-grid">
+        <article class="cap"><h3>能穩定供應</h3><p>已確認可生產的既有規格。</p></article>
+        <article class="cap"><h3>要再確認</h3><p>客製規格的材料、表面處理、測試要求與生產交期。</p></article>
+        <article class="cap"><h3>目前不能承諾</h3><p>未確認前，不承諾客製規格可量產或按期交付。</p></article>
+      </div>
+      <p class="quiet">這樣才知道該找什麼買家，也知道哪些話還不能答應。</p>
+      <div class="action"><p class="action-label">換成你的公司</p><p>拿一項產品，寫下三件事：目前能穩定供應什麼、出貨前還要確認什麼、現階段不能對客戶承諾什麼。</p></div>
+      <div class="page-foot"><span>01 · 從供應能力開始</span><span class="folio">04</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 5: Chapter 2">
+      <div class="page-head"><span>02 · 市場</span><span class="folio">05</span></div>
+      <p class="chapter-no">02 / 找可能需要的人</p>
+      <h2>誰可能需要它？在哪個市場？</h2>
+      <div class="body-copy">
+        <p>先想產品能幫人做什麼，再想哪些公司會為這件事採購。同一項產品，可能賣給品牌商、進口商、批發商、零售通路、工程承包商或其他製造商；他們在意的規格、數量和採購方式可能不同。</p>
+        <p>市場也不只是國名。你可以從用途、產業、銷售通路或買家類型開始想。例如，同一項標準零件可能供給新設備的製造商，也可能進入維修備品通路。這是找方向，不代表這些買家現在就在找貨。</p>
+        <p>看一家公司時，先問它在生意中扮演什麼角色：它會買進這類產品、替別人採購、設計產品，還是只提供相關服務？出現在同一個產業裡，不一定就是買家。</p>
+      </div>
+      <div class="callout"><strong>同一個市場裡，公司做的事不一樣；先分清楚角色，再把它放進客戶名單。</strong></div>
+      <div class="action"><p class="action-label">換成你的公司</p><p>想兩種可能買家，各寫一句：他可能為什麼需要你的產品？還要找什麼資料，才能知道這個猜想是否站得住腳？</p></div>
+      <div class="page-foot"><span>02 · 從用途與買家開始想</span><span class="folio">05</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 6: Chapter 3 comparison">
+      <div class="page-head"><span>03 · 公司</span><span class="folio">06</span></div>
+      <p class="chapter-no">03 / 比較值得研究的公司</p>
+      <h2>找到一家公司，怎麼知道值不值得花時間？</h2>
+      <div class="body-copy">
+        <p>名單上的公司只是線索。看看它的網站、型錄、銷售通路或展會資料，先了解它賣什麼、服務誰、是否經營相關品類。AI 可以幫你整理公開資料、比較幾家公司；看到的重點仍要回去對照原始來源。</p>
+        <p>不只看公司規模，也要看它的生意和你的產品合不合。它可能是進口商，卻不做你的品類；可能賣相關產品，但它是零售品牌而非採購商；也可能是競爭者、設計顧問或服務商，而不是直接買家。</p>
+      </div>
+      <div class="visual-label">比較示意 · 以下是本章提到的可能情況，非實際公司</div>
+      <div class="compare-stack">
+        <article class="candidate">
+          <h3>假設公司 A｜進口商</h3>
+          <dl><dt>看起來相關</dt><dd>可能是進口商</dd><dt>還不知道</dt><dd>是否經營你的產品品類：<span class="unknown">UNKNOWN</span></dd><dt>下一步</dt><dd>查型錄與品類是否吻合</dd></dl>
+        </article>
+        <article class="candidate">
+          <h3>假設公司 B｜零售品牌</h3>
+          <dl><dt>看起來相關</dt><dd>可能賣相關產品</dd><dt>還不知道</dt><dd>是否直接採購或由他人採購：<span class="unknown">UNKNOWN</span></dd><dt>下一步</dt><dd>先弄清公司角色</dd></dl>
+        </article>
+      </div>
+      <p class="quiet">沒有列出具體公司事實或來源；比較欄只呈現本章的假設問題。</p>
+      <div class="page-foot"><span>相關，不等於已確認是買家</span><span class="folio">06</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 7: Chapter 3 R8">
+      <div class="page-head"><span>03 · 反例</span><span class="folio">07</span></div>
+      <p class="chapter-no">03 / 一個值得停下來看的反例</p>
+      <h2>看起來相關，不等於值得投入業務時間。</h2>
+      <p class="body-copy">R8 的買家適配度高、進口開放度標示為「是」，但品類適配偏弱，所以沒有優先處理。進口商身分是線索，不是採購意願；整體看來不夠合適，就不必因為幾項好消息而投入太多時間。</p>
+      <div class="r8-card" aria-label="R8 teaching example">
+        <div class="r8-row"><span>BUYER FIT</span><strong>HIGH</strong></div>
+        <div class="r8-row"><span>IMPORT OPENNESS</span><strong>YES</strong></div>
+        <div class="r8-row"><span>CATEGORY FIT</span><strong>WEAK</strong></div>
+        <div class="down">↓</div>
+        <div class="not-prioritized">不優先</div>
+      </div>
+      <p class="example-label">教學示例｜匿名／合成紀錄，不代表實際客戶或成果。</p>
+      <div class="callout"><strong>找到很多公司不難，難的是知道哪幾家值得你花時間。</strong></div>
+      <div class="action"><p class="action-label">換成你的公司</p><p>挑兩家公司各找一項支持它值得研究的公開線索，再各寫一個還沒弄清楚的問題。先比較理由，不必急著把名單做大。</p></div>
+      <div class="page-foot"><span>先看理由，不必急著擴大名單</span><span class="folio">07</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 8: Chapter 4">
+      <div class="page-head"><span>04 · 買家角色</span><span class="folio">08</span></div>
+      <p class="chapter-no">04 / 找到對話能接上的人</p>
+      <h2>公司裡該找誰？</h2>
+      <div class="body-copy">
+        <p>公司可能合適，還要找到會在意這項產品的人。採購人員可能關心供應商和價格；產品經理可能關心規格和新品；工程或品質人員可能把關測試與認證。小公司裡，一個人常兼好幾種工作；大公司則可能要先找對部門。</p>
+        <p>公司網站、團隊介紹、職缺或公開訪談，可以幫你推測誰可能負責。但職稱不等於採購權。聯絡後還要確認：這個人管不管這類產品？誰看規格？誰決定商業條件？</p>
+        <p>AI 可以整理可能的職務和公開線索，幫你少從空白開始；它不會因此知道公司內部的分工或誰有權拍板。</p>
+      </div>
+      <div class="callout"><strong>找到對的公司只是起點，還要找到對話能接得上的人。</strong></div>
+      <div class="action"><p class="action-label">換成你的公司</p><p>對一家公司寫下一個可能的聯絡職務，並記一項支持這個猜測的公開線索；還沒確認的地方就先留白。</p></div>
+      <div class="page-foot"><span>職稱可以提供線索，權限仍要確認</span><span class="folio">08</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 9: Chapter 5">
+      <div class="page-head"><span>05 · 接觸</span><span class="folio">09</span></div>
+      <p class="chapter-no">05 / 給對方一個回覆理由</p>
+      <h2>怎麼讓對方有理由回覆？</h2>
+      <div class="body-copy">
+        <p>好的初次訊息不是把公司介紹寫得很長，而是讓收件人看得出：你為什麼找他、產品可能和他的生意哪裡相關，以及他回覆後可以談什麼。</p>
+        <p>AI 可以用已核對的產品資料和公司公開資訊幫你起草、縮短或調整語氣。但看過對方網站，不代表知道對方正在找新供應商。沒有根據的「我知道你們正在採購」，最好不要寫進信裡。</p>
+        <p>Commercial Conversion 是一個獨立的合成示例，展示如何準備一封與候選公司和可能買家角色相關、但仍要由人檢查的訊息。</p>
+      </div>
+      <div class="callout"><strong>一封信的目的不是證明你很了解對方，而是給他一個合理的回覆理由。</strong></div>
+      <p class="quiet">可選延伸：<a href="https://paulstradecraft.com/prototype/ai-native-commercial-conversion/">Commercial Conversion 合成示例</a>。這是獨立示例，不是 Roadmap 的自動化下游。</p>
+      <div class="action"><p class="action-label">換成你的公司</p><p>寫一封不超過五句的初次訊息：為什麼找這家公司、產品可能相關在哪裡、你想問的一個小問題。寄出前，請同事核對裡面的具體說法。</p></div>
+      <div class="page-foot"><span>先寫清楚為什麼找他</span><span class="folio">09</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 10: Chapter 6 reply">
+      <div class="page-head"><span>06 · 買家回覆</span><span class="folio">10</span></div>
+      <p class="chapter-no">06 / 先讀清楚，再決定怎麼答</p>
+      <h2>買家回覆了，代表什麼？</h2>
+      <p class="body-copy">回覆不是訂單。買家可能要型錄，也可能問規格、MOQ、樣品或報價。先看他實際說了什麼，再決定要回答什麼、還要追問什麼。</p>
+      <p class="example-label">教學示例｜合成買家回覆，不代表實際客戶或詢價。</p>
+      <blockquote class="reply">“Could you quote 2,000 units FOB and advise MOQ and lead time?”</blockquote>
+      <div class="reply-map">
+        <div class="reply-item"><strong>2,000 units</strong><p>買家要求報 2,000 件。<br />還缺：產品規格與包裝。</p></div>
+        <div class="reply-item"><strong>FOB</strong><p>買家希望按 FOB 條件報價。<br />還缺：指定裝運港。</p></div>
+        <div class="reply-item"><strong>MOQ</strong><p>買家詢問最低訂購量。<br />還要向供應端確認。</p></div>
+        <div class="reply-item"><strong>lead time</strong><p>買家詢問交期。<br />還要確認供應端時間與起算條件。</p></div>
+      </div>
+      <div class="page-foot"><span>從原句找要求，也找缺漏</span><span class="folio">10</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 11: Chapter 6 next action">
+      <div class="page-head"><span>06 · 下一個問題</span><span class="folio">11</span></div>
+      <div class="callout"><strong>客戶問價格，不代表已經可以報價；真正重要的常常是他還沒說清楚的條件。</strong></div>
+      <div class="body-copy">
+        <p>AI 可以幫忙把回信分成數量、規格、價格條件和待問問題，但別讓它替買家補答案，也別在供應端確認前代公司承諾。</p>
+      </div>
+      <p class="quiet">可選延伸：想看詢價（RFQ，Request for Quotation）條件如何整理，可參考 <a href="https://paulstradecraft.com/prototype/garage-rfq-workflow-001/">RFQ Workflow 合成示例</a>。情境與上面的回覆各自獨立。</p>
+      <div class="action"><p class="action-label">換成你的公司</p><p>找一封舊詢價，標出客戶明確說了什麼、你還不知道什麼，以及下一個要向買家或供應端確認的問題。</p></div>
+      <div class="page-foot"><span>確認原文，不替對方補答案</span><span class="folio">11</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 12: Chapter 7 conditions">
+      <div class="page-head"><span>07 · 交易條件</span><span class="folio">12</span></div>
+      <p class="chapter-no">07 / 公司真的接得住嗎？</p>
+      <h2>這筆生意，公司真的接得住嗎？</h2>
+      <p class="body-copy">買家提出條件後，先別急著說「可以」。最基本的問題是：公司能不能按這個規格、數量、時間和付款方式交付？</p>
+      <div class="trade-groups">
+        <article class="trade-group"><h3>產品能不能做</h3><p>規格、品質、樣品、認證。</p></article>
+        <article class="trade-group"><h3>時間和數量接不接得住</h3><p>MOQ、產能、交期、包裝與出貨安排。</p></article>
+        <article class="trade-group"><h3>條件公司能不能接受</h3><p>價格、付款方式，以及運輸與責任安排。</p></article>
+      </div>
+      <div class="body-copy">
+        <p>Incoterms 是國際貿易中用來說明買賣雙方交貨責任、費用和風險分配的規則。像 FOB 這類條件，不能只寫三個字；報價還要釐清適用版本和指定裝運港。實際交易以合約與當時適用的規則為準。</p>
+      </div>
+      <p class="body-copy">RFQ Workflow 的合成案例提醒我們：條件一變，原本的報價判斷可能就不再適用。</p>
+      <div class="page-foot"><span>先看公司是否做得到、接得住</span><span class="folio">12</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 13: Chapter 7 RFQ re-check">
+      <div class="page-head"><span>07 · 條件改變</span><span class="folio">13</span></div>
+      <h2>條件一變，原本的報價判斷可能就不再適用。</h2>
+      <p class="example-label">合成案例｜一項 OEM 零件詢價</p>
+      <div class="timeline">
+        <article class="time-node"><h3>原來的詢價條件</h3><p>Rev A 規格、30/70 付款、原詢價數量與十月下旬交付，在此合成情境中均已確認可行。</p></article>
+        <div class="connector">↓</div>
+        <article class="time-node"><h3>當時的人做了什麼判斷</h3><p>可報價。</p></article>
+        <div class="connector">↓</div>
+        <article class="time-node change"><h3>買家後來改了條件</h3><p>付款改為 90-day OA；規格改為 Rev B。</p></article>
+        <div class="connector">↓</div>
+        <article class="time-node stale"><h3>原本的判斷不再適用</h3><p>「可報價」需要重新檢查。付款接受度、價格假設與規格可行性需重看；交期影響仍未知。</p></article>
+        <div class="connector">↓</div>
+        <article class="time-node"><h3>現在由人重新判斷</h3><div class="decision-options"><span>可報價</span><span>有條件暫緩</span><span>尚不可報價</span></div><p class="quiet" style="margin-top:8px">結果依更新後的條件決定；沒有預先選定唯一答案。</p></article>
+      </div>
+      <p class="quiet">教學示例｜合成 RFQ 情境；不代表第 6 章買家回覆的後續。</p>
+      <div class="page-foot"><span>條件變了，昨天的答案今天可能就不能用了</span><span class="folio">13</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 14: Optional deeper reading">
+      <div class="page-head"><span>07 · 可選延伸閱讀</span><span class="folio">14</span></div>
+      <p class="chapter-no">想多看一個角度？</p>
+      <div class="body-copy">
+        <p><a href="https://paulstradecraft.com/cases/commercial-decision-desk/">Commercial Decision Desk 案例</a>：看看報價與待確認條件如何整理給人判斷。這是合成案例，不代表已驗證的商業績效。</p>
+        <p><a href="https://paulstradecraft.com/#trade-notes">Trade Notes</a>：延伸閱讀部分貿易條件筆記。</p>
+      </div>
+      <p class="quiet">TPN 是本機合成原型，並非完整到岸成本計算器；以上作品各自獨立，沒有串成同一套交易系統。</p>
+      <div class="action"><p class="action-label">換成你的公司</p><p>看一項產品或一筆詢價：哪一項條件最可能讓公司無法交付？先找負責的人確認那一項。</p></div>
+      <div class="page-foot"><span>07 · 接單前先找人確認關鍵條件</span><span class="folio">14</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 15: Chapter 8 next move">
+      <div class="page-head"><span>08 · 下一步</span><span class="folio">15</span></div>
+      <p class="chapter-no">08 / 問、試，或先等等</p>
+      <h2>現在該問、該試，還是先等等？</h2>
+      <div class="body-copy">
+        <p>下一步不一定是再找更多公司。有時候該問買家補規格，有時候該向工廠確認交期；如果關鍵條件還不知道，先等等也比猜一個答案再報價好。</p>
+        <p>回到第 6 章的合成詢價，目前知道買家問 2,000 件、FOB、MOQ 和交期。還不知道指定裝運港、完整規格，以及工廠對這個數量能否供貨。下一步可以先問買家裝運港和規格，再向工廠確認 MOQ、產能和交期；收到答案前，不承諾價格或交貨日期。</p>
+        <p>這不是所有交易都要照做的固定流程，而是這個情境下合理的下一步。另一筆生意可能需要先查認證、付款條件或其他風險。人仍要決定報正式價格、接受例外或承諾交期；AI 能整理線索，不能替公司答應交易。</p>
+      </div>
+      <div class="callout"><strong>先補上會改變答案的那項資訊，再決定要不要往前走。</strong></div>
+      <div class="page-foot"><span>先找出會改變答案的資訊</span><span class="folio">15</span></div>
+    </section>
+
+    <section class="page" aria-label="Page 16: Chapter 8 reader action">
+      <div class="page-head"><span>08 · 換成你的公司</span><span class="folio">16</span></div>
+      <div class="action">
+        <p class="action-label">換成你的公司</p>
+        <h2>想一項你正在考慮的產品或買家要求，填完三句：</h2>
+        <div class="fill-lines"><div class="fill-line">我們已經確定：</div><div class="fill-line">還要確認：</div><div class="fill-line">下一步去問：</div></div>
+        <p class="final-line">如果這一輪得到新答案，可能要回頭修正原先的市場或買家想法。海外開發不是一路往前的直線；每次多知道一點，就能更踏實地決定下一步。</p>
+      </div>
+      <div class="page-foot"><span>Learning Guide #001 · 海外客戶開發：從一項產品開始</span><span class="folio">16</span></div>
+    </section>
+  </main>
+</body>
+</html>
