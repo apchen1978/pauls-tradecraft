@@ -3,6 +3,7 @@ import { useLang } from "../i18n.jsx";
 
 const routes = {
   roadmap: "/prototype/ai-native-overseas-customer-roadmap/",
+  guide: "/files/Paul-Tradecraft-Learning-Guide-001-Overseas-Customer-Development-ZH.pdf",
   walkthrough: "/prototype/ai-native-commercial-conversion/",
   discovery: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
   rfq: "/prototype/garage-rfq-workflow-001/",
@@ -18,6 +19,7 @@ const copy = {
     teachTitle: "海外客戶開發路線圖",
     teachBody: "七個問題，從市場與買方假設一路走到交易判斷。先看全程，再按需要展開細節。",
     teachLink: "看路線圖",
+    guideLink: "想慢慢讀？下載《海外客戶開發：從一項產品開始》（16 頁繁中 PDF）",
     show: "02 · 再走一遍",
     showTitle: "從一家候選公司，走到待判斷商機",
     showBody: "跟著一個清楚標示為合成的案例，看角色、聯絡路徑、可寄出的素材與買方回覆如何接上。",
@@ -39,6 +41,7 @@ const copy = {
     teachTitle: "Overseas Customer Development Roadmap",
     teachBody: "Seven questions take you from a market and buyer hypothesis to a trade decision. Scan the route first; open the detail when you need it.",
     teachLink: "Explore the roadmap",
+    guideLink: "Read the 16-page Learning Guide (Traditional Chinese PDF)",
     show: "02 · Follow a case",
     showTitle: "From a candidate account to an opportunity for review",
     showBody: "A clearly synthetic case shows how the likely role, contact path, sendable material, and buyer reply connect.",
@@ -80,6 +83,9 @@ export default function CommercialFrontDoor() {
             </a>
           ))}
         </div>
+        <a href={routes.guide} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">
+          {c.guideLink}<ArrowUpRight size={13} weight="bold" aria-hidden="true" />
+        </a>
         <div className="mt-6 border-t border-line pt-6 md:flex md:items-start md:justify-between md:gap-8">
           <div className="max-w-2xl">
             <p className="text-xs font-bold tracking-[0.12em] text-amber">{c.proof}</p>

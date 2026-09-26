@@ -161,7 +161,7 @@ const dict = {
       demoLabel: "公開 Demo",
       statusLive: "連結實測",
       liveExplain: "「連結實測」只表示這個公開連結曾經線上打開檢查。不是品質結論、技術驗證、真人驗證或商業成果。",
-      independentPrototypes: "這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
+      independentPrototypes: "作品各自獨立；海外客戶研究可透過檔案把提案交給 CDD，由人逐項確認。這不是共用資料模型或自動化流程。",
       caseStudy: {
         label: "案例研究",
         takeaway: "核心判斷：",
@@ -235,7 +235,7 @@ const dict = {
       },
       method: {
         cdd: "確定性規則引擎，可重跑驗證；UNKNOWN 保留",
-        lead: "匿名代表性資料；來源分層，無捏造事實",
+        lead: "匿名代表性資料；來源分層；無證據的主張不當成已確認事實",
         trade: "確定性規則，可重跑驗證",
         payment: "canonical fixture 精確匹配；逐幣別不混算",
         mori: "本機可檢視的交付基礎；後續工具待客戶補齊",
@@ -679,7 +679,7 @@ const dict = {
       demoLabel: "Live demo",
       statusLive: "LIVE",
       liveExplain: "LIVE means this public link was checked online. It is not a quality verdict, technical validation, field validation, or a commercial result.",
-      independentPrototypes: "These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
+      independentPrototypes: "The works remain independent. Overseas Lead Discovery can hand a file-based proposal to CDD, with each signal confirmed by a person. This is not a shared data model or automated pipeline.",
       caseStudy: {
         label: "Case Study",
         takeaway: "Key takeaway: ",
@@ -753,7 +753,7 @@ const dict = {
       },
       method: {
         cdd: "Deterministic rules engine, rerunnable; UNKNOWN preserved",
-        lead: "Anonymized representative data; tiered sources; no fabricated facts",
+        lead: "Anonymized representative data; tiered sources; unsupported claims are not treated as confirmed facts",
         trade: "Deterministic rules, rerunnable",
         payment: "Canonical fixture matches exactly; per-currency, never mixed",
         mori: "Locally verifiable delivery basis; follow-up tools pending client setup",

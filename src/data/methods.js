@@ -181,7 +181,7 @@ export const methods = [
         "Why does it happen? Because we treat \"the person who replies\" as \"the person who decides\". One answers messages daily; the other is often not even identifiable.",
         "So I treat it as a real field: final approver. If it cannot be filled in, it is written as UNKNOWN — no guessed name, no assumed level. \"It is probably the procurement manager\" is exactly the assumption that collapses three months later.",
         "Decision authority has three layers to ask about: who signs? Above what amount or term does it go higher? And if they do not sign, who objects? The third question is skipped most often, yet the objector is frequently the real gate.",
-        "This directly sets what you can promise. While decision authority is unknown, you can quote and send samples, but keep capacity reserved, keep materials unreserved, and do not loosen payment terms — hold the commitment on your side until the authorization chain is clear.",
+        "This directly sets what you can promise. While decision authority is unknown, you can quote and send samples, but do not commit production capacity, material preparation, or looser payment terms. Keep those commitments on your side until the authorization chain is clear.",
         "The good news is that it can be advanced: every meeting moves it one square — who is involved, who has read it, who holds a veto. That is far more reliable than \"it feels close\".",
         "In one line: enthusiasm is not authorization. Until you know who can sign, keep the commitment on your side of the table.",
       ],

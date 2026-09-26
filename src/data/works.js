@@ -310,12 +310,12 @@ export const works = [
     verified: true,
     zh: {
       title: "窗簾軟裝 Pilot 追蹤器",
-      desc: "從商機、報價到跟進的單一追蹤器。3 期模擬 + 23/23 零依賴驗證通過，產出含 inspect 證據檔。",
+      desc: "從商機、報價到跟進的單一追蹤器。3 期主流程模擬、另有 004 低資訊稽核；23/23 零依賴驗證通過。",
       tag: "商務工具 · Excel",
     },
     en: {
       title: "Curtain Soft-Furnishing Pilot Tracker",
-      desc: "One tracker from lead to quote to follow-up. Three simulation rounds, 23/23 dependency-free checks pass, with inspect evidence files.",
+      desc: "One tracker from lead to quote to follow-up. Three core simulation rounds plus a low-information audit (004); 23/23 dependency-free checks pass.",
       tag: "Business tool · Excel",
     },
     case: {
@@ -334,8 +334,8 @@ export const works = [
         en: "AI collaboration (Codex/DSH) · Excel · dependency-free verification scripts",
       },
       result: {
-        zh: "23/23 零依賴驗證通過；3 期模擬（基礎/資料模型/報價版本）完成，附 inspect 證據檔。",
-        en: "23/23 dependency-free checks pass; three simulation rounds complete with inspect evidence files.",
+        zh: "23/23 零依賴驗證通過；3 期主流程模擬（基礎／資料模型／報價版本）及 004 低資訊稽核完成，附 inspect 證據檔。",
+        en: "23/23 dependency-free checks pass; three core simulations and the low-information audit (004) are complete, with inspect evidence files.",
       },
       evidence: {
         zh: "可視化證據頁 + GitHub repo（outputs/ 4 組 xlsx + inspect.ndjson；verify 23/23）。",
@@ -398,12 +398,12 @@ export const works = [
     span: "col-span-1",    verified: true,
     zh: {
       title: "Pilot 模擬套件",
-      desc: "三輪模擬：基礎、資料模型、報價版本，每輪附 inspect 證據。",
+      desc: "三輪主流程模擬：基礎、資料模型、報價版本；另有 004 低資訊稽核。",
       tag: "模擬 · 驗證",
     },
     en: {
       title: "Pilot Simulation Suite",
-      desc: "Three rounds: baseline, data model, quote versioning. Each round ships with inspect evidence.",
+      desc: "Three core rounds: baseline, data model, quote versioning; plus low-information audit 004.",
       tag: "Simulation · Verification",
     },
     case: {
@@ -413,20 +413,20 @@ export const works = [
         en: "The tracker's data model and quote-versioning mechanism were unvalidated against real data.",
       },
       approach: {
-        zh: "三輪循序模擬：001 基礎流程 → 002 資料模型修正 → 003 報價版本化。",
-        en: "Three sequential rounds: 001 baseline flow, 002 data model fixes, 003 quote versioning.",
+        zh: "主流程三輪：001 基礎流程 → 002 資料模型修正 → 003 報價版本化；004 另查低資訊虛擬 Lead。",
+        en: "Three core rounds: 001 baseline, 002 data-model fixes, 003 quote versioning; 004 separately audits a low-information synthetic lead.",
       },
       tools: {
         zh: "AI 協作（Codex/DSH）· 模擬資料（SIMULATION 層級）· inspect 工具",
         en: "AI collaboration (Codex/DSH) · simulated data (SIMULATION tier) · inspect tooling",
       },
       result: {
-        zh: "三輪模擬完成，每輪附 .inspect.ndjson 證據；23/23 驗證通過。",
-        en: "Three rounds complete, each with .inspect.ndjson evidence; 23/23 checks pass.",
+        zh: "001–003 主流程與 004 低資訊稽核完成，每期附 .inspect.ndjson 證據；23/23 驗證通過。",
+        en: "Core rounds 001–003 and low-information audit 004 are complete, each with .inspect.ndjson evidence; 23/23 checks pass.",
       },
       evidence: {
-        zh: "四期模擬（001–004）＋可視化證據頁；每期附 .inspect.ndjson。",
-        en: "Four simulation rounds (001–004) + visual evidence page; each with .inspect.ndjson.",
+        zh: "四期產物（主流程 001–003、低資訊稽核 004）＋可視化證據頁；每期附 .inspect.ndjson。",
+        en: "Four output sets (core rounds 001–003, low-information audit 004) plus a visual evidence page; each has .inspect.ndjson.",
       },
     },
   },
