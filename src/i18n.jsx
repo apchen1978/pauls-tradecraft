@@ -445,7 +445,7 @@ const dict = {
           note: "跟著一筆虛構 RFQ 走過六個環節，把焦點從「要做什麼工具」轉到「哪個決定還需要釐清」。",
           cta: "走進判斷現場",
           boundary: "虛構情境，不是客戶案例，也未證明能改善實際工作。",
-          href: "/prototype/bring-paul-into-room/",
+          href: "/prototype/bring-paul-into-room/?lang=zh",
           featured: true,
         },
         {
@@ -962,7 +962,7 @@ const dict = {
           note: "Follow a fictional RFQ through six steps, shifting the question from what to build to which decision needs clarity.",
           cta: "Enter the decision room",
           boundary: "Synthetic scenario — not client evidence or a validated improvement.",
-          href: "/prototype/bring-paul-into-room/",
+          href: "/prototype/bring-paul-into-room/?lang=en",
           featured: true,
         },
         {

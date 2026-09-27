@@ -28,6 +28,11 @@
       -webkit-font-smoothing: antialiased;
     }
     .wrap { max-width: 950px; margin: 0 auto; padding: 42px 20px 72px; }
+    .masthead { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+    .language-control { display: inline-flex; align-items: center; gap: 3px; flex: none; border: 1px solid var(--line); padding: 3px; }
+    .language-control button { min-width: 38px; padding: 5px 7px; background: transparent; color: var(--moss); font-size: 11px; line-height: 1.2; }
+    .language-control button:hover { background: var(--bone); color: var(--forest); transform: none; }
+    .language-control button[aria-pressed="true"] { background: var(--forest); color: var(--white); }
     .eyebrow {
       margin: 0 0 12px;
       color: var(--amber);
@@ -131,7 +136,15 @@
     .move li { margin: 9px 0; padding-left: 4px; }
     .closing { margin-top: 42px; padding: 30px 26px 34px; background: var(--bone); }
     .closing blockquote { margin: 0; max-width: 29ch; color: var(--forest); font-size: clamp(24px, 4vw, 38px); line-height: 1.08; }
+    html[lang="zh-Hant"] .closing blockquote { max-width: 100%; }
     .closing p { margin: 15px 0 0; color: var(--moss); font-size: 13px; }
+    .demonstrates { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--line); }
+    .demonstrates h3 { margin: 0 0 15px; font-size: 16px; }
+    .demonstrates-grid { display: grid; gap: 14px; }
+    @media (min-width: 660px) { .demonstrates-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .demonstrates-grid div { padding-top: 10px; border-top: 2px solid var(--amber); }
+    .demonstrates-grid strong { display: block; margin-bottom: 6px; color: var(--forest); font-size: 11px; }
+    .demonstrates-grid p { margin: 0; color: var(--moss); font-size: 12px; }
     .progress { display: flex; gap: 7px; margin-top: 26px; }
     .dot { width: 26px; height: 3px; background: var(--line); }
     .dot.current { background: var(--amber); }
@@ -141,105 +154,223 @@
 </head>
 <body>
   <main class="wrap">
-    <p class="eyebrow">Garage experiment · synthetic</p>
+    <div class="masthead">
+      <p class="eyebrow" data-copy="eyebrow">Garage experiment · synthetic</p>
+      <div class="language-control" role="group" aria-label="Language" data-aria-copy="language">
+        <button type="button" data-language="zh" aria-pressed="false">中文</button>
+        <button type="button" data-language="en" aria-pressed="true">EN</button>
+      </div>
+    </div>
     <h1>Bring Paul Into the Room</h1>
-    <p class="lede">A short exercise for the moment when an organization has a solution in mind — and the decision underneath it has not been examined yet.</p>
-    <p class="synthetic">Illustrative scenario · not a client result</p>
+    <p class="lede" data-copy="lede">A short exercise for the moment when an organization has a solution in mind — and the decision underneath it has not been examined yet.</p>
+    <p class="synthetic" data-copy="synthetic">Illustrative scenario · not a client result</p>
 
     <section class="room" aria-live="polite">
       <article class="stage active" data-stage="0">
         <div class="stage-grid">
           <div>
-            <span class="stage-number">01 / THE REQUEST</span>
-            <h2>Start with the answer you already have.</h2>
-            <div class="request"><small>Founder says</small><blockquote>“We want an AI sales agent.”</blockquote></div>
-            <p>Paul does not answer yes or no. He asks for one recent decision that still feels expensive, unclear, or difficult to explain.</p>
-            <div class="button-row"><button data-next>Bring one difficult decision into the room</button></div>
+            <span class="stage-number" data-copy="stage1Label">01 / THE REQUEST</span>
+            <h2 data-copy="stage1Title">Start with the answer you already have.</h2>
+            <div class="request"><small data-copy="founderSays">Founder says</small><blockquote data-copy="founderQuote">“We want an AI sales agent.”</blockquote></div>
+            <p data-copy="stage1Body">Paul does not answer yes or no. He asks for one recent decision that still feels expensive, unclear, or difficult to explain.</p>
+            <div class="button-row"><button data-next data-copy="stage1Next">Bring one difficult decision into the room</button></div>
           </div>
-          <div class="side-rule"><p><strong>Why start here?</strong> A solution request can hide several different problems: speed, attention, judgment, capacity, or commitment.</p></div>
+          <div class="side-rule"><p><strong data-copy="stage1AsideTitle">Why start here?</strong> <span data-copy="stage1Aside">A solution request can hide several different problems: speed, attention, judgment, capacity, or commitment.</span></p></div>
         </div>
       </article>
 
       <article class="stage" data-stage="1">
         <div class="stage-grid">
           <div>
-            <span class="stage-number">02 / WHAT HAPPENED</span>
-            <h2>Follow one opportunity, before judging the system.</h2>
-            <p class="note"><strong>SYNTHETIC INDUSTRIAL EXPORTER</strong>A promising overseas RFQ moves through the company before the important conditions are clear.</p>
-            <div class="timeline" aria-label="Synthetic decision timeline">
-              <div class="event"><time>Day 1</time><strong>RFQ arrives</strong><span>The opportunity looks promising. Several specifications are still open.</span></div>
-              <div class="event"><time>Day 2</time><strong>Engineering is pulled in</strong><span>Customization is explored before the scope is stable.</span></div>
-              <div class="event"><time>Day 3</time><strong>Founder joins pricing</strong><span>Commercial judgment is requested early.</span></div>
-              <div class="event"><time>Day 4</time><strong>Production checks feasibility</strong><span>Delivery questions now carry operational cost.</span></div>
-              <div class="event"><time>Day 6</time><strong>A missing condition appears</strong><span>The buyer reveals an unresolved requirement. The opportunity stalls while both sides clarify.</span></div>
+            <span class="stage-number" data-copy="stage2Label">02 / WHAT HAPPENED</span>
+            <h2 data-copy="stage2Title">Follow one opportunity, before judging the system.</h2>
+            <p class="note"><strong data-copy="stage2NoteTitle">SYNTHETIC INDUSTRIAL EXPORTER</strong><span data-copy="stage2Note">A promising overseas RFQ moves through the company before the important conditions are clear.</span></p>
+            <div class="timeline" aria-label="Synthetic decision timeline" data-aria-copy="timeline">
+              <div class="event"><time data-copy="day1">Day 1</time><strong data-copy="event1Title">RFQ arrives</strong><span data-copy="event1Body">The opportunity looks promising. Several specifications are still open.</span></div>
+              <div class="event"><time data-copy="day2">Day 2</time><strong data-copy="event2Title">Engineering is pulled in</strong><span data-copy="event2Body">Customization is explored before the scope is stable.</span></div>
+              <div class="event"><time data-copy="day3">Day 3</time><strong data-copy="event3Title">Founder joins pricing</strong><span data-copy="event3Body">Commercial judgment is requested early.</span></div>
+              <div class="event"><time data-copy="day4">Day 4</time><strong data-copy="event4Title">Production checks feasibility</strong><span data-copy="event4Body">Delivery questions now carry operational cost.</span></div>
+              <div class="event"><time data-copy="day6">Day 6</time><strong data-copy="event5Title">A missing condition appears</strong><span data-copy="event5Body">The buyer reveals an unresolved requirement. The opportunity stalls while both sides clarify.</span></div>
             </div>
-            <div class="button-row"><button data-next>Inspect the decision</button><button class="secondary" data-back>Back</button></div>
+            <div class="button-row"><button data-next data-copy="stage2Next">Inspect the decision</button><button class="secondary" data-back data-copy="stage2Back">Back</button></div>
           </div>
-          <div class="side-rule"><p><strong>The question is changing.</strong> The team did not simply fail to follow up. It committed several kinds of attention while the opportunity was still moving.</p></div>
+          <div class="side-rule"><p><strong data-copy="stage2AsideTitle">The question is changing.</strong> <span data-copy="stage2Aside">The team did not simply fail to follow up. It committed several kinds of attention while the opportunity was still moving.</span></p></div>
         </div>
       </article>
 
       <article class="stage" data-stage="2">
         <div class="stage-grid">
           <div>
-            <span class="stage-number">03 / INSIDE THE DECISION</span>
-            <h2>What was known, assumed, and still unknown?</h2>
+            <span class="stage-number" data-copy="stage3Label">03 / INSIDE THE DECISION</span>
+            <h2 data-copy="stage3Title">What was known, assumed, and still unknown?</h2>
             <div class="evidence-grid">
-              <div class="evidence"><h3>What was known</h3><p>Within this scenario, a buyer had made a request, creating a possible commercial opportunity.</p></div>
-              <div class="evidence"><h3>What was assumed</h3><p>The customization was worth exploring before the commercial conditions were stable.</p></div>
-              <div class="evidence"><h3>What was unknown</h3><p>The buyer’s final requirement, delivery fit, and the true cost of responding were not yet clear.</p></div>
-              <div class="evidence"><h3>What was committed</h3><p>Engineering attention, Founder time, pricing judgment, and a production feasibility check.</p></div>
+              <div class="evidence"><h3 data-copy="knownTitle">What was known</h3><p data-copy="knownBody">Within this scenario, a buyer had made a request, creating a possible commercial opportunity.</p></div>
+              <div class="evidence"><h3 data-copy="assumedTitle">What was assumed</h3><p data-copy="assumedBody">The customization was worth exploring before the commercial conditions were stable.</p></div>
+              <div class="evidence"><h3 data-copy="unknownTitle">What was unknown</h3><p data-copy="unknownBody">The buyer’s final requirement, delivery fit, and the true cost of responding were not yet clear.</p></div>
+              <div class="evidence"><h3 data-copy="committedTitle">What was committed</h3><p data-copy="committedBody">Engineering attention, Founder time, pricing judgment, and a production feasibility check.</p></div>
             </div>
-            <div class="button-row"><button data-next>See what this may mean</button><button class="secondary" data-back>Back</button></div>
+            <div class="button-row"><button data-next data-copy="stage3Next">See what this may mean</button><button class="secondary" data-back data-copy="stage3Back">Back</button></div>
           </div>
-          <div class="side-rule"><p><strong>No score is needed.</strong> The useful question is where meaningful organizational commitment actually began — and whether it began too early.</p></div>
+          <div class="side-rule"><p><strong data-copy="stage3AsideTitle">No score is needed.</strong> <span data-copy="stage3Aside">The useful question is where meaningful organizational commitment actually began — and whether it began too early.</span></p></div>
         </div>
       </article>
 
       <article class="stage" data-stage="3">
         <div class="quiet">
-          <span class="stage-number">04 / THE REFRAME</span>
-          <h2>We may not have an AI problem.</h2>
-          <p>We may have a decision problem that AI could help us see — or handle differently.</p>
-          <div class="do-not"><strong>Don’t build the agent yet.</strong><p>Not because AI is useless. Because faster automation could simply accelerate the wrong commitment.</p></div>
-          <div class="button-row"><button data-next>Find the smallest next move</button><button class="secondary" data-back>Back</button></div>
+          <span class="stage-number" data-copy="stage4Label">04 / THE REFRAME</span>
+          <h2 data-copy="stage4Title">We may not have an AI problem.</h2>
+          <p data-copy="stage4Body">We may have a decision problem that AI could help us see — or handle differently.</p>
+          <div class="do-not"><strong data-copy="stage4CautionTitle">Don’t build the agent yet.</strong><p data-copy="stage4Caution">Not because AI is useless. Because faster automation could simply accelerate the wrong commitment.</p></div>
+          <div class="button-row"><button data-next data-copy="stage4Next">Find the smallest next move</button><button class="secondary" data-back data-copy="stage4Back">Back</button></div>
         </div>
       </article>
 
       <article class="stage" data-stage="4">
         <div class="move">
-          <span class="stage-number">05 / BEFORE BUILDING</span>
-          <h2>Make the next move reversible.</h2>
-          <p>Review a small set of recent opportunities and locate where meaningful organizational commitment actually began.</p>
+          <span class="stage-number" data-copy="stage5Label">05 / BEFORE BUILDING</span>
+          <h2 data-copy="stage5Title">Make the next move reversible.</h2>
+          <p data-copy="stage5Body">Review a small set of recent opportunities and locate where meaningful organizational commitment actually began.</p>
           <ul>
-            <li>What did the team know at the time?</li>
-            <li>What was assumed too early?</li>
-            <li>Which resource or promise became difficult to reverse?</li>
-            <li>What would prove this reframe wrong?</li>
+            <li data-copy="stage5Question1">What did the team know at the time?</li>
+            <li data-copy="stage5Question2">What was assumed too early?</li>
+            <li data-copy="stage5Question3">Which resource or promise became difficult to reverse?</li>
+            <li data-copy="stage5Question4">What would prove this reframe wrong?</li>
           </ul>
-          <p class="note"><strong>Only then</strong> decide whether an AI intervention is justified — and what narrow job it should do.</p>
-          <div class="button-row"><button data-next>Finish the room</button><button class="secondary" data-back>Back</button></div>
+          <p class="note"><strong data-copy="stage5NoteTitle">Only then</strong> <span data-copy="stage5Note">decide whether an AI intervention is justified — and what narrow job it should do.</span></p>
+          <div class="button-row"><button data-next data-copy="stage5Next">Finish the room</button><button class="secondary" data-back data-copy="stage5Back">Back</button></div>
         </div>
       </article>
 
       <article class="stage" data-stage="5">
         <div class="closing">
-          <span class="stage-number">06 / LEAVE WITH A BETTER QUESTION</span>
-          <blockquote>“Bring one difficult decision — not an AI brief. Let’s find out what actually needs to change.”</blockquote>
-          <p>Paul’s first contribution may be a clearer decision, not a faster system.</p>
-          <div class="button-row"><button data-restart>Start again</button></div>
+          <span class="stage-number" data-copy="stage6Label">06 / LEAVE WITH A BETTER QUESTION</span>
+          <blockquote data-copy="stage6Quote">“Bring one difficult decision — not an AI brief. Let’s find out what actually needs to change.”</blockquote>
+          <p data-copy="stage6Body">Paul’s first contribution may be a clearer decision, not a faster system.</p>
+          <div class="button-row"><button data-restart data-copy="restart">Start again</button></div>
         </div>
+        <section class="demonstrates" aria-labelledby="demonstrates-heading">
+          <h3 id="demonstrates-heading" data-copy="demonstratesTitle">What this demonstrates</h3>
+          <div class="demonstrates-grid">
+            <div><strong data-copy="problemLabel">Problem</strong><p data-copy="problemBody">An overseas RFQ drew in engineering, pricing, and production before the buyer's conditions were clear.</p></div>
+            <div><strong data-copy="judgmentLabel">Judgment</strong><p data-copy="judgmentBody">A person must decide where the team committed attention too early, and what should be checked before committing more.</p></div>
+            <div><strong data-copy="artifactLabel">Artifact</strong><p data-copy="artifactBody">This six-step walkthrough separates the request, timeline, evidence gaps, and a small next review. It is a synthetic exercise, not a deployed workflow.</p></div>
+          </div>
+        </section>
       </article>
     </section>
 
-    <div class="progress" aria-label="Progress"><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
-    <p class="foot">Synthetic garage experiment — no client evidence, performance claim, ROI, or production readiness is implied.</p>
+    <div class="progress" aria-label="Progress" data-aria-copy="progress"><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    <p class="foot" data-copy="foot">Synthetic garage experiment — no client evidence, performance claim, ROI, or production readiness is implied.</p>
   </main>
   <script>
     (() => {
+      const chinese = {
+        eyebrow: '數位車庫實驗 · 合成情境',
+        lede: '當團隊心裡已經有解法，卻還沒看清背後的決定時，先走一遍這個小練習。',
+        synthetic: '教學示例 · 合成情境，非客戶成果',
+        stage1Label: '01 / 先聽需求',
+        stage1Title: '先說出你已經想好的解法。',
+        founderSays: '公司負責人說',
+        founderQuote: '「我們想要一個 AI 業務代理。」',
+        stage1Body: 'Paul 先不說好或不好。他請對方舉一個最近的決定：它耗費心力、條件不清，或難以向團隊解釋。',
+        stage1Next: '帶一個難做的決定進來',
+        stage1AsideTitle: '為什麼從這裡開始？',
+        stage1Aside: '一句「想做什麼工具」，背後可能是速度、時間分配、商業判斷、產能或對外承諾等不同問題。',
+        stage2Label: '02 / 事情怎麼發生',
+        stage2Title: '先跟著一筆商機走，再談系統。',
+        stage2NoteTitle: '合成情境｜工業品出口商',
+        stage2Note: '一筆看起來有希望的海外 RFQ（詢價），在重要條件還沒釐清前，就已經轉過公司好幾個部門。',
+        day1: '第 1 天',
+        event1Title: '收到 RFQ',
+        event1Body: '商機看起來不錯，但有幾項規格尚未確認。',
+        day2: '第 2 天',
+        event2Title: '工程團隊加入',
+        event2Body: '規格範圍還沒定，就開始研究客製化。',
+        day3: '第 3 天',
+        event3Title: '負責人參與定價',
+        event3Body: '團隊很早就需要商業判斷。',
+        day4: '第 4 天',
+        event4Title: '生產端評估可行性',
+        event4Body: '交期問題開始占用實際作業資源。',
+        day6: '第 6 天',
+        event5Title: '發現一項未釐清的條件',
+        event5Body: '買家提出一項尚未解決的要求。雙方需要再確認，這筆商機暫時停住。',
+        stage2Next: '看看當時的判斷',
+        stage2Back: '返回',
+        stage2AsideTitle: '問題開始變得不同。',
+        stage2Aside: '團隊不只是跟進得不夠快；在商機條件仍會變動時，就已投入了好幾種人的時間與注意力。',
+        stage3Label: '03 / 走進判斷',
+        stage3Title: '當時知道什麼？假設了什麼？還不知道什麼？',
+        knownTitle: '已知',
+        knownBody: '在這個合成情境裡，買家提出了詢價，因此可能有商機。',
+        assumedTitle: '假設',
+        assumedBody: '商務條件尚未穩定，團隊便認為值得先研究客製化。',
+        unknownTitle: '未知',
+        unknownBody: '買家的最終要求、交期能否配合，以及回應這筆詢價真正要耗費多少資源，都還不清楚。',
+        committedTitle: '已投入',
+        committedBody: '工程團隊的時間、負責人的注意力、定價判斷與生產可行性評估。',
+        stage3Next: '看看這意味著什麼',
+        stage3Back: '返回',
+        stage3AsideTitle: '這裡不需要分數。',
+        stage3Aside: '值得追問的是：團隊從哪一刻開始投入真正的資源？那時是否還太早？',
+        stage4Label: '04 / 換個角度看',
+        stage4Title: '問題可能不在 AI。',
+        stage4Body: '也許真正需要處理的是一個商業決定；AI 可以幫我們看清它，或換一種方式處理。',
+        stage4CautionTitle: '先別急著做業務代理。',
+        stage4Caution: '不是 AI 沒用，而是更快的自動化，也可能讓團隊更快做出不該太早做的承諾。',
+        stage4Next: '找一個最小的下一步',
+        stage4Back: '返回',
+        stage5Label: '05 / 動手做之前',
+        stage5Title: '先做一件還能回頭的小事。',
+        stage5Body: '回看幾筆最近的商機，找出團隊從哪一刻開始投入真正的資源或承諾。',
+        stage5Question1: '當時團隊確定知道什麼？',
+        stage5Question2: '哪些事情太早被當成已經確定？',
+        stage5Question3: '哪一項資源投入或承諾，後來不容易收回？',
+        stage5Question4: '看到什麼證據，我們會承認這個判斷不對？',
+        stage5NoteTitle: '看完這些，再決定',
+        stage5Note: '是否真的需要 AI 介入，以及它應該負責哪一件明確的小事。',
+        stage5Next: '看最後留下的問題',
+        stage5Back: '返回',
+        stage6Label: '06 / 帶走一個更好的問題',
+        stage6Quote: '「先帶一個難做的決定來，不用先準備 AI 需求書。我們先看清到底該改什麼。」',
+        stage6Body: 'Paul 第一個可能帶來的，是更清楚的決定，而不是更快的系統。',
+        restart: '重新開始',
+        demonstratesTitle: '這件作品呈現了什麼',
+        problemLabel: '問題',
+        problemBody: '海外 RFQ 的條件還沒釐清，工程、定價與生產端就已先後投入。',
+        judgmentLabel: '判斷',
+        judgmentBody: '由人判斷團隊是否太早投入，以及下一步該先確認什麼。',
+        artifactLabel: '留下的東西',
+        artifactBody: '這段六步互動，把需求、時間線、證據缺口與下一次小範圍檢查分開呈現。它是合成練習，並非已部署的工作流程。',
+        foot: '數位車庫合成實驗；不代表真實客戶證據、成效、投資報酬或已可上線使用。',
+      };
+      const chineseAria = { language: '語言', timeline: '合成情境中的決策時間線', progress: '閱讀進度' };
+      const content = [...document.querySelectorAll('[data-copy]')];
+      const english = new Map(content.map(element => [element.dataset.copy, element.textContent]));
+      const ariaContent = [...document.querySelectorAll('[data-aria-copy]')];
+      const englishAria = new Map(ariaContent.map(element => [element.dataset.ariaCopy, element.getAttribute('aria-label')]));
+      const englishDescription = document.querySelector('meta[name="description"]').content;
+
+      function setLanguage(next) {
+        const language = next === 'en' ? 'en' : 'zh';
+        content.forEach(element => { element.textContent = language === 'zh' ? chinese[element.dataset.copy] : english.get(element.dataset.copy); });
+        ariaContent.forEach(element => { element.setAttribute('aria-label', language === 'zh' ? chineseAria[element.dataset.ariaCopy] : englishAria.get(element.dataset.ariaCopy)); });
+        document.documentElement.lang = language === 'zh' ? 'zh-Hant' : 'en';
+        document.querySelector('meta[name="description"]').content = language === 'zh'
+          ? '一個合成數位車庫練習：先看清商業決定，再判斷是否需要 AI 業務代理。'
+          : englishDescription;
+        document.querySelectorAll('[data-language]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', language);
+        window.history.replaceState(null, '', url);
+      }
+
       const stages = [...document.querySelectorAll('.stage')];
       const dots = [...document.querySelectorAll('.dot')];
       let current = 0;
+
+      document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.language)));
+      setLanguage(new URLSearchParams(window.location.search).get('lang'));
 
       function render(next) {
         current = Math.max(0, Math.min(stages.length - 1, next));
