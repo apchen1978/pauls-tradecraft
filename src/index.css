@@ -13,7 +13,7 @@
 }
 
 @theme {
-  /* Forest family: deep green + bone + amber. One accent (amber). */
+  /* Forest remains the brand; blue and graphite clarify research and decisions. */
   --color-bone: #f5f5f0;
   --color-paper: #e9ede4;
   --color-ink: #18251f;
@@ -22,6 +22,8 @@
   --color-moss: #47705a;
   --color-amber: #9a5a18; /* restrained brass accent: readable on bone */
   --color-gold: #e7b65b; /* warm brass highlight for dark surfaces */
+  --color-research: #536d87;
+  --color-graphite: #48535a;
   --color-line: #d2d8ce;
 
   /* Shape system (documented): cards 16px, inputs 12px, interactive = full pill */

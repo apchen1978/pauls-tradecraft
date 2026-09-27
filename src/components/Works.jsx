@@ -822,7 +822,7 @@ export default function Works() {
     <section id="works-catalog" aria-label={t.works.sub} className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-28">
       {sections.map((sec, si) => (
         <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
-          <div className={`${si === 0 ? "mt-0 lg:mt-0" : "mt-14 lg:mt-12"} border-t border-line pt-7`}>
+          <div className={`${si === 0 ? "mt-0 lg:mt-0 border-research/45" : si === 1 ? "mt-14 lg:mt-12 border-amber/45" : "mt-14 lg:mt-12 border-moss/45"} border-t-2 pt-7`}>
             <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
             {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/65">{sec.note}</p>}
             {sec.id === "commercial" && (

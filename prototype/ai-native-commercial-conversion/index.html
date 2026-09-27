@@ -56,18 +56,26 @@
     .hero{position:relative;border-bottom:1px solid var(--line);padding-bottom:42px}
     .hero:after{content:"";position:absolute;bottom:-1px;left:0;width:76px;height:2px;background:var(--gold)}
     .hero .eyebrow{color:var(--amber)}
-    .hero-side{border-left-color:var(--gold)}
+    .hero-side{border-left:3px solid var(--gold);background:color-mix(in srgb,var(--soft-amber) 62%,var(--paper));padding:17px 20px}
     .walkthrough{border-top-color:color-mix(in srgb,var(--forest) 38%,var(--line))}
     .rail h2{color:var(--forest)}
     .sequence{border-left-color:color-mix(in srgb,var(--research) 45%,var(--line))}
-    .step-link[aria-current="step"]:before{border-color:var(--gold);background:var(--gold);box-shadow:0 0 0 3px var(--soft-amber)}
-    .scene{border-top:2px solid var(--research)}
-    .scene-head .kicker{color:var(--research)}
-    .human-gate{border-left-color:var(--authority);background:var(--authority-soft)}
-    .human-gate strong{color:var(--authority)}
+    .step-link[data-goto="0"],.step-link[data-goto="1"],.step-link[data-goto="2"],.step-link[data-goto="5"]{--step-accent:var(--research);--step-halo:var(--research-soft)}
+    .step-link[data-goto="3"],.step-link[data-goto="4"]{--step-accent:var(--amber);--step-halo:var(--soft-amber)}
+    .step-link[data-goto="6"]{--step-accent:var(--authority);--step-halo:var(--authority-soft)}
+    .step-link[data-goto="7"]{--step-accent:var(--moss);--step-halo:var(--soft-green)}
+    .step-link[aria-current="step"]:before{border-color:var(--step-accent);background:var(--step-accent);box-shadow:0 0 0 3px var(--step-halo)}
+    .scene{--scene-accent:var(--research);--scene-wash:var(--research-soft);border-top:4px solid var(--scene-accent);background:linear-gradient(180deg,color-mix(in srgb,var(--scene-wash) 70%,var(--surface)) 0,var(--surface) 225px)}
+    .scene[data-scene="3"],.scene[data-scene="4"]{--scene-accent:var(--amber);--scene-wash:var(--soft-amber)}
+    .scene[data-scene="6"]{--scene-accent:var(--authority);--scene-wash:var(--authority-soft)}
+    .scene[data-scene="7"]{--scene-accent:var(--moss);--scene-wash:var(--soft-green)}
+    .scene-head{border-bottom-color:color-mix(in srgb,var(--scene-accent) 28%,var(--line))}
+    .scene-head .kicker{color:var(--scene-accent)}
+    .scene[data-scene="6"] .human-gate{border-left-color:var(--authority);background:var(--authority-soft)}
+    .scene[data-scene="6"] .human-gate strong{color:var(--authority)}
     .architecture{border-top:1px solid var(--line)}
     @media(max-width:900px){.hero{padding-bottom:34px}}
-    @media(max-width:640px){.hero{padding-top:38px;padding-bottom:30px}.hero:after{width:54px}.hero-side{border-left:0;border-top:1px solid var(--line);padding:13px 0 0}}
+    @media(max-width:640px){.hero{padding-top:38px;padding-bottom:30px}.hero:after{width:54px}.hero-side{border-left:0;border-top:2px solid var(--gold);padding:13px 15px}.scene{background:linear-gradient(180deg,color-mix(in srgb,var(--scene-wash) 62%,var(--surface)) 0,var(--surface) 185px)}}
   </style>
 </head>
 <body data-lang="zh">
@@ -79,11 +87,11 @@
   <main>
     <section class="hero wrap">
       <div>
-        <div class="eyebrow"><span class="zh">海外客戶開發，可以走得更深</span><span class="en">A MORE COMPLETE WAY TO DEVELOP CUSTOMERS</span></div>
-        <h1><span class="zh">從公司名單，走到可接洽的商機。</span><span class="en">From a company name to a reachable opportunity.</span></h1>
-        <p><span class="zh">看一間合成公司，如何經過研究、角色判斷與接觸準備，走到需要人做商業決策的詢價。</span><span class="en">Follow one synthetic company from research and role reasoning to a buyer reply that needs a human commercial decision.</span></p>
+        <div class="eyebrow"><span class="zh">海外客戶開發，從一家可能的公司開始</span><span class="en">A MORE COMPLETE WAY TO DEVELOP CUSTOMERS</span></div>
+        <h1><span class="zh">跟著一家公司，看怎麼走到買家詢價。</span><span class="en">From a company name to a reachable opportunity.</span></h1>
+        <p><span class="zh">用一個虛構案例，看看怎麼查公司、找可能負責採購的人、準備聯絡，再判斷買家回覆。</span><span class="en">Follow one synthetic company from research and role reasoning to a buyer reply that needs a human commercial decision.</span></p>
       </div>
-      <div class="hero-side"><strong><span class="zh">公司不是商機，Email 也不是答案。</span><span class="en">A company is not yet an opportunity. An email is not the answer.</span></strong><span class="zh">從一個合成案例開始，看資料、AI 協助與人的判斷如何接起來。</span><span class="en">Start with one synthetic case, then see how data, AI assistance, and human judgment connect.</span></div>
+      <div class="hero-side"><strong><span class="zh">找到公司，不代表找到客戶；找到 Email，也不一定找對人。</span><span class="en">A company is not yet an opportunity. An email is not the answer.</span></strong><span class="zh">下面用合成案例帶你看：查公司、找對口、準備聯絡，最後由人判斷要不要報價。</span><span class="en">Start with one synthetic case, then see how data, AI assistance, and human judgment connect.</span></div>
     </section>
 
     <section class="walkthrough wrap" id="walkthrough" aria-label="Synthetic commercial walkthrough">
@@ -106,7 +114,7 @@
         <div class="mobile-progress"><span><strong id="progressTitle"><span class="zh">公司與適配</span><span class="en">Company and fit</span></strong></span><span id="progressCount">01 / 08</span></div>
 
         <article class="scene" data-scene="0" data-title-zh="公司與適配" data-title-en="Company and fit" aria-labelledby="scene0Title">
-           <header class="scene-head"><div><div class="kicker"><span class="zh">市場線索，先找到值得看的公司</span><span class="en">A market signal becomes an account to inspect</span></div><h2 id="scene0Title" tabindex="-1"><span class="zh">找到一家可能值得接觸的公司。</span><span class="en">Find an account that may be worth contacting.</span></h2><p class="scene-summary"><span class="zh">這是虛構的海灣地區旅宿與室內裝修通路商，用來示範研究與判斷，不是真實潛在客戶。</span><span class="en">A fictional Gulf-region hospitality and interiors distributor, used to demonstrate research and judgment, not a real prospect.</span></p></div><span class="synthetic-tag"><span class="zh">合成示例</span><span class="en">SYNTHETIC</span></span></header>
+           <header class="scene-head"><div><div class="kicker"><span class="zh">先找一家可能適合的公司</span><span class="en">A market signal becomes an account to inspect</span></div><h2 id="scene0Title" tabindex="-1"><span class="zh">先從一家可能相關的公司開始。</span><span class="en">Find an account that may be worth contacting.</span></h2><p class="scene-summary"><span class="zh">這是一家虛構的海灣地區旅宿用品經銷商，用來示範怎麼查資料和做判斷，不是真實客戶。</span><span class="en">A fictional Gulf-region hospitality and interiors distributor, used to demonstrate research and judgment, not a real prospect.</span></p></div><span class="synthetic-tag"><span class="zh">合成示例</span><span class="en">SYNTHETIC</span></span></header>
           <div class="scene-body">
             <div class="company-layout">
               <div>
@@ -124,27 +132,27 @@
                 </div>
               </div>
               <div class="qualification">
-                <h3 class="qual-title"><span class="zh">適配判斷</span><span class="en">Account qualification</span></h3>
-                <div class="qual-row"><span><span class="zh">買方類型</span><span class="en">BUYER FIT</span></span><b><span class="zh">看似合適 · 合成示例</span><span class="en">PLAUSIBLE · SYNTHETIC</span></b></div>
-                <div class="qual-row"><span><span class="zh">產品品類</span><span class="en">CATEGORY FIT</span></span><b><span class="zh">可能適配 · 待查證</span><span class="en">PLAUSIBLE · TO VERIFY</span></b></div>
-                <div class="qual-row"><span><span class="zh">市場與進口條件</span><span class="en">MARKET / IMPORT</span></span><b class="unknown"><span class="zh">未知</span><span class="en">UNKNOWN</span></b></div>
+                <h3 class="qual-title"><span class="zh">先看是否合適</span><span class="en">Account qualification</span></h3>
+                <div class="qual-row"><span><span class="zh">買方類型</span><span class="en">BUYER FIT</span></span><b><span class="zh">可能是目標買家</span><span class="en">PLAUSIBLE · SYNTHETIC</span></b></div>
+                <div class="qual-row"><span><span class="zh">產品品類</span><span class="en">CATEGORY FIT</span></span><b><span class="zh">大致相關，還要確認</span><span class="en">PLAUSIBLE · TO VERIFY</span></b></div>
+                <div class="qual-row"><span><span class="zh">市場進口狀況</span><span class="en">MARKET / IMPORT</span></span><b class="unknown"><span class="zh">未知</span><span class="en">UNKNOWN</span></b></div>
                 <div class="evidence-labels"><span class="state-label"><span class="zh">合成示例</span><span class="en">SYNTHETIC</span></span><span class="state-label"><span class="zh">推論</span><span class="en">INFERENCE</span></span><span class="state-label"><span class="zh">未知</span><span class="en">UNKNOWN</span></span></div>
-                <p class="capability-footnote"><span class="zh">進入候選池，不等於值得投入業務時間。仍需核實採購模式、品類範圍與目前需求。</span><span class="en">Entering the candidate pool does not justify sales time. Buying model, category scope, and current need remain to be verified.</span></p>
+                <p class="capability-footnote"><span class="zh">進入名單不等於值得追。還要確認它怎麼採購、賣哪些產品，以及目前有沒有需求。</span><span class="en">Entering the candidate pool does not justify sales time. Buying model, category scope, and current need remain to be verified.</span></p>
               </div>
             </div>
             <div class="counts" aria-label="Evidence set size, not a funnel">
               <div class="count"><b>44</b><small><span class="zh">發現的候選公司</span><span class="en">candidates discovered</span></small></div>
-              <div class="count"><b>20</b><small><span class="zh">通過證據篩選的名單</span><span class="en">evidence-qualified shortlist</span></small></div>
-              <div class="count"><b>8</b><small><span class="zh">匿名示例紀錄供比較</span><span class="en">anonymized comparison records</span></small></div>
+              <div class="count"><b>20</b><small><span class="zh">符合篩選條件的名單</span><span class="en">evidence-qualified shortlist</span></small></div>
+              <div class="count"><b>8</b><small><span class="zh">匿名紀錄供比較</span><span class="en">anonymized comparison records</span></small></div>
             </div>
-            <p class="capability-footnote"><span class="zh">三種證據切面，不是轉換漏斗，也不是成果數字。</span><span class="en">Three evidence views, not a conversion funnel or outcome claim.</span></p>
-            <details class="counterexample"><summary><span class="zh">看 R8 反例：兩個好訊號，仍不優先</span><span class="en">See R8: positive signals, still not prioritized</span></summary><p><span class="zh">買方類型吻合、看似願意進口，但產品品類不合。結論：暫不優先投入業務時間。</span><span class="en">BUYER FIT: HIGH / IMPORT OPENNESS: YES / CATEGORY FIT: WEAK → NOT PRIORITIZED. Weak category fit is not outweighed by the other positive signals.</span></p></details>
+            <p class="capability-footnote"><span class="zh">三種不同資料整理結果，不是同一批公司逐層轉換，也不是成效數字。</span><span class="en">Three evidence views, not a conversion funnel or outcome claim.</span></p>
+            <details class="counterexample"><summary><span class="zh">看 R8 例子：條件看來不錯，為什麼不優先？</span><span class="en">See R8: positive signals, still not prioritized</span></summary><p><span class="zh">買方類型吻合，市場也有進口空間，但產品品類不合。這筆先不優先花業務時間。</span><span class="en">BUYER FIT: HIGH / IMPORT OPENNESS: YES / CATEGORY FIT: WEAK → NOT PRIORITIZED. Weak category fit is not outweighed by the other positive signals.</span></p></details>
           </div>
           <div class="scene-actions"><button class="reset-link" type="button" data-reset><span class="zh">重新開始</span><span class="en">Restart</span></button><div class="actions-right"><button class="primary" type="button" data-next><span class="zh">推想買方角色</span><span class="en">Map the buying role</span><span aria-hidden="true">→</span></button></div></div>
         </article>
 
         <article class="scene" data-scene="1" data-title-zh="買方角色" data-title-en="Buying role" aria-labelledby="scene1Title" hidden>
-          <header class="scene-head"><div><div class="kicker"><span class="zh">不是找一個 Email</span><span class="en">Not just any email at the company</span></div><h2 id="scene1Title" tabindex="-1"><span class="zh">誰能推動這個品類的採購？</span><span class="en">Who could move this category forward?</span></h2><p class="scene-summary"><span class="zh">從公司型態推到採購功能，再提出一個可檢驗的角色假設。</span><span class="en">Reason from the business model to the buying function, then form a role hypothesis that can be checked.</span></p></div><span class="synthetic-tag"><span class="zh">推論</span><span class="en">INFERENCE</span></span></header>
+          <header class="scene-head"><div><div class="kicker"><span class="zh">先找負責這類產品的人</span><span class="en">Not just any email at the company</span></div><h2 id="scene1Title" tabindex="-1"><span class="zh">這家公司，誰可能負責採購？</span><span class="en">Who could move this category forward?</span></h2><p class="scene-summary"><span class="zh">先看公司類型和怎麼做生意，再找可能負責選品、採購的人。這只是線索，實際職務和權限都要確認。</span><span class="en">Reason from the business model to the buying function, then form a role hypothesis that can be checked.</span></p></div><span class="synthetic-tag"><span class="zh">推論</span><span class="en">INFERENCE</span></span></header>
           <div class="scene-body">
             <div class="reason-chain" aria-label="Buying role reasoning">
               <div class="reason-node"><small><span class="zh">公司型態</span><span class="en">Company type</span></small><b><span class="zh">進口商 / 經銷商</span><span class="en">Importer / distributor</span></b></div><div class="reason-arrow" aria-hidden="true">→</div>
@@ -152,40 +160,40 @@
               <div class="reason-node"><small><span class="zh">可能角色</span><span class="en">Likely role</span></small><b>Category Manager</b></div><div class="reason-arrow" aria-hidden="true">→</div>
               <div class="reason-node"><small><span class="zh">為什麼找這個角色</span><span class="en">Why this role</span></small><b><span class="zh">可能參與品類組合與供應商評估。</span><span class="en">Likely to influence assortment and supplier evaluation.</span></b></div>
             </div>
-            <div class="hypothesis-note"><strong><span class="zh">角色假設，不是已確認事實。</span><span class="en">A role hypothesis, not a verified fact.</span></strong> <span class="zh">公司可能沒有這個職稱，實際採購權責仍須確認。</span><span class="en">The company may use another title. Actual buying authority still needs confirmation.</span></div>
+            <div class="hypothesis-note"><strong><span class="zh">這是待確認的職務線索。</span><span class="en">A role hypothesis, not a verified fact.</span></strong> <span class="zh">公司可能沒有這個職稱，實際負責人和採購權限還要確認。</span><span class="en">The company may use another title. Actual buying authority still needs confirmation.</span></div>
           </div>
           <div class="scene-actions"><button class="secondary" type="button" data-prev><span class="zh">返回公司</span><span class="en">Back to company</span></button><div class="actions-right"><button class="primary" type="button" data-next><span class="zh">找出聯絡路徑</span><span class="en">Find a contact path</span><span aria-hidden="true">→</span></button></div></div>
         </article>
 
         <article class="scene" data-scene="2" data-title-zh="聯絡路徑" data-title-en="Contact path" aria-labelledby="scene2Title" hidden>
-           <header class="scene-head"><div><div class="kicker"><span class="zh">先知道找誰，再找怎麼聯絡</span><span class="en">Know the role before finding a route</span></div><h2 id="scene2Title" tabindex="-1"><span class="zh">讓聯絡方式跟著判斷走。</span><span class="en">Let the contact path follow the reasoning.</span></h2><p class="scene-summary"><span class="zh">這裡展示可組合的能力類別，不代表目前已連接任何外部服務。</span><span class="en">These are composable capability categories, not claims that any external service is connected.</span></p></div><span class="synthetic-tag"><span class="zh">合成示例</span><span class="en">SYNTHETIC</span></span></header>
+           <header class="scene-head"><div><div class="kicker"><span class="zh">找對人之後，再找聯絡方式</span><span class="en">Know the role before finding a route</span></div><h2 id="scene2Title" tabindex="-1"><span class="zh">確認人找得到，也知道怎麼聯絡。</span><span class="en">Let the contact path follow the reasoning.</span></h2><p class="scene-summary"><span class="zh">下面展示可以用到的資料和服務類型。本案例沒有連接外部資料來源。</span><span class="en">These are composable capability categories, not claims that any external service is connected.</span></p></div><span class="synthetic-tag"><span class="zh">合成示例</span><span class="en">SYNTHETIC</span></span></header>
           <div class="scene-body contact-layout">
             <div class="contact-chain">
               <div class="contact-node"><b><span class="zh">公司網域</span><span class="en">Company domain</span></b><span>anonymous-gulf-distributor.test</span></div>
-              <div class="contact-node"><b><span class="zh">角色與人員探索</span><span class="en">Person and role discovery</span></b><span><span class="zh">合成專業網絡資料</span><span class="en">Synthetic professional profile</span></span></div>
-              <div class="contact-node"><b><span class="zh">商務聯絡路徑</span><span class="en">Business contact path</span></b><span>m.rahim@anonymous-gulf-distributor.test</span></div>
-              <div class="contact-node"><b><span class="zh">Email 檢核</span><span class="en">Email verification</span></b><span><span class="zh">模擬完成，非真實送達驗證</span><span class="en">Simulated, not real deliverability</span></span></div>
+              <div class="contact-node"><b><span class="zh">找可能負責的人</span><span class="en">Person and role discovery</span></b><span><span class="zh">合成專業網絡資料</span><span class="en">Synthetic professional profile</span></span></div>
+              <div class="contact-node"><b><span class="zh">商務聯絡方式</span><span class="en">Business contact path</span></b><span>m.rahim@anonymous-gulf-distributor.test</span></div>
+              <div class="contact-node"><b><span class="zh">Email 檢核</span><span class="en">Email verification</span></b><span><span class="zh">模擬結果，未驗證能否送達</span><span class="en">Simulated, not real deliverability</span></span></div>
             </div>
             <aside class="contact-record">
-              <h3><span class="zh">聯絡紀錄</span><span class="en">Contact record</span></h3>
+              <h3><span class="zh">聯絡資料</span><span class="en">Contact record</span></h3>
               <dl class="facts">
                 <dt><span class="zh">姓名</span><span class="en">Person</span></dt><dd><span class="zh">Maya Rahim（合成）</span><span class="en">Maya Rahim (synthetic)</span></dd>
                 <dt><span class="zh">可能職務</span><span class="en">Likely role</span></dt><dd>Category Manager</dd>
                 <dt><span class="zh">資料信心</span><span class="en">Confidence</span></dt><dd><span class="zh">角色待驗證</span><span class="en">Role to verify</span></dd>
               </dl>
-              <span class="record-state"><span class="zh">合成示例路徑已完成</span><span class="en">SYNTHETIC DEMO PATH COMPLETE</span></span>
+              <span class="record-state"><span class="zh">合成案例示意</span><span class="en">SYNTHETIC DEMO PATH COMPLETE</span></span>
             </aside>
           </div>
-          <p class="capability-footnote"><span class="zh">公司情報、專業人脈、聯絡人探索與商務信箱檢核，都是可替換的能力類別。本例沒有真實聯絡人，也沒有實際寄信。</span><span class="en">Company intelligence, professional networks, contact discovery, and email verification are swappable capability categories. No real contact or email is used here.</span></p>
+          <p class="capability-footnote"><span class="zh">公司資料、專業人脈、聯絡人查找和商務信箱驗證，可以由不同服務提供，工具也能更換。本例使用合成資料，沒有真實聯絡人或寄信。</span><span class="en">Company intelligence, professional networks, contact discovery, and email verification are swappable capability categories. No real contact or email is used here.</span></p>
           <div class="scene-actions"><button class="secondary" type="button" data-prev><span class="zh">返回角色判斷</span><span class="en">Back to role reasoning</span></button><div class="actions-right"><button class="primary" type="button" data-next><span class="zh">準備一封相關訊息</span><span class="en">Prepare a relevant message</span><span aria-hidden="true">→</span></button></div></div>
         </article>
 
         <article class="scene" data-scene="3" data-title-zh="準備外展" data-title-en="Prepare outreach" aria-labelledby="scene3Title" hidden>
-           <header class="scene-head"><div><div class="kicker"><span class="zh">由研究形成草稿，不自動發送</span><span class="en">Research becomes a draft, never an auto-send</span></div><h2 id="scene3Title" tabindex="-1"><span class="zh">先準備一封值得讀的信。</span><span class="en">Prepare a note worth reading.</span></h2><p class="scene-summary"><span class="zh">只使用這個合成案例已展示的類別線索，不補寫個人化故事。</span><span class="en">Use only the category context shown in this synthetic case. No invented personal details.</span></p></div><span class="synthetic-tag"><span class="zh">合成草稿</span><span class="en">SYNTHETIC DRAFT</span></span></header>
+           <header class="scene-head"><div><div class="kicker"><span class="zh">先寫好內容，讓人檢查再寄</span><span class="en">Research becomes a draft, never an auto-send</span></div><h2 id="scene3Title" tabindex="-1"><span class="zh">先準備一封對方看得懂的信。</span><span class="en">Prepare a note worth reading.</span></h2><p class="scene-summary"><span class="zh">以下英文草稿只用案例中已有的產品類別線索，沒有替買家編造個人故事。</span><span class="en">Use only the category context shown in this synthetic case. No invented personal details.</span></p></div><span class="synthetic-tag"><span class="zh">合成草稿</span><span class="en">SYNTHETIC DRAFT</span></span></header>
           <div class="scene-body">
              <div class="channel-row" aria-label="Possible outreach channels"><span class="channel active"><span class="zh">Email · 本例示範</span><span class="en">EMAIL · DEMONSTRATED</span></span><span class="channel"><span class="zh">專業人脈</span><span class="en">PROFESSIONAL NETWORK</span></span><span class="channel"><span class="zh">商務訊息</span><span class="en">DIRECT BUSINESS MESSAGE</span></span><span class="channel"><span class="zh">官網內容</span><span class="en">OWNED WEB / CONTENT</span></span><span class="channel"><span class="zh">展後跟進</span><span class="en">TRADE SHOW FOLLOW-UP</span></span></div>
-            <button class="primary" type="button" id="prepareOutreach"><span class="zh">準備訊息草稿</span><span class="en">Prepare the draft</span></button>
-            <p class="draft-status" id="draftStatus" aria-live="polite"><span class="zh">草稿尚未準備。由人檢視後才可能發送。</span><span class="en">No draft prepared yet. A person reviews before anything is sent.</span></p>
+            <button class="primary" type="button" id="prepareOutreach"><span class="zh">準備英文聯絡信</span><span class="en">Prepare the draft</span></button>
+            <p class="draft-status" id="draftStatus" aria-live="polite"><span class="zh">草稿準備好後，先由人檢查；原型不會寄出。</span><span class="en">No draft prepared yet. A person reviews before anything is sent.</span></p>
             <div class="email-draft" id="emailDraft" hidden>
                <p class="email-meta">Subject: A window-layer idea for hospitality projects</p>
                <p>Hello Maya,</p>
@@ -193,13 +201,13 @@
                <p>If this might fit an upcoming assortment review, would a one-page concept note be useful? We can discuss construction and sample options once the requirements are clearer.</p>
                <p>Best,<br>Commercial Development</p>
              </div>
-             <p class="buyer-asset-note" id="emailReaderNote" hidden><span class="zh">讀者提示：上方是擬給海外買方的英文草稿，尚未發送；產品結構與樣品條件仍待確認。</span><span class="en">Reader note: This is an unsent draft. Construction and sample options still need confirmation.</span></p>
+             <p class="buyer-asset-note" id="emailReaderNote" hidden><span class="zh">讀者提示：上方是寫給海外買家的英文草稿，尚未寄出；產品結構和樣品條件仍待確認。</span><span class="en">Reader note: This is an unsent draft. Construction and sample options still need confirmation.</span></p>
           </div>
           <div class="scene-actions"><button class="secondary" type="button" data-prev><span class="zh">返回聯絡路徑</span><span class="en">Back to contact path</span></button><div class="actions-right"><button class="primary" type="button" data-next disabled><span class="zh">查看買方單頁素材</span><span class="en">View the buyer one-pager</span><span aria-hidden="true">→</span></button></div></div>
         </article>
 
         <article class="scene" data-scene="4" data-title-zh="買方單頁素材" data-title-en="Buyer one-pager" aria-labelledby="scene4Title" hidden>
-           <header class="scene-head"><div><div class="kicker"><span class="zh">有用的東西，才值得寄出去</span><span class="en">Prepare something useful to send</span></div><h2 id="scene4Title" tabindex="-1"><span class="zh">不只找到人，也準備好提案。</span><span class="en">Finding a person is only part of the work.</span></h2><p class="scene-summary"><span class="zh">以下示意一份擬給買方看的英文概念單頁。規格、供應與價格均尚待確認。</span><span class="en">A synthetic buyer-facing concept sheet. Specifications, supply, and pricing still require confirmation.</span></p></div><span class="synthetic-tag"><span class="zh">合成概念</span><span class="en">SYNTHETIC CONCEPT</span></span></header>
+           <header class="scene-head"><div><div class="kicker"><span class="zh">聯絡買家時，也要帶上有用的內容</span><span class="en">Prepare something useful to send</span></div><h2 id="scene4Title" tabindex="-1"><span class="zh">讓買家看到值得討論的產品方向。</span><span class="en">Finding a person is only part of the work.</span></h2><p class="scene-summary"><span class="zh">以下是一份給買家看的英文產品概念頁。正式規格、供應和價格都還沒確認。</span><span class="en">A synthetic buyer-facing concept sheet. Specifications, supply, and pricing still require confirmation.</span></p></div><span class="synthetic-tag"><span class="zh">合成概念</span><span class="en">SYNTHETIC CONCEPT</span></span></header>
           <div class="scene-body onepager-wrap">
             <section class="onepager" aria-label="Synthetic buyer-facing one-pager">
               <div class="onepager-top"><b>WINDOW LAYER CONCEPT</b><span>HOSPITALITY</span></div>
@@ -213,32 +221,33 @@
                <div class="onepager-cta"><b>Request a construction note and sample discussion</b><span aria-hidden="true">→</span></div>
                <p class="onepager-foot">Concept proposal. Price, MOQ, lead time, and supply require confirmation against actual specifications.</p>
             </section>
-             <aside class="onepager-aside asset-note"><strong><span class="zh">買方看到的是英文概念提案。</span><span class="en">The buyer sees an English concept proposal.</span></strong><br><br><span class="zh">這頁實際呈現了可討論的產品方向，不代表已有正式產品、供應商、規格或測試結果。</span><span class="en">This rendered concept gives the buyer something to discuss. It does not establish a production product, supplier, specification, or test result.</span></aside>
+             <aside class="onepager-aside asset-note"><strong><span class="zh">買家看到的是英文概念提案。</span><span class="en">The buyer sees an English concept proposal.</span></strong><br><br><span class="zh">這份提案提供一個可討論的方向，不代表已有正式產品、供應商、規格或測試結果。</span><span class="en">This rendered concept gives the buyer something to discuss. It does not establish a production product, supplier, specification, or test result.</span></aside>
           </div>
           <div class="scene-actions"><button class="secondary" type="button" data-prev><span class="zh">返回訊息草稿</span><span class="en">Back to outreach</span></button><div class="actions-right"><button class="primary" type="button" data-next><span class="zh">查看買家回覆</span><span class="en">See the buyer reply</span><span aria-hidden="true">→</span></button></div></div>
         </article>
 
         <article class="scene" data-scene="5" data-title-zh="買家回覆" data-title-en="Buyer reply" aria-labelledby="scene5Title" hidden>
-           <header class="scene-head"><div><div class="kicker"><span class="zh">得到回覆，商業工作才真正開始</span><span class="en">A reply is where the harder work begins</span></div><h2 id="scene5Title" tabindex="-1"><span class="zh">辨認回覆中的新商業資訊。</span><span class="en">Read the commercial information in the reply.</span></h2><p class="scene-summary"><span class="zh">這封買家回覆完全合成。AI 可協助擷取內容，但不能替人承諾條件。</span><span class="en">This buyer reply is entirely synthetic. AI can extract its content, not commit to terms.</span></p></div><span class="synthetic-tag"><span class="zh">合成回覆</span><span class="en">SYNTHETIC REPLY</span></span></header>
+           <header class="scene-head"><div><div class="kicker"><span class="zh">買家一回覆，才開始真正判斷</span><span class="en">A reply is where the harder work begins</span></div><h2 id="scene5Title" tabindex="-1"><span class="zh">從回覆裡看出下一步。</span><span class="en">Read the commercial information in the reply.</span></h2><p class="scene-summary"><span class="zh">這封回信是合成示例。AI 可以整理買家提出的數量和條件，但不能替人答應。</span><span class="en">This buyer reply is entirely synthetic. AI can extract its content, not commit to terms.</span></p></div><span class="synthetic-tag"><span class="zh">合成回覆</span><span class="en">SYNTHETIC REPLY</span></span></header>
           <div class="scene-body">
             <button class="primary" type="button" id="revealReply"><span class="zh">顯示買家回覆</span><span class="en">Reveal the buyer reply</span></button>
             <div id="replyContent" hidden>
-               <div class="response"><small><span class="zh">合成買家回覆 · 英文原文</span><span class="en">Synthetic buyer reply</span></small><blockquote>“Looks interesting. Could you quote 2,000 units FOB and advise MOQ and lead time?”</blockquote><p class="buyer-asset-note"><span class="zh">意思是：買方想知道 2,000 件的 FOB 報價、最低訂購量與交期。FOB 裝運港尚未指明，不能直接報價或承諾。</span><span class="en">The buyer requests a quote, MOQ, and lead time. The named FOB port is missing; no quote or commitment follows automatically.</span></p></div>
-              <div class="kicker"><span class="zh">AI 協助整理的新商業資訊</span><span class="en">New commercial information extracted with AI assistance</span></div>
-              <div class="extraction"><div class="extract"><small><span class="zh">數量</span><span class="en">Quantity</span></small><b>2,000 units</b></div><div class="extract"><small><span class="zh">貿易條件</span><span class="en">Trade term</span></small><b>FOB</b></div><div class="extract"><small><span class="zh">買方要求</span><span class="en">Requested</span></small><b><span class="zh">報價、MOQ、交期</span><span class="en">Quote, MOQ, lead time</span></b></div></div>
-              <div class="evidence-labels"><span class="state-label"><span class="zh">合成示例</span><span class="en">SYNTHETIC</span></span><span class="state-label"><span class="zh">擷取結果，待人確認</span><span class="en">EXTRACTION TO REVIEW</span></span></div>
+               <div class="response"><small><span class="zh">合成買家回覆 · 英文原文</span><span class="en">Synthetic buyer reply</span></small><blockquote>“Looks interesting. Could you quote 2,000 units FOB and advise MOQ and lead time?”</blockquote><p class="buyer-asset-note"><span class="zh">意思是：買家想知道 2,000 件的 FOB 價格、MOQ 和交期。FOB 港口尚未指定，不能直接報價或承諾。</span><span class="en">The buyer requests a quote, MOQ, and lead time. The named FOB port is missing; no quote or commitment follows automatically.</span></p></div>
+              <div class="kicker"><span class="zh">AI 幫忙整理的詢價內容</span><span class="en">New commercial information extracted with AI assistance</span></div>
+               <div class="extraction"><div class="extract"><small><span class="zh">數量</span><span class="en">Quantity</span></small><b>2,000 units</b></div><div class="extract"><small><span class="zh">貿易條件</span><span class="en">Trade term</span></small><b>FOB</b></div><div class="extract"><small><span class="zh">買方要求</span><span class="en">Requested</span></small><b><span class="zh">報價、MOQ、交期</span><span class="en">Quote, MOQ, lead time</span></b></div></div>
+               <div class="human-gate"><strong><span class="zh">這封回覆讓下一步改變了</span><span class="en">This reply changes the next question</span></strong><p><span class="zh">買家提出了具體數量與條件，值得進一步確認。FOB 港口和正式產品規格仍未確定，現在還不能直接報價。</span><span class="en">The buyer has asked about a quantity and trade terms, so the inquiry merits review. The FOB port and final product specification remain unconfirmed; a quote cannot follow yet.</span></p></div>
+               <div class="evidence-labels"><span class="state-label"><span class="zh">合成示例</span><span class="en">SYNTHETIC</span></span><span class="state-label"><span class="zh">擷取結果，待人確認</span><span class="en">EXTRACTION TO REVIEW</span></span></div>
             </div>
           </div>
           <div class="scene-actions"><button class="secondary" type="button" data-prev><span class="zh">返回單頁素材</span><span class="en">Back to one-pager</span></button><div class="actions-right"><button class="primary" type="button" data-next disabled><span class="zh">檢視商業決策門</span><span class="en">Review the decision gate</span><span aria-hidden="true">→</span></button></div></div>
         </article>
 
         <article class="scene" data-scene="6" data-title-zh="商業判斷" data-title-en="Commercial judgment" aria-labelledby="scene6Title" hidden>
-           <header class="scene-head"><div><div class="kicker"><span class="zh">潛在客戶變成待覆核商機，不代表已批准報價</span><span class="en">A lead becomes an opportunity, not an approved quote</span></div><h2 id="scene6Title" tabindex="-1"><span class="zh">先設一道人的判斷門。</span><span class="en">Put human judgment at the gate.</span></h2><p class="scene-summary"><span class="zh">把買家要求整理成待處理商業案件，之後由負責人決定追不追、如何報價。</span><span class="en">Structure the buyer's request as a commercial case for review. A person decides whether and how to pursue it.</span></p></div><span class="synthetic-tag"><span class="zh">待人工覆核</span><span class="en">HUMAN REVIEW</span></span></header>
+           <header class="scene-head"><div><div class="kicker"><span class="zh">買家來詢價，還不等於可以報價</span><span class="en">A lead becomes an opportunity, not an approved quote</span></div><h2 id="scene6Title" tabindex="-1"><span class="zh">先問清條件，再決定是否報價。</span><span class="en">Confirm the terms before deciding whether to quote.</span></h2><p class="scene-summary"><span class="zh">2,000 件的詢價值得跟進；港口、規格與供應條件還要確認。</span><span class="en">The 2,000-unit inquiry deserves follow-up; the port, specification, and supply terms still need confirmation.</span></p></div><span class="synthetic-tag"><span class="zh">待人工覆核</span><span class="en">HUMAN REVIEW</span></span></header>
           <div class="scene-body">
-             <div class="lead-opportunity" aria-live="polite"><span class="entity current" id="leadState"><span class="zh">潛在客戶</span><span class="en">LEAD</span></span><span class="entity-arrow" aria-hidden="true">→</span><span class="entity" id="opportunityState"><span class="zh">待覆核的商機</span><span class="en">COMMERCIAL OPPORTUNITY</span></span></div>
-             <div class="human-gate"><strong><span class="zh">須由人覆核</span><span class="en">HUMAN REVIEW REQUIRED</span></strong><p><span class="zh">人決定是否追進、報價、MOQ、價格、付款、交期與例外。AI 只協助研究、草擬、擷取與分類。</span><span class="en">A person decides whether to pursue, and owns quote, MOQ, price, payment, lead time, and exceptions. AI assists with research, drafting, extraction, and classification.</span></p></div>
-            <button class="primary" type="button" id="createOpportunity"><span class="zh">建立待覆核商機</span><span class="en">Create opportunity for review</span></button>
-             <p class="opportunity-status" id="opportunityStatus" aria-live="polite"><span class="zh">目前仍是潛在客戶。按下後會模擬人將它轉入待覆核商機。</span><span class="en">Still a lead. Click to simulate a person moving it into an opportunity for review.</span></p>
+             <div class="lead-opportunity" aria-live="polite"><span class="entity current" id="leadState"><span class="zh">潛在客戶</span><span class="en">LEAD</span></span><span class="entity-arrow" aria-hidden="true">→</span><span class="entity" id="opportunityState"><span class="zh">待人確認的商機</span><span class="en">COMMERCIAL OPPORTUNITY</span></span></div>
+              <div class="human-gate"><strong><span class="zh">由人確認</span><span class="en">HUMAN REVIEW REQUIRED</span></strong><p><span class="zh">先向買家確認 FOB 港口與產品規格，向內部核對 MOQ、可供應數量與交期。負責人再決定是否報價；AI 可以整理問題與草稿，不能代替承諾。</span><span class="en">Ask the buyer to confirm the FOB port and product specification; check MOQ, available quantity, and lead time internally. A responsible person then decides whether to quote. AI can organize the questions and draft, but cannot commit.</span></p></div>
+            <button class="primary" type="button" id="createOpportunity"><span class="zh">建立待確認商機</span><span class="en">Create opportunity for review</span></button>
+             <p class="opportunity-status" id="opportunityStatus" aria-live="polite"><span class="zh">目前仍是潛在客戶。按下後，會模擬由人把它轉為待確認的商機。</span><span class="en">Still a lead. Click to simulate a person moving it into an opportunity for review.</span></p>
           </div>
           <div class="scene-actions"><button class="secondary" type="button" data-prev><span class="zh">返回買家回覆</span><span class="en">Back to buyer reply</span></button><div class="actions-right"><button class="primary" type="button" data-next disabled><span class="zh">交接商業案件</span><span class="en">Hand off the case</span><span aria-hidden="true">→</span></button></div></div>
         </article>
@@ -256,14 +265,14 @@
     </section>
 
     <details class="architecture wrap" id="architecture">
-      <summary><span class="zh">再看底下的能力如何接起來</span><span class="en">See the capability chain underneath</span></summary>
-      <p class="architecture-intro"><span class="zh">不是工具名單，而是可替換的能力如何支援商業工作。本頁沒有連接任何資料或 SaaS 服務。</span><span class="en">Not a vendor list, but how swappable capability categories can support the work. No data or SaaS service is connected on this page.</span></p>
+      <summary><span class="zh">再看看背後有哪些能力</span><span class="en">See the capability chain underneath</span></summary>
+      <p class="architecture-intro"><span class="zh">這裡列的是支援商業工作的能力，不是特定工具清單。本頁沒有連接資料或 SaaS 服務。</span><span class="en">Not a vendor list, but how swappable capability categories can support the work. No data or SaaS service is connected on this page.</span></p>
       <div class="capability-groups">
         <section class="capability-group"><h3><span class="zh">找公司與判斷</span><span class="en">Find and qualify accounts</span></h3><div class="capability-list"><span><span class="zh">公開網頁與搜尋</span><span class="en">PUBLIC WEB / SEARCH</span></span><span><span class="zh">公司情報</span><span class="en">COMPANY INTELLIGENCE</span></span><span><span class="zh">貿易與產業資料</span><span class="en">TRADE / INDUSTRY DATA</span></span><span><span class="zh">AI 輔助研究</span><span class="en">AI RESEARCH AGENT</span></span></div></section>
         <section class="capability-group"><h3><span class="zh">找人與準備接觸</span><span class="en">Find roles and prepare engagement</span></h3><div class="capability-list"><span><span class="zh">專業人脈</span><span class="en">PROFESSIONAL NETWORK</span></span><span><span class="zh">聯絡人探索</span><span class="en">CONTACT DISCOVERY</span></span><span><span class="zh">商務信箱檢核</span><span class="en">EMAIL VERIFICATION</span></span><span><span class="zh">接觸管道</span><span class="en">OUTREACH INFRASTRUCTURE</span></span><span><span class="zh">內容與素材準備</span><span class="en">CONTENT / ASSET GENERATION</span></span></div></section>
         <section class="capability-group"><h3><span class="zh">理解回覆與交接</span><span class="en">Understand replies and hand off</span></h3><div class="capability-list"><span><span class="zh">回覆分類</span><span class="en">RESPONSE CLASSIFICATION</span></span><span><span class="zh">商業決策流程</span><span class="en">COMMERCIAL DECISION WORKFLOW</span></span><span><span class="zh">人工核准</span><span class="en">HUMAN APPROVAL</span></span></div></section>
       </div>
-      <p class="architecture-note"><span class="zh">AI 可研究、整理、擷取、分類與草擬。市場選擇、聯絡、價格、付款、交期、風險與客戶關係仍由人負責。</span><span class="en">AI can research, organize, extract, classify, and draft. People retain market choice, outreach, price, payment, delivery, risk, and customer relationship decisions.</span></p>
+      <p class="architecture-note"><span class="zh">AI 可以查資料、整理、分類和寫草稿。選市場、聯絡客戶、決定價格與交易條件、承擔風險，仍由人負責。</span><span class="en">AI can research, organize, extract, classify, and draft. People retain market choice, outreach, price, payment, delivery, risk, and customer relationship decisions.</span></p>
     </details>
   </main>
   <footer class="footer wrap"><span><span class="zh">商業路線 · 合成互動案例</span><span class="en">Commercial Journeys · Synthetic interactive case</span></span><span><span class="zh">合成示例 · 未知仍待查證 · 人負責承諾</span><span class="en">SYNTHETIC · UNKNOWNS REMAIN · PEOPLE OWN COMMITMENTS</span></span></footer>
@@ -279,7 +288,7 @@
       const copy={zh:{pending:'已建立合成商機，等待人工覆核。尚未承諾價格、MOQ、付款或交期。',already:'商機已在待覆核狀態。',reply:'已顯示合成買家回覆與待確認資訊。',draft:'草稿已準備。請由人檢視，原型不會寄送。'},en:{pending:'Synthetic opportunity created for human review. No price, MOQ, payment, or lead time has been committed.',already:'The opportunity is already awaiting human review.',reply:'Synthetic buyer reply and review items are now visible.',draft:'Draft prepared for human review. This prototype will not send it.'}};
       let language='zh',current=0,furthest=0,outreachReady=false,replyReady=false,opportunityCreated=false;
       const text=(node,zh,en)=>{node.innerHTML='<span class="zh">'+zh+'</span><span class="en">'+en+'</span>'};
-      function setLanguage(next){language=next;document.body.dataset.lang=next;document.documentElement.lang=next==='zh'?'zh-Hant':'en';document.title=next==='zh'?'從公司名單，走到可接洽的商機 | Paul\'s Tradecraft':'From a company name to a reachable opportunity | Paul\'s Tradecraft';langButton.setAttribute('aria-label',next==='zh'?'Switch to English':'切換為繁體中文')}
+      function setLanguage(next){language=next;document.body.dataset.lang=next;document.documentElement.lang=next==='zh'?'zh-Hant':'en';document.title=next==='zh'?'跟著一家公司，看怎麼走到買家詢價 | Paul\'s Tradecraft':'From a company name to a reachable opportunity | Paul\'s Tradecraft';langButton.setAttribute('aria-label',next==='zh'?'Switch to English':'切換為繁體中文')}
       function gated(index){if(index===4)return outreachReady;if(index===6)return replyReady;if(index===7)return opportunityCreated;return true}
       function render(){
         scenes.forEach((scene,index)=>{scene.hidden=index!==current});
