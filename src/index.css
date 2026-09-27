@@ -121,3 +121,16 @@
     top: 0;
   }
 }
+
+/* Gentle desktop reading rhythm: natural scroll remains free, but a pause near
+   a major section settles on that section instead of skipping past it. */
+@media (min-width: 1024px) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-snap-type: y proximity;
+    scroll-padding-top: 76px;
+  }
+
+  main > section {
+    scroll-snap-align: start;
+  }
+}
