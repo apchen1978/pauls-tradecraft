@@ -1,15 +1,19 @@
 import { motion } from "motion/react";
-import { CaretDown } from "@phosphor-icons/react";
+import { ArrowRight, CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
 export default function HowIWork() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   return (
     <section id="how" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-32">
       <div className="max-w-2xl">
         <p className="eyebrow">{t.how.eyebrow}</p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.how.headline}</h2>
         <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-ink/65">{t.how.sub}</p>
+        <a href={lang === "en" ? "/cases/how-i-run-ai-agents/#en" : "/cases/how-i-run-ai-agents/"} className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber">
+          {t.how.agentsCase}
+          <ArrowRight size={14} weight="bold" aria-hidden="true" />
+        </a>
       </div>
 
       <details className="group mt-10">

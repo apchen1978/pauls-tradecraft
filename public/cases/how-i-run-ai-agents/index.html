@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我怎麼帶一支 AI 團隊做事｜How I Run AI Agents · Paul's Tradecraft</title>
+  <meta name="description" content="多個 AI agent 協作時的規則：事實與未知分開、依效果分級核准、角色不帶權力、獨立複查、授權閘道。限定範圍的操作安全，不宣稱全機防護。" />
+  <link rel="canonical" href="https://paulstradecraft.com/cases/how-i-run-ai-agents/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="我怎麼帶一支 AI 團隊做事｜How I Run AI Agents" />
+  <meta property="og:description" content="AI 讓工作變快；快不等於對，也不等於被授權。這是讓 AI 團隊做得快、又不替人做決定的規則。" />
+  <meta property="og:url" content="https://paulstradecraft.com/cases/how-i-run-ai-agents/" />
+  <meta property="og:image" content="https://paulstradecraft.com/og-image.png" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How I Run a Team of AI Agents",
+    "name": "How I Run a Team of AI Agents",
+    "url": "https://paulstradecraft.com/cases/how-i-run-ai-agents/",
+    "inLanguage": ["zh-Hant", "en"],
+    "author": { "@type": "Person", "name": "Paul Chen", "url": "https://paulstradecraft.com/" },
+    "about": ["AI agent governance", "Human authorization", "Evidence discipline", "Multi-agent collaboration"],
+    "creativeWorkStatus": "real operating method; bounded operational safety, not host-wide enforcement",
+    "description": "Rules for running several AI agents: facts and unknowns kept separate, effect-based approval, roles without authority, independent re-checks, and a fixture-scope authorization gateway. Not host-wide, sandbox, or endpoint protection."
+  }
+  </script>
+  <style>
+    :root { --pine:#143329; --bone:#f4efe6; --gold:#d4a017; --ink:#1c241f; --line:rgba(20,51,41,.14); --muted:rgba(28,36,31,.68); }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif; background: var(--bone); color: var(--ink); line-height: 1.65; }
+    a { color: var(--pine); }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px 80px; }
+    .crumb { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .eyebrow { margin-top: 18px; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+    h1 { margin: 10px 0 0; font-size: clamp(1.7rem, 4vw, 2.35rem); line-height: 1.2; letter-spacing: -.02em; color: var(--pine); }
+    .lede { margin-top: 14px; font-size: 1.05rem; color: var(--muted); }
+    .badge { display:inline-block; margin-top: 14px; margin-right: 8px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--pine); background: #fff; }
+    .ctas { display:flex; flex-wrap:wrap; gap:10px; margin-top: 22px; }
+    .btn { display:inline-block; padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration:none; }
+    .btn-primary { background: var(--gold); color: var(--pine); }
+    .btn-secondary { border: 1px solid var(--line); background: #fff; color: var(--pine); }
+    .grid { display:grid; gap: 12px; margin-top: 28px; }
+    @media (min-width:700px){ .grid { grid-template-columns: 1fr 1fr; } .grid .wide { grid-column: 1 / -1; } }
+    .card { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: #fff; }
+    .card h3 { margin:0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+    .card p { margin: 8px 0 0; font-size: 14px; }
+    h2 { margin: 40px 0 12px; font-size: 1.25rem; color: var(--pine); }
+    ol.method { margin: 0; padding-left: 1.2rem; }
+    ol.method li { margin: 8px 0; }
+    table { width:100%; border-collapse: collapse; font-size: 14px; background:#fff; border:1px solid var(--line); border-radius: 12px; overflow:hidden; }
+    th, td { border-top: 1px solid var(--line); padding: 10px 12px; vertical-align: top; text-align: left; }
+    th { background: rgba(20,51,41,.06); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+    .boundary { border-left: 3px solid var(--gold); padding: 8px 0 8px 14px; color: var(--muted); }
+    .en { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+    footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · AI Team · <a href="#en" lang="en">English version ↓</a></p>
+    <p class="eyebrow">CASE · HOW I RUN AI AGENTS</p>
+    <h1>我怎麼帶一支 AI 團隊做事</h1>
+    <p class="lede">這個作品集，是我和幾個 AI agent 一起做出來的。AI 讓工作變快；但快不等於對，也不等於被授權。這頁說明我用什麼規則，讓 AI 團隊做得快，又不會替我做不該做的決定。</p>
+    <span class="badge">真實運作方法 · 非合成案例</span>
+    <span class="badge">限定範圍的操作安全 · 非全機防護</span>
+    <div class="ctas">
+      <a class="btn btn-primary" href="/#contact">談談你公司的 AI 導入邊界</a>
+      <a class="btn btn-secondary" href="/#how">回到 How I Work</a>
+    </div>
+
+    <div class="grid" aria-label="Snapshot">
+      <div class="card"><h3>Team</h3><p>Codex、DeepSeek Harness、Claude Code 為主要執行者；ChatGPT 等協助研究與規格。</p></div>
+      <div class="card"><h3>Owner</h3><p>我是唯一的決策者。任何角色標籤都不代表授權。</p></div>
+      <div class="card"><h3>Real risk</h3><p>不是 AI 有惡意，而是 AI 很有把握地做錯、用舊資訊行動，或被網頁內容誘導。</p></div>
+      <div class="card"><h3>Human gate</h3><p>推送、部署、對外溝通、花錢、碰密鑰、不可逆動作，一律要我明確同意。</p></div>
+    </div>
+
+    <h2>五條規則</h2>
+    <ol class="method">
+      <li><strong>事實、推論、未知分開寫</strong> — 證據不夠就標 UNKNOWN；UNKNOWN 永遠不被回報成成功。</li>
+      <li><strong>管「效果」，不管「工具名稱」</strong> — 同一個點擊可能只是查看，也可能是送出。依效果分四級：查看／準備／提交／控制；提交與控制需要我核准，無法判斷時視為未知並停下。</li>
+      <li><strong>角色不帶權力</strong> — 任何 agent 都可以實作、驗證或挑戰，但沒有一個 agent 因為角色而取得決定權。</li>
+      <li><strong>獨立複查</strong> — 由另一個 agent 在不讀原作者推理的情況下重做檢查，回報 PASS／PASS_WITH_GAPS／FAIL 並附證據。</li>
+      <li><strong>agent 之間的共識不是證據</strong> — 兩個 AI 同意，只代表它們同意；是否屬實，要回到原始資料與實際測試。</li>
+    </ol>
+
+    <h2>一個真實例子：兩個 agent 審同一題</h2>
+    <p>我請兩個 agent 各自回答同一個問題：這套系統現階段該追求哪一種安全目標？兩份審查在不互相參照的情況下得出一致結論；但其中一份找到另一份漏掉的三個證據問題，例如引用了過期的測試數字。之後由第三個 agent 把兩份並排對照，並在實機上重新確認哪些問題今天仍然存在。</p>
+    <p>哪一份成為正式版本、要不要修，不由任何 agent 決定——對照文件只把決定事項列清楚，交給我。</p>
+
+    <h2>一個真實機制：授權閘道</h2>
+    <p>對於已接上的動作，agent 不能直接執行，必須先通過一道檢查：授權要簽章、綁定到確切的任務、動作與參數，只能用一次，時效過了或內容被改過就拒絕。結果一律留下結構化收據；結果不明時記為未知，不記為成功。</p>
+
+    <h2>Evidence ladder</h2>
+    <table>
+      <thead><tr><th>可複核事實（FACT）</th><th>來源</th><th>未驗證／UNKNOWN</th></tr></thead>
+      <tbody>
+        <tr><td>授權閘道回歸測試 30/30、轉接層測試 18/18、子行程測試 5/5、13 個強制執行情境、兩輪對抗式稽核 0 缺口（2026-09-29 本機重跑）</td><td>私有治理 repo 的測試套件</td><td>在測試組合以外的路徑是否同樣被攔截</td></tr>
+        <tr><td>兩份獨立安全審查與一份對照文件</td><td>私有治理 repo</td><td>外部第三方稽核</td></tr>
+        <tr><td>這個網站由多個 agent 建置、人工審核後部署</td><td>公開 GitHub 提交紀錄</td><td>這套方法在其他公司的效果</td></tr>
+      </tbody>
+    </table>
+
+    <h2>這頁不主張</h2>
+    <div class="boundary">
+      <p>不是全機或作業系統層級的防護。有 shell 或瀏覽器自動化權限的 agent，可以走不經過閘道的路徑；這套方法防的是「合作但會犯錯」的 agent，不是蓄意繞過的攻擊者。</p>
+      <p>不是沙箱、防毒或端點防護，也不宣稱能阻擋惡意程式。</p>
+      <p>治理原始碼與內部紀錄為私有；這頁只公開方法與可複核的範圍。</p>
+    </div>
+
+    <h2>對公司的意義</h2>
+    <p>多數公司導入 AI，第一個問題是「它能做什麼」。我先問的是：它用誰的身分、能碰哪些資料、哪些動作要人核准、出錯時怎麼知道。能力不等於授權——這是我帶進任何團隊的第一條規則。</p>
+
+    <div class="en" id="en" lang="en">
+      <p class="eyebrow">CASE · HOW I RUN AI AGENTS</p>
+      <h2 style="margin-top:10px;font-size:1.6rem">How I run a team of AI agents</h2>
+      <p class="lede">This portfolio was built by me working with several AI agents. AI makes the work faster; fast is not the same as correct, and it is not the same as authorized. These are the rules that keep the team fast without letting it make decisions that are mine.</p>
+      <span class="badge">Real operating method · not a synthetic case</span>
+      <span class="badge">Bounded operational safety · not host-wide protection</span>
+
+      <div class="grid" aria-label="Snapshot">
+        <div class="card"><h3>Team</h3><p>Codex, DeepSeek Harness, and Claude Code are the primary runtimes; ChatGPT and others help with research and specs.</p></div>
+        <div class="card"><h3>Owner</h3><p>I am the only decision-maker. No role label confers authority.</p></div>
+        <div class="card"><h3>Real risk</h3><p>Not malicious AI, but AI that is confidently wrong, acts on stale information, or is steered by web content.</p></div>
+        <div class="card"><h3>Human gate</h3><p>Push, deploy, external communication, spend, secrets, and irreversible actions always need my explicit approval.</p></div>
+      </div>
+
+      <h2>Five rules</h2>
+      <ol class="method">
+        <li><strong>Facts, inferences, and unknowns stay separate</strong> — without evidence it is UNKNOWN, and UNKNOWN is never reported as success.</li>
+        <li><strong>Govern effects, not tool names</strong> — the same click can be a look or a submission. Four effect classes: read / prepare / commit / control. Commit and control need my approval; anything undeterminable is treated as unknown and stops.</li>
+        <li><strong>A role carries no authority</strong> — any agent may build, verify, or challenge; none gains decision rights from its role.</li>
+        <li><strong>Independent re-checks</strong> — another agent redoes the check without reading the producer's reasoning and reports PASS / PASS_WITH_GAPS / FAIL with evidence.</li>
+        <li><strong>Agreement between agents is not evidence</strong> — two AIs agreeing only means they agree; truth comes from original sources and real tests.</li>
+      </ol>
+
+      <h2>A real example: two agents, one question</h2>
+      <p>Two agents answered the same question independently: what security objective should this system pursue now? They reached the same conclusion without consulting each other, but one found three evidence problems the other missed, such as citing test counts from an older run. A third agent then placed both side by side and re-checked on the actual machine which problems still held. Which review becomes canonical, and what gets fixed, is not an agent's call: the reconciliation lists the decisions and hands them to me.</p>
+
+      <h2>A real mechanism: the authorization gateway</h2>
+      <p>For connected actions, an agent cannot execute directly. Authorization must be signed, bound to the exact task, action, and arguments, used once, and rejected if expired or altered. Every result leaves a structured receipt; an unclear result is recorded as unknown, never as success.</p>
+
+      <h2>Evidence ladder</h2>
+      <table>
+        <thead><tr><th>Verifiable fact</th><th>Source</th><th>Not verified / UNKNOWN</th></tr></thead>
+        <tbody>
+          <tr><td>Authorization gateway regression tests 30/30, adapter tests 18/18, subprocess tests 5/5, 13 enforcement scenarios, two adversarial audit rounds with 0 gaps (re-run locally 2026-09-29)</td><td>Test suites in the private governance repo</td><td>Whether paths outside the tested set are intercepted the same way</td></tr>
+          <tr><td>Two independent security reviews and one reconciliation document</td><td>Private governance repo</td><td>External third-party audit</td></tr>
+          <tr><td>This site was built by several agents and deployed after human review</td><td>Public GitHub commit history</td><td>How well the method works at other companies</td></tr>
+        </tbody>
+      </table>
+
+      <h2>What this page does not claim</h2>
+      <div class="boundary">
+        <p>It is not host-wide or OS-level protection. An agent with shell or browser automation can take paths that never pass the gateway; the method protects against cooperative-but-fallible agents, not a deliberate attacker.</p>
+        <p>It is not a sandbox, antivirus, or endpoint protection, and makes no malware-blocking claim.</p>
+        <p>The governance source and internal records are private; this page publishes the method and its verifiable scope only.</p>
+      </div>
+
+      <h2>Why it matters to a company</h2>
+      <p>Most AI adoption starts with "what can it do?" I start with: whose identity does it act under, what data may it touch, which actions need a human, and how would we know when it is wrong. Capability is not authority — that is the first rule I bring into any team.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="/#contact">Talk about your AI adoption boundaries</a>
+        <a class="btn btn-secondary" href="/#how">Back to How I Work</a>
+      </div>
+    </div>
+
+    <footer>
+      <p>Paul's Tradecraft · Case page v0.1 · Last reviewed 2026-09-29</p>
+      <p><a href="/">← Back to portfolio</a></p>
+    </footer>
+  </main>
+</body>
+</html>
