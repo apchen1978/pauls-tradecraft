@@ -5,6 +5,7 @@
   color: var(--color-ink);
   --flow-research: var(--color-research);
   --flow-amber: var(--color-amber);
+  --flow-dropped: #9ea99b;
 }
 
 .decision-flow__heading {
@@ -78,9 +79,10 @@
   visibility: visible;
 }
 
+/* ── 桌機圖面：由 GSAP 驅動，這裡只定義外觀與最終狀態 ── */
+
 .decision-flow__diagram {
   margin-top: 1.65rem;
-  overflow: hidden;
 }
 
 .decision-flow__diagram svg {
@@ -88,6 +90,19 @@
   width: 100%;
   height: auto;
   overflow: visible;
+}
+
+.decision-flow__fan {
+  fill: none;
+  stroke: rgb(83 109 135 / 0.16);
+  stroke-width: 1;
+}
+
+.decision-flow__source-tag {
+  fill: rgb(24 37 31 / 0.6);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .decision-flow__underlay,
@@ -107,89 +122,48 @@
   stroke: var(--flow-research);
   stroke-width: 2;
   stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-width 180ms ease, opacity 180ms ease;
+  transition: stroke-width 180ms ease;
 }
 
 .decision-flow__line--decision-action,
-.decision-flow__line--action-arrow {
+.decision-flow__line--action-arrow,
+.decision-flow__arrow {
   stroke: var(--flow-amber);
-}
-
-.decision-flow__sources circle {
-  fill: var(--color-paper);
-  stroke: var(--flow-research);
-  stroke-width: 2;
-}
-
-.decision-flow__node {
-  fill: var(--color-paper);
-  stroke: var(--flow-research);
-  stroke-width: 2;
-  transform-box: fill-box;
-  transform-origin: center;
-  transition: fill 180ms ease, stroke-width 180ms ease, transform 180ms ease;
-}
-
-.decision-flow__node--decision {
-  stroke: var(--flow-amber);
-  stroke-width: 3;
-}
-
-.decision-flow__node--action {
-  stroke: var(--flow-amber);
-}
-
-.decision-flow__decision-ring {
-  fill: none;
-  stroke: var(--flow-amber);
-  stroke-width: 2;
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
 }
 
 .decision-flow__arrow {
-  stroke: var(--flow-amber);
   stroke-width: 2;
   stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+}
+
+.decision-flow__node {
+  fill: var(--flow-research);
+  stroke: var(--flow-research);
+  stroke-width: 2;
   transform-box: fill-box;
   transform-origin: center;
+  transition: stroke-width 180ms ease, transform 180ms ease;
 }
 
-.decision-flow__source-card rect,
-.decision-flow__evidence-card rect {
-  fill: var(--color-paper);
-  stroke: rgb(71 112 130 / 0.42);
-  stroke-width: 1;
+.decision-flow__node--action {
+  fill: var(--flow-amber);
+  stroke: var(--flow-amber);
 }
 
-.decision-flow__source-card text,
-.decision-flow__evidence-card text {
-  fill: var(--color-forest);
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 650;
+.decision-flow__gate {
+  stroke: var(--flow-amber);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: stroke-width 180ms ease;
 }
 
-.decision-flow__source-card {
+.decision-flow__gate-ring {
+  fill: none;
+  stroke: var(--flow-amber);
+  stroke-width: 1.5;
   opacity: 0;
-}
-
-.decision-flow__evidence-card {
-  opacity: 0;
-}
-
-.decision-flow__qualification-checks {
-  color: rgb(71 112 90 / 0.48);
-  opacity: 0;
-}
-
-.decision-flow__check-strike {
-  stroke: rgb(24 37 31 / 0.44);
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
 }
 
 .decision-flow__human-label {
@@ -197,13 +171,50 @@
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
-  opacity: 0;
 }
+
+.decision-flow__pile-label {
+  fill: rgb(24 37 31 / 0.5);
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.decision-flow__signal {
+  fill: var(--flow-research);
+  stroke: var(--color-bone);
+  stroke-width: 1.5;
+}
+
+/* 滑過下方階段名稱時，對應的線段與關卡加粗 */
+.decision-flow[data-active-stage="0"] .decision-flow__fan {
+  stroke: rgb(83 109 135 / 0.4);
+}
+
+.decision-flow[data-active-stage="1"] .decision-flow__line--evidence-qualification,
+.decision-flow[data-active-stage="2"] .decision-flow__line--qualification-decision,
+.decision-flow[data-active-stage="3"] .decision-flow__line--decision-action,
+.decision-flow[data-active-stage="4"] .decision-flow__line--action-arrow {
+  stroke-width: 4;
+}
+
+.decision-flow[data-active-stage="1"] .decision-flow__node--evidence,
+.decision-flow[data-active-stage="2"] .decision-flow__node--qualification,
+.decision-flow[data-active-stage="4"] .decision-flow__node--action {
+  stroke-width: 4;
+  transform: scale(1.14);
+}
+
+.decision-flow[data-active-stage="3"] .decision-flow__gate {
+  stroke-width: 6;
+}
+
+/* ── 階段名稱（桌機橫排、對齊圖面關卡） ── */
 
 .decision-flow__stages {
   position: relative;
   height: 4.2rem;
-  margin: 0;
+  margin: 0.4rem 0 0;
   padding: 0;
   list-style: none;
 }
@@ -220,28 +231,21 @@
   text-align: center;
   outline: none;
   cursor: default;
-}
-
-.decision-flow__stage:nth-child(1) { left: max(4.6%, 3.5rem); }
-.decision-flow__stage:nth-child(2) { left: 22%; }
-.decision-flow__stage:nth-child(3) { left: 40.5%; }
-.decision-flow__stage:nth-child(4) { left: 59%; }
-.decision-flow__stage:nth-child(5) { left: 77.5%; }
-
-.decision-flow__stage {
   transform: translateX(-50%);
 }
 
-.decision-flow__stage:nth-child(1) {
-  transform: translateX(-50%);
-}
+/* 與 viewBox 的關卡 x 位置對齊：來源中心 ≈ 90、證據 250、資格 440、閘門 630、行動 820 */
+.decision-flow__stage:nth-child(1) { left: max(9%, 3.5rem); }
+.decision-flow__stage:nth-child(2) { left: 25%; }
+.decision-flow__stage:nth-child(3) { left: 44%; }
+.decision-flow__stage:nth-child(4) { left: 63%; }
+.decision-flow__stage:nth-child(5) { left: 82%; }
 
 .decision-flow__stage-name {
   display: block;
   font-size: clamp(0.83rem, 1.3vw, 1rem);
   font-weight: 700;
   color: var(--color-forest);
-  opacity: 0.45;
 }
 
 .decision-flow__stage-detail {
@@ -250,6 +254,10 @@
   font-size: 0.76rem;
   line-height: 1.5;
   color: rgb(24 37 31 / 0.66);
+}
+
+.decision-flow__tally {
+  display: none;
 }
 
 .decision-flow__stage-hint {
@@ -278,15 +286,6 @@
   transform: translate(-50%, 0);
 }
 
-.decision-flow__stage:nth-child(1) .decision-flow__stage-hint {
-  left: 0;
-  transform: translate(0, 0.25rem);
-}
-
-.decision-flow__stage:nth-child(1):hover .decision-flow__stage-hint {
-  transform: translate(0, 0);
-}
-
 .decision-flow__close {
   min-height: 3.4rem;
   margin-top: 1.1rem;
@@ -295,28 +294,6 @@
   font-size: 0.88rem;
   font-weight: 650;
   color: var(--color-forest);
-  opacity: 0;
-}
-
-.decision-flow[data-active-stage="0"] .decision-flow__line--signal,
-.decision-flow[data-active-stage="1"] .decision-flow__line--evidence-qualification,
-.decision-flow[data-active-stage="2"] .decision-flow__line--qualification-decision,
-.decision-flow[data-active-stage="3"] .decision-flow__line--decision-action,
-.decision-flow[data-active-stage="4"] .decision-flow__line--action-arrow {
-  stroke-width: 4;
-  opacity: 1;
-}
-
-.decision-flow[data-active-stage="1"] .decision-flow__node--evidence,
-.decision-flow[data-active-stage="2"] .decision-flow__node--qualification,
-.decision-flow[data-active-stage="3"] .decision-flow__node--decision,
-.decision-flow[data-active-stage="4"] .decision-flow__node--action {
-  stroke-width: 4;
-  transform: scale(1.14);
-}
-
-.decision-flow[data-active-stage="0"] .decision-flow__sources circle {
-  stroke-width: 3;
 }
 
 .decision-flow__close::before {
@@ -329,207 +306,12 @@
   background: var(--flow-amber);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .decision-flow[data-started="true"] .decision-flow__line {
-    animation: decision-flow-draw 0.5s cubic-bezier(0.25, 0.7, 0.25, 1) forwards;
-    animation-delay: var(--flow-delay, 0s);
-    animation-play-state: paused;
-  }
-
-  .decision-flow[data-playing="true"] .decision-flow__line {
-    animation-play-state: running;
-  }
-
-  .decision-flow__line--signal-1 { --flow-delay: 0.1s; }
-  .decision-flow__line--signal-2 { --flow-delay: 0.2s; }
-  .decision-flow__line--signal-3 { --flow-delay: 0.3s; }
-  .decision-flow__line--evidence-qualification { --flow-delay: 1s; }
-  .decision-flow__line--qualification-decision { --flow-delay: 1.6s; }
-  .decision-flow__line--decision-action { --flow-delay: 3.2s; animation-duration: 0.35s !important; }
-  .decision-flow__line--action-arrow { --flow-delay: 3.55s; animation-duration: 0.25s !important; }
-
-  .decision-flow[data-started="true"] .decision-flow__stage-name,
-  .decision-flow[data-started="true"] .decision-flow__close,
-  .decision-flow[data-started="true"] .decision-flow__source-card,
-  .decision-flow[data-started="true"] .decision-flow__evidence-card,
-  .decision-flow[data-started="true"] .decision-flow__qualification-checks,
-  .decision-flow[data-started="true"] .decision-flow__human-label {
-    animation-delay: var(--flow-delay, 0s);
-    animation-play-state: paused;
-  }
-
-  .decision-flow[data-playing="true"] .decision-flow__stage-name,
-  .decision-flow[data-playing="true"] .decision-flow__close,
-  .decision-flow[data-playing="true"] .decision-flow__source-card,
-  .decision-flow[data-playing="true"] .decision-flow__evidence-card,
-  .decision-flow[data-playing="true"] .decision-flow__qualification-checks,
-  .decision-flow[data-playing="true"] .decision-flow__human-label,
-  .decision-flow[data-playing="true"] .decision-flow__check-strike,
-  .decision-flow[data-playing="true"] .decision-flow__node,
-  .decision-flow[data-playing="true"] .decision-flow__decision-ring,
-  .decision-flow[data-playing="true"] .decision-flow__arrow {
-    animation-play-state: running;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__stage-name {
-    animation-name: decision-flow-label-on;
-    animation-duration: 0.28s;
-    animation-fill-mode: both;
-  }
-
-  .decision-flow__stage:nth-child(1) .decision-flow__stage-name { --flow-delay: 0s; }
-  .decision-flow__stage:nth-child(2) .decision-flow__stage-name { --flow-delay: 0.82s; }
-  .decision-flow__stage:nth-child(3) .decision-flow__stage-name { --flow-delay: 1.48s; }
-  .decision-flow__stage:nth-child(4) .decision-flow__stage-name { --flow-delay: 2.58s; }
-  .decision-flow__stage:nth-child(5) .decision-flow__stage-name { --flow-delay: 3.82s; }
-
-  .decision-flow[data-started="true"] .decision-flow__stage:nth-child(4) .decision-flow__stage-name {
-    animation-name: decision-flow-label-on, decision-flow-decision-label;
-    animation-duration: 0.28s, 0.95s;
-    animation-delay: var(--flow-delay, 0s), var(--flow-delay, 0s);
-    animation-fill-mode: both, both;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__source-card {
-    animation-name: decision-flow-chip-arrive;
-    animation-duration: 0.85s;
-    animation-fill-mode: both;
-  }
-
-  .decision-flow__source-card--1 { --flow-delay: 0.1s; }
-  .decision-flow__source-card--2 { --flow-delay: 0.2s; }
-  .decision-flow__source-card--3 { --flow-delay: 0.3s; }
-
-  .decision-flow[data-started="true"] .decision-flow__evidence-card {
-    animation-name: decision-flow-card-arrive;
-    animation-duration: 0.32s;
-    animation-fill-mode: both;
-    --flow-delay: 1.15s;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__qualification-checks {
-    animation-name: decision-flow-checks-arrive;
-    animation-duration: 0.24s;
-    animation-fill-mode: both;
-    --flow-delay: 1.48s;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__check-strike {
-    animation: decision-flow-draw 0.22s 1.72s forwards paused;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__human-label {
-    animation-name: decision-flow-human-label-on;
-    animation-duration: 0.2s;
-    animation-fill-mode: both;
-    --flow-delay: 2.58s;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__close {
-    animation: decision-flow-close-on 0.35s 2.58s forwards paused;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__node {
-    animation: decision-flow-node-on 0.24s var(--flow-delay, 0s) forwards paused;
-  }
-
-  .decision-flow__node--evidence { --flow-delay: 0.98s; }
-  .decision-flow__node--qualification { --flow-delay: 1.48s; }
-  .decision-flow__node--decision { --flow-delay: 2.58s; }
-  .decision-flow__node--action { --flow-delay: 3.82s; }
-
-  .decision-flow[data-started="true"] .decision-flow__node--decision {
-    animation: decision-flow-human-call 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 2.58s forwards paused;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__decision-ring {
-    animation: decision-flow-ring 0.6s ease-out 2.58s forwards paused;
-  }
-
-  .decision-flow[data-started="true"] .decision-flow__arrow {
-    animation: decision-flow-arrow-on 0.25s 3.8s forwards paused,
-      decision-flow-arrow-return 0.45s 4.05s both paused;
-  }
-
-  .decision-flow[data-playing="true"] .decision-flow__node--decision,
-  .decision-flow[data-playing="true"] .decision-flow__decision-ring,
-  .decision-flow[data-playing="true"] .decision-flow__arrow {
-    animation-play-state: running;
-  }
-
-  .decision-flow[data-playing="true"] .decision-flow__check-strike,
-  .decision-flow[data-playing="true"] .decision-flow__node,
-  .decision-flow[data-playing="true"] .decision-flow__close {
-    animation-play-state: running;
-  }
-}
-
-@keyframes decision-flow-draw {
-  to { stroke-dashoffset: 0; }
-}
-
-@keyframes decision-flow-label-on {
-  from { opacity: 0.45; }
-  to { opacity: 1; }
-}
-
-@keyframes decision-flow-decision-label {
-  0%, 60% { color: var(--flow-amber); }
-  100% { color: var(--color-forest); }
-}
-
-@keyframes decision-flow-human-label-on {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes decision-flow-chip-arrive {
-  0% { opacity: 0; }
-  18% { opacity: 1; }
-  54% { opacity: 1; }
-  80% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes decision-flow-card-arrive {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes decision-flow-checks-arrive {
-  from { opacity: 0.12; color: rgb(71 112 90 / 0.48); }
-  to { opacity: 0.82; color: rgb(71 112 90 / 0.72); }
-}
-
-@keyframes decision-flow-node-on {
-  to { fill: var(--flow-research); }
-}
-
-@keyframes decision-flow-human-call {
-  0% { fill: var(--color-paper); transform: scale(1); }
-  38% { fill: var(--flow-amber); transform: scale(1.25); }
-  100% { fill: var(--flow-amber); transform: scale(1); }
-}
-
-@keyframes decision-flow-ring {
-  0% { opacity: 0.5; transform: scale(1); }
-  100% { opacity: 0; transform: scale(2.75); }
-}
-
-@keyframes decision-flow-arrow-on {
-  to { stroke-dashoffset: 0; }
-}
-
-@keyframes decision-flow-arrow-return {
-  0% { transform: translateX(0); }
-  45% { transform: translateX(4px); }
-  100% { transform: translateX(0); }
-}
-
 @keyframes decision-flow-close-on {
   from { opacity: 0; transform: translateY(3px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ── 平板與手機：直式清單，每一關旁以小點顯示還剩幾個訊號 ── */
 
 @media (max-width: 1050px) {
   .decision-flow__heading {
@@ -585,15 +367,17 @@
     position: relative;
     top: auto;
     left: auto !important;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     width: auto;
     max-width: none;
     min-height: 4.3rem;
     padding: 0 0 1rem 1.45rem;
-    align-items: flex-start;
-    gap: 0.18rem;
+    column-gap: 1rem;
+    row-gap: 0.18rem;
+    align-items: start;
     text-align: left;
-    transform: none !important;
+    transform: none;
   }
 
   .decision-flow__stage:last-child {
@@ -621,13 +405,41 @@
   }
 
   .decision-flow__stage-name {
+    grid-column: 1;
     font-size: 0.94rem;
     text-align: left;
+    opacity: 0.45;
   }
 
   .decision-flow__stage-detail {
+    grid-column: 1;
     max-width: none;
     font-size: 0.78rem;
+  }
+
+  .decision-flow__tally {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    grid-template-columns: repeat(6, 0.42rem);
+    gap: 0.26rem;
+    padding-top: 0.32rem;
+  }
+
+  .decision-flow__tally i {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--flow-research);
+  }
+
+  .decision-flow__tally i[data-kept="false"] {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--flow-dropped);
+  }
+
+  .decision-flow__stage:nth-child(n + 4) .decision-flow__tally i[data-kept="true"] {
+    background: var(--flow-amber);
   }
 
   .decision-flow__stage-hint {
@@ -645,6 +457,7 @@
 
   .decision-flow__close {
     margin-top: 1.35rem;
+    opacity: 0;
   }
 
   .decision-flow[data-active-stage="0"] .decision-flow__stage[data-stage="0"]::before,
@@ -663,15 +476,42 @@
       animation: decision-flow-mobile-rail 2.8s linear forwards paused;
     }
 
-    .decision-flow[data-playing="true"] .decision-flow__stages::after {
-      animation-play-state: running;
-    }
-
     .decision-flow[data-started="true"] .decision-flow__stage {
       animation: decision-flow-mobile-stage 0.24s var(--flow-delay, 0s) both paused;
     }
 
-    .decision-flow[data-playing="true"] .decision-flow__stage {
+    .decision-flow[data-started="true"] .decision-flow__stage-name {
+      animation: decision-flow-label-on 0.28s var(--flow-delay, 0s) both paused;
+    }
+
+    .decision-flow[data-started="true"] .decision-flow__stage:nth-child(4) .decision-flow__stage-name {
+      animation-name: decision-flow-label-on, decision-flow-decision-label;
+      animation-duration: 0.28s, 0.95s;
+    }
+
+    .decision-flow[data-started="true"] .decision-flow__stage::before {
+      animation: decision-flow-mobile-dot 0.2s var(--flow-delay, 0s) both paused;
+    }
+
+    .decision-flow[data-started="true"] .decision-flow__stage:nth-child(4)::before {
+      animation-name: decision-flow-mobile-dot-human;
+      animation-duration: 0.6s;
+    }
+
+    .decision-flow[data-started="true"] .decision-flow__tally i[data-kept="false"] {
+      animation: decision-flow-tally-drop 0.4s var(--flow-delay, 0s) both paused;
+    }
+
+    .decision-flow[data-started="true"] .decision-flow__close {
+      animation: decision-flow-close-on 0.35s 2.5s both paused;
+    }
+
+    .decision-flow[data-playing="true"] .decision-flow__stages::after,
+    .decision-flow[data-playing="true"] .decision-flow__stage,
+    .decision-flow[data-playing="true"] .decision-flow__stage-name,
+    .decision-flow[data-playing="true"] .decision-flow__stage::before,
+    .decision-flow[data-playing="true"] .decision-flow__tally i[data-kept="false"],
+    .decision-flow[data-playing="true"] .decision-flow__close {
       animation-play-state: running;
     }
 
@@ -680,31 +520,6 @@
     .decision-flow__stage:nth-child(3) { --flow-delay: 1.1s; }
     .decision-flow__stage:nth-child(4) { --flow-delay: 1.72s; }
     .decision-flow__stage:nth-child(5) { --flow-delay: 2.32s; }
-
-    .decision-flow[data-started="true"] .decision-flow__stage-name {
-      animation-delay: var(--flow-delay, 0s);
-    }
-
-    .decision-flow[data-started="true"] .decision-flow__stage::before {
-      animation: decision-flow-mobile-dot 0.2s var(--flow-delay, 0s) both paused;
-    }
-
-    .decision-flow[data-playing="true"] .decision-flow__stage::before {
-      animation-play-state: running;
-    }
-
-    .decision-flow[data-started="true"] .decision-flow__stage:nth-child(4)::before {
-      animation-name: decision-flow-mobile-dot-human;
-      animation-duration: 0.6s;
-    }
-
-    .decision-flow[data-started="true"] .decision-flow__close {
-      animation: decision-flow-close-on 0.35s 1.72s both paused;
-    }
-
-    .decision-flow[data-playing="true"] .decision-flow__close {
-      animation-play-state: running;
-    }
   }
 
   @keyframes decision-flow-mobile-rail {
@@ -716,6 +531,16 @@
     to { opacity: 1; }
   }
 
+  @keyframes decision-flow-label-on {
+    from { opacity: 0.45; }
+    to { opacity: 1; }
+  }
+
+  @keyframes decision-flow-decision-label {
+    0%, 60% { color: var(--flow-amber); }
+    100% { color: var(--color-forest); }
+  }
+
   @keyframes decision-flow-mobile-dot {
     to { background: var(--flow-research); }
   }
@@ -725,46 +550,22 @@
     38% { background: var(--flow-amber); transform: scale(1.25); }
     100% { background: var(--flow-amber); transform: scale(1); }
   }
+
+  /* 這一關被刷掉的訊號：先還亮著，再退成空心 */
+  @keyframes decision-flow-tally-drop {
+    from { background: var(--flow-research); box-shadow: none; }
+    to { background: transparent; box-shadow: inset 0 0 0 1px var(--flow-dropped); }
+  }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .decision-flow__line,
-  .decision-flow__arrow {
-    stroke-dashoffset: 0;
-  }
-
-  .decision-flow__node--evidence,
-  .decision-flow__node--qualification {
-    fill: var(--flow-research);
-  }
-
-  .decision-flow__node--decision,
-  .decision-flow__node--action {
-    fill: var(--flow-amber);
-  }
-
+@media (max-width: 1050px) and (prefers-reduced-motion: reduce) {
   .decision-flow__stage-name,
   .decision-flow__close {
     opacity: 1;
   }
 
-  .decision-flow__source-card,
-  .decision-flow__evidence-card,
-  .decision-flow__qualification-checks,
-  .decision-flow__human-label {
-    opacity: 1;
-  }
-
-  .decision-flow__check-strike {
-    stroke-dashoffset: 0;
-  }
-
   .decision-flow__stage::before {
     background: var(--flow-research);
-  }
-
-  .decision-flow__stages::after {
-    transform: scaleY(1);
   }
 
   .decision-flow__stage:nth-child(4)::before,
@@ -772,6 +573,12 @@
     background: var(--flow-amber);
   }
 
+  .decision-flow__stages::after {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .decision-flow__replay {
     visibility: visible;
   }
@@ -793,5 +600,4 @@
     white-space: normal;
     max-width: 14rem;
   }
-
 }
