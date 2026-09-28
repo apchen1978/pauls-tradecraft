@@ -687,8 +687,8 @@ export function WorksFlagship() {
           <h2 id="works-flagship-heading" className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
           <p className="mt-4 text-base leading-relaxed text-ink/65">{t.works.sub}</p>
         </div>
-        <nav aria-label={t.works.alsoExplore} className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
-          <span className="text-xs font-semibold text-moss">{t.works.alsoExplore}</span>
+        <nav aria-labelledby="works-also-explore" className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
+          <span id="works-also-explore" className="text-xs font-semibold text-moss">{t.works.alsoExplore}</span>
           {adjacentWorks.map((work) => (
             <a key={work.id} href={`#${work.id}`} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">
               {work[lang].title}<ArrowUpRight size={14} weight="bold" aria-hidden="true" />

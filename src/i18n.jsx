@@ -140,7 +140,7 @@ const dict = {
     works: {
       eyebrow: "Selected Works",
       headline: "同一種解題能力，在不同場景運作。",
-      sub: "三件主線作品，分別問：誰值得投入海外業務時間？這筆交易能承諾嗎？毛利撐得住嗎？點開可看產出、判斷與證據邊界。",
+      sub: "三個主線問題：誰值得投入海外業務時間？這筆交易能承諾嗎？毛利撐得住嗎？點開對應作品，可看產出、判斷與證據邊界。",
       alsoExplore: "也可直接看",
       sections: {
         commercial: "Selected Systems｜核心商業判斷",
@@ -660,7 +660,7 @@ const dict = {
     works: {
       eyebrow: "Selected Works",
       headline: "One problem-solving capability, working across different contexts.",
-      sub: "Three works ask where overseas sales effort belongs, what the business can commit to, and whether the deal economics hold. Open each for the working output, judgment, and evidence limits.",
+      sub: "Three core questions: where overseas sales effort belongs, what the business can commit to, and whether the deal economics hold. Open the matching work for its output, judgment, and evidence limits.",
       alsoExplore: "Or jump to",
       sections: {
         commercial: "Selected Systems | Core Commercial Judgment",
