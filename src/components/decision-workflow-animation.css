@@ -169,7 +169,7 @@
 .decision-flow__evidence-card text {
   fill: var(--color-forest);
   font-family: inherit;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 650;
 }
 
@@ -222,7 +222,7 @@
   cursor: default;
 }
 
-.decision-flow__stage:nth-child(1) { left: 4.6%; }
+.decision-flow__stage:nth-child(1) { left: max(4.6%, 3.5rem); }
 .decision-flow__stage:nth-child(2) { left: 22%; }
 .decision-flow__stage:nth-child(3) { left: 40.5%; }
 .decision-flow__stage:nth-child(4) { left: 59%; }
@@ -234,11 +234,6 @@
 
 .decision-flow__stage:nth-child(1) {
   transform: translateX(-50%);
-}
-
-.decision-flow__stage:focus-visible .decision-flow__stage-name {
-  outline: 2px solid var(--color-amber);
-  outline-offset: 4px;
 }
 
 .decision-flow__stage-name {
@@ -278,7 +273,7 @@
   transition: opacity 160ms ease, transform 160ms ease;
 }
 
-.decision-flow__stage:is(:hover, :focus-visible) .decision-flow__stage-hint {
+.decision-flow__stage:hover .decision-flow__stage-hint {
   opacity: 1;
   transform: translate(-50%, 0);
 }
@@ -288,7 +283,7 @@
   transform: translate(0, 0.25rem);
 }
 
-.decision-flow__stage:nth-child(1):is(:hover, :focus-visible) .decision-flow__stage-hint {
+.decision-flow__stage:nth-child(1):hover .decision-flow__stage-hint {
   transform: translate(0, 0);
 }
 
@@ -461,6 +456,12 @@
   .decision-flow[data-playing="true"] .decision-flow__arrow {
     animation-play-state: running;
   }
+
+  .decision-flow[data-playing="true"] .decision-flow__check-strike,
+  .decision-flow[data-playing="true"] .decision-flow__node,
+  .decision-flow[data-playing="true"] .decision-flow__close {
+    animation-play-state: running;
+  }
 }
 
 @keyframes decision-flow-draw {
@@ -530,7 +531,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1050px) {
   .decision-flow__heading {
     display: block;
   }
@@ -638,7 +639,7 @@
     transform: translate(0, 0.25rem) !important;
   }
 
-  .decision-flow__stage:is(:hover, :focus-visible) .decision-flow__stage-hint {
+  .decision-flow__stage:hover .decision-flow__stage-hint {
     transform: translate(0, 0) !important;
   }
 
@@ -699,6 +700,10 @@
 
     .decision-flow[data-started="true"] .decision-flow__close {
       animation: decision-flow-close-on 0.35s 1.72s both paused;
+    }
+
+    .decision-flow[data-playing="true"] .decision-flow__close {
+      animation-play-state: running;
     }
   }
 
@@ -789,7 +794,4 @@
     max-width: 14rem;
   }
 
-  .decision-flow__stage {
-    max-width: min(15rem, 19vw);
-  }
 }

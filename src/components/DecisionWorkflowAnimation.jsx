@@ -227,19 +227,13 @@ export default function DecisionWorkflowAnimation() {
             className="decision-flow__stage"
             data-stage={index}
             key={stage.name}
-            tabIndex={0}
-            aria-describedby={`decision-flow-hint-${index}`}
             onMouseEnter={() => setActiveStage(index)}
             onMouseLeave={() => setActiveStage(null)}
-            onFocus={() => setActiveStage(index)}
-            onBlur={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) setActiveStage(null);
-            }}
             onAnimationEnd={handleAnimationEnd}
           >
             <span className="decision-flow__stage-name">{stage.name}</span>
             <span className="decision-flow__stage-detail">{stage.detail}</span>
-            <span className="decision-flow__stage-hint" id={`decision-flow-hint-${index}`} role="tooltip">{stage.hint}</span>
+            <span className="decision-flow__stage-hint">{stage.hint}</span>
           </li>
         ))}
       </ol>
