@@ -868,6 +868,18 @@ export const works = [
     icon: "briefcase",
     primary: true,
     hidePendingLink: true,
+    // Standalone public demo (apchen1978/gbd-judgment-reveal-demo). Both URLs verified live, HTTP 200, 2026-09-29.
+    standaloneDemo: {
+      href: {
+        zh: "https://apchen1978.github.io/gbd-judgment-reveal-demo/index-zh.html",
+        en: "https://apchen1978.github.io/gbd-judgment-reveal-demo/",
+      },
+      label: { zh: "開啟獨立互動示範", en: "Open the standalone demo" },
+      note: {
+        zh: "同一個判斷問題的獨立頁面：切換 Owner 目標，看下一步研究優先順序如何改變。合成示範，不含真實買方或成果。",
+        en: "The same judgment question on its own page: switch the Owner objective and watch the next research priority change. Synthetic demonstration; no real buyers or outcomes.",
+      },
+    },
     related: {
       id: "ai-native-market-entry",
       label: { zh: "看證據案例：AI 原生市場開發", en: "See the evidence case: AI-Native Market Entry" },

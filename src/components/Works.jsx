@@ -72,6 +72,22 @@ function GbdActions() {
         {t.works.expandJudgment}
         <CaretDown size={15} weight="bold" aria-hidden="true" />
       </button>
+      {gbd?.standaloneDemo && (
+        <div>
+          <a
+            href={gbd.standaloneDemo.href[lang]}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber"
+          >
+            <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-forest">{t.works.demoLabel}</span>
+            {gbd.standaloneDemo.label[lang]}
+            <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+          </a>
+          <p className="mt-1 text-xs leading-relaxed text-ink/60">{gbd.standaloneDemo.note[lang]}</p>
+        </div>
+      )}
       {signal && (
         <a
           href={`#${evidence.id}`}

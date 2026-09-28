@@ -383,6 +383,7 @@ const dict = {
       eyebrow: "How I Work",
       headline: "人類主導，AI 加速",
       sub: "這不是黑箱自動化。每一步都由人做決定，AI 負責把工作變快、變可驗證、變可追溯。",
+      agentsCase: "看完整規則：我怎麼帶一支 AI 團隊做事",
       stepsExpand: "展開五個步驟與驗證方式",
       stepsCollapse: "收合步驟",
       steps: [
@@ -393,7 +394,7 @@ const dict = {
         },
         {
           title: "AI 協作",
-          desc: "Codex、DeepSeek Harness、ChatGPT 分工：研究、實作、驗證各自負責。",
+          desc: "Codex、DeepSeek Harness、Claude Code、ChatGPT 分工：研究、實作、驗證各自負責。",
           evidence: "多 agent 分工 · 可追溯",
         },
         {
@@ -900,6 +901,7 @@ const dict = {
       eyebrow: "How I Work",
       headline: "Human-led, AI-accelerated",
       sub: "This is not black-box automation. Humans make every decision; AI makes the work faster, verifiable, and traceable.",
+      agentsCase: "Read the full rules: how I run a team of AI agents",
       stepsExpand: "Show the five steps and how each is verified",
       stepsCollapse: "Hide steps",
       steps: [
@@ -910,7 +912,7 @@ const dict = {
         },
         {
           title: "AI collaborates",
-          desc: "Codex, DeepSeek Harness, and ChatGPT split the work: research, implementation, verification.",
+          desc: "Codex, DeepSeek Harness, Claude Code, and ChatGPT split the work: research, implementation, verification.",
           evidence: "Multi-agent · Traceable",
         },
         {
