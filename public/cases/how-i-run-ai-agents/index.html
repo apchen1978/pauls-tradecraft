@@ -18,7 +18,8 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "CaseStudy",
+    "@type": "Article",
+    "headline": "How I Run a Team of AI Agents",
     "name": "How I Run a Team of AI Agents",
     "url": "https://paulstradecraft.com/cases/how-i-run-ai-agents/",
     "inLanguage": ["zh-Hant", "en"],
@@ -62,7 +63,7 @@
 </head>
 <body>
   <main class="wrap">
-    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · AI Team</p>
+    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · AI Team · <a href="#en" lang="en">English version ↓</a></p>
     <p class="eyebrow">CASE · HOW I RUN AI AGENTS</p>
     <h1>我怎麼帶一支 AI 團隊做事</h1>
     <p class="lede">這個作品集，是我和幾個 AI agent 一起做出來的。AI 讓工作變快；但快不等於對，也不等於被授權。這頁說明我用什麼規則，讓 AI 團隊做得快，又不會替我做不該做的決定。</p>
@@ -116,12 +117,19 @@
     <h2>對公司的意義</h2>
     <p>多數公司導入 AI，第一個問題是「它能做什麼」。我先問的是：它用誰的身分、能碰哪些資料、哪些動作要人核准、出錯時怎麼知道。能力不等於授權——這是我帶進任何團隊的第一條規則。</p>
 
-    <div class="en" lang="en">
+    <div class="en" id="en" lang="en">
       <p class="eyebrow">CASE · HOW I RUN AI AGENTS</p>
       <h2 style="margin-top:10px;font-size:1.6rem">How I run a team of AI agents</h2>
       <p class="lede">This portfolio was built by me working with several AI agents. AI makes the work faster; fast is not the same as correct, and it is not the same as authorized. These are the rules that keep the team fast without letting it make decisions that are mine.</p>
       <span class="badge">Real operating method · not a synthetic case</span>
       <span class="badge">Bounded operational safety · not host-wide protection</span>
+
+      <div class="grid" aria-label="Snapshot">
+        <div class="card"><h3>Team</h3><p>Codex, DeepSeek Harness, and Claude Code are the primary runtimes; ChatGPT and others help with research and specs.</p></div>
+        <div class="card"><h3>Owner</h3><p>I am the only decision-maker. No role label confers authority.</p></div>
+        <div class="card"><h3>Real risk</h3><p>Not malicious AI, but AI that is confidently wrong, acts on stale information, or is steered by web content.</p></div>
+        <div class="card"><h3>Human gate</h3><p>Push, deploy, external communication, spend, secrets, and irreversible actions always need my explicit approval.</p></div>
+      </div>
 
       <h2>Five rules</h2>
       <ol class="method">
@@ -137,6 +145,16 @@
 
       <h2>A real mechanism: the authorization gateway</h2>
       <p>For connected actions, an agent cannot execute directly. Authorization must be signed, bound to the exact task, action, and arguments, used once, and rejected if expired or altered. Every result leaves a structured receipt; an unclear result is recorded as unknown, never as success.</p>
+
+      <h2>Evidence ladder</h2>
+      <table>
+        <thead><tr><th>Verifiable fact</th><th>Source</th><th>Not verified / UNKNOWN</th></tr></thead>
+        <tbody>
+          <tr><td>Authorization gateway regression tests 30/30, adapter tests 18/18, subprocess tests 5/5, 13 enforcement scenarios, two adversarial audit rounds with 0 gaps (re-run locally 2026-09-29)</td><td>Test suites in the private governance repo</td><td>Whether paths outside the tested set are intercepted the same way</td></tr>
+          <tr><td>Two independent security reviews and one reconciliation document</td><td>Private governance repo</td><td>External third-party audit</td></tr>
+          <tr><td>This site was built by several agents and deployed after human review</td><td>Public GitHub commit history</td><td>How well the method works at other companies</td></tr>
+        </tbody>
+      </table>
 
       <h2>What this page does not claim</h2>
       <div class="boundary">
