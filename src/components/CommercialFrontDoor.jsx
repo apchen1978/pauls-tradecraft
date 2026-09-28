@@ -13,25 +13,25 @@ const routes = {
 const copy = {
   zh: {
     eyebrow: "海外客戶開發 · 從這裡開始",
-    title: "海外客戶，不是先買一份名單。",
-    intro: "先看清誰可能買、為什麼值得接觸，再決定把業務時間花在哪裡。這條路線把找公司、找對人、準備接觸，到處理詢價連起來。",
+    title: "找海外客戶，先看哪些公司可能會買。",
+    intro: "先看哪些公司可能需要你的產品，再決定要不要花時間聯絡。從找公司、找對口的人，到準備聯絡和處理詢價，這裡會帶你走一遍。",
     teach: "01 · 先看懂",
     teachTitle: "海外客戶開發路線圖",
-    teachBody: "七個問題，從市場與買方假設一路走到交易判斷。先看全程，再按需要展開細節。",
+    teachBody: "七個問題，從選市場、找公司，到判斷能不能接單。先看全程，再按需要展開細節。",
     teachLink: "看路線圖",
     guideLink: "想慢慢讀？下載《海外客戶開發：從一項產品開始》（16 頁繁中 PDF）",
     show: "02 · 再走一遍",
-    showTitle: "從一家候選公司，走到待判斷商機",
-    showBody: "跟著一個清楚標示為合成的案例，看角色、聯絡路徑、可寄出的素材與買方回覆如何接上。",
+    showTitle: "跟著一家公司，看怎麼找到對口的人",
+    showBody: "用一個合成案例，看看怎麼查公司、找可能負責採購的人、準備聯絡，再判斷買家回覆。",
     showLink: "體驗互動案例",
     proof: "03 · 看現有作品",
-    proofTitle: "不是每一步都停在示意圖。",
-    proofBody: "海外客戶研究呈現篩選證據；RFQ 與商務決策工作台則展示詢問之後，哪些事仍需人判斷。這些作品不代表已串成一套自動化系統。",
+    proofTitle: "再看看實際作品怎麼做。",
+    proofBody: "海外客戶研究展示如何查找和篩選公司；RFQ 與商務決策工作台展示買家詢問之後，哪些事仍要由人判斷。這些作品沒有串成一套自動化系統。",
     proofLinks: ["海外客戶研究", "RFQ 工作流", "商務決策工作台"],
     productStartTitle: "從你的產品開始",
     productStartBody: "如果你有一項想試著賣到海外的產品，可以先梳理產品條件與供應限制；已有想嘗試的市場就一併帶上，還沒有也可以從產品開始。",
     productStartLink: "看看合作可以從哪裡開始",
-    boundary: "AI 可以協助研究與準備；客戶是否有需求、能否報價與承諾，仍須查證並由人決定。",
+    boundary: "AI 可以協助查資料和準備內容；客戶是否有需求、能否報價與承諾，仍要查證並由人決定。",
   },
   en: {
     eyebrow: "Overseas customer development · start here",
@@ -49,10 +49,10 @@ const copy = {
     proof: "03 · See existing work",
     proofTitle: "The route is supported by working examples.",
     proofBody: "Overseas Lead Discovery shows the evidence behind qualification. RFQ and the Commercial Decision Desk show where human judgment takes over. These works are not presented as one integrated automation system.",
+    proofLinks: ["Overseas Lead Discovery", "RFQ Workflow", "Commercial Decision Desk"],
     productStartTitle: "Start with your product",
     productStartBody: "If you have a product you want to sell overseas, start by clarifying its offer and supply constraints. Bring a target market if you have one; if not, begin with the product.",
     productStartLink: "See where a collaboration can begin",
-    proofLinks: ["Overseas Lead Discovery", "RFQ Workflow", "Commercial Decision Desk"],
     boundary: "AI can assist research and preparation. Demand, quotes, and commitments still require verification and human authority.",
   },
 };
@@ -97,6 +97,7 @@ export default function CommercialFrontDoor() {
               <a key={href} href={href} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">{c.proofLinks[index]}<ArrowUpRight size={14} weight="bold" aria-hidden="true" /></a>
             ))}
           </div>
+        </div>
         <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 md:flex-row md:items-center md:justify-between md:gap-8">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold text-forest">{c.productStartTitle}</p>
@@ -105,7 +106,6 @@ export default function CommercialFrontDoor() {
           <a href="#capabilities" className="inline-flex shrink-0 self-start items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:self-auto">
             {c.productStartLink}<ArrowUpRight size={14} weight="bold" aria-hidden="true" />
           </a>
-        </div>
         </div>
         <p className="mt-6 max-w-[78ch] text-xs leading-relaxed text-ink/60">{c.boundary}</p>
       </div>

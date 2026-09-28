@@ -107,7 +107,13 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
         <p id="gbd-boundary-title" className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.decisionBriefLabel}</p>
         <div className="mt-3 grid gap-5 md:grid-cols-[1.1fr_.9fr] md:items-end">
           <div><h4 className={`text-xl font-bold tracking-tight ${heading}`}>{copy.decisionBriefTitle}</h4><p className={`mt-2 text-sm leading-relaxed ${muted}`}>{copy.decisionBriefBody}</p></div>
-          <div className={`border-l-2 border-amber pl-4 text-sm leading-relaxed ${muted}`}><p className={`font-semibold ${heading}`}>{copy.handoff}</p><a href="#commercial-decision-desk" className="mt-2 inline-flex items-center gap-1 font-semibold text-forest hover:text-amber focus-visible:text-amber">{copy.handoffLink}<ArrowRight size={14} weight="bold" aria-hidden="true" /></a></div>
+          <div className={`border-l-2 border-amber pl-4 text-sm leading-relaxed ${muted}`}>
+            <p className={`font-semibold ${heading}`}>{copy.handoff}</p>
+            <a href="#commercial-decision-desk" className="mt-2 inline-flex items-center gap-1 font-semibold text-forest hover:text-amber focus-visible:text-amber">{copy.handoffLink}<ArrowRight size={14} weight="bold" aria-hidden="true" /></a>
+            <a href="/prototype/ai-native-commercial-conversion/" className="mt-3 inline-flex max-w-full items-start gap-1.5 text-xs font-medium leading-relaxed text-ink/60 transition-colors hover:text-forest focus-visible:text-forest">
+              <span>{copy.conversionLink}</span><ArrowRight className="mt-0.5 shrink-0" size={13} weight="bold" aria-hidden="true" />
+            </a>
+          </div>
         </div>
         <div className={`mt-5 grid gap-x-5 gap-y-2 border-t border-line pt-4 text-[10px] font-bold tracking-[0.12em] ${muted} sm:grid-cols-2`}>{copy.boundaries.map((item) => <p key={item}>{item}</p>)}</div>
       </section>

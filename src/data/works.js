@@ -992,6 +992,7 @@ export const works = [
           boundaries: ["SYNTHETIC DEMONSTRATION", "METHOD VISIBILITY：DEMONSTRATED", "HUMAN VALIDATION：NOT PERFORMED", "MARKET VALIDATION：NOT PERFORMED", "PUBLIC OUTCOME CLAIMS：NOT VALIDATED"],
           handoff: "當出現值得進一步確認的商機時，下一站是：",
           handoffLink: "商務決策工作台（CDD）",
+          conversionLink: "看候選公司如何走到買家回覆（合成示例）",
         },
         en: {
           kicker: "Global business development · Synthetic interactive demonstration",
@@ -1055,6 +1056,7 @@ export const works = [
           boundaries: ["SYNTHETIC DEMONSTRATION", "METHOD VISIBILITY: DEMONSTRATED", "HUMAN VALIDATION: NOT PERFORMED", "MARKET VALIDATION: NOT PERFORMED", "PUBLIC OUTCOME CLAIMS: NOT VALIDATED"],
           handoff: "When an opportunity deserves further verification, the next bounded step is:",
           handoffLink: "Commercial Decision Desk (CDD)",
+          conversionLink: "See how a candidate account reaches a buyer reply (synthetic walkthrough)",
         },
       },
     },
