@@ -41,9 +41,9 @@ export default function App() {
             <Hero />
             <CommercialFrontDoor />
             <HeroOutcomes />
+            <WorksFlagship />
             <AiWorkValue />
             <HumanAiEditorial />
-            <WorksFlagship />
             <ConnectedCase />
             <DealReadiness />
             <CommercialOutcomes />

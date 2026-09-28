@@ -140,7 +140,8 @@ const dict = {
     works: {
       eyebrow: "Selected Works",
       headline: "同一種解題能力，在不同場景運作。",
-      sub: "旗艦商業系統處理商機、交易與承諾；其餘作品則證明這種能力能延伸到營運、品牌與創意實驗。每一件都有可檢視的產出與證據鏈。",
+      sub: "三件主線作品，分別問：誰值得投入海外業務時間？這筆交易能承諾嗎？毛利撐得住嗎？點開可看產出、判斷與證據邊界。",
+      alsoExplore: "也可直接看",
       sections: {
         commercial: "Selected Systems｜核心商業判斷",
         operations: "Supporting Capabilities｜支援能力",
@@ -659,7 +660,8 @@ const dict = {
     works: {
       eyebrow: "Selected Works",
       headline: "One problem-solving capability, working across different contexts.",
-      sub: "The flagship commercial systems address opportunities, deals, and commitments. The remaining work shows how the same capability extends into operations, brands, and creative experiments — each with inspectable outputs and an evidence chain.",
+      sub: "Three works ask where overseas sales effort belongs, what the business can commit to, and whether the deal economics hold. Open each for the working output, judgment, and evidence limits.",
+      alsoExplore: "Or jump to",
       sections: {
         commercial: "Selected Systems | Core Commercial Judgment",
         operations: "Supporting Capabilities | Teams & Experience",

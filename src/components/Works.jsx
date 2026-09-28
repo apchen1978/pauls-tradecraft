@@ -674,8 +674,11 @@ function FeaturedSystem({ work }) {
 // ② 旗艦提前：CDD 旗艦展示是獨立頂層區塊（id="#works" 保留給導覽「作品」），
 // 以 works 主標題開場「成果先」；其餘卡片目錄（見 Works）只保留分組標題、不重複大標題。
 export function WorksFlagship() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const featuredSystem = works.find((work) => work.id === "commercial-decision-desk");
+  const adjacentWorks = ["global-business-development", "trade-profit-navigator"]
+    .map((id) => works.find((work) => work.id === id))
+    .filter(Boolean);
   return (
     <section id="works" aria-labelledby="works-flagship-heading" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-24">
       <div className="border-b border-line pb-10">
@@ -684,6 +687,14 @@ export function WorksFlagship() {
           <h2 id="works-flagship-heading" className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
           <p className="mt-4 text-base leading-relaxed text-ink/65">{t.works.sub}</p>
         </div>
+        <nav aria-label={t.works.alsoExplore} className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
+          <span className="text-xs font-semibold text-moss">{t.works.alsoExplore}</span>
+          {adjacentWorks.map((work) => (
+            <a key={work.id} href={`#${work.id}`} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">
+              {work[lang].title}<ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+            </a>
+          ))}
+        </nav>
       </div>
       <div className="mt-12">
         <FeaturedSystem work={featuredSystem} />
