@@ -738,6 +738,15 @@ export default function Works() {
     const spanClass = wide ? "md:col-span-3" : ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "trade-deal-desk", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
+    // On wide cards these two blocks sit under the cover (left column) so the two
+    // columns stay balanced; on narrow screens they stay in the body, in reading order.
+    const flowBlock = <ProductFlow work={w} />;
+    const deliverableBlock = w.deliverable ? (
+      <div className="mt-4 border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3">
+        <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.works.deliverableLabel}</p>
+        <p className="mt-1 text-sm leading-relaxed text-ink/85">{w.deliverable[lang]}</p>
+      </div>
+    ) : null;
     const Wrapper = w.link ? "a" : "div";
     const wrapperProps = w.link
       ? {
@@ -768,13 +777,19 @@ export default function Works() {
       >
         <Wrapper {...wrapperProps} className={`flex flex-1 flex-col ${wide ? "md:grid md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
           {cover ? (
-            <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:items-center md:justify-center md:bg-paper md:p-8 lg:p-10" : ""}`}>
+            <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:flex-col md:justify-center md:bg-paper md:p-8 lg:p-10" : ""}`}>
               <img
                 src={cover}
                 alt={w.imageAlt[lang]}
                 loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
                 className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02] ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(20,51,41,0.55)]" : ""}`}
               />
+              {wide && (
+                <div className="hidden md:block">
+                  {flowBlock}
+                  {deliverableBlock}
+                </div>
+              )}
             </div>
           ) : !w.marketEntry && (
             <div className="flex aspect-[16/9] items-center justify-center bg-paper">
@@ -814,12 +829,16 @@ export default function Works() {
                 {copy.caseSummary}
               </p>
             )}
-            <ProductFlow work={w} />
-            {w.deliverable && (
-              <div className="mt-4 border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3">
-                <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.works.deliverableLabel}</p>
-                <p className="mt-1 text-sm leading-relaxed text-ink/85">{w.deliverable[lang]}</p>
+            {wide ? (
+              <div className="md:hidden">
+                {flowBlock}
+                {deliverableBlock}
               </div>
+            ) : (
+              <>
+                {flowBlock}
+                {deliverableBlock}
+              </>
             )}
             {w.id === "global-business-development" ? (
               <GbdActions />
