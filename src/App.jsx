@@ -1,20 +1,12 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import { scrollToElement, useCalmScroll } from "./calmScroll.js";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
-import DecisionMoment from "./components/DecisionMoment.jsx";
-import ThreeQuestions from "./components/ThreeQuestions.jsx";
-import OneDeal from "./components/OneDeal.jsx";
-import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
-import { WorksFlagship, default as Works } from "./components/Works.jsx";
-import DealReadiness from "./components/DealReadiness.jsx";
-import Capabilities from "./components/Capabilities.jsx";
-import Library from "./components/Library.jsx";
-import About from "./components/About.jsx";
-import Contact from "./components/Contact.jsx";
 import Footer from "./components/Footer.jsx";
+
+const BelowFold = lazy(() => import("./BelowFold.jsx"));
 
 function SkipLink() {
   const { t } = useLang();
@@ -38,7 +30,7 @@ function revealHash(hash) {
   return target;
 }
 
-function useHashReveal() {
+function useHashReveal(belowReady) {
   useEffect(() => {
     const onClick = (event) => {
       const link = event.target.closest?.('a[href^="#"]');
@@ -49,7 +41,9 @@ function useHashReveal() {
     window.addEventListener("hashchange", onHashChange);
     // A target inside a just-opened panel can move as fonts and images above it
     // load, so re-align once the page has settled.
-    const initial = revealHash(window.location.hash);
+    // Sections below the hero load as a separate chunk, so wait for them
+    // before looking for the target.
+    const initial = belowReady ? revealHash(window.location.hash) : null;
     if (initial) {
       const align = () => scrollToElement(initial);
       requestAnimationFrame(align);
@@ -61,11 +55,13 @@ function useHashReveal() {
       document.removeEventListener("click", onClick, true);
       window.removeEventListener("hashchange", onHashChange);
     };
-  }, []);
+  }, [belowReady]);
 }
 
 export default function App() {
-  useHashReveal();
+  const [belowReady, setBelowReady] = useState(false);
+  const onBelowReady = useCallback(() => setBelowReady(true), []);
+  useHashReveal(belowReady);
   useCalmScroll();
   return (
     <LangProvider>
@@ -75,17 +71,9 @@ export default function App() {
           <Nav />
           <main id="main">
             <Hero />
-            <DecisionMoment />
-            <ThreeQuestions />
-            <OneDeal />
-            <WorksFlagship />
-            <HumanAiEditorial />
-            <Works />
-            <Capabilities />
-            <DealReadiness />
-            <Library />
-            <About />
-            <Contact />
+            <Suspense fallback={<div className="min-h-[100dvh]" aria-hidden="true" />}>
+              <BelowFold onReady={onBelowReady} />
+            </Suspense>
           </main>
           <Footer />
         </div>
