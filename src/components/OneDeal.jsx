@@ -85,7 +85,7 @@ export default function OneDeal() {
           <ol className="mt-10 grid gap-6 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-stretch md:gap-4">
             {c.steps.flatMap((step, index) => {
               const card = (
-                <li key={step.key} className="flex flex-col rounded-card border border-line bg-card p-5 md:p-6">
+                <li key={step.key} className="flex flex-col rounded-card border border-line bg-card p-5 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-amber/35 hover:shadow-[0_18px_40px_-28px_rgba(154,90,24,0.5)] md:p-6">
                   <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">
                     <span className="mr-2 text-amber">{index + 1}</span>{step.when}
                   </p>

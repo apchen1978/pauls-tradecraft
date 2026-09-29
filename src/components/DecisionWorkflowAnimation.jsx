@@ -64,7 +64,7 @@ const pileSlot = (fate, order) => ({
 // 手機版每一關旁的小點：走到這一關還剩幾個訊號
 const TALLY = [12, 6, 3, 1, 1];
 
-export default function DecisionWorkflowAnimation() {
+export default function DecisionWorkflowAnimation({ className = "" }) {
   const { lang } = useLang();
   const content = copy[lang];
   const figureRef = useRef(null);
@@ -243,7 +243,7 @@ export default function DecisionWorkflowAnimation() {
   return (
     <figure
       ref={figureRef}
-      className="decision-flow"
+      className={`decision-flow${className ? ` ${className}` : ""}`}
       data-started={started}
       data-playing={inView}
       data-complete={complete}

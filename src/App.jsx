@@ -4,6 +4,7 @@ import { LangProvider, useLang } from "./i18n.jsx";
 import { scrollToElement, useCalmScroll } from "./calmScroll.js";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
+import DecisionMoment from "./components/DecisionMoment.jsx";
 import ThreeQuestions from "./components/ThreeQuestions.jsx";
 import OneDeal from "./components/OneDeal.jsx";
 import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
@@ -74,6 +75,7 @@ export default function App() {
           <Nav />
           <main id="main">
             <Hero />
+            <DecisionMoment />
             <ThreeQuestions />
             <OneDeal />
             <WorksFlagship />
