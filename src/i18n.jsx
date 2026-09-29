@@ -1054,8 +1054,18 @@ const ogDescriptions = {
   en: "Paul Chen builds small working tools that help export owners and sales leads see three things before they commit to an order: who will buy, whether they can take it, and whether the margin holds. AI helps organise; the decision stays with you.",
 };
 
+// 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。
+// 只讀取、不改寫 URL；任何解析失敗都回退 zh。
+function readInitialLang() {
+  try {
+    return new URLSearchParams(window.location.search).get("lang") === "en" ? "en" : "zh";
+  } catch {
+    return "zh";
+  }
+}
+
 export function LangProvider({ children }) {
-  const [lang, setLang] = useState("zh");
+  const [lang, setLang] = useState(readInitialLang);
   const t = dict[lang];
   const toggle = () => setLang((l) => (l === "zh" ? "en" : "zh"));
 
