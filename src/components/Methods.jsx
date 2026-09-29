@@ -10,14 +10,14 @@ export default function Methods() {
   const [openId, setOpenId] = useState(null);
 
   return (
-    <section id="method" className="scroll-mt-24 border-b border-line surface-muted">
+    <section id="method" className="scroll-mt-24 border-b border-line bg-bone">
       <div className="mx-auto max-w-7xl px-4 py-24 md:px-6 md:py-28">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber">{t.methods.eyebrow}</p>
-        <h2 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">{t.methods.headline}</h2>
+        <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.methods.eyebrow}</p>
+        <h2 className="mt-3 max-w-2xl text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{t.methods.headline}</h2>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/70">{t.methods.intro}</p>
 
         <details className="group mt-10">
-          <summary className="flex w-full cursor-pointer list-none items-center justify-between gap-4 rounded-card border border-line surface-paper px-5 py-4 text-sm font-bold text-forest transition-colors hover:border-forest/35 md:px-6 [&::-webkit-details-marker]:hidden">
+          <summary className="flex w-full cursor-pointer list-none items-center justify-between gap-4 rounded-card border border-line surface-paper px-5 py-4 text-sm font-semibold text-forest transition-colors hover:border-forest/35 md:px-6 [&::-webkit-details-marker]:hidden">
             <span className="flex items-baseline gap-3">
               <span className="group-open:hidden">{t.methods.expandLabel}</span>
               <span className="hidden group-open:inline">{t.methods.collapseLabel}</span>
@@ -38,10 +38,10 @@ export default function Methods() {
                   aria-expanded={open}
                 >
                   <span className="flex items-baseline gap-4">
-                    <span className="font-mono text-xs font-bold tabular-nums text-amber">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-mono text-xs font-semibold tabular-nums text-amber">{String(i + 1).padStart(2, "0")}</span>
                     <span>
-                      <span className="block text-base font-bold tracking-tight text-ink">{m.title[lang]}</span>
-                      <span className="mt-1 block max-w-2xl text-sm leading-relaxed text-ink/75">{m.summary[lang]}</span>
+                      <span className="block text-base font-semibold tracking-tight text-ink">{m.title[lang]}</span>
+                      <span className="mt-1 block max-w-2xl text-sm leading-relaxed text-ink/85">{m.summary[lang]}</span>
                     </span>
                   </span>
                   <span className="shrink-0 text-sm font-semibold text-forest">{open ? t.methods.collapse : t.methods.read}</span>
@@ -49,7 +49,7 @@ export default function Methods() {
                 {open && (
                   <div className="border-t border-line px-6 py-6 md:px-8">
                     {m.body[lang].map((p, idx) => (
-                      <p key={idx} className={`text-[15px] leading-relaxed text-ink/75 ${idx > 0 ? "mt-4" : ""}`}>{p}</p>
+                      <p key={idx} className={`text-sm leading-relaxed text-ink/85 ${idx > 0 ? "mt-4" : ""}`}>{p}</p>
                     ))}
                     <p className="mt-6 border-t border-line pt-4 text-xs leading-relaxed text-ink/70">{t.methods.disclosure}</p>
                   </div>

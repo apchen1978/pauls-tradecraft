@@ -14,14 +14,14 @@ export default function Contact() {
       ? "mailto:paulchen1978@gmail.com?subject=Commercial%20Pilot%20Inquiry&body=Hi%20Paul%2C%0A%0AI%27d%20like%20to%20discuss%20a%20commercial%20pilot.%0A%0AContext%3A%20"
       : "mailto:paulchen1978@gmail.com?subject=%E8%A8%8E%E8%AB%96%E5%95%86%E6%A5%AD%20Pilot&body=Paul%20%E4%BD%A0%E5%A5%BD%EF%BC%8C%0A%0A%E6%88%91%E6%83%B3%E8%A8%8E%E8%AB%96%E4%B8%80%E5%80%8B%E5%95%86%E6%A5%AD%20Pilot%E3%80%82%0A%0A%E5%95%8F%E9%A1%8C%E8%83%8C%E6%99%AF%EF%BC%9A";
   return (
-    <section id="contact" className="scroll-mt-24 border-t border-line surface-muted">
+    <section id="contact" className="scroll-mt-24 bg-pine text-bone">
       <div className="mx-auto max-w-7xl px-4 py-24 text-center md:px-6 md:py-32">
         <motion.h2
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-16px" }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="mx-auto max-w-xl text-3xl font-bold tracking-tight md:text-4xl"
+          className="mx-auto max-w-2xl text-3xl font-semibold leading-[1.2] tracking-[-0.02em] text-bone md:text-[2.625rem]"
         >
           {t.contact.headline}
         </motion.h2>
@@ -30,7 +30,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-16px" }}
           transition={{ duration: 0.35, ease: "easeOut", delay: 0.06 }}
-          className="mx-auto mt-4 max-w-[48ch] text-base leading-relaxed text-ink/65"
+          className="mx-auto mt-5 max-w-[48ch] text-base leading-relaxed text-bone/70"
         >
           {t.contact.sub}
         </motion.p>
@@ -39,13 +39,13 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-16px" }}
           transition={{ duration: 0.35, ease: "easeOut", delay: 0.12 }}
-          className="mt-8 flex flex-col items-center gap-3"
+          className="mt-10 flex flex-col items-center gap-3.5"
         >
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a
               href={emailHref}
               aria-label={`${t.contact.cta} · paulchen1978@gmail.com`}
-              className="rounded-pill bg-forest px-7 py-3 text-sm font-bold text-bone transition-all hover:bg-moss active:scale-[0.98]"
+              className="rounded-field bg-gold px-7 py-3.5 text-sm font-semibold text-pine transition-colors hover:bg-[#f2c878] active:scale-[0.98]"
             >
               {t.contact.cta}
             </a>
@@ -53,12 +53,12 @@ export default function Contact() {
               href="https://line.me/ti/p/zSJdkOeQgS"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-pill px-6 py-3 text-sm font-bold text-pine transition-all hover:brightness-110 active:scale-[0.98]"
-              style={{ backgroundColor: "#06c755" }}
+              className="inline-flex items-center gap-2.5 rounded-field border border-bone/25 px-6 py-3.5 text-sm font-semibold text-bone transition-colors hover:border-bone/60 active:scale-[0.98]"
             >
               <span
                 aria-hidden="true"
-                className="flex h-4 items-center justify-center rounded-[4px] bg-white/20 px-1 text-[9px] font-extrabold tracking-tight"
+                className="flex h-5 items-center justify-center rounded-[5px] px-1.5 text-[0.6875rem] font-extrabold tracking-tight text-white"
+                style={{ backgroundColor: "#06c755" }}
               >
                 LINE
               </span>
@@ -68,7 +68,7 @@ export default function Contact() {
           <a
             href={onePagerUrl}
             download
-            className="inline-flex items-center gap-2 text-sm font-semibold text-forest underline decoration-forest/40 underline-offset-4 transition-colors hover:text-moss"
+            className="inline-flex items-center gap-2 text-sm font-medium text-bone/85 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold"
           >
             <FilePdf size={16} weight="bold" />
             {t.contact.onePager}
@@ -76,18 +76,18 @@ export default function Contact() {
           <a
             href="/files/PaulTradecraft-Capability-Brief.pdf"
             download
-            className="inline-flex items-center gap-2 text-sm font-semibold text-forest underline decoration-forest/40 underline-offset-4 transition-colors hover:text-moss"
+            className="inline-flex items-center gap-2 text-sm font-medium text-bone/85 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold"
           >
             <FilePdf size={16} weight="bold" />
             {t.contact.capabilityBrief}
           </a>
           <a
             href="mailto:paulchen1978@gmail.com"
-            className="text-sm font-medium text-forest underline decoration-forest/30 underline-offset-4 transition-colors hover:text-amber"
+            className="text-sm font-medium text-gold underline decoration-gold/40 underline-offset-4 transition-colors hover:text-bone"
           >
             paulchen1978@gmail.com
           </a>
-          <p className="text-xs text-ink/65">{t.contact.note}</p>
+          <p className="mt-2 text-xs text-bone/70">{t.contact.note}</p>
         </motion.div>
       </div>
     </section>

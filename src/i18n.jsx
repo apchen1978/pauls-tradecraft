@@ -4,12 +4,12 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { works: "作品", notes: "國貿筆記", services: "商業合作", verification: "驗證", method: "方法", process: "流程", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { works: "作品", notes: "國貿筆記", services: "商業合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "15 年", label: "國際業務總監" },
         { value: "NCCU", label: "會計專業基底" },
-        { value: "955", label: "TOEIC · 2019" },
+        { value: "全球", label: "歐美・亞太・中東市場" },
       ],
       headline: "海外客戶開發，從找到對的市場與買家開始。",
       sub: "從找公司、找對人，到看懂詢價。AI 可以協助查資料和準備內容；要不要投入、能不能答應交易，仍由人判斷。",
@@ -63,13 +63,13 @@ const dict = {
       snapshotCta: "看這筆 48 萬美元訂單為何還不能接",
     },
     humanAiEditorial: {
-      eyebrow: "THE LOOP · HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
+      eyebrow: "判斷的循環 · 經驗 × AI × 證據",
       statement: "經驗決定我們該問什麼。\nAI 擴大我們能探索與做到的範圍。\n證據決定什麼值得繼續。",
       explanation: "這不是一套僵硬的方法，而是一個會被每次研究、建置與現實回饋重新校正的循環：經驗形成問題，AI 擴大探索，證據改變下一個判斷。",
       closing: "經驗形成問題，AI 擴大能力，證據讓下一次判斷更準。",
     },
     startHere: {
-      eyebrow: "CONSULTING START POINTS",
+      eyebrow: "從這裡開始",
       headline: "從一個需要做好的決策開始。",
       intro: "不必先導入一套大系統。帶一個成長機會、一項反覆工作，或一段客戶旅程進來，先把真正的問題與下一步變清楚。",
       items: [
@@ -79,7 +79,7 @@ const dict = {
       ],
     },
     connectedCase: {
-      eyebrow: "PROBLEM DEFINITION",
+      eyebrow: "問題定義",
       headline: "先把問題問準，下一步才值得做。",
       intro: "客戶帶來的通常是一個需求。我的工作，是釐清背後的目標、限制，以及真正需要做的決定。",
       framingLabel: "PAUL 會先問",
@@ -95,7 +95,7 @@ const dict = {
         {
           id: "overseas",
           tab: "海外開發",
-          eyebrow: "OVERSEAS DEVELOPMENT",
+          eyebrow: "海外開發",
           request: "「幫我找更多海外客戶。」",
           questions: [
             "目前缺的是更多名單，還是有外部採購需求、且符合工廠條件的買方？",
@@ -109,7 +109,7 @@ const dict = {
         {
           id: "deal",
           tab: "交易承諾",
-          eyebrow: "DEAL COMMITMENT",
+          eyebrow: "交易承諾",
           request: "「這張訂單毛利很好，可以接吧？」",
           questions: [
             "付款何時進來？工廠何時要付款？",
@@ -123,7 +123,7 @@ const dict = {
         {
           id: "spending",
           tab: "企業支出",
-          eyebrow: "BUSINESS SPENDING",
+          eyebrow: "企業支出",
           request: "「公司花了這麼多錢，怎麼沒有感覺更有效？」",
           questions: [
             "這筆支出原本要改善哪個營運問題？",
@@ -138,14 +138,14 @@ const dict = {
       boundary: "以上為示意情境，用來呈現問題定義方法；不是客戶引述，也不代表已驗證的商業成果。AI 協助擴大研究與比較，人負責方向、證據確認與最後承諾。",
     },
     works: {
-      eyebrow: "Selected Works",
+      eyebrow: "精選作品",
       headline: "同一種解題能力，在不同場景運作。",
       sub: "三個主線問題：誰值得投入海外業務時間？這筆交易能承諾嗎？毛利撐得住嗎？點開對應作品，可看產出、判斷與證據邊界。",
       alsoExplore: "也可直接看",
       sections: {
-        commercial: "Selected Systems｜核心商業判斷",
-        operations: "Supporting Capabilities｜支援能力",
-        labs: "Building & Exploration｜產品實作與探索",
+        commercial: "核心商業判斷",
+        operations: "支援能力",
+        labs: "產品實作與探索",
         notes: {
           commercial: "對外主線三件：① 商務決策工作台（這單能不能承諾）② 海外商業開發判斷（誰值得先投入）③ 貿易利潤導航（毛利是否撐得住）。其餘是支援作品，或仍在探索中的數位車庫原型。",
           operations: "支撐商業交付、團隊協作與客戶體驗的能力；每件作品保留自己的工作場景與證據。",
@@ -175,7 +175,7 @@ const dict = {
       },
     },
     dealReadiness: {
-      kicker: "Deal Readiness Review",
+      kicker: "承諾前審視",
       headline: "帶一筆正在談的海外商機，換回承諾前的清楚判斷。",
       intro: "把分散在買方、RFQ、報價、付款與交期裡的資訊，整理成老闆和業務團隊能一起檢視的交易決策包。",
       pathTitle: "一次合作，留下三樣東西",
@@ -205,7 +205,7 @@ const dict = {
       packBoundary: "交付內容依當前可確認的證據而定。系統建議、UNKNOWN 與人的最終決定會被清楚分開。",
     },
     outcomes: {
-      eyebrow: "THE COMMERCIAL THREAD",
+      eyebrow: "商業主線",
       headline: "從發現商機，到讓團隊接得住後續判斷。",
       intro: "國際貿易是最完整的示範；同樣的判斷，也用得上台灣中小企業的客戶開發、報價、付款和交付。先弄清公司能交付什麼，再說明它為什麼值得買方考慮，接著判斷商機、交易條件與承諾風險。這些不是各自分開的工具，而是一條團隊能接手、能延續的工作路徑。",
       pathEyebrow: "從公司能做的事，走到下一步商務行動",
@@ -223,7 +223,7 @@ const dict = {
       ],
     },
     verification: {
-      eyebrow: "HOW IT'S VERIFIED",
+      eyebrow: "驗證方式",
       headline: "每一件作品如何驗證",
       intro: "不是「我說的」——是可重跑的檢查、誠實的未知與可對照的數字。以下為目前作品的驗證方式摘要。",
       works: {
@@ -245,7 +245,7 @@ const dict = {
       boundary: "驗證證明的是工具行為與紀律，不是商業成效；不包含客戶成果、ROI 或採用率宣稱。",
     },
     methods: {
-      eyebrow: "METHODOLOGY",
+      eyebrow: "方法論",
       headline: "方法論：怎麼判斷、怎麼談、怎麼承諾",
       intro: "這些文章不是我「相信」的——是工具裡寫下的紀律，從商業流程與工具設計整理出來。每篇都可以追溯到可運作的工作方式。",
       read: "讀全文",
@@ -255,13 +255,13 @@ const dict = {
       disclosure: "方法論分享；不涉及法律意見，亦不宣稱任何客戶成效。",
     },
     capabilities: {
-      eyebrow: "COMMERCIAL ENGAGEMENTS",
+      eyebrow: "合作方式",
       headline: "從一個重要決策開始",
       tagline: "先把商業問題、證據與下一步整理清楚，再決定需要什麼工具與自動化。",
       detailExpand: "展開交付流程、需求驗證與支援能力",
       detailCollapse: "收合詳細內容",
       engagement: {
-        eyebrow: "START WITH A COMMERCIAL QUESTION",
+        eyebrow: "從一個商業問題開始",
         title: "先把一個不能憑直覺承諾的問題看清楚。",
         summary: "不是先導入一套大系統，而是帶一筆正在談的商機、報價或流程卡點進來，先做出團隊能使用的下一步判斷。",
         bringLabel: "帶什麼進來",
@@ -360,7 +360,7 @@ const dict = {
       ],
     },
     about: {
-      eyebrow: "About Me",
+      eyebrow: "關於我",
       headline: "專業，偶爾風趣",
       intro: "政大會計系畢業，15 年國際業務總監，服務歐美、亞太與中東市場。",
       narrative: [
@@ -381,7 +381,7 @@ const dict = {
       ],
     },
     how: {
-      eyebrow: "How I Work",
+      eyebrow: "工作方式",
       headline: "人類主導，AI 加速",
       sub: "這不是黑箱自動化。每一步都由人做決定，AI 負責把工作變快、變可驗證、變可追溯。",
       agentsCase: "看完整規則：我怎麼帶一支 AI 團隊做事",
@@ -524,12 +524,12 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { works: "Work", notes: "Trade Notes", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { works: "Work", notes: "Trade Notes", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "15 years", label: "International sales leadership" },
         { value: "NCCU", label: "Accounting foundation" },
-        { value: "955", label: "TOEIC · 2019" },
+        { value: "Global", label: "Europe · Americas · APAC · Middle East" },
       ],
       headline: "Looking for overseas customers? Start with who might actually buy.",
       sub: "From finding accounts and the right people to understanding an inquiry. AI helps research and prepare; people decide where to invest attention and what the business can commit to.",

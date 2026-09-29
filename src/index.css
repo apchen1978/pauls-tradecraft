@@ -24,15 +24,27 @@
   --color-gold: #e7b65b; /* warm brass highlight for dark surfaces */
   --color-research: #536d87;
   --color-graphite: #48535a;
-  --color-line: #d2d8ce;
+  --color-line: #dde2d8;
+  --color-card: #fbfbf8; /* raised card surface on bone */
 
-  /* Shape system (documented): cards 16px, inputs 12px, interactive = full pill */
+  /* Shape system: cards 16px, buttons & fields 10px, chips = full pill */
   --radius-card: 1rem;
-  --radius-field: 0.75rem;
+  --radius-field: 0.625rem;
   --radius-pill: 999px;
 
-  --font-sans: "Geist Variable", "PingFang TC", "Microsoft JhengHei",
-    "Noto Sans TC", ui-sans-serif, system-ui, sans-serif;
+  /* Type scale: CJK text never drops below 13px; body reads at 15–17px. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.55;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.7;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.75;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.6;
+
+  --font-sans: "Geist Variable", "Noto Sans TC", "PingFang TC",
+    "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif TC", Georgia, "Times New Roman", serif;
 }
 
 @layer base {
@@ -42,9 +54,32 @@
   body {
     @apply bg-bone text-ink antialiased;
     font-feature-settings: "ss01", "cv01";
-    background-image:
-      radial-gradient(circle at 12% 8%, rgb(255 255 255 / 0.7), transparent 28rem),
-      linear-gradient(135deg, rgb(232 237 228 / 0.25), transparent 42%);
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+  /* From tablet up, CJK headings break at punctuation rather than mid-phrase;
+     an over-long run still wraps instead of overflowing. Phones keep normal
+     breaking, where lines are too short for phrase-level wrapping. */
+  @media (min-width: 768px) {
+    h1,
+    h2,
+    h3,
+    h4 {
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* Default kicker colour lives in base so any text-* utility can override it. */
+  .eyebrow {
+    color: var(--color-moss);
   }
   ::selection {
     background: var(--color-amber);
@@ -63,16 +98,26 @@
     background-clip: text;
     color: transparent;
   }
+  /* Section kicker: quiet label led by a short brass rule. Colour follows
+     the text colour class it is paired with (moss on light, gold on dark). */
   .eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.18em];
-    color: var(--color-amber);
+    @apply inline-flex items-center gap-3 text-xs font-medium uppercase tracking-[0.08em];
+  }
+  .eyebrow::before {
+    content: "";
+    width: 1.5rem;
+    height: 1px;
+    flex-shrink: 0;
+    background: var(--color-amber);
   }
   .surface-paper {
-    background-color: rgb(248 248 243 / 0.86);
-    box-shadow: 0 18px 46px -38px rgb(35 78 59 / 0.7);
+    background-color: var(--color-card);
+    box-shadow:
+      0 1px 2px rgb(20 51 41 / 0.04),
+      0 16px 40px -28px rgb(20 51 41 / 0.28);
   }
   .surface-muted {
-    background-color: rgb(233 237 228 / 0.7);
+    background-color: rgb(233 237 228 / 0.45);
   }
   .outcomes-stage {
     opacity: 1;
@@ -122,15 +167,16 @@
   }
 }
 
-/* Gentle desktop reading rhythm: natural scroll remains free, but a pause near
-   a major section settles on that section instead of skipping past it. */
-@media (min-width: 1024px) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+/* Desktop reading rhythm (damped wheel + settling on sections and work cards)
+   is handled by src/calmScroll.js. CSS snapping is intentionally not used: on
+   long sections it yanked a fast scroll to the next section start. */
+@media (min-width: 1024px) {
   html {
-    scroll-snap-type: y proximity;
-    scroll-padding-top: 76px;
+    scroll-padding-top: 88px;
   }
+}
 
-  main > section {
-    scroll-snap-align: start;
-  }
+/* While Lenis drives the scroll, native smooth scrolling would fight it. */
+html.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
