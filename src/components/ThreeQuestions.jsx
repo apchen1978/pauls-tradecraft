@@ -1,5 +1,4 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
-import { motion } from "motion/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
 
@@ -88,51 +87,44 @@ export default function ThreeQuestions() {
   const c = copy[lang];
   return (
     <section id="three-questions" aria-labelledby="three-questions-heading" className="scroll-mt-24 border-b border-line bg-bone">
-      <div className="mx-auto max-w-7xl px-4 py-20 md:px-6 md:py-28">
+      <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-36">
         <p className="eyebrow">{c.eyebrow}</p>
-        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] lg:gap-12">
-          <h2 id="three-questions-heading" className="max-w-[22ch] text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{c.title}</h2>
-          <p className="max-w-[48ch] self-end text-base leading-relaxed text-ink/70">{c.intro}</p>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16">
+          <h2 id="three-questions-heading" className="max-w-[20ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
+          <p className="max-w-[44ch] self-end text-base leading-relaxed text-ink/70 md:text-lg">{c.intro}</p>
         </div>
 
-        <ol className="mt-12 grid gap-5 md:grid-cols-3">
+        <ol className="mt-10 grid border-t border-ink md:mt-24 md:grid-cols-3">
           {c.cards.map((card, index) => (
-            <motion.li
-              key={card.key}
-              className="flex"
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.4, ease: "easeOut", delay: index * 0.07 }}
-            >
-              <article className="flex w-full flex-col rounded-card border border-line surface-paper p-6 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-amber/40 hover:shadow-[0_24px_50px_-30px_rgba(154,90,24,0.55)] md:p-7">
+            <li key={card.key} className="flex border-b border-line py-8 md:border-b-0 md:py-10 md:border-l md:border-line md:px-8 md:first:border-l-0 md:first:pl-0 md:last:pr-0">
+              <article className="flex w-full flex-col">
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="font-serif text-4xl font-medium leading-none tracking-[-0.03em] text-amber" aria-hidden="true">{index + 1}</span>
-                  <span className="text-xs font-medium text-moss">{card.stage}</span>
+                  <span className="font-serif text-6xl font-medium leading-none tracking-[-0.04em] text-amber md:text-7xl" aria-hidden="true">{index + 1}</span>
+                  <span className="text-sm font-medium text-moss">{card.stage}</span>
                 </div>
-                <h3 className="mt-6 text-xl font-semibold leading-snug tracking-[-0.01em] text-ink md:text-2xl">{card.question}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-ink/70">{card.pain}</p>
-                <div className="mt-6 border-l-2 border-amber/60 pl-4">
-                  <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{c.takeaway}</p>
-                  <p className="mt-1.5 text-sm font-medium leading-relaxed text-forest">{card.takeaway}</p>
+                <h3 className="mt-7 text-[1.5rem] md:mt-10 font-medium leading-[1.25] tracking-[-0.02em] text-ink md:text-[1.75rem]">{card.question}</h3>
+                <p className="mt-4 text-base leading-relaxed text-ink/70">{card.pain}</p>
+                <div className="mt-8 border-t border-line pt-5">
+                  <p className="text-sm font-medium text-moss">{c.takeaway}</p>
+                  <p className="mt-2 text-base leading-relaxed text-forest">{card.takeaway}</p>
                 </div>
-                <div className="mt-auto pt-7">
+                <div className="mt-auto pt-9">
                   <a
                     href={withDemoLang(LINKS[card.key], lang)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-[3.5rem] w-full items-center justify-between gap-3 rounded-field bg-forest px-4 py-3 text-sm font-semibold text-bone transition-colors hover:bg-moss focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+                    className="group inline-flex items-start justify-between gap-4 border-b border-ink pb-3 text-base font-medium text-ink transition-colors hover:border-amber hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
                   >
                     <span>{card.cta}</span>
-                    <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0" />
+                    <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </a>
-                  <p className="mt-2 text-xs text-ink/70">{c.demoNote}</p>
+                  <p className="mt-3 text-sm text-ink/70">{c.demoNote}</p>
                 </div>
               </article>
-            </motion.li>
+            </li>
           ))}
         </ol>
-        <p className="mt-8 max-w-[70ch] text-sm leading-relaxed text-ink/70">{c.note}</p>
+        <p className="mt-12 max-w-[70ch] text-sm leading-relaxed text-ink/70">{c.note}</p>
       </div>
     </section>
   );

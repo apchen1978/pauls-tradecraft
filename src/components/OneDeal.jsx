@@ -75,49 +75,44 @@ export default function OneDeal() {
   const c = copy[lang];
   const href = (key) => withDemoLang(LINKS[key], lang);
   return (
-    <section id="one-deal" aria-labelledby="one-deal-heading" className="scroll-mt-24 border-b border-line bg-bone">
-      <div className="mx-auto max-w-7xl px-4 pb-20 md:px-6 md:pb-28">
-        <div className="rounded-card border border-line bg-paper/60 px-5 py-9 md:px-10 md:py-12">
-          <p className="eyebrow">{c.eyebrow}</p>
-          <h2 id="one-deal-heading" className="mt-4 max-w-[26ch] text-2xl font-semibold leading-[1.25] tracking-[-0.02em] md:text-4xl">{c.title}</h2>
-          <p className="mt-3 max-w-[60ch] text-base leading-relaxed text-ink/70">{c.intro}</p>
+    <section id="one-deal" aria-labelledby="one-deal-heading" className="scroll-mt-24 border-b border-line bg-paper">
+      <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-36">
+        <p className="eyebrow">{c.eyebrow}</p>
+        <h2 id="one-deal-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
+        <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-ink/70 md:text-lg">{c.intro}</p>
 
-          <ol className="mt-10 grid gap-6 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-stretch md:gap-4">
-            {c.steps.flatMap((step, index) => {
-              const card = (
-                <li key={step.key} className="flex flex-col rounded-card border border-line bg-card p-5 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-amber/35 hover:shadow-[0_18px_40px_-28px_rgba(154,90,24,0.5)] md:p-6">
-                  <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">
-                    <span className="mr-2 text-amber">{index + 1}</span>{step.when}
-                  </p>
-                  <h3 className="mt-3 text-lg font-semibold leading-snug text-ink md:text-xl">{step.result}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-ink/70">{step.detail}</p>
-                  <a
-                    href={href(step.key)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
-                  >
-                    {c.open}
-                    <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-                  </a>
-                </li>
-              );
-              return index < c.steps.length - 1
-                ? [card, <li key={`${step.key}-arrow`} aria-hidden="true" className="hidden items-center text-amber md:flex"><ArrowRight size={22} weight="bold" /></li>]
-                : [card];
-            })}
-          </ol>
+        <ol className="mt-10 grid border-t border-ink md:mt-20 md:grid-cols-3">
+          {c.steps.map((step, index) => (
+            <li key={step.key} className="flex border-b border-line py-8 md:border-b-0 md:py-10 md:border-l md:border-line md:px-8 md:first:border-l-0 md:first:pl-0 md:last:pr-0">
+              <div className="flex w-full flex-col">
+                <p className="text-sm font-medium text-moss">
+                  <span className="mr-2 font-serif text-lg text-amber">{index + 1}</span>{step.when}
+                </p>
+                <h3 className="mt-6 text-[1.5rem] font-medium leading-[1.25] tracking-[-0.02em] text-ink md:text-[1.75rem]">{step.result}</h3>
+                <p className="mt-4 text-base leading-relaxed text-ink/70">{step.detail}</p>
+                <a
+                  href={href(step.key)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group mt-auto inline-flex w-fit items-center gap-2 border-b border-ink pb-2 pt-8 text-base font-medium text-ink transition-colors hover:border-amber hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+                >
+                  {c.open}
+                  <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </a>
+              </div>
+            </li>
+          ))}
+        </ol>
 
-          <div className="mt-10 flex flex-col gap-5 border-t border-line pt-7 md:flex-row md:items-center md:justify-between md:gap-10">
-            <p className="max-w-[62ch] text-base leading-relaxed text-ink/70">{c.closing}</p>
-            <a
-              href="#contact"
-              className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-field bg-gold px-6 py-3.5 text-sm font-semibold text-pine transition-colors hover:bg-[#f2c878] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:self-auto"
-            >
-              {c.cta}
-              <ArrowRight size={16} weight="bold" aria-hidden="true" />
-            </a>
-          </div>
+        <div className="mt-10 flex flex-col gap-6 border-t border-line pt-8 md:mt-20 md:flex-row md:items-center md:justify-between md:gap-10">
+          <p className="max-w-[62ch] text-base leading-relaxed text-ink/70 md:text-lg">{c.closing}</p>
+          <a
+            href="#contact"
+            className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-field bg-gold px-6 py-3.5 text-sm font-semibold text-pine transition-colors hover:bg-[#f2c878] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:self-auto"
+          >
+            {c.cta}
+            <ArrowRight size={16} weight="bold" aria-hidden="true" />
+          </a>
         </div>
       </div>
     </section>

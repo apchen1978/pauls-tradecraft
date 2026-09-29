@@ -17,8 +17,8 @@ export default function Hero() {
     ? "/images/cover-commercial-decision-desk.svg"
     : "/images/cover-commercial-decision-desk-en.svg";
   const headlineClass = lang === "en"
-    ? "mt-3 text-[1.5rem] leading-[1.14] sm:text-[1.75rem] md:mt-5 md:text-[2.05rem] md:leading-[1.1] lg:text-[2.15rem] xl:text-[2.35rem] xl:leading-[1.1]"
-    : "mt-4 text-[clamp(1.8rem,6.6vw,2.05rem)] leading-[1.18] md:mt-5 md:text-5xl md:leading-[1.14] lg:text-[2.45rem] xl:text-[2.95rem]";
+    ? "mt-3 text-[1.55rem] leading-[1.12] sm:text-[1.85rem] md:mt-5 md:text-[2.1rem] md:leading-[1.08] lg:text-[2.3rem] xl:text-[2.6rem] xl:leading-[1.07]"
+    : "mt-4 text-[clamp(1.8rem,6.6vw,2.05rem)] leading-[1.18] md:mt-5 md:text-5xl md:leading-[1.14] lg:text-[2.6rem] xl:text-[3.2rem]";
   const subClass = lang === "en"
     ? "mt-3 max-w-[46ch] text-[0.9375rem] leading-[1.48] md:mt-5 md:text-lg md:leading-relaxed"
     : "mt-4 max-w-[48ch] text-base leading-[1.65] md:mt-5 md:text-lg md:leading-relaxed";
@@ -43,13 +43,13 @@ export default function Hero() {
 
       <div className="relative mx-auto grid min-h-[calc(100svh-68px)] max-w-7xl items-end gap-6 px-4 pb-6 pt-6 md:min-h-[calc(100svh-76px)] md:gap-10 md:px-6 md:pb-12 md:pt-16 lg:min-h-[calc(100svh-76px-10.5rem)] lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-10 lg:px-6 lg:pb-12 lg:pt-12">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 max-w-2xl self-center">
-          <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-xs font-medium uppercase tracking-[0.08em] text-gold">
+          <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-sm font-medium text-gold">
             <span aria-hidden className="h-px w-6 bg-gold/80" />
             {t.brand} · {t.brandNote}
           </motion.p>
           <motion.h1
             variants={fadeUp}
-            className={`max-w-2xl font-semibold tracking-[-0.02em] text-bone ${headlineClass}`}
+            className={`max-w-2xl font-medium tracking-[-0.03em] text-bone ${headlineClass}`}
           >
             {t.hero.headline}
           </motion.h1>
@@ -76,13 +76,13 @@ export default function Hero() {
           <motion.div variants={fadeUp} className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <a
               href="#three-questions"
-              className="rounded-field bg-gold px-5 py-3 text-center text-sm font-semibold text-pine shadow-[0_14px_32px_-16px_rgba(231,182,91,0.95)] transition-[transform,background-color,box-shadow] hover:bg-[#f2be61] hover:shadow-[0_18px_36px_-14px_rgba(231,182,91,1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="rounded-field bg-gold px-5 py-3 text-center text-sm font-semibold text-pine transition-[transform,background-color] hover:bg-[#f2be61] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
               {t.hero.ctaPrimary}
             </a>
             <a
               href="#contact"
-              className="rounded-field border border-bone/55 bg-bone/[0.06] px-5 py-3 text-center text-sm font-semibold tracking-[0.025em] text-bone shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-sm transition-[transform,background-color,border-color,color] hover:border-gold/75 hover:bg-bone/[0.1] hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="rounded-field border border-bone/55 px-5 py-3 text-center text-sm font-semibold text-bone transition-[transform,background-color,border-color,color] hover:border-gold/75 hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
               {t.hero.ctaSecondary}
             </a>
@@ -92,15 +92,10 @@ export default function Hero() {
         <motion.figure
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut", delay: 0.12 } }}
-          className="group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-gold/30 bg-pine/45 shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)] backdrop-blur-sm transition-[border-color,box-shadow] duration-300 hover:border-gold/50 hover:shadow-[0_40px_90px_-24px_rgba(231,182,91,0.28)]"
+          className="group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-bone/25 bg-pine/45"
         >
           <div className="flex items-center gap-2 border-b border-bone/15 bg-ink/20 px-4 py-3 text-xs font-medium tracking-[0.04em] text-bone/70 md:px-5">
-            <span className="flex gap-1.5" aria-hidden="true">
-              <span className="size-2 rounded-full bg-bone/20" />
-              <span className="size-2 rounded-full bg-bone/20" />
-              <span className="size-2 rounded-full bg-bone/20" />
-            </span>
-            <span className="ml-2 inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.hero.snapshotChromeLabel}</span>
+            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.hero.snapshotChromeLabel}</span>
           </div>
           <div className="relative overflow-hidden bg-ink/20 p-2.5 md:p-3">
             <img
