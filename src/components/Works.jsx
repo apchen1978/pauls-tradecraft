@@ -49,8 +49,8 @@ function stageLabel(work, lang) {
 
 function LiveChip({ t, tone = "light" }) {
   const className = tone === "dark"
-    ? "inline-flex items-center gap-1 rounded-pill border border-bone/30 px-2 py-0.5 text-xs font-semibold normal-case tracking-[0.08em] text-bone/85"
-    : "inline-flex items-center gap-1 rounded-pill border border-forest/20 px-2 py-0.5 text-xs font-semibold normal-case tracking-[0.08em] text-forest";
+    ? "inline-flex items-center gap-1 rounded-pill border border-bone/30 px-2 py-0.5 text-xs font-semibold normal-case  text-bone/85"
+    : "inline-flex items-center gap-1 rounded-pill border border-forest/20 px-2 py-0.5 text-xs font-semibold normal-case  text-forest";
   return (
     <span className={className} title={t.works.liveExplain} aria-label={`${t.works.statusLive}. ${t.works.liveExplain}`}>
       {t.works.statusLive}
@@ -90,7 +90,7 @@ function GbdActions() {
             onClick={(e) => e.stopPropagation()}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber"
           >
-            <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-xs font-medium uppercase tracking-[0.08em] text-forest">{t.works.demoLabel}</span>
+            <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-xs font-medium  text-forest">{t.works.demoLabel}</span>
             {gbd.standaloneDemo.label[lang]}
             <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
           </a>
@@ -143,11 +143,11 @@ function ProductFlow({ work, tone = "light" }) {
   const dark = tone === "dark";
   return (
     <div className={`mt-6 border-y py-4 ${dark ? "border-bone/15" : "border-forest/15"}`}>
-      <p className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{flow.label}</p>
+      <p className={`text-xs font-medium  ${dark ? "text-gold" : "text-amber"}`}>{flow.label}</p>
       <div className={`mt-3 grid gap-3 sm:grid-cols-3 ${dark ? "sm:divide-x sm:divide-bone/15" : "sm:divide-x sm:divide-forest/15"}`}>
         {flow.stages.map((stage, index) => (
           <div key={stage.label} className={index === 0 ? "sm:pr-3" : index === flow.stages.length - 1 ? "sm:pl-3" : "sm:px-3"}>
-            <p className={`text-xs font-semibold tracking-[0.08em] ${dark ? "text-bone/70" : "text-moss"}`}>{stage.label}</p>
+            <p className={`text-xs font-semibold  ${dark ? "text-bone/70" : "text-moss"}`}>{stage.label}</p>
             <p className={`mt-1 text-xs leading-relaxed ${dark ? "text-bone/82" : "text-ink/85"}`}>{stage.value}</p>
           </div>
         ))}
@@ -169,7 +169,7 @@ function MarketEntrySignal({ data }) {
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">{copy.heroSupport}</p>
         </div>
         <div className="border-l-2 border-amber/70 pl-4 md:pl-5">
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.caseArcLabel}</p>
+          <p className="text-xs font-medium  text-moss">{copy.caseArcLabel}</p>
           <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{copy.caseArc}</p>
           <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.context}</p>
         </div>
@@ -178,7 +178,7 @@ function MarketEntrySignal({ data }) {
       <div className="mt-6 grid gap-0 border-y border-forest/15 md:grid-cols-[1fr_1.15fr_1fr]">
         {copy.signature.map((item, index) => (
           <div key={item.label} className={`py-4 ${index === 0 ? "border-b md:border-r md:border-b-0 md:pr-5" : index === 1 ? "border-b bg-forest/[0.045] md:border-x md:border-b-0 md:px-5" : "md:pl-5"} border-forest/15`}>
-            <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{index === 0 ? copy.beforeLabel : index === 1 ? copy.zeroLabel : copy.afterLabel}</p>
+            <p className="text-xs font-medium  text-moss">{index === 0 ? copy.beforeLabel : index === 1 ? copy.zeroLabel : copy.afterLabel}</p>
             <p className="mt-2 text-3xl font-semibold tracking-tight text-forest">{item.value}</p>
             <p className="mt-1 text-sm font-semibold leading-snug text-ink/85">{item.label}</p>
             {index === 1 && <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.zeroNote}</p>}
@@ -188,13 +188,13 @@ function MarketEntrySignal({ data }) {
       </div>
 
       <div className="mt-6">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.gatesTitle}</p>
+        <p className="text-xs font-medium  text-moss">{copy.gatesTitle}</p>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           {copy.gates.map((gate, index) => (
             <div key={gate.title} className="border-t border-forest/20 pt-3">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-xs font-semibold tracking-[0.08em] text-moss">0{index + 1}</span>
-                <span className={`text-xs font-medium uppercase tracking-[0.08em] ${gate.status === "UNKNOWN" || gate.status === "待確認" ? "text-rust" : "text-forest"}`}>{gate.status}</span>
+                <span className="text-xs font-semibold  text-moss">0{index + 1}</span>
+                <span className={`text-xs font-medium  ${gate.status === "UNKNOWN" || gate.status === "待確認" ? "text-rust" : "text-forest"}`}>{gate.status}</span>
               </div>
               <p className="mt-2 text-sm font-semibold text-forest">{gate.title}</p>
               <p className="mt-1 text-xs leading-relaxed text-ink/70">{gate.body}</p>
@@ -203,7 +203,7 @@ function MarketEntrySignal({ data }) {
         </div>
       </div>
 
-      <p className="mt-6 inline-flex border-l-2 border-amber pl-3 text-xs font-medium uppercase tracking-[0.08em] text-forest">{copy.correction}</p>
+      <p className="mt-6 inline-flex border-l-2 border-amber pl-3 text-xs font-medium  text-forest">{copy.correction}</p>
     </section>
   );
 }
@@ -224,7 +224,7 @@ function MarketEntryDetails({ data, tone = "light" }) {
         <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.question}</dd>
       </div>
       <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
-        <dt className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
+        <dt className={`text-xs font-medium  ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
         <dd className={`mt-1 font-semibold leading-relaxed ${heading}`}>{copy.lesson}</dd>
       </div>
       <div className={`border-t pt-3 ${border}`}>
@@ -276,7 +276,7 @@ function MarketEntryDetails({ data, tone = "light" }) {
         </dd>
       </div>
       <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
-        <dt className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
+        <dt className={`text-xs font-medium  ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
         <dd className={`mt-1 leading-relaxed ${body}`}>{copy.boundary}</dd>
         <ul className={`mt-2 grid gap-1 text-xs sm:grid-cols-2 ${body}`}>
           {copy.notTested.map((item) => <li key={item}>— {item}</li>)}
@@ -305,7 +305,7 @@ function WorkingEvidence({ data, tone = "light" }) {
   const dark = tone === "dark";
   return (
     <div className={`mt-5 border-t pt-4 ${dark ? "border-bone/15" : "border-line"}`}>
-      <p className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.label}</p>
+      <p className={`text-xs font-medium  ${dark ? "text-gold" : "text-amber"}`}>{copy.label}</p>
       <h4 className={`mt-1 text-lg font-semibold ${dark ? "text-bone/85" : "text-ink/85"}`}>{copy.title}</h4>
       <p className={`mt-1 max-w-2xl text-sm leading-relaxed ${dark ? "text-bone/70" : "text-ink/70"}`}>{copy.body}</p>
       <p className={`mt-2 text-xs leading-relaxed ${dark ? "text-bone/70" : "text-ink/70"}`}>{copy.boundary}</p>
@@ -329,7 +329,7 @@ function SpendingInsightSignal({ data }) {
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">{copy.heroSupport}</p>
         </div>
         <div className="border-l-2 border-amber/70 pl-4 md:pl-5">
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.caseLabel}</p>
+          <p className="text-xs font-medium  text-moss">{copy.caseLabel}</p>
           <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{copy.case}</p>
           <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.caseBoundary}</p>
         </div>
@@ -338,7 +338,7 @@ function SpendingInsightSignal({ data }) {
       <div className="mt-6 grid gap-0 border-y border-forest/15 md:grid-cols-3">
         {copy.lenses.map((lens, index) => (
           <div key={lens.title} className={`py-4 ${index === 0 ? "border-b md:border-r md:border-b-0 md:pr-5" : index === 1 ? "border-b bg-forest/[0.045] md:border-x md:border-b-0 md:px-5" : "md:pl-5"} border-forest/15`}>
-            <p className="text-xs font-semibold tracking-[0.08em] text-moss">0{index + 1}</p>
+            <p className="text-xs font-semibold  text-moss">0{index + 1}</p>
             <p className="mt-2 text-sm font-semibold text-forest">{lens.title}</p>
             <p className="mt-1 text-xs leading-relaxed text-ink/70">{lens.body}</p>
           </div>
@@ -346,7 +346,7 @@ function SpendingInsightSignal({ data }) {
       </div>
 
       <div className="mt-6 border-l-2 border-amber bg-amber/[0.06] px-4 py-3">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.questionLabel}</p>
+        <p className="text-xs font-medium  text-moss">{copy.questionLabel}</p>
         <p className="mt-1 text-sm font-semibold leading-relaxed text-forest">{copy.question}</p>
       </div>
     </section>
@@ -369,7 +369,7 @@ function SpendingInsightDetails({ data, tone = "light" }) {
         <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.question}</dd>
       </div>
       <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
-        <dt className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
+        <dt className={`text-xs font-medium  ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
         <dd className={`mt-1 font-semibold leading-relaxed ${heading}`}>{copy.lesson}</dd>
       </div>
       <div className={`border-t pt-3 ${border}`}>
@@ -404,7 +404,7 @@ function SpendingInsightDetails({ data, tone = "light" }) {
         </dd>
       </div>
       <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
-        <dt className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
+        <dt className={`text-xs font-medium  ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
         <dd className={`mt-1 leading-relaxed ${body}`}>{copy.boundary}</dd>
         <ul className={`mt-2 grid gap-1 text-xs sm:grid-cols-2 ${body}`}>
           {copy.notTested.map((item) => <li key={item}>— {item}</li>)}
@@ -634,15 +634,15 @@ function FeaturedSystem({ work }) {
   }, []);
 
   return (
-    <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-card border border-forest/25 bg-pine text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
+    <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-card border border-forest/25 bg-pine text-bone">
       <div className="grid lg:grid-cols-[0.88fr_1.12fr]">
         <div className="flex flex-col px-6 py-8 md:px-10 md:py-11 lg:px-9 lg:py-9">
-          <div data-featured-copy className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.08em] text-gold">
+          <div data-featured-copy className="flex flex-wrap items-center gap-2 text-xs font-medium  text-gold">
             <span>{copy.tag}</span>
             {work.verified && work.link && <LiveChip t={t} tone="dark" />}
             <MaturityChip label={stageLabel(work, lang)} tone="dark" />
           </div>
-          <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] text-bone md:text-4xl">{copy.title}</h3>
+          <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-medium leading-[1.08] tracking-[-0.03em] text-bone md:text-4xl">{copy.title}</h3>
           <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-bone/70">{copy.desc}</p>
           {copy.caseSummary && (
             <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
@@ -665,7 +665,7 @@ function FeaturedSystem({ work }) {
           {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/70">{work.demoNote[lang]}</p>}
         </div>
         <a data-featured-visual href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative flex items-center border-t border-bone/10 bg-[radial-gradient(120%_90%_at_70%_20%,#24503f_0%,#143329_70%)] p-5 md:p-8 lg:border-l lg:border-t-0 lg:p-10">
-          <div className="w-full overflow-hidden rounded-field border border-bone/15 bg-bone shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] ring-1 ring-black/5">
+          <div className="w-full overflow-hidden rounded-field border border-bone/15 bg-bone">
             <div className="flex items-center gap-1.5 border-b border-ink/10 bg-[#edf0e7] px-4 py-2.5" aria-hidden="true">
               <span className="size-2 rounded-full bg-ink/15" />
               <span className="size-2 rounded-full bg-ink/15" />
@@ -690,12 +690,12 @@ export function WorksFlagship() {
     .map((id) => works.find((work) => work.id === id))
     .filter(Boolean);
   return (
-    <section id="works" aria-labelledby="works-flagship-heading" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 md:px-6 md:py-24">
+    <section id="works" aria-labelledby="works-flagship-heading" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 md:px-6 md:py-36">
       <div className="border-b border-line pb-10">
-        <div className="max-w-2xl">
+        <div className="max-w-3xl">
           <p className="eyebrow">{t.works.eyebrow}</p>
-          <h2 id="works-flagship-heading" className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{t.works.headline}</h2>
-          <p className="mt-4 text-base leading-relaxed text-ink/70">{t.works.sub}</p>
+          <h2 id="works-flagship-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{t.works.headline}</h2>
+          <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-ink/70 md:text-lg">{t.works.sub}</p>
         </div>
         <nav aria-labelledby="works-also-explore" className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
           <span id="works-also-explore" className="text-xs font-semibold text-moss">{t.works.alsoExplore}</span>
@@ -750,7 +750,7 @@ export default function Works() {
     const flowBlock = <ProductFlow work={w} />;
     const deliverableBlock = w.deliverable ? (
       <div className="mt-4 border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.works.deliverableLabel}</p>
+        <p className="text-xs font-medium  text-moss">{t.works.deliverableLabel}</p>
         <p className="mt-1 text-sm leading-relaxed text-ink/85">{w.deliverable[lang]}</p>
       </div>
     ) : null;
@@ -780,7 +780,7 @@ export default function Works() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-24px" }}
         transition={{ duration: 0.35, ease: "easeOut", delay: (i % 3) * 0.04 }}
-         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] ${isPrimary ? "border-forest/35 bg-forest/[0.025]" : "border-line"} ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
+         className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border surface-paper transition-colors duration-300 hover:border-forest/50 ${isPrimary ? "border-forest/35 bg-forest/[0.025]" : "border-line"} ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className={`flex flex-1 flex-col ${wide ? "md:grid md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
           {cover ? (
@@ -789,7 +789,7 @@ export default function Works() {
                 src={cover}
                 alt={w.imageAlt[lang]}
                 loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
-                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02] ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(20,51,41,0.55)]" : ""}`}
+                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(20,51,41,0.55)]" : ""}`}
               />
               {balance && (
                 <div className="hidden md:block">
@@ -804,14 +804,14 @@ export default function Works() {
             </div>
           )}
           <div className={`flex flex-1 flex-col border-t border-ink/5 p-7 md:p-8 lg:p-7 ${wide ? "md:justify-center md:border-l md:border-t-0 md:p-10 lg:p-12" : ""}`}>
-            <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.08em] text-moss">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium  text-moss">
               <span>{copy.tag}</span>
-              {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-xs tracking-[0.08em] text-amber">{t.works.primaryEntry}</span>}
+              {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-xs  text-amber">{t.works.primaryEntry}</span>}
               {w.id === "ai-native-market-entry" && <span className="rounded-pill border border-forest/25 bg-forest/[0.06] px-2 py-0.5 text-xs font-semibold normal-case tracking-normal text-forest">{t.works.supportingEvidence}</span>}
               {w.verified && w.link && <LiveChip t={t} />}
               <MaturityChip label={stageLabel(w, lang)} />
             </div>
-            <h3 className={`mt-2.5 flex items-center gap-2 text-xl font-semibold tracking-tight md:text-2xl ${wide ? "lg:text-3xl" : ""}`}>
+            <h3 className={`mt-2.5 flex items-center gap-2 text-xl font-medium tracking-[-0.02em] md:text-2xl ${wide ? "lg:text-3xl" : ""}`}>
               {copy.title}
               {w.link && (
                 <ArrowUpRight
@@ -823,7 +823,7 @@ export default function Works() {
             </h3>
             {w.decisionQuestion && (
               <div className="mt-4 border-l-2 border-amber/75 pl-3">
-                <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.works.decisionQuestionLabel}</p>
+                <p className="text-xs font-medium  text-moss">{t.works.decisionQuestionLabel}</p>
                 <p className="mt-1 text-sm font-semibold leading-snug text-forest md:text-base">{w.decisionQuestion[lang]}</p>
               </div>
             )}
@@ -852,7 +852,7 @@ export default function Works() {
             ) : <p className="mt-auto pt-4 text-xs font-medium text-ink/70">
               {w.link ? (
                 <span className="inline-flex items-center gap-2 text-forest">
-                  {w.linkType === "demo" && <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-xs font-medium uppercase tracking-[0.08em] text-forest">{t.works.demoLabel}</span>}
+                  {w.linkType === "demo" && <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-xs font-medium  text-forest">{t.works.demoLabel}</span>}
                   <ArrowUpRight size={13} weight="bold" />
                   {linkLabel}
                 </span>
@@ -879,7 +879,7 @@ export default function Works() {
   const renderSection = (sec, si) => (
     <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
       <div className={`${si === 0 ? "" : "mt-12"} border-t border-line pt-7`}>
-        <h3 className={`font-semibold tracking-[-0.01em] ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/85"}`}>{sec.label}</h3>
+        <h3 className={`font-medium tracking-[-0.02em] ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/85"}`}>{sec.label}</h3>
         {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70">{sec.note}</p>}
         {sec.id === "commercial" && (
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/70">{t.works.independentPrototypes}</p>
@@ -898,7 +898,7 @@ export default function Works() {
         <details className="group/more mt-16 border-t border-line">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-6 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
             <span>
-              <span className="block text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">
+              <span className="block text-lg font-medium tracking-[-0.02em] text-ink md:text-xl">
                 {lang === "zh" ? "更多作品" : "More work"}
                 <span className="ml-3 text-sm font-medium tabular-nums text-amber">{sections.slice(1).reduce((n, sec) => n + sec.works.length, 0)}</span>
               </span>
