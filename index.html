@@ -7,13 +7,11 @@
     <title>Paul's Tradecraft｜海外訂單，先看清三件事再承諾：誰會買、能不能接、賺不賺得到</title>
 
     <!-- Security: static hosting cannot set response headers, so the policy is delivered by meta. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <!-- CJK type: Noto Sans/Serif TC, unicode-range sliced so only used glyphs load -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400..700&family=Noto+Serif+TC:wght@500;600&display=swap" />
+    <!-- CJK type: Noto Sans/Serif TC, self-hosted and unicode-range sliced so only used glyphs load -->
+    <link rel="stylesheet" href="/fonts/noto/noto-tc.css" />
 
     <!-- Canonical -->
     <link rel="canonical" href="https://paulstradecraft.com/" />
