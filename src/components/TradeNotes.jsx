@@ -24,7 +24,7 @@ export default function TradeNotes() {
                 <summary className="flex cursor-pointer list-none items-start gap-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
                   <span className="mt-0.5 font-mono text-xs text-amber">0{index + 1}</span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-medium uppercase tracking-[0.08em] text-moss">{item.tag}</span>
+                    <span className="block text-xs font-medium text-moss">{item.tag}</span>
                     <span className="mt-1.5 block text-base font-semibold leading-snug text-forest md:text-lg">{item.title}</span>
                   </span>
                   <span aria-hidden="true" className="shrink-0 text-xl leading-none text-amber transition-transform motion-reduce:transition-none group-open:rotate-45">+</span>

@@ -21,7 +21,7 @@ export default function StartHere() {
               href={item.href}
               className="group border-b border-line px-0 py-6 last:border-b-0 md:border-b-0 md:px-6 md:first:pl-0 md:last:pr-0"
             >
-              <p className="text-xs font-semibold tabular-nums tracking-[0.08em] text-amber">0{index + 1}</p>
+              <p className="text-xs font-semibold tabular-nums text-amber">0{index + 1}</p>
               <h3 className="mt-3 text-lg font-semibold leading-snug tracking-tight text-forest group-hover:text-amber">{item.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-ink/70">{item.outcome}</p>
               <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors group-hover:text-amber">

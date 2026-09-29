@@ -17,7 +17,7 @@ export default function Verification() {
   return (
     <section id="verification" className="scroll-mt-24 border-b border-line bg-bone">
       <div className="mx-auto max-w-7xl px-4 py-24 md:px-6 md:py-28">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{v.eyebrow}</p>
+        <p className="text-xs font-medium text-moss">{v.eyebrow}</p>
         <h2 className="mt-3 max-w-2xl text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{v.headline}</h2>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/70">{v.intro}</p>
 

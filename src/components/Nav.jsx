@@ -29,7 +29,7 @@ export default function Nav() {
       <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
         <a href="#top" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
           <span className="text-lg font-semibold tracking-[-0.02em] text-forest">{t.brand}</span>
-          <span className="hidden border-l border-line pl-2 text-xs font-medium uppercase tracking-[0.08em] text-ink/70 sm:inline">{t.brandNote}</span>
+          <span className="hidden border-l border-line pl-2 text-xs font-medium text-ink/70 sm:inline">{t.brandNote}</span>
         </a>
 
         <div className="hidden items-center gap-8 text-sm font-medium text-ink/70 lg:flex">

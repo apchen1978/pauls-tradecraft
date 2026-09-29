@@ -67,7 +67,7 @@ export default function Hero() {
                 className={`flex items-baseline justify-between gap-4 py-2.5 sm:block sm:px-4 sm:py-4 ${index === 0 ? "sm:pl-0" : ""}`}
               >
                 <span className="text-lg font-semibold tracking-[-0.02em] text-gold sm:text-xl">{credential.value}</span>
-                <span className="text-right text-xs font-medium uppercase leading-snug tracking-[0.06em] text-bone/70 sm:mt-1.5 sm:block sm:text-left sm:tracking-[0.08em]">
+                <span className="text-right text-xs font-medium leading-snug text-bone/70 sm:mt-1.5 sm:block sm:text-left">
                   {credential.label}
                 </span>
               </div>
@@ -94,7 +94,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut", delay: 0.12 } }}
           className="group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-bone/25 bg-pine/45"
         >
-          <div className="flex items-center gap-2 border-b border-bone/15 bg-ink/20 px-4 py-3 text-xs font-medium tracking-[0.04em] text-bone/70 md:px-5">
+          <div className="flex items-center gap-2 border-b border-bone/15 bg-ink/20 px-4 py-3 text-xs font-medium text-bone/70 md:px-5">
             <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.hero.snapshotChromeLabel}</span>
           </div>
           <div className="relative overflow-hidden bg-ink/20 p-2.5 md:p-3">

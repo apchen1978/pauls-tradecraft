@@ -18,7 +18,7 @@ export default function AiWorkValue() {
           <p className="mt-5 text-base leading-relaxed text-ink/70 md:text-lg">{content.intro}</p>
 
           <div className="mt-9 border-l-2 border-amber/60 pl-4">
-            <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{content.outcomeLabel}</p>
+            <p className="text-xs font-medium text-moss">{content.outcomeLabel}</p>
             <p className="mt-2 text-sm font-semibold leading-relaxed text-forest md:text-base">{content.outcome}</p>
           </div>
 
@@ -34,11 +34,11 @@ export default function AiWorkValue() {
               <span className="text-sm font-semibold tabular-nums text-amber">{String(index + 1).padStart(2, "0")}</span>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight text-ink md:text-xl">{stage.title}</h3>
-                <p className="mt-3 text-xs font-medium uppercase tracking-[0.08em] text-moss">{content.aiLabel}</p>
+                <p className="mt-3 text-xs font-medium text-moss">{content.aiLabel}</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-ink/70">{stage.ai}</p>
               </div>
               <div className="border-l border-forest/15 pl-4 md:pl-6">
-                <p className="text-xs font-medium uppercase tracking-[0.08em] text-forest/75">{content.humanLabel}</p>
+                <p className="text-xs font-medium text-forest/75">{content.humanLabel}</p>
                 <p className="mt-1.5 text-sm font-medium leading-relaxed text-forest">{stage.human}</p>
               </div>
             </li>

@@ -77,7 +77,7 @@ export default function CommercialFrontDoor() {
         <div className="mt-9 grid gap-4 md:grid-cols-2">
           {steps.map((step) => (
             <a key={step.href} href={step.href} className="group flex min-h-56 flex-col rounded-card border border-line surface-paper p-6 transition-colors hover:border-forest/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:p-8">
-              <p className="text-xs font-semibold tracking-[0.08em] text-amber">{step.label}</p>
+              <p className="text-xs font-semibold text-amber">{step.label}</p>
               <h3 className="mt-6 max-w-[26ch] text-xl font-semibold leading-snug tracking-tight text-forest md:text-2xl">{step.title}</h3>
               <p className="mt-3 max-w-[50ch] text-sm leading-relaxed text-ink/70">{step.body}</p>
               <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 group-hover:text-amber">{step.link}<ArrowUpRight size={16} weight="bold" aria-hidden="true" /></span>
@@ -89,7 +89,7 @@ export default function CommercialFrontDoor() {
         </a>
         <div className="mt-6 border-t border-line pt-6 md:flex md:items-start md:justify-between md:gap-8">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold tracking-[0.08em] text-amber">{c.proof}</p>
+            <p className="text-xs font-semibold text-amber">{c.proof}</p>
             <h3 className="mt-2 text-lg font-semibold text-ink">{c.proofTitle}</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink/70">{c.proofBody}</p>
           </div>

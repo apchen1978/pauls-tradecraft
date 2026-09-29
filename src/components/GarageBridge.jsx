@@ -32,7 +32,7 @@ export default function GarageBridge() {
               rel="noopener noreferrer"
               className="group flex flex-col rounded-card border border-line surface-paper p-5 transition-colors hover:border-amber/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
             >
-              <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{item.tag}</p>
+              <p className="text-xs font-medium text-moss">{item.tag}</p>
               <h3 className="mt-2 text-lg font-semibold tracking-tight text-ink transition-colors group-hover:text-forest">{item.title}</h3>
               <p className="mt-2 text-sm font-medium leading-snug text-forest">{item.spark}</p>
               <p className="mt-3 text-xs leading-snug text-moss">{item.boundary}</p>
