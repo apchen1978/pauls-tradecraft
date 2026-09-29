@@ -3,7 +3,7 @@ import { useLang } from "../i18n.jsx";
 // Live Proof wall — 每一件作品如何驗證（L2）
 // 資料與 works.js 的 verified 標記對齊；一行摘要為刻意精簡版。
 const proofRows = [
-  { key: "cdd", tests: "50/50 + 42/42 + 19/19 + 21/21 + 28/28", method: "deterministic, rerunnable" },
+  { key: "cdd", tests: "65/65 + 42/42 + 19/19 + 21/21 + 28/28", method: "deterministic, rerunnable" },
   { key: "lead", tests: "44 → 20 shortlist", method: "anonymized, source-tiered" },
   { key: "trade", tests: "13/13 + 5/5", method: "deterministic, rerunnable" },
   { key: "payment", tests: "51/51", method: "canonical fixture, per-currency" },
