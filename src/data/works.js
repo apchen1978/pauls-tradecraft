@@ -1326,7 +1326,7 @@ export const works = [
       label: { zh: "閱讀 CDD 案例頁", en: "Read the CDD case page" },
     },
     link: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
-    linkLabel: { zh: "先看合成案例", en: "See the synthetic case" },
+    linkLabel: { zh: "先看示範案例", en: "See the demo case" },
     linkType: "demo",
     decisionQuestion: {
       zh: "這筆交易現在能不能承諾，還缺哪個關鍵答案？",
@@ -1339,16 +1339,16 @@ export const works = [
         label: "決策工作流",
         stages: [
           { label: "01 帶入", value: "RFQ、報價、付款與交付條件" },
-          { label: "02 看清", value: "控制因素、UNKNOWN 與承諾邊界" },
-          { label: "03 帶走", value: "Deal Brief、下一步與人的決定" },
+          { label: "02 看清", value: "控制因素、尚未確認事項與承諾邊界" },
+          { label: "03 帶走", value: "會議用重點單、下一步與人的決定" },
         ],
       },
       en: {
         label: "Decision flow",
         stages: [
           { label: "01 Bring in", value: "RFQ, quote, payment, and delivery context" },
-          { label: "02 Review", value: "Controls, UNKNOWNs, and commitment boundaries" },
-          { label: "03 Take forward", value: "Deal Brief, next actions, and human decision" },
+          { label: "02 Review", value: "Controls, open questions, and commitment boundaries" },
+          { label: "03 Take forward", value: "A one-page brief, next actions, and the human decision" },
         ],
       },
     },
@@ -1356,16 +1356,16 @@ export const works = [
       title: "商務決策工作台",
       desc: "在承諾之前，把這筆交易的淨貢獻、卡點與未知放到同一張桌——讓承諾建立在算得清的事實上。",
       tag: "商業決策 · 決策支援",
-      caseSummary: "不是替人拍板，而是讓承諾前真正需要確認的事實浮現：付款、交易責任、矛盾、UNKNOWN 與下一步。工作台只建議，人做最終決定。",
+      caseSummary: "不是替人拍板，而是讓承諾前真正需要確認的事實浮現：付款、交易責任、互相矛盾的資訊、尚未確認的事項與下一步。工作台只建議，人做最終決定。",
     },
     en: {
       title: "Commercial Decision Desk",
       desc: "Before committing, put a deal's net contribution, blockers, and unknowns on one table — so commitment rests on what can actually be verified.",
       tag: "Commercial decision · Decision support",
-      caseSummary: "It does not decide for people. It makes the facts that matter before commitment visible: payment, trade responsibility, contradictions, UNKNOWNs, and the next step. The desk recommends; the human decides.",
+      caseSummary: "It does not decide for people. It makes the facts that matter before commitment visible: payment, trade responsibility, contradictory information, open questions, and the next step. The desk recommends; the human decides.",
     },
     case: {
-      stage: { zh: "引擎：技術驗證 · 案例：合成", en: "engine: technically validated · case: synthetic" },
+      stage: { zh: "引擎已驗證 · 案例為虛構資料", en: "engine verified · case is fictional" },
       stageTag: "Decision support · Human-in-the-loop",
       problem: {
         zh: "商機判斷分散在證據、交易條件、付款風險與人為經驗中，難以一次看全，也難以追溯「為什麼這樣決定」。",

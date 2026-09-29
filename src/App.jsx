@@ -4,8 +4,8 @@ import { LangProvider, useLang } from "./i18n.jsx";
 import { scrollToElement, useCalmScroll } from "./calmScroll.js";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
-import CommercialFrontDoor from "./components/CommercialFrontDoor.jsx";
-import HeroOutcomes from "./components/HeroOutcomes.jsx";
+import ThreeQuestions from "./components/ThreeQuestions.jsx";
+import OneDeal from "./components/OneDeal.jsx";
 import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
 import DealReadiness from "./components/DealReadiness.jsx";
@@ -74,8 +74,8 @@ export default function App() {
           <Nav />
           <main id="main">
             <Hero />
-            <CommercialFrontDoor />
-            <HeroOutcomes />
+            <ThreeQuestions />
+            <OneDeal />
             <WorksFlagship />
             <HumanAiEditorial />
             <Works />
