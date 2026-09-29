@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 const routes = {
   roadmap: "/prototype/ai-native-overseas-customer-roadmap/",
@@ -94,7 +95,7 @@ export default function CommercialFrontDoor() {
           </div>
           <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 md:mt-1 md:max-w-sm">
             {[routes.discovery, routes.rfq, routes.decision].map((href, index) => (
-              <a key={href} href={href} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">{c.proofLinks[index]}<ArrowUpRight size={14} weight="bold" aria-hidden="true" /></a>
+              <a key={href} href={withDemoLang(href, lang)} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">{c.proofLinks[index]}<ArrowUpRight size={14} weight="bold" aria-hidden="true" /></a>
             ))}
           </div>
         </div>

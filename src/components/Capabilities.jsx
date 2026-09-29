@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { FlowArrow, Rocket, GlobeHemisphereWest, Network, ArrowUpRight, CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 const icons = [FlowArrow, Rocket, GlobeHemisphereWest, Network];
 const workflowLinks = {
@@ -76,8 +77,8 @@ export default function Capabilities() {
             <p className="mt-3 text-sm leading-relaxed text-ink/70 md:text-base">{t.capabilities.delivery.intro}</p>
           </div>
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-forest">
-            <a href={workflowLinks.source} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.sourceCta} ↗</a>
-            <a href={workflowLinks.cdd} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.cddCta} ↗</a>
+            <a href={withDemoLang(workflowLinks.source, lang)} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.sourceCta} ↗</a>
+            <a href={withDemoLang(workflowLinks.cdd, lang)} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.cddCta} ↗</a>
             <a href={workflowLinks.payment} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.paymentCta} ↗</a>
           </div>
           <div className="mt-8 grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-12">

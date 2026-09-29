@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
+import { withDemoLang } from "../demoLinks.js";
 import GlobalBusinessDevelopment from "./GlobalBusinessDevelopment.jsx";
 
 const iconMap = {
@@ -647,12 +648,12 @@ function FeaturedSystem({ work }) {
             <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
           )}
           <ProductFlow work={work} tone="dark" />
-          <a data-featured-copy href={work.link} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:bg-[#f2be61]">
+          <a data-featured-copy href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:bg-[#f2be61]">
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
           </a>
           {work.secondaryLink && secondaryLabel && (
-            <a data-featured-copy href={work.secondaryLink} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex w-fit items-center gap-2 rounded-field border border-bone/25 px-4 py-2 text-sm font-semibold text-bone/85 transition-colors hover:border-gold/60 hover:text-gold">
+            <a data-featured-copy href={withDemoLang(work.secondaryLink, lang)} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex w-fit items-center gap-2 rounded-field border border-bone/25 px-4 py-2 text-sm font-semibold text-bone/85 transition-colors hover:border-gold/60 hover:text-gold">
               {secondaryLabel}
             </a>
           )}
@@ -663,7 +664,7 @@ function FeaturedSystem({ work }) {
           )}
           {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/70">{work.demoNote[lang]}</p>}
         </div>
-        <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative flex items-center border-t border-bone/10 bg-[radial-gradient(120%_90%_at_70%_20%,#24503f_0%,#143329_70%)] p-5 md:p-8 lg:border-l lg:border-t-0 lg:p-10">
+        <a data-featured-visual href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative flex items-center border-t border-bone/10 bg-[radial-gradient(120%_90%_at_70%_20%,#24503f_0%,#143329_70%)] p-5 md:p-8 lg:border-l lg:border-t-0 lg:p-10">
           <div className="w-full overflow-hidden rounded-field border border-bone/15 bg-bone shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] ring-1 ring-black/5">
             <div className="flex items-center gap-1.5 border-b border-ink/10 bg-[#edf0e7] px-4 py-2.5" aria-hidden="true">
               <span className="size-2 rounded-full bg-ink/15" />
@@ -675,7 +676,7 @@ function FeaturedSystem({ work }) {
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
       </div>
-      {work.case && <CaseStudy c={work.case} related={work.related} link={work.link} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} casePage={work.casePage} tone="dark" />}
+      {work.case && <CaseStudy c={work.case} related={work.related} link={withDemoLang(work.link, lang)} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} casePage={work.casePage} tone="dark" />}
     </article>
   );
 }
@@ -756,7 +757,7 @@ export default function Works() {
     const Wrapper = w.link ? "a" : "div";
     const wrapperProps = w.link
       ? {
-          href: w.link,
+          href: withDemoLang(w.link, lang),
           target: "_blank",
           rel: "noopener noreferrer",
           "aria-label": copy.title,
@@ -865,12 +866,12 @@ export default function Works() {
           </div>
         </Wrapper>
    {w.secondaryLink && secondaryLabel && (
-     <a href={w.secondaryLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-2 border-t border-line px-6 py-3 text-xs font-semibold text-forest transition-colors hover:text-amber">
+     <a href={withDemoLang(w.secondaryLink, lang)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-2 border-t border-line px-6 py-3 text-xs font-semibold text-forest transition-colors hover:text-amber">
        {secondaryLabel}
        <ArrowUpRight size={13} weight="bold" />
      </a>
    )}
-   {w.case && <CaseStudy c={w.case} related={w.related} link={w.link} linkLabel={w.linkLabel} workingEvidence={w.workingEvidence} casePage={w.casePage} />}
+   {w.case && <CaseStudy c={w.case} related={w.related} link={withDemoLang(w.link, lang)} linkLabel={w.linkLabel} workingEvidence={w.workingEvidence} casePage={w.casePage} />}
       </motion.article>
     );
   };

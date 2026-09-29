@@ -1,11 +1,12 @@
 import { ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 // One deal, walked through the three questions. The figures are the ones the live
 // demos produce for their default fictional case (verified 2026-09-29); steps 2
 // and 3 share the same case, step 1 uses separate representative examples.
 const LINKS = {
-  lead: { zh: "https://apchen1978.github.io/overseas-lead-discovery-demo/", en: "https://apchen1978.github.io/overseas-lead-discovery-demo/?lang=en" },
+  lead: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
   decision: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
   margin: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001",
 };
@@ -72,7 +73,7 @@ const copy = {
 export default function OneDeal() {
   const { lang } = useLang();
   const c = copy[lang];
-  const href = (key) => (key === "lead" ? LINKS.lead[lang] : LINKS[key]);
+  const href = (key) => withDemoLang(LINKS[key], lang);
   return (
     <section id="one-deal" aria-labelledby="one-deal-heading" className="scroll-mt-24 border-b border-line bg-bone">
       <div className="mx-auto max-w-7xl px-4 pb-20 md:px-6 md:pb-28">

@@ -1,13 +1,14 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 // The three flagship works, framed as the three questions an exporter asks
 // before committing. Each card: the question in the client's words, what they
 // take away, and a two-minute try. Demos use fictional data; the card says so once.
 const LINKS = {
-  lead: { zh: "https://apchen1978.github.io/overseas-lead-discovery-demo/", en: "https://apchen1978.github.io/overseas-lead-discovery-demo/?lang=en" },
-  decision: { zh: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample", en: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample" },
-  margin: { zh: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001", en: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001" },
+  lead: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
+  decision: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
+  margin: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001",
 };
 
 const copy = {
@@ -109,7 +110,7 @@ export default function ThreeQuestions() {
                 </div>
                 <div className="mt-auto pt-7">
                   <a
-                    href={LINKS[card.key][lang]}
+                    href={withDemoLang(LINKS[card.key], lang)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex min-h-[3.5rem] w-full items-center justify-between gap-3 rounded-field bg-forest px-4 py-3 text-sm font-semibold text-bone transition-colors hover:bg-moss focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"

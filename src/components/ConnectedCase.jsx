@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 export default function ConnectedCase() {
   const { lang, t } = useLang();
@@ -91,7 +92,7 @@ export default function ConnectedCase() {
               <div className="flex flex-col gap-4 border-t border-bone/15 px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
                 <p className="text-xs font-medium uppercase tracking-[0.08em] text-bone/70">{content.labels.next}</p>
                 <a
-                  href={scenario.href}
+                  href={withDemoLang(scenario.href, lang)}
                   target={scenario.href.startsWith("http") ? "_blank" : undefined}
                   rel={scenario.href.startsWith("http") ? "noopener noreferrer" : undefined}
                   className="inline-flex items-center gap-2 text-sm font-semibold text-gold transition-colors hover:text-bone"
