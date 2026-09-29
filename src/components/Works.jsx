@@ -1,5 +1,4 @@
 import { useLayoutEffect, useRef } from "react";
-import { motion } from "motion/react";
 import { gsap } from "gsap";
 import {
   ArrowUpRight,
@@ -764,7 +763,7 @@ export default function Works() {
         }
       : {};
     return (
-      <motion.article
+      <article
         key={w.id}
         id={w.id}
         onClick={
@@ -776,10 +775,6 @@ export default function Works() {
                 if (det) det.open = !det.open;
               }
         }
-        initial={{ opacity: 0, y: 12 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-24px" }}
-        transition={{ duration: 0.35, ease: "easeOut", delay: (i % 3) * 0.04 }}
          className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border surface-paper transition-colors duration-300 hover:border-forest/50 ${isPrimary ? "border-forest/35 bg-forest/[0.025]" : "border-line"} ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
       >
         <Wrapper {...wrapperProps} className={`flex flex-1 flex-col ${wide ? "md:grid md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
@@ -872,7 +867,7 @@ export default function Works() {
      </a>
    )}
    {w.case && <CaseStudy c={w.case} related={w.related} link={withDemoLang(w.link, lang)} linkLabel={w.linkLabel} workingEvidence={w.workingEvidence} casePage={w.casePage} />}
-      </motion.article>
+      </article>
     );
   };
 
