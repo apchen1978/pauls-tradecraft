@@ -27,7 +27,7 @@ export default function Hero() {
     <section id="top" className="relative isolate overflow-hidden bg-pine text-bone shadow-[0_28px_80px_-56px_rgba(20,51,41,0.9)]">
       <div aria-hidden className="absolute inset-0">
         <img
-          src="/images/paul-art.jpg"
+          src="/images/paul-art.webp"
           alt=""
           className="absolute inset-0 h-full w-full object-cover object-[68%_28%] opacity-55 lg:object-[72%_24%] lg:opacity-70"
           fetchPriority="high"

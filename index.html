@@ -10,6 +10,8 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
+    <!-- Hero photo: discovered at parse time instead of after React renders, so it does not queue behind the font slices. -->
+    <link rel="preload" as="image" href="/images/paul-art.webp" type="image/webp" fetchpriority="high" />
     <!-- CJK type: Noto Sans/Serif TC, self-hosted and unicode-range sliced so only used glyphs load -->
     <link rel="stylesheet" href="/fonts/noto/noto-tc.css" />
 

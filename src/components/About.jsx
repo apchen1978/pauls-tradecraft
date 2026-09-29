@@ -56,7 +56,7 @@ export default function About() {
             className="overflow-hidden rounded-card border border-line surface-paper shadow-[0_24px_60px_-24px_rgba(31,77,58,0.35)]"
           >
             <img
-              src="/images/paul-art.jpg"
+              src="/images/paul-art.webp"
               alt="Paul"
               loading="lazy"
                 className="aspect-[4/5] w-full object-cover object-[50%_32%]"
