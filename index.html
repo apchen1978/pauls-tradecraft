@@ -6,8 +6,9 @@
     <meta name="description" content="Paul Chen 用可操作的小工具，幫外銷業務與老闆在投入時間、簽下訂單之前，先看清三件事：誰會買、能不能接、賺不賺得到。AI 協助整理，決定仍由你做。" />
     <title>Paul's Tradecraft｜海外訂單，先看清三件事再承諾：誰會買、能不能接、賺不賺得到</title>
 
-    <!-- Performance: preconnect to same-origin asset hosts -->
-    <link rel="preconnect" href="https://paulstradecraft.com" crossorigin />
+    <!-- Security: static hosting cannot set response headers, so the policy is delivered by meta. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <!-- CJK type: Noto Sans/Serif TC, unicode-range sliced so only used glyphs load -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
