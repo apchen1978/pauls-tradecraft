@@ -583,7 +583,7 @@ const dict = {
       snapshotCta: "See where this order is stuck",
     },
     humanAiEditorial: {
-      eyebrow: "THE LOOP · HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
+      eyebrow: "The loop · Human judgment × AI-native leverage × Evidence discipline",
       statement: "Experience shapes the question.\nAI expands what we can explore and build.\nEvidence decides what deserves to move forward.",
       explanation: "This is not a rigid methodology but a living loop: experience forms the question, AI expands exploration and execution, and evidence changes the next judgment.",
       closing: "Experience forms the question. AI expands capability. Evidence sharpens the next judgment.",

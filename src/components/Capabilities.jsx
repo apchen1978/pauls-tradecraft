@@ -123,7 +123,7 @@ export default function Capabilities() {
               </article>
             ))}
           </div>
-          <p className="mt-4 text-xs font-medium tracking-wide text-moss">{t.capabilities.demandLab.note}</p>
+          <p className="mt-4 text-xs font-medium text-moss">{t.capabilities.demandLab.note}</p>
         </div>
 
         <h3 className="mt-16 text-xl font-medium tracking-[-0.02em] md:text-2xl">{t.capabilities.supportingHeadline}</h3>
@@ -150,7 +150,7 @@ export default function Capabilities() {
                       </span>
                       <h3 className="text-base font-medium tracking-[-0.02em]">{item.title}</h3>
                     </div>
-                    <p className="mt-1 text-xs font-medium tracking-wide text-moss">{item.tags}</p>
+                    <p className="mt-1 text-xs font-medium text-moss">{item.tags}</p>
                     <p className="mt-2 text-sm leading-relaxed text-ink/70">{item.desc}</p>
                   </div>
                 </div>

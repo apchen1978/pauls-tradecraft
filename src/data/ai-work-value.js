@@ -46,11 +46,11 @@ export const aiWorkValue = {
     cta: "看完整商業路徑",
   },
   en: {
-    eyebrow: "HOW AI HELPS",
+    eyebrow: "How AI helps",
     headline: "Let AI handle the detail. Keep commercial judgment with the team.",
     intro: "You do not need a large AI system first, and you do not hand decisions to AI. Let it handle research, structure, and comparison work so the existing team can spend more time with customers, negotiation, and the next real move.",
-    aiLabel: "AI HANDLES FIRST",
-    humanLabel: "PEOPLE DECIDE",
+    aiLabel: "AI handles first",
+    humanLabel: "People decide",
     stages: [
       {
         title: "Find and structure",
@@ -68,7 +68,7 @@ export const aiWorkValue = {
         human: "Decide whether to commit, who acts, and what the next meeting needs to move forward.",
       },
     ],
-    outcomeLabel: "THE TEAM GETS",
+    outcomeLabel: "The team gets",
     outcome: "More usable research and structuring capacity, with people focused on customers, judgment, and commitment.",
     prompt: "What do you need to clarify first?",
     entryPoints: [

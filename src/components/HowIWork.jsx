@@ -38,7 +38,7 @@ export default function HowIWork() {
             </span>
             <h3 className="mt-1.5 text-base font-semibold tracking-tight">{s.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink/70">{s.desc}</p>
-            <p className="mt-3 text-xs font-medium uppercase tracking-wide text-moss">{s.evidence}</p>
+            <p className="mt-3 text-xs font-medium text-moss">{s.evidence}</p>
           </motion.li>
         ))}
       </ol>

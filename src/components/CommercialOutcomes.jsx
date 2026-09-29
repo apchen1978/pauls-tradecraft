@@ -24,11 +24,11 @@ export default function CommercialOutcomes() {
         </div>
 
         <div className="mt-10 max-w-6xl border-y border-forest/20 py-5 md:mt-12 md:py-6">
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{content.pathEyebrow}</p>
+          <p className="text-xs font-medium text-moss">{content.pathEyebrow}</p>
           <ol className="mt-4 grid gap-2 sm:grid-cols-5" aria-label={content.pathEyebrow}>
             {content.pathSteps.map((step, index) => (
               <li key={step} className={`border-t-2 px-3 py-3 text-sm font-semibold leading-snug ${pathTones[index] ?? pathTones[0]}`}>
-                <span className="mr-2 text-xs font-semibold tracking-[0.08em] opacity-75">{String(index + 1).padStart(2, "0")}</span>
+                <span className="mr-2 text-xs font-semibold opacity-75">{String(index + 1).padStart(2, "0")}</span>
                 {step}
               </li>
             ))}
@@ -48,21 +48,21 @@ export default function CommercialOutcomes() {
               transition={reduceMotion ? undefined : { duration: 0.35, ease: "easeOut", delay: index * 0.04 }}
               className={`outcomes-stage group relative grid grid-cols-[40px_minmax(0,1fr)] gap-0 border-b border-forest/15 py-6 last:border-b-0 md:grid-cols-[56px_minmax(0,1fr)] md:py-7 ${index === content.items.length - 1 ? "outcomes-stage-final" : ""}`}
             >
-              <span aria-hidden="true" className={`relative z-10 mt-1 grid size-6 place-items-center rounded-full border bg-bone text-xs font-medium tracking-wide ${index === content.items.length - 1 ? "border-amber bg-amber text-white" : "border-forest/50 text-forest"}`}>
+              <span aria-hidden="true" className={`relative z-10 mt-1 grid size-6 place-items-center rounded-full border bg-bone text-xs font-medium ${index === content.items.length - 1 ? "border-amber bg-amber text-white" : "border-forest/50 text-forest"}`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
               <div className="min-w-0 pr-1 md:pr-4">
                 <div className="border-b border-forest/15 pb-5">
-                  <p className={`text-xs font-medium uppercase tracking-[0.08em] ${index === content.items.length - 1 ? "text-amber" : "text-forest/70"}`}>{item.label}</p>
+                  <p className={`text-xs font-medium ${index === content.items.length - 1 ? "text-amber" : "text-forest/70"}`}>{item.label}</p>
                   <h3 className="mt-2 text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-forest md:text-2xl">{item.question}</h3>
                 </div>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{content.systemLabel}</p>
+                    <p className="text-xs font-medium text-moss">{content.systemLabel}</p>
                     <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{item.system}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{content.outputLabel}</p>
+                    <p className="text-xs font-medium text-moss">{content.outputLabel}</p>
                     <p className="mt-2 text-sm leading-relaxed text-ink/70">{item.output}</p>
                     <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors group-hover:text-amber">
                       {item.linkLabel}

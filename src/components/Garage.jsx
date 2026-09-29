@@ -17,9 +17,9 @@ export default function Garage() {
         {g.items.map((item) => (
           <article key={item.title} className="flex flex-col rounded-card border border-line surface-paper p-7">
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{item.tag}</p>
+              <p className="text-xs font-medium text-moss">{item.tag}</p>
               {item.featured ? (
-                <p className="text-xs font-semibold tracking-[0.08em] text-moss">{g.featuredMark}</p>
+                <p className="text-xs font-semibold text-moss">{g.featuredMark}</p>
               ) : null}
             </div>
             <h3 className="mt-3 text-xl font-semibold tracking-tight text-ink">{item.title}</h3>

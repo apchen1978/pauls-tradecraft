@@ -87,7 +87,7 @@ export const tradeNotes = {
     note: "這些筆記協助理解問題、準備下一個問題；不取代合約審閱、銀行確認或個案專業意見。",
   },
   en: {
-    eyebrow: "TRADE NOTES · PAUL'S FIELD NOTES ON TRADE",
+    eyebrow: "Trade notes · Paul's field notes on trade",
     title: "In global trade, a better next question changes the conversation.",
     intro: "You do not need to memorize every trade term. But when finding buyers, agreeing delivery, or arranging payment, it helps to know what to ask. These are observations from my commercial experience, translated into questions you can take into a real discussion.",
     items: [
@@ -98,7 +98,7 @@ export const tradeNotes = {
         question: "Ask next: How might this company buy? What public evidence exists, and what is still missing?",
         answer: {
           label: "See a practical way to check",
-          eyebrow: "PRACTICAL CHECK",
+          eyebrow: "Practical check",
           title: "Confirm the acquisition path before investing more time.",
           steps: ["Identify whether the company is a brand, manufacturer, distributor, or specification platform.", "Look for public evidence that it sources from or distributes products for external suppliers.", "Keep unsupported assumptions as unknown, then verify with the right person or source."],
           caution: "Selling similar products shows market relevance; by itself, it does not show that the company will buy.",
@@ -114,7 +114,7 @@ export const tradeNotes = {
         question: "Ask next: At what named place is delivery made, and where does risk transfer?",
         answer: {
           label: "See a practical way to check",
-          eyebrow: "BEFORE QUOTING",
+          eyebrow: "Before quoting",
           title: "Confirm the delivery point, risk point, and costs separately.",
           steps: ["Name the specific port or place; do not stop at FOB / CIF alone.", "Confirm when delivery is complete and when risk transfers.", "Agree who arranges and pays main carriage, insurance, and destination-related costs."],
           caution: "FOB and CIF are sea and inland-waterway terms. Confirm the named place and contract wording for the actual shipment.",
@@ -129,7 +129,7 @@ export const tradeNotes = {
         question: "Ask next: Which documents are required, who issues them, and can the shipment meet the deadlines?",
         answer: {
           label: "See a practical way to check",
-          eyebrow: "BEFORE SHIPMENT",
+          eyebrow: "Before shipment",
           title: "Match each L/C requirement to the documents your shipment can produce.",
           steps: ["List each required document, its issuer, required details, and presentation deadline.", "Compare the terms with the order, shipping, insurance, and payment workflow; flag anything impractical or inconsistent.", "Ask the advising / handling bank or an L/C professional to review unresolved points before shipment."],
           caution: "Under a documentary credit, banks examine the presented documents, not the goods. This checklist does not replace bank examination or case-specific advice.",
@@ -144,7 +144,7 @@ export const tradeNotes = {
         question: "Ask next: Where and how does the seller actually hand the goods to the carrier?",
         answer: {
           label: "See a practical way to check",
-          eyebrow: "BEFORE BOOKING",
+          eyebrow: "Before booking",
           title: "Start with where the carrier actually receives the goods.",
           steps: ["Confirm whether handover is at the seller's premises, a terminal, or on board the vessel.", "Ask the forwarder to explain the actual receipt and loading sequence, including who arranges each leg.", "Align the contract term with the physical handover and any documents required by the L/C."],
           caution: "Containerized goods may be handed to a carrier before loading. Whether FCA or FOB fits depends on the actual handover and contract.",
@@ -159,7 +159,7 @@ export const tradeNotes = {
         question: "Ask next: Who handles import clearance and duties? Who unloads the goods?",
         answer: {
           label: "See a practical way to check",
-          eyebrow: "BEFORE QUOTING",
+          eyebrow: "Before quoting",
           title: "Confirm who can handle the import work at destination.",
           steps: ["Confirm who clears the goods for import and pays duties and other import charges.", "Check who unloads the goods and whether the buyer can meet the import requirements.", "Write the named place and responsibility split into the quotation or contract, then check the related costs."],
           caution: "DAP and DDP allocate responsibilities differently. Verify destination rules, importer eligibility, and costs for the specific transaction.",
