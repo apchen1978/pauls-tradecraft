@@ -22,6 +22,9 @@ const iconMap = {
 };
 
 const SECTION_ORDER = ["commercial", "operations", "labs"];
+// Flagship works: full-width horizontal cards (cover left, content right) so the
+// three main works read as equals. Everything else keeps the grid.
+const WIDE_IDS = new Set(["global-business-development", "trade-profit-navigator"]);
 
 // Public narrative top-3 (C): CDD is featured separately; flagship wall is GBD + TPN.
 // AI-Native Market Entry stays on this wall as GBD's evidence case so
@@ -438,13 +441,13 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
       };
   return (
     <details className={`group mt-4 border-t px-6 pt-4 pb-6 ${styles.details}`}>
-      <summary className={`flex cursor-pointer list-none items-center gap-2 rounded-pill border px-4 py-2.5 text-sm font-semibold transition-colors [&::-webkit-details-marker]:hidden ${styles.summary}`}>
+      <summary className={`flex cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-1.5 rounded-pill border px-4 py-2.5 text-sm font-semibold transition-colors [&::-webkit-details-marker]:hidden ${styles.summary}`}>
         <span className={`rounded-pill px-2.5 py-0.5 text-xs font-semibold ${styles.stage}`}>
           {f(c.stage)}
            {stageTag ? ` · ${stageTag}` : ""}
         </span>
-        <span className="flex-1">{labels.label}</span>
-        <CaretDown size={14} weight="bold" className="transition-transform group-open:rotate-180" />
+        <span className="flex-1 whitespace-nowrap">{labels.label}</span>
+        <CaretDown size={14} weight="bold" className="shrink-0 transition-transform group-open:rotate-180" />
       </summary>
        <dl className="mt-3 space-y-3 text-sm">
         {c.gallery && (
@@ -731,7 +734,8 @@ export default function Works() {
     const secondaryLabel = typeof w.secondaryLinkLabel === "string" ? w.secondaryLinkLabel : w.secondaryLinkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
     const isPrimary = w.primary === true;
-    const spanClass = ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "trade-deal-desk", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
+    const wide = WIDE_IDS.has(w.id);
+    const spanClass = wide ? "md:col-span-3" : ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "trade-deal-desk", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
     const Wrapper = w.link ? "a" : "div";
@@ -762,14 +766,14 @@ export default function Works() {
         transition={{ duration: 0.35, ease: "easeOut", delay: (i % 3) * 0.04 }}
          className={`group flex scroll-mt-28 flex-col overflow-hidden rounded-card border surface-paper transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-forest/35 hover:shadow-[0_24px_48px_-32px_rgba(20,51,41,0.62)] ${isPrimary ? "border-forest/35 bg-forest/[0.025]" : "border-line"} ${spanClass} ${w.link ? "" : "cursor-pointer"}`}
       >
-        <Wrapper {...wrapperProps} className="flex flex-1 flex-col">
+        <Wrapper {...wrapperProps} className={`flex flex-1 flex-col ${wide ? "md:grid md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
           {cover ? (
-            <div className="overflow-hidden bg-ink/[0.04]">
+            <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:items-center md:justify-center md:bg-paper md:p-8 lg:p-10" : ""}`}>
               <img
                 src={cover}
                 alt={w.imageAlt[lang]}
                 loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
-                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02]`}
+                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02] ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(20,51,41,0.55)]" : ""}`}
               />
             </div>
           ) : !w.marketEntry && (
@@ -777,7 +781,7 @@ export default function Works() {
               {Icon && <Icon size={44} weight="light" className="text-moss" />}
             </div>
           )}
-          <div className="flex flex-1 flex-col border-t border-ink/5 p-7 md:p-8 lg:p-7">
+          <div className={`flex flex-1 flex-col border-t border-ink/5 p-7 md:p-8 lg:p-7 ${wide ? "md:justify-center md:border-l md:border-t-0 md:p-10 lg:p-12" : ""}`}>
             <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.08em] text-moss">
               <span>{copy.tag}</span>
               {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-xs tracking-[0.08em] text-amber">{t.works.primaryEntry}</span>}
@@ -785,7 +789,7 @@ export default function Works() {
               {w.verified && w.link && <LiveChip t={t} />}
               <MaturityChip label={stageLabel(w, lang)} />
             </div>
-            <h3 className="mt-2.5 flex items-center gap-2 text-xl font-semibold tracking-tight md:text-2xl">
+            <h3 className={`mt-2.5 flex items-center gap-2 text-xl font-semibold tracking-tight md:text-2xl ${wide ? "lg:text-3xl" : ""}`}>
               {copy.title}
               {w.link && (
                 <ArrowUpRight
