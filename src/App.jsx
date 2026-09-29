@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
+import { scrollToElement, useCalmScroll } from "./calmScroll.js";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
 import CommercialFrontDoor from "./components/CommercialFrontDoor.jsx";
@@ -45,8 +46,16 @@ function useHashReveal() {
     const onHashChange = () => revealHash(window.location.hash);
     document.addEventListener("click", onClick, true);
     window.addEventListener("hashchange", onHashChange);
+    // A target inside a just-opened panel can move as fonts and images above it
+    // load, so re-align once the page has settled.
     const initial = revealHash(window.location.hash);
-    if (initial) requestAnimationFrame(() => initial.scrollIntoView());
+    if (initial) {
+      const align = () => scrollToElement(initial);
+      requestAnimationFrame(align);
+      if (document.readyState !== "complete") window.addEventListener("load", align, { once: true });
+      document.fonts?.ready.then(align);
+      setTimeout(align, 1200);
+    }
     return () => {
       document.removeEventListener("click", onClick, true);
       window.removeEventListener("hashchange", onHashChange);
@@ -56,6 +65,7 @@ function useHashReveal() {
 
 export default function App() {
   useHashReveal();
+  useCalmScroll();
   return (
     <LangProvider>
       <MotionConfig reducedMotion="user">

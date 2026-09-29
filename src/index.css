@@ -167,15 +167,16 @@
   }
 }
 
-/* Gentle desktop reading rhythm: natural scroll remains free, but a pause near
-   a major section settles on that section instead of skipping past it. */
-@media (min-width: 1024px) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+/* Desktop reading rhythm (damped wheel + settling on sections and work cards)
+   is handled by src/calmScroll.js. CSS snapping is intentionally not used: on
+   long sections it yanked a fast scroll to the next section start. */
+@media (min-width: 1024px) {
   html {
-    scroll-snap-type: y proximity;
-    scroll-padding-top: 76px;
+    scroll-padding-top: 88px;
   }
+}
 
-  main > section {
-    scroll-snap-align: start;
-  }
+/* While Lenis drives the scroll, native smooth scrolling would fight it. */
+html.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
