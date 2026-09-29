@@ -742,7 +742,7 @@ export default function Works() {
     const isPrimary = w.primary === true;
     const wide = w.id in WIDE_CARDS;
     const balance = wide && WIDE_CARDS[w.id].balance;
-    const spanClass = wide ? "md:col-span-3" : ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "trade-deal-desk", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
+    const spanClass = wide ? "md:col-span-3" : ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "trade-deal-desk", "tracker", "mori-soft-furnishing-website", "game", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
     // On wide cards these two blocks sit under the cover (left column) so the two
