@@ -849,12 +849,12 @@ export const works = [
         en: "Multi-source public-web discovery · evidence-source tiering · contradiction checking · domain-expert calibration",
       },
       result: {
-        zh: "44 家候選經證據式資格篩選 → 20 家入選短名單；M3 rubric-v2 迭代後，弱-adjacent 假陽性在短名單中減少；8 家脫敏代表性 records 以互動 demo 公開。",
-        en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after M3 rubric-v2 iteration, weak-adjacent false positives were reduced in the shortlist; 8 anonymized representative records published as an interactive demo.",
+        zh: "44 家候選經證據式資格篩選 → 20 家入選短名單；M3 rubric-v2 迭代後，弱-adjacent 假陽性在短名單中減少；8 家脫敏代表性 records 加上 4 筆合成的被篩除典型（共 12 筆）以互動 demo 公開，並加入國家與市場層、以確定性規則分成「先開發／先查證／暫緩／排除」四層（沒有加權分數）。",
+        en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after M3 rubric-v2 iteration, weak-adjacent false positives were reduced in the shortlist; 8 anonymized representative records plus 4 synthetic screened-out archetypes (12 in all) published as an interactive demo, with a market layer and deterministic tiers (engage first / verify first / hold / exclude; no weights, no score).",
       },
       evidence: {
-        zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records。揭露：REAL OWNER PRECISION@20: PENDING · 脫敏代表性 records · 公開網路證據流程 · 含模擬/領域學習元素 · 未進行 outreach · 商業採用與支付意願未證明 · 沒有證據支持的資訊，不會被標示為已確認事實。",
-        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records in the interactive demo. Disclosure: REAL OWNER PRECISION@20: PENDING · representative/anonymized records · public-web evidence workflow · simulated/domain-learning elements included · no outreach performed · commercial adoption and willingness-to-pay not proven · No unsupported claim is presented as confirmed.",
+        zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records 加 4 筆合成被篩除典型。國家為代表性標示、市場層屬領域學習須逐項查證；被排除的帳戶不提供 CDD 匯出。揭露：REAL OWNER PRECISION@20: PENDING · 脫敏代表性 records · 公開網路證據流程 · 含模擬/領域學習元素 · 未進行 outreach · 商業採用與支付意願未證明 · 沒有證據支持的資訊，不會被標示為已確認事實。",
+        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records plus 4 synthetic screened-out archetypes in the interactive demo. Countries are representative labels and the market layer is domain learning to be verified item by item; excluded accounts are not offered for CDD export. Disclosure: REAL OWNER PRECISION@20: PENDING · representative/anonymized records · public-web evidence workflow · simulated/domain-learning elements included · no outreach performed · commercial adoption and willingness-to-pay not proven · No unsupported claim is presented as confirmed.",
       },
     },
   },
