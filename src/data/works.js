@@ -1273,19 +1273,19 @@ export const works = [
     imageAlt: { zh: "Trade Profit Navigator 商業價值槓桿原型", en: "Trade Profit Navigator value-capture prototype" },
     zh: {
       title: "貿易利潤導航",
-      desc: "把一筆貿易拆成價值鏈與利潤槓桿——在下一個決策之前，先看見值得測試的數字。",
+      desc: "把一筆貿易拆成價值鏈與利潤槓桿——在下一個決策之前，先看見值得測試的數字，並算出扣掉運費、資金成本與關稅後還剩多少，以及哪個假設最先打穿。",
       tag: "價值捕捉 · Economics · Trade",
       caseSummary: "不是問誰賺走最多，而是問下一步在哪裡可以多捕捉價值，以及為此要承擔、證明或改變什麼。",
     },
     en: {
       title: "Trade Profit Navigator",
-      desc: "Break a trade into its value chain and profit levers — see the number worth testing before the next decision.",
+      desc: "Break a trade into its value chain and profit levers — see the number worth testing before the next decision, what is left after freight, funding cost and duty, and which assumption breaks it first.",
       tag: "Value capture · Economics · Trade",
       caseSummary: "Not who captures the most value, but where the next credible lever is and what must be risked, proven, or changed to capture it.",
     },
     case: {
       stage: { zh: "技術原型", en: "Technical Prototype" },
-      stageTag: "9/9 + 6/6 PASS",
+      stageTag: "45/45 + 6/6 + 39/39 PASS",
       problem: {
         zh: "貿易團隊常看見單價或毛利，卻看不見為了取得這個 upside 要增加多少現金暴露、庫存與執行風險。",
         en: "Trade teams may see price or margin, but not the cash exposure, inventory, and execution risk required to capture the upside.",
@@ -1299,12 +1299,12 @@ export const works = [
         en: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Synthetic USD case · Adversarial harness",
       },
       result: {
-        zh: "完成可操作的 Trade Profit Navigator v0.1：可調整數量、採購價、銷售價與 MOQ，並將每個槓桿連到 economics、cash、risk、evidence、UNKNOWN 與 Owner decision。",
-        en: "A working Trade Profit Navigator v0.1: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the owner decision.",
+        zh: "完成可操作的 Trade Profit Navigator：可調整數量、採購價、銷售價與 MOQ，並將每個槓桿連到 economics、cash、risk、evidence、UNKNOWN 與 Owner decision。空白或無效輸入維持 UNKNOWN，不當成零。新增落地成本與敏感度：每一項成本標明來自案例或假設，計入付款時程的資金成本與進口關稅由誰負擔，並找出最弱的一環；在預設假設下，Gulf 案例的售價讓價 3.0% 即達到擁有者最低要求。",
+        en: "A working Trade Profit Navigator: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the owner decision. Blank or invalid inputs stay UNKNOWN, never zero. It adds landed economics and sensitivity: each cost is tagged as coming from the case or as an assumption, the funding cost of the payment timeline and who bears import duty are included, and the weakest link is identified; under the default assumptions, a 3.0% price concession takes the Gulf case to the owner's minimum.",
       },
       evidence: {
-        zh: "Prototype tests 9/9；adversarial baseline 6/6；390px／1440px 無溢位；案例為 synthetic USD dataset；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
-        en: "Prototype tests 9/9; adversarial baseline 6/6; no overflow at 390px/1440px; case uses a synthetic USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
+        zh: "Prototype tests 45/45；landed-cost checks 39/39；adversarial baseline 6/6；390px／1440px 無溢位；案例為 synthetic USD dataset；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
+        en: "Prototype tests 45/45; landed-cost checks 39/39; adversarial baseline 6/6; no overflow at 390px/1440px; case uses a synthetic USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
       },
     },
   },
@@ -1380,12 +1380,12 @@ export const works = [
         en: "Plain HTML/CSS/JS · deterministic decision rules · synthetic fixture · zero backend / zero persistence",
       },
       result: {
-        zh: "以合成商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與 UNKNOWN → Human Decision。8 條硬規則引擎化，50/50 自動檢查通過；Executive Deal Snapshot 將商機、買方、市場、產品、數量、訂單收入、Incoterm、預期淨貢獻、目前建議與控制因素放在一屏，缺值維持 UNKNOWN、淨貢獻未算即顯示「未計算」，不造假。",
-        en: "Synthetic decision-design proof connecting evidence qualification, commercial feasibility, payment exposure, contradictions, UNKNOWNs, and mandatory human approval. Eight hard rules are enforced in the engine; 50/50 automated checks pass. An Executive Deal Snapshot puts the deal, buyer, market, product, quantity, deal value, Incoterm, expected net contribution, current recommendation, and control factors on one screen; missing values stay UNKNOWN and uncomputed net contribution shows \"not calculated\". Nothing is invented.",
+        zh: "以合成商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與 UNKNOWN → Human Decision。8 條硬規則引擎化，65/65 自動檢查通過（含網路政策檢查）；Executive Deal Snapshot 將商機、買方、市場、產品、數量、訂單收入、Incoterm、預期淨貢獻、目前建議與控制因素放在一屏，缺值維持 UNKNOWN、淨貢獻未算即顯示「未計算」，不造假。另有翻轉地圖（哪些確認會讓建議前進或翻轉）、付款保障（信用狀、出口信用保險）與匯率曝險評估；判斷核心不變，它們只登記未知項。",
+        en: "Synthetic decision-design proof connecting evidence qualification, commercial feasibility, payment exposure, contradictions, UNKNOWNs, and mandatory human approval. Eight hard rules are enforced in the engine; 65/65 automated checks pass, including a network-policy check. An Executive Deal Snapshot puts the deal, buyer, market, product, quantity, deal value, Incoterm, expected net contribution, current recommendation, and control factors on one screen; missing values stay UNKNOWN and uncomputed net contribution shows \"not calculated\". Nothing is invented. Also added: a flip map (which confirmations move or flip the recommendation), payment-security assessment (letter of credit, export credit insurance) and currency exposure; the decision core is unchanged and they register UNKNOWNs only.",
       },
       evidence: {
-        zh: "公開 demo：https://apchen1978.github.io/commercial-decision-desk/ 。Executive Deal Snapshot 已上線並通過瀏覽器實測（ZH/EN、1440px／390px、無水平溢位、無 console 錯誤，Sample 與 Blank 流程、匯出、鍵盤操作正常）；引擎 50/50 測試、Scenario 19 PASS／2 BASELINE_FIX_CONFIRMED／0 FAIL。揭露：SYNTHETIC decision-design proof · 人類決策必要 · 無自主商業動作 · 商業採用／ROI 未證明。",
-        en: "Public demo: https://apchen1978.github.io/commercial-decision-desk/ . The Executive Deal Snapshot is live and browser-verified (ZH/EN, 1440px/390px, no horizontal overflow, no console errors; Sample and Blank flows, exports, keyboard operation OK); engine 50/50 tests, scenarios 19 PASS / 2 BASELINE_FIX_CONFIRMED / 0 FAIL. Disclosure: SYNTHETIC decision-design proof · human decision required · no autonomous commercial action · commercial adoption / ROI not proven.",
+        zh: "公開 demo：https://apchen1978.github.io/commercial-decision-desk/ 。Executive Deal Snapshot 已上線並通過瀏覽器實測（ZH/EN、1440px／390px、無水平溢位、無 console 錯誤，Sample 與 Blank 流程、匯出、鍵盤操作正常）；驗證 65/65 測試、Scenario 19 PASS／2 BASELINE_FIX_CONFIRMED／0 FAIL。判斷引擎與各項評估不連網；唯一的網路請求是使用者按下「取得今日參考匯率」時，向公開匯率服務讀取一個匯率（不含案件資料）。揭露：SYNTHETIC decision-design proof · 人類決策必要 · 無自主商業動作 · 商業採用／ROI 未證明。",
+        en: "Public demo: https://apchen1978.github.io/commercial-decision-desk/ . The Executive Deal Snapshot is live and browser-verified (ZH/EN, 1440px/390px, no horizontal overflow, no console errors; Sample and Blank flows, exports, keyboard operation OK); verification 65/65, scenarios 19 PASS / 2 BASELINE_FIX_CONFIRMED / 0 FAIL. The decision engine and every assessment make no network calls; the only request is the optional \"Fetch today's reference rate\" button, which reads one public exchange rate and sends no opportunity data. Disclosure: SYNTHETIC decision-design proof · human decision required · no autonomous commercial action · commercial adoption / ROI not proven.",
       },
     },
   },
