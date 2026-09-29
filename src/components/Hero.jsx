@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
+import { withDemoLang } from "../demoLinks.js";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
@@ -101,7 +102,7 @@ export default function Hero() {
           </div>
           <figcaption className="flex flex-col items-start gap-2 border-t border-bone/15 px-4 py-3 text-xs leading-snug text-bone/70 md:px-5 md:py-3.5 md:text-sm">
             <span className="font-semibold text-bone/85">{t.hero.snapshotCaption}</span>
-            <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-gold transition-colors hover:text-bone">
+            <a href={withDemoLang(cdd.link, lang)} target="_blank" rel="noopener noreferrer" className="font-semibold text-gold transition-colors hover:text-bone">
               {t.hero.snapshotCta} →
             </a>
           </figcaption>

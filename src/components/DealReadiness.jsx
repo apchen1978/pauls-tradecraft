@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowUpRight, FileText, MagnifyingGlass, ShieldCheck } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 const snapshotByLang = {
   zh: "/images/cdd-executive-snapshot-zh-v02.png",
@@ -59,7 +60,7 @@ export default function DealReadiness() {
               <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
             </a>
             <a
-              href="https://apchen1978.github.io/commercial-decision-desk/#mode-blank"
+              href={withDemoLang("https://apchen1978.github.io/commercial-decision-desk/#mode-blank", lang)}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm font-semibold text-forest underline decoration-forest/35 underline-offset-4 transition-colors hover:text-amber"

@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 import { aiWorkValue } from "../data/ai-work-value.js";
 
 export default function AiWorkValue() {
@@ -51,7 +52,7 @@ export default function AiWorkValue() {
             {content.entryPoints.map((entryPoint) => (
               <a
                 key={entryPoint.label}
-                href={entryPoint.href}
+                href={withDemoLang(entryPoint.href, lang)}
                 target="_blank"
                 rel="noreferrer"
                 className="group border-l border-amber/60 pl-4 transition-colors hover:border-forest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
