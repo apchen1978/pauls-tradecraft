@@ -6,9 +6,9 @@
   <rect x="74" y="58" width="1452" height="784" rx="8" fill="#fbf8f1" stroke="#d8d0c1" stroke-width="2"/>
   <path d="M74 164H1526" stroke="#d8d0c1" stroke-width="2"/>
   <circle cx="112" cy="111" r="8" fill="#c8942f"/>
-  <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">SYNTHETIC CASE · COMMERCIAL DECISION DESK</text>
-  <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">OWNER-FACING SUMMARY</text>
-  <text x="116" y="235" fill="#9a4a35" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">30-SECOND EXECUTIVE READING</text>
+  <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">合成案例 · 商務決策工作台</text>
+  <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">給決策者的摘要</text>
+  <text x="116" y="235" fill="#9a4a35" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">30 秒讀完的高階摘要</text>
   <text x="116" y="300" fill="#1d2b24" font-family="Georgia, serif" font-size="45" font-weight="700">這筆交易，現在該怎麼做？</text>
   <rect x="1138" y="218" width="326" height="74" rx="37" fill="#f3e3bf"/>
   <text x="1200" y="265" fill="#9a4a35" font-family="Arial, sans-serif" font-size="26" font-weight="700">需要進一步判斷</text>
