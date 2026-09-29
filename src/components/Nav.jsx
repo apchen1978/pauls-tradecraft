@@ -17,10 +17,10 @@ export default function Nav() {
   }, [open]);
 
   const links = [
+    { href: "#three-questions", label: t.nav.questions },
     { href: "#works", label: t.nav.works },
     { href: "#capabilities", label: t.nav.services },
     { href: "#trade-notes", label: t.nav.notes },
-    { href: "#library", label: t.nav.library },
     { href: "#about", label: t.nav.about },
   ];
 

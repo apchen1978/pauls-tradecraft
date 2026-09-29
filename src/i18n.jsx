@@ -4,15 +4,15 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { works: "作品", notes: "國貿筆記", services: "商業合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { questions: "三個問題", works: "作品", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "15 年", label: "國際業務總監" },
         { value: "NCCU", label: "會計專業基底" },
         { value: "全球", label: "歐美・亞太・中東市場" },
       ],
-      headline: "海外客戶開發，從找到對的市場與買家開始。",
-      sub: "從找公司、找對人，到看懂詢價。AI 可以協助查資料和準備內容；要不要投入、能不能答應交易，仍由人判斷。",
+      headline: "海外訂單，先看清三件事再承諾：誰會買、能不能接、賺不賺得到。",
+      sub: "我用可操作的小工具，幫外銷業務與老闆在投入時間、簽下訂單之前，把判斷做在前面。AI 協助整理資料；要不要做、能不能答應，仍由你決定。",
       youGet: "從一個重要問題開始",
       outcomesHeadline: "你現在最像哪一種情況？",
       outcomesIntro: "不是先挑工具。先從你此刻需要釐清的一個商業問題開始。",
@@ -43,8 +43,8 @@ const dict = {
           href: "#business-spending-insight",
         },
       ],
-      ctaPrimary: "看海外客戶開發路線圖",
-      ctaSecondary: "跟著案例走一遍",
+      ctaPrimary: "先試這三個問題",
+      ctaSecondary: "帶一筆商機來聊",
       imgCaption: "窗簾軟裝 Pilot 追蹤器 · 實際畫面",
       featuredKicker: "Featured business proof",
       featuredHook1: "每張訂單單看都沒問題。",
@@ -57,10 +57,10 @@ const dict = {
       featuredDisclosure: "合成範例 · 僅為供應商付款承諾 — 非公司現金餘額或資金缺口。",
       featuredCta: "試試付款原型",
       cddInvite: "先看完整商業決策路徑。",
-      snapshotChromeLabel: "合成案例 · CDD 輸出",
+      snapshotChromeLabel: "示範案例（虛構資料）· 商務決策工作台",
       snapshotAlt: "商務決策工作台的合成案例輸出：480,000 USD 預估訂單收入、120,000 USD 預期淨貢獻，以及承諾前的關鍵控制因素",
-      snapshotCaption: "合成案例 · 48 萬美元訂單／12 萬美元預期淨貢獻 — 承諾前先看清條件",
-      snapshotCta: "看這筆 48 萬美元訂單為何還不能接",
+      snapshotCaption: "示範案例 · 48 萬美元訂單／12 萬美元預期淨貢獻：先看清條件，再談承諾",
+      snapshotCta: "看這筆訂單卡在哪裡",
     },
     humanAiEditorial: {
       eyebrow: "判斷的循環 · 經驗 × AI × 證據",
@@ -139,8 +139,8 @@ const dict = {
     },
     works: {
       eyebrow: "精選作品",
-      headline: "同一種解題能力，在不同場景運作。",
-      sub: "三個主線問題：誰值得投入海外業務時間？這筆交易能承諾嗎？毛利撐得住嗎？點開對應作品，可看產出、判斷與證據邊界。",
+      headline: "三個作品：怎麼運作，憑什麼可信。",
+      sub: "上面三個問題各對應一個作品。這裡展開它的產出、判斷邏輯與證據邊界。",
       alsoExplore: "也可直接看",
       sections: {
         commercial: "核心商業判斷",
@@ -524,15 +524,15 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { works: "Work", notes: "Trade Notes", services: "Commercial Work", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { questions: "Three questions", works: "Work", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "15 years", label: "International sales leadership" },
         { value: "NCCU", label: "Accounting foundation" },
         { value: "Global", label: "Europe · Americas · APAC · Middle East" },
       ],
-      headline: "Looking for overseas customers? Start with who might actually buy.",
-      sub: "From finding accounts and the right people to understanding an inquiry. AI helps research and prepare; people decide where to invest attention and what the business can commit to.",
+      headline: "Before you commit to an overseas order, get three things straight: who will buy, whether you can take it, and whether the margin holds.",
+      sub: "I build small working tools that help export owners and sales leads make the judgment call before they spend time or sign an order. AI helps organise the evidence; whether to pursue and what to commit to stays with you.",
       youGet: "START WITH ONE IMPORTANT QUESTION",
       outcomesHeadline: "Which situation feels most familiar right now?",
       outcomesIntro: "Do not start with a tool. Start with the commercial question that needs clarity now.",
@@ -563,8 +563,8 @@ const dict = {
           href: "#business-spending-insight",
         },
       ],
-      ctaPrimary: "Explore the overseas customer roadmap",
-      ctaSecondary: "Follow the walkthrough",
+      ctaPrimary: "Try the three questions",
+      ctaSecondary: "Bring a deal to discuss",
       imgCaption: "Curtain soft-furnishing pilot tracker · live view",
       featuredKicker: "Featured business proof",
       featuredHook1: "Each order looks manageable.",
@@ -577,10 +577,10 @@ const dict = {
       featuredDisclosure: "Synthetic example · supplier-payment commitments only — not company cash balance or shortfall.",
       featuredCta: "Try the Payment Prototype",
       cddInvite: "See the full commercial decision path first.",
-      snapshotChromeLabel: "Synthetic case · CDD output",
+      snapshotChromeLabel: "Demo case (fictional data) · Commercial Decision Desk",
       snapshotAlt: "A synthetic Commercial Decision Desk output: a USD 480,000 estimated order, USD 120,000 expected net contribution, and key pre-commitment controls",
-      snapshotCaption: "Synthetic · USD 480k order / USD 120k expected net contribution — inspect terms before commitment",
-      snapshotCta: "See why this USD 480k order is not committable yet",
+      snapshotCaption: "Demo case · USD 480k order / USD 120k expected net contribution: get the terms straight before you commit",
+      snapshotCta: "See where this order is stuck",
     },
     humanAiEditorial: {
       eyebrow: "THE LOOP · HUMAN JUDGMENT × AI-NATIVE LEVERAGE × EVIDENCE DISCIPLINE",
@@ -659,8 +659,8 @@ const dict = {
     },
     works: {
       eyebrow: "Selected Works",
-      headline: "One problem-solving capability, working across different contexts.",
-      sub: "Three core questions: where overseas sales effort belongs, what the business can commit to, and whether the deal economics hold. Open the matching work for its output, judgment, and evidence limits.",
+      headline: "The three works: how they operate and why to trust them.",
+      sub: "Each question above maps to one work. Here is what it produces, how it decides and where its evidence stops.",
       alsoExplore: "Or jump to",
       sections: {
         commercial: "Selected Systems | Core Commercial Judgment",
@@ -1046,12 +1046,12 @@ const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 
 // 語言切換時同步 <html lang> 與 <title>（SEO / a11y）
 const titles = {
-  zh: "Paul's Tradecraft｜重新設計 AI 時代的工作與組織 · 商業判斷與工作系統",
-  en: "Paul's Tradecraft | Designing How Organizations Work with AI",
+  zh: "Paul's Tradecraft｜海外訂單，先看清三件事再承諾：誰會買、能不能接、賺不賺得到",
+  en: "Paul's Tradecraft | Three Things to Get Straight Before You Commit to an Overseas Order",
 };
 const ogDescriptions = {
-  zh: "Paul's Tradecraft 由 Paul Chen 建立：以商業判斷、工作流程設計與 Human × AI 協作，重新設計 AI 時代的工作與組織，把複雜問題整理成可驗證、可交接的下一步。",
-  en: "Paul Chen redesigns how organizations work with AI through business judgment, workflow design, and Human × AI collaboration—turning complex questions into verifiable next steps.",
+  zh: "Paul Chen 用可操作的小工具，幫外銷業務與老闆在投入時間、簽下訂單之前，先看清三件事：誰會買、能不能接、毛利撐不撐得住。AI 協助整理，決定仍由你做。",
+  en: "Paul Chen builds small working tools that help export owners and sales leads see three things before they commit to an order: who will buy, whether they can take it, and whether the margin holds. AI helps organise; the decision stays with you.",
 };
 
 export function LangProvider({ children }) {
