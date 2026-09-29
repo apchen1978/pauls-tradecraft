@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
+import { motion } from "motion/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
 
@@ -96,10 +97,17 @@ export default function ThreeQuestions() {
 
         <ol className="mt-12 grid gap-5 md:grid-cols-3">
           {c.cards.map((card, index) => (
-            <li key={card.key} className="flex">
-              <article className="flex w-full flex-col rounded-card border border-line surface-paper p-6 md:p-7">
+            <motion.li
+              key={card.key}
+              className="flex"
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.4, ease: "easeOut", delay: index * 0.07 }}
+            >
+              <article className="flex w-full flex-col rounded-card border border-line surface-paper p-6 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-amber/40 hover:shadow-[0_24px_50px_-30px_rgba(154,90,24,0.55)] md:p-7">
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-4xl font-semibold leading-none tracking-[-0.03em] text-amber" aria-hidden="true">{index + 1}</span>
+                  <span className="font-serif text-4xl font-medium leading-none tracking-[-0.03em] text-amber" aria-hidden="true">{index + 1}</span>
                   <span className="text-xs font-medium text-moss">{card.stage}</span>
                 </div>
                 <h3 className="mt-6 text-xl font-semibold leading-snug tracking-[-0.01em] text-ink md:text-2xl">{card.question}</h3>
@@ -121,7 +129,7 @@ export default function ThreeQuestions() {
                   <p className="mt-2 text-xs text-ink/70">{c.demoNote}</p>
                 </div>
               </article>
-            </li>
+            </motion.li>
           ))}
         </ol>
         <p className="mt-8 max-w-[70ch] text-sm leading-relaxed text-ink/70">{c.note}</p>

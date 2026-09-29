@@ -108,7 +108,8 @@
     width: 1.5rem;
     height: 1px;
     flex-shrink: 0;
-    background: var(--color-amber);
+    background: currentColor;
+    opacity: 0.7;
   }
   .surface-paper {
     background-color: var(--color-card);

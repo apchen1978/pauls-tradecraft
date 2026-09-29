@@ -8,6 +8,33 @@
   --flow-dropped: #9ea99b;
 }
 
+/* Surfaced beside the hero: the parent card supplies the frame. */
+.decision-flow--lead {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.decision-flow--lead .decision-flow__note {
+  white-space: normal;
+  max-width: 18rem;
+}
+
+@media (min-width: 1051px) {
+  .decision-flow--lead .decision-flow__heading {
+    align-items: flex-start;
+  }
+
+  .decision-flow--lead .decision-flow__note-row {
+    padding-top: 0.15rem;
+  }
+
+  .decision-flow--lead .decision-flow__note {
+    max-width: 16rem;
+    text-align: right;
+  }
+}
+
 .decision-flow__heading {
   display: flex;
   align-items: end;

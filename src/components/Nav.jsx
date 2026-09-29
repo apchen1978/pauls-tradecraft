@@ -34,7 +34,7 @@ export default function Nav() {
 
         <div className="hidden items-center gap-8 text-sm font-medium text-ink/70 lg:flex">
           {links.map((l) => (
-            <a key={l.href} href={l.href} className="transition-colors hover:text-forest">
+            <a key={l.href} href={l.href} className="underline decoration-transparent decoration-2 underline-offset-8 transition-colors hover:text-forest hover:decoration-gold">
               {l.label}
             </a>
           ))}

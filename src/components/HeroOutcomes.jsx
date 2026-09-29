@@ -1,6 +1,5 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
-import DecisionWorkflowAnimation from "./DecisionWorkflowAnimation.jsx";
 
 export default function HeroOutcomes() {
   const { t } = useLang();
@@ -34,7 +33,6 @@ export default function HeroOutcomes() {
             </a>
           ))}
         </div>
-        <DecisionWorkflowAnimation />
       </div>
     </section>
   );
