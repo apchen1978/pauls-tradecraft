@@ -16,39 +16,39 @@ export default function Capabilities() {
   const engagement = t.capabilities.engagement;
   return (
     <section id="capabilities" className="scroll-mt-24 border-b border-line bg-bone">
-      <div className="mx-auto max-w-7xl px-4 py-24 md:px-6 md:py-32">
+      <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-36">
         <div className="max-w-2xl">
           <p className="eyebrow">{t.capabilities.eyebrow}</p>
-          <h2 className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{t.capabilities.headline}</h2>
+          <h2 className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{t.capabilities.headline}</h2>
           <p className="mt-4 text-base leading-relaxed text-ink/70">{t.capabilities.tagline}</p>
         </div>
 
-        <div className="mt-12 rounded-card border border-gold/25 bg-pine px-6 py-8 text-bone shadow-[0_24px_64px_-38px_rgba(20,51,41,0.78)] md:px-8 md:py-10">
-          <p className="text-xs font-semibold tracking-[0.08em] text-gold">{engagement.eyebrow}</p>
+        <div className="mt-12 rounded-card border border-gold/25 bg-pine px-6 py-8 text-bone md:px-8 md:py-10">
+          <p className="text-xs font-semibold text-gold">{engagement.eyebrow}</p>
           <h3 className="mt-3 max-w-3xl text-2xl font-semibold leading-tight tracking-tight md:text-3xl">{engagement.title}</h3>
           <p className="mt-4 max-w-3xl text-base leading-relaxed text-bone/85">{engagement.summary}</p>
 
           <div className="mt-8 grid gap-6 border-y border-bone/20 py-1 md:grid-cols-3 md:divide-x md:divide-bone/20">
             {engagement.offers.map((offer, index) => (
               <article key={offer.title} className="py-6 md:px-6 md:first:pl-0 md:last:pr-0">
-                <p className="text-xs font-semibold tracking-[0.08em] text-gold">{String(index + 1).padStart(2, "0")}</p>
-                <h4 className="mt-2 text-lg font-semibold tracking-tight text-bone">{offer.title}</h4>
+                <p className="text-xs font-semibold text-gold">{String(index + 1).padStart(2, "0")}</p>
+                <h4 className="mt-2 text-lg font-medium tracking-[-0.02em] text-bone">{offer.title}</h4>
                 <p className="mt-3 text-sm font-semibold leading-relaxed text-bone/85">{offer.question}</p>
                 <dl className="mt-5 grid gap-4 text-sm leading-relaxed">
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-[0.08em] text-gold">{engagement.bringLabel}</dt>
+                    <dt className="text-xs font-medium text-gold">{engagement.bringLabel}</dt>
                     <dd className="mt-1 text-bone/70">{offer.bring}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-[0.08em] text-gold">{engagement.workLabel}</dt>
+                    <dt className="text-xs font-medium text-gold">{engagement.workLabel}</dt>
                     <dd className="mt-1 text-bone/70">{offer.work}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-[0.08em] text-gold">{engagement.takeawayLabel}</dt>
+                    <dt className="text-xs font-medium text-gold">{engagement.takeawayLabel}</dt>
                     <dd className="mt-1 font-semibold text-bone/95">{offer.takeaway}</dd>
                   </div>
                 </dl>
-                <p className="mt-4 text-xs font-medium uppercase tracking-[0.08em] text-bone/70">{offer.proof}</p>
+                <p className="mt-4 text-xs font-medium text-bone/70">{offer.proof}</p>
               </article>
             ))}
           </div>
@@ -72,8 +72,8 @@ export default function Capabilities() {
 
         <div className="mt-16 border-t border-line pt-8 md:mt-20 md:pt-10">
           <div className="max-w-3xl">
-            <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.capabilities.delivery.eyebrow}</p>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">{t.capabilities.delivery.title}</h3>
+            <p className="text-xs font-medium text-moss">{t.capabilities.delivery.eyebrow}</p>
+            <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">{t.capabilities.delivery.title}</h3>
             <p className="mt-3 text-sm leading-relaxed text-ink/70 md:text-base">{t.capabilities.delivery.intro}</p>
           </div>
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-forest">
@@ -87,7 +87,7 @@ export default function Capabilities() {
               <div className="mt-5 grid gap-6">
                 {t.capabilities.delivery.steps.slice(0, 2).map((step) => (
                   <article key={step.title} className="border-t border-forest/15 pt-4">
-                    <h5 className="text-base font-semibold tracking-tight">{step.title}</h5>
+                    <h5 className="text-base font-medium tracking-[-0.02em]">{step.title}</h5>
                     <p className="mt-2 text-sm leading-relaxed text-ink/70">{step.body}</p>
                   </article>
                 ))}
@@ -98,7 +98,7 @@ export default function Capabilities() {
               <div className="mt-5 grid gap-6 md:grid-cols-3 md:gap-5">
                 {t.capabilities.delivery.steps.slice(2).map((step) => (
                   <article key={step.title} className="border-t border-forest/15 pt-4">
-                    <h5 className="text-base font-semibold tracking-tight">{step.title}</h5>
+                    <h5 className="text-base font-medium tracking-[-0.02em]">{step.title}</h5>
                     <p className="mt-2 text-sm leading-relaxed text-ink/70">{step.body}</p>
                   </article>
                 ))}
@@ -110,15 +110,15 @@ export default function Capabilities() {
 
         <div className="mt-16 border-t border-line pt-8 md:mt-20 md:pt-10">
           <div className="max-w-2xl">
-            <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.capabilities.demandLab.eyebrow}</p>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">{t.capabilities.demandLab.title}</h3>
+            <p className="text-xs font-medium text-moss">{t.capabilities.demandLab.eyebrow}</p>
+            <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">{t.capabilities.demandLab.title}</h3>
             <p className="mt-3 text-sm leading-relaxed text-ink/70 md:text-base">{t.capabilities.demandLab.intro}</p>
           </div>
           <div className="mt-8 grid gap-0 border-y border-line md:grid-cols-3 md:divide-x md:divide-line">
             {t.capabilities.demandLab.cases.map((item) => (
               <article key={item.label} className="border-b border-line py-5 last:border-b-0 md:border-b-0 md:px-6 md:first:pl-0 md:last:pr-0">
-                <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{item.label}</p>
-                <h4 className="mt-2 text-base font-semibold tracking-tight">{item.title}</h4>
+                <p className="text-xs font-medium text-moss">{item.label}</p>
+                <h4 className="mt-2 text-base font-medium tracking-[-0.02em]">{item.title}</h4>
                 <p className="mt-2 text-sm leading-relaxed text-ink/70">{item.body}</p>
               </article>
             ))}
@@ -126,7 +126,7 @@ export default function Capabilities() {
           <p className="mt-4 text-xs font-medium tracking-wide text-moss">{t.capabilities.demandLab.note}</p>
         </div>
 
-        <h3 className="mt-16 text-xl font-semibold tracking-tight md:text-2xl">{t.capabilities.supportingHeadline}</h3>
+        <h3 className="mt-16 text-xl font-medium tracking-[-0.02em] md:text-2xl">{t.capabilities.supportingHeadline}</h3>
         <div className="mt-12 grid grid-cols-1 gap-x-12 gap-y-10 sm:grid-cols-2">
           {t.capabilities.items.map((item, i) => {
             const Icon = icons[i % icons.length];
@@ -148,7 +148,7 @@ export default function Capabilities() {
                       <span className="text-xs font-semibold tabular-nums text-amber">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <h3 className="text-base font-semibold tracking-tight">{item.title}</h3>
+                      <h3 className="text-base font-medium tracking-[-0.02em]">{item.title}</h3>
                     </div>
                     <p className="mt-1 text-xs font-medium tracking-wide text-moss">{item.tags}</p>
                     <p className="mt-2 text-sm leading-relaxed text-ink/70">{item.desc}</p>

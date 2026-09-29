@@ -16,14 +16,14 @@ export default function DealReadiness() {
 
   return (
     <section id="deal-readiness" className="scroll-mt-24 border-b border-line bg-bone">
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-24 md:px-6 md:py-32 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-16">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 md:px-6 md:py-36 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-16">
         <div className="max-w-xl">
           <p className="text-sm font-semibold text-amber">{service.kicker}</p>
-          <h2 className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{service.headline}</h2>
+          <h2 className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{service.headline}</h2>
           <p className="mt-5 text-base leading-relaxed text-ink/70 md:text-lg">{service.intro}</p>
 
           <div className="mt-8 border-y border-line py-5">
-            <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{service.pathTitle}</p>
+            <p className="text-xs font-medium text-moss">{service.pathTitle}</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               {service.path.map((step, index) => (
                 <div key={step.title} className="border-t border-forest/15 pt-3">
@@ -78,8 +78,8 @@ export default function DealReadiness() {
           className="rounded-card border border-line bg-paper/65 p-4 md:p-6"
         >
           <div className="border-b border-line pb-5">
-            <p className="text-xs font-semibold tracking-[0.08em] text-amber">{service.packLabel}</p>
-            <h3 className="mt-2 text-2xl font-semibold tracking-tight">{service.packTitle}</h3>
+            <p className="text-xs font-semibold text-amber">{service.packLabel}</p>
+            <h3 className="mt-2 text-2xl font-medium tracking-[-0.02em]">{service.packTitle}</h3>
             <p className="mt-2 max-w-[56ch] text-sm leading-relaxed text-ink/70">{service.packIntro}</p>
           </div>
 
@@ -103,7 +103,7 @@ export default function DealReadiness() {
                   <article key={output.title} className="flex gap-3 border-l-2 border-forest/20 pl-4">
                     <Icon size={19} weight="duotone" className="mt-0.5 shrink-0 text-forest" aria-hidden="true" />
                     <div>
-                      <h4 className="text-sm font-semibold tracking-tight">{output.title}</h4>
+                      <h4 className="text-sm font-medium tracking-[-0.02em]">{output.title}</h4>
                       <p className="mt-1 text-sm leading-relaxed text-ink/70">{output.body}</p>
                     </div>
                   </article>

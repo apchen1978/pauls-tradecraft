@@ -74,7 +74,7 @@ export default function Library() {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] lg:gap-12">
           <div>
             <p className="eyebrow">{c.eyebrow}</p>
-            <h2 id="library-heading" className="mt-4 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{c.title}</h2>
+            <h2 id="library-heading" className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
           </div>
           <p className="max-w-[48ch] self-end text-base leading-relaxed text-ink/70">{c.intro}</p>
         </div>

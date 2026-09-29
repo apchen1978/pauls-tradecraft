@@ -4,7 +4,7 @@ import { useLang } from "../i18n.jsx";
 export default function About() {
   const { t } = useLang();
   return (
-    <section id="about" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-32">
+    <section id="about" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 md:px-6 md:py-36">
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -13,7 +13,7 @@ export default function About() {
           transition={{ duration: 0.35, ease: "easeOut" }}
         >
           <p className="eyebrow">{t.about.eyebrow}</p>
-          <h2 className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{t.about.headline}</h2>
+          <h2 className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{t.about.headline}</h2>
           <p className="mt-6 text-lg font-semibold text-ink/85">{t.about.intro}</p>
           <div className="mt-3 max-w-[52ch] space-y-4 text-base leading-relaxed text-ink/70">
             {t.about.narrative.map((paragraph) => (
@@ -21,7 +21,7 @@ export default function About() {
             ))}
           </div>
           <div className="mt-12 border-t border-amber/45 pt-6 md:mt-16 md:pt-7">
-            <p className="max-w-[28ch] text-xl font-semibold leading-[1.25] tracking-[0.04em] text-forest md:text-2xl">
+            <p className="max-w-[28ch] text-xl font-semibold leading-[1.25] text-forest md:text-2xl">
               {t.about.signature.lead.map((line) => (
                 <span key={line} className="block">
                   {line}
@@ -36,7 +36,7 @@ export default function About() {
               ))}
             </p>
             {t.about.signature.secondary && (
-              <p className="mt-6 max-w-[48ch] text-xs font-medium uppercase leading-[1.35] tracking-[0.08em] text-forest/75 md:text-xs">
+              <p className="mt-6 max-w-[48ch] text-xs font-medium leading-[1.35] text-forest/75 md:text-xs">
                 {t.about.signature.secondary.map((line) => (
                   <span key={line} className="block">
                     {line}
@@ -53,7 +53,7 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-24px" }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="overflow-hidden rounded-card border border-line surface-paper shadow-[0_24px_60px_-24px_rgba(31,77,58,0.35)]"
+            className="overflow-hidden rounded-card border border-line surface-paper"
           >
             <img
               src="/images/paul-art.webp"
@@ -73,7 +73,7 @@ export default function About() {
                 transition={{ duration: 0.35, ease: "easeOut", delay: i * 0.05 }}
                 className="flex flex-col items-center justify-center gap-1.5 bg-[#f8f8f3] px-6 py-8 text-center"
               >
-                <span className="text-3xl font-semibold tracking-tight text-forest md:text-4xl">{s.value}</span>
+                <span className="text-3xl font-medium tracking-[-0.02em] text-forest md:text-4xl">{s.value}</span>
                 <span className="text-sm text-ink/70">{s.label}</span>
               </motion.div>
             ))}
