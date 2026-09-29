@@ -40,8 +40,8 @@ function stageLabel(work, lang) {
 
 function LiveChip({ t, tone = "light" }) {
   const className = tone === "dark"
-    ? "inline-flex items-center gap-1 rounded-pill border border-bone/30 px-2 py-0.5 text-[10px] font-bold normal-case tracking-[0.08em] text-bone/80"
-    : "inline-flex items-center gap-1 rounded-pill border border-forest/20 px-2 py-0.5 text-[10px] font-bold normal-case tracking-[0.08em] text-forest";
+    ? "inline-flex items-center gap-1 rounded-pill border border-bone/30 px-2 py-0.5 text-xs font-semibold normal-case tracking-[0.08em] text-bone/85"
+    : "inline-flex items-center gap-1 rounded-pill border border-forest/20 px-2 py-0.5 text-xs font-semibold normal-case tracking-[0.08em] text-forest";
   return (
     <span className={className} title={t.works.liveExplain} aria-label={`${t.works.statusLive}. ${t.works.liveExplain}`}>
       {t.works.statusLive}
@@ -62,7 +62,7 @@ function GbdActions() {
     <div className="mt-auto space-y-3 pt-4">
       <button
         type="button"
-        className="inline-flex w-fit items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-bold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+        className="inline-flex w-fit items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-semibold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
         onClick={(e) => {
           e.stopPropagation();
           const details = e.currentTarget.closest("article")?.querySelector("details");
@@ -81,11 +81,11 @@ function GbdActions() {
             onClick={(e) => e.stopPropagation()}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber"
           >
-            <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-forest">{t.works.demoLabel}</span>
+            <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-xs font-medium uppercase tracking-[0.08em] text-forest">{t.works.demoLabel}</span>
             {gbd.standaloneDemo.label[lang]}
             <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
           </a>
-          <p className="mt-1 text-xs leading-relaxed text-ink/60">{gbd.standaloneDemo.note[lang]}</p>
+          <p className="mt-1 text-xs leading-relaxed text-ink/70">{gbd.standaloneDemo.note[lang]}</p>
         </div>
       )}
       {signal && (
@@ -111,7 +111,7 @@ function GbdActions() {
             {artifact.cta}
             <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
           </a>
-          <p className="mt-1 text-xs leading-relaxed text-ink/60">{artifact.boundary}</p>
+          <p className="mt-1 text-xs leading-relaxed text-ink/70">{artifact.boundary}</p>
         </div>
       )}
     </div>
@@ -121,8 +121,8 @@ function GbdActions() {
 function MaturityChip({ label, tone = "light" }) {
   if (!label) return null;
   const className = tone === "dark"
-    ? "inline-flex items-center rounded-pill border border-gold/40 px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-gold"
-    : "inline-flex items-center rounded-pill border border-amber/40 bg-amber/[0.08] px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-amber";
+    ? "inline-flex items-center rounded-pill border border-gold/40 px-2 py-0.5 text-xs font-semibold normal-case tracking-normal text-gold"
+    : "inline-flex items-center rounded-pill border border-amber/40 bg-amber/[0.08] px-2 py-0.5 text-xs font-semibold normal-case tracking-normal text-amber";
   return <span className={className}>{label}</span>;
 }
 
@@ -134,12 +134,12 @@ function ProductFlow({ work, tone = "light" }) {
   const dark = tone === "dark";
   return (
     <div className={`mt-6 border-y py-4 ${dark ? "border-bone/15" : "border-forest/15"}`}>
-      <p className={`text-[10px] font-bold uppercase tracking-[0.18em] ${dark ? "text-gold" : "text-amber"}`}>{flow.label}</p>
+      <p className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{flow.label}</p>
       <div className={`mt-3 grid gap-3 sm:grid-cols-3 ${dark ? "sm:divide-x sm:divide-bone/15" : "sm:divide-x sm:divide-forest/15"}`}>
         {flow.stages.map((stage, index) => (
           <div key={stage.label} className={index === 0 ? "sm:pr-3" : index === flow.stages.length - 1 ? "sm:pl-3" : "sm:px-3"}>
-            <p className={`text-[10px] font-bold tracking-[0.14em] ${dark ? "text-bone/55" : "text-moss"}`}>{stage.label}</p>
-            <p className={`mt-1 text-xs leading-relaxed ${dark ? "text-bone/82" : "text-ink/75"}`}>{stage.value}</p>
+            <p className={`text-xs font-semibold tracking-[0.08em] ${dark ? "text-bone/70" : "text-moss"}`}>{stage.label}</p>
+            <p className={`mt-1 text-xs leading-relaxed ${dark ? "text-bone/82" : "text-ink/85"}`}>{stage.value}</p>
           </div>
         ))}
       </div>
@@ -156,45 +156,45 @@ function MarketEntrySignal({ data }) {
     <section className="mt-5 border-y border-forest/15 py-5" aria-label={copy.signalLabel}>
       <div className="grid gap-5 md:grid-cols-[1.1fr_.9fr] md:gap-8">
         <div>
-          <p className="text-xl font-bold leading-tight tracking-tight text-forest md:text-2xl">{copy.hero}</p>
+          <p className="text-xl font-semibold leading-tight tracking-tight text-forest md:text-2xl">{copy.hero}</p>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">{copy.heroSupport}</p>
         </div>
         <div className="border-l-2 border-amber/70 pl-4 md:pl-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.caseArcLabel}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.caseArcLabel}</p>
           <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{copy.caseArc}</p>
-          <p className="mt-2 text-xs leading-relaxed text-ink/60">{copy.context}</p>
+          <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.context}</p>
         </div>
       </div>
 
       <div className="mt-6 grid gap-0 border-y border-forest/15 md:grid-cols-[1fr_1.15fr_1fr]">
         {copy.signature.map((item, index) => (
           <div key={item.label} className={`py-4 ${index === 0 ? "border-b md:border-r md:border-b-0 md:pr-5" : index === 1 ? "border-b bg-forest/[0.045] md:border-x md:border-b-0 md:px-5" : "md:pl-5"} border-forest/15`}>
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{index === 0 ? copy.beforeLabel : index === 1 ? copy.zeroLabel : copy.afterLabel}</p>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-forest">{item.value}</p>
-            <p className="mt-1 text-sm font-semibold leading-snug text-ink/75">{item.label}</p>
-            {index === 1 && <p className="mt-2 text-xs leading-relaxed text-ink/65">{copy.zeroNote}</p>}
-            {index === 2 && <p className="mt-2 text-xs leading-relaxed text-ink/65">{copy.afterNote}</p>}
+            <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{index === 0 ? copy.beforeLabel : index === 1 ? copy.zeroLabel : copy.afterLabel}</p>
+            <p className="mt-2 text-3xl font-semibold tracking-tight text-forest">{item.value}</p>
+            <p className="mt-1 text-sm font-semibold leading-snug text-ink/85">{item.label}</p>
+            {index === 1 && <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.zeroNote}</p>}
+            {index === 2 && <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.afterNote}</p>}
           </div>
         ))}
       </div>
 
       <div className="mt-6">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.gatesTitle}</p>
+        <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.gatesTitle}</p>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           {copy.gates.map((gate, index) => (
             <div key={gate.title} className="border-t border-forest/20 pt-3">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[10px] font-bold tracking-[0.16em] text-moss">0{index + 1}</span>
-                <span className={`text-[10px] font-bold uppercase tracking-[0.12em] ${gate.status === "UNKNOWN" || gate.status === "待確認" ? "text-rust" : "text-forest"}`}>{gate.status}</span>
+                <span className="text-xs font-semibold tracking-[0.08em] text-moss">0{index + 1}</span>
+                <span className={`text-xs font-medium uppercase tracking-[0.08em] ${gate.status === "UNKNOWN" || gate.status === "待確認" ? "text-rust" : "text-forest"}`}>{gate.status}</span>
               </div>
-              <p className="mt-2 text-sm font-bold text-forest">{gate.title}</p>
-              <p className="mt-1 text-xs leading-relaxed text-ink/65">{gate.body}</p>
+              <p className="mt-2 text-sm font-semibold text-forest">{gate.title}</p>
+              <p className="mt-1 text-xs leading-relaxed text-ink/70">{gate.body}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <p className="mt-6 inline-flex border-l-2 border-amber pl-3 text-xs font-semibold uppercase tracking-[0.12em] text-forest">{copy.correction}</p>
+      <p className="mt-6 inline-flex border-l-2 border-amber pl-3 text-xs font-medium uppercase tracking-[0.08em] text-forest">{copy.correction}</p>
     </section>
   );
 }
@@ -205,8 +205,8 @@ function MarketEntryDetails({ data, tone = "light" }) {
   if (!copy) return null;
   const dark = tone === "dark";
   const border = dark ? "border-bone/15" : "border-line";
-  const heading = dark ? "text-bone/90" : "text-ink/80";
-  const body = dark ? "text-bone/70" : "text-ink/65";
+  const heading = dark ? "text-bone/85" : "text-ink/85";
+  const body = dark ? "text-bone/70" : "text-ink/70";
 
   return (
     <>
@@ -215,7 +215,7 @@ function MarketEntryDetails({ data, tone = "light" }) {
         <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.question}</dd>
       </div>
       <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
-        <dt className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
+        <dt className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
         <dd className={`mt-1 font-semibold leading-relaxed ${heading}`}>{copy.lesson}</dd>
       </div>
       <div className={`border-t pt-3 ${border}`}>
@@ -267,7 +267,7 @@ function MarketEntryDetails({ data, tone = "light" }) {
         </dd>
       </div>
       <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
-        <dt className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
+        <dt className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
         <dd className={`mt-1 leading-relaxed ${body}`}>{copy.boundary}</dd>
         <ul className={`mt-2 grid gap-1 text-xs sm:grid-cols-2 ${body}`}>
           {copy.notTested.map((item) => <li key={item}>— {item}</li>)}
@@ -296,11 +296,11 @@ function WorkingEvidence({ data, tone = "light" }) {
   const dark = tone === "dark";
   return (
     <div className={`mt-5 border-t pt-4 ${dark ? "border-bone/15" : "border-line"}`}>
-      <p className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.label}</p>
-      <h4 className={`mt-1 text-lg font-semibold ${dark ? "text-bone/90" : "text-ink/85"}`}>{copy.title}</h4>
-      <p className={`mt-1 max-w-2xl text-sm leading-relaxed ${dark ? "text-bone/70" : "text-ink/65"}`}>{copy.body}</p>
-      <p className={`mt-2 text-[11px] leading-relaxed ${dark ? "text-bone/55" : "text-ink/55"}`}>{copy.boundary}</p>
-      <a href={copy.href} className={`mt-3 inline-flex items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-bold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber`}>
+      <p className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.label}</p>
+      <h4 className={`mt-1 text-lg font-semibold ${dark ? "text-bone/85" : "text-ink/85"}`}>{copy.title}</h4>
+      <p className={`mt-1 max-w-2xl text-sm leading-relaxed ${dark ? "text-bone/70" : "text-ink/70"}`}>{copy.body}</p>
+      <p className={`mt-2 text-xs leading-relaxed ${dark ? "text-bone/70" : "text-ink/70"}`}>{copy.boundary}</p>
+      <a href={copy.href} className={`mt-3 inline-flex items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-semibold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber`}>
         {copy.cta}<ArrowUpRight size={15} weight="bold" aria-hidden="true" />
       </a>
     </div>
@@ -316,28 +316,28 @@ function SpendingInsightSignal({ data }) {
     <section className="mt-5 border-y border-forest/15 py-5" aria-label={copy.signalLabel}>
       <div className="grid gap-5 md:grid-cols-[1.08fr_.92fr] md:gap-8">
         <div>
-          <p className="text-xl font-bold leading-tight tracking-tight text-forest md:text-2xl">{copy.hero}</p>
+          <p className="text-xl font-semibold leading-tight tracking-tight text-forest md:text-2xl">{copy.hero}</p>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">{copy.heroSupport}</p>
         </div>
         <div className="border-l-2 border-amber/70 pl-4 md:pl-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{copy.caseLabel}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.caseLabel}</p>
           <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{copy.case}</p>
-          <p className="mt-2 text-xs leading-relaxed text-ink/60">{copy.caseBoundary}</p>
+          <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.caseBoundary}</p>
         </div>
       </div>
 
       <div className="mt-6 grid gap-0 border-y border-forest/15 md:grid-cols-3">
         {copy.lenses.map((lens, index) => (
           <div key={lens.title} className={`py-4 ${index === 0 ? "border-b md:border-r md:border-b-0 md:pr-5" : index === 1 ? "border-b bg-forest/[0.045] md:border-x md:border-b-0 md:px-5" : "md:pl-5"} border-forest/15`}>
-            <p className="text-[10px] font-bold tracking-[0.16em] text-moss">0{index + 1}</p>
-            <p className="mt-2 text-sm font-bold text-forest">{lens.title}</p>
-            <p className="mt-1 text-xs leading-relaxed text-ink/65">{lens.body}</p>
+            <p className="text-xs font-semibold tracking-[0.08em] text-moss">0{index + 1}</p>
+            <p className="mt-2 text-sm font-semibold text-forest">{lens.title}</p>
+            <p className="mt-1 text-xs leading-relaxed text-ink/70">{lens.body}</p>
           </div>
         ))}
       </div>
 
       <div className="mt-6 border-l-2 border-amber bg-amber/[0.06] px-4 py-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber">{copy.questionLabel}</p>
+        <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.questionLabel}</p>
         <p className="mt-1 text-sm font-semibold leading-relaxed text-forest">{copy.question}</p>
       </div>
     </section>
@@ -350,8 +350,8 @@ function SpendingInsightDetails({ data, tone = "light" }) {
   if (!copy) return null;
   const dark = tone === "dark";
   const border = dark ? "border-bone/15" : "border-line";
-  const heading = dark ? "text-bone/90" : "text-ink/80";
-  const body = dark ? "text-bone/70" : "text-ink/65";
+  const heading = dark ? "text-bone/85" : "text-ink/85";
+  const body = dark ? "text-bone/70" : "text-ink/70";
 
   return (
     <>
@@ -360,7 +360,7 @@ function SpendingInsightDetails({ data, tone = "light" }) {
         <dd className={`mt-0.5 leading-relaxed ${body}`}>{copy.question}</dd>
       </div>
       <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
-        <dt className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
+        <dt className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.lessonTitle}</dt>
         <dd className={`mt-1 font-semibold leading-relaxed ${heading}`}>{copy.lesson}</dd>
       </div>
       <div className={`border-t pt-3 ${border}`}>
@@ -395,7 +395,7 @@ function SpendingInsightDetails({ data, tone = "light" }) {
         </dd>
       </div>
       <div className={`border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3 ${dark ? "bg-gold/[0.08]" : ""}`}>
-        <dt className={`text-[10px] font-bold uppercase tracking-[0.14em] ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
+        <dt className={`text-xs font-medium uppercase tracking-[0.08em] ${dark ? "text-gold" : "text-amber"}`}>{copy.boundaryTitle}</dt>
         <dd className={`mt-1 leading-relaxed ${body}`}>{copy.boundary}</dd>
         <ul className={`mt-2 grid gap-1 text-xs sm:grid-cols-2 ${body}`}>
           {copy.notTested.map((item) => <li key={item}>— {item}</li>)}
@@ -421,9 +421,9 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
         summary: "border-bone/25 bg-bone/[0.06] text-bone hover:bg-bone/[0.1]",
         stage: "bg-gold/15 text-gold",
         border: "border-bone/15",
-        heading: "text-bone/90",
+        heading: "text-bone/85",
         body: "text-bone/70",
-        caption: "text-bone/55",
+        caption: "text-bone/70",
         link: "text-gold hover:text-bone",
       }
     : {
@@ -431,15 +431,15 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
         summary: "border-forest/25 bg-forest/[0.06] text-forest hover:bg-forest/10",
         stage: "bg-forest/10 text-forest",
         border: "border-line",
-        heading: "text-ink/80",
-        body: "text-ink/65",
-        caption: "text-ink/65",
+        heading: "text-ink/85",
+        body: "text-ink/70",
+        caption: "text-ink/70",
         link: "text-forest hover:text-amber",
       };
   return (
     <details className={`group mt-4 border-t px-6 pt-4 pb-6 ${styles.details}`}>
-      <summary className={`flex cursor-pointer list-none items-center gap-2 rounded-pill border px-4 py-2.5 text-sm font-bold transition-colors [&::-webkit-details-marker]:hidden ${styles.summary}`}>
-        <span className={`rounded-pill px-2.5 py-0.5 text-xs font-bold ${styles.stage}`}>
+      <summary className={`flex cursor-pointer list-none items-center gap-2 rounded-pill border px-4 py-2.5 text-sm font-semibold transition-colors [&::-webkit-details-marker]:hidden ${styles.summary}`}>
+        <span className={`rounded-pill px-2.5 py-0.5 text-xs font-semibold ${styles.stage}`}>
           {f(c.stage)}
            {stageTag ? ` · ${stageTag}` : ""}
         </span>
@@ -625,21 +625,21 @@ function FeaturedSystem({ work }) {
   }, []);
 
   return (
-    <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-card border border-forest/25 bg-ink text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
+    <article ref={featuredRef} id={work.id} className="scroll-mt-28 overflow-hidden rounded-card border border-forest/25 bg-pine text-bone shadow-[0_28px_72px_-42px_rgba(20,51,41,0.72)]">
       <div className="grid lg:grid-cols-[0.88fr_1.12fr]">
         <div className="flex flex-col px-6 py-8 md:px-10 md:py-11 lg:px-9 lg:py-9">
-          <div data-featured-copy className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
+          <div data-featured-copy className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.08em] text-gold">
             <span>{copy.tag}</span>
             {work.verified && work.link && <LiveChip t={t} tone="dark" />}
             <MaturityChip label={stageLabel(work, lang)} tone="dark" />
           </div>
-          <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-bone md:text-4xl">{copy.title}</h3>
-          <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-bone/72">{copy.desc}</p>
+          <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] text-bone md:text-4xl">{copy.title}</h3>
+          <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-bone/70">{copy.desc}</p>
           {copy.caseSummary && (
             <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
           )}
           <ProductFlow work={work} tone="dark" />
-          <a data-featured-copy href={work.link} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61]">
+          <a data-featured-copy href={work.link} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:bg-[#f2be61]">
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
           </a>
@@ -649,17 +649,18 @@ function FeaturedSystem({ work }) {
             </a>
           )}
           {work.id === "commercial-decision-desk" && (
-            <a data-featured-copy href="#outcomes" className="mt-4 w-fit text-sm font-semibold text-bone/75 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold">
+            <a data-featured-copy href="#outcomes" className="mt-4 w-fit text-sm font-semibold text-bone/85 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold">
               {t.hero.cddInvite}
             </a>
           )}
-          {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/50">{work.demoNote[lang]}</p>}
+          {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/70">{work.demoNote[lang]}</p>}
         </div>
-        <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative block border-t border-bone/10 bg-[#dfe4d9] p-3 lg:border-l lg:border-t-0 lg:p-3">
-          <div className="overflow-hidden rounded-field border border-ink/10 bg-bone shadow-[0_18px_36px_-24px_rgba(0,0,0,0.62)]">
-            <div className="flex items-center justify-between gap-3 border-b border-ink/10 bg-[#edf0e7] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/65">
-              <span>Featured Work</span>
-              <span className="text-right font-bold normal-case tracking-normal text-forest">{stageLabel(work, lang)}</span>
+        <a data-featured-visual href={work.link} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative flex items-center border-t border-bone/10 bg-[radial-gradient(120%_90%_at_70%_20%,#24503f_0%,#143329_70%)] p-5 md:p-8 lg:border-l lg:border-t-0 lg:p-10">
+          <div className="w-full overflow-hidden rounded-field border border-bone/15 bg-bone shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] ring-1 ring-black/5">
+            <div className="flex items-center gap-1.5 border-b border-ink/10 bg-[#edf0e7] px-4 py-2.5" aria-hidden="true">
+              <span className="size-2 rounded-full bg-ink/15" />
+              <span className="size-2 rounded-full bg-ink/15" />
+              <span className="size-2 rounded-full bg-ink/15" />
             </div>
             <img src={cover} alt={work.imageAlt[lang]} loading="eager" className={`aspect-[16/9] h-full w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
           </div>
@@ -684,8 +685,8 @@ export function WorksFlagship() {
       <div className="border-b border-line pb-10">
         <div className="max-w-2xl">
           <p className="eyebrow">{t.works.eyebrow}</p>
-          <h2 id="works-flagship-heading" className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.works.headline}</h2>
-          <p className="mt-4 text-base leading-relaxed text-ink/65">{t.works.sub}</p>
+          <h2 id="works-flagship-heading" className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{t.works.headline}</h2>
+          <p className="mt-4 text-base leading-relaxed text-ink/70">{t.works.sub}</p>
         </div>
         <nav aria-labelledby="works-also-explore" className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
           <span id="works-also-explore" className="text-xs font-semibold text-moss">{t.works.alsoExplore}</span>
@@ -777,14 +778,14 @@ export default function Works() {
             </div>
           )}
           <div className="flex flex-1 flex-col border-t border-ink/5 p-7 md:p-8 lg:p-7">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.08em] text-moss">
               <span>{copy.tag}</span>
-              {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-[10px] tracking-[0.12em] text-amber">{t.works.primaryEntry}</span>}
-              {w.id === "ai-native-market-entry" && <span className="rounded-pill border border-forest/25 bg-forest/[0.06] px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-forest">{t.works.supportingEvidence}</span>}
+              {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-xs tracking-[0.08em] text-amber">{t.works.primaryEntry}</span>}
+              {w.id === "ai-native-market-entry" && <span className="rounded-pill border border-forest/25 bg-forest/[0.06] px-2 py-0.5 text-xs font-semibold normal-case tracking-normal text-forest">{t.works.supportingEvidence}</span>}
               {w.verified && w.link && <LiveChip t={t} />}
               <MaturityChip label={stageLabel(w, lang)} />
             </div>
-            <h3 className="mt-2.5 flex items-center gap-2 text-xl font-bold tracking-tight md:text-2xl">
+            <h3 className="mt-2.5 flex items-center gap-2 text-xl font-semibold tracking-tight md:text-2xl">
               {copy.title}
               {w.link && (
                 <ArrowUpRight
@@ -796,15 +797,15 @@ export default function Works() {
             </h3>
             {w.decisionQuestion && (
               <div className="mt-4 border-l-2 border-amber/75 pl-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber">{t.works.decisionQuestionLabel}</p>
-                <p className="mt-1 text-[15px] font-semibold leading-snug text-forest md:text-base">{w.decisionQuestion[lang]}</p>
+                <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.works.decisionQuestionLabel}</p>
+                <p className="mt-1 text-sm font-semibold leading-snug text-forest md:text-base">{w.decisionQuestion[lang]}</p>
               </div>
             )}
-            <p className="mt-2 text-[15px] leading-relaxed text-ink/65 md:text-base">{copy.desc}</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink/70 md:text-base">{copy.desc}</p>
             {w.marketEntry && <MarketEntrySignal data={w.marketEntry} />}
             {w.spendingInsight && <SpendingInsightSignal data={w.spendingInsight} />}
             {copy.caseSummary && (
-              <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink/75">
+              <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink/85">
                 <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}</span>
                 {copy.caseSummary}
               </p>
@@ -812,16 +813,16 @@ export default function Works() {
             <ProductFlow work={w} />
             {w.deliverable && (
               <div className="mt-4 border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber">{t.works.deliverableLabel}</p>
-                <p className="mt-1 text-sm leading-relaxed text-ink/80">{w.deliverable[lang]}</p>
+                <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{t.works.deliverableLabel}</p>
+                <p className="mt-1 text-sm leading-relaxed text-ink/85">{w.deliverable[lang]}</p>
               </div>
             )}
             {w.id === "global-business-development" ? (
               <GbdActions />
-            ) : <p className="mt-auto pt-4 text-xs font-medium text-ink/65">
+            ) : <p className="mt-auto pt-4 text-xs font-medium text-ink/70">
               {w.link ? (
                 <span className="inline-flex items-center gap-2 text-forest">
-                  {w.linkType === "demo" && <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-forest">{t.works.demoLabel}</span>}
+                  {w.linkType === "demo" && <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-xs font-medium uppercase tracking-[0.08em] text-forest">{t.works.demoLabel}</span>}
                   <ArrowUpRight size={13} weight="bold" />
                   {linkLabel}
                 </span>
@@ -830,7 +831,7 @@ export default function Works() {
               ) : null}
             </p>}
             {w.demoNote && (
-              <p className="mt-1.5 text-[11px] leading-snug text-ink/65">{w.demoNote[lang]}</p>
+              <p className="mt-1.5 text-xs leading-snug text-ink/70">{w.demoNote[lang]}</p>
             )}
           </div>
         </Wrapper>
@@ -845,22 +846,41 @@ export default function Works() {
     );
   };
 
+  const renderSection = (sec, si) => (
+    <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
+      <div className={`${si === 0 ? "" : "mt-12"} border-t border-line pt-7`}>
+        <h3 className={`font-semibold tracking-[-0.01em] ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/85"}`}>{sec.label}</h3>
+        {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70">{sec.note}</p>}
+        {sec.id === "commercial" && (
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/70">{t.works.independentPrototypes}</p>
+        )}
+      </div>
+      <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-y-8">
+        {sec.works.map((w, i) => renderCard(w, i, si))}
+      </div>
+    </div>
+  );
+
   return (
     <section id="works-catalog" aria-label={t.works.sub} className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 md:px-6 md:py-28">
-      {sections.map((sec, si) => (
-        <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
-          <div className={`${si === 0 ? "mt-0 lg:mt-0 border-research/45" : si === 1 ? "mt-14 lg:mt-12 border-amber/45" : "mt-14 lg:mt-12 border-moss/45"} border-t-2 pt-7`}>
-            <h3 className={`font-bold tracking-tight ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/75"}`}>{sec.label}</h3>
-            {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/65">{sec.note}</p>}
-            {sec.id === "commercial" && (
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/70">{t.works.independentPrototypes}</p>
-            )}
-          </div>
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-y-8">
-            {sec.works.map((w, i) => renderCard(w, i, si))}
-          </div>
-        </div>
-      ))}
+      {sections.slice(0, 1).map((sec, si) => renderSection(sec, si))}
+      {sections.length > 1 && (
+        <details className="group/more mt-16 border-t border-line">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-6 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="block text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">
+                {lang === "zh" ? "更多作品" : "More work"}
+                <span className="ml-3 text-sm font-medium tabular-nums text-amber">{sections.slice(1).reduce((n, sec) => n + sec.works.length, 0)}</span>
+              </span>
+              <span className="mt-1 block text-sm text-ink/70">{sections.slice(1).map((sec) => sec.label).join(" · ")}</span>
+            </span>
+            <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-forest transition-transform duration-300 group-open/more:rotate-180">
+              <CaretDown size={14} weight="bold" />
+            </span>
+          </summary>
+          {sections.slice(1).map((sec, si) => renderSection(sec, si + 1))}
+        </details>
+      )}
     </section>
   );
 }

@@ -13,9 +13,9 @@ export default function About() {
           transition={{ duration: 0.35, ease: "easeOut" }}
         >
           <p className="eyebrow">{t.about.eyebrow}</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.about.headline}</h2>
-          <p className="mt-6 text-lg font-semibold text-ink/80">{t.about.intro}</p>
-          <div className="mt-3 max-w-[52ch] space-y-4 text-base leading-relaxed text-ink/65">
+          <h2 className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{t.about.headline}</h2>
+          <p className="mt-6 text-lg font-semibold text-ink/85">{t.about.intro}</p>
+          <div className="mt-3 max-w-[52ch] space-y-4 text-base leading-relaxed text-ink/70">
             {t.about.narrative.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
@@ -28,7 +28,7 @@ export default function About() {
                 </span>
               ))}
             </p>
-            <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-ink/65 md:text-base">
+            <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-ink/70 md:text-base">
               {t.about.signature.support.map((line) => (
                 <span key={line} className="block">
                   {line}
@@ -36,7 +36,7 @@ export default function About() {
               ))}
             </p>
             {t.about.signature.secondary && (
-              <p className="mt-6 max-w-[48ch] text-[11px] font-medium uppercase leading-[1.35] tracking-[0.16em] text-forest/75 md:text-xs">
+              <p className="mt-6 max-w-[48ch] text-xs font-medium uppercase leading-[1.35] tracking-[0.08em] text-forest/75 md:text-xs">
                 {t.about.signature.secondary.map((line) => (
                   <span key={line} className="block">
                     {line}
@@ -73,8 +73,8 @@ export default function About() {
                 transition={{ duration: 0.35, ease: "easeOut", delay: i * 0.05 }}
                 className="flex flex-col items-center justify-center gap-1.5 bg-[#f8f8f3] px-6 py-8 text-center"
               >
-                <span className="text-3xl font-bold tracking-tight text-forest md:text-4xl">{s.value}</span>
-                <span className="text-sm text-ink/65">{s.label}</span>
+                <span className="text-3xl font-semibold tracking-tight text-forest md:text-4xl">{s.value}</span>
+                <span className="text-sm text-ink/70">{s.label}</span>
               </motion.div>
             ))}
           </div>

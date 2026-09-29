@@ -33,16 +33,16 @@ export default function Hero() {
 
       <div className="relative mx-auto grid min-h-[calc(100dvh-68px)] max-w-7xl items-end gap-12 px-4 pb-12 pt-20 md:min-h-[calc(100dvh-76px)] md:px-6 md:pb-16 md:pt-24 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:pb-20">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 max-w-2xl self-center">
-          <motion.p variants={fadeUp} className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
+          <motion.p variants={fadeUp} className="text-xs font-medium uppercase tracking-[0.08em] text-gold">
             {t.brand} · {t.brandNote}
           </motion.p>
           <motion.h1
             variants={fadeUp}
-            className={`mt-6 max-w-2xl text-[clamp(2.35rem,7vw,4.7rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-bone md:text-6xl lg:text-[3rem] ${lang === "zh" ? "xl:text-[4rem]" : "xl:text-[3rem]"}`}
+            className={`mt-6 max-w-2xl text-[clamp(2rem,7.4vw,3rem)] font-semibold leading-[1.18] tracking-[-0.02em] text-bone md:text-5xl lg:text-[2.5rem] xl:text-[3.05rem]`}
           >
             {t.hero.headline}
           </motion.h1>
-          <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/75 md:text-lg">
+          <motion.p variants={fadeUp} className="mt-7 max-w-[48ch] text-base leading-relaxed text-bone/85 md:text-lg">
             {t.hero.sub}
           </motion.p>
           <motion.div
@@ -56,7 +56,7 @@ export default function Hero() {
                 className={`flex items-baseline justify-between gap-5 py-3.5 sm:block sm:px-4 sm:py-4 ${index === 0 ? "sm:pl-0" : ""}`}
               >
                 <span className="text-lg font-semibold tracking-[-0.02em] text-gold sm:text-xl">{credential.value}</span>
-                <span className="text-right text-[10px] font-semibold uppercase leading-snug tracking-[0.13em] text-bone/65 sm:mt-1.5 sm:block sm:text-left">
+                <span className="text-right text-xs font-medium uppercase leading-snug tracking-[0.08em] text-bone/70 sm:mt-1.5 sm:block sm:text-left">
                   {credential.label}
                 </span>
               </div>
@@ -65,7 +65,7 @@ export default function Hero() {
           <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
             <a
               href="/prototype/ai-native-overseas-customer-roadmap/"
-              className="rounded-field bg-gold px-7 py-3.5 text-sm font-bold text-pine transition-colors hover:bg-[#f2be61] active:scale-[0.98]"
+              className="rounded-field bg-gold px-7 py-3.5 text-sm font-semibold text-pine transition-colors hover:bg-[#f2be61] active:scale-[0.98]"
             >
               {t.hero.ctaPrimary}
             </a>
@@ -83,16 +83,13 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut", delay: 0.12 } }}
           className="group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-bone/25 bg-pine/45 shadow-[0_34px_90px_-26px_rgba(0,0,0,0.66)] backdrop-blur-sm lg:mb-4"
         >
-          <div className="flex items-center justify-between gap-3 border-b border-bone/15 bg-ink/20 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-bone/65 md:px-5 md:py-3 md:text-[11px]">
-            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.hero.snapshotChromeLabel}</span>
-            <span className="flex flex-wrap items-center justify-end gap-2 text-right">
-              {cdd?.verified && cdd?.link && (
-                <span className="normal-case tracking-[0.08em] text-bone/80" title={t.works.liveExplain}>{t.works.statusLive}</span>
-              )}
-              <span className="font-bold normal-case tracking-normal text-bone/90">
-                {typeof cdd?.case?.stage === "string" ? cdd.case.stage : cdd?.case?.stage?.[lang]}
-              </span>
+          <div className="flex items-center gap-2 border-b border-bone/15 bg-ink/20 px-4 py-3 text-xs font-medium tracking-[0.04em] text-bone/70 md:px-5">
+            <span className="flex gap-1.5" aria-hidden="true">
+              <span className="size-2 rounded-full bg-bone/20" />
+              <span className="size-2 rounded-full bg-bone/20" />
+              <span className="size-2 rounded-full bg-bone/20" />
             </span>
+            <span className="ml-2 inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-gold" />{t.hero.snapshotChromeLabel}</span>
           </div>
           <div className="relative overflow-hidden bg-ink/20 p-2.5 md:p-3">
             <img
@@ -102,8 +99,8 @@ export default function Hero() {
               loading="eager"
             />
           </div>
-          <figcaption className="flex flex-col items-start gap-2 border-t border-bone/15 px-4 py-3 text-xs leading-snug text-bone/65 md:px-5 md:py-3.5 md:text-sm">
-            <span className="font-semibold text-bone/90">{t.hero.snapshotCaption}</span>
+          <figcaption className="flex flex-col items-start gap-2 border-t border-bone/15 px-4 py-3 text-xs leading-snug text-bone/70 md:px-5 md:py-3.5 md:text-sm">
+            <span className="font-semibold text-bone/85">{t.hero.snapshotCaption}</span>
             <a href={cdd.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-gold transition-colors hover:text-bone">
               {t.hero.snapshotCta} →
             </a>

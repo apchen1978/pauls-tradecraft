@@ -7,17 +7,17 @@ export default function AiWorkValue() {
   const content = aiWorkValue[lang];
 
   return (
-    <section id="ai-work-value" aria-labelledby="ai-work-value-heading" className="scroll-mt-24 border-b border-line bg-paper/50">
+    <section id="ai-work-value" aria-labelledby="ai-work-value-heading" className="scroll-mt-24 border-b border-line bg-bone">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:px-6 md:py-28 lg:grid-cols-[0.74fr_1.26fr] lg:gap-20">
         <div className="max-w-xl">
           <p className="eyebrow">{content.eyebrow}</p>
-          <h2 id="ai-work-value-heading" className="mt-3 text-3xl font-bold tracking-tight text-ink md:text-4xl">
+          <h2 id="ai-work-value-heading" className="mt-3 text-3xl font-semibold tracking-tight text-ink md:text-4xl">
             {content.headline}
           </h2>
           <p className="mt-5 text-base leading-relaxed text-ink/70 md:text-lg">{content.intro}</p>
 
           <div className="mt-9 border-l-2 border-amber/60 pl-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber">{content.outcomeLabel}</p>
+            <p className="text-xs font-medium uppercase tracking-[0.08em] text-moss">{content.outcomeLabel}</p>
             <p className="mt-2 text-sm font-semibold leading-relaxed text-forest md:text-base">{content.outcome}</p>
           </div>
 
@@ -30,14 +30,14 @@ export default function AiWorkValue() {
         <ol className="border-y border-forest/20">
           {content.stages.map((stage, index) => (
             <li key={stage.title} className="grid gap-5 border-b border-forest/15 py-6 last:border-b-0 md:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)] md:gap-7 md:py-7">
-              <span className="text-sm font-bold tabular-nums text-amber">{String(index + 1).padStart(2, "0")}</span>
+              <span className="text-sm font-semibold tabular-nums text-amber">{String(index + 1).padStart(2, "0")}</span>
               <div>
-                <h3 className="text-lg font-bold tracking-tight text-ink md:text-xl">{stage.title}</h3>
-                <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.16em] text-amber">{content.aiLabel}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-ink/65">{stage.ai}</p>
+                <h3 className="text-lg font-semibold tracking-tight text-ink md:text-xl">{stage.title}</h3>
+                <p className="mt-3 text-xs font-medium uppercase tracking-[0.08em] text-moss">{content.aiLabel}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink/70">{stage.ai}</p>
               </div>
               <div className="border-l border-forest/15 pl-4 md:pl-6">
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-forest/75">{content.humanLabel}</p>
+                <p className="text-xs font-medium uppercase tracking-[0.08em] text-forest/75">{content.humanLabel}</p>
                 <p className="mt-1.5 text-sm font-medium leading-relaxed text-forest">{stage.human}</p>
               </div>
             </li>
@@ -60,7 +60,7 @@ export default function AiWorkValue() {
                   {entryPoint.label}
                   <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
                 </span>
-                <span className="mt-1.5 block text-sm leading-relaxed text-ink/65">{entryPoint.detail}</span>
+                <span className="mt-1.5 block text-sm leading-relaxed text-ink/70">{entryPoint.detail}</span>
               </a>
             ))}
           </div>

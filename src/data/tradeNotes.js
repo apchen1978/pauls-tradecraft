@@ -3,7 +3,7 @@
 // Content is unchanged from the version shipped in commit 5709e51.
 export const tradeNotes = {
   zh: {
-    eyebrow: "TRADE NOTES · PAUL 的國貿現場筆記",
+    eyebrow: "Paul 的國貿現場筆記",
     title: "做國際生意，先把下一個問題問對。",
     intro: "有些國貿概念，不必先背得滾瓜爛熟；但在找客戶、談交貨或確認收款時，知道該問什麼很重要。這裡分享我在商業現場累積的觀察，把陌生名詞整理成你可以帶去討論的問題。",
     items: [
