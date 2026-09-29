@@ -23,8 +23,13 @@ const iconMap = {
 
 const SECTION_ORDER = ["commercial", "operations", "labs"];
 // Flagship works: full-width horizontal cards (cover left, content right) so the
-// three main works read as equals. Everything else keeps the grid.
-const WIDE_IDS = new Set(["global-business-development", "trade-profit-navigator"]);
+// three main works read as equals. Everything else keeps the grid. `balance`
+// moves the flow and takeaway blocks under the cover on wide screens; only for a
+// card whose body is much longer than its cover, so the columns stay even.
+const WIDE_CARDS = {
+  "global-business-development": { balance: true },
+  "trade-profit-navigator": { balance: false },
+};
 
 // Public narrative top-3 (C): CDD is featured separately; flagship wall is GBD + TPN.
 // AI-Native Market Entry stays on this wall as GBD's evidence case so
@@ -734,7 +739,8 @@ export default function Works() {
     const secondaryLabel = typeof w.secondaryLinkLabel === "string" ? w.secondaryLinkLabel : w.secondaryLinkLabel?.[lang];
     const Icon = w.icon ? iconMap[w.icon] : null;
     const isPrimary = w.primary === true;
-    const wide = WIDE_IDS.has(w.id);
+    const wide = w.id in WIDE_CARDS;
+    const balance = wide && WIDE_CARDS[w.id].balance;
     const spanClass = wide ? "md:col-span-3" : ["payment-concentration", "global-business-development", "ai-native-market-entry", "business-spending-insight", "trade-deal-desk", "tracker", "mori-soft-furnishing-website", "game", "wastetime", "mg-desktop-pet"].includes(w.id)
       ? "md:col-span-2"
       : "col-span-1";
@@ -784,7 +790,7 @@ export default function Works() {
                 loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
                 className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} transition-transform duration-500 group-hover:scale-[1.02] ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(20,51,41,0.55)]" : ""}`}
               />
-              {wide && (
+              {balance && (
                 <div className="hidden md:block">
                   {flowBlock}
                   {deliverableBlock}
@@ -829,7 +835,7 @@ export default function Works() {
                 {copy.caseSummary}
               </p>
             )}
-            {wide ? (
+            {balance ? (
               <div className="md:hidden">
                 {flowBlock}
                 {deliverableBlock}

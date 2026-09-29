@@ -1270,6 +1270,10 @@ export const works = [
       zh: "公開 Demo 為獨立 synthetic prototype：情境為合成 USD 案例，不含真實客戶資料。",
       en: "Public demo is an independent synthetic prototype: the scenario is a synthetic USD case with no real customer data.",
     },
+    deliverable: {
+      zh: "一份可檢視的利潤判斷：每項成本標明來自案例或假設；扣掉運費、付款時程的資金成本與進口關稅（依報價由誰負擔）後還剩多少；哪個假設最先把它打穿，以及付款條件未定值多少錢。示範案例中，預期淨貢獻 12 萬美元，扣掉資金成本後剩 110,480 美元，售價讓價 3.0% 即到最低要求（在預設假設下）。",
+      en: "An inspectable margin judgment: each cost tagged as coming from the case or as an assumption; what is left after freight, the funding cost of the payment timeline and import duty (by whoever bears it under the quote); which assumption breaks it first; and what unresolved payment terms are worth. In the demo case, USD 120,000 of paper net contribution becomes USD 110,480 after funding cost, and a 3.0% price concession reaches the owner's minimum (under the default assumptions).",
+    },
     imageAlt: { zh: "Trade Profit Navigator 商業價值槓桿原型", en: "Trade Profit Navigator value-capture prototype" },
     zh: {
       title: "貿易利潤導航",
