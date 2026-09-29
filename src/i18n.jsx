@@ -428,7 +428,7 @@ const dict = {
     footer: {
       line: "把貿易實務，做成看得見的工具。",
       rights: "All rights reserved.",
-      builtWith: "此站由 Codex → DSH 協作建立並部署，全程可追溯。",
+      builtWith: "此站由 Codex、Claude Code 與 DSH 協作建立並部署，owner 為 Paul，全程可追溯。",
     },
     garage: {
       eyebrow: "數位車庫",
@@ -947,7 +947,7 @@ const dict = {
     footer: {
       line: "Turning trade practice into visible tools.",
       rights: "All rights reserved.",
-      builtWith: "This site was built and deployed through Codex → DSH collaboration, fully traceable.",
+      builtWith: "This site was built and deployed through Codex, Claude Code, and DSH collaboration. Paul is the owner. Fully traceable.",
     },
     garage: {
       eyebrow: "THE DIGITAL GARAGE",
@@ -1044,13 +1044,14 @@ const dict = {
 
 const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 
-// 語言切換時同步 <html lang> 與 <title>（SEO / a11y）
+// 語言切換時同步 <html lang>、title 與分享用描述（SEO / a11y）。
+// 用字跟首頁 hero 對齊：中文「賺不賺得到」；英文 "whether the margin holds"。
 const titles = {
   zh: "Paul's Tradecraft｜海外訂單，先看清三件事再承諾：誰會買、能不能接、賺不賺得到",
   en: "Paul's Tradecraft | Three Things to Get Straight Before You Commit to an Overseas Order",
 };
 const ogDescriptions = {
-  zh: "Paul Chen 用可操作的小工具，幫外銷業務與老闆在投入時間、簽下訂單之前，先看清三件事：誰會買、能不能接、毛利撐不撐得住。AI 協助整理，決定仍由你做。",
+  zh: "Paul Chen 用可操作的小工具，幫外銷業務與老闆在投入時間、簽下訂單之前，先看清三件事：誰會買、能不能接、賺不賺得到。AI 協助整理，決定仍由你做。",
   en: "Paul Chen builds small working tools that help export owners and sales leads see three things before they commit to an order: who will buy, whether they can take it, and whether the margin holds. AI helps organise; the decision stays with you.",
 };
 
@@ -1072,8 +1073,11 @@ export function LangProvider({ children }) {
   useEffect(() => {
     document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
     document.title = titles[lang];
+    document.querySelector('meta[name="description"]')?.setAttribute("content", ogDescriptions[lang]);
     document.querySelector('meta[property="og:title"]')?.setAttribute("content", titles[lang]);
     document.querySelector('meta[property="og:description"]')?.setAttribute("content", ogDescriptions[lang]);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", titles[lang]);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", ogDescriptions[lang]);
   }, [lang]);
 
   return (
