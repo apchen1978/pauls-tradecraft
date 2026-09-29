@@ -533,13 +533,13 @@ const dict = {
       ],
       headline: "Before you commit to an overseas order, get three things straight: who will buy, whether you can take it, and whether it is profitable.",
       sub: "I build small working tools that help export owners and sales leads make the judgment call before they spend time or sign an order. AI helps organise the evidence; whether to pursue and what to commit to stays with you.",
-      youGet: "START WITH ONE IMPORTANT QUESTION",
+      youGet: "Start with one important question",
       outcomesHeadline: "Which situation feels most familiar right now?",
       outcomesIntro: "Do not start with a tool. Start with the commercial question that needs clarity now.",
-      outcomesTakeaway: "YOU TAKE AWAY",
+      outcomesTakeaway: "You take away",
       outcomes: [
         {
-          label: "OVERSEAS DEVELOPMENT",
+          label: "Overseas development",
           title: "A long list—but who could actually buy?",
           body: "A relevant company is not necessarily one with a plausible acquisition path.",
           takeaway: "Priority research paths, reasons to exclude, and evidence still to confirm.",
@@ -547,7 +547,7 @@ const dict = {
           href: "/prototype/ai-native-overseas-customer-roadmap/",
         },
         {
-          label: "COMMITMENT DECISION",
+          label: "Commitment decision",
           title: "The order looks good—but can you commit?",
           body: "Product fit alone does not settle payment, delivery, or responsibility.",
           takeaway: "A Decision Path, key UNKNOWNs, and a Deal Brief for the meeting.",
@@ -555,7 +555,7 @@ const dict = {
           href: "#commercial-decision-desk",
         },
         {
-          label: "BUSINESS SPENDING",
+          label: "Business spending",
           title: "The money is spent—what still needs to be understood?",
           body: "Cash leaving the business does not mean it affects the current period in the same way.",
           takeaway: "Facts and documents to prepare—and a useful CPA question.",
@@ -589,7 +589,7 @@ const dict = {
       closing: "Experience forms the question. AI expands capability. Evidence sharpens the next judgment.",
     },
     startHere: {
-      eyebrow: "CONSULTING START POINTS",
+      eyebrow: "Consulting start points",
       headline: "Start with one decision that needs to be done well.",
       intro: "You do not need to adopt a large system first. Bring a growth opportunity, a repeated task, or a customer journey, and make the real problem and next move clear.",
       items: [
@@ -599,10 +599,10 @@ const dict = {
       ],
     },
     connectedCase: {
-      eyebrow: "PROBLEM DEFINITION",
+      eyebrow: "Problem definition",
       headline: "Ask the right question before deciding the next move.",
       intro: "Clients usually arrive with a request. My work is to clarify the objective, constraints, and decision underneath it.",
-      framingLabel: "PAUL ASKS FIRST",
+      framingLabel: "Paul asks first",
       framing: "What decision are we actually making? What information is missing? What would it cost to be wrong?",
       scenarioLabel: "Choose a commercial situation",
       labels: {
@@ -615,7 +615,7 @@ const dict = {
         {
           id: "overseas",
           tab: "Overseas growth",
-          eyebrow: "OVERSEAS DEVELOPMENT",
+          eyebrow: "Overseas development",
           request: "“Find us more overseas customers.”",
           questions: [
             "Do we need more names, or buyers with an external acquisition path that fits the supplier?",
@@ -629,7 +629,7 @@ const dict = {
         {
           id: "deal",
           tab: "Deal commitment",
-          eyebrow: "DEAL COMMITMENT",
+          eyebrow: "Deal commitment",
           request: "“The margin looks strong. Can we take the order?”",
           questions: [
             "When does the customer pay, and when must the factory be paid?",
@@ -643,7 +643,7 @@ const dict = {
         {
           id: "spending",
           tab: "Business spending",
-          eyebrow: "BUSINESS SPENDING",
+          eyebrow: "Business spending",
           request: "“We spent a lot. Why does the business not feel more effective?”",
           questions: [
             "What operating problem was this spending meant to improve?",
@@ -695,7 +695,7 @@ const dict = {
       },
     },
     dealReadiness: {
-      kicker: "DEAL READINESS REVIEW",
+      kicker: "Deal readiness review",
       headline: "Bring one live overseas deal. Leave with a clear basis before commitment.",
       intro: "Turn the information scattered across the buyer, RFQ, quote, payment terms, and timeline into a deal package the owner and commercial team can review together.",
       pathTitle: "One engagement. Three things left behind.",
@@ -712,7 +712,7 @@ const dict = {
       boundary: "It is not full financial, legal, compliance, or credit due diligence. It does not make the owner's final commitment.",
       cta: "See the commercial decision path",
       demoCta: "Assess my opportunity",
-      packLabel: "THE DELIVERY",
+      packLabel: "The delivery",
       packTitle: "A Deal Readiness Pack for the next commercial meeting",
       packIntro: "Not a polished summary. A working decision brief that makes the next action, evidence, and commitment boundary discussable.",
       snapshotAlt: "Commercial Decision Desk executive deal snapshot",
@@ -725,25 +725,25 @@ const dict = {
       packBoundary: "The delivery reflects evidence that is currently confirmable. System recommendations, UNKNOWNs, and the final human decision remain distinct.",
     },
     outcomes: {
-      eyebrow: "THE COMMERCIAL THREAD",
+      eyebrow: "The commercial thread",
       headline: "From spotting an opportunity to leaving a decision the team can hand over.",
       intro: "International trade is the flagship scenario; the same thinking applies to Taiwan SME questions on customers, quotes, payment, and delivery. Start from what the company can truly deliver, translate that into buyer-relevant reasons, then move into opportunity judgment, terms, and commitment boundaries. This is not a set of scattered tools—it is a conceptual judgment path a team can continue.",
-      pathEyebrow: "FROM COMPANY REALITY TO THE NEXT COMMERCIAL MOVE",
+      pathEyebrow: "From company reality to the next commercial move",
       pathSteps: ["What we can deliver", "Who cares, and why", "Buyers with a testable path", "Terms and UNKNOWNs", "Commitment boundary & handoff"],
       pathStatement: "From company reality, to a buyer-relevant reason, to whether you can commit—each step leaves evidence and UNKNOWNs, not just opinions.",
-      systemLabel: "WORK SYSTEM",
-      outputLabel: "DELIVERABLE",
+      systemLabel: "Work system",
+      outputLabel: "Deliverable",
       boundary: "These pieces demonstrate working judgment flows and deliverables. They do not claim guaranteed revenue, ROI, or commercial adoption.",
       items: [
-        { label: "SPOT THE OPPORTUNITY", question: "Which overseas account deserves commercial effort first?", system: "Global Business Development", output: "Use supplier reality, Owner objective, candidate accounts, and UNKNOWNs to identify the next commercial path worth verifying.", linkLabel: "View business-development judgment", href: "#global-business-development" },
-        { label: "UNDERSTAND THE DEAL", question: "Can this opportunity move forward now?", system: "Commercial Decision Desk", output: "Deal structure, control factors, a Decision Path, and a Deal Brief for the meeting.", linkLabel: "View decision desk", href: "#commercial-decision-desk" },
-        { label: "TEST THE ECONOMICS", question: "Does the apparent margin really support this deal?", system: "Trade Profit Navigator", output: "Known costs, testable profit levers, cash exposure, and evidence still required.", linkLabel: "View profit navigator", href: "#trade-profit-navigator" },
-        { label: "CONTROL COMMITMENT", question: "Could payment and execution commitments overwhelm cash?", system: "Payment Concentration", output: "Currency-separated payment commitments, concentration exposure, and pre-commitment controls.", linkLabel: "View payment analysis", href: "#payment-concentration" },
-        { label: "LEAVE THE JUDGMENT", question: "What should the team take into the next meeting?", system: "Commercial Decision Desk", output: "A Deal Brief, Decision Ledger, human decision, and rerun conditions kept clearly distinct.", linkLabel: "View decision assets", href: "#commercial-decision-desk" },
+        { label: "Spot the opportunity", question: "Which overseas account deserves commercial effort first?", system: "Global Business Development", output: "Use supplier reality, Owner objective, candidate accounts, and UNKNOWNs to identify the next commercial path worth verifying.", linkLabel: "View business-development judgment", href: "#global-business-development" },
+        { label: "Understand the deal", question: "Can this opportunity move forward now?", system: "Commercial Decision Desk", output: "Deal structure, control factors, a Decision Path, and a Deal Brief for the meeting.", linkLabel: "View decision desk", href: "#commercial-decision-desk" },
+        { label: "Test the economics", question: "Does the apparent margin really support this deal?", system: "Trade Profit Navigator", output: "Known costs, testable profit levers, cash exposure, and evidence still required.", linkLabel: "View profit navigator", href: "#trade-profit-navigator" },
+        { label: "Control commitment", question: "Could payment and execution commitments overwhelm cash?", system: "Payment Concentration", output: "Currency-separated payment commitments, concentration exposure, and pre-commitment controls.", linkLabel: "View payment analysis", href: "#payment-concentration" },
+        { label: "Leave the judgment", question: "What should the team take into the next meeting?", system: "Commercial Decision Desk", output: "A Deal Brief, Decision Ledger, human decision, and rerun conditions kept clearly distinct.", linkLabel: "View decision assets", href: "#commercial-decision-desk" },
       ],
     },
     verification: {
-      eyebrow: "HOW IT'S VERIFIED",
+      eyebrow: "How it's verified",
       headline: "How each piece is verified",
       intro: "Not \"trust me\" — rerunnable checks, honest unknowns, and numbers you can compare. A summary of how the current work is validated.",
       works: {
@@ -765,7 +765,7 @@ const dict = {
       boundary: "Verification proves tool behavior and discipline, not commercial outcomes. No client results, ROI, or adoption claims are included.",
     },
     methods: {
-      eyebrow: "METHODOLOGY",
+      eyebrow: "Methodology",
       headline: "How I judge, negotiate, and commit",
       intro: "These articles are not what I \"believe\" — they are disciplines written into working tools, shaped from commercial workflows and tool design. Each one traces back to a functioning way of working.",
       read: "Read full article",
@@ -775,18 +775,18 @@ const dict = {
       disclosure: "Methodology sharing; not legal advice, and no client outcomes are claimed.",
     },
     capabilities: {
-      eyebrow: "COMMERCIAL ENGAGEMENTS",
+      eyebrow: "Commercial engagements",
       headline: "Start with one decision that matters",
       tagline: "Clarify the commercial problem, evidence, and next move before deciding what to automate or build.",
       detailExpand: "Show delivery flow, demand validation, and supporting capabilities",
       detailCollapse: "Hide detail",
       engagement: {
-        eyebrow: "START WITH A COMMERCIAL QUESTION",
+        eyebrow: "Start with a commercial question",
         title: "Make one question you cannot commit on by instinct clear first.",
         summary: "Do not start by adopting a large system. Bring a live opportunity, quote, or stuck workflow, and make the next judgment usable for the team.",
-        bringLabel: "BRING",
-        workLabel: "WORK THROUGH",
-        takeawayLabel: "TAKE AWAY",
+        bringLabel: "Bring",
+        workLabel: "Work through",
+        takeawayLabel: "Take away",
         cta: "See the engagement detail",
         boundary: "This is a human-reviewed commercial engagement built around working briefs. Finance, legal, compliance, credit, and final commitments remain with the owner and the appropriate professionals.",
         offers: [
@@ -818,7 +818,7 @@ const dict = {
       },
       supportingHeadline: "Supporting capabilities",
       delivery: {
-        eyebrow: "COMMERCIAL DELIVERY LOOP",
+        eyebrow: "Commercial delivery loop",
         title: "From customer discovery to a decision before commitment.",
         intro: "This is not a stack of tools. Each opportunity moves through traceable discovery, confirmation, judgment, control, and delivery.",
         discoveryLabel: "Establish who deserves attention",
@@ -836,13 +836,13 @@ const dict = {
         boundary: "The current workflow uses owner confirmation and file-based handoff. It is not a CRM, live customer-data system, or automated decision service.",
       },
       demandLab: {
-        eyebrow: "SCENARIO READINESS",
+        eyebrow: "Scenario readiness",
         title: "Before automating, test the next commercial question.",
         intro: "We simulate emerging client needs, challenge the assumptions, and keep human review at the point where evidence becomes a decision.",
         cases: [
-          { label: "PAYMENT", title: "90-day terms versus a deposit", body: "Expose the commitment, evidence gap, and next negotiation question." },
-          { label: "TRADE", title: "A quote without a named delivery place", body: "Clarify responsibility before comparing price or making a promise." },
-          { label: "INTAKE", title: "A messy RFQ that needs structure", body: "Propose fields and unknowns for review. Never turn an unverified signal into a decision." },
+          { label: "Payment", title: "90-day terms versus a deposit", body: "Expose the commitment, evidence gap, and next negotiation question." },
+          { label: "Trade", title: "A quote without a named delivery place", body: "Clarify responsibility before comparing price or making a promise." },
+          { label: "Intake", title: "A messy RFQ that needs structure", body: "Propose fields and unknowns for review. Never turn an unverified signal into a decision." },
         ],
         note: "Synthetic scenario design · AI proposes structure · human judgment remains authoritative",
       },
@@ -950,7 +950,7 @@ const dict = {
       builtWith: "This site was built and deployed through Codex, Claude Code, and DSH collaboration, led by Paul. Fully traceable.",
     },
     garage: {
-      eyebrow: "THE DIGITAL GARAGE",
+      eyebrow: "The digital garage",
       headline: "Commercial ideas, given room to take shape.",
       intro: "The Digital Garage is where early commercial ideas and AI prototypes take shape. Start with a small experiment, see what possibility it opens, and consider what may be worth exploring further or developing into a product.",
       bridgeEyebrow: "Digital Garage",

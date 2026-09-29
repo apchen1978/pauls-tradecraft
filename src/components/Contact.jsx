@@ -15,13 +15,13 @@ export default function Contact() {
       : "mailto:paulchen1978@gmail.com?subject=%E8%A8%8E%E8%AB%96%E5%95%86%E6%A5%AD%20Pilot&body=Paul%20%E4%BD%A0%E5%A5%BD%EF%BC%8C%0A%0A%E6%88%91%E6%83%B3%E8%A8%8E%E8%AB%96%E4%B8%80%E5%80%8B%E5%95%86%E6%A5%AD%20Pilot%E3%80%82%0A%0A%E5%95%8F%E9%A1%8C%E8%83%8C%E6%99%AF%EF%BC%9A";
   return (
     <section id="contact" className="scroll-mt-24 bg-pine text-bone">
-      <div className="mx-auto max-w-7xl px-4 py-24 text-center md:px-6 md:py-32">
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center md:px-6 md:py-36">
         <motion.h2
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-16px" }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="mx-auto max-w-2xl text-3xl font-semibold leading-[1.2] tracking-[-0.02em] text-bone md:text-[2.625rem]"
+          className="mx-auto max-w-2xl text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] text-bone md:text-[3.25rem]"
         >
           {t.contact.headline}
         </motion.h2>
