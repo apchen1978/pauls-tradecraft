@@ -24,12 +24,12 @@
   --color-gold: #e7b65b; /* warm brass highlight for dark surfaces */
   --color-research: #536d87;
   --color-graphite: #48535a;
-  --color-line: #dde2d8;
+  --color-line: #cdd4c9;
   --color-card: #fbfbf8; /* raised card surface on bone */
 
-  /* Shape system: cards 16px, buttons & fields 10px, chips = full pill */
-  --radius-card: 1rem;
-  --radius-field: 0.625rem;
+  /* Shape system (editorial): cards and fields 4px, chips = full pill */
+  --radius-card: 0.25rem;
+  --radius-field: 0.25rem;
   --radius-pill: 999px;
 
   /* Type scale: CJK text never drops below 13px; body reads at 15–17px. */
@@ -101,7 +101,7 @@
   /* Section kicker: quiet label led by a short brass rule. Colour follows
      the text colour class it is paired with (moss on light, gold on dark). */
   .eyebrow {
-    @apply inline-flex items-center gap-3 text-xs font-medium uppercase tracking-[0.08em];
+    @apply inline-flex items-center gap-3 text-sm font-medium;
   }
   .eyebrow::before {
     content: "";
@@ -113,9 +113,6 @@
   }
   .surface-paper {
     background-color: var(--color-card);
-    box-shadow:
-      0 1px 2px rgb(20 51 41 / 0.04),
-      0 16px 40px -28px rgb(20 51 41 / 0.28);
   }
   .surface-muted {
     background-color: rgb(233 237 228 / 0.45);
