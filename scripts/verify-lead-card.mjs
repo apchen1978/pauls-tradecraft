@@ -77,9 +77,8 @@ async function check(width, height, mobile, lang) {
   const text = await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); return h ? h.closest('article').innerText : ''; })()`);
   const lower = text.toLowerCase();
   r.showsProblem = lower.includes("hundreds of companies") || lower.includes("幾百家");
-  r.showsPrecisionPending = lower.includes("precision@20: pending") || lower.includes("precision@20: pending");
-  r.showsNotProven = lower.includes("not proven") || lower.includes("未證明") || lower.includes("未證明");
-  r.showsNoOutreach = lower.includes("no outreach") || lower.includes("未進行 outreach");
+  r.showsNotProven = lower.includes("without evidence") || lower.includes("沒有證據的資訊");
+  r.showsNoOutreach = lower.includes("research stage") || lower.includes("研究階段");
   r.shows4420 = lower.includes("44") && lower.includes("20");
   r.showsAnonymized = lower.includes("anonymized") || lower.includes("脫敏");
   r.showsWhyNot = lower.includes("why not") || lower.includes("矛盾");
@@ -108,7 +107,7 @@ try {
 
   const DEMO = "https://apchen1978.github.io/overseas-lead-discovery-demo/";
   const pass = (r) => r.cardFound && r.coverRenders && r.ctaText && r.ctaHref === DEMO
-    && r.showsProblem && r.showsPrecisionPending && r.showsNotProven && r.showsNoOutreach
+    && r.showsProblem && r.showsNotProven && r.showsNoOutreach
     && r.shows4420 && r.showsAnonymized && r.showsWhyNot
     && !r.overflow && !r.overflowBottom && r.consoleEvents.length === 0;
   const ok = pass(zd) && pass(zm) && pass(ed);

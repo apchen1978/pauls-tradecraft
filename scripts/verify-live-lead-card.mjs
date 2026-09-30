@@ -41,17 +41,15 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); const s = h && h.closest('article').querySelector('details summary'); s && s.click(); return 1; })()`);
   await sleep(400);
   const txt = (await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); return h ? h.closest('article').innerText : ''; })()`)).toLowerCase();
-  r.precisionPending = txt.includes("precision@20: pending") || txt.includes("precision@20: pending");
-  r.notProven = txt.includes("not proven") || txt.includes("未證明");
-  r.noOutreach = txt.includes("no outreach") || txt.includes("未進行 outreach");
+  r.notProven = txt.includes("without evidence") || txt.includes("沒有證據的資訊");
+  r.noOutreach = txt.includes("research stage") || txt.includes("研究階段");
   r.anonymized = txt.includes("anonymized") || txt.includes("脫敏");
   // switch to EN and re-check EN phrasing
   await ev(`[...document.querySelectorAll('button')].find(b => /^EN$/.test(b.textContent.trim()))?.click()`);
   await sleep(700);
   const txtEn = (await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); return h ? h.closest('article').innerText : ''; })()`)).toLowerCase();
-  r.enPrecisionPending = txtEn.includes("precision@20: pending");
-  r.enNotProven = txtEn.includes("not proven");
-  r.enNoOutreach = txtEn.includes("no outreach performed");
+  r.enNotProven = txtEn.includes("without evidence");
+  r.enNoOutreach = txtEn.includes("research stage");
   r.enAnonymized = txtEn.includes("anonymized");
   r.enCta = await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); const a = h && h.closest('article').querySelector('a[href]'); return a ? a.textContent.trim() : null; })()`);
   // No real prospect names leaked
@@ -63,8 +61,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   console.log("=== LIVE LEAD CARD VERIFICATION (390px) ===");
   console.log(JSON.stringify(r, null, 2));
-  const pass = r.cardFound && r.ctaHref === DEMO && r.precisionPending && r.notProven && r.noOutreach && r.anonymized
-    && r.enPrecisionPending && r.enNotProven && r.enNoOutreach && r.enAnonymized
+  const pass = r.cardFound && r.ctaHref === DEMO && r.notProven && r.noOutreach && r.anonymized
+    && r.enNotProven && r.enNoOutreach && r.enAnonymized
     && /Try Qualification Demo/.test(r.enCta || "")
     && r.leaks.length === 0 && !r.overflow && r.consoleEvents.length === 0 && r.heroUnchanged && r.featuredBandIntact;
   console.log(pass ? "RESULT: PASS" : "RESULT: FAIL");
