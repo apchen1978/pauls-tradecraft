@@ -454,7 +454,7 @@ def case_panel(x, y_top, w, h, num, title, body, status, accent, bg):
 
 case_panel(MARGIN, PAGE_H - 143, CONTENT_W, 174, '01',
            'Global Business Development · 海外商業開發',
-           '合成互動示範：同一組候選與證據，會因 Owner 目標不同而改變優先研究路徑；沒有採購路徑證據的高知名度帳戶維持 HOLD。供應商現實、產品切入、UNKNOWN 與內部資源關卡保持可檢視。',
+           '合成互動示範：同一組候選與證據，會因 Owner 目標不同而改變優先研究路徑；沒有採購路徑證據的高知名度帳戶先暫緩。供應商現實、產品切入、UNKNOWN 與內部資源關卡保持可檢視。',
            'synthetic demonstrator; human / market validation not performed', GOLD, PALE_GOLD)
 
 half_gap = 13
