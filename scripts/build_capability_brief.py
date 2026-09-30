@@ -281,7 +281,7 @@ for ln in wrap('Global commercial judgment made visible through AI-assisted work
 y -= 7
 c.setFont(JH, 10)
 c.setFillColor(HexColor('#C2CEDB'))
-for ln in wrap('15 年國際貿易總監 × AI 協作  |  TOEIC 955  |  Human-led, AI-accelerated', JH, 10, 400):
+for ln in wrap('15 年國際業務，含中國大陸通路與團隊管理  |  TOEIC 955  |  Human-led, AI-accelerated', JH, 10, 400):
     c.drawString(MARGIN, snap(y), ln)
     y -= 17
 
@@ -338,7 +338,7 @@ c.roundRect(MARGIN, stat_top - 67, CONTENT_W, 67, 5, stroke=0, fill=1)
 stat_width = CONTENT_W / 3
 for i, (big, label, accent) in enumerate([
         ('955', 'TOEIC (2019)', GOLD),
-        ('15年', '國際貿易總監', TEAL),
+        ('15年', '國際業務總監', TEAL),
         ('23/23', 'Pilot 流程驗證項目通過', BLUE)]):
     x = MARGIN + i * stat_width
     if i:
@@ -395,7 +395,7 @@ chapter_opener(c, '03', 'AI-Native Execution · AI 原生執行', 'AI 擴大 Pau
 column_gap = 14
 column_w = (CONTENT_W - column_gap) / 2
 number_tile(c, MARGIN, PAGE_H - 151, column_w, 215, '01', 'AI 能做什麼',
-            '擴大公開研究、整理分散資訊、比較候選、保留反證與 UNKNOWN、檢查矛盾、快速把商業邏輯做成可操作原型。它讓一位有商業判斷的人，能處理更廣的資訊與更快的反覆驗證。',
+            '擴大公開研究、整理分散資訊、比較候選、保留反證與未知、檢查矛盾、快速把商業邏輯做成可操作原型。它讓一位有商業判斷的人，能處理更廣的資訊與更快的反覆驗證。',
             accent=BLUE, bg=PALE_BLUE, body_size=8.8, title_size=12)
 number_tile(c, MARGIN + column_w + column_gap, PAGE_H - 151, column_w, 215, '02', 'AI 不替誰做決定',
             '供應商能否交付、哪一條市場路徑值得投入、開發是否動用資源、報價與付款能否承諾，仍需要 Owner 的目標、外部證據與明確授權。AI inference 不是買方意圖；開發需求不是訂單。',
@@ -465,7 +465,7 @@ case_panel(MARGIN, PAGE_H - 336, half_w, 201, '02',
            'no buyer, response, RFQ, order, or revenue claim', TEAL, PALE_TEAL)
 case_panel(MARGIN + half_w + half_gap, PAGE_H - 336, half_w, 201, '03',
            'Commercial Decision Desk · 商業決策收斂層',
-           '商機、交易條件、付款暴露、矛盾與 UNKNOWN，收斂為可稽核的人類決策。硬規則引擎化，並保留「系統建議」與「人類決定」的分界。',
+           '商機、交易條件、付款暴露、矛盾與未知，收斂為可稽核的人類決策。硬規則引擎化，並保留「系統建議」與「人類決定」的分界。',
            'synthetic proof; adoption / ROI not yet proven', BLUE, PALE_BLUE)
 
 c.setFillColor(NAVY)
@@ -476,7 +476,7 @@ c.drawString(MARGIN + 16, 225, '三個值得記住的判斷')
 c.setFont(JH, 8)
 c.setFillColor(WHITE)
 para(c, MARGIN + 16, 207,
-     '供應商現實先於買方搜尋 · 市場相關性不等於買方可能性 · UNKNOWN 可以改變下一步。',
+     '供應商現實先於買方搜尋 · 市場相關性不等於買方可能性 ·未知可以改變下一步。',
      JH, 8, WHITE, CONTENT_W - 32, leading=12)
 footer(c, 5)
 c.showPage()
@@ -491,7 +491,7 @@ number_tile(c, MARGIN, PAGE_H - 151, half_w, 222, '01',
             accent=TEAL, bg=PALE_TEAL, body_size=8.3, title_size=9.3)
 number_tile(c, MARGIN + half_w + half_gap, PAGE_H - 151, half_w, 222, '02',
             'Trade Profit Navigator · 利潤槓桿導航',
-            '把單筆貿易拆成可見的利潤槓桿、現金暴露、風險與 UNKNOWN，讓 Owner 比較下一步要測試什麼，而不是把計算結果偽裝成自動建議。',
+            '把單筆貿易拆成可見的利潤槓桿、現金暴露、風險與未知，讓 Owner 比較下一步要測試什麼，而不是把計算結果偽裝成自動建議。',
             accent=GOLD, bg=PALE_GOLD, body_size=8.7, title_size=10.1)
 draw_pill(c, MARGIN + 14, PAGE_H - 341, 'SYNTHETIC CASES · HUMAN VALIDATION PENDING', PALE_BLUE, BLUE, font_size=6.4)
 draw_pill(c, MARGIN + half_w + half_gap + 14, PAGE_H - 341,
