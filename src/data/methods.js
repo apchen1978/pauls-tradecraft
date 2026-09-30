@@ -151,7 +151,7 @@ export const methods = [
       en: [
         "\"Verified\" is everywhere now: tools say it, suppliers say it, AI output says it. The first question is not \"can I trust it\" but \"verified for what\".",
         "I split it into two lines. The first is artifact proof: it can be built, it meets the spec, it can be rerun, it can go live. This line can be checked objectively — does the build pass, what do the checks report, does the public URL open.",
-        "The second is market proof: someone actually uses it, pays for it, and buys again. There is no document to hand over for this line — only behaviour proves it.",
+        "The second is market proof: someone actually uses it, pays for it, and buys again. There is no document to hand over for this line — only behavior proves it.",
         "Mixing the two lines is expensive. Internally it creates over-optimism: pre-buying, hiring, and investing against the word \"verified\". Externally it creates over-promising: turning \"we can build it\" into \"many people already buy it\". Both mistakes are costly, and both usually surface after signature.",
         "My practice is simple but rare: label which line every claim belongs to. Artifact proof ships with a rerunnable check; market proof that does not exist yet is written as PENDING or UNKNOWN — never as \"coming soon\", never as \"expected\".",
         "The practical value for an owner: once you know which claims are artifact proof and which have no market proof yet, the boundary of commitment appears by itself — you can commit to what you can deliver, not to what will sell. Decision-making does not become more cautious; it becomes more precise.",

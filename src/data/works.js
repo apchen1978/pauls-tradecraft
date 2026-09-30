@@ -549,7 +549,7 @@ export const works = [
       stageTag: { zh: "可重現工作流", en: "Reproducible Workflow" },
       problem: {
         zh: "資訊散落在不同文件與人的理解裡；簡報常常只整理內容，卻沒有讓團隊看清楚真正要決定什麼。",
-        en: "Information was scattered across documents and people’s interpretations; a deck could organise content without making the real decision visible.",
+        en: "Information was scattered across documents and people’s interpretations; a deck could organize content without making the real decision visible.",
       },
       approach: {
         zh: "先拆開事實、推論與未知，再把選項、取捨與下一個人類決定編排成可翻閱的敘事；以 spec JSON 驅動 PPTX → PDF 管線，迭代三版。",
@@ -600,7 +600,7 @@ export const works = [
       },
       approach: {
         zh: "將已付款、預計開始使用、第一次回看分成三個時間點。讓人設定原本想改善的問題，並安排何時回來觀察；預期不會自動變成已實現效益。",
-        en: "Separate payment, expected start of use, and first review into three moments. Name the problem the spend is meant to improve and when to revisit it; an expectation never becomes a realised benefit by default.",
+        en: "Separate payment, expected start of use, and first review into three moments. Name the problem the spend is meant to improve and when to revisit it; an expectation never becomes a realized benefit by default.",
       },
       tools: {
         zh: "Vanilla HTML/CSS/JS · 本機互動原型 · 合成情境",

@@ -52,7 +52,7 @@ const copy = {
     intro: "Each question has a demo you can try right now. They use fictional data and take about two minutes to show how they help.",
     takeaway: "What you take away",
     demoNote: "Demo case (fictional data)",
-    note: "Every demo uses fictional data and no real client. AI only helps organise and calculate; whether to pursue and what to commit to stays with you.",
+    note: "Every demo uses fictional data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",
     cards: [
       {
         key: "lead",

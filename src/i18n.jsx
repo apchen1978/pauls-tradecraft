@@ -433,12 +433,12 @@ const dict = {
       builtWith: "此站由 Codex、Claude Code 與 DSH 協作建立並部署，由 Paul 主導，全程可追溯。",
     },
     garage: {
-      eyebrow: "數位車庫",
+      eyebrow: "Digital Garage · My creative-thinking garden",
       headline: "讓商業點子先在這裡慢慢成形。",
       intro: "這裡收集還在探索的商業點子與 AI 原型。先從小實驗開始，看看新的做法行不行，再決定哪些值得繼續試、進一步做成產品。",
       bridgeEyebrow: "Digital Garage",
       bridgeHeadline: "用小實驗，親自看看商業判斷還能怎麼用。",
-      bridgeLine: "主力工作台幫你看清承諾前的條件；數位車庫則把商業判斷做成小實驗，讓你試試還能帶出什麼新做法。",
+      bridgeLine: "主力工作台幫你看清承諾前的條件；Digital Garage 則把商業判斷做成小實驗，讓你試試還能帶出什麼新做法。",
       seeAll: "看所有實驗",
       featuredMark: "精選",
       items: [
@@ -888,7 +888,7 @@ const dict = {
       intro: "Accounting degree from NCCU; 15 years in international sales, developing markets across Southeast Asia, Japan, Korea, the Middle East, Europe, and the US.",
       narrative: [
         "For more than two decades, I’ve worked on the commercial front line.",
-        "I brought European, American, Japanese, and Russian brands into mainland China, organised local teams, and managed frontline sales reps and sales assistants across exclusive stores, wholesale, and project sales.",
+        "I brought European, American, Japanese, and Russian brands into mainland China, organized local teams, and managed frontline sales reps and sales assistants across exclusive stores, wholesale, and project sales.",
         "Across manufacturing, finance, international trade, and supply chains, I’ve dealt with costs, quotations, customers, suppliers, payments, risk, and decisions made with incomplete information.",
         "AI is not a departure from that experience. It is a new way to put it to work.",
         "I turn commercial judgment into executable, verifiable, and traceable systems.",
@@ -954,9 +954,9 @@ const dict = {
       builtWith: "This site was built and deployed through Codex, Claude Code, and DSH collaboration, led by Paul. Fully traceable.",
     },
     garage: {
-      eyebrow: "The digital garage",
+      eyebrow: "Digital Garage · My creative-thinking garden",
       headline: "Commercial ideas, given room to take shape.",
-      intro: "The Digital Garage is where early commercial ideas and AI prototypes take shape. Start with a small experiment, see what possibility it opens, and consider what may be worth exploring further or developing into a product.",
+      intro: "The Digital Garage is my creative-thinking garden, where early commercial ideas and AI prototypes take shape. Start with a small experiment, see what possibility it opens, and consider what may be worth exploring further or developing into a product.",
       bridgeEyebrow: "Digital Garage",
       bridgeHeadline: "Explore commercial judgment through small experiments.",
       bridgeLine: "The main workbench lays out the terms before commitment. The Digital Garage turns commercial judgment into tangible experiments, showing what other possibilities may open.",
