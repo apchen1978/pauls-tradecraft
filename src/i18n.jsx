@@ -363,9 +363,10 @@ const dict = {
     about: {
       eyebrow: "關於我",
       headline: "專業，偶爾風趣",
-      intro: "政大會計系畢業，15 年國際業務總監，服務歐美、亞太與中東市場。",
+      intro: "政大會計系畢業，15 年國際業務，開發過東南亞、日韓、中東與歐美市場。",
       narrative: [
         "二十多年，我一直在商業現場。",
+        "我把歐美、日本、俄羅斯品牌帶進中國大陸，組織本地團隊，管理一線業務員與銷售助理，做過專賣店、批發與工程銷售。",
         "從製造、財務會計、國際貿易到供應鏈，我長期面對成本、報價、客戶、供應商、付款與風險，也習慣在資訊不完整時做判斷。",
         "AI 不是離開過去，而是讓這些經驗有了新的實現方式。",
         "我把累積的商業判斷，轉化為可執行、可驗證、可追溯的系統。",
@@ -884,9 +885,10 @@ const dict = {
     about: {
       eyebrow: "About Me",
       headline: "Professional, occasionally witty",
-      intro: "Accounting degree from NCCU; 15 years as an international sales director across Europe, the Americas, Asia-Pacific, and the Middle East.",
+      intro: "Accounting degree from NCCU; 15 years in international sales, developing markets across Southeast Asia, Japan, Korea, the Middle East, Europe, and the US.",
       narrative: [
         "For more than two decades, I’ve worked on the commercial front line.",
+        "I brought European, American, Japanese, and Russian brands into mainland China, organised local teams, and managed frontline sales reps and sales assistants across exclusive stores, wholesale, and project sales.",
         "Across manufacturing, finance, international trade, and supply chains, I’ve dealt with costs, quotations, customers, suppliers, payments, risk, and decisions made with incomplete information.",
         "AI is not a departure from that experience. It is a new way to put it to work.",
         "I turn commercial judgment into executable, verifiable, and traceable systems.",
