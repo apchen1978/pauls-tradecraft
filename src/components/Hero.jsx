@@ -45,7 +45,7 @@ export default function Hero() {
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 max-w-2xl self-center">
           <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-sm font-medium text-gold">
             <span aria-hidden className="h-px w-6 bg-gold/80" />
-            {t.brand} · {t.brandNote}
+            {t.hero.kicker}
           </motion.p>
           <motion.h1
             variants={fadeUp}
@@ -58,7 +58,7 @@ export default function Hero() {
           </motion.p>
           <motion.div
             variants={fadeUp}
-            aria-label={lang === "zh" ? "專業基底" : "Professional foundation"}
+            aria-label={lang === "zh" ? "三件代表作品" : "Three representative works"}
             className="mt-4 grid max-w-2xl divide-y divide-bone/15 border-y border-bone/20 sm:mt-6 sm:grid-cols-3 sm:divide-x sm:divide-y-0"
           >
             {t.hero.credentials.map((credential, index) => (

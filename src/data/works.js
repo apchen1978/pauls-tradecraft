@@ -105,11 +105,11 @@ export const works = [
       },
     },
     deliverable: {
-      zh: "一份讓企業主先看懂支出商業意義、整理證據，並帶著更好的問題與 CPA 對話的 Owner Insight。",
+      zh: "一份讓企業主先看懂支出商業意義、整理證據，並帶著更好的問題與 CPA 對話的老闆洞察。",
       en: "An Owner Insight that helps an SME owner understand spending, prepare evidence, and bring better questions to a CPA or professional.",
     },
     demoNote: {
-      zh: "公開 Demo 為獨立 synthetic prototype（尚未經真人 SME／CPA 驗證）：不是記帳、報稅或節稅工具，不替代 CPA 判斷。",
+      zh: "公開 Demo 為獨立 合成資料原型（尚未經真人 SME／CPA 驗證）：不是記帳、報稅或節稅工具，不替代 CPA 判斷。",
       en: "Public demo is an independent synthetic prototype (not yet validated by real SME owners or CPAs): not bookkeeping, filing, or tax-saving software, and not a replacement for CPA judgment.",
     },
     zh: {
@@ -157,7 +157,7 @@ export const works = [
       },
     },
     case: {
-      stage: { zh: "Owner Insight 原型", en: "Owner Insight Prototype" },
+      stage: { zh: "老闆洞察原型", en: "Owner Insight Prototype" },
       stageTag: { zh: "本機合成案例 · 尚未真人驗證", en: "Synthetic local case · not human-validated" },
       spendingInsight: {
         zh: {
@@ -168,7 +168,7 @@ export const works = [
           exampleTitle: "合成走讀：辦公室整修 NT$600,000",
           example: "現金支出與空間改善是已知起點；工程內容、使用期間、租賃關係、付款與完工／啟用時間，才是讓後續處理可以被專業確認的事實集合。",
           exampleBoundary: "這不是個案稅務建議，也不代表任何支出必然可以認列、一次費用化或產生節稅效果。",
-          ownerFlowTitle: "Owner Insight 旅程",
+          ownerFlowTitle: "老闆洞察旅程",
           ownerFlow: [
             "用一句話描述支出與目的",
             "先看現金、效益、時間是否可能不同步",
@@ -183,7 +183,7 @@ export const works = [
             ["工具不做", "不替企業記帳、申報、計算節稅或判定資格。"],
           ],
           boundaryTitle: "證據與專業邊界",
-          boundary: "此原型的技術流程已完成檢查；它沒有真人 SME／CPA 使用或成果驗證。任何正式會計、稅務、法律與申報決定，仍由相應專業人士與 owner 負責。",
+          boundary: "此原型的技術流程已完成檢查；它沒有真人 SME／CPA 使用或成果驗證。任何正式會計、稅務、法律與申報決定，仍由相應專業人士與老闆負責。",
           notTested: ["真人 SME 是否更快理解支出", "CPA 是否實際節省時間", "節稅、現金或 ROI 結果", "個案正式稅務適用性"],
           closingTitle: "產品要留下的不是答案",
           closing: "而是一份讓老闆知道該準備什麼、該問什麼，並能讓 CPA 從更完整事實開始判斷的會前底稿。",
@@ -222,11 +222,11 @@ export const works = [
         en: "An SME owner may know money was spent without seeing how cash, benefit, timing, evidence, and professional treatment can differ—leaving the CPA conversation to start with scattered documents and expectations.",
       },
       approach: {
-        zh: "以花錢前／花錢後兩個入口，先用 plain business language 產生 Owner Insight，再以 progressive disclosure 保留 Professional Handoff；未知事項不補猜，專業問題不由工具回答。",
+        zh: "以花錢前／花錢後兩個入口，先用 plain business language 產生老闆洞察，再以 progressive disclosure 保留 Professional Handoff；未知事項不補猜，專業問題不由工具回答。",
         en: "Two entry points—before spending and after spending—produce a plain-language Owner Insight first, with a Professional Handoff behind progressive disclosure; unknowns remain unknown and professional questions are not answered by the tool.",
       },
       tools: {
-        zh: "Vanilla HTML/CSS/JavaScript · 合成案例 · deterministic local heuristic · Owner Insight / Professional Handoff 分層",
+        zh: "Vanilla HTML/CSS/JavaScript · 合成案例 · deterministic local heuristic · 老闆洞察 / Professional Handoff 分層",
         en: "Vanilla HTML/CSS/JavaScript · synthetic cases · deterministic local heuristic · layered Owner Insight / Professional Handoff",
       },
       result: {
@@ -281,7 +281,7 @@ export const works = [
         en: "Trade RFQs often arrive with incomplete information, conflicting supplier terms, and commercial risks that cannot be resolved by price alone.",
       },
       approach: {
-        zh: "把實務貿易判斷拆成 deterministic decision rules、UNKNOWN handling、供應商比較、evidence checks 與 human approval boundary；再以 fixture-only gateway 檢驗授權、版本與執行回執如何保持一致。",
+        zh: "把實務貿易判斷拆成 deterministic decision rules、未知 handling、供應商比較、evidence checks 與 human approval boundary；再以 fixture-only gateway 檢驗授權、版本與執行回執如何保持一致。",
         en: "I translated practical trade judgment into deterministic decision rules, UNKNOWN handling, supplier comparison, evidence checks, and explicit human approval boundaries, then used a fixture-only gateway to test how authorization, version scope, and execution receipts remain aligned.",
       },
       tools: {
@@ -745,7 +745,7 @@ export const works = [
       id: "global-business-development",
       label: { zh: "延伸：從候選名單到商業資源判斷", en: "Next: from candidate list to commercial-resource judgment" },
       note: {
-        zh: "這個 Demo 證明如何把公開訊號收斂成可檢視的候選短名單；下一層才是依供應商現實、Owner 目標與 UNKNOWN 決定資源該往哪裡去。",
+        zh: "這個 Demo 證明如何把公開訊號收斂成可檢視的候選短名單；下一層才是依供應商現實、老闆目標與未知決定資源該往哪裡去。",
         en: "This demo shows how public signals become an inspectable candidate shortlist. The next layer decides where effort belongs, given supplier reality, Owner objectives, and UNKNOWNs.",
       },
     },
@@ -754,7 +754,7 @@ export const works = [
         label: "產品流程",
         stages: [
           { label: "01 發現", value: "公開網路候選" },
-          { label: "02 資格化", value: "來源、WHY／WHY NOT、UNKNOWN" },
+          { label: "02 資格化", value: "來源、WHY／WHY NOT、未知" },
           { label: "03 交接", value: "人工確認後帶入商機評估" },
         ],
       },
@@ -768,7 +768,7 @@ export const works = [
       },
     },
     deliverable: {
-      zh: "一份附來源脈絡的候選短名單、每家公司的 WHY／WHY NOT、UNKNOWN，以及第一次接觸前要先確認的問題。",
+      zh: "一份附來源脈絡的候選短名單、每家公司的 WHY／WHY NOT、未知，以及第一次接觸前要先確認的問題。",
       en: "An evidence-qualified shortlist with source context, WHY / WHY NOT, explicit UNKNOWNs, and the questions to answer before first contact.",
     },
     demoNote: {
@@ -816,7 +816,7 @@ export const works = [
     id: "global-business-development",
     section: "commercial",
     featuredRank: 1,
-    cover: "/images/cover-global-business-development.svg",
+    cover: { zh: "/images/cover-global-business-development-zh.svg", en: "/images/cover-global-business-development.svg" },
     imageAlt: { zh: "海外商業開發：相同證據、不同目標、不同下一步的合成判斷示範", en: "Global business development: same evidence, different objective, different next move synthetic judgment demonstration" },
     span: "md:col-span-2",
     icon: "briefcase",
@@ -830,7 +830,7 @@ export const works = [
       },
       label: { zh: "開啟獨立互動示範", en: "Open the standalone demo" },
       note: {
-        zh: "同一個判斷問題的獨立頁面：切換 Owner 目標，看下一步研究優先順序如何改變。合成示範，不含真實買方或成果。",
+        zh: "同一個判斷問題的獨立頁面：切換老闆目標，看下一步研究優先順序如何改變。合成示範，不含真實買方或成果。",
         en: "The same judgment question on its own page: switch the Owner objective and watch the next research priority change. Synthetic demonstration; no real buyers or outcomes.",
       },
     },
@@ -838,12 +838,12 @@ export const works = [
       id: "ai-native-market-entry",
       label: { zh: "看證據案例：AI 原生市場開發", en: "See the evidence case: AI-Native Market Entry" },
       note: {
-        zh: "先看證據如何挑戰「相關」；再回到本案例，判斷在供應商現實與 Owner 目標已知時，商業資源該往哪裡去。",
+        zh: "先看證據如何挑戰「相關」；再回到本案例，判斷在供應商現實與老闆目標已知時，商業資源該往哪裡去。",
         en: "First see how evidence challenges relevance; then return here to decide where commercial effort belongs once supplier reality and the Owner objective are explicit.",
       },
     },
     deliverable: {
-      zh: "一份可檢視的商業開發判斷示範：從供應商現實與市場問題出發，尋找可能接得上的買方／通路，再把 Owner 目標、UNKNOWN、產品切入與內部資源關卡分開檢視。",
+      zh: "一份可檢視的商業開發判斷示範：從供應商現實與市場問題出發，尋找可能接得上的買方／通路，再把老闆目標、未知、產品切入與內部資源關卡分開檢視。",
       en: "An inspectable business-development judgment demonstration: start with supplier reality and market problems, find buyer or channel paths that may fit, then keep Owner objectives, UNKNOWNs, product entry, and internal resource gates distinct.",
     },
     demoNote: {
@@ -855,7 +855,7 @@ export const works = [
         label: "商業判斷流程",
         stages: [
           { label: "01 供應商現實", value: "先確認真正能交付什麼" },
-          { label: "02 Owner 目標", value: "說清楚現在要換取什麼" },
+          { label: "02 老闆目標", value: "說清楚現在要換取什麼" },
           { label: "03 證據化下一步", value: "把商業資源放到值得驗證的路徑" },
         ],
       },
@@ -870,9 +870,9 @@ export const works = [
     },
     zh: {
       title: "海外商業開發",
-      desc: "找到海外相關公司只是開始；從供應商現實與市場問題出發，主動找出可能接得上的買方，再用 Owner 目標與證據判斷哪裡值得投入商業資源。",
+      desc: "找到海外相關公司只是開始；從供應商現實與市場問題出發，主動找出可能接得上的買方，再用老闆目標與證據判斷哪裡值得投入商業資源。",
       tag: "海外商業開發 · 商業判斷 · 合成互動示範",
-      caseSummary: "同一組候選與證據，會因 Owner 的目標不同而改變優先路徑；主動尋找不等於直接承諾，沒有採購路徑證據的高知名度帳戶，仍應維持 HOLD。",
+      caseSummary: "同一組候選與證據，會因老闆的目標不同而改變優先路徑；主動尋找不等於直接承諾，沒有採購路徑證據的高知名度帳戶，仍應維持 HOLD。",
     },
     en: {
       title: "Global Business Development",
@@ -887,12 +887,12 @@ export const works = [
         zh: {
           kicker: "海外商業開發 · 合成互動示範",
           headline: "看起來相關，不代表值得投入業務資源。",
-          intro: "先看供應商能交付什麼、Owner 現在要達成什麼，再檢查每個帳戶是否有可支持的商業取得路徑。這不是買家名單，也不是成交預測。",
+          intro: "先看供應商能交付什麼、老闆現在要達成什麼，再檢查每個帳戶是否有可支持的商業取得路徑。這不是買家名單，也不是成交預測。",
           editorialLabel: "判斷原則",
           editorialLine: "我們要的，不是更漂亮的名單，而是更清楚的下一個問題。",
           syntheticNote: "合成示範 · 顯示方法如何影響下一步，不代表真實客戶、訂單或市場成果。",
           objectiveEyebrow: "Owner objective changes the next move",
-          objectiveTitle: "同一組候選，切換 Owner 目標後，下一步會改變。",
+          objectiveTitle: "同一組候選，切換老闆目標後，下一步會改變。",
           objectiveIntro: "這不是總分排序；目標不同，商業資源應被問的問題也不同。",
           objectivePrompt: "請選一個你現在真正要換取的目標，看看優先路徑與下一個問題如何改變。",
           decisionFrameLabel: "先定義判斷邊界",
@@ -925,24 +925,24 @@ export const works = [
               notYet: "不把設計參考或打樣興趣當成訂單。",
             },
           },
-          unknownLabel: "UNKNOWN 改變行動",
+          unknownLabel: "未知改變行動",
           unknownTitle: "高知名度建築品牌不會自動變成優先帳戶。",
-          unknownBody: "產品與市場形象可能相關，但外部採購路徑、買方角色與經濟條件仍是 UNKNOWN。名氣不是採購證據。",
-          unknownAction: "HOLD · 在採購路徑有證據前，不投入樣品或高階業務資源。",
+          unknownBody: "產品與市場形象可能相關，但外部採購路徑、買方角色與經濟條件仍是未知。名氣不是採購證據。",
+          unknownAction: "先暫緩 · 在採購路徑有證據前，不投入樣品或高階業務資源。",
           gateLabel: "Development Opportunity Gate",
           gateTitle: "設計參考／打樣需求，不等於訂單。",
-          gateBody: "它可以使內部檢視變得合理：技術可行性、開發資源、MOQ、經濟性、交期、品質、合規與 Owner 授權，仍需分開判斷。",
+          gateBody: "它可以使內部檢視變得合理：技術可行性、開發資源、MOQ、經濟性、交期、品質、合規與老闆授權，仍需分開判斷。",
           gateAction: "INTERNAL REVIEW MAY BE JUSTIFIED · 不是訂單預測。",
           methodLabel: "方法如何運作",
-          methodIntro: "每一步都留下下一個需要被驗證的問題；系統協助擴大比較範圍，Owner 保留判斷與授權。",
-          method: ["先確認供應商現實", "說清楚 Owner 目標", "辨識買方／通路角色", "檢查可支持的商業取得路徑", "把 UNKNOWN 與反證保留在下一步"],
+          methodIntro: "每一步都留下下一個需要被驗證的問題；系統協助擴大比較範圍，老闆保留判斷與授權。",
+          method: ["先確認供應商現實", "說清楚老闆目標", "辨識買方／通路角色", "檢查可支持的商業取得路徑", "把未知與反證保留在下一步"],
           loops: [
-            { title: "Loop 1 · 海外商業開發", body: "供應商現實 → Owner 目標 → 帳戶／通路 → 證據 → 產品對話／買方訊號。" },
+            { title: "Loop 1 · 海外商業開發", body: "供應商現實 → 老闆目標 → 帳戶／通路 → 證據 → 產品對話／買方訊號。" },
             { title: "Loop 2 · 商業到生產", body: "只有當買方訊號足以支持內部資源考量時，才開始可行性、樣品、經濟條件與談判。" },
           ],
-          decisionBriefLabel: "給 Owner 的決策交接底稿",
+          decisionBriefLabel: "給老闆的決策交接底稿",
           decisionBriefTitle: "這裡留下的是一個可被確認的下一步，而不是自動結論。",
-          decisionBriefBody: "當出現真實的交易條件、付款、責任、經濟性或內部資源承諾時，再把已知、UNKNOWN 與需要確認的問題帶入下一層評估。",
+          decisionBriefBody: "當出現真實的交易條件、付款、責任、經濟性或內部資源承諾時，再把已知、未知與需要確認的問題帶入下一層評估。",
           boundaries: ["SYNTHETIC DEMONSTRATION", "METHOD VISIBILITY：DEMONSTRATED", "HUMAN VALIDATION：NOT PERFORMED", "MARKET VALIDATION：NOT PERFORMED", "PUBLIC OUTCOME CLAIMS：NOT VALIDATED"],
           handoff: "當出現值得進一步確認的商機時，下一站是：",
           handoffLink: "商務決策工作台（CDD）",
@@ -1102,7 +1102,7 @@ export const works = [
         en: "Using a synthetic supplier as the fixed test condition, the work structured public U.S. product, channel, specification, and role evidence; it separated relevant accounts from possible buyers, then retained only channel candidates with signals of a commercial acquisition path.",
       },
       tools: {
-        zh: "公開市場研究 · 角色分類 · 證據與反證紀錄 · UNKNOWN 保留 · 人工 readiness review",
+        zh: "公開市場研究 · 角色分類 · 證據與反證紀錄 · 未知保留 · 人工 readiness review",
         en: "Public-market research · role classification · evidence and counter-evidence records · UNKNOWN preservation · human readiness review",
       },
       result: {
@@ -1130,7 +1130,7 @@ export const works = [
             ["角色", "可能的通路路徑（不是已確認買家）"],
             ["目前狀態", "PLAUSIBLE_WITH_MAJOR_GAPS"],
             ["已知訊號", "產品／市場相關性可由公開資料支持"],
-            ["仍為 UNKNOWN", "是否願意向外部供應商採購、採購權責、實際需求"],
+            ["仍為未知", "是否願意向外部供應商採購、採購權責、實際需求"],
             ["下一個確認", "先確認商業取得路徑，再決定是否投入樣品與業務時間"],
           ],
           handoffTitle: "下一階段：CDD 商務決策工作台",
@@ -1200,7 +1200,7 @@ export const works = [
       id: "global-business-development",
       label: { zh: "回到商業開發判斷", en: "Back to business-development judgment" },
       note: {
-        zh: "證據案例回答「為什麼不能只看相關」；回到 GBD，繼續看 Owner 目標如何改變資源優先順序。",
+        zh: "證據案例回答「為什麼不能只看相關」；回到 GBD，繼續看老闆目標如何改變資源優先順序。",
         en: "This evidence case explains why relevance is not enough; return to GBD to see how the Owner objective changes resource priority.",
       },
     },
@@ -1221,7 +1221,7 @@ export const works = [
       en: "Which profit lever is worth testing before the deal moves?",
     },
     demoNote: {
-      zh: "公開 Demo 為獨立 synthetic prototype：情境為合成 USD 案例，不含真實客戶資料。",
+      zh: "公開 Demo 為獨立 合成資料原型：情境為合成 USD 案例，不含真實客戶資料。",
       en: "Public demo is an independent synthetic prototype: the scenario is a synthetic USD case with no real customer data.",
     },
     deliverable: {
@@ -1243,13 +1243,13 @@ export const works = [
     },
     case: {
       stage: { zh: "技術原型", en: "Technical Prototype" },
-      stageTag: "45/45 + 6/6 + 39/39 PASS",
+      stageTag: { zh: "計算已通過自動測試", en: "45/45 + 6/6 + 39/39 PASS" },
       problem: {
         zh: "貿易團隊常看見單價或毛利，卻看不見為了取得這個 upside 要增加多少現金暴露、庫存與執行風險。",
         en: "Trade teams may see price or margin, but not the cash exposure, inventory, and execution risk required to capture the upside.",
       },
       approach: {
-        zh: "建立一個獨立、證據優先的互動原型，把已知 economics 與 UNKNOWN 拆開，並比較成本、MOQ、供應方案等三個具體槓桿。",
+        zh: "建立一個獨立、證據優先的互動原型，把已知 economics 與未知拆開，並比較成本、MOQ、供應方案等三個具體槓桿。",
         en: "Built an isolated, evidence-aware interactive prototype that separates known economics from UNKNOWN and compares three concrete levers across cost, MOQ, and supply-solution moves.",
       },
       tools: {
@@ -1257,7 +1257,7 @@ export const works = [
         en: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Synthetic USD case · Adversarial harness",
       },
       result: {
-        zh: "完成可操作的 Trade Profit Navigator：可調整數量、採購價、銷售價與 MOQ，並將每個槓桿連到 economics、cash、risk、evidence、UNKNOWN 與 Owner decision。空白或無效輸入維持 UNKNOWN，不當成零。新增落地成本與敏感度：每一項成本標明來自案例或假設，計入付款時程的資金成本與進口關稅由誰負擔，並找出最弱的一環；在預設假設下，Gulf 案例的售價讓價 3.0% 即達到擁有者最低要求。",
+        zh: "完成可操作的 Trade Profit Navigator：可調整數量、採購價、銷售價與 MOQ，並將每個槓桿連到 economics、cash、risk、evidence、未知與老闆 decision。空白或無效輸入維持未知，不當成零。新增落地成本與敏感度：每一項成本標明來自案例或假設，計入付款時程的資金成本與進口關稅由誰負擔，並找出最弱的一環；在預設假設下，Gulf 案例的售價讓價 3.0% 即達到擁有者最低要求。",
         en: "A working Trade Profit Navigator: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the owner decision. Blank or invalid inputs stay UNKNOWN, never zero. It adds landed economics and sensitivity: each cost is tagged as coming from the case or as an assumption, the funding cost of the payment timeline and who bears import duty are included, and the weakest link is identified; under the default assumptions, a 3.0% price concession takes the Gulf case to the owner's minimum.",
       },
       evidence: {
@@ -1324,13 +1324,13 @@ export const works = [
     },
     case: {
       stage: { zh: "引擎已驗證 · 案例為虛構資料", en: "engine verified · case is fictional" },
-      stageTag: "Decision support · Human-in-the-loop",
+      stageTag: { zh: "決策輔助・由人拍板", en: "Decision support · Human-in-the-loop" },
       problem: {
         zh: "商機判斷分散在證據、交易條件、付款風險與人為經驗中，難以一次看全，也難以追溯「為什麼這樣決定」。",
         en: "Commercial judgment is scattered across evidence, trade terms, payment risk, and experience — hard to see at once and hard to trace why a decision was made.",
       },
       approach: {
-        zh: "把商機從外部證據一路收斂到人類決策：DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE。確定性規則產生決策支援狀態（PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE），矛盾與 UNKNOWN 全程浮現；Commercial Momentum 僅作已知商業訊號的 owner-governed context，不能覆蓋目前決策位置。Executive Deal Snapshot 只用既有證據總覽關鍵決策資訊。",
+        zh: "把商機從外部證據一路收斂到人類決策：DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE。確定性規則產生決策支援狀態（PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE），矛盾與未知全程浮現；Commercial Momentum 僅作已知商業訊號的老闆-governed context，不能覆蓋目前決策位置。Executive Deal Snapshot 只用既有證據總覽關鍵決策資訊。",
         en: "Traces an opportunity from external evidence to a human decision: DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE. Deterministic rules produce decision-support states (PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE), while contradictions and UNKNOWNs stay visible. Commercial Momentum is owner-governed context for known commercial signals only; it cannot override the current decision position. The Executive Deal Snapshot summarizes key decision information from existing evidence only.",
       },
       tools: {
@@ -1338,7 +1338,7 @@ export const works = [
         en: "Plain HTML/CSS/JS · deterministic decision rules · synthetic fixture · zero backend / zero persistence",
       },
       result: {
-        zh: "以合成商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與 UNKNOWN → Human Decision。8 條硬規則引擎化，65/65 自動檢查通過（含網路政策檢查）；Executive Deal Snapshot 將商機、買方、市場、產品、數量、訂單收入、Incoterm、預期淨貢獻、目前建議與控制因素放在一屏，缺值維持 UNKNOWN、淨貢獻未算即顯示「未計算」，不造假。另有翻轉地圖（哪些確認會讓建議前進或翻轉）、付款保障（信用狀、出口信用保險）與匯率曝險評估；判斷核心不變，它們只登記未知項。",
+        zh: "以合成商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與未知 → Human Decision。8 條硬規則引擎化，65/65 自動檢查通過（含網路政策檢查）；Executive Deal Snapshot 將商機、買方、市場、產品、數量、訂單收入、Incoterm、預期淨貢獻、目前建議與控制因素放在一屏，缺值維持未知、淨貢獻未算即顯示「未計算」，不造假。另有翻轉地圖（哪些確認會讓建議前進或翻轉）、付款保障（信用狀、出口信用保險）與匯率曝險評估；判斷核心不變，它們只登記未知項。",
         en: "Synthetic decision-design proof connecting evidence qualification, commercial feasibility, payment exposure, contradictions, UNKNOWNs, and mandatory human approval. Eight hard rules are enforced in the engine; 65/65 automated checks pass, including a network-policy check. An Executive Deal Snapshot puts the deal, buyer, market, product, quantity, deal value, Incoterm, expected net contribution, current recommendation, and control factors on one screen; missing values stay UNKNOWN and uncomputed net contribution shows \"not calculated\". Nothing is invented. Also added: a flip map (which confirmations move or flip the recommendation), payment-security assessment (letter of credit, export credit insurance) and currency exposure; the decision core is unchanged and they register UNKNOWNs only.",
       },
       evidence: {

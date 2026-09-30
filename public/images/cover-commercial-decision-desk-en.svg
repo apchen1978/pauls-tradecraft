@@ -7,33 +7,33 @@
   <path d="M74 164H1526" stroke="#d8d0c1" stroke-width="2"/>
   <circle cx="112" cy="111" r="8" fill="#c8942f"/>
   <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">SYNTHETIC CASE · COMMERCIAL DECISION DESK</text>
-  <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">OWNER-FACING SUMMARY</text>
-  <text x="116" y="235" fill="#9a4a35" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">30-SECOND EXECUTIVE READING</text>
+  <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">Owner-facing summary</text>
+  <text x="116" y="235" fill="#9a4a35" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">30-second executive reading</text>
   <text x="116" y="300" fill="#1d2b24" font-family="Georgia, serif" font-size="45" font-weight="700">What should we do with this deal now?</text>
   <rect x="1140" y="218" width="324" height="74" rx="37" fill="#f3e3bf"/>
-  <text x="1207" y="265" fill="#9a4a35" font-family="Arial, sans-serif" font-size="26" font-weight="700">ESCALATE FIRST</text>
+  <text x="1207" y="265" fill="#9a4a35" font-family="Arial, sans-serif" font-size="26" font-weight="700">Escalate first</text>
   <path d="M116 348H1484" stroke="#ddd5c8" stroke-width="2"/>
-  <text x="116" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">HOW BIG IS THIS DEAL</text>
+  <text x="116" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">How big is this deal</text>
   <text x="116" y="451" fill="#1d2b24" font-family="Arial, sans-serif" font-size="44" font-weight="700">480,000 USD</text>
   <path d="M522 372V465" stroke="#ddd5c8" stroke-width="2"/>
-  <text x="564" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">WHAT IT MAY EARN NOW</text>
+  <text x="564" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">What it may earn now</text>
   <text x="564" y="451" fill="#1d2b24" font-family="Arial, sans-serif" font-size="44" font-weight="700">120,000 USD</text>
   <path d="M1038 372V465" stroke="#ddd5c8" stroke-width="2"/>
-  <text x="1080" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">WHAT BLOCKS THIS NOW</text>
+  <text x="1080" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">What blocks this now</text>
   <text x="1080" y="435" fill="#1d2b24" font-family="Arial, sans-serif" font-size="22" font-weight="700">Payment terms conflict</text>
   <text x="1080" y="463" fill="#1d2b24" font-family="Arial, sans-serif" font-size="22" font-weight="700">Order quantity and final terms are unresolved</text>
   <path d="M116 505H1484" stroke="#ddd5c8" stroke-width="2"/>
-  <text x="116" y="550" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">WHAT TO OBTAIN NEXT</text>
+  <text x="116" y="550" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">What to obtain next</text>
   <text x="116" y="591" fill="#1d2b24" font-family="Arial, sans-serif" font-size="25" font-weight="700">Confirm payment terms: how, when, and how much is due before shipment.</text>
   <text x="116" y="627" fill="#7b7368" font-family="Arial, sans-serif" font-size="18">The desk separates recorded evidence from gaps. The Owner still makes the commitment.</text>
   <path d="M116 673H1484" stroke="#ddd5c8" stroke-width="2"/>
   <g font-family="Arial, sans-serif">
-    <text x="116" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">WILL WE GET PAID?</text>
+    <text x="116" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">Will we get paid?</text>
     <text x="116" y="759" fill="#9a4a35" font-size="26" font-weight="700">NOT LOCKED</text>
-    <text x="594" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">CAN WE DELIVER?</text>
-    <text x="594" y="759" fill="#315847" font-size="26" font-weight="700">RECORDED · CAPACITY TO VERIFY</text>
-    <text x="1128" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">COMMIT RESOURCES?</text>
-    <text x="1128" y="759" fill="#9a4a35" font-size="26" font-weight="700">ESCALATE FIRST</text>
+    <text x="594" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">Can we deliver?</text>
+    <text x="594" y="759" fill="#315847" font-size="26" font-weight="700">Recorded · capacity to verify</text>
+    <text x="1128" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">Commit resources?</text>
+    <text x="1128" y="759" fill="#9a4a35" font-size="26" font-weight="700">Escalate first</text>
   </g>
 </g>
 </svg>
