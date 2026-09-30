@@ -58,7 +58,7 @@ export default function Hero() {
           </motion.p>
           <motion.div
             variants={fadeUp}
-            aria-label={lang === "zh" ? "專業基底" : "Professional foundation"}
+            aria-label={lang === "zh" ? "三件代表作品" : "Three representative works"}
             className="mt-4 grid max-w-2xl divide-y divide-bone/15 border-y border-bone/20 sm:mt-6 sm:grid-cols-3 sm:divide-x sm:divide-y-0"
           >
             {t.hero.credentials.map((credential, index) => (
@@ -75,13 +75,13 @@ export default function Hero() {
           </motion.div>
           <motion.div variants={fadeUp} className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <a
-              href="#contact"
+              href="#three-questions"
               className="rounded-field bg-gold px-5 py-3 text-center text-sm font-semibold text-pine transition-[transform,background-color] hover:bg-[#f2be61] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
               {t.hero.ctaPrimary}
             </a>
             <a
-              href="#three-questions"
+              href="#contact"
               className="rounded-field border border-bone/55 px-5 py-3 text-center text-sm font-semibold text-bone transition-[transform,background-color,border-color,color] hover:border-gold/75 hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
               {t.hero.ctaSecondary}

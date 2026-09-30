@@ -7,13 +7,13 @@ const dict = {
     nav: { questions: "三個問題", works: "作品", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
-        { value: "15 年", label: "國際業務總監" },
-        { value: "專賣店・批發・工程", label: "在中國大陸做過的通路" },
-        { value: "業務員・銷售助理", label: "組織並管理的團隊" },
+        { value: "找買家", label: "海外客戶開發路線圖" },
+        { value: "算利潤", label: "貿易利潤導航" },
+        { value: "談承諾", label: "商務決策工作台" },
       ],
-      kicker: "國際業務・會計底子・AI 原生",
-      headline: "15 年國際業務經驗，幫你找到海外商機、談成訂單，也算得出利潤。",
-      sub: "開發過東南亞、日韓、中東與歐美；把歐美日俄品牌引進中國大陸，帶團隊做專賣店、批發與工程。我幫想做外銷、卻不知從何接上買家的老闆：找到買家、算清楚賺不賺、把訂單談到能簽。AI 幫忙整理與試算，決定由你做。",
+      kicker: "個人 AI 作品集",
+      headline: "一位國際業務的 AI 工作筆記。",
+      sub: "把每天要下的判斷：找買家、算利潤、談成訂單，一個一個做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路與團隊管理。",
       youGet: "從一個重要問題開始",
       outcomesHeadline: "你現在最像哪一種情況？",
       outcomesIntro: "不是先挑工具。先從你此刻需要釐清的一個商業問題開始。",
@@ -44,8 +44,8 @@ const dict = {
           href: "#business-spending-insight",
         },
       ],
-      ctaPrimary: "帶一個產品或一位買家來聊",
-      ctaSecondary: "看我怎麼工作",
+      ctaPrimary: "試玩作品",
+      ctaSecondary: "聊聊你的生意",
       imgCaption: "窗簾軟裝 Pilot 追蹤器 · 實際畫面",
       featuredKicker: "Featured business proof",
       featuredHook1: "每張訂單單看都沒問題。",
@@ -528,13 +528,13 @@ const dict = {
     nav: { questions: "Three questions", works: "Work", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
-        { value: "15 years", label: "International sales leadership" },
-        { value: "Stores · Wholesale · Projects", label: "Channels built in mainland China" },
-        { value: "Sales reps · Sales assistants", label: "Teams organised and managed" },
+        { value: "Find buyers", label: "Overseas lead discovery" },
+        { value: "Know the profit", label: "Trade Profit Navigator" },
+        { value: "Decide the commitment", label: "Commercial Decision Desk" },
       ],
-      kicker: "International sales · Accounting base · AI-native",
-      headline: "15 years of international sales: find the overseas opportunity, close the order, and know the profit.",
-      sub: "I have developed markets across Southeast Asia, Japan, Korea, the Middle East, Europe and the US, and brought Western, Japanese and Russian brands into mainland China, leading teams in stores, wholesale and projects. I help owners who want to sell abroad but do not know how to reach buyers: find the buyer, work out whether it pays, and get the order to a signable deal. AI helps organise and calculate; the decision is yours.",
+      kicker: "Personal AI portfolio",
+      headline: "An international salesperson's AI working notes.",
+      sub: "The judgment calls of everyday international sales, finding buyers, working out the profit, closing orders, built one by one into tools you can try. Background: 15 years in international sales, including mainland China channels and team management.",
       youGet: "Start with one important question",
       outcomesHeadline: "Which situation feels most familiar right now?",
       outcomesIntro: "Do not start with a tool. Start with the commercial question that needs clarity now.",
@@ -565,8 +565,8 @@ const dict = {
           href: "#business-spending-insight",
         },
       ],
-      ctaPrimary: "Bring a product or a buyer to discuss",
-      ctaSecondary: "See how I work",
+      ctaPrimary: "Try the work",
+      ctaSecondary: "Talk about your deal",
       imgCaption: "Curtain soft-furnishing pilot tracker · live view",
       featuredKicker: "Featured business proof",
       featuredHook1: "Each order looks manageable.",
@@ -1049,12 +1049,12 @@ const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 // 語言切換時同步 <html lang>、title 與分享用描述（SEO / a11y）。
 // 用字跟首頁 hero 對齊：中文「賺不賺得到」；英文 "whether it is profitable"。
 const titles = {
-  zh: "Paul's Tradecraft｜15 年國際業務經驗，幫你找到海外商機、談成訂單，也算得出利潤",
-  en: "Paul's Tradecraft | 15 Years of International Sales: Find the Opportunity, Close the Order, Know the Profit",
+  zh: "Paul's Tradecraft｜一位國際業務的 AI 工作筆記",
+  en: "Paul's Tradecraft | An International Salesperson's AI Working Notes",
 };
 const ogDescriptions = {
-  zh: "Paul Chen，15 年國際業務經驗（東南亞、日韓、中東、歐美；把歐美日俄品牌引進中國大陸，組織並管理業務團隊，做專賣店、批發、工程），具會計底子與 AI 原生工作方式。幫想做外銷的老闆與團隊找到買家、算清楚賺不賺、把訂單談到能簽。",
-  en: "Paul Chen: 15 years of international sales across Southeast Asia, Japan, Korea, the Middle East, Europe and the US (including bringing Western, Japanese and Russian brands into mainland China through stores, wholesale and projects, while managing sales teams), with an accounting foundation and AI-native working methods. I help owners and teams find buyers, work out whether it pays, and get orders to a signable deal.",
+  zh: "Paul Chen 的個人 AI 作品集：把國際業務每天要下的判斷（找買家、算利潤、談成訂單）做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路與團隊管理。",
+  en: "Paul Chen's personal AI portfolio: the judgment calls of international sales (finding buyers, working out profit, closing orders) built into tools you can try. Background: 15 years in international sales, including mainland China channels and team management.",
 };
 
 // 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。
