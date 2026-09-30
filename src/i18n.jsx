@@ -441,6 +441,7 @@ const dict = {
       bridgeLine: "主力工作台幫你看清承諾前的條件；Digital Garage 則把商業判斷做成小實驗，讓你試試還能帶出什麼新做法。",
       seeAll: "看所有實驗",
       featuredMark: "精選",
+      moreLabel: "看其餘實驗",
       items: [
         {
           title: "Bring Paul Into the Room · 先把問題帶進來",
@@ -962,6 +963,7 @@ const dict = {
       bridgeLine: "The main workbench lays out the terms before commitment. The Digital Garage turns commercial judgment into tangible experiments, showing what other possibilities may open.",
       seeAll: "See all sparks",
       featuredMark: "Featured",
+      moreLabel: "More experiments",
       items: [
         {
           title: "Bring Paul Into the Room",

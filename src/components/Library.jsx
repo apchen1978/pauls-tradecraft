@@ -6,7 +6,6 @@ import AiWorkValue from "./AiWorkValue.jsx";
 import ConnectedCase from "./ConnectedCase.jsx";
 import CommercialOutcomes from "./CommercialOutcomes.jsx";
 import TradeNotes from "./TradeNotes.jsx";
-import Garage from "./Garage.jsx";
 import Verification from "./Verification.jsx";
 import Methods from "./Methods.jsx";
 import HowIWork from "./HowIWork.jsx";
@@ -18,7 +17,7 @@ const copy = {
   zh: {
     eyebrow: "延伸閱讀",
     title: "想更深入，再往下展開。",
-    intro: "方法、國貿筆記、驗證方式與實驗作品都收在這裡；需要時再打開。",
+    intro: "方法、國貿筆記與驗證方式都收在這裡；需要時再打開。",
     panels: {
       start: ["海外客戶開發的起點", "路線圖、互動案例與導讀 PDF：從找公司、找對人，到看懂詢價。"],
       situations: ["你現在最像哪一種情況", "名單很多、訂單看起來不錯、錢已花出去：對應到哪個作品。"],
@@ -26,7 +25,6 @@ const copy = {
       problem: ["問題定義", "客戶說的需求，和真正要做的決定，往往不是同一件事。"],
       thread: ["商業主線", "從發現商機，到讓團隊接得住後續判斷的五個問題。"],
       notes: ["國貿現場筆記", "報價、出貨與訂艙前，先把下一個問題問對。"],
-      garage: ["Digital Garage", "還在成形的商業點子與 AI 原型。"],
       verification: ["驗證方式", "每一件作品用什麼可重跑的檢查來證明。"],
       method: ["方法論", "怎麼判斷、怎麼談、怎麼承諾。"],
       how: ["工作流程", "人類主導，AI 加速：一次合作怎麼進行。"],
@@ -35,7 +33,7 @@ const copy = {
   en: {
     eyebrow: "Go deeper",
     title: "Open what you need, when you need it.",
-    intro: "Method, trade notes, verification and experiments live here, one panel at a time.",
+    intro: "Method, trade notes and verification live here, one panel at a time.",
     panels: {
       start: ["Where overseas customer development starts", "Roadmap, interactive case and guide PDF: from finding companies and contacts to reading an inquiry."],
       situations: ["Which situation are you in", "A long list, an order that looks good, money already spent: which work applies."],
@@ -43,7 +41,6 @@ const copy = {
       problem: ["Problem definition", "The request a client brings is rarely the decision that needs making."],
       thread: ["The commercial thread", "Five questions from spotting an opportunity to a decision the team can own."],
       notes: ["Trade notes", "Ask the right next question before quoting, shipping or booking."],
-      garage: ["Digital Garage", "Commercial ideas and AI prototypes still taking shape."],
       verification: ["How it's verified", "The rerunnable checks behind each work."],
       method: ["Methodology", "How to judge, negotiate and commit."],
       how: ["How I work", "Human-led, AI-accelerated: how an engagement runs."],
@@ -58,7 +55,6 @@ const panels = [
   { key: "problem", anchor: "connected-case", Component: ConnectedCase },
   { key: "thread", anchor: "outcomes", Component: CommercialOutcomes },
   { key: "notes", anchor: "trade-notes", Component: TradeNotes },
-  { key: "garage", anchor: "garage", Component: Garage },
   { key: "verification", anchor: "verification", Component: Verification },
   { key: "method", anchor: "method", Component: Methods },
   { key: "how", anchor: "how", Component: HowIWork },
