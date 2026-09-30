@@ -70,6 +70,7 @@
     <span class="badge">未進行任何主動接觸</span>
     <div class="ctas">
       <a class="btn btn-primary" href="https://apchen1978.github.io/overseas-lead-discovery-demo/" target="_blank" rel="noopener noreferrer">試用 Lead Discovery Demo</a>
+      <a class="btn btn-secondary" href="https://apchen1978.github.io/overseas-lead-discovery-demo/#mode-own" target="_blank" rel="noopener noreferrer">帶入我的產品與市場</a>
       <a class="btn btn-secondary" href="/#contact">帶一個你想開發的市場來談</a>
     </div>
 
@@ -98,7 +99,8 @@
       <tbody>
         <tr><td>44 家候選經證據式資格篩選，20 家入選短名單</td><td>凍結的基準版本、第二版評分規則迭代</td><td>真實準確度（Precision@20）：尚未驗證</td></tr>
         <tr><td>互動 demo 含 12 筆紀錄：8 筆脫敏代表性、4 筆合成的被篩除典型</td><td>overseas-lead-discovery-demo</td><td>這些紀錄不代表真實買家的意願或回覆</td></tr>
-        <tr><td>資格規則 59/59、市場層 129/129、CDD 提案匯出 42/42，共 230 項自動檢查通過</td><td>demo repo 的測試檔</td><td>測試證明規則行為，不證明市場成效</td></tr>
+        <tr><td>資格規則 59/59、市場層 129/129、CDD 提案匯出 42/42、帶入名單 61/61、名單簡報 62/62，共 353 項自動檢查通過</td><td>demo repo 的測試檔</td><td>測試證明規則行為，不證明市場成效</td></tr>
+        <tr><td>demo 可帶入最多 20 家你自己的名單，用同一套規則分層，並產出可列印、存成 PDF 或下載的名單簡報；資料只留在瀏覽器，不儲存、不上傳</td><td>demo repo 的程式與測試</td><td>尚未用真實公司驗證；demo 不會上網搜尋或找出新公司</td></tr>
         <tr><td>被排除的帳戶不提供匯出給 CDD</td><td>CDD intake 提案契約 v0.1</td><td>尚未做過真實的 CDD 匯入端整合</td></tr>
       </tbody>
     </table>
@@ -114,13 +116,13 @@
     </table>
 
     <h2>完整路線：demo 已做的，與合作時的做法</h2>
-    <p>一條完整的客戶開發路線有六步。第 1 步是 demo 已經能展示的；第 2 到 6 步是我目前自己使用、也是合作時會採用的做法與原則，<strong>demo 尚未涵蓋</strong>。</p>
+    <p>一條完整的客戶開發路線有六步。demo 已經能做到的有三件事：用同一套規則替名單分層（看示範名單，或帶入你自己的）、記錄每一家的切入點、產出一份可帶走的名單簡報。其餘是我目前自己使用、也是合作時會採用的做法與原則：找出新的公司、初步查核、逐家掃描切入點、起草信、最後一哩接觸，<strong>demo 不會替你做</strong>。</p>
     <table>
       <thead><tr><th>步驟</th><th>老闆得到什麼</th><th>狀態</th></tr></thead>
       <tbody>
-        <tr><td>1 · 找對的人</td><td>依產品與市場，列出該接觸的公司與職能，並說明理由</td><td>demo 已展示（公開網頁證據、分層、為什麼值得／為什麼不值得）</td></tr>
+        <tr><td>1 · 找對的人</td><td>依產品與市場，列出該接觸的公司與職能，並說明理由</td><td>demo 已展示：示範名單，也能帶入你自己的名單分層（公開網頁證據、分層、為什麼值得／為什麼不值得）。找出新的公司不在 demo 內</td></tr>
         <tr><td>2 · 查公司與收款風險</td><td>在投入時間前先做初步背景查核：公司背景、可能的付款方式（例如 OA、LC）風險</td><td>合作時的做法。初步查核，不是信用報告；正式判斷交給 CDD</td></tr>
-        <tr><td>3 · 逐家找切入點</td><td>對要主動出擊的 10 到 20 家，各做一次全面掃描：是否在換供應商、內部有沒有人事或權力更迭、需要的是打包組合還是產品更新。每一家都有自己的切入點</td><td>合作時的做法，demo 尚未涵蓋。只看公開訊號，查不到就標「查無公開資料」，不用猜的</td></tr>
+        <tr><td>3 · 逐家找切入點</td><td>對要主動出擊的 10 到 20 家，各做一次全面掃描：是否在換供應商、內部有沒有人事或權力更迭、需要的是打包組合還是產品更新。每一家都有自己的切入點</td><td>合作時的做法。demo 提供記錄切入點的表格，掃描本身不在 demo 內。只看公開訊號，查不到就標「查無公開資料」，不用猜的</td></tr>
         <tr><td>4 · AI 起草多輪 Email</td><td>依每一家的切入點起草首信與後續跟進，保留你的語氣。每一封信都有根據，不是同一套模板</td><td>合作時的做法，demo 尚未涵蓋</td></tr>
         <tr><td>5 · 老闆把關</td><td>內容與寄出都由你確認，AI 不代寄</td><td>原則，適用於所有步驟</td></tr>
         <tr><td>6 · 最後一哩真人接觸</td><td>電話、視訊會議，必要時才參展；AI 可先幫你挑展、整理資料、邀請目標客戶</td><td>合作時的做法</td></tr>
@@ -145,12 +147,13 @@
       <h2 style="margin-top:10px">Lead Discovery — who should we reach first?</h2>
       <p class="badge">engine: technically validated · records: representative and synthetic · no outreach performed</p>
       <p>Most small exporters can quote; they do not know whom to approach first. Lead Discovery turns public-web signals into a sourced, challengeable list of buyers and states what to confirm before first contact. Whether an order can be taken is the next question, handled downstream in the Commercial Decision Desk.</p>
-      <p><strong>Fact:</strong> 44 candidates evaluated, 20 evidence-qualified; an interactive demo of 12 records (8 anonymized representative, 4 synthetic screened-out); 230 automated checks pass (59 qualification, 129 market layer, 42 CDD intake export). Excluded accounts are not exportable to CDD.<br/>
+      <p><strong>Fact:</strong> 44 candidates evaluated, 20 evidence-qualified; an interactive demo of 12 records (8 anonymized representative, 4 synthetic screened-out); 353 automated checks pass (59 qualification, 129 market layer, 42 CDD intake export, 61 bring-your-own list, 62 list brief). The demo also takes up to 20 companies you bring, sorts them with the same rules, and produces a brief you can print, save as PDF or download; data stays in the browser. Excluded accounts are not exportable to CDD.<br/>
       <strong>Design claim, not a fact:</strong> tiers are a reading order for people, not a probability of winning an account; the market layer never changes a tier.<br/>
       <strong>Not verified:</strong> real-world precision (Precision@20) not yet measured, buyer reply, meetings, RFQs, orders, revenue, ROI, willingness to pay.</p>
-      <p><strong>Full route (the demo covers step 1 only):</strong> 1 find the right people (demonstrated); 2 check the company and payment risk, a preliminary check that is not a credit report, with the formal judgment left to CDD (how I work, not in the demo); 3 find an angle for each company: scan each of the 10 to 20 targets for signals such as a supplier change, internal changes, or a need for a bundle versus a product update, using public signals only and marking what cannot be found as “Not public” (not in the demo); 4 AI drafts multi-round emails from each angle in your voice, so every message has a basis and none is a template (not in the demo); 5 you approve everything, and AI never sends on its own; 6 the last mile is human contact, such as a call or video meeting, and a trade fair only if needed, where AI can first pick the fair, prepare materials, and invite target buyers. List and email tools such as Apollo or Instantly can be used; the demo itself uses public-web research only. Naming or emailing individuals is subject to local privacy and commercial-email rules.</p>
+      <p><strong>Full route (the demo covers step 1, a worksheet for the angle in step 3, and a take-away brief):</strong> 1 find the right people (demonstrated, including a list you bring yourself; finding new companies is not in the demo); 2 check the company and payment risk, a preliminary check that is not a credit report, with the formal judgment left to CDD (how I work, not in the demo); 3 find an angle for each company: scan each of the 10 to 20 targets for signals such as a supplier change, internal changes, or a need for a bundle versus a product update, using public signals only and marking what cannot be found as “Not public” (the scan is not in the demo; a worksheet to record it is); 4 AI drafts multi-round emails from each angle in your voice, so every message has a basis and none is a template (not in the demo); 5 you approve everything, and AI never sends on its own; 6 the last mile is human contact, such as a call or video meeting, and a trade fair only if needed, where AI can first pick the fair, prepare materials, and invite target buyers. List and email tools such as Apollo or Instantly can be used; the demo itself uses public-web research only. Naming or emailing individuals is subject to local privacy and commercial-email rules.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="https://apchen1978.github.io/overseas-lead-discovery-demo/" target="_blank" rel="noopener noreferrer">Open Lead Discovery demo</a>
+        <a class="btn btn-secondary" href="https://apchen1978.github.io/overseas-lead-discovery-demo/#mode-own" target="_blank" rel="noopener noreferrer">Bring my product and market</a>
         <a class="btn btn-secondary" href="/#contact">Bring one market you want to open</a>
       </div>
     </div>
