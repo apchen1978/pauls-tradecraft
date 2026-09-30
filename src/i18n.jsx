@@ -148,7 +148,7 @@ const dict = {
         operations: "談成訂單：銷售試點與工作流程",
         labs: "AI 學習里程（歷史開發）",
         notes: {
-          commercial: "對外主線三件：① 商務決策工作台（這單能不能承諾）② 海外商業開發判斷（誰值得先投入）③ 貿易利潤導航（毛利是否撐得住）。其餘是支援作品，或仍在探索中的數位車庫原型。",
+          commercial: "對外主線三件：① 商務決策工作台（這單能不能承諾）② 海外商業開發判斷（誰值得先投入）③ 貿易利潤導航（毛利是否撐得住）。下一段是談成訂單的銷售試點，最後是我學習用 AI 做東西的歷史紀錄。",
           operations: "把商機推進到能簽的試點與工作流程：軟裝品牌網站、銷售 Pilot 案例簡報、追蹤器與決策溝通。這些是方法與試點，不是已驗證的成交成果。",
           labs: "我學習用 AI 做出可運行成果的過程：遊戲、歌詞、桌寵、模擬套件與互動概念。它們不是主要服務，保留下來作為學習軌跡。",
         },
@@ -433,12 +433,12 @@ const dict = {
       builtWith: "此站由 Codex、Claude Code 與 DSH 協作建立並部署，由 Paul 主導，全程可追溯。",
     },
     garage: {
-      eyebrow: "數位車庫",
+      eyebrow: "Digital Garage · My creative-thinking garden",
       headline: "讓商業點子先在這裡慢慢成形。",
       intro: "這裡收集還在探索的商業點子與 AI 原型。先從小實驗開始，看看新的做法行不行，再決定哪些值得繼續試、進一步做成產品。",
       bridgeEyebrow: "Digital Garage",
       bridgeHeadline: "用小實驗，親自看看商業判斷還能怎麼用。",
-      bridgeLine: "主力工作台幫你看清承諾前的條件；數位車庫則把商業判斷做成小實驗，讓你試試還能帶出什麼新做法。",
+      bridgeLine: "主力工作台幫你看清承諾前的條件；Digital Garage 則把商業判斷做成小實驗，讓你試試還能帶出什麼新做法。",
       seeAll: "看所有實驗",
       featuredMark: "精選",
       items: [
@@ -670,7 +670,7 @@ const dict = {
         operations: "Closing orders: sales pilots and workflows",
         labs: "AI learning milestones (development history)",
         notes: {
-          commercial: "Public narrative top three: (1) Commercial Decision Desk—can we commit? (2) Overseas development judgment—who deserves effort first? (3) Trade Profit Navigator—will the margin hold? The remaining work supports delivery or explores early ideas in the Digital Garage.",
+          commercial: "Public narrative top three: (1) Commercial Decision Desk—can we commit? (2) Overseas development judgment—who deserves effort first? (3) Trade Profit Navigator—will the margin hold? The next section covers sales pilots for closing orders; the last is a trail of what I built while learning AI.",
           operations: "Pilots and workflows that move an opportunity toward a signable deal: a soft-furnishing brand site, a sales pilot case brief, a tracker and decision communication. These are methods and pilots, not proven closed-deal results.",
           labs: "How I learned to build working results with AI: a game, lyrics, a desktop pet, simulation kits and interactive concepts. They are not the main service; they stay as a learning trail.",
         },
@@ -888,7 +888,7 @@ const dict = {
       intro: "Accounting degree from NCCU; 15 years in international sales, developing markets across Southeast Asia, Japan, Korea, the Middle East, Europe, and the US.",
       narrative: [
         "For more than two decades, I’ve worked on the commercial front line.",
-        "I brought European, American, Japanese, and Russian brands into mainland China, organised local teams, and managed frontline sales reps and sales assistants across exclusive stores, wholesale, and project sales.",
+        "I brought European, American, Japanese, and Russian brands into mainland China, organized local teams, and managed frontline sales reps and sales assistants across exclusive stores, wholesale, and project sales.",
         "Across manufacturing, finance, international trade, and supply chains, I’ve dealt with costs, quotations, customers, suppliers, payments, risk, and decisions made with incomplete information.",
         "AI is not a departure from that experience. It is a new way to put it to work.",
         "I turn commercial judgment into executable, verifiable, and traceable systems.",
@@ -954,9 +954,9 @@ const dict = {
       builtWith: "This site was built and deployed through Codex, Claude Code, and DSH collaboration, led by Paul. Fully traceable.",
     },
     garage: {
-      eyebrow: "The digital garage",
+      eyebrow: "Digital Garage · My creative-thinking garden",
       headline: "Commercial ideas, given room to take shape.",
-      intro: "The Digital Garage is where early commercial ideas and AI prototypes take shape. Start with a small experiment, see what possibility it opens, and consider what may be worth exploring further or developing into a product.",
+      intro: "The Digital Garage is my creative-thinking garden, where early commercial ideas and AI prototypes take shape. Start with a small experiment, see what possibility it opens, and consider what may be worth exploring further or developing into a product.",
       bridgeEyebrow: "Digital Garage",
       bridgeHeadline: "Explore commercial judgment through small experiments.",
       bridgeLine: "The main workbench lays out the terms before commitment. The Digital Garage turns commercial judgment into tangible experiments, showing what other possibilities may open.",
