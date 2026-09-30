@@ -750,7 +750,7 @@ export const works = [
       label: { zh: "延伸：從候選名單到商業資源判斷", en: "Next: from candidate list to commercial-resource judgment" },
       note: {
         zh: "這個 Demo 證明如何把公開訊號收斂成可檢視的候選短名單；下一層才是依供應商現實、老闆目標與未知決定資源該往哪裡去。",
-        en: "This demo shows how public signals become an inspectable candidate shortlist. The next layer decides where effort belongs, given supplier reality, Owner objectives, and UNKNOWNs.",
+        en: "This demo shows how public signals become an inspectable candidate shortlist. The next layer decides where effort belongs, given supplier reality, Owner objectives, and “Not public” items.",
       },
     },
     showcase: {
@@ -758,7 +758,7 @@ export const works = [
         label: "產品流程",
         stages: [
           { label: "01 找到人", value: "公開網路上的候選買家" },
-          { label: "02 說得出理由", value: "來源、WHY／WHY NOT、UNKNOWN、先開發／先查證／暫緩／排除" },
+          { label: "02 說得出理由", value: "來源、為什麼值得／為什麼不值得、查無公開資料、先開發／先查證／暫緩／排除" },
           { label: "03 交給判斷", value: "人確認後，以提案形式帶入 CDD" },
         ],
       },
@@ -766,14 +766,14 @@ export const works = [
         label: "Product flow",
         stages: [
           { label: "01 Find the people", value: "Candidate buyers from public-web signals" },
-          { label: "02 Give reasons", value: "Sources, WHY / WHY NOT, UNKNOWNs, and a tier: engage / verify / hold / exclude" },
+          { label: "02 Give reasons", value: "Sources, reasons for and against, “Not public” items, and a tier: engage / verify / hold / exclude" },
           { label: "03 Hand to judgment", value: "Human-confirmed proposal into the Commercial Decision Desk" },
         ],
       },
     },
     deliverable: {
-      zh: "一份附來源脈絡的候選短名單、每家公司的 WHY／WHY NOT、未知，以及第一次接觸前要先確認的問題。",
-      en: "An evidence-qualified shortlist with source context, WHY / WHY NOT, explicit UNKNOWNs, and the questions to answer before first contact.",
+      zh: "一份附來源脈絡的候選短名單、每家公司值得與不值得的理由、查無公開資料之處，以及第一次接觸前要先確認的問題。",
+      en: "An evidence-qualified shortlist with source context, reasons for and against, explicit “Not public” items, and the questions to answer before first contact.",
     },
     demoNote: {
       zh: "Demo 以美國市場英文公開資料情境呈現——方法展示，不是 CRM、不含自動發信、不保證成交。",
@@ -799,20 +799,20 @@ export const works = [
         en: "Most small exporters are stuck at step one: not knowing whom to approach first. AI can name hundreds of companies, but finding companies is not the same as finding buyers worth reaching out to; a list without reasons is one a sales team cannot trust and an owner cannot challenge.",
       },
       approach: {
-        zh: "公開網路發現 → Buyer Fit → Category Fit → Import Openness → Asia Sourcing Evidence → Evidence Quality → WHY／WHY NOT → 確定性分層（最差條件決定層級，無加權分數）→ 國家與市場層（不改變層級）→ 領域學習迭代 → 人確認後才以提案交給 CDD。",
-        en: "Public-web discovery → Buyer Fit → Category Fit → Import Openness → Asia Sourcing Evidence → Evidence Quality → WHY / WHY NOT → deterministic tiers (worst condition wins; no weights) → market layer (never changes a tier) → domain-learning iteration → human-confirmed proposal into CDD.",
+        zh: "公開網路發現 → 買方契合 → 品類契合 → 進口開放度 → 亞洲採購證據 → 證據品質 → 為什麼值得／為什麼不值得 → 確定性分層（最差條件決定層級，無加權分數）→ 國家與市場層（不改變層級）→ 領域學習迭代 → 人確認後才以提案交給 CDD。",
+        en: "Public-web discovery → Buyer Fit → Category Fit → Import Openness → Asia Sourcing Evidence → Evidence Quality → reasons for and against → deterministic tiers (worst condition wins; no weights) → market layer (never changes a tier) → domain-learning iteration → human-confirmed proposal into CDD.",
       },
       tools: {
-        zh: "公開網路多來源發現 · 證據分級（PRIMARY / SUPPORTING / VERIFICATION_REQUIRED）· 矛盾證據檢查 · 領域專家校準 · 純 JavaScript 確定性規則 · 資格規則、市場層與 CDD 匯出共 230 項自動檢查",
+        zh: "公開網路多來源發現 · 證據分級（第一手／輔助／需再核對）· 矛盾證據檢查 · 領域專家校準 · 純 JavaScript 確定性規則 · 資格規則、市場層與 CDD 匯出共 230 項自動檢查",
         en: "Multi-source public-web discovery · evidence-source tiering · contradiction checking · domain-expert calibration · plain-JavaScript deterministic rules · 230 automated checks across qualification, market layer, and CDD export",
       },
       result: {
-        zh: "44 家候選經證據式資格篩選 → 20 家入選短名單；M3 rubric-v2 迭代後，弱-adjacent 假陽性在短名單中減少；8 家脫敏代表性 records 加上 4 筆合成的被篩除典型（共 12 筆）以互動 demo 公開，並加入國家與市場層、以確定性規則分成「先開發／先查證／暫緩／排除」四層（沒有加權分數）。",
-        en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after M3 rubric-v2 iteration, weak-adjacent false positives were reduced in the shortlist; 8 anonymized representative records plus 4 synthetic screened-out archetypes (12 in all) published as an interactive demo, with a market layer and deterministic tiers (engage first / verify first / hold / exclude; no weights, no score).",
+        zh: "44 家候選經證據式資格篩選 → 20 家入選短名單；第二版評分規則迭代後，弱相關的誤判在短名單中減少；8 家脫敏代表性紀錄 加上 4 筆合成的被篩除典型（共 12 筆）以互動 demo 公開，並加入國家與市場層、以確定性規則分成「先開發／先查證／暫緩／排除」四層（沒有加權分數）。",
+        en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after second-version rubric iteration, weakly related false positives were reduced in the shortlist; 8 anonymized representative records plus 4 synthetic screened-out archetypes (12 in all) published as an interactive demo, with a market layer and deterministic tiers (engage first / verify first / hold / exclude; no weights, no score).",
       },
       evidence: {
-        zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records 加 4 筆合成被篩除典型。國家為代表性標示、市場層屬領域學習須逐項查證；被排除的帳戶不提供 CDD 匯出。自動檢查：資格規則 59/59、市場層 129/129、CDD 提案匯出 42/42。下一步（尚未建置）：主動接觸層——誰能拍板、用哪個管道、第一句話與時機，只產出草稿。揭露：研究階段 · 使用脫敏資料與公開證據 · 含模擬示範 · 沒有證據的資訊不會標成事實。",
-        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records plus 4 synthetic screened-out archetypes in the interactive demo. Countries are representative labels and the market layer is domain learning to be verified item by item; excluded accounts are not offered for CDD export. Automated checks: qualification 59/59, market layer 129/129, CDD intake export 42/42. Next, not built: a reach layer — who decides, which channel, first message, timing — producing drafts only. Disclosure: research stage · anonymized data and public evidence · includes simulated demo · information without evidence is never presented as fact.",
+        zh: "44 家候選評估 · 20 家證據合格短名單 · 凍結的基準版本 · 第二版評分規則迭代 · 8 家脫敏 demo 紀錄 加 4 筆合成被篩除典型。國家為代表性標示、市場層屬領域學習須逐項查證；被排除的帳戶不提供 CDD 匯出。自動檢查：資格規則 59/59、市場層 129/129、CDD 提案匯出 42/42。下一步（尚未建置）：主動接觸層——誰能拍板、用哪個管道、第一句話與時機，只產出草稿。揭露：研究階段 · 使用脫敏資料與公開證據 · 含模擬示範 · 沒有證據的資訊不會標成事實。",
+        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · frozen baseline · second-version rubric iteration · 8 anonymized representative records plus 4 synthetic screened-out archetypes in the interactive demo. Countries are representative labels and the market layer is domain learning to be verified item by item; excluded accounts are not offered for CDD export. Automated checks: qualification 59/59, market layer 129/129, CDD intake export 42/42. Next, not built: a reach layer — who decides, which channel, first message, timing — producing drafts only. Disclosure: research stage · anonymized data and public evidence · includes simulated demo · information without evidence is never presented as fact.",
       },
     },
   },
