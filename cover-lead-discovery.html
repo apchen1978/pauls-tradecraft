@@ -5,7 +5,7 @@
 <style>
   @font-face {
     font-family: "Geist Variable";
-    src: url("file:///C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/public/fonts/geist-latin-wght-normal.woff2") format("woff2-variations");
+    src: url("public/fonts/geist-latin-wght-normal.woff2") format("woff2-variations");
     font-weight: 100 900;
   }
   :root {
@@ -52,6 +52,7 @@
     font-size: 84px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05;
     color: var(--forest); max-width: 1100px;
   }
+  html[lang="zh-Hant"] .title { font-size: 76px; line-height: 1.18; letter-spacing: -0.01em; max-width: 1160px; }
   .flow {
     display: flex; align-items: center; gap: 24px; margin-top: 44px; flex-wrap: nowrap;
   }
@@ -76,7 +77,7 @@
 
   .bottom { position: relative; display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 24px; }
   .tagline { font-size: 17px; font-weight: 600; color: var(--moss); }
-  .disclaimer { font-size: 12px; color: #8a958d; text-align: right; max-width: 360px; line-height: 1.5; }
+  .disclaimer { font-size: 12px; color: #8a958d; text-align: right; max-width: 640px; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -87,40 +88,70 @@
 
     <div class="top">
       <span class="brand">Paul's Tradecraft</span>
-      <span class="kicker">Evidence before outreach</span>
+      <span class="kicker" data-k="kicker"></span>
     </div>
 
     <div class="main">
-      <div class="title">Overseas Lead Discovery</div>
+      <div class="title" data-k="title"></div>
 
       <div class="flow">
         <div class="step">
           <span class="num">44</span>
-          <span class="lbl">discovered</span>
+          <span class="lbl" data-k="found"></span>
         </div>
         <span class="arrow">→</span>
         <div class="step">
-          <span class="lbl">evidence<br>qualification</span>
+          <span class="lbl" data-k="check"></span>
         </div>
         <span class="arrow">→</span>
         <div class="step">
           <span class="num gold">20</span>
-          <span class="lbl">qualified</span>
+          <span class="lbl" data-k="qualified"></span>
         </div>
       </div>
 
       <div class="chips">
-        <div class="chip"><div class="k">Why</div><div class="v">sourced claims</div></div>
-        <div class="chip"><div class="k">Why not</div><div class="v">contradictions</div></div>
-        <div class="chip amber"><div class="k">Open questions</div><div class="v">kept explicit</div></div>
-        <div class="chip"><div class="k">Evidence</div><div class="v">tiered sources</div></div>
+        <div class="chip"><div class="k" data-k="c1k"></div><div class="v" data-k="c1v"></div></div>
+        <div class="chip"><div class="k" data-k="c2k"></div><div class="v" data-k="c2v"></div></div>
+        <div class="chip amber"><div class="k" data-k="c3k"></div><div class="v" data-k="c3v"></div></div>
+        <div class="chip"><div class="k" data-k="c4k"></div><div class="v" data-k="c4v"></div></div>
       </div>
     </div>
 
     <div class="bottom">
-      <span class="tagline">AI finds companies. Judgment finds buyers.</span>
-      <span class="disclaimer">Anonymized records · public-web evidence</span>
+      <span class="tagline" data-k="tagline"></span>
+      <span class="disclaimer" data-k="disclaimer"></span>
     </div>
   </div>
+  <script>
+    // ?lang=zh or ?lang=en (default en). The same layout renders both covers.
+    const COPY = {
+      en: {
+        kicker: "Reach first, then decide",
+        title: "Who should we reach first?",
+        found: "found", check: "evidence<br>check", qualified: "qualified",
+        c1k: "Why", c1v: "sourced reasons",
+        c2k: "Why not", c2v: "contradictions shown",
+        c3k: "Not public", c3v: "marked, not guessed",
+        c4k: "Next", c4v: "a person decides",
+        tagline: "Find the people first. Then judge the deal.",
+        disclaimer: "Representative and synthetic records · public-web research · no outreach performed",
+      },
+      zh: {
+        kicker: "先找到人，再判斷能不能接",
+        title: "還沒談條件之前，<br>該先接觸誰？",
+        found: "家候選", check: "證據<br>檢視", qualified: "家合格",
+        c1k: "為什麼值得", c1v: "有來源的理由",
+        c2k: "為什麼不值得", c2v: "矛盾證據一併列出",
+        c3k: "查無公開資料", c3v: "標示出來，不用猜",
+        c4k: "下一步", c4v: "由人決定",
+        tagline: "先找到人，再判斷這單能不能接。",
+        disclaimer: "代表性與合成紀錄 · 公開網頁研究 · 未進行主動接觸",
+      },
+    };
+    const lang = new URLSearchParams(location.search).get("lang") === "zh" ? "zh" : "en";
+    document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+    for (const node of document.querySelectorAll("[data-k]")) node.innerHTML = COPY[lang][node.dataset.k];
+  </script>
 </body>
 </html>
