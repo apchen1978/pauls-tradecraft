@@ -77,7 +77,7 @@ async function check(width, height, mobile, lang) {
   const text = await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); return h ? h.closest('article').innerText : ''; })()`);
   const lower = text.toLowerCase();
   r.showsProblem = lower.includes("hundreds of companies") || lower.includes("幾百家");
-  r.showsPrecisionPending = lower.includes("precision@20: pending") || lower.includes("precision@20: pending");
+  r.showsPrecisionPending = lower.includes("accuracy benchmark") || lower.includes("準確率衡量基準");
   r.showsNotProven = lower.includes("not proven") || lower.includes("未證明") || lower.includes("未證明");
   r.showsNoOutreach = lower.includes("no outreach") || lower.includes("未進行 outreach");
   r.shows4420 = lower.includes("44") && lower.includes("20");
