@@ -23,9 +23,9 @@ const copy = {
       {
         key: "lead",
         stage: "開發前",
-        question: "哪些公司真的值得業務花時間？",
+        question: "還沒談條件之前，該先接觸誰？",
         pain: "名單很長，每一家都要花時間查，最後不知道先追誰。",
-        takeaway: "先開發、先查證、暫緩、排除四層名單，並寫明每一家的理由，還有報價前要先確認的市場項目。",
+        takeaway: "先開發、先查證、暫緩、排除四層名單，並寫明每一家的理由，還有報價前要先確認的市場項目。也可以帶入你自己的名單，帶走一份名單簡報。",
         cta: "試兩分鐘：看 12 個示例怎麼分層",
       },
       {
@@ -57,9 +57,9 @@ const copy = {
       {
         key: "lead",
         stage: "Before pursuing",
-        question: "Which companies are really worth your sales team's time?",
+        question: "Before any terms are discussed, who should we reach first?",
         pain: "The list is long, every company takes time to research, and you still do not know who to chase first.",
-        takeaway: "A four-tier list (engage first, verify first, hold, exclude) with the reason for each, plus the market checks to clear before quoting.",
+        takeaway: "A four-tier list (engage first, verify first, hold, exclude) with the reason for each, plus the market checks to clear before quoting. You can also bring your own list and take away a brief.",
         cta: "Try two minutes: see how 12 examples are tiered",
       },
       {
