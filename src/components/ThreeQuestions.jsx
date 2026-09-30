@@ -15,17 +15,17 @@ const copy = {
   zh: {
     eyebrow: "三個問題",
     title: "做海外生意，我幫你先答三個問題",
-    intro: "每個問題都有一個可以馬上試的示範。用的是虛構資料，兩分鐘就能看懂它怎麼幫上忙。",
+    intro: "每個問題都有一個可以馬上試的示範。用的是合成資料，兩分鐘就能看懂它怎麼幫上忙。",
     takeaway: "你會帶走",
-    demoNote: "示範案例（虛構資料）",
-    note: "示範用的都是虛構資料，不含任何真實客戶。AI 只協助整理與試算，要不要做、能不能答應，仍由你決定。",
+    demoNote: "示範案例（合成資料）",
+    note: "示範用的都是合成資料，不含任何真實客戶。AI 只協助整理與試算，要不要做、能不能答應，仍由你決定。",
     cards: [
       {
         key: "lead",
         stage: "開發前",
-        question: "哪些公司真的值得業務花時間？",
+        question: "還沒談條件之前，該先接觸誰？",
         pain: "名單很長，每一家都要花時間查，最後不知道先追誰。",
-        takeaway: "先開發、先查證、暫緩、排除四層名單，並寫明每一家的理由，還有報價前要先確認的市場項目。",
+        takeaway: "先開發、先查證、暫緩、排除四層名單，並寫明每一家的理由，還有報價前要先確認的市場項目。也可以帶入你自己的名單，帶走一份名單簡報。",
         cta: "試兩分鐘：看 12 個示例怎麼分層",
       },
       {
@@ -49,17 +49,17 @@ const copy = {
   en: {
     eyebrow: "Three questions",
     title: "Before you commit to an overseas deal, I help you answer three questions",
-    intro: "Each question has a demo you can try right now. They use fictional data and take about two minutes to show how they help.",
+    intro: "Each question has a demo you can try right now. They use synthetic data and take about two minutes to show how they help.",
     takeaway: "What you take away",
-    demoNote: "Demo case (fictional data)",
-    note: "Every demo uses fictional data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",
+    demoNote: "Demo case (synthetic data)",
+    note: "Every demo uses synthetic data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",
     cards: [
       {
         key: "lead",
         stage: "Before pursuing",
-        question: "Which companies are really worth your sales team's time?",
+        question: "Before any terms are discussed, who should we reach first?",
         pain: "The list is long, every company takes time to research, and you still do not know who to chase first.",
-        takeaway: "A four-tier list (engage first, verify first, hold, exclude) with the reason for each, plus the market checks to clear before quoting.",
+        takeaway: "A four-tier list (engage first, verify first, hold, exclude) with the reason for each, plus the market checks to clear before quoting. You can also bring your own list and take away a brief.",
         cta: "Try two minutes: see how 12 examples are tiered",
       },
       {
