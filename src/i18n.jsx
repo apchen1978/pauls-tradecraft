@@ -148,7 +148,7 @@ const dict = {
         operations: "談成訂單：銷售試點與工作流程",
         labs: "AI 學習里程（歷史開發）",
         notes: {
-          commercial: "對外主線三件：① 商務決策工作台（這單能不能承諾）② 海外商業開發判斷（誰值得先投入）③ 貿易利潤導航（毛利是否撐得住）。其餘是支援作品，或仍在探索中的數位車庫原型。",
+          commercial: "對外主線三件：① 商務決策工作台（這單能不能承諾）② 海外商業開發判斷（誰值得先投入）③ 貿易利潤導航（毛利是否撐得住）。下一段是談成訂單的銷售試點，最後是我學習用 AI 做東西的歷史紀錄。",
           operations: "把商機推進到能簽的試點與工作流程：軟裝品牌網站、銷售 Pilot 案例簡報、追蹤器與決策溝通。這些是方法與試點，不是已驗證的成交成果。",
           labs: "我學習用 AI 做出可運行成果的過程：遊戲、歌詞、桌寵、模擬套件與互動概念。它們不是主要服務，保留下來作為學習軌跡。",
         },
@@ -670,7 +670,7 @@ const dict = {
         operations: "Closing orders: sales pilots and workflows",
         labs: "AI learning milestones (development history)",
         notes: {
-          commercial: "Public narrative top three: (1) Commercial Decision Desk—can we commit? (2) Overseas development judgment—who deserves effort first? (3) Trade Profit Navigator—will the margin hold? The remaining work supports delivery or explores early ideas in the Digital Garage.",
+          commercial: "Public narrative top three: (1) Commercial Decision Desk—can we commit? (2) Overseas development judgment—who deserves effort first? (3) Trade Profit Navigator—will the margin hold? The next section covers sales pilots for closing orders; the last is a trail of what I built while learning AI.",
           operations: "Pilots and workflows that move an opportunity toward a signable deal: a soft-furnishing brand site, a sales pilot case brief, a tracker and decision communication. These are methods and pilots, not proven closed-deal results.",
           labs: "How I learned to build working results with AI: a game, lyrics, a desktop pet, simulation kits and interactive concepts. They are not the main service; they stay as a learning trail.",
         },
