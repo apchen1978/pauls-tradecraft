@@ -2,10 +2,10 @@
   "brand": "Paul's Tradecraft",
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
-  "kicker": "BUSINESS JUDGMENT · WORKFLOW DESIGN · HUMAN × AI",
-  "title": "重新設計 AI 時代的工作與組織。",
+  "kicker": "個人 AI 作品集 · 國際業務",
+  "title": "一位國際業務的 AI 工作筆記。",
   "positioning": "商業判斷 · 工作流程設計 · Human × AI 協作",
-  "subtitle": "從商業判斷、工作流程到 Human × AI 協作，讓 AI 成為真正能進入組織運作的工作系統；人仍保有方向、授權與最終判斷。",
+  "subtitle": "把國際業務每天要下的判斷：找買家、算利潤、談成訂單，做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路（專賣店、批發、工程）與團隊管理（一線業務員、銷售助理）；人仍保有方向、授權與最終判斷。",
   "stats": [
     {
       "value": "955",
@@ -13,7 +13,7 @@
     },
     {
       "value": "15年",
-      "label": "國際貿易總監"
+      "label": "國際業務總監"
     },
     {
       "value": "23/23",
@@ -30,7 +30,7 @@
   "deliverables": [
     {
       "title": "清楚的決策問題",
-      "body": "目標、限制、已知事實與 UNKNOWN 被放到同一張工作畫面。"
+      "body": "目標、限制、已知事實與未知被放到同一張工作畫面。"
     },
     {
       "title": "可繼續使用的工作系統",
@@ -64,8 +64,8 @@
     "global-business-development"
   ],
   "works": [
-    "Commercial Decision Desk · 承諾前，把淨貢獻、付款暴露、矛盾與 UNKNOWN 放到同一張決策畫面；合成案例與技術驗證，不宣稱客戶成果。",
-    "Global Business Development / AI-Native Market Entry · 從供應商能力與市場張力出發，找到值得驗證的買方／通路路徑；不把市場相關性當成買方證據，保留 UNKNOWN。",
+    "Commercial Decision Desk · 承諾前，把淨貢獻、付款暴露、矛盾與未知放到同一張決策畫面；合成案例與技術驗證，不宣稱客戶成果。",
+    "Global Business Development / AI-Native Market Entry · 從供應商能力與市場張力出發，找到值得驗證的買方／通路路徑；不把市場相關性當成買方證據，保留未知。",
     "Trade Profit Navigator · 把毛利、現金暴露與可測試的利潤槓桿放在一起；合成 prototype，不宣稱 adoption、ROI 或客戶成果。",
     "企業支出決策啟發 · 在找 CPA 或專業人士前，先看懂支出如何牽動現金、時間、證據與值得確認的問題；合成案例、真人驗證待完成。"
   ],
