@@ -47,31 +47,30 @@
   .brand { font-size: 14px; font-weight: 600; letter-spacing: 0.04em; color: var(--moss); }
   .kicker { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--amber); }
 
-  .main { position: relative; margin-top: 20px; }
+  .main { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 20px; }
   .title {
-    font-size: 54px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05;
-    color: var(--forest); max-width: 900px;
+    font-size: 84px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05;
+    color: var(--forest); max-width: 1100px;
   }
   .flow {
-    display: flex; align-items: center; gap: 16px; margin-top: 20px; flex-wrap: nowrap;
+    display: flex; align-items: center; gap: 24px; margin-top: 44px; flex-wrap: nowrap;
   }
   .flow .step { display: flex; align-items: center; gap: 10px; }
   .flow .num {
-    font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.03em;
+    font-size: 72px; font-weight: 800; line-height: 1; letter-spacing: -0.03em;
     color: var(--forest); font-variant-numeric: tabular-nums;
   }
   .flow .num.gold { color: var(--amber); }
-  .flow .lbl { font-size: 15px; font-weight: 600; color: var(--moss); max-width: 120px; line-height: 1.2; }
-  .flow .arrow { font-size: 26px; color: var(--gold); font-weight: 700; }
+  .flow .lbl { font-size: 20px; font-weight: 600; color: var(--moss); max-width: 160px; line-height: 1.2; }
+  .flow .arrow { font-size: 36px; color: var(--gold); font-weight: 700; }
 
-  .chips { display: flex; gap: 12px; margin-top: 22px; flex-wrap: nowrap; }
+  .chips { display: flex; gap: 16px; margin-top: 48px; flex-wrap: nowrap; }
   .chip {
     border: 1px solid var(--line); border-radius: 12px; background: #fff;
-    padding: 10px 16px; min-width: 150px;
+    padding: 16px 24px; min-width: 200px;
   }
-  .chip .k { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--moss); }
-  .chip.amber .k { text-transform: uppercase; letter-spacing: 0.08em; }
-  .chip .v { font-size: 16px; font-weight: 700; margin-top: 3px; color: var(--ink); }
+  .chip .k { font-size: 15px; font-weight: 700; letter-spacing: 0.04em; color: var(--moss); }
+    .chip .v { font-size: 22px; font-weight: 700; margin-top: 5px; color: var(--ink); }
   .chip.amber { border-color: #e3cdb0; background: #fbf6ee; }
   .chip.amber .v { color: var(--amber); }
 
@@ -113,14 +112,14 @@
       <div class="chips">
         <div class="chip"><div class="k">Why</div><div class="v">sourced claims</div></div>
         <div class="chip"><div class="k">Why not</div><div class="v">contradictions</div></div>
-        <div class="chip amber"><div class="k">UNKNOWN</div><div class="v">kept explicit</div></div>
+        <div class="chip amber"><div class="k">Open questions</div><div class="v">kept explicit</div></div>
         <div class="chip"><div class="k">Evidence</div><div class="v">tiered sources</div></div>
       </div>
     </div>
 
     <div class="bottom">
       <span class="tagline">AI finds companies. Judgment finds buyers.</span>
-      <span class="disclaimer">Anonymized records · public-web evidence · Real owner precision@20: pending</span>
+      <span class="disclaimer">Anonymized records · public-web evidence</span>
     </div>
   </div>
 </body>
