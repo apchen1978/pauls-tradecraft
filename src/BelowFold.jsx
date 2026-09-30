@@ -5,6 +5,7 @@ import OneDeal from "./components/OneDeal.jsx";
 import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
 import DealReadiness from "./components/DealReadiness.jsx";
+import GarageBridge from "./components/GarageBridge.jsx";
 import Capabilities from "./components/Capabilities.jsx";
 import Library from "./components/Library.jsx";
 import About from "./components/About.jsx";
@@ -25,6 +26,7 @@ export default function BelowFold({ onReady }) {
       <WorksFlagship />
       <HumanAiEditorial />
       <Works />
+      <GarageBridge />
       <Capabilities />
       <DealReadiness />
       <Library />
