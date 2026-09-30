@@ -58,7 +58,7 @@ export default function Hero() {
           </motion.p>
           <motion.div
             variants={fadeUp}
-            aria-label={lang === "zh" ? "三件代表作品" : "Three representative works"}
+            aria-label={lang === "zh" ? "代表作品" : "Representative works"}
             className="mt-4 grid max-w-2xl divide-y divide-bone/15 border-y border-bone/20 sm:mt-6 sm:grid-cols-3 sm:divide-x sm:divide-y-0"
           >
             {t.hero.credentials.map((credential, index) => (

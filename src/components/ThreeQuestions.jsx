@@ -2,7 +2,7 @@ import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
 
-// The three flagship works, framed as the three questions an exporter asks
+// The flagship works, framed as the questions an exporter asks
 // before committing. Each card: the question in the client's words, what they
 // take away, and a two-minute try. Demos use fictional data; the card says so once.
 const LINKS = {
@@ -13,9 +13,9 @@ const LINKS = {
 
 const copy = {
   zh: {
-    eyebrow: "三個問題",
-    title: "做海外生意，我幫你先答三個問題",
-    intro: "每個問題都有一個可以馬上試的示範。用的是合成資料，兩分鐘就能看懂它怎麼幫上忙。",
+    eyebrow: "能做什麼",
+    title: "貿易經驗，加上 AI 原生的做法。",
+    intro: "承諾之前，先把海外生意的判斷走一遍。每一項能力都有一個可以馬上試的示範，用的是合成資料，兩分鐘就能看懂它怎麼幫上忙。",
     takeaway: "你會帶走",
     demoNote: "示範案例（合成資料）",
     note: "示範用的都是合成資料，不含任何真實客戶。AI 只協助整理與試算，要不要做、能不能答應，仍由你決定。",
@@ -47,9 +47,9 @@ const copy = {
     ],
   },
   en: {
-    eyebrow: "Three questions",
-    title: "Before you commit to an overseas deal, I help you answer three questions",
-    intro: "Each question has a demo you can try right now. They use synthetic data and take about two minutes to show how they help.",
+    eyebrow: "What I do",
+    title: "Trade experience, plus an AI-native way of working.",
+    intro: "Walk the judgment calls of an overseas deal before you commit. Each capability has a demo you can try right now, using synthetic data, and takes about two minutes to show how it helps.",
     takeaway: "What you take away",
     demoNote: "Demo case (synthetic data)",
     note: "Every demo uses synthetic data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",

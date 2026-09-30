@@ -2,7 +2,7 @@ import { ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
 
-// One deal, walked through the three questions. The figures are the ones the live
+// One deal, walked through the questions in order. The figures are the ones the live
 // demos produce for their default fictional case (verified 2026-09-29); steps 2
 // and 3 share the same case, step 1 uses separate representative examples.
 const LINKS = {
@@ -14,7 +14,7 @@ const LINKS = {
 const copy = {
   zh: {
     eyebrow: "一筆生意走一遍",
-    title: "同一筆生意，依序過三個問題",
+    title: "同一筆生意，從開發走到承諾",
     intro: "第二、三步用的是同一筆合成案例：1.2 萬米窗簾與窗飾，每米 40 美元。",
     open: "開啟示範",
     steps: [
@@ -37,12 +37,12 @@ const copy = {
         detail: "帳面預期淨貢獻是 12 萬美元；計入付款時程的資金成本後，只比你的最低要求 96,000 美元高 14,480。最弱的一環是售價：讓價 3.0% 就到底線（在預設假設下）。",
       },
     ],
-    closing: "三個問題各自獨立，也可以只用其中一個。帶一筆你正在談的商機來，我們用同樣的方式走一遍。",
+    closing: "每一步各自獨立，也可以只用其中一步。帶一筆你正在談的商機來，我們用同樣的方式走一遍。",
     cta: "帶一筆商機來聊",
   },
   en: {
     eyebrow: "One deal, walked through",
-    title: "One deal, through the three questions in order",
+    title: "One deal, from first contact to commitment",
     intro: "Steps two and three use the same synthetic case: 12,000 metres of curtains and valances at USD 40 a metre.",
     open: "Open the demo",
     steps: [
@@ -65,7 +65,7 @@ const copy = {
         detail: "Paper net contribution is USD 120,000; after the funding cost of the payment timeline it clears your USD 96,000 minimum by only USD 14,480. The weakest link is price: a 3.0% concession takes it to the floor (under the default assumptions).",
       },
     ],
-    closing: "The three questions work on their own, and you can use just one. Bring a deal you are negotiating and we will walk it through the same way.",
+    closing: "Each step works on its own, and you can use just one. Bring a deal you are negotiating and we will walk it through the same way.",
     cta: "Bring a deal to discuss",
   },
 };

@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { questions: "三個問題", works: "作品", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { questions: "能做什麼", works: "作品", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "找買家", label: "海外客戶開發路線圖" },
@@ -13,7 +13,7 @@ const dict = {
       ],
       kicker: "個人 AI 作品集",
       headline: "一位國際業務的 AI 工作筆記。",
-      sub: "把每天要下的判斷：找買家、算利潤、談成訂單，一個一個做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路與團隊管理。",
+      sub: "貿易經驗加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷，做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路與團隊管理。",
       youGet: "從一個重要問題開始",
       outcomesHeadline: "你現在最像哪一種情況？",
       outcomesIntro: "不是先挑工具。先從你此刻需要釐清的一個商業問題開始。",
@@ -140,15 +140,15 @@ const dict = {
     },
     works: {
       eyebrow: "精選作品",
-      headline: "三個作品：怎麼運作，憑什麼可信。",
-      sub: "上面三個問題各對應一個作品。這裡展開它的產出、判斷邏輯與證據邊界。",
+      headline: "作品：怎麼運作，憑什麼可信。",
+      sub: "上面的每一項能力，都對應到作品。這裡展開它的產出、判斷邏輯與證據邊界。",
       alsoExplore: "也可直接看",
       sections: {
         commercial: "核心商業判斷：找買家、算利潤、談承諾",
         operations: "談成訂單：銷售試點與工作流程",
         labs: "AI 學習里程（歷史開發）",
         notes: {
-          commercial: "對外主線三件：① 商務決策工作台（這單能不能承諾）② 海外商業開發判斷（誰值得先投入）③ 貿易利潤導航（毛利是否撐得住）。下一段是談成訂單的銷售試點，最後是我學習用 AI 做東西的歷史紀錄。",
+          commercial: "對外主線是找買家、算利潤、談承諾這條商務判斷：從誰該先接觸，到毛利是否撐得住，再到這單能不能承諾。下一段是談成訂單的銷售試點，最後是我學習用 AI 做東西的歷史紀錄。",
           operations: "把商機推進到能簽的試點與工作流程：軟裝品牌網站、銷售 Pilot 案例簡報、追蹤器與決策溝通。這些是方法與試點，不是已驗證的成交成果。",
           labs: "我學習用 AI 做出可運行成果的過程：遊戲、歌詞、桌寵、模擬套件與互動概念。它們不是主要服務，保留下來作為學習軌跡。",
         },
@@ -526,7 +526,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { questions: "Three questions", works: "Work", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { questions: "What I do", works: "Work", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "Find buyers", label: "Overseas lead discovery" },
@@ -535,7 +535,7 @@ const dict = {
       ],
       kicker: "Personal AI portfolio",
       headline: "An international salesperson's AI working notes.",
-      sub: "The judgment calls of everyday international sales, finding buyers, working out the profit, closing orders, built one by one into tools you can try. Background: 15 years in international sales, including mainland China channels and team management.",
+      sub: "Trade experience plus an AI-native way of working, turning the judgment calls of international sales (finding buyers, working out the profit, closing orders) into tools you can try. Background: 15 years in international sales, including mainland China channels and team management.",
       youGet: "Start with one important question",
       outcomesHeadline: "Which situation feels most familiar right now?",
       outcomesIntro: "Do not start with a tool. Start with the commercial question that needs clarity now.",
@@ -662,15 +662,15 @@ const dict = {
     },
     works: {
       eyebrow: "Selected Works",
-      headline: "The three works: how they operate and why to trust them.",
-      sub: "Each question above maps to one work. Here is what it produces, how it decides and where its evidence stops.",
+      headline: "The works: how they operate and why to trust them.",
+      sub: "Each capability above maps to its work. Here is what it produces, how it decides and where its evidence stops.",
       alsoExplore: "Or jump to",
       sections: {
         commercial: "Core commercial judgment: find buyers, know the profit, decide the commitment",
         operations: "Closing orders: sales pilots and workflows",
         labs: "AI learning milestones (development history)",
         notes: {
-          commercial: "Public narrative top three: (1) Commercial Decision Desk—can we commit? (2) Overseas development judgment—who deserves effort first? (3) Trade Profit Navigator—will the margin hold? The next section covers sales pilots for closing orders; the last is a trail of what I built while learning AI.",
+          commercial: "The public line is one commercial judgment: find buyers, know the profit, decide the commitment, from who to reach first, to whether the margin holds, to whether the order can be committed. The next section covers sales pilots for closing orders; the last is a trail of what I built while learning AI.",
           operations: "Pilots and workflows that move an opportunity toward a signable deal: a soft-furnishing brand site, a sales pilot case brief, a tracker and decision communication. These are methods and pilots, not proven closed-deal results.",
           labs: "How I learned to build working results with AI: a game, lyrics, a desktop pet, simulation kits and interactive concepts. They are not the main service; they stay as a learning trail.",
         },
@@ -1055,8 +1055,8 @@ const titles = {
   en: "Paul's Tradecraft | An International Salesperson's AI Working Notes",
 };
 const ogDescriptions = {
-  zh: "Paul Chen 的個人 AI 作品集：把國際業務每天要下的判斷（找買家、算利潤、談成訂單）做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路與團隊管理。",
-  en: "Paul Chen's personal AI portfolio: the judgment calls of international sales (finding buyers, working out profit, closing orders) built into tools you can try. Background: 15 years in international sales, including mainland China channels and team management.",
+  zh: "Paul Chen 的個人 AI 作品集：貿易經驗加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路與團隊管理。",
+  en: "Paul Chen's personal AI portfolio: trade experience plus an AI-native way of working, turning the judgment calls of international sales (finding buyers, working out profit, closing orders) into tools you can try. Background: 15 years in international sales, including mainland China channels and team management.",
 };
 
 // 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。
