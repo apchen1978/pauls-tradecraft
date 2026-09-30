@@ -9,11 +9,11 @@ const dict = {
       credentials: [
         { value: "15 年", label: "國際業務總監" },
         { value: "亞洲・中東・歐美", label: "開發過的市場" },
-        { value: "進口・出口・代工", label: "做過的生意型態" },
+        { value: "專賣店・批發・工程", label: "帶團隊做過的中國通路" },
       ],
       kicker: "國際業務・會計底子・AI 原生",
       headline: "15 年國際業務經驗，幫你找到海外商機、談成訂單，也算得出利潤。",
-      sub: "做過東南亞、日韓、中東與歐美，進口、出口、代工都有經驗。我幫想做外銷、卻不知道怎麼接上買家的老闆和團隊：找到對的買家、算清楚賺不賺、把訂單談到能簽。AI 幫忙整理與試算；要不要做，由你決定。",
+      sub: "開發過東南亞、日韓、中東與歐美市場；也把歐美、日本、俄羅斯品牌引進中國大陸，帶本地團隊做過專賣店、批發與工程銷售。我幫想做外銷、卻不知道怎麼接上買家的老闆和團隊：找到對的買家、算清楚賺不賺、把訂單談到能簽。AI 幫忙整理與試算；要不要做，由你決定。",
       youGet: "從一個重要問題開始",
       outcomesHeadline: "你現在最像哪一種情況？",
       outcomesIntro: "不是先挑工具。先從你此刻需要釐清的一個商業問題開始。",
@@ -530,11 +530,11 @@ const dict = {
       credentials: [
         { value: "15 years", label: "International sales leadership" },
         { value: "Asia · Middle East · West", label: "Markets developed" },
-        { value: "Import · Export · OEM", label: "Deal types handled" },
+        { value: "Stores · Wholesale · Projects", label: "China channels built with local teams" },
       ],
       kicker: "International sales · Accounting base · AI-native",
       headline: "15 years of international sales: find the overseas opportunity, close the order, and know the profit.",
-      sub: "I have worked across Southeast Asia, Japan, Korea, the Middle East, Europe and the US, in import, export and OEM. I help owners and teams who want to sell abroad but do not know how to reach buyers: find the right buyer, work out whether it pays, and get the order to a signable deal. AI helps organise and calculate; the decision stays with you.",
+      sub: "I have developed markets across Southeast Asia, Japan, Korea, the Middle East, Europe and the US, and brought European, American, Japanese and Russian brands into mainland China, leading local teams in exclusive stores, wholesale and project sales. I help owners and teams who want to sell abroad but do not know how to reach buyers: find the right buyer, work out whether it pays, and get the order to a signable deal. AI helps organise and calculate; the decision stays with you.",
       youGet: "Start with one important question",
       outcomesHeadline: "Which situation feels most familiar right now?",
       outcomesIntro: "Do not start with a tool. Start with the commercial question that needs clarity now.",
@@ -1053,8 +1053,8 @@ const titles = {
   en: "Paul's Tradecraft | 15 Years of International Sales: Find the Opportunity, Close the Order, Know the Profit",
 };
 const ogDescriptions = {
-  zh: "Paul Chen，15 年國際業務經驗（東南亞、日韓、中東、歐美；進口、出口、代工），具會計底子與 AI 原生工作方式。幫想做外銷的老闆與團隊找到買家、算清楚賺不賺、把訂單談到能簽。",
-  en: "Paul Chen: 15 years of international sales across Southeast Asia, Japan, Korea, the Middle East, Europe and the US (import, export, OEM), with an accounting foundation and AI-native working methods. I help owners and teams find buyers, work out whether it pays, and get orders to a signable deal.",
+  zh: "Paul Chen，15 年國際業務經驗（東南亞、日韓、中東、歐美；把歐美日俄品牌引進中國大陸，帶團隊做專賣店、批發、工程），具會計底子與 AI 原生工作方式。幫想做外銷的老闆與團隊找到買家、算清楚賺不賺、把訂單談到能簽。",
+  en: "Paul Chen: 15 years of international sales across Southeast Asia, Japan, Korea, the Middle East, Europe and the US (including bringing Western, Japanese and Russian brands into mainland China through stores, wholesale and projects), with an accounting foundation and AI-native working methods. I help owners and teams find buyers, work out whether it pays, and get orders to a signable deal.",
 };
 
 // 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。
