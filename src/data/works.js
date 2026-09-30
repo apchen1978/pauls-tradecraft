@@ -807,8 +807,8 @@ export const works = [
         en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after M3 rubric-v2 iteration, weak-adjacent false positives were reduced in the shortlist; 8 anonymized representative records plus 4 synthetic screened-out archetypes (12 in all) published as an interactive demo, with a market layer and deterministic tiers (engage first / verify first / hold / exclude; no weights, no score).",
       },
       evidence: {
-        zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records 加 4 筆合成被篩除典型。國家為代表性標示、市場層屬領域學習須逐項查證；被排除的帳戶不提供 CDD 匯出。揭露：真實 Owner 標註為準確率衡量基準 · 脫敏代表性 records · 公開網路證據流程 · 含模擬/領域學習元素 · 研究階段 · 商業採用與支付意願為下一階段驗證重點 · 沒有證據支持的資訊，不會被標示為已確認事實。",
-        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records plus 4 synthetic screened-out archetypes in the interactive demo. Countries are representative labels and the market layer is domain learning to be verified item by item; excluded accounts are not offered for CDD export. Disclosure: accuracy benchmark is real-owner labels · representative/anonymized records · public-web evidence workflow · simulated/domain-learning elements included · research stage · commercial adoption and willingness-to-pay are next-stage validation topics · No unsupported claim is presented as confirmed.",
+        zh: "44 家候選評估 · 20 家證據合格短名單 · M2 凍結基準 · M3 rubric-v2 迭代 · 8 家脫敏 demo records 加 4 筆合成被篩除典型。國家為代表性標示、市場層屬領域學習須逐項查證；被排除的帳戶不提供 CDD 匯出。揭露：研究階段 · 使用脫敏資料與公開證據 · 沒有證據的資訊不會標成事實。",
+        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · M2 frozen baseline · M3 rubric-v2 iteration · 8 anonymized representative records plus 4 synthetic screened-out archetypes in the interactive demo. Countries are representative labels and the market layer is domain learning to be verified item by item; excluded accounts are not offered for CDD export. Disclosure: research stage · anonymized data and public evidence · information without evidence is never presented as fact.",
       },
     },
   },
