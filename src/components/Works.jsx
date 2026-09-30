@@ -27,6 +27,7 @@ const SECTION_ORDER = ["commercial", "operations", "labs"];
 // moves the flow and takeaway blocks under the cover on wide screens; only for a
 // card whose body is much longer than its cover, so the columns stay even.
 const WIDE_CARDS = {
+  "overseas-lead-discovery": { balance: true },
   "global-business-development": { balance: true },
   "trade-profit-navigator": { balance: false },
 };
@@ -35,6 +36,7 @@ const WIDE_CARDS = {
 // AI-Native Market Entry stays on this wall as GBD's evidence case so
 // #ai-native-market-entry resolves. It is not a fourth flagship and not field-validated.
 const PUBLIC_COMMERCIAL_WALL_IDS = new Set([
+  "overseas-lead-discovery",
   "global-business-development",
   "trade-profit-navigator",
   "ai-native-market-entry",

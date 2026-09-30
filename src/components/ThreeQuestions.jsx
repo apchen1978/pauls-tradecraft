@@ -15,10 +15,10 @@ const copy = {
   zh: {
     eyebrow: "三個問題",
     title: "做海外生意，我幫你先答三個問題",
-    intro: "每個問題都有一個可以馬上試的示範。用的是虛構資料，兩分鐘就能看懂它怎麼幫上忙。",
+    intro: "每個問題都有一個可以馬上試的示範。用的是合成資料，兩分鐘就能看懂它怎麼幫上忙。",
     takeaway: "你會帶走",
-    demoNote: "示範案例（虛構資料）",
-    note: "示範用的都是虛構資料，不含任何真實客戶。AI 只協助整理與試算，要不要做、能不能答應，仍由你決定。",
+    demoNote: "示範案例（合成資料）",
+    note: "示範用的都是合成資料，不含任何真實客戶。AI 只協助整理與試算，要不要做、能不能答應，仍由你決定。",
     cards: [
       {
         key: "lead",
@@ -49,10 +49,10 @@ const copy = {
   en: {
     eyebrow: "Three questions",
     title: "Before you commit to an overseas deal, I help you answer three questions",
-    intro: "Each question has a demo you can try right now. They use fictional data and take about two minutes to show how they help.",
+    intro: "Each question has a demo you can try right now. They use synthetic data and take about two minutes to show how they help.",
     takeaway: "What you take away",
-    demoNote: "Demo case (fictional data)",
-    note: "Every demo uses fictional data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",
+    demoNote: "Demo case (synthetic data)",
+    note: "Every demo uses synthetic data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",
     cards: [
       {
         key: "lead",

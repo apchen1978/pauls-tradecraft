@@ -15,7 +15,7 @@ const copy = {
   zh: {
     eyebrow: "一筆生意走一遍",
     title: "同一筆生意，依序過三個問題",
-    intro: "第二、三步用的是同一筆虛構案例：1.2 萬米窗簾與窗飾，每米 40 美元。",
+    intro: "第二、三步用的是同一筆合成案例：1.2 萬米窗簾與窗飾，每米 40 美元。",
     open: "開啟示範",
     steps: [
       {
@@ -43,7 +43,7 @@ const copy = {
   en: {
     eyebrow: "One deal, walked through",
     title: "One deal, through the three questions in order",
-    intro: "Steps two and three use the same fictional case: 12,000 metres of curtains and valances at USD 40 a metre.",
+    intro: "Steps two and three use the same synthetic case: 12,000 metres of curtains and valances at USD 40 a metre.",
     open: "Open the demo",
     steps: [
       {
