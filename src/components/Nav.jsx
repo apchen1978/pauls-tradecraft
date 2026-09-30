@@ -19,6 +19,7 @@ export default function Nav() {
   const links = [
     { href: "#three-questions", label: t.nav.questions },
     { href: "#works", label: t.nav.works },
+    { href: "#garage", label: t.nav.garage },
     { href: "#capabilities", label: t.nav.services },
     { href: "#trade-notes", label: t.nav.notes },
     { href: "#about", label: t.nav.about },

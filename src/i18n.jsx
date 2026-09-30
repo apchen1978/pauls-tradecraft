@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { questions: "能做什麼", works: "作品", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { questions: "能做什麼", works: "作品", garage: "創意實驗", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "找買家", label: "海外客戶開發路線圖" },
@@ -441,6 +441,7 @@ const dict = {
       bridgeLine: "主力工作台幫你看清承諾前的條件；Digital Garage 則把商業判斷做成小實驗，讓你試試還能帶出什麼新做法。",
       seeAll: "看所有實驗",
       featuredMark: "精選",
+      moreLabel: "看其餘實驗",
       items: [
         {
           title: "Bring Paul Into the Room · 先把問題帶進來",
@@ -526,7 +527,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { questions: "What I do", works: "Work", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { questions: "What I do", works: "Work", garage: "Garage", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "Find buyers", label: "Overseas lead discovery" },
@@ -962,6 +963,7 @@ const dict = {
       bridgeLine: "The main workbench lays out the terms before commitment. The Digital Garage turns commercial judgment into tangible experiments, showing what other possibilities may open.",
       seeAll: "See all sparks",
       featuredMark: "Featured",
+      moreLabel: "More experiments",
       items: [
         {
           title: "Bring Paul Into the Room",
