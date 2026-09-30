@@ -78,8 +78,8 @@ async function check(width, height, mobile, lang) {
   const lower = text.toLowerCase();
   r.showsProblem = lower.includes("hundreds of companies") || lower.includes("幾百家");
   r.showsPrecisionPending = lower.includes("accuracy benchmark") || lower.includes("準確率衡量基準");
-  r.showsNotProven = lower.includes("not proven") || lower.includes("未證明") || lower.includes("未證明");
-  r.showsNoOutreach = lower.includes("no outreach") || lower.includes("未進行 outreach");
+  r.showsNotProven = lower.includes("next-stage validation") || lower.includes("下一階段驗證") || lower.includes("下一階段驗證");
+  r.showsNoOutreach = lower.includes("research stage") || lower.includes("研究階段");
   r.shows4420 = lower.includes("44") && lower.includes("20");
   r.showsAnonymized = lower.includes("anonymized") || lower.includes("脫敏");
   r.showsWhyNot = lower.includes("why not") || lower.includes("矛盾");

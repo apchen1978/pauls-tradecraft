@@ -42,16 +42,16 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await sleep(400);
   const txt = (await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); return h ? h.closest('article').innerText : ''; })()`)).toLowerCase();
   r.precisionPending = txt.includes("accuracy benchmark") || txt.includes("準確率衡量基準");
-  r.notProven = txt.includes("not proven") || txt.includes("未證明");
-  r.noOutreach = txt.includes("no outreach") || txt.includes("未進行 outreach");
+  r.notProven = txt.includes("next-stage validation") || txt.includes("下一階段驗證");
+  r.noOutreach = txt.includes("research stage") || txt.includes("研究階段");
   r.anonymized = txt.includes("anonymized") || txt.includes("脫敏");
   // switch to EN and re-check EN phrasing
   await ev(`[...document.querySelectorAll('button')].find(b => /^EN$/.test(b.textContent.trim()))?.click()`);
   await sleep(700);
   const txtEn = (await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); return h ? h.closest('article').innerText : ''; })()`)).toLowerCase();
   r.enPrecisionPending = txtEn.includes("accuracy benchmark");
-  r.enNotProven = txtEn.includes("not proven");
-  r.enNoOutreach = txtEn.includes("no outreach performed");
+  r.enNotProven = txtEn.includes("next-stage validation");
+  r.enNoOutreach = txtEn.includes("research stage");
   r.enAnonymized = txtEn.includes("anonymized");
   r.enCta = await ev(`(() => { const h = [...document.querySelectorAll('h3')].find(h => /Lead Discovery|海外客戶開發/.test(h.textContent)); const a = h && h.closest('article').querySelector('a[href]'); return a ? a.textContent.trim() : null; })()`);
   // No real prospect names leaked
