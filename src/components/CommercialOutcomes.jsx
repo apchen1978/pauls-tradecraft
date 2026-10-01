@@ -12,15 +12,15 @@ export default function CommercialOutcomes() {
         <div className="max-w-3xl">
           <p className="eyebrow">{content.eyebrow}</p>
           <h2 id="outcomes-heading" className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{content.headline}</h2>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink/70">{content.intro}</p>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-moss">{content.intro}</p>
         </div>
 
         <div className="mt-10 max-w-6xl border-y border-forest/20 py-5 md:mt-12 md:py-6">
           <p className="text-xs font-medium text-moss">{content.pathEyebrow}</p>
           <ol className="mt-4 grid gap-2 sm:grid-cols-5" aria-label={content.pathEyebrow}>
             {content.pathSteps.map((step, index) => (
-              <li key={step} className="border-t border-line pt-3 text-sm font-medium leading-snug text-ink/75">
-                <span className="mr-2 text-xs font-semibold tabular-nums text-ink/45">{String(index + 1).padStart(2, "0")}</span>
+              <li key={step} className="border-t border-line pt-3 text-sm font-medium leading-snug text-ink">
+                <span className="mr-2 text-xs font-semibold tabular-nums text-moss">{String(index + 1).padStart(2, "0")}</span>
                 {step}
               </li>
             ))}
@@ -46,7 +46,7 @@ export default function CommercialOutcomes() {
               </span>
               <div className="min-w-0 pr-1 md:pr-4">
                 <div className="border-b border-forest/15 pb-5">
-                  <p className={`text-xs font-medium ${index === content.items.length - 1 ? "text-amber" : "text-forest/70"}`}>{item.label}</p>
+                  <p className={`text-xs font-medium ${index === content.items.length - 1 ? "text-amber" : "text-forest"}`}>{item.label}</p>
                   <h3 className="mt-2 text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-forest md:text-2xl">{item.question}</h3>
                 </div>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
@@ -56,7 +56,7 @@ export default function CommercialOutcomes() {
                   </div>
                   <div>
                     <p className="text-xs font-medium text-moss">{content.outputLabel}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-ink/70">{item.output}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-moss">{item.output}</p>
                     <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors group-hover:text-amber">
                       {item.linkLabel}
                       <ArrowUpRight size={14} weight="bold" aria-hidden="true" />

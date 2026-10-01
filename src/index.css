@@ -13,21 +13,32 @@
 }
 
 @theme {
-  /* Cool-neutral white + indigo system. Token names are legacy (forest/pine/amber/gold
-     come from the earlier green-and-brass palette); read them by ROLE, not by name:
-       forest = deep brand colour for headings/links, pine = dark section surface,
-       amber  = primary accent on light surfaces, gold = accent on dark surfaces. */
-  --color-bone: #fbfbfc;
-  --color-paper: #f1f2f6;
-  --color-ink: #0b0d12;
-  --color-forest: #3730a3;
-  --color-pine: #0b0d12; /* dark section surface; gold-on-pine is the contrast pair */
-  --color-moss: #5d6573; /* muted secondary text */
-  --color-amber: #4f46e5; /* primary accent on light surfaces */
-  --color-gold: #a5b0ff; /* accent on dark surfaces */
+  /* Warm paper + deep green system, reusing the slide library's tokens. Token names are
+     legacy (forest/pine/amber/gold come from the earlier green-and-brass palette); read
+     them by ROLE, not by name:
+       forest = headings/links on light, pine = the one dark surface,
+       amber  = accent text on light, gold = accent on dark.
+
+     Brand relationship (Owner decision 2026-10-02): the site reuses the slide library's
+     two gold tokens, split by surface: #8A6A2B for text on light (4.54:1 on bone,
+     5.03:1 on white), #B89966 on dark only (5.48:1 on #142C29; 2.61:1 on light, so never
+     text there). Light sections use warm paper #F6F3ED only, with #DDE7DE as the
+     second-tier fill (ink text only); the dark surface is #142C29 only; dark-surface
+     text roles are #BDCDC3 body / #A9BEB4 meta. Source of truth for the gold tokens:
+     slide library tokens.json (goldOnPaper / goldOnDark). No third gold. */
+  --color-bone: #F6F3ED; /* the only light-section surface (slide-library warm paper) */
+  --color-paper: #DDE7DE; /* "soft": second-tier fill. Use ink text only; moss is 4.05:1 and amber 3.96:1 here (fail) */
+  --color-ink: #193A35;
+  --color-forest: #193A35; /* = ink: the one deep green, so the palette has no value outside the slide-library spec */
+  --color-pine: #142C29; /* the only dark surface */
+  --color-moss: #62716A; /* muted text on bone (4.64:1); do not use on paper/soft */
+  --color-amber: #8A6A2B; /* goldOnPaper: accent text on bone/white (4.54:1 / 5.03:1) */
+  --color-gold: #B89966; /* goldOnDark: dark surfaces only (5.48:1 on pine; 4.59:1 on forest/ink, fine for large text, use ondark for small) */
+  --color-ondark: #BDCDC3; /* body text on pine (8.92:1) */
+  --color-ondark-meta: #A9BEB4; /* meta text on pine (7.53:1) */
   --color-research: #4a6fa5;
   --color-graphite: #3f4654;
-  --color-line: #e4e6ec;
+  --color-line: #D4DAD1;
   --color-card: #ffffff; /* raised card surface on bone */
 
   /* Shape system (SaaS): cards 12px, fields 8px, chips = full pill */
@@ -94,6 +105,10 @@
     outline: 2px solid var(--color-amber);
     outline-offset: 2px;
   }
+  /* Amber is invisible on dark surfaces; use the dark-surface gold there. */
+  :is(header, .bg-pine, .bg-forest) :focus-visible {
+    outline-color: var(--color-gold);
+  }
 }
 
 @layer utilities {
@@ -113,17 +128,17 @@
   .surface-paper {
     background-color: var(--color-card);
     border: 1px solid var(--color-line);
-    box-shadow: 0 1px 2px rgb(11 13 18 / 0.04);
+    box-shadow: 0 1px 2px rgb(25 58 53 / 0.04);
   }
   .surface-muted {
-    background-color: rgb(241 242 246 / 0.45);
+    background-color: rgb(221 231 222 / 0.45);
   }
   .outcomes-stage {
     opacity: 1;
     transition: opacity 180ms ease;
   }
   .outcomes-stage-final {
-    border-image: linear-gradient(90deg, rgb(79 70 229 / 0.55), rgb(210 216 206 / 0.4)) 1;
+    border-image: linear-gradient(90deg, rgb(138 106 43 / 0.55), rgb(210 216 206 / 0.4)) 1;
   }
   @media (hover: hover) and (min-width: 768px) {
     .outcomes-rail:hover .outcomes-stage {
@@ -178,4 +193,35 @@
 /* While Lenis drives the scroll, native smooth scrolling would fight it. */
 html.lenis.lenis-smooth {
   scroll-behavior: auto !important;
+}
+
+/* Surface-role text overrides. Unlayered on purpose: they must beat the utilities
+   layer (text-moss / text-amber) when the text sits on a soft or dark surface. */
+/* Soft (#DDE7DE) fills and 6-10% tints (bg-amber/, bg-forest/, bg-ink/) sit below
+   4.5:1 for moss (4.05 on soft, ~3.7 on the tints) and amber (3.96 / ~3.7), so text on
+   them steps up to ink. */
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted).text-moss,
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted) :is(.text-moss, .eyebrow) {
+  color: var(--color-ink);
+}
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted).text-amber,
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted) .text-amber {
+  color: var(--color-ink);
+}
+/* Muted / accent text on the dark surfaces (pine, forest) uses the dark roles. */
+:is(.bg-pine, .bg-forest) :is(.text-moss, .eyebrow) {
+  color: var(--color-ondark-meta);
+}
+.bg-pine .text-amber {
+  color: var(--color-gold);
+}
+.bg-forest .text-amber {
+  color: var(--color-ondark);
+}
+/* A light card sitting inside a dark section keeps the light-surface roles. */
+.surface-light .text-moss {
+  color: var(--color-moss);
+}
+.surface-light .text-amber {
+  color: var(--color-amber);
 }

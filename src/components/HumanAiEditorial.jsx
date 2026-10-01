@@ -19,7 +19,7 @@ export default function HumanAiEditorial() {
         </div>
 
         <div className="flex max-w-xl flex-col justify-end border-t border-gold/45 pt-6 lg:mb-1 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-          <p className="text-base leading-relaxed text-bone/85 md:text-lg">{content.explanation}</p>
+          <p className="text-base leading-relaxed text-ondark md:text-lg">{content.explanation}</p>
           <p className="mt-8 text-sm font-semibold leading-relaxed text-gold">{content.closing}</p>
         </div>
       </div>

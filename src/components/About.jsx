@@ -14,8 +14,8 @@ export default function About() {
         >
           <p className="eyebrow">{t.about.eyebrow}</p>
           <h2 className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{t.about.headline}</h2>
-          <p className="mt-6 text-lg font-semibold text-ink/85">{t.about.intro}</p>
-          <div className="mt-3 max-w-[52ch] space-y-4 text-base leading-relaxed text-ink/70">
+          <p className="mt-6 text-lg font-semibold text-ink">{t.about.intro}</p>
+          <div className="mt-3 max-w-[52ch] space-y-4 text-base leading-relaxed text-moss">
             {t.about.narrative.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
@@ -28,7 +28,7 @@ export default function About() {
                 </span>
               ))}
             </p>
-            <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-ink/70 md:text-base">
+            <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-moss md:text-base">
               {t.about.signature.support.map((line) => (
                 <span key={line} className="block">
                   {line}
@@ -36,7 +36,7 @@ export default function About() {
               ))}
             </p>
             {t.about.signature.secondary && (
-              <p className="mt-6 max-w-[48ch] text-xs font-medium leading-[1.35] text-forest/75 md:text-xs">
+              <p className="mt-6 max-w-[48ch] text-xs font-medium leading-[1.35] text-forest md:text-xs">
                 {t.about.signature.secondary.map((line) => (
                   <span key={line} className="block">
                     {line}
@@ -74,7 +74,7 @@ export default function About() {
                 className="flex flex-col items-center justify-center gap-1.5 bg-card px-6 py-8 text-center"
               >
                 <span className="text-3xl font-medium tracking-[-0.02em] text-forest md:text-4xl">{s.value}</span>
-                <span className="text-sm text-ink/70">{s.label}</span>
+                <span className="text-sm text-moss">{s.label}</span>
               </motion.div>
             ))}
           </div>

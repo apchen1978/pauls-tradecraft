@@ -19,7 +19,7 @@ export default function Verification() {
       <div className="mx-auto max-w-7xl px-4 py-24 md:px-6 md:py-28">
         <p className="text-xs font-medium text-moss">{v.eyebrow}</p>
         <h2 className="mt-3 max-w-2xl text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{v.headline}</h2>
-        <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/70">{v.intro}</p>
+        <p className="mt-5 max-w-2xl text-base leading-relaxed text-moss">{v.intro}</p>
 
         <div className="mt-10 overflow-hidden rounded-card border border-line surface-muted">
           {proofRows.map((row, i) => (
@@ -28,13 +28,13 @@ export default function Verification() {
               className={`grid gap-1 px-6 py-4 md:grid-cols-[1.1fr_0.9fr_1fr] md:items-baseline md:gap-6 ${i > 0 ? "border-t border-line" : ""}`}
             >
               <span className="text-sm font-semibold text-forest">{t.verification.works[row.key]}</span>
-              <span className="font-mono text-sm text-ink/85">{row.tests}</span>
-              <span className="text-xs leading-relaxed text-ink/85">{t.verification.method[row.key]}</span>
+              <span className="font-mono text-sm text-ink">{row.tests}</span>
+              <span className="text-xs leading-relaxed text-ink">{t.verification.method[row.key]}</span>
             </div>
           ))}
         </div>
 
-        <p className="mt-6 max-w-2xl text-xs leading-relaxed text-ink/70">{v.boundary}</p>
+        <p className="mt-6 max-w-2xl text-xs leading-relaxed text-moss">{v.boundary}</p>
       </div>
     </section>
   );

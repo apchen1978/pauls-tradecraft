@@ -30,7 +30,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-16px" }}
           transition={{ duration: 0.35, ease: "easeOut", delay: 0.06 }}
-          className="mx-auto mt-5 max-w-[48ch] text-base leading-relaxed text-bone/70"
+          className="mx-auto mt-5 max-w-[48ch] text-base leading-relaxed text-ondark-meta"
         >
           {t.contact.sub}
         </motion.p>
@@ -45,7 +45,7 @@ export default function Contact() {
             <a
               href={emailHref}
               aria-label={`${t.contact.cta} · paulchen1978@gmail.com`}
-              className="rounded-field bg-gold px-7 py-3.5 text-sm font-semibold text-pine transition-colors hover:bg-[#f2c878] active:scale-[0.98]"
+              className="rounded-field bg-gold px-7 py-3.5 text-sm font-semibold text-pine transition-colors hover:brightness-110 active:scale-[0.98]"
             >
               {t.contact.cta}
             </a>
@@ -68,7 +68,7 @@ export default function Contact() {
           <a
             href={onePagerUrl}
             download
-            className="inline-flex items-center gap-2 text-sm font-medium text-bone/85 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold"
+            className="inline-flex items-center gap-2 text-sm font-medium text-ondark underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold"
           >
             <FilePdf size={16} weight="bold" />
             {t.contact.onePager}
@@ -76,7 +76,7 @@ export default function Contact() {
           <a
             href="/files/PaulTradecraft-Capability-Brief.pdf"
             download
-            className="inline-flex items-center gap-2 text-sm font-medium text-bone/85 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold"
+            className="inline-flex items-center gap-2 text-sm font-medium text-ondark underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold"
           >
             <FilePdf size={16} weight="bold" />
             {t.contact.capabilityBrief}
@@ -87,7 +87,7 @@ export default function Contact() {
           >
             paulchen1978@gmail.com
           </a>
-          <p className="mt-2 text-xs text-bone/70">{t.contact.note}</p>
+          <p className="mt-2 text-xs text-ondark-meta">{t.contact.note}</p>
         </motion.div>
       </div>
     </section>

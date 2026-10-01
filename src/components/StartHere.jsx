@@ -11,7 +11,7 @@ export default function StartHere() {
         <div className="max-w-2xl">
           <p className="eyebrow">{content.eyebrow}</p>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">{content.headline}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-ink/70 md:text-base">{content.intro}</p>
+          <p className="mt-3 text-sm leading-relaxed text-moss md:text-base">{content.intro}</p>
         </div>
 
         <div className="mt-9 grid border-y border-line md:grid-cols-3 md:divide-x md:divide-line">
@@ -23,7 +23,7 @@ export default function StartHere() {
             >
               <p className="text-xs font-semibold tabular-nums text-amber">0{index + 1}</p>
               <h3 className="mt-3 text-lg font-semibold leading-snug tracking-tight text-forest group-hover:text-amber">{item.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-ink/70">{item.outcome}</p>
+              <p className="mt-3 text-sm leading-relaxed text-moss">{item.outcome}</p>
               <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors group-hover:text-amber">
                 {item.cta}
                 <ArrowUpRight size={14} weight="bold" aria-hidden="true" />

@@ -20,35 +20,35 @@ export default function Capabilities() {
         <div className="max-w-2xl">
           <p className="eyebrow">{t.capabilities.eyebrow}</p>
           <h2 className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{t.capabilities.headline}</h2>
-          <p className="mt-4 text-base leading-relaxed text-ink/70">{t.capabilities.tagline}</p>
+          <p className="mt-4 text-base leading-relaxed text-moss">{t.capabilities.tagline}</p>
         </div>
 
         <div className="mt-12 rounded-card border border-gold/25 bg-pine px-6 py-8 text-bone md:px-8 md:py-10">
           <p className="text-xs font-semibold text-gold">{engagement.eyebrow}</p>
           <h3 className="mt-3 max-w-3xl text-2xl font-semibold leading-tight tracking-tight md:text-3xl">{engagement.title}</h3>
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-bone/85">{engagement.summary}</p>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-ondark">{engagement.summary}</p>
 
           <div className="mt-8 grid gap-6 border-y border-bone/20 py-1 md:grid-cols-3 md:divide-x md:divide-bone/20">
             {engagement.offers.map((offer, index) => (
               <article key={offer.title} className="py-6 md:px-6 md:first:pl-0 md:last:pr-0">
                 <p className="text-xs font-semibold text-gold">{String(index + 1).padStart(2, "0")}</p>
                 <h4 className="mt-2 text-lg font-medium tracking-[-0.02em] text-bone">{offer.title}</h4>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-bone/85">{offer.question}</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-ondark">{offer.question}</p>
                 <dl className="mt-5 grid gap-4 text-sm leading-relaxed">
                   <div>
                     <dt className="text-xs font-medium text-gold">{engagement.bringLabel}</dt>
-                    <dd className="mt-1 text-bone/70">{offer.bring}</dd>
+                    <dd className="mt-1 text-ondark-meta">{offer.bring}</dd>
                   </div>
                   <div>
                     <dt className="text-xs font-medium text-gold">{engagement.workLabel}</dt>
-                    <dd className="mt-1 text-bone/70">{offer.work}</dd>
+                    <dd className="mt-1 text-ondark-meta">{offer.work}</dd>
                   </div>
                   <div>
                     <dt className="text-xs font-medium text-gold">{engagement.takeawayLabel}</dt>
-                    <dd className="mt-1 font-semibold text-bone/95">{offer.takeaway}</dd>
+                    <dd className="mt-1 font-semibold text-ondark">{offer.takeaway}</dd>
                   </div>
                 </dl>
-                <p className="mt-4 text-xs font-medium text-bone/70">{offer.proof}</p>
+                <p className="mt-4 text-xs font-medium text-ondark-meta">{offer.proof}</p>
               </article>
             ))}
           </div>
@@ -60,7 +60,7 @@ export default function Capabilities() {
             {engagement.cta}
             <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
           </a>
-          <p className="mt-4 max-w-3xl text-xs leading-relaxed text-bone/70">{engagement.boundary}</p>
+          <p className="mt-4 max-w-3xl text-xs leading-relaxed text-ondark-meta">{engagement.boundary}</p>
         </div>
 
         <details className="group mt-16">
@@ -74,7 +74,7 @@ export default function Capabilities() {
           <div className="max-w-3xl">
             <p className="text-xs font-medium text-moss">{t.capabilities.delivery.eyebrow}</p>
             <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">{t.capabilities.delivery.title}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-ink/70 md:text-base">{t.capabilities.delivery.intro}</p>
+            <p className="mt-3 text-sm leading-relaxed text-moss md:text-base">{t.capabilities.delivery.intro}</p>
           </div>
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-forest">
             <a href={withDemoLang(workflowLinks.source, lang)} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber">{t.capabilities.delivery.sourceCta} ↗</a>
@@ -88,7 +88,7 @@ export default function Capabilities() {
                 {t.capabilities.delivery.steps.slice(0, 2).map((step) => (
                   <article key={step.title} className="border-t border-forest/15 pt-4">
                     <h5 className="text-base font-medium tracking-[-0.02em]">{step.title}</h5>
-                    <p className="mt-2 text-sm leading-relaxed text-ink/70">{step.body}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-moss">{step.body}</p>
                   </article>
                 ))}
               </div>
@@ -99,7 +99,7 @@ export default function Capabilities() {
                 {t.capabilities.delivery.steps.slice(2).map((step) => (
                   <article key={step.title} className="border-t border-forest/15 pt-4">
                     <h5 className="text-base font-medium tracking-[-0.02em]">{step.title}</h5>
-                    <p className="mt-2 text-sm leading-relaxed text-ink/70">{step.body}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-moss">{step.body}</p>
                   </article>
                 ))}
               </div>
@@ -112,14 +112,14 @@ export default function Capabilities() {
           <div className="max-w-2xl">
             <p className="text-xs font-medium text-moss">{t.capabilities.demandLab.eyebrow}</p>
             <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">{t.capabilities.demandLab.title}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-ink/70 md:text-base">{t.capabilities.demandLab.intro}</p>
+            <p className="mt-3 text-sm leading-relaxed text-moss md:text-base">{t.capabilities.demandLab.intro}</p>
           </div>
           <div className="mt-8 grid gap-0 border-y border-line md:grid-cols-3 md:divide-x md:divide-line">
             {t.capabilities.demandLab.cases.map((item) => (
               <article key={item.label} className="border-b border-line py-5 last:border-b-0 md:border-b-0 md:px-6 md:first:pl-0 md:last:pr-0">
                 <p className="text-xs font-medium text-moss">{item.label}</p>
                 <h4 className="mt-2 text-base font-medium tracking-[-0.02em]">{item.title}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-ink/70">{item.body}</p>
+                <p className="mt-2 text-sm leading-relaxed text-moss">{item.body}</p>
               </article>
             ))}
           </div>
@@ -151,7 +151,7 @@ export default function Capabilities() {
                       <h3 className="text-base font-medium tracking-[-0.02em]">{item.title}</h3>
                     </div>
                     <p className="mt-1 text-xs font-medium text-moss">{item.tags}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-ink/70">{item.desc}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-moss">{item.desc}</p>
                   </div>
                 </div>
               </motion.div>

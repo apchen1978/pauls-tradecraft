@@ -56,7 +56,7 @@
   margin-top: 0.65rem;
   font-size: 0.95rem;
   line-height: 1.7;
-  color: rgb(11 13 18 / 0.72);
+  color: rgb(25 58 53 / 0.72);
 }
 
 .decision-flow__note-row {
@@ -88,7 +88,7 @@
   white-space: nowrap;
   cursor: pointer;
   text-decoration: underline;
-  text-decoration-color: rgb(11 13 18 / 0.28);
+  text-decoration-color: rgb(25 58 53 / 0.28);
   text-underline-offset: 0.2rem;
 }
 
@@ -126,7 +126,7 @@
 }
 
 .decision-flow__source-tag {
-  fill: rgb(11 13 18 / 0.6);
+  fill: rgb(25 58 53 / 0.6);
   font-family: inherit;
   font-size: 11px;
   font-weight: 600;
@@ -201,7 +201,7 @@
 }
 
 .decision-flow__pile-label {
-  fill: rgb(11 13 18 / 0.5);
+  fill: rgb(25 58 53 / 0.5);
   font-family: inherit;
   font-size: 10.5px;
   font-weight: 600;
@@ -280,7 +280,7 @@
   max-width: 20ch;
   font-size: 0.76rem;
   line-height: 1.5;
-  color: rgb(11 13 18 / 0.66);
+  color: rgb(25 58 53 / 0.75);
 }
 
 .decision-flow__tally {
@@ -295,13 +295,13 @@
   width: max-content;
   max-width: min(16rem, 30vw);
   padding: 0.45rem 0.65rem;
-  border: 1px solid rgb(11 13 18 / 0.12);
+  border: 1px solid rgb(25 58 53 / 0.12);
   border-radius: 0.4rem;
   background: var(--color-paper);
   color: var(--color-forest);
   font-size: 0.75rem;
   line-height: 1.35;
-  box-shadow: 0 5px 18px rgb(11 13 18 / 0.08);
+  box-shadow: 0 5px 18px rgb(25 58 53 / 0.08);
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, 0.25rem);

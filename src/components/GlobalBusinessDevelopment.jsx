@@ -9,7 +9,7 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
   const active = copy.objectives[objective];
   const dark = tone === "dark";
   const panel = dark ? "border-bone/20 bg-bone/[0.06]" : "border-line bg-paper";
-  const muted = dark ? "text-bone/70" : "text-ink/70";
+  const muted = dark ? "text-ondark-meta" : "text-moss";
   const heading = dark ? "text-bone" : "text-forest";
 
   return (
@@ -21,14 +21,14 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
             <h4 id="gbd-headline" className="mt-3 max-w-[18ch] text-3xl font-medium leading-[1.08] tracking-[-0.02em] text-bone sm:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
               {copy.headline}
             </h4>
-            <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-bone/70">{copy.intro}</p>
+            <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-ondark-meta">{copy.intro}</p>
           </div>
           <div className="border-t border-bone/20 pt-4 md:border-t-0 md:border-l md:pl-6 md:pt-0">
             <p className="text-xs font-medium text-moss">{copy.editorialLabel}</p>
             <p className="mt-3 max-w-[23ch] text-xl font-medium leading-snug tracking-[-0.025em] text-bone" style={{ fontFamily: "var(--font-serif)" }}>
               {copy.editorialLine}
             </p>
-            <p className="mt-5 text-xs leading-relaxed text-bone/70">{copy.syntheticNote}</p>
+            <p className="mt-5 text-xs leading-relaxed text-ondark-meta">{copy.syntheticNote}</p>
           </div>
         </div>
       </section>
@@ -50,10 +50,10 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
           {Object.entries(copy.objectives).map(([key, item]) => {
             const activeButton = objective === key;
             return (
-              <button key={key} type="button" aria-pressed={activeButton} onClick={(event) => { event.stopPropagation(); setObjective(key); }} className={`relative min-h-24 border-b border-line px-4 py-4 text-left transition-colors last:border-b-0 sm:border-b-0 sm:last:border-l md:px-6 ${activeButton ? "bg-forest text-bone" : dark ? "text-bone/85 hover:bg-bone/[0.08] focus-visible:bg-bone/[0.08]" : "text-forest hover:bg-forest/[0.06] focus-visible:bg-forest/[0.06]"}`}>
+              <button key={key} type="button" aria-pressed={activeButton} onClick={(event) => { event.stopPropagation(); setObjective(key); }} className={`relative min-h-24 border-b border-line px-4 py-4 text-left transition-colors last:border-b-0 sm:border-b-0 sm:last:border-l md:px-6 ${activeButton ? "bg-forest text-bone" : dark ? "text-ondark hover:bg-bone/[0.08] focus-visible:bg-bone/[0.08]" : "text-forest hover:bg-forest/[0.06] focus-visible:bg-forest/[0.06]"}`}>
                 <span className="text-xs font-semibold text-amber">{item.label}</span>
                 <span className="mt-2 block text-base font-semibold">{item.name}</span>
-                <span className={`mt-1 block text-xs leading-relaxed ${activeButton ? "text-bone/70" : muted}`}>{item.objective}</span>
+                <span className={`mt-1 block text-xs leading-relaxed ${activeButton ? "text-ondark-meta" : muted}`}>{item.objective}</span>
                 {activeButton && <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-amber md:left-6 md:right-6" aria-hidden="true" />}
               </button>
             );
@@ -73,8 +73,8 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
             <p className={`mt-2 text-2xl font-semibold tracking-tight ${heading}`}>{active.primary}</p>
             <p className={`mt-3 max-w-[62ch] text-sm leading-relaxed ${muted}`}>{active.reason}</p>
             <dl className="mt-6 grid gap-4 border-t border-line pt-4 sm:grid-cols-2">
-              <div><dt className={`text-xs font-medium ${dark ? "text-bone/70" : "text-ink/70"}`}>{copy.nextQuestion}</dt><dd className={`mt-2 text-sm font-semibold leading-relaxed ${heading}`}>{active.action}</dd></div>
-              <div><dt className={`text-xs font-medium ${dark ? "text-bone/70" : "text-ink/70"}`}>{copy.notYetLabel}</dt><dd className={`mt-2 text-sm font-semibold leading-relaxed ${heading}`}>{active.notYet}</dd></div>
+              <div><dt className={`text-xs font-medium ${dark ? "text-ondark-meta" : "text-moss"}`}>{copy.nextQuestion}</dt><dd className={`mt-2 text-sm font-semibold leading-relaxed ${heading}`}>{active.action}</dd></div>
+              <div><dt className={`text-xs font-medium ${dark ? "text-ondark-meta" : "text-moss"}`}>{copy.notYetLabel}</dt><dd className={`mt-2 text-sm font-semibold leading-relaxed ${heading}`}>{active.notYet}</dd></div>
             </dl>
           </div>
         </div>
@@ -84,13 +84,13 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
         <div className="border-b border-line bg-paper p-5 md:border-r md:border-b-0 md:p-6">
           <div className="flex items-center gap-2 text-amber"><WarningCircle size={18} weight="fill" aria-hidden="true" /><p className="text-xs font-medium">{copy.unknownLabel}</p></div>
           <h4 className="mt-3 text-xl font-semibold tracking-tight text-forest">{copy.unknownTitle}</h4>
-          <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-ink/70">{copy.unknownBody}</p>
+          <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-moss">{copy.unknownBody}</p>
           <p className="mt-4 border-l-2 border-amber pl-3 text-xs font-semibold leading-relaxed text-rust">{copy.unknownAction}</p>
         </div>
         <div className="bg-forest p-5 text-bone md:p-6">
           <div className="flex items-center gap-2 text-amber"><CheckCircle size={18} weight="fill" aria-hidden="true" /><p className="text-xs font-medium">{copy.gateLabel}</p></div>
           <h4 className="mt-3 text-xl font-semibold tracking-tight">{copy.gateTitle}</h4>
-          <p className="mt-2 text-sm leading-relaxed text-bone/70">{copy.gateBody}</p>
+          <p className="mt-2 text-sm leading-relaxed text-ondark-meta">{copy.gateBody}</p>
           <p className="mt-4 border-l-2 border-amber pl-3 text-xs font-semibold leading-relaxed text-bone">{copy.gateAction}</p>
         </div>
       </section>
@@ -110,7 +110,7 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
           <div className={`border-l-2 border-amber pl-4 text-sm leading-relaxed ${muted}`}>
             <p className={`font-semibold ${heading}`}>{copy.handoff}</p>
             <a href="#commercial-decision-desk" className="mt-2 inline-flex items-center gap-1 font-semibold text-forest hover:text-amber focus-visible:text-amber">{copy.handoffLink}<ArrowRight size={14} weight="bold" aria-hidden="true" /></a>
-            <a href="/prototype/ai-native-commercial-conversion/" className="mt-3 inline-flex max-w-full items-start gap-1.5 text-xs font-medium leading-relaxed text-ink/70 transition-colors hover:text-forest focus-visible:text-forest">
+            <a href="/prototype/ai-native-commercial-conversion/" className="mt-3 inline-flex max-w-full items-start gap-1.5 text-xs font-medium leading-relaxed text-moss transition-colors hover:text-forest focus-visible:text-forest">
               <span>{copy.conversionLink}</span><ArrowRight className="mt-0.5 shrink-0" size={13} weight="bold" aria-hidden="true" />
             </a>
           </div>

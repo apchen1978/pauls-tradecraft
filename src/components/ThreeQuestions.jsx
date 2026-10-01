@@ -103,7 +103,7 @@ export default function ThreeQuestions() {
         <p className="eyebrow">{c.eyebrow}</p>
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16">
           <h2 id="three-questions-heading" className="max-w-[20ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
-          <p className="max-w-[44ch] self-end text-base leading-relaxed text-ink/70 md:text-lg">{c.intro}</p>
+          <p className="max-w-[44ch] self-end text-base leading-relaxed text-moss md:text-lg">{c.intro}</p>
         </div>
 
         <p className="mt-8 max-w-[62ch] border-l-2 border-amber pl-4 text-base font-medium leading-relaxed text-forest md:mt-12">{c.chain}</p>
@@ -125,7 +125,7 @@ export default function ThreeQuestions() {
                   <span className="text-sm font-medium text-moss">{card.stage}</span>
                 </div>
                 <h3 className="mt-7 text-[1.5rem] md:mt-10 font-medium leading-[1.25] tracking-[-0.02em] text-ink md:text-[1.75rem]">{card.question}</h3>
-                <p className="mt-4 text-base leading-relaxed text-ink/70">{card.pain}</p>
+                <p className="mt-4 text-base leading-relaxed text-moss">{card.pain}</p>
                 <div className="mt-8 border-t border-line pt-5">
                   <p className="text-sm font-medium text-moss">{c.takeaway}</p>
                   <p className="mt-2 text-base leading-relaxed text-forest">{card.takeaway}</p>
@@ -140,7 +140,7 @@ export default function ThreeQuestions() {
                     <span>{card.cta}</span>
                     <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </a>
-                  <p className="mt-3 text-sm text-ink/70">{c.demoNote}</p>
+                  <p className="mt-3 text-sm text-moss">{c.demoNote}</p>
                   {card.cta2 && (
                     <a
                       href={withDemoLang(`${LINKS[card.key]}#mode-gap`, lang)}
@@ -156,8 +156,8 @@ export default function ThreeQuestions() {
             </li>
           ))}
         </ol>
-        <p className="mt-12 max-w-[70ch] text-sm leading-relaxed text-ink/70">{c.note}</p>
-        <p className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-ink/70">
+        <p className="mt-12 max-w-[70ch] text-sm leading-relaxed text-moss">{c.note}</p>
+        <p className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-moss">
           <span>{c.learnLead}</span>
           <a className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber" href="/prototype/ai-native-overseas-customer-roadmap/">{c.learnRoadmap}</a>
           <a className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber" href="/files/Paul-Tradecraft-Learning-Guide-001-Overseas-Customer-Development-ZH.pdf" target="_blank" rel="noopener noreferrer">{c.learnGuide}</a>

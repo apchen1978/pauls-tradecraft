@@ -72,14 +72,14 @@ export default function CommercialFrontDoor() {
         <p className="eyebrow">{c.eyebrow}</p>
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-12">
           <h2 id="commercial-entry-heading" className="max-w-[18ch] text-[clamp(1.9rem,4vw,3.5rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-ink">{c.title}</h2>
-          <p className="max-w-[56ch] self-end text-base leading-relaxed text-ink/70">{c.intro}</p>
+          <p className="max-w-[56ch] self-end text-base leading-relaxed text-moss">{c.intro}</p>
         </div>
         <div className="mt-9 grid gap-4 md:grid-cols-2">
           {steps.map((step) => (
             <a key={step.href} href={step.href} className="group flex min-h-56 flex-col rounded-card border border-line surface-paper p-6 transition-colors hover:border-forest/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:p-8">
               <p className="text-xs font-semibold text-amber">{step.label}</p>
               <h3 className="mt-6 max-w-[26ch] text-xl font-semibold leading-snug tracking-tight text-forest md:text-2xl">{step.title}</h3>
-              <p className="mt-3 max-w-[50ch] text-sm leading-relaxed text-ink/70">{step.body}</p>
+              <p className="mt-3 max-w-[50ch] text-sm leading-relaxed text-moss">{step.body}</p>
               <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 group-hover:text-amber">{step.link}<ArrowUpRight size={16} weight="bold" aria-hidden="true" /></span>
             </a>
           ))}
@@ -91,7 +91,7 @@ export default function CommercialFrontDoor() {
           <div className="max-w-2xl">
             <p className="text-xs font-semibold text-amber">{c.proof}</p>
             <h3 className="mt-2 text-lg font-semibold text-ink">{c.proofTitle}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink/70">{c.proofBody}</p>
+            <p className="mt-2 text-sm leading-relaxed text-moss">{c.proofBody}</p>
           </div>
           <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 md:mt-1 md:max-w-sm">
             {[routes.discovery, routes.rfq, routes.decision].map((href, index) => (
@@ -102,13 +102,13 @@ export default function CommercialFrontDoor() {
         <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 md:flex-row md:items-center md:justify-between md:gap-8">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold text-forest">{c.productStartTitle}</p>
-            <p className="mt-1 text-sm leading-relaxed text-ink/70">{c.productStartBody}</p>
+            <p className="mt-1 text-sm leading-relaxed text-moss">{c.productStartBody}</p>
           </div>
           <a href="#capabilities" className="inline-flex shrink-0 self-start items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:self-auto">
             {c.productStartLink}<ArrowUpRight size={14} weight="bold" aria-hidden="true" />
           </a>
         </div>
-        <p className="mt-6 max-w-[78ch] text-xs leading-relaxed text-ink/70">{c.boundary}</p>
+        <p className="mt-6 max-w-[78ch] text-xs leading-relaxed text-moss">{c.boundary}</p>
       </div>
     </section>
   );

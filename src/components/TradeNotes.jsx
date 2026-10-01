@@ -15,7 +15,7 @@ export default function TradeNotes() {
             <h2 id="trade-notes-title" className="mt-3 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.02em] text-forest md:text-4xl">
               {content.title}
             </h2>
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-ink/70 md:text-base">{content.intro}</p>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-moss md:text-base">{content.intro}</p>
           </div>
 
           <div className="divide-y divide-forest/15 border-y border-forest/20">
@@ -30,7 +30,7 @@ export default function TradeNotes() {
                   <span aria-hidden="true" className="shrink-0 text-xl leading-none text-amber transition-transform motion-reduce:transition-none group-open:rotate-45">+</span>
                 </summary>
                 <div className="ml-8 mt-4 max-w-2xl border-l border-amber/45 pl-4 md:ml-10 md:pl-5">
-                  <p className="text-sm leading-relaxed text-ink/85">{item.body}</p>
+                  <p className="text-sm leading-relaxed text-ink">{item.body}</p>
                   <p className="mt-3 text-sm font-medium leading-relaxed text-forest">{item.question}</p>
                   <details className="group/practical mt-4 border-y border-forest/15">
                     <summary className="flex cursor-pointer list-none items-center gap-3 py-3 text-sm font-semibold text-forest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
@@ -43,7 +43,7 @@ export default function TradeNotes() {
                     <div className="mb-4 border-l-2 border-amber/45 py-1 pl-4 md:pl-5">
                       <p className="eyebrow text-xs">{item.answer.eyebrow}</p>
                       <h3 className="mt-2 text-base font-semibold leading-snug text-forest">{item.answer.title}</h3>
-                      <ol className="mt-3 space-y-2 text-sm leading-relaxed text-ink/85">
+                      <ol className="mt-3 space-y-2 text-sm leading-relaxed text-ink">
                         {item.answer.steps.map((step, stepIndex) => (
                           <li key={step} className="flex gap-2.5">
                             <span className="mt-px shrink-0 font-mono text-xs text-amber">0{stepIndex + 1}</span>
@@ -51,7 +51,7 @@ export default function TradeNotes() {
                           </li>
                         ))}
                       </ol>
-                      <p className="mt-3 text-xs leading-relaxed text-ink/70">{item.answer.caution}</p>
+                      <p className="mt-3 text-xs leading-relaxed text-moss">{item.answer.caution}</p>
                     </div>
                   </details>
                   <a href={item.href} target={item.internal ? undefined : "_blank"} rel={item.internal ? undefined : "noreferrer"} className="mt-3 inline-flex text-xs font-semibold text-moss underline decoration-moss/40 underline-offset-4 hover:text-forest">
@@ -62,7 +62,7 @@ export default function TradeNotes() {
             ))}
           </div>
         </div>
-        <p className="mt-8 max-w-4xl text-xs leading-relaxed text-ink/70">{content.note}</p>
+        <p className="mt-8 max-w-4xl text-xs leading-relaxed text-moss">{content.note}</p>
       </div>
     </section>
   );

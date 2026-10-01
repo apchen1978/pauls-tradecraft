@@ -13,7 +13,7 @@ function Card({ item, g }) {
       </div>
       <h3 className="mt-5 text-[1.375rem] font-medium leading-[1.25] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
       <p className="mt-4 border-l-2 border-amber/70 pl-3 text-base font-medium leading-snug text-forest">{item.spark}</p>
-      <p className="mt-4 hidden text-base leading-relaxed text-ink/70 md:block">{item.note}</p>
+      <p className="mt-4 hidden text-base leading-relaxed text-moss md:block">{item.note}</p>
       <div className="mt-auto pt-7">
         <a
           href={item.href}
@@ -24,7 +24,7 @@ function Card({ item, g }) {
           <span>{item.cta}</span>
           <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </a>
-        <p className="mt-3 text-sm text-ink/70">{item.boundary}</p>
+        <p className="mt-3 text-sm text-moss">{item.boundary}</p>
       </div>
     </article>
   );
@@ -44,7 +44,7 @@ export default function Garage() {
         <p className="eyebrow">{g.eyebrow}</p>
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16">
           <h2 id="garage-heading" className="max-w-[24ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{g.headline}</h2>
-          <p className="max-w-[44ch] self-end text-base leading-relaxed text-ink/70 md:text-lg">{g.intro}</p>
+          <p className="max-w-[44ch] self-end text-base leading-relaxed text-moss md:text-lg">{g.intro}</p>
         </div>
 
         {/* Desktop: every experiment, three columns */}
