@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Three Days of Quiet · 三天沒回 — Paul's Tradecraft</title>
+  <style>
+    :root {
+      --paper: #f6f3ed;
+      --ink: #193a35;
+      --muted: #62716a;
+      --line: #d4dad1;
+      --pine: #142c29;
+      --brass: #8a6a2b;
+      --surface: #ffffff;
+      --soft: #dde7de;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+    .page { width: min(100% - 40px, 720px); margin: 0 auto; padding: 36px 0 64px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .eyebrow { margin: 0; color: var(--ink); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .lang { display: flex; gap: 6px; }
+    .lang button {
+      min-width: 44px; min-height: 36px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0;
+      background: transparent; border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
+    }
+    .lang button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--paper); }
+    .synthetic {
+      display: inline-block; margin-top: 18px; padding: 4px 10px;
+      border: 1px solid var(--line); border-radius: 3px; color: var(--muted);
+      font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    }
+    .progress { margin: 26px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+    .stage { margin-top: 8px; border-top: 1px solid var(--ink); padding-top: 26px; min-height: 420px; }
+    .stage[hidden], .screen[hidden] { display: none; }
+    h1, h2 {
+      margin: 0; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif;
+      font-weight: 600; letter-spacing: -.04em; line-height: 1.2;
+    }
+    h1 { font-size: clamp(34px, 6vw, 50px); }
+    h2 { font-size: clamp(26px, 4.6vw, 36px); }
+    h2:focus { outline: none; }
+    .lede { margin: 14px 0 0; max-width: 34em; color: var(--muted); font-size: 16px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 22px;
+      border: 1px solid var(--pine); border-radius: 8px; background: var(--pine); color: var(--paper);
+      font-weight: 700; cursor: pointer; text-decoration: none;
+    }
+    .btn:hover { filter: brightness(1.15); }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { background: var(--soft); filter: none; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
+    .mail { margin-top: 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    .mail-head { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--paper); border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+    .mail-body { padding: 16px; font-size: 15px; }
+    .mail-body p { margin: 0 0 8px; }
+    .mail-sent { color: var(--muted); font-size: 13px; }
+    .mail-empty {
+      display: grid; place-items: center; min-height: 120px; border-top: 1px dashed var(--line);
+      color: var(--muted); font-size: 14px; font-style: italic;
+    }
+    .days { display: flex; gap: 8px; margin-top: 14px; }
+    .day { flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; color: var(--muted); text-align: center; }
+
+    .options { display: grid; gap: 10px; margin-top: 24px; }
+    .option {
+      text-align: left; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; cursor: pointer; font-size: 17px; font-weight: 600;
+    }
+    .option:hover { border-color: var(--pine); }
+    .option small { display: block; margin-top: 2px; color: var(--muted); font-size: 14px; font-weight: 400; }
+
+    .cards { display: grid; gap: 10px; margin-top: 22px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+    .card > button {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%;
+      padding: 15px 18px; background: transparent; border: 0; cursor: pointer; text-align: left; font-size: 17px; font-weight: 700;
+    }
+    .card > button::after { content: "+"; font-size: 20px; color: var(--muted); transition: transform .2s ease; }
+    .card > button[aria-expanded="true"]::after { transform: rotate(45deg); }
+    .card .panel { padding: 0 18px 16px; font-size: 15px; }
+    .card .panel[hidden] { display: none; }
+    .panel dl { margin: 0; }
+    .panel dt { margin-top: 10px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
+    .panel dd { margin: 2px 0 0; }
+    .panel dd.ask { color: var(--ink); font-family: "Noto Serif TC", Georgia, serif; font-size: 17px; }
+    .hint { margin: 18px 0 0; color: var(--muted); font-size: 13px; }
+
+    .echo { margin-top: 20px; padding: 12px 16px; background: var(--soft); border-radius: 8px; font-size: 15px; }
+    .rows { margin: 18px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+    .rows li { display: grid; grid-template-columns: minmax(96px, 150px) 1fr; gap: 14px; padding: 15px 0; border-bottom: 1px solid var(--line); }
+    .rows .k { color: var(--ink); font-weight: 700; font-size: 15px; }
+    .rows .v { color: var(--ink); font-size: 15px; }
+    .note { margin: 18px 0 0; color: var(--muted); font-size: 14px; }
+
+    .close-line { margin: 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(26px, 5vw, 38px); line-height: 1.3; letter-spacing: -.03em; }
+    .boundary { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    .enter { animation: rise .3s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+    @media (max-width: 520px) {
+      .rows li { grid-template-columns: 1fr; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="top">
+      <p class="eyebrow" id="eyebrow"></p>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <span class="synthetic" id="synthetic"></span>
+    <p class="progress" id="progress" aria-live="polite"></p>
+
+    <section class="stage" id="stage" aria-live="polite">
+      <!-- screens are rendered by script -->
+    </section>
+
+    <p class="boundary" id="boundary"></p>
+  </main>
+
+  <script>
+  (function () {
+    var COPY = {
+      zh: {
+        title: "Three Days of Quiet · 三天沒回",
+        eyebrow: "Digital Garage · 合成實驗",
+        synthetic: "合成情境 · 虛構報價與買家",
+        step: function (n) { return n + " / 5"; },
+        boundary: "合成情境，不是買家行為預測；每種讀法只是可能，沒有任何一種被證明。不儲存任何內容。",
+        s1: {
+          h: "週一寄出報價。週四，沒有回音。",
+          lede: "一份給海灣區飯店採購的窗簾報價（虛構）。你寄出後，信箱很安靜。",
+          mailHead: ["寄件：你", "收件：採購經理（虛構）"],
+          mailSent: "已寄出 · 3 天前",
+          mailBody: "附上報價與交期，請您參考。",
+          empty: "（沒有回覆）",
+          days: ["週一 寄出", "週二", "週三", "週四 今天"],
+          go: "看看這三天"
+        },
+        s2: {
+          h: "你現在最想做的是？",
+          lede: "憑直覺選一個。沒有對錯。",
+          options: [
+            { id: "chase", t: "再催一下", s: "寄一封簡短的提醒" },
+            { id: "discount", t: "再讓一點價", s: "主動調整報價" },
+            { id: "wait", t: "再等等", s: "再給對方幾天" }
+          ]
+        },
+        s3: {
+          h: "同一個沉默，四種讀法。",
+          lede: "翻開看看。你不需要全部讀完。",
+          hint: "這只是可能，不是判斷。",
+          next: "看你的選擇會怎樣",
+          readings: [
+            { id: "compare", t: "他們在比價", see: "對方問過規格或交期，卻沒談條件。", ask: "「您這邊目前在比較的重點是哪一項？」" },
+            { id: "stuck", t: "內部卡關", see: "聯絡人說要「再確認」，沒提時程。", ask: "「這份報價還需要誰簽核？大概什麼時候？」" },
+            { id: "doubt", t: "報價有疑點", see: "對方沒問任何問題，一句也沒有。", ask: "「報價裡有沒有哪一項需要我們重新說明？」" },
+            { id: "busy", t: "單純忙或換人", see: "自動回覆，或信件看起來沒被打開。", ask: "「請問這個案子目前是由哪位同事接手？」" }
+          ],
+          seeLabel: "你可能會看到",
+          askLabel: "能分辨它的一個問題"
+        },
+        s4: {
+          h: "你的選擇，放回四種讀法裡。",
+          echo: function (label) { return "你選的是：「" + label + "」"; },
+          lede: "同一個動作，在不同讀法下意義不同。而你從沉默裡，看不出是哪一種。",
+          effects: {
+            chase: {
+              compare: "可能沒什麼影響：他們在比，催促不會改變比較的依據。",
+              stuck: "可能讓聯絡人更為難：他需要的是簽核，不是提醒。",
+              doubt: "可能讓對方更不想回：疑點還在，又多了壓力。",
+              busy: "可能剛好：一則簡短的提醒，常是這種情況需要的。"
+            },
+            discount: {
+              compare: "可能有用：價格也許是比較項目之一，但你還不知道是不是。",
+              stuck: "可能白讓：流程沒動，只是你的底線先動了。",
+              doubt: "可能沒解決：疑點若不在價格，讓價不會回答它。",
+              busy: "可能完全沒必要：對方根本還沒看。"
+            },
+            wait: {
+              compare: "可能錯過窗口：比較可能正在進行，而你沒有出現在對話裡。",
+              stuck: "可能剛好，也可能沒有進展：你不知道簽核有沒有在動。",
+              doubt: "可能一直沒有回音：沒人替你問出那個疑點。",
+              busy: "可能剛好：給對方一點時間，常是合理的。"
+            }
+          },
+          note: "以上是示意，不是統計，也不是建議你該怎麼做。",
+          next: "最後一句"
+        },
+        s5: {
+          line: "沉默不是答案，是還沒問出口的問題。",
+          cta: "帶一個你正在等的報價來聊",
+          again: "再玩一次"
+        },
+        back: "回到 Digital Garage"
+      },
+      en: {
+        title: "Three Days of Quiet",
+        eyebrow: "Digital Garage · Synthetic experiment",
+        synthetic: "Synthetic scenario · fictional quote and buyer",
+        step: function (n) { return n + " / 5"; },
+        boundary: "Synthetic scenario, not a prediction of buyer behaviour. Each reading is a possibility; none is proven. Nothing is stored.",
+        s1: {
+          h: "Quote sent Monday. By Thursday, nothing.",
+          lede: "A curtain quote to a Gulf hospitality buyer (fictional). You hit send, and the inbox goes quiet.",
+          mailHead: ["From: you", "To: Procurement Manager (fictional)"],
+          mailSent: "Sent · 3 days ago",
+          mailBody: "Quote and lead time attached for your review.",
+          empty: "(no reply)",
+          days: ["Mon sent", "Tue", "Wed", "Thu today"],
+          go: "Spend the three days"
+        },
+        s2: {
+          h: "What do you most want to do right now?",
+          lede: "Go with your gut. There is no right answer.",
+          options: [
+            { id: "chase", t: "Nudge them again", s: "Send a short reminder" },
+            { id: "discount", t: "Offer a little more discount", s: "Adjust the quote yourself" },
+            { id: "wait", t: "Wait a bit longer", s: "Give them a few more days" }
+          ]
+        },
+        s3: {
+          h: "One silence, four readings.",
+          lede: "Open them. You do not need to read them all.",
+          hint: "These are possibilities, not verdicts.",
+          next: "See what your choice does",
+          readings: [
+            { id: "compare", t: "They are comparing", see: "They asked about specs or lead time but never about terms.", ask: "“What is the main thing you are comparing on?”" },
+            { id: "stuck", t: "Stuck internally", see: "The contact says they will “confirm”, with no timeline.", ask: "“Who else needs to sign off, and roughly when?”" },
+            { id: "doubt", t: "Something in the quote worried them", see: "No questions at all, not even one.", ask: "“Is there any line we should explain again?”" },
+            { id: "busy", t: "Busy, or the owner changed", see: "An auto-reply, or the email looks unopened.", ask: "“Who is handling this project now?”" }
+          ],
+          seeLabel: "What you might see",
+          askLabel: "One question that could tell it apart"
+        },
+        s4: {
+          h: "Your choice, placed back into the four readings.",
+          echo: function (label) { return "You chose: “" + label + "”"; },
+          lede: "The same move means different things under different readings, and silence cannot tell you which one you are in.",
+          effects: {
+            chase: {
+              compare: "May change little: they are comparing, and a nudge does not change what they compare on.",
+              stuck: "May put the contact in a bind: what they need is a sign-off, not a reminder.",
+              doubt: "May make them less likely to reply: the doubt is still there, now with pressure on top.",
+              busy: "May be just right: a short reminder is often what this case needs."
+            },
+            discount: {
+              compare: "May help: price could be one of the things they compare, but you do not know that yet.",
+              stuck: "May be a free give: the process did not move, only your floor did.",
+              doubt: "May not answer it: if the doubt is not about price, a discount does not address it.",
+              busy: "May be unnecessary: they may not have looked yet."
+            },
+            wait: {
+              compare: "May miss the window: the comparison may be happening without you in the conversation.",
+              stuck: "May be right, or may not move: you cannot tell whether the sign-off is progressing.",
+              doubt: "May stay quiet: nobody has asked the question that would surface the doubt.",
+              busy: "May be just right: giving them a little time is often reasonable."
+            }
+          },
+          note: "Illustrative only: not statistics, and not advice on what you should do.",
+          next: "The last line"
+        },
+        s5: {
+          line: "Silence isn’t an answer. It’s a question you haven’t asked yet.",
+          cta: "Bring a quote you are waiting on",
+          again: "Play again"
+        },
+        back: "Back to Digital Garage"
+      }
+    };
+
+    var params = new URLSearchParams(location.search);
+    var lang = params.get("lang") === "en" ? "en" : "zh";
+    var step = 1;
+    var choice = null;
+
+    var stage = document.getElementById("stage");
+    var progress = document.getElementById("progress");
+
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+    function btn(label, cls, onClick) {
+      var b = el("button", "btn " + (cls || ""), label);
+      b.type = "button";
+      b.addEventListener("click", onClick);
+      return b;
+    }
+    function heading(text) {
+      var h = el("h2", null, text);
+      h.tabIndex = -1;
+      h.id = "step-heading";
+      return h;
+    }
+
+    function screen1(c) {
+      var s = c.s1, root = el("div", "screen enter");
+      root.appendChild(heading(s.h));
+      root.appendChild(el("p", "lede", s.lede));
+      var mail = el("div", "mail");
+      var head = el("div", "mail-head");
+      head.appendChild(el("span", null, s.mailHead[0]));
+      head.appendChild(el("span", null, s.mailHead[1]));
+      mail.appendChild(head);
+      var body = el("div", "mail-body");
+      body.appendChild(el("p", null, s.mailBody));
+      body.appendChild(el("p", "mail-sent", s.mailSent));
+      mail.appendChild(body);
+      mail.appendChild(el("div", "mail-empty", s.empty));
+      root.appendChild(mail);
+      var days = el("div", "days");
+      s.days.forEach(function (d) { days.appendChild(el("div", "day", d)); });
+      root.appendChild(days);
+      var row = el("div", "row");
+      row.appendChild(btn(s.go, "", function () { go(2); }));
+      root.appendChild(row);
+      return root;
+    }
+
+    function screen2(c) {
+      var s = c.s2, root = el("div", "screen enter");
+      root.appendChild(heading(s.h));
+      root.appendChild(el("p", "lede", s.lede));
+      var list = el("div", "options");
+      s.options.forEach(function (o) {
+        var b = el("button", "option");
+        b.type = "button";
+        b.appendChild(document.createTextNode(o.t));
+        b.appendChild(el("small", null, o.s));
+        b.addEventListener("click", function () { choice = o.id; go(3); });
+        list.appendChild(b);
+      });
+      root.appendChild(list);
+      return root;
+    }
+
+    function screen3(c) {
+      var s = c.s3, root = el("div", "screen enter");
+      root.appendChild(heading(s.h));
+      root.appendChild(el("p", "lede", s.lede));
+      var cards = el("div", "cards");
+      s.readings.forEach(function (r, i) {
+        var card = el("div", "card");
+        var b = el("button", null, r.t);
+        b.type = "button";
+        b.setAttribute("aria-expanded", "false");
+        b.setAttribute("aria-controls", "panel-" + i);
+        var panel = el("div", "panel");
+        panel.id = "panel-" + i;
+        panel.hidden = true;
+        var dl = el("dl");
+        dl.appendChild(el("dt", null, s.seeLabel));
+        dl.appendChild(el("dd", null, r.see));
+        dl.appendChild(el("dt", null, s.askLabel));
+        dl.appendChild(el("dd", "ask", r.ask));
+        panel.appendChild(dl);
+        b.addEventListener("click", function () {
+          var open = b.getAttribute("aria-expanded") === "true";
+          b.setAttribute("aria-expanded", String(!open));
+          panel.hidden = open;
+        });
+        card.appendChild(b);
+        card.appendChild(panel);
+        cards.appendChild(card);
+      });
+      root.appendChild(cards);
+      root.appendChild(el("p", "hint", s.hint));
+      var row = el("div", "row");
+      row.appendChild(btn(s.next, "", function () { go(4); }));
+      root.appendChild(row);
+      return root;
+    }
+
+    function screen4(c) {
+      var s = c.s4, root = el("div", "screen enter");
+      root.appendChild(heading(s.h));
+      var label = c.s2.options.filter(function (o) { return o.id === choice; })[0];
+      root.appendChild(el("div", "echo", s.echo(label ? label.t : "")));
+      root.appendChild(el("p", "lede", s.lede));
+      var ul = el("ul", "rows");
+      c.s3.readings.forEach(function (r) {
+        var li = el("li");
+        li.appendChild(el("span", "k", r.t));
+        li.appendChild(el("span", "v", s.effects[choice][r.id]));
+        ul.appendChild(li);
+      });
+      root.appendChild(ul);
+      root.appendChild(el("p", "note", s.note));
+      var row = el("div", "row");
+      row.appendChild(btn(s.next, "", function () { go(5); }));
+      root.appendChild(row);
+      return root;
+    }
+
+    function screen5(c) {
+      var s = c.s5, root = el("div", "screen enter");
+      var h = el("h2", "close-line", s.line);
+      h.tabIndex = -1;
+      h.id = "step-heading";
+      root.appendChild(h);
+      var row = el("div", "row");
+      var a = el("a", "btn", s.cta);
+      a.href = "/?lang=" + lang + "#contact";
+      row.appendChild(a);
+      row.appendChild(btn(s.again, "ghost", function () { choice = null; go(1); }));
+      root.appendChild(row);
+      var back = el("a", "btn ghost", c.back);
+      back.href = "/?lang=" + lang + "#garage";
+      back.style.marginTop = "12px";
+      root.appendChild(back);
+      return root;
+    }
+
+    function render(focus) {
+      var c = COPY[lang];
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.title = c.title + " — Paul's Tradecraft";
+      document.getElementById("eyebrow").textContent = c.eyebrow;
+      document.getElementById("synthetic").textContent = c.synthetic;
+      document.getElementById("boundary").textContent = c.boundary;
+      progress.textContent = c.step(step);
+      var screens = [null, screen1, screen2, screen3, screen4, screen5];
+      stage.textContent = "";
+      stage.appendChild(screens[step](c));
+      document.querySelectorAll(".lang button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+      });
+      if (focus) {
+        var h = document.getElementById("step-heading");
+        if (h) h.focus({ preventScroll: false });
+      }
+    }
+
+    function go(n) { step = n; render(true); }
+
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.addEventListener("click", function () { lang = b.dataset.lang; render(false); });
+    });
+
+    render(false);
+  })();
+  </script>
+</body>
+</html>

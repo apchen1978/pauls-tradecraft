@@ -495,6 +495,15 @@ const dict = {
           featured: true,
         },
         {
+          title: "Three Days of Quiet · 三天沒回",
+          tag: "合成實驗 · 雙語原型",
+          spark: "報價寄出三天，買家沒回。是沒興趣、在比價，還是你問錯了問題？",
+          note: "同一則沉默，翻開四種讀法，每種都附上能分辨它的一個問題。你會發現：同一個動作，在不同讀法下意義不同。",
+          cta: "看看這三天",
+          boundary: "合成情境，不是買家行為預測；每種讀法只是可能，沒有任何一種被證明。",
+          href: "/prototype/three-days-of-quiet/",
+        },
+        {
           title: "Quiet Window · 寧靜之窗",
           tag: "合成實驗",
           spark: "產品不是布料，是布料後面的那片空間。",
@@ -1016,6 +1025,15 @@ const dict = {
           boundary: "Synthetic numbers only — no real accounts, dates, or cash.",
           href: "https://apchen1978.github.io/coincidence-detector/",
           featured: true,
+        },
+        {
+          title: "Three Days of Quiet",
+          tag: "Synthetic experiment · bilingual prototype",
+          spark: "A quote went out three days ago. No reply. Is it no interest, a comparison, or the wrong question?",
+          note: "One silence, four readings, each with the one question that could tell it apart. The same move means different things under different readings.",
+          cta: "Spend the three days",
+          boundary: "Synthetic scenario — not a prediction of buyer behaviour; each reading is a possibility, none is proven.",
+          href: "/prototype/three-days-of-quiet/",
         },
         {
           title: "Quiet Window",
