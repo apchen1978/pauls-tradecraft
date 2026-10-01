@@ -436,6 +436,7 @@ const dict = {
     garage: {
       eyebrow: "Digital Garage · My creative-thinking garden",
       headline: "讓商業點子先在這裡慢慢成形。",
+      headlineMark: "慢慢成形",
       intro: "這裡收集還在探索的商業點子與 AI 原型。先從小實驗開始，看看新的做法行不行，再決定哪些值得繼續試、進一步做成產品。",
       bridgeEyebrow: "Digital Garage",
       bridgeHeadline: "用小實驗，親自看看商業判斷還能怎麼用。",
@@ -968,6 +969,7 @@ const dict = {
     garage: {
       eyebrow: "Digital Garage · My creative-thinking garden",
       headline: "Commercial ideas, given room to take shape.",
+      headlineMark: "take shape",
       intro: "The Digital Garage is my creative-thinking garden, where early commercial ideas and AI prototypes take shape. Start with a small experiment, see what possibility it opens, and consider what may be worth exploring further or developing into a product.",
       bridgeEyebrow: "Digital Garage",
       bridgeHeadline: "Explore commercial judgment through small experiments.",
