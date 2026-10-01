@@ -1,32 +1,55 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 
-// Digital Garage, on the page: every experiment, in the same ruled-column grammar as
-// the rest of the homepage. Desktop shows all of them in a three-column grid. On a phone
-// the first three show and the rest sit under one toggle, so the section stays short.
-function Card({ item, g }) {
+// Digital Garage, on the page: a sticker wall. Every experiment is a hard-edged card,
+// tilted a few degrees, with a highlighter-marked spark. Desktop shows all of them in a
+// three-column grid; on a phone the first three show and the rest sit under one toggle.
+// Palette stays inside the site tokens (bone / white / soft, ink borders, the two golds).
+const TILT = ["-rotate-[1.2deg]", "rotate-[0.8deg]", "-rotate-[0.5deg]"];
+const FILL = ["bg-white", "bg-paper", "bg-white"];
+const SHADOW = "shadow-[5px_5px_0_var(--color-ink)] hover:shadow-[8px_10px_0_var(--color-ink)]";
+
+function Card({ item, g, index }) {
   return (
-    <article className="flex w-full flex-col">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <p className="text-sm font-medium text-moss">{item.tag}</p>
-        {item.featured ? <p className="text-sm font-medium text-amber">{g.featuredMark}</p> : null}
+    <article
+      className={`flex w-full flex-col rounded-[1.25rem] border-[2.5px] border-ink p-5 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 md:p-6 ${TILT[index % 3]} ${FILL[index % 3]} ${SHADOW}`}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <p className="rounded-full border-2 border-ink bg-bone px-2.5 py-1 text-xs font-bold text-ink">{item.tag}</p>
+        {item.featured ? (
+          <p className="rounded-full border-2 border-ink bg-gold px-2.5 py-1 text-xs font-bold text-pine">{g.featuredMark}</p>
+        ) : null}
       </div>
-      <h3 className="mt-5 text-[1.375rem] font-medium leading-[1.25] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
-      <p className="mt-4 border-l-2 border-amber/70 pl-3 text-base font-medium leading-snug text-forest">{item.spark}</p>
+      <h3 className="mt-5 text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
+      <p className="mt-4 text-base font-semibold leading-[1.55] text-ink">
+        <span className="box-decoration-clone bg-[linear-gradient(transparent_58%,var(--color-gold)_58%,var(--color-gold)_92%,transparent_92%)]">{item.spark}</span>
+      </p>
       <p className="mt-4 hidden text-base leading-relaxed text-moss md:block">{item.note}</p>
-      <div className="mt-auto pt-7">
+      <div className="mt-auto pt-6">
         <a
           href={item.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="group inline-flex items-start justify-between gap-4 border-b border-ink pb-3 text-base font-medium text-ink transition-colors hover:border-amber hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+          className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-bold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
         >
           <span>{item.cta}</span>
-          <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </a>
-        <p className="mt-3 text-sm text-moss">{item.boundary}</p>
+        <p className="mt-4 border-t-2 border-dashed border-ink/25 pt-3 text-xs leading-relaxed text-moss">{item.boundary}</p>
       </div>
     </article>
+  );
+}
+
+function Headline({ text, mark }) {
+  const at = mark ? text.indexOf(mark) : -1;
+  if (at < 0) return text;
+  return (
+    <>
+      {text.slice(0, at)}
+      <mark className="whitespace-nowrap rounded-[0.18em] bg-gold px-[0.12em] text-pine">{mark}</mark>
+      {text.slice(at + mark.length)}
+    </>
   );
 }
 
@@ -36,48 +59,44 @@ export default function Garage() {
   const items = g.items;
   const firstThree = items.slice(0, 3);
   const rest = items.slice(3);
-  const lastRowStart = Math.floor((items.length - 1) / 3) * 3;
 
   return (
-    <section id="garage" aria-labelledby="garage-heading" className="scroll-mt-24 border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-36">
-        <p className="eyebrow">{g.eyebrow}</p>
-        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16">
-          <h2 id="garage-heading" className="max-w-[24ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{g.headline}</h2>
-          <p className="max-w-[44ch] self-end text-base leading-relaxed text-moss md:text-lg">{g.intro}</p>
-        </div>
+    <section id="garage" aria-labelledby="garage-heading" className="scroll-mt-24 overflow-x-clip border-b border-line bg-bone">
+      <div className="mx-auto max-w-7xl px-5 py-16 md:px-6 md:py-32">
+        <p className="inline-block -rotate-2 rounded-2xl bg-ink px-4 py-1.5 text-xs font-bold tracking-[0.06em] text-bone md:text-sm">{g.eyebrow}</p>
+        <h2 id="garage-heading" className="mt-6 max-w-[12ch] text-[2.25rem] font-bold leading-[1.1] tracking-[-0.03em] md:text-[4rem]">
+          <Headline text={g.headline} mark={g.headlineMark} />
+        </h2>
+        <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-moss md:text-lg">{g.intro}</p>
 
         {/* Desktop: every experiment, three columns */}
-        <ol className="mt-10 hidden border-y border-ink md:mt-20 md:grid md:grid-cols-3">
+        <ol className="mt-14 hidden gap-7 md:grid md:grid-cols-3">
           {items.map((item, index) => (
-            <li
-              key={item.href}
-              className={`flex py-10 md:px-8 ${index < lastRowStart ? "border-b border-line" : ""} ${index % 3 === 0 ? "md:pl-0" : "md:border-l md:border-line"} ${index % 3 === 2 ? "md:pr-0" : ""}`}
-            >
-              <Card item={item} g={g} />
+            <li key={item.href} className="flex">
+              <Card item={item} g={g} index={index} />
             </li>
           ))}
         </ol>
 
         {/* Phone: the first three, the rest under one toggle */}
         <div className="mt-10 md:hidden">
-          <ol className="border-t border-ink">
-            {firstThree.map((item) => (
-              <li key={item.href} className="flex border-b border-line py-8">
-                <Card item={item} g={g} />
+          <ol className="grid gap-6">
+            {firstThree.map((item, index) => (
+              <li key={item.href} className="flex">
+                <Card item={item} g={g} index={index} />
               </li>
             ))}
           </ol>
           {rest.length ? (
-            <details className="group/more border-b border-line">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-6 text-base font-medium text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber">
+            <details className="group/more mt-6">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-bold text-ink shadow-[4px_4px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink [&::-webkit-details-marker]:hidden">
                 <span>{g.moreLabel}</span>
-                <span aria-hidden="true" className="text-xl leading-none text-amber transition-transform duration-200 group-open/more:rotate-45">+</span>
+                <span aria-hidden="true" className="text-lg leading-none transition-transform duration-200 group-open/more:rotate-45">+</span>
               </summary>
-              <ol className="border-t border-line">
-                {rest.map((item) => (
-                  <li key={item.href} className="flex border-b border-line py-8 last:border-b-0">
-                    <Card item={item} g={g} />
+              <ol className="mt-6 grid gap-6">
+                {rest.map((item, index) => (
+                  <li key={item.href} className="flex">
+                    <Card item={item} g={g} index={index + 3} />
                   </li>
                 ))}
               </ol>
