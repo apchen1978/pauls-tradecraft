@@ -15,7 +15,7 @@ const copy = {
   zh: {
     eyebrow: "一筆生意走一遍",
     title: "同一筆生意，從開發走到承諾",
-    intro: "第二、三步用的是同一筆合成案例：1.2 萬米窗簾與窗飾，每米 40 美元。",
+    intro: "第二、三步用的是同一筆合成案例：一筆 48 萬美元的窗簾與窗飾訂單。",
     open: "開啟示範",
     steps: [
       {
@@ -43,7 +43,7 @@ const copy = {
   en: {
     eyebrow: "One deal, walked through",
     title: "One deal, from first contact to commitment",
-    intro: "Steps two and three use the same synthetic case: 12,000 metres of curtains and valances at USD 40 a metre.",
+    intro: "Steps two and three use the same synthetic case: a USD 480,000 order for curtains and valances.",
     open: "Open the demo",
     steps: [
       {
