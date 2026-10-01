@@ -464,7 +464,10 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
                 src={c.gallery.src}
                 alt={f(c.gallery.alt)}
                 loading="lazy"
-                className={`w-full rounded-field border ${styles.border}`}
+                decoding="async"
+                width={c.gallery.width}
+                height={c.gallery.height}
+                className={`h-auto w-full rounded-field border ${styles.border}`}
               />
               {c.gallery.caption && (
                 <figcaption className={`mt-1.5 text-xs ${styles.caption}`}>{f(c.gallery.caption)}</figcaption>

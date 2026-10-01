@@ -700,6 +700,8 @@ export const works = [
       stage: { zh: "創意實作", en: "Creative Build" },
       gallery: {
         src: "/images/mg-poses.webp",
+        width: 1600,
+        height: 1000,
         alt: { zh: "MG 的 16 種表情與姿態總覽", en: "MG's 16-pose expression and motion overview" },
         caption: { zh: "16 種姿態 · 64 個動畫影格：待機、可愛、揮手、跳躍、奔跑、左/右跑、等待、吃飯、睡覺、跳舞、開心、思考、興奮、愛心、害羞", en: "16 poses · 64 animation frames: idle, cute, wave, jump, run, run L/R, wait, eat, sleep, dance, happy, think, excited, heart, blush" },
       },
