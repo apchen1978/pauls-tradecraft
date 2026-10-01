@@ -649,7 +649,7 @@ function FeaturedSystem({ work }) {
             <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
           )}
           <ProductFlow work={work} tone="dark" />
-          <a data-featured-copy href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:bg-[#f2be61]">
+          <a data-featured-copy href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:bg-[#c3caff]">
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
           </a>
@@ -786,7 +786,7 @@ export default function Works() {
                 src={cover}
                 alt={w.imageAlt[lang]}
                 loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
-                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(20,51,41,0.55)]" : ""}`}
+                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(11,13,18,0.55)]" : ""}`}
               />
               {balance && (
                 <div className="hidden md:block">

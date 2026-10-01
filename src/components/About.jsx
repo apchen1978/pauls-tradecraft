@@ -71,7 +71,7 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-16px" }}
                 transition={{ duration: 0.35, ease: "easeOut", delay: i * 0.05 }}
-                className="flex flex-col items-center justify-center gap-1.5 bg-[#f8f8f3] px-6 py-8 text-center"
+                className="flex flex-col items-center justify-center gap-1.5 bg-card px-6 py-8 text-center"
               >
                 <span className="text-3xl font-medium tracking-[-0.02em] text-forest md:text-4xl">{s.value}</span>
                 <span className="text-sm text-ink/70">{s.label}</span>
