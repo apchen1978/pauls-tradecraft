@@ -29,9 +29,10 @@ export default function Hero() {
         <img
           src="/images/paul-art.webp"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-[68%_28%] opacity-20 lg:object-[72%_24%] lg:opacity-55"
+          className="absolute inset-0 h-full w-full object-cover object-[68%_28%] opacity-30 lg:object-[72%_24%] lg:opacity-55"
           fetchPriority="high"
         />
+        <div className="absolute inset-0 bg-pine/50 lg:hidden" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,44,41,1)_0%,rgba(20,44,41,0.92)_40%,rgba(20,44,41,0.45)_75%,rgba(20,44,41,0.7)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_50%,rgba(20,44,41,0.9)_100%)]" />
       </div>
