@@ -26,7 +26,7 @@ export default function Nav() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line/80 bg-bone/90 shadow-[0_10px_30px_-28px_rgba(20,51,41,0.8)] backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-line/80 bg-bone/90 shadow-[0_10px_30px_-28px_rgba(11,13,18,0.8)] backdrop-blur-md">
       <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
         <a href="#top" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
           <span className="text-lg font-semibold tracking-[-0.02em] text-forest">{t.brand}</span>

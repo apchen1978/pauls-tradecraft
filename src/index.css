@@ -14,22 +14,22 @@
 
 @theme {
   /* Forest remains the brand; blue and graphite clarify research and decisions. */
-  --color-bone: #f5f5f0;
-  --color-paper: #e9ede4;
-  --color-ink: #18251f;
-  --color-forest: #234e3b;
-  --color-pine: #143329; /* hero / flagship 深暖綠大區塊（比舊值略亮、保留綠 DNA；gold 上對比 7:1） */
-  --color-moss: #47705a;
-  --color-amber: #9a5a18; /* restrained brass accent: readable on bone */
-  --color-gold: #e7b65b; /* warm brass highlight for dark surfaces */
-  --color-research: #536d87;
-  --color-graphite: #48535a;
-  --color-line: #cdd4c9;
-  --color-card: #fbfbf8; /* raised card surface on bone */
+  --color-bone: #fbfbfc;
+  --color-paper: #f1f2f6;
+  --color-ink: #0b0d12;
+  --color-forest: #3730a3;
+  --color-pine: #0b0d12; /* hero / flagship 深暖綠大區塊（比舊值略亮、保留綠 DNA；gold 上對比 7:1） */
+  --color-moss: #5d6573;
+  --color-amber: #4f46e5; /* restrained brass accent: readable on bone */
+  --color-gold: #a5b0ff; /* warm brass highlight for dark surfaces */
+  --color-research: #4a6fa5;
+  --color-graphite: #3f4654;
+  --color-line: #e4e6ec;
+  --color-card: #ffffff; /* raised card surface on bone */
 
-  /* Shape system (editorial): cards and fields 4px, chips = full pill */
-  --radius-card: 0.25rem;
-  --radius-field: 0.25rem;
+  /* Shape system (SaaS): cards 12px, fields 8px, chips = full pill */
+  --radius-card: 0.75rem;
+  --radius-field: 0.5rem;
   --radius-pill: 999px;
 
   /* Type scale: CJK text never drops below 13px; body reads at 15–17px. */
@@ -61,6 +61,8 @@
   h3,
   h4 {
     text-wrap: balance;
+    letter-spacing: -0.03em;
+    font-weight: 600;
   }
   /* From tablet up, CJK headings break at punctuation rather than mid-phrase;
      an over-long run still wraps instead of overflowing. Phones keep normal
@@ -105,24 +107,26 @@
   }
   .eyebrow::before {
     content: "";
-    width: 1.5rem;
-    height: 1px;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 999px;
     flex-shrink: 0;
-    background: currentColor;
-    opacity: 0.7;
+    background: var(--color-amber);
   }
   .surface-paper {
     background-color: var(--color-card);
+    border: 1px solid var(--color-line);
+    box-shadow: 0 1px 2px rgb(11 13 18 / 0.04);
   }
   .surface-muted {
-    background-color: rgb(233 237 228 / 0.45);
+    background-color: rgb(241 242 246 / 0.45);
   }
   .outcomes-stage {
     opacity: 1;
     transition: opacity 180ms ease;
   }
   .outcomes-stage-final {
-    border-image: linear-gradient(90deg, rgb(154 90 24 / 0.55), rgb(210 216 206 / 0.4)) 1;
+    border-image: linear-gradient(90deg, rgb(79 70 229 / 0.55), rgb(210 216 206 / 0.4)) 1;
   }
   @media (hover: hover) and (min-width: 768px) {
     .outcomes-rail:hover .outcomes-stage {

@@ -7,9 +7,9 @@ const dict = {
     nav: { questions: "能做什麼", works: "作品", garage: "創意實驗", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
-        { value: "找買家", label: "海外客戶開發路線圖" },
-        { value: "算利潤", label: "貿易利潤導航" },
-        { value: "談承諾", label: "商務決策工作台" },
+        { value: "15 年＋", label: "帶產品打進海外市場" },
+        { value: "會計底子", label: "先算清楚，再談承諾" },
+        { value: "全球", label: "歐美・亞太・中東市場" },
       ],
       kicker: "個人 AI 作品集",
       headline: "好產品，值得遇到對的買家。",
@@ -378,8 +378,8 @@ const dict = {
         secondary: ["HUMAN JUDGMENT.", "AI-POWERED EXECUTION."],
       },
       stats: [
-        { value: "15 年", label: "國際業務總監" },
-        { value: "NCCU", label: "會計專業基底" },
+        { value: "15 年", label: "國際業務資歷" },
+        { value: "NCCU", label: "Accounting（會計）" },
         { value: "955", label: "TOEIC（2019）" },
       ],
     },
@@ -531,9 +531,9 @@ const dict = {
     nav: { questions: "What I do", works: "Work", garage: "Garage", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
-        { value: "Find buyers", label: "Overseas lead discovery" },
-        { value: "Know the profit", label: "Trade Profit Navigator" },
-        { value: "Decide the commitment", label: "Commercial Decision Desk" },
+        { value: "15+ years", label: "Taking products into overseas markets" },
+        { value: "Accounting roots", label: "Numbers first, then commitments" },
+        { value: "Global", label: "Europe, Asia-Pacific, Middle East" },
       ],
       kicker: "Personal AI portfolio",
       headline: "The right buyer for a good product.",
@@ -901,8 +901,8 @@ const dict = {
         support: ["Less automation for its own sake.", "Less guessing. Better decisions."],
       },
       stats: [
-        { value: "15 years", label: "International sales director" },
-        { value: "NCCU", label: "Accounting foundation" },
+        { value: "15 years", label: "International sales experience" },
+        { value: "NCCU", label: "Accounting" },
         { value: "955", label: "TOEIC (2019)" },
       ],
     },
