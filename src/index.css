@@ -29,11 +29,11 @@
   --color-bone: #F6F3ED; /* the only light-section surface (slide-library warm paper) */
   --color-paper: #DDE7DE; /* "soft": second-tier fill. Use ink text only; moss is 4.05:1 and amber 3.96:1 here (fail) */
   --color-ink: #193A35;
-  --color-forest: #234e3b;
+  --color-forest: #193A35; /* = ink: the one deep green, so the palette has no value outside the slide-library spec */
   --color-pine: #142C29; /* the only dark surface */
   --color-moss: #62716A; /* muted text on bone (4.64:1); do not use on paper/soft */
   --color-amber: #8A6A2B; /* goldOnPaper: accent text on bone/white (4.54:1 / 5.03:1) */
-  --color-gold: #B89966; /* goldOnDark: dark surfaces only (5.48:1 on pine; 3.5:1 on forest, so not there) */
+  --color-gold: #B89966; /* goldOnDark: dark surfaces only (5.48:1 on pine; 4.59:1 on forest/ink, fine for large text, use ondark for small) */
   --color-ondark: #BDCDC3; /* body text on pine (8.92:1) */
   --color-ondark-meta: #A9BEB4; /* meta text on pine (7.53:1) */
   --color-research: #4a6fa5;
@@ -197,15 +197,16 @@ html.lenis.lenis-smooth {
 
 /* Surface-role text overrides. Unlayered on purpose: they must beat the utilities
    layer (text-moss / text-amber) when the text sits on a soft or dark surface. */
-/* Soft (#DDE7DE) fills: moss is 4.05:1 and amber 3.96:1 there, so text on them
-   steps up to ink / forest (9.75 / 7.44). */
-:is([class*="bg-paper"], .surface-muted).text-moss,
-:is([class*="bg-paper"], .surface-muted) :is(.text-moss, .eyebrow) {
+/* Soft (#DDE7DE) fills and 6-10% tints (bg-amber/, bg-forest/, bg-ink/) sit below
+   4.5:1 for moss (4.05 on soft, ~3.7 on the tints) and amber (3.96 / ~3.7), so text on
+   them steps up to ink. */
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted).text-moss,
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted) :is(.text-moss, .eyebrow) {
   color: var(--color-ink);
 }
-:is([class*="bg-paper"], .surface-muted).text-amber,
-:is([class*="bg-paper"], .surface-muted) .text-amber {
-  color: var(--color-forest);
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted).text-amber,
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted) .text-amber {
+  color: var(--color-ink);
 }
 /* Muted / accent text on the dark surfaces (pine, forest) uses the dark roles. */
 :is(.bg-pine, .bg-forest) :is(.text-moss, .eyebrow) {

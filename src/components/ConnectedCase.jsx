@@ -83,7 +83,7 @@ export default function ConnectedCase() {
                 </div>
 
                 <div className="bg-gold/[0.07] px-6 py-7 md:px-8">
-                  <p className="text-xs font-medium text-gold">{content.labels.reframed}</p>
+                  <p className="text-xs font-medium text-ondark">{content.labels.reframed}</p>
                   <h3 className="mt-3 text-xl font-semibold leading-snug tracking-tight text-bone md:text-2xl">{scenario.reframed}</h3>
                   <p className="mt-5 border-l-2 border-gold/70 pl-3 text-sm leading-relaxed text-ondark-meta">{scenario.insight}</p>
                 </div>

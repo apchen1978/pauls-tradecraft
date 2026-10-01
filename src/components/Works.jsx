@@ -429,7 +429,7 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
     ? {
         details: "border-bone/15",
         summary: "border-bone/25 bg-bone/[0.06] text-bone hover:bg-bone/[0.1]",
-        stage: "bg-gold/15 text-gold",
+        stage: "bg-gold/15 text-ondark",
         border: "border-bone/15",
         heading: "text-ondark",
         body: "text-ondark-meta",

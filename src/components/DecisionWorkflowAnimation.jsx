@@ -92,7 +92,7 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
           const amber = styles.getPropertyValue("--flow-amber").trim() || "#8A6A2B";
           const dropped = styles.getPropertyValue("--flow-dropped").trim() || "#9ea99b";
           const paper = styles.getPropertyValue("--color-paper").trim() || "#e9ede4";
-          const forest = styles.getPropertyValue("--color-forest").trim() || "#234e3b";
+          const forest = styles.getPropertyValue("--color-forest").trim() || "#193A35";
 
           const dots = gsap.utils.toArray(".decision-flow__signal");
           const byFate = (...fates) => dots.filter((dot) => fates.includes(Number(dot.dataset.fate)));
