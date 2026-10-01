@@ -7,6 +7,7 @@ import { WorksFlagship, default as Works } from "./components/Works.jsx";
 import DealReadiness from "./components/DealReadiness.jsx";
 import Garage from "./components/Garage.jsx";
 import Capabilities from "./components/Capabilities.jsx";
+import CommercialOutcomes from "./components/CommercialOutcomes.jsx";
 import Library from "./components/Library.jsx";
 import About from "./components/About.jsx";
 import Contact from "./components/Contact.jsx";
@@ -29,6 +30,7 @@ export default function BelowFold({ onReady }) {
       <Garage />
       <Capabilities />
       <DealReadiness />
+      <CommercialOutcomes />
       <Library />
       <About />
       <Contact />
