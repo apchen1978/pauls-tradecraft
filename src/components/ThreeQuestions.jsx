@@ -31,6 +31,7 @@ const copy = {
         pain: "名單很長，每一家都要花時間查，最後不知道先追誰。",
         takeaway: "先開發、先查證、暫緩、排除四層名單，並寫明每一家的理由，還有報價前要先確認的市場項目。也可以帶入你自己的名單，帶走一份名單簡報。",
         cta: "試兩分鐘：看 12 個示例怎麼分層",
+        cta2: "再看：一家公司怎麼從名字走到開口的理由",
       },
       {
         key: "decision",
@@ -69,6 +70,7 @@ const copy = {
         pain: "The list is long, every company takes time to research, and you still do not know who to chase first.",
         takeaway: "A four-tier list (engage first, verify first, hold, exclude) with the reason for each, plus the market checks to clear before quoting. You can also bring your own list and take away a brief.",
         cta: "Try two minutes: see how 12 examples are tiered",
+        cta2: "Then see: how one company goes from a name to a reason to speak",
       },
       {
         key: "decision",
@@ -129,6 +131,16 @@ export default function ThreeQuestions() {
                     <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </a>
                   <p className="mt-3 text-sm text-ink/70">{c.demoNote}</p>
+                  {card.cta2 && (
+                    <a
+                      href={withDemoLang(`${LINKS[card.key]}#mode-gap`, lang)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-block text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+                    >
+                      {card.cta2} →
+                    </a>
+                  )}
                 </div>
               </article>
             </li>
