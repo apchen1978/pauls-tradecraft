@@ -40,7 +40,7 @@ export const COPY = {
       video: {
         name: "影片",
         bonus: "有一支 30 到 60 秒的產品或工廠短片",
-        why: "買家用它判斷，這是不是一家真的工廠。影片通常不擋單。",
+        why: "買家用它判斷，這是不是一家真的公司、真的在做。影片通常不擋單。",
       },
       website: {
         name: "網站",
@@ -109,7 +109,7 @@ export const COPY = {
       video: {
         name: "Video",
         bonus: "One 30 to 60 second video of the product or the factory",
-        why: "Buyers use it to judge whether this is a real factory. It rarely blocks a buyer.",
+        why: "Buyers use it to judge whether this is a real company that is really operating. It rarely blocks a buyer.",
       },
       website: {
         name: "Website",
