@@ -404,7 +404,7 @@ const dict = {
         {
           title: "人類審核",
           desc: "逐項檢查產出、確認證據、拒絕腦補。不通過就退回重做。",
-          evidence: "Review · 驗證 23/23",
+          evidence: "Review · Pilot 追蹤器 23/23 檢查（範圍僅限該工具）",
         },
         {
           title: "部署上線",
@@ -417,7 +417,7 @@ const dict = {
           evidence: "HANDOFF 對齊 · 證據優先",
         },
       ],
-      note: "這個網站本身就是證據：Codex 建立 → DSH 接手 → 人工 review → 部署 → 已完成獨立審計 · PASS。",
+      note: "這個網站本身就是證據：Codex 建立 → DSH 接手 → 人工 review → 部署 → 2026-08-21 一次獨立審計通過（當時的版本，不代表目前每一頁）。",
     },
     contact: {
       headline: "把你手上卡住的商業問題帶進來",
@@ -537,7 +537,7 @@ const dict = {
       ],
       kicker: "Personal AI portfolio",
       headline: "The right buyer for a good product.",
-      sub: "From product to buyer, I help you open the way and walk it with you.",
+      sub: "From product to buyer, I'll clear the path with you.",
       background: "Background: 15 years in international sales, including mainland China channels and team management. Trade experience plus an AI-native way of working, turning the judgment calls of international sales (finding buyers, working out the profit, closing orders) into tools you can try.",
       youGet: "Start with one important question",
       outcomesHeadline: "Which situation feels most familiar right now?",
@@ -927,7 +927,7 @@ const dict = {
         {
           title: "Human reviews",
           desc: "Check every output, confirm evidence, reject fabrication. Fail means back to work.",
-          evidence: "Review · 23/23 verified",
+          evidence: "Review · 23/23 checks on the Pilot tracker (that tool only)",
         },
         {
           title: "Deploy",
@@ -940,7 +940,7 @@ const dict = {
           evidence: "Handoff alignment · Evidence-first",
         },
       ],
-      note: "This site is its own evidence: Codex built it, DSH took over, a human reviewed, it deployed, and Independent Audit · PASS.",
+      note: "This site is its own evidence: Codex built it, DSH took over, a human reviewed, it deployed, and an independent audit passed on 2026-08-21 (that version of the site, not a current endorsement of every page).",
     },
     contact: {
       headline: "Bring one commercial bottleneck",
@@ -1060,7 +1060,7 @@ const titles = {
 };
 const ogDescriptions = {
   zh: "從產品到買家這一段，我陪你一起打通。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
-  en: "From product to buyer, I help you open the way and walk it with you. Paul Chen: 15 years in international sales, including mainland China channels and team management, plus an AI-native way of working that turns the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
+  en: "From product to buyer, I'll clear the path with you. Paul Chen: 15 years in international sales, including mainland China channels and team management, plus an AI-native way of working that turns the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
 };
 
 // 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。
