@@ -420,7 +420,7 @@ const dict = {
       note: "這個網站本身就是證據：Codex 建立 → DSH 接手 → 人工 review → 部署 → 2026-08-21 一次獨立審計通過（當時的版本，不代表目前每一頁）。",
     },
     contact: {
-      headline: "把你手上卡住的商業問題帶進來",
+      headline: "歡迎帶一個想法與 Paul 一起共創！",
       sub: "從一筆商機、一段付款壓力或一個流程瓶頸開始，先釐清事實、決策邊界與下一步。",
       cta: "討論商業 Pilot",
       note: "商務合作與專案洽詢",
@@ -943,7 +943,7 @@ const dict = {
       note: "This site is its own evidence: Codex built it, DSH took over, a human reviewed, it deployed, and an independent audit passed on 2026-08-21 (that version of the site, not a current endorsement of every page).",
     },
     contact: {
-      headline: "Bring one commercial bottleneck",
+      headline: "Bring an idea and build it with Paul!",
       sub: "Start with a live opportunity, payment pressure, or workflow that needs a clearer next decision.",
       cta: "Discuss a Commercial Pilot",
       note: "Business inquiries & collaboration",

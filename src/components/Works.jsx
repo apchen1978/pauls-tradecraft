@@ -652,7 +652,7 @@ function FeaturedSystem({ work }) {
             <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-ondark">{copy.caseSummary}</p>
           )}
           <ProductFlow work={work} tone="dark" />
-          <a data-featured-copy href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:bg-[#c3caff]">
+          <a data-featured-copy href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:brightness-110">
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
           </a>

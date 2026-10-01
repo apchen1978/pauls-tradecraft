@@ -41,7 +41,7 @@ export default function CommercialOutcomes() {
               transition={reduceMotion ? undefined : { duration: 0.35, ease: "easeOut", delay: index * 0.04 }}
               className={`outcomes-stage group relative grid grid-cols-[40px_minmax(0,1fr)] gap-0 border-b border-forest/15 py-6 last:border-b-0 md:grid-cols-[56px_minmax(0,1fr)] md:py-7 ${index === content.items.length - 1 ? "outcomes-stage-final" : ""}`}
             >
-              <span aria-hidden="true" className={`relative z-10 mt-1 grid size-6 place-items-center rounded-full border bg-bone text-xs font-medium ${index === content.items.length - 1 ? "border-amber bg-amber text-white" : "border-forest/50 text-forest"}`}>
+              <span aria-hidden="true" className={`relative z-10 mt-1 grid size-6 place-items-center rounded-full border text-xs font-medium ${index === content.items.length - 1 ? "border-amber bg-amber text-white" : "border-forest/50 bg-bone text-forest"}`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
               <div className="min-w-0 pr-1 md:pr-4">
