@@ -12,7 +12,7 @@ const dict = {
         { value: "談承諾", label: "商務決策工作台" },
       ],
       kicker: "個人 AI 作品集",
-      headline: "產品夠好，缺的是那個買家。",
+      headline: "好產品，值得遇到對的買家。",
       sub: "從產品到買家這一段，我陪你一起打通。",
       background: "背景：15 年國際業務，含中國大陸通路與團隊管理。貿易經驗加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷，做成能試玩的工具。",
       youGet: "從一個重要問題開始",
@@ -536,7 +536,7 @@ const dict = {
         { value: "Decide the commitment", label: "Commercial Decision Desk" },
       ],
       kicker: "Personal AI portfolio",
-      headline: "The product is good enough. What's missing is the buyer.",
+      headline: "The right buyer for a good product.",
       sub: "From product to buyer, I help you open the way and walk it with you.",
       background: "Background: 15 years in international sales, including mainland China channels and team management. Trade experience plus an AI-native way of working, turning the judgment calls of international sales (finding buyers, working out the profit, closing orders) into tools you can try.",
       youGet: "Start with one important question",
@@ -1055,8 +1055,8 @@ const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 // 語言切換時同步 <html lang>、title 與分享用描述（SEO / a11y）。
 // 用字跟首頁 hero 對齊：中文「賺不賺得到」；英文 "whether it is profitable"。
 const titles = {
-  zh: "Paul's Tradecraft｜產品夠好，缺的是那個買家",
-  en: "Paul's Tradecraft | The product is good enough. What's missing is the buyer.",
+  zh: "Paul's Tradecraft｜好產品，值得遇到對的買家",
+  en: "Paul's Tradecraft | The right buyer for a good product",
 };
 const ogDescriptions = {
   zh: "從產品到買家這一段，我陪你一起打通。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
