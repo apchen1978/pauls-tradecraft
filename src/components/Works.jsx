@@ -668,7 +668,7 @@ function FeaturedSystem({ work }) {
           )}
           {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-ondark-meta">{work.demoNote[lang]}</p>}
         </div>
-        <a data-featured-visual href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative flex items-center border-t border-bone/10 bg-[radial-gradient(120%_90%_at_70%_20%,#24503f_0%,#143329_70%)] p-5 md:p-8 lg:border-l lg:border-t-0 lg:p-10">
+        <a data-featured-visual href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="focus-visible:outline-offset-[-4px] group relative flex items-center border-t border-bone/10 bg-[radial-gradient(120%_90%_at_70%_20%,#24503f_0%,#143329_70%)] p-5 md:p-8 lg:border-l lg:border-t-0 lg:p-10">
           <div className="w-full overflow-hidden rounded-field border border-bone/15 bg-bone">
             <div className="flex items-center gap-1.5 border-b border-ink/10 bg-paper px-4 py-2.5" aria-hidden="true">
               <span className="size-2 rounded-full bg-ink/15" />

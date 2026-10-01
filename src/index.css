@@ -221,6 +221,9 @@ html.lenis.lenis-smooth {
   outline-color: var(--color-gold);
 }
 /* A light card sitting inside a dark section keeps the light-surface roles. */
+.surface-light :focus-visible {
+  outline-color: var(--color-amber);
+}
 .surface-light .text-moss {
   color: var(--color-moss);
 }
