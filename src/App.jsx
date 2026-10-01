@@ -2,6 +2,7 @@ import { Component, useCallback, useEffect, useState } from "react";
 import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import { scrollToElement, useCalmScroll } from "./calmScroll.js";
+import ZhPhrase from "./zhPhrase.js";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
 import Footer from "./components/Footer.jsx";
@@ -93,6 +94,7 @@ export default function App() {
     <LangProvider>
       <MotionConfig reducedMotion="user">
         <SkipLink />
+        <ZhPhrase />
         <div className="min-h-[100dvh]">
           <Nav />
           <main id="main">

@@ -115,6 +115,38 @@
   }
 }
 
+/* Traditional Chinese typography. Unlayered on purpose: it must win over the
+   per-component tracking-[-0.03em] utilities, which are tuned for Latin. */
+:lang(zh-Hant) :is(h1, h2, h3, h4) {
+  /* Negative tracking is a Latin habit; it crowds Han characters. */
+  letter-spacing: 0;
+}
+/* Latin-tuned headline leading (1.0x-1.2x) sits too tight once a Chinese
+   headline wraps to two lines; open only those, not already-roomy headings. */
+:lang(zh-Hant) :is(h1, h2, h3, h4):is([class*="leading-[1.0"], [class*="leading-[1.1"], [class*="leading-[1.2"], [class*="text-3xl"], [class*="text-4xl"], [class*="text-5xl"]),
+:lang(zh-Hant) .decision-flow__title {
+  line-height: 1.3;
+}
+/* Phrase-level line breaking. src/zhPhrase.js puts a zero-width space between
+   Chinese words and sets data-zh-phrase; keep-all then stops the browser from
+   also breaking inside a word. CSS auto-phrase was tried: browsers only ship
+   a Japanese model, so it does nothing for Traditional Chinese. */
+:lang(zh-Hant)[data-zh-phrase] {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+/* Short card paragraphs: even out the lines so a wrap never leaves a one- or
+   two-character last line. Long paragraphs fall back to the browser's limit. */
+:lang(zh-Hant) :is(p, li, dd, figcaption, blockquote, summary) {
+  text-wrap: balance;
+}
+/* Bold defaults would otherwise resolve above the 600 weight cap. */
+b,
+strong,
+th {
+  font-weight: 600;
+}
+
 @layer utilities {
   /* Section kicker: quiet label led by a small accent dot. Text colour follows
      the colour class it is paired with (moss on light, gold on dark). */
@@ -177,7 +209,7 @@
     padding: 0.6rem 1.1rem;
     border-radius: 0 0 var(--radius-card) var(--radius-card);
     font-size: 0.875rem;
-    font-weight: 700;
+    font-weight: 600;
     transition: top 0.15s ease;
   }
   .skip-link:focus {
