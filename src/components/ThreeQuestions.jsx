@@ -16,7 +16,8 @@ const copy = {
     eyebrow: "能做什麼",
     title: "貿易經驗，加上 AI 原生的做法。",
     intro: "承諾之前，先把海外生意的判斷走一遍。每一項能力都有一個可以馬上試的示範，用的是合成資料，兩分鐘就能看懂它怎麼幫上忙。",
-    chain: "三個示範是同一條線的三段：找到對的人，看清這筆單能不能接，算清楚賺不賺，讓第一單談得成。",
+    chain: "從產品到第一單，是同一條線：先讓產品拿得出手，找到對的人，看清這筆單能不能接，算清楚賺不賺，讓第一單談得成。",
+    prep: "先讓產品拿得出手：出海前的數位形象快診",
     takeaway: "你會帶走",
     demoNote: "示範案例（合成資料）",
     note: "示範用的都是合成資料，不含任何真實客戶。AI 只協助整理與試算，要不要做、能不能答應，仍由你決定。",
@@ -55,7 +56,8 @@ const copy = {
     eyebrow: "What I do",
     title: "Trade experience, plus an AI-native way of working.",
     intro: "Walk the judgment calls of an overseas deal before you commit. Each capability has a demo you can try right now, using synthetic data, and takes about two minutes to show how it helps.",
-    chain: "The three demos are three stages of one line: find the right person, see whether the deal can be taken, work out whether it pays, and give the first order a chance to close.",
+    chain: "From product to first order is one line: make the product presentable, find the right person, see whether the deal can be taken, work out whether it pays, and give the first order a chance to close.",
+    prep: "Make the product presentable first: the pre-export presence check",
     takeaway: "What you take away",
     demoNote: "Demo case (synthetic data)",
     note: "Every demo uses synthetic data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",
@@ -105,6 +107,14 @@ export default function ThreeQuestions() {
         </div>
 
         <p className="mt-8 max-w-[62ch] border-l-2 border-amber pl-4 text-base font-medium leading-relaxed text-forest md:mt-12">{c.chain}</p>
+        <p className="mt-3 pl-4 text-sm">
+          <a
+            href={`/prototype/export-readiness-check/${lang === "en" ? "?lang=en" : ""}`}
+            className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+          >
+            {c.prep} →
+          </a>
+        </p>
 
         <ol className="mt-8 grid border-t border-ink md:mt-12 md:grid-cols-3">
           {c.cards.map((card, index) => (

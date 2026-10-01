@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="產品出海前的數位形象快診：勾出你已經有的素材，看哪些會擋住海外買家，哪些可以之後再補。自我檢查，不評分、不預測結果、不上傳資料。" />
+  <title>產品出海前的數位形象快診 · Paul's Tradecraft</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    :root { --paper:#f6f3eb; --ink:#1c2a24; --forest:#214b38; --moss:#66776c; --amber:#b77926; --line:#d8d0c1; --white:#fffdf8; --rust:#9b5336; --sage:#e4ece6; --sand:#f3ead7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 22px 18px 72px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; }
+    .top a { color: var(--forest); font-weight: 600; text-decoration: none; }
+    .top a:hover, .top a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+    .lang { font: inherit; font-size: 13px; font-weight: 700; color: var(--forest); background: var(--white); border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; cursor: pointer; }
+    .eyebrow { margin: 34px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--amber); }
+    h1 { margin: 8px 0 0; font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.2; letter-spacing: -.02em; color: var(--forest); }
+    .intro { margin: 14px 0 0; font-size: 1.05rem; color: var(--moss); max-width: 62ch; }
+    .note { margin: 16px 0 0; padding: 8px 0 8px 14px; border-left: 3px solid var(--amber); color: var(--moss); font-size: 14px; }
+    ol.items { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 12px; }
+    .item { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .item h2 { margin: 0; font-size: 1.05rem; color: var(--forest); }
+    .item .why { margin: 4px 0 10px; font-size: 14px; color: var(--moss); }
+    .check { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid #eee7d8; font-size: 15px; cursor: pointer; }
+    .check input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--forest); flex: none; }
+    .check b { display: block; font-size: 12px; letter-spacing: .06em; color: var(--amber); text-transform: uppercase; }
+    .actions { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn { font: inherit; font-weight: 700; font-size: 15px; border-radius: 10px; padding: 12px 20px; border: 1px solid var(--forest); cursor: pointer; }
+    .btn.primary { background: var(--forest); color: #fff; }
+    .btn.ghost { background: var(--white); color: var(--forest); }
+    .btn:focus-visible, .lang:focus-visible, .check:focus-within { outline: 2px solid var(--amber); outline-offset: 3px; }
+    #result { margin-top: 34px; }
+    #result h2.title { margin: 0 0 4px; font-size: 1.4rem; color: var(--forest); }
+    .groups { display: grid; gap: 12px; margin-top: 14px; }
+    .group { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: var(--white); }
+    .group h3 { margin: 0; font-size: 1rem; }
+    .group p.n { margin: 2px 0 8px; font-size: 13px; color: var(--moss); }
+    .group ul { margin: 0; padding-left: 18px; }
+    .group li { margin: 4px 0; }
+    .group.fixFirst { border-color: #d9b9a8; background: #fbf1ea; }
+    .group.fixFirst h3 { color: var(--rust); }
+    .group.later { background: var(--sand); }
+    .group.enough { background: var(--sage); }
+    .first { margin-top: 14px; padding: 12px 14px; border-left: 3px solid var(--rust); background: #fbf1ea; font-weight: 700; color: var(--forest); }
+    .first small { display: block; font-weight: 400; color: var(--moss); margin-top: 2px; }
+    .closing { margin: 22px 0 0; font-size: 1.15rem; font-weight: 800; color: var(--forest); }
+    .nextlink { display: inline-block; margin-top: 14px; font-weight: 700; color: var(--forest); }
+    .boundary { margin-top: 22px; font-size: 13px; color: var(--moss); }
+    @media print { .top, .actions, .nextlink { display: none !important; } body { background: #fff; } .item { break-inside: avoid; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top"><a id="back" href="https://paulstradecraft.com/"></a><button class="lang" id="lang" type="button"></button></div>
+    <p class="eyebrow" id="eyebrow"></p>
+    <h1 id="heading"></h1>
+    <p class="intro" id="intro"></p>
+    <p class="note" id="disclosure"></p>
+    <ol class="items" id="items"></ol>
+    <div class="actions"><button class="btn primary" id="run" type="button"></button><button class="btn ghost" id="print" type="button"></button></div>
+    <section id="result" aria-live="polite" hidden></section>
+  </div>
+  <script type="module">
+    import { ITEMS, GROUPS, diagnose } from "./diagnose.js";
+    import { COPY } from "./diagnose-copy.js";
+
+    let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
+    let shown = false;
+    const answers = Object.fromEntries(ITEMS.map((item) => [item.key, { blocker: false, bonus: false }]));
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const portfolio = () => `https://paulstradecraft.com/${lang === "en" ? "?lang=en" : ""}`;
+    const gapDemo = () => `https://apchen1978.github.io/overseas-lead-discovery-demo/${lang === "en" ? "?lang=en" : ""}#mode-gap`;
+
+    function renderItems() {
+      const c = COPY[lang];
+      $("items").innerHTML = ITEMS.map((item) => {
+        const t = c.items[item.key];
+        const row = (kind, label, text) => `<label class="check"><input type="checkbox" data-key="${item.key}" data-kind="${kind}"${answers[item.key][kind] ? " checked" : ""}><span><b>${esc(label)}</b>${esc(text)}</span></label>`;
+        return `<li class="item"><h2>${esc(t.name)}</h2><p class="why">${esc(c.whyLabel)}${lang === "zh" ? "：" : ": "}${esc(t.why)}</p>${item.blocks ? row("blocker", c.blockerLabel, t.blocker) : ""}${row("bonus", c.bonusLabel, t.bonus)}</li>`;
+      }).join("");
+    }
+
+    function renderResult() {
+      const c = COPY[lang];
+      const out = $("result");
+      out.hidden = !shown;
+      if (!shown) return;
+      const r = diagnose(answers);
+      const list = (keys) => (keys.length ? `<ul>${keys.map((k) => `<li>${esc(c.items[k].name)}</li>`).join("")}</ul>` : "");
+      out.innerHTML = `<h2 class="title">${esc(c.resultTitle)}</h2>
+        <div class="groups">${GROUPS.map((g) => `<div class="group ${g}"><h3>${esc(c.groups[g].title)}</h3><p class="n">${esc(c.groups[g].note)}</p>${list(r[g])}</div>`).join("")}</div>
+        ${r.firstMove ? `<div class="first">${esc(c.firstMoveTitle)}${lang === "zh" ? "：" : ": "}${esc(c.items[r.firstMove].name)}<small>${esc(c.firstMoveNote)}</small></div>` : `<div class="first">${esc(r.later.length ? c.noneToFix : c.allSet)}</div>`}
+        <p class="closing">${esc(c.closing)}</p>
+        <a class="nextlink" href="${gapDemo()}" target="_blank" rel="noopener noreferrer">${esc(c.next)} →</a>
+        <p class="boundary">${esc(c.boundary)}</p>`;
+    }
+
+    function render() {
+      const c = COPY[lang];
+      document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+      document.title = c.docTitle;
+      $("back").textContent = c.back;
+      $("back").href = portfolio();
+      $("lang").textContent = lang === "zh" ? "EN" : "中文";
+      $("lang").setAttribute("aria-label", lang === "zh" ? "切換語言" : "Switch language");
+      $("eyebrow").textContent = c.eyebrow;
+      $("heading").textContent = c.heading;
+      $("intro").textContent = c.intro;
+      $("disclosure").textContent = c.disclosure;
+      $("run").textContent = c.runLabel;
+      $("print").textContent = c.print;
+      renderItems();
+      renderResult();
+    }
+
+    $("items").addEventListener("change", (e) => {
+      const t = e.target;
+      if (!t.dataset.key) return;
+      answers[t.dataset.key][t.dataset.kind] = t.checked;
+      renderResult();
+    });
+    $("run").addEventListener("click", () => { shown = true; renderResult(); $("result").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    $("print").addEventListener("click", () => { shown = true; renderResult(); window.print(); });
+    $("lang").addEventListener("click", () => {
+      lang = lang === "zh" ? "en" : "zh";
+      const url = new URL(location.href); url.searchParams.set("lang", lang); history.replaceState(null, "", url);
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
