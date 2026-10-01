@@ -1,8 +1,8 @@
-// The commercial-decision-desk and overseas-lead-discovery demos honour a
-// `?lang=` parameter. On the English homepage their links carry it, so a visitor
-// who chose English lands on the demo in English. The margin tool is English only
-// and the homepage itself has no language parameter, so nothing else changes.
-const BILINGUAL_DEMO = /^https:\/\/apchen1978\.github\.io\/(commercial-decision-desk|overseas-lead-discovery-demo)\//;
+// The commercial-decision-desk, overseas-lead-discovery and trade-profit-navigator
+// demos honour a `?lang=` parameter and open in Chinese by default. On the English
+// homepage their links carry it, so a visitor who chose English lands on the demo in
+// English. Other links are left alone.
+const BILINGUAL_DEMO = /^https:\/\/apchen1978\.github\.io\/(commercial-decision-desk|overseas-lead-discovery-demo|trade-profit-navigator-demo)\//;
 
 export function withDemoLang(url, lang) {
   if (lang !== "en" || typeof url !== "string" || !BILINGUAL_DEMO.test(url)) return url;
