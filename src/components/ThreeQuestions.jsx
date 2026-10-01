@@ -19,6 +19,9 @@ const copy = {
     takeaway: "你會帶走",
     demoNote: "示範案例（合成資料）",
     note: "示範用的都是合成資料，不含任何真實客戶。AI 只協助整理與試算，要不要做、能不能答應，仍由你決定。",
+    learnLead: "想先自己學一遍？",
+    learnRoadmap: "海外客戶開發路線圖",
+    learnGuide: "學習指南 PDF（16 頁繁中）",
     cards: [
       {
         key: "lead",
@@ -53,6 +56,9 @@ const copy = {
     takeaway: "What you take away",
     demoNote: "Demo case (synthetic data)",
     note: "Every demo uses synthetic data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",
+    learnLead: "Want to learn the route first?",
+    learnRoadmap: "Customer development roadmap",
+    learnGuide: "Learning Guide PDF (16 pages, Traditional Chinese)",
     cards: [
       {
         key: "lead",
@@ -125,6 +131,11 @@ export default function ThreeQuestions() {
           ))}
         </ol>
         <p className="mt-12 max-w-[70ch] text-sm leading-relaxed text-ink/70">{c.note}</p>
+        <p className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-ink/70">
+          <span>{c.learnLead}</span>
+          <a className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber" href="/prototype/ai-native-overseas-customer-roadmap/">{c.learnRoadmap}</a>
+          <a className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber" href="/files/Paul-Tradecraft-Learning-Guide-001-Overseas-Customer-Development-ZH.pdf" target="_blank" rel="noopener noreferrer">{c.learnGuide}</a>
+        </p>
       </div>
     </section>
   );

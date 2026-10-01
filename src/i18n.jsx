@@ -42,7 +42,7 @@ const dict = {
           body: "現金已流出，不代表這筆錢會以相同方式反映在當期費用。",
           takeaway: "待補事實與文件，以及該問 CPA 的問題。",
           linkLabel: "看企業支出啟發",
-          href: "#business-spending-insight",
+          href: "https://apchen1978.github.io/sme-business-spending-insight-demo/",
         },
       ],
       ctaPrimary: "試玩作品",
@@ -220,7 +220,7 @@ const dict = {
         { label: "看見商機", question: "哪些海外客戶值得業務先花時間開發？", system: "海外商業開發", output: "把供應商能做什麼、老闆的目標、潛在買家和未知放在一起，找出值得再查證的開發方向。", linkLabel: "查看商業開發判斷", href: "#global-business-development" },
         { label: "看清交易", question: "這筆商機，現在能不能推進？", system: "商務決策工作台", output: "整理交易架構、關鍵控制條件、Decision Path，以及可帶進會議的 Deal Brief。", linkLabel: "查看決策工作台", href: "#commercial-decision-desk" },
         { label: "測試經濟性", question: "帳面毛利真的足以支撐這筆交易嗎？", system: "貿易利潤導航", output: "目前已知成本、可調整的獲利因素、現金壓力，以及尚待補足的證據。", linkLabel: "查看利潤導航", href: "#trade-profit-navigator" },
-        { label: "控制承諾", question: "付款與執行上的承諾，會不會讓現金吃緊？", system: "付款集中度分析", output: "分幣別整理付款承諾，找出資金集中風險，以及承諾前要確認的條件。", linkLabel: "查看付款分析", href: "#payment-concentration" },
+        { label: "控制承諾", question: "付款與執行上的承諾，會不會讓現金吃緊？", system: "付款集中度分析", output: "分幣別整理付款承諾，找出資金集中風險，以及承諾前要確認的條件。", linkLabel: "查看付款分析", href: "https://apchen1978.github.io/payment-concentration-demo/" },
         { label: "留下決策紀錄", question: "下一次會議，團隊要帶著什麼往前走？", system: "商務決策工作台", output: "整理會議用 Deal Brief、Decision Ledger，清楚記下由誰拍板、哪些情況下要重新評估。", linkLabel: "查看決策資產", href: "#commercial-decision-desk" },
       ],
     },
@@ -404,7 +404,7 @@ const dict = {
         {
           title: "人類審核",
           desc: "逐項檢查產出、確認證據、拒絕腦補。不通過就退回重做。",
-          evidence: "Review · 驗證 23/23",
+          evidence: "Review · Pilot 追蹤器 23/23 檢查（範圍僅限該工具）",
         },
         {
           title: "部署上線",
@@ -417,7 +417,7 @@ const dict = {
           evidence: "HANDOFF 對齊 · 證據優先",
         },
       ],
-      note: "這個網站本身就是證據：Codex 建立 → DSH 接手 → 人工 review → 部署 → 已完成獨立審計 · PASS。",
+      note: "這個網站本身就是證據：Codex 建立 → DSH 接手 → 人工 review → 部署 → 2026-08-21 一次獨立審計通過（當時的版本，不代表目前每一頁）。",
     },
     contact: {
       headline: "把你手上卡住的商業問題帶進來",
@@ -537,7 +537,7 @@ const dict = {
       ],
       kicker: "Personal AI portfolio",
       headline: "The right buyer for a good product.",
-      sub: "From product to buyer, I help you open the way and walk it with you.",
+      sub: "From product to buyer, I'll clear the path with you.",
       background: "Background: 15 years in international sales, including mainland China channels and team management. Trade experience plus an AI-native way of working, turning the judgment calls of international sales (finding buyers, working out the profit, closing orders) into tools you can try.",
       youGet: "Start with one important question",
       outcomesHeadline: "Which situation feels most familiar right now?",
@@ -566,7 +566,7 @@ const dict = {
           body: "Cash leaving the business does not mean it affects the current period in the same way.",
           takeaway: "Facts and documents to prepare—and a useful CPA question.",
           linkLabel: "See spending insight",
-          href: "#business-spending-insight",
+          href: "https://apchen1978.github.io/sme-business-spending-insight-demo/",
         },
       ],
       ctaPrimary: "Try the work",
@@ -744,7 +744,7 @@ const dict = {
         { label: "Spot the opportunity", question: "Which overseas account deserves commercial effort first?", system: "Global Business Development", output: "Use supplier reality, Owner objective, candidate accounts, and UNKNOWNs to identify the next commercial path worth verifying.", linkLabel: "View business-development judgment", href: "#global-business-development" },
         { label: "Understand the deal", question: "Can this opportunity move forward now?", system: "Commercial Decision Desk", output: "Deal structure, control factors, a Decision Path, and a Deal Brief for the meeting.", linkLabel: "View decision desk", href: "#commercial-decision-desk" },
         { label: "Test the economics", question: "Does the apparent margin really support this deal?", system: "Trade Profit Navigator", output: "Known costs, testable profit levers, cash exposure, and evidence still required.", linkLabel: "View profit navigator", href: "#trade-profit-navigator" },
-        { label: "Control commitment", question: "Could payment and execution commitments overwhelm cash?", system: "Payment Concentration", output: "Currency-separated payment commitments, concentration exposure, and pre-commitment controls.", linkLabel: "View payment analysis", href: "#payment-concentration" },
+        { label: "Control commitment", question: "Could payment and execution commitments overwhelm cash?", system: "Payment Concentration", output: "Currency-separated payment commitments, concentration exposure, and pre-commitment controls.", linkLabel: "View payment analysis", href: "https://apchen1978.github.io/payment-concentration-demo/" },
         { label: "Leave the judgment", question: "What should the team take into the next meeting?", system: "Commercial Decision Desk", output: "A Deal Brief, Decision Ledger, human decision, and rerun conditions kept clearly distinct.", linkLabel: "View decision assets", href: "#commercial-decision-desk" },
       ],
     },
@@ -927,7 +927,7 @@ const dict = {
         {
           title: "Human reviews",
           desc: "Check every output, confirm evidence, reject fabrication. Fail means back to work.",
-          evidence: "Review · 23/23 verified",
+          evidence: "Review · 23/23 checks on the Pilot tracker (that tool only)",
         },
         {
           title: "Deploy",
@@ -940,7 +940,7 @@ const dict = {
           evidence: "Handoff alignment · Evidence-first",
         },
       ],
-      note: "This site is its own evidence: Codex built it, DSH took over, a human reviewed, it deployed, and Independent Audit · PASS.",
+      note: "This site is its own evidence: Codex built it, DSH took over, a human reviewed, it deployed, and an independent audit passed on 2026-08-21 (that version of the site, not a current endorsement of every page).",
     },
     contact: {
       headline: "Bring one commercial bottleneck",
@@ -1060,7 +1060,7 @@ const titles = {
 };
 const ogDescriptions = {
   zh: "從產品到買家這一段，我陪你一起打通。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
-  en: "From product to buyer, I help you open the way and walk it with you. Paul Chen: 15 years in international sales, including mainland China channels and team management, plus an AI-native way of working that turns the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
+  en: "From product to buyer, I'll clear the path with you. Paul Chen: 15 years in international sales, including mainland China channels and team management, plus an AI-native way of working that turns the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
 };
 
 // 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。

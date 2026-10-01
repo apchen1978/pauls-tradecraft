@@ -42,6 +42,7 @@ export default function CommercialOutcomes() {
             <motion.a
               key={item.question}
               href={item.href}
+              {...(/^https?:/.test(item.href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               initial={reduceMotion ? false : { opacity: 0, y: 10 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={reduceMotion ? undefined : { once: true, margin: "-24px" }}
