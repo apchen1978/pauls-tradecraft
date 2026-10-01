@@ -15,12 +15,12 @@ function Card({ item, g, index }) {
       className={`flex w-full flex-col rounded-[1.25rem] border-[2.5px] border-ink p-5 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 md:p-6 ${TILT[index % 3]} ${FILL[index % 3]} ${SHADOW}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        <p className="rounded-full border-2 border-ink bg-bone px-2.5 py-1 text-xs font-bold text-ink">{item.tag}</p>
+        <p className="rounded-full border-2 border-ink bg-bone px-2.5 py-1 text-xs font-semibold text-ink">{item.tag}</p>
         {item.featured ? (
-          <p className="rounded-full border-2 border-ink bg-gold px-2.5 py-1 text-xs font-bold text-pine">{g.featuredMark}</p>
+          <p className="rounded-full border-2 border-ink bg-gold px-2.5 py-1 text-xs font-semibold text-pine">{g.featuredMark}</p>
         ) : null}
       </div>
-      <h3 className="mt-5 text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
+      <h3 className="mt-5 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
       <p className="mt-4 text-base font-semibold leading-[1.55] text-ink">
         <span className="box-decoration-clone bg-[linear-gradient(transparent_58%,var(--color-gold)_58%,var(--color-gold)_92%,transparent_92%)]">{item.spark}</span>
       </p>
@@ -30,7 +30,7 @@ function Card({ item, g, index }) {
           href={item.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-bold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+          className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
         >
           <span>{item.cta}</span>
           <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -63,8 +63,8 @@ export default function Garage() {
   return (
     <section id="garage" aria-labelledby="garage-heading" className="scroll-mt-24 overflow-x-clip border-b border-line bg-bone">
       <div className="mx-auto max-w-7xl px-5 py-16 md:px-6 md:py-32">
-        <p className="inline-block -rotate-2 rounded-2xl bg-ink px-4 py-1.5 text-xs font-bold tracking-[0.06em] text-bone md:text-sm">{g.eyebrow}</p>
-        <h2 id="garage-heading" className="mt-6 max-w-[12ch] text-[2.25rem] font-bold leading-[1.1] tracking-[-0.03em] md:text-[4rem]">
+        <p className="inline-block -rotate-2 rounded-2xl bg-ink px-4 py-1.5 text-xs font-semibold tracking-[0.06em] text-bone md:text-sm">{g.eyebrow}</p>
+        <h2 id="garage-heading" className="mt-6 max-w-[12ch] text-[2.25rem] font-semibold leading-[1.1] tracking-[-0.03em] md:text-[4rem]">
           <Headline text={g.headline} mark={g.headlineMark} />
         </h2>
         <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-moss md:text-lg">{g.intro}</p>
@@ -89,7 +89,7 @@ export default function Garage() {
           </ol>
           {rest.length ? (
             <details className="group/more mt-6">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-bold text-ink shadow-[4px_4px_0_var(--color-ink)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[6px_7px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink [&::-webkit-details-marker]:hidden">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[6px_7px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink [&::-webkit-details-marker]:hidden">
                 <span>{g.moreLabel}</span>
                 <span aria-hidden="true" className="text-lg leading-none transition-transform duration-200 group-open/more:rotate-45">+</span>
               </summary>
