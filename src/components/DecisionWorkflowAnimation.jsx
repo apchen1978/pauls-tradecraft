@@ -93,6 +93,9 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
           const dropped = styles.getPropertyValue("--flow-dropped").trim() || "#9ea99b";
           const paper = styles.getPropertyValue("--color-paper").trim() || "#e9ede4";
           const forest = styles.getPropertyValue("--color-forest").trim() || "#193A35";
+          // Pending stage names start in muted (5.1:1 on white) and settle to forest, so no
+          // frame sits below AA the way the old opacity 0.4 start did (2.2:1).
+          const moss = styles.getPropertyValue("--color-moss").trim() || "#62716A";
 
           const dots = gsap.utils.toArray(".decision-flow__signal");
           const byFate = (...fates) => dots.filter((dot) => fates.includes(Number(dot.dataset.fate)));
@@ -108,7 +111,7 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
             .set(".decision-flow__gate", { scaleY: 0, transformOrigin: "50% 50%" })
             .set(".decision-flow__node", { fill: paper })
             .set(".decision-flow__gate-ring", { autoAlpha: 0, scale: 1, transformOrigin: "50% 50%" })
-            .set(stageNames, { opacity: 0.4, color: forest });
+            .set(stageNames, { opacity: 1, color: moss });
           dots.forEach((dot) => {
             const signal = SIGNALS[Number(dot.dataset.index)];
             tl.set(dot, { x: signal.x, y: signal.y });
@@ -127,13 +130,13 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
             .to(".decision-flow__source-tag", { autoAlpha: 1, duration: 0.3, stagger: 0.08 }, "signals")
             .to(dots, { autoAlpha: 1, scale: 1, duration: 0.32, ease: "back.out(2)", stagger: { each: 0.035, from: "random" } }, "signals")
             .to(".decision-flow__fan", { autoAlpha: 1, duration: 0.4 }, "signals+=0.2")
-            .to(stageNames[0], { opacity: 1, duration: 0.25 }, "signals");
+            .to(stageNames[0], { color: forest, duration: 0.25 }, "signals");
 
           // 2. 匯入證據關
           tl.addLabel("gather", "signals+=0.75")
             .to(dots, { x: X.evidence, y: AXIS, duration: 0.62, ease: "power2.in", stagger: 0.045 }, "gather")
             .to(".decision-flow__node--evidence", { fill: research, duration: 0.2 }, "gather+=0.55")
-            .to(stageNames[1], { opacity: 1, duration: 0.25 }, "gather+=0.55");
+            .to(stageNames[1], { color: forest, duration: 0.25 }, "gather+=0.55");
 
           // 3. 查證：站不住的落下，其餘往資格關
           tl.addLabel("verify", "gather+=1.3");
@@ -141,7 +144,7 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
           tl.to(".decision-flow__line--evidence-qualification", { strokeDashoffset: 0, duration: 0.55, ease: "none" }, "verify+=0.1")
             .to(byFate(1, 2, 3), { x: X.qualification, y: AXIS, duration: 0.55, ease: "power1.inOut", stagger: 0.07 }, "verify+=0.1")
             .to(".decision-flow__node--qualification", { fill: research, duration: 0.2 }, "verify+=0.6")
-            .to(stageNames[2], { opacity: 1, duration: 0.25 }, "verify+=0.6");
+            .to(stageNames[2], { color: forest, duration: 0.25 }, "verify+=0.6");
 
           // 4. 資格判斷：不值得追的落下，剩下的在閘門前排隊
           tl.addLabel("qualify", "verify+=1.15");
@@ -149,7 +152,7 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
           tl.to(".decision-flow__line--qualification-decision", { strokeDashoffset: 0, duration: 0.5, ease: "none" }, "qualify+=0.1")
             .to(".decision-flow__gate", { scaleY: 1, duration: 0.35, ease: "back.out(2.2)" }, "qualify+=0.2")
             .to(".decision-flow__human-label", { autoAlpha: 1, duration: 0.3 }, "qualify+=0.35")
-            .to(stageNames[3], { opacity: 1, color: amber, duration: 0.3 }, "qualify+=0.4");
+            .to(stageNames[3], { color: amber, duration: 0.3 }, "qualify+=0.4");
           [...byFate(3), ...byFate(2)].forEach((dot, i) => {
             tl.to(dot, { x: X.gate - 16 - i * 13, y: AXIS, duration: 0.55, ease: "power2.out" }, `qualify+=${0.1 + i * 0.08}`);
           });
@@ -167,7 +170,7 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
           tl.addLabel("act", "decide+=0.95")
             .to(".decision-flow__node--action", { fill: amber, duration: 0.2 }, "act")
             .to(byFate(3), { autoAlpha: 0, duration: 0.2 }, "act")
-            .to(stageNames[4], { opacity: 1, duration: 0.25 }, "act")
+            .to(stageNames[4], { color: forest, duration: 0.25 }, "act")
             .to(stageNames[3], { color: forest, duration: 0.6 }, "act")
             .to(".decision-flow__line--action-arrow", { strokeDashoffset: 0, duration: 0.35, ease: "power1.out" }, "act")
             .to(".decision-flow__arrow", { strokeDashoffset: 0, duration: 0.2 }, "act+=0.3")
