@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { Component, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import { scrollToElement, useCalmScroll } from "./calmScroll.js";
@@ -6,7 +6,56 @@ import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
 import Footer from "./components/Footer.jsx";
 
-const BelowFold = lazy(() => import("./BelowFold.jsx"));
+// A deploy replaces the hashed chunk files, so a page opened before the deploy
+// can ask for a BelowFold chunk that no longer exists. Reload once to pick up
+// the new build; if it still fails, the error boundary below shows a message
+// instead of a blank page.
+const RELOAD_FLAG = "below-fold-reloaded";
+const BelowFold = lazy(() =>
+  import("./BelowFold.jsx").then(
+    (module) => {
+      try {
+        sessionStorage.removeItem(RELOAD_FLAG);
+      } catch {
+        // storage can be unavailable (private mode); the retry guard just resets next time
+      }
+      return module;
+    },
+    (error) => {
+      try {
+        if (!sessionStorage.getItem(RELOAD_FLAG)) {
+          sessionStorage.setItem(RELOAD_FLAG, "1");
+          window.location.reload();
+          return new Promise(() => {});
+        }
+      } catch {
+        // without storage we cannot guard against a reload loop, so fall through to the message
+      }
+      throw error;
+    },
+  ),
+);
+
+class BelowFoldBoundary extends Component {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="mx-auto max-w-[760px] px-5 py-24 text-center" role="alert">
+        <p>內容載入失敗，請重新整理頁面。</p>
+        <p>Content failed to load. Please reload the page.</p>
+        <p>
+          <a href="">重新整理 · Reload</a>
+        </p>
+      </div>
+    );
+  }
+}
 
 function SkipLink() {
   const { t } = useLang();
@@ -71,9 +120,11 @@ export default function App() {
           <Nav />
           <main id="main">
             <Hero />
-            <Suspense fallback={<div className="min-h-[100dvh]" aria-hidden="true" />}>
-              <BelowFold onReady={onBelowReady} />
-            </Suspense>
+            <BelowFoldBoundary>
+              <Suspense fallback={<div className="min-h-[100dvh]" aria-hidden="true" />}>
+                <BelowFold onReady={onBelowReady} />
+              </Suspense>
+            </BelowFoldBoundary>
           </main>
           <Footer />
         </div>
