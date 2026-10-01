@@ -4,7 +4,6 @@ import CommercialFrontDoor from "./CommercialFrontDoor.jsx";
 import HeroOutcomes from "./HeroOutcomes.jsx";
 import AiWorkValue from "./AiWorkValue.jsx";
 import ConnectedCase from "./ConnectedCase.jsx";
-import CommercialOutcomes from "./CommercialOutcomes.jsx";
 import TradeNotes from "./TradeNotes.jsx";
 import Verification from "./Verification.jsx";
 import Methods from "./Methods.jsx";
@@ -23,7 +22,6 @@ const copy = {
       situations: ["你現在最像哪一種情況", "名單很多、訂單看起來不錯、錢已花出去：對應到哪個作品。"],
       ai: ["AI 怎麼幫忙", "把細節交給 AI，把商業判斷留給團隊。"],
       problem: ["問題定義", "客戶說的需求，和真正要做的決定，往往不是同一件事。"],
-      thread: ["商業主線", "從發現商機，到讓團隊接得住後續判斷的五個問題。"],
       notes: ["國貿現場筆記", "報價、出貨與訂艙前，先把下一個問題問對。"],
       verification: ["驗證方式", "每一件作品用什麼可重跑的檢查來證明。"],
       method: ["方法論", "怎麼判斷、怎麼談、怎麼承諾。"],
@@ -39,7 +37,6 @@ const copy = {
       situations: ["Which situation are you in", "A long list, an order that looks good, money already spent: which work applies."],
       ai: ["How AI helps", "Hand the detail to AI; keep the commercial judgment with the team."],
       problem: ["Problem definition", "The request a client brings is rarely the decision that needs making."],
-      thread: ["The commercial thread", "Five questions from spotting an opportunity to a decision the team can own."],
       notes: ["Trade notes", "Ask the right next question before quoting, shipping or booking."],
       verification: ["How it's verified", "The rerunnable checks behind each work."],
       method: ["Methodology", "How to judge, negotiate and commit."],
@@ -53,7 +50,6 @@ const panels = [
   { key: "situations", anchor: "hero-outcomes", Component: HeroOutcomes },
   { key: "ai", anchor: "ai-work-value", Component: AiWorkValue },
   { key: "problem", anchor: "connected-case", Component: ConnectedCase },
-  { key: "thread", anchor: "outcomes", Component: CommercialOutcomes },
   { key: "notes", anchor: "trade-notes", Component: TradeNotes },
   { key: "verification", anchor: "verification", Component: Verification },
   { key: "method", anchor: "method", Component: Methods },
