@@ -1056,7 +1056,7 @@ const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 // 用字跟首頁 hero 對齊：中文「賺不賺得到」；英文 "whether it is profitable"。
 const titles = {
   zh: "Paul's Tradecraft｜產品夠好，缺的是那個買家",
-  en: "Paul's Tradecraft | The Product Is Good Enough. What's Missing Is the Buyer.",
+  en: "Paul's Tradecraft | The product is good enough. What's missing is the buyer.",
 };
 const ogDescriptions = {
   zh: "從產品到買家這一段，我陪你一起打通。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
