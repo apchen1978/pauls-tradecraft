@@ -79,7 +79,7 @@ export default function OneDeal() {
       <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-36">
         <p className="eyebrow">{c.eyebrow}</p>
         <h2 id="one-deal-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
-        <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-ink/70 md:text-lg">{c.intro}</p>
+        <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-moss md:text-lg">{c.intro}</p>
 
         <ol className="mt-10 grid border-t border-ink md:mt-20 md:grid-cols-3">
           {c.steps.map((step, index) => (
@@ -89,7 +89,7 @@ export default function OneDeal() {
                   <span className="mr-2 font-serif text-lg text-amber">{index + 1}</span>{step.when}
                 </p>
                 <h3 className="mt-6 text-[1.5rem] font-medium leading-[1.25] tracking-[-0.02em] text-ink md:text-[1.75rem]">{step.result}</h3>
-                <p className="mt-4 text-base leading-relaxed text-ink/70">{step.detail}</p>
+                <p className="mt-4 text-base leading-relaxed text-moss">{step.detail}</p>
                 <a
                   href={href(step.key)}
                   target="_blank"
@@ -105,10 +105,10 @@ export default function OneDeal() {
         </ol>
 
         <div className="mt-10 flex flex-col gap-6 border-t border-line pt-8 md:mt-20 md:flex-row md:items-center md:justify-between md:gap-10">
-          <p className="max-w-[62ch] text-base leading-relaxed text-ink/70 md:text-lg">{c.closing}</p>
+          <p className="max-w-[62ch] text-base leading-relaxed text-moss md:text-lg">{c.closing}</p>
           <a
             href="#contact"
-            className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-field bg-gold px-6 py-3.5 text-sm font-semibold text-pine transition-colors hover:bg-[#f2c878] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:self-auto"
+            className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-field bg-gold px-6 py-3.5 text-sm font-semibold text-pine transition-colors hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:self-auto"
           >
             {c.cta}
             <ArrowRight size={16} weight="bold" aria-hidden="true" />

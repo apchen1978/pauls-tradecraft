@@ -22,12 +22,12 @@ export default function ConnectedCase() {
             <h2 id="connected-case-heading" className="mt-3 max-w-[12ch] text-3xl font-semibold tracking-tight text-bone md:text-4xl">
               {content.headline}
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-bone/70 md:text-lg">{content.intro}</p>
+            <p className="mt-5 text-base leading-relaxed text-ondark-meta md:text-lg">{content.intro}</p>
 
             <div className="mt-8 border-l-2 border-gold/70 pl-4">
               <p className="text-xs font-medium text-gold">{content.framingLabel}</p>
               <p
-                className="mt-3 max-w-[34ch] text-xl leading-snug text-bone/85 md:text-2xl"
+                className="mt-3 max-w-[34ch] text-xl leading-snug text-ondark md:text-2xl"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
                 {content.framing}
@@ -36,7 +36,7 @@ export default function ConnectedCase() {
           </div>
 
           <div className="min-w-0">
-            <p className="text-xs font-medium text-bone/70">{content.scenarioLabel}</p>
+            <p className="text-xs font-medium text-ondark-meta">{content.scenarioLabel}</p>
             <div className="mt-3 grid grid-cols-1 overflow-hidden rounded-field border border-bone/20 sm:grid-cols-3" role="group" aria-label={content.scenarioLabel}>
               {content.scenarios.map((item, index) => {
                 const isActive = activeIndex === index;
@@ -47,10 +47,10 @@ export default function ConnectedCase() {
                     aria-pressed={isActive}
                     onClick={() => setActiveIndex(index)}
                     className={`border-b border-bone/15 px-4 py-3 text-left text-sm font-semibold transition-colors last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 ${
-                      isActive ? "bg-gold text-pine" : "bg-bone/[0.035] text-bone/70 hover:bg-bone/[0.08] hover:text-bone"
+                      isActive ? "bg-gold text-pine" : "bg-bone/[0.035] text-ondark-meta hover:bg-bone/[0.08] hover:text-bone"
                     }`}
                   >
-                    <span className="mr-2 text-xs opacity-65">0{index + 1}</span>
+                    <span className="mr-2 text-xs">0{index + 1}</span>
                     {item.tab}
                   </button>
                 );
@@ -60,7 +60,7 @@ export default function ConnectedCase() {
             <article key={scenario.id} className="mt-4 overflow-hidden rounded-card border border-bone/20 bg-bone/[0.045]">
               <div className="border-b border-bone/15 px-6 py-7 md:px-8 md:py-9">
                 <p className="text-xs font-medium text-gold">{scenario.eyebrow}</p>
-                <p className="mt-2 text-xs font-medium text-bone/70">{content.labels.request}</p>
+                <p className="mt-2 text-xs font-medium text-ondark-meta">{content.labels.request}</p>
                 <blockquote
                   className="mt-3 max-w-[28ch] text-2xl leading-tight text-bone md:text-3xl"
                   style={{ fontFamily: "var(--font-serif)" }}
@@ -74,7 +74,7 @@ export default function ConnectedCase() {
                   <p className="text-xs font-medium text-gold">{content.labels.questions}</p>
                   <ol className="mt-4 space-y-4">
                     {scenario.questions.map((question, index) => (
-                      <li key={question} className="flex gap-3 text-sm leading-relaxed text-bone/85">
+                      <li key={question} className="flex gap-3 text-sm leading-relaxed text-ondark">
                         <span className="mt-0.5 text-xs font-semibold text-gold">0{index + 1}</span>
                         <span>{question}</span>
                       </li>
@@ -85,12 +85,12 @@ export default function ConnectedCase() {
                 <div className="bg-gold/[0.07] px-6 py-7 md:px-8">
                   <p className="text-xs font-medium text-gold">{content.labels.reframed}</p>
                   <h3 className="mt-3 text-xl font-semibold leading-snug tracking-tight text-bone md:text-2xl">{scenario.reframed}</h3>
-                  <p className="mt-5 border-l-2 border-gold/70 pl-3 text-sm leading-relaxed text-bone/70">{scenario.insight}</p>
+                  <p className="mt-5 border-l-2 border-gold/70 pl-3 text-sm leading-relaxed text-ondark-meta">{scenario.insight}</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-4 border-t border-bone/15 px-6 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
-                <p className="text-xs font-medium text-bone/70">{content.labels.next}</p>
+                <p className="text-xs font-medium text-ondark-meta">{content.labels.next}</p>
                 <a
                   href={withDemoLang(scenario.href, lang)}
                   target={scenario.href.startsWith("http") ? "_blank" : undefined}
@@ -105,7 +105,7 @@ export default function ConnectedCase() {
           </div>
         </div>
 
-        <div className="mt-8 flex gap-3 border-t border-bone/15 pt-5 text-xs leading-relaxed text-bone/70">
+        <div className="mt-8 flex gap-3 border-t border-bone/15 pt-5 text-xs leading-relaxed text-ondark-meta">
           <CheckCircle size={16} weight="fill" className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
           <p>{content.boundary}</p>
         </div>

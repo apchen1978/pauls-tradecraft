@@ -89,7 +89,7 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
 
           const styles = getComputedStyle(figure);
           const research = styles.getPropertyValue("--flow-research").trim() || "#536d87";
-          const amber = styles.getPropertyValue("--flow-amber").trim() || "#9a5a18";
+          const amber = styles.getPropertyValue("--flow-amber").trim() || "#8A6A2B";
           const dropped = styles.getPropertyValue("--flow-dropped").trim() || "#9ea99b";
           const paper = styles.getPropertyValue("--color-paper").trim() || "#e9ede4";
           const forest = styles.getPropertyValue("--color-forest").trim() || "#234e3b";

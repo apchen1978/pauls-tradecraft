@@ -20,7 +20,7 @@ export default function DealReadiness() {
         <div className="max-w-xl">
           <p className="text-sm font-semibold text-amber">{service.kicker}</p>
           <h2 className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{service.headline}</h2>
-          <p className="mt-5 text-base leading-relaxed text-ink/70 md:text-lg">{service.intro}</p>
+          <p className="mt-5 text-base leading-relaxed text-moss md:text-lg">{service.intro}</p>
 
           <div className="mt-8 border-y border-line py-5">
             <p className="text-xs font-medium text-moss">{service.pathTitle}</p>
@@ -29,7 +29,7 @@ export default function DealReadiness() {
                 <div key={step.title} className="border-t border-forest/15 pt-3">
                   <p className="text-xs font-semibold tabular-nums text-amber">0{index + 1}</p>
                   <h3 className="mt-2 text-sm font-semibold text-forest">{step.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-ink/70">{step.body}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-moss">{step.body}</p>
                 </div>
               ))}
             </div>
@@ -37,17 +37,17 @@ export default function DealReadiness() {
 
           <div className="mt-9 border-l-2 border-amber/60 pl-5">
             <h3 className="text-base font-semibold text-forest">{service.whenTitle}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink/70">{service.when}</p>
+            <p className="mt-2 text-sm leading-relaxed text-moss">{service.when}</p>
           </div>
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
             <div>
               <h3 className="text-base font-semibold text-forest">{service.bringTitle}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink/70">{service.bring}</p>
+              <p className="mt-2 text-sm leading-relaxed text-moss">{service.bring}</p>
             </div>
             <div>
               <h3 className="text-base font-semibold text-forest">{service.boundaryTitle}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink/70">{service.boundary}</p>
+              <p className="mt-2 text-sm leading-relaxed text-moss">{service.boundary}</p>
             </div>
           </div>
 
@@ -80,7 +80,7 @@ export default function DealReadiness() {
           <div className="border-b border-line pb-5">
             <p className="text-xs font-semibold text-amber">{service.packLabel}</p>
             <h3 className="mt-2 text-2xl font-medium tracking-[-0.02em]">{service.packTitle}</h3>
-            <p className="mt-2 max-w-[56ch] text-sm leading-relaxed text-ink/70">{service.packIntro}</p>
+            <p className="mt-2 max-w-[56ch] text-sm leading-relaxed text-moss">{service.packIntro}</p>
           </div>
 
           <div className="mt-5 grid gap-5 md:grid-cols-[0.86fr_1.14fr] md:items-start">
@@ -91,7 +91,7 @@ export default function DealReadiness() {
                 className="aspect-[4/3] w-full object-contain object-top"
                 loading="lazy"
               />
-              <figcaption className="border-t border-line px-3 py-2.5 text-xs leading-relaxed text-ink/85">
+              <figcaption className="border-t border-line px-3 py-2.5 text-xs leading-relaxed text-ink">
                 {service.snapshotCaption}
               </figcaption>
             </figure>
@@ -104,7 +104,7 @@ export default function DealReadiness() {
                     <Icon size={19} weight="duotone" className="mt-0.5 shrink-0 text-forest" aria-hidden="true" />
                     <div>
                       <h4 className="text-sm font-medium tracking-[-0.02em]">{output.title}</h4>
-                      <p className="mt-1 text-sm leading-relaxed text-ink/70">{output.body}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-moss">{output.body}</p>
                     </div>
                   </article>
                 );

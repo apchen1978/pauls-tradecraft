@@ -9,7 +9,7 @@ export default function HowIWork() {
       <div className="max-w-2xl">
         <p className="eyebrow">{t.how.eyebrow}</p>
         <h2 className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{t.how.headline}</h2>
-        <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-ink/70">{t.how.sub}</p>
+        <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-moss">{t.how.sub}</p>
         <a href={lang === "en" ? "/cases/how-i-run-ai-agents/#en" : "/cases/how-i-run-ai-agents/"} className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber">
           {t.how.agentsCase}
           <ArrowRight size={14} weight="bold" aria-hidden="true" />
@@ -37,7 +37,7 @@ export default function HowIWork() {
               {String(i + 1).padStart(2, "0")}
             </span>
             <h3 className="mt-1.5 text-base font-semibold tracking-tight">{s.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink/70">{s.desc}</p>
+            <p className="mt-2 text-sm leading-relaxed text-moss">{s.desc}</p>
             <p className="mt-3 text-xs font-medium text-moss">{s.evidence}</p>
           </motion.li>
         ))}
@@ -48,7 +48,7 @@ export default function HowIWork() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-16px" }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="mt-12 rounded-card border border-forest/20 surface-paper px-6 py-5 text-sm leading-relaxed text-ink/70"
+        className="mt-12 rounded-card border border-forest/20 surface-paper px-6 py-5 text-sm leading-relaxed text-moss"
       >
         {t.how.note}
       </motion.p>

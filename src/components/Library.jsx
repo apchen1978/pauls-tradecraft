@@ -68,7 +68,7 @@ export default function Library() {
             <p className="eyebrow">{c.eyebrow}</p>
             <h2 id="library-heading" className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
           </div>
-          <p className="max-w-[48ch] self-end text-base leading-relaxed text-ink/70">{c.intro}</p>
+          <p className="max-w-[48ch] self-end text-base leading-relaxed text-moss">{c.intro}</p>
         </div>
       </div>
       <div className="mx-auto mt-12 max-w-7xl px-4 pb-24 md:px-6 md:pb-32">
@@ -80,7 +80,7 @@ export default function Library() {
                 <summary className="grid cursor-pointer list-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-6 transition-colors hover:text-forest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber md:grid-cols-[3rem_minmax(0,16rem)_minmax(0,1fr)_auto] md:gap-x-8 md:py-7 [&::-webkit-details-marker]:hidden">
                   <span className="text-xs font-medium tabular-nums text-amber">{String(index + 1).padStart(2, "0")}</span>
                   <span className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">{title}</span>
-                  <span className="col-start-2 row-start-2 mt-1 text-sm leading-relaxed text-ink/70 md:col-start-3 md:row-start-1 md:mt-0">{line}</span>
+                  <span className="col-start-2 row-start-2 mt-1 text-sm leading-relaxed text-moss md:col-start-3 md:row-start-1 md:mt-0">{line}</span>
                   <span aria-hidden="true" className="col-start-3 row-start-1 flex size-8 items-center justify-center self-center rounded-full border border-line text-forest transition-transform duration-300 group-open/panel:rotate-45 md:col-start-4">
                     <Plus size={14} weight="bold" />
                   </span>

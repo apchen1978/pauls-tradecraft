@@ -50,7 +50,7 @@ function stageLabel(work, lang) {
 
 function LiveChip({ t, tone = "light" }) {
   const className = tone === "dark"
-    ? "inline-flex items-center gap-1 rounded-pill border border-bone/30 px-2 py-0.5 text-xs font-semibold normal-case  text-bone/85"
+    ? "inline-flex items-center gap-1 rounded-pill border border-bone/30 px-2 py-0.5 text-xs font-semibold normal-case  text-ondark"
     : "inline-flex items-center gap-1 rounded-pill border border-forest/20 px-2 py-0.5 text-xs font-semibold normal-case  text-forest";
   return (
     <span className={className} title={t.works.liveExplain} aria-label={`${t.works.statusLive}. ${t.works.liveExplain}`}>
@@ -95,7 +95,7 @@ function GbdActions() {
             {gbd.standaloneDemo.label[lang]}
             <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
           </a>
-          <p className="mt-1 text-xs leading-relaxed text-ink/70">{gbd.standaloneDemo.note[lang]}</p>
+          <p className="mt-1 text-xs leading-relaxed text-moss">{gbd.standaloneDemo.note[lang]}</p>
         </div>
       )}
       {signal && (
@@ -108,7 +108,7 @@ function GbdActions() {
             {evidenceLabel}
             <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
           </span>
-          <span className="mt-1 block text-xs leading-relaxed text-ink/70">{signal.caseArc}</span>
+          <span className="mt-1 block text-xs leading-relaxed text-moss">{signal.caseArc}</span>
         </a>
       )}
       {artifact?.href && (
@@ -121,7 +121,7 @@ function GbdActions() {
             {artifact.cta}
             <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
           </a>
-          <p className="mt-1 text-xs leading-relaxed text-ink/70">{artifact.boundary}</p>
+          <p className="mt-1 text-xs leading-relaxed text-moss">{artifact.boundary}</p>
         </div>
       )}
     </div>
@@ -148,8 +148,8 @@ function ProductFlow({ work, tone = "light" }) {
       <div className={`mt-3 grid gap-3 sm:grid-cols-3 ${dark ? "sm:divide-x sm:divide-bone/15" : "sm:divide-x sm:divide-forest/15"}`}>
         {flow.stages.map((stage, index) => (
           <div key={stage.label} className={index === 0 ? "sm:pr-3" : index === flow.stages.length - 1 ? "sm:pl-3" : "sm:px-3"}>
-            <p className={`text-xs font-semibold  ${dark ? "text-bone/70" : "text-moss"}`}>{stage.label}</p>
-            <p className={`mt-1 text-xs leading-relaxed ${dark ? "text-bone/82" : "text-ink/85"}`}>{stage.value}</p>
+            <p className={`text-xs font-semibold  ${dark ? "text-ondark-meta" : "text-moss"}`}>{stage.label}</p>
+            <p className={`mt-1 text-xs leading-relaxed ${dark ? "text-ondark" : "text-ink"}`}>{stage.value}</p>
           </div>
         ))}
       </div>
@@ -167,12 +167,12 @@ function MarketEntrySignal({ data }) {
       <div className="grid gap-5 md:grid-cols-[1.1fr_.9fr] md:gap-8">
         <div>
           <p className="text-xl font-semibold leading-tight tracking-tight text-forest md:text-2xl">{copy.hero}</p>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">{copy.heroSupport}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-moss md:text-base">{copy.heroSupport}</p>
         </div>
         <div className="border-l-2 border-amber/70 pl-4 md:pl-5">
           <p className="text-xs font-medium  text-moss">{copy.caseArcLabel}</p>
           <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{copy.caseArc}</p>
-          <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.context}</p>
+          <p className="mt-2 text-xs leading-relaxed text-moss">{copy.context}</p>
         </div>
       </div>
 
@@ -181,9 +181,9 @@ function MarketEntrySignal({ data }) {
           <div key={item.label} className={`py-4 ${index === 0 ? "border-b md:border-r md:border-b-0 md:pr-5" : index === 1 ? "border-b bg-forest/[0.045] md:border-x md:border-b-0 md:px-5" : "md:pl-5"} border-forest/15`}>
             <p className="text-xs font-medium  text-moss">{index === 0 ? copy.beforeLabel : index === 1 ? copy.zeroLabel : copy.afterLabel}</p>
             <p className="mt-2 text-3xl font-semibold tracking-tight text-forest">{item.value}</p>
-            <p className="mt-1 text-sm font-semibold leading-snug text-ink/85">{item.label}</p>
-            {index === 1 && <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.zeroNote}</p>}
-            {index === 2 && <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.afterNote}</p>}
+            <p className="mt-1 text-sm font-semibold leading-snug text-ink">{item.label}</p>
+            {index === 1 && <p className="mt-2 text-xs leading-relaxed text-moss">{copy.zeroNote}</p>}
+            {index === 2 && <p className="mt-2 text-xs leading-relaxed text-moss">{copy.afterNote}</p>}
           </div>
         ))}
       </div>
@@ -198,7 +198,7 @@ function MarketEntrySignal({ data }) {
                 <span className={`text-xs font-medium  ${gate.status === "UNKNOWN" || gate.status === "待確認" ? "text-rust" : "text-forest"}`}>{gate.status}</span>
               </div>
               <p className="mt-2 text-sm font-semibold text-forest">{gate.title}</p>
-              <p className="mt-1 text-xs leading-relaxed text-ink/70">{gate.body}</p>
+              <p className="mt-1 text-xs leading-relaxed text-moss">{gate.body}</p>
             </div>
           ))}
         </div>
@@ -215,8 +215,8 @@ function MarketEntryDetails({ data, tone = "light" }) {
   if (!copy) return null;
   const dark = tone === "dark";
   const border = dark ? "border-bone/15" : "border-line";
-  const heading = dark ? "text-bone/85" : "text-ink/85";
-  const body = dark ? "text-bone/70" : "text-ink/70";
+  const heading = dark ? "text-ondark" : "text-ink";
+  const body = dark ? "text-ondark-meta" : "text-moss";
 
   return (
     <>
@@ -307,9 +307,9 @@ function WorkingEvidence({ data, tone = "light" }) {
   return (
     <div className={`mt-5 border-t pt-4 ${dark ? "border-bone/15" : "border-line"}`}>
       <p className={`text-xs font-medium  ${dark ? "text-gold" : "text-amber"}`}>{copy.label}</p>
-      <h4 className={`mt-1 text-lg font-semibold ${dark ? "text-bone/85" : "text-ink/85"}`}>{copy.title}</h4>
-      <p className={`mt-1 max-w-2xl text-sm leading-relaxed ${dark ? "text-bone/70" : "text-ink/70"}`}>{copy.body}</p>
-      <p className={`mt-2 text-xs leading-relaxed ${dark ? "text-bone/70" : "text-ink/70"}`}>{copy.boundary}</p>
+      <h4 className={`mt-1 text-lg font-semibold ${dark ? "text-ondark" : "text-ink"}`}>{copy.title}</h4>
+      <p className={`mt-1 max-w-2xl text-sm leading-relaxed ${dark ? "text-ondark-meta" : "text-moss"}`}>{copy.body}</p>
+      <p className={`mt-2 text-xs leading-relaxed ${dark ? "text-ondark-meta" : "text-moss"}`}>{copy.boundary}</p>
       <a href={copy.href} className={`mt-3 inline-flex items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-semibold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber`}>
         {copy.cta}<ArrowUpRight size={15} weight="bold" aria-hidden="true" />
       </a>
@@ -327,12 +327,12 @@ function SpendingInsightSignal({ data }) {
       <div className="grid gap-5 md:grid-cols-[1.08fr_.92fr] md:gap-8">
         <div>
           <p className="text-xl font-semibold leading-tight tracking-tight text-forest md:text-2xl">{copy.hero}</p>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70 md:text-base">{copy.heroSupport}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-moss md:text-base">{copy.heroSupport}</p>
         </div>
         <div className="border-l-2 border-amber/70 pl-4 md:pl-5">
           <p className="text-xs font-medium  text-moss">{copy.caseLabel}</p>
           <p className="mt-2 text-sm font-semibold leading-relaxed text-forest">{copy.case}</p>
-          <p className="mt-2 text-xs leading-relaxed text-ink/70">{copy.caseBoundary}</p>
+          <p className="mt-2 text-xs leading-relaxed text-moss">{copy.caseBoundary}</p>
         </div>
       </div>
 
@@ -341,7 +341,7 @@ function SpendingInsightSignal({ data }) {
           <div key={lens.title} className={`py-4 ${index === 0 ? "border-b md:border-r md:border-b-0 md:pr-5" : index === 1 ? "border-b bg-forest/[0.045] md:border-x md:border-b-0 md:px-5" : "md:pl-5"} border-forest/15`}>
             <p className="text-xs font-semibold  text-moss">0{index + 1}</p>
             <p className="mt-2 text-sm font-semibold text-forest">{lens.title}</p>
-            <p className="mt-1 text-xs leading-relaxed text-ink/70">{lens.body}</p>
+            <p className="mt-1 text-xs leading-relaxed text-moss">{lens.body}</p>
           </div>
         ))}
       </div>
@@ -360,8 +360,8 @@ function SpendingInsightDetails({ data, tone = "light" }) {
   if (!copy) return null;
   const dark = tone === "dark";
   const border = dark ? "border-bone/15" : "border-line";
-  const heading = dark ? "text-bone/85" : "text-ink/85";
-  const body = dark ? "text-bone/70" : "text-ink/70";
+  const heading = dark ? "text-ondark" : "text-ink";
+  const body = dark ? "text-ondark-meta" : "text-moss";
 
   return (
     <>
@@ -431,9 +431,9 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
         summary: "border-bone/25 bg-bone/[0.06] text-bone hover:bg-bone/[0.1]",
         stage: "bg-gold/15 text-gold",
         border: "border-bone/15",
-        heading: "text-bone/85",
-        body: "text-bone/70",
-        caption: "text-bone/70",
+        heading: "text-ondark",
+        body: "text-ondark-meta",
+        caption: "text-ondark-meta",
         link: "text-gold hover:text-bone",
       }
     : {
@@ -441,9 +441,9 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
         summary: "border-forest/25 bg-forest/[0.06] text-forest hover:bg-forest/10",
         stage: "bg-forest/10 text-forest",
         border: "border-line",
-        heading: "text-ink/85",
-        body: "text-ink/70",
-        caption: "text-ink/70",
+        heading: "text-ink",
+        body: "text-moss",
+        caption: "text-moss",
         link: "text-forest hover:text-amber",
       };
   return (
@@ -647,9 +647,9 @@ function FeaturedSystem({ work }) {
             <MaturityChip label={stageLabel(work, lang)} tone="dark" />
           </div>
           <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-medium leading-[1.08] tracking-[-0.03em] text-bone md:text-4xl">{copy.title}</h3>
-          <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-bone/70">{copy.desc}</p>
+          <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-ondark-meta">{copy.desc}</p>
           {copy.caseSummary && (
-            <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-bone/85">{copy.caseSummary}</p>
+            <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-ondark">{copy.caseSummary}</p>
           )}
           <ProductFlow work={work} tone="dark" />
           <a data-featured-copy href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:bg-[#c3caff]">
@@ -657,20 +657,20 @@ function FeaturedSystem({ work }) {
             <ArrowUpRight size={16} weight="bold" />
           </a>
           {work.secondaryLink && secondaryLabel && (
-            <a data-featured-copy href={withDemoLang(work.secondaryLink, lang)} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex w-fit items-center gap-2 rounded-field border border-bone/25 px-4 py-2 text-sm font-semibold text-bone/85 transition-colors hover:border-gold/60 hover:text-gold">
+            <a data-featured-copy href={withDemoLang(work.secondaryLink, lang)} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex w-fit items-center gap-2 rounded-field border border-bone/25 px-4 py-2 text-sm font-semibold text-ondark transition-colors hover:border-gold/60 hover:text-gold">
               {secondaryLabel}
             </a>
           )}
           {work.id === "commercial-decision-desk" && (
-            <a data-featured-copy href="#outcomes" className="mt-4 w-fit text-sm font-semibold text-bone/85 underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold">
+            <a data-featured-copy href="#outcomes" className="mt-4 w-fit text-sm font-semibold text-ondark underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold">
               {t.hero.cddInvite}
             </a>
           )}
-          {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-bone/70">{work.demoNote[lang]}</p>}
+          {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-ondark-meta">{work.demoNote[lang]}</p>}
         </div>
         <a data-featured-visual href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="group relative flex items-center border-t border-bone/10 bg-[radial-gradient(120%_90%_at_70%_20%,#24503f_0%,#143329_70%)] p-5 md:p-8 lg:border-l lg:border-t-0 lg:p-10">
           <div className="w-full overflow-hidden rounded-field border border-bone/15 bg-bone">
-            <div className="flex items-center gap-1.5 border-b border-ink/10 bg-[#edf0e7] px-4 py-2.5" aria-hidden="true">
+            <div className="flex items-center gap-1.5 border-b border-ink/10 bg-paper px-4 py-2.5" aria-hidden="true">
               <span className="size-2 rounded-full bg-ink/15" />
               <span className="size-2 rounded-full bg-ink/15" />
               <span className="size-2 rounded-full bg-ink/15" />
@@ -699,7 +699,7 @@ export function WorksFlagship() {
         <div className="max-w-3xl">
           <p className="eyebrow">{t.works.eyebrow}</p>
           <h2 id="works-flagship-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{t.works.headline}</h2>
-          <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-ink/70 md:text-lg">{t.works.sub}</p>
+          <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-moss md:text-lg">{t.works.sub}</p>
         </div>
         <nav aria-labelledby="works-also-explore" className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
           <span id="works-also-explore" className="text-xs font-semibold text-moss">{t.works.alsoExplore}</span>
@@ -755,7 +755,7 @@ export default function Works() {
     const deliverableBlock = w.deliverable ? (
       <div className="mt-4 border-l-2 border-amber/70 bg-amber/[0.06] px-4 py-3">
         <p className="text-xs font-medium  text-moss">{t.works.deliverableLabel}</p>
-        <p className="mt-1 text-sm leading-relaxed text-ink/85">{w.deliverable[lang]}</p>
+        <p className="mt-1 text-sm leading-relaxed text-ink">{w.deliverable[lang]}</p>
       </div>
     ) : null;
     const Wrapper = w.link ? "a" : "div";
@@ -789,7 +789,7 @@ export default function Works() {
                 src={cover}
                 alt={w.imageAlt[lang]}
                 loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
-                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(11,13,18,0.55)]" : ""}`}
+                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(25,58,53,0.55)]" : ""}`}
               />
               {balance && (
                 <div className="hidden md:block">
@@ -827,11 +827,11 @@ export default function Works() {
                 <p className="mt-1 text-sm font-semibold leading-snug text-forest md:text-base">{w.decisionQuestion[lang]}</p>
               </div>
             )}
-            <p className="mt-2 text-sm leading-relaxed text-ink/70 md:text-base">{copy.desc}</p>
+            <p className="mt-2 text-sm leading-relaxed text-moss md:text-base">{copy.desc}</p>
             {w.marketEntry && <MarketEntrySignal data={w.marketEntry} />}
             {w.spendingInsight && <SpendingInsightSignal data={w.spendingInsight} />}
             {copy.caseSummary && (
-              <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink/85">
+              <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink">
                 <span className="font-semibold text-forest">{t.works.caseStudy.takeaway}</span>
                 {copy.caseSummary}
               </p>
@@ -849,7 +849,7 @@ export default function Works() {
             )}
             {w.id === "global-business-development" ? (
               <GbdActions />
-            ) : <p className="mt-auto pt-4 text-xs font-medium text-ink/70">
+            ) : <p className="mt-auto pt-4 text-xs font-medium text-moss">
               {w.link ? (
                 <span className="inline-flex items-center gap-2 text-forest">
                   {w.linkType === "demo" && <span className="rounded-pill border border-forest/20 bg-forest/[0.06] px-2 py-0.5 text-xs font-medium  text-forest">{t.works.demoLabel}</span>}
@@ -861,7 +861,7 @@ export default function Works() {
               ) : null}
             </p>}
             {w.demoNote && (
-              <p className="mt-1.5 text-xs leading-snug text-ink/70">{w.demoNote[lang]}</p>
+              <p className="mt-1.5 text-xs leading-snug text-moss">{w.demoNote[lang]}</p>
             )}
           </div>
         </Wrapper>
@@ -879,10 +879,10 @@ export default function Works() {
   const renderSection = (sec, si) => (
     <div key={sec.id} id={`works-${sec.id}`} className="scroll-mt-24">
       <div className={`${si === 0 ? "" : "mt-12"} border-t border-line pt-7`}>
-        <h3 className={`font-medium tracking-[-0.02em] ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink/85"}`}>{sec.label}</h3>
-        {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70">{sec.note}</p>}
+        <h3 className={`font-medium tracking-[-0.02em] ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink"}`}>{sec.label}</h3>
+        {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-moss">{sec.note}</p>}
         {sec.id === "commercial" && (
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/70">{t.works.independentPrototypes}</p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-moss">{t.works.independentPrototypes}</p>
         )}
       </div>
       <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-y-8">
@@ -902,7 +902,7 @@ export default function Works() {
                 {lang === "zh" ? "更多作品" : "More work"}
                 <span className="ml-3 text-sm font-medium tabular-nums text-amber">{sections.slice(1).reduce((n, sec) => n + sec.works.length, 0)}</span>
               </span>
-              <span className="mt-1 block text-sm text-ink/70">{sections.slice(1).map((sec) => sec.label).join(" · ")}</span>
+              <span className="mt-1 block text-sm text-moss">{sections.slice(1).map((sec) => sec.label).join(" · ")}</span>
             </span>
             <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-forest transition-transform duration-300 group-open/more:rotate-180">
               <CaretDown size={14} weight="bold" />

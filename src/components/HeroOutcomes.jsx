@@ -10,7 +10,7 @@ export default function HeroOutcomes() {
         <p id="hero-outcomes-heading" className="eyebrow">{t.hero.youGet}</p>
         <div className="mt-3 max-w-2xl">
           <h2 className="text-2xl font-semibold tracking-tight text-ink md:text-3xl">{t.hero.outcomesHeadline}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-ink/70 md:text-base">{t.hero.outcomesIntro}</p>
+          <p className="mt-3 text-sm leading-relaxed text-moss md:text-base">{t.hero.outcomesIntro}</p>
         </div>
         <div className="mt-8 grid border-y border-forest/20 md:grid-cols-3 md:divide-x md:divide-forest/15">
           {t.hero.outcomes.map((outcome, index) => (
@@ -22,10 +22,10 @@ export default function HeroOutcomes() {
             >
               <p className="text-xs font-semibold text-amber">{String(index + 1).padStart(2, "0")} · {outcome.label}</p>
               <h3 className="mt-2 text-lg font-semibold tracking-tight text-forest transition-colors group-hover:text-amber md:text-xl">{outcome.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink/70">{outcome.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-moss">{outcome.body}</p>
               <div className="mt-5 border-t border-forest/10 pt-4">
                 <p className="text-xs font-semibold text-moss">{t.hero.outcomesTakeaway}</p>
-                <p className="mt-1.5 text-sm font-medium leading-relaxed text-ink/85">{outcome.takeaway}</p>
+                <p className="mt-1.5 text-sm font-medium leading-relaxed text-ink">{outcome.takeaway}</p>
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors group-hover:text-amber">
                   {outcome.linkLabel}
                   <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
