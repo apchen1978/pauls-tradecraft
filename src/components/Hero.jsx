@@ -29,12 +29,14 @@ export default function Hero() {
         <img
           src="/images/paul-art.webp"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-[68%_28%] opacity-30 lg:object-[72%_24%] lg:opacity-55"
+          className="absolute inset-x-0 top-0 h-[14rem] w-full object-cover object-[55%_18%] opacity-90 md:inset-0 md:h-full md:object-[68%_28%] md:opacity-30 lg:object-[72%_24%] lg:opacity-55"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-pine/50 lg:hidden" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,44,41,1)_0%,rgba(20,44,41,0.92)_40%,rgba(20,44,41,0.45)_75%,rgba(20,44,41,0.7)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_50%,rgba(20,44,41,0.9)_100%)]" />
+        {/* Phone: the portrait is a clear band at the top that fades into the pine surface the text sits on. */}
+        <div className="absolute inset-x-0 top-0 h-[14rem] bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_30%,rgba(20,44,41,1)_82%)] md:hidden" />
+        <div className="absolute inset-0 hidden bg-pine/50 md:block lg:hidden" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(20,44,41,1)_0%,rgba(20,44,41,0.92)_40%,rgba(20,44,41,0.45)_75%,rgba(20,44,41,0.7)_100%)] md:block" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_50%,rgba(20,44,41,0.9)_100%)] md:block" />
       </div>
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute inset-x-0 top-0 h-px bg-bone/15" />
@@ -42,7 +44,7 @@ export default function Hero() {
         <div className="absolute bottom-[8%] left-[8%] h-40 w-40 rounded-full bg-gold/5 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto grid min-h-[calc(100svh-68px)] max-w-7xl items-end gap-6 px-4 pb-6 pt-6 md:min-h-[calc(100svh-76px)] md:gap-10 md:px-6 md:pb-12 md:pt-16 lg:min-h-[calc(100svh-76px-10.5rem)] lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-10 lg:px-6 lg:pb-12 lg:pt-12">
+      <div className="relative mx-auto grid min-h-[calc(100svh-68px)] max-w-7xl items-end gap-6 px-4 pb-6 pt-[12.5rem] md:min-h-[calc(100svh-76px)] md:gap-10 md:px-6 md:pb-12 md:pt-16 lg:min-h-[calc(100svh-76px-10.5rem)] lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-10 lg:px-6 lg:pb-12 lg:pt-12">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 max-w-2xl self-center">
           <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-sm font-medium text-gold">
             <span aria-hidden className="size-1.5 rounded-full bg-gold" />
