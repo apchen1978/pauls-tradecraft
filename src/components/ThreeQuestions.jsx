@@ -16,6 +16,7 @@ const copy = {
     eyebrow: "能做什麼",
     title: "貿易經驗，加上 AI 原生的做法。",
     intro: "承諾之前，先把海外生意的判斷走一遍。每一項能力都有一個可以馬上試的示範，用的是合成資料，兩分鐘就能看懂它怎麼幫上忙。",
+    chain: "三個示範是同一條線的三段：找到對的人，看清這筆單能不能接，算清楚賺不賺，讓第一單談得成。",
     takeaway: "你會帶走",
     demoNote: "示範案例（合成資料）",
     note: "示範用的都是合成資料，不含任何真實客戶。AI 只協助整理與試算，要不要做、能不能答應，仍由你決定。",
@@ -53,6 +54,7 @@ const copy = {
     eyebrow: "What I do",
     title: "Trade experience, plus an AI-native way of working.",
     intro: "Walk the judgment calls of an overseas deal before you commit. Each capability has a demo you can try right now, using synthetic data, and takes about two minutes to show how it helps.",
+    chain: "The three demos are three stages of one line: find the right person, see whether the deal can be taken, work out whether it pays, and give the first order a chance to close.",
     takeaway: "What you take away",
     demoNote: "Demo case (synthetic data)",
     note: "Every demo uses synthetic data and no real client. AI only helps organize and calculate; whether to pursue and what to commit to stays with you.",
@@ -100,7 +102,9 @@ export default function ThreeQuestions() {
           <p className="max-w-[44ch] self-end text-base leading-relaxed text-ink/70 md:text-lg">{c.intro}</p>
         </div>
 
-        <ol className="mt-10 grid border-t border-ink md:mt-24 md:grid-cols-3">
+        <p className="mt-8 max-w-[62ch] border-l-2 border-amber pl-4 text-base font-medium leading-relaxed text-forest md:mt-12">{c.chain}</p>
+
+        <ol className="mt-8 grid border-t border-ink md:mt-12 md:grid-cols-3">
           {c.cards.map((card, index) => (
             <li key={card.key} className="flex border-b border-line py-8 md:border-b-0 md:py-10 md:border-l md:border-line md:px-8 md:first:border-l-0 md:first:pl-0 md:last:pr-0">
               <article className="flex w-full flex-col">
