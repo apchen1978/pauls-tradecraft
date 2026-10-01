@@ -1055,12 +1055,12 @@ const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 // 語言切換時同步 <html lang>、title 與分享用描述（SEO / a11y）。
 // 用字跟首頁 hero 對齊：中文「賺不賺得到」；英文 "whether it is profitable"。
 const titles = {
-  zh: "Paul's Tradecraft｜一位國際業務的 AI 工作筆記",
-  en: "Paul's Tradecraft | An International Salesperson's AI Working Notes",
+  zh: "Paul's Tradecraft｜產品夠好，缺的是那個買家",
+  en: "Paul's Tradecraft | The Product Is Good Enough. What's Missing Is the Buyer.",
 };
 const ogDescriptions = {
-  zh: "Paul Chen 的個人 AI 作品集：貿易經驗加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路與團隊管理。",
-  en: "Paul Chen's personal AI portfolio: trade experience plus an AI-native way of working, turning the judgment calls of international sales (finding buyers, working out profit, closing orders) into tools you can try. Background: 15 years in international sales, including mainland China channels and team management.",
+  zh: "從產品到買家這一段，我陪你一起打通。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
+  en: "From product to buyer, I help you open the way and walk it with you. Paul Chen: 15 years in international sales, including mainland China channels and team management, plus an AI-native way of working that turns the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
 };
 
 // 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。
