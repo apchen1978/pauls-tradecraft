@@ -105,10 +105,6 @@
     outline: 2px solid var(--color-amber);
     outline-offset: 2px;
   }
-  /* Amber is invisible on dark surfaces; use the dark-surface gold there. */
-  :is(header, .bg-pine, .bg-forest) :focus-visible {
-    outline-color: var(--color-gold);
-  }
 }
 
 @layer utilities {
@@ -217,6 +213,12 @@ html.lenis.lenis-smooth {
 }
 .bg-forest .text-amber {
   color: var(--color-ondark);
+}
+/* Amber is invisible on dark surfaces; use the dark-surface gold there. Unlayered so it
+   also beats hard-coded focus-visible:outline-amber utilities. */
+:is(header, .bg-pine, .bg-forest) :focus-visible,
+.skip-link:focus-visible {
+  outline-color: var(--color-gold);
 }
 /* A light card sitting inside a dark section keeps the light-surface roles. */
 .surface-light .text-moss {
