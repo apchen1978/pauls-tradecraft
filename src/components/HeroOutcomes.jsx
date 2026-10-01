@@ -17,6 +17,7 @@ export default function HeroOutcomes() {
             <a
               key={outcome.title}
               href={outcome.href}
+              {...(/^https?:/.test(outcome.href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className={`group block py-6 transition-colors hover:bg-bone/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber md:py-7 ${index === 0 ? "md:pr-6" : index === t.hero.outcomes.length - 1 ? "md:pl-6" : "md:px-6"}`}
             >
               <p className="text-xs font-semibold text-amber">{String(index + 1).padStart(2, "0")} · {outcome.label}</p>
