@@ -89,7 +89,7 @@ export default function Garage() {
           </ol>
           {rest.length ? (
             <details className="group/more mt-6">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-bold text-ink shadow-[4px_4px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink [&::-webkit-details-marker]:hidden">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-bold text-ink shadow-[4px_4px_0_var(--color-ink)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[6px_7px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink [&::-webkit-details-marker]:hidden">
                 <span>{g.moreLabel}</span>
                 <span aria-hidden="true" className="text-lg leading-none transition-transform duration-200 group-open/more:rotate-45">+</span>
               </summary>
