@@ -63,7 +63,7 @@ export default function DealReadiness() {
               href={withDemoLang("https://apchen1978.github.io/commercial-decision-desk/#mode-blank", lang)}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-semibold text-forest underline decoration-forest/35 underline-offset-4 transition-colors hover:text-amber"
+              className="text-sm font-semibold text-forest underline decoration-forest/35 underline-offset-4 transition-[text-decoration-color] hover:decoration-forest"
             >
               {service.demoCta} ↗
             </a>
