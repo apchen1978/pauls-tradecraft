@@ -56,6 +56,9 @@ export default function Hero() {
           <motion.p variants={fadeUp} className={`text-bone/85 ${subClass}`}>
             {t.hero.sub}
           </motion.p>
+          <motion.p variants={fadeUp} className="mt-3 max-w-[52ch] text-[0.8125rem] leading-[1.55] text-bone/60 md:text-sm">
+            {t.hero.background}
+          </motion.p>
           <motion.div
             variants={fadeUp}
             aria-label={lang === "zh" ? "代表作品" : "Representative works"}
