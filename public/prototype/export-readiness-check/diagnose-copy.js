@@ -39,7 +39,7 @@ export const COPY = {
       },
       video: {
         name: "影片",
-        bonus: "有一支 30 到 60 秒的產品或工廠短片",
+        bonus: "有一支 30 到 60 秒的產品或公司短片",
         why: "買家用它判斷，這是不是一家真的公司、真的在做。影片通常不擋單。",
       },
       website: {
@@ -108,7 +108,7 @@ export const COPY = {
       },
       video: {
         name: "Video",
-        bonus: "One 30 to 60 second video of the product or the factory",
+        bonus: "One 30 to 60 second video of the product or the company",
         why: "Buyers use it to judge whether this is a real company that is really operating. It rarely blocks a buyer.",
       },
       website: {
