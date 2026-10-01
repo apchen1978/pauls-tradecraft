@@ -104,7 +104,7 @@ export default function Hero() {
             <img
               src={snapshotSrc}
               alt={t.hero.snapshotAlt}
-              className="aspect-[4/3] w-full rounded-field border border-line object-cover object-top"
+              className="aspect-[16/10] w-full rounded-field border border-line object-cover object-top"
               loading="eager"
             />
           </div>

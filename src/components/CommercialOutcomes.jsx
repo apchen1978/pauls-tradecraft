@@ -6,14 +6,6 @@ export default function CommercialOutcomes() {
   const { t } = useLang();
   const content = t.outcomes;
   const reduceMotion = useReducedMotion();
-  const pathTones = [
-    "border-moss bg-moss/[0.07] text-forest",
-    "border-research bg-research/[0.07] text-research",
-    "border-research bg-research/[0.07] text-research",
-    "border-amber bg-amber/[0.07] text-amber",
-    "border-graphite bg-graphite/[0.07] text-graphite",
-  ];
-
   return (
     <section id="outcomes" aria-labelledby="outcomes-heading" className="scroll-mt-24 border-b border-line bg-bone">
       <div className="mx-auto max-w-7xl px-4 py-24 md:px-6 md:py-32">
@@ -27,8 +19,8 @@ export default function CommercialOutcomes() {
           <p className="text-xs font-medium text-moss">{content.pathEyebrow}</p>
           <ol className="mt-4 grid gap-2 sm:grid-cols-5" aria-label={content.pathEyebrow}>
             {content.pathSteps.map((step, index) => (
-              <li key={step} className={`border-t-2 px-3 py-3 text-sm font-semibold leading-snug ${pathTones[index] ?? pathTones[0]}`}>
-                <span className="mr-2 text-xs font-semibold opacity-75">{String(index + 1).padStart(2, "0")}</span>
+              <li key={step} className="border-t border-line pt-3 text-sm font-medium leading-snug text-ink/75">
+                <span className="mr-2 text-xs font-semibold tabular-nums text-ink/45">{String(index + 1).padStart(2, "0")}</span>
                 {step}
               </li>
             ))}
