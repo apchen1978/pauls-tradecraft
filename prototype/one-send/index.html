@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <title>只寄一次 · One Send — Paul's Tradecraft</title>
-  <meta name="description" content="一封虛構的家用布料報價信。八句話，信封只裝得下三句。寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。" />
+  <meta name="description" content="一封虛構的家用織品報價信。八句話，信封只裝得下三句。寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。" />
   <link rel="canonical" href="https://paulstradecraft.com/prototype/one-send/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Paul's Tradecraft" />
@@ -158,7 +158,15 @@
     }
     .choice:hover { border-color: var(--ink); }
     .choice.is-on { border-color: var(--ink); }
-    .choice:disabled { opacity: 1; cursor: not-allowed; }
+    /* Full envelope: still clickable, so the blocked message can be announced. #576E69 on #F6F3ED is 4.94:1. */
+    .choice[aria-disabled="true"] {
+      color: #576E69;
+      border-color: #576E69;
+      cursor: pointer;
+    }
+    .choice[aria-disabled="true"] .role,
+    .choice[aria-disabled="true"] .line { color: #576E69; }
+    .choice[aria-disabled="true"]:hover { border-color: var(--ink); }
     .choice .line { display: block; margin-top: 4px; font-size: 17px; line-height: 1.55; }
     .choice .state { display: block; margin-top: 6px; color: var(--gold-light); font-size: 14px; font-weight: 700; }
     .envelope {
@@ -195,7 +203,7 @@
       border-style: solid;
       border-color: var(--ink);
     }
-    .slot p { margin: 0; flex: 1 1 12rem; min-width: 0; color: var(--ink); font-size: 16px; line-height: 1.5; }
+    .slot p { margin: 0; flex: 1 1 12rem; min-width: 0; color: var(--ink); font-size: 16px; line-height: 1.5; overflow-wrap: break-word; }
     .takeout {
       flex-shrink: 0;
       background: transparent;
@@ -207,9 +215,19 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .status { margin: 14px 0 0; color: var(--paper); font-size: 16px; line-height: 1.5; min-height: 1.5em; }
+    .status { margin: 14px 0 0; color: var(--paper); font-size: 16px; line-height: 1.5; min-height: 1.5em; overflow-wrap: break-word; }
+    .irreversible {
+      margin: 0;
+      flex: 1 1 10rem;
+      align-self: center;
+      min-width: 0;
+      color: var(--paper);
+      font-size: 15px;
+      line-height: 1.45;
+      overflow-wrap: break-word;
+    }
     .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
-    .go, .send, .ghost {
+    .go, .send, .ghost, .copy {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -221,12 +239,12 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .go, .send.is-ready {
+    .go, .send.is-ready, .copy {
       background: var(--paper);
       border: 2px solid var(--paper);
       color: var(--ink);
     }
-    .go:hover, .send.is-ready:hover { background: var(--tint); border-color: var(--tint); }
+    .go:hover, .send.is-ready:hover, .copy:hover { background: var(--tint); border-color: var(--tint); }
     .send {
       background: transparent;
       border: 2px solid var(--gold-dark);
@@ -252,6 +270,19 @@
     .boundary { margin: 0; color: var(--gold-dark); font-size: 14px; line-height: 1.6; }
     .back { display: inline-block; margin-top: 14px; color: var(--paper); font-weight: 700; text-underline-offset: 0.2em; }
     .back:hover { color: var(--gold-dark); }
+    @media (max-width: 760px) {
+      .picking {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--pine);
+        padding: 8px 0 12px;
+      }
+      .picking .envelope { margin-top: 0; padding: 40px 12px 10px; }
+      .picking .slot { min-height: 0; padding: 8px 10px; }
+      .picking .slot p { font-size: 15px; }
+      .picking .status { margin-top: 10px; }
+    }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation: none !important;
@@ -288,7 +319,7 @@
     var COPY = {
       zh: {
         title: "只寄一次 · One Send",
-        description: "一封虛構的家用布料報價信。八句話，信封只裝得下三句。寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。",
+        description: "一封虛構的家用織品報價信。八句話，信封只裝得下三句。寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。",
         skip: "跳至內容",
         langLabel: "語言",
         boundary: "合成情境 · 不預測買家反應 · 只記在這個瀏覽器",
@@ -317,14 +348,14 @@
         },
         s1: {
           h: "一封報價信，八句話。",
-          lede: "家用布料。買家是虛構的。信還在你手上。",
+          lede: "家用織品。買家是虛構的。信還在你手上。",
           before: "如果報價信",
           hi: "只能寄一次",
           after: "，你會留下哪三句？",
           who: "報價信",
           from: "寄件：你（虛構）",
           to: "收件：買家（虛構）",
-          product: "產品：家用布料",
+          product: "產品：家用織品",
           next: "把句子放進信封"
         },
         s2: {
@@ -334,6 +365,7 @@
           placed: "已放入",
           remove: "拿出",
           send: "寄出",
+          irreversible: "寄出後就不能再改。",
           backLetter: "回到這封信",
           counts: ["信封是空的。", "信封裡有一句。", "信封裡有兩句。", "信封滿了，可以寄出。"],
           blocked: "信封已經滿了。先拿出一句，才能換。"
@@ -341,12 +373,14 @@
         s3: {
           h: "寄出去的這封信，現在就代表你。",
           sentLabel: "寄出的句子",
-          unsentLabel: "沒有寄出的句子"
+          unsentLabel: "沒有寄出的句子",
+          copy: "複製我的三句",
+          copied: "已複製"
         }
       },
       en: {
         title: "One Send · 只寄一次",
-        description: "A fictional quote for home fabric. Eight sentences, and an envelope that holds three. Once it is sent, it cannot be rewritten. Synthetic scenario; it does not predict buyer responses, and it stays in this browser.",
+        description: "A fictional quote for home textiles. Eight sentences, and an envelope that holds three. Once it is sent, it cannot be rewritten. Synthetic scenario; it does not predict buyer responses, and it stays in this browser.",
         skip: "Skip to content",
         langLabel: "Language",
         boundary: "Synthetic scenario · does not predict buyer responses · kept only in this browser",
@@ -375,7 +409,7 @@
         },
         s1: {
           h: "A quote email, in eight sentences.",
-          lede: "Home fabric. The buyer is fictional. The letter is still in your hands.",
+          lede: "Home textiles. The buyer is fictional. The letter is still in your hands.",
           before: "If your quote email could ",
           hi: "only",
           mid: " be sent ",
@@ -384,7 +418,7 @@
           who: "Quote",
           from: "From: you (fictional)",
           to: "To: a buyer (fictional)",
-          product: "Product: home fabric",
+          product: "Product: home textiles",
           next: "Put sentences in the envelope"
         },
         s2: {
@@ -394,6 +428,7 @@
           placed: "In the envelope",
           remove: "Take out",
           send: "Send",
+          irreversible: "Once sent, it can't be changed.",
           backLetter: "Back to the letter",
           counts: [
             "The envelope is empty.",
@@ -406,7 +441,9 @@
         s3: {
           h: "The letter you sent now speaks for you.",
           sentLabel: "Sent",
-          unsentLabel: "Left out"
+          unsentLabel: "Left out",
+          copy: "Copy my three sentences",
+          copied: "Copied"
         }
       }
     };
@@ -522,7 +559,8 @@
         var on = picked.indexOf(button.dataset.id) >= 0;
         button.setAttribute("aria-pressed", on ? "true" : "false");
         button.classList.toggle("is-on", on);
-        button.disabled = full && !on;
+        if (full && !on) button.setAttribute("aria-disabled", "true");
+        else button.removeAttribute("aria-disabled");
         var state = button.querySelector(".state");
         if (state) state.hidden = !on;
       }
@@ -559,7 +597,19 @@
         send.setAttribute("aria-disabled", full ? "false" : "true");
       }
       var status = stage.querySelector(".status");
-      if (status) status.textContent = s.counts[picked.length];
+      if (status && !status.classList.contains("copy-status")) status.textContent = s.counts[picked.length];
+    }
+
+    function showBlocked() {
+      var live = stage.querySelector("#envelope-status");
+      if (!live) return;
+      live.textContent = COPY[lang].s2.blocked;
+      var reduce = false;
+      try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (err) {}
+      var rect = live.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > window.innerHeight) {
+        live.scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
+      }
     }
 
     function screen2() {
@@ -568,6 +618,7 @@
       var root = el("section");
       root.appendChild(heading(s.h));
       root.appendChild(el("p", "lede", s.lede));
+      var picking = el("div", "picking");
       var envelope = el("div", "envelope");
       var flap = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       flap.setAttribute("class", "flap");
@@ -586,11 +637,12 @@
       slots.setAttribute("aria-label", s.h);
       for (var n = 0; n < 3; n++) slots.appendChild(el("li", "slot"));
       envelope.appendChild(slots);
-      root.appendChild(envelope);
+      picking.appendChild(envelope);
       var status = el("p", "status");
       status.id = "envelope-status";
       status.setAttribute("aria-live", "polite");
-      root.appendChild(status);
+      picking.appendChild(status);
+      root.appendChild(picking);
       var list = el("div", "choices");
       for (var i = 0; i < LINES.length; i++) {
         var id = LINES[i];
@@ -612,8 +664,7 @@
             return;
           }
           if (picked.length >= 3) {
-            var live = stage.querySelector(".status");
-            if (live) live.textContent = COPY[lang].s2.blocked;
+            showBlocked();
             return;
           }
           picked.push(sentenceId);
@@ -625,9 +676,12 @@
       var row = el("div", "row");
       var send = el("button", "send", s.send);
       send.type = "button";
-      send.setAttribute("aria-describedby", "envelope-status");
+      send.setAttribute("aria-describedby", "envelope-status send-warn");
       send.addEventListener("click", commit);
       row.appendChild(send);
+      var warn = el("p", "irreversible", s.irreversible);
+      warn.id = "send-warn";
+      row.appendChild(warn);
       var backLetter = el("button", "ghost", s.backLetter);
       backLetter.type = "button";
       backLetter.addEventListener("click", function () { go(1); });
@@ -651,6 +705,17 @@
         sentList.appendChild(item);
       }
       root.appendChild(sentList);
+      var row = el("div", "row");
+      var copy = el("button", "copy", s.copy);
+      copy.type = "button";
+      copy.addEventListener("click", copyThree);
+      row.appendChild(copy);
+      root.appendChild(row);
+      var copied = el("p", "status copy-status");
+      copied.id = "copy-status";
+      copied.setAttribute("aria-live", "polite");
+      copied.setAttribute("aria-atomic", "true");
+      root.appendChild(copied);
       root.appendChild(el("h2", null, s.unsentLabel));
       var unsent = el("ul", "unsent");
       unsent.setAttribute("aria-label", s.unsentLabel);
@@ -660,6 +725,52 @@
       }
       root.appendChild(unsent);
       return root;
+    }
+
+    function fallbackCopy(text) {
+      return new Promise(function (resolve, reject) {
+        var area = document.createElement("textarea");
+        area.value = text;
+        area.setAttribute("readonly", "");
+        area.setAttribute("aria-hidden", "true");
+        area.style.position = "fixed";
+        area.style.top = "0";
+        area.style.left = "0";
+        area.style.width = "1px";
+        area.style.height = "1px";
+        area.style.padding = "0";
+        area.style.border = "0";
+        area.style.opacity = "0";
+        document.body.appendChild(area);
+        area.focus();
+        area.select();
+        area.setSelectionRange(0, text.length);
+        var ok = false;
+        try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+        document.body.removeChild(area);
+        if (ok) resolve();
+        else reject(err);
+      });
+    }
+
+    function announceCopied() {
+      var live = stage.querySelector("#copy-status");
+      if (!live) return;
+      live.textContent = "";
+      window.setTimeout(function () {
+        var again = stage.querySelector("#copy-status");
+        if (again) again.textContent = COPY[lang].s3.copied;
+      }, 30);
+    }
+
+    function copyThree() {
+      if (!sent || sent.length !== 3) return;
+      var c = COPY[lang];
+      var text = sent.map(function (id) { return c.lines[id]; }).join("\n");
+      var write = navigator.clipboard && navigator.clipboard.writeText
+        ? navigator.clipboard.writeText(text).catch(function () { return fallbackCopy(text); })
+        : fallbackCopy(text);
+      write.then(announceCopied).catch(function () {});
     }
 
     function commit() {
