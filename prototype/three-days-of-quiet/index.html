@@ -130,7 +130,7 @@
     <span class="synthetic" id="synthetic"></span>
     <p class="progress" id="progress" aria-live="polite"></p>
 
-    <section class="stage" id="stage" aria-live="polite">
+    <section class="stage" id="stage">
       <!-- screens are rendered by script -->
     </section>
 
@@ -456,7 +456,15 @@
     function go(n) { step = n; render(true); }
 
     document.querySelectorAll(".lang button").forEach(function (b) {
-      b.addEventListener("click", function () { lang = b.dataset.lang; render(false); });
+      b.addEventListener("click", function () {
+        lang = b.dataset.lang;
+        try {
+          var u = new URL(location.href);
+          u.searchParams.set("lang", lang);
+          history.replaceState(null, "", u);
+        } catch (e) {}
+        render(false);
+      });
     });
 
     render(false);
