@@ -16,6 +16,7 @@ const copy = {
     eyebrow: "一筆生意走一遍",
     title: "同一筆生意，從開發走到承諾",
     intro: "第二、三步用的是同一筆合成案例：一筆 48 萬美元的窗簾與窗飾訂單。",
+    note: "示範中的「米」指一米成品窗寬（遮光簾、紗簾與窗簾頭的成品），不含現場安裝；商品成本為合成假設，不代表任何供應商報價。",
     open: "開啟示範",
     steps: [
       {
@@ -44,6 +45,7 @@ const copy = {
     eyebrow: "One deal, walked through",
     title: "One deal, from first contact to commitment",
     intro: "Steps two and three use the same synthetic case: a USD 480,000 order for curtains and valances.",
+    note: "In the demos, 'metre' means one metre of finished window width (blackout drapery, sheers and valances as finished goods), excluding on-site installation; the goods cost is a synthetic assumption, not a supplier quote.",
     open: "Open the demo",
     steps: [
       {
@@ -80,6 +82,7 @@ export default function OneDeal() {
         <p className="eyebrow">{c.eyebrow}</p>
         <h2 id="one-deal-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
         <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-moss md:text-lg">{c.intro}</p>
+        <p className="mt-3 max-w-[62ch] text-xs leading-relaxed text-moss md:text-sm">{c.note}</p>
 
         <ol className="mt-10 grid border-t border-ink md:mt-20 md:grid-cols-3">
           {c.steps.map((step, index) => (
