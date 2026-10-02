@@ -271,6 +271,13 @@
     .sent .sentence { -webkit-user-select: text; user-select: text; }
     .unsent { margin-top: 10px; }
     .unsent li { color: var(--gold-dark); font-size: 16px; line-height: 1.55; }
+    .aftertaste {
+      margin: 32px 0 0;
+      color: var(--gold-dark);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+    }
     .foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--gold-dark); }
     .boundary { margin: 0; color: var(--gold-dark); font-size: 14px; line-height: 1.6; }
     .back { display: inline-block; margin-top: 14px; color: var(--paper); font-weight: 700; text-underline-offset: 0.2em; }
@@ -333,13 +340,13 @@
         storeFail: "這個瀏覽器沒能把選擇留下，所以這封信還沒寄出。",
         lines: {
           delivery: "貨可以在您心裡的那個檔期之前送到。",
-          samples: "樣品可以先到您手上，讓您確認手感與顏色。",
+          samples: "先讓樣品說話。您摸過、看過，再決定要不要往下談。",
           payment: "貨款可以照雙方談妥的方式支付。",
-          why: "從打樣到出貨，這類訂單我們自己走完。",
-          history: "工廠做這一行已經很久，主要工序都留在自己廠裡。",
+          why: "從第一個樣品到最後一箱貨，這類訂單都由我們跟進。",
+          history: "這類產品我們做了很多年，主要工序仍在自己廠裡。",
           papers: "您需要的檢驗文件，可以跟這封報價一起附上。",
           pleasantry: "很希望這次能幫上您的案子。",
-          question: "這次您最在意的，是交期、手感，還是怎麼付款？"
+          question: "交期、手感、付款條件——這次哪一件最不能妥協？"
         },
         roles: {
           delivery: "交期",
@@ -381,7 +388,8 @@
           unsentLabel: "沒有寄出的句子",
           copy: "複製我的三句",
           copied: "已複製",
-          copyFail: "複製沒成功，請長按選取。"
+          copyFail: "複製沒成功，請長按選取。",
+          aftertaste: "三句留下來，也決定了買家先看見哪一面的你。"
         }
       },
       en: {
@@ -395,13 +403,13 @@
         storeFail: "This browser could not keep the choice, so the letter has not been sent.",
         lines: {
           delivery: "The goods can arrive before the window you have in mind.",
-          samples: "Samples can reach you first, so you can check the hand and the colour.",
+          samples: "Let the sample speak first. Once you have felt it and seen it, you can decide whether to take the conversation further.",
           payment: "Payment can follow the arrangement we agree.",
-          why: "From sampling through to shipment, we carry this kind of order ourselves.",
-          history: "The factory has been at this work for a long time, and the main steps stay in-house.",
+          why: "From the first sample to the last carton, we follow this kind of order ourselves.",
+          history: "We have been making this kind of product for many years, and the main processes are still done in our own factory.",
           papers: "The inspection papers you need can travel with the quote.",
           pleasantry: "I would be glad to help with this project.",
-          question: "What matters most to you here: timing, hand-feel, or how you pay?"
+          question: "Lead time, hand-feel, payment terms — which of these can you least compromise on this time?"
         },
         roles: {
           delivery: "Delivery",
@@ -450,7 +458,8 @@
           unsentLabel: "Left out",
           copy: "Copy my three sentences",
           copied: "Copied",
-          copyFail: "Copy didn't work. Press and hold to select the text."
+          copyFail: "Copy didn't work. Press and hold to select the text.",
+          aftertaste: "The three you kept also decide which side of you the buyer sees first."
         }
       }
     };
@@ -744,6 +753,7 @@
         unsent.appendChild(el("li", null, c.lines[LINES[n]]));
       }
       root.appendChild(unsent);
+      root.appendChild(el("p", "aftertaste", s.aftertaste));
       return root;
     }
 
