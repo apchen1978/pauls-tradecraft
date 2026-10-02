@@ -435,7 +435,7 @@
     grid-column: 1;
     font-size: 0.94rem;
     text-align: left;
-    opacity: 0.45;
+    color: var(--color-moss);
   }
 
   .decision-flow__stage-detail {
@@ -553,14 +553,15 @@
     to { transform: scaleY(1); }
   }
 
+  /* Reveal by position and colour, never by opacity: a faded stage sits below AA for seconds. */
   @keyframes decision-flow-mobile-stage {
-    from { opacity: 0.5; }
-    to { opacity: 1; }
+    from { transform: translateY(4px); }
+    to { transform: none; }
   }
 
   @keyframes decision-flow-label-on {
-    from { opacity: 0.45; }
-    to { opacity: 1; }
+    from { color: var(--color-moss); }
+    to { color: var(--color-forest); }
   }
 
   @keyframes decision-flow-decision-label {
@@ -589,6 +590,10 @@
   .decision-flow__stage-name,
   .decision-flow__close {
     opacity: 1;
+  }
+
+  .decision-flow__stage-name {
+    color: var(--color-forest);
   }
 
   .decision-flow__stage::before {
