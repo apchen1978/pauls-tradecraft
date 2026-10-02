@@ -443,6 +443,7 @@ const dict = {
       bridgeLine: "主力工作台幫你看清承諾前的條件；Digital Garage 則把商業判斷做成小實驗，讓你試試還能帶出什麼新做法。",
       seeAll: "看所有實驗",
       featuredMark: "精選",
+      latestMark: "最新",
       moreLabel: "看其餘實驗",
       items: [
         {
@@ -530,6 +531,17 @@ const dict = {
           cta: "用掉這一次",
           boundary: "一個瀏覽器 · 一次 · 合成實驗",
           href: "https://apchen1978.github.io/one-listen/",
+        },
+        {
+          title: "只寄一次 · One Send",
+          tag: "合成實驗 · 雙語原型",
+          spark: "如果報價信只能寄一次，你會留下哪三句？",
+          note: "八句話、一個只裝得下三句的信封；寄出之後就不能再改。",
+          cta: "寫一封只寄一次的信",
+          boundary: "合成情境 · 不預測買家反應 · 只記在這個瀏覽器",
+          href: "/prototype/one-send/?lang=zh",
+          wide: true,
+          latest: true,
         },
       ],
     },
@@ -976,6 +988,7 @@ const dict = {
       bridgeLine: "The main workbench lays out the terms before commitment. The Digital Garage turns commercial judgment into tangible experiments, showing what other possibilities may open.",
       seeAll: "See all sparks",
       featuredMark: "Featured",
+      latestMark: "Latest",
       moreLabel: "More experiments",
       items: [
         {
@@ -1063,6 +1076,17 @@ const dict = {
           cta: "Spend your listen",
           boundary: "One browser · one listen · synthetic experiment",
           href: "https://apchen1978.github.io/one-listen/",
+        },
+        {
+          title: "只寄一次 · One Send",
+          tag: "Synthetic experiment · bilingual prototype",
+          spark: "If your quote email could only be sent once, which three sentences would you keep?",
+          note: "Eight sentences, and an envelope that holds only three; once it is sent, it cannot be rewritten.",
+          cta: "Write the one letter",
+          boundary: "Synthetic scenario · does not predict buyer responses · kept only in this browser",
+          href: "/prototype/one-send/?lang=en",
+          wide: true,
+          latest: true,
         },
       ],
     },

@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>只寄一次 · One Send — Paul's Tradecraft</title>
+  <meta name="description" content="一封虛構的家用布料報價信。八句話，信封只裝得下三句。寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。" />
+  <link rel="canonical" href="https://paulstradecraft.com/prototype/one-send/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Paul's Tradecraft" />
+  <meta property="og:title" content="只寄一次 · One Send" />
+  <meta property="og:description" content="一封虛構的報價信。信封只裝得下三句，寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。" />
+  <meta property="og:url" content="https://paulstradecraft.com/prototype/one-send/" />
+  <meta property="og:image" content="https://paulstradecraft.com/images/cover-one-send.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="675" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="只寄一次 · One Send" />
+  <meta name="twitter:description" content="一封虛構的報價信。信封只裝得下三句，寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。" />
+  <meta name="twitter:image" content="https://paulstradecraft.com/images/cover-one-send.png" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <style>
+    :root {
+      --pine: #142C29;
+      --gold-dark: #B89966;
+      --gold-light: #8A6A2B;
+      --paper: #F6F3ED;
+      --tint: #F1EBE0;
+      --ink: #193A35;
+      --coral: #F08A6E;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--pine);
+      color: var(--paper);
+      font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, a { font: inherit; }
+    :focus-visible {
+      outline: 3px solid var(--tint);
+      outline-offset: 3px;
+      box-shadow: 0 0 0 4px var(--pine);
+    }
+    .skip {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      transform: translateY(-160%);
+      background: var(--paper);
+      color: var(--ink);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .skip:focus { transform: none; }
+    .page {
+      width: min(640px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+    .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .kicker {
+      margin: 0;
+      color: var(--gold-dark);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+    }
+    .lang { display: flex; flex-shrink: 0; gap: 6px; }
+    .lang button {
+      min-width: 44px;
+      min-height: 40px;
+      padding: 6px 10px;
+      background: transparent;
+      color: var(--paper);
+      border: 1.5px solid var(--gold-dark);
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .lang button[aria-pressed="true"] {
+      background: var(--paper);
+      color: var(--ink);
+      border-color: var(--paper);
+    }
+    h1 {
+      margin: 28px 0 0;
+      font-family: "Iowan Old Style", Palatino, "Palatino Linotype", "Songti TC", "PMingLiU", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(32px, 7vw, 48px);
+      line-height: 1.28;
+      letter-spacing: -0.03em;
+      color: var(--paper);
+    }
+    h1:focus {
+      outline: 3px solid var(--tint);
+      outline-offset: 6px;
+    }
+    h2 {
+      margin: 32px 0 0;
+      color: var(--gold-dark);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .lede { margin: 14px 0 0; color: var(--gold-dark); font-size: 17px; line-height: 1.65; }
+    .hook { margin: 16px 0 0; color: var(--paper); font-size: 18px; line-height: 1.7; }
+    .hi {
+      background: var(--coral);
+      color: var(--ink);
+      padding: 0.12em 0.35em;
+      border-radius: 0.2em;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+    .letter {
+      margin-top: 22px;
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 16px;
+      padding: 20px 16px 16px;
+    }
+    .letter header p { margin: 0; }
+    .letter .who { color: var(--gold-light); font-size: 14px; font-weight: 700; }
+    .letter .meta { margin-top: 4px; color: var(--ink); font-size: 15px; }
+    .letter ol, .choices, .sent, .unsent, .slots {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .letter li {
+      border: 1.5px solid var(--gold-light);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .role { display: block; color: var(--gold-light); font-size: 14px; font-weight: 700; }
+    .sentence { display: block; margin-top: 4px; color: var(--ink); font-size: 17px; line-height: 1.55; }
+    .choice {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: var(--paper);
+      color: var(--ink);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+    .choice:hover { border-color: var(--ink); }
+    .choice.is-on { border-color: var(--ink); }
+    .choice:disabled { opacity: 1; cursor: not-allowed; }
+    .choice .line { display: block; margin-top: 4px; font-size: 17px; line-height: 1.55; }
+    .choice .state { display: block; margin-top: 6px; color: var(--gold-light); font-size: 14px; font-weight: 700; }
+    .envelope {
+      position: relative;
+      margin-top: 8px;
+      background: var(--tint);
+      border-radius: 16px;
+      padding: 52px 14px 14px;
+      overflow: hidden;
+    }
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      display: block;
+    }
+    .slots { margin-top: 0; }
+    .slot {
+      min-height: 64px;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1.5px dashed var(--gold-light);
+      color: var(--ink);
+    }
+    .slot.is-filled {
+      background: var(--paper);
+      border-style: solid;
+      border-color: var(--ink);
+    }
+    .slot p { margin: 0; flex: 1 1 12rem; min-width: 0; color: var(--ink); font-size: 16px; line-height: 1.5; }
+    .takeout {
+      flex-shrink: 0;
+      background: transparent;
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 6px 12px;
+      min-height: 40px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .status { margin: 14px 0 0; color: var(--paper); font-size: 16px; line-height: 1.5; min-height: 1.5em; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+    .go, .send, .ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 17px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .go, .send.is-ready {
+      background: var(--paper);
+      border: 2px solid var(--paper);
+      color: var(--ink);
+    }
+    .go:hover, .send.is-ready:hover { background: var(--tint); border-color: var(--tint); }
+    .send {
+      background: transparent;
+      border: 2px solid var(--gold-dark);
+      color: var(--gold-dark);
+    }
+    .send:disabled { opacity: 1; cursor: not-allowed; }
+    .ghost {
+      background: transparent;
+      border: 2px solid var(--gold-dark);
+      color: var(--paper);
+    }
+    .ghost:hover { border-color: var(--paper); }
+    .note { margin: 18px 0 0; color: var(--gold-dark); font-size: 15px; line-height: 1.65; }
+    .sent { margin-top: 26px; }
+    .sent li {
+      background: var(--paper);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .unsent { margin-top: 10px; }
+    .unsent li { color: var(--gold-dark); font-size: 16px; line-height: 1.55; }
+    .foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--gold-dark); }
+    .boundary { margin: 0; color: var(--gold-dark); font-size: 14px; line-height: 1.6; }
+    .back { display: inline-block; margin-top: 14px; color: var(--paper); font-weight: 700; text-underline-offset: 0.2em; }
+    .back:hover { color: var(--gold-dark); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" id="skip" href="#screen-heading"></a>
+  <div class="page">
+    <header class="top">
+      <p class="kicker" id="kicker">ONE SEND</p>
+      <div class="lang" id="lang" role="group">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </header>
+    <main id="stage"></main>
+    <footer class="foot">
+      <p class="note" id="storage"></p>
+      <p class="boundary" id="boundary"></p>
+      <a class="back" id="back" href="/?lang=zh#garage"></a>
+    </footer>
+  </div>
+  <noscript>
+    <p class="page">這個實驗需要瀏覽器裡的腳本才能操作。它不連網，也不收集資料。 This experiment needs a script in the browser. It does not go online, and it collects nothing.</p>
+  </noscript>
+  <script>
+  (function () {
+    var LINES = ["delivery", "samples", "payment", "why", "history", "papers", "pleasantry", "question"];
+    var STORAGE_KEY = "pauls-tradecraft-one-send";
+    var COPY = {
+      zh: {
+        title: "只寄一次 · One Send",
+        description: "一封虛構的家用布料報價信。八句話，信封只裝得下三句。寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。",
+        skip: "跳至內容",
+        langLabel: "語言",
+        boundary: "合成情境 · 不預測買家反應 · 只記在這個瀏覽器",
+        back: "回到 Digital Garage",
+        storage: "選擇只留在這個瀏覽器。清除瀏覽器資料會回到最初。這不是真的寄出，也不是任何限制。",
+        storeFail: "這個瀏覽器沒能把選擇留下，所以這封信還沒寄出。",
+        lines: {
+          delivery: "貨可以在您心裡的那個檔期之前送到。",
+          samples: "樣品可以先到您手上，讓您確認手感與顏色。",
+          payment: "貨款可以照雙方談妥的方式支付。",
+          why: "從打樣到出貨，這類訂單我們自己走完。",
+          history: "工廠做這一行已經很久，主要工序都留在自己廠裡。",
+          papers: "您需要的檢驗文件，可以跟這封報價一起附上。",
+          pleasantry: "很希望這次能幫上您的案子。",
+          question: "這次您最在意的，是交期、手感，還是怎麼付款？"
+        },
+        roles: {
+          delivery: "交期",
+          samples: "樣品",
+          payment: "付款",
+          why: "為什麼找我們",
+          history: "工廠的來歷",
+          papers: "檢驗文件",
+          pleasantry: "一句客氣話",
+          question: "想問的一句"
+        },
+        s1: {
+          h: "一封報價信，八句話。",
+          lede: "家用布料。買家是虛構的。信還在你手上。",
+          before: "如果報價信",
+          hi: "只能寄一次",
+          after: "，你會留下哪三句？",
+          who: "報價信",
+          from: "寄件：你（虛構）",
+          to: "收件：買家（虛構）",
+          product: "產品：家用布料",
+          next: "把句子放進信封"
+        },
+        s2: {
+          h: "信封只裝得下三句。",
+          lede: "點一句，放進信封；再點一次，拿出來。",
+          empty: "空著",
+          placed: "已放入",
+          remove: "拿出",
+          send: "寄出",
+          backLetter: "回到這封信",
+          counts: ["信封是空的。", "信封裡有一句。", "信封裡有兩句。", "信封滿了，可以寄出。"],
+          blocked: "信封已經滿了。先拿出一句，才能換。"
+        },
+        s3: {
+          h: "寄出去的這封信，現在就代表你。",
+          sentLabel: "寄出的句子",
+          unsentLabel: "沒有寄出的句子"
+        }
+      },
+      en: {
+        title: "One Send · 只寄一次",
+        description: "A fictional quote for home fabric. Eight sentences, and an envelope that holds three. Once it is sent, it cannot be rewritten. Synthetic scenario; it does not predict buyer responses, and it stays in this browser.",
+        skip: "Skip to content",
+        langLabel: "Language",
+        boundary: "Synthetic scenario · does not predict buyer responses · kept only in this browser",
+        back: "Back to Digital Garage",
+        storage: "The choice stays in this browser only. Clearing browser data brings the letter back. Nothing was actually sent, and nothing is enforced.",
+        storeFail: "This browser could not keep the choice, so the letter has not been sent.",
+        lines: {
+          delivery: "The goods can arrive before the window you have in mind.",
+          samples: "Samples can reach you first, so you can check the hand and the colour.",
+          payment: "Payment can follow the arrangement we agree.",
+          why: "From sampling through to shipment, we carry this kind of order ourselves.",
+          history: "The factory has been at this work for a long time, and the main steps stay in-house.",
+          papers: "The inspection papers you need can travel with the quote.",
+          pleasantry: "I would be glad to help with this project.",
+          question: "What matters most to you here: timing, hand-feel, or how you pay?"
+        },
+        roles: {
+          delivery: "Delivery",
+          samples: "Samples",
+          payment: "Payment",
+          why: "Why us",
+          history: "The factory's history",
+          papers: "Certifications",
+          pleasantry: "A pleasantry",
+          question: "A question"
+        },
+        s1: {
+          h: "A quote email, in eight sentences.",
+          lede: "Home fabric. The buyer is fictional. The letter is still in your hands.",
+          before: "If your quote email could ",
+          hi: "only",
+          mid: " be sent ",
+          hi2: "once",
+          after: ", which three sentences would you keep?",
+          who: "Quote",
+          from: "From: you (fictional)",
+          to: "To: a buyer (fictional)",
+          product: "Product: home fabric",
+          next: "Put sentences in the envelope"
+        },
+        s2: {
+          h: "The envelope holds three sentences.",
+          lede: "Choose a sentence to place it. Choose it again to take it out.",
+          empty: "Empty",
+          placed: "In the envelope",
+          remove: "Take out",
+          send: "Send",
+          backLetter: "Back to the letter",
+          counts: [
+            "The envelope is empty.",
+            "One sentence is in the envelope.",
+            "Two sentences are in the envelope.",
+            "The envelope is full. You can send it."
+          ],
+          blocked: "The envelope is full. Take one out before you swap."
+        },
+        s3: {
+          h: "The letter you sent now speaks for you.",
+          sentLabel: "Sent",
+          unsentLabel: "Left out"
+        }
+      }
+    };
+
+    function readSent() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        var data = JSON.parse(raw);
+        if (!Array.isArray(data) || data.length !== 3) return null;
+        var seen = {};
+        for (var i = 0; i < 3; i++) {
+          if (LINES.indexOf(data[i]) < 0 || seen[data[i]]) return null;
+          seen[data[i]] = true;
+        }
+        return data;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    var params = new URLSearchParams(location.search);
+    var lang = params.get("lang") === "en" ? "en" : "zh";
+    var sent = readSent();
+    var screen = sent ? 3 : 1;
+    var picked = [];
+    var stage = document.getElementById("stage");
+
+    function el(tag, cls, text) {
+      var node = document.createElement(tag);
+      if (cls) node.className = cls;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+
+    function applyChrome() {
+      var c = COPY[lang];
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.title = c.title + " — Paul's Tradecraft";
+      var desc = document.querySelector('meta[name="description"]');
+      if (desc) desc.setAttribute("content", c.description);
+      document.getElementById("skip").textContent = c.skip;
+      document.getElementById("lang").setAttribute("aria-label", c.langLabel);
+      document.getElementById("storage").textContent = c.storage;
+      document.getElementById("boundary").textContent = c.boundary;
+      var back = document.getElementById("back");
+      back.textContent = c.back;
+      back.href = "/?lang=" + lang + "#garage";
+      var buttons = document.querySelectorAll(".lang button");
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].setAttribute("aria-pressed", String(buttons[i].dataset.lang === lang));
+      }
+    }
+
+    function heading(text) {
+      var h = el("h1", null, text);
+      h.id = "screen-heading";
+      h.tabIndex = -1;
+      return h;
+    }
+
+    function screen1() {
+      var c = COPY[lang];
+      var s = c.s1;
+      var root = el("section");
+      root.appendChild(heading(s.h));
+      root.appendChild(el("p", "lede", s.lede));
+      var hook = el("p", "hook");
+      hook.appendChild(document.createTextNode(s.before));
+      hook.appendChild(el("span", "hi", s.hi));
+      if (s.mid) {
+        hook.appendChild(document.createTextNode(s.mid));
+        hook.appendChild(el("span", "hi", s.hi2));
+      }
+      hook.appendChild(document.createTextNode(s.after));
+      root.appendChild(hook);
+      var letter = el("article", "letter");
+      letter.setAttribute("aria-labelledby", "letter-label");
+      var head = el("header");
+      var who = el("p", "who", s.who);
+      who.id = "letter-label";
+      head.appendChild(who);
+      head.appendChild(el("p", "meta", s.from));
+      head.appendChild(el("p", "meta", s.to));
+      head.appendChild(el("p", "meta", s.product));
+      letter.appendChild(head);
+      var list = el("ol");
+      for (var i = 0; i < LINES.length; i++) {
+        var id = LINES[i];
+        var item = el("li");
+        item.appendChild(el("span", "role", c.roles[id]));
+        item.appendChild(el("span", "sentence", c.lines[id]));
+        list.appendChild(item);
+      }
+      letter.appendChild(list);
+      root.appendChild(letter);
+      var row = el("div", "row");
+      var next = el("button", "go", s.next);
+      next.type = "button";
+      next.addEventListener("click", function () { go(2); });
+      row.appendChild(next);
+      root.appendChild(row);
+      return root;
+    }
+
+    function syncEnvelope() {
+      var c = COPY[lang];
+      var s = c.s2;
+      var full = picked.length === 3;
+      var choices = stage.querySelectorAll(".choice");
+      for (var i = 0; i < choices.length; i++) {
+        var button = choices[i];
+        var on = picked.indexOf(button.dataset.id) >= 0;
+        button.setAttribute("aria-pressed", on ? "true" : "false");
+        button.classList.toggle("is-on", on);
+        button.disabled = full && !on;
+        var state = button.querySelector(".state");
+        if (state) state.hidden = !on;
+      }
+      var slots = stage.querySelectorAll(".slot");
+      for (var n = 0; n < slots.length; n++) {
+        var slot = slots[n];
+        var id = picked[n];
+        slot.textContent = "";
+        if (!id) {
+          slot.classList.remove("is-filled");
+          slot.appendChild(el("p", null, s.empty));
+          continue;
+        }
+        slot.classList.add("is-filled");
+        slot.appendChild(el("p", null, c.lines[id]));
+        var remove = el("button", "takeout", s.remove);
+        remove.type = "button";
+        remove.setAttribute("aria-label", s.remove + ": " + c.lines[id]);
+        remove.dataset.id = id;
+        remove.addEventListener("click", function (event) {
+          var sentenceId = event.currentTarget.dataset.id;
+          var at = picked.indexOf(sentenceId);
+          if (at >= 0) picked.splice(at, 1);
+          syncEnvelope();
+          var again = stage.querySelector('.choice[data-id="' + sentenceId + '"]');
+          if (again) again.focus();
+        });
+        slot.appendChild(remove);
+      }
+      var send = stage.querySelector(".send");
+      if (send) {
+        send.disabled = !full;
+        send.classList.toggle("is-ready", full);
+        send.setAttribute("aria-disabled", full ? "false" : "true");
+      }
+      var status = stage.querySelector(".status");
+      if (status) status.textContent = s.counts[picked.length];
+    }
+
+    function screen2() {
+      var c = COPY[lang];
+      var s = c.s2;
+      var root = el("section");
+      root.appendChild(heading(s.h));
+      root.appendChild(el("p", "lede", s.lede));
+      var envelope = el("div", "envelope");
+      var flap = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      flap.setAttribute("class", "flap");
+      flap.setAttribute("viewBox", "0 0 100 28");
+      flap.setAttribute("preserveAspectRatio", "none");
+      flap.setAttribute("aria-hidden", "true");
+      var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", "M0 0 L50 28 L100 0");
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "#8A6A2B");
+      path.setAttribute("stroke-width", "1.25");
+      path.setAttribute("vector-effect", "non-scaling-stroke");
+      flap.appendChild(path);
+      envelope.appendChild(flap);
+      var slots = el("ol", "slots");
+      slots.setAttribute("aria-label", s.h);
+      for (var n = 0; n < 3; n++) slots.appendChild(el("li", "slot"));
+      envelope.appendChild(slots);
+      root.appendChild(envelope);
+      var status = el("p", "status");
+      status.id = "envelope-status";
+      status.setAttribute("aria-live", "polite");
+      root.appendChild(status);
+      var list = el("div", "choices");
+      for (var i = 0; i < LINES.length; i++) {
+        var id = LINES[i];
+        var button = el("button", "choice");
+        button.type = "button";
+        button.dataset.id = id;
+        button.setAttribute("aria-pressed", "false");
+        button.appendChild(el("span", "role", c.roles[id]));
+        button.appendChild(el("span", "line", c.lines[id]));
+        var state = el("span", "state", s.placed);
+        state.hidden = true;
+        button.appendChild(state);
+        button.addEventListener("click", function (event) {
+          var sentenceId = event.currentTarget.dataset.id;
+          var at = picked.indexOf(sentenceId);
+          if (at >= 0) {
+            picked.splice(at, 1);
+            syncEnvelope();
+            return;
+          }
+          if (picked.length >= 3) {
+            var live = stage.querySelector(".status");
+            if (live) live.textContent = COPY[lang].s2.blocked;
+            return;
+          }
+          picked.push(sentenceId);
+          syncEnvelope();
+        });
+        list.appendChild(button);
+      }
+      root.appendChild(list);
+      var row = el("div", "row");
+      var send = el("button", "send", s.send);
+      send.type = "button";
+      send.setAttribute("aria-describedby", "envelope-status");
+      send.addEventListener("click", commit);
+      row.appendChild(send);
+      var backLetter = el("button", "ghost", s.backLetter);
+      backLetter.type = "button";
+      backLetter.addEventListener("click", function () { go(1); });
+      row.appendChild(backLetter);
+      root.appendChild(row);
+      return root;
+    }
+
+    function screen3() {
+      var c = COPY[lang];
+      var s = c.s3;
+      var root = el("section");
+      root.appendChild(heading(s.h));
+      var sentList = el("ol", "sent");
+      sentList.setAttribute("aria-label", s.sentLabel);
+      for (var i = 0; i < sent.length; i++) {
+        var id = sent[i];
+        var item = el("li");
+        item.appendChild(el("span", "role", c.roles[id]));
+        item.appendChild(el("span", "sentence", c.lines[id]));
+        sentList.appendChild(item);
+      }
+      root.appendChild(sentList);
+      root.appendChild(el("h2", null, s.unsentLabel));
+      var unsent = el("ul", "unsent");
+      unsent.setAttribute("aria-label", s.unsentLabel);
+      for (var n = 0; n < LINES.length; n++) {
+        if (sent.indexOf(LINES[n]) >= 0) continue;
+        unsent.appendChild(el("li", null, c.lines[LINES[n]]));
+      }
+      root.appendChild(unsent);
+      return root;
+    }
+
+    function commit() {
+      if (picked.length !== 3) return;
+      var payload = picked.slice();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (err) {
+        var live = stage.querySelector(".status");
+        if (live) live.textContent = COPY[lang].storeFail;
+        return;
+      }
+      sent = payload;
+      screen = 3;
+      render(true);
+    }
+
+    function render(focusHeading) {
+      if (sent) screen = 3;
+      applyChrome();
+      stage.textContent = "";
+      var view = screen === 1 ? screen1() : screen === 2 ? screen2() : screen3();
+      stage.appendChild(view);
+      if (screen === 2) syncEnvelope();
+      if (focusHeading) {
+        var h = document.getElementById("screen-heading");
+        if (h) h.focus();
+      }
+    }
+
+    function go(next) {
+      if (sent) return;
+      screen = next;
+      render(true);
+    }
+
+    var langButtons = document.querySelectorAll(".lang button");
+    for (var i = 0; i < langButtons.length; i++) {
+      langButtons[i].addEventListener("click", function (event) {
+        lang = event.currentTarget.dataset.lang === "en" ? "en" : "zh";
+        try {
+          var url = new URL(location.href);
+          url.searchParams.set("lang", lang);
+          history.replaceState(null, "", url);
+        } catch (err) {}
+        render(false);
+      });
+    }
+
+    render(false);
+  })();
+  </script>
+</body>
+</html>
