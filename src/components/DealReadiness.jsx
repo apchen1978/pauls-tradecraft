@@ -90,6 +90,7 @@ export default function DealReadiness() {
                 alt={service.snapshotAlt}
                 className="aspect-[4/3] w-full object-contain object-top"
                 loading="lazy"
+                decoding="async"
               />
               <figcaption className="border-t border-line px-3 py-2.5 text-xs leading-relaxed text-ink">
                 {service.snapshotCaption}
