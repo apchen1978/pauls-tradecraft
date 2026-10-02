@@ -182,7 +182,13 @@
    long sections it yanked a fast scroll to the next section start. */
 @media (min-width: 1024px) {
   html {
-    scroll-padding-top: 88px;
+    scroll-padding-top: 88px; /* nav 76 + 12 gap, the same landing as calmScroll's settle points */
+  }
+  /* Sections and cards carry scroll-mt-* for widths that have no scroll-padding.
+     Here the padding already clears the nav, and stacking both landed anchors at
+     184px (96 + 88) instead of 88px. Unlayered, so it beats the utilities. */
+  [class*="scroll-mt-"] {
+    scroll-margin-top: 0;
   }
 }
 
