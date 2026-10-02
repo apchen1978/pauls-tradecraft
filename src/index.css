@@ -204,6 +204,11 @@ html.lenis.lenis-smooth {
 :is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted) .text-amber {
   color: var(--color-ink);
 }
+/* Hover that turns text amber is the same 3.96:1 on those surfaces; keep it ink. */
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted) .hover\:text-amber:hover,
+:is([class*="bg-paper"], [class*="bg-amber/"], [class*="bg-forest/"], [class*="bg-ink/"], .surface-muted).hover\:text-amber:hover {
+  color: var(--color-ink);
+}
 /* Muted / accent text on the dark surfaces (pine, forest) uses the dark roles. */
 :is(.bg-pine, .bg-forest) :is(.text-moss, .eyebrow) {
   color: var(--color-ondark-meta);
