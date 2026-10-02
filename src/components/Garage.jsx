@@ -4,7 +4,8 @@ import { useLang } from "../i18n.jsx";
 // Digital Garage, on the page: a sticker wall. Every experiment is a hard-edged card,
 // tilted a few degrees, with a highlighter-marked spark. Desktop shows all of them in a
 // three-column grid; on a phone the first three show and the rest sit under one toggle.
-// Palette stays inside the site tokens (bone / white / soft, ink borders, the two golds).
+// Palette stays inside the site tokens (bone / white / soft, ink borders). The highlighter
+// band and the headline mark use the coral "pop" accent; the "featured" badge stays gold.
 const TILT = ["-rotate-[1.2deg]", "rotate-[0.8deg]", "-rotate-[0.5deg]"];
 const FILL = ["bg-white", "bg-paper", "bg-white"];
 const SHADOW = "shadow-[5px_5px_0_var(--color-ink)] hover:shadow-[8px_10px_0_var(--color-ink)]";
@@ -22,7 +23,7 @@ function Card({ item, g, index }) {
       </div>
       <h3 className="mt-5 text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
       <p className="mt-4 text-base font-semibold leading-[1.55] text-ink">
-        <span className="box-decoration-clone bg-[linear-gradient(transparent_58%,var(--color-gold)_58%,var(--color-gold)_92%,transparent_92%)]">{item.spark}</span>
+        <span className="box-decoration-clone bg-[linear-gradient(transparent_58%,var(--color-pop)_58%,var(--color-pop)_92%,transparent_92%)]">{item.spark}</span>
       </p>
       <p className="mt-4 hidden text-base leading-relaxed text-moss md:block">{item.note}</p>
       <div className="mt-auto pt-6">
@@ -47,7 +48,7 @@ function Headline({ text, mark }) {
   return (
     <>
       {text.slice(0, at)}
-      <mark className="whitespace-nowrap rounded-[0.18em] bg-gold px-[0.12em] text-pine">{mark}</mark>
+      <mark className="whitespace-nowrap rounded-[0.18em] bg-pop px-[0.12em] text-pine">{mark}</mark>
       {text.slice(at + mark.length)}
     </>
   );
