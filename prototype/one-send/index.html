@@ -265,7 +265,10 @@
       background: var(--paper);
       border-radius: 12px;
       padding: 14px 16px;
+      -webkit-user-select: text;
+      user-select: text;
     }
+    .sent .sentence { -webkit-user-select: text; user-select: text; }
     .unsent { margin-top: 10px; }
     .unsent li { color: var(--gold-dark); font-size: 16px; line-height: 1.55; }
     .foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--gold-dark); }
@@ -377,7 +380,8 @@
           sentLabel: "寄出的句子",
           unsentLabel: "沒有寄出的句子",
           copy: "複製我的三句",
-          copied: "已複製"
+          copied: "已複製",
+          copyFail: "複製沒成功，請長按選取。"
         }
       },
       en: {
@@ -445,7 +449,8 @@
           sentLabel: "Sent",
           unsentLabel: "Left out",
           copy: "Copy my three sentences",
-          copied: "Copied"
+          copied: "Copied",
+          copyFail: "Copy didn't work. Press and hold to select the text."
         }
       }
     };
@@ -600,6 +605,7 @@
       }
       var status = stage.querySelector(".status");
       if (status && !status.classList.contains("copy-status")) status.textContent = s.counts[picked.length];
+      pinPicking();
     }
 
     function pinPicking() {
@@ -763,17 +769,17 @@
         try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
         document.body.removeChild(area);
         if (ok) resolve();
-        else reject(err);
+        else reject(new Error("copy failed"));
       });
     }
 
-    function announceCopied() {
+    function announceLive(message) {
       var live = stage.querySelector("#copy-status");
       if (!live) return;
       live.textContent = "";
       window.setTimeout(function () {
         var again = stage.querySelector("#copy-status");
-        if (again) again.textContent = COPY[lang].s3.copied;
+        if (again) again.textContent = message;
       }, 30);
     }
 
@@ -781,10 +787,20 @@
       if (!sent || sent.length !== 3) return;
       var c = COPY[lang];
       var text = sent.map(function (id) { return c.lines[id]; }).join("\n");
-      var write = navigator.clipboard && navigator.clipboard.writeText
-        ? navigator.clipboard.writeText(text).catch(function () { return fallbackCopy(text); })
-        : fallbackCopy(text);
-      write.then(announceCopied).catch(function () {});
+      var write;
+      try {
+        write = navigator.clipboard && navigator.clipboard.writeText
+          ? navigator.clipboard.writeText(text)
+          : Promise.reject(new Error("copy failed"));
+      } catch (err) {
+        write = Promise.reject(err);
+      }
+      if (!write || typeof write.then !== "function") write = Promise.reject(new Error("copy failed"));
+      write.catch(function () { return fallbackCopy(text); }).then(function () {
+        announceLive(c.s3.copied);
+      }).catch(function () {
+        announceLive(c.s3.copyFail);
+      });
     }
 
     function commit() {
