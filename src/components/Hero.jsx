@@ -34,7 +34,7 @@ export default function Hero() {
         />
         {/* Phone: the portrait is a clear band at the top that fades into the pine surface the text sits on. */}
         <div className="absolute inset-x-0 top-0 h-[14rem] bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_30%,rgba(20,44,41,1)_82%)] md:hidden" />
-        <div className="absolute inset-0 hidden bg-pine/80 md:block lg:hidden" />
+        <div className="absolute inset-0 hidden bg-pine/85 md:block lg:hidden" />
         <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(20,44,41,1)_0%,rgba(20,44,41,0.92)_40%,rgba(20,44,41,0.45)_75%,rgba(20,44,41,0.7)_100%)] md:block" />
         <div className="absolute inset-0 hidden bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_50%,rgba(20,44,41,0.9)_100%)] md:block" />
       </div>

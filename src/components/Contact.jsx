@@ -57,7 +57,7 @@ export default function Contact() {
             >
               <span
                 aria-hidden="true"
-                className="flex h-5 items-center justify-center rounded-[5px] px-1.5 text-[0.6875rem] font-extrabold tracking-tight text-white"
+                className="flex h-5 items-center justify-center rounded-[5px] px-1.5 text-[0.6875rem] font-semibold tracking-tight text-white"
                 style={{ backgroundColor: "#06c755" }}
               >
                 LINE
