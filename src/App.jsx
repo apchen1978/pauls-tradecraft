@@ -1,41 +1,18 @@
-import { Component, lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { Component, useCallback, useEffect, useState } from "react";
 import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import { scrollToElement, useCalmScroll } from "./calmScroll.js";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
 import Footer from "./components/Footer.jsx";
+import BelowFold from "./BelowFold.jsx";
 
-// A deploy replaces the hashed chunk files, so a page opened before the deploy
-// can ask for a BelowFold chunk that no longer exists. Reload once to pick up
-// the new build; if it still fails, the error boundary below shows a message
-// instead of a blank page.
-const RELOAD_FLAG = "below-fold-reloaded";
-const BelowFold = lazy(() =>
-  import("./BelowFold.jsx").then(
-    (module) => {
-      try {
-        sessionStorage.removeItem(RELOAD_FLAG);
-      } catch {
-        // storage can be unavailable (private mode); the retry guard just resets next time
-      }
-      return module;
-    },
-    (error) => {
-      try {
-        if (!sessionStorage.getItem(RELOAD_FLAG)) {
-          sessionStorage.setItem(RELOAD_FLAG, "1");
-          window.location.reload();
-          return new Promise(() => {});
-        }
-      } catch {
-        // without storage we cannot guard against a reload loop, so fall through to the message
-      }
-      throw error;
-    },
-  ),
-);
-
+// The sections below the hero used to load as a second, lazy chunk. That meant a
+// visitor first waited for the main script, then for a second request, and saw an
+// empty block meanwhile; if that second request stalled or the cached page pointed
+// at a chunk a deploy had replaced, everything under the hero stayed blank with no
+// error. They now ship with the main bundle, so there is no second request to lose.
+// The boundary below only catches a render error inside those sections.
 class BelowFoldBoundary extends Component {
   state = { failed: false };
 
@@ -121,9 +98,7 @@ export default function App() {
           <main id="main">
             <Hero />
             <BelowFoldBoundary>
-              <Suspense fallback={<div className="min-h-[100dvh]" aria-hidden="true" />}>
-                <BelowFold onReady={onBelowReady} />
-              </Suspense>
+              <BelowFold onReady={onBelowReady} />
             </BelowFoldBoundary>
           </main>
           <Footer />
