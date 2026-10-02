@@ -168,7 +168,9 @@
     .choice[aria-disabled="true"] .line { color: #576E69; }
     .choice[aria-disabled="true"]:hover { border-color: var(--ink); }
     .choice .line { display: block; margin-top: 4px; font-size: 17px; line-height: 1.55; }
-    .choice .state { display: block; margin-top: 6px; color: var(--gold-light); font-size: 14px; font-weight: 700; }
+    .choice .state { margin-top: 6px; color: var(--gold-light); font-size: 14px; font-weight: 700; }
+    .choice .state:not([hidden]) { display: block; }
+    .choice .state[hidden] { display: none; }
     .envelope {
       position: relative;
       margin-top: 8px;
