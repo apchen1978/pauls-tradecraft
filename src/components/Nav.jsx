@@ -51,7 +51,7 @@ export default function Nav() {
           </button>
           <a
             href="#contact"
-            className="hidden rounded-field bg-gold px-4 py-2 text-sm font-semibold text-pine transition-[filter] hover:brightness-110 sm:inline-block"
+            className="hidden rounded-field bg-gold px-4 py-2 text-sm font-semibold text-pine transition-[filter] hover:brightness-110 focus-visible:outline-offset-4 sm:inline-block"
             onClick={() => setOpen(false)}
           >
             {t.nav.contact}
@@ -83,7 +83,7 @@ export default function Nav() {
             <a
               href="#contact"
               onClick={() => setOpen(false)}
-              className="mt-1 rounded-field bg-gold px-3 py-2.5 text-center text-sm font-semibold text-pine"
+              className="mt-1 rounded-field bg-gold px-3 py-2.5 text-center text-sm font-semibold text-pine focus-visible:outline-offset-4"
             >
               {t.nav.contact}
             </a>
