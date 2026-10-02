@@ -675,7 +675,7 @@ function FeaturedSystem({ work }) {
               <span className="size-2 rounded-full bg-ink/15" />
               <span className="size-2 rounded-full bg-ink/15" />
             </div>
-            <img src={cover} alt={work.imageAlt[lang]} loading="eager" className={`aspect-[16/9] h-full w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
+            <img src={cover} alt={work.imageAlt[lang]} loading="lazy" decoding="async" className={`aspect-[16/9] h-full w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
           </div>
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
@@ -788,7 +788,8 @@ export default function Works() {
               <img
                 src={cover}
                 alt={w.imageAlt[lang]}
-                loading={sectionIndex === 0 && i < 3 ? "eager" : "lazy"}
+                loading="lazy"
+                decoding="async"
                 className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(25,58,53,0.55)]" : ""}`}
               />
               {balance && (
