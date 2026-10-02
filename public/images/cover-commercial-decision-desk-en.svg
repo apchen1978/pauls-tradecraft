@@ -5,12 +5,12 @@
   <g transform="translate(0 150)">
   <rect x="74" y="58" width="1452" height="784" rx="8" fill="#fbf8f1" stroke="#d8d0c1" stroke-width="2"/>
   <path d="M74 164H1526" stroke="#d8d0c1" stroke-width="2"/>
-  <circle cx="112" cy="111" r="8" fill="#c8942f"/>
+  <circle cx="112" cy="111" r="8" fill="#8A6A2B"/>
   <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">SYNTHETIC CASE · COMMERCIAL DECISION DESK</text>
   <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">Owner-facing summary</text>
   <text x="116" y="235" fill="#9a4a35" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">30-second executive reading</text>
   <text x="116" y="300" fill="#1d2b24" font-family="Georgia, serif" font-size="45" font-weight="700">What should we do with this deal now?</text>
-  <rect x="1140" y="218" width="324" height="74" rx="37" fill="#f3e3bf"/>
+  <rect x="1140" y="218" width="324" height="74" rx="37" fill="#F1EBE0"/>
   <text x="1207" y="265" fill="#9a4a35" font-family="Arial, sans-serif" font-size="26" font-weight="700">Escalate first</text>
   <path d="M116 348H1484" stroke="#ddd5c8" stroke-width="2"/>
   <text x="116" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">How big is this deal</text>

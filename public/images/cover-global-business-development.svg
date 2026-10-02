@@ -9,12 +9,12 @@
   <text x="83" y="566" fill="#5b665d" font-family="Arial, sans-serif" font-size="25">Surface relevance is not yet worth commercial effort.</text>
   <g transform="translate(962 206)">
     <rect width="460" height="450" fill="#12362b"/>
-    <text x="35" y="54" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2">Owner objective</text>
+    <text x="35" y="54" fill="#B89966" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2">Owner objective</text>
     <rect x="35" y="83" width="390" height="77" fill="#f5f1e8"/>
     <text x="55" y="116" fill="#214c3d" font-family="Arial, sans-serif" font-size="14" font-weight="700">A / Fill capacity</text>
     <text x="55" y="143" fill="#182019" font-family="Georgia, serif" font-size="20">Regional channel</text>
-    <rect x="35" y="180" width="390" height="77" fill="#214c3d" stroke="#e5c988"/>
-    <text x="55" y="213" fill="#e5c988" font-family="Arial, sans-serif" font-size="14" font-weight="700">B / Premium entry</text>
+    <rect x="35" y="180" width="390" height="77" fill="#214c3d" stroke="#B89966"/>
+    <text x="55" y="213" fill="#F6F3ED" font-family="Arial, sans-serif" font-size="14" font-weight="700">B / Premium entry</text>
     <text x="55" y="240" fill="#fff" font-family="Georgia, serif" font-size="20">Design brand</text>
     <line x1="35" x2="425" y1="295" y2="295" stroke="#7c987f"/>
     <text x="35" y="330" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="13">Prestige account</text>
