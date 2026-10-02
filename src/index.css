@@ -34,6 +34,14 @@
   --color-moss: #62716A; /* muted text on bone (4.64:1); do not use on paper/soft */
   --color-amber: #8A6A2B; /* goldOnPaper: accent text on bone/white (4.54:1 / 5.03:1) */
   --color-gold: #B89966; /* goldOnDark: dark surfaces only (5.48:1 on pine; 4.59:1 on forest/ink, fine for large text, use ondark for small) */
+  /* "pop": the one playful accent, coral (Owner decision 2026-10-03). Fills and highlighter
+     bands ONLY, with ink/pine text or borders on top (ink on pop 5.04:1, pine on pop 6.02:1).
+     Never as text colour on bone/paper (1.9-2.2:1), never to carry evidence or status, and it
+     is not a gold, so the two-gold rule is untouched. Scope for now: Digital Garage only.
+     Reserved alternates (previewed 2026-10-03, kept for later use, NOT defined as tokens):
+     lilac #B9A8F4 (ink on it 5.87:1), mint #9EE0C1 (8.18), sky #8ECFF0 (7.26), lime #D6E96E (9.27);
+     same rules apply. */
+  --color-pop: #F08A6E;
   --color-ondark: #BDCDC3; /* body text on pine (8.92:1) */
   --color-ondark-meta: #A9BEB4; /* meta text on pine (7.53:1) */
   --color-research: #4a6fa5;
