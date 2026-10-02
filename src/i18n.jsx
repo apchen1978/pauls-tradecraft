@@ -535,7 +535,7 @@ const dict = {
         {
           title: "只寄一次 · One Send",
           tag: "合成實驗 · 雙語原型",
-          spark: "如果報價信只能寄一次，你會先刪掉哪一句？",
+          spark: "如果報價信只能寄一次，你會留下哪三句？",
           note: "八句話、一個只裝得下三句的信封；寄出之後就不能再改。",
           cta: "寫一封只寄一次的信",
           boundary: "合成情境 · 不預測買家反應 · 只記在這個瀏覽器",
@@ -1080,7 +1080,7 @@ const dict = {
         {
           title: "只寄一次 · One Send",
           tag: "Synthetic experiment · bilingual prototype",
-          spark: "If your quote email could only be sent once, which sentence would you cut first?",
+          spark: "If your quote email could only be sent once, which three sentences would you keep?",
           note: "Eight sentences, and an envelope that holds only three; once it is sent, it cannot be rewritten.",
           cta: "Write the one letter",
           boundary: "Synthetic scenario · does not predict buyer responses · kept only in this browser",

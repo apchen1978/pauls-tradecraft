@@ -12,10 +12,14 @@
   <meta property="og:title" content="只寄一次 · One Send" />
   <meta property="og:description" content="一封虛構的報價信。信封只裝得下三句，寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。" />
   <meta property="og:url" content="https://paulstradecraft.com/prototype/one-send/" />
-  <meta property="og:image" content="https://paulstradecraft.com/images/cover-one-send.svg" />
-  <meta property="og:image:type" content="image/svg+xml" />
+  <meta property="og:image" content="https://paulstradecraft.com/images/cover-one-send.png" />
+  <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="675" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="只寄一次 · One Send" />
+  <meta name="twitter:description" content="一封虛構的報價信。信封只裝得下三句，寄出之後就不能再改。合成情境，不預測買家反應，只記在這個瀏覽器。" />
+  <meta name="twitter:image" content="https://paulstradecraft.com/images/cover-one-send.png" />
   <meta property="og:locale" content="zh_TW" />
   <meta property="og:locale:alternate" content="en_US" />
   <style>
@@ -314,9 +318,9 @@
         s1: {
           h: "一封報價信，八句話。",
           lede: "家用布料。買家是虛構的。信還在你手上。",
-          before: "如果這封報價信",
+          before: "如果報價信",
           hi: "只能寄一次",
-          after: "，你會先留下哪一句？",
+          after: "，你會留下哪三句？",
           who: "報價信",
           from: "寄件：你（虛構）",
           to: "收件：買家（虛構）",
@@ -372,9 +376,11 @@
         s1: {
           h: "A quote email, in eight sentences.",
           lede: "Home fabric. The buyer is fictional. The letter is still in your hands.",
-          before: "If this quote could be sent ",
-          hi: "only once",
-          after: ", which sentence would you keep?",
+          before: "If your quote email could ",
+          hi: "only",
+          mid: " be sent ",
+          hi2: "once",
+          after: ", which three sentences would you keep?",
           who: "Quote",
           from: "From: you (fictional)",
           to: "To: a buyer (fictional)",
@@ -471,6 +477,10 @@
       var hook = el("p", "hook");
       hook.appendChild(document.createTextNode(s.before));
       hook.appendChild(el("span", "hi", s.hi));
+      if (s.mid) {
+        hook.appendChild(document.createTextNode(s.mid));
+        hook.appendChild(el("span", "hi", s.hi2));
+      }
       hook.appendChild(document.createTextNode(s.after));
       root.appendChild(hook);
       var letter = el("article", "letter");
