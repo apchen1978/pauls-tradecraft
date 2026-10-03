@@ -21,6 +21,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://paulstradecraft.com/cases/one-send/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://paulstradecraft.com/prototype/garage-rfq-workflow-001/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
