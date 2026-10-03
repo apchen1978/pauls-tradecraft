@@ -68,15 +68,25 @@ function WideCard({ item, g }) {
           </p>
           <p className="mt-4 text-base leading-relaxed text-moss">{item.note}</p>
         </div>
-        <a
-          href={item.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-ink px-5 py-3 text-sm font-bold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink md:self-end"
-        >
-          <span>{item.cta}</span>
-          <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-        </a>
+        <div className="flex shrink-0 flex-col items-start gap-3 self-start md:items-end md:self-end">
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-bold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+          >
+            <span>{item.cta}</span>
+            <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </a>
+          {item.caseHref ? (
+            <a
+              href={item.caseHref}
+              className="text-sm font-semibold text-moss underline decoration-ink/30 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+            >
+              {item.caseLabel}
+            </a>
+          ) : null}
+        </div>
       </div>
       <p className="mt-6 border-t-2 border-dashed border-ink/25 pt-3 text-xs leading-relaxed text-moss">{item.boundary}</p>
     </article>

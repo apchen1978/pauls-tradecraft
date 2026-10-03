@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>只寄一次：這件事，誰做了什麼｜One Send · Paul's Tradecraft</title>
+  <meta name="description" content="一封虛構的家用織品報價信，信封只裝得下三句。四個取捨：AI 提了什麼、Paul 決定了什麼、為什麼。合成情境，不預測買家反應。" />
+  <link rel="canonical" href="https://paulstradecraft.com/cases/one-send/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="只寄一次：這件事，誰做了什麼｜One Send" />
+  <meta property="og:description" content="做出來很快；要不要做、做成什麼樣、哪些話不能講，是人在決定。四個取捨的紀錄。" />
+  <meta property="og:url" content="https://paulstradecraft.com/cases/one-send/" />
+  <meta property="og:image" content="https://paulstradecraft.com/og-image.png" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "One Send: who did what",
+    "name": "One Send: who did what",
+    "url": "https://paulstradecraft.com/cases/one-send/",
+    "inLanguage": ["zh-Hant", "en"],
+    "author": { "@type": "Person", "name": "Paul Chen", "url": "https://paulstradecraft.com/" },
+    "about": ["Human-AI collaboration", "Decision records", "Synthetic experiment"],
+    "creativeWorkStatus": "synthetic experiment; no buyer behaviour measured",
+    "description": "Four trade-offs behind a fictional quotation letter that can be sent only once: what the AI proposed, what Paul decided, and why. Synthetic scenario; it does not predict buyer reactions."
+  }
+  </script>
+  <style>
+    :root { --pine:#143329; --bone:#f4efe6; --gold:#d4a017; --ink:#1c241f; --line:rgba(20,51,41,.14); --muted:rgba(28,36,31,.68); }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif; background: var(--bone); color: var(--ink); line-height: 1.65; }
+    a { color: var(--pine); }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px 80px; }
+    .crumb { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .eyebrow { margin-top: 18px; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+    h1 { margin: 10px 0 0; font-size: clamp(1.7rem, 4vw, 2.35rem); line-height: 1.2; letter-spacing: -.02em; color: var(--pine); }
+    .lede { margin-top: 14px; font-size: 1.05rem; color: var(--muted); }
+    .badge { display:inline-block; margin-top: 14px; margin-right: 8px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--pine); background: #fff; }
+    .ctas { display:flex; flex-wrap:wrap; gap:10px; margin-top: 22px; }
+    .btn { display:inline-block; padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration:none; }
+    .btn-primary { background: var(--gold); color: var(--pine); }
+    .btn-secondary { border: 1px solid var(--line); background: #fff; color: var(--pine); }
+    h2 { margin: 40px 0 12px; font-size: 1.25rem; color: var(--pine); }
+    .tradeoff { margin-top: 14px; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; background: #fff; }
+    .tradeoff h3 { margin: 0 0 8px; font-size: 1.05rem; color: var(--pine); }
+    .tradeoff dl { margin: 0; display: grid; grid-template-columns: 7.5em 1fr; gap: 6px 12px; font-size: 14.5px; }
+    .tradeoff dt { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); padding-top: 3px; }
+    .tradeoff dd { margin: 0; }
+    @media (max-width: 520px) { .tradeoff dl { grid-template-columns: 1fr; gap: 0; } .tradeoff dd { margin-bottom: 8px; } }
+    .closing { margin-top: 28px; padding: 16px 18px; border-radius: 14px; background: var(--pine); color: var(--bone); font-size: 1.05rem; font-weight: 600; }
+    .boundary { border-left: 3px solid var(--gold); padding: 8px 0 8px 14px; color: var(--muted); }
+    .en { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+    footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · Human + AI · <a href="#en" lang="en">English version ↓</a></p>
+    <p class="eyebrow">CASE · ONE SEND</p>
+    <h1>只寄一次：這件事，誰做了什麼</h1>
+    <p class="lede">這是一封虛構的家用織品報價信。八句話，信封只裝得下三句，寄出就不能改。下面是做它的過程中，四個值得記下來的取捨：AI 提了什麼、我決定了什麼、為什麼。</p>
+    <span class="badge">合成情境 · 不預測買家反應</span>
+    <span class="badge">只記在這個瀏覽器</span>
+    <div class="ctas">
+      <a class="btn btn-primary" href="/prototype/one-send/?lang=zh">寫一封只寄一次的信</a>
+      <a class="btn btn-secondary" href="/#contact">聊聊你的報價信</a>
+    </div>
+
+    <h2>四個取捨</h2>
+
+    <article class="tradeoff">
+      <h3>1. 產品名稱，用「家用織品」</h3>
+      <dl>
+        <dt>問題</dt><dd>信裡需要一個產品，名稱要讓人覺得真的買得到。</dd>
+        <dt>AI 做的</dt><dd>先提了「家用布料」。</dd>
+        <dt>我決定的</dt><dd>改成「家用織品」。</dd>
+        <dt>為什麼</dt><dd>要聽起來溫暖、真的買得到的東西，不要中性的佔位詞。</dd>
+      </dl>
+    </article>
+
+    <article class="tradeoff">
+      <h3>2. 不加「重玩」的網址</h3>
+      <dl>
+        <dt>問題</dt><dd>測試時想重來，很自然會想加一個重設的連結。</dd>
+        <dt>AI 做的</dt><dd>提了一個重設網址。</dd>
+        <dt>我決定的</dt><dd>否決。</dd>
+        <dt>為什麼</dt><dd>能重來，「只寄一次」就不成立了。</dd>
+      </dl>
+    </article>
+
+    <article class="tradeoff">
+      <h3>3. 八句要有強有弱</h3>
+      <dl>
+        <dt>問題</dt><dd>原本八句寫得太平均，選的時候不會猶豫，等於沒有取捨。</dd>
+        <dt>AI 做的</dt><dd>照指示重寫，其中四句改得各有個性。</dd>
+        <dt>我決定的</dt><dd>要求改成有強有弱，讓「只能留三句」變成真的選擇。</dd>
+        <dt>為什麼</dt><dd>沒有猶豫，就看不出一個人的判斷。</dd>
+      </dl>
+    </article>
+
+    <article class="tradeoff">
+      <h3>4. 收尾那一句</h3>
+      <dl>
+        <dt>問題</dt><dd>選完三句之後，要不要再說點什麼。</dd>
+        <dt>AI 做的</dt><dd>先提了一句收尾提示。</dd>
+        <dt>我決定的</dt><dd>那一句沒選；等八句改成有強有弱之後，才加上現在這一句：「三句留下來，也決定了買家先看見哪一面的你。」</dd>
+        <dt>為什麼</dt><dd>句子要等選擇真的有分量，才有資格說這種話。</dd>
+      </dl>
+    </article>
+
+    <p class="closing">做出來很快；要不要做、做成什麼樣、哪些話不能講，是人在決定。</p>
+
+    <h2>這頁不主張</h2>
+    <div class="boundary">
+      <p>買家是虛構的，信是虛構的。沒有任何買家看過、回覆過這封信，這頁不說明它有沒有效果。</p>
+      <p>這頁只記錄做這件作品時的取捨，不代表同樣的取捨適用於你的產品或市場。</p>
+    </div>
+
+    <div class="en" id="en" lang="en">
+      <p class="eyebrow">CASE · ONE SEND</p>
+      <h2 style="margin-top:10px;font-size:1.6rem">One Send: who did what</h2>
+      <p class="lede">This is a fictional quotation letter for home textiles. Eight sentences, an envelope that holds only three, and no edits after sending. Below are four trade-offs worth recording from making it: what the AI proposed, what I decided, and why.</p>
+      <span class="badge">Synthetic scenario · does not predict buyer reactions</span>
+      <span class="badge">Kept in this browser only</span>
+      <div class="ctas">
+        <a class="btn btn-primary" href="/prototype/one-send/?lang=en">Write a letter you can send once</a>
+        <a class="btn btn-secondary" href="/#contact">Talk about your quotation letters</a>
+      </div>
+
+      <h2>Four trade-offs</h2>
+
+      <article class="tradeoff">
+        <h3>1. The product is "home textiles"</h3>
+        <dl>
+          <dt>Problem</dt><dd>The letter needs a product, and its name has to feel like something you could really buy.</dd>
+          <dt>AI did</dt><dd>Proposed "home fabric" first.</dd>
+          <dt>I decided</dt><dd>Changed it to "home textiles".</dd>
+          <dt>Why</dt><dd>I wanted something warm and plausible to buy, not a neutral placeholder.</dd>
+        </dl>
+      </article>
+
+      <article class="tradeoff">
+        <h3>2. No "play again" link</h3>
+        <dl>
+          <dt>Problem</dt><dd>While testing, it is natural to want a reset link.</dd>
+          <dt>AI did</dt><dd>Proposed a reset URL.</dd>
+          <dt>I decided</dt><dd>Rejected it.</dd>
+          <dt>Why</dt><dd>If you can start over, "send once" is no longer true.</dd>
+        </dl>
+      </article>
+
+      <article class="tradeoff">
+        <h3>3. Some of the eight sentences should be strong, some weak</h3>
+        <dl>
+          <dt>Problem</dt><dd>The eight sentences were too even. Choosing never made you hesitate, so there was no real trade-off.</dd>
+          <dt>AI did</dt><dd>Rewrote them as instructed, giving four of them a distinct character.</dd>
+          <dt>I decided</dt><dd>Asked for strong and weak sentences, so that keeping only three becomes a genuine choice.</dd>
+          <dt>Why</dt><dd>Without hesitation you cannot see a person's judgment.</dd>
+        </dl>
+      </article>
+
+      <article class="tradeoff">
+        <h3>4. The closing line</h3>
+        <dl>
+          <dt>Problem</dt><dd>After you choose three sentences, should the page say anything more?</dd>
+          <dt>AI did</dt><dd>First proposed a closing hint.</dd>
+          <dt>I decided</dt><dd>I did not pick it. Only after the eight sentences became strong and weak did I add the current line: "The three sentences you kept shape the buyer's first impression of you."</dd>
+          <dt>Why</dt><dd>A line like that has to wait until the choice carries real weight.</dd>
+        </dl>
+      </article>
+
+      <p class="closing">Making it is fast. Whether to make it, what shape it takes, and which words must not be said: a person decides.</p>
+
+      <h2>What this page does not claim</h2>
+      <div class="boundary">
+        <p>The buyer and the letter are fictional. No buyer has seen or answered this letter, and this page says nothing about whether it works.</p>
+        <p>It records the trade-offs made while building this piece only. It does not say the same choices fit your product or market.</p>
+      </div>
+      <div class="ctas">
+        <a class="btn btn-primary" href="/prototype/one-send/?lang=en">Write a letter you can send once</a>
+        <a class="btn btn-secondary" href="/">Back to portfolio</a>
+      </div>
+    </div>
+
+    <footer>
+      <p>Paul's Tradecraft · Case page v0.1 · Drafted 2026-10-04</p>
+      <p><a href="/">← Back to portfolio</a></p>
+    </footer>
+  </main>
+</body>
+</html>
