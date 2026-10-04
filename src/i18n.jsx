@@ -421,7 +421,7 @@ const dict = {
     },
     contact: {
       headline: "歡迎帶一個想法與 Paul 一起共創！",
-      sub: "從一筆商機、一段付款壓力或一個流程瓶頸開始，先釐清事實、決策邊界與下一步。",
+      sub: "帶一項產品、一份舊型錄，或一個卡住的海外開發問題來。",
       cta: "討論商業 Pilot",
       note: "商務合作與專案洽詢",
       line: "LINE 聯絡我",
@@ -968,7 +968,7 @@ const dict = {
     },
     contact: {
       headline: "Bring an idea and build it with Paul!",
-      sub: "Start with a live opportunity, payment pressure, or workflow that needs a clearer next decision.",
+      sub: "Bring a product, an old catalogue, or an overseas business-development problem you're stuck on.",
       cta: "Discuss a Commercial Pilot",
       note: "Business inquiries & collaboration",
       line: "Contact on LINE",
