@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" role="img" aria-labelledby="title desc">
   <title id="title">Commercial Decision Desk synthetic executive reading</title>
-  <desc id="desc">A synthetic USD 480,000 opportunity with USD 120,000 expected net contribution, unresolved payment terms, and a clear next question.</desc>
+  <desc id="desc">A synthetic USD 144,000 opportunity with USD 36,000 expected net contribution before funding, unresolved payment terms, and a clear next question.</desc>
   <rect width="1600" height="1200" fill="#f5f1e8"/>
   <g transform="translate(0 150)">
   <rect x="74" y="58" width="1452" height="784" rx="8" fill="#fbf8f1" stroke="#d8d0c1" stroke-width="2"/>
@@ -14,10 +14,10 @@
   <text x="1207" y="265" fill="#9a4a35" font-family="Arial, sans-serif" font-size="26" font-weight="700">Escalate first</text>
   <path d="M116 348H1484" stroke="#ddd5c8" stroke-width="2"/>
   <text x="116" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">How big is this deal</text>
-  <text x="116" y="451" fill="#1d2b24" font-family="Arial, sans-serif" font-size="44" font-weight="700">480,000 USD</text>
+  <text x="116" y="451" fill="#1d2b24" font-family="Arial, sans-serif" font-size="44" font-weight="700">144,000 USD</text>
   <path d="M522 372V465" stroke="#ddd5c8" stroke-width="2"/>
   <text x="564" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">What it may earn now</text>
-  <text x="564" y="451" fill="#1d2b24" font-family="Arial, sans-serif" font-size="44" font-weight="700">120,000 USD</text>
+  <text x="564" y="451" fill="#1d2b24" font-family="Arial, sans-serif" font-size="44" font-weight="700">36,000 USD</text>
   <path d="M1038 372V465" stroke="#ddd5c8" stroke-width="2"/>
   <text x="1080" y="398" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">What blocks this now</text>
   <text x="1080" y="428" fill="#1d2b24" font-family="Arial, sans-serif" font-size="20" font-weight="700">Payment terms conflict</text>

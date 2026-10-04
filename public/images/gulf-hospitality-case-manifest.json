@@ -1,0 +1,45 @@
+{
+  "caseBaseline": {
+    "id": "gulf-hospitality-baseline",
+    "version": "2026-10-05.1"
+  },
+  "scenario": "SYNTHETIC_OWNER_APPROVED_TEACHING_CASE",
+  "unit": "one metre of finished window width; blackout, sheer and valance; no installation",
+  "quantity": 12000,
+  "pricePerUnitUsd": 12,
+  "incoterm": "CIF",
+  "revenueUsd": 144000,
+  "costsUsd": {
+    "goods": 79200,
+    "tradeLogistics": 12600,
+    "dealSpecific": 10800,
+    "contingency": 5400
+  },
+  "resultsUsd": {
+    "beforeFunding": 36000,
+    "funding": 2855.934246575342,
+    "afterFunding": 33144.065753424686,
+    "minimum": 28800,
+    "headroom": 4344.065753424686,
+    "sellerBorneImportDutyNet": 25802.038356164416
+  },
+  "concessionLimitPct": 3.0167123287671407,
+  "assets": {
+    "cover-commercial-decision-desk.svg": {
+      "sha256": "5ab6ab95fa489d92a580877a672277058d9d10b2217a501628f04fc270541ce1"
+    },
+    "cover-commercial-decision-desk-en.svg": {
+      "sha256": "a75ab68fce16619d1dd2f7f6f93d30bf30e3d79eace0ce4cc20cc4cf1d61e6fc"
+    },
+    "cdd-executive-snapshot-zh-v02.png": {
+      "sha256": "6ad62a7a8da4a5ddacbb99bbe5ee0ef17c54642e858e65cb30473c9a2770a62d",
+      "width": 1050,
+      "height": 1169
+    },
+    "cdd-executive-snapshot-en-v02.png": {
+      "sha256": "d224a62cab6fe061837d29c375249cfd60ff9d66e9c216caf6cab89d4172f456",
+      "width": 1050,
+      "height": 1191
+    }
+  }
+}
