@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" role="img" aria-labelledby="title desc">
+  <title id="title">Synthetic delivery illustration</title>
+  <desc id="desc">Neutral geometric packages beside a delivery document. No real factory, product, quantities or certification are depicted.</desc>
+  <rect width="800" height="440" fill="#dde8e1"/>
+  <rect x="76" y="64" width="648" height="312" rx="4" fill="#f7f5ee"/>
+  <g fill="#bdcfc4" stroke="#193a35" stroke-width="3">
+    <rect x="140" y="135" width="214" height="180" rx="3"/>
+    <rect x="376" y="205" width="142" height="110" rx="3"/>
+  </g>
+  <g fill="none" stroke="#193a35" stroke-width="3">
+    <path d="M140 181h214M247 135v180M376 242h142M447 205v110"/>
+    <path d="M116 336h424"/>
+  </g>
+  <rect x="550" y="110" width="110" height="162" rx="3" fill="#fffdf7" stroke="#193a35" stroke-width="3"/>
+  <g stroke="#77958a" stroke-width="3"><path d="M572 142h66M572 165h48M572 202h66M572 225h56"/></g>
+  <rect x="576" y="289" width="60" height="26" fill="#f08a6e"/>
+</svg>
