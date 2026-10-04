@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { useLang } from "../i18n.jsx";
+import { FoldToggle } from "./FoldedIntro.jsx";
 import "./decision-workflow-animation.css";
 
 const copy = {
@@ -74,6 +75,8 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
   const [inView, setInView] = useState(false);
   const [complete, setComplete] = useState(false);
   const [activeStage, setActiveStage] = useState(null);
+  // Phones show the title and the intro; the rest (note, steps, closing line) opens on tap.
+  const [folded, setFolded] = useState(true);
 
   // 桌機：GSAP 時間軸演出「12 個訊號逐關篩選，最後由人放行 1 個」
   useLayoutEffect(() => {
@@ -251,6 +254,7 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
       data-playing={inView}
       data-complete={complete}
       data-active-stage={activeStage ?? "none"}
+      data-folded={folded}
       aria-labelledby="decision-flow-title"
       onAnimationEnd={handleAnimationEnd}
     >
@@ -258,8 +262,9 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
         <div>
           <h3 id="decision-flow-title" className="decision-flow__title">{content.title}</h3>
           <p className="decision-flow__intro">{content.intro}</p>
+          <FoldToggle open={!folded} onToggle={() => setFolded((v) => !v)} controls="decision-flow-more" className="decision-flow__fold mt-3" />
         </div>
-        <div className="decision-flow__note-row">
+        <div id="decision-flow-more" className="decision-flow__note-row">
           <p className="decision-flow__note">{content.note}</p>
           <button type="button" className="decision-flow__replay" onClick={handleReplay}>
             {content.replay}
