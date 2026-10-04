@@ -422,7 +422,7 @@ const dict = {
     contact: {
       headline: "歡迎帶一個想法與 Paul 一起共創！",
       sub: "帶一項產品、一份舊型錄，或一個卡住的海外開發問題來。",
-      cta: "討論商業 Pilot",
+      cta: "聊聊你的產品",
       note: "商務合作與專案洽詢",
       line: "LINE 聯絡我",
       onePager: "下載一頁簡介 (PDF)",
@@ -978,7 +978,7 @@ const dict = {
     contact: {
       headline: "Bring an idea and build it with Paul!",
       sub: "Bring a product, an old catalogue, or an overseas business-development problem you're stuck on.",
-      cta: "Discuss a Commercial Pilot",
+      cta: "Talk about your product",
       note: "Business inquiries & collaboration",
       line: "Contact on LINE",
       onePager: "Download one-pager (PDF)",
