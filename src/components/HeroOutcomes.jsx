@@ -1,8 +1,9 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 export default function HeroOutcomes() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
 
   return (
     <section id="hero-outcomes" aria-labelledby="hero-outcomes-heading" className="border-b border-line bg-bone">
@@ -16,7 +17,7 @@ export default function HeroOutcomes() {
           {t.hero.outcomes.map((outcome, index) => (
             <a
               key={outcome.title}
-              href={outcome.href}
+              href={withDemoLang(outcome.href, lang)}
               {...(/^https?:/.test(outcome.href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className={`group block py-6 transition-colors hover:bg-bone/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber md:py-7 ${index === 0 ? "md:pr-6" : index === t.hero.outcomes.length - 1 ? "md:pl-6" : "md:px-6"}`}
             >

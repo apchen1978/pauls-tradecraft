@@ -222,7 +222,34 @@
   </div>
   <div class="sr-only" id="languageAnnouncement" aria-live="polite"></div>
   <script>
-    (()=>{const button=document.getElementById('languageToggle');const root=document.body;const announcement=document.getElementById('languageAnnouncement');function apply(lang){root.dataset.lang=lang;document.documentElement.lang=lang==='zh'?'zh-Hant':'en';document.title=lang==='zh'?'找海外客戶，可以一步一步來 | Paul\'s Tradecraft':'How Overseas Customers Can Be Found Step by Step | Paul\'s Tradecraft';document.getElementById('heroMap').setAttribute('aria-label',lang==='zh'?'從供應能力走到商業行動的路線':'The route from supplier capability to commercial action');document.getElementById('coreIdea').setAttribute('aria-label',lang==='zh'?'核心觀念':'The core idea');button.textContent=lang==='zh'?'EN':'繁中';button.setAttribute('aria-label',lang==='zh'?'Switch to English':'切換為繁體中文');announcement.textContent=lang==='zh'?'已切換為繁體中文':'Switched to English'}button.addEventListener('click',()=>apply(root.dataset.lang==='zh'?'en':'zh'));apply('zh')})();
+    (()=>{
+      const button=document.getElementById('languageToggle');
+      const root=document.body;
+      const announcement=document.getElementById('languageAnnouncement');
+      function apply(lang){
+        root.dataset.lang=lang;
+        document.documentElement.lang=lang==='zh'?'zh-Hant':'en';
+        document.title=lang==='zh'?'找海外客戶，可以一步一步來 | Paul\'s Tradecraft':'How Overseas Customers Can Be Found Step by Step | Paul\'s Tradecraft';
+        document.getElementById('heroMap').setAttribute('aria-label',lang==='zh'?'從供應能力走到商業行動的路線':'The route from supplier capability to commercial action');
+        document.getElementById('coreIdea').setAttribute('aria-label',lang==='zh'?'核心觀念':'The core idea');
+        button.textContent=lang==='zh'?'EN':'繁中';
+        button.setAttribute('aria-label',lang==='zh'?'Switch to English':'切換為繁體中文');
+        announcement.textContent=lang==='zh'?'已切換為繁體中文':'Switched to English';
+        const pageUrl=new URL(window.location.href);
+        pageUrl.searchParams.set('lang',lang);
+        window.history.replaceState(window.history.state,'',pageUrl);
+        document.querySelectorAll('a[href]').forEach(link=>{
+          if(link.getAttribute('href').startsWith('#'))return;
+          const target=new URL(link.getAttribute('href'),window.location.href);
+          const local=target.origin===window.location.origin||target.origin==='https://paulstradecraft.com';
+          const journey=/^\/(?:$|prototype\/(?:ai-native-commercial-conversion|garage-rfq-workflow-001)\/$|cases\/commercial-decision-desk\/$)/.test(target.pathname);
+          const demo=target.origin==='https://apchen1978.github.io'&&/^\/(?:commercial-decision-desk|overseas-lead-discovery-demo|trade-profit-navigator-demo)\//.test(target.pathname);
+          if((local&&journey)||demo){target.searchParams.set('lang',lang);link.href=target.href}
+        });
+      }
+      button.addEventListener('click',()=>apply(root.dataset.lang==='zh'?'en':'zh'));
+      apply(new URLSearchParams(window.location.search).get('lang')==='en'?'en':'zh');
+    })();
   </script>
 </body>
 </html>

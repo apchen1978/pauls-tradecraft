@@ -188,7 +188,7 @@ export default function ThreeQuestions() {
         <p className="mt-12 max-w-[70ch] text-sm leading-relaxed text-moss">{c.note}</p>
         <p className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-moss">
           <span>{c.learnLead}</span>
-          <a className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber" href="/prototype/ai-native-overseas-customer-roadmap/">{c.learnRoadmap}</a>
+          <a className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber" href={withDemoLang("/prototype/ai-native-overseas-customer-roadmap/", lang)}>{c.learnRoadmap}</a>
           <a className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber" href="/files/Paul-Tradecraft-Learning-Guide-001-Overseas-Customer-Development-ZH.pdf" target="_blank" rel="noopener noreferrer">{c.learnGuide}</a>
         </p>
       </div>

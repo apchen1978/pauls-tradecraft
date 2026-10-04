@@ -76,7 +76,7 @@ export default function CommercialFrontDoor() {
         </div>
         <div className="mt-9 grid gap-4 md:grid-cols-2">
           {steps.map((step) => (
-            <a key={step.href} href={step.href} className="group flex min-h-56 flex-col rounded-card border border-line surface-paper p-6 transition-colors hover:border-forest/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:p-8">
+            <a key={step.href} href={withDemoLang(step.href, lang)} className="group flex min-h-56 flex-col rounded-card border border-line surface-paper p-6 transition-colors hover:border-forest/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber md:p-8">
               <p className="text-xs font-semibold text-amber">{step.label}</p>
               <h3 className="mt-6 max-w-[26ch] text-xl font-semibold leading-snug tracking-tight text-forest md:text-2xl">{step.title}</h3>
               <p className="mt-3 max-w-[50ch] text-sm leading-relaxed text-moss">{step.body}</p>

@@ -115,7 +115,7 @@ function GbdActions() {
       {artifact?.href && (
         <div>
           <a
-            href={artifact.href}
+            href={withDemoLang(artifact.href, lang)}
             onClick={(e) => e.stopPropagation()}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber"
           >
@@ -311,7 +311,7 @@ function WorkingEvidence({ data, tone = "light" }) {
       <h4 className={`mt-1 text-lg font-semibold ${dark ? "text-ondark" : "text-ink"}`}>{copy.title}</h4>
       <p className={`mt-1 max-w-2xl text-sm leading-relaxed ${dark ? "text-ondark-meta" : "text-moss"}`}>{copy.body}</p>
       <p className={`mt-2 text-xs leading-relaxed ${dark ? "text-ondark-meta" : "text-moss"}`}>{copy.boundary}</p>
-      <a href={copy.href} className={`mt-3 inline-flex items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-semibold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber`}>
+      <a href={withDemoLang(copy.href, lang)} className={`mt-3 inline-flex items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-semibold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber`}>
         {copy.cta}<ArrowUpRight size={15} weight="bold" aria-hidden="true" />
       </a>
     </div>
@@ -526,7 +526,7 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
         )}
         {c.compact && link && (
           <div className={`border-t pt-3 ${styles.border}`}>
-            <a href={link} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-1.5 font-semibold transition-colors ${styles.link}`}>
+            <a href={withDemoLang(link, lang)} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-1.5 font-semibold transition-colors ${styles.link}`}>
               <ArrowUpRight size={14} weight="bold" />
               {typeof linkLabel === "string" ? linkLabel : linkLabel?.[lang]}
             </a>

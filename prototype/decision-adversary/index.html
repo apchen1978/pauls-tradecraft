@@ -301,6 +301,9 @@
       if (dict[k] !== undefined) el.textContent = dict[k];
     });
     document.documentElement.lang = (lang === "zh") ? "zh-Hant" : "en";
+    var pageUrl = new URL(window.location.href);
+    pageUrl.searchParams.set("lang", lang);
+    window.history.replaceState(window.history.state, "", pageUrl);
     document.querySelectorAll(".lang button").forEach(function (b) {
       b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === lang));
     });
@@ -372,7 +375,7 @@
     });
   });
 
-  applyLang("zh");
+  applyLang(new URLSearchParams(window.location.search).get("lang") === "en" ? "en" : "zh");
   show(0);
 })();
 </script>

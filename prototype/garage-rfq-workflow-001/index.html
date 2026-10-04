@@ -302,7 +302,12 @@
 
       function setLanguage(next) {
         language = next;
+        const pageUrl = new URL(window.location.href);
+        pageUrl.searchParams.set('lang', language);
+        window.history.replaceState(window.history.state, '', pageUrl);
+        document.querySelector('.back-link').href = 'https://paulstradecraft.com/?lang=' + language;
         const copy = translations[language];
+        document.title = copy.title;
         document.documentElement.lang = language === 'zh' ? 'zh-Hant' : 'en';
         document.querySelector('#eyebrow').textContent = copy.eyebrow;
         document.querySelector('#page-title').textContent = copy.title;
@@ -543,7 +548,7 @@
       });
 
       show(0);
-      setLanguage('en');
+      setLanguage(new URLSearchParams(window.location.search).get('lang') === 'zh' ? 'zh' : 'en');
     })();
   </script>
 </body>

@@ -1,11 +1,16 @@
-// The commercial-decision-desk, overseas-lead-discovery and trade-profit-navigator
-// demos honour a `?lang=` parameter and open in Chinese by default. On the English
-// homepage their links carry it, so a visitor who chose English lands on the demo in
-// English. Other links are left alone.
+// Carry the visitor's language into the bilingual commercial journey.
+// Unrelated experiments, downloads, and same-page anchors stay untouched.
 const BILINGUAL_DEMO = /^https:\/\/apchen1978\.github\.io\/(commercial-decision-desk|overseas-lead-discovery-demo|trade-profit-navigator-demo)\//;
+const BILINGUAL_JOURNEY = /^\/prototype\/(ai-native-overseas-customer-roadmap|ai-native-commercial-conversion|decision-adversary|garage-rfq-workflow-001|three-days-of-quiet)\/$/;
 
 export function withDemoLang(url, lang) {
-  if (lang !== "en" || typeof url !== "string" || !BILINGUAL_DEMO.test(url)) return url;
+  if (typeof url !== "string" || !["zh", "en"].includes(lang)) return url;
+  const target = new URL(url, "https://paulstradecraft.com");
+  if (target.origin === "https://paulstradecraft.com" && BILINGUAL_JOURNEY.test(target.pathname)) {
+    target.searchParams.set("lang", lang);
+    return url.startsWith("/") ? `${target.pathname}${target.search}${target.hash}` : target.href;
+  }
+  if (lang !== "en" || !BILINGUAL_DEMO.test(url)) return url;
   const hashAt = url.indexOf("#");
   const base = hashAt === -1 ? url : url.slice(0, hashAt);
   const hash = hashAt === -1 ? "" : url.slice(hashAt);

@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 // Digital Garage, on the page: a sticker wall. Every experiment is a hard-edged card,
 // tilted a few degrees, with a highlighter-marked spark. Desktop shows the nine experiments
@@ -106,9 +107,9 @@ function Headline({ text, mark }) {
 }
 
 export default function Garage() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const g = t.garage;
-  const items = g.items;
+  const items = g.items.map((item) => ({ ...item, href: withDemoLang(item.href, lang) }));
   const regular = items.filter((item) => !item.wide);
   const wideItem = items.find((item) => item.wide);
   const firstThree = regular.slice(0, 3);

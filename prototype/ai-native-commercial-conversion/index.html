@@ -288,7 +288,17 @@
       const copy={zh:{pending:'已建立合成商機，等待人工覆核。尚未承諾價格、MOQ、付款或交期。',already:'商機已在待覆核狀態。',reply:'已顯示合成買家回覆與待確認資訊。',draft:'草稿已準備。請由人檢視，原型不會寄送。'},en:{pending:'Synthetic opportunity created for human review. No price, MOQ, payment, or lead time has been committed.',already:'The opportunity is already awaiting human review.',reply:'Synthetic buyer reply and review items are now visible.',draft:'Draft prepared for human review. This prototype will not send it.'}};
       let language='zh',current=0,furthest=0,outreachReady=false,replyReady=false,opportunityCreated=false;
       const text=(node,zh,en)=>{node.innerHTML='<span class="zh">'+zh+'</span><span class="en">'+en+'</span>'};
-      function setLanguage(next){language=next;document.body.dataset.lang=next;document.documentElement.lang=next==='zh'?'zh-Hant':'en';document.title=next==='zh'?'跟著一家公司，看怎麼走到買家詢價 | Paul\'s Tradecraft':'From a company name to a reachable opportunity | Paul\'s Tradecraft';langButton.setAttribute('aria-label',next==='zh'?'Switch to English':'切換為繁體中文')}
+      function setLanguage(next){
+        language=next;document.body.dataset.lang=next;document.documentElement.lang=next==='zh'?'zh-Hant':'en';document.title=next==='zh'?'跟著一家公司，看怎麼走到買家詢價 | Paul\'s Tradecraft':'From a company name to a reachable opportunity | Paul\'s Tradecraft';langButton.setAttribute('aria-label',next==='zh'?'Switch to English':'切換為繁體中文');
+        const pageUrl=new URL(window.location.href);
+        pageUrl.searchParams.set('lang',next);
+        window.history.replaceState(window.history.state,'',pageUrl);
+        document.querySelectorAll('.handoff-actions a[href], .downstream-chain a[href]').forEach(link=>{
+          const target=new URL(link.getAttribute('href'),window.location.href);
+          target.searchParams.set('lang',next);
+          link.href=target.href;
+        });
+      }
       function gated(index){if(index===4)return outreachReady;if(index===6)return replyReady;if(index===7)return opportunityCreated;return true}
       function render(){
         scenes.forEach((scene,index)=>{scene.hidden=index!==current});
@@ -307,7 +317,7 @@
       document.getElementById('revealReply').addEventListener('click',event=>{replyReady=true;document.getElementById('replyContent').hidden=false;event.currentTarget.disabled=true;furthest=Math.max(furthest,6);render();announcement.textContent=copy[language].reply});
       document.getElementById('createOpportunity').addEventListener('click',event=>{if(opportunityCreated){text(document.getElementById('opportunityStatus'),copy.zh.already,copy.en.already);return}opportunityCreated=true;event.currentTarget.disabled=true;document.getElementById('leadState').classList.remove('current');document.getElementById('opportunityState').classList.add('current');text(document.getElementById('opportunityStatus'),copy.zh.pending,copy.en.pending);furthest=Math.max(furthest,7);render();announcement.textContent=copy[language].pending});
       langButton.addEventListener('click',()=>{setLanguage(language==='zh'?'en':'zh');render()});
-      setLanguage('zh');render();
+      setLanguage(new URLSearchParams(window.location.search).get('lang')==='en'?'en':'zh');render();
     })();
   </script>
 </body>

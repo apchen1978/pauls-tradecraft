@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle, WarningCircle } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { withDemoLang } from "../demoLinks.js";
 
 export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
   const { lang } = useLang();
@@ -110,7 +111,7 @@ export default function GlobalBusinessDevelopment({ data, tone = "light" }) {
           <div className={`border-l-2 border-amber pl-4 text-sm leading-relaxed ${muted}`}>
             <p className={`font-semibold ${heading}`}>{copy.handoff}</p>
             <a href="#commercial-decision-desk" className="mt-2 inline-flex items-center gap-1 font-semibold text-forest hover:text-amber focus-visible:text-amber">{copy.handoffLink}<ArrowRight size={14} weight="bold" aria-hidden="true" /></a>
-            <a href="/prototype/ai-native-commercial-conversion/" className="mt-3 inline-flex max-w-full items-start gap-1.5 text-xs font-medium leading-relaxed text-moss transition-colors hover:text-forest focus-visible:text-forest">
+            <a href={withDemoLang("/prototype/ai-native-commercial-conversion/", lang)} className="mt-3 inline-flex max-w-full items-start gap-1.5 text-xs font-medium leading-relaxed text-moss transition-colors hover:text-forest focus-visible:text-forest">
               <span>{copy.conversionLink}</span><ArrowRight className="mt-0.5 shrink-0" size={13} weight="bold" aria-hidden="true" />
             </a>
           </div>
