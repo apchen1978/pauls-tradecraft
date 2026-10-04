@@ -1,4 +1,5 @@
-import { ArrowUpRight } from "@phosphor-icons/react";
+import { useState } from "react";
+import { ArrowUpRight, CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
 
@@ -94,12 +95,69 @@ const copy = {
   },
 };
 
+// On phones each card shows its number, stage, question and one line of context;
+// the takeaway and demo links open on tap. From md up the card is always fully open.
+function QuestionCard({ card, index, c, lang }) {
+  const [open, setOpen] = useState(false);
+  const panelId = `three-questions-${card.key}-detail`;
+  return (
+    <li className="flex border-b border-line py-6 md:border-b-0 md:py-10 md:border-l md:border-line md:px-8 md:first:border-l-0 md:first:pl-0 md:last:pr-0">
+      <article className="flex w-full flex-col">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="font-serif text-4xl font-medium leading-none tracking-[-0.04em] text-amber md:text-7xl" aria-hidden="true">{index + 1}</span>
+          <span className="text-sm font-medium text-moss">{card.stage}</span>
+        </div>
+        <h3 className="mt-4 text-[1.375rem] font-medium leading-[1.25] tracking-[-0.02em] text-ink md:mt-10 md:text-[1.75rem]">{card.question}</h3>
+        <p className="mt-3 text-base leading-relaxed text-moss md:mt-4">{card.pain}</p>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((v) => !v)}
+          className="mt-4 flex w-full items-center justify-between gap-3 border-t border-line pt-4 text-left text-sm font-semibold text-forest md:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+        >
+          <span>{c.takeaway}</span>
+          <CaretDown size={16} weight="bold" aria-hidden="true" className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+        <div id={panelId} className={`${open ? "flex" : "hidden"} flex-col md:flex md:flex-1`}>
+          <div className="mt-4 md:mt-8 md:border-t md:border-line md:pt-5">
+            <p className="hidden text-sm font-medium text-moss md:block">{c.takeaway}</p>
+            <p className="text-base leading-relaxed text-forest md:mt-2">{card.takeaway}</p>
+          </div>
+          <div className="mt-auto pt-6 md:pt-9">
+            <a
+              href={withDemoLang(LINKS[card.key], lang)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-start justify-between gap-4 border-b border-ink pb-3 text-base font-medium text-ink transition-colors hover:border-amber hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+            >
+              <span>{card.cta}</span>
+              <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
+            <p className="mt-3 text-sm text-moss">{c.demoNote}</p>
+            {card.cta2 && (
+              <a
+                href={withDemoLang(`${LINKS[card.key]}#mode-gap`, lang)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+              >
+                {card.cta2} →
+              </a>
+            )}
+          </div>
+        </div>
+      </article>
+    </li>
+  );
+}
+
 export default function ThreeQuestions() {
   const { lang } = useLang();
   const c = copy[lang];
   return (
     <section id="three-questions" aria-labelledby="three-questions-heading" className="scroll-mt-24 border-b border-line bg-bone">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-36">
+      <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-36">
         <p className="eyebrow">{c.eyebrow}</p>
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16">
           <h2 id="three-questions-heading" className="max-w-[20ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
@@ -118,42 +176,7 @@ export default function ThreeQuestions() {
 
         <ol className="mt-8 grid border-t border-ink md:mt-12 md:grid-cols-3">
           {c.cards.map((card, index) => (
-            <li key={card.key} className="flex border-b border-line py-8 md:border-b-0 md:py-10 md:border-l md:border-line md:px-8 md:first:border-l-0 md:first:pl-0 md:last:pr-0">
-              <article className="flex w-full flex-col">
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="font-serif text-6xl font-medium leading-none tracking-[-0.04em] text-amber md:text-7xl" aria-hidden="true">{index + 1}</span>
-                  <span className="text-sm font-medium text-moss">{card.stage}</span>
-                </div>
-                <h3 className="mt-7 text-[1.5rem] md:mt-10 font-medium leading-[1.25] tracking-[-0.02em] text-ink md:text-[1.75rem]">{card.question}</h3>
-                <p className="mt-4 text-base leading-relaxed text-moss">{card.pain}</p>
-                <div className="mt-8 border-t border-line pt-5">
-                  <p className="text-sm font-medium text-moss">{c.takeaway}</p>
-                  <p className="mt-2 text-base leading-relaxed text-forest">{card.takeaway}</p>
-                </div>
-                <div className="mt-auto pt-9">
-                  <a
-                    href={withDemoLang(LINKS[card.key], lang)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-start justify-between gap-4 border-b border-ink pb-3 text-base font-medium text-ink transition-colors hover:border-amber hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
-                  >
-                    <span>{card.cta}</span>
-                    <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                  </a>
-                  <p className="mt-3 text-sm text-moss">{c.demoNote}</p>
-                  {card.cta2 && (
-                    <a
-                      href={withDemoLang(`${LINKS[card.key]}#mode-gap`, lang)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-4 inline-block text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
-                    >
-                      {card.cta2} →
-                    </a>
-                  )}
-                </div>
-              </article>
-            </li>
+            <QuestionCard key={card.key} card={card} index={index} c={c} lang={lang} />
           ))}
         </ol>
         <p className="mt-12 max-w-[70ch] text-sm leading-relaxed text-moss">{c.note}</p>
