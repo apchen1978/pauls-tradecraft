@@ -57,12 +57,12 @@ function WideCard({ item, g }) {
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0 max-w-3xl">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-            <p className="rounded-full border-2 border-ink bg-bone px-2.5 py-1 text-xs font-bold text-ink">{item.tag}</p>
+            <p className="rounded-full border-2 border-ink bg-bone px-2.5 py-1 text-xs font-semibold text-ink">{item.tag}</p>
             {item.latest ? (
-              <p className="rounded-full border-2 border-ink bg-gold px-2.5 py-1 text-xs font-bold text-pine">{g.latestMark}</p>
+              <p className="rounded-full border-2 border-ink bg-gold px-2.5 py-1 text-xs font-semibold text-pine">{g.latestMark}</p>
             ) : null}
           </div>
-          <h3 className="mt-5 text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.75rem]">{item.title}</h3>
+          <h3 className="mt-5 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.75rem]">{item.title}</h3>
           <p className="mt-4 text-base font-semibold leading-[1.55] text-ink">
             <span className="box-decoration-clone bg-[linear-gradient(transparent_58%,var(--color-pop)_58%,var(--color-pop)_92%,transparent_92%)]">{item.spark}</span>
           </p>
@@ -73,7 +73,7 @@ function WideCard({ item, g }) {
             href={item.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-bold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+            className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
           >
             <span>{item.cta}</span>
             <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
