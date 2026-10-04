@@ -5,7 +5,7 @@ import { withDemoLang } from "../demoLinks.js";
 import { FoldToggle, foldClass, useFold } from "./FoldedIntro.jsx";
 
 // One deal, walked through the questions in order. The figures are the ones the live
-// demos produce for their default fictional case (verified 2026-09-29); steps 2
+// demos produce for Owner-approved baseline 2026-10-05.1; steps 2
 // and 3 share the same case, step 1 uses separate representative examples.
 const LINKS = {
   lead: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
@@ -17,7 +17,7 @@ const copy = {
   zh: {
     eyebrow: "一筆生意走一遍",
     title: "同一筆生意，從開發走到承諾",
-    intro: "第二、三步用的是同一筆合成案例：一筆 48 萬美元的窗簾與窗飾訂單。",
+    intro: "第二、三步用的是同一筆合成案例：一筆 14.4 萬美元的窗簾與窗飾訂單。",
     note: "示範中的「米」指一米成品窗寬（遮光簾、紗簾與窗簾頭的成品），不含現場安裝；商品成本為合成假設，不代表任何供應商報價。",
     open: "開啟示範",
     more: "看細節",
@@ -37,8 +37,8 @@ const copy = {
       {
         key: "margin",
         when: "接下來",
-        result: "扣掉成本後，還剩 110,480 美元。",
-        detail: "帳面預期淨貢獻是 12 萬美元；計入付款時程的資金成本後，只比你的最低要求 96,000 美元高 14,480。最弱的一環是售價：讓價 3.0% 就到底線（在預設假設下）。",
+        result: "扣掉成本後，還剩 33,144 美元。",
+        detail: "帳面預期淨貢獻是 3.6 萬美元；計入付款時程的資金成本後，只比你的最低要求 28,800 美元高 4,344。最弱的一環是售價：讓價約 3% 即到最低要求（在預設假設下）。",
       },
     ],
     closing: "每一步各自獨立，也可以只用其中一步。帶一筆你正在談的商機來，我們用同樣的方式走一遍。",
@@ -47,7 +47,7 @@ const copy = {
   en: {
     eyebrow: "One deal, walked through",
     title: "One deal, from first contact to commitment",
-    intro: "Steps two and three use the same synthetic case: a USD 480,000 order for curtains and valances.",
+    intro: "Steps two and three use the same synthetic case: a USD 144,000 order for curtains and valances.",
     note: "In the demos, 'metre' means one metre of finished window width (blackout drapery, sheers and valances as finished goods), excluding on-site installation; the goods cost is a synthetic assumption, not a supplier quote.",
     open: "Open the demo",
     more: "Details",
@@ -67,8 +67,8 @@ const copy = {
       {
         key: "margin",
         when: "Next",
-        result: "After costs, USD 110,480 is left.",
-        detail: "Paper net contribution is USD 120,000; after the funding cost of the payment timeline it clears your USD 96,000 minimum by only USD 14,480. The weakest link is price: a 3.0% concession takes it to the floor (under the default assumptions).",
+        result: "After costs, USD 33,144 is left.",
+        detail: "Paper net contribution is USD 36,000; after the funding cost of the payment timeline it clears your USD 28,800 minimum by only USD 4,344. The weakest link is price: a concession of about 3% reaches the minimum requirement (under the default assumptions).",
       },
     ],
     closing: "Each step works on its own, and you can use just one. Bring a deal you are negotiating and we will walk it through the same way.",

@@ -1233,8 +1233,8 @@ export const works = [
       en: "Public demo is an independent synthetic prototype: the scenario is a synthetic USD case with no real customer data.",
     },
     deliverable: {
-      zh: "一份可檢視的利潤判斷：每項成本標明來自案例或假設；扣掉運費、付款時程的資金成本與進口關稅（依報價由誰負擔）後還剩多少；哪個假設最先把它打穿，以及付款條件未定值多少錢。示範案例中，預期淨貢獻 12 萬美元，扣掉資金成本後剩 110,480 美元，售價讓價 3.0% 即到最低要求（在預設假設下）。",
-      en: "An inspectable margin judgment: each cost tagged as coming from the case or as an assumption; what is left after freight, the funding cost of the payment timeline and import duty (by whoever bears it under the quote); which assumption breaks it first; and what unresolved payment terms are worth. In the demo case, USD 120,000 of paper net contribution becomes USD 110,480 after funding cost, and a 3.0% price concession reaches the owner's minimum (under the default assumptions).",
+      zh: "一份可檢視的利潤判斷：每項成本標明來自案例或假設；扣掉運費、付款時程的資金成本與進口關稅（依報價由誰負擔）後還剩多少；哪個假設最先把它打穿，以及付款條件未定值多少錢。示範案例中，資金成本前預期淨貢獻 3.6 萬美元，扣掉資金成本後剩 33,144 美元，讓價約 3% 即到最低要求（在預設假設下）。",
+      en: "An inspectable margin judgment: each cost tagged as coming from the case or as an assumption; what is left after freight, the funding cost of the payment timeline and import duty (by whoever bears it under the quote); which assumption breaks it first; and what unresolved payment terms are worth. In the demo case, USD 36,000 of net contribution before funding becomes USD 33,144 after funding cost, and a price concession of about 3% reaches the owner's minimum (under the default assumptions).",
     },
     imageAlt: { zh: "Trade Profit Navigator 商業價值槓桿原型", en: "Trade Profit Navigator value-capture prototype" },
     zh: {
@@ -1251,7 +1251,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術原型", en: "Technical Prototype" },
-      stageTag: { zh: "計算已通過自動測試", en: "45/45 + 6/6 + 56/56 + 212/212 PASS" },
+      stageTag: { zh: "計算已通過自動測試", en: "45/45 + 6/6 + 56/56 + 219/219 PASS" },
       problem: {
         zh: "貿易團隊常看見單價或毛利，卻看不見為了取得這個 upside 要增加多少現金暴露、庫存與執行風險。",
         en: "Trade teams may see price or margin, but not the cash exposure, inventory, and execution risk required to capture the upside.",
@@ -1265,12 +1265,12 @@ export const works = [
         en: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Synthetic USD case · Adversarial harness",
       },
       result: {
-        zh: "完成可操作的 Trade Profit Navigator：可調整數量、採購價、銷售價與 MOQ，並將每個槓桿連到 economics、cash、risk、evidence、未知與老闆 decision。空白或無效輸入維持未知，不當成零。新增落地成本與敏感度：每一項成本標明來自案例或假設，計入付款時程的資金成本與進口關稅由誰負擔，並找出最弱的一環；在預設假設下，Gulf 案例的售價讓價 3.0% 即達到擁有者最低要求。",
-        en: "A working Trade Profit Navigator: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the owner decision. Blank or invalid inputs stay UNKNOWN, never zero. It adds landed economics and sensitivity: each cost is tagged as coming from the case or as an assumption, the funding cost of the payment timeline and who bears import duty are included, and the weakest link is identified; under the default assumptions, a 3.0% price concession takes the Gulf case to the owner's minimum.",
+        zh: "完成可操作的 Trade Profit Navigator：可調整數量、採購價、銷售價與 MOQ，並將每個槓桿連到 economics、cash、risk、evidence、未知與老闆 decision。空白或無效輸入維持未知，不當成零。新增落地成本與敏感度：每一項成本標明來自案例或假設，計入付款時程的資金成本與進口關稅由誰負擔，並找出最弱的一環；在預設假設下，Gulf 案例的讓價約 3% 即到最低要求。",
+        en: "A working Trade Profit Navigator: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the owner decision. Blank or invalid inputs stay UNKNOWN, never zero. It adds landed economics and sensitivity: each cost is tagged as coming from the case or as an assumption, the funding cost of the payment timeline and who bears import duty are included, and the weakest link is identified; under the default assumptions, a price concession of about 3% takes the Gulf case to the owner's minimum.",
       },
       evidence: {
-        zh: "Prototype tests 45/45；landed-cost checks 56/56；language checks 212/212；adversarial baseline 6/6；390px／1440px 無溢位；案例為 synthetic USD dataset；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
-        en: "Prototype tests 45/45; landed-cost checks 56/56; language checks 212/212; adversarial baseline 6/6; no overflow at 390px/1440px; case uses a synthetic USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
+        zh: "Prototype tests 45/45；landed-cost checks 56/56；language checks 219/219；adversarial baseline 6/6；390px／1440px 無溢位；案例為 synthetic USD dataset；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
+        en: "Prototype tests 45/45; landed-cost checks 56/56; language checks 219/219; adversarial baseline 6/6; no overflow at 390px/1440px; case uses a synthetic USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
       },
     },
   },
@@ -1280,7 +1280,7 @@ export const works = [
     section: "commercial",
     cover: { zh: "/images/cover-commercial-decision-desk.svg", en: "/images/cover-commercial-decision-desk-en.svg" },
     imageFit: "contain",
-    imageAlt: { zh: "商務決策工作台的合成高階摘要：48 萬美元商機、12 萬美元預期淨貢獻與付款條件缺口", en: "Commercial Decision Desk synthetic executive reading: a USD 480k opportunity, USD 120k expected contribution, and unresolved payment terms" },
+    imageAlt: { zh: "商務決策工作台的合成高階摘要：14.4 萬美元商機、3.6 萬美元資金成本前預期淨貢獻與付款條件缺口", en: "Commercial Decision Desk synthetic executive reading: a USD 144k opportunity, USD 36k expected contribution before funding, and unresolved payment terms" },
     span: "md:col-span-2",
     icon: "briefcase",
     verified: true,
