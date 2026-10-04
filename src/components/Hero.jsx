@@ -46,7 +46,7 @@ export default function Hero() {
 
       <div className="relative mx-auto grid min-h-[calc(100svh-68px)] max-w-7xl items-end gap-6 px-4 pb-6 pt-[12.5rem] md:min-h-[calc(100svh-76px)] md:gap-10 md:px-6 md:pb-12 md:pt-16 lg:min-h-[calc(100svh-76px-10.5rem)] lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-10 lg:px-6 lg:pb-12 lg:pt-12">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 max-w-2xl self-center">
-          <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-sm font-medium text-gold">
+          <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-sm font-medium tracking-[0.06em] text-gold md:text-[0.9375rem]">
             <span aria-hidden className="size-1.5 rounded-full bg-gold" />
             {t.hero.kicker}
           </motion.p>
