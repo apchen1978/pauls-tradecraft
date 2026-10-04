@@ -1,4 +1,5 @@
-import { ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
+import { useState } from "react";
+import { ArrowRight, ArrowUpRight, CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
 
@@ -18,6 +19,7 @@ const copy = {
     intro: "第二、三步用的是同一筆合成案例：一筆 48 萬美元的窗簾與窗飾訂單。",
     note: "示範中的「米」指一米成品窗寬（遮光簾、紗簾與窗簾頭的成品），不含現場安裝；商品成本為合成假設，不代表任何供應商報價。",
     open: "開啟示範",
+    more: "看細節",
     steps: [
       {
         key: "lead",
@@ -47,6 +49,7 @@ const copy = {
     intro: "Steps two and three use the same synthetic case: a USD 480,000 order for curtains and valances.",
     note: "In the demos, 'metre' means one metre of finished window width (blackout drapery, sheers and valances as finished goods), excluding on-site installation; the goods cost is a synthetic assumption, not a supplier quote.",
     open: "Open the demo",
+    more: "Details",
     steps: [
       {
         key: "lead",
@@ -72,38 +75,60 @@ const copy = {
   },
 };
 
+// On phones each step shows its number, moment and result; the detail and demo link
+// open on tap. From md up the step is always fully open.
+function DealStep({ step, index, c, href }) {
+  const [open, setOpen] = useState(false);
+  const panelId = `one-deal-${step.key}-detail`;
+  return (
+    <li className="flex border-b border-line py-6 md:border-b-0 md:py-10 md:border-l md:border-line md:px-8 md:first:border-l-0 md:first:pl-0 md:last:pr-0">
+      <div className="flex w-full flex-col">
+        <p className="text-sm font-medium text-moss">
+          <span className="mr-2 font-serif text-lg text-amber">{index + 1}</span>{step.when}
+        </p>
+        <h3 className="mt-3 text-[1.375rem] font-medium leading-[1.25] tracking-[-0.02em] text-ink md:mt-6 md:text-[1.75rem]">{step.result}</h3>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((v) => !v)}
+          className="mt-3 flex w-full items-center justify-between gap-3 text-left text-sm font-semibold text-forest md:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+        >
+          <span>{c.more}</span>
+          <CaretDown size={16} weight="bold" aria-hidden="true" className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+        <div id={panelId} className={`${open ? "flex" : "hidden"} flex-col md:mt-0 md:flex md:flex-1`}>
+          <p className="mt-3 text-base leading-relaxed text-moss md:mt-4">{step.detail}</p>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-auto inline-flex w-fit items-center gap-2 border-b border-ink pb-2 pt-6 text-base font-medium text-ink transition-colors hover:border-amber hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber md:pt-8"
+          >
+            {c.open}
+            <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </a>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 export default function OneDeal() {
   const { lang } = useLang();
   const c = copy[lang];
   const href = (key) => withDemoLang(LINKS[key], lang);
   return (
     <section id="one-deal" aria-labelledby="one-deal-heading" className="scroll-mt-24 border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-36">
+      <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-36">
         <p className="eyebrow">{c.eyebrow}</p>
         <h2 id="one-deal-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
         <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-moss md:text-lg">{c.intro}</p>
         <p className="mt-3 max-w-[62ch] text-xs leading-relaxed text-moss md:text-sm">{c.note}</p>
 
-        <ol className="mt-10 grid border-t border-ink md:mt-20 md:grid-cols-3">
+        <ol className="mt-8 grid border-t border-ink md:mt-20 md:grid-cols-3">
           {c.steps.map((step, index) => (
-            <li key={step.key} className="flex border-b border-line py-8 md:border-b-0 md:py-10 md:border-l md:border-line md:px-8 md:first:border-l-0 md:first:pl-0 md:last:pr-0">
-              <div className="flex w-full flex-col">
-                <p className="text-sm font-medium text-moss">
-                  <span className="mr-2 font-serif text-lg text-amber">{index + 1}</span>{step.when}
-                </p>
-                <h3 className="mt-6 text-[1.5rem] font-medium leading-[1.25] tracking-[-0.02em] text-ink md:text-[1.75rem]">{step.result}</h3>
-                <p className="mt-4 text-base leading-relaxed text-moss">{step.detail}</p>
-                <a
-                  href={href(step.key)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group mt-auto inline-flex w-fit items-center gap-2 border-b border-ink pb-2 pt-8 text-base font-medium text-ink transition-colors hover:border-amber hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
-                >
-                  {c.open}
-                  <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </a>
-              </div>
-            </li>
+            <DealStep key={step.key} step={step} index={index} c={c} href={href(step.key)} />
           ))}
         </ol>
 
