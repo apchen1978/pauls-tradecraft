@@ -533,6 +533,15 @@ const dict = {
           href: "https://apchen1978.github.io/one-listen/",
         },
         {
+          title: "同一座工廠，兩種生意",
+          tag: "合成實驗 · 雙語原型",
+          spark: "工廠沒有變，值得先談的事情變了。",
+          note: "同一張交付影像、同一組資料，換一位買家，就有不同的開場。",
+          cta: "對照兩種開場",
+          boundary: "合成內容，圖像與文案預先寫好，不代表真實工廠能力或買家反應。",
+          href: "/prototype/same-factory-different-buyer/",
+        },
+        {
           title: "只寄一次 · One Send",
           tag: "合成實驗 · 雙語原型",
           spark: "如果報價信只能寄一次，你會留下哪三句？",
@@ -1078,6 +1087,15 @@ const dict = {
           cta: "Spend your listen",
           boundary: "One browser · one listen · synthetic experiment",
           href: "https://apchen1978.github.io/one-listen/",
+        },
+        {
+          title: "Same Factory. Different Buyer.",
+          tag: "Synthetic experiment · bilingual prototype",
+          spark: "Same factory. A different conversation.",
+          note: "The same delivery image and records. A different buyer, a different opening.",
+          cta: "Compare the openings",
+          boundary: "Prewritten synthetic content, not real factory capabilities or buyer response.",
+          href: "/prototype/same-factory-different-buyer/",
         },
         {
           title: "只寄一次 · One Send",

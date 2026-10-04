@@ -72,6 +72,8 @@ jobs:
         run: npm run build
       - name: Include standalone portfolio experiences
         run: |
+          mkdir -p dist/prototype/same-factory-different-buyer
+          cp prototype/same-factory-different-buyer/index.html prototype/same-factory-different-buyer/delivery.svg dist/prototype/same-factory-different-buyer/
           mkdir -p dist/prototype/ai-native-overseas-customer-roadmap
           cp prototype/ai-native-overseas-customer-roadmap/index.html dist/prototype/ai-native-overseas-customer-roadmap/index.html
           mkdir -p dist/prototype/ai-native-commercial-conversion
