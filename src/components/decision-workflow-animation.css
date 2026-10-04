@@ -46,7 +46,7 @@
   max-width: 24ch;
   font-size: clamp(1.55rem, 2.7vw, 2.45rem);
   line-height: 1.16;
-  font-weight: 650;
+  font-weight: 600;
   letter-spacing: -0.045em;
   color: var(--color-forest);
 }
@@ -84,7 +84,7 @@
   color: var(--color-forest);
   font: inherit;
   font-size: 0.76rem;
-  font-weight: 650;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: underline;
@@ -197,7 +197,7 @@
   fill: var(--flow-amber);
   font-family: inherit;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .decision-flow__pile-label {
@@ -271,7 +271,7 @@
 .decision-flow__stage-name {
   display: block;
   font-size: clamp(0.83rem, 1.3vw, 1rem);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-forest);
 }
 
@@ -319,7 +319,7 @@
   padding: 1rem 0;
   border-top: 1px solid var(--color-line);
   font-size: 0.88rem;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--color-forest);
 }
 
