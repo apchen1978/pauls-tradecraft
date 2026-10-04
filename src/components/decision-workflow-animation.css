@@ -633,3 +633,12 @@
     max-width: 14rem;
   }
 }
+
+/* Phones (below md): only the title and the intro show until the visitor opens the rest. */
+@media (max-width: 767px) {
+  .decision-flow[data-folded="true"] .decision-flow__note-row,
+  .decision-flow[data-folded="true"] .decision-flow__stages,
+  .decision-flow[data-folded="true"] .decision-flow__close {
+    display: none;
+  }
+}

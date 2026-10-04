@@ -13,6 +13,7 @@ import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
 import GlobalBusinessDevelopment from "./GlobalBusinessDevelopment.jsx";
+import { FoldToggle, firstSentence, foldClass, useFold } from "./FoldedIntro.jsx";
 
 const iconMap = {
   presentation: PresentationChart,
@@ -547,6 +548,7 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
 function FeaturedSystem({ work }) {
   const { lang, t } = useLang();
   const featuredRef = useRef(null);
+  const fold = useFold();
   const copy = work[lang];
   const cover = typeof work.cover === "string" ? work.cover : work.cover?.[lang];
   const linkLabel = typeof work.linkLabel === "string" ? work.linkLabel : work.linkLabel?.[lang];
@@ -648,10 +650,13 @@ function FeaturedSystem({ work }) {
           </div>
           <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-medium leading-[1.08] tracking-[-0.03em] text-bone md:text-4xl">{copy.title}</h3>
           <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-ondark-meta">{copy.desc}</p>
+          <FoldToggle open={fold.open} onToggle={fold.toggle} controls="featured-more" className="mt-5 text-gold" />
+          <div id="featured-more" className={foldClass(fold.open)}>
           {copy.caseSummary && (
             <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-ondark">{copy.caseSummary}</p>
           )}
           <ProductFlow work={work} tone="dark" />
+          </div>
           <a data-featured-copy href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" className="mt-9 inline-flex w-fit items-center gap-2 rounded-field bg-gold px-5 py-3 text-sm font-semibold text-pine transition-colors hover:brightness-110">
             {linkLabel}
             <ArrowUpRight size={16} weight="bold" />
@@ -689,6 +694,8 @@ function FeaturedSystem({ work }) {
 // 以 works 主標題開場「成果先」；其餘卡片目錄（見 Works）只保留分組標題、不重複大標題。
 export function WorksFlagship() {
   const { lang, t } = useLang();
+  const { open, toggle } = useFold();
+  const [subFirst, subRest] = firstSentence(t.works.sub);
   const featuredSystem = works.find((work) => work.id === "commercial-decision-desk");
   const adjacentWorks = ["global-business-development", "trade-profit-navigator"]
     .map((id) => works.find((work) => work.id === id))
@@ -699,9 +706,10 @@ export function WorksFlagship() {
         <div className="max-w-3xl">
           <p className="eyebrow">{t.works.eyebrow}</p>
           <h2 id="works-flagship-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{t.works.headline}</h2>
-          <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-moss md:text-lg">{t.works.sub}</p>
+          <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-moss md:text-lg">{subFirst}{subRest && <span className={foldClass(open, "inline")}> {subRest}</span>}</p>
         </div>
-        <nav aria-labelledby="works-also-explore" className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
+        <FoldToggle open={open} onToggle={toggle} controls="works-also-explore-nav" />
+        <nav id="works-also-explore-nav" aria-labelledby="works-also-explore" className={`mt-7 flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5 ${open ? "flex" : "hidden md:flex"}`}>
           <span id="works-also-explore" className="text-xs font-semibold text-moss">{t.works.alsoExplore}</span>
           {adjacentWorks.map((work) => (
             <a key={work.id} href={`#${work.id}`} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowRight, ArrowUpRight, CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
+import { FoldToggle, foldClass, useFold } from "./FoldedIntro.jsx";
 
 // One deal, walked through the questions in order. The figures are the ones the live
 // demos produce for their default fictional case (verified 2026-09-29); steps 2
@@ -118,13 +119,15 @@ export default function OneDeal() {
   const { lang } = useLang();
   const c = copy[lang];
   const href = (key) => withDemoLang(LINKS[key], lang);
+  const { open, toggle } = useFold();
   return (
     <section id="one-deal" aria-labelledby="one-deal-heading" className="scroll-mt-24 border-b border-line bg-paper">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-36">
         <p className="eyebrow">{c.eyebrow}</p>
         <h2 id="one-deal-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
         <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-moss md:text-lg">{c.intro}</p>
-        <p className="mt-3 max-w-[62ch] text-xs leading-relaxed text-moss md:text-sm">{c.note}</p>
+        <FoldToggle open={open} onToggle={toggle} controls="one-deal-note" />
+        <p id="one-deal-note" className={`mt-3 max-w-[62ch] text-xs leading-relaxed text-moss md:text-sm ${foldClass(open)}`}>{c.note}</p>
 
         <ol className="mt-8 grid border-t border-ink md:mt-20 md:grid-cols-3">
           {c.steps.map((step, index) => (

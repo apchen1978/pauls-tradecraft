@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowUpRight, CaretDown } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
+import { FoldToggle, firstSentence, foldClass, useFold } from "./FoldedIntro.jsx";
 
 // The flagship works, framed as the questions an exporter asks
 // before committing. Each card: the question in the client's words, what they
@@ -155,15 +156,19 @@ function QuestionCard({ card, index, c, lang }) {
 export default function ThreeQuestions() {
   const { lang } = useLang();
   const c = copy[lang];
+  const { open, toggle } = useFold();
+  const [introFirst, introRest] = firstSentence(c.intro);
   return (
     <section id="three-questions" aria-labelledby="three-questions-heading" className="scroll-mt-24 border-b border-line bg-bone">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-36">
         <p className="eyebrow">{c.eyebrow}</p>
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16">
           <h2 id="three-questions-heading" className="max-w-[20ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
-          <p className="max-w-[44ch] self-end text-base leading-relaxed text-moss md:text-lg">{c.intro}</p>
+          <p className="max-w-[44ch] self-end text-base leading-relaxed text-moss md:text-lg">{introFirst}{introRest && <span className={foldClass(open, "inline")}> {introRest}</span>}</p>
         </div>
+        <FoldToggle open={open} onToggle={toggle} controls="three-questions-intro-more" />
 
+        <div id="three-questions-intro-more" className={foldClass(open)}>
         <p className="mt-8 max-w-[62ch] border-l-2 border-amber pl-4 text-base font-medium leading-relaxed text-forest md:mt-12">{c.chain}</p>
         <p className="mt-3 pl-4 text-sm">
           <a
@@ -173,6 +178,7 @@ export default function ThreeQuestions() {
             {c.prep} →
           </a>
         </p>
+        </div>
 
         <ol className="mt-8 grid border-t border-ink md:mt-12 md:grid-cols-3">
           {c.cards.map((card, index) => (
