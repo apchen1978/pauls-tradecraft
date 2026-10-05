@@ -75,7 +75,7 @@ const rounds = [
     margin: "毛利率估計 0.38",
     sheets: "7 個工作表",
     steps: [
-      "建立 Lead（虛擬 LINE）→ AI Qualification",
+      "建立 Lead（虛擬 LINE）→ 資格初判",
       "Lead Score 86：預算 25 + 決策期 20 + 需求完整 20 + 可丈量 15 + 可聯繫 6",
       "第一次 Follow-up → 客戶提供平面圖與照片",
       "虛擬丈量：客廳 2 窗 360×240、主臥 1 窗 220×240、次臥 1 窗 180×240（正式案仍需現場複測）",

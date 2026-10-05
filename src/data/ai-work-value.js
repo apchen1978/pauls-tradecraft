@@ -1,10 +1,10 @@
 export const aiWorkValue = {
   zh: {
-    eyebrow: "AI 怎麼幫忙",
-    headline: "把細節交給 AI，把商業判斷留給團隊。",
-    intro: "不必先把 AI 變成一套大系統，也不必把決定交給它。讓 AI 先處理可查、可整理、可比較的前置工作，既有團隊就能把時間放回客戶、談判與真正的下一步。",
-    aiLabel: "AI 先做",
-    humanLabel: "人來決定",
+    eyebrow: "前置工作怎麼分",
+    headline: "把細節先整理好，把商業判斷留給團隊。",
+    intro: "不必先導入一套大系統，也不必把決定交出去。先把可查、可整理、可比較的前置工作做好，既有團隊就能把時間放回客戶、談判與真正的下一步。",
+    aiLabel: "系統先整理",
+    humanLabel: "團隊來決定",
     stages: [
       {
         title: "找與整理",
@@ -42,15 +42,15 @@ export const aiWorkValue = {
         href: "https://apchen1978.github.io/payment-concentration-demo/",
       },
     ],
-    boundary: "AI 協助研究、整理與比較；財務、法務、信用與最終商業授權仍由 owner 與相應專業人士負責。",
+    boundary: "研究、整理與比較可以先做；財務、法務、信用與最終商業授權仍由負責人與相應專業人士負責。",
     cta: "看完整商業路徑",
   },
   en: {
-    eyebrow: "How AI helps",
-    headline: "Let AI handle the detail. Keep commercial judgment with the team.",
-    intro: "You do not need a large AI system first, and you do not hand decisions to AI. Let it handle research, structure, and comparison work so the existing team can spend more time with customers, negotiation, and the next real move.",
-    aiLabel: "AI handles first",
-    humanLabel: "People decide",
+    eyebrow: "How the groundwork is split",
+    headline: "Get the detail organized. Keep commercial judgment with the team.",
+    intro: "You do not need a large system first, and you do not hand decisions away. Get the research, structuring, and comparison work done first so the existing team can spend more time with customers, negotiation, and the next real move.",
+    aiLabel: "Organized first",
+    humanLabel: "The team decides",
     stages: [
       {
         title: "Find and structure",
@@ -64,7 +64,7 @@ export const aiWorkValue = {
       },
       {
         title: "Prepare and carry forward",
-        ai: "Structure next actions, meeting priorities, and handoff-ready working notes.",
+        ai: "Structure next actions, meeting priorities, and working notes others can pick up.",
         human: "Decide whether to commit, who acts, and what the next meeting needs to move forward.",
       },
     ],
@@ -88,7 +88,7 @@ export const aiWorkValue = {
         href: "https://apchen1978.github.io/payment-concentration-demo/",
       },
     ],
-    boundary: "AI assists research, structure, and comparison. Finance, legal, credit, and final commercial authorization remain with the owner and the appropriate professionals.",
+    boundary: "Research, structuring, and comparison can come first. Finance, legal, credit, and final commercial authorization remain with the owner and the appropriate professionals.",
     cta: "See the commercial path",
   },
 };

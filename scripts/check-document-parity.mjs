@@ -20,8 +20,8 @@ const expected = {
     EN: ["Global Business Development", "Important Decisions & Workflows", "Business Economics / Accounting-aware Judgment"],
   },
   proofWorks: {
-    ZH: ["Commercial Decision Desk", "Global Business Development / AI-Native Market Entry", "Trade Profit Navigator", "企業支出決策啟發"],
-    EN: ["Commercial Decision Desk", "Global Business Development / AI-Native Market Entry", "Trade Profit Navigator", "Business Spending Insight"],
+    ZH: ["Commercial Decision Desk", "Global Business Development / Market Entry Research", "Trade Profit Navigator", "企業支出決策啟發"],
+    EN: ["Commercial Decision Desk", "Global Business Development / Market Entry Research", "Trade Profit Navigator", "Business Spending Insight"],
   },
 };
 

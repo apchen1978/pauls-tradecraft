@@ -53,7 +53,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     sum.click();
     await new Promise(r => setTimeout(r, 300));
     const a = [...article.querySelectorAll('a')].find(a => a.href.includes('#payment-concentration'));
-    return a ? { href: a.getAttribute('href'), text: a.textContent.trim(), note: article.innerText.includes('合成模擬') || article.innerText.includes('synthetic') } : null;
+    return a ? { href: a.getAttribute('href'), text: a.textContent.trim(), note: article.innerText.includes('示範模擬') || article.innerText.includes('demo simulation') } : null;
   })()`);
 
   // Payment card: related link = #trade-deal-desk

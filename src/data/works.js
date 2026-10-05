@@ -49,16 +49,16 @@ export const works = [
         en: "The strategy made two deliberate choices. First, it avoided feature accumulation and opened the shortest viable customer path: interior scenes establish initial trust, services and work help visitors locate their need, and consultation plus a LINE placeholder connect the next step. Second, it does not invent contact destinations or receiving services when real data is missing; unconfigured items remain explicit so a showcase is not misrepresented as a live sales system. Assets, front-end form states, GitHub delivery, and launch checks were then modularized so the site can later connect to quoting and follow-up tools.",
       },
       tools: {
-        zh: "客戶路徑與內容架構 · 品牌視覺方向 · 響應式 HTML／CSS／JavaScript · 前端表單狀態 · 安全 LINE 預留 · GitHub 私有交付 · 手機版檢視",
-        en: "Customer-path and content architecture · Brand visual direction · Responsive HTML/CSS/JavaScript · Front-end form states · Safe LINE placeholder · Private GitHub delivery · Mobile review",
+        zh: "客戶路徑與內容架構 · 品牌視覺方向 · 響應式 HTML／CSS／JavaScript · 前端表單狀態 · 安全 LINE 預留 · 原始碼交付 · 手機版檢視",
+        en: "Customer-path and content architecture · Brand visual direction · Responsive HTML/CSS/JavaScript · Front-end form states · Safe LINE placeholder · Source-code delivery · Mobile review",
       },
       result: {
         zh: "交付可本機檢視的 MORI 第一版品牌網站與可重複使用的軟裝網站建置 Skill。成品不只是首頁視覺，而是一個可移交的銷售輔助起點：客戶可在補齊 LINE、Email、表單收件與正式網域後，沿用既有結構推進諮詢與後續工具。已刻意把成果界定為「可部署、可延伸的基礎設施」；它不是對即時詢問、轉換或訂單成果的承諾。",
-        en: "Delivered a locally viewable first MORI brand site and a reusable soft-furnishing site-building skill. The output is more than homepage visuals: it is a handoff-ready sales-enablement starting point. Once LINE, email, form receiving, and a formal domain are supplied, the same structure can support consultation and subsequent tools. The result is deliberately defined as deployable, extensible infrastructure—not a claim of immediate inquiries, conversion, or orders.",
+        en: "Delivered a locally viewable first MORI brand site and a reusable soft-furnishing site-building skill. The output is more than homepage visuals: it is a sales-enablement starting point others can pick up. Once LINE, email, form receiving, and a formal domain are supplied, the same structure can support consultation and subsequent tools. The result is deliberately defined as deployable, extensible infrastructure—not a claim of immediate inquiries, conversion, or orders.",
       },
       evidence: {
-        zh: "已驗證的是交付物與程式基本品質：私有 GitHub repo `apchen1978/great-soft-furnishing-website` commit `cb68c69`、`git diff --check`、`node --check script.js`，以及公開展示 https://apchen1978.github.io/mori-soft-furnishing-demo/（HTTP 200，線上實測）。尚未證明：實際 LINE、表單收件服務、自有網域、真實流量、詢問量、轉換率或訂單成果。此案例證明建置與交付能力，而非市場成效。",
-        en: "What is verified is the delivered artifact and basic code quality: private GitHub repo `apchen1978/great-soft-furnishing-website` at commit `cb68c69`, plus `git diff --check`, `node --check script.js`, and the public showcase https://apchen1978.github.io/mori-soft-furnishing-demo/ (HTTP 200, verified live). What remains unproven is explicit: live LINE, form-receiving service, custom domain, real traffic, inquiry volume, conversion rate, or order outcome. This case evidences build and delivery capability—not market performance.",
+        zh: "已驗證的是交付物與程式基本品質（程式碼與語法檢查通過），以及公開展示 https://apchen1978.github.io/mori-soft-furnishing-demo/（HTTP 200，線上實測）。尚未證明：實際 LINE、表單收件服務、自有網域、真實流量、詢問量、轉換率或訂單成果。此案例證明建置與交付能力，而非市場成效。",
+        en: "What is verified is the delivered artifact and basic code quality (code and syntax checks pass), plus the public showcase https://apchen1978.github.io/mori-soft-furnishing-demo/ (HTTP 200, verified live). What remains unproven is explicit: live LINE, form-receiving service, custom domain, real traffic, inquiry volume, conversion rate, or order outcome. This case evidences build and delivery capability—not market performance.",
       },
     },
   },
@@ -82,8 +82,8 @@ export const works = [
       id: "commercial-decision-desk",
       label: { zh: "回到交易主線：商務決策工作台", en: "Back to the trade thread: Commercial Decision Desk" },
       note: {
-        zh: "同一套 human-governed 思路的 SME 延伸：先理解支出，再把事實與問題帶給 CPA 或專業人士。",
-        en: "A Taiwan SME extension of the same human-governed thinking: understand spending first, then bring facts and questions to a CPA or professional.",
+        zh: "同一套由人把關的思路的 SME 延伸：先理解支出，再把事實與問題帶給 CPA 或專業人士。",
+        en: "A Taiwan SME extension of the same human-led thinking: understand spending first, then bring facts and questions to a CPA or professional.",
       },
     },
     showcase: {
@@ -100,17 +100,17 @@ export const works = [
         stages: [
           { label: "01 Describe", value: "State the spending simply" },
           { label: "02 Understand", value: "Cash, benefit, timing, and evidence" },
-          { label: "03 Handoff", value: "Bring better questions to a CPA" },
+          { label: "03 Hand-over", value: "Bring better questions to a CPA" },
         ],
       },
     },
     deliverable: {
       zh: "一份讓企業主先看懂支出商業意義、整理證據，並帶著更好的問題與 CPA 對話的老闆洞察。",
-      en: "An Owner Insight that helps an SME owner understand spending, prepare evidence, and bring better questions to a CPA or professional.",
+      en: "An owner-level insight that helps an SME owner understand spending, prepare evidence, and bring better questions to a CPA or professional.",
     },
     demoNote: {
-      zh: "公開 Demo 為獨立 合成資料原型（尚未經真人 SME／CPA 驗證）：不是記帳、報稅或節稅工具，不替代 CPA 判斷。",
-      en: "Public demo is an independent synthetic prototype (not yet validated by real SME owners or CPAs): not bookkeeping, filing, or tax-saving software, and not a replacement for CPA judgment.",
+      zh: "公開 Demo 為獨立的示意資料原型（尚未經真人 SME／CPA 驗證）：不是記帳、報稅或節稅工具，不替代 CPA 判斷。",
+      en: "Public demo is an independent demo prototype (not yet validated by real SME owners or CPAs): not bookkeeping, filing, or tax-saving software, and not a replacement for CPA judgment.",
     },
     zh: {
       title: "企業支出決策啟發",
@@ -121,7 +121,7 @@ export const works = [
     en: {
       title: "Business Spending Insight",
       desc: "Translate company spending into plain-language questions about cash, benefit, timing, evidence, and professional review.",
-      tag: "Taiwan SME · Spending insight · CPA handoff",
+      tag: "Taiwan SME · Spending insight · CPA hand-over",
       caseSummary: "It does not classify or file taxes. It helps an owner understand what a spending decision may involve, what is missing, and what to ask before meeting a CPA.",
     },
     spendingInsight: {
@@ -129,7 +129,7 @@ export const works = [
         signalLabel: "企業支出決策啟發",
         hero: "錢已經花了，不代表問題已經問對。",
         heroSupport: "先把一筆支出拆成現金、效益出現的時間、可說明的事實與要問 CPA 的問題，才能讓會議從憑感覺開始，變成有準備的判斷。",
-        caseLabel: "合成案例 · 不是稅務結論",
+        caseLabel: "示範案例 · 不是稅務結論",
         case: "公司準備投入 NT$600,000 辦公室整修，改善團隊空間。",
         caseBoundary: "此案例只示範如何整理問題與文件；不判定當期費用、資本化、折舊、可扣除性或稅務結果。",
         lenses: [
@@ -144,7 +144,7 @@ export const works = [
         signalLabel: "Business Spending Insight",
         hero: "Money has been spent. That does not mean the right question has been asked.",
         heroSupport: "Separate cash, when benefit may appear, the facts that can be explained, and the question for a CPA—so the meeting begins with a prepared judgment rather than a pile of receipts.",
-        caseLabel: "SYNTHETIC CASE · NOT A TAX CONCLUSION",
+        caseLabel: "DEMO CASE · NOT A TAX CONCLUSION",
         case: "A company is considering NT$600,000 of office renovation to improve team space.",
         caseBoundary: "This case only demonstrates question and evidence preparation. It does not determine expense treatment, capitalization, depreciation, deductibility, or tax outcomes.",
         lenses: [
@@ -157,15 +157,15 @@ export const works = [
       },
     },
     case: {
-      stage: { zh: "老闆洞察原型", en: "Owner Insight Prototype" },
-      stageTag: { zh: "本機合成案例 · 尚未真人驗證", en: "Synthetic local case · not human-validated" },
+      stage: { zh: "老闆洞察原型", en: "Spending Insight Prototype" },
+      stageTag: { zh: "本機示範案例 · 尚未真人驗證", en: "Local demo case · not human-validated" },
       spendingInsight: {
         zh: {
           questionTitle: "老闆真正需要先看懂什麼？",
           question: "不是「這張發票能不能報」，而是這筆錢要解決什麼營運問題、效益何時出現、已有哪些事實，以及下一步該請誰確認。",
           lessonTitle: "核心轉譯",
           lesson: "複雜的會計或稅務問題，先轉成企業主能準備的事實與一個更好的專業問題。工具不替 CPA 下答案。",
-          exampleTitle: "合成走讀：辦公室整修 NT$600,000",
+          exampleTitle: "示範走讀：辦公室整修 NT$600,000",
           example: "現金支出與空間改善是已知起點；工程內容、使用期間、租賃關係、付款與完工／啟用時間，才是讓後續處理可以被專業確認的事實集合。",
           exampleBoundary: "這不是個案稅務建議，也不代表任何支出必然可以認列、一次費用化或產生節稅效果。",
           ownerFlowTitle: "老闆洞察旅程",
@@ -193,7 +193,7 @@ export const works = [
           question: "Not simply whether a receipt can be claimed, but what operating problem the spending should solve, when its benefit may appear, which facts are known, and who needs to confirm the next point.",
           lessonTitle: "THE CORE TRANSLATION",
           lesson: "Translate accounting or tax complexity into facts an owner can prepare and one better professional question. The tool does not answer for the CPA.",
-          exampleTitle: "SYNTHETIC WALK-THROUGH: NT$600,000 OFFICE RENOVATION",
+          exampleTitle: "DEMO WALK-THROUGH: NT$600,000 OFFICE RENOVATION",
           example: "Cash outflow and an improved workspace are known starting points. Work scope, expected use period, lease context, payment, and completion or use dates are the facts that make subsequent treatment professionally reviewable.",
           exampleBoundary: "This is not case-specific tax advice and does not mean any spending is automatically deductible, immediately expensed, or tax-saving.",
           ownerFlowTitle: "OWNER INSIGHT JOURNEY",
@@ -222,12 +222,12 @@ export const works = [
         en: "An SME owner may know money was spent without seeing how cash, benefit, timing, evidence, and professional treatment can differ—leaving the CPA conversation to start with scattered documents and expectations.",
       },
       approach: {
-        zh: "以花錢前／花錢後兩個入口，先用 plain business language 產生老闆洞察，再以 progressive disclosure 保留 Professional Handoff；未知事項不補猜，專業問題不由工具回答。",
-        en: "Two entry points—before spending and after spending—produce a plain-language Owner Insight first, with a Professional Handoff behind progressive disclosure; unknowns remain unknown and professional questions are not answered by the tool.",
+        zh: "以花錢前／花錢後兩個入口，先用 plain business language 產生老闆洞察，再以 progressive disclosure 保留專業交接摘要；未知事項不補猜，專業問題不由工具回答。",
+        en: "Two entry points—before spending and after spending—produce a plain-language owner insight first, with a professional summary behind progressive disclosure; unknowns remain unknown and professional questions are not answered by the tool.",
       },
       tools: {
-        zh: "Vanilla HTML/CSS/JavaScript · 合成案例 · deterministic local heuristic · 老闆洞察 / Professional Handoff 分層",
-        en: "Vanilla HTML/CSS/JavaScript · synthetic cases · deterministic local heuristic · layered Owner Insight / Professional Handoff",
+        zh: "Vanilla HTML/CSS/JavaScript · 示範案例 · deterministic local heuristic · 老闆洞察／專業交接摘要分層",
+        en: "Vanilla HTML/CSS/JavaScript · demo cases · deterministic local heuristic · layered owner insight / professional summary",
       },
       result: {
         zh: "完成可操作的本機原型與公開靜態 Demo：老闆可用一句話描述支出，先看到現金與商業意義，再自行展開證據與 CPA 問題，並可複製成一份會前摘要。",
@@ -247,8 +247,8 @@ export const works = [
       id: "payment-concentration",
       label: { zh: "下一步：這個決策會如何影響 7 天付款高峰？", en: "Next: how does this decision move your 7-day payment peak?" },
       note: {
-        zh: "portfolio 層演示接合：以同一 Deal C 概念，串接決策 → 付款承諾影響。兩者皆為合成模擬。這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
-        en: "Portfolio-level demo bridge: same Deal C concept, linking decision to payment-commitment impact. Both are synthetic simulations. These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
+        zh: "portfolio 層演示接合：以同一 Deal C 概念，串接決策 → 付款承諾影響。兩者皆為示範模擬。這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
+        en: "Portfolio-level demo bridge: same Deal C concept, linking decision to payment-commitment impact. Both are demo simulations. These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
       },
     },
     cover: "/images/cover-trade-deal-desk.webp",
@@ -270,7 +270,7 @@ export const works = [
     },
     en: {
       title: "AI Trade Deal Desk",
-      desc: "Trade judgment, turned into a rerunnable, handoff-ready workflow — with a pre-commitment check before execution.",
+      desc: "Trade judgment, turned into a rerunnable workflow others can pick up — with a pre-commitment check before execution.",
       tag: "Trade decision · AI",
     },
     case: {
@@ -285,16 +285,16 @@ export const works = [
         en: "I translated practical trade judgment into deterministic decision rules, UNKNOWN handling, supplier comparison, evidence checks, and explicit human approval boundaries, then used a fixture-only gateway to test how authorization, version scope, and execution receipts remain aligned.",
       },
       tools: {
-        zh: "React · Fixture-driven simulation · Deterministic decision engine · Local fixture gateway · Evidence-first workflow · Cross-agent validation",
-        en: "React · Fixture-driven simulation · Deterministic decision engine · Local fixture gateway · Evidence-first workflow · Cross-agent validation",
+        zh: "React · Fixture-driven simulation · Deterministic decision engine · Local fixture gateway · Evidence-first workflow · Independent cross-checks",
+        en: "React · Fixture-driven simulation · Deterministic decision engine · Local fixture gateway · Evidence-first workflow · Independent cross-checks",
       },
       result: {
         zh: "完成一套可操作的模擬 Trade Deal Desk，13 個商業案例全部通過預期決策驗證，並完成 Human-in-the-Loop decision snapshot；另完成只限本地模擬的 execution-safety fixture，驗證未授權動作不會跨出系統邊界。",
         en: "A working Trade Deal Desk simulation with 13 validated commercial decision cases and an auditable local human decision snapshot, plus a local-only execution-safety fixture that verifies unauthorized actions do not cross the system boundary.",
       },
       evidence: {
-        zh: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Execution-safety fixture 9/9 PASS（授權、重放、payload／版本調包、回執完整性；無外部 Adapter）· Independent cross-agent audit PASS",
-        en: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Execution-safety fixture 9/9 PASS (authorization, replay, payload/version swaps, receipt integrity; no external adapter) · Independent cross-agent audit PASS",
+        zh: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Execution-safety fixture 9/9 PASS（授權、重放、payload／版本調包、回執完整性；無外部 Adapter）· Independent review PASS",
+        en: "13/13 fixture cases PASS · 5/5 negative tests PASS · Human override validated · Immutable local decision snapshot validated · Execution-safety fixture 9/9 PASS (authorization, replay, payload/version swaps, receipt integrity; no external adapter) · Independent review PASS",
       },
     },
   },
@@ -330,8 +330,8 @@ export const works = [
         en: "Built a single Excel tracker covering lead-to-follow-up, validated through three simulation rounds.",
       },
       tools: {
-        zh: "AI 協作（Codex/DSH）· Excel · 零依賴驗證腳本",
-        en: "AI collaboration (Codex/DSH) · Excel · dependency-free verification scripts",
+        zh: "Excel · 零依賴驗證腳本",
+        en: "Excel · dependency-free verification scripts",
       },
       result: {
         zh: "23/23 零依賴驗證通過；3 期主流程模擬（基礎／資料模型／報價版本）及 004 低資訊稽核完成，附 inspect 證據檔。",
@@ -364,7 +364,7 @@ export const works = [
       tag: "Case brief · PDF",
     },
     case: {
-      stage: { zh: "影子試點", en: "Shadow Pilot" },
+      stage: { zh: "平行試行", en: "Parallel trial" },
       problem: {
         zh: "窗簾軟裝銷售的 Pilot 成果缺乏單頁可交付的證據形式，難以對客戶快速說明。",
         en: "Pilot results lacked a one-page, client-ready evidence format for quick explanation.",
@@ -374,8 +374,8 @@ export const works = [
         en: "Distilled the pilot flow, tracking, and results into a one-page A4 brief with a public demo.",
       },
       tools: {
-        zh: "AI 協作（Codex/DSH）· Excel · GitHub Pages",
-        en: "AI collaboration (Codex/DSH) · Excel · GitHub Pages",
+        zh: "Excel · GitHub Pages",
+        en: "Excel · GitHub Pages",
       },
       result: {
         zh: "已交付單頁案例簡報；公開 repo + GitHub Pages live demo 上線。",
@@ -414,11 +414,11 @@ export const works = [
       },
       approach: {
         zh: "主流程三輪：001 基礎流程 → 002 資料模型修正 → 003 報價版本化；004 另查低資訊虛擬 Lead。",
-        en: "Three core rounds: 001 baseline, 002 data-model fixes, 003 quote versioning; 004 separately audits a low-information synthetic lead.",
+        en: "Three core rounds: 001 baseline, 002 data-model fixes, 003 quote versioning; 004 separately audits a low-information demo lead.",
       },
       tools: {
-        zh: "AI 協作（Codex/DSH）· 模擬資料（SIMULATION 層級）· inspect 工具",
-        en: "AI collaboration (Codex/DSH) · simulated data (SIMULATION tier) · inspect tooling",
+        zh: "模擬資料（SIMULATION 層級）· inspect 工具",
+        en: "simulated data (SIMULATION tier) · inspect tooling",
       },
       result: {
         zh: "001–003 主流程與 004 低資訊稽核完成，每期附 .inspect.ndjson 證據；23/23 驗證通過。",
@@ -496,31 +496,31 @@ export const works = [
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
-       stageTag: { zh: "Live Production Demo · DeepSeek", en: "Live Production Demo · DeepSeek" },
+       stageTag: { zh: "Live Production Demo", en: "Live Production Demo" },
        compact: true,
        problem: {
          zh: "歌詞創作工具往往只停留在單次生成，缺少可實際操作的品質控制與迭代流程。",
          en: "Lyric tools often stop at one-shot generation, without a practical quality-control and iteration workflow.",
        },
        approach: {
-         zh: "Desktop V3 canonical core → Python serverless adapter → DeepSeek API → Vercel deployment；Web 只負責 presentation 與安全 API boundary。",
-         en: "Desktop V3 canonical core → Python serverless adapter → DeepSeek API → Vercel deployment; the Web layer owns presentation and the secure API boundary.",
+         zh: "Desktop V3 canonical core → Python serverless adapter → model API → Vercel deployment；Web 只負責 presentation 與安全 API boundary。",
+         en: "Desktop V3 canonical core → Python serverless adapter → model API → Vercel deployment; the Web layer owns presentation and the secure API boundary.",
        },
        highlights: {
-         zh: ["Generate → Critic → 100 分 Quality Score → Auto Rewrite", "Rewrite Directions 與 Chorus Hooks", "Version History 與 A/B Comparison", "Desktop canonical core 延伸至公開 Web", "DeepSeek-powered 真實生成，API key 僅存在 server-side", "390px / 1280px、rate-limit rejection 與 client bundle 已驗證"],
-         en: ["Generate → Critic → 100-point Quality Score → Auto Rewrite", "Rewrite Directions and Chorus Hooks", "Version History and A/B Comparison", "Desktop canonical core extended to a public Web Demo", "DeepSeek-powered live generation with the API key server-side only", "390px / 1280px, rate-limit rejection, and client-bundle checks verified"],
+         zh: ["Generate → Critic → 100 分 Quality Score → Auto Rewrite", "Rewrite Directions 與 Chorus Hooks", "Version History 與 A/B Comparison", "Desktop canonical core 延伸至公開 Web", "真實生成，API key 僅存在 server-side", "390px / 1280px、rate-limit rejection 與 client bundle 已驗證"],
+         en: ["Generate → Critic → 100-point Quality Score → Auto Rewrite", "Rewrite Directions and Chorus Hooks", "Version History and A/B Comparison", "Desktop canonical core extended to a public Web Demo", "Live generation with the API key server-side only", "390px / 1280px, rate-limit rejection, and client-bundle checks verified"],
        },
        tools: {
-         zh: "Python · PySide6 · DeepSeek API · Vercel Serverless · Ollama · HTML/CSS/JavaScript",
-         en: "Python · PySide6 · DeepSeek API · Vercel Serverless · Ollama · HTML/CSS/JavaScript",
+         zh: "Python · PySide6 · Model API · Vercel Serverless · Ollama · HTML/CSS/JavaScript",
+         en: "Python · PySide6 · Model API · Vercel Serverless · Ollama · HTML/CSS/JavaScript",
        },
        result: {
          zh: "Desktop V3 可獨立執行，Windows EXE 已建置（40.9MB）；公開 Live Web Demo 已部署，Desktop 與 Web 共用同一套 Python V3 核心。",
          en: "Desktop V3 runs independently with a built Windows EXE (40.9MB); the public Live Web Demo is deployed, with Desktop and Web sharing the same Python V3 core.",
        },
        evidence: {
-         zh: "Production Web Demo 已完成端到端實測：Idea → Generate → Critic → Score → Rewrite → Hooks → Version History → A/B Comparison。已驗證真實 DeepSeek AI generation、390px / 1280px 響應式版面、0 material console errors、client bundle 無 API key、provider / model 不由訪客控制，以及 rate-limit rejection path。來源：private repo apchen1978/ai-lyrics-generator。",
-         en: "Production Web Demo verified end to end: Idea → Generate → Critic → Score → Rewrite → Hooks → Version History → A/B Comparison. Verified: real DeepSeek AI generation, responsive 390px / 1280px layouts, 0 material console errors, no API key in the client bundle, visitor cannot control provider or model, and the rate-limit rejection path. Source: private repo apchen1978/ai-lyrics-generator.",
+         zh: "Production Web Demo 已完成端到端實測：Idea → Generate → Critic → Score → Rewrite → Hooks → Version History → A/B Comparison。已驗證真實生成、390px / 1280px 響應式版面、0 material console errors、client bundle 無 API key、provider / model 不由訪客控制，以及 rate-limit rejection path。",
+         en: "Production Web Demo verified end to end: Idea → Generate → Critic → Score → Rewrite → Hooks → Version History → A/B Comparison. Verified: live generation, responsive 390px / 1280px layouts, 0 material console errors, no API key in the client bundle, visitor cannot control provider or model, and the rate-limit rejection path.",
        },
     },
   },
@@ -556,8 +556,8 @@ export const works = [
         en: "Separated facts, inferences, and unknowns before arranging options, trade-offs, and the next human decision into a readable narrative; drove the PPTX → PDF pipeline from spec JSON across three iterations.",
       },
       tools: {
-        zh: "ppt-toolkit（pptxgenjs）· spec JSON 管線 · AI 協作",
-        en: "ppt-toolkit (pptxgenjs) · spec JSON pipeline · AI collaboration",
+        zh: "ppt-toolkit（pptxgenjs）· spec JSON 管線",
+        en: "ppt-toolkit (pptxgenjs) · spec JSON pipeline",
       },
       result: {
         zh: "完成三版可重跑簡報與 PDF 渲染；展示的是決策敘事的轉換，不只是版面產出。",
@@ -603,16 +603,16 @@ export const works = [
         en: "Separate payment, expected start of use, and first review into three moments. Name the problem the spend is meant to improve and when to revisit it; an expectation never becomes a realized benefit by default.",
       },
       tools: {
-        zh: "Vanilla HTML/CSS/JS · 本機互動原型 · 合成情境",
-        en: "Vanilla HTML/CSS/JS · local interactive prototype · synthetic scenario",
+        zh: "Vanilla HTML/CSS/JS · 本機互動原型 · 示範情境",
+        en: "Vanilla HTML/CSS/JS · local interactive prototype · demo scenario",
       },
       result: {
         zh: "同一個情境同時呈現現金已支付、效益尚待觀察，以及下一次回看時間。",
         en: "One scenario shows cash already paid, the intended effect still unobserved, and when to look again.",
       },
       evidence: {
-        zh: "此頁為可操作的合成情境原型，不代表真人企業使用、節省金額、ROI 或因果效果；不判斷費用認列、稅務處理或會計分類。原始記帳 Demo 仍可另行查看。",
-        en: "This is an interactive synthetic scenario, not evidence of business adoption, savings, ROI, or causal effect. It does not determine expense recognition, tax treatment, or accounting classification. The original tracker demo remains available separately.",
+        zh: "此頁為可操作的示範情境原型，不代表真人企業使用、節省金額、ROI 或因果效果；不判斷費用認列、稅務處理或會計分類。原始記帳 Demo 仍可另行查看。",
+        en: "This is an interactive demo scenario, not evidence of business adoption, savings, ROI, or causal effect. It does not determine expense recognition, tax treatment, or accounting classification. The original tracker demo remains available separately.",
       },
     },
   },
@@ -624,8 +624,8 @@ export const works = [
       id: "trade-deal-desk",
       label: { zh: "回到源頭：這個 Deal C 是怎麼被評估與核准的？", en: "Back to the source: how was this Deal C assessed and approved?" },
       note: {
-        zh: "portfolio 層演示接合：Deal C 的決策來自 Trade Deal Desk 的合成案例，付款影響為模擬計算。這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
-        en: "Portfolio-level demo bridge: Deal C's decision comes from a Trade Deal Desk synthetic case; the payment impact is a simulated calculation. These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
+        zh: "portfolio 層演示接合：Deal C 的決策來自 Trade Deal Desk 的示範案例，付款影響為模擬計算。這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
+        en: "Portfolio-level demo bridge: Deal C's decision comes from a Trade Deal Desk demo case; the payment impact is a simulated calculation. These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
       },
     },
     cover: "/images/cover-payment-concentration.png",
@@ -670,8 +670,8 @@ export const works = [
         en: "The six-event fixture reproduces the contract result exactly: USD 83,000 before Deal C → USD 52,000 Deal C incremental in peak → USD 135,000 after (peak window Oct 12–18; contributors A 45,000 / B 38,000 / C 52,000). Editing dates or amounts recalculates instantly, and currencies never mix.",
       },
       evidence: {
-        zh: "已發布為靜態合成 Try surface（公開 demo）。六事件 canonical fixture 精確匹配 · 51/51 驗證通過 · 幣別分離驗證 · 無持久化／無外部服務 · 390px 手機驗證通過。此為 prototype evidence：尚未證明優於 Excel、商業採用或支付意願。",
-        en: "Published as a static synthetic Try surface (public demo). Six-event canonical fixture matches exactly · 51/51 checks pass · per-currency separation verified · no persistence / no external services · 390px mobile verification passes. Prototype evidence only: Excel superiority, commercial adoption, and willingness-to-pay are not proven.",
+        zh: "已發布為靜態示範頁（公開 demo）。六事件 canonical fixture 精確匹配 · 51/51 驗證通過 · 幣別分離驗證 · 無持久化／無外部服務 · 390px 手機驗證通過。此為 prototype evidence：尚未證明優於 Excel、商業採用或支付意願。",
+        en: "Published as a static demo page (public demo). Six-event canonical fixture matches exactly · 51/51 checks pass · per-currency separation verified · no persistence / no external services · 390px mobile verification passes. Prototype evidence only: Excel superiority, commercial adoption, and willingness-to-pay are not proven.",
       },
     },
   },
@@ -754,7 +754,7 @@ export const works = [
       label: { zh: "延伸：從候選名單到商業資源判斷", en: "Next: from candidate list to commercial-resource judgment" },
       note: {
         zh: "這個 Demo 證明如何把公開訊號收斂成可檢視的候選短名單；下一層才是依供應商現實、老闆目標與未知決定資源該往哪裡去。",
-        en: "This demo shows how public signals become an inspectable candidate shortlist. The next layer decides where effort belongs, given supplier reality, Owner objectives, and “Not public” items.",
+        en: "This demo shows how public signals become an inspectable candidate shortlist. The next layer decides where effort belongs, given supplier reality, the owner's objectives, and “Not public” items.",
       },
     },
     showcase: {
@@ -763,7 +763,7 @@ export const works = [
         stages: [
           { label: "01 找到人", value: "公開網路上的候選買家" },
           { label: "02 說得出理由", value: "來源、為什麼值得／為什麼不值得、查無公開資料、先開發／先查證／暫緩／排除" },
-          { label: "03 交給判斷", value: "人確認後，以提案形式帶入 CDD" },
+          { label: "03 交給判斷", value: "人確認後，以提案形式帶入商務決策工作台" },
         ],
       },
       en: {
@@ -780,43 +780,43 @@ export const works = [
       en: "An evidence-qualified shortlist with source context, reasons for and against, explicit “Not public” items, and the questions to answer before first contact. You can also bring your own list and get a printable or downloadable brief.",
     },
     demoNote: {
-      zh: "Demo 以合成情境與代表性紀錄呈現，也能帶入你自己的名單——方法展示，不是 CRM、不會上網搜尋、不含自動發信、不保證成交。",
-      en: "Demo uses a synthetic scenario and representative records, and also takes a list you bring — a method showcase, not a CRM; it does not search the web, send anything, or guarantee results.",
+      zh: "Demo 以示範情境與代表性紀錄呈現，也能帶入你自己的名單——方法展示，不是 CRM、不會上網搜尋、不含自動發信、不保證成交。",
+      en: "Demo uses a demo scenario and representative records, and also takes a list you bring — a method showcase, not a CRM; it does not search the web, send anything, or guarantee results.",
     },
     zh: {
-      title: "AI 輔助海外客戶開發",
+      title: "海外客戶開發",
       desc: "先找到該接觸的海外買家：把公開網路訊號收斂成有來源、可檢視的名單，再談能不能接單。",
       tag: "客戶開發 · 先找到該接觸的人",
-      caseSummary: "AI 不只是替業務找更多名單，而是把公開線索轉成可檢視、可質疑、可決定的潛在客戶短名單。",
+      caseSummary: "不只是替業務找更多名單，而是把公開線索轉成可檢視、可質疑、可決定的潛在客戶短名單。",
     },
     en: {
-      title: "AI-Assisted Overseas Lead Discovery",
+      title: "Overseas Lead Discovery",
       desc: "Find the overseas buyers worth reaching first: public-web signals turned into a sourced, inspectable list, before anyone asks whether the order can be taken.",
       tag: "Lead discovery · reach first",
-      caseSummary: "AI doesn't just find more leads. It turns public signals into a shortlist people can inspect, challenge, and act on.",
+      caseSummary: "It doesn't just find more leads. It turns public signals into a shortlist people can inspect, challenge, and act on.",
     },
     case: {
       stage: { zh: "技術驗證", en: "Technical Validation" },
       stageTag: { zh: "44 候選 → 20 短名單", en: "44 candidates → 20 shortlist" },
       problem: {
-        zh: "多數中小企業卡在第一步：不知道該先接觸誰。AI 可以找到幾百家公司的名字，但「找到公司」不等於「找到值得主動開口的買家」；沒有理由的名單，業務不敢用，老闆也無法質疑。",
-        en: "Most small exporters are stuck at step one: not knowing whom to approach first. AI can name hundreds of companies, but finding companies is not the same as finding buyers worth reaching out to; a list without reasons is one a sales team cannot trust and an owner cannot challenge.",
+        zh: "多數中小企業卡在第一步：不知道該先接觸誰。搜尋工具可以找到幾百家公司的名字，但「找到公司」不等於「找到值得主動開口的買家」；沒有理由的名單，業務不敢用，老闆也無法質疑。",
+        en: "Most small exporters are stuck at step one: not knowing whom to approach first. Search tools can name hundreds of companies, but finding companies is not the same as finding buyers worth reaching out to; a list without reasons is one a sales team cannot trust and an owner cannot challenge.",
       },
       approach: {
-        zh: "公開網路發現 → 買方契合 → 品類契合 → 進口開放度 → 亞洲採購證據 → 證據品質 → 為什麼值得／為什麼不值得 → 確定性分層（最差條件決定層級，無加權分數）→ 國家與市場層（不改變層級）→ 領域學習迭代 → 人確認後才以提案交給 CDD。",
-        en: "Public-web discovery → Buyer Fit → Category Fit → Import Openness → Asia Sourcing Evidence → Evidence Quality → reasons for and against → deterministic tiers (worst condition wins; no weights) → market layer (never changes a tier) → domain-learning iteration → human-confirmed proposal into CDD.",
+        zh: "公開網路發現 → 買方契合 → 品類契合 → 進口開放度 → 亞洲採購證據 → 證據品質 → 為什麼值得／為什麼不值得 → 確定性分層（最差條件決定層級，無加權分數）→ 國家與市場層（不改變層級）→ 領域學習迭代 → 人確認後才以提案交給商務決策工作台。",
+        en: "Public-web discovery → Buyer Fit → Category Fit → Import Openness → Asia Sourcing Evidence → Evidence Quality → reasons for and against → deterministic tiers (worst condition wins; no weights) → market layer (never changes a tier) → domain-learning iteration → human-confirmed proposal into the Commercial Decision Desk.",
       },
       tools: {
-        zh: "公開網路多來源發現 · 證據分級（第一手／輔助／需再核對）· 矛盾證據檢查 · 領域專家校準 · 純 JavaScript 確定性規則 · 資格規則、市場層、CDD 匯出、帶入名單與名單簡報共 353 項自動檢查",
-        en: "Multi-source public-web discovery · evidence-source tiering · contradiction checking · domain-expert calibration · plain-JavaScript deterministic rules · 353 automated checks across qualification, market layer, CDD export, the bring-your-own list, and the list brief",
+        zh: "公開網路多來源發現 · 證據分級（第一手／輔助／需再核對）· 矛盾證據檢查 · 領域專家校準 · 純 JavaScript 確定性規則 · 資格規則、市場層、工作台匯出、帶入名單與名單簡報共 353 項自動檢查",
+        en: "Multi-source public-web discovery · evidence-source tiering · contradiction checking · domain-expert calibration · plain-JavaScript deterministic rules · 353 automated checks across qualification, market layer, decision-desk export, the bring-your-own list, and the list brief",
       },
       result: {
-        zh: "44 家候選經證據式資格篩選 → 20 家入選短名單；第二版評分規則迭代後，弱相關的誤判在短名單中減少；8 家脫敏代表性紀錄 加上 4 筆合成的被篩除典型（共 12 筆）以互動 demo 公開，並加入國家與市場層、以確定性規則分成「先開發／先查證／暫緩／排除」四層（沒有加權分數）。",
-        en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after second-version rubric iteration, weakly related false positives were reduced in the shortlist; 8 anonymized representative records plus 4 synthetic screened-out archetypes (12 in all) published as an interactive demo, with a market layer and deterministic tiers (engage first / verify first / hold / exclude; no weights, no score).",
+        zh: "44 家候選經證據式資格篩選 → 20 家入選短名單；第二版評分規則迭代後，弱相關的誤判在短名單中減少；8 家脫敏代表性紀錄 加上 4 筆示範用的被篩除典型（共 12 筆）以互動 demo 公開，並加入國家與市場層、以確定性規則分成「先開發／先查證／暫緩／排除」四層（沒有加權分數）。",
+        en: "44 candidates evaluated through evidence qualification → 20 evidence-qualified shortlist; after second-version rubric iteration, weakly related false positives were reduced in the shortlist; 8 anonymized representative records plus 4 illustrative screened-out archetypes (12 in all) published as an interactive demo, with a market layer and deterministic tiers (engage first / verify first / hold / exclude; no weights, no score).",
       },
       evidence: {
-        zh: "44 家候選評估 · 20 家證據合格短名單 · 凍結的基準版本 · 第二版評分規則迭代 · 8 家脫敏 demo 紀錄 加 4 筆合成被篩除典型。國家為代表性標示、市場層屬領域學習須逐項查證；被排除的帳戶不提供 CDD 匯出。自動檢查：資格規則 59/59、市場層 129/129、CDD 提案匯出 42/42、帶入名單 61/61、名單簡報 62/62。下一步（尚未建置）：主動接觸層——誰能拍板、用哪個管道、第一句話與時機，只產出草稿。揭露：研究階段 · 使用脫敏資料與公開證據 · 含模擬示範 · 沒有證據的資訊不會標成事實。",
-        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · frozen baseline · second-version rubric iteration · 8 anonymized representative records plus 4 synthetic screened-out archetypes in the interactive demo. Countries are representative labels and the market layer is domain learning to be verified item by item; excluded accounts are not offered for CDD export. Automated checks: qualification 59/59, market layer 129/129, CDD intake export 42/42, bring-your-own list 61/61, list brief 62/62. Next, not built: a reach layer — who decides, which channel, first message, timing — producing drafts only. Disclosure: research stage · anonymized data and public evidence · includes simulated demo · information without evidence is never presented as fact.",
+        zh: "44 家候選評估 · 20 家證據合格短名單 · 凍結的基準版本 · 第二版評分規則迭代 · 8 家脫敏 demo 紀錄 加 4 筆示範用被篩除典型。國家為代表性標示、市場層屬領域學習須逐項查證；被排除的帳戶不提供商務決策工作台匯出。自動檢查：資格規則 59/59、市場層 129/129、商務決策工作台提案匯出 42/42、帶入名單 61/61、名單簡報 62/62。下一步（尚未建置）：主動接觸層——誰能拍板、用哪個管道、第一句話與時機，只產出草稿。揭露：研究階段 · 使用脫敏資料與公開證據 · 含模擬示範 · 沒有證據的資訊不會標成事實。",
+        en: "44 unique candidates evaluated · 20 evidence-qualified shortlist · frozen baseline · second-version rubric iteration · 8 anonymized representative records plus 4 illustrative screened-out archetypes in the interactive demo. Countries are representative labels and the market layer is domain learning to be verified item by item; excluded accounts are not offered for Commercial Decision Desk export. Automated checks: qualification 59/59, market layer 129/129, decision-desk intake export 42/42, bring-your-own list 61/61, list brief 62/62. Next, not built: a reach layer — who decides, which channel, first message, timing — producing drafts only. Disclosure: research stage · anonymized data and public evidence · includes simulated demo · information without evidence is never presented as fact.",
       },
     },
   },
@@ -825,7 +825,7 @@ export const works = [
     section: "commercial",
     featuredRank: 1,
     cover: { zh: "/images/cover-global-business-development-zh.svg", en: "/images/cover-global-business-development.svg" },
-    imageAlt: { zh: "海外商業開發：相同證據、不同目標、不同下一步的合成判斷示範", en: "Global business development: same evidence, different objective, different next move synthetic judgment demonstration" },
+    imageAlt: { zh: "海外商業開發：相同證據、不同目標、不同下一步的判斷示範", en: "Global business development: same evidence, different objective, different next move: a judgment demonstration" },
     span: "md:col-span-2",
     icon: "briefcase",
     primary: true,
@@ -838,25 +838,25 @@ export const works = [
       },
       label: { zh: "開啟獨立互動示範", en: "Open the standalone demo" },
       note: {
-        zh: "同一個判斷問題的獨立頁面：切換老闆目標，看下一步研究優先順序如何改變。合成示範，不含真實買方或成果。",
-        en: "The same judgment question on its own page: switch the Owner objective and watch the next research priority change. Synthetic demonstration; no real buyers or outcomes.",
+        zh: "同一個判斷問題的獨立頁面：切換老闆目標，看下一步研究優先順序如何改變。示範內容，不含真實買方或成果。",
+        en: "The same judgment question on its own page: switch the owner's objective and watch the next research priority change. Demo only; no real buyers or outcomes.",
       },
     },
     related: {
       id: "ai-native-market-entry",
-      label: { zh: "看證據案例：AI 原生市場開發", en: "See the evidence case: AI-Native Market Entry" },
+      label: { zh: "看證據案例：海外市場開發研究", en: "See the evidence case: Market Entry Research" },
       note: {
         zh: "先看證據如何挑戰「相關」；再回到本案例，判斷在供應商現實與老闆目標已知時，商業資源該往哪裡去。",
-        en: "First see how evidence challenges relevance; then return here to decide where commercial effort belongs once supplier reality and the Owner objective are explicit.",
+        en: "First see how evidence challenges relevance; then return here to decide where commercial effort belongs once supplier reality and the owner's objective are explicit.",
       },
     },
     deliverable: {
       zh: "一份可檢視的商業開發判斷示範：從供應商現實與市場問題出發，尋找可能接得上的買方／通路，再把老闆目標、未知、產品切入與內部資源關卡分開檢視。",
-      en: "An inspectable business-development judgment demonstration: start with supplier reality and market problems, find buyer or channel paths that may fit, then keep Owner objectives, UNKNOWNs, product entry, and internal resource gates distinct.",
+      en: "An inspectable business-development judgment demonstration: start with supplier reality and market problems, find buyer or channel paths that may fit, then keep the owner's objectives, UNKNOWNs, product entry, and internal resource gates distinct.",
     },
     demoNote: {
-      zh: "Synthetic demonstration · 真人驗證與市場驗證尚未進行；不代表真實買方、RFQ、訂單或商業成果。",
-      en: "Synthetic demonstration · human and market validation have not been performed; it does not represent real buyers, RFQs, orders, or commercial outcomes.",
+      zh: "示範 · 真人驗證與市場驗證尚未進行；不代表真實買方、RFQ、訂單或商業成果。",
+      en: "Demo · human and market validation have not been performed; it does not represent real buyers, RFQs, orders, or commercial outcomes.",
     },
     showcase: {
       zh: {
@@ -871,7 +871,7 @@ export const works = [
         label: "Commercial judgment flow",
         stages: [
           { label: "01 Supplier reality", value: "Confirm what can actually be delivered" },
-          { label: "02 Owner objective", value: "Make the current objective explicit" },
+          { label: "02 Business objective", value: "Make the current objective explicit" },
           { label: "03 Evidence-led next move", value: "Place effort where a commercial path deserves verification" },
         ],
       },
@@ -879,27 +879,27 @@ export const works = [
     zh: {
       title: "海外商業開發",
       desc: "找到海外相關公司只是開始；從供應商現實與市場問題出發，主動找出可能接得上的買方，再用老闆目標與證據判斷哪裡值得投入商業資源。",
-      tag: "海外商業開發 · 商業判斷 · 合成互動示範",
+      tag: "海外商業開發 · 商業判斷 · 互動示範",
       caseSummary: "同一組候選與證據，會因老闆的目標不同而改變優先路徑；主動尋找不等於直接承諾，沒有採購路徑證據的高知名度帳戶，先暫緩。",
     },
     en: {
       title: "Global Business Development",
-      desc: "Finding relevant overseas companies is only the start. Start with supplier reality and market problems to find plausible buyer paths, then decide where commercial effort belongs given Owner objectives and supported evidence.",
-      tag: "Global business development · Commercial judgment · Synthetic interactive demo",
-      caseSummary: "The same candidates and evidence can produce a different priority path when the Owner objective changes; proactive discovery does not equal commitment, and a prestigious account without procurement-path evidence remains HOLD.",
+      desc: "Finding relevant overseas companies is only the start. Start with supplier reality and market problems to find plausible buyer paths, then decide where commercial effort belongs given the owner's objectives and supported evidence.",
+      tag: "Global business development · Commercial judgment · Interactive demo",
+      caseSummary: "The same candidates and evidence can produce a different priority path when the owner's objective changes; proactive discovery does not equal commitment, and a prestigious account without procurement-path evidence remains HOLD.",
     },
     case: {
-      stage: { zh: "合成互動方法示範", en: "Synthetic Interactive Method Demonstration" },
+      stage: { zh: "互動方法示範", en: "Interactive Method Demonstration" },
       stageTag: { zh: "真人驗證待完成", en: "Human validation pending" },
       globalBusinessDevelopment: {
         zh: {
-          kicker: "海外商業開發 · 合成互動示範",
+          kicker: "海外商業開發 · 互動示範",
           headline: "看起來相關，不代表值得投入業務資源。",
           intro: "先看供應商能交付什麼、老闆現在要達成什麼，再檢查每個帳戶是否有可支持的商業取得路徑。這不是買家名單，也不是成交預測。",
           editorialLabel: "判斷原則",
           editorialLine: "我們要的，不是更漂亮的名單，而是更清楚的下一個問題。",
-          syntheticNote: "合成示範 · 顯示方法如何影響下一步，不代表真實客戶、訂單或市場成果。",
-          objectiveEyebrow: "Owner objective changes the next move",
+          syntheticNote: "示範內容 · 顯示方法如何影響下一步，不代表真實客戶、訂單或市場成果。",
+          objectiveEyebrow: "The objective changes the next move",
           objectiveTitle: "同一組候選，切換老闆目標後，下一步會改變。",
           objectiveIntro: "這不是總分排序；目標不同，商業資源應被問的問題也不同。",
           objectivePrompt: "請選一個你現在真正要換取的目標，看看優先路徑與下一個問題如何改變。",
@@ -951,20 +951,20 @@ export const works = [
           decisionBriefLabel: "給老闆的決策交接底稿",
           decisionBriefTitle: "這裡留下的是一個可被確認的下一步，而不是自動結論。",
           decisionBriefBody: "當出現真實的交易條件、付款、責任、經濟性或內部資源承諾時，再把已知、未知與需要確認的問題帶入下一層評估。",
-          boundaries: ["SYNTHETIC DEMONSTRATION", "METHOD VISIBILITY：DEMONSTRATED", "HUMAN VALIDATION：NOT PERFORMED", "MARKET VALIDATION：NOT PERFORMED", "PUBLIC OUTCOME CLAIMS：NOT VALIDATED"],
+          boundaries: ["DEMONSTRATION", "METHOD VISIBILITY：DEMONSTRATED", "HUMAN VALIDATION：NOT PERFORMED", "MARKET VALIDATION：NOT PERFORMED", "PUBLIC OUTCOME CLAIMS：NOT VALIDATED"],
           handoff: "當出現值得進一步確認的商機時，下一站是：",
           handoffLink: "商務決策工作台（CDD）",
-          conversionLink: "看候選公司如何走到買家回覆（合成示例）",
+          conversionLink: "看候選公司如何走到買家回覆（示範）",
         },
         en: {
-          kicker: "Global business development · Synthetic interactive demonstration",
+          kicker: "Global business development · Interactive demonstration",
           headline: "Surface relevance is not yet worth commercial effort.",
-          intro: "Start with what the supplier can actually deliver and what the Owner is trying to achieve, then inspect whether each account has a supported commercial acquisition path. This is neither a buyer list nor a conversion prediction.",
+          intro: "Start with what the supplier can actually deliver and what the owner is trying to achieve, then inspect whether each account has a supported commercial acquisition path. This is neither a buyer list nor a conversion prediction.",
           editorialLabel: "Judgment principle",
           editorialLine: "The output is not a better list. It is a clearer next question.",
-          syntheticNote: "Synthetic demonstration · shows how a method changes the next move; it does not represent real customers, orders, or market outcomes.",
-          objectiveEyebrow: "Owner objective changes the next move",
-          objectiveTitle: "The same candidates change meaning when the Owner objective changes.",
+          syntheticNote: "Demo only · shows how a method changes the next move; it does not represent real customers, orders, or market outcomes.",
+          objectiveEyebrow: "The objective changes the next move",
+          objectiveTitle: "The same candidates change meaning when the owner's objective changes.",
           objectiveIntro: "This is not a composite score. Different objectives produce different questions for commercial resources.",
           objectivePrompt: "Choose the objective you are pursuing now to see the priority path and next question change.",
           decisionFrameLabel: "Define the decision boundary first",
@@ -1003,22 +1003,22 @@ export const works = [
           unknownAction: "HOLD · Do not invest samples or senior sales effort before a procurement path is evidenced.",
           gateLabel: "Development opportunity gate",
           gateTitle: "A design reference or sample request is not an order.",
-          gateBody: "It can justify internal consideration: technical feasibility, development resources, MOQ, economics, lead time, quality, compliance, and Owner authorization remain separate questions.",
+          gateBody: "It can justify internal consideration: technical feasibility, development resources, MOQ, economics, lead time, quality, compliance, and owner authorization remain separate questions.",
           gateAction: "INTERNAL REVIEW MAY BE JUSTIFIED · Not an order prediction.",
           methodLabel: "How the method works",
-          methodIntro: "Each step leaves the next question to verify. The system expands comparison range; the Owner retains judgment and authorization.",
-          method: ["Confirm supplier reality", "Make the Owner objective explicit", "Classify buyer / channel roles", "Check for a supported commercial acquisition path", "Keep UNKNOWN and counter-evidence in the next action"],
+          methodIntro: "Each step leaves the next question to verify. The system expands comparison range; the owner retains judgment and authorization.",
+          method: ["Confirm supplier reality", "Make the owner's objective explicit", "Classify buyer / channel roles", "Check for a supported commercial acquisition path", "Keep UNKNOWN and counter-evidence in the next action"],
           loops: [
-            { title: "Loop 1 · Overseas business development", body: "Supplier reality → Owner objective → accounts / channels → evidence → product conversation / buyer signal." },
+            { title: "Loop 1 · Overseas business development", body: "Supplier reality → owner's objective → accounts / channels → evidence → product conversation / buyer signal." },
             { title: "Loop 2 · Commercial to production", body: "Only when buyer signals justify internal resource consideration do feasibility, samples, economics, and negotiation begin." },
           ],
-          decisionBriefLabel: "Owner decision handoff",
+          decisionBriefLabel: "Decision hand-over",
           decisionBriefTitle: "What remains is a verifiable next step, not an automatic conclusion.",
           decisionBriefBody: "When real deal terms, payment, responsibilities, economics, or internal-resource commitments appear, take the KNOWNs, UNKNOWNs, and verification questions into the next bounded assessment.",
-          boundaries: ["SYNTHETIC DEMONSTRATION", "METHOD VISIBILITY: DEMONSTRATED", "HUMAN VALIDATION: NOT PERFORMED", "MARKET VALIDATION: NOT PERFORMED", "PUBLIC OUTCOME CLAIMS: NOT VALIDATED"],
+          boundaries: ["DEMONSTRATION", "METHOD VISIBILITY: DEMONSTRATED", "HUMAN VALIDATION: NOT PERFORMED", "MARKET VALIDATION: NOT PERFORMED", "PUBLIC OUTCOME CLAIMS: NOT VALIDATED"],
           handoff: "When an opportunity deserves further verification, the next bounded step is:",
           handoffLink: "Commercial Decision Desk (CDD)",
-          conversionLink: "See how a candidate account reaches a buyer reply (synthetic walkthrough)",
+          conversionLink: "See how a candidate account reaches a buyer reply (demo walkthrough)",
         },
       },
     },
@@ -1029,7 +1029,7 @@ export const works = [
     featuredRank: 20,
     icon: "briefcase",
     hidePendingLink: true,
-    imageAlt: { zh: "AI 原生市場開發研究案例：6 到 0 到 4 的方法修正", en: "AI-Native Market Entry method case: the 6 to 0 to 4 correction" },
+    imageAlt: { zh: "海外市場開發研究案例：6 到 0 到 4 的方法修正", en: "Market Entry Research method case: the 6 to 0 to 4 correction" },
     marketEntry: {
       zh: {
         signalLabel: "海外商業開發的證據案例",
@@ -1037,7 +1037,7 @@ export const works = [
         heroSupport: "找到相關公司不難；證明它值得投入商業時間，才是真正的工作。",
         caseArcLabel: "研究弧線",
         caseArc: "6 個相關帳戶 → 0 個證據支持的可能買家 → 4 條仍待人工驗證的通路路徑",
-        context: "合成供應商 + 真實公開市場證據 · 裝飾型 PET 吸音牆板 · 美國",
+        context: "示範供應商 + 真實公開市場證據 · 美國",
         signature: [
           { value: "6", label: "相關帳戶" },
           { value: "0", label: "有足夠證據支持的可能買家" },
@@ -1064,7 +1064,7 @@ export const works = [
         heroSupport: "Finding relevant companies is easy. Proving they deserve commercial attention is the real work.",
         caseArcLabel: "Research arc",
         caseArc: "6 relevant accounts → 0 evidence-supported potential buyers → 4 channel paths still requiring human verification",
-        context: "Synthetic supplier + real public market evidence · Decorative PET Acoustic Wall Panels · United States",
+        context: "Demo supplier + real public market evidence · United States",
         signature: [
           { value: "6", label: "Relevant accounts" },
           { value: "0", label: "Supported potential buyers" },
@@ -1087,27 +1087,27 @@ export const works = [
       },
     },
     zh: {
-      title: "AI 原生市場開發",
+      title: "海外市場開發研究",
       desc: "用公開證據提高商機研究的品質：先分清相關市場角色，再判斷是否存在值得投入的商業取得路徑。",
       tag: "海外商業開發 · 公開證據 · 證據案例",
       caseSummary: "一個關於如何發現並修正商業誤判的研究案例：相關市場參與者，不等於有理由被當成可能買家。",
     },
     en: {
-      title: "AI-Native Market Entry",
+      title: "Market Entry Research",
       desc: "Evidence-aware opportunity discovery: separate relevant market roles before deciding whether a commercial acquisition path deserves attention.",
       tag: "Global business development · Public evidence · Evidence case",
       caseSummary: "A research case in detecting and correcting commercial false positives: a relevant market participant is not automatically a plausible buyer.",
     },
     case: {
-      stage: { zh: "影子方法案例", en: "Shadow Method Case" },
+      stage: { zh: "方法案例", en: "Method Case" },
       stageTag: { zh: "公開證據 · 尚未出現真實市場訊號", en: "Public evidence · no real market signal yet" },
       problem: {
         zh: "製造商可能有產品、設計能力與海外詢問，但仍缺少可重複的市場開發方法：哪些帳戶值得投入業務時間、樣品、技術工作與後續確認？",
         en: "A manufacturer may have products, design capability, and overseas inquiries, yet lack a repeatable market-development method: which accounts deserve sales time, samples, technical work, and further verification?",
       },
       approach: {
-        zh: "以合成供應商為固定測試條件，整理美國市場的公開產品、通路、規格與角色證據；先把相關帳戶與可能買家分開，再只保留有商業取得路徑線索的通路候選。",
-        en: "Using a synthetic supplier as the fixed test condition, the work structured public U.S. product, channel, specification, and role evidence; it separated relevant accounts from possible buyers, then retained only channel candidates with signals of a commercial acquisition path.",
+        zh: "以示範供應商為固定測試條件，整理美國市場的公開產品、通路、規格與角色證據；先把相關帳戶與可能買家分開，再只保留有商業取得路徑線索的通路候選。",
+        en: "Using a demo supplier as the fixed test condition, the work structured public U.S. product, channel, specification, and role evidence; it separated relevant accounts from possible buyers, then retained only channel candidates with signals of a commercial acquisition path.",
       },
       tools: {
         zh: "公開市場研究 · 角色分類 · 證據與反證紀錄 · 未知保留 · 人工 readiness review",
@@ -1118,13 +1118,13 @@ export const works = [
         en: "The first pass found six ecosystem-relevant accounts. After reclassification, public evidence supported none as a clear potential buyer. The question therefore moved from “who participates in this market?” to “who has evidence of a commercial acquisition path?”, leaving four channel-path candidates with major gaps.",
       },
       evidence: {
-        zh: "這是合成供應商 + 真實公開市場證據的 bounded research case，不是買家名單、成交漏斗或市場驗證。尚未驗證：買家興趣、回覆、會議、RFQ、樣品申請、商業意向、訂單、營收或 ROI。Product × Channel Matching、Commercial Fit、真實交易獲利與跨產業有效性皆未測試。",
-        en: "This is a bounded research case using a synthetic supplier and real public market evidence—not a buyer list, conversion funnel, or market-validation claim. Buyer interest, response, meetings, RFQs, sample requests, commercial intent, orders, revenue, and ROI were not tested. Product × Channel Matching, Commercial Fit, real-transaction profitability, and cross-industry effectiveness remain untested.",
+        zh: "這是示範供應商 + 真實公開市場證據的 bounded research case，不是買家名單、成交漏斗或市場驗證。尚未驗證：買家興趣、回覆、會議、RFQ、樣品申請、商業意向、訂單、營收或 ROI。Product × Channel Matching、Commercial Fit、真實交易獲利與跨產業有效性皆未測試。",
+        en: "This is a bounded research case using a demo supplier and real public market evidence—not a buyer list, conversion funnel, or market-validation claim. Buyer interest, response, meetings, RFQs, sample requests, commercial intent, orders, revenue, and ROI were not tested. Product × Channel Matching, Commercial Fit, real-transaction profitability, and cross-industry effectiveness remain untested.",
       },
       marketEntry: {
         zh: {
           failureTitle: "方法在哪裡修正？",
-          failure: "第一輪的六家帳戶在產品、設計、規格或市場生態系中都相關；但這些訊號不能證明它們會向這個合成供應商採購。重新分類後，原本的問題不再足夠。",
+          failure: "第一輪的六家帳戶在產品、設計、規格或市場生態系中都相關；但這些訊號不能證明它們會向這個示範供應商採購。重新分類後，原本的問題不再足夠。",
           lessonTitle: "這個案例真正修正了什麼",
           lesson: "它沒有把名單變成更漂亮的答案，而是把「誰值得追」改寫成一個可以被證據檢查的問題。",
           questionTitle: "商業問題",
@@ -1141,8 +1141,8 @@ export const works = [
             ["仍為未知", "是否願意向外部供應商採購、採購權責、實際需求"],
             ["下一個確認", "先確認商業取得路徑，再決定是否投入樣品與業務時間"],
           ],
-          handoffTitle: "下一階段：CDD 商務決策工作台",
-          handoff: ["Opportunity Discovery Pack", "人工逐項確認", "CDD intake proposal", "商業決策檢視"],
+          handoffTitle: "下一階段：商務決策工作台",
+          handoff: ["Opportunity Discovery Pack", "人工逐項確認", "Decision-desk intake proposal", "商業決策檢視"],
           handoffBoundary: "Proposal 不等於 canonical evidence；不自動建立矛盾、不自動產生 recommendation，也不修改 Decision Core 或 Human Decision。",
           boundaryTitle: "尚未出現真實市場訊號",
           boundary: "四個通路路徑候選都仍是 PLAUSIBLE_WITH_MAJOR_GAPS；它們值得人工 readiness review，不代表已確認買家、採購意向或可直接接觸。",
@@ -1155,7 +1155,7 @@ export const works = [
         },
         en: {
           failureTitle: "Where did the method change?",
-          failure: "All six first-pass accounts were relevant to the product, design, specification, or market ecosystem. But those signals did not show that they would acquire from this synthetic supplier. Reclassification showed that the original question was not sufficient.",
+          failure: "All six first-pass accounts were relevant to the product, design, specification, or market ecosystem. But those signals did not show that they would acquire from this demo supplier. Reclassification showed that the original question was not sufficient.",
           lessonTitle: "What this case actually corrected",
           lesson: "It did not turn the list into a prettier answer. It changed “who should we pursue?” into a question that evidence can test.",
           questionTitle: "Business question",
@@ -1173,7 +1173,7 @@ export const works = [
             ["Next verification", "Confirm the commercial acquisition path before investing in samples or sales time"],
           ],
           handoffTitle: "Next stage: Commercial Decision Desk",
-          handoff: ["Opportunity Discovery Pack", "Human confirmation item by item", "CDD intake proposal", "Commercial decision review"],
+          handoff: ["Opportunity Discovery Pack", "Human confirmation item by item", "Decision-desk intake proposal", "Commercial decision review"],
           handoffBoundary: "A proposal is not canonical evidence; nothing automatically creates a contradiction, recommendation, Decision Core change, or Human Decision.",
           boundaryTitle: "No real market signal yet",
           boundary: "All four channel-path candidates remain PLAUSIBLE_WITH_MAJOR_GAPS. They warrant human readiness review; they do not establish a buyer, buying intent, or permission to contact.",
@@ -1188,7 +1188,7 @@ export const works = [
     },
     workingEvidence: {
       zh: {
-        label: "WORKING EVIDENCE · 合成互動原型",
+        label: "WORKING EVIDENCE · 互動原型",
         title: "RFQ → 報價決策工作流",
         body: "看一筆資訊不完整的海外 RFQ，如何被整理成可檢視的證據、交由人做商業判斷，並在新資訊改變條件後重新進入審查。",
         cta: "執行 RFQ Workflow",
@@ -1196,7 +1196,7 @@ export const works = [
         href: "/prototype/garage-rfq-workflow-001/",
       },
       en: {
-        label: "WORKING EVIDENCE · SYNTHETIC",
+        label: "WORKING EVIDENCE · DEMO",
         title: "RFQ → Quote Decision Walkthrough",
         body: "See how an incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case.",
         cta: "Run RFQ Workflow",
@@ -1209,7 +1209,7 @@ export const works = [
       label: { zh: "回到商業開發判斷", en: "Back to business-development judgment" },
       note: {
         zh: "證據案例回答「為什麼不能只看相關」；回到 GBD，繼續看老闆目標如何改變資源優先順序。",
-        en: "This evidence case explains why relevance is not enough; return to GBD to see how the Owner objective changes resource priority.",
+        en: "This evidence case explains why relevance is not enough; return to Global Business Development to see how the owner's objective changes resource priority.",
       },
     },
   },
@@ -1229,8 +1229,8 @@ export const works = [
       en: "Which profit lever is worth testing before the deal moves?",
     },
     demoNote: {
-      zh: "公開 Demo 為獨立 合成資料原型：情境為合成 USD 案例，不含真實客戶資料。",
-      en: "Public demo is an independent synthetic prototype: the scenario is a synthetic USD case with no real customer data.",
+      zh: "公開 Demo 為獨立的示意資料原型：情境為示範 USD 案例，不含真實客戶資料。",
+      en: "Public demo is an independent demo prototype: the scenario is a demo USD case with no real customer data.",
     },
     deliverable: {
       zh: "一份可檢視的利潤判斷：每項成本標明來自案例或假設；扣掉運費、付款時程的資金成本與進口關稅（依報價由誰負擔）後還剩多少；哪個假設最先把它打穿，以及付款條件未定值多少錢。示範案例中，資金成本前預期淨貢獻 3.6 萬美元，扣掉資金成本後剩 33,144 美元，讓價約 3% 即到最低要求（在預設假設下）。",
@@ -1261,16 +1261,16 @@ export const works = [
         en: "Built an isolated, evidence-aware interactive prototype that separates known economics from UNKNOWN and compares three concrete levers across cost, MOQ, and supply-solution moves.",
       },
       tools: {
-        zh: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Synthetic USD case · Adversarial harness",
-        en: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Synthetic USD case · Adversarial harness",
+        zh: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Demo USD case · Adversarial harness",
+        en: "Vanilla HTML/CSS/JavaScript · Deterministic calculations · Demo USD case · Adversarial harness",
       },
       result: {
         zh: "完成可操作的 Trade Profit Navigator：可調整數量、採購價、銷售價與 MOQ，並將每個槓桿連到 economics、cash、risk、evidence、未知與老闆 decision。空白或無效輸入維持未知，不當成零。新增落地成本與敏感度：每一項成本標明來自案例或假設，計入付款時程的資金成本與進口關稅由誰負擔，並找出最弱的一環；在預設假設下，Gulf 案例的讓價約 3% 即到最低要求。",
         en: "A working Trade Profit Navigator: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the owner decision. Blank or invalid inputs stay UNKNOWN, never zero. It adds landed economics and sensitivity: each cost is tagged as coming from the case or as an assumption, the funding cost of the payment timeline and who bears import duty are included, and the weakest link is identified; under the default assumptions, a price concession of about 3% takes the Gulf case to the owner's minimum.",
       },
       evidence: {
-        zh: "Prototype tests 45/45；landed-cost checks 56/56；language checks 219/219；adversarial baseline 6/6；390px／1440px 無溢位；案例為 synthetic USD dataset；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
-        en: "Prototype tests 45/45; landed-cost checks 56/56; language checks 219/219; adversarial baseline 6/6; no overflow at 390px/1440px; case uses a synthetic USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
+        zh: "Prototype tests 45/45；landed-cost checks 56/56；language checks 219/219；adversarial baseline 6/6；390px／1440px 無溢位；案例為示意 USD 資料；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
+        en: "Prototype tests 45/45; landed-cost checks 56/56; language checks 219/219; adversarial baseline 6/6; no overflow at 390px/1440px; case uses an illustrative USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
       },
     },
   },
@@ -1280,7 +1280,7 @@ export const works = [
     section: "commercial",
     cover: { zh: "/images/cover-commercial-decision-desk.svg", en: "/images/cover-commercial-decision-desk-en.svg" },
     imageFit: "contain",
-    imageAlt: { zh: "商務決策工作台的合成高階摘要：14.4 萬美元商機、3.6 萬美元資金成本前預期淨貢獻與付款條件缺口", en: "Commercial Decision Desk synthetic executive reading: a USD 144k opportunity, USD 36k expected contribution before funding, and unresolved payment terms" },
+    imageAlt: { zh: "商務決策工作台的示範高階摘要：14.4 萬美元商機、3.6 萬美元資金成本前預期淨貢獻與付款條件缺口", en: "Commercial Decision Desk demo executive reading: a USD 144k opportunity, USD 36k expected contribution before funding, and unresolved payment terms" },
     span: "md:col-span-2",
     icon: "briefcase",
     verified: true,
@@ -1289,7 +1289,7 @@ export const works = [
     // 案例頁（sitemap）：https://paulstradecraft.com/cases/commercial-decision-desk/
     casePage: {
       href: "/cases/commercial-decision-desk/",
-      label: { zh: "閱讀 CDD 案例頁", en: "Read the CDD case page" },
+      label: { zh: "閱讀商務決策工作台案例頁", en: "Read the Commercial Decision Desk case page" },
     },
     link: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
     linkLabel: { zh: "先看示範案例", en: "See the demo case" },
@@ -1331,7 +1331,7 @@ export const works = [
       caseSummary: "It does not decide for people. It makes the facts that matter before commitment visible: payment, trade responsibility, contradictory information, open questions, and the next step. The desk recommends; the human decides.",
     },
     case: {
-      stage: { zh: "引擎已驗證 · 案例為合成資料", en: "engine verified · case is synthetic" },
+      stage: { zh: "示範案例 · 規則可重跑檢查", en: "Demo case · rules can be rerun and checked" },
       stageTag: { zh: "決策輔助・由人拍板", en: "Decision support · Human-in-the-loop" },
       problem: {
         zh: "商機判斷分散在證據、交易條件、付款風險與人為經驗中，難以一次看全，也難以追溯「為什麼這樣決定」。",
@@ -1342,16 +1342,16 @@ export const works = [
         en: "Traces an opportunity from external evidence to a human decision: DISCOVER → QUALIFY → ASSESS → EXPOSURE → DECIDE. Deterministic rules produce decision-support states (PURSUE_NOW / PURSUE_CONDITIONALLY / HOLD_FOR_EVIDENCE / ESCALATE / DO_NOT_PURSUE), while contradictions and UNKNOWNs stay visible. Commercial Momentum is owner-governed context for known commercial signals only; it cannot override the current decision position. The Executive Deal Snapshot summarizes key decision information from existing evidence only.",
       },
       tools: {
-        zh: "純 HTML/CSS/JS · 確定性決策規則 · 合成 fixture · 零後端／零持久化",
-        en: "Plain HTML/CSS/JS · deterministic decision rules · synthetic fixture · zero backend / zero persistence",
+        zh: "純 HTML/CSS/JS · 確定性決策規則 · 示範 fixture · 零後端／零持久化",
+        en: "Plain HTML/CSS/JS · deterministic decision rules · demo fixture · zero backend / zero persistence",
       },
       result: {
-        zh: "以合成商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與未知 → Human Decision。8 條硬規則引擎化，65/65 自動檢查通過（含網路政策檢查）；Executive Deal Snapshot 將商機、買方、市場、產品、數量、訂單收入、Incoterm、預期淨貢獻、目前建議與控制因素放在一屏，缺值維持未知、淨貢獻未算即顯示「未計算」，不造假。另有翻轉地圖（哪些確認會讓建議前進或翻轉）、付款保障（信用狀、出口信用保險）與匯率曝險評估；判斷核心不變，它們只登記未知項。",
-        en: "Synthetic decision-design proof connecting evidence qualification, commercial feasibility, payment exposure, contradictions, UNKNOWNs, and mandatory human approval. Eight hard rules are enforced in the engine; 65/65 automated checks pass, including a network-policy check. An Executive Deal Snapshot puts the deal, buyer, market, product, quantity, deal value, Incoterm, expected net contribution, current recommendation, and control factors on one screen; missing values stay UNKNOWN and uncomputed net contribution shows \"not calculated\". Nothing is invented. Also added: a flip map (which confirmations move or flip the recommendation), payment-security assessment (letter of credit, export credit insurance) and currency exposure; the decision core is unchanged and they register UNKNOWNs only.",
+        zh: "以示範商業情境驗證跨階段 decision contract：證據資格化 → 商業可行性 → 付款暴露 → 矛盾與未知 → Human Decision。8 條硬規則引擎化，65/65 自動檢查通過（含網路政策檢查）；Executive Deal Snapshot 將商機、買方、市場、產品、數量、訂單收入、Incoterm、預期淨貢獻、目前建議與控制因素放在一屏，缺值維持未知、淨貢獻未算即顯示「未計算」，不造假。另有翻轉地圖（哪些確認會讓建議前進或翻轉）、付款保障（信用狀、出口信用保險）與匯率曝險評估；判斷核心不變，它們只登記未知項。",
+        en: "Demo decision-design proof connecting evidence qualification, commercial feasibility, payment exposure, contradictions, UNKNOWNs, and mandatory human approval. Eight hard rules are enforced in the engine; 65/65 automated checks pass, including a network-policy check. An Executive Deal Snapshot puts the deal, buyer, market, product, quantity, deal value, Incoterm, expected net contribution, current recommendation, and control factors on one screen; missing values stay UNKNOWN and uncomputed net contribution shows \"not calculated\". Nothing is invented. Also added: a flip map (which confirmations move or flip the recommendation), payment-security assessment (letter of credit, export credit insurance) and currency exposure; the decision core is unchanged and they register UNKNOWNs only.",
       },
       evidence: {
-        zh: "公開 demo：https://apchen1978.github.io/commercial-decision-desk/ 。Executive Deal Snapshot 已上線並通過瀏覽器實測（ZH/EN、1440px／390px、無水平溢位、無 console 錯誤，Sample 與 Blank 流程、匯出、鍵盤操作正常）；驗證 65/65 測試、Scenario 19 PASS／2 BASELINE_FIX_CONFIRMED／0 FAIL。判斷引擎與各項評估不連網；唯一的網路請求是使用者按下「取得今日參考匯率」時，向公開匯率服務讀取一個匯率（不含案件資料）。揭露：SYNTHETIC decision-design proof · 人類決策必要 · 無自主商業動作 · 商業採用／ROI 未證明。",
-        en: "Public demo: https://apchen1978.github.io/commercial-decision-desk/ . The Executive Deal Snapshot is live and browser-verified (ZH/EN, 1440px/390px, no horizontal overflow, no console errors; Sample and Blank flows, exports, keyboard operation OK); verification 65/65, scenarios 19 PASS / 2 BASELINE_FIX_CONFIRMED / 0 FAIL. The decision engine and every assessment make no network calls; the only request is the optional \"Fetch today's reference rate\" button, which reads one public exchange rate and sends no opportunity data. Disclosure: SYNTHETIC decision-design proof · human decision required · no autonomous commercial action · commercial adoption / ROI not proven.",
+        zh: "公開 demo：https://apchen1978.github.io/commercial-decision-desk/ 。Executive Deal Snapshot 已上線並通過瀏覽器實測（ZH/EN、1440px／390px、無水平溢位、無 console 錯誤，Sample 與 Blank 流程、匯出、鍵盤操作正常）；驗證 65/65 測試、Scenario 19 PASS／2 BASELINE_FIX_CONFIRMED／0 FAIL。判斷引擎與各項評估不連網；唯一的網路請求是使用者按下「取得今日參考匯率」時，向公開匯率服務讀取一個匯率（不含案件資料）。揭露：示範用決策設計 · 人類決策必要 · 無自主商業動作 · 商業採用／ROI 未證明。",
+        en: "Public demo: https://apchen1978.github.io/commercial-decision-desk/ . The Executive Deal Snapshot is live and browser-verified (ZH/EN, 1440px/390px, no horizontal overflow, no console errors; Sample and Blank flows, exports, keyboard operation OK); verification 65/65, scenarios 19 PASS / 2 BASELINE_FIX_CONFIRMED / 0 FAIL. The decision engine and every assessment make no network calls; the only request is the optional \"Fetch today's reference rate\" button, which reads one public exchange rate and sends no opportunity data. Disclosure: demo decision-design proof · human decision required · no autonomous commercial action · commercial adoption / ROI not proven.",
       },
     },
   },

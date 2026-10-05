@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" role="img" aria-labelledby="title desc">
-  <title id="title">Commercial Decision Desk synthetic executive reading</title>
-  <desc id="desc">A synthetic USD 144,000 opportunity with USD 36,000 expected net contribution before funding, unresolved payment terms, and a clear next question.</desc>
+  <title id="title">Commercial Decision Desk demo executive reading</title>
+  <desc id="desc">A demo USD 144,000 opportunity with USD 36,000 expected net contribution before funding, unresolved payment terms, and a clear next question.</desc>
   <rect width="1600" height="1200" fill="#f5f1e8"/>
   <g transform="translate(0 150)">
   <rect x="74" y="58" width="1452" height="784" rx="8" fill="#fbf8f1" stroke="#d8d0c1" stroke-width="2"/>
   <path d="M74 164H1526" stroke="#d8d0c1" stroke-width="2"/>
   <circle cx="112" cy="111" r="8" fill="#8A6A2B"/>
-  <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">SYNTHETIC CASE · COMMERCIAL DECISION DESK</text>
-  <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">Owner-facing summary</text>
+  <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">DEMO CASE · COMMERCIAL DECISION DESK</text>
+  <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">Decision summary</text>
   <text x="116" y="235" fill="#9a4a35" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">30-second executive reading</text>
   <text x="116" y="300" fill="#1d2b24" font-family="Georgia, serif" font-size="45" font-weight="700">What should we do with this deal now?</text>
   <rect x="1140" y="218" width="324" height="74" rx="37" fill="#F1EBE0"/>
@@ -26,7 +26,7 @@
   <path d="M116 505H1484" stroke="#ddd5c8" stroke-width="2"/>
   <text x="116" y="550" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">What to obtain next</text>
   <text x="116" y="591" fill="#1d2b24" font-family="Arial, sans-serif" font-size="25" font-weight="700">Confirm payment terms: how, when, and how much is due before shipment.</text>
-  <text x="116" y="627" fill="#7b7368" font-family="Arial, sans-serif" font-size="18">The desk separates recorded evidence from gaps. The Owner still makes the commitment.</text>
+  <text x="116" y="627" fill="#7b7368" font-family="Arial, sans-serif" font-size="18">The desk separates recorded evidence from gaps. The owner still makes the commitment.</text>
   <path d="M116 673H1484" stroke="#ddd5c8" stroke-width="2"/>
   <g font-family="Arial, sans-serif">
     <text x="116" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">Will we get paid?</text>

@@ -19,7 +19,7 @@ const copy = {
     sources: ["買家動向", "公開線索", "產業新聞"],
     piles: ["未證實", "暫不追", "暫緩"],
     human: "由人判斷",
-    close: "AI 可以加快整理；商業承諾仍由人作出。",
+    close: "整理可以加快；商業承諾仍由人作出。",
     replay: "↻ 重播",
   },
   en: {
@@ -36,7 +36,7 @@ const copy = {
     sources: ["Buyer move", "Public clue", "Trade news"],
     piles: ["Unverified", "Not now", "On hold"],
     human: "Human call",
-    close: "AI can accelerate preparation. People still own commercial commitments.",
+    close: "Preparation can move faster. People still own commercial commitments.",
     replay: "↻ Replay",
   },
 };

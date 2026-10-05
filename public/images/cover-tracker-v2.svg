@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">窗簾軟裝 Pilot 追蹤器</title>
-  <desc id="desc">一個以候選商機、報價進度與跟進節點組成的合成窗簾軟裝銷售追蹤工作台。</desc>
+  <desc id="desc">一個以候選商機、報價進度與跟進節點組成的示範銷售追蹤工作台。</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#142C29"/>
@@ -60,6 +60,6 @@
       <rect width="6" height="60" rx="3" fill="#789286" transform="translate(0 144)"/><text x="22" y="169" fill="#193A35" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="13" font-weight="700">桃園居家改造候選</text><text x="22" y="189" fill="#708176" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12">初步需求已整理 · 等待客戶回覆</text><rect x="286" y="162" width="67" height="22" rx="11" fill="#e9efec"/><text x="319" y="177" fill="#587064" font-family="Arial,sans-serif" font-size="10" font-weight="700" text-anchor="middle">Active</text>
     </g>
     <rect x="32" y="494" width="374" height="1" fill="#d4ddd5"/>
-    <text x="32" y="526" fill="#587064" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12">合成展示 · 以工作流程與驗證產物為準</text>
+    <text x="32" y="526" fill="#587064" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="12">示範展示 · 以工作流程與驗證產物為準</text>
   </g>
 </svg>
