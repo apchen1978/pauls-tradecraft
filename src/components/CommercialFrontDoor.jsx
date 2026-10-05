@@ -23,7 +23,7 @@ const copy = {
     guideLink: "想慢慢讀？下載《海外客戶開發：從一項產品開始》（16 頁繁中 PDF）",
     show: "02 · 再走一遍",
     showTitle: "跟著一家公司，看怎麼找到對口的人",
-    showBody: "用一個合成案例，看看怎麼查公司、找可能負責採購的人、準備聯絡，再判斷買家回覆。",
+    showBody: "用一個示範案例，看看怎麼查公司、找可能負責採購的人、準備聯絡，再判斷買家回覆。",
     showLink: "體驗互動案例",
     proof: "03 · 看現有作品",
     proofTitle: "再看看實際作品怎麼做。",
@@ -32,7 +32,7 @@ const copy = {
     productStartTitle: "從你的產品開始",
     productStartBody: "如果你有一項想試著賣到海外的產品，可以先梳理產品條件與供應限制；已有想嘗試的市場就一併帶上，還沒有也可以從產品開始。",
     productStartLink: "看看合作可以從哪裡開始",
-    boundary: "AI 可以協助查資料和準備內容；客戶是否有需求、能否報價與承諾，仍要查證並由人決定。",
+    boundary: "研究與準備可以加快；客戶是否有需求、能否報價與承諾，仍要查證並由人決定。",
   },
   en: {
     eyebrow: "Overseas customer development · start here",
@@ -45,7 +45,7 @@ const copy = {
     guideLink: "Read the 16-page Learning Guide (Traditional Chinese PDF)",
     show: "02 · Follow a case",
     showTitle: "From a candidate account to an opportunity for review",
-    showBody: "A clearly synthetic case shows how the likely role, contact path, sendable material, and buyer reply connect.",
+    showBody: "A clearly marked demo case shows how the likely role, contact path, sendable material, and buyer reply connect.",
     showLink: "Try the walkthrough",
     proof: "03 · See existing work",
     proofTitle: "The route is supported by working examples.",
@@ -54,7 +54,7 @@ const copy = {
     productStartTitle: "Start with your product",
     productStartBody: "If you have a product you want to sell overseas, start by clarifying its offer and supply constraints. Bring a target market if you have one; if not, begin with the product.",
     productStartLink: "See where a collaboration can begin",
-    boundary: "AI can assist research and preparation. Demand, quotes, and commitments still require verification and human authority.",
+    boundary: "Research and preparation can move faster. Demand, quotes, and commitments still require verification and human authority.",
   },
 };
 

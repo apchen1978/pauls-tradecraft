@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" role="img" aria-labelledby="title desc">
-  <title id="title">Commercial Decision Desk synthetic executive reading</title>
-  <desc id="desc">A synthetic USD 144,000 opportunity with USD 36,000 expected net contribution before funding, unresolved payment terms, and a clear next question.</desc>
+  <title id="title">Commercial Decision Desk demo executive reading</title>
+  <desc id="desc">A demo USD 144,000 opportunity with USD 36,000 expected net contribution before funding, unresolved payment terms, and a clear next question.</desc>
   <rect width="1600" height="1200" fill="#f5f1e8"/>
   <g transform="translate(0 150)">
   <rect x="74" y="58" width="1452" height="784" rx="8" fill="#fbf8f1" stroke="#d8d0c1" stroke-width="2"/>
   <path d="M74 164H1526" stroke="#d8d0c1" stroke-width="2"/>
   <circle cx="112" cy="111" r="8" fill="#8A6A2B"/>
-  <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">合成案例 · 商務決策工作台</text>
+  <text x="138" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="3">示範案例 · 商務決策工作台</text>
   <text x="1290" y="118" fill="#315847" font-family="Arial, sans-serif" font-size="20" font-weight="700">給決策者的摘要</text>
   <text x="116" y="235" fill="#9a4a35" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">30 秒讀完的高階摘要</text>
   <text x="116" y="300" fill="#1d2b24" font-family="Georgia, serif" font-size="45" font-weight="700">這筆交易，現在該怎麼做？</text>
@@ -25,7 +25,7 @@
   <path d="M116 505H1484" stroke="#ddd5c8" stroke-width="2"/>
   <text x="116" y="550" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">下一步先做什麼</text>
   <text x="116" y="591" fill="#1d2b24" font-family="Arial, sans-serif" font-size="25" font-weight="700">先把付款條件確認清楚：怎麼付款、什麼時候付、出貨前要付到多少。</text>
-  <text x="116" y="627" fill="#7b7368" font-family="Arial, sans-serif" font-size="18">系統整理已知證據與缺口；最後是否承諾，仍由 Owner 決定。</text>
+  <text x="116" y="627" fill="#7b7368" font-family="Arial, sans-serif" font-size="18">系統整理已知證據與缺口；最後是否承諾，仍由負責人決定。</text>
   <path d="M116 673H1484" stroke="#ddd5c8" stroke-width="2"/>
   <g font-family="Arial, sans-serif">
     <text x="116" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">收不收得到錢？</text>

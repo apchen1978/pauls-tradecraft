@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Factory Secret Menu — a synthetic commercial garage experiment." />
+  <meta name="description" content="Factory Secret Menu — a demo commercial garage experiment." />
   <title>Factory Secret Menu — Garage Prototype</title>
   <style>
     :root {
@@ -104,7 +104,7 @@
   <main class="shell">
     <div class="topline">
       <span class="mark">Paul's Tradecraft / Digital Garage</span>
-      <span class="status">Synthetic commercial thought experiment</span>
+      <span class="status">Demo commercial thought experiment</span>
     </div>
 
     <header>
@@ -139,7 +139,7 @@
           <div class="surprise"><p class="label">Unexpected commercial move</p><p id="move"></p></div>
         </div>
         <div class="recipe" id="recipe">
-          <div class="recipe-head"><p class="recipe-title" id="recipeTitle">Agent-shaped output</p><span class="recipe-status" id="recipeStatus">choose two ingredients, then combine</span></div>
+          <div class="recipe-head"><p class="recipe-title" id="recipeTitle">Draft output</p><span class="recipe-status" id="recipeStatus">choose two ingredients, then combine</span></div>
           <div class="recipe-grid">
             <div><p class="recipe-label">Input</p><p id="recipeInput"></p></div>
             <div><p class="recipe-label">Unknown</p><p id="recipeUnknown"></p></div>
@@ -230,7 +230,7 @@
     function renderRecipe(ready) {
       const pressure = pressures[selectedPressure];
       const idea = ideas[selectedKey];
-      document.getElementById("recipeTitle").textContent = ready ? "A commercial possibility, not a conclusion" : "Agent-shaped output";
+      document.getElementById("recipeTitle").textContent = ready ? "A commercial possibility, not a conclusion" : "Draft output";
       document.getElementById("recipeStatus").textContent = ready ? "hypothesis assembled" : "choose two ingredients, then combine";
       document.getElementById("recipeInput").textContent = `${idea.kind.replace("Capability fragment / ", "")} + ${pressure.label} → ${pressure.transform}`;
       document.getElementById("recipeUnknown").textContent = pressure.unknown;

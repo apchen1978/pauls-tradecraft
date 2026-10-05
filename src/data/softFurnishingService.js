@@ -43,7 +43,7 @@ export const softFurnishingService = {
       },
       {
         title: "Team Use & Management Decisions",
-        desc: "Create consistent case information, handoffs, and review rhythm so leaders can see progress, risks, and the next decision instead of receiving fragments of updates.",
+        desc: "Create consistent case information, hand-overs, and review rhythm so leaders can see progress, risks, and the next decision instead of receiving fragments of updates.",
       },
     ],
     boundary: "Tools do not replace judgment, and they do not promise orders. The goal is clearer information, clearer ownership, and faster visibility into the next commercial decision.",

@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>商務決策工作台 CDD｜承諾前的交易判斷案例 · Paul's Tradecraft</title>
-  <meta name="description" content="在承諾報價或接單前，把交易條件、UNKNOWN 與決策路徑整理成可交接的 Deal Brief。引擎：技術驗證 · 案例：合成。不宣稱營收或 ROI。" />
+  <title>商務決策工作台｜承諾前的交易判斷案例 · Paul's Tradecraft</title>
+  <meta name="description" content="在承諾報價或接單前，把交易條件、UNKNOWN 與決策路徑整理成可交接的 Deal Brief。示範案例 · 規則可重跑檢查。不宣稱營收或 ROI。" />
   <link rel="canonical" href="https://paulstradecraft.com/cases/commercial-decision-desk/" />
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="商務決策工作台 CDD｜承諾前的交易判斷案例" />
-  <meta property="og:description" content="承諾前把條件、UNKNOWN 與下一步整理成可交接產物。引擎：技術驗證 · 案例：合成。AI 擴大比較；人負責授權與最終承諾。" />
+  <meta property="og:title" content="商務決策工作台｜承諾前的交易判斷案例" />
+  <meta property="og:description" content="承諾前把條件、UNKNOWN 與下一步整理成可交接產物。示範案例 · 規則可重跑檢查。人負責授權與最終承諾。" />
   <meta property="og:url" content="https://paulstradecraft.com/cases/commercial-decision-desk/" />
   <meta property="og:image" content="https://paulstradecraft.com/og-image.png" />
   <meta property="og:locale" content="zh_TW" />
@@ -19,13 +19,13 @@
   {
     "@context": "https://schema.org",
     "@type": "CaseStudy",
-    "name": "Commercial Decision Desk (CDD)",
+    "name": "Commercial Decision Desk",
     "url": "https://paulstradecraft.com/cases/commercial-decision-desk/",
     "inLanguage": ["zh-Hant", "en"],
     "author": { "@type": "Person", "name": "Paul Chen", "url": "https://paulstradecraft.com/" },
     "about": ["Commercial decision support", "Export trade", "Commitment gate", "Evidence discipline"],
-    "creativeWorkStatus": "engine: technically validated; case: synthetic",
-    "description": "A pre-commitment decision desk. Engine: technically validated. Case: synthetic. It structures terms, UNKNOWNs, and a Deal Brief for human authorization. It does not claim revenue, ROI, or field validation of the case."
+    "creativeWorkStatus": "demo case; rules can be rerun and checked",
+    "description": "A pre-commitment decision desk, shown with a demo case. It structures terms, UNKNOWNs, and a Deal Brief for human authorization. It does not claim revenue, ROI, or field validation of the case."
   }
   </script>
   <style>
@@ -62,27 +62,27 @@
 </head>
 <body>
   <main class="wrap">
-    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · CDD</p>
+    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · Commercial Decision Desk</p>
     <p class="eyebrow">CASE · COMMERCIAL DECISION</p>
     <h1>訂單看起來不錯——現在能不能承諾？</h1>
-    <p class="lede">商務決策工作台（CDD）把報價、付款、交付與責任條件，連同 UNKNOWN，整理成可帶進會議的 Deal Brief。AI 協助結構化比較；人負責授權與最終承諾。</p>
-    <span class="badge">引擎：技術驗證 · 案例：合成</span>
+    <p class="lede">商務決策工作台把報價、付款、交付與責任條件，連同 UNKNOWN，整理成可帶進會議的 Deal Brief。系統用規則整理比較；人負責授權與最終承諾。</p>
+    <span class="badge">示範案例 · 規則可重跑檢查</span>
     <div class="ctas">
-      <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">打開 CDD sample</a>
+      <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">打開示範案例</a>
       <a class="btn btn-secondary" href="/#contact">帶一個真實交易問題來談</a>
     </div>
 
     <div class="grid" aria-label="Snapshot">
       <div class="card"><h3>Decision question</h3><p>這筆單，現在能不能承諾？</p></div>
-      <div class="card"><h3>Input</h3><p>RFQ／報價條件／付款與交期（可匿名或合成）</p></div>
+      <div class="card"><h3>Input</h3><p>RFQ／報價條件／付款與交期（可匿名或示意）</p></div>
       <div class="card"><h3>Output</h3><p>Decision Path + Deal Brief（已知／UNKNOWN／下一步）</p></div>
-      <div class="card"><h3>Human gate</h3><p>Owner／業務主管授權；系統不自動對外承諾</p></div>
+      <div class="card"><h3>Human gate</h3><p>負責人／業務主管授權；系統不自動對外承諾</p></div>
     </div>
 
     <h2>情境</h2>
-    <p>出口與 B2B 場景裡，單看似「毛利不錯」常被直接推進。真正卡住的是：付款何時進來、工廠何時要錢、交付與違約責任誰控、哪些事實仍是 UNKNOWN。CDD 把這些攤開，而不是用摘要掩蓋。</p>
+    <p>出口與 B2B 場景裡，單看似「毛利不錯」常被直接推進。真正卡住的是：付款何時進來、工廠何時要錢、交付與違約責任誰控、哪些事實仍是 UNKNOWN。工作台把這些攤開，而不是用摘要掩蓋。</p>
 
-    <h2>方法（對齊 PAUL OS）</h2>
+    <h2>方法</h2>
     <ol class="method">
       <li><strong>Intake</strong> — 收斂交易問題與可用輸入</li>
       <li><strong>Structure terms</strong> — 付款、交付、責任、數量／價格結構</li>
@@ -111,7 +111,7 @@
     <div class="boundary">
       <p>不保證訂單、營收或 ROI。</p>
       <p>不替代法務、完整 credit DD 或自動對外寄信／下單。</p>
-      <p>合成／示範案例 ≠ 真實客戶結果。</p>
+      <p>示範案例 ≠ 真實客戶結果。</p>
     </div>
 
     <h2>主線位置</h2>
@@ -121,14 +121,14 @@
     <div class="en" lang="en">
       <p class="eyebrow">ENGLISH SUMMARY</p>
       <h2 style="margin-top:10px">Commercial Decision Desk — can we commit now?</h2>
-      <p class="badge">engine: technically validated · case: synthetic</p>
-      <p>CDD uses rules to structure payment, delivery, liability, and UNKNOWNs into a Deal Brief a team can take into a meeting. Humans keep authorization and the final commitment.</p>
+      <p class="badge">demo case · rules can be rerun and checked</p>
+      <p>The desk uses rules to structure payment, delivery, liability, and UNKNOWNs into a Deal Brief a team can take into a meeting. Humans keep authorization and the final commitment.</p>
       <p><strong>Fact:</strong> the public sample can be inspected interactively.<br/>
-      <strong>Design or usefulness claim, not a fact:</strong> UNKNOWN is not auto-filled into fact; the output is intended as a meeting handoff.<br/>
+      <strong>Design or usefulness claim, not a fact:</strong> UNKNOWN is not auto-filled into fact; the output is intended as a meeting hand-over.<br/>
       <strong>Not verified:</strong> win rate, revenue, ROI, cross-industry validity, or replacement of legal/credit diligence.</p>
       <p>These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.</p>
       <div class="ctas">
-        <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">Open CDD sample</a>
+        <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">Open demo case</a>
         <a class="btn btn-secondary" href="/#contact">Bring one live deal question</a>
       </div>
     </div>
