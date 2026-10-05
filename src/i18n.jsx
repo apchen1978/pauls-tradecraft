@@ -504,6 +504,15 @@ const dict = {
           href: "/prototype/three-days-of-quiet/",
         },
         {
+          title: "一個貨櫃出海前的 12 步",
+          tag: "教學小課堂 · 雙語原型",
+          spark: "一櫃貨要出海，工廠、貨代、海關、船公司在接力。你要在哪幾步做決定？",
+          note: "十二步流程、三截四關倒數，再加上老闆要問貨代的五個問題。",
+          cta: "走一遍十二步",
+          boundary: "教學示意，不含具體天數與費用，一律以貨代或船公司通知為準。",
+          href: "/prototype/one-container-12-steps/",
+        },
+        {
           title: "Quiet Window · 寧靜之窗",
           tag: "示範實驗",
           spark: "產品不是布料，是布料後面的那片空間。",
@@ -1056,6 +1065,15 @@ const dict = {
           cta: "Spend the three days",
           boundary: "Demo scenario — not a prediction of buyer behaviour; each reading is a possibility, none is proven.",
           href: "/prototype/three-days-of-quiet/",
+        },
+        {
+          title: "12 Steps Before One Container Ships",
+          tag: "Teaching sketch · bilingual prototype",
+          spark: "One container, four parties passing the baton: factory, forwarder, customs, carrier. Which steps are yours to decide?",
+          note: "Twelve steps, a countdown of cut-offs and customs terms, and five questions to ask your forwarder.",
+          cta: "Walk the twelve steps",
+          boundary: "A teaching sketch with no specific days or charges; always go by your forwarder's or the carrier's notice.",
+          href: "/prototype/one-container-12-steps/",
         },
         {
           title: "Quiet Window",

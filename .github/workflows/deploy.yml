@@ -94,6 +94,8 @@ jobs:
           cp prototype/three-days-of-quiet/index.html dist/prototype/three-days-of-quiet/index.html
           mkdir -p dist/prototype/one-send
           cp prototype/one-send/index.html dist/prototype/one-send/index.html
+          mkdir -p dist/prototype/one-container-12-steps
+          cp prototype/one-container-12-steps/index.html dist/prototype/one-container-12-steps/index.html
       - name: One-Pager editorial review guardrail
         run: |
           # inventory 變更（新增/移除 Works）時要求編輯審查 One-Pager
