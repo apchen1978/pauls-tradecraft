@@ -3,8 +3,8 @@
     "id": "gulf-hospitality-baseline",
     "version": "2026-10-05.1"
   },
-  "scenario": "SYNTHETIC_OWNER_APPROVED_TEACHING_CASE",
-  "unit": "one metre of finished window width; blackout, sheer and valance; no installation",
+  "scenario": "DEMO_TEACHING_CASE",
+  "unit": "one metre of finished width; no installation",
   "quantity": 12000,
   "pricePerUnitUsd": 12,
   "incoterm": "CIF",
@@ -29,7 +29,7 @@
       "sha256": "577c9a3988619664ba918fbc5e9474a4677a885324fdcafb5d2ae53eb7d8a083"
     },
     "cover-commercial-decision-desk-en.svg": {
-      "sha256": "2173a2614894b472f0a3883ffddcb296af92ff425aa2463e608238701f714bb5"
+      "sha256": "d7a0f1725916313ce95cd0a5d4950d636b3d3c446a4d993263814e111eb676f8"
     },
     "cdd-executive-snapshot-zh-v02.png": {
       "sha256": "0c673cd31f4e4ea38cf2f8881979300550910b37ffaab9f04ccec6ee7b948a1b",
