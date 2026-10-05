@@ -9,8 +9,8 @@ import { pathToFileURL } from "node:url";
 
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const zh = JSON.parse(readFileSync("C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/content/onepager-zh.json", "utf8"));
-const en = JSON.parse(readFileSync("C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/content/onepager-en.json", "utf8"));
+const zh = JSON.parse(readFileSync(new URL("../content/onepager-zh.json", import.meta.url), "utf8"));
+const en = JSON.parse(readFileSync(new URL("../content/onepager-en.json", import.meta.url), "utf8"));
 
 function build(data, isCJK) {
   const works = data.works.map((w) => `<li>${w}</li>`).join("");

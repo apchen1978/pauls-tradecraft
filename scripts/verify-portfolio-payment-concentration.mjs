@@ -1,6 +1,6 @@
 // verify-portfolio-payment-concentration.mjs
 // Verify the portfolio renders the Payment Concentration case study card:
-// - card present, separate from AI Trade Deal Desk
+// - card present, separate from Trade Deal Desk
 // - case study expands with problem/approach/tools/result/evidence
 // - honest PUBLIC EVIDENCE disclosure (no public link)
 // - no horizontal overflow at desktop and 390px mobile
@@ -93,12 +93,12 @@ async function check(viewport) {
 
   // Separate from trade-deal-desk: two distinct cards
   results.tradeDealDeskSeparate = await ev(`(() => {
-    const t = [...document.querySelectorAll('h3')].filter(h => h.textContent.includes('AI Trade Deal Desk')).length;
+    const t = [...document.querySelectorAll('h3')].filter(h => h.textContent.includes('Trade Deal Desk')).length;
     const p = [...document.querySelectorAll('h3')].filter(h => h.textContent.includes('Payment Concentration')).length;
     return t === 1 && p === 1;
   })()`);
   results.tradeDealDeskStillLinked = await ev(`(() => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     const a = h ? h.closest('article').querySelector('a[href]') : null;
     return a ? a.href : null;
   })()`);

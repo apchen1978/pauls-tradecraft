@@ -85,7 +85,7 @@ async function check(viewport) {
 
   // Trade Deal Desk card
   results.tddLink = await ev(`(() => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     const a = h ? h.closest('article').querySelector('a[href]') : null;
     return a ? a.href : null;
   })()`);
@@ -104,14 +104,14 @@ async function check(viewport) {
 
   // Trade Deal Desk evidence corrected (13/13, 5/5)
   await ev(`(() => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     const s = h && h.closest('article').querySelector('details summary');
     s && s.click();
     return 'ok';
   })()`);
   await sleep(600);
   const tddText = await ev(`(() => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     return h ? h.closest('article').innerText : '';
   })()`);
   results.tddEvidence1313 = tddText.includes("13/13");
