@@ -32,14 +32,14 @@
       "sha256": "2173a2614894b472f0a3883ffddcb296af92ff425aa2463e608238701f714bb5"
     },
     "cdd-executive-snapshot-zh-v02.png": {
-      "sha256": "6ad62a7a8da4a5ddacbb99bbe5ee0ef17c54642e858e65cb30473c9a2770a62d",
-      "width": 1050,
-      "height": 1169
+      "sha256": "0c673cd31f4e4ea38cf2f8881979300550910b37ffaab9f04ccec6ee7b948a1b",
+      "width": 1052,
+      "height": 1146
     },
     "cdd-executive-snapshot-en-v02.png": {
-      "sha256": "d224a62cab6fe061837d29c375249cfd60ff9d66e9c216caf6cab89d4172f456",
-      "width": 1050,
-      "height": 1191
+      "sha256": "f474423d36be8ef7f94354213594685fb8de8fb8cb7fdbbbd7cf523c5b28a307",
+      "width": 1052,
+      "height": 1166
     }
   }
 }
