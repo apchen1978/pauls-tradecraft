@@ -269,19 +269,19 @@ c.circle(cx + 9, cy - 55, 4, stroke=0, fill=1)
 y = PAGE_H - 151
 c.setFont(JHB, 25)
 c.setFillColor(WHITE)
-for ln in wrap('海外商業開發 ×\n商業決策 × AI 工作流', JHB, 25, 390):
+for ln in wrap('海外商業開發 × 商業決策', JHB, 25, 390):
     c.drawString(MARGIN, snap(y), ln)
     y -= 38
 y -= 9
 c.setFont(JHB, 12)
 c.setFillColor(GOLD)
-for ln in wrap('Global commercial judgment made visible through AI-assisted workflows.', JHB, 12, 385):
+for ln in wrap('Paul + AI 人機協作 · Global commercial judgment, made visible.', JHB, 12, 385):
     c.drawString(MARGIN, snap(y), ln)
     y -= 20
 y -= 7
 c.setFont(JH, 10)
 c.setFillColor(HexColor('#C2CEDB'))
-for ln in wrap('15 年國際業務，含中國大陸通路與團隊管理  |  TOEIC 955  |  Human-led, AI-accelerated', JH, 10, 400):
+for ln in wrap('15 年國際業務，含中國大陸通路與團隊管理  |  TOEIC 955', JH, 10, 400):
     c.drawString(MARGIN, snap(y), ln)
     y -= 17
 
@@ -290,7 +290,7 @@ spine_y = 270
 spine_items = [
     ('01', '海外開發', GOLD),
     ('02', '商業判斷', TEAL),
-    ('03', 'AI 工作流', ORANGE),
+    ('03', '人機協作', ORANGE),
 ]
 tile_gap = 12
 tile_w = (CONTENT_W - tile_gap * 2) / 3
@@ -322,8 +322,8 @@ c.showPage()
 chapter_opener(c, '01', 'Global Business Development · 海外商業開發', '找到公司很容易；判斷哪裡值得投入商業資源更難。')
 pillars = [
     ('01', '先看供應商現實', '產品、技術、MOQ、價格帶、交期、品質、付款與開發能力，是市場開發的起點；不是先列一長串公司，再倒過來找理由。', GOLD, PALE_GOLD),
-    ('02', '再選值得追的商業路徑', '買方／通路類型、產品切入、外部採購路徑與 Owner 目標必須一起看。相關公司不等於可能買家；大公司不等於現在優先。', TEAL, PALE_TEAL),
-    ('03', '把興趣與訂單分開', '樣品、設計或開發需求，可以支持內部檢視；但不是訂單。技術可行性、資源、經濟性、交期、合規與 Owner 授權仍需分開判斷。', BLUE, PALE_BLUE),
+    ('02', '再選值得追的商業路徑', '買方／通路類型、產品切入、外部採購路徑與負責人目標必須一起看。相關公司不等於可能買家；大公司不等於現在優先。', TEAL, PALE_TEAL),
+    ('03', '把興趣與訂單分開', '樣品、設計或開發需求，可以支持內部檢視；但不是訂單。技術可行性、資源、經濟性、交期、合規與負責人授權仍需分開判斷。', BLUE, PALE_BLUE),
 ]
 tile_gap = 12
 tile_w = (CONTENT_W - tile_gap * 2) / 3
@@ -339,7 +339,7 @@ stat_width = CONTENT_W / 3
 for i, (big, label, accent) in enumerate([
         ('955', 'TOEIC (2019)', GOLD),
         ('15年', '國際業務總監', TEAL),
-        ('23/23', 'Pilot 流程驗證項目通過', BLUE)]):
+        ('中國大陸', '通路與團隊管理經驗', BLUE)]):
     x = MARGIN + i * stat_width
     if i:
         c.setStrokeColor(LINE)
@@ -365,24 +365,24 @@ c.drawString(MARGIN + 18, 197, 'Commercial judgment starts before the prospect l
 footer(c, 2)
 c.showPage()
 
-# ================= Page 3 — Owner Special Projects =========================
-chapter_opener(c, '02', 'Owner Special Projects · Owner 特案推進', '重要但模糊的問題，不必因為暫時沒有明確部門，就停在原地。')
+# ================= Page 3 — Special Projects =========================
+chapter_opener(c, '02', 'Special Projects · 特案推進', '重要但模糊的問題，不必因為暫時沒有明確部門，就停在原地。')
 column_gap = 16
 column_w = (CONTENT_W - column_gap) / 2
 number_tile(c, MARGIN, PAGE_H - 151, column_w, 257, 'A',
-            'Owner 特案：把事情往前推，而不是把它再交回去',
-            '當一個問題跨部門、資訊零散、沒有既定 SOP，Owner 需要的不是行政協助，而是有人能理解情境、查資料、整理選項、挑戰假設，並把模糊問題收斂成可行的下一步。',
+            '特案：把事情往前推，而不是把它再交回去',
+            '當一個問題跨部門、資訊零散、沒有既定 SOP，負責人需要的不是行政協助，而是有人能理解情境、查資料、整理選項、挑戰假設，並把模糊問題收斂成可行的下一步。',
             accent=GOLD, bg=PALE_GOLD, body_size=9.1, title_size=11.3)
 number_tile(c, MARGIN + column_w + column_gap, PAGE_H - 151, column_w, 257, 'B',
             '商業經濟／會計視角：先看懂錢的商業意義',
-            '利潤、現金、支出、時間與證據，往往不是同一件事。這個視角能幫 Owner 在作出重大決定前提出更好的問題；記帳、稅務、法律與個案結論仍交由適當專業人士確認。',
+            '利潤、現金、支出、時間與證據，往往不是同一件事。這個視角能幫負責人在作出重大決定前提出更好的問題；記帳、稅務、法律與個案結論仍交由適當專業人士確認。',
             accent=TEAL, bg=PALE_TEAL, body_size=9.1, title_size=11.3)
 
 c.setFont(JHB, 8)
 c.setFillColor(BLUE)
 c.drawString(MARGIN, 345, 'A PRACTICAL DECISION SEQUENCE')
 draw_flow(c, MARGIN, 326, CONTENT_W,
-          ['重要問題', '結構與證據', '可比較選項', 'Owner 決定'],
+          ['重要問題', '結構與證據', '可比較選項', '負責人決定'],
           colors=[NAVY_2, BLUE, TEAL, GOLD], gap=9, font_size=8.4)
 c.setFont(JHB, 10.5)
 c.setFillColor(NAVY)
@@ -390,15 +390,15 @@ c.drawString(MARGIN, 265, '把模糊的事，推到一個可判斷的下一步�
 footer(c, 3)
 c.showPage()
 
-# ================= Page 4 — AI-Native Execution ===========================
-chapter_opener(c, '03', 'AI-Native Execution · AI 原生執行', 'AI 擴大 Paul 的研究、比較與建構能力；它不是取代商業判斷的主角。')
+# ================= Page 4 — Working Method ===========================
+chapter_opener(c, '03', 'Working Method · 工作方法', '先定義邊界，再下判斷；證據走在行動之前。')
 column_gap = 14
 column_w = (CONTENT_W - column_gap) / 2
-number_tile(c, MARGIN, PAGE_H - 151, column_w, 215, '01', 'AI 能做什麼',
-            '擴大公開研究、整理分散資訊、比較候選、保留反證與未知、檢查矛盾、快速把商業邏輯做成可操作原型。它讓一位有商業判斷的人，能處理更廣的資訊與更快的反覆驗證。',
+number_tile(c, MARGIN, PAGE_H - 151, column_w, 215, '01', '判斷怎麼下',
+            '擴大公開研究、整理分散資訊、比較候選、保留反證與未知、檢查矛盾、把商業邏輯做成可操作的原型。目的是讓有商業判斷的人，能處理更廣的資訊、做更快的反覆驗證。',
             accent=BLUE, bg=PALE_BLUE, body_size=8.8, title_size=12)
-number_tile(c, MARGIN + column_w + column_gap, PAGE_H - 151, column_w, 215, '02', 'AI 不替誰做決定',
-            '供應商能否交付、哪一條市場路徑值得投入、開發是否動用資源、報價與付款能否承諾，仍需要 Owner 的目標、外部證據與明確授權。AI inference 不是買方意圖；開發需求不是訂單。',
+number_tile(c, MARGIN + column_w + column_gap, PAGE_H - 151, column_w, 215, '02', '推論不能取代決定',
+            '供應商能否交付、哪一條市場路徑值得投入、開發是否動用資源、報價與付款能否承諾，仍需要負責人的目標、外部證據與明確授權。推論不是買方意圖；開發需求不是訂單。',
             accent=ORANGE, bg=PALE_ORANGE, body_size=8.8, title_size=12)
 
 # The operating discipline gets a distinct, high-contrast anchor.
@@ -413,12 +413,12 @@ c.drawString(MARGIN + 17, 345, '運作紀律')
 c.setFont(JH, 8.8)
 c.setFillColor(HexColor('#D4DEE8'))
 para(c, MARGIN + 17, 326,
-     '先定義邊界，再分工、驗證、審核與獨立複查。更多 Agent 不等於更多工作；目標是更少不必要的工作，以及更清楚的證據與責任。',
+     '先定義邊界，再分工、驗證、審核與獨立複查。更多步驟不等於更多工作；目標是更少不必要的工作，以及更清楚的證據與責任。',
      JH, 8.8, HexColor('#D4DEE8'), CONTENT_W - 36, leading=13.5)
 
 c.setFont(JHB, 13)
 c.setFillColor(NAVY)
-c.drawString(MARGIN, 244, 'AI assists. Owner judges. Evidence moves the decision.')
+c.drawString(MARGIN, 244, 'Evidence moves the decision. A person makes it.')
 c.setFillColor(GOLD)
 c.rect(MARGIN, 225, 54, 2, stroke=0, fill=1)
 footer(c, 4)
@@ -454,19 +454,19 @@ def case_panel(x, y_top, w, h, num, title, body, status, accent, bg):
 
 case_panel(MARGIN, PAGE_H - 143, CONTENT_W, 174, '01',
            'Global Business Development · 海外商業開發',
-           '合成互動示範：同一組候選與證據，會因 Owner 目標不同而改變優先研究路徑；沒有採購路徑證據的高知名度帳戶先暫緩。供應商現實、產品切入、UNKNOWN 與內部資源關卡保持可檢視。',
-           'synthetic demonstrator; human / market validation not performed', GOLD, PALE_GOLD)
+           '示範互動：同一組候選與證據，會因負責人目標不同而改變優先研究路徑；沒有採購路徑證據的高知名度帳戶先暫緩。供應商現實、產品切入、UNKNOWN 與內部資源關卡保持可檢視。',
+           'demo; human / market validation not performed', GOLD, PALE_GOLD)
 
 half_gap = 13
 half_w = (CONTENT_W - half_gap) / 2
 case_panel(MARGIN, PAGE_H - 336, half_w, 201, '02',
-           'AI-Native Market Entry · AI 原生市場開發',
-           '以合成供應商與真實公開市場證據做 bounded research：六家生態系相關帳戶重新分類後，沒有任何一家被足夠證據支持為可能買家。市場相關性不等於商業取得路徑。',
+           'Market Entry · 市場開發',
+           '以示範供應商與真實公開市場證據做有邊界的研究：六家生態系相關帳戶重新分類後，沒有任何一家被足夠證據支持為可能買家。市場相關性不等於商業取得路徑。',
            'no buyer, response, RFQ, order, or revenue claim', TEAL, PALE_TEAL)
 case_panel(MARGIN + half_w + half_gap, PAGE_H - 336, half_w, 201, '03',
            'Commercial Decision Desk · 商業決策收斂層',
            '商機、交易條件、付款暴露、矛盾與未知，收斂為可稽核的人類決策。硬規則引擎化，並保留「系統建議」與「人類決定」的分界。',
-           'synthetic proof; adoption / ROI not yet proven', BLUE, PALE_BLUE)
+           'demo proof; adoption / ROI not yet proven', BLUE, PALE_BLUE)
 
 c.setFillColor(NAVY)
 c.roundRect(MARGIN, 184, CONTENT_W, 63, 5, stroke=0, fill=1)
@@ -487,15 +487,15 @@ half_gap = 14
 half_w = (CONTENT_W - half_gap) / 2
 number_tile(c, MARGIN, PAGE_H - 151, half_w, 222, '01',
             'Business Spending Insight · 企業支出決策啟發',
-            '用清楚的商業語言，幫 SME Owner 在找 CPA 前看懂支出牽涉的現金、費用、證據與時間點，並整理待確認問題；不代替記帳、報稅或 CPA 專業判斷。',
+            '用清楚的商業語言，幫中小企業的負責人在找 CPA 前看懂支出牽涉的現金、費用、證據與時間點，並整理待確認問題；不代替記帳、報稅或 CPA 專業判斷。',
             accent=TEAL, bg=PALE_TEAL, body_size=8.3, title_size=9.3)
 number_tile(c, MARGIN + half_w + half_gap, PAGE_H - 151, half_w, 222, '02',
             'Trade Profit Navigator · 利潤槓桿導航',
-            '把單筆貿易拆成可見的利潤槓桿、現金暴露、風險與未知，讓 Owner 比較下一步要測試什麼，而不是把計算結果偽裝成自動建議。',
+            '把單筆貿易拆成可見的利潤槓桿、現金暴露、風險與未知，讓負責人比較下一步要測試什麼，而不是把計算結果偽裝成自動建議。',
             accent=GOLD, bg=PALE_GOLD, body_size=8.7, title_size=10.1)
-draw_pill(c, MARGIN + 14, PAGE_H - 341, 'SYNTHETIC CASES · HUMAN VALIDATION PENDING', PALE_BLUE, BLUE, font_size=6.4)
+draw_pill(c, MARGIN + 14, PAGE_H - 341, 'DEMO CASES · HUMAN VALIDATION PENDING', PALE_BLUE, BLUE, font_size=6.4)
 draw_pill(c, MARGIN + half_w + half_gap + 14, PAGE_H - 341,
-          'PUBLIC DEMO · SYNTHETIC USD CASE', PALE_GOLD, NAVY, font_size=6.4)
+          'PUBLIC DEMO · USD EXAMPLE', PALE_GOLD, NAVY, font_size=6.4)
 
 number_tile(c, MARGIN, PAGE_H - 399, CONTENT_W, 132, '03',
             'MORI 與 Pilot Tracker · 可交付的營運／銷售支援',
@@ -523,9 +523,9 @@ para(c, MARGIN, PAGE_H - 153,
      JH, 9.6, INK, CONTENT_W, leading=15)
 
 areas = [
-    ('01', '我們有產品與供應能力，但海外商業資源該先投在哪裡？', '從供應商現實、Owner 目標與可支持的商業路徑開始。', GOLD, PALE_GOLD),
+    ('01', '我們有產品與供應能力，但海外商業資源該先投在哪裡？', '從供應商現實、負責人目標與可支持的商業路徑開始。', GOLD, PALE_GOLD),
     ('02', '這件重要事情跨部門、資訊雜亂，又沒有自然的負責人。', '把問題研究、結構化、挑戰，推向一個可判斷的下一步。', TEAL, PALE_TEAL),
-    ('03', '我們想把 AI 用在真實商業工作，不想只做工具實驗。', '先定義人類判斷、外部證據與授權邊界，再決定是否值得做成流程。', BLUE, PALE_BLUE),
+    ('03', '我們想把新方法用在真實商業工作，不想只做工具實驗。', '先定義人類判斷、外部證據與授權邊界，再決定是否值得做成流程。', BLUE, PALE_BLUE),
 ]
 area_gap = 9
 area_w = (CONTENT_W - area_gap * 2) / 3

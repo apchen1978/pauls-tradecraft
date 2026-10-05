@@ -60,7 +60,7 @@ if (fs.existsSync(brief)) {
   const pages = (pdf.match(/\/Type\s*\/Page[^s]/g) || []).length;
   check(pages === 7, `Capability Brief page count changed (expected 7, got ${pages})`);
 }
-for (const phrase of ["Global Business Development", "Owner Special Projects", "Commercial Decision Desk", "Business Spending Insight"]) {
+for (const phrase of ["Global Business Development", "Special Projects", "Commercial Decision Desk", "Business Spending Insight"]) {
   check(briefSource.includes(phrase), `Capability Brief source missing '${phrase}'`);
 }
 check(briefSource.indexOf("Global Business Development") < briefSource.indexOf("Commercial Decision Desk"),
