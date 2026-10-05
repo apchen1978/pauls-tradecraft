@@ -5,4 +5,4 @@ and case notes on international trade.
 
 - React + Vite + Tailwind; `npm install && npm run dev` to run locally
 - `npm run build` outputs the static site; GitHub Pages deploys from `main`
-- Demos under `prototype/` are static pages served as-is
+- Static demo pages live under `prototype/`; `.github/workflows/deploy.yml` lists which ones are published
