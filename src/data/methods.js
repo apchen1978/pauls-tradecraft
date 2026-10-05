@@ -149,7 +149,7 @@ export const methods = [
         "一句話：可以證明「做得出來」，不等於證明「賣得掉」；兩條線分開，你才知道下一步該補哪一種證據。",
       ],
       en: [
-        "\"Verified\" is everywhere now: tools say it, suppliers say it, AI output says it. The first question is not \"can I trust it\" but \"verified for what\".",
+        "\"Verified\" is everywhere now: tools say it, suppliers say it, and the documents a counterparty sends carry the stamp too. The first question is not \"can I trust it\" but \"verified for what\".",
         "I split it into two lines. The first is artifact proof: it can be built, it meets the spec, it can be rerun, it can go live. This line can be checked objectively — does the build pass, what do the checks report, does the public URL open.",
         "The second is market proof: someone actually uses it, pays for it, and buys again. There is no document to hand over for this line — only behavior proves it.",
         "Mixing the two lines is expensive. Internally it creates over-optimism: pre-buying, hiring, and investing against the word \"verified\". Externally it creates over-promising: turning \"we can build it\" into \"many people already buy it\". Both mistakes are costly, and both usually surface after signature.",
