@@ -1,6 +1,6 @@
-/* 簡報翻閱器 — Executive Capability Deck（9 頁） */
+/* 簡報翻閱器 — Executive Capability Deck（7 頁） */
 "use strict";
-const TOTAL = 9;
+const TOTAL = 7;
 let current = 1;
 
 const img = document.getElementById("slideImg");
