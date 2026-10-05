@@ -105,7 +105,7 @@ export const works = [
       },
     },
     deliverable: {
-      zh: "一份讓企業負責人先看懂支出商業意義、整理證據，並帶著更好的問題與 CPA 對話的負責人洞察。",
+      zh: "一份讓企業負責人先看懂支出商業意義、整理證據，並帶著更好的問題與 CPA 對話的會前洞察。",
       en: "An insight for decision-makers that helps an SME understand spending, prepare evidence, and bring better questions to a CPA or professional.",
     },
     demoNote: {
@@ -425,8 +425,8 @@ export const works = [
         en: "Core rounds 001–003 and low-information audit 004 are complete, each with .inspect.ndjson evidence.",
       },
       evidence: {
-        zh: "四期產物（主流程 001–003、低資訊稽核 004）＋可視化證據頁；每期附 .inspect.ndjson。",
-        en: "Four output sets (core rounds 001–003, low-information audit 004) plus a visual evidence page; each has .inspect.ndjson.",
+        zh: "三期主流程（001–003）加一份低資訊稽核（004）的產物＋可視化證據頁；每期附 .inspect.ndjson。",
+        en: "Three core rounds (001–003) plus a low-information audit (004), with a visual evidence page; each has .inspect.ndjson.",
       },
     },
   },
