@@ -14,7 +14,7 @@
 //   node scripts/verify-hero-breaks.mjs                 # local dist
 //   node scripts/verify-hero-breaks.mjs --url https://paulstradecraft.com
 //
-// Runs headless Chrome via CDP (same pattern as make-covers.mjs; no deps).
+// Runs headless Chrome via CDP (no deps).
 
 import { spawn } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";

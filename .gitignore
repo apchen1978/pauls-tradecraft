@@ -14,3 +14,7 @@ public/files/*
 # local tooling (not part of the site)
 .playwright-cli/
 .vercel/
+
+# QA screenshots and visual-check output stay out of the repo
+output/
+visual-check/
