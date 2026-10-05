@@ -525,51 +525,6 @@ export const works = [
     },
   },
   {
-    id: "deck",
-    featuredRank: 3,
-    section: "operations",
-    cover: "/images/cover-deck-v2.webp",
-    imageAlt: { zh: "把事情講到可以決定的簡報", en: "A deck that makes a decision visible" },
-    link: "/deck-viewer/",
-    linkLabel: { zh: "翻閱簡報", en: "Flip Through Deck" },
-    span: "md:col-span-2 md:col-start-2",
-    verified: true,
-    zh: {
-      title: "把事情講到可以決定",
-      desc: "把散落的資訊、分歧與未知，整理成一群人可以共同挑戰與判斷的畫面；底層由可重跑的 spec JSON → PPTX → PDF 管線產出。",
-      tag: "Decision surface",
-    },
-    en: {
-      title: "Turning information into a decision surface",
-      desc: "A 9-page demonstration of how scattered information, disagreement, and unknowns can become a shared surface for challenge and judgment — produced by a rerunnable spec-to-PPTX-to-PDF pipeline.",
-      tag: "Decision surface",
-    },
-    case: {
-      stage: { zh: "決策溝通原型", en: "Decision Communication Prototype" },
-      stageTag: { zh: "可重現工作流", en: "Reproducible Workflow" },
-      problem: {
-        zh: "資訊散落在不同文件與人的理解裡；簡報常常只整理內容，卻沒有讓團隊看清楚真正要決定什麼。",
-        en: "Information was scattered across documents and people’s interpretations; a deck could organize content without making the real decision visible.",
-      },
-      approach: {
-        zh: "先拆開事實、推論與未知，再把選項、取捨與下一個人類決定編排成可翻閱的敘事；以 spec JSON 驅動 PPTX → PDF 管線，迭代三版。",
-        en: "Separated facts, inferences, and unknowns before arranging options, trade-offs, and the next human decision into a readable narrative; drove the PPTX → PDF pipeline from spec JSON across three iterations.",
-      },
-      tools: {
-        zh: "ppt-toolkit（pptxgenjs）· spec JSON 管線",
-        en: "ppt-toolkit (pptxgenjs) · spec JSON pipeline",
-      },
-      result: {
-        zh: "完成三版可重跑簡報與 PDF 渲染；展示的是決策敘事的轉換，不只是版面產出。",
-        en: "Three rerunnable deck versions and PDF renders completed; the demonstration is the translation into decision narrative, not merely slide production.",
-      },
-      evidence: {
-        zh: "9 頁決策敘事原型可線上翻閱（/deck-viewer/）；簡報由 spec JSON 管線（ppt-toolkit：spec JSON、make-pptx.mjs）產出、可重跑。這證明的是可重現的敘事與產出流程，不是已驗證的決策改善或商業結果。管線 repo：https://github.com/apchen1978/spec-to-deck-pipeline。",
-        en: "The 9-page decision-narrative prototype is viewable online (/deck-viewer/); it is produced by a rerunnable spec JSON pipeline (ppt-toolkit: spec JSON, make-pptx.mjs). This demonstrates a reproducible narrative and production workflow, not validated decision improvement or commercial outcomes. Pipeline repo: https://github.com/apchen1978/spec-to-deck-pipeline.",
-      },
-    },
-  },
-  {
     id: "expense",
     section: "labs",
     featuredRank: 6,
