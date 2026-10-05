@@ -5,7 +5,7 @@ import { withDemoLang } from "../demoLinks.js";
 import { FoldToggle, foldClass, useFold } from "./FoldedIntro.jsx";
 
 // One deal, walked through the questions in order. The figures are the ones the live
-// demos produce for Owner-approved baseline 2026-10-05.1; steps 2
+// demos produce for baseline 2026-10-05.1; steps 2
 // and 3 share the same case, step 1 uses separate representative examples.
 const LINKS = {
   lead: "https://apchen1978.github.io/overseas-lead-discovery-demo/",

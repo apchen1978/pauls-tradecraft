@@ -19,7 +19,7 @@
        forest = headings/links on light, pine = the one dark surface,
        amber  = accent text on light, gold = accent on dark.
 
-     Brand relationship (Owner decision 2026-10-02): the site reuses the slide library's
+     Brand relationship (decided 2026-10-02): the site reuses the slide library's
      two gold tokens, split by surface: #8A6A2B for text on light (4.54:1 on bone,
      5.03:1 on white), #B89966 on dark only (5.48:1 on #142C29; 2.61:1 on light, so never
      text there). Light sections use warm paper #F6F3ED only, with #DDE7DE as the
@@ -34,7 +34,7 @@
   --color-moss: #62716A; /* muted text on bone (4.64:1); do not use on paper/soft */
   --color-amber: #8A6A2B; /* goldOnPaper: accent text on bone/white (4.54:1 / 5.03:1) */
   --color-gold: #B89966; /* goldOnDark: dark surfaces only (5.48:1 on pine; 4.59:1 on forest/ink, fine for large text, use ondark for small) */
-  /* "pop": the one playful accent, coral (Owner decision 2026-10-03). Fills and highlighter
+  /* "pop": the one playful accent, coral (decided 2026-10-03). Fills and highlighter
      bands ONLY, with ink/pine text or borders on top (ink on pop 5.04:1, pine on pop 6.02:1).
      Never as text colour on bone/paper (1.9-2.2:1), never to carry evidence or status, and it
      is not a gold, so the two-gold rule is untouched. Scope for now: Digital Garage only.

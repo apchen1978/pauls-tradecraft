@@ -11,7 +11,7 @@ const fadeUp = {
 export default function Hero() {
   const { lang, t } = useLang();
   const cdd = works.find((work) => work.id === "commercial-decision-desk");
-  // 畫面分工（Astra ①）：Hero 展示「最後得到什麼」——合成案例的
+  // 畫面分工：Hero 展示「最後得到什麼」——示範案例的
   // Executive Deal Snapshot 輸出特寫；Featured Work 卡保留工作區畫面「怎麼完成」。
   const snapshotSrc = lang === "zh"
     ? "/images/cover-commercial-decision-desk.svg"

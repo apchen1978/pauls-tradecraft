@@ -33,8 +33,8 @@ const WIDE_CARDS = {
   "trade-profit-navigator": { balance: false },
 };
 
-// Public narrative top-3 (C): CDD is featured separately; flagship wall is GBD + TPN.
-// AI-Native Market Entry stays on this wall as GBD's evidence case so
+// Public narrative top-3 (C): the Commercial Decision Desk is featured separately; the flagship wall is GBD + Trade Profit Navigator.
+// The market-entry research stays on this wall as GBD's evidence case so
 // #ai-native-market-entry resolves. It is not a fourth flagship and not field-validated.
 const PUBLIC_COMMERCIAL_WALL_IDS = new Set([
   "overseas-lead-discovery",
@@ -552,7 +552,7 @@ function FeaturedSystem({ work }) {
   const copy = work[lang];
   const cover = typeof work.cover === "string" ? work.cover : work.cover?.[lang];
   const linkLabel = typeof work.linkLabel === "string" ? work.linkLabel : work.linkLabel?.[lang];
-  // Astra P0-2：主入口先看完成範例；已理解用途的人可用第二入口評估自己的商機。
+  // 主入口先看完成範例；已理解用途的人可用第二入口評估自己的商機。
   const secondaryLabel = work.secondaryLinkLabel
     ? (typeof work.secondaryLinkLabel === "string" ? work.secondaryLinkLabel : work.secondaryLinkLabel?.[lang])
     : null;
@@ -562,7 +562,7 @@ function FeaturedSystem({ work }) {
     if (!root) return undefined;
 
     // 錨點直達（#works / #commercial-decision-desk …）時立即顯示內容，
-    // 避免「跳轉後先看到大片空白、之後才淡入」的體驗（Astra ⑤）。
+    // 避免「跳轉後先看到大片空白、之後才淡入」的體驗。
     const hashTargets = new Set(
       [...document.querySelectorAll("main [id]")].map((el) => `#${el.id}`),
     );
@@ -690,7 +690,7 @@ function FeaturedSystem({ work }) {
   );
 }
 
-// ② 旗艦提前：CDD 旗艦展示是獨立頂層區塊（id="#works" 保留給導覽「作品」），
+// ② 旗艦提前：商務決策工作台旗艦展示是獨立頂層區塊（id="#works" 保留給導覽「作品」），
 // 以 works 主標題開場「成果先」；其餘卡片目錄（見 Works）只保留分組標題、不重複大標題。
 export function WorksFlagship() {
   const { lang, t } = useLang();

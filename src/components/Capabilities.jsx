@@ -6,7 +6,7 @@ import { withDemoLang } from "../demoLinks.js";
 const icons = [FlowArrow, Rocket, GlobeHemisphereWest, Network];
 const workflowLinks = {
   source: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
-  // Astra P0-2：交付路徑的 CDD CTA 先帶訪客看完成範例（#mode-sample）。
+  // 交付路徑的主要 CTA 先帶訪客看完成範例（#mode-sample）。
   cdd: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
   payment: "https://apchen1978.github.io/payment-concentration-demo/",
 };
