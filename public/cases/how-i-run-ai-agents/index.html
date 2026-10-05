@@ -59,6 +59,34 @@
     .boundary { border-left: 3px solid var(--gold); padding: 8px 0 8px 14px; color: var(--muted); }
     .en { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
     footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
+
+    /* Trade-off record C: homepage headline revision */
+    .tradeoff-c { margin-top: 40px; }
+    .tradeoff-c h2 { margin: 0 0 14px; font-size: 1.25rem; color: var(--pine); font-weight: 600; word-break: keep-all; text-wrap: balance; }
+    .tradeoff-c-grid { display: grid; gap: 12px; }
+    @media (min-width: 700px) {
+      .tradeoff-c-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .tradeoff-c .card { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: #fff; }
+    .tradeoff-c .card .label {
+      margin: 0; font-size: 11px; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--gold); word-break: keep-all; text-wrap: pretty;
+    }
+    .tradeoff-c .card .line {
+      margin: 8px 0 0; font-size: 1.05rem; font-weight: 600; color: var(--pine);
+      line-height: 1.45; word-break: keep-all; text-wrap: pretty;
+    }
+    .tradeoff-c .card .render {
+      margin: 6px 0 0; font-size: 13px; font-style: italic; font-weight: 400; color: var(--muted); line-height: 1.5;
+    }
+    .tradeoff-c .note {
+      margin: 14px 0 0; font-size: 14px; color: var(--muted); word-break: keep-all; text-wrap: pretty; font-weight: 400;
+    }
+    .tradeoff-c .footnote {
+      margin: 12px 0 0; font-size: 12px; color: var(--muted); opacity: .85; word-break: keep-all; text-wrap: pretty; font-weight: 400;
+    }
+    .en .tradeoff-c h2 { font-weight: 600; }
+    .en .tradeoff-c .card .label { text-transform: none; letter-spacing: .04em; }
   </style>
 </head>
 <body>
@@ -117,6 +145,22 @@
     <h2>對公司的意義</h2>
     <p>多數公司導入 AI，第一個問題是「它能做什麼」。我先問的是：它用誰的身分、能碰哪些資料、哪些動作要人核准、出錯時怎麼知道。能力不等於授權——這是我帶進任何團隊的第一條規則。</p>
 
+    <section class="tradeoff-c" aria-labelledby="tradeoff-c-zh">
+      <h2 id="tradeoff-c-zh">首頁主標，怎麼改到現在？</h2>
+      <div class="tradeoff-c-grid">
+        <article class="card">
+          <p class="label">Paul 親寫的中文主標</p>
+          <p class="line">「海外客戶開發，<wbr>從找到對的市場與買家開始。」</p>
+        </article>
+        <article class="card">
+          <p class="label">現在的定稿｜AI 修訂，Paul 審定</p>
+          <p class="line">「好產品，<wbr>值得遇到對的買家。」</p>
+        </article>
+      </div>
+      <p class="note">中間試過幾個 AI 版本，最後選定現在這句。</p>
+      <p class="footnote">作品文案修訂紀錄，不代表客戶成果。</p>
+    </section>
+
     <div class="en" id="en" lang="en">
       <p class="eyebrow">CASE · HOW I RUN AI AGENTS</p>
       <h2 style="margin-top:10px;font-size:1.6rem">How I run a team of AI agents</h2>
@@ -165,6 +209,24 @@
 
       <h2>Why it matters to a company</h2>
       <p>Most AI adoption starts with "what can it do?" I start with: whose identity does it act under, what data may it touch, which actions need a human, and how would we know when it is wrong. Capability is not authority — that is the first rule I bring into any team.</p>
+
+      <section class="tradeoff-c" aria-labelledby="tradeoff-c-en" lang="en">
+        <h2 id="tradeoff-c-en">How did the homepage headline change?</h2>
+        <div class="tradeoff-c-grid">
+          <article class="card">
+            <p class="label">Paul’s original Chinese headline</p>
+            <p class="line" lang="zh-Hant">「海外客戶開發，<wbr>從找到對的市場與買家開始。」</p>
+            <p class="render">English rendering: Overseas customer development begins with finding the right market and buyers.</p>
+          </article>
+          <article class="card">
+            <p class="label">Current approved headline | Revised with AI, approved by Paul</p>
+            <p class="line">“The right buyer for a good product.”</p>
+          </article>
+        </div>
+        <p class="note">Several AI versions were tried in between. This is the line Paul approved.</p>
+        <p class="footnote">A record of site copy revisions, not a client result.</p>
+      </section>
+
       <div class="ctas">
         <a class="btn btn-primary" href="/#contact">Talk about your AI adoption boundaries</a>
         <a class="btn btn-secondary" href="/#how">Back to How I Work</a>
