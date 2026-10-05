@@ -2,7 +2,7 @@ import { Plus } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import CommercialFrontDoor from "./CommercialFrontDoor.jsx";
 import HeroOutcomes from "./HeroOutcomes.jsx";
-import AiWorkValue from "./AiWorkValue.jsx";
+import Groundwork from "./Groundwork.jsx";
 import ConnectedCase from "./ConnectedCase.jsx";
 import TradeNotes from "./TradeNotes.jsx";
 import Verification from "./Verification.jsx";
@@ -20,7 +20,7 @@ const copy = {
     panels: {
       start: ["海外客戶開發的起點", "路線圖、互動案例與導讀 PDF：從找公司、找對人，到看懂詢價。"],
       situations: ["你現在最像哪一種情況", "名單很多、訂單看起來不錯、錢已花出去：對應到哪個作品。"],
-      ai: ["前置工作怎麼分", "把細節先整理好，把商業判斷留給團隊。"],
+      ai: ["前置工作怎麼做", "把細節先整理好，把商業判斷留給團隊。"],
       problem: ["問題定義", "客戶說的需求，和真正要做的決定，往往不是同一件事。"],
       notes: ["國貿現場筆記", "報價、出貨與訂艙前，先把下一個問題問對。"],
       verification: ["驗證方式", "每一件作品用什麼可重跑的檢查來證明。"],
@@ -35,7 +35,7 @@ const copy = {
     panels: {
       start: ["Where overseas customer development starts", "Roadmap, interactive case and guide PDF: from finding companies and contacts to reading an inquiry."],
       situations: ["Which situation are you in", "A long list, an order that looks good, money already spent: which work applies."],
-      ai: ["How the groundwork is split", "Get the detail organized; keep the commercial judgment with the team."],
+      ai: ["How the groundwork is done", "Get the detail organized; keep the commercial judgment with the team."],
       problem: ["Problem definition", "The request a client brings is rarely the decision that needs making."],
       notes: ["Trade notes", "Ask the right next question before quoting, shipping or booking."],
       verification: ["How it's verified", "The rerunnable checks behind each work."],
@@ -48,7 +48,7 @@ const copy = {
 const panels = [
   { key: "start", anchor: "overseas-customer-development", Component: CommercialFrontDoor },
   { key: "situations", anchor: "hero-outcomes", Component: HeroOutcomes },
-  { key: "ai", anchor: "ai-work-value", Component: AiWorkValue },
+  { key: "ai", anchor: "ai-work-value", Component: Groundwork },
   { key: "problem", anchor: "connected-case", Component: ConnectedCase },
   { key: "notes", anchor: "trade-notes", Component: TradeNotes },
   { key: "verification", anchor: "verification", Component: Verification },

@@ -1,29 +1,24 @@
-export const aiWorkValue = {
+export const groundwork = {
   zh: {
-    eyebrow: "前置工作怎麼分",
+    eyebrow: "前置工作怎麼做",
     headline: "把細節先整理好，把商業判斷留給團隊。",
-    intro: "不必先導入一套大系統，也不必把決定交出去。先把可查、可整理、可比較的前置工作做好，既有團隊就能把時間放回客戶、談判與真正的下一步。",
-    aiLabel: "系統先整理",
-    humanLabel: "團隊來決定",
+    intro: "不必先導入一套大系統。先把可查、可整理、可比較的前置工作做好，既有團隊就能把時間放回客戶、談判與真正的下一步。",
     stages: [
       {
         title: "找與整理",
-        ai: "把公開線索、詢盤或 RFQ 裡分散的資訊，整理成可檢視的起點。",
-        human: "決定哪些客戶、產品或問題值得繼續投入。",
+        body: "把公開線索、詢盤或 RFQ 裡分散的資訊，整理成可檢視的起點；接著決定哪些客戶、產品或問題值得繼續投入。",
       },
       {
         title: "比較與提醒",
-        ai: "把成本、付款、交期和還不清楚的地方放在一起，讓缺口先浮現。",
-        human: "判斷哪些條件能接受、哪些證據還必須補足。",
+        body: "把成本、付款、交期和還不清楚的地方放在一起，讓缺口先浮現；接著判斷哪些條件能接受、哪些證據還必須補足。",
       },
       {
         title: "確認與推進",
-        ai: "整理下一步、會議重點與可交接的工作底稿。",
-        human: "決定是否承諾、由誰處理，以及下一次該帶什麼往前走。",
+        body: "整理下一步、會議重點與可交接的工作底稿；最後決定是否承諾、由誰處理，以及下一次該帶什麼往前走。",
       },
     ],
     outcomeLabel: "團隊得到",
-    outcome: "更多可用的研究與整理能力；人力回到客戶、判斷與承諾。",
+    outcome: "整理好的前置工作，讓時間回到客戶、判斷與承諾。",
     prompt: "你現在最想先釐清哪一件事？",
     entryPoints: [
       {
@@ -46,30 +41,25 @@ export const aiWorkValue = {
     cta: "看完整商業路徑",
   },
   en: {
-    eyebrow: "How the groundwork is split",
+    eyebrow: "How the groundwork is done",
     headline: "Get the detail organized. Keep commercial judgment with the team.",
-    intro: "You do not need a large system first, and you do not hand decisions away. Get the research, structuring, and comparison work done first so the existing team can spend more time with customers, negotiation, and the next real move.",
-    aiLabel: "Organized first",
-    humanLabel: "The team decides",
+    intro: "You do not need a large system first. Get the research, structuring, and comparison work done first so the existing team can spend more time with customers, negotiation, and the next real move.",
     stages: [
       {
         title: "Find and structure",
-        ai: "Turn scattered public signals, inquiries, or RFQs into a starting point the team can inspect.",
-        human: "Decide which customers, products, or questions deserve further effort.",
+        body: "Turn scattered public signals, inquiries, or RFQs into a starting point the team can inspect, then decide which customers, products, or questions deserve further effort.",
       },
       {
         title: "Compare and surface gaps",
-        ai: "Put costs, payment, delivery, and what remains unclear on one view.",
-        human: "Decide which conditions are acceptable and which evidence must still be obtained.",
+        body: "Put costs, payment, delivery, and what remains unclear on one view so the gaps show first, then decide which conditions are acceptable and which evidence must still be obtained.",
       },
       {
         title: "Prepare and carry forward",
-        ai: "Structure next actions, meeting priorities, and working notes others can pick up.",
-        human: "Decide whether to commit, who acts, and what the next meeting needs to move forward.",
+        body: "Structure next actions, meeting priorities, and working notes others can pick up, then decide whether to commit, who acts, and what the next meeting needs to move forward.",
       },
     ],
     outcomeLabel: "The team gets",
-    outcome: "More usable research and structuring capacity, with people focused on customers, judgment, and commitment.",
+    outcome: "Groundwork that is already in order, so time goes back to customers, judgment, and commitment.",
     prompt: "What do you need to clarify first?",
     entryPoints: [
       {
@@ -88,7 +78,7 @@ export const aiWorkValue = {
         href: "https://apchen1978.github.io/payment-concentration-demo/",
       },
     ],
-    boundary: "Research, structuring, and comparison can come first. Finance, legal, credit, and final commercial authorization remain with the owner and the appropriate professionals.",
+    boundary: "Research, structuring, and comparison can come first. Finance, legal, credit, and final commercial authorization remain with the decision-maker and the appropriate professionals.",
     cta: "See the commercial path",
   },
 };

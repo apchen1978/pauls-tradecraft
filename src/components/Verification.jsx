@@ -5,8 +5,8 @@ import { useLang } from "../i18n.jsx";
 const proofRows = [
   { key: "cdd", tests: "65/65 + 42/42 + 19/19 + 21/21 + 28/28", method: "deterministic, rerunnable" },
   { key: "lead", tests: "44 → 20 shortlist", method: "anonymized, source-tiered" },
-  { key: "trade", tests: "13/13 + 5/5", method: "deterministic, rerunnable" },
-  { key: "payment", tests: "51/51", method: "canonical fixture, per-currency" },
+  { key: "trade", tests: "static demo", method: "deterministic, rerunnable" },
+  { key: "payment", tests: "6-event demo fixture", method: "per-currency, rerunnable" },
   { key: "mori", tests: "hand-over checklist", method: "locally verifiable" },
   { key: "tracker", tests: "pilot workflow", method: "locally verifiable" },
 ];
