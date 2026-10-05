@@ -4,11 +4,11 @@
 //   - 未實測者維持 null；公開呈現使用中性的 evidence status copy。
 //   - 禁止猜測 URL、禁止把 private repo 當作公開證據。
 //   - verified 只表示公開 link 曾線上實測（連結實測 / LIVE），不是品質、技術或商業驗證。
-//   - 成熟度看 case.stage（原型 / 合成 / 技術驗證，或既有誠實標籤），與 liveness 分開。
+//   - 成熟度看 case.stage（原型 / 示範 / 技術驗證，或既有誠實標籤），與 liveness 分開。
 // Case Study schema（P1.5）：
 //   - case.stage 預設只能是：Prototype / Simulation / Shadow Pilot / Technical Validation / Creative Build（依證據選）
 //   - 引擎成熟度與案例成熟度不同時，不得只用單一 Technical Validation。
-//     CDD 使用雙標：引擎：技術驗證 · 案例：合成 / engine: technically validated · case: synthetic
+//     商務決策工作台使用雙標：引擎：技術驗證 · 案例：示範 / engine: technically validated · case: demo
 //   - 禁止虛構 ROI / conversion / customer result / usage metrics / commercial outcome。
 // 封面（cover）：真實截圖裁切 16:9，或品牌設計封面（Forest family）。
 export const works = [
