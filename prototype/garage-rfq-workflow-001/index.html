@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RFQ → Quote Decision: Human × AI Workflow</title>
+  <title>RFQ → Quote Decision Walkthrough</title>
   <meta name="description" content="Working Evidence · Synthetic interactive workflow: an incomplete foreign-trade RFQ moves through evidence reconstruction, human judgment, and state reversal." />
   <link rel="canonical" href="https://paulstradecraft.com/prototype/garage-rfq-workflow-001/" />
-  <meta property="og:title" content="RFQ → Quote Decision: Human × AI Workflow" />
+  <meta property="og:title" content="RFQ → Quote Decision Walkthrough" />
   <meta property="og:description" content="An incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case." />
   <meta property="og:url" content="https://paulstradecraft.com/prototype/garage-rfq-workflow-001/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="RFQ → Quote Decision: Human × AI Workflow" />
+  <meta name="twitter:title" content="RFQ → Quote Decision Walkthrough" />
   <meta name="twitter:description" content="Working Evidence · Synthetic interactive workflow." />
   <style>
     :root {
@@ -179,15 +179,15 @@
 <body>
   <main class="shell">
     <div class="topline"><p class="eyebrow" id="eyebrow">Working Evidence · Synthetic</p><div class="top-actions"><a class="back-link" href="../../">← AI-Native Market Entry / Paul’s Tradecraft</a><button class="lang-toggle" id="lang-toggle" type="button" aria-label="Switch language">繁中</button><span class="case-id">Foreign trade RFQ</span></div></div>
-    <h1 id="page-title">RFQ → Quote Decision: Human × AI Workflow</h1>
+    <h1 id="page-title">RFQ → Quote Decision Walkthrough</h1>
     <p class="intro" id="page-intro">See how an incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case.</p>
     <p class="synthetic" id="synthetic-label">Built and operationally red-teamed · not field validated</p>
 
     <section class="workflow" aria-label="Synthetic RFQ workflow">
       <header class="workflow-head"><h2 id="workflow-title">Singapore distributor inquiry</h2><p id="workflow-subtitle">Regional distributor · commercial interior / building-material product · no live customer or external communication</p></header>
       <div class="workstrip" aria-label="Work boundaries">
-        <div><strong id="ai-does-label">AI does</strong><p id="ai-does-copy">Reconstructs context, compares evidence, finds gaps, drafts questions, updates state.</p></div>
-        <div><strong id="human-decides-label">Human decides</strong><p id="human-decides-copy">Whether to continue, what risks to accept, and whether a quote or promise is justified.</p></div>
+        <div><strong id="ai-does-label">Preparation</strong><p id="ai-does-copy">Reconstructs context, compares evidence, finds gaps, drafts questions, updates state.</p></div>
+        <div><strong id="human-decides-label">Decision</strong><p id="human-decides-copy">Whether to continue, what risks to accept, and whether a quote or promise is justified.</p></div>
         <div><strong id="system-controls-label">System controls</strong><p id="system-controls-copy">Unknowns remain unknown; external sending and commercial commitment stay approval-gated.</p></div>
       </div>
       <nav class="stagebar" aria-label="Workflow stages">
@@ -208,7 +208,7 @@
         <div class="panel-grid"><div><span class="step-label">02 / Context reconstruction</span><h3>AI separates signal from missing context.</h3><p class="panel-lede">The system does not fill the gaps. It makes the gaps easier for a person to see.</p>
           <div class="case-head"><strong>Case state: reconstructed</strong><span class="state-chip">Unknowns preserved</span></div>
           <div class="context-grid"><div class="context-card known"><h4>Known</h4><ul><li>Acoustic wall panels</li><li>Approx. 2,400 m²</li><li>Singapore destination</li><li>Late-October target</li></ul></div><div class="context-card unknown"><h4>Unknown</h4><ul><li>Final technical specification</li><li>Contracting entity / buyer role</li><li>Certification requirement</li><li>Payment terms</li></ul></div><div class="context-card conflict"><h4>Conflict / verify</h4><ul><li>Delivery timing may conflict with an unresolved fire-rating and specification path</li><li>“Target” is not yet a binding date</li></ul></div></div>
-          <div class="button-row"><button class="action" data-next="2">Prepare qualification evidence</button><button class="text-button" data-prev="0">Back to RFQ</button></div></div><aside class="side-note"><strong>AI does</strong><p>Extracts, normalizes, and flags contradictions. It does not infer that the buyer is ready, qualified, or safe to quote.</p></aside></div>
+          <div class="button-row"><button class="action" data-next="2">Prepare qualification evidence</button><button class="text-button" data-prev="0">Back to RFQ</button></div></div><aside class="side-note"><strong>Preparation</strong><p>Extracts, normalizes, and flags contradictions. It does not infer that the buyer is ready, qualified, or safe to quote.</p></aside></div>
       </article>
 
       <article class="panel" data-panel="2">
@@ -217,7 +217,7 @@
           <div class="handoff"><strong>Human judgment required</strong><p>Does this opportunity deserve more organizational attention before the evidence is complete?</p></div>
           <div class="gate"><h4>Choose a bounded path</h4><p>Continue discovery does not authorize a quotation or commercial commitment.</p><div class="button-row"><button class="choice" data-qualification="continue">Continue discovery</button><button class="choice" data-qualification="hold">Hold</button><button class="choice" data-qualification="decline">Decline</button></div><div class="choice-result" id="qualification-result"></div></div>
           <div class="button-row"><button class="action" id="qualification-next" data-next="3" disabled>Review evidence gaps</button><button class="text-button" data-prev="1">Back to context</button></div>
-        </div><aside class="side-note"><strong>Human decides</strong><p>Whether the opportunity deserves attention. Not whether the opportunity is won, quote-ready, or approved for external commitment.</p></aside></div>
+        </div><aside class="side-note"><strong>Decision</strong><p>Whether the opportunity deserves attention. Not whether the opportunity is won, quote-ready, or approved for external commitment.</p></aside></div>
       </article>
 
       <article class="panel" data-panel="3">
@@ -231,7 +231,7 @@
         <div class="panel-grid"><div><span class="step-label">05 / Evidence V1 · Human decision D1</span><h3>Enough evidence for a decision — at this moment.</h3><p class="panel-lede">The synthetic case now has a coherent basis for a quote decision. The human decides; the evidence does not decide itself.</p>
           <div class="updates"><div class="update verified"><h4>Specification · VERIFIED</h4><p>Rev A — acoustic wall panel, fire-rated finish confirmed for this review.</p></div><div class="update verified"><h4>Certification · VERIFIED</h4><p>Required certification standard confirmed for the current scope.</p></div><div class="update verified"><h4>Payment · VERIFIED</h4><p>30/70 terms confirmed for the current commercial review.</p></div><div class="update verified"><h4>Quantity / delivery · VERIFIED</h4><p>2,400 m²; late-October delivery is sufficiently confirmed and feasible for this synthetic case.</p></div></div>
           <div class="gate"><h4>Human judgment gate · Decision D1</h4><p>AI has prepared the evidence. It has not selected the commercial decision.</p><div class="button-row"><button class="action" id="d1-submit">Record QUOTE READY</button></div><div class="choice-result" id="d1-result"></div></div>
-          <div class="button-row"><button class="action" id="d1-next" data-next="5" disabled>Receive new buyer evidence</button><button class="text-button" data-prev="3">Back to evidence questions</button></div></div><aside class="side-note"><strong>Human decides</strong><p>D1 is a human decision against Evidence V1. The synthetic timestamp and evidence basis stay attached to the decision.</p></aside></div>
+          <div class="button-row"><button class="action" id="d1-next" data-next="5" disabled>Receive new buyer evidence</button><button class="text-button" data-prev="3">Back to evidence questions</button></div></div><aside class="side-note"><strong>Decision</strong><p>D1 is a human decision against Evidence V1. The synthetic timestamp and evidence basis stay attached to the decision.</p></aside></div>
       </article>
 
       <article class="panel" data-panel="5">
@@ -247,7 +247,7 @@
         <div class="panel-grid"><div><span class="step-label">07 / Human re-review · Current decision D2</span><h3>Make today’s decision against today’s evidence.</h3><p class="panel-lede">The old decision remains part of the history. It is no longer the current approval.</p>
           <div class="gate"><h4>Human judgment gate · Evidence V2</h4><p>AI may explain what changed. A human must choose the current state.</p><div class="decision-list"><div class="decision-option"><input type="radio" name="re-review" id="d2-ready" value="ready"><label for="d2-ready"><strong>Quote ready</strong><span>V2 has been reviewed and still supports a human-approved commercial response.</span></label></div><div class="decision-option"><input type="radio" name="re-review" id="d2-hold" value="hold"><label for="d2-hold"><strong>Conditional hold</strong><span>Continue discovery; do not promise price, margin, payment acceptance, production capacity, or delivery.</span></label></div><div class="decision-option"><input type="radio" name="re-review" id="d2-no" value="no"><label for="d2-no"><strong>Not quote-ready</strong><span>Stop commercial preparation until the changed evidence is materially clarified.</span></label></div></div><div class="button-row"><button class="action" id="d2-submit">Apply current human decision</button></div><div class="choice-result" id="d2-result"></div></div>
           <div class="history-current" id="history-current" hidden><div class="history-card"><h4>History · D1</h4><p><strong>QUOTE READY</strong></p><p>Valid against Evidence V1 at 09:40.</p><p>Later made stale by material evidence change.</p></div><div class="history-card"><h4>Current · D2</h4><p><strong id="d2-label">CONDITIONAL HOLD</strong></p><p>Based on Evidence V2 at 14:20.</p><p>New decision does not erase the previous one.</p></div></div>
-          <div id="post-decision" hidden><div class="comparison"><div><h4>Before</h4><p>RFQ → read email → search messages → ask engineering → ask Founder → draft response → discover missing information later</p></div><div><h4>With Human × AI</h4><p>RFQ → reconstruct context → expose gaps → human judgment → evidence update → stale approval → human re-review → next action</p></div></div><div class="resource"><h4>Where attention is preserved</h4><p>AI absorbs <span>reading, extraction, comparison, context reconstruction, missing-information detection, drafting, and state updating.</span> Human attention concentrates on <strong>commercial judgment, exceptions, risk, commitments, and authorization.</strong></p></div><div class="gate"><h4>Prepared follow-up — awaiting human approval</h4><p>“Thank you. We can continue the technical review. Before we prepare a conditional commercial response, could you confirm the impact of Rev B on the required fire-rating standard, payment terms, and delivery planning?”</p><div class="button-row"><button class="action" data-restart>Restart workflow</button></div></div></div>
+          <div id="post-decision" hidden><div class="comparison"><div><h4>Before</h4><p>RFQ → read email → search messages → ask engineering → ask Founder → draft response → discover missing information later</p></div><div><h4>With this workflow</h4><p>RFQ → reconstruct context → expose gaps → human judgment → evidence update → stale approval → human re-review → next action</p></div></div><div class="resource"><h4>Where attention is preserved</h4><p>AI absorbs <span>reading, extraction, comparison, context reconstruction, missing-information detection, drafting, and state updating.</span> Human attention concentrates on <strong>commercial judgment, exceptions, risk, commitments, and authorization.</strong></p></div><div class="gate"><h4>Prepared follow-up — awaiting human approval</h4><p>“Thank you. We can continue the technical review. Before we prepare a conditional commercial response, could you confirm the impact of Rev B on the required fire-rating standard, payment terms, and delivery planning?”</p><div class="button-row"><button class="action" data-restart>Restart workflow</button></div></div></div>
         </div><aside class="side-note"><strong>What changed</strong><p>Valid then. Not valid now. The evidence changed; the human decision had to be made again.</p></aside></div>
       </article>
     </section>
@@ -274,26 +274,26 @@
       const translations = {
         zh: {
           eyebrow: 'WORKING EVIDENCE · 合成互動原型',
-          title: 'RFQ → 報價決策：Human × AI Workflow',
+          title: 'RFQ → 報價決策工作流',
           intro: '一筆資訊未完備的海外 RFQ，如何被整理成可檢視的證據，由人做商業判斷，並在條件改變後回到審查。',
           synthetic: '已建置並完成營運風險測試 · 尚未經真人驗證',
           workflowTitle: '新加坡經銷商詢問',
           workflowSubtitle: '區域經銷商 · 商業室內／建材產品 · 無真實客戶資料或外部溝通',
-          aiLabel: 'AI 執行', aiCopy: '重建脈絡、比對證據、找出缺口、草擬問題、更新狀態。',
-          humanLabel: '人做判斷', humanCopy: '決定是否繼續、承擔哪些風險，以及是否足以報價或做出承諾。',
+          aiLabel: '整理', aiCopy: '重建脈絡、比對證據、找出缺口、草擬問題、更新狀態。',
+          humanLabel: '決策', humanCopy: '決定是否繼續、承擔哪些風險，以及是否足以報價或做出承諾。',
           systemLabel: '系統控制', systemCopy: '未知維持未知；外部傳送與商業承諾仍須人工授權。',
           footer: '合成 workflow prototype — 不代表真實客戶資料、外部溝通、ROI、效率百分比或 production readiness。',
           back: '← AI 原生市場開發 / Paul’s Tradecraft', lang: 'English'
         },
         en: {
           eyebrow: 'WORKING EVIDENCE · SYNTHETIC',
-          title: 'RFQ → Quote Decision: Human × AI Workflow',
+          title: 'RFQ → Quote Decision Walkthrough',
           intro: 'See how an incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case.',
           synthetic: 'Built and operationally red-teamed · not field validated',
           workflowTitle: 'Singapore distributor inquiry',
           workflowSubtitle: 'Regional distributor · commercial interior / building-material product · no live customer or external communication',
-          aiLabel: 'AI does', aiCopy: 'Reconstructs context, compares evidence, finds gaps, drafts questions, updates state.',
-          humanLabel: 'Human decides', humanCopy: 'Whether to continue, what risks to accept, and whether a quote or promise is justified.',
+          aiLabel: 'Preparation', aiCopy: 'Reconstructs context, compares evidence, finds gaps, drafts questions, updates state.',
+          humanLabel: 'Decision', humanCopy: 'Whether to continue, what risks to accept, and whether a quote or promise is justified.',
           systemLabel: 'System controls', systemCopy: 'Unknowns remain unknown; external sending and commercial commitment stay approval-gated.',
           footer: 'Synthetic workflow prototype — no live customer data, external communication, ROI, efficiency percentage, or production readiness is implied.',
           back: '← AI-Native Market Entry / Paul’s Tradecraft', lang: '繁中'
@@ -357,7 +357,7 @@
         document.querySelector('[data-panel="6"] button[data-restart]').textContent = language === 'zh' ? '重新開始 workflow' : 'Restart workflow';
         const textMap = language === 'zh' ? {
           'Case state: reconstructed': '案例狀態：脈絡已重建', 'Unknowns preserved': '未知資訊已保留', 'Known': '已知', 'Unknown': '未知', 'Conflict / verify': '衝突／待驗證',
-          'Visible input': '原始輸入', 'AI does': 'AI 處理', 'Human decides': '人做決定', 'System controls': '系統管控',
+          'Visible input': '原始輸入', 'Preparation': '整理', 'Decision': '決策', 'System controls': '系統管控',
           'Prepare the judgment. Do not replace it.': '準備判斷，不代替判斷。', 'Choose a bounded path': '選擇可控路徑',
           'Continue discovery': '繼續釐清', 'Hold': '暫緩', 'Decline': '不再跟進', 'Review evidence gaps': '檢視證據缺口',
           'Human judgment required': '需要人工判斷', 'Human review before evidence V1': 'Evidence V1 前，先由人審查',
@@ -368,7 +368,7 @@
           'What changed': '變更內容', 'History · D1': '歷史 · D1', 'Current · D2': '目前 · D2'
         } : {
           '案例狀態：已重建': 'Case state: reconstructed', '未知保留': 'Unknowns preserved', '已知': 'Known', '未知': 'Unknown', '衝突／待驗證': 'Conflict / verify',
-          '可見輸入': 'Visible input', 'AI 執行': 'AI does', '人做判斷': 'Human decides', '系統控制': 'System controls',
+          '可見輸入': 'Visible input', '整理': 'Preparation', '決策': 'Decision', '系統控制': 'System controls',
           '繼續探索': 'Continue discovery', '暫停': 'Hold', '婉拒': 'Decline', '檢視證據缺口': 'Review evidence gaps',
           'Evidence V1 前的人審查': 'Human review before evidence V1', '套用合成 Evidence V1': 'Apply synthetic Evidence V1',
           '收到新的買方證據': 'Receive new buyer evidence', '重新開啟人的判斷': 'Re-open human judgment',
@@ -380,7 +380,7 @@
         nodes.forEach((node) => { const value = node.nodeValue.trim(); if (textMap[value]) node.nodeValue = node.nodeValue.replace(value, textMap[value]); });
 
         const ui = language === 'zh' ? {
-          sideHead: ['原始輸入','AI 處理','人做決定','系統管控','人做決定','系統行為','變更內容'],
+          sideHead: ['原始輸入','整理','決策','系統管控','決策','系統行為','變更內容'],
           sideBody: [
             '產品、估計數量、市場、目的地與需求時點已知；最終規格、簽約主體、認證要求與付款條件仍未確認。',
             '擷取、整理並標示衝突；不推定買方已準備好、具備資格或適合報價。',
@@ -401,13 +401,13 @@
           stale: ['先前的決定 · D1','可以報價 → 已失效 · 需重新審查','09:40 依 Evidence V1 核准。當時有效；後續重大證據已改變。'],
           impacts: ['付款條件接受度','已失效／需審查','價格假設','需審查','規格可行性','需審查','交付可行性','影響未知／需審查'],
           history: ['歷史 · D1','09:40 依 Evidence V1 有效。','關鍵證據已改變，D1 轉為 STALE。','目前 · D2','14:20 依 Evidence V2。','新決定不會抹去舊決定。'],
-          comparison: ['之前','RFQ → 閱讀 email → 搜尋訊息 → 詢問工程 → 詢問 Founder → 草擬回覆 → 之後才發現缺口','Human × AI workflow','RFQ → 重建脈絡 → 暴露缺口 → 人工判斷 → 更新證據 → 原核准失效 → 人工重審 → 下一步'],
+          comparison: ['之前','RFQ → 閱讀 email → 搜尋訊息 → 詢問工程 → 詢問 Founder → 草擬回覆 → 之後才發現缺口','用這套流程','RFQ → 重建脈絡 → 暴露缺口 → 人工判斷 → 更新證據 → 原核准失效 → 人工重審 → 下一步'],
           resource: ['保留人的注意力','AI 承接閱讀、擷取、比對、脈絡重建、缺口偵測、草擬與狀態更新；人的注意力集中在商業判斷、例外、風險、承諾與授權。'],
           decisions: ['可報價','V2 已完成審查，仍支持由人核准的商業回覆。','有條件暫緩','繼續釐清；不要承諾價格、毛利、付款接受、產能或交付。','尚不可報價','在變更證據釐清前，停止商業準備。'],
           evidence: ['商業相關性','區域經銷商、合理的產品類別與具意義的估計數量。','技術適配','可能適合，但最終規格與防火要求仍未確認。','資源暴露','工程審查、樣品準備、產能可行性與高階商業注意力。','需要確認的問題','買方角色、專案狀態、認證、付款，以及十月底是必要還是偏好。']
           ,updates: ['規格 · 已驗證','Rev A — 本次審查確認為防火表面吸音牆板。','認證 · 已驗證','目前範圍所需的認證標準已確認。','付款 · 已驗證','本次商業審查確認 30/70 條件。','數量／交付 · 已驗證','2,400 m²；本合成案例確認十月底交付可行。']
         } : {
-          sideHead: ['Visible input','AI does','Human decides','System controls','Human decides','System behavior','What changed'],
+          sideHead: ['Visible input','Preparation','Decision','System controls','Decision','System behavior','What changed'],
           sideBody: [
             'Product, estimated quantity, market, destination, and requested timing are present. A final specification, contracting entity, certification requirement, and payment terms are not.',
             'Extracts, normalizes, and flags contradictions. It does not infer that the buyer is ready, qualified, or safe to quote.',
@@ -428,7 +428,7 @@
           stale: ['Previous decision · D1','QUOTE READY → STALE — REVIEW REQUIRED','Approved against Evidence V1 at 09:40. The decision was valid then. Material evidence changed afterwards.'],
           impacts: ['Payment acceptance','INVALIDATED / REQUIRES REVIEW','Pricing assumptions','REQUIRES REVIEW','Specification feasibility','REQUIRES REVIEW','Delivery feasibility','IMPACT UNKNOWN — REVIEW REQUIRED'],
           history: ['History · D1','Valid against Evidence V1 at 09:40.','Later made stale by material evidence change.','Current · D2','Based on Evidence V2 at 14:20.','New decision does not erase the previous one.'],
-          comparison: ['Before','RFQ → read email → search messages → ask engineering → ask Founder → draft response → discover missing information later','With Human × AI','RFQ → reconstruct context → expose gaps → human judgment → evidence update → stale approval → human re-review → next action'],
+          comparison: ['Before','RFQ → read email → search messages → ask engineering → ask Founder → draft response → discover missing information later','With this workflow','RFQ → reconstruct context → expose gaps → human judgment → evidence update → stale approval → human re-review → next action'],
           resource: ['Where attention is preserved','AI absorbs reading, extraction, comparison, context reconstruction, missing-information detection, drafting, and state updating. Human attention concentrates on commercial judgment, exceptions, risk, commitments, and authorization.'],
           decisions: ['Quote ready','V2 has been reviewed and still supports a human-approved commercial response.','Conditional hold','Continue discovery; do not promise price, margin, payment acceptance, production capacity, or delivery.','Not quote-ready','Stop commercial preparation until the changed evidence is materially clarified.'],
           evidence: ['Commercial relevance','Regional distributor, plausible product category, meaningful estimated quantity.','Technical fit','Potentially suitable, but the final specification and fire-rating requirement remain open.','Resource exposure','Engineering review, sample preparation, production feasibility, and senior commercial attention.','Questions requiring confirmation','Buyer role, project status, certification, payment, and whether late October is required or preferred.']
@@ -463,7 +463,7 @@
           const labels = language === 'zh' ? { ready: ['D2 · 可報價','人工審查確認 Evidence V2 仍支持商業回覆。'], hold: ['D2 · 有條件暫緩','人工審查維持探索開放；Rev B 與 90-day OA 不允許完整商業承諾。'], no: ['D2 · 尚不可報價','人工審查停止商業準備，直到變更證據釐清。'] } : { ready: ['D2 · QUOTE READY','Human review confirms that Evidence V2 still supports a commercial response.'], hold: ['D2 · CONDITIONAL HOLD','Human review keeps discovery open. Rev B and 90-day OA prevent a full commercial commitment.'], no: ['D2 · NOT QUOTE-READY','Human review stops commercial preparation until the changed evidence is materially clarified.'] };
           if (selected && labels[selected]) { d2Label.textContent = labels[selected][0]; d2Result.innerHTML = `<strong>${labels[selected][0]}</strong>${labels[selected][1]}`; }
         }
-        setAll('.comparison h4', language === 'zh' ? ['之前','Human × AI workflow'] : ['Before','With Human × AI']);
+        setAll('.comparison h4', language === 'zh' ? ['之前','用這套流程'] : ['Before','With this workflow']);
       }
       document.querySelector('#lang-toggle').addEventListener('click', () => setLanguage(language === 'en' ? 'zh' : 'en'));
 

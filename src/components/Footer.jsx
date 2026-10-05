@@ -10,9 +10,6 @@ export default function Footer() {
           © {new Date().getFullYear()} {t.brand}. {t.footer.rights}
         </p>
       </div>
-      <div className="mx-auto max-w-7xl px-4 pb-6 md:px-6">
-        <p className="border-t border-bone/10 pt-4 text-center text-xs text-ondark-meta">{t.footer.builtWith}</p>
-      </div>
     </footer>
   );
 }

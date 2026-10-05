@@ -11,7 +11,7 @@ export default function HowIWork() {
         <h2 className="mt-3 text-3xl font-semibold leading-[1.2] tracking-[-0.02em] md:text-[2.625rem]">{t.how.headline}</h2>
         <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-moss">{t.how.sub}</p>
         <a href={lang === "en" ? "/cases/how-i-run-ai-agents/#en" : "/cases/how-i-run-ai-agents/"} className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-amber">
-          {t.how.agentsCase}
+          {t.how.methodCase}
           <ArrowRight size={14} weight="bold" aria-hidden="true" />
         </a>
       </div>
@@ -42,16 +42,6 @@ export default function HowIWork() {
           </motion.li>
         ))}
       </ol>
-
-      <motion.p
-        initial={{ opacity: 0, y: 8 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-16px" }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
-        className="mt-12 rounded-card border border-forest/20 surface-paper px-6 py-5 text-sm leading-relaxed text-moss"
-      >
-        {t.how.note}
-      </motion.p>
       </details>
     </section>
   );
