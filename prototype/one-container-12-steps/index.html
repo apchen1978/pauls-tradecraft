@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>一個貨櫃出海前的 12 步 · 12 Steps Before One Container Ships — Paul's Tradecraft</title>
+  <style>
+    :root {
+      --paper: #f6f3ed;
+      --ink: #193a35;
+      --muted: #5b6a63;
+      --line: #d4dad1;
+      --pine: #142c29;
+      --brass: #8a6a2b;
+      --surface: #ffffff;
+      --soft: #dde7de;
+      --warn: #f3e9d2;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+    .page { width: min(100% - 32px, 960px); margin: 0 auto; padding: 32px 0 72px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .lang { display: flex; gap: 6px; }
+    .lang button {
+      min-width: 44px; min-height: 36px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0;
+      font: inherit; color: inherit; background: transparent; border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
+    }
+    .lang button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--paper); }
+    .badge {
+      display: inline-block; margin-top: 18px; padding: 4px 10px;
+      border: 1px solid var(--line); border-radius: 3px; color: var(--muted);
+      font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    }
+    h1, h2, h3 { margin: 0; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif; font-weight: 600; letter-spacing: -.03em; line-height: 1.25; }
+    h1 { margin-top: 18px; font-size: clamp(32px, 6vw, 48px); }
+    h2 { font-size: clamp(24px, 4.4vw, 32px); }
+    h3 { font-size: 19px; }
+    .lede { margin: 16px 0 0; max-width: 36em; font-size: 18px; }
+    .caveat { margin: 14px 0 0; max-width: 40em; color: var(--muted); font-size: 14px; }
+    .jump { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 0; padding: 0; list-style: none; }
+    .jump a {
+      display: inline-flex; align-items: center; min-height: 40px; padding: 6px 14px;
+      border: 1px solid var(--pine); border-radius: 999px; text-decoration: none; font-size: 14px; font-weight: 700;
+    }
+    .jump a:hover { background: var(--pine); color: var(--paper); }
+    section.block { margin-top: 56px; border-top: 1px solid var(--ink); padding-top: 26px; scroll-margin-top: 16px; }
+    .block-lede { margin: 10px 0 0; max-width: 40em; color: var(--muted); font-size: 16px; }
+
+    .steps { display: grid; gap: 16px; margin: 26px 0 0; padding: 0; list-style: none; }
+    .step { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .step-head { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px 4px; }
+    .num {
+      flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+      background: var(--pine); color: var(--paper); font-weight: 700; font-variant-numeric: tabular-nums;
+    }
+    .step-head p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+    .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 14px 0 0; border-top: 1px solid var(--line); }
+    .col { padding: 14px 20px 16px; border-left: 1px solid var(--line); }
+    .col:first-child { border-left: 0; }
+    .col h4 { margin: 0 0 4px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
+    .col p { margin: 0; font-size: 15px; }
+    .col.risk { background: #faf6ec; }
+    .terms { margin: 0; padding: 10px 20px; border-top: 1px dashed var(--line); background: var(--paper); color: var(--muted); font-size: 13px; }
+    .terms b { color: var(--ink); }
+
+    .cuts { display: grid; gap: 14px; margin: 24px 0 0; }
+    .cut-group { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+    .cut-group > h3 { margin-bottom: 4px; }
+    .cut-group > .sub { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+    .term-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; }
+    .term-list li { display: grid; grid-template-columns: 96px 1fr; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .term-list .t { font-weight: 700; }
+    .term-list .d { font-size: 15px; }
+    .term-list .d small { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; }
+    .countdown { margin: 22px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; counter-reset: c; }
+    .countdown li { padding: 12px 12px; border: 1px solid var(--pine); border-radius: 10px; background: var(--surface); font-size: 14px; font-weight: 700; text-align: center; }
+    .countdown li:last-child { background: var(--pine); color: var(--paper); }
+    .countdown-note { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+    .danger { margin: 22px 0 0; padding: 16px 20px; background: var(--warn); border-radius: 12px; }
+    .danger h3 { font-size: 17px; }
+    .danger ul { margin: 10px 0 0; padding-left: 1.2em; }
+    .danger li { margin: 6px 0; font-size: 15px; }
+
+    .asks { margin: 24px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; counter-reset: q; }
+    .asks li {
+      counter-increment: q; display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start;
+      padding: 16px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: 16px;
+    }
+    .asks li::before {
+      content: counter(q); display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid var(--pine); font-weight: 700; font-variant-numeric: tabular-nums;
+    }
+    .asks small { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
+
+    .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 22px;
+      border: 1px solid var(--pine); border-radius: 8px; background: var(--pine); color: var(--paper);
+      font-weight: 700; text-decoration: none;
+    }
+    .btn:hover { filter: brightness(1.15); }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { background: var(--soft); filter: none; }
+    .boundary { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 720px) {
+      .cols { grid-template-columns: 1fr; }
+      .col { border-left: 0; border-top: 1px solid var(--line); padding: 12px 20px; }
+      .col:first-child { border-top: 0; }
+      .countdown { grid-template-columns: repeat(2, 1fr); }
+      .term-list li { grid-template-columns: 1fr; gap: 2px; }
+      .step-head { padding: 16px 16px 4px; }
+      .col, .terms, .cut-group, .asks li { padding-left: 16px; padding-right: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="top">
+      <p class="eyebrow" id="eyebrow"></p>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <span class="badge" id="badge"></span>
+    <h1 id="title"></h1>
+    <p class="lede" id="lede"></p>
+    <p class="caveat" id="caveat"></p>
+    <ul class="jump" id="jump"></ul>
+
+    <section class="block" id="steps" aria-labelledby="steps-h">
+      <h2 id="steps-h"></h2>
+      <p class="block-lede" id="steps-lede"></p>
+      <ol class="steps" id="steps-list"></ol>
+    </section>
+
+    <section class="block" id="cutoffs" aria-labelledby="cut-h">
+      <h2 id="cut-h"></h2>
+      <p class="block-lede" id="cut-lede"></p>
+      <ol class="countdown" id="countdown"></ol>
+      <p class="countdown-note" id="countdown-note"></p>
+      <div class="cuts" id="cuts"></div>
+      <div class="danger" id="danger"></div>
+    </section>
+
+    <section class="block" id="asks" aria-labelledby="asks-h">
+      <h2 id="asks-h"></h2>
+      <p class="block-lede" id="asks-lede"></p>
+      <ol class="asks" id="asks-list"></ol>
+    </section>
+
+    <div class="row" id="actions"></div>
+    <p class="boundary" id="boundary"></p>
+  </main>
+
+  <script>
+  (function () {
+    var COPY = {
+      zh: {
+        title: "一個貨櫃出海前的 12 步",
+        eyebrow: "Digital Garage · 小課堂",
+        badge: "教學示意 · 一般流程，不是任何港口或船公司的規定",
+        lede: "一櫃貨從工廠到買家手上，中間有十二件事要接力完成。每一步只問三件事：誰在做、你要準備或決定什麼、卡住會怎樣。",
+        caveat: "這是海運出口的一般流程。順序與細節會依港口、船公司和貨物調整，兩岸做法與用語也可能不同；時間、費用與文件要求，一律以貨代或船公司通知為準。",
+        jump: [["#steps", "12 步流程"], ["#cutoffs", "三截四關倒數"], ["#asks", "問貨代的 5 個問題"]],
+        stepsH: "12 步，一步一步看",
+        stepsLede: "先看白話一句，再看三欄。名詞放在後面，遇到不懂的再回來查。",
+        who: "誰在做",
+        prep: "你要準備或決定什麼",
+        risk: "卡住會怎樣",
+        cross: "兩岸用語可能不同",
+        steps: [
+          { t: "詢價與確認出貨時間", p: "先問清楚這櫃貨最晚要在哪天到買家手上，再往回推每一步。",
+            who: "你（或你的業務）、買家。", prep: "確認買家要的到貨時間、你的貨什麼時候能備好，以及報價條件（運費誰付）。", risk: "時間一開始就對不上，後面每一步都要重排，甚至只能改搭下一班船。",
+            cross: "這一步目前沒有特別有把握的兩岸差異；遇到不同說法，請對方寫成文字確認。" },
+          { t: "向貨代／船公司訂艙（Booking）", p: "先替這櫃貨在船上占好位子。",
+            who: "你或貨代，以及船公司。（貨代＝幫你安排運輸與文件的公司。）", prep: "告訴貨代貨物內容、數量、目的港、希望的出貨時間與櫃型；決定要不要多留一些緩衝。", risk: "沒訂到艙位，貨就沒有船可上；旺季或熱門航線更容易沒位子。",
+            cross: "「放舱」是大陸常聽到的說法（指船公司放出艙位）；在台灣較少聽到，多說「訂艙」或直接說 Booking。" },
+          { t: "拿到 SO（訂艙確認）", p: "船公司回覆「位子給你了」的確認單，上面寫著這櫃貨要走哪一班船。",
+            who: "船公司，通常經由貨代轉給你。", prep: "核對船名航次、目的港、櫃型和各項截止時間是否與你要的一致，有疑問馬上問；決定是否照這班船走。", risk: "沒看清 SO 上的時間，後面拖車、裝櫃、進港容易全部排錯。",
+            cross: "SO（Shipping Order）兩岸都常直接用英文縮寫；格式依船公司而定。" },
+          { t: "安排拖車提空櫃", p: "請貨櫃車把空貨櫃載到你的工廠。",
+            who: "貨代或你指定的拖車公司，加上船公司指定的櫃場。", prep: "確認哪一天、去哪裡提櫃，工廠的場地能不能讓貨櫃車進出，以及拖車費由誰付。", risk: "空櫃拿不到或到得太晚，工廠就沒辦法照計畫裝櫃。",
+            cross: "台灣常說「櫃」（貨櫃、空櫃），大陸常說「箱」（集裝箱、空箱）。" },
+          { t: "工廠裝櫃", p: "把貨裝進貨櫃，關門、上封條。",
+            who: "工廠與你。", prep: "確認實際裝的東西、數量和文件寫的一致；拍照留存，記下封條號碼。", risk: "實貨和文件對不上，後面的報關和提單都會跟著出問題。",
+            cross: "台灣常說「裝櫃」，大陸常說「裝箱」。" },
+          { t: "重櫃進港", p: "裝好貨的貨櫃送到碼頭或貨櫃場，排隊等著上船。",
+            who: "拖車、碼頭或貨櫃場。", prep: "確認進港的截止時間，並決定要留多少緩衝，不要壓線。", risk: "趕不上進港截止時間，這班船可能就上不去。",
+            cross: "大陸常說「截港」；台灣常說「結關」。兩者涵蓋的細節未必完全相同，以貨代通知為準。" },
+          { t: "報關", p: "向海關申報「這櫃貨要出口」。",
+            who: "報關行（常由貨代安排），由你提供資料。", prep: "提供正確的品名、數量、價值與文件，並決定由誰負責簽署報關委任。", risk: "資料前後不一致，海關可能要求補件或更正，來不及在截止時間前完成。",
+            cross: "「報關」兩岸都用；所需文件與申報方式各地不同，不要假設一樣。" },
+          { t: "海關查驗或放行", p: "海關決定直接放行，或把貨櫃打開檢查。",
+            who: "海關，配合的有報關行、拖車與碼頭。", prep: "保持聯絡暢通，被通知時能快速補資料；知道被查驗時可能需要額外安排與時間。", risk: "被查驗時，貨可能留在港內，錯過這班船。",
+            cross: "這一步目前沒有特別有把握的兩岸差異；遇到不同說法，請對方寫成文字確認。" },
+          { t: "裝船", p: "貨櫃被吊上船。",
+            who: "碼頭與船公司。", prep: "多半不需要你動手，但要向貨代確認「真的上船了」，而不只是「進港了」。", risk: "貨進了港卻沒上船，要靠貨代查原因並重新安排。",
+            cross: "這一步目前沒有特別有把握的兩岸差異；遇到不同說法，請對方寫成文字確認。" },
+          { t: "船開", p: "船離港，這櫃貨正式在路上了。",
+            who: "船公司。", prep: "向貨代確認實際開船日與預計到港日，並通知買家；預計和實際可能不同。", risk: "實際日期和預計不同卻沒告訴買家，買家的後續安排會落空。",
+            cross: "這一步目前沒有特別有把握的兩岸差異；遇到不同說法，請對方寫成文字確認。" },
+          { t: "拿到提單（B/L）", p: "提單是這櫃貨的憑證，也常是買家取貨的關鍵文件。",
+            who: "船公司或貨代簽發，由你核對。", prep: "逐項核對收貨人、品名、數量、港口與文字；決定提單的種類（正本、電放等）。", risk: "提單錯了，更正需要時間；如果買家付款或提貨要靠提單，就會被卡住。",
+            cross: "「提單」「B/L」兩岸都常用；實際可選的做法與作業，依船公司而定。" },
+          { t: "寄單或電放給買家", p: "把提單交到買家手上，或用電子方式通知放貨，讓買家不必等紙本。",
+            who: "你、貨代與買家。", prep: "決定寄正本還是電放，並確認買家的付款和收件資訊是否已就緒。", risk: "單據沒到買家手上，貨到了港也提不走。",
+            cross: "「電放」是兩岸貨運常聽到的說法；能不能電放、怎麼辦，依船公司與買賣雙方約定而定。" }
+        ],
+        cutH: "三截四關：倒數時間表",
+        cutLede: "前面的流程都在往這幾個時間點倒數。名字很像，意思不同；哪一天最容易出事，往往就在這裡。",
+        countdown: ["資料與單據定稿", "報關完成", "重櫃進港", "船開"],
+        countdownNote: "倒數示意：實際的先後與時間點，依港口與船公司而不同，以貨代或船公司的通知為準。",
+        cutGroups: [
+          { h: "三截：最後交東西的時間", sub: "超過就趕不上這班船，或要改搭下一班。", items: [
+            ["截單", "把訂艙、裝箱與提單所需的資料交給貨代的最後時間。", "資料還沒定，或事後才發現寫錯，都容易卡在這裡。"],
+            ["截關", "報關與放行相關作業的最後時間，常指這一班船還能不能完成出口手續。", "各地對「截關」涵蓋的範圍說法不一，請貨代把時間寫給你。"],
+            ["截港", "重櫃進到碼頭或貨櫃場的最後時間。", "工廠裝櫃拖延、拖車遲到，都會直接壓縮到這個時間。"]
+          ] },
+          { h: "四關：跟海關有關的四個詞", sub: "常被混著用，先分清楚各自指什麼。", items: [
+            ["報關", "向海關申報這櫃貨要進口或出口。", "資料不一致，是最常見的卡點。"],
+            ["清關", "貨物通過海關程序、可以被放行的整個過程；口語上多用在貨到目的地之後。", "買家那一端的清關沒準備好，貨到了也拿不到。"],
+            ["結關", "台灣常用的說法，指該班船在港口作業上「關門」的時間點。", "與大陸說的「截港」「截關」不一定完全相同，請對方寫明是哪一個時間。"],
+            ["通關", "貨物順利通過海關、可以放行的結果。", "「通關了」才代表可以往下一步走；還沒通關，不要先答應買家日期。"]
+          ] }
+        ],
+        dangerH: "哪幾個時刻最容易出事？",
+        danger: [
+          "還在改資料，截單就到了：提單資料來不及定稿，或事後才發現錯字。",
+          "重櫃趕不上進港：工廠裝櫃拖延、拖車遲到，前面的緩衝一層一層被吃掉。",
+          "報關資料和實貨對不上：被要求補件，或被查驗，整班船就可能錯過。",
+          "假日與連假前後：很多單位的作業時間會改變，請提早問貨代。"
+        ],
+        asksH: "老闆要問貨代的 5 個問題",
+        asksLede: "不用懂所有名詞。把這 5 個問題問清楚、請對方寫下來，就能避開大部分誤會。",
+        asks: [
+          ["這班船的截單、截關（結關）、截港，各是哪一天的幾點？", "請對方用文字寫給你，並註明各自指的是哪一個動作。"],
+          ["我這櫃貨需要哪些文件？誰負責準備？哪一份最容易出錯？", "先把責任分清楚，再談時間。"],
+          ["萬一趕不上這班船，下一個選擇是什麼？需要我先決定什麼？", "備案要在出事之前問。"],
+          ["報價裡包含哪些項目？哪些可能另外出現？", "請對方列出項目名稱；金額以他們的正式報價為準。"],
+          ["提單怎麼出？正本、電放，還是其他做法？誰簽、什麼時候可以拿到？", "這會影響買家能不能順利提貨。"]
+        ],
+        home: "回到 Garage",
+        contact: "聊聊你的出口問題",
+        boundary: "教學示意 · 不含具體天數、費用或比例，一律以貨代或船公司通知為準 · 兩岸用語只列有把握的差異 · 不儲存任何內容。"
+      },
+      en: {
+        title: "12 Steps Before One Container Ships",
+        eyebrow: "Digital Garage · Mini lesson",
+        badge: "Teaching sketch · a general flow, not any port's or carrier's rule",
+        lede: "One container of goods goes from your factory to your buyer through twelve hand-offs. For each step, ask three things: who does it, what you prepare or decide, and what happens if it gets stuck.",
+        caveat: "This is the general flow for sea export. The order and details change with the port, the carrier and the goods, and practice and wording can differ between the two sides of the Taiwan Strait. For times, charges and document requirements, always go by what your forwarder or the carrier tells you.",
+        jump: [["#steps", "The 12 steps"], ["#cutoffs", "Cut-offs and customs terms"], ["#asks", "5 questions for your forwarder"]],
+        stepsH: "12 steps, one at a time",
+        stepsLede: "Read the plain sentence first, then the three columns. The jargon sits at the bottom of each card; come back to it when you need it.",
+        who: "Who does it",
+        prep: "What you prepare or decide",
+        risk: "If it gets stuck",
+        cross: "Wording may differ across the Strait",
+        steps: [
+          { t: "Ask for a quote and confirm the shipping time", p: "First find out the latest day this container must reach your buyer, then count backwards.",
+            who: "You (or your sales contact) and the buyer.", prep: "Confirm the buyer's required arrival time, when your goods will be ready, and the quote terms (who pays the freight).", risk: "If the timing does not match from the start, every later step has to be re-planned, or you end up on the next sailing.",
+            cross: "No difference here that we are confident about; if wording differs, ask the other side to put it in writing." },
+          { t: "Book space with a forwarder or the carrier (Booking)", p: "Reserve a place on a ship for this container.",
+            who: "You or your forwarder, and the shipping line. (A forwarder is the company that arranges transport and paperwork for you.)", prep: "Tell the forwarder what the goods are, the quantity, the destination port, your preferred shipping time and container type; decide how much buffer to keep.", risk: "Without a booking there is no ship to load onto; peak seasons and popular routes run out of space more easily.",
+            cross: "“放舱” is a term often heard in mainland China (the carrier releasing space). It is heard less in Taiwan, where people tend to say “訂艙” or just “Booking”." },
+          { t: "Receive the SO (booking confirmation)", p: "The carrier's confirmation that your place is secured, showing which sailing this container is on.",
+            who: "The shipping line, usually passed to you by the forwarder.", prep: "Check that the vessel and voyage, destination port, container type and every cut-off time match what you need; ask immediately if anything looks off; decide whether to go with this sailing.", risk: "If you miss what the SO says, trucking, loading and port delivery can all be planned wrongly.",
+            cross: "“SO” (Shipping Order) is commonly used as an English abbreviation on both sides; the format depends on the carrier." },
+          { t: "Arrange a truck to collect the empty container", p: "Have a container truck bring the empty container to your factory.",
+            who: "The forwarder or your chosen trucking company, plus the depot named by the shipping line.", prep: "Confirm which day and where to collect it, whether your site lets container trucks in and out, and who pays the trucking.", risk: "If the empty container is missing or late, the factory cannot load as planned.",
+            cross: "Taiwan usually says “櫃” (container, empty container); mainland China usually says “箱” (集裝箱, empty box)." },
+          { t: "Load the container at the factory", p: "Put the goods in, close the doors and fit the seal.",
+            who: "The factory and you.", prep: "Check that what is actually loaded and its quantity match the documents; take photos and note the seal number.", risk: "If the goods and the documents disagree, customs declaration and the bill of lading will both run into trouble.",
+            cross: "Taiwan usually says “裝櫃”; mainland China usually says “裝箱”." },
+          { t: "Deliver the full container to the port", p: "The loaded container goes to the terminal or container yard and waits to be put on the ship.",
+            who: "The truck and the terminal or container yard.", prep: "Confirm the port-entry cut-off time and decide how much buffer to keep; do not run it to the last minute.", risk: "If you miss the port-entry cut-off, the container may not get onto this ship.",
+            cross: "Mainland China often says “截港”; Taiwan often says “結關”. They do not necessarily cover exactly the same details, so go by the forwarder's notice." },
+          { t: "Export customs declaration", p: "Tell customs that this container is being exported.",
+            who: "A customs broker (often arranged by the forwarder), using the information you provide.", prep: "Provide the correct description, quantity, value and documents, and decide who signs the authorisation for the broker.", risk: "If the information is inconsistent, customs may ask for corrections or extra papers, and you may miss the cut-off.",
+            cross: "“報關” is used on both sides; the documents and the way it is filed differ by place, so do not assume they are the same." },
+          { t: "Customs inspection or release", p: "Customs either lets the container go, or opens it to check.",
+            who: "Customs, with help from the broker, the truck and the terminal.", prep: "Stay reachable and be ready to supply papers quickly; know that an inspection can need extra arrangements and time.", risk: "If it is inspected, the container may be held at the port and miss this ship.",
+            cross: "No difference here that we are confident about; if wording differs, ask the other side to put it in writing." },
+          { t: "Loading onto the ship", p: "The container is lifted aboard.",
+            who: "The terminal and the shipping line.", prep: "Usually nothing for you to do, but ask the forwarder to confirm it is actually on board, not just inside the port.", risk: "If the container is in port but not loaded, the forwarder has to find out why and re-arrange.",
+            cross: "No difference here that we are confident about; if wording differs, ask the other side to put it in writing." },
+          { t: "The ship sails", p: "The ship leaves port; the container is now on its way.",
+            who: "The shipping line.", prep: "Ask the forwarder for the actual sailing date and the expected arrival, and tell your buyer; expected and actual dates can differ.", risk: "If the real dates differ from what you told the buyer and you do not update them, the buyer's own plans fall through.",
+            cross: "No difference here that we are confident about; if wording differs, ask the other side to put it in writing." },
+          { t: "Receive the bill of lading (B/L)", p: "The B/L is the proof for this shipment and often the key document for the buyer to collect the goods.",
+            who: "Issued by the shipping line or forwarder; you check it.", prep: "Check consignee, description, quantity, ports and wording line by line; decide the type of bill (original, telex release, and so on).", risk: "A wrong bill takes time to correct; if the buyer's payment or collection depends on it, they are stuck.",
+            cross: "“提單” and “B/L” are both widely used on either side; the options actually available depend on the carrier." },
+          { t: "Send the documents, or telex-release, to the buyer", p: "Get the bill to the buyer, or release the cargo electronically so the buyer does not wait for paper.",
+            who: "You, the forwarder and the buyer.", prep: "Decide between sending originals and a telex release, and confirm the buyer's payment and delivery details are ready.", risk: "If the documents do not reach the buyer, the goods cannot be collected even after they arrive.",
+            cross: "“電放” (telex release) is a term commonly heard on both sides; whether it is possible and how it is done depend on the carrier and on what buyer and seller agreed." }
+        ],
+        cutH: "Cut-offs and customs terms: the countdown",
+        cutLede: "Everything before this is counting down to a few moments. The names look alike but mean different things; this is where the trouble usually happens.",
+        countdown: ["Documents final", "Customs declaration done", "Container at the port", "Ship sails"],
+        countdownNote: "A sketch only: the real order and timing depend on the port and the carrier. Go by what your forwarder or the carrier tells you.",
+        cutGroups: [
+          { h: "Three cut-offs: the last time to hand something in", sub: "Miss one and you miss this ship, or move to the next one.", items: [
+            ["Document cut-off (截單)", "The last time to give the forwarder the information needed for the booking, the packing details and the bill of lading.", "If the details are not settled, or a mistake is found late, this is where it jams."],
+            ["Customs cut-off (截關)", "The last time for declaration and release work, often meaning whether export formalities can still be done for this ship.", "Places use the word for slightly different things, so ask your forwarder to write the time down."],
+            ["Port cut-off (截港)", "The last time for the full container to get into the terminal or container yard.", "Late loading at the factory or a late truck squeezes straight into this."]
+          ] },
+          { h: "Four customs terms", sub: "They get mixed up. Sort out what each one means.", items: [
+            ["報關 (declaration)", "Telling customs that the container is being imported or exported.", "Inconsistent information is the most common snag."],
+            ["清關 (clearance)", "The whole process of a shipment getting through customs and being released; in everyday talk usually the part after arrival at the destination.", "If the buyer's end of clearance is not ready, the goods cannot be collected even when they arrive."],
+            ["結關", "A term often used in Taiwan for the point at which a sailing is “closed” for port handling.", "It is not necessarily identical to the mainland terms “截港” or “截關”; ask the other side to say exactly which time they mean."],
+            ["通關 (customs passed)", "The result: the goods have passed customs and can be released.", "Only “passed” means you can move on; until then, do not promise the buyer a date."]
+          ] }
+        ],
+        dangerH: "When does it most often go wrong?",
+        danger: [
+          "The document cut-off arrives while you are still editing: bill-of-lading details are not final, or a typo is found late.",
+          "The full container misses port entry: late loading and a late truck eat your buffer layer by layer.",
+          "The declaration and the real goods do not match: you are asked for more papers or the box is inspected, and the whole sailing can be lost.",
+          "Around public holidays: many parties change their working hours, so ask your forwarder early."
+        ],
+        asksH: "5 questions to ask your forwarder",
+        asksLede: "You do not need to know every term. Ask these five, and ask for the answers in writing, and you avoid most misunderstandings.",
+        asks: [
+          ["For this sailing, on which day and at what time are the document cut-off, the customs cut-off (結關) and the port cut-off?", "Ask for it in writing, with a note of which action each one refers to."],
+          ["Which documents does my container need, who prepares them, and which one is most likely to go wrong?", "Settle who is responsible first, then talk about timing."],
+          ["If we miss this sailing, what is the next option, and what do I need to decide first?", "Ask for the fallback before something goes wrong."],
+          ["Which items does the quote include, and which might appear separately?", "Ask them to list the item names; the amounts are whatever their formal quote says."],
+          ["How will the bill of lading be issued: originals, telex release or something else? Who signs, and when can I have it?", "This decides whether your buyer can collect the goods smoothly."]
+        ],
+        home: "Back to the Garage",
+        contact: "Talk about your export question",
+        boundary: "Teaching sketch · no specific days, charges or percentages; always go by your forwarder's or the carrier's notice · cross-Strait wording is listed only where we are confident · nothing is stored."
+      }
+    };
+
+    var params = new URLSearchParams(location.search);
+    var lang = params.get("lang") === "en" ? "en" : "zh";
+
+    function esc(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    function $(id) { return document.getElementById(id); }
+
+    function render() {
+      var c = COPY[lang];
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.title = lang === "en"
+        ? "12 Steps Before One Container Ships — Paul's Tradecraft"
+        : "一個貨櫃出海前的 12 步 — Paul's Tradecraft";
+      $("eyebrow").textContent = c.eyebrow;
+      $("badge").textContent = c.badge;
+      $("title").textContent = c.title;
+      $("lede").textContent = c.lede;
+      $("caveat").textContent = c.caveat;
+      $("jump").innerHTML = c.jump.map(function (j) {
+        return '<li><a href="' + j[0] + '">' + esc(j[1]) + "</a></li>";
+      }).join("");
+
+      $("steps-h").textContent = c.stepsH;
+      $("steps-lede").textContent = c.stepsLede;
+      $("steps-list").innerHTML = c.steps.map(function (s, i) {
+        return '<li class="step"><div class="step-head"><span class="num" aria-hidden="true">' + (i + 1) + '</span><div><h3>' + esc(s.t) + "</h3><p>" + esc(s.p) + "</p></div></div>" +
+          '<div class="cols">' +
+          '<div class="col"><h4>' + esc(c.who) + "</h4><p>" + esc(s.who) + "</p></div>" +
+          '<div class="col"><h4>' + esc(c.prep) + "</h4><p>" + esc(s.prep) + "</p></div>" +
+          '<div class="col risk"><h4>' + esc(c.risk) + "</h4><p>" + esc(s.risk) + "</p></div>" +
+          "</div>" +
+          '<p class="terms"><b>' + esc(c.cross) + "：</b>" + esc(s.cross) + "</p></li>";
+      }).join("");
+      if (lang === "en") {
+        // English keeps a plain colon-free label: "Wording may differ across the Strait: ..."
+        document.querySelectorAll(".terms b").forEach(function (b) { b.textContent = b.textContent.replace("：", ": "); });
+      }
+
+      $("cut-h").textContent = c.cutH;
+      $("cut-lede").textContent = c.cutLede;
+      $("countdown").innerHTML = c.countdown.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("");
+      $("countdown-note").textContent = c.countdownNote;
+      $("cuts").innerHTML = c.cutGroups.map(function (g) {
+        return '<div class="cut-group"><h3>' + esc(g.h) + '</h3><p class="sub">' + esc(g.sub) + '</p><ul class="term-list">' +
+          g.items.map(function (it) {
+            return '<li><span class="t">' + esc(it[0]) + '</span><span class="d">' + esc(it[1]) + "<small>" + esc(it[2]) + "</small></span></li>";
+          }).join("") + "</ul></div>";
+      }).join("");
+      $("danger").innerHTML = "<h3>" + esc(c.dangerH) + "</h3><ul>" + c.danger.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>";
+
+      $("asks-h").textContent = c.asksH;
+      $("asks-lede").textContent = c.asksLede;
+      $("asks-list").innerHTML = c.asks.map(function (a) {
+        return "<li><span>" + esc(a[0]) + "<small>" + esc(a[1]) + "</small></span></li>";
+      }).join("");
+
+      $("actions").innerHTML = '<a class="btn" href="/?lang=' + lang + '#garage">' + esc(c.home) + '</a>' +
+        '<a class="btn ghost" href="/?lang=' + lang + '#contact">' + esc(c.contact) + "</a>";
+      $("boundary").textContent = c.boundary;
+      document.querySelectorAll(".lang button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+      });
+    }
+
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        lang = b.dataset.lang;
+        try {
+          var u = new URL(location.href);
+          u.searchParams.set("lang", lang);
+          history.replaceState(null, "", u);
+        } catch (e) {}
+        render();
+      });
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
