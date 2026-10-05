@@ -47,7 +47,7 @@ const dict = {
       ],
       ctaPrimary: "試玩作品",
       ctaSecondary: "聊聊你的生意",
-      imgCaption: "窗簾軟裝 Pilot 追蹤器 · 實際畫面",
+      imgCaption: "Pilot 追蹤器 · 實際畫面",
       featuredKicker: "Featured business proof",
       featuredHook1: "每張訂單單看都沒問題。",
       featuredHook2: "當付款撞在一起時，會發生什麼？",
@@ -76,7 +76,7 @@ const dict = {
       intro: "不必先導入一套大系統。帶一個成長機會、一項反覆工作，或一段客戶旅程進來，先把真正的問題與下一步變清楚。",
       items: [
         { title: "想找到值得投入的大型客戶或通路。", outcome: "帶走目標帳戶、匹配理由、待確認條件與下一個開發動作。", cta: "看成長顧問方式", href: "#capabilities" },
-        { title: "想讓團隊真正學會與 AI 一起工作。", outcome: "從一項真實工作開始，留下可重做、可審核、可交接的方法。", cta: "看工作流程設計", href: "#capabilities" },
+        { title: "想讓一項工作變成可重複的方法。", outcome: "從一項真實工作開始，留下可重做、可審核、可交接的方法。", cta: "看工作流程設計", href: "#capabilities" },
         { title: "客戶還看不懂你的產品或服務價值。", outcome: "把需求、敘事與互動整理成客戶願意理解並採取下一步的體驗。", cta: "看體驗設計方式", href: "#capabilities" },
       ],
     },
@@ -150,8 +150,8 @@ const dict = {
         labs: "實驗與原型",
         notes: {
           commercial: "對外主線是找買家、算利潤、談承諾這條商務判斷：從誰該先接觸，到毛利是否撐得住，再到這單能不能承諾。下一段是談成訂單的銷售試點，最後是實驗與原型。",
-          operations: "把商機推進到能簽的試點與工作流程：軟裝品牌網站、銷售 Pilot 案例簡報、追蹤器與決策溝通。這些是方法與試點，不是已驗證的成交成果。",
-          labs: "把想法快速做成可運行的軟體並測試：遊戲、歌詞、桌寵、模擬套件與互動概念。它們不是主要服務，保留下來作為實驗紀錄。",
+          operations: "把商機推進到能簽的試點與工作流程：品牌網站、銷售 Pilot 案例簡報、追蹤器與決策溝通。這些是方法與試點，不是已驗證的成交成果。",
+          labs: "把想法快速做成可運行的軟體並測試：遊戲、桌寵、模擬套件與互動概念。它們不是主要服務，保留下來作為實驗紀錄。",
         },
       },
       labsNote: "快速把想法變成可運行的軟體並測試。",
@@ -179,11 +179,11 @@ const dict = {
     dealReadiness: {
       kicker: "承諾前審視",
       headline: "帶一筆正在談的海外商機，換回承諾前的清楚判斷。",
-      intro: "把分散在買方、RFQ、報價、付款與交期裡的資訊，整理成老闆和業務團隊能一起檢視的交易決策包。",
+      intro: "把分散在買方、RFQ、報價、付款與交期裡的資訊，整理成負責人和業務團隊能一起檢視的交易決策包。",
       pathTitle: "一次合作，留下三樣東西",
       path: [
         { title: "帶進一筆商業問題", body: "一筆正在談的商機、一段付款壓力，或一個卡住的流程。" },
-        { title: "一起看清證據與邊界", body: "釐清已知、未知、控制因素與真正需要老闆判斷的地方。" },
+        { title: "一起看清證據與邊界", body: "釐清已知、未知、控制因素與真正需要負責人判斷的地方。" },
         { title: "帶走下一步工作底稿", body: "留下可帶進會議的判斷、行動、證據要求與重新評估條件。" },
       ],
       whenTitle: "適合什麼時候使用",
@@ -191,7 +191,7 @@ const dict = {
       bringTitle: "帶什麼進來",
       bring: "買方連結、RFQ、報價或成本概算、付款與交期條件即可。資料不完整沒關係，缺口會被保留為未知。",
       boundaryTitle: "這不是什麼",
-      boundary: "它不取代完整財務、法務、合規或信用盡職調查，也不替老闆做最終承諾。",
+      boundary: "它不取代完整財務、法務、合規或信用盡職調查，也不替負責人做最終承諾。",
       cta: "先看商業決策路徑",
       demoCta: "評估我的商機",
       packLabel: "你會留下的交付包",
@@ -217,7 +217,7 @@ const dict = {
       outputLabel: "可交付輸出",
       boundary: "這些作品展示可操作的判斷流程與交付內容；不保證，也不宣稱已取得營收、ROI 或商業採用成果。",
       items: [
-        { label: "看見商機", question: "哪些海外客戶值得業務先花時間開發？", system: "海外商業開發", output: "把供應商能做什麼、老闆的目標、潛在買家和未知放在一起，找出值得再查證的開發方向。", linkLabel: "查看商業開發判斷", href: "#global-business-development" },
+        { label: "看見商機", question: "哪些海外客戶值得業務先花時間開發？", system: "海外商業開發", output: "把供應商能做什麼、負責人的目標、潛在買家和未知放在一起，找出值得再查證的開發方向。", linkLabel: "查看商業開發判斷", href: "#global-business-development" },
         { label: "看清交易", question: "這筆商機，現在能不能推進？", system: "商務決策工作台", output: "整理交易架構、關鍵控制條件、Decision Path，以及可帶進會議的 Deal Brief。", linkLabel: "查看決策工作台", href: "#commercial-decision-desk" },
         { label: "測試經濟性", question: "帳面毛利真的足以支撐這筆交易嗎？", system: "貿易利潤導航", output: "目前已知成本、可調整的獲利因素、現金壓力，以及尚待補足的證據。", linkLabel: "查看利潤導航", href: "#trade-profit-navigator" },
         { label: "控制承諾", question: "付款與執行上的承諾，會不會讓現金吃緊？", system: "付款集中度分析", output: "分幣別整理付款承諾，找出資金集中風險，以及承諾前要確認的條件。", linkLabel: "查看付款分析", href: "https://apchen1978.github.io/payment-concentration-demo/" },
@@ -233,16 +233,16 @@ const dict = {
         lead: "海外客戶開發",
         trade: "貿易交易工作台",
         payment: "付款集中度分析",
-        mori: "MORI 軟裝品牌網站",
-        tracker: "窗簾軟裝 Pilot 追蹤器",
+        mori: "MORI 品牌網站",
+        tracker: "Pilot 追蹤器",
       },
       method: {
         cdd: "確定性規則引擎，可重跑驗證；未知保留",
         lead: "匿名代表性資料；來源分層；無證據的主張不當成已確認事實",
-        trade: "確定性規則，可重跑驗證",
-        payment: "canonical fixture 精確匹配；逐幣別不混算",
+        trade: "以示範頁呈現的確定性規則",
+        payment: "六筆示範事件；逐幣別不混算",
         mori: "本機可檢視的交付基礎；後續工具待客戶補齊",
-        tracker: "Pilot 工作流程驗證",
+        tracker: "Pilot 工作流程的模擬紀錄",
       },
       boundary: "驗證證明的是工具行為與紀律，不是商業成效；不包含客戶成果、ROI 或採用率宣稱。",
     },
@@ -270,7 +270,7 @@ const dict = {
         workLabel: "一起釐清",
         takeawayLabel: "你最後帶走",
         cta: "先看交易審視內容",
-        boundary: "這是以人工審視與工作底稿為主的商業合作；財務、法務、合規、信用與最終承諾，仍須由老闆與相應專業人士確認。",
+        boundary: "這是以人工審視與工作底稿為主的商業合作；財務、法務、合規、信用與最終承諾，仍須由負責人與相應專業人士確認。",
         offers: [
           {
             title: "海外商機審視",
@@ -307,7 +307,7 @@ const dict = {
         decisionLabel: "再把承諾前的判斷做清楚",
         steps: [
           { title: "發現候選客戶", body: "從公開資料取得可追溯線索。線索仍是提案，不會被當成已確認的客戶事實。" },
-          { title: "確認可用證據", body: "由老闆逐項確認哪些訊號可進入商機；其餘保留未知或待驗證。" },
+          { title: "確認可用證據", body: "由負責人逐項確認哪些訊號可進入商機；其餘保留未知或待驗證。" },
           { title: "評估目前位置", body: "由商務決策工作台整理交易結構、控制因素、目前建議與下一個應取得的證據。" },
           { title: "檢視付款與淨貢獻", body: "把付款條件、承諾暴露、收入、成本與風險準備金拆開，在承諾前確認。" },
           { title: "留下決策資產", body: "以 Deal Brief 與 Decision Ledger 分開保存系統建議、人的決定與重新評估條件。" },
@@ -330,13 +330,13 @@ const dict = {
       },
       items: [
         {
-          title: "AI Workflow Design",
+          title: "Workflow Design",
           desc: "把重複的商業流程重新設計：從詢問、研究、資料整理、跟進到交付，找出可以加速或自動化的環節，同時保留人工審核與決策權。",
           tags: "Workflow Audit · Human-in-the-loop · Automation · SOP",
         },
         {
-          title: "軟裝品牌網站與銷售工具",
-          desc: "不是為了多一個網站而做網站。協助窗簾與軟裝品牌把品味、服務、案例與諮詢入口做成清楚的銷售路徑，並建立 LINE、表單、報價、跟進與交付檢查等輔助工具，讓行銷與接單更能推進。",
+          title: "品牌網站與銷售工具",
+          desc: "不是為了多一個網站而做網站。協助品牌把品味、服務、案例與諮詢入口做成清楚的銷售路徑，並建立 LINE、表單、報價、跟進與交付檢查等輔助工具，讓行銷與接單更能推進。",
           tags: "Brand Website · Sales Enablement · LINE · Quote · Follow-up",
         },
         {
@@ -345,7 +345,7 @@ const dict = {
           tags: "Lead · Qualify · Research · Quote · Follow-up",
         },
         {
-          title: "AI Agent Orchestration",
+          title: "Research & Review Rhythm",
           desc: "建立跨工具的研究、實作與複核節奏：每個環節的背景、檢查與驗證都清楚，並留下別人接得起來的紀錄。",
           tags: "Context · Review · Validation · Traceability",
         },
@@ -404,7 +404,7 @@ const dict = {
         {
           title: "逐項審核",
           desc: "逐項檢查產出、確認證據、拒絕腦補。不通過就退回重做。",
-          evidence: "Review · Pilot 追蹤器 23/23 檢查（範圍僅限該工具）",
+          evidence: "Review · Pilot 追蹤器檢查（範圍僅限該工具）",
         },
         {
           title: "核准後才交付",
@@ -516,7 +516,7 @@ const dict = {
           title: "Quiet Window · 寧靜之窗",
           tag: "示範實驗",
           spark: "產品不是布料，是布料後面的那片空間。",
-          note: "窗簾是布料本身，還是布料＋褶度＋安裝幾何？",
+          note: "產品只是材料本身，還是材料加上尺寸與安裝方式？",
           cta: "玩看看隱藏的規格",
           boundary: "僅示意——沒有實測聲學或熱性能。",
           href: "https://apchen1978.github.io/quiet-window/",
@@ -611,7 +611,7 @@ const dict = {
       ],
       ctaPrimary: "Try the work",
       ctaSecondary: "Talk about your deal",
-      imgCaption: "Curtain soft-furnishing pilot tracker · live view",
+      imgCaption: "Pilot tracker · live view",
       featuredKicker: "Featured business proof",
       featuredHook1: "Each order looks manageable.",
       featuredHook2: "What happens when the payments collide?",
@@ -640,7 +640,7 @@ const dict = {
       intro: "You do not need to adopt a large system first. Bring a growth opportunity, a repeated task, or a customer journey, and make the real problem and next move clear.",
       items: [
         { title: "You need to find major accounts or channels worth pursuing.", outcome: "Leave with target accounts, fit rationale, conditions to verify, and the next development move.", cta: "See growth consulting", href: "#capabilities" },
-        { title: "You want the team to learn how to work with AI.", outcome: "Start with one real task and leave a repeatable, reviewable way of working that others can take over.", cta: "See workflow design", href: "#capabilities" },
+        { title: "You want one piece of work turned into a repeatable method.", outcome: "Start with one real task and leave a repeatable, reviewable way of working that others can take over.", cta: "See workflow design", href: "#capabilities" },
         { title: "Customers still cannot see the value of your offer.", outcome: "Turn needs, narrative, and interaction into an experience that makes the next step easier to take.", cta: "See experience design", href: "#capabilities" },
       ],
     },
@@ -714,8 +714,8 @@ const dict = {
         labs: "Experiments & prototypes",
         notes: {
           commercial: "The public line is one commercial judgment: find buyers, know the profit, decide the commitment, from who to reach first, to whether the margin holds, to whether the order can be committed. The next section covers sales pilots for closing orders; the last covers experiments and prototypes.",
-          operations: "Pilots and workflows that move an opportunity toward a signable deal: a soft-furnishing brand site, a sales pilot case brief, a tracker and decision communication. These are methods and pilots, not proven closed-deal results.",
-          labs: "Ideas turned quickly into working software and tested: a game, lyrics, a desktop pet, simulation kits and interactive concepts. They are not the main service; they stay as a record of experiments.",
+          operations: "Pilots and workflows that move an opportunity toward a signable deal: a brand site, a sales pilot case brief, a tracker and decision communication. These are methods and pilots, not proven closed-deal results.",
+          labs: "Ideas turned quickly into working software and tested: a game, a desktop pet, simulation kits and interactive concepts. They are not the main service; they stay as a record of experiments.",
         },
       },
       labsNote: "Rapidly turning ideas into working software and testing them.",
@@ -743,11 +743,11 @@ const dict = {
     dealReadiness: {
       kicker: "Deal readiness review",
       headline: "Bring one live overseas deal. Leave with a clear basis before commitment.",
-      intro: "Turn the information scattered across the buyer, RFQ, quote, payment terms, and timeline into a deal package the owner and commercial team can review together.",
+      intro: "Turn the information scattered across the buyer, RFQ, quote, payment terms, and timeline into a deal package the decision-maker and commercial team can review together.",
       pathTitle: "One engagement. Three things left behind.",
       path: [
         { title: "Bring one commercial problem", body: "A live opportunity, payment pressure, or workflow that is stuck." },
-        { title: "Clarify evidence and boundaries", body: "Separate what is known, UNKNOWN, controlling, and still requires the owner's judgment." },
+        { title: "Clarify evidence and boundaries", body: "Separate what is known, UNKNOWN, controlling, and still requires the decision-maker's judgment." },
         { title: "Leave with a working next step", body: "Take away meeting questions, evidence requests, actions, and rerun conditions." },
       ],
       whenTitle: "When it helps",
@@ -755,7 +755,7 @@ const dict = {
       bringTitle: "Bring what you have",
       bring: "A buyer link, RFQ, quote or cost estimate, and known payment or delivery terms. Incomplete information is acceptable. Gaps remain UNKNOWN.",
       boundaryTitle: "What it does not replace",
-      boundary: "It is not full financial, legal, compliance, or credit due diligence. It does not make the owner's final commitment.",
+      boundary: "It is not full financial, legal, compliance, or credit due diligence. It does not make the decision-maker's final commitment.",
       cta: "See the commercial decision path",
       demoCta: "Assess my opportunity",
       packLabel: "The delivery",
@@ -781,7 +781,7 @@ const dict = {
       outputLabel: "Deliverable",
       boundary: "These pieces demonstrate working judgment flows and deliverables. They do not claim guaranteed revenue, ROI, or commercial adoption.",
       items: [
-        { label: "Spot the opportunity", question: "Which overseas account deserves commercial effort first?", system: "Global Business Development", output: "Use supplier reality, the owner's objective, candidate accounts, and UNKNOWNs to identify the next commercial path worth verifying.", linkLabel: "View business-development judgment", href: "#global-business-development" },
+        { label: "Spot the opportunity", question: "Which overseas account deserves commercial effort first?", system: "Global Business Development", output: "Use supplier reality, the decision-maker's objective, candidate accounts, and UNKNOWNs to identify the next commercial path worth verifying.", linkLabel: "View business-development judgment", href: "#global-business-development" },
         { label: "Understand the deal", question: "Can this opportunity move forward now?", system: "Commercial Decision Desk", output: "Deal structure, control factors, a Decision Path, and a Deal Brief for the meeting.", linkLabel: "View decision desk", href: "#commercial-decision-desk" },
         { label: "Test the economics", question: "Does the apparent margin really support this deal?", system: "Trade Profit Navigator", output: "Known costs, testable profit levers, cash exposure, and evidence still required.", linkLabel: "View profit navigator", href: "#trade-profit-navigator" },
         { label: "Control commitment", question: "Could payment and execution commitments overwhelm cash?", system: "Payment Concentration", output: "Currency-separated payment commitments, concentration exposure, and pre-commitment controls.", linkLabel: "View payment analysis", href: "https://apchen1978.github.io/payment-concentration-demo/" },
@@ -797,16 +797,16 @@ const dict = {
         lead: "Overseas Lead Discovery",
         trade: "Trade Deal Desk",
         payment: "Payment Concentration",
-        mori: "MORI Soft-Furnishing Website",
-        tracker: "Curtain Soft-Furnishing Pilot Tracker",
+        mori: "MORI Brand Website",
+        tracker: "Pilot Tracker",
       },
       method: {
         cdd: "Deterministic rules engine, rerunnable; UNKNOWN preserved",
         lead: "Anonymized representative data; tiered sources; unsupported claims are not treated as confirmed facts",
-        trade: "Deterministic rules, rerunnable",
-        payment: "Canonical fixture matches exactly; per-currency, never mixed",
+        trade: "Deterministic rules shown in a demo",
+        payment: "Six demo events; per-currency, never mixed",
         mori: "Locally verifiable delivery basis; follow-up tools pending client setup",
-        tracker: "Pilot workflow validation",
+        tracker: "Simulation records of the pilot workflow",
       },
       boundary: "Verification proves tool behavior and discipline, not commercial outcomes. No client results, ROI, or adoption claims are included.",
     },
@@ -834,7 +834,7 @@ const dict = {
         workLabel: "Work through",
         takeawayLabel: "Take away",
         cta: "See the engagement detail",
-        boundary: "This is a human-reviewed commercial engagement built around working briefs. Finance, legal, compliance, credit, and final commitments remain with the owner and the appropriate professionals.",
+        boundary: "This is a human-reviewed commercial engagement built around working briefs. Finance, legal, compliance, credit, and final commitments remain with the decision-maker and the appropriate professionals.",
         offers: [
           {
             title: "Overseas Opportunity Review",
@@ -871,7 +871,7 @@ const dict = {
         decisionLabel: "Make the pre-commitment judgment explicit",
         steps: [
           { title: "Discover candidate buyers", body: "Use traceable public signals. A signal remains a proposal, not a confirmed customer fact." },
-          { title: "Confirm usable evidence", body: "The owner confirms which signals can enter an opportunity. Everything else remains UNKNOWN or pending verification." },
+          { title: "Confirm usable evidence", body: "The decision-maker confirms which signals can enter an opportunity. Everything else remains UNKNOWN or pending verification." },
           { title: "Assess the current position", body: "The Commercial Decision Desk structures the deal, control items, current position, and the next evidence to obtain." },
           { title: "Review payment and net contribution", body: "Separate payment terms, commitment exposure, revenue, cost, and contingency before a commitment is made." },
           { title: "Leave a decision asset", body: "Deal Brief (a judgment document for the meeting) and Decision Ledger (why the decision was made) keep the system recommendation, human decision, and rerun conditions distinct." },
@@ -879,7 +879,7 @@ const dict = {
         sourceCta: "See lead qualification",
         cddCta: "See why a USD 144k order is not committable",
         paymentCta: "View payment commitment prototype",
-        boundary: "The current workflow uses owner confirmation and file-based hand-over. It is not a CRM, live customer-data system, or automated decision service.",
+        boundary: "The current workflow uses decision-maker confirmation and file-based hand-over. It is not a CRM, live customer-data system, or automated decision service.",
       },
       demandLab: {
         eyebrow: "Scenario readiness",
@@ -894,13 +894,13 @@ const dict = {
       },
       items: [
         {
-          title: "AI Workflow Design",
+          title: "Workflow Design",
           desc: "Redesign repetitive business processes, from inquiry, research, and data organization to follow-up and delivery, finding the steps that can be accelerated or automated while keeping human review and decision authority.",
           tags: "Workflow Audit · Human-in-the-loop · Automation · SOP",
         },
         {
-          title: "Soft-Furnishing Brand Sites & Sales Tools",
-          desc: "A website is not useful just because it exists. Help curtain and soft-furnishing brands turn their visual language, services, work, and consultation path into a clear sales journey, with supporting LINE, form, quote, follow-up, delivery, and launch-check tools.",
+          title: "Brand Sites & Sales Tools",
+          desc: "A website is not useful just because it exists. Help brands turn their visual language, services, work, and consultation path into a clear sales journey, with supporting LINE, form, quote, follow-up, delivery, and launch-check tools.",
           tags: "Brand Website · Sales Enablement · LINE · Quote · Follow-up",
         },
         {
@@ -909,7 +909,7 @@ const dict = {
           tags: "Lead · Qualify · Research · Quote · Follow-up",
         },
         {
-          title: "AI Agent Orchestration",
+          title: "Research & Review Rhythm",
           desc: "A working rhythm for research, building, and review across tools: every step keeps its context, checks, and verification clear, and leaves records others can pick up.",
           tags: "Context · Review · Validation · Traceability",
         },
@@ -967,7 +967,7 @@ const dict = {
         {
           title: "Review item by item",
           desc: "Check every output, confirm evidence, reject guesswork. Fail means back to work.",
-          evidence: "Review · 23/23 checks on the Pilot tracker (that tool only)",
+          evidence: "Review · checks on the Pilot tracker (that tool only)",
         },
         {
           title: "Deliver after approval",
@@ -1079,7 +1079,7 @@ const dict = {
           title: "Quiet Window",
           tag: "Demo experiment",
           spark: "The product was the space, not the cloth.",
-          note: "Is a curtain fabric alone — or fabric + fullness + installation geometry?",
+          note: "Is the product just the material — or the material plus its size and how it is installed?",
           cta: "Play with the hidden spec",
           boundary: "Illustrative only — no measured acoustics or thermals.",
           href: "https://apchen1978.github.io/quiet-window/",
@@ -1139,8 +1139,8 @@ const titles = {
   en: "Paul's Tradecraft | The right buyer for a good product",
 };
 const ogDescriptions = {
-  zh: "從產品到買家這一段，我陪你一起打通。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
-  en: "From product to buyer, I'll clear the path with you. Paul Chen: 15 years in international sales, including mainland China channels and team management, plus an AI-native way of working that turns the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
+  zh: "從產品到買家這一段，我陪你一起打通。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
+  en: "From product to buyer, I'll clear the path with you. Paul Chen: 15 years in international sales, including mainland China channels and team management, turning the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
 };
 
 // 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。

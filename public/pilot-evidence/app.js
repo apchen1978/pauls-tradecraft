@@ -87,7 +87,7 @@ const rounds = [
     no: "002",
     title: "資料模型修正",
     en: "Data model fixes",
-    lead: "SIM-PILOT-002 · 價格探索型詢問 · 「全室窗簾大概多少錢？」",
+    lead: "SIM-PILOT-002 · 價格探索型詢問 · 「全室大概多少錢？」",
     score: "15 → 30",
     outcome: "nurture 培育（未報價）",
     margin: "P4/Low → P3",
@@ -109,10 +109,10 @@ const rounds = [
     margin: "折扣需人工核准",
     sheets: "11 個工作表",
     steps: [
-      "V1 NT$128,800（客廳雙層簾＋主臥遮光布簾）",
+      "V1 NT$128,800（客廳方案 A＋主臥方案 B）",
       "價格異議：「希望控制在 NT$105,000 內」",
       "人工決策：先調整產品範圍，不自行提供折扣",
-      "V2 NT$104,800（客廳改手拉雙層簾）· 較 V1 −NT$24,000",
+      "V2 NT$104,800（客廳改為手動方案）· 較 V1 −NT$24,000",
       "Quote Version Log：版本差額可追溯；再降價需人工核准",
     ],
   },
@@ -141,7 +141,7 @@ const checks = [
   { ok: true, label: "Lead → Follow-up 管線", detail: "SIM-PILOT-001/002 跨表交叉引用（含 formula 檢查）" },
   { ok: true, label: "資料模型修正", detail: "Pilot #002：nurture 狀態、72h 規則、Backlog 對應欄位" },
   { ok: true, label: "報價版本化", detail: "Pilot #003：Quote Version Log 7 表 match + V1/V2 差額" },
-  { ok: true, label: "公式錯誤掃描", detail: "全部工作簿：#REF! / #DIV/0! / #VALUE! / #NAME? / #N/A = 0" },
+  { ok: true, label: "公式錯誤掃描", detail: "掃描全部工作簿的 #REF! / #DIV/0! / #VALUE! / #NAME? / #N/A" },
 ];
 
 /* ---------- 04 Evidence files ---------- */
@@ -151,7 +151,7 @@ const files = [
   { name: "…pilot-002-simulation.xlsx", sub: "資料模型修正（9 sheets）＋ .inspect.ndjson", href: `${BASE}/tree/main/outputs` },
   { name: "…pilot-003-quote-version-simulation.xlsx", sub: "報價版本化（11 sheets）＋ .inspect.ndjson", href: `${BASE}/tree/main/outputs` },
   { name: "simulation-004/", sub: "lead-004-simulation.md · data.json · leads.csv · followups-plan.csv · simulate_pilot_004.mjs", href: `${BASE}/tree/main/simulation-004` },
-  { name: "work/", sub: "8 個零依賴 Node 腳本：build / simulate / inspect / verify", href: `${BASE}/tree/main/work` },
+  { name: "work/", sub: "8 個 Node 腳本：build / simulate / inspect / verify", href: `${BASE}/tree/main/work` },
 ];
 
 /* ---------- Render ---------- */
@@ -193,7 +193,7 @@ function renderChecks() {
   const host = document.getElementById("checks");
   checks.forEach((c) => {
     const row = el("div", "check");
-    row.appendChild(el("span", c.ok ? "mark ok" : "mark", c.ok ? "✓" : "✗"));
+    row.appendChild(el("span", "mark", "•"));
     const body = el("div", "cbody");
     body.appendChild(el("b", null, c.label));
     body.appendChild(el("span", null, c.detail));

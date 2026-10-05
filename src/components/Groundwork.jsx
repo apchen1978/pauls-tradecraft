@@ -1,11 +1,11 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
-import { aiWorkValue } from "../data/ai-work-value.js";
+import { groundwork } from "../data/groundwork.js";
 
-export default function AiWorkValue() {
+export default function Groundwork() {
   const { lang } = useLang();
-  const content = aiWorkValue[lang];
+  const content = groundwork[lang];
 
   return (
     <section id="ai-work-value" aria-labelledby="ai-work-value-heading" className="scroll-mt-24 border-b border-line bg-bone">
@@ -30,16 +30,11 @@ export default function AiWorkValue() {
 
         <ol className="border-y border-forest/20">
           {content.stages.map((stage, index) => (
-            <li key={stage.title} className="grid gap-5 border-b border-forest/15 py-6 last:border-b-0 md:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)] md:gap-7 md:py-7">
+            <li key={stage.title} className="grid gap-3 border-b border-forest/15 py-6 last:border-b-0 md:grid-cols-[3.5rem_minmax(0,1fr)] md:gap-7 md:py-7">
               <span className="text-sm font-semibold tabular-nums text-amber">{String(index + 1).padStart(2, "0")}</span>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight text-ink md:text-xl">{stage.title}</h3>
-                <p className="mt-3 text-xs font-medium text-moss">{content.aiLabel}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-moss">{stage.ai}</p>
-              </div>
-              <div className="border-l border-forest/15 pl-4 md:pl-6">
-                <p className="text-xs font-medium text-forest">{content.humanLabel}</p>
-                <p className="mt-1.5 text-sm font-medium leading-relaxed text-forest">{stage.human}</p>
+                <p className="mt-2 text-sm leading-relaxed text-moss md:text-base">{stage.body}</p>
               </div>
             </li>
           ))}
