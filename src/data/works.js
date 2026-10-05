@@ -564,8 +564,8 @@ export const works = [
         en: "Three rerunnable deck versions and PDF renders completed; the demonstration is the translation into decision narrative, not merely slide production.",
       },
       evidence: {
-        zh: "9 頁決策敘事原型可線上翻閱（/deck-viewer/，含 PDF 下載）；簡報由 spec JSON 管線（ppt-toolkit：spec JSON、make-pptx.mjs）產出、可重跑。這證明的是可重現的敘事與產出流程，不是已驗證的決策改善或商業結果。管線 repo：https://github.com/apchen1978/spec-to-deck-pipeline。",
-        en: "The 9-page decision-narrative prototype is viewable online (/deck-viewer/, with PDF download); it is produced by a rerunnable spec JSON pipeline (ppt-toolkit: spec JSON, make-pptx.mjs). This demonstrates a reproducible narrative and production workflow, not validated decision improvement or commercial outcomes. Pipeline repo: https://github.com/apchen1978/spec-to-deck-pipeline.",
+        zh: "9 頁決策敘事原型可線上翻閱（/deck-viewer/）；簡報由 spec JSON 管線（ppt-toolkit：spec JSON、make-pptx.mjs）產出、可重跑。這證明的是可重現的敘事與產出流程，不是已驗證的決策改善或商業結果。管線 repo：https://github.com/apchen1978/spec-to-deck-pipeline。",
+        en: "The 9-page decision-narrative prototype is viewable online (/deck-viewer/); it is produced by a rerunnable spec JSON pipeline (ppt-toolkit: spec JSON, make-pptx.mjs). This demonstrates a reproducible narrative and production workflow, not validated decision improvement or commercial outcomes. Pipeline repo: https://github.com/apchen1978/spec-to-deck-pipeline.",
       },
     },
   },
