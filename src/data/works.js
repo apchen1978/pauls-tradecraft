@@ -953,7 +953,7 @@ export const works = [
           decisionBriefBody: "當出現真實的交易條件、付款、責任、經濟性或內部資源承諾時，再把已知、未知與需要確認的問題帶入下一層評估。",
           boundaries: ["DEMONSTRATION", "METHOD VISIBILITY：DEMONSTRATED", "HUMAN VALIDATION：NOT PERFORMED", "MARKET VALIDATION：NOT PERFORMED", "PUBLIC OUTCOME CLAIMS：NOT VALIDATED"],
           handoff: "當出現值得進一步確認的商機時，下一站是：",
-          handoffLink: "商務決策工作台（CDD）",
+          handoffLink: "商務決策工作台",
           conversionLink: "看候選公司如何走到買家回覆（示範）",
         },
         en: {
@@ -1017,7 +1017,7 @@ export const works = [
           decisionBriefBody: "When real deal terms, payment, responsibilities, economics, or internal-resource commitments appear, take the KNOWNs, UNKNOWNs, and verification questions into the next bounded assessment.",
           boundaries: ["DEMONSTRATION", "METHOD VISIBILITY: DEMONSTRATED", "HUMAN VALIDATION: NOT PERFORMED", "MARKET VALIDATION: NOT PERFORMED", "PUBLIC OUTCOME CLAIMS: NOT VALIDATED"],
           handoff: "When an opportunity deserves further verification, the next bounded step is:",
-          handoffLink: "Commercial Decision Desk (CDD)",
+          handoffLink: "Commercial Decision Desk",
           conversionLink: "See how a candidate account reaches a buyer reply (demo walkthrough)",
         },
       },

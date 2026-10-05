@@ -164,7 +164,7 @@ const dict = {
       demoLabel: "公開 Demo",
       statusLive: "連結實測",
       liveExplain: "「連結實測」只表示這個公開連結曾經線上打開檢查。不是品質結論、技術驗證、真人驗證或商業成果。",
-      independentPrototypes: "作品各自獨立；海外客戶研究可透過檔案把提案交給 CDD，由人逐項確認。這不是共用資料模型或自動化流程。",
+      independentPrototypes: "作品各自獨立；海外客戶研究可透過檔案把提案交給商務決策工作台，由人逐項確認。這不是共用資料模型或自動化流程。",
       caseStudy: {
         label: "案例研究",
         takeaway: "核心判斷：",
@@ -198,7 +198,7 @@ const dict = {
       packTitle: "一份能帶進下一次會議的 Deal Readiness Pack",
       packIntro: "不是一份漂亮的摘要，而是讓下一輪商業行動、證據與承諾界線都能被討論的工作底稿。",
       snapshotAlt: "Commercial Decision Desk 的交易決策摘要畫面",
-      snapshotCaption: "現有 CDD Executive Snapshot 範例。缺少的資料會維持未知，不會被補成事實。",
+      snapshotCaption: "現有商務決策工作台 Executive Snapshot 範例。缺少的資料會維持未知，不會被補成事實。",
       outputs: [
         { title: "目前交易位置", body: "把目前建議、控制因素與尚未能承諾的事項放在同一個決策畫面。" },
         { title: "需要確認的交易結構", body: "釐清付款、交付責任、淨貢獻、決策權與其他會影響承諾的證據缺口。" },
@@ -308,7 +308,7 @@ const dict = {
         steps: [
           { title: "發現候選客戶", body: "從公開資料取得可追溯線索。線索仍是提案，不會被當成已確認的客戶事實。" },
           { title: "確認可用證據", body: "由老闆逐項確認哪些訊號可進入商機；其餘保留未知或待驗證。" },
-          { title: "評估目前位置", body: "CDD 整理交易結構、控制因素、目前建議與下一個應取得的證據。" },
+          { title: "評估目前位置", body: "由商務決策工作台整理交易結構、控制因素、目前建議與下一個應取得的證據。" },
           { title: "檢視付款與淨貢獻", body: "把付款條件、承諾暴露、收入、成本與風險準備金拆開，在承諾前確認。" },
           { title: "留下決策資產", body: "以 Deal Brief 與 Decision Ledger 分開保存系統建議、人的決定與重新評估條件。" },
         ],
@@ -719,7 +719,7 @@ const dict = {
       demoLabel: "Live demo",
       statusLive: "LIVE",
       liveExplain: "LIVE means this public link was checked online. It is not a quality verdict, technical validation, field validation, or a commercial result.",
-      independentPrototypes: "The works remain independent. Overseas Lead Discovery can hand a file-based proposal to CDD, with each signal confirmed by a person. This is not a shared data model or automated pipeline.",
+      independentPrototypes: "The works remain independent. Overseas Lead Discovery can hand a file-based proposal to the Commercial Decision Desk, with each signal confirmed by a person. This is not a shared data model or automated pipeline.",
       caseStudy: {
         label: "Case Study",
         takeaway: "Key takeaway: ",
@@ -753,7 +753,7 @@ const dict = {
       packTitle: "A Deal Readiness Pack for the next commercial meeting",
       packIntro: "Not a polished summary. A working decision brief that makes the next action, evidence, and commitment boundary discussable.",
       snapshotAlt: "Commercial Decision Desk executive deal snapshot",
-      snapshotCaption: "Existing CDD Executive Snapshot example. Missing information remains UNKNOWN. It is never filled in as fact.",
+      snapshotCaption: "Existing Commercial Decision Desk Executive Snapshot example. Missing information remains UNKNOWN. It is never filled in as fact.",
       outputs: [
         { title: "Current deal position", body: "Put the current recommendation, controlling factors, and items that cannot yet be committed on one decision surface." },
         { title: "Deal structure to verify", body: "Clarify payment, delivery responsibility, net contribution, decision authority, and evidence gaps that affect commitment." },
@@ -863,7 +863,7 @@ const dict = {
         steps: [
           { title: "Discover candidate buyers", body: "Use traceable public signals. A signal remains a proposal, not a confirmed customer fact." },
           { title: "Confirm usable evidence", body: "The owner confirms which signals can enter an opportunity. Everything else remains UNKNOWN or pending verification." },
-          { title: "Assess the current position", body: "CDD structures the deal, control items, current position, and the next evidence to obtain." },
+          { title: "Assess the current position", body: "The Commercial Decision Desk structures the deal, control items, current position, and the next evidence to obtain." },
           { title: "Review payment and net contribution", body: "Separate payment terms, commitment exposure, revenue, cost, and contingency before a commitment is made." },
           { title: "Leave a decision asset", body: "Deal Brief (a judgment document for the meeting) and Decision Ledger (why the decision was made) keep the system recommendation, human decision, and rerun conditions distinct." },
         ],
