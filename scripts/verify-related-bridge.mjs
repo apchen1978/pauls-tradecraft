@@ -47,7 +47,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const results = {};
   // TDD card: open case study, check related link exists and href = #payment-concentration
   results.tddRelated = await ev(`(async () => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     const article = h.closest('article');
     const sum = article.querySelector('details summary');
     sum.click();

@@ -1,4 +1,4 @@
-// make-onepager.mjs — 從 JSON 資料檔產生「AI 協作能力」一頁 PDF（單一管線、雙語）
+// make-onepager.mjs — 從 JSON 資料檔產生一頁簡介 PDF（單一管線、雙語）
 // 資料來源：content/onepager-zh.json / content/onepager-en.json（可經 CLI 指定其他資料檔）
 // 用法：
 //   node scripts/make-onepager.mjs                    -> 產生 ZH（預設）

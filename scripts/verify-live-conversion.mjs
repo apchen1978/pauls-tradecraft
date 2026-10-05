@@ -69,19 +69,19 @@ async function check(viewport, lang) {
   results.contactCta = await ev(`document.querySelector('#contact a[href^="mailto:"]')?.textContent.trim() || null`);
 
   results.tddLink = await ev(`(() => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     const a = h ? h.closest('article').querySelector('a[href]') : null;
     return a ? a.href : null;
   })()`);
   await ev(`(() => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     const s = h && h.closest('article').querySelector('details summary');
     s && s.click();
     return 'ok';
   })()`);
   await sleep(600);
   const tddText = await ev(`(() => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     return h ? h.closest('article').innerText : '';
   })()`);
   results.tddEvidence1313 = tddText.includes("13/13");

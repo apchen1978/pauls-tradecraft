@@ -73,7 +73,7 @@ try {
   const home = await open(HOME, 1440, 900, false);
   out.bridge = {};
   out.bridge.tddRelated = await home.ev(`(async () => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     const a = h.closest('article').querySelector('a[href="#payment-concentration"]');
     return a ? a.textContent.trim().length > 0 : false;
   })()`);

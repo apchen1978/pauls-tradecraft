@@ -9,8 +9,9 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-const HTML = pathToFileURL("C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/cover-lead-discovery.html").href;
-const OUT_DIR = "C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/visual-check";
+const HTML = new URL("../cover-lead-discovery.html", import.meta.url).href;
+// Screenshots stay out of the repo: they go to a temp folder unless VISUAL_CHECK_DIR is set.
+const OUT_DIR = process.env.VISUAL_CHECK_DIR || join(tmpdir(), "visual-check");
 mkdirSync(OUT_DIR, { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

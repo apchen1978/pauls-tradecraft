@@ -73,12 +73,12 @@ async function check(viewport) {
 
   // Trade Deal Desk link unchanged
   results.tddLink = await ev(`(() => {
-    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('AI Trade Deal Desk'));
+    const h = [...document.querySelectorAll('h3')].find(h => h.textContent.includes('Trade Deal Desk'));
     const a = h ? h.closest('article').querySelector('a[href]') : null;
     return a ? a.href : null;
   })()`);
   results.tddSeparate = await ev(`(() => {
-    const t = [...document.querySelectorAll('h3')].filter(h => h.textContent.includes('AI Trade Deal Desk')).length;
+    const t = [...document.querySelectorAll('h3')].filter(h => h.textContent.includes('Trade Deal Desk')).length;
     const p = [...document.querySelectorAll('h3')].filter(h => h.textContent.includes('Payment Concentration')).length;
     return t === 1 && p === 1;
   })()`);

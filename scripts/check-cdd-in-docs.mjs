@@ -1,5 +1,6 @@
 // check-cdd-in-docs.mjs — verify Commercial Decision Desk appears in regenerated docs
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 function textOf(pdfPath) {
   const r = spawnSync("python", ["-c",
@@ -8,7 +9,7 @@ function textOf(pdfPath) {
   return r.stdout;
 }
 
-const base = "C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/public/files/";
+const base = fileURLToPath(new URL("../public/files/", import.meta.url));
 const zh = textOf(base + "Paul-Tradecraft-OnePager-ZH.pdf");
 const en = textOf(base + "Paul-Tradecraft-OnePager-EN.pdf");
 const brief = textOf(base + "PaulTradecraft-Capability-Brief.pdf");
