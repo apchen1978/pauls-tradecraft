@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>七頁看懂我怎麼做判斷 · Paul's Tradecraft</title>
+    <meta name="description" content="海外商業開發 × 商業決策：7 頁能力簡報，可直接線上翻閱。" />
+    <link rel="canonical" href="https://paulstradecraft.com/deck-viewer/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Paul's Tradecraft" />
+    <meta property="og:title" content="七頁看懂我怎麼做判斷 · Paul's Tradecraft" />
+    <meta property="og:description" content="海外商業開發 × 商業決策：7 頁能力簡報，可直接線上翻閱。" />
+    <meta property="og:url" content="https://paulstradecraft.com/deck-viewer/" />
+    <meta property="og:image" content="https://paulstradecraft.com/deck-viewer/page-01.png" />
+    <meta property="og:image:width" content="1467" />
+    <meta property="og:image:height" content="826" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="七頁看懂我怎麼做判斷 · Paul's Tradecraft" />
+    <meta name="twitter:description" content="海外商業開發 × 商業決策：7 頁能力簡報。" />
+    <meta name="twitter:image" content="https://paulstradecraft.com/deck-viewer/page-01.png" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <a class="back" href="/">← Paul's Tradecraft</a>
+      <h1 class="title">七頁看懂我怎麼做判斷 <span class="sub">Executive capability, in seven pages</span></h1>
+    </header>
+
+    <section class="intro" aria-label="作品定位">
+      <p class="kicker">七頁，一次看完</p>
+      <p class="intro-copy">從立場、海外商業開發、重要決策與商業經濟視角，到四個示範作品：我怎麼看一件事，怎麼把它推到下一步。</p>
+      <div class="signals" aria-label="閱讀提示">
+        <span>看立場：判斷先於名單</span>
+        <span>看方法：從問題到下一步</span>
+        <span>看作品：全部是示範原型</span>
+      </div>
+    </section>
+
+    <main class="stage" id="stage" aria-label="簡報翻閱器">
+      <button class="nav prev" id="prev" aria-label="上一頁">‹</button>
+      <figure class="slide">
+        <img id="slideImg" alt="簡報頁面" />
+      </figure>
+      <button class="nav next" id="next" aria-label="下一頁">›</button>
+    </main>
+
+    <footer class="foot">
+      <span id="counter">1 / 7</span>
+      <div class="progress"><div class="fill" id="fill"></div></div>
+      <span class="footnote">spec → PPTX → PDF · 可重跑只是底層能力</span>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

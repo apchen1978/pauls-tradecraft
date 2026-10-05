@@ -525,6 +525,51 @@ export const works = [
     },
   },
   {
+    id: "deck",
+    featuredRank: 3,
+    section: "operations",
+    cover: "/images/cover-deck-v2.webp",
+    imageAlt: { zh: "海外商業開發與商業決策的七頁能力簡報", en: "A seven-page capability deck on global business development and business decisions" },
+    link: "/deck-viewer/",
+    linkLabel: { zh: "翻閱簡報", en: "Flip Through Deck" },
+    span: "md:col-span-2 md:col-start-2",
+    verified: true,
+    zh: {
+      title: "七頁看懂我怎麼做判斷",
+      desc: "從立場、海外商業開發、重要決策與商業經濟視角，到四個示範作品，七頁講完我怎麼判斷；簡報由可重跑的 spec JSON → PPTX → PDF 管線產出。",
+      tag: "Decision surface",
+    },
+    en: {
+      title: "How I make a judgment, in seven pages",
+      desc: "Seven pages from position to method to four demo works: global business development, important decisions and the business-economics lens — produced by a rerunnable spec-to-PPTX-to-PDF pipeline.",
+      tag: "Decision surface",
+    },
+    case: {
+      stage: { zh: "能力簡報", en: "Capability Deck" },
+      stageTag: { zh: "可重現工作流", en: "Reproducible Workflow" },
+      problem: {
+        zh: "能力簡介常只列頭銜與工具，卻看不出一個人是怎麼做判斷的。",
+        en: "Capability summaries often list titles and tools without showing how someone makes a judgment.",
+      },
+      approach: {
+        zh: "用七頁把立場、海外商業開發的判斷順序、重要決策的處理步驟、商業經濟視角和示範作品放在同一條線上，每頁只講一件事；以 spec JSON 驅動 PPTX → PDF 管線。",
+        en: "Seven pages put the position, the order of judgment in global business development, the steps for important decisions, the business-economics lens and the demo works on one line, one point per page; the PPTX → PDF pipeline is driven from a spec JSON.",
+      },
+      tools: {
+        zh: "pptxgenjs · spec JSON 管線",
+        en: "pptxgenjs · spec JSON pipeline",
+      },
+      result: {
+        zh: "完成七頁簡報與 PDF 渲染；展示的是怎麼把判斷整理成可以討論的敘事，不只是版面產出。",
+        en: "A seven-page deck and its PDF render completed; the demonstration is turning a judgment into a narrative people can discuss, not merely slide production.",
+      },
+      evidence: {
+        zh: "7 頁能力簡報可線上翻閱（/deck-viewer/）；簡報由 spec JSON 管線（spec JSON、make-pptx.mjs）產出、可重跑。這證明的是可重現的敘事與產出流程，不是已驗證的決策改善或商業結果。管線 repo：https://github.com/apchen1978/spec-to-deck-pipeline。",
+        en: "The seven-page capability deck is viewable online (/deck-viewer/); it is produced by a rerunnable spec JSON pipeline (spec JSON, make-pptx.mjs). This demonstrates a reproducible narrative and production workflow, not validated decision improvement or commercial outcomes. Pipeline repo: https://github.com/apchen1978/spec-to-deck-pipeline.",
+      },
+    },
+  },
+  {
     id: "expense",
     section: "labs",
     featuredRank: 6,
