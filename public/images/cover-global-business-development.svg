@@ -22,5 +22,5 @@
     <text x="35" y="391" fill="#c8d4c8" font-family="Arial, sans-serif" font-size="14">Procurement path: UNKNOWN</text>
   </g>
   <rect x="80" y="758" width="1440" height="1" fill="#c9c2b5"/>
-  <text x="80" y="811" fill="#687168" font-family="Arial, sans-serif" font-size="16">Supplier reality  →  owner objective  →  evidence  →  human judgment</text>
+  <text x="80" y="811" fill="#687168" font-family="Arial, sans-serif" font-size="16">Supplier reality  →  decision-maker objective  →  evidence  →  human judgment</text>
 </svg>

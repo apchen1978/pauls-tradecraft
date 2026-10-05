@@ -7,8 +7,9 @@ import { tmpdir } from "node:os";
 import { join, extname, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const PROTOTYPE_ROOT = "C:/Users/grays/Documents/DeepSeek-Test/shadow-002-commitments-prototype";
-const OUT = "C:/Users/grays/Documents/DeepSeek-Test/portfolio-overview/public/images/cover-payment-concentration.png";
+// Usage: node scripts/make-cover-payment-concentration.mjs <path to a checkout of payment-concentration-demo>
+const PROTOTYPE_ROOT = process.argv[2] || "C:/Users/grays/Documents/DeepSeek-Test/shadow-002-commitments-prototype";
+const OUT = join(fileURLToPath(new URL("..", import.meta.url)), "public", "images", "cover-payment-concentration.png");
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const PORT = 9332;
 const W = 1440, H = 810; // 16:9

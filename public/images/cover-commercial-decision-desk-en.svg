@@ -26,7 +26,7 @@
   <path d="M116 505H1484" stroke="#ddd5c8" stroke-width="2"/>
   <text x="116" y="550" fill="#7b7368" font-family="Arial, sans-serif" font-size="18" font-weight="700">What to obtain next</text>
   <text x="116" y="591" fill="#1d2b24" font-family="Arial, sans-serif" font-size="25" font-weight="700">Confirm payment terms: how, when, and how much is due before shipment.</text>
-  <text x="116" y="627" fill="#7b7368" font-family="Arial, sans-serif" font-size="18">The desk separates recorded evidence from gaps. The owner still makes the commitment.</text>
+  <text x="116" y="627" fill="#7b7368" font-family="Arial, sans-serif" font-size="18">The desk separates recorded evidence from gaps. The decision-maker still makes the commitment.</text>
   <path d="M116 673H1484" stroke="#ddd5c8" stroke-width="2"/>
   <g font-family="Arial, sans-serif">
     <text x="116" y="720" fill="#315847" font-size="17" font-weight="700" letter-spacing="2">Will we get paid?</text>

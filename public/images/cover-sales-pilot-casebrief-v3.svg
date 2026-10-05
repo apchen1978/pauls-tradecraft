@@ -46,7 +46,7 @@
     <rect width="660" height="92" rx="12" fill="#f0eee6"/>
     <rect y="80" width="660" height="12" fill="#8A6A2B"/>
     <text x="54" y="42" fill="#50665b" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="2">Paul's Tradecraft</text>
-    <text x="54" y="70" fill="#193A35" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="21" font-weight="700">Soft-furnishing sales pilot / Case brief</text>
+    <text x="54" y="70" fill="#193A35" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="21" font-weight="700">Sales pilot / Case brief</text>
     <text x="54" y="148" fill="#193A35" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1.8">Executive summary</text>
     <text x="54" y="194" fill="#193A35" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="31" font-weight="700">把跟進流程，變成</text>
     <text x="54" y="235" fill="#193A35" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="31" font-weight="700">可檢視的商業下一步</text>
@@ -72,7 +72,7 @@
       <path d="M0 20H552" stroke="#d8dfd7"/>
       <circle cx="10" cy="50" r="7" fill="#5e9a78"/><path d="m7 50 2 2 5-6" fill="none" stroke="#fff" stroke-width="1.5"/><text x="30" y="55" fill="#50665b" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14">三輪模擬與可檢視的 inspect 證據</text>
       <circle cx="10" cy="84" r="7" fill="#5e9a78"/><path d="m7 84 2 2 5-6" fill="none" stroke="#fff" stroke-width="1.5"/><text x="30" y="89" fill="#50665b" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14">報價、跟進與交接狀態的明確分離</text>
-      <circle cx="10" cy="118" r="7" fill="#8A6A2B"/><text x="30" y="123" fill="#50665b" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14">下一步由 owner 確認，不自動假設成果</text>
+      <circle cx="10" cy="118" r="7" fill="#8A6A2B"/><text x="30" y="123" fill="#50665b" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="14">下一步由負責人確認，不自動假設成果</text>
     </g>
     <rect x="54" y="666" width="552" height="1" fill="#d8dfd7"/>
     <text x="54" y="706" fill="#65766c" font-family="Arial,'Microsoft JhengHei',sans-serif" font-size="13">Case brief · decision support · human review</text>
