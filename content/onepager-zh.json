@@ -2,9 +2,9 @@
   "brand": "Paul's Tradecraft",
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
-  "kicker": "個人 AI 作品集 · 國際業務",
-  "title": "一位國際業務的 AI 工作筆記。",
-  "positioning": "商業判斷 · 工作流程設計 · Human × AI 協作",
+  "kicker": "Paul + AI 人機協作作品集 · 國際業務",
+  "title": "一位國際業務的工作筆記。",
+  "positioning": "商業判斷 · 工作流程設計 · 海外商業開發",
   "subtitle": "把國際業務每天要下的判斷：找買家、算利潤、談成訂單，做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路（專賣店、批發、工程）與團隊管理（一線業務員、銷售助理）；人仍保有方向、授權與最終判斷。",
   "stats": [
     {
@@ -41,8 +41,8 @@
       "body": "留下要補的證據、該問的問題、重新評估條件與仍由人拍板的決定。"
     }
   ],
-  "leverageTitle": "AI-NATIVE EXECUTION · AI 是槓桿，不是身份",
-  "leverage": "AI 擴大研究、比較、證據整理、矛盾檢查與原型能力；人仍決定目標、邊界與後果，證據決定什麼值得繼續。",
+  "leverageTitle": "HOW I WORK · 判斷在人，執行有節奏",
+  "leverage": "研究、比較、證據整理、矛盾檢查與原型都先做扎實；人決定目標、邊界與後果，證據決定什麼值得繼續。",
   "worksTitle": "SELECTED SYSTEMS · 精選系統",
   "reviewedWorkIds": [
     "trade-deal-desk",
@@ -70,6 +70,6 @@
     "企業支出決策啟發 · 在找 CPA 或專業人士前，先看懂支出如何牽動現金、時間、證據與值得確認的問題；合成案例、真人驗證待完成。"
   ],
   "processTitle": "START WITH A DECISION · 從一個重要決策開始",
-  "process": "帶進一個真的卡住的商業問題、一段工作流程，或一個需要重新定義的客戶情境。先把真正需要做的決定、證據與人該保留的權責看清楚，再決定 AI 應該幫忙探索、整理、比較或建構什麼。",
+  "process": "帶進一個真的卡住的商業問題、一段工作流程，或一個需要重新定義的客戶情境。先把真正需要做的決定、證據與人該保留的權責看清楚，再決定先探索、整理、比較或建構什麼。",
   "footer": "PAUL'S TRADECRAFT · paulstradecraft.com · paulchen1978@gmail.com"
 }

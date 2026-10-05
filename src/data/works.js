@@ -1189,7 +1189,7 @@ export const works = [
     workingEvidence: {
       zh: {
         label: "WORKING EVIDENCE · 合成互動原型",
-        title: "RFQ → 報價決策：Human × AI Workflow",
+        title: "RFQ → 報價決策工作流",
         body: "看一筆資訊不完整的海外 RFQ，如何被整理成可檢視的證據、交由人做商業判斷，並在新資訊改變條件後重新進入審查。",
         cta: "執行 RFQ Workflow",
         boundary: "已建置並完成營運風險測試 · 尚未經真人驗證",
@@ -1197,7 +1197,7 @@ export const works = [
       },
       en: {
         label: "WORKING EVIDENCE · SYNTHETIC",
-        title: "RFQ → Quote Decision: Human × AI Workflow",
+        title: "RFQ → Quote Decision Walkthrough",
         body: "See how an incomplete foreign-trade RFQ is reconstructed into evidence, judged by a person, and returned to review when new information changes the case.",
         cta: "Run RFQ Workflow",
         boundary: "Built and operationally red-teamed; not field validated.",

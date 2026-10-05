@@ -13,8 +13,8 @@ const briefSource = fs.readFileSync(path.join(ROOT, "scripts", "build_capability
 const brief = process.argv[2] || path.join(ROOT, "public", "files", "PaulTradecraft-Capability-Brief.pdf");
 
 const expected = {
-  positioningEn: "Business judgment · Workflow design · Human × AI collaboration",
-  positioningZh: "商業判斷 · 工作流程設計 · Human × AI 協作",
+  positioningEn: "Business judgment · Workflow design · Global business development",
+  positioningZh: "商業判斷 · 工作流程設計 · 海外商業開發",
   capabilities: {
     ZH: ["海外商業開發", "重要決策與工作流程", "商業經濟／會計視角"],
     EN: ["Global Business Development", "Important Decisions & Workflows", "Business Economics / Accounting-aware Judgment"],
@@ -45,7 +45,7 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
   check(data.stats?.some((item) => item.value === "23/23"), `${locale} missing 23/23 validation evidence`);
   check(orderedContains(data.services || [], expected.capabilities[locale]), `${locale} human capability hierarchy is stale`);
   check(orderedContains(data.works || [], expected.proofWorks[locale]), `${locale} selected proof ordering is stale`);
-  check(Boolean(data.leverage), `${locale} missing AI-as-leverage explanation`);
+  check(Boolean(data.leverage), `${locale} missing how-I-work explanation`);
   check((data.works || []).some((item) => item.includes("Commercial Decision Desk")), `${locale} missing Commercial Decision Desk`);
   check(!data.worksSecondary?.length, `${locale} one-pager should not regress into a secondary work inventory`);
 }
