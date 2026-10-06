@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>哪一封值得讀下去 · Worth Reading — Paul's Tradecraft</title>
+  <meta id="meta-desc" name="description" content="兩封虛構的陌生開發信。先選哪一封值得讀下去，再看 Paul 的讀法。示範／成效未驗證，不代表回覆率、贏單或任何商業結果。" />
+  <link rel="canonical" href="https://paulstradecraft.com/prototype/worth-reading/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Paul's Tradecraft" />
+  <meta property="og:title" content="哪一封值得讀下去 · Worth Reading" />
+  <meta id="og-desc" property="og:description" content="兩封虛構的陌生開發信。先選哪一封值得讀下去，再看 Paul 的讀法。示範／成效未驗證。" />
+  <meta property="og:url" content="https://paulstradecraft.com/prototype/worth-reading/" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <link rel="stylesheet" href="/fonts/noto/noto-tc.css" />
+  <style>
+    :root {
+      --bone: #F6F3ED;
+      --paper: #DDE7DE;
+      --white: #ffffff;
+      --ink: #193A35;
+      --pine: #142C29;
+      --moss: #62716A;
+      --brass: #8A6A2B;
+      --pop: #F08A6E;
+      --line: #D4DAD1;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bone);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, a { font: inherit; }
+    :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+    .skip {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      transform: translateY(-160%);
+      background: var(--white);
+      color: var(--ink);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .skip:focus { transform: none; }
+    .page {
+      width: min(960px, 100%);
+      margin: 0 auto;
+      padding: 28px 16px 72px;
+    }
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .eyebrow {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .lang { display: flex; flex-wrap: wrap; gap: 8px; }
+    .lang button {
+      min-width: 44px;
+      min-height: 40px;
+      padding: 6px 12px;
+      background: transparent;
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .lang button[aria-pressed="true"] {
+      background: var(--pine);
+      color: var(--bone);
+      border-color: var(--pine);
+    }
+    .label {
+      display: inline-block;
+      max-width: 100%;
+      margin: 18px 0 0;
+      padding: 6px 10px;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: var(--white);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    h1 {
+      margin: 18px 0 0;
+      max-width: 16em;
+      font-size: clamp(1.75rem, 7vw, 2.75rem);
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      overflow-wrap: break-word;
+    }
+    h1:focus { outline: none; }
+    .lede, .hint {
+      max-width: 40em;
+      margin: 14px 0 0;
+      overflow-wrap: break-word;
+    }
+    .lede { font-size: 1.05rem; }
+    .hint { color: var(--moss); font-size: 0.95rem; }
+    .letters {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      margin-top: 22px;
+    }
+    @media (min-width: 840px) {
+      .letters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+    }
+    .letter {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      border: 2.5px solid var(--ink);
+      border-radius: 1.25rem;
+      padding: 16px;
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+    .letter-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .stamp {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .yours {
+      margin: 0;
+      padding: 2px 8px;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: var(--bone);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .subject {
+      margin: 12px 0 0;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    .subject .k {
+      display: block;
+      color: var(--brass);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .letter p {
+      margin: 12px 0 0;
+      overflow-wrap: anywhere;
+    }
+    .pick {
+      margin-top: 16px;
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 2px solid var(--pine);
+      border-radius: 999px;
+      background: var(--pine);
+      color: var(--bone);
+      font-weight: 700;
+      line-height: 1.35;
+      cursor: pointer;
+      overflow-wrap: anywhere;
+    }
+    .pick:hover { filter: brightness(1.15); }
+    .pick[aria-pressed="true"] {
+      background: var(--bone);
+      color: var(--ink);
+      border-color: var(--ink);
+      filter: none;
+    }
+    .hit, .miss { box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+    body.is-open .hit {
+      background-image: linear-gradient(transparent 58%, var(--pop) 58%, var(--pop) 92%, transparent 92%);
+    }
+    body.is-open .miss {
+      background-image: linear-gradient(transparent 58%, var(--paper) 58%, var(--paper) 92%, transparent 92%);
+    }
+    .reveal {
+      margin-top: 28px;
+      min-width: 0;
+      padding: 18px 16px 16px;
+      background: var(--white);
+      border: 2.5px solid var(--ink);
+      border-radius: 1.25rem;
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+    .reveal[hidden] { display: none; }
+    .reveal h2 {
+      margin: 8px 0 0;
+      font-size: clamp(1.35rem, 4.5vw, 1.75rem);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      overflow-wrap: break-word;
+    }
+    .reveal h2:focus { outline: none; }
+    .verdict { margin: 12px 0 0; font-weight: 700; overflow-wrap: anywhere; }
+    .legend { margin: 8px 0 0; color: var(--moss); font-size: 0.92rem; overflow-wrap: anywhere; }
+    .reasons {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    @media (min-width: 720px) {
+      .reasons { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    }
+    .reason {
+      min-width: 0;
+      padding: 14px;
+      border: 2px solid var(--ink);
+      border-radius: 1rem;
+      background: var(--bone);
+    }
+    .reason h3 { margin: 0; font-size: 1.05rem; line-height: 1.35; overflow-wrap: anywhere; }
+    .reason ol, .reason ul { margin: 10px 0 0; padding-left: 1.2em; }
+    .reason li { margin: 0 0 8px; overflow-wrap: anywhere; }
+    .disclaimer {
+      margin: 16px 0 0;
+      padding-top: 12px;
+      border-top: 2px dashed rgba(25, 58, 53, 0.35);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .again {
+      margin-top: 16px;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .again:hover { background: var(--paper); }
+    .foot {
+      margin-top: 36px;
+      padding-top: 16px;
+      border-top: 2px dashed rgba(25, 58, 53, 0.35);
+    }
+    .quiet { margin: 12px 0 0; color: var(--moss); font-size: 0.92rem; overflow-wrap: anywhere; }
+    .contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-top: 14px;
+    }
+    .contact a, .back {
+      color: var(--ink);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .back { display: inline-block; margin-top: 14px; }
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" id="skip" href="#main">跳至內容</a>
+  <main class="page" id="main">
+    <div class="top">
+      <p class="eyebrow" id="eyebrow">Digital Garage</p>
+      <div class="lang" role="group" id="lang-group" aria-label="語言">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <p class="label" id="label">示範／成效未驗證 · Demo / outcomes not validated</p>
+    <h1 id="title" tabindex="-1">哪一封比較值得讀下去？</h1>
+    <p class="lede" id="lede"></p>
+    <p class="hint" id="hint"></p>
+    <div class="letters" id="letters"></div>
+    <section class="reveal" id="reveal" hidden aria-live="polite"></section>
+    <footer class="foot">
+      <p class="label" id="foot-label">示範／成效未驗證 · Demo / outcomes not validated</p>
+      <p class="quiet" id="foot-note"></p>
+      <p class="quiet" id="blanks"></p>
+      <div class="contact">
+        <a id="mail" href="mailto:paulchen1978@gmail.com">paulchen1978@gmail.com</a>
+        <a id="line" href="https://line.me/ti/p/zSJdkOeQgS" target="_blank" rel="noopener noreferrer">LINE</a>
+      </div>
+      <a class="back" id="back" href="/?lang=zh#garage">回作品集</a>
+    </footer>
+  </main>
+  <script>
+  (function () {
+    "use strict";
+    var LABEL = "示範／成效未驗證 · Demo / outcomes not validated";
+    var COPY = {
+      zh: {
+        htmlLang: "zh-Hant",
+        title: "哪一封值得讀下去 · Worth Reading",
+        description: "兩封虛構的陌生開發信。先選哪一封值得讀下去，再看 Paul 的讀法。示範／成效未驗證，不代表回覆率、贏單或任何商業結果。",
+        skip: "跳至內容",
+        eyebrow: "Digital Garage · 示範實驗",
+        langGroup: "語言",
+        h1: "哪一封比較值得讀下去？",
+        lede: "兩封虛構的第一封開發信。你先選哪一封比較值得讀下去，再看 Paul 的讀法。",
+        hint: "先讀完兩封，再選。方括號是刻意留白，不是漏字。",
+        pick: "這封比較值得讀",
+        picked: "你選了這封",
+        yours: "你的選擇",
+        subject: "主旨",
+        letters: [
+          {
+            id: "a",
+            name: "信 A",
+            subject: "[產品類型]，給 [收件公司] — [具體系列或市場]",
+            subjectMark: "hit",
+            blocks: [
+              [{ t: "[收件人姓名] 您好，" }],
+              [
+                { t: "寫這封信，是因為我看到 " },
+                { t: "[一個可核對的具體原因——例如貴司網站上的某個系列／近期的某類專案]", mark: "hit" },
+                { t: "，覺得我們的 " },
+                { t: "[具體產品]", mark: "hit" },
+                { t: " 可能對得上這個需求。若標準規格不合，也可以客製、依訂單製作。" }
+              ],
+              [{ t: "附上產品圖片／型錄截圖，方便您先看它長什麼樣子。", mark: "hit" }],
+              [{ t: "簡要條件：MOQ [數量] · 交期自 [事件] 起算 · [貿易條件] · 付款 [方式]。另附一頁英文規格表。", mark: "hit" }],
+              [{ t: "若有需要，我可以寄 [產品] 的樣品。" }],
+              [{ t: "祝好" }],
+              [{ t: "[姓名] [職稱]，[公司]" }]
+            ]
+          },
+          {
+            id: "b",
+            name: "信 B",
+            subject: "合作",
+            subjectMark: "miss",
+            blocks: [
+              [{ t: "敬啟者，", mark: "miss" }],
+              [{ t: "我們是專業的 [產品類別] 製造商。品質很好，價格有競爭力。我們有多年經驗，可以供應很多產品。", mark: "miss" }],
+              [{ t: "希望與您合作。", mark: "miss" }],
+              [{ t: "[姓名] [公司]" }]
+            ]
+          }
+        ],
+        reading: "Paul 的讀法",
+        verdictA: "你選了 A。Paul 也會先把這封讀下去。",
+        verdictB: "你選了 B。Paul 會先讀下去的是 A。",
+        legend: "珊瑚底線是 A 裡值得再讀的地方。淡綠底線是 B 裡站不住的地方。",
+        aTitle: "A 值得再讀下去",
+        aLead: "原因",
+        aReasons: [
+          "有寫給這位收件人的原因，而且是可以回頭核對的。",
+          "產品是具體的，並提到圖片或型錄截圖。",
+          "條件寫短、寫明：MOQ、交期從什麼起算、貿易條件、付款，再加上一頁規格表。"
+        ],
+        bTitle: "B 沒過，因為兩件事",
+        bReasons: [
+          "沒有說明為什麼寫給這個人。敬啟者、希望合作，讀起來像群發。",
+          "工廠和產品都沒有可核對的內容。品質、價格、年資、很多產品，都無法核對。"
+        ],
+        disclaimer: "這不代表回覆率、贏單，或任何商業結果。",
+        again: "重選一次",
+        foot: "這是讀信的示範，不是成效。",
+        blanks: "沒有真實公司，也沒有真實收件人。",
+        line: "LINE 聯絡",
+        back: "回作品集"
+      },
+      en: {
+        htmlLang: "en",
+        title: "Worth Reading",
+        description: "Two fictional cold emails. Choose which one is more worth reading, then see how Paul reads them. Demo / outcomes not validated — no reply rates, wins, or commercial outcomes.",
+        skip: "Skip to content",
+        eyebrow: "Digital Garage · Demo experiment",
+        langGroup: "Language",
+        h1: "Which letter is more worth reading?",
+        lede: "Two fictional first emails. Choose which one is more worth reading, then see how Paul reads them.",
+        hint: "Read both, then pick. The square brackets are blank on purpose.",
+        pick: "This one is more worth reading",
+        picked: "You picked this one",
+        yours: "Your pick",
+        subject: "Subject",
+        letters: [
+          {
+            id: "a",
+            name: "Letter A",
+            subject: "[Product type] for [Recipient company] — [specific range or market]",
+            subjectMark: "hit",
+            blocks: [
+              [{ t: "Hi [Recipient name]," }],
+              [
+                { t: "I'm writing because I saw " },
+                { t: "[one specific, checkable reason — e.g. a range on your website / a recent project type]", mark: "hit" },
+                { t: ", and I think our " },
+                { t: "[specific product]", mark: "hit" },
+                { t: " may fit that need. Custom / made-to-order is available if the standard option doesn't match." }
+              ],
+              [{ t: "I've attached a product image / catalogue screenshot so you can see what it looks like.", mark: "hit" }],
+              [{ t: "Quick terms: MOQ [quantity] · lead time counted from [event] · [trade term] · payment [method]. A one-page English data sheet is also attached.", mark: "hit" }],
+              [{ t: "Happy to send samples of [product] if useful." }],
+              [{ t: "Best regards," }],
+              [{ t: "[Name] [Title], [Company]" }]
+            ]
+          },
+          {
+            id: "b",
+            name: "Letter B",
+            subject: "Cooperation",
+            subjectMark: "miss",
+            blocks: [
+              [{ t: "Dear Sir/Madam,", mark: "miss" }],
+              [{ t: "We are a professional manufacturer of [product category]. Our quality is good and our price is competitive. We have many years of experience and can supply many products.", mark: "miss" }],
+              [{ t: "Hope to cooperate with you.", mark: "miss" }],
+              [{ t: "[Name] [Company]" }]
+            ]
+          }
+        ],
+        reading: "How Paul reads them",
+        verdictA: "You picked A. Paul would read this one further too.",
+        verdictB: "You picked B. The one Paul would read further is A.",
+        legend: "Coral underlines what makes A worth reading further. The pale green underlines where B does not hold.",
+        aTitle: "A is worth reading further",
+        aLead: "Why",
+        aReasons: [
+          "There is a reason it was sent to this recipient, and that reason can be checked.",
+          "The product is specific, and the letter mentions an image or a catalogue screenshot.",
+          "The terms are short and concrete: MOQ, what the lead time is counted from, the trade term, and payment — plus a one-page data sheet."
+        ],
+        bTitle: "B fails for two reasons",
+        bReasons: [
+          "No reason it was sent to this person. “Dear Sir/Madam” and “Hope to cooperate” read like a mass email.",
+          "Nothing verifiable about the factory or the product. Quality, price, years of experience, and “many products” cannot be checked."
+        ],
+        disclaimer: "This does not claim reply rates, wins, or commercial outcomes.",
+        again: "Choose again",
+        foot: "This is a reading demo, not a result.",
+        blanks: "There is no real company and no real recipient.",
+        line: "Contact on LINE",
+        back: "Back to the portfolio"
+      }
+    };
+
+    var params = new URLSearchParams(location.search);
+    var lang = params.get("lang") === "en" ? "en" : "zh";
+    var choice = null;
+
+    function el(tag, cls, text) {
+      var node = document.createElement(tag);
+      if (cls) node.className = cls;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+
+    function fillRich(node, segments) {
+      segments.forEach(function (seg) {
+        if (seg.mark) node.appendChild(el("span", seg.mark, seg.t));
+        else node.appendChild(document.createTextNode(seg.t));
+      });
+    }
+
+    function renderLetters(c) {
+      var root = document.getElementById("letters");
+      root.replaceChildren();
+      c.letters.forEach(function (letter) {
+        var card = el("article", "letter" + (choice === letter.id ? " is-on" : ""));
+        card.id = "letter-" + letter.id;
+        var top = el("div", "letter-top");
+        top.appendChild(el("p", "stamp", letter.name));
+        if (choice === letter.id) top.appendChild(el("p", "yours", c.yours));
+        card.appendChild(top);
+        var subject = el("p", "subject");
+        subject.appendChild(el("span", "k", c.subject));
+        subject.appendChild(el("span", letter.subjectMark, letter.subject));
+        card.appendChild(subject);
+        letter.blocks.forEach(function (segments) {
+          var p = el("p");
+          fillRich(p, segments);
+          card.appendChild(p);
+        });
+        var button = el("button", "pick", choice === letter.id ? c.picked : c.pick);
+        button.type = "button";
+        button.setAttribute("aria-pressed", choice === letter.id ? "true" : "false");
+        button.addEventListener("click", function () { choose(letter.id); });
+        card.appendChild(button);
+        root.appendChild(card);
+      });
+    }
+
+    function renderReveal(c, focus) {
+      var box = document.getElementById("reveal");
+      if (!choice) {
+        box.hidden = true;
+        box.replaceChildren();
+        document.body.classList.remove("is-open");
+        return;
+      }
+      document.body.classList.add("is-open");
+      box.hidden = false;
+      box.replaceChildren();
+      box.appendChild(el("p", "stamp", c.reading));
+      var h = el("h2", null, c.aTitle);
+      h.id = "reveal-heading";
+      h.tabIndex = -1;
+      box.appendChild(h);
+      box.appendChild(el("p", "verdict", choice === "a" ? c.verdictA : c.verdictB));
+      box.appendChild(el("p", "legend", c.legend));
+      var grid = el("div", "reasons");
+      var a = el("div", "reason");
+      a.appendChild(el("h3", null, c.aLead));
+      var aList = el("ul");
+      c.aReasons.forEach(function (reason) { aList.appendChild(el("li", null, reason)); });
+      a.appendChild(aList);
+      var b = el("div", "reason");
+      b.appendChild(el("h3", null, c.bTitle));
+      var bList = el("ol");
+      c.bReasons.forEach(function (reason) { bList.appendChild(el("li", null, reason)); });
+      b.appendChild(bList);
+      grid.appendChild(a);
+      grid.appendChild(b);
+      box.appendChild(grid);
+      box.appendChild(el("p", "label", LABEL));
+      box.appendChild(el("p", "disclaimer", c.disclaimer));
+      var again = el("button", "again", c.again);
+      again.type = "button";
+      again.addEventListener("click", function () {
+        choice = null;
+        render(false);
+        var title = document.getElementById("title");
+        if (title) title.focus();
+      });
+      box.appendChild(again);
+      if (focus) {
+        h.focus();
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          box.scrollIntoView({ block: "nearest" });
+        }
+      }
+    }
+
+    function render(focusReveal) {
+      var c = COPY[lang];
+      document.documentElement.lang = c.htmlLang;
+      document.title = c.title + " — Paul's Tradecraft";
+      document.getElementById("meta-desc").setAttribute("content", c.description);
+      document.getElementById("og-desc").setAttribute("content", c.description);
+      document.getElementById("skip").textContent = c.skip;
+      document.getElementById("eyebrow").textContent = c.eyebrow;
+      document.getElementById("lang-group").setAttribute("aria-label", c.langGroup);
+      document.getElementById("label").textContent = LABEL;
+      document.getElementById("foot-label").textContent = LABEL;
+      document.getElementById("title").textContent = c.h1;
+      document.getElementById("lede").textContent = c.lede;
+      document.getElementById("hint").textContent = c.hint;
+      document.getElementById("foot-note").textContent = c.foot + " " + c.disclaimer;
+      document.getElementById("blanks").textContent = c.blanks;
+      document.getElementById("line").textContent = c.line;
+      var back = document.getElementById("back");
+      back.textContent = c.back;
+      back.href = "/?lang=" + lang + "#garage";
+      document.querySelectorAll(".lang button").forEach(function (button) {
+        button.setAttribute("aria-pressed", button.dataset.lang === lang ? "true" : "false");
+      });
+      renderLetters(c);
+      renderReveal(c, focusReveal);
+    }
+
+    function choose(id) {
+      choice = id;
+      render(true);
+    }
+
+    document.querySelectorAll(".lang button").forEach(function (button) {
+      button.addEventListener("click", function () {
+        lang = button.dataset.lang === "en" ? "en" : "zh";
+        try {
+          var url = new URL(location.href);
+          url.searchParams.set("lang", lang);
+          history.replaceState(null, "", url);
+        } catch (err) {}
+        render(false);
+      });
+    });
+
+    render(false);
+  })();
+  </script>
+</body>
+</html>
