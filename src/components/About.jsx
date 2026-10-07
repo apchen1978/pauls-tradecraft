@@ -58,9 +58,11 @@ export default function About() {
             <img
               src="/images/paul-art.webp"
               alt="Paul"
+              width={1229}
+              height={1536}
               loading="lazy"
               decoding="async"
-                className="aspect-[4/5] w-full object-cover object-[50%_32%]"
+              className="aspect-[4/5] w-full object-cover object-[50%_32%]"
             />
           </motion.figure>
 

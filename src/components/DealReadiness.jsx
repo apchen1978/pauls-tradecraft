@@ -88,6 +88,8 @@ export default function DealReadiness() {
               <img
                 src={snapshotByLang[lang]}
                 alt={service.snapshotAlt}
+                width={1052}
+                height={lang === "zh" ? 1146 : 1166}
                 className="aspect-[4/3] w-full object-contain object-top"
                 loading="lazy"
                 decoding="async"

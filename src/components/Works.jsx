@@ -14,6 +14,7 @@ import { works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
 import GlobalBusinessDevelopment from "./GlobalBusinessDevelopment.jsx";
 import { FoldToggle, firstSentence, foldClass, useFold } from "./FoldedIntro.jsx";
+import CoverImage from "./CoverImage.jsx";
 
 const iconMap = {
   presentation: PresentationChart,
@@ -680,7 +681,7 @@ function FeaturedSystem({ work }) {
               <span className="size-2 rounded-full bg-ink/15" />
               <span className="size-2 rounded-full bg-ink/15" />
             </div>
-            <img src={cover} alt={work.imageAlt[lang]} loading="lazy" decoding="async" className={`aspect-[16/9] h-full w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
+            <CoverImage src={cover} alt={work.imageAlt[lang]} eager fetchPriority="high" className={`aspect-[16/9] w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
           </div>
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
@@ -793,11 +794,10 @@ export default function Works() {
         <Wrapper {...wrapperProps} className={`flex flex-1 flex-col ${wide ? "md:grid md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
           {cover ? (
             <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:flex-col md:justify-center md:bg-paper md:p-8 lg:p-10" : ""}`}>
-              <img
+              <CoverImage
                 src={cover}
                 alt={w.imageAlt[lang]}
-                loading="lazy"
-                decoding="async"
+                eager={sectionIndex === 0}
                 className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(25,58,53,0.55)]" : ""}`}
               />
               {balance && (
