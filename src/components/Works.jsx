@@ -10,7 +10,7 @@ import {
   Info,
 } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
-import { works } from "../data/works.js";
+import { firstContainerStory, works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
 import GlobalBusinessDevelopment from "./GlobalBusinessDevelopment.jsx";
 import { FoldToggle, firstSentence, foldClass, useFold } from "./FoldedIntro.jsx";
@@ -703,6 +703,11 @@ export function WorksFlagship() {
           <p className="eyebrow">{t.works.eyebrow}</p>
           <h2 id="works-flagship-heading" className="mt-6 max-w-[22ch] text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{t.works.headline}</h2>
           <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-moss md:text-lg">{subFirst}{subRest && <span className={foldClass(open, "inline")}> {subRest}</span>}</p>
+          <a href={`${firstContainerStory.href}?lang=${lang}`} className="mt-5 inline-flex max-w-full items-center gap-1.5 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">
+            {firstContainerStory.label[lang]}
+            <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+          </a>
+          <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-moss">{firstContainerStory.note[lang]}</p>
         </div>
         <FoldToggle open={open} onToggle={toggle} controls="works-also-explore-nav" />
         <nav id="works-also-explore-nav" aria-labelledby="works-also-explore" className={`mt-7 flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5 ${open ? "flex" : "hidden md:flex"}`}>
@@ -885,7 +890,13 @@ export default function Works() {
         <h3 className={`font-medium tracking-[-0.02em] ${si === 0 ? "text-xl text-forest md:text-2xl" : "text-lg text-ink"}`}>{sec.label}</h3>
         {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-moss">{sec.note}</p>}
         {sec.id === "commercial" && (
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-moss">{t.works.independentPrototypes}</p>
+          <>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-moss">{t.works.independentPrototypes}</p>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-moss">
+              <a href={`${firstContainerStory.href}?lang=${lang}`} className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber">{firstContainerStory.label[lang]}</a>
+              {" "}{firstContainerStory.note[lang]}
+            </p>
+          </>
         )}
       </div>
       <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-y-8">

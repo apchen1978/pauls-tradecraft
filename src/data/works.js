@@ -1306,3 +1306,17 @@ export const works = [
     },
   },
 ];
+
+// Reading path for the four flagship works. The prototypes stay separate:
+// this page links them with one fictional storyline and does not make them exchange data.
+export const firstContainerStory = {
+  href: "/cases/first-container/",
+  label: {
+    zh: "帶一項產品，走到第一櫃",
+    en: "From one product to the first container",
+  },
+  note: {
+    zh: "四站故事線：選路、選人、能不能承諾、算得過嗎。四件作品仍是各自獨立的原型，由這條故事線串起來，不交換資料。",
+    en: "Four stations on one storyline: the path, the people, whether to commit, and whether the numbers hold. The four works stay separate prototypes. They do not exchange data.",
+  },
+};
