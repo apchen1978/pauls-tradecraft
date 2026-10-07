@@ -2,6 +2,7 @@ import { Component, useCallback, useEffect, useState } from "react";
 import { MotionConfig } from "motion/react";
 import { LangProvider, useLang } from "./i18n.jsx";
 import { scrollToElement, useCalmScroll } from "./calmScroll.js";
+import { useMediaFailsafe } from "./mediaFailsafe.js";
 import ZhPhrase from "./zhPhrase.js";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
@@ -90,6 +91,7 @@ export default function App() {
   const onBelowReady = useCallback(() => setBelowReady(true), []);
   useHashReveal(belowReady);
   useCalmScroll();
+  useMediaFailsafe();
   return (
     <LangProvider>
       <MotionConfig reducedMotion="user">
