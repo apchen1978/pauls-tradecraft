@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { useLang } from "../i18n.jsx";
+import CoverImage from "./CoverImage.jsx";
 
 export default function About() {
   const { t } = useLang();
@@ -48,23 +49,13 @@ export default function About() {
         </motion.div>
 
         <div className="flex flex-col gap-6">
-          <motion.figure
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-24px" }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="overflow-hidden rounded-card border border-line surface-paper"
-          >
-            <img
+          <figure className="overflow-hidden rounded-card border border-line surface-paper">
+            <CoverImage
               src="/images/paul-art.webp"
               alt="Paul"
-              width={1229}
-              height={1536}
-              loading="lazy"
-              decoding="async"
               className="aspect-[4/5] w-full object-cover object-[50%_32%]"
             />
-          </motion.figure>
+          </figure>
 
           <div className="grid grid-cols-1 gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-3">
             {t.about.stats.map((s, i) => (

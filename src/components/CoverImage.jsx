@@ -27,18 +27,33 @@ const COVER_DIMS = {
   "/images/mg-poses.webp": [1600, 1000],
 };
 
+// The img src is the phone file. A min-width source upgrades desktop.
+// Doing it this way (instead of a max-width source) means a browser that
+// ignores <picture> still downloads the small file, which is the one a phone
+// can paint on a slow link. srcset is not used: a 3x phone would otherwise
+// pick the 1600px candidate.
+function mobileSrc(src) {
+  return src.replace(/\.(png|webp)$/i, "-800.webp");
+}
+
+function fullType(src) {
+  return src.endsWith(".png") ? "image/png" : "image/webp";
+}
+
 export default function CoverImage({ src, alt, className, eager = false, fetchPriority }) {
   const size = COVER_DIMS[src];
   return (
-    <img
-      src={src}
-      alt={alt}
-      width={size?.[0]}
-      height={size?.[1]}
-      className={className}
-      loading={eager ? "eager" : "lazy"}
-      decoding="async"
-      fetchPriority={eager ? fetchPriority : undefined}
-    />
+    <picture>
+      <source media="(min-width: 769px)" srcSet={src} type={fullType(src)} />
+      <img
+        src={mobileSrc(src)}
+        alt={alt}
+        width={size?.[0]}
+        height={size?.[1]}
+        className={className}
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? fetchPriority : undefined}
+      />
+    </picture>
   );
 }

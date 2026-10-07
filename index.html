@@ -10,10 +10,14 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <!-- Hero photo: discovered at parse time instead of after React renders, so it does not queue behind the font slices. -->
-    <link rel="preload" as="image" href="/images/paul-art.webp" type="image/webp" fetchpriority="high" />
-    <!-- CJK type: Noto Sans/Serif TC, self-hosted and unicode-range sliced so only used glyphs load -->
-    <link rel="stylesheet" href="/fonts/noto/noto-tc.css" />
+    <!-- Hero art and the Chinese snapshot, discovered at parse time.
+         Phones get the 800px WebP; wider screens get the full file.
+         Noto's 213 unicode-range slices are not loaded: they are render-blocking
+         and were starving these images on a slow link. CJK uses the system font. -->
+    <link rel="preload" as="image" href="/images/paul-art-800.webp" type="image/webp" fetchpriority="high" media="(max-width: 768px)" />
+    <link rel="preload" as="image" href="/images/paul-art.webp" type="image/webp" fetchpriority="high" media="(min-width: 769px)" />
+    <link rel="preload" as="image" href="/images/cdd-executive-snapshot-zh-v02-800.webp" type="image/webp" fetchpriority="high" media="(max-width: 768px)" />
+    <link rel="preload" as="image" href="/images/cdd-executive-snapshot-zh-v02.png" type="image/png" fetchpriority="high" media="(min-width: 769px)" />
 
     <!-- Canonical -->
     <link rel="canonical" href="https://paulstradecraft.com/" />
