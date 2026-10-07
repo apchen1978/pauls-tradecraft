@@ -6,13 +6,13 @@ import { useEffect } from "react";
 // element stays complete=false, naturalWidth=0, and the card looks empty.
 // Desktop browsers and Playwright's Linux WebKit do not reproduce it.
 // This watcher uses real layout boxes, not the browser's lazy-load observer,
-// and forces a fetch once a cover is near the viewport. Reveal animations that
-// stay at opacity 0 while on screen are opened after a short wait so a missed
+// and starts a fetch once a cover is near the viewport. It does not rewrite
+// src on an image that is already downloading. Reveal animations that stay at
+// opacity 0 while on screen are opened after a short wait so a missed
 // IntersectionObserver cannot leave a loaded image invisible.
 
 const NEAR_PX = 640;
 const STUCK_MS = 1500;
-const RESTART_MS = 2500;
 
 function closedDetails(img) {
   let el = img.parentElement;
@@ -32,22 +32,13 @@ function intersects(el, margin) {
 function wake(img) {
   if (img.complete && img.naturalWidth > 0) return;
   const src = img.getAttribute("src");
-  if (!src) return;
+  if (!src || img.dataset.wakeSrc === src) return;
+  img.dataset.wakeSrc = src;
   img.loading = "eager";
-  if (img.dataset.wakeSrc !== src) {
-    img.dataset.wakeSrc = src;
-    img.dataset.wakeAt = String(performance.now());
-    img.dataset.wakeRestart = "";
-    img.decode?.().catch(() => {});
-    return;
-  }
-  const waited = performance.now() - Number(img.dataset.wakeAt || 0);
-  if (waited > RESTART_MS && img.dataset.wakeRestart !== src) {
-    img.dataset.wakeRestart = src;
-    // Reassigning the same URL restarts a lazy load WebKit had dropped.
-    img.src = src;
-    img.decode?.().catch(() => {});
-  }
+  // Assign src only when the browser has not started a request.
+  // Reassigning the same URL aborts an in-flight download, which on a slow
+  // mobile link made covers start over after 2.5s and look stuck.
+  if (!img.currentSrc) img.src = src;
 }
 
 function scanImages() {

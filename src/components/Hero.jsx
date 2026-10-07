@@ -16,8 +16,8 @@ export default function Hero() {
   // 用點陣 PNG，不用 SVG 封面：封面把中文畫在 SVG <text> 上（Arial/Georgia），
   // iOS Safari 常常不畫出那些字，手機上整張卡會像空白。
   const snapshot = lang === "zh"
-    ? { src: "/images/cdd-executive-snapshot-zh-v02.png", width: 1052, height: 1146 }
-    : { src: "/images/cdd-executive-snapshot-en-v02.png", width: 1052, height: 1166 };
+    ? { src: "/images/cdd-executive-snapshot-zh-v02.png", mobile: "/images/cdd-executive-snapshot-zh-v02-800.webp", width: 1052, height: 1146 }
+    : { src: "/images/cdd-executive-snapshot-en-v02.png", mobile: "/images/cdd-executive-snapshot-en-v02-800.webp", width: 1052, height: 1166 };
   const headlineClass = lang === "en"
     ? "mt-3 text-[1.55rem] leading-[1.12] sm:text-[1.85rem] md:mt-5 md:text-[2.1rem] md:leading-[1.08] lg:text-[2.3rem] xl:text-[2.6rem] xl:leading-[1.07]"
     : "mt-4 text-[clamp(1.8rem,6.6vw,2.05rem)] leading-[1.18] md:mt-5 md:text-5xl md:leading-[1.14] lg:text-[2.6rem] xl:text-[3.2rem]";
@@ -28,12 +28,18 @@ export default function Hero() {
   return (
     <section id="top" className="relative isolate overflow-hidden bg-pine text-ondark border-b border-bone/15">
       <div aria-hidden className="absolute inset-0">
-        <img
-          src="/images/paul-art.webp"
-          alt=""
-          className="absolute inset-x-0 top-0 h-[14rem] w-full object-cover object-[55%_18%] opacity-90 md:inset-0 md:h-full md:object-[68%_28%] md:opacity-30 lg:object-[72%_24%] lg:opacity-55"
-          fetchPriority="high"
-        />
+        <picture>
+          <source media="(min-width: 769px)" srcSet="/images/paul-art.webp" type="image/webp" />
+          <img
+            src="/images/paul-art-800.webp"
+            alt=""
+            width={1229}
+            height={1536}
+            className="absolute inset-x-0 top-0 h-[14rem] w-full object-cover object-[55%_18%] opacity-90 md:inset-0 md:h-full md:object-[68%_28%] md:opacity-30 lg:object-[72%_24%] lg:opacity-55"
+            fetchPriority="high"
+            decoding="sync"
+          />
+        </picture>
         {/* Phone: the portrait is a clear band at the top that fades into the pine surface the text sits on. */}
         <div className="absolute inset-x-0 top-0 h-[14rem] bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_30%,rgba(20,44,41,1)_82%)] md:hidden" />
         <div className="absolute inset-0 hidden bg-pine/85 md:block lg:hidden" />
@@ -98,23 +104,27 @@ export default function Hero() {
         </motion.div>
 
         <motion.figure
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut", delay: 0.12 } }}
+          initial={{ y: 12 }}
+          animate={{ y: 0, transition: { duration: 0.45, ease: "easeOut" } }}
           className="surface-light group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-line bg-white shadow-[0_1px_2px_rgb(25_58_53/0.04),0_24px_60px_-32px_rgb(25_58_53/0.18)]"
         >
           <div className="flex items-center gap-2 border-b border-line bg-bone px-4 py-3 text-xs font-medium text-moss md:px-5">
             <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-amber" />{t.hero.snapshotChromeLabel}</span>
           </div>
           <div className="relative overflow-hidden bg-paper p-2.5 md:p-3">
-            <img
-              src={snapshot.src}
-              alt={t.hero.snapshotAlt}
-              width={snapshot.width}
-              height={snapshot.height}
-              className="h-auto w-full rounded-field border border-line"
-              loading="eager"
-              fetchPriority="high"
-            />
+            <picture>
+              <source media="(min-width: 769px)" srcSet={snapshot.src} type="image/png" />
+              <img
+                src={snapshot.mobile}
+                alt={t.hero.snapshotAlt}
+                width={snapshot.width}
+                height={snapshot.height}
+                className="h-auto w-full rounded-field border border-line"
+                loading="eager"
+                fetchPriority="high"
+                decoding="sync"
+              />
+            </picture>
           </div>
           <figcaption className="flex flex-col items-start gap-2 border-t border-line px-4 py-3 text-xs leading-snug text-moss md:px-5 md:py-3.5 md:text-sm">
             <span className="font-semibold text-ink">{t.hero.snapshotCaption}</span>

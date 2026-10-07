@@ -64,9 +64,13 @@
   --text-lg: 1.1875rem;
   --text-lg--line-height: 1.6;
 
-  --font-sans: "Geist Variable", "Noto Sans TC", "PingFang TC",
-    "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Noto Serif TC", Georgia, "Times New Roman", serif;
+  /* CJK is the system face (PingFang, JhengHei, Noto Sans CJK on Android).
+     The sliced Noto stylesheets are not on the page: a cold load was fetching
+     ~28 woff2 files (~1.9MB) ahead of the hero images. */
+  --font-sans: "Geist Variable", "PingFang TC", "Microsoft JhengHei",
+    "Noto Sans CJK TC", "Noto Sans TC", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Songti TC", "PMingLiU", "Noto Serif CJK TC", "Noto Serif TC",
+    Georgia, "Times New Roman", serif;
 }
 
 @layer base {

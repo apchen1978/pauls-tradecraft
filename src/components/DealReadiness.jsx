@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { ArrowUpRight, FileText, MagnifyingGlass, ShieldCheck } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
+import CoverImage from "./CoverImage.jsx";
 
 const snapshotByLang = {
   zh: "/images/cdd-executive-snapshot-zh-v02.png",
@@ -71,8 +72,8 @@ export default function DealReadiness() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ y: 12 }}
+          whileInView={{ y: 0 }}
           viewport={{ once: true, margin: "-24px" }}
           transition={{ duration: 0.35, ease: "easeOut" }}
           className="rounded-card border border-line bg-paper/65 p-4 md:p-6"
@@ -85,14 +86,10 @@ export default function DealReadiness() {
 
           <div className="mt-5 grid gap-5 md:grid-cols-[0.86fr_1.14fr] md:items-start">
             <figure className="overflow-hidden rounded-field border border-line bg-bone">
-              <img
+              <CoverImage
                 src={snapshotByLang[lang]}
                 alt={service.snapshotAlt}
-                width={1052}
-                height={lang === "zh" ? 1146 : 1166}
                 className="aspect-[4/3] w-full object-contain object-top"
-                loading="lazy"
-                decoding="async"
               />
               <figcaption className="border-t border-line px-3 py-2.5 text-xs leading-relaxed text-ink">
                 {service.snapshotCaption}
