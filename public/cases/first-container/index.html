@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="zh-Hant" data-lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>帶一項產品，走到第一櫃｜Paul's Tradecraft</title>
+  <meta name="description" content="四站故事線：選路、選人、能不能承諾、算得過嗎。虛構的純紙牆紙情境，示範／成效未驗證。四個原型各自獨立，不交換資料。" />
+  <link rel="canonical" href="https://paulstradecraft.com/cases/first-container/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="帶一項產品，走到第一櫃" />
+  <meta property="og:description" content="一位負責人的四站閱讀：選路、選人、能不能承諾、算得過嗎。公司與情境皆為虛構。示範／成效未驗證。" />
+  <meta property="og:url" content="https://paulstradecraft.com/cases/first-container/" />
+  <meta property="og:image" content="https://paulstradecraft.com/og-image.png" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    :root { --pine:#143329; --bone:#f4efe6; --ink:#1c241f; --muted:#526058; --line:rgba(20,51,41,.16); --gold:#8a6a2b; --blue:#486574; --white:#fffefa; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bone); color:var(--ink); font-family:"Segoe UI","Noto Sans TC","PingFang TC",sans-serif; line-height:1.65; }
+    img { max-width:100%; height:auto; }
+    a { color:var(--pine); text-underline-offset:3px; }
+    a:focus-visible, button:focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
+    h1, h2, h3, p, li, a, span, strong { overflow-wrap:break-word; }
+    .wrap { width:min(100% - 40px, 1080px); margin:auto; }
+    .top { border-bottom:1px solid var(--line); background:var(--white); }
+    .top-inner { display:flex; align-items:center; justify-content:space-between; gap:12px 16px; min-height:58px; font-size:.84rem; flex-wrap:wrap; padding:8px 0; }
+    .top a { text-decoration:none; font-weight:650; }
+    .switch { display:flex; gap:4px; align-items:center; }
+    .switch button { border:1px solid var(--line); background:transparent; border-radius:999px; padding:5px 10px; color:var(--pine); font:inherit; cursor:pointer; }
+    html[data-lang="zh"] [data-lang-view="en"], html[data-lang="en"] [data-lang-view="zh"] { display:none !important; }
+    html[data-lang="zh"] button[data-set-lang="zh"], html[data-lang="en"] button[data-set-lang="en"] { background:var(--pine); color:#fff; }
+    .hero { padding:48px 0 28px; }
+    .eyebrow { margin:0 0 12px; color:var(--gold); text-transform:uppercase; letter-spacing:.14em; font-size:.72rem; font-weight:750; }
+    h1 { margin:0; color:var(--pine); font-size:clamp(1.75rem, 4.4vw, 3.35rem); line-height:1.16; letter-spacing:-.03em; max-width:100%; }
+    .lede { max-width:680px; margin:16px 0 0; font-size:clamp(1rem, 1.7vw, 1.16rem); color:var(--muted); }
+    .disclosure { display:inline-flex; max-width:100%; margin-top:18px; border:1px solid var(--line); border-radius:999px; padding:6px 12px; background:var(--white); color:var(--pine); font-size:.78rem; font-weight:700; }
+    .jump { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:22px 0 0; }
+    .jump a { display:block; min-width:0; background:var(--white); border:1px solid var(--line); border-radius:12px; padding:12px 12px 11px; text-decoration:none; }
+    .jump a:hover { border-color:var(--gold); }
+    .jump .n { display:block; color:var(--gold); font-size:.68rem; font-weight:750; letter-spacing:.08em; }
+    .jump strong { display:block; margin-top:3px; font-size:.92rem; line-height:1.35; color:var(--pine); }
+    .summary { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; margin:16px 0 0; }
+    .summary article, .panel, .buyer, .mark, .reject { background:var(--white); border:1px solid var(--line); border-radius:14px; min-width:0; }
+    .summary article { padding:16px; }
+    .label { display:block; margin-bottom:6px; color:var(--gold); font-size:.7rem; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
+    .summary p, .panel p, .mark p, .reject p { margin:0; }
+    .note { color:var(--muted); font-size:.88rem; }
+    main { padding-bottom:72px; }
+    section { margin-top:52px; }
+    section h2 { margin:0 0 8px; font-size:clamp(1.35rem, 2.6vw, 1.9rem); line-height:1.28; color:var(--pine); }
+    .station-kicker { margin:0 0 6px; color:var(--gold); font-size:.74rem; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
+    .workname { margin:0 0 14px; color:var(--muted); font-size:.95rem; }
+    .split { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:12px; }
+    .pair { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; align-items:start; }
+    .example, .blank { min-width:0; }
+    .col-label { margin:0 0 8px; color:var(--gold); font-size:.72rem; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
+    .blank { background:var(--white); border:1px dashed rgba(20,51,41,.38); border-radius:14px; padding:16px; }
+    .blank h3 { margin:14px 0 4px; color:var(--pine); font-size:.95rem; }
+    .blank h3:first-of-type { margin-top:0; }
+    .blank p { margin:0; font-size:.9rem; }
+    .rule { display:block; border-bottom:1px solid rgba(20,51,41,.28); height:1.65rem; margin:0 0 8px; }
+    .paul-check { margin:12px 0 0; padding:10px 12px; background:rgba(72,101,116,.08); border-radius:12px; font-size:.92rem; }
+    .stuck { margin-top:28px; background:var(--pine); color:var(--bone); border-radius:16px; padding:22px 18px 18px; }
+    .stuck h2, .stuck p { color:var(--bone); }
+    .stuck a { color:var(--bone); }
+    .stuck .btn-gold { background:#d4a017; color:var(--pine); }
+    .stuck .btn-line { border:1px solid rgba(244,239,230,.35); background:transparent; color:var(--bone); }
+    .line-badge { display:inline-flex; align-items:center; margin-right:8px; border-radius:5px; background:#06c755; color:#fff; padding:0 6px; font-size:.68rem; font-weight:750; letter-spacing:0; line-height:1.35rem; }
+    .sheet-note { margin:14px 0 0; font-size:.9rem; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .panel { padding:18px 18px 16px; }
+    .panel h3, .mark h3 { margin:0 0 6px; color:var(--pine); font-size:1.02rem; }
+    .panel.alt { border-left:4px solid var(--blue); }
+    .lines p + p { margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
+    .panel ul, .mark ul { margin:8px 0 0; padding-left:1.15rem; }
+    .panel li + li, .mark li + li { margin-top:4px; }
+    .honesty { margin:12px 0 0; padding:12px 14px; border-left:3px solid var(--gold); color:var(--muted); font-size:.92rem; }
+    .links { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .btn { display:inline-flex; align-items:center; max-width:100%; border-radius:10px; padding:10px 14px; font-size:.9rem; font-weight:700; text-decoration:none; }
+    .btn-primary { background:var(--pine); color:#fff; }
+    .btn-secondary { border:1px solid var(--line); background:var(--white); color:var(--pine); }
+    .marks { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; }
+    .mark { padding:16px; }
+    .mark.talk { border-top:3px solid var(--pine); }
+    .mark.check { border-top:3px solid var(--gold); }
+    .mark.stop { border-top:3px solid var(--blue); }
+    .closing { border-top:1px solid var(--line); padding-top:22px; }
+    .closing p { max-width:740px; color:var(--muted); }
+    footer { border-top:1px solid var(--line); padding:20px 0 40px; font-size:.82rem; color:var(--muted); }
+    @media (min-width:768px) {
+      .jump { grid-template-columns:repeat(4, minmax(0,1fr)); }
+      .summary { grid-template-columns:repeat(4, minmax(0,1fr)); }
+    }
+    @media (min-width:1024px) {
+      .pair { grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); }
+    }
+    @media (max-width:767px) {
+      .split, .marks { grid-template-columns:1fr; }
+      .hero { padding:32px 0 12px; }
+      section { margin-top:38px; }
+    }
+    @media (max-width:390px) {
+      .wrap { width:calc(100% - 32px); }
+      .top a { font-size:.78rem; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  </style>
+</head>
+<body>
+  <header class="top"><div class="wrap top-inner">
+    <a href="/?lang=zh#works" data-lang-view="zh">← 回作品集</a>
+    <a href="/?lang=en#works" data-lang-view="en">← Back to the portfolio</a>
+    <div class="switch" aria-label="Language">
+      <button type="button" data-set-lang="zh" aria-pressed="true">繁中</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div></header>
+
+  <main class="wrap">
+    <div data-lang-view="zh">
+      <div class="hero">
+        <p class="eyebrow">One product · Four stations</p>
+        <h1>帶一項產品，<br>走到第一櫃</h1>
+        <p class="lede">負責人拿出一項產品。Paul 不先談訂單，先走四站：選路、選人、能不能承諾、算得過嗎。每一站左邊是一份已填的虛構牆紙示範，右邊留白，讓你填自己的產品。</p>
+        <span class="disclosure">示範／成效未驗證 · 公司與情境皆為虛構</span>
+        <p class="sheet-note"><a class="btn btn-secondary" href="/cases/first-container/sheet/?lang=zh">空白表（可列印）</a><a class="btn btn-secondary" href="/cases/first-container/sheet/first-container-blank-zh.pdf" download>下載一頁 PDF</a></p>
+        <nav class="jump" aria-label="四個站">
+          <a href="#path"><span class="n">01</span><strong>選路</strong></a>
+          <a href="#people"><span class="n">02</span><strong>選人</strong></a>
+          <a href="#commit"><span class="n">03</span><strong>能不能承諾</strong></a>
+          <a href="#numbers"><span class="n">04</span><strong>算得過嗎</strong></a>
+        </nav>
+      </div>
+
+      <section aria-labelledby="scene-zh">
+        <h2 id="scene-zh">這份虛構條件</h2>
+        <p class="note">整條故事線只用下面這一組數字。公司是編的，沒有接觸過任何人。四個公開示範仍是分開的原型：這頁把它們讀成同一條故事線，不讓它們交換資料，也不改寫它們既有的案例。</p>
+        <div class="summary" aria-label="虛構產品條件">
+          <article><span class="label">產品</span><p>美式純紙牆紙，可訂製。卷規格 0.686 m × 8.23 m（約 5.65 m²）。FOB 上海每卷 USD 10–15。</p></article>
+          <article><span class="label">要找誰</span><p>美國與歐洲的進口商，以及大型設計公司。希望第一張單是一個 20 呎櫃。</p></article>
+          <article><span class="label">起訂</span><p>MOQ 1,000 直米。以卷長 8.23 公尺估算，約 122 卷。卷價、直米和櫃子是不同單位，不能直接當成同一件事。</p></article>
+          <article><span class="label">貨櫃</span><p>一個 20 呎櫃大約 3,000–5,000 卷，貨值大約 USD 30,000–75,000。<strong>估算，待工廠確認。</strong>這不是營收，也不是已成交的金額。</p></article>
+        </div>
+      </section>
+
+      <section class="station" id="path" aria-labelledby="path-zh">
+        <p class="station-kicker">01 · 選路</p>
+        <h2 id="path-zh">先決定走哪一條路</h2>
+        <p class="workname">海外商業開發</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">牆紙示範（已填）</p>
+        <div class="split">
+          <div class="panel">
+            <h3>這一站要決定什麼</h3>
+            <p>同一項產品，先走進口商，還是大型設計公司？目標若是「第一張單就是一個櫃子」，和「先試訂製」，優先順序不一樣。</p>
+            <ul>
+              <li>進口商比較接近可重複的採購節奏，較有機會把首單放到一個櫃子。</li>
+              <li>大型設計公司比較像在試訂製：單案量小，全年可能有多個專案，不宜把想像中的案子加總成一個櫃子。</li>
+            </ul>
+          </div>
+          <div class="panel alt">
+            <h3>Paul 的判斷</h3>
+            <p>純紙牆紙達不到酒店與商用規格（對方要的是商用乙烯壁布，加上防火等級）。那一整段先擱下，不排進首輪。</p>
+            <p style="margin-top:10px">要試的角度是小批量可訂製，不是「一定更便宜」。Paul 看到的歐美工廠大約在 FOB 每卷 USD 12–25、起訂量較高；這不是已核實的行情。USD 10–15 和 USD 12–25 有重疊，不能說我們一定比較便宜。</p>
+          </div>
+        </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">你的產品（空白）</p>
+            <h3>產品</h3>
+            <p>規格、價格、起訂、可不可訂製。</p>
+            <span class="rule"></span><span class="rule"></span>
+            <h3>先排除哪一類買家，為什麼</h3>
+            <span class="rule"></span><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>Paul 會先看什麼。</strong>產品達不到哪一類買家的規格，以及這次要的是一個櫃子，還是先試訂製。</p>
+        <p class="honesty">這一站公開示範裡，還沒有這份牆紙。現有的海外商業開發示範是另一個虛構情境：切換負責人的目標，看下一步研究順序怎麼變。它不是海灣地區酒店那份案例。兩份示範並排留著，這頁不改寫它。</p>
+        <div class="links">
+          <a class="btn btn-primary" href="https://apchen1978.github.io/gbd-judgment-reveal-demo/index-zh.html" target="_blank" rel="noopener noreferrer">開啟海外商業開發示範</a>
+          <a class="btn btn-secondary" href="/?lang=zh#global-business-development">回作品集的這一項</a>
+        </div>
+      </section>
+
+      <section class="station" id="people" aria-labelledby="people-zh">
+        <p class="station-kicker">02 · 選人</p>
+        <h2 id="people-zh">名單出來之後，人怎麼挑</h2>
+        <p class="workname">海外客戶開發</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">牆紙示範（已填）</p>
+        <div class="split">
+          <div class="panel">
+            <h3>這一站要決定什麼</h3>
+            <p>不是照名單順序往下做。先看產品能說什麼、不能說什麼，再留下少數值得研究的對象，寫下為什麼是它、第一次接觸的角度，以及還要問的問題。</p>
+          </div>
+          <div class="panel alt">
+            <h3>Paul 的判斷</h3>
+            <p>這一站已經寫好，用的就是上面這份牆紙。三家入選、三家暫緩，理由不一樣。</p>
+            <ul>
+              <li>入選：Kensington Pattern Co.、Harbor &amp; Vine Wallcoverings、Redwood Line Design。都是虛構公司。</li>
+              <li>暫緩：Lumen Studio Group、Bayview Hospitality Design（酒店／商用規格與純紙不合）、Atlas Home Supply（價格與付款和接受線不合）。</li>
+            </ul>
+          </div>
+        </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">你的產品（空白）</p>
+            <h3>最多三家</h3>
+            <p>每家一行：為什麼是它、第一次接觸的角度、要問什麼。</p>
+            <p>1</p><span class="rule"></span>
+            <p>2</p><span class="rule"></span>
+            <p>3</p><span class="rule"></span>
+            <h3>先不投入的，以及為什麼</h3>
+            <span class="rule"></span><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>Paul 會先看什麼。</strong>為什麼是這幾家、第一次怎麼開口、還要問什麼；先不投入的，也要有理由。</p>
+        <p class="honesty">接手頁寫的是接觸前的判斷，不是開發信，也沒有寄出任何訊息。它不是名單示範的「後續成果」。</p>
+        <div class="links">
+          <a class="btn btn-primary" href="/cases/overseas-lead-discovery/paul-takeover/?lang=zh">看三家入選、三家暫緩</a>
+          <a class="btn btn-secondary" href="/cases/overseas-lead-discovery/">海外客戶開發案例頁</a>
+          <a class="btn btn-secondary" href="https://apchen1978.github.io/overseas-lead-discovery-demo/" target="_blank" rel="noopener noreferrer">公開名單示範</a>
+        </div>
+      </section>
+
+      <section class="station" id="commit" aria-labelledby="commit-zh">
+        <p class="station-kicker">03 · 能不能承諾</p>
+        <h2 id="commit-zh">假設詢問來了，現在能不能答應</h2>
+        <p class="workname">商務決策工作台</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">牆紙示範（已填）</p>
+        <div class="split">
+          <div class="panel">
+            <h3>這一站要決定什麼</h3>
+            <p>為了讓這一站有東西可判斷，假設 Kensington Pattern Co.（虛構）提出一筆詢問：純紙牆紙、可否訂製、首單能否朝一個 20 呎櫃。沒有真實接觸，也沒有信件。</p>
+            <p style="margin-top:10px">還沒有答案、不能補成事實的事：</p>
+            <ul>
+              <li>卷規格是否就是 0.686 m × 8.23 m</li>
+              <li>一個櫃子實際裝得下多少</li>
+              <li>認證要求</li>
+              <li>打樣與交期</li>
+              <li>對方要的付款條件</li>
+            </ul>
+          </div>
+          <div class="panel alt">
+            <h3>Paul 的接受線</h3>
+            <p>對這筆虛構詢問，付款他願意放上桌的是：訂金 30%，餘款出貨前付清。對方實際要什麼，仍是未知；這條線不是已經談成的條件。</p>
+            <p style="margin-top:10px">卷規格、裝櫃、認證、打樣與交期還沒核對之前，不把「可以訂製」或「可以一個櫃子」說成承諾。</p>
+          </div>
+        </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">你的產品（空白）</p>
+            <h3>還沒有答案的條件</h3>
+            <span class="rule"></span><span class="rule"></span><span class="rule"></span>
+            <h3>你的付款接受線</h3>
+            <span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>Paul 會先看什麼。</strong>哪些條件還未知，以及付款有沒有一條你願意接受的線。</p>
+        <p class="honesty">工作台公開示範裡，還沒有這份牆紙。打開它，看到的仍是另一個虛構案例：海灣地區的酒店。那份案例留在原處，和這條故事線並排。這頁不把牆紙數字寫進那個示範，也不改寫海灣案例。</p>
+        <div class="links">
+          <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">打開工作台示範（海灣酒店案例）</a>
+          <a class="btn btn-secondary" href="/cases/commercial-decision-desk/">閱讀工作台案例頁</a>
+        </div>
+      </section>
+
+      <section class="station" id="numbers" aria-labelledby="numbers-zh">
+        <p class="station-kicker">04 · 算得過嗎</p>
+        <h2 id="numbers-zh">價錢與數量，有沒有過得了線</h2>
+        <p class="workname">貿易利潤導航</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">牆紙示範（已填）</p>
+        <div class="split">
+          <div class="panel">
+            <h3>這一站要決定什麼</h3>
+            <p>FOB 上海每卷 USD 10–15、MOQ 1,000 直米（約 122 卷）、目標一個 20 呎櫃。貨櫃大約 3,000–5,000 卷，貨值大約 USD 30,000–75,000。<strong>估算，待工廠確認。</strong></p>
+            <p style="margin-top:10px">這一站把毛利拆成兩條線。這頁不算毛利，也不把報價時的地板說成第一單做完之後的結果。</p>
+          </div>
+          <div class="panel alt">
+            <h3>Paul 的兩條線</h3>
+            <div class="lines">
+              <p><strong>報價毛利</strong>大約 35%。這是報價時的地板。守不住，價格就不算可談。它不是算出來的結果，也不是已發生的成效。</p>
+              <p><strong>第一單實際毛利</strong>是決定接不接這張單的那一條。要先扣掉第一單才會多出來的成本，例如打樣、訂製花色的開版費用、內陸運費與報關、匯率變動。最低線：<strong>待 Paul 確認</strong>。這頁不計算，也不填一個數字。</p>
+            </div>
+          </div>
+        </div>
+        <div class="marks">
+          <article class="mark talk">
+            <h3>可談</h3>
+            <ul>
+              <li>售價落在 FOB 上海每卷 USD 10–15，而且報價毛利仍守得住大約 35%。</li>
+              <li>以 1,000 直米起訂、小批量可訂製作為接觸角度。</li>
+            </ul>
+          </article>
+          <article class="mark check">
+            <h3>先查</h3>
+            <ul>
+              <li>卷規格 0.686 m × 8.23 m，以及 1,000 直米約等於 122 卷，要跟工廠的實際卷長核對。</li>
+              <li>裝櫃量與貨值（估算，待工廠確認）。</li>
+              <li>認證、打樣、交期，以及對方付款是否落在訂金 30%、餘款出貨前付清。</li>
+              <li>第一單實際毛利還要扣哪些打樣、開版、內陸運費與報關、匯率。最低線待 Paul 確認。</li>
+            </ul>
+          </article>
+          <article class="mark stop">
+            <h3>不接受</h3>
+            <ul>
+              <li>用純紙去接需要商用乙烯壁布與防火等級的酒店／商用規格。</li>
+              <li>說成一定比歐美廠便宜。兩邊價格區間有重疊。</li>
+              <li>工廠還沒確認裝櫃量，就把整櫃數量寫成可以承諾的數字。</li>
+              <li>比「訂金 30%、餘款出貨前付清」更寬的付款。</li>
+            </ul>
+          </article>
+        </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">你的產品（空白）</p>
+            <h3>報價毛利的地板</h3>
+            <span class="rule"></span>
+            <h3>第一單實際毛利的地板</h3>
+            <span class="rule"></span>
+            <h3>每一項標成可談、先查或不接受</h3>
+            <p>1</p><span class="rule"></span>
+            <p>2</p><span class="rule"></span>
+            <p>3</p><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>Paul 會先看什麼。</strong>報價毛利的地板，和第一單實際毛利的地板是不是分開寫的；每一項是可談、先查，還是不接受。</p>
+        <p class="honesty">利潤導航的公開示範裡，還沒有這份牆紙。打開它，用的仍是海灣酒店案例的數字。那份案例留在原處。這頁的報價毛利大約 35%，以及「第一單實際毛利：待 Paul 確認」，都沒有放進那個示範，這頁也不計算毛利。</p>
+        <div class="links">
+          <a class="btn btn-primary" href="https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001" target="_blank" rel="noopener noreferrer">打開利潤導航示範（海灣案例）</a>
+          <a class="btn btn-secondary" href="/?lang=zh#trade-profit-navigator">回作品集的這一項</a>
+        </div>
+      </section>
+
+      <section class="closing">
+        <h2>四站留下的是判斷，不是訂單</h2>
+        <p>選路先擱下酒店／商用那一段；選人留下三家入選、三家暫緩；承諾前先標出卷規格、裝櫃、認證、打樣交期與付款。算不算得過分成兩條：報價毛利的地板大約 35%；第一單實際毛利要另看打樣、開版、內陸運費與報關、匯率，最低線待 Paul 確認。條件標成可談、先查或不接受。</p>
+        <p>四件作品仍是各自獨立的原型，由這條故事線串在一起。它們不交換資料，也不共用資料模型。示範／成效未驗證。</p>
+        <p><a href="/?lang=zh#works">← 回到作品集</a></p>
+      </section>
+      <section class="stuck" aria-labelledby="stuck-zh">
+        <h2 id="stuck-zh">卡住了？</h2>
+        <p>把填好的四站寄給 Paul，請他看第一櫃現在做不做得成。寄來不代表找得到買家，也不保證做成一張單。</p>
+        <div class="links">
+          <a class="btn btn-gold" href="mailto:paulchen1978@gmail.com?subject=%E7%AC%AC%E4%B8%80%E6%AB%83%EF%BC%9A%E5%A1%AB%E5%A5%BD%E7%9A%84%E5%9B%9B%E7%AB%99">寄信給 Paul</a>
+          <a class="btn btn-line" href="https://line.me/ti/p/zSJdkOeQgS" target="_blank" rel="noopener noreferrer"><span class="line-badge">LINE</span>用 LINE 聯絡</a>
+        </div>
+        <p><a href="mailto:paulchen1978@gmail.com">paulchen1978@gmail.com</a></p>
+        <p>示範／成效未驗證。空白表可<a href="/cases/first-container/sheet/?lang=zh">在瀏覽器列印或存成 PDF</a>，也可<a href="/cases/first-container/sheet/first-container-blank-zh.pdf" download>直接下載一頁 PDF</a>。網頁用系統字型；PDF 只嵌入這一頁用到的字，沒有另附很大的字型檔。</p>
+      </section>
+    </div>
+
+    <div data-lang-view="en" lang="en">
+      <div class="hero">
+        <p class="eyebrow">One product · Four stations</p>
+        <h1>From one product<br>to the first container</h1>
+        <p class="lede">A decision-maker brings one product. Paul does not start with an order. He walks four stations: which path, which people, whether a commitment is possible, and whether the numbers can hold. On the left of each station is a filled wallpaper example. On the right, blank lines for your own product.</p>
+        <span class="disclosure">Demonstration / outcomes unverified · Companies and this scenario are fictional</span>
+        <p class="sheet-note"><a class="btn btn-secondary" href="/cases/first-container/sheet/?lang=en">Blank sheet (printable)</a><a class="btn btn-secondary" href="/cases/first-container/sheet/first-container-blank-en.pdf" download>Download the one-page PDF</a></p>
+        <nav class="jump" aria-label="Four stations">
+          <a href="#path-en"><span class="n">01</span><strong>Choose the path</strong></a>
+          <a href="#people-en"><span class="n">02</span><strong>Choose the people</strong></a>
+          <a href="#commit-en"><span class="n">03</span><strong>Can we commit?</strong></a>
+          <a href="#numbers-en"><span class="n">04</span><strong>Do the numbers hold?</strong></a>
+        </nav>
+      </div>
+
+      <section aria-labelledby="scene-en">
+        <h2 id="scene-en">The fictional conditions</h2>
+        <p class="note">The whole storyline uses only the figures below. The companies are invented. Nobody has been contacted. The four public demos remain separate prototypes. This page reads them as one storyline. It does not make them exchange data, and it does not rewrite the cases they already show.</p>
+        <div class="summary" aria-label="Fictional product conditions">
+          <article><span class="label">Product</span><p>American-style pure-paper wallpaper. Customization is possible. Roll size 0.686 m × 8.23 m (about 5.65 m²). FOB Shanghai USD 10–15 per roll.</p></article>
+          <article><span class="label">Who to study</span><p>Importers and large design firms in the US and Europe. The hope for a first order is one 20-foot container.</p></article>
+          <article><span class="label">Minimum</span><p>MOQ 1,000 linear meters (LM). At a roll length of 8.23 m, that is about 122 rolls. Price per roll, linear meters, and a container are different units. They are not the same fact.</p></article>
+          <article><span class="label">Container</span><p>One 20-foot container is roughly 3,000–5,000 rolls, about USD 30,000–75,000 of goods. <strong>Estimate, to be confirmed by the factory.</strong> This is not revenue, and it is not a completed sale.</p></article>
+        </div>
+      </section>
+
+      <section class="station" id="path-en" aria-labelledby="path-en-title">
+        <p class="station-kicker">01 · Choose the path</p>
+        <h2 id="path-en-title">Which path comes first</h2>
+        <p class="workname">Global Business Development</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">Wallpaper example (filled)</p>
+        <div class="split">
+          <div class="panel">
+            <h3>What this station decides</h3>
+            <p>For the same product, do we study importers first, or large design firms? “The first order should be one container” and “test customization first” do not produce the same priority.</p>
+            <ul>
+              <li>Importers sit closer to a repeatable buying rhythm, and closer to a first order that could fill one container.</li>
+              <li>Large design firms are more often a customization test: small projects, possibly several in a year. Imagined projects are not added up into a container.</li>
+            </ul>
+          </div>
+          <div class="panel alt">
+            <h3>Paul’s call</h3>
+            <p>Pure paper will not meet hotel and commercial specifications. Those projects ask for contract vinyl and a fire rating. That whole segment is set aside first.</p>
+            <p style="margin-top:10px">The angle to test is customization at a smaller batch, not “always cheaper.” In Paul’s view, US and European mills sit roughly at USD 12–25 per roll FOB, with higher MOQs. That is not verified market pricing. USD 10–15 and USD 12–25 overlap, so a lower price is not a claim he will make.</p>
+          </div>
+        </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">Your product (blank)</p>
+            <h3>Product</h3>
+            <p>Spec, price, MOQ, and whether it can be customized.</p>
+            <span class="rule"></span><span class="rule"></span>
+            <h3>Which buyer types to rule out first, and why</h3>
+            <span class="rule"></span><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>What Paul checks first.</strong> Which buyer types the product cannot meet, and whether the aim is one container or a customization test.</p>
+        <p class="honesty">This station does not yet have a wallpaper demo. The public Global Business Development demo is a different fictional scenario: switch the decision-maker’s objective and watch the next research priority change. It is not the Gulf-region hotel case. The two sit side by side. This page does not rewrite that demo.</p>
+        <div class="links">
+          <a class="btn btn-primary" href="https://apchen1978.github.io/gbd-judgment-reveal-demo/" target="_blank" rel="noopener noreferrer">Open the Global Business Development demo</a>
+          <a class="btn btn-secondary" href="/?lang=en#global-business-development">Back to this work</a>
+        </div>
+      </section>
+
+      <section class="station" id="people-en" aria-labelledby="people-en-title">
+        <p class="station-kicker">02 · Choose the people</p>
+        <h2 id="people-en-title">After a list, a person still chooses</h2>
+        <p class="workname">Overseas Lead Discovery</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">Wallpaper example (filled)</p>
+        <div class="split">
+          <div class="panel">
+            <h3>What this station decides</h3>
+            <p>Not working down the list in order. First, what the product can and cannot credibly say. Then a few accounts worth studying, each with a reason, a first-contact angle, and the questions still open.</p>
+          </div>
+          <div class="panel alt">
+            <h3>Paul’s call</h3>
+            <p>This station is already written, on the wallpaper conditions above. Three accounts are picked and three are deferred, for different reasons.</p>
+            <ul>
+              <li>Picked: Kensington Pattern Co., Harbor &amp; Vine Wallcoverings, Redwood Line Design. All fictional.</li>
+              <li>Deferred: Lumen Studio Group and Bayview Hospitality Design (hotel and commercial specs do not match pure paper), and Atlas Home Supply (price and payment sit outside the line he would accept).</li>
+            </ul>
+          </div>
+        </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">Your product (blank)</p>
+            <h3>At most three</h3>
+            <p>For each: one line on why, the first-contact angle, and what to ask.</p>
+            <p>1</p><span class="rule"></span>
+            <p>2</p><span class="rule"></span>
+            <p>3</p><span class="rule"></span>
+            <h3>Deferred, and why</h3>
+            <span class="rule"></span><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>What Paul checks first.</strong> Why these accounts, the first-contact angle, and what is still to ask. Deferred accounts need a reason too.</p>
+        <p class="honesty">The takeover page is a judgment before contact. It is not an outreach letter, and nothing has been sent. It is not an outcome of the list demo.</p>
+        <div class="links">
+          <a class="btn btn-primary" href="/cases/overseas-lead-discovery/paul-takeover/?lang=en">See the three picked and three deferred</a>
+          <a class="btn btn-secondary" href="/cases/overseas-lead-discovery/#english-summary">Lead Discovery case page</a>
+          <a class="btn btn-secondary" href="https://apchen1978.github.io/overseas-lead-discovery-demo/?lang=en" target="_blank" rel="noopener noreferrer">Public list demo</a>
+        </div>
+      </section>
+
+      <section class="station" id="commit-en" aria-labelledby="commit-en-title">
+        <p class="station-kicker">03 · Can we commit?</p>
+        <h2 id="commit-en-title">A fictional enquiry, and what is still unknown</h2>
+        <p class="workname">Commercial Decision Desk</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">Wallpaper example (filled)</p>
+        <div class="split">
+          <div class="panel">
+            <h3>What this station decides</h3>
+            <p>So this station has something to judge, assume a fictional enquiry from Kensington Pattern Co.: pure-paper wallpaper, whether customization is possible, and whether a first order could move toward one 20-foot container. There has been no real contact, and there is no letter.</p>
+            <p style="margin-top:10px">Still unknown, and not filled in as fact:</p>
+            <ul>
+              <li>Whether the roll really is 0.686 m × 8.23 m</li>
+              <li>How many rolls a container actually holds</li>
+              <li>Certification</li>
+              <li>Sampling and lead time</li>
+              <li>The payment terms the other side wants</li>
+            </ul>
+          </div>
+          <div class="panel alt">
+            <h3>Paul’s acceptance line</h3>
+            <p>On this fictional enquiry, the payment line he will put on the table is a 30% deposit, with the balance paid before shipment. What the other side actually wants is still unknown. The line is not an agreed term.</p>
+            <p style="margin-top:10px">Until roll spec, container loading, certification, sampling, and lead time are checked, “we can customize” and “we can fill a container” are not commitments.</p>
+          </div>
+        </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">Your product (blank)</p>
+            <h3>Conditions still unknown</h3>
+            <span class="rule"></span><span class="rule"></span><span class="rule"></span>
+            <h3>Your payment line</h3>
+            <span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>What Paul checks first.</strong> Which conditions are still unknown, and whether there is a payment line you are willing to accept.</p>
+        <p class="honesty">The public desk demo does not yet use this wallpaper. Open it and the sample is still a separate fictional case: a Gulf-region hotel. That case stays where it is, beside this storyline. This page does not load the wallpaper figures into that demo, and it does not rewrite the Gulf case.</p>
+        <div class="links">
+          <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/?lang=en#mode-sample" target="_blank" rel="noopener noreferrer">Open the desk demo (Gulf hotel case)</a>
+          <a class="btn btn-secondary" href="/cases/commercial-decision-desk/">Read the desk case page</a>
+        </div>
+      </section>
+
+      <section class="station" id="numbers-en" aria-labelledby="numbers-en-title">
+        <p class="station-kicker">04 · Do the numbers hold?</p>
+        <h2 id="numbers-en-title">Price, quantity, and a floor</h2>
+        <p class="workname">Trade Profit Navigator</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">Wallpaper example (filled)</p>
+        <div class="split">
+          <div class="panel">
+            <h3>What this station decides</h3>
+            <p>FOB Shanghai USD 10–15 per roll, MOQ 1,000 linear meters (LM, about 122 rolls), and a first order aimed at one 20-foot container. The container is roughly 3,000–5,000 rolls, about USD 30,000–75,000 of goods. <strong>Estimate, to be confirmed by the factory.</strong></p>
+            <p style="margin-top:10px">This station splits margin into two lines. This page does not calculate either one, and it does not treat the quoting floor as the result after a first order.</p>
+          </div>
+          <div class="panel alt">
+            <h3>Paul’s two lines</h3>
+            <div class="lines">
+              <p><strong>Quote margin（報價毛利）</strong> is about 35%. That is Paul’s floor when quoting. If a price cannot stay on that side of the line, he does not mark it as something to discuss. It is not a computed result, and it is not an outcome that has occurred.</p>
+              <p><strong>First-order actual margin（第一單實際毛利）</strong> is the line for deciding whether to take the order. It comes after first-order extra costs, such as sampling, custom-pattern setup and plate costs, inland freight and customs, and FX movement. Its minimum is <strong>to be confirmed by Paul</strong>. This page does not calculate it, and it does not fill in a number.</p>
+            </div>
+          </div>
+        </div>
+        <div class="marks">
+          <article class="mark talk">
+            <h3>Can discuss（可談）</h3>
+            <ul>
+              <li>A price inside USD 10–15 per roll FOB Shanghai, while quote margin stays at or above about 35%.</li>
+              <li>Leading with customization at an MOQ of 1,000 linear meters (LM).</li>
+            </ul>
+          </article>
+          <article class="mark check">
+            <h3>Check first（先查）</h3>
+            <ul>
+              <li>Roll size 0.686 m × 8.23 m, and whether 1,000 linear meters (LM) is really about 122 rolls, against the factory’s actual roll length.</li>
+              <li>Container loading and goods value (estimate, to be confirmed by the factory).</li>
+              <li>Certification, sampling, lead time, and whether payment is a 30% deposit with the balance before shipment.</li>
+              <li>Which sampling, plate, inland-freight, customs, and FX costs belong in the first-order actual margin. Its minimum is to be confirmed by Paul.</li>
+            </ul>
+          </article>
+          <article class="mark stop">
+            <h3>Not accepted（不接受）</h3>
+            <ul>
+              <li>Offering pure paper where the specification needs contract vinyl and a fire rating.</li>
+              <li>Saying the price is always lower than US and European mills. The ranges overlap.</li>
+              <li>Writing a container quantity as a commitment before the factory confirms loading.</li>
+              <li>Payment wider than a 30% deposit and the balance before shipment.</li>
+            </ul>
+          </article>
+        </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">Your product (blank)</p>
+            <h3>Quote-margin floor</h3>
+            <span class="rule"></span>
+            <h3>First-order actual-margin floor</h3>
+            <span class="rule"></span>
+            <h3>Each item marked can discuss, check first, or not accepted</h3>
+            <p>可談 / 先查 / 不接受</p>
+            <p>1</p><span class="rule"></span>
+            <p>2</p><span class="rule"></span>
+            <p>3</p><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>What Paul checks first.</strong> That the quote-margin floor and the first-order actual-margin floor are written apart, and that each item is marked can discuss, check first, or not accepted.</p>
+        <p class="honesty">The public Profit Navigator demo does not yet use this wallpaper. Open it and the figures are still the Gulf hotel case. That case stays where it is. The quote-margin floor of about 35%, and “first-order actual margin: to be confirmed by Paul,” are not loaded into that demo. This page does not calculate a margin.</p>
+        <div class="links">
+          <a class="btn btn-primary" href="https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001&amp;lang=en" target="_blank" rel="noopener noreferrer">Open Profit Navigator (Gulf case)</a>
+          <a class="btn btn-secondary" href="/?lang=en#trade-profit-navigator">Back to this work</a>
+        </div>
+      </section>
+
+      <section class="closing">
+        <h2>Four stations leave a judgment, not an order</h2>
+        <p>The path sets hotel and commercial work aside. The people station keeps three accounts and defers three. Before any commitment, roll spec, container loading, certification, sampling, lead time, and payment stay open. Whether the numbers hold uses two lines: a quote-margin floor of about 35%, and a first-order actual margin after sampling, plate costs, inland freight and customs, and FX movement, whose minimum is to be confirmed by Paul. Conditions are marked can discuss, check first, or not accepted.</p>
+        <p>The four works remain separate prototypes, linked by this storyline. They do not exchange data, and they do not share a data model. Demonstration / outcomes unverified.</p>
+        <p><a href="/?lang=en#works">← Back to the portfolio</a></p>
+      </section>
+      <section class="stuck" aria-labelledby="stuck-en">
+        <h2 id="stuck-en">Stuck?</h2>
+        <p>Send the filled sheet to Paul, and ask him to look at whether a first container is feasible. Sending it does not mean a buyer will be found, and it does not promise an order.</p>
+        <div class="links">
+          <a class="btn btn-gold" href="mailto:paulchen1978@gmail.com?subject=First%20container%3A%20filled%20sheet">Email Paul</a>
+          <a class="btn btn-line" href="https://line.me/ti/p/zSJdkOeQgS" target="_blank" rel="noopener noreferrer"><span class="line-badge">LINE</span>Contact on LINE</a>
+        </div>
+        <p><a href="mailto:paulchen1978@gmail.com">paulchen1978@gmail.com</a></p>
+        <p>Demonstration / outcomes unverified. Print the blank sheet <a href="/cases/first-container/sheet/?lang=en">in the browser, or save it as PDF</a>, or <a href="/cases/first-container/sheet/first-container-blank-en.pdf" download>download the one-page PDF</a>. The page uses system fonts. The PDF embeds only the glyphs on that page, without a large font file.</p>
+      </section>
+    </div>
+  </main>
+  <footer><div class="wrap">Paul's Tradecraft · Fictional storyline · Separate prototypes · Demonstration / outcomes unverified</div></footer>
+  <script>
+    const buttons = document.querySelectorAll("[data-set-lang]");
+    const descriptions = {
+      zh: "四站空白表：左邊是虛構牆紙示範，右邊留給你的產品。示範／成效未驗證。四個原型各自獨立，不交換資料。",
+      en: "A four-station sheet: a fictional wallpaper example on the left, blank lines for your product on the right. Demonstration / outcomes unverified. The prototypes stay separate and do not exchange data."
+    };
+    function setLanguage(value, updateUrl) {
+      const lang = value === "en" ? "en" : "zh";
+      document.documentElement.dataset.lang = lang;
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.title = lang === "en"
+        ? "From one product to the first container · Paul's Tradecraft"
+        : "帶一項產品，走到第一櫃｜Paul's Tradecraft";
+      const description = document.querySelector('meta[name="description"]');
+      if (description) description.setAttribute("content", descriptions[lang]);
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.setLang === lang)));
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("lang", lang);
+        window.history.replaceState(null, "", url);
+      }
+    }
+    setLanguage(new URLSearchParams(window.location.search).get("lang"));
+    buttons.forEach((button) => button.addEventListener("click", () => setLanguage(button.dataset.setLang, true)));
+  </script>
+</body>
+</html>
