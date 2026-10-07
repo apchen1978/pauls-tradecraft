@@ -54,6 +54,22 @@
     .station-kicker { margin:0 0 6px; color:var(--gold); font-size:.74rem; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
     .workname { margin:0 0 14px; color:var(--muted); font-size:.95rem; }
     .split { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:12px; }
+    .pair { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; align-items:start; }
+    .example, .blank { min-width:0; }
+    .col-label { margin:0 0 8px; color:var(--gold); font-size:.72rem; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
+    .blank { background:var(--white); border:1px dashed rgba(20,51,41,.38); border-radius:14px; padding:16px; }
+    .blank h3 { margin:14px 0 4px; color:var(--pine); font-size:.95rem; }
+    .blank h3:first-of-type { margin-top:0; }
+    .blank p { margin:0; font-size:.9rem; }
+    .rule { display:block; border-bottom:1px solid rgba(20,51,41,.28); height:1.65rem; margin:0 0 8px; }
+    .paul-check { margin:12px 0 0; padding:10px 12px; background:rgba(72,101,116,.08); border-radius:12px; font-size:.92rem; }
+    .stuck { margin-top:28px; background:var(--pine); color:var(--bone); border-radius:16px; padding:22px 18px 18px; }
+    .stuck h2, .stuck p { color:var(--bone); }
+    .stuck a { color:var(--bone); }
+    .stuck .btn-gold { background:#d4a017; color:var(--pine); }
+    .stuck .btn-line { border:1px solid rgba(244,239,230,.35); background:transparent; color:var(--bone); }
+    .line-badge { display:inline-flex; align-items:center; margin-right:8px; border-radius:5px; background:#06c755; color:#fff; padding:0 6px; font-size:.68rem; font-weight:750; letter-spacing:0; line-height:1.35rem; }
+    .sheet-note { margin:14px 0 0; font-size:.9rem; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
     .panel { padding:18px 18px 16px; }
     .panel h3, .mark h3 { margin:0 0 6px; color:var(--pine); font-size:1.02rem; }
     .panel.alt { border-left:4px solid var(--blue); }
@@ -76,6 +92,9 @@
     @media (min-width:768px) {
       .jump { grid-template-columns:repeat(4, minmax(0,1fr)); }
       .summary { grid-template-columns:repeat(4, minmax(0,1fr)); }
+    }
+    @media (min-width:1024px) {
+      .pair { grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); }
     }
     @media (max-width:767px) {
       .split, .marks { grid-template-columns:1fr; }
@@ -104,8 +123,9 @@
       <div class="hero">
         <p class="eyebrow">One product · Four stations</p>
         <h1>帶一項產品，<br>走到第一櫃</h1>
-        <p class="lede">負責人拿出一項產品。Paul 不先談訂單，先走四站：選路、選人、能不能承諾、算得過嗎。每一站只回答一件事：現在要決定什麼，以及他的判斷從哪裡進來。</p>
+        <p class="lede">負責人拿出一項產品。Paul 不先談訂單，先走四站：選路、選人、能不能承諾、算得過嗎。每一站左邊是一份已填的虛構牆紙示範，右邊留白，讓你填自己的產品。</p>
         <span class="disclosure">示範／成效未驗證 · 公司與情境皆為虛構</span>
+        <p class="sheet-note"><a class="btn btn-secondary" href="/cases/first-container/sheet/?lang=zh">空白表（可列印）</a><a class="btn btn-secondary" href="/cases/first-container/sheet/first-container-blank-zh.pdf" download>下載一頁 PDF</a></p>
         <nav class="jump" aria-label="四個站">
           <a href="#path"><span class="n">01</span><strong>選路</strong></a>
           <a href="#people"><span class="n">02</span><strong>選人</strong></a>
@@ -129,6 +149,9 @@
         <p class="station-kicker">01 · 選路</p>
         <h2 id="path-zh">先決定走哪一條路</h2>
         <p class="workname">海外商業開發</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">牆紙示範（已填）</p>
         <div class="split">
           <div class="panel">
             <h3>這一站要決定什麼</h3>
@@ -144,6 +167,17 @@
             <p style="margin-top:10px">要試的角度是小批量可訂製，不是「一定更便宜」。Paul 看到的歐美工廠大約在 FOB 每卷 USD 12–25、起訂量較高；這不是已核實的行情。USD 10–15 和 USD 12–25 有重疊，不能說我們一定比較便宜。</p>
           </div>
         </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">你的產品（空白）</p>
+            <h3>產品</h3>
+            <p>規格、價格、起訂、可不可訂製。</p>
+            <span class="rule"></span><span class="rule"></span>
+            <h3>先排除哪一類買家，為什麼</h3>
+            <span class="rule"></span><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>Paul 會先看什麼。</strong>產品達不到哪一類買家的規格，以及這次要的是一個櫃子，還是先試訂製。</p>
         <p class="honesty">這一站公開示範裡，還沒有這份牆紙。現有的海外商業開發示範是另一個虛構情境：切換負責人的目標，看下一步研究順序怎麼變。它不是海灣地區酒店那份案例。兩份示範並排留著，這頁不改寫它。</p>
         <div class="links">
           <a class="btn btn-primary" href="https://apchen1978.github.io/gbd-judgment-reveal-demo/index-zh.html" target="_blank" rel="noopener noreferrer">開啟海外商業開發示範</a>
@@ -155,6 +189,9 @@
         <p class="station-kicker">02 · 選人</p>
         <h2 id="people-zh">名單出來之後，人怎麼挑</h2>
         <p class="workname">海外客戶開發</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">牆紙示範（已填）</p>
         <div class="split">
           <div class="panel">
             <h3>這一站要決定什麼</h3>
@@ -169,6 +206,19 @@
             </ul>
           </div>
         </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">你的產品（空白）</p>
+            <h3>最多三家</h3>
+            <p>每家一行：為什麼是它、第一次接觸的角度、要問什麼。</p>
+            <p>1</p><span class="rule"></span>
+            <p>2</p><span class="rule"></span>
+            <p>3</p><span class="rule"></span>
+            <h3>先不投入的，以及為什麼</h3>
+            <span class="rule"></span><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>Paul 會先看什麼。</strong>為什麼是這幾家、第一次怎麼開口、還要問什麼；先不投入的，也要有理由。</p>
         <p class="honesty">接手頁寫的是接觸前的判斷，不是開發信，也沒有寄出任何訊息。它不是名單示範的「後續成果」。</p>
         <div class="links">
           <a class="btn btn-primary" href="/cases/overseas-lead-discovery/paul-takeover/?lang=zh">看三家入選、三家暫緩</a>
@@ -181,6 +231,9 @@
         <p class="station-kicker">03 · 能不能承諾</p>
         <h2 id="commit-zh">假設詢問來了，現在能不能答應</h2>
         <p class="workname">商務決策工作台</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">牆紙示範（已填）</p>
         <div class="split">
           <div class="panel">
             <h3>這一站要決定什麼</h3>
@@ -200,6 +253,16 @@
             <p style="margin-top:10px">卷規格、裝櫃、認證、打樣與交期還沒核對之前，不把「可以訂製」或「可以一個櫃子」說成承諾。</p>
           </div>
         </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">你的產品（空白）</p>
+            <h3>還沒有答案的條件</h3>
+            <span class="rule"></span><span class="rule"></span><span class="rule"></span>
+            <h3>你的付款接受線</h3>
+            <span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>Paul 會先看什麼。</strong>哪些條件還未知，以及付款有沒有一條你願意接受的線。</p>
         <p class="honesty">工作台公開示範裡，還沒有這份牆紙。打開它，看到的仍是另一個虛構案例：海灣地區的酒店。那份案例留在原處，和這條故事線並排。這頁不把牆紙數字寫進那個示範，也不改寫海灣案例。</p>
         <div class="links">
           <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">打開工作台示範（海灣酒店案例）</a>
@@ -211,6 +274,9 @@
         <p class="station-kicker">04 · 算得過嗎</p>
         <h2 id="numbers-zh">價錢與數量，有沒有過得了線</h2>
         <p class="workname">貿易利潤導航</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">牆紙示範（已填）</p>
         <div class="split">
           <div class="panel">
             <h3>這一站要決定什麼</h3>
@@ -252,6 +318,20 @@
             </ul>
           </article>
         </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">你的產品（空白）</p>
+            <h3>報價毛利的地板</h3>
+            <span class="rule"></span>
+            <h3>第一單實際毛利的地板</h3>
+            <span class="rule"></span>
+            <h3>每一項標成可談、先查或不接受</h3>
+            <p>1</p><span class="rule"></span>
+            <p>2</p><span class="rule"></span>
+            <p>3</p><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>Paul 會先看什麼。</strong>報價毛利的地板，和第一單實際毛利的地板是不是分開寫的；每一項是可談、先查，還是不接受。</p>
         <p class="honesty">利潤導航的公開示範裡，還沒有這份牆紙。打開它，用的仍是海灣酒店案例的數字。那份案例留在原處。這頁的報價毛利大約 35%，以及「第一單實際毛利：待 Paul 確認」，都沒有放進那個示範，這頁也不計算毛利。</p>
         <div class="links">
           <a class="btn btn-primary" href="https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001" target="_blank" rel="noopener noreferrer">打開利潤導航示範（海灣案例）</a>
@@ -265,14 +345,25 @@
         <p>四件作品仍是各自獨立的原型，由這條故事線串在一起。它們不交換資料，也不共用資料模型。示範／成效未驗證。</p>
         <p><a href="/?lang=zh#works">← 回到作品集</a></p>
       </section>
+      <section class="stuck" aria-labelledby="stuck-zh">
+        <h2 id="stuck-zh">卡住了？</h2>
+        <p>把填好的四站寄給 Paul，請他看第一櫃現在做不做得成。寄來不代表找得到買家，也不保證做成一張單。</p>
+        <div class="links">
+          <a class="btn btn-gold" href="mailto:paulchen1978@gmail.com?subject=%E7%AC%AC%E4%B8%80%E6%AB%83%EF%BC%9A%E5%A1%AB%E5%A5%BD%E7%9A%84%E5%9B%9B%E7%AB%99">寄信給 Paul</a>
+          <a class="btn btn-line" href="https://line.me/ti/p/zSJdkOeQgS" target="_blank" rel="noopener noreferrer"><span class="line-badge">LINE</span>用 LINE 聯絡</a>
+        </div>
+        <p><a href="mailto:paulchen1978@gmail.com">paulchen1978@gmail.com</a></p>
+        <p>示範／成效未驗證。空白表可<a href="/cases/first-container/sheet/?lang=zh">在瀏覽器列印或存成 PDF</a>，也可<a href="/cases/first-container/sheet/first-container-blank-zh.pdf" download>直接下載一頁 PDF</a>。網頁用系統字型；PDF 只嵌入這一頁用到的字，沒有另附很大的字型檔。</p>
+      </section>
     </div>
 
     <div data-lang-view="en" lang="en">
       <div class="hero">
         <p class="eyebrow">One product · Four stations</p>
         <h1>From one product<br>to the first container</h1>
-        <p class="lede">A decision-maker brings one product. Paul does not start with an order. He walks four stations: which path, which people, whether a commitment is possible, and whether the numbers can hold. Each station answers one thing: what has to be decided, and where his judgment enters.</p>
+        <p class="lede">A decision-maker brings one product. Paul does not start with an order. He walks four stations: which path, which people, whether a commitment is possible, and whether the numbers can hold. On the left of each station is a filled wallpaper example. On the right, blank lines for your own product.</p>
         <span class="disclosure">Demonstration / outcomes unverified · Companies and this scenario are fictional</span>
+        <p class="sheet-note"><a class="btn btn-secondary" href="/cases/first-container/sheet/?lang=en">Blank sheet (printable)</a><a class="btn btn-secondary" href="/cases/first-container/sheet/first-container-blank-en.pdf" download>Download the one-page PDF</a></p>
         <nav class="jump" aria-label="Four stations">
           <a href="#path-en"><span class="n">01</span><strong>Choose the path</strong></a>
           <a href="#people-en"><span class="n">02</span><strong>Choose the people</strong></a>
@@ -296,6 +387,9 @@
         <p class="station-kicker">01 · Choose the path</p>
         <h2 id="path-en-title">Which path comes first</h2>
         <p class="workname">Global Business Development</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">Wallpaper example (filled)</p>
         <div class="split">
           <div class="panel">
             <h3>What this station decides</h3>
@@ -311,6 +405,17 @@
             <p style="margin-top:10px">The angle to test is customization at a smaller batch, not “always cheaper.” In Paul’s view, US and European mills sit roughly at USD 12–25 per roll FOB, with higher MOQs. That is not verified market pricing. USD 10–15 and USD 12–25 overlap, so a lower price is not a claim he will make.</p>
           </div>
         </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">Your product (blank)</p>
+            <h3>Product</h3>
+            <p>Spec, price, MOQ, and whether it can be customized.</p>
+            <span class="rule"></span><span class="rule"></span>
+            <h3>Which buyer types to rule out first, and why</h3>
+            <span class="rule"></span><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>What Paul checks first.</strong> Which buyer types the product cannot meet, and whether the aim is one container or a customization test.</p>
         <p class="honesty">This station does not yet have a wallpaper demo. The public Global Business Development demo is a different fictional scenario: switch the decision-maker’s objective and watch the next research priority change. It is not the Gulf-region hotel case. The two sit side by side. This page does not rewrite that demo.</p>
         <div class="links">
           <a class="btn btn-primary" href="https://apchen1978.github.io/gbd-judgment-reveal-demo/" target="_blank" rel="noopener noreferrer">Open the Global Business Development demo</a>
@@ -322,6 +427,9 @@
         <p class="station-kicker">02 · Choose the people</p>
         <h2 id="people-en-title">After a list, a person still chooses</h2>
         <p class="workname">Overseas Lead Discovery</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">Wallpaper example (filled)</p>
         <div class="split">
           <div class="panel">
             <h3>What this station decides</h3>
@@ -336,6 +444,19 @@
             </ul>
           </div>
         </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">Your product (blank)</p>
+            <h3>At most three</h3>
+            <p>For each: one line on why, the first-contact angle, and what to ask.</p>
+            <p>1</p><span class="rule"></span>
+            <p>2</p><span class="rule"></span>
+            <p>3</p><span class="rule"></span>
+            <h3>Deferred, and why</h3>
+            <span class="rule"></span><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>What Paul checks first.</strong> Why these accounts, the first-contact angle, and what is still to ask. Deferred accounts need a reason too.</p>
         <p class="honesty">The takeover page is a judgment before contact. It is not an outreach letter, and nothing has been sent. It is not an outcome of the list demo.</p>
         <div class="links">
           <a class="btn btn-primary" href="/cases/overseas-lead-discovery/paul-takeover/?lang=en">See the three picked and three deferred</a>
@@ -348,6 +469,9 @@
         <p class="station-kicker">03 · Can we commit?</p>
         <h2 id="commit-en-title">A fictional enquiry, and what is still unknown</h2>
         <p class="workname">Commercial Decision Desk</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">Wallpaper example (filled)</p>
         <div class="split">
           <div class="panel">
             <h3>What this station decides</h3>
@@ -367,6 +491,16 @@
             <p style="margin-top:10px">Until roll spec, container loading, certification, sampling, and lead time are checked, “we can customize” and “we can fill a container” are not commitments.</p>
           </div>
         </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">Your product (blank)</p>
+            <h3>Conditions still unknown</h3>
+            <span class="rule"></span><span class="rule"></span><span class="rule"></span>
+            <h3>Your payment line</h3>
+            <span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>What Paul checks first.</strong> Which conditions are still unknown, and whether there is a payment line you are willing to accept.</p>
         <p class="honesty">The public desk demo does not yet use this wallpaper. Open it and the sample is still a separate fictional case: a Gulf-region hotel. That case stays where it is, beside this storyline. This page does not load the wallpaper figures into that demo, and it does not rewrite the Gulf case.</p>
         <div class="links">
           <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/?lang=en#mode-sample" target="_blank" rel="noopener noreferrer">Open the desk demo (Gulf hotel case)</a>
@@ -378,6 +512,9 @@
         <p class="station-kicker">04 · Do the numbers hold?</p>
         <h2 id="numbers-en-title">Price, quantity, and a floor</h2>
         <p class="workname">Trade Profit Navigator</p>
+        <div class="pair">
+          <div class="example">
+            <p class="col-label">Wallpaper example (filled)</p>
         <div class="split">
           <div class="panel">
             <h3>What this station decides</h3>
@@ -419,6 +556,21 @@
             </ul>
           </article>
         </div>
+          </div>
+          <div class="blank">
+            <p class="col-label">Your product (blank)</p>
+            <h3>Quote-margin floor</h3>
+            <span class="rule"></span>
+            <h3>First-order actual-margin floor</h3>
+            <span class="rule"></span>
+            <h3>Each item marked can discuss, check first, or not accepted</h3>
+            <p>可談 / 先查 / 不接受</p>
+            <p>1</p><span class="rule"></span>
+            <p>2</p><span class="rule"></span>
+            <p>3</p><span class="rule"></span>
+          </div>
+        </div>
+        <p class="paul-check"><strong>What Paul checks first.</strong> That the quote-margin floor and the first-order actual-margin floor are written apart, and that each item is marked can discuss, check first, or not accepted.</p>
         <p class="honesty">The public Profit Navigator demo does not yet use this wallpaper. Open it and the figures are still the Gulf hotel case. That case stays where it is. The quote-margin floor of about 35%, and “first-order actual margin: to be confirmed by Paul,” are not loaded into that demo. This page does not calculate a margin.</p>
         <div class="links">
           <a class="btn btn-primary" href="https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001&amp;lang=en" target="_blank" rel="noopener noreferrer">Open Profit Navigator (Gulf case)</a>
@@ -432,14 +584,24 @@
         <p>The four works remain separate prototypes, linked by this storyline. They do not exchange data, and they do not share a data model. Demonstration / outcomes unverified.</p>
         <p><a href="/?lang=en#works">← Back to the portfolio</a></p>
       </section>
+      <section class="stuck" aria-labelledby="stuck-en">
+        <h2 id="stuck-en">Stuck?</h2>
+        <p>Send the filled sheet to Paul, and ask him to look at whether a first container is feasible. Sending it does not mean a buyer will be found, and it does not promise an order.</p>
+        <div class="links">
+          <a class="btn btn-gold" href="mailto:paulchen1978@gmail.com?subject=First%20container%3A%20filled%20sheet">Email Paul</a>
+          <a class="btn btn-line" href="https://line.me/ti/p/zSJdkOeQgS" target="_blank" rel="noopener noreferrer"><span class="line-badge">LINE</span>Contact on LINE</a>
+        </div>
+        <p><a href="mailto:paulchen1978@gmail.com">paulchen1978@gmail.com</a></p>
+        <p>Demonstration / outcomes unverified. Print the blank sheet <a href="/cases/first-container/sheet/?lang=en">in the browser, or save it as PDF</a>, or <a href="/cases/first-container/sheet/first-container-blank-en.pdf" download>download the one-page PDF</a>. The page uses system fonts. The PDF embeds only the glyphs on that page, without a large font file.</p>
+      </section>
     </div>
   </main>
   <footer><div class="wrap">Paul's Tradecraft · Fictional storyline · Separate prototypes · Demonstration / outcomes unverified</div></footer>
   <script>
     const buttons = document.querySelectorAll("[data-set-lang]");
     const descriptions = {
-      zh: "四站故事線：選路、選人、能不能承諾、算得過嗎。虛構的純紙牆紙情境，示範／成效未驗證。四個原型各自獨立，不交換資料。",
-      en: "Four stations: the path, the people, whether to commit, and whether the numbers hold. A fictional pure-paper wallpaper scenario. Demonstration / outcomes unverified. The prototypes stay separate and do not exchange data."
+      zh: "四站空白表：左邊是虛構牆紙示範，右邊留給你的產品。示範／成效未驗證。四個原型各自獨立，不交換資料。",
+      en: "A four-station sheet: a fictional wallpaper example on the left, blank lines for your product on the right. Demonstration / outcomes unverified. The prototypes stay separate and do not exchange data."
     };
     function setLanguage(value, updateUrl) {
       const lang = value === "en" ? "en" : "zh";
