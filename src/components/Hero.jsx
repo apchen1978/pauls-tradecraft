@@ -12,10 +12,12 @@ export default function Hero() {
   const { lang, t } = useLang();
   const cdd = works.find((work) => work.id === "commercial-decision-desk");
   // 畫面分工：Hero 展示「最後得到什麼」——示範案例的
-  // Executive Deal Snapshot 輸出特寫；Featured Work 卡保留工作區畫面「怎麼完成」。
-  const snapshotSrc = lang === "zh"
-    ? "/images/cover-commercial-decision-desk.svg"
-    : "/images/cover-commercial-decision-desk-en.svg";
+  // Executive Deal Snapshot；Featured Work 卡保留工作區畫面「怎麼完成」。
+  // 用點陣 PNG，不用 SVG 封面：封面把中文畫在 SVG <text> 上（Arial/Georgia），
+  // iOS Safari 常常不畫出那些字，手機上整張卡會像空白。
+  const snapshot = lang === "zh"
+    ? { src: "/images/cdd-executive-snapshot-zh-v02.png", width: 1052, height: 1146 }
+    : { src: "/images/cdd-executive-snapshot-en-v02.png", width: 1052, height: 1166 };
   const headlineClass = lang === "en"
     ? "mt-3 text-[1.55rem] leading-[1.12] sm:text-[1.85rem] md:mt-5 md:text-[2.1rem] md:leading-[1.08] lg:text-[2.3rem] xl:text-[2.6rem] xl:leading-[1.07]"
     : "mt-4 text-[clamp(1.8rem,6.6vw,2.05rem)] leading-[1.18] md:mt-5 md:text-5xl md:leading-[1.14] lg:text-[2.6rem] xl:text-[3.2rem]";
@@ -105,10 +107,13 @@ export default function Hero() {
           </div>
           <div className="relative overflow-hidden bg-paper p-2.5 md:p-3">
             <img
-              src={snapshotSrc}
+              src={snapshot.src}
               alt={t.hero.snapshotAlt}
-              className="aspect-[16/10] w-full rounded-field border border-line object-cover object-top"
+              width={snapshot.width}
+              height={snapshot.height}
+              className="h-auto w-full rounded-field border border-line"
               loading="eager"
+              fetchPriority="high"
             />
           </div>
           <figcaption className="flex flex-col items-start gap-2 border-t border-line px-4 py-3 text-xs leading-snug text-moss md:px-5 md:py-3.5 md:text-sm">
