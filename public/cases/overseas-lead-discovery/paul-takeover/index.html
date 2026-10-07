@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-Hant" data-lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="名單出來後，Paul 如何挑選值得先談的買家？虛構的海外客戶開發教學示範；成效未驗證。" />
+  <title>名單之後，Paul 怎麼接手｜Paul's Tradecraft</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    :root { --pine:#143329; --bone:#f4efe6; --ink:#1c241f; --muted:#526058; --line:rgba(20,51,41,.16); --gold:#8a6a2b; --blue:#486574; --white:#fffefa; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bone); color:var(--ink); font-family:"Segoe UI","Noto Sans TC","PingFang TC",sans-serif; line-height:1.65; }
+    a { color:var(--pine); text-underline-offset:3px; }
+    a:focus-visible, button:focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
+    .wrap { width:min(100% - 40px, 1040px); margin:auto; }
+    .top { border-bottom:1px solid var(--line); background:var(--white); }
+    .top-inner { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:58px; font-size:.84rem; }
+    .top a { text-decoration:none; font-weight:650; }
+    .switch { display:flex; gap:4px; align-items:center; white-space:nowrap; }
+    .switch button { border:1px solid var(--line); background:transparent; border-radius:999px; padding:5px 10px; color:var(--pine); font:inherit; cursor:pointer; }
+    html[data-lang="zh"] [data-lang-view="en"], html[data-lang="en"] [data-lang-view="zh"] { display:none !important; }
+    html[data-lang="zh"] button[data-set-lang="zh"], html[data-lang="en"] button[data-set-lang="en"] { background:var(--pine); color:#fff; }
+    .hero { padding:54px 0 38px; }
+    .eyebrow { margin:0 0 13px; color:var(--gold); text-transform:uppercase; letter-spacing:.16em; font-size:.72rem; font-weight:750; }
+    h1 { margin:0; color:var(--pine); font-size:clamp(2rem,5.5vw,3.65rem); line-height:1.17; letter-spacing:-.035em; max-width:16ch; }
+    .lede { max-width:650px; margin:18px 0 0; font-size:clamp(1rem,1.8vw,1.18rem); color:var(--muted); }
+    .disclosure { display:inline-flex; margin-top:20px; border:1px solid var(--line); border-radius:999px; padding:6px 12px; background:var(--white); color:var(--pine); font-size:.78rem; font-weight:700; }
+    .summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:18px 0 0; }
+    .summary article { background:var(--white); border:1px solid var(--line); border-radius:14px; padding:18px; min-width:0; }
+    .label { display:block; margin-bottom:7px; color:var(--gold); font-size:.7rem; font-weight:750; letter-spacing:.1em; text-transform:uppercase; }
+    .summary p { margin:0; font-size:.94rem; }
+    .note { color:var(--muted); font-size:.82rem; }
+    main { padding-bottom:70px; }
+    section { margin-top:54px; }
+    section h2 { margin:0 0 10px; font-size:clamp(1.35rem,2.7vw,1.9rem); line-height:1.27; color:var(--pine); }
+    section > p { max-width:730px; margin:0 0 21px; color:var(--muted); }
+    .judgment { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); gap:12px; }
+    .panel { background:var(--white); border:1px solid var(--line); border-radius:16px; padding:21px; min-width:0; }
+    .panel h3 { margin:0 0 7px; color:var(--pine); font-size:1.04rem; }
+    .panel p { margin:0; }
+    .panel.alt { border-left:4px solid var(--blue); }
+    .cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .buyer { background:var(--white); border:1px solid var(--line); border-radius:16px; padding:20px; min-width:0; }
+    .buyer .tag { display:inline-block; margin-bottom:12px; color:var(--blue); font-size:.69rem; font-weight:750; letter-spacing:.1em; text-transform:uppercase; }
+    .buyer h3 { margin:0 0 4px; font-size:1.12rem; line-height:1.3; color:var(--pine); overflow-wrap:anywhere; }
+    .buyer .where { margin:0 0 17px; color:var(--muted); font-size:.84rem; }
+    .buyer h4 { margin:18px 0 4px; font-size:.77rem; color:var(--gold); }
+    .buyer p { margin:0; font-size:.9rem; }
+    .buyer ul { margin:0; padding-left:1.15rem; font-size:.9rem; }
+    .buyer li + li { margin-top:3px; }
+    .rejects { display:grid; gap:8px; }
+    .reject { display:grid; grid-template-columns:minmax(180px,.8fr) minmax(0,1.2fr); gap:14px; align-items:start; background:var(--white); border:1px solid var(--line); border-radius:12px; padding:15px 18px; }
+    .reject strong { color:var(--pine); overflow-wrap:anywhere; }
+    .reject span { color:var(--muted); }
+    .closing { border-top:1px solid var(--line); padding-top:24px; }
+    footer { border-top:1px solid var(--line); padding:20px 0 40px; font-size:.82rem; color:var(--muted); }
+    @media(max-width:760px) { .summary,.cards,.judgment { grid-template-columns:1fr; } .hero { padding:36px 0 20px; } section { margin-top:39px; } .reject { grid-template-columns:1fr; gap:2px; } }
+    @media(max-width:390px) { .wrap { width:calc(100% - 32px); } .top-inner { gap:8px; } .top a { font-size:.75rem; } }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  </style>
+</head>
+<body>
+  <header class="top"><div class="wrap top-inner">
+    <a href="/cases/overseas-lead-discovery/" data-lang-view="zh">← 回海外客戶開發作品</a>
+    <a href="/cases/overseas-lead-discovery/#english-summary" data-lang-view="en">← Back to Lead Discovery</a>
+    <div class="switch" aria-label="Language"><button type="button" data-set-lang="zh" aria-pressed="true">繁中</button><button type="button" data-set-lang="en" aria-pressed="false">EN</button></div>
+  </div></header>
+  <main class="wrap">
+    <div data-lang-view="zh">
+      <div class="hero">
+        <p class="eyebrow">LEAD DISCOVERY · HUMAN HANDOFF</p>
+        <h1>名單出來後，<br>Paul 怎麼接手？</h1>
+        <p class="lede">不是把候選公司照順序寄信。先看產品能說什麼、不能說什麼，再挑少數值得研究的買家，寫下理由和第一個該問的問題。</p>
+        <span class="disclosure">示範／成效未驗證 · 公司與情境皆為虛構</span>
+      </div>
+      <div class="summary" aria-label="示範輸入">
+        <article><span class="label">產品條件</span><p>美式純紙牆紙；FOB Shanghai 每卷 USD 10–15（約 6 平方米）；MOQ 1,000 直米（LM）；可訂製。</p></article>
+        <article><span class="label">商業目標</span><p>探索美國、歐洲的進口商與大型設計公司；希望首單達一個 20 呎貨櫃。</p></article>
+        <article><span class="label">先確認</span><p>每卷價格、直米起訂量與貨櫃目標是不同單位；幅寬、卷長、裝櫃量尚未核對，不能直接換算。</p></article>
+      </div>
+      <section aria-labelledby="judgment-zh"><h2 id="judgment-zh">先判斷賣點，不先承諾</h2><div class="judgment">
+        <div class="panel"><h3>可測試的切入點</h3><p>「較小批量也能訂製」可能比單純低價更有吸引力。示範假設把歐美供應商放在 FOB 每卷約 USD 12–25、起訂量較高的位置；這不是已核實的市場行情。</p></div>
+        <div class="panel alt"><h3>Paul 會先核對</h3><p>同規格、品質、印刷與認證要求是否可比？USD 10–15 與 USD 12–25 有重疊，不能說我們一定更便宜；也不能把「可訂製」直接等同買家會採購。</p></div>
+      </div></section>
+      <section aria-labelledby="chosen-zh"><h2 id="chosen-zh">先看這三家，理由各不相同</h2><p>以下公司、需求和判斷均為虛構示範，不是查得的真實買家訊號，也沒有進行接觸。</p><div class="cards">
+        <article class="buyer"><span class="tag">候選 A · 品牌／進口</span><h3>Kensington Pattern Co.</h3><p class="where">倫敦 · 虛構品牌商兼進口商</p><h4>為什麼先看</h4><p>設定為正在找紙基牆紙代工，重視印刷品質，訂量有機會達整櫃；產品類型與目標接近。</p><h4>第一次接觸角度</h4><p>先談紙基印刷與小批量訂製的匹配，確認對方是否真在評估新代工來源；不先承諾品質或整櫃量。</p><h4>還要問清楚</h4><ul><li>預計年用量與單次採購量？</li><li>印刷品質、打樣與認證要求？</li><li>需要多少個訂製花色？</li></ul></article>
+        <article class="buyer"><span class="tag">候選 B · 進口批發</span><h3>Harbor &amp; Vine Wallcoverings</h3><p class="where">紐澤西 · 虛構進口批發商</p><h4>為什麼先看</h4><p>設定為主售美式花色，正在考慮第二貨源降低成本；可能有補足現有供應的需求。</p><h4>第一次接觸角度</h4><p>從第二貨源能否補其花色和採購彈性談起，而不是只報較低價格；先問清楚目前缺口。</p><h4>還要問清楚</h4><ul><li>現有花色與目標價格帶？</li><li>年用量、採購批量與付款條件？</li><li>第二貨源需要哪些測試或認證？</li></ul></article>
+        <article class="buyer"><span class="tag">候選 C · 專案設計</span><h3>Redwood Line Design</h3><p class="where">加州 · 虛構高端住宅設計公司</p><h4>為什麼先看</h4><p>設定為有明確訂製需求，單案量小、全年有多個專案；可測試客製方向，但未必符合首單整櫃目標。</p><h4>第一次接觸角度</h4><p>先了解專案的花色、打樣節奏和訂量；把它視為客製合作假設，不把多案加總當作已成立的整櫃訂單。</p><h4>還要問清楚</h4><ul><li>單案與全年預計用量？</li><li>花色開發數量與打樣時程？</li><li>住宅專案有無特定材料或認證要求？</li></ul></article>
+      </div></section>
+      <section aria-labelledby="reject-zh"><h2 id="reject-zh">這三家先不投入，不是名單越長越好</h2><div class="rejects">
+        <div class="reject"><strong>Lumen Studio Group<br>Bayview Hospitality Design</strong><span>虛構的酒店／商用設計需求偏向商用乙烯壁布與防火認證；這份純紙產品條件目前不相符。除非規格被重新確認，不把它們排在首輪。</span></div>
+        <div class="reject"><strong>Atlas Home Supply</strong><span>虛構要求是每卷低於 USD 8、付款 90 天；與示範售價和現有付款風險邊界不合，先不投入。</span></div>
+      </div></section>
+      <section class="closing"><h2>Paul 接手的交付</h2><p>三家候選各有「為什麼是它」、第一個接觸角度與待問問題；三家暫緩也寫下原因。這是接觸前的人工判斷示範，不是開發信、已寄出的訊息或成交證據。</p><a href="/cases/overseas-lead-discovery/">← 回到海外客戶開發作品</a></section>
+    </div>
+    <div data-lang-view="en" lang="en">
+      <div class="hero">
+        <p class="eyebrow">LEAD DISCOVERY · HUMAN HANDOFF</p>
+        <h1>After the list, what does Paul do?</h1>
+        <p class="lede">He does not email candidates in list order. First, he checks what the product can and cannot credibly offer; then he chooses a few accounts worth studying and records why, what angle to explore, and what to ask.</p>
+        <span class="disclosure">Demonstration / outcomes unverified · All companies and scenarios are fictional</span>
+      </div>
+      <div class="summary" aria-label="Demo inputs">
+        <article><span class="label">Product</span><p>American-style pure-paper wallpaper; FOB Shanghai USD 10–15 per roll (about 6 m²); MOQ 1,000 linear meters (LM); customization available.</p></article>
+        <article><span class="label">Commercial goal</span><p>Explore importers and large design firms in the US and Europe; aim for a first order of one 20-foot container.</p></article>
+        <article><span class="label">Check first</span><p>Roll price, linear-meter MOQ, and container volume are different units. Width, roll length, and loading capacity have not been checked; no direct conversion is assumed.</p></article>
+      </div>
+      <section aria-labelledby="judgment-en"><h2 id="judgment-en">Test the angle before making a promise</h2><div class="judgment">
+        <div class="panel"><h3>A possible opening</h3><p>“Customization at a smaller volume” may matter more than a low price alone. This fictional comparison assumes US and European suppliers at roughly USD 12–25 FOB per roll with higher MOQs. It is not verified market pricing.</p></div>
+        <div class="panel alt"><h3>Paul would verify</h3><p>Are specifications, print quality, and certification requirements comparable? The USD 10–15 and USD 12–25 ranges overlap, so a lower price is not guaranteed. Customization does not itself prove buyer demand.</p></div>
+      </div></section>
+      <section aria-labelledby="chosen-en"><h2 id="chosen-en">Three accounts, three different reasons</h2><p>These names, needs, and judgments are fictional examples—not researched buyer signals. No outreach has taken place.</p><div class="cards">
+        <article class="buyer"><span class="tag">Candidate A · Brand / importer</span><h3>Kensington Pattern Co.</h3><p class="where">London · fictional brand and importer</p><h4>Why it makes the short list</h4><p>Assumed to be seeking a paper-wallpaper manufacturing partner, to care about print quality, and to have potential container-scale volume. The product and goal may align.</p><h4>First-contact angle</h4><p>Explore the fit between paper printing and smaller-batch customization; first confirm whether a new manufacturing source is under consideration. Do not promise quality or volume yet.</p><h4>Still to ask</h4><ul><li>Annual usage and order size?</li><li>Print, sample, and certification requirements?</li><li>How many custom patterns?</li></ul></article>
+        <article class="buyer"><span class="tag">Candidate B · Import wholesaler</span><h3>Harbor &amp; Vine Wallcoverings</h3><p class="where">New Jersey · fictional importer and wholesaler</p><h4>Why it makes the short list</h4><p>Assumed to focus on American-style patterns and to be considering a second source to lower costs. There may be a gap in its current supply.</p><h4>First-contact angle</h4><p>Explore whether a second source can fill a pattern or ordering-flexibility gap, rather than leading only with a lower price. Verify the gap first.</p><h4>Still to ask</h4><ul><li>Current range and target price band?</li><li>Annual volume, order size, and payment terms?</li><li>Testing or certification for a second source?</li></ul></article>
+        <article class="buyer"><span class="tag">Candidate C · Project design</span><h3>Redwood Line Design</h3><p class="where">California · fictional high-end residential design firm</p><h4>Why it makes the short list</h4><p>Assumed to have specific customization needs, small individual projects, and several projects a year. It can test the custom-work angle, but may not meet the first-container goal.</p><h4>First-contact angle</h4><p>Clarify patterns, sample timing, and project volume first. Treat this as a custom-work hypothesis, not a container order assembled from imagined future projects.</p><h4>Still to ask</h4><ul><li>Volume per project and per year?</li><li>Pattern count and sampling lead time?</li><li>Any material or certification requirements?</li></ul></article>
+      </div></section>
+      <section aria-labelledby="reject-en"><h2 id="reject-en">Three to set aside for now</h2><div class="rejects">
+        <div class="reject"><strong>Lumen Studio Group<br>Bayview Hospitality Design</strong><span>Fictional hospitality and commercial projects favor contract vinyl wallcovering with fire certification. That does not match the pure-paper offer as described. Do not prioritize without clarifying the specification.</span></div>
+        <div class="reject"><strong>Atlas Home Supply</strong><span>The fictional requirement is below USD 8 per roll with 90-day payment. It does not match the sample price range or the assumed payment-risk boundary.</span></div>
+      </div></section>
+      <section class="closing"><h2>What Paul hands over</h2><p>Each selected account has a reason, a first-contact angle, and open questions. Each deferred account has a reason too. This is an example of human judgment before contact—not an outreach email, sent message, or evidence of a sale.</p><a href="/cases/overseas-lead-discovery/#english-summary">← Back to Lead Discovery</a></section>
+    </div>
+  </main>
+  <footer><div class="wrap">Paul's Tradecraft · Fictional teaching example · No buyer contact or verified outcome</div></footer>
+  <script>
+    const buttons = document.querySelectorAll('[data-set-lang]');
+    function setLanguage(value, updateUrl = false) {
+      const lang = value === 'en' ? 'en' : 'zh';
+      document.documentElement.dataset.lang = lang;
+      document.documentElement.lang = lang === 'en' ? 'en' : 'zh-Hant';
+      document.title = lang === 'en' ? "After the list, what does Paul do? · Paul's Tradecraft" : "名單之後，Paul 怎麼接手｜Paul's Tradecraft";
+      buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.setLang === lang)));
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        window.history.replaceState(null, '', url);
+      }
+    }
+    setLanguage(new URLSearchParams(window.location.search).get('lang'));
+    buttons.forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.setLang, true)));
+  </script>
+</body>
+</html>
