@@ -25,10 +25,12 @@ export default function Hero() {
     ? "mt-3 max-w-[46ch] text-[0.9375rem] leading-[1.48] md:mt-5 md:text-lg md:leading-relaxed"
     : "mt-4 max-w-[48ch] text-base leading-[1.65] md:mt-5 md:text-lg md:leading-relaxed";
 
+  // Phones: the artwork band is the static #hero-art in index.html, so this section is
+  // transparent over its first 14rem (below that, the same pine).
   return (
-    <section id="top" className="relative isolate overflow-hidden bg-pine text-ondark border-b border-bone/15">
+    <section id="top" className="relative isolate overflow-hidden bg-[linear-gradient(to_bottom,transparent_14rem,var(--color-pine)_14rem)] md:bg-pine text-ondark border-b border-bone/15">
       <div aria-hidden className="absolute inset-0">
-        <picture>
+        <picture className="hidden md:block">
           <source media="(min-width: 769px)" srcSet="/images/paul-art.webp" type="image/webp" />
           <img
             src="/images/paul-art-800.webp"
@@ -40,8 +42,6 @@ export default function Hero() {
             decoding="sync"
           />
         </picture>
-        {/* Phone: the portrait is a clear band at the top that fades into the pine surface the text sits on. */}
-        <div className="absolute inset-x-0 top-0 h-[14rem] bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_30%,rgba(20,44,41,1)_82%)] md:hidden" />
         <div className="absolute inset-0 hidden bg-pine/85 md:block lg:hidden" />
         <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(20,44,41,1)_0%,rgba(20,44,41,0.92)_40%,rgba(20,44,41,0.45)_75%,rgba(20,44,41,0.7)_100%)] md:block" />
         <div className="absolute inset-0 hidden bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_50%,rgba(20,44,41,0.9)_100%)] md:block" />
