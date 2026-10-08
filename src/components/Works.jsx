@@ -81,7 +81,7 @@ function GbdActions() {
         className="inline-flex w-fit items-center gap-2 rounded-field bg-forest px-4 py-2.5 text-sm font-semibold text-bone transition-colors hover:bg-forest/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
         onClick={(e) => {
           e.stopPropagation();
-          const details = e.currentTarget.closest("article")?.querySelector("details");
+          const details = e.currentTarget.closest("article")?.querySelector(":scope > details");
           if (details) details.open = !details.open;
         }}
       >
@@ -149,8 +149,11 @@ function ProductFlow({ work, tone = "light" }) {
 
   const dark = tone === "dark";
   return (
-    <div className={`mt-6 border-y py-4 ${dark ? "border-bone/15" : "border-forest/15"}`}>
-      <p className={`text-xs font-medium  ${dark ? "text-gold" : "text-amber"}`}>{flow.label}</p>
+    <details className={`group mt-6 border-y py-3 ${dark ? "border-bone/15" : "border-forest/15"}`}>
+      <summary className={`flex cursor-pointer list-none items-center justify-between gap-2 text-xs font-medium [&::-webkit-details-marker]:hidden ${dark ? "text-gold" : "text-amber"}`}>
+        {flow.label}
+        <CaretDown size={12} weight="bold" aria-hidden="true" className="shrink-0 transition-transform group-open:rotate-180" />
+      </summary>
       <div className={`mt-3 grid gap-3 sm:grid-cols-3 ${dark ? "sm:divide-x sm:divide-bone/15" : "sm:divide-x sm:divide-forest/15"}`}>
         {flow.stages.map((stage, index) => (
           <div key={stage.label} className={index === 0 ? "sm:pr-3" : index === flow.stages.length - 1 ? "sm:pl-3" : "sm:px-3"}>
@@ -159,7 +162,7 @@ function ProductFlow({ work, tone = "light" }) {
           </div>
         ))}
       </div>
-    </div>
+    </details>
   );
 }
 
@@ -194,8 +197,11 @@ function MarketEntrySignal({ data }) {
         ))}
       </div>
 
-      <div className="mt-6">
-        <p className="text-xs font-medium  text-moss">{copy.gatesTitle}</p>
+      <details className="group mt-6">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-xs font-medium text-moss [&::-webkit-details-marker]:hidden">
+          {copy.gatesTitle}
+          <CaretDown size={12} weight="bold" aria-hidden="true" className="shrink-0 transition-transform group-open:rotate-180" />
+        </summary>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           {copy.gates.map((gate, index) => (
             <div key={gate.title} className="border-t border-forest/20 pt-3">
@@ -208,7 +214,7 @@ function MarketEntrySignal({ data }) {
             </div>
           ))}
         </div>
-      </div>
+      </details>
 
       <p className="mt-6 inline-flex border-l-2 border-amber pl-3 text-xs font-medium  text-forest">{copy.correction}</p>
     </section>
@@ -796,7 +802,7 @@ export default function Works() {
             ? undefined
             : (e) => {
                 if (e.target.closest("summary, a, button")) return;
-                const det = e.currentTarget.querySelector("details");
+                const det = e.currentTarget.querySelector(":scope > details");
                 if (det) det.open = !det.open;
               }
         }
@@ -808,7 +814,7 @@ export default function Works() {
               <CoverImage
                 src={cover}
                 alt={w.imageAlt[lang]}
-                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(25,58,53,0.55)]" : ""}`}
+                className={`aspect-[3/1] w-full md:aspect-[16/9] ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(25,58,53,0.55)]" : ""}`}
               />
               {balance && (
                 <div className="hidden md:block">
@@ -818,11 +824,11 @@ export default function Works() {
               )}
             </div>
           ) : !w.marketEntry && (
-            <div className="flex aspect-[16/9] items-center justify-center bg-paper">
+            <div className="flex aspect-[3/1] items-center justify-center bg-paper md:aspect-[16/9]">
               {Icon && <Icon size={44} weight="light" className="text-moss" />}
             </div>
           )}
-          <div className={`flex flex-1 flex-col border-t border-ink/5 p-7 md:p-8 lg:p-7 ${wide ? "md:justify-center md:border-l md:border-t-0 md:p-10 lg:p-12" : ""}`}>
+          <div className={`flex flex-1 flex-col border-t border-ink/5 p-5 md:p-8 lg:p-7 ${wide ? "md:justify-center md:border-l md:border-t-0 md:p-10 lg:p-12" : ""}`}>
             <div className="flex flex-wrap items-center gap-2 text-xs font-medium  text-moss">
               <span>{copy.tag}</span>
               {isPrimary && <span className="rounded-pill border border-amber/35 bg-amber/[0.08] px-2 py-0.5 text-xs  text-amber">{t.works.primaryEntry}</span>}
@@ -857,7 +863,7 @@ export default function Works() {
                   onClick={(event) => {
                     event.stopPropagation();
                     const article = event.currentTarget.closest("article");
-                    const details = article?.querySelector("details");
+                    const details = article?.querySelector(":scope > details");
                     if (details) details.open = true;
                     const panel = article?.querySelector("#trade-decision-workflow");
                     requestAnimationFrame(() => panel?.focus());
@@ -914,7 +920,7 @@ export default function Works() {
               onClick={(event) => {
                 event.stopPropagation();
                 const article = event.currentTarget.closest("article");
-                const details = article?.querySelector("details");
+                const details = article?.querySelector(":scope > details");
                 if (details) details.open = true;
                 const panel = article?.querySelector("#profit-calculator");
                 requestAnimationFrame(() => panel?.focus());
@@ -943,7 +949,6 @@ export default function Works() {
         {sec.note && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-moss">{sec.note}</p>}
         {sec.id === "commercial" && (
           <>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-moss">{t.works.independentPrototypes}</p>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-moss">
               <a href={`${firstContainerStory.href}?lang=${lang}`} className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber">{firstContainerStory.label[lang]}</a>
               {" "}{firstContainerStory.note[lang]}

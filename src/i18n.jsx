@@ -164,7 +164,6 @@ const dict = {
       demoLabel: "公開 Demo",
       statusLive: "連結實測",
       liveExplain: "「連結實測」只表示這個公開連結曾經線上打開檢查。不是品質結論、技術驗證、真人驗證或商業成果。",
-      independentPrototypes: "作品各自獨立；海外客戶研究可透過檔案把提案交給商務決策工作台，由人逐項確認。這不是共用資料模型或自動化流程。",
       caseStudy: {
         label: "案例研究",
         takeaway: "核心判斷：",
@@ -737,7 +736,6 @@ const dict = {
       demoLabel: "Live demo",
       statusLive: "LIVE",
       liveExplain: "LIVE means this public link was checked online. It is not a quality verdict, technical validation, field validation, or a commercial result.",
-      independentPrototypes: "The works remain independent. Overseas Lead Discovery can hand a file-based proposal to the Commercial Decision Desk, with each signal confirmed by a person. This is not a shared data model or automated pipeline.",
       caseStudy: {
         label: "Case Study",
         takeaway: "Key takeaway: ",
