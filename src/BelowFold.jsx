@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import TryIt from "./components/TryIt.jsx";
 import DecisionMoment from "./components/DecisionMoment.jsx";
 import ThreeQuestions from "./components/ThreeQuestions.jsx";
 import OneDeal from "./components/OneDeal.jsx";
@@ -21,6 +22,7 @@ export default function BelowFold({ onReady }) {
   }, [onReady]);
   return (
     <>
+      <TryIt />
       <DecisionMoment />
       <ThreeQuestions />
       <OneDeal />
