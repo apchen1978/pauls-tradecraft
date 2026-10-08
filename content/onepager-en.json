@@ -4,48 +4,52 @@
   "brand": "Paul's Tradecraft",
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
+  "lineLabel": "LINE",
+  "lineUrl": "https://line.me/ti/p/zSJdkOeQgS",
   "kicker": "Human–AI collaborative work · International sales",
-  "title": "An International Salesperson's Working Notes.",
-  "positioning": "Business judgment · Workflow design · Global business development",
-  "subtitle": "The judgment calls of everyday international sales, finding buyers, working out the profit, closing orders, built into tools you can try. Background: 15 years in international sales, including mainland China channels (exclusive stores, wholesale, projects) and team management (frontline sales reps, sales assistants); people keep direction, authorization, and final judgment.",
+  "title": "I help a decision-maker take one product to a first overseas order, or a first container.",
+  "positioning": "Path · People · Commitment · Numbers",
+  "subtitle": "For an SME decision-maker, and equally for the decision-maker on one product line. Background: 15 years in international business, including mainland China channels (exclusive stores, wholesale, projects) and team management.",
   "stats": [
     {
       "value": "955",
       "label": "TOEIC (2019)"
     },
     {
-      "value": "15",
-      "label": "Years in international sales"
+      "value": "15 years",
+      "label": "International business"
     },
     {
-      "value": "23/23",
-      "label": "Pilot workflow validation checks passed"
+      "value": "Former role",
+      "label": "International Trade Director"
     }
   ],
-  "servicesTitle": "WHAT I HELP ORGANIZATIONS MOVE FORWARD",
+  "servicesTitle": "WHAT I HELP MOVE FORWARD",
   "services": [
-    "Global Business Development — do more than filter a list; start with supplier reality and actively find market problems, buyer or channel types, and product entries worth testing.",
-    "Important Decisions & Workflows — turn a cross-functional problem that cannot be committed by instinct into a working system the team can move forward together.",
-    "Business Economics / Accounting-aware Judgment — use profit, cash, spending, evidence, and timing to frame material decisions; tax and legal conclusions remain with the appropriate professional."
+    "Global business development — start from what this one product can actually deliver, then find markets, buyers, and channels worth verifying.",
+    "Decisions before commitment — put payment, delivery, responsibility, and unknowns on one surface; the decision-maker chooses the next step.",
+    "Business economics / accounting-aware judgment — separate margin, cash, and timing; tax and legal conclusions stay with the appropriate professional."
   ],
   "deliverablesTitle": "WHAT THE TEAM LEAVES WITH",
   "deliverables": [
     {
       "title": "A clearer decision question",
-      "body": "Objective, constraints, known facts, and UNKNOWNs placed on one working surface."
+      "body": "What this product needs for a first order: objective, constraints, knowns, and unknowns on one surface."
     },
     {
-      "title": "A working system the team can continue to use",
-      "body": "Research, comparison, hand-over, and review translated into a repeatable workflow and brief."
+      "title": "A brief the team can continue",
+      "body": "Path, people, commitment, and numbers, written so the team can pick them up."
     },
     {
       "title": "A traceable next move",
-      "body": "Evidence to obtain, questions to ask, rerun conditions, and the decision that still belongs to a person."
+      "body": "Evidence to obtain, questions to ask, and the decision that still belongs to the decision-maker."
     }
   ],
   "leverageTitle": "HOW I WORK · JUDGMENT FIRST, EXECUTION WITH DISCIPLINE",
-  "leverage": "Research, comparison, evidence organization, contradiction checks, and prototyping are done thoroughly first. A person sets the objective and boundary; evidence decides what deserves to move forward.",
-  "worksTitle": "SELECTED SYSTEMS",
+  "leverage": "Research, comparison, and the brief come first. The decision-maker sets the objective and the boundary; evidence decides what moves forward.",
+  "worksTitle": "From one product to the first container",
+  "worksHref": "https://paulstradecraft.com/cases/first-container/",
+  "worksLead": "Four stations: the path, the people, whether to commit, and whether the numbers hold. The four works below follow this line.",
   "reviewedWorkIds": [
     "trade-deal-desk",
     "mori-soft-furnishing-website",
@@ -65,12 +69,12 @@
     "global-business-development"
   ],
   "works": [
-    "Commercial Decision Desk — turns net contribution, payment exposure, contradictions, and UNKNOWNs into one pre-commitment decision surface; demo cases, no customer-outcome claim.",
-    "Global Business Development / Market Entry Research — start with supplier capability and market tension, then find buyer or channel paths worth verifying; UNKNOWN stays visible and relevance never becomes buyer evidence.",
-    "Trade Profit Navigator — puts margin, cash exposure, and testable profit levers on one surface; demo prototype, with no adoption, ROI, or customer-outcome claim.",
-    "Business Spending Insight — helps a business owner clarify cash, timing, evidence, and CPA questions before professional review; demo cases, human validation pending."
+    "Overseas Lead Discovery — find the overseas buyers worth reaching first. After the list, Paul takes over: why these accounts, and the first opening.",
+    "Commercial Decision Desk — before any commitment, put net contribution, payment, and unknowns on one table. The decision-maker decides.",
+    "Trade Profit Navigator — put margin, cash, and the levers worth testing on one surface.",
+    "Market Entry Research — includes “From Inquiry to Quote: Six Decision Gates.” Tools prepare the inquiry; a person decides price, risk, and any commitment."
   ],
-  "processTitle": "START WITH A DECISION",
-  "process": "Bring one stuck decision, workflow, or client situation. Make the decision, evidence, and human authority clear—then decide what to explore, organize, compare, or build first.",
-  "footer": "PAUL'S TRADECRAFT · paulstradecraft.com · paulchen1978@gmail.com"
+  "processTitle": "START WITH ONE PRODUCT",
+  "process": "Bring one product, an old catalogue, or a first order that is stuck. Clarify the path, the people, the commitment, and the numbers—then decide the next step.",
+  "disclaimer": "Demo cases use fictional data; outcomes not verified."
 }
