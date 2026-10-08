@@ -173,6 +173,26 @@ export function calculateProfit(input = {}) {
   };
 }
 
+// Which one-line judgment sits under the result. Null means there is nothing
+// honest to say yet (no quantity or no revenue), so no card is shown.
+export function profitJudgment(result) {
+  if (result.status === "invalid" || result.depositPct === null) return "c5";
+  if (result.status === "zero-quantity" || result.status === "zero-revenue") return null;
+  if (result.belowFloor) return "c2";
+  if (result.cashBeforeShipment === 0) return "c4";
+  if (result.depositPct < DEFAULT_INPUTS.depositPct) return "c3";
+  return "c1";
+}
+
+export function judgmentText(key, lang, result) {
+  const template = calculatorCopy[lang]?.judgments?.[key];
+  if (!template) return null;
+  const cash = Number.isFinite(result?.cashBeforeShipment)
+    ? Math.round(result.cashBeforeShipment).toLocaleString("en-US")
+    : "";
+  return template.replace("{cash}", cash);
+}
+
 export function formatUsd(value) {
   if (!Number.isFinite(value)) return null;
   const negative = value < 0;
@@ -199,11 +219,11 @@ export function formatCount(value) {
 export const calculatorEntry = {
   zh: {
     cta: "在這頁試算毛利",
-    note: "示範／虛構數字。移動滑桿，就能看到有沒有低於 35% 毛利底線。",
+    note: "示範／虛構數字。移動滑桿，就能看到有沒有低於本示範設定的 35%。",
   },
   en: {
     cta: "Try the margin on this page",
-    note: "Demo with fictional numbers. Move a slider to see whether it falls below the 35% margin floor.",
+    note: "Demo with fictional numbers. Move a slider to see whether it falls below the 35% set for this demo.",
   },
 };
 
@@ -227,6 +247,14 @@ const fields = {
 export const calculatorCopy = {
   zh: {
     demoLabel: "示範／虛構數字",
+    judgmentLabel: "Paul 會先看",
+    judgments: {
+      c1: "毛利還撐得住，但出貨前要先墊 {cash}。我會先談訂金，再談價格。",
+      c2: "價格一往下，毛利就薄。我會先確認買方是不是真的只能出這個價，再回頭看成本。",
+      c3: "訂金收得少，錢就先從我這邊出去。我會先問買方訂金能不能提高。",
+      c4: "訂金已經蓋過出貨前的支出，現金壓力小。接下來我看的是尾款有沒有保障。",
+      c5: "這格還空著，我不會當成 0 去算。先把數字問清楚，再看毛利。",
+    },
     title: "先試算這張單的毛利",
     intro: "虛構的美式純紙牆紙第一櫃：FOB 上海每卷 USD 10–15，MOQ 1,000 直米（約 122 卷），20 呎櫃估算 3,000–5,000 卷，訂金 30%，餘款出貨前付清。",
     scope: "空白或負數保持未知，不會當成零。",
@@ -242,8 +270,8 @@ export const calculatorCopy = {
     balanceLabel: "出貨前應付餘款",
     cashLabel: "出貨前仍需墊付的現金",
     depositNote: "訂金按售價計算。出貨前仍需墊付＝採購與出口前費用減去訂金，不低於零。餘款在出貨前付清。",
-    floorWarning: "低於 35% 毛利底線",
-    floorHold: "毛利仍在 35% 底線之上",
+    floorWarning: "低於本示範設定的 35%",
+    floorHold: "毛利仍在本示範設定的 35% 之上",
     marginUnknown: "毛利率無法計算",
     unknown: "未知",
     invalidNote: "空白、負數或無法辨識的數字保持未知，不會當成零。",
@@ -261,6 +289,14 @@ export const calculatorCopy = {
   },
   en: {
     demoLabel: "Demo with fictional numbers",
+    judgmentLabel: "What Paul looks at first",
+    judgments: {
+      c1: "The margin still holds, but I have to put up USD {cash} before shipment. I'd talk deposit first, then price.",
+      c2: "One step down on price and the margin gets thin. I'd first confirm the buyer really can't pay more, then look back at cost.",
+      c3: "With a small deposit, the money leaves my side first. I'd first ask whether the buyer can raise the deposit.",
+      c4: "The deposit already covers what goes out before shipment, so cash pressure is low. Next I'd check whether the balance is protected.",
+      c5: "This field is still empty, and I won't treat it as 0. I'd get the number first, then look at the margin.",
+    },
     title: "Try this order's margin",
     intro: "Fictional first container of American-style pure-paper wallpaper: FOB Shanghai USD 10–15 per roll, MOQ 1,000 linear meters (直米, about 122 rolls), a 20-foot container estimated at 3,000–5,000 rolls, 30% deposit, balance before shipment.",
     scope: "A blank or negative entry stays unknown and is never treated as zero.",
@@ -276,8 +312,8 @@ export const calculatorCopy = {
     balanceLabel: "Balance due before shipment",
     cashLabel: "Cash to fund before shipment",
     depositNote: "The deposit is a share of the selling value. Cash to fund before shipment = purchase and pre-export costs minus the deposit, and not below zero. The balance is due before shipment.",
-    floorWarning: "Below the 35% margin floor",
-    floorHold: "Margin is still above the 35% floor",
+    floorWarning: "Below the 35% set for this demo",
+    floorHold: "Margin is still above the 35% set for this demo",
     marginUnknown: "Gross margin cannot be calculated",
     unknown: "Unknown",
     invalidNote: "A blank, negative, or unreadable number stays unknown and is never treated as zero.",

@@ -14,6 +14,7 @@ import {
   navReducer,
   passRefusal,
   passedCount,
+  stageJudgment,
   stages,
   workflowCopy,
   workflowEntry,
@@ -274,4 +275,21 @@ test("workflow modules do not call the network", () => {
   assert.equal(/\bfetch\s*\(/.test(joined), false);
   assert.equal(/XMLHttpRequest|WebSocket|sendBeacon/.test(joined), false);
   assert.equal(joined.includes("AUTHORIZED"), false);
+});
+
+test("the one-line judgment follows the stage and the payment evidence, never the approval", () => {
+  const fresh = createFlowState();
+  assert.equal(stageJudgment(fresh, "lead"), "g1");
+  assert.equal(stageJudgment(fresh, "qualification"), "g1");
+  assert.equal(stageJudgment(fresh, "rfq"), null);
+  assert.equal(stageJudgment(fresh, "risk-check"), "g2");
+  assert.equal(stageJudgment(flowReducer(fresh, { type: "RESOLVE_PAYMENT_EVIDENCE" }), "risk-check"), "g3");
+  assert.equal(stageJudgment(fresh, "quote"), "g4");
+  assert.equal(stageJudgment(fresh, "approval"), null);
+  for (const lang of ["zh", "en"]) {
+    assert.deepEqual(Object.keys(workflowCopy[lang].judgments), ["g1", "g2", "g3", "g4"]);
+    for (const line of Object.values(workflowCopy[lang].judgments)) {
+      assert.equal(/底線|floor|ROI|AI|老闆/i.test(line), false, line);
+    }
+  }
 });

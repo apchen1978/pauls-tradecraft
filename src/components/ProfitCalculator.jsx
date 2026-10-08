@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowUpRight, Warning } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import JudgmentNote from "./JudgmentNote.jsx";
 import {
   FIELD_ORDER,
   FIELD_RANGES,
@@ -11,6 +12,8 @@ import {
   formatPercent,
   formatUsd,
   formatResultText,
+  judgmentText,
+  profitJudgment,
   liveSummary,
 } from "../data/profitCalculator.js";
 
@@ -74,6 +77,7 @@ export default function ProfitCalculator({ href }) {
   const [inputs, setInputs] = useState(createInputs);
   const [copyState, setCopyState] = useState("idle");
   const result = calculateProfit(inputs);
+  const judgmentKey = profitJudgment(result);
   const summary = liveSummary(result, lang);
   const floorText = result.status === "invalid"
     ? copy.invalidNote
@@ -151,6 +155,7 @@ export default function ProfitCalculator({ href }) {
           <span>{floorText}</span>
         </p>
       </div>
+      <JudgmentNote label={copy.judgmentLabel} id={judgmentKey} text={judgmentKey ? judgmentText(judgmentKey, lang, result) : null} />
 
       <div className="mt-4 grid min-w-0 gap-x-4 gap-y-3 sm:grid-cols-2">
         {FIELD_ORDER.map((key) => (
