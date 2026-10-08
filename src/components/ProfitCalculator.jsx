@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowUpRight, Warning } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import JudgmentNote from "./JudgmentNote.jsx";
+import NoBreakNumbers from "./NoBreakNumbers.jsx";
 import {
   FIELD_ORDER,
   FIELD_RANGES,
@@ -136,7 +137,7 @@ export default function ProfitCalculator({ href }) {
     >
       <p className="text-xs font-semibold text-forest">{copy.demoLabel}</p>
       <h4 id="profit-calculator-title" className="mt-1 text-lg font-semibold text-forest">{copy.title}</h4>
-      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-moss">{copy.intro}</p>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-moss"><NoBreakNumbers text={copy.intro} /></p>
       <p className="mt-1 max-w-3xl text-xs leading-relaxed text-moss">{copy.scope}</p>
 
       <div className="mt-4 rounded-card border border-line bg-card px-3 py-3" aria-live="polite" data-profit-live={summary}>
