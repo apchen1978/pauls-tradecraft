@@ -247,8 +247,8 @@ export const works = [
       id: "payment-concentration",
       label: { zh: "下一步：這個決策會如何影響 7 天付款高峰？", en: "Next: how does this decision move your 7-day payment peak?" },
       note: {
-        zh: "portfolio 層演示接合：以同一 Deal C 概念，串接決策 → 付款承諾影響。兩者皆為示範模擬。這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
-        en: "Portfolio-level demo bridge: same Deal C concept, linking decision to payment-commitment impact. Both are demo simulations. These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
+        zh: "用同一個虛構情境，把決策接到付款承諾的影響。兩者皆為示範模擬。",
+        en: "One fictional scenario links the decision to its payment-commitment impact. Both are demo simulations.",
       },
     },
     cover: "/images/cover-trade-deal-desk.webp",
@@ -572,10 +572,10 @@ export const works = [
     section: "commercial",
     related: {
       id: "trade-deal-desk",
-      label: { zh: "回到源頭：這個 Deal C 是怎麼被評估與核准的？", en: "Back to the source: how was this Deal C assessed and approved?" },
+      label: { zh: "回到源頭：這筆新合約是怎麼被評估與核准的？", en: "Back to the source: how was this new contract assessed and approved?" },
       note: {
-        zh: "portfolio 層演示接合：Deal C 的決策來自 Trade Deal Desk 的示範案例，付款影響為模擬計算。這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。",
-        en: "Portfolio-level demo bridge: Deal C's decision comes from a Trade Deal Desk demo case; the payment impact is a simulated calculation. These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.",
+        zh: "這筆新合約的決策來自 Trade Deal Desk 的示範案例，付款影響為模擬計算。",
+        en: "This new contract's decision comes from a Trade Deal Desk demo case; the payment impact is a simulated calculation.",
       },
     },
     cover: "/images/cover-payment-concentration.png",
@@ -604,20 +604,20 @@ export const works = [
       stage: { zh: "示範原型", en: "Demo prototype" },
       stageTag: "靜態 demo",
       problem: {
-        zh: "談判新合約（Deal C）時，真正要回答的不是「整月付多少」，而是「把它加進來後，最集中的連續 7 個日曆日會多出多少付款承諾」。用試算表算很容易算錯窗、混幣別、而且無法快速對帳。",
-        en: "When negotiating a new deal (Deal C), the real question is not “what does the month total” but “how much extra payment commitment lands in the most concentrated 7-calendar-day window once it is added.” Spreadsheet answers are easy to get wrong — wrong window, mixed currencies, hard to audit quickly.",
+        zh: "談判新合約（合約丙）時，真正要回答的不是「整月付多少」，而是「把它加進來後，最集中的連續 7 個日曆日會多出多少付款承諾」。用試算表算很容易算錯窗、混幣別、而且無法快速對帳。",
+        en: "When negotiating a new deal (contract C), the real question is not “what does the month total” but “how much extra payment commitment lands in the most concentrated 7-calendar-day window once it is added.” Spreadsheet answers are easy to get wrong — wrong window, mixed currencies, hard to audit quickly.",
       },
       approach: {
-        zh: "做一個刻意樸素、可與 Excel 公平對照的原型：一張可編輯的付款事件表（正好 Deal A / B / C），用確定性的滾動 7 日曆日演算法逐幣別算出三個數字——加入 Deal C 前的高峰、Deal C 在高峰中的增量、加入後的高峰——並列出貢獻事件與永久揭露。",
-        en: "Built a deliberately plain, Excel-fair prototype: one editable payment-event table (exactly Deal A / B / C) and a deterministic rolling 7-calendar-day calculation per currency producing three numbers — the peak before Deal C, Deal C's incremental commitment inside the peak, and the peak after — plus contributing events and a permanent disclosure.",
+        zh: "做一個刻意樸素、可與 Excel 公平對照的原型：一張可編輯的付款事件表（正好合約甲／乙／丙），用確定性的滾動 7 日曆日演算法逐幣別算出三個數字——加入合約丙前的高峰、合約丙在高峰中的增量、加入後的高峰——並列出貢獻事件與永久揭露。",
+        en: "Built a deliberately plain, Excel-fair prototype: one editable payment-event table (exactly contracts A / B / C) and a deterministic rolling 7-calendar-day calculation per currency producing three numbers — the peak before contract C, contract C's incremental commitment inside the peak, and the peak after — plus contributing events and a permanent disclosure.",
       },
       tools: {
         zh: "原生 HTML/CSS/JS · 零依賴 · 確定性計算引擎 · Node 驗證套件 · 無頭 Chrome 驗證",
         en: "Vanilla HTML/CSS/JS · zero dependencies · deterministic calculation engine · Node validation suite · headless Chrome verification",
       },
       result: {
-        zh: "預設六事件 fixture 精確重現契約結果：加入 Deal C 前 USD 83,000 → Deal C 高峰增量 USD 52,000 → 加入後 USD 135,000（高峰窗 Oct 12–18，貢獻者 A 45,000 / B 38,000 / C 52,000）；改日期或金額即時重算，幣別互不污染。",
-        en: "The six-event fixture reproduces the contract result exactly: USD 83,000 before Deal C → USD 52,000 Deal C incremental in peak → USD 135,000 after (peak window Oct 12–18; contributors A 45,000 / B 38,000 / C 52,000). Editing dates or amounts recalculates instantly, and currencies never mix.",
+        zh: "預設六事件 fixture 精確重現契約結果：加入合約丙前 USD 83,000 → 合約丙高峰增量 USD 52,000 → 加入後 USD 135,000（高峰窗 Oct 12–18，貢獻者甲 45,000 / 乙 38,000 / 丙 52,000）；改日期或金額即時重算，幣別互不污染。",
+        en: "The six-event fixture reproduces the contract result exactly: USD 83,000 before contract C → USD 52,000 contract C incremental in peak → USD 135,000 after (peak window Oct 12–18; contributors A 45,000 / B 38,000 / C 52,000). Editing dates or amounts recalculates instantly, and currencies never mix.",
       },
       evidence: {
         zh: "已發布為靜態示範頁（公開 demo）。六筆示範付款事件 · 幣別分別計算 · 無持久化／無外部服務。此為 prototype evidence：尚未證明優於 Excel、商業採用或支付意願。",
