@@ -74,6 +74,9 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
   check(data.stats?.length === 3, `${locale} should show three stat cells`);
   check(!JSON.stringify(data.stats || []).includes("23/23"), `${locale} still includes the removed 23/23 figure`);
   check(data.stats?.[0]?.value === "955", `${locale} missing TOEIC 955`);
+  check(data.stats?.[2]?.value === (locale === "ZH" ? "總監" : "Director"), `${locale} third stat value is not the director title`);
+  check(data.stats?.[2]?.label === (locale === "ZH" ? "國際業務總監" : "International Trade Director"), `${locale} third stat label is not the director title`);
+  check(!/前職|Former role/i.test(JSON.stringify(data)), `${locale} still says former role`);
   check(data.kicker === expected.kicker[locale], `${locale} kicker drifted from the site Hero line`);
   check(data.disclaimer === expected.disclaimer[locale], `${locale} disclaimer is not the single approved line`);
   check(data.worksLead === expected.worksLead[locale], `${locale} works intro is not the approved line`);
