@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { ArrowUpRight, FileText, MagnifyingGlass, ShieldCheck } from "@phosphor-icons/react";
+import { ArrowUpRight, CaretDown, FileText, MagnifyingGlass, ShieldCheck } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
 import CoverImage from "./CoverImage.jsx";
@@ -23,8 +23,11 @@ export default function DealReadiness() {
           <h2 className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{service.headline}</h2>
           <p className="mt-5 text-base leading-relaxed text-moss md:text-lg">{service.intro}</p>
 
-          <div className="mt-8 border-y border-line py-5">
-            <p className="text-xs font-medium text-moss">{service.pathTitle}</p>
+          <details className="group mt-8 border-y border-line py-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-forest [&::-webkit-details-marker]:hidden">
+              {service.pathTitle}
+              <CaretDown size={14} weight="bold" aria-hidden="true" className="shrink-0 transition-transform group-open:rotate-180" />
+            </summary>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               {service.path.map((step, index) => (
                 <div key={step.title} className="border-t border-forest/15 pt-3">
@@ -34,22 +37,21 @@ export default function DealReadiness() {
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="mt-9 border-l-2 border-amber/60 pl-5">
-            <h3 className="text-base font-semibold text-forest">{service.whenTitle}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-moss">{service.when}</p>
-          </div>
+            <div className="mt-6 border-l-2 border-amber/60 pl-5">
+              <h3 className="text-base font-semibold text-forest">{service.whenTitle}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-moss">{service.when}</p>
+            </div>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            <div>
+            <div className="mt-6">
               <h3 className="text-base font-semibold text-forest">{service.bringTitle}</h3>
               <p className="mt-2 text-sm leading-relaxed text-moss">{service.bring}</p>
             </div>
-            <div>
-              <h3 className="text-base font-semibold text-forest">{service.boundaryTitle}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-moss">{service.boundary}</p>
-            </div>
+          </details>
+
+          <div className="mt-6">
+            <h3 className="text-base font-semibold text-forest">{service.boundaryTitle}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-moss">{service.boundary}</p>
           </div>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
