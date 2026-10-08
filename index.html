@@ -75,7 +75,35 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Hero artwork for phones, painted from the HTML before any script runs.
+         It lives OUTSIDE #root on purpose: React never removes or re-creates it, so the browser
+         keeps this one image as the page's largest paint instead of swapping it for a later copy.
+         Same place and size the hero used (below the 68px nav + 1px border, 14rem tall); the
+         React hero draws its own artwork only from md up, and leaves this band transparent.
+         The <source> keeps wide screens on the large file the React hero loads anyway. -->
+    <div id="hero-art" aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-[69px] z-0 h-[14rem] overflow-hidden bg-pine md:hidden">
+      <picture>
+        <source media="(min-width: 769px)" srcset="/images/paul-art.webp" type="image/webp" />
+        <img
+          src="/images/paul-art-800.webp"
+          alt=""
+          width="1229"
+          height="1536"
+          class="absolute inset-x-0 top-0 h-[14rem] w-full object-cover object-[55%_18%] opacity-90"
+          fetchpriority="high"
+          decoding="sync"
+        />
+      </picture>
+      <div class="absolute inset-x-0 top-0 h-[14rem] bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_30%,rgba(20,44,41,1)_82%)]"></div>
+    </div>
+    <div id="root">
+      <!-- Placeholder shown until React mounts, then replaced: the nav band and the dark hero area,
+           so the page is not a light screen with a lone picture. No text, no buttons. -->
+      <div class="md:hidden" aria-hidden="true">
+        <header class="sticky top-0 z-50 border-b border-bone/15 bg-pine/95"><div class="mx-auto h-[68px] max-w-7xl"></div></header>
+        <section class="border-b border-bone/15 bg-[linear-gradient(to_bottom,transparent_14rem,var(--color-pine)_14rem)]"><div class="min-h-[calc(100svh-68px)]"></div></section>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
