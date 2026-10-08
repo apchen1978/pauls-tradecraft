@@ -16,7 +16,7 @@
 // Quantity 4,000 is the midpoint of the 3,000–5,000 roll 20-foot estimate.
 // Purchase USD 7.50 per roll and pre-export costs USD 2,000 per order are
 // fictional assumptions chosen so gross margin is 36%, just above the 35%
-// quote-margin floor. One step down on the selling-price slider (12.50 → 12)
+// demo quote margin. One step down on the selling-price slider (12.50 → 12)
 // crosses that floor. Deposit 30% matches the case payment line and does not
 // enter the margin.
 
