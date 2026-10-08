@@ -2,6 +2,7 @@ import { useReducer, useRef } from "react";
 import { CheckCircle, Circle, PauseCircle, Prohibit, RadioButton } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import JudgmentNote from "./JudgmentNote.jsx";
+import NoBreakNumbers from "./NoBreakNumbers.jsx";
 import {
   STAGE_IDS,
   STATUS,
@@ -86,12 +87,12 @@ export default function TradeDecisionWorkflow() {
       <p className="text-xs font-semibold text-forest">{copy.demoLabel}</p>
       <p className="mt-1 text-xs leading-relaxed text-moss">{copy.disclosure}</p>
       <h4 id="trade-decision-title" className="mt-3 text-xl font-semibold text-forest">{copy.title}</h4>
-      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-moss">{copy.intro}</p>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-moss"><NoBreakNumbers text={copy.intro} /></p>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-moss">{copy.complement}</p>
 
       <div className="mt-4 border-l-2 border-amber/70 bg-amber/[0.06] px-3 py-3">
         <p className="text-xs font-semibold text-amber">{copy.scenarioTitle}</p>
-        <p className="mt-1 text-sm leading-relaxed text-ink">{copy.scenarioBody}</p>
+        <p className="mt-1 text-sm leading-relaxed text-ink"><NoBreakNumbers text={copy.scenarioBody} /></p>
         <a href={storyHref} className="mt-2 inline-flex text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber">
           {copy.storyLink}
         </a>

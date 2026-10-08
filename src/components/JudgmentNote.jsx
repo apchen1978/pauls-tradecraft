@@ -1,3 +1,5 @@
+import NoBreakNumbers from "./NoBreakNumbers.jsx";
+
 // One line of Paul's judgment, shown after a tool has produced its numbers or status.
 export default function JudgmentNote({ label, badge, text, id }) {
   if (!text) return null;
@@ -7,7 +9,7 @@ export default function JudgmentNote({ label, badge, text, id }) {
         {label}
         {badge ? <span className="rounded-pill border border-amber/40 px-2 py-0.5 text-xs font-medium text-moss">{badge}</span> : null}
       </p>
-      <p className="mt-1 text-sm font-semibold leading-relaxed text-forest">{text}</p>
+      <p className="mt-1 text-sm font-semibold leading-relaxed text-forest"><NoBreakNumbers text={text} /></p>
     </div>
   );
 }
