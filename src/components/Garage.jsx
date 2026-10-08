@@ -3,10 +3,8 @@ import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
 
 // Digital Garage, on the page: a sticker wall. Every experiment is a hard-edged card,
-// tilted a few degrees, with a highlighter-marked spark. Desktop shows the nine experiments
-// in a three-column grid; a wide card (item.wide) sits on the next row, spanning all three
-// columns. On a phone the first three show, then that wide card, then the rest under one
-// toggle — the wide card is not repeated inside the toggle. Palette stays inside the site
+// tilted a few degrees, with a highlighter-marked spark. Three show on every screen size;
+// the rest, and the wide card, sit under one toggle. Palette stays inside the site
 // tokens (bone / white / soft, ink borders). The highlighter band and the headline mark use
 // the coral "pop" accent; the "featured" and "latest" badges stay gold.
 const TILT = ["-rotate-[1.2deg]", "rotate-[0.8deg]", "-rotate-[0.5deg]"];
@@ -124,50 +122,34 @@ export default function Garage() {
         </h2>
         <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-moss md:text-lg">{g.intro}</p>
 
-        {/* Desktop: the nine experiments stay a 3×3; the wide card spans the row below */}
-        <ol className="mt-14 hidden gap-7 md:grid md:grid-cols-3">
-          {regular.map((item, index) => (
+        {/* Three experiments show; everything else, the wide card included, sits under one toggle */}
+        <ol className="mt-10 grid gap-6 md:mt-14 md:grid-cols-3 md:gap-7">
+          {firstThree.map((item, index) => (
             <li key={item.href} className="flex">
               <Card item={item} g={g} index={index} />
             </li>
           ))}
-          {wideItem ? (
-            <li key={wideItem.href} className="col-span-3 flex">
-              <WideCard item={wideItem} g={g} />
-            </li>
-          ) : null}
         </ol>
-
-        {/* Phone: the first three, then the wide card, then the rest under one toggle */}
-        <div className="mt-10 md:hidden">
-          <ol className="grid gap-6">
-            {firstThree.map((item, index) => (
-              <li key={item.href} className="flex">
-                <Card item={item} g={g} index={index} />
-              </li>
-            ))}
-            {wideItem ? (
-              <li key={wideItem.href} className="flex">
-                <WideCard item={wideItem} g={g} />
-              </li>
-            ) : null}
-          </ol>
-          {rest.length ? (
-            <details className="group/more mt-6">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[6px_7px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink [&::-webkit-details-marker]:hidden">
-                <span>{g.moreLabel}</span>
-                <span aria-hidden="true" className="text-lg leading-none transition-transform duration-200 group-open/more:rotate-45">+</span>
-              </summary>
-              <ol className="mt-6 grid gap-6">
-                {rest.map((item, index) => (
-                  <li key={item.href} className="flex">
-                    <Card item={item} g={g} index={index + 3} />
-                  </li>
-                ))}
-              </ol>
-            </details>
-          ) : null}
-        </div>
+        {rest.length || wideItem ? (
+          <details id="garage-more" className="group/more mt-6">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
+              <span>{g.moreLabel}</span>
+              <span aria-hidden="true" className="text-lg leading-none transition-transform duration-200 group-open/more:rotate-45">+</span>
+            </summary>
+            <ol className="mt-6 grid gap-6 md:mt-8 md:grid-cols-3 md:gap-7">
+              {rest.map((item, index) => (
+                <li key={item.href} className="flex">
+                  <Card item={item} g={g} index={index + 3} />
+                </li>
+              ))}
+              {wideItem ? (
+                <li key={wideItem.href} className="flex md:col-span-3">
+                  <WideCard item={wideItem} g={g} />
+                </li>
+              ) : null}
+            </ol>
+          </details>
+        ) : null}
       </div>
     </section>
   );

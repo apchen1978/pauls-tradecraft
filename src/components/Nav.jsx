@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { List, X } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import { scrollToElement } from "../calmScroll.js";
 
 export default function Nav() {
   const { lang, t, toggle } = useLang();
@@ -25,6 +26,18 @@ export default function Nav() {
     { href: "#about", label: t.nav.about },
   ];
 
+  const followSectionLink = (href) => {
+    if (href === "#garage") {
+      const moreExperiments = document.getElementById("garage-more");
+      if (moreExperiments) moreExperiments.open = true;
+      requestAnimationFrame(() => {
+        const garage = document.getElementById("garage");
+        if (garage) scrollToElement(garage);
+      });
+    }
+    setOpen(false);
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-bone/15 bg-pine/95 backdrop-blur-md">
       <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
@@ -35,7 +48,7 @@ export default function Nav() {
 
         <div className="hidden items-center gap-8 text-sm font-medium text-ondark lg:flex">
           {links.map((l) => (
-            <a key={l.href} href={l.href} className="underline decoration-transparent decoration-2 underline-offset-8 transition-colors hover:text-bone hover:decoration-gold focus-visible:text-bone focus-visible:decoration-gold">
+            <a key={l.href} href={l.href} onClick={() => followSectionLink(l.href)} className="underline decoration-transparent decoration-2 underline-offset-8 transition-colors hover:text-bone hover:decoration-gold focus-visible:text-bone focus-visible:decoration-gold">
               {l.label}
             </a>
           ))}
@@ -74,7 +87,7 @@ export default function Nav() {
               <a
                 key={l.href}
                 href={l.href}
-                onClick={() => setOpen(false)}
+                onClick={() => followSectionLink(l.href)}
                 className="rounded-field px-3 py-2.5 text-sm font-medium text-ondark transition-colors hover:bg-bone/10 hover:text-bone"
               >
                 {l.label}

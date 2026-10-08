@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { questions: "能做什麼", works: "作品", garage: "創意實驗", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { questions: "能做什麼", works: "作品", garage: "創意實驗／小遊戲", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "15 年＋", label: "帶產品打進海外市場" },
@@ -459,6 +459,15 @@ const dict = {
           featured: true,
         },
         {
+          title: "WordForge · 英語打字挑戰",
+          tag: "小遊戲",
+          spark: "用打字挑戰練習英文單字與反應。",
+          note: "Lil Matt's Gaming World 裡的獨立遊戲；和商業示範分開，也能直接在這裡開始玩。",
+          cta: "玩 WordForge",
+          boundary: "可遊玩的遊戲作品，不代表經過驗證的學習成效。",
+          href: "https://apchen1978.github.io/signal-rift-typing-demo/wordforge.html",
+        },
+        {
           title: "The Witness Tag · 見證標籤",
           tag: "示範實驗 · 中文原型",
           spark: "一句話經過三次轉述，最後聽起來竟像公司已經答應了。",
@@ -571,7 +580,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { questions: "What I do", works: "Work", garage: "Garage", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { questions: "What I do", works: "Work", garage: "Garage / Games", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "15+ years", label: "Taking products into overseas markets" },
@@ -1023,6 +1032,15 @@ const dict = {
           boundary: "Fictional deal — not an order approval, buyer evidence, or an outcome claim.",
           href: "/prototype/decision-adversary/",
           featured: true,
+        },
+        {
+          title: "WordForge · Typing Challenge",
+          tag: "Game",
+          spark: "Practice English vocabulary and quick thinking through a typing challenge.",
+          note: "A standalone game in Lil Matt's Gaming World, separate from the commercial demos and ready to play here.",
+          cta: "Play WordForge",
+          boundary: "A playable game, not a validated learning-outcome claim.",
+          href: "https://apchen1978.github.io/signal-rift-typing-demo/wordforge.html",
         },
         {
           title: "The Witness Tag · 見證標籤",
