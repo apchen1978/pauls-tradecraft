@@ -25,6 +25,10 @@ const expected = {
     ZH: "示範案例使用虛構資料，成效未驗證。",
     EN: "Demo cases use fictional data; outcomes not verified.",
   },
+  worksLead: {
+    ZH: "四站故事線：選路、選人、能不能承諾、算不算得過。下面四件作品由這條線串起。",
+    EN: "Four stations: the path, the people, whether to commit, and whether the numbers hold. The four works below follow this line.",
+  },
   capabilities: {
     ZH: ["海外商業開發", "承諾前的決策", "商業經濟／會計視角"],
     EN: ["Global business development", "Decisions before commitment", "Business economics / accounting-aware judgment"],
@@ -72,6 +76,8 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
   check(data.stats?.[0]?.value === "955", `${locale} missing TOEIC 955`);
   check(data.kicker === expected.kicker[locale], `${locale} kicker drifted from the site Hero line`);
   check(data.disclaimer === expected.disclaimer[locale], `${locale} disclaimer is not the single approved line`);
+  check(data.worksLead === expected.worksLead[locale], `${locale} works intro is not the approved line`);
+  check(!/各自獨立|stay separate/i.test(data.worksLead || ""), `${locale} works intro still says the works stay separate`);
   check(data.email === "paulchen1978@gmail.com", `${locale} email changed`);
   check(data.lineLabel === "LINE" && data.lineUrl === "https://line.me/ti/p/zSJdkOeQgS", `${locale} LINE contact is missing or shows an ID`);
   check(orderedContains(data.services || [], expected.capabilities[locale]), `${locale} human capability hierarchy is stale`);
