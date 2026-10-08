@@ -29,10 +29,7 @@ function StatusMark({ status, label }) {
   return (
     <span className="inline-flex items-start gap-1 text-xs leading-snug text-ink">
       <Icon size={14} weight="bold" aria-hidden="true" className="mt-0.5 shrink-0 text-forest" />
-      <span>
-        <span className="font-semibold">{label}</span>
-        <span className="mt-0.5 block font-medium text-moss">{status}</span>
-      </span>
+      <span className="font-semibold">{label}</span>
     </span>
   );
 }

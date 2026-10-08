@@ -16,6 +16,7 @@ import {
   passedCount,
   stages,
   workflowCopy,
+  workflowEntry,
 } from "../src/data/tradeDecisionWorkflow.js";
 
 const passThrough = (state, ids) => ids.reduce((current, id) => {
@@ -210,6 +211,37 @@ test("both languages carry the same stage shape and the scenario facts", () => {
   assert.equal(workflowCopy.en.columnsPerson, "Decided by a person");
   assert.equal(workflowCopy.zh.complement, "走到最後只留下一筆模擬核准紀錄，不會送出任何文件。");
   assert.equal(workflowCopy.en.complement, "The last step leaves a simulated approval record only. Nothing is sent.");
+  assert.deepEqual(workflowCopy.zh.status, {
+    PENDING: "待檢查",
+    ACTIVE: "進行中",
+    PASSED: "已通過",
+    HOLD: "暫緩",
+    BLOCKED: "受阻",
+  });
+  assert.deepEqual(workflowCopy.en.status, {
+    PENDING: "Pending",
+    ACTIVE: "Active",
+    PASSED: "Passed",
+    HOLD: "Hold",
+    BLOCKED: "Blocked",
+  });
+  const zhFacing = [
+    ...stages.flatMap((stage) => [stage.zh, stage.matrix?.zh]),
+    workflowCopy.zh,
+    workflowEntry.zh,
+  ];
+  const zhText = [];
+  const collectZh = (value) => {
+    if (typeof value === "string") zhText.push(value);
+    else if (Array.isArray(value)) value.forEach(collectZh);
+    else if (value && typeof value === "object") Object.values(value).forEach(collectZh);
+  };
+  collectZh(zhFacing);
+  assert.equal(/\b(PENDING|ACTIVE|PASSED|HOLD|BLOCKED|PASS|NEEDS_EVIDENCE|SIMULATED_APPROVAL|QUOTE_READY)\b/.test(zhText.join("\n")), false);
+  assert.match(workflowCopy.zh.quoteReady, /可送交檢視/);
+  assert.match(workflowCopy.zh.approvalBanner, /模擬核准/);
+  assert.match(workflowCopy.en.quoteReady, /QUOTE_READY/);
+  assert.match(workflowCopy.en.approvalBanner, /SIMULATED_APPROVAL/);
   assert.equal(text.includes("不尋找買家"), false);
   assert.equal(text.includes("does not look for buyers"), false);
   assert.equal(text.includes("商務決策工作台"), false);
