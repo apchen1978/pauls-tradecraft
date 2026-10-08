@@ -367,6 +367,7 @@ export const workflowCopy = {
     disclosure: "互動示範，使用合成資料。不會發生真實交易或授權。",
     demoLabel: "示範／成效未驗證",
     judgmentLabel: "Paul 會先看",
+    judgmentBadge: "Paul 的經驗判斷",
     judgments: {
       g1: "我先看這封詢盤是誰寄的、可不可信，值不值得花時間。",
       g2: "付款沒有保障之前，我不往報價走。",
@@ -419,6 +420,7 @@ export const workflowCopy = {
     disclosure: "Interactive demonstration using synthetic data. No real transaction or authorization occurs.",
     demoLabel: "Demo / outcomes not validated",
     judgmentLabel: "What Paul looks at first",
+    judgmentBadge: "Paul's experience-based judgment",
     judgments: {
       g1: "I first look at who sent this inquiry, whether it's credible, and whether it's worth the time.",
       g2: "Until payment is protected, I don't move toward a quote.",

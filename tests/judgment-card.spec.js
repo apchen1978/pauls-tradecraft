@@ -31,6 +31,7 @@ for (const width of [390, 1440]) {
       const card = panel.locator("[data-judgment]");
       await expect(card).toHaveAttribute("data-judgment", "c1");
       await expect(card).toContainText("Paul 會先看");
+      await expect(card).toContainText("Paul 的經驗判斷");
       await expect(card).toContainText("毛利還撐得住，但出貨前要先墊 17,000。我會先談訂金，再談價格。");
 
       await panel.locator("#profit-sellingPrice").fill("12");
@@ -55,6 +56,7 @@ for (const width of [390, 1440]) {
       const panel = await openCalculator(page, "en");
       const card = panel.locator("[data-judgment]");
       await expect(card).toContainText("What Paul looks at first");
+      await expect(card).toContainText("Paul's experience-based judgment");
       await expect(card).toContainText("USD 17,000");
     });
 
@@ -63,6 +65,7 @@ for (const width of [390, 1440]) {
       const card = panel.locator("[data-judgment]");
       await expect(card).toHaveAttribute("data-judgment", "g1");
       await expect(card).toContainText("我先看這封詢盤是誰寄的");
+      await expect(card).toContainText("Paul 的經驗判斷");
 
       await panel.locator("#trade-stage-rfq").click();
       await expect(card).toHaveCount(0);
