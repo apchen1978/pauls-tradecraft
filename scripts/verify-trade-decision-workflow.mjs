@@ -208,6 +208,12 @@ test("both languages carry the same stage shape and the scenario facts", () => {
   assert.equal(workflowCopy.en.columnsTool, "Prepared by tools");
   assert.equal(workflowCopy.zh.columnsPerson, "由人決定");
   assert.equal(workflowCopy.en.columnsPerson, "Decided by a person");
+  assert.equal(workflowCopy.zh.complement, "走到最後只留下一筆模擬核准紀錄，不會送出任何文件。");
+  assert.equal(workflowCopy.en.complement, "The last step leaves a simulated approval record only. Nothing is sent.");
+  assert.equal(text.includes("不尋找買家"), false);
+  assert.equal(text.includes("does not look for buyers"), false);
+  assert.equal(text.includes("商務決策工作台"), false);
+  assert.equal(text.includes("Commercial Decision Desk"), false);
   const banned = [
     /\bAI\b/,
     /人工智能|人工智慧/,

@@ -333,7 +333,7 @@ export const workflowCopy = {
   zh: {
     title: "從詢盤到報價：六道關卡",
     intro: "一筆詢盤要走到報價，中間有六道關卡。工具先把資料整理好；價格、風險與承諾由人決定。",
-    complement: "這裡不尋找買家，也不重做下方的 RFQ 走讀或商務決策工作台。那些作品各自獨立，不與這個示範交換資料。走到最後只會留下一筆模擬核准紀錄，不會送出任何文件。",
+    complement: "走到最後只留下一筆模擬核准紀錄，不會送出任何文件。",
     scenarioTitle: "虛構情境 · 美式純紙牆紙 · 第一櫃",
     scenarioBody: "虛構的 Kensington Pattern Co. 詢問美式純紙牆紙，想把第一張單做到一個櫃子。沒有真實接觸。FOB 上海每卷 USD 10–15。卷規格 0.686 × 8.23 m。MOQ 1,000 直米。付款接受線：訂金 30%，餘款出貨前付清。報價毛利地板大約 35%。這些是條件，不是已發生的成效。",
     storyLink: "同一份虛構條件的四站故事線",
@@ -378,7 +378,7 @@ export const workflowCopy = {
   en: {
     title: "From Inquiry to Quote: Six Decision Gates",
     intro: "Six gates sit between an inquiry and a quotation. Tools prepare the record. A person decides price, risk, and any commitment.",
-    complement: "This does not look for buyers, and it does not redo the RFQ walkthrough below or the Commercial Decision Desk. Those works stay independent and do not exchange data with this demo. The last step leaves a simulated approval record only. Nothing is sent.",
+    complement: "The last step leaves a simulated approval record only. Nothing is sent.",
     scenarioTitle: "Fictional scenario · pure-paper wallpaper · first container",
     scenarioBody: "Fictional Kensington Pattern Co. asks about American-style pure-paper wallpaper and whether a first order could fill one container. There was no real contact. FOB Shanghai USD 10–15 per roll. Roll size 0.686 × 8.23 m. MOQ 1,000 linear meters (直米). Acceptable payment line: 30% deposit, balance before shipment. Quote-margin floor about 35%. These are conditions, not results that have occurred.",
     storyLink: "The four-station storyline for these same fictional conditions",
