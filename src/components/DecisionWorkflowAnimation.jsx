@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
+import { loadGsap } from "../gsapLoader.js";
 import { useLang } from "../i18n.jsx";
 import { FoldToggle } from "./FoldedIntro.jsx";
 import "./decision-workflow-animation.css";
@@ -83,7 +83,14 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
     const figure = figureRef.current;
     if (!figure) return undefined;
 
-    const ctx = gsap.context(() => {
+    // Only the desktop diagram needs gsap (phones animate with CSS), and it arrives after
+    // the page has loaded; until then the diagram shows its normal final state.
+    let ctx = null;
+    let cancelled = false;
+    const wide = window.matchMedia("(min-width: 1051px)");
+    const build = () => loadGsap().then((gsap) => {
+    if (cancelled) return;
+    ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
       mm.add(
         { desktop: "(min-width: 1051px)", reduceMotion: "(prefers-reduced-motion: reduce)" },
@@ -190,8 +197,21 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
         },
       );
     }, figure);
+    });
 
-    return () => ctx.revert();
+    const onWide = () => {
+      if (!wide.matches) return;
+      wide.removeEventListener("change", onWide);
+      build();
+    };
+    if (wide.matches) build();
+    else wide.addEventListener("change", onWide);
+
+    return () => {
+      cancelled = true;
+      wide.removeEventListener("change", onWide);
+      ctx?.revert();
+    };
   }, [lang]);
 
   // 進入畫面才播放；離開畫面暫停

@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Lenis from "lenis";
-import Snap from "lenis/snap";
 import "lenis/dist/lenis.css";
 
 // Calm desktop reading: a fast mouse-wheel spin no longer flings the page to
@@ -48,6 +46,15 @@ export function useCalmScroll() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (!desktop.matches || reduced.matches) return undefined;
 
+    // Lenis is desktop-only and loads after the page has finished loading, so phones never
+    // download it and the first paint never waits for it. Until it is ready the page scrolls natively.
+    let destroy = null;
+    let cancelled = false;
+    const init = () => {
+      Promise.all([import("lenis"), import("lenis/snap")]).then(([lenisModule, snapModule]) => {
+    if (cancelled) return;
+    const Lenis = lenisModule.default;
+    const Snap = snapModule.default;
     let burst = []; // [timestamp, |deltaY|] of recent wheel input
     const lenis = new Lenis({
       autoRaf: true,
@@ -98,7 +105,7 @@ export function useCalmScroll() {
     observer.observe(document.body);
     document.addEventListener("toggle", scheduleRefresh, true);
 
-    return () => {
+    destroy = () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
       document.removeEventListener("toggle", scheduleRefresh, true);
@@ -106,6 +113,16 @@ export function useCalmScroll() {
       snap.destroy();
       lenis.destroy();
       activeLenis = null;
+    };
+      });
+    };
+    if (document.readyState === "complete") init();
+    else window.addEventListener("load", init, { once: true });
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("load", init);
+      destroy?.();
     };
   }, []);
 }
