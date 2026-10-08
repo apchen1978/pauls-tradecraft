@@ -11,8 +11,8 @@ export default function Contact() {
       : "/files/Paul-Tradecraft-OnePager-ZH.pdf";
   const emailHref =
     lang === "en"
-      ? "mailto:paulchen1978@gmail.com?subject=About%20my%20product&body=Hi%20Paul%2C%0A%0AI%27d%20like%20to%20discuss%20a%20commercial%20pilot.%0A%0AContext%3A%20"
-      : "mailto:paulchen1978@gmail.com?subject=%E8%81%8A%E8%81%8A%E6%88%91%E7%9A%84%E7%94%A2%E5%93%81&body=Paul%20%E4%BD%A0%E5%A5%BD%EF%BC%8C%0A%0A%E6%88%91%E6%83%B3%E8%A8%8E%E8%AB%96%E4%B8%80%E5%80%8B%E5%95%86%E6%A5%AD%20Pilot%E3%80%82%0A%0A%E5%95%8F%E9%A1%8C%E8%83%8C%E6%99%AF%EF%BC%9A";
+      ? "mailto:paulchen1978@gmail.com?subject=About%20my%20product&body=Hi%20Paul%2C%0A%0AI%27d%20like%20to%20talk%20about%20my%20product.%0A%0AContext%3A%20"
+      : "mailto:paulchen1978@gmail.com?subject=%E8%81%8A%E8%81%8A%E6%88%91%E7%9A%84%E7%94%A2%E5%93%81&body=Paul%20%E4%BD%A0%E5%A5%BD%EF%BC%8C%0A%0A%E6%88%91%E6%83%B3%E8%81%8A%E8%81%8A%E6%88%91%E7%9A%84%E7%94%A2%E5%93%81%E3%80%82%0A%0A%E5%95%8F%E9%A1%8C%E8%83%8C%E6%99%AF%EF%BC%9A";
   return (
     <section id="contact" className="scroll-mt-24 bg-pine text-bone">
       <div className="mx-auto max-w-7xl px-4 py-16 text-center md:px-6 md:py-36">
