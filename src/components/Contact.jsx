@@ -81,12 +81,6 @@ export default function Contact() {
             <FilePdf size={16} weight="bold" />
             {t.contact.capabilityBrief}
           </a>
-          <a
-            href="mailto:paulchen1978@gmail.com"
-            className="text-sm font-medium text-gold underline decoration-gold/40 underline-offset-4 transition-colors hover:text-bone"
-          >
-            paulchen1978@gmail.com
-          </a>
           <p className="mt-2 text-xs text-ondark-meta">{t.contact.note}</p>
         </motion.div>
       </div>
