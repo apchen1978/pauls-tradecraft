@@ -366,6 +366,13 @@ export const workflowCopy = {
     approvalBanner: "模擬核准 · 模擬核准紀錄。沒有送出任何文件，也沒有建立授權。",
     disclosure: "互動示範，使用合成資料。不會發生真實交易或授權。",
     demoLabel: "示範／成效未驗證",
+    judgmentLabel: "Paul 會先看",
+    judgments: {
+      g1: "我先看這封詢盤是誰寄的、可不可信，值不值得花時間。",
+      g2: "付款沒有保障之前，我不往報價走。",
+      g3: "這筆證據是模擬補上的。真的案子，我要看到真的付款保障才往下走。",
+      g4: "報價可以送去給人檢視了。要不要發出去，由負責人決定。",
+    },
     lockedInspect: "這一關還沒到可以通過的時候，仍然可以打開查看。",
     status: {
       PENDING: "待檢查",
@@ -411,6 +418,13 @@ export const workflowCopy = {
     approvalBanner: "SIMULATED_APPROVAL · Simulated approval record. Nothing was sent, and no authorization was created.",
     disclosure: "Interactive demonstration using synthetic data. No real transaction or authorization occurs.",
     demoLabel: "Demo / outcomes not validated",
+    judgmentLabel: "What Paul looks at first",
+    judgments: {
+      g1: "I first look at who sent this inquiry, whether it's credible, and whether it's worth the time.",
+      g2: "Until payment is protected, I don't move toward a quote.",
+      g3: "This evidence was added by simulation. In a real case, I need to see real payment protection before going on.",
+      g4: "The quote can go to a person for review. Whether it goes out is the decision-maker's call.",
+    },
     lockedInspect: "This gate is not ready to pass. It can still be opened and read.",
     status: {
       PENDING: "Pending",
@@ -450,6 +464,14 @@ export function describeRefusal(refusal, lang) {
       : "Payment-security evidence is still missing. Missing evidence is not shown as checked. Hold the gate, or use the labelled simulated resolution, then let a person decide whether it passes.";
   }
   return copy.lockedInspect;
+}
+
+// The one-line judgment for the stage being viewed; null where there is nothing to add.
+export function stageJudgment(flow, stageId) {
+  if (stageId === "lead" || stageId === "qualification") return "g1";
+  if (stageId === "risk-check") return flow.paymentSecurityEvidence === "simulated" ? "g3" : "g2";
+  if (stageId === "quote") return "g4";
+  return null;
 }
 
 export function collectPublicText() {

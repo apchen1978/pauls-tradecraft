@@ -1,6 +1,7 @@
 import { useReducer, useRef } from "react";
 import { CheckCircle, Circle, PauseCircle, Prohibit, RadioButton } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
+import JudgmentNote from "./JudgmentNote.jsx";
 import {
   STAGE_IDS,
   STATUS,
@@ -10,6 +11,7 @@ import {
   passRefusal,
   passedCount,
   stageById,
+  stageJudgment,
   stages,
   workflowCopy,
   createFlowState,
@@ -47,6 +49,7 @@ export default function TradeDecisionWorkflow() {
   const passed = passedCount(flow.stages);
   const total = STAGE_IDS.length;
   const block = passRefusal(flow, selected.id);
+  const judgmentKey = stageJudgment(flow, selected.id);
   const blockText = describeRefusal(block, lang);
   const atStart = nav.selectedId === STAGE_IDS[0];
   const atEnd = nav.selectedId === STAGE_IDS[STAGE_IDS.length - 1];
@@ -238,6 +241,8 @@ export default function TradeDecisionWorkflow() {
             </button>
           </div>
         )}
+
+        <JudgmentNote label={copy.judgmentLabel} id={judgmentKey} text={judgmentKey ? copy.judgments[judgmentKey] : null} />
 
         {selected.id === "quote" && flow.stages.quote === STATUS.PASSED && (
           <p className="mt-3 border-l-2 border-forest/40 pl-3 text-sm font-semibold text-forest">{copy.quoteReady}</p>

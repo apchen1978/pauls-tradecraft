@@ -39,7 +39,7 @@ test("number input and slider update the margin, then reset restores it", async 
   await expect(panel.locator("[data-break-even]")).toHaveAttribute("data-break-even", "8");
   await expect(panel.locator("[data-margin]")).toHaveAttribute("data-margin", "0.36");
   await expect(panel.locator("[data-margin-warning]")).toHaveAttribute("data-margin-warning", "false");
-  await expect(panel.getByText("毛利仍在 35% 底線之上")).toBeVisible();
+  await expect(panel.getByText("毛利仍在本示範設定的 35% 之上")).toBeVisible();
   await expect(panel.getByText("虛構的美式純紙牆紙第一櫃：FOB 上海每卷 USD 10–15，MOQ 1,000 直米（約 122 卷），20 呎櫃估算 3,000–5,000 卷，訂金 30%，餘款出貨前付清。")).toBeVisible();
   await expect(panel.getByText("售價取這個區間的中間")).toHaveCount(0);
   await expect(panel.getByText("出口前費用（內陸運輸、報關、港雜）")).toBeVisible();
@@ -61,8 +61,8 @@ test("number input and slider update the margin, then reset restores it", async 
   await page.locator("#profit-sellingPrice").fill("12");
   await expect(panel.locator("[data-gross-profit]")).toHaveAttribute("data-gross-profit", "16000");
   await expect(panel.locator("[data-margin-warning]")).toHaveAttribute("data-margin-warning", "true");
-  await expect(panel.getByText("低於 35% 毛利底線")).toBeVisible();
-  await expect(panel.locator("[data-profit-live]")).toContainText("低於 35% 毛利底線");
+  await expect(panel.getByText("低於本示範設定的 35%")).toBeVisible();
+  await expect(panel.locator("[data-profit-live]")).toContainText("低於本示範設定的 35%");
 
   await page.locator("[data-field='purchaseCost'] input[type='range']").fill("8");
   await expect(page.locator("#profit-purchaseCost")).toHaveValue("8");
@@ -74,7 +74,7 @@ test("number input and slider update the margin, then reset restores it", async 
   await expect(panel.locator("[data-gross-profit]")).toHaveAttribute("data-gross-profit", "18000");
   await expect(panel.locator("[data-margin]")).toHaveAttribute("data-margin", "0.36");
   await expect(panel.locator("[data-margin-warning]")).toHaveAttribute("data-margin-warning", "false");
-  await expect(panel.getByText("低於 35% 毛利底線")).toHaveCount(0);
+  await expect(panel.getByText("低於本示範設定的 35%")).toHaveCount(0);
 
   expect(await overflowX(page)).toBeLessThanOrEqual(1);
   await panel.screenshot({ path: `${ARTIFACTS}/zh-desktop.png` });
@@ -90,14 +90,14 @@ test("english copy, fictional label, and the full navigator link", async ({ page
   await expect(panel.getByText("middle of that band")).toHaveCount(0);
   await expect(panel.getByText("Pre-export costs (inland haulage, customs, port charges)")).toBeVisible();
   await expect(panel.getByText("Freight", { exact: true })).toHaveCount(0);
-  await expect(panel.getByText("Below the 35% margin floor")).toHaveCount(0);
-  await expect(panel.getByText("Margin is still above the 35% floor")).toBeVisible();
+  await expect(panel.getByText("Below the 35% set for this demo")).toHaveCount(0);
+  await expect(panel.getByText("Margin is still above the 35% set for this demo")).toBeVisible();
   await expect(panel.locator("[data-margin]")).toHaveAttribute("data-margin", "0.36");
   await expect(panel.getByRole("link", { name: "Open the full Trade Profit Navigator" })).toHaveAttribute("href", /[?&]lang=en/);
 
   await page.locator("#profit-freight").fill("8000");
   await expect(panel.locator("[data-margin-warning]")).toHaveAttribute("data-margin-warning", "true");
-  await expect(panel.getByText("Below the 35% margin floor")).toBeVisible();
+  await expect(panel.getByText("Below the 35% set for this demo")).toBeVisible();
   await page.getByRole("button", { name: "Reset" }).click();
   await expect(panel.locator("[data-margin-warning]")).toHaveAttribute("data-margin-warning", "false");
   expect(await overflowX(page)).toBeLessThanOrEqual(1);
@@ -109,7 +109,7 @@ test("390px stays readable in both languages, including the floor warning", asyn
   await page.goto("/?lang=zh#trade-profit-navigator");
   const panel = await openCalculator(page);
   await page.locator("#profit-sellingPrice").fill("10");
-  await expect(panel.getByText("低於 35% 毛利底線")).toBeVisible();
+  await expect(panel.getByText("低於本示範設定的 35%")).toBeVisible();
   await expect(panel.locator("[data-break-even]")).toHaveAttribute("data-break-even", "8");
   expect(await overflowX(page)).toBeLessThanOrEqual(1);
   await panel.screenshot({ path: `${ARTIFACTS}/zh-mobile.png` });
@@ -117,7 +117,7 @@ test("390px stays readable in both languages, including the floor warning", asyn
   await page.goto("/?lang=en#trade-profit-navigator");
   const english = await openCalculator(page);
   await page.locator("#profit-sellingPrice").fill("10");
-  await expect(english.getByText("Below the 35% margin floor")).toBeVisible();
+  await expect(english.getByText("Below the 35% set for this demo")).toBeVisible();
   await expect(english.locator("[data-margin-warning]")).toHaveAttribute("data-margin-warning", "true");
   expect(await overflowX(page)).toBeLessThanOrEqual(1);
   await english.screenshot({ path: `${ARTIFACTS}/en-mobile.png` });

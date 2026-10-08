@@ -12,7 +12,9 @@ import {
   formatPercent,
   formatResultText,
   formatUsd,
+  judgmentText,
   liveSummary,
+  profitJudgment,
   resetInputs,
 } from "../src/data/profitCalculator.js";
 
@@ -77,10 +79,10 @@ test("margin math, break-even, and the 35% floor use the unrounded ratio", () =>
   assert.equal(oneSliderStep.grossProfit, 16000);
   assert.equal(oneSliderStep.grossMargin, 16000 / 48000);
   assert.equal(oneSliderStep.belowFloor, true);
-  assert.match(liveSummary(oneSliderStep, "zh"), /低於 35% 毛利底線/);
-  assert.match(liveSummary(oneSliderStep, "en"), /Below the 35% margin floor/);
-  assert.match(liveSummary(defaults(), "zh"), /毛利仍在 35% 底線之上/);
-  assert.equal(liveSummary(defaults(), "zh").includes("低於 35% 毛利底線"), false);
+  assert.match(liveSummary(oneSliderStep, "zh"), /低於本示範設定的 35%/);
+  assert.match(liveSummary(oneSliderStep, "en"), /Below the 35% set for this demo/);
+  assert.match(liveSummary(defaults(), "zh"), /毛利仍在本示範設定的 35% 之上/);
+  assert.equal(liveSummary(defaults(), "zh").includes("低於本示範設定的 35%"), false);
 });
 
 test("deposit changes cash before shipment and does not change the margin", () => {
@@ -214,8 +216,8 @@ test("both languages carry the case facts and the same shape", () => {
   assert.equal(text.includes("運費"), false);
   assert.equal(/\bFreight\b/.test(text), false);
   assert.equal(/ocean freight/i.test(text), false);
-  assert.equal(calculatorCopy.zh.floorWarning, "低於 35% 毛利底線");
-  assert.equal(calculatorCopy.en.floorWarning, "Below the 35% margin floor");
+  assert.equal(calculatorCopy.zh.floorWarning, "低於本示範設定的 35%");
+  assert.equal(calculatorCopy.en.floorWarning, "Below the 35% set for this demo");
   const pasted = formatResultText(DEFAULT_INPUTS, defaults(), "zh");
   assert.match(pasted, /出口前費用（內陸運輸、報關、港雜）/);
   assert.match(pasted, /USD 18,000/);
@@ -248,4 +250,27 @@ test("calculator modules do not call the network", () => {
   const joined = sources.join("\n");
   assert.equal(/\bfetch\s*\(/.test(joined), false);
   assert.equal(/XMLHttpRequest|WebSocket|sendBeacon/.test(joined), false);
+});
+
+test("the one-line judgment follows the numbers, never asserts a floor, and keeps blanks unknown", () => {
+  const pick = (overrides) => profitJudgment(calculateProfit({ ...DEFAULT_INPUTS, ...overrides }));
+  assert.equal(pick({}), "c1");
+  assert.equal(pick({ sellingPrice: 12 }), "c2");
+  assert.equal(pick({ depositPct: 20 }), "c3");
+  assert.equal(pick({ depositPct: 100 }), "c4");
+  assert.equal(pick({ purchaseCost: "" }), "c5");
+  assert.equal(pick({ depositPct: "" }), "c5");
+  assert.equal(pick({ quantity: 0 }), null);
+
+  const zh = judgmentText("c1", "zh", defaults());
+  assert.equal(zh, "毛利還撐得住，但出貨前要先墊 17,000。我會先談訂金，再談價格。");
+  assert.match(judgmentText("c1", "en", defaults()), /USD 17,000/);
+
+  for (const lang of ["zh", "en"]) {
+    assert.deepEqual(Object.keys(calculatorCopy[lang].judgments), ["c1", "c2", "c3", "c4", "c5"]);
+    for (const line of Object.values(calculatorCopy[lang].judgments)) {
+      assert.equal(/底線|floor|ROI|AI|老闆/i.test(line), false, line);
+    }
+  }
+  assert.equal(calculatorCopy.zh.judgmentLabel, "Paul 會先看");
 });
