@@ -155,7 +155,7 @@ export default function ProfitCalculator({ href }) {
           <span>{floorText}</span>
         </p>
       </div>
-      <JudgmentNote label={copy.judgmentLabel} id={judgmentKey} text={judgmentKey ? judgmentText(judgmentKey, lang, result) : null} />
+      <JudgmentNote label={copy.judgmentLabel} badge={copy.judgmentBadge} id={judgmentKey} text={judgmentKey ? judgmentText(judgmentKey, lang, result) : null} />
 
       <div className="mt-4 grid min-w-0 gap-x-4 gap-y-3 sm:grid-cols-2">
         {FIELD_ORDER.map((key) => (

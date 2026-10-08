@@ -242,7 +242,7 @@ export default function TradeDecisionWorkflow() {
           </div>
         )}
 
-        <JudgmentNote label={copy.judgmentLabel} id={judgmentKey} text={judgmentKey ? copy.judgments[judgmentKey] : null} />
+        <JudgmentNote label={copy.judgmentLabel} badge={copy.judgmentBadge} id={judgmentKey} text={judgmentKey ? copy.judgments[judgmentKey] : null} />
 
         {selected.id === "quote" && flow.stages.quote === STATUS.PASSED && (
           <p className="mt-3 border-l-2 border-forest/40 pl-3 text-sm font-semibold text-forest">{copy.quoteReady}</p>

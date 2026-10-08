@@ -248,6 +248,7 @@ export const calculatorCopy = {
   zh: {
     demoLabel: "示範／虛構數字",
     judgmentLabel: "Paul 會先看",
+    judgmentBadge: "Paul 的經驗判斷",
     judgments: {
       c1: "毛利還撐得住，但出貨前要先墊 {cash}。我會先談訂金，再談價格。",
       c2: "價格一往下，毛利就薄。我會先確認買方是不是真的只能出這個價，再回頭看成本。",
@@ -290,6 +291,7 @@ export const calculatorCopy = {
   en: {
     demoLabel: "Demo with fictional numbers",
     judgmentLabel: "What Paul looks at first",
+    judgmentBadge: "Paul's experience-based judgment",
     judgments: {
       c1: "The margin still holds, but I have to put up USD {cash} before shipment. I'd talk deposit first, then price.",
       c2: "One step down on price and the margin gets thin. I'd first confirm the buyer really can't pay more, then look back at cost.",

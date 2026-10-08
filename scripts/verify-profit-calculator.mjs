@@ -273,4 +273,6 @@ test("the one-line judgment follows the numbers, never asserts a floor, and keep
     }
   }
   assert.equal(calculatorCopy.zh.judgmentLabel, "Paul 會先看");
+  assert.equal(calculatorCopy.zh.judgmentBadge, "Paul 的經驗判斷");
+  assert.equal(calculatorCopy.en.judgmentBadge, "Paul's experience-based judgment");
 });
