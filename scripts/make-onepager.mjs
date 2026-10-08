@@ -218,26 +218,27 @@ function main() {
   const outName = `Paul-Tradecraft-OnePager-${locale.toUpperCase()}.pdf`;
   const outPdf = path.join(ROOT, "public", "files", outName);
   fs.mkdirSync(path.dirname(outPdf), { recursive: true });
-  const chromeProfile = path.join(ROOT, `.tmp-onepager-chrome-${locale}`);
-  fs.rmSync(chromeProfile, { recursive: true, force: true });
 
   const r = spawnSync(chrome, [
     "--headless=new",
     "--disable-gpu",
     "--no-first-run",
+    "--no-default-browser-check",
     "--no-sandbox",
     "--disable-setuid-sandbox",
     "--disable-dev-shm-usage",
+    "--disable-background-networking",
+    "--disable-sync",
+    "--disable-extensions",
+    "--disable-component-update",
     "--font-render-hinting=none",
     "--no-pdf-header-footer",
     "--virtual-time-budget=5000",
-    `--user-data-dir=${chromeProfile}`,
     `--print-to-pdf=${outPdf}`,
     pathToFileURL(tmpHtml).href,
-  ], { stdio: "inherit", timeout: 90000 });
+  ], { stdio: "inherit", timeout: 180000 });
 
   fs.rmSync(tmpHtml, { force: true });
-  fs.rmSync(chromeProfile, { recursive: true, force: true });
 
   if (r.status === 0 && fs.existsSync(outPdf)) {
     console.log(`[onepager] ${locale.toUpperCase()} PDF generated: ${outPdf} (${fs.statSync(outPdf).size} bytes)`);
