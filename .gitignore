@@ -18,3 +18,5 @@ public/files/*
 # QA screenshots and visual-check output stay out of the repo
 output/
 visual-check/
+test-results/
+playwright-report/

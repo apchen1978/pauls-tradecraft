@@ -13,6 +13,8 @@ import { useLang } from "../i18n.jsx";
 import { firstContainerStory, works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
 import GlobalBusinessDevelopment from "./GlobalBusinessDevelopment.jsx";
+import TradeDecisionWorkflow from "./TradeDecisionWorkflow.jsx";
+import { workflowEntry } from "../data/tradeDecisionWorkflow.js";
 import { FoldToggle, firstSentence, foldClass, useFold } from "./FoldedIntro.jsx";
 import CoverImage from "./CoverImage.jsx";
 
@@ -503,7 +505,7 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
             <dt className={`font-semibold ${styles.heading}`}>{labels.result}</dt>
             <dd className={`mt-0.5 leading-relaxed ${styles.body}`}>{f(c.result)}</dd>
         </div>}
-        {workingEvidence && <WorkingEvidence data={workingEvidence} tone={tone} />}
+        {workingEvidence && !c.marketEntry && <WorkingEvidence data={workingEvidence} tone={tone} />}
         {!c.marketEntry && <div>
           <dt className={`font-semibold ${styles.heading}`}>{labels.evidence}</dt>
           <dd className={`mt-0.5 break-words leading-relaxed ${styles.body}`}>{f(c.evidence)}</dd>
@@ -538,6 +540,12 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
           </div>
         )}
       </dl>
+      {c.marketEntry && (
+        <>
+          <TradeDecisionWorkflow />
+          {workingEvidence && <WorkingEvidence data={workingEvidence} tone={tone} />}
+        </>
+      )}
     </details>
   );
 }
@@ -837,6 +845,26 @@ export default function Works() {
             )}
             <p className="mt-2 text-sm leading-relaxed text-moss md:text-base">{copy.desc}</p>
             {w.marketEntry && <MarketEntrySignal data={w.marketEntry} />}
+            {w.id === "ai-native-market-entry" && (
+              <div className="mt-4">
+                <button
+                  id="open-trade-decision-workflow"
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-field border border-forest/25 bg-forest/[0.06] px-4 py-2.5 text-sm font-semibold text-forest transition-colors hover:border-amber/60 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    const article = event.currentTarget.closest("article");
+                    const details = article?.querySelector("details");
+                    if (details) details.open = true;
+                    const panel = article?.querySelector("#trade-decision-workflow");
+                    requestAnimationFrame(() => panel?.focus());
+                  }}
+                >
+                  {workflowEntry[lang].cta}
+                </button>
+                <p className="mt-1.5 text-xs leading-relaxed text-moss">{workflowEntry[lang].note}</p>
+              </div>
+            )}
             {w.spendingInsight && <SpendingInsightSignal data={w.spendingInsight} />}
             {copy.caseSummary && (
               <p className="mt-4 border-t border-line pt-3 text-sm leading-relaxed text-ink">
