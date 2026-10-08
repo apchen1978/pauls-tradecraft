@@ -31,7 +31,7 @@ function Field({ id, field, range, value, onChange }) {
     : range.min;
   return (
     <div className="min-w-0" data-field={id}>
-      <label htmlFor={`profit-${id}`} className="text-sm font-semibold text-ink">{field.label}</label>
+      <label htmlFor={`profit-${id}`} className="block break-words text-sm font-semibold text-ink">{field.label}</label>
       <div className="mt-1 flex min-w-0 items-center gap-2">
         <input
           id={`profit-${id}`}

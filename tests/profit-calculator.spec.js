@@ -40,7 +40,10 @@ test("number input and slider update the margin, then reset restores it", async 
   await expect(panel.locator("[data-margin]")).toHaveAttribute("data-margin", "0.36");
   await expect(panel.locator("[data-margin-warning]")).toHaveAttribute("data-margin-warning", "false");
   await expect(panel.getByText("毛利仍在 35% 底線之上")).toBeVisible();
-  await expect(panel.getByText("1,000 直米")).toBeVisible();
+  await expect(panel.getByText("虛構的美式純紙牆紙第一櫃：FOB 上海每卷 USD 10–15，MOQ 1,000 直米（約 122 卷），20 呎櫃估算 3,000–5,000 卷，訂金 30%，餘款出貨前付清。")).toBeVisible();
+  await expect(panel.getByText("售價取這個區間的中間")).toHaveCount(0);
+  await expect(panel.getByText("出口前費用（內陸運輸、報關、港雜）")).toBeVisible();
+  await expect(panel.getByText("運費")).toHaveCount(0);
   await expect(panel.getByRole("link", { name: "打開完整的貿易利潤導航" })).toHaveAttribute("href", /trade-profit-navigator-demo/);
 
   await expect(panel).toBeFocused();
@@ -83,6 +86,10 @@ test("english copy, fictional label, and the full navigator link", async ({ page
   const panel = await openCalculator(page);
   await expect(panel.getByRole("heading", { name: "Try this order's margin" })).toBeVisible();
   await expect(panel.getByText("Demo with fictional numbers").first()).toBeVisible();
+  await expect(panel.getByText("Fictional first container of American-style pure-paper wallpaper: FOB Shanghai USD 10–15 per roll, MOQ 1,000 linear meters (直米, about 122 rolls), a 20-foot container estimated at 3,000–5,000 rolls, 30% deposit, balance before shipment.")).toBeVisible();
+  await expect(panel.getByText("middle of that band")).toHaveCount(0);
+  await expect(panel.getByText("Pre-export costs (inland haulage, customs, port charges)")).toBeVisible();
+  await expect(panel.getByText("Freight", { exact: true })).toHaveCount(0);
   await expect(panel.getByText("Below the 35% margin floor")).toHaveCount(0);
   await expect(panel.getByText("Margin is still above the 35% floor")).toBeVisible();
   await expect(panel.locator("[data-margin]")).toHaveAttribute("data-margin", "0.36");

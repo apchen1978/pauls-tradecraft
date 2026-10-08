@@ -5,16 +5,20 @@
 // An explicit zero is a real entry.
 //
 // Economics here are the short version a visitor can try on the page:
-// revenue, purchase cost, freight, gross profit, gross margin, and break-even
-// price. Funding cost, duty, and the lever scenarios stay in the full tool.
+// revenue, purchase cost, pre-export costs, gross profit, gross margin, and
+// break-even price. The case is FOB Shanghai, so ocean freight is the buyer's
+// cost and is not an input. The stored field key is still `freight`; every
+// public label says pre-export costs (inland haulage, export customs, port
+// charges). Funding cost, duty, and the lever scenarios stay in the full tool.
 //
 // Defaults are the fictional US pure-paper wallpaper first container.
 // Selling price USD 12.50 is the midpoint of FOB Shanghai USD 10–15 per roll.
 // Quantity 4,000 is the midpoint of the 3,000–5,000 roll 20-foot estimate.
-// Purchase USD 7.50 per roll and freight USD 2,000 are fictional assumptions
-// chosen so gross margin is 36%, just above the 35% quote-margin floor.
-// One step down on the selling-price slider (12.50 → 12) crosses that floor.
-// Deposit 30% matches the case payment line and does not enter the margin.
+// Purchase USD 7.50 per roll and pre-export costs USD 2,000 per order are
+// fictional assumptions chosen so gross margin is 36%, just above the 35%
+// quote-margin floor. One step down on the selling-price slider (12.50 → 12)
+// crosses that floor. Deposit 30% matches the case payment line and does not
+// enter the margin.
 
 export const MARGIN_FLOOR = 0.35;
 
@@ -208,14 +212,14 @@ const fields = {
     sellingPrice: { label: "每卷售價", unit: "USD／卷", slider: "每卷售價滑桿" },
     purchaseCost: { label: "每卷採購成本", unit: "USD／卷", slider: "每卷採購成本滑桿" },
     quantity: { label: "數量", unit: "卷", slider: "數量滑桿" },
-    freight: { label: "每張訂單運費", unit: "USD", slider: "每張訂單運費滑桿" },
+    freight: { label: "出口前費用（內陸運輸、報關、港雜）", unit: "USD", slider: "出口前費用（內陸運輸、報關、港雜）滑桿" },
     depositPct: { label: "訂金", unit: "%", slider: "訂金比例滑桿" },
   },
   en: {
     sellingPrice: { label: "Selling price per roll", unit: "USD / roll", slider: "Selling price per roll slider" },
     purchaseCost: { label: "Purchase cost per roll", unit: "USD / roll", slider: "Purchase cost per roll slider" },
     quantity: { label: "Quantity", unit: "rolls", slider: "Quantity slider" },
-    freight: { label: "Freight per order", unit: "USD", slider: "Freight per order slider" },
+    freight: { label: "Pre-export costs (inland haulage, customs, port charges)", unit: "USD", slider: "Pre-export costs (inland haulage, customs, port charges) slider" },
     depositPct: { label: "Deposit", unit: "%", slider: "Deposit slider" },
   },
 };
@@ -224,20 +228,20 @@ export const calculatorCopy = {
   zh: {
     demoLabel: "示範／虛構數字",
     title: "先試算這張單的毛利",
-    intro: "虛構的美式純紙牆紙第一櫃。卷規格 0.686 × 8.23 m。FOB 上海每卷 USD 10–15。MOQ 1,000 直米，約 122 卷。20 呎櫃估算 3,000–5,000 卷。售價取這個區間的中間，數量取櫃子估算的中間；採購與運費是虛構假設，讓毛利停在略高於 35% 的報價地板。訂金預設 30%，餘款出貨前付清。",
-    scope: "這裡只算售價、採購與運費。空白或負數保持未知，不會當成零。資金成本、關稅與其他槓桿在完整的利潤導航裡。",
+    intro: "虛構的美式純紙牆紙第一櫃：FOB 上海每卷 USD 10–15，MOQ 1,000 直米（約 122 卷），20 呎櫃估算 3,000–5,000 卷，訂金 30%，餘款出貨前付清。",
+    scope: "空白或負數保持未知，不會當成零。",
     fields: fields.zh,
     profitLabel: "毛利",
     marginLabel: "毛利率",
     revenueLabel: "銷售收入",
     goodsLabel: "採購成本",
-    freightLabel: "運費",
+    freightLabel: "出口前費用",
     totalCostLabel: "總成本",
     breakEvenLabel: "每卷損益兩平價",
     depositCashLabel: "訂金金額",
     balanceLabel: "出貨前應付餘款",
     cashLabel: "出貨前仍需墊付的現金",
-    depositNote: "訂金按售價計算。出貨前仍需墊付＝採購與運費減去訂金，不低於零。餘款在出貨前付清。",
+    depositNote: "訂金按售價計算。出貨前仍需墊付＝採購與出口前費用減去訂金，不低於零。餘款在出貨前付清。",
     floorWarning: "低於 35% 毛利底線",
     floorHold: "毛利仍在 35% 底線之上",
     marginUnknown: "毛利率無法計算",
@@ -245,33 +249,33 @@ export const calculatorCopy = {
     invalidNote: "空白、負數或無法辨識的數字保持未知，不會當成零。",
     zeroQuantityNote: "數量為零，每卷損益兩平價無法計算。",
     zeroRevenueNote: "收入為零，毛利率無法計算。",
-    lossNote: "毛利為負。長條只分成採購與運費。",
-    emptyBar: "沒有金額可分成採購、運費與毛利。",
+    lossNote: "毛利為負。長條只分成採購與出口前費用。",
+    emptyBar: "沒有金額可分成採購、出口前費用與毛利。",
     costBasisNote: "毛利不是正數，長條改以成本來分。",
     reset: "重設",
     copy: "複製試算結果",
     copied: "已複製",
     copyFailed: "這次沒有複製成功",
     fullTool: "打開完整的貿易利潤導航",
-    barParts: { cost: "採購", freight: "運費", profit: "毛利" },
+    barParts: { cost: "採購", freight: "出口前費用", profit: "毛利" },
   },
   en: {
     demoLabel: "Demo with fictional numbers",
     title: "Try this order's margin",
-    intro: "A fictional first container of American-style pure-paper wallpaper. Roll size 0.686 × 8.23 m. FOB Shanghai USD 10–15 per roll. MOQ 1,000 linear meters (直米), about 122 rolls. A 20-foot container is estimated at 3,000–5,000 rolls. The selling price is the middle of that band, and the quantity is the middle of the container estimate. Purchase cost and freight are fictional assumptions, so the margin sits just above the 35% quote floor. The deposit defaults to 30%, with the balance before shipment.",
-    scope: "This panel uses selling price, purchase cost, and freight only. A blank or negative entry stays unknown and is never treated as zero. Funding cost, duty, and the other levers stay in the full Profit Navigator.",
+    intro: "Fictional first container of American-style pure-paper wallpaper: FOB Shanghai USD 10–15 per roll, MOQ 1,000 linear meters (直米, about 122 rolls), a 20-foot container estimated at 3,000–5,000 rolls, 30% deposit, balance before shipment.",
+    scope: "A blank or negative entry stays unknown and is never treated as zero.",
     fields: fields.en,
     profitLabel: "Gross profit",
     marginLabel: "Gross margin",
     revenueLabel: "Revenue",
     goodsLabel: "Purchase cost",
-    freightLabel: "Freight",
+    freightLabel: "Pre-export costs",
     totalCostLabel: "Total cost",
     breakEvenLabel: "Break-even price per roll",
     depositCashLabel: "Deposit amount",
     balanceLabel: "Balance due before shipment",
     cashLabel: "Cash to fund before shipment",
-    depositNote: "The deposit is a share of the selling value. Cash to fund before shipment = purchase and freight minus the deposit, and not below zero. The balance is due before shipment.",
+    depositNote: "The deposit is a share of the selling value. Cash to fund before shipment = purchase and pre-export costs minus the deposit, and not below zero. The balance is due before shipment.",
     floorWarning: "Below the 35% margin floor",
     floorHold: "Margin is still above the 35% floor",
     marginUnknown: "Gross margin cannot be calculated",
@@ -279,15 +283,15 @@ export const calculatorCopy = {
     invalidNote: "A blank, negative, or unreadable number stays unknown and is never treated as zero.",
     zeroQuantityNote: "Quantity is zero, so the break-even price per roll cannot be calculated.",
     zeroRevenueNote: "Revenue is zero, so gross margin cannot be calculated.",
-    lossNote: "Gross profit is negative. The bar shows purchase and freight only.",
-    emptyBar: "There is no amount to split into purchase, freight, and profit.",
+    lossNote: "Gross profit is negative. The bar shows purchase and pre-export costs only.",
+    emptyBar: "There is no amount to split into purchase, pre-export costs, and profit.",
     costBasisNote: "Profit is not positive, so the bar is split by cost.",
     reset: "Reset",
     copy: "Copy result",
     copied: "Copied",
     copyFailed: "Copy did not complete",
     fullTool: "Open the full Trade Profit Navigator",
-    barParts: { cost: "Purchase", freight: "Freight", profit: "Profit" },
+    barParts: { cost: "Purchase", freight: "Pre-export costs", profit: "Profit" },
   },
 };
 
