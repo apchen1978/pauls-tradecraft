@@ -14,7 +14,9 @@ import { firstContainerStory, works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
 import GlobalBusinessDevelopment from "./GlobalBusinessDevelopment.jsx";
 import TradeDecisionWorkflow from "./TradeDecisionWorkflow.jsx";
+import ProfitCalculator from "./ProfitCalculator.jsx";
 import { workflowEntry } from "../data/tradeDecisionWorkflow.js";
+import { calculatorEntry } from "../data/profitCalculator.js";
 import { FoldToggle, firstSentence, foldClass, useFold } from "./FoldedIntro.jsx";
 import CoverImage from "./CoverImage.jsx";
 
@@ -423,7 +425,7 @@ function SpendingInsightDetails({ data, tone = "light" }) {
   );
 }
 
-function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, tone = "light" }) {
+function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, tone = "light", workId }) {
   const { lang, t } = useLang();
   const f = (field) => (field ? field[lang] : "");
   const stageTag = typeof c.stageTag === "string" ? c.stageTag : c.stageTag?.[lang];
@@ -460,6 +462,7 @@ function CaseStudy({ c, related, link, linkLabel, workingEvidence, casePage, ton
         <span className="flex-1 whitespace-nowrap">{labels.label}</span>
         <CaretDown size={14} weight="bold" className="shrink-0 transition-transform group-open:rotate-180" />
       </summary>
+      {workId === "trade-profit-navigator" && <ProfitCalculator href={link} />}
        <dl className="mt-3 space-y-3 text-sm">
         {c.gallery && (
           <div>
@@ -689,7 +692,7 @@ function FeaturedSystem({ work }) {
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
       </div>
-      {work.case && <CaseStudy c={work.case} related={work.related} link={withDemoLang(work.link, lang)} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} casePage={work.casePage} tone="dark" />}
+      {work.case && <CaseStudy workId={work.id} c={work.case} related={work.related} link={withDemoLang(work.link, lang)} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} casePage={work.casePage} tone="dark" />}
     </article>
   );
 }
@@ -901,13 +904,34 @@ export default function Works() {
             )}
           </div>
         </Wrapper>
+        {w.id === "trade-profit-navigator" && (
+          <div className="border-t border-line px-6 py-4">
+            <button
+              id="open-profit-calculator"
+              type="button"
+              aria-controls="profit-calculator"
+              className="inline-flex max-w-full items-center gap-2 whitespace-normal rounded-field border border-forest/25 bg-forest/[0.06] px-4 py-2.5 text-left text-sm font-semibold text-forest transition-colors hover:border-amber/60 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+              onClick={(event) => {
+                event.stopPropagation();
+                const article = event.currentTarget.closest("article");
+                const details = article?.querySelector("details");
+                if (details) details.open = true;
+                const panel = article?.querySelector("#profit-calculator");
+                requestAnimationFrame(() => panel?.focus());
+              }}
+            >
+              {calculatorEntry[lang].cta}
+            </button>
+            <p className="mt-1.5 max-w-full text-xs leading-relaxed text-moss">{calculatorEntry[lang].note}</p>
+          </div>
+        )}
    {w.secondaryLink && secondaryLabel && (
      <a href={withDemoLang(w.secondaryLink, lang)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-2 border-t border-line px-6 py-3 text-xs font-semibold text-forest transition-colors hover:text-amber">
        {secondaryLabel}
        <ArrowUpRight size={13} weight="bold" />
      </a>
    )}
-   {w.case && <CaseStudy c={w.case} related={w.related} link={withDemoLang(w.link, lang)} linkLabel={w.linkLabel} workingEvidence={w.workingEvidence} casePage={w.casePage} />}
+   {w.case && <CaseStudy workId={w.id} c={w.case} related={w.related} link={withDemoLang(w.link, lang)} linkLabel={w.linkLabel} workingEvidence={w.workingEvidence} casePage={w.casePage} />}
       </article>
     );
   };
