@@ -131,7 +131,7 @@ export default function Garage() {
           ))}
         </ol>
         {rest.length || wideItem ? (
-          <details className="group/more mt-6">
+          <details id="garage-more" className="group/more mt-6">
             <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
               <span>{g.moreLabel}</span>
               <span aria-hidden="true" className="text-lg leading-none transition-transform duration-200 group-open/more:rotate-45">+</span>
