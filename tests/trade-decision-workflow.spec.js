@@ -29,10 +29,13 @@ test("initial state, selection, and next/previous boundaries", async ({ page }) 
   await expect(page.getByText("示範／成效未驗證").first()).toBeVisible();
   await expect(page.locator("[data-progress]")).toHaveText("已通過 0／6");
   await expect(page.locator("#trade-stage-lead")).toHaveAttribute("data-status", "PENDING");
+  await expect(page.locator("#trade-stage-lead")).toContainText("待檢查");
   await expect(page.locator("#trade-stage-lead")).toHaveAttribute("aria-selected", "true");
   for (const id of ["qualification", "rfq", "risk-check", "quote", "approval"]) {
     await expect(page.locator(`#trade-stage-${id}`)).toHaveAttribute("data-status", "PENDING");
+    await expect(page.locator(`#trade-stage-${id}`)).toContainText("待檢查");
   }
+  await expect(page.locator("#trade-decision-workflow")).not.toContainText(/\b(PENDING|ACTIVE|PASSED|HOLD|BLOCKED|PASS|NEEDS_EVIDENCE|SIMULATED_APPROVAL|QUOTE_READY)\b/);
 
   await page.locator("#trade-stage-approval").click();
   await expect(page.locator("#trade-stage-approval")).toHaveAttribute("aria-selected", "true");
@@ -56,13 +59,17 @@ test("pass and hold change progress, and earlier gates block later ones", async 
 
   await page.getByRole("button", { name: "標為通過" }).click();
   await expect(page.locator("#trade-stage-lead")).toHaveAttribute("data-status", "PASSED");
+  await expect(page.locator("#trade-stage-lead")).toContainText("已通過");
   await expect(page.locator("#trade-stage-qualification")).toHaveAttribute("data-status", "ACTIVE");
+  await expect(page.locator("#trade-stage-qualification")).toContainText("進行中");
   await expect(page.locator("[data-progress]")).toHaveText("已通過 1／6");
 
   await page.getByRole("button", { name: "暫緩／需要證據" }).click();
   await expect(page.locator("#trade-stage-lead")).toHaveAttribute("data-status", "HOLD");
+  await expect(page.locator("#trade-stage-lead")).toContainText("暫緩");
   await expect(page.getByRole("button", { name: "暫緩／需要證據" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#trade-stage-qualification")).toHaveAttribute("data-status", "BLOCKED");
+  await expect(page.locator("#trade-stage-qualification")).toContainText("受阻");
   await expect(page.locator("[data-progress]")).toHaveText("已通過 0／6");
 
   await page.locator("#trade-stage-rfq").click();
@@ -114,7 +121,9 @@ test("downstream passes are invalidated, approval is simulated, and reset clears
   await expect(page.locator("#trade-stage-lead")).toHaveAttribute("aria-selected", "true");
   for (const id of ["lead", "qualification", "rfq", "risk-check", "quote", "approval"]) {
     await expect(page.locator(`#trade-stage-${id}`)).toHaveAttribute("data-status", "PENDING");
+    await expect(page.locator(`#trade-stage-${id}`)).toContainText("Pending");
   }
+  await expect(page.locator("#trade-decision-workflow")).not.toContainText(/\b(PENDING|ACTIVE|PASSED|HOLD|BLOCKED)\b/);
   await expect(page.locator("[data-progress]")).toHaveText("0 of 6 passed");
   await expect(page.locator("[data-approval-record]")).toHaveCount(0);
 });
