@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
-import { gsap } from "gsap";
+import { loadGsap } from "../gsapLoader.js";
 import {
   ArrowUpRight,
   PresentationChart,
@@ -583,7 +583,12 @@ function FeaturedSystem({ work }) {
     const jumpedTo = (hash) =>
       !!hash && hash !== "#top" && (hashTargets.has(hash) || hash === "#works");
 
-    const ctx = gsap.context(() => {
+    // gsap arrives after the page has loaded; until then the card is simply visible.
+    let ctx = null;
+    let cancelled = false;
+    loadGsap().then((gsap) => {
+    if (cancelled) return;
+    ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
       mm.add({ reduceMotion: "(prefers-reduced-motion: reduce)" }, ({ conditions }) => {
         const timeline = gsap.timeline({ paused: true });
@@ -648,8 +653,12 @@ function FeaturedSystem({ work }) {
         };
       });
     }, root);
+    });
 
-    return () => ctx.revert();
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
   }, []);
 
   return (
