@@ -1,49 +1,55 @@
 {
+  "locale": "zh",
+  "lang": "zh-Hant",
   "brand": "Paul's Tradecraft",
   "url": "paulstradecraft.com",
   "email": "paulchen1978@gmail.com",
+  "lineLabel": "LINE",
+  "lineUrl": "https://line.me/ti/p/zSJdkOeQgS",
   "kicker": "Paul + AI 人機協作作品集 · 國際業務",
-  "title": "一位國際業務的工作筆記。",
-  "positioning": "商業判斷 · 工作流程設計 · 海外商業開發",
-  "subtitle": "把國際業務每天要下的判斷：找買家、算利潤、談成訂單，做成能試玩的工具。背景是 15 年國際業務，含中國大陸通路（專賣店、批發、工程）與團隊管理（一線業務員、銷售助理）；人仍保有方向、授權與最終判斷。",
+  "title": "我幫負責人把一項產品，走到第一張海外訂單或第一櫃。",
+  "positioning": "選路 · 選人 · 能不能承諾 · 算不算得過",
+  "subtitle": "給中小企業的負責人，也給負責一條產品線的人。背景：15 年國際業務，含中國大陸通路（專賣店、批發、工程）與團隊管理。",
   "stats": [
     {
       "value": "955",
-      "label": "TOEIC (2019)"
+      "label": "TOEIC（2019）"
     },
     {
-      "value": "15年",
+      "value": "15 年",
+      "label": "國際業務"
+    },
+    {
+      "value": "前職",
       "label": "國際業務總監"
-    },
-    {
-      "value": "23/23",
-      "label": "Pilot 流程驗證項目通過"
     }
   ],
-  "servicesTitle": "WHAT I HELP ORGANIZATIONS MOVE FORWARD · 我能一起推進什麼",
+  "servicesTitle": "WHAT I HELP MOVE FORWARD · 我能一起推進什麼",
   "services": [
-    "海外商業開發 — 不只篩掉不值得追的名單；從供應商真正能交付什麼開始，主動尋找哪些市場問題、買方／通路與產品切入值得驗證。",
-    "重要決策與工作流程 — 把跨部門、資訊不全又不能憑直覺承諾的問題，整理成團隊能共同推進的工作系統。",
-    "商業經濟／會計視角 — 從利潤、現金、支出、證據與時間點，看見重大決定前真正該問的問題；稅務與法律結論仍由專業人士確認。"
+    "海外商業開發 — 先看這一項產品真正能交付什麼，再找值得驗證的市場、買方與通路。",
+    "承諾前的決策 — 把付款、交期、責任與未知放在同一張畫面，由負責人決定下一步。",
+    "商業經濟／會計視角 — 分開看毛利、現金與時間點；稅務與法律結論仍由專業人士確認。"
   ],
   "deliverablesTitle": "WHAT THE TEAM LEAVES WITH · 團隊最後帶走什麼",
   "deliverables": [
     {
       "title": "清楚的決策問題",
-      "body": "目標、限制、已知事實與未知被放到同一張工作畫面。"
+      "body": "這項產品要走到第一張訂單：目標、限制、已知與未知放在同一張畫面。"
     },
     {
-      "title": "可繼續使用的工作系統",
-      "body": "把研究、比較、交接與複核，變成團隊能接手的流程與底稿。"
+      "title": "可繼續使用的底稿",
+      "body": "選路、選人、能不能承諾、算不算得過，整理成團隊能接手的底稿。"
     },
     {
       "title": "可追溯的下一步",
-      "body": "留下要補的證據、該問的問題、重新評估條件與仍由人拍板的決定。"
+      "body": "留下要補的證據、該問的問題，以及仍由負責人拍板的決定。"
     }
   ],
   "leverageTitle": "HOW I WORK · 判斷在人，執行有節奏",
-  "leverage": "研究、比較、證據整理、矛盾檢查與原型都先做扎實；人決定目標、邊界與後果，證據決定什麼值得繼續。",
-  "worksTitle": "SELECTED SYSTEMS · 精選系統",
+  "leverage": "研究、比較與底稿先做扎實。負責人決定目標與邊界；證據決定什麼值得繼續。",
+  "worksTitle": "帶一項產品，走到第一櫃",
+  "worksHref": "https://paulstradecraft.com/cases/first-container/",
+  "worksLead": "四站故事線：選路、選人、能不能承諾、算得過嗎。下面四件作品由這條線串起，各自獨立。",
   "reviewedWorkIds": [
     "trade-deal-desk",
     "mori-soft-furnishing-website",
@@ -63,12 +69,12 @@
     "global-business-development"
   ],
   "works": [
-    "Commercial Decision Desk · 承諾前，把淨貢獻、付款暴露、矛盾與未知放到同一張決策畫面；示範案例與技術驗證，不宣稱客戶成果。",
-    "Global Business Development / Market Entry Research · 從供應商能力與市場張力出發，找到值得驗證的買方／通路路徑；不把市場相關性當成買方證據，保留未知。",
-    "Trade Profit Navigator · 把毛利、現金暴露與可測試的利潤槓桿放在一起；示範 prototype，不宣稱 adoption、ROI 或客戶成果。",
-    "企業支出決策啟發 · 在找 CPA 或專業人士前，先看懂支出如何牽動現金、時間、證據與值得確認的問題；示範案例、真人驗證待完成。"
+    "海外客戶開發 — 先找到該接觸的海外買家。名單之後，Paul 接手：為什麼是這幾家、第一次怎麼開口。",
+    "商務決策工作台 — 承諾前，把淨貢獻、付款與未知放到同一張桌，由負責人決定。",
+    "貿易利潤導航 — 把毛利、現金與值得先測的因素放在一起。",
+    "海外市場開發研究 — 內含「從詢盤到報價：六道關卡」。工具先整理詢盤；價格、風險與承諾由人決定。"
   ],
-  "processTitle": "START WITH A DECISION · 從一個重要決策開始",
-  "process": "帶進一個真的卡住的商業問題、一段工作流程，或一個需要重新定義的客戶情境。先把真正需要做的決定、證據與人該保留的權責看清楚，再決定先探索、整理、比較或建構什麼。",
-  "footer": "PAUL'S TRADECRAFT · paulstradecraft.com · paulchen1978@gmail.com"
+  "processTitle": "START WITH ONE PRODUCT · 從一項產品開始",
+  "process": "帶一項產品、一份舊型錄，或一個卡住的第一張訂單。先看清選路、選人、能不能承諾、算不算得過，再決定下一步。",
+  "disclaimer": "示範案例使用虛構資料，成效未驗證。"
 }

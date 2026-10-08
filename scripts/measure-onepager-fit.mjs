@@ -1,105 +1,107 @@
-// measure-onepager-fit.mjs — verify the works grid + footer fit within one A4 page
-// Replicates make-onepager.mjs layout (body fixed 210x297mm, works 2-col grid, footer margin-top:auto).
-import { readFileSync, writeFileSync } from "node:fs";
+// measure-onepager-fit.mjs — verify each one-pager fits on one A4 page.
+// Uses the same HTML as make-onepager.mjs, so spacing changes cannot drift.
+import { mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { spawn } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { chromeCandidates, renderOnePagerHtml } from "./make-onepager.mjs";
 
-const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+const CHROME = chromeCandidates().find((candidate) => existsSync(candidate));
+if (!CHROME) {
+  console.error("FAIL: Chrome not found");
+  process.exit(1);
+}
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const zh = JSON.parse(readFileSync(new URL("../content/onepager-zh.json", import.meta.url), "utf8"));
 const en = JSON.parse(readFileSync(new URL("../content/onepager-en.json", import.meta.url), "utf8"));
-
-function build(data, isCJK) {
-  const works = data.works.map((w) => `<li>${w}</li>`).join("");
-  const worksSecondary = (data.worksSecondary || []).map((w) => `<li>${w}</li>`).join("");
-  const services = data.services.map((s) => `<li>${s}</li>`).join("");
-  const deliverables = (data.deliverables || []).map((item, index) => `<article class="deliverable"><span>${String(index + 1).padStart(2, "0")}</span><h3>${item.title}</h3><p>${item.body}</p></article>`).join("");
-  const stats = data.stats.map((s) => `<div class="stat"><b>${s.value}</b><span>${s.label}</span></div>`).join("");
-  const font = isCJK ? '"Noto Sans CJK TC","Microsoft JhengHei",sans-serif' : '"Geist Variable","Segoe UI",sans-serif';
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
-    @page { size: A4; margin: 0; }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { width: 210mm; height: 297mm; overflow: hidden; font-family: ${font}; background: #0B1B33; color: #fff; padding: 16mm 16mm 14mm; display: flex; flex-direction: column; }
-    .topline { height: 2mm; background: #C9A227; margin-bottom: 8mm; }
-    h2 { font-size: 10.5pt; color: #3B82F6; margin: 6mm 0 2.5mm; text-transform: uppercase; }
-    ul { list-style: none; }
-    li { font-size: 9.5pt; color: #E2E8F0; line-height: 1.6; padding-left: 4mm; }
-    .deliverables { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
-    .deliverable { border-top: 0.5mm solid #C9A227; padding-top: 2mm; }
-    .deliverable span { display:block; font-size:7.5pt; color:#3B82F6; font-weight:700; letter-spacing:1pt; }
-    .deliverable h3 { font-size:9pt; line-height:1.3; margin-top:1mm; color:#fff; }
-    .deliverable p { font-size:7.8pt; line-height:1.45; color:#C7D2E0; margin-top:1mm; }
-    .works { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; }
-    .works li { font-size: 9pt; }
-    .works-secondary-label { font-size: 8pt; color: #64748B; letter-spacing: 1pt; text-transform: uppercase; margin-top: 3mm; }
-    .works-secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; margin-top: 1.5mm; }
-    .works-secondary li { font-size: 7.5pt; color: #94A3B8; line-height: 1.55; }
-    .positioning { font-size: 10pt; font-weight: 700; color: #C9A227; margin-top: 2.5mm; }
-    .process { font-size: 11pt; color: #E2E8F0; margin-top: 7mm; }
-    .footer { margin-top: auto; border-top: 0.3mm solid #24405F; padding-top: 4mm; font-size: 8.5pt; color: #C7D2E0; display: flex; justify-content: space-between; }
-    .latin { padding:13mm 16mm 9mm; }
-    .latin .topline { margin-bottom:6mm; }
-    .latin h2 { margin:5mm 0 2mm; }
-    .latin li { font-size:9pt; line-height:1.48; }
-    .latin .deliverable p { font-size:7.5pt; line-height:1.4; }
-    .latin .works li { font-size:8.5pt; line-height:1.45; }
-    .latin .process { font-size:10.2pt; line-height:1.5; }
-  </style></head><body class="${isCJK ? "cjk" : "latin"}">
-    <div class="topline"></div>
-    <h1 style="font-size:21pt">${data.title}</h1>
-    ${data.positioning ? `<p class="positioning">${data.positioning}</p>` : ""}
-    <p class="sub" style="font-size:10.5pt;color:#C7D2E0">${data.subtitle}</p>
-    <div class="stats" style="display:flex;gap:6mm;margin-top:6mm">${stats}</div>
-    <h2>${data.servicesTitle || "SERVICES"}</h2>
-    <ul>${services}</ul>
-    ${deliverables ? `<h2>${data.deliverablesTitle || ""}</h2><section class="deliverables">${deliverables}</section>` : ""}
-    <h2>${data.worksTitle || "SELECTED WORKS"}</h2>
-    <ul class="works">${works}</ul>
-    ${data.worksSecondary && data.worksSecondary.length ? `<p class="works-secondary-label">${data.worksSecondaryLabel || ""}</p><ul class="works-secondary">${worksSecondary}</ul>` : ""}
-    <h2>${data.processTitle || "HOW I WORK"}</h2>
-    <p class="process">${data.process}</p>
-    <div class="footer"><span>${data.brand} · ${data.url}</span><span>${data.email}</span></div>
-  </body></html>`;
-}
 
 async function measure(locale, html) {
   const tmp = join(tmpdir(), `onepager-measure-${locale}.html`);
   writeFileSync(tmp, html, "utf-8");
   const dir = mkdtempSync(join(tmpdir(), "opf-"));
-  const c = spawn(CHROME, ["--headless=new", "--disable-gpu", "--no-first-run", "--remote-debugging-port=9266", "--remote-allow-origins=*", `--user-data-dir=${dir}`, "about:blank"], { stdio: "ignore" });
+  const port = locale === "zh" ? 9266 : 9267;
+  const c = spawn(CHROME, [
+    "--headless=new",
+    "--disable-gpu",
+    "--no-first-run",
+    "--no-sandbox",
+    "--disable-dev-shm-usage",
+    `--remote-debugging-port=${port}`,
+    "--remote-allow-origins=*",
+    `--user-data-dir=${dir}`,
+    "about:blank",
+  ], { stdio: "ignore" });
   let tabs;
-  for (let i = 0; i < 40; i++) { try { const r = await fetch("http://127.0.0.1:9266/json"); tabs = await r.json(); if (Array.isArray(tabs) && tabs.length) break; } catch {} await sleep(400); }
+  for (let i = 0; i < 40; i++) {
+    try {
+      const r = await fetch(`http://127.0.0.1:${port}/json`);
+      tabs = await r.json();
+      if (Array.isArray(tabs) && tabs.length) break;
+    } catch {}
+    await sleep(400);
+  }
+  if (!Array.isArray(tabs) || !tabs.length) {
+    c.kill();
+    throw new Error(`Chrome DevTools did not open for ${locale}`);
+  }
   const page = tabs.find((t) => t.type === "page") || tabs[0];
   const ws = new WebSocket(page.webSocketDebuggerUrl);
-  let id = 0; const pend = new Map();
-  const send = (m, p = {}) => new Promise((res, rej) => { const i = ++id; pend.set(i, { res, rej }); ws.send(JSON.stringify({ id: i, method: m, params: p })); });
-  ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { const p = pend.get(m.id); pend.delete(m.id); m.error ? p.rej(new Error(m.error.message)) : p.res(m.result); } };
+  let id = 0;
+  const pend = new Map();
+  const send = (m, p = {}) => new Promise((res, rej) => {
+    const i = ++id;
+    pend.set(i, { res, rej });
+    ws.send(JSON.stringify({ id: i, method: m, params: p }));
+  });
+  ws.onmessage = (e) => {
+    const m = JSON.parse(e.data);
+    if (m.id && pend.has(m.id)) {
+      const p = pend.get(m.id);
+      pend.delete(m.id);
+      m.error ? p.rej(new Error(m.error.message)) : p.res(m.result);
+    }
+  };
   await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
   await send("Page.enable");
   await send("Emulation.setDeviceMetricsOverride", { width: 794, height: 1123, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url: pathToFileURL(tmp).href });
-  await sleep(2500);
-  const ev = async (x) => { const r = await send("Runtime.evaluate", { expression: x, returnByValue: true }); return r.result?.value; };
+  await sleep(1200);
+  const ev = async (x) => {
+    const r = await send("Runtime.evaluate", { expression: x, returnByValue: true });
+    return r.result?.value;
+  };
   const out = {};
   out.bodyH = await ev("Math.round(document.body.getBoundingClientRect().height)");
+  out.scrollH = await ev("document.body.scrollHeight");
+  out.clientH = await ev("document.body.clientHeight");
   out.footerBottom = await ev("Math.round(document.querySelector('.footer').getBoundingClientRect().bottom)");
+  out.disclaimerBottom = await ev("Math.round(document.querySelector('.disclaimer')?.getBoundingClientRect().bottom || 0)");
   out.processBottom = await ev("Math.round(document.querySelector('.process').getBoundingClientRect().bottom)");
   out.deliverablesBottom = await ev("Math.round(document.querySelector('.deliverables')?.getBoundingClientRect().bottom || 0)");
   out.worksCount = await ev("document.querySelectorAll('.works li').length");
   out.lastWorkBottom = await ev("Math.round([...document.querySelectorAll('.works li')].at(-1).getBoundingClientRect().bottom)");
-  ws.close(); c.kill();
+  out.lineHref = await ev("document.querySelector('.footer a[href*=\"line.me\"]')?.getAttribute('href') || ''");
+  out.emailHref = await ev("document.querySelector('.footer a[href^=\"mailto:\"]')?.textContent || ''");
+  ws.close();
+  c.kill();
   try { rmSync(dir, { recursive: true, force: true }); } catch {}
   rmSync(tmp, { force: true });
   return out;
 }
 
-const zhR = await measure("zh", build(zh, true));
-const enR = await measure("en", build(en, false));
+const zhR = await measure("zh", renderOnePagerHtml(zh, "zh"));
+const enR = await measure("en", renderOnePagerHtml(en, "en"));
 console.log("ZH:", JSON.stringify(zhR));
 console.log("EN:", JSON.stringify(enR));
-const fit = (r) => r.footerBottom <= r.bodyH && r.processBottom <= r.bodyH && r.deliverablesBottom <= r.bodyH;
+const fit = (r) => r.footerBottom <= r.bodyH
+  && r.processBottom <= r.bodyH
+  && r.disclaimerBottom <= r.bodyH
+  && r.deliverablesBottom <= r.bodyH
+  && r.lastWorkBottom <= r.bodyH
+  && r.scrollH <= r.clientH + 1
+  && r.lineHref.startsWith("https://line.me/")
+  && r.emailHref.includes("@");
 console.log("RESULT:", fit(zhR) && fit(enR) ? "PASS" : "FAIL");
 process.exitCode = fit(zhR) && fit(enR) ? 0 : 1;
