@@ -21,7 +21,7 @@ const OVER_BUDGET_FACTOR = 0.2;
 
 // Items the page may settle on: major sections, the flagship card, and each
 // row of work cards (cards in one grid row share a top, so they dedupe).
-const SETTLE_TARGETS = "main > section, #works article[id], #works-catalog article[id], #library > div > div > details";
+const SETTLE_TARGETS = "main > section, #works article[id], #works-catalog article[id], #library details[data-library-panel]";
 
 function settlePoints() {
   const tops = new Set();

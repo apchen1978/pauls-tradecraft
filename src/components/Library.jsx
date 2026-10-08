@@ -1,4 +1,4 @@
-import { Plus } from "@phosphor-icons/react";
+import { CaretDown, Plus } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import CommercialFrontDoor from "./CommercialFrontDoor.jsx";
 import HeroOutcomes from "./HeroOutcomes.jsx";
@@ -17,6 +17,8 @@ const copy = {
     eyebrow: "延伸閱讀",
     title: "想更深入，再往下展開。",
     intro: "方法、國貿筆記與驗證方式都收在這裡；需要時再打開。",
+    open: "展開延伸閱讀",
+    close: "收合延伸閱讀",
     panels: {
       start: ["海外客戶開發的起點", "路線圖、互動案例與導讀 PDF：從找公司、找對人，到看懂詢價。"],
       situations: ["你現在最像哪一種情況", "名單很多、訂單看起來不錯、錢已花出去：對應到哪個作品。"],
@@ -32,6 +34,8 @@ const copy = {
     eyebrow: "Go deeper",
     title: "Open what you need, when you need it.",
     intro: "Method, trade notes and verification live here, one panel at a time.",
+    open: "Open the library",
+    close: "Close the library",
     panels: {
       start: ["Where overseas customer development starts", "Roadmap, interactive case and guide PDF: from finding companies and contacts to reading an inquiry."],
       situations: ["Which situation are you in", "A long list, an order that looks good, money already spent: which work applies."],
@@ -62,36 +66,41 @@ export default function Library() {
 
   return (
     <section id="library" aria-labelledby="library-heading" className="scroll-mt-24 border-b border-line bg-bone">
-      <div className="mx-auto max-w-7xl px-4 pt-24 md:px-6 md:pt-32">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] lg:gap-12">
-          <div>
-            <p className="eyebrow">{c.eyebrow}</p>
-            <h2 id="library-heading" className="mt-6 text-[2rem] font-medium leading-[1.12] tracking-[-0.03em] md:text-[3.25rem]">{c.title}</h2>
+      <div className="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
+        <details className="group/library">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="eyebrow block">{c.eyebrow}</span>
+              <span id="library-heading" role="heading" aria-level={2} className="mt-3 block text-2xl font-medium leading-[1.15] tracking-[-0.02em] md:text-[2.25rem]">{c.title}</span>
+              <span className="mt-3 block max-w-[48ch] text-base leading-relaxed text-moss">{c.intro}</span>
+            </span>
+            <span className="flex shrink-0 items-center gap-2 rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-forest">
+              <span className="group-open/library:hidden">{c.open}</span>
+              <span className="hidden group-open/library:inline">{c.close}</span>
+              <CaretDown size={14} weight="bold" aria-hidden="true" className="transition-transform group-open/library:rotate-180" />
+            </span>
+          </summary>
+          <div className="mt-10 border-t border-line">
+            {panels.map(({ key, anchor, Component }, index) => {
+              const [title, line] = c.panels[key];
+              return (
+                <details key={key} className="group/panel border-b border-line" data-library-panel={anchor}>
+                  <summary className="grid cursor-pointer list-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-6 transition-colors hover:text-forest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber md:grid-cols-[3rem_minmax(0,16rem)_minmax(0,1fr)_auto] md:gap-x-8 md:py-7 [&::-webkit-details-marker]:hidden">
+                    <span className="text-xs font-medium tabular-nums text-amber">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">{title}</span>
+                    <span className="col-start-2 row-start-2 mt-1 text-sm leading-relaxed text-moss md:col-start-3 md:row-start-1 md:mt-0">{line}</span>
+                    <span aria-hidden="true" className="col-start-3 row-start-1 flex size-8 items-center justify-center self-center rounded-full border border-line text-forest transition-transform duration-300 group-open/panel:rotate-45 md:col-start-4">
+                      <Plus size={14} weight="bold" />
+                    </span>
+                  </summary>
+                  <div className="-mx-4 border-t border-line md:-mx-6">
+                    <Component />
+                  </div>
+                </details>
+              );
+            })}
           </div>
-          <p className="max-w-[48ch] self-end text-base leading-relaxed text-moss">{c.intro}</p>
-        </div>
-      </div>
-      <div className="mx-auto mt-12 max-w-7xl px-4 pb-24 md:px-6 md:pb-32">
-        <div className="border-t border-line">
-          {panels.map(({ key, anchor, Component }, index) => {
-            const [title, line] = c.panels[key];
-            return (
-              <details key={key} className="group/panel border-b border-line" data-library-panel={anchor}>
-                <summary className="grid cursor-pointer list-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-6 transition-colors hover:text-forest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber md:grid-cols-[3rem_minmax(0,16rem)_minmax(0,1fr)_auto] md:gap-x-8 md:py-7 [&::-webkit-details-marker]:hidden">
-                  <span className="text-xs font-medium tabular-nums text-amber">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">{title}</span>
-                  <span className="col-start-2 row-start-2 mt-1 text-sm leading-relaxed text-moss md:col-start-3 md:row-start-1 md:mt-0">{line}</span>
-                  <span aria-hidden="true" className="col-start-3 row-start-1 flex size-8 items-center justify-center self-center rounded-full border border-line text-forest transition-transform duration-300 group-open/panel:rotate-45 md:col-start-4">
-                    <Plus size={14} weight="bold" />
-                  </span>
-                </summary>
-                <div className="-mx-4 border-t border-line md:-mx-6">
-                  <Component />
-                </div>
-              </details>
-            );
-          })}
-        </div>
+        </details>
       </div>
     </section>
   );
