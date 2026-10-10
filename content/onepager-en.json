@@ -51,6 +51,7 @@
   "worksHref": "https://paulstradecraft.com/cases/first-container/",
   "worksLead": "Four stations: the path, the people, whether to commit, and whether the numbers hold. The four works below follow this line.",
   "reviewedWorkIds": [
+    "architecture-decision",
     "trade-deal-desk",
     "mori-soft-furnishing-website",
     "tracker",
