@@ -13,6 +13,29 @@
 // 封面（cover）：真實截圖裁切 16:9，或品牌設計封面（Forest family）。
 export const works = [
   {
+    id: "architecture-decision",
+    section: "labs",
+    featuredRank: Number.MAX_SAFE_INTEGER,
+    icon: "presentation",
+    link: "#architecture-case",
+    linkType: "internal",
+    linkLabel: { zh: "進入架構決策實驗室", en: "Explore the Architecture Decision Lab" },
+    imageAlt: { zh: "以證據比較簡單證據台帳與圖譜方案", en: "Evidence comparison of a simple ledger and a graph approach" },
+    case: { stage: { zh: "示範實驗", en: "Demo experiment" } },
+    zh: {
+      title: "何時不該加上複雜架構",
+      desc: "受控比較顯示：簡單證據台帳在受測工作流程中，產生與圖譜方案相同的審閱結果。先保留簡單架構，直到增量價值有證據支持。",
+      tag: "架構判斷 · 決策治理",
+      caseSummary: "架構判斷不只看能建什麼，也要看哪些複雜度尚未證明值得。",
+    },
+    en: {
+      title: "When NOT to Add Architecture Complexity",
+      desc: "A controlled comparison found that a simple evidence ledger matched the graph approach on the tested workflows. Keep the architecture simple until incremental value is demonstrated.",
+      tag: "Architecture Judgment · Decision Governance",
+      caseSummary: "Architecture judgment is also knowing when complexity has not yet earned its place.",
+    },
+  },
+  {
     id: "mori-soft-furnishing-website",
     section: "operations",
     featuredRank: 4,

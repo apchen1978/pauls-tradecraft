@@ -575,6 +575,48 @@ const dict = {
         },
       ],
     },
+    semanticaCaseStudy: {
+      eyebrow: "架構判斷 · 決策治理",
+      title: "何時不該加上複雜架構",
+      subtitle: "以證據做的架構決策",
+      thesis: "好的架構不是加入更多技術，而是知道證據支持到哪裡。",
+      intro: "圖譜架構有機會改善來源、衝突與跨交易追溯。這次受控比較先問一個商業問題：它是否為受測工作流程帶來簡單台帳尚未提供的價值？",
+      challenge: "挑戰",
+      challengeBody: "圖譜架構能否改善貿易流程中的證據追溯？",
+      hypothesis: "假設",
+      hypothesisBody: "專用圖譜可能更清楚呈現來源、衝突與跨交易關係。",
+      experiment: "實驗",
+      experimentBody: "以相同的示範貿易證據，對照簡單證據台帳與圖譜方案。",
+      evidence: "證據",
+      evidenceBody: "16 個示範案例中，兩套方案各通過 144/144 答案欄位檢查，審閱資料包完全相同。",
+      decision: "決策",
+      decisionBody: "C — 暫緩。受測需求尚未顯示圖譜能帶來增量價值。",
+      businessImplication: "商業含意",
+      businessImplicationBody: "在增量效益尚未證明前，先避免增加技術依賴；這是架構判斷，不是已量化的成本節省。",
+      unknowns: "仍未知",
+      unknownsBody: "真人審閱時間、錯誤率變化、整合與維護工時、商業 ROI，均未測量。",
+      reconsider: "何時重啟評估",
+      reconsiderBody: "當可觀察的證據檢索或追溯瓶頸出現，再以明確需求重新比較。這不是全面否定圖譜技術。",
+      labTitle: "架構決策實驗室",
+      tabs: ["證據品質", "架構決策"],
+      ledger: "簡單證據台帳",
+      semantica: "圖譜方案",
+      checksNote: "兩套方案通過相同答案欄位檢查，並產生相同的審閱資料包。144 = 16 個示範案例 × 9 個答案欄位；不是 144 個獨立案例。",
+      outcomeLabel: "本次決策",
+      outcome: "C — 暫緩",
+      rationale: ["未增加可觀察的審閱資訊", "額外複雜度尚無已證明效益", "商業 ROI 尚未測量", "保留未來按證據調整架構的彈性"],
+      technicalTitle: "範圍與限制",
+      technicalIntro: "以下摘要讓讀者檢視實驗範圍與限制；原始實驗檔案不公開。",
+      technicalItems: [
+        ["範圍", "獨立的本機示範；使用示範資料，沒有真實客戶部署。"],
+        ["方法", "兩套方案使用相同輸入與共享的確定性審閱規則，並以手動預期答案檢查欄位、來源路徑與狀態。此探索性測試並非完全盲測或預先註冊研究。"],
+        ["治理", "審閱就緒代表可供人審閱，不代表報價核准，也不構成執行授權。"],
+        ["測量限制", "未建立統計顯著性；也未測試共享來源密集、深歷史或深層圖的情境。"],
+        ["未測試", "真人生產力、錯誤降低、實作與維護工時、ROI，以及圖譜原生的進階功能效益。"],
+        ["決策理由", "受測審閱輸出相同，未觀察到台帳無法提供的增量資訊；因此保留台帳作為基準，並只在具體檢索或追溯瓶頸出現時重啟評估。"],
+      ],
+      closing: "本地示範實驗 · 未部署 · ROI 未驗證",
+    },
     langLabel: "EN",
   },
   en: {
@@ -1150,6 +1192,48 @@ const dict = {
         },
       ],
     },
+    semanticaCaseStudy: {
+      eyebrow: "ARCHITECTURE JUDGMENT · DECISION GOVERNANCE",
+      title: "When NOT to Add Architecture Complexity",
+      subtitle: "An Evidence-Based Architecture Decision",
+      thesis: "Good architecture is not about adding more technology. It is about knowing what the evidence justifies.",
+      intro: "A graph architecture might improve source, conflict, and cross-transaction tracing. This controlled comparison asked a business question first: did it add value beyond a simple ledger for the workflows tested?",
+      challenge: "The challenge",
+      challengeBody: "Could a graph architecture improve evidence traceability in trade workflows?",
+      hypothesis: "The hypothesis",
+      hypothesisBody: "A dedicated graph might make provenance, conflicts, and cross-transaction relationships easier to inspect.",
+      experiment: "The experiment",
+      experimentBody: "Compare a simple evidence ledger with a graph approach using identical demo trade evidence.",
+      evidence: "The evidence",
+      evidenceBody: "Across 16 demo cases, both approaches passed 144/144 answer-field checks and produced identical review packets.",
+      decision: "The decision",
+      decisionBody: "C — DEFER. The tested requirements did not show incremental value from the graph.",
+      businessImplication: "Business implication",
+      businessImplicationBody: "Avoid adding technical dependencies before incremental benefit is demonstrated. This is an architectural judgment, not measured cost savings.",
+      unknowns: "What remains unknown",
+      unknownsBody: "Human review time, error-rate changes, integration and maintenance effort, and commercial ROI were not measured.",
+      reconsider: "When to reconsider",
+      reconsiderBody: "Reopen the comparison when an observable evidence-retrieval or traceability bottleneck emerges. This is not a blanket rejection of graph technology.",
+      labTitle: "Architecture Decision Lab",
+      tabs: ["Evidence quality", "Architecture decision"],
+      ledger: "Simple evidence ledger",
+      semantica: "Graph approach",
+      checksNote: "Both approaches passed the same answer-field checks and generated identical review packets. 144 = 16 demo cases × 9 answer fields; these are not 144 independent cases.",
+      outcomeLabel: "Decision",
+      outcome: "C — DEFER",
+      rationale: ["No incremental review information observed", "Additional complexity without demonstrated benefit", "Commercial ROI remains unmeasured", "Preserve flexibility to revisit the architecture when evidence changes"],
+      technicalTitle: "Scope & limits",
+      technicalIntro: "This summary makes the study scope and limits inspectable; raw experiment files are not published.",
+      technicalItems: [
+        ["Scope", "Isolated local demo using demo data; no real-customer deployment."],
+        ["Method", "Both approaches used identical inputs and shared deterministic review rules; expected answer fields, provenance paths, and status records were checked against a manual reference. This exploratory test was not fully blinded or preregistered."],
+        ["Governance", "Review-ready means ready for human review, never quote approval or execution authorization."],
+        ["Measurement limits", "Statistical significance was not established, and dense shared-source, deep-history, or deep-graph cases were not tested."],
+        ["Not evaluated", "Human productivity, error reduction, implementation and maintenance hours, ROI, or benefits from advanced graph-native features."],
+        ["Decision basis", "Review outputs matched, with no observed incremental information beyond the ledger for tested requirements. Keep the ledger as baseline and reopen only for a concrete retrieval or traceability bottleneck."],
+      ],
+      closing: "Local demo experiment · Not deployed · ROI unproven",
+    },
     langLabel: "繁中",
   },
 };
@@ -1183,13 +1267,22 @@ export function LangProvider({ children }) {
   const toggle = () => setLang((l) => (l === "zh" ? "en" : "zh"));
 
   useEffect(() => {
-    document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
-    document.title = titles[lang];
-    document.querySelector('meta[name="description"]')?.setAttribute("content", ogDescriptions[lang]);
-    document.querySelector('meta[property="og:title"]')?.setAttribute("content", titles[lang]);
-    document.querySelector('meta[property="og:description"]')?.setAttribute("content", ogDescriptions[lang]);
-    document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", titles[lang]);
-    document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", ogDescriptions[lang]);
+    const updateMetadata = () => {
+      const isCaseStudy = window.location.hash === "#architecture-case";
+      const caseCopy = dict[lang].semanticaCaseStudy;
+      const title = isCaseStudy ? `${caseCopy.title} | Paul's Tradecraft` : titles[lang];
+      const description = isCaseStudy ? `${caseCopy.subtitle}. ${caseCopy.intro}` : ogDescriptions[lang];
+      document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+      document.title = title;
+      document.querySelector('meta[name="description"]')?.setAttribute("content", description);
+      document.querySelector('meta[property="og:title"]')?.setAttribute("content", title);
+      document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
+      document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", title);
+      document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", description);
+    };
+    updateMetadata();
+    window.addEventListener("hashchange", updateMetadata);
+    return () => window.removeEventListener("hashchange", updateMetadata);
   }, [lang]);
 
   return (
