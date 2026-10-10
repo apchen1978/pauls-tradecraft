@@ -762,6 +762,8 @@ export default function Works() {
     works: [...works]
       .filter((w) => w.section === id && w.id !== featuredSystem.id && (id !== "commercial" || PUBLIC_COMMERCIAL_WALL_IDS.has(w.id)))
       .sort((a, b) => {
+        if (a.id === "architecture-decision") return 1;
+        if (b.id === "architecture-decision") return -1;
         // MORI is the client-facing website showcase for this section. Keep it
         // first without rewriting the evidence/order data owned in works.js.
         if (id === "operations") {
@@ -796,9 +798,8 @@ export default function Works() {
     const Wrapper = w.link ? "a" : "div";
     const wrapperProps = w.link
       ? {
-          href: withDemoLang(w.link, lang),
-          target: "_blank",
-          rel: "noopener noreferrer",
+          href: w.linkType === "internal" ? w.link : withDemoLang(w.link, lang),
+          ...(w.linkType === "internal" ? {} : { target: "_blank", rel: "noopener noreferrer" }),
           "aria-label": copy.title,
         }
       : {};
