@@ -51,6 +51,7 @@
   "worksHref": "https://paulstradecraft.com/cases/first-container/",
   "worksLead": "四站故事線：選路、選人、能不能承諾、算不算得過。下面四件作品由這條線串起。",
   "reviewedWorkIds": [
+    "architecture-decision",
     "trade-deal-desk",
     "mori-soft-furnishing-website",
     "tracker",
