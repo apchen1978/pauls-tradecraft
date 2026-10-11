@@ -70,14 +70,38 @@ async function waitForMg(page) {
   });
 }
 
+async function expectBranchFirst(page, experimentTitle) {
+  const order = await page.evaluate((experimentTitle) => {
+    const plain = (el) => (el?.textContent || "").replace(/\u200b/g, "");
+    const branch = document.getElementById("garage-branch-light-tech");
+    const experiment = [...document.querySelectorAll("#garage h3")].find((el) => plain(el).includes(experimentTitle));
+    const story = [...document.querySelectorAll("#garage p")].find((el) => /從現場經驗|Stories and samples/.test(plain(el)));
+    const following = Node.DOCUMENT_POSITION_FOLLOWING;
+    return {
+      beforeExperiment: Boolean(experiment && (branch.compareDocumentPosition(experiment) & following)),
+      beforeStory: Boolean(story && (branch.compareDocumentPosition(story) & following)),
+    };
+  }, experimentTitle);
+  expect(order.beforeExperiment).toBe(true);
+  expect(order.beforeStory).toBe(true);
+}
+
+async function frameBranch(page) {
+  await page.evaluate(() => {
+    const branch = document.getElementById("garage-branch-light-tech");
+    const top = branch.getBoundingClientRect().top + window.scrollY - 88;
+    window.scrollTo(0, Math.max(0, top));
+  });
+}
+
 test.describe("garage listing", () => {
-  for (const width of [390, 1440]) {
-    test(`${width}px zh and en show the light-tech toy`, async ({ page }) => {
-      await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+  for (const width of [390, 1280]) {
+    test(`${width}px zh and en put the light-tech toy first`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 1680 : 1560 });
       await page.goto("/?lang=zh#garage");
       const branch = page.locator("#garage-branch-light-tech");
-      await branch.scrollIntoViewIfNeeded();
       await expect(branch.getByRole("heading", { level: 3 })).toHaveText("輕科技玩具");
+      await expectBranchFirst(page, "Bring Paul Into the Room");
       const card = page.getByRole("heading", { name: "你是哪一種隊友？" });
       await expect(card).toBeVisible();
       await expect(page.locator("#garage-more").getByRole("heading", { name: "你是哪一種隊友？" })).toHaveCount(0);
@@ -85,14 +109,16 @@ test.describe("garage listing", () => {
       const href = await page.getByRole("link", { name: "玩一次", exact: true }).getAttribute("href");
       expect(href).toContain("/prototype/teammate-type/");
       expect(href).toContain("lang=zh");
+      await frameBranch(page);
       await shoot(page, `garage-${width}-zh-light-tech`);
       await page.goto("/?lang=en#garage");
-      await page.locator("#garage-branch-light-tech").scrollIntoViewIfNeeded();
       await expect(page.locator("#garage-branch-light-tech").getByRole("heading", { level: 3 })).toHaveText("Light-tech toys");
+      await expectBranchFirst(page, "Bring Paul Into the Room");
       await expect(page.getByRole("heading", { name: "What kind of teammate are you?" })).toBeVisible();
       await expect(page.getByText("A toy, not a personality test.").first()).toBeVisible();
       const enHref = await page.getByRole("link", { name: "Play", exact: true }).getAttribute("href");
       expect(enHref).toContain("lang=en");
+      await frameBranch(page);
       await shoot(page, `garage-${width}-en-light-tech`);
       await noOverflow(page);
     });
