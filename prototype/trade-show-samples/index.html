@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>The Sample Decision · 展後送樣決策 — Paul's Tradecraft</title>
+  <style>
+    :root {
+      --paper: #f6f3ed;
+      --ink: #193a35;
+      --muted: #62716a;
+      --line: #d4dad1;
+      --pine: #142c29;
+      --brass: #8a6a2b;
+      --amber: #c98a1d;
+      --surface: #ffffff;
+      --soft: #dde7de;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--paper); color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.65; -webkit-font-smoothing: antialiased;
+    }
+    button, a { font: inherit; }
+    :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+    .page { width: min(100% - 40px, 760px); margin: 0 auto; padding: 36px 0 72px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .lang { display: flex; gap: 6px; }
+    .lang button {
+      min-width: 44px; min-height: 36px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0;
+      background: transparent; color: inherit; border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
+    }
+    .lang button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--paper); }
+    .tag {
+      display: inline-block; margin-top: 22px; padding: 4px 10px; border: 1px solid var(--line);
+      border-radius: 3px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    }
+    h1, h2 { margin: 0; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif; font-weight: 600; letter-spacing: -.03em; line-height: 1.22; }
+    h1 { margin-top: 18px; font-size: clamp(34px, 6.4vw, 54px); }
+    h2 { font-size: clamp(24px, 4.2vw, 32px); }
+    .lede { margin: 18px 0 0; max-width: 34em; color: var(--muted); font-size: 17px; }
+
+    .who { margin-top: 40px; border-top: 1px solid var(--ink); }
+    .who dl { margin: 0; }
+    .who .row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .who dt { color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .08em; padding-top: 3px; }
+    .who dd { margin: 0; font-size: 16px; }
+
+    .chain-head { margin-top: 64px; }
+    .chain-head p { margin: 10px 0 0; color: var(--muted); max-width: 36em; }
+    .chain { list-style: none; margin: 30px 0 0; padding: 0; position: relative; }
+    .chain::before { content: ""; position: absolute; left: 19px; top: 18px; bottom: 18px; width: 2px; background: var(--line); }
+    .step { position: relative; padding: 0 0 22px 60px; }
+    .step:last-child { padding-bottom: 0; }
+    .num {
+      position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center; background: var(--paper); border: 2px solid var(--pine);
+      font-weight: 700; font-variant-numeric: tabular-nums; z-index: 1;
+    }
+    .box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px 18px; }
+    .who-chip { margin: 0; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .1em; }
+    .box h3 { margin: 4px 0 0; font-size: 19px; line-height: 1.35; }
+    .box p.body { margin: 8px 0 0; font-size: 15.5px; }
+    .box .sub { margin: 10px 0 0; padding: 10px 12px; background: var(--soft); border-radius: 8px; font-size: 14.5px; }
+    .step.danger .num { background: var(--amber); border-color: var(--amber); color: #fff; box-shadow: 0 0 0 6px rgba(201, 138, 29, .18); }
+    .step.danger .box { border-color: var(--amber); }
+    .gate { margin: 8px 0 0; font-size: 13px; color: var(--brass); font-weight: 700; letter-spacing: .04em; }
+
+    .fear {
+      margin-top: 56px; padding: 34px 26px 36px; border-radius: 16px; background: var(--pine); color: var(--paper);
+    }
+    .fear .kicker { margin: 0; color: #e7c27a; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .fear .big { margin: 14px 0 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(26px, 5vw, 38px); line-height: 1.28; letter-spacing: -.03em; }
+    .fear .big em { font-style: normal; color: #e7c27a; }
+    .fear p.then { margin: 18px 0 0; max-width: 34em; color: #d6e0d8; font-size: 16px; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
+    .compare div { padding: 14px 16px; border: 1px solid rgba(246, 243, 237, .22); border-radius: 10px; }
+    .compare .l { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #b8c6bc; }
+    .compare .v { margin: 6px 0 0; font-size: 15.5px; }
+
+    .general { margin-top: 56px; }
+    .general > p.intro { margin: 10px 0 0; color: var(--muted); max-width: 36em; }
+    .gl { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); }
+    .gl li { padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+    .src { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+    .src a { color: var(--ink); text-underline-offset: 3px; }
+
+    .close { margin-top: 56px; }
+    .close-line { margin: 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(24px, 4.6vw, 34px); line-height: 1.3; letter-spacing: -.03em; }
+    .btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 22px;
+      border: 1px solid var(--pine); border-radius: 8px; background: var(--pine); color: var(--paper);
+      font-weight: 700; text-decoration: none;
+    }
+    .btn:hover { filter: brightness(1.15); }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { background: var(--soft); filter: none; }
+    .boundary { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+    .reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+    @media (max-width: 560px) {
+      .who .row { grid-template-columns: 1fr; gap: 4px; }
+      .compare { grid-template-columns: 1fr; }
+      .step { padding-left: 54px; }
+      .num { width: 36px; height: 36px; }
+      .chain::before { left: 17px; }
+      .fear { padding: 28px 20px 30px; }
+    }
+  
+    .mats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+    .mat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+    .mat h3 { margin: 0; font-size: 18px; }
+    .mat .en { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+    .mat p.d { margin: 10px 0 0; font-size: 15px; }
+    .step.key .num { background: var(--amber); border-color: var(--amber); color: #fff; box-shadow: 0 0 0 6px rgba(201, 138, 29, .18); }
+    .step.key .box { border-color: var(--amber); }
+    .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+    .role { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 18px; }
+    .role.boss { border-color: var(--amber); }
+    .role h3 { margin: 0; font-size: 19px; }
+    .role .k { margin: 14px 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+    .role ul { margin: 0; padding-left: 18px; font-size: 15px; }
+    .role ul.no { color: var(--muted); }
+    .eg { margin: 18px 0 0; padding-left: 12px; border-left: 3px solid var(--amber); color: var(--muted); font-size: 14.5px; }
+    .qs { margin: 22px 0 0; padding-left: 22px; font-size: 16px; }
+    .qs li { padding: 6px 0 6px 4px; }
+    .ag { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); }
+    .ag li { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .ag .n { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--soft); font-size: 13px; font-weight: 700; }
+    .ag strong { font-size: 16px; }
+    .ag p { margin: 2px 0 0; font-size: 15px; color: var(--muted); }
+    .rule { margin: 18px 0 0; padding: 12px 14px; background: var(--soft); border-radius: 8px; font-size: 14.5px; }
+    @media (max-width: 560px) { .mats, .roles { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="top">
+      <p class="eyebrow" id="eyebrow"></p>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <span class="tag" id="tag"></span>
+    <h1 id="h1"></h1>
+    <p class="lede" id="lede"></p>
+
+    <section class="chain-head reveal" aria-labelledby="chain-h">
+      <h2 id="chain-h"></h2>
+      <p id="chainIntro"></p>
+    </section>
+    <ol class="chain" id="chain"></ol>
+
+    <section class="general reveal" aria-labelledby="who-h">
+      <h2 id="who-h"></h2>
+      <p class="intro" id="whoIntro"></p>
+      <div class="roles" id="roles"></div>
+    </section>
+
+    <section class="general reveal" aria-labelledby="mat-h">
+      <h2 id="mat-h"></h2>
+      <p class="intro" id="matIntro"></p>
+      <p class="eg" id="egLabel"></p>
+      <div class="mats" id="mats"></div>
+    </section>
+
+    <section class="fear reveal" aria-labelledby="cost-h">
+      <p class="kicker" id="costKicker"></p>
+      <h2 class="big" id="cost-h"></h2>
+      <p class="then" id="costThen"></p>
+      <div class="compare" id="compare"></div>
+    </section>
+
+    <section class="general reveal" aria-labelledby="swap-h">
+      <h2 id="swap-h"></h2>
+      <p class="intro" id="swapIntro"></p>
+      <ol class="qs" id="qs"></ol>
+    </section>
+
+    <section class="general reveal" aria-labelledby="ag-h">
+      <h2 id="ag-h"></h2>
+      <p class="intro" id="agIntro"></p>
+      <ul class="ag" id="ag"></ul>
+      <p class="rule" id="agRule"></p>
+    </section>
+
+    <section class="close reveal">
+      <p class="close-line" id="closeLine"></p>
+      <div class="btns">
+        <a class="btn" id="cta"></a>
+        <a class="btn ghost" id="back"></a>
+      </div>
+    </section>
+
+    <p class="boundary" id="boundary"></p>
+  </main>
+
+  <script>
+  (function () {
+    var COPY = {
+      zh: {
+        title: "The Sample Decision · 展後送樣決策",
+        eyebrow: "Digital Garage · 展後送樣",
+        tag: "示意情境 · 以前的做法 · 非通則",
+        h1: "名片都跟。差別在，寄哪幾本樣本。",
+        lede: "展會結束，一疊名片回到工廠。這一頁看的不是信怎麼寫，而是三件事：寄什麼樣本、誰來決定、運費誰出。",
+        chainH: "展會之後，五步",
+        chainIntro: "回到辦公室就跟進，通常是展會後的一兩天。基本上不會卡，除非對方的 email 有問題。這幾步不限哪個行業，只要展會上收到的是一疊名片、要寄的是樣品。",
+        steps: [
+          { who: "銷售助理", h: "登記名片", b: "展會結束，名片逐張登記。基本上，有拿到名片的都會跟。" },
+          { who: "銷售助理 · email", h: "寄信，要快遞帳號", b: "信用英文。開頭填對方的名字，寫在展會上聊過，現在要寄樣本，內容大致寫要寄什麼。", sub: "同時向對方要快遞帳號與收件地址。樣本免費，運費走客人自己的快遞帳號，要寄幾份都可以。" },
+          { who: "銷售總監", h: "挑樣本", b: "依買家所在市場的需求，決定寄哪些版本、哪幾本。", gate: "這一關只有銷售總監能下", key: true },
+          { who: "銷售助理", h: "寄出", b: "挑完之後，由銷售助理直接寄到客人手裡。" },
+          { who: "買家", h: "等他回覆", b: "專程去看展的海外買家，大多會回：他花了旅館與交通的錢，希望拿到樣本。" }
+        ],
+        matH: "樣本怎麼挑：依買家所在的市場",
+        matIntro: "同一疊名片，不同市場要的東西不一樣。挑樣本的依據，是對方那個市場的需求，不是把樣本全寄出去。",
+        egLabel: "例如（壁紙）：類型以底材來分，就這幾種，所以相對好判斷。其他產品可能複雜得多。",
+        mats: [
+          ["塗布紙", "coated paper", "有些市場寄這一種。"],
+          ["Vinyl（PVC）", "vinyl", "有些市場偏好這一種。"],
+          ["Non-woven", "non-woven", "另一種常見的底材。"]
+        ],
+        costKicker: "為什麼不能一次全寄",
+        costBig: "樣本一多，<em>費用</em>和<em>重量</em>都跟著來。",
+        costThen: "寄一大票，一方面是費用；另一方面，樣本冊很重，客人要承擔的運費也不小。",
+        compareL: ["一般情況", "很大的公司"],
+        compareV: ["樣本免費，運費由客人自己的快遞帳號出。他通常都願意。", "運費也由工廠吸收，當作禮遇，因為很確定對方是大公司。"],
+        whoH: "先看誰能決定",
+        whoIntro: "同一疊名片，兩種人的權限不一樣。這一塊最通用：不管寄什麼，免費與否、運費誰出，通常都是負責人才能下的決定。",
+        roles: [
+          { h: "銷售助理", can: ["登記名片", "寄 email、要快遞帳號與地址", "把挑好的樣本寄出"], no: ["決定免費送不送", "決定要不要吸收運費"] },
+          { h: "銷售總監", boss: true, can: ["決定寄哪些版本、哪幾本", "決定免費送不送", "決定要不要替大公司吸收運費"], no: [] }
+        ],
+        canL: "可以", noL: "不能",
+        swapH: "換成你的產品，先回答三題",
+        swapIntro: "這三題沒有標準答案，只有你的產品與市場才有。",
+        qs: ["你的樣品，是靠什麼區分的？（壁紙是底材；別的產品可能是規格、材質、尺寸。）", "一份樣品有多重、多貴？寄一整批，費用和運費大概落在誰身上？", "免費與否、運費誰出，誰有權決定？助理能不能決定？"],
+        agH: "未來，AI agent 可以加速哪裡",
+        agIntro: "以下是設想，不是現在做到的，也沒有效果數字。每一步只寫 agent 可以幫忙的部分；決定仍留在原本的人。",
+        ag: [
+          ["登記名片", "掃描名片，整理成一張名單，標出展會上聊過什麼。"],
+          ["寄信", "起草英文信、填好名字與要寄的樣本，向對方索取快遞帳號與地址；助理看過再送出。"],
+          ["挑樣本", "依買家所在市場，列出建議的樣本清單，附上重量與預估運費；由銷售總監決定。"],
+          ["寄出", "整理出貨資料、填快遞單、追蹤是否送達。"],
+          ["等回覆", "偵測無效的 email，提醒沒回的買家該再問一次。"]
+        ],
+        agRule: "權限邊界（CC 推測）：agent 的權限，應該和銷售助理一樣：可以準備、建議、追蹤；免費與否、運費誰出，仍由銷售總監決定。",
+        closeLine: "寄什麼、免不免費、運費誰出，這幾個決定，只有一個人能下。",
+        cta: "帶你家的送樣流程來聊",
+        back: "回到 Digital Garage",
+        boundary: "示意情境，不是統計，也不代表所有工廠或所有買家；這是以前的做法與一個人的經驗。「AI agent 可以加速哪裡」是設想，沒有證據與效果數字。內容裡沒有信件範本。不儲存任何內容。"
+      },
+      en: {
+        title: "The Sample Decision",
+        eyebrow: "Digital Garage · After the show",
+        tag: "Illustrative scenario · how it used to be done · not a rule",
+        h1: "Every card gets a follow-up. The difference is which samples go out.",
+        lede: "The show ends and a stack of business cards comes back to the factory. This page is not about how to word the email. It is about three things: which samples to send, who decides, and who pays the freight.",
+        chainH: "After the show, five steps",
+        chainIntro: "Follow-up starts as soon as you are back at the office, usually one or two days after the show. It rarely gets stuck, unless the email address is bad. These steps are not specific to one industry: a stack of business cards, and samples to send.",
+        steps: [
+          { who: "Sales assistant", h: "Log the cards", b: "When the show ends, every card is logged. Basically, anyone who left a card gets a follow-up." },
+          { who: "Sales assistant · email", h: "Email, ask for a courier account", b: "The email is in English. It opens with the person's name, says you spoke at the show and that samples are on their way, and roughly which ones.", sub: "It also asks for a courier account number and a delivery address. The samples are free; freight goes on the buyer's own courier account, as many as he likes." },
+          { who: "Sales director", h: "Choose the samples", b: "Based on the needs of the buyer's market, decide which versions and which books to send.", gate: "Only the sales director makes this call", key: true },
+          { who: "Sales assistant", h: "Ship them", b: "Once chosen, the sales assistant ships them straight to the buyer." },
+          { who: "Buyer", h: "Wait for the reply", b: "Overseas buyers who came to the show mostly reply: they paid for hotel and travel and want the samples." }
+        ],
+        matH: "Choosing samples: by the buyer's market",
+        matIntro: "The same stack of cards wants different things in different markets. What you send depends on that market's needs, not on sending everything.",
+        egLabel: "For example (wallcovering): types are told apart by base material, and there are only a few, so the choice is relatively easy. Other products can be far more complicated.",
+        mats: [
+          ["Coated paper", "coated paper", "Some markets get this one."],
+          ["Vinyl (PVC)", "vinyl", "Some markets prefer this one."],
+          ["Non-woven", "non-woven", "Another common base material."]
+        ],
+        costKicker: "Why not send everything",
+        costBig: "More samples means more <em>cost</em> and more <em>weight</em>.",
+        costThen: "Sending a big pile costs money, and sample books are heavy, so the freight the buyer carries is not small either.",
+        compareL: ["The usual case", "A very large company"],
+        compareV: ["Samples are free; freight goes on the buyer's own courier account. He is usually fine with that.", "The factory absorbs the freight too, as a courtesy, because it is clear the company is very large."],
+        whoH: "First, who can decide",
+        whoIntro: "Same stack of cards, two different sets of authority. This part travels best: whatever you send, whether it is free and who pays the freight is usually the owner's call.",
+        roles: [
+          { h: "Sales assistant", can: ["Log the cards", "Send the email, ask for courier account and address", "Ship the chosen samples"], no: ["Decide whether samples are free", "Decide whether to absorb freight"] },
+          { h: "Sales director", boss: true, can: ["Decide which versions and books to send", "Decide whether samples are free", "Decide whether to absorb freight for a large company"], no: [] }
+        ],
+        canL: "Can", noL: "Cannot",
+        swapH: "Swap in your product: three questions first",
+        swapIntro: "There is no standard answer. Only your product and your market have one.",
+        qs: ["What tells your samples apart? (For wallcovering it is the base material; for other products it may be spec, material or size.)", "How heavy and how costly is a sample? Whose budget does a full batch land on, including freight?", "Who has the authority to say free or not, and who pays the freight? Can an assistant decide?"],
+        agH: "Later, where an AI agent could speed this up",
+        agIntro: "This is a sketch of the future, not something done today, and it has no effect numbers. Each step lists only what an agent could help with; the decision stays with the person who holds it today.",
+        ag: [
+          ["Log the cards", "Scan the cards into one list, noting what was discussed at the show."],
+          ["Send the email", "Draft the English email, fill in the name and the samples, ask for the courier account and address; the assistant reviews before it goes out."],
+          ["Choose the samples", "For the buyer's market, list suggested samples with weight and estimated freight; the sales director decides."],
+          ["Ship", "Prepare shipping details, fill in the courier form, track delivery."],
+          ["Wait for the reply", "Detect invalid email addresses, and remind you when a buyer has not replied and is worth asking again."]
+        ],
+        agRule: "Boundary (CC inference): an agent's authority should match the sales assistant's: it may prepare, suggest and track; whether samples are free and who pays the freight stays with the sales director.",
+        closeLine: "What to send, whether it is free, who pays the freight: only one person makes those calls.",
+        cta: "Bring your sample-sending flow",
+        back: "Back to Digital Garage",
+        boundary: "An illustrative scenario, not statistics, and not every factory or buyer; it is how it used to be done, from one person's experience. The AI-agent section is a sketch with no evidence or effect numbers. It contains no email template. Nothing is stored."
+      }
+    };
+
+    var params = new URLSearchParams(location.search);
+    var lang = params.get("lang") === "en" ? "en" : "zh";
+
+    function $(id) { return document.getElementById(id); }
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+
+    function render() {
+      var c = COPY[lang];
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.title = c.title + " — Paul's Tradecraft";
+      $("eyebrow").textContent = c.eyebrow;
+      $("tag").textContent = c.tag;
+      $("h1").textContent = c.h1;
+      $("lede").textContent = c.lede;
+
+      $("chain-h").textContent = c.chainH;
+      $("chainIntro").textContent = c.chainIntro;
+      var ol = $("chain"); ol.textContent = "";
+      c.steps.forEach(function (s, i) {
+        var li = el("li", "step reveal" + (s.key ? " key" : ""));
+        li.appendChild(el("span", "num", String(i + 1)));
+        var box = el("div", "box");
+        box.appendChild(el("p", "who-chip", s.who));
+        box.appendChild(el("h3", null, s.h));
+        box.appendChild(el("p", "body", s.b));
+        if (s.sub) box.appendChild(el("p", "sub", s.sub));
+        if (s.gate) box.appendChild(el("p", "gate", s.gate));
+        li.appendChild(box);
+        ol.appendChild(li);
+      });
+
+      $("mat-h").textContent = c.matH;
+      $("matIntro").textContent = c.matIntro;
+      $("egLabel").textContent = c.egLabel;
+      $("swap-h").textContent = c.swapH;
+      $("swapIntro").textContent = c.swapIntro;
+      var qs = $("qs"); qs.textContent = "";
+      c.qs.forEach(function (t) { qs.appendChild(el("li", null, t)); });
+      $("ag-h").textContent = c.agH;
+      $("agIntro").textContent = c.agIntro;
+      var ag = $("ag"); ag.textContent = "";
+      c.ag.forEach(function (a, i) {
+        var li = el("li");
+        li.appendChild(el("span", "n", String(i + 1)));
+        var d = el("div");
+        d.appendChild(el("strong", null, a[0]));
+        d.appendChild(el("p", null, a[1]));
+        li.appendChild(d);
+        ag.appendChild(li);
+      });
+      $("agRule").textContent = c.agRule;
+      var mats = $("mats"); mats.textContent = "";
+      c.mats.forEach(function (m) {
+        var d = el("div", "mat");
+        d.appendChild(el("h3", null, m[0]));
+        d.appendChild(el("p", "en", m[1]));
+        d.appendChild(el("p", "d", m[2]));
+        mats.appendChild(d);
+      });
+
+      $("costKicker").textContent = c.costKicker;
+      $("cost-h").innerHTML = c.costBig;
+      $("costThen").textContent = c.costThen;
+      var cmp = $("compare"); cmp.textContent = "";
+      [0, 1].forEach(function (i) {
+        var d = el("div");
+        d.appendChild(el("p", "l", c.compareL[i]));
+        d.appendChild(el("p", "v", c.compareV[i]));
+        cmp.appendChild(d);
+      });
+
+      $("who-h").textContent = c.whoH;
+      $("whoIntro").textContent = c.whoIntro;
+      var roles = $("roles"); roles.textContent = "";
+      c.roles.forEach(function (r) {
+        var d = el("div", "role" + (r.boss ? " boss" : ""));
+        d.appendChild(el("h3", null, r.h));
+        d.appendChild(el("p", "k", c.canL));
+        var u = el("ul"); r.can.forEach(function (t) { u.appendChild(el("li", null, t)); }); d.appendChild(u);
+        if (r.no.length) {
+          d.appendChild(el("p", "k", c.noL));
+          var n = el("ul", "no"); r.no.forEach(function (t) { n.appendChild(el("li", null, t)); }); d.appendChild(n);
+        }
+        roles.appendChild(d);
+      });
+
+      $("closeLine").textContent = c.closeLine;
+      var cta = $("cta"); cta.textContent = c.cta; cta.href = "/?lang=" + lang + "#contact";
+      var back = $("back"); back.textContent = c.back; back.href = "/?lang=" + lang + "#garage";
+      $("boundary").textContent = c.boundary;
+
+      document.querySelectorAll(".lang button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+      });
+      observe();
+    }
+
+    var io = null;
+    function observe() {
+      var nodes = document.querySelectorAll(".reveal:not(.in)");
+      if (!("IntersectionObserver" in window)) {
+        nodes.forEach(function (n) { n.classList.add("in"); });
+        return;
+      }
+      if (!io) {
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+          });
+        }, { threshold: 0.12 });
+      }
+      nodes.forEach(function (n) { io.observe(n); });
+    }
+
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        lang = b.dataset.lang;
+        try {
+          var u = new URL(location.href);
+          u.searchParams.set("lang", lang);
+          history.replaceState(null, "", u);
+        } catch (e) {}
+        render();
+      });
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
