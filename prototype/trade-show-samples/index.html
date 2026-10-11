@@ -104,6 +104,13 @@
 
     .reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
     .reveal.in { opacity: 1; transform: none; }
+    .next { margin-top: 56px; }
+    .next .lab { margin: 0; color: var(--brass); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .next a.card { display: block; margin-top: 12px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit; text-decoration: none; }
+    .next a.card:hover { border-color: var(--brass); }
+    .next a.card h3 { margin: 0; font-size: 19px; line-height: 1.35; }
+    .next a.card p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+    .next a.card span { display: inline-block; margin-top: 10px; font-weight: 700; font-size: 14.5px; color: var(--brass); }
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
       .reveal { opacity: 1; transform: none; }
@@ -195,6 +202,11 @@
       <p class="rule" id="agRule"></p>
     </section>
 
+    <section class="next reveal" aria-labelledby="next-h">
+      <p class="lab" id="nextLab"></p>
+      <a class="card" id="nextCard"><h3 id="next-h"></h3><p id="nextBody"></p><span id="nextGo"></span></a>
+    </section>
+
     <section class="close reveal">
       <p class="close-line" id="closeLine"></p>
       <div class="btns">
@@ -257,6 +269,11 @@
           ["等回覆", "偵測無效的 email，提醒沒回的買家該再問一次。"]
         ],
         agRule: "權限邊界：agent 可以協助準備、建議與追蹤；免費與否、運費誰出，仍由公司授權的人決定。",
+        nextLab: "選讀",
+        nextTitle: "三天沒回",
+        nextBody: "樣本寄出，買家沒回。同一則沉默，可以有幾種讀法，每種都附一個能分辨它的問題。",
+        nextGo: "看這一頁 →",
+        nextHref: "/prototype/three-days-of-quiet/",
         closeLine: "寄什麼、免不免費、運費誰出，這幾個決定，要由有授權的人來下。",
         cta: "帶你家的送樣流程來聊",
         back: "回到 Digital Garage",
@@ -310,6 +327,11 @@
           ["Wait for the reply", "Detect invalid email addresses, and remind you when a buyer has not replied and is worth asking again."]
         ],
         agRule: "Boundary: an agent may help prepare, suggest and track; whether samples are free and who pays the freight stays with whoever the company has authorised.",
+        nextLab: "Next read",
+        nextTitle: "Three Days of Quiet",
+        nextBody: "The buyer has not replied. The same silence can be read several ways, each with one question that tells them apart.",
+        nextGo: "Read this page →",
+        nextHref: "/prototype/three-days-of-quiet/",
         closeLine: "What to send, whether it is free, who pays the freight: these calls belong to whoever is authorised.",
         cta: "Bring your sample-sending flow",
         back: "Back to Digital Garage",
@@ -408,6 +430,11 @@
         roles.appendChild(d);
       });
 
+      $("nextLab").textContent = c.nextLab;
+      $("next-h").textContent = c.nextTitle;
+      $("nextBody").textContent = c.nextBody;
+      $("nextGo").textContent = c.nextGo;
+      $("nextCard").href = c.nextHref + "?lang=" + lang;
       $("closeLine").textContent = c.closeLine;
       var cta = $("cta"); cta.textContent = c.cta; cta.href = "/?lang=" + lang + "#contact";
       var back = $("back"); back.textContent = c.back; back.href = "/?lang=" + lang + "#garage";
