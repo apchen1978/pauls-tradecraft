@@ -110,8 +110,10 @@ export default function Garage() {
   const items = g.items.map((item) => ({ ...item, href: withDemoLang(item.href, lang) }));
   const regular = items.filter((item) => !item.wide);
   const wideItem = items.find((item) => item.wide);
-  const firstThree = regular.slice(0, 3);
-  const rest = regular.slice(3);
+  const storyItems = regular.filter((item) => item.story);
+  const others = regular.filter((item) => !item.story);
+  const firstThree = others.slice(0, 3);
+  const rest = others.slice(3);
 
   return (
     <section id="garage" aria-labelledby="garage-heading" className="scroll-mt-24 overflow-x-clip border-b border-line bg-bone">
@@ -122,7 +124,7 @@ export default function Garage() {
         </h2>
         <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-moss md:text-lg">{g.intro}</p>
 
-        {/* Three experiments show; everything else, the wide card included, sits under one toggle */}
+        {/* Three experiments show, then a labelled row of three stories from hands-on experience; everything else, the wide card included, sits under one toggle */}
         <ol className="mt-10 grid gap-6 md:mt-14 md:grid-cols-3 md:gap-7">
           {firstThree.map((item, index) => (
             <li key={item.href} className="flex">
@@ -130,6 +132,18 @@ export default function Garage() {
             </li>
           ))}
         </ol>
+        {storyItems.length ? (
+          <div className="mt-14 md:mt-20">
+            <p className="inline-block -rotate-1 rounded-2xl border-[2.5px] border-ink bg-white px-4 py-1.5 text-xs font-semibold tracking-[0.04em] text-ink md:text-sm">{g.storyLabel}</p>
+            <ol className="mt-6 grid gap-6 md:mt-8 md:grid-cols-3 md:gap-7">
+              {storyItems.map((item, index) => (
+                <li key={item.href} className="flex">
+                  <Card item={item} g={g} index={index + 3} />
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : null}
         {rest.length || wideItem ? (
           <details id="garage-more" className="group/more mt-6">
             <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
