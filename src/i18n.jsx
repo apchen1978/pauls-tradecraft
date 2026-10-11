@@ -526,6 +526,15 @@ const dict = {
           href: "/prototype/project-buyer/",
         },
         {
+          title: "The Sample Decision · 展後送樣決策",
+          tag: "示意情境 · 雙語原型",
+          spark: "名片都跟。差別在，寄哪幾本樣本。",
+          note: "展會之後五步，看寄什麼樣本、誰來決定、運費誰出。",
+          cta: "走一遍展後五步",
+          boundary: "示意情境，不是統計，也不代表所有工廠或買家。",
+          href: "/prototype/trade-show-samples/",
+        },
+        {
           title: "一個貨櫃出海前的 12 步",
           tag: "教學小課堂 · 雙語原型",
           spark: "一櫃貨要出海，工廠、貨代、海關、船公司在接力。你要在哪幾步做決定？",
@@ -1150,6 +1159,15 @@ const dict = {
           cta: "Walk his decision chain",
           boundary: "An illustrative portrait, not a buyer survey or statistics, and not every buyer.",
           href: "/prototype/project-buyer/",
+        },
+        {
+          title: "The Sample Decision",
+          tag: "Illustrative scenario · bilingual prototype",
+          spark: "Every card gets a follow-up. The difference is which samples go out.",
+          note: "Five steps after the show: which samples to send, who decides, and who pays the freight.",
+          cta: "Walk the five steps",
+          boundary: "An illustrative scenario, not statistics, and not every factory or buyer.",
+          href: "/prototype/trade-show-samples/",
         },
         {
           title: "12 Steps Before One Container Ships",
