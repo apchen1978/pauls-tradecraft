@@ -437,6 +437,7 @@ const dict = {
       featuredMark: "精選",
       latestMark: "最新",
       moreLabel: "看其餘實驗",
+      storyLabel: "從現場經驗長出來的三個故事",
       items: [
         {
           title: "Bring Paul Into the Room · 先把問題帶進來",
@@ -524,6 +525,7 @@ const dict = {
           cta: "走一遍他的決策鏈",
           boundary: "示意畫像，不是買家調查或統計，也不代表所有買家。",
           href: "/prototype/project-buyer/",
+          story: true,
         },
         {
           title: "The Sample Decision · 展後送樣決策",
@@ -533,6 +535,7 @@ const dict = {
           cta: "走一遍展後五步",
           boundary: "示意情境，不是統計，也不代表所有工廠或買家。",
           href: "/prototype/trade-show-samples/",
+          story: true,
         },
         {
           title: "How Far to Bend · 保住客戶，讓到哪裡",
@@ -542,6 +545,7 @@ const dict = {
           cta: "看讓步地圖",
           boundary: "示意情境，不是統計，也不代表所有工廠或客人。",
           href: "/prototype/concession-map/",
+          story: true,
         },
         {
           title: "一個貨櫃出海前的 12 步",
@@ -1082,6 +1086,7 @@ const dict = {
       featuredMark: "Featured",
       latestMark: "Latest",
       moreLabel: "More experiments",
+      storyLabel: "Three stories grown from hands-on trade experience",
       items: [
         {
           title: "Bring Paul Into the Room",
@@ -1169,6 +1174,7 @@ const dict = {
           cta: "Walk his decision chain",
           boundary: "An illustrative portrait, not a buyer survey or statistics, and not every buyer.",
           href: "/prototype/project-buyer/",
+          story: true,
         },
         {
           title: "The Sample Decision",
@@ -1178,6 +1184,7 @@ const dict = {
           cta: "Walk the five steps",
           boundary: "An illustrative scenario, not statistics, and not every factory or buyer.",
           href: "/prototype/trade-show-samples/",
+          story: true,
         },
         {
           title: "How Far to Bend",
@@ -1187,6 +1194,7 @@ const dict = {
           cta: "See the concession map",
           boundary: "An illustrative scenario, not statistics, and not every factory or customer.",
           href: "/prototype/concession-map/",
+          story: true,
         },
         {
           title: "12 Steps Before One Container Ships",
