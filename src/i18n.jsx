@@ -517,6 +517,15 @@ const dict = {
           href: "/prototype/three-days-of-quiet/",
         },
         {
+          title: "The Project Buyer · 專案型貿易商",
+          tag: "示意畫像 · 雙語原型",
+          spark: "他不怕樣品不好，怕的是大貨和樣品不一樣。",
+          note: "沿著專案型貿易商的決策鏈走六關：找工廠、確認能不能做、設計師與業主確認，到最後那一關。",
+          cta: "走一遍他的決策鏈",
+          boundary: "示意畫像，不是買家調查或統計，也不代表所有買家。",
+          href: "/prototype/project-buyer/",
+        },
+        {
           title: "一個貨櫃出海前的 12 步",
           tag: "教學小課堂 · 雙語原型",
           spark: "一櫃貨要出海，工廠、貨代、海關、船公司在接力。你要在哪幾步做決定？",
@@ -1132,6 +1141,15 @@ const dict = {
           cta: "Spend the three days",
           boundary: "Demo scenario — not a prediction of buyer behaviour; each reading is a possibility, none is proven.",
           href: "/prototype/three-days-of-quiet/",
+        },
+        {
+          title: "The Project Buyer",
+          tag: "Illustrative portrait · bilingual prototype",
+          spark: "He doesn't fear a bad sample. He fears bulk that doesn't match it.",
+          note: "Six gates along a project trader's decision chain: finding a factory, checking it can be made, designer and owner sign-off, and the last gate.",
+          cta: "Walk his decision chain",
+          boundary: "An illustrative portrait, not a buyer survey or statistics, and not every buyer.",
+          href: "/prototype/project-buyer/",
         },
         {
           title: "12 Steps Before One Container Ships",

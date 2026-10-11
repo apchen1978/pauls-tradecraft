@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>The Project Buyer · 專案型貿易商 — Paul's Tradecraft</title>
+  <style>
+    :root {
+      --paper: #f6f3ed;
+      --ink: #193a35;
+      --muted: #62716a;
+      --line: #d4dad1;
+      --pine: #142c29;
+      --brass: #8a6a2b;
+      --amber: #c98a1d;
+      --surface: #ffffff;
+      --soft: #dde7de;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--paper); color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.65; -webkit-font-smoothing: antialiased;
+    }
+    button, a { font: inherit; }
+    :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+    .page { width: min(100% - 40px, 760px); margin: 0 auto; padding: 36px 0 72px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .lang { display: flex; gap: 6px; }
+    .lang button {
+      min-width: 44px; min-height: 36px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0;
+      background: transparent; color: inherit; border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
+    }
+    .lang button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--paper); }
+    .tag {
+      display: inline-block; margin-top: 22px; padding: 4px 10px; border: 1px solid var(--line);
+      border-radius: 3px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    }
+    h1, h2 { margin: 0; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif; font-weight: 600; letter-spacing: -.03em; line-height: 1.22; }
+    h1 { margin-top: 18px; font-size: clamp(34px, 6.4vw, 54px); }
+    h2 { font-size: clamp(24px, 4.2vw, 32px); }
+    .lede { margin: 18px 0 0; max-width: 34em; color: var(--muted); font-size: 17px; }
+
+    .who { margin-top: 40px; border-top: 1px solid var(--ink); }
+    .who dl { margin: 0; }
+    .who .row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .who dt { color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .08em; padding-top: 3px; }
+    .who dd { margin: 0; font-size: 16px; }
+
+    .chain-head { margin-top: 64px; }
+    .chain-head p { margin: 10px 0 0; color: var(--muted); max-width: 36em; }
+    .chain { list-style: none; margin: 30px 0 0; padding: 0; position: relative; }
+    .chain::before { content: ""; position: absolute; left: 19px; top: 18px; bottom: 18px; width: 2px; background: var(--line); }
+    .step { position: relative; padding: 0 0 22px 60px; }
+    .step:last-child { padding-bottom: 0; }
+    .num {
+      position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center; background: var(--paper); border: 2px solid var(--pine);
+      font-weight: 700; font-variant-numeric: tabular-nums; z-index: 1;
+    }
+    .box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px 18px; }
+    .who-chip { margin: 0; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .1em; }
+    .box h3 { margin: 4px 0 0; font-size: 19px; line-height: 1.35; }
+    .box p.body { margin: 8px 0 0; font-size: 15.5px; }
+    .box .sub { margin: 10px 0 0; padding: 10px 12px; background: var(--soft); border-radius: 8px; font-size: 14.5px; }
+    .step.danger .num { background: var(--amber); border-color: var(--amber); color: #fff; box-shadow: 0 0 0 6px rgba(201, 138, 29, .18); }
+    .step.danger .box { border-color: var(--amber); }
+    .gate { margin: 8px 0 0; font-size: 13px; color: var(--brass); font-weight: 700; letter-spacing: .04em; }
+
+    .fear {
+      margin-top: 56px; padding: 34px 26px 36px; border-radius: 16px; background: var(--pine); color: var(--paper);
+    }
+    .fear .kicker { margin: 0; color: #e7c27a; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .fear .big { margin: 14px 0 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(26px, 5vw, 38px); line-height: 1.28; letter-spacing: -.03em; }
+    .fear .big em { font-style: normal; color: #e7c27a; }
+    .fear p.then { margin: 18px 0 0; max-width: 34em; color: #d6e0d8; font-size: 16px; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
+    .compare div { padding: 14px 16px; border: 1px solid rgba(246, 243, 237, .22); border-radius: 10px; }
+    .compare .l { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #b8c6bc; }
+    .compare .v { margin: 6px 0 0; font-size: 15.5px; }
+
+    .general { margin-top: 56px; }
+    .general > p.intro { margin: 10px 0 0; color: var(--muted); max-width: 36em; }
+    .gl { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); }
+    .gl li { padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+    .src { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+    .src a { color: var(--ink); text-underline-offset: 3px; }
+
+    .close { margin-top: 56px; }
+    .close-line { margin: 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(24px, 4.6vw, 34px); line-height: 1.3; letter-spacing: -.03em; }
+    .btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 22px;
+      border: 1px solid var(--pine); border-radius: 8px; background: var(--pine); color: var(--paper);
+      font-weight: 700; text-decoration: none;
+    }
+    .btn:hover { filter: brightness(1.15); }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { background: var(--soft); filter: none; }
+    .boundary { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+    .reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+    @media (max-width: 560px) {
+      .who .row { grid-template-columns: 1fr; gap: 4px; }
+      .compare { grid-template-columns: 1fr; }
+      .step { padding-left: 54px; }
+      .num { width: 36px; height: 36px; }
+      .chain::before { left: 17px; }
+      .fear { padding: 28px 20px 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="top">
+      <p class="eyebrow" id="eyebrow"></p>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <span class="tag" id="tag"></span>
+    <h1 id="h1"></h1>
+    <p class="lede" id="lede"></p>
+
+    <section class="who reveal" aria-labelledby="who-h" id="who">
+      <h2 id="who-h" class="sr" style="position:absolute;left:-9999px"></h2>
+      <dl id="whoList"></dl>
+    </section>
+
+    <section class="chain-head reveal" aria-labelledby="chain-h">
+      <h2 id="chain-h"></h2>
+      <p id="chainIntro"></p>
+    </section>
+    <ol class="chain" id="chain"></ol>
+
+    <section class="fear reveal" aria-labelledby="fear-h" id="fear">
+      <p class="kicker" id="fearKicker"></p>
+      <h2 class="big" id="fear-h"></h2>
+      <p class="then" id="fearThen"></p>
+      <div class="compare" id="compare"></div>
+    </section>
+
+    <section class="general reveal" aria-labelledby="gen-h">
+      <h2 id="gen-h"></h2>
+      <p class="intro" id="genIntro"></p>
+      <ul class="gl" id="gl"></ul>
+      <p class="src" id="src"></p>
+    </section>
+
+    <section class="close reveal">
+      <p class="close-line" id="closeLine"></p>
+      <div class="btns">
+        <a class="btn" id="cta"></a>
+        <a class="btn ghost" id="back"></a>
+      </div>
+    </section>
+
+    <p class="boundary" id="boundary"></p>
+  </main>
+
+  <script>
+  (function () {
+    var COPY = {
+      zh: {
+        title: "The Project Buyer · 專案型貿易商",
+        eyebrow: "Digital Garage · 買家畫像",
+        tag: "示意畫像 · 非真實買家",
+        h1: "他不怕樣品不好，怕的是大貨不一樣。",
+        lede: "一位專案型貿易商，拿著設計師已經定好的樣張來找工廠。這一頁沿著他的決策鏈走一遍：他從哪裡開始、會在哪裡轉身、最後在怕什麼。",
+        whoH: "他是誰",
+        who: [
+          ["他是誰", "專案型貿易商。手上是設計師選定、已寫進專案規格的樣張，要找工廠照著做出來。"],
+          ["他要什麼", "專案多半是素色、條紋或壓紋。住宅案可能有圖案，通常做小改款，不會完全一模一樣。"],
+          ["怎麼開口", "拿樣張來問：這個，你們能不能開發？打色、仿製、做出接近的版本。"]
+        ],
+        chainH: "他的決策鏈",
+        chainIntro: "從找到工廠，到大貨出貨，要過六關。前面五關都在確認「樣品對不對」，最後一關才是他真正睡不著的地方。",
+        steps: [
+          { who: "貿易商", h: "先找工廠", b: "最常從大型行業展會開始，其次是同行介紹，再來是上網查。行業協會的評選與推薦，分量很重。" },
+          { who: "貿易商", h: "先確認能不能做", b: "第一件事不是價錢，是工廠現有的壓紋滾或印刷滾，能不能做出這個樣張。", sub: "買家在附近，就到現場看樣張；不在附近，就拍照，壓紋看不清楚，再請他剪一小片寄來。" },
+          { who: "貿易商", h: "可能在這裡轉身", b: "打樣要收費，或要開新的滾筒要收費，他就可能轉去找別家。", gate: "最常見的離場點" },
+          { who: "設計師", h: "設計師確認", b: "打完樣，一定要讓設計師確認。" },
+          { who: "業主（甲方）", h: "業主確認", b: "設計師確認之後，還要給業主（甲方）看。業主也一定要確認。" },
+          { who: "工廠 · 大貨", h: "大貨出來了", b: "樣品都過了，但大貨是另一件事。品保沒做好，就要補做給他。", fear: true }
+        ],
+        fearKicker: "他最怕的一件事",
+        fearBig: "怕大貨的<em>品保</em>沒做好。",
+        fearThen: "樣品是一件，大貨是一整批。樣品過了設計師、也過了業主，大貨卻不一樣，向上交代的人是他，要補做的是工廠。",
+        compareL: ["樣品階段", "大貨階段"],
+        compareV: ["一件做對，大家點頭。", "整批要一樣。不一樣，就補做給他，工廠可能因此虧錢。"],
+        genH: "一般業界怎麼處理這道落差",
+        genIntro: "以下是公開資料裡的一般說法，不是這位買家自己的做法。",
+        gl: [
+          "把雙方認可的確認樣當作量產的基準，記下材料、顏色與容許差異；之後有任何變更，要書面記錄、重新確認。",
+          "樣品只能證明做得出一件好的，不等於能穩定重複，所以常有人會要求用實際製程做出樣品，並在大貨出貨前檢驗。"
+        ],
+        src: "來源：",
+        srcLinks: [
+          ["racklify.com", "https://racklify.com/encyclopedia/what-is-an-approval-sample-purpose-and-typical-contents/"],
+          ["fulfillbot.com", "https://fulfillbot.com/?p=1000121"]
+        ],
+        closeLine: "看懂他怕什麼，才知道樣品之後，還要先證明什麼。",
+        cta: "帶一個你正在打樣的案子來聊",
+        back: "回到 Digital Garage",
+        boundary: "示意畫像，不是買家調查或統計，也不代表所有買家。內容來自現場經驗與公開的一般說法。不儲存任何內容。"
+      },
+      en: {
+        title: "The Project Buyer",
+        eyebrow: "Digital Garage · Buyer portrait",
+        tag: "Illustrative portrait · not a real buyer",
+        h1: "He doesn't fear a bad sample. He fears bulk that looks different.",
+        lede: "A project-focused trading company arrives with a sample the designer has already specified. This page walks his decision chain: where he starts, where he may walk away, and what he is really afraid of.",
+        whoH: "Who he is",
+        who: [
+          ["Who he is", "A project-focused trader. He holds a sample the designer picked and wrote into the project spec, and needs a factory to reproduce it."],
+          ["What he wants", "Project work is mostly plain colours, stripes or embossed textures. Residential jobs may have patterns, usually a small variation, never an exact copy."],
+          ["How he opens", "He brings the sample and asks: can you develop this? Colour match, replicate, or get close."]
+        ],
+        chainH: "His decision chain",
+        chainIntro: "From finding a factory to bulk shipment there are six gates. The first five check whether the sample is right. The last is where he loses sleep.",
+        steps: [
+          { who: "Trader", h: "Find a factory", b: "Most often it starts at a major trade show, then peer referrals, then a web search. Industry-association rankings and recommendations carry real weight." },
+          { who: "Trader", h: "Check it can be made", b: "The first question is not price. It is whether the factory's existing embossing or printing cylinder can produce this sample.", sub: "If the buyer is nearby, he comes to see the sample. If not, he sends photos, and if the emboss is hard to see, asks for a small cut piece to be mailed." },
+          { who: "Trader", h: "He may walk away here", b: "If sampling costs money, or a new cylinder costs money, he may go to another factory.", gate: "The most common exit" },
+          { who: "Designer", h: "Designer confirms", b: "After sampling, the designer must confirm." },
+          { who: "Owner (client)", h: "Owner confirms", b: "After the designer confirms, the owner (client) must confirm too." },
+          { who: "Factory · bulk", h: "Bulk arrives", b: "The sample passed everything, but bulk is a different matter. If quality control slips, it has to be remade for him.", fear: true }
+        ],
+        fearKicker: "His biggest fear",
+        fearBig: "That bulk <em>quality control</em> goes wrong.",
+        fearThen: "A sample is one piece; bulk is a whole batch. The sample passed the designer and the owner, then bulk comes out different. He answers upward, and the factory has to remake it.",
+        compareL: ["Sample stage", "Bulk stage"],
+        compareV: ["One piece done right, everyone nods.", "The whole batch must match. If not, it is remade for him, and the factory may lose money."],
+        genH: "How the industry generally handles this gap",
+        genIntro: "These are general statements from public sources, not this buyer's own practice.",
+        gl: [
+          "Treat the sample both sides approved as the baseline for production, record materials, colours and tolerances, and document and re-confirm any change.",
+          "A sample only shows one good piece can be made, not that it can be repeated, so people often ask for a sample made on the real process, and inspect before bulk ships."
+        ],
+        src: "Sources: ",
+        srcLinks: [
+          ["racklify.com", "https://racklify.com/encyclopedia/what-is-an-approval-sample-purpose-and-typical-contents/"],
+          ["fulfillbot.com", "https://fulfillbot.com/?p=1000121"]
+        ],
+        closeLine: "Once you see what he fears, you know what to prove after the sample.",
+        cta: "Bring a project you are sampling",
+        back: "Back to Digital Garage",
+        boundary: "An illustrative portrait, not a buyer survey or statistics, and not every buyer. Based on hands-on experience and general public statements. Nothing is stored."
+      }
+    };
+
+    var params = new URLSearchParams(location.search);
+    var lang = params.get("lang") === "en" ? "en" : "zh";
+
+    function $(id) { return document.getElementById(id); }
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+
+    function render() {
+      var c = COPY[lang];
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.title = c.title + " — Paul's Tradecraft";
+      $("eyebrow").textContent = c.eyebrow;
+      $("tag").textContent = c.tag;
+      $("h1").textContent = c.h1;
+      $("lede").textContent = c.lede;
+      $("who-h").textContent = c.whoH;
+
+      var dl = $("whoList"); dl.textContent = "";
+      c.who.forEach(function (r) {
+        var row = el("div", "row");
+        row.appendChild(el("dt", null, r[0]));
+        row.appendChild(el("dd", null, r[1]));
+        dl.appendChild(row);
+      });
+
+      $("chain-h").textContent = c.chainH;
+      $("chainIntro").textContent = c.chainIntro;
+      var ol = $("chain"); ol.textContent = "";
+      c.steps.forEach(function (s, i) {
+        var li = el("li", "step reveal" + (s.fear ? " danger" : ""));
+        li.appendChild(el("span", "num", String(i + 1)));
+        var box = el("div", "box");
+        box.appendChild(el("p", "who-chip", s.who));
+        box.appendChild(el("h3", null, s.h));
+        box.appendChild(el("p", "body", s.b));
+        if (s.sub) box.appendChild(el("p", "sub", s.sub));
+        if (s.gate) box.appendChild(el("p", "gate", s.gate));
+        li.appendChild(box);
+        ol.appendChild(li);
+      });
+
+      $("fearKicker").textContent = c.fearKicker;
+      $("fear-h").innerHTML = c.fearBig;
+      $("fearThen").textContent = c.fearThen;
+      var cmp = $("compare"); cmp.textContent = "";
+      [0, 1].forEach(function (i) {
+        var d = el("div");
+        d.appendChild(el("p", "l", c.compareL[i]));
+        d.appendChild(el("p", "v", c.compareV[i]));
+        cmp.appendChild(d);
+      });
+
+      $("gen-h").textContent = c.genH;
+      $("genIntro").textContent = c.genIntro;
+      var gl = $("gl"); gl.textContent = "";
+      c.gl.forEach(function (t) { gl.appendChild(el("li", null, t)); });
+      var src = $("src"); src.textContent = c.src;
+      c.srcLinks.forEach(function (l, i) {
+        var a = el("a", null, l[0]);
+        a.href = l[1]; a.target = "_blank"; a.rel = "noopener noreferrer";
+        if (i) src.appendChild(document.createTextNode(" · "));
+        src.appendChild(a);
+      });
+
+      $("closeLine").textContent = c.closeLine;
+      var cta = $("cta"); cta.textContent = c.cta; cta.href = "/?lang=" + lang + "#contact";
+      var back = $("back"); back.textContent = c.back; back.href = "/?lang=" + lang + "#garage";
+      $("boundary").textContent = c.boundary;
+
+      document.querySelectorAll(".lang button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+      });
+      observe();
+    }
+
+    var io = null;
+    function observe() {
+      var nodes = document.querySelectorAll(".reveal:not(.in)");
+      if (!("IntersectionObserver" in window)) {
+        nodes.forEach(function (n) { n.classList.add("in"); });
+        return;
+      }
+      if (!io) {
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+          });
+        }, { threshold: 0.12 });
+      }
+      nodes.forEach(function (n) { io.observe(n); });
+    }
+
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        lang = b.dataset.lang;
+        try {
+          var u = new URL(location.href);
+          u.searchParams.set("lang", lang);
+          history.replaceState(null, "", u);
+        } catch (e) {}
+        render();
+      });
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
