@@ -131,6 +131,15 @@
     .role .k { margin: 14px 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
     .role ul { margin: 0; padding-left: 18px; font-size: 15px; }
     .role ul.no { color: var(--muted); }
+    .eg { margin: 18px 0 0; padding-left: 12px; border-left: 3px solid var(--amber); color: var(--muted); font-size: 14.5px; }
+    .qs { margin: 22px 0 0; padding-left: 22px; font-size: 16px; }
+    .qs li { padding: 6px 0 6px 4px; }
+    .ag { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); }
+    .ag li { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .ag .n { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--soft); font-size: 13px; font-weight: 700; }
+    .ag strong { font-size: 16px; }
+    .ag p { margin: 2px 0 0; font-size: 15px; color: var(--muted); }
+    .rule { margin: 18px 0 0; padding: 12px 14px; background: var(--soft); border-radius: 8px; font-size: 14.5px; }
     @media (max-width: 560px) { .mats, .roles { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -153,9 +162,16 @@
     </section>
     <ol class="chain" id="chain"></ol>
 
+    <section class="general reveal" aria-labelledby="who-h">
+      <h2 id="who-h"></h2>
+      <p class="intro" id="whoIntro"></p>
+      <div class="roles" id="roles"></div>
+    </section>
+
     <section class="general reveal" aria-labelledby="mat-h">
       <h2 id="mat-h"></h2>
       <p class="intro" id="matIntro"></p>
+      <p class="eg" id="egLabel"></p>
       <div class="mats" id="mats"></div>
     </section>
 
@@ -166,10 +182,17 @@
       <div class="compare" id="compare"></div>
     </section>
 
-    <section class="general reveal" aria-labelledby="who-h">
-      <h2 id="who-h"></h2>
-      <p class="intro" id="whoIntro"></p>
-      <div class="roles" id="roles"></div>
+    <section class="general reveal" aria-labelledby="swap-h">
+      <h2 id="swap-h"></h2>
+      <p class="intro" id="swapIntro"></p>
+      <ol class="qs" id="qs"></ol>
+    </section>
+
+    <section class="general reveal" aria-labelledby="ag-h">
+      <h2 id="ag-h"></h2>
+      <p class="intro" id="agIntro"></p>
+      <ul class="ag" id="ag"></ul>
+      <p class="rule" id="agRule"></p>
     </section>
 
     <section class="close reveal">
@@ -193,16 +216,17 @@
         h1: "名片都跟。差別在，寄哪幾本樣本。",
         lede: "展會結束，一疊名片回到工廠。這一頁看的不是信怎麼寫，而是三件事：寄什麼樣本、誰來決定、運費誰出。",
         chainH: "展會之後，五步",
-        chainIntro: "回到辦公室就跟進，通常是展會後的一兩天。基本上不會卡，除非對方的 email 有問題。",
+        chainIntro: "回到辦公室就跟進，通常是展會後的一兩天。基本上不會卡，除非對方的 email 有問題。這幾步不限哪個行業，只要展會上收到的是一疊名片、要寄的是樣品。",
         steps: [
           { who: "銷售助理", h: "登記名片", b: "展會結束，名片逐張登記。基本上，有拿到名片的都會跟。" },
-          { who: "銷售助理 · email", h: "寄信，要快遞帳號", b: "信用英文。開頭填對方的名字，寫在展會上聊過，現在要寄樣本，內容大致寫要寄什麼。", sub: "同時向對方要快遞帳號與收件地址。樣本冊免費，運費走客人自己的快遞帳號，要寄幾本都可以。" },
+          { who: "銷售助理 · email", h: "寄信，要快遞帳號", b: "信用英文。開頭填對方的名字，寫在展會上聊過，現在要寄樣本，內容大致寫要寄什麼。", sub: "同時向對方要快遞帳號與收件地址。樣本免費，運費走客人自己的快遞帳號，要寄幾份都可以。" },
           { who: "銷售總監", h: "挑樣本", b: "依買家所在市場的需求，決定寄哪些版本、哪幾本。", gate: "這一關只有銷售總監能下", key: true },
           { who: "銷售助理", h: "寄出", b: "挑完之後，由銷售助理直接寄到客人手裡。" },
           { who: "買家", h: "等他回覆", b: "專程去看展的海外買家，大多會回：他花了旅館與交通的錢，希望拿到樣本。" }
         ],
-        matH: "樣本怎麼挑：依市場，看底材",
-        matIntro: "壁紙的類型，以底材（紙的材料本身）來分，就這幾種，所以相對好判斷。其他產品可能複雜得多。",
+        matH: "樣本怎麼挑：依買家所在的市場",
+        matIntro: "同一疊名片，不同市場要的東西不一樣。挑樣本的依據，是對方那個市場的需求，不是把樣本全寄出去。",
+        egLabel: "例如（壁紙）：類型以底材來分，就這幾種，所以相對好判斷。其他產品可能複雜得多。",
         mats: [
           ["塗布紙", "coated paper", "有些市場寄這一種。"],
           ["Vinyl（PVC）", "vinyl", "有些市場偏好這一種。"],
@@ -213,17 +237,30 @@
         costThen: "寄一大票，一方面是費用；另一方面，樣本冊很重，客人要承擔的運費也不小。",
         compareL: ["一般情況", "很大的公司"],
         compareV: ["樣本免費，運費由客人自己的快遞帳號出。他通常都願意。", "運費也由工廠吸收，當作禮遇，因為很確定對方是大公司。"],
-        whoH: "誰能決定",
-        whoIntro: "同一份名片，兩種人的權限不一樣。",
+        whoH: "先看誰能決定",
+        whoIntro: "同一疊名片，兩種人的權限不一樣。這一塊最通用：不管寄什麼，免費與否、運費誰出，通常都是負責人才能下的決定。",
         roles: [
           { h: "銷售助理", can: ["登記名片", "寄 email、要快遞帳號與地址", "把挑好的樣本寄出"], no: ["決定免費送不送", "決定要不要吸收運費"] },
           { h: "銷售總監", boss: true, can: ["決定寄哪些版本、哪幾本", "決定免費送不送", "決定要不要替大公司吸收運費"], no: [] }
         ],
         canL: "可以", noL: "不能",
+        swapH: "換成你的產品，先回答三題",
+        swapIntro: "這三題沒有標準答案，只有你的產品與市場才有。",
+        qs: ["你的樣品，是靠什麼區分的？（壁紙是底材；別的產品可能是規格、材質、尺寸。）", "一份樣品有多重、多貴？寄一整批，費用和運費大概落在誰身上？", "免費與否、運費誰出，誰有權決定？助理能不能決定？"],
+        agH: "未來，AI agent 可以加速哪裡",
+        agIntro: "以下是設想，不是現在做到的，也沒有效果數字。每一步只寫 agent 可以幫忙的部分；決定仍留在原本的人。",
+        ag: [
+          ["登記名片", "掃描名片，整理成一張名單，標出展會上聊過什麼。"],
+          ["寄信", "起草英文信、填好名字與要寄的樣本，向對方索取快遞帳號與地址；助理看過再送出。"],
+          ["挑樣本", "依買家所在市場，列出建議的樣本清單，附上重量與預估運費；由銷售總監決定。"],
+          ["寄出", "整理出貨資料、填快遞單、追蹤是否送達。"],
+          ["等回覆", "偵測無效的 email，提醒沒回的買家該再問一次。"]
+        ],
+        agRule: "權限邊界（CC 推測）：agent 的權限，應該和銷售助理一樣：可以準備、建議、追蹤；免費與否、運費誰出，仍由銷售總監決定。",
         closeLine: "寄什麼、免不免費、運費誰出，這幾個決定，只有一個人能下。",
         cta: "帶你家的送樣流程來聊",
         back: "回到 Digital Garage",
-        boundary: "示意情境，不是統計，也不代表所有工廠或所有買家；這是以前的做法與一個人的經驗。內容裡沒有數字，也沒有信件範本。不儲存任何內容。"
+        boundary: "示意情境，不是統計，也不代表所有工廠或所有買家；這是以前的做法與一個人的經驗。「AI agent 可以加速哪裡」是設想，沒有證據與效果數字。內容裡沒有信件範本。不儲存任何內容。"
       },
       en: {
         title: "The Sample Decision",
@@ -232,16 +269,17 @@
         h1: "Every card gets a follow-up. The difference is which samples go out.",
         lede: "The show ends and a stack of business cards comes back to the factory. This page is not about how to word the email. It is about three things: which samples to send, who decides, and who pays the freight.",
         chainH: "After the show, five steps",
-        chainIntro: "Follow-up starts as soon as you are back at the office, usually one or two days after the show. It rarely gets stuck, unless the email address is bad.",
+        chainIntro: "Follow-up starts as soon as you are back at the office, usually one or two days after the show. It rarely gets stuck, unless the email address is bad. These steps are not specific to one industry: a stack of business cards, and samples to send.",
         steps: [
           { who: "Sales assistant", h: "Log the cards", b: "When the show ends, every card is logged. Basically, anyone who left a card gets a follow-up." },
-          { who: "Sales assistant · email", h: "Email, ask for a courier account", b: "The email is in English. It opens with the person's name, says you spoke at the show and that samples are on their way, and roughly which ones.", sub: "It also asks for a courier account number and a delivery address. The sample books are free; freight goes on the buyer's own courier account, as many books as he likes." },
+          { who: "Sales assistant · email", h: "Email, ask for a courier account", b: "The email is in English. It opens with the person's name, says you spoke at the show and that samples are on their way, and roughly which ones.", sub: "It also asks for a courier account number and a delivery address. The samples are free; freight goes on the buyer's own courier account, as many as he likes." },
           { who: "Sales director", h: "Choose the samples", b: "Based on the needs of the buyer's market, decide which versions and which books to send.", gate: "Only the sales director makes this call", key: true },
           { who: "Sales assistant", h: "Ship them", b: "Once chosen, the sales assistant ships them straight to the buyer." },
           { who: "Buyer", h: "Wait for the reply", b: "Overseas buyers who came to the show mostly reply: they paid for hotel and travel and want the samples." }
         ],
-        matH: "Choosing samples: by market, by base material",
-        matIntro: "Wallcovering types are told apart by base material (what the substrate itself is), and there are only a few, so the choice is relatively easy. Other products can be far more complicated.",
+        matH: "Choosing samples: by the buyer's market",
+        matIntro: "The same stack of cards wants different things in different markets. What you send depends on that market's needs, not on sending everything.",
+        egLabel: "For example (wallcovering): types are told apart by base material, and there are only a few, so the choice is relatively easy. Other products can be far more complicated.",
         mats: [
           ["Coated paper", "coated paper", "Some markets get this one."],
           ["Vinyl (PVC)", "vinyl", "Some markets prefer this one."],
@@ -252,17 +290,30 @@
         costThen: "Sending a big pile costs money, and sample books are heavy, so the freight the buyer carries is not small either.",
         compareL: ["The usual case", "A very large company"],
         compareV: ["Samples are free; freight goes on the buyer's own courier account. He is usually fine with that.", "The factory absorbs the freight too, as a courtesy, because it is clear the company is very large."],
-        whoH: "Who can decide",
-        whoIntro: "Same stack of cards, two different sets of authority.",
+        whoH: "First, who can decide",
+        whoIntro: "Same stack of cards, two different sets of authority. This part travels best: whatever you send, whether it is free and who pays the freight is usually the owner's call.",
         roles: [
           { h: "Sales assistant", can: ["Log the cards", "Send the email, ask for courier account and address", "Ship the chosen samples"], no: ["Decide whether samples are free", "Decide whether to absorb freight"] },
           { h: "Sales director", boss: true, can: ["Decide which versions and books to send", "Decide whether samples are free", "Decide whether to absorb freight for a large company"], no: [] }
         ],
         canL: "Can", noL: "Cannot",
+        swapH: "Swap in your product: three questions first",
+        swapIntro: "There is no standard answer. Only your product and your market have one.",
+        qs: ["What tells your samples apart? (For wallcovering it is the base material; for other products it may be spec, material or size.)", "How heavy and how costly is a sample? Whose budget does a full batch land on, including freight?", "Who has the authority to say free or not, and who pays the freight? Can an assistant decide?"],
+        agH: "Later, where an AI agent could speed this up",
+        agIntro: "This is a sketch of the future, not something done today, and it has no effect numbers. Each step lists only what an agent could help with; the decision stays with the person who holds it today.",
+        ag: [
+          ["Log the cards", "Scan the cards into one list, noting what was discussed at the show."],
+          ["Send the email", "Draft the English email, fill in the name and the samples, ask for the courier account and address; the assistant reviews before it goes out."],
+          ["Choose the samples", "For the buyer's market, list suggested samples with weight and estimated freight; the sales director decides."],
+          ["Ship", "Prepare shipping details, fill in the courier form, track delivery."],
+          ["Wait for the reply", "Detect invalid email addresses, and remind you when a buyer has not replied and is worth asking again."]
+        ],
+        agRule: "Boundary (CC inference): an agent's authority should match the sales assistant's: it may prepare, suggest and track; whether samples are free and who pays the freight stays with the sales director.",
         closeLine: "What to send, whether it is free, who pays the freight: only one person makes those calls.",
         cta: "Bring your sample-sending flow",
         back: "Back to Digital Garage",
-        boundary: "An illustrative scenario, not statistics, and not every factory or buyer; it is how it used to be done, from one person's experience. It contains no numbers and no email template. Nothing is stored."
+        boundary: "An illustrative scenario, not statistics, and not every factory or buyer; it is how it used to be done, from one person's experience. The AI-agent section is a sketch with no evidence or effect numbers. It contains no email template. Nothing is stored."
       }
     };
 
@@ -304,6 +355,24 @@
 
       $("mat-h").textContent = c.matH;
       $("matIntro").textContent = c.matIntro;
+      $("egLabel").textContent = c.egLabel;
+      $("swap-h").textContent = c.swapH;
+      $("swapIntro").textContent = c.swapIntro;
+      var qs = $("qs"); qs.textContent = "";
+      c.qs.forEach(function (t) { qs.appendChild(el("li", null, t)); });
+      $("ag-h").textContent = c.agH;
+      $("agIntro").textContent = c.agIntro;
+      var ag = $("ag"); ag.textContent = "";
+      c.ag.forEach(function (a, i) {
+        var li = el("li");
+        li.appendChild(el("span", "n", String(i + 1)));
+        var d = el("div");
+        d.appendChild(el("strong", null, a[0]));
+        d.appendChild(el("p", null, a[1]));
+        li.appendChild(d);
+        ag.appendChild(li);
+      });
+      $("agRule").textContent = c.agRule;
       var mats = $("mats"); mats.textContent = "";
       c.mats.forEach(function (m) {
         var d = el("div", "mat");
