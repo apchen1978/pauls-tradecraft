@@ -70,6 +70,9 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   const blob = JSON.stringify({ UI, TYPES, SCENARIOS });
   assert.equal(UI.zh.boundary, "示意玩具，不是心理測驗。");
   assert.equal(UI.en.boundary, "A toy, not a personality test.");
+  assert.equal(TYPES.cocoa.zh.role, "守護者");
+  assert.equal(TYPES.cocoa.en.role, "Guardian");
+  assert.equal(blob.includes("補師") || /\bHealer\b/.test(blob), false);
   assert.equal(/人工智慧|\bAI\b|老闆|老板|ROI|轉換率|成交率|中間層|A2A|\bCDD\b|前職|Former role|\bowner\b|英雄聯盟|魔獸|Overwatch|Warcraft|League of Legends|mailto:|@gmail/i.test(blob), false);
   for (const lang of ["zh", "en"]) {
     for (const type of Object.values(TYPES)) {

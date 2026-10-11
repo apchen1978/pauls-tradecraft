@@ -177,6 +177,27 @@ for (const width of [390, 768, 1440]) {
   });
 }
 
+test.describe("cocoa role label", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("390px zh and en say 守護者 / Guardian", async ({ page }) => {
+    await page.goto("/prototype/teammate-type/?c=BBB&lang=zh");
+    await waitForMg(page);
+    await expect(page.locator("#card-name")).toHaveText("晚安熱可可");
+    await expect(page.locator("#role")).toHaveText("組隊角色 · 守護者");
+    await expectFunnyHighlight(page);
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-cocoa-card.png` });
+
+    await page.getByRole("button", { name: "EN" }).click();
+    await expect(page.locator("#card-name")).toHaveText("The Cocoa");
+    await expect(page.locator("#role")).toHaveText("Party role · Guardian");
+    await expectFunnyHighlight(page);
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-en-cocoa-card.png` });
+  });
+});
+
 for (const width of [390, 768, 1440]) {
   test.describe(`long funny lines ${width}px`, () => {
     test.use({ viewport: { width, height: width === 390 ? 844 : 1000 } });
