@@ -37,14 +37,26 @@ export default function SemanticaCaseStudy() {
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">{copy.intro}</p>
         </header>
 
-        <div className="mt-12 grid gap-0 divide-y divide-line border-y border-line md:grid-cols-2 md:divide-x md:divide-y-0">
-          {[[copy.challenge, copy.challengeBody], [copy.hypothesis, copy.hypothesisBody], [copy.experiment, copy.experimentBody], [copy.evidence, copy.evidenceBody], [copy.decision, copy.decisionBody], [copy.businessImplication, copy.businessImplicationBody], [copy.unknowns, copy.unknownsBody], [copy.reconsider, copy.reconsiderBody]].map(([heading, body]) => (
-            <article key={heading} className="py-5 md:px-6 md:py-6 first:md:pl-0 even:md:pr-0">
+        <div className="mt-12 grid gap-0 divide-y divide-line border-y border-line md:grid-cols-3 md:divide-x md:divide-y-0">
+          {[[copy.decision, copy.decisionBody], [copy.unknowns, copy.unknownsBody], [copy.reconsider, copy.reconsiderBody]].map(([heading, body]) => (
+            <article key={heading} className="py-5 md:px-6 md:py-6 first:md:pl-0 last:md:pr-0">
               <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-moss">{heading}</h3>
               <p className="mt-2 text-sm leading-relaxed text-ink/80">{body}</p>
             </article>
           ))}
         </div>
+
+        <details className="mt-8 rounded-card border border-line bg-card p-5 md:p-7">
+          <summary className="cursor-pointer rounded-sm text-base font-semibold text-forest underline decoration-forest/30 underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber">{copy.expand}</summary>
+
+          <div className="mt-6 grid gap-0 divide-y divide-line border-y border-line md:grid-cols-2 md:divide-x md:divide-y-0">
+            {[[copy.challenge, copy.challengeBody], [copy.hypothesis, copy.hypothesisBody], [copy.experiment, copy.experimentBody], [copy.evidence, copy.evidenceBody], [copy.businessImplication, copy.businessImplicationBody]].map(([heading, body]) => (
+              <article key={heading} className="py-5 md:px-6 md:py-6 first:md:pl-0 even:md:pr-0">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-moss">{heading}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink/80">{body}</p>
+              </article>
+            ))}
+          </div>
 
         <section aria-labelledby="architecture-lab-title" className="mt-16 rounded-card border border-forest/15 bg-card p-5 shadow-[0_24px_55px_-42px_rgba(20,51,41,.45)] md:mt-20 md:p-9">
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -94,12 +106,13 @@ export default function SemanticaCaseStudy() {
           </div>
         </section>
 
-        <details className="mt-8 rounded-card border border-line bg-card p-5 md:p-7">
+        <details className="mt-8 rounded-card border border-line bg-bone p-5 md:p-7">
           <summary className="cursor-pointer rounded-sm text-base font-semibold text-forest underline decoration-forest/30 underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber">{copy.technicalTitle}</summary>
           <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink/70">{copy.technicalIntro}</p>
           <dl className="mt-5 divide-y divide-line border-y border-line">
             {copy.technicalItems.map(([label, value]) => <div key={label} className="grid gap-1 py-4 sm:grid-cols-[10rem_1fr] sm:gap-5"><dt className="text-sm font-semibold text-forest">{label}</dt><dd className="text-sm leading-relaxed text-ink/75">{value}</dd></div>)}
           </dl>
+        </details>
         </details>
         <p className="mt-7 text-center text-xs font-medium uppercase tracking-[0.08em] text-moss">{copy.closing}</p>
       </div>
