@@ -11,7 +11,7 @@ const TILT = ["-rotate-[1.2deg]", "rotate-[0.8deg]", "-rotate-[0.5deg]"];
 const FILL = ["bg-white", "bg-paper", "bg-white"];
 const SHADOW = "shadow-[5px_5px_0_var(--color-ink)] hover:shadow-[8px_10px_0_var(--color-ink)]";
 
-function Card({ item, g, index }) {
+function Card({ item, g, index, titleAs: Title = "h3" }) {
   return (
     <article
       className={`flex w-full flex-col rounded-[1.25rem] border-[2.5px] border-ink p-5 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-0 md:p-6 ${TILT[index % 3]} ${FILL[index % 3]} ${SHADOW}`}
@@ -29,7 +29,7 @@ function Card({ item, g, index }) {
           </div>
         ) : null}
       </div>
-      <h3 className="mt-5 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
+      <Title className="mt-5 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</Title>
       <p className="mt-4 text-base font-semibold leading-[1.55] text-ink">
         <span className="box-decoration-clone bg-[linear-gradient(transparent_58%,var(--color-pop)_58%,var(--color-pop)_92%,transparent_92%)]">{item.spark}</span>
       </p>
@@ -108,8 +108,11 @@ export default function Garage() {
   const { lang, t } = useLang();
   const g = t.garage;
   const items = g.items.map((item) => ({ ...item, href: withDemoLang(item.href, lang) }));
-  const regular = items.filter((item) => !item.wide);
-  const wideItem = items.find((item) => item.wide);
+  const regular = items.filter((item) => !item.wide && !item.branch);
+  const wideItem = items.find((item) => item.wide && !item.branch);
+  const branches = (g.branches || [])
+    .map((branch) => ({ ...branch, items: items.filter((item) => item.branch === branch.id) }))
+    .filter((branch) => branch.items.length);
   const firstThree = regular.slice(0, 3);
   const rest = regular.slice(3);
 
@@ -130,6 +133,19 @@ export default function Garage() {
             </li>
           ))}
         </ol>
+        {branches.map((branch) => (
+          <div key={branch.id} id={`garage-branch-${branch.id}`} className="mt-10 md:mt-14">
+            <h3 className="inline-block -rotate-1 rounded-2xl border-[2.5px] border-ink bg-white px-4 py-1.5 text-sm font-semibold text-ink shadow-[3px_3px_0_var(--color-ink)]">{branch.label}</h3>
+            {branch.note ? <p className="mt-4 max-w-[46ch] text-base leading-relaxed text-moss">{branch.note}</p> : null}
+            <ol className="mt-6 grid gap-6 md:grid-cols-3 md:gap-7">
+              {branch.items.map((item, index) => (
+                <li key={item.href} className="flex">
+                  <Card item={item} g={g} index={index} titleAs="h4" />
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
         {rest.length || wideItem ? (
           <details id="garage-more" className="group/more mt-6">
             <summary className="inline-flex cursor-pointer list-none items-center gap-3 rounded-full border-[2.5px] border-ink bg-white px-5 py-3 text-sm font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber [&::-webkit-details-marker]:hidden">
