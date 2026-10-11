@@ -535,6 +535,15 @@ const dict = {
           href: "/prototype/trade-show-samples/",
         },
         {
+          title: "How Far to Bend · 保住客戶，讓到哪裡",
+          tag: "示意情境 · 雙語原型",
+          spark: "讓不讓，先看對方是誰，再看你站在哪裡。",
+          note: "折扣、補做、運費、賒帳：看對方、看市場、看自己的位置，以及誰能決定到哪裡。",
+          cta: "看讓步地圖",
+          boundary: "示意情境，不是統計，也不代表所有工廠或客人。",
+          href: "/prototype/concession-map/",
+        },
+        {
           title: "一個貨櫃出海前的 12 步",
           tag: "教學小課堂 · 雙語原型",
           spark: "一櫃貨要出海，工廠、貨代、海關、船公司在接力。你要在哪幾步做決定？",
@@ -1168,6 +1177,15 @@ const dict = {
           cta: "Walk the five steps",
           boundary: "An illustrative scenario, not statistics, and not every factory or buyer.",
           href: "/prototype/trade-show-samples/",
+        },
+        {
+          title: "How Far to Bend",
+          tag: "Illustrative scenario · bilingual prototype",
+          spark: "Whether to give way depends on who is asking, and where you stand.",
+          note: "Discounts, remakes, freight, credit terms: who is asking, what the market is, where you stand, and who can decide how far.",
+          cta: "See the concession map",
+          boundary: "An illustrative scenario, not statistics, and not every factory or customer.",
+          href: "/prototype/concession-map/",
         },
         {
           title: "12 Steps Before One Container Ships",

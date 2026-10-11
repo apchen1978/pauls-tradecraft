@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>How Far to Bend · 保住客戶，讓到哪裡 — Paul's Tradecraft</title>
+  <style>
+    :root {
+      --paper: #f6f3ed;
+      --ink: #193a35;
+      --muted: #62716a;
+      --line: #d4dad1;
+      --pine: #142c29;
+      --brass: #8a6a2b;
+      --amber: #c98a1d;
+      --surface: #ffffff;
+      --soft: #dde7de;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--paper); color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.65; -webkit-font-smoothing: antialiased;
+    }
+    button, a { font: inherit; }
+    :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+    .page { width: min(100% - 40px, 760px); margin: 0 auto; padding: 36px 0 72px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .lang { display: flex; gap: 6px; }
+    .lang button {
+      min-width: 44px; min-height: 36px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0;
+      background: transparent; color: inherit; border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
+    }
+    .lang button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--paper); }
+    .tag {
+      display: inline-block; margin-top: 22px; padding: 4px 10px; border: 1px solid var(--line);
+      border-radius: 3px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    }
+    h1, h2 { margin: 0; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif; font-weight: 600; letter-spacing: -.03em; line-height: 1.22; }
+    h1 { margin-top: 18px; font-size: clamp(34px, 6.4vw, 54px); }
+    h2 { font-size: clamp(24px, 4.2vw, 32px); }
+    .lede { margin: 18px 0 0; max-width: 34em; color: var(--muted); font-size: 17px; }
+
+    .who { margin-top: 40px; border-top: 1px solid var(--ink); }
+    .who dl { margin: 0; }
+    .who .row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .who dt { color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .08em; padding-top: 3px; }
+    .who dd { margin: 0; font-size: 16px; }
+
+    .chain-head { margin-top: 64px; }
+    .chain-head p { margin: 10px 0 0; color: var(--muted); max-width: 36em; }
+    .chain { list-style: none; margin: 30px 0 0; padding: 0; position: relative; }
+    .chain::before { content: ""; position: absolute; left: 19px; top: 18px; bottom: 18px; width: 2px; background: var(--line); }
+    .step { position: relative; padding: 0 0 22px 60px; }
+    .step:last-child { padding-bottom: 0; }
+    .num {
+      position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center; background: var(--paper); border: 2px solid var(--pine);
+      font-weight: 700; font-variant-numeric: tabular-nums; z-index: 1;
+    }
+    .box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px 18px; }
+    .who-chip { margin: 0; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .1em; }
+    .box h3 { margin: 4px 0 0; font-size: 19px; line-height: 1.35; }
+    .box p.body { margin: 8px 0 0; font-size: 15.5px; }
+    .box .sub { margin: 10px 0 0; padding: 10px 12px; background: var(--soft); border-radius: 8px; font-size: 14.5px; }
+    .step.danger .num { background: var(--amber); border-color: var(--amber); color: #fff; box-shadow: 0 0 0 6px rgba(201, 138, 29, .18); }
+    .step.danger .box { border-color: var(--amber); }
+    .gate { margin: 8px 0 0; font-size: 13px; color: var(--brass); font-weight: 700; letter-spacing: .04em; }
+
+    .fear {
+      margin-top: 56px; padding: 34px 26px 36px; border-radius: 16px; background: var(--pine); color: var(--paper);
+    }
+    .fear .kicker { margin: 0; color: #e7c27a; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .fear .big { margin: 14px 0 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(26px, 5vw, 38px); line-height: 1.28; letter-spacing: -.03em; }
+    .fear .big em { font-style: normal; color: #e7c27a; }
+    .fear p.then { margin: 18px 0 0; max-width: 34em; color: #d6e0d8; font-size: 16px; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
+    .compare div { padding: 14px 16px; border: 1px solid rgba(246, 243, 237, .22); border-radius: 10px; }
+    .compare .l { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #b8c6bc; }
+    .compare .v { margin: 6px 0 0; font-size: 15.5px; }
+
+    .general { margin-top: 56px; }
+    .general > p.intro { margin: 10px 0 0; color: var(--muted); max-width: 36em; }
+    .gl { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); }
+    .gl li { padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+    .src { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+    .src a { color: var(--ink); text-underline-offset: 3px; }
+
+    .close { margin-top: 56px; }
+    .close-line { margin: 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(24px, 4.6vw, 34px); line-height: 1.3; letter-spacing: -.03em; }
+    .btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 22px;
+      border: 1px solid var(--pine); border-radius: 8px; background: var(--pine); color: var(--paper);
+      font-weight: 700; text-decoration: none;
+    }
+    .btn:hover { filter: brightness(1.15); }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { background: var(--soft); filter: none; }
+    .boundary { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+    .reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+    @media (max-width: 560px) {
+      .who .row { grid-template-columns: 1fr; gap: 4px; }
+      .compare { grid-template-columns: 1fr; }
+      .step { padding-left: 54px; }
+      .num { width: 36px; height: 36px; }
+      .chain::before { left: 17px; }
+      .fear { padding: 28px 20px 30px; }
+    }
+  
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 24px; }
+    .cards.three { grid-template-columns: repeat(3, 1fr); }
+    .mat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+    .mat h3 { margin: 0; font-size: 18px; }
+    .mat p.d { margin: 8px 0 0; font-size: 15px; }
+    .mat ul.plain { margin: 10px 0 0; padding-left: 18px; font-size: 15px; }
+    .mat .who-chip { margin-bottom: 4px; }
+    .eg { margin: 18px 0 0; padding-left: 12px; border-left: 3px solid var(--amber); color: var(--muted); font-size: 14.5px; }
+    .ladder { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); }
+    .ladder li { display: grid; grid-template-columns: 170px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+    .ladder strong { font-size: 15.5px; }
+    .ladder span { color: var(--muted); }
+    .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+    .roles.three { grid-template-columns: repeat(3, 1fr); }
+    .role { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 18px; }
+    .role.boss { border-color: var(--amber); }
+    .role h3 { margin: 0; font-size: 19px; }
+    .role ul { margin: 10px 0 0; padding-left: 18px; font-size: 15px; }
+    .role ul.no { color: var(--muted); }
+    .qs { margin: 22px 0 0; padding-left: 22px; font-size: 16px; }
+    .qs li { padding: 6px 0 6px 4px; }
+    .ag { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); }
+    .ag li { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .ag .n { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--soft); font-size: 13px; font-weight: 700; }
+    .ag strong { font-size: 16px; }
+    .ag p { margin: 2px 0 0; font-size: 15px; color: var(--muted); }
+    .rule { margin: 18px 0 0; padding: 12px 14px; background: var(--soft); border-radius: 8px; font-size: 14.5px; }
+    @media (max-width: 700px) { .cards.three, .roles.three { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .ladder li { grid-template-columns: 1fr; gap: 2px; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="top">
+      <p class="eyebrow" id="eyebrow"></p>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <span class="tag" id="tag"></span>
+    <h1 id="h1"></h1>
+    <p class="lede" id="lede"></p>
+
+    <section class="general reveal" aria-labelledby="k-h">
+      <h2 id="k-h"></h2>
+      <p class="intro" id="kIntro"></p>
+      <div class="cards" id="kinds"></div>
+    </section>
+
+    <section class="general reveal" aria-labelledby="l-h">
+      <h2 id="l-h"></h2>
+      <p class="intro" id="lIntro"></p>
+      <div class="cards three" id="looks"></div>
+      <ul class="ladder" id="ladder"></ul>
+      <p class="eg" id="ladderNote"></p>
+    </section>
+
+    <section class="general reveal" aria-labelledby="who-h">
+      <h2 id="who-h"></h2>
+      <p class="intro" id="whoIntro"></p>
+      <div class="roles three" id="roles"></div>
+      <p class="rule" id="whoNote"></p>
+    </section>
+
+    <section class="fear reveal" aria-labelledby="loss-h">
+      <p class="kicker" id="lossKicker"></p>
+      <h2 class="big" id="loss-h"></h2>
+      <p class="then" id="lossThen"></p>
+      <div class="compare" id="compare"></div>
+    </section>
+
+    <section class="general reveal" aria-labelledby="swap-h">
+      <h2 id="swap-h"></h2>
+      <p class="intro" id="swapIntro"></p>
+      <ol class="qs" id="qs"></ol>
+    </section>
+
+    <section class="general reveal" aria-labelledby="ag-h">
+      <h2 id="ag-h"></h2>
+      <p class="intro" id="agIntro"></p>
+      <ul class="ag" id="ag"></ul>
+      <p class="rule" id="agRule"></p>
+    </section>
+
+    <section class="close reveal">
+      <p class="close-line" id="closeLine"></p>
+      <div class="btns">
+        <a class="btn" id="cta"></a>
+        <a class="btn ghost" id="back"></a>
+      </div>
+    </section>
+
+    <p class="boundary" id="boundary"></p>
+  </main>
+
+  <script>
+  (function () {
+    var COPY = {
+      zh: {
+        title: "How Far to Bend · 保住客戶，讓到哪裡",
+        eyebrow: "Digital Garage · 讓步地圖",
+        tag: "示意情境 · 一個人的經驗 · 非通則",
+        h1: "讓不讓，先看對方是誰，再看你站在哪裡。",
+        lede: "為了保住客戶，工廠會在折扣、補做、運費、賒帳之間做取捨。這一頁不寫該讓多少，只寫一個人以前怎麼判斷。",
+        kH: "常見的幾種讓",
+        kIntro: "每一種都有它的代價。以下是這個人實際看過、做過的。",
+        kinds: [
+          ["折扣", "最常用的一種。貨有問題時給折扣，折在下一單。"],
+          ["補做", "客人不滿意、要求補做。工廠通常會虧，但有些情況只能做。"],
+          ["運費", "份量輕。多半走海運，海運沒那麼貴；空運主要是趕專案的客人才用。"],
+          ["賒帳（OA）", "風險最高。客人一直拖款，工廠的帳期會被拖垮。"],
+          ["主動提案", "對大客戶、關鍵客戶，不是等他開口，而是主動提出開發的提案。"]
+        ],
+        lH: "怎麼決定：先看三件事",
+        lIntro: "同一個要求，不同的人、不同的市場、不同的位置，答案不一樣。",
+        looks: [
+          ["對方是誰", ["客戶大小", "往來多久", "是不是專做這個品類"]],
+          ["市場什麼樣", ["紅海：大家內卷、寸土必爭，讓是常態", "藍海：壟斷型，通常什麼都不用讓"]],
+          ["你站在哪裡", ["有沒有品牌力", "和負責人的信任", "你帶來的業績比重"]]
+        ],
+        ladder: [
+          ["大客戶、關鍵客戶", "各種讓都會，還會主動提案。"],
+          ["中型客戶", "或許會讓。"],
+          ["小型客戶", "幾乎寸土不讓：很浪費工廠的資源。"]
+        ],
+        ladderNote: "時代與地區不同，答案也會變，不是通則。",
+        whoH: "誰能決定",
+        whoIntro: "讓步的權限，通常分三層。",
+        roles: [
+          { h: "銷售助理", can: [], no: ["不能決定讓步"] },
+          { h: "銷售總監", can: ["額度內可以決定"], no: [] },
+          { h: "負責人", boss: true, can: ["額度以外的，才報到這裡"], no: [] }
+        ],
+        canL: "可以", noL: "不能",
+        whoNote: "額度怎麼定，沒有標準答案。這個人以前的模式是：總監能決定到哪裡，要看和負責人的信任，以及自己帶來的業績比重；業績夠高、關係夠好，幾乎什麼都能放。",
+        lossKicker: "明知會虧，仍然讓",
+        lossBig: "有些讓，是<em>為了長遠</em>，不是為了這一單。",
+        lossThen: "有些客人的品牌地位，遠高於工廠，標準很高，容易不滿意、要求補做。工廠鐵定虧錢，但為了長遠的口碑，只能讓。舊貨請客人在當地銷毀，不運回來，因為回運也是一筆錢。工廠不是品牌商，只能聽品牌商的號令，這是很現實的事。",
+        compareL: ["補做，為了口碑", "賒帳，為了訂單"],
+        compareV: ["虧這一次，換長遠的信譽。沒有別的辦法。", "客人一直拖款，工廠被拖垮帳期。看過很多。"],
+        swapH: "換成你的產品，先回答三題",
+        swapIntro: "這三題沒有標準答案，只有你的產品與客人才有。",
+        qs: ["你的產品，常見的是哪幾種讓？哪一種代價最高？", "讓到什麼額度，誰能決定？超過的，報給誰？", "哪一種客人，你一定不讓？哪一種，你明知會虧也讓？為什麼？"],
+        agH: "未來，AI agent 可以幫上哪裡",
+        agIntro: "以下是設想，不是現在做到的，也沒有效果數字。許多中小企業的負責人沒有一個後備團隊幫忙規劃，這些事通常比較隨意。",
+        ag: [
+          ["整理往來", "把每個客人的往來多久、量、品類整理成一張紙，給總監看。"],
+          ["回看過去的讓", "列出同類客人以前讓過什麼、結果怎樣，讓判斷有依據。"],
+          ["追蹤賒帳", "追蹤帳期，在客人開始拖款時提醒。"]
+        ],
+        agRule: "權限邊界（CC 推測）：agent 可以整理、回看、提醒；讓不讓、讓多少，仍由總監與負責人決定。",
+        closeLine: "讓不讓，沒有標準答案。有的是，你知道自己為什麼讓。",
+        cta: "帶你家的讓步原則來聊",
+        back: "回到 Digital Garage",
+        boundary: "示意情境，不是統計，也不代表所有工廠或所有客人；這是一個人以前的經驗，要看工廠與市場的類型。這一頁沒有數字，也沒有任何公司、案例或地區。「AI agent 可以幫上哪裡」是設想，沒有證據與效果數字。不儲存任何內容。"
+      },
+      en: {
+        title: "How Far to Bend",
+        eyebrow: "Digital Garage · Concession map",
+        tag: "Illustrative scenario · one person's experience · not a rule",
+        h1: "Whether to give way depends on who is asking, and where you stand.",
+        lede: "To keep a customer, a factory trades off discounts, remakes, freight and credit terms. This page does not say how much to give. It describes how one person used to judge.",
+        kH: "The usual ways to give",
+        kIntro: "Each one has a cost. These are the ones this person actually saw and did.",
+        kinds: [
+          ["Discount", "The most common. When goods have a problem, give a discount, applied to the next order."],
+          ["Remake", "The customer is unhappy and asks for a remake. The factory usually loses money, but sometimes there is no choice."],
+          ["Freight", "A light item. Mostly by sea, which is not that expensive; air is mainly for project customers in a hurry."],
+          ["Credit terms (OA)", "The riskiest. The customer keeps delaying payment and the factory's receivables get dragged down."],
+          ["Proactive proposal", "For large and key accounts: not waiting to be asked, but offering a development proposal."]
+        ],
+        lH: "How to decide: look at three things first",
+        lIntro: "The same request gets a different answer for a different person, market or position.",
+        looks: [
+          ["Who is asking", ["Customer size", "How long you have worked together", "Whether they specialise in your category"]],
+          ["What the market is like", ["Red ocean: fierce competition, every inch contested, giving way is normal", "Blue ocean: monopoly-like, usually nothing to give"]],
+          ["Where you stand", ["Whether you have brand power", "Trust with the owner", "Your share of the company's sales"]]
+        ],
+        ladder: [
+          ["Large and key accounts", "All kinds of giving, plus proactive proposals."],
+          ["Mid-size customers", "Maybe."],
+          ["Small customers", "Almost never: it wastes the factory's resources."]
+        ],
+        ladderNote: "Era and region change the answer. This is not a rule.",
+        whoH: "Who can decide",
+        whoIntro: "Authority to give way usually comes in three layers.",
+        roles: [
+          { h: "Sales assistant", can: [], no: ["Cannot decide concessions"] },
+          { h: "Sales director", can: ["Can decide within a limit"], no: [] },
+          { h: "Owner", boss: true, can: ["Only what goes beyond the limit is reported here"], no: [] }
+        ],
+        canL: "Can", noL: "Cannot",
+        whoNote: "How the limit is set has no standard answer. This person's old pattern: how far the director could go depended on trust with the owner and on his share of sales; with high enough sales and a good relationship, almost anything could be given.",
+        lossKicker: "Giving even when it will lose money",
+        lossBig: "Some giving is <em>for the long run</em>, not for this order.",
+        lossThen: "Some customers have a brand standing far above the factory, very high standards, and are easily unhappy and ask for a remake. The factory loses money for sure, but for long-run reputation it has to give way. The old goods are destroyed on the customer's side, not shipped back, because the return freight is a cost too. The factory is not a brand owner and has to follow the brand owner's lead. It is just how things are.",
+        compareL: ["Remake, for reputation", "Credit terms, for the order"],
+        compareV: ["Lose this once, for a lasting name. No other way.", "The customer keeps delaying payment and the factory's receivables get dragged down. Seen many times."],
+        swapH: "Swap in your product: three questions first",
+        swapIntro: "There is no standard answer. Only your product and your customers have one.",
+        qs: ["In your product, which kinds of giving are common? Which one costs the most?", "Up to what limit, and who can decide? Who gets the ones beyond it?", "Which kind of customer do you never give way to? Which kind do you give way to even when you know it will lose money? Why?"],
+        agH: "Later, where an AI agent could help",
+        agIntro: "This is a sketch of the future, not something done today, and it has no effect numbers. Many small-business owners have no back-office team to plan this, so it tends to be improvised.",
+        ag: [
+          ["Gather the history", "Put each customer's years of trade, volume and category on one sheet for the director."],
+          ["Look back at past giving", "List what was given to similar customers before and what happened, so the call has a basis."],
+          ["Track credit terms", "Track payment periods and flag when a customer starts delaying."]
+        ],
+        agRule: "Boundary (CC inference): an agent may gather, look back and remind; whether to give way and how much stays with the director and the owner.",
+        closeLine: "There is no standard answer on giving way. What there is: knowing why you give.",
+        cta: "Bring your principles on giving way",
+        back: "Back to Digital Garage",
+        boundary: "An illustrative scenario, not statistics, and not every factory or customer; it is one person's past experience, and depends on the type of factory and market. This page has no numbers and no company, case or region. \"Where an AI agent could help\" is a sketch with no evidence or effect numbers. Nothing is stored."
+      }
+    };
+
+    var params = new URLSearchParams(location.search);
+    var lang = params.get("lang") === "en" ? "en" : "zh";
+
+    function $(id) { return document.getElementById(id); }
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+
+    function render() {
+      var c = COPY[lang];
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.title = c.title + " — Paul's Tradecraft";
+      $("eyebrow").textContent = c.eyebrow;
+      $("tag").textContent = c.tag;
+      $("h1").textContent = c.h1;
+      $("lede").textContent = c.lede;
+
+      $("k-h").textContent = c.kH;
+      $("kIntro").textContent = c.kIntro;
+      var kinds = $("kinds"); kinds.textContent = "";
+      c.kinds.forEach(function (k) {
+        var d = el("div", "mat");
+        d.appendChild(el("h3", null, k[0]));
+        d.appendChild(el("p", "d", k[1]));
+        kinds.appendChild(d);
+      });
+
+      $("l-h").textContent = c.lH;
+      $("lIntro").textContent = c.lIntro;
+      var looks = $("looks"); looks.textContent = "";
+      c.looks.forEach(function (l, i) {
+        var d = el("div", "mat");
+        d.appendChild(el("p", "who-chip", String(i + 1)));
+        d.appendChild(el("h3", null, l[0]));
+        var u = el("ul", "plain"); l[1].forEach(function (t) { u.appendChild(el("li", null, t)); }); d.appendChild(u);
+        looks.appendChild(d);
+      });
+      var lad = $("ladder"); lad.textContent = "";
+      c.ladder.forEach(function (r) {
+        var li = el("li");
+        li.appendChild(el("strong", null, r[0]));
+        li.appendChild(el("span", null, r[1]));
+        lad.appendChild(li);
+      });
+      $("ladderNote").textContent = c.ladderNote;
+
+      $("who-h").textContent = c.whoH;
+      $("whoIntro").textContent = c.whoIntro;
+      var roles = $("roles"); roles.textContent = "";
+      c.roles.forEach(function (r) {
+        var d = el("div", "role" + (r.boss ? " boss" : ""));
+        d.appendChild(el("h3", null, r.h));
+        if (r.can.length) { var u = el("ul"); r.can.forEach(function (t) { u.appendChild(el("li", null, t)); }); d.appendChild(u); }
+        if (r.no.length) { var n = el("ul", "no"); r.no.forEach(function (t) { n.appendChild(el("li", null, t)); }); d.appendChild(n); }
+        roles.appendChild(d);
+      });
+      $("whoNote").textContent = c.whoNote;
+
+      $("lossKicker").textContent = c.lossKicker;
+      $("loss-h").innerHTML = c.lossBig;
+      $("lossThen").textContent = c.lossThen;
+      var cmp = $("compare"); cmp.textContent = "";
+      [0, 1].forEach(function (i) {
+        var d = el("div");
+        d.appendChild(el("p", "l", c.compareL[i]));
+        d.appendChild(el("p", "v", c.compareV[i]));
+        cmp.appendChild(d);
+      });
+
+      $("swap-h").textContent = c.swapH;
+      $("swapIntro").textContent = c.swapIntro;
+      var qs = $("qs"); qs.textContent = "";
+      c.qs.forEach(function (t) { qs.appendChild(el("li", null, t)); });
+
+      $("ag-h").textContent = c.agH;
+      $("agIntro").textContent = c.agIntro;
+      var ag = $("ag"); ag.textContent = "";
+      c.ag.forEach(function (a, i) {
+        var li = el("li");
+        li.appendChild(el("span", "n", String(i + 1)));
+        var d = el("div");
+        d.appendChild(el("strong", null, a[0]));
+        d.appendChild(el("p", null, a[1]));
+        li.appendChild(d);
+        ag.appendChild(li);
+      });
+      $("agRule").textContent = c.agRule;
+
+      $("closeLine").textContent = c.closeLine;
+      var cta = $("cta"); cta.textContent = c.cta; cta.href = "/?lang=" + lang + "#contact";
+      var back = $("back"); back.textContent = c.back; back.href = "/?lang=" + lang + "#garage";
+      $("boundary").textContent = c.boundary;
+
+      document.querySelectorAll(".lang button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+      });
+      observe();
+    }
+
+    var io = null;
+    function observe() {
+      var nodes = document.querySelectorAll(".reveal:not(.in)");
+      if (!("IntersectionObserver" in window)) {
+        nodes.forEach(function (n) { n.classList.add("in"); });
+        return;
+      }
+      if (!io) {
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+          });
+        }, { threshold: 0.12 });
+      }
+      nodes.forEach(function (n) { io.observe(n); });
+    }
+
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        lang = b.dataset.lang;
+        try {
+          var u = new URL(location.href);
+          u.searchParams.set("lang", lang);
+          history.replaceState(null, "", u);
+        } catch (e) {}
+        render();
+      });
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
