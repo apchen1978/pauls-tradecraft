@@ -199,11 +199,11 @@
     .lines { display: grid; gap: 14px; margin-top: 18px; }
     .line-label { color: var(--brass); font-size: 13px; font-weight: 700; letter-spacing: 0.04em; }
     .line-body { margin-top: 4px; }
-    .line-funny .line-body {
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
+    .line-funny .line-body { font-weight: 700; }
+    .line-funny .mark {
       background-image: linear-gradient(transparent 58%, var(--pop) 58%, var(--pop) 92%, transparent 92%);
-      font-weight: 700;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
     }
     .line-literary .line-body { font-family: "Songti TC", "PMingLiU", "Noto Serif CJK TC", Georgia, serif; font-size: 1.08rem; }
     .picks { margin-top: 18px; font-weight: 700; color: var(--ink); }

@@ -560,7 +560,10 @@ function boot() {
     ].forEach(([key, label, body]) => {
       const block = el("div", `line line-${key}`);
       block.appendChild(el("p", "line-label", label));
-      block.appendChild(el("p", "line-body", body));
+      const bodyEl = el("p", "line-body");
+      if (key === "funny") bodyEl.appendChild(el("span", "mark", body));
+      else bodyEl.textContent = body;
+      block.appendChild(bodyEl);
       lines.appendChild(block);
     });
     $("picks-label").textContent = ui.picks(state.code);
