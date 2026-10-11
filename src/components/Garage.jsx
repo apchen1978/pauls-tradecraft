@@ -135,7 +135,7 @@ export default function Garage() {
         {storyItems.length ? (
           <div className="mt-14 md:mt-20">
             <p className="inline-block -rotate-1 rounded-2xl border-[2.5px] border-ink bg-white px-4 py-1.5 text-xs font-semibold tracking-[0.04em] text-ink md:text-sm">{g.storyLabel}</p>
-            <ol className="mt-6 grid gap-6 md:mt-8 md:grid-cols-3 md:gap-7">
+            <ol className="mt-6 grid gap-6 md:mt-8 md:grid-cols-2 md:gap-7 xl:grid-cols-4">
               {storyItems.map((item, index) => (
                 <li key={item.href} className="flex">
                   <Card item={item} g={g} index={index + 3} />

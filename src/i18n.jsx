@@ -437,7 +437,7 @@ const dict = {
       featuredMark: "精選",
       latestMark: "最新",
       moreLabel: "看其餘實驗",
-      storyLabel: "從現場經驗長出來的三個故事",
+      storyLabel: "從現場經驗長出來的故事與樣本",
       items: [
         {
           title: "Bring Paul Into the Room · 先把問題帶進來",
@@ -545,6 +545,16 @@ const dict = {
           cta: "看讓步地圖",
           boundary: "示意情境，不是統計，也不代表所有工廠或客人。",
           href: "/prototype/concession-map/",
+          story: true,
+        },
+        {
+          title: "The Handback Sheet · 交接單",
+          tag: "示範樣本 · 雙語原型",
+          spark: "不是一份名單，是一張知道該先找誰、為什麼的單子。",
+          note: "一個虛構產品的交接單：能力邊界、三種有理由的買家、接觸角度，以及還不知道的事。",
+          cta: "看這張交接單",
+          boundary: "示範樣本，產品與買家類型都是虛構，不代表任何成果。",
+          href: "/prototype/handback-sheet/",
           story: true,
         },
         {
@@ -1086,7 +1096,7 @@ const dict = {
       featuredMark: "Featured",
       latestMark: "Latest",
       moreLabel: "More experiments",
-      storyLabel: "Three stories grown from hands-on trade experience",
+      storyLabel: "Stories and samples grown from hands-on trade experience",
       items: [
         {
           title: "Bring Paul Into the Room",
@@ -1194,6 +1204,16 @@ const dict = {
           cta: "See the concession map",
           boundary: "An illustrative scenario, not statistics, and not every factory or customer.",
           href: "/prototype/concession-map/",
+          story: true,
+        },
+        {
+          title: "The Handback Sheet",
+          tag: "Demo sample · bilingual prototype",
+          spark: "Not a list: a sheet that says who to approach first, and why.",
+          note: "A fictional product's handback sheet: capability boundary, three kinds of buyer with reasons, an angle for each, and what is still unknown.",
+          cta: "See the handback sheet",
+          boundary: "A demo sample. The product and buyer types are fictional and stand for no result.",
+          href: "/prototype/handback-sheet/",
           story: true,
         },
         {
