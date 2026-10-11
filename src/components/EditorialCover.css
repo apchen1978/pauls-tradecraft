@@ -1,0 +1,92 @@
+.editorial-cover {
+  container-type: inline-size;
+  width: 100%;
+  padding: 6%;
+  color: var(--color-ink);
+  background: var(--color-bone);
+}
+.editorial-cover__brand {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-family: Georgia, var(--font-serif);
+  font-size: clamp(13px, 2.8cqw, 22px);
+}
+.editorial-cover__brand span { flex: 1; height: 1px; background: var(--color-amber); }
+.editorial-cover__decision, .editorial-cover__margin {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 6%;
+  padding: 8% 0 3%;
+}
+.editorial-cover__headline {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(30px, 7.8cqw, 62px);
+  font-weight: 600;
+  line-height: 1.24;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.editorial-cover__name {
+  margin: 7% 0 0;
+  font-size: clamp(14px, 2.8cqw, 22px);
+  line-height: 1.5;
+  text-wrap: balance;
+}
+.editorial-cover--decision { background: var(--color-pine); color: var(--color-bone); }
+.editorial-cover--decision .editorial-cover__brand span { background: var(--color-gold); }
+.editorial-cover--decision .editorial-cover__name { color: var(--color-gold); }
+.editorial-cover__slip { padding: 10%; background: var(--color-bone); color: var(--color-ink); }
+.editorial-cover__payment {
+  margin: 0;
+  padding-bottom: 12%;
+  border-bottom: 1px solid var(--color-amber);
+  font-family: var(--font-serif);
+  font-size: clamp(18px, 3.6cqw, 28px);
+  font-weight: 600;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+.editorial-cover__figures { margin: 0; }
+.editorial-cover__figures div { margin-top: 12%; }
+.editorial-cover__figures dt { font-size: clamp(13px, 2cqw, 16px); line-height: 1.5; }
+.editorial-cover__figures dd {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 5.5cqw, 42px);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.editorial-cover__figures dd span { font: 500 clamp(13px, 2cqw, 16px) var(--font-sans); }
+.editorial-cover__disclosure { margin: 1rem 0 0; font-size: 13px; line-height: 1.5; }
+.editorial-cover__slip .editorial-cover__disclosure { color: var(--color-amber); }
+.editorial-cover__bridge > .editorial-cover__disclosure:first-child { margin: 0 0 0.75rem; }
+.editorial-cover__cost { display: grid; grid-template-columns: 46% 54%; align-items: center; min-height: 2.25rem; }
+.editorial-cover__cost > span { padding-right: 0.4rem; font-size: clamp(13px, 2.4cqw, 18px); line-height: 1.4; }
+.editorial-cover__bar { height: clamp(24px, 5cqw, 40px); background: var(--color-ink); }
+.editorial-cover__bar--1 { width: 38%; background: var(--color-amber); }
+.editorial-cover__bar--2 { width: 20%; margin-left: 38%; background: var(--color-gold); }
+.editorial-cover__bar--3 { width: 18%; margin-left: 58%; background: var(--color-line); }
+.editorial-cover__bar--4 { width: 24%; margin-left: 76%; }
+.editorial-cover__pet { display: grid; grid-template-columns: 48% 52%; align-items: center; padding-top: 4%; }
+.editorial-cover__mg { margin: 0; font-size: clamp(60px, 23cqw, 190px); font-weight: 750; line-height: 0.95; letter-spacing: -0.04em; }
+.editorial-cover__mg span { color: var(--color-amber); }
+.editorial-cover__pet-name { margin: 0.6rem 0 0; font-size: clamp(18px, 4.6cqw, 36px); font-weight: 650; line-height: 1.15; }
+.editorial-cover__pet-note { margin: 0.75rem 0 0; font-family: var(--font-serif); font-size: clamp(15px, 3.2cqw, 25px); line-height: 1.4; text-wrap: balance; }
+.editorial-cover__pet picture { display: block; }
+.editorial-cover__pet img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
+@container (max-width: 420px) {
+  .editorial-cover__decision, .editorial-cover__margin { grid-template-columns: 1fr; gap: 1.25rem; }
+  .editorial-cover__headline { font-size: 32px; }
+  .editorial-cover__name { margin-top: 0.5rem; font-size: 15px; }
+  .editorial-cover__slip { padding: 1rem; }
+  .editorial-cover__payment { padding-bottom: 0.75rem; font-size: 20px; }
+  .editorial-cover__figures { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .editorial-cover__figures div { margin-top: 0.75rem; }
+  .editorial-cover__figures dd { font-size: 25px; }
+  .editorial-cover__figures dd span { display: block; margin-top: 0.25rem; }
+  .editorial-cover__cost { grid-template-columns: 42% 58%; }
+}

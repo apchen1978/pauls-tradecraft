@@ -19,6 +19,7 @@ import { workflowEntry } from "../data/tradeDecisionWorkflow.js";
 import { calculatorEntry } from "../data/profitCalculator.js";
 import { FoldToggle, firstSentence, foldClass, useFold } from "./FoldedIntro.jsx";
 import CoverImage from "./CoverImage.jsx";
+import EditorialCover, { editorialCoverIds } from "./EditorialCover.jsx";
 
 const iconMap = {
   presentation: PresentationChart,
@@ -695,15 +696,17 @@ function FeaturedSystem({ work }) {
           )}
           {work.demoNote && <p className="mt-4 text-xs leading-relaxed text-ondark-meta">{work.demoNote[lang]}</p>}
         </div>
-        <a data-featured-visual href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="focus-visible:outline-offset-[-4px] focus-visible:shadow-[inset_0_0_0_8px_var(--color-pine)] group relative flex items-center border-t border-bone/10 bg-[radial-gradient(120%_90%_at_70%_20%,#24503f_0%,#143329_70%)] p-5 md:p-8 lg:border-l lg:border-t-0 lg:p-10">
-          <div className="w-full overflow-hidden rounded-field border border-bone/15 bg-bone">
-            <div className="flex items-center gap-1.5 border-b border-ink/10 bg-paper px-4 py-2.5" aria-hidden="true">
-              <span className="size-2 rounded-full bg-ink/15" />
-              <span className="size-2 rounded-full bg-ink/15" />
-              <span className="size-2 rounded-full bg-ink/15" />
+        <a data-featured-visual href={withDemoLang(work.link, lang)} target="_blank" rel="noopener noreferrer" aria-label={copy.title} className="focus-visible:outline-offset-[-4px] group relative flex items-center border-t border-bone/10 bg-pine lg:border-l lg:border-t-0">
+          {editorialCoverIds.has(work.id) ? <EditorialCover work={work} lang={lang} /> : (
+            <div className="w-full overflow-hidden rounded-field border border-bone/15 bg-bone">
+              <div className="flex items-center gap-1.5 border-b border-ink/10 bg-paper px-4 py-2.5" aria-hidden="true">
+                <span className="size-2 rounded-full bg-ink/15" />
+                <span className="size-2 rounded-full bg-ink/15" />
+                <span className="size-2 rounded-full bg-ink/15" />
+              </div>
+              <CoverImage src={cover} alt={work.imageAlt[lang]} className={`aspect-[16/9] w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
             </div>
-            <CoverImage src={cover} alt={work.imageAlt[lang]} className={`aspect-[16/9] w-full ${work.imageFit === "contain" ? "bg-paper object-contain" : "object-cover object-top"} transition-transform duration-700 group-hover:scale-[1.015]`} />
-          </div>
+          )}
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
       </div>
@@ -821,11 +824,11 @@ export default function Works() {
         <Wrapper {...wrapperProps} className={`flex flex-1 flex-col ${wide ? "md:grid md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
           {cover ? (
             <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:flex-col md:justify-center md:bg-paper md:p-8 lg:p-10" : ""}`}>
-              <CoverImage
+              {editorialCoverIds.has(w.id) ? <EditorialCover work={w} lang={lang} /> : <CoverImage
                 src={cover}
                 alt={w.imageAlt[lang]}
-                className={`aspect-[3/1] w-full md:aspect-[16/9] ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(25,58,53,0.55)]" : ""}`}
-              />
+                className={`aspect-[16/9] w-full ${w.imageFit === "contain" ? "object-contain p-6" : "object-cover object-top"} ${wide ? "md:rounded-field md:shadow-[0_24px_60px_-34px_rgba(25,58,53,0.55)]" : ""}`}
+              />}
               {balance && (
                 <div className="hidden md:block">
                   {flowBlock}

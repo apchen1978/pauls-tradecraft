@@ -100,6 +100,12 @@ jobs:
           cp prototype/worth-reading/index.html dist/prototype/worth-reading/index.html
           mkdir -p dist/prototype/project-buyer
           cp prototype/project-buyer/index.html dist/prototype/project-buyer/index.html
+          mkdir -p dist/prototype/trade-show-samples
+          cp prototype/trade-show-samples/index.html dist/prototype/trade-show-samples/index.html
+          mkdir -p dist/prototype/concession-map
+          cp prototype/concession-map/index.html dist/prototype/concession-map/index.html
+          mkdir -p dist/prototype/handback-sheet
+          cp prototype/handback-sheet/index.html dist/prototype/handback-sheet/index.html
           mkdir -p dist/prototype/teammate-type
           cp prototype/teammate-type/index.html prototype/teammate-type/app.js dist/prototype/teammate-type/
       - name: One-Pager editorial review guardrail

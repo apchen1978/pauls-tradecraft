@@ -113,8 +113,10 @@ export default function Garage() {
   const branches = (g.branches || [])
     .map((branch) => ({ ...branch, items: items.filter((item) => item.branch === branch.id) }))
     .filter((branch) => branch.items.length);
-  const firstThree = regular.slice(0, 3);
-  const rest = regular.slice(3);
+  const storyItems = regular.filter((item) => item.story);
+  const others = regular.filter((item) => !item.story);
+  const firstThree = others.slice(0, 3);
+  const rest = others.slice(3);
 
   return (
     <section id="garage" aria-labelledby="garage-heading" className="scroll-mt-24 overflow-x-clip border-b border-line bg-bone">
@@ -125,7 +127,7 @@ export default function Garage() {
         </h2>
         <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-moss md:text-lg">{g.intro}</p>
 
-        {/* Three experiments show; everything else, the wide card included, sits under one toggle */}
+        {/* Three experiments show, then the hands-on stories, then light-tech toys; everything else, the wide card included, sits under one toggle */}
         <ol className="mt-10 grid gap-6 md:mt-14 md:grid-cols-3 md:gap-7">
           {firstThree.map((item, index) => (
             <li key={item.href} className="flex">
@@ -133,6 +135,18 @@ export default function Garage() {
             </li>
           ))}
         </ol>
+        {storyItems.length ? (
+          <div className="mt-14 md:mt-20">
+            <p className="inline-block -rotate-1 rounded-2xl border-[2.5px] border-ink bg-white px-4 py-1.5 text-xs font-semibold tracking-[0.04em] text-ink md:text-sm">{g.storyLabel}</p>
+            <ol className="mt-6 grid gap-6 md:mt-8 md:grid-cols-2 md:gap-7 xl:grid-cols-4">
+              {storyItems.map((item, index) => (
+                <li key={item.href} className="flex">
+                  <Card item={item} g={g} index={index + 3} />
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : null}
         {branches.map((branch) => (
           <div key={branch.id} id={`garage-branch-${branch.id}`} className="mt-10 md:mt-14">
             <h3 className="inline-block -rotate-1 rounded-2xl border-[2.5px] border-ink bg-white px-4 py-1.5 text-sm font-semibold text-ink shadow-[3px_3px_0_var(--color-ink)]">{branch.label}</h3>

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>The Handback Sheet · 交接單 — Paul's Tradecraft</title>
+  <style>
+    :root {
+      --paper: #f6f3ed;
+      --ink: #193a35;
+      --muted: #62716a;
+      --line: #d4dad1;
+      --pine: #142c29;
+      --brass: #8a6a2b;
+      --amber: #c98a1d;
+      --surface: #ffffff;
+      --soft: #dde7de;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--paper); color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.65; -webkit-font-smoothing: antialiased;
+    }
+    button, a { font: inherit; }
+    :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+    .page { width: min(100% - 40px, 760px); margin: 0 auto; padding: 36px 0 72px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .lang { display: flex; gap: 6px; }
+    .lang button {
+      min-width: 44px; min-height: 36px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0;
+      background: transparent; color: inherit; border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
+    }
+    .lang button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--paper); }
+    .tag {
+      display: inline-block; margin-top: 22px; padding: 4px 10px; border: 1px solid var(--line);
+      border-radius: 3px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    }
+    h1, h2 { margin: 0; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif; font-weight: 600; letter-spacing: -.03em; line-height: 1.22; }
+    h1 { margin-top: 18px; font-size: clamp(34px, 6.4vw, 54px); }
+    h2 { font-size: clamp(24px, 4.2vw, 32px); }
+    .lede { margin: 18px 0 0; max-width: 34em; color: var(--muted); font-size: 17px; }
+
+    .who { margin-top: 40px; border-top: 1px solid var(--ink); }
+    .who dl { margin: 0; }
+    .who .row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .who dt { color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .08em; padding-top: 3px; }
+    .who dd { margin: 0; font-size: 16px; }
+
+    .chain-head { margin-top: 64px; }
+    .chain-head p { margin: 10px 0 0; color: var(--muted); max-width: 36em; }
+    .chain { list-style: none; margin: 30px 0 0; padding: 0; position: relative; }
+    .chain::before { content: ""; position: absolute; left: 19px; top: 18px; bottom: 18px; width: 2px; background: var(--line); }
+    .step { position: relative; padding: 0 0 22px 60px; }
+    .step:last-child { padding-bottom: 0; }
+    .num {
+      position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center; background: var(--paper); border: 2px solid var(--pine);
+      font-weight: 700; font-variant-numeric: tabular-nums; z-index: 1;
+    }
+    .box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px 18px; }
+    .who-chip { margin: 0; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .1em; }
+    .box h3 { margin: 4px 0 0; font-size: 19px; line-height: 1.35; }
+    .box p.body { margin: 8px 0 0; font-size: 15.5px; }
+    .box .sub { margin: 10px 0 0; padding: 10px 12px; background: var(--soft); border-radius: 8px; font-size: 14.5px; }
+    .step.danger .num { background: var(--amber); border-color: var(--amber); color: #fff; box-shadow: 0 0 0 6px rgba(201, 138, 29, .18); }
+    .step.danger .box { border-color: var(--amber); }
+    .gate { margin: 8px 0 0; font-size: 13px; color: var(--brass); font-weight: 700; letter-spacing: .04em; }
+
+    .fear {
+      margin-top: 56px; padding: 34px 26px 36px; border-radius: 16px; background: var(--pine); color: var(--paper);
+    }
+    .fear .kicker { margin: 0; color: #e7c27a; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .fear .big { margin: 14px 0 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(26px, 5vw, 38px); line-height: 1.28; letter-spacing: -.03em; }
+    .fear .big em { font-style: normal; color: #e7c27a; }
+    .fear p.then { margin: 18px 0 0; max-width: 34em; color: #d6e0d8; font-size: 16px; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
+    .compare div { padding: 14px 16px; border: 1px solid rgba(246, 243, 237, .22); border-radius: 10px; }
+    .compare .l { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #b8c6bc; }
+    .compare .v { margin: 6px 0 0; font-size: 15.5px; }
+
+    .general { margin-top: 56px; }
+    .general > p.intro { margin: 10px 0 0; color: var(--muted); max-width: 36em; }
+    .gl { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); }
+    .gl li { padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+    .src { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+    .src a { color: var(--ink); text-underline-offset: 3px; }
+
+    .close { margin-top: 56px; }
+    .close-line { margin: 0; font-family: "Noto Serif TC", Georgia, serif; font-size: clamp(24px, 4.6vw, 34px); line-height: 1.3; letter-spacing: -.03em; }
+    .btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 22px;
+      border: 1px solid var(--pine); border-radius: 8px; background: var(--pine); color: var(--paper);
+      font-weight: 700; text-decoration: none;
+    }
+    .btn:hover { filter: brightness(1.15); }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { background: var(--soft); filter: none; }
+    .boundary { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+    .reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    .next { margin-top: 56px; }
+    .next .lab { margin: 0; color: var(--brass); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .next a.card { display: block; margin-top: 12px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit; text-decoration: none; }
+    .next a.card:hover { border-color: var(--brass); }
+    .next a.card h3 { margin: 0; font-size: 19px; line-height: 1.35; }
+    .next a.card p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+    .next a.card span { display: inline-block; margin-top: 10px; font-weight: 700; font-size: 14.5px; color: var(--brass); }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+    @media (max-width: 560px) {
+      .who .row { grid-template-columns: 1fr; gap: 4px; }
+      .compare { grid-template-columns: 1fr; }
+      .step { padding-left: 54px; }
+      .num { width: 36px; height: 36px; }
+      .chain::before { left: 17px; }
+      .fear { padding: 28px 20px 30px; }
+    }
+  
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 24px; }
+    .cards.three { grid-template-columns: repeat(3, 1fr); }
+    .mat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+    .mat h3 { margin: 0; font-size: 18px; }
+    .mat p.d { margin: 8px 0 0; font-size: 15px; }
+    .buyers { display: grid; gap: 14px; margin-top: 24px; }
+    .bcard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+    .bcard .who-chip { margin: 0 0 4px; }
+    .bcard h3 { margin: 0; font-size: 19px; line-height: 1.35; }
+    .bcard dl { margin: 12px 0 0; }
+    .brow { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 15px; }
+    .brow dt { color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .06em; padding-top: 2px; }
+    .brow dd { margin: 0; }
+    .plainlist { margin: 22px 0 0; padding-left: 20px; font-size: 16px; }
+    .plainlist li { padding: 5px 0; }
+    @media (max-width: 700px) { .cards.three { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .brow { grid-template-columns: 1fr; gap: 2px; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="top">
+      <p class="eyebrow" id="eyebrow"></p>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <span class="tag" id="tag"></span>
+    <h1 id="h1"></h1>
+    <p class="lede" id="lede"></p>
+
+    <section class="general reveal" aria-labelledby="prod-h">
+      <h2 id="prod-h"></h2>
+      <p class="intro" id="prodBody"></p>
+    </section>
+
+    <section class="general reveal" aria-labelledby="b-h">
+      <h2 id="b-h"></h2>
+      <p class="intro" id="bIntro"></p>
+      <div class="cards three" id="bounds"></div>
+    </section>
+
+    <section class="general reveal" aria-labelledby="by-h">
+      <h2 id="by-h"></h2>
+      <p class="intro" id="byIntro"></p>
+      <div class="buyers" id="buyers"></div>
+    </section>
+
+    <section class="fear reveal" aria-labelledby="not-h">
+      <p class="kicker" id="notKicker"></p>
+      <h2 class="big" id="not-h"></h2>
+      <p class="then" id="notThen"></p>
+      <div class="compare" id="compare"></div>
+    </section>
+
+    <section class="general reveal" aria-labelledby="unk-h">
+      <h2 id="unk-h"></h2>
+      <p class="intro" id="unkIntro"></p>
+      <ul class="plainlist" id="unk"></ul>
+    </section>
+
+    <section class="close reveal">
+      <p class="close-line" id="closeLine"></p>
+      <div class="btns">
+        <a class="btn" id="cta"></a>
+        <a class="btn ghost" id="back"></a>
+      </div>
+    </section>
+
+    <p class="boundary" id="boundary"></p>
+  </main>
+
+  <script>
+  (function () {
+    var COPY = {
+      zh: {
+        title: "The Handback Sheet · 交接單",
+        eyebrow: "Digital Garage · 交付樣本",
+        tag: "示範樣本 · 虛構產品與買家類型 · 非真實客戶",
+        h1: "把產品交給 Paul，你拿回的是一張這樣的單子。",
+        lede: "不是一份很長的名單，也不是一封寫好的信。是一張讓你看得懂「該先找誰、為什麼、先從哪個角度」的單子。這一頁用一個虛構的產品，示範它長什麼樣。",
+        prodH: "示範產品（虛構）",
+        prodBody: "一個虛構的產品 X：已經有穩定出貨給少數長期客戶，想找新市場的第一批買家。以下是交接單上會有的三塊內容。",
+        bH: "1 · 能力邊界：能說什麼，不能說什麼",
+        bIntro: "先講清楚這個產品目前站得住的地方，再講還站不住的地方。買家問起時，你才知道哪句話可以說。",
+        bounds: [
+          ["可以說的", "有證據支持的事。例如：已經出貨給長期客戶的紀錄。"],
+          ["還不能說的", "還沒有證據的事。例如：沒有第三方認證，也沒有這個新市場的出貨紀錄。"],
+          ["先補的一件事", "補上最能讓買家安心的一項。例如：把已有的認證與出貨證明，整理成一份能給買家看的資料。"]
+        ],
+        byH: "2 · 少量、有理由的買家",
+        byIntro: "不是一長串名字，而是三種買家，每一種都寫清楚：為什麼是他、證據有多強、還不知道什麼、從哪個角度切入。",
+        whyL: "為什麼是他", evL: "證據強度", unkL: "還不知道", angL: "接觸角度",
+        buyers: [
+          { t: "正在補一條中價位產品線的進口商", why: "他現有的產品線偏高價，中間價位看起來有空缺。", ev: "間接", unk: "他是否已經有獨家供應商。", ang: "從價位的空缺談起。" },
+          { t: "專做專案、需要指定規格的設計顧問", why: "他影響案子最後選哪一種材料。", ev: "間接", unk: "他自己能不能直接下單，還是只能推薦。", ang: "從規格是怎麼被指定的談起。" },
+          { t: "剛擴大展間或門市的零售商", why: "近期有公開消息說他在增加據點。", ev: "直接", unk: "採購決定是在當地做，還是在總部。", ang: "從新據點要選什麼品項談起。" }
+        ],
+        notKicker: "它不是什麼",
+        notBig: "不是名單，不是信，<em>不是保證</em>。",
+        notThen: "名單給你很多名字，卻沒有說為什麼。這張單子只給少量名字，每一個都帶著理由，也帶著還不知道的事。",
+        compareL: ["一長串名單", "這張交接單"],
+        compareV: ["很多名字，不知道誰值得先找。", "少量名字，每一個都有理由、證據強度和還不知道的事。"],
+        unkH: "3 · 還不知道的事",
+        unkIntro: "交接單最後會直接列出，哪些要靠第一次對話才知道。這些不假裝已經知道。",
+        unk: ["他們願不願意用小批量試單。", "價格在他們眼中有沒有競爭力。", "上面三種買家，哪一種真的有需要。"],
+        closeLine: "你拿回的不是名單，是一個可以動手的判斷。",
+        cta: "帶一個產品來聊",
+        back: "回到 Digital Garage",
+        boundary: "示範樣本，產品與買家類型都是虛構，不是真實客戶，也不代表任何成果、回覆率或成交。內容沒有公司名、品類、數字或信件範本。是否聯絡、怎麼開口，仍由你和 Paul 一起決定。不儲存任何內容。"
+      },
+      en: {
+        title: "The Handback Sheet",
+        eyebrow: "Digital Garage · Sample deliverable",
+        tag: "Demo sample · fictional product and buyer types · not a real client",
+        h1: "Hand a product to Paul, and this is the sheet you get back.",
+        lede: "Not a long list, and not a letter already written. A sheet that lets you see who to approach first, why, and from what angle. This page shows what it looks like, using a fictional product.",
+        prodH: "The sample product (fictional)",
+        prodBody: "A fictional product X: already shipping steadily to a few long-standing customers, and looking for its first buyers in a new market. Here are the three parts of the sheet.",
+        bH: "1 · Capability boundary: what you can and cannot say",
+        bIntro: "First, where the product stands firm today, and where it does not yet. So when a buyer asks, you know which sentences you can say.",
+        bounds: [
+          ["What you can say", "What the evidence supports. For example: a record of shipments to long-standing customers."],
+          ["What you cannot yet say", "What has no evidence yet. For example: no third-party certification, and no shipments to this new market."],
+          ["The one thing to fix first", "Add the item that would reassure a buyer most. For example: put the existing certificates and shipping proof into one pack you can show."]
+        ],
+        byH: "2 · A few buyers, each with a reason",
+        byIntro: "Not a long string of names, but three kinds of buyer, each with: why this one, how strong the evidence is, what is still unknown, and which angle to come in from.",
+        whyL: "Why this one", evL: "Evidence strength", unkL: "Still unknown", angL: "Angle",
+        buyers: [
+          { t: "An importer filling a mid-price line", why: "His current range sits at the high end, and the middle looks open.", ev: "Indirect", unk: "Whether he already has an exclusive supplier.", ang: "Start from the gap in price." },
+          { t: "A design consultant who specifies for projects", why: "He influences which material a project ends up with.", ev: "Indirect", unk: "Whether he can place orders himself, or only recommend.", ang: "Start from how specs get set." },
+          { t: "A retailer that has just added showrooms or stores", why: "There is recent public news that he is adding locations.", ev: "Direct", unk: "Whether buying is decided locally or at head office.", ang: "Start from what the new locations will stock." }
+        ],
+        notKicker: "What it is not",
+        notBig: "Not a list, not a letter, <em>not a guarantee</em>.",
+        notThen: "A list gives you many names without saying why. This sheet gives a few names, each with a reason, and with what is still unknown.",
+        compareL: ["A long list", "This sheet"],
+        compareV: ["Many names, and no idea who is worth approaching first.", "A few names, each with a reason, an evidence strength and what is still unknown."],
+        unkH: "3 · What is still unknown",
+        unkIntro: "The sheet ends by listing what only a first conversation can tell. It does not pretend to know.",
+        unk: ["Whether they would try a small first order.", "Whether the price looks competitive to them.", "Which of the three kinds of buyer really has the need."],
+        closeLine: "What you get back is not a list. It is a judgment you can act on.",
+        cta: "Bring a product to talk about",
+        back: "Back to Digital Garage",
+        boundary: "A demo sample. The product and buyer types are fictional, not a real client, and do not stand for any result, reply rate or sale. It has no company names, categories, numbers or letter templates. Whether to make contact, and how, is decided together by you and Paul. Nothing is stored."
+      }
+    };
+
+    var params = new URLSearchParams(location.search);
+    var lang = params.get("lang") === "en" ? "en" : "zh";
+
+    function $(id) { return document.getElementById(id); }
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+
+    function render() {
+      var c = COPY[lang];
+      document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+      document.title = c.title + " — Paul's Tradecraft";
+      $("eyebrow").textContent = c.eyebrow;
+      $("tag").textContent = c.tag;
+      $("h1").textContent = c.h1;
+      $("lede").textContent = c.lede;
+
+      $("prod-h").textContent = c.prodH;
+      $("prodBody").textContent = c.prodBody;
+
+      $("b-h").textContent = c.bH;
+      $("bIntro").textContent = c.bIntro;
+      var bounds = $("bounds"); bounds.textContent = "";
+      c.bounds.forEach(function (b) {
+        var d = el("div", "mat");
+        d.appendChild(el("h3", null, b[0]));
+        d.appendChild(el("p", "d", b[1]));
+        bounds.appendChild(d);
+      });
+
+      $("by-h").textContent = c.byH;
+      $("byIntro").textContent = c.byIntro;
+      var buyers = $("buyers"); buyers.textContent = "";
+      c.buyers.forEach(function (b, i) {
+        var d = el("article", "bcard");
+        d.appendChild(el("p", "who-chip", String(i + 1)));
+        d.appendChild(el("h3", null, b.t));
+        var dl = el("dl");
+        [[c.whyL, b.why], [c.evL, b.ev], [c.unkL, b.unk], [c.angL, b.ang]].forEach(function (r) {
+          var row = el("div", "brow");
+          row.appendChild(el("dt", null, r[0]));
+          row.appendChild(el("dd", null, r[1]));
+          dl.appendChild(row);
+        });
+        d.appendChild(dl);
+        buyers.appendChild(d);
+      });
+
+      $("notKicker").textContent = c.notKicker;
+      $("not-h").innerHTML = c.notBig;
+      $("notThen").textContent = c.notThen;
+      var cmp = $("compare"); cmp.textContent = "";
+      [0, 1].forEach(function (i) {
+        var d = el("div");
+        d.appendChild(el("p", "l", c.compareL[i]));
+        d.appendChild(el("p", "v", c.compareV[i]));
+        cmp.appendChild(d);
+      });
+
+      $("unk-h").textContent = c.unkH;
+      $("unkIntro").textContent = c.unkIntro;
+      var unk = $("unk"); unk.textContent = "";
+      c.unk.forEach(function (t) { unk.appendChild(el("li", null, t)); });
+
+      $("closeLine").textContent = c.closeLine;
+      var cta = $("cta"); cta.textContent = c.cta; cta.href = "/?lang=" + lang + "#contact";
+      var back = $("back"); back.textContent = c.back; back.href = "/?lang=" + lang + "#garage";
+      $("boundary").textContent = c.boundary;
+
+      document.querySelectorAll(".lang button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+      });
+      observe();
+    }
+
+    var io = null;
+    function observe() {
+      var nodes = document.querySelectorAll(".reveal:not(.in)");
+      if (!("IntersectionObserver" in window)) {
+        nodes.forEach(function (n) { n.classList.add("in"); });
+        return;
+      }
+      if (!io) {
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+          });
+        }, { threshold: 0.12 });
+      }
+      nodes.forEach(function (n) { io.observe(n); });
+    }
+
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        lang = b.dataset.lang;
+        try {
+          var u = new URL(location.href);
+          u.searchParams.set("lang", lang);
+          history.replaceState(null, "", u);
+        } catch (e) {}
+        render();
+      });
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
