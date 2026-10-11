@@ -91,7 +91,7 @@ export const TYPES = {
     prop: "drink",
     zh: {
       name: "晚安熱可可",
-      role: "補師",
+      role: "守護者",
       funny: "隊上唯一記得大家還沒吃飯的人。",
       gentle: "因為有你，大家才撐得到最後。",
       literary: "「把每個人的疲倦，泡成一杯溫的。」",
@@ -100,7 +100,7 @@ export const TYPES = {
     },
     en: {
       name: "The Cocoa",
-      role: "Healer",
+      role: "Guardian",
       funny: "The only one on the team who remembers nobody has eaten yet.",
       gentle: "Because of you, the team makes it to the end.",
       literary: "\"I brew everyone's tiredness into something warm.\"",
