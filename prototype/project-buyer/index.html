@@ -104,6 +104,13 @@
 
     .reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
     .reveal.in { opacity: 1; transform: none; }
+    .next { margin-top: 56px; }
+    .next .lab { margin: 0; color: var(--brass); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .next a.card { display: block; margin-top: 12px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit; text-decoration: none; }
+    .next a.card:hover { border-color: var(--brass); }
+    .next a.card h3 { margin: 0; font-size: 19px; line-height: 1.35; }
+    .next a.card p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+    .next a.card span { display: inline-block; margin-top: 10px; font-weight: 700; font-size: 14.5px; color: var(--brass); }
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
       .reveal { opacity: 1; transform: none; }
@@ -154,6 +161,11 @@
       <p class="intro" id="genIntro"></p>
       <ul class="gl" id="gl"></ul>
       <p class="src" id="src"></p>
+    </section>
+
+    <section class="next reveal" aria-labelledby="next-h">
+      <p class="lab" id="nextLab"></p>
+      <a class="card" id="nextCard"><h3 id="next-h"></h3><p id="nextBody"></p><span id="nextGo"></span></a>
     </section>
 
     <section class="close reveal">
@@ -208,6 +220,11 @@
           ["racklify.com", "https://racklify.com/encyclopedia/what-is-an-approval-sample-purpose-and-typical-contents/"],
           ["fulfillbot.com", "https://fulfillbot.com/?p=1000121"]
         ],
+        nextLab: "選讀",
+        nextTitle: "承諾的閘門",
+        nextBody: "一筆大單看起來很誘人，要具備什麼條件，才值得投入模具與產能？",
+        nextGo: "看這一頁 →",
+        nextHref: "/prototype/decision-adversary/",
         closeLine: "看懂他怕什麼，才知道樣品之後，還要先證明什麼。",
         cta: "帶一個你正在打樣的案子來聊",
         back: "回到 Digital Garage",
@@ -251,6 +268,11 @@
           ["racklify.com", "https://racklify.com/encyclopedia/what-is-an-approval-sample-purpose-and-typical-contents/"],
           ["fulfillbot.com", "https://fulfillbot.com/?p=1000121"]
         ],
+        nextLab: "Next read",
+        nextTitle: "The Commitment Gate",
+        nextBody: "A big order looks tempting. What has to be true before it is worth committing tooling and capacity?",
+        nextGo: "Read this page →",
+        nextHref: "/prototype/decision-adversary/",
         closeLine: "Once you see what he fears, you know what to prove after the sample.",
         cta: "Bring a project you are sampling",
         back: "Back to Digital Garage",
@@ -326,6 +348,11 @@
         src.appendChild(a);
       });
 
+      $("nextLab").textContent = c.nextLab;
+      $("next-h").textContent = c.nextTitle;
+      $("nextBody").textContent = c.nextBody;
+      $("nextGo").textContent = c.nextGo;
+      $("nextCard").href = c.nextHref + "?lang=" + lang;
       $("closeLine").textContent = c.closeLine;
       var cta = $("cta"); cta.textContent = c.cta; cta.href = "/?lang=" + lang + "#contact";
       var back = $("back"); back.textContent = c.back; back.href = "/?lang=" + lang + "#garage";
