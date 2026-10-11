@@ -6,6 +6,8 @@
 
 **用字與內容**
 - AI 只能出現在首頁 Hero（以及 OnePager 的 kicker）。其他公開文案不提 AI。
+  - **例外（Paul 決定 2026-10-12）：** 「AI agent」一詞，以及「AI agents 與 Paul 協作」這個說法，可以用在公開頁。除這兩個說法外，其餘 AI 字樣仍不可出現。
+  - 檢查方式：搜尋 AI 時，不要把上面兩個說法挑出來（`scripts/check-document-parity.mjs` 已排除；digital-garage 的 `PUBLIC-WORDS.md` 有同樣的例外）。
 - 公開文案不出現「中間層」「A2A」「CDD」。CDD 是內部簡寫；作品名「商務決策工作台」照用。
 - 不寫 ROI 或成效宣稱，不放未經驗證的數字。
 - Demo 一律標示「示範／成效未驗證」，只用虛構資料。
