@@ -438,6 +438,13 @@ const dict = {
       latestMark: "最新",
       moreLabel: "看其餘實驗",
       storyLabel: "從現場經驗長出來的故事與樣本",
+      branches: [
+        {
+          id: "light-tech",
+          label: "輕科技玩具",
+          note: "給人玩、也可以傳出去的小玩具。和商業實驗分開。",
+        },
+      ],
       items: [
         {
           title: "Bring Paul Into the Room · 先把問題帶進來",
@@ -613,6 +620,16 @@ const dict = {
           caseHref: "/cases/one-send/",
           caseLabel: "看設計選擇",
           wide: true,
+        },
+        {
+          title: "你是哪一種隊友？",
+          tag: "示意玩具 · 雙語原型",
+          spark: "三個小情境，看你怎麼做，就知道你是哪一種隊友。",
+          note: "選完得到一張角色卡。同樣的選擇，永遠是同一張卡。",
+          cta: "玩一次",
+          boundary: "示意玩具，不是心理測驗。",
+          href: "/prototype/teammate-type/",
+          branch: "light-tech",
         },
       ],
     },
@@ -1097,6 +1114,13 @@ const dict = {
       latestMark: "Latest",
       moreLabel: "More experiments",
       storyLabel: "Stories and samples grown from hands-on trade experience",
+      branches: [
+        {
+          id: "light-tech",
+          label: "Light-tech toys",
+          note: "Small toys to play and pass on, kept apart from the commercial experiments.",
+        },
+      ],
       items: [
         {
           title: "Bring Paul Into the Room",
@@ -1272,6 +1296,16 @@ const dict = {
           caseHref: "/cases/one-send/#en",
           caseLabel: "See the design choices",
           wide: true,
+        },
+        {
+          title: "What kind of teammate are you?",
+          tag: "Illustrative toy · bilingual prototype",
+          spark: "Three short scenes. How you act is the kind of teammate you are.",
+          note: "You leave with a role card. The same choices always make the same card.",
+          cta: "Play",
+          boundary: "A toy, not a personality test.",
+          href: "/prototype/teammate-type/",
+          branch: "light-tech",
         },
       ],
     },

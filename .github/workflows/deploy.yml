@@ -106,6 +106,8 @@ jobs:
           cp prototype/concession-map/index.html dist/prototype/concession-map/index.html
           mkdir -p dist/prototype/handback-sheet
           cp prototype/handback-sheet/index.html dist/prototype/handback-sheet/index.html
+          mkdir -p dist/prototype/teammate-type
+          cp prototype/teammate-type/index.html prototype/teammate-type/app.js dist/prototype/teammate-type/
       - name: One-Pager editorial review guardrail
         run: |
           # inventory 變更（新增/移除 Works）時要求編輯審查 One-Pager
