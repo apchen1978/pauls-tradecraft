@@ -97,7 +97,7 @@ async function frameBranch(page) {
 test.describe("garage listing", () => {
   for (const width of [390, 1280]) {
     test(`${width}px zh and en put the light-tech toy first`, async ({ page }) => {
-      await page.setViewportSize({ width, height: width === 390 ? 1680 : 1200 });
+      await page.setViewportSize({ width, height: width === 390 ? 1680 : 1560 });
       await page.goto("/?lang=zh#garage");
       const branch = page.locator("#garage-branch-light-tech");
       await expect(branch.getByRole("heading", { level: 3 })).toHaveText("輕科技玩具");
