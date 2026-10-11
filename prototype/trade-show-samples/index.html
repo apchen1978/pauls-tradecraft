@@ -220,7 +220,7 @@
         steps: [
           { who: "銷售助理", h: "登記名片", b: "展會結束，名片逐張登記。基本上，有拿到名片的都會跟。" },
           { who: "銷售助理 · email", h: "寄信，要快遞帳號", b: "信用英文。開頭填對方的名字，寫在展會上聊過，現在要寄樣本，內容大致寫要寄什麼。", sub: "同時向對方要快遞帳號與收件地址。樣本免費，運費走客人自己的快遞帳號，要寄幾份都可以。" },
-          { who: "銷售總監", h: "挑樣本", b: "依買家所在市場的需求，決定寄哪些版本、哪幾本。", gate: "這一關只有銷售總監能下", key: true },
+          { who: "銷售總監", h: "挑樣本", b: "依買家所在市場的需求，決定寄哪些版本、哪幾本。", gate: "這一關由有授權的人決定", key: true },
           { who: "銷售助理", h: "寄出", b: "挑完之後，由銷售助理直接寄到客人手裡。" },
           { who: "買家", h: "等他回覆", b: "專程去看展的海外買家，大多會回：他花了旅館與交通的錢，希望拿到樣本。" }
         ],
@@ -238,7 +238,7 @@
         compareL: ["一般情況", "很大的公司"],
         compareV: ["樣本免費，運費由客人自己的快遞帳號出。他通常都願意。", "運費也由工廠吸收，當作禮遇，因為很確定對方是大公司。"],
         whoH: "先看誰能決定",
-        whoIntro: "同一疊名片，兩種人的權限不一樣。這一塊最通用：不管寄什麼，免費與否、運費誰出，通常都是負責人才能下的決定。",
+        whoIntro: "同一疊名片，兩種人的權限不一樣。這一塊最通用：不管寄什麼，免費與否、運費誰出，通常是公司授權的人才能下的決定（職稱因公司而異，這裡以銷售助理與銷售總監為例）。",
         roles: [
           { h: "銷售助理", can: ["登記名片", "寄 email、要快遞帳號與地址", "把挑好的樣本寄出"], no: ["決定免費送不送", "決定要不要吸收運費"] },
           { h: "銷售總監", boss: true, can: ["決定寄哪些版本、哪幾本", "決定免費送不送", "決定要不要替大公司吸收運費"], no: [] }
@@ -256,8 +256,8 @@
           ["寄出", "整理出貨資料、填快遞單、追蹤是否送達。"],
           ["等回覆", "偵測無效的 email，提醒沒回的買家該再問一次。"]
         ],
-        agRule: "權限邊界（CC 推測）：agent 的權限，應該和銷售助理一樣：可以準備、建議、追蹤；免費與否、運費誰出，仍由銷售總監決定。",
-        closeLine: "寄什麼、免不免費、運費誰出，這幾個決定，只有一個人能下。",
+        agRule: "權限邊界：agent 可以協助準備、建議與追蹤；免費與否、運費誰出，仍由公司授權的人決定。",
+        closeLine: "寄什麼、免不免費、運費誰出，這幾個決定，要由有授權的人來下。",
         cta: "帶你家的送樣流程來聊",
         back: "回到 Digital Garage",
         boundary: "示意情境，不是統計，也不代表所有工廠或所有買家；這是以前的做法與一個人的經驗。「AI agent 可以加速哪裡」是設想，沒有證據與效果數字。內容裡沒有信件範本。不儲存任何內容。"
@@ -273,7 +273,7 @@
         steps: [
           { who: "Sales assistant", h: "Log the cards", b: "When the show ends, every card is logged. Basically, anyone who left a card gets a follow-up." },
           { who: "Sales assistant · email", h: "Email, ask for a courier account", b: "The email is in English. It opens with the person's name, says you spoke at the show and that samples are on their way, and roughly which ones.", sub: "It also asks for a courier account number and a delivery address. The samples are free; freight goes on the buyer's own courier account, as many as he likes." },
-          { who: "Sales director", h: "Choose the samples", b: "Based on the needs of the buyer's market, decide which versions and which books to send.", gate: "Only the sales director makes this call", key: true },
+          { who: "Sales director", h: "Choose the samples", b: "Based on the needs of the buyer's market, decide which versions and which books to send.", gate: "Decided by whoever is authorised", key: true },
           { who: "Sales assistant", h: "Ship them", b: "Once chosen, the sales assistant ships them straight to the buyer." },
           { who: "Buyer", h: "Wait for the reply", b: "Overseas buyers who came to the show mostly reply: they paid for hotel and travel and want the samples." }
         ],
@@ -291,7 +291,7 @@
         compareL: ["The usual case", "A very large company"],
         compareV: ["Samples are free; freight goes on the buyer's own courier account. He is usually fine with that.", "The factory absorbs the freight too, as a courtesy, because it is clear the company is very large."],
         whoH: "First, who can decide",
-        whoIntro: "Same stack of cards, two different sets of authority. This part travels best: whatever you send, whether it is free and who pays the freight is usually the owner's call.",
+        whoIntro: "Same stack of cards, two different sets of authority. This part travels best: whatever you send, whether it is free and who pays the freight is usually decided by someone the company has authorised (titles vary by company; the sales assistant and sales director here are just an example).",
         roles: [
           { h: "Sales assistant", can: ["Log the cards", "Send the email, ask for courier account and address", "Ship the chosen samples"], no: ["Decide whether samples are free", "Decide whether to absorb freight"] },
           { h: "Sales director", boss: true, can: ["Decide which versions and books to send", "Decide whether samples are free", "Decide whether to absorb freight for a large company"], no: [] }
@@ -309,8 +309,8 @@
           ["Ship", "Prepare shipping details, fill in the courier form, track delivery."],
           ["Wait for the reply", "Detect invalid email addresses, and remind you when a buyer has not replied and is worth asking again."]
         ],
-        agRule: "Boundary (CC inference): an agent's authority should match the sales assistant's: it may prepare, suggest and track; whether samples are free and who pays the freight stays with the sales director.",
-        closeLine: "What to send, whether it is free, who pays the freight: only one person makes those calls.",
+        agRule: "Boundary: an agent may help prepare, suggest and track; whether samples are free and who pays the freight stays with whoever the company has authorised.",
+        closeLine: "What to send, whether it is free, who pays the freight: these calls belong to whoever is authorised.",
         cta: "Bring your sample-sending flow",
         back: "Back to Digital Garage",
         boundary: "An illustrative scenario, not statistics, and not every factory or buyer; it is how it used to be done, from one person's experience. The AI-agent section is a sketch with no evidence or effect numbers. It contains no email template. Nothing is stored."
