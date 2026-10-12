@@ -476,9 +476,9 @@ const dict = {
           href: "https://apchen1978.github.io/signal-rift-typing-demo/wordforge.html",
         },
         {
-          title: "第二供應商，第一張單在哪裡？",
+          title: "買家想多找一家，第一張單還有多遠？",
           tag: "輕課件 · 雙語示範",
-          spark: "買家說要找第二供應商。從被列入備選到第一張單，還有什麼沒問清楚？",
+          spark: "買家想多找一家供應商。離第一張單，還有哪些條件沒問清楚？",
           note: "讀一則虛構買家訊息，選一句先問的話，再換成自己的產品試一次。",
           cta: "試一段輕課",
           boundary: "示範／成效未驗證。合成情境與預寫回饋，不代表買家會下單。",
