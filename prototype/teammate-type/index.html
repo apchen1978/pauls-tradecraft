@@ -190,11 +190,44 @@
     .prop-note { right: 0; bottom: 8px; }
     .prop-crown { left: 50%; top: 0; margin-left: 28px; }
     .prop-palette { left: 0; top: 8px; }
+    .stage .horse {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: min(236px, 100%);
+      height: auto;
+      margin: 0 auto;
+      aspect-ratio: auto;
+    }
+    .stage.with-horse {
+      width: min(276px, 100%);
+      height: 214px;
+    }
+    .stage.with-horse #mg { display: none; }
+    .stage.with-horse .prop-drink {
+      width: 48px;
+      height: 48px;
+      right: 0;
+      bottom: 0;
+    }
+    .rare {
+      display: inline-block;
+      margin: 8px 0 0;
+      padding: 2px 8px;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: var(--pop);
+      color: var(--pine);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .companion { margin: 8px 0 0; font-size: 13px; font-weight: 700; text-align: center; }
     @keyframes mg-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
     @keyframes mg-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
     @keyframes mg-squash { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.06, 0.94); } }
     .motion-bob img { animation: mg-bob 240ms ease-in-out infinite; }
-    .motion-float img { animation: mg-float 1.4s ease-in-out infinite; }
+    .motion-float img, .motion-float .horse { animation: mg-float 1.4s ease-in-out infinite; }
     .motion-squash img { animation: mg-squash 320ms ease-in-out infinite; }
     #card-name { margin-top: 8px; font-size: clamp(1.6rem, 6vw, 2.15rem); }
     .other-name, .role, .line, .line-label, .line-body, .picks, .same, .card-boundary { margin: 0; overflow-wrap: anywhere; }
@@ -282,11 +315,14 @@
         <p class="card-kicker" id="card-kicker"></p>
         <div class="stage" id="stage">
           <img id="mg" alt="" width="192" height="208" />
+          <img id="horse" class="horse" src="assets/winged-horse.png" alt="" width="1608" height="1374" hidden />
           <div id="prop"></div>
         </div>
         <h2 id="card-name" tabindex="-1"></h2>
         <p class="other-name" id="other-name"></p>
         <p class="role" id="role"></p>
+        <p class="rare" id="rare" hidden></p>
+        <p class="companion" id="companion" hidden></p>
         <div class="lines" id="lines"></div>
         <p class="picks" id="picks-label"></p>
         <p class="same" id="same"></p>
