@@ -332,7 +332,7 @@ test.describe("new choices and roles", () => {
     }
   });
 
-  test("390px zh queen is rare and a guardian code shows the horse", async ({ page }) => {
+  test("390px zh queen is rare and a guardian code shows the cat", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 1100 });
     await page.goto("/prototype/teammate-type/?c=FAE&lang=zh");
     await waitForQueen(page);
@@ -353,24 +353,66 @@ test.describe("new choices and roles", () => {
     expect(pngSize(queenDest)).toEqual({ width: 2160, height: 2700 });
 
     await page.goto("/prototype/teammate-type/?c=BBA&lang=zh");
+    await waitForMg(page);
     await expect(page.locator("#card-name")).toHaveText("晚安熱可可");
     await expect(page.locator("#role")).toHaveText("組隊角色 · 守護者");
-    await expect(page.locator("#horse")).toBeVisible();
-    await expect(page.locator("#companion")).toHaveText("同伴 · 有翅膀的白馬");
-    await expect(page.locator("#mg")).toBeHidden();
+    await expect(page.locator("#horse")).toBeHidden();
+    await expect(page.locator("#companion")).toBeHidden();
+    await expect(page.locator("#mg")).toBeVisible();
+    await expect(page.locator("#queen-art")).toBeHidden();
     await page.getByRole("button", { name: "EN" }).click();
-    await expect(page.locator("#companion")).toHaveText("Companion · Winged white horse");
     await expect(page.locator("#card-name")).toHaveText("The Cocoa");
+    await expect(page.locator("#role")).toHaveText("Party role · Guardian");
+    await expect(page.locator("#horse")).toBeHidden();
+    await expect(page.locator("#mg")).toBeVisible();
     await page.getByRole("button", { name: "中文" }).click();
+    await waitForMg(page);
     await noOverflow(page);
-    await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-guardian-horse.png` });
+    await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-guardian-cat.png` });
     const [download] = await Promise.all([
       page.waitForEvent("download"),
       page.getByRole("button", { name: "下載角色卡" }).click(),
     ]);
-    const dest = `${CARDS}/guardian-horse-zh.png`;
+    const dest = `${CARDS}/guardian-cat-zh.png`;
     await download.saveAs(dest);
     expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+  });
+
+  test("390px zh alliance shows the winged horse", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 1100 });
+    await page.goto("/prototype/teammate-type/?c=EEA&lang=zh");
+    await page.waitForFunction(() => {
+      const img = document.querySelector("#horse");
+      return img && !img.hidden && img.complete && img.naturalWidth > 0;
+    });
+    await expect(page.locator("#card-name")).toHaveText("今晚同一邊");
+    await expect(page.locator("#role")).toHaveText("組隊角色 · 聯盟");
+    await expect(page.locator("#rare")).toBeHidden();
+    await expect(page.locator("#horse")).toBeVisible();
+    await expect(page.locator("#mg")).toBeHidden();
+    await expect(page.locator("#queen-art")).toBeHidden();
+    await expect(page.locator("#companion")).toBeHidden();
+    await expectFunnyHighlight(page);
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-alliance.png` });
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "下載角色卡" }).click(),
+    ]);
+    const dest = `${CARDS}/alliance-zh.png`;
+    await download.saveAs(dest);
+    expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+    await page.getByRole("button", { name: "EN" }).click();
+    await expect(page.locator("#card-name")).toHaveText("Same Side Tonight");
+    await expect(page.locator("#role")).toHaveText("Party role · Alliance");
+    await expect(page.locator("#horse")).toBeVisible();
+    await expect(page.locator("#mg")).toBeHidden();
+    const [enDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Download card" }).click(),
+    ]);
+    await enDownload.saveAs(`${CARDS}/alliance-en.png`);
+    expect(pngSize(`${CARDS}/alliance-en.png`)).toEqual({ width: 2160, height: 2700 });
   });
 
   test("390px zh eight roles each show their own portrait", async ({ page }) => {

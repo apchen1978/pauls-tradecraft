@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { companionFor, distribution, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
+import { distribution, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
 
 test("old ABCD codes keep the six-type balance", () => {
   const counts = distribution("ABCD");
@@ -16,7 +16,27 @@ test("old ABCD codes keep the six-type balance", () => {
     messenger: 0,
     queen: 0,
     designer: 0,
+    alliance: 0,
   });
+  const abcd = {
+    AAA: "umbrella", AAB: "umbrella", AAC: "umbrella", AAD: "umbrella",
+    ABA: "finisher", ABB: "spark", ABC: "finisher", ABD: "finisher",
+    ACA: "cocoa", ACB: "umbrella", ACC: "soundtrack", ACD: "soundtrack",
+    ADA: "umbrella", ADB: "mapkeeper", ADC: "finisher", ADD: "umbrella",
+    BAA: "cocoa", BAB: "spark", BAC: "cocoa", BAD: "umbrella",
+    BBA: "cocoa", BBB: "cocoa", BBC: "finisher", BBD: "soundtrack",
+    BCA: "cocoa", BCB: "soundtrack", BCC: "finisher", BCD: "soundtrack",
+    BDA: "cocoa", BDB: "spark", BDC: "cocoa", BDD: "mapkeeper",
+    CAA: "cocoa", CAB: "spark", CAC: "umbrella", CAD: "soundtrack",
+    CBA: "spark", CBB: "spark", CBC: "finisher", CBD: "spark",
+    CCA: "soundtrack", CCB: "spark", CCC: "spark", CCD: "soundtrack",
+    CDA: "cocoa", CDB: "spark", CDC: "mapkeeper", CDD: "soundtrack",
+    DAA: "mapkeeper", DAB: "umbrella", DAC: "finisher", DAD: "mapkeeper",
+    DBA: "finisher", DBB: "spark", DBC: "finisher", DBD: "finisher",
+    DCA: "cocoa", DCB: "mapkeeper", DCC: "soundtrack", DCD: "soundtrack",
+    DDA: "mapkeeper", DDB: "mapkeeper", DDC: "mapkeeper", DDD: "mapkeeper",
+  };
+  for (const [code, type] of Object.entries(abcd)) assert.equal(resolveChoices(code).type, type, code);
 });
 
 test("every role is reachable, including the four new ones", () => {
@@ -29,9 +49,22 @@ test("every role is reachable, including the four new ones", () => {
   assert.notEqual(resolveChoices("FAB").type, "queen");
   assert.equal(counts.queen, 6);
   assert.equal(counts.designer, 6);
-  assert.equal(companionFor("BBA", "cocoa"), "horse");
-  assert.equal(companionFor("BBB", "cocoa"), "mg");
-  assert.equal(companionFor("BBA", "finisher"), "mg");
+  assert.equal(counts.alliance, 21);
+  assert.equal(resolveChoices("EEA").type, "alliance");
+  assert.equal(resolveChoices("BBA").type, "cocoa");
+  assert.deepEqual(counts, {
+    umbrella: 24,
+    cocoa: 23,
+    finisher: 22,
+    spark: 24,
+    mapkeeper: 24,
+    soundtrack: 23,
+    strategist: 22,
+    messenger: 21,
+    alliance: 21,
+    queen: 6,
+    designer: 6,
+  });
 });
 
 test("majority and the sum-mod-3 tie-break stay fixed", () => {

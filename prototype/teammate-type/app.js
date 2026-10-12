@@ -28,11 +28,16 @@
 //      rarity gate keeps them only when the other two choice indexes have
 //      the same parity (both even or both odd). Otherwise that win passes
 //      to the next scenario's choice. FAE stays queen; AFC stays designer.
-//      守護者's companion is the winged horse when the index sum is even,
-//      and MG when it is odd (BBA → horse, BBB → MG). The horse is the
-//      anime illustration in assets/winged-horse.png. The other nine roles
-//      use their own anime portraits (assets/<role>.png, queen.png for 女王)
-//      instead of MG.
+//      A three-way tie that uses E or F, and did not keep queen or designer,
+//      becomes 聯盟 / Alliance when the choice-index sum mod 7 is 1
+//      (EEA → alliance). That gate never sees a pure A–D code, so all 64
+//      old codes stay put. Across 216 codes the counts are
+//      umbrella 24, cocoa 23, finisher 22, spark 24, mapkeeper 24,
+//      soundtrack 23, strategist 22, messenger 21, alliance 21,
+//      queen 6, designer 6.
+//      守護者 always uses MG. 聯盟 uses the winged horse in
+//      assets/winged-horse.png. The other nine roles use their anime
+//      portraits (assets/<role>.png, queen.png for 女王) instead of MG.
 //
 // Worked examples:
 //   AAA majority → umbrella
@@ -307,6 +312,28 @@ export const TYPES = {
       alt: "A person in white, looking at a small color palette",
     },
   },
+  alliance: {
+    pose: "idle",
+    prop: null,
+    zh: {
+      name: "今晚同一邊",
+      role: "聯盟",
+      funny: "別人還在分隊，你已經把散掉的人又叫回來了。",
+      gentle: "有你在，誰都不會被留在外面。",
+      literary: "「不是誰最大聲，是我們還站在一起。」",
+      strength: "把不同的人收成同一隊。",
+      alt: "有翅膀的白馬",
+    },
+    en: {
+      name: "Same Side Tonight",
+      role: "Alliance",
+      funny: "Everyone else is still picking sides; you've already called the scattered ones back.",
+      gentle: "With you here, nobody gets left outside.",
+      literary: "\"It isn't who is loudest. It's that we're still standing together.\"",
+      strength: "Brings different people onto the same team.",
+      alt: "A winged white horse",
+    },
+  },
 };
 
 export const SCENARIOS = [
@@ -397,8 +424,6 @@ export const UI = {
     literary: "文青",
     strength: "長處",
     rare: "稀有",
-    horseLabel: "同伴 · 有翅膀的白馬",
-    horseAlt: "有翅膀的白馬",
     picks: (code) => `你的選擇 ${code}`,
     same: "朋友照著選，會得到同一張卡。",
     stored: "不儲存任何資料。分享連結只帶三個選擇。",
@@ -432,8 +457,6 @@ export const UI = {
     literary: "Literary",
     strength: "Strength",
     rare: "Rare",
-    horseLabel: "Companion · Winged white horse",
-    horseAlt: "A winged white horse",
     picks: (code) => `Your choices ${code}`,
     same: "A friend who picks the same way gets the same card.",
     stored: "Nothing is stored. The share link carries only the three choices.",
@@ -466,13 +489,12 @@ export function resolveChoices(code) {
     const sameParity = (others[0] + others[1]) % 2 === 0;
     if (!sameParity) type = types[(scenarioIndex + 1) % 3];
   }
+  const usesNewLetter = indexes.some((choiceIndex) => choiceIndex >= 4);
+  const sum = indexes[0] + indexes[1] + indexes[2];
+  if (usesNewLetter && type !== "queen" && type !== "designer" && sum % 7 === 1) {
+    return { code, type: "alliance", tie: true };
+  }
   return { code, type, tie: true };
-}
-
-export function companionFor(code, type) {
-  if (type !== "cocoa" || typeof code !== "string") return "mg";
-  const sum = [...code].reduce((total, letter) => total + LETTERS.indexOf(letter), 0);
-  return sum % 2 === 0 ? "horse" : "mg";
 }
 
 export function distribution(letters = LETTERS) {
@@ -524,6 +546,7 @@ const WASH = {
   messenger: "#E3E8E1",
   queen: "#F1E3C6",
   designer: "#E8DFD6",
+  alliance: "#E3DDF2",
 };
 
 const emblems = {};
@@ -794,19 +817,19 @@ function boot() {
     const rare = resolved.type === "queen" || resolved.type === "designer";
     $("rare").hidden = !rare;
     $("rare").textContent = rare ? ui.rare : "";
-    showCompanion(type, resolved.type, ui);
+    showCompanion(type, resolved.type);
     if (focus === "card") $("card-name").focus();
   }
 
-  function showCompanion(type, typeId, ui) {
-    const companion = companionFor(state.code, typeId);
+  function showCompanion(type, typeId) {
     const stage = $("stage");
     const horse = $("horse");
     const queenArt = $("queen-art");
     const img = $("mg");
     const caption = $("companion");
     const portraitSrc = PORTRAIT_SRC[typeId];
-    stage.classList.toggle("with-horse", !portraitSrc && companion === "horse");
+    const alliance = typeId === "alliance";
+    stage.classList.toggle("with-horse", alliance);
     stage.classList.toggle("with-queen", Boolean(portraitSrc));
     if (portraitSrc) {
       if (queenArt.getAttribute("src") !== portraitSrc) queenArt.setAttribute("src", portraitSrc);
@@ -814,38 +837,28 @@ function boot() {
     } else {
       queenArt.setAttribute("hidden", "");
     }
-    if (!portraitSrc && companion === "horse") horse.removeAttribute("hidden");
+    if (alliance) horse.removeAttribute("hidden");
     else horse.setAttribute("hidden", "");
-    img.hidden = companion === "horse" || Boolean(portraitSrc);
-    if (portraitSrc) {
+    img.hidden = alliance || Boolean(portraitSrc);
+    caption.hidden = true;
+    caption.textContent = "";
+    if (portraitSrc || alliance) {
       stopPose();
       stage.classList.remove("motion-float", "motion-bob", "motion-squash");
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!reduce) stage.classList.add("motion-float");
-      queenArt.alt = type[state.lang].alt;
-      caption.hidden = true;
-      caption.textContent = "";
+      if (portraitSrc) queenArt.alt = type[state.lang].alt;
+      if (alliance) {
+        horse.alt = type[state.lang].alt;
+        horse.setAttribute("aria-hidden", "false");
+        horse.removeAttribute("aria-label");
+      }
       $("prop").textContent = "";
       return;
     }
-    if (companion === "horse") {
-      stopPose();
-      stage.classList.remove("motion-float", "motion-bob", "motion-squash");
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (!reduce) stage.classList.add("motion-float");
-      horse.setAttribute("aria-hidden", "false");
-      horse.setAttribute("aria-label", ui.horseAlt);
-      caption.hidden = false;
-      caption.textContent = ui.horseLabel;
-      const prop = $("prop");
-      prop.textContent = "";
-      if (type.prop) prop.appendChild(propNode(type.prop));
-      return;
-    }
+    horse.alt = "";
     horse.setAttribute("aria-hidden", "true");
     horse.removeAttribute("aria-label");
-    caption.hidden = true;
-    caption.textContent = "";
     playPose(type);
   }
 
@@ -962,10 +975,10 @@ function boot() {
       ctx.drawImage(emblem, width - 214, 150, 92, 92);
     }
 
-    const companion = companionFor(state.code, resolved.type);
     const portrait = portraitImage(resolved.type);
+    const allianceArt = resolved.type === "alliance" && horseImg && horseImg.complete && horseImg.naturalWidth > 0;
     let horseBottom = 400;
-    if (companion === "horse" && horseImg && horseImg.complete && horseImg.naturalWidth > 0) {
+    if (allianceArt) {
       const horseW = 500;
       const horseH = (horseImg.naturalHeight / horseImg.naturalWidth) * horseW;
       const horseY = 88;
@@ -991,8 +1004,7 @@ function boot() {
       }
     }
 
-    let y = companion === "horse" ? horseBottom + 40 : portrait ? horseBottom + 16 : 430;
-    if (companion === "horse") center(ui.horseLabel, horseBottom + 8, `700 22px ${FONT}`, "#62716A");
+    let y = allianceArt || portrait ? horseBottom + 16 : 430;
     ctx.font = `700 64px ${FONT}`;
     const nameLines = wrapLines(ctx, text.name, inner);
     nameLines.forEach((line) => {
