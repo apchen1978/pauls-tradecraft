@@ -590,6 +590,58 @@ export const works = [
     },
   },
   {
+    id: "quote-lens",
+    section: "labs",
+    featuredRank: 2,
+    cover: { zh: "/images/cover-quote-lens.webp", en: "/images/cover-quote-lens-en.webp" },
+    imageAlt: {
+      zh: "Quote Lens 互動原型：預估利潤與最大現金缺口並列顯示",
+      en: "Quote Lens interactive prototype: estimated profit shown beside the maximum cash gap",
+    },
+    link: "https://apchen1978.github.io/quote-lens-demo/",
+    linkLabel: { zh: "試用互動示範", en: "Try the interactive demo" },
+    linkType: "demo",
+    verified: true,
+    decisionQuestion: {
+      zh: "這張報價賺錢，但你要先墊多少現金、什麼時候墊？",
+      en: "This quote is profitable, but how much cash do you have to front, and when?",
+    },
+    zh: {
+      title: "Quote Lens — 賺錢不等於現金夠用",
+      desc: "一個互動式商業決策原型，讓你同時看見專案獲利、資金缺口與損益兩平緩衝。",
+      tag: "商業決策原型 · 虛構情境",
+    },
+    en: {
+      title: "Quote Lens — Profit Is Not Cash",
+      desc: "An interactive business decision prototype that separates project profitability, cash exposure, and break-even resilience.",
+      tag: "Business decision prototype · Fictional scenarios",
+    },
+    case: {
+      stage: { zh: "互動原型", en: "Interactive prototype" },
+      stageTag: { zh: "虛構情境 · 靜態頁面", en: "Fictional scenarios · static page" },
+      problem: {
+        zh: "一張報價賺錢，不代表現金夠用：材料與人力要先付，客戶卻分期付款，有時還會晚付。只看報價單上的毛利，看不出要先墊多少錢、墊多久，也看不出成本超出多少會讓利潤歸零。",
+        en: "A profitable quote does not mean cash is sufficient: materials and labor are paid first while the client pays in instalments, sometimes late. A quote sheet's margin does not show how much you must front, for how long, or how far costs can overrun before profit reaches zero.",
+      },
+      approach: {
+        zh: "把同一張報價拆成收入、直接成本、預估資金成本與利潤四組，並列「預估利潤」與「最大現金缺口」；再給出損益兩平緩衝，以及對利潤影響最大的項目。兩個虛構情境（專案型服務、本地窗簾／軟裝報價）都可以即時調整假設；缺少的資料保留 UNKNOWN，不用猜的補上。",
+        en: "Split one quote into revenue, direct costs, estimated financing cost, and profit; show estimated profit beside the maximum cash gap; then show the break-even cushion and what affects profit the most. Two fictional scenarios (a project-based service and a local curtain / soft-furnishing order) can be adjusted live; missing inputs stay UNKNOWN rather than being guessed.",
+      },
+      tools: {
+        zh: "Vanilla HTML/CSS/JS · 靜態頁面（不需登入、不存資料）· 繁中／英文 · 虛構情境",
+        en: "Vanilla HTML/CSS/JS · static page (no login, nothing stored) · Traditional Chinese / English · fictional scenarios",
+      },
+      result: {
+        zh: "一個可以直接操作的互動原型：調整價格、成本、收款時間與風險假設，立即看見利潤、最大現金缺口與它出現的日期、損益兩平緩衝，並可用網址還原同一組設定。",
+        en: "A hands-on interactive prototype: adjust price, cost, payment timing and risk assumptions and immediately see profit, the maximum cash gap and the day it occurs, the break-even cushion, and a link that restores the same settings.",
+      },
+      evidence: {
+        zh: "數字全是虛構；結果是模型估算，不是財務建議或已驗證的報價。現金缺口是單一專案模型（完全分攤成本、不含期初現金與其他營運支出），不代表公司實際的流動性。計算邏輯有自動測試與獨立的參考計算比對，但商業實用性尚未與真實使用者驗證。",
+        en: "All figures are fictional. Results are model-based estimates, not financial advice or validated quotations. The cash gap is a single-project model (fully allocated costs, excluding opening cash and other business expenses) and does not represent a company's actual liquidity. The calculation logic has automated tests and an independent reference calculation, but its commercial usefulness has not yet been validated with real users.",
+      },
+    },
+  },
+  {
     id: "payment-concentration",
     featuredRank: 6,
     section: "commercial",
