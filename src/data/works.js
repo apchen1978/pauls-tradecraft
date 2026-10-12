@@ -1248,6 +1248,8 @@ export const works = [
     hidePendingLink: false,
     link: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001",
     linkLabel: { zh: "試試利潤導航", en: "Try Profit Navigator" },
+    secondaryLink: "https://apchen1978.github.io/quote-lens-demo/",
+    secondaryLinkLabel: { zh: "利潤之外，再看現金：Quote Lens（互動原型）", en: "Beyond profit, check the cash: Quote Lens (interactive prototype)" },
     linkType: "demo",
     decisionQuestion: {
       zh: "這筆交易還有哪個利潤槓桿值得先測？",
