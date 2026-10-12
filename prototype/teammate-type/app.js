@@ -30,8 +30,9 @@
 //      to the next scenario's choice. FAE stays queen; AFC stays designer.
 //      守護者's companion is the winged horse when the index sum is even,
 //      and MG when it is odd (BBA → horse, BBB → MG). The horse is the
-//      anime illustration in assets/winged-horse.png. Queen uses
-//      assets/queen.png instead of MG.
+//      anime illustration in assets/winged-horse.png. The other nine roles
+//      use their own anime portraits (assets/<role>.png, queen.png for 女王)
+//      instead of MG.
 //
 // Worked examples:
 //   AAA majority → umbrella
@@ -96,7 +97,7 @@ export const TYPES = {
       gentle: "有你在前面，大家才敢往前走。",
       literary: "「我不說累，只是把雨收進傘裡。」",
       strength: "扛得住壓力，讓人安心。",
-      alt: "MG 站在前面，旁邊有一把傘",
+      alt: "撐著傘、穿白衣站在前面的人",
     },
     en: {
       name: "The Umbrella",
@@ -105,7 +106,7 @@ export const TYPES = {
       gentle: "With you up front, everyone dares to move forward.",
       literary: "\"I don't say I'm tired. I just fold the rain into my umbrella.\"",
       strength: "Takes the pressure so others feel safe.",
-      alt: "MG standing up front, with an umbrella",
+      alt: "A person in white, holding an umbrella up front",
     },
   },
   cocoa: {
@@ -140,7 +141,7 @@ export const TYPES = {
       gentle: "關鍵時刻交給你，大家很放心。",
       literary: "「我不急，我在等那個剛剛好的時刻。」",
       strength: "爆發力強，會收尾。",
-      alt: "MG 跳起來",
+      alt: "穿白衣、手邊有一道淡光的人",
     },
     en: {
       name: "The Finisher",
@@ -149,7 +150,7 @@ export const TYPES = {
       gentle: "When it counts, everyone is happy to hand it to you.",
       literary: "\"I'm not in a hurry. I'm waiting for the moment that's just right.\"",
       strength: "Strong in the clutch, and actually finishes things.",
-      alt: "MG jumping",
+      alt: "A person in white, with a ribbon of pale light",
     },
   },
   spark: {
@@ -162,7 +163,7 @@ export const TYPES = {
       gentle: "你讓大家看見另一條路。",
       literary: "「別人看到牆，我看到一扇還沒畫上的窗。」",
       strength: "換個角度想，點子多。",
-      alt: "MG 托著下巴想事情，旁邊有小煙火",
+      alt: "穿白衣、手中有小煙火的人",
     },
     en: {
       name: "The Spark",
@@ -171,7 +172,7 @@ export const TYPES = {
       gentle: "You show everyone there's another way.",
       literary: "\"Others see a wall. I see a window nobody has drawn yet.\"",
       strength: "Sees things from a new angle, full of ideas.",
-      alt: "MG thinking, with a little firework",
+      alt: "A person in white, holding a small firework of light",
     },
   },
   mapkeeper: {
@@ -184,7 +185,7 @@ export const TYPES = {
       gentle: "有你先看路，大家少繞很多冤枉路。",
       literary: "「我喜歡在出發前，先把風景讀一遍。」",
       strength: "觀察仔細，先把事情理清楚。",
-      alt: "MG 看著一張攤開的小地圖",
+      alt: "穿白衣、看著一張空白地圖的人",
     },
     en: {
       name: "The Mapkeeper",
@@ -193,7 +194,7 @@ export const TYPES = {
       gentle: "Because you scout ahead, nobody has to take the long way round.",
       literary: "\"I like to read the scenery once before I set off.\"",
       strength: "Observant; sorts things out before they get messy.",
-      alt: "MG looking over a small unfolded map",
+      alt: "A person in white, looking at a blank map",
     },
   },
   soundtrack: {
@@ -206,7 +207,7 @@ export const TYPES = {
       gentle: "你讓辛苦的事變得好過一點。",
       literary: "「每一段努力，都值得一首配樂。」",
       strength: "帶氣氛，讓大家凝聚在一起。",
-      alt: "MG 戴著耳機跳舞",
+      alt: "穿白衣、戴著耳機的人",
     },
     en: {
       name: "The Soundtrack",
@@ -215,7 +216,7 @@ export const TYPES = {
       gentle: "You make the hard parts a little easier.",
       literary: "\"Every bit of effort deserves its own soundtrack.\"",
       strength: "Lifts the mood and pulls people together.",
-      alt: "MG dancing with headphones",
+      alt: "A person in white, wearing headphones",
     },
   },
   strategist: {
@@ -228,7 +229,7 @@ export const TYPES = {
       gentle: "你把整條路看完，大家才不會白跑。",
       literary: "「我不是慢，我是在把下一步想清楚。」",
       strength: "先看整盤，再決定怎麼走。",
-      alt: "MG 托著下巴，旁邊有一張小計畫",
+      alt: "穿白衣、神情冷靜的人",
     },
     en: {
       name: "Sees the Whole Board",
@@ -237,7 +238,7 @@ export const TYPES = {
       gentle: "You look at the whole path first, so nobody has to run it twice.",
       literary: "\"I'm not slow. I'm making the next step make sense.\"",
       strength: "Sees the whole picture before moving.",
-      alt: "MG thinking, with a small plan",
+      alt: "A calm person dressed in white",
     },
   },
   messenger: {
@@ -250,7 +251,7 @@ export const TYPES = {
       gentle: "有你在中間跑，沒有人漏接那句話。",
       literary: "「一句話要到齊，才算說完。」",
       strength: "把話送到每一個人手上。",
-      alt: "MG 揮手，手上有一張小字條",
+      alt: "穿白衣、揮手並拿著空白字條的人",
     },
     en: {
       name: "Gets It Through",
@@ -259,7 +260,7 @@ export const TYPES = {
       gentle: "With you running the middle, nobody misses the message.",
       literary: "\"A sentence isn't finished until it reaches everyone.\"",
       strength: "Gets the word into every person's hands.",
-      alt: "MG waving, holding a little note",
+      alt: "A person in white, waving with a blank note",
     },
   },
   queen: {
@@ -294,7 +295,7 @@ export const TYPES = {
       gentle: "你讓整場看起來是故意的，不是剛好。",
       literary: "「好看不是加裝飾，是讓人想靠近。」",
       strength: "有眼光，把東西排得剛剛好。",
-      alt: "MG 看著一塊小色盤",
+      alt: "穿白衣、看著一塊小色盤的人",
     },
     en: {
       name: "Makes It Look Right",
@@ -303,7 +304,7 @@ export const TYPES = {
       gentle: "You make the whole thing look intentional, not accidental.",
       literary: "\"Looking good isn't extra decoration. It's how you invite people closer.\"",
       strength: "Has an eye for it, and lines things up just so.",
-      alt: "MG looking at a small color palette",
+      alt: "A person in white, looking at a small color palette",
     },
   },
 };
@@ -527,10 +528,22 @@ const WASH = {
 
 const emblems = {};
 
-let horseImg = null;
-let queenImg = null;
+const PORTRAIT_SRC = {
+  umbrella: "assets/umbrella.png",
+  finisher: "assets/finisher.png",
+  spark: "assets/spark.png",
+  mapkeeper: "assets/mapkeeper.png",
+  soundtrack: "assets/soundtrack.png",
+  strategist: "assets/strategist.png",
+  messenger: "assets/messenger.png",
+  designer: "assets/designer.png",
+  queen: "assets/queen.png",
+};
 
-function preloadPortrait(id, slot) {
+let horseImg = null;
+const portraitImgs = {};
+
+function preloadPortrait(id) {
   if (typeof Image === "undefined") return null;
   const node = document.getElementById(id);
   if (!node || node.tagName !== "IMG") return null;
@@ -541,8 +554,23 @@ function preloadHorse() {
   horseImg = preloadPortrait("horse");
 }
 
-function preloadQueen() {
-  queenImg = preloadPortrait("queen-art");
+function preloadPortraits() {
+  if (typeof Image === "undefined") return;
+  for (const [id, src] of Object.entries(PORTRAIT_SRC)) {
+    const img = new Image();
+    img.src = src;
+    portraitImgs[id] = img;
+  }
+}
+
+function portraitImage(typeId) {
+  const pre = portraitImgs[typeId];
+  if (pre && pre.complete && pre.naturalWidth > 0) return pre;
+  if (typeof document === "undefined") return null;
+  const node = document.getElementById("queen-art");
+  if (!node || !node.complete || node.naturalWidth <= 0) return null;
+  if (node.getAttribute("src") !== PORTRAIT_SRC[typeId]) return null;
+  return node;
 }
 
 function preloadEmblems() {
@@ -777,15 +805,19 @@ function boot() {
     const queenArt = $("queen-art");
     const img = $("mg");
     const caption = $("companion");
-    const queen = typeId === "queen";
-    stage.classList.toggle("with-horse", companion === "horse");
-    stage.classList.toggle("with-queen", queen);
-    if (queen) queenArt.removeAttribute("hidden");
-    else queenArt.setAttribute("hidden", "");
-    if (companion === "horse") horse.removeAttribute("hidden");
+    const portraitSrc = PORTRAIT_SRC[typeId];
+    stage.classList.toggle("with-horse", !portraitSrc && companion === "horse");
+    stage.classList.toggle("with-queen", Boolean(portraitSrc));
+    if (portraitSrc) {
+      if (queenArt.getAttribute("src") !== portraitSrc) queenArt.setAttribute("src", portraitSrc);
+      queenArt.removeAttribute("hidden");
+    } else {
+      queenArt.setAttribute("hidden", "");
+    }
+    if (!portraitSrc && companion === "horse") horse.removeAttribute("hidden");
     else horse.setAttribute("hidden", "");
-    img.hidden = companion === "horse" || queen;
-    if (queen) {
+    img.hidden = companion === "horse" || Boolean(portraitSrc);
+    if (portraitSrc) {
       stopPose();
       stage.classList.remove("motion-float", "motion-bob", "motion-squash");
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -931,7 +963,7 @@ function boot() {
     }
 
     const companion = companionFor(state.code, resolved.type);
-    const queenPortrait = resolved.type === "queen" && queenImg && queenImg.complete && queenImg.naturalWidth > 0;
+    const portrait = portraitImage(resolved.type);
     let horseBottom = 400;
     if (companion === "horse" && horseImg && horseImg.complete && horseImg.naturalWidth > 0) {
       const horseW = 500;
@@ -939,12 +971,17 @@ function boot() {
       const horseY = 88;
       ctx.drawImage(horseImg, Math.round((width - horseW) / 2), horseY, horseW, horseH);
       horseBottom = horseY + horseH;
-    } else if (queenPortrait) {
-      const queenW = 260;
-      const queenH = (queenImg.naturalHeight / queenImg.naturalWidth) * queenW;
-      const queenY = 108;
-      ctx.drawImage(queenImg, Math.round((width - queenW) / 2), queenY, queenW, queenH);
-      horseBottom = queenY + queenH;
+    } else if (portrait) {
+      let drawW = 260;
+      let drawH = (portrait.naturalHeight / portrait.naturalWidth) * drawW;
+      const maxH = 470;
+      if (drawH > maxH) {
+        drawH = maxH;
+        drawW = drawH * (portrait.naturalWidth / portrait.naturalHeight);
+      }
+      const drawY = 108;
+      ctx.drawImage(portrait, Math.round((width - drawW) / 2), drawY, drawW, drawH);
+      horseBottom = drawY + drawH;
     } else {
       const img = $("mg");
       if (img.complete && img.naturalWidth > 0) {
@@ -954,7 +991,7 @@ function boot() {
       }
     }
 
-    let y = companion === "horse" ? horseBottom + 40 : resolved.type === "queen" ? horseBottom + 16 : 430;
+    let y = companion === "horse" ? horseBottom + 40 : portrait ? horseBottom + 16 : 430;
     if (companion === "horse") center(ui.horseLabel, horseBottom + 8, `700 22px ${FONT}`, "#62716A");
     ctx.font = `700 64px ${FONT}`;
     const nameLines = wrapLines(ctx, text.name, inner);
@@ -1063,7 +1100,7 @@ function boot() {
 
   preloadEmblems();
   preloadHorse();
-  preloadQueen();
+  preloadPortraits();
   for (const pose of Object.values(POSES)) {
     pose.frames.forEach((frame) => {
       const img = new Image();
