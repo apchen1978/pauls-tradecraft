@@ -518,6 +518,7 @@ export const UI = {
     duoBad: "這組字母對不上任何卡。",
     duoYou: "你",
     duoFriend: "朋友",
+    duoDownload: "下載這一幕",
     again: "再玩一次",
     copy: "複製分享連結",
     copied: "連結已複製",
@@ -559,6 +560,7 @@ export const UI = {
     duoBad: "Those letters don't match a card.",
     duoYou: "You",
     duoFriend: "Friend",
+    duoDownload: "Download this scene",
     again: "Play again",
     copy: "Copy share link",
     copied: "Link copied",
@@ -852,7 +854,7 @@ function boot() {
       $("mg").hidden = false;
       $("rare").hidden = true;
       $("companion").hidden = true;
-      clearDuoImages();
+      closeDuoStage();
       quiz.hidden = false;
       result.hidden = true;
       const scenario = SCENARIOS[state.step];
@@ -920,7 +922,28 @@ function boot() {
     $("rare").textContent = rare ? ui.rare : "";
     showCompanion(type, resolved.type);
     renderDuo();
-    if (focus === "card") $("card-name").focus();
+    if (focus === "card") (state.withCode ? $("duo-left-name") : $("card-name")).focus();
+  }
+
+  const DUO_THEMES = ["theme-queens", "theme-royal", "theme-alliance", "theme-cocoa", "theme-plain"];
+
+  function duoTheme(a, b) {
+    const ids = [a, b];
+    if (ids.includes("galaxy") && ids.includes("andromeda")) return "theme-queens";
+    if (ids.includes("alliance")) return "theme-alliance";
+    if (ids.includes("galaxy") || ids.includes("andromeda")) return "theme-royal";
+    if (ids.includes("cocoa")) return "theme-cocoa";
+    return "theme-plain";
+  }
+
+  function closeDuoStage() {
+    const stage = $("duo-stage");
+    stage.hidden = true;
+    stage.classList.remove("is-open", ...DUO_THEMES);
+    delete stage.dataset.pair;
+    $("card").hidden = false;
+    $("main").classList.remove("duo-open");
+    clearDuoImages();
   }
 
   function portraitSrc(typeId) {
@@ -937,6 +960,10 @@ function boot() {
       img.alt = "";
       img.classList.remove("face-in");
     }
+    for (const id of ["duo-left-lines", "duo-right-lines", "duo-lines"]) {
+      const node = $(id);
+      if (node) node.textContent = "";
+    }
   }
 
   function renderDuo() {
@@ -945,6 +972,7 @@ function boot() {
     $("duo-hint").textContent = ui.duoHint;
     $("duo-code").placeholder = ui.duoPlaceholder;
     $("duo-open").textContent = ui.duoOpen;
+    $("duo-download").textContent = ui.duoDownload;
     $("duo-boundary").textContent = ui.boundary;
     const select = $("duo-pick");
     const previous = select.value;
@@ -954,35 +982,79 @@ function boot() {
     const partner = state.withCode ? resolveChoices(state.withCode) : null;
     select.value = partner ? partner.type : previous;
     if (document.activeElement !== $("duo-code")) $("duo-code").value = state.withCode || "";
-    const stage = $("duo-stage");
     if (!partner) {
-      stage.hidden = true;
-      clearDuoImages();
+      closeDuoStage();
       return;
     }
     const mine = resolveChoices(state.code);
+    const stage = $("duo-stage");
     stage.hidden = false;
-    paintDuoPerson("left", mine.type, ui.duoYou);
-    paintDuoPerson("right", partner.type, ui.duoFriend);
+    stage.classList.remove(...DUO_THEMES);
+    stage.classList.add(duoTheme(mine.type, partner.type));
+    $("card").hidden = true;
+    $("main").classList.add("duo-open");
+    paintDuoCard("left", mine.type, state.code, ui.duoYou);
+    paintDuoCard("right", partner.type, state.withCode, ui.duoFriend);
     const scene = dialogueFor(mine.type, partner.type);
     const list = $("duo-lines");
     list.textContent = "";
     for (const line of scene.lines) {
-      const row = el("p", "duo-line");
+      const side = line.speaker === mine.type ? "from-left" : "from-right";
+      const row = el("p", `duo-line ${side}`);
       row.appendChild(el("span", "duo-speaker", TYPES[line.speaker][state.lang].name));
       row.appendChild(el("span", "duo-text", line[state.lang]));
       list.appendChild(row);
     }
+    const pairKey = `${state.code}|${state.withCode}`;
+    if (stage.dataset.pair !== pairKey) {
+      stage.classList.remove("is-open");
+      void stage.offsetWidth;
+      stage.dataset.pair = pairKey;
+    }
+    stage.classList.add("is-open");
   }
 
-  function paintDuoPerson(slot, typeId, tag) {
+  function paintDuoCard(slot, typeId, code, tag) {
+    const ui = UI[state.lang];
+    const other = state.lang === "zh" ? "en" : "zh";
+    const type = TYPES[typeId];
+    const text = type[state.lang];
+    const card = $(`duo-card-${slot}`);
+    card.classList.remove("rare-galaxy", "rare-andromeda", "rare-designer");
+    if (typeId === "galaxy" || typeId === "andromeda" || typeId === "designer") card.classList.add(`rare-${typeId}`);
+    $(`duo-${slot}-kicker`).textContent = ui.kicker;
+    const frame = $(`duo-${slot}-stage`);
+    frame.classList.toggle("with-queen", Boolean(PORTRAIT_SRC[typeId]));
+    frame.classList.toggle("with-horse", typeId === "alliance");
     const img = $(`duo-${slot}`);
     const src = portraitSrc(typeId);
     if (img.getAttribute("src") !== src) img.setAttribute("src", src);
-    img.alt = TYPES[typeId][state.lang].alt;
+    img.alt = text.alt;
     img.classList.toggle("face-in", shouldFaceIn(GAZE[typeId], slot));
+    $(`duo-${slot}-name`).textContent = text.name;
+    $(`duo-${slot}-other`).textContent = type[other].name;
+    $(`duo-${slot}-role`).textContent = `${ui.roleLabel} · ${text.role}`;
+    const rare = typeId === "galaxy" || typeId === "andromeda" || typeId === "designer";
+    $(`duo-${slot}-rare`).hidden = !rare;
+    $(`duo-${slot}-rare`).textContent = rare ? ui.rare : "";
     $(`duo-${slot}-tag`).textContent = tag;
-    $(`duo-${slot}-name`).textContent = TYPES[typeId][state.lang].name;
+    const lines = $(`duo-${slot}-lines`);
+    lines.textContent = "";
+    [
+      ["funny", ui.funny, text.funny],
+      ["gentle", ui.gentle, text.gentle],
+      ["literary", ui.literary, text.literary],
+      ["strength", ui.strength, text.strength],
+    ].forEach(([key, label, body]) => {
+      const block = el("div", `line line-${key}`);
+      block.appendChild(el("p", "line-label", label));
+      const bodyEl = el("p", "line-body");
+      if (key === "funny") bodyEl.appendChild(el("span", "mark", body));
+      else bodyEl.textContent = body;
+      block.appendChild(bodyEl);
+      lines.appendChild(block);
+    });
+    $(`duo-${slot}-picks`).textContent = ui.picks(code);
   }
 
   function openPartner(raw) {
@@ -1345,6 +1417,283 @@ function boot() {
     }
   }
 
+  function rareStroke(typeId) {
+    if (typeId === "designer") return "#6E8B74";
+    if (typeId === "andromeda") return "#D4B06A";
+    if (typeId === "galaxy") return "#C4A15A";
+    return "";
+  }
+
+  function downloadDuo() {
+    const ui = UI[state.lang];
+    const mine = resolveChoices(state.code);
+    const partner = state.withCode ? resolveChoices(state.withCode) : null;
+    if (!mine || !partner) return;
+    const other = state.lang === "zh" ? "en" : "zh";
+    const queens = ["galaxy", "andromeda"].includes(mine.type) && ["galaxy", "andromeda"].includes(partner.type);
+    const width = 1080;
+    const scale = 2;
+    const BOUNDARY = 54;
+    const colW = 420;
+    const canvas = document.createElement("canvas");
+    canvas.width = width * scale;
+    canvas.height = 400 * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+
+    ctx.font = `700 ${BOUNDARY}px ${FONT}`;
+    const boundaryLines = wrapLines(ctx, ui.boundary, width - 176);
+    const boundaryH = boundaryLines.length * (BOUNDARY + 8);
+    const people = [mine, partner].map((resolved, index) => {
+      const text = TYPES[resolved.type][state.lang];
+      ctx.font = `700 42px ${FONT}`;
+      const nameLines = wrapLines(ctx, text.name, colW - 28);
+      ctx.font = `600 28px ${FONT}`;
+      const otherLines = wrapLines(ctx, TYPES[resolved.type][other].name, colW - 28);
+      ctx.font = `700 30px ${FONT}`;
+      const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, colW - 28);
+      const rare = Boolean(rareStroke(resolved.type));
+      const metaH = nameLines.length * 50 + otherLines.length * 36 + roleLines.length * 40 + (rare ? 56 : 10);
+      return {
+        slot: index === 0 ? "left" : "right",
+        resolved,
+        text,
+        nameLines,
+        otherLines,
+        roleLines,
+        rare,
+        metaH,
+      };
+    });
+    const metaH = Math.max(people[0].metaH, people[1].metaH);
+    const scene = dialogueFor(mine.type, partner.type);
+    const bubbleMax = 800;
+    const bubbles = scene.lines.map((line) => {
+      const speaker = TYPES[line.speaker][state.lang].name;
+      ctx.font = `700 26px ${FONT}`;
+      const speakerW = ctx.measureText(speaker).width;
+      ctx.font = `500 32px ${FONT}`;
+      const textLines = wrapLines(ctx, line[state.lang], bubbleMax - 52);
+      const textW = Math.max(speakerW, ...textLines.map((item) => ctx.measureText(item).width));
+      return {
+        speaker,
+        side: line.speaker === mine.type ? "left" : "right",
+        textLines,
+        bubbleW: Math.min(bubbleMax, Math.ceil(textW) + 52),
+        h: 18 + 32 + textLines.length * 44 + 16,
+      };
+    });
+    const artH = 520;
+    const bubblesH = bubbles.reduce((sum, bubble) => sum + bubble.h + 16, 0);
+    const artTop = 148;
+    const textTop = artTop + artH + 20;
+    const bubbleTop = textTop + metaH + 36;
+    const height = bubbleTop + bubblesH + 48 + boundaryH + 120;
+
+    canvas.height = height * scale;
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.textBaseline = "top";
+
+    if (queens) {
+      const wash = ctx.createLinearGradient(0, 0, 0, height);
+      wash.addColorStop(0, "#140E24");
+      wash.addColorStop(0.55, "#2A1744");
+      wash.addColorStop(1, "#160E28");
+      ctx.fillStyle = wash;
+      ctx.fillRect(0, 0, width, height);
+      const glow = ctx.createRadialGradient(width / 2, 40, 20, width / 2, 40, 480);
+      glow.addColorStop(0, "rgba(212,176,106,0.34)");
+      glow.addColorStop(1, "rgba(212,176,106,0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, width, 560);
+      ctx.fillStyle = "#FFF6D8";
+      for (let i = 0; i < 72; i += 1) {
+        const x = ((i * 97) % 1000) + 40;
+        const y = ((i * 193) % (height - 100)) + 40;
+        ctx.globalAlpha = 0.4 + (i % 5) * 0.1;
+        ctx.beginPath();
+        ctx.arc(x, y, (i % 3) + 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.fillStyle = "#F6F3ED";
+      ctx.fillRect(0, 0, width, height);
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      const leftWash = ctx.createLinearGradient(0, height * 0.4, 0, height);
+      leftWash.addColorStop(0, "rgba(246,243,237,0)");
+      leftWash.addColorStop(1, WASH[mine.type] || "#DDE7DE");
+      ctx.fillStyle = leftWash;
+      ctx.fillRect(0, height * 0.4, width / 2, height * 0.6);
+      const rightWash = ctx.createLinearGradient(0, height * 0.4, 0, height);
+      rightWash.addColorStop(0, "rgba(246,243,237,0)");
+      rightWash.addColorStop(1, WASH[partner.type] || "#DDE7DE");
+      ctx.fillStyle = rightWash;
+      ctx.fillRect(width / 2, height * 0.4, width / 2, height * 0.6);
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = 0.045;
+      ctx.strokeStyle = "#193A35";
+      ctx.lineWidth = 2;
+      for (let x = -height; x < width; x += 22) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x + height, height);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    ctx.strokeStyle = queens ? "#C4A15A" : "#193A35";
+    ctx.lineWidth = 8;
+    roundRect(ctx, 28, 28, width - 56, height - 56, 40);
+    ctx.stroke();
+    ctx.strokeStyle = queens ? "#E8D5A3" : "#193A35";
+    ctx.lineWidth = 2;
+    roundRect(ctx, 48, 48, width - 96, height - 96, 28);
+    ctx.stroke();
+    ctx.fillStyle = queens ? "#E4C77A" : "#F08A6E";
+    for (const [x, y] of [[64, 64], [width - 64, 64], [64, height - 64], [width - 64, height - 64]]) {
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const ink = queens ? "#F6F3ED" : "#193A35";
+    const moss = queens ? "#E7D7B0" : "#62716A";
+    ctx.font = `700 40px ${FONT}`;
+    ctx.fillStyle = moss;
+    const title = ui.duoTitle;
+    ctx.fillText(title, Math.round((width - ctx.measureText(title).width) / 2), 74);
+
+    const columns = [100, width - 100 - colW];
+    people.forEach((person, index) => {
+      const x = columns[index];
+      const stroke = rareStroke(person.resolved.type);
+      if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 5;
+        roundRect(ctx, x - 12, artTop - 16, colW + 24, textTop + metaH + 16 - (artTop - 16), 28);
+        ctx.stroke();
+      }
+      const img = readyImage(`duo-${person.slot}`, portraitSrc(person.resolved.type));
+      if (img) {
+        let drawH = artH - 20;
+        let drawW = (img.naturalWidth / img.naturalHeight) * drawH;
+        const maxW = colW - 20;
+        if (drawW > maxW) {
+          drawW = maxW;
+          drawH = drawW * (img.naturalHeight / img.naturalWidth);
+        }
+        const dx = x + (colW - drawW) / 2;
+        const dy = artTop + artH - drawH;
+        ctx.save();
+        ctx.fillStyle = queens ? "rgba(246,243,237,0.16)" : "rgba(25,58,53,0.08)";
+        ctx.beginPath();
+        ctx.ellipse(x + colW / 2, artTop + artH - 4, Math.max(54, drawW * 0.4), 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        ctx.save();
+        if (img.classList.contains("face-in")) {
+          ctx.translate(dx + drawW, dy);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, 0, 0, drawW, drawH);
+        } else ctx.drawImage(img, dx, dy, drawW, drawH);
+        ctx.restore();
+      }
+      let y = textTop;
+      const mid = x + colW / 2;
+      const centerAt = (line, font, color) => {
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.fillText(line, Math.round(mid - ctx.measureText(line).width / 2), y);
+      };
+      person.nameLines.forEach((line) => {
+        centerAt(line, `700 42px ${FONT}`, ink);
+        y += 50;
+      });
+      person.otherLines.forEach((line) => {
+        centerAt(line, `600 28px ${FONT}`, moss);
+        y += 36;
+      });
+      person.roleLines.forEach((line) => {
+        centerAt(line, `700 30px ${FONT}`, ink);
+        y += 40;
+      });
+      if (person.rare) {
+        y += 6;
+        ctx.font = `700 26px ${FONT}`;
+        const badge = ui.rare;
+        const badgeW = ctx.measureText(badge).width + 36;
+        const badgeX = Math.round(mid - badgeW / 2);
+        ctx.fillStyle = "#F08A6E";
+        roundRect(ctx, badgeX, y, badgeW, 40, 20);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#193A35";
+        ctx.stroke();
+        ctx.fillStyle = "#142C29";
+        ctx.fillText(badge, badgeX + 18, y + 7);
+      }
+    });
+
+    let y = bubbleTop;
+    bubbles.forEach((bubble) => {
+      const x = bubble.side === "left" ? 92 : width - 92 - bubble.bubbleW;
+      ctx.fillStyle = "rgba(255,255,255,0.94)";
+      ctx.strokeStyle = queens ? "#C4A15A" : "#193A35";
+      ctx.lineWidth = 3;
+      roundRect(ctx, x, y, bubble.bubbleW, bubble.h, 22);
+      ctx.fill();
+      ctx.stroke();
+      ctx.font = `700 26px ${FONT}`;
+      ctx.fillStyle = "#8A6A2B";
+      const speakerW = ctx.measureText(bubble.speaker).width;
+      const speakerX = bubble.side === "left" ? x + 24 : x + bubble.bubbleW - 24 - speakerW;
+      ctx.fillText(bubble.speaker, speakerX, y + 16);
+      ctx.font = `500 32px ${FONT}`;
+      ctx.fillStyle = "#193A35";
+      let lineY = y + 52;
+      bubble.textLines.forEach((line) => {
+        const lineW = ctx.measureText(line).width;
+        const lineX = bubble.side === "left" ? x + 24 : x + bubble.bubbleW - 24 - lineW;
+        ctx.fillText(line, lineX, lineY);
+        lineY += 44;
+      });
+      y += bubble.h + 16;
+    });
+
+    let foot = height - 96 - boundaryH;
+    ctx.strokeStyle = queens ? "rgba(246,243,237,0.45)" : "rgba(25,58,53,0.35)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.moveTo(88, foot - 20);
+    ctx.lineTo(width - 88, foot - 20);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    boundaryLines.forEach((line) => {
+      ctx.font = `700 ${BOUNDARY}px ${FONT}`;
+      ctx.fillStyle = ink;
+      ctx.fillText(line, 88, foot);
+      foot += BOUNDARY + 8;
+    });
+
+    try {
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = `teammate-${state.code}-with-${state.withCode}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      $("status").textContent = ui.downloadFail;
+    }
+  }
+
   document.querySelectorAll("[data-set-lang]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.dataset.setLang === state.lang) return;
@@ -1379,6 +1728,7 @@ function boot() {
   $("copy-link").addEventListener("click", copyLink);
   $("share-btn").addEventListener("click", shareNative);
   $("download").addEventListener("click", downloadCard);
+  $("duo-download").addEventListener("click", downloadDuo);
   if (!navigator.share) $("share-btn").hidden = true;
 
   preloadEmblems();

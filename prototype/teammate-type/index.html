@@ -84,7 +84,7 @@
       font-weight: 700;
       line-height: 1.45;
     }
-    h1, h2 {
+    h1, h2, .duo-card h3 {
       margin: 0;
       font-weight: 600;
       letter-spacing: -0.03em;
@@ -303,31 +303,136 @@
       color: var(--ink);
     }
     .duo-stage {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
       margin-top: 16px;
-      padding: 12px;
+      padding: 16px 12px 14px;
+      border: 2px solid var(--ink);
+      border-radius: 28px;
+      background: linear-gradient(165deg, #f6f3ed, #e7eee8);
+    }
+    .duo-card { min-width: 0; }
+    .duo-card h3 { font-size: clamp(1.35rem, 4.6vw, 1.75rem); }
+    .duo-card .stage { width: min(200px, 100%); height: 168px; }
+    .duo-card .stage img {
+      width: auto;
+      max-width: 100%;
+      max-height: 148px;
+      height: auto;
+      margin: 10px auto 0;
+      aspect-ratio: auto;
+      object-fit: contain;
+    }
+    .duo-card .stage.with-queen { width: min(168px, 100%); height: 248px; }
+    .duo-card .stage.with-queen img { max-height: 236px; }
+    .duo-card .stage.with-horse { width: min(240px, 100%); height: 176px; }
+    .duo-card .stage.with-horse img { width: min(228px, 100%); max-height: 168px; }
+    .duo-card .stage img.face-in { transform: scaleX(-1); }
+    .duo-card.rare-galaxy { border-color: #C4A15A; box-shadow: 0 0 0 4px #C4A15A, 5px 5px 0 var(--ink); }
+    .duo-card.rare-andromeda { border-color: #D4B06A; box-shadow: 0 0 0 4px #D4B06A, 5px 5px 0 var(--ink); }
+    .duo-card.rare-designer { border-color: #6E8B74; box-shadow: 0 0 0 4px #6E8B74, 5px 5px 0 var(--ink); }
+    .duo-tag { margin: 8px 0 0; color: var(--brass); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; }
+    .duo-bubbles {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+    .duo-line {
+      margin: 0;
+      max-width: 100%;
+      padding: 10px 12px;
+      overflow-wrap: anywhere;
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--ink);
       border: 2px solid var(--ink);
       border-radius: 18px;
-      background: var(--white);
+      box-shadow: 3px 3px 0 rgba(25, 58, 53, 0.12);
     }
-    .duo-person { min-width: 0; text-align: center; }
-    .duo-person img {
-      display: block;
-      width: 100%;
-      height: 200px;
-      object-fit: contain;
-      object-position: center bottom;
-    }
-    .duo-person img.face-in { transform: scaleX(-1); }
-    .duo-tag, .duo-name, .duo-line { margin: 0; overflow-wrap: anywhere; }
-    .duo-tag { margin-top: 6px; color: var(--moss); font-size: 12px; font-weight: 700; }
-    .duo-name { font-weight: 700; }
-    .duo-lines { grid-column: 1 / -1; display: grid; gap: 12px; margin-top: 8px; }
-    .duo-speaker { display: block; color: var(--brass); font-size: 13px; font-weight: 700; }
+    .duo-line.from-left { align-self: flex-start; margin-right: 18px; border-bottom-left-radius: 5px; }
+    .duo-line.from-right { align-self: flex-end; margin-left: 18px; border-bottom-right-radius: 5px; text-align: right; }
+    .duo-speaker { display: block; color: var(--brass); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; }
     .duo-text { display: block; margin-top: 2px; }
-    #duo-boundary { grid-column: 1 / -1; }
+    .duo-stage.theme-queens {
+      border-color: #C4A15A;
+      background-color: #1a102c;
+      background-image:
+        radial-gradient(1.4px 1.4px at 8% 14%, #fff6d8 50%, transparent 52%),
+        radial-gradient(1.2px 1.2px at 18% 62%, rgba(255, 246, 216, 0.8) 50%, transparent 52%),
+        radial-gradient(1.6px 1.6px at 32% 28%, #fff 50%, transparent 52%),
+        radial-gradient(1px 1px at 44% 78%, rgba(255, 220, 160, 0.85) 50%, transparent 52%),
+        radial-gradient(1.3px 1.3px at 57% 18%, #fff6d8 50%, transparent 52%),
+        radial-gradient(1.1px 1.1px at 70% 46%, rgba(255, 255, 255, 0.75) 50%, transparent 52%),
+        radial-gradient(1.5px 1.5px at 82% 22%, #ffe7a8 50%, transparent 52%),
+        radial-gradient(1px 1px at 90% 68%, rgba(255, 246, 216, 0.7) 50%, transparent 52%),
+        radial-gradient(1.2px 1.2px at 24% 88%, rgba(255, 255, 255, 0.65) 50%, transparent 52%),
+        radial-gradient(1.4px 1.4px at 63% 90%, #ffe7a8 50%, transparent 52%),
+        radial-gradient(ellipse at 50% -10%, rgba(212, 176, 106, 0.38), transparent 46%),
+        radial-gradient(ellipse at 100% 100%, rgba(120, 80, 180, 0.45), transparent 42%),
+        linear-gradient(165deg, #140e24 0%, #2a1744 46%, #1b1030 100%);
+      box-shadow: 0 16px 40px rgba(28, 14, 48, 0.25);
+    }
+    .duo-stage.theme-queens .duo-line { border-color: #C4A15A; box-shadow: 3px 3px 0 rgba(196, 161, 90, 0.35); }
+    .duo-stage.theme-queens #duo-boundary { color: #F6F3ED; border-top-color: rgba(246, 227, 176, 0.45); }
+    .duo-stage.theme-royal {
+      border-color: #C4A15A;
+      background:
+        radial-gradient(circle at 88% 0%, rgba(212, 176, 106, 0.42), transparent 42%),
+        linear-gradient(160deg, #ebe3f6, #f6f3ed 62%);
+    }
+    .duo-stage.theme-alliance {
+      background:
+        radial-gradient(circle at 8% 100%, rgba(196, 176, 230, 0.55), transparent 46%),
+        linear-gradient(160deg, #ece6f8, #f6f3ed 70%);
+    }
+    .duo-stage.theme-cocoa {
+      background: linear-gradient(160deg, #f8e4dc, #f6f3ed 68%);
+    }
+    #duo-download { align-self: center; }
+    @keyframes duo-enter-left {
+      from { opacity: 0; transform: translate3d(-36px, 12px, 0); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes duo-enter-right {
+      from { opacity: 0; transform: translate3d(36px, 12px, 0); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes duo-enter-bubble {
+      from { opacity: 0; transform: translate3d(0, 14px, 0); }
+      to { opacity: 1; transform: none; }
+    }
+    .duo-stage.is-open .duo-card-left { animation: duo-enter-left 700ms cubic-bezier(.16, .84, .32, 1) both; }
+    .duo-stage.is-open .duo-card-right { animation: duo-enter-right 700ms cubic-bezier(.16, .84, .32, 1) 90ms both; }
+    .duo-stage.is-open .duo-line { animation: duo-enter-bubble 520ms cubic-bezier(.16, .84, .32, 1) both; }
+    .duo-stage.is-open .duo-line:nth-child(1) { animation-delay: 180ms; }
+    .duo-stage.is-open .duo-line:nth-child(2) { animation-delay: 280ms; }
+    .duo-stage.is-open .duo-line:nth-child(3) { animation-delay: 380ms; }
+    .duo-stage.is-open .duo-line:nth-child(4) { animation-delay: 480ms; }
+    @media (max-width: 859px) {
+      .duo-stage { gap: 0; }
+      .duo-bubbles { position: relative; z-index: 2; margin: 8px 0 0; }
+      .duo-card-right { position: relative; z-index: 1; margin-top: -14px; }
+    }
+    @media (min-width: 860px) {
+      .page.duo-open { width: min(1120px, calc(100% - 48px)); }
+      .duo-stage {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(190px, 250px) minmax(0, 1fr);
+        grid-template-areas:
+          "left mid right"
+          "foot foot foot"
+          "save save save";
+        align-items: stretch;
+        gap: 18px 16px;
+      }
+      .duo-card-left { grid-area: left; }
+      .duo-bubbles { grid-area: mid; align-self: center; }
+      .duo-card-right { grid-area: right; margin-top: 0; }
+      #duo-boundary { grid-area: foot; }
+      #duo-download { grid-area: save; justify-self: center; }
+    }
     .foot { margin-top: 36px; padding-top: 4px; }
     .back { display: inline-block; margin-top: 14px; color: var(--ink); font-weight: 700; }
     [hidden] { display: none !important; }
@@ -393,19 +498,36 @@
           <button type="button" class="primary" id="duo-open"></button>
         </div>
         <p class="status" id="duo-status" role="status"></p>
-        <div id="duo-stage" hidden>
-          <div class="duo-person">
-            <img id="duo-left" alt="" />
+        <div class="duo-stage" id="duo-stage" hidden>
+          <article class="card duo-card duo-card-left" id="duo-card-left">
+            <p class="card-kicker" id="duo-left-kicker"></p>
+            <div class="stage" id="duo-left-stage">
+              <img id="duo-left" alt="" />
+            </div>
+            <h3 id="duo-left-name" tabindex="-1"></h3>
+            <p class="other-name" id="duo-left-other"></p>
+            <p class="role" id="duo-left-role"></p>
+            <p class="rare" id="duo-left-rare" hidden></p>
             <p class="duo-tag" id="duo-left-tag"></p>
-            <p class="duo-name" id="duo-left-name"></p>
-          </div>
-          <div class="duo-person">
-            <img id="duo-right" alt="" />
+            <div class="lines" id="duo-left-lines"></div>
+            <p class="picks" id="duo-left-picks"></p>
+          </article>
+          <div class="duo-bubbles" id="duo-lines"></div>
+          <article class="card duo-card duo-card-right" id="duo-card-right">
+            <p class="card-kicker" id="duo-right-kicker"></p>
+            <div class="stage" id="duo-right-stage">
+              <img id="duo-right" alt="" />
+            </div>
+            <h3 id="duo-right-name" tabindex="-1"></h3>
+            <p class="other-name" id="duo-right-other"></p>
+            <p class="role" id="duo-right-role"></p>
+            <p class="rare" id="duo-right-rare" hidden></p>
             <p class="duo-tag" id="duo-right-tag"></p>
-            <p class="duo-name" id="duo-right-name"></p>
-          </div>
-          <div class="duo-lines" id="duo-lines"></div>
+            <div class="lines" id="duo-right-lines"></div>
+            <p class="picks" id="duo-right-picks"></p>
+          </article>
           <p class="card-boundary" id="duo-boundary"></p>
+          <button type="button" class="primary ghost" id="duo-download"></button>
         </div>
       </section>
       <div class="actions">
