@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>AI agent 聽得懂你的暗號嗎？ — Paul's Tradecraft</title>
+  <meta name="description" content="「隨便」「都可以」「再說吧」，人一聽就懂的話，AI agent 會怎麼讀？示意玩具，不是心理測驗。同一句話，永遠是同一個結果。" />
+  <link rel="canonical" href="https://paulstradecraft.com/prototype/code-words/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Paul's Tradecraft" />
+  <meta property="og:title" content="AI agent 聽得懂你的暗號嗎？ · Can an AI agent read your code words?" />
+  <meta property="og:description" content="示意玩具，不是心理測驗。選一句含糊的話，看三位 agent 各自怎麼讀。" />
+  <meta property="og:url" content="https://paulstradecraft.com/prototype/code-words/" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <style>
+    :root {
+      --bone: #F6F3ED;
+      --paper: #DDE7DE;
+      --white: #ffffff;
+      --ink: #193A35;
+      --pine: #142C29;
+      --moss: #62716A;
+      --brass: #8A6A2B;
+      --pop: #F08A6E;
+      --line: #D4DAD1;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bone);
+      color: var(--ink);
+      font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "WenQuanYi Micro Hei", "Droid Sans Fallback", ui-sans-serif, system-ui, sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, a, input { font: inherit; }
+    :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+    .skip {
+      position: absolute; left: 12px; top: 12px; transform: translateY(-160%);
+      background: var(--white); color: var(--ink); padding: 8px 12px; border-radius: 8px;
+      font-weight: 700; text-decoration: none;
+    }
+    .skip:focus { transform: none; }
+    .page { width: min(720px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 72px; }
+    .top, .actions, .lang { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+    .top { justify-content: space-between; }
+    .eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; }
+    .lang button, .text-btn, .chip, .primary { min-height: 44px; border-radius: 999px; cursor: pointer; }
+    .lang button {
+      min-width: 44px; padding: 6px 12px; background: transparent; color: var(--ink);
+      border: 2px solid var(--ink); font-weight: 700;
+    }
+    .lang button[aria-pressed="true"] { background: var(--pine); color: var(--bone); border-color: var(--pine); }
+    .boundary {
+      margin: 18px 0 0; padding: 8px 12px; border: 2px dashed rgba(25, 58, 53, 0.35);
+      border-radius: 12px; font-size: 14px; font-weight: 700; line-height: 1.45;
+    }
+    h1, h2 { margin: 0; font-weight: 600; letter-spacing: -0.03em; line-height: 1.2; overflow-wrap: anywhere; }
+    h1 { margin-top: 18px; max-width: 16em; font-size: clamp(1.75rem, 7vw, 2.75rem); }
+    h1:focus, h2:focus { outline: none; }
+    h2 { font-size: clamp(1.35rem, 4.5vw, 1.85rem); }
+    .lede, .hint, .ctx { margin: 14px 0 0; max-width: 40em; overflow-wrap: anywhere; }
+    .hint, .ctx { color: var(--moss); }
+    .progress { margin: 28px 0 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; }
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .chip {
+      padding: 8px 18px; background: var(--white); color: var(--ink);
+      border: 2.5px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); font-weight: 700;
+    }
+    .chip:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+    .chip[aria-pressed="true"] { background: var(--pop); color: var(--pine); }
+    .own { display: block; margin-top: 18px; font-size: 14px; font-weight: 700; color: var(--moss); }
+    .own input {
+      display: block; width: 100%; min-height: 48px; margin-top: 6px; padding: 8px 16px;
+      background: var(--white); color: var(--ink); border: 2.5px solid var(--ink); border-radius: 1rem;
+    }
+    .text-btn {
+      margin-top: 16px; padding: 8px 16px; background: transparent; color: var(--ink);
+      border: 2px solid var(--ink); font-weight: 700;
+    }
+    .text-btn:hover, .primary.ghost:hover { background: var(--paper); }
+    .primary {
+      margin-top: 22px; padding: 10px 20px; background: var(--pine); color: var(--bone);
+      border: 2px solid var(--ink); font-weight: 700;
+    }
+    .actions .primary { margin-top: 0; }
+    .primary:hover { filter: brightness(1.12); }
+    .primary.ghost { background: var(--white); color: var(--ink); }
+    .primary.ghost:hover { filter: none; }
+    .primary[disabled] { opacity: 0.4; cursor: not-allowed; }
+    .said {
+      margin: 18px 0 0; padding: 14px 16px; background: var(--white); border: 2.5px solid var(--ink);
+      border-radius: 1.25rem; box-shadow: 4px 4px 0 var(--ink);
+    }
+    .said .ctx { margin: 0; }
+    .said .phrase { margin: 4px 0 0; font-size: clamp(1.6rem, 6vw, 2.15rem); font-weight: 700; letter-spacing: -0.02em; }
+    .agents { display: grid; gap: 14px; margin-top: 20px; }
+    .agent {
+      display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: start; min-width: 0;
+      padding: 14px 16px; background: var(--white); border: 2.5px solid var(--ink);
+      border-radius: 1.25rem; box-shadow: 4px 4px 0 var(--ink);
+      animation: pop-in 360ms ease-out both;
+    }
+    .agent:nth-child(2) { animation-delay: 140ms; }
+    .agent:nth-child(3) { animation-delay: 280ms; }
+    .face { width: 72px; height: 72px; }
+    .face svg { display: block; width: 100%; height: 100%; }
+    .who { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: var(--brass); }
+    .reads { margin: 2px 0 0; overflow-wrap: anywhere; }
+    @keyframes pop-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .card {
+      min-width: 0; padding: 22px 18px 18px; background: var(--white); border: 2.5px solid var(--ink);
+      border-radius: 1.25rem; box-shadow: 5px 5px 0 var(--ink);
+    }
+    .card-kicker { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; }
+    .faces { display: flex; justify-content: center; gap: 10px; margin-top: 12px; }
+    .faces .face { width: 64px; height: 64px; }
+    #card-phrase { margin-top: 12px; text-align: center; font-size: clamp(1.9rem, 8vw, 2.6rem); }
+    .card .ctx { text-align: center; margin-left: auto; margin-right: auto; }
+    .lines { display: grid; gap: 14px; margin-top: 18px; }
+    .line-label { margin: 0; color: var(--brass); font-size: 13px; font-weight: 700; letter-spacing: 0.04em; }
+    .line-body { margin: 4px 0 0; overflow-wrap: anywhere; }
+    .line-key .line-body { font-weight: 700; }
+    .line-key .mark {
+      background-image: linear-gradient(transparent 58%, var(--pop) 58%, var(--pop) 92%, transparent 92%);
+      -webkit-box-decoration-break: clone; box-decoration-break: clone;
+    }
+    #result { margin-top: 28px; }
+    .card-boundary {
+      margin: 16px 0 0; padding-top: 12px; border-top: 2px dashed rgba(25, 58, 53, 0.35);
+      color: var(--moss); font-size: 13px; font-weight: 700; overflow-wrap: anywhere;
+    }
+    .actions { margin-top: 16px; }
+    .status { min-height: 1.4em; margin: 10px 0 0; font-weight: 700; }
+    .foot { margin-top: 36px; padding-top: 4px; }
+    .back { display: inline-block; margin-top: 14px; color: var(--ink); font-weight: 700; }
+    [hidden] { display: none !important; }
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+      .chip:hover { transform: none; }
+    }
+    @media (max-width: 420px) {
+      .page { width: calc(100% - 28px); }
+      .agent { grid-template-columns: 56px 1fr; gap: 12px; }
+      .face { width: 56px; height: 56px; }
+      .faces .face { width: 56px; height: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" id="skip" href="#main">跳至內容</a>
+  <main class="page" id="main">
+    <div class="top">
+      <p class="eyebrow" id="eyebrow">Digital Garage · 輕科技玩具</p>
+      <div class="lang" id="lang-group" role="group" aria-label="語言">
+        <button type="button" data-set-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <p class="boundary" id="boundary"></p>
+    <h1 id="title" tabindex="-1"></h1>
+    <p class="lede" id="lede"></p>
+    <p class="hint" id="hint"></p>
+
+    <section id="pick" aria-labelledby="pick-title">
+      <p class="progress" id="progress-pick"></p>
+      <h2 id="pick-title" tabindex="-1"></h2>
+      <div class="chips" id="chips" role="group" aria-labelledby="pick-title"></div>
+      <label class="own" id="own-label" for="own"><span id="own-text"></span>
+        <input id="own" type="text" maxlength="12" autocomplete="off" />
+      </label>
+      <button type="button" class="primary" id="read" disabled></button>
+    </section>
+
+    <section id="reading" hidden aria-labelledby="reading-title">
+      <p class="progress" id="progress-reading"></p>
+      <h2 id="reading-title" tabindex="-1"></h2>
+      <div class="said"><p class="ctx" id="said-ctx"></p><p class="phrase" id="said-phrase"></p></div>
+      <div class="agents" id="agents"></div>
+      <button type="button" class="primary" id="make"></button>
+      <br />
+      <button type="button" class="text-btn" id="back-pick"></button>
+    </section>
+
+    <section id="result" hidden aria-labelledby="card-phrase">
+      <article class="card" id="card">
+        <p class="card-kicker" id="card-kicker"></p>
+        <div class="faces" id="faces" aria-hidden="true"></div>
+        <h2 id="card-phrase" tabindex="-1"></h2>
+        <p class="ctx" id="card-ctx"></p>
+        <div class="lines" id="lines"></div>
+        <p class="card-boundary" id="card-boundary"></p>
+      </article>
+      <div class="actions">
+        <button type="button" class="primary" id="download"></button>
+        <button type="button" class="primary ghost" id="again"></button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <footer class="foot">
+      <a class="back" id="back" href="/#garage"></a>
+    </footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
