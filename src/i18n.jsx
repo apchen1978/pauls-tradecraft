@@ -476,6 +476,15 @@ const dict = {
           href: "https://apchen1978.github.io/signal-rift-typing-demo/wordforge.html",
         },
         {
+          title: "第二供應商，第一張單在哪裡？",
+          tag: "輕課件 · 雙語示範",
+          spark: "買家說要找第二供應商。從被列入備選到第一張單，還有什麼沒問清楚？",
+          note: "讀一則虛構買家訊息，選一句先問的話，再換成自己的產品試一次。",
+          cta: "試一段輕課",
+          boundary: "示範／成效未驗證。合成情境與預寫回饋，不代表買家會下單。",
+          href: "/prototype/second-source-light-lesson/",
+        },
+        {
           title: "The Witness Tag · 見證標籤",
           tag: "示範實驗 · 中文原型",
           spark: "一句話經過三次轉述，最後聽起來竟像公司已經答應了。",
@@ -1160,6 +1169,15 @@ const dict = {
           cta: "Play WordForge",
           boundary: "A playable game, not a validated learning-outcome claim.",
           href: "https://apchen1978.github.io/signal-rift-typing-demo/wordforge.html",
+        },
+        {
+          title: "A Second Supplier. Where Is the First Order?",
+          tag: "Short lesson · bilingual demo",
+          spark: "The buyer asks about a second supplier. What remains unclear between a backup listing and a first order?",
+          note: "Read a fictional buyer message, choose one question to ask first, then try the same thinking with your own product.",
+          cta: "Try the short lesson",
+          boundary: "Demo / outcomes not validated. Synthetic scenario and prewritten feedback; no purchase is implied.",
+          href: "/prototype/second-source-light-lesson/",
         },
         {
           title: "The Witness Tag · 見證標籤",
