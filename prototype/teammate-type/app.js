@@ -27,18 +27,30 @@
 //      queen and designer appear once and can win the tie-break, then a
 //      rarity gate keeps them only when the other two choice indexes have
 //      the same parity (both even or both odd). Otherwise that win passes
-//      to the next scenario's choice. FAE stays queen; AFC stays designer.
+//      to the next scenario's choice. The queen slot then splits on the
+//      middle letter: even index (A/C/E) is 銀河之女, odd (B/D/F) is
+//      M-31仙女座. FAE is 銀河之女; FBD is M-31仙女座. Three codes each.
+//      AFC stays designer.
 //      A three-way tie that uses E or F, and did not keep queen or designer,
 //      becomes 聯盟 / Alliance when the choice-index sum mod 7 is 1
 //      (EEA → alliance). That gate never sees a pure A–D code, so all 64
-//      old codes stay put. Across 216 codes the counts are
+//      old codes stay put. Before the next gate the counts were
 //      umbrella 24, cocoa 23, finisher 22, spark 24, mapkeeper 24,
 //      soundtrack 23, strategist 22, messenger 21, alliance 21,
 //      queen 6, designer 6.
+//      A later gate, still only on codes that use E or F and did not
+//      keep queen, designer, or alliance, turns the result into
+//      傳教士 / Missionary when the choice-index sum mod 9 is 0
+//      (AFE → missionary) and 使徒 / Apostle when that sum mod 9 is 7
+//      (ACF → apostle). Pure A–D codes never reach it. The two queens
+//      stay at 3 each, and designer stays at 6. Across 216 codes the counts are
+//      umbrella 19, cocoa 20, finisher 19, spark 20, mapkeeper 18,
+//      soundtrack 19, strategist 18, messenger 18, alliance 21,
+//      missionary 16, apostle 16, galaxy 3, andromeda 3, designer 6.
 //      守護者 always uses MG. 聯盟 uses the winged horse in
 //      assets/winged-horse.webp (the same horse drawing as the live card).
-//      The other nine roles use their anime portraits
-//      (assets/<role>.webp, queen.webp for 女王) instead of MG.
+//      The other roles use their anime portraits
+//      (assets/<role>.webp) instead of MG. Crowns are only on the two queens.
 //      Each picture is loaded only when that card is shown.
 //
 // Worked examples:
@@ -165,7 +177,7 @@ export const TYPES = {
     prop: "spark",
     zh: {
       name: "腦內煙火師",
-      role: "法師",
+      role: "點子",
       funny: "你的點子一半是天才，另一半天才到大家聽不懂。",
       gentle: "你讓大家看見另一條路。",
       literary: "「別人看到牆，我看到一扇還沒畫上的窗。」",
@@ -174,7 +186,7 @@ export const TYPES = {
     },
     en: {
       name: "The Spark",
-      role: "Mage",
+      role: "Ideas",
       funny: "Half your ideas are genius; the other half are so genius nobody understands them.",
       gentle: "You show everyone there's another way.",
       literary: "\"Others see a wall. I see a window nobody has drawn yet.\"",
@@ -270,26 +282,48 @@ export const TYPES = {
       alt: "A person with very short dark hair and blue-grey eyes, mid-stride and waving, with a coral sash",
     },
   },
-  queen: {
+  galaxy: {
     pose: "idle",
     prop: "crown",
     zh: {
-      name: "今晚聽我的",
+      name: "銀河之女",
       role: "女王",
-      funny: "你一開口，連在滑手機的人都坐好了。",
-      gentle: "你把調子定下來，大家就知道往哪靠。",
-      literary: "「不是命令，是這場需要一個調子。」",
-      strength: "定調，讓大家圍過來。",
-      alt: "戴著皇冠、長髮與長裙的女王",
+      funny: "你一站出來，滑手機的人都把臉抬起來了。",
+      gentle: "你把這場的中心放得很輕，人卻願意靠過來。",
+      literary: "「不是大聲，是這一圈終於有了中心。」",
+      strength: "定得住場，也讓人想站到你旁邊。",
+      alt: "黑長直髮、深棕眼睛、戴細金冠、穿午夜藍長裙的人",
     },
     en: {
-      name: "Tonight, Follow Me",
+      name: "Daughter of the Galaxy",
       role: "Queen",
-      funny: "You start talking, and even the person scrolling sits up.",
-      gentle: "You set the tone, and everyone knows where to gather.",
-      literary: "\"Not an order. The scene just needed a tone.\"",
-      strength: "Sets the tone so people rally around it.",
-      alt: "A queen in a crown, with long hair and a flowing gown",
+      funny: "You step out, and even the person scrolling looks up.",
+      gentle: "You set the center of the room so lightly that people still come closer.",
+      literary: "\"Not louder. This circle finally has a center.\"",
+      strength: "Holds the room, and makes people want to stand beside you.",
+      alt: "A black-haired woman with dark brown eyes, a slim gold crown, and a floor-length midnight gown",
+    },
+  },
+  andromeda: {
+    pose: "wave",
+    prop: "crown",
+    zh: {
+      name: "M-31仙女座",
+      role: "女王",
+      funny: "你一笑，原本各做各的人都轉過來了。",
+      gentle: "你站在前面，大家就有了一個可以跟上的亮度。",
+      literary: "「不是搶位置，是這場本來就缺一道光。」",
+      strength: "把場面點亮，也讓人跟得上。",
+      alt: "金長髮、藍眼睛、戴寬金冠、穿香檳色長裙、面向右側的人",
+    },
+    en: {
+      name: "M-31 Andromeda",
+      role: "Queen",
+      funny: "You smile, and people who were each doing their own thing turn around.",
+      gentle: "With you in front, everyone has a brightness they can follow.",
+      literary: "\"Not taking the spot. The room was missing a light.\"",
+      strength: "Lights the scene, and gives people something to follow.",
+      alt: "A blonde woman with blue eyes, a wide gold crown, and a floor-length champagne gown, facing right",
     },
   },
   designer: {
@@ -334,6 +368,50 @@ export const TYPES = {
       literary: "\"Not just one arrival. The whole line behind them, too.\"",
       strength: "Can call companions in, and make room when they arrive.",
       alt: "A winged white horse",
+    },
+  },
+  missionary: {
+    pose: "wave",
+    prop: "card",
+    zh: {
+      name: "這件事值得說",
+      role: "傳教士",
+      funny: "你講到第三遍，連在滑手機的人都開始點頭。",
+      gentle: "你在意的那件事，會變成大家願意一起試的事。",
+      literary: "「不是說服，是把一個想法轉到別人看得到的角度。」",
+      strength: "把一件事講清楚，也講得讓人想靠近。",
+      alt: "黑色捲髮、藍綠眼睛、穿赤陶色長外套、面向右側拿著空白卡片的人",
+    },
+    en: {
+      name: "Worth Saying Out Loud",
+      role: "Missionary",
+      funny: "By the third time you say it, even the person scrolling has started to nod.",
+      gentle: "The thing you care about becomes something the team is willing to try.",
+      literary: "\"Not a speech. You turn an idea until someone else can see it.\"",
+      strength: "Can say a thing plainly, and make people want to come closer.",
+      alt: "A person with short black coils and teal eyes, in a terracotta coat, facing right with a blank card",
+    },
+  },
+  apostle: {
+    pose: "idle",
+    prop: "bundle",
+    zh: {
+      name: "我接著走",
+      role: "使徒",
+      funny: "大家還沒講完，你已經把那句話收進自己的做法裡。",
+      gentle: "你把大家認定的事，一步一步做成。",
+      literary: "「不是我起的頭，是我願意把它走到下一個路口。」",
+      strength: "認同一件事之後，就真的跟著做完。",
+      alt: "灰棕短髮、深灰眼睛、穿藏青外套、往左走並捧著布包的人",
+    },
+    en: {
+      name: "I'll Carry It On",
+      role: "Apostle",
+      funny: "The sentence isn't even finished, and you've already folded it into how you work.",
+      gentle: "You take what the team has settled on, and you actually do it.",
+      literary: "\"I didn't start it. I'm willing to walk it to the next corner.\"",
+      strength: "Once an idea is yours, you carry it all the way through.",
+      alt: "A person with cropped ash-brown hair and dark grey eyes, in a navy jacket, walking left with a plain cloth bundle",
     },
   },
 };
@@ -496,6 +574,13 @@ export function resolveChoices(code) {
   if (usesNewLetter && type !== "queen" && type !== "designer" && sum % 7 === 1) {
     return { code, type: "alliance", tie: true };
   }
+  if (usesNewLetter && type !== "queen" && type !== "designer" && sum % 9 === 0) {
+    return { code, type: "missionary", tie: true };
+  }
+  if (usesNewLetter && type !== "queen" && type !== "designer" && sum % 9 === 7) {
+    return { code, type: "apostle", tie: true };
+  }
+  if (type === "queen") type = indexes[1] % 2 === 0 ? "galaxy" : "andromeda";
   return { code, type, tie: true };
 }
 
@@ -535,6 +620,8 @@ const PROPS = {
   note: `<rect x="8" y="16" width="48" height="32" rx="3" fill="#F6F3ED" stroke="#193A35" stroke-width="2.5"/><path d="M8 16l24 18L56 16" fill="none" stroke="#F08A6E" stroke-width="2.5"/>`,
   crown: `<path d="M10 44l6-22 10 12 6-18 6 18 10-12 6 22z" fill="#F08A6E" stroke="#193A35" stroke-width="2.5" stroke-linejoin="round"/><rect x="12" y="44" width="40" height="8" rx="2" fill="#8A6A2B" stroke="#193A35" stroke-width="2"/>`,
   palette: `<ellipse cx="30" cy="34" rx="20" ry="15" fill="#F6F3ED" stroke="#193A35" stroke-width="2.5"/><circle cx="20" cy="30" r="4" fill="#F08A6E"/><circle cx="32" cy="26" r="4" fill="#8A6A2B"/><circle cx="40" cy="34" r="4" fill="#193A35"/><circle cx="28" cy="40" r="3.5" fill="#DDE7DE" stroke="#193A35" stroke-width="1.5"/>`,
+  card: `<rect x="16" y="12" width="32" height="40" rx="3" fill="#F6F3ED" stroke="#193A35" stroke-width="2.5"/><circle cx="32" cy="30" r="5" fill="#F08A6E"/>`,
+  bundle: `<rect x="14" y="20" width="36" height="26" rx="6" fill="#E8DDC6" stroke="#193A35" stroke-width="2.5"/><path d="M32 20v26M14 33h36" fill="none" stroke="#193A35" stroke-width="2"/>`,
 };
 
 const WASH = {
@@ -546,9 +633,12 @@ const WASH = {
   soundtrack: "#E8DDC6",
   strategist: "#D5DDD8",
   messenger: "#E3E8E1",
-  queen: "#F1E3C6",
+  galaxy: "#D9E0F2",
+  andromeda: "#F8E7C9",
   designer: "#E8DFD6",
   alliance: "#E3DDF2",
+  missionary: "#F3D7C4",
+  apostle: "#D5DCE6",
 };
 
 const emblems = {};
@@ -562,7 +652,10 @@ const PORTRAIT_SRC = {
   strategist: "assets/strategist.webp",
   messenger: "assets/messenger.webp",
   designer: "assets/designer.webp",
-  queen: "assets/queen.webp",
+  galaxy: "assets/galaxy.webp",
+  andromeda: "assets/andromeda.webp",
+  missionary: "assets/missionary.webp",
+  apostle: "assets/apostle.webp",
 };
 
 const HORSE_SRC = "assets/winged-horse.webp";
@@ -793,7 +886,7 @@ function boot() {
     $("share-label").textContent = ui.copy;
     $("share-url").value = shareUrl();
     $("status").textContent = "";
-    const rare = resolved.type === "queen" || resolved.type === "designer";
+    const rare = resolved.type === "galaxy" || resolved.type === "andromeda" || resolved.type === "designer";
     $("rare").hidden = !rare;
     $("rare").textContent = rare ? ui.rare : "";
     showCompanion(type, resolved.type);
@@ -937,9 +1030,9 @@ function boot() {
       ctx.arc(x, y, 7, 0, Math.PI * 2);
       ctx.fill();
     }
-    const rare = resolved.type === "queen" || resolved.type === "designer";
+    const rare = resolved.type === "galaxy" || resolved.type === "andromeda" || resolved.type === "designer";
     if (rare) {
-      ctx.strokeStyle = resolved.type === "queen" ? "#C4A15A" : "#6E8B74";
+      ctx.strokeStyle = resolved.type === "designer" ? "#6E8B74" : resolved.type === "andromeda" ? "#D4B06A" : "#C4A15A";
       ctx.lineWidth = 5;
       roundRect(ctx, 36, 36, width - 72, height - 72, 36);
       ctx.stroke();

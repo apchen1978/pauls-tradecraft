@@ -14,9 +14,12 @@ test("old ABCD codes keep the six-type balance", () => {
     soundtrack: 11,
     strategist: 0,
     messenger: 0,
-    queen: 0,
+    galaxy: 0,
+    andromeda: 0,
     designer: 0,
     alliance: 0,
+    missionary: 0,
+    apostle: 0,
   });
   const abcd = {
     AAA: "umbrella", AAB: "umbrella", AAC: "umbrella", AAD: "umbrella",
@@ -43,26 +46,37 @@ test("every role is reachable, including the four new ones", () => {
   const counts = distribution();
   for (const id of Object.keys(TYPES)) assert.ok(counts[id] >= 1, `${id} ${counts[id]}`);
   assert.equal(resolveChoices("EAE").type, "strategist");
+  assert.equal(resolveChoices("AEA").type, "messenger");
+  assert.equal(resolveChoices("AFE").type, "missionary");
   assert.equal(resolveChoices("AEF").type, "messenger");
-  assert.equal(resolveChoices("FAE").type, "queen");
+  assert.equal(resolveChoices("ACF").type, "apostle");
+  assert.equal(resolveChoices("FAE").type, "galaxy");
+  assert.equal(resolveChoices("FBD").type, "andromeda");
   assert.equal(resolveChoices("AFC").type, "designer");
-  assert.notEqual(resolveChoices("FAB").type, "queen");
-  assert.equal(counts.queen, 6);
+  assert.notEqual(resolveChoices("FAB").type, "galaxy");
+  assert.notEqual(resolveChoices("FAB").type, "andromeda");
+  assert.equal(counts.galaxy, 3);
+  assert.equal(counts.andromeda, 3);
   assert.equal(counts.designer, 6);
   assert.equal(counts.alliance, 21);
+  assert.equal(counts.missionary, 16);
+  assert.equal(counts.apostle, 16);
   assert.equal(resolveChoices("EEA").type, "alliance");
   assert.equal(resolveChoices("BBA").type, "cocoa");
   assert.deepEqual(counts, {
-    umbrella: 24,
-    cocoa: 23,
-    finisher: 22,
-    spark: 24,
-    mapkeeper: 24,
-    soundtrack: 23,
-    strategist: 22,
-    messenger: 21,
+    umbrella: 19,
+    cocoa: 20,
+    finisher: 19,
+    spark: 20,
+    mapkeeper: 18,
+    soundtrack: 19,
+    strategist: 18,
+    messenger: 18,
     alliance: 21,
-    queen: 6,
+    missionary: 16,
+    apostle: 16,
+    galaxy: 3,
+    andromeda: 3,
     designer: 6,
   });
 });
@@ -112,6 +126,9 @@ test("each scenario has six choices and every role is offered", () => {
     queen: 1,
     designer: 1,
   });
+  assert.equal(seen.alliance || 0, 0);
+  assert.equal(seen.missionary || 0, 0);
+  assert.equal(seen.apostle || 0, 0);
 });
 
 test("share links carry the three choices, and a bad code does not resolve", () => {
@@ -132,6 +149,20 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(TYPES.cocoa.en.role, "Guardian");
   assert.equal(blob.includes("補師") || /\bHealer\b/.test(blob), false);
   assert.equal(/人工智慧|\bAI\b|老闆|老板|ROI|轉換率|成交率|中間層|A2A|\bCDD\b|前職|Former role|\bowner\b|英雄聯盟|魔獸|Overwatch|Warcraft|League of Legends|mailto:|@gmail/i.test(blob), false);
+  assert.equal(/魔法|法師|\bmage\b|\bmagic\b/i.test(blob), false);
+  assert.equal(TYPES.spark.zh.role, "點子");
+  assert.equal(TYPES.spark.en.role, "Ideas");
+  assert.equal(TYPES.missionary.zh.role, "傳教士");
+  assert.equal(TYPES.missionary.en.role, "Missionary");
+  assert.equal(TYPES.apostle.zh.role, "使徒");
+  assert.equal(TYPES.apostle.en.role, "Apostle");
+  assert.equal(TYPES.galaxy.zh.name, "銀河之女");
+  assert.equal(TYPES.galaxy.en.name, "Daughter of the Galaxy");
+  assert.equal(TYPES.andromeda.zh.name, "M-31仙女座");
+  assert.equal(TYPES.andromeda.en.name, "M-31 Andromeda");
+  assert.equal(TYPES.galaxy.prop, "crown");
+  assert.equal(TYPES.andromeda.prop, "crown");
+  assert.equal(Object.values(TYPES).filter((type) => type.prop === "crown").length, 2);
   for (const lang of ["zh", "en"]) {
     for (const type of Object.values(TYPES)) {
       for (const key of ["name", "role", "funny", "gentle", "literary", "strength", "alt"]) {

@@ -267,8 +267,11 @@ function pngSize(file) {
 
 const NEW_ROLES = [
   { code: "EAE", zh: "先看全局", en: "Sees the Whole Board", roleZh: "組隊角色 · 軍師", roleEn: "Party role · Strategist" },
-  { code: "AEF", zh: "話送到了", en: "Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
-  { code: "FAE", zh: "今晚聽我的", en: "Tonight, Follow Me", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
+  { code: "AEA", zh: "話送到了", en: "Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
+  { code: "AFE", zh: "這件事值得說", en: "Worth Saying Out Loud", roleZh: "組隊角色 · 傳教士", roleEn: "Party role · Missionary" },
+  { code: "ACF", zh: "我接著走", en: "I'll Carry It On", roleZh: "組隊角色 · 使徒", roleEn: "Party role · Apostle" },
+  { code: "FAE", zh: "銀河之女", en: "Daughter of the Galaxy", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
+  { code: "FBD", zh: "M-31仙女座", en: "M-31 Andromeda", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
   { code: "AFC", zh: "順眼就對了", en: "Makes It Look Right", roleZh: "組隊角色 · 設計師", roleEn: "Party role · Designer" },
 ];
 
@@ -319,7 +322,7 @@ test.describe("new choices and roles", () => {
       { code: "EAE", lang: "zh", file: "strategist-zh.png", button: "下載角色卡" },
       { code: "FAE", lang: "zh", file: "queen-zh.png", button: "下載角色卡" },
       { code: "AAA", lang: "zh", file: "umbrella-zh.png", button: "下載角色卡" },
-      { code: "AEF", lang: "en", file: "messenger-en.png", button: "Download card" },
+      { code: "AEA", lang: "en", file: "messenger-en.png", button: "Download card" },
     ];
     for (const job of jobs) {
       await page.goto(`/prototype/teammate-type/?c=${job.code}&lang=${job.lang}`);
@@ -339,21 +342,40 @@ test.describe("new choices and roles", () => {
     await page.setViewportSize({ width: 390, height: 1100 });
     await page.goto("/prototype/teammate-type/?c=FAE&lang=zh");
     await waitForQueen(page);
-    await expect(page.locator("#card-name")).toHaveText("今晚聽我的");
+    await expect(page.locator("#card-name")).toHaveText("銀河之女");
+    await expect(page.locator("#role")).toHaveText("組隊角色 · 女王");
     await expect(page.locator("#rare")).toHaveText("稀有");
     await expect(page.locator("#horse")).toBeHidden();
     await expect(page.locator("#mg")).toBeHidden();
     await expect(page.locator("#queen-art")).toBeVisible();
-    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/queen.webp");
+    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/galaxy.webp");
     await noOverflow(page);
     await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-queen-rare.png` });
     const [queenDownload] = await Promise.all([
       page.waitForEvent("download"),
       page.getByRole("button", { name: "下載角色卡" }).click(),
     ]);
-    const queenDest = `${CARDS}/queen-zh.png`;
+    const queenDest = `${CARDS}/galaxy-zh.png`;
     await queenDownload.saveAs(queenDest);
     expect(pngSize(queenDest)).toEqual({ width: 2160, height: 4400 });
+
+    await page.goto("/prototype/teammate-type/?c=FBD&lang=zh");
+    await waitForQueen(page);
+    await expect(page.locator("#card-name")).toHaveText("M-31仙女座");
+    await expect(page.locator("#role")).toHaveText("組隊角色 · 女王");
+    await expect(page.locator("#rare")).toHaveText("稀有");
+    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/andromeda.webp");
+    await expect(page.locator("#horse")).toBeHidden();
+    await expect(page.locator("#mg")).toBeHidden();
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-andromeda-rare.png` });
+    const [andromedaDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "下載角色卡" }).click(),
+    ]);
+    const andromedaDest = `${CARDS}/andromeda-zh.png`;
+    await andromedaDownload.saveAs(andromedaDest);
+    expect(pngSize(andromedaDest)).toEqual({ width: 2160, height: 4400 });
 
     await page.goto("/prototype/teammate-type/?c=BBA&lang=zh");
     await waitForMg(page);
@@ -418,8 +440,8 @@ test.describe("new choices and roles", () => {
     expect(pngSize(`${CARDS}/alliance-en.png`)).toEqual({ width: 2160, height: 4400 });
   });
 
-  test("390px zh eight roles each show their own portrait", async ({ page }) => {
-    test.setTimeout(180000);
+  test("390px zh portrait roles each show their own picture", async ({ page }) => {
+    test.setTimeout(240000);
     await page.setViewportSize({ width: 390, height: 1100 });
     const roles = [
       { code: "AAA", file: "umbrella.webp", zh: "擋雨的人", en: "The Umbrella" },
@@ -428,8 +450,12 @@ test.describe("new choices and roles", () => {
       { code: "DAA", file: "mapkeeper.webp", zh: "地圖收藏家", en: "The Mapkeeper" },
       { code: "CCD", file: "soundtrack.webp", zh: "BGM 擔當", en: "The Soundtrack" },
       { code: "EAE", file: "strategist.webp", zh: "先看全局", en: "Sees the Whole Board" },
-      { code: "AEF", file: "messenger.webp", zh: "話送到了", en: "Gets It Through" },
+      { code: "AEA", file: "messenger.webp", zh: "話送到了", en: "Gets It Through" },
       { code: "AFC", file: "designer.webp", zh: "順眼就對了", en: "Makes It Look Right" },
+      { code: "AFE", file: "missionary.webp", zh: "這件事值得說", en: "Worth Saying Out Loud" },
+      { code: "ACF", file: "apostle.webp", zh: "我接著走", en: "I'll Carry It On" },
+      { code: "FAE", file: "galaxy.webp", zh: "銀河之女", en: "Daughter of the Galaxy" },
+      { code: "FBD", file: "andromeda.webp", zh: "M-31仙女座", en: "M-31 Andromeda" },
     ];
     for (const role of roles) {
       await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
