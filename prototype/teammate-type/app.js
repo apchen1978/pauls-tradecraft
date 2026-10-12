@@ -2,24 +2,30 @@
 // Self-contained Garage toy. No network calls, no storage. The share link's `c`
 // param is the three choice letters; `lang` only picks the language.
 //
-// Choice → type (draft text kept; Paul approved the lines):
+// Choice → type (A–D kept; Paul approved those lines. E–F added later):
 //   Scenario 1 專案死線前一晚 / The night before the deadline
 //     A umbrella 擋雨的人    B cocoa 晚安熱可可
 //     C spark 腦內煙火師     D mapkeeper 地圖收藏家
+//     E strategist 軍師      F queen 女王
 //   Scenario 2 社團成果展佈置 / Setting up the club showcase
 //     A umbrella             B finisher 最後一擊
 //     C soundtrack BGM 擔當  D mapkeeper
+//     E messenger 傳令兵     F designer 設計師
 //   Scenario 3 線上組隊打王倒數 / Countdown to the boss fight
 //     A cocoa                B spark
 //     C finisher             D soundtrack
+//     E strategist           F messenger
 //
 // Resolve (deterministic):
 //   1. A type chosen at least twice wins.
 //   2. Three different types: the winning scenario is (i + j + k) mod 3,
-//      where A=0, B=1, C=2, D=3 are the choice indexes.
-//      This replaces the draft's "always scenario 1" tie-break, which scored
-//      14 / 14 / 14 / 14 / 4 / 4. Across all 64 combinations this rule scores
+//      where A=0 … F=5 are the choice indexes.
+//      A–D indexes are unchanged, so every old ABCD code still resolves
+//      the same way. Across those 64 codes the scores stay
 //      umbrella 10, cocoa 11, spark 11, mapkeeper 10, finisher 11, soundtrack 11.
+//      strategist and messenger each appear twice, so a pair of them wins.
+//      queen and designer appear once and win when the tie-break lands on
+//      their scenario (FAB → queen, AFC → designer).
 //
 // Worked examples:
 //   AAA majority → umbrella
@@ -60,6 +66,16 @@ export const POSES = {
       "running-left/04.webp",
       "running-right/05.webp",
     ],
+  },
+  idle: {
+    motion: "float",
+    ms: 280,
+    frames: ["idle/00.webp", "idle/01.webp", "idle/02.webp", "idle/03.webp", "idle/04.webp", "idle/05.webp"],
+  },
+  wave: {
+    motion: "bob",
+    ms: 180,
+    frames: ["waving/00.webp", "waving/01.webp", "waving/02.webp", "waving/03.webp"],
   },
 };
 
@@ -196,6 +212,94 @@ export const TYPES = {
       alt: "MG dancing with headphones",
     },
   },
+  strategist: {
+    pose: "think",
+    prop: "plan",
+    zh: {
+      name: "先看全局",
+      role: "軍師",
+      funny: "大家都衝了，你還在問：所以我們要去哪？",
+      gentle: "你把整條路看完，大家才不會白跑。",
+      literary: "「我不是慢，我是在把下一步想清楚。」",
+      strength: "先看整盤，再決定怎麼走。",
+      alt: "MG 托著下巴，旁邊有一張小計畫",
+    },
+    en: {
+      name: "Sees the Whole Board",
+      role: "Strategist",
+      funny: "Everyone's already charging, and you're still asking where you're actually going.",
+      gentle: "You look at the whole path first, so nobody has to run it twice.",
+      literary: "\"I'm not slow. I'm making the next step make sense.\"",
+      strength: "Sees the whole picture before moving.",
+      alt: "MG thinking, with a small plan",
+    },
+  },
+  messenger: {
+    pose: "wave",
+    prop: "note",
+    zh: {
+      name: "喊到到齊",
+      role: "傳令兵",
+      funny: "你說到最後一個人終於回：收到。",
+      gentle: "有你在中間跑，沒有人漏接那句話。",
+      literary: "「一句話要到齊，才算說完。」",
+      strength: "把話送到每一個人手上。",
+      alt: "MG 揮手，手上有一張小字條",
+    },
+    en: {
+      name: "Gets It Through",
+      role: "Messenger",
+      funny: "You keep saying it until the last person finally answers: got it.",
+      gentle: "With you running the middle, nobody misses the message.",
+      literary: "\"A sentence isn't finished until it reaches everyone.\"",
+      strength: "Gets the word into every person's hands.",
+      alt: "MG waving, holding a little note",
+    },
+  },
+  queen: {
+    pose: "idle",
+    prop: "crown",
+    zh: {
+      name: "今晚聽我的",
+      role: "女王",
+      funny: "你一開口，連在滑手機的人都坐好了。",
+      gentle: "你把調子定下來，大家就知道往哪靠。",
+      literary: "「不是命令，是這場需要一個調子。」",
+      strength: "定調，讓大家圍過來。",
+      alt: "MG 站著，頭上有一頂小皇冠",
+    },
+    en: {
+      name: "Tonight, Follow Me",
+      role: "Queen",
+      funny: "You start talking, and even the person scrolling sits up.",
+      gentle: "You set the tone, and everyone knows where to gather.",
+      literary: "\"Not an order. The scene just needed a key.\"",
+      strength: "Sets the tone so people rally around it.",
+      alt: "MG standing, with a small crown",
+    },
+  },
+  designer: {
+    pose: "think",
+    prop: "palette",
+    zh: {
+      name: "順眼就對了",
+      role: "設計師",
+      funny: "東西還沒排完，你已經在看這兩個顏色配不配。",
+      gentle: "你讓整場看起來是故意的，不是剛好。",
+      literary: "「好看不是加裝飾，是讓人想靠近。」",
+      strength: "有眼光，把東西排得剛剛好。",
+      alt: "MG 看著一塊小色盤",
+    },
+    en: {
+      name: "Makes It Look Right",
+      role: "Designer",
+      funny: "It isn't lined up yet, and you're already asking if those two colors belong together.",
+      gentle: "You make the whole thing look intentional, not accidental.",
+      literary: "\"Looking good isn't extra decoration. It's how you invite people closer.\"",
+      strength: "Has an eye for it, and lines things up just so.",
+      alt: "MG looking at a small color palette",
+    },
+  },
 };
 
 export const SCENARIOS = [
@@ -216,6 +320,8 @@ export const SCENARIOS = [
       { id: "B", type: "cocoa", zh: "幫大家叫宵夜，順便提醒誰該去睡一下。", en: "Order late-night food and tell someone to get some sleep." },
       { id: "C", type: "spark", zh: "「等等，我們整個換個做法會不會比較快？」", en: "\"Wait, what if we just did this a totally different way?\"" },
       { id: "D", type: "mapkeeper", zh: "先把每個人的進度整理成一張表，看還缺什麼。", en: "Put everyone's progress into one list to see what's missing." },
+      { id: "E", type: "strategist", zh: "先把整晚要做的事在腦裡走一遍，再動手。", en: "Walk the whole night through in your head, then start." },
+      { id: "F", type: "queen", zh: "在語音裡定調：今晚照這個走，大家跟上。", en: "Set the tone on voice: this is the plan tonight, everyone follow." },
     ],
   },
   {
@@ -235,6 +341,8 @@ export const SCENARIOS = [
       { id: "B", type: "finisher", zh: "一個人把最麻煩的燈光和線路快速搞定。", en: "Sort out the trickiest lights and cables, fast, on your own." },
       { id: "C", type: "soundtrack", zh: "先放音樂，邊佈置邊帶氣氛。", en: "Put on music first and keep the mood up while setting up." },
       { id: "D", type: "mapkeeper", zh: "先繞場一圈，找出插座、動線和可能出包的地方。", en: "Walk the room first: sockets, foot traffic, what could go wrong." },
+      { id: "E", type: "messenger", zh: "跑一圈，把每個人的位置說到對方點頭。", en: "Lap the room and say each person's spot until they nod." },
+      { id: "F", type: "designer", zh: "先把海報、燈光和桌子的顏色配在一起，再開始釘。", en: "Match the posters, lights, and tables before anyone starts pinning." },
     ],
   },
   {
@@ -254,6 +362,8 @@ export const SCENARIOS = [
       { id: "B", type: "spark", zh: "提出一個很怪但可能有用的打法。", en: "Pitch a weird plan that just might work." },
       { id: "C", type: "finisher", zh: "「最後一擊交給我。」", en: "\"Leave the last hit to me.\"" },
       { id: "D", type: "soundtrack", zh: "在語音裡喊口號、講幹話，讓大家不要緊張。", en: "Shout a battle cry and crack jokes so nobody's nervous." },
+      { id: "E", type: "strategist", zh: "開打前，先把王的動作和大家站哪講清楚。", en: "Before the fight, spell out the boss's moves and where everyone stands." },
+      { id: "F", type: "messenger", zh: "把打法重複說到最後一個人也回「收到」。", en: "Repeat the plan until the last person says they've got it." },
     ],
   },
 ];
@@ -325,11 +435,12 @@ export const UI = {
   },
 };
 
-const LETTERS = "ABCD";
+const LETTERS = "ABCDEF";
 
 export function resolveChoices(code) {
-  if (typeof code !== "string" || !/^[ABCD]{3}$/.test(code)) return null;
+  if (typeof code !== "string" || !/^[ABCDEF]{3}$/.test(code)) return null;
   const indexes = [...code].map((letter) => LETTERS.indexOf(letter));
+  if (indexes.some((choiceIndex, scenarioIndex) => !SCENARIOS[scenarioIndex].choices[choiceIndex])) return null;
   const types = indexes.map((choiceIndex, scenarioIndex) => SCENARIOS[scenarioIndex].choices[choiceIndex].type);
   const counts = {};
   for (const type of types) counts[type] = (counts[type] || 0) + 1;
@@ -339,12 +450,12 @@ export function resolveChoices(code) {
   return { code, type: types[scenarioIndex], tie: true };
 }
 
-export function distribution() {
+export function distribution(letters = LETTERS) {
   const counts = {};
   for (const id of Object.keys(TYPES)) counts[id] = 0;
-  for (const a of LETTERS) {
-    for (const b of LETTERS) {
-      for (const c of LETTERS) counts[resolveChoices(a + b + c).type] += 1;
+  for (const a of letters) {
+    for (const b of letters) {
+      for (const c of letters) counts[resolveChoices(a + b + c).type] += 1;
     }
   }
   return counts;
@@ -354,7 +465,7 @@ export function readRoute(search) {
   const params = new URLSearchParams(typeof search === "string" ? search : "");
   const lang = params.get("lang") === "en" ? "en" : "zh";
   const raw = (params.get("c") || "").toUpperCase();
-  const code = /^[ABCD]{3}$/.test(raw) ? raw : null;
+  const code = resolveChoices(raw) ? raw : null;
   return { lang, code };
 }
 
@@ -371,7 +482,35 @@ const PROPS = {
   spark: `<g stroke="#F08A6E" stroke-width="2.5" stroke-linecap="round" fill="none"><path d="M32 6v14M32 44v14M6 32h14M44 32h14M13 13l9 9M42 42l9 9M51 13l-9 9M22 42l-9 9"/></g><circle cx="32" cy="32" r="5" fill="#F08A6E" stroke="#193A35" stroke-width="2"/>`,
   map: `<rect x="8" y="14" width="48" height="36" rx="3" fill="#F6F3ED" stroke="#193A35" stroke-width="2.5"/><path d="M32 14v36M14 28c6 5 8-5 14 0M36 34c5 5 8-3 12 1" fill="none" stroke="#193A35" stroke-width="2"/><circle cx="22" cy="40" r="3" fill="#F08A6E"/>`,
   headphones: `<path d="M14 34c0-12 8-20 18-20s18 8 18 20" fill="none" stroke="#193A35" stroke-width="2.5" stroke-linecap="round"/><rect x="8" y="30" width="10" height="16" rx="3" fill="#193A35"/><rect x="46" y="30" width="10" height="16" rx="3" fill="#193A35"/>`,
+  plan: `<rect x="14" y="10" width="36" height="44" rx="3" fill="#F6F3ED" stroke="#193A35" stroke-width="2.5"/><path d="M22 24h20M22 32h16M22 40h12" fill="none" stroke="#193A35" stroke-width="2.5" stroke-linecap="round"/>`,
+  note: `<rect x="8" y="16" width="48" height="32" rx="3" fill="#F6F3ED" stroke="#193A35" stroke-width="2.5"/><path d="M8 16l24 18L56 16" fill="none" stroke="#F08A6E" stroke-width="2.5"/>`,
+  crown: `<path d="M10 44l6-22 10 12 6-18 6 18 10-12 6 22z" fill="#F08A6E" stroke="#193A35" stroke-width="2.5" stroke-linejoin="round"/><rect x="12" y="44" width="40" height="8" rx="2" fill="#8A6A2B" stroke="#193A35" stroke-width="2"/>`,
+  palette: `<ellipse cx="30" cy="34" rx="20" ry="15" fill="#F6F3ED" stroke="#193A35" stroke-width="2.5"/><circle cx="20" cy="30" r="4" fill="#F08A6E"/><circle cx="32" cy="26" r="4" fill="#8A6A2B"/><circle cx="40" cy="34" r="4" fill="#193A35"/><circle cx="28" cy="40" r="3.5" fill="#DDE7DE" stroke="#193A35" stroke-width="1.5"/>`,
 };
+
+const WASH = {
+  umbrella: "#D7E4DC",
+  cocoa: "#F6D4C8",
+  finisher: "#E6DFD4",
+  spark: "#F8DCD2",
+  mapkeeper: "#DDE7DE",
+  soundtrack: "#E8DDC6",
+  strategist: "#D5DDD8",
+  messenger: "#E3E8E1",
+  queen: "#F1E3C6",
+  designer: "#E8DFD6",
+};
+
+const emblems = {};
+
+function preloadEmblems() {
+  for (const [kind, markup] of Object.entries(PROPS)) {
+    const img = new Image();
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 64 64">${markup}</svg>`;
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    emblems[kind] = img;
+  }
+}
 
 const FONT = "\"PingFang TC\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"WenQuanYi Micro Hei\", \"Droid Sans Fallback\", sans-serif";
 
@@ -626,109 +765,131 @@ function boot() {
     const type = TYPES[resolved.type];
     const text = type[state.lang];
     const other = state.lang === "zh" ? "en" : "zh";
-    const width = 720;
-    const pad = 48;
+    const width = 1080;
+    const height = 1350;
+    const scale = 2;
+    const pad = 88;
     const inner = width - pad * 2;
     const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    ctx.font = `700 42px ${FONT}`;
-    const nameLines = wrapLines(ctx, text.name, inner);
-    ctx.font = `600 28px ${FONT}`;
-    const funnyLines = wrapLines(ctx, text.funny, inner - 8);
-    ctx.font = `500 26px ${FONT}`;
-    const blocks = [
-      wrapLines(ctx, text.gentle, inner),
-      wrapLines(ctx, text.literary, inner),
-      wrapLines(ctx, text.strength, inner),
-    ];
-    const lineH = (size) => Math.round(size * 1.45);
-    let height = 36 + 28 + 24 + 210 + 16;
-    height += nameLines.length * lineH(42) + 8 + lineH(22) + 8 + lineH(20) + 20;
-    height += 22 + funnyLines.length * lineH(28) + 18;
-    blocks.forEach((lines) => {
-      height += 20 + lines.length * lineH(26) + 8;
-    });
-    height += 28 + lineH(22) + 36 + 24;
-    const scale = 2;
     canvas.width = width * scale;
     canvas.height = height * scale;
+    const ctx = canvas.getContext("2d");
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
-    ctx.fillStyle = "#F6F3ED";
-    ctx.fillRect(0, 0, width, height);
-    ctx.strokeStyle = "#193A35";
-    ctx.lineWidth = 3;
-    roundRect(ctx, 16, 16, width - 32, height - 32, 28);
-    ctx.stroke();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.textBaseline = "top";
 
-    let y = 48;
-    ctx.fillStyle = "#62716A";
-    ctx.font = `700 16px ${FONT}`;
-    ctx.fillText(ui.kicker, pad, y);
-    y += 24;
+    const wash = ctx.createLinearGradient(0, 0, width, height);
+    wash.addColorStop(0, "#F6F3ED");
+    wash.addColorStop(0.55, "#F6F3ED");
+    wash.addColorStop(1, WASH[resolved.type] || "#DDE7DE");
+    ctx.fillStyle = wash;
+    ctx.fillRect(0, 0, width, height);
+    ctx.save();
+    ctx.globalAlpha = 0.045;
+    ctx.strokeStyle = "#193A35";
+    ctx.lineWidth = 2;
+    for (let x = -height; x < width; x += 22) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + height, height);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.strokeStyle = "#193A35";
+    ctx.lineWidth = 8;
+    roundRect(ctx, 28, 28, width - 56, height - 56, 40);
+    ctx.stroke();
+    ctx.lineWidth = 2;
+    roundRect(ctx, 48, 48, width - 96, height - 96, 28);
+    ctx.stroke();
+    ctx.fillStyle = "#F08A6E";
+    for (const [x, y] of [[64, 64], [width - 64, 64], [64, height - 64], [width - 64, height - 64]]) {
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const center = (line, y, font, color) => {
+      ctx.font = font;
+      ctx.fillStyle = color;
+      const w = ctx.measureText(line).width;
+      ctx.fillText(line, Math.round((width - w) / 2), y);
+    };
+
+    center(ui.kicker, 78, `700 22px ${FONT}`, "#62716A");
+
+    const emblem = type.prop ? emblems[type.prop] : null;
+    if (emblem && emblem.complete && emblem.naturalWidth > 0) {
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(width - 168, 196, 58, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#193A35";
+      ctx.stroke();
+      ctx.drawImage(emblem, width - 214, 150, 92, 92);
+    }
+
     const img = $("mg");
     if (img.complete && img.naturalWidth > 0) {
-      const dw = 168;
+      const dw = 280;
       const dh = (img.naturalHeight / img.naturalWidth) * dw;
-      ctx.drawImage(img, (width - dw) / 2, y, dw, dh);
+      ctx.drawImage(img, Math.round((width - dw) / 2), 128, dw, dh);
     }
-    y += 210;
-    ctx.fillStyle = "#193A35";
-    ctx.font = `700 42px ${FONT}`;
+
+    let y = 430;
+    ctx.font = `700 64px ${FONT}`;
+    const nameLines = wrapLines(ctx, text.name, inner);
     nameLines.forEach((line) => {
-      ctx.fillText(line, pad, y);
-      y += lineH(42);
+      center(line, y, `700 64px ${FONT}`, "#193A35");
+      y += 76;
     });
-    y += 8;
-    ctx.fillStyle = "#62716A";
-    ctx.font = `600 22px ${FONT}`;
-    ctx.fillText(type[other].name, pad, y);
-    y += lineH(22);
-    ctx.font = `700 18px ${FONT}`;
-    ctx.fillText(`${ui.roleLabel} · ${text.role}`, pad, y);
-    y += lineH(20) + 12;
-    ctx.fillStyle = "#8A6A2B";
-    ctx.font = `700 14px ${FONT}`;
-    ctx.fillText(ui.funny, pad, y);
-    y += 22;
-    ctx.font = `600 28px ${FONT}`;
-    funnyLines.forEach((line, index) => {
+    center(type[other].name, y, `600 26px ${FONT}`, "#62716A");
+    y += 40;
+    center(`${ui.roleLabel} · ${text.role}`, y, `700 24px ${FONT}`, "#142C29");
+    y += 48;
+
+    const drawLabel = (label) => {
+      ctx.font = `700 18px ${FONT}`;
+      ctx.fillStyle = "#8A6A2B";
+      ctx.fillText(label, pad, y);
+      y += 28;
+    };
+    drawLabel(ui.funny);
+    ctx.font = `700 34px ${FONT}`;
+    wrapLines(ctx, text.funny, inner).forEach((line) => {
       const w = ctx.measureText(line).width;
       ctx.fillStyle = "#F08A6E";
-      ctx.fillRect(pad - 4, y - 24, Math.min(w + 8, inner), 30);
+      ctx.fillRect(pad, y + 26, Math.min(w, inner), 14);
       ctx.fillStyle = "#193A35";
+      ctx.font = `700 34px ${FONT}`;
       ctx.fillText(line, pad, y);
-      y += lineH(28);
-      if (index === funnyLines.length - 1) y += 8;
+      y += 48;
     });
+    y += 12;
     [
-      [ui.gentle, blocks[0]],
-      [ui.literary, blocks[1]],
-      [ui.strength, blocks[2]],
-    ].forEach(([label, lines]) => {
-      ctx.fillStyle = "#8A6A2B";
-      ctx.font = `700 14px ${FONT}`;
-      ctx.fillText(label, pad, y);
-      y += 22;
-      ctx.fillStyle = "#193A35";
-      ctx.font = `500 26px ${FONT}`;
-      lines.forEach((line) => {
+      [ui.gentle, text.gentle, `500 28px ${FONT}`],
+      [ui.literary, text.literary, `500 28px ${FONT}`],
+      [ui.strength, text.strength, `600 28px ${FONT}`],
+    ].forEach(([label, body, font]) => {
+      drawLabel(label);
+      ctx.font = font;
+      wrapLines(ctx, body, inner).forEach((line) => {
+        ctx.fillStyle = "#193A35";
+        ctx.font = font;
         ctx.fillText(line, pad, y);
-        y += lineH(26);
+        y += 40;
       });
       y += 8;
     });
-    y += 12;
-    ctx.strokeStyle = "rgba(25,58,53,0.35)";
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(pad, y);
-    ctx.lineTo(width - pad, y);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    y += 28;
+
     ctx.fillStyle = "#62716A";
-    ctx.font = `700 16px ${FONT}`;
-    ctx.fillText(ui.boundary, pad, y);
+    ctx.font = `600 20px ${FONT}`;
+    ctx.fillText(ui.picks(state.code), pad, 1248);
+    ctx.font = `500 18px ${FONT}`;
+    ctx.fillText(ui.boundary, pad, 1282);
 
     try {
       const link = document.createElement("a");
@@ -767,6 +928,7 @@ function boot() {
   $("download").addEventListener("click", downloadCard);
   if (!navigator.share) $("share-btn").hidden = true;
 
+  preloadEmblems();
   for (const pose of Object.values(POSES)) {
     pose.frames.forEach((frame) => {
       const img = new Image();
