@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { distribution, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
+import { distribution, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
+import { dialogueFor, extractCode, pairStats, ROLE_ORDER } from "../prototype/teammate-type/duo.js";
 
 test("old ABCD codes keep the six-type balance", () => {
   const counts = distribution("ABCD");
@@ -134,6 +135,12 @@ test("each scenario has six choices and every role is offered", () => {
 test("share links carry the three choices, and a bad code does not resolve", () => {
   assert.equal(shareSearch("ABA", "en"), "c=ABA&lang=en");
   assert.equal(shareSearch("CCD", "zh"), "c=CCD&lang=zh");
+  assert.equal(shareSearch("FAE", "zh", "EEA"), "c=FAE&with=EEA&lang=zh");
+  assert.equal(readPartner("?c=FAE&with=eea"), "EEA");
+  assert.equal(readPartner("?c=FAE&with=nope"), null);
+  assert.equal(extractCode("https://paulstradecraft.com/prototype/teammate-type/?c=bba&lang=zh"), "BBA");
+  assert.equal(extractCode("EEA"), "EEA");
+  assert.equal(extractCode("nope"), null);
   assert.deepEqual(readRoute("?c=aba&lang=en"), { lang: "en", code: "ABA" });
   assert.deepEqual(readRoute("?c=eae&lang=zh"), { lang: "zh", code: "EAE" });
   assert.deepEqual(readRoute("?c=nope"), { lang: "zh", code: null });
@@ -178,4 +185,42 @@ test("the page is one folder and does not inline a script or an email", () => {
   assert.match(html, /示意玩具，不是心理測驗。/);
   assert.doesNotMatch(html, /mailto:|@gmail|localStorage|fetch\(/);
   assert.equal([...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].every((match) => match[1].trim() === ""), true);
+  assert.match(html, /id="duo"/);
+  assert.doesNotMatch(html, /id="duo-left"[^>]*\ssrc=/);
+});
+
+test("two-person scenes cover every pair without changing a score", () => {
+  const ids = Object.keys(TYPES);
+  assert.deepEqual(new Set(ROLE_ORDER), new Set(ids));
+  const stats = pairStats(ids);
+  assert.deepEqual(stats, { written: 16, fallback: 75, total: 91 });
+  const written = new Set();
+  for (let i = 0; i < ids.length; i += 1) {
+    for (let j = i + 1; j < ids.length; j += 1) {
+      const scene = dialogueFor(ids[i], ids[j]);
+      assert.deepEqual(scene.lines, dialogueFor(ids[j], ids[i]).lines);
+      assert.ok(scene.lines.length >= 3 && scene.lines.length <= 4);
+      for (const line of scene.lines) {
+        assert.ok(line.zh && line.en);
+        assert.ok(line.speaker === ids[i] || line.speaker === ids[j]);
+      }
+      if (scene.kind === "written") written.add(scene.key);
+      else assert.equal(scene.kind, "fallback");
+    }
+  }
+  const alliancePairs = ids.filter((id) => id !== "alliance").map((id) => ["alliance", id].sort().join("|"));
+  for (const key of alliancePairs) assert.ok(written.has(key), key);
+  assert.ok(written.has(["galaxy", "andromeda"].sort().join("|")));
+  assert.ok(written.has(["cocoa", "galaxy"].sort().join("|")));
+  assert.ok(written.has(["cocoa", "andromeda"].sort().join("|")));
+  assert.equal(written.size, 16);
+  assert.equal(dialogueFor("umbrella", "finisher").kind, "fallback");
+  assert.equal(dialogueFor("galaxy", "andromeda").kind, "written");
+  const blob = JSON.stringify({ UI, lines: ids.flatMap((id, i) => ids.slice(i + 1).map((other) => dialogueFor(id, other).lines)) });
+  assert.equal(/人工智慧|\bAI\b|老闆|老板|ROI|中間層|A2A|\bCDD\b|前職|Former role|英雄聯盟|魔獸|Overwatch|Warcraft|mailto:|@gmail/i.test(blob), false);
+  assert.equal(/魔法|法師|\bmage\b|\bmagic\b|十字架|聖經|光環|\bhalo\b|\bprayer\b/i.test(blob), false);
+  assert.equal(resolveChoices("FAE").type, "galaxy");
+  assert.equal(resolveChoices("EEA").type, "alliance");
+  const duoSrc = readFileSync(new URL("../prototype/teammate-type/duo.js", import.meta.url), "utf8");
+  assert.doesNotMatch(duoSrc, /fetch\(|localStorage|XMLHttpRequest/);
 });

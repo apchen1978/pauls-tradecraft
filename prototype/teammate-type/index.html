@@ -289,6 +289,45 @@
       color: var(--ink);
     }
     .status { min-height: 1.4em; margin: 10px 0 0; font-weight: 700; }
+    .duo { margin-top: 28px; }
+    .duo h2 { font-size: clamp(1.35rem, 4.5vw, 1.85rem); }
+    .duo-hint { margin: 8px 0 0; color: var(--moss); }
+    .duo-form { display: grid; gap: 10px; margin-top: 14px; }
+    .duo-form select, .duo-form input {
+      width: 100%;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      background: var(--white);
+      color: var(--ink);
+    }
+    .duo-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px 12px;
+      margin-top: 16px;
+      padding: 12px;
+      border: 2px solid var(--ink);
+      border-radius: 18px;
+      background: var(--white);
+    }
+    .duo-person { min-width: 0; text-align: center; }
+    .duo-person img {
+      display: block;
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      object-position: center bottom;
+    }
+    .duo-person img.face-in { transform: scaleX(-1); }
+    .duo-tag, .duo-name, .duo-line { margin: 0; overflow-wrap: anywhere; }
+    .duo-tag { margin-top: 6px; color: var(--moss); font-size: 12px; font-weight: 700; }
+    .duo-name { font-weight: 700; }
+    .duo-lines { grid-column: 1 / -1; display: grid; gap: 12px; margin-top: 8px; }
+    .duo-speaker { display: block; color: var(--brass); font-size: 13px; font-weight: 700; }
+    .duo-text { display: block; margin-top: 2px; }
+    #duo-boundary { grid-column: 1 / -1; }
     .foot { margin-top: 36px; padding-top: 4px; }
     .back { display: inline-block; margin-top: 14px; color: var(--ink); font-weight: 700; }
     [hidden] { display: none !important; }
@@ -345,6 +384,30 @@
         <p class="same" id="same"></p>
         <p class="card-boundary" id="card-boundary"></p>
       </article>
+      <section class="duo" id="duo" aria-labelledby="duo-title">
+        <h2 id="duo-title"></h2>
+        <p class="duo-hint" id="duo-hint"></p>
+        <div class="duo-form">
+          <select id="duo-pick"></select>
+          <input id="duo-code" type="text" autocomplete="off" spellcheck="false" />
+          <button type="button" class="primary" id="duo-open"></button>
+        </div>
+        <p class="status" id="duo-status" role="status"></p>
+        <div id="duo-stage" hidden>
+          <div class="duo-person">
+            <img id="duo-left" alt="" />
+            <p class="duo-tag" id="duo-left-tag"></p>
+            <p class="duo-name" id="duo-left-name"></p>
+          </div>
+          <div class="duo-person">
+            <img id="duo-right" alt="" />
+            <p class="duo-tag" id="duo-right-tag"></p>
+            <p class="duo-name" id="duo-right-name"></p>
+          </div>
+          <div class="duo-lines" id="duo-lines"></div>
+          <p class="card-boundary" id="duo-boundary"></p>
+        </div>
+      </section>
       <div class="actions">
         <button type="button" class="primary" id="copy-link"></button>
         <button type="button" class="primary ghost" id="share-btn"></button>
@@ -358,7 +421,7 @@
 
     <footer class="foot">
       <p class="boundary" id="foot-boundary">示意玩具，不是心理測驗。</p>
-      <p class="stored" id="stored">不儲存任何資料。分享連結只帶三個選擇。</p>
+      <p class="stored" id="stored">不儲存任何資料。分享連結帶三個選擇；加了另一張卡時，也會帶上。</p>
       <a class="back" id="back" href="/?lang=zh#garage">回到 Digital Garage</a>
     </footer>
   </main>

@@ -1,6 +1,7 @@
 // 你是哪一種隊友？ / What kind of teammate are you?
 // Self-contained Garage toy. No network calls, no storage. The share link's `c`
-// param is the three choice letters; `lang` only picks the language.
+// param is the three choice letters; `with` is an optional second card; `lang`
+// only picks the language. Scoring does not read `with`.
 //
 // Choice → type (A–D kept; Paul approved those lines. E–F added later):
 //   Scenario 1 專案死線前一晚 / The night before the deadline
@@ -62,6 +63,8 @@
 //   DAA tie (3+0+0) mod 3 = 0 → mapkeeper
 //   ACB tie (0+2+1) mod 3 = 0 → umbrella
 //   BBB tie (1+1+1) mod 3 = 0 → cocoa
+
+import { ROLE_ORDER, SAMPLE_CODES, GAZE, dialogueFor, extractCode, shouldFaceIn } from "./duo.js";
 
 export const ASSET = "/mg-mini-demo/assets/";
 
@@ -506,7 +509,15 @@ export const UI = {
     rare: "稀有",
     picks: (code) => `你的選擇 ${code}`,
     same: "朋友照著選，會得到同一張卡。",
-    stored: "不儲存任何資料。分享連結只帶三個選擇。",
+    stored: "不儲存任何資料。分享連結帶三個選擇；加了另一張卡時，也會帶上。",
+    duoTitle: "兩人小劇場",
+    duoHint: "選另一個隊友，或貼上朋友的三個字母、分享連結。",
+    duoPick: "選一個角色",
+    duoPlaceholder: "例如 EEA，或整段連結",
+    duoOpen: "看這一幕",
+    duoBad: "這組字母對不上任何卡。",
+    duoYou: "你",
+    duoFriend: "朋友",
     again: "再玩一次",
     copy: "複製分享連結",
     copied: "連結已複製",
@@ -539,7 +550,15 @@ export const UI = {
     rare: "Rare",
     picks: (code) => `Your choices ${code}`,
     same: "A friend who picks the same way gets the same card.",
-    stored: "Nothing is stored. The share link carries only the three choices.",
+    stored: "Nothing is stored. The share link carries the three choices, and a second card when you add one.",
+    duoTitle: "A short scene for two",
+    duoHint: "Pick another teammate, or paste a friend's three letters or share link.",
+    duoPick: "Pick a role",
+    duoPlaceholder: "For example EEA, or the whole link",
+    duoOpen: "Play this scene",
+    duoBad: "Those letters don't match a card.",
+    duoYou: "You",
+    duoFriend: "Friend",
     again: "Play again",
     copy: "Copy share link",
     copied: "Link copied",
@@ -603,9 +622,16 @@ export function readRoute(search) {
   return { lang, code };
 }
 
-export function shareSearch(code, lang) {
+export function readPartner(search) {
+  const params = new URLSearchParams(typeof search === "string" ? search : "");
+  const raw = (params.get("with") || "").toUpperCase();
+  return resolveChoices(raw) ? raw : null;
+}
+
+export function shareSearch(code, lang, partner) {
   const params = new URLSearchParams();
   params.set("c", code);
+  if (partner && resolveChoices(partner)) params.set("with", partner);
   params.set("lang", lang === "en" ? "en" : "zh");
   return params.toString();
 }
@@ -745,6 +771,7 @@ function boot() {
     step: 0,
     picks: route.code ? [...route.code] : [],
     code: route.code,
+    withCode: route.code ? readPartner(location.search) : null,
   };
   let poseTimer = null;
 
@@ -780,13 +807,14 @@ function boot() {
     next.search = "";
     next.hash = "";
     if (state.code) next.searchParams.set("c", state.code);
+    if (state.code && state.withCode) next.searchParams.set("with", state.withCode);
     next.searchParams.set("lang", state.lang);
     history.replaceState(null, "", next);
   }
 
   function shareUrl() {
     const next = new URL(location.href);
-    next.search = shareSearch(state.code, state.lang);
+    next.search = shareSearch(state.code, state.lang, state.withCode);
     next.hash = "";
     return next.toString();
   }
@@ -824,6 +852,7 @@ function boot() {
       $("mg").hidden = false;
       $("rare").hidden = true;
       $("companion").hidden = true;
+      clearDuoImages();
       quiz.hidden = false;
       result.hidden = true;
       const scenario = SCENARIOS[state.step];
@@ -890,7 +919,83 @@ function boot() {
     $("rare").hidden = !rare;
     $("rare").textContent = rare ? ui.rare : "";
     showCompanion(type, resolved.type);
+    renderDuo();
     if (focus === "card") $("card-name").focus();
+  }
+
+  function portraitSrc(typeId) {
+    if (typeId === "cocoa") return ASSET + POSES.heart.frames[0];
+    if (typeId === "alliance") return HORSE_SRC;
+    return PORTRAIT_SRC[typeId];
+  }
+
+  function clearDuoImages() {
+    for (const id of ["duo-left", "duo-right"]) {
+      const img = $(id);
+      if (!img) return;
+      img.removeAttribute("src");
+      img.alt = "";
+      img.classList.remove("face-in");
+    }
+  }
+
+  function renderDuo() {
+    const ui = UI[state.lang];
+    $("duo-title").textContent = ui.duoTitle;
+    $("duo-hint").textContent = ui.duoHint;
+    $("duo-code").placeholder = ui.duoPlaceholder;
+    $("duo-open").textContent = ui.duoOpen;
+    $("duo-boundary").textContent = ui.boundary;
+    const select = $("duo-pick");
+    const previous = select.value;
+    select.textContent = "";
+    select.appendChild(new Option(ui.duoPick, ""));
+    for (const id of ROLE_ORDER) select.appendChild(new Option(TYPES[id][state.lang].name, id));
+    const partner = state.withCode ? resolveChoices(state.withCode) : null;
+    select.value = partner ? partner.type : previous;
+    if (document.activeElement !== $("duo-code")) $("duo-code").value = state.withCode || "";
+    const stage = $("duo-stage");
+    if (!partner) {
+      stage.hidden = true;
+      clearDuoImages();
+      return;
+    }
+    const mine = resolveChoices(state.code);
+    stage.hidden = false;
+    paintDuoPerson("left", mine.type, ui.duoYou);
+    paintDuoPerson("right", partner.type, ui.duoFriend);
+    const scene = dialogueFor(mine.type, partner.type);
+    const list = $("duo-lines");
+    list.textContent = "";
+    for (const line of scene.lines) {
+      const row = el("p", "duo-line");
+      row.appendChild(el("span", "duo-speaker", TYPES[line.speaker][state.lang].name));
+      row.appendChild(el("span", "duo-text", line[state.lang]));
+      list.appendChild(row);
+    }
+  }
+
+  function paintDuoPerson(slot, typeId, tag) {
+    const img = $(`duo-${slot}`);
+    const src = portraitSrc(typeId);
+    if (img.getAttribute("src") !== src) img.setAttribute("src", src);
+    img.alt = TYPES[typeId][state.lang].alt;
+    img.classList.toggle("face-in", shouldFaceIn(GAZE[typeId], slot));
+    $(`duo-${slot}-tag`).textContent = tag;
+    $(`duo-${slot}-name`).textContent = TYPES[typeId][state.lang].name;
+  }
+
+  function openPartner(raw) {
+    const ui = UI[state.lang];
+    const code = extractCode(raw);
+    if (!code || !resolveChoices(code)) {
+      $("duo-status").textContent = ui.duoBad;
+      return;
+    }
+    state.withCode = code;
+    $("duo-status").textContent = "";
+    persist();
+    render();
   }
 
   function showCompanion(type, typeId) {
@@ -1255,10 +1360,21 @@ function boot() {
   });
   $("again").addEventListener("click", () => {
     state.code = null;
+    state.withCode = null;
     state.picks = [];
     state.step = 0;
+    $("duo-status").textContent = "";
     persist();
     render("scenario");
+  });
+  $("duo-open").addEventListener("click", () => openPartner($("duo-code").value));
+  $("duo-code").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") openPartner($("duo-code").value);
+  });
+  $("duo-pick").addEventListener("change", () => {
+    const id = $("duo-pick").value;
+    if (!id) return;
+    openPartner(SAMPLE_CODES[id]);
   });
   $("copy-link").addEventListener("click", copyLink);
   $("share-btn").addEventListener("click", shareNative);
