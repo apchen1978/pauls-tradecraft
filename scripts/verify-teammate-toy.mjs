@@ -3,8 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { distribution, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
 
-test("every combination lands on one of six types, 10 or 11 times", () => {
-  const counts = distribution();
+test("old ABCD codes keep the six-type balance", () => {
+  const counts = distribution("ABCD");
   assert.deepEqual(counts, {
     umbrella: 10,
     cocoa: 11,
@@ -12,7 +12,20 @@ test("every combination lands on one of six types, 10 or 11 times", () => {
     mapkeeper: 10,
     finisher: 11,
     soundtrack: 11,
+    strategist: 0,
+    messenger: 0,
+    queen: 0,
+    designer: 0,
   });
+});
+
+test("every role is reachable, including the four new ones", () => {
+  const counts = distribution();
+  for (const id of Object.keys(TYPES)) assert.ok(counts[id] >= 1, `${id} ${counts[id]}`);
+  assert.equal(resolveChoices("EAE").type, "strategist");
+  assert.equal(resolveChoices("AEF").type, "messenger");
+  assert.equal(resolveChoices("FAB").type, "queen");
+  assert.equal(resolveChoices("AFC").type, "designer");
 });
 
 test("majority and the sum-mod-3 tie-break stay fixed", () => {
@@ -31,9 +44,9 @@ test("majority and the sum-mod-3 tie-break stay fixed", () => {
 });
 
 test("the same choices always resolve the same way", () => {
-  for (const a of "ABCD") {
-    for (const b of "ABCD") {
-      for (const c of "ABCD") {
+  for (const a of "ABCDEF") {
+    for (const b of "ABCDEF") {
+      for (const c of "ABCDEF") {
         const code = a + b + c;
         assert.deepEqual(resolveChoices(code), resolveChoices(code));
         assert.ok(TYPES[resolveChoices(code).type]);
@@ -42,10 +55,10 @@ test("the same choices always resolve the same way", () => {
   }
 });
 
-test("each type is offered in exactly two scenarios", () => {
+test("each scenario has six choices and every role is offered", () => {
   const seen = {};
   for (const scenario of SCENARIOS) {
-    assert.equal(scenario.choices.length, 4);
+    assert.deepEqual(scenario.choices.map((choice) => choice.id), ["A", "B", "C", "D", "E", "F"]);
     for (const choice of scenario.choices) seen[choice.type] = (seen[choice.type] || 0) + 1;
   }
   assert.deepEqual(seen, {
@@ -55,6 +68,10 @@ test("each type is offered in exactly two scenarios", () => {
     mapkeeper: 2,
     finisher: 2,
     soundtrack: 2,
+    strategist: 2,
+    messenger: 2,
+    queen: 1,
+    designer: 1,
   });
 });
 
@@ -62,7 +79,9 @@ test("share links carry the three choices, and a bad code does not resolve", () 
   assert.equal(shareSearch("ABA", "en"), "c=ABA&lang=en");
   assert.equal(shareSearch("CCD", "zh"), "c=CCD&lang=zh");
   assert.deepEqual(readRoute("?c=aba&lang=en"), { lang: "en", code: "ABA" });
+  assert.deepEqual(readRoute("?c=eae&lang=zh"), { lang: "zh", code: "EAE" });
   assert.deepEqual(readRoute("?c=nope"), { lang: "zh", code: null });
+  assert.equal(resolveChoices("EFG"), null);
   assert.deepEqual(readRoute(""), { lang: "zh", code: null });
 });
 

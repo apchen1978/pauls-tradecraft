@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
 const OUT = "/opt/cursor/artifacts/screenshots";
@@ -246,3 +246,82 @@ for (const width of [390, 768, 1440]) {
     });
   });
 }
+
+const CARDS = "/opt/cursor/artifacts/teammate-cards";
+mkdirSync(CARDS, { recursive: true });
+
+function pngSize(file) {
+  const buf = readFileSync(file);
+  return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+}
+
+const NEW_ROLES = [
+  { code: "EAE", zh: "先看全局", en: "Sees the Whole Board", roleZh: "組隊角色 · 軍師", roleEn: "Party role · Strategist" },
+  { code: "AEF", zh: "喊到到齊", en: "Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
+  { code: "FAB", zh: "今晚聽我的", en: "Tonight, Follow Me", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
+  { code: "AFC", zh: "順眼就對了", en: "Makes It Look Right", roleZh: "組隊角色 · 設計師", roleEn: "Party role · Designer" },
+];
+
+test.describe("new choices and roles", () => {
+  for (const width of [390, 1280]) {
+    test(`${width}px scenario shows the added options`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 1400 : 1100 });
+      await page.goto("/prototype/teammate-type/?lang=zh");
+      await expect(page.locator("#choices button")).toHaveCount(6);
+      await expect(page.locator("#choices")).toContainText("先把整晚要做的事在腦裡走一遍，再動手。");
+      await expect(page.locator("#choices")).toContainText("在語音裡定調：今晚照這個走，大家跟上。");
+      await noOverflow(page);
+      await page.locator("#quiz").screenshot({ path: `${OUT}/teammate-${width}-zh-choices.png` });
+      await page.goto("/prototype/teammate-type/?lang=en");
+      await expect(page.locator("#choices button")).toHaveCount(6);
+      await expect(page.locator("#choices")).toContainText("Walk the whole night through in your head, then start.");
+      await expect(page.locator("#choices")).toContainText("Set the tone on voice: this is the plan tonight, everyone follow.");
+      await noOverflow(page);
+      await page.locator("#quiz").screenshot({ path: `${OUT}/teammate-${width}-en-choices.png` });
+    });
+
+    test(`${width}px four new role cards`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 1100 : 1000 });
+      for (const role of NEW_ROLES) {
+        await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
+        await waitForMg(page);
+        await expect(page.locator("#card-name")).toHaveText(role.zh);
+        await expect(page.locator("#role")).toHaveText(role.roleZh);
+        await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
+        await expectFunnyHighlight(page);
+        await noOverflow(page);
+        await page.locator("#card").screenshot({ path: `${OUT}/teammate-${width}-zh-${role.code}-card.png` });
+        await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=en`);
+        await waitForMg(page);
+        await expect(page.locator("#card-name")).toHaveText(role.en);
+        await expect(page.locator("#role")).toHaveText(role.roleEn);
+        await expect(page.locator("#card-boundary")).toHaveText("A toy, not a personality test.");
+        await expectFunnyHighlight(page);
+        await noOverflow(page);
+        await page.locator("#card").screenshot({ path: `${OUT}/teammate-${width}-en-${role.code}-card.png` });
+      }
+    });
+  }
+
+  test("downloaded cards export at 2× of 1080×1350", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 1000 });
+    const jobs = [
+      { code: "EAE", lang: "zh", file: "strategist-zh.png", button: "下載角色卡" },
+      { code: "FAB", lang: "zh", file: "queen-zh.png", button: "下載角色卡" },
+      { code: "AAA", lang: "zh", file: "umbrella-zh.png", button: "下載角色卡" },
+      { code: "AEF", lang: "en", file: "messenger-en.png", button: "Download card" },
+    ];
+    for (const job of jobs) {
+      await page.goto(`/prototype/teammate-type/?c=${job.code}&lang=${job.lang}`);
+      await waitForMg(page);
+      const [download] = await Promise.all([
+        page.waitForEvent("download"),
+        page.getByRole("button", { name: job.button }).click(),
+      ]);
+      const dest = `${CARDS}/${job.file}`;
+      await download.saveAs(dest);
+      expect(download.suggestedFilename()).toBe(`teammate-${job.code}.png`);
+      expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+    }
+  });
+});
