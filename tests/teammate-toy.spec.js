@@ -612,14 +612,24 @@ test.describe("two-person scene", () => {
 
     await openDuo(page, 1280, "?c=FAE&with=FBD&lang=zh");
     await expect(page.locator("#duo-title")).toHaveText("兩人小劇場");
-    const sideBySide = await page.evaluate(() => {
+    const desktopDialogue = await page.evaluate(() => {
       const left = document.querySelector("#duo-card-left").getBoundingClientRect();
       const right = document.querySelector("#duo-card-right").getBoundingClientRect();
       const bubbles = document.querySelector("#duo-lines").getBoundingClientRect();
-      return right.left > left.right - 4 && bubbles.left >= left.right - 8 && Math.abs(left.top - right.top) < 24;
+      const stage = document.querySelector("#duo-stage").getBoundingClientRect();
+      const cardsSideBySide = right.left > left.right - 4 && Math.abs(left.top - right.top) < 24;
+      const dialogueBelow = bubbles.top >= left.bottom - 8 && bubbles.top >= right.bottom - 8;
+      const widthOk = bubbles.width >= 560 && bubbles.width <= 640;
+      const centered = Math.abs((bubbles.left + bubbles.right) / 2 - (stage.left + stage.right) / 2) < 8;
+      return cardsSideBySide && dialogueBelow && widthOk && centered;
     });
-    expect(sideBySide).toBe(true);
+    expect(desktopDialogue).toBe(true);
     await page.screenshot({ path: `${OUT}/duo-1280-zh-queens.png` });
     await page.locator("#duo-stage").screenshot({ path: `${OUT}/duo-cards-1280-zh-queens.png` });
+
+    await openDuo(page, 1280, "?c=EEA&with=BBA&lang=zh");
+    await expect(page.locator("#duo-left-name")).toHaveText("援軍到了");
+    await expect(page.locator("#duo-right-name")).toHaveText("晚安熱可可");
+    await page.locator("#duo-stage").screenshot({ path: `${OUT}/duo-cards-1280-zh-alliance.png` });
   });
 });

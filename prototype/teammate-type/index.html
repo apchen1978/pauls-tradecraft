@@ -432,17 +432,22 @@
       .page.duo-open { width: min(1120px, calc(100% - 48px)); }
       .duo-stage {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(190px, 250px) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         grid-template-areas:
-          "left mid right"
-          "foot foot foot"
-          "save save save";
+          "left right"
+          "mid mid"
+          "foot foot"
+          "save save";
         align-items: stretch;
-        gap: 18px 16px;
+        gap: 22px 20px;
       }
       .duo-card-left { grid-area: left; }
-      .duo-bubbles { grid-area: mid; align-self: center; }
       .duo-card-right { grid-area: right; margin-top: 0; }
+      .duo-bubbles {
+        grid-area: mid;
+        width: min(640px, 100%);
+        margin-inline: auto;
+      }
       #duo-boundary { grid-area: foot; }
       #duo-download { grid-area: save; justify-self: center; }
     }
