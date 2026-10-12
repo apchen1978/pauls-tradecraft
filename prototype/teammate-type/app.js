@@ -104,7 +104,7 @@ export const TYPES = {
       gentle: "有你在前面，大家才敢往前走。",
       literary: "「我不說累，只是把雨收進傘裡。」",
       strength: "扛得住壓力，讓人安心。",
-      alt: "撐著傘、穿白衣站在前面的人",
+      alt: "短黑髮、深棕眼睛、穿松綠雨衣、面向左側撐傘的人",
     },
     en: {
       name: "The Umbrella",
@@ -113,7 +113,7 @@ export const TYPES = {
       gentle: "With you up front, everyone dares to move forward.",
       literary: "\"I don't say I'm tired. I just fold the rain into my umbrella.\"",
       strength: "Takes the pressure so others feel safe.",
-      alt: "A person in white, holding an umbrella up front",
+      alt: "A person with short black hair and dark brown eyes, in a pine-green raincoat, facing left with an umbrella",
     },
   },
   cocoa: {
@@ -148,7 +148,7 @@ export const TYPES = {
       gentle: "關鍵時刻交給你，大家很放心。",
       literary: "「我不急，我在等那個剛剛好的時刻。」",
       strength: "爆發力強，會收尾。",
-      alt: "穿白衣、手邊有一道淡光的人",
+      alt: "短黑髮、琥珀色眼睛、穿炭灰背心與銅金襯衫、面向右側的人",
     },
     en: {
       name: "The Finisher",
@@ -157,7 +157,7 @@ export const TYPES = {
       gentle: "When it counts, everyone is happy to hand it to you.",
       literary: "\"I'm not in a hurry. I'm waiting for the moment that's just right.\"",
       strength: "Strong in the clutch, and actually finishes things.",
-      alt: "A person in white, with a ribbon of pale light",
+      alt: "A person with cropped black hair and amber eyes, in a charcoal vest and brass-gold shirt, facing right",
     },
   },
   spark: {
@@ -170,7 +170,7 @@ export const TYPES = {
       gentle: "你讓大家看見另一條路。",
       literary: "「別人看到牆，我看到一扇還沒畫上的窗。」",
       strength: "換個角度想，點子多。",
-      alt: "穿白衣、手中有小煙火的人",
+      alt: "捲曲赤褐髮、綠色眼睛、穿靛藍上衣、看向上方的人",
     },
     en: {
       name: "The Spark",
@@ -179,7 +179,7 @@ export const TYPES = {
       gentle: "You show everyone there's another way.",
       literary: "\"Others see a wall. I see a window nobody has drawn yet.\"",
       strength: "Sees things from a new angle, full of ideas.",
-      alt: "A person in white, holding a small firework of light",
+      alt: "A person with curly auburn hair and green eyes, in an indigo tunic, looking up",
     },
   },
   mapkeeper: {
@@ -192,7 +192,7 @@ export const TYPES = {
       gentle: "有你先看路，大家少繞很多冤枉路。",
       literary: "「我喜歡在出發前，先把風景讀一遍。」",
       strength: "觀察仔細，先把事情理清楚。",
-      alt: "穿白衣、看著一張空白地圖的人",
+      alt: "栗色短髮、榛色眼睛、穿橄欖外套、回頭看著空白地圖的人",
     },
     en: {
       name: "The Mapkeeper",
@@ -201,7 +201,7 @@ export const TYPES = {
       gentle: "Because you scout ahead, nobody has to take the long way round.",
       literary: "\"I like to read the scenery once before I set off.\"",
       strength: "Observant; sorts things out before they get messy.",
-      alt: "A person in white, looking at a blank map",
+      alt: "A person with a chestnut bob and hazel eyes, in an olive jacket, looking back at a blank map",
     },
   },
   soundtrack: {
@@ -214,7 +214,7 @@ export const TYPES = {
       gentle: "你讓辛苦的事變得好過一點。",
       literary: "「每一段努力，都值得一首配樂。」",
       strength: "帶氣氛，讓大家凝聚在一起。",
-      alt: "戴著大耳機、穿暖金色外套的人",
+      alt: "銅紅短髮、棕色眼睛、戴大耳機、穿暖金色外套的人",
     },
     en: {
       name: "The Soundtrack",
@@ -223,7 +223,7 @@ export const TYPES = {
       gentle: "You make the hard parts a little easier.",
       literary: "\"Every bit of effort deserves its own soundtrack.\"",
       strength: "Lifts the mood and pulls people together.",
-      alt: "A person in a warm gold jacket and large headphones",
+      alt: "A person with a copper-red bob and brown eyes, in a warm gold jacket and large headphones",
     },
   },
   strategist: {
@@ -258,7 +258,7 @@ export const TYPES = {
       gentle: "有你在中間跑，沒有人漏接那句話。",
       literary: "「一句話要到齊，才算說完。」",
       strength: "把話送到每一個人手上。",
-      alt: "正邁步揮手、身上有一條珊瑚色帶子的人",
+      alt: "深色超短髮、藍灰眼睛、邁步揮手、身上有珊瑚色帶子的人",
     },
     en: {
       name: "Gets It Through",
@@ -267,7 +267,7 @@ export const TYPES = {
       gentle: "With you running the middle, nobody misses the message.",
       literary: "\"A sentence isn't finished until it reaches everyone.\"",
       strength: "Gets the word into every person's hands.",
-      alt: "A person mid-stride, waving, with a coral sash",
+      alt: "A person with very short dark hair and blue-grey eyes, mid-stride and waving, with a coral sash",
     },
   },
   queen: {
@@ -302,7 +302,7 @@ export const TYPES = {
       gentle: "你讓整場看起來是故意的，不是剛好。",
       literary: "「好看不是加裝飾，是讓人想靠近。」",
       strength: "有眼光，把東西排得剛剛好。",
-      alt: "穿著幾塊不同顏色的衣服、拿著色盤的人",
+      alt: "不對稱黑髮帶一綹苔綠、灰色眼睛、穿色塊衣服、拿著色盤的人",
     },
     en: {
       name: "Makes It Look Right",
@@ -311,7 +311,7 @@ export const TYPES = {
       gentle: "You make the whole thing look intentional, not accidental.",
       literary: "\"Looking good isn't extra decoration. It's how you invite people closer.\"",
       strength: "Has an eye for it, and lines things up just so.",
-      alt: "A person in color-blocked clothes, holding a palette",
+      alt: "A person with asymmetric black hair, a moss-green streak, and grey eyes, in color-blocked clothes, holding a palette",
     },
   },
   alliance: {
@@ -890,7 +890,10 @@ function boot() {
     const text = type[state.lang];
     const other = state.lang === "zh" ? "en" : "zh";
     const width = 1080;
-    const height = 1350;
+    // 2160×4400 export. 2160×3240 cannot keep both a 40–50% picture and
+    // full-size English lines; this height does, and the shrink loop below
+    // still refuses to let the last line meet the footer.
+    const height = 2200;
     const scale = 2;
     const pad = 108;
     const inner = width - pad * 2;
@@ -934,6 +937,13 @@ function boot() {
       ctx.arc(x, y, 7, 0, Math.PI * 2);
       ctx.fill();
     }
+    const rare = resolved.type === "queen" || resolved.type === "designer";
+    if (rare) {
+      ctx.strokeStyle = resolved.type === "queen" ? "#C4A15A" : "#6E8B74";
+      ctx.lineWidth = 5;
+      roundRect(ctx, 36, 36, width - 72, height - 72, 36);
+      ctx.stroke();
+    }
 
     const center = (line, y, font, color) => {
       ctx.font = font;
@@ -943,6 +953,95 @@ function boot() {
     };
 
     center(ui.kicker, 64, `700 40px ${FONT}`, "#62716A");
+
+    const BOUNDARY = 54;
+    const BASE = { LABEL: 54, PICKS: 48, BODY: 40, FUNNY: 44, NAME: 58, OTHER: 32, ROLE: 36 };
+    const artTop = 128;
+    const lead = (size) => size + 8;
+    const measureCard = (textScale) => {
+      const sz = {};
+      for (const key of Object.keys(BASE)) sz[key] = Math.max(22, Math.round(BASE[key] * textScale));
+      ctx.font = `700 ${BOUNDARY}px ${FONT}`;
+      const boundaryLines = wrapLines(ctx, ui.boundary, inner);
+      ctx.font = `600 ${sz.PICKS}px ${FONT}`;
+      const picksLines = wrapLines(ctx, ui.picks(state.code), inner);
+      ctx.font = `700 ${sz.NAME}px ${FONT}`;
+      const nameLines = wrapLines(ctx, text.name, inner);
+      ctx.font = `600 ${sz.OTHER}px ${FONT}`;
+      const otherLines = wrapLines(ctx, type[other].name, inner);
+      ctx.font = `700 ${sz.ROLE}px ${FONT}`;
+      const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, inner);
+      ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
+      const funnyLines = wrapLines(ctx, text.funny, inner);
+      const sectionLines = [text.gentle, text.literary, text.strength].map((body, index) => {
+        ctx.font = `${index === 2 ? 600 : 500} ${sz.BODY}px ${FONT}`;
+        return wrapLines(ctx, body, inner);
+      });
+      const footerH = picksLines.length * lead(sz.PICKS) + 14 + boundaryLines.length * lead(BOUNDARY);
+      let bodyH = nameLines.length * lead(sz.NAME);
+      bodyH += 8 + otherLines.length * lead(sz.OTHER);
+      bodyH += 6 + roleLines.length * lead(sz.ROLE);
+      bodyH += rare ? 58 : 12;
+      bodyH += sz.LABEL + 10 + funnyLines.length * lead(sz.FUNNY) + 10;
+      sectionLines.forEach((lines) => {
+        bodyH += sz.LABEL + 10 + lines.length * lead(sz.BODY) + 8;
+      });
+      return { sz, boundaryLines, picksLines, nameLines, otherLines, roleLines, funnyLines, sectionLines, footerH, bodyH };
+    };
+    const cardFits = (ratio, measured) => {
+      const artH = Math.round(height * ratio);
+      const footerTop = height - 48 - 56 - measured.footerH;
+      return artTop + artH + 16 + measured.bodyH <= footerTop - 20;
+    };
+    let textScale = 1;
+    let artRatio = 0.46;
+    let plan = measureCard(textScale);
+    if (!cardFits(artRatio, plan)) {
+      for (let ratio = 44; ratio >= 40; ratio -= 2) {
+        artRatio = ratio / 100;
+        if (cardFits(artRatio, plan)) break;
+      }
+    }
+    if (!cardFits(artRatio, plan)) {
+      for (let scale = 96; scale >= 72; scale -= 2) {
+        textScale = scale / 100;
+        plan = measureCard(textScale);
+        if (cardFits(artRatio, plan)) break;
+      }
+    }
+    while (!cardFits(artRatio, plan) && textScale > 0.6) {
+      textScale = Math.round((textScale - 0.02) * 100) / 100;
+      plan = measureCard(textScale);
+    }
+    if (cardFits(artRatio, plan)) {
+      for (let ratio = Math.round(artRatio * 100) + 2; ratio <= 50; ratio += 2) {
+        if (!cardFits(ratio / 100, plan)) break;
+        artRatio = ratio / 100;
+      }
+    }
+    const artH = Math.round(height * artRatio);
+    const footerTop = height - 48 - 56 - plan.footerH;
+    const { sz, boundaryLines, picksLines, nameLines, otherLines, roleLines, funnyLines, sectionLines } = plan;
+
+    const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
+    const horseNode = readyImage("horse", HORSE_SRC);
+    let artBottom = artTop;
+    const fitDraw = (image, maxW) => {
+      let drawH = artH;
+      let drawW = (image.naturalWidth / image.naturalHeight) * drawH;
+      if (drawW > maxW) {
+        drawW = maxW;
+        drawH = drawW * (image.naturalHeight / image.naturalWidth);
+      }
+      ctx.drawImage(image, Math.round((width - drawW) / 2), artTop, drawW, drawH);
+      return artTop + drawH;
+    };
+    if (resolved.type === "alliance" && horseNode) artBottom = fitDraw(horseNode, 960);
+    else if (portrait) artBottom = fitDraw(portrait, 640);
+    else {
+      const img = $("mg");
+      if (img.complete && img.naturalWidth > 0) artBottom = fitDraw(img, 520);
+    }
 
     const emblem = type.prop ? emblems[type.prop] : null;
     if (emblem && emblem.complete && emblem.naturalWidth > 0) {
@@ -956,71 +1055,21 @@ function boot() {
       ctx.drawImage(emblem, width - 214, 150, 92, 92);
     }
 
-    const LABEL = 54;
-    const BOUNDARY = 54;
-    const PICKS = 48;
-    const BODY = 40;
-    const FUNNY = 44;
-    const NAME = 58;
-    const rare = resolved.type === "queen" || resolved.type === "designer";
-    const lead = (size) => size + 8;
-    ctx.font = `700 ${BOUNDARY}px ${FONT}`;
-    const boundaryLines = wrapLines(ctx, ui.boundary, inner);
-    ctx.font = `600 ${PICKS}px ${FONT}`;
-    const picksLines = wrapLines(ctx, ui.picks(state.code), inner);
-    const footerH = picksLines.length * lead(PICKS) + 14 + boundaryLines.length * lead(BOUNDARY);
-    const footerTop = height - 48 - 56 - footerH;
-    const contentLimit = footerTop - 16;
-    ctx.font = `700 ${NAME}px ${FONT}`;
-    const nameLines = wrapLines(ctx, text.name, inner);
-    ctx.font = `700 ${FUNNY}px ${FONT}`;
-    const funnyLines = wrapLines(ctx, text.funny, inner);
-    const sectionLines = [
-      [text.gentle, 500],
-      [text.literary, 500],
-      [text.strength, 600],
-    ].map(([body, weight]) => {
-      ctx.font = `${weight} ${BODY}px ${FONT}`;
-      return wrapLines(ctx, body, inner);
-    });
-    let textH = nameLines.length * lead(NAME + 8);
-    textH += 36 + 44;
-    textH += rare ? 58 : 12;
-    textH += LABEL + 10 + funnyLines.length * lead(FUNNY) + 10;
-    sectionLines.forEach((lines) => {
-      textH += LABEL + 10 + lines.length * lead(BODY) + 8;
-    });
-    const artTop = 112;
-    const artMax = Math.max(140, contentLimit - textH - 10 - artTop);
-    const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
-    const horseNode = readyImage("horse", HORSE_SRC);
-    let artBottom = artTop;
-    const fitDraw = (image, maxW) => {
-      let drawW = maxW;
-      let drawH = (image.naturalHeight / image.naturalWidth) * drawW;
-      if (drawH > artMax) {
-        drawH = artMax;
-        drawW = drawH * (image.naturalWidth / image.naturalHeight);
-      }
-      ctx.drawImage(image, Math.round((width - drawW) / 2), artTop, drawW, drawH);
-      return artTop + drawH;
-    };
-    if (resolved.type === "alliance" && horseNode) artBottom = fitDraw(horseNode, 520);
-    else if (portrait) artBottom = fitDraw(portrait, 280);
-    else {
-      const img = $("mg");
-      if (img.complete && img.naturalWidth > 0) artBottom = fitDraw(img, 240);
-    }
-
-    let y = Math.max(artBottom + 12, artTop + 8);
+    let y = artBottom + 16;
     nameLines.forEach((line) => {
-      center(line, y, `700 ${NAME}px ${FONT}`, "#193A35");
-      y += lead(NAME + 8);
+      center(line, y, `700 ${sz.NAME}px ${FONT}`, "#193A35");
+      y += lead(sz.NAME);
     });
-    center(type[other].name, y, `600 32px ${FONT}`, "#62716A");
-    y += 36;
-    center(`${ui.roleLabel} · ${text.role}`, y, `700 36px ${FONT}`, "#142C29");
-    y += 44;
+    otherLines.forEach((line) => {
+      center(line, y, `600 ${sz.OTHER}px ${FONT}`, "#62716A");
+      y += lead(sz.OTHER);
+    });
+    y += 8;
+    roleLines.forEach((line) => {
+      center(line, y, `700 ${sz.ROLE}px ${FONT}`, "#142C29");
+      y += lead(sz.ROLE);
+    });
+    y += 6;
     if (rare) {
       ctx.font = `700 28px ${FONT}`;
       const badge = ui.rare;
@@ -1040,41 +1089,40 @@ function boot() {
     }
 
     const drawLabel = (label) => {
-      ctx.font = `700 ${LABEL}px ${FONT}`;
+      ctx.font = `700 ${sz.LABEL}px ${FONT}`;
       ctx.fillStyle = "#8A6A2B";
       ctx.fillText(label, pad, y);
-      y += LABEL + 10;
+      y += sz.LABEL + 10;
     };
     drawLabel(ui.funny);
     funnyLines.forEach((line) => {
-      ctx.font = `700 ${FUNNY}px ${FONT}`;
+      ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
       const w = ctx.measureText(line).width;
       ctx.fillStyle = "#F08A6E";
-      ctx.fillRect(pad, y + Math.round(FUNNY * 0.62), Math.min(w, inner), 16);
+      ctx.fillRect(pad, y + Math.round(sz.FUNNY * 0.62), Math.min(w, inner), Math.max(12, Math.round(sz.FUNNY * 0.36)));
       ctx.fillStyle = "#193A35";
       ctx.fillText(line, pad, y);
-      y += lead(FUNNY);
+      y += lead(sz.FUNNY);
     });
     y += 10;
     [text.gentle, text.literary, text.strength].forEach((body, index) => {
       drawLabel([ui.gentle, ui.literary, ui.strength][index]);
       const weight = index === 2 ? 600 : 500;
       sectionLines[index].forEach((line) => {
-        ctx.font = `${weight} ${BODY}px ${FONT}`;
+        ctx.font = `${weight} ${sz.BODY}px ${FONT}`;
         ctx.fillStyle = "#193A35";
         ctx.fillText(line, pad, y);
-        y += lead(BODY);
+        y += lead(sz.BODY);
       });
       y += 8;
     });
 
     let foot = footerTop;
-    ctx.fillStyle = "#62716A";
     picksLines.forEach((line) => {
-      ctx.font = `600 ${PICKS}px ${FONT}`;
+      ctx.font = `600 ${sz.PICKS}px ${FONT}`;
       ctx.fillStyle = "#62716A";
       ctx.fillText(line, pad, foot);
-      foot += lead(PICKS);
+      foot += lead(sz.PICKS);
     });
     foot += 14;
     boundaryLines.forEach((line) => {

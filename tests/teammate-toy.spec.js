@@ -313,7 +313,7 @@ test.describe("new choices and roles", () => {
     });
   }
 
-  test("downloaded cards export at 2× of 1080×1350", async ({ page }) => {
+  test("downloaded cards export at 2× of 1080×2200", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 1000 });
     const jobs = [
       { code: "EAE", lang: "zh", file: "strategist-zh.png", button: "下載角色卡" },
@@ -331,7 +331,7 @@ test.describe("new choices and roles", () => {
       const dest = `${CARDS}/${job.file}`;
       await download.saveAs(dest);
       expect(download.suggestedFilename()).toBe(`teammate-${job.code}.png`);
-      expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+      expect(pngSize(dest)).toEqual({ width: 2160, height: 4400 });
     }
   });
 
@@ -353,7 +353,7 @@ test.describe("new choices and roles", () => {
     ]);
     const queenDest = `${CARDS}/queen-zh.png`;
     await queenDownload.saveAs(queenDest);
-    expect(pngSize(queenDest)).toEqual({ width: 2160, height: 2700 });
+    expect(pngSize(queenDest)).toEqual({ width: 2160, height: 4400 });
 
     await page.goto("/prototype/teammate-type/?c=BBA&lang=zh");
     await waitForMg(page);
@@ -378,7 +378,7 @@ test.describe("new choices and roles", () => {
     ]);
     const dest = `${CARDS}/guardian-cat-zh.png`;
     await download.saveAs(dest);
-    expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+    expect(pngSize(dest)).toEqual({ width: 2160, height: 4400 });
   });
 
   test("390px zh alliance shows the winged horse", async ({ page }) => {
@@ -404,7 +404,7 @@ test.describe("new choices and roles", () => {
     ]);
     const dest = `${CARDS}/alliance-zh.png`;
     await download.saveAs(dest);
-    expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+    expect(pngSize(dest)).toEqual({ width: 2160, height: 4400 });
     await page.getByRole("button", { name: "EN" }).click();
     await expect(page.locator("#card-name")).toHaveText("Reinforcements Are Here");
     await expect(page.locator("#role")).toHaveText("Party role · Alliance");
@@ -415,7 +415,7 @@ test.describe("new choices and roles", () => {
       page.getByRole("button", { name: "Download card" }).click(),
     ]);
     await enDownload.saveAs(`${CARDS}/alliance-en.png`);
-    expect(pngSize(`${CARDS}/alliance-en.png`)).toEqual({ width: 2160, height: 2700 });
+    expect(pngSize(`${CARDS}/alliance-en.png`)).toEqual({ width: 2160, height: 4400 });
   });
 
   test("390px zh eight roles each show their own portrait", async ({ page }) => {
@@ -447,7 +447,7 @@ test.describe("new choices and roles", () => {
       ]);
       const dest = `${CARDS}/${role.file.replace(/\.webp$/, "")}-zh.png`;
       await download.saveAs(dest);
-      expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+      expect(pngSize(dest)).toEqual({ width: 2160, height: 4400 });
       await page.getByRole("button", { name: "EN" }).click();
       await waitForQueen(page);
       await expect(page.locator("#card-name")).toHaveText(role.en);
@@ -460,7 +460,7 @@ test.describe("new choices and roles", () => {
       ]);
       const enDest = `${CARDS}/${role.file.replace(/\.webp$/, "")}-en.png`;
       await enDownload.saveAs(enDest);
-      expect(pngSize(enDest)).toEqual({ width: 2160, height: 2700 });
+      expect(pngSize(enDest)).toEqual({ width: 2160, height: 4400 });
     }
   });
 });
