@@ -70,6 +70,13 @@ async function waitForMg(page) {
   });
 }
 
+async function waitForQueen(page) {
+  await page.waitForFunction(() => {
+    const img = document.querySelector("#queen-art");
+    return img && !img.hidden && img.complete && img.naturalWidth > 0;
+  });
+}
+
 async function expectBranchFirst(page, experimentTitle) {
   const order = await page.evaluate((experimentTitle) => {
     const plain = (el) => (el?.textContent || "").replace(/\u200b/g, "");
@@ -284,7 +291,8 @@ test.describe("new choices and roles", () => {
       await page.setViewportSize({ width, height: width === 390 ? 1100 : 1000 });
       for (const role of NEW_ROLES) {
         await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
-        await waitForMg(page);
+        if (role.code === "FAE") await waitForQueen(page);
+        else await waitForMg(page);
         await expect(page.locator("#card-name")).toHaveText(role.zh);
         await expect(page.locator("#role")).toHaveText(role.roleZh);
         await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
@@ -292,7 +300,8 @@ test.describe("new choices and roles", () => {
         await noOverflow(page);
         await page.locator("#card").screenshot({ path: `${OUT}/teammate-${width}-zh-${role.code}-card.png` });
         await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=en`);
-        await waitForMg(page);
+        if (role.code === "FAE") await waitForQueen(page);
+        else await waitForMg(page);
         await expect(page.locator("#card-name")).toHaveText(role.en);
         await expect(page.locator("#role")).toHaveText(role.roleEn);
         await expect(page.locator("#card-boundary")).toHaveText("A toy, not a personality test.");
@@ -313,7 +322,8 @@ test.describe("new choices and roles", () => {
     ];
     for (const job of jobs) {
       await page.goto(`/prototype/teammate-type/?c=${job.code}&lang=${job.lang}`);
-      await waitForMg(page);
+      if (job.code === "FAE") await waitForQueen(page);
+      else await waitForMg(page);
       const [download] = await Promise.all([
         page.waitForEvent("download"),
         page.getByRole("button", { name: job.button }).click(),
@@ -328,12 +338,21 @@ test.describe("new choices and roles", () => {
   test("390px zh queen is rare and a guardian code shows the horse", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 1100 });
     await page.goto("/prototype/teammate-type/?c=FAE&lang=zh");
-    await waitForMg(page);
+    await waitForQueen(page);
     await expect(page.locator("#card-name")).toHaveText("今晚聽我的");
     await expect(page.locator("#rare")).toHaveText("稀有");
     await expect(page.locator("#horse")).toBeHidden();
+    await expect(page.locator("#mg")).toBeHidden();
+    await expect(page.locator("#queen-art")).toBeVisible();
     await noOverflow(page);
     await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-queen-rare.png` });
+    const [queenDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "下載角色卡" }).click(),
+    ]);
+    const queenDest = `${CARDS}/queen-zh.png`;
+    await queenDownload.saveAs(queenDest);
+    expect(pngSize(queenDest)).toEqual({ width: 2160, height: 2700 });
 
     await page.goto("/prototype/teammate-type/?c=BBA&lang=zh");
     await expect(page.locator("#card-name")).toHaveText("晚安熱可可");

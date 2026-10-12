@@ -210,6 +210,20 @@
       right: 0;
       bottom: 0;
     }
+    .stage .queen-art {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: min(168px, 100%);
+      height: auto;
+      margin: 0 auto;
+      aspect-ratio: auto;
+    }
+    .stage.with-queen {
+      width: min(200px, 100%);
+      height: 312px;
+    }
+    .stage.with-queen #mg { display: none; }
     .rare {
       display: inline-block;
       margin: 8px 0 0;
@@ -316,6 +330,7 @@
         <div class="stage" id="stage">
           <img id="mg" alt="" width="192" height="208" />
           <img id="horse" class="horse" src="assets/winged-horse.png" alt="" width="1608" height="1374" hidden />
+          <img id="queen-art" class="queen-art" src="assets/queen.png" alt="" width="900" height="1617" hidden />
           <div id="prop"></div>
         </div>
         <h2 id="card-name" tabindex="-1"></h2>
