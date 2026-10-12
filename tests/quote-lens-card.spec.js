@@ -70,6 +70,24 @@ for (const width of [390, 1440]) {
       });
     }
 
+    for (const lang of ["zh", "en"]) {
+      test(`${lang}: the Trade Profit Navigator card carries a visible link to the Quote Lens demo`, async ({ page }) => {
+        await page.goto(`/?lang=${lang}`);
+        const link = page.locator('#trade-profit-navigator a[href^="https://apchen1978.github.io/quote-lens-demo/"]');
+        await expect(link).toHaveCount(1);
+        await link.scrollIntoViewIfNeeded();
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute("href", lang === "en" ? `${DEMO}?lang=en` : DEMO);
+        await expect(link).toHaveAttribute("target", "_blank");
+        await expect(link).toHaveAttribute("rel", /noopener/);
+        await expect(link).toContainText(lang === "en" ? "interactive prototype" : "互動原型");
+        // the card's own primary link is unchanged
+        await expect(page.locator('#trade-profit-navigator a[href*="trade-profit-navigator-demo"]').first()).toBeVisible();
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        expect(overflow).toBeLessThanOrEqual(0);
+      });
+    }
+
     test("the card does not displace the existing experiments", async ({ page }) => {
       await page.goto("/?lang=zh");
       for (const id of ["mg-desktop-pet", "game", "simulations", "expense", "architecture-decision", "quote-lens"]) {
