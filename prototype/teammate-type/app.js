@@ -30,7 +30,8 @@
 //      to the next scenario's choice. FAE stays queen; AFC stays designer.
 //      守護者's companion is the winged horse when the index sum is even,
 //      and MG when it is odd (BBA → horse, BBB → MG). The horse is the
-//      anime illustration in assets/winged-horse.png.
+//      anime illustration in assets/winged-horse.png. Queen uses
+//      assets/queen.png instead of MG.
 //
 // Worked examples:
 //   AAA majority → umbrella
@@ -271,7 +272,7 @@ export const TYPES = {
       gentle: "你把調子定下來，大家就知道往哪靠。",
       literary: "「不是命令，是這場需要一個調子。」",
       strength: "定調，讓大家圍過來。",
-      alt: "MG 站著，頭上有一頂小皇冠",
+      alt: "戴著皇冠、長髮與長裙的女王",
     },
     en: {
       name: "Tonight, Follow Me",
@@ -280,7 +281,7 @@ export const TYPES = {
       gentle: "You set the tone, and everyone knows where to gather.",
       literary: "\"Not an order. The scene just needed a key.\"",
       strength: "Sets the tone so people rally around it.",
-      alt: "MG standing, with a small crown",
+      alt: "A queen in a crown, with long hair and a flowing gown",
     },
   },
   designer: {
@@ -527,13 +528,21 @@ const WASH = {
 const emblems = {};
 
 let horseImg = null;
+let queenImg = null;
+
+function preloadPortrait(id, slot) {
+  if (typeof Image === "undefined") return null;
+  const node = document.getElementById(id);
+  if (!node || node.tagName !== "IMG") return null;
+  return node;
+}
 
 function preloadHorse() {
-  if (typeof Image === "undefined") return;
-  const node = document.getElementById("horse");
-  if (!node || node.tagName !== "IMG") return;
-  horseImg = node;
-  if (!node.getAttribute("src")) node.src = "assets/winged-horse.png";
+  horseImg = preloadPortrait("horse");
+}
+
+function preloadQueen() {
+  queenImg = preloadPortrait("queen-art");
 }
 
 function preloadEmblems() {
@@ -686,8 +695,9 @@ function boot() {
     const result = $("result");
     if (!state.code) {
       stopPose();
-      $("stage").classList.remove("with-horse", "motion-float", "motion-bob", "motion-squash");
+      $("stage").classList.remove("with-horse", "with-queen", "motion-float", "motion-bob", "motion-squash");
       $("horse").setAttribute("hidden", "");
+      $("queen-art").setAttribute("hidden", "");
       $("mg").hidden = false;
       $("rare").hidden = true;
       $("companion").hidden = true;
@@ -764,12 +774,28 @@ function boot() {
     const companion = companionFor(state.code, typeId);
     const stage = $("stage");
     const horse = $("horse");
+    const queenArt = $("queen-art");
     const img = $("mg");
     const caption = $("companion");
+    const queen = typeId === "queen";
     stage.classList.toggle("with-horse", companion === "horse");
+    stage.classList.toggle("with-queen", queen);
+    if (queen) queenArt.removeAttribute("hidden");
+    else queenArt.setAttribute("hidden", "");
     if (companion === "horse") horse.removeAttribute("hidden");
     else horse.setAttribute("hidden", "");
-    img.hidden = companion === "horse";
+    img.hidden = companion === "horse" || queen;
+    if (queen) {
+      stopPose();
+      stage.classList.remove("motion-float", "motion-bob", "motion-squash");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduce) stage.classList.add("motion-float");
+      queenArt.alt = type[state.lang].alt;
+      caption.hidden = true;
+      caption.textContent = "";
+      $("prop").textContent = "";
+      return;
+    }
     if (companion === "horse") {
       stopPose();
       stage.classList.remove("motion-float", "motion-bob", "motion-squash");
@@ -905,6 +931,7 @@ function boot() {
     }
 
     const companion = companionFor(state.code, resolved.type);
+    const queenPortrait = resolved.type === "queen" && queenImg && queenImg.complete && queenImg.naturalWidth > 0;
     let horseBottom = 400;
     if (companion === "horse" && horseImg && horseImg.complete && horseImg.naturalWidth > 0) {
       const horseW = 500;
@@ -912,6 +939,12 @@ function boot() {
       const horseY = 88;
       ctx.drawImage(horseImg, Math.round((width - horseW) / 2), horseY, horseW, horseH);
       horseBottom = horseY + horseH;
+    } else if (queenPortrait) {
+      const queenW = 260;
+      const queenH = (queenImg.naturalHeight / queenImg.naturalWidth) * queenW;
+      const queenY = 108;
+      ctx.drawImage(queenImg, Math.round((width - queenW) / 2), queenY, queenW, queenH);
+      horseBottom = queenY + queenH;
     } else {
       const img = $("mg");
       if (img.complete && img.naturalWidth > 0) {
@@ -921,7 +954,7 @@ function boot() {
       }
     }
 
-    let y = companion === "horse" ? horseBottom + 40 : 430;
+    let y = companion === "horse" ? horseBottom + 40 : resolved.type === "queen" ? horseBottom + 16 : 430;
     if (companion === "horse") center(ui.horseLabel, horseBottom + 8, `700 22px ${FONT}`, "#62716A");
     ctx.font = `700 64px ${FONT}`;
     const nameLines = wrapLines(ctx, text.name, inner);
@@ -1030,6 +1063,7 @@ function boot() {
 
   preloadEmblems();
   preloadHorse();
+  preloadQueen();
   for (const pose of Object.values(POSES)) {
     pose.frames.forEach((frame) => {
       const img = new Image();
