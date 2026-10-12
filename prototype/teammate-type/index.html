@@ -246,6 +246,14 @@
     .motion-float img, .motion-float .horse { animation: mg-float 1.4s ease-in-out infinite; }
     .motion-squash img { animation: mg-squash 320ms ease-in-out infinite; }
     #card-name { margin-top: 8px; font-size: clamp(1.6rem, 6vw, 2.15rem); }
+    .egg {
+      margin: 2px 0 0;
+      color: var(--moss);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      line-height: 1.2;
+    }
     .other-name, .role, .line, .line-label, .line-body, .picks, .same, .card-boundary { margin: 0; overflow-wrap: anywhere; }
     .other-name { margin-top: 4px; font-weight: 700; }
     .role { margin-top: 6px; font-size: 14px; font-weight: 700; }
@@ -498,6 +506,7 @@
           <div id="prop"></div>
         </div>
         <h2 id="card-name" tabindex="-1"></h2>
+        <p class="egg" id="card-egg" hidden></p>
         <p class="other-name" id="other-name"></p>
         <p class="role" id="role"></p>
         <p class="rare" id="rare" hidden></p>
@@ -523,6 +532,7 @@
               <img id="duo-left" alt="" />
             </div>
             <h3 id="duo-left-name" tabindex="-1"></h3>
+            <p class="egg" id="duo-left-egg" hidden></p>
             <p class="other-name" id="duo-left-other"></p>
             <p class="role" id="duo-left-role"></p>
             <p class="rare" id="duo-left-rare" hidden></p>
@@ -537,6 +547,7 @@
               <img id="duo-right" alt="" />
             </div>
             <h3 id="duo-right-name" tabindex="-1"></h3>
+            <p class="egg" id="duo-right-egg" hidden></p>
             <p class="other-name" id="duo-right-other"></p>
             <p class="role" id="duo-right-role"></p>
             <p class="rare" id="duo-right-rare" hidden></p>

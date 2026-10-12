@@ -271,7 +271,7 @@ const NEW_ROLES = [
   { code: "AFE", zh: "這件事值得說", en: "Worth Saying Out Loud", roleZh: "組隊角色 · 傳教士", roleEn: "Party role · Missionary" },
   { code: "ACF", zh: "我接著走", en: "I'll Carry It On", roleZh: "組隊角色 · 使徒", roleEn: "Party role · Apostle" },
   { code: "FAE", zh: "銀河之女", en: "Daughter of the Galaxy", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
-  { code: "FBD", zh: "M-31仙女座", en: "M-31 Andromeda", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
+  { code: "FBD", zh: "仙女座女王", en: "Queen of Andromeda", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
   { code: "AFC", zh: "順眼就對了", en: "Makes It Look Right", roleZh: "組隊角色 · 設計師", roleEn: "Party role · Designer" },
 ];
 
@@ -361,7 +361,8 @@ test.describe("new choices and roles", () => {
 
     await page.goto("/prototype/teammate-type/?c=FBD&lang=zh");
     await waitForQueen(page);
-    await expect(page.locator("#card-name")).toHaveText("M-31仙女座");
+    await expect(page.locator("#card-name")).toHaveText("仙女座女王");
+    await expect(page.locator("#card-egg")).toHaveText("M-31");
     await expect(page.locator("#role")).toHaveText("組隊角色 · 女王");
     await expect(page.locator("#rare")).toHaveText("稀有");
     await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/andromeda.webp");
@@ -455,7 +456,7 @@ test.describe("new choices and roles", () => {
       { code: "AFE", file: "missionary.webp", zh: "這件事值得說", en: "Worth Saying Out Loud" },
       { code: "ACF", file: "apostle.webp", zh: "我接著走", en: "I'll Carry It On" },
       { code: "FAE", file: "galaxy.webp", zh: "銀河之女", en: "Daughter of the Galaxy" },
-      { code: "FBD", file: "andromeda.webp", zh: "M-31仙女座", en: "M-31 Andromeda" },
+      { code: "FBD", file: "andromeda.webp", zh: "仙女座女王", en: "Queen of Andromeda" },
     ];
     for (const role of roles) {
       await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
@@ -534,7 +535,9 @@ test.describe("two-person scene", () => {
 
     await openDuo(page, 390, "?c=FAE&with=FBD&lang=zh");
     await expect(page.locator("#duo-left-name")).toHaveText("銀河之女");
-    await expect(page.locator("#duo-right-name")).toHaveText("M-31仙女座");
+    await expect(page.locator("#duo-right-name")).toHaveText("仙女座女王");
+    await expect(page.locator("#duo-right-egg")).toHaveText("M-31");
+    await expect(page.locator("#duo-left-egg")).toBeHidden();
     await expect(page.locator("#duo-left-lines")).toContainText("你一站出來，滑手機的人都把臉抬起來了。");
     await expect(page.locator("#duo-right-lines")).toContainText("你一笑，原本各做各的人都轉過來了。");
     await expect(page.locator("#duo-left-role")).toHaveText("組隊角色 · 女王");

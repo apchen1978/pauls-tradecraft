@@ -30,7 +30,7 @@
 //      the same parity (both even or both odd). Otherwise that win passes
 //      to the next scenario's choice. The queen slot then splits on the
 //      middle letter: even index (A/C/E) is 銀河之女, odd (B/D/F) is
-//      M-31仙女座. FAE is 銀河之女; FBD is M-31仙女座. Three codes each.
+//      仙女座女王. FAE is 銀河之女; FBD is 仙女座女王. Three codes each.
 //      AFC stays designer.
 //      A three-way tie that uses E or F, and did not keep queen or designer,
 //      becomes 聯盟 / Alliance when the choice-index sum mod 7 is 1
@@ -310,8 +310,9 @@ export const TYPES = {
   andromeda: {
     pose: "wave",
     prop: "crown",
+    egg: "M-31",
     zh: {
-      name: "M-31仙女座",
+      name: "仙女座女王",
       role: "女王",
       funny: "你一笑，原本各做各的人都轉過來了。",
       gentle: "你站在前面，大家就有了一個可以跟上的亮度。",
@@ -320,7 +321,7 @@ export const TYPES = {
       alt: "金長髮、藍眼睛、戴寬金冠、穿香檳色長裙、面向右側的人",
     },
     en: {
-      name: "M-31 Andromeda",
+      name: "Queen of Andromeda",
       role: "Queen",
       funny: "You smile, and people who were each doing their own thing turn around.",
       gentle: "With you in front, everyone has a brightness they can follow.",
@@ -853,6 +854,7 @@ function boot() {
       $("queen-art").setAttribute("hidden", "");
       $("mg").hidden = false;
       $("rare").hidden = true;
+      $("card-egg").hidden = true;
       $("companion").hidden = true;
       closeDuoStage();
       quiz.hidden = false;
@@ -889,6 +891,8 @@ function boot() {
     result.hidden = false;
     $("card-kicker").textContent = ui.kicker;
     $("card-name").textContent = text.name;
+    $("card-egg").hidden = !type.egg;
+    $("card-egg").textContent = type.egg || "";
     $("other-name").textContent = type[other].name;
     $("role").textContent = `${ui.roleLabel} · ${text.role}`;
     const lines = $("lines");
@@ -1032,6 +1036,8 @@ function boot() {
     img.alt = text.alt;
     img.classList.toggle("face-in", shouldFaceIn(GAZE[typeId], slot));
     $(`duo-${slot}-name`).textContent = text.name;
+    $(`duo-${slot}-egg`).hidden = !type.egg;
+    $(`duo-${slot}-egg`).textContent = type.egg || "";
     $(`duo-${slot}-other`).textContent = type[other].name;
     $(`duo-${slot}-role`).textContent = `${ui.roleLabel} · ${text.role}`;
     const rare = typeId === "galaxy" || typeId === "andromeda" || typeId === "designer";
@@ -1249,6 +1255,7 @@ function boot() {
       });
       const footerH = picksLines.length * lead(sz.PICKS) + 14 + boundaryLines.length * lead(BOUNDARY);
       let bodyH = nameLines.length * lead(sz.NAME);
+      bodyH += type.egg ? 34 : 0;
       bodyH += 8 + otherLines.length * lead(sz.OTHER);
       bodyH += 6 + roleLines.length * lead(sz.ROLE);
       bodyH += rare ? 58 : 12;
@@ -1333,6 +1340,13 @@ function boot() {
       center(line, y, `700 ${sz.NAME}px ${FONT}`, "#193A35");
       y += lead(sz.NAME);
     });
+    if (type.egg) {
+      ctx.save();
+      ctx.letterSpacing = "0.22em";
+      center(type.egg, y, `600 22px ${FONT}`, "#62716A");
+      ctx.restore();
+      y += 34;
+    }
     otherLines.forEach((line) => {
       center(line, y, `600 ${sz.OTHER}px ${FONT}`, "#62716A");
       y += lead(sz.OTHER);
@@ -1453,7 +1467,8 @@ function boot() {
       ctx.font = `700 30px ${FONT}`;
       const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, colW - 28);
       const rare = Boolean(rareStroke(resolved.type));
-      const metaH = nameLines.length * 50 + otherLines.length * 36 + roleLines.length * 40 + (rare ? 56 : 10);
+      const egg = TYPES[resolved.type].egg || "";
+      const metaH = nameLines.length * 50 + (egg ? 28 : 0) + otherLines.length * 36 + roleLines.length * 40 + (rare ? 56 : 10);
       return {
         slot: index === 0 ? "left" : "right",
         resolved,
@@ -1462,6 +1477,7 @@ function boot() {
         otherLines,
         roleLines,
         rare,
+        egg,
         metaH,
       };
     });
@@ -1615,6 +1631,13 @@ function boot() {
         centerAt(line, `700 42px ${FONT}`, ink);
         y += 50;
       });
+      if (person.egg) {
+        ctx.save();
+        ctx.letterSpacing = "0.2em";
+        centerAt(person.egg, `600 18px ${FONT}`, moss);
+        ctx.restore();
+        y += 28;
+      }
       person.otherLines.forEach((line) => {
         centerAt(line, `600 28px ${FONT}`, moss);
         y += 36;
