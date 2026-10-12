@@ -138,12 +138,15 @@ for (const width of [390, 768, 1440]) {
 
     test("zh play, share-link round trip, and en card", async ({ page }) => {
       const external = [];
+      const roleArt = [];
       page.on("request", (request) => {
         const url = request.url();
         if (!url.startsWith("http://127.0.0.1:4173") && !url.startsWith("data:")) external.push(url);
+        if (url.includes("/prototype/teammate-type/assets/")) roleArt.push(url);
       });
       await page.goto("/prototype/teammate-type/?lang=zh");
       await expect(page.getByRole("heading", { name: "你是哪一種隊友？" })).toBeVisible();
+      expect(roleArt).toEqual([]);
       await expect(page.getByText("示意玩具，不是心理測驗。").first()).toBeVisible();
       await expect(page.locator("#quiz")).toBeVisible();
       await noOverflow(page);
@@ -264,7 +267,7 @@ function pngSize(file) {
 
 const NEW_ROLES = [
   { code: "EAE", zh: "先看全局", en: "Sees the Whole Board", roleZh: "組隊角色 · 軍師", roleEn: "Party role · Strategist" },
-  { code: "AEF", zh: "喊到到齊", en: "Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
+  { code: "AEF", zh: "話送到了", en: "Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
   { code: "FAE", zh: "今晚聽我的", en: "Tonight, Follow Me", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
   { code: "AFC", zh: "順眼就對了", en: "Makes It Look Right", roleZh: "組隊角色 · 設計師", roleEn: "Party role · Designer" },
 ];
@@ -341,7 +344,7 @@ test.describe("new choices and roles", () => {
     await expect(page.locator("#horse")).toBeHidden();
     await expect(page.locator("#mg")).toBeHidden();
     await expect(page.locator("#queen-art")).toBeVisible();
-    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/queen.png");
+    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/queen.webp");
     await noOverflow(page);
     await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-queen-rare.png` });
     const [queenDownload] = await Promise.all([
@@ -385,7 +388,7 @@ test.describe("new choices and roles", () => {
       const img = document.querySelector("#horse");
       return img && !img.hidden && img.complete && img.naturalWidth > 0;
     });
-    await expect(page.locator("#card-name")).toHaveText("今晚同一邊");
+    await expect(page.locator("#card-name")).toHaveText("援軍到了");
     await expect(page.locator("#role")).toHaveText("組隊角色 · 聯盟");
     await expect(page.locator("#rare")).toBeHidden();
     await expect(page.locator("#horse")).toBeVisible();
@@ -403,7 +406,7 @@ test.describe("new choices and roles", () => {
     await download.saveAs(dest);
     expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
     await page.getByRole("button", { name: "EN" }).click();
-    await expect(page.locator("#card-name")).toHaveText("Same Side Tonight");
+    await expect(page.locator("#card-name")).toHaveText("Reinforcements Are Here");
     await expect(page.locator("#role")).toHaveText("Party role · Alliance");
     await expect(page.locator("#horse")).toBeVisible();
     await expect(page.locator("#mg")).toBeHidden();
@@ -419,14 +422,14 @@ test.describe("new choices and roles", () => {
     test.setTimeout(180000);
     await page.setViewportSize({ width: 390, height: 1100 });
     const roles = [
-      { code: "AAA", file: "umbrella.png", zh: "擋雨的人", en: "The Umbrella" },
-      { code: "BBC", file: "finisher.png", zh: "最後一擊", en: "The Finisher" },
-      { code: "CCC", file: "spark.png", zh: "腦內煙火師", en: "The Spark" },
-      { code: "DAA", file: "mapkeeper.png", zh: "地圖收藏家", en: "The Mapkeeper" },
-      { code: "CCD", file: "soundtrack.png", zh: "BGM 擔當", en: "The Soundtrack" },
-      { code: "EAE", file: "strategist.png", zh: "先看全局", en: "Sees the Whole Board" },
-      { code: "AEF", file: "messenger.png", zh: "喊到到齊", en: "Gets It Through" },
-      { code: "AFC", file: "designer.png", zh: "順眼就對了", en: "Makes It Look Right" },
+      { code: "AAA", file: "umbrella.webp", zh: "擋雨的人", en: "The Umbrella" },
+      { code: "BBC", file: "finisher.webp", zh: "最後一擊", en: "The Finisher" },
+      { code: "CCC", file: "spark.webp", zh: "腦內煙火師", en: "The Spark" },
+      { code: "DAA", file: "mapkeeper.webp", zh: "地圖收藏家", en: "The Mapkeeper" },
+      { code: "CCD", file: "soundtrack.webp", zh: "BGM 擔當", en: "The Soundtrack" },
+      { code: "EAE", file: "strategist.webp", zh: "先看全局", en: "Sees the Whole Board" },
+      { code: "AEF", file: "messenger.webp", zh: "話送到了", en: "Gets It Through" },
+      { code: "AFC", file: "designer.webp", zh: "順眼就對了", en: "Makes It Look Right" },
     ];
     for (const role of roles) {
       await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
@@ -437,12 +440,12 @@ test.describe("new choices and roles", () => {
       await expect(page.locator("#horse")).toBeHidden();
       await expect(page.locator("#companion")).toBeHidden();
       await noOverflow(page);
-      await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-${role.file.replace(".png", "")}.png` });
+      await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-${role.file.replace(/\.webp$/, "")}.png` });
       const [download] = await Promise.all([
         page.waitForEvent("download"),
         page.getByRole("button", { name: "下載角色卡" }).click(),
       ]);
-      const dest = `${CARDS}/${role.file.replace(".png", "")}-zh.png`;
+      const dest = `${CARDS}/${role.file.replace(/\.webp$/, "")}-zh.png`;
       await download.saveAs(dest);
       expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
       await page.getByRole("button", { name: "EN" }).click();
@@ -455,7 +458,7 @@ test.describe("new choices and roles", () => {
         page.waitForEvent("download"),
         page.getByRole("button", { name: "Download card" }).click(),
       ]);
-      const enDest = `${CARDS}/${role.file.replace(".png", "")}-en.png`;
+      const enDest = `${CARDS}/${role.file.replace(/\.webp$/, "")}-en.png`;
       await enDownload.saveAs(enDest);
       expect(pngSize(enDest)).toEqual({ width: 2160, height: 2700 });
     }

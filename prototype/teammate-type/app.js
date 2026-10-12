@@ -36,8 +36,10 @@
 //      soundtrack 23, strategist 22, messenger 21, alliance 21,
 //      queen 6, designer 6.
 //      守護者 always uses MG. 聯盟 uses the winged horse in
-//      assets/winged-horse.png. The other nine roles use their anime
-//      portraits (assets/<role>.png, queen.png for 女王) instead of MG.
+//      assets/winged-horse.webp (the same horse drawing as the live card).
+//      The other nine roles use their anime portraits
+//      (assets/<role>.webp, queen.webp for 女王) instead of MG.
+//      Each picture is loaded only when that card is shown.
 //
 // Worked examples:
 //   AAA majority → umbrella
@@ -212,7 +214,7 @@ export const TYPES = {
       gentle: "你讓辛苦的事變得好過一點。",
       literary: "「每一段努力，都值得一首配樂。」",
       strength: "帶氣氛，讓大家凝聚在一起。",
-      alt: "穿白衣、戴著耳機的人",
+      alt: "戴著大耳機、穿暖金色外套的人",
     },
     en: {
       name: "The Soundtrack",
@@ -221,7 +223,7 @@ export const TYPES = {
       gentle: "You make the hard parts a little easier.",
       literary: "\"Every bit of effort deserves its own soundtrack.\"",
       strength: "Lifts the mood and pulls people together.",
-      alt: "A person in white, wearing headphones",
+      alt: "A person in a warm gold jacket and large headphones",
     },
   },
   strategist: {
@@ -234,7 +236,7 @@ export const TYPES = {
       gentle: "你把整條路看完，大家才不會白跑。",
       literary: "「我不是慢，我是在把下一步想清楚。」",
       strength: "先看整盤，再決定怎麼走。",
-      alt: "穿白衣、神情冷靜的人",
+      alt: "穿著深綠色長外套、站得很直的人",
     },
     en: {
       name: "Sees the Whole Board",
@@ -243,20 +245,20 @@ export const TYPES = {
       gentle: "You look at the whole path first, so nobody has to run it twice.",
       literary: "\"I'm not slow. I'm making the next step make sense.\"",
       strength: "Sees the whole picture before moving.",
-      alt: "A calm person dressed in white",
+      alt: "A person standing straight in a long deep-green coat",
     },
   },
   messenger: {
     pose: "wave",
     prop: "note",
     zh: {
-      name: "喊到到齊",
+      name: "話送到了",
       role: "傳令兵",
       funny: "你說到最後一個人終於回：收到。",
       gentle: "有你在中間跑，沒有人漏接那句話。",
       literary: "「一句話要到齊，才算說完。」",
       strength: "把話送到每一個人手上。",
-      alt: "穿白衣、揮手並拿著空白字條的人",
+      alt: "正邁步揮手、身上有一條珊瑚色帶子的人",
     },
     en: {
       name: "Gets It Through",
@@ -265,7 +267,7 @@ export const TYPES = {
       gentle: "With you running the middle, nobody misses the message.",
       literary: "\"A sentence isn't finished until it reaches everyone.\"",
       strength: "Gets the word into every person's hands.",
-      alt: "A person in white, waving with a blank note",
+      alt: "A person mid-stride, waving, with a coral sash",
     },
   },
   queen: {
@@ -285,7 +287,7 @@ export const TYPES = {
       role: "Queen",
       funny: "You start talking, and even the person scrolling sits up.",
       gentle: "You set the tone, and everyone knows where to gather.",
-      literary: "\"Not an order. The scene just needed a key.\"",
+      literary: "\"Not an order. The scene just needed a tone.\"",
       strength: "Sets the tone so people rally around it.",
       alt: "A queen in a crown, with long hair and a flowing gown",
     },
@@ -300,7 +302,7 @@ export const TYPES = {
       gentle: "你讓整場看起來是故意的，不是剛好。",
       literary: "「好看不是加裝飾，是讓人想靠近。」",
       strength: "有眼光，把東西排得剛剛好。",
-      alt: "穿白衣、看著一塊小色盤的人",
+      alt: "穿著幾塊不同顏色的衣服、拿著色盤的人",
     },
     en: {
       name: "Makes It Look Right",
@@ -309,28 +311,28 @@ export const TYPES = {
       gentle: "You make the whole thing look intentional, not accidental.",
       literary: "\"Looking good isn't extra decoration. It's how you invite people closer.\"",
       strength: "Has an eye for it, and lines things up just so.",
-      alt: "A person in white, looking at a small color palette",
+      alt: "A person in color-blocked clothes, holding a palette",
     },
   },
   alliance: {
     pose: "idle",
     prop: null,
     zh: {
-      name: "今晚同一邊",
+      name: "援軍到了",
       role: "聯盟",
-      funny: "別人還在分隊，你已經把散掉的人又叫回來了。",
-      gentle: "有你在，誰都不會被留在外面。",
-      literary: "「不是誰最大聲，是我們還站在一起。」",
-      strength: "把不同的人收成同一隊。",
+      funny: "你一聲招呼，同伴就從後面趕上來了。",
+      gentle: "散開的人看見你，就知道該往哪裡靠。",
+      literary: "「不是只來一個，是後面那一排也到了。」",
+      strength: "喊得動同伴，也接得住趕來的人。",
       alt: "有翅膀的白馬",
     },
     en: {
-      name: "Same Side Tonight",
+      name: "Reinforcements Are Here",
       role: "Alliance",
-      funny: "Everyone else is still picking sides; you've already called the scattered ones back.",
-      gentle: "With you here, nobody gets left outside.",
-      literary: "\"It isn't who is loudest. It's that we're still standing together.\"",
-      strength: "Brings different people onto the same team.",
+      funny: "One call from you, and companions come up from behind.",
+      gentle: "When people scatter, they see you and know where to gather.",
+      literary: "\"Not just one arrival. The whole line behind them, too.\"",
+      strength: "Can call companions in, and make room when they arrive.",
       alt: "A winged white horse",
     },
   },
@@ -552,47 +554,24 @@ const WASH = {
 const emblems = {};
 
 const PORTRAIT_SRC = {
-  umbrella: "assets/umbrella.png",
-  finisher: "assets/finisher.png",
-  spark: "assets/spark.png",
-  mapkeeper: "assets/mapkeeper.png",
-  soundtrack: "assets/soundtrack.png",
-  strategist: "assets/strategist.png",
-  messenger: "assets/messenger.png",
-  designer: "assets/designer.png",
-  queen: "assets/queen.png",
+  umbrella: "assets/umbrella.webp",
+  finisher: "assets/finisher.webp",
+  spark: "assets/spark.webp",
+  mapkeeper: "assets/mapkeeper.webp",
+  soundtrack: "assets/soundtrack.webp",
+  strategist: "assets/strategist.webp",
+  messenger: "assets/messenger.webp",
+  designer: "assets/designer.webp",
+  queen: "assets/queen.webp",
 };
 
-let horseImg = null;
-const portraitImgs = {};
+const HORSE_SRC = "assets/winged-horse.webp";
 
-function preloadPortrait(id) {
-  if (typeof Image === "undefined") return null;
-  const node = document.getElementById(id);
-  if (!node || node.tagName !== "IMG") return null;
-  return node;
-}
-
-function preloadHorse() {
-  horseImg = preloadPortrait("horse");
-}
-
-function preloadPortraits() {
-  if (typeof Image === "undefined") return;
-  for (const [id, src] of Object.entries(PORTRAIT_SRC)) {
-    const img = new Image();
-    img.src = src;
-    portraitImgs[id] = img;
-  }
-}
-
-function portraitImage(typeId) {
-  const pre = portraitImgs[typeId];
-  if (pre && pre.complete && pre.naturalWidth > 0) return pre;
+function readyImage(id, expectedSrc) {
   if (typeof document === "undefined") return null;
-  const node = document.getElementById("queen-art");
+  const node = document.getElementById(id);
   if (!node || !node.complete || node.naturalWidth <= 0) return null;
-  if (node.getAttribute("src") !== PORTRAIT_SRC[typeId]) return null;
+  if (expectedSrc && node.getAttribute("src") !== expectedSrc) return null;
   return node;
 }
 
@@ -837,8 +816,10 @@ function boot() {
     } else {
       queenArt.setAttribute("hidden", "");
     }
-    if (alliance) horse.removeAttribute("hidden");
-    else horse.setAttribute("hidden", "");
+    if (alliance) {
+      if (horse.getAttribute("src") !== HORSE_SRC) horse.setAttribute("src", HORSE_SRC);
+      horse.removeAttribute("hidden");
+    } else horse.setAttribute("hidden", "");
     img.hidden = alliance || Boolean(portraitSrc);
     caption.hidden = true;
     caption.textContent = "";
@@ -911,7 +892,7 @@ function boot() {
     const width = 1080;
     const height = 1350;
     const scale = 2;
-    const pad = 88;
+    const pad = 108;
     const inner = width - pad * 2;
     const canvas = document.createElement("canvas");
     canvas.width = width * scale;
@@ -961,7 +942,7 @@ function boot() {
       ctx.fillText(line, Math.round((width - w) / 2), y);
     };
 
-    center(ui.kicker, 78, `700 22px ${FONT}`, "#62716A");
+    center(ui.kicker, 64, `700 40px ${FONT}`, "#62716A");
 
     const emblem = type.prop ? emblems[type.prop] : null;
     if (emblem && emblem.complete && emblem.naturalWidth > 0) {
@@ -975,103 +956,133 @@ function boot() {
       ctx.drawImage(emblem, width - 214, 150, 92, 92);
     }
 
-    const portrait = portraitImage(resolved.type);
-    const allianceArt = resolved.type === "alliance" && horseImg && horseImg.complete && horseImg.naturalWidth > 0;
-    let horseBottom = 400;
-    if (allianceArt) {
-      const horseW = 500;
-      const horseH = (horseImg.naturalHeight / horseImg.naturalWidth) * horseW;
-      const horseY = 88;
-      ctx.drawImage(horseImg, Math.round((width - horseW) / 2), horseY, horseW, horseH);
-      horseBottom = horseY + horseH;
-    } else if (portrait) {
-      let drawW = 260;
-      let drawH = (portrait.naturalHeight / portrait.naturalWidth) * drawW;
-      const maxH = 470;
-      if (drawH > maxH) {
-        drawH = maxH;
-        drawW = drawH * (portrait.naturalWidth / portrait.naturalHeight);
+    const LABEL = 54;
+    const BOUNDARY = 54;
+    const PICKS = 48;
+    const BODY = 40;
+    const FUNNY = 44;
+    const NAME = 58;
+    const rare = resolved.type === "queen" || resolved.type === "designer";
+    const lead = (size) => size + 8;
+    ctx.font = `700 ${BOUNDARY}px ${FONT}`;
+    const boundaryLines = wrapLines(ctx, ui.boundary, inner);
+    ctx.font = `600 ${PICKS}px ${FONT}`;
+    const picksLines = wrapLines(ctx, ui.picks(state.code), inner);
+    const footerH = picksLines.length * lead(PICKS) + 14 + boundaryLines.length * lead(BOUNDARY);
+    const footerTop = height - 48 - 56 - footerH;
+    const contentLimit = footerTop - 16;
+    ctx.font = `700 ${NAME}px ${FONT}`;
+    const nameLines = wrapLines(ctx, text.name, inner);
+    ctx.font = `700 ${FUNNY}px ${FONT}`;
+    const funnyLines = wrapLines(ctx, text.funny, inner);
+    const sectionLines = [
+      [text.gentle, 500],
+      [text.literary, 500],
+      [text.strength, 600],
+    ].map(([body, weight]) => {
+      ctx.font = `${weight} ${BODY}px ${FONT}`;
+      return wrapLines(ctx, body, inner);
+    });
+    let textH = nameLines.length * lead(NAME + 8);
+    textH += 36 + 44;
+    textH += rare ? 58 : 12;
+    textH += LABEL + 10 + funnyLines.length * lead(FUNNY) + 10;
+    sectionLines.forEach((lines) => {
+      textH += LABEL + 10 + lines.length * lead(BODY) + 8;
+    });
+    const artTop = 112;
+    const artMax = Math.max(140, contentLimit - textH - 10 - artTop);
+    const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
+    const horseNode = readyImage("horse", HORSE_SRC);
+    let artBottom = artTop;
+    const fitDraw = (image, maxW) => {
+      let drawW = maxW;
+      let drawH = (image.naturalHeight / image.naturalWidth) * drawW;
+      if (drawH > artMax) {
+        drawH = artMax;
+        drawW = drawH * (image.naturalWidth / image.naturalHeight);
       }
-      const drawY = 108;
-      ctx.drawImage(portrait, Math.round((width - drawW) / 2), drawY, drawW, drawH);
-      horseBottom = drawY + drawH;
-    } else {
+      ctx.drawImage(image, Math.round((width - drawW) / 2), artTop, drawW, drawH);
+      return artTop + drawH;
+    };
+    if (resolved.type === "alliance" && horseNode) artBottom = fitDraw(horseNode, 520);
+    else if (portrait) artBottom = fitDraw(portrait, 280);
+    else {
       const img = $("mg");
-      if (img.complete && img.naturalWidth > 0) {
-        const dw = 280;
-        const dh = (img.naturalHeight / img.naturalWidth) * dw;
-        ctx.drawImage(img, Math.round((width - dw) / 2), 128, dw, dh);
-      }
+      if (img.complete && img.naturalWidth > 0) artBottom = fitDraw(img, 240);
     }
 
-    let y = allianceArt || portrait ? horseBottom + 16 : 430;
-    ctx.font = `700 64px ${FONT}`;
-    const nameLines = wrapLines(ctx, text.name, inner);
+    let y = Math.max(artBottom + 12, artTop + 8);
     nameLines.forEach((line) => {
-      center(line, y, `700 64px ${FONT}`, "#193A35");
-      y += 76;
+      center(line, y, `700 ${NAME}px ${FONT}`, "#193A35");
+      y += lead(NAME + 8);
     });
-    center(type[other].name, y, `600 26px ${FONT}`, "#62716A");
-    y += 40;
-    center(`${ui.roleLabel} · ${text.role}`, y, `700 24px ${FONT}`, "#142C29");
+    center(type[other].name, y, `600 32px ${FONT}`, "#62716A");
     y += 36;
-    if (resolved.type === "queen" || resolved.type === "designer") {
-      ctx.font = `700 18px ${FONT}`;
+    center(`${ui.roleLabel} · ${text.role}`, y, `700 36px ${FONT}`, "#142C29");
+    y += 44;
+    if (rare) {
+      ctx.font = `700 28px ${FONT}`;
       const badge = ui.rare;
-      const badgeW = ctx.measureText(badge).width + 28;
+      const badgeW = ctx.measureText(badge).width + 36;
       const badgeX = Math.round((width - badgeW) / 2);
       ctx.fillStyle = "#F08A6E";
-      roundRect(ctx, badgeX, y, badgeW, 32, 16);
+      roundRect(ctx, badgeX, y, badgeW, 42, 21);
       ctx.fill();
       ctx.lineWidth = 2;
       ctx.strokeStyle = "#193A35";
       ctx.stroke();
       ctx.fillStyle = "#142C29";
-      ctx.fillText(badge, badgeX + 14, y + 6);
-      y += 48;
+      ctx.fillText(badge, badgeX + 18, y + 8);
+      y += 58;
     } else {
       y += 12;
     }
 
     const drawLabel = (label) => {
-      ctx.font = `700 18px ${FONT}`;
+      ctx.font = `700 ${LABEL}px ${FONT}`;
       ctx.fillStyle = "#8A6A2B";
       ctx.fillText(label, pad, y);
-      y += 28;
+      y += LABEL + 10;
     };
     drawLabel(ui.funny);
-    ctx.font = `700 34px ${FONT}`;
-    wrapLines(ctx, text.funny, inner).forEach((line) => {
+    funnyLines.forEach((line) => {
+      ctx.font = `700 ${FUNNY}px ${FONT}`;
       const w = ctx.measureText(line).width;
       ctx.fillStyle = "#F08A6E";
-      ctx.fillRect(pad, y + 26, Math.min(w, inner), 14);
+      ctx.fillRect(pad, y + Math.round(FUNNY * 0.62), Math.min(w, inner), 16);
       ctx.fillStyle = "#193A35";
-      ctx.font = `700 34px ${FONT}`;
       ctx.fillText(line, pad, y);
-      y += 48;
+      y += lead(FUNNY);
     });
-    y += 12;
-    [
-      [ui.gentle, text.gentle, `500 28px ${FONT}`],
-      [ui.literary, text.literary, `500 28px ${FONT}`],
-      [ui.strength, text.strength, `600 28px ${FONT}`],
-    ].forEach(([label, body, font]) => {
-      drawLabel(label);
-      ctx.font = font;
-      wrapLines(ctx, body, inner).forEach((line) => {
+    y += 10;
+    [text.gentle, text.literary, text.strength].forEach((body, index) => {
+      drawLabel([ui.gentle, ui.literary, ui.strength][index]);
+      const weight = index === 2 ? 600 : 500;
+      sectionLines[index].forEach((line) => {
+        ctx.font = `${weight} ${BODY}px ${FONT}`;
         ctx.fillStyle = "#193A35";
-        ctx.font = font;
         ctx.fillText(line, pad, y);
-        y += 40;
+        y += lead(BODY);
       });
       y += 8;
     });
 
+    let foot = footerTop;
     ctx.fillStyle = "#62716A";
-    ctx.font = `600 20px ${FONT}`;
-    ctx.fillText(ui.picks(state.code), pad, 1248);
-    ctx.font = `500 18px ${FONT}`;
-    ctx.fillText(ui.boundary, pad, 1282);
+    picksLines.forEach((line) => {
+      ctx.font = `600 ${PICKS}px ${FONT}`;
+      ctx.fillStyle = "#62716A";
+      ctx.fillText(line, pad, foot);
+      foot += lead(PICKS);
+    });
+    foot += 14;
+    boundaryLines.forEach((line) => {
+      ctx.font = `700 ${BOUNDARY}px ${FONT}`;
+      ctx.fillStyle = "#193A35";
+      ctx.fillText(line, pad, foot);
+      foot += lead(BOUNDARY);
+    });
 
     try {
       const link = document.createElement("a");
@@ -1111,14 +1122,6 @@ function boot() {
   if (!navigator.share) $("share-btn").hidden = true;
 
   preloadEmblems();
-  preloadHorse();
-  preloadPortraits();
-  for (const pose of Object.values(POSES)) {
-    pose.frames.forEach((frame) => {
-      const img = new Image();
-      img.src = ASSET + frame;
-    });
-  }
 
   if (!state.code && new URLSearchParams(location.search).has("c")) persist();
   render(state.code ? "card" : null);
