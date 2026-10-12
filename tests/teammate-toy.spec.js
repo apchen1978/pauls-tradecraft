@@ -113,7 +113,7 @@ test.describe("garage listing", () => {
       await expect(card).toBeVisible();
       await expect(page.locator("#garage-more").getByRole("heading", { name: "你是哪一種隊友？" })).toHaveCount(0);
       await expect(page.getByText("示意玩具，不是心理測驗。").first()).toBeVisible();
-      const href = await page.getByRole("link", { name: "玩一次", exact: true }).getAttribute("href");
+      const href = await card.locator("..").getByRole("link", { name: "玩一次", exact: true }).getAttribute("href");
       expect(href).toContain("/prototype/teammate-type/");
       expect(href).toContain("lang=zh");
       await frameBranch(page);
@@ -123,7 +123,7 @@ test.describe("garage listing", () => {
       await expectBranchFirst(page, "Bring Paul Into the Room");
       await expect(page.getByRole("heading", { name: "What kind of teammate are you?" })).toBeVisible();
       await expect(page.getByText("A toy, not a personality test.").first()).toBeVisible();
-      const enHref = await page.getByRole("link", { name: "Play", exact: true }).getAttribute("href");
+      const enHref = await page.getByRole("heading", { name: "What kind of teammate are you?" }).locator("..").getByRole("link", { name: "Play", exact: true }).getAttribute("href");
       expect(enHref).toContain("lang=en");
       await frameBranch(page);
       await shoot(page, `garage-${width}-en-light-tech`);
