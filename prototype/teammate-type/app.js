@@ -292,7 +292,7 @@ export const TYPES = {
       gentle: "你把這場的中心放得很輕，人卻願意靠過來。",
       literary: "「不是大聲，是這一圈終於有了中心。」",
       strength: "定得住場，也讓人想站到你旁邊。",
-      alt: "黑長直髮、深棕眼睛、戴細金冠、穿午夜藍長裙的人",
+      alt: "黑長直髮、深棕眼睛、戴細金冠、穿白底紫金邊長裙的人",
     },
     en: {
       name: "Daughter of the Galaxy",
@@ -301,7 +301,7 @@ export const TYPES = {
       gentle: "You set the center of the room so lightly that people still come closer.",
       literary: "\"Not louder. This circle finally has a center.\"",
       strength: "Holds the room, and makes people want to stand beside you.",
-      alt: "A black-haired woman with dark brown eyes, a slim gold crown, and a floor-length midnight gown",
+      alt: "A black-haired woman with dark brown eyes, a slim gold crown, and a floor-length white gown with purple-gold trim",
     },
   },
   andromeda: {
