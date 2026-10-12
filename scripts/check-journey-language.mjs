@@ -19,6 +19,10 @@ for (const url of ["#contact", "/files/guide.pdf", "/prototype/the-witness-tag/"
 }
 assert.equal(withDemoLang("https://apchen1978.github.io/commercial-decision-desk/#mode-gap", "en"), "https://apchen1978.github.io/commercial-decision-desk/?lang=en#mode-gap");
 checks++;
+assert.equal(withDemoLang("https://apchen1978.github.io/quote-lens-demo/", "en"), "https://apchen1978.github.io/quote-lens-demo/?lang=en");
+assert.equal(withDemoLang("https://apchen1978.github.io/quote-lens-demo/", "zh"), "https://apchen1978.github.io/quote-lens-demo/");
+assert.equal(withDemoLang("https://apchen1978.github.io/quote-lens-demo/?lang=en", "en"), "https://apchen1978.github.io/quote-lens-demo/?lang=en");
+checks += 3;
 for (const page of ["ai-native-overseas-customer-roadmap", "ai-native-commercial-conversion", "decision-adversary", "garage-rfq-workflow-001", "one-container-12-steps", "same-factory-different-buyer", "worth-reading", "teammate-type", "code-words", "second-source-light-lesson"]) {
   const html = readFileSync(new URL(`../prototype/${page}/index.html`, import.meta.url), "utf8");
   for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) {

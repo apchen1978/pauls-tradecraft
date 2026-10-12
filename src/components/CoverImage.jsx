@@ -15,6 +15,8 @@ const COVER_DIMS = {
   "/images/cover-mg-desktop-pet.webp": [1440, 810],
   "/images/cover-mori-soft-furnishing.webp": [1200, 675],
   "/images/cover-payment-concentration.png": [1440, 810],
+  "/images/cover-quote-lens.webp": [1600, 900],
+  "/images/cover-quote-lens-en.webp": [1600, 900],
   "/images/cover-sales-pilot-casebrief-v3.webp": [1600, 900],
   "/images/cover-simulations-v2.webp": [1536, 1024],
   "/images/cover-spend-two-clocks.webp": [1600, 900],
