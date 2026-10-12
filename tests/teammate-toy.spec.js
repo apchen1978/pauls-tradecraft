@@ -502,7 +502,7 @@ test.describe("two-person scene", () => {
     });
     await expect(page.locator("#duo-boundary")).toHaveText("示意玩具，不是心理測驗。");
     await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
-    await page.locator("#duo-stage").scrollIntoViewIfNeeded();
+    await page.locator("#duo-stage").evaluate((el) => el.scrollIntoView({ block: "start" }));
     await noOverflow(page);
   }
 
@@ -528,6 +528,7 @@ test.describe("two-person scene", () => {
     expect(page.url()).toContain("c=FAE");
     expect(page.url()).toContain("with=FBD");
     await page.screenshot({ path: `${OUT}/duo-390-zh-queens.png` });
+    await page.locator("#duo").screenshot({ path: `${OUT}/duo-390-zh-queens-scene.png` });
 
     await page.getByRole("button", { name: "EN" }).click();
     await expect(page.locator("#duo-title")).toHaveText("A short scene for two");
@@ -545,6 +546,7 @@ test.describe("two-person scene", () => {
     await expect(page.locator("#duo-left")).toHaveClass(/face-in/);
     await expect(page.locator("#duo-lines")).toContainText("貓也讓出一點位子");
     await page.screenshot({ path: `${OUT}/duo-390-zh-alliance-cocoa.png` });
+    await page.locator("#duo").screenshot({ path: `${OUT}/duo-390-zh-alliance-cocoa-scene.png` });
 
     await page.setViewportSize({ width: 390, height: 1100 });
     await page.goto("/prototype/teammate-type/?c=AAA&lang=zh");
@@ -559,12 +561,14 @@ test.describe("two-person scene", () => {
     expect(page.url()).toContain("with=BBC");
     await expect(page.locator("#duo-lines")).toContainText("你也在。有你在，這一段就沒那麼吵。");
     await expect(page.locator("#duo-right-name")).toHaveText("最後一擊");
-    await page.locator("#duo-stage").scrollIntoViewIfNeeded();
+    await page.locator("#duo-stage").evaluate((el) => el.scrollIntoView({ block: "start" }));
     await noOverflow(page);
     await page.screenshot({ path: `${OUT}/duo-390-zh-fallback.png` });
+    await page.locator("#duo").screenshot({ path: `${OUT}/duo-390-zh-fallback-scene.png` });
 
     await openDuo(page, 1280, "?c=FAE&with=FBD&lang=zh");
     await expect(page.locator("#duo-title")).toHaveText("兩人小劇場");
     await page.screenshot({ path: `${OUT}/duo-1280-zh-queens.png` });
+    await page.locator("#duo").screenshot({ path: `${OUT}/duo-1280-zh-queens-scene.png` });
   });
 });
