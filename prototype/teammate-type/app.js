@@ -1026,21 +1026,24 @@ function boot() {
     const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
     const horseNode = readyImage("horse", HORSE_SRC);
     let artBottom = artTop;
-    const fitDraw = (image, maxW) => {
+    const fitDraw = (image, maxW, shiftX = 0) => {
       let drawH = artH;
       let drawW = (image.naturalWidth / image.naturalHeight) * drawH;
       if (drawW > maxW) {
         drawW = maxW;
         drawH = drawW * (image.naturalHeight / image.naturalWidth);
       }
-      ctx.drawImage(image, Math.round((width - drawW) / 2), artTop, drawW, drawH);
+      let x = Math.round((width - drawW) / 2 + shiftX);
+      x = Math.max(56, Math.min(x, width - 56 - Math.round(drawW)));
+      ctx.drawImage(image, x, artTop, drawW, drawH);
       return artTop + drawH;
     };
-    if (resolved.type === "alliance" && horseNode) artBottom = fitDraw(horseNode, 960);
+    if (resolved.type === "alliance" && horseNode) artBottom = fitDraw(horseNode, 1000);
     else if (portrait) artBottom = fitDraw(portrait, 640);
     else {
       const img = $("mg");
-      if (img.complete && img.naturalWidth > 0) artBottom = fitDraw(img, 520);
+      // Square sprite: shift left so the top-right emblem stays clear of the face.
+      if (img.complete && img.naturalWidth > 0) artBottom = fitDraw(img, 800, -90);
     }
 
     const emblem = type.prop ? emblems[type.prop] : null;
