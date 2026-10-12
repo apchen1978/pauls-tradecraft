@@ -165,8 +165,9 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(TYPES.apostle.en.role, "Apostle");
   assert.equal(TYPES.galaxy.zh.name, "銀河之女");
   assert.equal(TYPES.galaxy.en.name, "Daughter of the Galaxy");
-  assert.equal(TYPES.andromeda.zh.name, "M-31仙女座");
-  assert.equal(TYPES.andromeda.en.name, "M-31 Andromeda");
+  assert.equal(TYPES.andromeda.zh.name, "仙女座女王");
+  assert.equal(TYPES.andromeda.en.name, "Queen of Andromeda");
+  assert.equal(TYPES.andromeda.egg, "M-31");
   assert.equal(TYPES.galaxy.prop, "crown");
   assert.equal(TYPES.andromeda.prop, "crown");
   assert.equal(Object.values(TYPES).filter((type) => type.prop === "crown").length, 2);
