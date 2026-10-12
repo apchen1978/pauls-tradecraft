@@ -74,8 +74,18 @@
     .feedback h3 { font-size: 1rem; }
     .feedback p { margin: 9px 0 0; }
     .feedback .quiet { color: var(--moss); }
+    .follow-up-intro { margin: 0 0 18px; color: var(--moss); }
+    .follow-ups { display: grid; grid-template-columns: 1fr 1fr; background: var(--white); border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+    .follow-ups article { min-width: 0; padding: 23px 25px 27px; }
+    .follow-ups article + article { border-left: 1px solid var(--line); }
+    .follow-up-label { display: block; margin-bottom: 12px; color: var(--gold); font-size: .78rem; font-weight: 750; }
+    .follow-ups blockquote { min-height: 5em; margin: 0 0 22px; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif; font-size: 1.13rem; font-weight: 600; line-height: 1.5; }
+    .follow-ups h3 { margin-bottom: 6px; }
+    .follow-ups p { margin: 0; }
+    .follow-up-disclosure { margin: 10px 0 27px; color: var(--moss); font-size: .81rem; }
     .judgment { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .judgment > div { padding: 20px 22px; background: var(--white); border: 1px solid var(--line); }
+    .judgment > div { padding: 15px 2px 0; border-top: 2px solid var(--ink); }
+    .judgment > div + div { border-color: var(--gold); }
     .judgment strong { display: block; margin-bottom: 8px; }
     .judgment p { margin: 0; }
     .exercise { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
@@ -103,7 +113,9 @@
       .cover-gap { margin: 14px 0; }
       .lesson { padding: 37px 0 47px; }
       .buyer-note { padding: 22px; }
-      .evidence, .judgment, .exercise { grid-template-columns: 1fr; }
+      .evidence, .follow-ups, .judgment, .exercise { grid-template-columns: 1fr; }
+      .follow-ups article + article { border-left: 0; border-top: 1px solid var(--line); }
+      .follow-ups blockquote { min-height: 0; }
       .feedback { min-height: 0; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -160,9 +172,25 @@
 
     <section class="lesson" aria-labelledby="step-three-title">
       <div class="section-top"><span class="step" id="step-three"></span><div><h2 id="step-three-title"></h2><p class="intro" id="step-three-intro"></p></div></div>
-      <div class="content judgment">
-        <div><strong id="prepare-title"></strong><p id="prepare-body"></p></div>
-        <div><strong id="decision-title"></strong><p id="decision-body"></p></div>
+      <div class="content">
+        <p class="follow-up-intro" id="follow-up-intro"></p>
+        <div class="follow-ups">
+          <article>
+            <span class="follow-up-label" id="follow-up-a-label"></span>
+            <blockquote id="follow-up-a-message"></blockquote>
+            <h3 id="follow-up-a-next-title"></h3><p id="follow-up-a-next"></p>
+          </article>
+          <article>
+            <span class="follow-up-label" id="follow-up-b-label"></span>
+            <blockquote id="follow-up-b-message"></blockquote>
+            <h3 id="follow-up-b-next-title"></h3><p id="follow-up-b-next"></p>
+          </article>
+        </div>
+        <p class="follow-up-disclosure" id="follow-up-disclosure"></p>
+        <div class="judgment">
+          <div><strong id="prepare-title"></strong><p id="prepare-body"></p></div>
+          <div><strong id="decision-title"></strong><p id="decision-body"></p></div>
+        </div>
       </div>
     </section>
 
@@ -196,7 +224,7 @@
           intros: [
             "先把對方明說的，和我們還不知道的分開。後者不等於壞消息。",
             "三句都可能有用。你選的，是此刻最想釐清的事；不是一道有標準答案的考題。",
-            "回覆訊息與準備資料可以先做；花錢或對外承諾前，需要公司判斷。",
+            "同樣是想多找一家供應商，後續訊息不同，值得投入的力氣也不同。",
             "拿一項自己的產品，寫下你會問的一句話，以及哪件事要先回公司確認。"
           ],
           buyerLabel: "合成買家訊息",
@@ -212,10 +240,14 @@
           ],
           clearsLabel: "這句能釐清",
           remainsLabel: "但仍不知道",
+          followUpIntro: "假設買家接著補充了其中一句：",
+          followUpA: { label: "只是列入備選", message: "「目前先建立備選名單，還沒有試單安排。請提供常規品資料與報價。」", nextTitle: "這時可先做", next: "常規款可快速給初步報價，並問清何時重新評估；列入名單不等於有採購安排。" },
+          followUpB: { label: "開始談試單", message: "「我們想先談一款產品的試單。請確認打樣方式與交期。」", nextTitle: "這時要多問", next: "先釐清規格、數量、驗收方式與採購時程。常規款可先報；客製打樣或交期承諾要回公司確認。" },
+          followUpDisclosure: "兩句都是預寫的合成後續，不是你選擇追問後的預測結果。",
           prepareTitle: "現在可以準備",
-          prepareBody: "依已確認的產品範圍整理能力資料，並回覆一個清楚的追問。報價可以先準備，但要註明尚待確認的條件。",
+          prepareBody: "依已確認的產品範圍整理能力資料；常規款可以快速提供初步報價，標清仍待確認的條件。",
           decisionTitle: "投入前要有人判斷",
-          decisionBody: "要不要為這個機會付費打樣、保留產能或承諾交期，取決於評估要求、可能的採購安排和工廠能承受的投入。買家這句話本身還不足以替公司做決定。",
+          decisionBody: "是否付費打樣、保留產能或承諾交期，要看評估要求與公司能承受的投入；即使買家提到試單，也不等於已下單。",
           exerciseOne: "你的產品：買家若說想多找一家供應商，你最先要確認什麼？",
           exerciseTwo: "哪一項投入或承諾，要先回公司找有權的人確認？",
           placeholderOne: "例如：這次先評估哪一項？通過的標準是什麼？",
@@ -239,7 +271,7 @@
           intros: [
             "Separate what the buyer stated from what remains unknown. Missing information is not a negative answer.",
             "All three questions may help. Choose what matters most right now; there is no universal correct answer.",
-            "You can reply and prepare information now. Spending money or making an external commitment needs a company decision.",
+            "A buyer may want another supplier, but what they say next changes how much effort is justified.",
             "Take one of your products. Write the first question you would ask, then name one commitment that needs an authorised person."
           ],
           buyerLabel: "Synthetic buyer message",
@@ -255,10 +287,14 @@
           ],
           clearsLabel: "This could clarify",
           remainsLabel: "Still unknown",
+          followUpIntro: "Suppose the buyer later adds one of these messages:",
+          followUpA: { label: "A backup listing only", message: "“For now we're building a backup list, with no trial order planned. Please send standard-product details and a quote.”", nextTitle: "What you can do now", next: "You can send a quick preliminary quote for a standard product and ask when the review will resume. Being listed is not a purchasing arrangement." },
+          followUpB: { label: "A possible trial order", message: "“We'd like to discuss a trial for one product. Please confirm your sampling approach and lead time.”", nextTitle: "What to clarify next", next: "Ask about specifications, quantity, acceptance and timing. A standard product can be quoted promptly; custom sampling or delivery promises need a company decision." },
+          followUpDisclosure: "Both are prewritten synthetic follow-ups, not predictions caused by your question above.",
           prepareTitle: "You can prepare now",
-          prepareBody: "Organise capability information for the confirmed product scope and reply with one clear question. You can prepare a quote while marking conditions still to be confirmed.",
+          prepareBody: "Organise capability information for the confirmed product scope. A standard product can receive a quick preliminary quote with unresolved conditions marked clearly.",
           decisionTitle: "Someone must judge the investment",
-          decisionBody: "Paying for a sample, reserving capacity or promising delivery depends on the review requirements, possible purchasing path and what the factory can afford to commit. The buyer's message alone cannot make that call for the company.",
+          decisionBody: "Paying for a sample, reserving capacity or promising delivery depends on the review and what the company can afford to commit. Even talk of a trial is not an order.",
           exerciseOne: "Your product: if a buyer wants a second supplier, what would you confirm first?",
           exerciseTwo: "Which investment or promise needs an authorised decision at your company?",
           placeholderOne: "For example: which item comes first, and what counts as passing?",
@@ -298,6 +334,12 @@
           "cover-order-label": c.coverOrderLabel, "cover-order": c.coverOrder,
           "buyer-label": c.buyerLabel, "buyer-message": c.buyerMessage,
           "said-title": c.saidTitle, "unknown-title": c.unknownTitle,
+          "follow-up-intro": c.followUpIntro,
+          "follow-up-a-label": c.followUpA.label, "follow-up-a-message": c.followUpA.message,
+          "follow-up-a-next-title": c.followUpA.nextTitle, "follow-up-a-next": c.followUpA.next,
+          "follow-up-b-label": c.followUpB.label, "follow-up-b-message": c.followUpB.message,
+          "follow-up-b-next-title": c.followUpB.nextTitle, "follow-up-b-next": c.followUpB.next,
+          "follow-up-disclosure": c.followUpDisclosure,
           "prepare-title": c.prepareTitle, "prepare-body": c.prepareBody,
           "decision-title": c.decisionTitle, "decision-body": c.decisionBody,
           "exercise-one": c.exerciseOne, "exercise-two": c.exerciseTwo,
