@@ -138,12 +138,15 @@ for (const width of [390, 768, 1440]) {
 
     test("zh play, share-link round trip, and en card", async ({ page }) => {
       const external = [];
+      const roleArt = [];
       page.on("request", (request) => {
         const url = request.url();
         if (!url.startsWith("http://127.0.0.1:4173") && !url.startsWith("data:")) external.push(url);
+        if (url.includes("/prototype/teammate-type/assets/")) roleArt.push(url);
       });
       await page.goto("/prototype/teammate-type/?lang=zh");
       await expect(page.getByRole("heading", { name: "你是哪一種隊友？" })).toBeVisible();
+      expect(roleArt).toEqual([]);
       await expect(page.getByText("示意玩具，不是心理測驗。").first()).toBeVisible();
       await expect(page.locator("#quiz")).toBeVisible();
       await noOverflow(page);
@@ -160,7 +163,7 @@ for (const width of [390, 768, 1440]) {
       await expect(page.locator("#picks-label")).toHaveText("你的選擇 ABA");
       expect(page.url()).toContain("c=ABA");
       expect(page.url()).toContain("lang=zh");
-      await waitForMg(page);
+      await waitForQueen(page);
       await page.locator("#card").scrollIntoViewIfNeeded();
       await noOverflow(page);
       await shoot(page, `teammate-${width}-zh-result`);
@@ -181,7 +184,7 @@ for (const width of [390, 768, 1440]) {
       await expect(page.locator("#card-boundary")).toHaveText("A toy, not a personality test.");
       expect(page.url()).toContain("c=ABA");
       expect(page.url()).toContain("lang=en");
-      await waitForMg(page);
+      await waitForQueen(page);
       await page.locator("#card").scrollIntoViewIfNeeded();
       await noOverflow(page);
       await shoot(page, `teammate-${width}-en-result`);
@@ -244,7 +247,7 @@ for (const width of [390, 768, 1440]) {
       ];
       for (const item of cases) {
         await page.goto(`/prototype/teammate-type/?c=${item.code}&lang=${item.lang}`);
-        await waitForMg(page);
+        await waitForQueen(page);
         await expectFunnyHighlight(page);
         await noOverflow(page);
         await page.locator("#card").screenshot({ path: `${OUT}/teammate-${width}-${item.lang}-${item.name}.png` });
@@ -264,8 +267,11 @@ function pngSize(file) {
 
 const NEW_ROLES = [
   { code: "EAE", zh: "先看全局", en: "Sees the Whole Board", roleZh: "組隊角色 · 軍師", roleEn: "Party role · Strategist" },
-  { code: "AEF", zh: "喊到到齊", en: "Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
-  { code: "FAE", zh: "今晚聽我的", en: "Tonight, Follow Me", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
+  { code: "AEA", zh: "話送到了", en: "Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
+  { code: "AFE", zh: "這件事值得說", en: "Worth Saying Out Loud", roleZh: "組隊角色 · 傳教士", roleEn: "Party role · Missionary" },
+  { code: "ACF", zh: "我接著走", en: "I'll Carry It On", roleZh: "組隊角色 · 使徒", roleEn: "Party role · Apostle" },
+  { code: "FAE", zh: "銀河之女", en: "Daughter of the Galaxy", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
+  { code: "FBD", zh: "M-31仙女座", en: "M-31 Andromeda", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
   { code: "AFC", zh: "順眼就對了", en: "Makes It Look Right", roleZh: "組隊角色 · 設計師", roleEn: "Party role · Designer" },
 ];
 
@@ -291,8 +297,7 @@ test.describe("new choices and roles", () => {
       await page.setViewportSize({ width, height: width === 390 ? 1100 : 1000 });
       for (const role of NEW_ROLES) {
         await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
-        if (role.code === "FAE") await waitForQueen(page);
-        else await waitForMg(page);
+        await waitForQueen(page);
         await expect(page.locator("#card-name")).toHaveText(role.zh);
         await expect(page.locator("#role")).toHaveText(role.roleZh);
         await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
@@ -300,8 +305,7 @@ test.describe("new choices and roles", () => {
         await noOverflow(page);
         await page.locator("#card").screenshot({ path: `${OUT}/teammate-${width}-zh-${role.code}-card.png` });
         await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=en`);
-        if (role.code === "FAE") await waitForQueen(page);
-        else await waitForMg(page);
+        await waitForQueen(page);
         await expect(page.locator("#card-name")).toHaveText(role.en);
         await expect(page.locator("#role")).toHaveText(role.roleEn);
         await expect(page.locator("#card-boundary")).toHaveText("A toy, not a personality test.");
@@ -312,18 +316,17 @@ test.describe("new choices and roles", () => {
     });
   }
 
-  test("downloaded cards export at 2× of 1080×1350", async ({ page }) => {
+  test("downloaded cards export at 2× of 1080×2200", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 1000 });
     const jobs = [
       { code: "EAE", lang: "zh", file: "strategist-zh.png", button: "下載角色卡" },
       { code: "FAE", lang: "zh", file: "queen-zh.png", button: "下載角色卡" },
       { code: "AAA", lang: "zh", file: "umbrella-zh.png", button: "下載角色卡" },
-      { code: "AEF", lang: "en", file: "messenger-en.png", button: "Download card" },
+      { code: "AEA", lang: "en", file: "messenger-en.png", button: "Download card" },
     ];
     for (const job of jobs) {
       await page.goto(`/prototype/teammate-type/?c=${job.code}&lang=${job.lang}`);
-      if (job.code === "FAE") await waitForQueen(page);
-      else await waitForMg(page);
+      await waitForQueen(page);
       const [download] = await Promise.all([
         page.waitForEvent("download"),
         page.getByRole("button", { name: job.button }).click(),
@@ -331,47 +334,159 @@ test.describe("new choices and roles", () => {
       const dest = `${CARDS}/${job.file}`;
       await download.saveAs(dest);
       expect(download.suggestedFilename()).toBe(`teammate-${job.code}.png`);
-      expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+      expect(pngSize(dest)).toEqual({ width: 2160, height: 4400 });
     }
   });
 
-  test("390px zh queen is rare and a guardian code shows the horse", async ({ page }) => {
+  test("390px zh queen is rare and a guardian code shows the cat", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 1100 });
     await page.goto("/prototype/teammate-type/?c=FAE&lang=zh");
     await waitForQueen(page);
-    await expect(page.locator("#card-name")).toHaveText("今晚聽我的");
+    await expect(page.locator("#card-name")).toHaveText("銀河之女");
+    await expect(page.locator("#role")).toHaveText("組隊角色 · 女王");
     await expect(page.locator("#rare")).toHaveText("稀有");
     await expect(page.locator("#horse")).toBeHidden();
     await expect(page.locator("#mg")).toBeHidden();
     await expect(page.locator("#queen-art")).toBeVisible();
+    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/galaxy.webp");
     await noOverflow(page);
     await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-queen-rare.png` });
     const [queenDownload] = await Promise.all([
       page.waitForEvent("download"),
       page.getByRole("button", { name: "下載角色卡" }).click(),
     ]);
-    const queenDest = `${CARDS}/queen-zh.png`;
+    const queenDest = `${CARDS}/galaxy-zh.png`;
     await queenDownload.saveAs(queenDest);
-    expect(pngSize(queenDest)).toEqual({ width: 2160, height: 2700 });
+    expect(pngSize(queenDest)).toEqual({ width: 2160, height: 4400 });
+
+    await page.goto("/prototype/teammate-type/?c=FBD&lang=zh");
+    await waitForQueen(page);
+    await expect(page.locator("#card-name")).toHaveText("M-31仙女座");
+    await expect(page.locator("#role")).toHaveText("組隊角色 · 女王");
+    await expect(page.locator("#rare")).toHaveText("稀有");
+    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/andromeda.webp");
+    await expect(page.locator("#horse")).toBeHidden();
+    await expect(page.locator("#mg")).toBeHidden();
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-andromeda-rare.png` });
+    const [andromedaDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "下載角色卡" }).click(),
+    ]);
+    const andromedaDest = `${CARDS}/andromeda-zh.png`;
+    await andromedaDownload.saveAs(andromedaDest);
+    expect(pngSize(andromedaDest)).toEqual({ width: 2160, height: 4400 });
 
     await page.goto("/prototype/teammate-type/?c=BBA&lang=zh");
+    await waitForMg(page);
     await expect(page.locator("#card-name")).toHaveText("晚安熱可可");
     await expect(page.locator("#role")).toHaveText("組隊角色 · 守護者");
-    await expect(page.locator("#horse")).toBeVisible();
-    await expect(page.locator("#companion")).toHaveText("同伴 · 有翅膀的白馬");
-    await expect(page.locator("#mg")).toBeHidden();
+    await expect(page.locator("#horse")).toBeHidden();
+    await expect(page.locator("#companion")).toBeHidden();
+    await expect(page.locator("#mg")).toBeVisible();
+    await expect(page.locator("#queen-art")).toBeHidden();
     await page.getByRole("button", { name: "EN" }).click();
-    await expect(page.locator("#companion")).toHaveText("Companion · Winged white horse");
     await expect(page.locator("#card-name")).toHaveText("The Cocoa");
+    await expect(page.locator("#role")).toHaveText("Party role · Guardian");
+    await expect(page.locator("#horse")).toBeHidden();
+    await expect(page.locator("#mg")).toBeVisible();
     await page.getByRole("button", { name: "中文" }).click();
+    await waitForMg(page);
     await noOverflow(page);
-    await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-guardian-horse.png` });
+    await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-guardian-cat.png` });
     const [download] = await Promise.all([
       page.waitForEvent("download"),
       page.getByRole("button", { name: "下載角色卡" }).click(),
     ]);
-    const dest = `${CARDS}/guardian-horse-zh.png`;
+    const dest = `${CARDS}/guardian-cat-zh.png`;
     await download.saveAs(dest);
-    expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
+    expect(pngSize(dest)).toEqual({ width: 2160, height: 4400 });
+  });
+
+  test("390px zh alliance shows the winged horse", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 1100 });
+    await page.goto("/prototype/teammate-type/?c=EEA&lang=zh");
+    await page.waitForFunction(() => {
+      const img = document.querySelector("#horse");
+      return img && !img.hidden && img.complete && img.naturalWidth > 0;
+    });
+    await expect(page.locator("#card-name")).toHaveText("援軍到了");
+    await expect(page.locator("#role")).toHaveText("組隊角色 · 聯盟");
+    await expect(page.locator("#rare")).toBeHidden();
+    await expect(page.locator("#horse")).toBeVisible();
+    await expect(page.locator("#mg")).toBeHidden();
+    await expect(page.locator("#queen-art")).toBeHidden();
+    await expect(page.locator("#companion")).toBeHidden();
+    await expectFunnyHighlight(page);
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-alliance.png` });
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "下載角色卡" }).click(),
+    ]);
+    const dest = `${CARDS}/alliance-zh.png`;
+    await download.saveAs(dest);
+    expect(pngSize(dest)).toEqual({ width: 2160, height: 4400 });
+    await page.getByRole("button", { name: "EN" }).click();
+    await expect(page.locator("#card-name")).toHaveText("Reinforcements Are Here");
+    await expect(page.locator("#role")).toHaveText("Party role · Alliance");
+    await expect(page.locator("#horse")).toBeVisible();
+    await expect(page.locator("#mg")).toBeHidden();
+    const [enDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Download card" }).click(),
+    ]);
+    await enDownload.saveAs(`${CARDS}/alliance-en.png`);
+    expect(pngSize(`${CARDS}/alliance-en.png`)).toEqual({ width: 2160, height: 4400 });
+  });
+
+  test("390px zh portrait roles each show their own picture", async ({ page }) => {
+    test.setTimeout(240000);
+    await page.setViewportSize({ width: 390, height: 1100 });
+    const roles = [
+      { code: "AAA", file: "umbrella.webp", zh: "擋雨的人", en: "The Umbrella" },
+      { code: "BBC", file: "finisher.webp", zh: "最後一擊", en: "The Finisher" },
+      { code: "CCC", file: "spark.webp", zh: "腦內煙火師", en: "The Spark" },
+      { code: "DAA", file: "mapkeeper.webp", zh: "地圖收藏家", en: "The Mapkeeper" },
+      { code: "CCD", file: "soundtrack.webp", zh: "BGM 擔當", en: "The Soundtrack" },
+      { code: "EAE", file: "strategist.webp", zh: "先看全局", en: "Sees the Whole Board" },
+      { code: "AEA", file: "messenger.webp", zh: "話送到了", en: "Gets It Through" },
+      { code: "AFC", file: "designer.webp", zh: "順眼就對了", en: "Makes It Look Right" },
+      { code: "AFE", file: "missionary.webp", zh: "這件事值得說", en: "Worth Saying Out Loud" },
+      { code: "ACF", file: "apostle.webp", zh: "我接著走", en: "I'll Carry It On" },
+      { code: "FAE", file: "galaxy.webp", zh: "銀河之女", en: "Daughter of the Galaxy" },
+      { code: "FBD", file: "andromeda.webp", zh: "M-31仙女座", en: "M-31 Andromeda" },
+    ];
+    for (const role of roles) {
+      await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
+      await waitForQueen(page);
+      await expect(page.locator("#card-name")).toHaveText(role.zh);
+      await expect(page.locator("#queen-art")).toHaveAttribute("src", `assets/${role.file}`);
+      await expect(page.locator("#mg")).toBeHidden();
+      await expect(page.locator("#horse")).toBeHidden();
+      await expect(page.locator("#companion")).toBeHidden();
+      await noOverflow(page);
+      await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-${role.file.replace(/\.webp$/, "")}.png` });
+      const [download] = await Promise.all([
+        page.waitForEvent("download"),
+        page.getByRole("button", { name: "下載角色卡" }).click(),
+      ]);
+      const dest = `${CARDS}/${role.file.replace(/\.webp$/, "")}-zh.png`;
+      await download.saveAs(dest);
+      expect(pngSize(dest)).toEqual({ width: 2160, height: 4400 });
+      await page.getByRole("button", { name: "EN" }).click();
+      await waitForQueen(page);
+      await expect(page.locator("#card-name")).toHaveText(role.en);
+      await expect(page.locator("#queen-art")).toHaveAttribute("src", `assets/${role.file}`);
+      await expect(page.locator("#mg")).toBeHidden();
+      await expect(page.locator("#horse")).toBeHidden();
+      const [enDownload] = await Promise.all([
+        page.waitForEvent("download"),
+        page.getByRole("button", { name: "Download card" }).click(),
+      ]);
+      const enDest = `${CARDS}/${role.file.replace(/\.webp$/, "")}-en.png`;
+      await enDownload.saveAs(enDest);
+      expect(pngSize(enDest)).toEqual({ width: 2160, height: 4400 });
+    }
   });
 });
