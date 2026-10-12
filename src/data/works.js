@@ -592,7 +592,7 @@ export const works = [
   {
     id: "quote-lens",
     section: "labs",
-    featuredRank: 2,
+    featuredRank: 1,
     cover: { zh: "/images/cover-quote-lens.webp", en: "/images/cover-quote-lens-en.webp" },
     imageAlt: {
       zh: "Quote Lens 互動原型：預估利潤與最大現金缺口並列顯示",
@@ -703,7 +703,7 @@ export const works = [
   {
     id: "mg-desktop-pet",
     section: "labs",
-    featuredRank: 1,
+    featuredRank: 2,
     cover: "/images/cover-mg-desktop-pet.webp",
     imageAlt: { zh: "MG Desktop Pet 在桌面舞台上的待機角色", en: "MG Desktop Pet idle on its desktop stage" },
     span: "md:col-span-2",

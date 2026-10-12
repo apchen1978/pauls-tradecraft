@@ -52,6 +52,24 @@ for (const width of [390, 1440]) {
       });
     }
 
+    for (const lang of ["zh", "en"]) {
+      test(`${lang}: the flagship "also explore" row links to the card, and the card leads the experiments`, async ({ page }) => {
+        await page.goto(`/?lang=${lang}`);
+        const nav = page.locator("#works-also-explore-nav");
+        await expect(nav.locator('a[href="#quote-lens"]')).toHaveCount(1);
+        // the two existing links are still there
+        await expect(nav.locator('a[href="#global-business-development"]')).toHaveCount(1);
+        await expect(nav.locator('a[href="#trade-profit-navigator"]')).toHaveCount(1);
+        // in the experiments group the card now comes before the desktop pet (DOM order; on wide screens they can share a row)
+        const cardFirst = await page.evaluate(() => {
+          const a = document.getElementById("quote-lens");
+          const b = document.getElementById("mg-desktop-pet");
+          return Boolean(a && b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING));
+        });
+        expect(cardFirst).toBe(true);
+      });
+    }
+
     test("the card does not displace the existing experiments", async ({ page }) => {
       await page.goto("/?lang=zh");
       for (const id of ["mg-desktop-pet", "game", "simulations", "expense", "architecture-decision", "quote-lens"]) {

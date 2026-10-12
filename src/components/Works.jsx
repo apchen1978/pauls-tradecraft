@@ -722,7 +722,7 @@ export function WorksFlagship() {
   const { open, toggle } = useFold();
   const [subFirst, subRest] = firstSentence(t.works.sub);
   const featuredSystem = works.find((work) => work.id === "commercial-decision-desk");
-  const adjacentWorks = ["global-business-development", "trade-profit-navigator"]
+  const adjacentWorks = ["global-business-development", "trade-profit-navigator", "quote-lens"]
     .map((id) => works.find((work) => work.id === id))
     .filter(Boolean);
   return (
