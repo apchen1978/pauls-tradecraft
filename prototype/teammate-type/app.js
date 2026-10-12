@@ -24,8 +24,12 @@
 //      the same way. Across those 64 codes the scores stay
 //      umbrella 10, cocoa 11, spark 11, mapkeeper 10, finisher 11, soundtrack 11.
 //      strategist and messenger each appear twice, so a pair of them wins.
-//      queen and designer appear once and win when the tie-break lands on
-//      their scenario (FAB → queen, AFC → designer).
+//      queen and designer appear once and can win the tie-break, then a
+//      rarity gate keeps them only when the other two choice indexes have
+//      the same parity (both even or both odd). Otherwise that win passes
+//      to the next scenario's choice. FAE stays queen; AFC stays designer.
+//      守護者's companion is the winged horse when the index sum is even,
+//      and MG when it is odd (BBA → horse, BBB → MG).
 //
 // Worked examples:
 //   AAA majority → umbrella
@@ -389,6 +393,9 @@ export const UI = {
     gentle: "溫和",
     literary: "文青",
     strength: "長處",
+    rare: "稀有",
+    horseLabel: "同伴 · 有翅膀的白馬",
+    horseAlt: "有翅膀的白馬",
     picks: (code) => `你的選擇 ${code}`,
     same: "朋友照著選，會得到同一張卡。",
     stored: "不儲存任何資料。分享連結只帶三個選擇。",
@@ -421,6 +428,9 @@ export const UI = {
     gentle: "Gentle",
     literary: "Literary",
     strength: "Strength",
+    rare: "Rare",
+    horseLabel: "Companion · Winged white horse",
+    horseAlt: "A winged white horse",
     picks: (code) => `Your choices ${code}`,
     same: "A friend who picks the same way gets the same card.",
     stored: "Nothing is stored. The share link carries only the three choices.",
@@ -447,7 +457,19 @@ export function resolveChoices(code) {
   const majority = Object.entries(counts).find(([, n]) => n >= 2);
   if (majority) return { code, type: majority[0], tie: false };
   const scenarioIndex = (indexes[0] + indexes[1] + indexes[2]) % 3;
-  return { code, type: types[scenarioIndex], tie: true };
+  let type = types[scenarioIndex];
+  if (type === "queen" || type === "designer") {
+    const others = indexes.filter((_, index) => index !== scenarioIndex);
+    const sameParity = (others[0] + others[1]) % 2 === 0;
+    if (!sameParity) type = types[(scenarioIndex + 1) % 3];
+  }
+  return { code, type, tie: true };
+}
+
+export function companionFor(code, type) {
+  if (type !== "cocoa" || typeof code !== "string") return "mg";
+  const sum = [...code].reduce((total, letter) => total + LETTERS.indexOf(letter), 0);
+  return sum % 2 === 0 ? "horse" : "mg";
 }
 
 export function distribution(letters = LETTERS) {
@@ -502,6 +524,20 @@ const WASH = {
 };
 
 const emblems = {};
+
+let horseImg = null;
+
+function preloadHorse() {
+  if (typeof Image === "undefined") return;
+  const node = document.getElementById("horse");
+  if (!node) return;
+  const clone = node.cloneNode(true);
+  clone.removeAttribute("hidden");
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  horseImg = new Image();
+  const xml = new XMLSerializer().serializeToString(clone);
+  horseImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
+}
 
 function preloadEmblems() {
   for (const [kind, markup] of Object.entries(PROPS)) {
@@ -653,6 +689,11 @@ function boot() {
     const result = $("result");
     if (!state.code) {
       stopPose();
+      $("stage").classList.remove("with-horse", "motion-float", "motion-bob", "motion-squash");
+      $("horse").setAttribute("hidden", "");
+      $("mg").hidden = false;
+      $("rare").hidden = true;
+      $("companion").hidden = true;
       quiz.hidden = false;
       result.hidden = true;
       const scenario = SCENARIOS[state.step];
@@ -715,8 +756,42 @@ function boot() {
     $("share-label").textContent = ui.copy;
     $("share-url").value = shareUrl();
     $("status").textContent = "";
-    playPose(type);
+    const rare = resolved.type === "queen" || resolved.type === "designer";
+    $("rare").hidden = !rare;
+    $("rare").textContent = rare ? ui.rare : "";
+    showCompanion(type, resolved.type, ui);
     if (focus === "card") $("card-name").focus();
+  }
+
+  function showCompanion(type, typeId, ui) {
+    const companion = companionFor(state.code, typeId);
+    const stage = $("stage");
+    const horse = $("horse");
+    const img = $("mg");
+    const caption = $("companion");
+    stage.classList.toggle("with-horse", companion === "horse");
+    if (companion === "horse") horse.removeAttribute("hidden");
+    else horse.setAttribute("hidden", "");
+    img.hidden = companion === "horse";
+    if (companion === "horse") {
+      stopPose();
+      stage.classList.remove("motion-float", "motion-bob", "motion-squash");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduce) stage.classList.add("motion-float");
+      horse.setAttribute("aria-hidden", "false");
+      horse.setAttribute("aria-label", ui.horseAlt);
+      caption.hidden = false;
+      caption.textContent = ui.horseLabel;
+      const prop = $("prop");
+      prop.textContent = "";
+      if (type.prop) prop.appendChild(propNode(type.prop));
+      return;
+    }
+    horse.setAttribute("aria-hidden", "true");
+    horse.removeAttribute("aria-label");
+    caption.hidden = true;
+    caption.textContent = "";
+    playPose(type);
   }
 
   function choose(id) {
@@ -832,14 +907,20 @@ function boot() {
       ctx.drawImage(emblem, width - 214, 150, 92, 92);
     }
 
-    const img = $("mg");
-    if (img.complete && img.naturalWidth > 0) {
-      const dw = 280;
-      const dh = (img.naturalHeight / img.naturalWidth) * dw;
-      ctx.drawImage(img, Math.round((width - dw) / 2), 128, dw, dh);
+    const companion = companionFor(state.code, resolved.type);
+    if (companion === "horse" && horseImg && horseImg.complete && horseImg.naturalWidth > 0) {
+      ctx.drawImage(horseImg, Math.round((width - 460) / 2), 112, 460, 306);
+    } else {
+      const img = $("mg");
+      if (img.complete && img.naturalWidth > 0) {
+        const dw = 280;
+        const dh = (img.naturalHeight / img.naturalWidth) * dw;
+        ctx.drawImage(img, Math.round((width - dw) / 2), 128, dw, dh);
+      }
     }
 
-    let y = 430;
+    let y = companion === "horse" ? 448 : 430;
+    if (companion === "horse") center(ui.horseLabel, 408, `700 22px ${FONT}`, "#62716A");
     ctx.font = `700 64px ${FONT}`;
     const nameLines = wrapLines(ctx, text.name, inner);
     nameLines.forEach((line) => {
@@ -849,7 +930,24 @@ function boot() {
     center(type[other].name, y, `600 26px ${FONT}`, "#62716A");
     y += 40;
     center(`${ui.roleLabel} · ${text.role}`, y, `700 24px ${FONT}`, "#142C29");
-    y += 48;
+    y += 36;
+    if (resolved.type === "queen" || resolved.type === "designer") {
+      ctx.font = `700 18px ${FONT}`;
+      const badge = ui.rare;
+      const badgeW = ctx.measureText(badge).width + 28;
+      const badgeX = Math.round((width - badgeW) / 2);
+      ctx.fillStyle = "#F08A6E";
+      roundRect(ctx, badgeX, y, badgeW, 32, 16);
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#193A35";
+      ctx.stroke();
+      ctx.fillStyle = "#142C29";
+      ctx.fillText(badge, badgeX + 14, y + 6);
+      y += 48;
+    } else {
+      y += 12;
+    }
 
     const drawLabel = (label) => {
       ctx.font = `700 18px ${FONT}`;
@@ -929,6 +1027,7 @@ function boot() {
   if (!navigator.share) $("share-btn").hidden = true;
 
   preloadEmblems();
+  preloadHorse();
   for (const pose of Object.values(POSES)) {
     pose.frames.forEach((frame) => {
       const img = new Image();

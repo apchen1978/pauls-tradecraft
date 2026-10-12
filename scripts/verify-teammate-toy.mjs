@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { distribution, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
+import { companionFor, distribution, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
 
 test("old ABCD codes keep the six-type balance", () => {
   const counts = distribution("ABCD");
@@ -24,8 +24,14 @@ test("every role is reachable, including the four new ones", () => {
   for (const id of Object.keys(TYPES)) assert.ok(counts[id] >= 1, `${id} ${counts[id]}`);
   assert.equal(resolveChoices("EAE").type, "strategist");
   assert.equal(resolveChoices("AEF").type, "messenger");
-  assert.equal(resolveChoices("FAB").type, "queen");
+  assert.equal(resolveChoices("FAE").type, "queen");
   assert.equal(resolveChoices("AFC").type, "designer");
+  assert.notEqual(resolveChoices("FAB").type, "queen");
+  assert.equal(counts.queen, 6);
+  assert.equal(counts.designer, 6);
+  assert.equal(companionFor("BBA", "cocoa"), "horse");
+  assert.equal(companionFor("BBB", "cocoa"), "mg");
+  assert.equal(companionFor("BBA", "finisher"), "mg");
 });
 
 test("majority and the sum-mod-3 tie-break stay fixed", () => {

@@ -258,7 +258,7 @@ function pngSize(file) {
 const NEW_ROLES = [
   { code: "EAE", zh: "先看全局", en: "Sees the Whole Board", roleZh: "組隊角色 · 軍師", roleEn: "Party role · Strategist" },
   { code: "AEF", zh: "喊到到齊", en: "Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
-  { code: "FAB", zh: "今晚聽我的", en: "Tonight, Follow Me", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
+  { code: "FAE", zh: "今晚聽我的", en: "Tonight, Follow Me", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
   { code: "AFC", zh: "順眼就對了", en: "Makes It Look Right", roleZh: "組隊角色 · 設計師", roleEn: "Party role · Designer" },
 ];
 
@@ -307,7 +307,7 @@ test.describe("new choices and roles", () => {
     await page.setViewportSize({ width: 1280, height: 1000 });
     const jobs = [
       { code: "EAE", lang: "zh", file: "strategist-zh.png", button: "下載角色卡" },
-      { code: "FAB", lang: "zh", file: "queen-zh.png", button: "下載角色卡" },
+      { code: "FAE", lang: "zh", file: "queen-zh.png", button: "下載角色卡" },
       { code: "AAA", lang: "zh", file: "umbrella-zh.png", button: "下載角色卡" },
       { code: "AEF", lang: "en", file: "messenger-en.png", button: "Download card" },
     ];
@@ -323,5 +323,36 @@ test.describe("new choices and roles", () => {
       expect(download.suggestedFilename()).toBe(`teammate-${job.code}.png`);
       expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
     }
+  });
+
+  test("390px zh queen is rare and a guardian code shows the horse", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 1100 });
+    await page.goto("/prototype/teammate-type/?c=FAE&lang=zh");
+    await waitForMg(page);
+    await expect(page.locator("#card-name")).toHaveText("今晚聽我的");
+    await expect(page.locator("#rare")).toHaveText("稀有");
+    await expect(page.locator("#horse")).toBeHidden();
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-queen-rare.png` });
+
+    await page.goto("/prototype/teammate-type/?c=BBA&lang=zh");
+    await expect(page.locator("#card-name")).toHaveText("晚安熱可可");
+    await expect(page.locator("#role")).toHaveText("組隊角色 · 守護者");
+    await expect(page.locator("#horse")).toBeVisible();
+    await expect(page.locator("#companion")).toHaveText("同伴 · 有翅膀的白馬");
+    await expect(page.locator("#mg")).toBeHidden();
+    await page.getByRole("button", { name: "EN" }).click();
+    await expect(page.locator("#companion")).toHaveText("Companion · Winged white horse");
+    await expect(page.locator("#card-name")).toHaveText("The Cocoa");
+    await page.getByRole("button", { name: "中文" }).click();
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-guardian-horse.png` });
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "下載角色卡" }).click(),
+    ]);
+    const dest = `${CARDS}/guardian-horse-zh.png`;
+    await download.saveAs(dest);
+    expect(pngSize(dest)).toEqual({ width: 2160, height: 2700 });
   });
 });

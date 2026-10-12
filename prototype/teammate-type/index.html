@@ -190,11 +190,33 @@
     .prop-note { right: 0; bottom: 8px; }
     .prop-crown { left: 50%; top: 0; margin-left: 28px; }
     .prop-palette { left: 0; top: 8px; }
+    .horse {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 210px;
+      height: 140px;
+      margin: 36px auto 0;
+    }
+    .stage.with-horse img { display: none; }
+    .rare {
+      display: inline-block;
+      margin: 8px 0 0;
+      padding: 2px 8px;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: var(--pop);
+      color: var(--pine);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .companion { margin: 8px 0 0; font-size: 13px; font-weight: 700; text-align: center; }
     @keyframes mg-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
     @keyframes mg-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
     @keyframes mg-squash { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.06, 0.94); } }
     .motion-bob img { animation: mg-bob 240ms ease-in-out infinite; }
-    .motion-float img { animation: mg-float 1.4s ease-in-out infinite; }
+    .motion-float img, .motion-float .horse { animation: mg-float 1.4s ease-in-out infinite; }
     .motion-squash img { animation: mg-squash 320ms ease-in-out infinite; }
     #card-name { margin-top: 8px; font-size: clamp(1.6rem, 6vw, 2.15rem); }
     .other-name, .role, .line, .line-label, .line-body, .picks, .same, .card-boundary { margin: 0; overflow-wrap: anywhere; }
@@ -282,11 +304,29 @@
         <p class="card-kicker" id="card-kicker"></p>
         <div class="stage" id="stage">
           <img id="mg" alt="" width="192" height="208" />
+          <svg id="horse" class="horse" viewBox="0 0 240 160" hidden aria-hidden="true">
+            <g fill="#ffffff" stroke="#193A35" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+              <polygon points="124,86 96,68 48,24 22,34 62,56 16,64 30,80 74,78 20,98 42,106 108,96 128,92"/>
+              <polygon points="66,92 36,84 28,104 40,108 30,128 46,120 54,104 70,100"/>
+              <polygon points="72,108 84,108 82,148 70,148"/>
+              <polygon points="94,110 106,110 104,150 92,150"/>
+              <polygon points="118,110 130,110 132,150 120,150"/>
+              <polygon points="138,104 150,104 152,148 140,148"/>
+              <ellipse cx="108" cy="102" rx="48" ry="22"/>
+              <polygon points="140,96 152,70 170,48 188,56 168,90 148,104"/>
+              <polygon points="166,42 158,14 178,36 196,32 220,36 234,48 226,58 196,60 174,52 164,46"/>
+            </g>
+            <path d="M168 40c-12-8-16-18-8-26" fill="none" stroke="#193A35" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="208" cy="44" r="2.4" fill="#193A35"/>
+            <circle cx="224" cy="50" r="1.6" fill="#193A35"/>
+          </svg>
           <div id="prop"></div>
         </div>
         <h2 id="card-name" tabindex="-1"></h2>
         <p class="other-name" id="other-name"></p>
         <p class="role" id="role"></p>
+        <p class="rare" id="rare" hidden></p>
+        <p class="companion" id="companion" hidden></p>
         <div class="lines" id="lines"></div>
         <p class="picks" id="picks-label"></p>
         <p class="same" id="same"></p>
