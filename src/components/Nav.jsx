@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { List, X } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
-import { scrollToElement } from "../calmScroll.js";
+import { openGarageThenScroll } from "../sectionLinks.js";
 
 export default function Nav() {
   const { lang, t, toggle } = useLang();
@@ -27,14 +27,7 @@ export default function Nav() {
   ];
 
   const followSectionLink = (href) => {
-    if (href === "#garage") {
-      const moreExperiments = document.getElementById("garage-more");
-      if (moreExperiments) moreExperiments.open = true;
-      requestAnimationFrame(() => {
-        const garage = document.getElementById("garage");
-        if (garage) scrollToElement(garage);
-      });
-    }
+    if (href === "#garage") openGarageThenScroll();
     setOpen(false);
   };
 
