@@ -512,7 +512,10 @@ test.describe("two-person scene", () => {
     await expect(page.locator("#duo-card-left")).toBeVisible();
     await expect(page.locator("#duo-card-right")).toBeVisible();
     await settleDuo(page);
-    await page.locator("#duo-stage").evaluate((el) => el.scrollIntoView({ block: "start" }));
+    await page.locator("#duo-stage").evaluate((el) => {
+      document.documentElement.style.scrollBehavior = "auto";
+      el.scrollIntoView({ block: "start", behavior: "instant" });
+    });
     await noOverflow(page);
   }
 
@@ -598,7 +601,11 @@ test.describe("two-person scene", () => {
     expect(page.url()).toContain("with=BBC");
     await expect(page.locator("#duo-lines")).toContainText("你也在。有你在，這一段就沒那麼吵。");
     await expect(page.locator("#duo-right-name")).toHaveText("最後一擊");
-    await page.locator("#duo-stage").evaluate((el) => el.scrollIntoView({ block: "start" }));
+    await settleDuo(page);
+    await page.locator("#duo-stage").evaluate((el) => {
+      document.documentElement.style.scrollBehavior = "auto";
+      el.scrollIntoView({ block: "start", behavior: "instant" });
+    });
     await noOverflow(page);
     await page.screenshot({ path: `${OUT}/duo-390-zh-fallback.png` });
     await page.locator("#duo").screenshot({ path: `${OUT}/duo-390-zh-fallback-scene.png` });

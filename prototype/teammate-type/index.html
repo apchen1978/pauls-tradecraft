@@ -292,9 +292,11 @@
     .duo { margin-top: 28px; }
     .duo h2 { font-size: clamp(1.35rem, 4.5vw, 1.85rem); }
     .duo-hint { margin: 8px 0 0; color: var(--moss); }
-    .duo-form { display: grid; gap: 10px; margin-top: 14px; }
+    .duo-form { display: grid; gap: 10px; margin-top: 14px; min-width: 0; }
     .duo-form select, .duo-form input {
       width: 100%;
+      min-width: 0;
+      max-width: 100%;
       min-height: 44px;
       padding: 8px 12px;
       border: 2px solid var(--ink);
@@ -309,6 +311,7 @@
       min-width: 0;
       margin-top: 16px;
       padding: 16px 12px 14px;
+      overflow: hidden;
       border: 2px solid var(--ink);
       border-radius: 28px;
       background: linear-gradient(165deg, #f6f3ed, #e7eee8);
@@ -410,10 +413,20 @@
     .duo-stage.is-open .duo-line:nth-child(2) { animation-delay: 280ms; }
     .duo-stage.is-open .duo-line:nth-child(3) { animation-delay: 380ms; }
     .duo-stage.is-open .duo-line:nth-child(4) { animation-delay: 480ms; }
+    @keyframes duo-enter-left-sm {
+      from { opacity: 0; transform: translate3d(-12px, 8px, 0); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes duo-enter-right-sm {
+      from { opacity: 0; transform: translate3d(12px, 8px, 0); }
+      to { opacity: 1; transform: none; }
+    }
     @media (max-width: 859px) {
       .duo-stage { gap: 0; }
       .duo-bubbles { position: relative; z-index: 2; margin: 8px 0 0; }
       .duo-card-right { position: relative; z-index: 1; margin-top: -14px; }
+      .duo-stage.is-open .duo-card-left { animation-name: duo-enter-left-sm; }
+      .duo-stage.is-open .duo-card-right { animation-name: duo-enter-right-sm; }
     }
     @media (min-width: 860px) {
       .page.duo-open { width: min(1120px, calc(100% - 48px)); }
