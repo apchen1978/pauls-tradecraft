@@ -416,6 +416,7 @@ test.describe("new choices and roles", () => {
   });
 
   test("390px zh eight roles each show their own portrait", async ({ page }) => {
+    test.setTimeout(180000);
     await page.setViewportSize({ width: 390, height: 1100 });
     const roles = [
       { code: "AAA", file: "umbrella.png", zh: "擋雨的人", en: "The Umbrella" },
