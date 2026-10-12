@@ -492,8 +492,14 @@ test.describe("new choices and roles", () => {
 });
 
 test.describe("two-person scene", () => {
+  async function settleDuo(page) {
+    await page.evaluate(() => Promise.all(
+      [...document.querySelectorAll("#duo-stage .duo-card, #duo-stage .duo-line")].flatMap((el) => el.getAnimations().map((anim) => anim.finished.catch(() => {}))),
+    ));
+  }
+
   async function openDuo(page, width, search) {
-    await page.setViewportSize({ width, height: width === 390 ? 1100 : 1000 });
+    await page.setViewportSize({ width, height: width === 390 ? 1400 : 1200 });
     await page.goto(`/prototype/teammate-type/${search}`);
     await page.waitForFunction(() => {
       const left = document.querySelector("#duo-left");
@@ -502,7 +508,14 @@ test.describe("two-person scene", () => {
     });
     await expect(page.locator("#duo-boundary")).toHaveText("示意玩具，不是心理測驗。");
     await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
-    await page.locator("#duo-stage").evaluate((el) => el.scrollIntoView({ block: "start" }));
+    await expect(page.locator("#card")).toBeHidden();
+    await expect(page.locator("#duo-card-left")).toBeVisible();
+    await expect(page.locator("#duo-card-right")).toBeVisible();
+    await settleDuo(page);
+    await page.locator("#duo-stage").evaluate((el) => {
+      document.documentElement.style.scrollBehavior = "auto";
+      el.scrollIntoView({ block: "start", behavior: "instant" });
+    });
     await noOverflow(page);
   }
 
@@ -522,18 +535,41 @@ test.describe("two-person scene", () => {
     await openDuo(page, 390, "?c=FAE&with=FBD&lang=zh");
     await expect(page.locator("#duo-left-name")).toHaveText("銀河之女");
     await expect(page.locator("#duo-right-name")).toHaveText("M-31仙女座");
+    await expect(page.locator("#duo-left-lines")).toContainText("你一站出來，滑手機的人都把臉抬起來了。");
+    await expect(page.locator("#duo-right-lines")).toContainText("你一笑，原本各做各的人都轉過來了。");
+    await expect(page.locator("#duo-left-role")).toHaveText("組隊角色 · 女王");
+    await expect(page.locator("#duo-right-rare")).toHaveText("稀有");
     await expect(page.locator("#duo-lines")).toContainText("你站右邊");
     await expect(page.locator("#duo-left")).not.toHaveClass(/face-in/);
     await expect(page.locator("#duo-right")).toHaveClass(/face-in/);
+    await expect(page.locator("#duo-stage")).toHaveClass(/theme-queens/);
+    const stacked = await page.evaluate(() => {
+      const left = document.querySelector("#duo-card-left").getBoundingClientRect();
+      const right = document.querySelector("#duo-card-right").getBoundingClientRect();
+      return right.top > left.bottom - 20 && left.width > 240 && right.width > 240;
+    });
+    expect(stacked).toBe(true);
     expect(page.url()).toContain("c=FAE");
     expect(page.url()).toContain("with=FBD");
+    const [duoDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "下載這一幕" }).click(),
+    ]);
+    expect(duoDownload.suggestedFilename()).toBe("teammate-FAE-with-FBD.png");
+    const duoDest = `${CARDS}/duo-FAE-with-FBD.png`;
+    await duoDownload.saveAs(duoDest);
+    const duoPng = pngSize(duoDest);
+    expect(duoPng.width).toBe(2160);
+    expect(duoPng.height).toBeGreaterThan(2000);
     await page.screenshot({ path: `${OUT}/duo-390-zh-queens.png` });
-    await page.locator("#duo").screenshot({ path: `${OUT}/duo-390-zh-queens-scene.png` });
+    await page.locator("#duo-stage").screenshot({ path: `${OUT}/duo-cards-390-zh-queens.png` });
 
     await page.getByRole("button", { name: "EN" }).click();
     await expect(page.locator("#duo-title")).toHaveText("A short scene for two");
     await expect(page.locator("#duo-boundary")).toHaveText("A toy, not a personality test.");
     await expect(page.locator("#duo-lines")).toContainText("You take the right");
+    await expect(page.locator("#duo-download")).toHaveText("Download this scene");
+    await settleDuo(page);
     await page.locator("#duo-stage").scrollIntoViewIfNeeded();
     await noOverflow(page);
     await page.screenshot({ path: `${OUT}/duo-390-en-queens.png` });
@@ -544,9 +580,13 @@ test.describe("two-person scene", () => {
     await expect(page.locator("#duo-left")).toHaveAttribute("src", "assets/winged-horse.webp");
     await expect(page.locator("#duo-right")).toHaveAttribute("src", /heart\/00\.webp/);
     await expect(page.locator("#duo-left")).toHaveClass(/face-in/);
+    await expect(page.locator("#duo-right")).not.toHaveClass(/face-in/);
     await expect(page.locator("#duo-lines")).toContainText("貓也讓出一點位子");
+    await expect(page.locator("#duo-stage")).toHaveClass(/theme-alliance/);
+    await expect(page.locator("#duo-left-lines")).toContainText("長處");
+    await expect(page.locator("#duo-right-lines")).toContainText("長處");
     await page.screenshot({ path: `${OUT}/duo-390-zh-alliance-cocoa.png` });
-    await page.locator("#duo").screenshot({ path: `${OUT}/duo-390-zh-alliance-cocoa-scene.png` });
+    await page.locator("#duo-stage").screenshot({ path: `${OUT}/duo-cards-390-zh-alliance.png` });
 
     await page.setViewportSize({ width: 390, height: 1100 });
     await page.goto("/prototype/teammate-type/?c=AAA&lang=zh");
@@ -561,14 +601,25 @@ test.describe("two-person scene", () => {
     expect(page.url()).toContain("with=BBC");
     await expect(page.locator("#duo-lines")).toContainText("你也在。有你在，這一段就沒那麼吵。");
     await expect(page.locator("#duo-right-name")).toHaveText("最後一擊");
-    await page.locator("#duo-stage").evaluate((el) => el.scrollIntoView({ block: "start" }));
+    await settleDuo(page);
+    await page.locator("#duo-stage").evaluate((el) => {
+      document.documentElement.style.scrollBehavior = "auto";
+      el.scrollIntoView({ block: "start", behavior: "instant" });
+    });
     await noOverflow(page);
     await page.screenshot({ path: `${OUT}/duo-390-zh-fallback.png` });
     await page.locator("#duo").screenshot({ path: `${OUT}/duo-390-zh-fallback-scene.png` });
 
     await openDuo(page, 1280, "?c=FAE&with=FBD&lang=zh");
     await expect(page.locator("#duo-title")).toHaveText("兩人小劇場");
+    const sideBySide = await page.evaluate(() => {
+      const left = document.querySelector("#duo-card-left").getBoundingClientRect();
+      const right = document.querySelector("#duo-card-right").getBoundingClientRect();
+      const bubbles = document.querySelector("#duo-lines").getBoundingClientRect();
+      return right.left > left.right - 4 && bubbles.left >= left.right - 8 && Math.abs(left.top - right.top) < 24;
+    });
+    expect(sideBySide).toBe(true);
     await page.screenshot({ path: `${OUT}/duo-1280-zh-queens.png` });
-    await page.locator("#duo").screenshot({ path: `${OUT}/duo-1280-zh-queens-scene.png` });
+    await page.locator("#duo-stage").screenshot({ path: `${OUT}/duo-cards-1280-zh-queens.png` });
   });
 });
