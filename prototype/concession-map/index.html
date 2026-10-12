@@ -100,6 +100,13 @@
     .btn:hover { filter: brightness(1.15); }
     .btn.ghost { background: transparent; color: var(--ink); }
     .btn.ghost:hover { background: var(--soft); filter: none; }
+    .next { margin-top: 56px; }
+    .next .lab { margin: 0; color: var(--brass); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .next a.card { display: block; margin-top: 12px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit; text-decoration: none; }
+    .next a.card:hover { border-color: var(--brass); }
+    .next a.card h3 { margin: 0; font-size: 19px; line-height: 1.35; }
+    .next a.card p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+    .next a.card span { display: inline-block; margin-top: 10px; font-weight: 700; font-size: 14.5px; color: var(--brass); }
     .boundary { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
 
     .reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
@@ -210,6 +217,11 @@
       </div>
     </section>
 
+    <section class="next reveal" aria-labelledby="next-h">
+      <p class="lab" id="nextLab"></p>
+      <a class="card" id="nextCard"><h3 id="next-h"></h3><p id="nextBody"></p><span id="nextGo"></span></a>
+    </section>
+
     <p class="boundary" id="boundary"></p>
   </main>
 
@@ -270,8 +282,13 @@
         ],
         agRule: "權限邊界：agent 可以整理、回看、提醒；讓不讓、讓多少，仍由公司授權的人決定。",
         closeLine: "讓不讓，沒有標準答案。有的是，你知道自己為什麼讓。",
-        cta: "帶你家的讓步原則來聊",
+        cta: "聊聊你怎麼拿捏進退",
         back: "回到 Digital Garage",
+        nextLab: "選讀",
+        nextTitle: "同一座工廠，兩種生意",
+        nextBody: "讓不讓，先看對方是誰。同一座工廠換一位買家，值得先談的事就不一樣。",
+        nextGo: "看這一頁 →",
+        nextHref: "/prototype/same-factory-different-buyer/",
         boundary: "示意情境，不是統計，也不代表所有工廠或所有客人；這是一個人以前的經驗，要看工廠與市場的類型。這一頁沒有數字，也沒有任何公司、案例或地區。「AI agent 可以幫上哪裡」是設想，沒有證據與效果數字。不儲存任何內容。"
       },
       en: {
@@ -328,8 +345,13 @@
         ],
         agRule: "Boundary: an agent may gather, look back and remind; whether to give way and how much stays with whoever the company has authorised.",
         closeLine: "There is no standard answer on giving way. What there is: knowing why you give.",
-        cta: "Bring your principles on giving way",
+        cta: "Talk through how you give and hold",
         back: "Back to Digital Garage",
+        nextLab: "Next read",
+        nextTitle: "Same Factory. Different Buyer.",
+        nextBody: "Who is asking changes the answer. The same factory, a different buyer, a different opening.",
+        nextGo: "Read this page →",
+        nextHref: "/prototype/same-factory-different-buyer/",
         boundary: "An illustrative scenario, not statistics, and not every factory or customer; it is one person's past experience, and depends on the type of factory and market. This page has no numbers and no company, case or region. \"Where an AI agent could help\" is a sketch with no evidence or effect numbers. Nothing is stored."
       }
     };
@@ -428,6 +450,11 @@
       $("closeLine").textContent = c.closeLine;
       var cta = $("cta"); cta.textContent = c.cta; cta.href = "/?lang=" + lang + "#contact";
       var back = $("back"); back.textContent = c.back; back.href = "/?lang=" + lang + "#garage";
+      $("nextLab").textContent = c.nextLab;
+      $("next-h").textContent = c.nextTitle;
+      $("nextBody").textContent = c.nextBody;
+      $("nextGo").textContent = c.nextGo;
+      $("nextCard").href = c.nextHref + "?lang=" + lang;
       $("boundary").textContent = c.boundary;
 
       document.querySelectorAll(".lang button").forEach(function (b) {
