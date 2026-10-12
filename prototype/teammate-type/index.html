@@ -194,9 +194,13 @@
       position: relative;
       z-index: 1;
       display: block;
-      width: 210px;
-      height: 140px;
-      margin: 36px auto 0;
+      width: min(292px, 100%);
+      height: auto;
+      margin: 2px auto 0;
+    }
+    .stage.with-horse {
+      width: min(300px, 100%);
+      height: 196px;
     }
     .stage.with-horse img { display: none; }
     .rare {
@@ -304,21 +308,40 @@
         <p class="card-kicker" id="card-kicker"></p>
         <div class="stage" id="stage">
           <img id="mg" alt="" width="192" height="208" />
-          <svg id="horse" class="horse" viewBox="0 0 240 160" hidden aria-hidden="true">
-            <g fill="#ffffff" stroke="#193A35" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
-              <polygon points="124,86 96,68 48,24 22,34 62,56 16,64 30,80 74,78 20,98 42,106 108,96 128,92"/>
-              <polygon points="66,92 36,84 28,104 40,108 30,128 46,120 54,104 70,100"/>
-              <polygon points="72,108 84,108 82,148 70,148"/>
-              <polygon points="94,110 106,110 104,150 92,150"/>
-              <polygon points="118,110 130,110 132,150 120,150"/>
-              <polygon points="138,104 150,104 152,148 140,148"/>
-              <ellipse cx="108" cy="102" rx="48" ry="22"/>
-              <polygon points="140,96 152,70 170,48 188,56 168,90 148,104"/>
-              <polygon points="166,42 158,14 178,36 196,32 220,36 234,48 226,58 196,60 174,52 164,46"/>
+          <svg id="horse" class="horse" viewBox="0 0 380 240" hidden aria-hidden="true">
+            <g fill="#ffffff" stroke="#193A35" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+              <path d="M148 124C108 78 52 42 18 28c32 14 78 36 128 80z"/>
+              <path d="M150 126C104 96 42 70 6 64c36 14 86 32 142 52z"/>
+              <path d="M152 130C102 118 36 112 4 122c38 8 90 10 146 2z"/>
+              <path d="M150 134C106 146 48 154 16 144c42 10 88 4 134-14z"/>
+              <path d="M146 122C122 96 84 76 54 68c24 12 58 24 90 42z"/>
+              <path d="M148 126C120 110 82 102 54 106c26 8 60 14 92 16z"/>
+              <path d="M92 136C54 128 30 148 36 172c12-16 32-22 52-16-20 14-26 40-12 52 14-20 26-36 40-46z"/>
+              <path d="M338 60Q332 72 312 76Q286 80 262 70Q242 60 232 52C218 70 204 96 196 120L202 148C204 174 202 200 204 218L192 220L190 172L180 148C176 174 174 200 176 218L164 220L166 152L152 142C142 156 122 162 108 158C110 178 108 200 110 218L98 220L100 170L90 156C88 178 86 200 88 218L76 220L82 162C74 148 92 130 118 118C140 108 164 104 186 114C192 92 204 66 226 48C234 40 242 38 248 42L230 8L256 40C274 26 306 24 330 36C342 46 348 54 338 60Z"/>
+              <path d="M244 42C214 26 172 22 148 38C176 30 210 36 242 50Z"/>
+              <path d="M226 56C190 42 148 44 122 62C156 50 192 56 224 68Z"/>
+              <path d="M208 74C170 66 128 76 108 100C142 84 176 88 210 88Z"/>
+              <path d="M192 94C156 98 124 118 116 142C146 122 172 112 196 106Z"/>
+              <path d="M178 112C150 124 128 148 132 168C152 150 168 136 184 124Z"/>
+              <path d="M256 38C272 28 290 30 284 42C276 36 264 38 254 46Z"/>
             </g>
-            <path d="M168 40c-12-8-16-18-8-26" fill="none" stroke="#193A35" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="208" cy="44" r="2.4" fill="#193A35"/>
-            <circle cx="224" cy="50" r="1.6" fill="#193A35"/>
+            <g fill="none" stroke="#193A35" stroke-width="1.1" stroke-linecap="round" opacity="0.55">
+              <path d="M144 118C100 74 50 44 22 32"/>
+              <path d="M146 122C96 94 40 72 12 68"/>
+              <path d="M148 128C96 118 36 114 10 124"/>
+              <path d="M146 132C102 144 50 152 22 144"/>
+              <path d="M236 46C200 36 164 42 146 56"/>
+              <path d="M216 64C178 60 146 76 126 98"/>
+              <path d="M196 86C164 96 140 118 132 144"/>
+            </g>
+            <path d="M292 48c11-5 20-1 21 4-8 4-16 4-21-4z" fill="#193A35"/>
+            <path d="M326 62q5 2 1 6" fill="none" stroke="#193A35" stroke-width="1.5" stroke-linecap="round"/>
+            <g fill="none" stroke="#8A6A2B" stroke-width="1.7" stroke-linecap="round">
+              <path d="M264 40c18-5 42-2 56 8"/>
+              <path d="M272 66c16-2 36 4 48 12"/>
+              <path d="M286 46c-1 10 2 16 8 20"/>
+            </g>
+            <circle cx="294" cy="54" r="3" fill="#8A6A2B" stroke="#193A35" stroke-width="1"/>
           </svg>
           <div id="prop"></div>
         </div>

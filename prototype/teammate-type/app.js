@@ -909,7 +909,9 @@ function boot() {
 
     const companion = companionFor(state.code, resolved.type);
     if (companion === "horse" && horseImg && horseImg.complete && horseImg.naturalWidth > 0) {
-      ctx.drawImage(horseImg, Math.round((width - 460) / 2), 112, 460, 306);
+      const horseW = 520;
+      const horseH = 328;
+      ctx.drawImage(horseImg, Math.round((width - horseW) / 2), 96, horseW, horseH);
     } else {
       const img = $("mg");
       if (img.complete && img.naturalWidth > 0) {
@@ -919,8 +921,8 @@ function boot() {
       }
     }
 
-    let y = companion === "horse" ? 448 : 430;
-    if (companion === "horse") center(ui.horseLabel, 408, `700 22px ${FONT}`, "#62716A");
+    let y = companion === "horse" ? 468 : 430;
+    if (companion === "horse") center(ui.horseLabel, 436, `700 22px ${FONT}`, "#62716A");
     ctx.font = `700 64px ${FONT}`;
     const nameLines = wrapLines(ctx, text.name, inner);
     nameLines.forEach((line) => {
