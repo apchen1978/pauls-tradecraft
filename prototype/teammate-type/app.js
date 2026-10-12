@@ -29,7 +29,8 @@
 //      the same parity (both even or both odd). Otherwise that win passes
 //      to the next scenario's choice. FAE stays queen; AFC stays designer.
 //      守護者's companion is the winged horse when the index sum is even,
-//      and MG when it is odd (BBA → horse, BBB → MG).
+//      and MG when it is odd (BBA → horse, BBB → MG). The horse is the
+//      anime illustration in assets/winged-horse.png.
 //
 // Worked examples:
 //   AAA majority → umbrella
@@ -530,13 +531,9 @@ let horseImg = null;
 function preloadHorse() {
   if (typeof Image === "undefined") return;
   const node = document.getElementById("horse");
-  if (!node) return;
-  const clone = node.cloneNode(true);
-  clone.removeAttribute("hidden");
-  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  horseImg = new Image();
-  const xml = new XMLSerializer().serializeToString(clone);
-  horseImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
+  if (!node || node.tagName !== "IMG") return;
+  horseImg = node;
+  if (!node.getAttribute("src")) node.src = "assets/winged-horse.png";
 }
 
 function preloadEmblems() {
@@ -908,10 +905,13 @@ function boot() {
     }
 
     const companion = companionFor(state.code, resolved.type);
+    let horseBottom = 400;
     if (companion === "horse" && horseImg && horseImg.complete && horseImg.naturalWidth > 0) {
-      const horseW = 520;
-      const horseH = 328;
-      ctx.drawImage(horseImg, Math.round((width - horseW) / 2), 96, horseW, horseH);
+      const horseW = 500;
+      const horseH = (horseImg.naturalHeight / horseImg.naturalWidth) * horseW;
+      const horseY = 88;
+      ctx.drawImage(horseImg, Math.round((width - horseW) / 2), horseY, horseW, horseH);
+      horseBottom = horseY + horseH;
     } else {
       const img = $("mg");
       if (img.complete && img.naturalWidth > 0) {
@@ -921,8 +921,8 @@ function boot() {
       }
     }
 
-    let y = companion === "horse" ? 468 : 430;
-    if (companion === "horse") center(ui.horseLabel, 436, `700 22px ${FONT}`, "#62716A");
+    let y = companion === "horse" ? horseBottom + 40 : 430;
+    if (companion === "horse") center(ui.horseLabel, horseBottom + 8, `700 22px ${FONT}`, "#62716A");
     ctx.font = `700 64px ${FONT}`;
     const nameLines = wrapLines(ctx, text.name, inner);
     nameLines.forEach((line) => {
