@@ -83,6 +83,38 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#play")).toBeVisible();
     });
 
+    test("the sky effects (sun, cloud shadows, chimney smoke, gulls) are decoration only and really move", async ({ page }) => {
+      await page.goto(`${base}/index.html?lang=zh`);
+      await expect(page.locator("#map-stage")).toHaveClass(/fx-ready/);
+      await expect(page.locator("#sky-fx")).toHaveAttribute("aria-hidden", "true");
+      await expect(page.locator("#sky-fx")).toHaveCSS("pointer-events", "none");
+      await expect(page.locator("#sky-fx .gull")).toHaveCount(3);
+      await expect(page.locator("#sky-fx .smoke")).toHaveCount(3);
+      await expect(page.locator("#sky-fx .shade")).toHaveCount(2);
+      const sample = () => page.evaluate(() => ["#sky-fx .shade-a", "#sky-fx .smoke-a", "#sky-fx .gull-a"].map((q) => getComputedStyle(document.querySelector(q)).transform));
+      const first = await sample();
+      await page.waitForTimeout(1600);
+      const second = await sample();
+      expect(second[0]).not.toBe(first[0]);
+      expect(second[1]).not.toBe(first[1]);
+      expect(second[2]).not.toBe(first[2]);
+      // same size as the picture, so the percentages line up with the buildings and the sky
+      const sizes = await page.evaluate(() => ({ fx: [document.getElementById("sky-fx").offsetWidth, document.getElementById("sky-fx").offsetHeight], inner: [document.getElementById("map-inner").offsetWidth, document.getElementById("map-inner").offsetHeight] }));
+      expect(sizes.fx).toEqual(sizes.inner);
+    });
+
+    test("for visitors who want less motion, the sky effects are off too; and they pause off screen", async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto(`${base}/index.html?lang=zh`);
+      await expect(page.locator("#map-stage")).toHaveClass(/fx-ready/);
+      await expect(page.locator("#sky-fx")).toBeHidden();
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+      await expect(page.locator("#sky-fx")).toBeVisible();
+      await page.evaluate(() => { document.body.style.minHeight = "6000px"; window.scrollTo(0, 4000); });
+      await expect(page.locator("#map-stage")).toHaveClass(/idle/, { timeout: 4000 });
+      await expect(page.locator("#sky-fx .smoke-a")).toHaveCSS("animation-play-state", /paused/);
+    });
+
     test("the glints pause while the map is off screen", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh`);
       await expect(page.locator("#map-stage")).toHaveClass(/fx-ready/);
