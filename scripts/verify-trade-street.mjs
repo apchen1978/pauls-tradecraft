@@ -357,3 +357,23 @@ test("motion: the glints are decoration only, off until the mask loads, off for 
   const frames = [...html.matchAll(/@keyframes fx-[a-z-]+ \{([^]*?)\}\s*(?=@|\.|$)/g)].map((m) => m[0]).join("");
   assert.equal(/left:|top:|width:|height:|background-position/.test(frames), false);
 });
+
+test("motion: the sky effects are decoration only, gated like the glints, and cost nothing when not wanted", () => {
+  const html = read("../prototype/trade-street/index.html");
+  assert.match(html, /class="sky-fx" id="sky-fx" aria-hidden="true"/);
+  assert.match(html, /\.sky-fx \{ display: none; position: absolute; inset: 0; overflow: hidden; pointer-events: none; \}/);
+  assert.match(html, /\.map-stage\.fx-ready \.sky-fx \{ display: block; \}/);
+  assert.match(html, /@media \(prefers-reduced-motion: reduce\) \{ \.map-stage\.fx-ready \.sky-fx \{ display: none; \} \}/);
+  assert.match(html, /\.map-stage\.idle \.sky-fx i, \.map-stage\.idle \.sky-fx \.gull, \.map-stage\.idle \.sky-fx \.wing \{ animation-play-state: paused; \}/);
+  // three gulls, three puffs of smoke, two cloud shadows and a sun, nothing else
+  assert.equal((html.match(/class="gull gull-[abc]"/g) || []).length, 3);
+  assert.equal((html.match(/class="smoke smoke-[abc]"/g) || []).length, 3);
+  assert.equal((html.match(/class="shade shade-[ab]"/g) || []).length, 2);
+  assert.equal((html.match(/<i class="sun">/g) || []).length, 1);
+  // every keyframe that belongs to these effects only moves, scales or fades (cheap on a phone)
+  for (const name of ["fx-sun", "fx-shade", "fx-smoke", "fx-gull", "fx-flap"]) {
+    const frame = html.match(new RegExp(`@keyframes ${name} \\{[^\n]*`));
+    assert.ok(frame, `${name} exists`);
+    assert.equal(/left:|top:|width:|height:|background/.test(frame[0]), false, `${name} only uses transform and opacity`);
+  }
+});
