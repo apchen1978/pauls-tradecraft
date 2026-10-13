@@ -1,6 +1,6 @@
 const copy = {
   zh: {
-    skip: "跳至內容", draft: "互動示範", title: "街角的秘密", heroPrompt: "先記下第一眼 ↘",
+    skip: "跳至內容", draft: "互動示範", title: "街角的秘密", heroPrompt: "先記下第一眼 ↘", backToScene: "再看其他光點 ↑",
     intro: "一間小店門口排了隊。這是穩定生意的訊號，還是今晚的一刻？",
     lede: "從四個細節開始。你不必猜對答案；只要找到下一個值得問的問題。",
     start: "走近看看", explore: "沿著這條街，先看見什麼？",
@@ -74,7 +74,7 @@ const copy = {
     },
   },
   en: {
-    skip: "Skip to content", draft: "Interactive demo", title: "Secrets on the Corner", heroPrompt: "Keep a first thought ↘",
+    skip: "Skip to content", draft: "Interactive demo", title: "Secrets on the Corner", heroPrompt: "Keep a first thought ↘", backToScene: "Explore another point ↑",
     intro: "A line forms outside a small shop. Is it a sign of steady business—or one moment tonight?",
     lede: "Start with four details. There is no answer to guess; find a better question to ask next.",
     start: "Take a closer look", explore: "What do you notice on this street?",
@@ -338,6 +338,7 @@ function renderNote() {
     area.append(heading, makePart(t.seen, clue.seen), makePart(t.possible, clue.possible), makePart(t.unknown, clue.unknown));
   }
   node("seen-list").textContent = viewed.size ? t.seenList(clueOrder.filter(id => viewed.has(id)).map(id => t.clues[id].name)) : "";
+  node("note-back").hidden = !activeClue;
   node("discovery-count").textContent = t.count(viewed.size);
   node("decision-hint").textContent = viewed.size < 2 ? t.need(2 - viewed.size) : t.ready;
   updateRouteProgress();
@@ -612,6 +613,10 @@ document.querySelectorAll(".hotspot").forEach(button => button.addEventListener(
   activeClue = button.dataset.clue;
   viewed.add(activeClue);
   renderNote();
+  const heading = node("note-content").querySelector("h3");
+  heading.tabIndex = -1;
+  heading.focus({ preventScroll: true });
+  node("field-note").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   if (chosenQuestion) renderResult();
 }));
 node("download").addEventListener("click", downloadCard);

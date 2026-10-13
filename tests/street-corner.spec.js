@@ -95,6 +95,17 @@ test("first impression can be skipped without blocking exploration", async ({ pa
   await expect(page.locator("#result")).toBeVisible();
 });
 
+test("a glowing point brings its field note into view and offers a way back", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/prototype/secrets-on-the-corner/?lang=zh");
+  await page.locator('[data-clue="lamp"]').click();
+  await expect(page.locator("#note-content h3")).toHaveText("路燈");
+  await expect(page.locator("#note-content h3")).toBeFocused();
+  await expect(page.locator("#field-note")).toBeInViewport({ ratio: 0.1 });
+  await page.locator("#note-back").click();
+  await expect(page.locator("#scene")).toBeInViewport({ ratio: 0.1 });
+});
+
 test("the recorded thought follows a language switch", async ({ page }) => {
   await page.goto("/prototype/secrets-on-the-corner/?lang=zh");
   await page.locator('[data-impression="steady"]').click();

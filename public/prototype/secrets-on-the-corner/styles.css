@@ -94,7 +94,7 @@ html[lang="en"] .hero-copy h1 { max-width: 11ch; font-size: clamp(2.8rem, 4.2vw,
 .hotspot-queue { left: 59%; top: 55%; }
 .hotspot-lamp { left: 93%; top: 20%; }
 
-.field-note { display: flex; flex-direction: column; min-height: 300px; padding: clamp(24px, 4vw, 52px); color: #ecf0ea; background: var(--night); }
+.field-note { display: flex; flex-direction: column; min-height: 300px; padding: clamp(24px, 4vw, 52px); color: #ecf0ea; background: var(--night); scroll-margin-top: 80px; }
 .note-top { display: flex; align-items: center; gap: 12px; color: #c9d7d7; font-size: .875rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .note-line { flex: 1; height: 1px; background: #6a858b; }
 .note-content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 28px 0; }
@@ -105,6 +105,8 @@ html[lang="en"] .hero-copy h1 { max-width: 11ch; font-size: clamp(2.8rem, 4.2vw,
 .clue-part span { display: block; margin-bottom: 5px; color: var(--amber); font-size: .875rem; font-weight: 800; letter-spacing: .08em; }
 .clue-part p { margin: 0; color: #eef1eb; font-size: 1rem; }
 .note-footer { min-height: 35px; border-top: 1px solid #6a858b; padding-top: 13px; color: #bcd0d0; font-size: .875rem; }
+.note-back { align-self: flex-start; margin-top: 12px; color: #fff0ca; font-weight: 700; text-underline-offset: 4px; }
+.note-back[hidden] { display: none; }
 
 .decision { display: grid; grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); gap: clamp(38px,6vw,96px); padding: 16px 0 80px; border-bottom: 1px solid var(--line); }
 .decision-head { max-width: 32em; }
