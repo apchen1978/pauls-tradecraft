@@ -446,3 +446,15 @@ test("plain words: every stop has one short plain line in both languages, and th
     assert.equal(/Digital Garage|回到 Garage|Back to Garage|#garage/.test(text), false, `${file} points at the Showcase now`);
   }
 });
+
+test("intro and wrap-up: the relay primer and the three takeaways exist in both languages, plain, with no numbers or units", () => {
+  for (const lang of ["zh", "en"]) {
+    const t = UI[lang];
+    assert.ok(t.primerTitle.length > 10 && t.primerBody.length > 60, `${lang} primer`);
+    assert.equal(t.takeaway.length, 3, `${lang} takeaways`);
+    assert.ok(t.takeawayTitle && t.takeawayLink, `${lang} takeaway labels`);
+    for (const line of [t.primerTitle, t.primerBody, t.takeawayTitle, ...t.takeaway]) assert.equal(/\d/.test(line), false, `${lang} has no digits: ${line}`);
+  }
+  const html = read("../prototype/trade-street/index.html");
+  for (const id of ["primer", "primer-title", "primer-body", "takeaway", "takeaway-title", "takeaway-list", "takeaway-link"]) assert.ok(html.includes(`id="${id}"`), id);
+});

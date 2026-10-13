@@ -148,6 +148,14 @@
     .cast .avatar { width: 44px; height: 44px; font-size: 18px; }
     .cast b { display: block; line-height: 1.3; }
     .cast small { display: block; color: var(--moss); font-size: 14px; line-height: 1.45; }
+    .primer { max-width: 660px; margin: 18px 0 0; padding: 14px 16px; border-left: 5px solid var(--teal); border-radius: 4px 12px 12px 4px; background: var(--sky); }
+    .primer summary { cursor: pointer; font-size: 16px; font-weight: 700; line-height: 1.4; color: var(--deep); }
+    .primer p { margin: 8px 0 0; font-size: 16px; line-height: 1.65; color: var(--ink); }
+    @media (max-width: 639px) { .primer { margin-top: 12px; padding: 10px 12px; } }
+    .takeaway { max-width: 660px; margin: 22px 0 0; padding: 14px 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--white); }
+    .takeaway h2 { margin: 0 0 8px; font-size: 18px; line-height: 1.35; color: var(--deep); }
+    .takeaway ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.6; }
+    .takeaway p { margin: 10px 0 0; }
     .caveat { margin-top: 28px; color: var(--moss); font-size: 14px; }
     .home { display: inline-block; margin-top: 12px; color: var(--deep); font-weight: 700; }
     .map-stage { position: relative; margin-top: 16px; border: 3px solid var(--deep); border-radius: 16px; overflow: hidden; background: var(--sky); line-height: 0; }
@@ -294,6 +302,10 @@
     <p class="intro" id="intro">一櫃貨明天要出海，整條街都在接力。</p>
     <p class="lede" id="lede">沿著港口走一趟，在六個關鍵時刻做決定，看趕不趕得上船。</p>
     <p class="hint" id="hint">同樣的選擇，永遠得到同一個結果。</p>
+    <details class="primer" id="primer">
+      <summary id="primer-title"></summary>
+      <p id="primer-body"></p>
+    </details>
 
     <section id="entry" aria-labelledby="entry-title">
       <h2 id="entry-title">先選這一週的情況</h2>
@@ -391,6 +403,11 @@
         <button type="button" class="secondary" id="again"></button>
       </div>
       <p class="status" id="status" role="status"></p>
+      <section class="takeaway" id="takeaway" aria-labelledby="takeaway-title">
+        <h2 id="takeaway-title"></h2>
+        <ul id="takeaway-list"></ul>
+        <p><a class="home" id="takeaway-link" href="../one-container-12-steps/"></a></p>
+      </section>
       <h2 id="cast-title" style="margin-top:28px"></h2>
       <ul class="cast" id="cast"></ul>
       <p><a class="home" id="cast-link" href="cast/">認識街上的人</a></p>
