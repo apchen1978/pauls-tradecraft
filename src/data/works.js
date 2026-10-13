@@ -591,6 +591,7 @@ export const works = [
   },
   {
     id: "quote-lens",
+    entryQuestion: { zh: "現金墊得起嗎？", en: "Can you afford to front the cash?" },
     section: "labs",
     featuredRank: 1,
     cover: { zh: "/images/cover-quote-lens.webp", en: "/images/cover-quote-lens-en.webp" },
@@ -847,6 +848,7 @@ export const works = [
   },
   {
     id: "global-business-development",
+    entryQuestion: { zh: "這個商機，值得先投入資源嗎？", en: "Is this opportunity worth committing resources to first?" },
     section: "commercial",
     featuredRank: 1,
     cover: { zh: "/images/cover-global-business-development-zh.webp", en: "/images/cover-global-business-development.webp" },
@@ -1240,6 +1242,7 @@ export const works = [
   },
   {
     id: "trade-profit-navigator",
+    entryQuestion: { zh: "利潤還撐得住嗎？", en: "Does the margin still hold?" },
     section: "commercial",
     featuredRank: 2,
     cover: "/images/cover-trade-profit-navigator.webp",
