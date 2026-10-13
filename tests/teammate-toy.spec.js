@@ -204,8 +204,8 @@ test.describe("showcase cover", () => {
         const img = page.locator("#showcase img");
         await img.scrollIntoViewIfNeeded();
         await expect(img).toHaveAttribute("src", "/images/showcase-galaxy-cover.webp");
-        await expect(img).toHaveAttribute("width", "232");
-        await expect(img).toHaveAttribute("height", "290");
+        await expect(img).toHaveAttribute("width", "272");
+        await expect(img).toHaveAttribute("height", "340");
         await img.evaluate((node) => (node.complete && node.naturalWidth > 0 ? null : node.decode()));
         const metrics = await img.evaluate((node) => {
           const frame = node.parentElement.getBoundingClientRect();
@@ -217,8 +217,8 @@ test.describe("showcase cover", () => {
             frameRatio: frame.width / frame.height,
           };
         });
-        expect(metrics.naturalWidth).toBe(232);
-        expect(metrics.naturalHeight).toBe(290);
+        expect(metrics.naturalWidth).toBe(272);
+        expect(metrics.naturalHeight).toBe(340);
         // The only current 銀河之女 bitmap is 273px wide. This cover is a native crop, not an upscale.
         expect(metrics.naturalWidth).toBeLessThan(800);
         expect(metrics.objectPosition).toBe("50% 50%");
