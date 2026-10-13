@@ -21,7 +21,7 @@ export const CAST_ORDER = ["guide", "forwarder", "shipper", "factory", "trucker"
 export const CAST = {
   guide: {
     zh: { name: "玉仔", role: "導覽員", line: "遇到行話我就停下來，翻成白話給你。" },
-    en: { name: "The Guide", role: "Your sales contact", line: "When jargon turns up, I stop and put it in plain words." },
+    en: { name: "Yuzai", role: "Your sales contact", line: "When jargon turns up, I stop and put it in plain words." },
   },
   forwarder: {
     zh: { name: "阿代", role: "貨代", line: "你問到的，我才回。所以問清楚，也請我寫下來。" },
