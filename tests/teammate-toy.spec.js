@@ -921,7 +921,7 @@ test.describe("sixteen roles", () => {
       await expect(page.locator("#card-name")).toHaveText("靚仔 · 記錄者 · 拍下來了");
       await expect(page.locator("#card-sub")).toBeHidden();
       await expect(page.locator("#faction")).toHaveText("🌌 銀河隊");
-      await expect(page.locator("#about")).toContainText("關於隊友阿修");
+      await expect(page.locator("#about")).toContainText("關於隊友阿白");
       await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
       await noOverflow(page);
       await page.locator("#card").screenshot({ path: `${OUT}/role-${width}-zh-recorder.png` });
@@ -934,7 +934,7 @@ test.describe("sixteen roles", () => {
       await expect(page.locator("#card-name")).toHaveText("戴安娜 · 工匠 · 修好了");
       await expect(page.locator("#role")).toBeHidden();
       await expect(page.locator("#faction")).toHaveText("🏮 燈下隊");
-      await expect(page.locator("#about")).toContainText("關於隊友苔苔");
+      await expect(page.locator("#about")).toContainText("關於隊友MG");
       await noOverflow(page);
       await page.locator("#card").screenshot({ path: `${OUT}/role-${width}-zh-craftsman.png` });
 

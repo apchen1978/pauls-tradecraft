@@ -380,3 +380,13 @@ test("two-person scenes cover every pair without changing a score", () => {
   const duoSrc = readFileSync(new URL("../prototype/teammate-type/duo.js", import.meta.url), "utf8");
   assert.doesNotMatch(duoSrc, /fetch\(|localStorage|XMLHttpRequest/);
 });
+
+test("each card's teammate line names someone from the same faction", () => {
+  for (const [factionId, faction] of Object.entries(FACTIONS)) {
+    for (const id of faction.members) {
+      const named = TYPES[id].zh.about.replace(/^關於隊友/, "").split("：")[0].trim();
+      const mates = faction.members.filter((m) => m !== id).map((m) => TYPES[m].zh.person || TYPES[m].zh.name);
+      assert.ok(mates.includes(named), `${id} (${factionId}) names ${named}`);
+    }
+  }
+});
