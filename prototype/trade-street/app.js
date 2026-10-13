@@ -250,7 +250,18 @@ function boot() {
       if (decisionAtStation(i) >= 0) li.classList.add("decision");
       const words = el("span", "words");
       words.append(el("span", null, label), el("small", "gloss", GLOSS[state.lang][i]));
-      li.append(el("span", "num", String(i + 1)), words);
+      if (withState) {
+        li.append(el("span", "num", String(i + 1)), words);
+      } else {
+        // on the entry page the list is a second way in: it opens the same preview as the dot on the map
+        const open = el("button", "route-btn");
+        open.type = "button";
+        open.dataset.station = String(i);
+        open.setAttribute("aria-label", ui().stopLabel(i + 1, label));
+        open.append(el("span", "num", String(i + 1)), words);
+        open.addEventListener("click", () => { if (state.view === "entry") previewStation(i, "list"); });
+        li.appendChild(open);
+      }
       node.appendChild(li);
     });
   }
@@ -303,6 +314,12 @@ function boot() {
       if ((playing && i === state.index) || (!playing && state.preview === i)) button.setAttribute("aria-current", "step");
       else button.removeAttribute("aria-current");
     });
+    document.querySelectorAll("#route-entry .route-btn").forEach((button) => {
+      const on = !playing && state.preview === Number(button.dataset.station);
+      button.parentElement.classList.toggle("now", on);
+      if (on) button.setAttribute("aria-current", "step");
+      else button.removeAttribute("aria-current");
+    });
     fitStage();
   }
 
@@ -338,7 +355,9 @@ function boot() {
     $("preview").hidden = false;
   }
 
-  function previewStation(i) {
+  let previewFrom = "dot";
+  function previewStation(i, from = "dot") {
+    previewFrom = from;
     state.preview = i;
     renderPreview();
     renderHotspots();
@@ -350,7 +369,7 @@ function boot() {
     state.preview = null;
     renderPreview();
     renderHotspots();
-    const back = document.querySelector(`#hotspots .hot[data-station="${was}"]`);
+    const back = document.querySelector(previewFrom === "list" ? `#route-entry .route-btn[data-station="${was}"]` : `#hotspots .hot[data-station="${was}"]`);
     if (back) back.focus();
   }
 

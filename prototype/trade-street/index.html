@@ -82,6 +82,9 @@
     .route li.now .num { background: var(--amber-fill); color: var(--white); }
     .route li.decision .num::after { content: "●"; position: absolute; transform: translate(14px, -14px); color: var(--amber); font-size: 10px; }
     .route li { position: relative; }
+    .route li:hover { border-color: var(--teal); }
+    .route-btn { display: flex; align-items: center; gap: 10px; width: 100%; margin: 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+    .route-btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; border-radius: 8px; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 18px; }
     .primary, .secondary { min-height: 48px; padding: 8px 20px; border-radius: 999px; border: 2px solid var(--deep); font-weight: 700; cursor: pointer; }
     .primary { background: var(--deep); color: var(--white); }
