@@ -19,6 +19,9 @@ export const ART = {
         { id: "cloud-c", file: "assets/layers/desktop-cloud-c.webp", x: 1450, y: 0, w: 150, h: 104 },
         { id: "far-ship", file: "assets/layers/desktop-far-ship.webp", x: 1427, y: 120, w: 125, h: 83 },
         { id: "crane-container", file: "assets/layers/desktop-crane-container.webp", x: 1271, y: 156, w: 98, h: 125, pivot: [47, 1] },
+        // the two trucks stay in the plate; each is also laid over itself as a soft-edged patch (truck and the road around it) and idles forward a few pixels
+        { id: "truck-a", file: "assets/layers/desktop-truck-a.webp", x: 252, y: 308, w: 200, h: 114 },
+        { id: "truck-b", file: "assets/layers/desktop-truck-b.webp", x: 632, y: 310, w: 143, h: 110 },
       ],
     },
     mobile: {
@@ -29,6 +32,8 @@ export const ART = {
         { id: "cloud-c", file: "assets/layers/mobile-cloud-c.webp", x: 600, y: 30, w: 200, h: 115 },
         { id: "far-ship", file: "assets/layers/mobile-far-ship.webp", x: 619, y: 183, w: 148, h: 99 },
         { id: "crane-container", file: "assets/layers/mobile-crane-container.webp", x: 615, y: 476, w: 85, h: 103, pivot: [44, 1] },
+        { id: "truck-a", file: "assets/layers/mobile-truck-a.webp", x: 80, y: 455, w: 155, h: 110 },
+        { id: "truck-b", file: "assets/layers/mobile-truck-b.webp", x: 135, y: 620, w: 140, h: 110 },
       ],
     },
   },
