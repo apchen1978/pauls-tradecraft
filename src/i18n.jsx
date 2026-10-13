@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { questions: "能做什麼", showcase: "作品展示", works: "作品", garage: "創意實驗／小遊戲", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { questions: "能做什麼", showcase: "互動作品", works: "商業作品", garage: "創意實驗／小遊戲", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "15 年＋", label: "帶產品打進海外市場" },
@@ -726,7 +726,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { questions: "What I do", showcase: "Showcase", works: "Work", garage: "Garage / Games", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { questions: "What I do", showcase: "Playful Works", works: "Business Works", garage: "Garage / Games", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "15+ years", label: "Taking products into overseas markets" },
