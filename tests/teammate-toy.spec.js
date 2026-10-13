@@ -474,7 +474,7 @@ function pngSize(file) {
 
 const NEW_ROLES = [
   { code: "EAE", zh: "墨衡 · 軍師 · 先看全局", en: "Rook · Strategist · Sees the Whole Board", roleZh: "組隊角色 · 軍師", roleEn: "Party role · Strategist" },
-  { code: "AEA", zh: "阿跑 · 傳令兵 · 話送到了", en: "Dash · Messenger · Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
+  { code: "AEA", zh: "阿修 · 傳令兵 · 話送到了", en: "Shiu · Messenger · Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
   { code: "AFE", zh: "言歌 · 傳教士 · 這件事值得說", en: "Echo · Missionary · Worth Saying Out Loud", roleZh: "組隊角色 · 傳教士", roleEn: "Party role · Missionary" },
   { code: "ACF", zh: "保羅 · 使徒 · 我接著走", en: "Paul · Apostle · I'll Carry It On", roleZh: "組隊角色 · 使徒", roleEn: "Party role · Apostle" },
   { code: "FAE", zh: "銀河之女 · 女王", en: "Daughter of the Galaxy · Queen", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
@@ -666,7 +666,7 @@ test.describe("new choices and roles", () => {
       { code: "DAA", file: "mapkeeper.webp", zh: "莉婭 · 斥候 · 地圖收藏家", en: "Leia · Scout · The Mapkeeper" },
       { code: "CCD", file: "soundtrack.webp", zh: "樂樂 · 吟遊詩人 · BGM 擔當", en: "Remi · Bard · The Soundtrack" },
       { code: "EAE", file: "strategist.webp", zh: "墨衡 · 軍師 · 先看全局", en: "Rook · Strategist · Sees the Whole Board" },
-      { code: "AEA", file: "messenger.webp", zh: "阿跑 · 傳令兵 · 話送到了", en: "Dash · Messenger · Gets It Through" },
+      { code: "AEA", file: "messenger.webp", zh: "阿修 · 傳令兵 · 話送到了", en: "Shiu · Messenger · Gets It Through" },
       { code: "AFC", file: "designer.webp", zh: "苔苔 · 設計師 · 順眼就對了", en: "Moss · Designer · Makes It Look Right" },
       { code: "AFE", file: "missionary.webp", zh: "言歌 · 傳教士 · 這件事值得說", en: "Echo · Missionary · Worth Saying Out Loud" },
       { code: "ACF", file: "apostle.webp", zh: "保羅 · 使徒 · 我接著走", en: "Paul · Apostle · I'll Carry It On" },
@@ -921,7 +921,7 @@ test.describe("sixteen roles", () => {
       await expect(page.locator("#card-name")).toHaveText("靚仔 · 記錄者 · 拍下來了");
       await expect(page.locator("#card-sub")).toBeHidden();
       await expect(page.locator("#faction")).toHaveText("🌌 銀河隊");
-      await expect(page.locator("#about")).toContainText("關於隊友阿跑");
+      await expect(page.locator("#about")).toContainText("關於隊友阿修");
       await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
       await noOverflow(page);
       await page.locator("#card").screenshot({ path: `${OUT}/role-${width}-zh-recorder.png` });

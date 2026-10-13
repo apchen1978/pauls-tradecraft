@@ -268,7 +268,7 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
     mapkeeper: "莉婭 · 斥候 · 地圖收藏家",
     soundtrack: "樂樂 · 吟遊詩人 · BGM 擔當",
     strategist: "墨衡 · 軍師 · 先看全局",
-    messenger: "阿跑 · 傳令兵 · 話送到了",
+    messenger: "阿修 · 傳令兵 · 話送到了",
     galaxy: "銀河之女 · 女王",
     andromeda: "Holly · 女王 · 仙女座女王",
     designer: "苔苔 · 設計師 · 順眼就對了",
