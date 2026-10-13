@@ -4,7 +4,7 @@ import { Script } from "node:vm";
 import { withDemoLang } from "../src/demoLinks.js";
 
 let checks = 0;
-for (const page of ["ai-native-overseas-customer-roadmap", "ai-native-commercial-conversion", "decision-adversary", "garage-rfq-workflow-001", "three-days-of-quiet", "one-container-12-steps", "same-factory-different-buyer", "worth-reading", "teammate-type", "code-words", "second-source-light-lesson"]) {
+for (const page of ["ai-native-overseas-customer-roadmap", "ai-native-commercial-conversion", "decision-adversary", "garage-rfq-workflow-001", "three-days-of-quiet", "one-container-12-steps", "same-factory-different-buyer", "worth-reading", "teammate-type", "code-words", "trade-street", "second-source-light-lesson"]) {
   for (const lang of ["zh", "en"]) {
     const path = `/prototype/${page}/`;
     assert.equal(withDemoLang(path, lang), `${path}?lang=${lang}`);
