@@ -390,3 +390,32 @@ test("each card's teammate line names someone from the same faction", () => {
     }
   }
 });
+
+test("every role has a bilingual 照夜鎮 profile: place, item, motto", () => {
+  for (const id of Object.keys(TYPES)) {
+    for (const lang of ["zh", "en"]) {
+      for (const key of ["place", "item", "motto"]) {
+        const value = TYPES[id][lang][key];
+        assert.ok(typeof value === "string" && value.trim().length > 0, `${id}.${lang}.${key}`);
+        assert.equal(/魔法|法師|咒|巫/.test(value), false, `${id}.${lang}.${key} uses a banned word`);
+      }
+    }
+  }
+  for (const id of ["soundtrack", "missionary"]) {
+    for (const key of ["place", "item", "motto"]) {
+      assert.equal(/[他她]/.test(TYPES[id].zh[key]), false, `${id}.zh.${key} uses 他/她`);
+      assert.equal(/\b(he|she|his|her|him)\b/i.test(TYPES[id].en[key]), false, `${id}.en.${key} uses a pronoun`);
+    }
+  }
+});
+
+test("no role text uses 魔法/法師/咒/巫", () => {
+  const blob = JSON.stringify(TYPES);
+  assert.equal(/魔法|法師|咒|巫/.test(blob), false);
+});
+
+test("result codes and scoring are unchanged by the profile", () => {
+  assert.deepEqual(Object.keys(TYPES).sort(), [...ROLE_ORDER].sort());
+  const SAMPLE = { umbrella: "AAA", cocoa: "BBA", finisher: "BBC", spark: "CCC", mapkeeper: "DAA", soundtrack: "CCD", strategist: "EAE", messenger: "AEA", alliance: "EEA", missionary: "AFE", apostle: "ACF", designer: "AFC", galaxy: "FAE", andromeda: "FBD", craftsman: "GGG", recorder: "HHH" };
+  for (const [id, code] of Object.entries(SAMPLE)) assert.equal(resolveChoices(code).type, id, code);
+});
