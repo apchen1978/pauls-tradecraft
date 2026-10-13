@@ -74,8 +74,8 @@ export const REACT = {
     en: { free: "A little extra is never wasted.", costly: "A buffer helps. It is not a reason to do nothing." },
   },
   ask: {
-    zh: { free: "寫下來，大家才不會各說各話。", costly: "問清楚是對的，但也要有人拍板。" },
-    en: { free: "Write it down, and nobody remembers it differently.", costly: "Asking is right. Someone still has to decide." },
+    zh: { free: "寫下來，大家才不會各說各話。", costly: "話要寫下來才算數，但也要有人先開口。" },
+    en: { free: "Write it down, and nobody remembers it differently.", costly: "Words count once they are written down. Somebody still has to speak first." },
   },
   clock: {
     zh: { free: "往回推時間，我最愛這種人。", costly: "趕時間我懂，但這次被時間反咬一口。" },
@@ -168,7 +168,7 @@ export const DECISIONS = [
     options: [
       { id: "A", tag: "trust", cost: 0, zh: "請貨代出單，確認誰簽、什麼時候可以拿到，拿到後你再核對", en: "Ask the forwarder who signs and when you will get it, then check it when it arrives." },
       { id: "B", tag: "rules", cost: 0, zh: "照船公司的做法出單，並確認提單種類（正本或電放）", en: "Do it the carrier's way, and confirm the type of bill (original or telex release)." },
-      { id: "C", tag: "ask", cost: 1, zh: "先等買家把付款和收件資訊都講清楚，才去問提單", en: "Wait until the buyer has explained payment and delivery in full before asking about the bill." },
+      { id: "C", tag: "ask", cost: 1, zh: "什麼都等買家先講，自己不主動問提單", en: "Wait for the buyer to speak first, and never ask about the bill yourself." },
     ],
   },
 ];
