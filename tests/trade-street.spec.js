@@ -237,6 +237,26 @@ for (const width of [390, 1440]) {
       await noOverflow(page);
     });
 
+    for (const lang of ["zh", "en"]) {
+      test(`${lang}: the entry explains in plain words that exporting is a relay, and the result ends with what you saw`, async ({ page }) => {
+        await page.goto(`${base}/index.html?lang=${lang}`);
+        await expect(page.locator("#primer-title")).toBeVisible();
+        if (!(await page.locator("#primer").evaluate((n) => n.open))) await page.locator("#primer-title").click();
+        await expect(page.locator("#primer-body")).toBeVisible();
+        await expect(page.locator("#primer-title")).toHaveText(lang === "zh" ? /一群人在接力/ : /is a relay/);
+        await expect(page.locator("#primer-body")).toContainText(lang === "zh" ? "貨代（替你安排運輸的公司）" : "forwarder (the company that arranges transport for you)");
+        await noOverflow(page);
+        await walk(page, ["B", "A", "A", "A", "A", "B"]);
+        await expect(page.locator("#result")).toBeVisible();
+        await expect(page.locator("#takeaway")).toBeVisible();
+        await expect(page.locator("#takeaway-list li")).toHaveCount(3);
+        const href = await page.locator("#takeaway-link").getAttribute("href");
+        expect(href).toContain("../one-container-12-steps/");
+        if (lang === "en") expect(href).toContain("lang=en");
+        await noOverflow(page);
+      });
+    }
+
     test("if the pictures cannot load, the game still works with initials", async ({ page }) => {
       await page.route("**/assets/**/*.webp", (route) => route.abort());
       await page.goto(`${base}/index.html?lang=zh`);

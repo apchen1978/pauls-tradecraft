@@ -48,6 +48,11 @@ export const UI = {
     intro: "一櫃貨明天要出海，整條街都在接力。",
     lede: "沿著港口走一趟，在六個關鍵時刻做決定，看趕不趕得上船。",
     hint: "同樣的選擇，永遠得到同一個結果。不存任何資料。",
+    primerTitle: "先懂一件事：出口一個貨櫃，是一群人在接力。",
+    primerBody: "賣到國外的貨，不是自己送過去的。工廠、貨代（替你安排運輸的公司）、拖車、海關、船公司、買家，每個人只做自己那一段，下一個人才接得上。只要有一棒晚了，整櫃貨就可能趕不上船。",
+    takeawayTitle: "走完這一趟，你看到的是：",
+    takeaway: ["出口不是一個人的事：十二站、好幾個人，一棒接一棒。", "最容易出事的，常常不是某一站，而是交接：誰、什麼時候、把什麼交給下一棒。", "所以有經驗的人，會先問清楚、留一點緩衝、把說好的事寫下來。"],
+    takeawayLink: "想看每一步的完整說明：12 步流程",
     entryTitle: "先選這一週的情況", routeLabel: "十二站", lightsLabel: "四個時間點", routeHint: "點地圖上的圓點，看那一站是誰、在做什麼。橘色圈是要做決定的站。",
     castLink: "認識街上的人",
     mapAlt: "貿易街的港口：左邊是工廠，道路通向右邊的碼頭，吊車正把貨櫃吊上船，遠方海面另有一艘船駛離，右下角是岸上的文件角。",
@@ -89,6 +94,11 @@ export const UI = {
     intro: "One container ships tomorrow, and the whole street is passing the baton.",
     lede: "Walk the harbour, make six decisions at the moments that matter, and see whether it makes the ship.",
     hint: "The same choices always give the same result. Nothing is stored.",
+    primerTitle: "One thing first: exporting a container is a relay.",
+    primerBody: "Goods sold abroad do not travel on their own. The factory, the forwarder (the company that arranges transport for you), the truck, customs, the shipping line and the buyer each do one leg, and the next one can only start once the last has finished. If one handover runs late, the whole container can miss its ship.",
+    takeawayTitle: "What you just saw:",
+    takeaway: ["Exporting is not one person's job: twelve steps, several people, one handing over to the next.", "What goes wrong is often not a single step but the handover: who passes what to whom, and when.", "That is why experienced people ask first, keep a little buffer, and write down what was agreed."],
+    takeawayLink: "Want every step in full? The 12 steps",
     entryTitle: "First, pick this week's situation", routeLabel: "Twelve stops", lightsLabel: "Four moments", routeHint: "Tap a dot on the map to see who is there and what they do. An orange ring marks a stop where you decide.",
     castLink: "Meet the people on the street",
     mapAlt: "The Trade Street harbour: the factory on the left, a road leading to the quay on the right where a crane loads a container onto a ship, another ship sailing away in the distance, and the documents corner on shore at the bottom right.",
@@ -338,6 +348,7 @@ function boot() {
     if (back) back.focus();
   }
 
+  let primerSet = false;
   function applyStatic() {
     const t = ui();
     document.documentElement.lang = t.htmlLang;
@@ -351,6 +362,13 @@ function boot() {
     $("intro").textContent = t.intro;
     $("lede").textContent = t.lede;
     $("hint").textContent = t.hint;
+    $("primer-title").textContent = t.primerTitle;
+    $("primer-body").textContent = t.primerBody;
+    if (!primerSet) { primerSet = true; $("primer").open = !isPhone(); }
+    $("takeaway-title").textContent = t.takeawayTitle;
+    $("takeaway-list").replaceChildren(...t.takeaway.map((line) => el("li", null, line)));
+    $("takeaway-link").textContent = t.takeawayLink;
+    $("takeaway-link").href = `../one-container-12-steps/${state.lang === "en" ? "?lang=en" : ""}`;
     $("entry-title").textContent = t.entryTitle;
     $("start").textContent = t.start;
     $("see-steps").textContent = t.seeSteps;
