@@ -641,6 +641,48 @@ test.describe("two-person scene", () => {
   });
 });
 
+test.describe("Nightglow intro", () => {
+  const zhIntro = "歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。";
+  const enIntro = "Welcome to Nightglow. Everyone brings something to the team. Each small thing you accomplish together makes the night a little brighter.";
+
+  test("zh and en intro name the town and the English wraps", async ({ page }) => {
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ width, height: width === 390 ? 900 : 800 });
+      await page.goto("/prototype/teammate-type/?lang=zh");
+      await expect(page.locator("#intro")).toHaveText(zhIntro);
+      await expect(page.locator("body")).not.toContainText("遠燈鎮");
+      await noOverflow(page);
+      await page.screenshot({ path: `${OUT}/intro-${width}-zh-nightglow.png`, clip: await introClip(page) });
+
+      await page.getByRole("button", { name: "EN" }).click();
+      await expect(page.locator("#intro")).toHaveText(enIntro);
+      await expect(page.locator("body")).not.toContainText("遠燈鎮");
+      const wrap = await page.locator("#intro").evaluate((node) => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const rects = [...range.getClientRects()];
+        return { lines: rects.length, overflow: node.scrollWidth - node.clientWidth };
+      });
+      expect(wrap.overflow).toBeLessThanOrEqual(1);
+      expect(wrap.lines).toBeGreaterThan(1);
+      await noOverflow(page);
+      await page.screenshot({ path: `${OUT}/intro-${width}-en-nightglow.png`, clip: await introClip(page) });
+    }
+  });
+});
+
+async function introClip(page) {
+  const top = await page.locator("#boundary").boundingBox();
+  const bottom = await page.locator("#intro").boundingBox();
+  const viewport = page.viewportSize();
+  return {
+    x: 0,
+    y: Math.max(0, top.y - 12),
+    width: viewport.width,
+    height: Math.ceil(bottom.y + bottom.height - top.y + 28),
+  };
+}
+
 test.describe("sixteen roles", () => {
   test("result cards, the cast, and one duo show faction badges", async ({ page }) => {
     test.setTimeout(120000);

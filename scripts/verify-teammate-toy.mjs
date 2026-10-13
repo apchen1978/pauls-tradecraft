@@ -200,6 +200,9 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   const blob = JSON.stringify({ UI, TYPES, SCENARIOS });
   assert.equal(UI.zh.boundary, "示意玩具，不是心理測驗。");
   assert.equal(UI.en.boundary, "A toy, not a personality test.");
+  assert.equal(UI.zh.intro, "歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。");
+  assert.equal(UI.en.intro, "Welcome to Nightglow. Everyone brings something to the team. Each small thing you accomplish together makes the night a little brighter.");
+  assert.equal(/遠燈鎮|玉仔|照夜玉獅子/.test(blob + readFileSync(new URL("../prototype/teammate-type/index.html", import.meta.url), "utf8")), false);
   assert.equal(TYPES.cocoa.zh.role, "守護者");
   assert.equal(TYPES.cocoa.en.role, "Guardian");
   assert.equal(blob.includes("補師") || /\bHealer\b/.test(blob), false);

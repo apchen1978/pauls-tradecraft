@@ -596,6 +596,7 @@ export const UI = {
     eyebrow: "Digital Garage · 輕科技玩具",
     langGroup: "語言",
     h1: "你是哪一種隊友？",
+    intro: "歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。",
     lede: "不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。",
     hint: "每個情境選一次。同樣的選擇，永遠得到同一張卡。",
     boundary: "示意玩具，不是心理測驗。",
@@ -640,6 +641,7 @@ export const UI = {
     eyebrow: "Digital Garage · Light-tech toys",
     langGroup: "Language",
     h1: "What kind of teammate are you?",
+    intro: "Welcome to Nightglow. Everyone brings something to the team. Each small thing you accomplish together makes the night a little brighter.",
     lede: "Not a questionnaire. Three short scenes. How you act is the kind of teammate you are.",
     hint: "One choice per scene. The same choices always make the same card.",
     boundary: "A toy, not a personality test.",
@@ -995,6 +997,7 @@ function boot() {
     });
     $("boundary").textContent = ui.boundary;
     $("title").textContent = ui.h1;
+    $("intro").textContent = ui.intro;
     $("lede").textContent = ui.lede;
     $("hint").textContent = ui.hint;
     $("foot-boundary").textContent = ui.boundary;
@@ -1397,10 +1400,16 @@ function boot() {
     };
 
     center(ui.kicker, 64, `700 40px ${FONT}`, "#62716A");
+    ctx.font = `500 34px ${FONT}`;
+    const introLines = wrapLines(ctx, ui.intro, inner);
+    const introTop = 116;
+    introLines.forEach((line, index) => {
+      center(line, introTop + index * 42, `500 34px ${FONT}`, "#193A35");
+    });
 
     const BOUNDARY = 54;
     const BASE = { LABEL: 54, PICKS: 48, BODY: 40, FUNNY: 44, NAME: 58, OTHER: 32, ROLE: 36 };
-    const artTop = 128;
+    const artTop = introTop + introLines.length * 42 + 16;
     const lead = (size) => size + 8;
     const measureCard = (textScale) => {
       const sz = {};
