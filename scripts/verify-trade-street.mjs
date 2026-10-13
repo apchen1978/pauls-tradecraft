@@ -470,3 +470,19 @@ test("newcomer hints: legend, stop-1 note and buffer line exist in both language
   }
   assert.equal(UI.zh.handover.fix.includes("補正"), false, "no 補正 left");
 });
+
+test("connected: case -> 12 steps -> Trade Street -> case, and every target exists", () => {
+  const caseHtml = read("../public/cases/first-container/index.html");
+  const steps = read("../prototype/one-container-12-steps/index.html");
+  const app = read("../prototype/trade-street/app.js");
+  for (const lang of ["zh", "en"]) {
+    assert.ok(caseHtml.includes(`href="/prototype/one-container-12-steps/?lang=${lang}"`), `case links to the 12 steps (${lang})`);
+    assert.ok(caseHtml.includes(`href="/prototype/trade-street/?lang=${lang}"`), `case links to Trade Street (${lang})`);
+  }
+  assert.ok(steps.includes(`href="/prototype/trade-street/?lang=' + lang + '"`) || steps.includes("/prototype/trade-street/?lang="), "12 steps links to Trade Street");
+  assert.match(steps, /play: "走一趟貿易街（互動版）"/);
+  assert.match(steps, /play: "Walk Trade Street \(interactive\)"/);
+  assert.match(app, /\/cases\/first-container\//);
+  assert.ok(existsSync(new URL("../public/cases/first-container/index.html", import.meta.url)));
+  assert.ok(existsSync(new URL("../prototype/one-container-12-steps/index.html", import.meta.url)));
+});
