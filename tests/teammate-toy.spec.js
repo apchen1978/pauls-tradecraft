@@ -236,7 +236,7 @@ test.describe("garage listing", () => {
       await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("有趣互動作品展示");
       await expect(showcase.getByText("探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。")).toBeVisible();
       await expect(showcase.getByText("從一個想法開始，讓創意透過科技成形，讓每一次探索都有新的可能。")).toBeVisible();
-      await expect(showcase.getByText("示範／成效未驗證。")).toHaveCount(0);
+      await expect(showcase.getByText("示範／成效未驗證。", { exact: true })).toHaveCount(0);
       await expect(showcase.getByText("照夜鎮裡，十六種隊友，四個隊伍。")).toBeVisible();
       await expect(showcase.getByText("不教貿易：輕鬆玩，順便看見自己的團隊風格")).toBeVisible();
       await expect(showcase.getByText("示意玩具 · 雙語原型")).toBeVisible();
@@ -259,7 +259,7 @@ test.describe("garage listing", () => {
       await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Playful Interactive Works");
       await expect(enShowcase.getByText("Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.")).toBeVisible();
       await expect(enShowcase.getByText("It starts with an idea. Technology gives it shape, and every exploration opens new possibilities.")).toBeVisible();
-      await expect(enShowcase.getByText("Demo / outcomes not validated.")).toHaveCount(0);
+      await expect(enShowcase.getByText("Demo / outcomes not validated.", { exact: true })).toHaveCount(0);
       await expect(enShowcase.getByText("Nightglow has sixteen teammates in four factions.")).toBeVisible();
       await expect(enShowcase.getByText("Not about trade: a light play that shows your team style")).toBeVisible();
       await expect(enShowcase.getByText("Illustrative toy · bilingual prototype")).toBeVisible();
@@ -478,7 +478,7 @@ const NEW_ROLES = [
   { code: "AFE", zh: "言歌 · 傳教士 · 這件事值得說", en: "Echo · Missionary · Worth Saying Out Loud", roleZh: "組隊角色 · 傳教士", roleEn: "Party role · Missionary" },
   { code: "ACF", zh: "保羅 · 使徒 · 我接著走", en: "Paul · Apostle · I'll Carry It On", roleZh: "組隊角色 · 使徒", roleEn: "Party role · Apostle" },
   { code: "FAE", zh: "銀河之女 · 女王", en: "Daughter of the Galaxy · Queen", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
-  { code: "FBD", zh: "Holly · 女王 · 仙女座女王", en: "Holly · Queen · Queen of Andromeda", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
+  { code: "FBD", zh: "Holly · 仙女座女王", en: "Holly · Queen of Andromeda", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
   { code: "AFC", zh: "苔苔 · 設計師 · 順眼就對了", en: "Moss · Designer · Makes It Look Right", roleZh: "組隊角色 · 設計師", roleEn: "Party role · Designer" },
 ];
 
@@ -574,7 +574,7 @@ test.describe("new choices and roles", () => {
 
     await page.goto("/prototype/teammate-type/?c=FBD&lang=zh");
     await waitForQueen(page);
-    await expect(page.locator("#card-name")).toHaveText("Holly · 女王 · 仙女座女王");
+    await expect(page.locator("#card-name")).toHaveText("Holly · 仙女座女王");
     await expect(page.locator("#card-egg")).toHaveText("M-31");
     await expect(page.locator("#role")).toBeHidden();
     await expect(page.locator("#rare")).toHaveText("稀有");
@@ -671,7 +671,7 @@ test.describe("new choices and roles", () => {
       { code: "AFE", file: "missionary.webp", zh: "言歌 · 傳教士 · 這件事值得說", en: "Echo · Missionary · Worth Saying Out Loud" },
       { code: "ACF", file: "apostle.webp", zh: "保羅 · 使徒 · 我接著走", en: "Paul · Apostle · I'll Carry It On" },
       { code: "FAE", file: "galaxy.webp", zh: "銀河之女 · 女王", en: "Daughter of the Galaxy · Queen" },
-      { code: "FBD", file: "andromeda.webp", zh: "Holly · 女王 · 仙女座女王", en: "Holly · Queen · Queen of Andromeda" },
+      { code: "FBD", file: "andromeda.webp", zh: "Holly · 仙女座女王", en: "Holly · Queen of Andromeda" },
     ];
     for (const role of roles) {
       await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
@@ -750,7 +750,7 @@ test.describe("two-person scene", () => {
 
     await openDuo(page, 390, "?c=FAE&with=FBD&lang=zh");
     await expect(page.locator("#duo-left-name")).toHaveText("銀河之女 · 女王");
-    await expect(page.locator("#duo-right-name")).toHaveText("Holly · 女王 · 仙女座女王");
+    await expect(page.locator("#duo-right-name")).toHaveText("Holly · 仙女座女王");
     await expect(page.locator("#duo-right-egg")).toHaveText("M-31");
     await expect(page.locator("#duo-left-egg")).toBeHidden();
     await expect(page.locator("#duo-left-lines")).toContainText("你一站出來，滑手機的人都把臉抬起來了。");
@@ -939,7 +939,10 @@ test.describe("sixteen roles", () => {
       await page.locator("#card").screenshot({ path: `${OUT}/role-${width}-zh-craftsman.png` });
 
       await page.goto("/prototype/teammate-type/?lang=zh");
-      await page.locator("#gallery").evaluate((el) => { el.open = true; });
+      await expect(page.locator("#see-all")).toHaveCount(0);
+      await page.locator("#gallery").scrollIntoViewIfNeeded();
+      await expect(page.locator("#gallery img").first()).toHaveAttribute("loading", "lazy");
+      await page.locator("#gallery img").last().scrollIntoViewIfNeeded();
       await page.waitForFunction(() => {
         const images = [...document.querySelectorAll("#gallery img")];
         return images.length === 16 && images.every((img) => img.complete && img.naturalWidth > 0);
@@ -1113,12 +1116,12 @@ test.describe("Nightglow map", () => {
 
     await page.setViewportSize({ width: 1280, height: 1100 });
     await page.goto("/prototype/teammate-type/?c=FBD&lang=zh");
-    await expect(page.locator("#card-name")).toHaveText("Holly · 女王 · 仙女座女王");
+    await expect(page.locator("#card-name")).toHaveText("Holly · 仙女座女王");
     await expect(page.locator("#card-egg")).toHaveText("M-31");
     await noOverflow(page);
     await page.locator("#card").screenshot({ path: `${OUT}/map-1280-zh-holly.png` });
     await page.getByRole("button", { name: "EN" }).click();
-    await expect(page.locator("#card-name")).toHaveText("Holly · Queen · Queen of Andromeda");
+    await expect(page.locator("#card-name")).toHaveText("Holly · Queen of Andromeda");
     await expect(page.locator("#card-egg")).toHaveText("M-31");
     await page.locator("#card").screenshot({ path: `${OUT}/map-1280-en-holly.png` });
   });

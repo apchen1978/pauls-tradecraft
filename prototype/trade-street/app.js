@@ -321,7 +321,7 @@ function boot() {
     if (state.view !== "play") { stage.style.height = ""; inner.removeAttribute("style"); return; }
     const phone = isPhone();
     const W = stage.clientWidth;
-    const H = phone ? 190 : 240;
+    const H = phone ? 190 : Math.round(Math.min(380, Math.max(240, W * 0.3)));
     const zoom = phone ? 1.7 : 1.6;
     const ratio = phone ? 1422 / 800 : 900 / 1600;
     const iw = W * zoom;
@@ -423,7 +423,7 @@ function boot() {
     $("primer-body").textContent = t.primerBody;
     document.querySelectorAll(".lights-legend").forEach((node) => { node.textContent = t.lightsLegend; });
     document.querySelectorAll(".lights-help").forEach(renderLightsHelp);
-    if (!primerSet) { primerSet = true; $("primer").open = !isPhone(); }
+    if (!primerSet) { primerSet = true; $("primer").open = false; }
     $("takeaway-title").textContent = t.takeawayTitle;
     $("takeaway-list").replaceChildren(...t.takeaway.map((line) => el("li", null, line)));
     $("takeaway-link").textContent = t.takeawayLink;

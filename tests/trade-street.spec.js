@@ -290,11 +290,13 @@ for (const width of [390, 1440]) {
 
     test("while playing, the map shrinks to a window that follows the current stop, and people appear as pictures", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh`);
+      const fullHeight = (await page.locator("#map-stage").boundingBox()).height;
       await page.locator("#start").click();
       await expect(page.locator("#map-stage.playing")).toBeVisible();
       await expect(page.locator('#hotspots .hot[data-station="0"]')).toHaveClass(/now/);
       const stageHeight = (await page.locator("#map-stage").boundingBox()).height;
-      expect(stageHeight).toBeLessThan(260);
+      // a window onto the map, clearly smaller than the whole picture (the picture is bigger now, so compare, do not hard-code)
+      expect(stageHeight).toBeLessThan(fullHeight * 0.7);
       const top1 = await page.locator("#map-inner").evaluate((node) => node.style.top);
       await page.locator("#next").click();
       await expect(page.locator('#hotspots .hot[data-station="1"]')).toHaveClass(/now/);

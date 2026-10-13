@@ -270,7 +270,7 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
     strategist: "墨衡 · 軍師 · 先看全局",
     messenger: "阿修 · 傳令兵 · 話送到了",
     galaxy: "銀河之女 · 女王",
-    andromeda: "Holly · 女王 · 仙女座女王",
+    andromeda: "Holly · 仙女座女王",
     designer: "苔苔 · 設計師 · 順眼就對了",
     alliance: "玉仔 · 聯盟 · 援軍到了",
     missionary: "言歌 · 傳教士 · 這件事值得說",
@@ -279,7 +279,7 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
     recorder: "靚仔 · 記錄者 · 拍下來了",
   });
   assert.equal(identityLine(TYPES.galaxy.en), "Daughter of the Galaxy · Queen");
-  assert.equal(identityLine(TYPES.andromeda.en), "Holly · Queen · Queen of Andromeda");
+  assert.equal(identityLine(TYPES.andromeda.en), "Holly · Queen of Andromeda");
   assert.equal(identityLine(TYPES.alliance.en), "Yuzai · Alliance · Reinforcements Are Here");
   assert.equal(identityLine(TYPES.recorder.en), "Lenz · Keeper of Moments · Got the Shot");
   assert.equal(identityLine(TYPES.umbrella.en), "Abai · Tank · The Umbrella");
