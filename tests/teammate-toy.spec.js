@@ -132,6 +132,37 @@ async function shootShowcaseAndGarage(page, name) {
   });
 }
 
+test("showcase comes before one deal and the garage", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/?lang=zh");
+  await expect(page.locator("#showcase")).toBeVisible();
+  const order = await page.evaluate(() => {
+    const node = (id) => document.getElementById(id);
+    const follows = (earlier, later) => Boolean(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING);
+    const showcase = node("showcase");
+    return {
+      beforeOneDeal: follows(showcase, node("one-deal")),
+      beforeGarage: follows(showcase, node("garage")),
+      afterQuestions: follows(node("three-questions"), showcase),
+    };
+  });
+  expect(order.afterQuestions).toBe(true);
+  expect(order.beforeOneDeal).toBe(true);
+  expect(order.beforeGarage).toBe(true);
+  const nav = page.locator("header nav");
+  const hrefs = await nav.locator('a[href^="#"]').evaluateAll((els) => els.map((el) => el.getAttribute("href")));
+  expect(hrefs.indexOf("#showcase")).toBeGreaterThan(-1);
+  expect(hrefs.indexOf("#showcase")).toBeLessThan(hrefs.indexOf("#works"));
+  await expect(nav.getByRole("link", { name: "作品展示" })).toHaveAttribute("href", "#showcase");
+  const images = page.locator("#showcase img");
+  expect(await images.count()).toBeGreaterThan(0);
+  for (const img of await images.all()) {
+    await expect(img).toHaveAttribute("loading", "lazy");
+  }
+  await page.goto("/?lang=en");
+  await expect(page.locator("header nav").getByRole("link", { name: "Showcase", exact: true })).toHaveAttribute("href", "#showcase");
+});
+
 test.describe("garage listing", () => {
   for (const width of [390, 1280]) {
     test(`${width}px zh and en keep Garage experiments and put the teammate toy in Showcase`, async ({ page }) => {
