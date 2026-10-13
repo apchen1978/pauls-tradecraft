@@ -6,6 +6,8 @@
 export const MOBILE_QUERY = "(max-width: 639px)";
 
 export const ART = {
+  // small square heads for the 44-72 px circles (the full figures are only for the result card and the download)
+  get avatar() { return Object.fromEntries(Object.entries(this.portrait).map(([id, src]) => [id, src.replace("assets/", "assets/avatars/")])); },
   map: { desktop: "assets/trade-street-map.webp", mobile: "assets/trade-street-map-mobile.webp" },
   // Layers for the gentle map motion: a plate with the clouds, the far ship and the crane's container taken out, plus those pieces as
   // separate pictures laid back exactly where they were (x, y, w, h in pixels of that map). A cloud drifts, the far ship sails off,

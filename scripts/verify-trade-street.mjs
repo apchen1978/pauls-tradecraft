@@ -250,8 +250,12 @@ test("art: twelve stops on each map, inside the picture, and far enough apart to
 
 test("art: the page and the deploy copy the files the game needs", () => {
   const html = read("../prototype/trade-street/index.html");
-  assert.match(html, /srcset="assets\/trade-street-map-mobile\.webp"/);
-  assert.match(html, /src="assets\/trade-street-map\.webp"/);
+  // the page's own picture is the plate (nothing is downloaded twice); the approved whole maps are only the fallback and stay in ART.map
+  assert.match(html, /srcset="assets\/layers\/mobile-plate\.webp"/);
+  assert.match(html, /src="assets\/layers\/desktop-plate\.webp"/);
+  assert.doesNotMatch(html, /trade-street-map/);
+  assert.ok(existsSync(new URL(`../prototype/trade-street/${ART.map.desktop}`, import.meta.url)));
+  assert.ok(existsSync(new URL(`../prototype/trade-street/${ART.map.mobile}`, import.meta.url)));
   const deploy = read("../.github/workflows/deploy.yml");
   for (const file of ["index.html", "app.js", "game.js", "steps-text.js", "layout.js"]) assert.ok(deploy.includes(`prototype/trade-street/${file}`), `deploy copies ${file}`);
   assert.ok(deploy.includes("cp -r prototype/trade-street/assets dist/prototype/trade-street/"), "deploy copies the assets folder");
@@ -410,7 +414,21 @@ test("motion: the layered map files exist, stay small and inside the canvas, and
     assert.ok(frame, `${name} exists`);
     assert.equal(/left:|top:|width:|height:|background/.test(frame[0]), false, `${name} only uses transform and opacity`);
   }
-  // the layers are drawn by the script with no inline script, and the approved whole map is still the page's own picture
-  assert.match(html, /src="assets\/trade-street-map\.webp"/);
+  // the layers are drawn by the script with no inline script; the map stays hidden until the plate and layers are settled
+  assert.match(html, /\.map-stage:not\(\.map-settled\) #map-img \{ opacity: 0; \}/);
   assert.equal(/<script(?![^>]*src=)[^>]*>/.test(html), false);
+});
+
+test("weight: the small head pictures exist for every person, are tiny, and the page uses them for the circles", () => {
+  for (const id of CAST_ORDER) {
+    const src = ART.avatar[id];
+    assert.match(src, /^assets\/avatars\/[a-z-]+\.webp$/, id);
+    const file = new URL(`../prototype/trade-street/${src}`, import.meta.url);
+    assert.ok(existsSync(file), src);
+    assert.ok(statSync(file).size <= 12000, `${src} is at most 12 KB`);
+    const size = webpSize(readFileSync(file));
+    assert.deepEqual([size.width, size.height], [160, 160], `${src} is 160x160`);
+  }
+  const app = read("../prototype/trade-street/app.js");
+  assert.match(app, /const src = ART\.avatar\[charId\];/);
 });

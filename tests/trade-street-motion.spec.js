@@ -167,7 +167,27 @@ for (const width of [390, 1440]) {
       await page.waitForTimeout(1500);
       await expect(page.locator("#map-stage")).not.toHaveClass(/layers-ready/);
       await expect(page.locator("#layer-fx")).toBeHidden();
+      await expect(page.locator("#map-stage")).toHaveClass(/map-settled/);
       await expect(page.locator("#map-img")).toBeVisible();
+      await expect(page.locator("#map-img")).toHaveAttribute("src", /trade-street-map\.webp$/);
+    });
+
+    test("if the plate itself fails to load the approved whole map takes over", async ({ page }) => {
+      await page.route("**/assets/layers/*-plate.webp", (route) => route.abort());
+      await page.goto(`${base}/index.html?lang=zh`);
+      await expect(page.locator("#map-stage")).toHaveClass(/map-settled/, { timeout: 4000 });
+      await expect(page.locator("#map-stage")).not.toHaveClass(/layers-ready/);
+      await expect(page.locator("#map-img")).toBeVisible();
+      await expect(page.locator("#map-img")).toHaveJSProperty("complete", true);
+      expect(await page.locator("#map-img").evaluate((n) => n.naturalWidth)).toBeGreaterThan(0);
+    });
+
+    test("the map is fetched once: the approved whole map is not downloaded when the layers work", async ({ page }) => {
+      const fetched = [];
+      page.on("request", (request) => { if (/trade-street-map/.test(request.url())) fetched.push(request.url()); });
+      await page.goto(`${base}/index.html?lang=zh`);
+      await expect(page.locator("#map-stage")).toHaveClass(/layers-ready/);
+      expect(fetched).toEqual([]);
     });
 
     test("the layers pause while the map is off screen", async ({ page }) => {
