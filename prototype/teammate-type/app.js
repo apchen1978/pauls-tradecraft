@@ -517,6 +517,7 @@ export const FACTIONS = {
     members: ["galaxy", "alliance", "recorder", "umbrella"],
     place: { zh: "屋頂觀星", en: "rooftop stargazing" },
     motto: { zh: "安靜地站穩，大家自然會靠過來。", en: "Stand quietly, and people come closer." },
+    pin: { zh: "銀河隊", en: "Galaxy" },
   },
   andromeda: {
     mark: "✨",
@@ -526,6 +527,7 @@ export const FACTIONS = {
     members: ["andromeda", "spark", "soundtrack", "missionary"],
     place: { zh: "露天舞台", en: "open-air stage" },
     motto: { zh: "先把光點起來，大家就想跟上。", en: "Light it up, and people want to follow." },
+    pin: { zh: "仙女隊", en: "Andromeda" },
   },
   chart: {
     mark: "🗺️",
@@ -535,6 +537,7 @@ export const FACTIONS = {
     members: ["mapkeeper", "strategist", "finisher", "designer"],
     place: { zh: "鐘樓", en: "clock tower" },
     motto: { zh: "先看清楚，路就不會白跑。", en: "See it clearly, and nobody runs the wrong way." },
+    pin: { zh: "星圖隊", en: "Star-Map" },
   },
   lantern: {
     mark: "🏮",
@@ -544,6 +547,7 @@ export const FACTIONS = {
     members: ["cocoa", "messenger", "apostle", "craftsman"],
     place: { zh: "暖窗小屋", en: "cottages with warm windows" },
     motto: { zh: "有人照顧、有人修補、有人記得，隊伍才走得久。", en: "Someone looks after, someone mends, someone remembers. That is how a team lasts." },
+    pin: { zh: "燈下隊", en: "Lantern" },
   },
 };
 
@@ -682,8 +686,11 @@ export const UI = {
     lede: "不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。",
     hint: "每個情境選一次。同樣的選擇，永遠得到同一張卡。",
     boundary: "示意玩具，不是心理測驗。",
-    start: "開始測驗",
-    startLamp: "照夜大燈，開始測驗",
+    start: "出發",
+    startLamp: "照夜大燈，出發",
+    coverHome: "返回",
+    coverHint: "點街區認識隊員，點中央的燈出發",
+    lockup: "照夜鎮 Nightglow",
     mapAlt: "照夜鎮夜景：左上是銀河隊的屋頂觀星，右上是仙女隊的舞台，左下是星圖隊的鐘樓，右下是燈下隊的小屋，中央是照夜大燈。",
     seeAll: "看全部角色",
     closePreview: "關閉",
@@ -734,8 +741,11 @@ export const UI = {
     lede: "Not a questionnaire. Three short scenes. How you act is the kind of teammate you are.",
     hint: "One choice per scene. The same choices always make the same card.",
     boundary: "A toy, not a personality test.",
-    start: "Start",
-    startLamp: "Nightglow lamp, start",
+    start: "Set out",
+    startLamp: "Nightglow lamp, set out",
+    coverHome: "Back",
+    coverHint: "Tap a district to meet the team. Tap the lamp in the center to set out.",
+    lockup: "照夜鎮 Nightglow",
     mapAlt: "Nightglow at night: Galaxy Team stargazing at the top left, Andromeda Team's stage at the top right, the Star-Map Team clock tower at the bottom left, Lantern Team cottages at the bottom right, and the lamp in the center.",
     seeAll: "See every role",
     closePreview: "Close",
@@ -1102,8 +1112,11 @@ function boot() {
     $("foot-boundary").textContent = ui.boundary;
     $("stored").textContent = ui.stored;
     const back = $("back");
+    const home = `/?lang=${state.lang}#garage`;
     back.textContent = ui.back;
-    back.href = `/?lang=${state.lang}#garage`;
+    back.href = home;
+    $("cover-home").textContent = ui.coverHome;
+    $("cover-home").href = home;
     paintGalleryChrome();
 
     const quiz = $("quiz");
@@ -2066,6 +2079,8 @@ function boot() {
     $("town-map").alt = ui.mapAlt;
     $("start").textContent = ui.start;
     $("entry-boundary").textContent = ui.boundary;
+    $("cover-hint").textContent = ui.coverHint;
+    $("lockup").textContent = ui.lockup;
     $("see-all").textContent = ui.seeAll;
     $("entry-title").textContent = ui.entryTitle;
     $("district-close").textContent = ui.closePreview;
@@ -2073,6 +2088,8 @@ function boot() {
     for (const button of document.querySelectorAll("[data-faction]")) {
       const faction = FACTIONS[button.dataset.faction];
       button.setAttribute("aria-label", `${faction.mark} ${faction[state.lang]}，${faction.place[state.lang]}`);
+      const pin = button.querySelector(".pin-label");
+      if (pin) pin.textContent = faction.pin[state.lang];
     }
     for (const button of document.querySelectorAll(".hotspot-lamp")) {
       button.setAttribute("aria-label", ui.startLamp);

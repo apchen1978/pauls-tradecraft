@@ -734,14 +734,16 @@ test.describe("Nightglow intro", () => {
 });
 
 async function introClip(page) {
-  const top = await page.locator("#boundary").boundingBox();
-  const bottom = await page.locator("#intro").boundingBox();
+  const title = await page.locator("#title").boundingBox();
+  const intro = await page.locator("#intro").boundingBox();
   const viewport = page.viewportSize();
+  const top = Math.min(title.y, intro.y);
+  const bottom = Math.max(title.y + title.height, intro.y + intro.height);
   return {
     x: 0,
-    y: Math.max(0, top.y - 12),
+    y: Math.max(0, top - 28),
     width: viewport.width,
-    height: Math.ceil(bottom.y + bottom.height - top.y + 28),
+    height: Math.min(viewport.height - Math.max(0, top - 28), Math.ceil(bottom - top + 48)),
   };
 }
 
@@ -807,6 +809,72 @@ test.describe("sixteen roles", () => {
       await noOverflow(page);
       await page.locator("#duo-stage").screenshot({ path: `${OUT}/duo-${width}-zh-craftsman-recorder.png` });
     }
+  });
+});
+
+test.describe("game cover", () => {
+  test("the map is the first screen and the CTA stays in view", async ({ page }) => {
+    const shots = [
+      { width: 1280, height: 800, lang: "zh", name: "cover-1280x800-zh" },
+      { width: 1440, height: 900, lang: "zh", name: "cover-1440x900-zh" },
+      { width: 390, height: 844, lang: "zh", name: "cover-390x844-zh" },
+      { width: 1280, height: 800, lang: "en", name: "cover-1280x800-en" },
+    ];
+    for (const shot of shots) {
+      await page.setViewportSize({ width: shot.width, height: shot.height });
+      await page.goto(`/prototype/teammate-type/?lang=${shot.lang}`);
+      await page.waitForFunction(() => {
+        const img = document.querySelector("#town-map");
+        return img && img.complete && img.naturalWidth > 0;
+      });
+      const box = await page.evaluate(() => {
+        const rect = (sel) => {
+          const node = document.querySelector(sel).getBoundingClientRect();
+          return { top: node.top, bottom: node.bottom, width: node.width, height: node.height };
+        };
+        return {
+          vh: window.innerHeight,
+          vw: window.innerWidth,
+          start: rect("#start"),
+          boundary: rect("#entry-boundary"),
+          intro: rect("#intro"),
+          title: rect("#title"),
+          cover: rect("#cover"),
+          frame: rect(".map-frame"),
+          team: rect("#team-fallback"),
+          overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        };
+      });
+      expect(box.overflow).toBeLessThanOrEqual(1);
+      expect(box.cover.top).toBeLessThanOrEqual(2);
+      expect(box.cover.height).toBeGreaterThanOrEqual(box.vh - 2);
+      expect(box.frame.height).toBeGreaterThanOrEqual(box.vh - 2);
+      expect(box.frame.width).toBeGreaterThanOrEqual(box.vw - 2);
+      expect(box.start.top).toBeGreaterThanOrEqual(0);
+      expect(box.start.bottom).toBeLessThanOrEqual(box.vh);
+      expect(box.boundary.bottom).toBeLessThanOrEqual(box.vh);
+      expect(box.boundary.top).toBeGreaterThanOrEqual(0);
+      expect(box.title.bottom).toBeLessThanOrEqual(box.vh);
+      expect(box.intro.bottom).toBeLessThanOrEqual(box.vh);
+      expect(box.team.top).toBeGreaterThanOrEqual(box.vh - 2);
+      await expect(page.locator("#lockup")).toHaveText("照夜鎮 Nightglow");
+      await expect(page.locator("#entry-boundary")).toHaveText(shot.lang === "zh" ? "示意玩具，不是心理測驗。" : "A toy, not a personality test.");
+      const pin = page.locator(shot.width < 860 ? ".hotspots-mobile .hot-galaxy .pin-label" : ".hotspots-desk .hot-galaxy .pin-label");
+      if (shot.lang === "zh") {
+        await expect(page.locator("#start")).toHaveText("出發");
+        await expect(page.locator("#cover-hint")).toHaveText("點街區認識隊員，點中央的燈出發");
+        await expect(pin).toHaveText("銀河隊");
+      } else {
+        await expect(page.locator("#start")).toHaveText("Set out");
+        await expect(page.locator("#cover-hint")).toHaveText("Tap a district to meet the team. Tap the lamp in the center to set out.");
+        await expect(pin).toHaveText("Galaxy");
+      }
+      await page.screenshot({ path: `${OUT}/${shot.name}.png` });
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/prototype/teammate-type/?c=EEA&lang=zh");
+    await expect(page.locator("#entry")).toBeHidden();
+    await expect(page.locator("#card-name")).toHaveText("玉仔 · 聯盟 · 援軍到了");
   });
 });
 
