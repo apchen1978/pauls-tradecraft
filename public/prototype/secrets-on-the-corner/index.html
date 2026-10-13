@@ -39,6 +39,7 @@
         <button class="hotspot hotspot-lamp" type="button" data-clue="lamp" aria-pressed="false"><span class="visually-hidden"></span></button>
         <div class="intro hero-copy">
           <h1 id="page-title" data-i18n="title">街角的秘密</h1>
+          <a class="hero-prompt" href="#first-impression" data-i18n="heroPrompt">先記下第一眼 ↘</a>
         </div>
         <span class="scene-corner" aria-hidden="true"></span>
       </div>
@@ -48,7 +49,23 @@
       <div class="explore-intro">
         <p class="intro-line" data-i18n="intro">一間小店門口排了隊。這是穩定生意的訊號，還是今晚的一刻？</p>
         <p class="intro-lede" data-i18n="lede">從四個細節開始。你不必猜對答案；只要找到下一個值得問的問題。</p>
-        <a class="start-link" href="#explore-title" data-i18n="start">走近看看 <span aria-hidden="true">↘</span></a>
+        <a class="start-link" href="#first-impression" data-i18n="start">走近看看 <span aria-hidden="true">↘</span></a>
+      </div>
+      <div class="first-impression" id="first-impression" aria-labelledby="impression-title">
+        <div class="impression-intro">
+          <span class="impression-index" aria-hidden="true">00</span>
+          <div>
+            <h2 id="impression-title" data-i18n="impressionTitle">第一眼，你怎麼看這條隊伍？</h2>
+            <p data-i18n="impressionHint">先留下直覺，之後看看線索讓你想追問什麼。可以跳過，沒有標準答案。</p>
+          </div>
+        </div>
+        <div class="impression-options" id="impression-options" role="group" aria-labelledby="impression-title">
+          <button type="button" data-impression="steady" aria-pressed="false" data-i18n="impressionSteady">生意可能一直很好</button>
+          <button type="button" data-impression="pickup" aria-pressed="false" data-i18n="impressionPickup">也許很多人來取預訂</button>
+          <button type="button" data-impression="uncertain" aria-pressed="false" data-i18n="impressionUncertain">現在還說不準</button>
+          <button type="button" class="impression-skip" id="impression-skip" data-i18n="impressionSkip">先看線索 →</button>
+        </div>
+        <p class="impression-status" id="impression-status" aria-live="polite" hidden></p>
       </div>
       <div class="section-heading">
         <div>
@@ -102,6 +119,11 @@
           <li><span>02</span><strong data-i18n="timelineAsk">明天詢問</strong></li>
           <li><span>03</span><strong data-i18n="timelineFollow">接著追查</strong></li>
         </ol>
+        <div class="result-reflection" id="result-reflection" hidden>
+          <div><span data-i18n="reflectionBefore">你第一眼想到</span><strong id="reflection-before"></strong></div>
+          <div><span data-i18n="reflectionNow">現在你想追問</span><strong id="reflection-now"></strong></div>
+          <p data-i18n="reflectionHint">這不是對錯判定；線索讓下一個問題更清楚。</p>
+        </div>
         <p class="result-lens" id="result-lens"></p>
         <div class="result-body">
           <div>
