@@ -97,6 +97,27 @@ for (const width of [390, 1440]) {
       });
     }
 
+    for (const lang of ["zh", "en"]) {
+      test(`${lang}: the numbered list under the map opens the same stop preview as the dot, and closing it returns focus to the list`, async ({ page }) => {
+        await page.goto(`${base}/index.html?lang=${lang}`);
+        const buttons = page.locator("#route-entry .route-btn");
+        await expect(buttons).toHaveCount(12);
+        await buttons.nth(2).click();
+        await expect(page.locator("#preview")).toBeVisible();
+        await expect(page.locator("#preview-title")).toContainText("3.");
+        await expect(page.locator("#route-entry li").nth(2)).toHaveClass(/now/);
+        await expect(page.locator('#hotspots .hot[data-station="2"]')).toHaveClass(/now/);
+        await buttons.nth(7).click();
+        await expect(page.locator("#preview-title")).toContainText("8.");
+        await expect(page.locator("#route-entry li.now")).toHaveCount(1);
+        await page.locator("#preview-close").click();
+        await expect(page.locator("#preview")).toBeHidden();
+        await expect(buttons.nth(7)).toBeFocused();
+        await expect(page.locator("#route-entry li.now")).toHaveCount(0);
+        await noOverflow(page);
+      });
+    }
+
     test("a full run reaches the result the rules predict, and the address records it", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh`);
       await page.locator("#scn button[data-scenario='rush']").click();
