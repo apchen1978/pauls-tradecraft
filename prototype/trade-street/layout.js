@@ -65,7 +65,13 @@ export const AVATAR_COLOR = {
 };
 
 // Short names for the twelve stops on the route (the long names come from the 12-steps page).
+// One plain line under each short stop name, taken from the one-line explanations on the 12-steps page, for readers who have never heard the terms.
+export const GLOSS = {
+  zh: ["先問清楚最晚哪天到", "在船上占位子", "船公司的訂位確認單", "貨櫃車載空櫃來工廠", "貨裝進櫃，上封條", "重櫃送碼頭等上船", "向海關申報要出口", "海關放行或開櫃查", "貨櫃被吊上船", "船離港，貨在路上", "貨的憑證，買家取貨", "提單交買家，或電放"],
+  en: ["Find the latest arrival day", "Reserve a place on a ship", "The carrier's \"your place is secured\" slip", "A truck brings the empty container", "Goods in, doors shut, seal fitted", "The full container waits to board", "Tell customs it is being exported", "Customs lets it go, or opens it", "The container is lifted aboard", "The ship leaves; it is on its way", "Proof of the shipment; the buyer's key", "Bill to the buyer, or telex-release"],
+};
+
 export const SHORT = {
   zh: ["詢價", "訂艙", "SO", "提空櫃", "裝櫃", "進港", "報關", "查驗", "裝船", "船開", "提單", "寄單"],
-  en: ["Quote", "Booking", "SO", "Empty box", "Loading", "To port", "Customs", "Gate", "On board", "Sails", "B/L", "Send docs"],
+  en: ["Quote", "Booking", "SO", "Empty box", "Loading", "To port", "Customs", "Inspection", "On board", "Sails", "B/L", "Send docs"],
 };

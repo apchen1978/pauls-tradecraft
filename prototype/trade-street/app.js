@@ -3,7 +3,7 @@ import {
   optionCost, readRoute, resolve, shareSearch,
 } from "./game.js";
 import { PAGE_TEXT, STEP_TEXT } from "./steps-text.js";
-import { ART, AVATAR_COLOR, MOBILE_QUERY, POS, SHORT } from "./layout.js";
+import { ART, AVATAR_COLOR, GLOSS, MOBILE_QUERY, POS, SHORT } from "./layout.js";
 
 export { AVATAR_COLOR, SHORT };
 
@@ -42,7 +42,7 @@ export const STATION_LINE = {
 export const UI = {
   zh: {
     htmlLang: "zh-Hant", docTitle: "貿易街 · 一櫃貨出海 — Paul's Tradecraft", langGroup: "語言", skip: "跳至內容",
-    eyebrow: "Digital Garage · 教學玩具",
+    eyebrow: "作品館 · 教學玩具",
     boundary: "教學示意 · 不含具體天數、費用或比例，一律以貨代或船公司通知為準。",
     title: "貿易街",
     intro: "一櫃貨明天要出海，整條街都在接力。",
@@ -76,14 +76,14 @@ export const UI = {
     download: "下載航程卡", copy: "複製連結", again: "再走一次",
     copied: "連結已複製。", copyFail: "沒辦法自動複製，請手動複製網址。", downloaded: "已下載。",
     downloadFail: "這次沒畫成圖片，連結一樣能分享。",
-    castTitle: "街上的人（暫名）", home: "回到 Garage",
+    castTitle: "街上的人（暫名）", home: "回到作品館",
     resultTitle: "航程結果",
     cardBoundary: "教學示意 · 不含具體天數、費用或比例，一律以貨代或船公司通知為準 · 緩衝格是遊戲代幣 · 不儲存任何內容。",
     caveat: PAGE_TEXT.zh.caveat,
   },
   en: {
     htmlLang: "en", docTitle: "Trade Street · One Container Ships — Paul's Tradecraft", langGroup: "Language", skip: "Skip to content",
-    eyebrow: "Digital Garage · Teaching toy",
+    eyebrow: "Showcase · Teaching toy",
     boundary: "Teaching sketch · no specific days, costs or percentages; always go by your forwarder's or the carrier's notice.",
     title: "Trade Street",
     intro: "One container ships tomorrow, and the whole street is passing the baton.",
@@ -117,7 +117,7 @@ export const UI = {
     download: "Download the voyage card", copy: "Copy link", again: "Go again",
     copied: "Link copied.", copyFail: "Could not copy automatically. Please copy the address.", downloaded: "Downloaded.",
     downloadFail: "The picture did not save this time. The link still shares the result.",
-    castTitle: "The people on the street (working names)", home: "Back to Garage",
+    castTitle: "The people on the street (working names)", home: "Back to Showcase",
     resultTitle: "Voyage result",
     cardBoundary: "Teaching sketch · no specific days, costs or percentages; go by your forwarder's or the carrier's notice · buffer cells are a game token · nothing is stored.",
     caveat: PAGE_TEXT.en.caveat,
@@ -232,7 +232,9 @@ function boot() {
         if (i === state.index) li.setAttribute("aria-current", "step");
       }
       if (decisionAtStation(i) >= 0) li.classList.add("decision");
-      li.append(el("span", "num", String(i + 1)), el("span", null, label));
+      const words = el("span", "words");
+      words.append(el("span", null, label), el("small", "gloss", GLOSS[state.lang][i]));
+      li.append(el("span", "num", String(i + 1)), words);
       node.appendChild(li);
     });
   }
@@ -366,7 +368,7 @@ function boot() {
     $("again").textContent = t.again;
     $("cast-title").textContent = t.castTitle;
     $("home").textContent = t.home;
-    $("home").href = `/${state.lang === "en" ? "?lang=en" : ""}#garage`;
+    $("home").href = `/${state.lang === "en" ? "?lang=en" : ""}#showcase`;
     $("caveat").textContent = t.caveat;
     $("map-img").alt = t.mapAlt;
     renderScenarios();

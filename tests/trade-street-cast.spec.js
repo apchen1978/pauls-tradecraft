@@ -83,7 +83,7 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#guide").getByRole("heading", { level: 2 })).toHaveText("Yuzai");
       await expect(page.locator("#shipper").locator("dt")).toHaveText(["Carries", "Style", "Catchphrase", "Where to find them"]);
       await expect(page.locator("#play-top")).toHaveAttribute("href", "../?lang=en");
-      await expect(page.locator("#home")).toHaveAttribute("href", "/?lang=en#garage");
+      await expect(page.locator("#home")).toHaveAttribute("href", "/?lang=en#showcase");
       await noOverflow(page);
     });
 
