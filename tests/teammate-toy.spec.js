@@ -474,9 +474,9 @@ function pngSize(file) {
 
 const NEW_ROLES = [
   { code: "EAE", zh: "墨衡 · 軍師 · 先看全局", en: "Rook · Strategist · Sees the Whole Board", roleZh: "組隊角色 · 軍師", roleEn: "Party role · Strategist" },
-  { code: "AEA", zh: "阿跑 · 傳令兵 · 話送到了", en: "Dash · Messenger · Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
+  { code: "AEA", zh: "阿修 · 傳令兵 · 話送到了", en: "Shiu · Messenger · Gets It Through", roleZh: "組隊角色 · 傳令兵", roleEn: "Party role · Messenger" },
   { code: "AFE", zh: "言歌 · 傳教士 · 這件事值得說", en: "Echo · Missionary · Worth Saying Out Loud", roleZh: "組隊角色 · 傳教士", roleEn: "Party role · Missionary" },
-  { code: "ACF", zh: "承承 · 使徒 · 我接著走", en: "Carry · Apostle · I'll Carry It On", roleZh: "組隊角色 · 使徒", roleEn: "Party role · Apostle" },
+  { code: "ACF", zh: "保羅 · 使徒 · 我接著走", en: "Paul · Apostle · I'll Carry It On", roleZh: "組隊角色 · 使徒", roleEn: "Party role · Apostle" },
   { code: "FAE", zh: "銀河之女 · 女王", en: "Daughter of the Galaxy · Queen", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
   { code: "FBD", zh: "Holly · 女王 · 仙女座女王", en: "Holly · Queen · Queen of Andromeda", roleZh: "組隊角色 · 女王", roleEn: "Party role · Queen" },
   { code: "AFC", zh: "苔苔 · 設計師 · 順眼就對了", en: "Moss · Designer · Makes It Look Right", roleZh: "組隊角色 · 設計師", roleEn: "Party role · Designer" },
@@ -660,16 +660,16 @@ test.describe("new choices and roles", () => {
     test.setTimeout(240000);
     await page.setViewportSize({ width: 390, height: 1100 });
     const roles = [
-      { code: "AAA", file: "umbrella.webp", zh: "雨辰 · 坦克 · 擋雨的人", en: "Rainer · Tank · The Umbrella" },
+      { code: "AAA", file: "umbrella.webp", zh: "阿白 · 坦克 · 擋雨的人", en: "Abai · Tank · The Umbrella" },
       { code: "BBC", file: "finisher.webp", zh: "塞安 · 刺客 · 最後一擊", en: "Zion · Assassin · The Finisher" },
       { code: "CCC", file: "spark.webp", zh: "阿閃 · 點子 · 腦內煙火師", en: "Flick · Ideas · The Spark" },
       { code: "DAA", file: "mapkeeper.webp", zh: "莉婭 · 斥候 · 地圖收藏家", en: "Leia · Scout · The Mapkeeper" },
       { code: "CCD", file: "soundtrack.webp", zh: "樂樂 · 吟遊詩人 · BGM 擔當", en: "Remi · Bard · The Soundtrack" },
       { code: "EAE", file: "strategist.webp", zh: "墨衡 · 軍師 · 先看全局", en: "Rook · Strategist · Sees the Whole Board" },
-      { code: "AEA", file: "messenger.webp", zh: "阿跑 · 傳令兵 · 話送到了", en: "Dash · Messenger · Gets It Through" },
+      { code: "AEA", file: "messenger.webp", zh: "阿修 · 傳令兵 · 話送到了", en: "Shiu · Messenger · Gets It Through" },
       { code: "AFC", file: "designer.webp", zh: "苔苔 · 設計師 · 順眼就對了", en: "Moss · Designer · Makes It Look Right" },
       { code: "AFE", file: "missionary.webp", zh: "言歌 · 傳教士 · 這件事值得說", en: "Echo · Missionary · Worth Saying Out Loud" },
-      { code: "ACF", file: "apostle.webp", zh: "承承 · 使徒 · 我接著走", en: "Carry · Apostle · I'll Carry It On" },
+      { code: "ACF", file: "apostle.webp", zh: "保羅 · 使徒 · 我接著走", en: "Paul · Apostle · I'll Carry It On" },
       { code: "FAE", file: "galaxy.webp", zh: "銀河之女 · 女王", en: "Daughter of the Galaxy · Queen" },
       { code: "FBD", file: "andromeda.webp", zh: "Holly · 女王 · 仙女座女王", en: "Holly · Queen · Queen of Andromeda" },
     ];
@@ -921,7 +921,7 @@ test.describe("sixteen roles", () => {
       await expect(page.locator("#card-name")).toHaveText("靚仔 · 記錄者 · 拍下來了");
       await expect(page.locator("#card-sub")).toBeHidden();
       await expect(page.locator("#faction")).toHaveText("🌌 銀河隊");
-      await expect(page.locator("#about")).toContainText("關於阿跑");
+      await expect(page.locator("#about")).toContainText("關於隊友阿白");
       await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
       await noOverflow(page);
       await page.locator("#card").screenshot({ path: `${OUT}/role-${width}-zh-recorder.png` });
@@ -931,10 +931,10 @@ test.describe("sixteen roles", () => {
         const img = document.querySelector("#queen-art");
         return img && !img.hidden && img.complete && img.naturalWidth > 0;
       });
-      await expect(page.locator("#card-name")).toHaveText("阿修 · 工匠 · 修好了");
+      await expect(page.locator("#card-name")).toHaveText("戴安娜 · 工匠 · 修好了");
       await expect(page.locator("#role")).toBeHidden();
       await expect(page.locator("#faction")).toHaveText("🏮 燈下隊");
-      await expect(page.locator("#about")).toContainText("關於苔苔");
+      await expect(page.locator("#about")).toContainText("關於隊友MG");
       await noOverflow(page);
       await page.locator("#card").screenshot({ path: `${OUT}/role-${width}-zh-craftsman.png` });
 
@@ -962,7 +962,7 @@ test.describe("sixteen roles", () => {
       await page.evaluate(() => Promise.all(
         [...document.querySelectorAll("#duo-stage .duo-card, #duo-stage .duo-line")].flatMap((el) => el.getAnimations().map((anim) => anim.finished.catch(() => {}))),
       ));
-      await expect(page.locator("#duo-left-name")).toHaveText("阿修 · 工匠 · 修好了");
+      await expect(page.locator("#duo-left-name")).toHaveText("戴安娜 · 工匠 · 修好了");
       await expect(page.locator("#duo-right-name")).toHaveText("靚仔 · 記錄者 · 拍下來了");
       await expect(page.locator("#duo-left-faction")).toHaveText("🏮 燈下隊");
       await expect(page.locator("#duo-right-faction")).toHaveText("🌌 銀河隊");

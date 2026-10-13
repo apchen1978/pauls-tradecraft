@@ -125,7 +125,7 @@ export const TYPES = {
     pose: "think",
     prop: "umbrella",
     zh: {
-      person: "雨辰",
+      person: "阿白",
       name: "擋雨的人",
       role: "坦克",
       funny: "大家在崩潰的時候，你已經默默把雷都踩完了。",
@@ -135,7 +135,7 @@ export const TYPES = {
       alt: "短黑髮、深棕眼睛、穿松綠雨衣、面向左側撐傘的人",
     },
     en: {
-      person: "Rainer",
+      person: "Abai",
       name: "The Umbrella",
       role: "Tank",
       funny: "Everyone else is panicking; you've already quietly stepped on every landmine.",
@@ -293,24 +293,24 @@ export const TYPES = {
     pose: "wave",
     prop: "note",
     zh: {
-      person: "阿跑",
+      person: "阿修",
       name: "話送到了",
       role: "傳令兵",
       funny: "你說到最後一個人終於回：收到。",
       gentle: "有你在中間跑，沒有人漏接那句話。",
       literary: "「一句話要到齊，才算說完。」",
       strength: "把話送到每一個人手上。",
-      alt: "深色超短髮、藍灰眼睛、邁步揮手、身上有珊瑚色帶子的人",
+      alt: "深色超短髮、藍灰眼睛、邁步揮手、身上有珊瑚色帶子的男生",
     },
     en: {
-      person: "Dash",
+      person: "Shiu",
       name: "Gets It Through",
       role: "Messenger",
       funny: "You keep saying it until the last person finally answers: got it.",
       gentle: "With you running the middle, nobody misses the message.",
       literary: "\"A sentence isn't finished until it reaches everyone.\"",
       strength: "Gets the word into every person's hands.",
-      alt: "A person with very short dark hair and blue-grey eyes, mid-stride and waving, with a coral sash",
+      alt: "A young man with very short dark hair and blue-grey eyes, mid-stride and waving, with a coral sash",
     },
   },
   galaxy: {
@@ -438,7 +438,7 @@ export const TYPES = {
     pose: "idle",
     prop: "bundle",
     zh: {
-      person: "承承",
+      person: "保羅",
       name: "我接著走",
       role: "使徒",
       funny: "大家還沒講完，你已經把那句話收進自己的做法裡。",
@@ -448,7 +448,7 @@ export const TYPES = {
       alt: "灰棕短髮、深灰眼睛、穿藏青外套、往左走並捧著布包的人",
     },
     en: {
-      person: "Carry",
+      person: "Paul",
       name: "I'll Carry It On",
       role: "Apostle",
       funny: "The sentence isn't even finished, and you've already folded it into how you work.",
@@ -462,7 +462,7 @@ export const TYPES = {
     pose: "think",
     prop: null,
     zh: {
-      person: "阿修",
+      person: "戴安娜",
       name: "修好了",
       role: "工匠",
       funny: "什麼都想順手改良，連沒壞的也拆開看看。",
@@ -472,7 +472,7 @@ export const TYPES = {
       alt: "深棕短髮綁小馬尾、琥珀灰眼睛、穿芥末黃工作圍裙、面向左側拿扳手的人",
     },
     en: {
-      person: "Fix",
+      person: "Diana",
       name: "Fixed It",
       role: "Craftsman",
       funny: "You improve whatever is in reach, and you'll open something that wasn't even broken.",
@@ -554,20 +554,20 @@ export const FACTIONS = {
 const ABOUT = {
   galaxy: ["關於玉仔：喊一聲，後面那一排就到了。", "About Yuzai: one call, and the line behind them arrives."],
   alliance: ["關於銀河之女：她站出來，這一圈就有了中心。", "About Daughter of the Galaxy: when she steps out, the circle has a center."],
-  recorder: ["關於阿跑：話送到了，照片也留下了。", "About Dash: the words arrive, and so does the picture."],
-  umbrella: ["關於 MG：傘下留了位子，也有人記得你還沒喝。", "About MG: there's room under the umbrella, and someone remembers you haven't had a drink."],
+  recorder: ["關於阿白：他撐著傘，我把傘下的每個人都拍進來。", "About Abai: he holds the umbrella, and I fit everyone under it into the shot."],
+  umbrella: ["關於銀河之女：她站在中間，我把雨擋在外面。", "About Daughter of the Galaxy: she stands in the middle, and I keep the rain outside."],
   andromeda: ["關於言歌：光點起來之後，有人把那件事轉給大家看。", "About Echo: once the light is on, someone turns the idea so everyone can see it."],
-  spark: ["關於苔苔：點子很多，他負責讓它看起來是故意的。", "About Moss: lots of ideas; he makes them look intentional."],
-  soundtrack: ["關於靚仔：一個配樂，一個把瞬間留下來。", "About Lenz: one keeps the music, one keeps the moment."],
-  missionary: ["關於承承：講完的事，有人真的往下一個路口走。", "About Carry: once it's said, someone actually walks it to the next corner."],
+  spark: ["關於言歌：我丟出一個點子，有人把它說成大家想聽的話。", "About Echo: I toss out an idea, and someone turns it into words everyone wants to hear."],
+  soundtrack: ["關於阿閃：煙火一亮，配樂就接上。", "About Flick: the fireworks go up, and the music comes in."],
+  missionary: ["關於 Holly：舞台的燈亮了，我把這件事說給台下的人聽。", "About Holly: once the stage lights come on, I tell the crowd why it matters."],
   mapkeeper: ["關於墨衡：地圖畫完，他才決定往哪走。", "About Rook: once the map is drawn, he decides where to go."],
   strategist: ["關於莉婭：出發前，口袋裡永遠有一張空白地圖。", "About Leia: before setting off, there's always a blank map in that pocket."],
   finisher: ["關於墨衡：我等那一秒，他先看完整盤。", "About Rook: I wait for that one second; he looks at the whole board first."],
-  designer: ["關於阿修：一個說要怎樣，一個真的做出來。", "About Fix: one says how it should look, one actually makes it."],
-  cocoa: ["關於雨辰：傘下永遠多留一個位子。", "About Rainer: there's always one more place under it."],
-  messenger: ["關於靚仔：一個傳話，一個留證據。", "About Lenz: one carries the words, one keeps the proof."],
-  apostle: ["關於言歌：不是我起的頭，是我願意把它走下去。", "About Echo: I didn't start it. I'm willing to keep walking it."],
-  craftsman: ["關於苔苔：壞掉的隔天回來，還要順眼。", "About Moss: it comes back the next day, and it has to look right."],
+  designer: ["關於莉婭：她帶回一張空白地圖，我讓它看起來值得出發。", "About Leia: she brings back a blank map, and I make it look worth setting out for."],
+  cocoa: ["關於戴安娜：她修好暖爐，我負責把可可端過去。", "About Diana: she fixes the heater, and I bring the cocoa over."],
+  messenger: ["關於保羅：我把話送到，他接著走下去。", "About Paul: I deliver the words, and he carries them on."],
+  apostle: ["關於阿修：他跑在前面報信，我跟在後面把事走完。", "About Shiu: he runs ahead with the news, and I follow to see it through."],
+  craftsman: ["關於 MG：修到半夜，旁邊總有一杯熱可可。", "About MG: fixing things late at night, there's always a hot cocoa nearby."],
 };
 
 export function identityLine(text) {
@@ -587,8 +587,9 @@ for (const [factionId, faction] of Object.entries(FACTIONS)) {
   for (const id of faction.members) TYPES[id].faction = factionId;
 }
 for (const [id, lines] of Object.entries(ABOUT)) {
-  TYPES[id].zh.about = lines[0];
-  TYPES[id].en.about = lines[1];
+  // Name the teammate as a teammate, so the line is not read as this card's own name.
+  TYPES[id].zh.about = lines[0].replace(/^關於\s*/, "關於隊友");
+  TYPES[id].en.about = lines[1].replace(/^About /, "About teammate ");
 }
 
 export function isRare(typeId) {
