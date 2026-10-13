@@ -746,6 +746,45 @@ function boot() {
   window.matchMedia(MOBILE_QUERY).addEventListener("change", buildHotspots);
   window.addEventListener("resize", fitStage);
 
+  // the layered map (plate + clouds, far ship, crane container): shown only when every picture has loaded; otherwise the approved whole map stays
+  (function startLayers() {
+    const stage = $("map-stage");
+    const box = $("layer-fx");
+    if (!stage || !box) return;
+    let built = null;
+    function build() {
+      const set = isPhone() ? ART.layers.mobile : ART.layers.desktop;
+      if (built === set) return;
+      built = set;
+      stage.classList.remove("layers-ready");
+      box.replaceChildren();
+      const [cw, ch] = set.canvas;
+      const pct = (v, total) => `${(v / total * 100).toFixed(4)}%`;
+      const pictures = [];
+      const plate = new Image();
+      plate.className = "plate"; plate.alt = ""; plate.decoding = "async";
+      pictures.push(plate);
+      set.sprites.forEach((sp) => {
+        const img = new Image();
+        img.className = `sprite ${sp.id}`; img.alt = ""; img.decoding = "async";
+        img.style.left = pct(sp.x, cw); img.style.top = pct(sp.y, ch); img.style.width = pct(sp.w, cw); img.style.height = pct(sp.h, ch);
+        if (sp.pivot) img.style.transformOrigin = `${(sp.pivot[0] / sp.w * 100).toFixed(2)}% ${(sp.pivot[1] / sp.h * 100).toFixed(2)}%`;
+        img.dataset.layer = sp.id;
+        pictures.push(img);
+      });
+      let waiting = pictures.length;
+      let failed = false;
+      const files = [set.plate, ...set.sprites.map((sp) => sp.file)];
+      pictures.forEach((img, i) => {
+        img.onload = () => { waiting -= 1; if (!failed && waiting === 0 && built === set) { box.replaceChildren(...pictures); stage.classList.add("layers-ready"); } };
+        img.onerror = () => { failed = true; };
+        img.src = files[i];
+      });
+    }
+    build();
+    window.matchMedia(MOBILE_QUERY).addEventListener("change", build);
+  }());
+
   // the sea glints are masked to the water; if the mask picture cannot load they stay off, so they never spill over the land
   (function startSeaEffect() {
     const stage = $("map-stage");
