@@ -164,13 +164,14 @@ function boot() {
   };
   const avatar = (node, charId) => {
     const fallback = () => { node.classList.remove("has-img"); node.replaceChildren(); node.textContent = initialOf(charId, state.lang); node.style.background = AVATAR_COLOR[charId]; };
-    const src = ART.portrait[charId];
+    const src = ART.avatar[charId];
     node.replaceChildren();
     if (!src) { fallback(); return; }
     node.classList.add("has-img");
     node.style.background = "";
     const img = document.createElement("img");
     img.alt = "";
+    img.decoding = "async";
     img.onerror = fallback;
     img.src = src;
     node.appendChild(img);
@@ -746,13 +747,29 @@ function boot() {
   window.matchMedia(MOBILE_QUERY).addEventListener("change", buildHotspots);
   window.addEventListener("resize", fitStage);
 
-  // the layered map (plate + clouds, far ship, crane container): shown only when every picture has loaded; otherwise the approved whole map stays
+  // the map is the plate itself (clouds, far ship and the crane container taken out); the layers go back over it once every picture has loaded.
+  // If the plate or any layer cannot load, the approved whole map takes its place, so there is never a half-drawn map and nothing is fetched twice.
   (function startLayers() {
     const stage = $("map-stage");
     const box = $("layer-fx");
-    if (!stage || !box) return;
+    const mapImg = $("map-img");
+    if (!stage || !box || !mapImg) return;
+    const picture = mapImg.parentElement;
     let built = null;
+    let fell = false;
+    const settle = () => stage.classList.add("map-settled");
+    function useApprovedMap() {
+      if (fell) return;
+      fell = true;
+      stage.classList.remove("layers-ready");
+      box.replaceChildren();
+      picture.querySelectorAll("source").forEach((source) => { source.srcset = ART.map.mobile; });
+      mapImg.src = ART.map.desktop;
+      settle();
+    }
+    mapImg.addEventListener("error", useApprovedMap);
     function build() {
+      if (fell) return;
       const set = isPhone() ? ART.layers.mobile : ART.layers.desktop;
       if (built === set) return;
       built = set;
@@ -760,28 +777,23 @@ function boot() {
       box.replaceChildren();
       const [cw, ch] = set.canvas;
       const pct = (v, total) => `${(v / total * 100).toFixed(4)}%`;
-      const pictures = [];
-      const plate = new Image();
-      plate.className = "plate"; plate.alt = ""; plate.decoding = "async";
-      pictures.push(plate);
-      set.sprites.forEach((sp) => {
+      const pictures = set.sprites.map((sp) => {
         const img = new Image();
         img.className = `sprite ${sp.id}`; img.alt = ""; img.decoding = "async";
         img.style.left = pct(sp.x, cw); img.style.top = pct(sp.y, ch); img.style.width = pct(sp.w, cw); img.style.height = pct(sp.h, ch);
         if (sp.pivot) img.style.transformOrigin = `${(sp.pivot[0] / sp.w * 100).toFixed(2)}% ${(sp.pivot[1] / sp.h * 100).toFixed(2)}%`;
         img.dataset.layer = sp.id;
-        pictures.push(img);
+        return img;
       });
-      let waiting = pictures.length;
-      let failed = false;
-      const files = [set.plate, ...set.sprites.map((sp) => sp.file)];
-      pictures.forEach((img, i) => {
-        img.onload = () => { waiting -= 1; if (!failed && waiting === 0 && built === set) { box.replaceChildren(...pictures); stage.classList.add("layers-ready"); } };
-        img.onerror = () => { failed = true; };
-        img.src = files[i];
-      });
+      const plateLoaded = mapImg.complete && mapImg.naturalWidth > 0;
+      let waiting = pictures.length + (plateLoaded ? 0 : 1);
+      const one = () => { waiting -= 1; if (!fell && waiting === 0 && built === set) { box.replaceChildren(...pictures); stage.classList.add("layers-ready"); settle(); } };
+      if (!plateLoaded) mapImg.addEventListener("load", one, { once: true });
+      pictures.forEach((img, i) => { img.onload = one; img.onerror = useApprovedMap; img.src = set.sprites[i].file; });
     }
+    if (mapImg.complete && mapImg.naturalWidth === 0 && mapImg.currentSrc) useApprovedMap();
     build();
+    setTimeout(() => { if (!stage.classList.contains("map-settled")) useApprovedMap(); }, 6000);
     window.matchMedia(MOBILE_QUERY).addEventListener("change", build);
   }());
 

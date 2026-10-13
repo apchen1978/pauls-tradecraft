@@ -204,7 +204,7 @@
     .layer-fx { display: none; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
     .map-stage.layers-ready .layer-fx { display: block; }
     .layer-fx img { position: absolute; display: block; max-width: none; }
-    .layer-fx .plate { left: 0; top: 0; width: 100%; height: 100%; }
+    .map-stage:not(.map-settled) #map-img { opacity: 0; }
     .layer-fx .sprite { will-change: transform, opacity; }
     .layer-fx .cloud-a { animation: lx-cloud 90s ease-in-out infinite alternate; }
     .layer-fx .cloud-b { animation: lx-cloud 105s ease-in-out -35s infinite alternate; }
@@ -305,8 +305,8 @@
         <div class="map-stage" id="map-stage">
           <div class="map-inner" id="map-inner">
             <picture>
-              <source media="(max-width: 639px)" srcset="assets/trade-street-map-mobile.webp" type="image/webp" />
-              <img id="map-img" src="assets/trade-street-map.webp" width="1600" height="900" alt="" />
+              <source media="(max-width: 639px)" srcset="assets/layers/mobile-plate.webp" type="image/webp" />
+              <img id="map-img" src="assets/layers/desktop-plate.webp" width="1600" height="900" alt="" />
             </picture>
             <div class="layer-fx" id="layer-fx" aria-hidden="true"></div>
             <div class="sea-fx" id="sea-fx" aria-hidden="true"><i class="fx-a"></i><i class="fx-b"></i><i class="fx-sweep"></i></div>

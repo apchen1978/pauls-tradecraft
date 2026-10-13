@@ -238,7 +238,7 @@ for (const width of [390, 1440]) {
     });
 
     test("if the pictures cannot load, the game still works with initials", async ({ page }) => {
-      await page.route("**/assets/*.webp", (route) => route.abort());
+      await page.route("**/assets/**/*.webp", (route) => route.abort());
       await page.goto(`${base}/index.html?lang=zh`);
       await walk(page, ["B", "A", "A", "A", "A", "B"]);
       await expect(page.locator("#result")).toBeVisible();
