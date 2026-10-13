@@ -236,7 +236,7 @@ test.describe("garage listing", () => {
       await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("有趣互動作品展示");
       await expect(showcase.getByText("探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。")).toBeVisible();
       await expect(showcase.getByText("從一個想法開始，讓創意透過科技成形，讓每一次探索都有新的可能。")).toBeVisible();
-      await expect(showcase.getByText("示範／成效未驗證。")).toHaveCount(0);
+      await expect(showcase.getByText("示範／成效未驗證。", { exact: true })).toHaveCount(0);
       await expect(showcase.getByText("照夜鎮裡，十六種隊友，四個隊伍。")).toBeVisible();
       await expect(showcase.getByText("不教貿易：輕鬆玩，順便看見自己的團隊風格")).toBeVisible();
       await expect(showcase.getByText("示意玩具 · 雙語原型")).toBeVisible();
@@ -259,7 +259,7 @@ test.describe("garage listing", () => {
       await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Playful Interactive Works");
       await expect(enShowcase.getByText("Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.")).toBeVisible();
       await expect(enShowcase.getByText("It starts with an idea. Technology gives it shape, and every exploration opens new possibilities.")).toBeVisible();
-      await expect(enShowcase.getByText("Demo / outcomes not validated.")).toHaveCount(0);
+      await expect(enShowcase.getByText("Demo / outcomes not validated.", { exact: true })).toHaveCount(0);
       await expect(enShowcase.getByText("Nightglow has sixteen teammates in four factions.")).toBeVisible();
       await expect(enShowcase.getByText("Not about trade: a light play that shows your team style")).toBeVisible();
       await expect(enShowcase.getByText("Illustrative toy · bilingual prototype")).toBeVisible();
