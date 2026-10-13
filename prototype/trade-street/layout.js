@@ -7,6 +7,8 @@ export const MOBILE_QUERY = "(max-width: 639px)";
 
 export const ART = {
   map: { desktop: "assets/trade-street-map.webp", mobile: "assets/trade-street-map-mobile.webp" },
+  // where the water is, as a soft mask (the glints on the sea are drawn only inside it)
+  mask: { desktop: "assets/sea-mask-desktop.webp", mobile: "assets/sea-mask-mobile.webp" },
   portrait: {
     guide: "assets/relay-guide.webp",
     forwarder: "assets/forwarder.webp",

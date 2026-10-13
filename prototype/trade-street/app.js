@@ -746,6 +746,18 @@ function boot() {
   window.matchMedia(MOBILE_QUERY).addEventListener("change", buildHotspots);
   window.addEventListener("resize", fitStage);
 
+  // the sea glints are masked to the water; if the mask picture cannot load they stay off, so they never spill over the land
+  (function startSeaEffect() {
+    const stage = $("map-stage");
+    if (!stage || typeof CSS === "undefined" || !(CSS.supports("mask-image", "url(x.webp)") || CSS.supports("-webkit-mask-image", "url(x.webp)"))) return;
+    const probe = new Image();
+    probe.onload = () => stage.classList.add("fx-ready");
+    probe.src = isPhone() ? ART.mask.mobile : ART.mask.desktop;
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((entries) => { stage.classList.toggle("idle", !entries[entries.length - 1].isIntersecting); }).observe(stage);
+    }
+  }());
+
   applyStatic();
   if (route.result) {
     state.scenario = route.result.scenario;
