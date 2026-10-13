@@ -570,6 +570,26 @@ const ABOUT = {
   craftsman: ["關於 MG：修到半夜，旁邊總有一杯熱可可。", "About MG: fixing things late at night, there's always a hot cocoa nearby."],
 };
 
+// 照夜鎮小檔案：place, item, motto. Shown on the result card and the download card only.
+const PROFILE = {
+  galaxy: { zh: { place: "鐘樓旁最高的屋頂觀星台", item: "一條褪色的星星髮帶，只在十二月拿出來", motto: "慢慢來，星星不會跑。" }, en: { place: "The highest rooftop stargazing deck, beside the clock tower", item: "A faded star ribbon, only brought out in December", motto: "Take your time. The stars aren't going anywhere." } },
+  alliance: { zh: { place: "屋頂下的馬廄，門口掛著一盞小風燈", item: "鬃毛上綁著一條細絲帶", motto: "回來的人，都算數。" }, en: { place: "The stable under the roofs, with a small storm lantern at the door", item: "A thin ribbon tied into the mane", motto: "Everyone who comes back counts." } },
+  recorder: { zh: { place: "屋頂樓梯口，暗房在閣樓", item: "一捲只拍十二月的底片", motto: "等一下，這張要留。" }, en: { place: "The top of the rooftop stairs, with a darkroom in the attic", item: "A roll of film used only in December", motto: "Wait, this one's a keeper." } },
+  umbrella: { zh: { place: "屋頂和街道之間的長樓梯", item: "一把補過三次的大黑傘", motto: "我在，你先走。" }, en: { place: "The long staircase between the rooftops and the street", item: "A big black umbrella, patched three times", motto: "I'm here. You go first." } },
+  andromeda: { zh: { place: "廣場東側的露天舞台", item: "一盞手提星燈", motto: "燈先亮，人就會來。" }, en: { place: "The open-air stage on the east side of the square", item: "A hand-held star lantern", motto: "Light it first, and people will come." } },
+  spark: { zh: { place: "舞台後台的道具箱旁", item: "口袋裡一支沒水的螢光筆", motto: "如果我們……？" }, en: { place: "Beside the prop box backstage", item: "A dried-out highlighter in the pocket", motto: "What if we...?" } },
+  soundtrack: { zh: { place: "舞台側邊的階梯，第三階", item: "一副大耳機，左耳總是拿下來聽人說話", motto: "這一幕要配什麼歌？" }, en: { place: "The third step at the side of the stage", item: "Big headphones, left side always off to listen", motto: "What song goes with this scene?" } },
+  missionary: { zh: { place: "舞台前的廣場", item: "一疊寫給還沒來的人的手寫卡片", motto: "你來看一下就好。" }, en: { place: "The square in front of the stage", item: "A stack of handwritten cards for people who haven't come yet", motto: "Just come and take a look." } },
+  mapkeeper: { zh: { place: "鐘樓頂層的地圖室", item: "一張永遠留著一格空白的鎮圖", motto: "我先去看看。" }, en: { place: "The map room at the top of the clock tower", item: "A town map that always keeps one square blank", motto: "Let me go and look first." } },
+  strategist: { zh: { place: "鐘樓中層，桌上攤著棋盤", item: "一枚壓地圖用的舊城堡棋子", motto: "先看完，再走第一步。" }, en: { place: "The middle of the clock tower, a chessboard on the desk", item: "An old rook piece used to hold the map down", motto: "See it all, then take the first step." } },
+  finisher: { zh: { place: "鐘樓的鐘下，看得到整條街", item: "一只整點前一分鐘會輕響的懷錶", motto: "還有一分鐘。" }, en: { place: "Under the clock-tower bell, watching the whole street", item: "A pocket watch that chimes softly a minute before the hour", motto: "One minute left." } },
+  designer: { zh: { place: "鐘樓一樓窗邊的畫桌", item: "一盒苔綠色最短的蠟筆", motto: "再挪一點點。" }, en: { place: "A drawing desk by the clock tower's ground-floor window", item: "A box of crayons, the moss green worn shortest", motto: "Just a little to the left." } },
+  cocoa: { zh: { place: "暖窗小屋的窗台，正對街口", item: "一杯放了一顆棉花糖的熱可可", motto: "喵。（先坐下。）" }, en: { place: "The warm-window cottage sill, facing the corner", item: "A hot cocoa with one marshmallow", motto: "Meow. (Sit down first.)" } },
+  messenger: { zh: { place: "街角的信箱旁，總在路上", item: "一條塞滿紙條的珊瑚色斜背帶", motto: "收到了嗎？那我走了。" }, en: { place: "By the mailbox on the corner, always on the move", item: "A coral sash stuffed with notes", motto: "Got it? Then I'm off." } },
+  apostle: { zh: { place: "暖窗小屋後門，布包放在門邊", item: "一個裝著要送去別家東西的舊布包", motto: "我接著走。" }, en: { place: "The back door of the warm-window cottages, the bundle by the door", item: "An old cloth bundle of things to take to other homes", motto: "I'll carry it on." } },
+  craftsman: { zh: { place: "暖窗小屋旁的工作間，燈總是最晚熄", item: "一把扳手，圍裙口袋裡有一卷銅線", motto: "給我十分鐘。" }, en: { place: "The workshop next to the cottages, last light out", item: "A wrench, with a coil of copper wire in the apron pocket", motto: "Give me ten minutes." } },
+};
+
 export function identityLine(text) {
   if (!text.person) return `${text.name} · ${text.role}`;
   return `${text.person} · ${text.role} · ${text.name}`;
@@ -585,6 +605,10 @@ export function previewLine(text) {
 
 for (const [factionId, faction] of Object.entries(FACTIONS)) {
   for (const id of faction.members) TYPES[id].faction = factionId;
+}
+for (const [id, profile] of Object.entries(PROFILE)) {
+  Object.assign(TYPES[id].zh, profile.zh);
+  Object.assign(TYPES[id].en, profile.en);
 }
 for (const [id, lines] of Object.entries(ABOUT)) {
   // Name the teammate as a teammate, so the line is not read as this card's own name.
@@ -728,6 +752,7 @@ export const UI = {
     download: "下載角色卡",
     downloadFail: "這次沒畫成圖片，連結一樣能分享。",
     back: "回到 Digital Garage",
+    profile: [["place", "地點："], ["item", "小物："], ["motto", "口頭禪："]],
     galleryTitle: "十六種隊友",
     galleryLead: "四個隊伍，各四個人。點一張，看那張卡。",
   },
@@ -784,6 +809,7 @@ export const UI = {
     download: "Download card",
     downloadFail: "The picture didn't save this time. The link still shares the card.",
     back: "Back to the Digital Garage",
+    profile: [["place", "Place: "], ["item", "Item: "], ["motto", "Motto: "]],
     galleryTitle: "Sixteen teammates",
     galleryLead: "Four teams, four people each. Open one to see that card.",
   },
@@ -1241,6 +1267,14 @@ function boot() {
     $("role").textContent = "";
     $("faction").textContent = factionLabel(resolved.type, state.lang);
     $("about").textContent = text.about;
+    const profile = $("profile");
+    profile.textContent = "";
+    for (const [key, label] of ui.profile) {
+      const row = el("p", `profile-line profile-${key}`);
+      row.appendChild(el("span", "profile-label", label));
+      row.appendChild(document.createTextNode(text[key]));
+      profile.appendChild(row);
+    }
     const lines = $("lines");
     lines.textContent = "";
     [
@@ -1625,6 +1659,8 @@ function boot() {
       const factionLines = wrapLines(ctx, factionLabel(resolved.type, state.lang), inner);
       ctx.font = `500 ${sz.BODY}px ${FONT}`;
       const aboutLines = wrapLines(ctx, text.about, inner);
+      ctx.font = `500 ${sz.OTHER}px ${FONT}`;
+      const profileLines = ui.profile.flatMap(([key, label]) => wrapLines(ctx, `${label}${text[key]}`, inner));
       ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
       const funnyLines = wrapLines(ctx, text.funny, inner);
       const sectionLines = [text.gentle, text.literary, text.strength].map((body, index) => {
@@ -1639,12 +1675,13 @@ function boot() {
       bodyH += roleLines.length ? 6 + roleLines.length * lead(sz.ROLE) : 0;
       bodyH += 10 + factionLines.length * 42;
       bodyH += aboutLines.length * lead(sz.BODY) + 12;
+      bodyH += profileLines.length * lead(sz.OTHER) + 10;
       bodyH += rare ? 58 : 12;
       bodyH += sz.LABEL + 10 + funnyLines.length * lead(sz.FUNNY) + 10;
       sectionLines.forEach((lines) => {
         bodyH += sz.LABEL + 10 + lines.length * lead(sz.BODY) + 8;
       });
-      return { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, funnyLines, sectionLines, footerH, bodyH };
+      return { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, funnyLines, sectionLines, footerH, bodyH };
     };
     const cardFits = (ratio, measured) => {
       const artH = Math.round(height * ratio);
@@ -1679,7 +1716,7 @@ function boot() {
     }
     const artH = Math.round(height * artRatio);
     const footerTop = height - 48 - 56 - plan.footerH;
-    const { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, funnyLines, sectionLines } = plan;
+    const { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, funnyLines, sectionLines } = plan;
 
     const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
     const horseNode = readyImage("horse", HORSE_SRC);
@@ -1763,7 +1800,12 @@ function boot() {
       center(line, y, `500 ${sz.BODY}px ${FONT}`, "#193A35");
       y += lead(sz.BODY);
     });
-    y += 6;
+    y += 4;
+    profileLines.forEach((line) => {
+      center(line, y, `500 ${sz.OTHER}px ${FONT}`, "#62716A");
+      y += lead(sz.OTHER);
+    });
+    y += 12;
     if (rare) {
       ctx.font = `700 28px ${FONT}`;
       const badge = ui.rare;
