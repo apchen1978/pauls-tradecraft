@@ -146,7 +146,8 @@ test.describe("garage listing", () => {
       const showcase = page.locator("#showcase");
       const card = showcase.getByRole("heading", { name: "十二月的燈" });
       await expect(card).toBeVisible();
-      await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("作品館");
+      await expect(showcase.locator("p").first()).toHaveText("Interactive Showcase");
+      await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("有趣互動作品展示");
       await expect(showcase.getByText("照夜鎮裡，十六種隊友，四個隊伍。")).toBeVisible();
       await expect(showcase.getByText("示範／成效未驗證。")).toBeVisible();
       await expect(showcase.getByText("示意玩具，不是心理測驗。")).toBeVisible();
@@ -165,7 +166,8 @@ test.describe("garage listing", () => {
       const enShowcase = page.locator("#showcase");
       const enCard = enShowcase.getByRole("heading", { name: "December Lights" });
       await expect(enCard).toBeVisible();
-      await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Showcase");
+      await expect(enShowcase.locator("p").first()).toHaveText("Interactive Showcase");
+      await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Playful Interactive Works");
       await expect(enShowcase.getByText("Nightglow has sixteen teammates in four factions.")).toBeVisible();
       await expect(enShowcase.getByText("Demo / outcomes not validated.")).toBeVisible();
       await expect(enShowcase.getByText("A toy, not a personality test.")).toBeVisible();

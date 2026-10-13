@@ -426,8 +426,8 @@ const dict = {
       rights: "All rights reserved.",
     },
     showcase: {
-      eyebrow: "Showcase",
-      headline: "作品館",
+      eyebrow: "Interactive Showcase",
+      headline: "有趣互動作品展示",
       intro: "這裡放可以完整玩的作品，不是還在試的實驗。",
       maturity: "示範／成效未驗證。",
       items: [
@@ -1147,8 +1147,8 @@ const dict = {
       rights: "All rights reserved.",
     },
     showcase: {
-      eyebrow: "作品館",
-      headline: "Showcase",
+      eyebrow: "Interactive Showcase",
+      headline: "Playful Interactive Works",
       intro: "Pieces you can play through sit here, not experiments still in progress.",
       maturity: "Demo / outcomes not validated.",
       items: [
