@@ -216,7 +216,9 @@ test("card lines do not orphan 關於 or 了。 and the work has its new name", 
   const html = readFileSync(new URL("../prototype/teammate-type/index.html", import.meta.url), "utf8");
   assert.match(html, /nightglow-map-mobile\.webp 800w/);
   assert.match(html, /nightglow-map\.webp 1600w/);
-  assert.equal(/2560w| 2x| 3x/.test(html), false);
+  assert.match(html, /nightglow-map-mobile@2x\.webp 1440w/);
+  assert.match(html, /nightglow-map@2x\.webp 2560w/);
+  assert.equal(/ 2x,| 3x|\.webp 2x/.test(html), false);
 });
 
 test("public copy keeps the boundary and skips claims, trademarks, and contact details", () => {
