@@ -88,8 +88,9 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
   check(Boolean(data.leverage), `${locale} missing how-I-work explanation`);
   check(!data.worksSecondary?.length, `${locale} one-pager should not regress into a secondary work inventory`);
   check(!/中間層|A2A|\bCDD\b|ROI|轉換率|成交率|老闆|老板|\bboss\b|\bowner\b/i.test(narrative), `${locale} public copy breaks a standing rule`);
-  // Paul 2026-10-12: "AI agent" and "AI agents 與 Paul 協作" are allowed on public pages; any other AI wording is still blocked.
-  const narrativeWithoutAllowedAi = narrative.replace(/AI agents 與 Paul 協作|\bAI agents?\b/g, "");
+  // Paul 2026-10-12: "AI agent" and "AI agents 與 Paul 協作" are allowed on public pages.
+  // Paul 2026-10-13: "AI-native" is allowed too (AI-native, AI-Native, AI native, AI Native). Any other AI wording is still blocked.
+  const narrativeWithoutAllowedAi = narrative.replace(/AI agents 與 Paul 協作|\bAI agents?\b|\bAI[-\s][Nn]ative\b/g, "");
   check(!/人工智慧|\bAI\b/.test(narrativeWithoutAllowedAi), `${locale} mentions AI outside the kicker`);
 }
 
