@@ -11,7 +11,7 @@ export const SIZE = {
 
 // What you see in each picture, written out for people who cannot see it.
 export const ALT = {
-  guide: { zh: "玉仔：紅髮的年輕女性，穿綠襯衫、背肩包、手抱貼滿標籤的手帳，伸手指路。", en: "The Guide: a young woman with red hair in a green shirt, with a satchel and a notebook full of tabs, pointing the way." },
+  guide: { zh: "玉仔：紅髮的年輕女性，穿綠襯衫、背肩包、手抱貼滿標籤的手帳，伸手指路。", en: "Yuzai: a young woman with red hair in a green shirt, with a satchel and a notebook full of tabs, pointing the way." },
   forwarder: { zh: "阿代：戴細框眼鏡的年輕人，穿藏青外套，低頭看手機、手抱三份文件夾。", en: "The Forwarder: a young person with thin glasses in a navy jacket, looking at a phone and carrying three folders." },
   shipper: { zh: "艙長：深棕低髮髻的女性，穿石板灰搭淺藍拼接的制服外套，拿著板夾。", en: "The Shipper: a woman with a low brown bun in a slate uniform jacket with light-blue panels, holding a clipboard." },
   factory: { zh: "老廠：灰髮的年長男性，穿赭橘圍裙、肩上搭毛巾，手掌向下平伸。", en: "The Factory Head: an older man with grey hair in an ochre apron with a towel on his shoulder, one hand held flat." },

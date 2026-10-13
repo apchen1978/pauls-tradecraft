@@ -180,8 +180,11 @@ test("public copy: boundary shown, no claims, no numbers with units, no real com
   assert.equal(/\d+\s*(天|日|小時|days?|hours?|USD|\$|%|％|元|萬)/i.test(ours), false);
 });
 
-test("English uses roles, not invented personal names", () => {
-  for (const id of CAST_ORDER) assert.match(CAST[id].en.name, /^The /, id);
+test("English uses roles, not invented personal names (the guide alone has a name)", () => {
+  for (const id of CAST_ORDER) {
+    if (id === "guide") assert.equal(CAST[id].en.name, "Yuzai");
+    else assert.match(CAST[id].en.name, /^The /, id);
+  }
   for (const id of CAST_ORDER) assert.ok(CAST[id].zh.name.length >= 2);
   assert.equal(new Set(CAST_ORDER.map((id) => CAST[id].zh.name)).size, 8);
 });

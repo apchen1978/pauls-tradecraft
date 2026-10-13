@@ -155,7 +155,7 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#card-name")).toHaveText(CAST[res.character].en.name);
       await expect(page.locator("#card-boundary")).toContainText("Teaching sketch");
       await expect(page.locator("#style-line")).toContainText(STYLES[res.style].en.name);
-      await expect(page.locator("#cast li").first()).toContainText("The Guide");
+      await expect(page.locator("#cast li").first()).toContainText("Yuzai");
       await noOverflow(page);
     });
 

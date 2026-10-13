@@ -80,7 +80,7 @@ for (const width of [390, 1440]) {
       await page.goto(`${base}/cast/index.html?lang=en`);
       await expect(page.locator("html")).toHaveAttribute("lang", "en");
       await expect(page.getByRole("heading", { level: 1, name: "The People of Trade Street" })).toBeVisible();
-      await expect(page.locator("#guide").getByRole("heading", { level: 2 })).toHaveText("The Guide");
+      await expect(page.locator("#guide").getByRole("heading", { level: 2 })).toHaveText("Yuzai");
       await expect(page.locator("#shipper").locator("dt")).toHaveText(["Carries", "Style", "Catchphrase", "Where to find them"]);
       await expect(page.locator("#play-top")).toHaveAttribute("href", "../?lang=en");
       await expect(page.locator("#home")).toHaveAttribute("href", "/?lang=en#garage");
