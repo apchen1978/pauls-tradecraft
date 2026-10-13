@@ -671,6 +671,15 @@ const dict = {
           href: "/prototype/same-factory-different-buyer/",
         },
         {
+          title: "機會重構：看見更多可能，少做一點承諾",
+          tag: "示範實驗 · 雙語原型",
+          spark: "同一座工廠，換一個目標，值得想的事就不同。",
+          note: "選一個負責人的目標，讀四個假設；再挑戰其中一個，看哪些還站得住。",
+          cta: "試試不同目標",
+          boundary: "虛構公司、腳本式互動，不是市場證據。",
+          href: "/prototype/garage-opportunity-reframing-002/",
+        },
+        {
           title: "只寄一次 · One Send",
           tag: "示範實驗 · 雙語原型",
           spark: "如果報價信只能寄一次，你會留下哪三句？",
@@ -1406,6 +1415,15 @@ const dict = {
           cta: "Compare the openings",
           boundary: "Demo content for illustration only, not real factory capabilities or buyer response.",
           href: "/prototype/same-factory-different-buyer/",
+        },
+        {
+          title: "Opportunity Reframing: see more, commit to less",
+          tag: "Demo experiment · bilingual prototype",
+          spark: "One factory: change the objective and the idea worth having changes.",
+          note: "Pick what the decision-maker wants, read four hypotheses, then challenge one and see what survives.",
+          cta: "Try the objectives",
+          boundary: "A fictional company and a scripted interaction, not market evidence.",
+          href: "/prototype/garage-opportunity-reframing-002/",
         },
         {
           title: "只寄一次 · One Send",
