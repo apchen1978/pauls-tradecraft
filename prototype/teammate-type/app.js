@@ -590,8 +590,13 @@ const PROFILE = {
   craftsman: { zh: { place: "暖窗小屋旁的工作間，燈總是最晚熄", item: "一把扳手，圍裙口袋裡有一卷銅線", motto: "給我十分鐘。" }, en: { place: "The workshop next to the cottages, last light out", item: "A wrench, with a coil of copper wire in the apron pocket", motto: "Give me ten minutes." } },
 };
 
+// A queen's title already says 女王 / Queen, so a named queen reads "Holly · 仙女座女王",
+// the same two-part shape as 銀河之女's "銀河之女 · 女王".
+const isNamedQueen = (text) => Boolean(text.person) && (text.role === "女王" || text.role === "Queen");
+
 export function identityLine(text) {
   if (!text.person) return `${text.name} · ${text.role}`;
+  if (isNamedQueen(text)) return `${text.person} · ${text.name}`;
   return `${text.person} · ${text.role} · ${text.name}`;
 }
 
@@ -600,6 +605,7 @@ export function shortName(text) {
 }
 
 export function previewLine(text) {
+  if (isNamedQueen(text)) return `${text.person} · ${text.name}`;
   return `${shortName(text)} · ${text.role}`;
 }
 
@@ -718,7 +724,6 @@ export const UI = {
     coverHint: "點街區認識隊員，點中央的燈出發",
     lockup: "照夜鎮 Nightglow",
     mapAlt: "照夜鎮夜景：左上是銀河隊的屋頂觀星，右上是仙女隊的舞台，左下是星圖隊的鐘樓，右下是燈下隊的小屋，中央是照夜大燈。",
-    seeAll: "看全部角色",
     closePreview: "關閉",
     teamList: "四個隊伍",
     entryTitle: "照夜鎮",
@@ -775,7 +780,6 @@ export const UI = {
     coverHint: "Tap a district to meet the team. Tap the lamp in the center to set out.",
     lockup: "照夜鎮 Nightglow",
     mapAlt: "Nightglow at night: Galaxy Team stargazing at the top left, Andromeda Team's stage at the top right, the Star-Map Team clock tower at the bottom left, Lantern Team cottages at the bottom right, and the lamp in the center.",
-    seeAll: "See every role",
     closePreview: "Close",
     teamList: "Four teams",
     entryTitle: "Nightglow",
@@ -1140,7 +1144,24 @@ function boot() {
     const ui = UI[state.lang];
     $("gallery-title").textContent = ui.galleryTitle;
     $("gallery-lead").textContent = ui.galleryLead;
-    if ($("gallery").open) fillGallery();
+    fillGallery();
+  }
+
+  // The gallery is always open. Its pictures load only once it nears the viewport,
+  // so the cover screen does not fetch sixteen portraits up front.
+  let galleryNear = typeof IntersectionObserver === "undefined";
+  function watchGallery() {
+    if (galleryNear) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      galleryNear = true;
+      observer.disconnect();
+      for (const img of $("gallery-list").querySelectorAll("img[data-src]")) {
+        img.src = img.dataset.src;
+        delete img.dataset.src;
+      }
+    }, { rootMargin: "0px" });
+    observer.observe($("gallery"));
   }
 
   function fillGallery() {
@@ -1153,10 +1174,16 @@ function boot() {
       for (const id of faction.members) {
         const text = TYPES[id][state.lang];
         const tile = document.createElement("a");
-        tile.className = "role-tile";
+        tile.className = isRare(id) ? `role-tile rare-${id}` : "role-tile";
         tile.href = `?c=${SAMPLE_CODES[id]}&lang=${state.lang}`;
         const img = document.createElement("img");
-        img.src = portraitFor(id);
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.width = 240;
+        img.height = 120;
+        // The box is fixed at 120px, so setting src later does not move the layout.
+        if (galleryNear) img.src = portraitFor(id);
+        else img.dataset.src = portraitFor(id);
         img.alt = text.alt;
         tile.appendChild(img);
         tile.appendChild(el("span", "tile-name", identityLine(text)));
@@ -2193,7 +2220,6 @@ function boot() {
     $("cover-hint").textContent = ui.coverHint;
     $("lockup").textContent = ui.lockup;
     $("subtitle").textContent = ui.subtitle;
-    $("see-all").textContent = ui.seeAll;
     $("entry-title").textContent = ui.entryTitle;
     $("district-close").textContent = ui.closePreview;
     $("team-fallback").setAttribute("aria-label", ui.teamList);
@@ -2308,9 +2334,6 @@ function boot() {
   $("district").addEventListener("click", (event) => {
     if (event.target === $("district")) closeDistrict();
   });
-  $("see-all").addEventListener("click", () => {
-    $("gallery").open = true;
-  });
   function districtFocusables() {
     return [...$("district-sheet").querySelectorAll("button, a, input, select, textarea")].filter((node) => !node.hidden && !node.disabled);
   }
@@ -2354,15 +2377,13 @@ function boot() {
   $("share-btn").addEventListener("click", shareNative);
   $("download").addEventListener("click", downloadCard);
   $("duo-download").addEventListener("click", downloadDuo);
-  $("gallery").addEventListener("toggle", () => {
-    if ($("gallery").open) fillGallery();
-  });
   if (!navigator.share) $("share-btn").hidden = true;
 
   preloadEmblems();
 
   if (!state.code && new URLSearchParams(location.search).has("c")) persist();
   render(state.code ? "card" : null);
+  watchGallery();
 }
 
 function roundRect(ctx, x, y, w, h, r) {
