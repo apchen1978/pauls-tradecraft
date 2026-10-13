@@ -88,7 +88,7 @@ export const POSES = {
   },
   heart: {
     motion: "float",
-    ms: 260,
+    ms: 480,
     frames: ["heart/00.webp", "heart/01.webp", "heart/02.webp", "heart/03.webp"],
   },
   jump: {
@@ -156,7 +156,7 @@ export const TYPES = {
       gentle: "因為有你，大家才撐得到最後。",
       literary: "「把每個人的疲倦，泡成一杯溫的。」",
       strength: "看得見別人的狀態，懂得照顧。",
-      alt: "MG 頭上有愛心，捧著一杯熱飲",
+      alt: "橘色虎斑小貓，白嘴白胸白爪，項圈牌子寫著 MG，身旁有一杯熱可可",
     },
     en: {
       person: "MG",
@@ -166,7 +166,7 @@ export const TYPES = {
       gentle: "Because of you, the team makes it to the end.",
       literary: "\"I brew everyone's tiredness into something warm.\"",
       strength: "Notices how people are doing, and looks after them.",
-      alt: "MG with a heart overhead, holding a warm drink",
+      alt: "An orange tabby kitten with a white muzzle, chest and paws, a collar tag reading MG, and a cup of hot cocoa",
     },
   },
   finisher: {
@@ -1699,8 +1699,10 @@ function boot() {
     else if (portrait) artBottom = fitDraw(portrait, 640);
     else {
       const img = $("mg");
-      // Square sprite: shift left so the top-right emblem stays clear of the face.
-      if (img.complete && img.naturalWidth > 0) artBottom = fitDraw(img, 800, -90);
+      if (img.complete && img.naturalWidth > 0) {
+        const tall = img.naturalHeight > img.naturalWidth;
+        artBottom = fitDraw(img, tall ? 640 : 800, tall ? 0 : -90);
+      }
     }
 
     const emblem = type.prop ? emblems[type.prop] : null;
