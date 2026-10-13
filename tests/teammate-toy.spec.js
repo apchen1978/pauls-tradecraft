@@ -163,7 +163,7 @@ for (const width of [390, 768, 1440]) {
       await page.locator("#choices button").nth(1).click();
       await page.locator("#choices button").nth(0).click();
 
-      await expect(page.locator("#card-name")).toHaveText("塞安 · 刺客／輸出 · 最後一擊");
+      await expect(page.locator("#card-name")).toHaveText("塞安 · 刺客 · 最後一擊");
       await expectFunnyHighlight(page);
       await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
       await expect(page.locator("#picks-label")).toHaveText("你的選擇 ABA");
@@ -181,11 +181,11 @@ for (const width of [390, 768, 1440]) {
       expect(url).toContain("c=ABA");
       expect(url).toContain("lang=zh");
       await page.goto(url);
-      await expect(page.locator("#card-name")).toHaveText("塞安 · 刺客／輸出 · 最後一擊");
+      await expect(page.locator("#card-name")).toHaveText("塞安 · 刺客 · 最後一擊");
       await expect(page.locator("#quiz")).toBeHidden();
 
       await page.getByRole("button", { name: "EN" }).click();
-      await expect(page.locator("#card-name")).toHaveText("Zion · Assassin / damage · The Finisher");
+      await expect(page.locator("#card-name")).toHaveText("Zion · Assassin · The Finisher");
       await expectFunnyHighlight(page);
       await expect(page.locator("#card-boundary")).toHaveText("A toy, not a personality test.");
       expect(page.url()).toContain("c=ABA");
@@ -199,8 +199,8 @@ for (const width of [390, 768, 1440]) {
 
       const enUrl = await page.locator("#share-url").inputValue();
       await page.goto(enUrl);
-      await expect(page.locator("#card-name")).toHaveText("Zion · Assassin / damage · The Finisher");
-      await expect(page.locator("#other-name")).toHaveText("塞安 · 刺客／輸出 · 最後一擊");
+      await expect(page.locator("#card-name")).toHaveText("Zion · Assassin · The Finisher");
+      await expect(page.locator("#other-name")).toHaveText("塞安 · 刺客 · 最後一擊");
 
       if (width === 1440) {
         const [download] = await Promise.all([
@@ -227,14 +227,14 @@ test.describe("cocoa role label", () => {
     await page.goto("/prototype/teammate-type/?c=BBB&lang=zh");
     await waitForMg(page);
     await expect(page.locator("#card-name")).toHaveText("MG · 守護者 · 晚安熱可可");
-    await expect(page.locator("#role")).toHaveText("組隊角色 · 守護者");
+    await expect(page.locator("#role")).toBeHidden();
     await expectFunnyHighlight(page);
     await noOverflow(page);
     await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-zh-cocoa-card.png` });
 
     await page.getByRole("button", { name: "EN" }).click();
     await expect(page.locator("#card-name")).toHaveText("MG · Guardian · The Cocoa");
-    await expect(page.locator("#role")).toHaveText("Party role · Guardian");
+    await expect(page.locator("#role")).toBeHidden();
     await expectFunnyHighlight(page);
     await noOverflow(page);
     await page.locator("#card").screenshot({ path: `${OUT}/teammate-390-en-cocoa-card.png` });
@@ -312,7 +312,7 @@ test.describe("new choices and roles", () => {
         await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
         await waitForQueen(page);
         await expect(page.locator("#card-name")).toHaveText(role.zh);
-        await expect(page.locator("#role")).toHaveText(role.roleZh);
+        await expect(page.locator("#role")).toBeHidden();
         await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
         await expectFunnyHighlight(page);
         await noOverflow(page);
@@ -320,7 +320,7 @@ test.describe("new choices and roles", () => {
         await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=en`);
         await waitForQueen(page);
         await expect(page.locator("#card-name")).toHaveText(role.en);
-        await expect(page.locator("#role")).toHaveText(role.roleEn);
+        await expect(page.locator("#role")).toBeHidden();
         await expect(page.locator("#card-boundary")).toHaveText("A toy, not a personality test.");
         await expectFunnyHighlight(page);
         await noOverflow(page);
@@ -356,7 +356,7 @@ test.describe("new choices and roles", () => {
     await page.goto("/prototype/teammate-type/?c=FAE&lang=zh");
     await waitForQueen(page);
     await expect(page.locator("#card-name")).toHaveText("銀河之女 · 女王");
-    await expect(page.locator("#role")).toHaveText("組隊角色 · 女王");
+    await expect(page.locator("#role")).toBeHidden();
     await expect(page.locator("#rare")).toHaveText("稀有");
     await expect(page.locator("#horse")).toBeHidden();
     await expect(page.locator("#mg")).toBeHidden();
@@ -376,7 +376,7 @@ test.describe("new choices and roles", () => {
     await waitForQueen(page);
     await expect(page.locator("#card-name")).toHaveText("Holly · 女王 · 仙女座女王");
     await expect(page.locator("#card-egg")).toHaveText("M-31");
-    await expect(page.locator("#role")).toHaveText("組隊角色 · 女王");
+    await expect(page.locator("#role")).toBeHidden();
     await expect(page.locator("#rare")).toHaveText("稀有");
     await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/andromeda.webp");
     await expect(page.locator("#horse")).toBeHidden();
@@ -394,14 +394,14 @@ test.describe("new choices and roles", () => {
     await page.goto("/prototype/teammate-type/?c=BBA&lang=zh");
     await waitForMg(page);
     await expect(page.locator("#card-name")).toHaveText("MG · 守護者 · 晚安熱可可");
-    await expect(page.locator("#role")).toHaveText("組隊角色 · 守護者");
+    await expect(page.locator("#role")).toBeHidden();
     await expect(page.locator("#horse")).toBeHidden();
     await expect(page.locator("#companion")).toBeHidden();
     await expect(page.locator("#mg")).toBeVisible();
     await expect(page.locator("#queen-art")).toBeHidden();
     await page.getByRole("button", { name: "EN" }).click();
     await expect(page.locator("#card-name")).toHaveText("MG · Guardian · The Cocoa");
-    await expect(page.locator("#role")).toHaveText("Party role · Guardian");
+    await expect(page.locator("#role")).toBeHidden();
     await expect(page.locator("#horse")).toBeHidden();
     await expect(page.locator("#mg")).toBeVisible();
     await page.getByRole("button", { name: "中文" }).click();
@@ -426,7 +426,7 @@ test.describe("new choices and roles", () => {
     });
     await expect(page.locator("#card-name")).toHaveText("玉仔 · 聯盟 · 援軍到了");
     await expect(page.locator("#card-mark")).toHaveText("照夜玉獅子");
-    await expect(page.locator("#role")).toHaveText("組隊角色 · 聯盟");
+    await expect(page.locator("#role")).toBeHidden();
     await expect(page.locator("#rare")).toBeHidden();
     await expect(page.locator("#horse")).toBeVisible();
     await expect(page.locator("#mg")).toBeHidden();
@@ -445,7 +445,7 @@ test.describe("new choices and roles", () => {
     await page.getByRole("button", { name: "EN" }).click();
     await expect(page.locator("#card-name")).toHaveText("Yuzai · Alliance · Reinforcements Are Here");
     await expect(page.locator("#card-mark")).toHaveText("Night-Shining Jade Lion");
-    await expect(page.locator("#role")).toHaveText("Party role · Alliance");
+    await expect(page.locator("#role")).toBeHidden();
     await expect(page.locator("#horse")).toBeVisible();
     await expect(page.locator("#mg")).toBeHidden();
     const [enDownload] = await Promise.all([
@@ -461,7 +461,7 @@ test.describe("new choices and roles", () => {
     await page.setViewportSize({ width: 390, height: 1100 });
     const roles = [
       { code: "AAA", file: "umbrella.webp", zh: "雨辰 · 坦克 · 擋雨的人", en: "Rainer · Tank · The Umbrella" },
-      { code: "BBC", file: "finisher.webp", zh: "塞安 · 刺客／輸出 · 最後一擊", en: "Zion · Assassin / damage · The Finisher" },
+      { code: "BBC", file: "finisher.webp", zh: "塞安 · 刺客 · 最後一擊", en: "Zion · Assassin · The Finisher" },
       { code: "CCC", file: "spark.webp", zh: "阿閃 · 點子 · 腦內煙火師", en: "Flick · Ideas · The Spark" },
       { code: "DAA", file: "mapkeeper.webp", zh: "栗子 · 斥候 · 地圖收藏家", en: "Chestnut · Scout · The Mapkeeper" },
       { code: "CCD", file: "soundtrack.webp", zh: "樂樂 · 吟遊詩人 · BGM 擔當", en: "Remi · Bard · The Soundtrack" },
@@ -555,7 +555,8 @@ test.describe("two-person scene", () => {
     await expect(page.locator("#duo-left-egg")).toBeHidden();
     await expect(page.locator("#duo-left-lines")).toContainText("你一站出來，滑手機的人都把臉抬起來了。");
     await expect(page.locator("#duo-right-lines")).toContainText("你一笑，原本各做各的人都轉過來了。");
-    await expect(page.locator("#duo-left-role")).toHaveText("組隊角色 · 女王");
+    await expect(page.locator("#duo-left-role")).toBeHidden();
+    await expect(page.locator("#duo-right-role")).toBeHidden();
     await expect(page.locator("#duo-right-rare")).toHaveText("稀有");
     await expect(page.locator("#duo-lines")).toContainText("你站右邊");
     await expect(page.locator("#duo-left")).not.toHaveClass(/face-in/);
@@ -619,7 +620,7 @@ test.describe("two-person scene", () => {
     expect(page.url()).toContain("c=AAA");
     expect(page.url()).toContain("with=BBC");
     await expect(page.locator("#duo-lines")).toContainText("你也在。有你在，這一段就沒那麼吵。");
-    await expect(page.locator("#duo-right-name")).toHaveText("塞安 · 刺客／輸出 · 最後一擊");
+    await expect(page.locator("#duo-right-name")).toHaveText("塞安 · 刺客 · 最後一擊");
     await settleDuo(page);
     await page.locator("#duo-stage").evaluate((el) => {
       document.documentElement.style.scrollBehavior = "auto";
@@ -720,7 +721,7 @@ test.describe("sixteen roles", () => {
         return img && !img.hidden && img.complete && img.naturalWidth > 0;
       });
       await expect(page.locator("#card-name")).toHaveText("阿修 · 工匠 · 修好了");
-      await expect(page.locator("#role")).toContainText("工匠");
+      await expect(page.locator("#role")).toBeHidden();
       await expect(page.locator("#faction")).toHaveText("🏮 燈下隊");
       await expect(page.locator("#about")).toContainText("關於苔苔");
       await noOverflow(page);
@@ -826,5 +827,49 @@ test.describe("Nightglow map", () => {
     await expect(page.locator("#card-name")).toHaveText("Holly · Queen · Queen of Andromeda");
     await expect(page.locator("#card-egg")).toHaveText("M-31");
     await page.locator("#card").screenshot({ path: `${OUT}/map-1280-en-holly.png` });
+  });
+});
+
+test.describe("Paul's review on the names", () => {
+  test("assassin and designer cards, and the district focus trap", async ({ page }) => {
+    test.setTimeout(60000);
+    await page.setViewportSize({ width: 390, height: 1200 });
+    await page.goto("/prototype/teammate-type/?c=BBC&lang=zh");
+    await waitForQueen(page);
+    await expect(page.locator("#card-name")).toHaveText("塞安 · 刺客 · 最後一擊");
+    await expect(page.locator("#role")).toBeHidden();
+    await expect(page.locator("#card")).not.toContainText("組隊角色");
+    await expect(page.locator("#card")).not.toContainText("輸出");
+    await expect(page.locator("#rare")).toBeHidden();
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-zion.png` });
+
+    await page.goto("/prototype/teammate-type/?c=AFC&lang=zh");
+    await waitForQueen(page);
+    await expect(page.locator("#card-name")).toHaveText("苔苔 · 設計師 · 順眼就對了");
+    await expect(page.locator("#rare")).toBeHidden();
+    await expect(page.locator("#card")).not.toHaveClass(/rare/);
+    await expect(page.locator("#role")).toBeHidden();
+    await noOverflow(page);
+    await page.locator("#card").screenshot({ path: `${OUT}/role-390-zh-moss.png` });
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/prototype/teammate-type/?lang=zh");
+    const hotspot = page.locator(".hotspots-desk .hot-galaxy");
+    await hotspot.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#district")).toBeVisible();
+    await expect(page.locator("#district-close")).toBeFocused();
+    for (let step = 0; step < 8; step += 1) {
+      await page.keyboard.press("Tab");
+      const inside = await page.evaluate(() => document.querySelector("#district-sheet").contains(document.activeElement));
+      expect(inside).toBe(true);
+    }
+    await page.keyboard.press("Shift+Tab");
+    const stillInside = await page.evaluate(() => document.querySelector("#district-sheet").contains(document.activeElement));
+    expect(stillInside).toBe(true);
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#district")).toBeHidden();
+    await expect(hotspot).toBeFocused();
   });
 });

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { distribution, FACTIONS, factionLabel, identityLine, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
+import { distribution, FACTIONS, factionLabel, identityLine, isRare, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
 import { dialogueFor, extractCode, pairStats, ROLE_ORDER } from "../prototype/teammate-type/duo.js";
 
 test("old ABCD codes keep the six-type balance", () => {
@@ -238,7 +238,7 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.deepEqual(Object.fromEntries(Object.keys(TYPES).map((id) => [id, identityLine(TYPES[id].zh)])), {
     umbrella: "雨辰 · 坦克 · 擋雨的人",
     cocoa: "MG · 守護者 · 晚安熱可可",
-    finisher: "塞安 · 刺客／輸出 · 最後一擊",
+    finisher: "塞安 · 刺客 · 最後一擊",
     spark: "阿閃 · 點子 · 腦內煙火師",
     mapkeeper: "栗子 · 斥候 · 地圖收藏家",
     soundtrack: "樂樂 · 吟遊詩人 · BGM 擔當",
@@ -258,7 +258,11 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(identityLine(TYPES.alliance.en), "Yuzai · Alliance · Reinforcements Are Here");
   assert.equal(identityLine(TYPES.recorder.en), "Lenz · Keeper of Moments · Got the Shot");
   assert.equal(identityLine(TYPES.umbrella.en), "Rainer · Tank · The Umbrella");
-  assert.equal(identityLine(TYPES.finisher.en), "Zion · Assassin / damage · The Finisher");
+  assert.equal(identityLine(TYPES.finisher.en), "Zion · Assassin · The Finisher");
+  assert.equal(TYPES.finisher.zh.role, "刺客");
+  assert.equal(TYPES.finisher.en.role, "Assassin");
+  assert.equal(/輸出|\bDPS\b|Assassin \/ damage/.test(blob), false);
+  assert.equal(isRare("galaxy") && isRare("andromeda") && !isRare("designer"), true);
   assert.equal(TYPES.galaxy.prop, "crown");
   assert.equal(TYPES.andromeda.prop, "crown");
   assert.equal(Object.values(TYPES).filter((type) => type.prop === "crown").length, 2);

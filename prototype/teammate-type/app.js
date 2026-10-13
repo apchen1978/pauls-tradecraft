@@ -56,7 +56,9 @@
 //      whose choice-index sum mod 12 is 6 becomes a queen (even middle
 //      index 銀河之女, odd 仙女座女王). Majority G or H still wins, so
 //      GGG is 修好了 and HHH is 靚仔. Across 512 codes the queens are
-//      9 each, 18/512, inside 3–5%, and still the rarest roles.
+//      9 each, 18/512, inside 3–5%, and still the rarest scores.
+//      The rare frame and badge are only the two queens. Designer keeps
+//      these same codes and is a normal card.
 //      守護者 always uses MG. 聯盟 uses the winged horse in
 //      assets/winged-horse.webp (the same horse drawing as the live card).
 //      The other roles use their anime portraits
@@ -173,7 +175,7 @@ export const TYPES = {
     zh: {
       person: "塞安",
       name: "最後一擊",
-      role: "刺客／輸出",
+      role: "刺客",
       funny: "前面看起來都在滑手機，最後一刻一刀收工。",
       gentle: "關鍵時刻交給你，大家很放心。",
       literary: "「我不急，我在等那個剛剛好的時刻。」",
@@ -183,7 +185,7 @@ export const TYPES = {
     en: {
       person: "Zion",
       name: "The Finisher",
-      role: "Assassin / damage",
+      role: "Assassin",
       funny: "Looks like you're scrolling the whole time, then you finish it in one clean strike.",
       gentle: "When it counts, everyone is happy to hand it to you.",
       literary: "\"I'm not in a hurry. I'm waiting for the moment that's just right.\"",
@@ -583,6 +585,10 @@ for (const [factionId, faction] of Object.entries(FACTIONS)) {
 for (const [id, lines] of Object.entries(ABOUT)) {
   TYPES[id].zh.about = lines[0];
   TYPES[id].en.about = lines[1];
+}
+
+export function isRare(typeId) {
+  return typeId === "galaxy" || typeId === "andromeda";
 }
 
 export function factionLabel(typeId, lang) {
@@ -1166,7 +1172,8 @@ function boot() {
     $("card-egg").textContent = type.egg || "";
     $("card-sub").hidden = true;
     $("other-name").textContent = identityLine(type[other]);
-    $("role").textContent = `${ui.roleLabel} · ${text.role}`;
+    $("role").hidden = true;
+    $("role").textContent = "";
     $("faction").textContent = factionLabel(resolved.type, state.lang);
     $("about").textContent = text.about;
     const lines = $("lines");
@@ -1195,7 +1202,7 @@ function boot() {
     $("share-label").textContent = ui.copy;
     $("share-url").value = shareUrl();
     $("status").textContent = "";
-    const rare = resolved.type === "galaxy" || resolved.type === "andromeda" || resolved.type === "designer";
+    const rare = isRare(resolved.type);
     $("rare").hidden = !rare;
     $("rare").textContent = rare ? ui.rare : "";
     showCompanion(type, resolved.type);
@@ -1299,7 +1306,7 @@ function boot() {
     const text = type[state.lang];
     const card = $(`duo-card-${slot}`);
     card.classList.remove("rare-galaxy", "rare-andromeda", "rare-designer");
-    if (typeId === "galaxy" || typeId === "andromeda" || typeId === "designer") card.classList.add(`rare-${typeId}`);
+    if (isRare(typeId)) card.classList.add(`rare-${typeId}`);
     $(`duo-${slot}-kicker`).textContent = ui.kicker;
     const frame = $(`duo-${slot}-stage`);
     frame.classList.toggle("with-queen", Boolean(PORTRAIT_SRC[typeId]));
@@ -1316,10 +1323,11 @@ function boot() {
     $(`duo-${slot}-egg`).textContent = type.egg || "";
     $(`duo-${slot}-sub`).hidden = true;
     $(`duo-${slot}-other`).textContent = identityLine(type[other]);
-    $(`duo-${slot}-role`).textContent = `${ui.roleLabel} · ${text.role}`;
+    $(`duo-${slot}-role`).hidden = true;
+    $(`duo-${slot}-role`).textContent = "";
     $(`duo-${slot}-faction`).textContent = factionLabel(typeId, state.lang);
     $(`duo-${slot}-about`).textContent = text.about;
-    const rare = typeId === "galaxy" || typeId === "andromeda" || typeId === "designer";
+    const rare = isRare(typeId);
     $(`duo-${slot}-rare`).hidden = !rare;
     $(`duo-${slot}-rare`).textContent = rare ? ui.rare : "";
     $(`duo-${slot}-tag`).textContent = tag;
@@ -1492,9 +1500,9 @@ function boot() {
       ctx.arc(x, y, 7, 0, Math.PI * 2);
       ctx.fill();
     }
-    const rare = resolved.type === "galaxy" || resolved.type === "andromeda" || resolved.type === "designer";
+    const rare = isRare(resolved.type);
     if (rare) {
-      ctx.strokeStyle = resolved.type === "designer" ? "#6E8B74" : resolved.type === "andromeda" ? "#D4B06A" : "#C4A15A";
+      ctx.strokeStyle = resolved.type === "andromeda" ? "#D4B06A" : "#C4A15A";
       ctx.lineWidth = 5;
       roundRect(ctx, 36, 36, width - 72, height - 72, 36);
       ctx.stroke();
@@ -1532,8 +1540,7 @@ function boot() {
       const markLines = text.mark ? wrapLines(ctx, text.mark, inner) : [];
       ctx.font = `600 ${sz.OTHER}px ${FONT}`;
       const otherLines = wrapLines(ctx, identityLine(type[other]), inner);
-      ctx.font = `700 ${sz.ROLE}px ${FONT}`;
-      const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, inner);
+      const roleLines = [];
       ctx.font = `700 30px ${FONT}`;
       const factionLines = wrapLines(ctx, factionLabel(resolved.type, state.lang), inner);
       ctx.font = `500 ${sz.BODY}px ${FONT}`;
@@ -1549,7 +1556,7 @@ function boot() {
       bodyH += markLines.length ? markLines.length * 32 : 0;
       bodyH += type.egg ? 34 : 0;
       bodyH += 8 + otherLines.length * lead(sz.OTHER);
-      bodyH += 6 + roleLines.length * lead(sz.ROLE);
+      bodyH += roleLines.length ? 6 + roleLines.length * lead(sz.ROLE) : 0;
       bodyH += 10 + factionLines.length * 42;
       bodyH += aboutLines.length * lead(sz.BODY) + 12;
       bodyH += rare ? 58 : 12;
@@ -1750,7 +1757,6 @@ function boot() {
   }
 
   function rareStroke(typeId) {
-    if (typeId === "designer") return "#6E8B74";
     if (typeId === "andromeda") return "#D4B06A";
     if (typeId === "galaxy") return "#C4A15A";
     return "";
@@ -1784,8 +1790,7 @@ function boot() {
       const markLines = text.mark ? wrapLines(ctx, text.mark, colW - 28) : [];
       ctx.font = `600 28px ${FONT}`;
       const otherLines = wrapLines(ctx, identityLine(TYPES[resolved.type][other]), colW - 28);
-      ctx.font = `700 30px ${FONT}`;
-      const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, colW - 28);
+      const roleLines = [];
       const rare = Boolean(rareStroke(resolved.type));
       const egg = TYPES[resolved.type].egg || "";
       ctx.font = `700 24px ${FONT}`;
@@ -2174,24 +2179,35 @@ function boot() {
   $("see-all").addEventListener("click", () => {
     $("gallery").open = true;
   });
+  function districtFocusables() {
+    return [...$("district-sheet").querySelectorAll("button, a, input, select, textarea")].filter((node) => !node.hidden && !node.disabled);
+  }
+
   document.addEventListener("keydown", (event) => {
     if ($("district").hidden) return;
     if (event.key === "Escape") {
+      event.preventDefault();
       closeDistrict();
       return;
     }
     if (event.key !== "Tab") return;
-    const items = [...$("district-sheet").querySelectorAll("button, a")];
+    const items = districtFocusables();
     if (!items.length) return;
     const first = items[0];
     const last = items[items.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
+    const inside = $("district-sheet").contains(document.activeElement);
+    if (!inside || (event.shiftKey && document.activeElement === first)) {
       event.preventDefault();
-      last.focus();
+      (event.shiftKey ? last : first).focus();
     } else if (!event.shiftKey && document.activeElement === last) {
       event.preventDefault();
       first.focus();
     }
+  });
+  document.addEventListener("focusin", (event) => {
+    if ($("district").hidden || $("district-sheet").contains(event.target)) return;
+    const [first] = districtFocusables();
+    if (first) first.focus();
   });
   $("duo-open").addEventListener("click", () => openPartner($("duo-code").value));
   $("duo-code").addEventListener("keydown", (event) => {
