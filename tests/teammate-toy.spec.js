@@ -146,7 +146,7 @@ test.describe("garage listing", () => {
       const showcase = page.locator("#showcase");
       const card = showcase.getByRole("heading", { name: "十二月的燈" });
       await expect(card).toBeVisible();
-      await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("互動作品展示");
+      await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("有趣互動作品展示");
       await expect(showcase.getByText("探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。")).toBeVisible();
       await expect(showcase.getByText("從一個想法開始，讓創意透過科技成形，讓每一次探索都有新的可能。")).toBeVisible();
       await expect(showcase.getByText("示範／成效未驗證。")).toHaveCount(0);
@@ -167,7 +167,7 @@ test.describe("garage listing", () => {
       const enShowcase = page.locator("#showcase");
       const enCard = enShowcase.getByRole("heading", { name: "December Lights" });
       await expect(enCard).toBeVisible();
-      await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Interactive Works");
+      await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Playful Interactive Works");
       await expect(enShowcase.getByText("Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.")).toBeVisible();
       await expect(enShowcase.getByText("It starts with an idea. Technology gives it shape, and every exploration opens new possibilities.")).toBeVisible();
       await expect(enShowcase.getByText("Demo / outcomes not validated.")).toHaveCount(0);
