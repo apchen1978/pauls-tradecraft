@@ -60,12 +60,12 @@ export const BIO = {
 export const UI = {
   zh: {
     htmlLang: "zh-Hant", docTitle: "貿易街的人 — Paul's Tradecraft", langGroup: "語言", skip: "跳至內容",
-    eyebrow: "Digital Garage · 教學玩具",
+    eyebrow: "作品館 · 教學玩具",
     boundary: "人物與名字都是虛構的（名字是暫名），不代表任何真實的人、公司或機關。教學示意，不含具體天數、費用或比例。",
     title: "貿易街的人",
     intro: "一櫃貨出海，靠整條街的人接力。",
     lede: "認識街上的八個人：貨代、船公司、工廠、拖車、報關行、碼頭調度、買家，還有帶你走一趟的導覽員。",
-    play: "走一趟貿易街", home: "回到 Garage", rosterLabel: "八個人",
+    play: "走一趟貿易街", home: "回到作品館", rosterLabel: "八個人",
     role: "身分", props: "隨身", style: "做事風格", saying: "口頭禪", stops: "出沒的站",
     npcStyle: "不在結果裡，但每一趟都會遇到。", guideStops: "全程帶路",
     ctaTitle: "認識了，就走一趟。", ctaText: "沿著港口走十二站，做六個決定，看這櫃貨趕不趕得上船。最後得到一張航程卡：你的做事風格，像街上的哪一位。",
@@ -74,12 +74,12 @@ export const UI = {
   },
   en: {
     htmlLang: "en", docTitle: "The People of Trade Street — Paul's Tradecraft", langGroup: "Language", skip: "Skip to content",
-    eyebrow: "Digital Garage · Teaching toy",
+    eyebrow: "Showcase · Teaching toy",
     boundary: "The people and their names are made up (the names are working names) and stand for no real person, company or agency. A teaching sketch with no specific days, costs or percentages.",
     title: "The People of Trade Street",
     intro: "One container ships, and the whole street passes the baton.",
     lede: "Meet the eight people on the street: a forwarder, a shipping line, a factory, a trucker, a customs broker, a terminal dispatcher, a buyer, and the guide who walks it with you.",
-    play: "Walk Trade Street", home: "Back to Garage", rosterLabel: "The eight people",
+    play: "Walk Trade Street", home: "Back to Showcase", rosterLabel: "The eight people",
     role: "Role", props: "Carries", style: "Style", saying: "Catchphrase", stops: "Where to find them",
     npcStyle: "Not one of the results, but you meet them on every run.", guideStops: "With you all the way",
     ctaTitle: "Now you know them. Walk the street.", ctaText: "Walk twelve stops along the harbour, make six decisions, and see whether the container makes the ship. You get a voyage card: which person on the street your style looks like.",
@@ -124,7 +124,7 @@ function boot() {
     const playHref = `../${state.lang === "en" ? "?lang=en" : ""}`;
     for (const id of ["play-top", "play-bottom"]) { $(id).textContent = t.play; $(id).href = playHref; }
     $("home").textContent = t.home;
-    $("home").href = `/${state.lang === "en" ? "?lang=en" : ""}#garage`;
+    $("home").href = `/${state.lang === "en" ? "?lang=en" : ""}#showcase`;
     $("cta-title").textContent = t.ctaTitle;
     $("cta-text").textContent = t.ctaText;
     $("caveat").textContent = t.caveat;

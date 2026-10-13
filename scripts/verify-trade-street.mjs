@@ -7,7 +7,7 @@ import {
 } from "../prototype/trade-street/game.js";
 import { PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
 import { AVATAR_COLOR, SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
-import { ART, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
+import { ART, GLOSS, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
 import { ALT, BIO, SIZE, UI as CAST_UI, stopsOf, styleOf } from "../prototype/trade-street/cast/cast.js";
 
 const BS = String.fromCharCode(92);
@@ -165,7 +165,7 @@ function everyString(value, out = []) {
 }
 
 test("public copy: boundary shown, no claims, no numbers with units, no real company names", () => {
-  const blob = everyString([CAST, STYLES, REACT, SCENARIOS, DECISIONS, UI, STATION_LINE, SHORT, STEP_TEXT, PAGE_TEXT]).join("\n") + read("../prototype/trade-street/index.html");
+  const blob = everyString([CAST, STYLES, REACT, SCENARIOS, DECISIONS, UI, STATION_LINE, SHORT, GLOSS, STEP_TEXT, PAGE_TEXT]).join("\n") + read("../prototype/trade-street/index.html");
   assert.match(UI.zh.boundary, /教學示意/);
   assert.match(UI.zh.boundary, /不含具體天數、費用或比例/);
   assert.match(UI.en.boundary, /Teaching sketch/);
@@ -431,4 +431,18 @@ test("weight: the small head pictures exist for every person, are tiny, and the 
   }
   const app = read("../prototype/trade-street/app.js");
   assert.match(app, /const src = ART\.avatar\[charId\];/);
+});
+
+test("plain words: every stop has one short plain line in both languages, and the page no longer calls itself a Garage piece", () => {
+  for (const lang of ["zh", "en"]) {
+    assert.equal(GLOSS[lang].length, 12, `${lang} has twelve plain lines`);
+    GLOSS[lang].forEach((line, i) => {
+      assert.ok(line.length >= 4 && line.length <= (lang === "zh" ? 18 : 44), `${lang} line ${i + 1} is short: ${line}`);
+      assert.notEqual(line, SHORT[lang][i], `${lang} line ${i + 1} says more than the name`);
+    });
+  }
+  for (const file of ["../prototype/trade-street/index.html", "../prototype/trade-street/app.js", "../prototype/trade-street/cast/index.html", "../prototype/trade-street/cast/cast.js"]) {
+    const text = read(file);
+    assert.equal(/Digital Garage|回到 Garage|Back to Garage|#garage/.test(text), false, `${file} points at the Showcase now`);
+  }
 });
