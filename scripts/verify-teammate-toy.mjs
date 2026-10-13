@@ -302,6 +302,11 @@ test("the page is one folder and does not inline a script or an email", () => {
   const html = readFileSync(new URL("../prototype/teammate-type/index.html", import.meta.url), "utf8");
   assert.match(html, /src="\.\/app\.js"/);
   assert.match(html, /示意玩具，不是心理測驗。/);
+  const entryHtml = html.slice(html.indexOf('id="entry"'), html.indexOf('id="quiz"'));
+  assert.equal((entryHtml.match(/示意玩具，不是心理測驗。/g) || []).length, 1);
+  assert.equal(UI.zh.duoBad, "這組字母還找不到對應的角色，檢查一下朋友的三個字母。");
+  assert.equal(UI.en.duoBad, "These letters haven't found a role yet. Check the three letters your friend sent.");
+  assert.equal(html.includes("這組字母對不上任何卡"), false);
   assert.doesNotMatch(html, /mailto:|@gmail|localStorage|fetch\(/);
   assert.equal([...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].every((match) => match[1].trim() === ""), true);
   assert.match(html, /id="duo"/);

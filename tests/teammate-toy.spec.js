@@ -220,7 +220,7 @@ test.describe("nav names", () => {
 });
 
 test.describe("garage listing", () => {
-  for (const width of [390, 1280]) {
+  for (const width of [390, 1280, 1440]) {
     test(`${width}px zh and en keep Garage experiments and put the teammate toy in Showcase`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 390 ? 1680 : 1560 });
       await page.goto("/?lang=zh#garage");
@@ -238,6 +238,8 @@ test.describe("garage listing", () => {
       await expect(showcase.getByText("從一個想法開始，讓創意透過科技成形，讓每一次探索都有新的可能。")).toBeVisible();
       await expect(showcase.getByText("示範／成效未驗證。")).toHaveCount(0);
       await expect(showcase.getByText("照夜鎮裡，十六種隊友，四個隊伍。")).toBeVisible();
+      await expect(showcase.getByText("不教貿易：輕鬆玩，順便看見自己的團隊風格")).toBeVisible();
+      await expect(showcase.getByText("示意玩具 · 雙語原型")).toBeVisible();
       await expect(showcase.getByText("示意玩具，不是心理測驗。")).toBeVisible();
       await expect(showcase.locator("img").first()).toHaveAttribute("src", "/images/showcase-galaxy-cover.webp");
       await expect(showcase.locator("img").first()).toHaveAttribute("alt", "銀河之女");
@@ -259,6 +261,8 @@ test.describe("garage listing", () => {
       await expect(enShowcase.getByText("It starts with an idea. Technology gives it shape, and every exploration opens new possibilities.")).toBeVisible();
       await expect(enShowcase.getByText("Demo / outcomes not validated.")).toHaveCount(0);
       await expect(enShowcase.getByText("Nightglow has sixteen teammates in four factions.")).toBeVisible();
+      await expect(enShowcase.getByText("Not about trade: a light play that shows your team style")).toBeVisible();
+      await expect(enShowcase.getByText("Illustrative toy · bilingual prototype")).toBeVisible();
       await expect(enShowcase.getByText("A toy, not a personality test.")).toBeVisible();
       await expect(enShowcase.locator("img").first()).toHaveAttribute("alt", "Daughter of the Galaxy");
       const enHref = await enCard.locator("..").getByRole("link", { name: "Play", exact: true }).getAttribute("href");
@@ -816,6 +820,7 @@ test.describe("two-person scene", () => {
     expect(page.url()).toContain("c=AAA");
     expect(page.url()).toContain("with=BBC");
     await expect(page.locator("#duo-lines")).toContainText("你也在。有你在，這一段就沒那麼吵。");
+    await expect(page.locator("#duo-status")).toHaveText("");
     await expect(page.locator("#duo-right-name")).toHaveText("塞安 · 刺客 · 最後一擊");
     await settleDuo(page);
     await page.locator("#duo-stage").evaluate((el) => {
@@ -825,6 +830,14 @@ test.describe("two-person scene", () => {
     await noOverflow(page);
     await page.screenshot({ path: `${OUT}/duo-390-zh-fallback.png` });
     await page.locator("#duo").screenshot({ path: `${OUT}/duo-390-zh-fallback-scene.png` });
+    await page.locator("#duo-code").fill("ZZZ");
+    await page.locator("#duo-open").click();
+    await expect(page.locator("#duo-status")).toHaveText("這組字母還找不到對應的角色，檢查一下朋友的三個字母。");
+    await expect(page.locator("#duo-lines")).toContainText("你也在。有你在，這一段就沒那麼吵。");
+    await page.locator("#duo-status").screenshot({ path: `${OUT}/duo-390-zh-invalid.png` });
+    await page.getByRole("button", { name: "EN" }).click();
+    await expect(page.locator("#duo-status")).toHaveText("These letters haven't found a role yet. Check the three letters your friend sent.");
+    await page.locator("#duo-status").screenshot({ path: `${OUT}/duo-390-en-invalid.png` });
 
     await openDuo(page, 1280, "?c=FAE&with=FBD&lang=zh");
     await expect(page.locator("#duo-title")).toHaveText("兩人小劇場");
@@ -966,6 +979,8 @@ test.describe("game cover", () => {
       { width: 1280, height: 800, lang: "zh", name: "cover-1280x800-zh" },
       { width: 1440, height: 900, lang: "zh", name: "cover-1440x900-zh" },
       { width: 390, height: 844, lang: "zh", name: "cover-390x844-zh" },
+      { width: 390, height: 844, lang: "en", name: "cover-390x844-en" },
+      { width: 1440, height: 900, lang: "en", name: "cover-1440x900-en" },
       { width: 1280, height: 800, lang: "en", name: "cover-1280x800-en" },
     ];
     for (const shot of shots) {
@@ -1013,7 +1028,15 @@ test.describe("game cover", () => {
       expect(box.intro.bottom).toBeLessThanOrEqual(box.vh);
       expect(box.team.top).toBeGreaterThanOrEqual(box.vh - 2);
       await expect(page.locator("#lockup")).toHaveText("照夜鎮 Nightglow");
-      await expect(page.locator("#entry-boundary")).toHaveText(shot.lang === "zh" ? "示意玩具，不是心理測驗。" : "A toy, not a personality test.");
+      const phrase = shot.lang === "zh" ? "示意玩具，不是心理測驗。" : "A toy, not a personality test.";
+      await expect(page.locator("#entry-boundary")).toHaveText(phrase);
+      const visibleLabels = await page.evaluate((text) => [...document.querySelectorAll("p")].filter((el) => {
+        if (el.textContent.trim() !== text) return false;
+        const box = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        return style.visibility !== "hidden" && box.height > 8 && box.top < window.innerHeight && box.bottom > 0;
+      }).length, phrase);
+      expect(visibleLabels).toBe(1);
       const pin = page.locator(shot.width < 860 ? ".hotspots-mobile .hot-galaxy .pin-label" : ".hotspots-desk .hot-galaxy .pin-label");
       if (shot.lang === "zh") {
         await expect(page.locator("#start")).toHaveText("出發");
