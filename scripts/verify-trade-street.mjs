@@ -6,7 +6,7 @@ import {
   START_BUFFER, STATION_SPEAKER, STYLE_CHAR, STYLE_ORDER, STYLES,
 } from "../prototype/trade-street/game.js";
 import { PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
-import { SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
+import { AVATAR_COLOR, SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
 import { ART, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
 
 const BS = String.fromCharCode(92);
@@ -251,4 +251,23 @@ test("art: the page and the deploy copy the files the game needs", () => {
   const deploy = read("../.github/workflows/deploy.yml");
   for (const file of ["index.html", "app.js", "game.js", "steps-text.js", "layout.js"]) assert.ok(deploy.includes(`prototype/trade-street/${file}`), `deploy copies ${file}`);
   assert.ok(deploy.includes("cp -r prototype/trade-street/assets dist/prototype/trade-street/"), "deploy copies the assets folder");
+});
+
+// ---- readable colours ------------------------------------------------------------------------------------------
+const luminance = (hex) => {
+  const parts = [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16) / 255).map((value) => (value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * parts[0] + 0.7152 * parts[1] + 0.0722 * parts[2];
+};
+const contrastWithWhite = (hex) => 1.05 / (luminance(hex) + 0.05);
+
+test("colours: white lettering on every avatar colour and on the current-stop fill is readable (4.5 or more)", () => {
+  for (const id of CAST_ORDER) assert.ok(contrastWithWhite(AVATAR_COLOR[id]) >= 4.5, `${id} ${AVATAR_COLOR[id]} ${contrastWithWhite(AVATAR_COLOR[id]).toFixed(2)}`);
+  const html = read("../prototype/trade-street/index.html");
+  const fill = html.match(/--amber-fill:\s*(#[0-9A-Fa-f]{6})/)[1];
+  assert.ok(contrastWithWhite(fill) >= 4.5, `amber fill ${fill}`);
+  assert.match(html, /\.route li\.now \.num \{ background: var\(--amber-fill\)/);
+  assert.match(html, /\.hot\.now \{ background: var\(--amber-fill\)/);
+  // small amber text uses a darker amber than the decorative one
+  const kicker = html.match(/\.card-kicker \{[^}]*color:\s*(#[0-9A-Fa-f]{6})/)[1];
+  assert.ok(contrastWithWhite(kicker) >= 4.5, `kicker ${kicker}`);
 });

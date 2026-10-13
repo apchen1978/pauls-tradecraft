@@ -5,9 +5,10 @@ import {
 import { PAGE_TEXT, STEP_TEXT } from "./steps-text.js";
 import { ART, MOBILE_QUERY, POS } from "./layout.js";
 
+// Each colour keeps white lettering readable (contrast at least 4.5, checked by scripts/verify-trade-street.mjs).
 export const AVATAR_COLOR = {
-  guide: "#1E7F86", forwarder: "#31497A", shipper: "#2F6EA6", factory: "#B8642B",
-  trucker: "#6B7F3A", broker: "#A9801F", dispatcher: "#B58A12", buyer: "#6F8296",
+  guide: "#1E7F86", forwarder: "#31497A", shipper: "#2F6EA6", factory: "#A4521E",
+  trucker: "#5A6C2E", broker: "#86650F", dispatcher: "#7F6000", buyer: "#587087",
 };
 
 // Short names for the twelve stops on the route (the long names come from the 12-steps page).

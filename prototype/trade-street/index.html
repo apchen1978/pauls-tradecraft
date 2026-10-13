@@ -26,6 +26,7 @@
       --moss: #54686C;
       --line: #CBDADD;
       --amber: #B9761C;
+      --amber-fill: #965F0D;
       --amber-soft: #F6E7CB;
       --red: #B2452F;
       --red-soft: #F4D9D2;
@@ -76,7 +77,7 @@
     .route li.done { border-color: var(--teal); background: var(--sky); }
     .route li.done .num { background: var(--teal); color: var(--white); }
     .route li.now { border-color: var(--amber); box-shadow: 0 0 0 2px var(--amber) inset; }
-    .route li.now .num { background: var(--amber); color: var(--white); }
+    .route li.now .num { background: var(--amber-fill); color: var(--white); }
     .route li.decision .num::after { content: "●"; position: absolute; transform: translate(14px, -14px); color: var(--amber); font-size: 10px; }
     .route li { position: relative; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 18px; }
@@ -123,7 +124,7 @@
     .feedback b { color: var(--deep); }
     .text-btn { margin-top: 12px; padding: 6px 2px; border: 0; background: transparent; color: var(--deep); font-weight: 700; text-decoration: underline; cursor: pointer; min-height: 40px; }
     .card { margin-top: 14px; padding: 20px; border: 3px solid var(--deep); border-radius: 18px; background: var(--white); }
-    .card-kicker { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--amber); }
+    .card-kicker { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: #7A4C0C; }
     .card .speaker { margin-top: 12px; }
     .card .avatar { width: 72px; height: 72px; font-size: 28px; }
     .tier { margin: 16px 0 0; font-size: 26px; line-height: 1.25; }
@@ -155,7 +156,7 @@
     .hot.decision { border-color: var(--amber); }
     .hot:hover { background: var(--sky); }
     .hot.done { background: var(--teal); border-color: var(--white); color: var(--white); }
-    .hot.now { background: var(--amber); border-color: var(--white); color: var(--white); box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); }
+    .hot.now { background: var(--amber-fill); border-color: var(--white); color: var(--white); box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); }
     .map-stage.playing .hot { pointer-events: none; }
     @media (max-width: 639px) { .hot { width: 28px; height: 28px; font-size: 14px; border-width: 2px; } }
     @media (prefers-reduced-motion: no-preference) {
