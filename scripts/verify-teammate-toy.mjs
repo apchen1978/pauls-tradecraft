@@ -313,6 +313,24 @@ test("the page is one folder and does not inline a script or an email", () => {
   assert.doesNotMatch(html, /id="duo-left"[^>]*\ssrc=/);
 });
 
+test("cocoa's picture is a tall idle with an MG collar, not the old square sprite", () => {
+  assert.equal(TYPES.cocoa.zh.alt, "橘色虎斑小貓，白嘴白胸白爪，項圈牌子寫著 MG，身旁有一杯熱可可");
+  assert.equal(TYPES.cocoa.en.alt, "An orange tabby kitten with a white muzzle, chest and paws, a collar tag reading MG, and a cup of hot cocoa");
+  const html = readFileSync(new URL("../prototype/teammate-type/index.html", import.meta.url), "utf8");
+  assert.match(html, /id="mg"[^>]*width="591" height="988"/);
+  assert.match(html, /#mg \{[^}]*object-fit: contain/);
+  for (const name of ["00", "01", "02", "03"]) {
+    const buf = readFileSync(new URL(`../public/mg-mini-demo/assets/heart/${name}.webp`, import.meta.url));
+    assert.ok(buf.length < 80000, `${name} stays small`);
+    assert.equal(buf.toString("ascii", 12, 16), "VP8X");
+    const width = 1 + buf.readUIntLE(24, 3);
+    const height = 1 + buf.readUIntLE(27, 3);
+    assert.equal(width, 591);
+    assert.equal(height, 988);
+    assert.ok(height > width * 1.4);
+  }
+});
+
 test("two-person scenes cover every pair without changing a score", () => {
   const ids = Object.keys(TYPES);
   assert.deepEqual(new Set(ROLE_ORDER), new Set(ids));
