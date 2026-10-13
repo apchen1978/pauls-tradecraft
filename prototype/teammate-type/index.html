@@ -493,7 +493,8 @@
       .duo-stage.is-open .duo-card-right { animation-name: duo-enter-right-sm; }
     }
     @media (min-width: 860px) {
-      .page.duo-open, .page.entry-open { width: min(1120px, calc(100% - 48px)); }
+      .page.duo-open { width: min(1120px, calc(100% - 48px)); }
+      .page.entry-open { width: 100%; padding: 0; }
       .duo-stage {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -518,16 +519,255 @@
     .foot { margin-top: 36px; padding-top: 4px; }
     .back { display: inline-block; margin-top: 14px; color: var(--ink); font-weight: 700; }
     [hidden] { display: none !important; }
-    .map-stage {
+    .page.entry-open {
       position: relative;
-      width: min(100%, calc(68vh * 16 / 9));
-      margin: 16px auto 0;
-      border: 2.5px solid var(--ink);
-      border-radius: 1.25rem;
-      overflow: hidden;
-      background: #1c2438;
+      width: 100%;
+      margin: 0;
+      padding: 0;
     }
-    .map-stage img { display: block; width: 100%; height: auto; }
+    .page.entry-open .top {
+      position: absolute;
+      z-index: 6;
+      top: 12px;
+      right: 12px;
+      left: 12px;
+      width: auto;
+      margin: 0;
+      justify-content: space-between;
+    }
+    .page.entry-open .eyebrow {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .cover-home { display: none; }
+    .page.entry-open .cover-home {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(246, 243, 237, 0.92);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .page.entry-open .lang button {
+      background: rgba(246, 243, 237, 0.92);
+      color: var(--ink);
+      border-color: transparent;
+    }
+    .page.entry-open .lang button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--bone);
+      border-color: var(--ink);
+    }
+    .cover {
+      position: relative;
+      height: 100svh;
+      min-height: 100svh;
+      overflow: hidden;
+      background: #141a2b;
+      container-type: size;
+    }
+    .map-frame {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: max(100cqw, calc(100cqh * 16 / 9));
+      height: max(100cqh, calc(100cqw * 9 / 16));
+      transform: translate(-50%, -50%);
+    }
+    .map-frame picture, .map-frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        linear-gradient(to bottom, rgba(10, 14, 28, 0.62), rgba(10, 14, 28, 0.08) 26%, transparent 40%),
+        linear-gradient(to top, rgba(10, 14, 28, 0.72), rgba(10, 14, 28, 0.12) 22%, transparent 42%);
+    }
+    .snow { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+    .snow i {
+      position: absolute;
+      top: -8%;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(246, 243, 237, 0.8);
+      animation: snow-fall 9s linear infinite;
+    }
+    .snow i:nth-child(1) { left: 8%; animation-duration: 11s; }
+    .snow i:nth-child(2) { left: 18%; animation-duration: 8s; animation-delay: -3s; }
+    .snow i:nth-child(3) { left: 31%; animation-duration: 13s; animation-delay: -6s; }
+    .snow i:nth-child(4) { left: 44%; animation-duration: 9s; animation-delay: -1s; }
+    .snow i:nth-child(5) { left: 57%; animation-duration: 12s; animation-delay: -4s; }
+    .snow i:nth-child(6) { left: 69%; animation-duration: 8.5s; animation-delay: -7s; }
+    .snow i:nth-child(7) { left: 80%; animation-duration: 10s; animation-delay: -2s; }
+    .snow i:nth-child(8) { left: 91%; animation-duration: 14s; animation-delay: -5s; }
+    @keyframes snow-fall {
+      from { transform: translate3d(0, 0, 0); opacity: 0; }
+      12% { opacity: 0.75; }
+      to { transform: translate3d(12px, 110svh, 0); opacity: 0.2; }
+    }
+    .cover-copy {
+      position: absolute;
+      z-index: 4;
+      top: 64px;
+      left: 50%;
+      width: min(40rem, calc(100% - 32px));
+      transform: translateX(-50%);
+      color: #f6f3ed;
+      text-align: center;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.72);
+      pointer-events: none;
+    }
+    .lockup {
+      margin: 0;
+      color: #ffe7a3;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+    }
+    .cover-copy h1 {
+      margin-top: 6px;
+      max-width: none;
+      color: #f6f3ed;
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+    }
+    .cover-copy .intro {
+      display: block;
+      width: fit-content;
+      max-width: min(36rem, 100%);
+      margin: 10px auto 0;
+      padding: 8px 14px;
+      border-radius: 16px;
+      background: rgba(8, 12, 22, 0.86);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+      color: #f6f3ed;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.45;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+    }
+    .cover-action {
+      position: absolute;
+      z-index: 5;
+      top: 54%;
+      left: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: min(26rem, calc(100% - 32px));
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .cover-cta {
+      min-height: 52px;
+      padding: 12px 28px;
+      border: 2.5px solid #f6f3ed;
+      background: var(--pop);
+      color: var(--pine);
+      font-size: 1.15rem;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      pointer-events: auto;
+    }
+    .cover-hint {
+      margin: 0;
+      padding: 6px 14px;
+      border-radius: 14px;
+      background: rgba(8, 12, 22, 0.86);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+      color: #f6f3ed;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.4;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+    }
+    .cover-boundary {
+      position: absolute;
+      z-index: 5;
+      bottom: 10px;
+      left: 50%;
+      width: max-content;
+      max-width: calc(100% - 24px);
+      margin: 0;
+      padding: 6px 12px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(8, 12, 22, 0.86);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+      color: #f6f3ed;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.4;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+      text-align: center;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .entry-rest {
+      width: min(720px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 8px;
+    }
+    .entry-rest .lede, .entry-rest .hint { color: var(--moss); }
+    .pin {
+      position: absolute;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .pin-dot {
+      width: 12px;
+      height: 12px;
+      border: 2px solid #fff6df;
+      border-radius: 50%;
+      background: #ffe7a3;
+      box-shadow: 0 0 0 0 rgba(255, 214, 140, 0.7);
+      animation: pin-pulse 2.6s ease-out infinite;
+    }
+    .pin-label {
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(8, 12, 22, 0.88);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      color: #f6f3ed;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+      white-space: nowrap;
+    }
+    @keyframes pin-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 214, 140, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 214, 140, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 214, 140, 0); }
+    }
+    .hotspots-desk .hot-galaxy .pin { left: 46%; top: 70%; }
+    .hotspots-desk .hot-andromeda .pin { left: 54%; top: 62%; }
+    .hotspots-desk .hot-chart .pin { left: 40%; top: 46%; }
+    .hotspots-desk .hot-lantern .pin { left: 58%; top: 42%; }
     .hotspots { position: absolute; inset: 0; }
     .hotspots-mobile { display: none; }
     .hotspot {
@@ -541,7 +781,7 @@
       cursor: pointer;
     }
     .hotspot:hover, .hotspot:focus-visible {
-      background: rgba(255, 220, 160, 0.16);
+      background: transparent;
       box-shadow: inset 0 0 0 3px rgba(255, 214, 140, 0.9);
     }
     .hotspot-lamp { z-index: 3; }
@@ -557,26 +797,12 @@
       animation: lamp-breathe 3.6s ease-in-out infinite;
       pointer-events: none;
     }
-    .hotspot-district::after {
-      content: "";
-      position: absolute;
-      inset: 18%;
-      border-radius: 40%;
-      background: radial-gradient(circle, rgba(255, 196, 120, 0.28), transparent 70%);
-      opacity: 0.15;
-      animation: window-pulse 4.2s ease-in-out infinite;
-      pointer-events: none;
-    }
-    .hotspots .hotspot-district:nth-child(2)::after { animation-delay: 1s; }
-    .hotspots .hotspot-district:nth-child(3)::after { animation-delay: 2s; }
-    .hotspots .hotspot-district:nth-child(4)::after { animation-delay: 3s; }
+    .hotspots .hotspot-district:nth-child(2) .pin-dot { animation-delay: 0.6s; }
+    .hotspots .hotspot-district:nth-child(3) .pin-dot { animation-delay: 1.2s; }
+    .hotspots .hotspot-district:nth-child(4) .pin-dot { animation-delay: 1.8s; }
     @keyframes lamp-breathe {
       0%, 100% { opacity: 0.55; transform: scale(0.92); }
       50% { opacity: 1; transform: scale(1.08); }
-    }
-    @keyframes window-pulse {
-      0%, 100% { opacity: 0.08; }
-      50% { opacity: 0.28; }
     }
     .hotspots-desk .hot-galaxy { left: 1%; top: 2%; width: 46%; height: 40%; }
     .hotspots-desk .hot-andromeda { left: 53%; top: 2%; width: 46%; height: 40%; }
@@ -588,8 +814,7 @@
     .hotspots-mobile .hot-chart { left: 2%; top: 64%; width: 46%; height: 32%; }
     .hotspots-mobile .hot-lantern { left: 52%; top: 64%; width: 46%; height: 32%; }
     .hotspots-mobile .hot-lamp { left: 26%; top: 38%; width: 48%; height: 20%; }
-    .entry-bar { margin-top: 14px; }
-    #start { min-height: 48px; width: 100%; }
+    #start { min-height: 48px; }
     .see-all { display: inline-flex; align-items: center; min-height: 48px; margin-top: 8px; }
     .team-fallback { margin: 12px 0 0; padding-left: 1.2em; }
     .team-fallback li { margin: 4px 0; }
@@ -635,17 +860,19 @@
     .member-name { font-weight: 700; }
     .member-mark { color: var(--moss); font-size: 13px; font-weight: 700; }
     @media (max-width: 859px) {
-      .map-stage { width: min(100%, calc(58vh * 9 / 16)); }
+      .map-frame {
+        width: max(100cqw, calc(100cqh * 9 / 16));
+        height: max(100cqh, calc(100cqw * 16 / 9));
+      }
       .hotspots-desk { display: none; }
       .hotspots-mobile { display: block; }
-      .entry-bar {
-        position: sticky;
-        bottom: 0;
-        z-index: 5;
-        margin-top: 10px;
-        padding: 12px 0 8px;
-        background: linear-gradient(transparent, var(--bone) 28%);
-      }
+      .cover-copy { top: 58px; }
+      .cover-copy .intro { font-size: 15px; }
+      .cover-hint { font-size: 14px; }
+      .hotspots-mobile .hot-galaxy .pin { left: 48%; top: 78%; }
+      .hotspots-mobile .hot-andromeda .pin { left: 52%; top: 72%; }
+      .hotspots-mobile .hot-chart .pin { left: 46%; top: 42%; }
+      .hotspots-mobile .hot-lantern .pin { left: 52%; top: 40%; }
     }
     @media (min-width: 860px) {
       .district { align-items: stretch; justify-content: flex-end; }
@@ -660,9 +887,11 @@
     @media (prefers-reduced-motion: reduce) {
       * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
       .choice:hover { transform: none; }
+      .snow { display: none; }
     }
     @media (max-width: 420px) {
       .page { width: calc(100% - 28px); }
+      .page.entry-open { width: 100%; }
       .choice { box-shadow: 3px 3px 0 var(--ink); }
     }
   </style>
@@ -671,51 +900,62 @@
   <a class="skip" id="skip" href="#main">跳至內容</a>
   <main class="page" id="main">
     <div class="top">
+      <a class="cover-home" id="cover-home" href="/?lang=zh#garage">返回</a>
       <p class="eyebrow" id="eyebrow">Digital Garage · 輕科技玩具</p>
       <div class="lang" id="lang-group" role="group" aria-label="語言">
         <button type="button" data-set-lang="zh" aria-pressed="true">中文</button>
         <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
       </div>
     </div>
-    <p class="boundary" id="boundary">示意玩具，不是心理測驗。</p>
-    <h1 id="title" tabindex="-1">你是哪一種隊友？</h1>
-    <p class="intro" id="intro">歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。</p>
-    <p class="lede" id="lede">不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。</p>
-    <p class="hint" id="hint">每個情境選一次。同樣的選擇，永遠得到同一張卡。</p>
 
     <section id="entry" aria-labelledby="entry-title">
       <h2 id="entry-title" class="sr" tabindex="-1">照夜鎮</h2>
-      <div class="map-stage">
-        <picture>
-          <source media="(max-width: 859px)" srcset="assets/nightglow-map-mobile.webp" type="image/webp" />
-          <img id="town-map" src="assets/nightglow-map.webp" alt="照夜鎮夜景：左上是銀河隊的屋頂觀星，右上是仙女隊的舞台，左下是星圖隊的鐘樓，右下是燈下隊的小屋，中央是照夜大燈。" />
-        </picture>
-        <div class="hotspots hotspots-desk">
-          <button type="button" class="hotspot hotspot-district hot-galaxy" data-faction="galaxy" aria-label="🌌 銀河隊，屋頂觀星"></button>
-          <button type="button" class="hotspot hotspot-district hot-andromeda" data-faction="andromeda" aria-label="✨ 仙女隊，露天舞台"></button>
-          <button type="button" class="hotspot hotspot-district hot-chart" data-faction="chart" aria-label="🗺️ 星圖隊，鐘樓"></button>
-          <button type="button" class="hotspot hotspot-district hot-lantern" data-faction="lantern" aria-label="🏮 燈下隊，暖窗小屋"></button>
-          <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，開始測驗"><span class="lamp-glow" aria-hidden="true"></span></button>
+      <div class="cover" id="cover">
+        <div class="map-frame">
+          <picture>
+            <source media="(max-width: 859px)" srcset="assets/nightglow-map-mobile.webp" type="image/webp" />
+            <img id="town-map" src="assets/nightglow-map.webp" alt="照夜鎮夜景：左上是銀河隊的屋頂觀星，右上是仙女隊的舞台，左下是星圖隊的鐘樓，右下是燈下隊的小屋，中央是照夜大燈。" />
+          </picture>
+          <div class="scrim" aria-hidden="true"></div>
+          <div class="snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="hotspots hotspots-desk">
+            <button type="button" class="hotspot hotspot-district hot-galaxy" data-faction="galaxy" aria-label="🌌 銀河隊，屋頂觀星"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">銀河隊</span></span></button>
+            <button type="button" class="hotspot hotspot-district hot-andromeda" data-faction="andromeda" aria-label="✨ 仙女隊，露天舞台"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">仙女隊</span></span></button>
+            <button type="button" class="hotspot hotspot-district hot-chart" data-faction="chart" aria-label="🗺️ 星圖隊，鐘樓"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">星圖隊</span></span></button>
+            <button type="button" class="hotspot hotspot-district hot-lantern" data-faction="lantern" aria-label="🏮 燈下隊，暖窗小屋"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">燈下隊</span></span></button>
+            <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，出發"><span class="lamp-glow" aria-hidden="true"></span></button>
+          </div>
+          <div class="hotspots hotspots-mobile">
+            <button type="button" class="hotspot hotspot-district hot-galaxy" data-faction="galaxy" aria-label="🌌 銀河隊，屋頂觀星"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">銀河隊</span></span></button>
+            <button type="button" class="hotspot hotspot-district hot-andromeda" data-faction="andromeda" aria-label="✨ 仙女隊，露天舞台"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">仙女隊</span></span></button>
+            <button type="button" class="hotspot hotspot-district hot-chart" data-faction="chart" aria-label="🗺️ 星圖隊，鐘樓"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">星圖隊</span></span></button>
+            <button type="button" class="hotspot hotspot-district hot-lantern" data-faction="lantern" aria-label="🏮 燈下隊，暖窗小屋"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">燈下隊</span></span></button>
+            <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，出發"><span class="lamp-glow" aria-hidden="true"></span></button>
+          </div>
         </div>
-        <div class="hotspots hotspots-mobile">
-          <button type="button" class="hotspot hotspot-district hot-galaxy" data-faction="galaxy" aria-label="🌌 銀河隊，屋頂觀星"></button>
-          <button type="button" class="hotspot hotspot-district hot-andromeda" data-faction="andromeda" aria-label="✨ 仙女隊，露天舞台"></button>
-          <button type="button" class="hotspot hotspot-district hot-chart" data-faction="chart" aria-label="🗺️ 星圖隊，鐘樓"></button>
-          <button type="button" class="hotspot hotspot-district hot-lantern" data-faction="lantern" aria-label="🏮 燈下隊，暖窗小屋"></button>
-          <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，開始測驗"><span class="lamp-glow" aria-hidden="true"></span></button>
+        <div class="cover-copy">
+          <p class="lockup" id="lockup">照夜鎮 Nightglow</p>
+          <h1 id="title" tabindex="-1">你是哪一種隊友？</h1>
+          <p class="intro" id="intro">歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。</p>
         </div>
+        <div class="cover-action">
+          <button type="button" class="primary cover-cta" id="start" data-start>出發</button>
+          <p class="cover-hint" id="cover-hint">點街區認識隊員，點中央的燈出發</p>
+        </div>
+        <p class="boundary cover-boundary" id="entry-boundary">示意玩具，不是心理測驗。</p>
       </div>
-      <div class="entry-bar">
-        <button type="button" class="primary" id="start" data-start>開始測驗</button>
-        <p class="boundary" id="entry-boundary">示意玩具，不是心理測驗。</p>
-      </div>
-      <a class="see-all" id="see-all" href="#gallery">看全部角色</a>
-      <ul class="team-fallback" id="team-fallback" aria-label="四個隊伍">
+      <div class="entry-rest">
+        <p class="sr" id="boundary">示意玩具，不是心理測驗。</p>
+        <p class="lede" id="lede">不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。</p>
+        <p class="hint" id="hint">每個情境選一次。同樣的選擇，永遠得到同一張卡。</p>
+        <a class="see-all" id="see-all" href="#gallery">看全部角色</a>
+        <ul class="team-fallback" id="team-fallback" aria-label="四個隊伍">
         <li>🌌 銀河隊：銀河之女、玉仔、靚仔、雨辰</li>
         <li>✨ 仙女隊：Holly、阿閃、樂樂、言歌</li>
         <li>🗺️ 星圖隊：栗子、墨衡、塞安、苔苔</li>
         <li>🏮 燈下隊：MG、阿跑、承承、阿修</li>
       </ul>
+      </div>
       <div class="district" id="district" hidden>
         <div class="district-sheet" id="district-sheet" role="dialog" aria-modal="true" aria-labelledby="district-title">
           <button type="button" class="text-btn" id="district-close">關閉</button>
