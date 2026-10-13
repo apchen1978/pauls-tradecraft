@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="一間小店，四個線索。走進冬夜的街角，你會先發現什麼？虛構互動示範。">
+  <title>街角的秘密 · Secrets on the Corner</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">跳至內容</a>
+  <header class="site-head">
+    <div class="brand" aria-label="Paul's Tradecraft">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3v4m-5 3h10l2 6H7l2-6Zm-2 6h14M14 16v9m-7 0h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>PAUL'S TRADECRAFT</span>
+    </div>
+    <div class="head-actions">
+      <span class="draft-label" data-i18n="draft">互動示範</span>
+      <div class="language" role="group" aria-label="Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="scene hero-scene" id="scene">
+        <picture>
+          <source media="(max-width: 699px)" srcset="assets/queue-mobile.webp">
+          <img src="assets/queue-desktop.webp" alt="" id="scene-image" width="1600" height="900">
+        </picture>
+        <button class="hotspot hotspot-window" type="button" data-clue="window" aria-pressed="false"><span class="visually-hidden"></span></button>
+        <button class="hotspot hotspot-bags" type="button" data-clue="bags" aria-pressed="false"><span class="visually-hidden"></span></button>
+        <button class="hotspot hotspot-queue" type="button" data-clue="queue" aria-pressed="false"><span class="visually-hidden"></span></button>
+        <button class="hotspot hotspot-lamp" type="button" data-clue="lamp" aria-pressed="false"><span class="visually-hidden"></span></button>
+        <div class="intro hero-copy">
+          <h1 id="page-title" data-i18n="title">街角的秘密</h1>
+        </div>
+        <span class="scene-corner" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <section class="explore page" id="explore" aria-labelledby="explore-title">
+      <div class="explore-intro">
+        <p class="intro-line" data-i18n="intro">一間小店門口排了隊。這是穩定生意的訊號，還是今晚的一刻？</p>
+        <p class="intro-lede" data-i18n="lede">從四個細節開始。你不必猜對答案；只要找到下一個值得問的問題。</p>
+        <a class="start-link" href="#explore-title" data-i18n="start">走近看看 <span aria-hidden="true">↘</span></a>
+      </div>
+      <div class="section-heading">
+        <div>
+          <h2 id="explore-title" data-i18n="explore">沿著這條街，先看見什麼？</h2>
+          <p data-i18n="exploreHint">點畫面上的光點，打開一張觀察筆記。</p>
+        </div>
+      </div>
+      <div class="scenario-tools">
+        <div class="scenario-switch" role="group" aria-label="時段選擇">
+          <span id="scenario-label" data-i18n="scenarioLabel">換個時段看看</span>
+          <button type="button" data-scenario="weekday" aria-pressed="true"></button>
+          <button type="button" data-scenario="weekend" aria-pressed="false"></button>
+        </div>
+        <p class="route-progress" id="route-progress" aria-live="polite"></p>
+        <p class="discovery-count" id="discovery-count" aria-live="polite"></p>
+      </div>
+
+      <div class="stage">
+        <aside class="field-note" aria-live="polite" aria-atomic="true">
+          <div class="note-top">
+            <span class="note-mark" data-i18n="notebook">觀察筆記</span>
+            <span class="note-line" aria-hidden="true"></span>
+          </div>
+          <div id="note-content" class="note-content">
+            <svg class="note-lamp" viewBox="0 0 70 100" aria-hidden="true"><path d="M35 5v11M24 27h22l8 24H16l8-24Zm-8 24h38M35 51v39M19 91h32" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            <h3 data-i18n="emptyTitle">慢一點，看得更多。</h3>
+            <p data-i18n="emptyBody">麵包香、等候的人、亮起的路燈。哪個細節會改變你的第一印象？</p>
+          </div>
+          <div class="note-footer" id="seen-list"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="decision" id="decision" aria-labelledby="decision-title">
+      <div class="decision-head">
+        <h2 id="decision-title" data-i18n="decisionTitle" tabindex="-1">如果明天只能多問一件事？</h2>
+        <p data-i18n="decisionIntro">隊伍是真的；原因還沒確定。選一個你想先查的方向。</p>
+      </div>
+      <div class="questions" id="questions"></div>
+      <p class="decision-hint" id="decision-hint" aria-live="polite"></p>
+    </section>
+
+    <section class="result" id="result" aria-labelledby="result-title" hidden>
+      <div class="result-inner">
+        <div class="result-heading">
+          <span data-i18n="resultLabel">你的觀察卡</span>
+          <h2 id="result-title" tabindex="-1"></h2>
+        </div>
+        <ol class="result-timeline">
+          <li><span>01</span><strong data-i18n="timelineSeen">今晚看見</strong></li>
+          <li><span>02</span><strong data-i18n="timelineAsk">明天詢問</strong></li>
+          <li><span>03</span><strong data-i18n="timelineFollow">接著追查</strong></li>
+        </ol>
+        <p class="result-lens" id="result-lens"></p>
+        <div class="result-body">
+          <div>
+            <h3 data-i18n="youSaw">你看到了</h3>
+            <ul id="result-seen"></ul>
+          </div>
+          <div>
+            <h3 data-i18n="nextStep">明天的小動作</h3>
+            <p id="result-action"></p>
+            <h3 data-i18n="boundaryTitle">還不能說</h3>
+            <p id="result-boundary"></p>
+          </div>
+        </div>
+        <div class="result-business">
+          <strong data-i18n="businessLabel">放到生意裡是……</strong>
+          <p id="result-business-text"></p>
+        </div>
+        <div class="contrast">
+          <h3 data-i18n="contrastTitle">同一個問題，兩種可能的回答</h3>
+          <p data-i18n="contrastHint">點開比較下一步。這是假設對照，不是你選完問題後的預測結果。</p>
+          <div id="alternatives" class="alternatives"></div>
+          <div id="alternative-detail" class="alternative-detail" aria-live="polite" aria-atomic="true"></div>
+        </div>
+        <div class="followup" id="followup" hidden>
+          <div class="followup-head">
+            <span class="followup-index">03</span>
+            <div>
+              <h3 data-i18n="followupTitle">接著只追一個訊號</h3>
+              <p data-i18n="followupHint">假設這是明天問到的答案，你接下來會先記哪件事？</p>
+            </div>
+          </div>
+          <div id="followup-options" class="followup-options"></div>
+          <div id="followup-detail" class="followup-detail" aria-live="polite" aria-atomic="true"></div>
+        </div>
+        <div class="result-actions">
+          <button type="button" id="download" class="action-primary" data-i18n="download">下載觀察卡</button>
+          <button type="button" id="try-again" class="action-secondary" data-i18n="again">換個問題再看</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="trade-bridge" aria-labelledby="trade-bridge-title">
+      <div>
+        <span data-i18n="tradeBridgeLabel">把方法帶到貿易街</span>
+        <h2 id="trade-bridge-title" data-i18n="tradeBridgeTitle">一櫃貨出海，也要先問對問題。</h2>
+        <p data-i18n="tradeBridgeBody">剛才練習分清線索與結論。接著看看一櫃貨經過十二站時，哪些事情要由誰接力確認。</p>
+      </div>
+      <a id="trade-bridge-link" href="/prototype/trade-street/?lang=zh" data-i18n="tradeBridgeLink">走進貿易街 ↗</a>
+    </aside>
+
+    <p class="disclosure" data-i18n="disclosure">虛構互動示範／成效未驗證。這不是真實店家的營運分析；你的選擇不預測生意結果。</p>
+  </main>
+</body>
+</html>
