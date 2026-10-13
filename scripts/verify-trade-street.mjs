@@ -387,7 +387,7 @@ test("motion: the layered map files exist, stay small and inside the canvas, and
     const plate = new URL(`../prototype/trade-street/${set.plate}`, import.meta.url);
     assert.ok(existsSync(plate), `${name} plate`);
     assert.ok(statSync(plate).size <= 250000, `${name} plate is at most 250 KB`);
-    assert.deepEqual(set.sprites.map((sp) => sp.id), ["cloud-a", "cloud-b", "cloud-c", "far-ship", "crane-container"], `${name} layers`);
+    assert.deepEqual(set.sprites.map((sp) => sp.id), ["cloud-a", "cloud-b", "cloud-c", "far-ship", "crane-container", "truck-a", "truck-b"], `${name} layers`);
     let total = 0;
     for (const sp of set.sprites) {
       const file = new URL(`../prototype/trade-street/${sp.file}`, import.meta.url);
@@ -405,7 +405,7 @@ test("motion: the layered map files exist, stay small and inside the canvas, and
   assert.match(html, /\.map-stage\.layers-ready \.layer-fx \{ display: block; \}/);
   assert.match(html, /@media \(prefers-reduced-motion: reduce\) \{ \.layer-fx \.sprite \{ animation: none; \} \}/);
   assert.match(html, /\.map-stage\.idle \.layer-fx \.sprite \{ animation-play-state: paused; \}/);
-  for (const name of ["lx-cloud", "lx-ship", "lx-sway"]) {
+  for (const name of ["lx-cloud", "lx-ship", "lx-sway", "lx-creep-a", "lx-creep-b"]) {
     const frame = html.match(new RegExp(`@keyframes ${name} \{[^\n]*`));
     assert.ok(frame, `${name} exists`);
     assert.equal(/left:|top:|width:|height:|background/.test(frame[0]), false, `${name} only uses transform and opacity`);
