@@ -125,7 +125,7 @@ export const TYPES = {
     pose: "think",
     prop: "umbrella",
     zh: {
-      person: "雨辰",
+      person: "阿白",
       name: "擋雨的人",
       role: "坦克",
       funny: "大家在崩潰的時候，你已經默默把雷都踩完了。",
@@ -135,7 +135,7 @@ export const TYPES = {
       alt: "短黑髮、深棕眼睛、穿松綠雨衣、面向左側撐傘的人",
     },
     en: {
-      person: "Rainer",
+      person: "Abai",
       name: "The Umbrella",
       role: "Tank",
       funny: "Everyone else is panicking; you've already quietly stepped on every landmine.",
@@ -438,7 +438,7 @@ export const TYPES = {
     pose: "idle",
     prop: "bundle",
     zh: {
-      person: "承承",
+      person: "保羅",
       name: "我接著走",
       role: "使徒",
       funny: "大家還沒講完，你已經把那句話收進自己的做法裡。",
@@ -448,7 +448,7 @@ export const TYPES = {
       alt: "灰棕短髮、深灰眼睛、穿藏青外套、往左走並捧著布包的人",
     },
     en: {
-      person: "Carry",
+      person: "Paul",
       name: "I'll Carry It On",
       role: "Apostle",
       funny: "The sentence isn't even finished, and you've already folded it into how you work.",
@@ -462,7 +462,7 @@ export const TYPES = {
     pose: "think",
     prop: null,
     zh: {
-      person: "阿修",
+      person: "戴安娜",
       name: "修好了",
       role: "工匠",
       funny: "什麼都想順手改良，連沒壞的也拆開看看。",
@@ -472,7 +472,7 @@ export const TYPES = {
       alt: "深棕短髮綁小馬尾、琥珀灰眼睛、穿芥末黃工作圍裙、面向左側拿扳手的人",
     },
     en: {
-      person: "Fix",
+      person: "Diana",
       name: "Fixed It",
       role: "Craftsman",
       funny: "You improve whatever is in reach, and you'll open something that wasn't even broken.",
@@ -559,12 +559,12 @@ const ABOUT = {
   andromeda: ["關於言歌：光點起來之後，有人把那件事轉給大家看。", "About Echo: once the light is on, someone turns the idea so everyone can see it."],
   spark: ["關於苔苔：點子很多，他負責讓它看起來是故意的。", "About Moss: lots of ideas; he makes them look intentional."],
   soundtrack: ["關於靚仔：一個配樂，一個把瞬間留下來。", "About Lenz: one keeps the music, one keeps the moment."],
-  missionary: ["關於承承：講完的事，有人真的往下一個路口走。", "About Carry: once it's said, someone actually walks it to the next corner."],
+  missionary: ["關於保羅：講完的事，有人真的往下一個路口走。", "About Paul: once it's said, someone actually walks it to the next corner."],
   mapkeeper: ["關於墨衡：地圖畫完，他才決定往哪走。", "About Rook: once the map is drawn, he decides where to go."],
   strategist: ["關於莉婭：出發前，口袋裡永遠有一張空白地圖。", "About Leia: before setting off, there's always a blank map in that pocket."],
   finisher: ["關於墨衡：我等那一秒，他先看完整盤。", "About Rook: I wait for that one second; he looks at the whole board first."],
-  designer: ["關於阿修：一個說要怎樣，一個真的做出來。", "About Fix: one says how it should look, one actually makes it."],
-  cocoa: ["關於雨辰：傘下永遠多留一個位子。", "About Rainer: there's always one more place under it."],
+  designer: ["關於戴安娜：一個說要怎樣，一個真的做出來。", "About Diana: one says how it should look, one actually makes it."],
+  cocoa: ["關於阿白：傘下永遠多留一個位子。", "About Abai: there's always one more place under it."],
   messenger: ["關於靚仔：一個傳話，一個留證據。", "About Lenz: one carries the words, one keeps the proof."],
   apostle: ["關於言歌：不是我起的頭，是我願意把它走下去。", "About Echo: I didn't start it. I'm willing to keep walking it."],
   craftsman: ["關於苔苔：壞掉的隔天回來，還要順眼。", "About Moss: it comes back the next day, and it has to look right."],
@@ -587,8 +587,9 @@ for (const [factionId, faction] of Object.entries(FACTIONS)) {
   for (const id of faction.members) TYPES[id].faction = factionId;
 }
 for (const [id, lines] of Object.entries(ABOUT)) {
-  TYPES[id].zh.about = lines[0];
-  TYPES[id].en.about = lines[1];
+  // Name the teammate as a teammate, so the line is not read as this card's own name.
+  TYPES[id].zh.about = lines[0].replace(/^關於\s*/, "關於隊友");
+  TYPES[id].en.about = lines[1].replace(/^About /, "About teammate ");
 }
 
 export function isRare(typeId) {

@@ -120,7 +120,7 @@ test("sixteen roles are reachable and the queens stay a small share", () => {
   assert.equal(factionLabel("craftsman", "en"), "🏮 Lantern Team");
   assert.equal(TYPES.recorder.zh.person, "靚仔");
   assert.equal(TYPES.recorder.zh.name, "拍下來了");
-  assert.equal(TYPES.craftsman.zh.person, "阿修");
+  assert.equal(TYPES.craftsman.zh.person, "戴安娜");
   assert.equal(TYPES.craftsman.zh.name, "修好了");
   assert.equal(TYPES.craftsman.zh.role, "工匠");
   for (const id of Object.keys(TYPES)) {
@@ -261,7 +261,7 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(TYPES.andromeda.zh.person, "Holly");
   assert.equal(TYPES.andromeda.egg, "M-31");
   assert.deepEqual(Object.fromEntries(Object.keys(TYPES).map((id) => [id, identityLine(TYPES[id].zh)])), {
-    umbrella: "雨辰 · 坦克 · 擋雨的人",
+    umbrella: "阿白 · 坦克 · 擋雨的人",
     cocoa: "MG · 守護者 · 晚安熱可可",
     finisher: "塞安 · 刺客 · 最後一擊",
     spark: "阿閃 · 點子 · 腦內煙火師",
@@ -274,15 +274,15 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
     designer: "苔苔 · 設計師 · 順眼就對了",
     alliance: "玉仔 · 聯盟 · 援軍到了",
     missionary: "言歌 · 傳教士 · 這件事值得說",
-    apostle: "承承 · 使徒 · 我接著走",
-    craftsman: "阿修 · 工匠 · 修好了",
+    apostle: "保羅 · 使徒 · 我接著走",
+    craftsman: "戴安娜 · 工匠 · 修好了",
     recorder: "靚仔 · 記錄者 · 拍下來了",
   });
   assert.equal(identityLine(TYPES.galaxy.en), "Daughter of the Galaxy · Queen");
   assert.equal(identityLine(TYPES.andromeda.en), "Holly · Queen · Queen of Andromeda");
   assert.equal(identityLine(TYPES.alliance.en), "Yuzai · Alliance · Reinforcements Are Here");
   assert.equal(identityLine(TYPES.recorder.en), "Lenz · Keeper of Moments · Got the Shot");
-  assert.equal(identityLine(TYPES.umbrella.en), "Rainer · Tank · The Umbrella");
+  assert.equal(identityLine(TYPES.umbrella.en), "Abai · Tank · The Umbrella");
   assert.equal(identityLine(TYPES.finisher.en), "Zion · Assassin · The Finisher");
   assert.equal(identityLine(TYPES.mapkeeper.en), "Leia · Scout · The Mapkeeper");
   assert.equal(TYPES.mapkeeper.zh.role, "斥候");
@@ -290,8 +290,8 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(TYPES.mapkeeper.zh.name, "地圖收藏家");
   assert.equal(TYPES.mapkeeper.en.name, "The Mapkeeper");
   assert.equal(resolveChoices("DAA").type, "mapkeeper");
-  assert.equal(TYPES.strategist.zh.about, "關於莉婭：出發前，口袋裡永遠有一張空白地圖。");
-  assert.equal(TYPES.strategist.en.about, "About Leia: before setting off, there's always a blank map in that pocket.");
+  assert.equal(TYPES.strategist.zh.about, "關於隊友莉婭：出發前，口袋裡永遠有一張空白地圖。");
+  assert.equal(TYPES.strategist.en.about, "About teammate Leia: before setting off, there's always a blank map in that pocket.");
   assert.equal(blob.includes("栗子") || blob.includes("Chestnut"), false);
   assert.equal(TYPES.finisher.zh.role, "刺客");
   assert.equal(TYPES.finisher.en.role, "Assassin");
