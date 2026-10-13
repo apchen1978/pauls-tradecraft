@@ -153,14 +153,70 @@ test("showcase comes before one deal and the garage", async ({ page }) => {
   const hrefs = await nav.locator('a[href^="#"]').evaluateAll((els) => els.map((el) => el.getAttribute("href")));
   expect(hrefs.indexOf("#showcase")).toBeGreaterThan(-1);
   expect(hrefs.indexOf("#showcase")).toBeLessThan(hrefs.indexOf("#works"));
-  await expect(nav.getByRole("link", { name: "作品展示" })).toHaveAttribute("href", "#showcase");
+  await expect(nav.getByRole("link", { name: "互動作品", exact: true })).toHaveAttribute("href", "#showcase");
+  await expect(nav.getByRole("link", { name: "商業作品", exact: true })).toHaveAttribute("href", "#works");
   const images = page.locator("#showcase img");
   expect(await images.count()).toBeGreaterThan(0);
   for (const img of await images.all()) {
     await expect(img).toHaveAttribute("loading", "lazy");
   }
   await page.goto("/?lang=en");
-  await expect(page.locator("header nav").getByRole("link", { name: "Showcase", exact: true })).toHaveAttribute("href", "#showcase");
+  await expect(page.locator("header nav").getByRole("link", { name: "Playful Works", exact: true })).toHaveAttribute("href", "#showcase");
+  await expect(page.locator("header nav").getByRole("link", { name: "Business Works", exact: true })).toHaveAttribute("href", "#works");
+});
+
+test.describe("nav names", () => {
+  for (const width of [1024, 1440]) {
+    for (const lang of ["zh", "en"]) {
+      const showcase = lang === "zh" ? "互動作品" : "Playful Works";
+      const works = lang === "zh" ? "商業作品" : "Business Works";
+      test(`${width}px ${lang}: ${showcase} stays before ${works} on one line`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`/?lang=${lang}`);
+        const nav = page.locator("header nav");
+        const showcaseLink = nav.getByRole("link", { name: showcase, exact: true });
+        const worksLink = nav.getByRole("link", { name: works, exact: true });
+        await expect(showcaseLink).toHaveAttribute("href", "#showcase");
+        await expect(worksLink).toHaveAttribute("href", "#works");
+        const fit = await showcaseLink.evaluate((el) => {
+          const row = el.parentElement;
+          const links = [...row.querySelectorAll(":scope > a")];
+          const tops = links.map((link) => link.getBoundingClientRect().top);
+          const header = document.querySelector("header");
+          return {
+            sameRow: Math.max(...tops) - Math.min(...tops) < 1,
+            wrapped: links.some((link) => {
+              const range = document.createRange();
+              range.selectNodeContents(link);
+              return range.getClientRects().length > 1;
+            }),
+            pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            headerOverflow: header.scrollWidth - header.clientWidth,
+          };
+        });
+        expect(fit.sameRow).toBe(true);
+        expect(fit.wrapped).toBe(false);
+        expect(fit.pageOverflow).toBeLessThanOrEqual(1);
+        expect(fit.headerOverflow).toBeLessThanOrEqual(1);
+        const hrefs = await nav.locator('a[href^="#"]').evaluateAll((els) => els.map((el) => el.getAttribute("href")));
+        expect(hrefs.indexOf("#showcase")).toBeLessThan(hrefs.indexOf("#works"));
+      });
+    }
+  }
+
+  test("390px menu keeps the new names and the same anchors", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/?lang=zh");
+    await page.getByRole("button", { name: "開啟選單" }).click();
+    const menu = page.locator("header");
+    await expect(menu.getByRole("link", { name: "互動作品", exact: true })).toHaveAttribute("href", "#showcase");
+    await expect(menu.getByRole("link", { name: "商業作品", exact: true })).toHaveAttribute("href", "#works");
+    await page.goto("/?lang=en");
+    await page.getByRole("button", { name: "Open menu" }).click();
+    const enMenu = page.locator("header");
+    await expect(enMenu.getByRole("link", { name: "Playful Works", exact: true })).toHaveAttribute("href", "#showcase");
+    await expect(enMenu.getByRole("link", { name: "Business Works", exact: true })).toHaveAttribute("href", "#works");
+  });
 });
 
 test.describe("garage listing", () => {
