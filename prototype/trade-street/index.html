@@ -161,6 +161,13 @@
     .takeaway p { margin: 10px 0 0; }
     @media (max-width: 639px) { .boundary { margin-top: 10px; padding: 6px 10px; font-size: 13px; } .lede { margin-top: 6px; } .hint { margin-top: 4px; } .primer { margin-top: 8px; } }
     .lights-legend { margin: 6px 0 0; color: var(--moss); font-size: 13px; line-height: 1.4; }
+    .lights-help { margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
+    .lights-help summary { cursor: pointer; color: var(--deep); font-weight: 700; }
+    .lights-help summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
+    .lights-help-body { margin-top: 6px; padding: 10px 12px; border-left: 4px solid var(--teal); border-radius: 4px 10px 10px 4px; background: var(--sky); }
+    .lights-help-body p { margin: 0 0 6px; color: var(--moss); }
+    .lights-help-body ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+    .preview-cross { margin: 8px 0 0; color: var(--moss); font-size: 14px; line-height: 1.55; }
     .buffer-line { color: var(--moss); font-size: 14px; }
     .caveat { margin-top: 28px; color: var(--moss); font-size: 14px; }
     .home { display: inline-block; margin-top: 12px; color: var(--deep); font-weight: 700; }
@@ -350,6 +357,7 @@
         <p class="say" id="preview-say"></p>
         <h3 id="preview-title" tabindex="-1"></h3>
         <p id="preview-p"></p>
+        <p class="preview-cross" id="preview-cross" hidden></p>
         <button type="button" class="text-btn" id="preview-close">關閉</button>
       </div>
       <ol class="route" id="route-entry" aria-label="十二站"></ol>
@@ -362,6 +370,7 @@
         <div class="buffer" id="buffer" role="img"></div>
         <ul class="lights" id="lights" aria-label="四個時間點"></ul>
         <p class="lights-legend" id="lights-legend-play"></p>
+        <details class="lights-help" id="lights-help-play"></details>
       </div>
       <div id="slot-play"></div>
       <div class="scene">
@@ -390,6 +399,7 @@
       <div class="bar">
         <ul class="lights" id="result-lights" aria-label="四個時間點"></ul>
         <p class="lights-legend" id="lights-legend-result"></p>
+        <details class="lights-help" id="lights-help-result"></details>
       </div>
       <article class="card" id="card" aria-labelledby="tier">
         <p class="card-kicker" id="card-kicker"></p>

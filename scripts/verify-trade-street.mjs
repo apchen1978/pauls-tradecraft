@@ -5,7 +5,7 @@ import {
   allRoutes, CAST, CAST_ORDER, DECISIONS, isCode, LIGHTS, readRoute, REACT, resolve, SCENARIO_ORDER, SCENARIOS, shareSearch,
   START_BUFFER, STATION_SPEAKER, STYLE_CHAR, STYLE_ORDER, STYLES,
 } from "../prototype/trade-street/game.js";
-import { PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
+import { LEARN_TEXT, PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
 import { AVATAR_COLOR, SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
 import { ART, GLOSS, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
 import { ALT, BIO, SIZE, UI as CAST_UI, stopsOf, styleOf } from "../prototype/trade-street/cast/cast.js";
@@ -485,4 +485,22 @@ test("connected: case -> 12 steps -> Trade Street -> case, and every target exis
   assert.match(app, /\/cases\/first-container\//);
   assert.ok(existsSync(new URL("../public/cases/first-container/index.html", import.meta.url)));
   assert.ok(existsSync(new URL("../prototype/one-container-12-steps/index.html", import.meta.url)));
+});
+
+test("learn more: the cut-off terms, risky moments and five questions are verbatim from the 12-steps page, and the four moments line up with them", () => {
+  const copy = sourceCopy();
+  for (const lang of ["zh", "en"]) {
+    for (const field of ["cutH", "cutLede", "cutGroups", "dangerH", "danger", "asksH", "asksLede", "asks"]) {
+      assert.deepEqual(LEARN_TEXT[lang][field], copy[lang][field], `${lang} ${field}`);
+    }
+    assert.equal(LEARN_TEXT[lang].cutGroups[0].items.length, 3, `${lang} three cut-offs`);
+    assert.equal(LEARN_TEXT[lang].asks.length, 5, `${lang} five questions`);
+    // the first three of the four moments are the three cut-offs, in the same order; the fourth is the sailing
+    assert.equal(PAGE_TEXT[lang].countdown.length, 4, `${lang} four moments`);
+    assert.ok(STEP_TEXT[9][lang].p.length > 10, `${lang} the sailing has its own line`);
+  }
+  assert.match(LEARN_TEXT.zh.cutGroups[0].items.map((item) => item[0]).join(","), /截單.*截關.*截港/);
+  const app = read("../prototype/trade-street/app.js");
+  assert.match(app, /wordingNote/);
+  assert.match(app, /renderLightsHelp/);
 });

@@ -118,6 +118,40 @@ for (const width of [390, 1440]) {
       });
     }
 
+    for (const lang of ["zh", "en"]) {
+      test(`${lang}: learn more: "what are these four moments" explains the cut-offs in the page's own words, and a step's wording note shows`, async ({ page }) => {
+        await page.goto(`${base}/index.html?lang=${lang}`);
+        await page.locator("#start").click();
+        const help = page.locator("#lights-help-play");
+        await expect(help).toBeVisible();
+        await expect(help.locator("summary")).toHaveText(lang === "zh" ? "這四個時間點是什麼？" : "What are these four moments?");
+        await expect(help.locator(".lights-help-body")).toBeHidden();
+        await help.locator("summary").click();
+        await expect(help.locator(".lights-help-body")).toBeVisible();
+        await expect(help.locator("li")).toHaveCount(4);
+        await expect(help).toContainText(lang === "zh" ? "截單" : "Document cut-off");
+        await expect(help).toContainText(lang === "zh" ? "截港" : "Port cut-off");
+        // step 1 has no wording note worth showing; step 3 (SO) does
+        await expect(page.locator("#brief")).not.toContainText(lang === "zh" ? "用語小註" : "A note on the words");
+        await page.locator("#next").click();
+        await page.locator('#choices button[data-option="A"]').click();
+        await page.locator("#next").click();
+        await expect(page.locator("#station-title")).toContainText(lang === "zh" ? "SO" : "SO");
+        await expect(page.locator("#brief")).toContainText(lang === "zh" ? "用語小註" : "A note on the words");
+        await expect(page.locator("#brief")).toContainText(lang === "zh" ? "Shipping Order" : "Shipping Order");
+        await noOverflow(page);
+      });
+
+      test(`${lang}: the stop preview shows the wording note for a step that has one`, async ({ page }) => {
+        await page.goto(`${base}/index.html?lang=${lang}`);
+        await page.locator("#route-entry .route-btn").nth(6).click();
+        await expect(page.locator("#preview-cross")).toBeVisible();
+        await expect(page.locator("#preview-cross")).toContainText(lang === "zh" ? "用語小註" : "A note on the words");
+        await page.locator("#route-entry .route-btn").nth(0).click();
+        await expect(page.locator("#preview-cross")).toBeHidden();
+      });
+    }
+
     test("a full run reaches the result the rules predict, and the address records it", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh`);
       await page.locator("#scn button[data-scenario='rush']").click();
