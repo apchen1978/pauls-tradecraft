@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 import {
   allRoutes, CAST, CAST_ORDER, DECISIONS, isCode, LIGHTS, readRoute, REACT, resolve, SCENARIO_ORDER, SCENARIOS, shareSearch,
@@ -7,6 +7,7 @@ import {
 } from "../prototype/trade-street/game.js";
 import { PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
 import { SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
+import { ART, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
 
 const BS = String.fromCharCode(92);
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
@@ -193,4 +194,61 @@ test("the page is one folder, loads one module, has every id the script uses, an
   const used = new Set([...app.matchAll(/\$\("([a-z0-9-]+)"\)/g)].map((match) => match[1]));
   for (const id of used) assert.ok(html.includes(`id="${id}"`), `index.html has id ${id}`);
   assert.equal(/fetch\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|navigator\.sendBeacon/.test(app), false);
+});
+
+// ---- art -------------------------------------------------------------------------------------------------------
+const bytes = (path) => readFileSync(new URL(`../prototype/trade-street/${path}`, import.meta.url));
+function webpSize(buffer) {
+  assert.equal(buffer.toString("ascii", 0, 4), "RIFF");
+  assert.equal(buffer.toString("ascii", 8, 12), "WEBP");
+  const kind = buffer.toString("ascii", 12, 16);
+  if (kind === "VP8X") return { width: 1 + buffer.readUIntLE(24, 3), height: 1 + buffer.readUIntLE(27, 3), alpha: (buffer[20] & 0x10) !== 0 };
+  if (kind === "VP8 ") return { width: buffer.readUInt16LE(26) & 0x3fff, height: buffer.readUInt16LE(28) & 0x3fff, alpha: false };
+  throw new Error(`unexpected webp chunk ${kind}`);
+}
+
+test("art: both maps and all eight portraits exist, are WebP, and stay inside the size limits", () => {
+  const maps = { desktop: [1600, 900], mobile: [800, 1422] };
+  for (const [kind, [width, height]] of Object.entries(maps)) {
+    const file = ART.map[kind];
+    assert.ok(existsSync(new URL(`../prototype/trade-street/${file}`, import.meta.url)), file);
+    const size = webpSize(bytes(file));
+    assert.equal(size.width, width, `${file} width`);
+    assert.equal(size.height, height, `${file} height`);
+    assert.ok(statSync(new URL(`../prototype/trade-street/${file}`, import.meta.url)).size <= 250 * 1024, `${file} is at most 250 KB`);
+  }
+  assert.deepEqual(Object.keys(ART.portrait).sort(), [...CAST_ORDER].sort());
+  for (const id of CAST_ORDER) {
+    const file = ART.portrait[id];
+    assert.ok(/^assets\/[a-z-]+\.webp$/.test(file), file);
+    assert.ok(existsSync(new URL(`../prototype/trade-street/${file}`, import.meta.url)), file);
+    const size = webpSize(bytes(file));
+    assert.equal(size.alpha, true, `${file} has a transparent background`);
+    assert.ok(size.height >= 900 && size.height <= 1100, `${file} height ${size.height}`);
+    assert.ok(statSync(new URL(`../prototype/trade-street/${file}`, import.meta.url)).size <= 60 * 1024, `${file} is at most 60 KB`);
+  }
+});
+
+test("art: twelve stops on each map, inside the picture, and far enough apart to tap", () => {
+  const sizes = { desktop: [1600, 900, 34], mobile: [800, 1422, 62] };
+  for (const [kind, [width, height, gap]] of Object.entries(sizes)) {
+    const points = POS[kind];
+    assert.equal(points.length, 12, kind);
+    for (const [x, y] of points) assert.ok(x > 2 && x < 98 && y > 2 && y < 98, `${kind} ${x},${y}`);
+    for (let i = 0; i < points.length; i += 1) for (let j = i + 1; j < points.length; j += 1) {
+      const dx = ((points[i][0] - points[j][0]) / 100) * width;
+      const dy = ((points[i][1] - points[j][1]) / 100) * height;
+      assert.ok(Math.hypot(dx, dy) >= gap, `${kind} stops ${i + 1} and ${j + 1} are ${Math.hypot(dx, dy).toFixed(0)} apart, need ${gap}`);
+    }
+  }
+  assert.match(MOBILE_QUERY, /max-width: 639px/);
+});
+
+test("art: the page and the deploy copy the files the game needs", () => {
+  const html = read("../prototype/trade-street/index.html");
+  assert.match(html, /srcset="assets\/trade-street-map-mobile\.webp"/);
+  assert.match(html, /src="assets\/trade-street-map\.webp"/);
+  const deploy = read("../.github/workflows/deploy.yml");
+  for (const file of ["index.html", "app.js", "game.js", "steps-text.js", "layout.js"]) assert.ok(deploy.includes(`prototype/trade-street/${file}`), `deploy copies ${file}`);
+  assert.ok(deploy.includes("cp -r prototype/trade-street/assets dist/prototype/trade-street/"), "deploy copies the assets folder");
 });

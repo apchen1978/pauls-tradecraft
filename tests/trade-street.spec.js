@@ -174,6 +174,82 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#progress")).toContainText("第 3 站");
     });
 
+    test("the map is a picture that loads, the phone gets the phone map, and the twelve stops are tappable dots on it", async ({ page }) => {
+      await page.goto(`${base}/index.html?lang=zh`);
+      const info = await page.evaluate(() => { const img = document.getElementById("map-img"); return { loaded: img.complete && img.naturalWidth > 0, src: img.currentSrc, alt: img.alt }; });
+      expect(info.loaded).toBe(true);
+      expect(info.alt.length).toBeGreaterThan(20);
+      if (page.viewportSize().width < 640) expect(info.src).toContain("mobile"); else expect(info.src).not.toContain("mobile");
+      await expect(page.locator("#hotspots .hot")).toHaveCount(12);
+      const stage = await page.locator("#map-stage").boundingBox();
+      for (let i = 0; i < 12; i += 1) {
+        const box = await page.locator(`#hotspots .hot[data-station="${i}"]`).boundingBox();
+        expect(box.x).toBeGreaterThanOrEqual(stage.x);
+        expect(box.x + box.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
+        expect(box.y).toBeGreaterThanOrEqual(stage.y);
+        expect(box.y + box.height).toBeLessThanOrEqual(stage.y + stage.height + 1);
+        expect(box.width).toBeGreaterThanOrEqual(26);
+      }
+      await expect(page.locator("#hotspots .hot").nth(2)).toHaveAttribute("aria-label", "第 3 站：SO");
+      await noOverflow(page);
+    });
+
+    test("tapping a stop on the map shows who is there, without starting the game", async ({ page }) => {
+      await page.goto(`${base}/index.html?lang=zh`);
+      await page.locator('#hotspots .hot[data-station="6"]').click();
+      await expect(page.locator("#preview")).toBeVisible();
+      await expect(page.locator("#preview-name")).toHaveText("單單");
+      await expect(page.locator("#preview-title")).toContainText("報關");
+      await expect(page.locator("#entry")).toBeVisible();
+      await expect(page.locator("#play")).toBeHidden();
+      await page.locator("#preview-close").click();
+      await expect(page.locator("#preview")).toBeHidden();
+      await expect(page.locator('#hotspots .hot[data-station="6"]')).toBeFocused();
+      await noOverflow(page);
+    });
+
+    test("while playing, the map shrinks to a window that follows the current stop, and people appear as pictures", async ({ page }) => {
+      await page.goto(`${base}/index.html?lang=zh`);
+      await page.locator("#start").click();
+      await expect(page.locator("#map-stage.playing")).toBeVisible();
+      await expect(page.locator('#hotspots .hot[data-station="0"]')).toHaveClass(/now/);
+      const stageHeight = (await page.locator("#map-stage").boundingBox()).height;
+      expect(stageHeight).toBeLessThan(260);
+      const top1 = await page.locator("#map-inner").evaluate((node) => node.style.top);
+      await page.locator("#next").click();
+      await expect(page.locator('#hotspots .hot[data-station="1"]')).toHaveClass(/now/);
+      await expect(page.locator('#hotspots .hot[data-station="0"]')).toHaveClass(/done/);
+      const top2 = await page.locator("#map-inner").evaluate((node) => node.style.top);
+      expect(top2).not.toBe(top1);
+      // the person speaking is a picture
+      await expect.poll(() => page.evaluate(() => { const img = document.querySelector("#avatar img"); return Boolean(img && img.complete && img.naturalWidth > 0); })).toBe(true);
+      await expect(page.locator("#speaker-name")).toHaveText("阿代");
+      await noOverflow(page);
+    });
+
+    test("the result card shows the whole figure of the matching person, and the cast shows eight pictures", async ({ page }) => {
+      await page.goto(`${base}/index.html?lang=zh&s=holiday&c=ABABAB`);
+      const res = resolve("holiday", "ABABAB");
+      await expect(page.locator("#card-name")).toHaveText(CAST[res.character].zh.name);
+      await expect.poll(() => page.evaluate(() => { const img = document.getElementById("card-figure"); return Boolean(!img.hidden && img.complete && img.naturalWidth > 0 && img.naturalHeight > img.naturalWidth); })).toBe(true);
+      await expect.poll(() => page.evaluate(() => document.querySelectorAll("#cast .avatar img").length)).toBe(8);
+      await expect(page.locator("#map-stage")).toBeHidden();
+      await noOverflow(page);
+    });
+
+    test("if the pictures cannot load, the game still works with initials", async ({ page }) => {
+      await page.route("**/assets/*.webp", (route) => route.abort());
+      await page.goto(`${base}/index.html?lang=zh`);
+      await walk(page, ["B", "A", "A", "A", "A", "B"]);
+      await expect(page.locator("#result")).toBeVisible();
+      await expect(page.locator("#tier")).toBeVisible({ timeout: 8000 });
+      await expect(page.locator("#card-figure")).toBeHidden();
+      await expect(page.locator("#cast li")).toHaveCount(8);
+      await expect(page.locator("#cast .avatar").first()).not.toHaveClass(/has-img/);
+      await expect(page.locator("#cast .avatar").first()).toHaveText(/\S/);
+      await noOverflow(page);
+    });
+
     test("the voyage card downloads as a picture", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh&s=rush&c=CBACBA`);
       const [download] = await Promise.all([page.waitForEvent("download"), page.locator("#download").click()]);

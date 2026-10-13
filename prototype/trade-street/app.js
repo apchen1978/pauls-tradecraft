@@ -3,6 +3,7 @@ import {
   optionCost, readRoute, resolve, shareSearch,
 } from "./game.js";
 import { PAGE_TEXT, STEP_TEXT } from "./steps-text.js";
+import { ART, MOBILE_QUERY, POS } from "./layout.js";
 
 export const AVATAR_COLOR = {
   guide: "#1E7F86", forwarder: "#31497A", shipper: "#2F6EA6", factory: "#B8642B",
@@ -56,7 +57,9 @@ export const UI = {
     intro: "一櫃貨明天要出海，整條街都在接力。",
     lede: "沿著港口走一趟，在六個關鍵時刻做決定，看趕不趕得上船。",
     hint: "同樣的選擇，永遠得到同一個結果。不存任何資料。",
-    entryTitle: "先選這一週的情況", routeLabel: "十二站", lightsLabel: "四個時間點", routeHint: "橘色圓點是要做決定的站。",
+    entryTitle: "先選這一週的情況", routeLabel: "十二站", lightsLabel: "四個時間點", routeHint: "點地圖上的圓點，看那一站是誰、在做什麼。橘色圈是要做決定的站。",
+    mapAlt: "貿易街的港口：左邊是工廠，道路通向右邊的碼頭，吊車正把貨櫃吊上船，遠方海面另有一艘船駛離，右下角是岸上的文件角。",
+    previewClose: "關閉", stopLabel: (n, name) => `第 ${n} 站：${name}`,
     start: "出發", seeSteps: "先看 12 步流程",
     progress: (n) => `第 ${n} 站 / 12`,
     buffer: (left) => (left >= 0 ? `緩衝格 ${left} / ${START_BUFFER}` : `緩衝格用完，超出 ${-left} 格`),
@@ -94,7 +97,9 @@ export const UI = {
     intro: "One container ships tomorrow, and the whole street is passing the baton.",
     lede: "Walk the harbour, make six decisions at the moments that matter, and see whether it makes the ship.",
     hint: "The same choices always give the same result. Nothing is stored.",
-    entryTitle: "First, pick this week's situation", routeLabel: "Twelve stops", lightsLabel: "Four moments", routeHint: "An orange dot marks a stop where you decide.",
+    entryTitle: "First, pick this week's situation", routeLabel: "Twelve stops", lightsLabel: "Four moments", routeHint: "Tap a dot on the map to see who is there and what they do. An orange ring marks a stop where you decide.",
+    mapAlt: "The Trade Street harbour: the factory on the left, a road leading to the quay on the right where a crane loads a container onto a ship, another ship sailing away in the distance, and the documents corner on shore at the bottom right.",
+    previewClose: "Close", stopLabel: (n, name) => `Stop ${n}: ${name}`,
     start: "Set off", seeSteps: "Read the 12 steps first",
     progress: (n) => `Stop ${n} of 12`,
     buffer: (left) => (left >= 0 ? `Buffer cells ${left} of ${START_BUFFER}` : `Buffer used up, ${-left} over`),
@@ -134,6 +139,16 @@ export function initialOf(charId, lang) {
   return Array.from(name)[0];
 }
 
+function loadImage(src) {
+  return new Promise((done) => {
+    if (!src) { done(null); return; }
+    const img = new Image();
+    img.onload = () => done(img);
+    img.onerror = () => done(null);
+    img.src = src;
+  });
+}
+
 function boot() {
   const $ = (id) => document.getElementById(id);
   const route = readRoute(location.search);
@@ -143,6 +158,7 @@ function boot() {
     index: 0,
     picks: Array(DECISIONS.length).fill(null),
     view: "entry",
+    preview: null,
   };
   let revealTimer = null;
   const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -154,8 +170,17 @@ function boot() {
     return node;
   };
   const avatar = (node, charId) => {
-    node.textContent = initialOf(charId, state.lang);
-    node.style.background = AVATAR_COLOR[charId];
+    const fallback = () => { node.classList.remove("has-img"); node.replaceChildren(); node.textContent = initialOf(charId, state.lang); node.style.background = AVATAR_COLOR[charId]; };
+    const src = ART.portrait[charId];
+    node.replaceChildren();
+    if (!src) { fallback(); return; }
+    node.classList.add("has-img");
+    node.style.background = "";
+    const img = document.createElement("img");
+    img.alt = "";
+    img.onerror = fallback;
+    img.src = src;
+    node.appendChild(img);
   };
 
   function syncUrl() {
@@ -236,6 +261,87 @@ function boot() {
     });
   }
 
+  const isPhone = () => window.matchMedia(MOBILE_QUERY).matches;
+
+  function fitStage() {
+    const stage = $("map-stage");
+    const inner = $("map-inner");
+    if (state.view !== "play") { stage.style.height = ""; inner.removeAttribute("style"); return; }
+    const phone = isPhone();
+    const W = stage.clientWidth;
+    const H = phone ? 190 : 240;
+    const zoom = phone ? 1.7 : 1.6;
+    const ratio = phone ? 1422 / 800 : 900 / 1600;
+    const iw = W * zoom;
+    const ih = iw * ratio;
+    const [x, y] = (phone ? POS.mobile : POS.desktop)[state.index];
+    const left = Math.min(0, Math.max(W - iw, W / 2 - (iw * x) / 100));
+    const top = Math.min(0, Math.max(H - ih, H / 2 - (ih * y) / 100));
+    stage.style.height = `${H}px`;
+    inner.style.cssText = `position:absolute;width:${iw}px;left:${left}px;top:${top}px;`;
+  }
+
+  function renderHotspots() {
+    const playing = state.view === "play";
+    document.querySelectorAll("#hotspots .hot").forEach((button) => {
+      const i = Number(button.dataset.station);
+      button.classList.toggle("done", playing && i < state.index);
+      button.classList.toggle("now", (playing && i === state.index) || (!playing && state.preview === i));
+      button.tabIndex = playing ? -1 : 0;
+      if ((playing && i === state.index) || (!playing && state.preview === i)) button.setAttribute("aria-current", "step");
+      else button.removeAttribute("aria-current");
+    });
+    fitStage();
+  }
+
+  function buildHotspots() {
+    const node = $("hotspots");
+    node.replaceChildren();
+    (isPhone() ? POS.mobile : POS.desktop).forEach(([x, y], i) => {
+      const button = el("button", "hot");
+      button.type = "button";
+      button.dataset.station = String(i);
+      button.style.left = `${x}%`;
+      button.style.top = `${y}%`;
+      button.textContent = String(i + 1);
+      button.setAttribute("aria-label", ui().stopLabel(i + 1, SHORT[state.lang][i]));
+      if (decisionAtStation(i) >= 0) button.classList.add("decision");
+      button.addEventListener("click", () => { if (state.view === "entry") previewStation(i); });
+      node.appendChild(button);
+    });
+    renderHotspots();
+  }
+
+  function renderPreview() {
+    const i = state.preview;
+    if (i == null) { $("preview").hidden = true; return; }
+    const speaker = STATION_SPEAKER[i];
+    avatar($("preview-avatar"), speaker);
+    $("preview-name").textContent = CAST[speaker][state.lang].name;
+    $("preview-role").textContent = CAST[speaker][state.lang].role;
+    $("preview-say").textContent = STATION_LINE[state.lang][i];
+    $("preview-title").textContent = `${i + 1}. ${STEP_TEXT[i][state.lang].t}`;
+    $("preview-p").textContent = STEP_TEXT[i][state.lang].p;
+    $("preview-close").textContent = ui().previewClose;
+    $("preview").hidden = false;
+  }
+
+  function previewStation(i) {
+    state.preview = i;
+    renderPreview();
+    renderHotspots();
+    $("preview").scrollIntoView({ block: "nearest", behavior: reduceMotion() ? "auto" : "smooth" });
+  }
+
+  function closePreview() {
+    const was = state.preview;
+    state.preview = null;
+    renderPreview();
+    renderHotspots();
+    const back = document.querySelector(`#hotspots .hot[data-station="${was}"]`);
+    if (back) back.focus();
+  }
+
   function applyStatic() {
     const t = ui();
     document.documentElement.lang = t.htmlLang;
@@ -264,8 +370,11 @@ function boot() {
     $("home").textContent = t.home;
     $("home").href = `/${state.lang === "en" ? "?lang=en" : ""}#garage`;
     $("caveat").textContent = t.caveat;
+    $("map-img").alt = t.mapAlt;
     renderScenarios();
     renderRoute($("route-entry"), false);
+    buildHotspots();
+    renderPreview();
     renderCast();
   }
 
@@ -289,6 +398,14 @@ function boot() {
     $("entry").hidden = view !== "entry";
     $("play").hidden = view !== "play";
     $("result").hidden = view !== "result";
+    const stage = $("map-stage");
+    const slot = $(view === "play" ? "slot-play" : "slot-entry");
+    stage.hidden = view === "result";
+    if (stage.parentElement !== slot) slot.appendChild(stage);
+    stage.classList.toggle("playing", view === "play");
+    if (view !== "entry") state.preview = null;
+    renderPreview();
+    renderHotspots();
     syncUrl();
   }
 
@@ -302,7 +419,7 @@ function boot() {
     $("progress").textContent = t.progress(i + 1);
     renderBuffer();
     renderLights($("lights"), lightStates());
-    renderRoute($("route-play"), true);
+    renderHotspots();
     avatar($("avatar"), speaker);
     $("speaker-name").textContent = CAST[speaker][state.lang].name;
     $("speaker-role").textContent = CAST[speaker][state.lang].role;
@@ -412,6 +529,10 @@ function boot() {
     const charId = res.character;
     $("card-kicker").textContent = t.kicker;
     avatar($("card-avatar"), charId);
+    const figure = $("card-figure");
+    figure.hidden = !ART.portrait[charId];
+    figure.onerror = () => { figure.hidden = true; };
+    if (ART.portrait[charId]) figure.src = ART.portrait[charId];
     $("card-name").textContent = CAST[charId][state.lang].name;
     $("card-role").textContent = `${CAST[charId][state.lang].role} · ${SCENARIOS[state.scenario][state.lang].name}`;
     $("style-line").textContent = `${t.styleLabel(STYLES[res.style][state.lang].name)}：${STYLES[res.style][state.lang].line}`;
@@ -480,10 +601,11 @@ function boot() {
     return lines;
   }
 
-  function downloadCard() {
+  async function downloadCard() {
     const t = ui();
     const res = resolve(state.scenario, state.picks.join(""));
     if (!res) return;
+    const portrait = await loadImage(ART.portrait[res.character]);
     const FONT = '"PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "WenQuanYi Micro Hei", ui-sans-serif, system-ui, sans-serif';
     const W = 1080;
     const PAD = 84;
@@ -503,18 +625,28 @@ function boot() {
     const tierColor = { clear: "#2F7D4F", tight: "#B9761C", missed: "#B2452F" }[res.tier];
     text(t.kicker, 34, 700, "#B9761C", 18);
     const charId = res.character;
-    const circleY = y + 64;
+    const R = 78;
+    const circleY = y + R;
     const initial = initialOf(charId, state.lang);
     ops.push((c) => {
-      c.fillStyle = AVATAR_COLOR[charId]; c.beginPath(); c.arc(PAD + 64, circleY, 64, 0, Math.PI * 2); c.fill();
-      c.fillStyle = "#ffffff"; c.font = `700 64px ${FONT}`; c.textAlign = "center"; c.fillText(initial, PAD + 64, circleY + 22);
+      c.save();
+      c.beginPath(); c.arc(PAD + R, circleY, R, 0, Math.PI * 2); c.closePath(); c.clip();
+      c.fillStyle = portrait ? "#DCEBEE" : AVATAR_COLOR[charId]; c.fillRect(PAD, circleY - R, R * 2, R * 2);
+      if (portrait) {
+        const side = portrait.naturalWidth;
+        c.drawImage(portrait, 0, portrait.naturalHeight * 0.02, side, side, PAD, circleY - R, R * 2, R * 2);
+      } else {
+        c.fillStyle = "#ffffff"; c.font = `700 72px ${FONT}`; c.textAlign = "center"; c.fillText(initial, PAD + R, circleY + 24);
+      }
+      c.restore();
+      c.strokeStyle = AVATAR_COLOR[charId]; c.lineWidth = 6; c.beginPath(); c.arc(PAD + R, circleY, R, 0, Math.PI * 2); c.stroke();
     });
-    const nameX = PAD + 160;
+    const nameX = PAD + R * 2 + 36;
     scratch.font = `700 54px ${FONT}`;
     const nameLine = CAST[charId][state.lang].name;
     ops.push((c) => { c.textAlign = "left"; c.font = `700 54px ${FONT}`; c.fillStyle = "#12323A"; c.fillText(nameLine, nameX, circleY - 4); });
     ops.push((c) => { c.textAlign = "left"; c.font = `500 34px ${FONT}`; c.fillStyle = "#54686C"; c.fillText(`${CAST[charId][state.lang].role} · ${SCENARIOS[state.scenario][state.lang].name}`, nameX, circleY + 44); });
-    y += 150;
+    y += R * 2 + 24;
     text(`${t.styleLabel(STYLES[res.style][state.lang].name)}`, 36, 700, "#12323A", 4);
     text(STYLES[res.style][state.lang].line, 34, 500, "#54686C", 24);
     text(t.tier[res.tier].name, 76, 700, tierColor, 4);
@@ -613,6 +745,9 @@ function boot() {
   $("download").addEventListener("click", downloadCard);
   $("copy").addEventListener("click", copyLink);
   $("again").addEventListener("click", reset);
+  $("preview-close").addEventListener("click", closePreview);
+  window.matchMedia(MOBILE_QUERY).addEventListener("change", buildHotspots);
+  window.addEventListener("resize", fitStage);
 
   applyStatic();
   if (route.result) {

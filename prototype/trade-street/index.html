@@ -49,7 +49,8 @@
     :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
     .skip { position: absolute; left: 12px; top: 12px; transform: translateY(-160%); background: var(--white); color: var(--ink); padding: 8px 12px; border-radius: 8px; font-weight: 700; text-decoration: none; }
     .skip:focus { transform: none; }
-    .page { width: min(760px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 72px; }
+    .page { width: min(880px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 72px; }
+    .intro, .lede, .hint { max-width: 660px; }
     .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
     .eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--deep); }
     .lang { display: flex; gap: 8px; }
@@ -146,6 +147,40 @@
     .cast small { display: block; color: var(--moss); font-size: 14px; line-height: 1.45; }
     .caveat { margin-top: 28px; color: var(--moss); font-size: 14px; }
     .home { display: inline-block; margin-top: 12px; color: var(--deep); font-weight: 700; }
+    .map-stage { position: relative; margin-top: 16px; border: 3px solid var(--deep); border-radius: 16px; overflow: hidden; background: var(--sky); line-height: 0; }
+    .map-stage img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+    @media (max-width: 639px) { .map-stage img { aspect-ratio: 800 / 1422; } }
+    .hotspots { position: absolute; inset: 0; }
+    .hot { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 3px solid var(--deep); background: var(--white); color: var(--deep); font-weight: 700; font-size: 15px; line-height: 1; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .35); }
+    .hot.decision { border-color: var(--amber); }
+    .hot:hover { background: var(--sky); }
+    .hot.done { background: var(--teal); border-color: var(--white); color: var(--white); }
+    .hot.now { background: var(--amber); border-color: var(--white); color: var(--white); box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); }
+    .map-stage.playing .hot { pointer-events: none; }
+    @media (max-width: 639px) { .hot { width: 28px; height: 28px; font-size: 14px; border-width: 2px; } }
+    @media (prefers-reduced-motion: no-preference) {
+      .hot.now { animation: ping 1.6s ease-in-out infinite; }
+      @keyframes ping { 0%, 100% { box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); } 50% { box-shadow: 0 0 0 10px rgba(185, 118, 28, .12), 0 2px 6px rgba(0, 0, 0, .35); } }
+    }
+    .preview { margin-top: 12px; padding: 14px 16px; border: 2px solid var(--teal); border-radius: 14px; background: var(--white); }
+    .preview h3 { margin: 10px 0 0; font-size: 18px; line-height: 1.35; }
+    .preview p { margin: 4px 0 0; color: var(--moss); }
+    .avatar { overflow: hidden; }
+    .avatar.has-img { background: var(--sky); }
+    .avatar img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 6%; }
+    .map-inner { position: relative; }
+    @media (prefers-reduced-motion: no-preference) { .map-stage.playing .map-inner { transition: left .6s ease, top .6s ease; } }
+    .card .avatar { display: none; }
+    .figure { display: block; height: 300px; width: auto; max-width: 100%; margin: 10px auto 0; object-fit: contain; }
+    @media (min-width: 720px) {
+      .card { display: grid; grid-template-columns: minmax(0, 1fr) 240px; column-gap: 28px; }
+      .card > * { grid-column: 1; }
+      .card .figure { grid-column: 2; grid-row: 2 / span 7; width: 100%; height: auto; max-height: 460px; margin: 0; align-self: start; }
+      .card .picks, .card .card-boundary { grid-column: 1 / -1; }
+    }
+    .scene .avatar { width: 64px; height: 64px; }
+    .preview .avatar { width: 64px; height: 64px; }
+    .cast .avatar { width: 56px; height: 56px; }
     [hidden] { display: none !important; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
@@ -174,6 +209,27 @@
         <button type="button" class="primary" id="start">出發</button>
         <a class="home" id="see-steps" href="../one-container-12-steps/">先看 12 步流程</a>
       </div>
+      <div id="slot-entry">
+        <div class="map-stage" id="map-stage">
+          <div class="map-inner" id="map-inner">
+            <picture>
+              <source media="(max-width: 639px)" srcset="assets/trade-street-map-mobile.webp" type="image/webp" />
+              <img id="map-img" src="assets/trade-street-map.webp" width="1600" height="900" alt="" />
+            </picture>
+            <div class="hotspots" id="hotspots"></div>
+          </div>
+        </div>
+      </div>
+      <div class="preview" id="preview" hidden role="region" aria-labelledby="preview-title">
+        <div class="speaker">
+          <div class="avatar" id="preview-avatar" aria-hidden="true"></div>
+          <div><b id="preview-name"></b><span id="preview-role"></span></div>
+        </div>
+        <p class="say" id="preview-say"></p>
+        <h3 id="preview-title" tabindex="-1"></h3>
+        <p id="preview-p"></p>
+        <button type="button" class="text-btn" id="preview-close">關閉</button>
+      </div>
       <ol class="route" id="route-entry" aria-label="十二站"></ol>
       <p class="hint" id="route-hint">橘色圓點是要做決定的站。</p>
     </section>
@@ -184,7 +240,7 @@
         <div class="buffer" id="buffer" role="img"></div>
         <ul class="lights" id="lights" aria-label="四個時間點"></ul>
       </div>
-      <ol class="route" id="route-play" aria-label="十二站"></ol>
+      <div id="slot-play"></div>
       <div class="scene">
         <div class="speaker">
           <div class="avatar" id="avatar" aria-hidden="true"></div>
@@ -212,6 +268,7 @@
       </div>
       <article class="card" id="card" aria-labelledby="tier">
         <p class="card-kicker" id="card-kicker"></p>
+        <img class="figure" id="card-figure" alt="" />
         <div class="speaker">
           <div class="avatar" id="card-avatar" aria-hidden="true"></div>
           <div><b id="card-name"></b><span id="card-role"></span></div>
