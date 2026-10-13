@@ -13,11 +13,11 @@ export default function Showcase() {
     <section id="showcase" aria-labelledby="showcase-heading" className="scroll-mt-24 border-b border-line bg-white">
       <div className="mx-auto max-w-7xl px-5 py-16 md:px-6 md:py-28">
         <p className="text-xs font-semibold tracking-[0.08em] text-moss md:text-sm">{s.eyebrow}</p>
-        <h2 id="showcase-heading" className="mt-4 max-w-[12ch] text-[2.25rem] font-semibold leading-[1.1] tracking-[-0.03em] text-ink md:text-[3.5rem]">
+        <h2 id="showcase-heading" className="mt-4 max-w-[10em] text-[2.25rem] font-semibold leading-[1.1] tracking-[-0.03em] text-ink md:text-[3.5rem]">
           {s.headline}
         </h2>
         <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.intro}</p>
-        <p className="mt-3 text-sm font-semibold text-ink">{s.maturity}</p>
+        <p className="mt-3 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.support}</p>
         <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 xl:grid-cols-3 xl:gap-8">
           {items.map((item) => (
             <li key={item.href} className="flex">

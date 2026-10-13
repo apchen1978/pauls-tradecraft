@@ -94,6 +94,27 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
   check(!/人工智慧|\bAI\b/.test(narrativeWithoutAllowedAi), `${locale} mentions AI outside the kicker`);
 }
 
+// Paul 2026-10-13: these two Showcase description sentences may say AI.
+// They are allowed only as the homepage Showcase header intro, not in the one-pager above and not elsewhere in i18n.
+const SHOWCASE_AI_INTRO = {
+  zh: "探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。",
+  en: "Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.",
+};
+const i18nSource = fs.readFileSync(path.join(ROOT, "src", "i18n.jsx"), "utf8");
+const showcaseHeaders = [...i18nSource.matchAll(/showcase:\s*\{([\s\S]*?)\n\s*items:\s*\[/g)].map((match) => match[1]);
+check(showcaseHeaders.length === 2, "expected exactly two Showcase header blocks in i18n");
+for (const [locale, sentence] of Object.entries(SHOWCASE_AI_INTRO)) {
+  const headersWithSentence = showcaseHeaders.filter((header) => header.includes(sentence));
+  check(headersWithSentence.length === 1, `${locale} Showcase AI description must appear once, only in the header`);
+  const outsideHeaders = i18nSource.split(sentence).length - 1;
+  check(outsideHeaders === 1, `${locale} Showcase AI description leaked outside its header`);
+}
+for (const header of showcaseHeaders) {
+  let withoutApproved = header;
+  for (const sentence of Object.values(SHOWCASE_AI_INTRO)) withoutApproved = withoutApproved.split(sentence).join("");
+  check(!/人工智慧|\bAI\b/.test(withoutApproved), "Showcase header mentions AI outside the approved description");
+}
+
 check(en.positioning === expected.positioningEn, "EN missing current capability positioning");
 check(zh.positioning === expected.positioningZh, "ZH missing current capability positioning");
 check(en.works?.length === zh.works?.length, "ZH/EN selected proof hierarchy diverged");
