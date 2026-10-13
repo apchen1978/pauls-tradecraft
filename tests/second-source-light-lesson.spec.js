@@ -1,15 +1,20 @@
 import { expect, test } from "@playwright/test";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const lessonURL = pathToFileURL(resolve("prototype/second-source-light-lesson/index.html")).href;
 
 for (const lang of ["zh", "en"]) {
   for (const width of [390, 768, 1440]) {
     test(`${lang} ${width}px: first-order sketch keeps its state and fits`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(`/prototype/second-source-light-lesson/?lang=${lang}`);
+      await page.goto(`${lessonURL}?lang=${lang}`);
 
       const a = page.locator("#order-sketch-a");
       const b = page.locator("#order-sketch-b");
       await expect(a).toHaveAttribute("aria-pressed", "true");
       await expect(b).toHaveAttribute("aria-pressed", "false");
+      await expect(page.locator("#order-sketch-fields .next-question")).toHaveCount(4);
 
       await b.click();
       await expect(a).toHaveAttribute("aria-pressed", "false");
