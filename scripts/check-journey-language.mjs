@@ -4,7 +4,7 @@ import { Script } from "node:vm";
 import { withDemoLang } from "../src/demoLinks.js";
 
 let checks = 0;
-for (const page of ["ai-native-overseas-customer-roadmap", "ai-native-commercial-conversion", "decision-adversary", "garage-rfq-workflow-001", "three-days-of-quiet", "one-container-12-steps", "same-factory-different-buyer", "worth-reading", "teammate-type", "code-words", "trade-street", "second-source-light-lesson", "garage-opportunity-reframing-002"]) {
+for (const page of ["ai-native-overseas-customer-roadmap", "ai-native-commercial-conversion", "decision-adversary", "garage-rfq-workflow-001", "three-days-of-quiet", "one-container-12-steps", "same-factory-different-buyer", "worth-reading", "teammate-type", "code-words", "trade-street", "second-source-light-lesson", "garage-opportunity-reframing-002", "factory-secret-menu"]) {
   for (const lang of ["zh", "en"]) {
     const path = `/prototype/${page}/`;
     assert.equal(withDemoLang(path, lang), `${path}?lang=${lang}`);
@@ -23,7 +23,7 @@ assert.equal(withDemoLang("https://apchen1978.github.io/quote-lens-demo/", "en")
 assert.equal(withDemoLang("https://apchen1978.github.io/quote-lens-demo/", "zh"), "https://apchen1978.github.io/quote-lens-demo/");
 assert.equal(withDemoLang("https://apchen1978.github.io/quote-lens-demo/?lang=en", "en"), "https://apchen1978.github.io/quote-lens-demo/?lang=en");
 checks += 3;
-for (const page of ["ai-native-overseas-customer-roadmap", "ai-native-commercial-conversion", "decision-adversary", "garage-rfq-workflow-001", "one-container-12-steps", "same-factory-different-buyer", "worth-reading", "teammate-type", "code-words", "second-source-light-lesson", "garage-opportunity-reframing-002"]) {
+for (const page of ["ai-native-overseas-customer-roadmap", "ai-native-commercial-conversion", "decision-adversary", "garage-rfq-workflow-001", "one-container-12-steps", "same-factory-different-buyer", "worth-reading", "teammate-type", "code-words", "second-source-light-lesson", "garage-opportunity-reframing-002", "factory-secret-menu"]) {
   const html = readFileSync(new URL(`../prototype/${page}/index.html`, import.meta.url), "utf8");
   for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) {
     new Script(match[1], { filename: `${page}/index.html` });
