@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { distribution, FACTIONS, factionLabel, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
+import { distribution, FACTIONS, factionLabel, identityLine, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
 import { dialogueFor, extractCode, pairStats, ROLE_ORDER } from "../prototype/teammate-type/duo.js";
 
 test("old ABCD codes keep the six-type balance", () => {
@@ -118,7 +118,9 @@ test("sixteen roles are reachable and the queens stay a small share", () => {
   assert.equal(factionLabel("galaxy", "zh"), "🌌 銀河隊 · 隊長");
   assert.equal(factionLabel("recorder", "zh"), "🌌 銀河隊");
   assert.equal(factionLabel("craftsman", "en"), "🏮 Lantern Team");
-  assert.equal(TYPES.recorder.zh.sub, "拍下來了");
+  assert.equal(TYPES.recorder.zh.person, "靚仔");
+  assert.equal(TYPES.recorder.zh.name, "拍下來了");
+  assert.equal(TYPES.craftsman.zh.person, "阿修");
   assert.equal(TYPES.craftsman.zh.name, "修好了");
   assert.equal(TYPES.craftsman.zh.role, "工匠");
   for (const id of Object.keys(TYPES)) {
@@ -202,12 +204,25 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(UI.en.boundary, "A toy, not a personality test.");
   assert.equal(UI.zh.intro, "歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。");
   assert.equal(UI.en.intro, "Welcome to Nightglow. Everyone brings something to the team. Each small thing you accomplish together makes the night a little brighter.");
-  assert.equal(/遠燈鎮|玉仔|照夜玉獅子/.test(blob + readFileSync(new URL("../prototype/teammate-type/index.html", import.meta.url), "utf8")), false);
+  const html = readFileSync(new URL("../prototype/teammate-type/index.html", import.meta.url), "utf8");
+  assert.equal(/遠燈鎮/.test(blob + html), false);
+  assert.equal(TYPES.alliance.zh.person, "玉仔");
+  assert.equal(TYPES.alliance.zh.mark, "照夜玉獅子");
+  assert.equal(TYPES.alliance.en.person, "Yuzai");
+  assert.equal(TYPES.alliance.en.mark, "Night-Shining Jade Lion");
+  assert.equal(TYPES.galaxy.zh.person, undefined);
+  let horseScan = blob;
+  for (const bit of [TYPES.alliance.zh.person, TYPES.alliance.zh.mark, TYPES.alliance.en.person, TYPES.alliance.en.mark, "關於玉仔", "About Yuzai"]) {
+    horseScan = horseScan.split(bit).join("");
+  }
+  assert.equal(/玉仔|照夜玉獅子|Yuzai|Night-Shining Jade Lion/.test(horseScan), false);
+  assert.equal((html.match(/玉仔/g) || []).length, 1);
+  assert.equal(/照夜玉獅子/.test(html), false);
   assert.equal(TYPES.cocoa.zh.role, "守護者");
   assert.equal(TYPES.cocoa.en.role, "Guardian");
   assert.equal(blob.includes("補師") || /\bHealer\b/.test(blob), false);
   assert.equal(/人工智慧|\bAI\b|老闆|老板|ROI|轉換率|成交率|中間層|A2A|\bCDD\b|前職|Former role|\bowner\b|英雄聯盟|魔獸|Overwatch|Warcraft|League of Legends|mailto:|@gmail/i.test(blob), false);
-  assert.equal(/魔法|法師|咒|巫|\bmage\b|\bmagic\b|玉仔/i.test(blob), false);
+  assert.equal(/魔法|法師|咒|巫|\bmage\b|\bmagic\b/i.test(blob), false);
   assert.equal(TYPES.spark.zh.role, "點子");
   assert.equal(TYPES.spark.en.role, "Ideas");
   assert.equal(TYPES.missionary.zh.role, "傳教士");
@@ -218,7 +233,32 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(TYPES.galaxy.en.name, "Daughter of the Galaxy");
   assert.equal(TYPES.andromeda.zh.name, "仙女座女王");
   assert.equal(TYPES.andromeda.en.name, "Queen of Andromeda");
+  assert.equal(TYPES.andromeda.zh.person, "Holly");
   assert.equal(TYPES.andromeda.egg, "M-31");
+  assert.deepEqual(Object.fromEntries(Object.keys(TYPES).map((id) => [id, identityLine(TYPES[id].zh)])), {
+    umbrella: "雨辰 · 坦克 · 擋雨的人",
+    cocoa: "MG · 守護者 · 晚安熱可可",
+    finisher: "塞安 · 刺客／輸出 · 最後一擊",
+    spark: "阿閃 · 點子 · 腦內煙火師",
+    mapkeeper: "栗子 · 斥候 · 地圖收藏家",
+    soundtrack: "樂樂 · 吟遊詩人 · BGM 擔當",
+    strategist: "墨衡 · 軍師 · 先看全局",
+    messenger: "阿跑 · 傳令兵 · 話送到了",
+    galaxy: "銀河之女 · 女王",
+    andromeda: "Holly · 女王 · 仙女座女王",
+    designer: "苔苔 · 設計師 · 順眼就對了",
+    alliance: "玉仔 · 聯盟 · 援軍到了",
+    missionary: "言歌 · 傳教士 · 這件事值得說",
+    apostle: "承承 · 使徒 · 我接著走",
+    craftsman: "阿修 · 工匠 · 修好了",
+    recorder: "靚仔 · 記錄者 · 拍下來了",
+  });
+  assert.equal(identityLine(TYPES.galaxy.en), "Daughter of the Galaxy · Queen");
+  assert.equal(identityLine(TYPES.andromeda.en), "Holly · Queen · Queen of Andromeda");
+  assert.equal(identityLine(TYPES.alliance.en), "Yuzai · Alliance · Reinforcements Are Here");
+  assert.equal(identityLine(TYPES.recorder.en), "Lenz · Keeper of Moments · Got the Shot");
+  assert.equal(identityLine(TYPES.umbrella.en), "Rainer · Tank · The Umbrella");
+  assert.equal(identityLine(TYPES.finisher.en), "Zion · Assassin / damage · The Finisher");
   assert.equal(TYPES.galaxy.prop, "crown");
   assert.equal(TYPES.andromeda.prop, "crown");
   assert.equal(Object.values(TYPES).filter((type) => type.prop === "crown").length, 2);

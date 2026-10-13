@@ -123,6 +123,7 @@ export const TYPES = {
     pose: "think",
     prop: "umbrella",
     zh: {
+      person: "雨辰",
       name: "擋雨的人",
       role: "坦克",
       funny: "大家在崩潰的時候，你已經默默把雷都踩完了。",
@@ -132,6 +133,7 @@ export const TYPES = {
       alt: "短黑髮、深棕眼睛、穿松綠雨衣、面向左側撐傘的人",
     },
     en: {
+      person: "Rainer",
       name: "The Umbrella",
       role: "Tank",
       funny: "Everyone else is panicking; you've already quietly stepped on every landmine.",
@@ -145,6 +147,7 @@ export const TYPES = {
     pose: "heart",
     prop: "drink",
     zh: {
+      person: "MG",
       name: "晚安熱可可",
       role: "守護者",
       funny: "隊上唯一記得大家還沒吃飯的人。",
@@ -154,6 +157,7 @@ export const TYPES = {
       alt: "MG 頭上有愛心，捧著一杯熱飲",
     },
     en: {
+      person: "MG",
       name: "The Cocoa",
       role: "Guardian",
       funny: "The only one on the team who remembers nobody has eaten yet.",
@@ -167,6 +171,7 @@ export const TYPES = {
     pose: "jump",
     prop: null,
     zh: {
+      person: "塞安",
       name: "最後一擊",
       role: "刺客／輸出",
       funny: "前面看起來都在滑手機，最後一刻一刀收工。",
@@ -176,6 +181,7 @@ export const TYPES = {
       alt: "短黑髮、琥珀色眼睛、穿炭灰背心與銅金襯衫、面向右側的人",
     },
     en: {
+      person: "Zion",
       name: "The Finisher",
       role: "Assassin / damage",
       funny: "Looks like you're scrolling the whole time, then you finish it in one clean strike.",
@@ -189,6 +195,7 @@ export const TYPES = {
     pose: "think",
     prop: "spark",
     zh: {
+      person: "阿閃",
       name: "腦內煙火師",
       role: "點子",
       funny: "你的點子一半是天才，另一半天才到大家聽不懂。",
@@ -198,6 +205,7 @@ export const TYPES = {
       alt: "捲曲赤褐髮、綠色眼睛、穿靛藍上衣、看向上方的人",
     },
     en: {
+      person: "Flick",
       name: "The Spark",
       role: "Ideas",
       funny: "Half your ideas are genius; the other half are so genius nobody understands them.",
@@ -211,6 +219,7 @@ export const TYPES = {
     pose: "think",
     prop: "map",
     zh: {
+      person: "栗子",
       name: "地圖收藏家",
       role: "斥候",
       funny: "還沒開工，你已經知道插座在哪、誰會遲到。",
@@ -220,6 +229,7 @@ export const TYPES = {
       alt: "栗色短髮、榛色眼睛、穿橄欖外套、回頭看著空白地圖的人",
     },
     en: {
+      person: "Chestnut",
       name: "The Mapkeeper",
       role: "Scout",
       funny: "Before anything starts, you already know where the sockets are and who'll be late.",
@@ -233,6 +243,7 @@ export const TYPES = {
     pose: "dance",
     prop: "headphones",
     zh: {
+      person: "樂樂",
       name: "BGM 擔當",
       role: "吟遊詩人",
       funny: "進度不一定有，但氣氛一定有。",
@@ -242,6 +253,7 @@ export const TYPES = {
       alt: "銅紅短髮、棕色眼睛、戴大耳機、穿暖金色外套的人",
     },
     en: {
+      person: "Remi",
       name: "The Soundtrack",
       role: "Bard",
       funny: "Progress? Maybe. Vibes? Always.",
@@ -255,6 +267,7 @@ export const TYPES = {
     pose: "think",
     prop: "plan",
     zh: {
+      person: "墨衡",
       name: "先看全局",
       role: "軍師",
       funny: "大家都衝了，你還在問：所以我們要去哪？",
@@ -264,6 +277,7 @@ export const TYPES = {
       alt: "穿著深綠色長外套、站得很直的人",
     },
     en: {
+      person: "Rook",
       name: "Sees the Whole Board",
       role: "Strategist",
       funny: "Everyone's already charging, and you're still asking where you're actually going.",
@@ -277,6 +291,7 @@ export const TYPES = {
     pose: "wave",
     prop: "note",
     zh: {
+      person: "阿跑",
       name: "話送到了",
       role: "傳令兵",
       funny: "你說到最後一個人終於回：收到。",
@@ -286,6 +301,7 @@ export const TYPES = {
       alt: "深色超短髮、藍灰眼睛、邁步揮手、身上有珊瑚色帶子的人",
     },
     en: {
+      person: "Dash",
       name: "Gets It Through",
       role: "Messenger",
       funny: "You keep saying it until the last person finally answers: got it.",
@@ -322,6 +338,7 @@ export const TYPES = {
     prop: "crown",
     egg: "M-31",
     zh: {
+      person: "Holly",
       name: "仙女座女王",
       role: "女王",
       funny: "你一笑，原本各做各的人都轉過來了。",
@@ -331,6 +348,7 @@ export const TYPES = {
       alt: "金長髮、藍眼睛、戴寬金冠、穿香檳色長裙、面向右側的人",
     },
     en: {
+      person: "Holly",
       name: "Queen of Andromeda",
       role: "Queen",
       funny: "You smile, and people who were each doing their own thing turn around.",
@@ -344,6 +362,7 @@ export const TYPES = {
     pose: "think",
     prop: "palette",
     zh: {
+      person: "苔苔",
       name: "順眼就對了",
       role: "設計師",
       funny: "東西還沒排完，你已經在看這兩個顏色配不配。",
@@ -353,6 +372,7 @@ export const TYPES = {
       alt: "不對稱黑髮帶一綹苔綠、灰色眼睛、穿色塊衣服、拿著色盤的人",
     },
     en: {
+      person: "Moss",
       name: "Makes It Look Right",
       role: "Designer",
       funny: "It isn't lined up yet, and you're already asking if those two colors belong together.",
@@ -366,6 +386,8 @@ export const TYPES = {
     pose: "idle",
     prop: null,
     zh: {
+      person: "玉仔",
+      mark: "照夜玉獅子",
       name: "援軍到了",
       role: "聯盟",
       funny: "你一聲招呼，同伴就從後面趕上來了。",
@@ -375,6 +397,8 @@ export const TYPES = {
       alt: "有翅膀的白馬",
     },
     en: {
+      person: "Yuzai",
+      mark: "Night-Shining Jade Lion",
       name: "Reinforcements Are Here",
       role: "Alliance",
       funny: "One call from you, and companions come up from behind.",
@@ -388,6 +412,7 @@ export const TYPES = {
     pose: "wave",
     prop: "card",
     zh: {
+      person: "言歌",
       name: "這件事值得說",
       role: "傳教士",
       funny: "你講到第三遍，連在滑手機的人都開始點頭。",
@@ -397,6 +422,7 @@ export const TYPES = {
       alt: "黑色捲髮、藍綠眼睛、穿赤陶色長外套、面向右側拿著空白卡片的人",
     },
     en: {
+      person: "Echo",
       name: "Worth Saying Out Loud",
       role: "Missionary",
       funny: "By the third time you say it, even the person scrolling has started to nod.",
@@ -410,6 +436,7 @@ export const TYPES = {
     pose: "idle",
     prop: "bundle",
     zh: {
+      person: "承承",
       name: "我接著走",
       role: "使徒",
       funny: "大家還沒講完，你已經把那句話收進自己的做法裡。",
@@ -419,6 +446,7 @@ export const TYPES = {
       alt: "灰棕短髮、深灰眼睛、穿藏青外套、往左走並捧著布包的人",
     },
     en: {
+      person: "Carry",
       name: "I'll Carry It On",
       role: "Apostle",
       funny: "The sentence isn't even finished, and you've already folded it into how you work.",
@@ -432,6 +460,7 @@ export const TYPES = {
     pose: "think",
     prop: null,
     zh: {
+      person: "阿修",
       name: "修好了",
       role: "工匠",
       funny: "什麼都想順手改良，連沒壞的也拆開看看。",
@@ -441,6 +470,7 @@ export const TYPES = {
       alt: "深棕短髮綁小馬尾、琥珀灰眼睛、穿芥末黃工作圍裙、面向左側拿扳手的人",
     },
     en: {
+      person: "Fix",
       name: "Fixed It",
       role: "Craftsman",
       funny: "You improve whatever is in reach, and you'll open something that wasn't even broken.",
@@ -454,8 +484,8 @@ export const TYPES = {
     pose: "idle",
     prop: null,
     zh: {
-      name: "靚仔",
-      sub: "拍下來了",
+      person: "靚仔",
+      name: "拍下來了",
       role: "記錄者",
       funny: "一直在拍，合照裡永遠沒有他自己。",
       gentle: "大家忙完回頭，才發現他把每個瞬間都留下來了。",
@@ -464,6 +494,7 @@ export const TYPES = {
       alt: "淺灰紫短髮、深藍眼睛、穿奶油色背心、把底片相機舉向前面的人",
     },
     en: {
+      person: "Lenz",
       name: "Got the Shot",
       role: "Keeper of Moments",
       funny: "Always shooting, and never in the group picture.",
@@ -476,30 +507,75 @@ export const TYPES = {
 };
 
 export const FACTIONS = {
-  galaxy: { mark: "🌌", zh: "銀河隊", en: "Galaxy Team", leader: "galaxy", members: ["galaxy", "alliance", "recorder", "umbrella"] },
-  andromeda: { mark: "✨", zh: "仙女隊", en: "Andromeda Team", leader: "andromeda", members: ["andromeda", "spark", "soundtrack", "missionary"] },
-  chart: { mark: "🗺️", zh: "星圖隊", en: "Star-Map Team", leader: null, members: ["mapkeeper", "strategist", "finisher", "designer"] },
-  lantern: { mark: "🏮", zh: "燈下隊", en: "Lantern Team", leader: null, members: ["cocoa", "messenger", "apostle", "craftsman"] },
+  galaxy: {
+    mark: "🌌",
+    zh: "銀河隊",
+    en: "Galaxy Team",
+    leader: "galaxy",
+    members: ["galaxy", "alliance", "recorder", "umbrella"],
+    place: { zh: "屋頂觀星", en: "rooftop stargazing" },
+    motto: { zh: "安靜地站穩，大家自然會靠過來。", en: "Stand quietly, and people come closer." },
+  },
+  andromeda: {
+    mark: "✨",
+    zh: "仙女隊",
+    en: "Andromeda Team",
+    leader: "andromeda",
+    members: ["andromeda", "spark", "soundtrack", "missionary"],
+    place: { zh: "露天舞台", en: "open-air stage" },
+    motto: { zh: "先把光點起來，大家就想跟上。", en: "Light it up, and people want to follow." },
+  },
+  chart: {
+    mark: "🗺️",
+    zh: "星圖隊",
+    en: "Star-Map Team",
+    leader: null,
+    members: ["mapkeeper", "strategist", "finisher", "designer"],
+    place: { zh: "鐘樓", en: "clock tower" },
+    motto: { zh: "先看清楚，路就不會白跑。", en: "See it clearly, and nobody runs the wrong way." },
+  },
+  lantern: {
+    mark: "🏮",
+    zh: "燈下隊",
+    en: "Lantern Team",
+    leader: null,
+    members: ["cocoa", "messenger", "apostle", "craftsman"],
+    place: { zh: "暖窗小屋", en: "cottages with warm windows" },
+    motto: { zh: "有人照顧、有人修補、有人記得，隊伍才走得久。", en: "Someone looks after, someone mends, someone remembers. That is how a team lasts." },
+  },
 };
 
 const ABOUT = {
-  galaxy: ["關於援軍到了：喊一聲，後面那一排就到了。", "About Reinforcements Are Here: one call, and the line behind them arrives."],
+  galaxy: ["關於玉仔：喊一聲，後面那一排就到了。", "About Yuzai: one call, and the line behind them arrives."],
   alliance: ["關於銀河之女：她站出來，這一圈就有了中心。", "About Daughter of the Galaxy: when she steps out, the circle has a center."],
-  recorder: ["關於話送到了：話送到了，照片也留下了。", "About Gets It Through: the words arrive, and so does the picture."],
-  umbrella: ["關於晚安熱可可：傘下留了位子，也有人記得你還沒喝。", "About The Cocoa: there's room under the umbrella, and someone remembers you haven't had a drink."],
-  andromeda: ["關於這件事值得說：光點起來之後，有人把那件事轉給大家看。", "About Worth Saying Out Loud: once the light is on, someone turns the idea so everyone can see it."],
-  spark: ["關於順眼就對了：點子很多，他負責讓它看起來是故意的。", "About Makes It Look Right: lots of ideas; he makes them look intentional."],
-  soundtrack: ["關於靚仔：一個配樂，一個把瞬間留下來。", "About Got the Shot: one keeps the music, one keeps the moment."],
-  missionary: ["關於我接著走：講完的事，有人真的往下一個路口走。", "About I'll Carry It On: once it's said, someone actually walks it to the next corner."],
-  mapkeeper: ["關於先看全局：地圖畫完，他才決定往哪走。", "About Sees the Whole Board: once the map is drawn, he decides where to go."],
-  strategist: ["關於地圖收藏家：出發前，口袋裡永遠有一張空白地圖。", "About The Mapkeeper: before setting off, there's always a blank map in that pocket."],
-  finisher: ["關於先看全局：我等那一秒，他先看完整盤。", "About Sees the Whole Board: I wait for that one second; he looks at the whole board first."],
-  designer: ["關於修好了：一個說要怎樣，一個真的做出來。", "About Fixed It: one says how it should look, one actually makes it."],
-  cocoa: ["關於擋雨的人：傘下永遠多留一個位子。", "About The Umbrella: there's always one more place under it."],
-  messenger: ["關於靚仔：一個傳話，一個留證據。", "About Got the Shot: one carries the words, one keeps the proof."],
-  apostle: ["關於這件事值得說：不是我起的頭，是我願意把它走下去。", "About Worth Saying Out Loud: I didn't start it. I'm willing to keep walking it."],
-  craftsman: ["關於順眼就對了：壞掉的隔天回來，還要順眼。", "About Makes It Look Right: it comes back the next day, and it has to look right."],
+  recorder: ["關於阿跑：話送到了，照片也留下了。", "About Dash: the words arrive, and so does the picture."],
+  umbrella: ["關於 MG：傘下留了位子，也有人記得你還沒喝。", "About MG: there's room under the umbrella, and someone remembers you haven't had a drink."],
+  andromeda: ["關於言歌：光點起來之後，有人把那件事轉給大家看。", "About Echo: once the light is on, someone turns the idea so everyone can see it."],
+  spark: ["關於苔苔：點子很多，他負責讓它看起來是故意的。", "About Moss: lots of ideas; he makes them look intentional."],
+  soundtrack: ["關於靚仔：一個配樂，一個把瞬間留下來。", "About Lenz: one keeps the music, one keeps the moment."],
+  missionary: ["關於承承：講完的事，有人真的往下一個路口走。", "About Carry: once it's said, someone actually walks it to the next corner."],
+  mapkeeper: ["關於墨衡：地圖畫完，他才決定往哪走。", "About Rook: once the map is drawn, he decides where to go."],
+  strategist: ["關於栗子：出發前，口袋裡永遠有一張空白地圖。", "About Chestnut: before setting off, there's always a blank map in that pocket."],
+  finisher: ["關於墨衡：我等那一秒，他先看完整盤。", "About Rook: I wait for that one second; he looks at the whole board first."],
+  designer: ["關於阿修：一個說要怎樣，一個真的做出來。", "About Fix: one says how it should look, one actually makes it."],
+  cocoa: ["關於雨辰：傘下永遠多留一個位子。", "About Rainer: there's always one more place under it."],
+  messenger: ["關於靚仔：一個傳話，一個留證據。", "About Lenz: one carries the words, one keeps the proof."],
+  apostle: ["關於言歌：不是我起的頭，是我願意把它走下去。", "About Echo: I didn't start it. I'm willing to keep walking it."],
+  craftsman: ["關於苔苔：壞掉的隔天回來，還要順眼。", "About Moss: it comes back the next day, and it has to look right."],
 };
+
+export function identityLine(text) {
+  if (!text.person) return `${text.name} · ${text.role}`;
+  return `${text.person} · ${text.role} · ${text.name}`;
+}
+
+export function shortName(text) {
+  return text.person || text.name;
+}
+
+export function previewLine(text) {
+  return `${shortName(text)} · ${text.role}`;
+}
 
 for (const [factionId, faction] of Object.entries(FACTIONS)) {
   for (const id of faction.members) TYPES[id].faction = factionId;
@@ -600,6 +676,13 @@ export const UI = {
     lede: "不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。",
     hint: "每個情境選一次。同樣的選擇，永遠得到同一張卡。",
     boundary: "示意玩具，不是心理測驗。",
+    start: "開始測驗",
+    startLamp: "照夜大燈，開始測驗",
+    mapAlt: "照夜鎮夜景：左上是銀河隊的屋頂觀星，右上是仙女隊的舞台，左下是星圖隊的鐘樓，右下是燈下隊的小屋，中央是照夜大燈。",
+    seeAll: "看全部角色",
+    closePreview: "關閉",
+    teamList: "四個隊伍",
+    entryTitle: "照夜鎮",
     progress: (n) => `情境 ${n} / 3`,
     choicesLabel: "選一個做法",
     backStep: "上一個情境",
@@ -645,6 +728,13 @@ export const UI = {
     lede: "Not a questionnaire. Three short scenes. How you act is the kind of teammate you are.",
     hint: "One choice per scene. The same choices always make the same card.",
     boundary: "A toy, not a personality test.",
+    start: "Start",
+    startLamp: "Nightglow lamp, start",
+    mapAlt: "Nightglow at night: Galaxy Team stargazing at the top left, Andromeda Team's stage at the top right, the Star-Map Team clock tower at the bottom left, Lantern Team cottages at the bottom right, and the lamp in the center.",
+    seeAll: "See every role",
+    closePreview: "Close",
+    teamList: "Four teams",
+    entryTitle: "Nightglow",
     progress: (n) => `Scene ${n} of 3`,
     choicesLabel: "Pick one",
     backStep: "Previous scene",
@@ -896,6 +986,9 @@ function boot() {
     picks: route.code ? [...route.code] : [],
     code: route.code,
     withCode: route.code ? readPartner(location.search) : null,
+    started: Boolean(route.code),
+    district: null,
+    districtOpener: null,
   };
   let poseTimer = null;
 
@@ -972,8 +1065,8 @@ function boot() {
         img.src = portraitFor(id);
         img.alt = text.alt;
         tile.appendChild(img);
-        tile.appendChild(el("span", "tile-name", text.name));
-        if (text.sub) tile.appendChild(el("span", "tile-sub", text.sub));
+        tile.appendChild(el("span", "tile-name", identityLine(text)));
+        if (text.mark) tile.appendChild(el("span", "tile-sub", text.mark));
         tile.appendChild(el("span", "tile-badge", factionLabel(id, state.lang)));
         grid.appendChild(tile);
       }
@@ -1009,6 +1102,19 @@ function boot() {
 
     const quiz = $("quiz");
     const result = $("result");
+    const showEntry = !state.code && !state.started;
+    $("entry").hidden = !showEntry;
+    $("main").classList.toggle("entry-open", showEntry);
+    if (showEntry) {
+      stopPose();
+      $("stage").classList.remove("with-horse", "with-queen", "motion-float", "motion-bob", "motion-squash");
+      closeDuoStage();
+      quiz.hidden = true;
+      result.hidden = true;
+      paintEntry();
+      return;
+    }
+    closeDistrict();
     if (!state.code) {
       stopPose();
       $("stage").classList.remove("with-horse", "with-queen", "motion-float", "motion-bob", "motion-squash");
@@ -1053,12 +1159,13 @@ function boot() {
     quiz.hidden = true;
     result.hidden = false;
     $("card-kicker").textContent = ui.kicker;
-    $("card-name").textContent = text.name;
+    $("card-name").textContent = identityLine(text);
+    $("card-mark").hidden = !text.mark;
+    $("card-mark").textContent = text.mark || "";
     $("card-egg").hidden = !type.egg;
     $("card-egg").textContent = type.egg || "";
-    $("card-sub").hidden = !text.sub;
-    $("card-sub").textContent = text.sub || "";
-    $("other-name").textContent = type[other].name;
+    $("card-sub").hidden = true;
+    $("other-name").textContent = identityLine(type[other]);
     $("role").textContent = `${ui.roleLabel} · ${text.role}`;
     $("faction").textContent = factionLabel(resolved.type, state.lang);
     $("about").textContent = text.about;
@@ -1149,7 +1256,7 @@ function boot() {
     const previous = select.value;
     select.textContent = "";
     select.appendChild(new Option(ui.duoPick, ""));
-    for (const id of ROLE_ORDER) select.appendChild(new Option(TYPES[id][state.lang].name, id));
+    for (const id of ROLE_ORDER) select.appendChild(new Option(shortName(TYPES[id][state.lang]), id));
     const partner = state.withCode ? resolveChoices(state.withCode) : null;
     select.value = partner ? partner.type : previous;
     if (document.activeElement !== $("duo-code")) $("duo-code").value = state.withCode || "";
@@ -1172,7 +1279,7 @@ function boot() {
     for (const line of scene.lines) {
       const side = line.speaker === mine.type ? "from-left" : "from-right";
       const row = el("p", `duo-line ${side}`);
-      row.appendChild(el("span", "duo-speaker", TYPES[line.speaker][state.lang].name));
+      row.appendChild(el("span", "duo-speaker", shortName(TYPES[line.speaker][state.lang])));
       row.appendChild(el("span", "duo-text", line[state.lang]));
       list.appendChild(row);
     }
@@ -1202,12 +1309,13 @@ function boot() {
     if (img.getAttribute("src") !== src) img.setAttribute("src", src);
     img.alt = text.alt;
     img.classList.toggle("face-in", shouldFaceIn(GAZE[typeId], slot));
-    $(`duo-${slot}-name`).textContent = text.name;
+    $(`duo-${slot}-name`).textContent = identityLine(text);
+    $(`duo-${slot}-mark`).hidden = !text.mark;
+    $(`duo-${slot}-mark`).textContent = text.mark || "";
     $(`duo-${slot}-egg`).hidden = !type.egg;
     $(`duo-${slot}-egg`).textContent = type.egg || "";
-    $(`duo-${slot}-sub`).hidden = !text.sub;
-    $(`duo-${slot}-sub`).textContent = text.sub || "";
-    $(`duo-${slot}-other`).textContent = type[other].name;
+    $(`duo-${slot}-sub`).hidden = true;
+    $(`duo-${slot}-other`).textContent = identityLine(type[other]);
     $(`duo-${slot}-role`).textContent = `${ui.roleLabel} · ${text.role}`;
     $(`duo-${slot}-faction`).textContent = factionLabel(typeId, state.lang);
     $(`duo-${slot}-about`).textContent = text.about;
@@ -1419,9 +1527,11 @@ function boot() {
       ctx.font = `600 ${sz.PICKS}px ${FONT}`;
       const picksLines = wrapLines(ctx, ui.picks(state.code), inner);
       ctx.font = `700 ${sz.NAME}px ${FONT}`;
-      const nameLines = wrapLines(ctx, text.name, inner);
+      const nameLines = wrapLines(ctx, identityLine(text), inner);
+      ctx.font = `700 24px ${FONT}`;
+      const markLines = text.mark ? wrapLines(ctx, text.mark, inner) : [];
       ctx.font = `600 ${sz.OTHER}px ${FONT}`;
-      const otherLines = wrapLines(ctx, type[other].name, inner);
+      const otherLines = wrapLines(ctx, identityLine(type[other]), inner);
       ctx.font = `700 ${sz.ROLE}px ${FONT}`;
       const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, inner);
       ctx.font = `700 30px ${FONT}`;
@@ -1436,6 +1546,7 @@ function boot() {
       });
       const footerH = picksLines.length * lead(sz.PICKS) + 14 + boundaryLines.length * lead(BOUNDARY);
       let bodyH = nameLines.length * lead(sz.NAME);
+      bodyH += markLines.length ? markLines.length * 32 : 0;
       bodyH += type.egg ? 34 : 0;
       bodyH += 8 + otherLines.length * lead(sz.OTHER);
       bodyH += 6 + roleLines.length * lead(sz.ROLE);
@@ -1446,7 +1557,7 @@ function boot() {
       sectionLines.forEach((lines) => {
         bodyH += sz.LABEL + 10 + lines.length * lead(sz.BODY) + 8;
       });
-      return { sz, boundaryLines, picksLines, nameLines, otherLines, roleLines, factionLines, aboutLines, funnyLines, sectionLines, footerH, bodyH };
+      return { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, funnyLines, sectionLines, footerH, bodyH };
     };
     const cardFits = (ratio, measured) => {
       const artH = Math.round(height * ratio);
@@ -1481,7 +1592,7 @@ function boot() {
     }
     const artH = Math.round(height * artRatio);
     const footerTop = height - 48 - 56 - plan.footerH;
-    const { sz, boundaryLines, picksLines, nameLines, otherLines, roleLines, factionLines, aboutLines, funnyLines, sectionLines } = plan;
+    const { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, funnyLines, sectionLines } = plan;
 
     const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
     const horseNode = readyImage("horse", HORSE_SRC);
@@ -1522,6 +1633,10 @@ function boot() {
     nameLines.forEach((line) => {
       center(line, y, `700 ${sz.NAME}px ${FONT}`, "#193A35");
       y += lead(sz.NAME);
+    });
+    markLines.forEach((line) => {
+      center(line, y, `700 24px ${FONT}`, "#62716A");
+      y += 32;
     });
     if (type.egg) {
       ctx.save();
@@ -1664,31 +1779,32 @@ function boot() {
     const people = [mine, partner].map((resolved, index) => {
       const text = TYPES[resolved.type][state.lang];
       ctx.font = `700 42px ${FONT}`;
-      const nameLines = wrapLines(ctx, text.name, colW - 28);
+      const nameLines = wrapLines(ctx, identityLine(text), colW - 28);
+      ctx.font = `700 22px ${FONT}`;
+      const markLines = text.mark ? wrapLines(ctx, text.mark, colW - 28) : [];
       ctx.font = `600 28px ${FONT}`;
-      const otherLines = wrapLines(ctx, TYPES[resolved.type][other].name, colW - 28);
+      const otherLines = wrapLines(ctx, identityLine(TYPES[resolved.type][other]), colW - 28);
       ctx.font = `700 30px ${FONT}`;
       const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, colW - 28);
       const rare = Boolean(rareStroke(resolved.type));
       const egg = TYPES[resolved.type].egg || "";
-      const sub = text.sub || "";
       ctx.font = `700 24px ${FONT}`;
       const factionLines = wrapLines(ctx, factionLabel(resolved.type, state.lang), colW - 36);
       ctx.font = `500 22px ${FONT}`;
       const aboutLines = wrapLines(ctx, text.about, colW - 28);
-      const metaH = nameLines.length * 50 + (egg ? 28 : 0) + (sub ? 28 : 0) + otherLines.length * 36 + roleLines.length * 40 + factionLines.length * 36 + aboutLines.length * 30 + (rare ? 56 : 10);
+      const metaH = nameLines.length * 50 + markLines.length * 28 + (egg ? 28 : 0) + otherLines.length * 36 + roleLines.length * 40 + factionLines.length * 36 + aboutLines.length * 30 + (rare ? 56 : 10);
       return {
         slot: index === 0 ? "left" : "right",
         resolved,
         text,
         nameLines,
+        markLines,
         otherLines,
         roleLines,
         factionLines,
         aboutLines,
         rare,
         egg,
-        sub,
         metaH,
       };
     });
@@ -1696,7 +1812,7 @@ function boot() {
     const scene = dialogueFor(mine.type, partner.type);
     const bubbleMax = 800;
     const bubbles = scene.lines.map((line) => {
-      const speaker = TYPES[line.speaker][state.lang].name;
+      const speaker = shortName(TYPES[line.speaker][state.lang]);
       ctx.font = `700 26px ${FONT}`;
       const speakerW = ctx.measureText(speaker).width;
       ctx.font = `500 32px ${FONT}`;
@@ -1842,15 +1958,15 @@ function boot() {
         centerAt(line, `700 42px ${FONT}`, ink);
         y += 50;
       });
+      person.markLines.forEach((line) => {
+        centerAt(line, `700 22px ${FONT}`, moss);
+        y += 28;
+      });
       if (person.egg) {
         ctx.save();
         ctx.letterSpacing = "0.2em";
         centerAt(person.egg, `600 18px ${FONT}`, moss);
         ctx.restore();
-        y += 28;
-      }
-      if (person.sub) {
-        centerAt(person.sub, `700 22px ${FONT}`, ink);
         y += 28;
       }
       person.otherLines.forEach((line) => {
@@ -1940,6 +2056,87 @@ function boot() {
     }
   }
 
+  function paintEntry() {
+    const ui = UI[state.lang];
+    $("town-map").alt = ui.mapAlt;
+    $("start").textContent = ui.start;
+    $("entry-boundary").textContent = ui.boundary;
+    $("see-all").textContent = ui.seeAll;
+    $("entry-title").textContent = ui.entryTitle;
+    $("district-close").textContent = ui.closePreview;
+    $("team-fallback").setAttribute("aria-label", ui.teamList);
+    for (const button of document.querySelectorAll("[data-faction]")) {
+      const faction = FACTIONS[button.dataset.faction];
+      button.setAttribute("aria-label", `${faction.mark} ${faction[state.lang]}，${faction.place[state.lang]}`);
+    }
+    for (const button of document.querySelectorAll(".hotspot-lamp")) {
+      button.setAttribute("aria-label", ui.startLamp);
+    }
+    const list = $("team-fallback");
+    list.textContent = "";
+    const sep = state.lang === "zh" ? "、" : ", ";
+    const colon = state.lang === "zh" ? "：" : ": ";
+    for (const faction of Object.values(FACTIONS)) {
+      const names = faction.members.map((id) => shortName(TYPES[id][state.lang])).join(sep);
+      list.appendChild(el("li", "", `${faction.mark} ${faction[state.lang]}${colon}${names}`));
+    }
+    if (state.district) paintDistrict();
+  }
+
+  function paintDistrict() {
+    const faction = FACTIONS[state.district];
+    if (!faction) return;
+    const ui = UI[state.lang];
+    $("district-title").textContent = `${faction.mark} ${faction[state.lang]}`;
+    $("district-motto").textContent = faction.motto[state.lang];
+    $("district-close").textContent = ui.closePreview;
+    const members = $("district-members");
+    members.textContent = "";
+    for (const id of faction.members) {
+      const text = TYPES[id][state.lang];
+      const link = document.createElement("a");
+      link.className = "member";
+      link.href = `?c=${SAMPLE_CODES[id]}&lang=${state.lang}`;
+      const img = document.createElement("img");
+      img.src = portraitFor(id);
+      img.alt = "";
+      img.width = 56;
+      img.height = 56;
+      link.appendChild(img);
+      const copy = el("span", "member-copy");
+      copy.appendChild(el("span", "member-name", previewLine(text)));
+      if (text.mark) copy.appendChild(el("span", "member-mark", text.mark));
+      link.appendChild(copy);
+      members.appendChild(link);
+    }
+  }
+
+  function openDistrict(id, opener) {
+    state.district = id;
+    state.districtOpener = opener;
+    paintDistrict();
+    $("district").hidden = false;
+    $("district-close").focus();
+  }
+
+  function closeDistrict() {
+    if ($("district").hidden) {
+      state.district = null;
+      return;
+    }
+    $("district").hidden = true;
+    const opener = state.districtOpener;
+    state.district = null;
+    state.districtOpener = null;
+    if (opener) opener.focus();
+  }
+
+  function startQuiz() {
+    closeDistrict();
+    state.started = true;
+    render("scenario");
+  }
+
   document.querySelectorAll("[data-set-lang]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.dataset.setLang === state.lang) return;
@@ -1958,9 +2155,43 @@ function boot() {
     state.withCode = null;
     state.picks = [];
     state.step = 0;
+    state.started = false;
     $("duo-status").textContent = "";
     persist();
-    render("scenario");
+    render();
+    $("start").focus();
+  });
+  document.querySelectorAll("[data-faction]").forEach((button) => {
+    button.addEventListener("click", () => openDistrict(button.dataset.faction, button));
+  });
+  document.querySelectorAll("[data-start]").forEach((button) => {
+    button.addEventListener("click", startQuiz);
+  });
+  $("district-close").addEventListener("click", closeDistrict);
+  $("district").addEventListener("click", (event) => {
+    if (event.target === $("district")) closeDistrict();
+  });
+  $("see-all").addEventListener("click", () => {
+    $("gallery").open = true;
+  });
+  document.addEventListener("keydown", (event) => {
+    if ($("district").hidden) return;
+    if (event.key === "Escape") {
+      closeDistrict();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const items = [...$("district-sheet").querySelectorAll("button, a")];
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   });
   $("duo-open").addEventListener("click", () => openPartner($("duo-code").value));
   $("duo-code").addEventListener("keydown", (event) => {

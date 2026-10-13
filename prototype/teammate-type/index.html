@@ -52,6 +52,17 @@
       text-decoration: none;
     }
     .skip:focus { transform: none; }
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     .page {
       width: min(720px, calc(100% - 32px));
       margin: 0 auto;
@@ -245,7 +256,8 @@
     .motion-bob img { animation: mg-bob 240ms ease-in-out infinite; }
     .motion-float img, .motion-float .horse { animation: mg-float 1.4s ease-in-out infinite; }
     .motion-squash img { animation: mg-squash 320ms ease-in-out infinite; }
-    #card-name { margin-top: 8px; font-size: clamp(1.6rem, 6vw, 2.15rem); }
+    #card-name { margin-top: 8px; font-size: clamp(1.2rem, 4.2vw, 1.85rem); }
+    .mark-tag { margin: 2px 0 0; color: var(--moss); font-size: 13px; font-weight: 700; line-height: 1.35; }
     .egg {
       margin: 2px 0 0;
       color: var(--moss);
@@ -482,7 +494,7 @@
       .duo-stage.is-open .duo-card-right { animation-name: duo-enter-right-sm; }
     }
     @media (min-width: 860px) {
-      .page.duo-open { width: min(1120px, calc(100% - 48px)); }
+      .page.duo-open, .page.entry-open { width: min(1120px, calc(100% - 48px)); }
       .duo-stage {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -507,6 +519,145 @@
     .foot { margin-top: 36px; padding-top: 4px; }
     .back { display: inline-block; margin-top: 14px; color: var(--ink); font-weight: 700; }
     [hidden] { display: none !important; }
+    .map-stage {
+      position: relative;
+      width: min(100%, calc(68vh * 16 / 9));
+      margin: 16px auto 0;
+      border: 2.5px solid var(--ink);
+      border-radius: 1.25rem;
+      overflow: hidden;
+      background: #1c2438;
+    }
+    .map-stage img { display: block; width: 100%; height: auto; }
+    .hotspots { position: absolute; inset: 0; }
+    .hotspots-mobile { display: none; }
+    .hotspot {
+      position: absolute;
+      min-width: 48px;
+      min-height: 48px;
+      padding: 0;
+      border: 0;
+      border-radius: 18px;
+      background: transparent;
+      cursor: pointer;
+    }
+    .hotspot:hover, .hotspot:focus-visible {
+      background: rgba(255, 220, 160, 0.16);
+      box-shadow: inset 0 0 0 3px rgba(255, 214, 140, 0.9);
+    }
+    .hotspot-lamp { z-index: 3; }
+    .lamp-glow {
+      position: absolute;
+      left: 12%;
+      top: 12%;
+      width: 76%;
+      height: 76%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 214, 120, 0.72), rgba(255, 170, 60, 0.08) 68%);
+      opacity: 0.72;
+      animation: lamp-breathe 3.6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .hotspot-district::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 40%;
+      background: radial-gradient(circle, rgba(255, 196, 120, 0.28), transparent 70%);
+      opacity: 0.15;
+      animation: window-pulse 4.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .hotspots .hotspot-district:nth-child(2)::after { animation-delay: 1s; }
+    .hotspots .hotspot-district:nth-child(3)::after { animation-delay: 2s; }
+    .hotspots .hotspot-district:nth-child(4)::after { animation-delay: 3s; }
+    @keyframes lamp-breathe {
+      0%, 100% { opacity: 0.55; transform: scale(0.92); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+    @keyframes window-pulse {
+      0%, 100% { opacity: 0.08; }
+      50% { opacity: 0.28; }
+    }
+    .hotspots-desk .hot-galaxy { left: 1%; top: 2%; width: 46%; height: 40%; }
+    .hotspots-desk .hot-andromeda { left: 53%; top: 2%; width: 46%; height: 40%; }
+    .hotspots-desk .hot-chart { left: 1%; top: 56%; width: 46%; height: 42%; }
+    .hotspots-desk .hot-lantern { left: 53%; top: 56%; width: 46%; height: 42%; }
+    .hotspots-desk .hot-lamp { left: 40%; top: 36%; width: 20%; height: 24%; }
+    .hotspots-mobile .hot-galaxy { left: 2%; top: 2%; width: 46%; height: 30%; }
+    .hotspots-mobile .hot-andromeda { left: 52%; top: 2%; width: 46%; height: 30%; }
+    .hotspots-mobile .hot-chart { left: 2%; top: 64%; width: 46%; height: 32%; }
+    .hotspots-mobile .hot-lantern { left: 52%; top: 64%; width: 46%; height: 32%; }
+    .hotspots-mobile .hot-lamp { left: 26%; top: 38%; width: 48%; height: 20%; }
+    .entry-bar { margin-top: 14px; }
+    #start { min-height: 48px; width: 100%; }
+    .see-all { display: inline-flex; align-items: center; min-height: 48px; margin-top: 8px; }
+    .team-fallback { margin: 12px 0 0; padding-left: 1.2em; }
+    .team-fallback li { margin: 4px 0; }
+    .district {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(20, 44, 41, 0.4);
+    }
+    .district-sheet {
+      width: min(560px, 100%);
+      max-height: min(78vh, 680px);
+      overflow: auto;
+      padding: 16px 16px 28px;
+      background: var(--white);
+      border: 2.5px solid var(--ink);
+      border-radius: 1.25rem 1.25rem 0 0;
+      box-shadow: 0 -6px 0 var(--ink);
+    }
+    #district-close { min-height: 48px; min-width: 48px; }
+    #district-title { margin-top: 8px; font-size: 1.45rem; }
+    #district-motto { margin: 8px 0 0; }
+    .members { display: grid; gap: 8px; margin-top: 12px; }
+    .member {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      min-height: 48px;
+      padding: 8px;
+      background: var(--bone);
+      border: 2px solid var(--ink);
+      border-radius: 16px;
+      color: inherit;
+      text-decoration: none;
+    }
+    .member img { width: 56px; height: 56px; object-fit: contain; }
+    .member-copy { display: grid; min-width: 0; }
+    .member-name, .member-mark { overflow-wrap: anywhere; }
+    .member-name { font-weight: 700; }
+    .member-mark { color: var(--moss); font-size: 13px; font-weight: 700; }
+    @media (max-width: 859px) {
+      .map-stage { width: min(100%, calc(58vh * 9 / 16)); }
+      .hotspots-desk { display: none; }
+      .hotspots-mobile { display: block; }
+      .entry-bar {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        margin-top: 10px;
+        padding: 12px 0 8px;
+        background: linear-gradient(transparent, var(--bone) 28%);
+      }
+    }
+    @media (min-width: 860px) {
+      .district { align-items: stretch; justify-content: flex-end; }
+      .district-sheet {
+        width: min(400px, 42vw);
+        max-height: none;
+        height: 100%;
+        border-radius: 0;
+        box-shadow: -6px 0 0 var(--ink);
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
       .choice:hover { transform: none; }
@@ -533,7 +684,50 @@
     <p class="lede" id="lede">不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。</p>
     <p class="hint" id="hint">每個情境選一次。同樣的選擇，永遠得到同一張卡。</p>
 
-    <section id="quiz" aria-labelledby="scenario-title">
+    <section id="entry" aria-labelledby="entry-title">
+      <h2 id="entry-title" class="sr" tabindex="-1">照夜鎮</h2>
+      <div class="map-stage">
+        <picture>
+          <source media="(max-width: 859px)" srcset="assets/nightglow-map-mobile.webp" type="image/webp" />
+          <img id="town-map" src="assets/nightglow-map.webp" alt="照夜鎮夜景：左上是銀河隊的屋頂觀星，右上是仙女隊的舞台，左下是星圖隊的鐘樓，右下是燈下隊的小屋，中央是照夜大燈。" />
+        </picture>
+        <div class="hotspots hotspots-desk">
+          <button type="button" class="hotspot hotspot-district hot-galaxy" data-faction="galaxy" aria-label="🌌 銀河隊，屋頂觀星"></button>
+          <button type="button" class="hotspot hotspot-district hot-andromeda" data-faction="andromeda" aria-label="✨ 仙女隊，露天舞台"></button>
+          <button type="button" class="hotspot hotspot-district hot-chart" data-faction="chart" aria-label="🗺️ 星圖隊，鐘樓"></button>
+          <button type="button" class="hotspot hotspot-district hot-lantern" data-faction="lantern" aria-label="🏮 燈下隊，暖窗小屋"></button>
+          <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，開始測驗"><span class="lamp-glow" aria-hidden="true"></span></button>
+        </div>
+        <div class="hotspots hotspots-mobile">
+          <button type="button" class="hotspot hotspot-district hot-galaxy" data-faction="galaxy" aria-label="🌌 銀河隊，屋頂觀星"></button>
+          <button type="button" class="hotspot hotspot-district hot-andromeda" data-faction="andromeda" aria-label="✨ 仙女隊，露天舞台"></button>
+          <button type="button" class="hotspot hotspot-district hot-chart" data-faction="chart" aria-label="🗺️ 星圖隊，鐘樓"></button>
+          <button type="button" class="hotspot hotspot-district hot-lantern" data-faction="lantern" aria-label="🏮 燈下隊，暖窗小屋"></button>
+          <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，開始測驗"><span class="lamp-glow" aria-hidden="true"></span></button>
+        </div>
+      </div>
+      <div class="entry-bar">
+        <button type="button" class="primary" id="start" data-start>開始測驗</button>
+        <p class="boundary" id="entry-boundary">示意玩具，不是心理測驗。</p>
+      </div>
+      <a class="see-all" id="see-all" href="#gallery">看全部角色</a>
+      <ul class="team-fallback" id="team-fallback" aria-label="四個隊伍">
+        <li>🌌 銀河隊：銀河之女、玉仔、靚仔、雨辰</li>
+        <li>✨ 仙女隊：Holly、阿閃、樂樂、言歌</li>
+        <li>🗺️ 星圖隊：栗子、墨衡、塞安、苔苔</li>
+        <li>🏮 燈下隊：MG、阿跑、承承、阿修</li>
+      </ul>
+      <div class="district" id="district" hidden>
+        <div class="district-sheet" id="district-sheet" role="dialog" aria-modal="true" aria-labelledby="district-title">
+          <button type="button" class="text-btn" id="district-close">關閉</button>
+          <h2 id="district-title"></h2>
+          <p id="district-motto"></p>
+          <div class="members" id="district-members"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quiz" hidden aria-labelledby="scenario-title">
       <p class="progress" id="progress"></p>
       <p class="setting" id="setting"></p>
       <h2 id="scenario-title" tabindex="-1"></h2>
@@ -552,6 +746,7 @@
           <div id="prop"></div>
         </div>
         <h2 id="card-name" tabindex="-1"></h2>
+        <p class="mark-tag" id="card-mark" hidden></p>
         <p class="egg" id="card-egg" hidden></p>
         <p class="sub" id="card-sub" hidden></p>
         <p class="other-name" id="other-name"></p>
@@ -581,6 +776,7 @@
               <img id="duo-left" alt="" />
             </div>
             <h3 id="duo-left-name" tabindex="-1"></h3>
+            <p class="mark-tag" id="duo-left-mark" hidden></p>
             <p class="egg" id="duo-left-egg" hidden></p>
             <p class="sub" id="duo-left-sub" hidden></p>
             <p class="other-name" id="duo-left-other"></p>
@@ -599,6 +795,7 @@
               <img id="duo-right" alt="" />
             </div>
             <h3 id="duo-right-name" tabindex="-1"></h3>
+            <p class="mark-tag" id="duo-right-mark" hidden></p>
             <p class="egg" id="duo-right-egg" hidden></p>
             <p class="sub" id="duo-right-sub" hidden></p>
             <p class="other-name" id="duo-right-other"></p>
