@@ -17,7 +17,7 @@ export default function Showcase() {
           {s.headline}
         </h2>
         <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.intro}</p>
-        <p className="mt-3 text-sm font-semibold text-ink">{s.maturity}</p>
+        <p className="mt-3 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.support}</p>
         <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 xl:grid-cols-3 xl:gap-8">
           {items.map((item) => (
             <li key={item.href} className="flex">

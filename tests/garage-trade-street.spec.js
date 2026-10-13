@@ -46,7 +46,10 @@ for (const width of [390, 1440]) {
         await expect(img).toHaveAttribute("src", "/images/showcase-trade-street-cover.webp");
         await expect(img).toHaveAttribute("width", "408");
         await expect(img).toHaveAttribute("height", "510");
-        await expect(showcase.getByText(lang === "zh" ? "示範／成效未驗證。" : "Demo / outcomes not validated.")).toBeVisible();
+        await expect(showcase.getByText(lang === "zh"
+          ? "探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。"
+          : "Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.")).toBeVisible();
+        await expect(showcase.getByText(lang === "zh" ? "示範／成效未驗證。" : "Demo / outcomes not validated.")).toHaveCount(0);
         // promoted: it no longer appears among the Garage experiments
         await expect(page.locator("#garage").getByRole("heading", { name: c.title })).toHaveCount(0);
         await noOverflow(page);

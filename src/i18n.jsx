@@ -426,10 +426,10 @@ const dict = {
       rights: "All rights reserved.",
     },
     showcase: {
-      eyebrow: "Showcase",
-      headline: "作品館",
-      intro: "這裡放可以完整玩的作品，不是還在試的實驗。",
-      maturity: "示範／成效未驗證。",
+      eyebrow: "Interactive Showcase",
+      headline: "互動作品展示",
+      intro: "探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。",
+      support: "從一個想法開始，讓創意透過科技成形，讓每一次探索都有新的可能。",
       items: [
         {
           title: "十二月的燈",
@@ -1147,10 +1147,10 @@ const dict = {
       rights: "All rights reserved.",
     },
     showcase: {
-      eyebrow: "作品館",
-      headline: "Showcase",
-      intro: "Pieces you can play through sit here, not experiments still in progress.",
-      maturity: "Demo / outcomes not validated.",
+      eyebrow: "Interactive Showcase",
+      headline: "Interactive Works",
+      intro: "Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.",
+      support: "It starts with an idea. Technology gives it shape, and every exploration opens new possibilities.",
       items: [
         {
           title: "December Lights",
