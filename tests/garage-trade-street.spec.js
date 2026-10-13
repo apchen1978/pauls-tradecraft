@@ -10,12 +10,14 @@ const COPY = {
     cta: "走一趟",
     tag: "教學玩具 · 雙語原型",
     boundary: "教學示意，不含具體天數、費用或比例",
+    story: "從現場經驗長出來的故事與樣本",
   },
   en: {
     title: "Trade Street · One Container Ships",
     cta: "Walk the street",
     tag: "Teaching toy · bilingual prototype",
     boundary: "A teaching sketch with no specific days, costs or percentages",
+    story: "Stories and samples grown from hands-on trade experience",
   },
 };
 
@@ -29,12 +31,15 @@ for (const width of [390, 1440]) {
     test.use({ viewport: { width, height: width === 390 ? 844 : 1000 } });
 
     for (const lang of ["zh", "en"]) {
-      test(`${lang}: the card sits in the light-tech row, carries the language, and says it is a teaching sketch`, async ({ page }) => {
+      test(`${lang}: the card sits in the field-experience stories group, carries the language, and says it is a teaching sketch`, async ({ page }) => {
         const c = COPY[lang];
         await page.goto(`/?lang=${lang}#garage`);
-        const branch = page.locator("#garage-branch-light-tech");
-        const heading = branch.getByRole("heading", { name: c.title });
+        const heading = page.locator("#garage").getByRole("heading", { name: c.title });
         await expect(heading).toBeVisible();
+        // it is in the stories group (the group is open by default), not in the toys row
+        const group = heading.locator("xpath=ancestor::ol[1]");
+        await expect(group.locator("xpath=preceding-sibling::p[1]")).toHaveText(c.story);
+        await expect(page.locator("#garage-branch-light-tech").getByRole("heading", { name: c.title })).toHaveCount(0);
         const card = heading.locator("xpath=ancestor::*[self::li or self::article][1]");
         await expect(card).toContainText(c.tag);
         await expect(card).toContainText(c.boundary);
@@ -47,17 +52,20 @@ for (const width of [390, 1440]) {
         await noOverflow(page);
         if (SHOTS) {
           await heading.scrollIntoViewIfNeeded();
-          await branch.screenshot({ path: `${SHOTS}/garage-${width}-${lang}.png` });
+          await group.locator("xpath=..").screenshot({ path: `${SHOTS}/garage-${width}-${lang}.png` });
         }
       });
     }
 
-    test("the other experiments in the row and the Garage are still there", async ({ page }) => {
+    test("the toys row, the other stories and the rest of the Garage are still there", async ({ page }) => {
       await page.goto("/?lang=zh#garage");
       const branch = page.locator("#garage-branch-light-tech");
       await expect(branch.getByRole("heading", { name: "AI agent 聽得懂你的暗號嗎？" })).toBeVisible();
       await expect(page.locator("#garage").getByRole("heading", { name: "Bring Paul Into the Room · 先把問題帶進來" })).toBeVisible();
       await expect(page.locator("#garage")).toContainText("這裡放還在進行中的實驗。");
+      for (const name of ["The Project Buyer · 專案型貿易商", "How Far to Bend · 保住客戶，讓到哪裡", "The Handback Sheet · 交接單"]) {
+        await expect(page.locator("#garage").getByRole("heading", { name })).toBeVisible();
+      }
     });
   });
 }
