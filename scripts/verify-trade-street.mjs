@@ -328,3 +328,32 @@ test("cast page: one folder, one module, every id the script uses, no inline scr
   const deploy = read("../.github/workflows/deploy.yml");
   assert.ok(deploy.includes("cp -r prototype/trade-street/cast dist/prototype/trade-street/"), "deploy copies the cast folder");
 });
+
+// ---- the water glints ------------------------------------------------------------------------------------------
+test("motion: the water masks exist, are small transparent pictures, and the page points at the same files", () => {
+  const sizes = { desktop: [800, 450], mobile: [400, 711] };
+  const html = read("../prototype/trade-street/index.html");
+  for (const [kind, [width, height]] of Object.entries(sizes)) {
+    const file = ART.mask[kind];
+    assert.ok(existsSync(new URL(`../prototype/trade-street/${file}`, import.meta.url)), file);
+    const size = webpSize(bytes(file));
+    assert.deepEqual([size.width, size.height], [width, height], `${file} size`);
+    assert.equal(size.alpha, true, `${file} is transparent`);
+    assert.ok(statSync(new URL(`../prototype/trade-street/${file}`, import.meta.url)).size <= 30 * 1024, `${file} is at most 30 KB`);
+    assert.ok(html.includes(`url(${file})`), `the page uses ${file}`);
+  }
+});
+
+test("motion: the glints are decoration only, off until the mask loads, off for reduced motion, paused off screen", () => {
+  const html = read("../prototype/trade-street/index.html");
+  const app = read("../prototype/trade-street/app.js");
+  assert.match(html, /class="sea-fx" id="sea-fx" aria-hidden="true"/);
+  assert.match(html, /\.sea-fx \{ display: none;[^}]*pointer-events: none;/);
+  assert.match(html, /\.map-stage\.fx-ready \.sea-fx \{ display: block; \}/);
+  assert.match(html, /@media \(prefers-reduced-motion: reduce\) \{ \.map-stage\.fx-ready \.sea-fx \{ display: none; \} \}/);
+  assert.match(html, /\.map-stage\.idle \.sea-fx i \{ animation-play-state: paused; \}/);
+  assert.ok(app.includes("fx-ready") && app.includes("IntersectionObserver") && app.includes("ART.mask"));
+  // only transform and opacity are animated (cheap on a phone)
+  const frames = [...html.matchAll(/@keyframes fx-[a-z-]+ \{([^]*?)\}\s*(?=@|\.|$)/g)].map((m) => m[0]).join("");
+  assert.equal(/left:|top:|width:|height:|background-position/.test(frames), false);
+});
