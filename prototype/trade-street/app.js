@@ -61,7 +61,10 @@ export const UI = {
     progress: (n) => `第 ${n} 站 / 12`,
     buffer: (left) => (left >= 0 ? `緩衝格 ${left} / ${START_BUFFER}` : `緩衝格用完，超出 ${-left} 格`),
     afterSail: "船已經開了。這個決定不影響上不上船，只影響單據有沒有順利交到買家手上。",
-    handover: { smooth: "單據：順利交到買家手上。", fix: "單據：還需要補正或等待。" },
+    handover: { smooth: "單據：順利交到買家手上。", fix: "單據：還需要補件或再確認。" },
+    lightsLegend: "✓ 順利　! 用掉 1 格緩衝　✕ 用掉 2 格以上",
+    firstNote: "這一站不用選，先看懂誰在做什麼，再按「下一站」。",
+    bufferUsed: (n) => (n === 0 ? "這一趟沒用到緩衝格。" : `這一趟用掉 ${n} 格緩衝。`) + "緩衝格是遊戲代幣：代表還撐得住幾次小意外，不是天數或費用。",
     bufferNote: "緩衝格是遊戲代幣，不代表天數或費用。",
     next: "下一站", nextLast: "看航程結果", back: "回上一站", change: "改選這一題",
     who: "誰在做", prep: "你要準備或決定什麼", risk: "卡住會怎樣", decisionTag: "要做決定",
@@ -92,9 +95,9 @@ export const UI = {
     boundary: "Teaching sketch · no specific days, costs or percentages; always go by your forwarder's or the carrier's notice.",
     title: "Trade Street",
     intro: "One container ships tomorrow, and the whole street is passing the baton.",
-    lede: "Walk the harbour, make six decisions at the moments that matter, and see whether it makes the ship.",
-    hint: "The same choices always give the same result. Nothing is stored.",
-    primerTitle: "One thing first: exporting a container is a relay.",
+    lede: "Walk the harbour, make six decisions, see whether it makes the ship.",
+    hint: "Same choices, same result. Nothing is stored.",
+    primerTitle: "Exporting a container is a relay.",
     primerBody: "Goods sold abroad do not travel on their own. The factory, the forwarder (the company that arranges transport for you), the truck, customs, the shipping line and the buyer each do one leg, and the next one can only start once the last has finished. If one handover runs late, the whole container can miss its ship.",
     takeawayTitle: "What you just saw:",
     takeaway: ["Exporting is not one person's job: twelve steps, several people, one handing over to the next.", "What goes wrong is often not a single step but the handover: who passes what to whom, and when.", "That is why experienced people ask first, keep a little buffer, and write down what was agreed."],
@@ -109,6 +112,9 @@ export const UI = {
     afterSail: "The ship has already sailed. This decision cannot change whether it makes the ship, only how smoothly the documents reach the buyer.",
     handover: { smooth: "Documents: they reach the buyer smoothly.", fix: "Documents: they still need fixing or waiting." },
     bufferNote: "Buffer cells are a game token, not days or money.",
+    lightsLegend: "✓ on track   ! one buffer cell used   ✕ two or more used",
+    firstNote: "Nothing to choose at this stop: first see who does what, then press Next.",
+    bufferUsed: (n) => (n === 0 ? "This trip used no buffer cells. " : `This trip used ${n} buffer ${n === 1 ? "cell" : "cells"}. `) + "Buffer cells are a game token: how many small surprises you can still absorb, not days or money.",
     next: "Next stop", nextLast: "See the voyage", back: "Previous stop", change: "Choose again",
     who: "Who is involved", prep: "What you prepare or decide", risk: "If it goes wrong", decisionTag: "A decision",
     scnNote: (name, line) => `This week: ${name}. ${line}`,
@@ -364,6 +370,7 @@ function boot() {
     $("hint").textContent = t.hint;
     $("primer-title").textContent = t.primerTitle;
     $("primer-body").textContent = t.primerBody;
+    document.querySelectorAll(".lights-legend").forEach((node) => { node.textContent = t.lightsLegend; });
     if (!primerSet) { primerSet = true; $("primer").open = !isPhone(); }
     $("takeaway-title").textContent = t.takeawayTitle;
     $("takeaway-list").replaceChildren(...t.takeaway.map((line) => el("li", null, line)));
@@ -445,6 +452,9 @@ function boot() {
     $("station-title").textContent = step.t;
     $("station-p").textContent = step.p;
 
+    const first = $("first-note");
+    first.hidden = !(i === 0 && !decision);
+    first.textContent = t.firstNote;
     const note = $("scn-note");
     const afterSail = decision && decision.after;
     note.hidden = !(afterSail || (decision && decision.options.some((o) => o.extra && o.extra[state.scenario] != null)));
@@ -560,6 +570,7 @@ function boot() {
     $("tier-line").textContent = t.tier[res.tier].line;
     const labels = PAGE_TEXT[state.lang].countdown;
     $("worst").textContent = res.worstLight ? t.worst(labels[LIGHTS.indexOf(res.worstLight)]) : t.worstNone;
+    $("buffer-line").textContent = t.bufferUsed(res.voyageCost);
     $("handover").textContent = t.handover[res.handover];
     const picks = $("picks");
     picks.replaceChildren();

@@ -156,6 +156,9 @@
     .takeaway h2 { margin: 0 0 8px; font-size: 18px; line-height: 1.35; color: var(--deep); }
     .takeaway ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.6; }
     .takeaway p { margin: 10px 0 0; }
+    @media (max-width: 639px) { .boundary { margin-top: 10px; padding: 6px 10px; font-size: 13px; } .lede { margin-top: 6px; } .hint { margin-top: 4px; } .primer { margin-top: 8px; } }
+    .lights-legend { margin: 6px 0 0; color: var(--moss); font-size: 13px; line-height: 1.4; }
+    .buffer-line { color: var(--moss); font-size: 14px; }
     .caveat { margin-top: 28px; color: var(--moss); font-size: 14px; }
     .home { display: inline-block; margin-top: 12px; color: var(--deep); font-weight: 700; }
     .map-stage { position: relative; margin-top: 16px; border: 3px solid var(--deep); border-radius: 16px; overflow: hidden; background: var(--sky); line-height: 0; }
@@ -355,6 +358,7 @@
         <p class="progress" id="progress"></p>
         <div class="buffer" id="buffer" role="img"></div>
         <ul class="lights" id="lights" aria-label="四個時間點"></ul>
+        <p class="lights-legend" id="lights-legend-play"></p>
       </div>
       <div id="slot-play"></div>
       <div class="scene">
@@ -365,6 +369,7 @@
         <p class="say" id="say"></p>
         <h2 class="step-title" id="station-title" tabindex="-1"></h2>
         <p class="step-p" id="station-p"></p>
+        <p class="scn-note" id="first-note" hidden></p>
         <p class="scn-note" id="scn-note" hidden></p>
         <div class="brief" id="brief"></div>
         <p class="prompt" id="prompt" hidden></p>
@@ -381,6 +386,7 @@
       <h2 id="result-title" tabindex="-1" class="sr">航程結果</h2>
       <div class="bar">
         <ul class="lights" id="result-lights" aria-label="四個時間點"></ul>
+        <p class="lights-legend" id="lights-legend-result"></p>
       </div>
       <article class="card" id="card" aria-labelledby="tier">
         <p class="card-kicker" id="card-kicker"></p>
@@ -394,6 +400,7 @@
         <p id="tier-line"></p>
         <p class="worst" id="worst"></p>
         <p class="worst" id="handover"></p>
+        <p class="worst buffer-line" id="buffer-line"></p>
         <ul class="picks" id="picks"></ul>
         <p class="card-boundary" id="card-boundary"></p>
       </article>
