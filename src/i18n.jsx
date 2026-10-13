@@ -432,9 +432,9 @@ const dict = {
       maturity: "示範／成效未驗證。",
       items: [
         {
-          title: "你是哪一種隊友？",
+          title: "十二月的燈",
           tag: "示意玩具 · 雙語原型",
-          hook: "照夜鎮裡，十六種隊友，四個隊伍。",
+          hook: "你是哪一種隊友？照夜鎮裡，十六種隊友，四個隊伍。",
           cta: "玩一次",
           boundary: "示意玩具，不是心理測驗。",
           href: "/prototype/teammate-type/",
@@ -1153,9 +1153,9 @@ const dict = {
       maturity: "Demo / outcomes not validated.",
       items: [
         {
-          title: "What kind of teammate are you?",
+          title: "December Lights",
           tag: "Illustrative toy · bilingual prototype",
-          hook: "Nightglow has sixteen teammates in four factions.",
+          hook: "What kind of teammate are you? Nightglow has sixteen teammates in four factions.",
           cta: "Play",
           boundary: "A toy, not a personality test.",
           href: "/prototype/teammate-type/",
