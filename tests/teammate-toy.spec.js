@@ -101,33 +101,81 @@ async function frameBranch(page) {
   });
 }
 
+async function shootShowcaseAndGarage(page, name) {
+  const width = page.viewportSize().width;
+  await page.setViewportSize({ width, height: 2800 });
+  await page.evaluate(() => {
+    const header = document.querySelector("header");
+    if (header) header.style.position = "relative";
+    const start = document.getElementById("showcase").getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, Math.max(0, start));
+  });
+  await page.waitForFunction(() => {
+    const img = document.querySelector("#showcase img");
+    return img && img.complete && img.naturalWidth > 0;
+  });
+  const clipHeight = await page.evaluate(() => {
+    const showcase = document.getElementById("showcase");
+    const intro = document.getElementById("garage-heading")?.nextElementSibling;
+    const start = showcase.getBoundingClientRect().top + window.scrollY;
+    const end = (intro || document.getElementById("garage")).getBoundingClientRect().bottom + window.scrollY + 28;
+    return Math.ceil(end - start);
+  });
+  await page.setViewportSize({ width, height: Math.min(clipHeight + 8, 4000) });
+  await page.evaluate(() => {
+    const start = document.getElementById("showcase").getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, start);
+  });
+  await page.screenshot({
+    path: `${OUT}/${name}.png`,
+    clip: { x: 0, y: 0, width, height: clipHeight },
+  });
+}
+
 test.describe("garage listing", () => {
   for (const width of [390, 1280]) {
-    test(`${width}px zh and en put the light-tech toy first`, async ({ page }) => {
+    test(`${width}px zh and en keep Garage experiments and put the teammate toy in Showcase`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 390 ? 1680 : 1560 });
       await page.goto("/?lang=zh#garage");
       const branch = page.locator("#garage-branch-light-tech");
       await expect(branch.getByRole("heading", { level: 3 })).toHaveText("輕科技玩具");
       await expectBranchFirst(page, "Bring Paul Into the Room");
-      const card = page.getByRole("heading", { name: "你是哪一種隊友？" });
+      await expect(branch.getByRole("heading", { name: "AI agent 聽得懂你的暗號嗎？" })).toBeVisible();
+      await expect(page.locator("#garage")).toContainText("這裡放還在進行中的實驗。");
+      await expect(page.locator("#garage").getByRole("heading", { name: "你是哪一種隊友？" })).toHaveCount(0);
+      const showcase = page.locator("#showcase");
+      const card = showcase.getByRole("heading", { name: "你是哪一種隊友？" });
       await expect(card).toBeVisible();
-      await expect(page.locator("#garage-more").getByRole("heading", { name: "你是哪一種隊友？" })).toHaveCount(0);
-      await expect(page.getByText("示意玩具，不是心理測驗。").first()).toBeVisible();
+      await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("作品館");
+      await expect(showcase.getByText("照夜鎮裡，十六種隊友，四個隊伍。")).toBeVisible();
+      await expect(showcase.getByText("示範／成效未驗證。")).toBeVisible();
+      await expect(showcase.getByText("示意玩具，不是心理測驗。")).toBeVisible();
+      await expect(showcase.locator("img")).toHaveAttribute("src", "/prototype/teammate-type/assets/galaxy.webp");
+      await expect(showcase.locator("img")).toHaveAttribute("alt", "銀河之女");
       const href = await card.locator("..").getByRole("link", { name: "玩一次", exact: true }).getAttribute("href");
       expect(href).toContain("/prototype/teammate-type/");
       expect(href).toContain("lang=zh");
-      await frameBranch(page);
-      await shoot(page, `garage-${width}-zh-light-tech`);
+      await noOverflow(page);
+      await shootShowcaseAndGarage(page, `home-${width}-zh-showcase-garage`);
       await page.goto("/?lang=en#garage");
       await expect(page.locator("#garage-branch-light-tech").getByRole("heading", { level: 3 })).toHaveText("Light-tech toys");
       await expectBranchFirst(page, "Bring Paul Into the Room");
-      await expect(page.getByRole("heading", { name: "What kind of teammate are you?" })).toBeVisible();
-      await expect(page.getByText("A toy, not a personality test.").first()).toBeVisible();
-      const enHref = await page.getByRole("heading", { name: "What kind of teammate are you?" }).locator("..").getByRole("link", { name: "Play", exact: true }).getAttribute("href");
+      await expect(page.locator("#garage")).toContainText("Experiments in progress live here.");
+      await expect(page.locator("#garage").getByRole("heading", { name: "What kind of teammate are you?" })).toHaveCount(0);
+      const enShowcase = page.locator("#showcase");
+      const enCard = enShowcase.getByRole("heading", { name: "What kind of teammate are you?" });
+      await expect(enCard).toBeVisible();
+      await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Showcase");
+      await expect(enShowcase.getByText("Nightglow has sixteen teammates in four factions.")).toBeVisible();
+      await expect(enShowcase.getByText("Demo / outcomes not validated.")).toBeVisible();
+      await expect(enShowcase.getByText("A toy, not a personality test.")).toBeVisible();
+      await expect(enShowcase.locator("img")).toHaveAttribute("alt", "Daughter of the Galaxy");
+      const enHref = await enCard.locator("..").getByRole("link", { name: "Play", exact: true }).getAttribute("href");
+      expect(enHref).toContain("/prototype/teammate-type/");
       expect(enHref).toContain("lang=en");
-      await frameBranch(page);
-      await shoot(page, `garage-${width}-en-light-tech`);
       await noOverflow(page);
+      if (width === 1280) await shootShowcaseAndGarage(page, "home-1280-en-showcase-garage");
+      await frameBranch(page);
     });
   }
 });

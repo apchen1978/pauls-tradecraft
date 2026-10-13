@@ -7,6 +7,7 @@ import HumanAiEditorial from "./components/HumanAiEditorial.jsx";
 import { WorksFlagship, default as Works } from "./components/Works.jsx";
 import DealReadiness from "./components/DealReadiness.jsx";
 import SemanticaCaseStudy from "./components/SemanticaCaseStudy.jsx";
+import Showcase from "./components/Showcase.jsx";
 import Garage from "./components/Garage.jsx";
 import Capabilities from "./components/Capabilities.jsx";
 import CommercialOutcomes from "./components/CommercialOutcomes.jsx";
@@ -31,6 +32,7 @@ export default function BelowFold({ onReady }) {
       <HumanAiEditorial />
       <Works />
       <SemanticaCaseStudy />
+      <Showcase />
       <Garage />
       <Capabilities />
       <DealReadiness />
