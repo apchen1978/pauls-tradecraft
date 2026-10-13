@@ -221,7 +221,7 @@ export const TYPES = {
     pose: "think",
     prop: "map",
     zh: {
-      person: "栗子",
+      person: "莉婭",
       name: "地圖收藏家",
       role: "斥候",
       funny: "還沒開工，你已經知道插座在哪、誰會遲到。",
@@ -231,7 +231,7 @@ export const TYPES = {
       alt: "栗色短髮、榛色眼睛、穿橄欖外套、回頭看著空白地圖的人",
     },
     en: {
-      person: "Chestnut",
+      person: "Leia",
       name: "The Mapkeeper",
       role: "Scout",
       funny: "Before anything starts, you already know where the sockets are and who'll be late.",
@@ -561,7 +561,7 @@ const ABOUT = {
   soundtrack: ["關於靚仔：一個配樂，一個把瞬間留下來。", "About Lenz: one keeps the music, one keeps the moment."],
   missionary: ["關於承承：講完的事，有人真的往下一個路口走。", "About Carry: once it's said, someone actually walks it to the next corner."],
   mapkeeper: ["關於墨衡：地圖畫完，他才決定往哪走。", "About Rook: once the map is drawn, he decides where to go."],
-  strategist: ["關於栗子：出發前，口袋裡永遠有一張空白地圖。", "About Chestnut: before setting off, there's always a blank map in that pocket."],
+  strategist: ["關於莉婭：出發前，口袋裡永遠有一張空白地圖。", "About Leia: before setting off, there's always a blank map in that pocket."],
   finisher: ["關於墨衡：我等那一秒，他先看完整盤。", "About Rook: I wait for that one second; he looks at the whole board first."],
   designer: ["關於阿修：一個說要怎樣，一個真的做出來。", "About Fix: one says how it should look, one actually makes it."],
   cocoa: ["關於雨辰：傘下永遠多留一個位子。", "About Rainer: there's always one more place under it."],

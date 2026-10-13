@@ -663,7 +663,7 @@ test.describe("new choices and roles", () => {
       { code: "AAA", file: "umbrella.webp", zh: "雨辰 · 坦克 · 擋雨的人", en: "Rainer · Tank · The Umbrella" },
       { code: "BBC", file: "finisher.webp", zh: "塞安 · 刺客 · 最後一擊", en: "Zion · Assassin · The Finisher" },
       { code: "CCC", file: "spark.webp", zh: "阿閃 · 點子 · 腦內煙火師", en: "Flick · Ideas · The Spark" },
-      { code: "DAA", file: "mapkeeper.webp", zh: "栗子 · 斥候 · 地圖收藏家", en: "Chestnut · Scout · The Mapkeeper" },
+      { code: "DAA", file: "mapkeeper.webp", zh: "莉婭 · 斥候 · 地圖收藏家", en: "Leia · Scout · The Mapkeeper" },
       { code: "CCD", file: "soundtrack.webp", zh: "樂樂 · 吟遊詩人 · BGM 擔當", en: "Remi · Bard · The Soundtrack" },
       { code: "EAE", file: "strategist.webp", zh: "墨衡 · 軍師 · 先看全局", en: "Rook · Strategist · Sees the Whole Board" },
       { code: "AEA", file: "messenger.webp", zh: "阿跑 · 傳令兵 · 話送到了", en: "Dash · Messenger · Gets It Through" },

@@ -240,6 +240,8 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   }
   assert.equal(/玉仔|照夜玉獅子|Yuzai|Night-Shining Jade Lion/.test(horseScan), false);
   assert.equal((html.match(/玉仔/g) || []).length, 1);
+  assert.match(html, /星圖隊：莉婭、墨衡、塞安、苔苔/);
+  assert.equal(html.includes("栗子"), false);
   assert.equal(/照夜玉獅子/.test(html), false);
   assert.equal(TYPES.cocoa.zh.role, "守護者");
   assert.equal(TYPES.cocoa.en.role, "Guardian");
@@ -263,7 +265,7 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
     cocoa: "MG · 守護者 · 晚安熱可可",
     finisher: "塞安 · 刺客 · 最後一擊",
     spark: "阿閃 · 點子 · 腦內煙火師",
-    mapkeeper: "栗子 · 斥候 · 地圖收藏家",
+    mapkeeper: "莉婭 · 斥候 · 地圖收藏家",
     soundtrack: "樂樂 · 吟遊詩人 · BGM 擔當",
     strategist: "墨衡 · 軍師 · 先看全局",
     messenger: "阿跑 · 傳令兵 · 話送到了",
@@ -282,6 +284,15 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(identityLine(TYPES.recorder.en), "Lenz · Keeper of Moments · Got the Shot");
   assert.equal(identityLine(TYPES.umbrella.en), "Rainer · Tank · The Umbrella");
   assert.equal(identityLine(TYPES.finisher.en), "Zion · Assassin · The Finisher");
+  assert.equal(identityLine(TYPES.mapkeeper.en), "Leia · Scout · The Mapkeeper");
+  assert.equal(TYPES.mapkeeper.zh.role, "斥候");
+  assert.equal(TYPES.mapkeeper.en.role, "Scout");
+  assert.equal(TYPES.mapkeeper.zh.name, "地圖收藏家");
+  assert.equal(TYPES.mapkeeper.en.name, "The Mapkeeper");
+  assert.equal(resolveChoices("DAA").type, "mapkeeper");
+  assert.equal(TYPES.strategist.zh.about, "關於莉婭：出發前，口袋裡永遠有一張空白地圖。");
+  assert.equal(TYPES.strategist.en.about, "About Leia: before setting off, there's always a blank map in that pocket.");
+  assert.equal(blob.includes("栗子") || blob.includes("Chestnut"), false);
   assert.equal(TYPES.finisher.zh.role, "刺客");
   assert.equal(TYPES.finisher.en.role, "Assassin");
   assert.equal(/輸出|\bDPS\b|Assassin \/ damage/.test(blob), false);
