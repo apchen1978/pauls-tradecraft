@@ -2,7 +2,7 @@ import {
   CAST, CAST_ORDER, DECISIONS, LIGHTS, REACT, SCENARIOS, SCENARIO_ORDER, START_BUFFER, STATION_SPEAKER, STYLES, STYLE_CHAR,
   optionCost, readRoute, resolve, shareSearch,
 } from "./game.js";
-import { PAGE_TEXT, STEP_TEXT } from "./steps-text.js";
+import { LEARN_TEXT, PAGE_TEXT, STEP_TEXT } from "./steps-text.js";
 import { ART, AVATAR_COLOR, GLOSS, MOBILE_QUERY, POS, SHORT } from "./layout.js";
 
 export { AVATAR_COLOR, SHORT };
@@ -73,7 +73,7 @@ export const UI = {
     freeText: "這一步沒有用掉緩衝格。",
     costText: (n) => `這個選擇用掉 ${n} 格緩衝。`,
     worseText: (name) => `${name}讓這個選擇更吃虧。`,
-    keyPoint: "這一步的要點", ifStuck: "卡住會怎樣",
+    keyPoint: "這一步的要點", ifStuck: "卡住會怎樣", wording: "用語小註", lightsHelp: "這四個時間點是什麼？", lightsHelpNote: "前面的流程都在往這幾個時間點倒數；每一個都是「最後期限」。",
     kicker: "你的航程卡", styleLabel: (name) => `你這一路的做事風格：${name}`,
     tier: {
       clear: { name: "穩穩上船", line: "船開了，這櫃貨在船上。" },
@@ -123,7 +123,7 @@ export const UI = {
     freeText: "This step used no buffer cells.",
     costText: (n) => `This choice used ${n} buffer ${n === 1 ? "cell" : "cells"}.`,
     worseText: (name) => `${name} makes this choice cost more.`,
-    keyPoint: "The point of this step", ifStuck: "If it goes wrong",
+    keyPoint: "The point of this step", ifStuck: "If it goes wrong", wording: "A note on the words", lightsHelp: "What are these four moments?", lightsHelpNote: "Everything before counts down to these moments; each one is a last deadline.",
     kicker: "YOUR VOYAGE CARD", styleLabel: (name) => `Your style on this run: ${name}`,
     tier: {
       clear: { name: "Safely aboard", line: "The ship sailed with your container on it." },
@@ -210,6 +210,33 @@ function boot() {
       const cost = made.reduce((sum, item) => sum + optionCost(item.decision, item.decision.options.find((o) => o.id === state.picks[item.i]), state.scenario), 0);
       return cost === 0 ? "green" : cost === 1 ? "amber" : "red";
     });
+  }
+
+  // The source page says there is nothing special to note for some steps; that line teaches nothing, so it is left out.
+  const NO_NOTE = /沒有特別有把握|No difference here that we are confident/;
+  const wordingNote = (step) => (step.cross && !NO_NOTE.test(step.cross) ? step.cross : "");
+
+  // "What are these four moments?": the page's own words for the three cut-offs, then the sailing.
+  function renderLightsHelp(node) {
+    node.replaceChildren();
+    const t = ui();
+    const learn = LEARN_TEXT[state.lang];
+    const labels = PAGE_TEXT[state.lang].countdown;
+    const summary = el("summary", null, t.lightsHelp);
+    const body = el("div", "lights-help-body");
+    body.appendChild(el("p", null, t.lightsHelpNote));
+    const list = el("ul");
+    learn.cutGroups[0].items.forEach(([name, meaning, snag], i) => {
+      const li = el("li");
+      li.append(el("b", null, `${labels[i]}（${name}）`), document.createTextNode(`：${meaning} ${snag}`));
+      list.appendChild(li);
+    });
+    const sail = STEP_TEXT[9][state.lang];
+    const last = el("li");
+    last.append(el("b", null, `${labels[3]}`), document.createTextNode(`：${sail.p}`));
+    list.appendChild(last);
+    body.appendChild(list);
+    node.append(summary, body);
   }
 
   function renderLights(node, states) {
@@ -353,6 +380,9 @@ function boot() {
     $("preview-say").textContent = STATION_LINE[state.lang][i];
     $("preview-title").textContent = `${i + 1}. ${STEP_TEXT[i][state.lang].t}`;
     $("preview-p").textContent = STEP_TEXT[i][state.lang].p;
+    const note = wordingNote(STEP_TEXT[i][state.lang]);
+    $("preview-cross").hidden = !note;
+    $("preview-cross").textContent = note ? `${ui().wording}：${note}` : "";
     $("preview-close").textContent = ui().previewClose;
     $("preview").hidden = false;
   }
@@ -392,6 +422,7 @@ function boot() {
     $("primer-title").textContent = t.primerTitle;
     $("primer-body").textContent = t.primerBody;
     document.querySelectorAll(".lights-legend").forEach((node) => { node.textContent = t.lightsLegend; });
+    document.querySelectorAll(".lights-help").forEach(renderLightsHelp);
     if (!primerSet) { primerSet = true; $("primer").open = false; }
     $("takeaway-title").textContent = t.takeawayTitle;
     $("takeaway-list").replaceChildren(...t.takeaway.map((line) => el("li", null, line)));
@@ -488,6 +519,7 @@ function boot() {
     const row = (label, text) => { const d = el("div"); d.append(el("b", null, label), document.createTextNode(text)); return d; };
     brief.appendChild(row(t.who, step.who));
     if (!decision) { brief.appendChild(row(t.prep, step.prep)); brief.appendChild(row(t.risk, step.risk)); }
+    if (wordingNote(step)) brief.appendChild(row(t.wording, wordingNote(step)));
 
     const prompt = $("prompt");
     const choices = $("choices");

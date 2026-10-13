@@ -257,3 +257,175 @@ export const PAGE_TEXT = {
     "countdownNote": "A sketch only: the real order and timing depend on the port and the carrier. Go by what your forwarder or the carrier tells you."
   }
 };
+
+// Also verbatim from the 12-steps page: the cut-off and customs terms, the risky moments and the five questions for a forwarder.
+export const LEARN_TEXT = {
+  "zh": {
+    "cutH": "三截四關：倒數時間表",
+    "cutLede": "前面的流程都在往這幾個時間點倒數。名字很像，意思不同；哪一天最容易出事，往往就在這裡。",
+    "cutGroups": [
+      {
+        "h": "三截：最後交東西的時間",
+        "sub": "超過就趕不上這班船，或要改搭下一班。",
+        "items": [
+          [
+            "截單",
+            "把訂艙、裝箱與提單所需的資料交給貨代的最後時間。",
+            "資料還沒定，或事後才發現寫錯，都容易卡在這裡。"
+          ],
+          [
+            "截關",
+            "報關與放行相關作業的最後時間，常指這一班船還能不能完成出口手續。",
+            "各地對「截關」涵蓋的範圍說法不一，請貨代把時間寫給你。"
+          ],
+          [
+            "截港",
+            "重櫃進到碼頭或貨櫃場的最後時間。",
+            "工廠裝櫃拖延、拖車遲到，都會直接壓縮到這個時間。"
+          ]
+        ]
+      },
+      {
+        "h": "四關：跟海關有關的四個詞",
+        "sub": "常被混著用，先分清楚各自指什麼。",
+        "items": [
+          [
+            "報關",
+            "向海關申報這櫃貨要進口或出口。",
+            "資料不一致，是最常見的卡點。"
+          ],
+          [
+            "清關",
+            "貨物通過海關程序、可以被放行的整個過程；口語上多用在貨到目的地之後。",
+            "買家那一端的清關沒準備好，貨到了也拿不到。"
+          ],
+          [
+            "結關",
+            "台灣常用的說法，指該班船在港口作業上「關門」的時間點。",
+            "與大陸說的「截港」「截關」不一定完全相同，請對方寫明是哪一個時間。"
+          ],
+          [
+            "通關",
+            "貨物順利通過海關、可以放行的結果。",
+            "「通關了」才代表可以往下一步走；還沒通關，不要先答應買家日期。"
+          ]
+        ]
+      }
+    ],
+    "dangerH": "哪幾個時刻最容易出事？",
+    "danger": [
+      "還在改資料，截單就到了：提單資料來不及定稿，或事後才發現錯字。",
+      "重櫃趕不上進港：工廠裝櫃拖延、拖車遲到，前面的緩衝一層一層被吃掉。",
+      "報關資料和實貨對不上：被要求補件，或被查驗，整班船就可能錯過。",
+      "假日與連假前後：很多單位的作業時間會改變，請提早問貨代。"
+    ],
+    "asksH": "負責人要問貨代的 5 個問題",
+    "asksLede": "不用懂所有名詞。把這 5 個問題問清楚、請對方寫下來，就能避開大部分誤會。",
+    "asks": [
+      [
+        "這班船的截單、截關（結關）、截港，各是哪一天的幾點？",
+        "請對方用文字寫給你，並註明各自指的是哪一個動作。"
+      ],
+      [
+        "我這櫃貨需要哪些文件？誰負責準備？哪一份最容易出錯？",
+        "先把責任分清楚，再談時間。"
+      ],
+      [
+        "萬一趕不上這班船，下一個選擇是什麼？需要我先決定什麼？",
+        "備案要在出事之前問。"
+      ],
+      [
+        "報價裡包含哪些項目？哪些可能另外出現？",
+        "請對方列出項目名稱；金額以他們的正式報價為準。"
+      ],
+      [
+        "提單怎麼出？正本、電放，還是其他做法？誰簽、什麼時候可以拿到？",
+        "這會影響買家能不能順利提貨。"
+      ]
+    ]
+  },
+  "en": {
+    "cutH": "Cut-offs and customs terms: the countdown",
+    "cutLede": "Everything before this is counting down to a few moments. The names look alike but mean different things; this is where the trouble usually happens.",
+    "cutGroups": [
+      {
+        "h": "Three cut-offs: the last time to hand something in",
+        "sub": "Miss one and you miss this ship, or move to the next one.",
+        "items": [
+          [
+            "Document cut-off (截單)",
+            "The last time to give the forwarder the information needed for the booking, the packing details and the bill of lading.",
+            "If the details are not settled, or a mistake is found late, this is where it jams."
+          ],
+          [
+            "Customs cut-off (截關)",
+            "The last time for declaration and release work, often meaning whether export formalities can still be done for this ship.",
+            "Places use the word for slightly different things, so ask your forwarder to write the time down."
+          ],
+          [
+            "Port cut-off (截港)",
+            "The last time for the full container to get into the terminal or container yard.",
+            "Late loading at the factory or a late truck squeezes straight into this."
+          ]
+        ]
+      },
+      {
+        "h": "Four customs terms",
+        "sub": "They get mixed up. Sort out what each one means.",
+        "items": [
+          [
+            "報關 (declaration)",
+            "Telling customs that the container is being imported or exported.",
+            "Inconsistent information is the most common snag."
+          ],
+          [
+            "清關 (clearance)",
+            "The whole process of a shipment getting through customs and being released; in everyday talk usually the part after arrival at the destination.",
+            "If the buyer's end of clearance is not ready, the goods cannot be collected even when they arrive."
+          ],
+          [
+            "結關",
+            "A term often used in Taiwan for the point at which a sailing is “closed” for port handling.",
+            "It is not necessarily identical to the mainland terms “截港” or “截關”; ask the other side to say exactly which time they mean."
+          ],
+          [
+            "通關 (customs passed)",
+            "The result: the goods have passed customs and can be released.",
+            "Only “passed” means you can move on; until then, do not promise the buyer a date."
+          ]
+        ]
+      }
+    ],
+    "dangerH": "When does it most often go wrong?",
+    "danger": [
+      "The document cut-off arrives while you are still editing: bill-of-lading details are not final, or a typo is found late.",
+      "The full container misses port entry: late loading and a late truck eat your buffer layer by layer.",
+      "The declaration and the real goods do not match: you are asked for more papers or the box is inspected, and the whole sailing can be lost.",
+      "Around public holidays: many parties change their working hours, so ask your forwarder early."
+    ],
+    "asksH": "5 questions to ask your forwarder",
+    "asksLede": "You do not need to know every term. Ask these five, and ask for the answers in writing, and you avoid most misunderstandings.",
+    "asks": [
+      [
+        "For this sailing, on which day and at what time are the document cut-off, the customs cut-off (結關) and the port cut-off?",
+        "Ask for it in writing, with a note of which action each one refers to."
+      ],
+      [
+        "Which documents does my container need, who prepares them, and which one is most likely to go wrong?",
+        "Settle who is responsible first, then talk about timing."
+      ],
+      [
+        "If we miss this sailing, what is the next option, and what do I need to decide first?",
+        "Ask for the fallback before something goes wrong."
+      ],
+      [
+        "Which items does the quote include, and which might appear separately?",
+        "Ask them to list the item names; the amounts are whatever their formal quote says."
+      ],
+      [
+        "How will the bill of lading be issued: originals, telex release or something else? Who signs, and when can I have it?",
+        "This decides whether your buyer can collect the goods smoothly."
+      ]
+    ]
+  }
+};

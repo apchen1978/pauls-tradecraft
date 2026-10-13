@@ -53,7 +53,8 @@ for (const lang of ["zh", "en"]) {
     await expect(play).toHaveCount(1);
     await expect(play).toContainText(lang === "zh" ? "貿易街" : "Trade Street");
     await play.click();
-    await expect(page).toHaveURL(new RegExp(`/prototype/trade-street/\\?lang=${lang}`));
+    // the toy tidies the address (Chinese is its default, so it may drop ?lang=zh); the language that matters is the one on the page
+    await expect(page).toHaveURL(/\/prototype\/trade-street\//);
     await expect(page.locator("#title")).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", lang === "zh" ? "zh-Hant" : "en");
 
