@@ -715,7 +715,7 @@ export const UI = {
     duoPick: "選一個角色",
     duoPlaceholder: "例如 EEA，或整段連結",
     duoOpen: "看這一幕",
-    duoBad: "這組字母對不上任何卡。",
+    duoBad: "這組字母還找不到對應的角色，檢查一下朋友的三個字母。",
     duoYou: "你",
     duoFriend: "朋友",
     duoDownload: "下載這一幕",
@@ -771,7 +771,7 @@ export const UI = {
     duoPick: "Pick a role",
     duoPlaceholder: "For example EEA, or the whole link",
     duoOpen: "Play this scene",
-    duoBad: "Those letters don't match a card.",
+    duoBad: "These letters haven't found a role yet. Check the three letters your friend sent.",
     duoYou: "You",
     duoFriend: "Friend",
     duoDownload: "Download this scene",
@@ -1052,6 +1052,7 @@ function boot() {
     picks: route.code ? [...route.code] : [],
     code: route.code,
     withCode: route.code ? readPartner(location.search) : null,
+    duoNote: route.code && new URLSearchParams(location.search).get("with") && !readPartner(location.search) ? "bad" : "",
     started: Boolean(route.code),
     district: null,
     districtOpener: null,
@@ -1154,7 +1155,6 @@ function boot() {
     document.querySelectorAll("[data-set-lang]").forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.setLang === state.lang));
     });
-    $("boundary").textContent = ui.boundary;
     $("title").textContent = ui.h1;
     $("subtitle").textContent = ui.subtitle;
     $("intro").textContent = ui.intro;
@@ -1330,6 +1330,7 @@ function boot() {
     const partner = state.withCode ? resolveChoices(state.withCode) : null;
     select.value = partner ? partner.type : previous;
     if (document.activeElement !== $("duo-code")) $("duo-code").value = state.withCode || "";
+    $("duo-status").textContent = state.duoNote === "bad" ? ui.duoBad : "";
     if (!partner) {
       closeDuoStage();
       return;
@@ -1417,9 +1418,11 @@ function boot() {
     const ui = UI[state.lang];
     const code = extractCode(raw);
     if (!code || !resolveChoices(code)) {
+      state.duoNote = "bad";
       $("duo-status").textContent = ui.duoBad;
       return;
     }
+    state.duoNote = "";
     state.withCode = code;
     $("duo-status").textContent = "";
     persist();
@@ -2241,6 +2244,7 @@ function boot() {
   $("again").addEventListener("click", () => {
     state.code = null;
     state.withCode = null;
+    state.duoNote = "";
     state.picks = [];
     state.step = 0;
     state.started = false;

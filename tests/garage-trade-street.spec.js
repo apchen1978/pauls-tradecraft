@@ -9,12 +9,14 @@ const COPY = {
     title: "貿易街 · 一櫃貨出海",
     cta: "走一趟",
     tag: "教學玩具 · 雙語原型",
+    teaches: "教你：一櫃貨出海要經過哪些人、哪六個時刻要決定",
     boundary: "教學示意，不含具體天數、費用或比例",
   },
   en: {
     title: "Trade Street · One Container Ships",
     cta: "Walk the street",
     tag: "Teaching toy · bilingual prototype",
+    teaches: "Teaches: who a container passes through on its way to sea, and the six moments you decide",
     boundary: "A teaching sketch with no specific days, costs or percentages",
   },
 };
@@ -37,6 +39,7 @@ for (const width of [390, 1440]) {
         await expect(heading).toBeVisible();
         const card = heading.locator("xpath=ancestor::article[1]");
         await expect(card).toContainText(c.tag);
+        await expect(card).toContainText(c.teaches);
         await expect(card).toContainText(c.boundary);
         const link = card.getByRole("link", { name: c.cta, exact: true });
         const href = await link.getAttribute("href");

@@ -39,6 +39,7 @@ export default function Showcase() {
                   <p className="text-xs font-semibold text-moss">{item.tag}</p>
                   <h3 className="mt-3 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
                   <p className="mt-3 text-base leading-relaxed text-ink">{item.hook}</p>
+                  <p className="mt-3 text-base leading-relaxed text-ink">{item.teaches}</p>
                   <div className="mt-auto pt-6">
                     <a
                       href={item.href}
