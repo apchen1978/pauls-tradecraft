@@ -72,6 +72,31 @@ for (const width of [390, 1440]) {
       expect(problems).toEqual([]);
     });
 
+    test("en: the Start button is also on the first screen", async ({ page }) => {
+      await page.goto(`${base}/index.html?lang=en`);
+      const box = await page.locator("#start").boundingBox();
+      expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
+    });
+
+    for (const lang of ["zh", "en"]) {
+      test(`${lang}: newcomer hints: a legend for the four lights, a note that stop 1 has nothing to choose, and what the buffer line says`, async ({ page }) => {
+        await page.goto(`${base}/index.html?lang=${lang}`);
+        await page.locator("#start").click();
+        await expect(page.locator("#lights-legend-play")).toContainText(lang === "zh" ? "✕ 用掉 2 格以上" : "✕ two or more used");
+        await expect(page.locator("#first-note")).toBeVisible();
+        await expect(page.locator("#first-note")).toContainText(lang === "zh" ? "這一站不用選" : "Nothing to choose at this stop");
+        await page.locator("#next").click();
+        await expect(page.locator("#first-note")).toBeHidden();
+        await page.goto(`${base}/index.html?lang=${lang}&s=rush&c=AAAAAA`);
+        await expect(page.locator("#lights-legend-result")).toBeVisible();
+        await expect(page.locator("#buffer-line")).toContainText(lang === "zh" ? "這一趟沒用到緩衝格" : "used no buffer cells");
+        await expect(page.locator("#buffer-line")).toContainText(lang === "zh" ? "遊戲代幣" : "game token");
+        await page.goto(`${base}/index.html?lang=${lang}&s=rush&c=CCAAAA`);
+        await expect(page.locator("#buffer-line")).toContainText(lang === "zh" ? /用掉 [1-9] 格緩衝/ : /used [1-9] buffer cells?/);
+        await noOverflow(page);
+      });
+    }
+
     test("a full run reaches the result the rules predict, and the address records it", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh`);
       await page.locator("#scn button[data-scenario='rush']").click();

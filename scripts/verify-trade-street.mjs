@@ -458,3 +458,15 @@ test("intro and wrap-up: the relay primer and the three takeaways exist in both 
   const html = read("../prototype/trade-street/index.html");
   for (const id of ["primer", "primer-title", "primer-body", "takeaway", "takeaway-title", "takeaway-list", "takeaway-link"]) assert.ok(html.includes(`id="${id}"`), id);
 });
+
+test("newcomer hints: legend, stop-1 note and buffer line exist in both languages and use the same words as the rules", () => {
+  for (const lang of ["zh", "en"]) {
+    const t = UI[lang];
+    assert.ok(t.lightsLegend.includes("✓") && t.lightsLegend.includes("!") && t.lightsLegend.includes("✕"), `${lang} legend names all three marks`);
+    assert.ok(t.firstNote.length > 20, `${lang} first note`);
+    assert.match(t.bufferUsed(0), lang === "zh" ? /沒用到緩衝格/ : /no buffer cells/);
+    assert.match(t.bufferUsed(2), lang === "zh" ? /用掉 2 格緩衝/ : /2 buffer cells/);
+    assert.match(t.bufferUsed(1), lang === "zh" ? /用掉 1 格緩衝/ : /1 buffer cell\./);
+  }
+  assert.equal(UI.zh.handover.fix.includes("補正"), false, "no 補正 left");
+});
