@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { distribution, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
+import { distribution, FACTIONS, factionLabel, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
 import { dialogueFor, extractCode, pairStats, ROLE_ORDER } from "../prototype/teammate-type/duo.js";
 
 test("old ABCD codes keep the six-type balance", () => {
@@ -21,6 +21,8 @@ test("old ABCD codes keep the six-type balance", () => {
     alliance: 0,
     missionary: 0,
     apostle: 0,
+    craftsman: 0,
+    recorder: 0,
   });
   const abcd = {
     AAA: "umbrella", AAB: "umbrella", AAC: "umbrella", AAD: "umbrella",
@@ -44,8 +46,7 @@ test("old ABCD codes keep the six-type balance", () => {
 });
 
 test("every role is reachable, including the four new ones", () => {
-  const counts = distribution();
-  for (const id of Object.keys(TYPES)) assert.ok(counts[id] >= 1, `${id} ${counts[id]}`);
+  const counts = distribution("ABCDEF");
   assert.equal(resolveChoices("EAE").type, "strategist");
   assert.equal(resolveChoices("AEA").type, "messenger");
   assert.equal(resolveChoices("AFE").type, "missionary");
@@ -79,7 +80,51 @@ test("every role is reachable, including the four new ones", () => {
     galaxy: 3,
     andromeda: 3,
     designer: 6,
+    craftsman: 0,
+    recorder: 0,
   });
+});
+
+test("sixteen roles are reachable and the queens stay a small share", () => {
+  const counts = distribution();
+  const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  assert.equal(total, 512);
+  assert.equal(Object.keys(TYPES).length, 16);
+  for (const id of Object.keys(TYPES)) assert.ok(counts[id] >= 1, `${id} ${counts[id]}`);
+  const share = (counts.galaxy + counts.andromeda) / total;
+  assert.ok(share >= 0.03 && share <= 0.05, String(share));
+  assert.equal(counts.galaxy, 9);
+  assert.equal(counts.andromeda, 9);
+  assert.equal(resolveChoices("GGG").type, "craftsman");
+  assert.equal(resolveChoices("HHH").type, "recorder");
+  assert.equal(resolveChoices("FAE").type, "galaxy");
+  assert.equal(resolveChoices("FBD").type, "andromeda");
+  const members = Object.values(FACTIONS).flatMap((faction) => faction.members);
+  assert.equal(new Set(members).size, 16);
+  assert.deepEqual(Object.fromEntries(Object.values(FACTIONS).map((faction) => [faction.zh, faction.members.length])), {
+    銀河隊: 4,
+    仙女隊: 4,
+    星圖隊: 4,
+    燈下隊: 4,
+  });
+  assert.equal(TYPES.recorder.faction, "galaxy");
+  assert.equal(TYPES.umbrella.faction, "galaxy");
+  assert.equal(TYPES.alliance.faction, "galaxy");
+  assert.equal(TYPES.apostle.faction, "lantern");
+  assert.equal(TYPES.craftsman.faction, "lantern");
+  assert.equal(TYPES.cocoa.faction, "lantern");
+  assert.equal(FACTIONS.galaxy.leader, "galaxy");
+  assert.equal(FACTIONS.andromeda.leader, "andromeda");
+  assert.equal(factionLabel("galaxy", "zh"), "🌌 銀河隊 · 隊長");
+  assert.equal(factionLabel("recorder", "zh"), "🌌 銀河隊");
+  assert.equal(factionLabel("craftsman", "en"), "🏮 Lantern Team");
+  assert.equal(TYPES.recorder.zh.sub, "拍下來了");
+  assert.equal(TYPES.craftsman.zh.name, "修好了");
+  assert.equal(TYPES.craftsman.zh.role, "工匠");
+  for (const id of Object.keys(TYPES)) {
+    assert.ok(TYPES[id].zh.about.startsWith("關於"));
+    assert.ok(TYPES[id].en.about.startsWith("About "));
+  }
 });
 
 test("majority and the sum-mod-3 tie-break stay fixed", () => {
@@ -98,9 +143,9 @@ test("majority and the sum-mod-3 tie-break stay fixed", () => {
 });
 
 test("the same choices always resolve the same way", () => {
-  for (const a of "ABCDEF") {
-    for (const b of "ABCDEF") {
-      for (const c of "ABCDEF") {
+  for (const a of "ABCDEFGH") {
+    for (const b of "ABCDEFGH") {
+      for (const c of "ABCDEFGH") {
         const code = a + b + c;
         assert.deepEqual(resolveChoices(code), resolveChoices(code));
         assert.ok(TYPES[resolveChoices(code).type]);
@@ -109,10 +154,10 @@ test("the same choices always resolve the same way", () => {
   }
 });
 
-test("each scenario has six choices and every role is offered", () => {
+test("each scenario has eight choices and every role is offered", () => {
   const seen = {};
   for (const scenario of SCENARIOS) {
-    assert.deepEqual(scenario.choices.map((choice) => choice.id), ["A", "B", "C", "D", "E", "F"]);
+    assert.deepEqual(scenario.choices.map((choice) => choice.id), ["A", "B", "C", "D", "E", "F", "G", "H"]);
     for (const choice of scenario.choices) seen[choice.type] = (seen[choice.type] || 0) + 1;
   }
   assert.deepEqual(seen, {
@@ -126,6 +171,8 @@ test("each scenario has six choices and every role is offered", () => {
     messenger: 2,
     queen: 1,
     designer: 1,
+    craftsman: 3,
+    recorder: 3,
   });
   assert.equal(seen.alliance || 0, 0);
   assert.equal(seen.missionary || 0, 0);
@@ -144,7 +191,8 @@ test("share links carry the three choices, and a bad code does not resolve", () 
   assert.deepEqual(readRoute("?c=aba&lang=en"), { lang: "en", code: "ABA" });
   assert.deepEqual(readRoute("?c=eae&lang=zh"), { lang: "zh", code: "EAE" });
   assert.deepEqual(readRoute("?c=nope"), { lang: "zh", code: null });
-  assert.equal(resolveChoices("EFG"), null);
+  assert.equal(resolveChoices("EFG").type, "alliance");
+  assert.equal(resolveChoices("XYZ"), null);
   assert.deepEqual(readRoute(""), { lang: "zh", code: null });
 });
 
@@ -156,7 +204,7 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   assert.equal(TYPES.cocoa.en.role, "Guardian");
   assert.equal(blob.includes("補師") || /\bHealer\b/.test(blob), false);
   assert.equal(/人工智慧|\bAI\b|老闆|老板|ROI|轉換率|成交率|中間層|A2A|\bCDD\b|前職|Former role|\bowner\b|英雄聯盟|魔獸|Overwatch|Warcraft|League of Legends|mailto:|@gmail/i.test(blob), false);
-  assert.equal(/魔法|法師|\bmage\b|\bmagic\b/i.test(blob), false);
+  assert.equal(/魔法|法師|咒|巫|\bmage\b|\bmagic\b|玉仔/i.test(blob), false);
   assert.equal(TYPES.spark.zh.role, "點子");
   assert.equal(TYPES.spark.en.role, "Ideas");
   assert.equal(TYPES.missionary.zh.role, "傳教士");
@@ -194,7 +242,7 @@ test("two-person scenes cover every pair without changing a score", () => {
   const ids = Object.keys(TYPES);
   assert.deepEqual(new Set(ROLE_ORDER), new Set(ids));
   const stats = pairStats(ids);
-  assert.deepEqual(stats, { written: 16, fallback: 75, total: 91 });
+  assert.deepEqual(stats, { written: 16, fallback: 104, total: 120 });
   const written = new Set();
   for (let i = 0; i < ids.length; i += 1) {
     for (let j = i + 1; j < ids.length; j += 1) {
@@ -209,8 +257,11 @@ test("two-person scenes cover every pair without changing a score", () => {
       else assert.equal(scene.kind, "fallback");
     }
   }
-  const alliancePairs = ids.filter((id) => id !== "alliance").map((id) => ["alliance", id].sort().join("|"));
+  const alliancePairs = ids.filter((id) => !["alliance", "craftsman", "recorder"].includes(id)).map((id) => ["alliance", id].sort().join("|"));
   for (const key of alliancePairs) assert.ok(written.has(key), key);
+  assert.equal(dialogueFor("alliance", "craftsman").kind, "fallback");
+  assert.equal(dialogueFor("alliance", "recorder").kind, "fallback");
+  assert.equal(dialogueFor("craftsman", "recorder").kind, "fallback");
   assert.ok(written.has(["galaxy", "andromeda"].sort().join("|")));
   assert.ok(written.has(["cocoa", "galaxy"].sort().join("|")));
   assert.ok(written.has(["cocoa", "andromeda"].sort().join("|")));
@@ -219,7 +270,7 @@ test("two-person scenes cover every pair without changing a score", () => {
   assert.equal(dialogueFor("galaxy", "andromeda").kind, "written");
   const blob = JSON.stringify({ UI, lines: ids.flatMap((id, i) => ids.slice(i + 1).map((other) => dialogueFor(id, other).lines)) });
   assert.equal(/人工智慧|\bAI\b|老闆|老板|ROI|中間層|A2A|\bCDD\b|前職|Former role|英雄聯盟|魔獸|Overwatch|Warcraft|mailto:|@gmail/i.test(blob), false);
-  assert.equal(/魔法|法師|\bmage\b|\bmagic\b|十字架|聖經|光環|\bhalo\b|\bprayer\b/i.test(blob), false);
+  assert.equal(/魔法|法師|咒|巫|\bmage\b|\bmagic\b|十字架|聖經|光環|\bhalo\b|\bprayer\b|玉仔/i.test(blob), false);
   assert.equal(resolveChoices("FAE").type, "galaxy");
   assert.equal(resolveChoices("EEA").type, "alliance");
   const duoSrc = readFileSync(new URL("../prototype/teammate-type/duo.js", import.meta.url), "utf8");

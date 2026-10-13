@@ -280,15 +280,19 @@ test.describe("new choices and roles", () => {
     test(`${width}px scenario shows the added options`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 390 ? 1400 : 1100 });
       await page.goto("/prototype/teammate-type/?lang=zh");
-      await expect(page.locator("#choices button")).toHaveCount(6);
+      await expect(page.locator("#choices button")).toHaveCount(8);
       await expect(page.locator("#choices")).toContainText("先把整晚要做的事在腦裡走一遍，再動手。");
       await expect(page.locator("#choices")).toContainText("在語音裡定調：今晚照這個走，大家跟上。");
+      await expect(page.locator("#choices")).toContainText("先把一直當機的那台電腦修好，大家才不會一直等。");
+      await expect(page.locator("#choices")).toContainText("先把今晚每個人做的事記下來，明天才看得到。");
       await noOverflow(page);
       await page.locator("#quiz").screenshot({ path: `${OUT}/teammate-${width}-zh-choices.png` });
       await page.goto("/prototype/teammate-type/?lang=en");
-      await expect(page.locator("#choices button")).toHaveCount(6);
+      await expect(page.locator("#choices button")).toHaveCount(8);
       await expect(page.locator("#choices")).toContainText("Walk the whole night through in your head, then start.");
       await expect(page.locator("#choices")).toContainText("Set the tone on voice: this is the plan tonight, everyone follow.");
+      await expect(page.locator("#choices")).toContainText("Fix the computer that keeps freezing, so nobody has to keep waiting.");
+      await expect(page.locator("#choices")).toContainText("Write down what everyone did tonight, so tomorrow it's still there.");
       await noOverflow(page);
       await page.locator("#quiz").screenshot({ path: `${OUT}/teammate-${width}-en-choices.png` });
     });
@@ -634,5 +638,70 @@ test.describe("two-person scene", () => {
     await expect(page.locator("#duo-left-name")).toHaveText("援軍到了");
     await expect(page.locator("#duo-right-name")).toHaveText("晚安熱可可");
     await page.locator("#duo-stage").screenshot({ path: `${OUT}/duo-cards-1280-zh-alliance.png` });
+  });
+});
+
+test.describe("sixteen roles", () => {
+  test("result cards, the cast, and one duo show faction badges", async ({ page }) => {
+    test.setTimeout(120000);
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ width, height: width === 390 ? 1600 : 1400 });
+      await page.goto("/prototype/teammate-type/?c=HHH&lang=zh");
+      await page.waitForFunction(() => {
+        const img = document.querySelector("#queen-art");
+        return img && !img.hidden && img.complete && img.naturalWidth > 0;
+      });
+      await expect(page.locator("#card-name")).toHaveText("靚仔");
+      await expect(page.locator("#card-sub")).toHaveText("拍下來了");
+      await expect(page.locator("#faction")).toHaveText("🌌 銀河隊");
+      await expect(page.locator("#about")).toContainText("關於話送到了");
+      await expect(page.locator("#card-boundary")).toHaveText("示意玩具，不是心理測驗。");
+      await noOverflow(page);
+      await page.locator("#card").screenshot({ path: `${OUT}/role-${width}-zh-recorder.png` });
+
+      await page.goto("/prototype/teammate-type/?c=GGG&lang=zh");
+      await page.waitForFunction(() => {
+        const img = document.querySelector("#queen-art");
+        return img && !img.hidden && img.complete && img.naturalWidth > 0;
+      });
+      await expect(page.locator("#card-name")).toHaveText("修好了");
+      await expect(page.locator("#role")).toContainText("工匠");
+      await expect(page.locator("#faction")).toHaveText("🏮 燈下隊");
+      await expect(page.locator("#about")).toContainText("關於順眼就對了");
+      await noOverflow(page);
+      await page.locator("#card").screenshot({ path: `${OUT}/role-${width}-zh-craftsman.png` });
+
+      await page.goto("/prototype/teammate-type/?lang=zh");
+      await page.locator("#gallery").evaluate((el) => { el.open = true; });
+      await page.waitForFunction(() => {
+        const images = [...document.querySelectorAll("#gallery img")];
+        return images.length === 16 && images.every((img) => img.complete && img.naturalWidth > 0);
+      });
+      await expect(page.locator("#gallery")).toContainText("銀河隊");
+      await expect(page.locator("#gallery")).toContainText("仙女隊");
+      await expect(page.locator("#gallery")).toContainText("星圖隊");
+      await expect(page.locator("#gallery")).toContainText("燈下隊");
+      await expect(page.locator("#gallery")).toContainText("靚仔");
+      await expect(page.locator("#gallery")).toContainText("修好了");
+      await noOverflow(page);
+      await page.locator("#gallery").screenshot({ path: `${OUT}/gallery-${width}-zh-sixteen.png` });
+
+      await page.goto("/prototype/teammate-type/?c=GGG&with=HHH&lang=zh");
+      await page.waitForFunction(() => {
+        const left = document.querySelector("#duo-left");
+        const right = document.querySelector("#duo-right");
+        return left && right && !left.closest("#duo-stage").hidden && left.complete && right.complete && left.naturalWidth > 0 && right.naturalWidth > 0;
+      });
+      await page.evaluate(() => Promise.all(
+        [...document.querySelectorAll("#duo-stage .duo-card, #duo-stage .duo-line")].flatMap((el) => el.getAnimations().map((anim) => anim.finished.catch(() => {}))),
+      ));
+      await expect(page.locator("#duo-left-name")).toHaveText("修好了");
+      await expect(page.locator("#duo-right-name")).toHaveText("靚仔");
+      await expect(page.locator("#duo-left-faction")).toHaveText("🏮 燈下隊");
+      await expect(page.locator("#duo-right-faction")).toHaveText("🌌 銀河隊");
+      await expect(page.locator("#duo-lines")).toContainText("你也在。");
+      await noOverflow(page);
+      await page.locator("#duo-stage").screenshot({ path: `${OUT}/duo-${width}-zh-craftsman-recorder.png` });
+    }
   });
 });
