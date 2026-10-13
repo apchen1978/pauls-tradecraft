@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>貿易街 · 一櫃貨出海 — Paul's Tradecraft</title>
+  <meta name="description" content="一櫃貨明天要出海，整條街都在接力。沿著港口走一趟，在六個關鍵時刻做決定，看趕不趕得上船。教學示意，同樣的選擇永遠得到同一個結果。" />
+  <link rel="canonical" href="https://paulstradecraft.com/prototype/trade-street/" />
+  <link rel="icon" href="data:," />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Paul's Tradecraft" />
+  <meta property="og:title" content="貿易街 · 一櫃貨出海 · Trade Street" />
+  <meta property="og:description" content="教學示意。一櫃貨明天要出海，整條街都在接力：你在六個關鍵時刻做決定，看趕不趕得上船。" />
+  <meta property="og:url" content="https://paulstradecraft.com/prototype/trade-street/" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <style>
+    :root {
+      --salt: #F3F7F6;
+      --white: #ffffff;
+      --sky: #DCEBEE;
+      --ink: #12323A;
+      --teal: #1E7F86;
+      --deep: #0E4A52;
+      --moss: #54686C;
+      --line: #CBDADD;
+      --amber: #B9761C;
+      --amber-fill: #965F0D;
+      --amber-soft: #F6E7CB;
+      --red: #B2452F;
+      --red-soft: #F4D9D2;
+      --green: #2F7D4F;
+      --green-soft: #D7ECDD;
+      --off: #D9E1E3;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--salt);
+      color: var(--ink);
+      font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "WenQuanYi Micro Hei", "Droid Sans Fallback", ui-sans-serif, system-ui, sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    html:lang(en) body { font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, "Noto Sans", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+    button, a { font: inherit; }
+    :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+    .skip { position: absolute; left: 12px; top: 12px; transform: translateY(-160%); background: var(--white); color: var(--ink); padding: 8px 12px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    .skip:focus { transform: none; }
+    .page { width: min(880px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 72px; }
+    .intro, .lede, .hint { max-width: 660px; }
+    .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+    .eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--deep); }
+    .lang { display: flex; gap: 8px; }
+    .lang button { min-width: 48px; min-height: 40px; padding: 4px 14px; border: 2px solid var(--deep); border-radius: 999px; background: transparent; color: var(--deep); font-weight: 700; cursor: pointer; }
+    .lang button[aria-pressed="true"] { background: var(--deep); color: var(--white); }
+    .boundary { display: block; margin: 18px 0 0; padding: 8px 12px; border: 2px dashed var(--teal); border-radius: 10px; color: var(--deep); font-size: 14px; font-weight: 600; line-height: 1.5; }
+    h1 { margin: 20px 0 0; font-size: clamp(34px, 7vw, 48px); line-height: 1.15; letter-spacing: -.02em; }
+    h2 { margin: 0; font-size: 22px; line-height: 1.3; }
+    .intro { margin: 14px 0 0; font-size: 19px; font-weight: 600; }
+    .lede { margin: 10px 0 0; color: var(--moss); }
+    .hint { margin: 8px 0 0; color: var(--moss); font-size: 15px; }
+    section { margin-top: 28px; }
+    .scn { display: grid; gap: 10px; margin-top: 14px; }
+    @media (min-width: 640px) { .scn { grid-template-columns: repeat(3, 1fr); } }
+    .scn button { text-align: left; padding: 12px 14px; border: 2px solid var(--line); border-radius: 12px; background: var(--white); color: var(--ink); cursor: pointer; min-height: 72px; }
+    .scn button strong { display: block; font-size: 17px; }
+    .scn button span { display: block; margin-top: 2px; color: var(--moss); font-size: 14px; line-height: 1.45; }
+    .scn button[aria-checked="true"] { border-color: var(--teal); background: var(--sky); box-shadow: 0 0 0 2px var(--teal) inset; }
+    .route { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    @media (min-width: 640px) { .route { grid-template-columns: repeat(4, 1fr); gap: 10px; } }
+    .route li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 2px solid var(--line); border-radius: 12px; background: var(--white); font-size: 15px; line-height: 1.35; min-height: 52px; }
+    .route .num { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--sky); color: var(--deep); font-weight: 700; font-size: 14px; }
+    .route li.done { border-color: var(--teal); background: var(--sky); }
+    .route li.done .num { background: var(--teal); color: var(--white); }
+    .route li.now { border-color: var(--amber); box-shadow: 0 0 0 2px var(--amber) inset; }
+    .route li.now .num { background: var(--amber-fill); color: var(--white); }
+    .route li.decision .num::after { content: "●"; position: absolute; transform: translate(14px, -14px); color: var(--amber); font-size: 10px; }
+    .route li { position: relative; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 18px; }
+    .primary, .secondary { min-height: 48px; padding: 8px 20px; border-radius: 999px; border: 2px solid var(--deep); font-weight: 700; cursor: pointer; }
+    .primary { background: var(--deep); color: var(--white); }
+    .secondary { background: transparent; color: var(--deep); }
+    .primary:disabled { opacity: .5; cursor: default; }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 12px 14px; border: 2px solid var(--line); border-radius: 12px; background: var(--white); }
+    .progress { margin: 0; font-weight: 700; }
+    .buffer { display: flex; align-items: center; gap: 6px; }
+    .buffer .cell { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--teal); background: var(--teal); }
+    .buffer .cell.gone { background: transparent; border-color: var(--off); }
+    .buffer small { font-size: 13px; color: var(--moss); margin-left: 4px; }
+    .lights { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; padding: 0; list-style: none; }
+    .lights li { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+    .lamp { width: 16px; height: 16px; border-radius: 50%; background: var(--off); border: 2px solid var(--off); }
+    .lamp.green { background: var(--green); border-color: var(--green); }
+    .lamp.amber { background: var(--amber); border-color: var(--amber); }
+    .lamp.red { background: var(--red); border-color: var(--red); }
+    .scene { margin-top: 14px; padding: 16px; border: 2px solid var(--line); border-radius: 14px; background: var(--white); }
+    .speaker { display: flex; align-items: center; gap: 12px; }
+    .avatar { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; color: var(--white); font-weight: 700; font-size: 20px; }
+    .speaker b { display: block; font-size: 17px; line-height: 1.3; }
+    .speaker span { display: block; color: var(--moss); font-size: 14px; line-height: 1.3; }
+    .say { margin: 12px 0 0; padding: 10px 14px; border-left: 4px solid var(--teal); background: var(--sky); border-radius: 0 10px 10px 0; font-weight: 600; }
+    .step-title { margin: 14px 0 0; font-size: 20px; line-height: 1.35; }
+    .step-p { margin: 6px 0 0; color: var(--moss); }
+    .scn-note { margin: 10px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--amber-soft); color: #6b4510; font-size: 15px; }
+    .brief { margin: 12px 0 0; display: grid; gap: 8px; }
+    .brief div { padding: 8px 12px; border-radius: 10px; background: var(--salt); font-size: 15px; line-height: 1.5; }
+    .brief b { display: block; font-size: 13px; letter-spacing: .06em; color: var(--deep); }
+    .prompt { margin: 16px 0 0; font-size: 19px; font-weight: 700; }
+    .choices { display: grid; gap: 10px; margin-top: 10px; }
+    .choice { display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; padding: 12px 14px; border: 2px solid var(--line); border-radius: 12px; background: var(--white); color: var(--ink); cursor: pointer; min-height: 56px; }
+    .choice:hover:not(:disabled) { border-color: var(--teal); }
+    .choice .letter { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--sky); color: var(--deep); font-weight: 700; font-size: 14px; }
+    .choice:disabled { cursor: default; }
+    .choice.picked { border-color: var(--teal); background: var(--sky); }
+    .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--green); background: var(--green-soft); }
+    .feedback.costly { border-color: var(--amber); background: var(--amber-soft); }
+    .feedback.costly2 { border-color: var(--red); background: var(--red-soft); }
+    .feedback p { margin: 0; }
+    .feedback p + p { margin-top: 8px; }
+    .feedback b { color: var(--deep); }
+    .text-btn { margin-top: 12px; padding: 6px 2px; border: 0; background: transparent; color: var(--deep); font-weight: 700; text-decoration: underline; cursor: pointer; min-height: 40px; }
+    .card { margin-top: 14px; padding: 20px; border: 3px solid var(--deep); border-radius: 18px; background: var(--white); }
+    .card-kicker { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: #7A4C0C; }
+    .card .speaker { margin-top: 12px; }
+    .card .avatar { width: 72px; height: 72px; font-size: 28px; }
+    .tier { margin: 16px 0 0; font-size: 26px; line-height: 1.25; }
+    .tier.clear { color: var(--green); }
+    .tier.tight { color: var(--amber); }
+    .tier.missed { color: var(--red); }
+    .style-line { margin: 8px 0 0; font-weight: 600; }
+    .picks { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+    .picks li { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; padding: 8px 10px; border-radius: 10px; background: var(--salt); font-size: 15px; line-height: 1.45; }
+    .picks li small { color: var(--moss); display: block; }
+    .picks .cost { align-self: center; font-weight: 700; color: var(--green); white-space: nowrap; }
+    .picks .cost.on { color: var(--red); }
+    .worst { margin: 14px 0 0; font-weight: 600; }
+    .card-boundary { margin: 14px 0 0; padding-top: 12px; border-top: 2px dashed var(--line); font-size: 14px; color: var(--moss); }
+    .status { min-height: 1.5em; margin: 8px 0 0; font-size: 15px; color: var(--deep); }
+    .cast { display: grid; gap: 10px; margin-top: 12px; padding: 0; list-style: none; }
+    @media (min-width: 640px) { .cast { grid-template-columns: repeat(2, 1fr); } }
+    .cast li { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 2px solid var(--line); border-radius: 12px; background: var(--white); }
+    .cast .avatar { width: 44px; height: 44px; font-size: 18px; }
+    .cast b { display: block; line-height: 1.3; }
+    .cast small { display: block; color: var(--moss); font-size: 14px; line-height: 1.45; }
+    .caveat { margin-top: 28px; color: var(--moss); font-size: 14px; }
+    .home { display: inline-block; margin-top: 12px; color: var(--deep); font-weight: 700; }
+    .map-stage { position: relative; margin-top: 16px; border: 3px solid var(--deep); border-radius: 16px; overflow: hidden; background: var(--sky); line-height: 0; }
+    .map-stage img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+    @media (max-width: 639px) { .map-stage img { aspect-ratio: 800 / 1422; } }
+    .hotspots { position: absolute; inset: 0; }
+    .hot { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 3px solid var(--deep); background: var(--white); color: var(--deep); font-weight: 700; font-size: 15px; line-height: 1; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .35); }
+    .hot.decision { border-color: var(--amber); }
+    .hot:hover { background: var(--sky); }
+    .hot.done { background: var(--teal); border-color: var(--white); color: var(--white); }
+    .hot.now { background: var(--amber-fill); border-color: var(--white); color: var(--white); box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); }
+    .map-stage.playing .hot { pointer-events: none; }
+    @media (max-width: 639px) { .hot { width: 28px; height: 28px; font-size: 14px; border-width: 2px; } }
+    @media (prefers-reduced-motion: no-preference) {
+      .hot.now { animation: ping 1.6s ease-in-out infinite; }
+      @keyframes ping { 0%, 100% { box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); } 50% { box-shadow: 0 0 0 10px rgba(185, 118, 28, .12), 0 2px 6px rgba(0, 0, 0, .35); } }
+    }
+    .preview { margin-top: 12px; padding: 14px 16px; border: 2px solid var(--teal); border-radius: 14px; background: var(--white); }
+    .preview h3 { margin: 10px 0 0; font-size: 18px; line-height: 1.35; }
+    .preview p { margin: 4px 0 0; color: var(--moss); }
+    .avatar { overflow: hidden; }
+    .avatar.has-img { background: var(--sky); }
+    .avatar img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 6%; }
+    .map-inner { position: relative; }
+    @media (prefers-reduced-motion: no-preference) { .map-stage.playing .map-inner { transition: left .6s ease, top .6s ease; } }
+    .card .avatar { display: none; }
+    .figure { display: block; height: 300px; width: auto; max-width: 100%; margin: 10px auto 0; object-fit: contain; }
+    @media (min-width: 720px) {
+      .card { display: grid; grid-template-columns: minmax(0, 1fr) 240px; column-gap: 28px; }
+      .card > * { grid-column: 1; }
+      .card .figure { grid-column: 2; grid-row: 2 / span 7; width: 100%; height: auto; max-height: 460px; margin: 0; align-self: start; }
+      .card .picks, .card .card-boundary { grid-column: 1 / -1; }
+    }
+    .scene .avatar { width: 64px; height: 64px; }
+    .preview .avatar { width: 64px; height: 64px; }
+    .cast .avatar { width: 56px; height: 56px; }
+    [hidden] { display: none !important; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+  </style>
+</head>
+<body>
+  <a class="skip" id="skip" href="#main">跳至內容</a>
+  <main class="page" id="main">
+    <header class="top">
+      <p class="eyebrow" id="eyebrow">Digital Garage · 教學玩具</p>
+      <div class="lang" id="lang-group" role="group" aria-label="語言">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </header>
+    <p class="boundary" id="boundary">教學示意 · 不含具體天數、費用或比例，一律以貨代或船公司通知為準。</p>
+    <h1 id="title" tabindex="-1">貿易街</h1>
+    <p class="intro" id="intro">一櫃貨明天要出海，整條街都在接力。</p>
+    <p class="lede" id="lede">沿著港口走一趟，在六個關鍵時刻做決定，看趕不趕得上船。</p>
+    <p class="hint" id="hint">同樣的選擇，永遠得到同一個結果。</p>
+
+    <section id="entry" aria-labelledby="entry-title">
+      <h2 id="entry-title">先選這一週的情況</h2>
+      <div class="scn" id="scn" role="radiogroup" aria-labelledby="entry-title"></div>
+      <div class="actions">
+        <button type="button" class="primary" id="start">出發</button>
+        <a class="home" id="see-steps" href="../one-container-12-steps/">先看 12 步流程</a>
+      </div>
+      <div id="slot-entry">
+        <div class="map-stage" id="map-stage">
+          <div class="map-inner" id="map-inner">
+            <picture>
+              <source media="(max-width: 639px)" srcset="assets/trade-street-map-mobile.webp" type="image/webp" />
+              <img id="map-img" src="assets/trade-street-map.webp" width="1600" height="900" alt="" />
+            </picture>
+            <div class="hotspots" id="hotspots"></div>
+          </div>
+        </div>
+      </div>
+      <div class="preview" id="preview" hidden role="region" aria-labelledby="preview-title">
+        <div class="speaker">
+          <div class="avatar" id="preview-avatar" aria-hidden="true"></div>
+          <div><b id="preview-name"></b><span id="preview-role"></span></div>
+        </div>
+        <p class="say" id="preview-say"></p>
+        <h3 id="preview-title" tabindex="-1"></h3>
+        <p id="preview-p"></p>
+        <button type="button" class="text-btn" id="preview-close">關閉</button>
+      </div>
+      <ol class="route" id="route-entry" aria-label="十二站"></ol>
+      <p class="hint" id="route-hint">橘色圓點是要做決定的站。</p>
+    </section>
+
+    <section id="play" hidden aria-labelledby="station-title">
+      <div class="bar">
+        <p class="progress" id="progress"></p>
+        <div class="buffer" id="buffer" role="img"></div>
+        <ul class="lights" id="lights" aria-label="四個時間點"></ul>
+      </div>
+      <div id="slot-play"></div>
+      <div class="scene">
+        <div class="speaker">
+          <div class="avatar" id="avatar" aria-hidden="true"></div>
+          <div><b id="speaker-name"></b><span id="speaker-role"></span></div>
+        </div>
+        <p class="say" id="say"></p>
+        <h2 class="step-title" id="station-title" tabindex="-1"></h2>
+        <p class="step-p" id="station-p"></p>
+        <p class="scn-note" id="scn-note" hidden></p>
+        <div class="brief" id="brief"></div>
+        <p class="prompt" id="prompt" hidden></p>
+        <div class="choices" id="choices" role="group" hidden></div>
+        <div class="feedback" id="feedback" hidden role="status"></div>
+        <div class="actions">
+          <button type="button" class="primary" id="next"></button>
+          <button type="button" class="text-btn" id="back" hidden></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="result" hidden aria-labelledby="result-title">
+      <h2 id="result-title" tabindex="-1" class="sr">航程結果</h2>
+      <div class="bar">
+        <ul class="lights" id="result-lights" aria-label="四個時間點"></ul>
+      </div>
+      <article class="card" id="card" aria-labelledby="tier">
+        <p class="card-kicker" id="card-kicker"></p>
+        <img class="figure" id="card-figure" alt="" />
+        <div class="speaker">
+          <div class="avatar" id="card-avatar" aria-hidden="true"></div>
+          <div><b id="card-name"></b><span id="card-role"></span></div>
+        </div>
+        <p class="style-line" id="style-line"></p>
+        <h3 class="tier" id="tier"></h3>
+        <p id="tier-line"></p>
+        <p class="worst" id="worst"></p>
+        <p class="worst" id="handover"></p>
+        <ul class="picks" id="picks"></ul>
+        <p class="card-boundary" id="card-boundary"></p>
+      </article>
+      <div class="actions">
+        <button type="button" class="primary" id="download"></button>
+        <button type="button" class="secondary" id="copy"></button>
+        <button type="button" class="secondary" id="again"></button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+      <h2 id="cast-title" style="margin-top:28px"></h2>
+      <ul class="cast" id="cast"></ul>
+    </section>
+
+    <p class="caveat" id="caveat"></p>
+    <a class="home" id="home" href="/#garage">回到 Garage</a>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
