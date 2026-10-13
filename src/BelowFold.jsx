@@ -27,12 +27,12 @@ export default function BelowFold({ onReady }) {
       <TryIt />
       <DecisionMoment />
       <ThreeQuestions />
+      <Showcase />
       <OneDeal />
       <WorksFlagship />
       <HumanAiEditorial />
       <Works />
       <SemanticaCaseStudy />
-      <Showcase />
       <Garage />
       <Capabilities />
       <DealReadiness />
