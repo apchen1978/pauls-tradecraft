@@ -191,6 +191,20 @@
       margin: 18px auto 0;
       aspect-ratio: 192 / 208;
     }
+    /* Cocoa is a tall portrait now. Don't squash it back into the old square sprite. */
+    .stage:not(.with-queen):not(.with-horse) {
+      width: min(200px, 100%);
+      height: 312px;
+    }
+    #mg {
+      width: auto;
+      max-width: min(168px, 92%);
+      max-height: 292px;
+      height: auto;
+      margin: 8px auto 0;
+      aspect-ratio: auto;
+      object-fit: contain;
+    }
     .prop { position: absolute; z-index: 2; width: 72px; height: 72px; }
     .prop-umbrella { left: 0; top: 6px; }
     .prop-drink { right: 0; bottom: 0; }
@@ -410,6 +424,8 @@
       aspect-ratio: auto;
       object-fit: contain;
     }
+    .duo-card .stage:not(.with-queen):not(.with-horse) { height: 248px; }
+    .duo-card .stage:not(.with-queen):not(.with-horse) #mg { max-height: 236px; }
     .duo-card .stage.with-queen { width: min(168px, 100%); height: 248px; }
     .duo-card .stage.with-queen img { max-height: 236px; }
     .duo-card .stage.with-horse { width: min(240px, 100%); height: 176px; }
@@ -997,7 +1013,7 @@
         <ul class="team-fallback" id="team-fallback" aria-label="四個隊伍">
         <li>🌌 銀河隊：銀河之女、玉仔、靚仔、雨辰</li>
         <li>✨ 仙女隊：Holly、阿閃、樂樂、言歌</li>
-        <li>🗺️ 星圖隊：栗子、墨衡、塞安、苔苔</li>
+        <li>🗺️ 星圖隊：莉婭、墨衡、塞安、苔苔</li>
         <li>🏮 燈下隊：MG、阿跑、承承、阿修</li>
       </ul>
       </div>
@@ -1024,7 +1040,7 @@
       <article class="card" id="card" aria-labelledby="card-name">
         <p class="card-kicker" id="card-kicker"></p>
         <div class="stage" id="stage">
-          <img id="mg" alt="" width="192" height="208" />
+          <img id="mg" alt="" width="591" height="988" />
           <img id="horse" class="horse" alt="" hidden />
           <img id="queen-art" class="queen-art" alt="" hidden />
           <div id="prop"></div>

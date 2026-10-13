@@ -53,6 +53,7 @@ export const UI = {
     takeawayTitle: "走完這一趟，你看到的是：",
     takeaway: ["出口不是一個人的事：十二站、好幾個人，一棒接一棒。", "最容易出事的，常常不是某一站，而是交接：誰、什麼時候、把什麼交給下一棒。", "所以有經驗的人，會先問清楚、留一點緩衝、把說好的事寫下來。"],
     takeawayLink: "想看每一步的完整說明：12 步流程",
+    takeawayCase: "想看一櫃貨在出海之前，怎麼先判斷做不做得成：第一個貨櫃案例",
     entryTitle: "先選這一週的情況", routeLabel: "十二站", lightsLabel: "四個時間點", routeHint: "點地圖上的圓點，看那一站是誰、在做什麼。橘色圈是要做決定的站。",
     castLink: "認識街上的人",
     mapAlt: "貿易街的港口：左邊是工廠，道路通向右邊的碼頭，吊車正把貨櫃吊上船，遠方海面另有一艘船駛離，右下角是岸上的文件角。",
@@ -102,6 +103,7 @@ export const UI = {
     takeawayTitle: "What you just saw:",
     takeaway: ["Exporting is not one person's job: twelve steps, several people, one handing over to the next.", "What goes wrong is often not a single step but the handover: who passes what to whom, and when.", "That is why experienced people ask first, keep a little buffer, and write down what was agreed."],
     takeawayLink: "Want every step in full? The 12 steps",
+    takeawayCase: "Want to see how a first container is judged before it ships? The first-container case",
     entryTitle: "First, pick this week's situation", routeLabel: "Twelve stops", lightsLabel: "Four moments", routeHint: "Tap a dot on the map to see who is there and what they do. An orange ring marks a stop where you decide.",
     castLink: "Meet the people on the street",
     mapAlt: "The Trade Street harbour: the factory on the left, a road leading to the quay on the right where a crane loads a container onto a ship, another ship sailing away in the distance, and the documents corner on shore at the bottom right.",
@@ -395,6 +397,8 @@ function boot() {
     $("takeaway-list").replaceChildren(...t.takeaway.map((line) => el("li", null, line)));
     $("takeaway-link").textContent = t.takeawayLink;
     $("takeaway-link").href = `../one-container-12-steps/${state.lang === "en" ? "?lang=en" : ""}`;
+    $("takeaway-case").textContent = t.takeawayCase;
+    $("takeaway-case").href = `/cases/first-container/${state.lang === "en" ? "?lang=en" : ""}`;
     $("entry-title").textContent = t.entryTitle;
     $("start").textContent = t.start;
     $("see-steps").textContent = t.seeSteps;

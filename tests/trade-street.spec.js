@@ -299,6 +299,9 @@ for (const width of [390, 1440]) {
         const href = await page.locator("#takeaway-link").getAttribute("href");
         expect(href).toContain("../one-container-12-steps/");
         if (lang === "en") expect(href).toContain("lang=en");
+        const caseHref = await page.locator("#takeaway-case").getAttribute("href");
+        expect(caseHref).toContain("/cases/first-container/");
+        if (lang === "en") expect(caseHref).toContain("lang=en");
         await noOverflow(page);
       });
     }

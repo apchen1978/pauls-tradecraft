@@ -258,6 +258,7 @@
           ["提單怎麼出？正本、電放，還是其他做法？誰簽、什麼時候可以拿到？", "這會影響買家能不能順利提貨。"]
         ],
         home: "回到 Garage",
+        play: "走一趟貿易街（互動版）",
         contact: "聊聊你的出口問題",
         boundary: "教學示意 · 不含具體天數、費用或比例，一律以貨代或船公司通知為準 · 兩岸用語只列有把握的差異 · 不儲存任何內容。"
       },
@@ -346,6 +347,7 @@
           ["How will the bill of lading be issued: originals, telex release or something else? Who signs, and when can I have it?", "This decides whether your buyer can collect the goods smoothly."]
         ],
         home: "Back to the Garage",
+        play: "Walk Trade Street (interactive)",
         contact: "Talk about your export question",
         boundary: "Teaching sketch · no specific days, charges or percentages; always go by your forwarder's or the carrier's notice · cross-Strait wording is listed only where we are confident · nothing is stored."
       }
@@ -408,7 +410,8 @@
         return "<li><span>" + esc(a[0]) + "<small>" + esc(a[1]) + "</small></span></li>";
       }).join("");
 
-      $("actions").innerHTML = '<a class="btn" href="/?lang=' + lang + '#garage">' + esc(c.home) + '</a>' +
+      $("actions").innerHTML = '<a class="btn" href="/prototype/trade-street/?lang=' + lang + '">' + esc(c.play) + '</a>' +
+        '<a class="btn ghost" href="/?lang=' + lang + '#garage">' + esc(c.home) + '</a>' +
         '<a class="btn ghost" href="/?lang=' + lang + '#contact">' + esc(c.contact) + "</a>";
       $("boundary").textContent = c.boundary;
       document.querySelectorAll(".lang button").forEach(function (b) {
