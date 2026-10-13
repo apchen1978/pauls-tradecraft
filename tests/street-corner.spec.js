@@ -25,10 +25,13 @@ for (const lang of ["zh", "en"]) {
 
       await page.goto(`/prototype/secrets-on-the-corner/?lang=${lang}`);
       await expect(page.locator("h1")).toHaveText(lang === "zh" ? "街角的秘密" : "Secrets on the Corner");
+      await expect(page.locator(".hero-prompt")).toHaveAttribute("href", "#first-impression");
       await expect(page.locator(".draft-label")).toHaveText(lang === "zh" ? "互動示範" : "Interactive demo");
       await expect(page.locator(".disclosure")).toContainText(lang === "zh" ? "成效未驗證" : "outcomes not validated");
       await expect(page.locator("#trade-bridge-link")).toHaveAttribute("href", `/prototype/trade-street/?lang=${lang}`);
       await expect(page.locator("#route-progress")).toContainText(lang === "zh" ? "0/6" : "0 of 6");
+      await page.locator('[data-impression="pickup"]').click();
+      await expect(page.locator('[data-impression="pickup"]')).toHaveAttribute("aria-pressed", "true");
       await page.locator('[data-scenario="weekend"]').click();
       await expect(page).toHaveURL(/period=weekend/);
       await page.locator('[data-clue="queue"]').click();
@@ -37,6 +40,8 @@ for (const lang of ["zh", "en"]) {
       await expect(page).toHaveURL(/period=weekday/);
       await expect(page.locator(".question").first()).toBeDisabled();
       await page.locator('[data-clue="queue"]').click();
+      await expect(page.locator("#impression-options")).toBeHidden();
+      await expect(page.locator("#impression-status")).toContainText(lang === "zh" ? "預訂" : "pre-orders");
       await page.locator('[data-clue="bags"]').click();
       await expect(page.locator(".question").first()).toBeEnabled();
       await expect(page.locator('[data-question="reason"] .question-lens')).toContainText(lang === "zh" ? "紙袋" : "bags");
@@ -45,6 +50,9 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator('[data-question="capacity"] .question-lens')).toContainText(lang === "zh" ? "你看過櫥窗" : "You noticed the window");
 
       await page.locator('[data-question="capacity"]').click();
+      await expect(page.locator("#result-reflection")).toBeVisible();
+      await expect(page.locator("#reflection-before")).toContainText(lang === "zh" ? "預訂" : "pre-orders");
+      await expect(page.locator("#reflection-now")).toContainText(lang === "zh" ? "工序" : "wait");
       await expect(page.locator("#result-lens")).toContainText(lang === "zh" ? "你看過櫥窗" : "You noticed the window");
       await expect(page.locator(".alternative")).toHaveCount(2);
       await page.locator('[data-alternative="0"]').click();
@@ -67,7 +75,45 @@ for (const lang of ["zh", "en"]) {
       await page.locator("#download").click();
       await expect(await download).toBeTruthy();
       await expect.poll(() => page.evaluate(() => window.__cardText)).toContain(lang === "zh" ? "仍不能說" : "Still unproven");
+      await expect.poll(() => page.evaluate(() => window.__cardText)).toContain(lang === "zh" ? "第一眼想到" : "First thought");
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
     });
   }
 }
+
+test("first impression can be skipped without blocking exploration", async ({ page }) => {
+  await page.goto("/prototype/secrets-on-the-corner/?lang=zh");
+  await page.locator('[data-impression="steady"]').click();
+  await page.locator("#impression-skip").click();
+  await expect(page.locator("#first-impression")).toBeHidden();
+  await expect(page.locator(".hero-prompt")).toBeHidden();
+  await expect(page.locator(".start-link")).toHaveAttribute("href", "#explore-title");
+  await page.locator('[data-clue="queue"]').click();
+  await page.locator('[data-clue="bags"]').click();
+  await page.locator('[data-question="reason"]').click();
+  await expect(page.locator("#result-reflection")).toBeHidden();
+  await expect(page.locator("#result")).toBeVisible();
+});
+
+test("a glowing point brings its field note into view and offers a way back", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/prototype/secrets-on-the-corner/?lang=zh");
+  await page.locator('[data-clue="lamp"]').click();
+  await expect(page.locator("#note-content h3")).toHaveText("路燈");
+  await expect(page.locator("#note-content h3")).toBeFocused();
+  await expect(page.locator("#field-note")).toBeInViewport({ ratio: 0.1 });
+  await page.locator("#note-back").click();
+  await expect(page.locator("#scene")).toBeInViewport({ ratio: 0.1 });
+});
+
+test("the recorded thought follows a language switch", async ({ page }) => {
+  await page.goto("/prototype/secrets-on-the-corner/?lang=zh");
+  await page.locator('[data-impression="steady"]').click();
+  await page.locator('[data-clue="queue"]').click();
+  await page.locator('[data-clue="bags"]').click();
+  await page.locator('[data-question="reason"]').click();
+  await page.locator('[data-lang="en"]').click();
+  await expect(page.locator("#reflection-before")).toHaveText("Business may be steady");
+  await expect(page.locator("#reflection-now")).toHaveText("What is everyone waiting for?");
+  await expect(page.locator("#impression-status")).toContainText("Business may be steady");
+});

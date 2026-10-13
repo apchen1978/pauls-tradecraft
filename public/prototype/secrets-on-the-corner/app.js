@@ -1,10 +1,17 @@
 const copy = {
   zh: {
-    skip: "跳至內容", draft: "互動示範", title: "街角的秘密",
+    skip: "跳至內容", draft: "互動示範", title: "街角的秘密", heroPrompt: "先記下第一眼 ↘", backToScene: "再看其他光點 ↑",
     intro: "一間小店門口排了隊。這是穩定生意的訊號，還是今晚的一刻？",
     lede: "從四個細節開始。你不必猜對答案；只要找到下一個值得問的問題。",
     start: "走近看看", explore: "沿著這條街，先看見什麼？",
     exploreHint: "點畫面上的光點，打開一張觀察筆記。", notebook: "觀察筆記",
+    impressionTitle: "第一眼，你怎麼看這條隊伍？",
+    impressionHint: "先留下直覺，之後看看線索讓你想追問什麼。可以跳過，沒有標準答案。",
+    impressionSteady: "生意可能一直很好", impressionPickup: "也許很多人來取預訂",
+    impressionUncertain: "現在還說不準", impressionSkip: "先看線索 →",
+    impressionSaved: value => `你第一眼想到：${value}`,
+    reflectionBefore: "你第一眼想到", reflectionNow: "現在你想追問",
+    reflectionHint: "這不是對錯判定；線索讓下一個問題更清楚。",
     emptyTitle: "慢一點，看得更多。",
     emptyBody: "麵包香、等候的人、亮起的路燈。哪個細節會改變你的第一印象？",
     decisionTitle: "如果明天只能多問一件事？",
@@ -51,7 +58,7 @@ const copy = {
     ready: "線索夠開始提問了；也可以把其他地方看完。",
     imageAlt: "十二月黃昏的街角麵包店，店內透著暖光，幾個人在門口等候，旁邊路燈亮起。",
     resultBoundary: "這一步仍不足以證明開分店會成功；等待原因、回購與一天中的變化都還需確認。",
-    cardCaption: "一段隊伍，是線索，不是結論。",
+    cardCaption: "一段隊伍，是線索，不是結論。", cardFirst: "第一眼想到",
     cardSeen: "看到的線索", cardNext: "下一個問題", cardAction: "先做的小觀察",
     cardBoundary: "排隊是否代表穩定、足以支撐擴店的需求。",
     clues: {
@@ -67,11 +74,18 @@ const copy = {
     },
   },
   en: {
-    skip: "Skip to content", draft: "Interactive demo", title: "Secrets on the Corner",
+    skip: "Skip to content", draft: "Interactive demo", title: "Secrets on the Corner", heroPrompt: "Keep a first thought ↘", backToScene: "Explore another point ↑",
     intro: "A line forms outside a small shop. Is it a sign of steady business—or one moment tonight?",
     lede: "Start with four details. There is no answer to guess; find a better question to ask next.",
     start: "Take a closer look", explore: "What do you notice on this street?",
     exploreHint: "Select a glowing point to open a field note.", notebook: "Field notes",
+    impressionTitle: "What does the line suggest at first glance?",
+    impressionHint: "Keep your first thought, then see what the clues make you ask. You can skip this; there is no right answer.",
+    impressionSteady: "Business may be steady", impressionPickup: "Perhaps many are collecting pre-orders",
+    impressionUncertain: "Too soon to tell", impressionSkip: "Explore the clues →",
+    impressionSaved: value => `Your first thought: ${value}`,
+    reflectionBefore: "At first you thought", reflectionNow: "Now you want to ask",
+    reflectionHint: "This is not a right-or-wrong verdict. The clues help sharpen your next question.",
     emptyTitle: "Slow down. See more.",
     emptyBody: "Fresh bread, waiting neighbors, a streetlamp turning on. Which detail changes your first impression?",
     decisionTitle: "If you could ask one more question tomorrow?",
@@ -118,7 +132,7 @@ const copy = {
     ready: "You can ask a question now—or inspect the other details first.",
     imageAlt: "A warm bakery window on a December evening, several people waiting outside, and a streetlamp lighting the lane.",
     resultBoundary: "This still does not prove a second shop would succeed. The reason for waiting, return visits, and variation through the day remain unverified.",
-    cardCaption: "A line is a clue, not a conclusion.",
+    cardCaption: "A line is a clue, not a conclusion.", cardFirst: "First thought",
     cardSeen: "Observed clues", cardNext: "Next question", cardAction: "Small observation",
     cardBoundary: "Whether the queue reflects stable demand for expansion.",
     clues: {
@@ -244,8 +258,26 @@ let chosenAlternative = null;
 let chosenFollowup = null;
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 let scenario = new URLSearchParams(location.search).get("period") === "weekend" ? "weekend" : "weekday";
+let firstImpression = null;
+let impressionSkipped = false;
 
 const node = id => document.getElementById(id);
+
+function renderImpression() {
+  const panel = node("first-impression");
+  panel.hidden = impressionSkipped || (viewed.size > 0 && firstImpression === null);
+  document.querySelector(".hero-prompt").hidden = panel.hidden;
+  document.querySelector(".start-link").href = panel.hidden ? "#explore-title" : "#first-impression";
+  if (panel.hidden) return;
+  const options = node("impression-options");
+  options.hidden = viewed.size > 0;
+  document.querySelectorAll("[data-impression]").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.impression === firstImpression));
+  });
+  const status = node("impression-status");
+  status.hidden = viewed.size === 0 || firstImpression === null;
+  if (!status.hidden) status.textContent = copy[lang].impressionSaved(copy[lang][`impression${firstImpression[0].toUpperCase()}${firstImpression.slice(1)}`]);
+}
 
 function getClue(id) {
   const clue = copy[lang].clues[id];
@@ -306,9 +338,11 @@ function renderNote() {
     area.append(heading, makePart(t.seen, clue.seen), makePart(t.possible, clue.possible), makePart(t.unknown, clue.unknown));
   }
   node("seen-list").textContent = viewed.size ? t.seenList(clueOrder.filter(id => viewed.has(id)).map(id => t.clues[id].name)) : "";
+  node("note-back").hidden = !activeClue;
   node("discovery-count").textContent = t.count(viewed.size);
   node("decision-hint").textContent = viewed.size < 2 ? t.need(2 - viewed.size) : t.ready;
   updateRouteProgress();
+  renderImpression();
   document.querySelectorAll(".hotspot").forEach(button => {
     const name = t.clues[button.dataset.clue].name;
     button.setAttribute("aria-label", name);
@@ -348,6 +382,12 @@ function renderResult() {
   const t = copy[lang];
   const question = t.questions[chosenQuestion];
   node("result-title").textContent = question.result;
+  const reflection = node("result-reflection");
+  reflection.hidden = firstImpression === null;
+  if (firstImpression !== null) {
+    node("reflection-before").textContent = t[`impression${firstImpression[0].toUpperCase()}${firstImpression.slice(1)}`];
+    node("reflection-now").textContent = question.title;
+  }
   node("result-lens").textContent = viewed.has(questionClue[chosenQuestion]) ? question.lensSeen : question.lensMissing;
   node("result-action").textContent = question.action;
   node("result-boundary").textContent = t.resultBoundary;
@@ -512,6 +552,11 @@ function downloadCard() {
     const clue = getClue(id);
     y=wrapText(ctx,clue.name+(lang === "zh" ? "：" : ": ")+clue.seen,72,y,475,37,3)+19;
   });
+  if (firstImpression !== null) {
+    ctx.fillStyle = "#9e5d37"; ctx.font = "700 22px system-ui, sans-serif"; ctx.fillText(t.cardFirst,72,y+16);
+    ctx.fillStyle = "#172934"; ctx.font = "24px system-ui, sans-serif";
+    wrapText(ctx,t[`impression${firstImpression[0].toUpperCase()}${firstImpression.slice(1)}`],72,y+53,475,35,3);
+  }
   ctx.fillStyle = "#9e5d37";ctx.font = "700 24px system-ui, sans-serif";ctx.fillText(t.cardNext,650,contentTop);
   ctx.fillStyle = "#172934";ctx.font = "700 29px system-ui, sans-serif";
   let rightY=wrapText(ctx,question.title,650,contentTop+49,450,42,3)+28;
@@ -553,10 +598,25 @@ function downloadCard() {
 
 document.querySelectorAll("[data-lang]").forEach(button => button.addEventListener("click", () => setLanguage(button.dataset.lang)));
 document.querySelectorAll("[data-scenario]").forEach(button => button.addEventListener("click", () => chooseScenario(button.dataset.scenario)));
+document.querySelectorAll("[data-impression]").forEach(button => button.addEventListener("click", () => {
+  if (viewed.size > 0) return;
+  firstImpression = button.dataset.impression;
+  renderImpression();
+}));
+node("impression-skip").addEventListener("click", () => {
+  if (viewed.size > 0) return;
+  firstImpression = null;
+  impressionSkipped = true;
+  renderImpression();
+});
 document.querySelectorAll(".hotspot").forEach(button => button.addEventListener("click", () => {
   activeClue = button.dataset.clue;
   viewed.add(activeClue);
   renderNote();
+  const heading = node("note-content").querySelector("h3");
+  heading.tabIndex = -1;
+  heading.focus({ preventScroll: true });
+  node("field-note").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   if (chosenQuestion) renderResult();
 }));
 node("download").addEventListener("click", downloadCard);
