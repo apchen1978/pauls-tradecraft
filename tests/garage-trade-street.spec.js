@@ -10,14 +10,12 @@ const COPY = {
     cta: "走一趟",
     tag: "教學玩具 · 雙語原型",
     boundary: "教學示意，不含具體天數、費用或比例",
-    story: "從現場經驗長出來的故事與樣本",
   },
   en: {
     title: "Trade Street · One Container Ships",
     cta: "Walk the street",
     tag: "Teaching toy · bilingual prototype",
     boundary: "A teaching sketch with no specific days, costs or percentages",
-    story: "Stories and samples grown from hands-on trade experience",
   },
 };
 
@@ -27,32 +25,34 @@ async function noOverflow(page) {
 }
 
 for (const width of [390, 1440]) {
-  test.describe(`Trade Street in the Garage at ${width}px`, () => {
+  test.describe(`Trade Street in the Showcase at ${width}px`, () => {
     test.use({ viewport: { width, height: width === 390 ? 844 : 1000 } });
 
     for (const lang of ["zh", "en"]) {
-      test(`${lang}: the card sits in the field-experience stories group, carries the language, and says it is a teaching sketch`, async ({ page }) => {
+      test(`${lang}: the card sits in the Showcase (not the Garage), carries the language, the cover and the teaching-sketch boundary`, async ({ page }) => {
         const c = COPY[lang];
-        await page.goto(`/?lang=${lang}#garage`);
-        const heading = page.locator("#garage").getByRole("heading", { name: c.title });
+        await page.goto(`/?lang=${lang}#showcase`);
+        const showcase = page.locator("#showcase");
+        const heading = showcase.getByRole("heading", { name: c.title });
         await expect(heading).toBeVisible();
-        // it is in the stories group (the group is open by default), not in the toys row
-        const group = heading.locator("xpath=ancestor::ol[1]");
-        await expect(group.locator("xpath=preceding-sibling::p[1]")).toHaveText(c.story);
-        await expect(page.locator("#garage-branch-light-tech").getByRole("heading", { name: c.title })).toHaveCount(0);
-        const card = heading.locator("xpath=ancestor::*[self::li or self::article][1]");
+        const card = heading.locator("xpath=ancestor::article[1]");
         await expect(card).toContainText(c.tag);
         await expect(card).toContainText(c.boundary);
         const link = card.getByRole("link", { name: c.cta, exact: true });
         const href = await link.getAttribute("href");
         expect(href).toContain("/prototype/trade-street/");
         expect(href).toContain(`lang=${lang}`);
-        // it is an experiment, not a showcase piece
-        await expect(page.locator("#showcase").getByRole("heading", { name: c.title })).toHaveCount(0);
+        const img = card.locator("img");
+        await expect(img).toHaveAttribute("src", "/images/showcase-trade-street-cover.webp");
+        await expect(img).toHaveAttribute("width", "408");
+        await expect(img).toHaveAttribute("height", "510");
+        await expect(showcase.getByText(lang === "zh" ? "示範／成效未驗證。" : "Demo / outcomes not validated.")).toBeVisible();
+        // promoted: it no longer appears among the Garage experiments
+        await expect(page.locator("#garage").getByRole("heading", { name: c.title })).toHaveCount(0);
         await noOverflow(page);
         if (SHOTS) {
-          await heading.scrollIntoViewIfNeeded();
-          await group.locator("xpath=..").screenshot({ path: `${SHOTS}/garage-${width}-${lang}.png` });
+          await card.scrollIntoViewIfNeeded();
+          await showcase.screenshot({ path: `${SHOTS}/showcase-${width}-${lang}.png` });
         }
       });
     }
