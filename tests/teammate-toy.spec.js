@@ -142,9 +142,9 @@ test.describe("garage listing", () => {
       await expectBranchFirst(page, "Bring Paul Into the Room");
       await expect(branch.getByRole("heading", { name: "AI agent 聽得懂你的暗號嗎？" })).toBeVisible();
       await expect(page.locator("#garage")).toContainText("這裡放還在進行中的實驗。");
-      await expect(page.locator("#garage").getByRole("heading", { name: "你是哪一種隊友？" })).toHaveCount(0);
+      await expect(page.locator("#garage").getByRole("heading", { name: "十二月的燈" })).toHaveCount(0);
       const showcase = page.locator("#showcase");
-      const card = showcase.getByRole("heading", { name: "你是哪一種隊友？" });
+      const card = showcase.getByRole("heading", { name: "十二月的燈" });
       await expect(card).toBeVisible();
       await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("作品館");
       await expect(showcase.getByText("照夜鎮裡，十六種隊友，四個隊伍。")).toBeVisible();
@@ -161,9 +161,9 @@ test.describe("garage listing", () => {
       await expect(page.locator("#garage-branch-light-tech").getByRole("heading", { level: 3 })).toHaveText("Light-tech toys");
       await expectBranchFirst(page, "Bring Paul Into the Room");
       await expect(page.locator("#garage")).toContainText("Experiments in progress live here.");
-      await expect(page.locator("#garage").getByRole("heading", { name: "What kind of teammate are you?" })).toHaveCount(0);
+      await expect(page.locator("#garage").getByRole("heading", { name: "December Lights" })).toHaveCount(0);
       const enShowcase = page.locator("#showcase");
-      const enCard = enShowcase.getByRole("heading", { name: "What kind of teammate are you?" });
+      const enCard = enShowcase.getByRole("heading", { name: "December Lights" });
       await expect(enCard).toBeVisible();
       await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Showcase");
       await expect(enShowcase.getByText("Nightglow has sixteen teammates in four factions.")).toBeVisible();
@@ -248,7 +248,8 @@ for (const width of [390, 768, 1440]) {
         else if (url.includes("/prototype/teammate-type/assets/")) roleArt.push(url);
       });
       await page.goto("/prototype/teammate-type/?lang=zh");
-      await expect(page.getByRole("heading", { name: "你是哪一種隊友？" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "十二月的燈" })).toBeVisible();
+      await expect(page.locator("#subtitle")).toHaveText("你是哪一種隊友？");
       expect(roleArt).toEqual([]);
       expect(maps.length).toBeGreaterThan(0);
       await expect(page.getByText("示意玩具，不是心理測驗。").first()).toBeVisible();
@@ -277,8 +278,10 @@ for (const width of [390, 768, 1440]) {
       await page.locator("#card").screenshot({ path: `${OUT}/teammate-${width}-zh-card.png` });
       await page.locator(".line-funny .line-body").screenshot({ path: `${OUT}/teammate-${width}-zh-funny.png` });
 
-      const shared = page.locator("#share-url");
-      const url = await shared.inputValue();
+      const shared = page.locator("#share-short");
+      const url = await shared.getAttribute("data-url");
+      await expect(shared).toContainText("c=ABA");
+      await expect(page.getByRole("button", { name: "複製連結" })).toBeVisible();
       expect(url).toContain("c=ABA");
       expect(url).toContain("lang=zh");
       await page.goto(url);
@@ -298,7 +301,8 @@ for (const width of [390, 768, 1440]) {
       await page.locator("#card").screenshot({ path: `${OUT}/teammate-${width}-en-card.png` });
       await page.locator(".line-funny .line-body").screenshot({ path: `${OUT}/teammate-${width}-en-funny.png` });
 
-      const enUrl = await page.locator("#share-url").inputValue();
+      const enUrl = await page.locator("#share-short").getAttribute("data-url");
+      await expect(page.getByRole("button", { name: "Copy link" })).toBeVisible();
       await page.goto(enUrl);
       await expect(page.locator("#card-name")).toHaveText("Zion · Assassin · The Finisher");
       await expect(page.locator("#other-name")).toHaveText("塞安 · 刺客 · 最後一擊");
@@ -883,7 +887,7 @@ test.describe("game cover", () => {
       const box = await page.evaluate(() => {
         const rect = (sel) => {
           const node = document.querySelector(sel).getBoundingClientRect();
-          return { top: node.top, bottom: node.bottom, width: node.width, height: node.height };
+          return { top: node.top, bottom: node.bottom, left: node.left, right: node.right, width: node.width, height: node.height };
         };
         return {
           vh: window.innerHeight,
@@ -901,8 +905,15 @@ test.describe("game cover", () => {
       expect(box.overflow).toBeLessThanOrEqual(1);
       expect(box.cover.top).toBeLessThanOrEqual(2);
       expect(box.cover.height).toBeGreaterThanOrEqual(box.vh - 2);
-      expect(box.frame.height).toBeGreaterThanOrEqual(box.vh - 2);
-      expect(box.frame.width).toBeGreaterThanOrEqual(box.vw - 2);
+      if (shot.width >= 860) {
+        expect(box.frame.height).toBeGreaterThanOrEqual(box.vh - 2);
+        expect(box.frame.width).toBeGreaterThanOrEqual(box.vw - 2);
+      } else {
+        expect(box.frame.left).toBeGreaterThanOrEqual(-1);
+        expect(box.frame.right).toBeLessThanOrEqual(box.vw + 1);
+        expect(box.frame.top).toBeGreaterThanOrEqual(-1);
+        expect(box.frame.bottom).toBeLessThanOrEqual(box.vh + 1);
+      }
       expect(box.start.top).toBeGreaterThanOrEqual(0);
       expect(box.start.bottom).toBeLessThanOrEqual(box.vh);
       expect(box.boundary.bottom).toBeLessThanOrEqual(box.vh);
@@ -1040,5 +1051,147 @@ test.describe("Paul's review on the names", () => {
     await page.keyboard.press("Escape");
     await expect(page.locator("#district")).toBeHidden();
     await expect(hotspot).toBeFocused();
+  });
+});
+
+test.describe("December Lights mobile", () => {
+  const views = [
+    { width: 390, height: 844, lang: "zh" },
+    { width: 390, height: 844, lang: "en" },
+    { width: 360, height: 780, lang: "zh" },
+    { width: 360, height: 780, lang: "en" },
+    { width: 1440, height: 900, lang: "zh" },
+    { width: 1440, height: 900, lang: "en" },
+  ];
+
+  test("cover, district, quiz, result, and duo at the review sizes", async ({ page }) => {
+    test.setTimeout(180000);
+    for (const v of views) {
+      await page.setViewportSize({ width: v.width, height: v.height });
+      await page.goto(`/prototype/teammate-type/?lang=${v.lang}`);
+      await page.waitForFunction(() => {
+        const img = document.querySelector("#town-map");
+        return img && img.complete && img.naturalWidth > 0;
+      });
+      const tag = `${v.width}x${v.height}-${v.lang}`;
+      const title = v.lang === "zh" ? "十二月的燈" : "December Lights";
+      const subtitle = v.lang === "zh" ? "你是哪一種隊友？" : "What kind of teammate are you?";
+      await expect(page.locator("#title")).toHaveText(title);
+      await expect(page.locator("#subtitle")).toHaveText(subtitle);
+      await expect(page.locator("#lockup")).toHaveText("照夜鎮 Nightglow");
+      await expect(page).toHaveTitle(new RegExp(title));
+      const map = await page.evaluate(async () => {
+        const img = document.querySelector("#town-map");
+        const blob = await (await fetch(img.currentSrc)).blob();
+        const bmp = await createImageBitmap(blob);
+        return { width: bmp.width, height: bmp.height, current: img.currentSrc };
+      });
+      if (v.width < 860) {
+        expect(map.current).toContain("nightglow-map-mobile.webp");
+        expect(map.width).toBe(800);
+        expect(map.height).toBe(1422);
+        const spots = await page.locator(".hotspots-mobile .hotspot-district").evaluateAll((nodes) => nodes.map((node) => {
+          const rect = node.getBoundingClientRect();
+          return {
+            left: rect.left,
+            top: rect.top,
+            right: window.innerWidth - rect.right,
+            bottom: window.innerHeight - rect.bottom,
+          };
+        }));
+        expect(spots).toHaveLength(4);
+        for (const spot of spots) {
+          expect(spot.left).toBeGreaterThanOrEqual(16);
+          expect(spot.top).toBeGreaterThanOrEqual(16);
+          expect(spot.right).toBeGreaterThanOrEqual(16);
+          expect(spot.bottom).toBeGreaterThanOrEqual(16);
+        }
+        const pinSize = await page.locator(".hotspots-mobile .pin-label").first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+        expect(pinSize).toBeGreaterThanOrEqual(14);
+        expect(pinSize).toBeLessThanOrEqual(15);
+      } else {
+        expect(map.current).toContain("nightglow-map.webp");
+        expect(map.current).not.toContain("nightglow-map-mobile.webp");
+        expect(map.width).toBe(1600);
+        expect(map.width).toBeLessThan(2560);
+      }
+      const lockupSize = await page.locator("#lockup").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+      const boundarySize = await page.locator("#entry-boundary").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+      expect(lockupSize).toBeGreaterThanOrEqual(14);
+      expect(boundarySize).toBeGreaterThanOrEqual(14);
+      const home = await page.locator("#cover-home").boundingBox();
+      expect(home.width).toBeGreaterThanOrEqual(44);
+      expect(home.height).toBeGreaterThanOrEqual(44);
+      await noOverflow(page);
+      await page.screenshot({ path: `${OUT}/december-after-${tag}-cover.png` });
+
+      const before = await page.evaluate(() => ({
+        y: window.scrollY,
+        title: document.querySelector("#title").getBoundingClientRect().top,
+        map: document.querySelector(".map-frame").getBoundingClientRect().top,
+      }));
+      const hot = page.locator(v.width < 860 ? ".hotspots-mobile .hot-galaxy" : ".hotspots-desk .hot-galaxy");
+      await hot.click();
+      await expect(page.locator("#district")).toBeVisible();
+      const after = await page.evaluate(() => ({
+        y: window.scrollY,
+        title: document.querySelector("#title").getBoundingClientRect().top,
+        map: document.querySelector(".map-frame").getBoundingClientRect().top,
+      }));
+      expect(after.y).toBe(before.y);
+      expect(Math.abs(after.title - before.title)).toBeLessThanOrEqual(1);
+      expect(Math.abs(after.map - before.map)).toBeLessThanOrEqual(1);
+      expect(after.title).toBeGreaterThanOrEqual(0);
+      await page.screenshot({ path: `${OUT}/december-after-${tag}-district.png` });
+      await page.locator("#district-close").click();
+
+      await page.locator("#start").click();
+      await expect(page.locator("#quiz")).toBeVisible();
+      const progressSize = await page.locator("#progress").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+      const settingSize = await page.locator("#setting").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+      expect(progressSize).toBeGreaterThanOrEqual(14);
+      expect(settingSize).toBeGreaterThanOrEqual(14);
+      await page.screenshot({ path: `${OUT}/december-after-${tag}-quiz.png` });
+
+      await page.goto(`/prototype/teammate-type/?c=ABA&lang=${v.lang}`);
+      await expect(page.locator("#card-name")).toBeVisible();
+      const back = await page.locator("#back").boundingBox();
+      expect(back.width).toBeGreaterThanOrEqual(44);
+      expect(back.height).toBeGreaterThanOrEqual(44);
+      const factionSize = await page.locator("#faction").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+      const labelSize = await page.locator(".line-label").first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+      expect(factionSize).toBeGreaterThanOrEqual(14);
+      expect(labelSize).toBeGreaterThanOrEqual(14);
+      await expect(page.locator("#share-short")).toContainText(`c=ABA`);
+      await expect(page.locator("input.share-url")).toHaveCount(0);
+      if (v.width <= 390) {
+        const buttons = await page.locator(".actions .primary").evaluateAll((nodes) => nodes.filter((node) => !node.hidden).map((node) => {
+          const rect = node.getBoundingClientRect();
+          return { y: rect.top, h: rect.height };
+        }));
+        expect(buttons.length).toBeGreaterThanOrEqual(2);
+        expect(buttons[1].y).toBeGreaterThanOrEqual(buttons[0].y + buttons[0].h - 1);
+      }
+      await page.locator("#result").screenshot({ path: `${OUT}/december-after-${tag}-result.png` });
+      await page.locator("#duo-pick").selectOption("alliance");
+      await expect(page.locator("#duo-stage")).toBeVisible();
+      await page.locator("#duo-lines").scrollIntoViewIfNeeded();
+      const bubble = page.locator(".duo-line.from-right").first();
+      await expect(bubble).toBeVisible();
+      const bubbleStyle = await bubble.evaluate((node) => {
+        const style = getComputedStyle(node);
+        const speaker = node.querySelector(".duo-speaker");
+        return {
+          align: style.textAlign,
+          self: style.alignSelf,
+          speaker: speaker ? parseFloat(getComputedStyle(speaker).fontSize) : 0,
+        };
+      });
+      expect(bubbleStyle.align).toBe("left");
+      expect(bubbleStyle.self).toBe("flex-end");
+      expect(bubbleStyle.speaker).toBeGreaterThanOrEqual(14);
+      await page.locator("#duo-lines").screenshot({ path: `${OUT}/december-after-${tag}-duo.png` });
+      await noOverflow(page);
+    }
   });
 });

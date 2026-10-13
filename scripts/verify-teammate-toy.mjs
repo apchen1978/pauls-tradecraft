@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { distribution, FACTIONS, factionLabel, identityLine, isRare, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI } from "../prototype/teammate-type/app.js";
+import { distribution, FACTIONS, factionLabel, identityLine, isRare, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI, wrapLines } from "../prototype/teammate-type/app.js";
 import { dialogueFor, extractCode, pairStats, ROLE_ORDER } from "../prototype/teammate-type/duo.js";
 
 test("old ABCD codes keep the six-type balance", () => {
@@ -196,6 +196,27 @@ test("share links carry the three choices, and a bad code does not resolve", () 
   assert.equal(resolveChoices("EFG").type, "alliance");
   assert.equal(resolveChoices("XYZ"), null);
   assert.deepEqual(readRoute(""), { lang: "zh", code: null });
+});
+
+test("card lines do not orphan 關於 or 了。 and the work has its new name", () => {
+  const ctx = { measureText(text) { return { width: Array.from(String(text)).length * 20 }; } };
+  const about = "關於玉仔：喊一聲，後面那一排就到了。";
+  const narrow = wrapLines(ctx, about, 40);
+  const wide = wrapLines(ctx, about, 16 * 20);
+  assert.equal(narrow.some((line) => line === "關於"), false);
+  assert.equal(wide.some((line) => /^[了。]+$/.test(line)), false);
+  assert.equal(narrow.join(""), about);
+  assert.equal(wide.join(""), about);
+  assert.equal(UI.zh.title, "十二月的燈");
+  assert.equal(UI.zh.subtitle, "你是哪一種隊友？");
+  assert.equal(UI.en.title, "December Lights");
+  assert.equal(UI.en.subtitle, "What kind of teammate are you?");
+  assert.equal(UI.zh.h1, UI.zh.title);
+  assert.equal(UI.zh.boundary, "示意玩具，不是心理測驗。");
+  const html = readFileSync(new URL("../prototype/teammate-type/index.html", import.meta.url), "utf8");
+  assert.match(html, /nightglow-map-mobile\.webp 800w/);
+  assert.match(html, /nightglow-map\.webp 1600w/);
+  assert.equal(/2560w| 2x| 3x/.test(html), false);
 });
 
 test("public copy keeps the boundary and skips claims, trademarks, and contact details", () => {

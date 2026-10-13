@@ -1,4 +1,4 @@
-// 你是哪一種隊友？ / What kind of teammate are you?
+// 十二月的燈 / December Lights — 你是哪一種隊友？ / What kind of teammate are you?
 // Self-contained Garage toy. No network calls, no storage. The share link's `c`
 // param is the three choice letters; `with` is an optional second card; `lang`
 // only picks the language. Scoring does not read `with`.
@@ -676,12 +676,13 @@ export const SCENARIOS = [
 export const UI = {
   zh: {
     htmlLang: "zh-Hant",
-    title: "你是哪一種隊友？",
-    description: "三個小情境，看你怎麼做，就知道你是哪一種隊友。示意玩具，不是心理測驗。同樣的選擇，永遠得到同一張卡。",
+    title: "十二月的燈",
+    subtitle: "你是哪一種隊友？",
+    description: "十二月的燈。你是哪一種隊友？示意玩具，不是心理測驗。同樣的選擇，永遠得到同一張卡。",
     skip: "跳至內容",
     eyebrow: "Digital Garage · 輕科技玩具",
     langGroup: "語言",
-    h1: "你是哪一種隊友？",
+    h1: "十二月的燈",
     intro: "歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。",
     lede: "不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。",
     hint: "每個情境選一次。同樣的選擇，永遠得到同一張卡。",
@@ -719,9 +720,9 @@ export const UI = {
     duoFriend: "朋友",
     duoDownload: "下載這一幕",
     again: "再玩一次",
-    copy: "複製分享連結",
+    copy: "複製連結",
     copied: "連結已複製",
-    copyFallback: "可以從下面的欄位複製",
+    copyFallback: "這次沒複製到。",
     share: "分享",
     download: "下載角色卡",
     downloadFail: "這次沒畫成圖片，連結一樣能分享。",
@@ -731,12 +732,13 @@ export const UI = {
   },
   en: {
     htmlLang: "en",
-    title: "What kind of teammate are you?",
-    description: "Three short scenes. How you act is the kind of teammate you are. A toy, not a personality test. The same choices always make the same card.",
+    title: "December Lights",
+    subtitle: "What kind of teammate are you?",
+    description: "December Lights. What kind of teammate are you? A toy, not a personality test. The same choices always make the same card.",
     skip: "Skip to content",
     eyebrow: "Digital Garage · Light-tech toys",
     langGroup: "Language",
-    h1: "What kind of teammate are you?",
+    h1: "December Lights",
     intro: "Welcome to Nightglow. Everyone brings something to the team. Each small thing you accomplish together makes the night a little brighter.",
     lede: "Not a questionnaire. Three short scenes. How you act is the kind of teammate you are.",
     hint: "One choice per scene. The same choices always make the same card.",
@@ -774,9 +776,9 @@ export const UI = {
     duoFriend: "Friend",
     duoDownload: "Download this scene",
     again: "Play again",
-    copy: "Copy share link",
+    copy: "Copy link",
     copied: "Link copied",
-    copyFallback: "Copy it from the field below",
+    copyFallback: "That copy didn't land.",
     share: "Share",
     download: "Download card",
     downloadFail: "The picture didn't save this time. The link still shares the card.",
@@ -955,7 +957,54 @@ function propNode(kind) {
   return svg;
 }
 
-function wrapLines(ctx, text, maxWidth) {
+const STICKY_TAIL = /^[了。，、：；！？…]+$/;
+
+function reflowKeepingHead(ctx, text, maxWidth) {
+  const chars = Array.from(text);
+  const lines = [];
+  let chunk = "";
+  const minChars = text.startsWith("關於") ? 4 : 1;
+  for (const ch of chars) {
+    const next = chunk + ch;
+    const sticky = /[了。，、：；！？…]/.test(ch);
+    const tooWide = ctx.measureText(next).width > maxWidth;
+    const longEnough = Array.from(chunk).length >= minChars;
+    if (chunk && tooWide && !sticky && longEnough) {
+      lines.push(chunk);
+      chunk = ch;
+    } else chunk = next;
+  }
+  if (chunk) lines.push(chunk);
+  if (lines.length > 1 && STICKY_TAIL.test(lines[lines.length - 1])) {
+    const last = lines.pop();
+    lines[lines.length - 1] += last;
+  }
+  return lines.length ? lines : [""];
+}
+
+function repairOrphans(ctx, lines, maxWidth) {
+  const merged = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (line === "關於" && i + 1 < lines.length) {
+      lines[i + 1] = line + lines[i + 1];
+      continue;
+    }
+    if (merged.length && STICKY_TAIL.test(line)) {
+      merged[merged.length - 1] += line;
+      continue;
+    }
+    merged.push(line);
+  }
+  const out = [];
+  for (const line of merged) {
+    if (ctx.measureText(line).width <= maxWidth + 0.5) out.push(line);
+    else out.push(...reflowKeepingHead(ctx, line, maxWidth));
+  }
+  return out.length ? out : [""];
+}
+
+export function wrapLines(ctx, text, maxWidth) {
   const lines = [];
   const words = String(text).split(/\s+/).filter(Boolean);
   let line = "";
@@ -983,7 +1032,8 @@ function wrapLines(ctx, text, maxWidth) {
     let chunk = "";
     for (const ch of Array.from(word)) {
       const next = chunk + ch;
-      if (chunk && ctx.measureText(next).width > maxWidth) {
+      const sticky = /[了。，、：；！？…]/.test(ch);
+      if (chunk && ctx.measureText(next).width > maxWidth && !sticky && !(chunk === "關於")) {
         lines.push(chunk);
         chunk = ch;
       } else chunk = next;
@@ -991,7 +1041,7 @@ function wrapLines(ctx, text, maxWidth) {
     line = chunk;
   }
   if (line) lines.push(line);
-  return lines.length ? lines : [""];
+  return repairOrphans(ctx, lines.length ? lines : [""], maxWidth);
 }
 
 function boot() {
@@ -1106,6 +1156,7 @@ function boot() {
     });
     $("boundary").textContent = ui.boundary;
     $("title").textContent = ui.h1;
+    $("subtitle").textContent = ui.subtitle;
     $("intro").textContent = ui.intro;
     $("lede").textContent = ui.lede;
     $("hint").textContent = ui.hint;
@@ -1212,8 +1263,7 @@ function boot() {
     $("copy-link").textContent = ui.copy;
     $("share-btn").textContent = ui.share;
     $("download").textContent = ui.download;
-    $("share-label").textContent = ui.copy;
-    $("share-url").value = shareUrl();
+    paintShare(shareUrl());
     $("status").textContent = "";
     const rare = isRare(resolved.type);
     $("rare").hidden = !rare;
@@ -1434,25 +1484,29 @@ function boot() {
     render("card");
   }
 
+  function paintShare(url) {
+    const short = $("share-short");
+    short.dataset.url = url;
+    short.textContent = new URL(url).search || url;
+  }
+
   async function copyLink() {
     const ui = UI[state.lang];
-    const field = $("share-url");
+    const url = $("share-short").dataset.url || "";
     try {
-      await navigator.clipboard.writeText(field.value);
+      await navigator.clipboard.writeText(url);
       $("status").textContent = ui.copied;
     } catch {
-      field.focus();
-      field.select();
       $("status").textContent = ui.copyFallback;
     }
   }
 
   async function shareNative() {
     const ui = UI[state.lang];
-    const field = $("share-url");
+    const url = $("share-short").dataset.url || "";
     if (!navigator.share) return;
     try {
-      await navigator.share({ title: ui.title, text: ui.boundary, url: field.value });
+      await navigator.share({ title: ui.title, text: `${ui.subtitle} ${ui.boundary}`, url });
     } catch {
       /* dismissed share sheet */
     }
@@ -1528,17 +1582,26 @@ function boot() {
       ctx.fillText(line, Math.round((width - w) / 2), y);
     };
 
-    center(ui.kicker, 64, `700 40px ${FONT}`, "#62716A");
-    ctx.font = `500 34px ${FONT}`;
-    const introLines = wrapLines(ctx, ui.intro, inner);
-    const introTop = 116;
-    introLines.forEach((line, index) => {
-      center(line, introTop + index * 42, `500 34px ${FONT}`, "#193A35");
+    const badgeClear = 250;
+    const headerInner = width - pad - badgeClear;
+    const headerCenter = (line, y, font, color) => {
+      ctx.font = font;
+      ctx.fillStyle = color;
+      const w = ctx.measureText(line).width;
+      const x = Math.round(pad + Math.max(0, (headerInner - w) / 2));
+      ctx.fillText(line, x, y);
+    };
+    headerCenter(ui.title, 64, `700 48px ${FONT}`, "#193A35");
+    ctx.font = `600 32px ${FONT}`;
+    const subLines = wrapLines(ctx, ui.subtitle, headerInner);
+    const subTop = 124;
+    subLines.forEach((line, index) => {
+      headerCenter(line, subTop + index * 42, `600 32px ${FONT}`, "#62716A");
     });
 
     const BOUNDARY = 54;
     const BASE = { LABEL: 54, PICKS: 48, BODY: 40, FUNNY: 44, NAME: 58, OTHER: 32, ROLE: 36 };
-    const artTop = introTop + introLines.length * 42 + 16;
+    const artTop = subTop + subLines.length * 42 + 20;
     const lead = (size) => size + 8;
     const measureCard = (textScale) => {
       const sz = {};
@@ -2081,6 +2144,7 @@ function boot() {
     $("entry-boundary").textContent = ui.boundary;
     $("cover-hint").textContent = ui.coverHint;
     $("lockup").textContent = ui.lockup;
+    $("subtitle").textContent = ui.subtitle;
     $("see-all").textContent = ui.seeAll;
     $("entry-title").textContent = ui.entryTitle;
     $("district-close").textContent = ui.closePreview;
@@ -2137,8 +2201,9 @@ function boot() {
     state.district = id;
     state.districtOpener = opener;
     paintDistrict();
+    document.documentElement.classList.add("district-open");
     $("district").hidden = false;
-    $("district-close").focus();
+    $("district-close").focus({ preventScroll: true });
   }
 
   function closeDistrict() {
@@ -2147,6 +2212,7 @@ function boot() {
       return;
     }
     $("district").hidden = true;
+    document.documentElement.classList.remove("district-open");
     const opener = state.districtOpener;
     state.district = null;
     state.districtOpener = null;
@@ -2215,16 +2281,16 @@ function boot() {
     const inside = $("district-sheet").contains(document.activeElement);
     if (!inside || (event.shiftKey && document.activeElement === first)) {
       event.preventDefault();
-      (event.shiftKey ? last : first).focus();
+      (event.shiftKey ? last : first).focus({ preventScroll: true });
     } else if (!event.shiftKey && document.activeElement === last) {
       event.preventDefault();
-      first.focus();
+      first.focus({ preventScroll: true });
     }
   });
   document.addEventListener("focusin", (event) => {
     if ($("district").hidden || $("district-sheet").contains(event.target)) return;
     const [first] = districtFocusables();
-    if (first) first.focus();
+    if (first) first.focus({ preventScroll: true });
   });
   $("duo-open").addEventListener("click", () => openPartner($("duo-code").value));
   $("duo-code").addEventListener("keydown", (event) => {
