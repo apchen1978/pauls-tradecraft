@@ -649,11 +649,19 @@
       font-size: clamp(1.7rem, 4vw, 2.6rem);
     }
     .cover-copy .intro {
-      margin: 8px auto 0;
-      max-width: 28em;
-      color: rgba(246, 243, 237, 0.88);
-      font-size: 14px;
+      display: block;
+      width: fit-content;
+      max-width: min(36rem, 100%);
+      margin: 10px auto 0;
+      padding: 8px 14px;
+      border-radius: 16px;
+      background: rgba(8, 12, 22, 0.86);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+      color: #f6f3ed;
+      font-size: 17px;
+      font-weight: 600;
       line-height: 1.45;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
     }
     .cover-action {
       position: absolute;
@@ -681,12 +689,16 @@
     }
     .cover-hint {
       margin: 0;
+      padding: 6px 14px;
+      border-radius: 14px;
+      background: rgba(8, 12, 22, 0.86);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
       color: #f6f3ed;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 700;
       line-height: 1.4;
       text-align: center;
-      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
     }
     .cover-boundary {
       position: absolute;
@@ -696,13 +708,16 @@
       width: max-content;
       max-width: calc(100% - 24px);
       margin: 0;
-      padding: 4px 10px;
-      border: 1px dashed rgba(246, 243, 237, 0.55);
+      padding: 6px 12px;
+      border: 0;
       border-radius: 999px;
-      background: rgba(12, 16, 28, 0.45);
+      background: rgba(8, 12, 22, 0.86);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
       color: #f6f3ed;
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 700;
       line-height: 1.4;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
       text-align: center;
       transform: translateX(-50%);
       pointer-events: none;
@@ -733,13 +748,15 @@
       animation: pin-pulse 2.6s ease-out infinite;
     }
     .pin-label {
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: 999px;
-      background: rgba(16, 22, 38, 0.78);
+      background: rgba(8, 12, 22, 0.88);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
       color: #f6f3ed;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       line-height: 1.3;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
       white-space: nowrap;
     }
     @keyframes pin-pulse {
@@ -850,7 +867,8 @@
       .hotspots-desk { display: none; }
       .hotspots-mobile { display: block; }
       .cover-copy { top: 58px; }
-      .cover-copy .intro { font-size: 13px; }
+      .cover-copy .intro { font-size: 15px; }
+      .cover-hint { font-size: 14px; }
       .hotspots-mobile .hot-galaxy .pin { left: 48%; top: 78%; }
       .hotspots-mobile .hot-andromeda .pin { left: 52%; top: 72%; }
       .hotspots-mobile .hot-chart .pin { left: 46%; top: 42%; }
