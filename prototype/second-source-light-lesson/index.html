@@ -83,6 +83,20 @@
     .follow-ups h3 { margin-bottom: 6px; }
     .follow-ups p { margin: 0; }
     .follow-up-disclosure { margin: 10px 0 27px; color: var(--moss); font-size: .81rem; }
+    .order-sketch { margin: 29px 0 32px; padding: 23px 0 0; border-top: 1px solid var(--line); }
+    .order-sketch-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 18px; }
+    .order-sketch-head h3 { margin: 0; font-family: "Noto Serif TC", "PMingLiU", Georgia, serif; font-size: 1.4rem; font-weight: 600; }
+    .order-sketch-head span { color: var(--moss); font-size: .875rem; }
+    .order-sketch-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 17px 0 20px; }
+    .order-sketch-controls button { min-height: 42px; padding: 7px 13px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); color: var(--ink); }
+    .order-sketch-controls button[aria-pressed="true"] { border-color: var(--ink); background: var(--pine); color: var(--white); }
+    .order-sketch-controls button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+    .order-sketch dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; border-top: 1px solid var(--line); }
+    .order-sketch dl > div { min-width: 0; padding: 13px 12px 14px 0; border-bottom: 1px solid var(--line); }
+    .order-sketch dt { font-size: .875rem; color: var(--moss); font-weight: 700; }
+    .order-sketch dd { margin: 5px 0 0; font-size: 1.0625rem; font-weight: 650; }
+    .order-sketch .next-question { margin: 5px 0 0; font-size: 1.0625rem; }
+    .order-sketch-takeaway { margin: 16px 0 0; color: var(--ink); font-size: 1.0625rem; }
     .judgment { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .judgment > div { padding: 15px 2px 0; border-top: 2px solid var(--ink); }
     .judgment > div + div { border-color: var(--gold); }
@@ -117,6 +131,7 @@
       .follow-ups article + article { border-left: 0; border-top: 1px solid var(--line); }
       .follow-ups blockquote { min-height: 0; }
       .feedback { min-height: 0; }
+      .order-sketch dl { grid-template-columns: 1fr; }
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -187,6 +202,15 @@
           </article>
         </div>
         <p class="follow-up-disclosure" id="follow-up-disclosure"></p>
+        <div class="order-sketch" aria-labelledby="order-sketch-title">
+          <div class="order-sketch-head"><h3 id="order-sketch-title"></h3><span id="order-sketch-note"></span></div>
+          <div class="order-sketch-controls" role="group" aria-labelledby="order-sketch-title">
+            <button type="button" data-scenario="a" aria-pressed="true" id="order-sketch-a"></button>
+            <button type="button" data-scenario="b" aria-pressed="false" id="order-sketch-b"></button>
+          </div>
+          <dl id="order-sketch-fields" aria-live="polite"></dl>
+          <p class="order-sketch-takeaway" id="order-sketch-takeaway"></p>
+        </div>
         <div class="judgment">
           <div><strong id="prepare-title"></strong><p id="prepare-body"></p></div>
           <div><strong id="decision-title"></strong><p id="decision-body"></p></div>
@@ -242,8 +266,25 @@
           remainsLabel: "但仍不知道",
           followUpIntro: "假設買家接著補充了其中一句：",
           followUpA: { label: "只是列入備選", message: "「目前先建立備選名單，還沒有試單安排。請提供常規品資料與報價。」", nextTitle: "這時可先做", next: "常規款可快速給初步報價，並問清何時重新評估；列入名單不等於有採購安排。" },
-          followUpB: { label: "開始談試單", message: "「我們想先談一款產品的試單。請確認打樣方式與交期。」", nextTitle: "這時要多問", next: "先釐清規格、數量、驗收方式與採購時程。常規款可先報；客製打樣或交期承諾要回公司確認。" },
+          followUpB: { label: "對方提到試單", message: "「我們想先談一款產品的試單。請確認打樣方式與交期。」", nextTitle: "這時要多問", next: "先釐清規格、數量、驗收方式與採購時程。常規款可先報；客製打樣或交期承諾要回公司確認。" },
           followUpDisclosure: "兩句都是預寫的合成後續，不是你選擇追問後的預測結果。",
+          orderSketchTitle: "第一張單，還空著哪幾格？",
+          orderSketchNote: "合成情境示意，非採購單",
+          orderSketchLabels: ["產品與規格", "數量", "誰決定、怎樣算通過", "交付與付款"],
+          orderSketch: {
+            a: { fields: [
+              { status: "常規品範圍，品項未定", next: "要問：先評估哪一款？" },
+              { status: "目前沒有試單安排", next: "要問：名單評估後，是否會討論試單？" },
+              { status: "評估方式還沒說", next: "要問：由誰判斷通過、看哪些條件？" },
+              { status: "還沒有具體採購條件", next: "要問：若進入採購，交付與付款由誰確認？" }
+            ], takeaway: "先給常規品資料與初步報價；列入備選，不等於有一張待下的單。" },
+            b: { fields: [
+              { status: "提到一款產品，規格未定", next: "要問：是哪一款、什麼規格？" },
+              { status: "試單數量還沒說", next: "要問：預計試多少？" },
+              { status: "驗收方式還沒說", next: "要問：由誰驗收、按什麼條件？" },
+              { status: "交期被問到但未確認，付款未說", next: "要問：希望何時收貨、付款怎麼安排？" }
+            ], takeaway: "對方提到試單，但打樣、交期和交易條件仍要先釐清，不能當成承諾。" }
+          },
           prepareTitle: "現在可以準備",
           prepareBody: "依已確認的產品範圍整理能力資料；常規款可以快速提供初步報價，標清仍待確認的條件。",
           decisionTitle: "投入前要有人判斷",
@@ -289,8 +330,25 @@
           remainsLabel: "Still unknown",
           followUpIntro: "Suppose the buyer later adds one of these messages:",
           followUpA: { label: "A backup listing only", message: "“For now we're building a backup list, with no trial order planned. Please send standard-product details and a quote.”", nextTitle: "What you can do now", next: "You can send a quick preliminary quote for a standard product and ask when the review will resume. Being listed is not a purchasing arrangement." },
-          followUpB: { label: "A possible trial order", message: "“We'd like to discuss a trial for one product. Please confirm your sampling approach and lead time.”", nextTitle: "What to clarify next", next: "Ask about specifications, quantity, acceptance and timing. A standard product can be quoted promptly; custom sampling or delivery promises need a company decision." },
+          followUpB: { label: "Buyer mentions a trial", message: "“We'd like to discuss a trial for one product. Please confirm your sampling approach and lead time.”", nextTitle: "What to clarify next", next: "Ask about specifications, quantity, acceptance and timing. A standard product can be quoted promptly; custom sampling or delivery promises need a company decision." },
           followUpDisclosure: "Both are prewritten synthetic follow-ups, not predictions caused by your question above.",
+          orderSketchTitle: "What is still blank before a first order?",
+          orderSketchNote: "Synthetic illustration, not a purchase order",
+          orderSketchLabels: ["Product and specification", "Quantity", "Who decides and what counts as passing", "Delivery and payment"],
+          orderSketch: {
+            a: { fields: [
+              { status: "Standard products requested; item not specified", next: "Ask: which item comes first?" },
+              { status: "No trial order planned yet", next: "Ask: would a trial be discussed after listing?" },
+              { status: "Assessment process not stated", next: "Ask: who decides, and against which conditions?" },
+              { status: "No specific purchase terms yet", next: "Ask: who would confirm delivery and payment if a purchase follows?" }
+            ], takeaway: "Send standard-product information and a preliminary quote. A backup listing is not an order waiting to be placed." },
+            b: { fields: [
+              { status: "One product mentioned; specification not stated", next: "Ask: which item and specification?" },
+              { status: "Trial quantity not stated", next: "Ask: what quantity is being considered?" },
+              { status: "Acceptance process not stated", next: "Ask: who accepts the trial, and against which conditions?" },
+              { status: "Lead time requested, not confirmed; payment not stated", next: "Ask: when is it needed, and what payment terms apply?" }
+            ], takeaway: "The buyer mentions a trial, but sampling, delivery and trade terms still need clarification before anyone commits." }
+          },
           prepareTitle: "You can prepare now",
           prepareBody: "Organise capability information for the confirmed product scope. A standard product can receive a quick preliminary quote with unresolved conditions marked clearly.",
           decisionTitle: "Someone must judge the investment",
@@ -307,6 +365,7 @@
       const params = new URLSearchParams(location.search);
       let lang = params.get("lang") === "en" ? "en" : "zh";
       let selected = -1;
+      let sketchScenario = "a";
       function setList(id, items) {
         const list = $(id);
         list.replaceChildren(...items.map(item => { const li = document.createElement("li"); li.textContent = item; return li; }));
@@ -322,6 +381,23 @@
         const p2 = document.createElement("p"); p2.className = "quiet"; p2.textContent = item.remains;
         panel.replaceChildren(h, p, h2, p2);
         panel.hidden = false;
+      }
+      function showOrderSketch() {
+        const c = COPY[lang];
+        const scenario = c.orderSketch[sketchScenario];
+        const fields = $("order-sketch-fields");
+        fields.replaceChildren(...c.orderSketchLabels.map((label, i) => {
+          const row = document.createElement("div");
+          const term = document.createElement("dt"); term.textContent = label;
+          const value = document.createElement("dd"); value.textContent = scenario.fields[i].status;
+          const next = document.createElement("p"); next.className = "next-question"; next.textContent = scenario.fields[i].next;
+          row.append(term, value, next);
+          return row;
+        }));
+        $("order-sketch-takeaway").textContent = scenario.takeaway;
+        document.querySelectorAll(".order-sketch-controls button").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.scenario === sketchScenario));
+        });
       }
       function render() {
         const c = COPY[lang];
@@ -340,6 +416,8 @@
           "follow-up-b-label": c.followUpB.label, "follow-up-b-message": c.followUpB.message,
           "follow-up-b-next-title": c.followUpB.nextTitle, "follow-up-b-next": c.followUpB.next,
           "follow-up-disclosure": c.followUpDisclosure,
+          "order-sketch-title": c.orderSketchTitle, "order-sketch-note": c.orderSketchNote,
+          "order-sketch-a": c.followUpA.label, "order-sketch-b": c.followUpB.label,
           "prepare-title": c.prepareTitle, "prepare-body": c.prepareBody,
           "decision-title": c.decisionTitle, "decision-body": c.decisionBody,
           "exercise-one": c.exerciseOne, "exercise-two": c.exerciseTwo,
@@ -368,12 +446,17 @@
           return button;
         }));
         showFeedback();
+        showOrderSketch();
         document.querySelectorAll(".lang button").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.lang === lang)));
       }
       document.querySelectorAll(".lang button").forEach(button => button.addEventListener("click", () => {
         lang = button.dataset.lang;
         try { const url = new URL(location.href); url.searchParams.set("lang", lang); history.replaceState(null, "", url); } catch (_) {}
         render();
+      }));
+      document.querySelectorAll(".order-sketch-controls button").forEach(button => button.addEventListener("click", () => {
+        sketchScenario = button.dataset.scenario;
+        showOrderSketch();
       }));
       render();
     })();
