@@ -8,14 +8,17 @@
 //     A umbrella 擋雨的人    B cocoa 晚安熱可可
 //     C spark 腦內煙火師     D mapkeeper 地圖收藏家
 //     E strategist 軍師      F queen 女王
+//     G craftsman 修好了     H recorder 靚仔
 //   Scenario 2 社團成果展佈置 / Setting up the club showcase
 //     A umbrella             B finisher 最後一擊
 //     C soundtrack BGM 擔當  D mapkeeper
 //     E messenger 傳令兵     F designer 設計師
+//     G craftsman            H recorder
 //   Scenario 3 線上組隊打王倒數 / Countdown to the boss fight
 //     A cocoa                B spark
 //     C finisher             D soundtrack
 //     E strategist           F messenger
+//     G craftsman            H recorder
 //
 // Resolve (deterministic):
 //   1. A type chosen at least twice wins.
@@ -48,11 +51,18 @@
 //      umbrella 19, cocoa 20, finisher 19, spark 20, mapkeeper 18,
 //      soundtrack 19, strategist 18, messenger 18, alliance 21,
 //      missionary 16, apostle 16, galaxy 3, andromeda 3, designer 6.
+//      G and H never appear in those 216 codes, so every old result stays.
+//      A code that uses G or H keeps the same rules, except a three-way tie
+//      whose choice-index sum mod 12 is 6 becomes a queen (even middle
+//      index 銀河之女, odd 仙女座女王). Majority G or H still wins, so
+//      GGG is 修好了 and HHH is 靚仔. Across 512 codes the queens are
+//      9 each, 18/512, inside 3–5%, and still the rarest roles.
 //      守護者 always uses MG. 聯盟 uses the winged horse in
 //      assets/winged-horse.webp (the same horse drawing as the live card).
 //      The other roles use their anime portraits
 //      (assets/<role>.webp) instead of MG. Crowns are only on the two queens.
-//      Each picture is loaded only when that card is shown.
+//      Each picture is loaded only when that card is shown, or when the
+//      cast list is opened. The quiz itself does not request them.
 //
 // Worked examples:
 //   AAA majority → umbrella
@@ -418,7 +428,92 @@ export const TYPES = {
       alt: "A person with cropped ash-brown hair and dark grey eyes, in a navy jacket, walking left with a plain cloth bundle",
     },
   },
+  craftsman: {
+    pose: "think",
+    prop: null,
+    zh: {
+      name: "修好了",
+      role: "工匠",
+      funny: "什麼都想順手改良，連沒壞的也拆開看看。",
+      gentle: "壞掉的東西到你手上，隔天就會回來，還多了一個小改良。",
+      literary: "「壞了的，我留一晚。明天還你的時候，會多一個小地方。」",
+      strength: "看到東西壞了就先修，不等開會。",
+      alt: "深棕短髮綁小馬尾、琥珀灰眼睛、穿芥末黃工作圍裙、面向左側拿扳手的人",
+    },
+    en: {
+      name: "Fixed It",
+      role: "Craftsman",
+      funny: "You improve whatever is in reach, and you'll open something that wasn't even broken.",
+      gentle: "A broken thing in your hands comes back the next day, with one small improvement.",
+      literary: "\"Leave the broken one with me overnight. Tomorrow it comes back with one extra fix.\"",
+      strength: "Sees something broken and fixes it, without waiting for a meeting.",
+      alt: "A person with a short dark-brown ponytail and amber-grey eyes, in a mustard work apron, facing left with a wrench",
+    },
+  },
+  recorder: {
+    pose: "idle",
+    prop: null,
+    zh: {
+      name: "靚仔",
+      sub: "拍下來了",
+      role: "記錄者",
+      funny: "一直在拍，合照裡永遠沒有他自己。",
+      gentle: "大家忙完回頭，才發現他把每個瞬間都留下來了。",
+      literary: "「你們往前走。我把剛剛那一下留在這裡。」",
+      strength: "記得過程，讓大家看見自己做了什麼。",
+      alt: "淺灰紫短髮、深藍眼睛、穿奶油色背心、把底片相機舉向前面的人",
+    },
+    en: {
+      name: "Got the Shot",
+      role: "Keeper of Moments",
+      funny: "Always shooting, and never in the group picture.",
+      gentle: "Everyone turns around at the end and finds you kept each moment.",
+      literary: "\"You go on ahead. I'll leave that last moment right here.\"",
+      strength: "Remembers the process, and lets people see what they did.",
+      alt: "A person with a pale grey-purple bob and deep blue eyes, in a cream vest, holding a film camera toward the front",
+    },
+  },
 };
+
+export const FACTIONS = {
+  galaxy: { mark: "🌌", zh: "銀河隊", en: "Galaxy Team", leader: "galaxy", members: ["galaxy", "alliance", "recorder", "umbrella"] },
+  andromeda: { mark: "✨", zh: "仙女隊", en: "Andromeda Team", leader: "andromeda", members: ["andromeda", "spark", "soundtrack", "missionary"] },
+  chart: { mark: "🗺️", zh: "星圖隊", en: "Star-Map Team", leader: null, members: ["mapkeeper", "strategist", "finisher", "designer"] },
+  lantern: { mark: "🏮", zh: "燈下隊", en: "Lantern Team", leader: null, members: ["cocoa", "messenger", "apostle", "craftsman"] },
+};
+
+const ABOUT = {
+  galaxy: ["關於援軍到了：喊一聲，後面那一排就到了。", "About Reinforcements Are Here: one call, and the line behind them arrives."],
+  alliance: ["關於銀河之女：她站出來，這一圈就有了中心。", "About Daughter of the Galaxy: when she steps out, the circle has a center."],
+  recorder: ["關於話送到了：話送到了，照片也留下了。", "About Gets It Through: the words arrive, and so does the picture."],
+  umbrella: ["關於晚安熱可可：傘下留了位子，也有人記得你還沒喝。", "About The Cocoa: there's room under the umbrella, and someone remembers you haven't had a drink."],
+  andromeda: ["關於這件事值得說：光點起來之後，有人把那件事轉給大家看。", "About Worth Saying Out Loud: once the light is on, someone turns the idea so everyone can see it."],
+  spark: ["關於順眼就對了：點子很多，他負責讓它看起來是故意的。", "About Makes It Look Right: lots of ideas; he makes them look intentional."],
+  soundtrack: ["關於靚仔：一個配樂，一個把瞬間留下來。", "About Got the Shot: one keeps the music, one keeps the moment."],
+  missionary: ["關於我接著走：講完的事，有人真的往下一個路口走。", "About I'll Carry It On: once it's said, someone actually walks it to the next corner."],
+  mapkeeper: ["關於先看全局：地圖畫完，他才決定往哪走。", "About Sees the Whole Board: once the map is drawn, he decides where to go."],
+  strategist: ["關於地圖收藏家：出發前，口袋裡永遠有一張空白地圖。", "About The Mapkeeper: before setting off, there's always a blank map in that pocket."],
+  finisher: ["關於先看全局：我等那一秒，他先看完整盤。", "About Sees the Whole Board: I wait for that one second; he looks at the whole board first."],
+  designer: ["關於修好了：一個說要怎樣，一個真的做出來。", "About Fixed It: one says how it should look, one actually makes it."],
+  cocoa: ["關於擋雨的人：傘下永遠多留一個位子。", "About The Umbrella: there's always one more place under it."],
+  messenger: ["關於靚仔：一個傳話，一個留證據。", "About Got the Shot: one carries the words, one keeps the proof."],
+  apostle: ["關於這件事值得說：不是我起的頭，是我願意把它走下去。", "About Worth Saying Out Loud: I didn't start it. I'm willing to keep walking it."],
+  craftsman: ["關於順眼就對了：壞掉的隔天回來，還要順眼。", "About Makes It Look Right: it comes back the next day, and it has to look right."],
+};
+
+for (const [factionId, faction] of Object.entries(FACTIONS)) {
+  for (const id of faction.members) TYPES[id].faction = factionId;
+}
+for (const [id, lines] of Object.entries(ABOUT)) {
+  TYPES[id].zh.about = lines[0];
+  TYPES[id].en.about = lines[1];
+}
+
+export function factionLabel(typeId, lang) {
+  const faction = FACTIONS[TYPES[typeId].faction];
+  const lead = faction.leader === typeId ? (lang === "zh" ? " · 隊長" : " · Lead") : "";
+  return `${faction.mark} ${faction[lang]}${lead}`;
+}
 
 export const SCENARIOS = [
   {
@@ -440,6 +535,8 @@ export const SCENARIOS = [
       { id: "D", type: "mapkeeper", zh: "先把每個人的進度整理成一張表，看還缺什麼。", en: "Put everyone's progress into one list to see what's missing." },
       { id: "E", type: "strategist", zh: "先把整晚要做的事在腦裡走一遍，再動手。", en: "Walk the whole night through in your head, then start." },
       { id: "F", type: "queen", zh: "在語音裡定調：今晚照這個走，大家跟上。", en: "Set the tone on voice: this is the plan tonight, everyone follow." },
+      { id: "G", type: "craftsman", zh: "先把一直當機的那台電腦修好，大家才不會一直等。", en: "Fix the computer that keeps freezing, so nobody has to keep waiting." },
+      { id: "H", type: "recorder", zh: "先把今晚每個人做的事記下來，明天才看得到。", en: "Write down what everyone did tonight, so tomorrow it's still there." },
     ],
   },
   {
@@ -461,6 +558,8 @@ export const SCENARIOS = [
       { id: "D", type: "mapkeeper", zh: "先繞場一圈，找出插座、動線和可能出包的地方。", en: "Walk the room first: sockets, foot traffic, what could go wrong." },
       { id: "E", type: "messenger", zh: "跑一圈，把每個人的位置說到對方點頭。", en: "Lap the room and say each person's spot until they nod." },
       { id: "F", type: "designer", zh: "先把海報、燈光和桌子的顏色配在一起，再開始釘。", en: "Match the posters, lights, and tables before anyone starts pinning." },
+      { id: "G", type: "craftsman", zh: "展板歪了？我帶了螺絲起子。", en: "The board is crooked? I brought a screwdriver." },
+      { id: "H", type: "recorder", zh: "拍下每個人佈置的樣子，結束後做成一張合照牆。", en: "Photograph how each person set things up, and make a wall of it afterward." },
     ],
   },
   {
@@ -482,6 +581,8 @@ export const SCENARIOS = [
       { id: "D", type: "soundtrack", zh: "在語音裡喊口號、講幹話，讓大家不要緊張。", en: "Shout a battle cry and crack jokes so nobody's nervous." },
       { id: "E", type: "strategist", zh: "開打前，先把王的動作和大家站哪講清楚。", en: "Before the fight, spell out the boss's moves and where everyone stands." },
       { id: "F", type: "messenger", zh: "把打法重複說到最後一個人也回「收到」。", en: "Repeat the plan until the last person says they've got it." },
+      { id: "G", type: "craftsman", zh: "先把卡住的裝備弄好，再進場。", en: "Get the stuck gear working, then go in." },
+      { id: "H", type: "recorder", zh: "先開錄影，等一下贏了要有紀錄。", en: "Start recording, so there's a record when we win." },
     ],
   },
 ];
@@ -495,6 +596,7 @@ export const UI = {
     eyebrow: "Digital Garage · 輕科技玩具",
     langGroup: "語言",
     h1: "你是哪一種隊友？",
+    intro: "歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。",
     lede: "不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。",
     hint: "每個情境選一次。同樣的選擇，永遠得到同一張卡。",
     boundary: "示意玩具，不是心理測驗。",
@@ -528,6 +630,8 @@ export const UI = {
     download: "下載角色卡",
     downloadFail: "這次沒畫成圖片，連結一樣能分享。",
     back: "回到 Digital Garage",
+    galleryTitle: "十六種隊友",
+    galleryLead: "四個隊伍，各四個人。點一張，看那張卡。",
   },
   en: {
     htmlLang: "en",
@@ -537,6 +641,7 @@ export const UI = {
     eyebrow: "Digital Garage · Light-tech toys",
     langGroup: "Language",
     h1: "What kind of teammate are you?",
+    intro: "Welcome to Nightglow. Everyone brings something to the team. Each small thing you accomplish together makes the night a little brighter.",
     lede: "Not a questionnaire. Three short scenes. How you act is the kind of teammate you are.",
     hint: "One choice per scene. The same choices always make the same card.",
     boundary: "A toy, not a personality test.",
@@ -570,13 +675,15 @@ export const UI = {
     download: "Download card",
     downloadFail: "The picture didn't save this time. The link still shares the card.",
     back: "Back to the Digital Garage",
+    galleryTitle: "Sixteen teammates",
+    galleryLead: "Four teams, four people each. Open one to see that card.",
   },
 };
 
-const LETTERS = "ABCDEF";
+const LETTERS = "ABCDEFGH";
 
-export function resolveChoices(code) {
-  if (typeof code !== "string" || !/^[ABCDEF]{3}$/.test(code)) return null;
+function resolveCore(code) {
+  if (typeof code !== "string" || !/^[ABCDEFGH]{3}$/.test(code)) return null;
   const indexes = [...code].map((letter) => LETTERS.indexOf(letter));
   if (indexes.some((choiceIndex, scenarioIndex) => !SCENARIOS[scenarioIndex].choices[choiceIndex])) return null;
   const types = indexes.map((choiceIndex, scenarioIndex) => SCENARIOS[scenarioIndex].choices[choiceIndex].type);
@@ -604,6 +711,16 @@ export function resolveChoices(code) {
   }
   if (type === "queen") type = indexes[1] % 2 === 0 ? "galaxy" : "andromeda";
   return { code, type, tie: true };
+}
+
+export function resolveChoices(code) {
+  const result = resolveCore(code);
+  if (!result || !/[GH]/.test(code)) return result;
+  if (!result.tie || result.type === "galaxy" || result.type === "andromeda") return result;
+  const indexes = [...code].map((letter) => LETTERS.indexOf(letter));
+  const sum = indexes[0] + indexes[1] + indexes[2];
+  if (sum % 12 !== 6) return result;
+  return { code, type: indexes[1] % 2 === 0 ? "galaxy" : "andromeda", tie: true };
 }
 
 export function distribution(letters = LETTERS) {
@@ -668,6 +785,8 @@ const WASH = {
   alliance: "#E3DDF2",
   missionary: "#F3D7C4",
   apostle: "#D5DCE6",
+  craftsman: "#E7D7A8",
+  recorder: "#E4DDD4",
 };
 
 const emblems = {};
@@ -685,6 +804,8 @@ const PORTRAIT_SRC = {
   andromeda: "assets/andromeda.webp",
   missionary: "assets/missionary.webp",
   apostle: "assets/apostle.webp",
+  craftsman: "assets/craftsman.webp",
+  recorder: "assets/recorder.webp",
 };
 
 const HORSE_SRC = "assets/winged-horse.webp";
@@ -822,6 +943,45 @@ function boot() {
     return next.toString();
   }
 
+  function portraitFor(typeId) {
+    if (typeId === "cocoa") return ASSET + POSES.heart.frames[0];
+    if (typeId === "alliance") return HORSE_SRC;
+    return PORTRAIT_SRC[typeId];
+  }
+
+  function paintGalleryChrome() {
+    const ui = UI[state.lang];
+    $("gallery-title").textContent = ui.galleryTitle;
+    $("gallery-lead").textContent = ui.galleryLead;
+    if ($("gallery").open) fillGallery();
+  }
+
+  function fillGallery() {
+    const list = $("gallery-list");
+    list.textContent = "";
+    for (const faction of Object.values(FACTIONS)) {
+      const block = el("section", "faction-block");
+      block.appendChild(el("h3", "faction-name", `${faction.mark} ${faction[state.lang]}`));
+      const grid = el("div", "role-grid");
+      for (const id of faction.members) {
+        const text = TYPES[id][state.lang];
+        const tile = document.createElement("a");
+        tile.className = "role-tile";
+        tile.href = `?c=${SAMPLE_CODES[id]}&lang=${state.lang}`;
+        const img = document.createElement("img");
+        img.src = portraitFor(id);
+        img.alt = text.alt;
+        tile.appendChild(img);
+        tile.appendChild(el("span", "tile-name", text.name));
+        if (text.sub) tile.appendChild(el("span", "tile-sub", text.sub));
+        tile.appendChild(el("span", "tile-badge", factionLabel(id, state.lang)));
+        grid.appendChild(tile);
+      }
+      block.appendChild(grid);
+      list.appendChild(block);
+    }
+  }
+
   function render(focus) {
     const ui = UI[state.lang];
     const other = state.lang === "zh" ? "en" : "zh";
@@ -837,6 +997,7 @@ function boot() {
     });
     $("boundary").textContent = ui.boundary;
     $("title").textContent = ui.h1;
+    $("intro").textContent = ui.intro;
     $("lede").textContent = ui.lede;
     $("hint").textContent = ui.hint;
     $("foot-boundary").textContent = ui.boundary;
@@ -844,6 +1005,7 @@ function boot() {
     const back = $("back");
     back.textContent = ui.back;
     back.href = `/?lang=${state.lang}#garage`;
+    paintGalleryChrome();
 
     const quiz = $("quiz");
     const result = $("result");
@@ -855,6 +1017,7 @@ function boot() {
       $("mg").hidden = false;
       $("rare").hidden = true;
       $("card-egg").hidden = true;
+      $("card-sub").hidden = true;
       $("companion").hidden = true;
       closeDuoStage();
       quiz.hidden = false;
@@ -893,8 +1056,12 @@ function boot() {
     $("card-name").textContent = text.name;
     $("card-egg").hidden = !type.egg;
     $("card-egg").textContent = type.egg || "";
+    $("card-sub").hidden = !text.sub;
+    $("card-sub").textContent = text.sub || "";
     $("other-name").textContent = type[other].name;
     $("role").textContent = `${ui.roleLabel} · ${text.role}`;
+    $("faction").textContent = factionLabel(resolved.type, state.lang);
+    $("about").textContent = text.about;
     const lines = $("lines");
     lines.textContent = "";
     [
@@ -1038,8 +1205,12 @@ function boot() {
     $(`duo-${slot}-name`).textContent = text.name;
     $(`duo-${slot}-egg`).hidden = !type.egg;
     $(`duo-${slot}-egg`).textContent = type.egg || "";
+    $(`duo-${slot}-sub`).hidden = !text.sub;
+    $(`duo-${slot}-sub`).textContent = text.sub || "";
     $(`duo-${slot}-other`).textContent = type[other].name;
     $(`duo-${slot}-role`).textContent = `${ui.roleLabel} · ${text.role}`;
+    $(`duo-${slot}-faction`).textContent = factionLabel(typeId, state.lang);
+    $(`duo-${slot}-about`).textContent = text.about;
     const rare = typeId === "galaxy" || typeId === "andromeda" || typeId === "designer";
     $(`duo-${slot}-rare`).hidden = !rare;
     $(`duo-${slot}-rare`).textContent = rare ? ui.rare : "";
@@ -1229,10 +1400,16 @@ function boot() {
     };
 
     center(ui.kicker, 64, `700 40px ${FONT}`, "#62716A");
+    ctx.font = `500 34px ${FONT}`;
+    const introLines = wrapLines(ctx, ui.intro, inner);
+    const introTop = 116;
+    introLines.forEach((line, index) => {
+      center(line, introTop + index * 42, `500 34px ${FONT}`, "#193A35");
+    });
 
     const BOUNDARY = 54;
     const BASE = { LABEL: 54, PICKS: 48, BODY: 40, FUNNY: 44, NAME: 58, OTHER: 32, ROLE: 36 };
-    const artTop = 128;
+    const artTop = introTop + introLines.length * 42 + 16;
     const lead = (size) => size + 8;
     const measureCard = (textScale) => {
       const sz = {};
@@ -1247,6 +1424,10 @@ function boot() {
       const otherLines = wrapLines(ctx, type[other].name, inner);
       ctx.font = `700 ${sz.ROLE}px ${FONT}`;
       const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, inner);
+      ctx.font = `700 30px ${FONT}`;
+      const factionLines = wrapLines(ctx, factionLabel(resolved.type, state.lang), inner);
+      ctx.font = `500 ${sz.BODY}px ${FONT}`;
+      const aboutLines = wrapLines(ctx, text.about, inner);
       ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
       const funnyLines = wrapLines(ctx, text.funny, inner);
       const sectionLines = [text.gentle, text.literary, text.strength].map((body, index) => {
@@ -1258,12 +1439,14 @@ function boot() {
       bodyH += type.egg ? 34 : 0;
       bodyH += 8 + otherLines.length * lead(sz.OTHER);
       bodyH += 6 + roleLines.length * lead(sz.ROLE);
+      bodyH += 10 + factionLines.length * 42;
+      bodyH += aboutLines.length * lead(sz.BODY) + 12;
       bodyH += rare ? 58 : 12;
       bodyH += sz.LABEL + 10 + funnyLines.length * lead(sz.FUNNY) + 10;
       sectionLines.forEach((lines) => {
         bodyH += sz.LABEL + 10 + lines.length * lead(sz.BODY) + 8;
       });
-      return { sz, boundaryLines, picksLines, nameLines, otherLines, roleLines, funnyLines, sectionLines, footerH, bodyH };
+      return { sz, boundaryLines, picksLines, nameLines, otherLines, roleLines, factionLines, aboutLines, funnyLines, sectionLines, footerH, bodyH };
     };
     const cardFits = (ratio, measured) => {
       const artH = Math.round(height * ratio);
@@ -1298,7 +1481,7 @@ function boot() {
     }
     const artH = Math.round(height * artRatio);
     const footerTop = height - 48 - 56 - plan.footerH;
-    const { sz, boundaryLines, picksLines, nameLines, otherLines, roleLines, funnyLines, sectionLines } = plan;
+    const { sz, boundaryLines, picksLines, nameLines, otherLines, roleLines, factionLines, aboutLines, funnyLines, sectionLines } = plan;
 
     const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
     const horseNode = readyImage("horse", HORSE_SRC);
@@ -1355,6 +1538,26 @@ function boot() {
     roleLines.forEach((line) => {
       center(line, y, `700 ${sz.ROLE}px ${FONT}`, "#142C29");
       y += lead(sz.ROLE);
+    });
+    y += 10;
+    factionLines.forEach((line) => {
+      ctx.font = `700 30px ${FONT}`;
+      const badgeW = Math.min(inner, ctx.measureText(line).width + 36);
+      const badgeX = Math.round((width - badgeW) / 2);
+      ctx.fillStyle = "#DDE7DE";
+      roundRect(ctx, badgeX, y, badgeW, 42, 21);
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#193A35";
+      ctx.stroke();
+      ctx.fillStyle = "#142C29";
+      ctx.fillText(line, badgeX + 18, y + 6);
+      y += 42;
+    });
+    y += 8;
+    aboutLines.forEach((line) => {
+      center(line, y, `500 ${sz.BODY}px ${FONT}`, "#193A35");
+      y += lead(sz.BODY);
     });
     y += 6;
     if (rare) {
@@ -1468,7 +1671,12 @@ function boot() {
       const roleLines = wrapLines(ctx, `${ui.roleLabel} · ${text.role}`, colW - 28);
       const rare = Boolean(rareStroke(resolved.type));
       const egg = TYPES[resolved.type].egg || "";
-      const metaH = nameLines.length * 50 + (egg ? 28 : 0) + otherLines.length * 36 + roleLines.length * 40 + (rare ? 56 : 10);
+      const sub = text.sub || "";
+      ctx.font = `700 24px ${FONT}`;
+      const factionLines = wrapLines(ctx, factionLabel(resolved.type, state.lang), colW - 36);
+      ctx.font = `500 22px ${FONT}`;
+      const aboutLines = wrapLines(ctx, text.about, colW - 28);
+      const metaH = nameLines.length * 50 + (egg ? 28 : 0) + (sub ? 28 : 0) + otherLines.length * 36 + roleLines.length * 40 + factionLines.length * 36 + aboutLines.length * 30 + (rare ? 56 : 10);
       return {
         slot: index === 0 ? "left" : "right",
         resolved,
@@ -1476,8 +1684,11 @@ function boot() {
         nameLines,
         otherLines,
         roleLines,
+        factionLines,
+        aboutLines,
         rare,
         egg,
+        sub,
         metaH,
       };
     });
@@ -1638,6 +1849,10 @@ function boot() {
         ctx.restore();
         y += 28;
       }
+      if (person.sub) {
+        centerAt(person.sub, `700 22px ${FONT}`, ink);
+        y += 28;
+      }
       person.otherLines.forEach((line) => {
         centerAt(line, `600 28px ${FONT}`, moss);
         y += 36;
@@ -1645,6 +1860,14 @@ function boot() {
       person.roleLines.forEach((line) => {
         centerAt(line, `700 30px ${FONT}`, ink);
         y += 40;
+      });
+      person.factionLines.forEach((line) => {
+        centerAt(line, `700 24px ${FONT}`, ink);
+        y += 36;
+      });
+      person.aboutLines.forEach((line) => {
+        centerAt(line, `500 22px ${FONT}`, ink);
+        y += 30;
       });
       if (person.rare) {
         y += 6;
@@ -1752,6 +1975,9 @@ function boot() {
   $("share-btn").addEventListener("click", shareNative);
   $("download").addEventListener("click", downloadCard);
   $("duo-download").addEventListener("click", downloadDuo);
+  $("gallery").addEventListener("toggle", () => {
+    if ($("gallery").open) fillGallery();
+  });
   if (!navigator.share) $("share-btn").hidden = true;
 
   preloadEmblems();

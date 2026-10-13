@@ -15,6 +15,8 @@ export const ROLE_ORDER = [
   "designer",
   "galaxy",
   "andromeda",
+  "craftsman",
+  "recorder",
 ];
 
 export const SAMPLE_CODES = {
@@ -32,6 +34,8 @@ export const SAMPLE_CODES = {
   designer: "AFC",
   galaxy: "FAE",
   andromeda: "FBD",
+  craftsman: "GGG",
+  recorder: "HHH",
 };
 
 // Which way the drawing already looks. "front" stays as drawn.
@@ -50,6 +54,8 @@ export const GAZE = {
   designer: "left",
   galaxy: "front",
   andromeda: "right",
+  craftsman: "left",
+  recorder: "front",
 };
 
 const WRITTEN = {};
@@ -210,9 +216,9 @@ export function pairStats(ids) {
 export function extractCode(input) {
   const text = String(input ?? "").trim();
   if (!text) return null;
-  const fromLink = text.match(/[?&#\s]c=([A-Fa-f]{3})\b/i) || text.match(/^c=([A-Fa-f]{3})$/i);
+  const fromLink = text.match(/[?&#\s]c=([A-Ha-h]{3})\b/i) || text.match(/^c=([A-Ha-h]{3})$/i);
   if (fromLink) return fromLink[1].toUpperCase();
-  if (/^[A-Fa-f]{3}$/.test(text)) return text.toUpperCase();
+  if (/^[A-Ha-h]{3}$/.test(text)) return text.toUpperCase();
   return null;
 }
 
