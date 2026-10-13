@@ -7,6 +7,31 @@ export const MOBILE_QUERY = "(max-width: 639px)";
 
 export const ART = {
   map: { desktop: "assets/trade-street-map.webp", mobile: "assets/trade-street-map-mobile.webp" },
+  // Layers for the gentle map motion: a plate with the clouds, the far ship and the crane's container taken out, plus those pieces as
+  // separate pictures laid back exactly where they were (x, y, w, h in pixels of that map). A cloud drifts, the far ship sails off,
+  // the container sways on its cable. If any picture fails to load, the approved whole map above stays as it is.
+  layers: {
+    desktop: {
+      canvas: [1600, 900], plate: "assets/layers/desktop-plate.webp",
+      sprites: [
+        { id: "cloud-a", file: "assets/layers/desktop-cloud-a.webp", x: 674, y: 0, w: 214, h: 95 },
+        { id: "cloud-b", file: "assets/layers/desktop-cloud-b.webp", x: 1275, y: 0, w: 175, h: 102 },
+        { id: "cloud-c", file: "assets/layers/desktop-cloud-c.webp", x: 1450, y: 0, w: 150, h: 104 },
+        { id: "far-ship", file: "assets/layers/desktop-far-ship.webp", x: 1427, y: 120, w: 125, h: 83 },
+        { id: "crane-container", file: "assets/layers/desktop-crane-container.webp", x: 1271, y: 156, w: 98, h: 125, pivot: [47, 1] },
+      ],
+    },
+    mobile: {
+      canvas: [800, 1422], plate: "assets/layers/mobile-plate.webp",
+      sprites: [
+        { id: "cloud-a", file: "assets/layers/mobile-cloud-a.webp", x: 0, y: 0, w: 266, h: 100 },
+        { id: "cloud-b", file: "assets/layers/mobile-cloud-b.webp", x: 263, y: 78, w: 283, h: 59 },
+        { id: "cloud-c", file: "assets/layers/mobile-cloud-c.webp", x: 600, y: 30, w: 200, h: 115 },
+        { id: "far-ship", file: "assets/layers/mobile-far-ship.webp", x: 619, y: 183, w: 148, h: 99 },
+        { id: "crane-container", file: "assets/layers/mobile-crane-container.webp", x: 615, y: 476, w: 85, h: 103, pivot: [44, 1] },
+      ],
+    },
+  },
   // where the water is, as a soft mask (the glints on the sea are drawn only inside it)
   mask: { desktop: "assets/sea-mask-desktop.webp", mobile: "assets/sea-mask-mobile.webp" },
   portrait: {

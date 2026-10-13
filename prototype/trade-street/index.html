@@ -199,6 +199,23 @@
     @keyframes fx-sweep { 0% { transform: translate3d(0, 0, 0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translate3d(270%, 0, 0); opacity: 0; } }
     .map-stage.idle .sea-fx i { animation-play-state: paused; }
     @media (prefers-reduced-motion: reduce) { .map-stage.fx-ready .sea-fx { display: none; } }
+    /* Layers: a plate (clouds, far ship and the crane container taken out) with those pieces laid back where they were, then moved gently.
+       Shown only after every picture has loaded; until then, and if any fails, the approved whole map is all there is. */
+    .layer-fx { display: none; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .map-stage.layers-ready .layer-fx { display: block; }
+    .layer-fx img { position: absolute; display: block; max-width: none; }
+    .layer-fx .plate { left: 0; top: 0; width: 100%; height: 100%; }
+    .layer-fx .sprite { will-change: transform, opacity; }
+    .layer-fx .cloud-a { animation: lx-cloud 90s ease-in-out infinite alternate; }
+    .layer-fx .cloud-b { animation: lx-cloud 105s ease-in-out -35s infinite alternate; }
+    .layer-fx .cloud-c { animation: lx-cloud 120s ease-in-out -70s infinite alternate; }
+    .layer-fx .far-ship { animation: lx-ship 44s linear infinite; }
+    .layer-fx .crane-container { animation: lx-sway 6s ease-in-out infinite alternate; }
+    @keyframes lx-cloud { from { transform: translate3d(-35%, 0, 0); } to { transform: translate3d(35%, 0, 0); } }
+    @keyframes lx-ship { 0% { transform: translate3d(0, 0, 0); opacity: 0; } 8% { opacity: 1; } 60% { opacity: 1; } 100% { transform: translate3d(95%, -52%, 0); opacity: 0; } }
+    @keyframes lx-sway { from { transform: rotate(-1.5deg); } to { transform: rotate(1.5deg); } }
+    .map-stage.idle .layer-fx .sprite { animation-play-state: paused; }
+    @media (prefers-reduced-motion: reduce) { .layer-fx .sprite { animation: none; } }
     /* More life without touching the picture: a chimney that smokes, gulls that pass, cloud shadows that sweep the harbour, a sun that breathes.
        Drawn with gradients and a tiny vector; same safety switches as the water glints. */
     .sky-fx { display: none; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
@@ -287,6 +304,7 @@
               <source media="(max-width: 639px)" srcset="assets/trade-street-map-mobile.webp" type="image/webp" />
               <img id="map-img" src="assets/trade-street-map.webp" width="1600" height="900" alt="" />
             </picture>
+            <div class="layer-fx" id="layer-fx" aria-hidden="true"></div>
             <div class="sea-fx" id="sea-fx" aria-hidden="true"><i class="fx-a"></i><i class="fx-b"></i><i class="fx-sweep"></i></div>
             <div class="sky-fx" id="sky-fx" aria-hidden="true">
               <i class="sun"></i>

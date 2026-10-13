@@ -128,3 +128,54 @@ for (const width of [390, 1440]) {
     });
   });
 }
+
+for (const width of [390, 1440]) {
+  test.describe(`layered map at ${width}px`, () => {
+    test.use({ viewport: { width, height: width === 390 ? 844 : 900 } });
+
+    test("once every layer picture has loaded the plate and five layers show, clouds and the container move, nothing blocks the stops", async ({ page }) => {
+      const problems = [];
+      page.on("pageerror", (error) => problems.push(String(error)));
+      page.on("console", (message) => { if (message.type() === "error") problems.push(message.text()); });
+      await page.goto(`${base}/index.html?lang=zh`);
+      await expect(page.locator("#map-stage")).toHaveClass(/layers-ready/);
+      await expect(page.locator("#layer-fx")).toHaveAttribute("aria-hidden", "true");
+      await expect(page.locator("#layer-fx")).toHaveCSS("pointer-events", "none");
+      await expect(page.locator("#layer-fx img.sprite")).toHaveCount(5);
+      const sizes = await page.evaluate(() => ({ fx: [document.getElementById("layer-fx").offsetWidth, document.getElementById("layer-fx").offsetHeight], inner: [document.getElementById("map-inner").offsetWidth, document.getElementById("map-inner").offsetHeight] }));
+      expect(sizes.fx).toEqual(sizes.inner);
+      const read = () => page.evaluate(() => ["cloud-a", "crane-container", "far-ship"].map((id) => getComputedStyle(document.querySelector(`#layer-fx .${id}`)).transform).join("|"));
+      const first = await read();
+      await page.waitForTimeout(1500);
+      expect(await read()).not.toBe(first);
+      await page.locator('#hotspots .hot[data-station="9"]').click();
+      await expect(page.locator("#preview")).toBeVisible();
+      expect(problems).toEqual([]);
+    });
+
+    test("with less motion the layers still show, standing still", async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto(`${base}/index.html?lang=zh`);
+      await expect(page.locator("#map-stage")).toHaveClass(/layers-ready/);
+      await expect(page.locator("#layer-fx .cloud-a")).toHaveCSS("animation-name", "none");
+      await expect(page.locator("#layer-fx .crane-container")).toHaveCSS("animation-name", "none");
+    });
+
+    test("if one layer picture fails to load the approved whole map stays and nothing is half-drawn", async ({ page }) => {
+      await page.route("**/assets/layers/*far-ship.webp", (route) => route.abort());
+      await page.goto(`${base}/index.html?lang=zh`);
+      await page.waitForTimeout(1500);
+      await expect(page.locator("#map-stage")).not.toHaveClass(/layers-ready/);
+      await expect(page.locator("#layer-fx")).toBeHidden();
+      await expect(page.locator("#map-img")).toBeVisible();
+    });
+
+    test("the layers pause while the map is off screen", async ({ page }) => {
+      await page.goto(`${base}/index.html?lang=zh`);
+      await expect(page.locator("#map-stage")).toHaveClass(/layers-ready/);
+      await page.evaluate(() => { document.body.style.minHeight = "6000px"; window.scrollTo(0, 4000); });
+      await expect(page.locator("#map-stage")).toHaveClass(/idle/, { timeout: 4000 });
+      await expect(page.locator("#layer-fx .cloud-a")).toHaveCSS("animation-play-state", /paused/);
+    });
+  });
+}

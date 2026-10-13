@@ -380,3 +380,37 @@ test("motion: the sky effects are decoration only, gated like the glints, and co
     assert.equal(/left:|top:|width:|height:|background/.test(frame[0]), false, `${name} only uses transform and opacity`);
   }
 });
+
+test("motion: the layered map files exist, stay small and inside the canvas, and the keyframes only move, turn and fade", () => {
+  for (const [name, set, canvas] of [["desktop", ART.layers.desktop, [1600, 900]], ["mobile", ART.layers.mobile, [800, 1422]]]) {
+    assert.deepEqual(set.canvas, canvas, `${name} canvas`);
+    const plate = new URL(`../prototype/trade-street/${set.plate}`, import.meta.url);
+    assert.ok(existsSync(plate), `${name} plate`);
+    assert.ok(statSync(plate).size <= 250000, `${name} plate is at most 250 KB`);
+    assert.deepEqual(set.sprites.map((sp) => sp.id), ["cloud-a", "cloud-b", "cloud-c", "far-ship", "crane-container"], `${name} layers`);
+    let total = 0;
+    for (const sp of set.sprites) {
+      const file = new URL(`../prototype/trade-street/${sp.file}`, import.meta.url);
+      assert.ok(existsSync(file), sp.file);
+      assert.ok(statSync(file).size <= 40000, `${sp.file} is at most 40 KB`);
+      total += statSync(file).size;
+      assert.ok(sp.x >= 0 && sp.y >= 0 && sp.x + sp.w <= canvas[0] && sp.y + sp.h <= canvas[1], `${sp.id} sits inside the ${name} canvas`);
+      if (sp.pivot) assert.ok(sp.pivot[0] >= 0 && sp.pivot[0] <= sp.w && sp.pivot[1] >= 0 && sp.pivot[1] <= sp.h, `${sp.id} pivot inside its picture`);
+    }
+    assert.ok(total <= 300000, `${name} layers together are at most 300 KB`);
+  }
+  const html = read("../prototype/trade-street/index.html");
+  assert.match(html, /class="layer-fx" id="layer-fx" aria-hidden="true"/);
+  assert.match(html, /\.layer-fx \{ display: none; position: absolute; inset: 0; overflow: hidden; pointer-events: none; \}/);
+  assert.match(html, /\.map-stage\.layers-ready \.layer-fx \{ display: block; \}/);
+  assert.match(html, /@media \(prefers-reduced-motion: reduce\) \{ \.layer-fx \.sprite \{ animation: none; \} \}/);
+  assert.match(html, /\.map-stage\.idle \.layer-fx \.sprite \{ animation-play-state: paused; \}/);
+  for (const name of ["lx-cloud", "lx-ship", "lx-sway"]) {
+    const frame = html.match(new RegExp(`@keyframes ${name} \{[^\n]*`));
+    assert.ok(frame, `${name} exists`);
+    assert.equal(/left:|top:|width:|height:|background/.test(frame[0]), false, `${name} only uses transform and opacity`);
+  }
+  // the layers are drawn by the script with no inline script, and the approved whole map is still the page's own picture
+  assert.match(html, /src="assets\/trade-street-map\.webp"/);
+  assert.equal(/<script(?![^>]*src=)[^>]*>/.test(html), false);
+});
