@@ -1281,7 +1281,7 @@ export const works = [
     },
     case: {
       stage: { zh: "技術原型", en: "Technical Prototype" },
-      stageTag: { zh: "計算已通過自動測試", en: "45/45 + 6/6 + 56/56 + 219/219 PASS" },
+      stageTag: { zh: "計算已通過自動測試", en: "45/45 + 6/6 + 56/56 + 220/220 PASS" },
       problem: {
         zh: "貿易團隊常看見單價或毛利，卻看不見為了取得這個 upside 要增加多少現金暴露、庫存與執行風險。",
         en: "Trade teams may see price or margin, but not the cash exposure, inventory, and execution risk required to capture the upside.",
@@ -1299,8 +1299,8 @@ export const works = [
         en: "A working Trade Profit Navigator: editable quantity, purchase price, selling price, and MOQ, with every lever connected to economics, cash, risk, evidence, UNKNOWN, and the decision-maker decision. Blank or invalid inputs stay UNKNOWN, never zero. It adds landed economics and sensitivity: each cost is tagged as coming from the case or as an assumption, the funding cost of the payment timeline and who bears import duty are included, and the weakest link is identified; under the default assumptions, a price concession of about 3% takes the Gulf case to the decision-maker's minimum.",
       },
       evidence: {
-        zh: "Prototype tests 45/45；landed-cost checks 56/56；language checks 219/219；adversarial baseline 6/6；390px／1440px 無溢位；案例為示意 USD 資料；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
-        en: "Prototype tests 45/45; landed-cost checks 56/56; language checks 219/219; adversarial baseline 6/6; no overflow at 390px/1440px; case uses an illustrative USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
+        zh: "Prototype tests 45/45；landed-cost checks 56/56；language checks 220/220；adversarial baseline 6/6；390px／1440px 無溢位；案例為示意 USD 資料；公開 demo：https://apchen1978.github.io/trade-profit-navigator-demo/（HTTP 200，線上實測）。尚未證明 commercial adoption、ROI 或 market willingness-to-pay。",
+        en: "Prototype tests 45/45; landed-cost checks 56/56; language checks 220/220; adversarial baseline 6/6; no overflow at 390px/1440px; case uses an illustrative USD dataset; public demo: https://apchen1978.github.io/trade-profit-navigator-demo/ (HTTP 200, verified live). Commercial adoption, ROI, and market willingness-to-pay remain unproven.",
       },
     },
   },
