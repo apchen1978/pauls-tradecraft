@@ -88,6 +88,22 @@ for (const width of [390, 1440]) {
       });
     }
 
+    for (const lang of ["zh", "en"]) {
+      test(`${lang}: each "also explore" link carries a one-line question, and the links still work`, async ({ page }) => {
+        await page.goto(`/?lang=${lang}`);
+        const nav = page.locator("#works-also-explore-nav");
+        const expected = lang === "zh"
+          ? ["這個商機，值得先投入資源嗎？", "利潤還撐得住嗎？", "現金墊得起嗎？"]
+          : ["Is this opportunity worth committing resources to first?", "Does the margin still hold?", "Can you afford to front the cash?"];
+        for (const q of expected) await expect(nav).toContainText(q);
+        for (const href of ["#global-business-development", "#trade-profit-navigator", "#quote-lens"]) {
+          await expect(nav.locator(`a[href="${href}"]`)).toHaveCount(1);
+        }
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        expect(overflow).toBeLessThanOrEqual(0);
+      });
+    }
+
     test("the card does not displace the existing experiments", async ({ page }) => {
       await page.goto("/?lang=zh");
       for (const id of ["mg-desktop-pet", "game", "simulations", "expense", "architecture-decision", "quote-lens"]) {

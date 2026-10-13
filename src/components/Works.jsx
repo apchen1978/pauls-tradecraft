@@ -742,9 +742,12 @@ export function WorksFlagship() {
         <nav id="works-also-explore-nav" aria-labelledby="works-also-explore" className={`mt-7 flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5 ${open ? "flex" : "hidden md:flex"}`}>
           <span id="works-also-explore" className="text-xs font-semibold text-moss">{t.works.alsoExplore}</span>
           {adjacentWorks.map((work) => (
-            <a key={work.id} href={`#${work.id}`} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">
-              {work[lang].title}<ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-            </a>
+            <span key={work.id} className="flex flex-col gap-0.5">
+              <a href={`#${work.id}`} className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">
+                {work[lang].title}<ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+              </a>
+              {work.entryQuestion && <span className="text-xs text-moss">{work.entryQuestion[lang]}</span>}
+            </span>
           ))}
         </nav>
       </div>
