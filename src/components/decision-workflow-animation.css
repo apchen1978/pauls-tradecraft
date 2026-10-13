@@ -133,8 +133,7 @@
 }
 
 .decision-flow__underlay,
-.decision-flow__line,
-.decision-flow__arrow {
+.decision-flow__line {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -153,14 +152,39 @@
 }
 
 .decision-flow__line--decision-action,
-.decision-flow__line--action-arrow,
-.decision-flow__arrow {
+.decision-flow__line--action-arrow {
   stroke: var(--flow-amber);
 }
 
-.decision-flow__arrow {
-  stroke-width: 2;
-  stroke-dasharray: 1;
+/* 靶心（桌機）：外圈、中圈、紅心；射中時中心亮起、向外漾開一圈 */
+.decision-flow__ring {
+  stroke: var(--flow-amber);
+  stroke-width: 1.5;
+}
+
+.decision-flow__ring--outer {
+  fill: rgb(138 106 43 / 0.08);
+}
+
+.decision-flow__ring--mid {
+  fill: rgb(138 106 43 / 0.2);
+}
+
+.decision-flow__bull {
+  fill: var(--flow-amber);
+  stroke: none;
+}
+
+.decision-flow__hit-ring {
+  fill: none;
+  stroke: var(--flow-amber);
+  stroke-width: 1.5;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.decision-flow[data-active-stage="4"] .decision-flow__ring {
+  stroke-width: 2.5;
 }
 
 .decision-flow__node {
@@ -431,6 +455,21 @@
     border-color: var(--flow-amber);
   }
 
+  /* 靶心（手機）：最後一關的小圓點外面多兩圈，像靶；動畫跑到這一關時彈出並漾開一圈 */
+  .decision-flow__stage:nth-child(5)::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    left: -0.65rem;
+    top: -0.06rem;
+    width: 1.3rem;
+    height: 1.3rem;
+    border: 2px solid rgb(138 106 43 / 0.5);
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 0.22rem var(--color-paper), inset 0 0 0 0.3rem rgb(138 106 43 / 0.35);
+    pointer-events: none;
+  }
+
   .decision-flow__stage-name {
     grid-column: 1;
     font-size: 0.94rem;
@@ -520,7 +559,8 @@
       animation: decision-flow-mobile-dot 0.2s var(--flow-delay, 0s) both paused;
     }
 
-    .decision-flow[data-started="true"] .decision-flow__stage:nth-child(4)::before {
+    .decision-flow[data-started="true"] .decision-flow__stage:nth-child(4)::before,
+    .decision-flow[data-started="true"] .decision-flow__stage:nth-child(5)::before {
       animation-name: decision-flow-mobile-dot-human;
       animation-duration: 0.6s;
     }
@@ -533,10 +573,15 @@
       animation: decision-flow-close-on 0.35s 2.5s both paused;
     }
 
+    .decision-flow[data-started="true"] .decision-flow__stage:nth-child(5)::after {
+      animation: decision-flow-mobile-hit 0.7s 2.56s both paused;
+    }
+
     .decision-flow[data-playing="true"] .decision-flow__stages::after,
     .decision-flow[data-playing="true"] .decision-flow__stage,
     .decision-flow[data-playing="true"] .decision-flow__stage-name,
     .decision-flow[data-playing="true"] .decision-flow__stage::before,
+    .decision-flow[data-playing="true"] .decision-flow__stage:nth-child(5)::after,
     .decision-flow[data-playing="true"] .decision-flow__tally i[data-kept="false"],
     .decision-flow[data-playing="true"] .decision-flow__close {
       animation-play-state: running;
@@ -577,6 +622,20 @@
     0% { background: var(--color-paper); transform: scale(1); }
     38% { background: var(--flow-amber); transform: scale(1.25); }
     100% { background: var(--flow-amber); transform: scale(1); }
+  }
+
+  @keyframes decision-flow-mobile-hit {
+    from {
+      transform: scale(0.5);
+      opacity: 0;
+      box-shadow: inset 0 0 0 0.22rem var(--color-paper), inset 0 0 0 0.3rem rgb(138 106 43 / 0.35), 0 0 0 0 rgb(138 106 43 / 0.5);
+    }
+    45% { transform: scale(1.22); opacity: 1; }
+    to {
+      transform: scale(1);
+      opacity: 1;
+      box-shadow: inset 0 0 0 0.22rem var(--color-paper), inset 0 0 0 0.3rem rgb(138 106 43 / 0.35), 0 0 0 0.95rem rgb(138 106 43 / 0);
+    }
   }
 
   /* 這一關被刷掉的訊號：先還亮著，再退成空心 */

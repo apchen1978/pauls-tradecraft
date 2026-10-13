@@ -43,7 +43,9 @@ const copy = {
 
 // 圖面座標（viewBox 1000 × 190）：主軸 y=80，四個關卡的 x 位置
 const AXIS = 80;
-const X = { evidence: 250, qualification: 440, gate: 630, action: 820, end: 960 };
+const X = { evidence: 250, qualification: 440, gate: 630, action: 820, end: 958 };
+// 靶心：最後一步的終點，被放行的訊號像飛鏢一樣射中它
+const TARGET_R = 19;
 const SOURCE_BANDS = [28, 80, 132];
 
 // 12 個訊號：起點散在三個來源帶；fate = 在哪一關停下
@@ -117,7 +119,10 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
           // 起始狀態
           tl.set(dots, { autoAlpha: 0, scale: 0.4, transformOrigin: "50% 50%", fill: research })
             .set(".decision-flow__source-tag, .decision-flow__fan, .decision-flow__pile-label, .decision-flow__human-label, .decision-flow__close", { autoAlpha: 0 })
-            .set(".decision-flow__line, .decision-flow__arrow", { strokeDashoffset: 1 })
+            .set(".decision-flow__line", { strokeDashoffset: 1 })
+            .set(".decision-flow__target", { autoAlpha: 0, scale: 0.5, svgOrigin: `${X.end} ${AXIS}` })
+            .set(".decision-flow__hit-ring", { autoAlpha: 0, scale: 1, svgOrigin: `${X.end} ${AXIS}` })
+            .set(".decision-flow__bull", { fill: research })
             .set(".decision-flow__gate", { scaleY: 0, transformOrigin: "50% 50%" })
             .set(".decision-flow__node", { fill: paper })
             .set(".decision-flow__gate-ring", { autoAlpha: 0, scale: 1, transformOrigin: "50% 50%" })
@@ -176,15 +181,20 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
             .to(".decision-flow__line--decision-action", { strokeDashoffset: 0, duration: 0.75, ease: "power2.inOut" }, "decide+=0.2");
           dropTo(2, "decide+=0.15");
 
-          // 6. 市場行動
+          // 6. 市場行動：放行的訊號像飛鏢一樣射中靶心
           tl.addLabel("act", "decide+=0.95")
             .to(".decision-flow__node--action", { fill: amber, duration: 0.2 }, "act")
-            .to(byFate(3), { autoAlpha: 0, duration: 0.2 }, "act")
             .to(stageNames[4], { color: forest, duration: 0.25 }, "act")
             .to(stageNames[3], { color: forest, duration: 0.6 }, "act")
-            .to(".decision-flow__line--action-arrow", { strokeDashoffset: 0, duration: 0.35, ease: "power1.out" }, "act")
-            .to(".decision-flow__arrow", { strokeDashoffset: 0, duration: 0.2 }, "act+=0.3")
-            .to(".decision-flow__close", { autoAlpha: 1, duration: 0.35 }, "act+=0.2");
+            .to(".decision-flow__line--action-arrow", { strokeDashoffset: 0, duration: 0.4, ease: "power1.out" }, "act")
+            .to(".decision-flow__target", { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, "act+=0.1")
+            .to(byFate(3), { x: X.end, y: AXIS, scale: 1.2, duration: 0.45, ease: "power2.in" }, "act+=0.35")
+            .addLabel("hit", "act+=0.8")
+            .to(byFate(3), { autoAlpha: 0, duration: 0.08 }, "hit")
+            .fromTo(".decision-flow__target", { scale: 1 }, { scale: 1.16, duration: 0.1, yoyo: true, repeat: 1, ease: "power1.out" }, "hit")
+            .to(".decision-flow__bull", { fill: amber, duration: 0.1 }, "hit")
+            .fromTo(".decision-flow__hit-ring", { autoAlpha: 0.85, scale: 1 }, { autoAlpha: 0, scale: 4.4, duration: 0.75, ease: "power2.out" }, "hit")
+            .to(".decision-flow__close", { autoAlpha: 1, duration: 0.35 }, "hit+=0.2");
 
           timelineRef.current = tl;
           if (conditions.reduceMotion) tl.progress(1);
@@ -304,7 +314,7 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
             { from: X.evidence, to: X.qualification, name: "evidence-qualification" },
             { from: X.qualification, to: X.gate, name: "qualification-decision" },
             { from: X.gate, to: X.action, name: "decision-action" },
-            { from: X.action, to: X.end, name: "action-arrow" },
+            { from: X.action, to: X.end - TARGET_R, name: "action-arrow" },
           ].map(({ from, to, name }) => {
             const d = `M ${from} ${AXIS} L ${to} ${AXIS}`;
             return (
@@ -314,7 +324,12 @@ export default function DecisionWorkflowAnimation({ className = "" }) {
               </g>
             );
           })}
-          <path className="decision-flow__arrow" d={`M ${X.end - 10} ${AXIS - 8} L ${X.end} ${AXIS} L ${X.end - 10} ${AXIS + 8}`} pathLength="1" />
+          <g className="decision-flow__target">
+            <circle className="decision-flow__ring decision-flow__ring--outer" cx={X.end} cy={AXIS} r={TARGET_R} />
+            <circle className="decision-flow__ring decision-flow__ring--mid" cx={X.end} cy={AXIS} r="12.5" />
+            <circle className="decision-flow__bull" cx={X.end} cy={AXIS} r="6" />
+          </g>
+          <circle className="decision-flow__hit-ring" cx={X.end} cy={AXIS} r="6" />
 
           <circle className="decision-flow__node decision-flow__node--evidence" cx={X.evidence} cy={AXIS} r="8" />
           <circle className="decision-flow__node decision-flow__node--qualification" cx={X.qualification} cy={AXIS} r="8" />
