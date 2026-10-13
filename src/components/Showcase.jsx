@@ -22,15 +22,16 @@ export default function Showcase() {
           {items.map((item) => (
             <li key={item.href} className="flex">
               <article className="flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone">
-                <div className="aspect-[4/3] overflow-hidden bg-paper">
+                <div className="overflow-hidden bg-paper" style={{ aspectRatio: item.imageRatio }}>
                   <img
                     src={item.image}
                     alt={item.imageAlt}
-                    width="273"
-                    height="1138"
+                    width={item.imageWidth}
+                    height={item.imageHeight}
                     loading="lazy"
                     decoding="async"
-                    className="h-full w-full object-cover object-top"
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: item.objectPosition }}
                   />
                 </div>
                 <div className="flex flex-1 flex-col p-5 md:p-6">

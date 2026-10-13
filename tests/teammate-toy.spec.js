@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, statSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
 const OUT = "/opt/cursor/artifacts/screenshots";
@@ -150,7 +150,7 @@ test.describe("garage listing", () => {
       await expect(showcase.getByText("照夜鎮裡，十六種隊友，四個隊伍。")).toBeVisible();
       await expect(showcase.getByText("示範／成效未驗證。")).toBeVisible();
       await expect(showcase.getByText("示意玩具，不是心理測驗。")).toBeVisible();
-      await expect(showcase.locator("img")).toHaveAttribute("src", "/prototype/teammate-type/assets/galaxy.webp");
+      await expect(showcase.locator("img")).toHaveAttribute("src", "/images/showcase-galaxy-cover.webp");
       await expect(showcase.locator("img")).toHaveAttribute("alt", "銀河之女");
       const href = await card.locator("..").getByRole("link", { name: "玩一次", exact: true }).getAttribute("href");
       expect(href).toContain("/prototype/teammate-type/");
@@ -177,6 +177,59 @@ test.describe("garage listing", () => {
       if (width === 1280) await shootShowcaseAndGarage(page, "home-1280-en-showcase-garage");
       await frameBranch(page);
     });
+  }
+});
+
+test.describe("showcase cover", () => {
+  const coverBytes = statSync("public/images/showcase-galaxy-cover.webp").size;
+  const showcaseSource = readFileSync("src/components/Showcase.jsx", "utf8");
+
+  test("cover size and ratio live on the item, not a shared 273×1138 frame", () => {
+    expect(coverBytes).toBeLessThanOrEqual(80 * 1024);
+    expect(showcaseSource).not.toContain("273");
+    expect(showcaseSource).not.toContain("1138");
+    expect(showcaseSource).not.toContain("aspect-[4/3]");
+    expect(showcaseSource).not.toContain("object-top");
+    expect(showcaseSource).toContain("item.imageRatio");
+    expect(showcaseSource).toContain("item.objectPosition");
+    expect(showcaseSource).toContain("item.imageWidth");
+    expect(showcaseSource).toContain("item.imageHeight");
+  });
+
+  for (const width of [390, 768, 1440]) {
+    for (const lang of ["zh", "en"]) {
+      test(`${width}px ${lang} shows the half-body cover centered in a 4:5 frame`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`/?lang=${lang}#showcase`);
+        const img = page.locator("#showcase img");
+        await img.scrollIntoViewIfNeeded();
+        await expect(img).toHaveAttribute("src", "/images/showcase-galaxy-cover.webp");
+        await expect(img).toHaveAttribute("width", "232");
+        await expect(img).toHaveAttribute("height", "290");
+        await img.evaluate((node) => (node.complete && node.naturalWidth > 0 ? null : node.decode()));
+        const metrics = await img.evaluate((node) => {
+          const frame = node.parentElement.getBoundingClientRect();
+          return {
+            naturalWidth: node.naturalWidth,
+            naturalHeight: node.naturalHeight,
+            objectPosition: getComputedStyle(node).objectPosition,
+            aspectRatio: getComputedStyle(node.parentElement).aspectRatio,
+            frameRatio: frame.width / frame.height,
+          };
+        });
+        expect(metrics.naturalWidth).toBe(232);
+        expect(metrics.naturalHeight).toBe(290);
+        // The only current 銀河之女 bitmap is 273px wide. This cover is a native crop, not an upscale.
+        expect(metrics.naturalWidth).toBeLessThan(800);
+        expect(metrics.objectPosition).toBe("50% 50%");
+        expect(metrics.aspectRatio.replace(/\s/g, "")).toBe("4/5");
+        expect(Math.abs(metrics.frameRatio - 4 / 5)).toBeLessThan(0.02);
+        await noOverflow(page);
+        const card = page.locator("#showcase article");
+        await card.scrollIntoViewIfNeeded();
+        await card.screenshot({ path: `${OUT}/showcase-after-${width}-${lang}.png` });
+      });
+    }
   }
 });
 
