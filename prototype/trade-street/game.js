@@ -20,7 +20,7 @@ export const CAST_ORDER = ["guide", "forwarder", "shipper", "factory", "trucker"
 // Working names (Paul decides). English uses roles, not invented personal names.
 export const CAST = {
   guide: {
-    zh: { name: "小譯", role: "導覽員", line: "遇到行話我就停下來，翻成白話給你。" },
+    zh: { name: "玉仔", role: "導覽員", line: "遇到行話我就停下來，翻成白話給你。" },
     en: { name: "The Guide", role: "Your sales contact", line: "When jargon turns up, I stop and put it in plain words." },
   },
   forwarder: {

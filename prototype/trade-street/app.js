@@ -3,19 +3,9 @@ import {
   optionCost, readRoute, resolve, shareSearch,
 } from "./game.js";
 import { PAGE_TEXT, STEP_TEXT } from "./steps-text.js";
-import { ART, MOBILE_QUERY, POS } from "./layout.js";
+import { ART, AVATAR_COLOR, MOBILE_QUERY, POS, SHORT } from "./layout.js";
 
-// Each colour keeps white lettering readable (contrast at least 4.5, checked by scripts/verify-trade-street.mjs).
-export const AVATAR_COLOR = {
-  guide: "#1E7F86", forwarder: "#31497A", shipper: "#2F6EA6", factory: "#A4521E",
-  trucker: "#5A6C2E", broker: "#86650F", dispatcher: "#7F6000", buyer: "#587087",
-};
-
-// Short names for the twelve stops on the route (the long names come from the 12-steps page).
-export const SHORT = {
-  zh: ["詢價", "訂艙", "SO", "提空櫃", "裝櫃", "進港", "報關", "查驗", "裝船", "船開", "提單", "寄單"],
-  en: ["Quote", "Booking", "SO", "Empty box", "Loading", "To port", "Customs", "Gate", "On board", "Sails", "B/L", "Send docs"],
-};
+export { AVATAR_COLOR, SHORT };
 
 // What each person says at their stop (working copy, Paul edits the voice).
 export const STATION_LINE = {
@@ -59,6 +49,7 @@ export const UI = {
     lede: "沿著港口走一趟，在六個關鍵時刻做決定，看趕不趕得上船。",
     hint: "同樣的選擇，永遠得到同一個結果。不存任何資料。",
     entryTitle: "先選這一週的情況", routeLabel: "十二站", lightsLabel: "四個時間點", routeHint: "點地圖上的圓點，看那一站是誰、在做什麼。橘色圈是要做決定的站。",
+    castLink: "認識街上的人",
     mapAlt: "貿易街的港口：左邊是工廠，道路通向右邊的碼頭，吊車正把貨櫃吊上船，遠方海面另有一艘船駛離，右下角是岸上的文件角。",
     previewClose: "關閉", stopLabel: (n, name) => `第 ${n} 站：${name}`,
     start: "出發", seeSteps: "先看 12 步流程",
@@ -99,6 +90,7 @@ export const UI = {
     lede: "Walk the harbour, make six decisions at the moments that matter, and see whether it makes the ship.",
     hint: "The same choices always give the same result. Nothing is stored.",
     entryTitle: "First, pick this week's situation", routeLabel: "Twelve stops", lightsLabel: "Four moments", routeHint: "Tap a dot on the map to see who is there and what they do. An orange ring marks a stop where you decide.",
+    castLink: "Meet the people on the street",
     mapAlt: "The Trade Street harbour: the factory on the left, a road leading to the quay on the right where a crane loads a container onto a ship, another ship sailing away in the distance, and the documents corner on shore at the bottom right.",
     previewClose: "Close", stopLabel: (n, name) => `Stop ${n}: ${name}`,
     start: "Set off", seeSteps: "Read the 12 steps first",
@@ -360,6 +352,10 @@ function boot() {
     $("start").textContent = t.start;
     $("see-steps").textContent = t.seeSteps;
     $("route-hint").textContent = t.routeHint;
+    for (const id of ["see-cast", "cast-link"]) {
+      $(id).textContent = t.castLink;
+      $(id).href = `cast/${state.lang === "en" ? "?lang=en" : ""}`;
+    }
     $("see-steps").href = `../one-container-12-steps/${state.lang === "en" ? "?lang=en" : ""}`;
     $("lights").setAttribute("aria-label", t.lightsLabel);
     $("result-lights").setAttribute("aria-label", t.lightsLabel);

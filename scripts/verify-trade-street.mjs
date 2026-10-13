@@ -8,6 +8,7 @@ import {
 import { PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
 import { AVATAR_COLOR, SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
 import { ART, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
+import { ALT, BIO, SIZE, UI as CAST_UI, stopsOf, styleOf } from "../prototype/trade-street/cast/cast.js";
 
 const BS = String.fromCharCode(92);
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
@@ -270,4 +271,60 @@ test("colours: white lettering on every avatar colour and on the current-stop fi
   // small amber text uses a darker amber than the decorative one
   const kicker = html.match(/\.card-kicker \{[^}]*color:\s*(#[0-9A-Fa-f]{6})/)[1];
   assert.ok(contrastWithWhite(kicker) >= 4.5, `kicker ${kicker}`);
+});
+
+// ---- the cast page --------------------------------------------------------------------------------------------
+test("cast page: every person has a bio, a description of the picture, and the right picture size", () => {
+  for (const id of CAST_ORDER) {
+    for (const lang of ["zh", "en"]) {
+      assert.ok(BIO[id][lang].blurb.length > 10 && BIO[id][lang].props.length > 5, `${id} ${lang} bio`);
+      assert.ok(ALT[id][lang].length > 25, `${id} ${lang} alt`);
+    }
+    const size = webpSize(bytes(ART.portrait[id]));
+    assert.deepEqual(SIZE[id], [size.width, size.height], `${id} picture size`);
+  }
+  assert.deepEqual(Object.keys(BIO).sort(), [...CAST_ORDER].sort());
+  assert.deepEqual(Object.keys(ALT).sort(), [...CAST_ORDER].sort());
+  assert.deepEqual(Object.keys(SIZE).sort(), [...CAST_ORDER].sort());
+});
+
+test("cast page: style, stops and catchphrase come from the game, so the two cannot disagree", () => {
+  for (const id of CAST_ORDER) {
+    const style = styleOf(id);
+    if (STYLE_CHAR[style] === id) assert.ok(REACT[style].zh.free && STYLES[style].zh.name);
+  }
+  assert.deepEqual(CAST_ORDER.filter((id) => styleOf(id)).sort(), Object.values(STYLE_CHAR).sort());
+  assert.deepEqual(stopsOf("forwarder"), [1, 10]);
+  assert.deepEqual(stopsOf("buyer"), [0, 11]);
+  const covered = new Set(CAST_ORDER.flatMap((id) => stopsOf(id)));
+  for (let i = 0; i < 12; i += 1) assert.ok(covered.has(i), `stop ${i + 1} has someone on the cast page`);
+});
+
+test("cast page: public copy keeps the boundary and skips banned words, numbers with units and real names", () => {
+  const html = read("../prototype/trade-street/cast/index.html");
+  const blob = everyString([BIO, ALT, CAST_UI]).join("\n") + html;
+  assert.match(CAST_UI.zh.boundary, /人物與名字都是虛構/);
+  assert.match(CAST_UI.zh.boundary, /不含具體天數、費用或比例/);
+  assert.match(CAST_UI.en.boundary, /made up/);
+  assert.equal(/魔法|法師|咒|巫|\bmage\b|\bmagic\b/i.test(blob), false);
+  assert.equal(/十字架|聖經|光環|\bhalo\b|\bprayer\b|教堂|\bchurch\b/i.test(blob), false);
+  assert.equal(/人工智慧|\bAI\b|老闆|老板|\bROI\b|轉換率|成交率|中間層|A2A|\bCDD\b|\bowner\b|mailto:|@gmail/i.test(blob), false);
+  assert.equal(/Maersk|\bMSC\b|COSCO|Evergreen|長榮|陽明|Hapag|ONE Line|FedEx|DHL|\bUPS\b|DB Schenker/i.test(blob), false);
+  assert.equal(/\d+\s*(天|日|小時|days?|hours?|USD|\$|%|％|元|萬)/i.test(everyString([BIO, ALT, CAST_UI]).join("\n")), false);
+});
+
+test("cast page: one folder, one module, every id the script uses, no inline script, no network calls, deploy copies it", () => {
+  const html = read("../prototype/trade-street/cast/index.html");
+  const code = read("../prototype/trade-street/cast/cast.js");
+  assert.equal(/<script(?![^>]*\bsrc=)[^>]*>/i.test(html), false);
+  assert.match(html, /<script type="module" src="cast\.js"><\/script>/);
+  assert.equal(/@[A-Za-z0-9-]+\.(com|net|org)|mailto:/i.test(html + code), false);
+  const used = new Set([...code.matchAll(/\$\("([a-z0-9-]+)"\)/g)].map((match) => match[1]));
+  for (const id of used) assert.ok(html.includes(`id="${id}"`), `cast/index.html has id ${id}`);
+  assert.equal(/fetch\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|navigator\.sendBeacon/.test(code), false);
+  // alt text for the pictures is real text; the game links to the page and the page links back
+  assert.ok(/`cast\/\$\{/.test(read("../prototype/trade-street/app.js")));
+  assert.ok(read("../prototype/trade-street/index.html").includes('id="see-cast"'));
+  const deploy = read("../.github/workflows/deploy.yml");
+  assert.ok(deploy.includes("cp -r prototype/trade-street/cast dist/prototype/trade-street/"), "deploy copies the cast folder");
 });
