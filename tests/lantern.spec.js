@@ -446,3 +446,13 @@ test("Sunny: door note on S1 and an optional epilogue with a questions-only slip
     await expect(page.locator("#epi-open")).toBeFocused();
   }
 });
+
+test("Sunny: epilogue uses her own portrait, unflipped", async ({ page }) => {
+  await page.goto(`${URL}?lang=zh`);
+  await page.locator("#go0").click();
+  for (const id of ["#skip1", "#spot-shade", "#spot-base", "#go2", "#go3", "#go4", "#epi-open"]) await page.locator(id).click();
+  const img = page.locator('[data-line="epiSunny1"] img.who');
+  await expect(img).toHaveAttribute("src", /sunny-flask-bust\.webp$/);
+  expect(await img.evaluate((el) => el.complete && el.naturalWidth)).toBe(480);
+  expect(await img.evaluate((el) => getComputedStyle(el).transform)).toBe("none");
+});

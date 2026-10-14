@@ -135,7 +135,6 @@ details.later summary { min-height: 44px; display: flex; align-items: center; cu
 .epilogue { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: rgba(244,238,223,.05); display: grid; gap: 10px; }
 .epilogue h3 { color: var(--gold); }
 .line.sunny { border-left: 4px solid #9CC9A0; }
-.say[data-who="sunny"] .who.small { width: 44px; border-radius: 50%; background: rgba(244,238,223,.1); }
 .slip { background: #F4EEDF; color: #2A2418; border-radius: 6px; padding: 12px 14px; transform: rotate(-.6deg); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
 .slip h4 { margin: 0 0 4px; font-size: 1.05rem; }
 .slip-label { margin: 0; font-weight: 700; color: #7A5A1E; }
