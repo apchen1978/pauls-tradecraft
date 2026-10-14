@@ -1,6 +1,6 @@
 import {
   CAST, CAST_ORDER, DECISIONS, LIGHTS, REACT, SCENARIOS, SCENARIO_ORDER, START_BUFFER, STATION_SPEAKER, STYLES, STYLE_CHAR,
-  optionCost, readRoute, resolve, shareSearch,
+  mostLikelyMiss, optionCost, readRoute, resolve, shareSearch,
 } from "./game.js";
 import { LEARN_TEXT, PAGE_TEXT } from "./steps-text.js";
 import { ALL_STEPS, indexOfOriginal, isExtra } from "./extra-steps.js";
@@ -88,6 +88,7 @@ export const UI = {
       missed: { name: "改搭下一班船", line: "這班船開走了，貨改搭下一班。" },
     },
     worst: (label) => `最吃緊的一關：${label}`, worstNone: "沒有哪一關特別吃緊。",
+    missSpent: (stop) => `這一趟花掉最多緩衝的一站：${stop}`, missClean: (stop) => `這一趟沒花掉緩衝。有一站遊戲沒考你，新人最常漏它：${stop}`, missTip: "新人在這一站常漏的（業界常見）",
     scnLabel: "本週", costMark: (n) => (n === 0 ? "沒用緩衝" : `用掉 ${n} 格`),
     download: "下載航程卡", copy: "複製連結", again: "再走一次",
     copied: "連結已複製。", copyFail: "沒辦法自動複製，請手動複製網址。", downloaded: "已下載。",
@@ -138,6 +139,7 @@ export const UI = {
       missed: { name: "On the next ship", line: "That ship sailed without it. The container waits for the next one." },
     },
     worst: (label) => `The tightest moment: ${label}`, worstNone: "No moment was especially tight.",
+    missSpent: (stop) => `The stop where you used the most buffer: ${stop}`, missClean: (stop) => `You used no buffer this time. The game did not quiz you on one stop, and newcomers most often miss it: ${stop}`, missTip: "What newcomers often miss at this stop (common practice)",
     scnLabel: "This week", costMark: (n) => (n === 0 ? "no buffer used" : `${n} ${n === 1 ? "cell" : "cells"} used`),
     download: "Download the voyage card", copy: "Copy link", again: "Go again",
     copied: "Link copied.", copyFail: "Could not copy automatically. Please copy the address.", downloaded: "Downloaded.",
@@ -678,6 +680,11 @@ function boot() {
     $("worst").textContent = res.worstLight ? t.worst(labels[LIGHTS.indexOf(res.worstLight)]) : t.worstNone;
     $("buffer-line").textContent = t.bufferUsed(res.voyageCost);
     $("handover").textContent = t.handover[res.handover];
+    const miss = mostLikelyMiss(res);
+    const missName = `${miss.stop + 1}. ${SHORT[state.lang][miss.stop]}`;
+    $("miss-head").textContent = miss.kind === "spent" ? t.missSpent(missName) : t.missClean(missName);
+    $("miss-tip-label").textContent = t.missTip;
+    $("miss-tip").textContent = TIPS[miss.stop][state.lang];
     const picks = $("picks");
     picks.replaceChildren();
     DECISIONS.forEach((decision, i) => {

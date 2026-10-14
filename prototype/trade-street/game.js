@@ -219,6 +219,20 @@ export function resolve(scenario, code) {
   return { scenario, code, costs, voyageCost, remaining, lightCost, lights, tier, handover, tags, style, character: STYLE_CHAR[style], worstLight: worst < 0 ? null : LIGHTS[worst] };
 }
 
+// The stops the game never asks a question on (the two common extra stops). Checked against extra-steps.js by verify.
+export const UNPLAYED_STOPS = [5, 12];
+
+// The one thing a player is most likely to miss, worked out only from the choices already made (no new share-link data).
+// If any choice used buffer: the stop where the most was used (first stop on a tie). Otherwise nothing tripped them,
+// so point at one of the two stops the game never plays; the same route always gets the same one.
+export function mostLikelyMiss(res) {
+  let best = -1;
+  res.costs.forEach((cost, index) => { if (cost > 0 && (best < 0 || cost > res.costs[best])) best = index; });
+  if (best >= 0) return { kind: "spent", stop: DECISIONS[best].step - 1 };
+  const positions = res.code.split("").reduce((sum, letter) => sum + "ABC".indexOf(letter), 0) + SCENARIO_ORDER.indexOf(res.scenario);
+  return { kind: "clean", stop: UNPLAYED_STOPS[positions % UNPLAYED_STOPS.length] };
+}
+
 export function readRoute(search) {
   const params = new URLSearchParams(typeof search === "string" ? search : "");
   const lang = params.get("lang") === "en" ? "en" : "zh";

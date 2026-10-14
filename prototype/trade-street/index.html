@@ -122,6 +122,11 @@
     .brief b { display: block; font-size: 13px; letter-spacing: .06em; color: var(--deep); }
     .extra-tag { display: inline-block; margin: 6px 0 0; padding: 2px 10px; border-radius: 999px; border: 1px dashed var(--deep); color: var(--deep); background: var(--salt); font-size: 13px; line-height: 1.5; }
     .route .extra-note { display: block; margin-top: 2px; color: var(--moss); font-size: 12px; }
+    .miss { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; border-left: 4px solid var(--amber); background: var(--salt); font-size: 15px; line-height: 1.5; }
+    .miss p { margin: 0; }
+    .miss p + p { margin-top: 6px; }
+    .miss-head { font-weight: 700; color: var(--deep); }
+    .miss b { display: block; font-size: 13px; letter-spacing: .06em; color: var(--deep); }
     .handoff { margin-top: 10px; padding: 10px 12px; border-radius: 10px; border-left: 4px solid var(--deep); background: var(--salt); font-size: 15px; line-height: 1.5; }
     .brief .handoff { padding: 10px 12px; }
     .handoff h3 { margin: 0 0 6px; font-size: 14px; color: var(--deep); }
@@ -436,6 +441,7 @@
         <p id="tier-line"></p>
         <p class="worst" id="worst"></p>
         <p class="worst" id="handover"></p>
+        <div class="miss" id="miss"><p class="miss-head" id="miss-head"></p><p><b id="miss-tip-label"></b><span id="miss-tip"></span></p></div>
         <p class="worst buffer-line" id="buffer-line"></p>
         <ul class="picks" id="picks"></ul>
         <p class="card-boundary" id="card-boundary"></p>
