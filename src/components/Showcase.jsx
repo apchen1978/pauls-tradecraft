@@ -19,7 +19,7 @@ export default function Showcase() {
         </h2>
         <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.intro}</p>
         <p className="mt-3 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.support}</p>
-        <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:grid-cols-3 lg:gap-8">
+        <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:gap-8 xl:grid-cols-4">
           {items.map((item) => (
             <li key={item.href} className="flex">
               <article className="flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone">

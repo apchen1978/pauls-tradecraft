@@ -298,3 +298,30 @@ test("cover: tagline only, Diana leads with Yiyi, winter line opens screen 1, og
   expect(og.ok()).toBe(true);
   expect((await og.body()).length).toBeLessThanOrEqual(60 * 1024);
 });
+
+test("homepage: A Lamp, As Promised is the fourth Showcase work and a featured chip", async ({ page }) => {
+  for (const [lang, title, chip, teach] of [["zh", "一盞燈的約定", "一盞燈的約定", "先把規格講好"], ["en", "A Lamp, As Promised · 一盞燈的約定", "A Lamp, As Promised", "agree the spec before an order"]]) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`/?lang=${lang}#showcase`);
+    const card = page.locator("#showcase article").nth(3);
+    await expect(card).toContainText(title);
+    await expect(card).toContainText(teach);
+    await expect(card.locator("a").first()).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
+    const link = page.locator('[data-testid="quick-works"] a').nth(3);
+    await expect(link).toHaveText(chip);
+    await expect(link).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
+  }
+});
+
+test("cover: lamp is smaller and both figures stand beside it", async ({ page }) => {
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    await page.goto(`${URL}?lang=zh`);
+    await page.waitForTimeout(500);
+    const [shade, d, y] = await Promise.all(["#shade", "#cover-diana", "#cover-yiyi"].map((s) => page.locator(s).boundingBox()));
+    expect(d.height).toBeGreaterThan(shade.height);
+    expect(y.height).toBeGreaterThan(shade.height * 0.9);
+    expect(y.x + y.width / 2).toBeLessThan(shade.x + shade.width / 2);
+    expect(d.x + d.width / 2).toBeGreaterThan(shade.x + shade.width / 2);
+  }
+});
