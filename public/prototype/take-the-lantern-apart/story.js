@@ -6,6 +6,7 @@ export const NAMES = {
   diana: { zh: "戴安娜", en: "Diana" },
   yiyi: { zh: "依依姐", en: "Yiyi" },
   chiensi: { zh: "千禧", en: "Chiensi" },
+  sunny: { zh: "小葵", en: "Sunny" },
 };
 
 export const PORTRAIT = {
@@ -14,6 +15,7 @@ export const PORTRAIT = {
   yiyi: "assets/yiyi-work.webp",
   yiyiAsk: "assets/yiyi-ask.webp",
   chiensi: "assets/kid-chiensi.webp",
+  sunny: "assets/sunny-flask-bust.webp",
 };
 
 // who: speaker; pic: portrait key (defaults to who).
@@ -25,6 +27,12 @@ export const LINES = {
   s2Base: { who: "yiyi", pic: "yiyiAsk", zh: "照片看不到這一面。空著的銘牌，還有事情等我們問清楚。", en: "The photo doesn't show this side. The blank plate reminds us there are still things to ask." },
   s4Diana: { who: "diana", pic: "dianaAsk", zh: "樣子比較清楚了。它要去哪裡、怎麼用，我們還要再問。", en: "The idea is clearer now. We still need to ask where it will go and how it will be used." },
   s4Yiyi: { who: "yiyi", zh: "我們先想到了窗邊。其他位置是不是也需要燈，還沒有問過。", en: "We started with the window. We haven't asked whether the other places need lamps, too." },
+  epiSunny1: { who: "sunny", zh: "我是河對岸咖啡館的小葵。路過好幾次，燈都亮著，今晚終於敲門了。我的店也想要一盞像這樣的燈！", en: "I'm Sunny, from the café across the river. I've walked past a few times and your light was always on, so this evening I finally knocked. My place would love a lamp like this!" },
+  epiChiensi1: { who: "chiensi", zh: "那盞燈是給誰用的？要放在哪一張桌子？", en: "Who's the lamp for? Which table will it sit on?" },
+  epiSunny2: { who: "sunny", zh: "最裡面那一桌。常客都說，晚上在那裡讀信好辛苦。", en: "The table at the very back. My regulars say reading letters there at night is hard work." },
+  epiChiensi2: { who: "chiensi", zh: "桌上還會放什麼？杯子、熱氣，會不會靠燈很近？", en: "What else will be on the table? Will cups and steam be close to the lamp?" },
+  epiYiyi: { who: "yiyi", zh: "千禧，你剛學會的，現在就派上用場了。", en: "Chiensi, what you just learned is already coming in handy." },
+  epiDiana: { who: "diana", zh: "先把一定要問的寫下來。樣子，我們之後再一起講好。", en: "Let's write down what we must ask first. We'll agree on the look together later." },
   s5Chiensi: { who: "chiensi", zh: "我知道還要問什麼了。下次，我把答案一起帶來。", en: "Now I know what else to ask. Next time, I'll bring the answers, too." },
   s5Yiyi: { who: "yiyi", zh: "不用急著把每個空格填滿。先記住我們想做的，也記住還不知道的。", en: "We don't have to fill every blank just yet. Let's keep what we want to make, and what we still don't know." },
   s5Diana: { who: "diana", zh: "等這些事說清楚，再一起看看下一步。", en: "Once those details are clear, we'll look at the next step together." },
@@ -78,6 +86,19 @@ export const PART_QUESTION = {
 
 export const STORY = {
   zh: {
+    doorBtn: "看看門縫",
+    doorText: "門縫裡塞著一張摺好的紙條：「路過時，看見這裡的燈還亮著。我在河對岸開了間小咖啡館，最裡面那張桌子一到晚上就太暗，常客都說在那裡讀信好辛苦。改天想來問問。」——河對岸的咖啡館　小葵",
+    doorClose: "先收進口袋",
+    epiBtn: "門鈴響了",
+    epiTitle: "尾聲 · 門鈴響了",
+    epiNarr: "有人提著保溫瓶，帶著河邊的冷風走進來，圍裙上還沾著一點咖啡香。",
+    epiMg: "MG 已經跳到保溫瓶旁邊坐好，像是要替她看守。",
+    epiClose: "桌上多了一張新的約定草稿。這一次，千禧先寫下的是問題。",
+    slipTitle: "新的約定草稿 · 小葵的燈",
+    slipLabel: "一定要先問",
+    slipQs: ["這盞燈是給誰用的？", "放在哪一張桌子、旁邊會放什麼？", "咖啡館那邊的插頭和電壓是什麼？", "杯子和熱氣靠近燈，要注意什麼？", "怎麼送過河，才不會碰壞？"],
+    slipFoot: "只有問題，還沒有答案；這不是訂單。",
+    epiHide: "收起尾聲",
     sub: "冬夜裡，有人帶著一張照片，來找一盞適合讀書的光。",
     noteCard: "我們想替窗邊準備一盞燈。照片在這裡，其他的，想和你一起想清楚。",
     start: "推開工作室的門",
@@ -113,9 +134,22 @@ export const STORY = {
     again: "換一種約定",
     cardSub: "我們想做的那盞燈",
     nextBody: "我們把想法記下了。接著到貿易街，看看貨物如何走過交付的每一步。",
-    altYiyi: "依依姐微笑著陪在一旁", altYiyiAsk: "依依姐拿著書發問", altChiensi: "千禧舉著相機", altDianaCover: "戴安娜拿起燈罩端詳桌上的燈", altYiyiCover: "依依姐在一旁陪著，看向那盞燈",
+    altYiyi: "依依姐微笑著陪在一旁", altYiyiAsk: "依依姐拿著書發問", altChiensi: "千禧舉著相機", altSunny: "小葵提著保溫瓶", altDianaCover: "戴安娜拿起燈罩端詳桌上的燈", altYiyiCover: "依依姐在一旁陪著，看向那盞燈",
   },
   en: {
+    doorBtn: "Check under the door",
+    doorText: "A folded note has been slipped under the door: \"Walked past and saw your light still on. I run a little café across the river. The back table gets too dim at night, and my regulars say reading letters there is hard work. I'd love to come and ask sometime.\" Sunny, the café across the river",
+    doorClose: "Tuck it in a pocket",
+    epiBtn: "The bell rings",
+    epiTitle: "Epilogue · The bell rings",
+    epiNarr: "Someone steps in with a flask and the cold river air, a little coffee smell still on her apron.",
+    epiMg: "MG has already settled beside the flask, as if keeping watch for her.",
+    epiClose: "A new draft agreement appears on the bench. This time, the first thing Chiensi writes down is a question.",
+    slipTitle: "New draft agreement · Sunny's lamp",
+    slipLabel: "Ask first",
+    slipQs: ["Who is the lamp for?", "Which table, and what sits beside it?", "What plug and voltage does the café use?", "With cups and steam nearby, what should we watch for?", "How will it cross the river without getting knocked?"],
+    slipFoot: "Only questions so far, no answers yet. This isn't an order.",
+    epiHide: "Close the epilogue",
     sub: "On a winter evening, a photograph brings someone in search of a light for reading.",
     noteCard: "We'd like a lamp for the window-side reading nook. Here's a photograph. We'd love your help figuring out the rest.",
     start: "Step into the workshop",
@@ -151,6 +185,6 @@ export const STORY = {
     again: "Try a different set of choices",
     cardSub: "The lamp we'd like to make",
     nextBody: "We've noted our idea. Next, visit Trade Street to explore each step of getting goods delivered.",
-    altYiyi: "Yiyi smiling beside them", altYiyiAsk: "Yiyi asking a question with a book in hand", altChiensi: "Chiensi holding a camera", altDianaCover: "Diana holds up a shade, studying the lamp", altYiyiCover: "Yiyi beside her, looking toward the lamp",
+    altYiyi: "Yiyi smiling beside them", altYiyiAsk: "Yiyi asking a question with a book in hand", altChiensi: "Chiensi holding a camera", altSunny: "Sunny holding a flask", altDianaCover: "Diana holds up a shade, studying the lamp", altYiyiCover: "Yiyi beside her, looking toward the lamp",
   },
 };

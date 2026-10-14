@@ -29,6 +29,7 @@ function applyText() {
   $("next-link").href = `/prototype/trade-street/?lang=${state.lang}`;
   $("home").href = `/?lang=${state.lang}`;
   renderLines();
+  renderSlip();
   renderNote();
   renderParts();
   renderEffects();
@@ -123,6 +124,12 @@ function fillSay(box, line) {
     p.append(b, state.lang === "zh" ? `「${line[state.lang]}」` : ` “${line[state.lang]}”`);
   } else p.textContent = line[state.lang];
   box.append(p);
+}
+
+function renderSlip() {
+  const ul = $("slip-qs");
+  ul.textContent = "";
+  for (const q of t("slipQs")) { const li = document.createElement("li"); li.textContent = q; ul.append(li); }
 }
 
 function renderLines() {
@@ -443,7 +450,7 @@ function toggleFind(id, open) {
   btn.setAttribute("aria-expanded", String(open));
   if (open) panel.querySelector("button").focus(); else btn.focus();
 }
-for (const id of ["find-leaf", "find-note", "find-mg"]) $(id).addEventListener("click", () => toggleFind(id, $(id).getAttribute("aria-expanded") !== "true"));
+for (const id of ["find-leaf", "find-door", "find-note", "find-mg"]) $(id).addEventListener("click", () => toggleFind(id, $(id).getAttribute("aria-expanded") !== "true"));
 for (const b of document.querySelectorAll("[data-close]")) b.addEventListener("click", () => toggleFind(b.dataset.close, false));
 $("turn-l").addEventListener("click", () => turn(-1));
 $("turn-r").addEventListener("click", () => turn(1));
@@ -455,7 +462,14 @@ $("go2").addEventListener("click", () => show(3));
 $("go3").addEventListener("click", () => show(4));
 $("go4").addEventListener("click", () => show(5));
 $("download").addEventListener("click", download);
-$("again").addEventListener("click", () => { state.picks = { ...DEFAULTS }; state.changed = []; state.touched = new Set(); paintLamp(); renderParts(); renderEffects(); show(3); });
+function toggleEpilogue(open) {
+  $("epilogue").hidden = !open;
+  $("epi-open").setAttribute("aria-expanded", String(open));
+  if (open) $("epi-title").focus(); else $("epi-open").focus();
+}
+$("epi-open").addEventListener("click", () => toggleEpilogue($("epilogue").hidden));
+$("epi-close").addEventListener("click", () => toggleEpilogue(false));
+$("again").addEventListener("click", () => { state.picks = { ...DEFAULTS }; state.changed = []; state.touched = new Set(); $("epilogue").hidden = true; $("epi-open").setAttribute("aria-expanded", "false"); paintLamp(); renderParts(); renderEffects(); show(3); });
 for (const b of document.querySelectorAll("[data-lang]")) b.addEventListener("click", () => setLang(b.dataset.lang));
 
 paintLamp();
