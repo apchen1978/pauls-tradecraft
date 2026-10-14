@@ -121,3 +121,8 @@ canvas#card { width: 100%; max-width: 420px; height: auto; border-radius: 12px; 
   .cover-cast.diana { width: 42%; right: 0; bottom: -2%; }
 }
 .opening { color: var(--gold); }
+/* Settled reactions and risk lines */
+.say.settled .line { border-left-color: #8FC79A; }
+.say.settled .line::after { content: " ✓"; color: #8FC79A; }
+#agreed-list li[data-settled] { color: #CFE9D3; }
+.pending .risk { display: block; font-size: max(.875rem, 14px); color: #D9C38F; margin-top: 2px; }

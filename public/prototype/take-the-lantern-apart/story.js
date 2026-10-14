@@ -39,9 +39,6 @@ export const PROMPTS = {
   pack: { who: "chiensi", zh: "如果不是親手送去，它還能好好到達嗎？", en: "If we can't carry it there ourselves, how will it arrive safely?" },
 };
 
-const SIZE_REACT = { who: "diana", zh: "這是想要的尺寸方向；實際尺寸和允許的差距，還要寫清楚。", en: "That gives us a size to aim for. We still need the measurements and allowable variation." };
-const COLOUR_REACT = { who: null, zh: "顏色先記下，實物比對方式還要確認。", en: "Colour noted; how to compare it with the real item still needs confirming." };
-
 // Shown once the player picks that option.
 export const REACT = {
   shade: {
@@ -49,15 +46,23 @@ export const REACT = {
     glass: { who: "chiensi", zh: "這個看起來像照片！送過去時，要怎麼保護它？", en: "This looks like the photo! How will we protect it on the way?" },
     metal: { who: "diana", zh: "這些小孔的樣子可以記下來。孔邊和表面怎麼處理，也要講好。", en: "We can note the pattern of these small holes. The edges and surface finish need to be agreed, too." },
   },
-  colour: { ivory: COLOUR_REACT, night: COLOUR_REACT, persimmon: COLOUR_REACT },
+  colour: {
+    ivory: { who: "yiyi", settled: true, zh: "千禧說讀書角的牆是淺色的，象牙色放在那裡很安靜。顏色方向，這個先講好了。", en: "Chiensi says the nook's walls are pale, and ivory sits quietly there. The colour direction is settled for now." },
+    night: { who: "diana", zh: "夜藍在暖光下會偏深。要用哪一塊色樣比對，還要說好。", en: "Night blue reads darker under warm light. We still need to agree which swatch to match." },
+    persimmon: { who: "chiensi", zh: "柿子色好像冬天的窗！可是照片裡的柿子色和實物會一樣嗎？", en: "Persimmon feels like a winter window! But will the photo's persimmon match the real thing?" },
+  },
   base: {
     wood: { who: "yiyi", zh: "木紋像每本書留下的折角，不會每個都一樣。我們能接受哪些差別？", en: "Wood grain is like the creases a book gathers: no two are quite the same. What differences are we happy with?" },
     ceramic: { who: "diana", zh: "釉色很值得近看，也需要說清楚可以接受的差異。", en: "The glaze is worth a closer look. We should agree which variations are acceptable." },
     brass: { who: "chiensi", zh: "照片裡也有這種暖暖的顏色。表面會一直是這樣嗎？", en: "The photo has this warm colour, too. Will the finish stay like this?" },
   },
-  size: { s: SIZE_REACT, m: SIZE_REACT, l: SIZE_REACT },
+  size: {
+    s: { who: "diana", zh: "小一點很省位置，但「小」是多小？跟哪一盞比，要寫清楚。", en: "Smaller saves space, but how small is small? We should write down what we're comparing it to." },
+    m: { who: "diana", settled: true, zh: "書和杯子旁邊剛好留得下。尺寸方向，這個先講好了；確切大小還要量。", en: "It leaves just enough room beside the book and cup. The size direction is settled; the exact measurements still need taking." },
+    l: { who: "yiyi", zh: "大一點很好看。可是桌上還放得下攤開的書和杯子嗎？我們先比一比。", en: "Bigger looks lovely. But will the open book and the cup still fit on the table? Let's compare first." },
+  },
   pack: {
-    kraft: { who: "yiyi", zh: "簡單的盒子也可以很用心。裡面怎麼固定，還要一起看。", en: "A simple box can still be thoughtful. We need to look at how the lamp is held inside." },
+    kraft: { who: "yiyi", settled: true, zh: "簡單的牛皮紙盒，千禧也喜歡。包裝的樣子，這個先講好了。", en: "A plain kraft box, and Chiensi likes it too. The packaging look is settled for now." },
     gift: { who: "diana", zh: "開盒的感覺可以先選，保護燈的方法也要講好。", en: "We can choose how opening the box should feel, and agree how to protect the lamp." },
     bulk: { who: "yiyi", zh: "如果要放在幾個地方，每箱怎麼分、燈怎麼隔開，都得說清楚。", en: "If the lamps are going to different places, we need to agree how to pack and separate them." },
   },

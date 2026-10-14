@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { PARTS, OPTIONS, DEFAULTS, ALWAYS_PENDING, PENDING_TEXT, UI, EFFECT, PART_LABEL, specStatus } from "../public/prototype/take-the-lantern-apart/data.js";
 import { STORY, LINES, PROMPTS, REACT, PART_QUESTION, NAMES } from "../public/prototype/take-the-lantern-apart/story.js";
+import { RISK, RISK_PREFIX } from "../public/prototype/take-the-lantern-apart/risk.js";
 
 const dir = new URL("../public/prototype/take-the-lantern-apart/", import.meta.url);
 const html = readFileSync(new URL("index.html", dir), "utf8");
 const values = (v) => (typeof v === "string" ? [v] : v && typeof v === "object" ? Object.values(v).flatMap(values) : []);
 // Player-facing strings only (values, not keys); filenames are excluded.
-const allCopy = [...values({ UI, PENDING_TEXT, EFFECT, PART_LABEL, STORY, LINES, PROMPTS, REACT, PART_QUESTION, NAMES }), ...Object.values(OPTIONS).flat().flatMap((o) => [o.zh, o.en])].join("\n");
+const allCopy = [...values({ UI, PENDING_TEXT, EFFECT, PART_LABEL, STORY, LINES, PROMPTS, REACT, PART_QUESTION, NAMES, RISK, RISK_PREFIX }), ...Object.values(OPTIONS).flat().flatMap((o) => [o.zh, o.en])].join("\n");
 
 test("no banned words in copy or markup", () => {
   for (const w of ["魔法", "法師", "咒", "巫", "童話"]) {
@@ -91,4 +92,28 @@ test("story: no promises that the lamp is done, safe or ready to ship", () => {
   for (const w of ["規格全部講好了", "這盞燈已完成", "現在可以出貨", "安全無虞", "已認證"]) assert.ok(!story.includes(w), w);
   assert.ok(!/\b(ready to ship|certified|guaranteed|all agreed)\b/i.test(story));
   assert.ok(PENDING_TEXT.moq.zh[1].includes("還要確認"));
+});
+
+test("reactions: every size and colour option has its own line, voiced by a cast member", () => {
+  for (const part of ["size", "colour", "shade", "base", "pack"]) {
+    for (const lang of ["zh", "en"]) {
+      const lines = OPTIONS[part].map((o) => REACT[part][o.id][lang]);
+      assert.equal(new Set(lines).size, lines.length, `${part} ${lang} reactions are distinct`);
+    }
+    for (const o of OPTIONS[part]) assert.ok(["diana", "yiyi", "chiensi"].includes(REACT[part][o.id].who), `${part}/${o.id} speaker`);
+  }
+});
+
+test("reactions: some affirm a settled choice instead of only asking", () => {
+  const settled = Object.values(REACT).flatMap((m) => Object.values(m)).filter((l) => l.settled);
+  assert.ok(settled.length >= 3);
+  for (const l of settled) { assert.ok(l.zh.includes("先講好了")); assert.ok(/settled/i.test(l.en)); }
+});
+
+test("risk: every pending item has a short risk line in zh and en", () => {
+  for (const key of Object.keys(PENDING_TEXT)) {
+    assert.ok(RISK[key]?.zh && RISK[key]?.en, key);
+    assert.ok(RISK[key].zh.length <= 30, `${key} zh short`);
+  }
+  for (const k of ALWAYS_PENDING) assert.ok(RISK[k]);
 });
