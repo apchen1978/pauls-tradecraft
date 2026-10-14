@@ -576,7 +576,7 @@ test.describe("new choices and roles", () => {
     await expect(page.locator("#card-egg")).toHaveText("M-31");
     await expect(page.locator("#role")).toBeHidden();
     await expect(page.locator("#rare")).toHaveText("稀有");
-    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/andromeda.webp");
+    await expect(page.locator("#queen-art")).toHaveAttribute("src", "assets/andromeda-v2.webp");
     await expect(page.locator("#horse")).toBeHidden();
     await expect(page.locator("#mg")).toBeHidden();
     await noOverflow(page);
@@ -669,7 +669,7 @@ test.describe("new choices and roles", () => {
       { code: "AFE", file: "missionary.webp", zh: "言歌 · 傳教士 · 這件事值得說", en: "Echo · Missionary · Worth Saying Out Loud" },
       { code: "ACF", file: "apostle.webp", zh: "保羅 · 使徒 · 我接著走", en: "Paul · Apostle · I'll Carry It On" },
       { code: "FAE", file: "galaxy.webp", zh: "銀河之女 · 女王", en: "Daughter of the Galaxy · Queen" },
-      { code: "FBD", file: "andromeda.webp", zh: "Holly · 仙女座女王", en: "Holly · Queen of Andromeda" },
+      { code: "FBD", file: "andromeda-v2.webp", zh: "Holly · 仙女座女王", en: "Holly · Queen of Andromeda" },
     ];
     for (const role of roles) {
       await page.goto(`/prototype/teammate-type/?c=${role.code}&lang=zh`);
@@ -1350,4 +1350,21 @@ test("share image: December Lights page carries og and twitter image meta", asyn
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", /og-december\.webp$/);
   const res = await page.request.get("/prototype/teammate-type/assets/og-december.webp");
   expect(res.ok()).toBe(true);
+});
+
+test("Holly v2: the queen uses andromeda-v2 everywhere, same canvas as before, old file kept", async ({ page }) => {
+  expect(statSync("prototype/teammate-type/assets/andromeda.webp").size).toBeGreaterThan(0);
+  expect(statSync("prototype/teammate-type/assets/andromeda-v2.webp").size).toBeLessThanOrEqual(61440);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/prototype/teammate-type/?c=FBD&lang=zh");
+  const art = page.locator("#queen-art");
+  await expect(art).toHaveAttribute("src", "assets/andromeda-v2.webp");
+  await expect.poll(() => art.evaluate((e) => e.complete && `${e.naturalWidth}x${e.naturalHeight}`)).toBe("422x1143");
+  const box = await art.boundingBox();
+  const ratio = await art.evaluate((e) => e.naturalWidth / e.naturalHeight);
+  expect(Math.abs(box.width / box.height - ratio)).toBeLessThan(0.03);
+  await page.goto("/prototype/teammate-type/?lang=en");
+  const tile = page.locator('#gallery-list a[href*="FBD"] img');
+  await tile.scrollIntoViewIfNeeded();
+  await expect(tile).toHaveAttribute("src", "assets/andromeda-v2.webp");
 });

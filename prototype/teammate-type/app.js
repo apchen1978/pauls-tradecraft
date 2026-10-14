@@ -347,7 +347,7 @@ export const TYPES = {
       gentle: "你站在前面，大家就有了一個可以跟上的亮度。",
       literary: "「不是搶位置，是這場本來就缺一道光。」",
       strength: "把場面點亮，也讓人跟得上。",
-      alt: "金長髮、藍眼睛、戴寬金冠、穿香檳色長裙、面向右側的人",
+      alt: "金色長捲髮、藍眼睛、戴紫寶石金冠、穿香檳色長裙、披白毛邊披肩、面向右側的人",
     },
     en: {
       person: "Holly",
@@ -357,7 +357,7 @@ export const TYPES = {
       gentle: "With you in front, everyone has a brightness they can follow.",
       literary: "\"Not taking the spot. The room was missing a light.\"",
       strength: "Lights the scene, and gives people something to follow.",
-      alt: "A blonde woman with blue eyes, a wide gold crown, and a floor-length champagne gown, facing right",
+      alt: "A woman with long wavy blonde hair and blue eyes, a gold tiara with a purple gem, a floor-length champagne gown and a white fur-trimmed cape, facing right",
     },
   },
   designer: {
@@ -981,7 +981,7 @@ const PORTRAIT_SRC = {
   messenger: "assets/messenger.webp",
   designer: "assets/designer.webp",
   galaxy: "assets/galaxy.webp",
-  andromeda: "assets/andromeda.webp",
+  andromeda: "assets/andromeda-v2.webp",
   missionary: "assets/missionary.webp",
   apostle: "assets/apostle.webp",
   craftsman: "assets/craftsman.webp",
