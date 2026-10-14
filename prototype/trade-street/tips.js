@@ -48,7 +48,7 @@ export const TIPS = {
 
 export const DAILY = {
   zh: {
-    title: "負責人每天要盯的 5 件事（業界常見）",
+    title: "出貨時每天要盯的 5 件事（業界常見）",
     items: [
       "時間節點：不只看開船日，還要盯截單、截 VGM、截港、截關。只看開船日、錯過截關，就只好改搭下一班船。",
       "SO 到手先核：船名航次、起運港、目的港、櫃型和各個截止時間；SO 沒追到，拖車就排不了。",
@@ -58,7 +58,7 @@ export const DAILY = {
     ],
   },
   en: {
-    title: "5 things the person in charge watches every day (common practice)",
+    title: "5 things to watch every day while shipping (common practice)",
     items: [
       "The time points: not only the sailing day, but the document cut-off, the VGM cut-off, the port cut-off and the customs cut-off. Watching only the sailing day and missing the customs cut-off means the next sailing.",
       "Check the SO as soon as it arrives: vessel and voyage, loading port, destination port, container type and every cut-off time. Without the SO, the trucking cannot be planned.",
