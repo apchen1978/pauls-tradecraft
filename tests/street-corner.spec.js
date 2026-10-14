@@ -264,6 +264,7 @@ for (const lang of ['zh', 'en']) {
       const png = await readFile(await download.path()); expect(png.readUInt32BE(16)).toBe(1200); expect(png.readUInt32BE(20)).toBeGreaterThanOrEqual(1700);
       const lines = await page.evaluate(() => window.__cardText);
       const words = lines.join(lang === 'zh' ? '' : ' ').replace(/\s+/g, ' ');
+      if (lang === 'zh') expect(lines.filter(line => /^[，。！？；：、）】』」]/.test(line))).toEqual([]);
       expect(chosen).toHaveLength(2);
       expect(words).toContain(lang === 'zh' ? '小葵回覆了' : 'Sunny replied');
       expect(words).toContain(lang === 'zh' ? '之後再問' : 'Ask later');
