@@ -283,6 +283,8 @@ test("cover: tagline only, Diana leads with Yiyi, winter line opens screen 1, og
       await expect(page.locator(id)).toBeVisible();
       expect(await page.locator(id).evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
     }
+    await expect(page.locator("#cover-yiyi")).toHaveAttribute("src", "assets/yiyi-look-lamp.webp");
+    expect(await page.locator("#cover-yiyi").evaluate((i) => getComputedStyle(i).transform)).toBe("none");
     const [d, y] = await Promise.all(["#cover-diana", "#cover-yiyi"].map((id) => page.locator(id).boundingBox()));
     expect(d.width).toBeGreaterThan(y.width);
     const btn = await page.locator("#go0").boundingBox();
