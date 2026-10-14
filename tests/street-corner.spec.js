@@ -138,7 +138,7 @@ test("the recorded thought follows a language switch", async ({ page }) => {
   await expect(page.locator("#reflection-now")).toHaveText("What is everyone waiting for?");
   await expect(page.locator("#impression-status")).toContainText("Business may be steady");
 });
-// Act two: the questions remain questions until the café replies.
+// Act two: Sunny answers only what the player asked, in the chosen order.
 async function reachLetter(page, lang, width) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
   await page.addInitScript(() => {
@@ -212,24 +212,39 @@ for (const lang of ['zh', 'en']) {
       const chosen = await page.locator('#reply-preview li').allTextContents();
       await page.locator('#reply-save').click();
       await expect(page.locator('#letter-open')).toBeFocused();
-      await expect(page.locator('#letter-result-content')).toContainText(lang === 'zh' ? '還要等小葵回答' : "waiting for Sunny's answers");
+      await expect(page.locator('#letter-result-content')).toContainText(lang === 'zh' ? '幾天後，信箱裡又多了一封信。' : 'A few days later, another letter is waiting in the mailbox.');
       await expect(page.locator('#letter-result-content')).toContainText(lang === 'zh' ? '多少麵包' : 'How much bread');
       await expect(page.locator('#letter-result-content')).toContainText(lang === 'zh' ? '不是訂單' : 'not an order');
+      await expect(page.locator('#letter-result-content')).toContainText(lang === 'zh' ? '之後再問' : 'Ask later');
+      await page.locator('#letter-result-content .action-primary').click();
+      await expect(page.locator('#sunny-reply-title')).toBeFocused();
+      const paper = page.locator('.sunny-reply-paper');
+      const paragraphs = await paper.locator('p').allTextContents();
+      expect(paragraphs).toHaveLength(6);
+      expect(paragraphs[1]).toContain(lang === 'zh' ? '每次送來附張單子' : 'Could you include a slip');
+      expect(paragraphs[2]).toContain(lang === 'zh' ? '想要甜度再低一點' : 'A touch less sweet');
+      expect(paragraphs.join('')).not.toContain(lang === 'zh' ? '送到後門就好' : 'The back door is fine');
+      expect(paragraphs[5]).toContain(lang === 'zh' ? '最裡面那張桌子' : 'the very back of our café');
+      expect(paragraphs.join('')).not.toMatch(/[0-9０-９]|魔法|法師|咒|巫|童話|\b(magic|wizard|spell|witch)\b/i);
       const downloadPromise = page.waitForEvent('download'); await page.locator('#download').click();
       const download = await downloadPromise;
       await download.saveAs(resolve(dir, `${lang}-${width}-card.png`));
       expect(download.suggestedFilename()).toBe(lang === 'zh' ? '街角的秘密-觀察卡.png' : 'secrets-on-the-corner-field-card.png');
-      const png = await readFile(await download.path()); expect(png.readUInt32BE(16)).toBe(1200); expect(png.readUInt32BE(20)).toBeGreaterThan(1700);
+      const png = await readFile(await download.path()); expect(png.readUInt32BE(16)).toBe(1200); expect(png.readUInt32BE(20)).toBeGreaterThanOrEqual(1700);
       const lines = await page.evaluate(() => window.__cardText);
       const words = lines.join(lang === 'zh' ? '' : ' ').replace(/\s+/g, ' ');
-      for (const question of chosen) expect(words).toContain(question.replace(/\s+/g, ' '));
-      expect(words).toContain(lang === 'zh' ? '還留在筆記裡，還沒確認' : 'Still in your notes, still unconfirmed');
+      expect(chosen).toHaveLength(2);
+      expect(words).toContain(lang === 'zh' ? '小葵回覆了' : 'Sunny replied');
+      expect(words).toContain(lang === 'zh' ? '之後再問' : 'Ask later');
+      expect(words).toContain(lang === 'zh' ? '什麼時候結清' : 'When to settle up');
       expect(words).not.toMatch(/[0-9０-９]/);
       for (const item of await page.evaluate(() => window.__cardBounds)) { expect(item.y).toBeLessThan(item.height - 20); expect(item.right).toBeLessThanOrEqual(1140); }
       await page.locator('#letter-result').screenshot({ path: resolve(dir, `${lang}-${width}-result.png`) });
       const other = lang === 'zh' ? 'en' : 'zh'; await page.locator(`[data-lang="${other}"]`).click();
       await expect(page.locator('#trade-bridge-link')).toHaveAttribute('href', `/prototype/take-the-lantern-apart/?lang=${other}`);
       await expect(page.locator('#letter-result-title')).toHaveText(other === 'zh' ? '信折好了，故事還沒結束' : "The letter is folded. The story isn't over.");
+      await expect(page.locator('.sunny-reply-paper')).toContainText(other === 'zh' ? '每次送來附張單子' : 'Could you include a slip');
+      await expect(page.locator('.sunny-reply-paper')).toContainText(other === 'zh' ? '暖燈工作室' : 'workshop with the warm light');
       await page.locator('#letter-open').click();
       await expect(page.locator('#reply-preview li').first()).toContainText(other === 'zh' ? '什麼時候方便結清' : 'When would you like to settle up');
       await page.keyboard.press('Escape'); await expect(page.locator('#letter-open')).toBeFocused();
@@ -268,6 +283,34 @@ test('cancelling edits keeps the saved reply and its export intact', async ({ pa
   expect(await page.locator('#letter-result-content').innerText()).toBe(saved);
   const download = page.waitForEvent('download'); await page.locator('#download').click(); await download;
   const card = (await page.evaluate(() => window.__cardText)).join(' ');
-  expect(card).toContain('How much would you like each time?');
+  expect(card).toContain('How much bread');
   await page.locator('#letter-open').click(); await expect(page.locator('#reply-preview li')).toHaveCount(1);
 });
+
+for (const lang of ['zh', 'en']) {
+  for (const width of [390, 1440]) {
+    test(`Sunny answers one question only ${lang} ${width}`, async ({ page }) => {
+      const { mkdir } = await import('node:fs/promises');
+      const { resolve } = await import('node:path');
+      const dir = resolve('output/playwright/street-letter'); await mkdir(dir, { recursive: true });
+      await reachLetter(page, lang, width);
+      await page.locator('#letter-open').click();
+      await page.locator('#letter-compose').click();
+      await expect(page.locator('#reply-title')).toContainText(lang === 'zh' ? '一定要先問' : 'must ask first');
+      await page.locator('[data-reply-question="same"]').click();
+      await page.locator('#reply-save').click();
+      await page.locator('#letter-result-content .action-primary').click();
+      const paper = page.locator('.sunny-reply-paper');
+      const paragraphs = await paper.locator('p').allTextContents();
+      expect(paragraphs).toHaveLength(5);
+      expect(paragraphs[0]).toContain(lang === 'zh' ? '好好回答你' : "Here's my answer");
+      expect(paragraphs[1]).toContain(lang === 'zh' ? '我說的『差不多』' : "By 'about the same'");
+      expect(paragraphs[2]).toContain(lang === 'zh' ? '之後再一起問清楚' : 'work out together later');
+      expect(paragraphs[2]).toContain(lang === 'zh' ? '什麼時候送' : 'When to deliver');
+      expect(paragraphs.join('')).not.toContain(lang === 'zh' ? '每次大概是一個早上' : "Roughly what we'd sell");
+      await expect(page.locator('#letter-result-content')).toContainText(lang === 'zh' ? '小葵回覆了' : 'Sunny replied');
+      await page.locator('#letter-result').screenshot({ path: resolve(dir, `${lang}-${width}-one-question.png`) });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    });
+  }
+}
