@@ -708,7 +708,11 @@ function cardLines(ctx, text, width) {
   const tokens = lang === "en" ? text.split(/(\s+)/) : [...text];
   const lines = []; let line = "";
   for (const token of tokens) {
-    if (line && ctx.measureText(line + token).width > width) { lines.push(line.trimEnd()); line = token.trimStart(); }
+    if (line && ctx.measureText(line + token).width > width) {
+      if (lang === "zh" && /^[，。！？；：、）】』」]$/.test(token) && line.length > 1) {
+        lines.push(line.slice(0, -1).trimEnd()); line = line.slice(-1) + token;
+      } else { lines.push(line.trimEnd()); line = token.trimStart(); }
+    }
     else line += token;
     while (ctx.measureText(line).width > width) {
       let length = line.length;
@@ -720,7 +724,7 @@ function cardLines(ctx, text, width) {
   return lines;
 }
 
-function downloadCard() {
+async function downloadCard() {
   if (!chosenQuestion) return;
   const t = copy[lang], question = t.questions[chosenQuestion], canvas = document.createElement("canvas");
   canvas.width = 1200; const ctx = canvas.getContext("2d");
@@ -730,44 +734,73 @@ function downloadCard() {
   const right = [[t.cardNext, [question.title]]];
   let action = question.action;
   if (chosenAlternative !== null) { const answer = getAlternatives()[chosenAlternative]; right.push([t.assumptionLabel, [answer.answer]]); action = answer.action; }
-  right.push([t.cardAction, [action]], [t.businessLabel, [t.business[chosenQuestion][scenario]]]);
+  right.push([t.cardAction, [action]]);
   if (chosenAlternative !== null && chosenFollowup !== null) { const signal = followups[lang][chosenQuestion][chosenAlternative][chosenFollowup]; right.push([t.cardFollowup, [signal.title, signal.learn]], [t.cardStillUnknown, [signal.unknown]]); }
   const plans = [];
-  function paragraph(text, x, y, width, font = "26px system-ui, sans-serif", color = "#172934", lineHeight = 38) {
+  const rules = [], panels = [];
+  const sans = lang === "zh" ? '"PingFang TC", "Microsoft JhengHei", system-ui, sans-serif' : 'system-ui, sans-serif';
+  const serif = lang === "zh" ? '"Iowan Old Style", "Noto Serif TC", "Songti TC", serif' : 'Georgia, serif';
+  function paragraph(text, x, y, width, font = `29px ${sans}`, color = "#172934", lineHeight = 43) {
     ctx.font = font; const lines = cardLines(ctx, text, width);
     lines.forEach(line => { plans.push({ text: line, x, y, font, color }); y += lineHeight; });
     return y;
   }
-  let y = paragraph(t.title, 72, 76, 720, "700 28px system-ui, sans-serif", "#9e5d37");
-  paragraph(t.scenarios[scenario], 850, 76, 280, "22px system-ui, sans-serif", "#3e5360");
-  y = paragraph(question.result, 72, y + 36, 1056, "700 52px serif", "#172934", 65) + 35;
-  function column(sections, x, top) {
+  function column(sections, x, top, width) {
     for (const [title, values] of sections) {
-      top = paragraph(title, x, top, 475, "700 25px system-ui, sans-serif", "#9e5d37") + 10;
-      for (const value of values) top = paragraph(value, x, top, 475) + 18;
-      top += 20;
+      rules.push({ x, y: top - 30, width });
+      top = paragraph(title, x, top, width, `700 27px ${sans}`, "#9e5d37", 38) + 13;
+      for (const value of values) top = paragraph(value, x, top, width) + 14;
+      top += 28;
     } return top;
   }
-  y = Math.max(column(left, 72, y), column(right, 650, y)) + 35;
+  let y = paragraph(question.result, 72, 455, 1056, `700 55px ${serif}`, "#172934", 71) + 88;
+  const columnTop = y;
+  y = Math.max(column(left, 72, y, 494), column(right, 634, y, 494)) + 4;
+  panels.push({ x: 72, y, width: 1056, height: 0, color: "#e3ecec" });
+  y = paragraph(t.businessLabel, 104, y + 50, 992, `700 27px ${sans}`, "#7e4930", 38) + 8;
+  y = paragraph(t.business[chosenQuestion][scenario], 104, y, 992, `32px ${sans}`, "#193644", 46) + 34;
+  panels[0].height = y - panels[0].y;
+  y += 69;
   if (letterComplete) {
     const l = t.letter, selected = savedReply.selection;
-    y = paragraph(l.title, 72, y, 1056, "700 32px serif", "#9e5d37", 44) + 12;
-    y = paragraph(l.savedStory, 72, y, 1056) + 16;
-    y = paragraph(l.tones[savedReply.tone], 72, y, 1056) + 16;
-    y = paragraph(replyRevealed ? sunnyReply[lang].replied : l.picked, 72, y, 1056, "700 25px system-ui, sans-serif", "#9e5d37") + 10;
-    for (const id of selected) y = paragraph(l.notes[id].name, 72, y, 1056) + 16;
-    y = paragraph(l.unasked, 72, y, 1056, "700 25px system-ui, sans-serif", "#9e5d37") + 10;
-    for (const id of letterOrder.filter(id => !selected.includes(id))) y = paragraph(l.notes[id].name, 72, y, 1056) + 8;
-    y += 20;
-    y = paragraph(l.source, 72, y, 1056, "23px system-ui, sans-serif", "#3e5360", 35) + 20;
-    y = paragraph(l.boundary, 72, y, 1056, "700 26px system-ui, sans-serif") + 10;
-    y = paragraph(l.tradeLine, 72, y, 1056) + 30;
+    rules.push({ x: 72, y: y - 34, width: 1056 });
+    y = paragraph(l.title, 72, y, 1056, `700 40px ${serif}`, "#9e5d37", 54) + 21;
+    y = paragraph(l.savedStory, 72, y, 1056) + 12;
+    y = paragraph(l.tones[savedReply.tone], 72, y, 1056) + 42;
+    const letterTop = y;
+    const asked = [[replyRevealed ? sunnyReply[lang].replied : l.picked, selected.map(id => l.notes[id].name)]];
+    const later = [[l.unasked, letterOrder.filter(id => !selected.includes(id)).map(id => l.notes[id].name)]];
+    y = Math.max(column(asked, 72, letterTop, 494), column(later, 634, letterTop, 494)) + 3;
+    y = paragraph(l.boundary, 72, y, 1056, `700 30px ${sans}`, "#193644", 44) + 14;
+    y = paragraph(l.tradeLine, 72, y, 1056) + 66;
   }
-  y = paragraph(t.cardStillUnknown, 72, y, 1056, "700 25px system-ui, sans-serif", "#9e5d37") + 12;
-  y = paragraph(t.cardBoundary, 72, y, 1056, "23px system-ui, sans-serif", "#3e5360", 35);
+  rules.push({ x: 72, y: y - 30, width: 1056 });
+  y = paragraph(t.cardStillUnknown, 72, y, 1056, `700 27px ${sans}`, "#9e5d37", 40) + 11;
+  y = paragraph(t.cardBoundary, 72, y, 1056, `25px ${sans}`, "#3e5360", 38);
   canvas.height = Math.max(1700, Math.ceil(y + 60));
   ctx.fillStyle = "#f4f0e7"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#193644"; ctx.fillRect(0, 0, canvas.width, 13);
+  ctx.fillStyle = "#193644"; ctx.fillRect(0, 0, canvas.width, 340);
+  const scene = new Image();
+  const loaded = await new Promise(resolve => {
+    scene.onload = () => resolve(true); scene.onerror = () => resolve(false);
+    scene.src = "assets/queue-desktop.webp";
+  });
+  if (loaded) {
+    const cropHeight = scene.naturalWidth * 340 / 1200;
+    ctx.drawImage(scene, 0, Math.max(0, (scene.naturalHeight - cropHeight) / 2), scene.naturalWidth, cropHeight, 0, 0, 1200, 340);
+  }
+  const shade = ctx.createLinearGradient(0, 0, 1200, 0);
+  shade.addColorStop(0, "rgba(17, 39, 52, .95)"); shade.addColorStop(.58, "rgba(17, 39, 52, .72)"); shade.addColorStop(1, "rgba(17, 39, 52, .35)");
+  ctx.fillStyle = shade; ctx.fillRect(0, 0, 1200, 340);
+  ctx.fillStyle = "#e9b863"; ctx.fillRect(72, 67, 66, 4);
+  ctx.font = `700 58px ${serif}`; ctx.fillStyle = "#fff8e9"; ctx.fillText(t.title, 72, 151);
+  ctx.font = `29px ${sans}`; ctx.fillStyle = "#f3eee3"; ctx.fillText(t.cardCaption, 72, 209);
+  ctx.font = `25px ${sans}`; ctx.fillStyle = "#f3eee3"; ctx.fillText(t.scenarios[scenario], 72, 276);
+  ctx.fillStyle = "#e9b863"; ctx.fillRect(72, 369, 8, 42);
+  panels.forEach(panel => { ctx.fillStyle = panel.color; ctx.fillRect(panel.x, panel.y, panel.width, panel.height); });
+  ctx.strokeStyle = "#b9c5c7"; ctx.lineWidth = 1;
+  rules.forEach(rule => { ctx.beginPath(); ctx.moveTo(rule.x, rule.y); ctx.lineTo(rule.x + rule.width, rule.y); ctx.stroke(); });
+  ctx.fillStyle = "#b9c5c7"; ctx.fillRect(599, columnTop - 33, 1, Math.max(0, panels[0].y - columnTop - 12));
   plans.forEach(item => { ctx.font = item.font; ctx.fillStyle = item.color; ctx.fillText(item.text, item.x, item.y); });
   const link = document.createElement("a");
   link.download = lang === "zh" ? "街角的秘密-觀察卡.png" : "secrets-on-the-corner-field-card.png";
