@@ -1,6 +1,6 @@
-// Trade Street: what each of the twelve runners hands to the next one.
-// Nothing here is a new fact. Every line is a re-cut of the 12-steps page text (steps-text.js), and `anchors` lists the
-// Chinese phrases that must still be found in step n or step n+1 there; scripts/verify-trade-street.mjs checks them.
+// Trade Street: what each of the fourteen runners hands to the next one.
+// Nothing here is a new fact. Every line is a re-cut of the stop texts (the 12-steps page in steps-text.js, plus extra-steps.js for the two extra stops), and `anchors` lists the
+// Chinese phrases that must still be found in stop n or stop n+1 there; scripts/verify-trade-street.mjs checks them.
 // "If it does not arrive" is not repeated here: the page shows that step's own `risk` line.
 
 export const HANDOFF_LABEL = {
@@ -35,48 +35,60 @@ export const HANDOFF = [
   },
   {
     n: 5,
-    zh: { gives: "裝好貨、上了封條的貨櫃，加上照片與封條號碼", to: "下一站的拖車，以及碼頭或貨櫃場" },
-    en: { gives: "The loaded, sealed container, with the photos and the seal number", to: "The trucker and the terminal or container yard at the next stop" },
-    anchors: ["上封條", "拍照留存，記下封條號碼", "拖車、碼頭或貨櫃場"],
+    zh: { gives: "裝好貨、上了封條的貨櫃，加上照片與封條號碼", to: "你與貨代（下一站補料用）" },
+    en: { gives: "The loaded, sealed container, with the photos and the seal number", to: "You and the forwarder (for the supplementary details at the next stop)" },
+    anchors: ["上封條", "拍照留存，記下封條號碼", "貨代"],
   },
   {
     n: 6,
+    zh: { gives: "提單要印的資料（收貨人、通知方、品名、件數、櫃號、封條號）與貨櫃的確認重量", to: "貨代，再轉給船公司" },
+    en: { gives: "What the bill of lading should print (consignee, notify party, product name, pieces, container number, seal number) and the container's confirmed weight", to: "The forwarder, who passes it to the shipping line" },
+    anchors: ["收貨人、通知方、品名、件數、櫃號、封條號", "貨櫃的確認重量", "貨代", "船公司"],
+  },
+  {
+    n: 7,
     zh: { gives: "裝好貨的重櫃", to: "碼頭或貨櫃場，排隊等著上船" },
     en: { gives: "The loaded container", to: "The terminal or container yard, to queue for the ship" },
     anchors: ["裝好貨的貨櫃", "碼頭或貨櫃場", "排隊等著上船"],
   },
   {
-    n: 7,
+    n: 8,
     zh: { gives: "正確的品名、數量、價值與文件", to: "報關行，再由報關行向海關申報" },
     en: { gives: "The correct product name, quantity, value and documents", to: "The customs broker, who declares to customs" },
     anchors: ["正確的品名、數量、價值與文件", "報關行", "向海關申報"],
   },
   {
-    n: 8,
+    n: 9,
     zh: { gives: "海關的決定：直接放行，或打開檢查；被通知時，要能快速補資料", to: "配合的報關行、拖車與碼頭" },
     en: { gives: "Customs' decision: release straight away, or open the container to inspect it; when you are told, you must be able to add papers quickly", to: "The broker, trucker and terminal who work with customs" },
     anchors: ["直接放行，或把貨櫃打開檢查", "快速補資料", "報關行、拖車與碼頭"],
   },
   {
-    n: 9,
+    n: 10,
     zh: { gives: "「真的上船了」的確認，而不只是「進港了」", to: "你，由貨代向你確認" },
     en: { gives: "Confirmation that it is really on the ship, not only that it reached the port", to: "You, through the forwarder" },
     anchors: ["「真的上船了」", "「進港了」", "向貨代確認"],
   },
   {
-    n: 10,
+    n: 11,
     zh: { gives: "實際開船日與預計到港日（預計和實際可能不同）", to: "買家，由你通知" },
     en: { gives: "The actual sailing day and the expected arrival day (the expected and the actual can differ)", to: "The buyer, told by you" },
     anchors: ["實際開船日與預計到港日", "預計和實際可能不同", "通知買家"],
   },
   {
-    n: 11,
+    n: 12,
     zh: { gives: "提單（B/L）：收貨人、品名、數量、港口與文字", to: "你，逐項核對" },
     en: { gives: "The bill of lading (B/L): consignee, product name, quantity, ports and wording", to: "You, to check item by item" },
     anchors: ["提單（B/L）", "收貨人、品名、數量、港口與文字", "由你核對"],
   },
   {
-    n: 12,
+    n: 13,
+    zh: { gives: "放單的決定：款項已到，或付款保障已寫下來", to: "貨代，再到買家手上" },
+    en: { gives: "The decision to release: payment has arrived, or the protection is in writing", to: "The forwarder, then the buyer" },
+    anchors: ["款項已經到了", "寫成文字", "貨代", "買家"],
+  },
+  {
+    n: 14,
     zh: { gives: "正本提單，或電放通知", to: "買家" },
     en: { gives: "The original bill of lading, or a telex-release notice", to: "The buyer" },
     anchors: ["正本", "電放", "買家"],

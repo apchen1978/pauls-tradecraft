@@ -120,6 +120,8 @@
     .brief { margin: 12px 0 0; display: grid; gap: 8px; }
     .brief div { padding: 8px 12px; border-radius: 10px; background: var(--salt); font-size: 15px; line-height: 1.5; }
     .brief b { display: block; font-size: 13px; letter-spacing: .06em; color: var(--deep); }
+    .extra-tag { display: inline-block; margin: 6px 0 0; padding: 2px 10px; border-radius: 999px; border: 1px dashed var(--deep); color: var(--deep); background: var(--salt); font-size: 13px; line-height: 1.5; }
+    .route .extra-note { display: block; margin-top: 2px; color: var(--moss); font-size: 12px; }
     .handoff { margin-top: 10px; padding: 10px 12px; border-radius: 10px; border-left: 4px solid var(--deep); background: var(--salt); font-size: 15px; line-height: 1.5; }
     .brief .handoff { padding: 10px 12px; }
     .handoff h3 { margin: 0 0 6px; font-size: 14px; color: var(--deep); }
@@ -376,6 +378,7 @@
         <p class="say" id="preview-say"></p>
         <h3 id="preview-title" tabindex="-1"></h3>
         <p id="preview-p"></p>
+        <p class="extra-tag" id="preview-extra" hidden></p>
         <p class="preview-cross" id="preview-cross" hidden></p>
         <button type="button" class="text-btn" id="preview-close">關閉</button>
       </div>
@@ -400,6 +403,7 @@
         <p class="say" id="say"></p>
         <h2 class="step-title" id="station-title" tabindex="-1"></h2>
         <p class="step-p" id="station-p"></p>
+        <p class="extra-tag" id="extra-tag" hidden></p>
         <p class="scn-note" id="first-note" hidden></p>
         <p class="scn-note" id="scn-note" hidden></p>
         <div class="brief" id="brief"></div>
@@ -446,6 +450,7 @@
         <h2 id="takeaway-title"></h2>
         <ul id="takeaway-list"></ul>
         <details class="more" id="more-danger"></details>
+        <details class="more" id="more-daily"></details>
         <details class="more" id="more-asks"></details>
         <p><a class="home" id="takeaway-link" href="../one-container-12-steps/"></a></p>
         <p><a class="home" id="takeaway-case" href="/cases/first-container/"></a></p>

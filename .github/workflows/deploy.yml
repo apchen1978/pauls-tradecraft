@@ -111,7 +111,7 @@ jobs:
           mkdir -p dist/prototype/code-words
           cp prototype/code-words/index.html prototype/code-words/app.js dist/prototype/code-words/
           mkdir -p dist/prototype/trade-street
-          cp prototype/trade-street/index.html prototype/trade-street/app.js prototype/trade-street/game.js prototype/trade-street/steps-text.js prototype/trade-street/layout.js prototype/trade-street/handoff.js dist/prototype/trade-street/
+          cp prototype/trade-street/index.html prototype/trade-street/app.js prototype/trade-street/game.js prototype/trade-street/steps-text.js prototype/trade-street/layout.js prototype/trade-street/handoff.js prototype/trade-street/extra-steps.js prototype/trade-street/tips.js dist/prototype/trade-street/
           cp -r prototype/trade-street/assets dist/prototype/trade-street/
           cp -r prototype/trade-street/cast dist/prototype/trade-street/
           mkdir -p dist/prototype/second-source-light-lesson

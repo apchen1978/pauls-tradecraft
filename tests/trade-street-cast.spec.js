@@ -65,7 +65,7 @@ for (const width of [390, 1440]) {
       // the guide is named 玉仔 and walks the whole street
       await expect(page.locator("#guide")).toContainText("玉仔");
       await expect(page.locator("#guide")).toContainText("全程帶路");
-      await expect(page.locator("#forwarder")).toContainText("2 訂艙 · 11 提單");
+      await expect(page.locator("#forwarder")).toContainText("2 訂艙 · 12 提單 · 13 收款放單");
       // the pictures below the first screen load as they come into view (lazy), so scroll through the cards first
       for (const id of CAST_ORDER) await page.locator(`#${id}`).scrollIntoViewIfNeeded();
       await expect.poll(async () => (await picturesLoaded(page)).filter(Boolean).length, { timeout: 10000 }).toBe(8);

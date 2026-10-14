@@ -108,8 +108,8 @@ export const SCENARIOS = {
 
 // Six decisions on six of the twelve steps. `cost` is buffer cells used; `extra` is the cost in a scenario that makes
 // this choice worse. Tags: check, buffer, ask, clock, rules, trust. Every style appears three times: twice done well,
-// once as its shadow side (the shadow is the option with a cost). `after: true` marks a decision taken after the ship
-// has sailed (step 11): it cannot change whether the container makes the ship, only how the documents get to the buyer.
+// once as its shadow side (the shadow is the option with a cost). `step` counts the fourteen stops. `after: true` marks a decision taken after the ship
+// has sailed (stop 12): it cannot change whether the container makes the ship, only how the documents get to the buyer.
 export const DECISIONS = [
   {
     id: "d1", step: 2, light: 3,
@@ -142,7 +142,7 @@ export const DECISIONS = [
     ],
   },
   {
-    id: "d4", step: 6, light: 2,
+    id: "d4", step: 7, light: 2,
     zh: { prompt: "拖車問：什麼時候進港？" },
     en: { prompt: "The trucker asks: when do we go into the port?" },
     options: [
@@ -152,7 +152,7 @@ export const DECISIONS = [
     ],
   },
   {
-    id: "d5", step: 7, light: 1,
+    id: "d5", step: 8, light: 1,
     zh: { prompt: "報關行請你備資料。" },
     en: { prompt: "The customs broker asks for your papers." },
     options: [
@@ -162,7 +162,7 @@ export const DECISIONS = [
     ],
   },
   {
-    id: "d6", step: 11, light: null, after: true,
+    id: "d6", step: 12, light: null, after: true,
     zh: { prompt: "提單來了。（船已經開了。）" },
     en: { prompt: "The bill of lading has arrived. (The ship has already sailed.)" },
     options: [
@@ -176,8 +176,8 @@ export const DECISIONS = [
 // The four moments the page counts down to. Each decision feeds exactly one light.
 export const LIGHTS = ["docs", "customs", "port", "sail"];
 
-// Who speaks at each of the twelve steps (station index 1..12).
-export const STATION_SPEAKER = ["buyer", "forwarder", "shipper", "trucker", "factory", "dispatcher", "broker", "guide", "dispatcher", "shipper", "forwarder", "buyer"];
+// Who speaks at each of the fourteen stops (station index 1..14). Stops 6 and 13 are the two common extra stops.
+export const STATION_SPEAKER = ["buyer", "forwarder", "shipper", "trucker", "factory", "shipper", "dispatcher", "broker", "guide", "dispatcher", "shipper", "forwarder", "forwarder", "buyer"];
 
 export function optionCost(decision, option, scenario) {
   return option.extra && option.extra[scenario] != null ? option.extra[scenario] : option.cost;

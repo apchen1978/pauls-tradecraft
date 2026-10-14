@@ -7,6 +7,8 @@ import {
 } from "../prototype/trade-street/game.js";
 import { LEARN_TEXT, PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
 import { HANDOFF, HANDOFF_LABEL } from "../prototype/trade-street/handoff.js";
+import { ALL_STEPS, EXTRA_INDEX, EXTRA_STEPS } from "../prototype/trade-street/extra-steps.js";
+import { DAILY, EXTRA_TAG, LESSON_LABEL, TIPS, TIP_LABEL } from "../prototype/trade-street/tips.js";
 import { AVATAR_COLOR, SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
 import { ART, GLOSS, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
 import { ALT, BIO, SIZE, UI as CAST_UI, stopsOf, styleOf } from "../prototype/trade-street/cast/cast.js";
@@ -56,28 +58,28 @@ test("step text is verbatim from the 12-steps page, in both languages", () => {
   }
 });
 
-test("the decisions sit on real steps, in order, and the post-sail one comes after the ship sails (step 10)", () => {
+test("the decisions sit on real steps, in order, and the post-sail one comes after the ship sails (stop 11 of 14)", () => {
   assert.equal(DECISIONS.length, 6);
   const steps = DECISIONS.map((decision) => decision.step);
   assert.deepEqual(steps, [...steps].sort((a, b) => a - b));
   assert.equal(new Set(steps).size, 6);
   for (const decision of DECISIONS) {
-    assert.ok(decision.step >= 1 && decision.step <= 12);
+    assert.ok(decision.step >= 1 && decision.step <= 14);
     assert.equal(decision.options.length, 3);
     assert.equal(new Set(decision.options.map((option) => option.tag)).size, 3);
     assert.deepEqual(decision.options.map((option) => option.id), ["A", "B", "C"]);
     assert.equal(decision.options.filter((option) => option.cost > 0).length, 1, `${decision.id} has exactly one costly (shadow) option`);
     assert.ok(decision.options.some((option) => option.cost === 0));
-    if (decision.after) assert.ok(decision.step > 10); else assert.ok(decision.step <= 10);
+    if (decision.after) assert.ok(decision.step > 11); else assert.ok(decision.step <= 11);
     if (decision.light != null) assert.ok(decision.light >= 0 && decision.light < LIGHTS.length);
   }
   assert.equal(DECISIONS.filter((decision) => decision.after).length, 1);
   assert.equal(DECISIONS.filter((decision) => decision.light == null).length, 1);
-  assert.equal(STATION_SPEAKER.length, 12);
-  assert.equal(SHORT.zh.length, 12);
-  assert.equal(SHORT.en.length, 12);
-  assert.equal(STATION_LINE.zh.length, 12);
-  assert.equal(STATION_LINE.en.length, 12);
+  assert.equal(STATION_SPEAKER.length, 14);
+  assert.equal(SHORT.zh.length, 14);
+  assert.equal(SHORT.en.length, 14);
+  assert.equal(STATION_LINE.zh.length, 14);
+  assert.equal(STATION_LINE.en.length, 14);
 });
 
 test("every style appears three times: twice done well, once as its shadow side", () => {
@@ -151,20 +153,50 @@ test("the buffer is felt: leaving a buffer by entering the port early spends a c
   assert.equal(resolve("rush", "AAAAAA").voyageCost, 0);
 });
 
-test("hand-over: all twelve runners, every line traceable to the 12-steps text, no numbers or units, both languages", () => {
-  assert.equal(HANDOFF.length, 12);
+test("hand-over: all fourteen runners, every line traceable to the stop texts, no numbers or units, both languages", () => {
+  assert.equal(HANDOFF.length, 14);
   HANDOFF.forEach((item, index) => {
     assert.equal(item.n, index + 1);
-    const here = Object.values(STEP_TEXT[index].zh).join("\n");
-    const next = STEP_TEXT[index + 1] ? Object.values(STEP_TEXT[index + 1].zh).join("\n") : "";
+    const here = Object.values(ALL_STEPS[index].zh).join("\n");
+    const next = ALL_STEPS[index + 1] ? Object.values(ALL_STEPS[index + 1].zh).join("\n") : "";
     assert.ok(item.anchors.length >= 2, `step ${item.n} has anchors`);
-    for (const phrase of item.anchors) assert.ok(here.includes(phrase) || next.includes(phrase), `step ${item.n}: "${phrase}" is in the 12-steps text`);
+    for (const phrase of item.anchors) assert.ok(here.includes(phrase) || next.includes(phrase), `step ${item.n}: "${phrase}" is in the stop text`);
     for (const lang of ["zh", "en"]) {
       assert.ok(item[lang].gives.length > 3 && item[lang].to.length > 1, `step ${item.n} ${lang}`);
       assert.equal(/\d+\s*(天|日|小時|days?|hours?|USD|\$|%|％|元|萬)/i.test(`${item[lang].gives} ${item[lang].to}`), false, `step ${item.n} ${lang} has no days or money`);
     }
   });
   for (const lang of ["zh", "en"]) for (const key of ["head", "gives", "to", "miss"]) assert.ok(HANDOFF_LABEL[lang][key], `${lang} ${key}`);
+});
+
+test("extra stops: fourteen in all, the two added ones sit after loading and after the bill of lading, labelled as common practice, both languages", () => {
+  assert.equal(STEP_TEXT.length, 12); // the 12-steps text is untouched
+  assert.equal(ALL_STEPS.length, 14);
+  assert.deepEqual(EXTRA_INDEX, [5, 12]);
+  assert.match(ALL_STEPS[4].zh.t, /裝櫃/);
+  assert.match(ALL_STEPS[5].zh.t, /補料.*VGM/);
+  assert.match(ALL_STEPS[6].zh.t, /進港/);
+  assert.match(ALL_STEPS[11].zh.t, /提單/);
+  assert.match(ALL_STEPS[12].zh.t, /收款後才放單/);
+  assert.match(ALL_STEPS[13].zh.t, /寄單/);
+  ALL_STEPS.forEach((step, index) => assert.equal(step.n, index + 1));
+  for (const extra of Object.values(EXTRA_STEPS)) for (const lang of ["zh", "en"]) for (const field of ["t", "p", "who", "prep", "risk", "lesson"]) assert.ok(extra[lang][field].length > (field === "t" || field === "who" ? 3 : 8), `${lang} ${field}`);
+  assert.match(EXTRA_STEPS.vgm.zh.p, /截港前/);
+  assert.match(EXTRA_STEPS.vgm.zh.lesson, /截港前/);
+  assert.match(EXTRA_STEPS.vgm.en.p, /before the port cut-off/);
+  assert.match(EXTRA_TAG.zh, /業界常見/);
+  assert.match(TIP_LABEL.zh, /業界常見/);
+  assert.match(DAILY.zh.title, /業界常見/);
+  assert.equal(DAILY.zh.items.length, 5);
+  assert.equal(DAILY.en.items.length, 5);
+  for (const index of Object.keys(TIPS)) assert.ok(TIPS[index].zh.length > 6 && TIPS[index].en.length > 12 && ALL_STEPS[index], `tip ${index}`);
+  assert.equal(/Paul/.test(JSON.stringify([EXTRA_STEPS, TIPS, DAILY, EXTRA_TAG])), false);
+});
+
+test("the last stop is worked out from the number of stops, never written as a number", () => {
+  const app = read("../prototype/trade-street/app.js");
+  assert.match(app, /LAST_STOP = ALL_STEPS\.length - 1/);
+  assert.equal(/(index|i) === 11/.test(app), false);
 });
 
 test("addresses: valid ones round-trip, bad ones are ignored", () => {
@@ -193,7 +225,7 @@ function everyString(value, out = []) {
 }
 
 test("public copy: boundary shown, no claims, no numbers with units, no real company names", () => {
-  const blob = everyString([CAST, STYLES, REACT, SCENARIOS, DECISIONS, UI, STATION_LINE, SHORT, GLOSS, STEP_TEXT, PAGE_TEXT, HANDOFF, HANDOFF_LABEL]).join("\n") + read("../prototype/trade-street/index.html");
+  const blob = everyString([CAST, STYLES, REACT, SCENARIOS, DECISIONS, UI, STATION_LINE, SHORT, GLOSS, STEP_TEXT, PAGE_TEXT, HANDOFF, HANDOFF_LABEL, EXTRA_STEPS, TIPS, DAILY, EXTRA_TAG, LESSON_LABEL, TIP_LABEL]).join("\n") + read("../prototype/trade-street/index.html");
   assert.match(UI.zh.boundary, /教學示意/);
   assert.match(UI.zh.boundary, /不含具體天數、費用或比例/);
   assert.match(UI.en.boundary, /Teaching sketch/);
@@ -204,7 +236,7 @@ test("public copy: boundary shown, no claims, no numbers with units, no real com
   assert.equal(/人工智慧|\bAI\b|老闆|老板|\bROI\b|轉換率|成交率|中間層|A2A|\bCDD\b|\bowner\b|mailto:|@gmail/i.test(blob), false);
   assert.equal(/Maersk|\bMSC\b|COSCO|Evergreen|長榮|陽明|Hapag|ONE Line|FedEx|DHL|\bUPS\b|DB Schenker/i.test(blob), false);
   // Our own game text never states days, money or percentages (the 12-steps source text is checked on its own page).
-  const ours = everyString([CAST, STYLES, REACT, SCENARIOS, DECISIONS, STATION_LINE]).join("\n");
+  const ours = everyString([CAST, STYLES, REACT, SCENARIOS, DECISIONS, STATION_LINE, EXTRA_STEPS, TIPS, DAILY, EXTRA_TAG, LESSON_LABEL, TIP_LABEL]).join("\n");
   assert.equal(/\d+\s*(天|日|小時|days?|hours?|USD|\$|%|％|元|萬)/i.test(ours), false);
 });
 
@@ -261,11 +293,11 @@ test("art: both maps and all eight portraits exist, are WebP, and stay inside th
   }
 });
 
-test("art: twelve stops on each map, inside the picture, and far enough apart to tap", () => {
+test("art: fourteen stops on each map, inside the picture, and far enough apart to tap", () => {
   const sizes = { desktop: [1600, 900, 34], mobile: [800, 1422, 62] };
   for (const [kind, [width, height, gap]] of Object.entries(sizes)) {
     const points = POS[kind];
-    assert.equal(points.length, 12, kind);
+    assert.equal(points.length, 14, kind);
     for (const [x, y] of points) assert.ok(x > 2 && x < 98 && y > 2 && y < 98, `${kind} ${x},${y}`);
     for (let i = 0; i < points.length; i += 1) for (let j = i + 1; j < points.length; j += 1) {
       const dx = ((points[i][0] - points[j][0]) / 100) * width;
@@ -285,7 +317,7 @@ test("art: the page and the deploy copy the files the game needs", () => {
   assert.ok(existsSync(new URL(`../prototype/trade-street/${ART.map.desktop}`, import.meta.url)));
   assert.ok(existsSync(new URL(`../prototype/trade-street/${ART.map.mobile}`, import.meta.url)));
   const deploy = read("../.github/workflows/deploy.yml");
-  for (const file of ["index.html", "app.js", "game.js", "steps-text.js", "layout.js", "handoff.js"]) assert.ok(deploy.includes(`prototype/trade-street/${file}`), `deploy copies ${file}`);
+  for (const file of ["index.html", "app.js", "game.js", "steps-text.js", "layout.js", "handoff.js", "extra-steps.js", "tips.js"]) assert.ok(deploy.includes(`prototype/trade-street/${file}`), `deploy copies ${file}`);
   assert.ok(deploy.includes("cp -r prototype/trade-street/assets dist/prototype/trade-street/"), "deploy copies the assets folder");
 });
 
@@ -329,10 +361,10 @@ test("cast page: style, stops and catchphrase come from the game, so the two can
     if (STYLE_CHAR[style] === id) assert.ok(REACT[style].zh.free && STYLES[style].zh.name);
   }
   assert.deepEqual(CAST_ORDER.filter((id) => styleOf(id)).sort(), Object.values(STYLE_CHAR).sort());
-  assert.deepEqual(stopsOf("forwarder"), [1, 10]);
-  assert.deepEqual(stopsOf("buyer"), [0, 11]);
+  assert.deepEqual(stopsOf("forwarder"), [1, 11, 12]);
+  assert.deepEqual(stopsOf("buyer"), [0, 13]);
   const covered = new Set(CAST_ORDER.flatMap((id) => stopsOf(id)));
-  for (let i = 0; i < 12; i += 1) assert.ok(covered.has(i), `stop ${i + 1} has someone on the cast page`);
+  for (let i = 0; i < 14; i += 1) assert.ok(covered.has(i), `stop ${i + 1} has someone on the cast page`);
 });
 
 test("cast page: public copy keeps the boundary and skips banned words, numbers with units and real names", () => {
@@ -463,7 +495,7 @@ test("weight: the small head pictures exist for every person, are tiny, and the 
 
 test("plain words: every stop has one short plain line in both languages, and the page no longer calls itself a Garage piece", () => {
   for (const lang of ["zh", "en"]) {
-    assert.equal(GLOSS[lang].length, 12, `${lang} has twelve plain lines`);
+    assert.equal(GLOSS[lang].length, 14, `${lang} has fourteen plain lines`);
     GLOSS[lang].forEach((line, i) => {
       assert.ok(line.length >= 4 && line.length <= (lang === "zh" ? 18 : 44), `${lang} line ${i + 1} is short: ${line}`);
       assert.notEqual(line, SHORT[lang][i], `${lang} line ${i + 1} says more than the name`);
