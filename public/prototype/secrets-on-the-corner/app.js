@@ -1,12 +1,12 @@
 const copy = {
   zh: {
-    skip: "跳至內容", draft: "示意玩具，不是店家分析。", title: "街角的秘密", heroPrompt: "先記下第一眼 ↘", backToScene: "再看其他光點 ↑",
+    skip: "跳至內容", draft: "示意玩具，不是店家分析。", title: "街角的秘密", heroPurposeQuestion: "排隊的人多，生意就一定好嗎？", heroPurpose: "看看街角、選一件想問的事，再讀小葵的回信。最後帶走一張觀察卡，分清「看見有人等」和「確認有人買單」的差別。", heroPrompt: "先記下第一眼 ↓", backToScene: "再看其他光點 ↑",
     intro: "一間小店門口排了隊。這是穩定生意的訊號，還是今晚的一刻？",
     lede: "從街角的細節開始。你不必猜對答案；只要找到下一個值得問的問題。",
     start: "走近看看", explore: "沿著這條街，先看見什麼？",
-    exploreHint: "點畫面上的光點，打開一張觀察筆記。", notebook: "觀察筆記",
+    exploreHint: "點圖上的標籤，打開一張街角筆記。", notebook: "街角筆記",
     impressionTitle: "第一眼，你怎麼看這條隊伍？",
-    impressionHint: "先留下直覺，之後看看線索讓你想追問什麼。可以跳過，沒有標準答案。",
+    impressionHint: "先留下第一眼的想法；看過街角細節後，再挑一件想問小葵的事。也可以跳過。",
     impressionSteady: "生意可能一直很好", impressionPickup: "也許很多人來取預訂",
     impressionUncertain: "現在還說不準", impressionSkip: "先看線索 →",
     impressionSaved: value => `你第一眼想到：${value}`,
@@ -14,8 +14,8 @@ const copy = {
     reflectionHint: "這不是對錯判定；線索讓下一個問題更清楚。",
     emptyTitle: "慢一點，看得更多。",
     emptyBody: "麵包香、等候的人、亮起的路燈。哪個細節會改變你的第一印象？",
-    decisionTitle: "如果明天只能多問一件事？",
-    decisionIntro: "隊伍是真的；原因還沒確定。選一個你想先查的方向。",
+    decisionTitle: "挑一件想問小葵的事",
+    decisionIntro: "你已經看過街角細節。選一件最想弄清楚的事，其他可以之後再問。",
     resultLabel: "你的觀察卡", youSaw: "你看到了", nextStep: "明天的小動作",
     boundaryTitle: "還不能說", download: "下載觀察卡", again: "換個問題再看",
     disclosure: "示意玩具，虛構情境；不是真實店家的營運分析，你的選擇不預測生意結果。",
@@ -28,7 +28,7 @@ const copy = {
     followupTitle: "接著只追一個訊號", followupHint: "假設這是明天問到的答案，你接下來會先記哪件事？",
     followupEmpty: "選一個訊號，再看它能解答什麼、仍不能解答什麼。", followupLearn: "這能幫你看清", followupUnknown: "仍不能因此說",
     cardFollowup: "接著追查", cardStillUnknown: "仍不能說",
-    scenarioLabel: "換個時段看看", scenarioGroup: "選擇觀察時段",
+    scenarioExplore: "想比較另一個時段？", scenarioLabel: "換個時段看看", scenarioGroup: "選擇觀察時段",
     scenarios: { weekday: "平日傍晚", weekend: "週末傍晚" },
     compareTitle: "把兩個時段放在一起看", compareHint: "同一幅插畫呈現兩種時段設定。",
     comparePrompt: "兩個時段都點過「隊伍」，就能查看對照。",
@@ -68,8 +68,8 @@ const copy = {
     seen: "看到的", possible: "可能意味", unknown: "還不知道",
     count: n => n === clueOrder.length ? "細節都看過了" : "還有細節沒看",
     seenList: names => `已看：${names.join("、")}`,
-    need: () => "再多看幾處，就能選個問題。",
-    ready: "線索夠開始提問了；也可以把其他地方看完。",
+    need: () => "",
+    ready: "可以選一件想問小葵的事；其他光點也能之後再看。",
     imageAlt: "十二月黃昏的街角麵包店，店內透著暖光，幾個人在門口等候，旁邊路燈亮起。",
     resultBoundary: "這是虛構情境；排隊不能證明穩定需求或擴店可行。",
     cardCaption: "一段隊伍，是線索，不是結論。", cardFirst: "第一眼想到",
@@ -88,13 +88,13 @@ const copy = {
     },
   },
   en: {
-    skip: "Skip to content", draft: "A toy, not a shop analysis.", title: "Secrets on the Corner", heroPrompt: "Keep a first thought ↘", backToScene: "Explore another point ↑",
+    skip: "Skip to content", draft: "A toy, not a shop analysis.", title: "Secrets on the Corner", heroPurposeQuestion: "Does a long line always mean good business?", heroPurpose: "Explore the corner, choose one question, then read Sunny's reply. Leave with a field card showing why seeing people wait is not the same as confirming a sale.", heroPrompt: "Start with your first impression ↓", backToScene: "Explore another point ↑",
     intro: "A line forms outside a small shop. Is it a sign of steady business—or one moment tonight?",
     lede: "Start with the details. There is no answer to guess; find a better question to ask next.",
     start: "Take a closer look", explore: "What do you notice on this street?",
-    exploreHint: "Select a glowing point to open a field note.", notebook: "Field notes",
+    exploreHint: "Select a label on the picture to open a field note.", notebook: "Corner notes",
     impressionTitle: "What does the line suggest at first glance?",
-    impressionHint: "Keep your first thought, then see what the clues make you ask. You can skip this; there is no right answer.",
+    impressionHint: "Save your first thought. After looking around, choose one thing you want to ask Sunny. You can also skip this.",
     impressionSteady: "Business may be steady", impressionPickup: "Perhaps many are collecting pre-orders",
     impressionUncertain: "Too soon to tell", impressionSkip: "Explore the clues →",
     impressionSaved: value => `Your first thought: ${value}`,
@@ -102,8 +102,8 @@ const copy = {
     reflectionHint: "This is not a right-or-wrong verdict. The clues help sharpen your next question.",
     emptyTitle: "Slow down. See more.",
     emptyBody: "Fresh bread, waiting neighbors, a streetlamp turning on. Which detail changes your first impression?",
-    decisionTitle: "If you could ask one more question tomorrow?",
-    decisionIntro: "The line is real. Its cause is still unclear. Choose what you would check first.",
+    decisionTitle: "Choose one thing to ask Sunny",
+    decisionIntro: "You've looked around the corner. Choose what you most want to know; the rest can wait.",
     resultLabel: "Your field card", youSaw: "You observed", nextStep: "A small move tomorrow",
     boundaryTitle: "What you cannot claim yet", download: "Download field card", again: "Try another question",
     disclosure: "A toy set in a fictional scene. Not an analysis of a real shop; your choices don't predict business outcomes.",
@@ -116,7 +116,7 @@ const copy = {
     followupTitle: "Follow just one signal next", followupHint: "If tomorrow brought this answer, what would you track first?",
     followupEmpty: "Choose a signal to see what it could clarify and what it still could not prove.", followupLearn: "This could clarify", followupUnknown: "It still would not prove",
     cardFollowup: "Signal to follow", cardStillUnknown: "Still unproven",
-    scenarioLabel: "Change the time", scenarioGroup: "Choose a time to observe",
+    scenarioExplore: "Want to compare another time?", scenarioLabel: "Change the time", scenarioGroup: "Choose a time to observe",
     scenarios: { weekday: "Weekday evening", weekend: "Weekend evening" },
     compareTitle: "Put the two moments side by side", compareHint: "One illustration shows two different time settings.",
     comparePrompt: "Select the queue in both time settings to see the comparison.",
@@ -156,8 +156,8 @@ const copy = {
     seen: "Observed", possible: "It might mean", unknown: "Still unknown",
     count: n => n === clueOrder.length ? "Details explored" : "More details to explore",
     seenList: names => `Seen: ${names.join(", ")}`,
-    need: () => "Look at a few more details to choose a question.",
-    ready: "You can ask a question now—or inspect the other details first.",
+    need: () => "",
+    ready: "You can choose one question for Sunny now. The other details can wait.",
     imageAlt: "A warm bakery window on a December evening, several people waiting outside, and a streetlamp lighting the lane.",
     resultBoundary: "This is a fictional scenario; a queue cannot establish steady demand or whether expansion would work.",
     cardCaption: "A line is a clue, not a conclusion.", cardFirst: "First thought",
@@ -432,7 +432,6 @@ function renderImpression() {
   const panel = node("first-impression");
   panel.hidden = impressionSkipped || (viewed.size > 0 && firstImpression === null);
   document.querySelector(".hero-prompt").hidden = panel.hidden;
-  document.querySelector(".start-link").href = panel.hidden ? "#explore-title" : "#first-impression";
   if (panel.hidden) return;
   const options = node("impression-options");
   options.hidden = viewed.size > 0;
@@ -520,6 +519,8 @@ function renderNote() {
   clueOrder.forEach(id => { const dot = document.createElement("i"); dot.classList.toggle("seen", viewed.has(id)); dots.append(dot); });
   node("discovery-count").append(dots, progressText);
   node("decision-hint").textContent = viewed.size < 2 ? t.need(2 - viewed.size) : t.ready;
+  node("decision").hidden = viewed.size < 2;
+  node("scenario-tools").hidden = viewed.size < clueOrder.length;
   updateRouteProgress();
   renderScenarioComparison();
   renderImpression();
@@ -528,6 +529,7 @@ function renderNote() {
     button.setAttribute("aria-label", name);
     button.querySelector("span").textContent = name;
     button.setAttribute("aria-pressed", String(activeClue === button.dataset.clue));
+    button.classList.toggle("is-next", button.dataset.clue === clueOrder.find(id => !viewed.has(id)));
   });
   document.querySelectorAll(".question").forEach(button => { button.disabled = viewed.size < 2; });
   if (viewed.size >= 2) renderQuestions();

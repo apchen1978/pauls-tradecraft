@@ -33,24 +33,21 @@
           <source media="(max-width: 699px)" srcset="assets/queue-mobile.webp">
           <img src="assets/queue-desktop.webp" alt="" id="scene-image" width="1600" height="900">
         </picture>
-        <button class="hotspot hotspot-window" type="button" data-clue="window" aria-pressed="false"><span class="visually-hidden"></span></button>
-        <button class="hotspot hotspot-bags" type="button" data-clue="bags" aria-pressed="false"><span class="visually-hidden"></span></button>
-        <button class="hotspot hotspot-queue" type="button" data-clue="queue" aria-pressed="false"><span class="visually-hidden"></span></button>
-        <button class="hotspot hotspot-lamp" type="button" data-clue="lamp" aria-pressed="false"><span class="visually-hidden"></span></button>
+        <button class="hotspot hotspot-window" type="button" data-clue="window" aria-pressed="false"><span class="hotspot-label"></span></button>
+        <button class="hotspot hotspot-bags" type="button" data-clue="bags" aria-pressed="false"><span class="hotspot-label"></span></button>
+        <button class="hotspot hotspot-queue" type="button" data-clue="queue" aria-pressed="false"><span class="hotspot-label"></span></button>
+        <button class="hotspot hotspot-lamp" type="button" data-clue="lamp" aria-pressed="false"><span class="hotspot-label"></span></button>
         <div class="intro hero-copy">
           <h1 id="page-title" data-i18n="title">街角的秘密</h1>
-          <a class="hero-prompt" href="#first-impression" data-i18n="heroPrompt">先記下第一眼 ↘</a>
+          <p class="hero-purpose-question" data-i18n="heroPurposeQuestion">排隊的人多，生意就一定好嗎？</p>
+          <p class="hero-purpose" data-i18n="heroPurpose">看看街角、選一件想問的事，再讀小葵的回信。你會帶走一張觀察卡，分清「有人在等」和「有人買單」。</p>
+          <a class="hero-prompt" href="#first-impression" data-i18n="heroPrompt">先記下第一眼</a>
         </div>
         <span class="scene-corner" aria-hidden="true"></span>
       </div>
     </section>
 
     <section class="explore page" id="explore" aria-labelledby="explore-title">
-      <div class="explore-intro">
-        <p class="intro-line" data-i18n="intro">一間小店門口排了隊。這是穩定生意的訊號，還是今晚的一刻？</p>
-        <p class="intro-lede" data-i18n="lede">從街角的細節開始。你不必猜對答案；只要找到下一個值得問的問題。</p>
-        <a class="start-link" href="#first-impression" data-i18n="start">走近看看 <span aria-hidden="true">↘</span></a>
-      </div>
       <div class="first-impression" id="first-impression" aria-labelledby="impression-title">
         <div class="impression-intro">
           <span class="impression-index" aria-hidden="true">↘</span>
@@ -73,16 +70,21 @@
           <p data-i18n="exploreHint">點畫面上的光點，打開一張觀察筆記。</p>
         </div>
       </div>
-      <div class="scenario-tools">
-        <div class="scenario-switch" role="group" aria-label="時段選擇">
-          <span id="scenario-label" data-i18n="scenarioLabel">換個時段看看</span>
-          <button type="button" data-scenario="weekday" aria-pressed="true"></button>
-          <button type="button" data-scenario="weekend" aria-pressed="false"></button>
-        </div>
+      <div class="exploration-meta">
         <p class="route-progress" id="route-progress" aria-live="polite"></p>
         <p class="discovery-count" id="discovery-count" aria-live="polite"></p>
-        <p class="scenario-compare-prompt" data-i18n="comparePrompt">兩個時段都點過「隊伍」，就能查看對照。</p>
       </div>
+      <details class="scenario-tools" id="scenario-tools" hidden>
+        <summary data-i18n="scenarioExplore">想比較另一個時段？</summary>
+        <div class="scenario-tools-content">
+          <div class="scenario-switch" role="group" aria-label="時段選擇">
+            <span id="scenario-label" data-i18n="scenarioLabel">換個時段看看</span>
+            <button type="button" data-scenario="weekday" aria-pressed="true"></button>
+            <button type="button" data-scenario="weekend" aria-pressed="false"></button>
+          </div>
+          <p class="scenario-compare-prompt" data-i18n="comparePrompt">兩個時段都點過「隊伍」，就能查看對照。</p>
+        </div>
+      </details>
 
       <div class="stage">
         <dialog class="field-note" id="field-note" aria-label="Field notes">
@@ -120,7 +122,7 @@
       </div>
     </section>
 
-    <section class="decision" id="decision" aria-labelledby="decision-title">
+    <section class="decision" id="decision" aria-labelledby="decision-title" hidden>
       <div class="decision-head">
         <h2 id="decision-title" data-i18n="decisionTitle" tabindex="-1">如果明天只能多問一件事？</h2>
         <p data-i18n="decisionIntro">隊伍是真的；原因還沒確定。選一個你想先查的方向。</p>
