@@ -48,6 +48,8 @@ test.describe("market-signal animation on a phone", () => {
     const figure = await openFlow(page);
     // on a phone the steps open on tap
     await page.locator('[aria-controls="decision-flow-more"]').first().click();
+    // The page can still shift while lazy parts load; the animation only plays while the figure is mostly in view.
+    await figure.evaluate((node) => node.scrollIntoView({ block: "center" }));
     const content = await page.evaluate(() => getComputedStyle(document.querySelector(".decision-flow__stage:nth-child(5)"), "::after").content);
     expect(content).toBe('""');
     await expect(figure).toHaveAttribute("data-complete", "true", { timeout: 15000 });

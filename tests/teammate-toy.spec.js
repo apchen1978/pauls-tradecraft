@@ -239,7 +239,7 @@ test.describe("garage listing", () => {
       await expect(showcase.getByText("示範／成效未驗證。", { exact: true })).toHaveCount(0);
       await expect(showcase.getByText("照夜鎮裡，十六種隊友，四個隊伍。")).toBeVisible();
       await expect(showcase.getByText("不教貿易：輕鬆玩，順便看見自己的團隊風格")).toBeVisible();
-      await expect(showcase.getByText("示意玩具 · 雙語原型")).toBeVisible();
+      await expect(card.locator("..").getByText("示意玩具 · 雙語原型")).toBeVisible();
       await expect(showcase.getByText("示意玩具，不是心理測驗。")).toBeVisible();
       await expect(showcase.locator("img").first()).toHaveAttribute("src", "/images/showcase-december-cover.webp");
       await expect(showcase.locator("img").first()).toHaveAttribute("alt", /銀河之女/);
@@ -262,7 +262,7 @@ test.describe("garage listing", () => {
       await expect(enShowcase.getByText("Demo / outcomes not validated.", { exact: true })).toHaveCount(0);
       await expect(enShowcase.getByText("Nightglow has sixteen teammates in four factions.")).toBeVisible();
       await expect(enShowcase.getByText("Not about trade: a light play that shows your team style")).toBeVisible();
-      await expect(enShowcase.getByText("Illustrative toy · bilingual prototype")).toBeVisible();
+      await expect(enCard.locator("..").getByText("Illustrative toy · bilingual prototype")).toBeVisible();
       await expect(enShowcase.getByText("A toy, not a personality test.")).toBeVisible();
       await expect(enShowcase.locator("img").first()).toHaveAttribute("alt", /Daughter of the Galaxy/);
       const enHref = await enCard.locator("..").getByRole("link", { name: "Play", exact: true }).getAttribute("href");
