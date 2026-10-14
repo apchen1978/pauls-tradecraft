@@ -30,6 +30,13 @@ const copy = {
     cardFollowup: "接著追查", cardStillUnknown: "仍不能說",
     scenarioLabel: "換個時段看看", scenarioGroup: "選擇觀察時段",
     scenarios: { weekday: "平日傍晚", weekend: "週末傍晚" },
+    compareTitle: "把兩個時段放在一起看", compareHint: "同一幅插畫呈現兩種時段設定。",
+    comparePrompt: "兩個時段都點過「隊伍」，就能查看對照。",
+    compareWeekdayLabel: "平日傍晚", compareWeekendLabel: "週末傍晚",
+    compareSharedLabel: "兩個情境都看見", compareShared: "三位客人在等候。",
+    compareUnknownLabel: "仍不知道", compareUnknown: "這是否在多個日子持續、每個人為何等候，以及是否會回訪。",
+    compareNextLabel: "下一個可查問題", compareNext: "在相近的平日與週末時段重複記錄等候、取預訂與現買。",
+    compareCardTitle: "兩個時段的對照", compareCardText: "平日和週末的情境設定都呈現三位客人在等候。",
     routeProgress: n => `已走過 ${n}/6 條追查路線`,
     businessLabel: "放到生意裡是……",
     business: {
@@ -37,6 +44,13 @@ const copy = {
       reason: { weekday: "平日傍晚的隊伍裡，可能有人取預訂；人數不等於臨時進店購買的人數。", weekend: "週末傍晚的隊伍裡，可能有人取預訂；人數不等於臨時進店購買的人數。" },
       capacity: { weekday: "平日傍晚等候久，可能卡在結帳或出爐；找出慢點仍不代表適合開分店。", weekend: "週末傍晚等候久，可能是尖峰服務負荷；加快流程仍不代表適合開分店。" },
     },
+    businessChainTitle: "從線索到交易，還差幾個確認？",
+    businessChainIntro: "排隊是起點。每往下一步，都要補上新的觀察。",
+    businessChainQueueTitle: "看見等候", businessChainQueue: "有人停下來等；還不知道他們為什麼等，或最後是否購買。",
+    businessChainReasonTitle: "弄清原因", businessChainReason: "分清現場購買、預訂取貨或其他等候原因；原因本身仍不代表交易完成。",
+    businessChainSaleTitle: "確認交易", businessChainSale: "觀察是否有人完成購買；一次交易仍不能說明會不會回來。",
+    businessChainReturnTitle: "觀察回訪與供應", businessChainReturn: "看客人是否再來，也看店家能否持續供應與服務。",
+    businessChainTradeBridge: "放到貿易裡也是一樣：排隊不等於買單，就像詢盤不等於訂單。",
     scenarioQueue: {
       weekday: { seen: "平日傍晚有三位客人在等候。", possible: "此刻確實有人願意停下來等。", unknown: "其他平日與週末也一樣嗎？每個人為什麼排隊？" },
       weekend: { seen: "週末傍晚有三位客人在等候。", possible: "此刻確實有人願意停下來等。", unknown: "平日傍晚也一樣嗎？每個人為什麼排隊？" },
@@ -57,10 +71,10 @@ const copy = {
     need: n => `再看 ${n} 處細節，就能選一個問題。`,
     ready: "線索夠開始提問了；也可以把其他地方看完。",
     imageAlt: "十二月黃昏的街角麵包店，店內透著暖光，幾個人在門口等候，旁邊路燈亮起。",
-    resultBoundary: "這一步仍不足以證明開分店會成功；等待原因、回購與一天中的變化都還需確認。",
+    resultBoundary: "這是虛構情境；排隊不能證明穩定需求或擴店可行。",
     cardCaption: "一段隊伍，是線索，不是結論。", cardFirst: "第一眼想到",
     cardSeen: "看到的線索", cardNext: "下一個問題", cardAction: "先做的小觀察",
-    cardBoundary: "排隊是否代表穩定、足以支撐擴店的需求。",
+    cardBoundary: "這是虛構情境；排隊不能證明穩定需求或擴店可行。",
     clues: {
       window: { name: "櫥窗", seen: "架上還有好幾盤麵包，一位店員正忙著服務。", possible: "排隊也可能與服務速度有關。", unknown: "平均要等多久？忙碌只發生在這一刻嗎？" },
       bags: { name: "紙袋", seen: "櫃檯放著幾個已包好的紙袋。", possible: "有些人也許是來取預訂，而非臨時購買。", unknown: "預訂佔多少？這些人還會再來嗎？" },
@@ -104,6 +118,13 @@ const copy = {
     cardFollowup: "Signal to follow", cardStillUnknown: "Still unproven",
     scenarioLabel: "Change the time", scenarioGroup: "Choose a time to observe",
     scenarios: { weekday: "Weekday evening", weekend: "Weekend evening" },
+    compareTitle: "Put the two moments side by side", compareHint: "One illustration shows two different time settings.",
+    comparePrompt: "Select the queue in both time settings to see the comparison.",
+    compareWeekdayLabel: "Weekday evening", compareWeekendLabel: "Weekend evening",
+    compareSharedLabel: "Seen in both scenarios", compareShared: "Three people are waiting.",
+    compareUnknownLabel: "Still unknown", compareUnknown: "Whether this continues across days, why each person is waiting, and whether they return.",
+    compareNextLabel: "A useful next question", compareNext: "Repeat notes at similar weekday and weekend times, separating waits, pre-order pickups, and walk-in purchases.",
+    compareCardTitle: "Two moments compared", compareCardText: "Both weekday and weekend settings show three people waiting.",
     routeProgress: n => `${n} of 6 follow-up routes explored`,
     businessLabel: "In a business, this could mean…",
     business: {
@@ -111,6 +132,13 @@ const copy = {
       reason: { weekday: "Some people in a weekday-evening line may be collecting pre-orders; the line does not equal walk-in purchases.", weekend: "Some people in a weekend-evening line may be collecting pre-orders; the line does not equal walk-in purchases." },
       capacity: { weekday: "A long weekday-evening wait may come from payment or baking. Finding the slow step alone does not justify another shop.", weekend: "A long weekend-evening wait may come from peak service load. A faster process alone does not justify another shop." },
     },
+    businessChainTitle: "From a signal to a sale: what still needs checking?",
+    businessChainIntro: "A queue is a starting point. Each next step needs another observation.",
+    businessChainQueueTitle: "Notice the wait", businessChainQueue: "People have stopped to wait. We do not yet know why, or whether they will buy.",
+    businessChainReasonTitle: "Find the reason", businessChainReason: "Separate walk-in purchases, pre-order pickups, and other reasons for waiting. The reason alone does not confirm a sale.",
+    businessChainSaleTitle: "Confirm a transaction", businessChainSale: "Observe whether a purchase is completed. One sale still cannot tell us whether someone will return.",
+    businessChainReturnTitle: "Look for return visits and supply", businessChainReturn: "See whether people come back and whether the shop can keep serving them.",
+    businessChainTradeBridge: "The same goes for trade: a queue is not a sale, just as an inquiry is not an order.",
     scenarioQueue: {
       weekday: { seen: "Three people are waiting on a weekday evening.", possible: "Some people are willing to pause here now.", unknown: "Is this true on other weekdays and weekends? Why is each person waiting?" },
       weekend: { seen: "Three people are waiting on a weekend evening.", possible: "Some people are willing to pause here now.", unknown: "Is this true on weekdays too? Why is each person waiting?" },
@@ -131,10 +159,10 @@ const copy = {
     need: n => `Explore ${n} more detail${n === 1 ? "" : "s"} to choose a question.`,
     ready: "You can ask a question now—or inspect the other details first.",
     imageAlt: "A warm bakery window on a December evening, several people waiting outside, and a streetlamp lighting the lane.",
-    resultBoundary: "This still does not prove a second shop would succeed. The reason for waiting, return visits, and variation through the day remain unverified.",
+    resultBoundary: "This is a fictional scenario; a queue cannot establish steady demand or whether expansion would work.",
     cardCaption: "A line is a clue, not a conclusion.", cardFirst: "First thought",
     cardSeen: "Observed clues", cardNext: "Next question", cardAction: "Small observation",
-    cardBoundary: "Whether the queue reflects stable demand for expansion.",
+    cardBoundary: "This is a fictional scenario; a queue cannot establish steady demand or whether expansion would work.",
     clues: {
       window: { name: "The window", seen: "Several trays still hold bread while one baker serves customers.", possible: "The line may partly reflect service speed.", unknown: "How long is the wait? Is it busy only now?" },
       bags: { name: "Paper bags", seen: "Several packed paper bags wait on the counter.", possible: "Some people may be picking up pre-orders rather than shopping on impulse.", unknown: "What share is pre-ordered? Do they return?" },
@@ -251,6 +279,7 @@ const clueOrder = ["window", "bags", "queue", "lamp"];
 const questionOrder = ["rhythm", "reason", "capacity"];
 const questionClue = { rhythm: "lamp", reason: "bags", capacity: "window" };
 const viewed = new Set();
+const viewedByScenario = { weekday: new Set(), weekend: new Set() };
 const exploredRoutes = new Set();
 let activeClue = null;
 let chosenQuestion = null;
@@ -303,6 +332,15 @@ function updateScenarioControls() {
   updateRouteProgress();
 }
 
+function renderScenarioComparison() {
+  const available = viewedByScenario.weekday.has("queue") && viewedByScenario.weekend.has("queue");
+  const section = node("scenario-comparison");
+  section.hidden = !available;
+  if (!available) return;
+  node("comparison-weekday").textContent = copy[lang].scenarioQueue.weekday.seen;
+  node("comparison-weekend").textContent = copy[lang].scenarioQueue.weekend.seen;
+}
+
 function makePart(label, value) {
   const wrapper = document.createElement("div");
   wrapper.className = "clue-part";
@@ -342,6 +380,7 @@ function renderNote() {
   node("discovery-count").textContent = t.count(viewed.size);
   node("decision-hint").textContent = viewed.size < 2 ? t.need(2 - viewed.size) : t.ready;
   updateRouteProgress();
+  renderScenarioComparison();
   renderImpression();
   document.querySelectorAll(".hotspot").forEach(button => {
     const name = t.clues[button.dataset.clue].name;
@@ -495,6 +534,7 @@ function chooseScenario(next) {
   url.searchParams.set("period", scenario);
   history.replaceState(null, "", url);
   updateScenarioControls();
+  renderScenarioComparison();
   renderNote();
   renderQuestions();
 }
@@ -556,6 +596,15 @@ function downloadCard() {
     ctx.fillStyle = "#9e5d37"; ctx.font = "700 22px system-ui, sans-serif"; ctx.fillText(t.cardFirst,72,y+16);
     ctx.fillStyle = "#172934"; ctx.font = "24px system-ui, sans-serif";
     wrapText(ctx,t[`impression${firstImpression[0].toUpperCase()}${firstImpression.slice(1)}`],72,y+53,475,35,3);
+    y += 134;
+  }
+  if (viewedByScenario.weekday.has("queue") && viewedByScenario.weekend.has("queue")) {
+    ctx.fillStyle = "#9e5d37"; ctx.font = "700 22px system-ui, sans-serif"; ctx.fillText(t.compareCardTitle,72,y+12);
+    ctx.fillStyle = "#172934"; ctx.font = "23px system-ui, sans-serif";
+    const compareEnd = wrapText(ctx,t.compareCardText,72,y+52,475,34,5);
+    ctx.fillStyle = "#9e5d37"; ctx.font = "700 20px system-ui, sans-serif"; ctx.fillText(t.compareNextLabel,72,compareEnd+20);
+    ctx.fillStyle = "#172934"; ctx.font = "22px system-ui, sans-serif";
+    wrapText(ctx,t.compareNext,72,compareEnd+55,475,32,4);
   }
   ctx.fillStyle = "#9e5d37";ctx.font = "700 24px system-ui, sans-serif";ctx.fillText(t.cardNext,650,contentTop);
   ctx.fillStyle = "#172934";ctx.font = "700 29px system-ui, sans-serif";
@@ -612,6 +661,8 @@ node("impression-skip").addEventListener("click", () => {
 document.querySelectorAll(".hotspot").forEach(button => button.addEventListener("click", () => {
   activeClue = button.dataset.clue;
   viewed.add(activeClue);
+  viewedByScenario[scenario].add(activeClue);
+  renderScenarioComparison();
   renderNote();
   const heading = node("note-content").querySelector("h3");
   heading.tabIndex = -1;
