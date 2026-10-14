@@ -413,3 +413,36 @@ test("spec card: grouped, hanging indent aligned, readable size, worst case fits
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(22);
   }
 });
+
+test("Sunny: door note on S1 and an optional epilogue with a questions-only slip, zh and en", async ({ page }) => {
+  for (const [lang, name, note, slipTitle, foot] of [
+    ["zh", "小葵", "最裡面那張桌子", "新的約定草稿 · 小葵的燈", "這不是訂單"],
+    ["en", "Sunny", "back table", "New draft agreement · Sunny's lamp", "This isn't an order"],
+  ]) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${URL}?lang=${lang}`);
+    await page.locator("#go0").click();
+    await expect(page.locator("#door-panel")).toBeHidden();
+    await page.locator("#find-door").click();
+    await expect(page.locator("#door-panel")).toContainText(note);
+    await expect(page.locator("#door-panel")).toContainText(name);
+    await page.locator('#door-panel [data-close]').click();
+    await expect(page.locator("#find-door")).toBeFocused();
+    for (const id of ["#skip1", "#spot-shade", "#spot-base", "#go2", "#go3", "#go4"]) await page.locator(id).click();
+    await expect(page.locator("#epilogue")).toBeHidden();
+    await page.locator("#epi-open").click();
+    await expect(page.locator("#epi-title")).toBeFocused();
+    await expect(page.locator('[data-line="epiSunny1"]')).toContainText(name);
+    await expect(page.locator('[data-line="epiChiensi1"]')).toContainText(lang === "zh" ? "千禧" : "Chiensi");
+    const slip = page.locator("#slip");
+    await expect(slip).toContainText(slipTitle);
+    await expect(slip).toContainText(foot);
+    const qs = await page.locator("#slip-qs li").allInnerTexts();
+    expect(qs.length).toBeGreaterThan(2);
+    for (const q of qs) expect(q.trim()).toMatch(/[？?]$/);
+    expect(await page.locator("main").innerText()).not.toMatch(/[0-9]/);
+    await page.locator("#epi-close").click();
+    await expect(page.locator("#epilogue")).toBeHidden();
+    await expect(page.locator("#epi-open")).toBeFocused();
+  }
+});

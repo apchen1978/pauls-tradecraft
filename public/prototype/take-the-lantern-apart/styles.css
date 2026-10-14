@@ -131,3 +131,16 @@ canvas#card { width: 100%; max-width: 420px; height: auto; border-radius: 12px; 
 details.later { margin-top: 10px; }
 details.later summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: #C9B98F; font-weight: 700; }
 .pending.later li strong { font-weight: 600; }
+/* Sunny: door note and epilogue */
+.epilogue { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: rgba(244,238,223,.05); display: grid; gap: 10px; }
+.epilogue h3 { color: var(--gold); }
+.line.sunny { border-left: 4px solid #9CC9A0; }
+.say[data-who="sunny"] .who.small { width: 44px; border-radius: 50%; background: rgba(244,238,223,.1); }
+.slip { background: #F4EEDF; color: #2A2418; border-radius: 6px; padding: 12px 14px; transform: rotate(-.6deg); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.slip h4 { margin: 0 0 4px; font-size: 1.05rem; }
+.slip-label { margin: 0; font-weight: 700; color: #7A5A1E; }
+.slip ul { margin: 6px 0; padding-left: 1.2em; }
+.slip li, .slip p { color: #2A2418; }
+.slip-foot { font-size: max(.875rem, 14px); margin: 0; }
+@media (prefers-reduced-motion: reduce) { .slip { transform: none; } }
+.epilogue[hidden] { display: none; }

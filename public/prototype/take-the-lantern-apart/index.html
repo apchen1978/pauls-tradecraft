@@ -73,7 +73,9 @@
         <div class="say" data-line="s1Yiyi"></div>
       </details>
       <div class="explore"><button type="button" class="find" id="find-leaf" aria-expanded="false" aria-controls="leaf-panel" data-i18n="leafBtn"></button>
-        <div class="find-panel" id="leaf-panel" hidden><p data-i18n="leafText"></p><button type="button" data-close="find-leaf" data-i18n="leafClose"></button></div></div>
+        <div class="find-panel" id="leaf-panel" hidden><p data-i18n="leafText"></p><button type="button" data-close="find-leaf" data-i18n="leafClose"></button></div>
+        <button type="button" class="find" id="find-door" aria-expanded="false" aria-controls="door-panel" data-i18n="doorBtn"></button>
+        <div class="find-panel" id="door-panel" hidden><p class="pencil" data-i18n="doorText"></p><button type="button" data-close="find-door" data-i18n="doorClose"></button></div></div>
       <div class="actions">
         <button type="button" class="primary" id="go1" data-i18n="s1go"></button>
         <button type="button" class="skip" id="skip1" data-i18n="s1skip"></button>
@@ -144,6 +146,21 @@
         <button type="button" id="again" data-i18n="again"></button>
         <a href="/" id="home" data-i18n="home"></a>
       </div>
+      <button type="button" class="find" id="epi-open" aria-expanded="false" aria-controls="epilogue" data-i18n="epiBtn"></button>
+      <section class="epilogue" id="epilogue" hidden aria-labelledby="epi-title">
+        <h3 id="epi-title" tabindex="-1" data-i18n="epiTitle"></h3>
+        <p class="narr" data-i18n="epiNarr"></p>
+        <div class="say" data-line="epiSunny1"></div>
+        <div class="say" data-line="epiChiensi1"></div>
+        <div class="say" data-line="epiSunny2"></div>
+        <div class="say" data-line="epiChiensi2"></div>
+        <div class="say" data-line="epiYiyi"></div>
+        <div class="say" data-line="epiDiana"></div>
+        <p class="narr" data-i18n="epiMg"></p>
+        <p class="narr" data-i18n="epiClose"></p>
+        <div class="slip" id="slip"><h4 data-i18n="slipTitle"></h4><p class="slip-label" data-i18n="slipLabel"></p><ul id="slip-qs"></ul><p class="slip-foot" data-i18n="slipFoot"></p></div>
+        <button type="button" id="epi-close" data-i18n="epiHide"></button>
+      </section>
       <aside class="next-stop" aria-labelledby="next-title">
         <span data-i18n="nextLabel"></span>
         <p id="next-title" data-i18n="nextBody"></p>
