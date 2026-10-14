@@ -75,3 +75,35 @@ canvas#card { width: 100%; max-width: 420px; height: auto; border-radius: 12px; 
 .journey, .disclosure { font-size: 13px; color: var(--soft); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 .tagline { font-size: 1.1rem; color: var(--gold); }
+/* Story layer */
+.screen p, .line { font-size: max(1.0625rem, 17px); }
+.s0-scene { display: flex; gap: .8rem; align-items: center; }
+.s0-scene .who.small { width: 84px; height: auto; flex: none; }
+.note-card { background: #F4EEDF; color: #2A2418; padding: .8rem 1rem; border-radius: 6px; transform: rotate(-1deg); box-shadow: 0 6px 18px rgba(0,0,0,.35); max-width: 30rem; line-height: 1.6; }
+.narr { color: #CBD3E2; font-style: italic; }
+.speaker { color: var(--gold); margin-right: .35em; font-weight: 700; }
+.say { display: flex; gap: .6rem; align-items: flex-start; }
+.say .who.small { width: 56px; height: auto; flex: none; }
+.talk summary { cursor: pointer; color: var(--gold); min-height: 44px; display: flex; align-items: center; }
+.talk .say { margin-top: .5rem; }
+.part-q { font-weight: 400; font-size: .9em; color: #CBD3E2; }
+.react { margin-top: .5rem; }
+.react .line, .mg-box { font-size: max(.9375rem, 15px); margin: 0; }
+.mg-box { color: #B9C2D3; font-style: italic; margin-top: .3rem; }
+.explore { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0; }
+.find { border: 1px dashed var(--gold); background: transparent; color: var(--gold); border-radius: 999px; padding: .5rem .9rem; min-height: 44px; }
+.find-panel { flex-basis: 100%; background: rgba(244,238,223,.08); border-left: 3px solid var(--gold); padding: .7rem .9rem; border-radius: 4px; }
+.find-panel p { margin: 0 0 .5rem; }
+.pencil { font-family: "Kaiti TC", "BiauKai", cursive, serif; }
+.mg-mini { width: 72px; height: auto; float: right; margin-left: .5rem; }
+.skip { background: transparent; border: none; text-decoration: underline; color: #CBD3E2; min-height: 44px; }
+#detail-hint { font-size: max(.875rem, 14px); color: #F4EEDF; padding: .4rem 0; }
+@media (prefers-reduced-motion: reduce) { .note-card { transform: none; } }
+.line.yiyi { border-left: 4px solid #7FA7C9; } .line.chiensi { border-left: 4px solid #E0874A; } .line.narr { border-left: none; }
+.cast-row > * { min-width: 0; } .cast-row .who { width: 26%; } .cast-row .photo { width: 40%; }
+/* Cover: Diana leads, Yiyi beside her, both turned to the same lamp (positioned inside .lamp-wrap) */
+.cover-cast { position: absolute; bottom: -6%; height: auto; pointer-events: none; z-index: 2; }
+.cover-cast.diana { right: -40%; width: 48%; }
+.cover-cast.yiyi { left: -33%; width: 39%; }
+.opening { color: var(--gold); }
+@media (max-width: 699px) { .cover-cast.diana { right: -14%; width: 40%; } .cover-cast.yiyi { left: -13%; width: 32%; } }

@@ -34,7 +34,9 @@ async function playThrough(page, lang) {
   await expect(page.locator("#effects")).toContainText(zh ? "貴一點" : "costs a bit more");
   await expect(page.locator("#effects")).toContainText(zh ? "便宜一點" : "costs a bit less");
   await expect(page.locator(".effects")).toContainText(zh ? "示意" : "Illustrative");
-  await expect(page.locator("#kid-react")).toBeVisible();
+  await expect(page.locator('.react[data-part="shade"]')).toContainText(zh ? "千禧" : "Chiensi");
+  await expect(page.locator('.react[data-part="pack"]')).toContainText(zh ? "依依姐" : "Yiyi");
+  await expect(page.locator(".mg-box")).toBeVisible();
   await noOverflow(page);
   await page.locator("#go3").click();
   const pending = page.locator("#pending-list");
@@ -105,7 +107,7 @@ test("language switch keeps the screen and updates the link", async ({ page }) =
   await page.getByRole("button", { name: "EN" }).click();
   await expect(page).toHaveURL(/lang=en/);
   await expect(page.locator("#s1")).toBeVisible();
-  await expect(page.locator("#go1")).toHaveText("Take a closer look");
+  await expect(page.locator("#go1")).toHaveText("Put the photo on the bench");
 });
 
 test("all nine shade and base combos load real art and keep the tint", async ({ page }) => {
@@ -165,7 +167,7 @@ test("batch 3 art: characters, close-ups, card frame and og meta load", async ({
   await expect(page.locator("#detail-img")).toHaveAttribute("src", "assets/mg-paw.webp");
   await page.locator("#spot-shade").click();
   for (const id of ["#go2", "#go3"]) await page.locator(id).click();
-  await expect.poll(() => loaded("#s4 img.who")).toBe(true);
+  await expect.poll(() => loaded("#s4 [data-line=\"s4Diana\"] img.who")).toBe(true);
   await page.locator("#go4").click();
   await expect(page.locator("#card")).toHaveAttribute("data-ready", "1");
 });
@@ -183,4 +185,116 @@ test("new title, tagline and share meta in zh and en", async ({ page }) => {
   await expect(page.locator(".tagline")).toHaveText("Take a lamp apart, and say clearly what you want.");
   expect(await page.content()).not.toContain("Take the Lantern Apart");
   expect(await page.content()).not.toContain("拆一盞燈");
+});
+
+test("story: skip path, both helpers, fixed reactions, picks survive a language switch", async ({ page }) => {
+  await page.goto(`${URL}?lang=zh`);
+  await page.locator("#go0").click();
+  await expect(page.locator('#s1 [data-line="s1Diana"]')).toContainText("戴安娜");
+  await expect(page.locator('#s1 [data-line="s1Yiyi"]')).toBeHidden();
+  await page.locator("#s1 .talk summary").click();
+  await expect(page.locator('#s1 [data-line="s1Yiyi"]')).toContainText("依依姐");
+  await page.locator("#skip1").click();
+  await expect(page.locator("#s2")).toBeVisible();
+  await page.locator("#spot-base").click();
+  await expect(page.locator("#note")).toContainText("依依姐");
+  await expect(page.locator("#detail-hint")).toContainText("插頭、電壓和安全要求");
+  await page.locator("#spot-shade").click();
+  await expect(page.locator("#note")).toContainText("戴安娜");
+  await page.locator("#go2").click();
+  await expect(page.locator('.react[data-part="size"]')).toContainText("依依姐");
+  await page.locator('[data-part="base"][data-option="ceramic"]').click();
+  const first = await page.locator('.react[data-part="base"]').innerText();
+  await page.locator('[data-part="base"][data-option="wood"]').click();
+  await page.locator('[data-part="base"][data-option="ceramic"]').click();
+  expect(await page.locator('.react[data-part="base"]').innerText()).toBe(first);
+  await expect(page.locator('[data-part="base"][data-option="ceramic"]')).toBeFocused();
+  await page.getByRole("button", { name: "EN" }).click();
+  await expect(page.locator('[data-part="base"][data-option="ceramic"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('.react[data-part="base"]')).toContainText("Diana");
+  await page.locator("#go3").click();
+  await expect(page.locator('#s4 [data-line="s4Diana"]')).toContainText("Diana");
+  await expect(page.locator('#s4 [data-line="s4Yiyi"]')).toContainText("Yiyi");
+  await expect(page.locator('#pending-list [data-item="moq"]')).toContainText("still need confirming");
+  await page.locator("#go4").click();
+  await expect(page.locator('#s5 [data-line="s5Chiensi"]')).toContainText("Chiensi");
+  await expect(page.locator("#again")).toHaveText("Try a different set of choices");
+});
+
+test("story: three explorations open, close and return focus without blocking", async ({ page }) => {
+  await page.goto(`${URL}?lang=en`);
+  await page.locator("#go0").click();
+  for (const [btn, panel, text] of [["#find-leaf", "#leaf-panel", "keep your place"]]) {
+    await page.locator(btn).click();
+    await expect(page.locator(panel)).toContainText(text);
+    await page.locator(`${panel} [data-close]`).click();
+    await expect(page.locator(panel)).toBeHidden();
+    await expect(page.locator(btn)).toBeFocused();
+  }
+  for (const id of ["#go1", "#spot-shade", "#spot-base", "#go2"]) await page.locator(id).click();
+  const size = await page.locator('[data-part="size"][aria-pressed="true"]').getAttribute("data-option");
+  for (const [btn, panel, text] of [["#find-note", "#note-panel", "open book"], ["#find-mg", "#mg-panel", "tail outside"]]) {
+    await page.locator(btn).click();
+    await expect(page.locator(panel)).toContainText(text);
+    await page.locator(`${panel} [data-close]`).click();
+    await expect(page.locator(btn)).toBeFocused();
+  }
+  await expect(page.locator('[data-part="size"][aria-pressed="true"]')).toHaveAttribute("data-option", size);
+  await expect(page.locator("#effects")).toContainText("Nothing changed yet.");
+});
+
+test("story: spec card keeps title, subtitle, client and pending list in both languages", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__cardText = [];
+    const fill = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function (s, ...a) { window.__cardText.push(String(s)); return fill.call(this, s, ...a); };
+  });
+  for (const [lang, want] of [["zh", ["規格卡 · 一盞燈的約定", "我們想做的那盞燈", "委託人：千禧", "數量與最低製作量"]], ["en", ["Spec Card · A Lamp, As Promised", "The lamp we'd like to make", "Chiensi", "Quantity and minimum run"]]]) {
+    await page.goto(`${URL}?lang=${lang}`);
+    for (const id of ["#go0", "#skip1", "#spot-shade", "#spot-base", "#go2", "#go3", "#go4"]) await page.locator(id).click();
+    await expect(page.locator("#card")).toHaveAttribute("data-ready", "1");
+    const text = (await page.evaluate(() => window.__cardText)).join("\n");
+    for (const w of want) expect(text).toContain(w);
+    expect(text).not.toContain("依依姐");
+    expect(text).not.toMatch(/\d/);
+  }
+});
+
+test("story: Yiyi portraits load and never reuse Diana's files", async ({ page }) => {
+  await page.goto(`${URL}?lang=zh`);
+  await page.locator("#go0").click();
+  const yiyi = page.locator('#s1 .cast-row img[src="assets/yiyi-work.webp"]');
+  await expect(yiyi).toBeVisible();
+  expect(await yiyi.evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+  await page.locator("#go1").click();
+  await page.locator("#spot-base").click();
+  await expect(page.locator('#note img[src="assets/yiyi-ask.webp"]')).toBeVisible();
+  await page.locator("#spot-shade").click();
+  await expect(page.locator('#note img[src="assets/diana-ask.webp"]')).toBeVisible();
+});
+
+test("cover: tagline only, Diana leads with Yiyi, winter line opens screen 1, og composed", async ({ page }) => {
+  for (const [lang, tag, sub] of [["zh", "拆開一盞燈，把你想要的說清楚。", "冬夜裡"], ["en", "Take a lamp apart, and say clearly what you want.", "On a winter evening"]]) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${URL}?lang=${lang}`);
+    await expect(page.locator("#s0 .tagline")).toHaveText(tag);
+    await expect(page.locator("#s0")).not.toContainText(sub);
+    for (const id of ["#cover-diana", "#cover-yiyi"]) {
+      await expect(page.locator(id)).toBeVisible();
+      expect(await page.locator(id).evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+    }
+    await expect(page.locator("#cover-yiyi")).toHaveAttribute("src", "assets/yiyi-look-lamp.webp");
+    expect(await page.locator("#cover-yiyi").evaluate((i) => getComputedStyle(i).transform)).toBe("none");
+    const [d, y] = await Promise.all(["#cover-diana", "#cover-yiyi"].map((id) => page.locator(id).boundingBox()));
+    expect(d.width).toBeGreaterThan(y.width);
+    const btn = await page.locator("#go0").boundingBox();
+    expect(btn.y).toBeGreaterThan(d.y + d.height - 1);
+    await page.locator("#go0").click();
+    await expect(page.locator("#s1 .opening")).toContainText(sub);
+    await expect(page.locator("#cover-diana")).toBeHidden();
+    await expect(page.locator("#cover-yiyi")).toBeHidden();
+  }
+  const og = await page.request.get(`${URL}assets/og-lantern.webp`);
+  expect(og.ok()).toBe(true);
+  expect((await og.body()).length).toBeLessThanOrEqual(60 * 1024);
 });

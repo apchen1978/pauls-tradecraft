@@ -42,6 +42,8 @@
           </div>
         </div>
         <div class="angle-dots" id="angle-dots" aria-hidden="true"><span data-angle="l"></span><span data-angle="f" class="on"></span><span data-angle="r"></span></div>
+        <img class="cover-cast yiyi" id="cover-yiyi" src="assets/yiyi-look-lamp.webp" alt="" width="480" height="720" decoding="async" data-alt="altYiyiCover">
+        <img class="cover-cast diana" id="cover-diana" src="assets/diana-ask.webp" alt="" width="480" height="720" decoding="async" data-alt="altDianaCover">
         <img class="mug" id="mug" src="assets/lamp-scale-ref.webp" alt="" width="800" height="800" aria-hidden="true">
         <img class="pack" id="pack" src="assets/pack-kraft.webp" alt="" width="600" height="600" aria-hidden="true">
       </div>
@@ -50,19 +52,32 @@
     <section class="screen" id="s0" data-screen="0" aria-labelledby="s0-title">
       <h1 id="s0-title" data-i18n="title">一盞燈的約定</h1>
       <p class="tagline" data-i18n="tagline">拆開一盞燈，把你想要的說清楚。</p>
-      <p data-i18n="sub"></p>
-      <button type="button" class="primary" id="go0" data-i18n="start">點亮它</button>
+      <div class="s0-scene">
+        <p class="note-card" data-i18n="noteCard"></p>
+      </div>
+      <button type="button" class="primary" id="go0" data-i18n="start"></button>
     </section>
 
     <section class="screen" id="s1" data-screen="1" hidden aria-labelledby="s1-title">
-      <h2 id="s1-title" class="visually-hidden" data-i18n="title"></h2>
+      <h2 id="s1-title" data-i18n="s1title"></h2>
+      <p class="opening" data-i18n="sub"></p>
       <div class="cast-row">
         <img class="who" src="assets/kid-chiensi.webp" alt="" width="480" height="720" loading="lazy" decoding="async" data-alt="altKid">
         <img class="photo" src="assets/kid-photo-ref.webp" alt="" width="600" height="450" loading="lazy" decoding="async" data-alt="altPhoto">
+        <img class="who" src="assets/yiyi-work.webp" alt="" width="480" height="720" loading="lazy" decoding="async" data-alt="altYiyi">
       </div>
-      <p class="line kid" data-i18n="s1kid"></p>
-      <div class="say"><img class="who small" src="assets/diana-work.webp" alt="" width="480" height="720" loading="lazy" decoding="async" data-alt="altDiana"><p class="line diana" data-i18n="s1diana"></p></div>
-      <button type="button" class="primary" id="go1" data-i18n="s1go"></button>
+      <p class="narr" data-i18n="s1narr"></p>
+      <div class="say" data-line="s1Diana"></div>
+      <details class="talk"><summary data-i18n="talkMore"></summary>
+        <div class="say" data-line="s1Chiensi"></div>
+        <div class="say" data-line="s1Yiyi"></div>
+      </details>
+      <div class="explore"><button type="button" class="find" id="find-leaf" aria-expanded="false" aria-controls="leaf-panel" data-i18n="leafBtn"></button>
+        <div class="find-panel" id="leaf-panel" hidden><p data-i18n="leafText"></p><button type="button" data-close="find-leaf" data-i18n="leafClose"></button></div></div>
+      <div class="actions">
+        <button type="button" class="primary" id="go1" data-i18n="s1go"></button>
+        <button type="button" class="skip" id="skip1" data-i18n="s1skip"></button>
+      </div>
     </section>
 
     <section class="screen" id="s2" data-screen="2" hidden aria-labelledby="s2-title">
@@ -79,35 +94,48 @@
         <button type="button" id="spot-mg" class="mg">MG</button>
       </div>
       <div class="note" id="note" aria-live="polite"></div>
-      <figure class="detail" id="detail" hidden><img id="detail-img" src="" alt="" width="600" height="600" decoding="async"><div class="star-dots over" id="detail-stars" aria-hidden="true" hidden></div></figure>
+      <figure class="detail" id="detail" hidden><img id="detail-img" src="" alt="" width="600" height="600" decoding="async"><div class="star-dots over" id="detail-stars" aria-hidden="true" hidden></div><figcaption id="detail-hint" hidden data-i18n="baseHint"></figcaption></figure>
       <button type="button" class="primary" id="go2" disabled data-i18n="s2go"></button>
     </section>
 
     <section class="screen" id="s3" data-screen="3" hidden aria-labelledby="s3-title">
       <h2 id="s3-title" data-i18n="s3title"></h2>
+      <p class="narr" data-i18n="s3intro"></p>
       <div id="parts"></div>
       <aside class="effects" aria-labelledby="effects-title">
         <h3 id="effects-title" data-i18n="effectTitle"></h3>
         <ul id="effects"></ul>
         <p class="foot" data-i18n="effectFoot"></p>
       </aside>
-      <p class="line kid" id="kid-react" hidden data-i18n="kidReact"></p>
+      <div class="explore">
+        <button type="button" class="find" id="find-note" aria-expanded="false" aria-controls="note-panel" data-i18n="noteBtn"></button>
+        <button type="button" class="find" id="find-mg" aria-expanded="false" aria-controls="mg-panel" data-i18n="mgBtn"></button>
+        <div class="find-panel" id="note-panel" hidden><p class="pencil" data-i18n="noteText"></p><p data-i18n="noteMore"></p><button type="button" data-close="find-note" data-i18n="noteClose"></button></div>
+        <div class="find-panel" id="mg-panel" hidden><img src="assets/mg-sit.webp" alt="" width="400" height="400" loading="lazy" decoding="async" class="mg-mini"><p data-i18n="mgText"></p><button type="button" data-close="find-mg" data-i18n="mgClose"></button></div>
+      </div>
       <button type="button" class="primary" id="go3" data-i18n="s3go"></button>
     </section>
 
     <section class="screen" id="s4" data-screen="4" hidden aria-labelledby="s4-title">
       <h2 id="s4-title" data-i18n="s4title"></h2>
-      <div class="say"><img class="who small" src="assets/diana-ask.webp" alt="" width="480" height="720" loading="lazy" decoding="async" data-alt="altDianaAsk"><p class="line diana" data-i18n="s4ask"></p></div>
+      <p class="narr" data-i18n="s4narr"></p>
+      <div class="say" data-line="s4Diana"></div>
+      <div class="say" data-line="s4Yiyi"></div>
       <div class="lists">
         <div><h3 data-i18n="agreed"></h3><ul id="agreed-list" class="agreed"></ul></div>
         <div><h3 data-i18n="pending"></h3><ul id="pending-list" class="pending"></ul></div>
       </div>
-      <p class="line diana" data-i18n="s4close"></p>
       <button type="button" class="primary" id="go4" data-i18n="s4go"></button>
     </section>
 
     <section class="screen" id="s5" data-screen="5" hidden aria-labelledby="s5-title">
       <h2 id="s5-title" data-i18n="s5title"></h2>
+      <p class="narr" data-i18n="s5narr"></p>
+      <div class="say" data-line="s5Chiensi"></div>
+      <details class="talk"><summary data-i18n="talkMore"></summary>
+        <div class="say" data-line="s5Yiyi"></div>
+        <div class="say" data-line="s5Diana"></div>
+      </details>
       <canvas id="card" width="1080" height="1350" role="img" aria-label=""></canvas>
       <div class="actions">
         <button type="button" class="primary" id="download" data-i18n="download"></button>

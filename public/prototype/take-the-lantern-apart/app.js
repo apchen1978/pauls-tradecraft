@@ -1,3 +1,4 @@
+import { STORY, LINES, PROMPTS, REACT, PART_QUESTION, NAMES, PORTRAIT } from "./story.js";
 import { PARTS, OPTIONS, DEFAULTS, PART_LABEL, EFFECT, PENDING_TEXT, UI, optionOf, specStatus } from "./data.js";
 
 const $ = (id) => document.getElementById(id);
@@ -9,10 +10,11 @@ const state = {
   zoom: false,
   seen: new Set(),
   picks: { ...DEFAULTS },
+  touched: new Set(),
   changed: [],
 };
 const ANGLES = ["l", "f", "r"];
-const t = (key) => UI[state.lang][key];
+const t = (key) => STORY[state.lang][key] ?? UI[state.lang][key];
 
 function applyText() {
   document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : "en";
@@ -24,6 +26,7 @@ function applyText() {
   for (const b of document.querySelectorAll("[data-lang]")) b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang));
   $("next-link").href = `/prototype/trade-street/?lang=${state.lang}`;
   $("home").href = `/?lang=${state.lang}`;
+  renderLines();
   renderNote();
   renderParts();
   renderEffects();
@@ -35,6 +38,7 @@ function show(n) {
   state.screen = n;
   for (const s of document.querySelectorAll(".screen")) s.hidden = Number(s.dataset.screen) !== n;
   $("stage").dataset.screen = String(n);
+  for (const id of ["cover-diana", "cover-yiyi"]) $(id).hidden = n !== 0;
   $("lamp").classList.toggle("lit", n >= 1);
   $("lamp").classList.toggle("apart", n === 3);
   if (n === 4) renderLists();
@@ -85,9 +89,41 @@ function renderNote() {
   const note = $("note");
   const last = state.lastSpot;
   if (!last) { note.textContent = ""; return; }
-  if (last === "shade") note.textContent = t("shadeNote");
-  else if (last === "base") note.textContent = t("baseNote");
-  else note.textContent = t("mg");
+  note.textContent = "";
+  if (last === "mg") { note.textContent = t("mg"); return; }
+  note.append(sayEl(LINES[last === "shade" ? "s2Shade" : "s2Base"]));
+}
+
+function sayEl(line) {
+  const box = document.createElement("div");
+  box.className = "say";
+  fillSay(box, line);
+  return box;
+}
+
+function fillSay(box, line) {
+  box.textContent = "";
+  box.dataset.who = line.who || "narr";
+  if (line.who) {
+    const img = document.createElement("img");
+    img.className = "who small";
+    img.src = PORTRAIT[line.pic || line.who];
+    img.width = 480; img.height = 720; img.alt = ""; img.decoding = "async"; img.loading = "lazy";
+    box.append(img);
+  }
+  const p = document.createElement("p");
+  p.className = `line ${line.who || "narr"}`;
+  if (line.who) {
+    const b = document.createElement("b");
+    b.className = "speaker";
+    b.textContent = NAMES[line.who][state.lang];
+    p.append(b, state.lang === "zh" ? `「${line[state.lang]}」` : ` “${line[state.lang]}”`);
+  } else p.textContent = line[state.lang];
+  box.append(p);
+}
+
+function renderLines() {
+  for (const el of document.querySelectorAll("[data-line]")) fillSay(el, LINES[el.dataset.line]);
 }
 
 function showDetail(which) {
@@ -98,6 +134,7 @@ function showDetail(which) {
   $("detail-img").src = src;
   $("detail-img").alt = t(which === "shade" ? "altShadeInside" : which === "base" ? "altBaseBottom" : "altMg");
   $("detail-stars").hidden = which !== "shade";
+  $("detail-hint").hidden = which !== "base";
 }
 
 function spot(which) {
@@ -119,6 +156,10 @@ function renderParts() {
     fs.className = "part";
     const lg = document.createElement("legend");
     lg.textContent = PART_LABEL[part][state.lang];
+    const q = document.createElement("span");
+    q.className = "part-q";
+    q.textContent = `${state.lang === "zh" ? "：" : ": "}${PART_QUESTION[part][state.lang]}`;
+    lg.append(q);
     const opts = document.createElement("div");
     opts.className = "opts";
     for (const o of OPTIONS[part]) {
@@ -132,6 +173,20 @@ function renderParts() {
       opts.append(b);
     }
     fs.append(lg, opts);
+    const line = state.touched.has(part) ? REACT[part][state.picks[part]] : PROMPTS[part];
+    if (line) {
+      const r = sayEl(line);
+      r.classList.add("react");
+      r.dataset.part = part;
+      r.setAttribute("aria-live", "polite");
+      fs.append(r);
+    }
+    if (part === "pack" && state.touched.has("pack")) {
+      const m = document.createElement("p");
+      m.className = "mg-box";
+      m.textContent = t("mgBox");
+      fs.append(m);
+    }
     box.append(fs);
   }
 }
@@ -140,7 +195,7 @@ function pick(part, id) {
   state.picks[part] = id;
   state.changed = state.changed.filter((p) => p !== part);
   if (id !== DEFAULTS[part]) state.changed.push(part);
-  $("kid-react").hidden = state.picks.shade !== "glass";
+  state.touched.add(part);
   paintLamp();
   renderParts();
   renderEffects();
@@ -278,16 +333,18 @@ function drawCard() {
   ctx.font = `800 52px system-ui, "Noto Sans TC", sans-serif`;
   ctx.fillText(t("cardTitle"), 70, 120, 940);
   ctx.fillStyle = "#F4EEDF";
-  ctx.font = `500 30px system-ui, "Noto Sans TC", sans-serif`;
-  ctx.fillText(t("client"), 70, 175, 940);
+  ctx.font = `600 30px system-ui, "Noto Sans TC", sans-serif`;
+  ctx.fillText(t("cardSub"), 70, 168, 940);
+  ctx.font = `500 28px system-ui, "Noto Sans TC", sans-serif`;
+  ctx.fillText(t("client"), 70, 210, 940);
   if (lampImages) drawLampLayers(ctx);
   let scale = 1;
   let lay = layoutCard(ctx, scale);
-  while (lay.height > 1000 && scale > 0.6) { scale -= 0.05; lay = layoutCard(ctx, scale); }
+  while (lay.height > 980 && scale > 0.6) { scale -= 0.05; lay = layoutCard(ctx, scale); }
   for (const r of lay.rows) {
     ctx.font = `${r.weight} ${Math.round(r.size)}px system-ui, "Noto Sans TC", sans-serif`;
     ctx.fillStyle = r.color;
-    ctx.fillText(r.l, 420, 220 + r.y);
+    ctx.fillText(r.l, 420, 240 + r.y);
   }
   ctx.fillStyle = "#B9C2D3";
   ctx.font = `500 24px system-ui, "Noto Sans TC", sans-serif`;
@@ -326,6 +383,16 @@ $("stage").addEventListener("pointerup", (e) => {
 
 $("go0").addEventListener("click", () => show(1));
 $("go1").addEventListener("click", () => show(2));
+$("skip1").addEventListener("click", () => show(2));
+function toggleFind(id, open) {
+  const btn = $(id);
+  const panel = $(btn.getAttribute("aria-controls"));
+  panel.hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
+  if (open) panel.querySelector("button").focus(); else btn.focus();
+}
+for (const id of ["find-leaf", "find-note", "find-mg"]) $(id).addEventListener("click", () => toggleFind(id, $(id).getAttribute("aria-expanded") !== "true"));
+for (const b of document.querySelectorAll("[data-close]")) b.addEventListener("click", () => toggleFind(b.dataset.close, false));
 $("turn-l").addEventListener("click", () => turn(-1));
 $("turn-r").addEventListener("click", () => turn(1));
 $("zoom").addEventListener("click", () => { state.zoom = !state.zoom; $("zoom").setAttribute("aria-pressed", String(state.zoom)); $("zoom").textContent = state.zoom ? t("zoomOut") : t("zoom"); paintLamp(); });
@@ -336,7 +403,7 @@ $("go2").addEventListener("click", () => show(3));
 $("go3").addEventListener("click", () => show(4));
 $("go4").addEventListener("click", () => show(5));
 $("download").addEventListener("click", download);
-$("again").addEventListener("click", () => { state.picks = { ...DEFAULTS }; state.changed = []; paintLamp(); renderParts(); renderEffects(); show(3); });
+$("again").addEventListener("click", () => { state.picks = { ...DEFAULTS }; state.changed = []; state.touched = new Set(); paintLamp(); renderParts(); renderEffects(); show(3); });
 for (const b of document.querySelectorAll("[data-lang]")) b.addEventListener("click", () => setLang(b.dataset.lang));
 
 paintLamp();

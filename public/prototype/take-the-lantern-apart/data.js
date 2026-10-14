@@ -39,7 +39,7 @@ export const ALWAYS_PENDING = ["plug", "cert", "moq", "accept", "use"];
 export const PENDING_TEXT = {
   plug: { zh: ["插頭與電壓", "要看燈賣到哪裡，問清楚當地規格。"], en: ["Plug and voltage", "It depends where the lamp is sold. Ask for the local spec."] },
   cert: { zh: ["安全或市場認證", "選什麼材質都不會自動過關，要問清楚市場需要哪些。"], en: ["Safety or market certification", "No material choice settles this. Ask what the market requires."] },
-  moq: { zh: ["最低訂購量", "一次至少要做多少個？"], en: ["Minimum order", "What is the smallest batch the maker will run?"] },
+  moq: { zh: ["數量與最低製作量", "實際需要多少、是否有最低製作量，還要確認。"], en: ["Quantity and minimum run", "The quantity needed and any minimum production quantity still need confirming."] },
   accept: { zh: ["驗收標準", "色差、刮痕到什麼程度算可以？用樣品還是照片比對？"], en: ["Acceptance criteria", "How much colour shift or scratching is fine? Compare with a sample or a photo?"] },
   use: { zh: ["給誰用、用在哪", "小孩房？店裡？戶外？"], en: ["Who uses it, and where", "A child's room? A shop? Outdoors?"] },
   heat: { zh: ["燈罩耐熱", "和紙靠近燈泡，要不要測耐熱？"], en: ["Shade heat check", "Paper sits near the bulb. Should heat be tested?"] },
@@ -159,7 +159,7 @@ export const UI = {
     nextLink: "Explore Trade Street ↗",
     journey: "Journey: Secrets on the Corner → A Lamp, As Promised → Trade Street → December Lights",
     disclosure: "A toy, not a quoting tool. No real prices, lead times or certification calls.",
-    cardTitle: "Spec card · A Lamp, As Promised",
+    cardTitle: "Spec Card · A Lamp, As Promised",
     fileName: "a-lamp-as-promised-spec-card.png",
     altKid: "Chiensi holding a camera", altPhoto: "Chiensi's slightly blurry instant photo of a lamp", altDiana: "Diana smiling with a screwdriver", altDianaAsk: "Diana holding up the lamp with a question",
     altShadeInside: "Inside the shade, with faint star dots", altBaseBottom: "Under the base, a blank label", altMg: "MG nudging the parts with a paw",
