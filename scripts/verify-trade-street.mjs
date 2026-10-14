@@ -226,6 +226,21 @@ test("most likely to miss: every route gets one stop with a newcomer tip; spent 
   assert.equal(shareSearch("peak", "ABCABC", "zh"), "?s=peak&c=ABCABC");
 });
 
+test("the result page is not a dead end: it points to the lamp and the street corner, with copy in both languages and no numbers", () => {
+  for (const lang of ["zh", "en"]) {
+    for (const key of ["loopTitle", "loopLead", "loopLamp", "loopCorner"]) {
+      assert.ok(UI[lang][key], `${lang} ${key}`);
+      assert.equal(/[0-9０-９]/.test(UI[lang][key]), false, `${lang} ${key} has no digits`);
+    }
+  }
+  const app = read("../prototype/trade-street/app.js");
+  assert.match(app, /\/prototype\/take-the-lantern-apart\/\?lang=\$\{state\.lang\}/);
+  assert.match(app, /\/prototype\/secrets-on-the-corner\/\?lang=\$\{state\.lang\}/);
+  for (const dir of ["take-the-lantern-apart", "secrets-on-the-corner"]) {
+    assert.ok(existsSync(new URL(`../public/prototype/${dir}/index.html`, import.meta.url)), `${dir} exists`);
+  }
+});
+
 test("addresses: valid ones round-trip, bad ones are ignored", () => {
   assert.deepEqual(readRoute("?s=peak&c=ABCABC"), { lang: "zh", scenario: "peak", result: { scenario: "peak", code: "ABCABC" } });
   assert.equal(readRoute("?s=peak&c=ABCABC&lang=en").lang, "en");
