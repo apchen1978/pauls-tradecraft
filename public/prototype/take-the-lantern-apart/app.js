@@ -16,7 +16,7 @@ const t = (key) => UI[state.lang][key];
 
 function applyText() {
   document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : "en";
-  document.title = state.lang === "zh" ? "拆一盞燈 · Take the Lantern Apart" : "Take the Lantern Apart · 拆一盞燈";
+  document.title = state.lang === "zh" ? "一盞燈的約定 · A Lamp, As Promised" : "A Lamp, As Promised · 一盞燈的約定";
   for (const el of document.querySelectorAll("[data-i18n]")) el.textContent = t(el.dataset.i18n);
   for (const el of document.querySelectorAll("[data-alt]")) el.alt = t(el.dataset.alt);
   if (state.lastSpot) showDetail(state.lastSpot);

@@ -74,3 +74,4 @@ canvas#card { width: 100%; max-width: 420px; height: auto; border-radius: 12px; 
 .next-stop { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: #182844; display: grid; gap: 8px; } .next-stop span { color: var(--gold); font-weight: 800; font-size: 14px; } .next-stop a { justify-self: start; background: var(--gold); color: var(--deep); font-weight: 700; }
 .journey, .disclosure { font-size: 13px; color: var(--soft); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.tagline { font-size: 1.1rem; color: var(--gold); }

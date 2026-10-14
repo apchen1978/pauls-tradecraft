@@ -1,4 +1,4 @@
-// Take the Lantern Apart: content and rules. No numbers, no prices, no days.
+// A Lamp, As Promised (path: take-the-lantern-apart): content and rules. No numbers, no prices, no days.
 // Relative effects use: up (貴一點/慢一點), down (便宜一點/快一點), same (差不多).
 
 export const PARTS = ["shade", "colour", "base", "size", "pack"];
@@ -86,7 +86,8 @@ export function specStatus(picks) {
 export const UI = {
   zh: {
     label: "示意玩具，不是報價工具。",
-    title: "拆一盞燈",
+    title: "一盞燈的約定",
+    tagline: "拆開一盞燈，把你想要的說清楚。",
     sub: "照夜鎮的夜裡，戴安娜的工作台上有一盞燈。",
     start: "點亮它",
     s1kid: "「我想要一盞跟這張一樣的燈！」",
@@ -116,16 +117,17 @@ export const UI = {
     nextLabel: "下一站 · 貿易街",
     nextBody: "規格講好了，接著看這盞燈怎麼上船。",
     nextLink: "走進貿易街 ↗",
-    journey: "旅程：街角的秘密 → 拆一盞燈 → 貿易街 → 十二月的燈",
+    journey: "旅程：街角的秘密 → 一盞燈的約定 → 貿易街 → 十二月的燈",
     disclosure: "示意玩具，不是報價工具；不含真實價格、交期或認證判斷。",
-    cardTitle: "規格卡 · 拆一盞燈",
-    fileName: "拆一盞燈-規格卡.png",
+    cardTitle: "規格卡 · 一盞燈的約定",
+    fileName: "一盞燈的約定-規格卡.png",
     altKid: "千禧舉著相機", altPhoto: "千禧拍的燈，有點模糊的拍立得照片", altDiana: "戴安娜拿著螺絲起子微笑", altDianaAsk: "戴安娜舉起燈發問",
     altShadeInside: "燈罩內側特寫，有淡淡的星點", altBaseBottom: "底座底部特寫，貼著一張空白銘牌", altMg: "MG 伸出貓掌撥零件",
   },
   en: {
     label: "A toy, not a quoting tool.",
-    title: "Take the Lantern Apart",
+    title: "A Lamp, As Promised",
+    tagline: "Take a lamp apart, and say clearly what you want.",
     sub: "A lamp waits on Diana's workbench, one night in Zhaoye Town.",
     start: "Light it up",
     s1kid: "\"I want a lamp just like this photo!\"",
@@ -155,10 +157,10 @@ export const UI = {
     nextLabel: "Next stop · Trade Street",
     nextBody: "Spec agreed. Next: how the lamp gets on a ship.",
     nextLink: "Explore Trade Street ↗",
-    journey: "Journey: Secrets on the Corner → Take the Lantern Apart → Trade Street → December Lights",
+    journey: "Journey: Secrets on the Corner → A Lamp, As Promised → Trade Street → December Lights",
     disclosure: "A toy, not a quoting tool. No real prices, lead times or certification calls.",
-    cardTitle: "Spec card · Take the Lantern Apart",
-    fileName: "take-the-lantern-apart-spec-card.png",
+    cardTitle: "Spec card · A Lamp, As Promised",
+    fileName: "a-lamp-as-promised-spec-card.png",
     altKid: "Chiensi holding a camera", altPhoto: "Chiensi's slightly blurry instant photo of a lamp", altDiana: "Diana smiling with a screwdriver", altDianaAsk: "Diana holding up the lamp with a question",
     altShadeInside: "Inside the shade, with faint star dots", altBaseBottom: "Under the base, a blank label", altMg: "MG nudging the parts with a paw",
   },

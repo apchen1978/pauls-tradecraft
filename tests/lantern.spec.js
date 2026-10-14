@@ -96,7 +96,7 @@ test("spec card downloads with the kid's name and no date", async ({ page }) => 
   expect(text).not.toMatch(/\d/);
   const download = page.waitForEvent("download");
   await page.locator("#download").click();
-  expect((await download).suggestedFilename()).toBe("take-the-lantern-apart-spec-card.png");
+  expect((await download).suggestedFilename()).toBe("a-lamp-as-promised-spec-card.png");
 });
 
 test("language switch keeps the screen and updates the link", async ({ page }) => {
@@ -168,4 +168,19 @@ test("batch 3 art: characters, close-ups, card frame and og meta load", async ({
   await expect.poll(() => loaded("#s4 img.who")).toBe(true);
   await page.locator("#go4").click();
   await expect(page.locator("#card")).toHaveAttribute("data-ready", "1");
+});
+
+test("new title, tagline and share meta in zh and en", async ({ page }) => {
+  await page.goto(`${URL}?lang=zh`);
+  await expect(page).toHaveTitle("一盞燈的約定 · A Lamp, As Promised");
+  await expect(page.locator("#s0-title")).toHaveText("一盞燈的約定");
+  await expect(page.locator(".tagline")).toHaveText("拆開一盞燈，把你想要的說清楚。");
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", "一盞燈的約定 · A Lamp, As Promised");
+  await expect(page.locator("#toy-label")).toContainText("示意玩具");
+  await page.getByRole("button", { name: "EN" }).click();
+  await expect(page).toHaveTitle("A Lamp, As Promised · 一盞燈的約定");
+  await expect(page.locator("#s0-title")).toHaveText("A Lamp, As Promised");
+  await expect(page.locator(".tagline")).toHaveText("Take a lamp apart, and say clearly what you want.");
+  expect(await page.content()).not.toContain("Take the Lantern Apart");
+  expect(await page.content()).not.toContain("拆一盞燈");
 });
