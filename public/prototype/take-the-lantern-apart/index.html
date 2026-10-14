@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="拆一盞燈：下單前，先把規格講好。示意玩具。">
+  <title>拆一盞燈 · Take the Lantern Apart</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳至內容</a>
+  <header class="site-head">
+    <span class="brand">PAUL'S TRADECRAFT</span>
+    <span class="toy-label" id="toy-label" data-i18n="label">示意玩具，不是報價工具。</span>
+    <div class="language" role="group" aria-label="Language">
+      <button type="button" data-lang="zh" aria-pressed="true">中</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="stage" id="stage">
+      <div class="lamp-wrap" id="lamp-wrap">
+        <div class="lamp" id="lamp" data-angle="f" data-size="m" aria-hidden="true">
+          <div class="shade" id="shade"></div>
+          <div class="cord"></div>
+          <div class="base" id="base"></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="screen" id="s0" data-screen="0" aria-labelledby="s0-title">
+      <h1 id="s0-title" data-i18n="title">拆一盞燈</h1>
+      <p data-i18n="sub"></p>
+      <button type="button" class="primary" id="go0" data-i18n="start">點亮它</button>
+    </section>
+
+    <section class="screen" id="s1" data-screen="1" hidden aria-labelledby="s1-title">
+      <h2 id="s1-title" class="visually-hidden" data-i18n="title"></h2>
+      <div class="photo" aria-hidden="true"></div>
+      <p class="line kid" data-i18n="s1kid"></p>
+      <p class="line diana" data-i18n="s1diana"></p>
+      <button type="button" class="primary" id="go1" data-i18n="s1go"></button>
+    </section>
+
+    <section class="screen" id="s2" data-screen="2" hidden aria-labelledby="s2-title">
+      <h2 id="s2-title" data-i18n="s2title"></h2>
+      <p data-i18n="s2hint"></p>
+      <div class="controls">
+        <button type="button" id="turn-l" data-i18n="turnLeft"></button>
+        <button type="button" id="turn-r" data-i18n="turnRight"></button>
+        <button type="button" id="zoom" aria-pressed="false" data-i18n="zoom"></button>
+      </div>
+      <div class="controls">
+        <button type="button" id="spot-shade" aria-expanded="false" data-i18n="spotShade"></button>
+        <button type="button" id="spot-base" aria-expanded="false" data-i18n="spotBase"></button>
+        <button type="button" id="spot-mg" class="mg">MG</button>
+      </div>
+      <div class="note" id="note" aria-live="polite"></div>
+      <button type="button" class="primary" id="go2" disabled data-i18n="s2go"></button>
+    </section>
+
+    <section class="screen" id="s3" data-screen="3" hidden aria-labelledby="s3-title">
+      <h2 id="s3-title" data-i18n="s3title"></h2>
+      <div id="parts"></div>
+      <aside class="effects" aria-labelledby="effects-title">
+        <h3 id="effects-title" data-i18n="effectTitle"></h3>
+        <ul id="effects"></ul>
+        <p class="foot" data-i18n="effectFoot"></p>
+      </aside>
+      <p class="line kid" id="kid-react" hidden data-i18n="kidReact"></p>
+      <button type="button" class="primary" id="go3" data-i18n="s3go"></button>
+    </section>
+
+    <section class="screen" id="s4" data-screen="4" hidden aria-labelledby="s4-title">
+      <h2 id="s4-title" data-i18n="s4title"></h2>
+      <p class="line diana" data-i18n="s4ask"></p>
+      <div class="lists">
+        <div><h3 data-i18n="agreed"></h3><ul id="agreed-list" class="agreed"></ul></div>
+        <div><h3 data-i18n="pending"></h3><ul id="pending-list" class="pending"></ul></div>
+      </div>
+      <p class="line diana" data-i18n="s4close"></p>
+      <button type="button" class="primary" id="go4" data-i18n="s4go"></button>
+    </section>
+
+    <section class="screen" id="s5" data-screen="5" hidden aria-labelledby="s5-title">
+      <h2 id="s5-title" data-i18n="s5title"></h2>
+      <canvas id="card" width="1080" height="1350" role="img" aria-label=""></canvas>
+      <div class="actions">
+        <button type="button" class="primary" id="download" data-i18n="download"></button>
+        <button type="button" id="again" data-i18n="again"></button>
+        <a href="/" id="home" data-i18n="home"></a>
+      </div>
+      <aside class="next-stop" aria-labelledby="next-title">
+        <span data-i18n="nextLabel"></span>
+        <p id="next-title" data-i18n="nextBody"></p>
+        <a id="next-link" href="/prototype/trade-street/?lang=zh" data-i18n="nextLink"></a>
+      </aside>
+      <p class="journey" data-i18n="journey"></p>
+    </section>
+
+    <p class="disclosure" data-i18n="disclosure"></p>
+  </main>
+</body>
+</html>
