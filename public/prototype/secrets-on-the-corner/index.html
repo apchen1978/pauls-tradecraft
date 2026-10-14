@@ -81,6 +81,7 @@
         </div>
         <p class="route-progress" id="route-progress" aria-live="polite"></p>
         <p class="discovery-count" id="discovery-count" aria-live="polite"></p>
+        <p class="scenario-compare-prompt" data-i18n="comparePrompt">兩個時段都點過「隊伍」，就能查看對照。</p>
       </div>
 
       <div class="stage">
@@ -97,6 +98,25 @@
           <div class="note-footer" id="seen-list"></div>
           <a class="note-back" id="note-back" href="#scene" data-i18n="backToScene" hidden>再看其他光點 ↑</a>
         </aside>
+      </div>
+    </section>
+
+    <section class="scenario-comparison page" id="scenario-comparison" aria-labelledby="comparison-title" aria-live="polite" hidden>
+      <div class="comparison-heading">
+        <span class="comparison-index" aria-hidden="true">↔</span>
+        <div>
+          <h2 id="comparison-title" data-i18n="compareTitle">把兩個時段放在一起看</h2>
+          <p data-i18n="compareHint">同一幅插畫呈現兩種時段設定。</p>
+        </div>
+      </div>
+      <div class="comparison-snapshots">
+        <div><span data-i18n="compareWeekdayLabel">平日傍晚</span><p id="comparison-weekday"></p></div>
+        <div><span data-i18n="compareWeekendLabel">週末傍晚</span><p id="comparison-weekend"></p></div>
+      </div>
+      <div class="comparison-reading">
+        <p><strong data-i18n="compareSharedLabel">兩個情境都看見</strong><span data-i18n="compareShared">三位客人在等候。</span></p>
+        <p><strong data-i18n="compareUnknownLabel">仍不知道</strong><span data-i18n="compareUnknown">這是否在多個日子持續、每個人為何等候，以及是否會回訪。</span></p>
+        <p><strong data-i18n="compareNextLabel">下一個可查問題</strong><span data-i18n="compareNext">在相近的平日與週末時段重複記錄等候、取預訂與現買。</span></p>
       </div>
     </section>
 
@@ -134,13 +154,36 @@
           <div>
             <h3 data-i18n="nextStep">明天的小動作</h3>
             <p id="result-action"></p>
-            <h3 data-i18n="boundaryTitle">還不能說</h3>
-            <p id="result-boundary"></p>
           </div>
         </div>
-        <div class="result-business">
-          <strong data-i18n="businessLabel">放到生意裡是……</strong>
-          <p id="result-business-text"></p>
+        <div class="business-context">
+          <div class="result-business">
+            <strong data-i18n="businessLabel">放到生意裡是……</strong>
+            <p id="result-business-text"></p>
+          </div>
+          <details class="business-chain">
+          <summary data-i18n="businessChainTitle">從線索到交易，還差幾個確認？</summary>
+          <p class="business-chain-intro" data-i18n="businessChainIntro">排隊是起點。每往下一步，都要補上新的觀察。</p>
+          <ol class="business-chain-steps">
+            <li>
+              <strong data-i18n="businessChainQueueTitle">看見等候</strong>
+              <p data-i18n="businessChainQueue">有人停下來等；還不知道他們為什麼等，或最後是否購買。</p>
+            </li>
+            <li>
+              <strong data-i18n="businessChainReasonTitle">弄清原因</strong>
+              <p data-i18n="businessChainReason">分清現場購買、預訂取貨或其他等候原因；原因本身仍不代表交易完成。</p>
+            </li>
+            <li>
+              <strong data-i18n="businessChainSaleTitle">確認交易</strong>
+              <p data-i18n="businessChainSale">觀察是否有人完成購買；一次交易仍不能說明會不會回來。</p>
+            </li>
+            <li>
+              <strong data-i18n="businessChainReturnTitle">觀察回訪與供應</strong>
+              <p data-i18n="businessChainReturn">看客人是否再來，也看店家能否持續供應與服務。</p>
+            </li>
+          </ol>
+          <p class="business-chain-bridge" data-i18n="businessChainTradeBridge">放到貿易裡也是一樣：排隊不等於買單，就像詢盤不等於訂單。</p>
+          </details>
         </div>
         <div class="contrast">
           <h3 data-i18n="contrastTitle">同一個問題，兩種可能的回答</h3>
@@ -163,6 +206,7 @@
           <button type="button" id="download" class="action-primary" data-i18n="download">下載觀察卡</button>
           <button type="button" id="try-again" class="action-secondary" data-i18n="again">換個問題再看</button>
         </div>
+        <p class="result-boundary" id="result-boundary"></p>
       </div>
     </section>
 
