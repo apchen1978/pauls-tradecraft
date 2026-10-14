@@ -468,3 +468,16 @@ test("Sunny door note: opens with the bakery letters and the dim back table", as
     expect(text).not.toMatch(/[0-9]/);
   }
 });
+
+test("copy polish: the photo isn't repeated line after line, one 示意 line plus the footer on screen 3", async ({ page }) => {
+  await page.goto(`${URL}?lang=zh`);
+  await page.locator("#go0").click();
+  const s1 = await page.locator("#s1").innerText();
+  expect((s1.match(/照片/g) || []).length).toBeLessThanOrEqual(3);
+  await page.locator("#skip1").click();
+  expect(await page.locator("#s2").innerText()).not.toContain("照片裡沒拍到");
+  for (const id of ["#spot-shade", "#spot-base", "#go2"]) await page.locator(id).click();
+  const s3 = await page.locator("#s3").innerText();
+  expect((s3.match(/示意/g) || []).length).toBe(1);
+  await expect(page.locator("footer, .disclosure").first()).toContainText("示意玩具");
+});
