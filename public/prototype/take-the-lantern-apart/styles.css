@@ -126,3 +126,8 @@ canvas#card { width: 100%; max-width: 420px; height: auto; border-radius: 12px; 
 .say.settled .line::after { content: " ✓"; color: #8FC79A; }
 #agreed-list li[data-settled] { color: #CFE9D3; }
 .pending .risk { display: block; font-size: max(.875rem, 14px); color: #D9C38F; margin-top: 2px; }
+/* Unconfirmed list in two groups */
+.group { margin: 10px 0 4px; font-size: 1rem; color: var(--gold); }
+details.later { margin-top: 10px; }
+details.later summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: #C9B98F; font-weight: 700; }
+.pending.later li strong { font-weight: 600; }

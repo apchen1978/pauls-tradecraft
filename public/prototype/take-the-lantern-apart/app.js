@@ -1,5 +1,6 @@
 import { riskLine } from "./risk.js";
 import { STORY, LINES, PROMPTS, REACT, PART_QUESTION, NAMES, PORTRAIT } from "./story.js";
+import { groupPending } from "./data.js";
 import { PARTS, OPTIONS, DEFAULTS, PART_LABEL, EFFECT, PENDING_TEXT, UI, optionOf, specStatus } from "./data.js";
 
 const $ = (id) => document.getElementById(id);
@@ -244,16 +245,22 @@ function renderLists() {
     if (isSettled(part)) li.dataset.settled = "1";
     a.append(li);
   }
-  for (const key of pending) {
-    const [name, why] = PENDING_TEXT[key][state.lang];
-    const li = document.createElement("li");
-    li.dataset.item = key;
-    li.innerHTML = `<strong></strong><small></small><span class="risk"></span>`;
-    li.children[0].textContent = name;
-    li.children[1].textContent = why;
-    li.children[2].textContent = riskLine(key, state.lang);
-    p.append(li);
+  const groups = groupPending(pending);
+  const later = $("later-list");
+  later.textContent = "";
+  for (const [ul, keys] of [[p, groups.must], [later, groups.later]]) {
+    for (const key of keys) {
+      const [name, why] = PENDING_TEXT[key][state.lang];
+      const li = document.createElement("li");
+      li.dataset.item = key;
+      li.innerHTML = `<strong></strong><small></small><span class="risk"></span>`;
+      li.children[0].textContent = name;
+      li.children[1].textContent = why;
+      li.children[2].textContent = riskLine(key, state.lang);
+      ul.append(li);
+    }
   }
+  $("later").hidden = !groups.later.length;
 }
 
 // Spec card. Wrap-and-shrink fitting adapted from card 022's download card.
@@ -270,24 +277,42 @@ function wrap(ctx, text, maxWidth) {
   return lines;
 }
 
+// Card layout (1080 x 1920, phone-story shape). Each row: x, indent for wrapped lines, text size.
+const CARD = { W: 1080, H: 1920, left: 80, right: 1000, top: 300, bottom: 1810, besideLamp: 640 };
 function layoutCard(ctx, scale) {
   const { agreed, pending } = specStatus(state.picks);
+  const groups = groupPending(pending);
   const rows = [];
-  const W = 600;
-  let y = 0;
-  const add = (text, size, weight, color) => {
-    ctx.font = `${weight} ${Math.round(size * scale)}px system-ui, "Noto Sans TC", sans-serif`;
-    for (const l of wrap(ctx, text, W)) { y += size * scale * 1.35; rows.push({ l, y, size: size * scale, weight, color }); }
+  let y = CARD.top;
+  const font = (size, weight) => `${weight} ${Math.round(size * scale)}px system-ui, "Noto Sans TC", sans-serif`;
+  // add(): bullet sits at x; text and every wrapped line start at x + indent (hanging indent).
+  const add = (text, size, weight, color, { indent = 0, width = CARD.right - CARD.left, bullet = "" } = {}) => {
+    ctx.font = font(size, weight);
+    const lines = wrap(ctx, text, width - indent);
+    lines.forEach((l, n) => {
+      y += size * scale * 1.32;
+      rows.push({ l, x: CARD.left + indent, y, font: font(size, weight), color, bullet: n === 0 ? bullet : "" , bx: CARD.left });
+    });
   };
-  add(t("agreed"), 34, 800, "#E7C27A");
-  for (const { part, option } of agreed) add(agreedText(part, option), 26, 500, "#F4EEDF");
-  y += 24 * scale;
-  add(t("pending"), 34, 800, "#E7C27A");
-  for (const key of pending) {
-    add(`· ${PENDING_TEXT[key][state.lang][0]}`, 25, 600, "#F4EEDF");
-    add(riskLine(key, state.lang), 18, 400, "#C9B98F");
+  const gap = (px) => { y += px * scale; };
+  add(t("agreed"), 48, 800, "#E7C27A", { width: CARD.besideLamp });
+  for (const { part, option } of agreed) add(agreedText(part, option).replace(/^✓ /, ""), 38, 500, "#F4EEDF", { indent: 46, width: CARD.besideLamp, bullet: "✓" });
+  y = Math.max(y, 800);
+  gap(30);
+  add(t("mustAsk"), 46, 800, "#E7C27A");
+  for (const key of groups.must) {
+    add(PENDING_TEXT[key][state.lang][0], 40, 700, "#F4EEDF", { indent: 40, bullet: "•" });
+    add(riskLine(key, state.lang), 32, 400, "#D9C38F", { indent: 40 });
   }
-  return { rows, height: y };
+  if (groups.later.length) {
+    gap(30);
+    add(t("askLater"), 42, 800, "#C9B98F");
+    for (const key of groups.later) {
+      add(PENDING_TEXT[key][state.lang][0], 36, 600, "#E3DCCB", { indent: 40, bullet: "•" });
+      add(riskLine(key, state.lang), 30, 400, "#BFB08A", { indent: 40 });
+    }
+  }
+  return { rows, end: y };
 }
 
 const loadImg = (src) => new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = src; });
@@ -303,9 +328,9 @@ async function loadLampImages() {
 function drawLampLayers(ctx) {
   const { cord, base, shade, glow } = lampImages;
   const k = { s: 0.82, m: 1, l: 1.12 }[state.picks.size];
-  const size = 420 * k;
-  const x = 200 - size / 2;
-  const y = 860 - size * 0.88;
+  const size = 400 * k;
+  const x = 860 - size / 2;
+  const y = 780 - size * 0.88;
   // Tinted shade on its own canvas: multiply the colour, then clip to the shade's alpha.
   const off = document.createElement("canvas");
   off.width = 800; off.height = 800;
@@ -332,38 +357,50 @@ async function drawCardWithArt() {
   $("card").dataset.ready = "1";
 }
 
+// The frame art is 1080 x 1350: keep its top and bottom bands, tile its middle band to fill the taller card.
+function drawFrame(ctx) {
+  const f = lampImages && lampImages.frame;
+  if (!f) {
+    ctx.fillStyle = "#14213A"; ctx.fillRect(0, 0, CARD.W, CARD.H);
+    ctx.strokeStyle = "#E7C27A"; ctx.lineWidth = 3; ctx.strokeRect(30, 30, CARD.W - 60, CARD.H - 60);
+    return;
+  }
+  const band = 450;
+  ctx.drawImage(f, 0, 0, 1080, band, 0, 0, 1080, band);
+  for (let y = band; y < CARD.H - band; y += band) {
+    const h = Math.min(band, CARD.H - band - y);
+    ctx.drawImage(f, 0, band, 1080, h, 0, y, 1080, h);
+  }
+  ctx.drawImage(f, 0, 1350 - band, 1080, band, 0, CARD.H - band, 1080, band);
+}
+
 function drawCard() {
   const c = $("card");
   const ctx = c.getContext("2d");
-  if (lampImages && lampImages.frame) ctx.drawImage(lampImages.frame, 0, 0, 1080, 1350);
-  else {
-    ctx.fillStyle = "#14213A";
-    ctx.fillRect(0, 0, 1080, 1350);
-    ctx.strokeStyle = "#E7C27A";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(30, 30, 1020, 1290);
-  }
+  drawFrame(ctx);
   ctx.fillStyle = "#E7C27A";
-  ctx.font = `800 52px system-ui, "Noto Sans TC", sans-serif`;
-  ctx.fillText(t("cardTitle"), 70, 120, 940);
+  ctx.font = `800 58px system-ui, "Noto Sans TC", sans-serif`;
+  ctx.fillText(t("cardTitle"), CARD.left, 140, CARD.right - CARD.left);
   ctx.fillStyle = "#F4EEDF";
-  ctx.font = `600 30px system-ui, "Noto Sans TC", sans-serif`;
-  ctx.fillText(t("cardSub"), 70, 168, 940);
-  ctx.font = `500 28px system-ui, "Noto Sans TC", sans-serif`;
-  ctx.fillText(t("client"), 70, 210, 940);
+  ctx.font = `600 40px system-ui, "Noto Sans TC", sans-serif`;
+  ctx.fillText(t("cardSub"), CARD.left, 200, CARD.right - CARD.left);
+  ctx.font = `500 38px system-ui, "Noto Sans TC", sans-serif`;
+  ctx.fillText(t("client"), CARD.left, 252, CARD.right - CARD.left);
   if (lampImages) drawLampLayers(ctx);
   let scale = 1;
   let lay = layoutCard(ctx, scale);
-  while (lay.height > 980 && scale > 0.45) { scale -= 0.05; lay = layoutCard(ctx, scale); }
-  c.dataset.fit = lay.height <= 980 ? "1" : "0";
+  while (lay.end > CARD.bottom && scale > 0.7) { scale -= 0.03; lay = layoutCard(ctx, scale); }
+  c.dataset.fit = lay.end <= CARD.bottom ? "1" : "0";
+  c.dataset.scale = scale.toFixed(2);
   for (const r of lay.rows) {
-    ctx.font = `${r.weight} ${Math.round(r.size)}px system-ui, "Noto Sans TC", sans-serif`;
+    ctx.font = r.font;
     ctx.fillStyle = r.color;
-    ctx.fillText(r.l, 420, 240 + r.y);
+    if (r.bullet) ctx.fillText(r.bullet, r.bx, r.y);
+    ctx.fillText(r.l, r.x, r.y);
   }
   ctx.fillStyle = "#B9C2D3";
-  ctx.font = `500 24px system-ui, "Noto Sans TC", sans-serif`;
-  ctx.fillText(t("label"), 70, 1280, 940);
+  ctx.font = `500 32px system-ui, "Noto Sans TC", sans-serif`;
+  ctx.fillText(t("label"), CARD.left, 1870, CARD.right - CARD.left);
   c.setAttribute("aria-label", `${t("cardTitle")}. ${t("client")}`);
 }
 

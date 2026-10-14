@@ -42,7 +42,7 @@ async function playThrough(page, lang) {
   const pending = page.locator("#pending-list");
   await expect(pending.locator('[data-item="plug"]')).toBeVisible();
   await expect(pending.locator('[data-item="cert"]')).toBeVisible();
-  await expect(pending.locator('[data-item="fragile"]')).toBeVisible();
+  await expect(pending.locator('[data-item="packing"]')).toBeVisible();
   await expect(page.locator('#agreed-list [data-item="plug"], #agreed-list [data-item="cert"]')).toHaveCount(0);
   await noOverflow(page);
   await page.locator("#go4").click();
@@ -215,7 +215,7 @@ test("story: skip path, both helpers, fixed reactions, picks survive a language 
   await page.locator("#go3").click();
   await expect(page.locator('#s4 [data-line="s4Diana"]')).toContainText("Diana");
   await expect(page.locator('#s4 [data-line="s4Yiyi"]')).toContainText("Yiyi");
-  await expect(page.locator('#pending-list [data-item="moq"]')).toContainText("still need confirming");
+  await expect(page.locator('#later-list [data-item="moq"]')).toContainText("still need confirming");
   await page.locator("#go4").click();
   await expect(page.locator('#s5 [data-line="s5Chiensi"]')).toContainText("Chiensi");
   await expect(page.locator("#again")).toHaveText("Try a different set of choices");
@@ -343,14 +343,14 @@ test("spec card: settled marks and a risk line per pending item, zh and en, not 
     if (!combo.picks.length) for (const [part, opt] of [["colour", "ivory"], ["size", "m"], ["pack", "kraft"]]) await page.locator(`[data-part="${part}"][data-option="${opt}"]`).click();
     if (!combo.picks.length) await expect(page.locator(".react.settled")).toHaveCount(3);
     await page.locator("#go3").click();
-    const pendingCount = await page.locator("#pending-list li").count();
-    await expect(page.locator("#pending-list .risk")).toHaveCount(pendingCount);
+    const pendingCount = await page.locator(".pending li").count();
+    await expect(page.locator(".pending .risk")).toHaveCount(pendingCount);
     await page.evaluate(() => { window.__cardText = []; });
     await page.locator("#go4").click();
     await expect(page.locator("#card")).toHaveAttribute("data-ready", "1");
     await expect(page.locator("#card")).toHaveAttribute("data-fit", "1");
     const text = (await page.evaluate(() => window.__cardText)).join("\n");
-    const prefix = lang === "zh" ? "這裡還有風險：" : "Risk if unasked: ";
+    const prefix = lang === "zh" ? "這裡還有風險：" : "Risk: ";
     expect(text.split(prefix).length - 1).toBeGreaterThanOrEqual(pendingCount);
     expect(text).toContain("✓");
     if (combo.settled) expect(text).toContain(lang === "zh" ? "（先講好了）" : "(settled)");
@@ -367,4 +367,49 @@ test("reactions: size options each give a different line on the page", async ({ 
     seen.add(await page.locator('.react[data-part="size"]').innerText());
   }
   expect(seen.size).toBe(3);
+});
+
+test("unconfirmed items: ask-first open, ask-later collapsed, related items merged", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${URL}?lang=zh`);
+  for (const id of ["#go0", "#skip1", "#spot-shade", "#spot-base", "#go2"]) await page.locator(id).click();
+  for (const [a, o] of [["shade", "metal"], ["base", "brass"], ["colour", "night"]]) await page.locator(`[data-part="${a}"][data-option="${o}"]`).click();
+  await page.locator("#go3").click();
+  for (const k of ["plug", "cert", "accept"]) await expect(page.locator(`#pending-list [data-item="${k}"]`)).toBeVisible();
+  await expect(page.locator("#later")).not.toHaveAttribute("open", "");
+  await expect(page.locator('#later-list [data-item="look"]')).toBeHidden();
+  for (const k of ["edges", "finish", "colourMatch"]) await expect(page.locator(`[data-item="${k}"]`)).toHaveCount(0);
+  await page.locator("#later summary").click();
+  await expect(page.locator('#later-list [data-item="look"]')).toBeVisible();
+  await expect(page.locator('#later-list [data-item="look"] .risk')).toContainText("這裡還有風險");
+});
+
+test("spec card: grouped, hanging indent aligned, readable size, worst case fits in zh and en", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__rows = [];
+    const fill = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function (s, x, y, ...a) { window.__rows.push({ s: String(s), x, font: this.font }); return fill.call(this, s, x, y, ...a); };
+  });
+  for (const lang of ["zh", "en"]) {
+    await page.goto(`${URL}?lang=${lang}`);
+    for (const id of ["#go0", "#skip1", "#spot-shade", "#spot-base", "#go2"]) await page.locator(id).click();
+    for (const [a, o] of [["shade", "glass"], ["colour", "persimmon"], ["base", "brass"], ["size", "l"], ["pack", "gift"]]) await page.locator(`[data-part="${a}"][data-option="${o}"]`).click();
+    await page.locator("#go3").click();
+    await page.evaluate(() => { window.__rows = []; });
+    await page.locator("#go4").click();
+    await expect(page.locator("#card")).toHaveAttribute("data-ready", "1");
+    await expect(page.locator("#card")).toHaveAttribute("data-fit", "1");
+    expect(Number(await page.locator("#card").getAttribute("data-scale"))).toBeGreaterThanOrEqual(0.7);
+    const rows = await page.evaluate(() => window.__rows);
+    const text = rows.map((r) => r.s).join("\n");
+    expect(text).toContain(lang === "zh" ? "一定要先問" : "Ask first");
+    expect(text).toContain(lang === "zh" ? "之後再問" : "Ask later");
+    expect(text).not.toMatch(/\d/);
+    // Every list line starts at the left margin (bullets, headings) or at one of the two indents.
+    const xs = new Set(rows.filter((r) => r.x > 0 && r.x < 300).map((r) => Math.round(r.x)));
+    for (const x of xs) expect([80, 120, 126]).toContain(x);
+    // Smallest text on the card stays at a phone-readable size.
+    const sizes = rows.map((r) => Number(/(\d+)px/.exec(r.font)?.[1] || 0)).filter(Boolean);
+    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(22);
+  }
 });

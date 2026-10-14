@@ -52,8 +52,23 @@ export const PENDING_TEXT = {
   tolerance: { zh: ["尺寸誤差", "大小可以差多少？"], en: ["Size tolerance", "How far off can the size be?"] },
   outer: { zh: ["外箱怎麼裝", "小盒子再怎麼裝進外箱？"], en: ["Outer carton", "How do the boxes go into the shipping carton?"] },
   artwork: { zh: ["禮盒印刷稿", "盒子上的圖，誰來出？"], en: ["Gift box artwork", "Who supplies the print design?"] },
+  look: { zh: ["外觀怎麼比對", "顏色、紋理、表面和邊緣，用樣品還是照片比？可以差多少？"], en: ["How the look is checked", "Colour, grain, surface and edges: compare with a sample or a photo? How close is close enough?"] },
+  packing: { zh: ["運送保護", "盒裡怎麼固定、外箱怎麼裝，才不會在路上碰壞？"], en: ["Protection on the way", "How is the lamp held in its box and packed in the carton so nothing breaks?"] },
   perCarton: { zh: ["一箱裝幾個", "簡易箱裡要裝幾盞？"], en: ["Lamps per carton", "How many lamps go in each carton?"] },
 };
+
+// Display grouping for the unconfirmed list. Related raw items merge into one line; the rest keep their own.
+export const MERGE = { look: ["colourMatch", "grain", "glaze", "finish", "edges"], packing: ["fragile", "outer", "perCarton"] };
+export const MUST_ASK = ["plug", "cert", "use", "accept", "heat", "packing"];
+export const ASK_LATER = ["moq", "look", "tolerance", "artwork"];
+export function groupPending(pending) {
+  const shown = [];
+  for (const key of pending) {
+    const merged = Object.keys(MERGE).find((m) => MERGE[m].includes(key)) || key;
+    if (!shown.includes(merged)) shown.push(merged);
+  }
+  return { must: MUST_ASK.filter((k) => shown.includes(k)), later: ASK_LATER.filter((k) => shown.includes(k)) };
+}
 
 export const PART_LABEL = {
   shade: { zh: "燈罩材質", en: "Shade material" },
@@ -108,7 +123,7 @@ export const UI = {
     s3go: "組好了",
     s4title: "講好了嗎？",
     s4ask: "「這盞燈是給誰用的？插頭規格確認了嗎？」",
-    agreed: "已講好 ✓", pending: "還要確認 …",
+    agreed: "已講好 ✓", pending: "還要確認 …", mustAsk: "一定要先問", askLater: "之後再問",
     s4close: "「看得見的講好了，看不見的也要講好。」",
     s4go: "做一張規格卡",
     s5title: "規格卡",
@@ -148,7 +163,7 @@ export const UI = {
     s3go: "Put it together",
     s4title: "Is it all agreed?",
     s4ask: "\"Who is this lamp for? Have we confirmed the plug?\"",
-    agreed: "Agreed ✓", pending: "Still to confirm …",
+    agreed: "Agreed ✓", pending: "Still to confirm …", mustAsk: "Ask first", askLater: "Ask later",
     s4close: "\"We agreed what we can see. Now agree what we can't.\"",
     s4go: "Make a spec card",
     s5title: "Spec card",

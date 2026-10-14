@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { PARTS, OPTIONS, DEFAULTS, ALWAYS_PENDING, PENDING_TEXT, UI, EFFECT, PART_LABEL, specStatus } from "../public/prototype/take-the-lantern-apart/data.js";
 import { STORY, LINES, PROMPTS, REACT, PART_QUESTION, NAMES } from "../public/prototype/take-the-lantern-apart/story.js";
+import { groupPending, MUST_ASK } from "../public/prototype/take-the-lantern-apart/data.js";
 import { RISK, RISK_PREFIX } from "../public/prototype/take-the-lantern-apart/risk.js";
 
 const dir = new URL("../public/prototype/take-the-lantern-apart/", import.meta.url);
@@ -116,4 +117,17 @@ test("risk: every pending item has a short risk line in zh and en", () => {
     assert.ok(RISK[key].zh.length <= 30, `${key} zh short`);
   }
   for (const k of ALWAYS_PENDING) assert.ok(RISK[k]);
+});
+
+test("grouping: plug and certification always ask-first; every combo splits cleanly with merged items", () => {
+  const ids = (p) => OPTIONS[p].map((o) => o.id);
+  for (const shade of ids("shade")) for (const colour of ids("colour")) for (const base of ids("base")) for (const size of ids("size")) for (const pack of ids("pack")) {
+    const { pending } = specStatus({ shade, colour, base, size, pack });
+    const g = groupPending(pending);
+    assert.ok(g.must.includes("plug") && g.must.includes("cert"));
+    assert.ok(g.must.length <= 6 && g.later.length <= 4, "groups stay short");
+    for (const k of [...g.must, ...g.later]) assert.ok(PENDING_TEXT[k] && RISK[k], k);
+    assert.ok(!["edges", "finish", "colourMatch", "grain", "glaze", "fragile", "outer", "perCarton"].some((k) => g.must.includes(k) || g.later.includes(k)));
+  }
+  assert.ok(MUST_ASK.includes("accept"));
 });
