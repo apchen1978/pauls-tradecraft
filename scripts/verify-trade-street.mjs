@@ -207,10 +207,12 @@ test("most likely to miss: every route gets one stop with a newcomer tip; spent 
     assert.deepEqual(miss, mostLikelyMiss(res), "same route, same answer");
     assert.ok(TIPS[miss.stop], `stop ${miss.stop + 1} has a newcomer tip`);
     seen[miss.kind].add(miss.stop);
-    const most = Math.max(...res.costs);
+    // only an off-course choice (its own base cost above 0) counts; a good choice that costs a cell in one scenario does not
+    const offCourse = res.costs.map((cost, i) => (DECISIONS[i].options.find((o) => o.id === res.code[i]).cost > 0 ? cost : 0));
+    const most = Math.max(...offCourse);
     if (most > 0) {
       assert.equal(miss.kind, "spent");
-      const first = res.costs.findIndex((cost) => cost === most);
+      const first = offCourse.findIndex((cost) => cost === most);
       assert.equal(miss.stop, DECISIONS[first].step - 1, `${res.scenario} ${res.code}: the costliest decision`);
     } else {
       assert.equal(miss.kind, "clean");

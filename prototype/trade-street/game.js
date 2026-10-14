@@ -223,11 +223,16 @@ export function resolve(scenario, code) {
 export const UNPLAYED_STOPS = [5, 12];
 
 // The one thing a player is most likely to miss, worked out only from the choices already made (no new share-link data).
-// If any choice used buffer: the stop where the most was used (first stop on a tie). Otherwise nothing tripped them,
-// so point at one of the two stops the game never plays; the same route always gets the same one.
+// Only a choice that went off course counts (its own cost is above 0). A good choice that merely costs a cell in one
+// scenario (holiday, go in early) is not a miss. If any choice went off course: the stop where the most buffer was used
+// (first stop on a tie). Otherwise nothing tripped them, so point at one of the two stops the game never plays;
+// the same route always gets the same one.
 export function mostLikelyMiss(res) {
   let best = -1;
-  res.costs.forEach((cost, index) => { if (cost > 0 && (best < 0 || cost > res.costs[best])) best = index; });
+  res.costs.forEach((cost, index) => {
+    const option = DECISIONS[index].options.find((item) => item.id === res.code[index]);
+    if (option.cost > 0 && cost > 0 && (best < 0 || cost > res.costs[best])) best = index;
+  });
   if (best >= 0) return { kind: "spent", stop: DECISIONS[best].step - 1 };
   const positions = res.code.split("").reduce((sum, letter) => sum + "ABC".indexOf(letter), 0) + SCENARIO_ORDER.indexOf(res.scenario);
   return { kind: "clean", stop: UNPLAYED_STOPS[positions % UNPLAYED_STOPS.length] };
