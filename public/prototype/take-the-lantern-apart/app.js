@@ -46,13 +46,31 @@ function paintLamp() {
   const lamp = $("lamp");
   lamp.dataset.angle = state.angle;
   lamp.dataset.size = state.picks.size;
-  const shadeSrc = `assets/lamp-shade-${state.picks.shade}-f.webp`;
+  const a = state.angle;
+  const shadeSrc = `assets/lamp-shade-${state.picks.shade}-${a}.webp`;
   $("shade").src = shadeSrc;
   lamp.style.setProperty("--shade-mask", `url("${shadeSrc}")`);
   lamp.style.setProperty("--tint", optionOf("colour", state.picks.colour).tint);
-  $("base").src = `assets/lamp-base-${state.picks.base}-f.webp`;
+  $("base").src = `assets/lamp-base-${state.picks.base}-${a}.webp`;
+  $("cord").src = `assets/lamp-cord-${a}.webp`;
+  $("glow").src = `assets/lamp-shade-glow-${a}.webp`;
+  for (const dot of document.querySelectorAll("#angle-dots span")) dot.classList.toggle("on", dot.dataset.angle === a);
+  preloadAngles();
   $("pack").src = `assets/pack-${state.picks.pack}.webp`;
   $("lamp-wrap").classList.toggle("zoomed", state.zoom);
+}
+
+// Warm the cache for the other two angles of the current combo, so a turn never flashes.
+const warmed = new Set();
+function preloadAngles() {
+  for (const a of ANGLES) {
+    for (const src of [`assets/lamp-shade-${state.picks.shade}-${a}.webp`, `assets/lamp-base-${state.picks.base}-${a}.webp`, `assets/lamp-cord-${a}.webp`, `assets/lamp-shade-glow-${a}.webp`]) {
+      if (warmed.has(src)) continue;
+      warmed.add(src);
+      const img = new Image();
+      img.src = src;
+    }
+  }
 }
 
 function turn(dir) {

@@ -124,3 +124,24 @@ test("all nine shade and base combos load real art and keep the tint", async ({ 
   await page.locator('#s3 [data-part="size"][data-option="l"]').click();
   await expect(page.locator("#lamp")).toHaveAttribute("data-size", "l");
 });
+
+test("all three angles load real files for every combo", async ({ page }) => {
+  await page.goto(`${URL}?lang=zh`);
+  for (const id of ["#go0", "#go1", "#spot-shade", "#spot-base", "#go2"]) await page.locator(id).click();
+  for (const shade of ["paper", "glass", "metal"]) {
+    for (const base of ["wood", "ceramic", "brass"]) {
+      await page.locator(`[data-part="shade"][data-option="${shade}"]`).click();
+      await page.locator(`[data-part="base"][data-option="${base}"]`).click();
+      for (const [btn, a] of [["#turn-l", "l"], ["#turn-r", "f"], ["#turn-r", "r"]]) {
+        await page.evaluate((b) => document.querySelector(b).click(), btn);
+        await expect(page.locator("#lamp")).toHaveAttribute("data-angle", a);
+        await expect(page.locator("#shade")).toHaveAttribute("src", `assets/lamp-shade-${shade}-${a}.webp`);
+        await expect(page.locator("#base")).toHaveAttribute("src", `assets/lamp-base-${base}-${a}.webp`);
+        await expect(page.locator("#cord")).toHaveAttribute("src", `assets/lamp-cord-${a}.webp`);
+        await expect(page.locator("#glow")).toHaveAttribute("src", `assets/lamp-shade-glow-${a}.webp`);
+        await expect.poll(() => page.evaluate(() => [...document.querySelectorAll("#lamp img")].every((i) => i.complete && i.naturalWidth === 800))).toBe(true);
+      }
+      await page.evaluate(() => document.querySelector("#turn-l").click());
+    }
+  }
+});

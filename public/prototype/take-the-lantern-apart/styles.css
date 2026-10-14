@@ -27,8 +27,16 @@ main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16p
 .glow { opacity: 0; transition: opacity .3s; mix-blend-mode: screen; }
 .lamp.lit .glow { opacity: .55; }
 .base { transition: transform .25s ease; }
-.lamp[data-angle="l"] .shade-group, .lamp[data-angle="l"] .base { transform: skewY(-4deg) scaleX(.94); }
-.lamp[data-angle="r"] .shade-group, .lamp[data-angle="r"] .base { transform: skewY(4deg) scaleX(.94); }
+/* Angle cue: the art turns only 20 degrees, so a soft sheen and the floor shadow slide the opposite way. */
+.sheen { -webkit-mask: var(--shade-mask) center / 100% 100% no-repeat; mask: var(--shade-mask) center / 100% 100% no-repeat; background: linear-gradient(90deg, transparent 0 30%, rgba(255,250,235,.14) 45%, transparent 60%); background-size: 200% 100%; background-position: 50% 0; mix-blend-mode: screen; transition: background-position .3s ease; }
+.lamp[data-angle="l"] .sheen { background-position: 70% 0; }
+.lamp[data-angle="r"] .sheen { background-position: 30% 0; }
+.floor-shadow { position: absolute; left: 30%; width: 40%; top: 84%; height: 6%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.3), transparent); transition: transform .3s ease; }
+.lamp[data-angle="l"] .floor-shadow { transform: translateX(6%); }
+.lamp[data-angle="r"] .floor-shadow { transform: translateX(-6%); }
+.angle-dots { position: absolute; left: 50%; bottom: 0; opacity: .7; transform: translateX(-50%); display: flex; gap: 6px; }
+.angle-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(244,238,223,.25); transition: background .2s, width .2s; }
+.angle-dots span.on { width: 12px; border-radius: 3px; background: var(--gold); }
 .lamp.apart .shade-group { transform: translateY(-4%); } .lamp.apart .base { transform: translateY(3%); }
 .mug, .pack { position: absolute; bottom: 4%; width: 26%; height: auto; opacity: 0; transition: opacity .25s; pointer-events: none; }
 .mug { right: -6%; width: 34%; bottom: -1%; } .pack { left: -4%; }
