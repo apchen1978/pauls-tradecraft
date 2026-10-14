@@ -6,6 +6,7 @@ import {
   START_BUFFER, STATION_SPEAKER, STYLE_CHAR, STYLE_ORDER, STYLES,
 } from "../prototype/trade-street/game.js";
 import { LEARN_TEXT, PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
+import { HANDOFF, HANDOFF_LABEL } from "../prototype/trade-street/handoff.js";
 import { AVATAR_COLOR, SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
 import { ART, GLOSS, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
 import { ALT, BIO, SIZE, UI as CAST_UI, stopsOf, styleOf } from "../prototype/trade-street/cast/cast.js";
@@ -149,6 +150,23 @@ test("the buffer is felt: leaving a buffer by entering the port early spends a c
   assert.equal(resolve("peak", "AAAAAA").voyageCost, 0);
   assert.equal(resolve("rush", "AAAAAA").voyageCost, 0);
 });
+
+test("hand-over: all twelve runners, every line traceable to the 12-steps text, no numbers or units, both languages", () => {
+  assert.equal(HANDOFF.length, 12);
+  HANDOFF.forEach((item, index) => {
+    assert.equal(item.n, index + 1);
+    const here = Object.values(STEP_TEXT[index].zh).join("\n");
+    const next = STEP_TEXT[index + 1] ? Object.values(STEP_TEXT[index + 1].zh).join("\n") : "";
+    assert.ok(item.anchors.length >= 2, `step ${item.n} has anchors`);
+    for (const phrase of item.anchors) assert.ok(here.includes(phrase) || next.includes(phrase), `step ${item.n}: "${phrase}" is in the 12-steps text`);
+    for (const lang of ["zh", "en"]) {
+      assert.ok(item[lang].gives.length > 3 && item[lang].to.length > 1, `step ${item.n} ${lang}`);
+      assert.equal(/\d+\s*(天|日|小時|days?|hours?|USD|\$|%|％|元|萬)/i.test(`${item[lang].gives} ${item[lang].to}`), false, `step ${item.n} ${lang} has no days or money`);
+    }
+  });
+  for (const lang of ["zh", "en"]) for (const key of ["head", "gives", "to", "miss"]) assert.ok(HANDOFF_LABEL[lang][key], `${lang} ${key}`);
+});
+
 test("addresses: valid ones round-trip, bad ones are ignored", () => {
   assert.deepEqual(readRoute("?s=peak&c=ABCABC"), { lang: "zh", scenario: "peak", result: { scenario: "peak", code: "ABCABC" } });
   assert.equal(readRoute("?s=peak&c=ABCABC&lang=en").lang, "en");
@@ -175,7 +193,7 @@ function everyString(value, out = []) {
 }
 
 test("public copy: boundary shown, no claims, no numbers with units, no real company names", () => {
-  const blob = everyString([CAST, STYLES, REACT, SCENARIOS, DECISIONS, UI, STATION_LINE, SHORT, GLOSS, STEP_TEXT, PAGE_TEXT]).join("\n") + read("../prototype/trade-street/index.html");
+  const blob = everyString([CAST, STYLES, REACT, SCENARIOS, DECISIONS, UI, STATION_LINE, SHORT, GLOSS, STEP_TEXT, PAGE_TEXT, HANDOFF, HANDOFF_LABEL]).join("\n") + read("../prototype/trade-street/index.html");
   assert.match(UI.zh.boundary, /教學示意/);
   assert.match(UI.zh.boundary, /不含具體天數、費用或比例/);
   assert.match(UI.en.boundary, /Teaching sketch/);
@@ -267,7 +285,7 @@ test("art: the page and the deploy copy the files the game needs", () => {
   assert.ok(existsSync(new URL(`../prototype/trade-street/${ART.map.desktop}`, import.meta.url)));
   assert.ok(existsSync(new URL(`../prototype/trade-street/${ART.map.mobile}`, import.meta.url)));
   const deploy = read("../.github/workflows/deploy.yml");
-  for (const file of ["index.html", "app.js", "game.js", "steps-text.js", "layout.js"]) assert.ok(deploy.includes(`prototype/trade-street/${file}`), `deploy copies ${file}`);
+  for (const file of ["index.html", "app.js", "game.js", "steps-text.js", "layout.js", "handoff.js"]) assert.ok(deploy.includes(`prototype/trade-street/${file}`), `deploy copies ${file}`);
   assert.ok(deploy.includes("cp -r prototype/trade-street/assets dist/prototype/trade-street/"), "deploy copies the assets folder");
 });
 

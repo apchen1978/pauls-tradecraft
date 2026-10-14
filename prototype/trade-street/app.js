@@ -3,6 +3,7 @@ import {
   optionCost, readRoute, resolve, shareSearch,
 } from "./game.js";
 import { LEARN_TEXT, PAGE_TEXT, STEP_TEXT } from "./steps-text.js";
+import { HANDOFF, HANDOFF_LABEL } from "./handoff.js";
 import { ART, AVATAR_COLOR, GLOSS, MOBILE_QUERY, POS, SHORT } from "./layout.js";
 
 export { AVATAR_COLOR, SHORT };
@@ -143,6 +144,7 @@ export const UI = {
 };
 
 const stepOf = (decision) => STEP_TEXT[decision.step - 1];
+
 const decisionAtStation = (index) => DECISIONS.findIndex((decision) => decision.step === index + 1);
 
 export function initialOf(charId, lang) {
@@ -180,6 +182,19 @@ function boot() {
     if (text != null) node.textContent = text;
     return node;
   };
+  // The hand-over block for one stop. "If it does not arrive" is the stop's own risk line, so nothing new is claimed;
+  // it is left out when the page already shows that risk line right next to it.
+  function handoffBlock(stepIndex, withMiss) {
+    const text = HANDOFF[stepIndex][state.lang];
+    const label = HANDOFF_LABEL[state.lang];
+    const box = el("div", "handoff");
+    box.append(el("h3", null, label.head));
+    const line = (name, value) => { const p = el("p"); p.append(el("b", null, name), document.createTextNode(value)); box.appendChild(p); };
+    line(label.gives, text.gives);
+    line(label.to, text.to);
+    if (withMiss) line(label.miss, STEP_TEXT[stepIndex][state.lang].risk);
+    return box;
+  }
   const avatar = (node, charId) => {
     const fallback = () => { node.classList.remove("has-img"); node.replaceChildren(); node.textContent = initialOf(charId, state.lang); node.style.background = AVATAR_COLOR[charId]; };
     const src = ART.avatar[charId];
@@ -536,7 +551,7 @@ function boot() {
     brief.replaceChildren();
     const row = (label, text) => { const d = el("div"); d.append(el("b", null, label), document.createTextNode(text)); return d; };
     brief.appendChild(row(t.who, step.who));
-    if (!decision) { brief.appendChild(row(t.prep, step.prep)); brief.appendChild(row(t.risk, step.risk)); }
+    if (!decision) { brief.appendChild(row(t.prep, step.prep)); brief.appendChild(handoffBlock(i, true)); }
     if (wordingNote(step)) brief.appendChild(row(t.wording, wordingNote(step)));
 
     const prompt = $("prompt");
@@ -596,6 +611,7 @@ function boot() {
       risk.append(el("b", null, `${t.ifStuck}：`), document.createTextNode(step.risk));
       feedback.appendChild(risk);
     }
+    feedback.appendChild(handoffBlock(decision.step - 1, cost === 0));
     const change = el("button", "text-btn", t.change);
     change.type = "button";
     change.id = "change";

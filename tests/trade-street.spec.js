@@ -79,6 +79,25 @@ for (const width of [390, 1440]) {
     });
 
     for (const lang of ["zh", "en"]) {
+      test(`${lang}: hand-over block: shown on the read-only stops, held back on decision stops until a choice, never repeats the risk line`, async ({ page }) => {
+        await page.goto(`${base}/index.html?lang=${lang}`);
+        await page.locator("#start").click();
+        await page.locator("#next").click(); // stop 1 -> 2
+        await expect(page.locator("#brief .handoff")).toHaveCount(0); // stop 2 is a decision: nothing before the choice
+        await page.locator("#choices .choice").first().click();
+        await expect(page.locator("#feedback .handoff")).toHaveCount(1);
+        await expect(page.locator("#feedback .handoff p")).toHaveCount(3); // free choice: the risk line is not shown elsewhere
+        await page.locator("#next").click();
+        await page.locator("#choices .choice").first().click();
+        await page.locator("#next").click(); // stop 4: read-only
+        await expect(page.locator("#brief .handoff")).toHaveCount(1);
+        await expect(page.locator("#brief .handoff p")).toHaveCount(3);
+        await expect(page.locator("#brief")).not.toContainText(lang === "zh" ? "卡住會怎樣" : "If it goes wrong");
+        await noOverflow(page);
+      });
+    }
+
+    for (const lang of ["zh", "en"]) {
       test(`${lang}: newcomer hints: a legend for the four lights, a note that stop 1 has nothing to choose, and what the buffer line says`, async ({ page }) => {
         await page.goto(`${base}/index.html?lang=${lang}`);
         await page.locator("#start").click();
