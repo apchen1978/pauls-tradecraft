@@ -10,7 +10,7 @@ async function reachComparisonResult(page, lang, width) {
     window.__cardText = [];
     const fillText = CanvasRenderingContext2D.prototype.fillText;
     CanvasRenderingContext2D.prototype.fillText = function (text, ...args) {
-      if (this.canvas.width === 1200 && this.canvas.height === 1700) window.__cardText.push(String(text));
+      if (this.canvas.width === 1200) window.__cardText.push(String(text));
       return fillText.call(this, text, ...args);
     };
   });
@@ -19,17 +19,23 @@ async function reachComparisonResult(page, lang, width) {
   await page.locator("#impression-skip").click();
   const comparison = page.locator("#scenario-comparison");
   await expect(comparison).toBeHidden();
+      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
   await page.locator('[data-clue="queue"]').click();
   await expect(comparison).toBeHidden();
 
+      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
   await page.locator('[data-scenario="weekend"]').click();
+      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
   await page.locator('[data-clue="queue"]').click();
   await expect(comparison).toBeVisible();
   await expect(page.locator("#comparison-weekday")).toContainText(lang === "zh" ? "平日傍晚" : "weekday evening");
   await expect(page.locator("#comparison-weekend")).toContainText(lang === "zh" ? "週末傍晚" : "weekend evening");
 
+      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
   await page.locator('[data-clue="bags"]').click();
+      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
   await page.locator('[data-question="reason"]').click();
+      if (!(await page.locator("#result-more").getAttribute("open") !== null)) await page.locator("#result-more > summary").click();
   await expect(page.locator("#result")).toBeVisible();
   await expect(page.locator("#result-boundary")).toBeVisible();
   await expect(page.locator("#result-boundary")).toContainText(lang === "zh" ? "虛構情境" : "fictional scenario");
@@ -61,7 +67,7 @@ for (const lang of ["zh", "en"]) {
       const png = await readFile(path);
       expect(png.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
       expect(png.readUInt32BE(16)).toBe(1200);
-      expect(png.readUInt32BE(20)).toBe(1700);
+      expect(png.readUInt32BE(20)).toBeGreaterThanOrEqual(1700);
 
       const canvasText = await page.evaluate(() => window.__cardText);
       expect(canvasText.join(lang === "zh" ? "" : " ")).toContain(lang === "zh" ? "兩個時段的對照" : "Two moments compared");

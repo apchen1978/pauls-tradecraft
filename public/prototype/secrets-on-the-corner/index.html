@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="description" content="一間小店，四個線索。走進冬夜的街角，你會先發現什麼？虛構互動示範。">
+  <meta name="description" content="一間小店，街角的線索。走進冬夜的街角，你會先發現什麼？虛構互動示範。">
   <title>街角的秘密 · Secrets on the Corner</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css">
@@ -18,7 +18,7 @@
       <span>PAUL'S TRADECRAFT</span>
     </div>
     <div class="head-actions">
-      <span class="draft-label" data-i18n="draft">互動示範</span>
+      <span class="draft-label" data-i18n="draft">示意玩具，不是店家分析。</span>
       <div class="language" role="group" aria-label="Language">
         <button type="button" data-lang="zh" aria-pressed="true">中</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
@@ -48,12 +48,12 @@
     <section class="explore page" id="explore" aria-labelledby="explore-title">
       <div class="explore-intro">
         <p class="intro-line" data-i18n="intro">一間小店門口排了隊。這是穩定生意的訊號，還是今晚的一刻？</p>
-        <p class="intro-lede" data-i18n="lede">從四個細節開始。你不必猜對答案；只要找到下一個值得問的問題。</p>
+        <p class="intro-lede" data-i18n="lede">從街角的細節開始。你不必猜對答案；只要找到下一個值得問的問題。</p>
         <a class="start-link" href="#first-impression" data-i18n="start">走近看看 <span aria-hidden="true">↘</span></a>
       </div>
       <div class="first-impression" id="first-impression" aria-labelledby="impression-title">
         <div class="impression-intro">
-          <span class="impression-index" aria-hidden="true">00</span>
+          <span class="impression-index" aria-hidden="true">↘</span>
           <div>
             <h2 id="impression-title" data-i18n="impressionTitle">第一眼，你怎麼看這條隊伍？</h2>
             <p data-i18n="impressionHint">先留下直覺，之後看看線索讓你想追問什麼。可以跳過，沒有標準答案。</p>
@@ -85,7 +85,7 @@
       </div>
 
       <div class="stage">
-        <aside class="field-note" id="field-note" aria-live="polite" aria-atomic="true">
+        <dialog class="field-note" id="field-note" aria-label="Field notes">
           <div class="note-top">
             <span class="note-mark" data-i18n="notebook">觀察筆記</span>
             <span class="note-line" aria-hidden="true"></span>
@@ -96,8 +96,8 @@
             <p data-i18n="emptyBody">麵包香、等候的人、亮起的路燈。哪個細節會改變你的第一印象？</p>
           </div>
           <div class="note-footer" id="seen-list"></div>
-          <a class="note-back" id="note-back" href="#scene" data-i18n="backToScene" hidden>再看其他光點 ↑</a>
-        </aside>
+          <button type="button" class="note-back" id="note-back" data-i18n="backToScene" hidden>再看其他光點 ↑</button>
+        </dialog>
       </div>
     </section>
 
@@ -114,7 +114,7 @@
         <div><span data-i18n="compareWeekendLabel">週末傍晚</span><p id="comparison-weekend"></p></div>
       </div>
       <div class="comparison-reading">
-        <p><strong data-i18n="compareSharedLabel">兩個情境都看見</strong><span data-i18n="compareShared">三位客人在等候。</span></p>
+        <p><strong data-i18n="compareSharedLabel">兩個情境都看見</strong><span data-i18n="compareShared">幾位客人在等候。</span></p>
         <p><strong data-i18n="compareUnknownLabel">仍不知道</strong><span data-i18n="compareUnknown">這是否在多個日子持續、每個人為何等候，以及是否會回訪。</span></p>
         <p><strong data-i18n="compareNextLabel">下一個可查問題</strong><span data-i18n="compareNext">在相近的平日與週末時段重複記錄等候、取預訂與現買。</span></p>
       </div>
@@ -136,16 +136,10 @@
           <h2 id="result-title" tabindex="-1"></h2>
         </div>
         <ol class="result-timeline">
-          <li><span>01</span><strong data-i18n="timelineSeen">今晚看見</strong></li>
-          <li><span>02</span><strong data-i18n="timelineAsk">明天詢問</strong></li>
-          <li><span>03</span><strong data-i18n="timelineFollow">接著追查</strong></li>
+          <li><span aria-hidden="true">→</span><strong data-i18n="timelineSeen">今晚看見</strong></li>
+          <li><span aria-hidden="true">→</span><strong data-i18n="timelineAsk">明天詢問</strong></li>
+          <li><span aria-hidden="true">→</span><strong data-i18n="timelineFollow">接著追查</strong></li>
         </ol>
-        <div class="result-reflection" id="result-reflection" hidden>
-          <div><span data-i18n="reflectionBefore">你第一眼想到</span><strong id="reflection-before"></strong></div>
-          <div><span data-i18n="reflectionNow">現在你想追問</span><strong id="reflection-now"></strong></div>
-          <p data-i18n="reflectionHint">這不是對錯判定；線索讓下一個問題更清楚。</p>
-        </div>
-        <p class="result-lens" id="result-lens"></p>
         <div class="result-body">
           <div>
             <h3 data-i18n="youSaw">你看到了</h3>
@@ -156,6 +150,23 @@
             <p id="result-action"></p>
           </div>
         </div>
+        <section class="letter-result" id="letter-result" aria-labelledby="letter-result-title">
+          <span class="letter-kicker" data-letter="title"></span>
+          <h3 id="letter-result-title" data-letter="invitation"></h3>
+          <p data-letter="arrival"></p>
+          <div id="letter-result-content" hidden></div>
+          <div class="letter-actions">
+            <button type="button" class="action-primary" id="letter-open" data-letter="open"></button>
+            <button type="button" class="action-secondary" id="letter-skip" data-letter="skip"></button>
+          </div>
+        </section>
+        <details class="result-more" id="result-more"><summary data-i18n="more">再多看一點</summary>
+        <div class="result-reflection" id="result-reflection" hidden>
+          <div><span data-i18n="reflectionBefore">你第一眼想到</span><strong id="reflection-before"></strong></div>
+          <div><span data-i18n="reflectionNow">現在你想追問</span><strong id="reflection-now"></strong></div>
+          <p data-i18n="reflectionHint">這不是對錯判定；線索讓下一個問題更清楚。</p>
+        </div>
+        <p class="result-lens" id="result-lens"></p>
         <div class="business-context">
           <div class="result-business">
             <strong data-i18n="businessLabel">放到生意裡是……</strong>
@@ -202,6 +213,7 @@
           <div id="followup-options" class="followup-options"></div>
           <div id="followup-detail" class="followup-detail" aria-live="polite" aria-atomic="true"></div>
         </div>
+        </details>
         <div class="result-actions">
           <button type="button" id="download" class="action-primary" data-i18n="download">下載觀察卡</button>
           <button type="button" id="try-again" class="action-secondary" data-i18n="again">換個問題再看</button>
@@ -212,14 +224,35 @@
 
     <aside class="trade-bridge" aria-labelledby="trade-bridge-title">
       <div>
-        <span data-i18n="tradeBridgeLabel">把方法帶到貿易街</span>
-        <h2 id="trade-bridge-title" data-i18n="tradeBridgeTitle">一櫃貨出海，也要先問對問題。</h2>
-        <p data-i18n="tradeBridgeBody">剛才練習分清線索與結論。接著看看一櫃貨經過十二站時，哪些事情要由誰接力確認。</p>
+        <span data-i18n="tradeBridgeLabel">下一站 · 一盞燈的約定</span>
+        <h2 id="trade-bridge-title" data-i18n="tradeBridgeTitle">把想要的，慢慢說清楚。</h2>
+        <p data-i18n="tradeBridgeBody">帶著想問的問題，走進工作室，試著把材質、尺寸與包裝的期待講清楚。</p>
       </div>
-      <a id="trade-bridge-link" href="/prototype/trade-street/?lang=zh" data-i18n="tradeBridgeLink">走進貿易街 ↗</a>
+      <div class="journey-actions"><a id="trade-bridge-link" href="/prototype/take-the-lantern-apart/?lang=zh" data-i18n="tradeBridgeLink">走進一盞燈的約定 ↗</a><a id="trade-secondary-link" class="secondary-link" href="/prototype/trade-street/?lang=zh" data-i18n="tradeSecondary">或前往：貿易街 ↗</a></div>
     </aside>
 
-    <p class="disclosure" data-i18n="disclosure">虛構互動示範／成效未驗證。這不是真實店家的營運分析；你的選擇不預測生意結果。</p>
+    <p class="disclosure" data-i18n="disclosure">示意玩具，虛構情境；不是真實店家的營運分析，你的選擇不預測生意結果。</p>
+    <dialog class="letter-dialog" id="letter-dialog" aria-labelledby="letter-title">
+      <div class="letter-dialog-head"><h2 id="letter-title" tabindex="-1" data-letter="title"></h2><button type="button" id="letter-close" data-letter="close"></button></div>
+      <div id="letter-reading">
+        <p class="letter-instruction" data-letter="hints"></p>
+        <article class="letter-paper" id="letter-paper"></article>
+        <p class="letter-voice" data-letter="voice"></p>
+        <p class="letter-source" data-letter="source"></p>
+        <dialog class="letter-note" id="letter-note" aria-labelledby="letter-note-title"></dialog>
+        <p id="letter-progress" role="status"></p>
+        <button type="button" id="letter-compose" class="action-primary" data-letter="compose" hidden></button>
+      </div>
+      <section id="letter-composing" hidden aria-labelledby="reply-title">
+        <h3 id="reply-title" tabindex="-1" data-letter="composeTitle"></h3><p data-letter="composeHint"></p>
+        <div id="reply-options" class="reply-options"></div>
+        <p id="reply-capacity" role="status"></p>
+        <div class="reply-slots" id="reply-slots"></div>
+        <label for="reply-tone" data-letter="toneLabel"></label><select id="reply-tone"></select>
+        <article class="reply-preview" aria-labelledby="reply-preview-title"><h3 id="reply-preview-title" data-letter="draft"></h3><div id="reply-preview"></div></article>
+        <div class="letter-actions"><button type="button" id="reply-save" class="action-primary" data-letter="save" disabled></button><button type="button" id="reply-back" class="action-secondary" data-letter="back"></button></div>
+      </section>
+    </dialog>
   </main>
 </body>
 </html>
