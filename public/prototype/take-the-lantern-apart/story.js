@@ -87,7 +87,7 @@ export const PART_QUESTION = {
 export const STORY = {
   zh: {
     doorBtn: "看看門縫",
-    doorText: "門縫裡塞著一張摺好的紙條：「路過時，看見這裡的燈還亮著。我在河對岸開了間小咖啡館，最裡面那張桌子一到晚上就太暗，常客都說在那裡讀信好辛苦。改天想來問問。」——河對岸的咖啡館　小葵",
+    doorText: "門縫裡塞著一張摺好的紙條：「上次和街角的麵包店通信，先把問題一題一題講清楚，事情順多了。這次換我來敲門：我們店最裡面那張桌子，一到晚上就太暗，常客讀信讀得好辛苦。改天想來問問，這次我會先把問題想好。」——河對岸的咖啡館　小葵",
     doorClose: "先收進口袋",
     epiBtn: "門鈴響了",
     epiTitle: "尾聲 · 門鈴響了",
@@ -138,7 +138,7 @@ export const STORY = {
   },
   en: {
     doorBtn: "Check under the door",
-    doorText: "A folded note has been slipped under the door: \"Walked past and saw your light still on. I run a little café across the river. The back table gets too dim at night, and my regulars say reading letters there is hard work. I'd love to come and ask sometime.\" Sunny, the café across the river",
+    doorText: "A folded note has been slipped under the door: \"Writing back and forth with the bakery on the corner, we sorted things out one question at a time, and it all went smoothly. Now it's my turn to knock: the table at the very back of our café gets too dim at night, and my regulars say reading letters there is hard work. I'd like to come and ask sometime, and this time I'll think through my questions first.\" Sunny, the café across the river",
     doorClose: "Tuck it in a pocket",
     epiBtn: "The bell rings",
     epiTitle: "Epilogue · The bell rings",
