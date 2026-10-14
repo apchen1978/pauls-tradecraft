@@ -161,7 +161,8 @@ html[lang="en"] .hero-copy h1 { max-width: 11ch; font-size: clamp(2.8rem, 4.2vw,
 .business-chain-steps li { min-width: 0; padding-top: 13px; border-top: 2px solid #b5c1bf; counter-increment: evidence-step; }
 .business-chain-steps li::before { content: "0" counter(evidence-step); display: block; margin-bottom: 11px; color: var(--cinnamon); font-size: .82rem; font-weight: 800; letter-spacing: .08em; }
 .business-chain-steps strong { display: block; margin-bottom: 7px; color: var(--night); font-size: .98rem; }
-.business-chain-steps p { margin: 0; font-size: .91rem; line-height: 1.55; }
+.result .business-chain-steps p { margin: 0; font-size: .91rem; line-height: 1.55; }
+.result .business-chain-steps li + li { margin-top: 0; }
 .business-chain-bridge { margin: 20px 0 0 !important; padding-top: 14px; border-top: 1px solid var(--line); color: var(--night) !important; font-weight: 700; }
 .result-body { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px,5vw,80px); margin-top: 34px; }
 .result h3 { margin: 0 0 11px; font-size: .9rem; color: var(--cinnamon); letter-spacing: .04em; }
@@ -266,7 +267,10 @@ html[lang="en"] .hero-copy h1 { max-width: 11ch; font-size: clamp(2.8rem, 4.2vw,
   .result-heading { display: block; }
   .result-heading h2 { margin-top: 12px; }
   .result-body { grid-template-columns: 1fr; gap: 25px; }
-  .business-chain-steps { grid-template-columns: 1fr; }
+  .business-chain-steps { grid-template-columns: 1fr; gap: 11px; }
+  .business-chain-steps li { padding-top: 9px; }
+  .business-chain-steps li::before { margin-bottom: 5px; }
+  .business-chain-steps strong { margin-bottom: 4px; }
   .alternatives { grid-template-columns: 1fr; }
   .result-timeline { gap: 6px; }
   .result-timeline li { display: block; }
