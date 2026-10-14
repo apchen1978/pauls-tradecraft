@@ -22,7 +22,8 @@ async function playThrough(page, lang) {
   await page.locator("#turn-l").click();
   await expect(page.locator("#lamp")).toHaveAttribute("data-angle", "l");
   await page.locator("#spot-shade").click();
-  await expect(page.locator("#egg")).toBeVisible();
+  await expect(page.locator("#star-dots")).toBeAttached();
+  await expect(page.locator("#note")).not.toContainText(/星座|Star-sign|待 Paul|Paul to supply/);
   await page.locator("#spot-base").click();
   await expect(page.locator("#go2")).toBeEnabled();
   await noOverflow(page);
@@ -87,6 +88,7 @@ test("spec card downloads with the kid's name and no date", async ({ page }) => 
   });
   await page.goto(`${URL}?lang=en`);
   for (const id of ["#go0", "#go1", "#spot-shade", "#spot-base", "#go2", "#go3", "#go4"]) await page.locator(id).click();
+  await expect(page.locator("#card")).toHaveAttribute("data-ready", "1");
   const text = (await page.evaluate(() => window.__cardText)).join("\n");
   expect(text).toContain("Chiensi");
   expect(text).toContain("Plug and voltage");
@@ -103,4 +105,22 @@ test("language switch keeps the screen and updates the link", async ({ page }) =
   await expect(page).toHaveURL(/lang=en/);
   await expect(page.locator("#s1")).toBeVisible();
   await expect(page.locator("#go1")).toHaveText("Take a closer look");
+});
+
+test("all nine shade and base combos load real art and keep the tint", async ({ page }) => {
+  await page.goto(`${URL}?lang=zh`);
+  for (const id of ["#go0", "#go1", "#spot-shade", "#spot-base", "#go2"]) await page.locator(id).click();
+  for (const shade of ["paper", "glass", "metal"]) {
+    for (const base of ["wood", "ceramic", "brass"]) {
+      await page.locator(`[data-part="shade"][data-option="${shade}"]`).click();
+      await page.locator(`[data-part="base"][data-option="${base}"]`).click();
+      await expect(page.locator("#shade")).toHaveAttribute("src", `assets/lamp-shade-${shade}-f.webp`);
+      await expect(page.locator("#base")).toHaveAttribute("src", `assets/lamp-base-${base}-f.webp`);
+      await expect.poll(() => page.evaluate(() => [...document.querySelectorAll("#lamp img")].every((i) => i.complete && i.naturalWidth === 800))).toBe(true);
+    }
+  }
+  await page.locator('[data-part="colour"][data-option="persimmon"]').click();
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.getElementById("tint")).backgroundColor)).toBe("rgb(224, 135, 74)");
+  await page.locator('#s3 [data-part="size"][data-option="l"]').click();
+  await expect(page.locator("#lamp")).toHaveAttribute("data-size", "l");
 });

@@ -32,10 +32,11 @@ function applyText() {
 function show(n) {
   state.screen = n;
   for (const s of document.querySelectorAll(".screen")) s.hidden = Number(s.dataset.screen) !== n;
+  $("stage").dataset.screen = String(n);
   $("lamp").classList.toggle("lit", n >= 1);
   $("lamp").classList.toggle("apart", n === 3);
   if (n === 4) renderLists();
-  if (n === 5) drawCard();
+  if (n === 5) drawCardWithArt();
   const heading = document.querySelector(`#s${n} h1, #s${n} h2`);
   if (heading && n > 0) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
   if (n > 0) document.querySelector(`#s${n}`).scrollIntoView({ block: "nearest" });
@@ -45,9 +46,12 @@ function paintLamp() {
   const lamp = $("lamp");
   lamp.dataset.angle = state.angle;
   lamp.dataset.size = state.picks.size;
-  $("shade").className = `shade ${state.picks.shade}`;
-  $("shade").style.setProperty("background-color", optionOf("colour", state.picks.colour).tint);
-  $("base").className = `base ${state.picks.base}`;
+  const shadeSrc = `assets/lamp-shade-${state.picks.shade}-f.webp`;
+  $("shade").src = shadeSrc;
+  lamp.style.setProperty("--shade-mask", `url("${shadeSrc}")`);
+  lamp.style.setProperty("--tint", optionOf("colour", state.picks.colour).tint);
+  $("base").src = `assets/lamp-base-${state.picks.base}-f.webp`;
+  $("pack").src = `assets/pack-${state.picks.pack}.webp`;
   $("lamp-wrap").classList.toggle("zoomed", state.zoom);
 }
 
@@ -61,7 +65,7 @@ function renderNote() {
   const note = $("note");
   const last = state.lastSpot;
   if (!last) { note.textContent = ""; return; }
-  if (last === "shade") note.innerHTML = `<p>${t("shadeNote")}</p><p class="egg" id="egg">${t("egg")}</p>`;
+  if (last === "shade") { note.innerHTML = `<p></p><div class="star-dots" id="star-dots" aria-hidden="true"></div>`; note.firstChild.textContent = t("shadeNote"); }
   else if (last === "base") note.textContent = t("baseNote");
   else note.textContent = t("mg");
 }
@@ -186,6 +190,48 @@ function layoutCard(ctx, scale) {
   return { rows, height: y };
 }
 
+const loadImg = (src) => new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = src; });
+let lampImages = null;
+async function loadLampImages() {
+  const p = state.picks;
+  const [cord, base, shade, glow] = await Promise.all([
+    "assets/lamp-cord-f.webp", `assets/lamp-base-${p.base}-f.webp`, `assets/lamp-shade-${p.shade}-f.webp`, "assets/lamp-shade-glow-f.webp",
+  ].map(loadImg));
+  lampImages = { cord, base, shade, glow };
+}
+
+function drawLampLayers(ctx) {
+  const { cord, base, shade, glow } = lampImages;
+  const k = { s: 0.82, m: 1, l: 1.12 }[state.picks.size];
+  const size = 420 * k;
+  const x = 200 - size / 2;
+  const y = 860 - size * 0.88;
+  // Tinted shade on its own canvas: multiply the colour, then clip to the shade's alpha.
+  const off = document.createElement("canvas");
+  off.width = 800; off.height = 800;
+  const o = off.getContext("2d");
+  o.drawImage(shade, 0, 0);
+  o.globalCompositeOperation = "multiply";
+  o.fillStyle = optionOf("colour", state.picks.colour).tint;
+  o.fillRect(0, 0, 800, 800);
+  o.globalCompositeOperation = "destination-in";
+  o.drawImage(shade, 0, 0);
+  ctx.drawImage(cord, x, y, size, size);
+  ctx.drawImage(base, x, y, size, size);
+  ctx.drawImage(off, x, y, size, size);
+  ctx.globalAlpha = 0.45;
+  ctx.globalCompositeOperation = "screen";
+  ctx.drawImage(glow, x, y, size, size);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+}
+
+async function drawCardWithArt() {
+  try { await loadLampImages(); } catch { lampImages = null; }
+  drawCard();
+  $("card").dataset.ready = "1";
+}
+
 function drawCard() {
   const c = $("card");
   const ctx = c.getContext("2d");
@@ -200,18 +246,7 @@ function drawCard() {
   ctx.fillStyle = "#F4EEDF";
   ctx.font = `500 30px system-ui, "Noto Sans TC", sans-serif`;
   ctx.fillText(t("client"), 70, 175, 940);
-  // Lamp sketch (placeholder until art lands).
-  const tint = optionOf("colour", state.picks.colour).tint;
-  const s = { s: 0.82, m: 1, l: 1.12 }[state.picks.size];
-  ctx.save();
-  ctx.translate(220, 640);
-  ctx.scale(s * 1.4, s * 1.4);
-  ctx.fillStyle = tint;
-  ctx.beginPath(); ctx.moveTo(-40, -150); ctx.lineTo(40, -150); ctx.lineTo(70, -40); ctx.lineTo(-70, -40); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = "#6B5A44"; ctx.fillRect(-4, -40, 8, 80);
-  ctx.fillStyle = { wood: "#8A5A34", ceramic: "#D9D2C3", brass: "#B8913F" }[state.picks.base];
-  ctx.fillRect(-40, 40, 80, 40);
-  ctx.restore();
+  if (lampImages) drawLampLayers(ctx);
   let scale = 1;
   let lay = layoutCard(ctx, scale);
   while (lay.height > 1000 && scale > 0.6) { scale -= 0.05; lay = layoutCard(ctx, scale); }
@@ -227,7 +262,6 @@ function drawCard() {
 }
 
 function download() {
-  drawCard();
   $("card").toBlob((blob) => {
     if (!blob) return;
     const a = document.createElement("a");
