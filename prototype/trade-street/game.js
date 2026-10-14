@@ -146,7 +146,7 @@ export const DECISIONS = [
     zh: { prompt: "拖車問：什麼時候進港？" },
     en: { prompt: "The trucker asks: when do we go into the port?" },
     options: [
-      { id: "A", tag: "buffer", cost: 0, zh: "留緩衝，提早進港", en: "Keep a buffer and go in early." },
+      { id: "A", tag: "buffer", cost: 0, extra: { holiday: 1 }, zh: "留緩衝，提早進港", en: "Keep a buffer and go in early." },
       { id: "B", tag: "rules", cost: 0, zh: "照貨代通知的進港截止時間辦，並記下來", en: "Go by the port-entry cut-off in the forwarder's notice, and write it down." },
       { id: "C", tag: "check", cost: 1, extra: { rush: 2 }, zh: "出發前把所有文件再逐頁核一遍，結果壓線進港", en: "Go through every paper once more before leaving, and arrive at the last minute." },
     ],
