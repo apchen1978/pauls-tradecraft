@@ -338,6 +338,13 @@ for (const width of [390, 1440]) {
         const caseHref = await page.locator("#takeaway-case").getAttribute("href");
         expect(caseHref).toContain("/cases/first-container/");
         if (lang === "en") expect(caseHref).toContain("lang=en");
+        await expect(page.locator("#more-asks")).toBeVisible();
+        await expect(page.locator("#more-asks .more-body")).toBeHidden();
+        await page.locator("#more-asks summary").click();
+        await expect(page.locator("#more-asks li")).toHaveCount(5);
+        await expect(page.locator("#more-asks")).toContainText(lang === "zh" ? "截單、截關（結關）、截港" : "document cut-off, the customs cut-off");
+        await page.locator("#more-danger summary").click();
+        await expect(page.locator("#more-danger li")).toHaveCount(4);
         await noOverflow(page);
       });
     }
