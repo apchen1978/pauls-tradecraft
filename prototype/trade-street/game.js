@@ -136,7 +136,7 @@ export const DECISIONS = [
     zh: { prompt: "廠長說：差不多好了。" },
     en: { prompt: "The factory head says: nearly done." },
     options: [
-      { id: "A", tag: "check", cost: 0, extra: { rush: 1 }, zh: "到場核對實貨與文件一致，拍照、記下封條號碼", en: "Be there, check the goods match the documents, take photos and note the seal number." },
+      { id: "A", tag: "check", cost: 0, zh: "到場核對實貨與文件一致，拍照、記下封條號碼", en: "Be there, check the goods match the documents, take photos and note the seal number." },
       { id: "B", tag: "trust", cost: 0, zh: "請廠長裝完回報實貨照片與封條號碼，由你核對", en: "Ask the factory head to report back with photos and the seal number, and you check them." },
       { id: "C", tag: "clock", cost: 1, extra: { rush: 2 }, zh: "趕時間，先封櫃，文件晚點再對", en: "Short on time: seal now, check the papers later." },
     ],

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 import {
-  allRoutes, CAST, CAST_ORDER, DECISIONS, isCode, LIGHTS, readRoute, REACT, resolve, SCENARIO_ORDER, SCENARIOS, shareSearch,
+  allRoutes, CAST, CAST_ORDER, DECISIONS, isCode, LIGHTS, optionCost, readRoute, REACT, resolve, SCENARIO_ORDER, SCENARIOS, shareSearch,
   START_BUFFER, STATION_SPEAKER, STYLE_CHAR, STYLE_ORDER, STYLES,
 } from "../prototype/trade-street/game.js";
 import { LEARN_TEXT, PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
@@ -142,12 +142,15 @@ test("scenarios only make the options they describe cost more", () => {
   assert.equal(START_BUFFER, 2);
 });
 
-test("the buffer is felt: a sensible all-A route spends a cell in holiday and rush, and the matching all-B route never does", () => {
-  for (const scenario of ["holiday", "rush"]) {
-    assert.ok(resolve(scenario, "AAAAAA").voyageCost >= 1, `${scenario} AAAAAA spends a cell`);
-    assert.equal(resolve(scenario, "BBBBBB").voyageCost, 0, `${scenario} BBBBBB spends none`);
-  }
+test("the buffer is felt: leaving a buffer by entering the port early spends a cell around a holiday, and careful checking is never punished", () => {
+  assert.equal(resolve("holiday", "AAAAAA").voyageCost, 1, "holiday AAAAAA spends a cell");
+  assert.equal(resolve("holiday", "AAAAAA").costs[3], 1, "at the port-entry decision");
+  assert.equal(resolve("holiday", "BBBBBB").voyageCost, 0);
+  // careful checking (the "check" choice at the factory) costs nothing in any scenario
+  const factory = DECISIONS.find((decision) => decision.id === "d3").options.find((option) => option.id === "A");
+  for (const scenario of SCENARIO_ORDER) assert.equal(optionCost(DECISIONS.find((decision) => decision.id === "d3"), factory, scenario), 0, `d3-A is free in ${scenario}`);
   assert.equal(resolve("peak", "AAAAAA").voyageCost, 0);
+  assert.equal(resolve("rush", "AAAAAA").voyageCost, 0);
 });
 
 test("hand-over: all fourteen runners, every line traceable to the stop texts, no numbers or units, both languages", () => {
