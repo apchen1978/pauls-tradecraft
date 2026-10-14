@@ -647,8 +647,8 @@ function setLanguage(next) {
   history.replaceState(null, "", url);
   renderQuestions();
   renderNote();
-  renderResult();
   renderLetter();
+  renderResult();
 }
 
 // Measure every line before drawing: long replies grow the PNG rather than truncate.
