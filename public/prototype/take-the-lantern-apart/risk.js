@@ -2,7 +2,7 @@
 // Shape: RISK[key][lang] = string; riskLine(key, lang) adds the prefix. No numbers, no verdicts.
 // (Other works, e.g. 街角的秘密, could borrow this shape for their own pending items.)
 
-export const RISK_PREFIX = { zh: "這裡還有風險：", en: "Risk if unasked: " };
+export const RISK_PREFIX = { zh: "這裡還有風險：", en: "Risk: " };
 
 export const RISK = {
   plug: { zh: "插頭插不進當地插座，整批燈用不了。", en: "the plug may not fit local sockets, so the lamps can't be used." },
@@ -20,6 +20,8 @@ export const RISK = {
   tolerance: { zh: "大小差一點，就放不進原本留好的位置。", en: "a slightly different size may not fit the space you kept for it." },
   outer: { zh: "小盒在外箱裡晃動，路上互相碰撞。", en: "boxes may shift inside the carton and knock each other on the way." },
   artwork: { zh: "沒人提供印刷稿，禮盒卡在最後一步。", en: "if nobody supplies the artwork, the gift box stalls at the last step." },
+  look: { zh: "收到的樣子和想像不同，卻沒有說好的比對依據。", en: "it may arrive looking different, with nothing agreed to compare it to." },
+  packing: { zh: "路上碰撞或碎裂，收到的燈不能用。", en: "knocks or breakage on the way, and the lamp arrives unusable." },
   perCarton: { zh: "每箱裝法沒講好，分送時對不上要去的地方。", en: "if carton packing isn't agreed, the lamps may not split well between places." },
 };
 

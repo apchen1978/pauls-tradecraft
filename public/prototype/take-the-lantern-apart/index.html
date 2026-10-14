@@ -123,7 +123,9 @@
       <div class="say" data-line="s4Yiyi"></div>
       <div class="lists">
         <div><h3 data-i18n="agreed"></h3><ul id="agreed-list" class="agreed"></ul></div>
-        <div><h3 data-i18n="pending"></h3><ul id="pending-list" class="pending"></ul></div>
+        <div><h3 data-i18n="pending"></h3>
+          <h4 class="group must" data-i18n="mustAsk"></h4><ul id="pending-list" class="pending must"></ul>
+          <details class="later" id="later"><summary data-i18n="askLater"></summary><ul id="later-list" class="pending later"></ul></details></div>
       </div>
       <button type="button" class="primary" id="go4" data-i18n="s4go"></button>
     </section>
@@ -136,7 +138,7 @@
         <div class="say" data-line="s5Yiyi"></div>
         <div class="say" data-line="s5Diana"></div>
       </details>
-      <canvas id="card" width="1080" height="1350" role="img" aria-label=""></canvas>
+      <canvas id="card" width="1080" height="1920" role="img" aria-label=""></canvas>
       <div class="actions">
         <button type="button" class="primary" id="download" data-i18n="download"></button>
         <button type="button" id="again" data-i18n="again"></button>
