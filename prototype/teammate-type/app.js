@@ -551,6 +551,47 @@ export const FACTIONS = {
   },
 };
 
+// Hidden scenes at the end of the gallery: four slots, each mixing characters from any team.
+// A slot with src: null stays out of the page until its art file is added.
+export const SCENES = [
+  {
+    id: "galaxy-lamp",
+    cast: ["alliance", "galaxy", "recorder", "cocoa"],
+    src: "assets/easter-nightglow-v2.webp",
+    width: 816,
+    height: 1020,
+    zh: { alt: "雪夜的路燈下，銀河之女坐著輕撫有翅膀的白馬，靚仔蹲著舉相機，MG 坐在冒熱氣的杯子旁", caption: "雪夜的路燈下，大家停下來，拍一張。" },
+    en: { alt: "Under a street lamp on a snowy night, the Daughter of the Galaxy strokes a winged white horse, Lenz kneels with a camera, and MG sits by a steaming cup", caption: "Under the street lamp on a snowy night, everyone stops for a photo." },
+  },
+  {
+    id: "clocktower",
+    cast: ["mapkeeper", "andromeda", "messenger", "designer"],
+    src: "assets/easter-clocktower.webp",
+    width: 816,
+    height: 1020,
+    zh: { alt: "鐘樓下的長椅上，莉婭攤開手繪地圖，Holly 提著燈湊近看，阿修指著一條街，苔苔用圍巾壓住地圖", caption: "鐘樓下，大家湊在一張地圖前，想著明天要走哪條路。" },
+    en: { alt: "On a bench below the clock tower, Leia spreads a hand-drawn map, Holly leans in with a lantern, Shiu points to a street, and Moss weighs the map down with a scarf", caption: "Below the clock tower, everyone gathers over a map, wondering which way to go tomorrow." },
+  },
+  {
+    id: "warmwindow",
+    cast: ["craftsman", "spark", "soundtrack", "finisher"],
+    src: "assets/easter-warmwindow.webp",
+    width: 816,
+    height: 1020,
+    zh: { alt: "暖窗小屋裡，戴安娜站在梯子上修一串小燈，阿閃扶著梯子，樂樂戴著耳機陪在桌邊，塞安遞上一顆燈泡", caption: "暖窗邊，一串小燈修好之前，誰也不想先回家。" },
+    en: { alt: "Inside a cottage with warm windows, Diana stands on a ladder fixing a string of lights, Flick steadies the ladder, Remi keeps them company in headphones, and Zion hands up a bulb", caption: "By the warm window, nobody wants to head home until the string of lights is fixed." },
+  },
+  {
+    id: "stage",
+    cast: ["missionary", "apostle", "strategist", "umbrella"],
+    src: "assets/easter-stage.webp",
+    width: 816,
+    height: 1020,
+    zh: { alt: "露天舞台散場後，言歌和保羅掃著台階上的雪，墨衡收起折椅，阿白撐傘護著音響，台邊放著一杯冒熱氣的飲料", caption: "散場以後，舞台慢慢安靜下來，熱飲還冒著氣。" },
+    en: { alt: "After the open-air show, Echo and Paul sweep snow off the steps, Rook folds the chairs, Abai holds an umbrella over the speakers, and a steaming cup sits on the stage edge", caption: "After the show, the stage grows quiet, and a warm drink is still steaming." },
+  },
+];
+
 const ABOUT = {
   galaxy: ["關於玉仔：喊一聲，後面那一排就到了。", "About Yuzai: one call, and the line behind them arrives."],
   alliance: ["關於銀河之女：她站出來，這一圈就有了中心。", "About Daughter of the Galaxy: when she steps out, the circle has a center."],
@@ -1145,6 +1186,7 @@ function boot() {
     $("gallery-title").textContent = ui.galleryTitle;
     $("gallery-lead").textContent = ui.galleryLead;
     fillGallery();
+    fillScenes();
   }
 
   // The gallery is always open. Its pictures load only once it nears the viewport,
@@ -1162,6 +1204,27 @@ function boot() {
       }
     }, { rootMargin: "0px" });
     observer.observe($("gallery"));
+  }
+
+  function fillScenes() {
+    const box = $("scenes");
+    box.textContent = "";
+    $("scene-glint").setAttribute("aria-label", state.lang === "zh" ? "照夜鎮的一幕" : "A scene from Nightglow");
+    if (box.hidden) return;
+    for (const scene of SCENES.filter((item) => item.src)) {
+      const fig = document.createElement("figure");
+      fig.dataset.scene = scene.id;
+      const img = document.createElement("img");
+      img.src = scene.src;
+      img.width = scene.width;
+      img.height = scene.height;
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.alt = scene[state.lang].alt;
+      fig.appendChild(img);
+      fig.appendChild(el("figcaption", "", scene[state.lang].caption));
+      box.appendChild(fig);
+    }
   }
 
   function fillGallery() {
@@ -1195,6 +1258,13 @@ function boot() {
       list.appendChild(block);
     }
   }
+
+  $("scene-glint").addEventListener("click", () => {
+    const box = $("scenes");
+    box.hidden = !box.hidden;
+    $("scene-glint").setAttribute("aria-expanded", String(!box.hidden));
+    fillScenes();
+  });
 
   function render(focus) {
     const ui = UI[state.lang];
