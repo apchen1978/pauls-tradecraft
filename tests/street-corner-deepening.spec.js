@@ -24,6 +24,13 @@ async function reachComparisonResult(page, lang, width) {
   await expect(comparison).toBeHidden();
 
       if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
+  // The time switch now appears only after all four details have been seen, folded under a summary.
+  for (const clue of ["window", "bags", "lamp"]) {
+    await page.locator(`[data-clue="${clue}"]`).click();
+    if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
+  }
+  await expect(page.locator("#scenario-tools")).toBeVisible();
+  await page.locator("#scenario-tools > summary").click();
   await page.locator('[data-scenario="weekend"]').click();
       if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
   await page.locator('[data-clue="queue"]').click();
