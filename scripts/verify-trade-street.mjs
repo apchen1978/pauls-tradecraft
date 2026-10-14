@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 import {
-  allRoutes, CAST, CAST_ORDER, DECISIONS, isCode, LIGHTS, optionCost, readRoute, REACT, resolve, SCENARIO_ORDER, SCENARIOS, shareSearch,
-  START_BUFFER, STATION_SPEAKER, STYLE_CHAR, STYLE_ORDER, STYLES,
+  allRoutes, CAST, CAST_ORDER, DECISIONS, isCode, LIGHTS, mostLikelyMiss, optionCost, readRoute, REACT, resolve, SCENARIO_ORDER, SCENARIOS, shareSearch,
+  START_BUFFER, STATION_SPEAKER, STYLE_CHAR, STYLE_ORDER, STYLES, UNPLAYED_STOPS,
 } from "../prototype/trade-street/game.js";
 import { LEARN_TEXT, PAGE_TEXT, STEP_TEXT } from "../prototype/trade-street/steps-text.js";
 import { HANDOFF, HANDOFF_LABEL } from "../prototype/trade-street/handoff.js";
@@ -197,6 +197,33 @@ test("the last stop is worked out from the number of stops, never written as a n
   const app = read("../prototype/trade-street/app.js");
   assert.match(app, /LAST_STOP = ALL_STEPS\.length - 1/);
   assert.equal(/(index|i) === 11/.test(app), false);
+});
+
+test("most likely to miss: every route gets one stop with a newcomer tip; spent routes point at the costliest stop, clean ones at an unplayed stop", () => {
+  assert.deepEqual(UNPLAYED_STOPS, EXTRA_INDEX);
+  const seen = { spent: new Set(), clean: new Set() };
+  for (const res of routes) {
+    const miss = mostLikelyMiss(res);
+    assert.deepEqual(miss, mostLikelyMiss(res), "same route, same answer");
+    assert.ok(TIPS[miss.stop], `stop ${miss.stop + 1} has a newcomer tip`);
+    seen[miss.kind].add(miss.stop);
+    // only an off-course choice (its own base cost above 0) counts; a good choice that costs a cell in one scenario does not
+    const offCourse = res.costs.map((cost, i) => (DECISIONS[i].options.find((o) => o.id === res.code[i]).cost > 0 ? cost : 0));
+    const most = Math.max(...offCourse);
+    if (most > 0) {
+      assert.equal(miss.kind, "spent");
+      const first = offCourse.findIndex((cost) => cost === most);
+      assert.equal(miss.stop, DECISIONS[first].step - 1, `${res.scenario} ${res.code}: the costliest decision`);
+    } else {
+      assert.equal(miss.kind, "clean");
+      assert.ok(UNPLAYED_STOPS.includes(miss.stop));
+    }
+  }
+  assert.deepEqual([...seen.clean].sort((a, b) => a - b), UNPLAYED_STOPS);
+  assert.deepEqual([...seen.spent].sort((a, b) => a - b), DECISIONS.map((decision) => decision.step - 1).sort((a, b) => a - b));
+  for (const lang of ["zh", "en"]) for (const key of ["missSpent", "missClean", "missTip"]) assert.ok(UI[lang][key], `${lang} ${key}`);
+  // the share address carries nothing new: still scenario plus six letters
+  assert.equal(shareSearch("peak", "ABCABC", "zh"), "?s=peak&c=ABCABC");
 });
 
 test("addresses: valid ones round-trip, bad ones are ignored", () => {

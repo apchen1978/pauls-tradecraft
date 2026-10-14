@@ -79,6 +79,23 @@ for (const width of [390, 1440]) {
     });
 
     for (const lang of ["zh", "en"]) {
+      test(`${lang}: the result names the one stop you were most likely to miss, with a newcomer tip, and the address is unchanged`, async ({ page }) => {
+        // holiday, port-entry choice A costs a cell but is the good choice: it must not be named; the off-course choice at stop 8 is
+        await page.goto(`${base}/index.html?lang=${lang}&s=holiday&c=AAAACA`);
+        await expect(page.locator("#miss")).toBeVisible();
+        await expect(page.locator("#miss-head")).toContainText(lang === "zh" ? "最可能漏的一站：8. 報關" : "most likely to miss this time: 8. Customs");
+        await expect(page.locator("#miss-tip-label")).toContainText(lang === "zh" ? "業界常見" : "common practice");
+        await expect(page.locator("#miss-tip")).not.toBeEmpty();
+        // peak, all A: nothing used buffer, so it points at a stop the game never plays (6 or 13)
+        await page.goto(`${base}/index.html?lang=${lang}&s=peak&c=AAAAAA`);
+        await expect(page.locator("#miss-head")).toContainText(lang === "zh" ? "沒有走偏的選擇" : "went off course");
+        await expect(page.locator("#miss-head")).toContainText(/(6\. |13\. )/);
+        await noOverflow(page);
+        expect(page.url()).toContain("s=peak&c=AAAAAA");
+      });
+    }
+
+    for (const lang of ["zh", "en"]) {
       test(`${lang}: the two extra stops are marked as common practice, carry their point, and sit under the stop heading`, async ({ page }) => {
         await page.goto(`${base}/index.html?lang=${lang}`);
         await page.locator("#start").click();
