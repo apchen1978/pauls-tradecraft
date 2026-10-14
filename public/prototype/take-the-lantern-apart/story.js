@@ -62,7 +62,7 @@ export const REACT = {
   base: {
     wood: { who: "yiyi", zh: "木紋像每本書留下的折角，不會每個都一樣。我們能接受哪些差別？", en: "Wood grain is like the creases a book gathers: no two are quite the same. What differences are we happy with?" },
     ceramic: { who: "diana", zh: "釉色很值得近看，也需要說清楚可以接受的差異。", en: "The glaze is worth a closer look. We should agree which variations are acceptable." },
-    brass: { who: "chiensi", zh: "照片裡也有這種暖暖的顏色。表面會一直是這樣嗎？", en: "The photo has this warm colour, too. Will the finish stay like this?" },
+    brass: { who: "chiensi", zh: "這種暖暖的顏色好好看！表面會一直是這樣嗎？", en: "I love this warm colour! Will the finish stay like this?" },
   },
   size: {
     s: { who: "diana", zh: "小一點很省位置，但「小」是多小？跟哪一盞比，要寫清楚。", en: "Smaller saves space, but how small is small? We should write down what we're comparing it to." },
@@ -78,7 +78,7 @@ export const REACT = {
 
 export const PART_QUESTION = {
   shade: { zh: "是照片裡的樣子，還是身邊的用法？", en: "The look in the photo, or how we'll use it?" },
-  colour: { zh: "照片裡的夜色，也會改變顏色", en: "The night in the photo changes the colour, too" },
+  colour: { zh: "夜色和燈光，也會改變顏色", en: "Night and lamplight change the colour, too" },
   base: { zh: "近看，才會發現不同", en: "Look closely, and differences appear" },
   size: { zh: "書旁邊，還留得下什麼？", en: "What else fits beside the books?" },
   pack: { zh: "它怎麼抵達那扇窗？", en: "How will it reach that window?" },
@@ -103,7 +103,7 @@ export const STORY = {
     noteCard: "我們想替窗邊準備一盞燈。照片在這裡，其他的，想和你一起想清楚。",
     start: "推開工作室的門",
     s1title: "照片沒有拍到的事",
-    s1narr: "千禧把照片放上桌。依依姐帶來一本書，書頁間夾著一片乾葉。",
+    s1narr: "千禧把拍立得放上桌。依依姐帶來一本書，書頁間夾著一片乾葉。",
     talkMore: "聽他們聊聊",
     s1go: "把照片放到工作台",
     s1skip: "直接看燈",
@@ -111,7 +111,7 @@ export const STORY = {
     leafText: "書頁間的乾葉有一道小裂縫。依依姐說，書籤不必漂亮，能記住上次讀到哪裡就很好。",
     leafClose: "放回書頁",
     s2title: "把燈轉一轉",
-    s2hint: "轉一轉，看看照片裡沒拍到的地方。",
+    s2hint: "轉一轉，看看背面和底下。",
     baseHint: "插頭、電壓和安全要求，要依使用地點另行確認。",
     mg: "MG 把墊圈撥到旁邊，又裝作一直坐得很端正。",
     s2go: "一起拆開看看",
@@ -154,7 +154,7 @@ export const STORY = {
     noteCard: "We'd like a lamp for the window-side reading nook. Here's a photograph. We'd love your help figuring out the rest.",
     start: "Step into the workshop",
     s1title: "What the photo didn't show",
-    s1narr: "Chiensi lays the photo on the bench. Yiyi brings a book, with a dried leaf tucked between its pages.",
+    s1narr: "Chiensi lays the instant print on the bench. Yiyi brings a book, with a dried leaf tucked between its pages.",
     talkMore: "Hear them talk",
     s1go: "Put the photo on the bench",
     s1skip: "Go straight to the lamp",
@@ -162,7 +162,7 @@ export const STORY = {
     leafText: "The dried leaf has a small split. Yiyi says a bookmark doesn't have to be perfect. It just needs to keep your place.",
     leafClose: "Put it back",
     s2title: "Turn the lamp",
-    s2hint: "Turn the lamp. Look at the parts the photograph couldn't show.",
+    s2hint: "Turn the lamp. Look at the back and underneath.",
     baseHint: "Plug, voltage and safety requirements still need to be checked for the destination.",
     mg: "MG nudges a washer aside, then sits as though nothing happened.",
     s2go: "Take a look inside",
