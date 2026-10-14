@@ -229,6 +229,7 @@ for (const lang of ['zh', 'en']) {
       await page.locator('#letter-result').screenshot({ path: resolve(dir, `${lang}-${width}-result.png`) });
       const other = lang === 'zh' ? 'en' : 'zh'; await page.locator(`[data-lang="${other}"]`).click();
       await expect(page.locator('#trade-bridge-link')).toHaveAttribute('href', `/prototype/take-the-lantern-apart/?lang=${other}`);
+      await expect(page.locator('#letter-result-title')).toHaveText(other === 'zh' ? '信折好了，故事還沒結束' : "The letter is folded. The story isn't over.");
       await page.locator('#letter-open').click();
       await expect(page.locator('#reply-preview li').first()).toContainText(other === 'zh' ? '什麼時候方便結清' : 'When would you like to settle up');
       await page.keyboard.press('Escape'); await expect(page.locator('#letter-open')).toBeFocused();
