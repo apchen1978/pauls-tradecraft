@@ -551,6 +551,23 @@ export const FACTIONS = {
   },
 };
 
+// Hidden scenes at the end of the gallery: four slots, each mixing characters from any team.
+// A slot with src: null stays out of the page until its art file is added.
+export const SCENES = [
+  {
+    id: "galaxy-lamp",
+    cast: ["alliance", "galaxy", "recorder", "cocoa"],
+    src: "assets/easter-nightglow-v2.webp",
+    width: 816,
+    height: 1020,
+    zh: { alt: "雪夜的路燈下，銀河之女坐著輕撫有翅膀的白馬，靚仔蹲著舉相機，MG 坐在冒熱氣的杯子旁", caption: "雪夜的路燈下，大家停下來，拍一張。" },
+    en: { alt: "Under a street lamp on a snowy night, the Daughter of the Galaxy strokes a winged white horse, Lenz kneels with a camera, and MG sits by a steaming cup", caption: "Under the street lamp on a snowy night, everyone stops for a photo." },
+  },
+  { id: "scene-two", cast: [], src: null, width: 816, height: 1020, zh: { alt: "", caption: "" }, en: { alt: "", caption: "" } },
+  { id: "scene-three", cast: [], src: null, width: 816, height: 1020, zh: { alt: "", caption: "" }, en: { alt: "", caption: "" } },
+  { id: "scene-four", cast: [], src: null, width: 816, height: 1020, zh: { alt: "", caption: "" }, en: { alt: "", caption: "" } },
+];
+
 const ABOUT = {
   galaxy: ["關於玉仔：喊一聲，後面那一排就到了。", "About Yuzai: one call, and the line behind them arrives."],
   alliance: ["關於銀河之女：她站出來，這一圈就有了中心。", "About Daughter of the Galaxy: when she steps out, the circle has a center."],
@@ -1145,6 +1162,7 @@ function boot() {
     $("gallery-title").textContent = ui.galleryTitle;
     $("gallery-lead").textContent = ui.galleryLead;
     fillGallery();
+    fillScenes();
   }
 
   // The gallery is always open. Its pictures load only once it nears the viewport,
@@ -1162,6 +1180,27 @@ function boot() {
       }
     }, { rootMargin: "0px" });
     observer.observe($("gallery"));
+  }
+
+  function fillScenes() {
+    const box = $("scenes");
+    box.textContent = "";
+    $("scene-glint").setAttribute("aria-label", state.lang === "zh" ? "照夜鎮的一幕" : "A scene from Nightglow");
+    if (box.hidden) return;
+    for (const scene of SCENES.filter((item) => item.src)) {
+      const fig = document.createElement("figure");
+      fig.dataset.scene = scene.id;
+      const img = document.createElement("img");
+      img.src = scene.src;
+      img.width = scene.width;
+      img.height = scene.height;
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.alt = scene[state.lang].alt;
+      fig.appendChild(img);
+      fig.appendChild(el("figcaption", "", scene[state.lang].caption));
+      box.appendChild(fig);
+    }
   }
 
   function fillGallery() {
@@ -1195,6 +1234,13 @@ function boot() {
       list.appendChild(block);
     }
   }
+
+  $("scene-glint").addEventListener("click", () => {
+    const box = $("scenes");
+    box.hidden = !box.hidden;
+    $("scene-glint").setAttribute("aria-expanded", String(!box.hidden));
+    fillScenes();
+  });
 
   function render(focus) {
     const ui = UI[state.lang];

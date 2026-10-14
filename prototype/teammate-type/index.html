@@ -960,6 +960,15 @@
       .page.entry-open { width: 100%; }
       .choice { box-shadow: 3px 3px 0 var(--ink); }
     }
+      /* Quiet reveal at the end of the gallery: a small gallery of scenes, mixed casts welcome. */
+    .scene-glint { display: block; margin: 18px auto 0; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: rgba(176, 135, 60, 0.55); font-size: 18px; cursor: pointer; transition: color .3s, text-shadow .3s; }
+    .scene-glint:hover, .scene-glint:focus-visible, .scene-glint[aria-expanded="true"] { color: #b0873c; text-shadow: 0 0 12px rgba(255, 210, 120, 0.9); }
+    .scenes { display: grid; gap: 18px; justify-items: center; margin-top: 12px; }
+    .scenes[hidden] { display: none; }
+    .scenes figure { margin: 0; width: min(100%, 420px); }
+    .scenes img { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+    .scenes figcaption { margin-top: 8px; text-align: center; font-size: 15px; opacity: .85; }
+    @media (prefers-reduced-motion: reduce) { .scene-glint { transition: none; } }
   </style>
 </head>
 <body>
@@ -1130,6 +1139,8 @@
       <h2 id="gallery-title">十六種隊友</h2>
       <p class="gallery-lead" id="gallery-lead"></p>
       <div id="gallery-list"></div>
+      <button type="button" class="scene-glint" id="scene-glint" aria-expanded="false" aria-controls="scenes">✦</button>
+      <div class="scenes" id="scenes" hidden></div>
     </section>
 
     <footer class="foot">

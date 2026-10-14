@@ -1312,3 +1312,32 @@ test.describe("December Lights mobile", () => {
     }
   });
 });
+
+test("hidden scene: a quiet glint after the gallery reveals the scene gallery, zh and en", async ({ page }) => {
+  const size = statSync("prototype/teammate-type/assets/easter-nightglow-v2.webp").size;
+  expect(size).toBeLessThanOrEqual(61440);
+  for (const [lang, word] of [["zh", "路燈"], ["en", "street lamp"]]) {
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/prototype/teammate-type/?lang=${lang}`);
+      const glint = page.locator("#scene-glint");
+      await expect(page.locator("#scenes")).toBeHidden();
+      expect((await glint.innerText()).trim()).toBe("✦");
+      await expect(glint).toHaveAttribute("aria-label", /.+/);
+      await glint.scrollIntoViewIfNeeded();
+      await glint.click();
+      await expect(glint).toHaveAttribute("aria-expanded", "true");
+      const fig = page.locator('#scenes figure[data-scene="galaxy-lamp"]');
+      await expect(fig.locator("figcaption")).toContainText(word);
+      const img = fig.locator("img");
+      await expect(img).toHaveAttribute("alt", /.{12,}/);
+      await img.scrollIntoViewIfNeeded();
+      await expect.poll(() => img.evaluate((e) => e.complete && e.naturalWidth)).toBe(816);
+      expect(await page.locator("#scenes").innerText()).not.toMatch(/[0-9]/);
+      await expect(page.locator("#scenes figure")).toHaveCount(1);
+      await noOverflow(page);
+      await glint.click();
+      await expect(page.locator("#scenes")).toBeHidden();
+    }
+  }
+});
