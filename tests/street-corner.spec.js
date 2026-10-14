@@ -30,29 +30,35 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator(".disclosure")).toContainText(lang === "zh" ? "示意玩具，虛構情境" : "A toy set in a fictional scene");
       await expect(page.locator("#trade-bridge-link")).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
       await expect(page.locator("#route-progress")).toBeEmpty();
+      await expect(page.locator("#decision")).toBeHidden();
+      await expect(page.locator("#scenario-tools")).toBeHidden();
       await page.locator('[data-impression="pickup"]').click();
       await expect(page.locator('[data-impression="pickup"]')).toHaveAttribute("aria-pressed", "true");
       if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
+      await page.locator('[data-clue="queue"]').click();
+      await expect(page.locator("#note-content")).toContainText(lang === "zh" ? "平日傍晚" : "weekday evening");
+      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
+      await page.locator('[data-clue="bags"]').click();
+      await expect(page.locator("#decision")).toBeVisible();
+      await expect(page.locator(".question").first()).toBeEnabled();
+      await expect(page.locator('[data-question="reason"] .question-lens')).toContainText(lang === "zh" ? "紙袋" : "bags");
+      await expect(page.locator('[data-question="capacity"] .question-lens')).toContainText(lang === "zh" ? "還沒看櫥窗" : "Haven't looked at the window");
+      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
+      for (const clue of ["window", "lamp"]) {
+        await page.locator(`[data-clue="${clue}"]`).click();
+        await page.locator("#note-back").click();
+      }
+      await expect(page.locator("#scenario-tools")).toBeVisible();
+      await page.locator("#scenario-tools > summary").click();
       await page.locator('[data-scenario="weekend"]').click();
       await expect(page).toHaveURL(/period=weekend/);
-      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
       await page.locator('[data-clue="queue"]').click();
       await expect(page.locator("#note-content")).toContainText(lang === "zh" ? "週末傍晚" : "weekend evening");
       if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
       await page.locator('[data-scenario="weekday"]').click();
       await expect(page).toHaveURL(/period=weekday/);
-      await expect(page.locator(".question").first()).toBeDisabled();
-      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
-      await page.locator('[data-clue="queue"]').click();
       await expect(page.locator("#impression-options")).toBeHidden();
       await expect(page.locator("#impression-status")).toContainText(lang === "zh" ? "預訂" : "pre-orders");
-      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
-      await page.locator('[data-clue="bags"]').click();
-      await expect(page.locator(".question").first()).toBeEnabled();
-      await expect(page.locator('[data-question="reason"] .question-lens')).toContainText(lang === "zh" ? "紙袋" : "bags");
-      await expect(page.locator('[data-question="capacity"] .question-lens')).toContainText(lang === "zh" ? "還沒看櫥窗" : "Haven't looked at the window");
-      if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
-      await page.locator('[data-clue="window"]').click();
       await expect(page.locator('[data-question="capacity"] .question-lens')).toContainText(lang === "zh" ? "你看過櫥窗" : "You noticed the window");
 
       if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
@@ -98,7 +104,7 @@ test("first impression can be skipped without blocking exploration", async ({ pa
   await page.locator("#impression-skip").click();
   await expect(page.locator("#first-impression")).toBeHidden();
   await expect(page.locator(".hero-prompt")).toBeHidden();
-  await expect(page.locator(".start-link")).toHaveAttribute("href", "#explore-title");
+  await expect(page.locator(".start-link")).toHaveCount(0);
   if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
   await page.locator('[data-clue="queue"]').click();
   if (await page.locator("#field-note").isVisible()) await page.locator("#note-back").click();
@@ -109,6 +115,31 @@ test("first impression can be skipped without blocking exploration", async ({ pa
   await expect(page.locator("#result-reflection")).toBeHidden();
   await expect(page.locator("#result")).toBeVisible();
 });
+
+for (const lang of ["zh", "en"]) {
+  for (const width of [390, 1440]) {
+    test(`first screen explains the purpose and labels the scene ${lang} ${width}`, async ({ page }) => {
+      const height = width === 390 ? 844 : 900;
+      await page.setViewportSize({ width, height });
+      await page.goto(`/prototype/secrets-on-the-corner/?lang=${lang}`);
+      await expect(page.locator(".hero-purpose-question")).toBeVisible();
+      await expect(page.locator(".hero-purpose")).toContainText(lang === "zh" ? "觀察卡" : "field card");
+      await expect(page.locator(".hero-purpose")).toContainText(lang === "zh" ? "小葵" : "Sunny");
+      await expect(page.locator(".hero-prompt")).toBeInViewport();
+      const promptBox = await page.locator(".hero-prompt").boundingBox();
+      expect(promptBox.y + promptBox.height).toBeLessThanOrEqual(height);
+      await expect(page.locator(".hotspot-label")).toHaveCount(4);
+      for (const label of await page.locator(".hotspot-label").all()) await expect(label).toBeVisible();
+      await expect(page.locator("#decision")).toBeHidden();
+      await expect(page.locator("#scenario-tools")).toBeHidden();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+      const { mkdir } = await import("node:fs/promises");
+      const { resolve } = await import("node:path");
+      const dir = resolve("output/playwright/street-clarity"); await mkdir(dir, { recursive: true });
+      await page.screenshot({ path: resolve(dir, `${lang}-${width}-first-screen.png`), fullPage: false });
+    });
+  }
+}
 
 test("a glowing point opens an accessible note and restores focus on close", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
