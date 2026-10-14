@@ -358,7 +358,7 @@ dialog::backdrop { background: rgb(12 27 35 / .7); }
 .letter-ending { font-family: Georgia, "Songti TC", serif; font-size: 1.12rem; }
 .letter-story { color: var(--ink-soft); padding-left: 16px; border-left: 2px solid var(--cinnamon); }
 .reply-arrival { margin: 22px 0 0 !important; font-family: Georgia, "Songti TC", serif; font-size: 1.12rem; }
-.sunny-reply-paper { margin: 24px 0; padding: clamp(20px, 4vw, 34px); border-left: 3px solid var(--cinnamon); background: #fffdf8; font-family: "Noto Serif TC", "Songti TC", Georgia, serif; line-height: 1.9; overflow-wrap: anywhere; }
+.sunny-reply-paper { max-width: 780px; margin: 24px auto; padding: clamp(20px, 4vw, 34px); border-left: 3px solid var(--cinnamon); background: #fffdf8; font-family: "Noto Serif TC", "Songti TC", Georgia, serif; line-height: 1.9; overflow-wrap: anywhere; }
 .sunny-reply-paper h4 { font-family: inherit; font-size: 1.12rem; }
 .sunny-reply-paper p { max-width: none; margin: 0 0 18px; color: var(--night); }
 .sunny-reply-paper .sunny-reply-signature { margin-top: 24px; text-align: right; }

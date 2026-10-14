@@ -173,7 +173,7 @@ for (const lang of ['zh', 'en']) {
       const { mkdir, readFile } = await import('node:fs/promises');
       const { resolve } = await import('node:path');
       const dir = resolve('output/playwright/street-letter'); await mkdir(dir, { recursive: true });
-      await page.screenshot({ path: resolve(dir, `${lang}-${width}-result-before.png`), fullPage: true });
+      if (width !== 768) await page.screenshot({ path: resolve(dir, `${lang}-${width}-result-before.png`), fullPage: true });
       await expect(page.locator('#trade-bridge-link')).toHaveAttribute('href', `/prototype/take-the-lantern-apart/?lang=${lang}`);
       await expect(page.locator('#trade-secondary-link')).toHaveAttribute('href', `/prototype/trade-street/?lang=${lang}`);
       await page.locator('#letter-open').click();
