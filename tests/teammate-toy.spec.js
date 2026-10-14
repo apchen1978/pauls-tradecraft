@@ -241,8 +241,8 @@ test.describe("garage listing", () => {
       await expect(showcase.getByText("不教貿易：輕鬆玩，順便看見自己的團隊風格")).toBeVisible();
       await expect(showcase.getByText("示意玩具 · 雙語原型")).toBeVisible();
       await expect(showcase.getByText("示意玩具，不是心理測驗。")).toBeVisible();
-      await expect(showcase.locator("img").first()).toHaveAttribute("src", "/images/showcase-galaxy-cover.webp");
-      await expect(showcase.locator("img").first()).toHaveAttribute("alt", "銀河之女");
+      await expect(showcase.locator("img").first()).toHaveAttribute("src", "/images/showcase-december-cover.webp");
+      await expect(showcase.locator("img").first()).toHaveAttribute("alt", /銀河之女/);
       const href = await card.locator("..").getByRole("link", { name: "玩一次", exact: true }).getAttribute("href");
       expect(href).toContain("/prototype/teammate-type/");
       expect(href).toContain("lang=zh");
@@ -264,7 +264,7 @@ test.describe("garage listing", () => {
       await expect(enShowcase.getByText("Not about trade: a light play that shows your team style")).toBeVisible();
       await expect(enShowcase.getByText("Illustrative toy · bilingual prototype")).toBeVisible();
       await expect(enShowcase.getByText("A toy, not a personality test.")).toBeVisible();
-      await expect(enShowcase.locator("img").first()).toHaveAttribute("alt", "Daughter of the Galaxy");
+      await expect(enShowcase.locator("img").first()).toHaveAttribute("alt", /Daughter of the Galaxy/);
       const enHref = await enCard.locator("..").getByRole("link", { name: "Play", exact: true }).getAttribute("href");
       expect(enHref).toContain("/prototype/teammate-type/");
       expect(enHref).toContain("lang=en");
@@ -276,11 +276,11 @@ test.describe("garage listing", () => {
 });
 
 test.describe("showcase cover", () => {
-  const coverBytes = statSync("public/images/showcase-galaxy-cover.webp").size;
+  const coverBytes = statSync("public/images/showcase-december-cover.webp").size;
   const showcaseSource = readFileSync("src/components/Showcase.jsx", "utf8");
 
   test("cover size and ratio live on the item, not a shared 273×1138 frame", () => {
-    expect(coverBytes).toBeLessThanOrEqual(80 * 1024);
+    expect(coverBytes).toBeLessThanOrEqual(60 * 1024);
     expect(showcaseSource).not.toContain("273");
     expect(showcaseSource).not.toContain("1138");
     expect(showcaseSource).not.toContain("aspect-[4/3]");
@@ -293,14 +293,14 @@ test.describe("showcase cover", () => {
 
   for (const width of [390, 768, 1440]) {
     for (const lang of ["zh", "en"]) {
-      test(`${width}px ${lang} shows the half-body cover centered in a 4:5 frame`, async ({ page }) => {
+      test(`${width}px ${lang} shows the Nightglow scene cover centered in a 4:5 frame`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(`/?lang=${lang}#showcase`);
         const img = page.locator("#showcase img").first();
         await img.scrollIntoViewIfNeeded();
-        await expect(img).toHaveAttribute("src", "/images/showcase-galaxy-cover.webp");
-        await expect(img).toHaveAttribute("width", "272");
-        await expect(img).toHaveAttribute("height", "340");
+        await expect(img).toHaveAttribute("src", "/images/showcase-december-cover.webp");
+        await expect(img).toHaveAttribute("width", "816");
+        await expect(img).toHaveAttribute("height", "1020");
         await img.evaluate((node) => (node.complete && node.naturalWidth > 0 ? null : node.decode()));
         const metrics = await img.evaluate((node) => {
           const frame = node.parentElement.getBoundingClientRect();
@@ -312,10 +312,8 @@ test.describe("showcase cover", () => {
             frameRatio: frame.width / frame.height,
           };
         });
-        expect(metrics.naturalWidth).toBe(272);
-        expect(metrics.naturalHeight).toBe(340);
-        // The only current 銀河之女 bitmap is 273px wide. This cover is a native crop, not an upscale.
-        expect(metrics.naturalWidth).toBeLessThan(800);
+        expect(metrics.naturalWidth).toBe(816);
+        expect(metrics.naturalHeight).toBe(1020);
         expect(metrics.objectPosition).toBe("50% 50%");
         expect(metrics.aspectRatio.replace(/\s/g, "")).toBe("4/5");
         expect(Math.abs(metrics.frameRatio - 4 / 5)).toBeLessThan(0.02);
@@ -1314,8 +1312,9 @@ test.describe("December Lights mobile", () => {
 });
 
 test("hidden scene: a quiet glint after the gallery reveals the scene gallery, zh and en", async ({ page }) => {
-  const size = statSync("prototype/teammate-type/assets/easter-nightglow-v2.webp").size;
-  expect(size).toBeLessThanOrEqual(61440);
+  for (const f of ["easter-nightglow-v2", "easter-clocktower", "easter-warmwindow", "easter-stage"]) {
+    expect(statSync(`prototype/teammate-type/assets/${f}.webp`).size).toBeLessThanOrEqual(61440);
+  }
   for (const [lang, word] of [["zh", "路燈"], ["en", "street lamp"]]) {
     for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 900 });
@@ -1334,10 +1333,21 @@ test("hidden scene: a quiet glint after the gallery reveals the scene gallery, z
       await img.scrollIntoViewIfNeeded();
       await expect.poll(() => img.evaluate((e) => e.complete && e.naturalWidth)).toBe(816);
       expect(await page.locator("#scenes").innerText()).not.toMatch(/[0-9]/);
-      await expect(page.locator("#scenes figure")).toHaveCount(1);
+      await expect(page.locator("#scenes figure")).toHaveCount(4);
       await noOverflow(page);
       await glint.click();
       await expect(page.locator("#scenes")).toBeHidden();
     }
   }
+});
+
+test("share image: December Lights page carries og and twitter image meta", async ({ page }) => {
+  expect(statSync("prototype/teammate-type/assets/og-december.webp").size).toBeLessThanOrEqual(61440);
+  await page.goto("/prototype/teammate-type/?lang=zh");
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /og-december\.webp$/);
+  await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute("content", "1200");
+  await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute("content", "630");
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", /og-december\.webp$/);
+  const res = await page.request.get("/prototype/teammate-type/assets/og-december.webp");
+  expect(res.ok()).toBe(true);
 });

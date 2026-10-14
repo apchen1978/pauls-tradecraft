@@ -12,6 +12,14 @@
   <meta property="og:title" content="十二月的燈 · December Lights" />
   <meta property="og:description" content="十二月的燈。你是哪一種隊友？示意玩具，不是心理測驗。" />
   <meta property="og:url" content="https://paulstradecraft.com/prototype/teammate-type/" />
+  <meta property="og:image" content="https://paulstradecraft.com/prototype/teammate-type/assets/og-december.webp" />
+  <meta property="og:image:type" content="image/webp" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="照夜鎮的雪夜街景，中央街燈下有銀河之女、白馬、靚仔與 MG" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://paulstradecraft.com/prototype/teammate-type/assets/og-december.webp" />
+  <meta name="twitter:image:alt" content="A snowy night in Nightglow: the Daughter of the Galaxy, a white horse, Lenz and MG under the central street lamp" />
   <meta property="og:locale" content="zh_TW" />
   <meta property="og:locale:alternate" content="en_US" />
   <style>
@@ -963,7 +971,8 @@
       /* Quiet reveal at the end of the gallery: a small gallery of scenes, mixed casts welcome. */
     .scene-glint { display: block; margin: 18px auto 0; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: rgba(176, 135, 60, 0.55); font-size: 18px; cursor: pointer; transition: color .3s, text-shadow .3s; }
     .scene-glint:hover, .scene-glint:focus-visible, .scene-glint[aria-expanded="true"] { color: #b0873c; text-shadow: 0 0 12px rgba(255, 210, 120, 0.9); }
-    .scenes { display: grid; gap: 18px; justify-items: center; margin-top: 12px; }
+    .scenes { display: grid; gap: 18px; justify-items: center; margin: 12px auto 0; max-width: 880px; }
+    @media (min-width: 760px) { .scenes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     .scenes[hidden] { display: none; }
     .scenes figure { margin: 0; width: min(100%, 420px); }
     .scenes img { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
