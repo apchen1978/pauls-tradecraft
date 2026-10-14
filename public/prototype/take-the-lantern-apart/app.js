@@ -38,6 +38,7 @@ function show(n) {
   state.screen = n;
   for (const s of document.querySelectorAll(".screen")) s.hidden = Number(s.dataset.screen) !== n;
   $("stage").dataset.screen = String(n);
+  for (const id of ["cover-diana", "cover-yiyi"]) $(id).hidden = n !== 0;
   $("lamp").classList.toggle("lit", n >= 1);
   $("lamp").classList.toggle("apart", n === 3);
   if (n === 4) renderLists();

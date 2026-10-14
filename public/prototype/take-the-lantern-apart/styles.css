@@ -101,3 +101,9 @@ canvas#card { width: 100%; max-width: 420px; height: auto; border-radius: 12px; 
 @media (prefers-reduced-motion: reduce) { .note-card { transform: none; } }
 .line.yiyi { border-left: 4px solid #7FA7C9; } .line.chiensi { border-left: 4px solid #E0874A; } .line.narr { border-left: none; }
 .cast-row > * { min-width: 0; } .cast-row .who { width: 26%; } .cast-row .photo { width: 40%; }
+/* Cover: Diana leads, Yiyi beside her, both turned to the same lamp (positioned inside .lamp-wrap) */
+.cover-cast { position: absolute; bottom: -6%; height: auto; pointer-events: none; z-index: 2; }
+.cover-cast.diana { right: -40%; width: 48%; }
+.cover-cast.yiyi { left: -33%; width: 39%; transform: scaleX(-1); }
+.opening { color: var(--gold); }
+@media (max-width: 699px) { .cover-cast.diana { right: -14%; width: 40%; } .cover-cast.yiyi { left: -13%; width: 32%; } }

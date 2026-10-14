@@ -272,3 +272,27 @@ test("story: Yiyi portraits load and never reuse Diana's files", async ({ page }
   await page.locator("#spot-shade").click();
   await expect(page.locator('#note img[src="assets/diana-ask.webp"]')).toBeVisible();
 });
+
+test("cover: tagline only, Diana leads with Yiyi, winter line opens screen 1, og composed", async ({ page }) => {
+  for (const [lang, tag, sub] of [["zh", "拆開一盞燈，把你想要的說清楚。", "冬夜裡"], ["en", "Take a lamp apart, and say clearly what you want.", "On a winter evening"]]) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${URL}?lang=${lang}`);
+    await expect(page.locator("#s0 .tagline")).toHaveText(tag);
+    await expect(page.locator("#s0")).not.toContainText(sub);
+    for (const id of ["#cover-diana", "#cover-yiyi"]) {
+      await expect(page.locator(id)).toBeVisible();
+      expect(await page.locator(id).evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+    }
+    const [d, y] = await Promise.all(["#cover-diana", "#cover-yiyi"].map((id) => page.locator(id).boundingBox()));
+    expect(d.width).toBeGreaterThan(y.width);
+    const btn = await page.locator("#go0").boundingBox();
+    expect(btn.y).toBeGreaterThan(d.y + d.height - 1);
+    await page.locator("#go0").click();
+    await expect(page.locator("#s1 .opening")).toContainText(sub);
+    await expect(page.locator("#cover-diana")).toBeHidden();
+    await expect(page.locator("#cover-yiyi")).toBeHidden();
+  }
+  const og = await page.request.get(`${URL}assets/og-lantern.webp`);
+  expect(og.ok()).toBe(true);
+  expect((await og.body()).length).toBeLessThanOrEqual(60 * 1024);
+});

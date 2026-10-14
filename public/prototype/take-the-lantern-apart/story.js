@@ -108,7 +108,7 @@ export const STORY = {
     again: "換一種約定",
     cardSub: "我們想做的那盞燈",
     nextBody: "我們把想法記下了。接著到貿易街，看看貨物如何走過交付的每一步。",
-    altYiyi: "依依姐微笑著陪在一旁", altYiyiAsk: "依依姐拿著書發問", altChiensi: "千禧舉著相機",
+    altYiyi: "依依姐微笑著陪在一旁", altYiyiAsk: "依依姐拿著書發問", altChiensi: "千禧舉著相機", altDianaCover: "戴安娜拿起燈罩端詳桌上的燈", altYiyiCover: "依依姐在一旁陪著，看向那盞燈",
   },
   en: {
     sub: "On a winter evening, a photograph brings someone in search of a light for reading.",
@@ -146,6 +146,6 @@ export const STORY = {
     again: "Try a different set of choices",
     cardSub: "The lamp we'd like to make",
     nextBody: "We've noted our idea. Next, visit Trade Street to explore each step of getting goods delivered.",
-    altYiyi: "Yiyi smiling beside them", altYiyiAsk: "Yiyi asking a question with a book in hand", altChiensi: "Chiensi holding a camera",
+    altYiyi: "Yiyi smiling beside them", altYiyiAsk: "Yiyi asking a question with a book in hand", altChiensi: "Chiensi holding a camera", altDianaCover: "Diana holds up a shade, studying the lamp", altYiyiCover: "Yiyi beside her, looking toward the lamp",
   },
 };
