@@ -120,6 +120,8 @@ export const UI = {
     disclosure: "示意玩具，不是報價工具；不含真實價格、交期或認證判斷。",
     cardTitle: "規格卡 · 拆一盞燈",
     fileName: "拆一盞燈-規格卡.png",
+    altKid: "千禧舉著相機", altPhoto: "千禧拍的燈，有點模糊的拍立得照片", altDiana: "戴安娜拿著螺絲起子微笑", altDianaAsk: "戴安娜舉起燈發問",
+    altShadeInside: "燈罩內側特寫，有淡淡的星點", altBaseBottom: "底座底部特寫，貼著一張空白銘牌", altMg: "MG 伸出貓掌撥零件",
   },
   en: {
     label: "A toy, not a quoting tool.",
@@ -157,5 +159,7 @@ export const UI = {
     disclosure: "A toy, not a quoting tool. No real prices, lead times or certification calls.",
     cardTitle: "Spec card · Take the Lantern Apart",
     fileName: "take-the-lantern-apart-spec-card.png",
+    altKid: "Chiensi holding a camera", altPhoto: "Chiensi's slightly blurry instant photo of a lamp", altDiana: "Diana smiling with a screwdriver", altDianaAsk: "Diana holding up the lamp with a question",
+    altShadeInside: "Inside the shade, with faint star dots", altBaseBottom: "Under the base, a blank label", altMg: "MG nudging the parts with a paw",
   },
 };

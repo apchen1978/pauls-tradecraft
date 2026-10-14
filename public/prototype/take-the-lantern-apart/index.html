@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="description" content="拆一盞燈：下單前，先把規格講好。示意玩具。">
+  <meta property="og:title" content="拆一盞燈 · Take the Lantern Apart">
+  <meta property="og:description" content="下單前，先把規格講好。示意玩具。">
+  <meta property="og:image" content="/prototype/take-the-lantern-apart/assets/og-lantern.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <title>拆一盞燈 · Take the Lantern Apart</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css">
@@ -49,9 +55,12 @@
 
     <section class="screen" id="s1" data-screen="1" hidden aria-labelledby="s1-title">
       <h2 id="s1-title" class="visually-hidden" data-i18n="title"></h2>
-      <div class="photo" aria-hidden="true"></div>
+      <div class="cast-row">
+        <img class="who" src="assets/kid-chiensi.webp" alt="" width="480" height="720" loading="lazy" decoding="async" data-alt="altKid">
+        <img class="photo" src="assets/kid-photo-ref.webp" alt="" width="600" height="450" loading="lazy" decoding="async" data-alt="altPhoto">
+      </div>
       <p class="line kid" data-i18n="s1kid"></p>
-      <p class="line diana" data-i18n="s1diana"></p>
+      <div class="say"><img class="who small" src="assets/diana-work.webp" alt="" width="480" height="720" loading="lazy" decoding="async" data-alt="altDiana"><p class="line diana" data-i18n="s1diana"></p></div>
       <button type="button" class="primary" id="go1" data-i18n="s1go"></button>
     </section>
 
@@ -69,6 +78,7 @@
         <button type="button" id="spot-mg" class="mg">MG</button>
       </div>
       <div class="note" id="note" aria-live="polite"></div>
+      <figure class="detail" id="detail" hidden><img id="detail-img" src="" alt="" width="600" height="600" decoding="async"><div class="star-dots over" id="detail-stars" aria-hidden="true" hidden></div></figure>
       <button type="button" class="primary" id="go2" disabled data-i18n="s2go"></button>
     </section>
 
@@ -86,7 +96,7 @@
 
     <section class="screen" id="s4" data-screen="4" hidden aria-labelledby="s4-title">
       <h2 id="s4-title" data-i18n="s4title"></h2>
-      <p class="line diana" data-i18n="s4ask"></p>
+      <div class="say"><img class="who small" src="assets/diana-ask.webp" alt="" width="480" height="720" loading="lazy" decoding="async" data-alt="altDianaAsk"><p class="line diana" data-i18n="s4ask"></p></div>
       <div class="lists">
         <div><h3 data-i18n="agreed"></h3><ul id="agreed-list" class="agreed"></ul></div>
         <div><h3 data-i18n="pending"></h3><ul id="pending-list" class="pending"></ul></div>

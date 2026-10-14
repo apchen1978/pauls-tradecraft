@@ -67,7 +67,7 @@ test("art assets are WebP and 60 KB or less", async () => {
   const { readdirSync, statSync } = await import("node:fs");
   const assets = new URL("assets/", dir);
   const files = readdirSync(assets);
-  assert.ok(files.length >= 13);
+  assert.ok(files.length >= 41);
   for (const f of files) {
     assert.ok(f.endsWith(".webp"), f);
     assert.ok(statSync(new URL(f, assets)).size <= 60 * 1024, `${f} is over 60 KB`);

@@ -22,7 +22,8 @@ async function playThrough(page, lang) {
   await page.locator("#turn-l").click();
   await expect(page.locator("#lamp")).toHaveAttribute("data-angle", "l");
   await page.locator("#spot-shade").click();
-  await expect(page.locator("#star-dots")).toBeAttached();
+  await expect(page.locator("#detail-img")).toHaveAttribute("src", "assets/detail-shade-inside.webp");
+  await expect(page.locator("#detail-stars")).toBeVisible();
   await expect(page.locator("#note")).not.toContainText(/星座|Star-sign|待 Paul|Paul to supply/);
   await page.locator("#spot-base").click();
   await expect(page.locator("#go2")).toBeEnabled();
@@ -144,4 +145,27 @@ test("all three angles load real files for every combo", async ({ page }) => {
       await page.evaluate(() => document.querySelector("#turn-l").click());
     }
   }
+});
+
+test("batch 3 art: characters, close-ups, card frame and og meta load", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`${URL}?lang=en`);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /og-lantern\.webp$/);
+  const bg = await page.locator("#stage").evaluate((el) => getComputedStyle(el).backgroundImage);
+  expect(bg).toContain("bg-studio-night.webp");
+  await page.locator("#go0").click();
+  const loaded = (sel) => page.locator(sel).evaluate((i) => i.complete && i.naturalWidth > 0);
+  await expect.poll(() => loaded("#s1 img.photo")).toBe(true);
+  await expect(page.locator("#s1 img.who").first()).toHaveAttribute("alt", "Chiensi holding a camera");
+  await page.locator("#go1").click();
+  await page.locator("#spot-base").click();
+  await expect(page.locator("#detail-img")).toHaveAttribute("src", "assets/detail-base-bottom.webp");
+  await expect(page.locator("#detail-stars")).toBeHidden();
+  await page.locator("#spot-mg").click();
+  await expect(page.locator("#detail-img")).toHaveAttribute("src", "assets/mg-paw.webp");
+  await page.locator("#spot-shade").click();
+  for (const id of ["#go2", "#go3"]) await page.locator(id).click();
+  await expect.poll(() => loaded("#s4 img.who")).toBe(true);
+  await page.locator("#go4").click();
+  await expect(page.locator("#card")).toHaveAttribute("data-ready", "1");
 });

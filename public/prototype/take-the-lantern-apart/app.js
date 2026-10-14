@@ -18,6 +18,8 @@ function applyText() {
   document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : "en";
   document.title = state.lang === "zh" ? "拆一盞燈 · Take the Lantern Apart" : "Take the Lantern Apart · 拆一盞燈";
   for (const el of document.querySelectorAll("[data-i18n]")) el.textContent = t(el.dataset.i18n);
+  for (const el of document.querySelectorAll("[data-alt]")) el.alt = t(el.dataset.alt);
+  if (state.lastSpot) showDetail(state.lastSpot);
   $("zoom").textContent = state.zoom ? t("zoomOut") : t("zoom");
   for (const b of document.querySelectorAll("[data-lang]")) b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang));
   $("next-link").href = `/prototype/trade-street/?lang=${state.lang}`;
@@ -83,9 +85,19 @@ function renderNote() {
   const note = $("note");
   const last = state.lastSpot;
   if (!last) { note.textContent = ""; return; }
-  if (last === "shade") { note.innerHTML = `<p></p><div class="star-dots" id="star-dots" aria-hidden="true"></div>`; note.firstChild.textContent = t("shadeNote"); }
+  if (last === "shade") note.textContent = t("shadeNote");
   else if (last === "base") note.textContent = t("baseNote");
   else note.textContent = t("mg");
+}
+
+function showDetail(which) {
+  const fig = $("detail");
+  const src = which === "shade" ? "assets/detail-shade-inside.webp" : which === "base" ? "assets/detail-base-bottom.webp" : which === "mg" ? "assets/mg-paw.webp" : "";
+  fig.hidden = !src;
+  if (!src) return;
+  $("detail-img").src = src;
+  $("detail-img").alt = t(which === "shade" ? "altShadeInside" : which === "base" ? "altBaseBottom" : "altMg");
+  $("detail-stars").hidden = which !== "shade";
 }
 
 function spot(which) {
@@ -95,6 +107,7 @@ function spot(which) {
   $("spot-base").setAttribute("aria-expanded", String(which === "base"));
   if (which === "mg") $("lamp").classList.add("apart");
   renderNote();
+  showDetail(which);
   $("go2").disabled = !(state.seen.has("shade") && state.seen.has("base"));
 }
 
@@ -212,10 +225,10 @@ const loadImg = (src) => new Promise((ok, bad) => { const i = new Image(); i.onl
 let lampImages = null;
 async function loadLampImages() {
   const p = state.picks;
-  const [cord, base, shade, glow] = await Promise.all([
-    "assets/lamp-cord-f.webp", `assets/lamp-base-${p.base}-f.webp`, `assets/lamp-shade-${p.shade}-f.webp`, "assets/lamp-shade-glow-f.webp",
+  const [cord, base, shade, glow, frame] = await Promise.all([
+    "assets/lamp-cord-f.webp", `assets/lamp-base-${p.base}-f.webp`, `assets/lamp-shade-${p.shade}-f.webp`, "assets/lamp-shade-glow-f.webp", "assets/card-frame.webp",
   ].map(loadImg));
-  lampImages = { cord, base, shade, glow };
+  lampImages = { cord, base, shade, glow, frame };
 }
 
 function drawLampLayers(ctx) {
@@ -253,11 +266,14 @@ async function drawCardWithArt() {
 function drawCard() {
   const c = $("card");
   const ctx = c.getContext("2d");
-  ctx.fillStyle = "#14213A";
-  ctx.fillRect(0, 0, 1080, 1350);
-  ctx.strokeStyle = "#E7C27A";
-  ctx.lineWidth = 3;
-  ctx.strokeRect(30, 30, 1020, 1290);
+  if (lampImages && lampImages.frame) ctx.drawImage(lampImages.frame, 0, 0, 1080, 1350);
+  else {
+    ctx.fillStyle = "#14213A";
+    ctx.fillRect(0, 0, 1080, 1350);
+    ctx.strokeStyle = "#E7C27A";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(30, 30, 1020, 1290);
+  }
   ctx.fillStyle = "#E7C27A";
   ctx.font = `800 52px system-ui, "Noto Sans TC", sans-serif`;
   ctx.fillText(t("cardTitle"), 70, 120, 940);

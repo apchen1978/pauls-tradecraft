@@ -16,6 +16,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16p
 .stage { display: grid; place-items: center; min-height: 300px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(#1A2945, #101B30); overflow: hidden; }
 @media (min-width: 900px) { .stage { min-height: 520px; position: sticky; top: 16px; } }
 .stage { background: #0C1526 url("assets/bg-studio-night-mobile.webp") center 38% / cover no-repeat; }
+@media (min-width: 700px) { .stage { background-image: url("assets/bg-studio-night.webp"); background-position: center 60%; } }
 .lamp-wrap { position: relative; width: min(70vw, 300px); margin: 44px 0 8px; aspect-ratio: 1; transition: transform .25s ease; }
 .lamp-wrap.zoomed { transform: scale(1.35); }
 .lamp { position: absolute; inset: 0; transform-origin: 50% 88%; transition: transform .25s ease; }
@@ -48,7 +49,15 @@ h1 { margin: 0; font-size: clamp(2rem, 6vw, 3.2rem); } h2 { margin: 0; font-size
 p { margin: 0; overflow-wrap: anywhere; }
 .line { padding: 10px 14px; border-radius: 12px; background: #1C2B48; }
 .line.kid { border-left: 4px solid #E0874A; } .line.diana { border-left: 4px solid var(--gold); }
-.photo { width: 160px; height: 120px; background: #EFE8D8; border: 8px solid #FFF; border-bottom-width: 22px; transform: rotate(-3deg); }
+.cast-row { display: flex; align-items: flex-end; gap: 12px; }
+.cast-row .who { width: 34%; max-width: 170px; height: auto; }
+.photo { width: 52%; max-width: 260px; height: auto; transform: rotate(-3deg); filter: drop-shadow(0 6px 10px rgba(0,0,0,.4)); }
+.say { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; align-items: end; }
+.who.small { width: 72px; height: auto; }
+.detail { margin: 0; position: relative; width: min(100%, 300px); }
+.detail img { width: 100%; height: auto; display: block; }
+.star-dots.over { position: absolute; inset: 30% 20% 45%; height: auto; }
+.mg-cue { width: 96px; height: auto; }
 button, .actions a, .next-stop a { font: inherit; min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: #1C2B48; color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
 button[disabled] { opacity: .45; cursor: not-allowed; }
 .primary { background: var(--gold); color: var(--deep); border-color: var(--gold); font-weight: 700; justify-self: start; }
