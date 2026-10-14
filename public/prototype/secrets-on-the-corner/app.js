@@ -188,7 +188,7 @@ copy.zh.letter = {
     ["費用的部分，", {id:"pay"}, "。"], ["期待合作！"], ["河對岸的咖啡館　小葵"],
     ["附註：聽說這條街上，有一間晚上總亮著暖燈的工作室？"]
   ],
-  hints: "點信裡有底線的說法，看看哪些事還不清楚。", possible: "可能意味 · 猜測", ask: "可以回問 · 問法示例", source: "這些是虛構情境中的問法示例，供你整理問題。", voice: "來信很熱情；實際需要的量、時間與合作方式，仍要問清楚。", noteClose: "放回信裡", progress: "還有說法可以看看", progressDone: "信裡的說法都看過了", compose: "回信要先問什麼", composeTitle: "選幾個你想先問的問題", composeHint: "先把要確認的事說清楚。寫進回信，也還要等對方回答。空格代表這封回信能先放的問題。", emptySlot: "留給想先問的事", capacity: "回信空格已滿。可以先移除問題，再換別的。", tones: ["謝謝您喜歡我們的麵包！", "很高興收到您的信。"], toneLabel: "回信開頭", draft: "回信草稿", picked: "這封回信先問", unasked: "這次未問，仍待確認", waiting: "已寫入回信，等待對方回答", waitingHint: "寫進回信的問題也尚未確認；先後順序不代表哪個問題更正確。", thanks: "期待您的回覆，我們再一起確認。", feedback: "這個問題想先釐清：", up: "往前移", down: "往後移", remove: "移除", save: "收好回信草稿", back: "回頭讀信", edit: "修改回信草稿", resultTitle: "外地來信：還要問清楚", boundary: "一封熱情的信是線索，不是訂單。", tradeLine: "排隊不等於買單，就像詢盤不等於訂單。",
+  hints: "點信裡有底線的說法，看看哪些事還不清楚。", possible: "可能意味 · 猜測", ask: "可以回問 · 問法示例", source: "這些是虛構情境中的問法示例，供你整理問題。", voice: "來信很熱情；實際需要的量、時間與合作方式，仍要問清楚。", noteClose: "放回信裡", progress: "還有說法可以看看", progressDone: "信裡的說法都看過了", compose: "回信要先問什麼", composeTitle: "挑兩件一定要先問的事", composeHint: "先把要確認的事說清楚。寫進回信，也還要等對方回答。空格代表這封回信能先放的問題。", emptySlot: "留給想先問的事", capacity: "回信空格已滿。可以先移除問題，再換別的。", tones: ["謝謝您喜歡我們的麵包！", "很高興收到您的信。"], toneLabel: "回信開頭", draft: "回信草稿", picked: "一定要先問", unasked: "之後再問", waiting: "等小葵的回信", waitingHint: "寫進回信，也還沒問到答案。其他疑問先留在筆記裡。", thanks: "期待您的回覆，我們再一起確認。", feedback: "這個問題想先釐清：", up: "往前移", down: "往後移", remove: "移除", save: "收好回信草稿", back: "回頭讀信", edit: "修改回信草稿", resultTitle: "外地來信：還要問清楚", boundary: "一封熱情的信是線索，不是訂單。", tradeLine: "排隊不等於買單，就像詢盤不等於訂單。",
   notes: {
     some: {phrase:"送一些", name:"每次的量", seen:"送一些過來", possible:"對方可能有持續購買的興趣。", unknown:"需要多少、每次是否相同，都還不知道。", question:"每次大概需要多少？會不會有時多、有時少？", learn:"每次需要準備多少"},
     regular: {phrase:"固定", name:"送達的頻率", seen:"固定送來", possible:"對方可能希望反覆收到麵包。", unknown:"多久送、哪些時候送、遇到假日怎麼辦？", question:"希望多久送一次、固定在哪些時候？", learn:"希望送達的時機與頻率"},
@@ -206,7 +206,7 @@ copy.en.letter = {
     ["Could you ",{id:"some"}," ",{id:"regular"},"? ",{id:"same"}," would be fine, and we could ",{id:"trial"},"."],
     ["We'd love ",{id:"spec"},". ",{id:"delivery"},"."], ["As for payment, ",{id:"pay"},"."], ["Looking forward to working together!"], ["Sunny, the café across the river"], ["P.S. I hear there's a workshop on your street whose warm light stays on at night?"]
   ],
-  hints:"Select the underlined phrases to explore what is still unclear.", possible:"Might mean · A guess", ask:"Could ask · Example wording", source:"These are question examples written for this fictional scene.", voice:"The letter sounds warm. The amount, timing and arrangements still need asking.", noteClose:"Back to the letter", progress:"There are more phrases to explore", progressDone:"You've explored the phrases in the letter", compose:"What would you ask first?", composeTitle:"Pick a few questions to ask first", composeHint:"Make clear what needs checking. Writing a question doesn't confirm its answer. The spaces show what fits in this reply.", emptySlot:"Room for a question", capacity:"The reply spaces are full. Remove a question to choose another.", tones:["Thank you for enjoying our bread!", "So glad to get your letter."], toneLabel:"Opening line", draft:"Reply draft", picked:"In this reply, you'd ask", unasked:"Not asked yet, still unconfirmed", waiting:"Written into the reply, awaiting an answer", waitingHint:"The questions in your reply are unconfirmed too. Their order isn't a right-or-wrong ranking.", thanks:"We look forward to your reply, so we can check the details together.", feedback:"This question aims to clarify: ", up:"Move earlier", down:"Move later", remove:"Remove", save:"Keep this reply draft", back:"Read the letter again", edit:"Edit the reply draft", resultTitle:"The letter: still to ask", boundary:"A warm letter is a clue, not an order.", tradeLine:"A queue is not a sale, just as an inquiry is not an order.",
+  hints:"Select the underlined phrases to explore what is still unclear.", possible:"Might mean · A guess", ask:"Could ask · Example wording", source:"These are question examples written for this fictional scene.", voice:"The letter sounds warm. The amount, timing and arrangements still need asking.", noteClose:"Back to the letter", progress:"There are more phrases to explore", progressDone:"You've explored the phrases in the letter", compose:"What would you ask first?", composeTitle:"Pick what you must ask first", composeHint:"Make clear what needs checking. Writing a question doesn't confirm its answer. The spaces show what fits in this reply.", emptySlot:"Room for a question", capacity:"The reply spaces are full. Remove a question to choose another.", tones:["Thank you for enjoying our bread!", "So glad to get your letter."], toneLabel:"Opening line", draft:"Reply draft", picked:"Ask first", unasked:"Ask later", waiting:"Waiting for Sunny's letter", waitingHint:"A question on the page isn't an answer yet. The other questions stay in your notes.", thanks:"We look forward to your reply, so we can check the details together.", feedback:"This question aims to clarify: ", up:"Move earlier", down:"Move later", remove:"Remove", save:"Keep this reply draft", back:"Read the letter again", edit:"Edit the reply draft", resultTitle:"The letter: still to ask", boundary:"A warm letter is a clue, not an order.", tradeLine:"A queue is not a sale, just as an inquiry is not an order.",
   notes:{
     some:{phrase:"deliver some", name:"Amount each time", seen:"Deliver some", possible:"She may be interested in buying regularly.", unknown:"How much would she need, and would it vary?", question:"Roughly how much would you need each time? Would it vary?", learn:"How much to prepare each time"},
     regular:{phrase:"regularly", name:"Delivery frequency", seen:"Regularly", possible:"She may want recurring deliveries.", unknown:"How often, at what times, and what about holidays?", question:"How often would you like deliveries, and on which days?", learn:"When and how often to deliver"},
@@ -223,10 +223,10 @@ Object.assign(copy.en, { draft:"A toy, not a shop analysis.", disclosure:"A toy 
 
 // Owner steering: story first, light questions on the surface, optional depth in notes.
 Object.assign(copy.zh.letter, {
-  arrival:"晚風把店門吹得輕響。信箱裡有張摺得很整齊的信紙，署名是河對岸的小葵。", compose:"你會怎麼回這封信？", composeTitle:"挑幾句，留在回信裡", composeHint:"不用問完所有事情。先選你最想知道的，也可以回頭讀信。", emptySlot:"在這裡留個想問的問題", capacity:"信紙先留這些。想換個問題，可以把原來的拿掉。", source:"信與筆記都是虛構故事；這裡提供問法示例。", waiting:"回信草稿寫好了，還要等小葵回答。", waitingHint:"寫進回信，也還沒問到答案。其他疑問先留在筆記裡。", unasked:"還留在筆記裡，還沒確認", feedback:"這句想問的是：", resultTitle:"信折好了，故事還沒結束", savedStory:"你把照片壓在信紙旁，替回信留好位置。小葵還沒回答，街角已經多了些值得期待的事。",
+  arrival:"晚風把店門吹得輕響。信箱裡有張摺得很整齊的信紙，署名是河對岸的小葵。", compose:"你會怎麼回這封信？", composeTitle:"挑兩件一定要先問的事", composeHint:"不用問完所有事情。先選你最想知道的，也可以回頭讀信。", emptySlot:"在這裡留個想問的問題", capacity:"信紙先留這些。想換個問題，可以把原來的拿掉。", source:"信與筆記都是虛構故事；這裡提供問法示例。", waiting:"等小葵的回信", waitingHint:"寫進回信，也還沒問到答案。其他疑問先留在筆記裡。", unasked:"之後再問", feedback:"這句想問的是：", resultTitle:"信折好了，故事還沒結束", savedStory:"你把照片壓在信紙旁，替回信留好位置。",
 });
 Object.assign(copy.en.letter, {
-  arrival:"The evening breeze rattles the shop door. In the mailbox is a neatly folded letter, signed by Sunny from across the river.", compose:"How would you reply?", composeTitle:"Choose a few lines for your reply", composeHint:"You don't have to ask everything. Pick what you're curious about, or read the letter again.", emptySlot:"Leave room for a question", capacity:"Let's leave these on the page for now. Remove a question if you'd like to swap it.", source:"The letter and notes belong to a fictional story. The questions are examples.", waiting:"The reply draft is ready. We're still waiting for Sunny's answers.", waitingHint:"A question on the page isn't an answer yet. The other questions stay in your notes.", unasked:"Still in your notes, still unconfirmed", feedback:"This line asks about: ", resultTitle:"The letter is folded. The story isn't over.", savedStory:"You set the photo beside the paper and make room for a reply. Sunny hasn't answered yet, but there's something new to look forward to on this corner.",
+  arrival:"The evening breeze rattles the shop door. In the mailbox is a neatly folded letter, signed by Sunny from across the river.", compose:"How would you reply?", composeTitle:"Pick what you must ask first", composeHint:"You don't have to ask everything. Pick what you're curious about, or read the letter again.", emptySlot:"Leave room for a question", capacity:"Let's leave these on the page for now. Remove a question if you'd like to swap it.", source:"The letter and notes belong to a fictional story. The questions are examples.", waiting:"Waiting for Sunny's letter", waitingHint:"A question on the page isn't an answer yet. The other questions stay in your notes.", unasked:"Ask later", feedback:"This line asks about: ", resultTitle:"The letter is folded. The story isn't over.", savedStory:"You set the photo beside the paper and make room for a reply.",
 });
 const lightLetter = {
   zh: {
@@ -247,6 +247,48 @@ const lightLetter = {
     delivery:["Where should it go, and who will receive it?", "Where it goes", "The bread needs to cross the river and reach someone waiting for it. You leave the destination for Sunny to fill in."],
     pay:["When would you like to settle up?", "When to settle up", "You write it plainly and kindly. Clear words can help both sides feel at ease."]
   }
+};
+const sunnyReply = {
+  zh: {
+    arrival: "幾天後，信箱裡又多了一封信。",
+    open: "拆開回信", skip: "先看結果", replied: "小葵回覆了",
+    openingMany: "麵包店的朋友：收到你的回信，我在吧台邊讀了兩遍。你問得好仔細，我也認真想了想，一題一題回答你。",
+    openingOne: "麵包店的朋友：收到你的回信，我在吧台邊讀了兩遍。你問得好仔細，我也認真想了想，好好回答你。",
+    answers: {
+      some: "每次大概是一個早上能賣完的份量。週末客人多，也許會想多一點；平日就照平常的樣子。",
+      regular: "最好在開店前送到，那段時間我們最從容。平日固定就好，遇到假日，我會提早寫信跟你說。",
+      same: "我說的『差不多』，是朋友那天帶來的那一大袋。現在想想，那袋可能比店裡一次賣的還多，我們再對一次比較好。",
+      trial: "先試一個季節吧。我會看客人會不會指名要，還有是不是常常剩下。季節結束時，我們再坐下來聊聊。",
+      spec: "想要甜度再低一點，配咖啡才不會搶味。方便的話，先寄一個給我嚐嚐，我們就用同一個麵包來比對。",
+      delivery: "送到後門就好，早班的店員會在，交給她就行。紙袋外面再套個盒子吧，過橋那段路有點顛。",
+      pay: "每次送來附張單子，我們每個月底一起結清，好嗎？如果哪一邊想停，提早寫信說一聲就好。",
+    },
+    endingMany: names => `你先問的，正是我一定要先想清楚的。像${names}，我們之後再問也不遲，慢慢來。`,
+    endingOne: names => `謝謝你先問了這件事，我心裡踏實多了。其他的，像${names}，我們之後再一起問清楚。`,
+    endingAll: "你問得好周全。剩下的，等我們見了面，再當面對一次吧。",
+    signature: "河對岸的咖啡館　小葵",
+    postscript: "附註：上次問到的那間暖燈工作室，我找到了！我們店最裡面那張桌子，一到晚上就太暗，常客在那裡讀信讀得好辛苦。我想去問問看，能不能也有一盞那樣的燈。這次，我也想先把問題想好再敲門。",
+  },
+  en: {
+    arrival: "A few days later, another letter is waiting in the mailbox.",
+    open: "Open Sunny's reply", skip: "See the result first", replied: "Sunny replied",
+    openingMany: "Dear baker friend, I read your reply twice at the counter. You asked so carefully that I gave it proper thought. Here are my answers, one by one.",
+    openingOne: "Dear baker friend, I read your reply twice at the counter. You asked so carefully that I gave it proper thought. Here's my answer.",
+    answers: {
+      some: "Roughly what we'd sell in one morning. Weekends are busier, so I might want a little more then; weekdays as usual.",
+      regular: "Before we open would be best; that's our calmest time. Regular weekdays are fine, and I'll write ahead if a holiday comes up.",
+      same: "By 'about the same' I meant the big bag my friend brought that day. Thinking about it, that bag may have been more than we'd sell at once, so let's compare again.",
+      trial: "Let's try it for a season. I'll watch whether customers ask for it by name and whether much is left over. At the end of the season, let's sit down and talk.",
+      spec: "A touch less sweet, so it doesn't compete with the coffee. If you can, send me one to taste first, and we'll use that same loaf to compare.",
+      delivery: "The back door is fine; the morning staff will be there to take it. Maybe put the paper bag in a box, too. The road over the bridge is a bit bumpy.",
+      pay: "Could you include a slip with each delivery, and we settle up together at the end of each month? If either of us wants to stop, just write ahead.",
+    },
+    endingMany: names => `What you asked first were exactly the things I needed to think through. Things like ${names} can wait until later. No rush.`,
+    endingOne: names => `Thank you for asking about this first; I feel much more settled. The rest, like ${names}, we can work out together later.`,
+    endingAll: "You asked about everything. Whatever's left, let's check face to face when we meet.",
+    signature: "Sunny, the café across the river",
+    postscript: "P.S. I found that workshop with the warm light! The table at the very back of our café gets too dim at night, and my regulars say reading letters there is hard work. I'd like to go and ask whether we could have a lamp like that. This time, I want to think through my questions before I knock, too.",
+  },
 };
 for (const language of ["zh", "en"]) {
   for (const [id, [question, name, story]] of Object.entries(lightLetter[language])) Object.assign(copy[language].letter.notes[id], {question, name, story, learn: name});
@@ -357,6 +399,7 @@ let replySelection = [];
 let replyTone = 0;
 let letterComplete = false;
 let savedReply = null;
+let replyRevealed = false;
 let letterStage = "read";
 let activeLetterNote = null;
 let letterNoteTrigger = null;
@@ -377,6 +420,13 @@ let firstImpression = null;
 let impressionSkipped = false;
 
 const node = id => document.getElementById(id);
+
+function joinShortNames(names) {
+  if (lang === "zh") return names.join("、");
+  if (names.length < 2) return names[0] || "";
+  if (names.length === 2) return names.join(" and ");
+  return `${names.slice(0, -1).join(", ")}, and ${names.at(-1)}`;
+}
 
 function renderImpression() {
   const panel = node("first-impression");
@@ -701,14 +751,12 @@ function downloadCard() {
     const l = t.letter, selected = savedReply.selection;
     y = paragraph(l.title, 72, y, 1056, "700 32px serif", "#9e5d37", 44) + 12;
     y = paragraph(l.savedStory, 72, y, 1056) + 16;
-    for (const id of selected) y = paragraph(l.notes[id].story, 72, y, 1056) + 16;
     y = paragraph(l.tones[savedReply.tone], 72, y, 1056) + 16;
-    y = paragraph(l.picked, 72, y, 1056, "700 25px system-ui, sans-serif", "#9e5d37") + 10;
-    for (const id of selected) y = paragraph(l.notes[id].question, 72, y, 1056) + 16;
-    y = paragraph(l.waiting, 72, y, 1056, "700 25px system-ui, sans-serif") + 16;
+    y = paragraph(replyRevealed ? sunnyReply[lang].replied : l.picked, 72, y, 1056, "700 25px system-ui, sans-serif", "#9e5d37") + 10;
+    for (const id of selected) y = paragraph(l.notes[id].name, 72, y, 1056) + 16;
     y = paragraph(l.unasked, 72, y, 1056, "700 25px system-ui, sans-serif", "#9e5d37") + 10;
     for (const id of letterOrder.filter(id => !selected.includes(id))) y = paragraph(l.notes[id].name, 72, y, 1056) + 8;
-    y = paragraph(l.waitingHint, 72, y + 12, 1056) + 20;
+    y += 20;
     y = paragraph(l.source, 72, y, 1056, "23px system-ui, sans-serif", "#3e5360", 35) + 20;
     y = paragraph(l.boundary, 72, y, 1056, "700 26px system-ui, sans-serif") + 10;
     y = paragraph(l.tradeLine, 72, y, 1056) + 30;
@@ -768,7 +816,7 @@ function letterTextElement(tag, text, className) {
 
 function resetLetter() {
   letterViewed.clear(); replySelection = []; replyTone = 0;
-  letterComplete = false; savedReply = null; letterStage = "read"; activeLetterNote = null;
+  letterComplete = false; savedReply = null; replyRevealed = false; letterStage = "read"; activeLetterNote = null;
   if (node("letter-dialog").open) node("letter-dialog").close();
   renderLetter(); renderLetterResult();
 }
@@ -831,7 +879,7 @@ function renderReplyPreview() {
   const list = document.createElement("ul"); list.className = "reply-questions";
   replySelection.forEach(id => list.append(letterTextElement("li", l.notes[id].question)));
   preview.append(list, letterTextElement("p", l.thanks));
-  preview.append(makePart(l.unasked, letterOrder.filter(id => !replySelection.includes(id)).map(id => l.notes[id].name).join(lang === "zh" ? "、" : "; ")));
+  preview.append(makePart(l.unasked, joinShortNames(letterOrder.filter(id => !replySelection.includes(id)).map(id => l.notes[id].name))));
   preview.append(letterTextElement("p", l.waitingHint, "letter-source"));
 }
 
@@ -870,15 +918,31 @@ function renderReply() {
 }
 
 function renderLetterResult() {
-  const l = copy[lang].letter, content = node("letter-result-content"); content.hidden = !letterComplete; content.replaceChildren();
+  const l = copy[lang].letter, reply = sunnyReply[lang], content = node("letter-result-content"); content.hidden = !letterComplete; content.replaceChildren();
   node("letter-result-title").textContent = letterComplete ? l.resultTitle : l.invitation;
   node("letter-open").textContent = letterComplete ? l.edit : l.open;
   node("letter-skip").hidden = letterComplete;
   if (!letterComplete) return;
   const selected = savedReply.selection;
-  const questions = document.createElement("ul"); questions.className = "reply-questions";
-  selected.forEach(id => questions.append(letterTextElement("li", l.notes[id].question)));
-  content.append(letterTextElement("p", l.savedStory, "letter-ending"), ...selected.map(id => letterTextElement("p", l.notes[id].story, "letter-story")), letterTextElement("h4", l.picked), questions, letterTextElement("p", l.waiting), makePart(l.unasked, letterOrder.filter(id => !selected.includes(id)).map(id => l.notes[id].name).join(lang === "zh" ? "、" : "; ")), letterTextElement("p", l.waitingHint, "letter-source"), letterTextElement("p", l.boundary, "letter-conclusion"), letterTextElement("p", l.tradeLine));
+  const unasked = letterOrder.filter(id => !selected.includes(id)).map(id => l.notes[id].name);
+  const answered = document.createElement("ul"); answered.className = "reply-questions";
+  selected.forEach(id => answered.append(letterTextElement("li", l.notes[id].name)));
+  content.append(letterTextElement("p", l.savedStory, "letter-ending"), letterTextElement("h4", replyRevealed ? reply.replied : l.picked), answered, makePart(l.unasked, joinShortNames(unasked)), letterTextElement("p", reply.arrival, "reply-arrival"));
+  if (!replyRevealed) {
+    const actions = document.createElement("div"); actions.className = "letter-actions";
+    const open = letterTextElement("button", reply.open, "action-primary"); open.type = "button";
+    open.addEventListener("click", () => { replyRevealed = true; renderLetterResult(); node("sunny-reply-title").focus({ preventScroll: true }); });
+    const skip = letterTextElement("button", reply.skip, "action-secondary"); skip.type = "button";
+    skip.addEventListener("click", () => { node("download").scrollIntoView({ block: "center" }); node("download").focus({ preventScroll: true }); });
+    actions.append(open, skip); content.append(actions);
+  } else {
+    const paper = document.createElement("article"); paper.className = "sunny-reply-paper";
+    const title = letterTextElement("h4", reply.replied); title.id = "sunny-reply-title"; title.tabIndex = -1;
+    const ending = unasked.length === 0 ? reply.endingAll : selected.length === 1 ? reply.endingOne(joinShortNames(unasked)) : reply.endingMany(joinShortNames(unasked));
+    paper.append(title, letterTextElement("p", selected.length === 1 ? reply.openingOne : reply.openingMany), ...selected.map(id => letterTextElement("p", reply.answers[id])), letterTextElement("p", ending), letterTextElement("p", reply.signature, "sunny-reply-signature"), letterTextElement("p", reply.postscript, "sunny-reply-postscript"));
+    content.append(paper);
+  }
+  content.append(letterTextElement("p", l.boundary, "letter-conclusion"), letterTextElement("p", l.tradeLine));
 }
 
 node("letter-open").addEventListener("click", () => {
@@ -895,7 +959,7 @@ node("reply-tone").addEventListener("change", event => { replyTone = Number(even
 node("reply-save").addEventListener("click", () => {
   if (!replySelection.length) return;
   savedReply = { selection: [...replySelection], tone: replyTone };
-  letterComplete = true; renderLetterResult(); node("letter-dialog").close();
+  letterComplete = true; replyRevealed = false; renderLetterResult(); node("letter-dialog").close();
 });
 node("note-back").addEventListener("click", () => node("field-note").close());
 node("field-note").addEventListener("close", () => {
