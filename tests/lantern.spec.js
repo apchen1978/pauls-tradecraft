@@ -325,3 +325,46 @@ test("cover: lamp is smaller and both figures stand beside it", async ({ page })
     expect(d.x + d.width / 2).toBeGreaterThan(shade.x + shade.width / 2);
   }
 });
+
+test("spec card: settled marks and a risk line per pending item, zh and en, not truncated", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__cardText = [];
+    const fill = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function (s, ...a) { window.__cardText.push(String(s)); return fill.call(this, s, ...a); };
+  });
+  const combos = [
+    { picks: [], settled: true },
+    { picks: [["shade", "glass"], ["colour", "persimmon"], ["base", "brass"], ["size", "l"], ["pack", "gift"]], settled: false },
+  ];
+  for (const lang of ["zh", "en"]) for (const combo of combos) {
+    await page.goto(`${URL}?lang=${lang}`);
+    for (const id of ["#go0", "#skip1", "#spot-shade", "#spot-base", "#go2"]) await page.locator(id).click();
+    for (const [part, opt] of combo.picks) await page.locator(`[data-part="${part}"][data-option="${opt}"]`).click();
+    if (!combo.picks.length) for (const [part, opt] of [["colour", "ivory"], ["size", "m"], ["pack", "kraft"]]) await page.locator(`[data-part="${part}"][data-option="${opt}"]`).click();
+    if (!combo.picks.length) await expect(page.locator(".react.settled")).toHaveCount(3);
+    await page.locator("#go3").click();
+    const pendingCount = await page.locator("#pending-list li").count();
+    await expect(page.locator("#pending-list .risk")).toHaveCount(pendingCount);
+    await page.evaluate(() => { window.__cardText = []; });
+    await page.locator("#go4").click();
+    await expect(page.locator("#card")).toHaveAttribute("data-ready", "1");
+    await expect(page.locator("#card")).toHaveAttribute("data-fit", "1");
+    const text = (await page.evaluate(() => window.__cardText)).join("\n");
+    const prefix = lang === "zh" ? "這裡還有風險：" : "Risk if unasked: ";
+    expect(text.split(prefix).length - 1).toBeGreaterThanOrEqual(pendingCount);
+    expect(text).toContain("✓");
+    if (combo.settled) expect(text).toContain(lang === "zh" ? "（先講好了）" : "(settled)");
+    expect(text).not.toMatch(/\d/);
+  }
+});
+
+test("reactions: size options each give a different line on the page", async ({ page }) => {
+  await page.goto(`${URL}?lang=zh`);
+  for (const id of ["#go0", "#skip1", "#spot-shade", "#spot-base", "#go2"]) await page.locator(id).click();
+  const seen = new Set();
+  for (const o of ["s", "m", "l"]) {
+    await page.locator(`[data-part="size"][data-option="${o}"]`).click();
+    seen.add(await page.locator('.react[data-part="size"]').innerText());
+  }
+  expect(seen.size).toBe(3);
+});

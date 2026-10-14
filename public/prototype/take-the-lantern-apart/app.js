@@ -1,3 +1,4 @@
+import { riskLine } from "./risk.js";
 import { STORY, LINES, PROMPTS, REACT, PART_QUESTION, NAMES, PORTRAIT } from "./story.js";
 import { PARTS, OPTIONS, DEFAULTS, PART_LABEL, EFFECT, PENDING_TEXT, UI, optionOf, specStatus } from "./data.js";
 
@@ -104,6 +105,7 @@ function sayEl(line) {
 function fillSay(box, line) {
   box.textContent = "";
   box.dataset.who = line.who || "narr";
+  box.classList.toggle("settled", Boolean(line.settled));
   if (line.who) {
     const img = document.createElement("img");
     img.className = "who small";
@@ -222,6 +224,13 @@ function renderEffects() {
   }
 }
 
+const isSettled = (part) => Boolean(REACT[part][state.picks[part]]?.settled);
+function agreedText(part, option) {
+  const zh = state.lang === "zh";
+  const base = `✓ ${PART_LABEL[part][state.lang]}${zh ? "：" : ": "}${option[state.lang]}`;
+  return isSettled(part) ? `${base}${zh ? "（先講好了）" : " (settled)"}` : base;
+}
+
 function renderLists() {
   const { agreed, pending } = specStatus(state.picks);
   const a = $("agreed-list");
@@ -231,16 +240,18 @@ function renderLists() {
   for (const { part, option } of agreed) {
     const li = document.createElement("li");
     li.dataset.item = part;
-    li.textContent = `${PART_LABEL[part][state.lang]}${state.lang === "zh" ? "：" : ": "}${option[state.lang]}`;
+    li.textContent = agreedText(part, option);
+    if (isSettled(part)) li.dataset.settled = "1";
     a.append(li);
   }
   for (const key of pending) {
     const [name, why] = PENDING_TEXT[key][state.lang];
     const li = document.createElement("li");
     li.dataset.item = key;
-    li.innerHTML = `<strong></strong><small></small>`;
-    li.firstChild.textContent = name;
-    li.lastChild.textContent = why;
+    li.innerHTML = `<strong></strong><small></small><span class="risk"></span>`;
+    li.children[0].textContent = name;
+    li.children[1].textContent = why;
+    li.children[2].textContent = riskLine(key, state.lang);
     p.append(li);
   }
 }
@@ -269,10 +280,13 @@ function layoutCard(ctx, scale) {
     for (const l of wrap(ctx, text, W)) { y += size * scale * 1.35; rows.push({ l, y, size: size * scale, weight, color }); }
   };
   add(t("agreed"), 34, 800, "#E7C27A");
-  for (const { part, option } of agreed) add(`${PART_LABEL[part][state.lang]}${state.lang === "zh" ? "：" : ": "}${option[state.lang]}`, 26, 500, "#F4EEDF");
+  for (const { part, option } of agreed) add(agreedText(part, option), 26, 500, "#F4EEDF");
   y += 24 * scale;
   add(t("pending"), 34, 800, "#E7C27A");
-  for (const key of pending) add(`· ${PENDING_TEXT[key][state.lang][0]}`, 26, 500, "#F4EEDF");
+  for (const key of pending) {
+    add(`· ${PENDING_TEXT[key][state.lang][0]}`, 25, 600, "#F4EEDF");
+    add(riskLine(key, state.lang), 18, 400, "#C9B98F");
+  }
   return { rows, height: y };
 }
 
@@ -340,7 +354,8 @@ function drawCard() {
   if (lampImages) drawLampLayers(ctx);
   let scale = 1;
   let lay = layoutCard(ctx, scale);
-  while (lay.height > 980 && scale > 0.6) { scale -= 0.05; lay = layoutCard(ctx, scale); }
+  while (lay.height > 980 && scale > 0.45) { scale -= 0.05; lay = layoutCard(ctx, scale); }
+  c.dataset.fit = lay.height <= 980 ? "1" : "0";
   for (const r of lay.rows) {
     ctx.font = `${r.weight} ${Math.round(r.size)}px system-ui, "Noto Sans TC", sans-serif`;
     ctx.fillStyle = r.color;
