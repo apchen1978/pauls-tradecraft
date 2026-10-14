@@ -416,8 +416,8 @@ test("spec card: grouped, hanging indent aligned, readable size, worst case fits
 
 test("Sunny: door note on S1 and an optional epilogue with a questions-only slip, zh and en", async ({ page }) => {
   for (const [lang, name, note, slipTitle, foot] of [
-    ["zh", "小葵", "最裡面那張桌子", "新的約定草稿 · 小葵的燈", "這不是訂單"],
-    ["en", "Sunny", "back table", "New draft agreement · Sunny's lamp", "This isn't an order"],
+    ["zh", "小葵", "這次我會先把問題想好", "新的約定草稿 · 小葵的燈", "這不是訂單"],
+    ["en", "Sunny", "think through my questions first", "New draft agreement · Sunny's lamp", "This isn't an order"],
   ]) {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${URL}?lang=${lang}`);
@@ -455,4 +455,16 @@ test("Sunny: epilogue uses her own portrait, unflipped", async ({ page }) => {
   await expect(img).toHaveAttribute("src", /sunny-flask-bust\.webp$/);
   expect(await img.evaluate((el) => el.complete && el.naturalWidth)).toBe(480);
   expect(await img.evaluate((el) => getComputedStyle(el).transform)).toBe("none");
+});
+
+test("Sunny door note: opens with the bakery letters and the dim back table", async ({ page }) => {
+  for (const [lang, start, table] of [["zh", "上次和街角的麵包店通信", "最裡面那張桌子"], ["en", "Writing back and forth with the bakery", "very back of our café"]]) {
+    await page.goto(`${URL}?lang=${lang}`);
+    await page.locator("#go0").click();
+    await page.locator("#find-door").click();
+    const text = await page.locator("#door-panel p").innerText();
+    expect(text).toContain(start);
+    expect(text).toContain(table);
+    expect(text).not.toMatch(/[0-9]/);
+  }
 });
