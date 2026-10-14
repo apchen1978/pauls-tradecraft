@@ -426,6 +426,24 @@ function boot() {
     if (!primerSet) { primerSet = true; $("primer").open = false; }
     $("takeaway-title").textContent = t.takeawayTitle;
     $("takeaway-list").replaceChildren(...t.takeaway.map((line) => el("li", null, line)));
+    const learnMore = LEARN_TEXT[state.lang];
+    const fold = (id, title, lede, items, tag) => {
+      const node = $(id);
+      const open = node.open;
+      const list = el(tag, null);
+      items.forEach((item) => {
+        const li = el("li", null, Array.isArray(item) ? item[0] : item);
+        if (Array.isArray(item)) li.append(el("span", null, item[1]));
+        list.append(li);
+      });
+      const body = el("div", "more-body");
+      if (lede) body.append(el("p", null, lede));
+      body.append(list);
+      node.replaceChildren(el("summary", null, title), body);
+      node.open = open;
+    };
+    fold("more-danger", learnMore.dangerH, "", learnMore.danger, "ul");
+    fold("more-asks", learnMore.asksH, learnMore.asksLede, learnMore.asks, "ol");
     $("takeaway-link").textContent = t.takeawayLink;
     $("takeaway-link").href = `../one-container-12-steps/${state.lang === "en" ? "?lang=en" : ""}`;
     $("takeaway-case").textContent = t.takeawayCase;

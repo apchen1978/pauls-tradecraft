@@ -165,6 +165,13 @@
     .takeaway h2 { margin: 0 0 8px; font-size: 18px; line-height: 1.35; color: var(--deep); }
     .takeaway ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.6; }
     .takeaway p { margin: 10px 0 0; }
+    .more { margin: 12px 0 0; }
+    .more summary { cursor: pointer; color: var(--deep); font-weight: 700; line-height: 1.5; }
+    .more summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
+    .more-body { margin-top: 8px; padding: 10px 12px; border-left: 4px solid var(--teal); border-radius: 4px 10px 10px 4px; background: var(--sky); }
+    .more-body p { margin: 0 0 8px; color: var(--moss); }
+    .more-body ul, .more-body ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; line-height: 1.6; }
+    .more-body li span { display: block; color: var(--moss); font-size: 14px; }
     @media (max-width: 639px) { .boundary { margin-top: 10px; padding: 6px 10px; font-size: 13px; } .lede { margin-top: 6px; } .hint { margin-top: 4px; } .primer { margin-top: 8px; } }
     .lights-legend { margin: 6px 0 0; color: var(--moss); font-size: 13px; line-height: 1.4; }
     .lights-help { margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
@@ -432,6 +439,8 @@
       <section class="takeaway" id="takeaway" aria-labelledby="takeaway-title">
         <h2 id="takeaway-title"></h2>
         <ul id="takeaway-list"></ul>
+        <details class="more" id="more-danger"></details>
+        <details class="more" id="more-asks"></details>
         <p><a class="home" id="takeaway-link" href="../one-container-12-steps/"></a></p>
         <p><a class="home" id="takeaway-case" href="/cases/first-container/"></a></p>
       </section>
