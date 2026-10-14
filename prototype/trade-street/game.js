@@ -136,7 +136,7 @@ export const DECISIONS = [
     zh: { prompt: "廠長說：差不多好了。" },
     en: { prompt: "The factory head says: nearly done." },
     options: [
-      { id: "A", tag: "check", cost: 0, zh: "到場核對實貨與文件一致，拍照、記下封條號碼", en: "Be there, check the goods match the documents, take photos and note the seal number." },
+      { id: "A", tag: "check", cost: 0, extra: { rush: 1 }, zh: "到場核對實貨與文件一致，拍照、記下封條號碼", en: "Be there, check the goods match the documents, take photos and note the seal number." },
       { id: "B", tag: "trust", cost: 0, zh: "請廠長裝完回報實貨照片與封條號碼，由你核對", en: "Ask the factory head to report back with photos and the seal number, and you check them." },
       { id: "C", tag: "clock", cost: 1, extra: { rush: 2 }, zh: "趕時間，先封櫃，文件晚點再對", en: "Short on time: seal now, check the papers later." },
     ],
@@ -146,7 +146,7 @@ export const DECISIONS = [
     zh: { prompt: "拖車問：什麼時候進港？" },
     en: { prompt: "The trucker asks: when do we go into the port?" },
     options: [
-      { id: "A", tag: "buffer", cost: 0, zh: "留緩衝，提早進港", en: "Keep a buffer and go in early." },
+      { id: "A", tag: "buffer", cost: 0, extra: { holiday: 1 }, zh: "留緩衝，提早進港", en: "Keep a buffer and go in early." },
       { id: "B", tag: "rules", cost: 0, zh: "照貨代通知的進港截止時間辦，並記下來", en: "Go by the port-entry cut-off in the forwarder's notice, and write it down." },
       { id: "C", tag: "check", cost: 1, extra: { rush: 2 }, zh: "出發前把所有文件再逐頁核一遍，結果壓線進港", en: "Go through every paper once more before leaving, and arrive at the last minute." },
     ],

@@ -87,7 +87,7 @@ for (const width of [390, 1440]) {
         await expect(page.locator("#first-note")).toContainText(lang === "zh" ? "這一站不用選" : "Nothing to choose at this stop");
         await page.locator("#next").click();
         await expect(page.locator("#first-note")).toBeHidden();
-        await page.goto(`${base}/index.html?lang=${lang}&s=rush&c=AAAAAA`);
+        await page.goto(`${base}/index.html?lang=${lang}&s=rush&c=BBBBBB`);
         await expect(page.locator("#lights-legend-result")).toBeVisible();
         await expect(page.locator("#buffer-line")).toContainText(lang === "zh" ? "這一趟沒用到緩衝格" : "used no buffer cells");
         await expect(page.locator("#buffer-line")).toContainText(lang === "zh" ? "遊戲代幣" : "game token");

@@ -139,6 +139,14 @@ test("scenarios only make the options they describe cost more", () => {
   assert.equal(START_BUFFER, 2);
 });
 
+test("the buffer is felt: a sensible all-A route spends a cell in holiday and rush, and the matching all-B route never does", () => {
+  for (const scenario of ["holiday", "rush"]) {
+    assert.ok(resolve(scenario, "AAAAAA").voyageCost >= 1, `${scenario} AAAAAA spends a cell`);
+    assert.equal(resolve(scenario, "BBBBBB").voyageCost, 0, `${scenario} BBBBBB spends none`);
+  }
+  assert.equal(resolve("peak", "AAAAAA").voyageCost, 0);
+});
+
 test("addresses: valid ones round-trip, bad ones are ignored", () => {
   assert.deepEqual(readRoute("?s=peak&c=ABCABC"), { lang: "zh", scenario: "peak", result: { scenario: "peak", code: "ABCABC" } });
   assert.equal(readRoute("?s=peak&c=ABCABC&lang=en").lang, "en");
