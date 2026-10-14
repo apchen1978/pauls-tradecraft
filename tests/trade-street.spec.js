@@ -140,11 +140,11 @@ for (const width of [390, 1440]) {
         await page.locator("#start").click();
         await page.locator("#next").click(); // stop 1 -> 2
         await expect(page.locator("#brief .handoff")).toHaveCount(0); // stop 2 is a decision: nothing before the choice
-        await page.locator("#choices .choice").first().click();
+        await page.locator("#choices button[data-option=\"A\"]").click();
         await expect(page.locator("#feedback .handoff")).toHaveCount(1);
         await expect(page.locator("#feedback .handoff p")).toHaveCount(4); // free choice: three lines plus the newcomer tip; the risk line is not shown elsewhere
         await page.locator("#next").click();
-        await page.locator("#choices .choice").first().click();
+        await page.locator("#choices button[data-option=\"A\"]").click();
         await page.locator("#next").click(); // stop 4: read-only
         await expect(page.locator("#brief .handoff")).toHaveCount(1);
         await expect(page.locator("#brief .handoff p")).toHaveCount(3);
@@ -241,6 +241,24 @@ for (const width of [390, 1440]) {
       expect(page.url()).toContain("c=BABAAB");
       await expect(page.locator("#cast li")).toHaveCount(8);
       await noOverflow(page);
+    });
+
+    test("option order is shuffled per play, labels stay A-B-C by position, and the order holds while going back", async ({ page }) => {
+      await page.goto(`${base}/index.html?lang=zh`);
+      const seen = new Set();
+      for (let play = 0; play < 12; play += 1) {
+        await page.locator("#start").click();
+        await page.locator("#next").click(); // stop 1 is a story stop
+        const ids = await page.locator("#choices button").evaluateAll((nodes) => nodes.map((n) => n.dataset.option));
+        expect([...ids].sort()).toEqual(["A", "B", "C"]);
+        await expect(page.locator("#choices .letter")).toHaveText(["A", "B", "C"]);
+        seen.add(ids.join(""));
+        await page.locator("#back").click(); // back to stop 1
+        await page.locator("#next").click();
+        expect(await page.locator("#choices button").evaluateAll((nodes) => nodes.map((n) => n.dataset.option))).toEqual(ids);
+        await page.goto(`${base}/index.html?lang=zh`);
+      }
+      expect(seen.size).toBeGreaterThan(1);
     });
 
     test("a costly choice shows its cost and the person who answers; choosing again works", async ({ page }) => {

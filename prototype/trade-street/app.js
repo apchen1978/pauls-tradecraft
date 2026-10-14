@@ -184,6 +184,7 @@ function boot() {
     scenario: route.scenario || SCENARIO_ORDER[0],
     index: 0,
     picks: Array(DECISIONS.length).fill(null),
+    order: Array(DECISIONS.length).fill(null),
     view: "entry",
     preview: null,
   };
@@ -600,11 +601,11 @@ function boot() {
     if (decision) {
       prompt.textContent = `${t.decisionTag}：${decision[state.lang].prompt}`;
       choices.setAttribute("aria-label", decision[state.lang].prompt);
-      decision.options.forEach((option) => {
+      optionsInOrder(dIndex).forEach((option, position) => {
         const button = el("button", `choice${picked === option.id ? " picked" : ""}`);
         button.type = "button";
         button.dataset.option = option.id;
-        button.append(el("span", "letter", option.id), el("span", null, option[state.lang]));
+        button.append(el("span", "letter", "ABC"[position]), el("span", null, option[state.lang]));
         if (picked) button.disabled = true;
         button.addEventListener("click", () => choose(dIndex, option.id));
         choices.appendChild(button);
@@ -612,6 +613,22 @@ function boot() {
       if (picked) showFeedback(dIndex, picked);
     }
     if (focus) $("station-title").focus({ preventScroll: false });
+  }
+
+  // The costly option must not always sit in the same slot, or players learn "never the last one".
+  // The order is shuffled once per play and kept while they go back and forth or switch language.
+  // Option ids (the share-code letters) never change, so old links resolve exactly as before.
+  function optionsInOrder(dIndex) {
+    const options = DECISIONS[dIndex].options;
+    if (!state.order[dIndex]) {
+      const ids = options.map((o) => o.id);
+      for (let i = ids.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [ids[i], ids[j]] = [ids[j], ids[i]];
+      }
+      state.order[dIndex] = ids;
+    }
+    return state.order[dIndex].map((id) => options.find((o) => o.id === id));
   }
 
   function showFeedback(dIndex, optionId) {
@@ -872,6 +889,7 @@ function boot() {
     clearTimeout(revealTimer);
     state.index = 0;
     state.picks = Array(DECISIONS.length).fill(null);
+    state.order = Array(DECISIONS.length).fill(null);
     show("entry");
     renderScenarios();
     $("title").focus({ preventScroll: false });
@@ -889,6 +907,7 @@ function boot() {
   $("start").addEventListener("click", () => {
     state.index = 0;
     state.picks = Array(DECISIONS.length).fill(null);
+    state.order = Array(DECISIONS.length).fill(null);
     show("play");
     renderPlay(true);
   });
