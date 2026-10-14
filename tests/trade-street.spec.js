@@ -96,6 +96,22 @@ for (const width of [390, 1440]) {
     }
 
     for (const lang of ["zh", "en"]) {
+      test(`${lang}: the result is not a dead end: it points to the lamp and the street corner in the same language`, async ({ page }) => {
+        await page.goto(`${base}/index.html?lang=${lang}&s=peak&c=AAAAAA`);
+        await expect(page.locator("#loop")).toBeVisible();
+        await expect(page.locator("#loop-lamp")).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
+        await expect(page.locator("#loop-corner")).toHaveAttribute("href", `/prototype/secrets-on-the-corner/?lang=${lang}`);
+        await expect(page.locator("#loop-lamp")).toContainText(lang === "zh" ? "一盞燈的約定" : "A Lamp, As Promised");
+        await expect(page.locator("#loop-corner")).toContainText(lang === "zh" ? "街角的秘密" : "Secrets on the Corner");
+        const other = lang === "zh" ? "en" : "zh";
+        await page.locator(`[data-lang="${other}"]`).first().click();
+        await expect(page.locator("#loop-lamp")).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${other}`);
+        await noOverflow(page);
+        expect(page.url()).toContain("s=peak&c=AAAAAA");
+      });
+    }
+
+    for (const lang of ["zh", "en"]) {
       test(`${lang}: the two extra stops are marked as common practice, carry their point, and sit under the stop heading`, async ({ page }) => {
         await page.goto(`${base}/index.html?lang=${lang}`);
         await page.locator("#start").click();

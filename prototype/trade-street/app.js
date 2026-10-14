@@ -60,6 +60,8 @@ export const UI = {
     takeawayTitle: "走完這一趟，你看到的是：",
     takeaway: ["出口不是一個人的事：十四站、好幾個人，一棒接一棒。", "最容易出事的，常常不是某一站，而是交接：誰、什麼時候、把什麼交給下一棒。", "所以有經驗的人，會先問清楚、留一點緩衝、把說好的事寫下來。"],
     takeawayLink: "想看每一步的完整說明：12 步流程",
+    loopTitle: "這一櫃貨，是怎麼開始的？", loopLead: "出海之前，有人先問清楚，再把規格講好。",
+    loopLamp: "看規格怎麼講好：一盞燈的約定 ↗", loopCorner: "看一封熱情的信該怎麼問：街角的秘密 ↗",
     takeawayCase: "想看一櫃貨在出海之前，怎麼先判斷做不做得成：第一個貨櫃案例",
     entryTitle: "先選這一週的情況", routeLabel: "十四站", lightsLabel: "四個時間點", routeHint: "點地圖上的圓點，看那一站是誰、在做什麼。橘色圈是要做決定的站。",
     castLink: "認識街上的人",
@@ -111,6 +113,8 @@ export const UI = {
     takeawayTitle: "What you just saw:",
     takeaway: ["Exporting is not one person's job: fourteen stops, several people, one handing over to the next.", "What goes wrong is often not a single step but the handover: who passes what to whom, and when.", "That is why experienced people ask first, keep a little buffer, and write down what was agreed."],
     takeawayLink: "Want every step in full? The 12 steps",
+    loopTitle: "How does a shipment like this begin?", loopLead: "Before anything ships, someone asks the right questions, then agrees the details.",
+    loopLamp: "See how a spec gets agreed: A Lamp, As Promised ↗", loopCorner: "See how to ask about a warm letter: Secrets on the Corner ↗",
     takeawayCase: "Want to see how a first container is judged before it ships? The first-container case",
     entryTitle: "First, pick this week's situation", routeLabel: "Fourteen stops", lightsLabel: "Four moments", routeHint: "Tap a dot on the map to see who is there and what they do. An orange ring marks a stop where you decide.",
     castLink: "Meet the people on the street",
@@ -479,6 +483,12 @@ function boot() {
     $("takeaway-link").href = `../one-container-12-steps/${state.lang === "en" ? "?lang=en" : ""}`;
     $("takeaway-case").textContent = t.takeawayCase;
     $("takeaway-case").href = `/cases/first-container/${state.lang === "en" ? "?lang=en" : ""}`;
+    $("loop-title").textContent = t.loopTitle;
+    $("loop-lead").textContent = t.loopLead;
+    $("loop-lamp").textContent = t.loopLamp;
+    $("loop-lamp").href = `/prototype/take-the-lantern-apart/?lang=${state.lang}`;
+    $("loop-corner").textContent = t.loopCorner;
+    $("loop-corner").href = `/prototype/secrets-on-the-corner/?lang=${state.lang}`;
     $("entry-title").textContent = t.entryTitle;
     $("start").textContent = t.start;
     $("see-steps").textContent = t.seeSteps;
