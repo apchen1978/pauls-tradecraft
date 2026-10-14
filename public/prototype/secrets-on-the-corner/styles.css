@@ -287,3 +287,75 @@ html[lang="en"] .hero-copy h1 { max-width: 11ch; font-size: clamp(2.8rem, 4.2vw,
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+/* The letter is a short optional act, using the same paper and notebook palette. */
+[hidden], dialog:not([open]) { display: none !important; }
+.stage { display: contents; }
+.field-note { position: fixed; inset: 0; margin: auto; width: min(640px, calc(100% - 32px)); max-height: calc(100dvh - 40px); overflow: auto; border: 0; z-index: 10; }
+dialog::backdrop { background: rgb(12 27 35 / .7); }
+.note-back { border: 1px solid #b9c5c7; background: transparent; padding: 10px 15px; border-radius: 6px; min-height: 44px; }
+.progress-dots { display: inline-flex; gap: 7px; margin-right: 12px; vertical-align: middle; }
+.progress-dots i { width: 9px; height: 9px; border: 1px solid currentColor; border-radius: 50%; }
+.progress-dots .seen { background: currentColor; }
+.business-chain-steps li::before { content: none; }
+.result-more { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 32px; }
+.result-more > summary { min-height: 44px; color: var(--night); font-weight: 700; cursor: pointer; }
+.result-timeline { list-style: none; }
+.result-more .result-lens { margin-block: 20px !important; }
+.letter-result { margin-top: 32px; padding: 26px; border: 1px solid var(--line); border-radius: 12px; background: var(--sheet); }
+.letter-kicker { color: var(--cinnamon); font-weight: 700; font-size: .9rem; }
+.letter-result h3 { margin: 8px 0 18px; }
+.letter-result h4 { margin: 18px 0 8px; }
+.letter-result .clue-part span { color: var(--cinnamon); }
+.letter-result .clue-part p { color: var(--ink); }
+.letter-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 0; }
+.letter-dialog { width: min(820px, calc(100% - 24px)); max-height: calc(100dvh - 24px); padding: clamp(20px, 4vw, 42px); border: 0; border-radius: 12px; background: var(--paper); color: var(--ink); overflow: auto; }
+.letter-dialog-head { display: flex; justify-content: space-between; align-items: start; gap: 18px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+.letter-dialog-head h2 { font-size: clamp(1.4rem, 4vw, 2.1rem); }
+.letter-dialog button, .letter-dialog select { font: inherit; min-height: 44px; }
+.letter-dialog-head button, .letter-note button, .reply-slot button { background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px; color: var(--night); }
+.letter-dialog-head button { flex-shrink: 0; max-width: 45%; }
+.letter-paper { padding: clamp(18px, 4vw, 32px); background: var(--sheet); border-left: 3px solid var(--cinnamon); font-family: "Noto Serif TC", "Songti TC", Georgia, serif; line-height: 2; }
+.letter-paper p { margin-bottom: 20px; }
+.letter-paper p:last-child { margin-bottom: 0; color: var(--ink-soft); }
+.letter-phrase { display: inline; min-height: 0 !important; padding: 3px 0; border: 0; border-bottom: 1px dashed var(--cinnamon); border-radius: 0; color: var(--night); background: #eee3ce; line-height: inherit; text-align: start; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.letter-phrase.explored { background: #dfebe6; border-bottom-style: solid; }
+.letter-source, .letter-instruction { color: var(--ink-soft); font-size: .9rem; }
+.letter-voice { margin-top: 22px; font-family: Georgia, "Songti TC", serif; }
+.letter-note { margin-block: 24px; padding: 24px; border-radius: 8px; background: var(--night); color: var(--paper); }
+.letter-note h3 { margin-bottom: 18px; }
+.letter-note .clue-part { margin: 14px 0; }
+.letter-note button { color: var(--paper); margin-top: 16px; }
+.letter-conclusion { font-weight: 700; }
+.reply-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.reply-question { text-align: start; padding: 14px; border: 1px solid var(--line); border-radius: 8px; color: var(--night); background: var(--sheet); }
+.reply-question[aria-pressed="true"] { background: var(--night); color: white; }
+.reply-question:disabled { opacity: .55; cursor: not-allowed; }
+.reply-slots { display: grid; gap: 12px; margin: 20px 0; }
+.reply-slot { padding: 16px; border: 1px dashed var(--line); border-radius: 8px; }
+.reply-slot p { margin: 7px 0 10px; color: var(--ink-soft); }
+.reply-slot button { margin: 0 8px 5px 0; }
+.reply-slot button:disabled { opacity: .45; }
+#reply-tone { display: block; width: 100%; margin-top: 8px; padding: 10px; background: var(--sheet); color: var(--night); border: 1px solid var(--line); border-radius: 6px; }
+.reply-preview { margin-top: 24px; padding: 24px; background: var(--sheet); border-left: 3px solid var(--cinnamon); }
+.reply-preview .clue-part span { color: var(--cinnamon); }
+.reply-preview .clue-part p { color: var(--ink); }
+.reply-questions { list-style: none; padding: 0; margin: 12px 0 20px; }
+.reply-questions li { margin-bottom: 14px; padding-left: 15px; border-left: 2px solid var(--line); }
+.journey-actions { display: grid; gap: 12px; flex: none; }
+.trade-bridge .secondary-link { margin: 0; padding: 4px 0; background: transparent; color: var(--night); font-size: .9rem; text-decoration: underline; }
+@media (max-width: 699px) {
+  .draft-label { display: inline; max-width: 135px; white-space: normal; font-size: .7rem; }
+  .head-actions { gap: 8px; }
+  .letter-result { padding: 20px; }
+  .reply-options { grid-template-columns: 1fr; }
+  .letter-dialog { padding: 20px 16px; }
+  .letter-dialog-head { gap: 10px; }
+  .letter-dialog-head button { font-size: 14px; }
+  .letter-note, .reply-preview { padding: 18px; }
+}
+
+.letter-note { position: fixed; inset: 0; margin: auto; width: min(540px, calc(100% - 40px)); max-height: calc(100dvh - 48px); overflow: auto; border: 0; }
+.letter-ending { font-family: Georgia, "Songti TC", serif; font-size: 1.12rem; }
+.letter-story { color: var(--ink-soft); padding-left: 16px; border-left: 2px solid var(--cinnamon); }
+
+.reply-slot strong { display: block; margin-bottom: 10px; }
