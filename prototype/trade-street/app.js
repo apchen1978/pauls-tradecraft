@@ -2,7 +2,9 @@ import {
   CAST, CAST_ORDER, DECISIONS, LIGHTS, REACT, SCENARIOS, SCENARIO_ORDER, START_BUFFER, STATION_SPEAKER, STYLES, STYLE_CHAR,
   optionCost, readRoute, resolve, shareSearch,
 } from "./game.js";
-import { LEARN_TEXT, PAGE_TEXT, STEP_TEXT } from "./steps-text.js";
+import { LEARN_TEXT, PAGE_TEXT } from "./steps-text.js";
+import { ALL_STEPS, indexOfOriginal, isExtra } from "./extra-steps.js";
+import { COMMON, DAILY, EXTRA_TAG, LESSON_LABEL, TIPS, TIP_LABEL } from "./tips.js";
 import { HANDOFF, HANDOFF_LABEL } from "./handoff.js";
 import { ART, AVATAR_COLOR, GLOSS, MOBILE_QUERY, POS, SHORT } from "./layout.js";
 
@@ -16,12 +18,14 @@ export const STATION_LINE = {
     "位子給你了。上面寫著這櫃貨要走哪一班船。",
     "空櫃我來提。哪一天、去哪裡，請先講清楚。",
     "差不多好了。",
+    "補料和重量，要在截港前交。開船日只是最後一個日期。",
     "重櫃進港，排隊。一櫃一櫃來。",
     "資料給我，我再看一次。",
     "前面是閘門：放行，或打開檢查。我們只能等。",
     "上船了嗎？進了港，不等於上了船。",
     "船開了。預計和實際，可能不同。",
     "提單簽好了，請逐項核對。",
+    "款還沒到，單我先扣著。這是你手上最後的保障。",
     "單到我手上，貨才提得走。",
   ],
   en: [
@@ -30,12 +34,14 @@ export const STATION_LINE = {
     "Your place is secured. The paper says which sailing this container is on.",
     "I will collect the empty container. Tell me which day and where.",
     "Nearly done.",
+    "Papers and weight must be in before the port cut-off. The sailing day is only the last date.",
     "Full container coming in. Queue up, one at a time.",
     "Give me the papers. I will look once more.",
     "Ahead is the gate: released, or opened for a check. We can only wait.",
     "Is it on the ship? Being in the port is not the same.",
     "The ship has sailed. Expected and actual dates can differ.",
     "The bill is issued. Please check it line by line.",
+    "The money is not here yet, so I am holding the papers. They are your last protection.",
     "I can only collect the goods once the documents reach me.",
   ],
 };
@@ -52,15 +58,15 @@ export const UI = {
     primerTitle: "先懂一件事：出口一個貨櫃，是一群人在接力。",
     primerBody: "賣到國外的貨，不是自己送過去的。工廠、貨代（替你安排運輸的公司）、拖車、海關、船公司、買家，每個人只做自己那一段，下一個人才接得上。只要有一棒晚了，整櫃貨就可能趕不上船。",
     takeawayTitle: "走完這一趟，你看到的是：",
-    takeaway: ["出口不是一個人的事：十二站、好幾個人，一棒接一棒。", "最容易出事的，常常不是某一站，而是交接：誰、什麼時候、把什麼交給下一棒。", "所以有經驗的人，會先問清楚、留一點緩衝、把說好的事寫下來。"],
+    takeaway: ["出口不是一個人的事：十四站、好幾個人，一棒接一棒。", "最容易出事的，常常不是某一站，而是交接：誰、什麼時候、把什麼交給下一棒。", "所以有經驗的人，會先問清楚、留一點緩衝、把說好的事寫下來。"],
     takeawayLink: "想看每一步的完整說明：12 步流程",
     takeawayCase: "想看一櫃貨在出海之前，怎麼先判斷做不做得成：第一個貨櫃案例",
-    entryTitle: "先選這一週的情況", routeLabel: "十二站", lightsLabel: "四個時間點", routeHint: "點地圖上的圓點，看那一站是誰、在做什麼。橘色圈是要做決定的站。",
+    entryTitle: "先選這一週的情況", routeLabel: "十四站", lightsLabel: "四個時間點", routeHint: "點地圖上的圓點，看那一站是誰、在做什麼。橘色圈是要做決定的站。",
     castLink: "認識街上的人",
     mapAlt: "貿易街的港口：左邊是工廠，道路通向右邊的碼頭，吊車正把貨櫃吊上船，遠方海面另有一艘船駛離，右下角是岸上的文件角。",
     previewClose: "關閉", stopLabel: (n, name) => `第 ${n} 站：${name}`,
     start: "出發", seeSteps: "先看 12 步流程",
-    progress: (n) => `第 ${n} 站 / 12`,
+    progress: (n) => `第 ${n} 站 / 14`,
     buffer: (left) => (left >= 0 ? `緩衝格 ${left} / ${START_BUFFER}` : `緩衝格用完，超出 ${-left} 格`),
     afterSail: "船已經開了。這個決定不影響上不上船，只影響單據有沒有順利交到買家手上。",
     handover: { smooth: "單據：順利交到買家手上。", fix: "單據：還需要補件或再確認。" },
@@ -102,15 +108,15 @@ export const UI = {
     primerTitle: "Exporting a container is a relay.",
     primerBody: "Goods sold abroad do not travel on their own. The factory, the forwarder (the company that arranges transport for you), the truck, customs, the shipping line and the buyer each do one leg, and the next one can only start once the last has finished. If one handover runs late, the whole container can miss its ship.",
     takeawayTitle: "What you just saw:",
-    takeaway: ["Exporting is not one person's job: twelve steps, several people, one handing over to the next.", "What goes wrong is often not a single step but the handover: who passes what to whom, and when.", "That is why experienced people ask first, keep a little buffer, and write down what was agreed."],
+    takeaway: ["Exporting is not one person's job: fourteen stops, several people, one handing over to the next.", "What goes wrong is often not a single step but the handover: who passes what to whom, and when.", "That is why experienced people ask first, keep a little buffer, and write down what was agreed."],
     takeawayLink: "Want every step in full? The 12 steps",
     takeawayCase: "Want to see how a first container is judged before it ships? The first-container case",
-    entryTitle: "First, pick this week's situation", routeLabel: "Twelve stops", lightsLabel: "Four moments", routeHint: "Tap a dot on the map to see who is there and what they do. An orange ring marks a stop where you decide.",
+    entryTitle: "First, pick this week's situation", routeLabel: "Fourteen stops", lightsLabel: "Four moments", routeHint: "Tap a dot on the map to see who is there and what they do. An orange ring marks a stop where you decide.",
     castLink: "Meet the people on the street",
     mapAlt: "The Trade Street harbour: the factory on the left, a road leading to the quay on the right where a crane loads a container onto a ship, another ship sailing away in the distance, and the documents corner on shore at the bottom right.",
     previewClose: "Close", stopLabel: (n, name) => `Stop ${n}: ${name}`,
     start: "Set off", seeSteps: "Read the 12 steps first",
-    progress: (n) => `Stop ${n} of 12`,
+    progress: (n) => `Stop ${n} of 14`,
     buffer: (left) => (left >= 0 ? `Buffer cells ${left} of ${START_BUFFER}` : `Buffer used up, ${-left} over`),
     afterSail: "The ship has already sailed. This decision cannot change whether it makes the ship, only how smoothly the documents reach the buyer.",
     handover: { smooth: "Documents: they reach the buyer smoothly.", fix: "Documents: they still need fixing or waiting." },
@@ -143,7 +149,9 @@ export const UI = {
   },
 };
 
-const stepOf = (decision) => STEP_TEXT[decision.step - 1];
+const stepOf = (decision) => ALL_STEPS[decision.step - 1];
+
+const LAST_STOP = ALL_STEPS.length - 1; // index of the last of the fourteen stops
 
 const decisionAtStation = (index) => DECISIONS.findIndex((decision) => decision.step === index + 1);
 
@@ -188,11 +196,12 @@ function boot() {
     const text = HANDOFF[stepIndex][state.lang];
     const label = HANDOFF_LABEL[state.lang];
     const box = el("div", "handoff");
-    box.append(el("h3", null, label.head));
+    box.append(el("h3", null, isExtra(stepIndex) ? (state.lang === "zh" ? `${label.head}（${COMMON.zh}）` : `${label.head} (${COMMON.en})`) : label.head));
     const line = (name, value) => { const p = el("p"); p.append(el("b", null, name), document.createTextNode(value)); box.appendChild(p); };
     line(label.gives, text.gives);
     line(label.to, text.to);
-    if (withMiss) line(label.miss, STEP_TEXT[stepIndex][state.lang].risk);
+    if (withMiss) line(label.miss, ALL_STEPS[stepIndex][state.lang].risk);
+    if (TIPS[stepIndex]) line(TIP_LABEL[state.lang], TIPS[stepIndex][state.lang]);
     return box;
   }
   const avatar = (node, charId) => {
@@ -246,7 +255,7 @@ function boot() {
       li.append(el("b", null, `${labels[i]}（${name}）`), document.createTextNode(`：${meaning} ${snag}`));
       list.appendChild(li);
     });
-    const sail = STEP_TEXT[9][state.lang];
+    const sail = ALL_STEPS[indexOfOriginal(10)][state.lang];
     const last = el("li");
     last.append(el("b", null, `${labels[3]}`), document.createTextNode(`：${sail.p}`));
     list.appendChild(last);
@@ -292,8 +301,10 @@ function boot() {
         if (i === state.index) li.setAttribute("aria-current", "step");
       }
       if (decisionAtStation(i) >= 0) li.classList.add("decision");
+      if (isExtra(i)) li.classList.add("extra");
       const words = el("span", "words");
       words.append(el("span", null, label), el("small", "gloss", GLOSS[state.lang][i]));
+      if (isExtra(i)) words.append(el("small", "extra-note", EXTRA_TAG[state.lang]));
       if (withState) {
         li.append(el("span", "num", String(i + 1)), words);
       } else {
@@ -393,9 +404,11 @@ function boot() {
     $("preview-name").textContent = CAST[speaker][state.lang].name;
     $("preview-role").textContent = CAST[speaker][state.lang].role;
     $("preview-say").textContent = STATION_LINE[state.lang][i];
-    $("preview-title").textContent = `${i + 1}. ${STEP_TEXT[i][state.lang].t}`;
-    $("preview-p").textContent = STEP_TEXT[i][state.lang].p;
-    const note = wordingNote(STEP_TEXT[i][state.lang]);
+    $("preview-title").textContent = `${i + 1}. ${ALL_STEPS[i][state.lang].t}`;
+    $("preview-p").textContent = ALL_STEPS[i][state.lang].p;
+    $("preview-extra").hidden = !isExtra(i);
+    $("preview-extra").textContent = EXTRA_TAG[state.lang];
+    const note = wordingNote(ALL_STEPS[i][state.lang]);
     $("preview-cross").hidden = !note;
     $("preview-cross").textContent = note ? `${ui().wording}：${note}` : "";
     $("preview-close").textContent = ui().previewClose;
@@ -459,6 +472,7 @@ function boot() {
     };
     fold("more-danger", learnMore.dangerH, "", learnMore.danger, "ul");
     fold("more-asks", learnMore.asksH, learnMore.asksLede, learnMore.asks, "ol");
+    fold("more-daily", DAILY[state.lang].title, "", DAILY[state.lang].items, "ol");
     $("takeaway-link").textContent = t.takeawayLink;
     $("takeaway-link").href = `../one-container-12-steps/${state.lang === "en" ? "?lang=en" : ""}`;
     $("takeaway-case").textContent = t.takeawayCase;
@@ -524,7 +538,7 @@ function boot() {
   function renderPlay(focus) {
     const t = ui();
     const i = state.index;
-    const step = STEP_TEXT[i][state.lang];
+    const step = ALL_STEPS[i][state.lang];
     const speaker = STATION_SPEAKER[i];
     const dIndex = decisionAtStation(i);
     const decision = dIndex >= 0 ? DECISIONS[dIndex] : null;
@@ -538,6 +552,8 @@ function boot() {
     $("say").textContent = STATION_LINE[state.lang][i];
     $("station-title").textContent = step.t;
     $("station-p").textContent = step.p;
+    $("extra-tag").hidden = !isExtra(i);
+    $("extra-tag").textContent = EXTRA_TAG[state.lang];
 
     const first = $("first-note");
     first.hidden = !(i === 0 && !decision);
@@ -552,6 +568,7 @@ function boot() {
     const row = (label, text) => { const d = el("div"); d.append(el("b", null, label), document.createTextNode(text)); return d; };
     brief.appendChild(row(t.who, step.who));
     if (!decision) { brief.appendChild(row(t.prep, step.prep)); brief.appendChild(handoffBlock(i, true)); }
+    if (step.lesson) brief.appendChild(row(LESSON_LABEL[state.lang], step.lesson));
     if (wordingNote(step)) brief.appendChild(row(t.wording, wordingNote(step)));
 
     const prompt = $("prompt");
@@ -565,7 +582,7 @@ function boot() {
     $("back").hidden = i === 0;
     $("back").textContent = t.back;
     const picked = decision ? state.picks[dIndex] : "ok";
-    $("next").textContent = i === 11 ? t.nextLast : t.next;
+    $("next").textContent = i === LAST_STOP ? t.nextLast : t.next;
     $("next").disabled = !picked;
 
     if (decision) {
@@ -632,7 +649,7 @@ function boot() {
 
   function go(delta) {
     if (delta > 0) {
-      if (state.index === 11) { finish(); return; }
+      if (state.index === LAST_STOP) { finish(); return; }
       state.index += 1;
     } else if (state.index > 0) {
       state.index -= 1;
@@ -933,7 +950,7 @@ function boot() {
   if (route.result) {
     state.scenario = route.result.scenario;
     state.picks = route.result.code.split("");
-    state.index = 11;
+    state.index = LAST_STOP;
     show("result");
     const res = renderResult();
     renderLights($("result-lights"), res.lights);

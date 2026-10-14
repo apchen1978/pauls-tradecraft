@@ -449,7 +449,7 @@ const dict = {
         {
           title: "貿易街 · 一櫃貨出海",
           tag: "教學玩具 · 雙語原型",
-          hook: "一櫃貨明天要出海，整條街都在接力。走十二站、做六個決定。",
+          hook: "一櫃貨明天要出海，整條街都在接力。走十四站、做六個決定。",
           teaches: "教你：一櫃貨出海要經過哪些人、哪六個時刻要決定",
           cta: "走一趟",
           boundary: "教學示意，不含具體天數、費用或比例，一律以貨代或船公司通知為準。",
@@ -1204,7 +1204,7 @@ const dict = {
         {
           title: "Trade Street · One Container Ships",
           tag: "Teaching toy · bilingual prototype",
-          hook: "One container ships tomorrow and the whole street passes the baton. Twelve stops, six decisions.",
+          hook: "One container ships tomorrow and the whole street passes the baton. Fourteen stops, six decisions.",
           teaches: "Teaches: who a container passes through on its way to sea, and the six moments you decide",
           cta: "Walk the street",
           boundary: "A teaching sketch with no specific days, costs or percentages: go by your forwarder's or the carrier's notice.",

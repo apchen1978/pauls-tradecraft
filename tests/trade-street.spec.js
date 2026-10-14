@@ -40,7 +40,7 @@ async function noOverflow(page) {
 async function walk(page, letters) {
   await page.locator("#start").click();
   let d = 0;
-  for (let i = 0; i < 12; i += 1) {
+  for (let i = 0; i < 14; i += 1) {
     if (await page.locator("#choices").isVisible()) {
       await page.locator(`#choices button[data-option="${letters[d]}"]`).click();
       d += 1;
@@ -66,7 +66,7 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#scn button[aria-checked='true']")).toHaveCount(1);
       const box = await page.locator("#start").boundingBox();
       expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
-      await expect(page.locator("#route-entry li")).toHaveCount(12);
+      await expect(page.locator("#route-entry li")).toHaveCount(14);
       await noOverflow(page);
       expect(outside).toEqual([]);
       expect(problems).toEqual([]);
@@ -79,6 +79,29 @@ for (const width of [390, 1440]) {
     });
 
     for (const lang of ["zh", "en"]) {
+      test(`${lang}: the two extra stops are marked as common practice, carry their point, and sit under the stop heading`, async ({ page }) => {
+        await page.goto(`${base}/index.html?lang=${lang}`);
+        await page.locator("#start").click();
+        for (let i = 0; i < 5; i += 1) {
+          if (await page.locator("#choices").isVisible()) await page.locator("#choices .choice").first().click();
+          await page.locator("#next").click();
+        }
+        await expect(page.locator("#progress")).toContainText(lang === "zh" ? "第 6 站" : "Stop 6");
+        await expect(page.locator("#extra-tag")).toBeVisible();
+        await expect(page.locator("#extra-tag")).toContainText(lang === "zh" ? "業界常見的補充站" : "common extra stop");
+        await expect(page.locator("#choices")).toBeHidden();
+        await expect(page.locator("#brief")).toContainText(lang === "zh" ? "截港前" : "before the port cut-off");
+        await expect(page.locator("#brief .handoff h3")).toContainText(lang === "zh" ? "業界常見" : "common practice");
+        // heading order: the stop title is a level-2 heading and the hand-over heading sits below it
+        const order = await page.evaluate(() => [...document.querySelectorAll("#station-title, #brief .handoff h3")].map((node) => node.tagName));
+        expect(order).toEqual(["H2", "H3"]);
+        await page.locator("#next").click();
+        await expect(page.locator("#extra-tag")).toBeHidden();
+        await noOverflow(page);
+      });
+    }
+
+    for (const lang of ["zh", "en"]) {
       test(`${lang}: hand-over block: shown on the read-only stops, held back on decision stops until a choice, never repeats the risk line`, async ({ page }) => {
         await page.goto(`${base}/index.html?lang=${lang}`);
         await page.locator("#start").click();
@@ -86,7 +109,7 @@ for (const width of [390, 1440]) {
         await expect(page.locator("#brief .handoff")).toHaveCount(0); // stop 2 is a decision: nothing before the choice
         await page.locator("#choices .choice").first().click();
         await expect(page.locator("#feedback .handoff")).toHaveCount(1);
-        await expect(page.locator("#feedback .handoff p")).toHaveCount(3); // free choice: the risk line is not shown elsewhere
+        await expect(page.locator("#feedback .handoff p")).toHaveCount(4); // free choice: three lines plus the newcomer tip; the risk line is not shown elsewhere
         await page.locator("#next").click();
         await page.locator("#choices .choice").first().click();
         await page.locator("#next").click(); // stop 4: read-only
@@ -120,7 +143,7 @@ for (const width of [390, 1440]) {
       test(`${lang}: the numbered list under the map opens the same stop preview as the dot, and closing it returns focus to the list`, async ({ page }) => {
         await page.goto(`${base}/index.html?lang=${lang}`);
         const buttons = page.locator("#route-entry .route-btn");
-        await expect(buttons).toHaveCount(12);
+        await expect(buttons).toHaveCount(14);
         await buttons.nth(2).click();
         await expect(page.locator("#preview")).toBeVisible();
         await expect(page.locator("#preview-title")).toContainText("3.");
@@ -220,15 +243,15 @@ for (const width of [390, 1440]) {
       expect(outcome[0].handover).not.toBe(outcome[1].handover);
     });
 
-    test("at stop 11 the page says the ship has already sailed", async ({ page }) => {
+    test("at stop 12 the page says the ship has already sailed", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh`);
       await page.locator("#start").click();
       let d = 0;
-      for (let i = 0; i < 10; i += 1) {
+      for (let i = 0; i < 11; i += 1) {
         if (await page.locator("#choices").isVisible()) { await page.locator("#choices button[data-option='A']").click(); d += 1; }
         await page.locator("#next").click();
       }
-      await expect(page.locator("#progress")).toContainText("第 11 站");
+      await expect(page.locator("#progress")).toContainText("第 12 站");
       await expect(page.locator("#scn-note")).toContainText("船已經開了");
       expect(d).toBe(5);
     });
@@ -273,15 +296,15 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#progress")).toContainText("第 3 站");
     });
 
-    test("the map is a picture that loads, the phone gets the phone map, and the twelve stops are tappable dots on it", async ({ page }) => {
+    test("the map is a picture that loads, the phone gets the phone map, and the fourteen stops are tappable dots on it", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh`);
       const info = await page.evaluate(() => { const img = document.getElementById("map-img"); return { loaded: img.complete && img.naturalWidth > 0, src: img.currentSrc, alt: img.alt }; });
       expect(info.loaded).toBe(true);
       expect(info.alt.length).toBeGreaterThan(20);
       if (page.viewportSize().width < 640) expect(info.src).toContain("mobile"); else expect(info.src).not.toContain("mobile");
-      await expect(page.locator("#hotspots .hot")).toHaveCount(12);
+      await expect(page.locator("#hotspots .hot")).toHaveCount(14);
       const stage = await page.locator("#map-stage").boundingBox();
-      for (let i = 0; i < 12; i += 1) {
+      for (let i = 0; i < 14; i += 1) {
         const box = await page.locator(`#hotspots .hot[data-station="${i}"]`).boundingBox();
         expect(box.x).toBeGreaterThanOrEqual(stage.x);
         expect(box.x + box.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
@@ -295,7 +318,7 @@ for (const width of [390, 1440]) {
 
     test("tapping a stop on the map shows who is there, without starting the game", async ({ page }) => {
       await page.goto(`${base}/index.html?lang=zh`);
-      await page.locator('#hotspots .hot[data-station="6"]').click();
+      await page.locator('#hotspots .hot[data-station="7"]').click();
       await expect(page.locator("#preview")).toBeVisible();
       await expect(page.locator("#preview-name")).toHaveText("單單");
       await expect(page.locator("#preview-title")).toContainText("報關");
@@ -303,7 +326,13 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#play")).toBeHidden();
       await page.locator("#preview-close").click();
       await expect(page.locator("#preview")).toBeHidden();
-      await expect(page.locator('#hotspots .hot[data-station="6"]')).toBeFocused();
+      await expect(page.locator('#hotspots .hot[data-station="7"]')).toBeFocused();
+      // an added stop says it is a common extra stop
+      await page.locator('#hotspots .hot[data-station="5"]').click();
+      await expect(page.locator("#preview-extra")).toBeVisible();
+      await expect(page.locator("#preview-title")).toContainText("VGM");
+      await page.locator("#preview-close").click();
+      await expect(page.locator("#preview-extra")).toBeHidden();
       await noOverflow(page);
     });
 
@@ -398,8 +427,8 @@ for (const width of [390, 1440]) {
   });
 }
 
-test("the twelve stops are named in both languages and every decision step has a name", () => {
-  expect(SHORT.zh).toHaveLength(12);
-  expect(SHORT.en).toHaveLength(12);
+test("the fourteen stops are named in both languages and every decision step has a name", () => {
+  expect(SHORT.zh).toHaveLength(14);
+  expect(SHORT.en).toHaveLength(14);
   for (const decision of DECISIONS) expect(SHORT.zh[decision.step - 1]).toBeTruthy();
 });
