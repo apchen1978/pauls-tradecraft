@@ -6,11 +6,18 @@ import { FoldToggle, firstSentence, foldClass, useFold } from "./FoldedIntro.jsx
 
 // The flagship works, framed as the questions an exporter asks
 // before committing. Each card: the question in the client's words, what they
-// take away, and a two-minute try. Demos use fictional data; the card says so once.
+// take away, and a two-minute try. Each card also names the business value (find buyers / reduce risk /
+// protect margin), its evidence level in plain words, and a link to the fuller evidence on this site.
 const LINKS = {
   lead: "https://apchen1978.github.io/overseas-lead-discovery-demo/",
   decision: "https://apchen1978.github.io/commercial-decision-desk/#mode-sample",
   margin: "https://apchen1978.github.io/trade-profit-navigator-demo/?case=gulf-001",
+};
+// Each question also leads to the fuller evidence on this site (case page or the work card).
+const DEEP = {
+  lead: "/cases/overseas-lead-discovery/",
+  decision: "/cases/commercial-decision-desk/",
+  margin: "#trade-profit-navigator",
 };
 
 const copy = {
@@ -21,11 +28,11 @@ const copy = {
     chain: "從產品到第一單，是同一條線：先讓產品拿得出手，找到對的人，看清這筆單能不能接，算清楚賺不賺，讓第一單談得成。",
     prep: "先讓產品拿得出手：出海前的數位形象快診",
     takeaway: "你會帶走",
-    demoNote: "示範案例（示意資料）",
     note: "示範用的都是示意資料，不含任何真實客戶；示範僅供試算與整理，要不要做、能不能答應，由你決定。",
     learnLead: "想先自己學一遍？",
     learnRoadmap: "海外客戶開發路線圖",
     learnGuide: "學習指南 PDF（16 頁繁中）",
+    next: "接著往下：同一筆生意，從開發走到承諾",
     cards: [
       {
         key: "lead",
@@ -35,6 +42,9 @@ const copy = {
         takeaway: "先開發、先查證、暫緩、排除四層名單，並寫明每一家的理由，還有報價前要先確認的市場項目。也可以帶入你自己的名單，帶走一份名單簡報。",
         cta: "試兩分鐘：看 12 個示例怎麼分層",
         cta2: "再看：一家公司怎麼從名字走到開口的理由",
+        value: "找客戶",
+        evidence: "證據：示範。方法用 12 家示例公司完整跑過；尚未有真實成交紀錄。",
+        deep: "看完整案例：海外客戶開發",
       },
       {
         key: "decision",
@@ -43,6 +53,9 @@ const copy = {
         pain: "訂單看起來不錯，但付款、交付與責任條件還沒講定。",
         takeaway: "卡住承諾的條件、還要補的文件，以及付款保障（信用狀、信保）和匯率風險。",
         cta: "試兩分鐘：看這筆訂單卡在哪裡",
+        value: "降風險",
+        evidence: "證據：示範。判斷規則可以重跑檢查；資料是虛構的，商業成效尚未驗證。",
+        deep: "看完整案例：商務決策工作台",
       },
       {
         key: "margin",
@@ -51,6 +64,9 @@ const copy = {
         pain: "帳面毛利不等於實賺：運費、關稅、收款時程都會吃掉它。",
         takeaway: "扣掉運費、資金成本與關稅後還剩多少，以及哪個假設最先把它打穿。",
         cta: "試兩分鐘：看同一筆訂單實際剩多少",
+        value: "守利潤",
+        evidence: "證據：示範。同一筆示範訂單的試算；尚未用真實訂單驗證。",
+        deep: "看作品說明：貿易利潤導航",
       },
     ],
   },
@@ -61,11 +77,11 @@ const copy = {
     chain: "From product to first order is one line: make the product presentable, find the right person, see whether the deal can be taken, work out whether it pays, and give the first order a chance to close.",
     prep: "Make the product presentable first: the pre-export presence check",
     takeaway: "What you take away",
-    demoNote: "Demo case (illustrative data)",
     note: "Every demo uses illustrative data and no real client. The demos only organize and calculate; whether to pursue and what to commit to stays with you.",
     learnLead: "Want to learn the route first?",
     learnRoadmap: "Customer development roadmap",
     learnGuide: "Learning Guide PDF (16 pages, Traditional Chinese)",
+    next: "Next: one deal, from first contact to commitment",
     cards: [
       {
         key: "lead",
@@ -75,6 +91,9 @@ const copy = {
         takeaway: "A four-tier list (engage first, verify first, hold, exclude) with the reason for each, plus the market checks to clear before quoting. You can also bring your own list and take away a brief.",
         cta: "Try two minutes: see how 12 examples are tiered",
         cta2: "Then see: how one company goes from a name to a reason to speak",
+        value: "Find buyers",
+        evidence: "Evidence: demo. The method was run end to end on 12 example companies; no real closed deal yet.",
+        deep: "Read the full case: Overseas Lead Discovery",
       },
       {
         key: "decision",
@@ -83,6 +102,9 @@ const copy = {
         pain: "The order looks good, but payment, delivery and liability terms are not settled.",
         takeaway: "The conditions holding back the commitment, the documents still needed, and the payment-security (L/C, credit insurance) and currency risk.",
         cta: "Try two minutes: see where an order is stuck",
+        value: "Reduce risk",
+        evidence: "Evidence: demo. The decision rules can be rerun and checked; the data is fictional and business results are not yet verified.",
+        deep: "Read the full case: Commercial Decision Desk",
       },
       {
         key: "margin",
@@ -91,6 +113,9 @@ const copy = {
         pain: "Paper margin is not what you keep: freight, duty and payment timing all eat into it.",
         takeaway: "What is left after freight, funding cost and duty, and which assumption breaks it first.",
         cta: "Try two minutes: see what the same order really leaves",
+        value: "Protect margin",
+        evidence: "Evidence: demo. A worked example on one demo order; not yet checked against a real order.",
+        deep: "See the work: Trade Profit Navigator",
       },
     ],
   },
@@ -106,7 +131,10 @@ function QuestionCard({ card, index, c, lang }) {
       <article className="flex w-full flex-col">
         <div className="flex items-baseline justify-between gap-3">
           <span className="font-serif text-4xl font-medium leading-none tracking-[-0.04em] text-amber md:text-7xl" aria-hidden="true">{index + 1}</span>
-          <span className="text-sm font-medium text-moss">{card.stage}</span>
+          <span className="flex items-center gap-2 text-sm font-medium text-moss">
+            <span className="rounded-full bg-forest px-2.5 py-0.5 text-xs font-semibold text-bone">{card.value}</span>
+            {card.stage}
+          </span>
         </div>
         <h3 className="mt-4 text-[1.375rem] font-medium leading-[1.25] tracking-[-0.02em] text-ink md:mt-10 md:text-[1.75rem]">{card.question}</h3>
         <p className="mt-3 text-base leading-relaxed text-moss md:mt-4">{card.pain}</p>
@@ -135,7 +163,13 @@ function QuestionCard({ card, index, c, lang }) {
               <span>{card.cta}</span>
               <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </a>
-            <p className="mt-3 text-sm text-moss">{c.demoNote}</p>
+            <p className="mt-3 text-sm leading-relaxed text-moss">{card.evidence}</p>
+            <a
+              href={DEEP[card.key].startsWith("#") ? DEEP[card.key] : `${DEEP[card.key]}${lang === "en" ? "#en" : ""}`}
+              className="mt-3 inline-block text-sm font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+            >
+              {card.deep} →
+            </a>
             {card.cta2 && (
               <a
                 href={withDemoLang(`${LINKS[card.key]}#mode-gap`, lang)}
@@ -185,7 +219,15 @@ export default function ThreeQuestions() {
             <QuestionCard key={card.key} card={card} index={index} c={c} lang={lang} />
           ))}
         </ol>
-        <p className="mt-12 max-w-[70ch] text-sm leading-relaxed text-moss">{c.note}</p>
+        <p className="mt-10">
+          <a
+            href="#one-deal"
+            className="inline-flex items-center gap-2 text-base font-semibold text-forest underline decoration-forest/25 underline-offset-4 transition-colors hover:text-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+          >
+            {c.next} ↓
+          </a>
+        </p>
+        <p className="mt-8 max-w-[70ch] text-sm leading-relaxed text-moss">{c.note}</p>
         <p className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-moss">
           <span>{c.learnLead}</span>
           <a className="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:text-amber" href={withDemoLang("/prototype/ai-native-overseas-customer-roadmap/", lang)}>{c.learnRoadmap}</a>
