@@ -14,7 +14,7 @@ const materialFiles = {
 const wallKeys = ["original", "warmSand", "smokyTaupe", "softOlive", "stripe", "botanical", "goldScroll"];
 const rugKeys = ["original", "modernStripe", "softIvory", "antique"];
 const materialBoxes = {
-  wall: { x: 338, y: 0, width: 622, height: 665 },
+  wall: { x: 0, y: 0, width: 960, height: 873 },
   rug: { x: 0, y: 871, width: 960, height: 229 },
 };
 const sceneFiles = {
@@ -46,15 +46,14 @@ const copy = {
     startingNote: "今天回來時，你希望這個角落怎麼接住你？",
     footer: "這是軟裝搭配的插畫示意。實際顏色、質感與照度，仍需以材質和現場光線確認。",
     sceneHint: "切換房間時，沙發、地毯與光會一起變；雨後那間還能單獨試換牆面與地毯。",
-    materialsEntry: "到雨後那間，試試只換牆面與地毯 ↗",
+    materialsEntry: "到雨後那間，試試只換牆面與地毯 →",
     materialsTitle: "只換牆面與地毯",
     materialsIntro: "這次沙發、窗景與桌燈留在原位。挑一面牆，再看看腳下怎麼變。",
     wallTitle: "牆面",
     rugTitle: "地毯",
-    materialsNote: "同一間房的插畫示意；實際顏色與質感仍要看樣品和現場光線。",
     materialsSummary: "你搭配的牆面與地毯：",
     walls: { original: "原來的牆", warmSand: "暖砂米", smokyTaupe: "煙燻灰褐", softOlive: "柔橄欖", stripe: "細條紋", botanical: "淡色植紋", goldScroll: "金棕卷草" },
-    rugs: { original: "原來的地毯", modernStripe: "深藍細線", softIvory: "柔米白", antique: "舊毯花紋" },
+    rugs: { original: "原來的地毯", modernStripe: "深藍細線", softIvory: "柔米白", antique: "古典花紋" },
     mobilePick: "選房間模式",
     mobilePickPrompt: "選一種想待的房間",
     playAreaLabel: "房間場景探索",
@@ -106,12 +105,11 @@ const copy = {
     startingNote: "When you come home today, how should this corner welcome you?",
     footer: "These are illustrated furnishing studies. Actual color, texture, and illumination depend on materials and on-site light.",
     sceneHint: "Switching rooms changes the sofa, rug and light together. In the rainy room, you can change just the wall or rug.",
-    materialsEntry: "Try changing only the wall and rug in the rainy room ↗",
+    materialsEntry: "Try changing only the wall and rug in the rainy room →",
     materialsTitle: "Change just the wall and rug",
     materialsIntro: "The sofa, rainy window and lamp stay put. Choose a wall, then see what changes underfoot.",
     wallTitle: "Wall",
     rugTitle: "Rug",
-    materialsNote: "An illustrated pairing in the same room; confirm real colors and textures with samples and on-site light.",
     materialsSummary: "Your wall and rug pairing: ",
     walls: { original: "Original wall", warmSand: "Warm sand", smokyTaupe: "Smoky taupe", softOlive: "Soft olive", stripe: "Fine stripe", botanical: "Soft botanical", goldScroll: "Gold-brown scroll" },
     rugs: { original: "Original rug", modernStripe: "Blue fine stripe", softIvory: "Soft ivory", antique: "Antique-inspired" },
@@ -173,13 +171,14 @@ const state = {
 const els = Object.fromEntries([
   "language-toggle", "play-area", "eyebrow", "page-title", "intro-copy", "note-label", "story-note",
   "room-canvas", "scene-caption", "scene-hint", "mobile-picker", "mobile-picker-label", "mobile-scene-select",
-  "materials-entry", "materials-panel", "materials-title", "materials-intro", "wall-title", "wall-options", "rug-title", "rug-options", "materials-note",
+  "materials-entry", "materials-panel", "materials-title", "materials-intro", "materials-preview", "wall-title", "wall-options", "rug-title", "rug-options",
   "step-track", "step-kicker",
   "step-title", "step-copy", "scene-tabs", "choice-list", "result-area", "back-button",
   "next-button", "footer-note",
 ].map((id) => [id, document.getElementById(id)]));
 
 const context = els["room-canvas"].getContext("2d");
+const previewContext = els["materials-preview"].getContext("2d");
 const images = {};
 const materialImages = Object.fromEntries(Object.entries(materialFiles).map(([key, filename]) => {
   const image = new Image();
@@ -225,6 +224,10 @@ function drawScene() {
   context.fillRect(0, 0, canvas.width, canvas.height);
   if (image?.complete && image.naturalWidth) {
     drawRoom(context, image, 0, 0, canvas.width, canvas.height, state.scene, state.wall, state.rug);
+    if (state.scene === "rain") {
+      drawRoom(previewContext, image, 0, 0, els["materials-preview"].width, els["materials-preview"].height, state.scene, state.wall, state.rug);
+      els["materials-preview"].setAttribute("aria-label", copy[state.lang].scenes.rain.caption);
+    }
   }
 }
 
@@ -276,15 +279,16 @@ function render() {
   els["materials-intro"].textContent = t.materialsIntro;
   els["wall-title"].textContent = t.wallTitle;
   els["rug-title"].textContent = t.rugTitle;
-  els["materials-note"].textContent = t.materialsNote;
   els["wall-options"].replaceChildren(...wallKeys.map((key) => materialButton(key, t.walls[key], state.wall, () => {
+    els["materials-preview"].dataset.focus = "wall";
     state.wall = key;
     render();
-  })));
+  }, "wall")));
   els["rug-options"].replaceChildren(...rugKeys.map((key) => materialButton(key, t.rugs[key], state.rug, () => {
+    els["materials-preview"].dataset.focus = "rug";
     state.rug = key;
     render();
-  })));
+  }, "rug")));
   els["mobile-picker"].hidden = state.step !== 0;
   els["mobile-picker-label"].textContent = t.mobilePick;
   const mobileOptions = [new Option(t.mobilePickPrompt, "")];
@@ -331,6 +335,9 @@ function render() {
       els["choice-list"].append(optionButton(key, item, state.scene, () => {
         state.scene = key;
         render();
+        if (key === "rain" && window.matchMedia("(max-width: 900px)").matches) {
+          els["materials-panel"].scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       }));
     });
   } else if (state.step === 1) {
@@ -372,12 +379,13 @@ function render() {
   drawScene();
 }
 
-function materialButton(key, name, chosen, onClick) {
+function materialButton(key, name, chosen, onClick, focusArea) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "material-option";
   button.textContent = name;
   button.setAttribute("aria-pressed", String(chosen === key));
+  button.addEventListener("focus", () => { els["materials-preview"].dataset.focus = focusArea; });
   button.addEventListener("click", onClick);
   return button;
 }
@@ -479,6 +487,9 @@ els["materials-entry"].addEventListener("click", () => {
   state.scene = "rain";
   state.group = "stayIn";
   render();
+  if (window.matchMedia("(max-width: 900px)").matches) {
+    els["materials-panel"].scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 });
 els["back-button"].addEventListener("click", () => {
   state.step = Math.max(0, state.step - 1);

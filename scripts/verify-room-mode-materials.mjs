@@ -15,6 +15,7 @@ test("rainy-room wall and rug choices change the canvas and download card togeth
       this.children = [];
       this.handlers = {};
       this.attributes = {};
+      this.dataset = {};
       this.hidden = false;
       this.style = {};
     }
@@ -65,7 +66,7 @@ test("rainy-room wall and rug choices change the canvas and download card togeth
   const document = {
     documentElement: { lang: "" },
     getElementById(id) {
-      if (!elements.has(id)) elements.set(id, id === "room-canvas" ? new Canvas(id) : new Element(id));
+      if (!elements.has(id)) elements.set(id, id === "room-canvas" || id === "materials-preview" ? new Canvas(id) : new Element(id));
       return elements.get(id);
     },
     createElement(tag) {
@@ -97,7 +98,7 @@ test("rainy-room wall and rug choices change the canvas and download card togeth
   assert.equal(elements.get("materials-panel").hidden, false);
   assert.equal(elements.get("room-canvas").attributes["aria-label"], "雨後的窗邊，地毯把腳步接住。");
   elements.get("wall-options").children.find((button) => button.textContent === "金棕卷草").click();
-  elements.get("rug-options").children.find((button) => button.textContent === "舊毯花紋").click();
+  elements.get("rug-options").children.find((button) => button.textContent === "古典花紋").click();
   const sceneDraws = elements.get("room-canvas").draws.slice(-3);
   assert.match(sceneDraws[0], /room-rug-v2\.webp$/);
   assert.match(sceneDraws[1], /wallpaper-brown-gold-scroll-accepted\.webp$/);
