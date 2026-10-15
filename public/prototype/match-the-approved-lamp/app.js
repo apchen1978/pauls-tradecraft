@@ -66,7 +66,7 @@ function buildStage() {
     img.decoding = "async";
     return img;
   };
-  sample.replaceChildren(lampLayers(SAMPLE), prop("stand", "prop-sealed-stand.webp"), prop("tagcard", "prop-approved-tag.webp"));
+  sample.replaceChildren(lampLayers(SAMPLE), prop("stand", "prop-sealed-stand.webp"));
   const holder = $("lamps");
   holder.replaceChildren();
   LAMPS.forEach((spec, index) => {
@@ -117,6 +117,8 @@ function applyStatic() {
   document.title = x.docTitle;
   $("skip").textContent = x.skip;
   $("toy-label").textContent = x.label;
+  $("tagbtn").setAttribute("aria-label", x.tagLabel);
+  $("tagnote").textContent = x.tagNote;
   $("lang-group").setAttribute("aria-label", x.lang);
   document.querySelectorAll("#lang-group button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang)));
   $("s0-title").textContent = x.title;
@@ -301,6 +303,8 @@ function renderEnd() {
 
 function show(n, focus) {
   state.screen = n;
+  $("tagnote").hidden = true;
+  $("tagbtn").setAttribute("aria-expanded", "false");
   document.querySelectorAll(".screen").forEach((s) => { s.hidden = Number(s.dataset.screen) !== n; });
   if (n === 2) { state.guess = undefined; $("guess").hidden = true; state.mode = "single"; state.lit = false; state.seenSide = false; state.seenLit = false; state.single = 0; renderModes(); syncGate2(); }
   if (n === 3) renderSort();
@@ -333,6 +337,11 @@ function wire() {
       history.replaceState(null, "", url);
       applyStatic();
     });
+  });
+  $("tagbtn").addEventListener("click", () => {
+    const note = $("tagnote");
+    note.hidden = !note.hidden;
+    $("tagbtn").setAttribute("aria-expanded", String(!note.hidden));
   });
   $("go0").addEventListener("click", () => show(1, true));
   $("go1").addEventListener("click", () => show(2, true));

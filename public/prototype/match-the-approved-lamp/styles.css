@@ -21,13 +21,15 @@ main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16p
    On phones the stage is a 3:4 window onto the tall picture (slid up a little); on wide screens the stage is the picture. */
 .stage { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; aspect-ratio: 16 / 10; background: #E9E3D6; }
 .scene { position: absolute; inset: 0; --ar: 1.6; background: #E9E3D6 center / 100% 100% no-repeat; }
-.stage[data-screen="0"] .scene, .stage[data-screen="1"] .scene { background-image: url("assets/scene-trial-desktop.webp"); }
+/* Trial room: Codex painted both lamps into the picture (sample in the case, trial lamp on the table), so no code lamps are drawn here. */
+.stage[data-screen="0"] .scene, .stage[data-screen="1"] .scene { background-image: url("assets/scene-trial-lamps-desktop.webp"); }
+.stage[data-screen="0"] .sample, .stage[data-screen="1"] .sample, .stage[data-screen="0"] .lamp-btn.trial, .stage[data-screen="1"] .lamp-btn.trial { display: none; }
 .stage[data-screen="2"] .scene, .stage[data-screen="3"] .scene, .stage[data-screen="4"] .scene { background-image: url("assets/scene-row-desktop.webp"); }
 @media (max-width: 639px) {
   .stage { aspect-ratio: 3 / 4; }
   .scene { inset: auto; left: 0; top: 0; width: 100%; aspect-ratio: 780 / 1400; transform: translateY(-8%); --ar: .5571; }
   .stage[data-screen="2"] .scene, .stage[data-screen="3"] .scene, .stage[data-screen="4"] .scene { transform: translateY(-18%); }
-  .stage[data-screen="0"] .scene, .stage[data-screen="1"] .scene { background-image: url("assets/scene-trial-mobile.webp"); }
+  .stage[data-screen="0"] .scene, .stage[data-screen="1"] .scene { background-image: url("assets/scene-trial-lamps-mobile.webp"); }
   .stage[data-screen="2"] .scene, .stage[data-screen="3"] .scene, .stage[data-screen="4"] .scene { background-image: url("assets/scene-row-mobile.webp"); }
 }
 /* A lamp is a square picture whose base line sits 88% of the way down; (--x, --y) is where that base line stands, --w is its width as a percent of the picture. */
@@ -46,13 +48,17 @@ main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16p
 .sample .stand, .sample .tagcard { position: absolute; display: none; pointer-events: none; }
 /* The dome picture: feet at 94.8% of its height, inner floor at 69.8%. Its feet go on the same base line (88.4%) as a lamp's, so the --y rule is shared. */
 .stage[data-screen="2"] .sample .stand, .stage[data-screen="3"] .sample .stand, .stage[data-screen="4"] .sample .stand { display: block; left: 0; top: -6.4%; width: 100%; height: auto; }
-.stage[data-screen="2"] .sample .tagcard, .stage[data-screen="3"] .sample .tagcard, .stage[data-screen="4"] .sample .tagcard { display: block; left: 74%; top: 52%; width: 36%; height: auto; transform: rotate(8deg); }
+/* The tag beside the dome is a button: turned over, it shows a small handwritten note (a quiet echo, not explained). */
+.tagbtn { display: none; position: absolute; z-index: 5; padding: 0; border: 0; background: none; cursor: pointer; width: calc(var(--w) * .36%); left: calc(var(--x) - var(--w) * .5% + var(--w) * .74%); top: calc(var(--y) - var(--w) * var(--ar) * .884% + var(--w) * var(--ar) * .52%); transform: rotate(8deg); }
+.tagbtn img { display: block; width: 100%; height: auto; }
+.stage[data-screen="2"] .tagbtn, .stage[data-screen="3"] .tagbtn, .stage[data-screen="4"] .tagbtn { display: block; --w: 14; --x: 23%; --y: 82%; }
+.stage[data-mode="single"] .tagbtn { display: none; }
+.tagnote { position: absolute; z-index: 6; left: 4%; top: 6%; max-width: min(78%, 340px); margin: 0; padding: 12px 14px; background: #FBF6EA; color: #3A2E1E; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.25); transform: rotate(-1.5deg); font-family: "Kaiti TC", "BiauKai", "STKaiti", "KaiTi", "Segoe Print", cursive; font-size: 16px; line-height: 1.6; }
 /* Inside the dome the lamp is half the dome's width and its base stands on the dome's inner floor (63.4% of this box). */
 .stage[data-screen="2"] .sample .lamp, .stage[data-screen="3"] .sample .lamp, .stage[data-screen="4"] .sample .lamp { inset: auto; left: 25%; top: 19.2%; width: 50%; height: 50%; }
 /* trial table: one trial lamp on the big table */
 /* The trial lamp stands in the middle of the big table top (front edge is at y 72%). */
 .lamp-btn.trial { display: none; --x: 62%; --y: 65.5%; --w: 17; }
-.stage[data-screen="0"] .lamp-btn.trial, .stage[data-screen="1"] .lamp-btn.trial { display: block; }
 .stage[data-screen="0"] .lamp-btn[data-id], .stage[data-screen="1"] .lamp-btn[data-id] { display: none; }
 @media (max-width: 639px) {
   .lamp-btn { --w: 28; }

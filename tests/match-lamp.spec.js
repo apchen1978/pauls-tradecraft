@@ -233,9 +233,12 @@ for (const [kind, width, height] of [["phone", 390, 844], ["desktop", 1440, 900]
     await page.setViewportSize({ width, height });
     await page.goto(`${PAGE}?lang=zh`);
     const want = FEET[kind];
-    let got = await feet(page);
-    near(got.sample, want.trial.sample, "sample");
-    near(got.trial, want.trial.trial, "trial lamp");
+    // the trial room is Codex's painting with both lamps in it, so no code lamps are drawn there
+    await expect(page.locator("#sample")).toBeHidden();
+    await expect(page.locator(".lamp-btn.trial")).toBeHidden();
+    const bg = await page.locator("#scene").evaluate((node) => getComputedStyle(node).backgroundImage);
+    expect(bg).toContain(kind === "phone" ? "scene-trial-lamps-mobile" : "scene-trial-lamps-desktop");
+    let got;
     await page.locator("#go0").click();
     await page.locator('#agree button[data-agree="range"]').click();
     await page.locator("#go1").click();
@@ -250,3 +253,21 @@ for (const [kind, width, height] of [["phone", 390, 844], ["desktop", 1440, 900]
     expect(Math.abs(got.sample[1] - got.domeFloor), "lamp inside the dome stands on its floor").toBeLessThan(0.6);
   });
 }
+
+test("the tag beside the dome turns over to a small handwritten note, and closes again", async ({ page }) => {
+  for (const lang of ["zh", "en"]) {
+    await page.goto(`${PAGE}?lang=${lang}`);
+    await expect(page.locator("#tagbtn")).toBeHidden();
+    await page.locator("#go0").click();
+    await page.locator('#agree button[data-agree="range"]').click();
+    await page.locator("#go1").click();
+    await page.locator("#mode-side").click();
+    await expect(page.locator("#tagbtn")).toBeVisible();
+    await expect(page.locator("#tagbtn")).toHaveAttribute("aria-label", TEXT[lang].tagLabel);
+    await page.locator("#tagbtn").click();
+    await expect(page.locator("#tagnote")).toHaveText(TEXT[lang].tagNote);
+    await expect(page.locator("#tagbtn")).toHaveAttribute("aria-expanded", "true");
+    await page.locator("#tagbtn").click();
+    await expect(page.locator("#tagnote")).toBeHidden();
+  }
+});
