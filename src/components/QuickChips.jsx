@@ -17,8 +17,8 @@ export default function QuickChips() {
     label: shortTitle(item.title),
   }));
   const chips = [
-    { href: "#showcase", label: t.nav.showcase },
     { href: "#works", label: t.nav.works },
+    { href: "#showcase", label: t.nav.showcase },
     { href: "#garage", label: t.nav.garage },
     { href: "#three-questions", label: t.nav.questions },
     { href: "#capabilities", label: t.nav.services },
