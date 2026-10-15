@@ -27,11 +27,19 @@
   </header>
 
   <main id="main">
+    <nav class="rail" id="rail" aria-label="Chapters"></nav>
     <section class="hero" aria-labelledby="title">
-      <p class="kicker" id="kicker"></p>
-      <h1 id="title"></h1>
-      <p class="lead" id="lead"></p>
-      <ol class="toc" id="toc"></ol>
+      <div class="hero-copy">
+        <p class="kicker" id="kicker"></p>
+        <h1 id="title"></h1>
+        <p class="lead" id="lead"></p>
+        <ol class="toc" id="toc"></ol>
+      </div>
+      <figure class="console" aria-labelledby="console-cap">
+        <div class="console-bar" aria-hidden="true"><i></i><i></i><i></i><span class="mono" id="console-name"></span></div>
+        <ol class="console-lines" id="console-lines"></ol>
+        <figcaption class="console-cap" id="console-cap"></figcaption>
+      </figure>
       <div class="hero-net" aria-hidden="true"><svg viewBox="0 0 600 160" preserveAspectRatio="xMidYMid meet"><g id="net"></g></svg></div>
     </section>
 
@@ -115,7 +123,7 @@
       <ol class="toc" id="deep-toc"></ol>
     </section>
 
-    <section class="chapter" id="c5" aria-labelledby="c5-title">
+    <section class="chapter deeper" id="c5" aria-labelledby="c5-title">
       <p class="no" id="c5-no"></p>
       <h2 id="c5-title"></h2>
       <p class="sub" id="c5-lead"></p>
@@ -130,7 +138,7 @@
       <div class="rules"><h3 id="c5-ours-title"></h3><ul id="c5-ours"></ul></div>
     </section>
 
-    <section class="chapter" id="c6" aria-labelledby="c6-title">
+    <section class="chapter deeper" id="c6" aria-labelledby="c6-title">
       <p class="no" id="c6-no"></p>
       <h2 id="c6-title"></h2>
       <p class="sub" id="c6-lead"></p>
@@ -140,7 +148,7 @@
       <p class="sub small" id="c6-warn"></p>
     </section>
 
-    <section class="chapter" id="c7" aria-labelledby="c7-title">
+    <section class="chapter deeper" id="c7" aria-labelledby="c7-title">
       <p class="no" id="c7-no"></p>
       <h2 id="c7-title"></h2>
       <p class="sub" id="c7-lead"></p>
@@ -159,7 +167,7 @@
       <p class="sub small" id="c7-rule"></p>
     </section>
 
-    <section class="chapter" id="c8" aria-labelledby="c8-title">
+    <section class="chapter deeper" id="c8" aria-labelledby="c8-title">
       <p class="no" id="c8-no"></p>
       <h2 id="c8-title"></h2>
       <p class="sub" id="c8-lead"></p>
@@ -172,7 +180,7 @@
       <ol class="story" id="relay"></ol>
     </section>
 
-    <section class="chapter" id="c9" aria-labelledby="c9-title">
+    <section class="chapter deeper" id="c9" aria-labelledby="c9-title">
       <p class="no" id="c9-no"></p>
       <h2 id="c9-title"></h2>
       <p class="sub" id="c9-lead"></p>
@@ -180,7 +188,7 @@
       <div class="rules"><h3 id="c9-ours-title"></h3><ul id="c9-ours"></ul></div>
     </section>
 
-    <section class="chapter" id="c10" aria-labelledby="c10-title">
+    <section class="chapter deeper" id="c10" aria-labelledby="c10-title">
       <p class="no" id="c10-no"></p>
       <h2 id="c10-title"></h2>
       <p class="sub" id="c10-lead"></p>
@@ -188,7 +196,7 @@
       <p class="sub" id="c10-closing"></p>
     </section>
 
-    <section class="chapter" id="c11" aria-labelledby="c11-title">
+    <section class="chapter deeper" id="c11" aria-labelledby="c11-title">
       <p class="no" id="c11-no"></p>
       <h2 id="c11-title"></h2>
       <p class="sub" id="c11-lead"></p>

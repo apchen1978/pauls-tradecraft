@@ -217,3 +217,18 @@ for (const width of [390, 1440]) {
     });
   }
 }
+
+test("polish: the hero console plays to the stop line, the chapter rail follows the reader on wide screens", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`${PAGE}?lang=zh`);
+  await expect(page.locator("#console-lines .cl")).toHaveCount(TEXT.zh.console.length);
+  await expect(page.locator("#console-lines .cl.on")).toHaveCount(TEXT.zh.console.length, { timeout: 8000 });
+  await expect(page.locator("#console-lines .cl.wait")).toContainText(TEXT.zh.console.at(-1)[1]);
+  await expect(page.locator("#rail .rail-dot")).toHaveCount(12);
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; document.getElementById("c7").scrollIntoView(); });
+  await expect(page.locator('#rail .rail-dot.on')).toHaveAttribute("data-target", "c7");
+  // narrow screens hide the rail
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("#rail")).toBeHidden();
+  await noOverflow(page);
+});

@@ -432,6 +432,55 @@ function renderMore() {
   renderSteps();
 }
 
+const CHAPTERS = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11"];
+let consoleTimers = [];
+function renderConsole(animate) {
+  const x = t();
+  consoleTimers.forEach(clearTimeout);
+  consoleTimers = [];
+  $("console-name").textContent = x.consoleName;
+  $("console-cap").textContent = x.consoleCap;
+  const ol = $("console-lines");
+  ol.replaceChildren(...x.console.map(([kind, text]) => {
+    const li = el("li", `cl ${kind}`);
+    li.append(el("span", "cl-mark", { task: ">", ok: "✓", warn: "!", wait: "⏸" }[kind]), el("span", null, text));
+    return li;
+  }));
+  const items = [...ol.children];
+  if (!animate || reduced()) { items.forEach((li) => li.classList.add("on")); return; }
+  items.forEach((li, i) => consoleTimers.push(setTimeout(() => li.classList.add("on"), 400 + i * 520)));
+}
+
+function renderRail() {
+  const x = t();
+  const rail = $("rail");
+  rail.replaceChildren(...CHAPTERS.map((id, i) => {
+    const a = el("a", "rail-dot");
+    a.href = `#${id}`;
+    a.dataset.target = id;
+    a.append(el("span", "mono", String(i).padStart(2, "0")), el("span", "rail-label", x.rail[i]));
+    return a;
+  }));
+}
+
+function watchChapters() {
+  if (!("IntersectionObserver" in window)) return;
+  const seen = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      document.querySelectorAll(".rail-dot").forEach((a) => a.classList.toggle("on", a.dataset.target === e.target.id));
+    });
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  CHAPTERS.forEach((id) => { const node = $(id); if (node) seen.observe(node); });
+  if (reduced()) return;
+  const reveal = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); reveal.unobserve(e.target); } });
+  }, { rootMargin: "0px 0px -8% 0px" });
+  document.querySelectorAll(".chapter, .deep, .cta").forEach((node) => {
+    if (node.getBoundingClientRect().top > window.innerHeight) { node.classList.add("reveal"); reveal.observe(node); }
+  });
+}
+
 function render() {
   const x = t();
   document.documentElement.lang = x.htmlLang;
@@ -472,6 +521,8 @@ function render() {
   renderTeam();
   renderDeep();
   renderMore();
+  renderConsole(false);
+  renderRail();
 }
 
 document.querySelectorAll("#lang-group button").forEach((b) => b.addEventListener("click", () => {
@@ -491,3 +542,5 @@ $("remove-human").addEventListener("click", () => { state.removed = !state.remov
 
 drawNet();
 render();
+renderConsole(true);
+watchChapters();
