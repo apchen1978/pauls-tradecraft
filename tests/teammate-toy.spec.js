@@ -1274,9 +1274,9 @@ test.describe("December Lights mobile", () => {
       expect(back.width).toBeGreaterThanOrEqual(44);
       expect(back.height).toBeGreaterThanOrEqual(44);
       const factionSize = await page.locator("#faction").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
-      const labelSize = await page.locator(".line-label").first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+      const voiceSize = await page.locator("#lines .line-body").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
       expect(factionSize).toBeGreaterThanOrEqual(14);
-      expect(labelSize).toBeGreaterThanOrEqual(14);
+      expect(voiceSize).toBeGreaterThanOrEqual(26);
       await expect(page.locator("#share-short")).toContainText(`c=ABA`);
       await expect(page.locator("input.share-url")).toHaveCount(0);
       if (v.width <= 390) {
