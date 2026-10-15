@@ -5,6 +5,15 @@ import { withDemoLang } from "../demoLinks.js";
 // Interactive works sit directly after the three questions, before the
 // one-deal section. The Garage stays further down. Extra cards join this
 // grid instead of stretching one work into a banner.
+// Five works on wide screens: three on the first row, then the two lamp works side by side as a pair
+// (A Lamp, As Promised, then Match the Lamp on the Shelf). Those two are wider, so their picture
+// sits beside the text instead of growing tall. On two columns the fifth card spans both, the same way.
+const wideAt = (index, count) => {
+  if (count !== 5 || index < 3) return { li: "xl:col-span-2", row: "" };
+  if (index === 4) return { li: "sm:col-span-2 xl:col-span-3", row: "sm:flex-row" };
+  return { li: "xl:col-span-3", row: "xl:flex-row" };
+};
+const wideImage = { "sm:flex-row": "sm:w-2/5 sm:shrink-0 sm:self-start", "xl:flex-row": "xl:w-2/5 xl:shrink-0 xl:self-start", "": "" };
 export default function Showcase() {
   const { lang, t } = useLang();
   const s = t.showcase;
@@ -19,11 +28,13 @@ export default function Showcase() {
         </h2>
         <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.intro}</p>
         <p className="mt-3 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.support}</p>
-        <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:gap-8 xl:grid-cols-4">
-          {items.map((item) => (
-            <li key={item.href} className="flex">
-              <article className="flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone">
-                <div className="overflow-hidden bg-paper" style={{ aspectRatio: item.imageRatio }}>
+        <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:gap-8 xl:grid-cols-6">
+          {items.map((item, index) => {
+            const wide = wideAt(index, items.length);
+            return (
+            <li key={item.href} className={`flex ${wide.li}`}>
+              <article className={`flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone ${wide.row}`}>
+                <div className={`overflow-hidden bg-paper ${wideImage[wide.row]}`} style={{ aspectRatio: item.imageRatio }}>
                   <img
                     src={item.image}
                     alt={item.imageAlt}
@@ -55,7 +66,8 @@ export default function Showcase() {
                 </div>
               </article>
             </li>
-          ))}
+            );
+          })}
         </ol>
       </div>
     </section>

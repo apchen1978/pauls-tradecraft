@@ -26,7 +26,7 @@ function applyText() {
   if (state.lastSpot) showDetail(state.lastSpot);
   $("zoom").textContent = state.zoom ? t("zoomOut") : t("zoom");
   for (const b of document.querySelectorAll("[data-lang]")) b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang));
-  $("next-link").href = `/prototype/trade-street/?lang=${state.lang}`;
+  $("next-link").href = `/prototype/match-the-approved-lamp/?lang=${state.lang}`;
   $("home").href = `/?lang=${state.lang}`;
   renderLines();
   renderSlip();
