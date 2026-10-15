@@ -5,9 +5,8 @@ import { withDemoLang } from "../demoLinks.js";
 // Interactive works sit directly after the three questions, before the
 // one-deal section. The Garage stays further down. Extra cards join this
 // grid instead of stretching one work into a banner.
-// Five works on wide screens: three on the first row, then the two lamp works side by side as a pair
-// (A Lamp, As Promised, then Match the Lamp on the Shelf). Those two are wider, so their picture
-// sits beside the text instead of growing tall. On two columns the fifth card spans both, the same way.
+// Five works use a three-plus-two layout to keep the two lamp works together.
+// With six or more, the regular three-column grid keeps every card equally legible.
 const wideAt = (index, count) => {
   if (count !== 5 || index < 3) return { li: "xl:col-span-2", row: "" };
   if (index === 4) return { li: "sm:col-span-2 xl:col-span-3", row: "sm:flex-row" };

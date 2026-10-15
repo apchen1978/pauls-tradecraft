@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#eee9df">
+    <meta name="description" content="走進一間房，挑一個想留下的時刻，看看光和織物怎麼讓它有了表情。">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ROOM MODE REMOTE｜軟裝遙控器">
+    <meta property="og:description" content="切換十種房間氣氛，看織物、家具與光如何一起改變想留下的感覺。">
+    <meta property="og:image" content="https://paulstradecraft.com/prototype/room-mode-remote/assets/og-room-mode-remote.webp">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>ROOM MODE REMOTE｜軟裝遙控器</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="project-mark" href="#top" id="project-mark">A ROOM NOTE</a>
+        <button class="language-toggle" type="button" id="language-toggle" aria-label="Switch language">EN</button>
+      </header>
+      <main id="top">
+        <section class="intro" aria-labelledby="page-title">
+          <p class="eyebrow" id="eyebrow"></p>
+          <h1 id="page-title"></h1>
+          <p class="intro-copy" id="intro-copy"></p>
+        </section>
+        <section class="play-area" id="play-area" aria-label="Room scene explorer">
+          <div class="scene-column">
+            <figure class="scene-frame">
+              <canvas id="room-canvas" width="1122" height="1402" role="img" aria-label="Illustrated living room"></canvas>
+              <figcaption id="scene-caption" aria-live="polite"></figcaption>
+            </figure>
+            <div class="mobile-picker" id="mobile-picker">
+              <label for="mobile-scene-select" id="mobile-picker-label"></label>
+              <select id="mobile-scene-select"></select>
+            </div>
+            <p class="scene-hint" id="scene-hint"></p>
+          </div>
+          <div class="control-column">
+            <div class="note-card">
+              <span class="note-pin" aria-hidden="true"></span>
+              <p class="note-label" id="note-label"></p>
+              <p id="story-note"></p>
+            </div>
+            <section class="choice-card" aria-labelledby="step-title">
+              <div class="step-track" id="step-track" aria-label="Progress"></div>
+              <p class="step-kicker" id="step-kicker"></p>
+              <h2 id="step-title"></h2>
+              <p class="step-copy" id="step-copy"></p>
+              <div class="scene-tabs" id="scene-tabs" role="group"></div>
+              <div class="choice-list" id="choice-list"></div>
+              <div class="result-area" id="result-area" hidden></div>
+              <div class="step-actions">
+                <button class="button-secondary" type="button" id="back-button"></button>
+                <button class="button-primary" type="button" id="next-button"></button>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+      <footer id="footer-note"></footer>
+    </div>
+  </body>
+</html>
