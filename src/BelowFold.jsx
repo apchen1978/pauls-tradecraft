@@ -29,15 +29,17 @@ export default function BelowFold({ onReady }) {
       <TryIt />
       <DecisionMoment />
       <ThreeQuestions />
-      <FlowLine />
-      <Showcase />
-      <AiLabEntry />
+      {/* Business line first (Paul 2026-10-16): the questions lead straight into one deal, the flagship and the works;
+          the playful works and the AI Lab follow once the business story is complete. Nothing removed or folded. */}
       <OneDeal />
       <FlowLine />
       <WorksFlagship />
       <HumanAiEditorial />
       <Works />
       <SemanticaCaseStudy />
+      <FlowLine />
+      <Showcase />
+      <AiLabEntry />
       <FlowLine />
       <Garage />
       <FlowLine />

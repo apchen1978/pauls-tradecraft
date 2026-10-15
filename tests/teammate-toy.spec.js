@@ -135,7 +135,7 @@ async function shootShowcaseAndGarage(page, name) {
   });
 }
 
-test("showcase comes before one deal and the garage", async ({ page }) => {
+test("the business line comes first; the showcase follows the works and comes before the garage", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/?lang=zh");
   await expect(page.locator("#showcase")).toBeVisible();
@@ -144,18 +144,18 @@ test("showcase comes before one deal and the garage", async ({ page }) => {
     const follows = (earlier, later) => Boolean(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING);
     const showcase = node("showcase");
     return {
-      beforeOneDeal: follows(showcase, node("one-deal")),
+      questionsThenOneDeal: follows(node("three-questions"), node("one-deal")),
+      afterWorks: follows(node("works"), showcase),
       beforeGarage: follows(showcase, node("garage")),
-      afterQuestions: follows(node("three-questions"), showcase),
     };
   });
-  expect(order.afterQuestions).toBe(true);
-  expect(order.beforeOneDeal).toBe(true);
+  expect(order.questionsThenOneDeal).toBe(true);
+  expect(order.afterWorks).toBe(true);
   expect(order.beforeGarage).toBe(true);
   const nav = page.locator("header nav");
   const hrefs = await nav.locator('a[href^="#"]').evaluateAll((els) => els.map((el) => el.getAttribute("href")));
   expect(hrefs.indexOf("#showcase")).toBeGreaterThan(-1);
-  expect(hrefs.indexOf("#showcase")).toBeLessThan(hrefs.indexOf("#works"));
+  expect(hrefs.indexOf("#works")).toBeLessThan(hrefs.indexOf("#showcase"));
   await expect(nav.getByRole("link", { name: "互動作品", exact: true })).toHaveAttribute("href", "#showcase");
   await expect(nav.getByRole("link", { name: "商業作品", exact: true })).toHaveAttribute("href", "#works");
   const images = page.locator("#showcase img");
@@ -173,7 +173,7 @@ test.describe("nav names", () => {
     for (const lang of ["zh", "en"]) {
       const showcase = lang === "zh" ? "互動作品" : "Playful Works";
       const works = lang === "zh" ? "商業作品" : "Business Works";
-      test(`${width}px ${lang}: ${showcase} stays before ${works} on one line`, async ({ page }) => {
+      test(`${width}px ${lang}: ${works} and ${showcase} stay on one line`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(`/?lang=${lang}`);
         const nav = page.locator("header nav");
@@ -202,7 +202,7 @@ test.describe("nav names", () => {
         expect(fit.pageOverflow).toBeLessThanOrEqual(1);
         expect(fit.headerOverflow).toBeLessThanOrEqual(1);
         const hrefs = await nav.locator('a[href^="#"]').evaluateAll((els) => els.map((el) => el.getAttribute("href")));
-        expect(hrefs.indexOf("#showcase")).toBeLessThan(hrefs.indexOf("#works"));
+        expect(hrefs.indexOf("#works")).toBeLessThan(hrefs.indexOf("#showcase"));
       });
     }
   }
