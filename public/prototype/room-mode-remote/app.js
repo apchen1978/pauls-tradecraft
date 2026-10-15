@@ -65,6 +65,10 @@ const copy = {
     resultLead: "你選了",
     resultDetail: "最讓你停下來的是",
     resultLimit: "搭配示意；實際色彩與質感仍需看材質和現場光線。",
+    home: "← 作品集",
+    nextLabel: "下一站",
+    nextBody: "房間裡的燈，真的訂一整批的時候，要拿什麼來比？",
+    nextLink: "走進〈對照架上的那一盞〉↗",
     imageUnavailable: "圖像尚未載入，請稍後再試。",
   },
   en: {
@@ -112,6 +116,10 @@ const copy = {
     resultLead: "You chose",
     resultDetail: "The detail that held your attention",
     resultLimit: "Illustrated pairing only; confirm colors and textures with real materials and on-site light.",
+    home: "← Portfolio",
+    nextLabel: "Next stop",
+    nextBody: "When you order a whole batch of the lamps in this room, what do you check them against?",
+    nextLink: "Step into Match the Lamp on the Shelf ↗",
     imageUnavailable: "The illustration is still loading. Please try again.",
   },
 };
@@ -191,6 +199,9 @@ function render() {
   document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : "en";
   document.title = t.title;
   els["language-toggle"].textContent = state.lang === "zh" ? "EN" : "中";
+  const homeLink = document.getElementById("home-link");
+  homeLink.textContent = t.home;
+  homeLink.href = `/?lang=${state.lang}`;
   els["language-toggle"].setAttribute("aria-label", t.switchLanguageLabel);
   els["play-area"].setAttribute("aria-label", t.playAreaLabel);
   els["step-track"].setAttribute("aria-label", t.progressLabel);
@@ -259,6 +270,20 @@ function render() {
     addParagraph(els["result-area"], t.resultLead + (state.lang === "zh" ? "「" : " ") + t.scenes[state.scene].name + (state.lang === "zh" ? "」。" : "."));
     addParagraph(els["result-area"], t.resultDetail + (state.lang === "zh" ? "「" : ": ") + t.details[state.detail].name + (state.lang === "zh" ? "」。" : "."));
     addParagraph(els["result-area"], t.resultLimit);
+    // a way onward: the lamp work picks up the same room's lamps (no dead end at the result)
+    const next = document.createElement("div");
+    next.className = "next-stop";
+    const label = document.createElement("p");
+    label.className = "next-label";
+    label.textContent = t.nextLabel;
+    const body = document.createElement("p");
+    body.textContent = t.nextBody;
+    const link = document.createElement("a");
+    link.href = `/prototype/match-the-approved-lamp/?lang=${state.lang}`;
+    link.textContent = t.nextLink;
+    link.id = "next-stop-link";
+    next.append(label, body, link);
+    els["result-area"].append(next);
   }
   els["back-button"].hidden = state.step === 0;
   els["back-button"].textContent = t.back;
