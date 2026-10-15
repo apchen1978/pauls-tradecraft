@@ -49,6 +49,20 @@
               <p class="note-label" id="note-label"></p>
               <p id="story-note"></p>
             </div>
+            <button class="materials-entry" type="button" id="materials-entry" hidden></button>
+            <section class="materials-panel" id="materials-panel" aria-labelledby="materials-title" hidden>
+              <h2 id="materials-title"></h2>
+              <p id="materials-intro"></p>
+              <canvas class="materials-preview" id="materials-preview" width="960" height="1200" role="img" aria-label="Rainy room material preview"></canvas>
+              <div class="material-group" data-material-group="wall">
+                <h3 id="wall-title"></h3>
+                <div class="material-options" id="wall-options" role="group" aria-labelledby="wall-title"></div>
+              </div>
+              <div class="material-group" data-material-group="rug">
+                <h3 id="rug-title"></h3>
+                <div class="material-options" id="rug-options" role="group" aria-labelledby="rug-title"></div>
+              </div>
+            </section>
             <section class="choice-card" aria-labelledby="step-title">
               <div class="step-track" id="step-track" aria-label="Progress"></div>
               <p class="step-kicker" id="step-kicker"></p>
