@@ -110,10 +110,13 @@ async function shootShowcaseAndGarage(page, name) {
     const start = document.getElementById("showcase").getBoundingClientRect().top + window.scrollY;
     window.scrollTo(0, Math.max(0, start));
   });
+  // The page smooth-scrolls to #garage after load and can carry the cover back out of view, so a lazy
+  // cover would never load. Keep bringing it into view while waiting instead of relying on timing.
   await page.waitForFunction(() => {
     const img = document.querySelector("#showcase img");
+    if (img && !img.complete) img.scrollIntoView({ block: "center" });
     return img && img.complete && img.naturalWidth > 0;
-  });
+  }, null, { polling: 250 });
   const clipHeight = await page.evaluate(() => {
     const showcase = document.getElementById("showcase");
     const intro = document.getElementById("garage-heading")?.nextElementSibling;

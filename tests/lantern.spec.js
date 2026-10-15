@@ -47,7 +47,7 @@ async function playThrough(page, lang) {
   await noOverflow(page);
   await page.locator("#go4").click();
   await expect(page.locator("#card")).toBeVisible();
-  await expect(page.locator("#next-link")).toHaveAttribute("href", `/prototype/trade-street/?lang=${lang}`);
+  await expect(page.locator("#next-link")).toHaveAttribute("href", `/prototype/match-the-approved-lamp/?lang=${lang}`);
   await noOverflow(page);
   const text = await page.locator("main").innerText();
   expect(text).not.toMatch(/[0-9$€£¥]/);
