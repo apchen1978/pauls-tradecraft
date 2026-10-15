@@ -1,4 +1,5 @@
 import { AGENTS, LINKS, TEXT, TIERS } from "./content.js";
+import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.js";
 
 // AI Lab, phase 1. Nothing is stored; only ?lang= goes into the address. Demos are fixed, never random.
 const $ = (id) => document.getElementById(id);
@@ -20,6 +21,8 @@ const state = {
   played: false,
   removed: false,
   agent: null,
+  ctx: new Set(CONTEXT_START),
+  measured: false,
 };
 let timers = [];
 const t = () => TEXT[state.lang];
@@ -171,6 +174,119 @@ function renderTeam() {
   $("method").href = `/cases/how-i-run-ai-agents/${state.lang === "en" ? "#en" : ""}`;
 }
 
+const d = () => DEEP[state.lang];
+
+function renderContext() {
+  const x = d().c5;
+  $("ctx-label").textContent = x.window;
+  const holder = $("ctx-items");
+  holder.replaceChildren(...CONTEXT_ITEMS.map((item) => {
+    const b = el("button", "ctx-item");
+    b.type = "button";
+    b.dataset.item = item.id;
+    b.setAttribute("aria-pressed", String(state.ctx.has(item.id)));
+    b.append(el("strong", null, x.items[item.id][0]), el("span", null, x.items[item.id][1]));
+    b.addEventListener("click", () => {
+      if (state.ctx.has(item.id)) state.ctx.delete(item.id); else state.ctx.add(item.id);
+      renderContext();
+    });
+    return b;
+  }));
+  const on = CONTEXT_ITEMS.filter((i) => state.ctx.has(i.id));
+  const used = on.reduce((s, i) => s + i.size, 0);
+  const bar = $("ctx-bar");
+  bar.replaceChildren(...on.map((i) => {
+    const seg = el("span", `seg ${i.need}`);
+    seg.style.flexGrow = String(i.size);
+    return seg;
+  }));
+  if (used < 100) { const free = el("span", "seg free"); free.style.flexGrow = String(100 - used); bar.appendChild(free); }
+  bar.classList.toggle("over", used > 100);
+  const has = (id) => state.ctx.has(id);
+  let key = "right";
+  if (used > 100) key = "full";
+  else if (!has("rules")) key = "noRules";
+  else if (!has("memory")) key = "noMemory";
+  else if (!has("task")) key = "noTask";
+  else if (!has("files")) key = "noFiles";
+  else if (on.some((i) => i.need === "noise")) key = "noise";
+  const v = $("ctx-verdict");
+  v.textContent = x.verdict[key];
+  v.dataset.state = key === "right" ? "ok" : key === "noise" ? "meh" : "bad";
+  v.dataset.key = key;
+  $("c5-ours-title").textContent = x.oursTitle;
+  $("c5-ours").replaceChildren(...x.ours.map((r) => el("li", null, r)));
+}
+
+function renderVerify() {
+  const x = d().c7;
+  $("c7-auto-title").textContent = x.autoTitle;
+  $("c7-auto").replaceChildren(...x.auto.map((r) => el("li", null, r)));
+  $("c7-review-title").textContent = x.reviewTitle;
+  $("c7-review").replaceChildren(...x.review.map((r) => el("li", null, r)));
+  $("c7-demo-title").textContent = x.demoTitle;
+  $("c7-demo-lead").textContent = x.demoLead;
+  $("use-guess").textContent = x.useGuess;
+  $("use-measured").textContent = x.useMeasured;
+  $("use-guess").setAttribute("aria-pressed", String(!state.measured));
+  $("use-measured").setAttribute("aria-pressed", String(state.measured));
+  const head = el("tr");
+  ["", x.colSurface, x.colLamp, ""].forEach((h) => head.appendChild(el("th", null, h)));
+  const rows = PHYSICS.map((p) => {
+    const at = state.measured ? p.target : p.guess;
+    const ok = Math.abs(at - p.target) <= TOLERANCE;
+    const tr = el("tr", ok ? "ok" : "bad");
+    tr.dataset.row = p.id;
+    tr.append(el("td", null, x.rows[p.id]), el("td", "mono", `${p.target.toFixed(1)}%`), el("td", "mono", `${at.toFixed(1)}%`), el("td", "verdict", ok ? x.pass : x.fail));
+    return tr;
+  });
+  $("phys").replaceChildren(head, ...rows);
+  $("phys-note").textContent = state.measured ? x.measuredNote : x.guessNote;
+  $("c7-rule").textContent = x.rule;
+}
+
+function renderCases() {
+  const x = d().c10;
+  $("cases").replaceChildren(...x.cases.map((c) => {
+    const li = el("li", "case");
+    li.append(el("span", "mono kind", `${x.kinds[c.kind]} · ${c.who}`), el("p", "what", c.what));
+    const dl = el("dl");
+    dl.append(el("dt", null, x.found), el("dd", null, c.found), el("dt", null, x.fix), el("dd", null, c.fix));
+    li.appendChild(dl);
+    return li;
+  }));
+  $("c10-closing").textContent = x.closing;
+}
+
+function renderDeep() {
+  const x = d();
+  $("deep-title").textContent = x.divider;
+  $("deep-lead").textContent = x.dividerLead;
+  $("deep-toc").replaceChildren(...x.toc.map((label, i) => {
+    const li = el("li");
+    const a = el("a");
+    const n = [5, 7, 10][i];
+    a.href = `#c${n}`;
+    a.append(el("span", "n", String(n).padStart(2, "0")), document.createTextNode(label));
+    li.appendChild(a);
+    return li;
+  }));
+  const deepLink = el("li");
+  const da = el("a", "deep-link");
+  da.href = "#deep";
+  da.append(el("span", "n", "05+"), document.createTextNode(x.divider));
+  deepLink.appendChild(da);
+  $("toc").appendChild(deepLink);
+  for (const c of ["c5", "c7", "c10"]) {
+    $(`${c}-no`).textContent = x[c].no;
+    $(`${c}-title`).textContent = x[c].title;
+    $(`${c}-lead`).textContent = x[c].lead;
+  }
+  renderContext();
+  renderVerify();
+  renderCases();
+}
+
 function render() {
   const x = t();
   document.documentElement.lang = x.htmlLang;
@@ -209,6 +325,7 @@ function render() {
   renderCompare(false);
   renderFlow();
   renderTeam();
+  renderDeep();
 }
 
 document.querySelectorAll("#lang-group button").forEach((b) => b.addEventListener("click", () => {
@@ -219,6 +336,8 @@ document.querySelectorAll("#lang-group button").forEach((b) => b.addEventListene
   render();
 }));
 $("play").addEventListener("click", () => { state.played = true; renderCompare(true); });
+$("use-guess").addEventListener("click", () => { state.measured = false; renderVerify(); });
+$("use-measured").addEventListener("click", () => { state.measured = true; renderVerify(); });
 $("remove-human").addEventListener("click", () => { state.removed = !state.removed; renderFlow(); });
 
 drawNet();
