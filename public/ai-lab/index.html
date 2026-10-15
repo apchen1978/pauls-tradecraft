@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>AI 人工智慧實驗室 · Paul's Tradecraft</title>
+  <meta name="description" content="AI 人工智慧實驗室：十分鐘看懂 AI 怎麼從聊天變成一起工作，以及人站在哪裡。AI Lab: see how AI moves from chatting to working alongside you, and where the human stands.">
+  <link rel="canonical" href="https://paulstradecraft.com/ai-lab/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Paul's Tradecraft">
+  <meta property="og:title" content="AI 人工智慧實驗室 · AI Lab">
+  <meta property="og:description" content="AI 不只會聊天，它開始一起工作。十分鐘看懂，以及人站在哪裡。AI doesn't just chat; it has started to work with us.">
+  <meta property="og:url" content="https://paulstradecraft.com/ai-lab/">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" id="skip" href="#main">跳至內容</a>
+  <header class="top">
+    <a class="brand" id="home" href="/">Paul's Tradecraft</a>
+    <div class="lang" id="lang-group" role="group" aria-label="Language">
+      <button type="button" data-lang="zh" aria-pressed="true">中</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="title">
+      <p class="kicker" id="kicker"></p>
+      <h1 id="title"></h1>
+      <p class="lead" id="lead"></p>
+      <ol class="toc" id="toc"></ol>
+      <div class="hero-net" aria-hidden="true"><svg viewBox="0 0 600 160" preserveAspectRatio="xMidYMid meet"><g id="net"></g></svg></div>
+    </section>
+
+    <section class="chapter" id="c0" aria-labelledby="c0-title">
+      <p class="no" id="c0-no"></p>
+      <h2 id="c0-title"></h2>
+      <p class="sub" id="c0-lead"></p>
+      <div class="funnel" id="funnel" role="radiogroup" aria-labelledby="c0-title"></div>
+      <p class="reply" id="funnel-reply" role="status"></p>
+      <p class="source"><span id="c0-source"></span> <a id="c0-link" target="_blank" rel="noopener noreferrer"></a> · <a id="c0-x" target="_blank" rel="noopener noreferrer"></a></p>
+    </section>
+
+    <section class="chapter" id="c2" aria-labelledby="c2-title">
+      <p class="no" id="c2-no"></p>
+      <h2 id="c2-title"></h2>
+      <p class="sub" id="c2-lead"></p>
+      <button type="button" class="primary" id="play"></button>
+      <div class="compare">
+        <div class="panel" id="chat-panel">
+          <h3 id="chat-title"></h3>
+          <p class="mono" id="chat-sub"></p>
+          <p class="bubble" id="chat-reply" hidden></p>
+          <p class="note" id="chat-note" hidden></p>
+        </div>
+        <div class="panel agent" id="agent-panel">
+          <h3 id="agent-title"></h3>
+          <p class="mono" id="agent-sub"></p>
+          <ol class="steps" id="steps"></ol>
+          <p class="note" id="agent-note" hidden></p>
+        </div>
+      </div>
+      <p class="demo" id="c2-demo"></p>
+    </section>
+
+    <section class="chapter" id="c3" aria-labelledby="c3-title">
+      <p class="no" id="c3-no"></p>
+      <h2 id="c3-title"></h2>
+      <p class="sub" id="c3-lead"></p>
+      <ol class="flow" id="flow"></ol>
+      <button type="button" class="ghost" id="remove-human" aria-pressed="false"></button>
+      <div class="outcome" id="outcome" role="status"></div>
+      <a class="text-link" id="c3-link" href="/cases/commercial-decision-desk/"></a>
+    </section>
+
+    <section class="chapter" id="c4" aria-labelledby="c4-title">
+      <p class="no" id="c4-no"></p>
+      <h2 id="c4-title"></h2>
+      <p class="sub" id="c4-lead"></p>
+      <div class="team">
+        <div class="hub" id="paul"></div>
+        <div class="agents" id="agents" role="group" aria-labelledby="c4-title"></div>
+      </div>
+      <div class="agent-detail" id="agent-detail" role="status"></div>
+      <h3 class="story-title" id="story-title"></h3>
+      <ol class="story" id="story"></ol>
+      <div class="rules">
+        <h3 id="rules-title"></h3>
+        <ul id="rules"></ul>
+      </div>
+      <p class="links"><a class="text-link" id="play-work" href="/prototype/match-the-approved-lamp/"></a> <a class="text-link" id="method" href="/cases/how-i-run-ai-agents/"></a></p>
+    </section>
+
+    <section class="cta" aria-labelledby="cta-title">
+      <h2 id="cta-title"></h2>
+      <a class="primary" id="cta" href="/#contact"></a>
+    </section>
+  </main>
+  <footer class="foot" id="footer"></footer>
+</body>
+</html>
