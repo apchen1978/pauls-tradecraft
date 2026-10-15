@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="對照架上的那一盞：大貨送來了，拿起來跟留下來的那一盞比。示意玩具。Match the Lamp on the Shelf: hold the bulk up against the approved sample. A toy.">
+  <meta property="og:title" content="對照架上的那一盞 · Match the Lamp on the Shelf">
+  <meta property="og:description" content="大貨送來了。拿起來，跟留下來的那一盞比。示意玩具。The bulk has arrived: hold it against the approved sample. A toy.">
+  <title>對照架上的那一盞 · Match the Lamp on the Shelf</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" id="skip">跳至內容</a>
+  <header class="site-head">
+    <span class="brand">PAUL'S TRADECRAFT</span>
+    <span class="toy-label" id="toy-label"></span>
+    <div class="language" id="lang-group" role="group" aria-label="Language">
+      <button type="button" data-lang="zh" aria-pressed="true">中</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="stage" id="stage" data-mode="side">
+      <div class="sample" id="sample" aria-hidden="true"></div>
+      <div class="lamps" id="lamps"></div>
+      <div class="dim" aria-hidden="true"></div>
+    </div>
+
+    <div class="panel">
+      <section class="screen" id="s0" data-screen="0" aria-labelledby="s0-title">
+        <h1 id="s0-title"></h1>
+        <p class="tagline" id="s0-tagline"></p>
+        <p class="note-card" id="s0-scope"></p>
+        <p class="soft" id="s0-note"></p>
+        <button type="button" class="primary" id="go0"></button>
+      </section>
+
+      <section class="screen" id="s1" data-screen="1" hidden aria-labelledby="s1-title">
+        <h2 id="s1-title" tabindex="-1"></h2>
+        <p id="s1-narr"></p>
+        <p class="ask" id="s1-ask"></p>
+        <div class="choices" id="agree" role="radiogroup" aria-labelledby="s1-ask"></div>
+        <div class="say" id="agree-react" hidden role="status"></div>
+        <div class="actions"><button type="button" class="primary" id="go1" disabled></button></div>
+      </section>
+
+      <section class="screen" id="s2" data-screen="2" hidden aria-labelledby="s2-title">
+        <h2 id="s2-title" tabindex="-1"></h2>
+        <p id="s2-narr"></p>
+        <p class="soft" id="s2-hint"></p>
+        <div class="modes" role="group">
+          <button type="button" id="mode-single" aria-pressed="false"></button>
+          <button type="button" id="mode-side" aria-pressed="true"></button>
+          <button type="button" id="light" aria-pressed="false"></button>
+        </div>
+        <div class="single-nav" id="single-nav" hidden>
+          <button type="button" id="prev"></button>
+          <button type="button" id="next"></button>
+        </div>
+        <p class="note-card" id="mode-note" role="status"></p>
+        <p class="soft" id="mark-hint"></p>
+        <p class="gate" id="gate" role="status"></p>
+        <div class="actions"><button type="button" class="primary" id="go2" disabled></button></div>
+      </section>
+
+      <section class="screen" id="s3" data-screen="3" hidden aria-labelledby="s3-title">
+        <h2 id="s3-title" tabindex="-1"></h2>
+        <p id="s3-narr"></p>
+        <div class="sort" id="sort"></div>
+        <p class="gate" id="gate3" role="status"></p>
+        <div class="actions"><button type="button" class="primary" id="go3" disabled></button></div>
+      </section>
+
+      <section class="screen" id="s4" data-screen="4" hidden aria-labelledby="s4-title">
+        <h2 id="s4-title" tabindex="-1"></h2>
+        <ol class="card-lines" id="card-lines"></ol>
+        <p class="soft" id="agreed"></p>
+        <div class="missed" id="missed"></div>
+        <p class="soft" id="scope-end"></p>
+        <div class="actions">
+          <a class="link" id="link-lamp" href="/prototype/take-the-lantern-apart/"></a>
+          <a class="link" id="link-street" href="/prototype/trade-street/"></a>
+          <button type="button" id="again"></button>
+        </div>
+        <p class="soft" id="boundary-end"></p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

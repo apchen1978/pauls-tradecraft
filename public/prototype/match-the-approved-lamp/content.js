@@ -1,0 +1,232 @@
+// Match the Lamp on the Shelf (path: match-the-approved-lamp): content and rules.
+// Teaches one thing: bulk goods are checked against the approved sample the factory kept, and the acceptable range
+// is agreed at trial production. Project-type buyers only. No numbers, no scoring, no right or wrong.
+// The lamp parts are the ones from "A Lamp, As Promised" (take-the-lantern-apart); the differences are drawn by code.
+
+export const ASSET = "/prototype/take-the-lantern-apart/assets/";
+
+export const NAMES = {
+  sunny: { zh: "小葵", en: "Sunny" },
+  diana: { zh: "戴安娜", en: "Diana" },
+  yiyi: { zh: "依依姐", en: "Yiyi" },
+};
+
+// The approved sample, and the five lamps of the bulk shipment. A and B look right; C, D and E carry one difference each.
+export const SAMPLE = { tint: "#F1E6CC", baseFilter: "none", glowFilter: "none", glowColor: "rgba(255,206,120,.7)" };
+export const LAMPS = [
+  { id: "A", tint: "#F1E6CC", baseFilter: "none", glowFilter: "none", glowColor: "rgba(255,206,120,.7)", diff: null },
+  { id: "B", tint: "#F0E5CB", baseFilter: "none", glowFilter: "none", glowColor: "rgba(255,206,120,.7)", diff: null },
+  { id: "C", tint: "#E9D49C", baseFilter: "none", glowFilter: "none", glowColor: "rgba(255,206,120,.7)", diff: "shade" },
+  { id: "D", tint: "#F1E6CC", baseFilter: "none", glowFilter: "saturate(.25) brightness(1.15) hue-rotate(18deg)", glowColor: "rgba(226,236,255,.75)", diff: "light" },
+  { id: "E", tint: "#F1E6CC", baseFilter: "hue-rotate(-14deg) saturate(1.35) brightness(.82)", glowFilter: "none", glowColor: "rgba(255,206,120,.7)", diff: "base" },
+];
+
+export const BASKETS = ["inrange", "talk", "redo"];
+export const AGREEMENTS = ["tight", "range", "later"];
+
+export const TEXT = {
+  zh: {
+    htmlLang: "zh-Hant",
+    docTitle: "對照架上的那一盞 · Match the Lamp on the Shelf",
+    label: "示意玩具，不是品檢標準。",
+    skip: "跳至內容",
+    lang: "語言",
+    title: "對照架上的那一盞",
+    tagline: "大貨送來了。拿起來，跟留下來的那一盞比。",
+    scope: "這是專案型的情況：買家的專案要用一整批燈。賣標準品的買賣，多半不會遇到這個問題。",
+    startNote: "沒有分數，也沒有標準答案。你只要看，然後說說你會怎麼做。",
+    start: "走進工廠",
+    s1title: "試產：先把尺說好",
+    s1narr: "試產的燈做好了，小葵來看。左邊是工廠留下來的核准樣，右邊是這次試產的燈。顏色有一點點不同。",
+    s1ask: "你要怎麼跟小葵說好？這一刻說好的，就是之後大貨的尺。",
+    agree: {
+      tight: { t: "只接受幾乎一樣的", d: "大貨也要跟核准樣幾乎一樣。" },
+      range: { t: "接受一點深淺，先寫下來", d: "把可以接受的範圍寫下來，雙方都留一份。" },
+      later: { t: "先不說，等大貨再看", d: "試產先過，顏色之後再談。" },
+    },
+    agreeReact: {
+      tight: { who: "sunny", t: "好。那之後大貨，也要幾乎一樣才算。" },
+      range: { who: "diana", t: "這樣最清楚。範圍寫下來，大貨送來就有尺可以比。" },
+      later: { who: "yiyi", t: "沒有對錯。只是專案型的買家，通常在試產就想聽到。晚一點說，之後比較難談。" },
+    },
+    s1go: "大貨送來了",
+    s2title: "大貨到了：拿去跟核准樣比",
+    s2narr: "一批燈送到買家要掛的地方。架上留著當初點頭的那一盞，貼著標籤。",
+    s2hint: "先一盞一盞看，再並排，再把燈打開。覺得和核准樣不一樣的，點那一盞做記號。",
+    modeSingle: "一盞一盞看",
+    modeSide: "並排",
+    lightOn: "把燈打開",
+    lightOff: "把燈關掉",
+    prev: "上一盞",
+    next: "下一盞",
+    singleNote: "單看一盞，似乎都沒問題。",
+    sideNote: "並排放在一起，比單看更容易看出不同。",
+    litNote: "燈亮著，顏色會不一樣。核准樣和大貨，都要在燈亮著的時候也比一比。",
+    markHint: "點燈做記號：覺得和核准樣不一樣。",
+    marked: "已記號",
+    unmarked: "未記號",
+    lampLabel: (id, marked) => `燈 ${id}${marked ? "，已記號為不一樣" : ""}`,
+    needSide: "先並排看一次，才能往下。",
+    needMark: "再點一盞覺得不一樣的燈，才能往下。",
+    s2go: "我標好了",
+    s3title: "發現不一樣，你怎麼做？",
+    s3narr: "每個記號，都選一個做法。沒有分數，負責人只回你一句。",
+    sameTitle: (id) => `燈 ${id}：和核准樣一樣`,
+    diffTitle: {
+      shade: (id) => `燈 ${id}：燈罩比核准樣偏黃一點`,
+      light: (id) => `燈 ${id}：亮燈時，光比其他盞偏白`,
+      base: (id) => `燈 ${id}：底座的金屬色偏紅、偏暗一點`,
+    },
+    basket: {
+      inrange: "在說好的範圍內",
+      talk: "先跟買家溝通",
+      redo: "請工廠補做，或談折讓",
+    },
+    reactSame: {
+      inrange: { who: "diana", t: "這盞和核准樣一樣，放行。你看得很仔細。" },
+      talk: { who: "yiyi", t: "沒有不一樣的，就不用特地打擾買家。不過先確認過，也沒有錯。" },
+      redo: { who: "diana", t: "這盞和核准樣是一樣的。要補做的，是真的不一樣的那幾盞。" },
+    },
+    react: {
+      shade: {
+        inrange: { who: "diana", t: "要看試產時說好的範圍。有寫下來，就照寫的；沒寫下來，就很難說。" },
+        talk: { who: "sunny", t: "先告訴我，我來看看能不能接受。燈罩的顏色，掛起來整排都看得到。" },
+        redo: { who: "diana", t: "如果超出說好的，補做是最乾淨的。這批的燈罩，先找工廠談。" },
+      },
+      light: {
+        inrange: { who: "diana", t: "光色要在燈亮著的時候比。同一款燈，不同批次的光，並排時看得出來。" },
+        talk: { who: "yiyi", t: "亮燈才看得出來，更要先說。買家掛上去才發現，會很難受。" },
+        redo: { who: "diana", t: "光源可以換、可以挑。先確認是哪一批，再決定要不要補。" },
+      },
+      base: {
+        inrange: { who: "diana", t: "金屬的色澤，批次之間常有差。範圍有沒有說好，要看試產時寫的。" },
+        talk: { who: "sunny", t: "底座的顏色我想看實物照片，再決定要不要換。" },
+        redo: { who: "diana", t: "同一個訂單最好用同一批塗裝。補做時，要指定跟原來同一批。" },
+      },
+    },
+    s3go: "看看帶走什麼",
+    needBasket: "每一盞都選一個做法，才能往下。",
+    s4title: "帶走這張對照卡",
+    cardLines: [
+      "核准樣要留一份，大貨拿它來比，不是跟印象比。",
+      "可以接受多少不一樣，要在試產時就說好，寫下來。",
+      "單看看不出來的，並排才看得出來；燈要在亮著的時候也比一次。",
+      "發現不一樣，先溝通，不要裝傻。",
+      "真的不行：補做，或下一次下單時談折讓。",
+    ],
+    missedTitle: "這批裡，還有你沒標到的：",
+    missedNone: "你把不一樣的都標到了。",
+    agreedWas: "你在試產時說好的是：",
+    agreedNone: "你在試產時沒有說好。",
+    scopeEnd: "這張卡說的是專案型。賣標準品的買賣，多半不會遇到。",
+    again: "再玩一次",
+    linkLamp: "回到〈一盞燈的約定〉，看看當初可以先說好哪一句",
+    linkStreet: "到〈貿易街〉，走一趟整條路",
+    boundaryEnd: "示意玩具，不是品檢標準；不含任何數字、價格或期限。",
+  },
+  en: {
+    htmlLang: "en",
+    docTitle: "Match the Lamp on the Shelf · 對照架上的那一盞",
+    label: "A toy, not an inspection standard.",
+    skip: "Skip to content",
+    lang: "Language",
+    title: "Match the Lamp on the Shelf",
+    tagline: "The bulk lamps have arrived. Hold them up against the one the factory kept.",
+    scope: "This is a project case: the buyer's project needs a whole batch of lamps. Standard catalogue items rarely run into this.",
+    startNote: "No scores, no answer key. Just look, and say what you would do.",
+    start: "Step into the factory",
+    s1title: "Trial run: agree the yardstick first",
+    s1narr: "The trial lamp is ready and Sunny comes to look. On the left is the approved sample the factory kept; on the right is this trial lamp. The colour is a little different.",
+    s1ask: "How will you settle it with Sunny? What you agree now becomes the yardstick for the bulk.",
+    agree: {
+      tight: { t: "Only almost-identical is fine", d: "The bulk must also be almost identical to the sample." },
+      range: { t: "A little shade is fine, write it down", d: "Write down the range you accept, and both sides keep a copy." },
+      later: { t: "Skip it, see at bulk", d: "Pass the trial now and talk about colour later." },
+    },
+    agreeReact: {
+      tight: { who: "sunny", t: "Good. Then the bulk has to be almost identical, too." },
+      range: { who: "diana", t: "That's the clearest. Once the range is written down, the bulk has something to be measured against." },
+      later: { who: "yiyi", t: "Neither is wrong. Project buyers just usually want to hear it at the trial run. Say it later and it gets harder to talk about." },
+    },
+    s1go: "The bulk arrives",
+    s2title: "Bulk arrives: hold it against the sample",
+    s2narr: "A batch of lamps arrives where the buyer will hang them. The approved sample sits on a stand with a tag.",
+    s2hint: "Look at them one by one, then side by side, then switch the light on. Tap any lamp that looks different from the sample.",
+    modeSingle: "One by one",
+    modeSide: "Side by side",
+    lightOn: "Switch the light on",
+    lightOff: "Switch the light off",
+    prev: "Previous lamp",
+    next: "Next lamp",
+    singleNote: "Looked at alone, each lamp seems fine.",
+    sideNote: "Side by side, differences show more than when you look at one.",
+    litNote: "With the lamp lit, colours change. Compare the sample and the bulk while lit, too.",
+    markHint: "Tap a lamp to mark it: it looks different from the sample.",
+    marked: "Marked",
+    unmarked: "Not marked",
+    lampLabel: (id, marked) => `Lamp ${id}${marked ? ", marked as different" : ""}`,
+    needSide: "Look side by side once before moving on.",
+    needMark: "Tap at least one lamp that looks different to move on.",
+    s2go: "I've marked them",
+    s3title: "You found a difference. What do you do?",
+    s3narr: "Pick one move for each mark. There is no score; the person in charge answers you in one line.",
+    sameTitle: (id) => `Lamp ${id}: same as the sample`,
+    diffTitle: {
+      shade: (id) => `Lamp ${id}: the shade is a little yellower than the sample`,
+      light: (id) => `Lamp ${id}: when lit, its light is whiter than the others`,
+      base: (id) => `Lamp ${id}: the base metal is a little redder and darker`,
+    },
+    basket: {
+      inrange: "Within what we agreed",
+      talk: "Talk to the buyer first",
+      redo: "Ask the factory to remake, or discuss an allowance",
+    },
+    reactSame: {
+      inrange: { who: "diana", t: "This one matches the sample. Release it. You looked closely." },
+      talk: { who: "yiyi", t: "If nothing differs, there is no need to bother the buyer. Checking first is not wrong, though." },
+      redo: { who: "diana", t: "This one is the same as the sample. What needs remaking is the ones that really differ." },
+    },
+    react: {
+      shade: {
+        inrange: { who: "diana", t: "It depends on the range agreed at the trial. If it was written down, go by that; if not, it is hard to say." },
+        talk: { who: "sunny", t: "Tell me first and I'll see if I can accept it. A shade colour shows across the whole row once it is hung." },
+        redo: { who: "diana", t: "If it is outside what we agreed, remaking is the cleanest. For these shades, talk to the factory first." },
+      },
+      light: {
+        inrange: { who: "diana", t: "Light colour has to be compared with the lamp lit. The same lamp from a different batch shows a difference side by side." },
+        talk: { who: "yiyi", t: "It only shows when lit, so it matters even more to say so first. A buyer who finds out after hanging them will not be happy." },
+        redo: { who: "diana", t: "The light source can be changed or picked. First find out which batch it is, then decide whether to remake." },
+      },
+      base: {
+        inrange: { who: "diana", t: "Metal finishes often differ between batches. Whether the range was agreed depends on what was written at the trial." },
+        talk: { who: "sunny", t: "I'd like a photo of the real base before I decide whether to change it." },
+        redo: { who: "diana", t: "For one order it is best to use one coating batch. When you remake, ask for the same batch as the original." },
+      },
+    },
+    s3go: "See what to take away",
+    needBasket: "Pick a move for every marked lamp to move on.",
+    s4title: "Take this comparison card with you",
+    cardLines: [
+      "Keep one approved sample. Check the bulk against it, not against memory.",
+      "How much difference is acceptable is agreed at the trial run, in writing.",
+      "What you cannot see alone shows side by side; compare with the lamp lit, too.",
+      "If you find a difference, talk first. Do not play dumb.",
+      "If it truly will not do: remake, or discuss an allowance on the next order.",
+    ],
+    missedTitle: "Still in this batch, and not marked:",
+    missedNone: "You marked every difference.",
+    agreedWas: "At the trial run you agreed:",
+    agreedNone: "At the trial run you did not agree.",
+    scopeEnd: "This card is about project cases. Standard catalogue items rarely run into this.",
+    again: "Play again",
+    linkLamp: "Back to A Lamp, As Promised: what could have been settled first?",
+    linkStreet: "Walk the whole road in Trade Street",
+    boundaryEnd: "A toy, not an inspection standard; no numbers, prices or deadlines.",
+  },
+};
+
+export const MISSED = {
+  shade: { zh: "燈罩比核准樣偏黃一點（並排看得出來）。", en: "The shade is a little yellower than the sample (visible side by side)." },
+  light: { zh: "亮燈時，光比其他盞偏白（把燈打開才看得出來）。", en: "When lit, the light is whiter than the others (visible only with the lamp lit)." },
+  base: { zh: "底座的金屬色偏紅、偏暗一點（並排看得出來）。", en: "The base metal is a little redder and darker (visible side by side)." },
+};
