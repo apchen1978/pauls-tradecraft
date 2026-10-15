@@ -755,6 +755,16 @@ const dict = {
           branch: "light-tech",
         },
         {
+          title: "ROOMVERSE 3D · 空間幻境",
+          tag: "示意玩具 · 雙語原型",
+          spark: "同一間房，下雨天、一家人、輕科技，各是什麼樣的光？",
+          note: "換牆、換地毯，拖曳轉一點角度。沙發、邊桌和落地燈以 AI 人機協作完成：先畫成插畫，再轉成 3D。",
+          cta: "走進 3D 房間",
+          boundary: "插畫示意，不是真實商品；實際顏色與質感要看樣品和現場光線。",
+          href: "/prototype/roomverse-3d/",
+          branch: "light-tech",
+        },
+        {
           title: "工廠秘密菜單",
           tag: "示範實驗 · 雙語原型",
           spark: "別問工廠做什麼，先看它還能打開什麼。",
@@ -1560,6 +1570,16 @@ const dict = {
           cta: "Play",
           boundary: "A toy, not a personality test. The readings are written in advance.",
           href: "/prototype/code-words/",
+          branch: "light-tech",
+        },
+        {
+          title: "ROOMVERSE 3D · One room, many ways to come home",
+          tag: "Illustrative toy · bilingual prototype",
+          spark: "One room: a rainy day in, a family afternoon, a light-tech evening. What light does each one need?",
+          note: "Change the wall and the rug, and drag to turn the room a little. The sofa, side table and floor lamp were made through human–AI collaboration: drawn first, then turned into 3D.",
+          cta: "Step into the 3D room",
+          boundary: "An illustrated study, not real products; check real colours and textures with samples and on-site light.",
+          href: "/prototype/roomverse-3d/",
           branch: "light-tech",
         },
         {

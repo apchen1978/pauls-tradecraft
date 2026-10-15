@@ -10,6 +10,7 @@
   - **例外（Paul 決定 2026-10-15）：**「AI 人工智慧實驗室」專區（`public/ai-lab/` 整頁，以及首頁的 `aiLab` 入口區塊）可以使用 AI 相關詞彙（AI、LLM、agent 等）講解概念與工作流，並可寫出 agent 的名字（CC／Claude Code、Codex、GrokBot、DSH）。專區內一樣不寫 ROI 或成效宣稱；第三方的估計要標「估計」並附來源；示範內容要標明不是真實模型輸出。其他頁面規則不變。
   - **例外（Paul 決定 2026-10-13）：** 「AI-native」可以用在公開頁。Paul 要來訪者知道這個團隊是 AI-native。
   - **例外（Paul 決定 2026-10-13）：** 首頁作品館說明只限這兩句可以寫 AI：「探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。」以及 “Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.” 作品館其他文案、各作品自己的證據與限制註記、以及其餘公開頁，仍不可另寫 AI。
+  - **例外（Paul 決定 2026-10-16）：**「AI 人機協作」（也可寫「AI人機協作」；英文 human–AI collaboration）可以用在公開頁，說明作品是人和 AI 一起做的。不寫成效。
   - 除上述說法外，其餘 AI 字樣仍不可出現。
   - 檢查方式：搜尋 AI 時，不要把上面這些說法挑出來（`scripts/check-document-parity.mjs` 已排除「AI agent」、「AI agents 與 Paul 協作」與「AI-native」（大小寫含 AI-Native、AI native、AI Native），並只在作品館標題區放行上面那兩句說明；digital-garage 的 `PUBLIC-WORDS.md` 仍只記前兩個例外）。
 - 公開文案不出現「中間層」「A2A」「CDD」。CDD 是內部簡寫；作品名「商務決策工作台」照用。
