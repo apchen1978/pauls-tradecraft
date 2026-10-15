@@ -508,6 +508,9 @@ export const TYPES = {
   },
 };
 
+// Voices on the result card. One is shown at a time; the choice lives only in the page (not in the URL, not stored).
+export const TONES = ["funny", "gentle", "literary", "strength"];
+
 export const FACTIONS = {
   galaxy: {
     mark: "🌌",
@@ -786,6 +789,8 @@ export const UI = {
     duoPick: "選一個角色",
     duoPlaceholder: "例如 EEA，或整段連結",
     duoOpen: "看這一幕",
+    duoNeed: "先選一個角色",
+    toneGroup: "選一種說法",
     duoBad: "這組字母還找不到對應的角色，檢查一下朋友的三個字母。",
     duoYou: "你",
     duoFriend: "朋友",
@@ -842,6 +847,8 @@ export const UI = {
     duoPick: "Pick a role",
     duoPlaceholder: "For example EEA, or the whole link",
     duoOpen: "Play this scene",
+    duoNeed: "Pick a role first",
+    toneGroup: "Choose a voice",
     duoBad: "These letters haven't found a role yet. Check the three letters your friend sent.",
     duoYou: "You",
     duoFriend: "Friend",
@@ -1126,6 +1133,7 @@ function boot() {
     withCode: route.code ? readPartner(location.search) : null,
     duoNote: route.code && new URLSearchParams(location.search).get("with") && !readPartner(location.search) ? "bad" : "",
     started: Boolean(route.code),
+    tone: "funny",
     district: null,
     districtOpener: null,
   };
@@ -1363,6 +1371,7 @@ function boot() {
     $("role").hidden = true;
     $("role").textContent = "";
     $("faction").textContent = factionLabel(resolved.type, state.lang);
+    $("faction-motto").textContent = FACTIONS[TYPES[resolved.type].faction].motto[state.lang];
     $("about").textContent = text.about;
     const profile = $("profile");
     profile.textContent = "";
@@ -1374,20 +1383,31 @@ function boot() {
     }
     const lines = $("lines");
     lines.textContent = "";
-    [
-      ["funny", ui.funny, text.funny],
-      ["gentle", ui.gentle, text.gentle],
-      ["literary", ui.literary, text.literary],
-      ["strength", ui.strength, text.strength],
-    ].forEach(([key, label, body]) => {
+    const tones = $("tones");
+    tones.textContent = "";
+    tones.setAttribute("aria-label", ui.toneGroup);
+    TONES.forEach((key, index) => {
+      const button = el("button", null, ui[key]);
+      button.type = "button";
+      button.setAttribute("aria-pressed", String(state.tone === key));
+      button.addEventListener("click", () => {
+        if (state.tone === key) return;
+        state.tone = key;
+        render();
+        $("tones").children[index].focus({ preventScroll: true });
+      });
+      tones.appendChild(button);
+    });
+    {
+      const key = state.tone;
       const block = el("div", `line line-${key}`);
-      block.appendChild(el("p", "line-label", label));
+      block.appendChild(el("p", "line-label", ui[key]));
       const bodyEl = el("p", "line-body");
-      if (key === "funny") bodyEl.appendChild(el("span", "mark", body));
-      else bodyEl.textContent = body;
+      if (key === "funny") bodyEl.appendChild(el("span", "mark", text[key]));
+      else bodyEl.textContent = text[key];
       block.appendChild(bodyEl);
       lines.appendChild(block);
-    });
+    }
     $("picks-label").textContent = ui.picks(state.code);
     $("same").textContent = ui.same;
     $("card-boundary").textContent = ui.boundary;
@@ -1446,6 +1466,15 @@ function boot() {
     }
   }
 
+  // With no role picked and nothing typed there is nothing to open: say so instead of calling it a bad code.
+  // A typed code that does not resolve still gets the original "check the letters" message.
+  function syncDuoOpen(partner = state.withCode ? resolveChoices(state.withCode) : null) {
+    const ui = UI[state.lang];
+    const idle = !partner && !$("duo-code").value.trim() && !$("duo-pick").value;
+    $("duo-open").disabled = idle;
+    $("duo-status").textContent = idle ? ui.duoNeed : state.duoNote === "bad" ? ui.duoBad : "";
+  }
+
   function renderDuo() {
     const ui = UI[state.lang];
     $("duo-title").textContent = ui.duoTitle;
@@ -1462,7 +1491,7 @@ function boot() {
     const partner = state.withCode ? resolveChoices(state.withCode) : null;
     select.value = partner ? partner.type : previous;
     if (document.activeElement !== $("duo-code")) $("duo-code").value = state.withCode || "";
-    $("duo-status").textContent = state.duoNote === "bad" ? ui.duoBad : "";
+    syncDuoOpen(partner);
     if (!partner) {
       closeDuoStage();
       return;
@@ -1759,10 +1788,11 @@ function boot() {
       ctx.font = `500 ${sz.OTHER}px ${FONT}`;
       const profileLines = ui.profile.flatMap(([key, label]) => wrapLines(ctx, `${label}${text[key]}`, inner));
       ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
-      const funnyLines = wrapLines(ctx, text.funny, inner);
-      const sectionLines = [text.gentle, text.literary, text.strength].map((body, index) => {
+      const funnyLines = state.tone === "funny" ? wrapLines(ctx, text.funny, inner) : [];
+      const sectionLines = ["gentle", "literary", "strength"].map((key, index) => {
+        if (key !== state.tone) return [];
         ctx.font = `${index === 2 ? 600 : 500} ${sz.BODY}px ${FONT}`;
-        return wrapLines(ctx, body, inner);
+        return wrapLines(ctx, text[key], inner);
       });
       const footerH = picksLines.length * lead(sz.PICKS) + 14 + boundaryLines.length * lead(BOUNDARY);
       let bodyH = nameLines.length * lead(sz.NAME);
@@ -1774,9 +1804,9 @@ function boot() {
       bodyH += aboutLines.length * lead(sz.BODY) + 12;
       bodyH += profileLines.length * lead(sz.OTHER) + 10;
       bodyH += rare ? 58 : 12;
-      bodyH += sz.LABEL + 10 + funnyLines.length * lead(sz.FUNNY) + 10;
+      if (funnyLines.length) bodyH += sz.LABEL + 10 + funnyLines.length * lead(sz.FUNNY) + 10;
       sectionLines.forEach((lines) => {
-        bodyH += sz.LABEL + 10 + lines.length * lead(sz.BODY) + 8;
+        if (lines.length) bodyH += sz.LABEL + 10 + lines.length * lead(sz.BODY) + 8;
       });
       return { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, funnyLines, sectionLines, footerH, bodyH };
     };
@@ -1927,7 +1957,7 @@ function boot() {
       ctx.fillText(label, pad, y);
       y += sz.LABEL + 10;
     };
-    drawLabel(ui.funny);
+    if (funnyLines.length) drawLabel(ui.funny);
     funnyLines.forEach((line) => {
       ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
       const w = ctx.measureText(line).width;
@@ -1937,8 +1967,9 @@ function boot() {
       ctx.fillText(line, pad, y);
       y += lead(sz.FUNNY);
     });
-    y += 10;
+    if (funnyLines.length) y += 10;
     [text.gentle, text.literary, text.strength].forEach((body, index) => {
+      if (!sectionLines[index].length) return;
       drawLabel([ui.gentle, ui.literary, ui.strength][index]);
       const weight = index === 2 ? 600 : 500;
       sectionLines[index].forEach((line) => {
@@ -2435,6 +2466,10 @@ function boot() {
     if (first) first.focus({ preventScroll: true });
   });
   $("duo-open").addEventListener("click", () => openPartner($("duo-code").value));
+  $("duo-code").addEventListener("input", () => {
+    state.duoNote = "";
+    syncDuoOpen();
+  });
   $("duo-code").addEventListener("keydown", (event) => {
     if (event.key === "Enter") openPartner($("duo-code").value);
   });
