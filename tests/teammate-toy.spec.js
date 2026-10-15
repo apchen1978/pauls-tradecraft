@@ -330,13 +330,13 @@ for (const width of [390, 768, 1440]) {
   test.describe(`toy ${width}px`, () => {
     test.use({ viewport: { width, height: width === 390 ? 844 : 1000 } });
 
-    test("zh play, share-link round trip, and en card", async ({ page }) => {
+    test("zh play, share-link round trip, and en card", async ({ page, baseURL }) => {
       const external = [];
       const roleArt = [];
       const maps = [];
       page.on("request", (request) => {
         const url = request.url();
-        if (!url.startsWith("http://127.0.0.1:4173") && !url.startsWith("data:")) external.push(url);
+        if (!url.startsWith("data:") && new URL(url).origin !== new URL(baseURL).origin) external.push(url);
         if (url.includes("nightglow-map")) maps.push(url);
         else if (url.includes("/prototype/teammate-type/assets/")) roleArt.push(url);
       });

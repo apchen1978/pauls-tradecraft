@@ -680,6 +680,17 @@ export function shortName(text) {
   return text.person || text.name;
 }
 
+function cardTitle(text) {
+  return identityLine(text).slice(shortName(text).length + 3);
+}
+
+const TEAM_COLORS = {
+  galaxy: { ink: "#63577F", paper: "#E7E1EF" },
+  andromeda: { ink: "#805823", paper: "#F0E3CB" },
+  chart: { ink: "#436C61", paper: "#DEE8DE" },
+  lantern: { ink: "#874D31", paper: "#F0E0D2" },
+};
+
 export function previewLine(text) {
   if (isNamedQueen(text)) return `${text.person} · ${text.name}`;
   return `${shortName(text)} · ${text.role}`;
@@ -1120,10 +1131,36 @@ function repairOrphans(ctx, lines, maxWidth) {
 // Wrap a line for the download card, but never leave a lone word or one or two characters on the last line:
 // narrow the width a little until the last line has enough company.
 export function wrapLinesNoWidow(ctx, text, maxWidth) {
-  let lines = wrapLines(ctx, text, maxWidth);
-  const tooShort = (line) => (/\s/.test(String(text)) ? line.trim().split(/\s+/).length < 2 : Array.from(line).length < 3);
+  const cjk = /[\u3400-\u9fff]/.test(String(text));
+  // The older wrapper keeps terminal punctuation together, which can push a
+  // large headline past the frame. Bound those fragments before balancing.
+  const bounded = (width) => wrapLines(ctx, text, width).flatMap((line) => {
+    if (ctx.measureText(line).width <= width + 0.5) return [line];
+    const chunks = [];
+    let chunk = "";
+    for (const ch of Array.from(line)) {
+      if (chunk && ctx.measureText(chunk + ch).width > width) {
+        chunks.push(chunk);
+        chunk = ch;
+      } else chunk += ch;
+    }
+    if (chunk) chunks.push(chunk);
+    if (cjk && chunks.length > 1) {
+      const last = chunks.length - 1;
+      while (Array.from(chunks[last]).length < 3 && Array.from(chunks[last - 1]).length > 3) {
+        const previous = Array.from(chunks[last - 1]);
+        const tail = previous.pop() + chunks[last];
+        if (ctx.measureText(tail).width > width) break;
+        chunks[last - 1] = previous.join("");
+        chunks[last] = tail;
+      }
+    }
+    return chunks;
+  });
+  let lines = bounded(maxWidth);
+  const tooShort = (line) => cjk ? Array.from(line).length < 3 : line.trim().split(/\s+/).length < 2;
   for (let w = maxWidth * 0.96; lines.length > 1 && tooShort(lines[lines.length - 1]) && w > maxWidth * 0.6; w *= 0.96) {
-    const next = wrapLines(ctx, text, w);
+    const next = bounded(w);
     if (next.length > lines.length) break;
     lines = next;
   }
@@ -1408,7 +1445,14 @@ function boot() {
     quiz.hidden = true;
     result.hidden = false;
     $("card-kicker").textContent = ui.kicker;
-    $("card-name").textContent = identityLine(text);
+    const card = $("card");
+    const teamColors = TEAM_COLORS[type.faction];
+    card.style.setProperty("--team-ink", teamColors.ink);
+    card.style.setProperty("--team-paper", teamColors.paper);
+    card.classList.toggle("is-rare", isRare(resolved.type));
+    const name = $("card-name");
+    name.textContent = "";
+    name.append(el("span", "card-person", shortName(text)), el("span", "sr", " · "), el("span", "card-title", cardTitle(text)));
     $("card-mark").hidden = !text.mark;
     $("card-mark").textContent = text.mark || "";
     $("card-egg").hidden = !type.egg;
@@ -1452,7 +1496,6 @@ function boot() {
     {
       const key = state.tone;
       const block = el("div", `line line-${key}`);
-      block.appendChild(el("p", "line-label", ui[key]));
       const bodyEl = el("p", "line-body");
       if (key === "funny") bodyEl.appendChild(el("span", "mark", text[key]));
       else bodyEl.textContent = text[key];
@@ -1734,6 +1777,7 @@ function boot() {
     const type = TYPES[resolved.type];
     const text = type[state.lang];
     const other = state.lang === "zh" ? "en" : "zh";
+    const teamColors = TEAM_COLORS[type.faction];
     const width = 1080;
     // 2160×4400 export. 2160×3240 cannot keep both a 40–50% picture and
     // full-size English lines; this height does, and the shrink loop below
@@ -1754,7 +1798,7 @@ function boot() {
     const wash = ctx.createLinearGradient(0, 0, width, height);
     wash.addColorStop(0, "#F6F3ED");
     wash.addColorStop(0.55, "#F6F3ED");
-    wash.addColorStop(1, WASH[resolved.type] || "#DDE7DE");
+    wash.addColorStop(1, teamColors.paper);
     ctx.fillStyle = wash;
     ctx.fillRect(0, 0, width, height);
     ctx.save();
@@ -1776,7 +1820,7 @@ function boot() {
     ctx.lineWidth = 2;
     roundRect(ctx, 48, 48, width - 96, height - 96, 28);
     ctx.stroke();
-    ctx.fillStyle = "#F08A6E";
+    ctx.fillStyle = teamColors.ink;
     for (const [x, y] of [[64, 64], [width - 64, 64], [64, height - 64], [width - 64, height - 64]]) {
       ctx.beginPath();
       ctx.arc(x, y, 7, 0, Math.PI * 2);
@@ -1784,11 +1828,13 @@ function boot() {
     }
     const rare = isRare(resolved.type);
     if (rare) {
-      ctx.strokeStyle = resolved.type === "andromeda" ? "#D4B06A" : "#C4A15A";
-      ctx.lineWidth = 5;
-      roundRect(ctx, 36, 36, width - 72, height - 72, 36);
+      ctx.strokeStyle = "#AD843B";
+      ctx.lineWidth = 8;
+      roundRect(ctx, 28, 28, width - 56, height - 56, 40);
       ctx.stroke();
     }
+    ctx.fillStyle = teamColors.ink;
+    ctx.fillRect(68, 28, width - 136, 8);
 
     const center = (line, y, font, color) => {
       ctx.font = font;
@@ -1815,7 +1861,7 @@ function boot() {
     });
 
     const BOUNDARY = 54;
-    const BASE = { LABEL: 54, PICKS: 48, BODY: 40, FUNNY: 44, NAME: 58, OTHER: 32, ROLE: 36 };
+    const BASE = { PICKS: 42, BODY: 40, FUNNY: 56, NAME: 54, OTHER: 32, ROLE: 34, PROFILE: 40 };
     const artTop = subTop + subLines.length * 42 + 20;
     const lead = (size) => size + 8;
     const measureCard = (textScale) => {
@@ -1826,26 +1872,29 @@ function boot() {
       ctx.font = `600 ${sz.PICKS}px ${FONT}`;
       const picksLines = wrapLines(ctx, ui.picks(state.code), inner);
       ctx.font = `700 ${sz.NAME}px ${FONT}`;
-      const nameLines = wrapLines(ctx, identityLine(text), inner);
+      const nameLines = wrapLinesNoWidow(ctx, shortName(text), inner);
       ctx.font = `700 24px ${FONT}`;
       const markLines = text.mark ? wrapLines(ctx, text.mark, inner) : [];
       ctx.font = `600 ${sz.OTHER}px ${FONT}`;
       const otherLines = wrapLines(ctx, identityLine(type[other]), inner);
-      const roleLines = [];
+      ctx.font = `600 ${sz.ROLE}px ${FONT}`;
+      const roleLines = wrapLinesNoWidow(ctx, cardTitle(text), inner);
       ctx.font = `700 30px ${FONT}`;
       const factionLines = wrapLines(ctx, factionLabel(resolved.type, state.lang), inner);
+      ctx.font = `600 ${sz.OTHER}px ${FONT}`;
+      const mottoLines = wrapLinesNoWidow(ctx, FACTIONS[type.faction].motto[state.lang], inner);
       ctx.font = `500 ${sz.BODY}px ${FONT}`;
-      const aboutLines = wrapLines(ctx, text.about, inner);
-      ctx.font = `500 ${sz.OTHER}px ${FONT}`;
-      const profileLines = ui.profile.flatMap(([key, label]) => wrapLines(ctx, `${label}${text[key]}`, inner));
+      const aboutLines = wrapLinesNoWidow(ctx, text.about, inner);
+      ctx.font = `500 ${sz.PROFILE}px ${FONT}`;
+      const profileLines = ui.profile.flatMap(([key, label]) => wrapLinesNoWidow(ctx, `${label}${text[key]}`, inner));
       ctx.font = `600 ${sz.OTHER}px ${FONT}`;
       const costLines = wrapLinesNoWidow(ctx, `${ui.costLabel}${text.cost}`, inner - 32);
       ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
-      const funnyLines = state.tone === "funny" ? wrapLines(ctx, text.funny, inner) : [];
+      const funnyLines = state.tone === "funny" ? wrapLinesNoWidow(ctx, text.funny, inner) : [];
       const sectionLines = ["gentle", "literary", "strength"].map((key, index) => {
         if (key !== state.tone) return [];
-        ctx.font = `${index === 2 ? 600 : 500} ${sz.BODY}px ${FONT}`;
-        return wrapLines(ctx, text[key], inner);
+        ctx.font = `600 ${sz.FUNNY}px ${FONT}`;
+        return wrapLinesNoWidow(ctx, text[key], inner);
       });
       const footerH = picksLines.length * lead(sz.PICKS) + 14 + boundaryLines.length * lead(BOUNDARY);
       let bodyH = nameLines.length * lead(sz.NAME);
@@ -1854,15 +1903,16 @@ function boot() {
       bodyH += 8 + otherLines.length * lead(sz.OTHER);
       bodyH += roleLines.length ? 6 + roleLines.length * lead(sz.ROLE) : 0;
       bodyH += 10 + factionLines.length * 42;
+      bodyH += 8 + mottoLines.length * lead(sz.OTHER);
       bodyH += aboutLines.length * lead(sz.BODY) + 12;
-      bodyH += profileLines.length * lead(sz.OTHER) + 10;
+      bodyH += profileLines.length * lead(sz.PROFILE) + 10;
       bodyH += costLines.length * lead(sz.OTHER) + 22;
       bodyH += rare ? 58 : 12;
-      if (funnyLines.length) bodyH += sz.LABEL + 10 + funnyLines.length * lead(sz.FUNNY) + 10;
+      if (funnyLines.length) bodyH += funnyLines.length * lead(sz.FUNNY) + 10;
       sectionLines.forEach((lines) => {
-        if (lines.length) bodyH += sz.LABEL + 10 + lines.length * lead(sz.BODY) + 8;
+        if (lines.length) bodyH += lines.length * lead(sz.FUNNY) + 8;
       });
-      return { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, costLines, funnyLines, sectionLines, footerH, bodyH };
+      return { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, mottoLines, aboutLines, profileLines, costLines, funnyLines, sectionLines, footerH, bodyH };
     };
     const cardFits = (ratio, measured) => {
       const artH = Math.round(height * ratio);
@@ -1897,7 +1947,12 @@ function boot() {
     }
     const artH = Math.round(height * artRatio);
     const footerTop = height - 48 - 56 - plan.footerH;
-    const { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, costLines, funnyLines, sectionLines } = plan;
+    const { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, mottoLines, aboutLines, profileLines, costLines, funnyLines, sectionLines } = plan;
+
+    ctx.fillStyle = teamColors.paper;
+    ctx.beginPath();
+    ctx.ellipse(width / 2, artTop + artH * 0.54, Math.min(300, inner * 0.35), artH * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
 
     const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
     const horseNode = readyImage("horse", HORSE_SRC);
@@ -1952,29 +2007,34 @@ function boot() {
       ctx.restore();
       y += 34;
     }
-    otherLines.forEach((line) => {
-      center(line, y, `600 ${sz.OTHER}px ${FONT}`, "#62716A");
-      y += lead(sz.OTHER);
-    });
-    y += 8;
     roleLines.forEach((line) => {
       center(line, y, `700 ${sz.ROLE}px ${FONT}`, "#142C29");
       y += lead(sz.ROLE);
+    });
+    y += 8;
+    otherLines.forEach((line) => {
+      center(line, y, `600 ${sz.OTHER}px ${FONT}`, "#62716A");
+      y += lead(sz.OTHER);
     });
     y += 10;
     factionLines.forEach((line) => {
       ctx.font = `700 30px ${FONT}`;
       const badgeW = Math.min(inner, ctx.measureText(line).width + 36);
       const badgeX = Math.round((width - badgeW) / 2);
-      ctx.fillStyle = "#DDE7DE";
+      ctx.fillStyle = teamColors.paper;
       roundRect(ctx, badgeX, y, badgeW, 42, 21);
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = "#193A35";
+      ctx.strokeStyle = teamColors.ink;
       ctx.stroke();
-      ctx.fillStyle = "#142C29";
+      ctx.fillStyle = teamColors.ink;
       ctx.fillText(line, badgeX + 18, y + 6);
       y += 42;
+    });
+    y += 8;
+    mottoLines.forEach((line) => {
+      center(line, y, `600 ${sz.OTHER}px ${FONT}`, "#465E51");
+      y += lead(sz.OTHER);
     });
     y += 8;
     aboutLines.forEach((line) => {
@@ -1983,8 +2043,8 @@ function boot() {
     });
     y += 4;
     profileLines.forEach((line) => {
-      center(line, y, `500 ${sz.OTHER}px ${FONT}`, "#62716A");
-      y += lead(sz.OTHER);
+      center(line, y, `500 ${sz.PROFILE}px ${FONT}`, "#4F5D57");
+      y += lead(sz.PROFILE);
     });
     y += 6;
     {
@@ -1992,9 +2052,9 @@ function boot() {
       const noteH = costLines.length * lead(sz.OTHER) + 12;
       const noteW = inner;
       const noteX = Math.round((width - noteW) / 2);
-      ctx.fillStyle = "#F4EEE2";
+      ctx.fillStyle = "#EDE6D8";
       ctx.fillRect(noteX, y, noteW, noteH);
-      ctx.fillStyle = "#8A5A2B";
+      ctx.fillStyle = teamColors.ink;
       ctx.fillRect(noteX, y, 6, noteH);
       let ny = y + 6;
       costLines.forEach((line) => {
@@ -2009,11 +2069,11 @@ function boot() {
       const badge = ui.rare;
       const badgeW = ctx.measureText(badge).width + 36;
       const badgeX = Math.round((width - badgeW) / 2);
-      ctx.fillStyle = "#F08A6E";
+      ctx.fillStyle = "#EFE1BF";
       roundRect(ctx, badgeX, y, badgeW, 42, 21);
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = "#193A35";
+      ctx.strokeStyle = "#AD843B";
       ctx.stroke();
       ctx.fillStyle = "#142C29";
       ctx.fillText(badge, badgeX + 18, y + 8);
@@ -2022,13 +2082,6 @@ function boot() {
       y += 12;
     }
 
-    const drawLabel = (label) => {
-      ctx.font = `700 ${sz.LABEL}px ${FONT}`;
-      ctx.fillStyle = "#8A6A2B";
-      ctx.fillText(label, pad, y);
-      y += sz.LABEL + 10;
-    };
-    if (funnyLines.length) drawLabel(ui.funny);
     funnyLines.forEach((line) => {
       ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
       const w = ctx.measureText(line).width;
@@ -2041,13 +2094,11 @@ function boot() {
     if (funnyLines.length) y += 10;
     [text.gentle, text.literary, text.strength].forEach((body, index) => {
       if (!sectionLines[index].length) return;
-      drawLabel([ui.gentle, ui.literary, ui.strength][index]);
-      const weight = index === 2 ? 600 : 500;
       sectionLines[index].forEach((line) => {
-        ctx.font = `${weight} ${sz.BODY}px ${FONT}`;
+        ctx.font = `600 ${sz.FUNNY}px ${FONT}`;
         ctx.fillStyle = "#193A35";
         ctx.fillText(line, pad, y);
-        y += lead(sz.BODY);
+        y += lead(sz.FUNNY);
       });
       y += 8;
     });
