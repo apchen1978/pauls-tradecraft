@@ -96,3 +96,12 @@ footer { margin-top: 50px; border-top: 1px solid var(--line); padding-top: 18px;
   html { scroll-behavior: auto; }
   .choice-option { transition: none; }
 }
+/* Way back to the portfolio, and a next stop at the result (2026-10-16). */
+.header-left { display: flex; align-items: center; gap: 18px; }
+.home-link { color: #264e4f; text-decoration: none; font-size: 14px; font-weight: 700; padding: 8px 12px; border: 1px solid #a8afa5; border-radius: 999px; }
+.home-link:hover { background: #e1e7dc; }
+@media (max-width: 420px) { .header-left { gap: 10px; } .project-mark { font-size: 12px; letter-spacing: .1em; } .home-link { padding: 7px 10px; font-size: 13px; } }
+.next-stop { margin-top: 16px; padding-top: 14px; border-top: 1px dashed #a8afa5; }
+.result-area .next-stop p { margin: 0 0 6px; }
+.result-area .next-label { font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--moss); }
+.next-stop a { color: #264e4f; font-weight: 750; }
