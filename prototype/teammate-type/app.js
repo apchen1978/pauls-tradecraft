@@ -628,7 +628,7 @@ export const SCENES = [
 ];
 
 const ABOUT = {
-  galaxy: ["關於靚仔：他總站在圈外拍，我留一個位置等他進來。", "About Lenz: they shoot from outside the circle, so I keep them a place."],
+  galaxy: ["關於靚仔：他在圈外拍，我留個位給他。", "About Lenz: they shoot from outside the circle, so I keep them a place."],
   alliance: ["關於銀河之女：她站出來，這一圈就有了中心。", "About Daughter of the Galaxy: when she steps out, the circle has a center."],
   recorder: ["關於玉仔：牠喊一聲，我就趁大家趕來那一刻按下快門。", "About Yuzai: one call from them, and I catch everyone arriving in one frame."],
   umbrella: ["關於銀河之女：她站在中間，我把雨擋在外面。", "About Daughter of the Galaxy: she stands in the middle, and I keep the rain outside."],
