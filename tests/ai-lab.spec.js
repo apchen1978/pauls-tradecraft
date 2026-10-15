@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { AGENTS, LINKS, TEXT, TIERS } from "../public/ai-lab/content.js";
 import { CONTEXT_ITEMS, DEEP, PHYSICS, TOLERANCE } from "../public/ai-lab/deep.js";
+import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "../public/ai-lab/more.js";
 
 // AI Lab (AI 人工智慧實驗室), phase 1: chapters 0, 2, 3, 4, and the homepage entry.
 const PAGE = "/ai-lab/";
@@ -40,7 +41,7 @@ for (const width of [390, 1440]) {
       page.on("console", (m) => { if (m.type() === "error" && !/favicon/.test(m.text())) problems.push(m.text()); });
       await page.goto(`${PAGE}?lang=${lang}`);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(x.title.replace("\n", " "));
-      await expect(page.locator("#toc a")).toHaveCount(5);
+      await expect(page.locator("#toc a")).toHaveCount(6);
       await expect(page.locator("#toc a.deep-link")).toHaveAttribute("href", "#deep");
       await noOverflow(page);
 
@@ -105,7 +106,7 @@ test("homepage: the AI Lab entry sits right after the Showcase and links to the 
     const entry = page.locator("#ai-lab");
     await entry.scrollIntoViewIfNeeded();
     await expect(entry.getByRole("heading", { level: 2 })).toBeVisible();
-    await expect(entry.locator("ol li")).toHaveCount(4);
+    await expect(entry.locator("ol li")).toHaveCount(6);
     await expect(entry.getByRole("link")).toHaveAttribute("href", `/ai-lab/?lang=${lang}`);
     const order = await page.evaluate(() => {
       const s = document.getElementById("showcase");
@@ -134,7 +135,7 @@ for (const width of [390, 1440]) {
       const x = DEEP[lang];
       await page.goto(`${PAGE}?lang=${lang}`);
       await expect(page.locator("#deep-title")).toHaveText(x.divider);
-      await expect(page.locator("#deep-toc a")).toHaveCount(3);
+      await expect(page.locator("#deep-toc a")).toHaveCount(7);
 
       // 05: starts with task + everything: missing rules; overflow once more is added; right with the four musts only
       await expect(page.locator("#ctx-verdict")).toHaveText(x.c5.verdict.noRules);
@@ -159,6 +160,59 @@ for (const width of [390, 1440]) {
       // 10: the real cases, each with how it was caught and what prevents it now
       await expect(page.locator("#cases .case")).toHaveCount(x.c10.cases.length);
       await expect(page.locator("#cases .case dt")).toHaveCount(x.c10.cases.length * 2);
+      await noOverflow(page);
+    });
+  }
+}
+
+test("batch two: zh and en match", () => {
+  const keys = (o) => Object.keys(o).sort();
+  expect(keys(MORE.zh)).toEqual(keys(MORE.en));
+  for (const c of Object.keys(MORE.zh)) expect(keys(MORE.zh[c]), c).toEqual(keys(MORE.en[c]));
+  expect(keys(MORE.zh.glossary.terms)).toEqual([...GLOSSARY].sort());
+  expect(keys(MORE.zh.c9.items)).toEqual(GATES.map((g) => g.id).sort());
+  expect(keys(MORE.zh.c6.steps)).toEqual(TRACE.map((s) => s.key).sort());
+  // every word the tree can reach has text in both languages
+  const reach = new Set(Object.values(NEXT).flat().map(([id]) => id));
+  for (const id of reach) { expect(MORE.zh.c1.words[id], id).toBeTruthy(); expect(MORE.en.c1.words[id], id).toBeTruthy(); }
+});
+
+for (const width of [390, 1440]) {
+  for (const lang of ["zh", "en"]) {
+    test(`batch two ${lang} at ${width}px: next word, tool log, hand-off, gates, frontier, steps, glossary`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      const x = MORE[lang];
+      await page.goto(`${PAGE}?lang=${lang}`);
+      // 01: two picks complete the sentence and reveal why it may be wrong; start over resets
+      await expect(page.locator(".nw-choice")).toHaveCount(3);
+      await page.locator('.nw-choice[data-word="now"]').click();
+      await page.locator('.nw-choice[data-word="unsure"]').click();
+      await expect(page.locator("#nw-line")).toContainText(x.c1.words.unsure);
+      await expect(page.locator("#nw-reveal")).toHaveText(x.c1.reveal);
+      await page.locator("#nw-again").click();
+      await expect(page.locator(".nw-choice")).toHaveCount(3);
+      await expect(page.locator("#nw-reveal")).toBeHidden();
+      // 06: the real tool log plays in order
+      await expect(page.locator("#trace li.on")).toHaveCount(0);
+      await page.locator("#trace-play").click();
+      await expect(page.locator("#trace li.on")).toHaveCount(TRACE.length, { timeout: 8000 });
+      // 08: hand-off document, and what goes wrong without one
+      await expect(page.locator("#doc li")).toHaveCount(x.c8.doc.length);
+      await expect(page.locator("#no-doc-list")).toBeHidden();
+      await page.locator("#no-doc").click();
+      await expect(page.locator("#no-doc-list li")).toHaveCount(x.c8.withoutList.length);
+      await expect(page.locator("#relay li")).toHaveCount(x.c8.relay.length);
+      // 09: each gate reveals our rule
+      for (const g of GATES) {
+        await page.locator(`.gate-row[data-gate="${g.id}"] button`).click();
+        await expect(page.locator(`.gate-row[data-gate="${g.id}"] .gate-answer`)).toHaveText(g.alone ? x.c9.alone : x.c9.ask);
+      }
+      // 11, steps, glossary
+      await expect(page.locator("#frontier .fr")).toHaveCount(x.c11.items.length);
+      await expect(page.locator("#three li")).toHaveCount(3);
+      await expect(page.locator("#gl .term")).toHaveCount(GLOSSARY.length);
+      await page.locator('.term[data-term="mcp"] summary').click();
+      await expect(page.locator('.term[data-term="mcp"]')).toHaveAttribute("open", "");
       await noOverflow(page);
     });
   }

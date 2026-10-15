@@ -25,7 +25,7 @@ export const DEEP = {
   zh: {
     divider: "深入一層",
     dividerLead: "以下給想知道「怎麼做到」的人。每一個例子，都是做這個網站時真的發生過的事。",
-    toc: ["上下文工程", "驗證", "AI 會怎麼錯"],
+    toc: ["上下文工程", "工具與 MCP", "驗證", "多 agent 與交接", "治理", "AI 會怎麼錯", "前沿"],
     c5: {
       no: "05",
       title: "上下文工程：AI 看得到什麼，決定它做得多好",
@@ -129,7 +129,7 @@ export const DEEP = {
   en: {
     divider: "One level deeper",
     dividerLead: "For anyone who wants to know how it is actually done. Every example below really happened while building this site.",
-    toc: ["Context engineering", "Verification", "How AI goes wrong"],
+    toc: ["Context engineering", "Tools and MCP", "Verification", "Several agents", "Governance", "How AI goes wrong", "The frontier"],
     c5: {
       no: "05",
       title: "Context engineering: what AI can see decides how well it works",
