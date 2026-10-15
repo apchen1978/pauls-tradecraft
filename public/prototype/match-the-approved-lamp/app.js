@@ -55,7 +55,16 @@ function lampLayers(spec) {
 
 function buildStage() {
   const sample = $("sample");
-  sample.replaceChildren(lampLayers(SAMPLE), el("div", "tagcard"));
+  const prop = (cls, name) => {
+    const img = el("img", cls);
+    img.src = `assets/${name}`;
+    img.alt = "";
+    img.width = 480;
+    img.height = 480;
+    img.decoding = "async";
+    return img;
+  };
+  sample.replaceChildren(lampLayers(SAMPLE), prop("stand", "prop-sealed-stand.webp"), prop("tagcard", "prop-approved-tag.webp"));
   const holder = $("lamps");
   holder.replaceChildren();
   LAMPS.forEach((spec, index) => {
@@ -268,7 +277,8 @@ function show(n, focus) {
   if (focus) {
     const heading = n === 0 ? $("s0-title") : $(`s${n}-title`);
     heading.setAttribute("tabindex", "-1");
-    heading.focus({ preventScroll: false });
+    window.scrollTo(0, 0);
+    heading.focus({ preventScroll: true });
   }
 }
 

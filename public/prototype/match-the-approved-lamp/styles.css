@@ -15,29 +15,51 @@ main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16p
 @media (min-width: 900px) { main { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; } .stage { position: sticky; top: 16px; } }
 
 /* Stage: a bright, neutral room (daylight) that the page dims when the lamps are switched on.
-   The two scene pictures (trial table, the row of empty spots) are drawn separately; until they arrive a plain wall and shelf stand in. */
-.stage { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; aspect-ratio: 16 / 10; background: linear-gradient(#E9E3D6 0 62%, #CDBFA6 62% 64%, #BFAF93 64%); }
-@media (max-width: 639px) { .stage { aspect-ratio: 4 / 5; } }
-.sample { position: absolute; left: 3%; top: 6%; width: 16%; aspect-ratio: 1; z-index: 2; transition: opacity .25s; }
-@media (max-width: 639px) { .sample { left: 4%; top: 3%; width: 28%; } }
-.sample .tagcard { position: absolute; left: 38%; top: 74%; width: 26%; height: 12%; background: #F4EEDF; border: 1px solid #A59676; border-radius: 3px; transform: rotate(-4deg); }
-.lamps { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
-.lamp-btn { position: absolute; left: calc(var(--x) - var(--w) / 2); top: calc(var(--y) - var(--w)); width: var(--w); aspect-ratio: 1; padding: 0; margin: 0; border: 0; background: none; cursor: pointer; transition: opacity .25s, left .3s, top .3s, width .3s; --w: 17%; }
-.lamp-btn[data-i="0"] { --x: 14%; --y: 76%; } .lamp-btn[data-i="1"] { --x: 32%; --y: 76%; } .lamp-btn[data-i="2"] { --x: 50%; --y: 76%; } .lamp-btn[data-i="3"] { --x: 68%; --y: 76%; } .lamp-btn[data-i="4"] { --x: 86%; --y: 76%; }
+   The scene box keeps the picture's own proportions, so every position below is a percentage of the picture itself.
+   On phones the stage is a 3:4 window onto the tall picture (slid up a little); on wide screens the stage is the picture. */
+.stage { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; aspect-ratio: 16 / 10; background: #E9E3D6; }
+.scene { position: absolute; inset: 0; --ar: 1.6; background: #E9E3D6 center / 100% 100% no-repeat; }
+.stage[data-screen="0"] .scene, .stage[data-screen="1"] .scene { background-image: url("assets/scene-trial-desktop.webp"); }
+.stage[data-screen="2"] .scene, .stage[data-screen="3"] .scene, .stage[data-screen="4"] .scene { background-image: url("assets/scene-row-desktop.webp"); }
 @media (max-width: 639px) {
-  .lamp-btn { --w: 30%; }
-  .lamp-btn[data-i="0"] { --x: 20%; --y: 56%; } .lamp-btn[data-i="1"] { --x: 50%; --y: 56%; } .lamp-btn[data-i="2"] { --x: 80%; --y: 56%; }
-  .lamp-btn[data-i="3"] { --x: 35%; --y: 90%; } .lamp-btn[data-i="4"] { --x: 65%; --y: 90%; }
+  .stage { aspect-ratio: 3 / 4; }
+  .scene { inset: auto; left: 0; top: 0; width: 100%; aspect-ratio: 780 / 1400; transform: translateY(-8%); --ar: .5571; }
+  .stage[data-screen="2"] .scene, .stage[data-screen="3"] .scene, .stage[data-screen="4"] .scene { transform: translateY(-18%); }
+  .stage[data-screen="0"] .scene, .stage[data-screen="1"] .scene { background-image: url("assets/scene-trial-mobile.webp"); }
+  .stage[data-screen="2"] .scene, .stage[data-screen="3"] .scene, .stage[data-screen="4"] .scene { background-image: url("assets/scene-row-mobile.webp"); }
 }
-.stage[data-mode="single"] .lamp-btn { opacity: 0; pointer-events: none; }
-.stage[data-mode="single"] .lamp-btn.current { opacity: 1; pointer-events: auto; --x: 50%; --y: 94%; --w: 52%; }
-.stage[data-mode="single"] .sample { opacity: 0; }
-/* Screens 0 and 1: the approved sample and one trial lamp. From screen 2: the bulk row. */
-.lamp-btn.trial { display: none; --x: 60%; --y: 78%; --w: 26%; }
+/* A lamp is a square picture whose base line sits 88% of the way down; (--x, --y) is where that base line stands, --w is its width as a percent of the picture. */
+.sample, .lamp-btn { position: absolute; left: calc(var(--x) - var(--w) * .5%); top: calc(var(--y) - var(--w) * var(--ar) * .88%); width: calc(var(--w) * 1%); aspect-ratio: 1; padding: 0; margin: 0; border: 0; background: none; transition: opacity .25s, left .3s, top .3s, width .3s; }
+.lamp-btn { cursor: pointer; --w: 15; }
+.lamps { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.lamp-btn { pointer-events: auto; }
+/* bulk row: five wall shelves */
+.lamp-btn[data-i="0"] { --x: 19%; --y: 56%; } .lamp-btn[data-i="1"] { --x: 35%; --y: 56%; } .lamp-btn[data-i="2"] { --x: 51%; --y: 56%; } .lamp-btn[data-i="3"] { --x: 67%; --y: 56%; } .lamp-btn[data-i="4"] { --x: 83%; --y: 56%; }
+/* approved sample: inside the display case on the trial table; on a sealed stand on the counter in the buyer's space */
+.sample { --w: 16; --x: 22%; --y: 52%; z-index: 4; }
+.stage[data-screen="2"] .sample, .stage[data-screen="3"] .sample, .stage[data-screen="4"] .sample { --w: 11; --x: 10%; --y: 79%; }
+.sample .stand, .sample .tagcard { position: absolute; display: none; pointer-events: none; }
+.stage[data-screen="2"] .sample .stand, .stage[data-screen="3"] .sample .stand, .stage[data-screen="4"] .sample .stand { display: block; left: -22%; top: -15%; width: 144%; height: auto; }
+.stage[data-screen="2"] .sample .tagcard, .stage[data-screen="3"] .sample .tagcard, .stage[data-screen="4"] .sample .tagcard { display: block; left: 90%; top: 68%; width: 46%; height: auto; }
+.sample .lamp { transform: scale(.62); transform-origin: 50% 88%; }
+.stage[data-screen="0"] .sample .lamp, .stage[data-screen="1"] .sample .lamp { transform: none; }
+/* trial table: one trial lamp on the big table */
+.lamp-btn.trial { display: none; --x: 62%; --y: 74%; --w: 17; }
 .stage[data-screen="0"] .lamp-btn.trial, .stage[data-screen="1"] .lamp-btn.trial { display: block; }
 .stage[data-screen="0"] .lamp-btn[data-id], .stage[data-screen="1"] .lamp-btn[data-id] { display: none; }
-.stage[data-screen="0"] .sample, .stage[data-screen="1"] .sample { width: 26%; top: 14%; left: 14%; }
-@media (max-width: 639px) { .lamp-btn.trial { --x: 66%; --y: 76%; --w: 44%; } .stage[data-screen="0"] .sample, .stage[data-screen="1"] .sample { width: 40%; top: 30%; left: 6%; } }
+@media (max-width: 639px) {
+  .lamp-btn { --w: 28; }
+  .lamp-btn[data-i="0"] { --x: 20%; --y: 39%; } .lamp-btn[data-i="1"] { --x: 50%; --y: 39%; } .lamp-btn[data-i="2"] { --x: 80%; --y: 39%; }
+  .lamp-btn[data-i="3"] { --x: 35%; --y: 61%; } .lamp-btn[data-i="4"] { --x: 65%; --y: 61%; }
+  .sample { --w: 24; --x: 50%; --y: 31%; }
+  .stage[data-screen="2"] .sample, .stage[data-screen="3"] .sample, .stage[data-screen="4"] .sample { --w: 22; --x: 22%; --y: 78%; }
+  .lamp-btn.trial { --x: 62%; --y: 76%; --w: 36; }
+}
+/* one by one: the lamp stands large, in the middle */
+.stage[data-mode="single"] .lamp-btn { opacity: 0; pointer-events: none; }
+.stage[data-mode="single"] .lamp-btn.current { opacity: 1; pointer-events: auto; --x: 52%; --y: 80%; --w: 34; }
+.stage[data-mode="single"] .sample { opacity: 0; }
+@media (max-width: 639px) { .stage[data-mode="single"] .lamp-btn.current { --x: 50%; --y: 62%; --w: 62; } }
 .lamp { position: absolute; inset: 0; }
 .layer { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tint { background: var(--tint); mix-blend-mode: multiply; -webkit-mask: var(--shade-mask) center / 100% 100% no-repeat; mask: var(--shade-mask) center / 100% 100% no-repeat; }
@@ -48,9 +70,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16p
 .stage.lit .shade, .stage.lit .tint { filter: brightness(1.12); }
 .dim { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: rgba(8, 14, 28, 0); transition: background .35s; }
 .stage.lit .dim { background: rgba(8, 14, 28, .62); }
-.lamp-btn { pointer-events: auto; }
-.sample { z-index: 4; }
-.lamp-btn .letter { position: absolute; left: 50%; bottom: -2%; transform: translateX(-50%); min-width: 26px; padding: 0 8px; text-align: center; font-size: 14px; font-weight: 800; color: var(--deep); background: #F4EEDF; border: 2px solid #A59676; border-radius: 999px; line-height: 22px; }
+.lamp-btn .letter { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); min-width: 26px; padding: 0 8px; text-align: center; font-size: 14px; font-weight: 800; color: var(--deep); background: #F4EEDF; border: 2px solid #A59676; border-radius: 999px; line-height: 22px; }
 .lamp-btn[aria-pressed="true"] .lamp::after { content: ""; position: absolute; inset: 4%; border: 3px solid #E0874A; border-radius: 14px; }
 .lamp-btn[aria-pressed="true"] .letter { background: #E0874A; border-color: #E0874A; color: #fff; }
 .stage[data-screen="1"] .lamp-btn, .stage[data-screen="3"] .lamp-btn { cursor: default; }
