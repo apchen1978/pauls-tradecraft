@@ -330,13 +330,13 @@ for (const width of [390, 768, 1440]) {
   test.describe(`toy ${width}px`, () => {
     test.use({ viewport: { width, height: width === 390 ? 844 : 1000 } });
 
-    test("zh play, share-link round trip, and en card", async ({ page }) => {
+    test("zh play, share-link round trip, and en card", async ({ page, baseURL }) => {
       const external = [];
       const roleArt = [];
       const maps = [];
       page.on("request", (request) => {
         const url = request.url();
-        if (!url.startsWith("http://127.0.0.1:4173") && !url.startsWith("data:")) external.push(url);
+        if (!url.startsWith("data:") && new URL(url).origin !== new URL(baseURL).origin) external.push(url);
         if (url.includes("nightglow-map")) maps.push(url);
         else if (url.includes("/prototype/teammate-type/assets/")) roleArt.push(url);
       });
@@ -1274,9 +1274,9 @@ test.describe("December Lights mobile", () => {
       expect(back.width).toBeGreaterThanOrEqual(44);
       expect(back.height).toBeGreaterThanOrEqual(44);
       const factionSize = await page.locator("#faction").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
-      const labelSize = await page.locator(".line-label").first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+      const voiceSize = await page.locator("#lines .line-body").evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
       expect(factionSize).toBeGreaterThanOrEqual(14);
-      expect(labelSize).toBeGreaterThanOrEqual(14);
+      expect(voiceSize).toBeGreaterThanOrEqual(26);
       await expect(page.locator("#share-short")).toContainText(`c=ABA`);
       await expect(page.locator("input.share-url")).toHaveCount(0);
       if (v.width <= 390) {

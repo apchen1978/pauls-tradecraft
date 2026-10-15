@@ -345,8 +345,8 @@
       .role-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
     .faction-motto { margin: 6px 0 0; color: var(--muted, #5b6b66); font-size: 13px; line-height: 1.4; }
-    .tones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-    .tones button { min-height: 44px; padding: 6px 14px; border: 2px solid var(--ink); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .tones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 16px; }
+    .tones button { min-width: 0; min-height: 44px; padding: 6px 3px; border: 1.5px solid var(--ink); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
     .tones button[aria-pressed="true"] { background: var(--ink); color: #fff; }
     .lines { display: grid; gap: 14px; margin-top: 12px; }
     .line-label { color: var(--brass); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; }
@@ -974,6 +974,82 @@
       .page.entry-open { width: 100%; }
       .choice { box-shadow: 3px 3px 0 var(--ink); }
     }
+    /* The on-page card and the exported keepsake share one paper-and-ink treatment. */
+    #card {
+      --team-ink: #436C61;
+      --team-paper: #DEE8DE;
+      --frame-ink: #52675B;
+      position: relative;
+      padding: 18px 18px 16px;
+      border: 1.5px solid var(--frame-ink);
+      border-top: 5px solid var(--team-ink);
+      border-radius: 18px;
+      background-color: #F6F3ED;
+      background-image: repeating-linear-gradient(45deg, rgba(25, 58, 53, .025) 0 1px, transparent 1px 11px);
+      box-shadow: 0 10px 28px rgba(25, 58, 53, .09);
+    }
+    #card::before, #card::after { content: ""; position: absolute; pointer-events: none; }
+    #card::before { inset: 7px; border: 1px solid var(--frame-ink); border-radius: 11px; opacity: .55; }
+    #card::after {
+      inset: 0;
+      background:
+        radial-gradient(circle at 15px 15px, var(--team-ink) 0 2px, transparent 2.5px),
+        radial-gradient(circle at calc(100% - 15px) 15px, var(--team-ink) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 15px calc(100% - 15px), var(--team-ink) 0 2px, transparent 2.5px),
+        radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), var(--team-ink) 0 2px, transparent 2.5px);
+    }
+    #card.is-rare { --frame-ink: #AD843B; border: 2px solid var(--frame-ink); border-top-width: 5px; box-shadow: 0 10px 28px rgba(140, 99, 43, .13); }
+    #card.is-rare::before { border-color: #AD843B; opacity: .85; }
+    #card > .card-kicker, #card > .stage, .card-copy { position: relative; z-index: 1; min-width: 0; }
+    #card > .card-kicker { color: #54665B; font-size: 13px; letter-spacing: .02em; }
+    #card .stage::before { background: var(--team-paper); }
+    #card-name { margin: 6px 0 0; letter-spacing: -.02em; }
+    .card-person { display: block; font-size: 26px; line-height: 1.2; }
+    .card-title { display: block; margin-top: 5px; font-size: 14px; font-weight: 600; letter-spacing: 0; line-height: 1.45; }
+    #card .other-name { margin-top: 2px; color: #657267; font-size: 13px; font-weight: 500; line-height: 1.45; }
+    #card .faction { margin-top: 8px; border: 1px solid var(--team-ink); background: var(--team-paper); color: var(--team-ink); font-size: 14px; }
+    #card .faction-motto { margin-top: 5px; color: #465E51; font-size: 14px; line-height: 1.45; }
+    #card .about { margin-top: 10px; font-size: 16px; line-height: 1.55; }
+    #card .profile { margin-top: 8px; font-size: 15.5px; line-height: 1.55; }
+    #card .profile-line { margin: 3px 0; }
+    #card .cost-note { margin-top: 10px; background: #EDE6D8; border-left-color: var(--team-ink); border-radius: 0 8px 8px 0; }
+    #card .cost-label { color: var(--team-ink); }
+    #card .rare { border: 1px solid #AD843B; background: #EFE1BF; color: #72511E; font-size: 12px; }
+    #card .tones { margin-top: 12px; }
+    #card .lines { margin-top: 10px; }
+    #card .line-body, #card .line-literary .line-body { margin: 0; font-size: 28px; line-height: 1.35; font-weight: 600; letter-spacing: -.02em; text-wrap: pretty; }
+    #card .picks { margin-top: 14px; font-size: 14px; }
+    #card .same { margin-top: 3px; font-size: 14px; line-height: 1.45; }
+    #card .card-boundary { margin-top: 12px; padding-top: 9px; border-top: 1px solid rgba(25, 58, 53, .2); font-size: 13px; }
+    @media (min-width: 1100px) {
+      #card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        column-gap: 40px;
+        width: 1000px;
+        margin-left: calc((100% - 1000px) / 2);
+        padding: 30px 34px 30px;
+      }
+      #card > .card-kicker { grid-column: 1; grid-row: 1; }
+      #card .card-copy { grid-column: 1; grid-row: 2; }
+      #card > .stage, #card > .stage.with-queen, #card > .stage.with-horse {
+        display: grid;
+        place-items: center;
+        grid-column: 2;
+        grid-row: 1 / 3;
+        align-self: center;
+        width: 100%;
+        height: 440px;
+        margin: 0;
+      }
+      #card > .stage::before { inset: 40px 15px 15px; }
+      #card > .stage > #prop { position: absolute; inset: 0; }
+      #card .stage .queen-art, #card .stage #mg { max-width: 100%; max-height: 420px; margin: 10px auto 0; }
+      #card .stage .horse { width: 100%; margin: 0; }
+      #card .card-person { font-size: 30px; }
+      #card .line-body, #card .line-literary .line-body { font-size: 32px; }
+      #card .tones { max-width: 360px; }
+    }
       /* Quiet reveal at the end of the gallery: a small gallery of scenes, mixed casts welcome. */
     .scene-glint { display: block; margin: 18px auto 0; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: rgba(176, 135, 60, 0.55); font-size: 18px; cursor: pointer; transition: color .3s, text-shadow .3s; }
     .scene-glint:hover, .scene-glint:focus-visible, .scene-glint[aria-expanded="true"] { color: #b0873c; text-shadow: 0 0 12px rgba(255, 210, 120, 0.9); }
@@ -1073,24 +1149,26 @@
           <img id="queen-art" class="queen-art" alt="" hidden />
           <div id="prop"></div>
         </div>
-        <h2 id="card-name" tabindex="-1"></h2>
-        <p class="mark-tag" id="card-mark" hidden></p>
-        <p class="egg" id="card-egg" hidden></p>
-        <p class="sub" id="card-sub" hidden></p>
-        <p class="other-name" id="other-name"></p>
-        <p class="role" id="role" hidden></p>
-        <p class="faction" id="faction"></p>
-        <p class="faction-motto" id="faction-motto"></p>
-        <p class="about" id="about"></p>
-        <div class="profile" id="profile"></div>
-        <p class="cost-note" id="cost"></p>
-        <p class="rare" id="rare" hidden></p>
-        <p class="companion" id="companion" hidden></p>
-        <div class="tones" id="tones" role="group"></div>
-        <div class="lines" id="lines"></div>
-        <p class="picks" id="picks-label"></p>
-        <p class="same" id="same"></p>
-        <p class="card-boundary" id="card-boundary"></p>
+        <div class="card-copy">
+          <h2 id="card-name" tabindex="-1"></h2>
+          <p class="mark-tag" id="card-mark" hidden></p>
+          <p class="egg" id="card-egg" hidden></p>
+          <p class="sub" id="card-sub" hidden></p>
+          <p class="other-name" id="other-name"></p>
+          <p class="role" id="role" hidden></p>
+          <p class="faction" id="faction"></p>
+          <p class="faction-motto" id="faction-motto"></p>
+          <p class="about" id="about"></p>
+          <div class="profile" id="profile"></div>
+          <p class="cost-note" id="cost"></p>
+          <p class="rare" id="rare" hidden></p>
+          <p class="companion" id="companion" hidden></p>
+          <div class="tones" id="tones" role="group"></div>
+          <div class="lines" id="lines"></div>
+          <p class="picks" id="picks-label"></p>
+          <p class="same" id="same"></p>
+          <p class="card-boundary" id="card-boundary"></p>
+        </div>
       </article>
       <section class="duo" id="duo" aria-labelledby="duo-title">
         <h2 id="duo-title"></h2>
