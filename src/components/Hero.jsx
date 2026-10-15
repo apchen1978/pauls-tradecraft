@@ -13,8 +13,8 @@ const fadeUp = {
 // desktop：一整塊（目前建議、經濟解讀、關鍵數字）。
 // rec／num：手機用兩個更緊的框，只留「目前建議」那一塊與「預期淨貢獻」那一格，文字才讀得清楚。
 const CROPS = {
-  zh: { desktop: { x: 28, y: 245, w: 748, h: 390 }, rec: { x: 28, y: 245, w: 500, h: 105 }, num: { x: 526, y: 548, w: 250, h: 90 } },
-  en: { desktop: { x: 28, y: 270, w: 748, h: 388 }, rec: { x: 28, y: 268, w: 500, h: 95 }, num: { x: 526, y: 568, w: 250, h: 90 } },
+  zh: { desktop: { x: 12, y: 245, w: 764, h: 390 }, rec: { x: 12, y: 245, w: 516, h: 105 }, num: { x: 526, y: 548, w: 250, h: 90 } },
+  en: { desktop: { x: 12, y: 270, w: 764, h: 388 }, rec: { x: 12, y: 268, w: 516, h: 95 }, num: { x: 526, y: 568, w: 250, h: 90 } },
 };
 
 function CropFrame({ snapshot, crop, alt, priority }) {
