@@ -344,6 +344,7 @@ function boot() {
       });
       node.appendChild(button);
     });
+    $("scn-desc").textContent = SCENARIOS[state.scenario][state.lang].line;
   }
 
   const isPhone = () => window.matchMedia(MOBILE_QUERY).matches;

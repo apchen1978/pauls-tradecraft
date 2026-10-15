@@ -324,6 +324,26 @@
     .scene .avatar { width: 64px; height: 64px; }
     .preview .avatar { width: 64px; height: 64px; }
     .cast .avatar { width: 56px; height: 56px; }
+    /* First screen: the harbour is the star. Wide screens put the map beside the choices; phones keep the three situations on one row so the picture starts higher. */
+    .scn-desc { display: none; }
+    @media (max-width: 639px) {
+      .scn { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+      .scn button { min-height: 44px; padding: 8px 6px; text-align: center; }
+      .scn button span { display: none; }
+      .scn button strong { font-size: 15px; }
+      .scn-desc { display: block; margin: 8px 0 0; color: var(--moss); font-size: 13px; line-height: 1.4; }
+      #entry-title { margin-top: 10px; }
+      #entry .actions { margin-top: 12px; }
+    }
+    @media (min-width: 1000px) {
+      #entry { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto auto auto 1fr; column-gap: 28px; align-items: start; }
+      #entry > #slot-entry { grid-column: 1; grid-row: 1 / span 4; }
+      #entry > #entry-title, #entry > .scn, #entry > .actions, #entry > .preview { grid-column: 2; }
+      #entry > .scn { grid-template-columns: 1fr; }
+      #entry > #route-entry, #entry > #route-hint { grid-column: 1 / -1; }
+      #entry > #slot-entry .map-stage { margin-top: 0; }
+      .page > .top { max-width: none; }
+    }
     [hidden] { display: none !important; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
@@ -352,6 +372,7 @@
     <section id="entry" aria-labelledby="entry-title">
       <h2 id="entry-title">先選這一週的情況</h2>
       <div class="scn" id="scn" role="radiogroup" aria-labelledby="entry-title"></div>
+      <p class="scn-desc" id="scn-desc" aria-live="polite"></p>
       <div class="actions">
         <button type="button" class="primary" id="start">出發</button>
         <a class="home" id="see-steps" href="../one-container-12-steps/">先看 12 步流程</a>
