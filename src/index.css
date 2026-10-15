@@ -269,3 +269,86 @@ html.lenis.lenis-smooth {
 .surface-light .text-amber {
   color: var(--color-amber);
 }
+
+/* ===== Desktop colour and motion (2026-10-16) =====
+   One tech accent, mint #9EE0C1 (a reserved alternate in the palette notes above): used only as fills, lines and
+   glows, never as text on a light surface. Pine and gold stay the main colours. Phones stay as they are;
+   everything moves slowly and stops under prefers-reduced-motion (handled by the reduce rule above). */
+:root { --color-mint: #9ee0c1; }
+
+/* section kickers: the dot becomes a small mint → gold gem with a soft ring */
+@media (min-width: 1024px) {
+  .eyebrow::before {
+    width: 0.5rem;
+    height: 0.5rem;
+    background: linear-gradient(135deg, var(--color-mint), var(--color-amber));
+    box-shadow: 0 0 0 0 rgb(158 224 193 / 0.55);
+    animation: eyebrow-ring 3.2s ease-out infinite;
+  }
+}
+@keyframes eyebrow-ring {
+  0% { box-shadow: 0 0 0 0 rgb(158 224 193 / 0.55); }
+  70%, 100% { box-shadow: 0 0 0 7px rgb(158 224 193 / 0); }
+}
+
+/* hero: a slow aurora behind the copy */
+.hero-aurora { display: none; }
+@media (min-width: 1024px) {
+  .hero-aurora {
+    display: block;
+    position: absolute;
+    inset: -10% -5%;
+    background:
+      radial-gradient(30rem 20rem at 24% 32%, rgb(158 224 193 / 0.26), transparent 70%),
+      radial-gradient(32rem 22rem at 68% 78%, rgb(184 153 102 / 0.22), transparent 70%),
+      radial-gradient(24rem 18rem at 86% 16%, rgb(158 224 193 / 0.18), transparent 70%);
+    mix-blend-mode: screen;
+    animation: aurora-drift 22s ease-in-out infinite alternate;
+  }
+  /* the snapshot card breathes a faint mint edge */
+  .hero-glow { animation: card-breathe 6s ease-in-out infinite; }
+}
+@keyframes aurora-drift {
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 1.5%, 0) scale(1.05); }
+  100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+}
+@keyframes card-breathe {
+  0%, 100% { box-shadow: 0 1px 2px rgb(25 58 53 / 0.04), 0 24px 60px -32px rgb(25 58 53 / 0.18), 0 0 0 1px rgb(158 224 193 / 0.15); }
+  50% { box-shadow: 0 1px 2px rgb(25 58 53 / 0.04), 0 30px 90px -26px rgb(158 224 193 / 0.5), 0 0 0 2px rgb(158 224 193 / 0.6); }
+}
+
+/* flow lines between section groups: drawn once when they scroll into view */
+.flow-line { display: none; }
+@media (min-width: 1024px) {
+  .flow-line { display: block; position: relative; height: 0; }
+  .flow-line > span {
+    position: absolute;
+    left: 50%;
+    top: -1px;
+    width: min(80rem, calc(100% - 3rem));
+    height: 2px;
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: left center;
+    background: linear-gradient(90deg, rgb(20 44 41 / 0), var(--color-forest) 12%, var(--color-mint) 50%, var(--color-amber) 88%, rgb(138 106 43 / 0));
+    transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 2;
+  }
+  .flow-line.in > span { transform: translateX(-50%) scaleX(1); }
+}
+
+/* a cool glow in the corners of the white showcase */
+@media (min-width: 1024px) {
+  #showcase { background-image: radial-gradient(42rem 22rem at 100% 0%, rgb(158 224 193 / 0.18), transparent 70%), radial-gradient(36rem 20rem at 0% 100%, rgb(184 153 102 / 0.10), transparent 70%); }
+}
+
+/* cards: lift and a mint edge on hover (mouse only) */
+@media (hover: hover) and (min-width: 1024px) {
+  #showcase article, #try-it article, #works-catalog article {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  #showcase article:hover, #try-it article:hover, #works-catalog article:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 44px -24px rgb(20 44 41 / 0.45), 0 0 0 2px rgb(158 224 193 / 0.7);
+  }
+}
