@@ -64,6 +64,10 @@
           <button type="button" id="prev"></button>
           <button type="button" id="next"></button>
         </div>
+        <div class="guess" id="guess" hidden>
+          <p class="ask" id="guess-ask"></p>
+          <div class="guess-btns" id="guess-btns" role="group" aria-labelledby="guess-ask"></div>
+        </div>
         <p class="note-card" id="mode-note" role="status"></p>
         <p class="soft" id="mark-hint"></p>
         <p class="gate" id="gate" role="status"></p>
@@ -83,12 +87,18 @@
         <ol class="card-lines" id="card-lines"></ol>
         <p class="soft" id="agreed"></p>
         <div class="missed" id="missed"></div>
+        <p class="soft" id="guess-end"></p>
         <p class="soft" id="scope-end"></p>
         <div class="actions">
           <a class="link" id="link-lamp" href="/prototype/take-the-lantern-apart/"></a>
           <a class="link" id="link-street" href="/prototype/trade-street/"></a>
           <button type="button" id="again"></button>
         </div>
+        <details class="made" id="made">
+          <summary id="made-title"></summary>
+          <dl id="made-lines"></dl>
+          <p class="soft" id="made-how"></p>
+        </details>
         <p class="soft" id="boundary-end"></p>
       </section>
     </div>

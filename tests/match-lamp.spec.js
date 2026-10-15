@@ -20,7 +20,8 @@ test("the words carry no digits, no AI, no retired words, and zh and en have the
     for (const text of allStrings(TEXT[lang])) {
       if (text === TEXT[lang].htmlLang) continue;
       expect(text, `${lang}: ${text}`).not.toMatch(/\d/);
-      expect(text, `${lang}: ${text}`).not.toMatch(/\bAI\b|魔法|法師|法術|咒|巫|遠燈鎮|fairy|magic|spell/i);
+      // "AI agents" is the one allowed phrase (site rules); any other AI wording is not
+      expect(text.replace(/AI agents/g, ""), `${lang}: ${text}`).not.toMatch(/\bAI\b|魔法|法師|法術|咒|巫|遠燈鎮|fairy|magic|spell/i);
     }
   }
   expect(Object.keys(TEXT.zh).sort()).toEqual(Object.keys(TEXT.en).sort());
@@ -80,9 +81,16 @@ for (const width of [390, 1440]) {
         await expect(page.locator("#stage")).toHaveAttribute("data-mode", "side");
         await expect(page.locator("#mode-note")).toHaveText(x.sideNote);
         await expect(page.locator("#gate")).toHaveText(x.needLit);
+        // first switch-on asks for a guess before the reveal
         await page.locator("#light").click();
+        await expect(page.locator("#guess")).toBeVisible();
+        await expect(page.locator("#stage")).not.toHaveClass(/lit/);
+        await expect(page.locator("#guess-btns button")).toHaveCount(6);
+        await page.locator('#guess-btns button[data-guess="C"]').click();
+        await expect(page.locator("#guess")).toBeHidden();
         await expect(page.locator("#stage")).toHaveClass(/lit/);
-        await expect(page.locator("#mode-note")).toHaveText(x.litNote);
+        await expect(page.locator("#mode-note")).toContainText(x.guessSaid("C"));
+        await expect(page.locator("#mode-note")).toContainText(x.litNote);
         await expect(page.locator("#gate")).toHaveText(x.needMark);
         // the lamps really light up: a halo and a lit shade on every lamp, and the lamp D light is whiter than the rest
         await expect.poll(() => page.locator('.lamp-btn[data-id="A"] .litglow').evaluate((node) => parseFloat(getComputedStyle(node).opacity))).toBeGreaterThan(0.9);
@@ -121,6 +129,11 @@ for (const width of [390, 1440]) {
         await expect(page.locator("#agreed")).toContainText(x.agree.range.t);
         await expect(page.locator("#missed")).toContainText(lang === "zh" ? MISSED.base.zh : MISSED.base.en);
         await expect(page.locator("#scope-end")).toHaveText(x.scopeEnd);
+        await expect(page.locator("#guess-end")).toHaveText(x.guessEnd("C", "D"));
+        await expect(page.locator("#made-title")).toHaveText(x.madeTitle);
+        await page.locator("#made-title").click();
+        await expect(page.locator("#made-lines dt")).toHaveCount(3);
+        await expect(page.locator("#made-how")).toHaveText(x.madeHow);
         await expect(page.locator("#link-lamp")).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
         await expect(page.locator("#link-street")).toHaveAttribute("href", `/prototype/trade-street/?lang=${lang}`);
         await noOverflow(page);
@@ -158,12 +171,14 @@ test("marking all three differences says nothing was missed", async ({ page }) =
   await page.locator("#go1").click();
   await page.locator("#mode-side").click();
   await page.locator("#light").click();
+  await page.locator('#guess-btns button[data-guess="none"]').click();
   for (const id of ["C", "D", "E"]) await page.locator(`.lamp-btn[data-id="${id}"]`).click();
   await page.locator("#go2").click();
   for (const id of ["C", "D", "E"]) await page.locator(`.sort-item[data-lamp="${id}"] button[data-basket="talk"]`).click();
   await page.locator("#go3").click();
   await expect(page.locator("#missed")).toHaveText(TEXT.en.missedNone);
   await expect(page.locator("#agreed")).toContainText(TEXT.en.agree.later.t);
+  await expect(page.locator("#guess-end")).toHaveText(TEXT.en.guessEnd(null, "D"));
 });
 
 test("the in-range reply quotes what was agreed at the trial, even when it was 'see at bulk'", async ({ page }) => {
@@ -173,6 +188,7 @@ test("the in-range reply quotes what was agreed at the trial, even when it was '
   await page.locator("#go1").click();
   await page.locator("#mode-side").click();
   await page.locator("#light").click();
+  await page.locator('#guess-btns button[data-guess="none"]').click();
   await page.locator('.lamp-btn[data-id="E"]').click();
   await page.locator("#go2").click();
   await page.locator('.sort-item[data-lamp="E"] button[data-basket="inrange"]').click();

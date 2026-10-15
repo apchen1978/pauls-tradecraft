@@ -15,6 +15,7 @@ const state = {
   single: 0,
   seenSide: false,
   seenLit: false,
+  guess: undefined,
   marks: new Set(),
   baskets: {},
 };
@@ -149,6 +150,7 @@ function applyStatic() {
   $("link-street").href = `/prototype/trade-street/?lang=${state.lang}`;
   $("boundary-end").textContent = x.boundaryEnd;
   renderAgree();
+  renderGuess();
   renderModes();
   syncMarks();
   syncGate2();
@@ -188,6 +190,29 @@ function renderAgree() {
   $("go1").disabled = !state.agreement;
 }
 
+function renderGuess() {
+  const x = t();
+  $("guess-ask").textContent = x.guessAsk;
+  const holder = $("guess-btns");
+  holder.replaceChildren();
+  [...LAMPS.map((l) => l.id), null].forEach((id) => {
+    const button = el("button", null, id || x.guessNone);
+    button.type = "button";
+    button.dataset.guess = id || "none";
+    button.addEventListener("click", () => {
+      state.guess = id;
+      $("guess").hidden = true;
+      state.lit = true;
+      state.seenLit = true;
+      renderModes();
+      syncStage();
+      syncGate2();
+      $("light").focus({ preventScroll: true });
+    });
+    holder.appendChild(button);
+  });
+}
+
 function renderModes() {
   const x = t();
   $("mode-single").setAttribute("aria-pressed", String(state.mode === "single"));
@@ -195,7 +220,7 @@ function renderModes() {
   $("light").setAttribute("aria-pressed", String(state.lit));
   $("light").textContent = state.lit ? x.lightOff : x.lightOn;
   $("single-nav").hidden = state.mode !== "single";
-  const note = state.lit ? x.litNote : state.mode === "single" ? x.singleNote : x.sideNote;
+  const note = state.lit ? (state.guess !== undefined ? `${x.guessSaid(state.guess)} ${x.litNote}` : x.litNote) : state.mode === "single" ? x.singleNote : x.sideNote;
   $("mode-note").textContent = note;
 }
 
@@ -267,12 +292,17 @@ function renderEnd() {
     holder.appendChild(el("p", "soft", x.missedTitle));
     missed.forEach((l) => holder.appendChild(el("p", null, `${l.id}${colon()}${MISSED[l.diff][state.lang]}`)));
   } else holder.appendChild(el("p", "soft", x.missedNone));
+  const lightLamp = LAMPS.find((l) => l.diff === "light").id;
+  $("guess-end").textContent = x.guessEnd(state.guess, lightLamp);
+  $("made-title").textContent = x.madeTitle;
+  $("made-lines").replaceChildren(...x.madeLines.flatMap(([term, text]) => [el("dt", null, term), el("dd", null, text)]));
+  $("made-how").textContent = x.madeHow;
 }
 
 function show(n, focus) {
   state.screen = n;
   document.querySelectorAll(".screen").forEach((s) => { s.hidden = Number(s.dataset.screen) !== n; });
-  if (n === 2) { state.mode = "single"; state.lit = false; state.seenSide = false; state.seenLit = false; state.single = 0; renderModes(); syncGate2(); }
+  if (n === 2) { state.guess = undefined; $("guess").hidden = true; state.mode = "single"; state.lit = false; state.seenSide = false; state.seenLit = false; state.single = 0; renderModes(); syncGate2(); }
   if (n === 3) renderSort();
   if (n === 4) renderEnd();
   syncStage();
@@ -312,6 +342,12 @@ function wire() {
   $("mode-single").addEventListener("click", () => setMode("single"));
   $("mode-side").addEventListener("click", () => setMode("side"));
   $("light").addEventListener("click", () => {
+    if (!state.lit && state.guess === undefined) {
+      // first time on: ask for a guess before the reveal
+      $("guess").hidden = false;
+      $("guess-btns").firstElementChild.focus({ preventScroll: true });
+      return;
+    }
     state.lit = !state.lit;
     if (state.lit) state.seenLit = true;
     renderModes();

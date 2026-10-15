@@ -1,5 +1,7 @@
 :root { --night:#14213A; --deep:#0C1526; --gold:#E7C27A; --ink:#F4EEDF; --soft:#B9C2D3; --line:#2E3E5C; --card:#1C2B48; --pine:#142C29; }
 * { box-sizing: border-box; }
+/* Elements styled with display (the guess box, the previous/next row) must still hide when marked hidden. */
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body { background: radial-gradient(120% 80% at 50% 0%, #1E2F4F 0%, var(--deep) 70%); color: var(--ink); font: 16px/1.6 "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", system-ui, sans-serif; min-height: 100vh; }
 .skip-link { position: absolute; left: -999px; }
@@ -117,6 +119,14 @@ p { margin: 0; overflow-wrap: anywhere; }
 .modes button, .single-nav button, #again { min-height: 44px; padding: 6px 14px; border: 2px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); font: inherit; font-weight: 700; cursor: pointer; }
 .modes button[aria-pressed="true"] { background: var(--gold); color: var(--deep); }
 .single-nav { display: flex; gap: 8px; }
+.guess { padding: 12px 14px; border: 2px solid var(--gold); border-radius: 14px; background: var(--card); display: grid; gap: 10px; }
+.guess-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.guess-btns button { min-width: 48px; min-height: 44px; padding: 6px 12px; border: 2px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
+.made { border-top: 1px solid var(--line); padding-top: 10px; }
+.made summary { cursor: pointer; font-weight: 700; color: var(--gold); }
+.made dl { margin: 10px 0 0; display: grid; gap: 8px; }
+.made dt { font-size: 14px; font-weight: 700; color: var(--soft); }
+.made dd { margin: 2px 0 0; }
 .gate { font-size: 14px; color: #F2B58C; min-height: 1.4em; }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .primary { min-height: 48px; padding: 8px 22px; border-radius: 999px; border: 2px solid var(--gold); background: var(--gold); color: var(--deep); font: inherit; font-weight: 800; cursor: pointer; }
