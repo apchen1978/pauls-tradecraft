@@ -9,6 +9,36 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
 
+// 原圖 1052 px 寬；英文版整體比中文版低約 25 px，所以裁切框分語言（單位：原圖像素）。
+// desktop：一整塊（目前建議、經濟解讀、關鍵數字）。
+// rec／num：手機用兩個更緊的框，只留「目前建議」那一塊與「預期淨貢獻」那一格，文字才讀得清楚。
+const CROPS = {
+  zh: { desktop: { x: 28, y: 245, w: 748, h: 390 }, rec: { x: 28, y: 245, w: 500, h: 105 }, num: { x: 526, y: 548, w: 250, h: 90 } },
+  en: { desktop: { x: 28, y: 270, w: 748, h: 388 }, rec: { x: 28, y: 268, w: 500, h: 95 }, num: { x: 526, y: 568, w: 250, h: 90 } },
+};
+
+function CropFrame({ snapshot, crop, alt, priority }) {
+  return (
+    <div className="relative w-full overflow-hidden rounded-field border border-line bg-white" style={{ aspectRatio: `${crop.w} / ${crop.h}` }}>
+      <picture>
+        <source media="(min-width: 769px)" srcSet={snapshot.src} type="image/png" />
+        <img
+          src={snapshot.mobile}
+          alt={alt}
+          width={snapshot.width}
+          height={snapshot.height}
+          className="absolute h-auto max-w-none"
+          style={{ width: `${(snapshot.width / crop.w) * 100}%`, left: `${-(crop.x / crop.w) * 100}%`, top: `${-(crop.y / crop.h) * 100}%` }}
+          loading="eager"
+          fetchPriority={priority ? "high" : "auto"}
+          decoding="sync"
+        />
+      </picture>
+      <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent" />
+    </div>
+  );
+}
+
 export default function Hero() {
   const { lang, t } = useLang();
   const cdd = works.find((work) => work.id === "commercial-decision-desk");
@@ -16,6 +46,7 @@ export default function Hero() {
   // Executive Deal Snapshot；Featured Work 卡保留工作區畫面「怎麼完成」。
   // 用點陣 PNG，不用 SVG 封面：封面把中文畫在 SVG <text> 上（Arial/Georgia），
   // iOS Safari 常常不畫出那些字，手機上整張卡會像空白。
+  const crops = CROPS[lang === "zh" ? "zh" : "en"];
   const snapshot = lang === "zh"
     ? { src: "/images/cdd-executive-snapshot-zh-v02.png", mobile: "/images/cdd-executive-snapshot-zh-v02-800.webp", width: 1052, height: 1146 }
     : { src: "/images/cdd-executive-snapshot-en-v02.png", mobile: "/images/cdd-executive-snapshot-en-v02-800.webp", width: 1052, height: 1166 };
@@ -116,19 +147,15 @@ export default function Hero() {
             <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-amber" />{t.hero.snapshotChromeLabel}</span>
           </div>
           <div className="relative overflow-hidden bg-paper p-2.5 md:p-3">
-            <picture>
-              <source media="(min-width: 769px)" srcSet={snapshot.src} type="image/png" />
-              <img
-                src={snapshot.mobile}
-                alt={t.hero.snapshotAlt}
-                width={snapshot.width}
-                height={snapshot.height}
-                className="h-auto w-full rounded-field border border-line"
-                loading="eager"
-                fetchPriority="high"
-                decoding="sync"
-              />
-            </picture>
+            {/* 裁切放大：只留最要緊的部分，文字才讀得清楚。原圖不動（Featured Work、DealReadiness、preload 都共用它）。
+                桌機一整塊；手機兩個更緊的框。裁切框見上方 CROPS。 */}
+            <div className="hidden md:block">
+              <CropFrame snapshot={snapshot} crop={crops.desktop} alt={t.hero.snapshotAlt} priority />
+            </div>
+            <div className="space-y-2 md:hidden">
+              <CropFrame snapshot={snapshot} crop={crops.rec} alt={t.hero.snapshotAlt} priority />
+              <CropFrame snapshot={snapshot} crop={crops.num} alt="" />
+            </div>
           </div>
           <figcaption className="flex flex-col items-start gap-2 border-t border-line px-4 py-3 text-xs leading-snug text-moss md:px-5 md:py-3.5 md:text-sm">
             <span className="font-semibold text-ink">{t.hero.snapshotCaption}</span>
