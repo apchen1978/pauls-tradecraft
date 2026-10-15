@@ -24,10 +24,11 @@ export default function AiLabEntry() {
         <ol className="grid gap-3">
           {a.chapters.map((title, i) => (
             <li key={title} className="flex items-baseline gap-4 rounded-card border border-bone/15 bg-bone/[0.04] px-5 py-4">
-              <span className="font-mono text-xs text-[#9EE0C1]">{String([0, 2, 3, 4][i]).padStart(2, "0")}</span>
+              <span className="font-mono text-xs text-[#9EE0C1]">{String(i).padStart(2, "0")}</span>
               <span className="text-base leading-snug text-bone">{title}</span>
             </li>
           ))}
+          <li className="rounded-card border border-dashed border-[#9EE0C1]/40 px-5 py-3 text-sm leading-relaxed text-ondark">{a.deeper}</li>
         </ol>
       </div>
     </section>

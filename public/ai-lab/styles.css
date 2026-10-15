@@ -162,6 +162,51 @@ h3 { margin: 0; color: var(--bone); font-size: 1.1rem; }
 .case dl { margin: 12px 0 0; display: grid; gap: 4px; }
 .case dt { font-size: 12px; font-weight: 700; color: var(--mint); }
 .case dd { margin: 0 0 6px; font-size: 15px; }
+/* Batch 2 */
+.nextword { margin-top: 22px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.nw-line { margin: 0; min-height: 2em; font-size: 1.15rem; color: var(--bone); }
+.nw-prompt { color: var(--meta); }
+.nw-word { color: var(--mint); font-weight: 600; }
+.nextword .mono { margin: 14px 0 0; font-size: 12px; color: var(--meta); }
+.nw-choices { display: grid; gap: 8px; margin-top: 8px; }
+.nw-choice { position: relative; display: grid; gap: 6px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--bone); font: inherit; text-align: left; cursor: pointer; }
+.nw-choice:hover { border-color: var(--mint); }
+.nw-bar { display: block; height: 6px; border-radius: 3px; background: var(--mint); opacity: .7; }
+.nw-reveal { text-align: left; margin: 16px 0 0; max-width: none; }
+.trace { margin: 18px 0 0; padding: 14px 16px; list-style: none; display: grid; gap: 6px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0, 0, 0, .25); font-size: 15px; }
+.trace li { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 12px; opacity: .15; transition: opacity .3s; }
+.trace li.on { opacity: 1; }
+.trace .tool { color: var(--mint); font-size: 12px; padding-top: 3px; }
+@media (max-width: 639px) { .trace li { grid-template-columns: 1fr; gap: 0; } }
+.doc { margin: 12px 0 0; padding-left: 1.3em; display: grid; gap: 4px; font-size: 15px; }
+.warnlist { color: var(--warn); }
+.gates { margin: 20px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+@media (min-width: 760px) { .gates { grid-template-columns: 1fr 1fr; } }
+.gate-btn { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 52px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--bone); font: inherit; text-align: left; cursor: pointer; }
+.gate-answer { flex: none; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+.gate-answer.unknown { border: 1px dashed var(--meta); color: var(--meta); font-weight: 500; }
+.gate-answer.alone { background: rgba(158, 224, 193, .18); color: var(--mint); }
+.gate-answer.ask { background: var(--gold); color: var(--deep); }
+.frontier { margin: 20px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+@media (min-width: 760px) { .frontier { grid-template-columns: 1fr 1fr; } }
+.fr { display: grid; gap: 6px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.fr strong { color: var(--bone); }
+.fr-tag { justify-self: start; padding: 0 8px; border-radius: 999px; font-size: 11px; line-height: 20px; }
+.fr.inUse .fr-tag { background: rgba(158, 224, 193, .18); color: var(--mint); }
+.fr.reported .fr-tag { border: 1px solid var(--meta); color: var(--meta); }
+.reply.left { text-align: left; margin: 20px 0 0; max-width: none; }
+.three { margin: 20px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+@media (min-width: 760px) { .three { grid-template-columns: repeat(3, 1fr); } }
+.three li { display: grid; gap: 6px; align-content: start; padding: 18px; border: 1px solid var(--gold); border-radius: 14px; background: rgba(184, 153, 102, .08); }
+.three strong { color: var(--bone); font-size: 1.05rem; }
+.n3 { color: var(--gold); font-size: 13px; }
+.gl { display: grid; gap: 8px; margin-top: 18px; }
+@media (min-width: 760px) { .gl { grid-template-columns: 1fr 1fr; } }
+.term { padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+.term summary { cursor: pointer; color: var(--bone); font-weight: 600; }
+.term[open] { border-color: var(--mint); }
+.term p { margin: 8px 0 0; }
+.term .ex { color: var(--meta); font-size: 15px; }
 .cta { margin: 0 0 40px; padding: 40px 24px; border: 1px solid var(--gold); border-radius: 18px; text-align: center; background: rgba(184, 153, 102, .08); }
 .cta h2 { font-size: clamp(1.35rem, 3.4vw, 2rem); }
 .foot { max-width: 1080px; margin: 0 auto; padding: 18px 20px 40px; font-size: 13px; color: var(--meta); border-top: 1px solid var(--line); }

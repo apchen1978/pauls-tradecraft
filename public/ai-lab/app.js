@@ -1,5 +1,6 @@
 import { AGENTS, LINKS, TEXT, TIERS } from "./content.js";
 import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.js";
+import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
 
 // AI Lab, phase 1. Nothing is stored; only ?lang= goes into the address. Demos are fixed, never random.
 const $ = (id) => document.getElementById(id);
@@ -23,6 +24,10 @@ const state = {
   agent: null,
   ctx: new Set(CONTEXT_START),
   measured: false,
+  words: [],
+  traced: false,
+  noDoc: false,
+  gates: new Set(),
 };
 let timers = [];
 const t = () => TEXT[state.lang];
@@ -265,7 +270,7 @@ function renderDeep() {
   $("deep-toc").replaceChildren(...x.toc.map((label, i) => {
     const li = el("li");
     const a = el("a");
-    const n = [5, 7, 10][i];
+    const n = [5, 6, 7, 8, 9, 10, 11][i];
     a.href = `#c${n}`;
     a.append(el("span", "n", String(n).padStart(2, "0")), document.createTextNode(label));
     li.appendChild(a);
@@ -287,6 +292,146 @@ function renderDeep() {
   renderCases();
 }
 
+const m = () => MORE[state.lang];
+
+function renderNext() {
+  const x = m().c1;
+  $("c1-no").textContent = x.no;
+  $("c1-title").textContent = x.title;
+  $("c1-lead").textContent = x.lead;
+  $("c1-demo").textContent = x.demo;
+  $("nw-pick").textContent = x.pick;
+  const line = $("nw-line");
+  line.replaceChildren(el("span", "nw-prompt", x.prompt), ...state.words.map((w) => el("span", "nw-word", `${x.words[w]}${state.lang === "en" ? " " : ""}`)));
+  const node = state.words.length === 0 ? "start" : state.words.length === 1 ? state.words[0] : null;
+  const choices = $("nw-choices");
+  choices.replaceChildren();
+  if (node && NEXT[node]) {
+    const max = Math.max(...NEXT[node].map(([, w]) => w));
+    NEXT[node].forEach(([id, weight]) => {
+      const b = el("button", "nw-choice");
+      b.type = "button";
+      b.dataset.word = id;
+      const bar = el("span", "nw-bar");
+      bar.style.width = `${Math.round((weight / max) * 100)}%`;
+      b.append(el("span", "nw-text", x.words[id]), bar);
+      b.addEventListener("click", () => { state.words.push(id); renderNext(); });
+      choices.appendChild(b);
+    });
+  }
+  $("nw-pick").hidden = !node;
+  const done = !node;
+  $("nw-reveal").hidden = !done;
+  $("nw-reveal").textContent = x.reveal;
+  $("nw-again").hidden = !done;
+  $("nw-again").textContent = x.again;
+}
+
+function renderTrace(animate) {
+  const x = m().c6;
+  clearTraceTimers();
+  $("trace-play").textContent = state.traced ? x.replay : x.play;
+  const ol = $("trace");
+  ol.replaceChildren(...TRACE.map((t) => {
+    const li = el("li");
+    li.append(el("span", "mono tool", t.tool), el("span", null, x.steps[t.key]));
+    return li;
+  }));
+  const items = [...ol.children];
+  const show = (n) => items.forEach((li, i) => li.classList.toggle("on", i < n));
+  if (!state.traced) show(0);
+  else if (!animate || reduced()) show(items.length);
+  else { show(0); items.forEach((_, i) => traceTimers.push(setTimeout(() => show(i + 1), 300 + i * 550))); }
+  $("mcp-title").textContent = x.mcpTitle;
+  $("mcp-body").textContent = x.mcp;
+  $("c6-warn").textContent = x.warn;
+}
+let traceTimers = [];
+function clearTraceTimers() { traceTimers.forEach(clearTimeout); traceTimers = []; }
+
+function renderTeamwork() {
+  const x = m().c8;
+  $("c8-rules").replaceChildren(...x.rules.map((r) => el("li", null, r)));
+  $("doc-title").textContent = x.docTitle;
+  $("doc").replaceChildren(...x.doc.map((r) => el("li", null, r)));
+  $("no-doc").textContent = x.without;
+  $("no-doc").setAttribute("aria-pressed", String(state.noDoc));
+  $("no-doc-list").hidden = !state.noDoc;
+  $("no-doc-list").replaceChildren(...x.withoutList.map((r) => el("li", null, r)));
+  $("relay-title").textContent = x.relayTitle;
+  $("relay").replaceChildren(...x.relay.map(([who, what]) => {
+    const li = el("li", who === "Paul" ? "paul" : "");
+    li.append(el("span", "who", who), el("span", null, what));
+    return li;
+  }));
+}
+
+function renderGates() {
+  const x = m().c9;
+  $("gates").replaceChildren(...GATES.map((g) => {
+    const li = el("li", "gate-row");
+    li.dataset.gate = g.id;
+    const shown = state.gates.has(g.id);
+    const b = el("button", "gate-btn");
+    b.type = "button";
+    b.setAttribute("aria-expanded", String(shown));
+    b.append(el("span", null, x.items[g.id]), el("span", `gate-answer ${shown ? (g.alone ? "alone" : "ask") : "unknown"}`, shown ? (g.alone ? x.alone : x.ask) : x.yourGuess));
+    b.addEventListener("click", () => { state.gates.add(g.id); renderGates(); });
+    li.appendChild(b);
+    return li;
+  }));
+  $("c9-ours-title").textContent = x.oursTitle;
+  $("c9-ours").replaceChildren(...x.ours.map((r) => el("li", null, r)));
+}
+
+function renderFrontier() {
+  const x = m().c11;
+  $("frontier").replaceChildren(...x.items.map((it) => {
+    const li = el("li", `fr ${it.tag}`);
+    li.append(el("span", "mono fr-tag", x.tags[it.tag]), el("strong", null, it.title), el("span", null, it.body));
+    return li;
+  }));
+  $("c11-where").textContent = x.where;
+  $("c11-link").textContent = x.source;
+  $("c11-link").href = LINKS.decoder;
+}
+
+function renderSteps() {
+  const s = m().steps;
+  $("steps-kicker").textContent = s.kicker;
+  $("steps-title").textContent = s.title;
+  $("three").replaceChildren(...s.list.map(([t1, body], i) => {
+    const li = el("li");
+    li.append(el("span", "mono n3", String(i + 1).padStart(2, "0")), el("strong", null, t1), el("span", null, body));
+    return li;
+  }));
+  const g = m().glossary;
+  $("gl-kicker").textContent = g.kicker;
+  $("gl-title").textContent = g.title;
+  $("gl-lead").textContent = g.lead;
+  $("gl").replaceChildren(...GLOSSARY.map((id) => {
+    const [term, plain, example] = g.terms[id];
+    const d = el("details", "term");
+    d.dataset.term = id;
+    d.append(el("summary", null, term), el("p", null, plain), el("p", "ex", example));
+    return d;
+  }));
+}
+
+function renderMore() {
+  for (const c of ["c6", "c8", "c9", "c11"]) {
+    $(`${c}-no`).textContent = m()[c].no;
+    $(`${c}-title`).textContent = m()[c].title;
+    $(`${c}-lead`).textContent = m()[c].lead;
+  }
+  renderNext();
+  renderTrace(false);
+  renderTeamwork();
+  renderGates();
+  renderFrontier();
+  renderSteps();
+}
+
 function render() {
   const x = t();
   document.documentElement.lang = x.htmlLang;
@@ -301,8 +446,8 @@ function render() {
   $("toc").replaceChildren(...x.toc.map((label, i) => {
     const li = el("li");
     const a = el("a");
-    a.href = `#c${[0, 2, 3, 4][i]}`;
-    a.append(el("span", "n", String([0, 2, 3, 4][i]).padStart(2, "0")), document.createTextNode(label));
+    a.href = `#c${[0, 1, 2, 3, 4][i]}`;
+    a.append(el("span", "n", String([0, 1, 2, 3, 4][i]).padStart(2, "0")), document.createTextNode(label));
     li.appendChild(a);
     return li;
   }));
@@ -326,6 +471,7 @@ function render() {
   renderFlow();
   renderTeam();
   renderDeep();
+  renderMore();
 }
 
 document.querySelectorAll("#lang-group button").forEach((b) => b.addEventListener("click", () => {
@@ -336,6 +482,9 @@ document.querySelectorAll("#lang-group button").forEach((b) => b.addEventListene
   render();
 }));
 $("play").addEventListener("click", () => { state.played = true; renderCompare(true); });
+$("nw-again").addEventListener("click", () => { state.words = []; renderNext(); });
+$("trace-play").addEventListener("click", () => { state.traced = true; renderTrace(true); });
+$("no-doc").addEventListener("click", () => { state.noDoc = !state.noDoc; renderTeamwork(); });
 $("use-guess").addEventListener("click", () => { state.measured = false; renderVerify(); });
 $("use-measured").addEventListener("click", () => { state.measured = true; renderVerify(); });
 $("remove-human").addEventListener("click", () => { state.removed = !state.removed; renderFlow(); });
