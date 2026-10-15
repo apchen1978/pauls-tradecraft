@@ -628,9 +628,9 @@ export const SCENES = [
 ];
 
 const ABOUT = {
-  galaxy: ["關於玉仔：喊一聲，後面那一排就到了。", "About Yuzai: one call, and the line behind them arrives."],
+  galaxy: ["關於靚仔：他總站在圈外拍，我留一個位置等他進來。", "About Lenz: they shoot from outside the circle, so I keep them a place."],
   alliance: ["關於銀河之女：她站出來，這一圈就有了中心。", "About Daughter of the Galaxy: when she steps out, the circle has a center."],
-  recorder: ["關於阿白：他撐著傘，我把傘下的每個人都拍進來。", "About Abai: he holds the umbrella, and I fit everyone under it into the shot."],
+  recorder: ["關於玉仔：牠喊一聲，我就趁大家趕來那一刻按下快門。", "About Yuzai: one call from them, and I catch everyone arriving in one frame."],
   umbrella: ["關於銀河之女：她站在中間，我把雨擋在外面。", "About Daughter of the Galaxy: she stands in the middle, and I keep the rain outside."],
   andromeda: ["關於言歌：光點起來之後，有人把那件事轉給大家看。", "About Echo: once the light is on, someone turns the idea so everyone can see it."],
   spark: ["關於言歌：我丟出一個點子，有人把它說成大家想聽的話。", "About Echo: I toss out an idea, and someone turns it into words everyone wants to hear."],
