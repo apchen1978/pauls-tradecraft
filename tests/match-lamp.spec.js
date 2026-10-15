@@ -178,3 +178,59 @@ test("the in-range reply quotes what was agreed at the trial, even when it was '
   await page.locator('.sort-item[data-lamp="E"] button[data-basket="inrange"]').click();
   await expect(page.locator('.sort-item[data-lamp="E"]')).toContainText(TEXT.zh.agree.later.t);
 });
+
+// Physics: every lamp stands on something. Feet are measured in picture coordinates (percent of the scene picture),
+// against surfaces measured on Codex's pictures: the glass case floor, the table top, the wall shelves, the counter.
+const FEET = {
+  desktop: { trial: { sample: [18.2, 55.8], trial: [62, 65.5] }, single: { A: [52, 81.5] }, side: { A: [18.75, 55.8], B: [34.65, 55.8], C: [50.6, 55.8], D: [66.4, 55.8], E: [82.4, 55.8], dome: [23, 82] } },
+  phone: { trial: { sample: [50, 31.4], trial: [60, 64] }, single: { A: [50, 77.5] }, side: { A: [25.8, 32.6], B: [51.5, 32.6], C: [77.7, 32.6], D: [37.9, 51.1], E: [65.5, 51.1], dome: [30, 78.2] } },
+};
+async function feet(page) {
+  return page.evaluate(() => {
+    const scene = document.getElementById("scene").getBoundingClientRect();
+    const at = (x, y) => [((x - scene.left) / scene.width) * 100, ((y - scene.top) / scene.height) * 100];
+    const foot = (root) => { const r = root.querySelector(".base").getBoundingClientRect(); return at(r.left + r.width / 2, r.top + r.height * 0.884); };
+    const out = {};
+    const sample = document.getElementById("sample");
+    if (getComputedStyle(sample).opacity !== "0") {
+      out.sample = foot(sample);
+      const stand = sample.querySelector(".stand");
+      if (getComputedStyle(stand).display !== "none") {
+        const r = stand.getBoundingClientRect();
+        out.dome = at(r.left + r.width / 2, r.top + r.height * 0.948);
+        out.domeFloor = at(0, r.top + r.height * 0.698)[1];
+      }
+    }
+    document.querySelectorAll(".lamp-btn").forEach((b) => {
+      const st = getComputedStyle(b);
+      if (st.display !== "none" && st.opacity !== "0") out[b.dataset.id || "trial"] = foot(b);
+    });
+    return out;
+  });
+}
+function near(got, want, label) {
+  expect(Math.abs(got[0] - want[0]), `${label} x`).toBeLessThan(0.6);
+  expect(Math.abs(got[1] - want[1]), `${label} y`).toBeLessThan(0.6);
+}
+for (const [kind, width, height] of [["phone", 390, 844], ["desktop", 1440, 900], ["desktop", 1024, 768]]) {
+  test(`physics at ${width}px: the sample stands on the case floor, the trial lamp on the table, the bulk on the shelves, the dome on the counter`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto(`${PAGE}?lang=zh`);
+    const want = FEET[kind];
+    let got = await feet(page);
+    near(got.sample, want.trial.sample, "sample");
+    near(got.trial, want.trial.trial, "trial lamp");
+    await page.locator("#go0").click();
+    await page.locator('#agree button[data-agree="range"]').click();
+    await page.locator("#go1").click();
+    await page.waitForTimeout(400);
+    got = await feet(page);
+    near(got.A, want.single.A, "one by one");
+    await page.locator("#mode-side").click();
+    await page.waitForTimeout(400);
+    got = await feet(page);
+    for (const id of ["A", "B", "C", "D", "E"]) near(got[id], want.side[id], `lamp ${id}`);
+    near(got.dome, want.side.dome, "dome feet");
+    expect(Math.abs(got.sample[1] - got.domeFloor), "lamp inside the dome stands on its floor").toBeLessThan(0.6);
+  });
+}

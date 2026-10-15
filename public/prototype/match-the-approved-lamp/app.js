@@ -50,7 +50,7 @@ function lampLayers(spec) {
     if (filter && filter !== "none") img.style.filter = filter;
     return img;
   };
-  lamp.append(mk("cord", "lamp-cord-f.webp"), mk("base", "lamp-base-brass-f.webp", spec.baseFilter), mk("shade", "lamp-shade-paper-f.webp"), el("div", "layer tint"), el("div", "layer litglow"), mk("glow", "lamp-shade-glow-f.webp", spec.glowFilter));
+  lamp.append(el("div", "contact"), mk("cord", "lamp-cord-f.webp"), mk("base", "lamp-base-brass-f.webp", spec.baseFilter), mk("shade", "lamp-shade-paper-f.webp"), el("div", "layer tint"), el("div", "layer sun"), el("div", "layer litglow"), mk("glow", "lamp-shade-glow-f.webp", spec.glowFilter));
   return lamp;
 }
 
