@@ -836,6 +836,7 @@ export const UI = {
     downloadFail: "這次沒畫成圖片，連結一樣能分享。",
     back: "回到 Digital Garage",
     profile: [["place", "地點："], ["item", "小物："], ["motto", "口頭禪："]],
+    costLabel: "代價：",
     galleryTitle: "十六種隊友",
     galleryLead: "四個隊伍，各四個人。點一張，看那張卡。",
   },
@@ -894,6 +895,7 @@ export const UI = {
     downloadFail: "The picture didn't save this time. The link still shares the card.",
     back: "Back to the Digital Garage",
     profile: [["place", "Place: "], ["item", "Item: "], ["motto", "Motto: "]],
+    costLabel: "Cost: ",
     galleryTitle: "Sixteen teammates",
     galleryLead: "Four teams, four people each. Open one to see that card.",
   },
@@ -1113,6 +1115,19 @@ function repairOrphans(ctx, lines, maxWidth) {
     else out.push(...reflowKeepingHead(ctx, line, maxWidth));
   }
   return out.length ? out : [""];
+}
+
+// Wrap a line for the download card, but never leave a lone word or one or two characters on the last line:
+// narrow the width a little until the last line has enough company.
+export function wrapLinesNoWidow(ctx, text, maxWidth) {
+  let lines = wrapLines(ctx, text, maxWidth);
+  const tooShort = (line) => (/\s/.test(String(text)) ? line.trim().split(/\s+/).length < 2 : Array.from(line).length < 3);
+  for (let w = maxWidth * 0.96; lines.length > 1 && tooShort(lines[lines.length - 1]) && w > maxWidth * 0.6; w *= 0.96) {
+    const next = wrapLines(ctx, text, w);
+    if (next.length > lines.length) break;
+    lines = next;
+  }
+  return lines;
 }
 
 export function wrapLines(ctx, text, maxWidth) {
@@ -1413,6 +1428,10 @@ function boot() {
       row.appendChild(document.createTextNode(text[key]));
       profile.appendChild(row);
     }
+    const cost = $("cost");
+    cost.textContent = "";
+    cost.appendChild(el("span", "cost-label", ui.costLabel));
+    cost.appendChild(document.createTextNode(text.cost));
     const lines = $("lines");
     lines.textContent = "";
     const tones = $("tones");
@@ -1819,6 +1838,8 @@ function boot() {
       const aboutLines = wrapLines(ctx, text.about, inner);
       ctx.font = `500 ${sz.OTHER}px ${FONT}`;
       const profileLines = ui.profile.flatMap(([key, label]) => wrapLines(ctx, `${label}${text[key]}`, inner));
+      ctx.font = `600 ${sz.OTHER}px ${FONT}`;
+      const costLines = wrapLinesNoWidow(ctx, `${ui.costLabel}${text.cost}`, inner - 32);
       ctx.font = `700 ${sz.FUNNY}px ${FONT}`;
       const funnyLines = state.tone === "funny" ? wrapLines(ctx, text.funny, inner) : [];
       const sectionLines = ["gentle", "literary", "strength"].map((key, index) => {
@@ -1835,12 +1856,13 @@ function boot() {
       bodyH += 10 + factionLines.length * 42;
       bodyH += aboutLines.length * lead(sz.BODY) + 12;
       bodyH += profileLines.length * lead(sz.OTHER) + 10;
+      bodyH += costLines.length * lead(sz.OTHER) + 22;
       bodyH += rare ? 58 : 12;
       if (funnyLines.length) bodyH += sz.LABEL + 10 + funnyLines.length * lead(sz.FUNNY) + 10;
       sectionLines.forEach((lines) => {
         if (lines.length) bodyH += sz.LABEL + 10 + lines.length * lead(sz.BODY) + 8;
       });
-      return { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, funnyLines, sectionLines, footerH, bodyH };
+      return { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, costLines, funnyLines, sectionLines, footerH, bodyH };
     };
     const cardFits = (ratio, measured) => {
       const artH = Math.round(height * ratio);
@@ -1875,7 +1897,7 @@ function boot() {
     }
     const artH = Math.round(height * artRatio);
     const footerTop = height - 48 - 56 - plan.footerH;
-    const { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, funnyLines, sectionLines } = plan;
+    const { sz, boundaryLines, picksLines, nameLines, markLines, otherLines, roleLines, factionLines, aboutLines, profileLines, costLines, funnyLines, sectionLines } = plan;
 
     const portrait = readyImage("queen-art", PORTRAIT_SRC[resolved.type]);
     const horseNode = readyImage("horse", HORSE_SRC);
@@ -1964,6 +1986,23 @@ function boot() {
       center(line, y, `500 ${sz.OTHER}px ${FONT}`, "#62716A");
       y += lead(sz.OTHER);
     });
+    y += 6;
+    {
+      // the cost line sits in a pale note with a bar on the left, like the page
+      const noteH = costLines.length * lead(sz.OTHER) + 12;
+      const noteW = inner;
+      const noteX = Math.round((width - noteW) / 2);
+      ctx.fillStyle = "#F4EEE2";
+      ctx.fillRect(noteX, y, noteW, noteH);
+      ctx.fillStyle = "#8A5A2B";
+      ctx.fillRect(noteX, y, 6, noteH);
+      let ny = y + 6;
+      costLines.forEach((line) => {
+        center(line, ny, `600 ${sz.OTHER}px ${FONT}`, "#5E3E1B");
+        ny += lead(sz.OTHER);
+      });
+      y += noteH;
+    }
     y += 12;
     if (rare) {
       ctx.font = `700 28px ${FONT}`;
