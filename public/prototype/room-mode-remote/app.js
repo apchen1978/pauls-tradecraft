@@ -8,6 +8,7 @@ const sceneFiles = {
   autumn: "room-autumn-v1.webp",
   winter: "room-winter-v1.webp",
   techNight: "room-tech-night-v1.webp",
+  homeAssistantCover: "showcase-room-mode-remote.webp",
   homeAssistant: "room-home-assistant-persian.webp",
   homeAssistantModern: "room-home-assistant-modern.webp",
 };
@@ -15,7 +16,7 @@ const sceneFiles = {
 const sceneGroups = {
   day: ["rain", "sun", "breeze", "autumn"],
   evening: ["night", "winter"],
-  tech: ["tech", "techNight", "homeAssistant", "homeAssistantModern"],
+  tech: ["homeAssistantCover", "tech", "techNight", "homeAssistant", "homeAssistantModern"],
 };
 
 const copy = {
@@ -48,6 +49,7 @@ const copy = {
       autumn: { name: "暖秋週末", description: "陶土色沙發，留一壺茶。", caption: "陶土色織面和厚實羊毛地毯，讓房間更適合久坐。", note: "把茶放在桌上，好像有人隨時可以來坐坐。" },
       winter: { name: "冬日傍晚", description: "深綠沙發與柔軟羊毛。", caption: "窗外冷，椅邊暖；厚地毯與閱讀燈各守住一角。", note: "窗外天色早暗，書剛翻到最想繼續的一頁。" },
       techNight: { name: "小夥伴的夜班", description: "兩盞燈，一位安靜陪伴。", caption: "機器人在桌邊，室內暖光只留在兩盞燈附近。", note: "它沒有催你睡，只安靜陪著你把這一頁讀完。" },
+      homeAssistantCover: { name: "回家後的夜晚", description: "貓、家務夥伴，還有一本沒讀完的書。", caption: "貓窩在沙發上，家務夥伴抱著毯子站在一旁，暖光落在波斯風格織毯上。", note: "書還攤在桌上，貓已經找好位置。今晚可以慢一點。" },
       homeAssistant: { name: "波斯織毯之夜", description: "家務夥伴收起毯子，燈留在身旁。", caption: "家務機器人站在窗邊收起毯子，波斯風格織毯與兩盞燈讓夜晚有了溫度。", note: "書還攤在桌上，毯子已經摺好。今晚可以慢一點。" },
       homeAssistantModern: { name: "柔調羊毛之夜", description: "同一間房，換一種輕柔的觸感。", caption: "淺色羊毛地毯、亞麻燈罩與家務夥伴，讓這個夜晚輕了一點。", note: "毯子摺好了，腳下的羊毛讓回家的步伐也慢下來。" },
     },
@@ -94,6 +96,7 @@ const copy = {
       autumn: { name: "Autumn weekend", description: "Clay fabric and a pot of tea.", caption: "Clay-colored upholstery and thick wool invite a longer stay.", note: "Leave the tea on the table. Someone might drop by." },
       winter: { name: "Winter dusk", description: "Forest-green sofa and soft wool.", caption: "Cold outside, warm by the chair; rug and reading lamp each hold a corner.", note: "The sky darkens early. The book has reached its best page." },
       techNight: { name: "The little night shift", description: "Two lamps and one quiet companion.", caption: "The robot sits by the table; warm light stays close to the lamps.", note: "It does not tell you to sleep. It just stays while you finish the page." },
+      homeAssistantCover: { name: "A night back home", description: "A cat, a home helper, and a book left open.", caption: "The cat curls up on the sofa as the household helper stands nearby with a folded throw, beneath a warm pool of light.", note: "The book is still open, and the cat has found its place. Tonight can slow down." },
       homeAssistant: { name: "A Persian-inspired evening", description: "A helping hand folds the throw; the lamps stay on.", caption: "A household robot folds a throw by the window, while a Persian-inspired rug and two lamps warm the room.", note: "The book is still on the table, and the throw is folded. Tonight can slow down." },
       homeAssistantModern: { name: "A softer wool evening", description: "The same room takes on a lighter touch.", caption: "A pale wool rug, linen lampshade and household companion soften the evening.", note: "The throw is folded. Wool underfoot makes coming home feel slower, too." },
     },
@@ -116,9 +119,9 @@ const copy = {
 const state = {
   lang: new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh",
   step: 0,
-  scene: null,
+  scene: "homeAssistantCover",
   detail: null,
-  group: "day",
+  group: "tech",
 };
 
 const els = Object.fromEntries([
@@ -139,7 +142,7 @@ function loadDisplayImages() {
     const img = new Image();
     img.filename = filename;
     img.onload = () => {
-      if (images[key] === img && (state.scene || "rain") === key) drawScene();
+      if (images[key] === img && (state.scene || "homeAssistantCover") === key) drawScene();
     };
     img.src = ASSET_BASE + filename;
     images[key] = img;
@@ -152,7 +155,7 @@ loadDisplayImages();
 
 function drawScene() {
   const canvas = els["room-canvas"];
-  const image = images[state.scene || "rain"];
+  const image = images[state.scene || "homeAssistantCover"];
   context.fillStyle = "#e7ddcd";
   context.fillRect(0, 0, canvas.width, canvas.height);
   if (image?.complete && image.naturalWidth) {
@@ -195,8 +198,8 @@ function render() {
   els["page-title"].textContent = t.title;
   els["intro-copy"].textContent = t.intro;
   els["note-label"].textContent = t.label;
-  els["story-note"].textContent = state.scene ? t.scenes[state.scene].note : t.startingNote;
-  els["scene-caption"].textContent = state.scene ? t.scenes[state.scene].caption : t.scenes.rain.caption;
+  els["story-note"].textContent = t.scenes[state.scene || "homeAssistantCover"].note;
+  els["scene-caption"].textContent = t.scenes[state.scene || "homeAssistantCover"].caption;
   els["scene-hint"].textContent = t.sceneHint;
   els["mobile-picker"].hidden = state.step !== 0;
   els["mobile-picker-label"].textContent = t.mobilePick;
@@ -205,7 +208,7 @@ function render() {
   els["mobile-scene-select"].replaceChildren(...mobileOptions);
   els["mobile-scene-select"].value = state.scene || "";
   els["footer-note"].textContent = t.footer;
-  els["room-canvas"].setAttribute("aria-label", state.scene ? t.scenes[state.scene].caption : t.scenes.rain.caption);
+  els["room-canvas"].setAttribute("aria-label", t.scenes[state.scene || "homeAssistantCover"].caption);
   els["step-track"].replaceChildren(...t.progress.map((label, i) => {
     const mark = document.createElement("span");
     mark.className = i <= state.step ? "active" : "";
