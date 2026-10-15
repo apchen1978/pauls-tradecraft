@@ -1,6 +1,7 @@
 import { AGENTS, LINKS, TEXT, TIERS } from "./content.js";
 import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.js";
 import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
+import { LATEST, LATEST_TEXT } from "./latest.js";
 
 // AI Lab, phase 1. Nothing is stored; only ?lang= goes into the address. Demos are fixed, never random.
 const $ = (id) => document.getElementById(id);
@@ -418,6 +419,28 @@ function renderSteps() {
   }));
 }
 
+function renderLatest() {
+  const x = LATEST_TEXT[state.lang];
+  $("latest-kicker").textContent = x.kicker;
+  $("latest-title").textContent = x.title;
+  $("latest-lead").textContent = x.lead;
+  $("latest-list").replaceChildren(...LATEST.slice(0, 6).map((item) => {
+    const c = item[state.lang];
+    const li = el("li", `obs ${item.tag}`);
+    const head = el("p", "obs-head");
+    head.append(el("time", "mono", item.date), el("span", "mono obs-tag", x.tags[item.tag]));
+    head.firstChild.setAttribute("datetime", item.date);
+    const took = el("p", "obs-took");
+    took.append(el("b", null, `${x.took}　`), document.createTextNode(c.took));
+    const src = el("a", "obs-src", `${x.source} ↗`);
+    src.href = item.source;
+    src.target = "_blank";
+    src.rel = "noopener noreferrer";
+    li.append(head, el("h3", null, c.title), el("p", null, c.what), took, src);
+    return li;
+  }));
+}
+
 function renderMore() {
   for (const c of ["c6", "c8", "c9", "c11"]) {
     $(`${c}-no`).textContent = m()[c].no;
@@ -430,9 +453,10 @@ function renderMore() {
   renderGates();
   renderFrontier();
   renderSteps();
+  renderLatest();
 }
 
-const CHAPTERS = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11"];
+const CHAPTERS = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "latest"];
 let consoleTimers = [];
 function renderConsole(animate) {
   const x = t();
@@ -458,7 +482,7 @@ function renderRail() {
     const a = el("a", "rail-dot");
     a.href = `#${id}`;
     a.dataset.target = id;
-    a.append(el("span", "mono", String(i).padStart(2, "0")), el("span", "rail-label", x.rail[i]));
+    a.append(el("span", "mono", id === "latest" ? "NEW" : String(i).padStart(2, "0")), el("span", "rail-label", x.rail[i]));
     return a;
   }));
 }
