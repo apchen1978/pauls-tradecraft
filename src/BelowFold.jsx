@@ -9,6 +9,7 @@ import DealReadiness from "./components/DealReadiness.jsx";
 import SemanticaCaseStudy from "./components/SemanticaCaseStudy.jsx";
 import Showcase from "./components/Showcase.jsx";
 import AiLabEntry from "./components/AiLabEntry.jsx";
+import FlowLine from "./components/FlowLine.jsx";
 import Garage from "./components/Garage.jsx";
 import Capabilities from "./components/Capabilities.jsx";
 import CommercialOutcomes from "./components/CommercialOutcomes.jsx";
@@ -28,18 +29,23 @@ export default function BelowFold({ onReady }) {
       <TryIt />
       <DecisionMoment />
       <ThreeQuestions />
+      <FlowLine />
       <Showcase />
       <AiLabEntry />
       <OneDeal />
+      <FlowLine />
       <WorksFlagship />
       <HumanAiEditorial />
       <Works />
       <SemanticaCaseStudy />
+      <FlowLine />
       <Garage />
+      <FlowLine />
       <Capabilities />
       <DealReadiness />
       <CommercialOutcomes />
       <Library />
+      <FlowLine />
       <About />
       <Contact />
     </>

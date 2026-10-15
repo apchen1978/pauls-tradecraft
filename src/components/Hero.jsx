@@ -82,6 +82,7 @@ export default function Hero() {
         <div className="absolute inset-x-0 top-0 h-px bg-bone/15" />
         <div className="absolute -right-16 top-[12%] h-[22rem] w-[22rem] rounded-full bg-gold/10 blur-3xl" />
         <div className="absolute bottom-[8%] left-[8%] h-40 w-40 rounded-full bg-gold/5 blur-3xl" />
+        <div className="hero-aurora" />
       </div>
 
       <div className="relative mx-auto grid min-h-[calc(100svh-68px)] max-w-7xl items-end gap-6 px-4 pb-6 pt-[12.5rem] md:min-h-[calc(100svh-76px)] md:gap-10 md:px-6 md:pb-12 md:pt-16 lg:min-h-[calc(100svh-76px-10.5rem)] lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-10 lg:px-6 lg:pb-12 lg:pt-12">
@@ -141,7 +142,7 @@ export default function Hero() {
         <motion.figure
           initial={{ y: 12 }}
           animate={{ y: 0, transition: { duration: 0.45, ease: "easeOut" } }}
-          className="surface-light group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-line bg-white shadow-[0_1px_2px_rgb(25_58_53/0.04),0_24px_60px_-32px_rgb(25_58_53/0.18)]"
+          className="hero-glow surface-light group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-line bg-white shadow-[0_1px_2px_rgb(25_58_53/0.04),0_24px_60px_-32px_rgb(25_58_53/0.18)]"
         >
           <div className="flex items-center gap-2 border-b border-line bg-bone px-4 py-3 text-xs font-medium text-moss md:px-5">
             <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-amber" />{t.hero.snapshotChromeLabel}</span>
