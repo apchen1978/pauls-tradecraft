@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ROOMVERSE 3D｜空間幻境</title>
+<meta name="description" content="同一間房，換牆、換地毯、換光，看想回家的感覺怎麼變。插畫示意的 3D 軟裝房間。">
+<meta name="theme-color" content="#ecebe5">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ROOMVERSE 3D｜空間幻境">
+<meta property="og:description" content="同一間房，三種想回家的感覺。換牆、換地毯，光也跟著變。">
+<meta property="og:image" content="https://paulstradecraft.com/prototype/roomverse-3d/og-roomverse-3d.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="3D 軟裝房間：米白沙發、兩個抱枕、條紋地毯和窗邊的落地燈。">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root { --ink: #24302c; --paper: #fbfaf6; --moss: #315c5d; --muted: #5b665f; --line: #cfd8d1; --bg: #ecebe5; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, "Noto Sans TC", sans-serif; }
+  [hidden] { display: none !important; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px clamp(16px, 3vw, 40px); }
+  .left { display: flex; align-items: center; gap: 14px; }
+  .home { color: var(--moss); text-decoration: none; font-weight: 700; font-size: 14px; padding: 7px 12px; border: 1px solid #a8afa5; border-radius: 999px; }
+  .mark { font-weight: 800; letter-spacing: .14em; font-size: 13px; }
+  #lang { border: 1px solid #a8afa5; background: none; border-radius: 999px; padding: 7px 12px; font-weight: 700; color: var(--moss); cursor: pointer; }
+  .intro { padding: 4px clamp(16px, 3vw, 40px) 16px; max-width: 900px; }
+  .intro h1 { font-size: clamp(26px, 4vw, 44px); line-height: 1.15; margin: 0 0 10px; }
+  .intro p { margin: 0; color: var(--muted); line-height: 1.7; font-size: clamp(15px, 1.4vw, 17px); }
+  .room { position: relative; margin: 0 clamp(16px, 3vw, 40px); height: min(72vh, 760px); border-radius: 18px; overflow: hidden; background: #ddd6c8; }
+  #stage { position: absolute; inset: 0; }
+  #stage canvas { display: block; touch-action: none; }
+  .poster { position: absolute; inset: 0; display: grid; place-items: center; background: center / cover no-repeat url("poster-desktop.webp"); }
+  .poster button { font: inherit; font-weight: 700; font-size: 17px; padding: 14px 22px; border: 0; border-radius: 999px; background: var(--moss); color: #fff; cursor: pointer; box-shadow: 0 10px 30px #0003; }
+  .poster small { display: block; margin-top: 8px; text-align: center; color: #fff; text-shadow: 0 1px 6px #0008; font-size: 13px; }
+  .panel { position: absolute; right: 14px; top: 14px; width: 290px; max-height: calc(100% - 28px); overflow: auto; background: color-mix(in srgb, var(--paper) 93%, transparent); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; box-shadow: 0 8px 28px #0002; }
+  .panel h2 { font-size: 12px; letter-spacing: .08em; margin: 10px 0 6px; color: var(--muted); }
+  .panel h2:first-child { margin-top: 0; }
+  .opts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .opts button { font: inherit; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
+  .opts button[aria-pressed="true"] { background: var(--moss); border-color: var(--moss); color: #fff; }
+  .hint { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+  .status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fffd; padding: 10px 16px; border-radius: 999px; font-size: 14px; }
+  .note { padding: 14px clamp(16px, 3vw, 40px) 40px; color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 900px; }
+  @media (max-width: 700px) {
+    .room { height: auto; aspect-ratio: auto; }
+    #stage { position: relative; height: 58vh; }
+    .poster { position: absolute; inset: 0; bottom: auto; height: 58vh; background-image: url("poster-mobile.webp"); }
+    .panel { position: static; width: auto; max-height: none; border-radius: 0 0 18px 18px; border-width: 1px 0 0; box-shadow: none; }
+    .mark { font-size: 11px; letter-spacing: .1em; }
+  }
+</style>
+
+</head>
+<body>
+<header>
+  <div class="left"><a class="home" id="home" href="/">← 作品集</a><span class="mark">ROOMVERSE 3D</span></div>
+  <button id="lang" type="button">EN</button>
+</header>
+<section class="intro">
+  <h1 id="title"></h1>
+  <p id="lead"></p>
+</section>
+<section class="room" aria-labelledby="title">
+  <div id="stage"></div>
+  <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
+  <p class="status" id="status" hidden></p>
+  <div class="panel" id="panel" hidden></div>
+</section>
+<p class="note" id="note"></p>
+<script type="module" src="page.js"></script>
+</body>
+</html>
