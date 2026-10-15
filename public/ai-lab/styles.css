@@ -278,3 +278,20 @@ body { overflow-x: clip; }
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
 .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+
+/* Latest observations (weekly) */
+.latest { margin: 22px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+@media (min-width: 900px) { .latest { grid-template-columns: 1fr 1fr; } }
+.obs { display: grid; gap: 8px; align-content: start; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02)); }
+.obs:hover { border-color: rgba(158, 224, 193, .45); }
+.obs-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; font-size: 12px; color: var(--meta); }
+.obs-tag { padding: 0 8px; border-radius: 999px; line-height: 20px; font-size: 11px; }
+.obs.inUse .obs-tag { background: rgba(158, 224, 193, .18); color: var(--mint); }
+.obs.watching .obs-tag { border: 1px solid var(--meta); color: var(--meta); }
+.obs h3 { font-size: 1.05rem; line-height: 1.4; }
+.obs p { margin: 0; }
+.obs-took { font-size: 15px; color: var(--bone); }
+.obs-took b { color: var(--mint); font-weight: 600; }
+.obs-src { justify-self: start; font-size: 13px; }
+/* Word kickers (LATEST, NEXT, GLOSSARY) stay small; only chapter numbers get the large outline. */
+@media (min-width: 1100px) { .chapter > .no.word { position: static; margin: 0; font-size: 13px; line-height: 1.7; letter-spacing: .08em; color: var(--mint); -webkit-text-stroke: 0; } }

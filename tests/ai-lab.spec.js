@@ -224,11 +224,29 @@ test("polish: the hero console plays to the stop line, the chapter rail follows 
   await expect(page.locator("#console-lines .cl")).toHaveCount(TEXT.zh.console.length);
   await expect(page.locator("#console-lines .cl.on")).toHaveCount(TEXT.zh.console.length, { timeout: 8000 });
   await expect(page.locator("#console-lines .cl.wait")).toContainText(TEXT.zh.console.at(-1)[1]);
-  await expect(page.locator("#rail .rail-dot")).toHaveCount(12);
+  await expect(page.locator("#rail .rail-dot")).toHaveCount(13);
   await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; document.getElementById("c7").scrollIntoView(); });
   await expect(page.locator('#rail .rail-dot.on')).toHaveAttribute("data-target", "c7");
   // narrow screens hide the rail
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator("#rail")).toBeHidden();
   await noOverflow(page);
+});
+
+test("latest observations: dated, tagged, sourced, zh and en match", async ({ page }) => {
+  const { LATEST, LATEST_TEXT } = await import("../public/ai-lab/latest.js");
+  for (const item of LATEST) {
+    expect(item.date).toMatch(/^\d{4}-\d{2}(-\d{2})?$/);
+    expect(["inUse", "watching"]).toContain(item.tag);
+    expect(item.source).toMatch(/^https:\/\//);
+    expect(Object.keys(item.zh).sort()).toEqual(Object.keys(item.en).sort());
+  }
+  for (const lang of ["zh", "en"]) {
+    await page.goto(`${PAGE}?lang=${lang}`);
+    await expect(page.locator("#latest-title")).toHaveText(LATEST_TEXT[lang].title);
+    await expect(page.locator("#latest-list .obs")).toHaveCount(Math.min(6, LATEST.length));
+    await expect(page.locator("#latest-list .obs").first().locator("h3")).toHaveText(LATEST[0][lang].title);
+    await expect(page.locator("#latest-list .obs-src").first()).toHaveAttribute("href", LATEST[0].source);
+    await expect(page.locator("#latest-list .obs-src").first()).toHaveAttribute("rel", "noopener noreferrer");
+  }
 });
