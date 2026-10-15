@@ -1,7 +1,7 @@
 // Carry the visitor's language into the bilingual commercial journey.
 // Unrelated experiments, downloads, and same-page anchors stay untouched.
 const BILINGUAL_DEMO = /^https:\/\/apchen1978\.github\.io\/(commercial-decision-desk|overseas-lead-discovery-demo|trade-profit-navigator-demo|quote-lens-demo)\//;
-const BILINGUAL_JOURNEY = /^\/prototype\/(ai-native-overseas-customer-roadmap|ai-native-commercial-conversion|decision-adversary|garage-rfq-workflow-001|three-days-of-quiet|one-container-12-steps|same-factory-different-buyer|worth-reading|teammate-type|code-words|trade-street|second-source-light-lesson|secrets-on-the-corner|take-the-lantern-apart|garage-opportunity-reframing-002|factory-secret-menu)\/$/;
+const BILINGUAL_JOURNEY = /^\/prototype\/(ai-native-overseas-customer-roadmap|ai-native-commercial-conversion|decision-adversary|garage-rfq-workflow-001|three-days-of-quiet|one-container-12-steps|same-factory-different-buyer|worth-reading|teammate-type|code-words|trade-street|second-source-light-lesson|secrets-on-the-corner|take-the-lantern-apart|match-the-approved-lamp|garage-opportunity-reframing-002|factory-secret-menu)\/$/;
 
 export function withDemoLang(url, lang) {
   if (typeof url !== "string" || !["zh", "en"].includes(lang)) return url;
