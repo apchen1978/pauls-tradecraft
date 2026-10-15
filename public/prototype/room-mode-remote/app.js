@@ -14,29 +14,29 @@ const sceneFiles = {
 };
 
 const sceneGroups = {
-  day: ["rain", "sun", "breeze", "autumn"],
-  evening: ["night", "winter"],
-  tech: ["homeAssistantCover", "tech", "techNight", "homeAssistant", "homeAssistantModern"],
+  stayIn: ["rain", "night", "winter"],
+  family: ["sun", "breeze", "autumn"],
+  lightTech: ["homeAssistantCover", "tech", "techNight", "homeAssistant", "homeAssistantModern"],
 };
 
 const copy = {
   zh: {
     title: "ROOM MODE REMOTE｜軟裝遙控器",
     eyebrow: "一間房，幾種想待的方式",
-    intro: "按一下，看看同一間房能變成哪種日子。先選氣氛，再看地毯、窗簾和光怎麼一起讓房間有了表情。",
+    intro: "按一下，看看同一間房能變成哪種日子。先選想回家的感覺，再看地毯、窗簾和光怎麼一起讓房間有了表情。",
     label: "留給自己的紙條",
     startingNote: "今天回來時，你希望這個角落怎麼接住你？",
     footer: "這是軟裝搭配的插畫示意。實際顏色、質感與照度，仍需以材質和現場光線確認。",
-    sceneHint: "先選一個時刻。每張場景都是完整插畫，沙發、地毯與光會一起變化。",
+    sceneHint: "先選一種想回家的感覺。每張場景都是完整插畫，沙發、地毯與光會一起變化。",
     mobilePick: "選房間模式",
     mobilePickPrompt: "選一種想待的房間",
     playAreaLabel: "房間場景探索",
     progressLabel: "探索進度",
     switchLanguageLabel: "切換為英文",
-    groups: { day: "白日與季節", evening: "夜燈時刻", tech: "輕科技" },
-    progress: ["切換時刻", "看見細節", "帶走房間"],
+    groups: { stayIn: "下雨天想窩在家裡", family: "Cozy family", lightTech: "未來輕科技宅男" },
+    progress: ["選感覺", "看見細節", "帶走房間"],
     steps: [
-      { kicker: "SET THE MOOD", title: "今天想切到哪一種房間？", description: "選一個想多待一會兒的時刻。每次切換，沙發、地毯和光會一起變。" },
+      { kicker: "SET THE MOOD", title: "今天想回家是什麼感覺？", description: "先選一種想待的感覺，再挑房間。每次切換，沙發、地毯和光會一起變。" },
       { kicker: "LOOK CLOSER", title: "是哪個細節留下了你？", description: "選一處仔細看。它如何改變房間的感覺？" },
       { kicker: "YOUR ROOM NOTE", title: "這是你留下的房間。", description: "把此刻和你注意到的細節帶走，留成一張房間明信片。" },
     ],
@@ -61,7 +61,7 @@ const copy = {
     back: "回上一段",
     next: "往下看",
     download: "下載房間明信片",
-    restart: "再換個時刻",
+    restart: "再換一種感覺",
     resultLead: "你選了",
     resultDetail: "最讓你停下來的是",
     resultLimit: "搭配示意；實際色彩與質感仍需看材質和現場光線。",
@@ -74,20 +74,20 @@ const copy = {
   en: {
     title: "ROOM MODE REMOTE",
     eyebrow: "One room. More than one way to stay.",
-    intro: "Press a button and see how the same room can feel different. Pick a mood, then look closer at what the rug, curtains, and light bring to it.",
+    intro: "Press a button and see how the same room can feel different. Pick the feeling you want to come home to, then look closer at what the rug, curtains, and light bring to it.",
     label: "A note to yourself",
     startingNote: "When you come home today, how should this corner welcome you?",
     footer: "These are illustrated furnishing studies. Actual color, texture, and illumination depend on materials and on-site light.",
-    sceneHint: "Choose a moment first. Each scene is a complete illustration, so sofa, rug, and light change together.",
+    sceneHint: "Choose how you want coming home to feel. Each scene is a complete illustration, so sofa, rug, and light change together.",
     mobilePick: "Choose a room mode",
     mobilePickPrompt: "Pick a room to stay in",
     playAreaLabel: "Room scene explorer",
     progressLabel: "Exploration progress",
     switchLanguageLabel: "Switch to Chinese",
-    groups: { day: "Day & seasons", evening: "Lamplit hours", tech: "Light tech" },
+    groups: { stayIn: "Rainy day, staying in", family: "Cozy family", lightTech: "Light-tech homebody" },
     progress: ["Set the mood", "Look closer", "Take it home"],
     steps: [
-      { kicker: "SET THE MOOD", title: "Which room mode fits today?", description: "Choose a moment you would like to stay in. The sofa, rug and light change together." },
+      { kicker: "SET THE MOOD", title: "How should coming home feel today?", description: "Pick a feeling, then choose a room. The sofa, rug and light change together." },
       { kicker: "LOOK CLOSER", title: "Which detail makes you stay?", description: "Pick one part of the room and see what it changes." },
       { kicker: "YOUR ROOM NOTE", title: "This is the room you kept.", description: "Take the moment and the detail you noticed with you as a small postcard." },
     ],
@@ -112,7 +112,7 @@ const copy = {
     back: "Go back",
     next: "Keep going",
     download: "Download room postcard",
-    restart: "Try another moment",
+    restart: "Try another feeling",
     resultLead: "You chose",
     resultDetail: "The detail that held your attention",
     resultLimit: "Illustrated pairing only; confirm colors and textures with real materials and on-site light.",
@@ -129,7 +129,7 @@ const state = {
   step: 0,
   scene: "homeAssistantCover",
   detail: null,
-  group: "tech",
+  group: "lightTech",
 };
 
 const els = Object.fromEntries([
@@ -215,7 +215,12 @@ function render() {
   els["mobile-picker"].hidden = state.step !== 0;
   els["mobile-picker-label"].textContent = t.mobilePick;
   const mobileOptions = [new Option(t.mobilePickPrompt, "")];
-  Object.values(sceneGroups).flat().forEach((key) => mobileOptions.push(new Option(t.scenes[key].name, key)));
+  Object.entries(sceneGroups).forEach(([group, scenes]) => {
+    const optionGroup = document.createElement("optgroup");
+    optionGroup.label = t.groups[group];
+    scenes.forEach((key) => optionGroup.append(new Option(t.scenes[key].name, key)));
+    mobileOptions.push(optionGroup);
+  });
   els["mobile-scene-select"].replaceChildren(...mobileOptions);
   els["mobile-scene-select"].value = state.scene || "";
   els["footer-note"].textContent = t.footer;
@@ -243,6 +248,7 @@ function render() {
       tab.setAttribute("aria-pressed", String(state.group === key));
       tab.addEventListener("click", () => {
         state.group = key;
+        if (!sceneGroups[key].includes(state.scene)) state.scene = sceneGroups[key][0];
         render();
       });
       els["scene-tabs"].append(tab);
