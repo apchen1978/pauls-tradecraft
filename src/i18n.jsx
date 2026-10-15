@@ -522,6 +522,13 @@ const dict = {
         },
       ],
     },
+    aiLab: {
+      kicker: "AI LAB · AI 人工智慧實驗室",
+      title: "AI 不只會聊天。它開始一起工作。",
+      lead: "十分鐘看懂：AI 怎麼從聊天變成一起工作，以及人站在哪裡。用貿易的例子講，不需要技術背景。",
+      chapters: ["你在漏斗的哪一層？", "聊天和交辦，差在哪裡？", "一條 AI 工作流，人站在哪裡？", "我怎麼和一組 AI agents 一起做這個網站"],
+      cta: "走進實驗室",
+    },
     garage: {
       eyebrow: "Digital Garage · My creative-thinking garden",
       headline: "讓商業點子先在這裡慢慢成形。",
@@ -1321,6 +1328,13 @@ const dict = {
           objectPosition: "center",
         },
       ],
+    },
+    aiLab: {
+      kicker: "AI LAB · AI 人工智慧實驗室",
+      title: "AI doesn't just chat. It has started to work with us.",
+      lead: "Ten minutes to see how AI moves from chatting to working alongside you, and where the human stands. Told with trade examples; no technical background needed.",
+      chapters: ["Which tier of the funnel are you in?", "Chatting vs delegating", "In an AI workflow, where does the human stand?", "How I build this site with a team of AI agents"],
+      cta: "Enter the lab",
     },
     garage: {
       eyebrow: "Digital Garage · My creative-thinking garden",
