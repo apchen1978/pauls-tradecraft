@@ -29,9 +29,10 @@
   }
   </script>
   <style>
-    :root { --pine:#143329; --bone:#f4efe6; --gold:#d4a017; --ink:#1c241f; --line:rgba(20,51,41,.14); --muted:rgba(28,36,31,.68); }
+    @font-face { font-family: "Geist Variable"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("/fonts/geist-latin-wght-normal.woff2") format("woff2-variations"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+    :root { --pine:#142C29; --bone:#F6F3ED; --gold:#8A6A2B; --gold-fill:#B89966; --ink:#193A35; --line:rgba(20,44,41,.14); --muted:#5A6A63; }
     * { box-sizing: border-box; }
-    body { margin:0; font-family: "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif; background: var(--bone); color: var(--ink); line-height: 1.65; }
+    body { margin:0; font-family: "Geist Variable", "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", ui-sans-serif, system-ui, sans-serif; background: var(--bone); color: var(--ink); line-height: 1.65; }
     a { color: var(--pine); }
     .wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px 80px; }
     .crumb { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
@@ -42,7 +43,7 @@
     .badge { display:inline-block; margin-top: 14px; margin-right: 8px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--pine); background: #fff; }
     .ctas { display:flex; flex-wrap:wrap; gap:10px; margin-top: 22px; }
     .btn { display:inline-block; padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration:none; }
-    .btn-primary { background: var(--gold); color: var(--pine); }
+    .btn-primary { background: var(--gold-fill); color: var(--pine); }
     .btn-secondary { border: 1px solid var(--line); background: #fff; color: var(--pine); }
     .grid { display:grid; gap: 12px; margin-top: 28px; }
     @media (min-width:700px){ .grid { grid-template-columns: 1fr 1fr; } .grid .wide { grid-column: 1 / -1; } }
@@ -57,6 +58,13 @@
     th { background: rgba(20,51,41,.06); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
     .boundary { border-left: 3px solid var(--gold); padding: 8px 0 8px 14px; color: var(--muted); }
     .en { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+    .shot { margin: 26px 0 0; }
+    .shot-frame { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .shot-frame img { position: absolute; display: block; max-width: none; height: auto; }
+    .shot-frame .fade { position: absolute; top: 0; right: 0; bottom: 0; width: 32px; background: linear-gradient(to left, #fff, rgba(255,255,255,0)); pointer-events: none; }
+    .shot figcaption { margin-top: 8px; font-size: 13px; color: var(--muted); }
+    .shot-zh .shot-frame { aspect-ratio: 748 / 390; } .shot-zh img { width: 140.64%; left: -3.74%; top: -62.82%; }
+    .shot-en .shot-frame { aspect-ratio: 748 / 388; } .shot-en img { width: 140.64%; left: -3.74%; top: -69.59%; }
     footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
   </style>
 </head>
@@ -72,11 +80,22 @@
       <a class="btn btn-secondary" href="/#contact">帶一個真實交易問題來談</a>
     </div>
 
+    <figure class="shot shot-zh">
+      <div class="shot-frame">
+        <picture>
+          <source media="(min-width: 769px)" srcset="/images/cdd-executive-snapshot-zh-v02.png" type="image/png" />
+          <img src="/images/cdd-executive-snapshot-zh-v02-800.webp" width="1052" height="1146" alt="商務決策工作台示範案例的決策摘要：目前建議「需要進一步判斷」，附經濟解讀與關鍵數字" loading="eager" />
+        </picture>
+        <span class="fade" aria-hidden="true"></span>
+      </div>
+      <figcaption>示範案例的決策摘要 · 示意資料，非真實客戶</figcaption>
+    </figure>
+
     <div class="grid" aria-label="Snapshot">
-      <div class="card"><h3>Decision question</h3><p>這筆單，現在能不能承諾？</p></div>
-      <div class="card"><h3>Input</h3><p>RFQ／報價條件／付款與交期（可匿名或示意）</p></div>
-      <div class="card"><h3>Output</h3><p>Decision Path + Deal Brief（已知／UNKNOWN／下一步）</p></div>
-      <div class="card"><h3>Human gate</h3><p>負責人／業務主管授權；系統不自動對外承諾</p></div>
+      <div class="card"><h3>決策問題</h3><p>這筆單，現在能不能承諾？</p></div>
+      <div class="card"><h3>輸入</h3><p>RFQ／報價條件／付款與交期（可匿名或示意）</p></div>
+      <div class="card"><h3>產出</h3><p>Decision Path + Deal Brief（已知／UNKNOWN／下一步）</p></div>
+      <div class="card"><h3>人的關卡</h3><p>負責人／業務主管授權；系統不自動對外承諾</p></div>
     </div>
 
     <h2>情境</h2>
@@ -84,14 +103,14 @@
 
     <h2>方法</h2>
     <ol class="method">
-      <li><strong>Intake</strong> — 收斂交易問題與可用輸入</li>
-      <li><strong>Structure terms</strong> — 付款、交付、責任、數量／價格結構</li>
-      <li><strong>Surface UNKNOWN</strong> — 缺資料不補成事實</li>
-      <li><strong>Decision states</strong> — 可推進／有條件／暫緩／拒絕（依系統定義）</li>
-      <li><strong>Human commit</strong> — 人做最終承諾；留下可交接產物</li>
+      <li><strong>收斂問題</strong> — 收斂交易問題與可用輸入</li>
+      <li><strong>整理條件</strong> — 付款、交付、責任、數量／價格結構</li>
+      <li><strong>攤開 UNKNOWN</strong> — 缺資料不補成事實</li>
+      <li><strong>決策狀態</strong> — 可推進／有條件／暫緩／拒絕（依系統定義）</li>
+      <li><strong>人做承諾</strong> — 人做最終承諾；留下可交接產物</li>
     </ol>
 
-    <h2>Evidence ladder</h2>
+    <h2>證據階梯</h2>
     <table>
       <thead><tr><th>可複核事實（FACT）</th><th>來源</th><th>未驗證／UNKNOWN</th></tr></thead>
       <tbody>
@@ -122,6 +141,16 @@
       <p class="eyebrow">ENGLISH SUMMARY</p>
       <h2 style="margin-top:10px">Commercial Decision Desk — can we commit now?</h2>
       <p class="badge">demo case · rules can be rerun and checked</p>
+      <figure class="shot shot-en">
+        <div class="shot-frame">
+          <picture>
+            <source media="(min-width: 769px)" srcset="/images/cdd-executive-snapshot-en-v02.png" type="image/png" />
+            <img src="/images/cdd-executive-snapshot-en-v02-800.webp" width="1052" height="1166" alt="Commercial Decision Desk demo case: current recommendation Escalate for review, with the economics reading and key figures" loading="lazy" />
+          </picture>
+          <span class="fade" aria-hidden="true"></span>
+        </div>
+        <figcaption>Decision summary of the demo case · illustrative data, not a real client</figcaption>
+      </figure>
       <p>The desk uses rules to structure payment, delivery, liability, and UNKNOWNs into a Deal Brief a team can take into a meeting. Humans keep authorization and the final commitment.</p>
       <p><strong>Fact:</strong> the public sample can be inspected interactively.<br/>
       <strong>Design or usefulness claim, not a fact:</strong> UNKNOWN is not auto-filled into fact; the output is intended as a meeting hand-over.<br/>
