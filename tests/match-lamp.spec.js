@@ -271,3 +271,28 @@ test("the tag beside the dome turns over to a small handwritten note, and closes
     await expect(page.locator("#tagnote")).toBeHidden();
   }
 });
+
+test("share image: the page carries og and twitter image meta, and the image is 1200x630", async ({ page, request }) => {
+  await page.goto(`${PAGE}?lang=zh`);
+  const og = await page.locator('meta[property="og:image"]').getAttribute("content");
+  expect(og).toBe("https://paulstradecraft.com/prototype/match-the-approved-lamp/assets/og-match-lamp.jpg");
+  await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute("content", "1200");
+  await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute("content", "630");
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", og);
+  const response = await request.get("/prototype/match-the-approved-lamp/assets/og-match-lamp.jpg");
+  expect(response.status()).toBe(200);
+  const body = await response.body();
+  // JPEG frame header: height and width sit right after the SOF0/SOF2 marker
+  let i = 2;
+  let size = null;
+  while (i < body.length) {
+    if (body[i] !== 0xff) { i += 1; continue; }
+    const marker = body[i + 1];
+    const length = body.readUInt16BE(i + 2);
+    if (marker === 0xc0 || marker === 0xc2) { size = { height: body.readUInt16BE(i + 5), width: body.readUInt16BE(i + 7) }; break; }
+    i += 2 + length;
+  }
+  expect(size).toEqual({ width: 1200, height: 630 });
+  expect(body.length).toBeLessThan(150 * 1024);
+});
