@@ -66,8 +66,11 @@ main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16p
 .glow { opacity: 0; transition: opacity .3s; mix-blend-mode: screen; }
 .lamp::before { content: ""; position: absolute; inset: -18%; background: radial-gradient(closest-side, var(--glowc, rgba(255,206,120,.7)), transparent 72%); opacity: 0; transition: opacity .3s; pointer-events: none; }
 .stage.lit .lamp::before { opacity: 1; }
-.stage.lit .glow { opacity: .85; }
-.stage.lit .shade, .stage.lit .tint { filter: brightness(1.12); }
+.stage.lit .glow { opacity: 1; }
+.stage.lit .shade, .stage.lit .tint { filter: brightness(1.18); }
+/* Lit shade: the light shows through the shade itself, in each lamp's own light colour. */
+.litglow { background: radial-gradient(70% 80% at 50% 60%, var(--glowc, rgba(255,206,120,.8)) 0%, rgba(255,255,255,0) 100%); -webkit-mask: var(--shade-mask) center / 100% 100% no-repeat; mask: var(--shade-mask) center / 100% 100% no-repeat; mix-blend-mode: screen; opacity: 0; transition: opacity .3s; }
+.stage.lit .litglow { opacity: 1; }
 .dim { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: rgba(8, 14, 28, 0); transition: background .35s; }
 .stage.lit .dim { background: rgba(8, 14, 28, .62); }
 .lamp-btn .letter { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); min-width: 26px; padding: 0 8px; text-align: center; font-size: 14px; font-weight: 800; color: var(--deep); background: #F4EEDF; border: 2px solid #A59676; border-radius: 999px; line-height: 22px; }

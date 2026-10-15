@@ -79,10 +79,13 @@ for (const width of [390, 1440]) {
         await page.locator("#mode-side").click();
         await expect(page.locator("#stage")).toHaveAttribute("data-mode", "side");
         await expect(page.locator("#mode-note")).toHaveText(x.sideNote);
-        await expect(page.locator("#gate")).toHaveText(x.needMark);
+        await expect(page.locator("#gate")).toHaveText(x.needLit);
         await page.locator("#light").click();
         await expect(page.locator("#stage")).toHaveClass(/lit/);
         await expect(page.locator("#mode-note")).toHaveText(x.litNote);
+        await expect(page.locator("#gate")).toHaveText(x.needMark);
+        // the lamps really light up: a halo and a lit shade on every lamp, and the lamp D light is whiter than the rest
+        await expect.poll(() => page.locator('.lamp-btn[data-id="A"] .litglow').evaluate((node) => parseFloat(getComputedStyle(node).opacity))).toBeGreaterThan(0.9);
         await noOverflow(page);
         await page.locator('.lamp-btn[data-id="C"]').click();
         await page.locator('.lamp-btn[data-id="D"]').click();
@@ -148,12 +151,13 @@ test("switching language keeps your place and your choices", async ({ page }) =>
   expect(page.url()).toContain("lang=en");
 });
 
-test("marking nothing missed: marking all three differences says so", async ({ page }) => {
+test("marking all three differences says nothing was missed", async ({ page }) => {
   await page.goto(`${PAGE}?lang=en`);
   await page.locator("#go0").click();
   await page.locator('#agree button[data-agree="later"]').click();
   await page.locator("#go1").click();
   await page.locator("#mode-side").click();
+  await page.locator("#light").click();
   for (const id of ["C", "D", "E"]) await page.locator(`.lamp-btn[data-id="${id}"]`).click();
   await page.locator("#go2").click();
   for (const id of ["C", "D", "E"]) await page.locator(`.sort-item[data-lamp="${id}"] button[data-basket="talk"]`).click();
@@ -168,6 +172,7 @@ test("the in-range reply quotes what was agreed at the trial, even when it was '
   await page.locator('#agree button[data-agree="later"]').click();
   await page.locator("#go1").click();
   await page.locator("#mode-side").click();
+  await page.locator("#light").click();
   await page.locator('.lamp-btn[data-id="E"]').click();
   await page.locator("#go2").click();
   await page.locator('.sort-item[data-lamp="E"] button[data-basket="inrange"]').click();

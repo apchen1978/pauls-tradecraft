@@ -14,6 +14,7 @@ const state = {
   lit: false,
   single: 0,
   seenSide: false,
+  seenLit: false,
   marks: new Set(),
   baskets: {},
 };
@@ -49,7 +50,7 @@ function lampLayers(spec) {
     if (filter && filter !== "none") img.style.filter = filter;
     return img;
   };
-  lamp.append(mk("cord", "lamp-cord-f.webp"), mk("base", "lamp-base-brass-f.webp", spec.baseFilter), mk("shade", "lamp-shade-paper-f.webp"), el("div", "layer tint"), mk("glow", "lamp-shade-glow-f.webp", spec.glowFilter));
+  lamp.append(mk("cord", "lamp-cord-f.webp"), mk("base", "lamp-base-brass-f.webp", spec.baseFilter), mk("shade", "lamp-shade-paper-f.webp"), el("div", "layer tint"), el("div", "layer litglow"), mk("glow", "lamp-shade-glow-f.webp", spec.glowFilter));
   return lamp;
 }
 
@@ -125,6 +126,7 @@ function applyStatic() {
   $("s1-title").textContent = x.s1title;
   $("s1-narr").textContent = x.s1narr;
   $("s1-ask").textContent = x.s1ask;
+  $("s1-sunny").replaceChildren(el("b", null, NAMES.sunny[state.lang]), el("span", null, x.s1sunny));
   $("go1").textContent = x.s1go;
   $("s2-title").textContent = x.s2title;
   $("s2-narr").textContent = x.s2narr;
@@ -201,6 +203,7 @@ function syncGate2() {
   const x = t();
   let message = "";
   if (!state.seenSide) message = x.needSide;
+  else if (!state.seenLit) message = x.needLit;
   else if (state.marks.size === 0) message = x.needMark;
   $("gate").textContent = message;
   $("go2").disabled = Boolean(message);
@@ -269,7 +272,7 @@ function renderEnd() {
 function show(n, focus) {
   state.screen = n;
   document.querySelectorAll(".screen").forEach((s) => { s.hidden = Number(s.dataset.screen) !== n; });
-  if (n === 2) { state.mode = "single"; state.lit = false; state.seenSide = false; state.single = 0; renderModes(); syncGate2(); }
+  if (n === 2) { state.mode = "single"; state.lit = false; state.seenSide = false; state.seenLit = false; state.single = 0; renderModes(); syncGate2(); }
   if (n === 3) renderSort();
   if (n === 4) renderEnd();
   syncStage();
@@ -310,7 +313,9 @@ function wire() {
   $("mode-side").addEventListener("click", () => setMode("side"));
   $("light").addEventListener("click", () => {
     state.lit = !state.lit;
+    if (state.lit) state.seenLit = true;
     renderModes();
+    syncGate2();
     syncStage();
   });
   $("prev").addEventListener("click", () => { state.single = (state.single + LAMPS.length - 1) % LAMPS.length; syncStage(); });
