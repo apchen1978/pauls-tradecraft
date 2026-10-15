@@ -11,10 +11,10 @@ const fadeUp = {
 
 // 原圖 1052 px 寬；英文版整體比中文版低約 25 px，所以裁切框分語言（單位：原圖像素）。
 // desktop：一整塊（目前建議、經濟解讀、關鍵數字）。
-// rec／num：手機用兩個更緊的框，只留「目前建議」那一塊與「預期淨貢獻」那一格，文字才讀得清楚。
+// rec：手機只留「目前建議」那一塊；數字由下方說明文字帶出（放大的數字圖在手機上太突兀，Paul 2026-10-16）。
 const CROPS = {
-  zh: { desktop: { x: 12, y: 245, w: 764, h: 390 }, rec: { x: 12, y: 245, w: 516, h: 105 }, num: { x: 526, y: 548, w: 250, h: 90 } },
-  en: { desktop: { x: 12, y: 270, w: 764, h: 388 }, rec: { x: 12, y: 268, w: 516, h: 95 }, num: { x: 526, y: 568, w: 250, h: 90 } },
+  zh: { desktop: { x: 12, y: 245, w: 764, h: 390 }, rec: { x: 12, y: 245, w: 516, h: 105 } },
+  en: { desktop: { x: 12, y: 270, w: 764, h: 388 }, rec: { x: 12, y: 268, w: 516, h: 95 } },
 };
 
 function CropFrame({ snapshot, crop, alt, priority }) {
@@ -153,9 +153,8 @@ export default function Hero() {
             <div className="hidden md:block">
               <CropFrame snapshot={snapshot} crop={crops.desktop} alt={t.hero.snapshotAlt} priority />
             </div>
-            <div className="space-y-2 md:hidden">
+            <div className="md:hidden">
               <CropFrame snapshot={snapshot} crop={crops.rec} alt={t.hero.snapshotAlt} priority />
-              <CropFrame snapshot={snapshot} crop={crops.num} alt="" />
             </div>
           </div>
           <figcaption className="flex flex-col items-start gap-2 border-t border-line px-4 py-3 text-xs leading-snug text-moss md:px-5 md:py-3.5 md:text-sm">
