@@ -115,6 +115,13 @@ for (const header of showcaseHeaders) {
   check(!/人工智慧|\bAI\b/.test(withoutApproved), "Showcase header mentions AI outside the approved description");
 }
 
+// Paul 2026-10-15: the AI Lab (public/ai-lab/ and the homepage aiLab block) may use AI wording.
+// Keep that exception written down in SITE_RULES, and keep the lab's own block separate from the Showcase header.
+const siteRules = fs.readFileSync(path.join(ROOT, "docs", "SITE_RULES.md"), "utf8");
+check(siteRules.includes("AI 人工智慧實驗室") && siteRules.includes("public/ai-lab/"), "SITE_RULES is missing the AI Lab exception");
+check((i18nSource.match(/\n\s*aiLab:\s*\{/g) || []).length === 2, "expected exactly two aiLab blocks in i18n (zh and en)");
+for (const header of showcaseHeaders) check(!header.includes("AI 人工智慧實驗室") && !header.includes("AI LAB"), "AI Lab wording leaked into the Showcase header");
+
 check(en.positioning === expected.positioningEn, "EN missing current capability positioning");
 check(zh.positioning === expected.positioningZh, "ZH missing current capability positioning");
 check(en.works?.length === zh.works?.length, "ZH/EN selected proof hierarchy diverged");
