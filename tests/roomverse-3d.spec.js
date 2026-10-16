@@ -126,3 +126,17 @@ test("粉領新貴風: a fourth feeling with its own line, plus a blush wall and
   await page.locator("#lang").click();
   await expect(pressed(0)).toHaveText("Chic city professional");
 });
+
+test("surprise me: one tap picks a new wall, rug, curtain and print, keeps the feeling, and updates the link", async ({ page }) => {
+  await page.goto(`${PAGE}?lang=en&mood=tech&wall=original&rug=stripe&curtain=linen&print=hills`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.locator("#panel .shuffle").click();
+  const url = new URL(page.url());
+  expect(url.searchParams.get("mood")).toBe("tech");
+  expect(url.searchParams.get("wall")).not.toBe("original");
+  expect(url.searchParams.get("rug")).not.toBe("stripe");
+  expect(url.searchParams.get("curtain")).not.toBe("linen");
+  expect(url.searchParams.get("print")).not.toBe("hills");
+  await expect(page.locator("#panel .opts").nth(0).locator('button[aria-pressed="true"]')).toHaveText("Light-tech homebody");
+});

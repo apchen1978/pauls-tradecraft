@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", save: "存成明信片", shuffle: "幫我隨機搭一間", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", save: "Save as a postcard", shuffle: "Surprise me with a room", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -462,7 +462,14 @@ export async function start({ stage, panel, lang, onReady }) {
       const why = document.createElement("p"); why.className = "why"; why.textContent = MOODS[state.mood].why[state.lang]; // why this pairing
       return [h, box, why];
     }), Object.assign(document.createElement("p"), { className: "hint", textContent: t.hint }),
+    Object.assign(document.createElement("button"), { type: "button", className: "save shuffle", textContent: t.shuffle, onclick: () => shuffle() }),
     Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: t.save, onclick: () => savePostcard() }));
+  }
+  // a random wall, rug, curtain and print (never the same set twice in a row); the feeling stays the visitor's own
+  function shuffle() {
+    const pick = (table, now) => { const ks = Object.keys(table).filter((k) => k !== now); return ks[Math.floor(Math.random() * ks.length)]; };
+    state.wall = pick(WALLS, state.wall); state.rug = pick(RUGS, state.rug); state.curtain = pick(CURTAINS, state.curtain); state.print = pick(PRINTS, state.print);
+    apply(); toUrl();
   }
 
   // postcard: the room as it looks now, with a paper strip naming the chosen feeling, wall and rug
