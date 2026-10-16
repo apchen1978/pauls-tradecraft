@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", hint: "拖曳可以轉一點角度。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", hint: "Drag to turn the room a little.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -146,12 +146,16 @@ export async function start({ stage, panel, lang, onReady }) {
   const lampLight = new THREE.PointLight("#ffc27a", 3.2, 6, 1.6);
   lampLight.position.set(TX, .98, TZ); lampLight.castShadow = true; lampLight.shadow.mapSize.set(1024, 1024); lampLight.shadow.bias = -.002; lampLight.shadow.radius = 10; scene.add(lampLight);
   const PX = -2.3, PZ = BACK + .45;
-  // art above the sofa: Codex's watercolour prints in a thin oak frame. The print follows the feeling
-  // (rain → rain print, family → hills and sun, tech → crescent moon); only the shown one is loaded.
-  const PRINTS = { rain: "rain", family: "hills", tech: "moon" }, prints = {}, printLoader = new THREE.TextureLoader();
+  // art above the sofa: Codex's watercolour prints in a thin oak frame. The visitor picks one
+  // (Paul 2026-10-16: 「讓訪客自己選」); only the shown print is loaded.
+  const PRINTS = {
+    hills: { zh: "山丘與太陽", en: "Hills and sun" },
+    moon: { zh: "新月", en: "Crescent moon" },
+    rain: { zh: "雨雲", en: "Rain cloud" },
+  };
+  const prints = {}, printLoader = new THREE.TextureLoader();
   const printMat = new THREE.MeshStandardMaterial({ roughness: .85 });
-  function printFor(mood) {
-    const name = PRINTS[mood];
+  function printFor(name) {
     if (!prints[name]) {
       prints[name] = printLoader.load(new URL(`./art/wall-print-${name}-v1.webp`, import.meta.url).href, () => render());
       prints[name].colorSpace = THREE.SRGBColorSpace; prints[name].anisotropy = 8;
@@ -302,20 +306,66 @@ export async function start({ stage, panel, lang, onReady }) {
   const plantObj = place(plant, { height: 1.35, x: PX, z: PZ });
   prepare(plantObj, vcol({ roughness: .75 }));
   // a small home robot (Codex's drawing, same pipeline) keeps the plant company by the rug; no caption, just there
-  robot.scene.rotation.y = .5; // turn before placing: the model's origin is not its centre, so turning afterwards would swing it away
   const robotObj = place(robot, { height: .46, x: -1.45, z: SZ + 1.45 });
+  // Vertex colours cannot hold a crisp screen or small eyes (edges can only fall on vertices: jagged, and the dark
+  // screen spilled down the head; DSH review 2026-10-16). So: the dark projected colour becomes body cream, and the
+  // face screen and eyes are their own small meshes with clean edges. Greens from the drawing stay.
+  const cream = new THREE.Color("#ece6dc");
+  // projected greens came out blotchy too, so the body is re-coloured by height: cream, with the sage belt from the drawing
+  const sage = new THREE.Color("#8fa083"), rb0 = new THREE.Box3().setFromObject(robotObj), rv = new THREE.Vector3();
+  robotObj.traverse((m) => {
+    const c = m.isMesh && m.geometry.attributes.color; if (!c) return;
+    const pos = m.geometry.attributes.position;
+    for (let i = 0; i < c.count; i++) {
+      rv.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); const t = (rv.y - rb0.min.y) / (rb0.max.y - rb0.min.y);
+      const col = t > .12 && t < .27 ? sage : cream; c.setXYZ(i, col.r, col.g, col.b);
+    }
+    c.needsUpdate = true;
+  });
   prepare(robotObj, vcol({ roughness: .5 }));
+  // measure the front of the head (the model faces +z) to fit the screen on it
+  const rbb = new THREE.Box3().setFromObject(robotObj), rH = rbb.max.y - rbb.min.y, rW = rbb.max.x - rbb.min.x, rcx = (rbb.min.x + rbb.max.x) / 2;
+  const fy = rbb.max.y - rH * .29, frontZ = (x, y) => {
+    let z = -Infinity; const v = new THREE.Vector3();
+    robotObj.traverse((m) => { if (!m.isMesh) return; const pos = m.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); if (Math.abs(v.x - x) < rW * .06 && Math.abs(v.y - y) < rH * .05) z = Math.max(z, v.z); } });
+    return z;
+  };
+  const fw = rW * .6, fh = rH * .25, zc = frontZ(rcx, fy), ze = frontZ(rcx + fw / 2, fy);
+  const bend = isFinite(ze) ? (zc - ze) / ((fw / 2) ** 2) : 0; // follow the head's curve across the screen
+  // the head bulges in places (it poked through the screen's lower middle): sample a grid over the screen area and
+  // sit the screen just proud of the highest point
+  let lift = 0;
+  for (const gx of [-.45, -.25, 0, .25, .45]) for (const gy of [-.5, -.25, 0, .25, .5]) {
+    const x = gx * fw, z = frontZ(rcx + x, fy + gy * fh);
+    if (isFinite(z)) lift = Math.max(lift, z - (zc - bend * x * x));
+  }
+  const screenShape = new THREE.Shape(), rr = fh * .35;
+  screenShape.moveTo(-fw / 2 + rr, -fh / 2); screenShape.lineTo(fw / 2 - rr, -fh / 2); screenShape.quadraticCurveTo(fw / 2, -fh / 2, fw / 2, -fh / 2 + rr);
+  screenShape.lineTo(fw / 2, fh / 2 - rr); screenShape.quadraticCurveTo(fw / 2, fh / 2, fw / 2 - rr, fh / 2); screenShape.lineTo(-fw / 2 + rr, fh / 2);
+  screenShape.quadraticCurveTo(-fw / 2, fh / 2, -fw / 2, fh / 2 - rr); screenShape.lineTo(-fw / 2, -fh / 2 + rr); screenShape.quadraticCurveTo(-fw / 2, -fh / 2, -fw / 2 + rr, -fh / 2);
+  const screenGeo = new THREE.ShapeGeometry(screenShape, 12);
+  { const q = screenGeo.attributes.position; for (let i = 0; i < q.count; i++) q.setZ(i, -bend * q.getX(i) ** 2); screenGeo.computeVertexNormals(); }
+  const screen = new THREE.Mesh(screenGeo, new THREE.MeshStandardMaterial({ color: "#2b2d30", roughness: .35, metalness: .1 }));
+  screen.position.set(rcx, fy, zc + lift + .02); // 2 cm proud: the sampled lift alone still let a bump show through the lower middle
+  const eyeMat = new THREE.MeshBasicMaterial({ color: "#ffe2a8" });
+  for (const sx of [-1, 1]) {
+    const eye = new THREE.Mesh(new THREE.CircleGeometry(fh * .13, 20), eyeMat);
+    const ex = sx * fw * .2; eye.position.set(ex, fh * .05, -bend * ex * ex + .002); screen.add(eye);
+  }
+  scene.add(screen); robotObj.attach(screen);
   scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj);
   // the robot turns around its own centre: hang it on a pivot at its footprint centre
   const rb = new THREE.Box3().setFromObject(robotObj), robotPivot = new THREE.Group();
   robotPivot.position.set((rb.min.x + rb.max.x) / 2, 0, (rb.min.z + rb.max.z) / 2); scene.add(robotPivot); robotPivot.attach(robotObj);
+  robotPivot.rotation.y = .5; // turned a little toward the room
   // the floor lamp gets its own light just under the shade (no shadow: a light inside the closed shade mesh would be blocked)
   const shadeY = lb.min.y + (lb.max.y - lb.min.y) * .8, lampX = (lb.min.x + lb.max.x) / 2, lampZ = (lb.min.z + lb.max.z) / 2;
   const floorLight = new THREE.PointLight("#ffc98a", 0, 5, 1.6); floorLight.position.set(lampX, shadeY - .12, lampZ + .05); scene.add(floorLight);
   const floorHalo = halo(lampX, shadeY, lampZ + .3, 1.1); // a little in front of the shade so the shade does not hide it
 
   // ---------- state + panel ----------
-  const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", lang };
+  const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
   const cache = {};
   const CURTAINS = {
     linen: { zh: "亞麻米白", en: "Linen cream", color: "#e6ddcc" },
@@ -361,7 +411,7 @@ export async function start({ stage, panel, lang, onReady }) {
     const m = MOODS[state.mood];
     outMat.map = cache["view-" + state.mood] ||= VIEWS[state.mood](); outMat.needsUpdate = true;
     led.visible = !!m.led;
-    printMat.map = printFor(state.mood); printMat.needsUpdate = true;
+    printMat.map = printFor(state.print); printMat.needsUpdate = true;
     easeLights();
     linen.color.set(CURTAINS[state.curtain].color);
     const w = WALLS[state.wall];
@@ -374,7 +424,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function drawPanel() {
     const t = TEXT[state.lang];
-    panel.replaceChildren(...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS]].flatMap(([key, table]) => {
+    panel.replaceChildren(...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
       const box = document.createElement("div"); box.className = "opts"; box.setAttribute("role", "group"); box.setAttribute("aria-label", t[key]);
       box.append(...Object.entries(table).map(([k, v]) => {
@@ -400,7 +450,7 @@ export async function start({ stage, panel, lang, onReady }) {
     ctx.fillStyle = "#24302c"; ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`; ctx.textBaseline = "alphabetic";
     ctx.fillText("ROOMVERSE 3D", pad, h + pad + big * .8);
     ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
-    ctx.fillText([MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l], CURTAINS[state.curtain][l]].join("  ·  "), pad, h + strip - pad * .9);
+    ctx.fillText([MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l], CURTAINS[state.curtain][l], PRINTS[state.print][l]].join("  ·  "), pad, h + strip - pad * .9);
     ctx.textAlign = "right"; ctx.fillText("paulstradecraft.com", w - pad, h + pad + big * .8);
     return c;
   }
@@ -427,8 +477,7 @@ export async function start({ stage, panel, lang, onReady }) {
     ray.setFromCamera(tap, camera);
     if (!ray.intersectObject(robotObj, true).length) return;
     hopping = true;
-    // the drawing faces +z, and the robot was placed turned .5 rad; the pivot turns it the rest of the way to the camera
-    const look = Math.atan2(camera.position.x - robotPivot.position.x, camera.position.z - robotPivot.position.z) - .5;
+    const look = Math.atan2(camera.position.x - robotPivot.position.x, camera.position.z - robotPivot.position.z); // the robot faces +z
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now(), T = 1400;
     const step = (now) => {
       const k = Math.min(1, (now - t0) / T);
