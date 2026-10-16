@@ -130,7 +130,10 @@ export async function start({ stage, panel, lang, onReady }) {
   [-1, 1].forEach((s) => { add(new THREE.PlaneGeometry(D, H + .3), sideMat, s * W / 2, H / 2 - .15, BACK + D / 2, true).rotation.y = -s * Math.PI / 2; });
   add(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ color: "#f6f2ea", emissive: "#f6f2ea", emissiveIntensity: .12 }), 0, H, BACK + D / 2, true).rotation.x = Math.PI / 2;
   const wood = new THREE.MeshStandardMaterial({ color: "#8a5a36", roughness: .6 });
-  add(new THREE.BoxGeometry(W, .09, .02), new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .7 }), 0, .045, BACK + .01, false);
+  const skirting = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .7 });
+  add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, BACK + .01, false);
+  // side skirting too: finishes the room and covers the thin light line where wall meets floor
+  [-1, 1].forEach((s) => add(new THREE.BoxGeometry(.02, .09, D), skirting, s * (W / 2 - .01), .045, BACK + D / 2, false));
   // the view outside changes with the feeling: grey rain, a sunny afternoon, a city night
   const trees = (ctx, w, h, cols, top = .45) => { for (let i = 0; i < 46; i++) { ctx.fillStyle = cols[i % cols.length]; ctx.beginPath(); ctx.arc(rnd() * w, h * top + rnd() * h * (1 - top), 22 + rnd() * 40, 0, 7); ctx.fill(); } };
   const VIEWS = {
@@ -254,7 +257,26 @@ export async function start({ stage, panel, lang, onReady }) {
   const base = new URL("./models/", import.meta.url).href;
   const [sofa, table, floorLamp] = await Promise.all(["sofa", "side-table", "floor-lamp"].map((f) => loader.loadAsync(base + f + ".glb")));
   const sofaObj = place(sofa, { width: 2.0, x: SX, z: SZ + .02 });
-  prepare(sofaObj, () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92 })); // colours projected from the illustration
+  // colours projected from the illustration, plus a fine fabric weave. The AI model has no UVs,
+  // so the weave is sampled from three sides by world position (triplanar) and blended by the surface normal.
+  // linen-like: a faint thread grid plus irregular slubs (thicker, lighter or darker runs), which is what reads at room distance
+  const weave = canvasTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = "rgb(128,0,0)"; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < w; i += 3) { ctx.fillStyle = "rgba(255,0,0,.10)"; ctx.fillRect(i, 0, 1, h); ctx.fillStyle = "rgba(0,0,0,.10)"; ctx.fillRect(0, i, w, 1); }
+    for (let i = 0; i < 260; i++) { const light = rnd() < .5; ctx.fillStyle = light ? `rgba(255,0,0,${.25 + rnd() * .3})` : `rgba(0,0,0,${.2 + rnd() * .25})`; const x = rnd() * w, y = Math.floor(rnd() * h / 3) * 3, len = 8 + rnd() * 40; ctx.fillRect(x, y, len, 1.5 + rnd()); if (x + len > w) ctx.fillRect(x - w, y, len, 1.5); }
+  });
+  weave.colorSpace = THREE.NoColorSpace;
+  const fabricMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92 });
+  fabricMat.onBeforeCompile = (sh) => {
+    sh.uniforms.weave = { value: weave };
+    sh.vertexShader = "varying vec3 vWP; varying vec3 vWN;\n" + sh.vertexShader.replace("#include <project_vertex>", "#include <project_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.)).xyz; vWN = normalize(mat3(modelMatrix) * objectNormal);");
+    sh.fragmentShader = "uniform sampler2D weave; varying vec3 vWP; varying vec3 vWN;\n" + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
+      vec3 bw = pow(abs(normalize(vWN)), vec3(4.)); bw /= bw.x + bw.y + bw.z;
+      float s = 3.5; // one tile is about 29 cm, so a thread is about 1 mm and a slub 1-5 cm
+      float wv = texture2D(weave, vWP.zy * s).r * bw.x + texture2D(weave, vWP.xz * s).r * bw.y + texture2D(weave, vWP.xy * s).r * bw.z;
+      diffuseColor.rgb *= .75 + .5 * wv;`);
+  };
+  prepare(sofaObj, () => fabricMat);
   const tableObj = place(table, { height: .6, x: TX, z: TZ });
   prepare(tableObj, () => wood);
   const lampObj = place(floorLamp, { height: 1.55, x: SX - 1.3, z: SZ - .05 });
@@ -321,10 +343,23 @@ export async function start({ stage, panel, lang, onReady }) {
   controls.addEventListener("change", () => { if (!looping) render(); });
   new ResizeObserver(() => { fit(); render(); }).observe(stage);
   fit(); apply();
+  // on entering, the camera drifts in from a step back (1.8 s). Skipped with reduced motion; a drag or a test view stops it.
+  let intro = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (intro) {
+    const end = camera.position.clone(), from = end.clone().add(new THREE.Vector3(-.3, .22, .9)), t0 = performance.now();
+    controls.addEventListener("start", () => { intro = false; });
+    const step = (now) => {
+      if (!intro) return;
+      const k = Math.min(1, (now - t0) / 1800), e = 1 - (1 - k) ** 3;
+      camera.position.lerpVectors(from, end, e); camera.lookAt(controls.target); render();
+      if (k < 1) requestAnimationFrame(step); else { intro = false; controls.update(); }
+    };
+    camera.position.copy(from); requestAnimationFrame(step);
+  }
   onReady?.();
   return {
     setLang(l) { state.lang = l; drawPanel(); },
     set(k, v) { state[k] = v; apply(); }, // used by tests
-    view(x, y, z) { camera.position.set(x, y, z); controls.update(); render(); },
+    view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
   };
 }
