@@ -244,8 +244,8 @@ test.describe("garage listing", () => {
       await expect(showcase.getByText("不教貿易：輕鬆玩，順便看見自己的團隊風格")).toBeVisible();
       await expect(card.locator("..").getByText("示意玩具 · 雙語原型")).toBeVisible();
       await expect(showcase.getByText("示意玩具，不是心理測驗。")).toBeVisible();
-      await expect(showcase.locator("img").first()).toHaveAttribute("src", "/images/showcase-december-cover.webp");
-      await expect(showcase.locator("img").first()).toHaveAttribute("alt", /銀河之女/);
+      await expect(showcase.locator('img[src="/images/showcase-december-cover.webp"]')).toHaveCount(1);
+      await expect(showcase.locator('img[src="/images/showcase-december-cover.webp"]')).toHaveAttribute("alt", /銀河之女/);
       const href = await card.locator("..").getByRole("link", { name: "玩一次", exact: true }).getAttribute("href");
       expect(href).toContain("/prototype/teammate-type/");
       expect(href).toContain("lang=zh");
@@ -267,7 +267,7 @@ test.describe("garage listing", () => {
       await expect(enShowcase.getByText("Not about trade: a light play that shows your team style")).toBeVisible();
       await expect(enCard.locator("..").getByText("Illustrative toy · bilingual prototype")).toBeVisible();
       await expect(enShowcase.getByText("A toy, not a personality test.")).toBeVisible();
-      await expect(enShowcase.locator("img").first()).toHaveAttribute("alt", /Daughter of the Galaxy/);
+      await expect(enShowcase.locator('img[src="/images/showcase-december-cover.webp"]')).toHaveAttribute("alt", /Daughter of the Galaxy/);
       const enHref = await enCard.locator("..").getByRole("link", { name: "Play", exact: true }).getAttribute("href");
       expect(enHref).toContain("/prototype/teammate-type/");
       expect(enHref).toContain("lang=en");
@@ -299,7 +299,8 @@ test.describe("showcase cover", () => {
       test(`${width}px ${lang} shows the Nightglow scene cover centered in a 4:5 frame`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(`/?lang=${lang}#showcase`);
-        const img = page.locator("#showcase img").first();
+        // ROOMVERSE 3D is the first card since 2026-10-16; find the Nightglow cover by its file
+        const img = page.locator('#showcase img[src="/images/showcase-december-cover.webp"]');
         await img.scrollIntoViewIfNeeded();
         await expect(img).toHaveAttribute("src", "/images/showcase-december-cover.webp");
         await expect(img).toHaveAttribute("width", "816");
@@ -321,7 +322,7 @@ test.describe("showcase cover", () => {
         expect(metrics.aspectRatio.replace(/\s/g, "")).toBe("4/5");
         expect(Math.abs(metrics.frameRatio - 4 / 5)).toBeLessThan(0.02);
         await noOverflow(page);
-        const card = page.locator("#showcase article").first();
+        const card = page.locator("#showcase article").filter({ has: page.locator('img[src="/images/showcase-december-cover.webp"]') });
         await card.scrollIntoViewIfNeeded();
         await card.screenshot({ path: `${OUT}/showcase-after-${width}-${lang}.png` });
       });

@@ -299,15 +299,15 @@ test("cover: tagline only, Diana leads with Yiyi, winter line opens screen 1, og
   expect((await og.body()).length).toBeLessThanOrEqual(60 * 1024);
 });
 
-test("homepage: A Lamp, As Promised is the fourth Showcase work and a featured chip", async ({ page }) => {
+test("homepage: A Lamp, As Promised is the fifth Showcase work (after ROOMVERSE 3D) and a featured chip", async ({ page }) => {
   for (const [lang, title, chip, teach] of [["zh", "一盞燈的約定", "一盞燈的約定", "先把規格講好"], ["en", "A Lamp, As Promised · 一盞燈的約定", "A Lamp, As Promised", "agree the spec before an order"]]) {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`/?lang=${lang}#showcase`);
-    const card = page.locator("#showcase article").nth(3);
+    const card = page.locator("#showcase article").nth(4);
     await expect(card).toContainText(title);
     await expect(card).toContainText(teach);
     await expect(card.locator("a").first()).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
-    const link = page.locator('[data-testid="quick-works"] a').nth(3);
+    const link = page.locator('[data-testid="quick-works"] a').nth(4);
     await expect(link).toHaveText(chip);
     await expect(link).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
   }
