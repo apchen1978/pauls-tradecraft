@@ -3,15 +3,15 @@ const COPY = {
   zh: {
     title: "換一道光，房間就換了心情",
     lead: "先選感覺，再換牆、地毯和窗簾。光會跟著變，房間的表情也是。拖曳可以轉一點角度看看。",
-    enter: "走進 3D 房間", size: "約 0.8 MB，建議用電腦或平板", loading: "房間準備中…", failed: "這台裝置打不開 3D，先看看上面的房間圖。",
-    note: "插畫示意。房間裡的家具（沙發、茶几、邊桌、桌燈、落地燈、植物）以 AI 人機協作完成：先畫成插畫，再轉成 3D 形狀，顏色取自原插畫；牆、地毯、光由程式繪製。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
+    enter: "走進 3D 房間", size: "約 1.1 MB，建議用電腦或平板", loading: "房間準備中…", failed: "這台裝置打不開 3D，先看看上面的房間圖。",
+    note: "插畫示意。以 AI 人機協作完成：家具（沙發、茶几、邊桌、桌燈、落地燈、植物和小機器人）先畫成插畫，再轉成 3D 形狀，顏色取自原插畫；窗外景色、掛畫、地毯和壁紙也是插畫；房間、光與互動由程式完成。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
     home: "← 作品集", lang: "EN",
   },
   en: {
     title: "One room, three ways to come home",
     lead: "Pick a feeling, then change the wall, the rug and the curtains. The light changes with it, and so does the room's mood. Drag to turn it a little.",
-    enter: "Step into the 3D room", size: "About 0.8 MB; best on a computer or tablet", loading: "Setting up the room…", failed: "3D can't open on this device; the picture above shows the room.",
-    note: "Illustrated study. The furniture (sofa, coffee table, side table, table lamp, floor lamp, plant) was made through human–AI collaboration: drawn first, turned into 3D shapes, and coloured from the drawings; walls, rugs and light are drawn by code. Not real products; check real colours and textures with samples and on-site light.",
+    enter: "Step into the 3D room", size: "About 1.1 MB; best on a computer or tablet", loading: "Setting up the room…", failed: "3D can't open on this device; the picture above shows the room.",
+    note: "Illustrated study, made through human–AI collaboration: the furniture (sofa, coffee table, side table, table lamp, floor lamp, plant and a small robot) was drawn first, turned into 3D shapes and coloured from the drawings; the views outside, wall prints, rugs and wallpapers are illustrations too; the room, light and interaction are built in code. Not real products; check real colours and textures with samples and on-site light.",
     home: "← Portfolio", lang: "中",
   },
 };
