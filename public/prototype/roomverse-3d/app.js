@@ -77,42 +77,26 @@ export async function start({ stage, panel, lang, onReady }) {
     noise(ctx, w, h, .03, 20000);
   });
   floorTex.repeat.set(2.6, 2.6);
+  // wallpapers and rugs: Codex's painted textures (tex/, WebP); loaded only when chosen
+  const texLoader = new THREE.TextureLoader();
+  const image = (name, repeat) => () => {
+    const t = texLoader.load(new URL(`./tex/${name}.webp`, import.meta.url).href, () => render());
+    t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    if (repeat) t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  };
   const WALLS = {
     original: { zh: "原來的米白", en: "Original cream", paint: "#e9e1d3" },
     sand: { zh: "暖砂米", en: "Warm sand", paint: "#d9c6a8" },
     olive: { zh: "柔橄欖", en: "Soft olive", paint: "#a9ad8a" },
-    stripe: { zh: "細條紋壁紙", en: "Fine-stripe wallpaper", size: .55, tex: () => canvasTex(512, 512, (ctx, w, h) => {
-      ctx.fillStyle = "#e4dcc9"; ctx.fillRect(0, 0, w, h);
-      for (let x = 0; x < w; x += 64) { ctx.fillStyle = "#b9c2a8"; ctx.fillRect(x + 6, 0, 14, h); ctx.fillStyle = "#cfd3bd"; ctx.fillRect(x + 30, 0, 5, h); ctx.fillStyle = "#c6b79b"; ctx.fillRect(x + 44, 0, 3, h); }
-      noise(ctx, w, h, .04);
-    }) },
-    botanical: { zh: "淡色植紋壁紙", en: "Soft botanical wallpaper", size: .8, tex: () => canvasTex(512, 512, (ctx, w, h) => {
-      ctx.fillStyle = "#dfe0cf"; ctx.fillRect(0, 0, w, h);
-      const sprig = (cx, cy) => { ctx.strokeStyle = "#8f9e7c"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, cy + 70); ctx.quadraticCurveTo(cx + 8, cy, cx, cy - 70); ctx.stroke();
-        for (let i = -3; i <= 3; i++) { ctx.fillStyle = i % 2 ? "#9fae8b" : "#b3bf9f"; ctx.beginPath(); ctx.ellipse(cx + (i % 2 ? 18 : -18), cy + i * 20, 18, 8, i % 2 ? -.5 : .5, 0, Math.PI * 2); ctx.fill(); } };
-      sprig(128, 128); sprig(384, 384); sprig(384, -128); sprig(128, 640);
-      noise(ctx, w, h, .035);
-    }) },
+    // size = metres per tile (the wall's UVs are in metres); about 5 x 3 tiles on the back wall
+    stripe: { zh: "細條紋壁紙", en: "Fine-stripe wallpaper", size: 1.0, tex: image("wallpaper-stripe-v1", true) },
+    botanical: { zh: "淡色植紋壁紙", en: "Soft botanical wallpaper", size: 1.5, tex: image("wallpaper-botanical-v1", true) },
   };
   const RUGS = {
-    stripe: { zh: "藍米條紋", en: "Blue and cream stripe", tex: () => canvasTex(1024, 640, (ctx, w, h) => {
-      const bands = ["#d8c9ad", "#6f7f8e", "#d8c9ad", "#b8a585", "#d8c9ad", "#55667a"];
-      let y = 0, i = 0; while (y < h) { const bh = 18 + (i % 3) * 14; ctx.fillStyle = bands[i % bands.length]; ctx.fillRect(0, y, w, bh); y += bh; i++; }
-      for (let x = 0; x < w; x += 6) { ctx.fillStyle = "rgba(255,255,255,.06)"; ctx.fillRect(x, 0, 2, h); }
-      noise(ctx, w, h, .08, 30000); ctx.strokeStyle = "#cdbb98"; ctx.lineWidth = 16; ctx.strokeRect(0, 0, w, h);
-    }) },
-    ivory: { zh: "柔米白", en: "Soft ivory", tex: () => canvasTex(1024, 640, (ctx, w, h) => {
-      ctx.fillStyle = "#e8dfcd"; ctx.fillRect(0, 0, w, h); noise(ctx, w, h, .09, 60000);
-      ctx.strokeStyle = "#d6cab2"; ctx.lineWidth = 26; ctx.strokeRect(40, 40, w - 80, h - 80);
-    }) },
-    medallion: { zh: "古典花紋", en: "Classic medallion", tex: () => canvasTex(1024, 640, (ctx, w, h) => {
-      ctx.fillStyle = "#b9775a"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#e5d5b8"; ctx.fillRect(60, 60, w - 120, h - 120);
-      ctx.strokeStyle = "#3f5167"; ctx.lineWidth = 14; ctx.strokeRect(80, 80, w - 160, h - 160);
-      for (let x = 30; x < w; x += 46) { ctx.fillStyle = "#3f5167"; ctx.beginPath(); ctx.arc(x, 30, 9, 0, 7); ctx.arc(x, h - 30, 9, 0, 7); ctx.fill(); }
-      const cx = w / 2, cy = h / 2;
-      [[230, "#3f5167"], [180, "#b9775a"], [120, "#d9a173"], [60, "#3f5167"]].forEach(([r, c]) => { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx, cy - r * .62); ctx.lineTo(cx + r, cy); ctx.lineTo(cx, cy + r * .62); ctx.closePath(); ctx.fill(); });
-      noise(ctx, w, h, .1, 50000);
-    }) },
+    stripe: { zh: "藍米條紋", en: "Blue and cream stripe", tex: image("rug-stripe-v1") },
+    ivory: { zh: "柔米白", en: "Soft ivory", tex: image("rug-ivory-v1") },
+    medallion: { zh: "古典花紋", en: "Classic medallion", tex: image("rug-medallion-v1") },
   };
 
   // ---------- room ----------
