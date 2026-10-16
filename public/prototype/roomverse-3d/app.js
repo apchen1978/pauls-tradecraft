@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -45,6 +45,11 @@ export async function start({ stage, panel, lang, onReady }) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(44, 1, 0.05, 50);
   const controls = new OrbitControls(camera, renderer.domElement);
+  let director = null, directorPreparing = false, directorPrepareToken = 0;
+  let intro = false, introEnd = null;
+  const stopButton = Object.assign(document.createElement("button"), { type: "button", className: "director-stop", hidden: true });
+  stopButton.onclick = () => { if (director) stopDirector(); else if (directorPreparing) cancelPreparation(); };
+  stage.append(stopButton);
   controls.target.set(0.15, 0.85, -0.9);
   controls.enableDamping = true; controls.enablePan = false;
   controls.minDistance = 2.4; controls.maxDistance = 5.6;
@@ -57,10 +62,12 @@ export async function start({ stage, panel, lang, onReady }) {
     const narrow = w / h < 0.8;
     // framed so the sofa group fills the view and the floor does not take half the picture (checked at 390 and 1440)
     camera.fov = narrow ? 58 : 42;
-    camera.position.set(0.15, narrow ? 1.25 : 1.5, narrow ? 2.85 : 3.5);
-    controls.target.set(0.15, narrow ? 0.72 : 0.85, -0.9);
+    if (!director) {
+      camera.position.set(0.15, narrow ? 1.25 : 1.5, narrow ? 2.85 : 3.5);
+      controls.target.set(0.15, narrow ? 0.72 : 0.85, -0.9);
+    }
     camera.updateProjectionMatrix();
-    controls.update();
+    if (!director) controls.update();
   }
 
   // ---------- textures drawn by code ----------
@@ -138,8 +145,11 @@ export async function start({ stage, panel, lang, onReady }) {
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
   const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic" }; // chic: weekend morning, same street
+  const viewReady = {};
   const VIEWS = Object.fromEntries(Object.entries(VIEW_FILES).map(([m, f]) => [m, () => {
-    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => render());
+    let settle;
+    viewReady[m] = new Promise((resolve) => { settle = resolve; });
+    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => { settle(true); render(); }, undefined, () => settle(false));
     t.colorSpace = THREE.SRGBColorSpace;
     t.repeat.set(1, .87); t.offset.set(0, .05); // keep the trees and houses (lower middle) in view
     return t;
@@ -396,6 +406,7 @@ export async function start({ stage, panel, lang, onReady }) {
 
   // ---------- state + panel ----------
   const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
+  let directorStillOpen = false;
   const cache = {};
   const CURTAINS = {
     linen: { zh: "亞麻米白", en: "Linen cream", color: "#e6ddcc" },
@@ -406,8 +417,8 @@ export async function start({ stage, panel, lang, onReady }) {
   };
   // light values for a feeling. Switching feelings eases between them over 0.6 s (skipped with reduced motion),
   // so the room seems to change its light rather than jump to a new picture.
-  const lights = () => {
-    const m = MOODS[state.mood];
+  const lightForMood = (mood) => {
+    const m = MOODS[mood];
     return {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, led: m.led ? .5 : 0,
       floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
@@ -415,6 +426,7 @@ export async function start({ stage, panel, lang, onReady }) {
       winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out),
     };
   };
+  const lights = () => lightForMood(state.mood);
   function setLights(v) {
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol);
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out);
@@ -470,7 +482,7 @@ export async function start({ stage, panel, lang, onReady }) {
     let keep = null;
     if (had && panel.contains(had)) {
       const g = had.closest(".opts");
-      keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("shuffle") ? "shuffle" : "save" };
+      keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("director") ? "director" : had.classList.contains("shuffle") ? "shuffle" : "save" };
     }
     panel.replaceChildren(...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
@@ -478,13 +490,15 @@ export async function start({ stage, panel, lang, onReady }) {
       box.append(...Object.entries(table).map(([k, v]) => {
         const b = document.createElement("button"); b.type = "button"; b.textContent = v[state.lang]; b.dataset.key = k;
         b.setAttribute("aria-pressed", String(state[key] === k));
-        b.onclick = () => { state[key] = k; apply(); toUrl(); };
+        b.onclick = () => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); state[key] = k; apply(); toUrl(); };
         return b;
       }));
       if (key !== "mood") return [h, box];
       const why = document.createElement("p"); why.className = "why"; why.textContent = MOODS[state.mood].why[state.lang]; // why this pairing
       return [h, box, why];
     }), Object.assign(document.createElement("p"), { className: "hint", textContent: t.hint }),
+    Object.assign(document.createElement("button"), { type: "button", className: "save director", textContent: directorPreparing ? t.preparing : director ? t.stop : still && directorStillOpen ? t.close : t.director, onclick: () => toggleDirector() }),
+    ...(still && directorStillOpen ? [staticTour(t)] : []),
     Object.assign(document.createElement("button"), { type: "button", className: "save shuffle", textContent: t.shuffle, onclick: () => shuffle() }),
     Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: t.save, onclick: () => savePostcard() }));
     if (keep) {
@@ -492,8 +506,24 @@ export async function start({ stage, panel, lang, onReady }) {
       target?.focus({ preventScroll: true });
     }
   }
+  function staticTour(t) {
+    const box = document.createElement("div"); box.className = "director-still";
+    const phases = document.createElement("div"); phases.className = "director-phases";
+    phases.append(...t.directorPhases.map((label, i) => {
+      const phase = Object.assign(document.createElement("span"), { className: `director-phase phase-${i}` });
+      const scene = Object.assign(document.createElement("span"), { className: "director-mini-room", ariaHidden: "true" });
+      scene.append(Object.assign(document.createElement("span"), { className: "director-mini-window" }), Object.assign(document.createElement("span"), { className: "director-mini-lamp" }));
+      phase.append(scene, Object.assign(document.createElement("span"), { textContent: label }));
+      return phase;
+    }));
+    const description = document.createElement("p"); description.textContent = t.directorStill;
+    box.append(phases, description);
+    return box;
+  }
   // a random wall, rug, curtain and print (never the same set twice in a row); the feeling stays the visitor's own
   function shuffle() {
+    if (director) stopDirector(false);
+    if (directorPreparing) cancelPreparation();
     const pick = (table, now) => { const ks = Object.keys(table).filter((k) => k !== now); return ks[Math.floor(Math.random() * ks.length)]; };
     state.wall = pick(WALLS, state.wall); state.rug = pick(RUGS, state.rug); state.curtain = pick(CURTAINS, state.curtain); state.print = pick(PRINTS, state.print);
     apply(); toUrl();
@@ -526,21 +556,154 @@ export async function start({ stage, panel, lang, onReady }) {
 
   let looping = false;
   function render() { renderer.render(scene, camera); }
+  function showDirectorStop() {
+    stopButton.textContent = TEXT[state.lang].stop;
+    stopButton.hidden = !(director || directorPreparing);
+  }
+  function settleIntro() {
+    if (!intro || !introEnd) return;
+    intro = false;
+    camera.position.copy(introEnd);
+    camera.lookAt(controls.target);
+    controls.update();
+    render();
+  }
+  function showStage() {
+    // The mobile controls sit below the room; immediately bring the movie and its stop button into view.
+    if (matchMedia("(max-width: 700px)").matches) stage.scrollIntoView({ behavior: "auto", block: "center" });
+  }
+  // A deliberately finite tour: no permanent render loop, URL mutation, or change to the visitor's choices.
+  const tourStart = new THREE.Vector3(1.30, 1.60, 4.55);
+  // portrait phones use a wider vertical field of view: from 4.55 m back the bottom of the picture runs past the front edge of the floor (a black strip), so start nearer
+  const tourStartNarrow = new THREE.Vector3(1.05, 1.52, 4.05);
+  const tourEnd = new THREE.Vector3(0.5, 1.34, 3.15);
+  const tourTarget = new THREE.Vector3(0.15, 0.85, -0.9);
+  const smooth = (x) => { const k = Math.max(0, Math.min(1, x)); return k * k * (3 - 2 * k); };
+  function blendLights(a, b, k, out) {
+    for (const key in a) {
+      if (a[key].isColor) out[key].copy(a[key]).lerp(b[key], k);
+      else out[key] = a[key] + (b[key] - a[key]) * k;
+    }
+    return out;
+  }
+  function tourView(mood) {
+    const map = cache["view-" + mood] ||= VIEWS[mood]();
+    if (director) director.view = mood;
+    if (outMat.map !== map) { outMat.map = map; outMat.needsUpdate = true; }
+    led.visible = !!MOODS[mood].led;
+  }
+  function stopDirector(announce = true) {
+    if (!director) return;
+    const run = director;
+    director = null;
+    cancelAnimationFrame(run.frame);
+    showDirectorStop();
+    camera.position.copy(run.camera);
+    controls.target.copy(run.target);
+    controls.enabled = true;
+    controls.update();
+    fade++; // cancel any earlier feeling transition, then restore this visitor's original feeling
+    shown = lights(); shownMood = state.mood; setLights(shown);
+    tourView(state.mood);
+    robotPivot.rotation.y = robotHome.r;
+    robotPivot.position.y = robotHome.y;
+    render();
+    if (announce) live.textContent = TEXT[state.lang].directorDone;
+    drawPanel();
+  }
+  function cancelPreparation() {
+    directorPrepareToken++;
+    directorPreparing = false;
+    showDirectorStop();
+    live.textContent = "";
+    drawPanel();
+  }
+  async function toggleDirector() {
+    if (still) {
+      directorStillOpen = !directorStillOpen;
+      live.textContent = directorStillOpen ? TEXT[state.lang].directorStill : "";
+      drawPanel();
+      if (directorStillOpen) panel.querySelector(".director-still")?.scrollIntoView({ behavior: "auto", block: "nearest" });
+      return;
+    }
+    if (directorPreparing) { cancelPreparation(); return; }
+    if (director) { stopDirector(); return; }
+    settleIntro();
+    showStage();
+    const token = ++directorPrepareToken;
+    directorPreparing = true;
+    showDirectorStop();
+    live.textContent = TEXT[state.lang].preparing;
+    drawPanel();
+    const moods = ["rain", "family", "tech"];
+    for (const mood of moods) cache["view-" + mood] ||= VIEWS[mood]();
+    const ready = await Promise.all(moods.map((mood) => viewReady[mood]));
+    if (token !== directorPrepareToken) return;
+    directorPreparing = false;
+    showDirectorStop();
+    if (ready.some((ok) => !ok)) {
+      moods.forEach((mood, i) => { if (!ready[i]) { delete cache["view-" + mood]; delete viewReady[mood]; } });
+      live.textContent = TEXT[state.lang].unavailable;
+      drawPanel();
+      return;
+    }
+    fade++;
+    hopRun++; hopping = false;
+    robotPivot.rotation.y = robotHome.r; robotPivot.position.y = robotHome.y;
+    const run = { camera: camera.position.clone(), target: controls.target.clone(), frame: 0, started: 0 };
+    director = run;
+    showDirectorStop();
+    live.textContent = TEXT[state.lang].director;
+    controls.enabled = false;
+    const from = camera.aspect < 1 ? tourStartNarrow : tourStart;
+    run.from = from;
+    camera.position.copy(from); controls.target.copy(tourTarget); camera.lookAt(tourTarget);
+    setLights(lightForMood("rain")); tourView("rain"); render(); drawPanel();
+    for (let i = 0; i < 3; i++) { // WebGL may show the prior texture for a frame after swapping the view
+      await new Promise(requestAnimationFrame);
+      if (director !== run) return;
+      render();
+    }
+    run.started = performance.now(); // time the story only after its first fully prepared frame
+    const rain = lightForMood("rain"), day = lightForMood("family"), night = lightForMood("tech"), blended = lightForMood("rain");
+    const step = (now) => {
+      if (director !== run) return;
+      const t = Math.max(0, Math.min(8, (now - run.started) / 1000));
+      camera.position.lerpVectors(from, tourEnd, smooth(t / 8));
+      camera.lookAt(tourTarget);
+      if (t < 1.2) { setLights(rain); tourView("rain"); }
+      else if (t < 4.5) { setLights(blendLights(rain, day, smooth((t - 1.2) / 1.8), blended)); tourView("family"); }
+      else { setLights(blendLights(day, night, smooth((t - 4.5) / 1.5), blended)); tourView("tech"); }
+      const look = Math.atan2(camera.position.x - robotPivot.position.x, camera.position.z - robotPivot.position.z);
+      const turn = t < 5 ? 0 : t < 5.6 ? smooth((t - 5) / .6) : t < 6.8 ? 1 : 1 - smooth((t - 6.8) / .6);
+      robotPivot.rotation.y = robotHome.r + (look - robotHome.r) * turn;
+      render();
+      if (t < 8) run.frame = requestAnimationFrame(step);
+      else stopDirector();
+    };
+    run.frame = requestAnimationFrame(step);
+  }
   // a quiet easter egg: tap the little robot and it hops, turns to look at you, then turns back.
   // Only a tap counts (a drag to turn the room does not); with reduced motion it just turns to look.
   const ray = new THREE.Raycaster(), tap = new THREE.Vector2(), robotHome = { y: robotPivot.position.y, r: robotPivot.rotation.y };
-  let downAt = null, hopping = false;
-  renderer.domElement.addEventListener("pointerdown", (e) => { downAt = [e.clientX, e.clientY]; });
+  let downAt = null, hopping = false, hopRun = 0, suppressTap = false;
+  renderer.domElement.addEventListener("pointerdown", (e) => {
+    if (director) { suppressTap = true; stopDirector(); downAt = null; return; }
+    downAt = [e.clientX, e.clientY];
+  });
   renderer.domElement.addEventListener("pointerup", (e) => {
+    if (suppressTap) { suppressTap = false; return; }
     if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6 || hopping) return;
     const r = renderer.domElement.getBoundingClientRect();
     tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(tap, camera);
     if (!ray.intersectObject(robotObj, true).length) return;
     hopping = true;
+    const hop = ++hopRun;
     const look = Math.atan2(camera.position.x - robotPivot.position.x, camera.position.z - robotPivot.position.z); // the robot faces +z
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now(), T = 1400;
     const step = (now) => {
+      if (hop !== hopRun) return;
       const k = Math.min(1, (now - t0) / T);
       const turn = k < .3 ? k / .3 : k < .75 ? 1 : 1 - (k - .75) / .25; // turn to you, hold, turn back
       const ease = turn * turn * (3 - 2 * turn);
@@ -551,15 +714,17 @@ export async function start({ stage, panel, lang, onReady }) {
     };
     requestAnimationFrame(step);
   });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (director) stopDirector(); else if (directorPreparing) cancelPreparation(); } });
   function loop() { if (controls.update()) { render(); requestAnimationFrame(loop); } else { render(); looping = false; } }
   controls.addEventListener("start", () => { if (!looping) { looping = true; requestAnimationFrame(loop); } });
   controls.addEventListener("change", () => { if (!looping) render(); });
-  new ResizeObserver(() => { fit(); render(); }).observe(stage);
+  new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
   fit(); apply();
   // on entering, the camera drifts in from a step back (1.8 s). Skipped with reduced motion; a drag or a test view stops it.
-  let intro = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  intro = !matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (intro) {
     const end = camera.position.clone(), from = end.clone().add(new THREE.Vector3(-.3, .22, .9)), t0 = performance.now();
+    introEnd = end;
     controls.addEventListener("start", () => { intro = false; });
     const step = (now) => {
       if (!intro) return;
@@ -573,10 +738,11 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   onReady?.();
   return {
-    setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); drawPanel(); },
+    setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
     set(k, v) { state[k] = v; apply(); }, // used by tests
     postcard, // used by tests: returns the postcard canvas
     cam: () => camera.position.toArray().map((v) => +v.toFixed(2)), // used by tests: where the camera is
     view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
+    director: () => ({ playing: !!director?.started, elapsed: director?.started ? (performance.now() - director.started) / 1000 : null, view: director?.view, image: outMat.map?.image?.src, stillOpen: directorStillOpen, controlsEnabled: controls.enabled }), // local QA hook
   };
 }

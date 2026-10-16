@@ -30,6 +30,9 @@
   .room { position: relative; margin: 0 clamp(16px, 3vw, 40px); height: min(72vh, 760px); border-radius: 18px; overflow: hidden; background: #ddd6c8; }
   #stage { position: absolute; inset: 0; }
   #stage canvas { display: block; touch-action: none; }
+  .director-stop { position: absolute; z-index: 3; left: 12px; top: 12px; padding: 9px 14px; border: 1px solid #7e683d; border-radius: 999px; background: #fff9ec; color: #42351c; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 10px #0003; }
+  .director-stop[hidden] { display: none; }
+  .director-stop:focus-visible { outline: 3px solid #977b42; outline-offset: 3px; }
   .poster { position: absolute; inset: 0; display: grid; place-items: center; background: center / cover no-repeat url("poster-desktop.webp"); }
   .poster button { font: inherit; font-weight: 700; font-size: 17px; padding: 14px 22px; border: 0; border-radius: 999px; background: var(--moss); color: #fff; cursor: pointer; box-shadow: 0 10px 30px #0003; }
   .poster small { display: block; margin-top: 8px; text-align: center; color: #fff; text-shadow: 0 1px 6px #0008; font-size: 13px; }
@@ -43,6 +46,26 @@
   .panel .why { margin: 8px 0 2px; font-size: 12.5px; line-height: 1.6; color: var(--ink); background: color-mix(in srgb, var(--moss) 8%, transparent); border-left: 3px solid var(--moss); padding: 6px 9px; border-radius: 0 8px 8px 0; }
   .panel .save { margin-top: 10px; width: 100%; font: inherit; font-weight: 700; font-size: 13px; padding: 8px 12px; border: 1px solid var(--moss); background: none; color: var(--moss); border-radius: 999px; cursor: pointer; }
   .panel .save.shuffle { background: var(--moss); color: #fff; }
+  .panel .director { border-color: #977b42; color: #554422; background: #fbf5e8; }
+  .panel button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
+  .director-still { margin-top: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  .director-phases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+  .director-phase { padding: 7px 4px; border-radius: 6px; font-size: 11px; text-align: center; line-height: 1.35; color: var(--ink); }
+  .director-phase > span:last-child { display: block; margin-top: 6px; }
+  .director-mini-room { position: relative; display: block; height: 58px; overflow: hidden; border-radius: 5px; background: linear-gradient(#d8cec0 68%, #b39a7b 68%); }
+  .director-mini-room::after { content: ""; position: absolute; left: 31%; right: 15%; bottom: 8px; height: 17px; border-radius: 5px 5px 2px 2px; background: #857b70; box-shadow: 0 5px 0 -2px #554b40; }
+  .director-mini-window { position: absolute; left: 8px; top: 7px; width: 25%; height: 29px; border: 3px solid #76563d; background: #95a5a8; }
+  .director-mini-lamp { position: absolute; right: 9px; top: 14px; width: 10px; height: 15px; background: #fff0bf; clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%); }
+  .phase-0 .director-mini-room { background: linear-gradient(#aaa09a 68%, #8a7a70 68%); }
+  .phase-0 .director-mini-window { background: #758998; }
+  .phase-0 .director-mini-lamp { box-shadow: 0 0 13px 7px #f6d79a; }
+  .phase-1 .director-mini-room { background: linear-gradient(#eee1c9 68%, #c7a57c 68%); }
+  .phase-1 .director-mini-window { background: #b7d7e3; }
+  .phase-1 .director-mini-lamp { background: #eee0bb; }
+  .phase-2 .director-mini-room { background: linear-gradient(#9493a2 68%, #716d77 68%); }
+  .phase-2 .director-mini-window { background: #273b62; }
+  .phase-2 .director-mini-lamp { box-shadow: 0 0 13px 7px #f8d5a0; }
+  .director-still p { margin: 7px 0 0; font-size: 12px; line-height: 1.55; }
   .status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fffd; padding: 10px 16px; border-radius: 999px; font-size: 14px; }
   .note { padding: 14px clamp(16px, 3vw, 40px) 40px; color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 900px; }
   @media (max-width: 700px) {
