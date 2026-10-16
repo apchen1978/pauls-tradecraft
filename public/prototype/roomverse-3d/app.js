@@ -175,7 +175,7 @@ export async function start({ stage, panel, lang, onReady }) {
   // the coffee table, the table lamp and the plant are AI-made models too (loaded with the others below);
   // the table lamp's light lives here, and is moved onto the lamp once the side table is placed
   const lampLight = new THREE.PointLight("#ffc27a", 3.2, 6, 1.6);
-  lampLight.position.set(TX, .98, TZ); lampLight.castShadow = true; lampLight.shadow.mapSize.set(1024, 1024); lampLight.shadow.bias = -.002; lampLight.shadow.radius = 6; scene.add(lampLight);
+  lampLight.position.set(TX, .98, TZ); lampLight.castShadow = true; lampLight.shadow.mapSize.set(1024, 1024); lampLight.shadow.bias = -.002; lampLight.shadow.radius = 10; scene.add(lampLight);
   const PX = -2.3, PZ = BACK + .45;
   // art above the sofa: Codex's watercolour prints in a thin oak frame. The print follows the feeling
   // (rain → rain print, family → hills and sun, tech → crescent moon); only the shown one is loaded.
@@ -206,7 +206,13 @@ export async function start({ stage, panel, lang, onReady }) {
   scene.add(windowLight, windowLight.target);
   const fill = new THREE.PointLight("#fff1dc", .6, 9, 1.2); fill.position.set(.2, 2.2, 2.2); scene.add(fill);
   // LED strip sits just above the sofa back (below the print) and washes the wall
-  const led = add(new THREE.BoxGeometry(2.2, .015, .015), new THREE.MeshBasicMaterial({ color: "#9fe3ff" }), SX, 1.16, BACK + .02, false);
+  const led = new THREE.Group(); scene.add(led);
+  const ledLine = new THREE.Mesh(new THREE.BoxGeometry(2.1, .01, .01), new THREE.MeshBasicMaterial({ color: "#bfeaff" })); ledLine.position.set(SX, 1.16, BACK + .02); led.add(ledLine);
+  const washTex = canvasTex(8, 128, (ctx, w, h) => { const g = ctx.createLinearGradient(0, h, 0, 0); g.addColorStop(0, "rgba(140,210,255,.55)"); g.addColorStop(.35, "rgba(140,210,255,.18)"); g.addColorStop(1, "rgba(140,210,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
+  const washAlpha = canvasTex(128, 8, (ctx, w, h) => { const g = ctx.createLinearGradient(0, 0, w, 0); g.addColorStop(0, "#000"); g.addColorStop(.15, "#fff"); g.addColorStop(.85, "#fff"); g.addColorStop(1, "#000"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
+  washAlpha.colorSpace = THREE.NoColorSpace;
+  const wash = new THREE.Mesh(new THREE.PlaneGeometry(2.6, .6), new THREE.MeshBasicMaterial({ map: washTex, alphaMap: washAlpha, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  wash.position.set(SX, 1.16 + .3, BACK + .015); led.add(wash); // the strip washes the wall upward and fades at both ends
   const ledGlow = new THREE.PointLight("#8fd3ff", 0, 3, 2); ledGlow.position.set(SX, 1.2, BACK + .25); scene.add(ledGlow);
   // soft halos around the lamp shades, so a lit lamp looks lit
   const haloTex = canvasTex(128, 128, (ctx, w, h) => { const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,220,160,.9)"); g.addColorStop(.35, "rgba(255,200,130,.35)"); g.addColorStop(1, "rgba(255,190,120,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
@@ -249,22 +255,56 @@ export async function start({ stage, panel, lang, onReady }) {
       float wv = texture2D(weave, vWP.zy * s).r * bw.x + texture2D(weave, vWP.xz * s).r * bw.y + texture2D(weave, vWP.xy * s).r * bw.z;
       diffuseColor.rgb *= .75 + .5 * wv;`);
   };
+  // the AI sofa's backrest top has a fringe of small spikes (they also cast a bumpy shadow on the wall):
+  // smooth only the top 12% of the model a few times, leaving cushions, arms and colours alone
+  sofaObj.traverse((m) => {
+    if (!m.isMesh || !m.geometry.index) return;
+    const g = m.geometry, pos = g.attributes.position, idx = g.index.array, n = pos.count;
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < n; i++) { const y = pos.getY(i); lo = Math.min(lo, y); hi = Math.max(hi, y); }
+    const cut = lo + (hi - lo) * .88, nb = Array.from({ length: n }, () => new Set());
+    for (let i = 0; i < idx.length; i += 3) { const a = idx[i], b = idx[i + 1], c = idx[i + 2]; nb[a].add(b).add(c); nb[b].add(a).add(c); nb[c].add(a).add(b); }
+    const top = []; for (let i = 0; i < n; i++) if (pos.getY(i) > cut) top.push(i);
+    for (let pass = 0; pass < 7; pass++) {
+      const next = top.map((i) => { let x = 0, y = 0, z = 0; for (const j of nb[i]) { x += pos.getX(j); y += pos.getY(j); z += pos.getZ(j); } const k = nb[i].size || 1; return [x / k, y / k, z / k]; });
+      top.forEach((i, t) => pos.setXYZ(i, (pos.getX(i) + next[t][0]) / 2, (pos.getY(i) + next[t][1]) / 2, (pos.getZ(i) + next[t][2]) / 2));
+    }
+    pos.needsUpdate = true;
+  });
   prepare(sofaObj, () => fabricMat);
   const tableObj = place(table, { height: .6, x: TX, z: TZ });
-  prepare(tableObj, () => new THREE.MeshStandardMaterial({ color: "#b98a5c", roughness: .55 })); // light oak, same family as the coffee table
+  // light oak to match the coffee table, with a faint grain projected from three sides (the model has no UVs)
+  const grain = canvasTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = "rgb(128,0,0)"; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 70; i++) { const y = rnd() * h, a = .05 + rnd() * .12; ctx.strokeStyle = rnd() < .5 ? `rgba(0,0,0,${a})` : `rgba(255,0,0,${a})`; ctx.lineWidth = 1 + rnd() * 2.5; ctx.beginPath(); ctx.moveTo(0, y); ctx.bezierCurveTo(w * .3, y + (rnd() - .5) * 12, w * .7, y + (rnd() - .5) * 12, w, y); ctx.stroke(); }
+  });
+  grain.colorSpace = THREE.NoColorSpace;
+  const oakMat = new THREE.MeshStandardMaterial({ color: "#b98a5c", roughness: .55 });
+  oakMat.onBeforeCompile = (sh) => {
+    sh.uniforms.grain = { value: grain };
+    sh.vertexShader = "varying vec3 vWP; varying vec3 vWN;\n" + sh.vertexShader.replace("#include <project_vertex>", "#include <project_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.)).xyz; vWN = normalize(mat3(modelMatrix) * objectNormal);");
+    sh.fragmentShader = "uniform sampler2D grain; varying vec3 vWP; varying vec3 vWN;\n" + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
+      vec3 bw = pow(abs(normalize(vWN)), vec3(4.)); bw /= bw.x + bw.y + bw.z;
+      float g = texture2D(grain, vWP.zy * vec2(1.2, 6.)).r * bw.x + texture2D(grain, vWP.xz * vec2(1.2, 6.)).r * bw.y + texture2D(grain, vWP.yx * vec2(6., 1.2)).r * bw.z;
+      diffuseColor.rgb *= .8 + .4 * g;`);
+  };
+  prepare(tableObj, () => oakMat);
   const lampObj = place(floorLamp, { height: 1.55, x: SX - 1.3, z: SZ - .05 });
   const lb = new THREE.Box3().setFromObject(lampObj);
   const shadeGlow = { value: 0 };
   prepare(lampObj, (m) => {
     // shade starts at 70% of the height (measured on the model: radius jumps from 0.035 to 0.34 there)
     const pos = m.geometry.attributes.position, col = new Float32Array(pos.count * 3), v = new THREE.Vector3();
-    for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); col.set((v.y - lb.min.y) / (lb.max.y - lb.min.y) > .7 ? [.95, .9, .8] : [.72, .56, .28], i * 3); }
+    for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); col.set((v.y - lb.min.y) / (lb.max.y - lb.min.y) > .7 ? [.95, .9, .8] : [.5, .33, .12], i * 3); } // linen shade; brass pole and base (linear)
     m.geometry.setAttribute("color", new THREE.BufferAttribute(col, 3));
     const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .6, metalness: .1 });
     // the shade glows when the lamp is on: shade vertices are the pale ones (blue channel .8 vs .28 on the pole)
     mat.onBeforeCompile = (sh) => {
       sh.uniforms.shadeGlow = shadeGlow;
-      sh.fragmentShader = "uniform float shadeGlow;\n" + sh.fragmentShader.replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += step(.6, vColor.b) * vec3(1., .78, .5) * shadeGlow;");
+      sh.fragmentShader = "uniform float shadeGlow;\n" + sh.fragmentShader
+        // brass = the dark vertices (pole and base): a little metallic sheen
+        .replace("#include <metalnessmap_fragment>", "#include <metalnessmap_fragment>\nfloat brass = 1. - step(.6, vColor.b); metalnessFactor = mix(metalnessFactor, .45, brass); roughnessFactor = mix(roughnessFactor, .32, brass);")
+        .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += step(.6, vColor.b) * vec3(1., .78, .5) * shadeGlow;");
     };
     return mat;
   });
