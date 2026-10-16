@@ -8,14 +8,15 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", hint: "拖曳可以轉一點角度。" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", hint: "Drag to turn the room a little." },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", hint: "拖曳可以轉一點角度。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", hint: "Drag to turn the room a little.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
   rain: { zh: "下雨天想窩在家裡", en: "Rainy day, staying in", hemi: .9, win: .7, winCol: "#bccbdb", lamp: 5, fill: 1.2, out: "#d2dae0", exposure: 1.05, floor: 2.2, glow: .55 },
   family: { zh: "Cozy family", en: "Cozy family", hemi: 1.6, win: 3.2, winCol: "#ffe7c2", lamp: 2, fill: 2.4, out: "#ffffff", exposure: 1.15, floor: 0, glow: .15 },
-  tech: { zh: "未來輕科技宅男", en: "Light-tech homebody", hemi: .6, win: .4, winCol: "#a9c4ff", lamp: 3.6, fill: .7, out: "#ffffff", exposure: 1, led: true, floor: 1.2, glow: .45 },
+  // tech: moonlight through the window leaves a pale blue patch on the floor
+  tech: { zh: "未來輕科技宅男", en: "Light-tech homebody", hemi: .6, win: 1.5, winCol: "#7f9fe6", lamp: 3.6, fill: .7, out: "#ffffff", exposure: 1, led: true, floor: 1.2, glow: .45 },
 };
 
 export async function start({ stage, panel, lang, onReady }) {
@@ -333,7 +334,33 @@ export async function start({ stage, panel, lang, onReady }) {
         return b;
       }));
       return [h, box];
-    }), Object.assign(document.createElement("p"), { className: "hint", textContent: t.hint }));
+    }), Object.assign(document.createElement("p"), { className: "hint", textContent: t.hint }),
+    Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: t.save, onclick: () => savePostcard() }));
+  }
+
+  // postcard: the room as it looks now, with a paper strip naming the chosen feeling, wall and rug
+  function postcard() {
+    render(); // read the canvas in the same task as the render, so no preserveDrawingBuffer is needed
+    const src = renderer.domElement, w = src.width, h = src.height, strip = Math.round(Math.max(90, h * .16));
+    const c = document.createElement("canvas"); c.width = w; c.height = h + strip;
+    const ctx = c.getContext("2d");
+    ctx.drawImage(src, 0, 0);
+    ctx.fillStyle = "#fbfaf6"; ctx.fillRect(0, h, w, strip);
+    const l = state.lang, pad = Math.round(strip * .32), big = Math.round(strip * .26), small = Math.round(strip * .17);
+    ctx.fillStyle = "#24302c"; ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`; ctx.textBaseline = "alphabetic";
+    ctx.fillText("ROOMVERSE 3D", pad, h + pad + big * .8);
+    ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
+    ctx.fillText([MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l]].join("  ·  "), pad, h + strip - pad * .9);
+    ctx.textAlign = "right"; ctx.fillText("paulstradecraft.com", w - pad, h + pad + big * .8);
+    return c;
+  }
+  function savePostcard() {
+    postcard().toBlob((blob) => {
+      if (!blob) return;
+      const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: TEXT[state.lang].file });
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }, "image/png");
   }
 
   let looping = false;
@@ -360,6 +387,7 @@ export async function start({ stage, panel, lang, onReady }) {
   return {
     setLang(l) { state.lang = l; drawPanel(); },
     set(k, v) { state[k] = v; apply(); }, // used by tests
+    postcard, // used by tests: returns the postcard canvas
     view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
   };
 }
