@@ -13,14 +13,14 @@ export const TEXT = {
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
-  // why: one line on why the pairing works. Lines 1-2 are Paul's wording (2026-10-16); line 3 is a CC draft Paul saw.
+  // why: one line on why the pairing works. All three lines are Paul's wording (2026-10-16).
   rain: { zh: "下雨天想窩在家裡", en: "Rainy day, staying in",
     why: { zh: "窗外偏冷時，屋裡就用暖黃的燈和米白布料把溫度補回來，讓人想宅在家裡一天也很舒服。", en: "When it's cool and grey outside, warm lamps and cream fabrics bring the warmth back indoors, so a whole day at home feels good." }, hemi: .9, win: .7, winCol: "#bccbdb", lamp: 5, fill: 1.2, out: "#eef1f3", exposure: 1.05, floor: 2.2, glow: .55 },
   family: { zh: "Cozy family", en: "Cozy family",
     why: { zh: "白天靠自然光就夠亮，用木頭、綠色和陶土色這些來自大自然的色彩，讓一家人待得超comfy。", en: "Daylight does most of the work; wood, greens and terracotta, colours from nature, keep the whole family extra comfy." }, hemi: 1.6, win: 3.2, winCol: "#ffe7c2", lamp: 2, fill: 2.4, out: "#ffffff", exposure: 1.15, floor: 0, glow: .15 },
   // tech: moonlight through the window leaves a pale blue patch on the floor
   tech: { zh: "未來輕科技宅男", en: "Light-tech homebody",
-    why: { zh: "晚上把主燈關掉，一盞暖燈加一道冷色燈帶，對比讓房間有層次，又不刺眼。", en: "At night, skip the ceiling light: one warm lamp against a cool LED wash gives depth without glare." }, hemi: .6, win: 1.5, winCol: "#7f9fe6", lamp: 3.6, fill: .7, out: "#ffffff", exposure: 1, led: true, floor: 1.2, glow: .45 },
+    why: { zh: "晚上把主燈關掉，一盞暖燈加一道冷色燈帶，對比讓房間更有層次，又不刺眼!!", en: "At night, skip the ceiling light: one warm lamp against a cool LED wash gives depth without glare." }, hemi: .6, win: 1.5, winCol: "#7f9fe6", lamp: 3.6, fill: .7, out: "#ffffff", exposure: 1, led: true, floor: 1.2, glow: .45 },
 };
 
 export async function start({ stage, panel, lang, onReady }) {
