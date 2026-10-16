@@ -15,6 +15,8 @@ export default function QuickChips() {
   const works = (t.showcase?.items || []).map((item) => ({
     href: withDemoLang(item.href, lang),
     label: shortTitle(item.title),
+    // the first Showcase work (ROOMVERSE 3D) gets a soft mint glow so the eye lands on it first
+    feature: /roomverse/i.test(item.href),
   }));
   const chips = [
     { href: "#works", label: t.nav.works },
@@ -37,7 +39,7 @@ export default function QuickChips() {
         <ul aria-labelledby="featured-works-label" className={`${rowClass} md:flex-wrap md:overflow-visible md:px-0`} data-testid="quick-works">
           {works.map((w) => (
             <li key={w.href} className="shrink-0 snap-start">
-              <a href={w.href} className={`${chipClass} border-gold/60 bg-gold/15 text-bone hover:border-gold hover:text-gold`}>
+              <a href={w.href} className={`${chipClass} border-gold/60 bg-gold/15 text-bone hover:border-gold hover:text-gold${w.feature ? " chip-feature" : ""}`}>
                 {w.label}
               </a>
             </li>
