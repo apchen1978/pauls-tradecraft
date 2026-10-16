@@ -21,6 +21,7 @@ for (const width of [390, 1440]) {
 
       await page.locator("#enter").click();
       await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+      await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
       await expect(page.locator("#panel")).toBeVisible();
       await expect(page.locator("#stage canvas")).toBeVisible();
       expect(glb.filter((u) => u.endsWith(".glb"))).toHaveLength(9);
@@ -84,6 +85,7 @@ test("each feeling shows one line on why the pairing works, and it follows the f
   await page.goto(`${PAGE}?lang=zh`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   const why = page.locator("#panel .why");
   await expect(why).toHaveCount(1);
   await expect(why).toContainText("宅在家裡一天也很舒服");
@@ -97,6 +99,7 @@ test("the room lives in the address: a shared link opens the same choices, click
   await page.goto(`${PAGE}?lang=en&mood=tech&wall=botanical&rug=medallion&curtain=clay&print=moon&bogus=1`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   const pressed = (g) => page.locator("#panel .opts").nth(g).locator('button[aria-pressed="true"]');
   await expect(pressed(0)).toHaveText("Light-tech homebody");
   await expect(pressed(1)).toHaveText("Soft botanical wallpaper");
@@ -110,6 +113,7 @@ test("the room lives in the address: a shared link opens the same choices, click
   await page.goto(`${PAGE}?mood=nope&rug=<script>`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   await expect(pressed(0)).toHaveText("下雨天想窩在家裡");
   await expect(pressed(2)).toHaveText("藍米條紋");
 });
@@ -118,6 +122,7 @@ test("粉領新貴風: a fourth feeling with its own line, plus a blush wall and
   await page.goto(`${PAGE}?lang=zh&mood=chic&wall=blush&curtain=rose`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   const pressed = (g) => page.locator("#panel .opts").nth(g).locator('button[aria-pressed="true"]');
   await expect(pressed(0)).toHaveText("粉領新貴風");
   await expect(pressed(1)).toHaveText("霧粉");
@@ -131,6 +136,7 @@ test("surprise me: one tap picks a new wall, rug, curtain and print, keeps the f
   await page.goto(`${PAGE}?lang=en&mood=tech&wall=original&rug=stripe&curtain=linen&print=hills`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   await page.locator("#panel .shuffle").click();
   const url = new URL(page.url());
   expect(url.searchParams.get("mood")).toBe("tech");
@@ -145,6 +151,7 @@ test("keyboard use: focus stays on the pressed button, the 3D view has a name, a
   await page.goto(`${PAGE}?lang=zh`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   const focused = () => page.evaluate(() => document.activeElement?.textContent?.trim());
   await page.locator("#panel .opts").first().locator("button").nth(1).focus();
   await page.keyboard.press("Enter");

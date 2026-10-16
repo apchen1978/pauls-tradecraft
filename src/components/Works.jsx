@@ -710,6 +710,16 @@ function FeaturedSystem({ work }) {
           <span className="absolute bottom-7 right-7 rounded-field bg-ink/90 px-3 py-2 text-xs font-semibold text-bone opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">{linkLabel} →</span>
         </a>
       </div>
+      {work.id === "commercial-decision-desk" && (
+        <figure data-cdd-snapshot className="border-t border-bone/15 px-6 pt-8 md:px-10">
+          <CoverImage
+            src={lang === "zh" ? "/images/cdd-executive-snapshot-zh-v02.png" : "/images/cdd-executive-snapshot-en-v02.png"}
+            alt={t.hero.snapshotAlt}
+            className="mx-auto h-auto w-full max-w-3xl rounded-field border border-bone/15 bg-bone"
+          />
+          <figcaption className="mx-auto mt-3 max-w-3xl text-xs leading-relaxed text-ondark-meta">{t.hero.snapshotCaption}</figcaption>
+        </figure>
+      )}
       {work.case && <CaseStudy workId={work.id} c={work.case} related={work.related} link={withDemoLang(work.link, lang)} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} casePage={work.casePage} tone="dark" />}
     </article>
   );

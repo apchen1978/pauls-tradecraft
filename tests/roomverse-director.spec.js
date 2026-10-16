@@ -6,6 +6,7 @@ async function enter(page, lang = "zh") {
   await page.goto(`${PAGE}?lang=${lang}`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   await expect(page.locator("#panel .director")).toBeVisible();
 }
 
