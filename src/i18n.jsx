@@ -778,6 +778,7 @@ const dict = {
           boundary: "插畫示意，不是真實商品；實際顏色與質感要看樣品和現場光線。",
           href: "/prototype/roomverse-3d/",
           branch: "light-tech",
+          featured: true,
         },
         {
           title: "工廠秘密菜單",
@@ -1611,6 +1612,7 @@ const dict = {
           boundary: "An illustrated study, not real products; check real colours and textures with samples and on-site light.",
           href: "/prototype/roomverse-3d/",
           branch: "light-tech",
+          featured: true,
         },
         {
           title: "Factory Secret Menu",
