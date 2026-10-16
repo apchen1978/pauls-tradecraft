@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -411,6 +411,15 @@ export async function start({ stage, panel, lang, onReady }) {
     };
     requestAnimationFrame(step);
   }
+  // the visitor's room lives in the address, so a copied link opens the same room (unknown values are ignored)
+  const CHOICES = { mood: MOODS, wall: WALLS, rug: RUGS, curtain: CURTAINS, print: PRINTS };
+  const fromUrl = new URLSearchParams(location.search);
+  for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
+  function toUrl() {
+    const u = new URL(location.href);
+    for (const k in CHOICES) u.searchParams.set(k, state[k]);
+    history.replaceState(null, "", u);
+  }
   function apply() {
     const m = MOODS[state.mood];
     outMat.map = cache["view-" + state.mood] ||= VIEWS[state.mood](); outMat.needsUpdate = true;
@@ -434,7 +443,7 @@ export async function start({ stage, panel, lang, onReady }) {
       box.append(...Object.entries(table).map(([k, v]) => {
         const b = document.createElement("button"); b.type = "button"; b.textContent = v[state.lang]; b.dataset.key = k;
         b.setAttribute("aria-pressed", String(state[key] === k));
-        b.onclick = () => { state[key] = k; apply(); };
+        b.onclick = () => { state[key] = k; apply(); toUrl(); };
         return b;
       }));
       if (key !== "mood") return [h, box];
