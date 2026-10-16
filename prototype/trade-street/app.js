@@ -190,6 +190,7 @@ const RIPPLE_STOPS = [
 
 const RIPPLE_COPY = {
   zh: {
+    hint: "選一個做法後，看看後續哪些安排可能需要跟著調整。",
     open: "看看這一步牽動誰", close: "收起影響路徑", title: "一張確認單，接上後面的安排",
     lead: "沿著拖車、裝櫃、進港看下去。這是安排相依，不是貨櫃的行進路線。",
     action: "目前查看的做法", selected: "你的選擇", comparing: "正在比較",
@@ -199,6 +200,7 @@ const RIPPLE_COPY = {
     closeHint: "這裡只做暫時比較，不會改變這趟的答案；要改答案，請用「改選這一題」。", stage: (n, name) => `第 ${n} 站 · ${name}`,
   },
   en: {
+    hint: "Choose an approach, then see which later plans may need to adjust.",
     open: "See who this affects", close: "Close the impact path", title: "One confirmation feeds the next plans",
     lead: "Follow trucking, loading and port entry. These are planning dependencies, not the container's physical route.",
     action: "Approach shown", selected: "Your choice", comparing: "Comparing",
@@ -794,16 +796,19 @@ function boot() {
     if (wordingNote(step)) brief.appendChild(row(t.wording, wordingNote(step)));
 
     const prompt = $("prompt");
+    const rippleHint = $("ripple-hint");
     const choices = $("choices");
     const feedback = $("feedback");
+    const picked = decision ? state.picks[dIndex] : "ok";
     prompt.hidden = !decision;
+    rippleHint.hidden = !(decision?.id === "d2" && !picked);
+    rippleHint.textContent = decision?.id === "d2" ? RIPPLE_COPY[state.lang].hint : "";
     choices.hidden = !decision;
     choices.replaceChildren();
     feedback.hidden = true;
     feedback.replaceChildren();
     $("back").hidden = i === 0;
     $("back").textContent = t.back;
-    const picked = decision ? state.picks[dIndex] : "ok";
     $("next").textContent = i === LAST_STOP ? t.nextLast : t.next;
     $("next").disabled = !picked;
 
@@ -861,12 +866,6 @@ function boot() {
     const point = el("p");
     point.append(el("b", null, `${t.keyPoint}：`), document.createTextNode(step.prep));
     feedback.appendChild(point);
-    if (cost > 0) {
-      const risk = el("p");
-      risk.append(el("b", null, `${t.ifStuck}：`), document.createTextNode(step.risk));
-      feedback.appendChild(risk);
-    }
-    feedback.appendChild(handoffBlock(decision.step - 1, cost === 0));
     if (decision.id === "d2") {
       const rippleCopy = RIPPLE_COPY[state.lang];
       const trigger = el("button", "ripple-trigger", state.ripple.open ? rippleCopy.close : rippleCopy.open);
@@ -895,6 +894,12 @@ function boot() {
       feedback.appendChild(trigger);
       if (state.ripple.open) feedback.appendChild(buildRipplePanel(decision, optionId, trigger));
     }
+    if (cost > 0) {
+      const risk = el("p");
+      risk.append(el("b", null, `${t.ifStuck}：`), document.createTextNode(step.risk));
+      feedback.appendChild(risk);
+    }
+    feedback.appendChild(handoffBlock(decision.step - 1, cost === 0));
     const change = el("button", "text-btn", t.change);
     change.type = "button";
     change.id = "change";
