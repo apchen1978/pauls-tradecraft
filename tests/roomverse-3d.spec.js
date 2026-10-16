@@ -26,8 +26,8 @@ for (const width of [390, 1440]) {
       expect(glb.filter((u) => u.endsWith(".glb"))).toHaveLength(7);
 
       const groups = page.locator("#panel .opts");
-      await expect(groups).toHaveCount(4);
-      for (const [g, i] of [[0, 1], [1, 3], [2, 2], [3, 2]]) {
+      await expect(groups).toHaveCount(5);
+      for (const [g, i] of [[0, 1], [1, 3], [2, 2], [3, 2], [4, 1]]) {
         const button = groups.nth(g).locator("button").nth(i);
         await button.click();
         await expect(button).toHaveAttribute("aria-pressed", "true");
