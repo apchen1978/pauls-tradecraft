@@ -497,3 +497,52 @@ test("the fourteen stops are named in both languages and every decision step has
   expect(SHORT.en).toHaveLength(14);
   for (const decision of DECISIONS) expect(SHORT.zh[decision.step - 1]).toBeTruthy();
 });
+
+for (const width of [390, 1440]) {
+  for (const lang of ["zh", "en"]) {
+    test(`decision impact path at ${width}px (${lang}): comparison is temporary and the handovers stay readable`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.goto(`${base}/index.html?lang=${lang}`);
+      await page.locator("#start").click();
+      await page.locator("#next").click(); // booking
+      await page.locator('#choices button[data-option="A"]').click();
+      await page.locator("#next").click(); // SO
+      await page.locator('#choices button[data-option="A"]').click();
+
+      const urlBefore = page.url();
+      const bufferBefore = await page.locator("#buffer").getAttribute("aria-label");
+      const answerBefore = await page.locator("#feedback > p").allTextContents();
+      const trigger = page.locator("#feedback .ripple-trigger");
+      await expect(trigger).toBeVisible();
+      await trigger.click();
+      await expect(page.locator("#ripple-panel .ripple-stage")).toHaveCount(3);
+      await page.locator('#ripple-panel [data-ripple-option="B"]').click();
+      await expect(page.locator("#ripple-panel .ripple-status")).toContainText(lang === "zh" ? "逐項核對" : "line by line");
+      await page.locator("#ripple-panel .ripple-controls .ripple-step").nth(1).click();
+      await expect(page.locator("#ripple-panel .ripple-counter")).toContainText(lang === "zh" ? "第 2 棒" : "Handover 2");
+      await page.locator('#ripple-panel [data-ripple-option="C"]').click();
+      await expect(page.locator("#ripple-panel .ripple-status")).toContainText(lang === "zh" ? "沿用上次安排" : "previous plan is reused");
+
+      expect(page.url()).toBe(urlBefore);
+      expect(await page.locator("#buffer").getAttribute("aria-label")).toBe(bufferBefore);
+      expect(await page.locator("#feedback > p").allTextContents()).toEqual(answerBefore);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(0);
+    });
+  }
+}
+
+test("decision impact path keeps manual review available with reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(`${base}/index.html?lang=en`);
+  await page.locator("#start").click();
+  await page.locator("#next").click();
+  await page.locator('#choices button[data-option="A"]').click();
+  await page.locator("#next").click();
+  await page.locator('#choices button[data-option="A"]').click();
+  await page.locator("#feedback .ripple-trigger").click();
+  await expect(page.locator("#ripple-panel .ripple-play")).toBeDisabled();
+  await expect(page.locator("#ripple-panel .ripple-reduced")).toBeVisible();
+  await page.locator("#ripple-panel .ripple-controls .ripple-step").nth(1).click();
+  await expect(page.locator("#ripple-panel .ripple-counter")).toContainText("Handover 2");
+});

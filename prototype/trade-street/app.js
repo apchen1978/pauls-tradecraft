@@ -161,6 +161,58 @@ const LAST_STOP = ALL_STEPS.length - 1; // index of the last of the fourteen sto
 
 const decisionAtStation = (index) => DECISIONS.findIndex((decision) => decision.step === index + 1);
 
+const RIPPLE_STOPS = [
+  {
+    stop: 4, speaker: "trucker", title: { zh: "拖車安排", en: "Trucking" },
+    lines: {
+      A: { zh: "先取得書面時間，再安排提櫃與到廠。", en: "Get the cut-off times in writing before arranging collection and delivery to the factory." },
+      B: { zh: "安排提櫃與到廠時，對照本次 SO 的截止時間。", en: "Match collection and delivery to the cut-off times on this SO." },
+      C: { zh: "沿用舊時間前，先確認本次 SO 的截止時間是否相同。", en: "Before reusing the old timing, check whether this SO has the same cut-offs." },
+    },
+  },
+  {
+    stop: 5, speaker: "factory", title: { zh: "工廠裝櫃", en: "Factory loading" },
+    lines: {
+      A: { zh: "裝櫃時程要接上拖車到廠時間與書面截止時間。", en: "Loading needs to line up with the truck's arrival and the written cut-offs." },
+      B: { zh: "工廠備貨與裝櫃，對照本次核對的提櫃時程。", en: "Factory preparation and loading are checked against this booking's collection schedule." },
+      C: { zh: "如果本次條件不同，舊的裝櫃安排可能要重看。", en: "If this booking differs, the old loading plan may need another look." },
+    },
+  },
+  {
+    stop: 7, speaker: "dispatcher", title: { zh: "進港", en: "Port entry" },
+    lines: {
+      A: { zh: "進港安排仍要對照 SO 寫明的最後期限。", en: "Port delivery still needs to match the final cut-off written on the SO." },
+      B: { zh: "進港前，再把安排對照本次 SO 的截止時間。", en: "Before port delivery, check the plan against this SO's cut-off times." },
+      C: { zh: "進港時限仍待核對本次通知；舊日期不代表這次相同。", en: "The port cut-off still needs checking against this notice; an old date may differ." },
+    },
+  },
+];
+
+const RIPPLE_COPY = {
+  zh: {
+    open: "看看這一步牽動誰", close: "收起影響路徑", title: "一張確認單，接上後面的安排",
+    lead: "沿著拖車、裝櫃、進港看下去。這是安排相依，不是貨櫃的行進路線。",
+    action: "目前查看的做法", selected: "你的選擇", comparing: "正在比較",
+    status: { A: "先提出書面確認；收到回覆前，時間仍待確認。", B: "先按本次 SO 逐項核對；各段安排仍看實際截止時間。", C: "沿用上次安排；本次條件仍待核對。" },
+    beat: (n) => n >= 3 ? "三段安排" : `第 ${n + 1} 棒 / 3`, previous: "上一棒", next: "下一棒",
+    play: "播放一次", stop: "停止播放", reduced: "減少動態已開啟；可用上一棒、下一棒逐段查看。",
+    closeHint: "這裡只做暫時比較，不會改變這趟的答案；要改答案，請用「改選這一題」。", stage: (n, name) => `第 ${n} 站 · ${name}`,
+  },
+  en: {
+    open: "See who this affects", close: "Close the impact path", title: "One confirmation feeds the next plans",
+    lead: "Follow trucking, loading and port entry. These are planning dependencies, not the container's physical route.",
+    action: "Approach shown", selected: "Your choice", comparing: "Comparing",
+    status: {
+      A: "A written confirmation has been requested; the times remain unconfirmed until a reply arrives.",
+      B: "The approach is to check this SO line by line; each plan still depends on its actual cut-off.",
+      C: "The previous plan is reused; this booking's conditions still need checking.",
+    },
+    beat: (n) => n >= 3 ? "All three handovers" : `Handover ${n + 1} of 3`, previous: "Previous", next: "Next",
+    play: "Play once", stop: "Stop", reduced: "Reduced motion is on. Use Previous and Next to review each step.",
+    closeHint: "This is a temporary comparison; it does not change your answer. Use “Change this choice” to change your route.", stage: (n, name) => `Stop ${n} · ${name}`,
+  },
+};
+
 export function initialOf(charId, lang) {
   const name = CAST[charId][lang].name.replace(/^The /, "");
   return Array.from(name)[0];
@@ -187,6 +239,7 @@ function boot() {
     order: Array(DECISIONS.length).fill(null),
     view: "entry",
     preview: null,
+    ripple: { open: false, optionId: null, beat: 0, playing: false, timer: null },
   };
   let revealTimer = null;
   const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -210,6 +263,160 @@ function boot() {
     if (withMiss) line(label.miss, ALL_STEPS[stepIndex][state.lang].risk);
     if (TIPS[stepIndex]) line(TIP_LABEL[state.lang], TIPS[stepIndex][state.lang]);
     return box;
+  }
+
+  function stopRipplePlayback() {
+    if (state.ripple.timer != null) window.clearInterval(state.ripple.timer);
+    state.ripple.timer = null;
+    state.ripple.playing = false;
+  }
+
+  function resetRipple() {
+    stopRipplePlayback();
+    state.ripple.open = false;
+    state.ripple.optionId = null;
+    state.ripple.beat = 0;
+    state.ripple.refresh = null;
+  }
+
+  function updateRipplePanel(panel, decision, actualOptionId, copy, elements) {
+    const optionId = state.ripple.optionId || actualOptionId;
+    const selected = decision.options.find((item) => item.id === optionId);
+    const label = optionId === actualOptionId ? copy.selected : copy.comparing;
+    elements.action.textContent = `${copy.action}：${label} · ${selected[state.lang]}`;
+    elements.status.textContent = copy.status[optionId];
+    elements.counter.textContent = copy.beat(state.ripple.beat);
+    elements.previous.disabled = state.ripple.beat <= 0 || state.ripple.playing;
+    elements.next.disabled = state.ripple.beat >= RIPPLE_STOPS.length || state.ripple.playing;
+    elements.play.textContent = state.ripple.playing ? copy.stop : copy.play;
+    elements.play.disabled = reduceMotion();
+    elements.play.setAttribute("aria-label", reduceMotion() ? copy.reduced : elements.play.textContent);
+    elements.reduceNote.hidden = !reduceMotion();
+    elements.close.setAttribute("aria-label", copy.close);
+    panel.setAttribute("aria-label", copy.title);
+    elements.approaches.forEach((button) => {
+      const candidate = decision.options.find((item) => item.id === button.dataset.rippleOption);
+      button.setAttribute("aria-pressed", String(candidate.id === optionId));
+      button.classList.toggle("active", candidate.id === optionId);
+      button.classList.toggle("original", candidate.id === actualOptionId);
+      button.textContent = candidate.id === actualOptionId
+        ? `${copy.selected} · ${candidate[state.lang]}`
+        : candidate[state.lang];
+    });
+    elements.stages.forEach((stage, index) => {
+      stage.classList.toggle("current", state.ripple.beat === index);
+      stage.classList.toggle("passed", state.ripple.beat > index);
+      stage.classList.toggle("upcoming", state.ripple.beat < index);
+      if (state.ripple.beat === index) stage.setAttribute("aria-current", "step");
+      else stage.removeAttribute("aria-current");
+      stage.querySelector(".ripple-line").textContent = RIPPLE_STOPS[index].lines[optionId][state.lang];
+    });
+    elements.approachNote.textContent = copy.closeHint;
+  }
+
+  function buildRipplePanel(decision, actualOptionId, trigger) {
+    const copy = RIPPLE_COPY[state.lang];
+    const panel = el("section", "ripple-panel");
+    panel.id = "ripple-panel";
+    panel.setAttribute("aria-labelledby", "ripple-title");
+    const heading = el("h3", null, copy.title);
+    heading.id = "ripple-title";
+    heading.tabIndex = -1;
+    const lead = el("p", "ripple-lead", copy.lead);
+    const status = el("p", "ripple-status");
+    const approachLabel = el("p", "ripple-action");
+    approachLabel.setAttribute("aria-live", "polite");
+    const approachGroup = el("div", "ripple-approaches");
+    approachGroup.setAttribute("role", "group");
+    approachGroup.setAttribute("aria-label", copy.action);
+    const approaches = decision.options.map((option) => {
+      const button = el("button", "ripple-approach");
+      button.type = "button";
+      button.dataset.rippleOption = option.id;
+      button.addEventListener("click", () => {
+        stopRipplePlayback();
+        state.ripple.optionId = option.id;
+        state.ripple.beat = 0;
+        updateRipplePanel(panel, decision, actualOptionId, RIPPLE_COPY[state.lang], elements);
+        button.focus();
+      });
+      approachGroup.appendChild(button);
+      return button;
+    });
+    const chain = el("ol", "ripple-chain");
+    chain.setAttribute("aria-label", copy.title);
+    const stages = RIPPLE_STOPS.map((item) => {
+      const stage = el("li", "ripple-stage");
+      stage.setAttribute("aria-current", "false");
+      const top = el("div", "ripple-stage-top");
+      const portrait = el("span", "avatar ripple-avatar");
+      portrait.setAttribute("aria-hidden", "true");
+      avatar(portrait, item.speaker);
+      const heading = el("b", null, `${copy.stage(item.stop, SHORT[state.lang][item.stop - 1])}`);
+      const who = el("span", "ripple-role", `${CAST[item.speaker][state.lang].name} · ${CAST[item.speaker][state.lang].role}`);
+      top.append(portrait, el("span", "ripple-stage-heading", ""));
+      top.lastChild.append(heading, who);
+      const line = el("p", "ripple-line");
+      stage.append(top, line);
+      chain.appendChild(stage);
+      return stage;
+    });
+    const controls = el("div", "ripple-controls");
+    const previous = el("button", "secondary ripple-step", copy.previous);
+    previous.type = "button";
+    const counter = el("p", "ripple-counter");
+    counter.setAttribute("aria-live", "polite");
+    const next = el("button", "secondary ripple-step", copy.next);
+    next.type = "button";
+    const play = el("button", "primary ripple-play", copy.play);
+    play.type = "button";
+    const reduceNote = el("p", "ripple-reduced", copy.reduced);
+    const approachNote = el("p", "ripple-approach-note", copy.closeHint);
+    const close = el("button", "text-btn ripple-close", copy.close);
+    close.type = "button";
+    const elements = { action: approachLabel, status, previous, next, play, reduceNote, close, counter, approaches, stages, approachNote };
+    previous.addEventListener("click", () => {
+      stopRipplePlayback();
+      state.ripple.beat = Math.max(0, state.ripple.beat - 1);
+      updateRipplePanel(panel, decision, actualOptionId, RIPPLE_COPY[state.lang], elements);
+      previous.focus();
+    });
+    next.addEventListener("click", () => {
+      stopRipplePlayback();
+      state.ripple.beat = Math.min(RIPPLE_STOPS.length, state.ripple.beat + 1);
+      updateRipplePanel(panel, decision, actualOptionId, RIPPLE_COPY[state.lang], elements);
+      next.focus();
+    });
+    play.addEventListener("click", () => {
+      if (state.ripple.playing) {
+        stopRipplePlayback();
+        updateRipplePanel(panel, decision, actualOptionId, RIPPLE_COPY[state.lang], elements);
+        play.focus();
+        return;
+      }
+      if (reduceMotion()) return;
+      state.ripple.beat = 0;
+      state.ripple.playing = true;
+      updateRipplePanel(panel, decision, actualOptionId, RIPPLE_COPY[state.lang], elements);
+      play.focus();
+      state.ripple.timer = window.setInterval(() => {
+        state.ripple.beat = Math.min(RIPPLE_STOPS.length, state.ripple.beat + 1);
+        if (state.ripple.beat >= RIPPLE_STOPS.length) stopRipplePlayback();
+        if (state.ripple.refresh) state.ripple.refresh();
+      }, 2000);
+    });
+    close.addEventListener("click", () => {
+      resetRipple();
+      panel.remove();
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.focus();
+    });
+    controls.append(previous, counter, next, play);
+    panel.append(heading, lead, approachLabel, status, approachGroup, chain, approachNote, controls, reduceNote, close);
+    state.ripple.optionId ||= actualOptionId;
+    updateRipplePanel(panel, decision, actualOptionId, copy, elements);
+    state.ripple.refresh = () => updateRipplePanel(panel, decision, actualOptionId, RIPPLE_COPY[state.lang], elements);
+    return panel;
   }
   const avatar = (node, charId) => {
     const fallback = () => { node.classList.remove("has-img"); node.replaceChildren(); node.textContent = initialOf(charId, state.lang); node.style.background = AVATAR_COLOR[charId]; };
@@ -534,6 +741,7 @@ function boot() {
   }
 
   function show(view) {
+    if (view !== "play") resetRipple();
     state.view = view;
     $("entry").hidden = view !== "entry";
     $("play").hidden = view !== "play";
@@ -659,10 +867,39 @@ function boot() {
       feedback.appendChild(risk);
     }
     feedback.appendChild(handoffBlock(decision.step - 1, cost === 0));
+    if (decision.id === "d2") {
+      const rippleCopy = RIPPLE_COPY[state.lang];
+      const trigger = el("button", "ripple-trigger", state.ripple.open ? rippleCopy.close : rippleCopy.open);
+      trigger.type = "button";
+      trigger.setAttribute("aria-controls", "ripple-panel");
+      trigger.setAttribute("aria-expanded", String(state.ripple.open));
+      trigger.addEventListener("click", () => {
+        if (state.ripple.open) {
+          resetRipple();
+          trigger.setAttribute("aria-expanded", "false");
+          trigger.textContent = RIPPLE_COPY[state.lang].open;
+          document.getElementById("ripple-panel")?.remove();
+          trigger.focus();
+          return;
+        }
+        state.ripple.open = true;
+        state.ripple.optionId = optionId;
+        state.ripple.beat = 0;
+        trigger.setAttribute("aria-expanded", "true");
+        trigger.textContent = RIPPLE_COPY[state.lang].close;
+        const panel = buildRipplePanel(decision, optionId, trigger);
+        trigger.insertAdjacentElement("afterend", panel);
+        panel.scrollIntoView({ block: "nearest", behavior: reduceMotion() ? "auto" : "smooth" });
+        panel.querySelector("h3")?.focus({ preventScroll: true });
+      });
+      feedback.appendChild(trigger);
+      if (state.ripple.open) feedback.appendChild(buildRipplePanel(decision, optionId, trigger));
+    }
     const change = el("button", "text-btn", t.change);
     change.type = "button";
     change.id = "change";
     change.addEventListener("click", () => {
+      resetRipple();
       state.picks[dIndex] = null;
       renderPlay(false);
       const first = document.querySelector("#choices .choice");
@@ -672,12 +909,14 @@ function boot() {
   }
 
   function choose(dIndex, optionId) {
+    resetRipple();
     state.picks[dIndex] = optionId;
     renderPlay(false);
     $("next").focus();
   }
 
   function go(delta) {
+    resetRipple();
     if (delta > 0) {
       if (state.index === LAST_STOP) { finish(); return; }
       state.index += 1;
@@ -888,6 +1127,7 @@ function boot() {
 
   function reset() {
     clearTimeout(revealTimer);
+    resetRipple();
     state.index = 0;
     state.picks = Array(DECISIONS.length).fill(null);
     state.order = Array(DECISIONS.length).fill(null);
@@ -906,6 +1146,7 @@ function boot() {
     syncUrl();
   }));
   $("start").addEventListener("click", () => {
+    resetRipple();
     state.index = 0;
     state.picks = Array(DECISIONS.length).fill(null);
     state.order = Array(DECISIONS.length).fill(null);

@@ -146,6 +146,49 @@
     .feedback p { margin: 0; }
     .feedback p + p { margin-top: 8px; }
     .feedback b { color: var(--deep); }
+    .ripple-trigger { display: inline-flex; align-items: center; min-height: 44px; margin-top: 12px; padding: 8px 14px; border: 2px solid var(--deep); border-radius: 999px; background: var(--white); color: var(--deep); font-weight: 700; cursor: pointer; }
+    .ripple-trigger:hover { background: var(--sky); }
+    .ripple-panel { margin-top: 12px; padding: 14px; border: 2px solid var(--deep); border-radius: 14px; background: var(--white); color: var(--ink); line-height: 1.5; }
+    .ripple-panel h3 { margin: 0; color: var(--deep); font-size: 18px; line-height: 1.35; }
+    .ripple-panel h3:focus { outline: 3px solid var(--amber); outline-offset: 3px; }
+    .ripple-lead, .ripple-status, .ripple-action, .ripple-approach-note { margin: 7px 0 0; }
+    .ripple-lead, .ripple-approach-note { color: var(--moss); font-size: 14px; }
+    .ripple-action { font-weight: 700; color: var(--deep); }
+    .ripple-status { padding: 8px 10px; border-left: 4px solid var(--amber); border-radius: 0 8px 8px 0; background: var(--amber-soft); font-size: 14px; }
+    .ripple-approaches { display: grid; gap: 8px; margin-top: 10px; }
+    .ripple-approach { min-width: 0; min-height: 44px; padding: 8px 10px; border: 2px solid var(--line); border-radius: 10px; background: var(--salt); color: var(--ink); text-align: left; font-size: 14px; line-height: 1.4; cursor: pointer; overflow-wrap: anywhere; }
+    .ripple-approach:hover { border-color: var(--teal); }
+    .ripple-approach.active { border-color: var(--teal); background: var(--sky); box-shadow: inset 0 0 0 1px var(--teal); }
+    .ripple-approach.original::after { content: " ✓"; color: var(--deep); font-weight: 700; }
+    .ripple-chain { position: relative; display: grid; gap: 10px; margin: 12px 0 0; padding: 0; list-style: none; }
+    .ripple-stage { position: relative; min-width: 0; padding: 10px 12px; border: 2px solid var(--line); border-radius: 12px; background: var(--salt); opacity: .72; transition: border-color .2s ease, background-color .2s ease, opacity .2s ease; }
+    .ripple-stage.current { border-color: var(--amber); background: var(--amber-soft); opacity: 1; }
+    .ripple-stage.passed { border-color: var(--teal); background: var(--sky); opacity: 1; }
+    .ripple-stage-top { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .ripple-avatar { flex: none; width: 36px; height: 36px; font-size: 15px; }
+    .ripple-stage-heading { display: grid; gap: 2px; min-width: 0; }
+    .ripple-stage-heading b { font-size: 14px; line-height: 1.3; }
+    .ripple-role { display: block; color: var(--moss); font-size: 13px; line-height: 1.3; }
+    .ripple-line { margin: 8px 0 0; font-size: 14px; line-height: 1.45; }
+    .ripple-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+    .ripple-step, .ripple-play { min-height: 42px; padding: 6px 12px; font-size: 14px; }
+    .ripple-counter { flex: 1 1 auto; margin: 0; color: var(--moss); text-align: center; font-size: 13px; }
+    .ripple-reduced { margin: 8px 0 0; color: var(--moss); font-size: 13px; }
+    .ripple-close { margin-top: 8px; }
+    .ripple-panel :focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+    @media (min-width: 700px) {
+      .ripple-approaches { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .ripple-chain { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+      .ripple-stage:not(:last-child)::after { content: ""; position: absolute; z-index: 1; top: 50%; right: -14px; width: 14px; border-top: 2px solid var(--teal); }
+    }
+    @media (max-width: 639px) {
+      .ripple-panel { padding: 12px; }
+      .ripple-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .ripple-counter { grid-column: 1 / -1; grid-row: 1; }
+      .ripple-step, .ripple-play { width: 100%; margin: 0; }
+      .ripple-close { margin-top: 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .ripple-stage { transition: none; } }
     .text-btn { margin-top: 12px; padding: 6px 2px; border: 0; background: transparent; color: var(--deep); font-weight: 700; text-decoration: underline; cursor: pointer; min-height: 40px; }
     .card { margin-top: 14px; padding: 20px; border: 3px solid var(--deep); border-radius: 18px; background: var(--white); }
     .card-kicker { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: #7A4C0C; }
