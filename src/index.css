@@ -318,6 +318,27 @@ html.lenis.lenis-smooth {
   50% { box-shadow: 0 1px 2px rgb(25 58 53 / 0.04), 0 30px 90px -26px rgb(158 224 193 / 0.5), 0 0 0 2px rgb(158 224 193 / 0.6); }
 }
 
+/* hero kicker dot: same mint → gold gem as the section kickers (desktop only, like them) */
+@media (min-width: 1024px) {
+  .hero-gem {
+    background: linear-gradient(135deg, var(--color-mint), var(--color-gold));
+    box-shadow: 0 0 0 0 rgb(158 224 193 / 0.55);
+    animation: eyebrow-ring 3.2s ease-out infinite;
+  }
+}
+
+/* the featured work chip (ROOMVERSE 3D) breathes a soft mint glow, at every width.
+   Fills and glow only; the chip text stays bone on pine. Stops under prefers-reduced-motion. */
+.chip-feature {
+  border-color: rgb(158 224 193 / 0.85);
+  background-color: rgb(158 224 193 / 0.16);
+  animation: chip-pulse 3.6s ease-in-out infinite;
+}
+@keyframes chip-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(158 224 193 / 0); }
+  50% { box-shadow: 0 0 0 4px rgb(158 224 193 / 0.2), 0 0 18px rgb(158 224 193 / 0.4); }
+}
+
 /* flow lines between section groups: drawn once when they scroll into view */
 .flow-line { display: none; }
 @media (min-width: 1024px) {
