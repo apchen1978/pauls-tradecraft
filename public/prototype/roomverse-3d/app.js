@@ -305,7 +305,10 @@ export async function start({ stage, panel, lang, onReady }) {
   robot.scene.rotation.y = .5; // turn before placing: the model's origin is not its centre, so turning afterwards would swing it away
   const robotObj = place(robot, { height: .46, x: -1.45, z: SZ + 1.45 });
   prepare(robotObj, vcol({ roughness: .5 }));
-  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, robotObj);
+  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj);
+  // the robot turns around its own centre: hang it on a pivot at its footprint centre
+  const rb = new THREE.Box3().setFromObject(robotObj), robotPivot = new THREE.Group();
+  robotPivot.position.set((rb.min.x + rb.max.x) / 2, 0, (rb.min.z + rb.max.z) / 2); scene.add(robotPivot); robotPivot.attach(robotObj);
   // the floor lamp gets its own light just under the shade (no shadow: a light inside the closed shade mesh would be blocked)
   const shadeY = lb.min.y + (lb.max.y - lb.min.y) * .8, lampX = (lb.min.x + lb.max.x) / 2, lampZ = (lb.min.z + lb.max.z) / 2;
   const floorLight = new THREE.PointLight("#ffc98a", 0, 5, 1.6); floorLight.position.set(lampX, shadeY - .12, lampZ + .05); scene.add(floorLight);
@@ -412,6 +415,32 @@ export async function start({ stage, panel, lang, onReady }) {
 
   let looping = false;
   function render() { renderer.render(scene, camera); }
+  // a quiet easter egg: tap the little robot and it hops, turns to look at you, then turns back.
+  // Only a tap counts (a drag to turn the room does not); with reduced motion it just turns to look.
+  const ray = new THREE.Raycaster(), tap = new THREE.Vector2(), robotHome = { y: robotPivot.position.y, r: robotPivot.rotation.y };
+  let downAt = null, hopping = false;
+  renderer.domElement.addEventListener("pointerdown", (e) => { downAt = [e.clientX, e.clientY]; });
+  renderer.domElement.addEventListener("pointerup", (e) => {
+    if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6 || hopping) return;
+    const r = renderer.domElement.getBoundingClientRect();
+    tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(tap, camera);
+    if (!ray.intersectObject(robotObj, true).length) return;
+    hopping = true;
+    // the drawing faces +z, and the robot was placed turned .5 rad; the pivot turns it the rest of the way to the camera
+    const look = Math.atan2(camera.position.x - robotPivot.position.x, camera.position.z - robotPivot.position.z) - .5;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now(), T = 1400;
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / T);
+      const turn = k < .3 ? k / .3 : k < .75 ? 1 : 1 - (k - .75) / .25; // turn to you, hold, turn back
+      const ease = turn * turn * (3 - 2 * turn);
+      robotPivot.rotation.y = robotHome.r + (look - robotHome.r) * ease;
+      robotPivot.position.y = robotHome.y + (reduce ? 0 : Math.max(0, Math.sin(Math.min(1, k / .3) * Math.PI)) * .09);
+      render();
+      if (k < 1) requestAnimationFrame(step); else { robotPivot.position.y = robotHome.y; robotPivot.rotation.y = robotHome.r; hopping = false; render(); }
+    };
+    requestAnimationFrame(step);
+  });
   function loop() { if (controls.update()) { render(); requestAnimationFrame(loop); } else { render(); looping = false; } }
   controls.addEventListener("start", () => { if (!looping) { looping = true; requestAnimationFrame(loop); } });
   controls.addEventListener("change", () => { if (!looping) render(); });
