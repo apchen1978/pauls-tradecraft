@@ -228,7 +228,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   const loader = new GLTFLoader();
   const base = new URL("./models/", import.meta.url).href;
-  const [sofa, table, floorLamp, coffee, tableLamp, plant, robot] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant", "robot"].map((f) => loader.loadAsync(base + f + ".glb")));
+  const [sofa, table, floorLamp, coffee, tableLamp, plant, robot, lowChair] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant", "robot", "low-chair"].map((f) => loader.loadAsync(base + f + ".glb")));
   const sofaObj = place(sofa, { width: 2.0, x: SX, z: SZ + .02 });
   // colours projected from the illustration, plus a fine fabric weave. The AI model has no UVs,
   // so the weave is sampled from three sides by world position (triplanar) and blended by the surface normal.
@@ -307,6 +307,10 @@ export async function start({ stage, panel, lang, onReady }) {
   const vcol = (opts) => () => new THREE.MeshStandardMaterial({ vertexColors: true, ...opts });
   const coffeeObj = place(coffee, { width: 1.0, x: SX, z: SZ + 1.05 });
   prepare(coffeeObj, vcol({ roughness: .55 }));
+  // a small low chair (built by code from the side profile of a drawing, so it works without an image-to-3D quota), turned toward the coffee table
+  lowChair.scene.rotation.y = Math.PI / 2; // the chair faces +z; turn it to face +x (toward the table)
+  const chairObj = place(lowChair, { height: .5, x: SX - 1.0, z: SZ + 1.15 });
+  prepare(chairObj, vcol({ roughness: .62 }));
   const coffeeTop = new THREE.Box3().setFromObject(coffeeObj).max.y;
   add(new THREE.BoxGeometry(.26, .05, .18), new THREE.MeshStandardMaterial({ color: "#6d7d68" }), SX - .12, coffeeTop + .025, SZ + 1.02); // a book
   const sideTop = new THREE.Box3().setFromObject(tableObj).max.y;
@@ -375,7 +379,7 @@ export async function start({ stage, panel, lang, onReady }) {
     const ex = sx * fw * .2; eye.position.set(ex, fh * .05, -bend * ex * ex + .002); screen.add(eye);
   }
   scene.add(screen); robotObj.attach(screen);
-  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj);
+  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, chairObj);
   // the robot turns around its own centre: hang it on a pivot at its footprint centre
   const rb = new THREE.Box3().setFromObject(robotObj), robotPivot = new THREE.Group();
   robotPivot.position.set((rb.min.x + rb.max.x) / 2, 0, (rb.min.z + rb.max.z) / 2); scene.add(robotPivot); robotPivot.attach(robotObj);
