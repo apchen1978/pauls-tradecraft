@@ -506,7 +506,7 @@ const dict = {
           objectPosition: "center",
         },
         {
-          title: "對照架上的那一盞",
+          title: "說好的那一盞",
           tag: "示意玩具 · 雙語原型",
           hook: "大貨在工廠做好了。出貨前把燈並排、打開，跟當初點頭的那一盞比一比。",
           teaches: "教你：專案型的貨，色差範圍在試產時說好；大貨拿核准樣來比，發現不一樣先溝通",
@@ -1342,7 +1342,7 @@ const dict = {
           objectPosition: "center",
         },
         {
-          title: "Match the Lamp on the Shelf · 對照架上的那一盞",
+          title: "Match the Lamp on the Shelf · 說好的那一盞",
           tag: "Illustrative toy · bilingual prototype",
           hook: "The bulk is finished at the factory. Before it ships, line the lamps up, switch them on, and hold them against the one you approved.",
           teaches: "Teaches: for project goods, agree the colour range at the trial run, check the bulk against the approved sample, and talk first when something differs",

@@ -86,14 +86,14 @@ export const TEXT = {
       lead: "這個網站本身就是例子。我負責決定和驗收，四個 AI agents 各有分工，而且互相檢查。點一個看看。",
       paul: ["Paul", "受訪、決定、試玩、驗收；說「merge」才上線。"],
       agents: {
-        cc: { name: "CC", full: "Claude Code", role: "寫程式與測試、做研究、整合美術、審查、上線後驗證。", example: "〈對照架上的那一盞〉的程式、每盞燈落點的量測，以及十幾項自動測試。" },
+        cc: { name: "CC", full: "Claude Code", role: "寫程式與測試、做研究、整合美術、審查、上線後驗證。", example: "〈說好的那一盞〉的程式、每盞燈落點的量測，以及十幾項自動測試。" },
         codex: { name: "Codex", full: "Codex", role: "畫場景與封面、做原型、獨立審圖。", example: "同一件作品的試產桌場景、玻璃櫃、封存展台與首頁封面。" },
         grokbot: { name: "GrokBot", full: "GrokBot", role: "寫角色文字、提互動方案、寫上架文案、審查。", example: "〈十二月的燈〉十六個角色的「代價」文字；這件燈作品的三個互動方案。" },
         dsh: { name: "DSH", full: "DeepSeek Harness", role: "寫規格、整理流程規則、上線後獨立複驗。", example: "〈十二月的燈〉卡面改版的規格：四項變更與驗收條件。" },
       },
       exampleLabel: "真的做過的一件事",
       pick: "點一個 agent，看它真的做過什麼。",
-      storyTitle: "一件作品的真實流程：〈對照架上的那一盞〉",
+      storyTitle: "一件作品的真實流程：〈說好的那一盞〉",
       story: [
         ["Paul", "受訪：專案型的貨，色差在試產時就要跟買家講。"],
         ["CC", "查燈飾的一般做法，和 Paul 的話分開標，請 Paul 逐條確認。"],

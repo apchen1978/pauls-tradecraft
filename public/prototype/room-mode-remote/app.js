@@ -94,7 +94,7 @@ const copy = {
     home: "← 作品集",
     nextLabel: "下一站",
     nextBody: "房間裡的燈，真的訂一整批的時候，要拿什麼來比？",
-    nextLink: "走進〈對照架上的那一盞〉↗",
+    nextLink: "走進〈說好的那一盞〉↗",
     imageUnavailable: "圖像尚未載入，請稍後再試。",
   },
   en: {
