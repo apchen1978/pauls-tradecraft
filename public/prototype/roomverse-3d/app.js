@@ -59,12 +59,16 @@ export async function start({ stage, panel, lang, onReady }) {
     const w = stage.clientWidth, h = stage.clientHeight;
     renderer.setSize(w, h);
     camera.aspect = w / h;
-    const narrow = w / h < 0.8;
-    // framed so the sofa group fills the view and the floor does not take half the picture (checked at 390 and 1440)
-    camera.fov = narrow ? 58 : 42;
+    // One continuous framing instead of two modes with a jump at an aspect ratio of 0.8 (phones at 0.82 lost the plaque and
+    // the side lamp). The pose blends from the wide-screen pose (aspect >= 0.95) to the portrait pose (aspect <= 0.75),
+    // and below 0.95 the field of view widens so the same width of the back wall stays in view (about 2.08 m each side of
+    // the centre, which is what the wide-screen framing shows at 0.95). The plaque's right edge needs about 1.9 m.
+    const t = Math.max(0, Math.min(1, (0.95 - camera.aspect) / 0.2));
+    const z = 3.5 + (2.85 - 3.5) * t, y = 1.5 + (1.25 - 1.5) * t, ty = 0.85 + (0.72 - 0.85) * t;
+    camera.fov = t === 0 ? 42 : Math.min(66, Math.max(42, 2 * Math.atan(2.08 / (camera.aspect * (z + 2.2))) * 180 / Math.PI));
     if (!director) {
-      camera.position.set(0.15, narrow ? 1.25 : 1.5, narrow ? 2.85 : 3.5);
-      controls.target.set(0.15, narrow ? 0.72 : 0.85, -0.9);
+      camera.position.set(0.15, y, z);
+      controls.target.set(0.15, ty, -0.9);
     }
     camera.updateProjectionMatrix();
     if (!director) controls.update();
