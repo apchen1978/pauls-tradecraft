@@ -13,7 +13,7 @@ export const TEXT = {
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
-  rain: { zh: "下雨天想窩在家裡", en: "Rainy day, staying in", hemi: .9, win: .7, winCol: "#bccbdb", lamp: 5, fill: 1.2, out: "#d2dae0", exposure: 1.05, floor: 2.2, glow: .55 },
+  rain: { zh: "下雨天想窩在家裡", en: "Rainy day, staying in", hemi: .9, win: .7, winCol: "#bccbdb", lamp: 5, fill: 1.2, out: "#eef1f3", exposure: 1.05, floor: 2.2, glow: .55 },
   family: { zh: "Cozy family", en: "Cozy family", hemi: 1.6, win: 3.2, winCol: "#ffe7c2", lamp: 2, fill: 2.4, out: "#ffffff", exposure: 1.15, floor: 0, glow: .15 },
   // tech: moonlight through the window leaves a pale blue patch on the floor
   tech: { zh: "未來輕科技宅男", en: "Light-tech homebody", hemi: .6, win: 1.5, winCol: "#7f9fe6", lamp: 3.6, fill: .7, out: "#ffffff", exposure: 1, led: true, floor: 1.2, glow: .45 },
@@ -119,30 +119,15 @@ export async function start({ stage, panel, lang, onReady }) {
   add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, BACK + .01, false);
   // side skirting too: finishes the room and covers the thin light line where wall meets floor
   [-1, 1].forEach((s) => add(new THREE.BoxGeometry(.02, .09, D), skirting, s * (W / 2 - .01), .045, BACK + D / 2, false));
-  // the view outside changes with the feeling: grey rain, a sunny afternoon, a city night
-  const trees = (ctx, w, h, cols, top = .45) => { for (let i = 0; i < 46; i++) { ctx.fillStyle = cols[i % cols.length]; ctx.beginPath(); ctx.arc(rnd() * w, h * top + rnd() * h * (1 - top), 22 + rnd() * 40, 0, 7); ctx.fill(); } };
-  const VIEWS = {
-    rain: () => canvasTex(256, 512, (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#9fb0bd"); g.addColorStop(1, "#5d7268"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      trees(ctx, w, h, ["rgba(60,90,70,.45)", "rgba(70,100,82,.55)", "rgba(50,78,62,.5)"]);
-      ctx.fillStyle = "rgba(200,212,222,.18)"; ctx.fillRect(0, 0, w, h); // mist
-      ctx.strokeStyle = "rgba(230,240,250,.35)"; for (let i = 0; i < 160; i++) { const x = rnd() * w, y = rnd() * h; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 2, y + 14); ctx.stroke(); }
-      for (let i = 0; i < 30; i++) { const x = rnd() * w, y = rnd() * h, r = 1.5 + rnd() * 2.5; ctx.fillStyle = "rgba(235,242,250,.5)"; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.fillRect(x - .6, y, 1.2, 6 + rnd() * 14); } // drops on the glass
-    }),
-    family: () => canvasTex(256, 512, (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#a9cbe6"); g.addColorStop(.45, "#e9eadb"); g.addColorStop(1, "#d9c99a"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      for (let i = 0; i < 5; i++) { ctx.fillStyle = "rgba(255,255,255,.7)"; const x = rnd() * w, y = 30 + rnd() * 120; ctx.beginPath(); ctx.ellipse(x, y, 40 + rnd() * 30, 10 + rnd() * 6, 0, 0, 7); ctx.fill(); }
-      trees(ctx, w, h, ["#7f9f55", "#94b263", "#6c8c4a", "#a9bf72"], .5);
-      for (let i = 0; i < 40; i++) { ctx.fillStyle = "rgba(255,240,190,.35)"; ctx.beginPath(); ctx.arc(rnd() * w, h * .5 + rnd() * h * .3, 6 + rnd() * 10, 0, 7); ctx.fill(); } // sun on the leaves
-    }),
-    tech: () => canvasTex(256, 512, (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#141c33"); g.addColorStop(.6, "#2a3558"); g.addColorStop(1, "#3b3f5c"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      for (let i = 0; i < 40; i++) { ctx.fillStyle = `rgba(255,255,255,${.3 + rnd() * .5})`; ctx.fillRect(rnd() * w, rnd() * h * .4, 1.2, 1.2); }
-      let x = -10; while (x < w) { const bw = 30 + rnd() * 50, bh = h * (.25 + rnd() * .4); ctx.fillStyle = `rgb(${22 + rnd() * 14},${28 + rnd() * 14},${48 + rnd() * 16})`; ctx.fillRect(x, h - bh, bw, bh);
-        for (let wy = h - bh + 8; wy < h - 6; wy += 12) for (let wx = x + 5; wx < x + bw - 6; wx += 9) if (rnd() < .35) { ctx.fillStyle = rnd() < .7 ? "rgba(255,214,140,.85)" : "rgba(150,210,255,.85)"; ctx.fillRect(wx, wy, 4, 5); }
-        x += bw + 2; }
-    }),
-  };
+  // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
+  // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
+  const viewLoader = new THREE.TextureLoader();
+  const VIEWS = Object.fromEntries(["rain", "family", "tech"].map((m) => [m, () => {
+    const t = viewLoader.load(new URL(`./window/window-${m}-v1.webp`, import.meta.url).href, () => render());
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.repeat.set(1, .87); t.offset.set(0, .05); // keep the trees and houses (lower middle) in view
+    return t;
+  }]));
   const outMat = new THREE.MeshBasicMaterial();
   const wx = (win.x0 + win.x1) / 2, wy = (win.y0 + win.y1) / 2, ww = win.x1 - win.x0, wh = win.y1 - win.y0;
   add(new THREE.PlaneGeometry(ww, wh), outMat, wx, wy, BACK - .06, false);
@@ -218,7 +203,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   const loader = new GLTFLoader();
   const base = new URL("./models/", import.meta.url).href;
-  const [sofa, table, floorLamp, coffee, tableLamp, plant] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant"].map((f) => loader.loadAsync(base + f + ".glb")));
+  const [sofa, table, floorLamp, coffee, tableLamp, plant, robot] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant", "robot"].map((f) => loader.loadAsync(base + f + ".glb")));
   const sofaObj = place(sofa, { width: 2.0, x: SX, z: SZ + .02 });
   // colours projected from the illustration, plus a fine fabric weave. The AI model has no UVs,
   // so the weave is sampled from three sides by world position (triplanar) and blended by the surface normal.
@@ -316,7 +301,11 @@ export async function start({ stage, panel, lang, onReady }) {
   lampLight.position.set(TX, tlY, TZ); tableHalo.position.set(TX, tlY, TZ + .2);
   const plantObj = place(plant, { height: 1.35, x: PX, z: PZ });
   prepare(plantObj, vcol({ roughness: .75 }));
-  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj);
+  // a small home robot (Codex's drawing, same pipeline) keeps the plant company by the rug; no caption, just there
+  robot.scene.rotation.y = .5; // turn before placing: the model's origin is not its centre, so turning afterwards would swing it away
+  const robotObj = place(robot, { height: .46, x: -1.45, z: SZ + 1.45 });
+  prepare(robotObj, vcol({ roughness: .5 }));
+  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, robotObj);
   // the floor lamp gets its own light just under the shade (no shadow: a light inside the closed shade mesh would be blocked)
   const shadeY = lb.min.y + (lb.max.y - lb.min.y) * .8, lampX = (lb.min.x + lb.max.x) / 2, lampZ = (lb.min.z + lb.max.z) / 2;
   const floorLight = new THREE.PointLight("#ffc98a", 0, 5, 1.6); floorLight.position.set(lampX, shadeY - .12, lampZ + .05); scene.add(floorLight);
@@ -448,6 +437,7 @@ export async function start({ stage, panel, lang, onReady }) {
     setLang(l) { state.lang = l; drawPanel(); },
     set(k, v) { state[k] = v; apply(); }, // used by tests
     postcard, // used by tests: returns the postcard canvas
+    cam: () => camera.position.toArray().map((v) => +v.toFixed(2)), // used by tests: where the camera is
     view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
   };
 }
