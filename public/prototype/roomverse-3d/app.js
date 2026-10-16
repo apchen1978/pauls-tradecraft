@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", hint: "拖曳可以轉一點角度。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", hint: "Drag to turn the room a little.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", hint: "拖曳可以轉一點角度。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", hint: "Drag to turn the room a little.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -177,19 +177,22 @@ export async function start({ stage, panel, lang, onReady }) {
   const lampLight = new THREE.PointLight("#ffc27a", 3.2, 6, 1.6);
   lampLight.position.set(TX, .98, TZ); lampLight.castShadow = true; lampLight.shadow.mapSize.set(1024, 1024); lampLight.shadow.bias = -.002; lampLight.shadow.radius = 6; scene.add(lampLight);
   const PX = -2.3, PZ = BACK + .45;
-  // art above the sofa: a soft abstract print in a thin oak frame
-  const art = canvasTex(600, 420, (ctx, w, h) => {
-    ctx.fillStyle = "#efe8da"; ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = "#d9a77a"; ctx.beginPath(); ctx.arc(w * .34, h * .62, 120, Math.PI, 0); ctx.fill();
-    ctx.fillStyle = "#8a9c84"; ctx.beginPath(); ctx.arc(w * .62, h * .78, 150, Math.PI, 0); ctx.fill();
-    ctx.fillStyle = "#c46f4f"; ctx.beginPath(); ctx.arc(w * .7, h * .3, 34, 0, 7); ctx.fill();
-    ctx.strokeStyle = "#3f5167"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(w * .12, h * .78); ctx.lineTo(w * .88, h * .78); ctx.stroke();
-    noise(ctx, w, h, .05, 12000);
-  });
+  // art above the sofa: Codex's watercolour prints in a thin oak frame. The print follows the feeling
+  // (rain → rain print, family → hills and sun, tech → crescent moon); only the shown one is loaded.
+  const PRINTS = { rain: "rain", family: "hills", tech: "moon" }, prints = {}, printLoader = new THREE.TextureLoader();
+  const printMat = new THREE.MeshStandardMaterial({ roughness: .85 });
+  function printFor(mood) {
+    const name = PRINTS[mood];
+    if (!prints[name]) {
+      prints[name] = printLoader.load(new URL(`./art/wall-print-${name}-v1.webp`, import.meta.url).href, () => render());
+      prints[name].colorSpace = THREE.SRGBColorSpace; prints[name].anisotropy = 8;
+    }
+    return prints[name];
+  }
   const AX = .35, AY = 1.62, AW = .86, AH = .6;
   add(new THREE.BoxGeometry(AW + .06, AH + .06, .035), new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 }), AX, AY, BACK + .02);
   add(new THREE.BoxGeometry(AW, AH, .006), new THREE.MeshStandardMaterial({ color: "#f7f3ea", roughness: .9 }), AX, AY, BACK + .038, false);
-  add(new THREE.PlaneGeometry(AW - .14, AH - .14), new THREE.MeshStandardMaterial({ map: art, roughness: .85 }), AX, AY, BACK + .042, false);
+  add(new THREE.PlaneGeometry(AW - .14, AH - .14), printMat, AX, AY, BACK + .042, false); // .72 x .46 m, the prints are 1200 x 766
   const rugMat = new THREE.MeshStandardMaterial({ roughness: 1 });
   add(new THREE.BoxGeometry(2.6, .012, 1.65), rugMat, SX, .006, SZ + .95, false);
 
@@ -296,17 +299,55 @@ export async function start({ stage, panel, lang, onReady }) {
   const floorHalo = halo(lampX, shadeY, lampZ + .3, 1.1); // a little in front of the shade so the shade does not hide it
 
   // ---------- state + panel ----------
-  const state = { mood: "rain", wall: "original", rug: "stripe", lang };
+  const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", lang };
   const cache = {};
+  const CURTAINS = {
+    linen: { zh: "亞麻米白", en: "Linen cream", color: "#e6ddcc" },
+    mist: { zh: "霧藍", en: "Mist blue", color: "#a9b8c6" },
+    sage: { zh: "鼠尾草綠", en: "Sage green", color: "#b3bd9c" },
+    clay: { zh: "陶土", en: "Terracotta", color: "#c79072" },
+  };
+  // light values for a feeling. Switching feelings eases between them over 0.6 s (skipped with reduced motion),
+  // so the room seems to change its light rather than jump to a new picture.
+  const lights = () => {
+    const m = MOODS[state.mood];
+    return {
+      hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, led: m.led ? .5 : 0,
+      floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
+      shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
+      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out),
+    };
+  };
+  function setLights(v) {
+    hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol);
+    lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out);
+    floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
+    shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
+  }
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let shown = null, shownMood = null, fade = 0;
+  function easeLights() {
+    const to = lights();
+    if (!shown || still || shownMood === state.mood) { shown = to; shownMood = state.mood; fade++; setLights(to); return; }
+    const from = shown, t0 = performance.now(), id = ++fade;
+    shownMood = state.mood;
+    const step = (now) => {
+      if (id !== fade) return; // a newer change took over
+      const k = Math.min(1, (now - t0) / 600), e = k * k * (3 - 2 * k);
+      const v = {};
+      for (const key in to) v[key] = to[key].isColor ? from[key].clone().lerp(to[key], e) : from[key] + (to[key] - from[key]) * e;
+      shown = v; setLights(v); render();
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
   function apply() {
     const m = MOODS[state.mood];
-    hemi.intensity = m.hemi; windowLight.intensity = m.win; windowLight.color.set(m.winCol);
-    lampLight.intensity = m.lamp; fill.intensity = m.fill; outMat.color.set(m.out);
     outMat.map = cache["view-" + state.mood] ||= VIEWS[state.mood](); outMat.needsUpdate = true;
-    floorLight.intensity = m.floor; floorHalo.material.opacity = m.floor ? m.glow : 0; tableHalo.material.opacity = m.glow;
-    shadeGlow.value = m.floor ? .55 : 0; tableGlow.value = m.glow > .3 ? .45 : .18; // the AI shade is a solid shape: a softer glow keeps its form readable // in daylight a lit shade glows less
-    renderer.toneMappingExposure = m.exposure;
-    led.visible = !!m.led; ledGlow.intensity = m.led ? .5 : 0;
+    led.visible = !!m.led;
+    printMat.map = printFor(state.mood); printMat.needsUpdate = true;
+    easeLights();
+    linen.color.set(CURTAINS[state.curtain].color);
     const w = WALLS[state.wall];
     if (w.tex) { const t = cache[state.wall] ||= w.tex(); t.repeat.set(1 / w.size, 1 / w.size); wallMat.map = t; wallMat.color.set("#ffffff"); }
     else { wallMat.map = null; wallMat.color.set(w.paint); }
@@ -317,7 +358,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function drawPanel() {
     const t = TEXT[state.lang];
-    panel.replaceChildren(...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS]].flatMap(([key, table]) => {
+    panel.replaceChildren(...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
       const box = document.createElement("div"); box.className = "opts"; box.setAttribute("role", "group"); box.setAttribute("aria-label", t[key]);
       box.append(...Object.entries(table).map(([k, v]) => {
@@ -343,7 +384,7 @@ export async function start({ stage, panel, lang, onReady }) {
     ctx.fillStyle = "#24302c"; ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`; ctx.textBaseline = "alphabetic";
     ctx.fillText("ROOMVERSE 3D", pad, h + pad + big * .8);
     ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
-    ctx.fillText([MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l]].join("  ·  "), pad, h + strip - pad * .9);
+    ctx.fillText([MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l], CURTAINS[state.curtain][l]].join("  ·  "), pad, h + strip - pad * .9);
     ctx.textAlign = "right"; ctx.fillText("paulstradecraft.com", w - pad, h + pad + big * .8);
     return c;
   }
@@ -370,11 +411,13 @@ export async function start({ stage, panel, lang, onReady }) {
     controls.addEventListener("start", () => { intro = false; });
     const step = (now) => {
       if (!intro) return;
-      const k = Math.min(1, (now - t0) / 1800), e = 1 - (1 - k) ** 3;
+      const k = Math.min(1, Math.max(0, (now - t0) / 1800)), e = 1 - (1 - k) ** 3; // a frame stamp can be a little before t0
       camera.position.lerpVectors(from, end, e); camera.lookAt(controls.target); render();
       if (k < 1) requestAnimationFrame(step); else { intro = false; controls.update(); }
     };
     camera.position.copy(from); requestAnimationFrame(step);
+    // safety net for very slow devices: if the drift has not finished by 2.2 s, settle at the end position
+    setTimeout(() => { if (intro) { intro = false; camera.position.copy(end); camera.lookAt(controls.target); controls.update(); render(); } }, 2200);
   }
   onReady?.();
   return {
