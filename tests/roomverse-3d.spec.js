@@ -79,3 +79,16 @@ test("homepage Showcase: ROOMVERSE 3D is the first card and the first featured c
     await expect(chip).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
   }
 });
+
+test("each feeling shows one line on why the pairing works, and it follows the feeling and the language", async ({ page }) => {
+  await page.goto(`${PAGE}?lang=zh`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  const why = page.locator("#panel .why");
+  await expect(why).toHaveCount(1);
+  await expect(why).toContainText("宅在家裡一天也很舒服");
+  await page.locator("#panel .opts").first().locator("button").nth(2).click();
+  await expect(why).toContainText("冷色燈帶");
+  await page.locator("#lang").click();
+  await expect(why).toContainText("cool LED wash");
+});
