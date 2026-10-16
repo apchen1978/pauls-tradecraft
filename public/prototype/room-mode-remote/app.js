@@ -21,6 +21,10 @@ const sceneFiles = {
   rain: "room-rug-v2.webp",
   sun: "room-sunny-v1.webp",
   chic: "room-chic-v1.webp",
+  chicRose: "room-chic-rose-v1.webp",
+  chicDesk: "room-chic-desk-v1.webp",
+  chicCity: "room-chic-city-v1.webp",
+  chicSun: "room-chic-sun-v1.webp",
   night: "room-evening-v2.webp",
   tech: "room-light-tech-v1.webp",
   breeze: "room-breezy-v1.webp",
@@ -40,7 +44,7 @@ const sceneGroups = {
   stayIn: ["rain", "night", "winter"],
   family: ["sun", "breeze", "autumn"],
   lightTech: ["homeAssistantCover", "tech", "techNight", "homeAssistant", "homeAssistantModern"],
-  cityMorning: ["chic"],
+  cityMorning: ["chic", "chicRose", "chicDesk", "chicCity", "chicSun"],
 };
 
 const copy = {
@@ -65,7 +69,7 @@ const copy = {
     playAreaLabel: "房間場景探索",
     progressLabel: "探索進度",
     switchLanguageLabel: "切換為英文",
-    groups: { stayIn: "下雨天想窩在家裡", family: "Cozy family", lightTech: "未來輕科技宅男", cityMorning: "都會晨光" },
+    groups: { stayIn: "下雨天想窩在家裡", family: "Cozy family", lightTech: "未來輕科技宅男", cityMorning: "粉領新貴風" },
     progress: ["選感覺", "看見細節", "帶走房間"],
     steps: [
       { kicker: "SET THE MOOD", title: "今天想回家是什麼感覺？", description: "先選一種想待的感覺，再挑房間。每次切換，沙發、地毯和光會一起變。" },
@@ -75,7 +79,11 @@ const copy = {
     scenes: {
       rain: { name: "雨後慢下來", description: "只換牆面或地毯，看看感覺怎麼變。", caption: "雨後的窗邊，地毯把腳步接住。", note: "雨還沒停。先坐一會兒，聽它慢慢變小。" },
       sun: { name: "讓陽光進來", description: "窗簾把日光變得柔和。", caption: "光越過窗簾，落在沙發和編織地毯上。", note: "把窗簾拉開一點，今天的光剛剛好。" },
-      chic: { name: "粉領新貴風", description: "美式植紋壁紙、玫瑰窗簾與柔和晨光。", caption: "粉色筆電落在茶几，小矮椅與小機器人陪在一旁；木牌匾替房間留住家的心意。", note: "讓柔粉壁紙襯著淺木，工作與生活都能安放在同一個安靜角落。" },
+      chic: { name: "美式植紋與小夥伴", description: "美式植紋壁紙、玫瑰窗簾與柔和晨光。", caption: "粉色筆電落在茶几，小矮椅與小機器人陪在一旁；木牌匾替房間留住家的心意。", note: "讓柔粉壁紙襯著淺木，工作與生活都能安放在同一個安靜角落。" },
+      chicRose: { name: "玫瑰晨光", description: "柔粉素牆，抱枕多一點層次。", caption: "玫瑰色窗簾映著晨光，三只抱枕靠在米白沙發上；粉色筆電與橘色小矮椅留在茶几旁。", note: "素牆留白，抱枕添一點層次。晨光已經把房間照顧得很好。" },
+      chicDesk: { name: "筆電小角落", description: "橘色小矮椅轉個方向，茶几也是工作角落。", caption: "橘色小矮椅斜向茶几，粉色筆電放在手邊；玫瑰窗簾與淺色織毯接住窗光。", note: "不必另外空出一間書房，先替筆電和自己留一個舒服的位置。" },
+      chicCity: { name: "窗外是城市", description: "遠處樓影，近處是柔軟布料。", caption: "城市樓影出現在窗外，米白沙發、玫瑰窗簾與厚織毯，把室內留得安靜。", note: "窗外的城市在走，這個角落可以照自己的步調。" },
+      chicSun: { name: "暖陽慢生活", description: "素牆與淺橡木，讓日光成為主角。", caption: "日光穿過窗邊樹葉，落在素粉牆、淺木茶几與織毯上；小矮椅和筆電都已就位。", note: "今天先讓日光當主角，其他只要放在順手、舒服的地方。" },
       night: { name: "夜裡只留小燈", description: "把亮處留給想待的地方。", caption: "桌燈和閱讀燈，照亮各自附近的一小角。", note: "不必讓整間房都亮著。留一盞燈，等故事翻頁。" },
       tech: { name: "多一位小夥伴", description: "有一點科技，還是很像家。", caption: "小機器人坐在桌邊，地毯和布料仍是主角。", note: "它坐在書旁邊，像是在等你決定今晚讀哪一頁。" },
       breeze: { name: "微風午後", description: "鼠尾草綠沙發與淡藍織紋。", caption: "布料與地毯換了色，房間也跟著輕了一點。", note: "風把窗簾吹得很輕，今天適合慢慢醒著。" },
@@ -125,7 +133,7 @@ const copy = {
     playAreaLabel: "Room scene explorer",
     progressLabel: "Exploration progress",
     switchLanguageLabel: "Switch to Chinese",
-    groups: { stayIn: "Rainy day, staying in", family: "Cozy family", lightTech: "Light-tech homebody", cityMorning: "City mornings" },
+    groups: { stayIn: "Rainy day, staying in", family: "Cozy family", lightTech: "Light-tech homebody", cityMorning: "Chic city professional" },
     progress: ["Set the mood", "Look closer", "Take it home"],
     steps: [
       { kicker: "SET THE MOOD", title: "How should coming home feel today?", description: "Pick a feeling, then choose a room. The sofa, rug and light change together." },
@@ -135,7 +143,11 @@ const copy = {
     scenes: {
       rain: { name: "Slow after the rain", description: "Change only the wall or rug and see what shifts.", caption: "By the rainy window, the woven rug catches your steps.", note: "The rain has not stopped yet. Sit for a while and listen to it soften." },
       sun: { name: "Let the sun in", description: "Linen makes daylight gentle.", caption: "Light passes the curtains and reaches the sofa and woven rug.", note: "Pull the curtain back a little. Today's light feels just right." },
-      chic: { name: "Chic city professional", description: "Classic botanical wallpaper, rose curtains and soft morning light.", caption: "A pink laptop rests on the table, with a low chair and little robot nearby; a wooden plaque makes the room feel personal.", note: "Let soft rose wallpaper meet pale oak, making room for both work and a quiet weekend." },
+      chic: { name: "Botanical walls, little companions", description: "Classic botanical wallpaper, rose curtains and soft morning light.", caption: "A pink laptop rests on the table, with a low chair and little robot nearby; a wooden plaque makes the room feel personal.", note: "Let soft rose wallpaper meet pale oak, making room for both work and a quiet weekend." },
+      chicRose: { name: "Rose morning", description: "A soft pink wall and a few more layers of cushions.", caption: "Rose curtains catch the morning light above three cushions on the cream sofa; a pink laptop and terracotta low chair sit by the table.", note: "Leave the wall quiet and let the cushions add texture. Morning light takes care of the rest." },
+      chicDesk: { name: "A little laptop corner", description: "Turn the low chair toward the table and settle in.", caption: "A terracotta low chair angles toward the pink laptop, with rose curtains and a pale woven rug softening the daylight.", note: "You need not set aside a whole study. Start with a comfortable spot for yourself and your laptop." },
+      chicCity: { name: "The city outside", description: "A distant skyline, soft fabrics close at hand.", caption: "City buildings rise beyond the window while the cream sofa, rose curtains and thick woven rug keep the room quiet.", note: "The city outside keeps moving. This corner can go at your pace." },
+      chicSun: { name: "A slower sunny day", description: "Plain pink walls and pale oak leave room for the light.", caption: "Sunlight passes the trees onto a plain pink wall, an oak table and a woven rug; the low chair and laptop are ready.", note: "Let the daylight lead today. Everything else can stay somewhere comfortable and easy to reach." },
       night: { name: "Leave the small lamps on", description: "Keep the light where you want to stay.", caption: "The table and reading lamps light small places nearby.", note: "The whole room need not glow. Leave one lamp on for the next page." },
       tech: { name: "One little companion", description: "A touch of tech, still a home.", caption: "A tiny robot sits by the books; textiles still lead the room.", note: "It waits beside your book, as if asking what you will read tonight." },
       breeze: { name: "Breezy afternoon", description: "Sage linen and a soft blue weave.", caption: "New textiles make the same room feel a little lighter.", note: "The breeze lifts the curtain. Today is good for staying awake slowly." },
@@ -188,9 +200,23 @@ const els = Object.fromEntries([
 const context = els["room-canvas"].getContext("2d");
 const previewContext = els["materials-preview"].getContext("2d");
 const images = {};
+let wallLitPlaque;
 const chicDecorImages = Object.fromEntries(Object.entries(chicDecorFiles).map(([key, filename]) => {
   const image = new Image();
-  image.onload = () => { if (state.scene === "chic") drawScene(); };
+  image.onload = () => {
+    if (key === "plaque") {
+      // Match the wall's reflected rose light without redrawing the approved lettering.
+      wallLitPlaque = document.createElement("canvas");
+      wallLitPlaque.width = image.naturalWidth;
+      wallLitPlaque.height = image.naturalHeight;
+      const material = wallLitPlaque.getContext("2d");
+      material.drawImage(image, 0, 0);
+      material.globalCompositeOperation = "source-atop";
+      material.fillStyle = "rgba(204, 173, 160, 0.22)";
+      material.fillRect(0, 0, wallLitPlaque.width, wallLitPlaque.height);
+    }
+    if (state.scene === "chic") drawScene();
+  };
   image.src = ASSET_BASE + filename;
   return [key, image];
 }));
@@ -204,6 +230,7 @@ const mobileSceneMedia = window.matchMedia("(max-width: 800px)");
 
 function loadDisplayImages() {
   Object.entries(sceneFiles).forEach(([key, file]) => {
+    if (sceneGroups.cityMorning.includes(key) && key !== state.scene) return;
     const filename = mobileSceneMedia.matches ? file.replace(/\.webp$/, "-mobile.webp") : file;
     if (images[key]?.filename === filename) return;
     const img = new Image();
@@ -228,7 +255,13 @@ function drawRoom(ctx, image, x, y, width, height, sceneKey, wallKey, rugKey) {
     if (plaque.complete && plaque.naturalWidth) {
       const plaqueWidth = width * .38;
       const plaqueHeight = plaqueWidth * plaque.naturalHeight / plaque.naturalWidth;
-      ctx.drawImage(plaque, x + width * .49, y + height * .12, plaqueWidth, plaqueHeight);
+      ctx.save();
+      ctx.shadowColor = "rgba(76, 44, 36, 0.22)";
+      ctx.shadowBlur = width * .007;
+      ctx.shadowOffsetX = width * .002;
+      ctx.shadowOffsetY = height * .003;
+      ctx.drawImage(wallLitPlaque || plaque, x + width * .49, y + height * .12, plaqueWidth, plaqueHeight);
+      ctx.restore();
     }
     if (robot.complete && robot.naturalWidth) {
       const robotHeight = height * .145;
@@ -404,7 +437,7 @@ function render() {
   els["back-button"].textContent = t.back;
   els["next-button"].textContent = state.step === 2 ? t.download : t.next;
   els["next-button"].disabled = (state.step === 0 && !state.scene) || (state.step === 1 && !state.detail);
-  drawScene();
+  loadDisplayImages();
 }
 
 function materialButton(key, name, chosen, onClick, focusArea) {
