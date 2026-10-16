@@ -846,6 +846,9 @@ export const UI = {
     download: "下載角色卡",
     downloadFail: "這次沒畫成圖片，連結一樣能分享。",
     back: "回到 Digital Garage",
+    nextWorkLabel: "下一站 · 一盞燈的約定",
+    nextWorkBody: "鎮上的燈亮了。再走進工作室，陪大家把想做的那盞燈說清楚。",
+    nextWorkLink: "走進工作室 ↗",
     profile: [["place", "地點："], ["item", "小物："], ["motto", "口頭禪："]],
     costLabel: "代價：",
     galleryTitle: "十六種隊友",
@@ -905,6 +908,9 @@ export const UI = {
     download: "Download card",
     downloadFail: "The picture didn't save this time. The link still shares the card.",
     back: "Back to the Digital Garage",
+    nextWorkLabel: "Next stop · A Lamp, As Promised",
+    nextWorkBody: "The town's lamp is lit. Visit the workshop and help put the lamp everyone wants into words.",
+    nextWorkLink: "Step into the workshop ↗",
     profile: [["place", "Place: "], ["item", "Item: "], ["motto", "Motto: "]],
     costLabel: "Cost: ",
     galleryTitle: "Sixteen teammates",
@@ -1378,6 +1384,10 @@ function boot() {
     $("hint").textContent = ui.hint;
     $("foot-boundary").textContent = ui.boundary;
     $("stored").textContent = ui.stored;
+    $("next-work-label").textContent = ui.nextWorkLabel;
+    $("next-work-body").textContent = ui.nextWorkBody;
+    $("next-work-link").textContent = ui.nextWorkLink;
+    $("next-work-link").href = `/prototype/take-the-lantern-apart/?lang=${state.lang}`;
     const back = $("back");
     const home = `/?lang=${state.lang}#garage`;
     back.textContent = ui.back;

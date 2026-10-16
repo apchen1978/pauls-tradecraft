@@ -9,14 +9,14 @@ const COPY = {
     title: "貿易街 · 一櫃貨出海",
     cta: "走一趟",
     tag: "教學玩具 · 雙語原型",
-    teaches: "教你：一櫃貨出海要經過哪些人、哪六個時刻要決定",
+    teaches: "看懂出貨要經過哪些人，以及哪些事得先確認。",
     boundary: "教學示意，不含具體天數、費用或比例",
   },
   en: {
     title: "Trade Street · One Container Ships",
     cta: "Walk the street",
     tag: "Teaching toy · bilingual prototype",
-    teaches: "Teaches: who a container passes through on its way to sea, and the six moments you decide",
+    teaches: "See who helps a shipment along and what needs confirming first.",
     boundary: "A teaching sketch with no specific days, costs or percentages",
   },
 };
@@ -50,8 +50,8 @@ for (const width of [390, 1440]) {
         await expect(img).toHaveAttribute("width", "408");
         await expect(img).toHaveAttribute("height", "510");
         await expect(showcase.getByText(lang === "zh"
-          ? "探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。"
-          : "Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.")).toBeVisible();
+          ? "挑一個感興趣的故事，進去試試。"
+          : "Pick a story that catches your eye, and give it a try.")).toBeVisible();
         // exact: a card's own boundary line may contain this sentence; only a standalone header line counts
         await expect(showcase.getByText(lang === "zh" ? "示範／成效未驗證。" : "Demo / outcomes not validated.", { exact: true })).toHaveCount(0);
         // promoted: it no longer appears among the Garage experiments

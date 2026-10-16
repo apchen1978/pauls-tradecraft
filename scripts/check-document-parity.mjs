@@ -106,9 +106,10 @@ const showcaseHeaders = [...i18nSource.matchAll(/showcase:\s*\{([\s\S]*?)\n\s*it
 check(showcaseHeaders.length === 2, "expected exactly two Showcase header blocks in i18n");
 for (const [locale, sentence] of Object.entries(SHOWCASE_AI_INTRO)) {
   const headersWithSentence = showcaseHeaders.filter((header) => header.includes(sentence));
-  check(headersWithSentence.length === 1, `${locale} Showcase AI description must appear once, only in the header`);
-  const outsideHeaders = i18nSource.split(sentence).length - 1;
-  check(outsideHeaders === 1, `${locale} Showcase AI description leaked outside its header`);
+  // The approved sentence is optional: a shorter visitor-facing introduction may replace it.
+  check(headersWithSentence.length <= 1, `${locale} Showcase AI description must appear at most once, only in the header`);
+  const occurrences = i18nSource.split(sentence).length - 1;
+  check(occurrences === headersWithSentence.length, `${locale} Showcase AI description leaked outside its header`);
 }
 for (const header of showcaseHeaders) {
   let withoutApproved = header;

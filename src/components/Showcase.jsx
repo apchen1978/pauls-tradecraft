@@ -26,7 +26,17 @@ export default function Showcase() {
           {s.headline}
         </h2>
         <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.intro}</p>
-        <p className="mt-3 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg">{s.support}</p>
+        <p className="mt-4 max-w-[42ch] text-sm leading-relaxed text-moss md:text-base">
+          {s.startLabel}{" "}
+          <a
+            href={withDemoLang(s.startHref, lang)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-sm font-semibold text-ink underline decoration-ink/40 underline-offset-4 hover:decoration-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+          >
+            {s.startCta}
+          </a>
+        </p>
         <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:gap-8 xl:grid-cols-6">
           {items.map((item, index) => {
             const wide = wideAt(index, items.length);
