@@ -574,6 +574,8 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   // A deliberately finite tour: no permanent render loop, URL mutation, or change to the visitor's choices.
   const tourStart = new THREE.Vector3(1.30, 1.60, 4.55);
+  // portrait phones use a wider vertical field of view: from 4.55 m back the bottom of the picture runs past the front edge of the floor (a black strip), so start nearer
+  const tourStartNarrow = new THREE.Vector3(1.05, 1.52, 4.05);
   const tourEnd = new THREE.Vector3(0.5, 1.34, 3.15);
   const tourTarget = new THREE.Vector3(0.15, 0.85, -0.9);
   const smooth = (x) => { const k = Math.max(0, Math.min(1, x)); return k * k * (3 - 2 * k); };
@@ -653,7 +655,9 @@ export async function start({ stage, panel, lang, onReady }) {
     showDirectorStop();
     live.textContent = TEXT[state.lang].director;
     controls.enabled = false;
-    camera.position.copy(tourStart); controls.target.copy(tourTarget); camera.lookAt(tourTarget);
+    const from = camera.aspect < 1 ? tourStartNarrow : tourStart;
+    run.from = from;
+    camera.position.copy(from); controls.target.copy(tourTarget); camera.lookAt(tourTarget);
     setLights(lightForMood("rain")); tourView("rain"); render(); drawPanel();
     for (let i = 0; i < 3; i++) { // WebGL may show the prior texture for a frame after swapping the view
       await new Promise(requestAnimationFrame);
@@ -665,7 +669,7 @@ export async function start({ stage, panel, lang, onReady }) {
     const step = (now) => {
       if (director !== run) return;
       const t = Math.max(0, Math.min(8, (now - run.started) / 1000));
-      camera.position.lerpVectors(tourStart, tourEnd, smooth(t / 8));
+      camera.position.lerpVectors(from, tourEnd, smooth(t / 8));
       camera.lookAt(tourTarget);
       if (t < 1.2) { setLights(rain); tourView("rain"); }
       else if (t < 4.5) { setLights(blendLights(rain, day, smooth((t - 1.2) / 1.8), blended)); tourView("family"); }
