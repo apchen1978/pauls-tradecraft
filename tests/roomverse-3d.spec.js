@@ -92,3 +92,24 @@ test("each feeling shows one line on why the pairing works, and it follows the f
   await page.locator("#lang").click();
   await expect(why).toContainText("cool LED wash");
 });
+
+test("the room lives in the address: a shared link opens the same choices, clicks update it, unknown values are ignored", async ({ page }) => {
+  await page.goto(`${PAGE}?lang=en&mood=tech&wall=botanical&rug=medallion&curtain=clay&print=moon&bogus=1`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  const pressed = (g) => page.locator("#panel .opts").nth(g).locator('button[aria-pressed="true"]');
+  await expect(pressed(0)).toHaveText("Light-tech homebody");
+  await expect(pressed(1)).toHaveText("Soft botanical wallpaper");
+  await expect(pressed(2)).toHaveText("Classic medallion");
+  await expect(pressed(3)).toHaveText("Terracotta");
+  await expect(pressed(4)).toHaveText("Crescent moon");
+  await page.locator("#panel .opts").nth(2).locator("button").nth(1).click();
+  await expect(page).toHaveURL(/rug=ivory/);
+  await expect(page).toHaveURL(/lang=en/);
+
+  await page.goto(`${PAGE}?mood=nope&rug=<script>`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await expect(pressed(0)).toHaveText("下雨天想窩在家裡");
+  await expect(pressed(2)).toHaveText("藍米條紋");
+});
