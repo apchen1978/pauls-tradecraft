@@ -23,7 +23,7 @@ for (const width of [390, 1440]) {
       await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
       await expect(page.locator("#panel")).toBeVisible();
       await expect(page.locator("#stage canvas")).toBeVisible();
-      expect(glb.filter((u) => u.endsWith(".glb"))).toHaveLength(7);
+      expect(glb.filter((u) => u.endsWith(".glb"))).toHaveLength(8);
 
       const groups = page.locator("#panel .opts");
       await expect(groups).toHaveCount(5);
