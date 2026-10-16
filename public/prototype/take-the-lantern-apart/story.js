@@ -133,7 +133,7 @@ export const STORY = {
     s5narr: "千禧把照片放回口袋。這次，旁邊多了一張寫得更清楚的約定草稿。",
     again: "換一種約定",
     cardSub: "我們想做的那盞燈",
-    nextBody: "我們把想法記下了。接著到貿易街，看看貨物如何走過交付的每一步。",
+    nextBody: "我們把想法記下了。接著看看做好的燈，要怎麼跟當初點頭的那一盞比。",
     altYiyi: "依依姐微笑著陪在一旁", altYiyiAsk: "依依姐拿著書發問", altChiensi: "千禧舉著相機", altSunny: "小葵提著保溫瓶", altDianaCover: "戴安娜拿起燈罩端詳桌上的燈", altYiyiCover: "依依姐在一旁陪著，看向那盞燈",
   },
   en: {
@@ -184,7 +184,7 @@ export const STORY = {
     s5narr: "Chiensi slips the photo back into a pocket. This time, there's a clearer draft agreement beside it.",
     again: "Try a different set of choices",
     cardSub: "The lamp we'd like to make",
-    nextBody: "We've noted our idea. Next, visit Trade Street to explore each step of getting goods delivered.",
+    nextBody: "We've noted our idea. Next, see how the finished lamps compare with the one we approved.",
     altYiyi: "Yiyi smiling beside them", altYiyiAsk: "Yiyi asking a question with a book in hand", altChiensi: "Chiensi holding a camera", altSunny: "Sunny holding a flask", altDianaCover: "Diana holds up a shade, studying the lamp", altYiyiCover: "Yiyi beside her, looking toward the lamp",
   },
 };
