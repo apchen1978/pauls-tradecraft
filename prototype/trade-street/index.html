@@ -134,6 +134,7 @@
     .handoff p + p { margin-top: 6px; }
     .handoff b { display: block; font-size: 13px; letter-spacing: .06em; color: var(--deep); }
     .prompt { margin: 16px 0 0; font-size: 19px; font-weight: 700; }
+    .ripple-hint { margin: 8px 0 0; padding-left: 10px; border-left: 3px solid var(--amber); color: var(--moss); font-size: 15px; line-height: 1.45; }
     .choices { display: grid; gap: 10px; margin-top: 10px; }
     .choice { display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; padding: 12px 14px; border: 2px solid var(--line); border-radius: 12px; background: var(--white); color: var(--ink); cursor: pointer; min-height: 56px; }
     .choice:hover:not(:disabled) { border-color: var(--teal); }
@@ -480,6 +481,7 @@
         <p class="scn-note" id="scn-note" hidden></p>
         <div class="brief" id="brief"></div>
         <p class="prompt" id="prompt" hidden></p>
+        <p class="ripple-hint" id="ripple-hint" hidden></p>
         <div class="choices" id="choices" role="group" hidden></div>
         <div class="feedback" id="feedback" hidden role="status"></div>
         <div class="actions">

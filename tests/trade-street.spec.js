@@ -498,7 +498,7 @@ test("the fourteen stops are named in both languages and every decision step has
   for (const decision of DECISIONS) expect(SHORT.zh[decision.step - 1]).toBeTruthy();
 });
 
-for (const width of [390, 1440]) {
+for (const width of [390, 768, 1440]) {
   for (const lang of ["zh", "en"]) {
     test(`decision impact path at ${width}px (${lang}): comparison is temporary and the handovers stay readable`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -507,13 +507,20 @@ for (const width of [390, 1440]) {
       await page.locator("#next").click(); // booking
       await page.locator('#choices button[data-option="A"]').click();
       await page.locator("#next").click(); // SO
+      await expect(page.locator("#ripple-hint")).toBeVisible();
+      await expect(page.locator("#ripple-hint")).toContainText(lang === "zh" ? "後續哪些安排可能需要跟著調整" : "which later plans may need to adjust");
+      await expect(page.locator("#feedback .ripple-trigger")).toHaveCount(0);
       await page.locator('#choices button[data-option="A"]').click();
 
       const urlBefore = page.url();
       const bufferBefore = await page.locator("#buffer").getAttribute("aria-label");
       const answerBefore = await page.locator("#feedback > p").allTextContents();
+      await expect(page.locator("#ripple-hint")).toBeHidden();
       const trigger = page.locator("#feedback .ripple-trigger");
       await expect(trigger).toBeVisible();
+      await expect(trigger).toBeInViewport();
+      const triggerBeforeHandoff = await trigger.evaluate((button) => Boolean(button.compareDocumentPosition(button.parentElement.querySelector(".handoff")) & Node.DOCUMENT_POSITION_FOLLOWING));
+      expect(triggerBeforeHandoff).toBe(true);
       await trigger.click();
       await expect(page.locator("#ripple-panel .ripple-stage")).toHaveCount(3);
       await page.locator('#ripple-panel [data-ripple-option="B"]').click();
