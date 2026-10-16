@@ -27,11 +27,11 @@ export const AGREEMENTS = ["tight", "range", "later"];
 export const TEXT = {
   zh: {
     htmlLang: "zh-Hant",
-    docTitle: "對照架上的那一盞 · Match the Lamp on the Shelf",
+    docTitle: "說好的那一盞 · Match the Lamp on the Shelf",
     label: "示意玩具，不是品檢標準。",
     skip: "跳至內容",
     lang: "語言",
-    title: "對照架上的那一盞",
+    title: "說好的那一盞",
     tagline: "大貨在工廠做好了。出貨前，拿起來跟留下來的那一盞比。",
     scope: "這是專案型的情況：買家的專案要用一整批燈。賣標準品的買賣，多半不會遇到這個問題。",
     startNote: "沒有分數，也沒有標準答案。你只要看，然後說說你會怎麼做。",
@@ -141,7 +141,7 @@ export const TEXT = {
   },
   en: {
     htmlLang: "en",
-    docTitle: "Match the Lamp on the Shelf · 對照架上的那一盞",
+    docTitle: "Match the Lamp on the Shelf · 說好的那一盞",
     label: "A toy, not an inspection standard.",
     skip: "Skip to content",
     lang: "Language",
