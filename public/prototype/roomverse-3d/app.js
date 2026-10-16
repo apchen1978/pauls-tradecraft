@@ -1,6 +1,6 @@
 // ROOMVERSE 3D: the same soft-furnishing idea as ROOM MODE REMOTE, as a small 3D room you can turn.
 // Loaded only after the visitor presses "enter" (index.html), so the portfolio page stays light.
-// Furniture: sofa, side table and floor lamp were drawn as single illustrations, turned into shapes by an
+// Furniture: sofa, coffee table, side table, table lamp, floor lamp and plant were drawn as single illustrations, turned into shapes by an
 // image-to-3D model, then coloured locally from the same illustrations. Walls, rug, light: drawn by code.
 // Built and checked in a local trial first (Desktop CC_3D軟裝房間試作_2026-10-16, README trials 1-8).
 import * as THREE from "./vendor/three.module.min.js"; // three.js r160 (MIT), self-hosted: the site loads nothing from other hosts
@@ -172,42 +172,11 @@ export async function start({ stage, panel, lang, onReady }) {
     g.computeVertexNormals(); add(g, linen, x, (win.y1 + .2) / 2, BACK + .12);
   });
   const SX = .35, SZ = BACK + .55, TX = SX + 1.35, TZ = SZ - .1;
-  // coffee table + a book, small table lamp on the side table (the room's warm light)
-  add(new THREE.CylinderGeometry(.5, .5, .05, 48), wood, SX, .42, SZ + 1.05).scale.z = .62;
-  [[-.3, -.14], [.3, -.14], [-.3, .14], [.3, .14]].forEach(([dx, dz]) => add(new THREE.CylinderGeometry(.045, .045, .4, 16), wood, SX + dx, .2, SZ + 1.05 + dz));
-  add(new THREE.BoxGeometry(.26, .05, .18), new THREE.MeshStandardMaterial({ color: "#6d7d68" }), SX - .12, .47, SZ + 1.02);
-  const lathe = new THREE.LatheGeometry([[0, 0], [.09, .01], [.12, .08], [.11, .17], [.05, .23], [.02, .26]].map(([x, y]) => new THREE.Vector2(x, y)), 32);
-  add(lathe, new THREE.MeshStandardMaterial({ color: "#c9c4b8", roughness: .5 }), TX, .615, TZ);
-  const tableShade = new THREE.MeshStandardMaterial({ color: "#f3e7cf", emissive: "#ffcf8a", emissiveIntensity: .9, side: THREE.DoubleSide, roughness: 1 });
-  add(new THREE.CylinderGeometry(.13, .19, .22, 40, 1, true), tableShade, TX, .99, TZ, false);
+  // the coffee table, the table lamp and the plant are AI-made models too (loaded with the others below);
+  // the table lamp's light lives here, and is moved onto the lamp once the side table is placed
   const lampLight = new THREE.PointLight("#ffc27a", 3.2, 6, 1.6);
   lampLight.position.set(TX, .98, TZ); lampLight.castShadow = true; lampLight.shadow.mapSize.set(1024, 1024); lampLight.shadow.bias = -.002; lampLight.shadow.radius = 6; scene.add(lampLight);
-  // plant: a woven basket, thin stems, and real leaf shapes (a midrib fold so they catch the light)
   const PX = -2.3, PZ = BACK + .45;
-  const basketTex = canvasTex(256, 128, (ctx, w, h) => {
-    ctx.fillStyle = "#b39466"; ctx.fillRect(0, 0, w, h);
-    for (let y = 0; y < h; y += 8) for (let x = (y / 8) % 2 * 8; x < w; x += 16) { ctx.fillStyle = "rgba(255,240,210,.22)"; ctx.fillRect(x, y, 10, 6); ctx.fillStyle = "rgba(70,45,20,.25)"; ctx.fillRect(x + 10, y, 3, 8); }
-  });
-  basketTex.repeat.set(3, 2);
-  add(new THREE.CylinderGeometry(.19, .15, .34, 32), new THREE.MeshStandardMaterial({ map: basketTex, roughness: 1 }), PX, .17, PZ);
-  add(new THREE.CylinderGeometry(.18, .18, .01, 24), new THREE.MeshStandardMaterial({ color: "#4a3a2a", roughness: 1 }), PX, .32, PZ, false);
-  const leafShape = new THREE.Shape(); leafShape.moveTo(0, 0); leafShape.bezierCurveTo(.07, .05, .08, .17, 0, .26); leafShape.bezierCurveTo(-.08, .17, -.07, .05, 0, 0);
-  const leafGeo = new THREE.ShapeGeometry(leafShape, 8); { const p = leafGeo.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.abs(p.getX(i)) * .45 - p.getY(i) * p.getY(i) * .5); leafGeo.computeVertexNormals(); }
-  const leafMats = ["#4f6f3f", "#5e8048", "#6b8c52"].map((c) => new THREE.MeshStandardMaterial({ color: c, roughness: .65, side: THREE.DoubleSide }));
-  const stemMat = new THREE.MeshStandardMaterial({ color: "#5a6b3a", roughness: .9 });
-  const up = new THREE.Vector3(0, 1, 0);
-  for (let s = 0; s < 7; s++) {
-    const a = s / 7 * Math.PI * 2 + rnd() * .5, lean = .08 + rnd() * .16, top = new THREE.Vector3(PX + Math.cos(a) * lean, .9 + rnd() * .5, PZ + Math.sin(a) * lean * .8);
-    const from = new THREE.Vector3(PX, .32, PZ), dir = top.clone().sub(from), len = dir.length();
-    const stem = add(new THREE.CylinderGeometry(.006, .009, len, 6), stemMat, ...from.clone().addScaledVector(dir, .5).toArray());
-    stem.quaternion.setFromUnitVectors(up, dir.normalize());
-    for (let k = 0; k < 4; k++) {
-      const at = from.clone().addScaledVector(dir, len * (.45 + k * .18));
-      const l = add(leafGeo, leafMats[(s + k) % 3], at.x, at.y, at.z);
-      l.rotation.set(-.4 - rnd() * .7, a + (k % 2 ? 1.2 : -1.2) + rnd() * .4, (rnd() - .5) * .6, "YXZ");
-      l.scale.setScalar(.8 + rnd() * .5);
-    }
-  }
   // art above the sofa: a soft abstract print in a thin oak frame
   const art = canvasTex(600, 420, (ctx, w, h) => {
     ctx.fillStyle = "#efe8da"; ctx.fillRect(0, 0, w, h);
@@ -239,7 +208,7 @@ export async function start({ stage, panel, lang, onReady }) {
   // soft halos around the lamp shades, so a lit lamp looks lit
   const haloTex = canvasTex(128, 128, (ctx, w, h) => { const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,220,160,.9)"); g.addColorStop(.35, "rgba(255,200,130,.35)"); g.addColorStop(1, "rgba(255,190,120,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
   const halo = (x, y, z, s) => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); m.position.set(x, y, z); m.scale.setScalar(s); scene.add(m); return m; };
-  const tableHalo = halo(TX, .99, TZ, .9);
+  const tableHalo = halo(TX, .99, TZ, .65);
 
   // ---------- furniture from illustrations (quantised GLB, ~100 KB each) ----------
   const fabric = new THREE.MeshStandardMaterial({ color: "#e6dccb", roughness: 1 });
@@ -256,7 +225,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   const loader = new GLTFLoader();
   const base = new URL("./models/", import.meta.url).href;
-  const [sofa, table, floorLamp] = await Promise.all(["sofa", "side-table", "floor-lamp"].map((f) => loader.loadAsync(base + f + ".glb")));
+  const [sofa, table, floorLamp, coffee, tableLamp, plant] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant"].map((f) => loader.loadAsync(base + f + ".glb")));
   const sofaObj = place(sofa, { width: 2.0, x: SX, z: SZ + .02 });
   // colours projected from the illustration, plus a fine fabric weave. The AI model has no UVs,
   // so the weave is sampled from three sides by world position (triplanar) and blended by the surface normal.
@@ -279,7 +248,7 @@ export async function start({ stage, panel, lang, onReady }) {
   };
   prepare(sofaObj, () => fabricMat);
   const tableObj = place(table, { height: .6, x: TX, z: TZ });
-  prepare(tableObj, () => wood);
+  prepare(tableObj, () => new THREE.MeshStandardMaterial({ color: "#b98a5c", roughness: .55 })); // light oak, same family as the coffee table
   const lampObj = place(floorLamp, { height: 1.55, x: SX - 1.3, z: SZ - .05 });
   const lb = new THREE.Box3().setFromObject(lampObj);
   const shadeGlow = { value: 0 };
@@ -296,7 +265,31 @@ export async function start({ stage, panel, lang, onReady }) {
     };
     return mat;
   });
-  scene.add(sofaObj, tableObj, lampObj);
+  // coffee table, table lamp, plant: Codex's single-item drawings → image-to-3D → colours from the drawing
+  // (lamp and plant coloured by measured height zones; see Desktop trial tools/zone_colors.py)
+  const vcol = (opts) => () => new THREE.MeshStandardMaterial({ vertexColors: true, ...opts });
+  const coffeeObj = place(coffee, { width: 1.0, x: SX, z: SZ + 1.05 });
+  prepare(coffeeObj, vcol({ roughness: .55 }));
+  const coffeeTop = new THREE.Box3().setFromObject(coffeeObj).max.y;
+  add(new THREE.BoxGeometry(.26, .05, .18), new THREE.MeshStandardMaterial({ color: "#6d7d68" }), SX - .12, coffeeTop + .025, SZ + 1.02); // a book
+  const sideTop = new THREE.Box3().setFromObject(tableObj).max.y;
+  const tableLampObj = place(tableLamp, { height: .45, x: TX, z: TZ, baseY: sideTop });
+  const tableGlow = { value: .45 };
+  prepare(tableLampObj, () => {
+    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .7 });
+    // shade = the pale linen vertices (blue channel ~.67 linear vs ~.47 on the ceramic base)
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.tableGlow = tableGlow;
+      sh.fragmentShader = "uniform float tableGlow;\n" + sh.fragmentShader.replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += step(.6, vColor.b) * vec3(1., .81, .54) * tableGlow;");
+    };
+    return mat;
+  });
+  tableLampObj.traverse((m) => { if (m.isMesh) m.castShadow = false; }); // the lamp's own light sits inside this closed mesh
+  const tlb = new THREE.Box3().setFromObject(tableLampObj), tlY = tlb.min.y + (tlb.max.y - tlb.min.y) * .72;
+  lampLight.position.set(TX, tlY, TZ); tableHalo.position.set(TX, tlY, TZ + .2);
+  const plantObj = place(plant, { height: 1.35, x: PX, z: PZ });
+  prepare(plantObj, vcol({ roughness: .75 }));
+  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj);
   // the floor lamp gets its own light just under the shade (no shadow: a light inside the closed shade mesh would be blocked)
   const shadeY = lb.min.y + (lb.max.y - lb.min.y) * .8, lampX = (lb.min.x + lb.max.x) / 2, lampZ = (lb.min.z + lb.max.z) / 2;
   const floorLight = new THREE.PointLight("#ffc98a", 0, 5, 1.6); floorLight.position.set(lampX, shadeY - .12, lampZ + .05); scene.add(floorLight);
@@ -311,7 +304,7 @@ export async function start({ stage, panel, lang, onReady }) {
     lampLight.intensity = m.lamp; fill.intensity = m.fill; outMat.color.set(m.out);
     outMat.map = cache["view-" + state.mood] ||= VIEWS[state.mood](); outMat.needsUpdate = true;
     floorLight.intensity = m.floor; floorHalo.material.opacity = m.floor ? m.glow : 0; tableHalo.material.opacity = m.glow;
-    shadeGlow.value = m.floor ? .55 : 0; tableShade.emissiveIntensity = m.glow > .3 ? .9 : .35; // in daylight a lit shade glows less
+    shadeGlow.value = m.floor ? .55 : 0; tableGlow.value = m.glow > .3 ? .45 : .18; // the AI shade is a solid shape: a softer glow keeps its form readable // in daylight a lit shade glows less
     renderer.toneMappingExposure = m.exposure;
     led.visible = !!m.led; ledGlow.intensity = m.led ? .5 : 0;
     const w = WALLS[state.wall];
