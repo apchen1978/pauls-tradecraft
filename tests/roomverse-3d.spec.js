@@ -52,3 +52,30 @@ test("the Garage light-tech shelf links to the 3D room in the visitor's language
   await expect(link).toHaveCount(1);
   await expect(link).toHaveAttribute("href", "/prototype/roomverse-3d/?lang=en");
 });
+
+test("homepage Showcase: ROOMVERSE 3D is a formal work with its tag, cover and a link in the visitor's language", async ({ page }) => {
+  for (const [lang, title, tag] of [["zh", "ROOMVERSE 3D · 空間幻境", "3D 互動空間 · 雙語作品"], ["en", "ROOMVERSE 3D · One room, many ways to come home", "3D interactive room · bilingual work"]]) {
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.goto(`/?lang=${lang}#showcase`);
+      const card = page.locator("#showcase article", { hasText: title });
+      await expect(card).toHaveCount(1);
+      await expect(card).toContainText(tag);
+      await expect(card.locator("a").first()).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
+      const img = card.locator('img[src*="roomverse-3d/showcase-roomverse-3d-v1.webp"]');
+      await img.scrollIntoViewIfNeeded();
+      await expect.poll(() => img.evaluate((el) => el.complete && el.naturalWidth)).toBe(816);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});
+
+test("homepage Showcase: ROOMVERSE 3D is the first card and the first featured chip, before December Lights", async ({ page }) => {
+  for (const [lang, title, next] of [["zh", "ROOMVERSE 3D · 空間幻境", "十二月的燈"], ["en", "ROOMVERSE 3D · One room, many ways to come home", "December Lights"]]) {
+    await page.goto(`/?lang=${lang}#showcase`);
+    await expect(page.locator("#showcase article").nth(0)).toContainText(title);
+    await expect(page.locator("#showcase article").nth(1)).toContainText(next);
+    const chip = page.locator('[data-testid="quick-works"] a').first();
+    await expect(chip).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
+  }
+});

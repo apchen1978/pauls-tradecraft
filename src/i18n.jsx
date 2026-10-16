@@ -432,6 +432,21 @@ const dict = {
       support: "從一個想法開始，讓創意透過科技成形，讓每一次探索都有新的可能。",
       items: [
         {
+          title: "ROOMVERSE 3D · 空間幻境",
+          tag: "3D 互動空間 · 雙語作品",
+          hook: "同一個空間，三種想回家的感覺。轉一轉，換牆、換地毯，看光怎麼跟著變。",
+          teaches: "看見：牆面、地毯與光，如何一起改變一個房間",
+          cta: "走進 3D 房間",
+          boundary: "插畫轉 3D 的示意，不是真實商品；顏色與質感以樣品和現場光線為準。",
+          href: "/prototype/roomverse-3d/",
+          image: "/prototype/roomverse-3d/showcase-roomverse-3d-v1.webp",
+          imageAlt: "一扇窗裡同時有雨、夕陽和城市夜景：米白沙發配綠色與陶土色抱枕，橡木茶几上一本書，兩盞燈亮著，地上落著窗形的光",
+          imageWidth: 816,
+          imageHeight: 1020,
+          imageRatio: "4 / 5",
+          objectPosition: "center",
+        },
+        {
           title: "十二月的燈",
           tag: "示意玩具 · 雙語原型",
           hook: "你是哪一種隊友？照夜鎮裡，十六種隊友，四個隊伍。",
@@ -1249,6 +1264,21 @@ const dict = {
       intro: "Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.",
       support: "It starts with an idea. Technology gives it shape, and every exploration opens new possibilities.",
       items: [
+        {
+          title: "ROOMVERSE 3D · One room, many ways to come home",
+          tag: "3D interactive room · bilingual work",
+          hook: "One room, three ways to come home. Turn it, change the wall and the rug, and watch the light follow.",
+          teaches: "See how walls, rugs and light change a room together",
+          cta: "Step into the 3D room",
+          boundary: "Illustrations turned into 3D, not real products; check colours and textures with samples and on-site light.",
+          href: "/prototype/roomverse-3d/",
+          image: "/prototype/roomverse-3d/showcase-roomverse-3d-v1.webp",
+          imageAlt: "One window holds rain, a sunset and a city night: a cream sofa with green and terracotta cushions, a book on the oak coffee table, two lamps lit, window-shaped light on the floor",
+          imageWidth: 816,
+          imageHeight: 1020,
+          imageRatio: "4 / 5",
+          objectPosition: "center",
+        },
         {
           title: "December Lights",
           tag: "Illustrative toy · bilingual prototype",
