@@ -62,7 +62,7 @@ test("homepage Showcase: ROOMVERSE 3D is a formal work with its tag, cover and a
       await expect(card).toHaveCount(1);
       await expect(card).toContainText(tag);
       await expect(card.locator("a").first()).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
-      const img = card.locator('img[src*="roomverse-3d/showcase-cover.webp"]');
+      const img = card.locator('img[src*="roomverse-3d/showcase-roomverse-3d-v1.webp"]');
       await img.scrollIntoViewIfNeeded();
       await expect.poll(() => img.evaluate((el) => el.complete && el.naturalWidth)).toBe(816);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
