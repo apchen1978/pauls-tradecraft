@@ -21,6 +21,10 @@ const MOODS = {
   // tech: moonlight through the window leaves a pale blue patch on the floor
   tech: { zh: "未來輕科技宅男", en: "Light-tech homebody",
     why: { zh: "晚上把主燈關掉，一盞暖燈加一道冷色燈帶，對比讓房間更有層次，又不刺眼!!", en: "At night, skip the ceiling light: one warm lamp against a cool LED wash gives depth without glare." }, hemi: .6, win: 1.5, winCol: "#7f9fe6", lamp: 3.6, fill: .7, out: "#ffffff", exposure: 1, led: true, floor: 1.2, glow: .45 },
+  // chic: a bright weekend morning with a soft blush in the light (plan and line approved by Paul, 2026-10-16)
+  chic: { zh: "粉領新貴風", en: "Chic city professional",
+    why: { zh: "明亮的晨光配上霧粉和黃銅點綴，俐落又有溫度，週末在家也像住在喜歡的咖啡館。", en: "Bright morning light with dusty pink and brass accents: crisp but warm, like a weekend in your favourite café." },
+    hemi: 1.5, win: 2.6, winCol: "#ffe2dc", lamp: 1.2, fill: 2.1, out: "#fff6f3", exposure: 1.13, floor: 0, glow: .12 },
 };
 
 export async function start({ stage, panel, lang, onReady }) {
@@ -93,6 +97,7 @@ export async function start({ stage, panel, lang, onReady }) {
     original: { zh: "原來的米白", en: "Original cream", paint: "#e9e1d3" },
     sand: { zh: "暖砂米", en: "Warm sand", paint: "#d9c6a8" },
     olive: { zh: "柔橄欖", en: "Soft olive", paint: "#a9ad8a" },
+    blush: { zh: "霧粉", en: "Dusty blush", paint: "#e6cec6" },
     // size = metres per tile (the wall's UVs are in metres); about 5 x 3 tiles on the back wall
     stripe: { zh: "細條紋壁紙", en: "Fine-stripe wallpaper", size: 1.0, tex: image("wallpaper-stripe-v1", true) },
     botanical: { zh: "淡色植紋壁紙", en: "Soft botanical wallpaper", size: 1.5, tex: image("wallpaper-botanical-v1", true) },
@@ -126,8 +131,9 @@ export async function start({ stage, panel, lang, onReady }) {
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
-  const VIEWS = Object.fromEntries(["rain", "family", "tech"].map((m) => [m, () => {
-    const t = viewLoader.load(new URL(`./window/window-${m}-v1.webp`, import.meta.url).href, () => render());
+  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic" }; // chic: weekend morning, same street
+  const VIEWS = Object.fromEntries(Object.entries(VIEW_FILES).map(([m, f]) => [m, () => {
+    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => render());
     t.colorSpace = THREE.SRGBColorSpace;
     t.repeat.set(1, .87); t.offset.set(0, .05); // keep the trees and houses (lower middle) in view
     return t;
@@ -381,6 +387,7 @@ export async function start({ stage, panel, lang, onReady }) {
     mist: { zh: "霧藍", en: "Mist blue", color: "#a9b8c6" },
     sage: { zh: "鼠尾草綠", en: "Sage green", color: "#b3bd9c" },
     clay: { zh: "陶土", en: "Terracotta", color: "#c79072" },
+    rose: { zh: "霧玫瑰", en: "Dusty rose", color: "#d3a6a0" },
   };
   // light values for a feeling. Switching feelings eases between them over 0.6 s (skipped with reduced motion),
   // so the room seems to change its light rather than jump to a new picture.

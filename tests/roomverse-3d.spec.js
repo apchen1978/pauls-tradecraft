@@ -113,3 +113,16 @@ test("the room lives in the address: a shared link opens the same choices, click
   await expect(pressed(0)).toHaveText("下雨天想窩在家裡");
   await expect(pressed(2)).toHaveText("藍米條紋");
 });
+
+test("粉領新貴風: a fourth feeling with its own line, plus a blush wall and a dusty rose curtain", async ({ page }) => {
+  await page.goto(`${PAGE}?lang=zh&mood=chic&wall=blush&curtain=rose`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  const pressed = (g) => page.locator("#panel .opts").nth(g).locator('button[aria-pressed="true"]');
+  await expect(pressed(0)).toHaveText("粉領新貴風");
+  await expect(pressed(1)).toHaveText("霧粉");
+  await expect(pressed(3)).toHaveText("霧玫瑰");
+  await expect(page.locator("#panel .why")).toContainText("咖啡館");
+  await page.locator("#lang").click();
+  await expect(pressed(0)).toHaveText("Chic city professional");
+});
