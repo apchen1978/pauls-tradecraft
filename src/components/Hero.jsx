@@ -111,7 +111,7 @@ export default function Hero() {
             {t.hero.credentials.map((credential, index) => (
               <div
                 key={credential.label}
-                className={`flex items-baseline justify-between gap-4 py-2.5 sm:block sm:px-4 sm:py-4 ${index === 0 ? "sm:pl-0" : ""}`}
+                className={`flex items-baseline justify-between gap-4 py-2 sm:block sm:px-4 sm:py-4 ${index === 0 ? "sm:pl-0" : ""}`}
               >
                 <span className="text-lg font-semibold tracking-[-0.02em] text-gold sm:text-xl">{credential.value}</span>
                 <span className="text-right text-xs font-medium leading-snug text-ondark-meta sm:mt-1.5 sm:block sm:text-left">
@@ -120,16 +120,17 @@ export default function Hero() {
               </div>
             ))}
           </motion.div>
-          <motion.div variants={fadeUp} className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          {/* phones: the two buttons sit side by side (they wrap back to a stack if a language is too long), which frees ~55px so the featured-works chips reach the first screen */}
+          <motion.div variants={fadeUp} className="mt-5 flex flex-row flex-wrap gap-3 sm:mt-8 sm:items-center sm:gap-4">
             <a
               href="#three-questions"
-              className="rounded-field bg-gold px-5 py-3 text-center text-sm font-semibold text-pine transition-[transform,filter] hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="max-sm:grow rounded-field bg-gold px-5 py-3 text-center text-sm font-semibold text-pine transition-[transform,filter] hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
               {t.hero.ctaPrimary}
             </a>
             <a
               href="#contact"
-              className="rounded-field border border-bone/40 px-5 py-3 text-center text-sm font-semibold text-bone transition-[transform,border-color,color] hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-gold active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="max-sm:grow rounded-field border border-bone/40 px-5 py-3 text-center text-sm font-semibold text-bone transition-[transform,border-color,color] hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-gold active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
               {t.hero.ctaSecondary}
             </a>
