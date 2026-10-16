@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", save: "存成明信片", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", save: "Save as a postcard", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -35,6 +35,12 @@ export async function start({ stage, panel, lang, onReady }) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   stage.append(renderer.domElement);
+  renderer.domElement.setAttribute("role", "img"); renderer.domElement.setAttribute("aria-label", TEXT[lang].canvas);
+  // a persistent live region (the panel is rebuilt, so a note inside it would not be announced reliably)
+  const live = document.createElement("div"); live.setAttribute("aria-live", "polite");
+  Object.assign(live.style, { position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" });
+  stage.parentNode.append(live);
+  let announced = null;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(44, 1, 0.05, 50);
@@ -434,6 +440,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function apply() {
     const m = MOODS[state.mood];
+    if (announced !== state.mood) { if (announced) live.textContent = MOODS[state.mood][state.lang] + ". " + MOODS[state.mood].why[state.lang]; announced = state.mood; }
     outMat.map = cache["view-" + state.mood] ||= VIEWS[state.mood](); outMat.needsUpdate = true;
     led.visible = !!m.led;
     printMat.map = printFor(state.print); printMat.needsUpdate = true;
@@ -449,6 +456,13 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function drawPanel() {
     const t = TEXT[state.lang];
+    // the panel is rebuilt on every choice; remember which button had focus so keyboard users stay where they were
+    const had = document.activeElement;
+    let keep = null;
+    if (had && panel.contains(had)) {
+      const g = had.closest(".opts");
+      keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("shuffle") ? "shuffle" : "save" };
+    }
     panel.replaceChildren(...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
       const box = document.createElement("div"); box.className = "opts"; box.setAttribute("role", "group"); box.setAttribute("aria-label", t[key]);
@@ -462,7 +476,18 @@ export async function start({ stage, panel, lang, onReady }) {
       const why = document.createElement("p"); why.className = "why"; why.textContent = MOODS[state.mood].why[state.lang]; // why this pairing
       return [h, box, why];
     }), Object.assign(document.createElement("p"), { className: "hint", textContent: t.hint }),
+    Object.assign(document.createElement("button"), { type: "button", className: "save shuffle", textContent: t.shuffle, onclick: () => shuffle() }),
     Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: t.save, onclick: () => savePostcard() }));
+    if (keep) {
+      const target = keep.c ? panel.querySelector("." + keep.c) : panel.querySelectorAll(".opts")[keep.g]?.querySelector(`button[data-key="${keep.k}"]`);
+      target?.focus({ preventScroll: true });
+    }
+  }
+  // a random wall, rug, curtain and print (never the same set twice in a row); the feeling stays the visitor's own
+  function shuffle() {
+    const pick = (table, now) => { const ks = Object.keys(table).filter((k) => k !== now); return ks[Math.floor(Math.random() * ks.length)]; };
+    state.wall = pick(WALLS, state.wall); state.rug = pick(RUGS, state.rug); state.curtain = pick(CURTAINS, state.curtain); state.print = pick(PRINTS, state.print);
+    apply(); toUrl();
   }
 
   // postcard: the room as it looks now, with a paper strip naming the chosen feeling, wall and rug
@@ -539,7 +564,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   onReady?.();
   return {
-    setLang(l) { state.lang = l; drawPanel(); },
+    setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); drawPanel(); },
     set(k, v) { state[k] = v; apply(); }, // used by tests
     postcard, // used by tests: returns the postcard canvas
     cam: () => camera.position.toArray().map((v) => +v.toFixed(2)), // used by tests: where the camera is

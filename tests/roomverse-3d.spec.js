@@ -126,3 +126,36 @@ test("粉領新貴風: a fourth feeling with its own line, plus a blush wall and
   await page.locator("#lang").click();
   await expect(pressed(0)).toHaveText("Chic city professional");
 });
+
+test("surprise me: one tap picks a new wall, rug, curtain and print, keeps the feeling, and updates the link", async ({ page }) => {
+  await page.goto(`${PAGE}?lang=en&mood=tech&wall=original&rug=stripe&curtain=linen&print=hills`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.locator("#panel .shuffle").click();
+  const url = new URL(page.url());
+  expect(url.searchParams.get("mood")).toBe("tech");
+  expect(url.searchParams.get("wall")).not.toBe("original");
+  expect(url.searchParams.get("rug")).not.toBe("stripe");
+  expect(url.searchParams.get("curtain")).not.toBe("linen");
+  expect(url.searchParams.get("print")).not.toBe("hills");
+  await expect(page.locator("#panel .opts").nth(0).locator('button[aria-pressed="true"]')).toHaveText("Light-tech homebody");
+});
+
+test("keyboard use: focus stays on the pressed button, the 3D view has a name, and a feeling change is announced", async ({ page }) => {
+  await page.goto(`${PAGE}?lang=zh`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  const focused = () => page.evaluate(() => document.activeElement?.textContent?.trim());
+  await page.locator("#panel .opts").first().locator("button").nth(1).focus();
+  await page.keyboard.press("Enter");
+  expect(await focused()).toBe("Cozy family");
+  await page.keyboard.press("Tab");
+  expect(await focused()).toBe("未來輕科技宅男");
+  await page.locator("#panel .shuffle").focus();
+  await page.keyboard.press("Enter");
+  expect(await focused()).toBe("幫我隨機搭一間");
+  await expect(page.locator("#stage canvas")).toHaveAttribute("role", "img");
+  await expect(page.locator("#stage canvas")).toHaveAttribute("aria-label", /3D/);
+  await page.locator("#panel .opts").first().locator("button").nth(2).click();
+  await expect(page.locator('[aria-live="polite"]')).toContainText("冷色燈帶");
+});
