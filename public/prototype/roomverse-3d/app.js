@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", canvas: "3D 軟裝房間，可以拖曳轉動角度", look: "環顧四周", back: "回到正面", lookHint: "拖曳轉動視角，看看房間四周。", save: "存成明信片", shuffle: "幫我隨機搭一間", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", canvas: "A 3D living room; drag to turn it", look: "Look around", back: "Back to front", lookHint: "Drag to look around the whole room.", save: "Save as a postcard", shuffle: "Surprise me with a room", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -50,15 +50,25 @@ export async function start({ stage, panel, lang, onReady }) {
   controls.minDistance = 2.4; controls.maxDistance = 5.6;
   controls.minPolarAngle = Math.PI * 0.32; controls.maxPolarAngle = Math.PI * 0.5;
   controls.minAzimuthAngle = -0.55; controls.maxAzimuthAngle = 0.55;
+  // the front view, framed so the sofa group fills the view and the floor does not take half the picture (checked at 390 and 1440)
+  function homeView() {
+    const narrow = stage.clientWidth / stage.clientHeight < 0.8;
+    return { fov: narrow ? 58 : 42, pos: new THREE.Vector3(0.15, narrow ? 1.25 : 1.5, narrow ? 2.85 : 3.5), target: new THREE.Vector3(0.15, narrow ? 0.72 : 0.85, -0.9) };
+  }
+  // "look around": the camera stands inside the room and turns on the spot (see goLook below)
+  let inside = false, moving = false, lookYaw = 0, lookPitch = -0.05;
+  const INSIDE_POS = new THREE.Vector3(0.15, 1.45, 0.9);
+  const insideFov = () => (stage.clientWidth / stage.clientHeight < 0.8 ? 80 : 68);
+  const lookQuat = () => new THREE.Quaternion().setFromEuler(new THREE.Euler(lookPitch, lookYaw, 0, "YXZ"));
   function fit() {
     const w = stage.clientWidth, h = stage.clientHeight;
     renderer.setSize(w, h);
     camera.aspect = w / h;
-    const narrow = w / h < 0.8;
-    // framed so the sofa group fills the view and the floor does not take half the picture (checked at 390 and 1440)
-    camera.fov = narrow ? 58 : 42;
-    camera.position.set(0.15, narrow ? 1.25 : 1.5, narrow ? 2.85 : 3.5);
-    controls.target.set(0.15, narrow ? 0.72 : 0.85, -0.9);
+    if (inside || moving) { if (!moving) camera.fov = insideFov(); camera.updateProjectionMatrix(); return; } // do not drag the camera back to the front view
+    const home = homeView();
+    camera.fov = home.fov;
+    camera.position.copy(home.pos);
+    controls.target.copy(home.target);
     camera.updateProjectionMatrix();
     controls.update();
   }
@@ -128,12 +138,16 @@ export async function start({ stage, panel, lang, onReady }) {
   const sideMat = new THREE.MeshStandardMaterial({ color: "#e4ddd0", roughness: .95 });
   // side walls and ceiling cast too: otherwise window light leaks through them (a bright band on the right wall, a patch at the left)
   [-1, 1].forEach((s) => { add(new THREE.PlaneGeometry(D, H + .3), sideMat, s * W / 2, H / 2 - .15, BACK + D / 2, true).rotation.y = -s * Math.PI / 2; });
+  // the wall behind the camera: it faces into the room, so the front view (camera outside) looks straight through it.
+  // The coloured or papered wall is the back wall only, like a feature wall; the other three stay neutral.
+  add(new THREE.PlaneGeometry(W, H + .3), sideMat, 0, H / 2 - .15, BACK + D, false).rotation.y = Math.PI;
   add(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ color: "#f6f2ea", emissive: "#f6f2ea", emissiveIntensity: .12 }), 0, H, BACK + D / 2, true).rotation.x = Math.PI / 2;
   const wood = new THREE.MeshStandardMaterial({ color: "#8a5a36", roughness: .6 });
   const skirting = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .7 });
   add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, BACK + .01, false);
   // side skirting too: finishes the room and covers the thin light line where wall meets floor
   [-1, 1].forEach((s) => add(new THREE.BoxGeometry(.02, .09, D), skirting, s * (W / 2 - .01), .045, BACK + D / 2, false));
+  add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, BACK + D - .01, false);
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
@@ -461,7 +475,7 @@ export async function start({ stage, panel, lang, onReady }) {
     let keep = null;
     if (had && panel.contains(had)) {
       const g = had.closest(".opts");
-      keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("shuffle") ? "shuffle" : "save" };
+      keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: ["shuffle", "look"].find((c) => had.classList.contains(c)) || "save" };
     }
     panel.replaceChildren(...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
@@ -475,7 +489,8 @@ export async function start({ stage, panel, lang, onReady }) {
       if (key !== "mood") return [h, box];
       const why = document.createElement("p"); why.className = "why"; why.textContent = MOODS[state.mood].why[state.lang]; // why this pairing
       return [h, box, why];
-    }), Object.assign(document.createElement("p"), { className: "hint", textContent: t.hint }),
+    }), Object.assign(document.createElement("p"), { className: "hint", textContent: inside ? t.lookHint : t.hint }),
+    Object.assign(document.createElement("button"), { type: "button", className: "save look", textContent: inside ? t.back : t.look, onclick: () => goLook(!inside) }),
     Object.assign(document.createElement("button"), { type: "button", className: "save shuffle", textContent: t.shuffle, onclick: () => shuffle() }),
     Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: t.save, onclick: () => savePostcard() }));
     if (keep) {
@@ -542,7 +557,58 @@ export async function start({ stage, panel, lang, onReady }) {
     };
     requestAnimationFrame(step);
   });
-  function loop() { if (controls.update()) { render(); requestAnimationFrame(loop); } else { render(); looping = false; } }
+  function loop() { if (!inside && !moving && controls.update()) { render(); requestAnimationFrame(loop); } else { render(); looping = false; } }
+
+  // ---------- look around ----------
+  function goLook(on) {
+    if (moving || on === inside) return;
+    moving = true; intro = false;
+    const fromPos = camera.position.clone(), fromQ = camera.quaternion.clone(), fromFov = camera.fov;
+    // the front fill light sits 20 cm from the wall behind the camera and would burn a hot spot on it when you turn round:
+    // while you stand inside it moves to above the middle of the room, and goes back when you step out
+    const fromFill = fill.position.clone(), toFill = on ? new THREE.Vector3(.2, 2.2, .2) : new THREE.Vector3(.2, 2.2, 2.2);
+    let toPos, toQ, toFov, home = null;
+    if (on) { lookYaw = 0; lookPitch = -0.05; toPos = INSIDE_POS.clone(); toQ = lookQuat(); toFov = insideFov(); controls.enabled = false; }
+    else {
+      home = homeView(); toPos = home.pos; toFov = home.fov;
+      const tmp = new THREE.PerspectiveCamera(); tmp.position.copy(home.pos); tmp.lookAt(home.target); toQ = tmp.quaternion.clone();
+    }
+    const done = () => {
+      fill.position.copy(toFill);
+      if (on) { inside = true; dom.tabIndex = 0; }
+      else { inside = false; dom.removeAttribute("tabindex"); camera.position.copy(home.pos); controls.target.copy(home.target); camera.fov = home.fov; camera.updateProjectionMatrix(); controls.enabled = true; controls.update(); }
+      moving = false; drawPanel(); render();
+    };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      camera.position.copy(toPos); camera.quaternion.copy(toQ); camera.fov = toFov; camera.updateProjectionMatrix(); done(); return;
+    }
+    const t0 = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, Math.max(0, (now - t0) / 1100)), e = k * k * (3 - 2 * k);
+      camera.position.lerpVectors(fromPos, toPos, e); camera.quaternion.slerpQuaternions(fromQ, toQ, e); fill.position.lerpVectors(fromFill, toFill, e);
+      camera.fov = fromFov + (toFov - fromFov) * e; camera.updateProjectionMatrix(); render();
+      if (k < 1) requestAnimationFrame(step); else done();
+    };
+    requestAnimationFrame(step);
+  }
+  // drag (mouse or finger) turns the view on the spot; arrow keys do too when the view has focus
+  const dom = renderer.domElement;
+  let drag = null, queued = false;
+  const aim = () => { camera.quaternion.copy(lookQuat()); if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; render(); }); } };
+  dom.addEventListener("pointerdown", (e) => { if (!inside || moving) return; drag = { x: e.clientX, y: e.clientY }; dom.setPointerCapture(e.pointerId); });
+  dom.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    lookYaw += (e.clientX - drag.x) * .0045; lookPitch = Math.max(-.6, Math.min(.6, lookPitch + (e.clientY - drag.y) * .0035));
+    drag.x = e.clientX; drag.y = e.clientY; aim();
+  });
+  const endDrag = () => { drag = null; };
+  dom.addEventListener("pointerup", endDrag); dom.addEventListener("pointercancel", endDrag);
+  dom.addEventListener("keydown", (e) => {
+    if (!inside || moving) return;
+    const d = { ArrowLeft: [.12, 0], ArrowRight: [-.12, 0], ArrowUp: [0, .08], ArrowDown: [0, -.08] }[e.key];
+    if (!d) return;
+    e.preventDefault(); lookYaw += d[0]; lookPitch = Math.max(-.6, Math.min(.6, lookPitch + d[1])); aim();
+  });
   controls.addEventListener("start", () => { if (!looping) { looping = true; requestAnimationFrame(loop); } });
   controls.addEventListener("change", () => { if (!looping) render(); });
   new ResizeObserver(() => { fit(); render(); }).observe(stage);
@@ -568,6 +634,10 @@ export async function start({ stage, panel, lang, onReady }) {
     set(k, v) { state[k] = v; apply(); }, // used by tests
     postcard, // used by tests: returns the postcard canvas
     cam: () => camera.position.toArray().map((v) => +v.toFixed(2)), // used by tests: where the camera is
+    look: goLook, // used by tests
+    turn(yaw, pitch = lookPitch) { lookYaw = yaw; lookPitch = pitch; aim(); }, // used by tests: face a direction inside the room
+    isInside: () => inside && !moving,
+    isHome: () => !inside && !moving,
     view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
   };
 }

@@ -159,3 +159,38 @@ test("keyboard use: focus stays on the pressed button, the 3D view has a name, a
   await page.locator("#panel .opts").first().locator("button").nth(2).click();
   await expect(page.locator('[aria-live="polite"]')).toContainText("冷色燈帶");
 });
+
+test("look around: the camera walks into the room, turns on the spot, and walks back to exactly where it was", async ({ page }) => {
+  await page.goto(`${PAGE}?lang=en`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForTimeout(2600); // the intro drift
+  const home = await page.evaluate(() => window.__room.cam());
+  const button = page.locator("#panel .look");
+  await expect(button).toHaveText("Look around");
+  await button.click();
+  await page.waitForFunction(() => window.__room.isInside(), null, { timeout: 8000 });
+  await expect(button).toHaveText("Back to front");
+  const inside = await page.evaluate(() => window.__room.cam());
+  expect(inside[2]).toBeLessThan(1.5); // inside the room, not behind its front wall
+  expect(Math.abs(inside[0])).toBeLessThan(2.4);
+  await expect(page.locator("#stage canvas")).toHaveAttribute("tabindex", "0");
+  for (const yaw of [0, Math.PI / 2, Math.PI, -Math.PI / 2]) await page.evaluate((y) => window.__room.turn(y), yaw);
+  expect(await page.evaluate(() => window.__room.cam())).toEqual(inside); // turning never moves the camera
+  await button.click();
+  await page.waitForFunction(() => window.__room.isHome(), null, { timeout: 8000 });
+  expect(await page.evaluate(() => window.__room.cam())).toEqual(home);
+  await expect(button).toHaveText("Look around");
+  await expect(page.locator("#stage canvas")).not.toHaveAttribute("tabindex", /.*/);
+});
+
+test("look around with reduced motion: it switches at once, and the focus stays on the button", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(`${PAGE}?lang=zh`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.locator("#panel .look").focus();
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => window.__room.isInside(), null, { timeout: 2000 });
+  expect(await page.evaluate(() => document.activeElement.textContent.trim())).toBe("回到正面");
+});
