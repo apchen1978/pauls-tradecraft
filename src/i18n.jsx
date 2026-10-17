@@ -571,12 +571,12 @@ const dict = {
       items: [
         {
           title: "歌詞生成器 · Lyrics Generator",
-          tag: "早期作品 · 可試玩",
-          spark: "我很喜歡的第一個 AI 人機協作作品：給一個想法，寫出歌詞、挑毛病、再改一輪。",
-          note: "從桌面程式長成可以直接試玩的網頁版，保留同一套流程：寫出來、批評、打分數、重寫。",
-          cta: "試玩歌詞生成器",
-          boundary: "早期的創作實驗，產出的歌詞僅供參考，不代表任何成效。",
-          href: "https://deploy-lake-zeta.vercel.app",
+          tag: "早期作品 · 示範",
+          spark: "我很喜歡的第一個 AI 人機協作作品：看一首歌怎麼被寫出來、挑毛病、再改一輪。",
+          note: "從桌面程式長成的網頁示範：海邊、愛情、旅行、福音四首預先寫好的歌，可以看完整流程：寫出來、批評、打分數、重寫。",
+          cta: "看歌詞示範",
+          boundary: "示範內容，預先寫好、不是即時生成，不代表任何成效。",
+          href: "https://apchen1978.github.io/ai-lyrics-generator-demo/",
         },
         {
           title: "Bring Paul Into the Room · 先把問題帶進來",
@@ -1437,12 +1437,12 @@ const dict = {
       items: [
         {
           title: "Lyrics Generator",
-          tag: "Early work · playable",
-          spark: "My favorite first human–AI collaboration: give it an idea, get lyrics, then a critique and a rewrite.",
-          note: "It grew from a desktop app into a playable web version, keeping the same loop: write, critique, score, rewrite.",
-          cta: "Try the Lyrics Generator",
-          boundary: "An early creative experiment. The lyrics are drafts, not an outcome claim.",
-          href: "https://deploy-lake-zeta.vercel.app",
+          tag: "Early work · demo",
+          spark: "My favorite first human–AI collaboration: watch a song get written, critiqued and rewritten.",
+          note: "It grew from a desktop app into a web demo: four prepared songs (sea, love, travel, gospel) that walk through the same loop: write, critique, score, rewrite.",
+          cta: "See the lyrics demo",
+          boundary: "Prepared demo content, not live generation, and not an outcome claim.",
+          href: "https://apchen1978.github.io/ai-lyrics-generator-demo/",
         },
         {
           title: "Bring Paul Into the Room",
