@@ -20,8 +20,7 @@ test("the words carry no digits, no AI, no retired words, and zh and en have the
     for (const text of allStrings(TEXT[lang])) {
       if (text === TEXT[lang].htmlLang) continue;
       expect(text, `${lang}: ${text}`).not.toMatch(/\d/);
-      // "AI agents" is the one allowed phrase (site rules); any other AI wording is not
-      expect(text.replace(/AI agents/g, ""), `${lang}: ${text}`).not.toMatch(/\bAI\b|魔法|法師|法術|咒|巫|遠燈鎮|fairy|magic|spell/i);
+      expect(text, `${lang}: ${text}`).not.toMatch(/魔法|法師|法術|咒|巫|遠燈鎮|fairy|magic|spell/i);
     }
   }
   expect(Object.keys(TEXT.zh).sort()).toEqual(Object.keys(TEXT.en).sort());

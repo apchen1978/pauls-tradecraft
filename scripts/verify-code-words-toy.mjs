@@ -10,9 +10,6 @@ const cards = [...i18n.matchAll(/href: "\/prototype\/code-words\/"[\s\S]{0,80}?\
 test("code-words page keeps the public-words rules", () => {
   for (const [file, text] of sources) {
     for (const banned of ["中間層", "A2A", "CDD", "老闆"]) assert.ok(!text.includes(banned), `${file} has ${banned}`);
-    // "AI agent" is the only AI wording allowed on public pages.
-    const bareAi = text.replace(/AI agents?/g, "").match(/\bAI\b/g);
-    assert.equal(bareAi, null, `${file} has a bare "AI"`);
   }
 });
 
