@@ -979,7 +979,7 @@ test.describe("sixteen roles", () => {
 });
 
 test.describe("game cover", () => {
-  test("the map is the first screen and the CTA stays in view", async ({ page }) => {
+  test("the complete map has no text overlays and the CTA stays in view", async ({ page }) => {
     const shots = [
       { width: 1280, height: 800, lang: "zh", name: "cover-1280x800-zh" },
       { width: 1440, height: 900, lang: "zh", name: "cover-1440x900-zh" },
@@ -1014,35 +1014,24 @@ test.describe("game cover", () => {
         };
       });
       expect(box.overflow).toBeLessThanOrEqual(1);
-      expect(box.cover.top).toBeLessThanOrEqual(2);
-      expect(box.cover.height).toBeGreaterThanOrEqual(box.vh - 2);
-      if (shot.width >= 860) {
-        expect(box.frame.height).toBeGreaterThanOrEqual(box.vh - 2);
-        expect(box.frame.width).toBeGreaterThanOrEqual(box.vw - 2);
-      } else {
-        expect(box.frame.left).toBeGreaterThanOrEqual(-1);
-        expect(box.frame.right).toBeLessThanOrEqual(box.vw + 1);
-        expect(box.frame.top).toBeGreaterThanOrEqual(-1);
-        expect(box.frame.bottom).toBeLessThanOrEqual(box.vh + 1);
-      }
+      expect(box.cover.top).toBeGreaterThanOrEqual(0);
+      expect(box.frame.left).toBeGreaterThanOrEqual(-1);
+      expect(box.frame.right).toBeLessThanOrEqual(box.vw + 1);
+      expect(box.frame.width / box.frame.height).toBeCloseTo(shot.width < 860 ? 9 / 16 : 16 / 9, 2);
       expect(box.start.top).toBeGreaterThanOrEqual(0);
       expect(box.start.bottom).toBeLessThanOrEqual(box.vh);
-      expect(box.boundary.bottom).toBeLessThanOrEqual(box.vh);
-      expect(box.boundary.top).toBeGreaterThanOrEqual(0);
-      expect(box.title.bottom).toBeLessThanOrEqual(box.vh);
-      expect(box.intro.bottom).toBeLessThanOrEqual(box.vh);
-      expect(box.team.top).toBeGreaterThanOrEqual(box.vh - 2);
+      expect(box.start.bottom).toBeLessThanOrEqual(box.frame.top);
+      expect(box.title.bottom).toBeLessThanOrEqual(box.frame.top);
+      expect(box.intro.top).toBeGreaterThanOrEqual(box.frame.bottom);
+      expect(box.boundary.top).toBeGreaterThanOrEqual(box.frame.bottom);
+      expect(box.team.top).toBeGreaterThanOrEqual(box.frame.bottom);
       await expect(page.locator("#lockup")).toHaveText("照夜鎮 Nightglow");
       const phrase = shot.lang === "zh" ? "示意玩具，不是心理測驗。" : "A toy, not a personality test.";
       await expect(page.locator("#entry-boundary")).toHaveText(phrase);
-      const visibleLabels = await page.evaluate((text) => [...document.querySelectorAll("p")].filter((el) => {
-        if (el.textContent.trim() !== text) return false;
-        const box = el.getBoundingClientRect();
-        const style = getComputedStyle(el);
-        return style.visibility !== "hidden" && box.height > 8 && box.top < window.innerHeight && box.bottom > 0;
-      }).length, phrase);
-      expect(visibleLabels).toBe(1);
-      const pin = page.locator(shot.width < 860 ? ".hotspots-mobile .hot-galaxy .pin-label" : ".hotspots-desk .hot-galaxy .pin-label");
+      await expect(page.locator("#entry .cover-boundary")).toHaveCount(1);
+      const pin = page.locator('.district-links [data-faction="galaxy"] .pin-label');
+      await expect(pin).toBeVisible();
+      expect(await page.locator('.hotspots .pin-label').evaluateAll(nodes => nodes.every(node => node.getBoundingClientRect().width === 0))).toBe(true);
       if (shot.lang === "zh") {
         await expect(page.locator("#start")).toHaveText("出發");
         await expect(page.locator("#cover-hint")).toHaveText("點街區認識隊員，點中央的燈出發");
@@ -1211,11 +1200,12 @@ test.describe("December Lights mobile", () => {
         expect(map.height).toBe(1422);
         const spots = await page.locator(".hotspots-mobile .hotspot-district").evaluateAll((nodes) => nodes.map((node) => {
           const rect = node.getBoundingClientRect();
+          const frame = node.closest('.map-frame').getBoundingClientRect();
           return {
-            left: rect.left,
-            top: rect.top,
-            right: window.innerWidth - rect.right,
-            bottom: window.innerHeight - rect.bottom,
+            left: rect.left - frame.left,
+            top: rect.top - frame.top,
+            right: frame.right - rect.right,
+            bottom: frame.bottom - rect.bottom,
           };
         }));
         expect(spots).toHaveLength(4);
@@ -1225,7 +1215,7 @@ test.describe("December Lights mobile", () => {
           expect(spot.right).toBeGreaterThanOrEqual(16);
           expect(spot.bottom).toBeGreaterThanOrEqual(16);
         }
-        const pinSize = await page.locator(".hotspots-mobile .pin-label").first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+        const pinSize = await page.locator(".district-links .pin-label").first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
         expect(pinSize).toBeGreaterThanOrEqual(14);
         expect(pinSize).toBeLessThanOrEqual(15);
       } else {
