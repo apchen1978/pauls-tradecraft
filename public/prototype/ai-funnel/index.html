@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'">
+  <meta name="description" content="交辦之後，誰來檢查？看看 AI 代理人能替不同職位先整理哪些工作，再親手找出一封虛構詢價裡的錯誤。雙語互動示範。">
+  <link rel="canonical" href="https://paulstradecraft.com/prototype/ai-funnel/">
+  <meta property="og:title" content="交辦之後，誰來檢查？ · Paul's Tradecraft">
+  <meta property="og:description" content="試著交辦一件事，再站上檢查點。互動示範，成效未驗證。">
+  <meta property="og:image" content="https://paulstradecraft.com/prototype/ai-funnel/assets/cover.webp">
+  <title>交辦之後，誰來檢查？ · Paul's Tradecraft</title>
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body data-phase="intro">
+  <a class="skip" href="#main" data-copy="skip">跳至內容</a>
+  <header class="masthead">
+    <a id="home" href="/?lang=zh">PAUL'S TRADECRAFT</a>
+    <div class="languages" role="group" aria-label="Language">
+      <button type="button" data-lang="zh" aria-pressed="true">中</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+  <main id="main">
+    <section class="intro" aria-labelledby="title">
+      <div class="intro-copy">
+        <p class="eyebrow" data-copy="eyebrow">把事情交出去，把判斷留在手上</p>
+        <h1 id="title"><span id="title-a">交辦之後，</span><span id="title-b">誰來檢查？</span></h1>
+        <p class="lead" data-copy="lead">多數人用 AI 還停在聊天；只有少數人把真正的工作交給 AI 代理人（AI agent）。往下看看差別。</p>
+        <p class="demo" data-copy="demo">示範／成效未驗證。示範畫面，不是真實模型的輸出。</p>
+        <div class="invitation">
+          <p class="eyebrow" data-copy="your-turn">你的起點</p>
+          <p id="tier-reply" role="status" data-copy="pick">哪一層最像你？點一下，不是測驗。</p>
+          <button class="primary" id="begin" type="button" disabled data-copy="begin">看看你的工作怎麼交辦 ↗</button>
+        </div>
+      </div>
+      <figure class="funnel" aria-labelledby="funnel-caption">
+        <figcaption id="funnel-caption" data-copy="funnelTitle">同一個世界，不同的使用經驗</figcaption>
+        <div id="tiers" role="group" aria-labelledby="funnel-caption"></div>
+        <p class="diagram-note" data-copy="diagram">示意，非比例圖；不代表能力評分。</p>
+        <details class="source">
+          <summary data-copy="sourceSummary">Karpathy 的個人估計，據媒體報導；沒有調查資料。</summary>
+          <p id="source-full"></p>
+          <p><a id="report" target="_blank" rel="noopener noreferrer" data-copy="report">報導</a> · <a id="original" target="_blank" rel="noopener noreferrer" data-copy="original">原文（X）</a></p>
+        </details>
+      </figure>
+    </section>
+
+    <section id="roles-stage" class="roles-stage" aria-labelledby="roles-title" hidden tabindex="-1">
+      <div class="section-heading">
+        <p class="eyebrow" data-copy="rolesEyebrow">第二幕｜找到你的位置</p>
+        <h2 id="roles-title" data-copy="rolesTitle">你每天重複的工作，哪一件可以先交出去？</h2>
+        <p data-copy="rolesLead">選最像你的職位，看看 AI 代理人先做什麼、你在哪裡把關。這些都是虛構示範。</p>
+      </div>
+      <div id="role-cards" class="role-cards" role="group" aria-labelledby="roles-title"></div>
+      <div id="role-detail" class="role-detail" hidden tabindex="-1">
+        <div class="role-detail-head">
+          <div><p class="eyebrow" data-copy="roleSelected">你選的是</p><h3 id="role-name"></h3></div>
+          <div class="role-tags" aria-label="Workflow roles"><span data-copy="agentTag">代理人</span><span data-copy="toolTag">工具</span><span data-copy="humanTag">人</span></div>
+        </div>
+        <figure class="guest" id="role-guest"><img id="role-guest-img" src="./assets/cast/broker-avatar.webp" alt="" width="160" height="160" decoding="async"><figcaption><span class="guest-name"><strong id="role-guest-name"></strong><span id="role-guest-from"></span></span><p id="role-guest-tip"></p></figcaption></figure>
+        <dl id="role-fields"></dl>
+        <a id="buyer-work" hidden data-copy="buyerWork">看看「海外客戶開發」怎麼挑買家 ↗</a>
+        <div class="role-next"><button class="primary" id="role-continue" type="button" data-copy="roleContinue">親手檢查一次 ↗</button><p class="small" data-copy="roleBridge">接下來用同一封虛構詢價，練習在承諾前攔下一句錯話。</p></div>
+      </div>
+      <details class="glossary"><summary data-copy="glossarySummary">幾個詞，用白話說清楚</summary><dl id="glossary-terms"></dl></details>
+    </section>
+
+    <section id="activity" class="activity" aria-labelledby="activity-title" hidden tabindex="-1">
+      <div class="section-heading">
+        <p class="eyebrow" data-copy="task">第三幕｜親手檢查一次</p>
+        <h2 id="activity-title" data-copy="taskTitle">「客戶寄來一封詢價信，幫我回。」</h2>
+      </div>
+      <div class="chat-panel">
+        <span class="label" data-copy="chat">聊天版</span>
+        <blockquote id="chat-reply"></blockquote>
+        <p id="chat-note"></p>
+      </div>
+      <div class="delegate-action">
+        <button class="primary" id="delegate" type="button" aria-controls="workbench" aria-expanded="false" data-copy="delegate">換成一個可檢查的交辦 <span aria-hidden="true">→</span></button>
+        <p class="small" data-copy="fixed">以下是預先寫好的虛構示範，不會呼叫 AI 或寄出訊息。</p>
+      </div>
+      <div id="workbench" hidden>
+        <div class="workflow-head"><h3 data-copy="workflow">把過程攤開來</h3><button class="text-button" id="show-all" type="button" data-copy="showAll">直接看全部</button></div>
+        <ol id="steps" class="steps"></ol>
+        <div class="review-heading"><h2 data-copy="reviewTitle">先別放行。哪一句超過了資料？</h2><p data-copy="reviewHint">拿左邊的資料，核對右邊的整理；手機上資料就在上方。點一句看看。</p></div>
+        <figure class="guest guest-robot" id="robot-before"><img src="./assets/cast/robot-avatar.webp" alt="" width="160" height="160" decoding="async"><figcaption><span class="guest-name"><strong data-robot="name"></strong><span data-robot="from"></span></span><p data-robot="before"></p></figcaption></figure>
+        <div class="review-grid">
+          <section class="paper source-paper" aria-labelledby="source-title">
+            <p class="label" data-copy="sourceLabel">虛構來源資料</p><h3 id="source-title" data-copy="sourceTitle">我們手上只有這些</h3>
+            <ul id="facts"></ul><p class="paper-foot" data-copy="sourceFoot">沒有記錄的，不能自動變成確認過的。</p>
+          </section>
+          <section class="paper output-paper" aria-labelledby="output-title">
+            <p class="label" data-copy="outputLabel">預寫的整理結果</p><h3 id="output-title" data-copy="outputTitle">請你逐句核對</h3>
+            <div id="claims"></div>
+            <p id="feedback" role="status" class="feedback"></p>
+            <button class="primary" id="correct" type="button" hidden data-copy="correct">改回待確認</button>
+          </section>
+        </div>
+        <section id="completion" class="completion" aria-labelledby="complete-title" hidden tabindex="-1">
+          <p class="eyebrow" data-copy="completeLabel">你站上了檢查點</p><h2 id="complete-title" data-copy="completeTitle">交辦完成了，承諾還沒有。</h2>
+          <p data-copy="completeBody">AI 代理人可以把重複的工作先做完；人定目標、守住承諾的那條線，並在檢查點把關。</p>
+          <figure class="guest guest-robot" id="robot-after"><img src="./assets/cast/robot-avatar.webp" alt="" width="160" height="160" decoding="async"><figcaption><span class="guest-name"><strong data-robot="name"></strong><span data-robot="from"></span></span><p data-robot="after"></p></figcaption></figure>
+          <p class="hold" data-copy="hold">停在這裡：價格與交期，待人確認。沒有寄出。</p>
+          <p class="small" data-copy="noLevel">這是一段練習，不代表你被評為另一個使用層級。</p>
+          <p class="made-with" data-copy="madeWith">這件作品的策劃、插畫、程式與測試，是一個人帶著幾個 AI 代理人分工完成的。</p>
+          <div class="end-actions"><a class="primary" id="lab" href="/ai-lab/?lang=zh#c2" data-copy="lab">回 AI Lab，看完整做法 ↗</a><a id="back-home" href="/?lang=zh#works" data-copy="portfolio">回首頁看商務作品</a><button class="text-button" id="restart" type="button" data-copy="restart">重新練習</button></div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <footer><span data-copy="footer">虛構互動示範。每一句都可核對，不代表真實模型表現。</span><a id="footer-home" href="/?lang=zh" data-copy="home">回作品集</a></footer>
+</body>
+</html>

@@ -17,7 +17,7 @@ for (const lang of ["zh", "en"]) {
       const title = lang === "zh" ? "街角的秘密" : "Secrets on the Corner · 街角的秘密";
       const card = showcase.getByRole("heading", { name: title }).locator("xpath=ancestor::article[1]");
       await expect(card).toBeVisible();
-      await expect(showcase.locator("article").nth(3)).toContainText(title);
+      await expect(showcase.locator("article").nth(4)).toContainText(title);
       await expect(card.locator("img")).toHaveAttribute("src", "/prototype/secrets-on-the-corner/assets/queue-mobile.webp");
       await expect(page.locator("#garage").getByRole("heading", { name: title })).toHaveCount(0);
       const link = card.getByRole("link", { name: lang === "zh" ? "走進街角" : "Enter the street" });
