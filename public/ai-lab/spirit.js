@@ -41,7 +41,7 @@ export const SPIRIT = {
             "我不怕別人比我學得快。我希望朋友們都學會，學會之後再回頭教我，這樣大家都會越來越強。",
             "所以我願意免費教朋友；當我真的替別人創造了價值，我也會收費，這是對彼此的尊重。",
           ],
-          link: { before: "我教一位朋友自己用 AI 做網站的經過，寫在", text: "〈教 SME 企業家用 AI：我學到的三件事〉（第 12 章）", href: "#c12", after: "。" },
+          link: { before: "我教一位朋友自己用 AI 做網站的經過，寫在", text: "〈教中小企業負責人用 AI：我學到的三件事〉（第 12 章）", href: "#c12", after: "。" },
         },
         {
           h: "五年後，我希望",
@@ -93,7 +93,7 @@ export const SPIRIT = {
             "I am not afraid of others learning faster than I do. I hope my friends all learn, and then come back to teach me, so that everyone gets stronger.",
             "So I am happy to teach friends for free; and when I truly create value for someone, I charge, as a way of respecting each other.",
           ],
-          link: { before: "How I taught a friend to build a website with AI on his own is in ", text: "Chapter 12: Teaching SME entrepreneurs to use AI", href: "#c12", after: "." },
+          link: { before: "How I taught a friend to build a website with AI on his own is in ", text: "Chapter 12: Teaching SME decision-makers to use AI", href: "#c12", after: "." },
         },
         {
           h: "Five years from now, I hope",
