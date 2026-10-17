@@ -21,7 +21,8 @@ test("begin button: pressing it before picking a level explains what to do and d
   for (const lang of ["zh", "en"]) {
     await page.goto(`${PAGE}?lang=${lang}`);
     await expect(page.locator("#begin")).toHaveAttribute("aria-disabled", "true");
-    await page.locator("#begin").click();
+    // aria-disabled keeps the button clickable for people, but Playwright waits on it unless forced.
+    await page.locator("#begin").click({ force: true });
     await expect(page.locator("#tier-reply")).toHaveText(COPY[lang].beginHint);
     await expect(page.locator("#roles-stage")).toBeHidden();
     await page.locator('[data-tier="chat"]').click();
