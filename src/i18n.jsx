@@ -617,6 +617,15 @@ const dict = {
           href: "https://apchen1978.github.io/mg-desktop-pet-demo/",
         },
         {
+          title: "貿易交易工作台 · Trade Deal Desk",
+          tag: "示範實驗 · 早期作品",
+          spark: "最便宜的那家認證不對，另一家交期太長，這筆詢價要報價嗎？",
+          note: "一個詢價審核的示範：把資料缺口、兩家供應商的證據和商業風險放在一起，系統只提醒，最後由人決定要不要報價。",
+          cta: "看詢價審核示範",
+          boundary: "模擬資料與虛構案例，不含真實客戶；部分介面仍是英文，不代表任何成效。",
+          href: "https://apchen1978.github.io/ai-trade-deal-desk-demo/",
+        },
+        {
           title: "WordForge · 英語打字挑戰",
           tag: "小遊戲",
           spark: "用打字挑戰練習英文單字與反應。",
@@ -1481,6 +1490,15 @@ const dict = {
           cta: "Play with MG",
           boundary: "A lighter web version of the desktop app, not an outcome claim.",
           href: "https://apchen1978.github.io/mg-desktop-pet-demo/",
+        },
+        {
+          title: "Trade Deal Desk",
+          tag: "Demo experiment · early work",
+          spark: "The cheapest supplier has the wrong certificate, the other is too slow. Do you quote?",
+          note: "A quote-review demo: data gaps, two suppliers' evidence and commercial risks side by side. The system only flags; a person decides whether to quote.",
+          cta: "See the quote-review demo",
+          boundary: "Simulated data and fictional cases, no real customers. Not an outcome claim.",
+          href: "https://apchen1978.github.io/ai-trade-deal-desk-demo/",
         },
         {
           title: "WordForge · Typing Challenge",
