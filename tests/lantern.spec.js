@@ -300,7 +300,7 @@ test("cover: tagline only, Diana leads with Yiyi, winter line opens screen 1, og
 });
 
 test("homepage: A Lamp, As Promised is the fifth Showcase work (after ROOMVERSE 3D) and a featured chip", async ({ page }) => {
-  for (const [lang, title, chip, teach] of [["zh", "一盞燈的約定", "一盞燈的約定", "先把規格講好"], ["en", "A Lamp, As Promised · 一盞燈的約定", "A Lamp, As Promised", "agree the spec before an order"]]) {
+  for (const [lang, title, chip, teach] of [["zh", "一盞燈的約定", "一盞燈的約定", "看懂下單前要先說好什麼，還有哪些事要確認。"], ["en", "A Lamp, As Promised · 一盞燈的約定", "A Lamp, As Promised", "See what to agree before an order and what still needs confirming."]]) {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`/?lang=${lang}#showcase`);
     const card = page.locator("#showcase article").nth(4);
