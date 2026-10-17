@@ -711,13 +711,31 @@ function FeaturedSystem({ work }) {
         </a>
       </div>
       {work.id === "commercial-decision-desk" && (
-        <figure data-cdd-snapshot className="border-t border-bone/15 px-6 pt-8 md:px-10">
-          <CoverImage
-            src={lang === "zh" ? "/images/cdd-executive-snapshot-zh-v02.png" : "/images/cdd-executive-snapshot-en-v02.png"}
-            alt={t.hero.snapshotAlt}
-            className="mx-auto h-auto w-full max-w-3xl rounded-field border border-bone/15 bg-bone"
-          />
-          <figcaption className="mx-auto mt-3 max-w-3xl text-xs leading-relaxed text-ondark-meta">{t.hero.snapshotCaption}</figcaption>
+        <figure data-cdd-snapshot className="border-t border-bone/15 px-4 py-4 md:px-10 md:py-7">
+          <div className="mx-auto max-w-4xl rounded-field border border-bone/20 bg-paper px-4 py-4 text-ink md:px-7 md:py-6">
+            <figcaption className="text-xs font-semibold tracking-wide text-forest">{t.hero.snapshotPreview.label}</figcaption>
+            <div className="mt-3 grid gap-3 border-t border-forest/15 pt-3 md:grid-cols-[0.8fr_1.2fr] md:gap-8 md:pt-4">
+              <div>
+                <p className="text-xs font-semibold text-ink/60">{t.hero.snapshotPreview.statusLabel}</p>
+                <p className="mt-1 font-serif text-xl leading-tight text-rust md:text-3xl">{t.hero.snapshotPreview.status}</p>
+                <p className="mt-1 text-xs leading-relaxed text-ink/70 md:mt-3 md:text-sm">{t.hero.snapshotPreview.humanDecision}</p>
+              </div>
+              <dl className="grid gap-2 border-t border-forest/15 pt-3 md:gap-4 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+                <div className="flex flex-wrap items-baseline gap-x-2 md:block">
+                  <dt className="text-xs font-semibold text-ink/60">{t.hero.snapshotPreview.blockerLabel}</dt>
+                  <dd className="text-sm font-medium leading-snug md:mt-1 md:text-base">{t.hero.snapshotPreview.blocker}</dd>
+                </div>
+                <div className="flex flex-wrap items-baseline gap-x-2 md:block">
+                  <dt className="text-xs font-semibold text-ink/60">{t.hero.snapshotPreview.nextLabel}</dt>
+                  <dd className="text-sm font-medium leading-snug md:mt-1 md:text-base">{t.hero.snapshotPreview.next}</dd>
+                </div>
+              </dl>
+            </div>
+            <a href={`${work.casePage.href}?lang=${lang}`} className="mt-3 inline-flex items-center gap-2 border-t border-forest/15 pt-3 text-sm font-semibold text-forest underline decoration-forest/30 underline-offset-4 hover:decoration-forest focus-visible:outline-offset-4 md:mt-5 md:pt-4">
+              {t.hero.snapshotPreview.fullLink}
+              <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+            </a>
+          </div>
         </figure>
       )}
       {work.case && <CaseStudy workId={work.id} c={work.case} related={work.related} link={withDemoLang(work.link, lang)} linkLabel={work.linkLabel} workingEvidence={work.workingEvidence} casePage={work.casePage} tone="dark" />}
