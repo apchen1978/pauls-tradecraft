@@ -264,6 +264,19 @@ function renderCases() {
   $("c10-closing").textContent = x.closing;
 }
 
+function renderLessons() {
+  const x = d().c12;
+  $("lessons").replaceChildren(...x.cases.map((c) => {
+    const li = el("li", "case");
+    li.append(el("span", "mono kind", `${x.kinds[c.kind]} · ${c.who}`), el("p", "what", c.what));
+    const dl = el("dl");
+    dl.append(el("dt", null, x.found), el("dd", null, c.found), el("dt", null, x.fix), el("dd", null, c.fix));
+    li.appendChild(dl);
+    return li;
+  }));
+  $("c12-closing").replaceChildren(...x.closing.map((line) => el("p", "sub", line)));
+}
+
 function renderDeep() {
   const x = d();
   $("deep-title").textContent = x.divider;
@@ -271,7 +284,7 @@ function renderDeep() {
   $("deep-toc").replaceChildren(...x.toc.map((label, i) => {
     const li = el("li");
     const a = el("a");
-    const n = [5, 6, 7, 8, 9, 10, 11][i];
+    const n = [5, 6, 7, 8, 9, 10, 11, 12][i];
     a.href = `#c${n}`;
     a.append(el("span", "n", String(n).padStart(2, "0")), document.createTextNode(label));
     li.appendChild(a);
@@ -283,7 +296,7 @@ function renderDeep() {
   da.append(el("span", "n", "05+"), document.createTextNode(x.divider));
   deepLink.appendChild(da);
   $("toc").appendChild(deepLink);
-  for (const c of ["c5", "c7", "c10"]) {
+  for (const c of ["c5", "c7", "c10", "c12"]) {
     $(`${c}-no`).textContent = x[c].no;
     $(`${c}-title`).textContent = x[c].title;
     $(`${c}-lead`).textContent = x[c].lead;
@@ -291,6 +304,7 @@ function renderDeep() {
   renderContext();
   renderVerify();
   renderCases();
+  renderLessons();
 }
 
 const m = () => MORE[state.lang];
@@ -456,7 +470,7 @@ function renderMore() {
   renderLatest();
 }
 
-const CHAPTERS = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "latest"];
+const CHAPTERS = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "latest"];
 let consoleTimers = [];
 function renderConsole(animate) {
   const x = t();

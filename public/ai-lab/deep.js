@@ -25,7 +25,7 @@ export const DEEP = {
   zh: {
     divider: "深入一層",
     dividerLead: "以下給想知道「怎麼做到」的人。每一個例子，都是做這個網站時真的發生過的事。",
-    toc: ["上下文工程", "工具與 MCP", "驗證", "多 agent 與交接", "治理", "AI 會怎麼錯", "前沿"],
+    toc: ["上下文工程", "工具與 MCP", "驗證", "多 agent 與交接", "治理", "AI 會怎麼錯", "前沿", "教小老闆用 AI"],
     c5: {
       no: "05",
       title: "上下文工程：AI 看得到什麼，決定它做得多好",
@@ -125,11 +125,48 @@ export const DEEP = {
       ],
       closing: "這一章本身也是一種規矩：錯了就寫下來，下一次就有地方可以查。",
     },
+    c12: {
+      no: "12",
+      title: "教小老闆用 AI：我學到的三件事",
+      lead: "Paul 教一位做傳統生意的朋友，自己用 AI 做出給消費者看的網站，而不是替他做。下面是他說這段經驗裡學到的三件事。這一章只寫過程：那位朋友的網站還沒上線，沒有成果可以報告。",
+      kinds: ["第一件", "第二件", "第三件"],
+      found: "怎麼發生的",
+      fix: "現在怎麼做",
+      cases: [
+        {
+          kind: 0,
+          who: "Paul 自述",
+          what: "先讓人看見成果，再教他理解工具。",
+          found: "Paul 長期在外地工作，一開始只能用語音訊息教。講到 GitHub、前端後端、n8n 這些名詞，朋友聽不太懂。後來 Paul 到他那裡，對著 Codex 用語音說了一句：要做網站、要有效果圖和 LINE 按鈕。網站很快當場出現，朋友才有信心。",
+          fix: "第一堂課先讓他看到做出來的東西，用中文說就可以，不必先懂程式。遇到問題，再補那個名詞。",
+        },
+        {
+          kind: 1,
+          who: "Paul 自述",
+          what: "教老闆管理 AI，而不是先教他寫程式。",
+          found: "老闆聽到 GitHub、前端後端會頭暈。Paul 改用老闆熟悉的說法：AI 像剛進公司的數位員工，它不認識你的公司，所以要給它員工手冊、產品目錄這些背景（上下文），再交辦任務、檢查成果。",
+          fix: "從老闆已經會的事開始：怎麼帶新人、怎麼交辦、怎麼驗收。背景怎麼給，見第 05 章。",
+        },
+        {
+          kind: 2,
+          who: "Paul 自述",
+          what: "AI 能擴大個人能力，但管理規則要因企業而異。",
+          found: "每家公司的標準不一樣。大公司可能寄幾本樣品、連運費都替客戶出；小公司沒有這筆預算。所以不能給所有老闆同一套規矩，要看公司的規模與資源，替它訂規則。Paul 說，這和真正的公司運作沒有兩樣。",
+          fix: "依公司的資源、預算、品質要求與風險承受度，設計不同的授權與審核流程。起點一樣是先小量、先看、先校正：例如開發信先做十到十五封，老闆親自看，校正行業用語，確認後才放大；金額高的事，一定由老闆本人決定。讓多個 AI 分工互相審核，是 Paul 的構想，還沒有實際驗證。",
+        },
+      ],
+      closing: [
+        "這一章只寫過程，不寫成果。那位朋友的網站，Paul 說已經做得相當完整、很漂亮，連他自己都被 AI 的能力嚇了一跳。",
+        "有趣的是，問題反過來了：他覺得網站太複雜。看網站的人常常只停留一兩分鐘，所以他現在在想怎麼改成「少即是多」。網站還沒部署，也沒有量過省了多少時間或費用。",
+        "Paul 自評這次教學 85 分，不是因為網站，而是因為一位原本對 AI 有距離的人，現在願意自己動手、持續學習：一開始只把 AI 當聊天機器人，慢慢看 Paul 給的圖片和影片連結，後來加入一起學。",
+        "Paul 說：「我光覺得他是我的學習 partner，就覺得非常欣慰。」他仍常來問問題，還不能說已經獨立。",
+      ],
+    },
   },
   en: {
     divider: "One level deeper",
     dividerLead: "For anyone who wants to know how it is actually done. Every example below really happened while building this site.",
-    toc: ["Context engineering", "Tools and MCP", "Verification", "Several agents", "Governance", "How AI goes wrong", "The frontier"],
+    toc: ["Context engineering", "Tools and MCP", "Verification", "Several agents", "Governance", "How AI goes wrong", "The frontier", "Teaching a small owner"],
     c5: {
       no: "05",
       title: "Context engineering: what AI can see decides how well it works",
@@ -228,6 +265,43 @@ export const DEEP = {
         },
       ],
       closing: "This chapter is itself a rule: write the mistake down, so next time there is somewhere to look.",
+    },
+    c12: {
+      no: "12",
+      title: "Teaching a small business owner to use AI: three things I learned",
+      lead: "Paul taught a friend in a traditional business to build a consumer-facing website with AI himself, rather than building it for him. Below are the three things Paul says he learned. This chapter covers the process only: the friend's site is not live yet, so there is no result to report.",
+      kinds: ["First", "Second", "Third"],
+      found: "What happened",
+      fix: "What we do now",
+      cases: [
+        {
+          kind: 0,
+          who: "Paul, in his words",
+          what: "Let people see a result first, then teach the tools.",
+          found: "Paul was working away from home for long stretches, so at first he could only teach by voice message. Terms like GitHub, front end and back end, and n8n did not land. Later, in person, he spoke one sentence to Codex: build a website with rendered images and a LINE button. The site appeared on the spot, and that is when the friend gained confidence.",
+          fix: "In the first session, show something finished. Plain Chinese is enough; no need to understand code first. When a problem comes up, explain that term then.",
+        },
+        {
+          kind: 1,
+          who: "Paul, in his words",
+          what: "Teach owners to manage AI, not to write code first.",
+          found: "Owners get dizzy at GitHub and front end versus back end. Paul switched to something they already know: AI is like a new digital employee. It does not know your company, so give it the handbook and product catalogue (context), then assign tasks and check the work.",
+          fix: "Start from what the owner already does well: how to onboard someone, how to delegate, how to check the result. For how to give context, see chapter 05.",
+        },
+        {
+          kind: 2,
+          who: "Paul, in his words",
+          what: "AI can extend what one person can do, but the rules for managing it differ by company.",
+          found: "Every company has its own standard. A large company may send several samples and even pay the freight for a customer; a small one does not have that budget. So there is no single set of rules for every owner: look at the company's size and resources and set the rules for it. Paul says this is no different from how a real company runs.",
+          fix: "Design different authority and review steps according to a company's resources, budget, quality bar and tolerance for risk. The starting point is the same: start small, review, correct. For example, ten to fifteen outreach emails first, read by the owner, industry wording corrected, then scale up; anything high-value is decided by the owner. Having several AI agents split roles and review each other is Paul's idea and has not been tested in practice yet.",
+        },
+      ],
+      closing: [
+        "This chapter covers the process only, not results. Paul says the friend's site is already quite complete and very good-looking, and the friend himself was startled by what AI could do.",
+        "The interesting part is that the problem has flipped: he now feels it is too complicated. People often stay on a website only a minute or two, so he is working out how to make it \"less is more\". The site is not deployed, and no time or cost saving has been measured.",
+        "Paul rates the teaching 85 out of 100 by his own judgment, not because of the website, but because someone who kept a distance from AI now builds things himself and keeps learning: he started by using AI only as a chatbot, slowly worked through the images and video links Paul sent, and then joined in.",
+        "Paul says: \"Just feeling that he is my learning partner makes me very happy.\" He still asks questions often, so it would be too early to call him independent.",
+      ],
     },
   },
 };

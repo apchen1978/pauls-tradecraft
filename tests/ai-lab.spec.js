@@ -119,8 +119,9 @@ test("homepage: the AI Lab entry sits right after the Showcase and links to the 
 test("deeper: zh and en match, and the measurements behave as described", () => {
   const keys = (o) => Object.keys(o).sort();
   expect(keys(DEEP.zh)).toEqual(keys(DEEP.en));
-  for (const c of ["c5", "c7", "c10"]) expect(keys(DEEP.zh[c])).toEqual(keys(DEEP.en[c]));
+  for (const c of ["c5", "c7", "c10", "c12"]) expect(keys(DEEP.zh[c])).toEqual(keys(DEEP.en[c]));
   expect(DEEP.zh.c10.cases).toHaveLength(DEEP.en.c10.cases.length);
+  expect(DEEP.zh.c12.cases).toHaveLength(DEEP.en.c12.cases.length);
   expect(keys(DEEP.zh.c5.items)).toEqual(CONTEXT_ITEMS.map((i) => i.id).sort());
   // the estimated positions really fail for the two lamps that floated or fell off, and pass for the shelf
   const fails = PHYSICS.filter((p) => Math.abs(p.guess - p.target) > TOLERANCE).map((p) => p.id);
@@ -160,6 +161,10 @@ for (const width of [390, 1440]) {
       // 10: the real cases, each with how it was caught and what prevents it now
       await expect(page.locator("#cases .case")).toHaveCount(x.c10.cases.length);
       await expect(page.locator("#cases .case dt")).toHaveCount(x.c10.cases.length * 2);
+
+      // 12: three lessons from teaching a small business owner
+      await expect(page.locator("#lessons .case")).toHaveCount(x.c12.cases.length);
+      await expect(page.locator("#lessons .case dt")).toHaveCount(x.c12.cases.length * 2);
       await noOverflow(page);
     });
   }
