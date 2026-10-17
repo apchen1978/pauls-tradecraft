@@ -88,39 +88,13 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
   check(Boolean(data.leverage), `${locale} missing how-I-work explanation`);
   check(!data.worksSecondary?.length, `${locale} one-pager should not regress into a secondary work inventory`);
   check(!/中間層|A2A|\bCDD\b|ROI|轉換率|成交率|老闆|老板|\bboss\b|\bowner\b/i.test(narrative), `${locale} public copy breaks a standing rule`);
-  // Paul 2026-10-12: "AI agent" and "AI agents 與 Paul 協作" are allowed on public pages.
-  // Paul 2026-10-13: "AI-native" is allowed too (AI-native, AI-Native, AI native, AI Native). Any other AI wording is still blocked.
-  // Paul 2026-10-16: "AI 人機協作" / "AI人機協作" (English: human–AI collaboration) is allowed too.
-  const narrativeWithoutAllowedAi = narrative.replace(/AI agents 與 Paul 協作|\bAI agents?\b|\bAI[-\s][Nn]ative\b|AI ?人機協作|[Hh]uman[–-]AI collaboration/g, "");
-  check(!/人工智慧|\bAI\b/.test(narrativeWithoutAllowedAi), `${locale} mentions AI outside the kicker`);
 }
 
-// Paul 2026-10-13: these two Showcase description sentences may say AI.
-// They are allowed only as the homepage Showcase header intro, not in the one-pager above and not elsewhere in i18n.
-const SHOWCASE_AI_INTRO = {
-  zh: "探索 AI 如何結合商業判斷、工作流程與互動工具，將想法轉化為可親自體驗的解決方案。",
-  en: "Explore how AI brings together business judgment, workflows and interactive tools to turn ideas into solutions you can try for yourself.",
-};
+// The AI Lab (public/ai-lab/ and the homepage aiLab block) keeps its own block, separate from the Showcase header.
+// AI wording itself is no longer restricted (Paul 2026-10-17).
 const i18nSource = fs.readFileSync(path.join(ROOT, "src", "i18n.jsx"), "utf8");
 const showcaseHeaders = [...i18nSource.matchAll(/showcase:\s*\{([\s\S]*?)\n\s*items:\s*\[/g)].map((match) => match[1]);
 check(showcaseHeaders.length === 2, "expected exactly two Showcase header blocks in i18n");
-for (const [locale, sentence] of Object.entries(SHOWCASE_AI_INTRO)) {
-  const headersWithSentence = showcaseHeaders.filter((header) => header.includes(sentence));
-  // The approved sentence is optional: a shorter visitor-facing introduction may replace it.
-  check(headersWithSentence.length <= 1, `${locale} Showcase AI description must appear at most once, only in the header`);
-  const occurrences = i18nSource.split(sentence).length - 1;
-  check(occurrences === headersWithSentence.length, `${locale} Showcase AI description leaked outside its header`);
-}
-for (const header of showcaseHeaders) {
-  let withoutApproved = header;
-  for (const sentence of Object.values(SHOWCASE_AI_INTRO)) withoutApproved = withoutApproved.split(sentence).join("");
-  check(!/人工智慧|\bAI\b/.test(withoutApproved), "Showcase header mentions AI outside the approved description");
-}
-
-// Paul 2026-10-15: the AI Lab (public/ai-lab/ and the homepage aiLab block) may use AI wording.
-// Keep that exception written down in SITE_RULES, and keep the lab's own block separate from the Showcase header.
-const siteRules = fs.readFileSync(path.join(ROOT, "docs", "SITE_RULES.md"), "utf8");
-check(siteRules.includes("AI 人工智慧實驗室") && siteRules.includes("public/ai-lab/"), "SITE_RULES is missing the AI Lab exception");
 check((i18nSource.match(/\n\s*aiLab:\s*\{/g) || []).length === 2, "expected exactly two aiLab blocks in i18n (zh and en)");
 for (const header of showcaseHeaders) check(!header.includes("AI 人工智慧實驗室") && !header.includes("AI LAB"), "AI Lab wording leaked into the Showcase header");
 
