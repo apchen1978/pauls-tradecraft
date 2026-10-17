@@ -149,7 +149,7 @@ for (const width of [390, 1440]) {
       const x = DEEP[lang];
       await page.goto(`${PAGE}?lang=${lang}`);
       await expect(page.locator("#deep-title")).toHaveText(x.divider);
-      await expect(page.locator("#deep-toc a")).toHaveCount(7);
+      await expect(page.locator("#deep-toc a")).toHaveCount(DEEP.zh.toc.length);
 
       // 05: starts with task + everything: missing rules; overflow once more is added; right with the four musts only
       await expect(page.locator("#ctx-verdict")).toHaveText(x.c5.verdict.noRules);
@@ -242,7 +242,7 @@ test("polish: the hero console plays to the stop line, the chapter rail follows 
   await expect(page.locator("#console-lines .cl")).toHaveCount(TEXT.zh.console.length);
   await expect(page.locator("#console-lines .cl.on")).toHaveCount(TEXT.zh.console.length, { timeout: 8000 });
   await expect(page.locator("#console-lines .cl.wait")).toContainText(TEXT.zh.console.at(-1)[1]);
-  await expect(page.locator("#rail .rail-dot")).toHaveCount(13);
+  await expect(page.locator("#rail .rail-dot")).toHaveCount(TEXT.zh.rail.length);
   await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; document.getElementById("c7").scrollIntoView(); });
   await expect(page.locator('#rail .rail-dot.on')).toHaveAttribute("data-target", "c7");
   // narrow screens hide the rail
