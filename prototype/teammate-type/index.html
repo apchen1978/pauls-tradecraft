@@ -405,6 +405,86 @@
       color: var(--ink);
     }
     .status { min-height: 1.4em; margin: 10px 0 0; font-weight: 700; }
+    .night-story {
+      margin: 30px 0;
+      padding: clamp(18px, 4vw, 28px);
+      border: 1px solid #5d756f;
+      border-radius: 22px;
+      background: #173138;
+      color: #f9f2df;
+      box-shadow: 0 10px 26px rgba(23, 49, 56, 0.12);
+    }
+    .night-story button:focus-visible { outline-color: #f7d78d; }
+    .night-kicker { margin: 0 0 12px; color: #ead39b; font-size: 14px; font-weight: 700; letter-spacing: .06em; }
+    .night-toggle {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 16px;
+      border: 1px solid #f0dba5;
+      border-radius: 12px;
+      background: #e9d5a4;
+      color: #173138;
+      text-align: left;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .night-toggle::after { content: "↗"; float: right; }
+    .night-toggle[aria-expanded="true"]::after { content: "−"; }
+    .night-panel { padding-top: 24px; }
+    .night-panel[hidden], .night-actions[hidden], .night-ending[hidden] { display: none; }
+    .night-panel h2 { font-size: clamp(1.6rem, 5vw, 2.15rem); }
+    .night-panel h3 { margin: 0 0 10px; font-size: 1.05rem; }
+    .night-intro { margin: 10px 0 20px; max-width: 44em; }
+    .night-scene { margin: 0; }
+    .night-scene img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 5;
+      object-fit: contain;
+      border-radius: 14px;
+    }
+    .night-scene figcaption { margin-top: 8px; color: #e0ded2; font-size: 14px; }
+    .night-step { margin-top: 24px; }
+    .night-hint { margin: 6px 0 12px; color: #e0ded2; }
+    .night-options, .night-partners { display: grid; gap: 9px; }
+    .night-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .night-option, .night-partner {
+      min-width: 0;
+      min-height: 48px;
+      padding: 9px 12px;
+      border: 1px solid #78908a;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .08);
+      color: #f9f2df;
+      text-align: left;
+      cursor: pointer;
+    }
+    .night-option:hover, .night-partner:hover { background: rgba(255, 255, 255, .16); }
+    .night-option[aria-pressed="true"], .night-partner[aria-pressed="true"] {
+      border-color: #f0dba5;
+      background: rgba(240, 219, 165, .19);
+    }
+    .night-clues { min-height: 1.5em; margin: 12px 0 0; padding-left: 1.2em; }
+    .night-clues li + li { margin-top: 5px; }
+    .night-partners { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .night-partner { display: flex; align-items: center; gap: 9px; }
+    .night-partner img { width: 44px; height: 52px; object-fit: contain; flex: none; }
+    .night-partner span { display: grid; line-height: 1.25; }
+    .night-partner small { color: #d9d5c6; font-size: 12px; }
+    .night-ending { margin-top: 26px; padding: 16px; border: 1px solid #a58c5f; border-radius: 16px; background: #233c42; }
+    .night-ending img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: contain; border-radius: 10px; }
+    .night-ending h3 { margin: 16px 0 8px; font-size: 1.3rem; }
+    .night-ending p { margin: 9px 0 0; }
+    .night-ending strong { color: #ead39b; }
+    @media (min-width: 650px) {
+      .night-scene-row { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 22px; align-items: start; }
+      .night-scene-row .night-step:first-child { margin-top: 0; }
+    }
+    @media (max-width: 420px) {
+      .night-story { padding: 16px; }
+      .night-options, .night-partners { grid-template-columns: 1fr; }
+    }
     .duo { margin-top: 28px; }
     .duo h2 { font-size: clamp(1.35rem, 4.5vw, 1.85rem); }
     .duo-hint { margin: 8px 0 0; color: var(--moss); }
@@ -1094,8 +1174,8 @@
         </div>
       </div>
       <div class="entry-rest">
-        <p class="lede" id="lede">不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。</p>
-        <p class="hint" id="hint">每個情境選一次。同樣的選擇，永遠得到同一張卡。</p>
+        <p class="lede" id="lede">先從三個日常片段找到你的角色，再回照夜鎮，陪隊友把燈留到最後。</p>
+        <p class="hint" id="hint">每個片段選一次；角色卡之後，還有一段小鎮故事。</p>
         <ul class="team-fallback" id="team-fallback" aria-label="四個隊伍">
         <li>🌌 銀河隊：銀河之女、玉仔、靚仔、阿白</li>
         <li>✨ 仙女隊：Holly、阿閃、樂樂、言歌</li>
@@ -1152,6 +1232,51 @@
           <p class="card-boundary" id="card-boundary"></p>
         </div>
       </article>
+      <section class="night-story" id="night-story" aria-label="今晚的燈">
+        <p class="night-kicker" id="night-kicker">角色找到了，故事還沒結束。</p>
+        <button type="button" class="night-toggle" id="night-toggle" aria-expanded="false" aria-controls="night-panel">接著玩 · 把燈留到最後</button>
+        <div class="night-panel" id="night-panel" hidden>
+          <h2 id="night-title" tabindex="-1">把燈留給最後回家的人</h2>
+          <p class="night-intro" id="night-intro"></p>
+          <div class="night-scene-row">
+            <figure class="night-scene">
+              <img id="night-image" width="816" height="1020" alt="" loading="lazy" />
+              <figcaption id="night-caption"></figcaption>
+            </figure>
+            <div>
+              <div class="night-step">
+                <h3 id="night-look-title"></h3>
+                <div class="night-options" role="group" aria-labelledby="night-look-title">
+                  <button type="button" class="night-option" data-night-look="steps" aria-pressed="false"></button>
+                  <button type="button" class="night-option" data-night-look="gear" aria-pressed="false"></button>
+                </div>
+                <p class="night-hint" id="night-clue-hint"></p>
+                <ul class="night-clues" id="night-clues"></ul>
+              </div>
+              <div class="night-step">
+                <h3 id="night-partner-title"></h3>
+                <p class="night-hint" id="night-partner-hint"></p>
+                <div class="night-partners" id="night-partners" role="group" aria-labelledby="night-partner-title"></div>
+              </div>
+            </div>
+          </div>
+          <div class="night-step night-actions" id="night-actions" hidden>
+            <h3 id="night-action-title"></h3>
+            <div class="night-options" role="group" aria-labelledby="night-action-title">
+              <button type="button" class="night-option" data-night-action="path" aria-pressed="false"></button>
+              <button type="button" class="night-option" data-night-action="stage" aria-pressed="false"></button>
+            </div>
+          </div>
+          <div class="night-ending" id="night-ending" hidden>
+            <img id="night-end-image" width="1600" height="900" alt="" loading="lazy" />
+            <h3 id="night-ending-title" tabindex="-1"></h3>
+            <p id="night-outcome"></p>
+            <p><strong id="night-your-part-label"></strong> <span id="night-your-part"></span></p>
+            <p><strong id="night-partner-part-label"></strong> <span id="night-partner-part"></span></p>
+            <p id="night-ending-line"></p>
+          </div>
+        </div>
+      </section>
       <section class="duo" id="duo" aria-labelledby="duo-title">
         <h2 id="duo-title"></h2>
         <p class="duo-hint" id="duo-hint"></p>
