@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { COPY, LAB_TEXT, LINKS, ROLE_IDS } from "../public/prototype/ai-funnel/content.js";
+import { COPY, GUESTS, LAB_TEXT, LINKS, ROLE_IDS } from "../public/prototype/ai-funnel/content.js";
 const PAGE = "/prototype/ai-funnel/";
 const shots = process.env.AI_FUNNEL_QA_DIR || resolve("output", "ai-funnel");
 mkdirSync(shots, { recursive: true });
@@ -157,6 +157,34 @@ for (const lang of ["zh", "en"]) {
     await page.locator("#delegate").click();
     await expect(page.locator('[data-claim="2"]')).toHaveText(COPY[lang].claims[2]);
     await expect(page.locator("#correct")).toBeHidden();
+    await noOverflow(page);
+  });
+}
+
+for (const lang of ["zh", "en"]) {
+  test(`${lang}: each role has its guest with a tip, the robot speaks before and after the check without giving the answer away`, async ({ page }) => {
+    const g = GUESTS[lang];
+    expect(Object.keys(g.roles)).toEqual(ROLE_IDS);
+    expect(g.roles.sales.name).toBe(lang === "zh" ? "福哥" : "Bro Fred");
+    expect(g.robot.before).not.toMatch(lang === "zh" ? /已確認/ : /confirmed/i);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${PAGE}?lang=${lang}`);
+    await page.locator('[data-tier="none"]').click();
+    await page.locator("#begin").click();
+    for (const id of ROLE_IDS) {
+      await expect(page.locator(`[data-role="${id}"] .role-face`)).toHaveAttribute("src", g.roles[id].img);
+      await page.locator(`[data-role="${id}"]`).click();
+      await expect(page.locator("#role-guest-name")).toHaveText(g.roles[id].name);
+      await expect(page.locator("#role-guest-tip")).toHaveText(g.roles[id].tip);
+      expect(await page.locator("#role-guest-img").evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
+    }
+    await page.locator("#role-continue").click();
+    await page.locator("#delegate").click();
+    await expect(page.locator("#robot-before")).toContainText(g.robot.before);
+    await expect(page.locator("#robot-after")).toBeHidden();
+    await page.locator('[data-claim="2"]').click();
+    await page.locator("#correct").click();
+    await expect(page.locator("#robot-after")).toContainText(g.robot.after);
     await noOverflow(page);
   });
 }

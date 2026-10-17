@@ -75,3 +75,31 @@ export const COPY = {
     lab: "Back to AI Lab for the full approach ↗", portfolio: "Back to the business work", restart: "Try again", footer: "A fictional interactive example. Checkable lines, not evidence of real model performance.", home: "Back to the portfolio",
   },
 };
+
+// Guests who talk beside the work (Paul 2026-10-18): Trade Street people keep their own jobs and drop in with a tip;
+// Bro Fred is the sales voice; the ROOMVERSE robot plays the AI agent. Lines are CC drafts for Paul to tune.
+const AVATAR = "./assets/cast/";
+export const GUESTS = {
+  zh: {
+    roles: {
+      data: { img: `${AVATAR}broker-avatar.webp`, name: "單單", from: "貿易街的報關", tip: "對帳最怕的不是錯，是沒看見錯。讓代理人先把那三列找出來，我把最後一眼留給它們。" },
+      planning: { img: `${AVATAR}guide-avatar.webp`, name: "玉仔", from: "貿易街的導覽員", tip: "論壇裡的話都很熱鬧。代理人幫每一句附上出處，熱鬧就變成了線索。" },
+      sales: { img: `${AVATAR}sales-avatar.webp`, name: "福哥", from: "業務", tip: "名單可以交給代理人找，第一句話我想自己說。客人聽得出來，誰真的懂他的貨。" },
+      owner: { img: `${AVATAR}factory-avatar.webp`, name: "老廠", from: "貿易街的工廠", tip: "十份回報收成一頁，很省事。但這一頁上哪一句能答應客人，還是我點頭才算。" },
+    },
+    robot: { img: `${AVATAR}robot-avatar.webp`, name: "小機器人", from: "AI 代理人 · 來自 ROOMVERSE",
+      before: "我整理好了。不過有一句，我可能說得太滿了——你幫我看看？",
+      after: "謝謝你攔下來。「已確認」這三個字，不該由我自己寫。" },
+  },
+  en: {
+    roles: {
+      data: { img: `${AVATAR}broker-avatar.webp`, name: "The Broker", from: "Customs broker on Trade Street", tip: "The worst thing in a reconciliation isn't a mistake. It's the mistake you never see. Let the agent find those three rows; I'll save my last look for them." },
+      planning: { img: `${AVATAR}guide-avatar.webp`, name: "Yuzai", from: "Your guide on Trade Street", tip: "Forums are noisy. Once the agent puts a source on every line, the noise turns into leads." },
+      sales: { img: `${AVATAR}sales-avatar.webp`, name: "Bro Fred", from: "Sales", tip: "The agent can find the list. The first sentence I want to say myself. Buyers can tell who really knows their goods." },
+      owner: { img: `${AVATAR}factory-avatar.webp`, name: "The Factory Head", from: "Factory on Trade Street", tip: "Ten reports on one page saves time. But which line on it I can promise a customer only counts once I nod." },
+    },
+    robot: { img: `${AVATAR}robot-avatar.webp`, name: "Little Robot", from: "AI agent · from ROOMVERSE",
+      before: "I've sorted it all. But one line may say more than I know. Could you check it for me?",
+      after: "Thanks for stopping it. “Confirmed” isn't a word I should write by myself." },
+  },
+};

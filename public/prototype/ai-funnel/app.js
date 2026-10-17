@@ -1,4 +1,4 @@
-import { COPY, LAB_TEXT, LINKS, ROLE_IDS, TIER_IDS } from "./content.js";
+import { COPY, GUESTS, LAB_TEXT, LINKS, ROLE_IDS, TIER_IDS } from "./content.js";
 const $ = (id) => document.getElementById(id);
 const queryLang = new URLSearchParams(location.search).get("lang");
 const state = { lang: ["zh", "en"].includes(queryLang) ? queryLang : (navigator.language.startsWith("zh") ? "zh" : "en"), tier: null, rolesVisible: false, role: null, begun: false, delegated: false, selected: null, corrected: false };
@@ -16,7 +16,11 @@ const roleButtons = ROLE_IDS.map((id) => {
   button.setAttribute("aria-controls", "role-detail");
   const tags = document.createElement("span"); tags.className = "role-mini-tags"; tags.setAttribute("aria-hidden", "true");
   tags.append(document.createElement("span"), document.createElement("span"), document.createElement("span"));
-  button.append(document.createElement("strong"), document.createElement("span"), tags);
+  // the guest who talks about this role, as a small face on the card (decorative: the name is in the detail)
+  const face = document.createElement("img");
+  face.className = "role-face"; face.alt = ""; face.width = 160; face.height = 160; face.decoding = "async";
+  face.src = GUESTS.zh.roles[id].img;
+  button.append(document.createElement("strong"), document.createElement("span"), tags, face);
   button.addEventListener("click", () => { state.role = id; render(); reveal($("role-detail")); });
   $("role-cards").append(button); return button;
 });
@@ -68,7 +72,14 @@ function render() {
     roleFields.forEach(({ term, value }, i) => {
       term.textContent = t.roleFields[i]; value.textContent = role.fields[i];
     });
+    const guest = GUESTS[state.lang].roles[state.role];
+    $("role-guest-img").src = guest.img;
+    $("role-guest-name").textContent = guest.name;
+    $("role-guest-from").textContent = guest.from;
+    $("role-guest-tip").textContent = guest.tip;
   }
+  const robot = GUESTS[state.lang].robot;
+  document.querySelectorAll("[data-robot]").forEach((node) => { node.textContent = robot[node.dataset.robot]; });
   $("buyer-work").hidden = state.role !== "sales";
   $("buyer-work").href = `/?lang=${state.lang}#overseas-customer-development`;
   $("role-continue").textContent = state.role === "owner" ? t.roleContinueOwner : t.roleContinue;

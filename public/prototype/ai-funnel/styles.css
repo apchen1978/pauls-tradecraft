@@ -847,3 +847,56 @@ footer  {
     transform:none
   }
 }
+/* guests: Trade Street people, Bro Fred and the ROOMVERSE robot, talking beside the work */
+.role-face  {
+  order:-1;
+  width:44px;
+  height:44px;
+  margin-bottom:12px;
+  border-radius:50%;
+  background:var(--pale);
+  object-fit:cover
+}
+.guest  {
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  margin:18px 0 8px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--paper)
+}
+.guest img  {
+  flex:none;
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:var(--pale);
+  object-fit:cover
+}
+.guest figcaption  {
+  min-width:0
+}
+.guest-name  {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:2px 8px;
+  font-size:14px;
+  color:var(--muted)
+}
+.guest-name strong  {
+  font-size:15px;
+  color:var(--ink)
+}
+.guest p  {
+  margin:6px 0 0;
+  font-size:17px;
+  font-weight:400;
+  line-height:1.7;
+  color:var(--ink)
+}
+.guest-robot  {
+  background:#eef2ea
+}

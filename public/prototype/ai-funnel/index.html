@@ -61,6 +61,7 @@
           <div><p class="eyebrow" data-copy="roleSelected">你選的是</p><h3 id="role-name"></h3></div>
           <div class="role-tags" aria-label="Workflow roles"><span data-copy="agentTag">代理人</span><span data-copy="toolTag">工具</span><span data-copy="humanTag">人</span></div>
         </div>
+        <figure class="guest" id="role-guest"><img id="role-guest-img" src="./assets/cast/broker-avatar.webp" alt="" width="160" height="160" decoding="async"><figcaption><span class="guest-name"><strong id="role-guest-name"></strong><span id="role-guest-from"></span></span><p id="role-guest-tip"></p></figcaption></figure>
         <dl id="role-fields"></dl>
         <a id="buyer-work" hidden data-copy="buyerWork">看看「海外客戶開發」怎麼挑買家 ↗</a>
         <div class="role-next"><button class="primary" id="role-continue" type="button" data-copy="roleContinue">親手檢查一次 ↗</button><p class="small" data-copy="roleBridge">接下來用同一封虛構詢價，練習在承諾前攔下一句錯話。</p></div>
@@ -86,6 +87,7 @@
         <div class="workflow-head"><h3 data-copy="workflow">把過程攤開來</h3><button class="text-button" id="show-all" type="button" data-copy="showAll">直接看全部</button></div>
         <ol id="steps" class="steps"></ol>
         <div class="review-heading"><h2 data-copy="reviewTitle">先別放行。哪一句超過了資料？</h2><p data-copy="reviewHint">拿左邊的資料，核對右邊的整理；手機上資料就在上方。點一句看看。</p></div>
+        <figure class="guest guest-robot" id="robot-before"><img src="./assets/cast/robot-avatar.webp" alt="" width="160" height="160" decoding="async"><figcaption><span class="guest-name"><strong data-robot="name"></strong><span data-robot="from"></span></span><p data-robot="before"></p></figcaption></figure>
         <div class="review-grid">
           <section class="paper source-paper" aria-labelledby="source-title">
             <p class="label" data-copy="sourceLabel">虛構來源資料</p><h3 id="source-title" data-copy="sourceTitle">我們手上只有這些</h3>
@@ -101,6 +103,7 @@
         <section id="completion" class="completion" aria-labelledby="complete-title" hidden tabindex="-1">
           <p class="eyebrow" data-copy="completeLabel">你站上了檢查點</p><h2 id="complete-title" data-copy="completeTitle">交辦完成了，承諾還沒有。</h2>
           <p data-copy="completeBody">AI 代理人可以把重複的工作先做完；人定目標、守住承諾的那條線，並在檢查點把關。</p>
+          <figure class="guest guest-robot" id="robot-after"><img src="./assets/cast/robot-avatar.webp" alt="" width="160" height="160" decoding="async"><figcaption><span class="guest-name"><strong data-robot="name"></strong><span data-robot="from"></span></span><p data-robot="after"></p></figcaption></figure>
           <p class="hold" data-copy="hold">停在這裡：價格與交期，待人確認。沒有寄出。</p>
           <p class="small" data-copy="noLevel">這是一段練習，不代表你被評為另一個使用層級。</p>
           <p class="made-with" data-copy="madeWith">這件作品的策劃、插畫、程式與測試，是一個人帶著幾個 AI 代理人分工完成的。</p>
