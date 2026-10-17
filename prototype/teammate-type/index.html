@@ -958,8 +958,26 @@
     .hotspots-mobile .hot-lantern { left: 52%; top: 64%; width: 46%; height: 32%; }
     .hotspots-mobile .hot-lamp { left: 26%; top: 38%; width: 48%; height: 20%; }
     #start { min-height: 48px; }
-    .team-fallback { margin: 12px 0 0; padding-left: 1.2em; }
-    .team-fallback li { margin: 4px 0; }
+    .team-list-heading { margin: 24px 0 10px; color: var(--pine); font-size: 1.05rem; letter-spacing: .02em; }
+    .team-fallback { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+    .team-summary {
+      min-width: 0;
+      padding: 11px 13px 12px;
+      border: 1px solid var(--team-edge);
+      border-left: 4px solid var(--team-accent);
+      border-radius: 10px;
+      background: var(--team-wash);
+      color: #253b39;
+    }
+    .team-summary-galaxy { --team-accent: #4b648e; --team-edge: #c6d1de; --team-wash: #e7ecf2; }
+    .team-summary-andromeda { --team-accent: #936d80; --team-edge: #ddc9d3; --team-wash: #f1e9ec; }
+    .team-summary-chart { --team-accent: #4b786b; --team-edge: #c6d9d0; --team-wash: #e8f0e9; }
+    .team-summary-lantern { --team-accent: #a47845; --team-edge: #e1d1b9; --team-wash: #f3ede0; }
+    .team-summary-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 8px; }
+    .team-summary-name { color: #243f3c; font-size: 1rem; font-weight: 700; }
+    .team-summary-place { color: #54615e; font-size: .85rem; }
+    .team-summary-members { display: block; margin-top: 4px; font-size: .91rem; line-height: 1.5; overflow-wrap: anywhere; }
+    @media (min-width: 640px) { .team-fallback { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     .district {
       position: fixed;
       inset: 0;
@@ -1191,12 +1209,13 @@
       <div class="entry-rest">
         <p class="lede" id="lede">先從三個日常片段找到你的角色，再回照夜鎮，陪隊友把燈留到最後。</p>
         <p class="hint" id="hint">每個片段選一次；角色卡之後，還有一段小鎮故事。</p>
+        <h3 class="team-list-heading" id="team-list-heading">四個隊伍</h3>
         <ul class="team-fallback" id="team-fallback" aria-label="四個隊伍">
-        <li>🌌 銀河隊：銀河之女、玉仔、靚仔、阿白</li>
-        <li>✨ 仙女隊：Holly、阿閃、樂樂、言歌</li>
-        <li>🗺️ 星圖隊：莉婭、墨衡、塞安、苔苔</li>
-        <li>🏮 燈下隊：MG、阿修、保羅、戴安娜</li>
-      </ul>
+          <li class="team-summary team-summary-galaxy"><span class="team-summary-head"><strong class="team-summary-name">🌌 銀河隊</strong><span class="team-summary-place">屋頂觀星</span></span><span class="team-summary-members">銀河之女、玉仔、靚仔、阿白</span></li>
+          <li class="team-summary team-summary-andromeda"><span class="team-summary-head"><strong class="team-summary-name">✨ 仙女隊</strong><span class="team-summary-place">露天舞台</span></span><span class="team-summary-members">Holly、阿閃、樂樂、言歌</span></li>
+          <li class="team-summary team-summary-chart"><span class="team-summary-head"><strong class="team-summary-name">🗺️ 星圖隊</strong><span class="team-summary-place">鐘樓</span></span><span class="team-summary-members">莉婭、墨衡、塞安、苔苔</span></li>
+          <li class="team-summary team-summary-lantern"><span class="team-summary-head"><strong class="team-summary-name">🏮 燈下隊</strong><span class="team-summary-place">暖窗小屋</span></span><span class="team-summary-members">MG、阿修、保羅、戴安娜</span></li>
+        </ul>
       </div>
       <div class="district" id="district" hidden>
         <div class="district-sheet" id="district-sheet" role="dialog" aria-modal="true" aria-labelledby="district-title">

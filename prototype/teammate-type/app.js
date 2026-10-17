@@ -2602,6 +2602,7 @@ function boot() {
     $("subtitle").textContent = ui.subtitle;
     $("entry-title").textContent = ui.entryTitle;
     $("district-close").textContent = ui.closePreview;
+    $("team-list-heading").textContent = ui.teamList;
     $("team-fallback").setAttribute("aria-label", ui.teamList);
     for (const button of document.querySelectorAll("[data-faction]")) {
       const faction = FACTIONS[button.dataset.faction];
@@ -2616,10 +2617,14 @@ function boot() {
     const list = $("team-fallback");
     list.textContent = "";
     const sep = state.lang === "zh" ? "、" : ", ";
-    const colon = state.lang === "zh" ? "：" : ": ";
-    for (const faction of Object.values(FACTIONS)) {
+    for (const [id, faction] of Object.entries(FACTIONS)) {
       const names = faction.members.map((id) => shortName(TYPES[id][state.lang])).join(sep);
-      list.appendChild(el("li", "", `${faction.mark} ${faction[state.lang]}${colon}${names}`));
+      const item = el("li", `team-summary team-summary-${id}`);
+      const heading = el("span", "team-summary-head");
+      heading.append(el("strong", "team-summary-name", `${faction.mark} ${faction[state.lang]}`));
+      heading.append(el("span", "team-summary-place", faction.place[state.lang]));
+      item.append(heading, el("span", "team-summary-members", names));
+      list.appendChild(item);
     }
     if (state.district) paintDistrict();
   }

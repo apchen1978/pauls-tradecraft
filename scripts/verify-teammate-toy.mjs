@@ -241,7 +241,7 @@ test("public copy keeps the boundary and skips claims, trademarks, and contact d
   }
   assert.equal(/玉仔|照夜玉獅子|Yuzai|Night-Shining Jade Lion/.test(horseScan), false);
   assert.equal((html.match(/玉仔/g) || []).length, 1);
-  assert.match(html, /星圖隊：莉婭、墨衡、塞安、苔苔/);
+  assert.match(html, /class="team-summary team-summary-chart"[\s\S]*?星圖隊[\s\S]*?莉婭、墨衡、塞安、苔苔[\s\S]*?<\/li>/);
   assert.equal(html.includes("栗子"), false);
   assert.equal(/照夜玉獅子/.test(html), false);
   assert.equal(TYPES.cocoa.zh.role, "守護者");
