@@ -41,6 +41,9 @@ for (const width of [390, 768, 1440]) {
       expect(geometry.overflow).toBe(0);
       await expect(page.locator(".scrim")).toHaveCount(0);
       expect(await page.locator(".hotspots .pin-label").evaluateAll(nodes => nodes.every(n => n.getBoundingClientRect().width === 0))).toBe(true);
+      const activeMap = width < 860 ? ".hotspots-mobile" : ".hotspots-desk";
+      await expect(page.locator(`${activeMap} .hot-lamp .lamp-label`)).toHaveText(lang === "zh" ? "出發" : "Set out");
+      await expect(page.locator(`${activeMap} .hot-lamp .lamp-label`)).toBeVisible();
 
       await page.screenshot({ path: `output/december-map-clear/after-${lang}-${width}.png`, animations: "disabled" });
       await page.locator("#main").screenshot({ path: `output/december-map-clear/full-${lang}-${width}.png`, animations: "disabled" });

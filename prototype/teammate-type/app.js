@@ -2464,6 +2464,7 @@ function boot() {
     }
     for (const button of document.querySelectorAll(".hotspot-lamp")) {
       button.setAttribute("aria-label", ui.startLamp);
+      button.querySelector(".lamp-label").textContent = ui.start;
     }
     const list = $("team-fallback");
     list.textContent = "";
