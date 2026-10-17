@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { COPY, LAB_TEXT, LINKS } from "../public/prototype/ai-funnel/content.js";
+import { COPY, LAB_TEXT, LINKS, ROLE_IDS } from "../public/prototype/ai-funnel/content.js";
 const PAGE = "/prototype/ai-funnel/";
 const shots = process.env.AI_FUNNEL_QA_DIR || resolve("output", "ai-funnel");
 mkdirSync(shots, { recursive: true });
@@ -12,6 +12,8 @@ async function openReview(page, lang) {
   await page.goto(`${PAGE}?lang=${lang}`);
   await page.locator('[data-tier="chat"]').click();
   await page.locator("#begin").click();
+  await page.locator('[data-role="owner"]').click();
+  await page.locator("#role-continue").click();
   await page.locator("#delegate").click();
   await expect(page.locator("#workbench")).toBeVisible();
 }
@@ -27,6 +29,10 @@ test("bilingual data keeps source attribution and one checkable mismatch, with n
     expect(JSON.stringify([t.facts, t.claims])).not.toMatch(/\d/);
     expect(LAB_TEXT[lang].c0.source).toContain("Karpathy");
     expect(t.sourceSummary).toContain("2026");
+    expect(Object.keys(t.roles)).toEqual(ROLE_IDS);
+    for (const role of Object.values(t.roles)) expect(role.fields).toHaveLength(5);
+    expect(t.stepNames).toHaveLength(t.stepActors.length);
+    expect(t.lead).toContain(lang === "zh" ? "AI 代理人（AI agent）" : "AI agent");
   }
 });
 for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
@@ -53,8 +59,34 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
       await expect(page.locator("#tier-reply")).not.toBeEmpty();
     }
     await page.locator("#begin").click();
+    await expect(page.locator("#roles-stage")).toBeVisible();
+    await expect(page.locator("#role-continue")).toBeHidden();
+    await page.locator("#roles-stage").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: resolve(shots, `role-choices-${lang}-${width}.png`) });
+    for (const roleId of ROLE_IDS) {
+      await page.locator(`[data-role="${roleId}"]`).click();
+      await expect(page.locator(`[data-role="${roleId}"]`)).toHaveAttribute("aria-pressed", "true");
+      await expect(page.locator(`[data-role="${roleId}"] .role-mini-tags`)).toContainText(t.agentTag);
+      await expect(page.locator("#role-fields dt")).toHaveText(t.roleFields);
+      await expect(page.locator("#role-fields dd")).toHaveText(t.roles[roleId].fields);
+      await expect(page.locator("#role-fields dd").last()).toContainText(lang === "zh" ? "示範" : "Demo");
+      if (roleId === "owner") await expect(page.locator("#role-continue")).toHaveText(t.roleContinueOwner);
+      await noOverflow(page);
+    }
+    await expect(page.locator("#buyer-work")).toBeHidden();
+    await page.locator('[data-role="sales"]').click();
+    await expect(page.locator("#buyer-work")).toHaveAttribute("href", `/?lang=${lang}#overseas-customer-development`);
+    const other = lang === "zh" ? "en" : "zh";
+    await page.locator(`[data-lang="${other}"]`).click();
+    await expect(page.locator('[data-role="sales"]')).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("#role-fields dd")).toHaveText(COPY[other].roles.sales.fields);
+    await page.locator(`[data-lang="${lang}"]`).click();
+    await page.locator("#role-detail").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: resolve(shots, `roles-${lang}-${width}.png`) });
+    await page.locator("#role-continue").click();
     await expect(page.locator("#chat-reply")).toHaveText(LAB_TEXT[lang].c2.chatReply);
     await page.locator("#delegate").click();
+    await expect(page.locator(".steps li span")).toHaveText(t.stepActors);
     await page.locator("#show-all").click();
     await expect(page.locator("#correct")).toBeHidden();
     await page.locator('[data-claim="0"]').click();
@@ -74,6 +106,7 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
     await expect(page.locator('[data-claim="2"]')).toHaveText(t.facts[2]);
     await expect(page.locator(".hold")).toHaveText(t.hold);
     await expect(page.locator("#lab")).toHaveAttribute("href", `/ai-lab/?lang=${lang}#c2`);
+    await expect(page.locator("#back-home")).toHaveAttribute("href", `/?lang=${lang}#works`);
     await noOverflow(page);
     await page.screenshot({ path: resolve(shots, `complete-${lang}-${width}.png`) });
     await page.locator("#lab").click();
@@ -118,7 +151,10 @@ for (const lang of ["zh", "en"]) {
     await expect(page.locator("body")).toHaveAttribute("data-phase", "intro");
     await expect(page.locator("#activity")).toBeHidden();
     await expect(page.locator("#begin")).toBeFocused();
-    await page.locator("#begin").click(); await page.locator("#delegate").click();
+    await page.locator("#begin").click();
+    await page.locator('[data-role="owner"]').click();
+    await page.locator("#role-continue").click();
+    await page.locator("#delegate").click();
     await expect(page.locator('[data-claim="2"]')).toHaveText(COPY[lang].claims[2]);
     await expect(page.locator("#correct")).toBeHidden();
     await noOverflow(page);
