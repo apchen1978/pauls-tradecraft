@@ -1309,7 +1309,10 @@
           <section class="night-finale" id="night-finale" hidden>
             <p class="night-finale-kicker" id="night-finale-kicker"></p>
             <h3 id="night-finale-title" tabindex="-1"></h3>
-            <img id="night-finale-image" width="1536" height="1024" alt="" loading="lazy" />
+            <picture>
+              <source media="(max-width: 650px)" srcset="assets/nightglow-finale-mobile.webp" type="image/webp" />
+              <img id="night-finale-image" width="1536" height="1024" alt="" loading="lazy" />
+            </picture>
             <p id="night-finale-body"></p>
             <a class="night-postcard-link" id="night-postcard-link" href="assets/nightglow-finale-postcard.png" download="nightglow-team-postcard.png"></a>
           </section>

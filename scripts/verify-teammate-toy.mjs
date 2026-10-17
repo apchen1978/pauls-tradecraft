@@ -444,5 +444,6 @@ test("the lamp story keeps every role bilingual and visits the three remaining t
     for (const id of Object.keys(TYPES)) assert.ok(NIGHT_ROLE_LINES[id][lang], `${id}.${lang}`);
   }
   assert.ok(existsSync(new URL("../prototype/teammate-type/assets/nightglow-finale.webp", import.meta.url)));
+  assert.ok(existsSync(new URL("../prototype/teammate-type/assets/nightglow-finale-mobile.webp", import.meta.url)));
   assert.ok(existsSync(new URL("../prototype/teammate-type/assets/nightglow-finale-postcard.png", import.meta.url)));
 });

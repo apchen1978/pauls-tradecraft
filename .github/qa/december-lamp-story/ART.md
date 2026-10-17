@@ -2,6 +2,7 @@
 
 - **原圖**：`prototype/teammate-type/assets/nightglow-finale-postcard.png`，1536 × 1024，無透明背景，3,146,047 bytes；提供下載。
 - **網頁預覽**：`prototype/teammate-type/assets/nightglow-finale.webp`，同尺寸，435,476 bytes；只在結尾顯示。
+- **手機預覽**：`prototype/teammate-type/assets/nightglow-finale-mobile.webp`，800 × 533，160,244 bytes；小螢幕載入。
 - **方法**：用內建 Image 2.0 參照已確認的十六位角色立繪接觸表、既有雪夜群像與照夜鎮地圖，整張重新繪製。第二輪定向修改站位與共同光源；WebP 僅作技術轉檔，PNG 原稿保留。
 - **第一輪提示重點**：同一個照夜鎮雪夜廣場、同一透視與暖色路燈；兩位女王居中，十六位角色全員可見；服裝、髮型、道具和相對比例對齊既有圖；不拼貼、不加文字、數字、品牌或魔法效果。
 - **第二輪提示重點**：明確修為畫面左至右「有翅膀的白馬 → 拿底片相機的靚仔 → 黑長髮銀河之女 → 金髮 Holly」，並讓 MG 在中央腳前；戴安娜與莉婭、塞安與保羅各自成組。
