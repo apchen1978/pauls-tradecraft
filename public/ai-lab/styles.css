@@ -158,6 +158,8 @@ h3 { margin: 0; color: var(--bone); font-size: 1.1rem; }
 @media (min-width: 900px) { .cases { grid-template-columns: 1fr 1fr; } }
 .case { padding: 16px 18px; border: 1px solid var(--line); border-left: 3px solid var(--warn); border-radius: 0 14px 14px 0; background: var(--card); }
 .case .kind { font-size: 12px; color: var(--warn); }
+.lessons .case { border-left-color: var(--mint); }
+.lessons .case .kind { color: var(--mint); }
 .case .what { margin: 8px 0 0; color: var(--bone); }
 .case dl { margin: 12px 0 0; display: grid; gap: 4px; }
 .case dt { font-size: 12px; font-weight: 700; color: var(--mint); }

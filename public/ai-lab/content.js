@@ -27,7 +27,7 @@ export const TEXT = {
       ["wait", "停下來：等負責人確認價格和交期"],
     ],
     consoleCap: "示範畫面，不是真實模型的輸出。",
-    rail: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "上下文", "工具", "驗證", "多 agent", "治理", "怎麼錯", "前沿", "最新觀察"],
+    rail: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "上下文", "工具", "驗證", "多 agent", "治理", "怎麼錯", "前沿", "教小老闆", "最新觀察"],
     c0: {
       no: "00",
       title: "你在漏斗的哪一層？",
@@ -132,7 +132,7 @@ export const TEXT = {
       ["wait", "Stop: waiting for the person in charge to confirm price and lead time"],
     ],
     consoleCap: "An illustration, not output from a real model.",
-    rail: ["Which tier", "What AI does", "Chat vs delegate", "The human", "My AI team", "Context", "Tools", "Verification", "Agents", "Governance", "Mistakes", "Frontier", "Latest"],
+    rail: ["Which tier", "What AI does", "Chat vs delegate", "The human", "My AI team", "Context", "Tools", "Verification", "Agents", "Governance", "Mistakes", "Frontier", "Teaching", "Latest"],
     c0: {
       no: "00",
       title: "Which tier of the funnel are you in?",

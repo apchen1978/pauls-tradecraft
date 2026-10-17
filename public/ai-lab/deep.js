@@ -25,7 +25,7 @@ export const DEEP = {
   zh: {
     divider: "深入一層",
     dividerLead: "以下給想知道「怎麼做到」的人。每一個例子，都是做這個網站時真的發生過的事。",
-    toc: ["上下文工程", "工具與 MCP", "驗證", "多 agent 與交接", "治理", "AI 會怎麼錯", "前沿"],
+    toc: ["上下文工程", "工具與 MCP", "驗證", "多 agent 與交接", "治理", "AI 會怎麼錯", "前沿", "教小老闆用 AI"],
     c5: {
       no: "05",
       title: "上下文工程：AI 看得到什麼，決定它做得多好",
@@ -125,11 +125,43 @@ export const DEEP = {
       ],
       closing: "這一章本身也是一種規矩：錯了就寫下來，下一次就有地方可以查。",
     },
+    c12: {
+      no: "12",
+      title: "教小老闆用 AI：我學到的三件事",
+      lead: "Paul 教一位做傳統生意的朋友，自己用 AI 做出給消費者看的網站，而不是替他做。下面是他說這段經驗裡學到的三件事。這一章只寫過程：那位朋友的網站還沒上線，沒有成果可以報告。",
+      kinds: ["第一件", "第二件", "第三件"],
+      found: "怎麼發生的",
+      fix: "現在怎麼做",
+      cases: [
+        {
+          kind: 0,
+          who: "Paul 自述",
+          what: "先讓人看見成果，再教他理解工具。",
+          found: "Paul 長期在外地工作，一開始只能用語音訊息教。講到 GitHub、前端後端、n8n 這些名詞，朋友聽不太懂。後來 Paul 到他那裡，對著 Codex 用語音說了一句：要做網站、要有效果圖和 LINE 按鈕。網站很快當場出現，朋友才有信心。",
+          fix: "第一堂課先讓他看到做出來的東西，用中文說就可以，不必先懂程式。遇到問題，再補那個名詞。",
+        },
+        {
+          kind: 1,
+          who: "Paul 自述",
+          what: "教老闆管理 AI，而不是先教他寫程式。",
+          found: "老闆聽到 GitHub、前端後端會頭暈。Paul 改用老闆熟悉的說法：AI 像剛進公司的數位員工，它不認識你的公司，所以要給它員工手冊、產品目錄這些背景（上下文），再交辦任務、檢查成果。",
+          fix: "從老闆已經會的事開始：怎麼帶新人、怎麼交辦、怎麼驗收。背景怎麼給，見第 05 章。",
+        },
+        {
+          kind: 2,
+          who: "Paul 自述",
+          what: "授權逐步放，不一次給足。",
+          found: "如果老闆想請 AI 找客戶、寫開發信，Paul 的做法是先做十到十五封，老闆親自看（外文信可用翻譯軟體對照），先校正行業用語，再把用語對照、報價單、規格表整理成文件交給 AI。",
+          fix: "先小量、先看、先校正，建立信任後才放大；金額高的事，一定由老闆本人決定。這是 Paul 的做法與構想：讓多個 AI 分工互相審核的辦法，還沒有實際驗證。",
+        },
+      ],
+      closing: "這一章只寫過程。那位朋友的網站還沒上線，所以沒有成果，也沒有量過省了多少時間或費用。",
+    },
   },
   en: {
     divider: "One level deeper",
     dividerLead: "For anyone who wants to know how it is actually done. Every example below really happened while building this site.",
-    toc: ["Context engineering", "Tools and MCP", "Verification", "Several agents", "Governance", "How AI goes wrong", "The frontier"],
+    toc: ["Context engineering", "Tools and MCP", "Verification", "Several agents", "Governance", "How AI goes wrong", "The frontier", "Teaching a small owner"],
     c5: {
       no: "05",
       title: "Context engineering: what AI can see decides how well it works",
@@ -228,6 +260,38 @@ export const DEEP = {
         },
       ],
       closing: "This chapter is itself a rule: write the mistake down, so next time there is somewhere to look.",
+    },
+    c12: {
+      no: "12",
+      title: "Teaching a small business owner to use AI: three things I learned",
+      lead: "Paul taught a friend in a traditional business to build a consumer-facing website with AI himself, rather than building it for him. Below are the three things Paul says he learned. This chapter covers the process only: the friend's site is not live yet, so there is no result to report.",
+      kinds: ["First", "Second", "Third"],
+      found: "What happened",
+      fix: "What we do now",
+      cases: [
+        {
+          kind: 0,
+          who: "Paul, in his words",
+          what: "Let people see a result first, then teach the tools.",
+          found: "Paul was working away from home for long stretches, so at first he could only teach by voice message. Terms like GitHub, front end and back end, and n8n did not land. Later, in person, he spoke one sentence to Codex: build a website with rendered images and a LINE button. The site appeared on the spot, and that is when the friend gained confidence.",
+          fix: "In the first session, show something finished. Plain Chinese is enough; no need to understand code first. When a problem comes up, explain that term then.",
+        },
+        {
+          kind: 1,
+          who: "Paul, in his words",
+          what: "Teach owners to manage AI, not to write code first.",
+          found: "Owners get dizzy at GitHub and front end versus back end. Paul switched to something they already know: AI is like a new digital employee. It does not know your company, so give it the handbook and product catalogue (context), then assign tasks and check the work.",
+          fix: "Start from what the owner already does well: how to onboard someone, how to delegate, how to check the result. For how to give context, see chapter 05.",
+        },
+        {
+          kind: 2,
+          who: "Paul, in his words",
+          what: "Hand over authority step by step, not all at once.",
+          found: "If an owner wants AI to find customers and write outreach emails, Paul starts with ten to fifteen. The owner reads them personally (foreign-language emails can be checked with a translation tool), corrects industry wording first, then turns the term list, price lists and specification sheets into documents for the AI.",
+          fix: "Start small, review, correct, and scale only after trust is built; anything high-value is decided by the owner. This is Paul's method and idea: having several AI agents split roles and review each other has not been tested in practice yet.",
+        },
+      ],
+      closing: "This chapter covers the process only. The friend's site is not live yet, so there is no result, and no time or cost saving has been measured.",
     },
   },
 };
