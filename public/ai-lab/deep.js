@@ -155,7 +155,7 @@ export const DEEP = {
           fix: "依公司的資源、預算、品質要求與風險承受度，設計不同的授權與審核流程。起點一樣是先小量、先看、先校正：例如開發信先做十到十五封，老闆親自看，校正行業用語，確認後才放大；金額高的事，一定由老闆本人決定。讓多個 AI 分工互相審核，是 Paul 的構想，還沒有實際驗證。",
         },
       ],
-      closing: "這一章只寫過程。那位朋友的網站已有雛形，還沒部署，所以沒有成果可以報告，也沒有量過省了多少時間或費用。Paul 自評這次教學 85 分，不是因為網站，而是因為一位原本對 AI 有距離的人，現在願意自己動手、持續學習：一開始只把 AI 當聊天機器人，慢慢看 Paul 給的圖片和影片連結，後來加入一起學。Paul 說：「我光覺得他是我的學習 partner，就覺得非常欣慰。」他仍常來問問題，還不能說已經獨立。",
+      closing: "這一章只寫過程。那位朋友的網站，Paul 說已經做得相當完整、很漂亮，連他自己都被 AI 的能力嚇了一跳。但他反過來覺得網站太複雜了：看網站的人常常只停留一兩分鐘，所以他現在在想怎麼改成「少即是多」。網站還沒部署，沒有成果可以報告，也沒有量過省了多少時間或費用。Paul 自評這次教學 85 分，不是因為網站，而是因為一位原本對 AI 有距離的人，現在願意自己動手、持續學習：一開始只把 AI 當聊天機器人，慢慢看 Paul 給的圖片和影片連結，後來加入一起學。Paul 說：「我光覺得他是我的學習 partner，就覺得非常欣慰。」他仍常來問問題，還不能說已經獨立。",
     },
   },
   en: {
@@ -291,7 +291,7 @@ export const DEEP = {
           fix: "Design different authority and review steps according to a company's resources, budget, quality bar and tolerance for risk. The starting point is the same: start small, review, correct. For example, ten to fifteen outreach emails first, read by the owner, industry wording corrected, then scale up; anything high-value is decided by the owner. Having several AI agents split roles and review each other is Paul's idea and has not been tested in practice yet.",
         },
       ],
-      closing: "This chapter covers the process only. The friend's site is still a first draft and not deployed, so there is no result to report, and no time or cost saving has been measured. Paul rates the teaching 85 out of 100 by his own judgment, not because of the website, but because someone who kept a distance from AI now builds things himself and keeps learning: he started by using AI only as a chatbot, slowly worked through the images and video links Paul sent, and then joined in. Paul says: \"Just feeling that he is my learning partner makes me very happy.\" He still asks questions often, so it would be too early to call him independent.",
+      closing: "This chapter covers the process only. Paul says the friend's site is already quite complete and very good-looking, and the friend himself was startled by what AI could do. But he now feels it is too complicated: people often stay on a website only a minute or two, so he is working out how to make it \"less is more\". The site is not deployed, so there is no result to report, and no time or cost saving has been measured. Paul rates the teaching 85 out of 100 by his own judgment, not because of the website, but because someone who kept a distance from AI now builds things himself and keeps learning: he started by using AI only as a chatbot, slowly worked through the images and video links Paul sent, and then joined in. Paul says: \"Just feeling that he is my learning partner makes me very happy.\" He still asks questions often, so it would be too early to call him independent.",
     },
   },
 };
