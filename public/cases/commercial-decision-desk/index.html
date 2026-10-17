@@ -66,11 +66,17 @@
     .shot-zh .shot-frame { aspect-ratio: 748 / 390; } .shot-zh img { width: 140.64%; left: -3.74%; top: -62.82%; }
     .shot-en .shot-frame { aspect-ratio: 748 / 388; } .shot-en img { width: 140.64%; left: -3.74%; top: -69.59%; }
     footer { margin-top: 48px; font-size: 12px; color: var(--muted); }
+    .lang-switch { display:inline-flex; gap:4px; margin-left:12px; vertical-align:middle; text-transform:none; letter-spacing:0; }
+    .lang-switch button { border:1px solid var(--line); background:transparent; border-radius:999px; padding:3px 10px; color:var(--muted); font:inherit; cursor:pointer; }
+    .lang-switch button[aria-pressed="true"] { background:var(--muted); color:#fff; }
+    html:not([data-lang="en"]) .en { display:none; }
+    html[data-lang="en"] main > :not(.crumb):not(.en) { display:none; }
+    html[data-lang="en"] .en { margin-top:28px; padding-top:0; border-top:0; }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · Commercial Decision Desk</p>
+    <p class="crumb"><a href="/">Paul's Tradecraft</a> · Cases · Commercial Decision Desk <span class="lang-switch" aria-label="Language"><button type="button" data-set-lang="zh" aria-pressed="true">繁中</button><button type="button" data-set-lang="en" aria-pressed="false">EN</button></span></p>
     <p class="eyebrow">CASE · COMMERCIAL DECISION</p>
     <h1>訂單看起來不錯——現在能不能承諾？</h1>
     <p class="lede">商務決策工作台把報價、付款、交付與責任條件，連同 UNKNOWN，整理成可帶進會議的 Deal Brief。系統用規則整理比較；人負責授權與最終承諾。</p>
@@ -167,5 +173,26 @@
       <p><a href="/">← Back to portfolio</a></p>
     </footer>
   </main>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll("[data-set-lang]");
+      var zhTitle = document.title;
+      function setLanguage(value, updateUrl) {
+        var lang = value === "en" ? "en" : "zh";
+        document.documentElement.dataset.lang = lang;
+        document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+        document.title = lang === "en" ? "Commercial Decision Desk — can we commit now? · Paul's Tradecraft" : zhTitle;
+        buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.setLang === lang)); });
+        if (updateUrl) {
+          var url = new URL(window.location.href);
+          url.searchParams.set("lang", lang);
+          window.history.replaceState(null, "", url);
+        }
+      }
+      var h = window.location.hash;
+      setLanguage(new URLSearchParams(window.location.search).get("lang") || (h === "#en" || h === "#english-summary" ? "en" : "zh"));
+      buttons.forEach(function (b) { b.addEventListener("click", function () { setLanguage(b.dataset.setLang, true); }); });
+    })();
+  </script>
 </body>
 </html>
