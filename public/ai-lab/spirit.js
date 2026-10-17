@@ -32,7 +32,7 @@ export const SPIRIT = {
         {
           h: "商業與創作，互相餵養",
           p: [
-            "我們活在真實的世界：要吃飯、要付教育費、要換更好的設備。所以有人願意請我做專案，我會全力以赴。",
+            "我相信使用者付費。當我替人創造了價值，對方願意為它付費，這是最健康、也最對等的關係。我們不需要誰的憐憫：我們靠耶穌，也靠自己的實力。有人願意請我做專案，我會全力以赴。",
             "真實的專案帶來收入，也帶來新的問題與更前沿的知識；能力和設備升級了，又回到創作與實驗裡，做出更多作品，帶來新的合作。我希望這是一個往好的方向轉的循環。",
           ],
         },
@@ -85,7 +85,7 @@ export const SPIRIT = {
         {
           h: "Business and creation feed each other",
           p: [
-            "We live in the real world: meals to pay for, education to fund, better equipment to buy. So when someone wants to hire me for a project, I will give it everything.",
+            "I believe in users paying for value. When I create value for someone and they choose to pay for it, that is the healthiest and most equal relationship. We do not need anyone's pity: we rely on Jesus, and on our own ability. When someone wants to hire me for a project, I will give it everything.",
             "Real projects bring income, and also new problems and more advanced knowledge. As my skills and equipment improve, I return to creating and experimenting, make more work, and that brings new collaborations. I hope this becomes a cycle that turns in a good direction.",
           ],
         },
