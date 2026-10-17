@@ -50,6 +50,13 @@
     .card { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: #fff; }
     .card h3 { margin:0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
     .card p { margin: 8px 0 0; font-size: 14px; }
+    .decision-readout { margin-top: 18px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .decision-readout h2 { margin: 0 0 8px; font-size: 1rem; }
+    .decision-list { display:grid; gap:0; }
+    .decision-item { padding: 10px 0; border-top: 1px solid var(--line); }
+    .decision-item:first-child { border-top:0; }
+    .decision-item strong { display:block; color:var(--gold); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+    .decision-item p { margin:4px 0 0; color:var(--pine); font-size:16px; font-weight:650; line-height:1.4; }
     h2 { margin: 40px 0 12px; font-size: 1.25rem; color: var(--pine); }
     ol.method { margin: 0; padding-left: 1.2rem; }
     ol.method li { margin: 8px 0; }
@@ -69,6 +76,7 @@
     .lang-switch { display:inline-flex; gap:4px; margin-left:12px; vertical-align:middle; text-transform:none; letter-spacing:0; }
     .lang-switch button { border:1px solid var(--line); background:transparent; border-radius:999px; padding:3px 10px; color:var(--muted); font:inherit; cursor:pointer; }
     .lang-switch button[aria-pressed="true"] { background:var(--muted); color:#fff; }
+    @media (min-width:700px) { .decision-list { grid-template-columns:repeat(3, 1fr); } .decision-item { padding:4px 14px 4px 0; border-top:0; } .decision-item + .decision-item { padding-left:14px; border-left:1px solid var(--line); } }
     html:not([data-lang="en"]) .en { display:none; }
     html[data-lang="en"] main > :not(.crumb):not(.en) { display:none; }
     html[data-lang="en"] .en { margin-top:28px; padding-top:0; border-top:0; }
@@ -80,28 +88,18 @@
     <p class="eyebrow">CASE · COMMERCIAL DECISION</p>
     <h1>訂單看起來不錯——現在能不能承諾？</h1>
     <p class="lede">商務決策工作台把報價、付款、交付與責任條件，連同 UNKNOWN，整理成可帶進會議的 Deal Brief。系統用規則整理比較；人負責授權與最終承諾。</p>
-    <span class="badge">示範案例 · 規則可重跑檢查</span>
+    <span class="badge">示範／成效未驗證</span>
+    <section class="decision-readout" aria-labelledby="decision-readout-title-zh">
+      <h2 id="decision-readout-title-zh">示範判斷輸出</h2>
+      <div class="decision-list">
+        <div class="decision-item"><strong>目前狀態</strong><p>需要進一步判斷</p></div>
+        <div class="decision-item"><strong>條件衝突</strong><p>付款條件互相矛盾</p></div>
+        <div class="decision-item"><strong>下一步</strong><p>先取得書面付款條件</p></div>
+      </div>
+    </section>
     <div class="ctas">
       <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">打開示範案例</a>
       <a class="btn btn-secondary" href="/#contact">帶一個真實交易問題來談</a>
-    </div>
-
-    <figure class="shot shot-zh">
-      <div class="shot-frame">
-        <picture>
-          <source media="(min-width: 769px)" srcset="/images/cdd-executive-snapshot-zh-v02.png" type="image/png" />
-          <img src="/images/cdd-executive-snapshot-zh-v02-800.webp" width="1052" height="1146" alt="商務決策工作台示範案例的決策摘要：目前建議「需要進一步判斷」，附經濟解讀與關鍵數字" loading="eager" />
-        </picture>
-        <span class="fade" aria-hidden="true"></span>
-      </div>
-      <figcaption>示範案例的決策摘要 · 示意資料，非真實客戶</figcaption>
-    </figure>
-
-    <div class="grid" aria-label="Snapshot">
-      <div class="card"><h3>決策問題</h3><p>這筆單，現在能不能承諾？</p></div>
-      <div class="card"><h3>輸入</h3><p>RFQ／報價條件／付款與交期（可匿名或示意）</p></div>
-      <div class="card"><h3>產出</h3><p>Decision Path + Deal Brief（已知／UNKNOWN／下一步）</p></div>
-      <div class="card"><h3>人的關卡</h3><p>負責人／業務主管授權；系統不自動對外承諾</p></div>
     </div>
 
     <h2>情境</h2>
@@ -115,6 +113,24 @@
       <li><strong>決策狀態</strong> — 可推進／有條件／暫緩／拒絕（依系統定義）</li>
       <li><strong>人做承諾</strong> — 人做最終承諾；留下可交接產物</li>
     </ol>
+
+    <h2>示範資料</h2>
+    <div class="grid" aria-label="Snapshot">
+      <div class="card"><h3>決策問題</h3><p>這筆單，現在能不能承諾？</p></div>
+      <div class="card"><h3>輸入</h3><p>RFQ／報價條件／付款與交期（可匿名或示意）</p></div>
+      <div class="card"><h3>產出</h3><p>Decision Path + Deal Brief（已知／UNKNOWN／下一步）</p></div>
+      <div class="card"><h3>人的關卡</h3><p>負責人／業務主管授權；系統不自動對外承諾</p></div>
+    </div>
+    <figure class="shot shot-zh">
+      <div class="shot-frame">
+        <picture>
+          <source media="(min-width: 769px)" srcset="/images/cdd-executive-snapshot-zh-v02.png" type="image/png" />
+          <img src="/images/cdd-executive-snapshot-zh-v02-800.webp" width="1052" height="1146" alt="商務決策工作台示範案例的決策摘要：目前建議「需要進一步判斷」，附經濟解讀與關鍵數字" loading="lazy" />
+        </picture>
+        <span class="fade" aria-hidden="true"></span>
+      </div>
+      <figcaption>示範案例的決策摘要 · 示意資料，非真實客戶</figcaption>
+    </figure>
 
     <h2>證據階梯</h2>
     <table>
@@ -141,12 +157,31 @@
 
     <h2>主線位置</h2>
     <p>上游：<a href="/#global-business-development">海外商業開發判斷</a> · 下游：<a href="/#trade-profit-navigator">貿易利潤導航</a> · 垂直證據：<a href="/pilot-evidence/">Pilot 追蹤器</a></p>
-    <p>這些是各自獨立的原型，只共享一個情境概念；它們不交換資料，也不共用資料模型。</p>
 
     <div class="en" lang="en">
       <p class="eyebrow">ENGLISH SUMMARY</p>
       <h2 style="margin-top:10px">Commercial Decision Desk — can we commit now?</h2>
-      <p class="badge">demo case · rules can be rerun and checked</p>
+      <span class="badge">Demonstration / outcomes unverified</span>
+      <section class="decision-readout" aria-labelledby="decision-readout-title-en">
+        <h2 id="decision-readout-title-en">Illustrative decision output</h2>
+        <div class="decision-list">
+          <div class="decision-item"><strong>Current status</strong><p>Escalate for review</p></div>
+          <div class="decision-item"><strong>Conflict</strong><p>Payment terms contradict each other</p></div>
+          <div class="decision-item"><strong>Next step</strong><p>Get payment terms confirmed in writing</p></div>
+        </div>
+      </section>
+      <p>The desk uses rules to structure payment, delivery, liability, and UNKNOWNs into a Deal Brief a team can take into a meeting. Humans keep authorization and the final commitment.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">Open demo case</a>
+        <a class="btn btn-secondary" href="/#contact">Bring one live deal question</a>
+      </div>
+      <h2>Demo details</h2>
+      <div class="grid" aria-label="Snapshot">
+        <div class="card"><h3>Decision question</h3><p>Can this order be committed to now?</p></div>
+        <div class="card"><h3>Inputs</h3><p>RFQ, quote terms, payment and delivery terms (anonymized or illustrative)</p></div>
+        <div class="card"><h3>Output</h3><p>Decision Path + Deal Brief (known facts, UNKNOWNs, next steps)</p></div>
+        <div class="card"><h3>Human gate</h3><p>A decision-maker or sales lead authorizes; the system does not commit externally</p></div>
+      </div>
       <figure class="shot shot-en">
         <div class="shot-frame">
           <picture>
@@ -157,15 +192,9 @@
         </div>
         <figcaption>Decision summary of the demo case · illustrative data, not a real client</figcaption>
       </figure>
-      <p>The desk uses rules to structure payment, delivery, liability, and UNKNOWNs into a Deal Brief a team can take into a meeting. Humans keep authorization and the final commitment.</p>
       <p><strong>Fact:</strong> the public sample can be inspected interactively.<br/>
       <strong>Design or usefulness claim, not a fact:</strong> UNKNOWN is not auto-filled into fact; the output is intended as a meeting hand-over.<br/>
       <strong>Not verified:</strong> win rate, revenue, ROI, cross-industry validity, or replacement of legal/credit diligence.</p>
-      <p>These are independent prototypes that share a scenario concept; they do not exchange data or share a data model.</p>
-      <div class="ctas">
-        <a class="btn btn-primary" href="https://apchen1978.github.io/commercial-decision-desk/#mode-sample" target="_blank" rel="noopener noreferrer">Open demo case</a>
-        <a class="btn btn-secondary" href="/#contact">Bring one live deal question</a>
-      </div>
     </div>
 
     <footer>

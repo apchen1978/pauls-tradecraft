@@ -1,0 +1,58 @@
+[
+  {
+    "stage": "after",
+    "lang": "zh",
+    "width": 390,
+    "pageUrl": "/cases/commercial-decision-desk/",
+    "scrollWidth": 390,
+    "visibleDecisionSummary": "示範判斷輸出\n目前狀態\n\n需要進一步判斷\n\n條件衝突\n\n付款條件互相矛盾\n\n下一步\n\n先取得書面付款條件",
+    "summaryBeforeDetails": true,
+    "removedInternalDataModelCopy": true,
+    "visibleDisclosure": "示範／成效未驗證",
+    "screenshotLoaded": true,
+    "errors": [],
+    "languageToggleWorks": true
+  },
+  {
+    "stage": "after",
+    "lang": "zh",
+    "width": 1440,
+    "pageUrl": "/cases/commercial-decision-desk/",
+    "scrollWidth": 1440,
+    "visibleDecisionSummary": "示範判斷輸出\n目前狀態\n\n需要進一步判斷\n\n條件衝突\n\n付款條件互相矛盾\n\n下一步\n\n先取得書面付款條件",
+    "summaryBeforeDetails": true,
+    "removedInternalDataModelCopy": true,
+    "visibleDisclosure": "示範／成效未驗證",
+    "screenshotLoaded": true,
+    "errors": [],
+    "languageToggleWorks": true
+  },
+  {
+    "stage": "after",
+    "lang": "en",
+    "width": 390,
+    "pageUrl": "/cases/commercial-decision-desk/",
+    "scrollWidth": 390,
+    "visibleDecisionSummary": "Illustrative decision output\nCURRENT STATUS\n\nEscalate for review\n\nCONFLICT\n\nPayment terms contradict each other\n\nNEXT STEP\n\nGet payment terms confirmed in writing",
+    "summaryBeforeDetails": true,
+    "removedInternalDataModelCopy": true,
+    "visibleDisclosure": "Demonstration / outcomes unverified",
+    "screenshotLoaded": true,
+    "errors": [],
+    "languageToggleWorks": true
+  },
+  {
+    "stage": "after",
+    "lang": "en",
+    "width": 1440,
+    "pageUrl": "/cases/commercial-decision-desk/",
+    "scrollWidth": 1440,
+    "visibleDecisionSummary": "Illustrative decision output\nCURRENT STATUS\n\nEscalate for review\n\nCONFLICT\n\nPayment terms contradict each other\n\nNEXT STEP\n\nGet payment terms confirmed in writing",
+    "summaryBeforeDetails": true,
+    "removedInternalDataModelCopy": true,
+    "visibleDisclosure": "Demonstration / outcomes unverified",
+    "screenshotLoaded": true,
+    "errors": [],
+    "languageToggleWorks": true
+  }
+]

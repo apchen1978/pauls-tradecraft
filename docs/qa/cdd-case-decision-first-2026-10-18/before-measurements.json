@@ -1,0 +1,46 @@
+[
+  {
+    "stage": "before",
+    "lang": "zh",
+    "width": 390,
+    "pageUrl": "/cases/commercial-decision-desk/",
+    "scrollWidth": 390,
+    "internalDataModelCopyPresent": true,
+    "visibleDisclosure": "示範案例 · 規則可重跑檢查",
+    "screenshotLoaded": true,
+    "errors": []
+  },
+  {
+    "stage": "before",
+    "lang": "zh",
+    "width": 1440,
+    "pageUrl": "/cases/commercial-decision-desk/",
+    "scrollWidth": 1440,
+    "internalDataModelCopyPresent": true,
+    "visibleDisclosure": "示範案例 · 規則可重跑檢查",
+    "screenshotLoaded": true,
+    "errors": []
+  },
+  {
+    "stage": "before",
+    "lang": "en",
+    "width": 390,
+    "pageUrl": "/cases/commercial-decision-desk/",
+    "scrollWidth": 390,
+    "internalDataModelCopyPresent": true,
+    "visibleDisclosure": "demo case · rules can be rerun and checked",
+    "screenshotLoaded": true,
+    "errors": []
+  },
+  {
+    "stage": "before",
+    "lang": "en",
+    "width": 1440,
+    "pageUrl": "/cases/commercial-decision-desk/",
+    "scrollWidth": 1440,
+    "internalDataModelCopyPresent": true,
+    "visibleDisclosure": "demo case · rules can be rerun and checked",
+    "screenshotLoaded": true,
+    "errors": []
+  }
+]
