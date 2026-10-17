@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { AGENTS, LINKS, TEXT, TIERS } from "../public/ai-lab/content.js";
 import { CONTEXT_ITEMS, DEEP, PHYSICS, TOLERANCE } from "../public/ai-lab/deep.js";
 import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "../public/ai-lab/more.js";
+import { SPIRIT } from "../public/ai-lab/spirit.js";
 
 // AI Lab (AI 人工智慧實驗室), phase 1: chapters 0, 2, 3, 4, and the homepage entry.
 const PAGE = "/ai-lab/";
@@ -113,6 +114,18 @@ test("homepage: the AI Lab entry sits right after the Showcase and links to the 
       return s.nextElementSibling?.id;
     });
     expect(order).toBe("ai-lab");
+  }
+});
+
+test("spirit: zh and en have the same blocks, paragraphs and links", () => {
+  for (const part of ["open", "close"]) {
+    const z = SPIRIT.zh[part];
+    const e = SPIRIT.en[part];
+    expect(z.blocks).toHaveLength(e.blocks.length);
+    z.blocks.forEach((b, i) => {
+      expect(b.p).toHaveLength(e.blocks[i].p.length);
+      expect(Boolean(b.link)).toBe(Boolean(e.blocks[i].link));
+    });
   }
 });
 

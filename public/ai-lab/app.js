@@ -2,6 +2,7 @@ import { AGENTS, LINKS, TEXT, TIERS } from "./content.js";
 import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.js";
 import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
 import { LATEST, LATEST_TEXT } from "./latest.js";
+import { SPIRIT } from "./spirit.js";
 
 // AI Lab, phase 1. Nothing is stored; only ?lang= goes into the address. Demos are fixed, never random.
 const $ = (id) => document.getElementById(id);
@@ -519,6 +520,32 @@ function watchChapters() {
   });
 }
 
+function spiritBlocks(blocks) {
+  return blocks.map((b) => {
+    const wrap = el("div", "spirit-block");
+    wrap.appendChild(el("h3", null, b.h));
+    b.p.forEach((line) => wrap.appendChild(el("p", "sub", line)));
+    if (b.link) {
+      const p = el("p", "sub");
+      const a = el("a", null, b.link.text);
+      a.href = b.link.href;
+      p.append(document.createTextNode(b.link.before), a, document.createTextNode(b.link.after));
+      wrap.appendChild(p);
+    }
+    return wrap;
+  });
+}
+
+function renderSpirit() {
+  const x = SPIRIT[state.lang];
+  $("spirit-kicker").textContent = x.open.kicker;
+  $("spirit-title").textContent = x.open.title;
+  $("spirit-body").replaceChildren(...spiritBlocks(x.open.blocks));
+  $("spirit-end-kicker").textContent = x.close.kicker;
+  $("spirit-end-title").textContent = x.close.title;
+  $("spirit-end-body").replaceChildren(...spiritBlocks(x.close.blocks));
+}
+
 function render() {
   const x = t();
   document.documentElement.lang = x.htmlLang;
@@ -559,6 +586,7 @@ function render() {
   renderTeam();
   renderDeep();
   renderMore();
+  renderSpirit();
   renderConsole(false);
   renderRail();
 }

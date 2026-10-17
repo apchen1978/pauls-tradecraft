@@ -297,3 +297,7 @@ body { overflow-x: clip; }
 .obs-src { justify-self: start; font-size: 13px; }
 /* Word kickers (LATEST, NEXT, GLOSSARY) stay small; only chapter numbers get the large outline. */
 @media (min-width: 1100px) { .chapter > .no.word { position: static; margin: 0; font-size: 13px; line-height: 1.7; letter-spacing: .08em; color: var(--mint); -webkit-text-stroke: 0; } }
+.spirit { margin-top: 14px; display: grid; gap: 22px; max-width: 42em; }
+.spirit-block h3 { margin: 0; font-size: 15px; color: var(--mint); }
+.spirit-block .sub { margin-top: 8px; }
+.spirit-block a { color: var(--mint); }
