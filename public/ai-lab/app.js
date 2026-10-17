@@ -540,6 +540,7 @@ function renderSpirit() {
   const x = SPIRIT[state.lang];
   $("spirit-kicker").textContent = x.open.kicker;
   $("spirit-title").textContent = x.open.title;
+  $("spirit-img").alt = x.open.alt;
   $("spirit-body").replaceChildren(...spiritBlocks(x.open.blocks));
   $("spirit-end-kicker").textContent = x.close.kicker;
   $("spirit-end-title").textContent = x.close.title;

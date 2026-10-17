@@ -301,3 +301,6 @@ body { overflow-x: clip; }
 .spirit-block h3 { margin: 0; font-size: 15px; color: var(--mint); }
 .spirit-block .sub { margin-top: 8px; }
 .spirit-block a { color: var(--mint); }
+.spirit-fig { margin: 18px 0 6px; max-width: 960px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--card); }
+.spirit-fig img { display: block; width: 100%; height: auto; }
+@media (max-width: 640px) { .spirit-fig { max-width: 420px; border-radius: 14px; } }
