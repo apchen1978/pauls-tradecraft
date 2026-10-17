@@ -17,6 +17,21 @@ async function openReview(page, lang) {
   await page.locator("#delegate").click();
   await expect(page.locator("#workbench")).toBeVisible();
 }
+test("begin button: pressing it before picking a level explains what to do and does not open the next stage", async ({ page }) => {
+  for (const lang of ["zh", "en"]) {
+    await page.goto(`${PAGE}?lang=${lang}`);
+    await expect(page.locator("#begin")).toHaveAttribute("aria-disabled", "true");
+    await page.locator("#begin").click();
+    await expect(page.locator("#tier-reply")).toHaveText(COPY[lang].beginHint);
+    await expect(page.locator("#roles-stage")).toBeHidden();
+    await page.locator('[data-tier="chat"]').click();
+    await expect(page.locator("#begin")).toHaveAttribute("aria-disabled", "false");
+    await page.locator("#begin").click();
+    await expect(page.locator("#roles-stage")).toBeVisible();
+    await expect(page.locator("#tier-reply")).toContainText(COPY[lang].rolesCue);
+  }
+});
+
 test("bilingual data keeps source attribution and one checkable mismatch, with no invented deal numbers", () => {
   expect(Object.keys(COPY.zh).sort()).toEqual(Object.keys(COPY.en).sort());
   expect(COPY.zh.counts).toEqual(["約 60 億人", "約 10–20 億人", "約 2,000 萬人", "約 5,000 人"]);
