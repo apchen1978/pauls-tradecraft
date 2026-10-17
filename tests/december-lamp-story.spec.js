@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
 mkdirSync("output/december-lamp-story", { recursive: true });
@@ -34,10 +34,32 @@ for (const width of [390, 1440]) {
       expect(new URL(page.url()).searchParams.get("c")).toBe("AAA");
       expect(errors).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
-      await page.locator("#night-story").screenshot({ path: `output/december-lamp-story/${lang}-${width}.png`, animations: "disabled" });
+      await page.locator("#night-story").screenshot({ path: `output/december-lamp-story/${lang}-${width}-stage.png`, animations: "disabled" });
+
+      for (let chapter = 0; chapter < 3; chapter += 1) {
+        await expect(page.locator("#night-followups")).toBeVisible();
+        await expect(page.locator("#night-followup-options button")).toHaveCount(2);
+        await page.locator("#night-followup-options button").nth(chapter % 2).click();
+        await expect(page.locator("#night-followup-reply")).toBeVisible();
+        await expect.poll(async () => page.locator("#night-followup-image").evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+        if ((lang === "zh" && width === 390) || (lang === "en" && width === 1440)) {
+          await page.locator("#night-followups").screenshot({ path: `output/december-lamp-story/${lang}-${width}-chapter-${chapter + 2}.png`, animations: "disabled" });
+        }
+        await page.locator("#night-next").click();
+      }
+      await expect(page.locator("#night-finale")).toBeVisible();
+      await expect(page.locator("#night-route [aria-current]")).toHaveCount(0);
+      await expect.poll(async () => page.locator("#night-finale-image").evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+      await page.locator("#night-finale").screenshot({ path: `output/december-lamp-story/${lang}-${width}-finale.png`, animations: "disabled" });
+      const downloadPromise = page.waitForEvent("download");
+      await page.locator("#night-postcard-link").click();
+      const download = await downloadPromise;
+      expect(download.suggestedFilename()).toBe("nightglow-team-postcard.png");
+      expect([...readFileSync(await download.path()).subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
 
       await page.locator(`[data-set-lang="${lang === "zh" ? "en" : "zh"}"]`).click();
-      await expect(page.locator("#night-ending")).toBeVisible();
+      await expect(page.locator("#night-finale")).toBeVisible();
       await expect(page.locator('[data-night-action="stage"]')).toHaveAttribute("aria-pressed", "true");
       await page.locator("#again").click();
       await expect(page.locator("#night-story")).toBeHidden();

@@ -435,6 +435,9 @@
     .night-panel h2 { font-size: clamp(1.6rem, 5vw, 2.15rem); }
     .night-panel h3 { margin: 0 0 10px; font-size: 1.05rem; }
     .night-intro { margin: 10px 0 20px; max-width: 44em; }
+    .night-route { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; padding: 0; list-style: none; }
+    .night-route li { padding: 5px 9px; border: 1px solid #78908a; border-radius: 999px; color: #d8ded8; font-size: 13px; }
+    .night-route li[aria-current="step"] { border-color: #f0dba5; background: rgba(240, 219, 165, .18); color: #fff3d4; }
     .night-scene { margin: 0; }
     .night-scene img {
       display: block;
@@ -477,6 +480,18 @@
     .night-ending h3 { margin: 16px 0 8px; font-size: 1.3rem; }
     .night-ending p { margin: 9px 0 0; }
     .night-ending strong { color: #ead39b; }
+    .night-followups, .night-finale { margin-top: 26px; padding-top: 24px; border-top: 1px solid #78908a; }
+    .night-followups[hidden], .night-finale[hidden], .night-followup-reply[hidden], .night-next[hidden] { display: none; }
+    .night-followups figure { margin: 14px 0; }
+    .night-followups figure img { display: block; width: min(100%, 340px); height: auto; aspect-ratio: 4 / 5; object-fit: contain; border-radius: 12px; }
+    .night-followups figcaption { margin-top: 8px; color: #e0ded2; font-size: 14px; }
+    .night-followup-team, .night-finale-kicker { margin: 0; color: #ead39b; font-weight: 700; letter-spacing: .04em; }
+    .night-followup-question { margin: 18px 0 10px; font-weight: 700; }
+    .night-followup-reply { margin: 14px 0; padding: 12px 14px; border-left: 3px solid #e9d5a4; background: rgba(255, 255, 255, .07); }
+    .night-next, .night-postcard-link { display: inline-block; min-height: 44px; margin-top: 12px; padding: 10px 16px; border: 1px solid #f0dba5; border-radius: 12px; background: #e9d5a4; color: #173138; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .night-finale img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; border-radius: 12px; }
+    .night-finale h3 { margin: 14px 0 8px; font-size: 1.5rem; }
+    .night-finale p { max-width: 44em; }
     @media (min-width: 650px) {
       .night-scene-row { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 22px; align-items: start; }
       .night-scene-row .night-step:first-child { margin-top: 0; }
@@ -1238,6 +1253,7 @@
         <div class="night-panel" id="night-panel" hidden>
           <h2 id="night-title" tabindex="-1">把燈留給最後回家的人</h2>
           <p class="night-intro" id="night-intro"></p>
+          <ol class="night-route" id="night-route" aria-label="四隊接力"></ol>
           <div class="night-scene-row">
             <figure class="night-scene">
               <img id="night-image" width="816" height="1020" alt="" loading="lazy" />
@@ -1267,7 +1283,7 @@
               <button type="button" class="night-option" data-night-action="stage" aria-pressed="false"></button>
             </div>
           </div>
-          <div class="night-ending" id="night-ending" hidden>
+          <div class="night-ending" id="night-ending" tabindex="-1" hidden>
             <img id="night-end-image" width="1600" height="900" alt="" loading="lazy" />
             <h3 id="night-ending-title" tabindex="-1"></h3>
             <p id="night-outcome"></p>
@@ -1275,6 +1291,28 @@
             <p><strong id="night-partner-part-label"></strong> <span id="night-partner-part"></span></p>
             <p id="night-ending-line"></p>
           </div>
+          <section class="night-followups" id="night-followups" hidden>
+            <p id="night-followup-prelude"></p>
+            <p class="night-followup-team" id="night-followup-team"></p>
+            <h3 id="night-followup-title" tabindex="-1"></h3>
+            <p id="night-followup-intro"></p>
+            <figure>
+              <img id="night-followup-image" width="816" height="1020" alt="" loading="lazy" />
+              <figcaption id="night-followup-caption"></figcaption>
+            </figure>
+            <p class="night-followup-question" id="night-followup-question"></p>
+            <div class="night-options" id="night-followup-options" role="group" aria-labelledby="night-followup-question"></div>
+            <p class="night-followup-reply" id="night-followup-reply" hidden></p>
+            <p id="night-followup-bridge"></p>
+            <button type="button" class="night-next" id="night-next" hidden></button>
+          </section>
+          <section class="night-finale" id="night-finale" hidden>
+            <p class="night-finale-kicker" id="night-finale-kicker"></p>
+            <h3 id="night-finale-title" tabindex="-1"></h3>
+            <img id="night-finale-image" width="1536" height="1024" alt="" loading="lazy" />
+            <p id="night-finale-body"></p>
+            <a class="night-postcard-link" id="night-postcard-link" href="assets/nightglow-finale-postcard.png" download="nightglow-team-postcard.png"></a>
+          </section>
         </div>
       </section>
       <section class="duo" id="duo" aria-labelledby="duo-title">

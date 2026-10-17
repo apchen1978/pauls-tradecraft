@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
-import { distribution, FACTIONS, factionLabel, identityLine, isRare, readPartner, readRoute, resolveChoices, SCENARIOS, shareSearch, TYPES, UI, wrapLines } from "../prototype/teammate-type/app.js";
+import { distribution, FACTIONS, factionLabel, identityLine, isRare, readPartner, readRoute, resolveChoices, SCENARIOS, SCENES, shareSearch, TYPES, UI, wrapLines } from "../prototype/teammate-type/app.js";
 import { dialogueFor, extractCode, pairStats, ROLE_ORDER } from "../prototype/teammate-type/duo.js";
+import { NIGHT_COPY, NIGHT_FOLLOWUPS, NIGHT_PARTNERS, NIGHT_PARTNER_LINES, NIGHT_ROLE_LINES } from "../prototype/teammate-type/night-story.js";
 
 test("old ABCD codes keep the six-type balance", () => {
   const counts = distribution("ABCD");
@@ -418,4 +419,30 @@ test("result codes and scoring are unchanged by the profile", () => {
   assert.deepEqual(Object.keys(TYPES).sort(), [...ROLE_ORDER].sort());
   const SAMPLE = { umbrella: "AAA", cocoa: "BBA", finisher: "BBC", spark: "CCC", mapkeeper: "DAA", soundtrack: "CCD", strategist: "EAE", messenger: "AEA", alliance: "EEA", missionary: "AFE", apostle: "ACF", designer: "AFC", galaxy: "FAE", andromeda: "FBD", craftsman: "GGG", recorder: "HHH" };
   for (const [id, code] of Object.entries(SAMPLE)) assert.equal(resolveChoices(code).type, id, code);
+});
+
+test("the lamp story keeps every role bilingual and visits the three remaining teams before the postcard", () => {
+  assert.deepEqual(NIGHT_FOLLOWUPS.map((chapter) => chapter.id), ["clocktower", "warmwindow", "galaxy-lamp"]);
+  assert.deepEqual(Object.keys(NIGHT_ROLE_LINES).sort(), Object.keys(TYPES).sort());
+  for (const id of NIGHT_PARTNERS) {
+    assert.ok(TYPES[id], id);
+    for (const action of ["path", "stage"]) {
+      for (const lang of ["zh", "en"]) assert.ok(NIGHT_PARTNER_LINES[id][action][lang], `${id}.${action}.${lang}`);
+    }
+  }
+  for (const chapter of NIGHT_FOLLOWUPS) {
+    const scene = SCENES.find((item) => item.id === chapter.sceneId);
+    assert.ok(scene?.src, chapter.id);
+    for (const lang of ["zh", "en"]) {
+      assert.equal(chapter[lang].choices.length, 2);
+      assert.equal(chapter[lang].replies.length, 2);
+      for (const field of ["team", "title", "intro", "question", "bridge"]) assert.ok(chapter[lang][field]);
+    }
+  }
+  for (const lang of ["zh", "en"]) {
+    assert.ok(NIGHT_COPY[lang].finaleTitle);
+    for (const id of Object.keys(TYPES)) assert.ok(NIGHT_ROLE_LINES[id][lang], `${id}.${lang}`);
+  }
+  assert.ok(existsSync(new URL("../prototype/teammate-type/assets/nightglow-finale.webp", import.meta.url)));
+  assert.ok(existsSync(new URL("../prototype/teammate-type/assets/nightglow-finale-postcard.png", import.meta.url)));
 });

@@ -34,6 +34,15 @@ export const NIGHT_COPY = {
     },
     ending: "廣場的大燈一直亮到大家都走上回家的路。今晚這件小事，是你們一起完成的。",
     mapAlt: "雪夜的照夜鎮，廣場大燈照亮通往四個街區的石板路",
+    followupIntro: "廣場的燈照著路，還有三隊正把今晚的小事接力做完。",
+    routeLabel: "四隊接力",
+    next: "接著去下一站",
+    reveal: "回廣場看看",
+    finaleKicker: "四隊都回來了",
+    finaleTitle: "今晚，大家都在這裡",
+    finaleBody: "舞台收好了，路看清了，窗邊的燈也修好了。最後，大家在廣場的大燈下停一停，靚仔替四隊拍下這一晚。",
+    finaleAlt: "照夜鎮雪夜的四隊合影時刻：銀河之女與 Holly 站在中央，靚仔從左前方舉相機對著她們，旁邊是有翅膀的白馬，MG 坐在大家腳前",
+    downloadPostcard: "下載四隊合照明信片",
   },
   en: {
     ariaLabel: "Tonight's lamp",
@@ -66,8 +75,97 @@ export const NIGHT_COPY = {
     },
     ending: "The lamp in the square stays on until everyone has found the road home. This small thing took both of you.",
     mapAlt: "Nightglow on a snowy night, with the square's lamp lighting stone paths to all four districts",
+    followupIntro: "The square's lamp lights the way. Three more teams are finishing their small parts of the night.",
+    routeLabel: "Four teams together",
+    next: "Go to the next stop",
+    reveal: "Return to the square",
+    finaleKicker: "All four teams are back",
+    finaleTitle: "Tonight, everyone is here",
+    finaleBody: "The stage is clear, the route is known, and the window lights are mended. At last, everyone pauses beneath the square's lamp. Lenz takes a picture of the four teams together.",
+    finaleAlt: "The four Nightglow teams gathering on a snowy night: the Daughter of the Galaxy and Holly in the center, Lenz aiming his camera toward them from the left foreground beside the winged white horse, and MG at their feet",
+    downloadPostcard: "Download the four-team postcard",
   },
 };
+
+// The three additional teams arrive in story order after the stage chapter.
+// Each small choice changes the response, never the player's role or a score.
+export const NIGHT_FOLLOWUPS = [
+  {
+    id: "clocktower", sceneId: "clocktower",
+    zh: {
+      team: "星圖隊 · 鐘樓", title: "先讓回家的路看得清楚",
+      intro: "鐘樓下，莉婭的地圖被風吹得直翻。Holly 提著燈，阿修等著把消息送出去，苔苔壓住了地圖的一角。",
+      question: "你先替大家確認哪一件事？",
+      choices: ["哪段台階已經清好", "暖窗小屋該從哪條路走"],
+      replies: [
+        "莉婭把清好的台階記在圖上；阿修跑去告訴還在舞台的人。",
+        "莉婭畫出通往暖窗小屋的路；阿修帶著還在外面的人往那邊走。",
+      ],
+      bridge: "路有了方向，接下來去看看那扇暖窗。",
+    },
+    en: {
+      team: "Star-Map Team · Clock tower", title: "Make the way home clear",
+      intro: "Below the clock tower, the wind keeps lifting Leia's map. Holly holds a lantern, Shiu waits to carry word, and Moss pins down one corner.",
+      question: "What will you check first?",
+      choices: ["Which steps have been cleared", "Which way leads to the warm-window cottage"],
+      replies: [
+        "Leia marks the cleared steps on the map. Shiu runs to tell the people still at the stage.",
+        "Leia draws the route to the warm-window cottage. Shiu shows the people still outside which way to go.",
+      ],
+      bridge: "There is a way through now. Next, see what is happening at the warm window.",
+    },
+  },
+  {
+    id: "warmwindow", sceneId: "warmwindow",
+    zh: {
+      team: "燈下隊 · 暖窗小屋", title: "把窗邊那串小燈接回來",
+      intro: "戴安娜還在梯子上修燈，阿閃扶著梯子，樂樂留在桌邊，塞安把最後一顆燈泡遞過去。",
+      question: "你想先搭哪一把手？",
+      choices: ["陪阿閃扶穩梯子", "把燈泡遞到戴安娜手邊"],
+      replies: [
+        "梯子穩住了。戴安娜接過燈泡，窗邊那串小燈終於亮齊。",
+        "燈泡遞到了，阿閃也一直扶著梯子。窗邊那串小燈終於亮齊。",
+      ],
+      bridge: "小屋的窗亮了；廣場那盞大燈，還在等最後一隊。",
+    },
+    en: {
+      team: "Lantern Team · Warm window", title: "Mend the little lights by the window",
+      intro: "Diana is still on the ladder fixing the lights. Flick steadies it, Remi stays close to the table, and Zion passes up the last bulb.",
+      question: "Where will you lend a hand first?",
+      choices: ["Help Flick steady the ladder", "Pass the bulb to Diana"],
+      replies: [
+        "The ladder stays steady. Diana takes the bulb, and the little lights by the window glow together.",
+        "The bulb reaches Diana while Flick keeps the ladder steady. The little lights by the window glow together.",
+      ],
+      bridge: "The cottage window is warm again. One team is still by the square's lamp.",
+    },
+  },
+  {
+    id: "galaxy-lamp", sceneId: "galaxy-lamp",
+    zh: {
+      team: "銀河隊 · 廣場燈下", title: "替最後到的人留一個位置",
+      intro: "銀河之女和白馬停在大燈旁，靚仔舉起相機，MG 在熱可可杯邊坐好。還有人正從小屋方向走回來。",
+      question: "拍照前，你想先做什麼？",
+      choices: ["再等等最後走來的人", "替大家在燈下留出空位"],
+      replies: [
+        "銀河之女點點頭，靚仔先放下相機。等最後的人走近，大家才靠攏。",
+        "白馬往旁邊讓了一步，燈下空出一塊地方。最後的人走近時，剛好站得下。",
+      ],
+      bridge: "這一回，沒有人被留在照片外。",
+    },
+    en: {
+      team: "Galaxy Team · Under the square lamp", title: "Leave room for the last person",
+      intro: "The Daughter of the Galaxy and the white horse pause by the lamp. Lenz lifts his camera; MG sits beside a cup of cocoa. Someone is still walking back from the cottage.",
+      question: "Before the picture, what will you do?",
+      choices: ["Wait for the last person", "Make room beneath the lamp"],
+      replies: [
+        "The Daughter of the Galaxy nods, and Lenz lowers his camera. Everyone gathers only when the last person arrives.",
+        "The horse steps aside and leaves a little space beneath the lamp. The last person has a place when they arrive.",
+      ],
+      bridge: "This time, nobody is left out of the picture.",
+    },
+  },
+];
 
 export const NIGHT_ROLE_LINES = {
   umbrella: { zh: "你留意隊伍最後方的人，沒有人得獨自走進雪裡。", en: "You watch the back of the group, so nobody walks into the snow alone." },

@@ -77,7 +77,7 @@
 //   BBB tie (1+1+1) mod 3 = 0 → cocoa
 
 import { ROLE_ORDER, SAMPLE_CODES, GAZE, dialogueFor, extractCode, shouldFaceIn } from "./duo.js";
-import { NIGHT_PARTNERS, NIGHT_COPY, NIGHT_ROLE_LINES, NIGHT_PARTNER_LINES } from "./night-story.js";
+import { NIGHT_PARTNERS, NIGHT_COPY, NIGHT_ROLE_LINES, NIGHT_PARTNER_LINES, NIGHT_FOLLOWUPS } from "./night-story.js";
 
 export const ASSET = "/mg-mini-demo/assets/";
 
@@ -1227,7 +1227,7 @@ function boot() {
     tone: "funny",
     district: null,
     districtOpener: null,
-    night: { open: false, observed: new Set(), companion: null, action: null },
+    night: { open: false, observed: new Set(), companion: null, action: null, followupIndex: 0, followupChoices: [null, null, null] },
   };
   let poseTimer = null;
 
@@ -1378,6 +1378,16 @@ function boot() {
 
     $("night-title").textContent = copy.title;
     $("night-intro").textContent = copy.intro;
+    const route = $("night-route");
+    route.setAttribute("aria-label", copy.routeLabel);
+    route.textContent = "";
+    const teamIds = ["andromeda", "chart", "lantern", "galaxy"];
+    teamIds.forEach((id, index) => {
+      const item = el("li", "", FACTIONS[id][state.lang]);
+      const active = night.action && night.companion ? night.followupIndex + 1 : 0;
+      if (index === active) item.setAttribute("aria-current", "step");
+      route.appendChild(item);
+    });
     const scene = SCENES.find((item) => item.id === "stage");
     const image = $("night-image");
     if (!image.getAttribute("src")) image.src = scene.src;
@@ -1431,6 +1441,8 @@ function boot() {
     }
     const ending = $("night-ending");
     ending.hidden = !night.companion || !night.action;
+    $("night-followups").hidden = ending.hidden;
+    $("night-finale").hidden = true;
     if (ending.hidden) return;
     const finalMap = $("night-end-image");
     if (!finalMap.getAttribute("src")) finalMap.src = "assets/nightglow-map.webp";
@@ -1443,6 +1455,59 @@ function boot() {
     $("night-partner-part-label").textContent = `${copy.partnerPart} · ${TYPES[night.companion][state.lang].person}${colon}`;
     $("night-partner-part").textContent = NIGHT_PARTNER_LINES[night.companion][night.action][state.lang];
     $("night-ending-line").textContent = copy.ending;
+    paintNightFollowups();
+  }
+
+  function paintNightFollowups() {
+    const night = state.night;
+    const copy = NIGHT_COPY[state.lang];
+    const followups = $("night-followups");
+    const finale = $("night-finale");
+    if (night.followupIndex === NIGHT_FOLLOWUPS.length) {
+      followups.hidden = true;
+      finale.hidden = false;
+      $("night-finale-kicker").textContent = copy.finaleKicker;
+      $("night-finale-title").textContent = copy.finaleTitle;
+      const image = $("night-finale-image");
+      if (!image.getAttribute("src")) image.src = "assets/nightglow-finale.webp";
+      image.alt = copy.finaleAlt;
+      $("night-finale-body").textContent = copy.finaleBody;
+      $("night-postcard-link").textContent = copy.downloadPostcard;
+      return;
+    }
+    followups.hidden = false;
+    finale.hidden = true;
+    const chapter = NIGHT_FOLLOWUPS[night.followupIndex];
+    const words = chapter[state.lang];
+    const scene = SCENES.find((item) => item.id === chapter.sceneId);
+    $("night-followup-prelude").textContent = night.followupIndex === 0 ? copy.followupIntro : "";
+    $("night-followup-team").textContent = words.team;
+    $("night-followup-title").textContent = words.title;
+    $("night-followup-intro").textContent = words.intro;
+    const image = $("night-followup-image");
+    if (image.getAttribute("src") !== scene.src) image.src = scene.src;
+    image.alt = scene[state.lang].alt;
+    $("night-followup-caption").textContent = scene[state.lang].caption;
+    $("night-followup-question").textContent = words.question;
+    const options = $("night-followup-options");
+    options.textContent = "";
+    words.choices.forEach((label, index) => {
+      const button = el("button", "night-option", label);
+      button.type = "button";
+      button.setAttribute("aria-pressed", String(night.followupChoices[night.followupIndex] === index));
+      button.addEventListener("click", () => {
+        night.followupChoices[night.followupIndex] = index;
+        paintNightStory();
+        options.children[index].focus({ preventScroll: true });
+      });
+      options.appendChild(button);
+    });
+    const chosen = night.followupChoices[night.followupIndex];
+    $("night-followup-reply").hidden = chosen === null;
+    $("night-followup-reply").textContent = chosen === null ? "" : words.replies[chosen];
+    $("night-followup-bridge").textContent = chosen === null ? "" : words.bridge;
+    $("night-next").hidden = chosen === null;
+    $("night-next").textContent = night.followupIndex === NIGHT_FOLLOWUPS.length - 1 ? copy.reveal : copy.next;
   }
 
   function render(focus) {
@@ -2635,7 +2700,7 @@ function boot() {
     state.picks = [];
     state.step = 0;
     state.started = false;
-    state.night = { open: false, observed: new Set(), companion: null, action: null };
+    state.night = { open: false, observed: new Set(), companion: null, action: null, followupIndex: 0, followupChoices: [null, null, null] };
     $("duo-status").textContent = "";
     persist();
     render();
@@ -2656,8 +2721,14 @@ function boot() {
     button.addEventListener("click", () => {
       state.night.action = button.dataset.nightAction;
       paintNightStory();
-      $("night-ending-title").focus({ preventScroll: true });
+      $("night-ending").focus();
     });
+  });
+  $("night-next").addEventListener("click", () => {
+    if (state.night.followupChoices[state.night.followupIndex] === null) return;
+    state.night.followupIndex += 1;
+    paintNightStory();
+    $(state.night.followupIndex === NIGHT_FOLLOWUPS.length ? "night-finale-title" : "night-followup-title").focus();
   });
   document.querySelectorAll("[data-faction]").forEach((button) => {
     button.addEventListener("click", () => openDistrict(button.dataset.faction, button));
