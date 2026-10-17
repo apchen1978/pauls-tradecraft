@@ -26,20 +26,19 @@ export default function BelowFold({ onReady }) {
   }, [onReady]);
   return (
     <>
+      {/* Interactive first (Paul 2026-10-17): the hero names the three commercial works, then the interactive works
+          and the AI Lab come straight after; the business sections follow unchanged. Nothing removed or folded. */}
+      <Showcase />
+      <AiLabEntry />
       <TryIt />
       <DecisionMoment />
       <ThreeQuestions />
-      {/* Business line first (Paul 2026-10-16): the questions lead straight into one deal, the flagship and the works;
-          the playful works and the AI Lab follow once the business story is complete. Nothing removed or folded. */}
       <OneDeal />
       <FlowLine />
       <WorksFlagship />
       <HumanAiEditorial />
       <Works />
       <SemanticaCaseStudy />
-      <FlowLine />
-      <Showcase />
-      <AiLabEntry />
       <FlowLine />
       <Garage />
       <FlowLine />

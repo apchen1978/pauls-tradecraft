@@ -1,66 +1,31 @@
 import { motion } from "motion/react";
+import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
-import QuickChips from "./QuickChips.jsx";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
 
-// 原圖 1052 px 寬；英文版整體比中文版低約 25 px，所以裁切框分語言（單位：原圖像素）。
-// desktop：一整塊（目前建議、經濟解讀、關鍵數字）。
-// rec：手機只留「目前建議」那一塊；數字由下方說明文字帶出（放大的數字圖在手機上太突兀，Paul 2026-10-16）。
-const CROPS = {
-  zh: { desktop: { x: 12, y: 245, w: 764, h: 390 }, rec: { x: 12, y: 245, w: 516, h: 105 } },
-  en: { desktop: { x: 12, y: 270, w: 764, h: 388 }, rec: { x: 12, y: 268, w: 516, h: 95 } },
-};
-
-function CropFrame({ snapshot, crop, alt, priority }) {
-  return (
-    <div className="relative w-full overflow-hidden rounded-field border border-line bg-white" style={{ aspectRatio: `${crop.w} / ${crop.h}` }}>
-      <picture>
-        <source media="(min-width: 769px)" srcSet={snapshot.src} type="image/png" />
-        <img
-          src={snapshot.mobile}
-          alt={alt}
-          width={snapshot.width}
-          height={snapshot.height}
-          className="absolute h-auto max-w-none"
-          style={{ width: `${(snapshot.width / crop.w) * 100}%`, left: `${-(crop.x / crop.w) * 100}%`, top: `${-(crop.y / crop.h) * 100}%` }}
-          loading="eager"
-          fetchPriority={priority ? "high" : "auto"}
-          decoding="sync"
-        />
-      </picture>
-      <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent" />
-    </div>
-  );
-}
+// Paul 2026-10-17: the dark hero with stats and long text felt heavy on phones. The hero is now light (bone),
+// keeps one claim and two buttons, and shows the three most important commercial works; the interactive
+// works follow right below it (see BelowFold). The credentials line stays, but only from md up.
+const HERO_WORKS = ["commercial-decision-desk", "overseas-lead-discovery", "trade-profit-navigator"];
 
 export default function Hero() {
   const { lang, t } = useLang();
-  const cdd = works.find((work) => work.id === "commercial-decision-desk");
-  // 畫面分工：Hero 展示「最後得到什麼」——示範案例的
-  // Executive Deal Snapshot；Featured Work 卡保留工作區畫面「怎麼完成」。
-  // 用點陣 PNG，不用 SVG 封面：封面把中文畫在 SVG <text> 上（Arial/Georgia），
-  // iOS Safari 常常不畫出那些字，手機上整張卡會像空白。
-  const crops = CROPS[lang === "zh" ? "zh" : "en"];
-  const snapshot = lang === "zh"
-    ? { src: "/images/cdd-executive-snapshot-zh-v02.png", mobile: "/images/cdd-executive-snapshot-zh-v02-800.webp", width: 1052, height: 1146 }
-    : { src: "/images/cdd-executive-snapshot-en-v02.png", mobile: "/images/cdd-executive-snapshot-en-v02-800.webp", width: 1052, height: 1166 };
+  const h = t.hero;
+  const picks = HERO_WORKS.map((id) => works.find((work) => work.id === id)).filter(Boolean);
   const headlineClass = lang === "en"
-    ? "mt-3 text-[1.55rem] leading-[1.12] sm:text-[1.85rem] md:mt-5 md:text-[2.1rem] md:leading-[1.08] lg:text-[2.3rem] xl:text-[2.6rem] xl:leading-[1.07]"
-    : "mt-4 text-[clamp(1.8rem,6.6vw,2.05rem)] leading-[1.18] md:mt-5 md:text-5xl md:leading-[1.14] lg:text-[2.6rem] xl:text-[3.2rem]";
-  const subClass = lang === "en"
-    ? "mt-3 max-w-[46ch] text-[0.9375rem] leading-[1.48] md:mt-5 md:text-lg md:leading-relaxed"
-    : "mt-4 max-w-[48ch] text-base leading-[1.65] md:mt-5 md:text-lg md:leading-relaxed";
+    ? "mt-3 text-[1.7rem] leading-[1.12] sm:text-[1.95rem] md:mt-5 md:text-[2.3rem] md:leading-[1.08] xl:text-[2.75rem] xl:leading-[1.07]"
+    : "mt-4 text-[clamp(1.9rem,7vw,2.15rem)] leading-[1.18] md:mt-5 md:text-5xl md:leading-[1.14] lg:text-[2.75rem] xl:text-[3.3rem]";
 
   // Phones: the artwork band is the static #hero-art in index.html, so this section is
-  // transparent over its first 14rem (below that, the same pine).
+  // transparent over its first 14rem (below that, the same light surface).
   return (
-    <section id="top" className="relative isolate overflow-hidden bg-[linear-gradient(to_bottom,transparent_14rem,var(--color-pine)_14rem)] md:bg-pine text-ondark border-b border-bone/15">
+    <section id="top" className="relative isolate overflow-hidden bg-[linear-gradient(to_bottom,transparent_14rem,var(--color-bone)_14rem)] md:bg-bone text-ink border-b border-line">
       <div aria-hidden className="absolute inset-0">
         <picture className="hidden md:block">
           <source media="(min-width: 769px)" srcSet="/images/paul-art.webp" type="image/webp" />
@@ -69,102 +34,84 @@ export default function Hero() {
             alt=""
             width={1229}
             height={1536}
-            className="absolute inset-x-0 top-0 h-[14rem] w-full object-cover object-[55%_18%] opacity-90 md:inset-0 md:h-full md:object-[68%_28%] md:opacity-30 lg:object-[72%_24%] lg:opacity-55"
+            className="absolute inset-x-0 top-0 h-[14rem] w-full object-cover object-[55%_18%] opacity-90 md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-[50%] md:object-[62%_22%] md:opacity-100 md:[mask-image:linear-gradient(to_right,transparent_0%,black_35%,black_100%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_35%,black_100%)]"
             fetchPriority="high"
             decoding="sync"
           />
         </picture>
-        <div className="absolute inset-0 hidden bg-pine/85 md:block lg:hidden" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(20,44,41,1)_0%,rgba(20,44,41,0.92)_40%,rgba(20,44,41,0.45)_75%,rgba(20,44,41,0.7)_100%)] md:block" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(180deg,rgba(20,44,41,0.2)_0%,rgba(20,44,41,0)_50%,rgba(20,44,41,0.9)_100%)] md:block" />
+        {/* the bottom of the photo fades into the page so the three work cards sit on a light surface */}
+        <div className="absolute inset-x-0 bottom-0 hidden h-[45%] bg-[linear-gradient(180deg,rgb(246_243_237/0)_0%,var(--color-bone)_70%)] md:block" />
       </div>
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-0 h-px bg-bone/15" />
-        <div className="absolute -right-16 top-[12%] h-[22rem] w-[22rem] rounded-full bg-gold/10 blur-3xl" />
-        <div className="absolute bottom-[8%] left-[8%] h-40 w-40 rounded-full bg-gold/5 blur-3xl" />
-        <div className="hero-aurora" />
+        <div className="absolute -left-24 top-[30%] h-[20rem] w-[20rem] rounded-full bg-[#9EE0C1]/20 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto grid min-h-[calc(100svh-68px)] max-w-7xl items-end gap-6 px-4 pb-6 pt-[12.5rem] md:min-h-[calc(100svh-76px)] md:gap-10 md:px-6 md:pb-12 md:pt-16 lg:min-h-[calc(100svh-76px-10.5rem)] lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-10 lg:px-6 lg:pb-12 lg:pt-12">
-        <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 min-w-0 max-w-2xl self-center">
-          <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-sm font-medium tracking-[0.06em] text-gold md:text-[0.9375rem]">
-            <span aria-hidden className="hero-gem size-1.5 rounded-full bg-gold" />
-            {t.hero.kicker}
+      <div className="relative mx-auto grid max-w-7xl gap-7 px-4 pb-8 pt-[14.75rem] md:gap-10 md:px-6 md:pb-14 md:pt-16 lg:gap-12 lg:pb-14 lg:pt-20">
+        <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 min-w-0 max-w-2xl md:max-w-[52%]">
+          <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-sm font-semibold tracking-[0.06em] text-amber md:text-[0.9375rem]">
+            <span aria-hidden className="hero-gem size-2 rounded-full bg-[#9EE0C1]" />
+            {h.kicker}
           </motion.p>
-          <motion.h1
-            variants={fadeUp}
-            className={`max-w-2xl font-medium tracking-[-0.04em] text-bone ${headlineClass}`}
-          >
-            {t.hero.headline}
+          <motion.h1 variants={fadeUp} className={`max-w-2xl font-semibold tracking-[-0.04em] text-ink ${headlineClass}`}>
+            {h.headline}
           </motion.h1>
-          <motion.p variants={fadeUp} className={`text-ondark ${subClass}`}>
-            {t.hero.sub}
+          <motion.p variants={fadeUp} className="mt-4 max-w-[44ch] text-base leading-[1.6] text-ink md:mt-5 md:text-lg">
+            {h.sub}
           </motion.p>
-          <motion.p variants={fadeUp} className="mt-3 max-w-[52ch] text-[0.8125rem] leading-[1.55] text-ondark-meta md:text-sm">
-            {t.hero.background}
-          </motion.p>
-          <motion.div
-            variants={fadeUp}
-            aria-label={lang === "zh" ? "專業背景" : "Professional background"}
-            className="mt-4 grid max-w-2xl divide-y divide-bone/15 border-y border-bone/15 md:bg-pine/90 lg:bg-transparent sm:mt-6 sm:grid-cols-3 sm:divide-x sm:divide-y-0"
-          >
-            {t.hero.credentials.map((credential, index) => (
-              <div
-                key={credential.label}
-                className={`flex items-baseline justify-between gap-4 py-2 sm:block sm:px-4 sm:py-4 ${index === 0 ? "sm:pl-0" : ""}`}
-              >
-                <span className="text-lg font-semibold tracking-[-0.02em] text-gold sm:text-xl">{credential.value}</span>
-                <span className="text-right text-xs font-medium leading-snug text-ondark-meta sm:mt-1.5 sm:block sm:text-left">
-                  {credential.label}
-                </span>
-              </div>
+          <motion.ul variants={fadeUp} className="mt-4 hidden flex-wrap gap-x-5 gap-y-1 text-sm leading-[1.55] text-moss md:flex">
+            {h.credentials.map((c) => (
+              <li key={c.value} className="whitespace-nowrap">
+                <span className="font-semibold text-ink">{c.value}</span> {c.label}
+              </li>
             ))}
-          </motion.div>
-          {/* phones: the two buttons sit side by side (they wrap back to a stack if a language is too long), which frees ~55px so the featured-works chips reach the first screen */}
-          <motion.div variants={fadeUp} className="mt-5 flex flex-row flex-wrap gap-3 sm:mt-8 sm:items-center sm:gap-4">
+          </motion.ul>
+          <motion.div variants={fadeUp} className="mt-6 flex flex-row flex-wrap gap-3 sm:mt-8 sm:items-center sm:gap-4">
             <a
-              href="#three-questions"
-              className="max-sm:grow rounded-field bg-gold px-5 py-3 text-center text-sm font-semibold text-pine transition-[transform,filter] hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-bone active:scale-[0.98] sm:px-7 sm:py-3.5"
+              href="#showcase"
+              className="max-sm:grow rounded-field bg-ink px-5 py-3 text-center text-sm font-semibold text-bone transition-[transform,filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
-              {t.hero.ctaPrimary}
+              {h.ctaPrimary}
             </a>
             <a
               href="#contact"
-              className="max-sm:grow rounded-field border border-bone/40 px-5 py-3 text-center text-sm font-semibold text-bone transition-[transform,border-color,color] hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-gold active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="max-sm:grow rounded-field border border-ink/30 bg-white/60 px-5 py-3 text-center text-sm font-semibold text-ink transition-[transform,border-color] hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
-              {t.hero.ctaSecondary}
+              {h.ctaSecondary}
             </a>
-          </motion.div>
-          <motion.div variants={fadeUp}>
-            <QuickChips />
           </motion.div>
         </motion.div>
 
-        <motion.figure
-          initial={{ y: 12 }}
-          animate={{ y: 0, transition: { duration: 0.45, ease: "easeOut" } }}
-          className="hero-glow surface-light group relative z-10 ml-auto w-full max-w-[34rem] overflow-hidden rounded-card border border-line bg-white shadow-[0_1px_2px_rgb(25_58_53/0.04),0_24px_60px_-32px_rgb(25_58_53/0.18)]"
+        <motion.div
+          initial={{ y: 12, opacity: 0 }}
+          animate={{ y: 0, opacity: 1, transition: { duration: 0.45, ease: "easeOut" } }}
+          className="relative z-10 w-full"
+          data-testid="hero-works"
         >
-          <div className="flex items-center gap-2 border-b border-line bg-bone px-4 py-3 text-xs font-medium text-moss md:px-5">
-            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-amber" />{t.hero.snapshotChromeLabel}</span>
-          </div>
-          <div className="relative overflow-hidden bg-paper p-2.5 md:p-3">
-            {/* 裁切放大：只留最要緊的部分，文字才讀得清楚。原圖不動（Featured Work、DealReadiness、preload 都共用它）。
-                桌機一整塊；手機兩個更緊的框。裁切框見上方 CROPS。 */}
-            <div className="hidden md:block">
-              <CropFrame snapshot={snapshot} crop={crops.desktop} alt={t.hero.snapshotAlt} priority />
-            </div>
-            <div className="md:hidden">
-              <CropFrame snapshot={snapshot} crop={crops.rec} alt={t.hero.snapshotAlt} priority />
-            </div>
-          </div>
-          <figcaption className="flex flex-col items-start gap-2 border-t border-line px-4 py-3 text-xs leading-snug text-moss md:px-5 md:py-3.5 md:text-sm">
-            <span className="font-semibold text-ink">{t.hero.snapshotCaption}</span>
-            <a href={withDemoLang(cdd.link, lang)} target="_blank" rel="noopener noreferrer" className="font-semibold text-amber underline decoration-amber/30 underline-offset-4 transition-colors hover:text-forest hover:decoration-forest/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-amber">
-              {t.hero.snapshotCta} →
-            </a>
-          </figcaption>
-        </motion.figure>
+          <p id="hero-works-label" className="text-xs font-semibold tracking-[0.12em] text-moss">{h.worksLabel}</p>
+          <ol aria-labelledby="hero-works-label" className="mt-3 grid gap-3 lg:grid-cols-3 lg:gap-4">
+            {picks.map((work) => {
+              const copy = work[lang] || work.zh;
+              const href = work.casePage?.href || withDemoLang(work.link, lang);
+              const external = !work.casePage?.href;
+              return (
+                <li key={work.id}>
+                  <a
+                    href={href}
+                    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className="group flex h-full items-start gap-4 rounded-card border border-line bg-white/85 px-4 py-4 shadow-[0_1px_2px_rgb(25_58_53/0.04),0_16px_40px_-28px_rgb(25_58_53/0.25)] transition-[border-color,transform] hover:-translate-y-0.5 hover:border-ink/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink md:px-5"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-base font-semibold leading-snug text-ink md:text-lg">{copy.title}</span>
+                      <span className="mt-1 block text-sm leading-relaxed text-moss">{work.decisionQuestion?.[lang]}</span>
+                    </span>
+                    <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 text-ink transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="mt-3 text-xs leading-relaxed text-moss">{h.worksNote}</p>
+        </motion.div>
       </div>
     </section>
   );

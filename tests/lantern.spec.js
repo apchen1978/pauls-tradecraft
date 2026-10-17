@@ -299,17 +299,14 @@ test("cover: tagline only, Diana leads with Yiyi, winter line opens screen 1, og
   expect((await og.body()).length).toBeLessThanOrEqual(60 * 1024);
 });
 
-test("homepage: A Lamp, As Promised is the fifth Showcase work (after ROOMVERSE 3D) and a featured chip", async ({ page }) => {
-  for (const [lang, title, chip, teach] of [["zh", "一盞燈的約定", "一盞燈的約定", "看懂下單前要先說好什麼，還有哪些事要確認。"], ["en", "A Lamp, As Promised · 一盞燈的約定", "A Lamp, As Promised", "See what to agree before an order and what still needs confirming."]]) {
+test("homepage: A Lamp, As Promised is the fifth Showcase work", async ({ page }) => {
+  for (const [lang, title, , teach] of [["zh", "一盞燈的約定", "一盞燈的約定", "看懂下單前要先說好什麼，還有哪些事要確認。"], ["en", "A Lamp, As Promised · 一盞燈的約定", "A Lamp, As Promised", "See what to agree before an order and what still needs confirming."]]) {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`/?lang=${lang}#showcase`);
     const card = page.locator("#showcase article").nth(4);
     await expect(card).toContainText(title);
     await expect(card).toContainText(teach);
     await expect(card.locator("a").first()).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
-    const link = page.locator('[data-testid="quick-works"] a').nth(4);
-    await expect(link).toHaveText(chip);
-    await expect(link).toHaveAttribute("href", `/prototype/take-the-lantern-apart/?lang=${lang}`);
   }
 });
 

@@ -71,13 +71,12 @@ test("homepage Showcase: ROOMVERSE 3D is a formal work with its tag, cover and a
   }
 });
 
-test("homepage Showcase: ROOMVERSE 3D is the first card and the first featured chip, before December Lights", async ({ page }) => {
-  for (const [lang, title, next] of [["zh", "ROOMVERSE 3D · 空間幻境", "十二月的燈"], ["en", "ROOMVERSE 3D · One room, many ways to come home", "December Lights"]]) {
+test("homepage Showcase: ROOMVERSE 3D is the first card, with Trade Street beside it", async ({ page }) => {
+  for (const [lang, title, next] of [["zh", "ROOMVERSE 3D · 空間幻境", "貿易街"], ["en", "ROOMVERSE 3D · One room, many ways to come home", "Trade Street"]]) {
     await page.goto(`/?lang=${lang}#showcase`);
     await expect(page.locator("#showcase article").nth(0)).toContainText(title);
     await expect(page.locator("#showcase article").nth(1)).toContainText(next);
-    const chip = page.locator('[data-testid="quick-works"] a').first();
-    await expect(chip).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
+    await expect(page.locator("#showcase article").nth(0).locator("a").first()).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
   }
 });
 
