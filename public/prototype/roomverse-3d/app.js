@@ -242,7 +242,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   const loader = new GLTFLoader();
   const base = new URL("./models/", import.meta.url).href;
-  const [sofa, table, floorLamp, coffee, tableLamp, plant, robot, lowChair, laptop] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant", "robot", "low-chair", "laptop"].map((f) => loader.loadAsync(base + f + ".glb")));
+  const [sofa, table, floorLamp, coffee, tableLamp, plant, robot, lowChair, laptop] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant", "robot", "low-chair-hy21", "laptop"].map((f) => loader.loadAsync(base + f + ".glb")));
   const sofaObj = place(sofa, { width: 2.0, x: SX, z: SZ + .02 });
   // colours projected from the illustration, plus a fine fabric weave. The AI model has no UVs,
   // so the weave is sampled from three sides by world position (triplanar) and blended by the surface normal.
@@ -321,8 +321,8 @@ export async function start({ stage, panel, lang, onReady }) {
   const vcol = (opts) => () => new THREE.MeshStandardMaterial({ vertexColors: true, ...opts });
   const coffeeObj = place(coffee, { width: 1.0, x: SX, z: SZ + 1.05 });
   prepare(coffeeObj, vcol({ roughness: .55 }));
-  // a small low chair (built by code from the side profile of a drawing, so it works without an image-to-3D quota), turned toward the coffee table
-  lowChair.scene.rotation.y = Math.PI / 2; // the chair faces +z; turn it to face +x (toward the table)
+  // a small low chair (Hunyuan3D-2.1 shape from the drawing, simplified to 10k faces, colour projected from the drawing), facing the coffee table
+  lowChair.scene.rotation.y = 0; // this model already faces +x (toward the table)
   const chairObj = place(lowChair, { height: .5, x: SX - 1.0, z: SZ + 1.15 });
   prepare(chairObj, vcol({ roughness: .62 }));
   const coffeeTop = new THREE.Box3().setFromObject(coffeeObj).max.y;
