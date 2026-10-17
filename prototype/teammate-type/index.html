@@ -815,6 +815,24 @@
       box-shadow: inset 0 0 0 3px rgba(255, 214, 140, 0.9);
     }
     .hotspot-lamp { z-index: 3; }
+    .lamp-label {
+      position: absolute;
+      left: 50%;
+      top: 72%;
+      z-index: 2;
+      transform: translateX(-50%);
+      padding: 4px 10px;
+      border: 1px solid rgba(255, 238, 194, 0.72);
+      border-radius: 999px;
+      background: rgba(23, 43, 48, 0.72);
+      color: #fff5dc;
+      font-size: clamp(12px, 1.1vw, 15px);
+      font-weight: 700;
+      line-height: 1.25;
+      white-space: nowrap;
+      box-shadow: 0 2px 9px rgba(18, 32, 39, 0.2);
+      pointer-events: none;
+    }
     .lamp-glow {
       position: absolute;
       left: 12%;
@@ -1053,14 +1071,14 @@
             <button type="button" class="hotspot hotspot-district hot-andromeda" data-faction="andromeda" aria-label="✨ 仙女隊，露天舞台"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">仙女隊</span></span></button>
             <button type="button" class="hotspot hotspot-district hot-chart" data-faction="chart" aria-label="🗺️ 星圖隊，鐘樓"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">星圖隊</span></span></button>
             <button type="button" class="hotspot hotspot-district hot-lantern" data-faction="lantern" aria-label="🏮 燈下隊，暖窗小屋"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">燈下隊</span></span></button>
-            <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，出發"><span class="lamp-glow" aria-hidden="true"></span></button>
+            <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，出發"><span class="lamp-glow" aria-hidden="true"></span><span class="lamp-label" aria-hidden="true">出發</span></button>
           </div>
           <div class="hotspots hotspots-mobile">
             <button type="button" class="hotspot hotspot-district hot-galaxy" data-faction="galaxy" aria-label="🌌 銀河隊，屋頂觀星"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">銀河隊</span></span></button>
             <button type="button" class="hotspot hotspot-district hot-andromeda" data-faction="andromeda" aria-label="✨ 仙女隊，露天舞台"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">仙女隊</span></span></button>
             <button type="button" class="hotspot hotspot-district hot-chart" data-faction="chart" aria-label="🗺️ 星圖隊，鐘樓"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">星圖隊</span></span></button>
             <button type="button" class="hotspot hotspot-district hot-lantern" data-faction="lantern" aria-label="🏮 燈下隊，暖窗小屋"><span class="pin" aria-hidden="true"><span class="pin-dot"></span><span class="pin-label">燈下隊</span></span></button>
-            <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，出發"><span class="lamp-glow" aria-hidden="true"></span></button>
+            <button type="button" class="hotspot hotspot-lamp hot-lamp" data-start aria-label="照夜大燈，出發"><span class="lamp-glow" aria-hidden="true"></span><span class="lamp-label" aria-hidden="true">出發</span></button>
           </div>
         </div>
         <div class="cover-details">
