@@ -274,7 +274,7 @@ function renderLessons() {
     li.appendChild(dl);
     return li;
   }));
-  $("c12-closing").textContent = x.closing;
+  $("c12-closing").replaceChildren(...x.closing.map((line) => el("p", "sub", line)));
 }
 
 function renderDeep() {
