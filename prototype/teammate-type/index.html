@@ -405,6 +405,101 @@
       color: var(--ink);
     }
     .status { min-height: 1.4em; margin: 10px 0 0; font-weight: 700; }
+    .night-story {
+      margin: 30px 0;
+      padding: clamp(18px, 4vw, 28px);
+      border: 1px solid #5d756f;
+      border-radius: 22px;
+      background: #173138;
+      color: #f9f2df;
+      box-shadow: 0 10px 26px rgba(23, 49, 56, 0.12);
+    }
+    .night-story button:focus-visible { outline-color: #f7d78d; }
+    .night-kicker { margin: 0 0 12px; color: #ead39b; font-size: 14px; font-weight: 700; letter-spacing: .06em; }
+    .night-toggle {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 16px;
+      border: 1px solid #f0dba5;
+      border-radius: 12px;
+      background: #e9d5a4;
+      color: #173138;
+      text-align: left;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .night-toggle::after { content: "↗"; float: right; }
+    .night-toggle[aria-expanded="true"]::after { content: "−"; }
+    .night-panel { padding-top: 24px; }
+    .night-panel[hidden], .night-actions[hidden], .night-ending[hidden] { display: none; }
+    .night-panel h2 { font-size: clamp(1.6rem, 5vw, 2.15rem); }
+    .night-panel h3 { margin: 0 0 10px; font-size: 1.05rem; }
+    .night-intro { margin: 10px 0 20px; max-width: 44em; }
+    .night-route { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; padding: 0; list-style: none; }
+    .night-route li { padding: 5px 9px; border: 1px solid #78908a; border-radius: 999px; color: #d8ded8; font-size: 13px; }
+    .night-route li[aria-current="step"] { border-color: #f0dba5; background: rgba(240, 219, 165, .18); color: #fff3d4; }
+    .night-scene { margin: 0; }
+    .night-scene img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 5;
+      object-fit: contain;
+      border-radius: 14px;
+    }
+    .night-scene figcaption { margin-top: 8px; color: #e0ded2; font-size: 14px; }
+    .night-step { margin-top: 24px; }
+    .night-hint { margin: 6px 0 12px; color: #e0ded2; }
+    .night-options, .night-partners { display: grid; gap: 9px; }
+    .night-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .night-option, .night-partner {
+      min-width: 0;
+      min-height: 48px;
+      padding: 9px 12px;
+      border: 1px solid #78908a;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .08);
+      color: #f9f2df;
+      text-align: left;
+      cursor: pointer;
+    }
+    .night-option:hover, .night-partner:hover { background: rgba(255, 255, 255, .16); }
+    .night-option[aria-pressed="true"], .night-partner[aria-pressed="true"] {
+      border-color: #f0dba5;
+      background: rgba(240, 219, 165, .19);
+    }
+    .night-clues { min-height: 1.5em; margin: 12px 0 0; padding-left: 1.2em; }
+    .night-clues li + li { margin-top: 5px; }
+    .night-partners { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .night-partner { display: flex; align-items: center; gap: 9px; }
+    .night-partner img { width: 44px; height: 52px; object-fit: contain; flex: none; }
+    .night-partner span { display: grid; line-height: 1.25; }
+    .night-partner small { color: #d9d5c6; font-size: 12px; }
+    .night-ending { margin-top: 26px; padding: 16px; border: 1px solid #a58c5f; border-radius: 16px; background: #233c42; }
+    .night-ending img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: contain; border-radius: 10px; }
+    .night-ending h3 { margin: 16px 0 8px; font-size: 1.3rem; }
+    .night-ending p { margin: 9px 0 0; }
+    .night-ending strong { color: #ead39b; }
+    .night-followups, .night-finale { margin-top: 26px; padding-top: 24px; border-top: 1px solid #78908a; }
+    .night-followups[hidden], .night-finale[hidden], .night-followup-reply[hidden], .night-next[hidden] { display: none; }
+    .night-followups figure { margin: 14px 0; }
+    .night-followups figure img { display: block; width: min(100%, 340px); height: auto; aspect-ratio: 4 / 5; object-fit: contain; border-radius: 12px; }
+    .night-followups figcaption { margin-top: 8px; color: #e0ded2; font-size: 14px; }
+    .night-followup-team, .night-finale-kicker { margin: 0; color: #ead39b; font-weight: 700; letter-spacing: .04em; }
+    .night-followup-question { margin: 18px 0 10px; font-weight: 700; }
+    .night-followup-reply { margin: 14px 0; padding: 12px 14px; border-left: 3px solid #e9d5a4; background: rgba(255, 255, 255, .07); }
+    .night-next, .night-postcard-link { display: inline-block; min-height: 44px; margin-top: 12px; padding: 10px 16px; border: 1px solid #f0dba5; border-radius: 12px; background: #e9d5a4; color: #173138; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .night-finale img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; border-radius: 12px; }
+    .night-finale h3 { margin: 14px 0 8px; font-size: 1.5rem; }
+    .night-finale p { max-width: 44em; }
+    @media (min-width: 650px) {
+      .night-scene-row { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 22px; align-items: start; }
+      .night-scene-row .night-step:first-child { margin-top: 0; }
+    }
+    @media (max-width: 420px) {
+      .night-story { padding: 16px; }
+      .night-options, .night-partners { grid-template-columns: 1fr; }
+    }
     .duo { margin-top: 28px; }
     .duo h2 { font-size: clamp(1.35rem, 4.5vw, 1.85rem); }
     .duo-hint { margin: 8px 0 0; color: var(--moss); }
@@ -863,8 +958,26 @@
     .hotspots-mobile .hot-lantern { left: 52%; top: 64%; width: 46%; height: 32%; }
     .hotspots-mobile .hot-lamp { left: 26%; top: 38%; width: 48%; height: 20%; }
     #start { min-height: 48px; }
-    .team-fallback { margin: 12px 0 0; padding-left: 1.2em; }
-    .team-fallback li { margin: 4px 0; }
+    .team-list-heading { margin: 24px 0 10px; color: var(--pine); font-size: 1.05rem; letter-spacing: .02em; }
+    .team-fallback { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+    .team-summary {
+      min-width: 0;
+      padding: 11px 13px 12px;
+      border: 1px solid var(--team-edge);
+      border-left: 4px solid var(--team-accent);
+      border-radius: 10px;
+      background: var(--team-wash);
+      color: #253b39;
+    }
+    .team-summary-galaxy { --team-accent: #4b648e; --team-edge: #c6d1de; --team-wash: #e7ecf2; }
+    .team-summary-andromeda { --team-accent: #936d80; --team-edge: #ddc9d3; --team-wash: #f1e9ec; }
+    .team-summary-chart { --team-accent: #4b786b; --team-edge: #c6d9d0; --team-wash: #e8f0e9; }
+    .team-summary-lantern { --team-accent: #a47845; --team-edge: #e1d1b9; --team-wash: #f3ede0; }
+    .team-summary-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 8px; }
+    .team-summary-name { color: #243f3c; font-size: 1rem; font-weight: 700; }
+    .team-summary-place { color: #54615e; font-size: .85rem; }
+    .team-summary-members { display: block; margin-top: 4px; font-size: .91rem; line-height: 1.5; overflow-wrap: anywhere; }
+    @media (min-width: 640px) { .team-fallback { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     .district {
       position: fixed;
       inset: 0;
@@ -1094,14 +1207,15 @@
         </div>
       </div>
       <div class="entry-rest">
-        <p class="lede" id="lede">不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。</p>
-        <p class="hint" id="hint">每個情境選一次。同樣的選擇，永遠得到同一張卡。</p>
+        <p class="lede" id="lede">先從三個日常片段找到你的角色，再回照夜鎮，陪隊友把燈留到最後。</p>
+        <p class="hint" id="hint">每個片段選一次；角色卡之後，還有一段小鎮故事。</p>
+        <h3 class="team-list-heading" id="team-list-heading">四個隊伍</h3>
         <ul class="team-fallback" id="team-fallback" aria-label="四個隊伍">
-        <li>🌌 銀河隊：銀河之女、玉仔、靚仔、阿白</li>
-        <li>✨ 仙女隊：Holly、阿閃、樂樂、言歌</li>
-        <li>🗺️ 星圖隊：莉婭、墨衡、塞安、苔苔</li>
-        <li>🏮 燈下隊：MG、阿修、保羅、戴安娜</li>
-      </ul>
+          <li class="team-summary team-summary-galaxy"><span class="team-summary-head"><strong class="team-summary-name">🌌 銀河隊</strong><span class="team-summary-place">屋頂觀星</span></span><span class="team-summary-members">銀河之女、玉仔、靚仔、阿白</span></li>
+          <li class="team-summary team-summary-andromeda"><span class="team-summary-head"><strong class="team-summary-name">✨ 仙女隊</strong><span class="team-summary-place">露天舞台</span></span><span class="team-summary-members">Holly、阿閃、樂樂、言歌</span></li>
+          <li class="team-summary team-summary-chart"><span class="team-summary-head"><strong class="team-summary-name">🗺️ 星圖隊</strong><span class="team-summary-place">鐘樓</span></span><span class="team-summary-members">莉婭、墨衡、塞安、苔苔</span></li>
+          <li class="team-summary team-summary-lantern"><span class="team-summary-head"><strong class="team-summary-name">🏮 燈下隊</strong><span class="team-summary-place">暖窗小屋</span></span><span class="team-summary-members">MG、阿修、保羅、戴安娜</span></li>
+        </ul>
       </div>
       <div class="district" id="district" hidden>
         <div class="district-sheet" id="district-sheet" role="dialog" aria-modal="true" aria-labelledby="district-title">
@@ -1152,6 +1266,77 @@
           <p class="card-boundary" id="card-boundary"></p>
         </div>
       </article>
+      <section class="night-story" id="night-story" aria-label="今晚的燈">
+        <p class="night-kicker" id="night-kicker">角色找到了，故事還沒結束。</p>
+        <button type="button" class="night-toggle" id="night-toggle" aria-expanded="false" aria-controls="night-panel">接著玩 · 把燈留到最後</button>
+        <div class="night-panel" id="night-panel" hidden>
+          <h2 id="night-title" tabindex="-1">把燈留給最後回家的人</h2>
+          <p class="night-intro" id="night-intro"></p>
+          <ol class="night-route" id="night-route" aria-label="四隊接力"></ol>
+          <div class="night-scene-row">
+            <figure class="night-scene">
+              <img id="night-image" width="816" height="1020" alt="" loading="lazy" />
+              <figcaption id="night-caption"></figcaption>
+            </figure>
+            <div>
+              <div class="night-step">
+                <h3 id="night-look-title"></h3>
+                <div class="night-options" role="group" aria-labelledby="night-look-title">
+                  <button type="button" class="night-option" data-night-look="steps" aria-pressed="false"></button>
+                  <button type="button" class="night-option" data-night-look="gear" aria-pressed="false"></button>
+                </div>
+                <p class="night-hint" id="night-clue-hint"></p>
+                <ul class="night-clues" id="night-clues"></ul>
+              </div>
+              <div class="night-step">
+                <h3 id="night-partner-title"></h3>
+                <p class="night-hint" id="night-partner-hint"></p>
+                <div class="night-partners" id="night-partners" role="group" aria-labelledby="night-partner-title"></div>
+              </div>
+            </div>
+          </div>
+          <div class="night-step night-actions" id="night-actions" hidden>
+            <h3 id="night-action-title"></h3>
+            <div class="night-options" role="group" aria-labelledby="night-action-title">
+              <button type="button" class="night-option" data-night-action="path" aria-pressed="false"></button>
+              <button type="button" class="night-option" data-night-action="stage" aria-pressed="false"></button>
+            </div>
+          </div>
+          <div class="night-ending" id="night-ending" tabindex="-1" hidden>
+            <img id="night-end-image" width="1600" height="900" alt="" loading="lazy" />
+            <h3 id="night-ending-title" tabindex="-1"></h3>
+            <p id="night-outcome"></p>
+            <p><strong id="night-your-part-label"></strong> <span id="night-your-part"></span></p>
+            <p><strong id="night-partner-part-label"></strong> <span id="night-partner-part"></span></p>
+            <p id="night-ending-line"></p>
+          </div>
+          <section class="night-followups" id="night-followups" hidden>
+            <p id="night-followup-prelude"></p>
+            <p class="night-followup-team" id="night-followup-team"></p>
+            <h3 id="night-followup-title" tabindex="-1"></h3>
+            <p id="night-followup-intro"></p>
+            <figure>
+              <img id="night-followup-image" width="816" height="1020" alt="" loading="lazy" />
+              <figcaption id="night-followup-caption"></figcaption>
+            </figure>
+            <p class="night-followup-question" id="night-followup-question"></p>
+            <div class="night-options" id="night-followup-options" role="group" aria-labelledby="night-followup-question"></div>
+            <p class="night-followup-reply" id="night-followup-reply" hidden></p>
+            <p id="night-followup-bridge"></p>
+            <button type="button" class="night-next" id="night-next" hidden></button>
+          </section>
+          <section class="night-finale" id="night-finale" hidden>
+            <p class="night-finale-kicker" id="night-finale-kicker"></p>
+            <h3 id="night-finale-title" tabindex="-1"></h3>
+            <picture>
+              <source media="(max-width: 650px)" srcset="assets/nightglow-finale-mobile.webp" type="image/webp" />
+              <img id="night-finale-image" width="1536" height="1024" alt="" loading="lazy" />
+            </picture>
+            <p id="night-finale-body"></p>
+            <a class="night-postcard-link" id="night-postcard-link" href="assets/nightglow-finale-postcard.png" download="nightglow-team-postcard.png"></a>
+          </section>
+        </div>
+      </section>
       <section class="duo" id="duo" aria-labelledby="duo-title">
         <h2 id="duo-title"></h2>
         <p class="duo-hint" id="duo-hint"></p>

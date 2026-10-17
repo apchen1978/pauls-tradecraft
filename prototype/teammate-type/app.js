@@ -77,6 +77,7 @@
 //   BBB tie (1+1+1) mod 3 = 0 → cocoa
 
 import { ROLE_ORDER, SAMPLE_CODES, GAZE, dialogueFor, extractCode, shouldFaceIn } from "./duo.js";
+import { NIGHT_PARTNERS, NIGHT_COPY, NIGHT_ROLE_LINES, NIGHT_PARTNER_LINES, NIGHT_FOLLOWUPS } from "./night-story.js";
 
 export const ASSET = "/mg-mini-demo/assets/";
 
@@ -802,8 +803,8 @@ export const UI = {
     langGroup: "語言",
     h1: "十二月的燈",
     intro: "歡迎來到照夜鎮。每個人都有自己的本事。一起完成一件小事，就讓夜晚亮一點。",
-    lede: "不是問卷，是三個小情境。看你怎麼做，就知道你是哪一種隊友。",
-    hint: "每個情境選一次。同樣的選擇，永遠得到同一張卡。",
+    lede: "先從三個日常片段找到你的角色，再回照夜鎮，陪隊友把燈留到最後。",
+    hint: "每個片段選一次；角色卡之後，還有一段小鎮故事。",
     boundary: "示意玩具，不是心理測驗。",
     start: "出發",
     startLamp: "照夜大燈，出發",
@@ -864,8 +865,8 @@ export const UI = {
     langGroup: "Language",
     h1: "December Lights",
     intro: "Welcome to Nightglow. Everyone brings something to the team. Each small thing you accomplish together makes the night a little brighter.",
-    lede: "Not a questionnaire. Three short scenes. How you act is the kind of teammate you are.",
-    hint: "One choice per scene. The same choices always make the same card.",
+    lede: "Find your role in three everyday moments, then return to Nightglow and leave the lamp on with a teammate.",
+    hint: "Choose once in each moment. There is more to the night after your role card.",
     boundary: "A toy, not a personality test.",
     start: "Set out",
     startLamp: "Nightglow lamp, set out",
@@ -1226,6 +1227,7 @@ function boot() {
     tone: "funny",
     district: null,
     districtOpener: null,
+    night: { open: false, observed: new Set(), companion: null, action: null, followupIndex: 0, followupChoices: [null, null, null] },
   };
   let poseTimer = null;
 
@@ -1363,6 +1365,150 @@ function boot() {
     $("scene-glint").setAttribute("aria-expanded", String(!box.hidden));
     fillScenes();
   });
+
+  function paintNightStory() {
+    const copy = NIGHT_COPY[state.lang];
+    const night = state.night;
+    $("night-story").setAttribute("aria-label", copy.ariaLabel);
+    $("night-kicker").textContent = copy.kicker;
+    $("night-toggle").textContent = night.open ? copy.close : copy.open;
+    $("night-toggle").setAttribute("aria-expanded", String(night.open));
+    $("night-panel").hidden = !night.open;
+    if (!night.open) return;
+
+    $("night-title").textContent = copy.title;
+    $("night-intro").textContent = copy.intro;
+    const route = $("night-route");
+    route.setAttribute("aria-label", copy.routeLabel);
+    route.textContent = "";
+    const teamIds = ["andromeda", "chart", "lantern", "galaxy"];
+    teamIds.forEach((id, index) => {
+      const item = el("li", "", FACTIONS[id][state.lang]);
+      const active = night.action && night.companion ? night.followupIndex + 1 : 0;
+      if (index === active) item.setAttribute("aria-current", "step");
+      route.appendChild(item);
+    });
+    const scene = SCENES.find((item) => item.id === "stage");
+    const image = $("night-image");
+    if (!image.getAttribute("src")) image.src = scene.src;
+    image.alt = scene[state.lang].alt;
+    $("night-caption").textContent = scene[state.lang].caption;
+    $("night-look-title").textContent = copy.lookTitle;
+    for (const button of document.querySelectorAll("[data-night-look]")) {
+      const key = button.dataset.nightLook;
+      button.textContent = key === "steps" ? copy.lookSteps : copy.lookGear;
+      button.setAttribute("aria-pressed", String(night.observed.has(key)));
+    }
+    $("night-clue-hint").textContent = night.observed.size ? "" : copy.clueHint;
+    const clues = $("night-clues");
+    clues.textContent = "";
+    for (const key of ["steps", "gear"]) {
+      if (night.observed.has(key)) clues.appendChild(el("li", "", copy.clues[key]));
+    }
+
+    $("night-partner-title").textContent = copy.partnerTitle;
+    $("night-partner-hint").textContent = copy.partnerHint;
+    const mine = resolveChoices(state.code).type;
+    const partners = $("night-partners");
+    partners.textContent = "";
+    for (const id of NIGHT_PARTNERS.filter((candidate) => candidate !== mine)) {
+      const button = el("button", "night-partner");
+      button.type = "button";
+      button.dataset.nightCompanion = id;
+      button.setAttribute("aria-pressed", String(night.companion === id));
+      const portrait = el("img");
+      portrait.src = portraitFor(id);
+      portrait.alt = "";
+      portrait.width = 44;
+      portrait.height = 52;
+      const label = el("span");
+      label.append(el("strong", "", TYPES[id][state.lang].person), el("small", "", TYPES[id][state.lang].name));
+      button.append(portrait, label);
+      button.addEventListener("click", () => {
+        night.companion = id;
+        paintNightStory();
+        partners.querySelector(`[data-night-companion="${id}"]`).focus();
+      });
+      partners.appendChild(button);
+    }
+
+    $("night-actions").hidden = !night.companion;
+    $("night-action-title").textContent = copy.actionTitle;
+    for (const button of document.querySelectorAll("[data-night-action]")) {
+      const key = button.dataset.nightAction;
+      button.textContent = copy.actions[key];
+      button.setAttribute("aria-pressed", String(night.action === key));
+    }
+    const ending = $("night-ending");
+    ending.hidden = !night.companion || !night.action;
+    $("night-followups").hidden = ending.hidden;
+    $("night-finale").hidden = true;
+    if (ending.hidden) return;
+    const finalMap = $("night-end-image");
+    if (!finalMap.getAttribute("src")) finalMap.src = "assets/nightglow-map.webp";
+    finalMap.alt = copy.mapAlt;
+    $("night-ending-title").textContent = copy.endingTitle;
+    $("night-outcome").textContent = copy.outcomes[night.action];
+    const colon = state.lang === "zh" ? "：" : ":";
+    $("night-your-part-label").textContent = `${copy.yourPart} · ${TYPES[mine][state.lang].person}${colon}`;
+    $("night-your-part").textContent = NIGHT_ROLE_LINES[mine][state.lang];
+    $("night-partner-part-label").textContent = `${copy.partnerPart} · ${TYPES[night.companion][state.lang].person}${colon}`;
+    $("night-partner-part").textContent = NIGHT_PARTNER_LINES[night.companion][night.action][state.lang];
+    $("night-ending-line").textContent = copy.ending;
+    paintNightFollowups();
+  }
+
+  function paintNightFollowups() {
+    const night = state.night;
+    const copy = NIGHT_COPY[state.lang];
+    const followups = $("night-followups");
+    const finale = $("night-finale");
+    if (night.followupIndex === NIGHT_FOLLOWUPS.length) {
+      followups.hidden = true;
+      finale.hidden = false;
+      $("night-finale-kicker").textContent = copy.finaleKicker;
+      $("night-finale-title").textContent = copy.finaleTitle;
+      const image = $("night-finale-image");
+      if (!image.getAttribute("src")) image.src = "assets/nightglow-finale.webp";
+      image.alt = copy.finaleAlt;
+      $("night-finale-body").textContent = copy.finaleBody;
+      $("night-postcard-link").textContent = copy.downloadPostcard;
+      return;
+    }
+    followups.hidden = false;
+    finale.hidden = true;
+    const chapter = NIGHT_FOLLOWUPS[night.followupIndex];
+    const words = chapter[state.lang];
+    const scene = SCENES.find((item) => item.id === chapter.sceneId);
+    $("night-followup-prelude").textContent = night.followupIndex === 0 ? copy.followupIntro : "";
+    $("night-followup-team").textContent = words.team;
+    $("night-followup-title").textContent = words.title;
+    $("night-followup-intro").textContent = words.intro;
+    const image = $("night-followup-image");
+    if (image.getAttribute("src") !== scene.src) image.src = scene.src;
+    image.alt = scene[state.lang].alt;
+    $("night-followup-caption").textContent = scene[state.lang].caption;
+    $("night-followup-question").textContent = words.question;
+    const options = $("night-followup-options");
+    options.textContent = "";
+    words.choices.forEach((label, index) => {
+      const button = el("button", "night-option", label);
+      button.type = "button";
+      button.setAttribute("aria-pressed", String(night.followupChoices[night.followupIndex] === index));
+      button.addEventListener("click", () => {
+        night.followupChoices[night.followupIndex] = index;
+        paintNightStory();
+        options.children[index].focus({ preventScroll: true });
+      });
+      options.appendChild(button);
+    });
+    const chosen = night.followupChoices[night.followupIndex];
+    $("night-followup-reply").hidden = chosen === null;
+    $("night-followup-reply").textContent = chosen === null ? "" : words.replies[chosen];
+    $("night-followup-bridge").textContent = chosen === null ? "" : words.bridge;
+    $("night-next").hidden = chosen === null;
+    $("night-next").textContent = night.followupIndex === NIGHT_FOLLOWUPS.length - 1 ? copy.reveal : copy.next;
+  }
 
   function render(focus) {
     const ui = UI[state.lang];
@@ -1525,6 +1671,7 @@ function boot() {
     $("rare").hidden = !rare;
     $("rare").textContent = rare ? ui.rare : "";
     showCompanion(type, resolved.type);
+    paintNightStory();
     renderDuo();
     if (focus === "card") (state.withCode ? $("duo-left-name") : $("card-name")).focus();
   }
@@ -2455,6 +2602,7 @@ function boot() {
     $("subtitle").textContent = ui.subtitle;
     $("entry-title").textContent = ui.entryTitle;
     $("district-close").textContent = ui.closePreview;
+    $("team-list-heading").textContent = ui.teamList;
     $("team-fallback").setAttribute("aria-label", ui.teamList);
     for (const button of document.querySelectorAll("[data-faction]")) {
       const faction = FACTIONS[button.dataset.faction];
@@ -2469,10 +2617,14 @@ function boot() {
     const list = $("team-fallback");
     list.textContent = "";
     const sep = state.lang === "zh" ? "、" : ", ";
-    const colon = state.lang === "zh" ? "：" : ": ";
-    for (const faction of Object.values(FACTIONS)) {
+    for (const [id, faction] of Object.entries(FACTIONS)) {
       const names = faction.members.map((id) => shortName(TYPES[id][state.lang])).join(sep);
-      list.appendChild(el("li", "", `${faction.mark} ${faction[state.lang]}${colon}${names}`));
+      const item = el("li", `team-summary team-summary-${id}`);
+      const heading = el("span", "team-summary-head");
+      heading.append(el("strong", "team-summary-name", `${faction.mark} ${faction[state.lang]}`));
+      heading.append(el("span", "team-summary-place", faction.place[state.lang]));
+      item.append(heading, el("span", "team-summary-members", names));
+      list.appendChild(item);
     }
     if (state.district) paintDistrict();
   }
@@ -2553,10 +2705,35 @@ function boot() {
     state.picks = [];
     state.step = 0;
     state.started = false;
+    state.night = { open: false, observed: new Set(), companion: null, action: null, followupIndex: 0, followupChoices: [null, null, null] };
     $("duo-status").textContent = "";
     persist();
     render();
     $("start").focus();
+  });
+  $("night-toggle").addEventListener("click", () => {
+    state.night.open = !state.night.open;
+    paintNightStory();
+    if (state.night.open) $("night-title").focus({ preventScroll: true });
+  });
+  document.querySelectorAll("[data-night-look]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.night.observed.add(button.dataset.nightLook);
+      paintNightStory();
+    });
+  });
+  document.querySelectorAll("[data-night-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.night.action = button.dataset.nightAction;
+      paintNightStory();
+      $("night-ending").focus();
+    });
+  });
+  $("night-next").addEventListener("click", () => {
+    if (state.night.followupChoices[state.night.followupIndex] === null) return;
+    state.night.followupIndex += 1;
+    paintNightStory();
+    $(state.night.followupIndex === NIGHT_FOLLOWUPS.length ? "night-finale-title" : "night-followup-title").focus();
   });
   document.querySelectorAll("[data-faction]").forEach((button) => {
     button.addEventListener("click", () => openDistrict(button.dataset.faction, button));
