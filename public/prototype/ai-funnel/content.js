@@ -7,7 +7,7 @@ export const COPY = {
   zh: {
     skip: "跳至內容", title: ["交辦之後，", "誰來檢查？"],
     eyebrow: "把事情交出去，把判斷留在手上", lead: "多數人用 AI 還停在聊天；只有少數人把真正的工作交給 AI 代理人（AI agent）。往下看看差別。",
-    demo: "示範／成效未驗證。示範畫面，不是真實模型的輸出。", "your-turn": "第一幕｜你在漏斗的哪一層？", pick: "哪一層最像你？點一下，不是測驗。", begin: "看看你的工作怎麼交辦 ↗",
+    demo: "示範／成效未驗證。示範畫面，不是真實模型的輸出。", "your-turn": "第一幕｜你在漏斗的哪一層？", pick: "哪一層最像你？點一下，不是測驗。", beginHint: "先選一層（點一下就好），按鈕就會亮起來。", rolesCue: "往下看：選你的職位，看 AI 代理人先做什麼。", begin: "看看你的工作怎麼交辦 ↓",
     funnelTitle: "同一個世界，不同的使用經驗", diagram: "示意，非比例圖；不代表能力評分。",
     counts: ["約 60 億人", "約 10–20 億人", "約 2,000 萬人", "約 5,000 人"],
     sourceSummary: "Andrej Karpathy 2026 年 10 月在 X 上的個人估計，據媒體報導；沒有調查資料。", report: "報導", original: "原文（X）",
@@ -42,7 +42,7 @@ export const COPY = {
   en: {
     skip: "Skip to content", title: ["You delegated it.", "Who checks it?"],
     eyebrow: "Hand over the task. Keep hold of the judgment.", lead: "Most people still use AI to chat. Far fewer hand real work to an AI agent. See what changes when they do.",
-    demo: "Demo / outcomes not validated. An illustration, not output from a real model.", "your-turn": "Act one | Where are you in the funnel?", pick: "Which sounds like you? Pick one. This isn't a test.", begin: "See what you could hand over ↗",
+    demo: "Demo / outcomes not validated. An illustration, not output from a real model.", "your-turn": "Act one | Where are you in the funnel?", pick: "Which sounds like you? Pick one. This isn't a test.", beginHint: "Pick a level first (one tap) and the button lights up.", rolesCue: "Look below: pick your role and see what the AI agent does first.", begin: "See how your work could be delegated ↓",
     funnelTitle: "One world, different experiences", diagram: "Illustrative, not to scale. Not an ability rating.",
     counts: ["About 6 billion", "About 1–2 billion", "About 20 million", "About 5,000"],
     sourceSummary: "Andrej Karpathy's personal estimates on X, October 2026, as reported by the media. No survey data.", report: "Report", original: "Original (X)",

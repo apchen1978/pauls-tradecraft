@@ -52,8 +52,10 @@ function render() {
     button.setAttribute("aria-pressed", String(state.tier === TIER_IDS[i]));
     button.title = lab.c0.tiers[TIER_IDS[i]].d;
   });
-  $("tier-reply").textContent = state.tier ? (t.replies[state.tier] ?? lab.c0.tiers[state.tier].reply) : t.pick;
-  $("begin").disabled = !state.tier;
+  const tierReply = state.tier ? (t.replies[state.tier] ?? lab.c0.tiers[state.tier].reply) : t.pick;
+  $("tier-reply").textContent = state.tier && state.rolesVisible ? `${tierReply} ${t.rolesCue}` : tierReply;
+  // aria-disabled (not disabled) keeps the button clickable, so pressing it early can explain what to do first.
+  $("begin").setAttribute("aria-disabled", String(!state.tier));
   $("source-full").textContent = lab.c0.source;
   $("report").href = LINKS.decoder; $("original").href = LINKS.x;
   $("roles-stage").hidden = !state.rolesVisible;
@@ -120,7 +122,16 @@ document.querySelectorAll("[data-lang]").forEach((button) => button.addEventList
   const url = new URL(location.href); url.searchParams.set("lang", state.lang); history.replaceState(null, "", url);
   render();
 }));
-$("begin").addEventListener("click", () => { state.rolesVisible = true; render(); reveal($("roles-stage")); });
+function nudgeTiers() {
+  $("tier-reply").textContent = COPY[state.lang].beginHint;
+  const box = $("tiers");
+  box.classList.remove("nudge"); void box.offsetWidth; box.classList.add("nudge");
+  box.scrollIntoView({ block: "center", behavior: reduced() ? "instant" : "smooth" });
+}
+$("begin").addEventListener("click", () => {
+  if (!state.tier) { nudgeTiers(); return; }
+  state.rolesVisible = true; render(); reveal($("roles-stage"));
+});
 $("role-continue").addEventListener("click", () => { state.begun = true; render(); reveal($("activity")); });
 $("delegate").addEventListener("click", () => {
   state.delegated = true; render();
