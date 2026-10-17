@@ -572,7 +572,7 @@ const dict = {
         {
           title: "歌詞生成器 · Lyrics Generator",
           tag: "早期作品 · 可試玩",
-          spark: "我很喜歡的早期作品：給一個想法，寫出歌詞、挑毛病、再改一輪。",
+          spark: "我很喜歡的第一個 AI 人機協作作品：給一個想法，寫出歌詞、挑毛病、再改一輪。",
           note: "從桌面程式長成可以直接試玩的網頁版，保留同一套流程：寫出來、批評、打分數、重寫。",
           cta: "試玩歌詞生成器",
           boundary: "早期的創作實驗，產出的歌詞僅供參考，不代表任何成效。",
@@ -1438,7 +1438,7 @@ const dict = {
         {
           title: "Lyrics Generator",
           tag: "Early work · playable",
-          spark: "An early work I still love: give it an idea, get lyrics, then a critique and a rewrite.",
+          spark: "My favorite first human–AI collaboration: give it an idea, get lyrics, then a critique and a rewrite.",
           note: "It grew from a desktop app into a playable web version, keeping the same loop: write, critique, score, rewrite.",
           cta: "Try the Lyrics Generator",
           boundary: "An early creative experiment. The lyrics are drafts, not an outcome claim.",
