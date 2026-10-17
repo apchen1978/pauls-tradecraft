@@ -25,7 +25,7 @@ export const DEEP = {
   zh: {
     divider: "深入一層",
     dividerLead: "以下給想知道「怎麼做到」的人。每一個例子，都是做這個網站時真的發生過的事。",
-    toc: ["上下文工程", "工具與 MCP", "驗證", "多 agent 與交接", "治理", "AI 會怎麼錯", "前沿", "教 SME 企業家用 AI"],
+    toc: ["上下文工程", "工具與 MCP", "驗證", "多 agent 與交接", "治理", "AI 會怎麼錯", "前沿", "教中小企業負責人用 AI"],
     c5: {
       no: "05",
       title: "上下文工程：AI 看得到什麼，決定它做得多好",
@@ -127,7 +127,7 @@ export const DEEP = {
     },
     c12: {
       no: "12",
-      title: "教 SME 企業家用 AI：我學到的三件事",
+      title: "教中小企業負責人用 AI：我學到的三件事",
       lead: "Paul 教一位做傳統生意的朋友，自己用 AI 做出給消費者看的網站，而不是替他做。下面是他說這段經驗裡學到的三件事。這一章只寫過程：那位朋友的網站還沒上線，沒有成果可以報告。",
       kinds: ["第一件", "第二件", "第三件"],
       found: "怎麼發生的",
@@ -143,16 +143,16 @@ export const DEEP = {
         {
           kind: 1,
           who: "Paul 自述",
-          what: "教企業家管理 AI，而不是先教他寫程式。",
-          found: "企業家聽到 GitHub、前端後端會頭暈。Paul 改用企業家熟悉的說法：AI 像剛進公司的數位員工，它不認識你的公司，所以要給它員工手冊、產品目錄這些背景（上下文），再交辦任務、檢查成果。",
-          fix: "從企業家已經會的事開始：怎麼帶新人、怎麼交辦、怎麼驗收。背景怎麼給，見第 05 章。",
+          what: "教負責人管理 AI，而不是先教他寫程式。",
+          found: "負責人聽到 GitHub、前端後端會頭暈。Paul 改用負責人熟悉的說法：AI 像剛進公司的數位員工，它不認識你的公司，所以要給它員工手冊、產品目錄這些背景（上下文），再交辦任務、檢查成果。",
+          fix: "從負責人已經會的事開始：怎麼帶新人、怎麼交辦、怎麼驗收。背景怎麼給，見第 05 章。",
         },
         {
           kind: 2,
           who: "Paul 自述",
           what: "AI 能擴大個人能力，但管理規則要因企業而異。",
-          found: "每家公司的標準不一樣。大公司可能寄幾本樣品、連運費都替客戶出；小公司沒有這筆預算。所以不能給所有企業家同一套規矩，要看公司的規模與資源，替它訂規則。Paul 說，這和真正的公司運作沒有兩樣。",
-          fix: "依公司的資源、預算、品質要求與風險承受度，設計不同的授權與審核流程。起點一樣是先小量、先看、先校正：例如開發信先做十到十五封，企業家親自看，校正行業用語，確認後才放大；金額高的事，一定由企業家本人決定。讓多個 AI 分工互相審核，是 Paul 的構想，還沒有實際驗證。",
+          found: "每家公司的標準不一樣。大公司可能寄幾本樣品、連運費都替客戶出；小公司沒有這筆預算。所以不能給所有負責人同一套規矩，要看公司的規模與資源，替它訂規則。Paul 說，這和真正的公司運作沒有兩樣。",
+          fix: "依公司的資源、預算、品質要求與風險承受度，設計不同的授權與審核流程。起點一樣是先小量、先看、先校正：例如開發信先做十到十五封，負責人親自看，校正行業用語，確認後才放大；金額高的事，一定由負責人本人決定。讓多個 AI 分工互相審核，是 Paul 的構想，還沒有實際驗證。",
         },
       ],
       closing: [
@@ -166,7 +166,7 @@ export const DEEP = {
   en: {
     divider: "One level deeper",
     dividerLead: "For anyone who wants to know how it is actually done. Every example below really happened while building this site.",
-    toc: ["Context engineering", "Tools and MCP", "Verification", "Several agents", "Governance", "How AI goes wrong", "The frontier", "Teaching SME entrepreneurs"],
+    toc: ["Context engineering", "Tools and MCP", "Verification", "Several agents", "Governance", "How AI goes wrong", "The frontier", "Teaching SME decision-makers"],
     c5: {
       no: "05",
       title: "Context engineering: what AI can see decides how well it works",
@@ -268,7 +268,7 @@ export const DEEP = {
     },
     c12: {
       no: "12",
-      title: "Teaching SME entrepreneurs to use AI: three things I learned",
+      title: "Teaching SME decision-makers to use AI: three things I learned",
       lead: "Paul taught a friend in a traditional business to build a consumer-facing website with AI himself, rather than building it for him. Below are the three things Paul says he learned. This chapter covers the process only: the friend's site is not live yet, so there is no result to report.",
       kinds: ["First", "Second", "Third"],
       found: "What happened",
