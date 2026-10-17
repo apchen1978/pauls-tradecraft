@@ -570,6 +570,15 @@ const dict = {
       ],
       items: [
         {
+          title: "歌詞生成器 · Lyrics Generator",
+          tag: "早期作品 · 可試玩",
+          spark: "我很喜歡的第一個 AI 人機協作作品：給一個想法，寫出歌詞、挑毛病、再改一輪。",
+          note: "從桌面程式長成可以直接試玩的網頁版，保留同一套流程：寫出來、批評、打分數、重寫。",
+          cta: "試玩歌詞生成器",
+          boundary: "早期的創作實驗，產出的歌詞僅供參考，不代表任何成效。",
+          href: "https://deploy-lake-zeta.vercel.app",
+        },
+        {
           title: "Bring Paul Into the Room · 先把問題帶進來",
           tag: "示範實驗 · 英文原型",
           spark: "想加速業務開發？先找出團隊太早把時間花在哪一步。",
@@ -588,6 +597,24 @@ const dict = {
           boundary: "示範交易，不是接單許可、買方證據，也不代表已取得成果。",
           href: "/prototype/decision-adversary/",
           featured: true,
+        },
+        {
+          title: "浪費時間 · Waste Time",
+          tag: "小遊戲",
+          spark: "一個認真浪費時間的點擊小遊戲。",
+          note: "點、等、升級，再點一次。和商業示範分開，純粹好玩。",
+          cta: "玩浪費時間",
+          boundary: "可遊玩的小遊戲，不代表任何驗證過的成效。",
+          href: "https://apchen1978.github.io/wastetime/",
+        },
+        {
+          title: "MG 桌面寵物 · MG Desktop Pet",
+          tag: "示意玩具 · 網頁迷你版",
+          spark: "一隻橘色的小寵物，會用 16 種姿勢陪你。",
+          note: "從桌面應用改成的網頁迷你版，手機和電腦都能互動。",
+          cta: "和 MG 玩一下",
+          boundary: "網頁迷你版，功能比桌面版精簡；不代表任何成效。",
+          href: "https://apchen1978.github.io/mg-desktop-pet-demo/",
         },
         {
           title: "WordForge · 英語打字挑戰",
@@ -1409,6 +1436,15 @@ const dict = {
       ],
       items: [
         {
+          title: "Lyrics Generator",
+          tag: "Early work · playable",
+          spark: "My favorite first human–AI collaboration: give it an idea, get lyrics, then a critique and a rewrite.",
+          note: "It grew from a desktop app into a playable web version, keeping the same loop: write, critique, score, rewrite.",
+          cta: "Try the Lyrics Generator",
+          boundary: "An early creative experiment. The lyrics are drafts, not an outcome claim.",
+          href: "https://deploy-lake-zeta.vercel.app",
+        },
+        {
           title: "Bring Paul Into the Room",
           tag: "Demo experiment · EN prototype",
           spark: "Want to speed up business development? First, find where the team committed attention too early.",
@@ -1427,6 +1463,24 @@ const dict = {
           boundary: "Fictional deal — not an order approval, buyer evidence, or an outcome claim.",
           href: "/prototype/decision-adversary/",
           featured: true,
+        },
+        {
+          title: "Waste Time",
+          tag: "Game",
+          spark: "A clicker game that takes wasting time seriously.",
+          note: "Click, wait, upgrade, click again. Separate from the commercial demos, just for fun.",
+          cta: "Play Waste Time",
+          boundary: "A playable game, not a validated outcome claim.",
+          href: "https://apchen1978.github.io/wastetime/",
+        },
+        {
+          title: "MG Desktop Pet",
+          tag: "Light toy · web mini demo",
+          spark: "A small orange companion with 16 poses.",
+          note: "A browser mini version of the desktop app, playable on phone and computer.",
+          cta: "Play with MG",
+          boundary: "A lighter web version of the desktop app, not an outcome claim.",
+          href: "https://apchen1978.github.io/mg-desktop-pet-demo/",
         },
         {
           title: "WordForge · Typing Challenge",
