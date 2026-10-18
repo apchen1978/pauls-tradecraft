@@ -4,6 +4,10 @@ import { expect, test } from "@playwright/test";
 import { LADDER } from "../public/ai-lab/ladder.js";
 
 const screenshots = join(process.cwd(), "docs", "qa", "ai-lab-part2-ch14");
+const NEXT_CHAPTER_TOOL_LINE = {
+  zh: "一句交辦話怎麼變成可用的工具，下一章再看。",
+  en: "The next chapter shows how one instruction can become a useful tool.",
+};
 mkdirSync(screenshots, { recursive: true });
 
 for (const lang of ["zh", "en"]) {
@@ -15,6 +19,7 @@ for (const lang of ["zh", "en"]) {
       const x = LADDER[lang];
 
       await expect(page.locator("#c14-title")).toHaveText(x.title);
+      await expect(page.locator("#c14-lead")).toContainText(NEXT_CHAPTER_TOOL_LINE[lang]);
       await expect(page.locator("#c14-demo")).toHaveText(x.demo);
       await expect(page.locator("#rail a[href='#c14']")).toHaveCount(1);
       await expect(page.locator("#toc a[href='#c14']")).toHaveCount(0);

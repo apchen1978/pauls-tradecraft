@@ -6,6 +6,10 @@ import { PART_TWO } from "../public/ai-lab/enterprise.js";
 
 const PAGE = "/ai-lab/";
 const screenshotDir = join(process.cwd(), "docs", "qa", "ai-lab-part2-ch13");
+const PART_TWO_EXTENSION = {
+  zh: "這是一套思考框架，不是任何一家公司的案例；第二部是延伸閱讀，想深入再往下讀，不看也不影響前面的內容。",
+  en: "This is a thinking framework, not a case study of any one company. Part II is optional further reading; the earlier chapters stand on their own.",
+};
 mkdirSync(screenshotDir, { recursive: true });
 
 async function noOverflow(page) {
@@ -33,6 +37,7 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("#rail a[href='#part2'], #rail a[href='#c13']")).toHaveCount(2);
       await expect(page.locator("#part2-title")).toHaveText(x.partTitle);
       await expect(page.locator("#part2-intro p")).toHaveCount(2);
+      await expect(page.locator("#part2-intro p").nth(1)).toHaveText(PART_TWO_EXTENSION[lang]);
       await expect(page.locator("#c13-title")).toHaveText(x.title);
       await expect(page.locator("#c13-demo")).toHaveText(x.demo);
       await expect(page.locator("#access-table tr")).toHaveCount(5);
