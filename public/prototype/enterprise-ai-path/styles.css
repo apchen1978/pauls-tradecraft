@@ -1,4 +1,4 @@
-:root{color-scheme:light;--pine:#142c29;--gold:#b89966;--bone:#f6f3ed;--paper:#fffcf6;--muted:#52635c;--line:#cbd2c6;--warning:#79502b}
+:root{color-scheme:light;--pine:#142c29;--gold:#b89966;--bone:#f6f3ed;--paper:#fffcf6;--muted:#52635c;--line:#cbd2c6;--warning:#79502b;--tech-blue:#0b5f91;--tech-violet:#6044ae}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -21,7 +21,12 @@ main{max-width:1240px;margin:auto;padding:0 28px 80px}
 .hero-copy{position:relative;z-index:1}
 .eyebrow{margin:0 0 14px;color:#6d634b;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 h1,h2,h3,p{overflow-wrap:break-word}
-h1{font-size:clamp(46px,5.5vw,80px);font-weight:600;letter-spacing:-.06em;line-height:1.08;margin:0 0 20px;text-wrap:balance}
+h1{position:relative;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;font-size:clamp(46px,5.5vw,80px);font-weight:650;letter-spacing:-.05em;line-height:1.08;margin:0 0 20px;text-wrap:balance;color:var(--tech-blue)}
+html[lang=en] h1{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.055em}
+.hero-copy h1::after{content:"";position:absolute;left:0;bottom:-10px;width:52px;height:3px;background:var(--tech-violet)}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  h1{background:linear-gradient(95deg,var(--tech-blue),var(--tech-violet));background-clip:text;-webkit-background-clip:text;color:transparent}
+}
 h2{font-size:clamp(27px,3vw,40px);font-weight:600;line-height:1.25;letter-spacing:-.035em;margin:0 0 16px}
 h3{font-size:21px;line-height:1.3;margin:0 0 12px}
 .hero-subtitle{font-size:18px;font-weight:600;letter-spacing:.01em;line-height:1.3;margin:0 0 12px;color:var(--muted)}
