@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'">
+  <meta name="description" content="替虛構的示範公司安排 AI 導入順序：可以跳站，但要看見缺少前置條件時發生什麼。雙語互動示範。">
+  <link rel="canonical" href="https://paulstradecraft.com/prototype/enterprise-ai-path/">
+  <meta property="og:title" content="企業 AI 路線 · Paul's Tradecraft">
+  <meta property="og:description" content="順序比速度重要。替示範公司排一條有前置條件的 AI 路線。">
+  <meta property="og:image" content="https://paulstradecraft.com/prototype/enterprise-ai-path/assets/cover.webp">
+  <title>企業 AI 路線 · Paul's Tradecraft</title>
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main" data-copy="skip">跳至內容</a>
+  <header class="masthead"><a id="home-link" href="/?lang=zh">PAUL'S TRADECRAFT</a><div class="languages" role="group" aria-label="Language"><button type="button" data-lang="zh" aria-pressed="true">中</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div></header>
+  <main id="main">
+    <section class="hero" aria-labelledby="title">
+      <div class="hero-copy"><p class="eyebrow">AI LAB / INTERACTIVE WORK</p><h1 id="title" data-copy="title">企業 AI 路線</h1><p class="hero-subtitle" data-copy="subtitle">先走哪一步，才不會讓下一步踩空？</p><p class="lead" data-copy="lead">替一間虛構的示範公司排一條路。你可以跳站，但跳過的基礎會在路線上留下痕跡。</p><p class="demo" data-copy="label">示範／虛構情境 · 示範／成效未驗證。所有回應預先寫好，不代表實際企業或模型表現。</p></div>
+      <picture class="hero-art"><source media="(max-width: 700px)" srcset="assets/cover-mobile.webp"><img src="assets/cover.webp" width="816" height="1020" alt="一條踏石路通往抽象的多翼辦公樓，各步相連。" decoding="async" fetchpriority="high"></picture>
+    </section>
+    <section class="section start-section" id="start" aria-labelledby="start-title"><div class="section-heading"><p class="eyebrow" data-copy="choose">先選一個起點</p><h2 id="start-title" data-copy="chooseHint">哪一種狀況比較值得你先處理？這不是測驗。</h2></div><div id="scenarios" class="scenario-grid" role="group" aria-labelledby="start-title"></div><button class="primary" id="begin" type="button" disabled data-copy="start">從這裡規劃路線</button></section>
+    <section class="section route-section" id="route" aria-labelledby="route-title" hidden tabindex="-1"><div class="section-heading"><p class="eyebrow" data-copy="routeEyebrow">你的路線</p><h2 id="route-title" data-copy="routeTitle">下一站由你選</h2><p data-copy="routeLead">每站都可以先走。若需要的基礎還沒到位，這站會標成「不穩」。</p><p id="starting-foundation" class="starting-foundation" hidden></p></div><div class="route-layout"><div class="route-main"><div class="journey-panel"><h3 data-copy="journey">已走過的路</h3><ol id="journey" class="journey"></ol><p id="empty-journey" data-copy="emptyJourney">還沒有選站。從下方挑一站開始。</p></div><div id="stations" class="station-grid" role="group" aria-labelledby="route-title"></div></div><aside id="detail" class="detail" aria-live="polite" aria-atomic="true"><p class="eyebrow" data-copy="unvisited">尚未走過</p><h3 id="detail-name"></h3><p id="detail-description"></p><p id="detail-needs" class="needs" hidden></p><div class="gate"><span data-copy="gate">這一站的關卡</span><p id="detail-gate"></p></div><button class="primary" id="add-station" type="button" data-copy="chooseNext">把這站放進路線</button><p id="feedback" class="feedback" role="status"></p></aside></div><div class="route-actions"><button class="secondary" id="summary-button" type="button" disabled data-copy="summaryAction">看看這條路</button></div></section>
+    <section class="section summary-section" id="summary" aria-labelledby="summary-title" hidden tabindex="-1"><p class="eyebrow" data-copy="routeEyebrow">你的路線</p><h2 id="summary-title" data-copy="summaryTitle">你排出的路線</h2><p class="summary-lead" data-copy="summaryLead">順序會改變一件事：下一步有沒有地方可以站穩。</p><p id="summary-foundation" class="starting-foundation" hidden></p><ol id="summary-route" class="summary-route"></ol><div class="summary-grid"><div class="summary-panel"><h3 data-copy="unstableTitle">哪些站當時不穩？</h3><div id="unstable-list"></div></div><div class="summary-panel suggested"><h3 data-copy="suggested">一種合理的順序</h3><p data-copy="suggestedLead">回頭看這個起點，可以先從這裡著手。</p><p id="first-step"></p><ol id="suggested-route"></ol></div></div><div class="end-actions"><button class="secondary" id="restart" type="button" data-copy="restart">同一起點再走一次</button><button class="text-button" id="change-start" type="button" data-copy="changeStart">換一個起點</button></div></section>
+    <details class="glossary"><summary data-copy="glossary">這些詞是什麼意思？</summary><dl id="glossary-list"></dl></details>
+    <nav class="next-links" aria-label="Next works"><a id="lab-link" href="/ai-lab/?lang=zh#c13" data-copy="aiLab">去 AI Lab 看權限與協作 ↗</a><a id="funnel-link" href="/prototype/ai-funnel/?lang=zh" data-copy="funnel">回到 AI 漏斗 ↗</a></nav>
+  </main><footer><a id="footer-link" href="/?lang=zh" data-copy="home">回作品集</a></footer>
+</body>
+</html>
