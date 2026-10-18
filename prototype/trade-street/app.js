@@ -604,7 +604,7 @@ function boot() {
       button.dataset.station = String(i);
       button.style.left = `${x}%`;
       button.style.top = `${y}%`;
-      button.textContent = String(i + 1);
+      button.appendChild(el("span", "hot-label", String(i + 1)));
       button.setAttribute("aria-label", ui().stopLabel(i + 1, SHORT[state.lang][i]));
       if (decisionAtStation(i) >= 0) button.classList.add("decision");
       button.addEventListener("click", () => { if (state.view === "entry") previewStation(i); });
