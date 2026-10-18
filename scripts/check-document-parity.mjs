@@ -12,7 +12,7 @@ const worksSource = fs.readFileSync(path.join(ROOT, "src", "data", "works.js"), 
 const briefSource = fs.readFileSync(path.join(ROOT, "scripts", "build_capability_brief.py"), "utf8");
 const brief = process.argv[2] || path.join(ROOT, "public", "files", "PaulTradecraft-Capability-Brief.pdf");
 
-// One-pager facts approved 2026-10-08. The 23/23 pilot figure stays out:
+// One-pager facts approved 2026-10-08; refreshed 2026-10-19 at Paul's direction (AI-first positioning, five main works). The 23/23 pilot figure stays out:
 // it was removed from the site on 2026-10-05 because it had no run record.
 const expected = {
   positioningEn: "Path · People · Commitment · Numbers",
@@ -26,16 +26,16 @@ const expected = {
     EN: "Demo cases use fictional data; outcomes not verified.",
   },
   worksLead: {
-    ZH: "四站故事線：選路、選人、能不能承諾、算不算得過。下面四件作品由這條線串起。",
-    EN: "Four stations: the path, the people, whether to commit, and whether the numbers hold. The four works below follow this line.",
+    ZH: "五件作品，從親手玩、到看懂流程、到商業判斷與 AI 實務。",
+    EN: "Five works, from hands-on play to understanding a flow, to business judgment and practical AI.",
   },
   capabilities: {
-    ZH: ["海外商業開發", "承諾前的決策", "商業經濟／會計視角"],
-    EN: ["Global business development", "Decisions before commitment", "Business economics / accounting-aware judgment"],
+    ZH: ["國際業務判斷", "把做法變成工具", "用 AI 又不失控"],
+    EN: ["International sales judgment", "Turning how-to into tools", "AI without losing control"],
   },
   proofWorks: {
-    ZH: ["帶一項產品，走到第一櫃", "海外客戶開發", "Paul 接手", "商務決策工作台", "貿易利潤導航", "海外市場開發研究", "從詢盤到報價：六道關卡"],
-    EN: ["From one product to the first container", "Overseas Lead Discovery", "Paul takes over", "Commercial Decision Desk", "Trade Profit Navigator", "Market Entry Research", "From Inquiry to Quote: Six Decision Gates"],
+    ZH: ["主力作品，可以直接打開試試", "ROOMVERSE 3D", "貿易街", "先走哪一步，才踩得住？", "商務決策工作台", "AI Lab"],
+    EN: ["Main works you can open and try", "ROOMVERSE 3D", "Trade Street", "Which Step Holds?", "Commercial Decision Desk", "AI Lab"],
   },
 };
 
