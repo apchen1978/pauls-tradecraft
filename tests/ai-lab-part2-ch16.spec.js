@@ -54,7 +54,7 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("#toc a[href='#c16']")).toHaveCount(0);
       await expect(page.locator("#main .chapter[id^='c']")).toHaveCount(NAV_CHAPTERS.filter(({ id }) => /^c\d+$/.test(id)).length + 1);
       await expect(page.locator("#c16")).toHaveCount(1);
-      await expect(page.locator("#c16").evaluate((node) => node.nextElementSibling?.id)).resolves.toBe("latest");
+      await expect(page.locator("#c16").evaluate((node) => node.nextElementSibling?.id)).resolves.toBe("c17");
       await expect(page.locator("#c15-title")).toHaveText(TOOLPATH[lang].title);
       await expect(page.locator("#c16").evaluate((node) => node.previousElementSibling?.id)).resolves.toBe("c15");
       await expect(page.locator("#c15-to-c16")).toHaveCount(1);
