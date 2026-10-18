@@ -1,8 +1,9 @@
-import { AGENTS, LINKS, TEXT, TIERS } from "./content.js";
+import { AGENTS, LINKS, NAV_CHAPTERS, TEXT, TIERS } from "./content.js";
 import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.js";
 import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
 import { LATEST, LATEST_TEXT } from "./latest.js";
 import { SPIRIT } from "./spirit.js";
+import { PART_TWO, SYSTEMS, TASK_REQUIREMENTS } from "./enterprise.js";
 
 // AI Lab, phase 1. Nothing is stored; only ?lang= goes into the address. Demos are fixed, never random.
 const $ = (id) => document.getElementById(id);
@@ -30,6 +31,9 @@ const state = {
   traced: false,
   noDoc: false,
   gates: new Set(),
+  task: "products",
+  access: new Set(["products:read"]),
+  approval: true,
 };
 let timers = [];
 const t = () => TEXT[state.lang];
@@ -278,6 +282,121 @@ function renderLessons() {
   $("c12-closing").replaceChildren(...x.closing.map((line) => el("p", "sub", line)));
 }
 
+function renderEnterpriseResult() {
+  const x = PART_TWO[state.lang];
+  const requirements = TASK_REQUIREMENTS[state.task];
+  const granted = [...state.access];
+  const unreviewed = granted.filter((key) => /:(write|send)$/.test(key));
+  const missing = requirements.filter(([system, permission]) => !state.access.has(`${system}:${permission}`));
+  const result = $("access-result");
+  let status;
+  let message;
+  if (unreviewed.length && !state.approval) {
+    status = "risky";
+    message = unreviewed.some((key) => key === "email:send")
+      ? x.risks.send
+      : unreviewed.some((key) => key === "erp:write") ? x.risks.erp : x.risks.write;
+  } else if (missing.length) {
+    status = "missing";
+    const labels = missing.map(([system, permission]) => `${x.systems[system]} · ${x.permissions[permission]}`);
+    message = `${x.missing} ${labels.join(state.lang === "zh" ? "、" : ", ")}.`;
+  } else {
+    const required = new Set(requirements.map(([system, permission]) => `${system}:${permission}`));
+    const hasExtraAccess = granted.some((key) => !required.has(key));
+    status = hasExtraAccess ? "broad" : "safe";
+    message = x.results[state.task] + (hasExtraAccess ? ` ${x.extra}` : "");
+  }
+  result.dataset.state = status;
+  $("access-result-status").textContent = x.statuses[status];
+  $("access-result-copy").textContent = message;
+}
+
+function renderEnterprise() {
+  const x = PART_TWO[state.lang];
+  $("part2-kicker").textContent = x.partKicker;
+  $("part2-title").textContent = x.partTitle;
+  $("part2-intro").replaceChildren(...x.partIntro.map((line) => el("p", "sub", line)));
+  $("c13-no").textContent = x.no;
+  $("c13-title").textContent = x.title;
+  $("c13-lead").textContent = x.lead;
+  $("c13-demo").textContent = x.demo;
+  $("access-desk-title").textContent = x.deskTitle;
+  $("access-desk-lead").textContent = x.deskLead;
+  $("access-task-label").textContent = x.taskLabel;
+  $("access-result-title").textContent = x.resultTitle;
+
+  const taskList = $("access-tasks");
+  taskList.replaceChildren(...x.tasks.map((task) => {
+    const button = el("button", "access-task");
+    button.type = "button";
+    button.dataset.task = task.id;
+    button.setAttribute("aria-pressed", String(state.task === task.id));
+    button.append(el("strong", null, task.name), el("span", null, task.hint));
+    button.addEventListener("click", () => {
+      state.task = task.id;
+      taskList.querySelectorAll("[data-task]").forEach((item) => item.setAttribute("aria-pressed", String(item.dataset.task === state.task)));
+      renderEnterpriseResult();
+    });
+    return button;
+  }));
+
+  const table = $("access-table");
+  const head = el("thead");
+  const headerRow = el("tr");
+  headerRow.appendChild(el("th", null, x.systemHeading));
+  ["read", "write", "send"].forEach((permission) => headerRow.appendChild(el("th", null, x.permissions[permission])));
+  head.appendChild(headerRow);
+  const body = el("tbody");
+  SYSTEMS.forEach((system) => {
+    const row = el("tr");
+    row.appendChild(el("th", null, x.systems[system.id]));
+    system.permissions.forEach((permission) => {
+      const cell = el("td");
+      if (!permission) {
+        const na = el("span", "access-na", x.notApplicable);
+        na.setAttribute("aria-label", x.notApplicable);
+        cell.appendChild(na);
+      } else {
+        const label = el("label", "access-toggle");
+        const input = el("input");
+        input.type = "checkbox";
+        input.dataset.system = system.id;
+        input.dataset.permission = permission;
+        input.setAttribute("aria-label", `${x.systems[system.id]} · ${x.permissions[permission]}`);
+        input.checked = state.access.has(`${system.id}:${permission}`);
+        input.addEventListener("change", () => {
+          const key = `${system.id}:${permission}`;
+          if (input.checked) state.access.add(key); else state.access.delete(key);
+          renderEnterpriseResult();
+        });
+        label.appendChild(input);
+        cell.appendChild(label);
+      }
+      row.appendChild(cell);
+    });
+    body.appendChild(row);
+  });
+  table.replaceChildren(head, body);
+  $("access-email-note").textContent = x.emailNote;
+  const approval = $("access-approval");
+  approval.checked = state.approval;
+  approval.setAttribute("aria-label", x.approval);
+  $("access-approval-label").textContent = x.approval;
+  approval.onchange = () => { state.approval = approval.checked; renderEnterpriseResult(); };
+
+  const reveal = $("access-reveal");
+  reveal.querySelector("summary").textContent = x.revealTitle;
+  $("access-reveal-lead").textContent = x.revealLead;
+  $("access-just-enough").replaceChildren(...x.justEnough.map((item) => {
+    const li = el("li", "access-answer");
+    li.append(el("strong", null, item.name), el("span", null, item.access));
+    return li;
+  }));
+  $("access-principles-title").textContent = x.principlesTitle;
+  $("access-principles").replaceChildren(...x.principles.map((principle) => el("li", null, principle)));
+  renderEnterpriseResult();
+}
+
 function renderDeep() {
   const x = d();
   $("deep-title").textContent = x.divider;
@@ -471,7 +590,6 @@ function renderMore() {
   renderLatest();
 }
 
-const CHAPTERS = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "latest"];
 let consoleTimers = [];
 function renderConsole(animate) {
   const x = t();
@@ -493,11 +611,11 @@ function renderConsole(animate) {
 function renderRail() {
   const x = t();
   const rail = $("rail");
-  rail.replaceChildren(...CHAPTERS.map((id, i) => {
+  rail.replaceChildren(...NAV_CHAPTERS.map(({ id, mark }, i) => {
     const a = el("a", "rail-dot");
     a.href = `#${id}`;
     a.dataset.target = id;
-    a.append(el("span", "mono", id === "latest" ? "NEW" : String(i).padStart(2, "0")), el("span", "rail-label", x.rail[i]));
+    a.append(el("span", "mono", mark), el("span", "rail-label", x.rail[i]));
     return a;
   }));
 }
@@ -510,7 +628,7 @@ function watchChapters() {
       document.querySelectorAll(".rail-dot").forEach((a) => a.classList.toggle("on", a.dataset.target === e.target.id));
     });
   }, { rootMargin: "-45% 0px -50% 0px" });
-  CHAPTERS.forEach((id) => { const node = $(id); if (node) seen.observe(node); });
+  NAV_CHAPTERS.forEach(({ id }) => { const node = $(id); if (node) seen.observe(node); });
   if (reduced()) return;
   const reveal = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); reveal.unobserve(e.target); } });
@@ -561,8 +679,10 @@ function render() {
   $("toc").replaceChildren(...x.toc.map((label, i) => {
     const li = el("li");
     const a = el("a");
-    a.href = `#c${[0, 1, 2, 3, 4][i]}`;
-    a.append(el("span", "n", String([0, 1, 2, 3, 4][i]).padStart(2, "0")), document.createTextNode(label));
+    const target = ["c0", "c1", "c2", "c3", "c4"][i];
+    const mark = target.slice(1).padStart(2, "0");
+    a.href = `#${target}`;
+    a.append(el("span", "n", mark), document.createTextNode(label));
     li.appendChild(a);
     return li;
   }));
@@ -587,6 +707,7 @@ function render() {
   renderTeam();
   renderDeep();
   renderMore();
+  renderEnterprise();
   renderSpirit();
   renderConsole(false);
   renderRail();
