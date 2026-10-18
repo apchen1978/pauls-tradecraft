@@ -5,6 +5,14 @@
 
 export const TIERS = ["none", "chat", "work", "lab"];
 export const AGENTS = ["cc", "codex", "grokbot", "dsh"];
+export const NAV_CHAPTERS = [
+  { id: "c0", mark: "00" }, { id: "c1", mark: "01" }, { id: "c2", mark: "02" },
+  { id: "c3", mark: "03" }, { id: "c4", mark: "04" }, { id: "c5", mark: "05" },
+  { id: "c6", mark: "06" }, { id: "c7", mark: "07" }, { id: "c8", mark: "08" },
+  { id: "c9", mark: "09" }, { id: "c10", mark: "10" }, { id: "c11", mark: "11" },
+  { id: "c12", mark: "12" }, { id: "part2", mark: "II" }, { id: "c13", mark: "13" },
+  { id: "latest", mark: "NEW" },
+];
 
 export const TEXT = {
   zh: {
@@ -15,7 +23,7 @@ export const TEXT = {
     kicker: "AI LAB · AI 人工智慧實驗室",
     title: "AI 不只會回答。\n它能和你一起，把事情做完。",
     lead: "十分鐘看懂：AI 怎麼從「聊天」變成「一起工作」，以及人站在哪裡。用貿易的例子講，不需要技術背景。",
-    toc: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊"],
+    toc: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "第二部・企業篇", "權限台"],
     consoleName: "agent · 詢價回覆",
     console: [
       ["task", "任務：回覆一封詢價信"],
@@ -27,7 +35,7 @@ export const TEXT = {
       ["wait", "停下來：等負責人確認價格和交期"],
     ],
     consoleCap: "示範畫面，不是真實模型的輸出。",
-    rail: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "上下文", "工具", "驗證", "多 agent", "治理", "怎麼錯", "前沿", "教負責人", "最新觀察"],
+    rail: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "上下文", "工具", "驗證", "多 agent", "治理", "怎麼錯", "前沿", "教負責人", "第二部・企業篇", "權限台", "最新觀察"],
     c0: {
       no: "00",
       title: "你在漏斗的哪一層？",
@@ -120,7 +128,7 @@ export const TEXT = {
     kicker: "AI LAB · AI 人工智慧實驗室",
     title: "AI doesn't just answer.\nIt works with you to get things done.",
     lead: "Ten minutes to see how AI moves from chatting to working alongside you, and where the human stands. Told with trade examples; no technical background needed.",
-    toc: ["Which tier", "What AI does", "Chat vs delegate", "Where the human is", "My AI team"],
+    toc: ["Which tier", "What AI does", "Chat vs delegate", "Where the human is", "My AI team", "Part II · Enterprise", "Access desk"],
     consoleName: "agent · enquiry reply",
     console: [
       ["task", "Task: reply to an enquiry"],
@@ -132,7 +140,7 @@ export const TEXT = {
       ["wait", "Stop: waiting for the person in charge to confirm price and lead time"],
     ],
     consoleCap: "An illustration, not output from a real model.",
-    rail: ["Which tier", "What AI does", "Chat vs delegate", "The human", "My AI team", "Context", "Tools", "Verification", "Agents", "Governance", "Mistakes", "Frontier", "Teaching", "Latest"],
+    rail: ["Which tier", "What AI does", "Chat vs delegate", "The human", "My AI team", "Context", "Tools", "Verification", "Agents", "Governance", "Mistakes", "Frontier", "Teaching", "Part II · Enterprise", "Access desk", "Latest"],
     c0: {
       no: "00",
       title: "Which tier of the funnel are you in?",

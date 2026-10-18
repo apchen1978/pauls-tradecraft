@@ -304,3 +304,60 @@ body { overflow-x: clip; }
 .spirit-fig { margin: 18px 0 6px; max-width: 960px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--card); }
 .spirit-fig img { display: block; width: 100%; height: auto; }
 @media (max-width: 640px) { .spirit-fig { max-width: 420px; border-radius: 14px; } }
+
+/* Part II: a compact access-control workbench, usable without horizontal scrolling. */
+.part-divider { margin-top: 40px; }
+.part-intro { display: grid; gap: 8px; max-width: 54em; margin-top: 14px; }
+.part-intro .sub { margin: 0; }
+.part-intro .sub:last-child { color: var(--bone); font-weight: 600; }
+.access-demo { display: inline-block; margin-top: 14px; padding: 4px 10px; border: 1px solid rgba(158, 224, 193, .32); border-radius: 999px; }
+.access-desk { margin-top: 24px; padding: 24px; border: 1px solid rgba(158, 224, 193, .3); border-radius: 18px; background: linear-gradient(150deg, rgba(20, 44, 41, .78), rgba(10, 24, 22, .82)); }
+.access-heading h3 { color: var(--bone); font-size: 1.35rem; }
+.access-heading .sub { margin-top: 4px; }
+.access-task-set { min-width: 0; margin: 24px 0 0; padding: 0; border: 0; }
+.access-task-set legend { margin-bottom: 10px; color: var(--bone); font-weight: 600; }
+.access-tasks { display: grid; gap: 8px; }
+@media (min-width: 760px) { .access-tasks { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.access-task { display: grid; align-content: start; gap: 6px; min-width: 0; min-height: 94px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); color: var(--body); font: inherit; text-align: left; cursor: pointer; }
+.access-task strong { color: var(--bone); font-size: 15px; line-height: 1.4; }
+.access-task span { color: var(--meta); font-size: 13px; line-height: 1.5; }
+.access-task[aria-pressed="true"] { border-color: var(--mint); background: rgba(158,224,193,.11); box-shadow: 0 0 0 1px rgba(158,224,193,.15) inset; }
+.access-task:focus-visible, .access-reveal summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.access-table-wrap { width: 100%; margin-top: 22px; }
+.access-table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; }
+.access-table th, .access-table td { min-width: 0; padding: 12px 8px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; overflow-wrap: anywhere; }
+.access-table thead th { color: var(--bone); background: rgba(255,255,255,.04); font-size: 13px; }
+.access-table thead th:first-child, .access-table tbody th { width: 32%; text-align: left; color: var(--body); font-size: 13px; font-weight: 500; }
+.access-table tbody tr:last-child > * { border-bottom: 0; }
+.access-table tr > *:last-child { border-right: 0; }
+.access-toggle { display: inline-grid; place-items: center; min-width: 42px; min-height: 40px; cursor: pointer; }
+.access-toggle input, .approval-toggle input { width: 20px; height: 20px; accent-color: var(--mint); cursor: pointer; }
+.access-toggle input:focus-visible, .approval-toggle input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.access-na { display: inline-block; color: rgba(169,190,180,.65); font-size: 12px; }
+.access-note { margin: 8px 0 0; color: var(--meta); font-size: 13px; }
+.approval-toggle { display: flex; align-items: flex-start; gap: 10px; margin-top: 18px; padding: 14px; border: 1px solid rgba(184,153,102,.34); border-radius: 12px; background: rgba(184,153,102,.07); color: var(--bone); font-size: 14px; line-height: 1.5; cursor: pointer; }
+.approval-toggle input { flex: 0 0 auto; margin: 1px 0 0; }
+.access-result { margin-top: 16px; padding: 18px; border: 1px solid rgba(158,224,193,.36); border-left: 4px solid var(--mint); border-radius: 12px; background: rgba(158,224,193,.07); }
+.access-result h4 { margin: 0; color: var(--meta); font-size: 13px; font-weight: 500; }
+.access-result-status { margin: 6px 0 0; color: var(--mint); font-size: 1.15rem; font-weight: 700; }
+.access-result > p:last-child { margin: 6px 0 0; color: var(--bone); }
+.access-result[data-state="missing"] { border-color: rgba(242,181,140,.4); border-left-color: var(--warn); background: rgba(242,181,140,.07); }
+.access-result[data-state="missing"] .access-result-status { color: var(--warn); }
+.access-result[data-state="risky"] { border-color: rgba(242,181,140,.56); border-left-color: var(--warn); background: rgba(242,181,140,.1); }
+.access-result[data-state="risky"] .access-result-status { color: var(--warn); }
+.access-reveal { margin-top: 18px; padding: 18px 20px; border: 1px solid rgba(184,153,102,.3); border-radius: 14px; background: rgba(184,153,102,.045); }
+.access-reveal summary { color: var(--bone); font-weight: 600; cursor: pointer; }
+.access-reveal > .sub { margin-top: 12px; }
+.access-answers { display: grid; gap: 8px; margin: 16px 0; padding: 0; list-style: none; }
+.access-answer { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+.access-answer strong { color: var(--mint); }
+.access-answer span { color: var(--body); }
+.access-reveal .rules { margin-top: 14px; }
+@media (max-width: 639px) {
+  .access-desk { padding: 16px; }
+  .access-table th, .access-table td { padding: 10px 4px; font-size: 12px; }
+  .access-table thead th:first-child, .access-table tbody th { width: 34%; font-size: 12px; }
+  .access-table tr > *:nth-child(2), .access-table tr > *:nth-child(3) { width: 18%; }
+  .access-table tr > *:last-child { width: 30%; }
+  .access-toggle { min-width: 34px; }
+}
