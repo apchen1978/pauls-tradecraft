@@ -19,6 +19,10 @@ async function add(page, id) {
 }
 
 test("prerequisite data and bilingual content stay in parity", () => {
+  expect(COPY.zh.title).toBe("先走哪一步，才踩得住？");
+  expect(COPY.zh.subtitle).toBe("企業 AI 路線");
+  expect(COPY.en.title).toBe("Which Step Holds?");
+  expect(COPY.en.subtitle).toBe("The enterprise AI path");
   expect(SCENARIOS).toHaveLength(3);
   expect(STATIONS).toHaveLength(7);
   expect(COPY.zh.stations.collaborate.imageAlt).toBe("三個部門由一座橋連成一體。");
@@ -50,6 +54,12 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
   test(`${lang} ${width}: all starts, early consequence, route summary, loaded art and showcase`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${PAGE}?lang=${lang}`);
+    await expect(page.locator("#title")).toHaveText(COPY[lang].title);
+    await expect(page.locator(".hero-subtitle")).toHaveText(COPY[lang].subtitle);
+    const headingSize = Number.parseFloat(await page.locator("#title").evaluate((node) => getComputedStyle(node).fontSize));
+    const subtitleSize = Number.parseFloat(await page.locator(".hero-subtitle").evaluate((node) => getComputedStyle(node).fontSize));
+    expect(subtitleSize).toBeLessThan(headingSize);
+    await page.screenshot({ path: resolve(shots, `hero-${lang}-${width}.png`) });
     await expect(page.locator("#begin")).toBeDisabled();
     await expect(page.locator(".scenario")).toHaveCount(3);
     await expect(page.locator(".hero-art img")).toHaveAttribute("src", "assets/cover.webp");
@@ -80,7 +90,10 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
     await expect(card).toHaveCount(1);
     await expect(card.locator("a")).toHaveAttribute("href", `${PAGE}?lang=${lang}`);
     await expect(card.locator("img")).toHaveAttribute("alt", /.+/);
+    await card.scrollIntoViewIfNeeded();
     await expect.poll(() => card.locator("img").evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
+    await card.locator("img").evaluate((img) => img.decode());
+    if (width === 390) await card.screenshot({ path: resolve(shots, `showcase-card-${lang}-390.png`) });
     await noOverflow(page);
   });
 }
