@@ -12,7 +12,7 @@ const COPY = {
       [{ kind: "risk", label: "讓 agent 自己調整規則，不必回報。" }, { kind: "concrete", label: "由負責人維護；出錯或流程變動時回頭檢視。" }, { kind: "vague", label: "之後再看。" }],
     ],
     kindNames: { vague: "含糊", concrete: "具體可用", risk: "看似具體但有風險" },
-    preview: "組好的規則", outcomeTitle: "agent 照這條規則會怎麼做",
+    preview: "組好的規則", outcomeTitle: "agent 照這條規則會怎麼做", selectionPrefix: "你選的：",
     status: { vague: "還不夠清楚", concrete: "具體可用", risk: "做得到，但有風險" },
     vagueResult: "條件還不清楚，agent 只能猜。它應先停下來，指出缺少的資訊。",
     concreteResult: "條件、動作和停下詢問的時機都寫清楚了；agent 可以整理草稿，遇到缺項就交由負責人確認。",
@@ -50,7 +50,7 @@ const COPY = {
       [{ kind: "risk", label: "Let the agent change the rule without reporting back." }, { kind: "concrete", label: "The decision-maker maintains it and reviews it after an error or process change." }, { kind: "vague", label: "Review it later." }],
     ],
     kindNames: { vague: "Vague", concrete: "Concrete and usable", risk: "Specific-looking but risky" },
-    preview: "Your assembled rule", outcomeTitle: "What the agent would do",
+    preview: "Your assembled rule", outcomeTitle: "What the agent would do", selectionPrefix: "Your choices:",
     status: { vague: "Still unclear", concrete: "Concrete and usable", risk: "Possible, but risky" },
     vagueResult: "The conditions are unclear, so the agent can only guess. It should pause and point out what is missing.",
     concreteResult: "The conditions, action and pause point are clear. The agent can prepare a draft and leave missing details for the decision-maker to confirm.",
@@ -78,6 +78,7 @@ const COPY = {
 };
 
 const state = ["vague", "vague", "vague", "vague"];
+let hasInteracted = false;
 const lang = () => document.documentElement.lang.startsWith("en") ? "en" : "zh";
 const node = (tag, className, text) => {
   const item = document.createElement(tag);
@@ -108,9 +109,10 @@ function buildSection() {
   const outcome = node("div", "rulebench-outcome"); outcome.id = "rulebench-outcome";
   outcome.setAttribute("role", "status"); outcome.setAttribute("aria-live", "polite"); outcome.setAttribute("aria-atomic", "true");
   const outcomeTitle = node("h4"); outcomeTitle.id = "rulebench-outcome-title";
+  const outcomeSelection = node("p", "rulebench-selection"); outcomeSelection.id = "rulebench-selection";
   const outcomeStatus = node("p", "rulebench-status"); outcomeStatus.id = "rulebench-status";
   const outcomeText = node("p", "rulebench-outcome-text"); outcomeText.id = "rulebench-outcome-text";
-  outcome.append(outcomeTitle, outcomeStatus, outcomeText);
+  outcome.append(outcomeTitle, outcomeSelection, outcomeStatus, outcomeText);
   preview.append(previewTitle, previewText, outcome);
   desk.append(deskTitle, deskLead, seed, form, preview);
 
@@ -163,13 +165,12 @@ function render() {
     const legend = node("legend", null, field);
     group.append(legend);
     const options = node("div", "rulebench-options");
-    x.options[fieldIndex].forEach((choice) => {
-      const label = node("label", `rulebench-option kind-${choice.kind}`);
-      label.dataset.kind = choice.kind;
+    x.options[fieldIndex].forEach((choice, choiceIndex) => {
+      const label = node("label", "rulebench-option");
       const input = document.createElement("input");
-      input.type = "radio"; input.name = `rulebench-${fieldIndex}`; input.value = choice.kind; input.checked = state[fieldIndex] === choice.kind;
-      input.addEventListener("change", () => { state[fieldIndex] = choice.kind; updateOutcome(); });
-      label.append(input, node("span", "rulebench-kind", x.kindNames[choice.kind]), node("span", "rulebench-choice", choice.label));
+      input.type = "radio"; input.name = `rulebench-${fieldIndex}`; input.value = String(choiceIndex); input.checked = state[fieldIndex] === choice.kind;
+      input.addEventListener("change", () => { state[fieldIndex] = choice.kind; hasInteracted = true; updateOutcome(); });
+      label.append(input, node("span", "rulebench-choice", choice.label));
       options.append(label);
     });
     group.append(options);
@@ -200,6 +201,10 @@ function updateOutcome() {
   const status = document.getElementById("rulebench-status");
   status.textContent = x.status[mode];
   document.getElementById("rulebench-outcome").dataset.state = mode;
+  const selectionSummary = document.getElementById("rulebench-selection");
+  selectionSummary.textContent = hasInteracted
+    ? x.selectionPrefix + (lang() === "en" ? " " : "") + choices.map((choice, index) => (lang() === "en" ? "Field " + (index + 1) : "第 " + (index + 1) + " 格") + " " + x.kindNames[choice.kind]).join(lang() === "en" ? "; " : "；")
+    : "";
   document.getElementById("rulebench-outcome-text").textContent = mode === "risk" ? x.riskyResults[riskIndex] : mode === "vague" ? x.vagueResult : x.concreteResult;
 }
 
