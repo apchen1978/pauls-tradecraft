@@ -1227,7 +1227,7 @@ function boot() {
     tone: "funny",
     district: null,
     districtOpener: null,
-    night: { open: false, observed: new Set(), companion: null, action: null, followupIndex: 0, followupChoices: [null, null, null] },
+    night: { open: false, observed: new Set(), companion: null, action: null, followupIndex: 0, followupChoices: [null, null, null], teamPreview: "andromeda" },
   };
   let poseTimer = null;
 
@@ -1379,15 +1379,28 @@ function boot() {
     $("night-title").textContent = copy.title;
     $("night-intro").textContent = copy.intro;
     const route = $("night-route");
-    route.setAttribute("aria-label", copy.routeLabel);
+    route.setAttribute("aria-label", `${copy.teamPickerLabel} · ${copy.routeLabel}`);
     route.textContent = "";
     const teamIds = ["andromeda", "chart", "lantern", "galaxy"];
     teamIds.forEach((id, index) => {
-      const item = el("li", "", FACTIONS[id][state.lang]);
+      const item = el("li");
       const active = night.action && night.companion ? night.followupIndex + 1 : 0;
       if (index === active) item.setAttribute("aria-current", "step");
+      const button = el("button", "night-team-tab", `${FACTIONS[id].mark} ${FACTIONS[id][state.lang]}`);
+      button.type = "button";
+      button.setAttribute("aria-pressed", String((night.teamPreview || "andromeda") === id));
+      button.addEventListener("click", () => {
+        night.teamPreview = id;
+        for (const tab of route.querySelectorAll(".night-team-tab")) {
+          tab.setAttribute("aria-pressed", String(tab.dataset.teamPreview === id));
+        }
+        paintNightTeamPreview(id);
+      });
+      button.dataset.teamPreview = id;
+      item.appendChild(button);
       route.appendChild(item);
     });
+    paintNightTeamPreview(night.teamPreview || "andromeda");
     const scene = SCENES.find((item) => item.id === "stage");
     const image = $("night-image");
     if (!image.getAttribute("src")) image.src = scene.src;
@@ -1456,6 +1469,27 @@ function boot() {
     $("night-partner-part").textContent = NIGHT_PARTNER_LINES[night.companion][night.action][state.lang];
     $("night-ending-line").textContent = copy.ending;
     paintNightFollowups();
+  }
+
+  function paintNightTeamPreview(id) {
+    const faction = FACTIONS[id] || FACTIONS.andromeda;
+    $("night-team-preview-title").textContent = `${faction.mark} ${faction[state.lang]}`;
+    $("night-team-motto").textContent = faction.motto[state.lang];
+    const members = $("night-team-members");
+    members.textContent = "";
+    for (const memberId of faction.members) {
+      const text = TYPES[memberId][state.lang];
+      const link = document.createElement("a");
+      link.className = "night-team-member";
+      link.href = `?c=${SAMPLE_CODES[memberId]}&lang=${state.lang}`;
+      const portrait = document.createElement("img");
+      portrait.src = portraitFor(memberId);
+      portrait.alt = text.alt;
+      portrait.width = 38;
+      portrait.height = 58;
+      link.append(portrait, el("span", "", shortName(text)));
+      members.appendChild(link);
+    }
   }
 
   function paintNightFollowups() {
@@ -2705,7 +2739,7 @@ function boot() {
     state.picks = [];
     state.step = 0;
     state.started = false;
-    state.night = { open: false, observed: new Set(), companion: null, action: null, followupIndex: 0, followupChoices: [null, null, null] };
+    state.night = { open: false, observed: new Set(), companion: null, action: null, followupIndex: 0, followupChoices: [null, null, null], teamPreview: "andromeda" };
     $("duo-status").textContent = "";
     persist();
     render();
