@@ -60,7 +60,7 @@
     .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
     .eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--deep); }
     .lang { display: flex; gap: 8px; }
-    .lang button { min-width: 48px; min-height: 40px; padding: 4px 14px; border: 2px solid var(--deep); border-radius: 999px; background: transparent; color: var(--deep); font-weight: 700; cursor: pointer; }
+    .lang button { min-width: 48px; min-height: 44px; padding: 4px 14px; border: 2px solid var(--deep); border-radius: 999px; background: transparent; color: var(--deep); font-weight: 700; cursor: pointer; }
     .lang button[aria-pressed="true"] { background: var(--deep); color: var(--white); }
     .boundary { display: block; margin: 12px 0 0; padding: 6px 12px; border: 2px dashed var(--teal); border-radius: 10px; color: var(--deep); font-size: 13px; font-weight: 600; line-height: 1.5; }
     h1 { margin: 12px 0 0; font-size: clamp(28px, 5vw, 36px); line-height: 1.15; letter-spacing: -.02em; }
@@ -89,7 +89,7 @@
     .route li.decision .num::after { content: "●"; position: absolute; transform: translate(14px, -14px); color: var(--amber); font-size: 10px; }
     .route li { position: relative; }
     .route li:hover { border-color: var(--teal); }
-    .route-btn { display: flex; align-items: center; gap: 10px; width: 100%; margin: 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+    .route-btn { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; margin: 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
     .route-btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; border-radius: 8px; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 18px; }
     .primary, .secondary { min-height: 48px; padding: 8px 20px; border-radius: 999px; border: 2px solid var(--deep); font-weight: 700; cursor: pointer; }
@@ -190,7 +190,7 @@
       .ripple-close { margin-top: 6px; }
     }
     @media (prefers-reduced-motion: reduce) { .ripple-stage { transition: none; } }
-    .text-btn { margin-top: 12px; padding: 6px 2px; border: 0; background: transparent; color: var(--deep); font-weight: 700; text-decoration: underline; cursor: pointer; min-height: 40px; }
+    .text-btn { margin-top: 12px; padding: 8px 4px; border: 0; background: transparent; color: var(--deep); font-weight: 700; text-decoration: underline; cursor: pointer; min-height: 44px; }
     .card { margin-top: 14px; padding: 20px; border: 3px solid var(--deep); border-radius: 18px; background: var(--white); }
     .card-kicker { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: #7A4C0C; }
     .card .speaker { margin-top: 12px; }
@@ -215,7 +215,7 @@
     .cast b { display: block; line-height: 1.3; }
     .cast small { display: block; color: var(--moss); font-size: 14px; line-height: 1.45; }
     .primer { max-width: 660px; margin: 12px 0 0; padding: 10px 14px; border-left: 5px solid var(--teal); border-radius: 4px 12px 12px 4px; background: var(--sky); }
-    .primer summary { cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1.4; color: var(--deep); }
+    .primer summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1.4; color: var(--deep); }
     .primer p { margin: 6px 0 0; font-size: 14px; line-height: 1.6; color: var(--ink); }
     @media (max-width: 639px) { .primer { margin-top: 12px; padding: 10px 12px; } }
     .takeaway { max-width: 660px; margin: 22px 0 0; padding: 14px 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--white); }
@@ -223,7 +223,7 @@
     .takeaway ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.6; }
     .takeaway p { margin: 10px 0 0; }
     .more { margin: 12px 0 0; }
-    .more summary { cursor: pointer; color: var(--deep); font-weight: 700; line-height: 1.5; }
+    .more summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--deep); font-weight: 700; line-height: 1.5; }
     .more summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
     .more-body { margin-top: 8px; padding: 10px 12px; border-left: 4px solid var(--teal); border-radius: 4px 10px 10px 4px; background: var(--sky); }
     .more-body p { margin: 0 0 8px; color: var(--moss); }
@@ -232,7 +232,7 @@
     @media (max-width: 639px) { .boundary { margin-top: 10px; padding: 6px 10px; font-size: 13px; } .lede { margin-top: 6px; } .hint { margin-top: 4px; } .primer { margin-top: 8px; } }
     .lights-legend { margin: 6px 0 0; color: var(--moss); font-size: 13px; line-height: 1.4; }
     .lights-help { margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
-    .lights-help summary { cursor: pointer; color: var(--deep); font-weight: 700; }
+    .lights-help summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--deep); font-weight: 700; }
     .lights-help summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
     .lights-help-body { margin-top: 6px; padding: 10px 12px; border-left: 4px solid var(--teal); border-radius: 4px 10px 10px 4px; background: var(--sky); }
     .lights-help-body p { margin: 0 0 6px; color: var(--moss); }
@@ -243,20 +243,22 @@
     .loop { max-width: 660px; margin: 18px 0 0; padding-top: 14px; border-top: 2px solid var(--line); }
     .loop h3 { margin: 0 0 6px; font-size: 17px; font-weight: 700; line-height: 1.4; color: var(--deep); }
     .loop p { margin: 6px 0 0; line-height: 1.6; }
-    .home { display: inline-block; margin-top: 12px; color: var(--deep); font-weight: 700; }
+    .home { display: inline-flex; align-items: center; min-height: 44px; margin-top: 12px; padding: 6px 0; color: var(--deep); font-weight: 700; }
     .map-stage { position: relative; margin-top: 16px; border: 3px solid var(--deep); border-radius: 16px; overflow: hidden; background: var(--sky); line-height: 0; }
     .map-stage img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
     @media (max-width: 639px) { .map-stage img { aspect-ratio: 800 / 1422; } .map-stage { margin-left: -16px; margin-right: -16px; border-radius: 0; border-left-width: 0; border-right-width: 0; } }
     .hotspots { position: absolute; inset: 0; }
-    .hot { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 3px solid var(--deep); background: var(--white); color: var(--deep); font-weight: 700; font-size: 15px; line-height: 1; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .35); }
-    .hot.decision { border-color: var(--amber); }
-    .hot:hover { background: var(--sky); }
-    .hot.done { background: var(--teal); border-color: var(--white); color: var(--white); }
-    .hot.now { background: var(--amber-fill); border-color: var(--white); color: var(--white); box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); }
+    .hot { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+    .hot-label { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--deep); background: var(--white); color: var(--deep); font-weight: 700; font-size: 15px; line-height: 1; box-shadow: 0 2px 6px rgba(0, 0, 0, .35); }
+    .hot.decision .hot-label { border-color: var(--amber); }
+    .hot:hover .hot-label { background: var(--sky); }
+    .hot.done .hot-label { background: var(--teal); border-color: var(--white); color: var(--white); }
+    .hot.now .hot-label { background: var(--amber-fill); border-color: var(--white); color: var(--white); box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); }
+    .hot:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
     .map-stage.playing .hot { pointer-events: none; }
-    @media (max-width: 639px) { .hot { width: 28px; height: 28px; font-size: 14px; border-width: 2px; } }
+    @media (max-width: 639px) { .hot-label { width: 28px; height: 28px; font-size: 14px; border-width: 2px; } }
     @media (prefers-reduced-motion: no-preference) {
-      .hot.now { animation: ping 1.6s ease-in-out infinite; }
+      .hot.now .hot-label { animation: ping 1.6s ease-in-out infinite; }
       @keyframes ping { 0%, 100% { box-shadow: 0 0 0 4px rgba(185, 118, 28, .55), 0 2px 6px rgba(0, 0, 0, .35); } 50% { box-shadow: 0 0 0 10px rgba(185, 118, 28, .12), 0 2px 6px rgba(0, 0, 0, .35); } }
     }
     /* Gentle life on the water: glints that drift and twinkle, and a slow sweep of sunlight. Only over the sea (a mask picture),
@@ -384,7 +386,7 @@
       #entry > #slot-entry { grid-column: 1; grid-row: 1 / span 4; }
       #entry > #entry-title, #entry > .scn, #entry > .actions, #entry > .preview { grid-column: 2; }
       #entry > .scn { grid-template-columns: 1fr; }
-      #entry > #route-entry, #entry > #route-hint { grid-column: 1 / -1; }
+      #entry > #route-entry, #entry > #route-hint, #entry > .primer { grid-column: 1 / -1; }
       #entry > #slot-entry .map-stage { margin-top: 0; }
       .page > .top { max-width: none; }
     }
@@ -408,11 +410,6 @@
     <p class="intro" id="intro">一櫃貨明天要出海，整條街都在接力。</p>
     <p class="lede" id="lede">沿著港口走一趟，在六個關鍵時刻做決定，看趕不趕得上船。</p>
     <p class="hint" id="hint">同樣的選擇，永遠得到同一個結果。</p>
-    <details class="primer" id="primer">
-      <summary id="primer-title"></summary>
-      <p id="primer-body"></p>
-    </details>
-
     <section id="entry" aria-labelledby="entry-title">
       <h2 id="entry-title">先選這一週的情況</h2>
       <div class="scn" id="scn" role="radiogroup" aria-labelledby="entry-title"></div>
@@ -457,6 +454,10 @@
       </div>
       <ol class="route" id="route-entry" aria-label="十二站"></ol>
       <p class="hint" id="route-hint">橘色圓點是要做決定的站。</p>
+      <details class="primer" id="primer">
+        <summary id="primer-title"></summary>
+        <p id="primer-body"></p>
+      </details>
     </section>
 
     <section id="play" hidden aria-labelledby="station-title">

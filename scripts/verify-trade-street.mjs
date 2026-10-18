@@ -376,7 +376,7 @@ test("colours: white lettering on every avatar colour and on the current-stop fi
   const fill = html.match(/--amber-fill:\s*(#[0-9A-Fa-f]{6})/)[1];
   assert.ok(contrastWithWhite(fill) >= 4.5, `amber fill ${fill}`);
   assert.match(html, /\.route li\.now \.num \{ background: var\(--amber-fill\)/);
-  assert.match(html, /\.hot\.now \{ background: var\(--amber-fill\)/);
+  assert.match(html, /\.hot\.now \.hot-label \{ background: var\(--amber-fill\)/);
   // small amber text uses a darker amber than the decorative one
   const kicker = html.match(/\.card-kicker \{[^}]*color:\s*(#[0-9A-Fa-f]{6})/)[1];
   assert.ok(contrastWithWhite(kicker) >= 4.5, `kicker ${kicker}`);
