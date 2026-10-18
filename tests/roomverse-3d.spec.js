@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
 
 // ROOMVERSE 3D: a poster first (no 3D download until the visitor asks), then a 3D room whose feeling,
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
@@ -129,6 +130,118 @@ test("粉領新貴風: a fourth feeling with its own line, plus a blush wall and
   await expect(page.locator("#panel .why")).toContainText("咖啡館");
   await page.locator("#lang").click();
   await expect(pressed(0)).toHaveText("Chic city professional");
+});
+
+test("Slow Sunday: fifth mood restores from the URL, keeps its pairing note, and fits the postcard line", async ({ page }) => {
+  const output = "docs/qa/roomverse-mood-slow";
+  await mkdir(output, { recursive: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${PAGE}?lang=zh&mood=slow&wall=original&rug=ivory&curtain=linen&print=hills`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  const open = async () => page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); });
+  await open();
+  const moodButtons = page.locator("#panel .opts").nth(0).locator("button");
+  await expect(moodButtons).toHaveCount(5);
+  await expect(moodButtons.nth(4)).toHaveText("週日午後慢慢過");
+  await expect(moodButtons.nth(4)).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#panel .why")).toHaveText("白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。");
+  await expect(page).toHaveURL(/mood=slow/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+
+  const postcardFit = async () => page.evaluate(() => {
+    const postcard = window.__room.postcard();
+    const source = document.querySelector("#stage canvas");
+    const baseStrip = Math.round(Math.max(90, source.height * .16));
+    const pad = Math.round(baseStrip * .23), small = Math.round(baseStrip * .17);
+    const ctx = document.createElement("canvas").getContext("2d");
+    ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
+    const labels = [...document.querySelectorAll("#panel .opts")].slice(0, 5).map((group) => group.querySelector('button[aria-pressed="true"]')?.textContent ?? "");
+    const lines = [];
+    for (const label of labels) {
+      const last = lines.length - 1, candidate = last < 0 ? label : `${lines[last]}  ·  ${label}`;
+      if (last >= 0 && ctx.measureText(candidate).width > postcard.width - pad * 2) lines.push(label);
+      else if (last < 0) lines.push(label);
+      else lines[last] = candidate;
+    }
+    const widths = lines.map((line) => ctx.measureText(line).width);
+    return { measured: Math.max(...widths), available: postcard.width - pad * 2, lines };
+  });
+  expect((await postcardFit()).measured).toBeLessThanOrEqual((await postcardFit()).available);
+  await page.screenshot({ path: `${output}/slow-zh-390.png`, fullPage: true });
+
+  await page.locator("#lang").click();
+  await expect(moodButtons.nth(4)).toHaveText("Slow Sunday");
+  await expect(page.locator("#panel .why")).toHaveText("Soft, even daylight with pale wood, linen and one dark accent keeps the room calm, so a Sunday afternoon has nowhere to hurry to.");
+  await page.screenshot({ path: `${output}/slow-en-390.png`, fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(await postcardFit().then((fit) => fit.measured <= fit.available)).toBe(true);
+  await page.screenshot({ path: `${output}/slow-en-1440.png`, fullPage: true });
+  await page.locator("#lang").click();
+  await expect(moodButtons.nth(4)).toHaveText("週日午後慢慢過");
+  await page.screenshot({ path: `${output}/slow-zh-1440.png`, fullPage: true });
+
+  for (const [index, mood] of [[0, "rain"], [1, "family"], [4, "slow"]]) {
+    await moodButtons.nth(index).click();
+    await page.waitForTimeout(250);
+    await page.locator("#stage").screenshot({ path: `${output}/lighting-${mood}-zh-1440.png` });
+  }
+});
+
+test("existing mood postcards keep the original one-line design when it fits and wrap only when needed", async ({ page }) => {
+  const output = "docs/qa/roomverse-mood-slow";
+  await mkdir(output, { recursive: true });
+  for (const lang of ["zh", "en"]) {
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.goto(`${PAGE}?lang=${lang}&mood=rain&wall=original&rug=ivory&curtain=linen&print=hills`);
+      await page.locator("#enter").click();
+      await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+      await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); });
+      const moodButtons = page.locator("#panel .opts").first().locator("button");
+      for (let moodIndex = 0; moodIndex < 4; moodIndex++) {
+        await moodButtons.nth(moodIndex).click();
+        await page.waitForTimeout(120);
+        const comparison = await page.evaluate((capture) => {
+          const src = document.querySelector("#stage canvas"), current = window.__room.postcard();
+          const w = src.width, h = src.height, strip = Math.round(Math.max(90, h * .16));
+          const pad = Math.round(strip * .32), big = Math.round(strip * .26), small = Math.round(strip * .17);
+          const labels = [...document.querySelectorAll("#panel .opts")].slice(0, 5).map((group) => group.querySelector('button[aria-pressed="true"]')?.textContent ?? "");
+          const joined = labels.join("  ·  ");
+          const before = document.createElement("canvas"); before.width = w; before.height = h + strip;
+          const ctx = before.getContext("2d");
+          ctx.drawImage(src, 0, 0); ctx.fillStyle = "#fbfaf6"; ctx.fillRect(0, h, w, strip);
+          ctx.fillStyle = "#24302c"; ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`; ctx.textBaseline = "alphabetic";
+          ctx.fillText("ROOMVERSE 3D", pad, h + pad + big * .8);
+          ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
+          ctx.fillText(joined, pad, h + strip - pad * .9);
+          ctx.textAlign = "right"; ctx.fillText("paulstradecraft.com", w - pad, h + pad + big * .8);
+          const beforePixels = ctx.getImageData(0, 0, w, h + strip).data;
+          const afterPixels = current.getContext("2d").getImageData(0, 0, current.width, current.height).data;
+          let changed = 0;
+          for (let i = 0; i < beforePixels.length; i++) if (beforePixels[i] !== afterPixels[i]) changed++;
+          const fit = ctx.measureText(joined).width <= w - pad * 2;
+          if (capture) {
+            const sheet = document.createElement("canvas"); sheet.width = w * 2; sheet.height = Math.max(before.height, current.height) + 42;
+            const s = sheet.getContext("2d"); s.fillStyle = "#ecebe5"; s.fillRect(0, 0, sheet.width, sheet.height);
+            s.fillStyle = "#24302c"; s.font = "600 18px system-ui, sans-serif"; s.fillText("BEFORE", 12, 26); s.fillText("AFTER", w + 12, 26);
+            s.drawImage(before, 0, 42); s.drawImage(current, w, 42);
+            sheet.id = "postcard-comparison"; sheet.style.cssText = "display:block;width:100%;height:auto;background:#ecebe5"; document.body.append(sheet);
+          }
+          return { fit, changed };
+        }, moodIndex === 0);
+        expect(comparison.fit, `${lang} ${width}px: fit the legacy single line`).toBe(width === 1440);
+        if (comparison.fit) expect(comparison.changed, `${lang} ${width}px: old mood ${moodIndex} remains pixel-identical`).toBe(0);
+        else expect(comparison.changed, `${lang} ${width}px: old mood ${moodIndex} wraps its overflowing line`).toBeGreaterThan(0);
+        if (moodIndex === 0) {
+          await page.locator("#postcard-comparison").screenshot({ path: `${output}/old-rain-${lang}-${width}-before-after.png` });
+          await page.locator("#postcard-comparison").evaluate((el) => el.remove());
+        }
+      }
+    }
+  }
 });
 
 test("surprise me: one tap picks a new wall, rug, curtain and print, keeps the feeling, and updates the link", async ({ page }) => {

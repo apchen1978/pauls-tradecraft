@@ -13,7 +13,7 @@ export const TEXT = {
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
-  // why: one line on why the pairing works. All three lines are Paul's wording (2026-10-16).
+  // why: one line on why the pairing works.
   rain: { zh: "下雨天想窩在家裡", en: "Rainy day, staying in",
     why: { zh: "窗外偏冷時，屋裡就用暖黃的燈和米白布料把溫度補回來，讓人想宅在家裡一天也很舒服。", en: "When it's cool and grey outside, warm lamps and cream fabrics bring the warmth back indoors, so a whole day at home feels good." }, hemi: .9, win: .7, winCol: "#bccbdb", lamp: 5, fill: 1.2, out: "#eef1f3", exposure: 1.05, floor: 2.2, glow: .55 },
   family: { zh: "Cozy family", en: "Cozy family",
@@ -25,6 +25,9 @@ const MOODS = {
   chic: { zh: "粉領新貴風", en: "Chic city professional",
     why: { zh: "明亮的晨光配上霧粉和黃銅點綴，俐落又有溫度，週末在家也像住在喜歡的咖啡館。", en: "Bright morning light with dusty pink and brass accents: crisp but warm, like a weekend in your favourite café." },
     hemi: 1.5, win: 2.6, winCol: "#ffe2dc", lamp: 1.2, fill: 2.1, out: "#fff6f3", exposure: 1.13, floor: 0, glow: .12 },
+  slow: { zh: "週日午後慢慢過", en: "Slow Sunday",
+    why: { zh: "白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。", en: "Soft, even daylight with pale wood, linen and one dark accent keeps the room calm, so a Sunday afternoon has nowhere to hurry to." },
+    hemi: 1.6, win: 2.2, winCol: "#f4f6f8", lamp: .5, fill: 1.8, out: "#f7f8f6", exposure: 1.08, floor: 0, glow: .04 },
 };
 
 export async function start({ stage, panel, lang, onReady }) {
@@ -148,7 +151,7 @@ export async function start({ stage, panel, lang, onReady }) {
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
-  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic" }; // chic: weekend morning, same street
+  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family" }; // slow uses the existing daytime street painting; only room lighting changes
   const viewReady = {};
   const VIEWS = Object.fromEntries(Object.entries(VIEW_FILES).map(([m, f]) => [m, () => {
     let settle;
@@ -536,17 +539,43 @@ export async function start({ stage, panel, lang, onReady }) {
   // postcard: the room as it looks now, with a paper strip naming the chosen feeling, wall and rug
   function postcard() {
     render(); // read the canvas in the same task as the render, so no preserveDrawingBuffer is needed
-    const src = renderer.domElement, w = src.width, h = src.height, strip = Math.round(Math.max(90, h * .16));
-    const c = document.createElement("canvas"); c.width = w; c.height = h + strip;
-    const ctx = c.getContext("2d");
+    const src = renderer.domElement, w = src.width, h = src.height, baseStrip = Math.round(Math.max(90, h * .16));
+    const pad = Math.round(baseStrip * .32), big = Math.round(baseStrip * .26), small = Math.round(baseStrip * .17);
+    const c = document.createElement("canvas"), ctx = c.getContext("2d"), l = state.lang;
+    ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
+    const labels = [MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l], CURTAINS[state.curtain][l], PRINTS[state.print][l]];
+    const joined = labels.join("  ·  ");
+    if (ctx.measureText(joined).width <= w - pad * 2) {
+      c.width = w; c.height = h + baseStrip;
+      ctx.drawImage(src, 0, 0);
+      ctx.fillStyle = "#fbfaf6"; ctx.fillRect(0, h, w, baseStrip);
+      ctx.fillStyle = "#24302c"; ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`; ctx.textBaseline = "alphabetic";
+      ctx.fillText("ROOMVERSE 3D", pad, h + pad + big * .8);
+      ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
+      ctx.fillText(joined, pad, h + baseStrip - pad * .9);
+      ctx.textAlign = "right"; ctx.fillText("paulstradecraft.com", w - pad, h + pad + big * .8);
+      return c;
+    }
+    const wrapPad = Math.round(baseStrip * .23), maxLine = w - wrapPad * 2;
+    const details = [];
+    for (const label of labels) {
+      const last = details.length - 1, candidate = last < 0 ? label : `${details[last]}  ·  ${label}`;
+      if (last >= 0 && ctx.measureText(candidate).width > maxLine) details.push(label);
+      else if (last < 0) details.push(label);
+      else details[last] = candidate;
+    }
+    const lineHeight = Math.ceil(small * 1.3), strip = Math.max(baseStrip, Math.ceil(wrapPad * 1.4 + big * 1.15 + small * 1.1 + (details.length - 1) * lineHeight));
+    c.width = w; c.height = h + strip;
     ctx.drawImage(src, 0, 0);
     ctx.fillStyle = "#fbfaf6"; ctx.fillRect(0, h, w, strip);
-    const l = state.lang, pad = Math.round(strip * .32), big = Math.round(strip * .26), small = Math.round(strip * .17);
     ctx.fillStyle = "#24302c"; ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`; ctx.textBaseline = "alphabetic";
-    ctx.fillText("ROOMVERSE 3D", pad, h + pad + big * .8);
+    const titleY = h + wrapPad + big * .8;
+    ctx.fillText("ROOMVERSE 3D", wrapPad, titleY);
     ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
-    ctx.fillText([MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l], CURTAINS[state.curtain][l], PRINTS[state.print][l]].join("  ·  "), pad, h + strip - pad * .9);
-    ctx.textAlign = "right"; ctx.fillText("paulstradecraft.com", w - pad, h + pad + big * .8);
+    const detailBottom = h + strip - wrapPad * .6;
+    details.forEach((line, i) => ctx.fillText(line, wrapPad, detailBottom - (details.length - 1 - i) * lineHeight));
+    ctx.textAlign = "right"; ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
+    ctx.fillText("paulstradecraft.com", w - wrapPad, titleY);
     return c;
   }
   function savePostcard() {
