@@ -25,9 +25,9 @@ for (const lang of ["zh", "en"]) {
       await page.goto(`${PAGE}?lang=${lang}`);
 
       const x = PART_TWO[lang];
-      const sectionCount = NAV_CHAPTERS.filter(({ id }) => /^c\d+$/.test(id)).length;
+      const sectionCount = NAV_CHAPTERS.filter(({ id }) => /^c\d+$/.test(id)).length + 1;
       await expect(page.locator(".chapter[id^='c']")).toHaveCount(sectionCount);
-      await expect(page.locator("#rail .rail-dot")).toHaveCount(NAV_CHAPTERS.length);
+      await expect(page.locator("#rail .rail-dot")).toHaveCount(NAV_CHAPTERS.length + 1);
       await expect(page.locator("#toc a")).toHaveCount(TEXT[lang].toc.length + 1);
       await expect(page.locator("#toc a[href='#part2'], #toc a[href='#c13']")).toHaveCount(0);
       await expect(page.locator("#rail a[href='#part2'], #rail a[href='#c13']")).toHaveCount(2);
