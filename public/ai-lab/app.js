@@ -603,6 +603,7 @@ function renderSteps() {
     const [term, plain, example] = g.terms[id];
     const d = el("details", "term");
     d.dataset.term = id;
+    d.id = id;
     d.append(el("summary", null, term), el("p", null, plain), el("p", "ex", example));
     return d;
   }));
