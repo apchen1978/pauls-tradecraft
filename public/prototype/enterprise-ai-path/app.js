@@ -15,7 +15,8 @@ const scenarioButtons = SCENARIOS.map((id) => {
   const button = document.createElement("button");
   button.type = "button"; button.className = "scenario"; button.dataset.scenario = id;
   const img = document.createElement("img"); img.src = asset(`scenario-${id === "scattered" ? "a" : id === "individual" ? "b" : "c"}`); img.width = 640; img.height = 480; img.decoding = "async";
-  button.append(img, document.createElement("strong"), document.createElement("span"));
+  const selected = document.createElement("span"); selected.className = "scenario-selected"; selected.setAttribute("aria-hidden", "true");
+  button.append(img, document.createElement("strong"), document.createElement("span"), selected);
   button.addEventListener("click", () => { state.scenario = id; render(); });
   $("scenarios").append(button); return button;
 });
@@ -49,7 +50,7 @@ function render() {
   document.querySelectorAll("[data-lang]").forEach((node) => node.setAttribute("aria-pressed", String(node.dataset.lang === state.lang)));
   $("home-link").href = `/?lang=${state.lang}`; $("footer-link").href = `/?lang=${state.lang}`;
   $("lab-link").href = `/ai-lab/?lang=${state.lang}#c13`; $("funnel-link").href = `/prototype/ai-funnel/?lang=${state.lang}`;
-  scenarioButtons.forEach((button, index) => { const d = t.scenarios[SCENARIOS[index]]; button.children[0].alt = d.imageAlt; button.children[1].textContent = d.name; button.children[2].textContent = d.description; button.setAttribute("aria-pressed", String(state.scenario === SCENARIOS[index])); });
+  scenarioButtons.forEach((button, index) => { const d = t.scenarios[SCENARIOS[index]], selected = state.scenario === SCENARIOS[index]; button.children[0].alt = d.imageAlt; button.children[1].textContent = d.name; button.children[2].textContent = d.description; button.children[3].textContent = t.selected; button.children[3].hidden = !selected; button.setAttribute("aria-pressed", String(selected)); });
   $("begin").disabled = !state.scenario;
   const initial = STARTING_FOUNDATIONS[state.scenario] || [];
   $("starting-foundation").hidden = !initial.length;
@@ -65,6 +66,7 @@ function render() {
     button.classList.toggle("unsteady", Boolean(done?.missing.length));
   });
   $("journey").replaceChildren(...state.route.map((step) => makeStep(step.id, step.missing, t)));
+  $("route-progress").textContent = state.lang === "zh" ? `已排 ${state.route.length}／${STATIONS.length} 站` : `${state.route.length} of ${STATIONS.length} stops`;
   $("empty-journey").hidden = state.route.length > 0;
   $("summary-button").disabled = state.route.length === 0;
   const selected = state.selected, detail = selected && t.stations[selected];

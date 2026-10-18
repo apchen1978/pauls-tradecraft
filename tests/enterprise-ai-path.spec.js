@@ -58,7 +58,9 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
     await expect(page.locator(".hero-subtitle")).toHaveText(COPY[lang].subtitle);
     const headingSize = Number.parseFloat(await page.locator("#title").evaluate((node) => getComputedStyle(node).fontSize));
     const subtitleSize = Number.parseFloat(await page.locator(".hero-subtitle").evaluate((node) => getComputedStyle(node).fontSize));
+    const leadSize = Number.parseFloat(await page.locator(".lead").evaluate((node) => getComputedStyle(node).fontSize));
     expect(subtitleSize).toBeLessThan(headingSize);
+    expect(subtitleSize).toBeLessThan(leadSize);
     await page.screenshot({ path: resolve(shots, `hero-${lang}-${width}.png`) });
     await expect(page.locator("#begin")).toBeDisabled();
     await expect(page.locator(".scenario")).toHaveCount(3);
@@ -97,6 +99,91 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
     await noOverflow(page);
   });
 }
+
+for (const lang of ["zh", "en"]) for (const [width, height] of [[390, 844], [1440, 1000]]) {
+  test(`${lang} ${width}: first action, selected state, route progress and touch targets`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`${PAGE}?lang=${lang}`);
+    await expect(page.locator("#start-title")).toBeVisible();
+    const firstCard = page.locator(".scenario").first();
+    const firstCardBox = await firstCard.boundingBox();
+    expect(firstCardBox).not.toBeNull();
+    expect(firstCardBox.y).toBeLessThan(height);
+    const visibleCardHeight = Math.max(0, Math.min(firstCardBox.y + firstCardBox.height, height) - Math.max(firstCardBox.y, 0));
+    expect(visibleCardHeight).toBeGreaterThanOrEqual(width === 390 ? firstCardBox.height / 2 : firstCardBox.height);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: resolve(shots, `first-${lang}-${width}.png`) });
+
+    const before = await firstCard.evaluate((button) => ({
+      pressed: button.getAttribute("aria-pressed"),
+      background: getComputedStyle(button).backgroundColor,
+      borderWidth: getComputedStyle(button).borderTopWidth,
+      actionDisabled: document.querySelector("#begin").disabled,
+      actionBackground: getComputedStyle(document.querySelector("#begin")).backgroundColor,
+    }));
+    await firstCard.click();
+    await expect(firstCard).toHaveAttribute("aria-pressed", "true");
+    await expect(firstCard.locator(".scenario-selected")).toBeVisible();
+    await expect(page.locator("#begin")).toBeEnabled();
+    const after = await firstCard.evaluate((button) => ({
+      background: getComputedStyle(button).backgroundColor,
+      borderWidth: getComputedStyle(button).borderTopWidth,
+      actionBackground: getComputedStyle(document.querySelector("#begin")).backgroundColor,
+    }));
+    expect(before.pressed).toBe("false");
+    expect(before.actionDisabled).toBe(true);
+    expect(after.borderWidth).toBe("3px");
+    expect(before.background).not.toBe(after.background);
+    expect(before.actionBackground).not.toBe(after.actionBackground);
+    await noOverflow(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: resolve(shots, `selected-${lang}-${width}.png`) });
+
+    if (width === 390) {
+      const targets = await page.evaluate(() => Object.fromEntries([
+        ["起點卡", document.querySelector(".scenario")],
+        ["語言切換", document.querySelector('[data-lang="zh"]')],
+        ["主要按鈕", document.querySelector("#begin")],
+        ["返回連結", document.querySelector("#footer-link")],
+      ].map(([name, element]) => { const box = element.getBoundingClientRect(); return [name, [Math.round(box.width), Math.round(box.height)]]; })));
+      expect(Object.values(targets).every(([w, h]) => w >= 44 && h >= 44)).toBe(true);
+      console.log("390 initial touch target sizes", JSON.stringify(targets));
+    }
+
+    await page.locator("#begin").click();
+    await expect(page.locator("#route-progress")).toHaveAttribute("aria-live", "polite");
+    await expect(page.locator("#route-progress")).toHaveText(lang === "zh" ? `已排 0／${STATIONS.length} 站` : `0 of ${STATIONS.length} stops`);
+    const station = page.locator(".station").first();
+    if (width === 390) {
+      const stationBox = await station.boundingBox();
+      const routeButtonBox = await page.locator("#add-station").boundingBox();
+      const summaryButtonBox = await page.locator("#summary-button").boundingBox();
+      expect(stationBox.width).toBeGreaterThanOrEqual(44);
+      expect(stationBox.height).toBeGreaterThanOrEqual(44);
+      expect(routeButtonBox.height).toBeGreaterThanOrEqual(44);
+      expect(summaryButtonBox.height).toBeGreaterThanOrEqual(44);
+      console.log("390 route touch target sizes", JSON.stringify({ "站點卡": [Math.round(stationBox.width), Math.round(stationBox.height)], "路線主要按鈕": [Math.round(routeButtonBox.width), Math.round(routeButtonBox.height)], "路線摘要按鈕": [Math.round(summaryButtonBox.width), Math.round(summaryButtonBox.height)] }));
+    }
+    await station.click();
+    await page.locator("#add-station").click();
+    await expect(page.locator("#route-progress")).toHaveText(lang === "zh" ? `已排 1／${STATIONS.length} 站` : `1 of ${STATIONS.length} stops`);
+    await page.locator("#route-progress").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: resolve(shots, `progress-${lang}-${width}.png`) });
+    await noOverflow(page);
+  });
+}
+
+test("zh 1280x800: first starting card is fully visible in the first screen", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto(`${PAGE}?lang=zh`);
+  const heading = await page.locator("#start-title").boundingBox();
+  const card = await page.locator(".scenario").first().boundingBox();
+  expect(heading.y + heading.height).toBeLessThanOrEqual(800);
+  expect(card.y).toBeLessThanOrEqual(700);
+  expect(card.y + card.height).toBeLessThanOrEqual(800);
+  await page.screenshot({ path: resolve(shots, "first-zh-1280x800.png") });
+});
 
 for (const lang of ["zh", "en"]) {
   test(`${lang}: foundations, language switch, keyboard, replay and all image assets`, async ({ page }) => {
