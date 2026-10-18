@@ -1116,6 +1116,44 @@ test.describe("Nightglow map", () => {
     await expect(page.locator("#card-egg")).toHaveText("M-31");
     await page.locator("#card").screenshot({ path: `${OUT}/map-1280-en-holly.png` });
   });
+
+  test("night story team labels immediately show the matching roster and portraits", async ({ page }) => {
+    const teams = [
+      { id: "andromeda", label: { zh: "仙女隊", en: "Andromeda Team" }, names: { zh: ["Holly", "阿閃", "樂樂", "言歌"], en: ["Holly", "Flick", "Remi", "Echo"] }, images: ["andromeda-v2.webp", "spark.webp", "soundtrack.webp", "missionary.webp"] },
+      { id: "chart", label: { zh: "星圖隊", en: "Star-Map Team" }, names: { zh: ["莉婭", "墨衡", "塞安", "苔苔"], en: ["Leia", "Rook", "Zion", "Moss"] }, images: ["mapkeeper.webp", "strategist.webp", "finisher.webp", "designer.webp"] },
+      { id: "lantern", label: { zh: "燈下隊", en: "Lantern Team" }, names: { zh: ["MG", "阿修", "保羅", "戴安娜"], en: ["MG", "Shiu", "Paul", "Diana"] }, images: ["/mg-mini-demo/assets/heart/00.webp", "messenger.webp", "apostle.webp", "craftsman.webp"] },
+      { id: "galaxy", label: { zh: "銀河隊", en: "Galaxy Team" }, names: { zh: ["銀河之女", "玉仔", "靚仔", "阿白"], en: ["Daughter of the Galaxy", "Yuzai", "Lenz", "Abai"] }, images: ["galaxy.webp", "winged-horse.webp", "recorder.webp", "umbrella.webp"] },
+    ];
+
+    for (const width of [390, 1440]) {
+      for (const lang of ["zh", "en"]) {
+        await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+        await page.goto(`/prototype/teammate-type/?c=ABA&lang=${lang}`);
+        await page.locator("#night-toggle").click();
+        await expect(page.locator("#night-kicker")).toHaveText(lang === "zh" ? "角色找到了，故事還沒結束。" : "You found your role. The night is not over.");
+
+        for (const team of teams) {
+          const tab = page.locator(`#night-route [data-team-preview="${team.id}"]`);
+          await tab.click();
+          await expect(tab).toHaveAttribute("aria-pressed", "true");
+          await expect(page.locator("#night-team-preview-title")).toContainText(team.label[lang]);
+          await expect(page.locator("#night-team-members .night-team-member")).toHaveCount(4);
+          for (let index = 0; index < 4; index += 1) {
+            const member = page.locator("#night-team-members .night-team-member").nth(index);
+            await expect(member).toContainText(team.names[lang][index]);
+            if (team.images[index].startsWith("/")) {
+              await expect(member.locator("img")).toHaveAttribute("src", team.images[index]);
+            } else {
+              await expect(member.locator("img")).toHaveAttribute("src", new RegExp(`${team.images[index].replaceAll("-", "\\-")}$`));
+            }
+            await expect(member.locator("img")).toBeVisible();
+            await expect.poll(() => member.locator("img").evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
+          }
+          await noOverflow(page);
+        }
+      }
+    }
+  });
 });
 
 test.describe("Paul's review on the names", () => {
