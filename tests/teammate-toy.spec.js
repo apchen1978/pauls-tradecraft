@@ -135,7 +135,7 @@ async function shootShowcaseAndGarage(page, name) {
   });
 }
 
-test("the business line comes first; the showcase follows the works and comes before the garage", async ({ page }) => {
+test("the showcase comes before the business line and garage", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/?lang=zh");
   await expect(page.locator("#showcase")).toBeVisible();
@@ -145,12 +145,12 @@ test("the business line comes first; the showcase follows the works and comes be
     const showcase = node("showcase");
     return {
       questionsThenOneDeal: follows(node("three-questions"), node("one-deal")),
-      afterWorks: follows(node("works"), showcase),
+      showcaseBeforeWorks: follows(showcase, node("works")),
       beforeGarage: follows(showcase, node("garage")),
     };
   });
   expect(order.questionsThenOneDeal).toBe(true);
-  expect(order.afterWorks).toBe(true);
+  expect(order.showcaseBeforeWorks).toBe(true);
   expect(order.beforeGarage).toBe(true);
   const nav = page.locator("header nav");
   const hrefs = await nav.locator('a[href^="#"]').evaluateAll((els) => els.map((el) => el.getAttribute("href")));
@@ -161,7 +161,9 @@ test("the business line comes first; the showcase follows the works and comes be
   const images = page.locator("#showcase img");
   expect(await images.count()).toBeGreaterThan(0);
   for (const img of await images.all()) {
-    await expect(img).toHaveAttribute("loading", "lazy");
+    const wakeSrc = await img.getAttribute("data-wake-src");
+    await expect(img).toHaveAttribute("loading", wakeSrc ? "eager" : "lazy");
+    if (wakeSrc) await expect(img).toHaveAttribute("src", wakeSrc);
   }
   await page.goto("/?lang=en");
   await expect(page.locator("header nav").getByRole("link", { name: "Playful Works", exact: true })).toHaveAttribute("href", "#showcase");
