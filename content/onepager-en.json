@@ -7,9 +7,9 @@
   "lineLabel": "LINE",
   "lineUrl": "https://line.me/ti/p/zSJdkOeQgS",
   "kicker": "Human–AI collaborative work · International sales",
-  "title": "I help a decision-maker take one product to a first overseas order, or a first container.",
+  "title": "I turn 15 years of international sales judgment into tools that people and AI can run together.",
   "positioning": "Path · People · Commitment · Numbers",
-  "subtitle": "For an SME decision-maker, and equally for the decision-maker on one product line. Background: 15 years in international business, including mainland China channels (exclusive stores, wholesale, projects) and team management.",
+  "subtitle": "For decision-makers who want AI to genuinely work inside sales and operations. Background: 15 years in international business, including mainland China channels (exclusive stores, wholesale, projects) and team management.",
   "stats": [
     {
       "value": "955",
@@ -26,19 +26,19 @@
   ],
   "servicesTitle": "WHAT I HELP MOVE FORWARD",
   "services": [
-    "Global business development — start from what this one product can actually deliver, then find markets, buyers, and channels worth verifying.",
-    "Decisions before commitment — put payment, delivery, responsibility, and unknowns on one surface; the decision-maker chooses the next step.",
-    "Business economics / accounting-aware judgment — separate margin, cash, and timing; tax and legal conclusions stay with the appropriate professional."
+    "International sales judgment — path, people, commitment, and numbers: payment, delivery, responsibility, and unknowns on one surface, with the decision-maker choosing the next step.",
+    "Turning how-to into tools — package one sentence or one judgment into a small tool and process colleagues can use, instead of leaving it in one person's head.",
+    "AI without losing control — people learn it first, agents take over step by step; access, approval, and records are clear from the start."
   ],
   "deliverablesTitle": "WHAT THE TEAM LEAVES WITH",
   "deliverables": [
     {
       "title": "A clearer decision question",
-      "body": "What this product needs for a first order: objective, constraints, knowns, and unknowns on one surface."
+      "body": "Objective, constraints, knowns, and unknowns on one surface, so you can see what is stuck."
     },
     {
-      "title": "A brief the team can continue",
-      "body": "Path, people, commitment, and numbers, written so the team can pick them up."
+      "title": "Tools the team can pick up",
+      "body": "A sentence or a judgment turned into a small tool or process the team can keep using, with someone responsible for maintaining it."
     },
     {
       "title": "A traceable next move",
@@ -46,10 +46,10 @@
     }
   ],
   "leverageTitle": "HOW I WORK · JUDGMENT FIRST, EXECUTION WITH DISCIPLINE",
-  "leverage": "Research, comparison, and the brief come first. The decision-maker sets the objective and the boundary; evidence decides what moves forward.",
-  "worksTitle": "From one product to the first container",
-  "worksHref": "https://paulstradecraft.com/cases/first-container/",
-  "worksLead": "Four stations: the path, the people, whether to commit, and whether the numbers hold. The four works below follow this line.",
+  "leverage": "AI gives fast direction, organises and drafts; the decision-maker sets the objective and the boundary, and evidence decides what moves forward.",
+  "worksTitle": "Main works you can open and try",
+  "worksHref": "https://paulstradecraft.com/#showcase",
+  "worksLead": "Five works, from hands-on play to understanding a flow, to business judgment and practical AI.",
   "reviewedWorkIds": [
     "architecture-decision",
     "trade-deal-desk",
@@ -71,12 +71,13 @@
     "quote-lens"
   ],
   "works": [
-    "Overseas Lead Discovery — find the overseas buyers worth reaching first. After the list, Paul takes over: why these accounts, and the first opening.",
-    "Commercial Decision Desk — before any commitment, put net contribution, payment, and unknowns on one table. The decision-maker decides.",
-    "Trade Profit Navigator — put margin, cash, and the levers worth testing on one surface.",
-    "Market Entry Research — includes “From Inquiry to Quote: Six Decision Gates.” Tools prepare the inquiry; a person decides price, risk, and any commitment."
+    "ROOMVERSE 3D — build a room and change the light; an interactive work made by a person and AI together.",
+    "Trade Street — an interactive way to see how one container gets to sea, even for non-specialists.",
+    "Which Step Holds? — order an enterprise AI rollout for a fictional company.",
+    "Commercial Decision Desk — before any commitment, net contribution, payment, and unknowns on one table; the decision-maker decides.",
+    "AI Lab — seventeen chapters of practical AI, from individuals to enterprises, with small interactives."
   ],
-  "processTitle": "START WITH ONE PRODUCT",
-  "process": "Bring one product, an old catalogue, or a first order that is stuck. Clarify the path, the people, the commitment, and the numbers—then decide the next step.",
+  "processTitle": "START WITH ONE QUESTION",
+  "process": "Bring one product, an old catalogue, a stuck process, or a task you want AI to help with. Clarify where it is stuck first, then decide the next step.",
   "disclaimer": "Demo cases use fictional data; outcomes not verified."
 }
