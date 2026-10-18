@@ -4,7 +4,7 @@ import { resolve, extname } from "node:path";
 import { expect, test } from "@playwright/test";
 
 const destinations = [
-  "roomverse-3d", "trade-street", "ai-funnel", "teammate-type", "secrets-on-the-corner",
+  "roomverse-3d", "trade-street", "ai-funnel", "enterprise-ai-path", "teammate-type", "secrets-on-the-corner",
   "take-the-lantern-apart", "match-the-approved-lamp", "room-mode-remote",
 ];
 mkdirSync("output/showcase-entry", { recursive: true });
