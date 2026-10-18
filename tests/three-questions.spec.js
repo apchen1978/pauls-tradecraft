@@ -7,10 +7,29 @@ const CARDS = {
   en: [["lead", "Find buyers", "/cases/overseas-lead-discovery/#en"], ["decision", "Reduce risk", "/cases/commercial-decision-desk/#en"], ["margin", "Protect margin", "#trade-profit-navigator"]],
 };
 
+async function emulateDesktopPointer(page) {
+  await page.addInitScript(() => {
+    const nativeMatchMedia = window.matchMedia.bind(window);
+    window.matchMedia = (query) => {
+      const media = nativeMatchMedia(query);
+      if (query !== "(hover: hover) and (pointer: fine) and (min-width: 1024px)") return media;
+      return new Proxy(media, {
+        get(target, property) {
+          if (property === "matches") return true;
+          const value = Reflect.get(target, property, target);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      });
+    };
+  });
+}
+
 for (const lang of ["zh", "en"]) {
   test(`${lang} at 1440px: value tags, evidence lines, deeper links, and the hand-over to one deal`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
+    await emulateDesktopPointer(page);
     await page.goto(`/?lang=${lang}`);
+    await page.waitForFunction(() => Boolean(window.lenisVersion));
     const section = page.locator("#three-questions");
     const cards = section.locator("ol > li");
     await expect(cards).toHaveCount(3);
@@ -28,6 +47,20 @@ for (const lang of ["zh", "en"]) {
     await expect(page.locator("#trade-profit-navigator")).toBeInViewport({ timeout: 15000 });
   });
 }
+
+test("390px zh and en: the margin anchor lands after opening its card", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const lang of ["zh", "en"]) {
+    await page.goto(`/?lang=${lang}`);
+    const marginDetail = page.locator("#three-questions-margin-detail");
+    await marginDetail.locator("xpath=preceding-sibling::button[1]").click();
+    await page.locator('#three-questions a[href="#trade-profit-navigator"]').click();
+    const target = page.locator("#trade-profit-navigator");
+    await expect(target).toBeInViewport({ timeout: 15000 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  }
+});
 
 test("390px: the value tag shows before opening; the evidence and deeper link sit in the opened card", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
