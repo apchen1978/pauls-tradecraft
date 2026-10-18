@@ -5,6 +5,11 @@ const queryLang = new URLSearchParams(location.search).get("lang");
 const state = { lang: ["zh", "en"].includes(queryLang) ? queryLang : (navigator.language.startsWith("zh") ? "zh" : "en"), scenario: null, phase: "start", selected: null, route: [], feedback: null };
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const asset = (name) => `assets/${name}.webp`;
+// Match each card surface to the sampled outer pixel of its paper-textured icon.
+const ICON_SURFACES = {
+  learn: "#f5f3ef", tools: "#f5f4ed", context: "#f5f3ef", data: "#f5f4ed",
+  search: "#f5f3ef", connect: "#f6f4f0", collaborate: "#f8f8ef",
+};
 
 const scenarioButtons = SCENARIOS.map((id) => {
   const button = document.createElement("button");
@@ -17,6 +22,7 @@ const scenarioButtons = SCENARIOS.map((id) => {
 const stationButtons = STATIONS.map((id) => {
   const button = document.createElement("button"); button.type = "button"; button.className = "station"; button.dataset.station = id;
   const img = document.createElement("img"); img.src = asset(`station-${id}`); img.width = 128; img.height = 128; img.decoding = "async";
+  button.style.setProperty("--icon-surface", ICON_SURFACES[id]);
   button.append(img, document.createElement("span"), document.createElement("small"));
   button.addEventListener("click", () => { state.selected = id; render(); });
   $("stations").append(button); return button;
@@ -28,6 +34,7 @@ function missingFor(id) {
 }
 function makeStep(id, missing, t) {
   const item = document.createElement("li"); item.className = missing.length ? "unsteady" : "steady";
+  item.style.setProperty("--icon-surface", ICON_SURFACES[id]);
   const img = document.createElement("img"); img.src = asset(`station-${id}`); img.width = 128; img.height = 128; img.alt = t.stations[id].imageAlt;
   const text = document.createElement("span"); const name = document.createElement("strong"); name.textContent = t.stations[id].name;
   const status = document.createElement("small"); status.textContent = missing.length ? `⚠ ${t.unstable}` : `✓ ${t.stable}`;

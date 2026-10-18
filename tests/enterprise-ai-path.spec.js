@@ -21,6 +21,8 @@ async function add(page, id) {
 test("prerequisite data and bilingual content stay in parity", () => {
   expect(SCENARIOS).toHaveLength(3);
   expect(STATIONS).toHaveLength(7);
+  expect(COPY.zh.label).toBe("示範／虛構情境，成效未驗證。所有回應預先寫好，不代表實際企業或模型表現。");
+  expect(COPY.en.label).toBe("Demo / fictional scenario; outcomes not validated. Every response is prewritten; it does not show a real company or model result.");
   for (const id of STATIONS) {
     expect(PREREQUISITES[id]).toBeDefined();
     for (const lang of ["zh", "en"]) {
@@ -52,6 +54,7 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
     for (const scenario of SCENARIOS) {
       await start(page, lang, scenario);
       await expect(page.locator(".station")).toHaveCount(7);
+      if (scenario === "scattered") await page.screenshot({ path: resolve(shots, `stations-${lang}-${width}.png`), fullPage: true });
       await add(page, "search");
       await expect(page.locator("#journey li.unsteady")).toHaveCount(1);
       await expect(page.locator("#feedback")).toContainText(COPY[lang].feedbackBad);
@@ -103,6 +106,28 @@ for (const lang of ["zh", "en"]) {
     await page.locator(`[data-lang="${lang}"]`).click();
     await expect(page.locator("#route-title")).toHaveText(COPY[lang].routeTitle);
     await expect.poll(() => page.locator("img").evaluateAll((images) => images.every((img) => img.hasAttribute("alt") && img.alt.length > 0 && img.complete && img.naturalWidth > 0))).toBe(true);
+    await noOverflow(page);
+  });
+}
+
+for (const lang of ["zh", "en"]) {
+  test(`${lang}: station card surfaces match all seven icon edge pixels in route and summary`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await start(page, lang, "scattered");
+    await expect.poll(() => page.locator(".station img").evaluateAll((images) => images.every((img) => img.complete && img.naturalWidth > 0))).toBe(true);
+    const mismatches = await page.locator(".station").evaluateAll((buttons) => buttons.map((button) => {
+      const image = button.querySelector("img");
+      const canvas = document.createElement("canvas"); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+      const context = canvas.getContext("2d"); context.drawImage(image, 0, 0);
+      const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+      const expected = `rgb(${r}, ${g}, ${b})`;
+      return { id: button.dataset.station, expected, actual: getComputedStyle(button).backgroundColor };
+    }).filter(({ expected, actual }) => expected !== actual));
+    expect(mismatches).toEqual([]);
+    await add(page, "collaborate");
+    await expect(page.locator("#journey li")).toHaveCSS("background-color", "rgb(248, 248, 239)");
+    await page.locator("#summary-button").click();
+    await expect(page.locator("#summary-route li")).toHaveCSS("background-color", "rgb(248, 248, 239)");
     await noOverflow(page);
   });
 }

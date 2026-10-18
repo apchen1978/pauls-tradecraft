@@ -34,6 +34,7 @@ h3{font-size:21px;line-height:1.3;margin:0 0 12px}
 .section-heading p:last-child{margin-bottom:0;color:var(--muted)}
 .scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:28px}
 .scenario,.station{min-width:0;text-align:left;border:1.5px solid var(--line);background:var(--paper);color:var(--pine);transition:transform .18s,border-color .18s,box-shadow .18s}
+.station{background:var(--icon-surface,var(--paper))}
 .scenario:hover,.station:hover:not(:disabled){transform:translateY(-3px);border-color:var(--pine);box-shadow:0 10px 25px #142c2912}
 .scenario[aria-pressed=true],.station[aria-pressed=true]{border:3px solid var(--pine);box-shadow:0 0 0 3px #b8996638}
 .scenario{border-radius:12px;padding:0 0 22px;overflow:hidden}
@@ -51,7 +52,7 @@ h3{font-size:21px;line-height:1.3;margin:0 0 12px}
 .journey-panel,.detail,.summary-panel{border:1px solid var(--line);background:var(--paper);padding:24px;border-radius:12px}
 .journey-panel{margin-bottom:24px}
 .journey{padding:0;margin:0;display:flex;flex-wrap:wrap;gap:9px;list-style:none}
-.journey li{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:9px;padding:7px 12px;background:var(--bone);max-width:100%}
+.journey li{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:9px;padding:7px 12px;background:var(--icon-surface,var(--paper));max-width:100%}
 .journey img{width:38px;height:38px;object-fit:cover;border-radius:5px}
 .journey strong,.journey small{display:block}
 .journey strong{font-size:14px;line-height:1.25}
@@ -77,7 +78,7 @@ h3{font-size:21px;line-height:1.3;margin:0 0 12px}
 .route-actions{margin-top:30px}
 .summary-lead{max-width:65ch;color:var(--muted)}
 .summary-route{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;list-style:none;padding:0;margin:30px 0}
-.summary-route li{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);background:var(--paper);border-radius:10px}
+.summary-route li{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);background:var(--icon-surface,var(--paper));border-radius:10px}
 .summary-route img{width:44px;height:44px;border-radius:6px}
 .summary-route strong,.summary-route small{display:block}
 .summary-route strong{font-size:14px}
