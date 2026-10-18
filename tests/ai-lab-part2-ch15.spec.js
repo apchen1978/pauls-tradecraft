@@ -6,6 +6,10 @@ import { TOOLPATH } from "../public/ai-lab/toolpath.js";
 
 const screenshots = join(process.cwd(), "docs", "qa", "ai-lab-part2-ch15");
 mkdirSync(screenshots, { recursive: true });
+const EXPECTED_BRIDGE = {
+  zh: "知道什麼時候輪到 agent 之後，還有一件事：一句好用的話，怎麼慢慢變成大家都能用的工具。",
+  en: "Once you know when an agent takes its turn, there is one more thing: how one useful sentence gradually becomes a tool everyone can use.",
+};
 
 for (const lang of ["zh", "en"]) {
   for (const width of [390, 1440]) {
@@ -17,8 +21,9 @@ for (const lang of ["zh", "en"]) {
 
       await expect(page.locator("#c15-title")).toHaveText(x.title);
       await expect(page.locator("#c15-demo")).toHaveText(x.demo);
+      expect(x.bridge).toBe(EXPECTED_BRIDGE[lang]);
       await expect(page.locator("#c14-to-c15")).toHaveText(x.bridge);
-      await expect(page.locator("#rail .rail-dot")).toHaveCount(NAV_CHAPTERS.length);
+      await expect(page.locator("#rail .rail-dot")).toHaveCount(NAV_CHAPTERS.length + 1);
       await expect(page.locator("#rail a[href='#c15']")).toHaveCount(1);
       await expect(page.locator("#toc a[href='#c15']")).toHaveCount(0);
       await expect(page.locator("#toc a")).toHaveCount(TEXT[lang].toc.length + 1);

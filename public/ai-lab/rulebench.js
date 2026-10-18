@@ -6,12 +6,12 @@ const COPY = {
     desk: "把經驗組成一條規則", deskLead: "每格選一項，看看 agent 會怎麼照著做。",
     fields: ["什麼時候", "做什麼", "什麼情況要停下問人", "誰更新、何時回頭看"],
     options: [
-      ["詢價來了就處理。", "客戶詢價時，先核對需求欄位是否齊全。", "每封詢價都當成已確認訂單。"],
-      ["照平常方式處理。", "查核規格與可用資料，整理成報價草稿。", "直接寄出報價。"],
-      ["有問題就小心一點。", "價格、交期或規格缺資料時，停下來請負責人確認。", "資料不全時，用常見做法補齊並繼續。"],
-      ["之後再看。", "由負責人維護；出錯或流程變動時回頭檢視。", "讓 agent 自己調整規則，不必回報。"],
+      [{ kind: "concrete", label: "客戶詢價時，先核對需求欄位是否齊全。" }, { kind: "risk", label: "每封詢價都當成已確認訂單。" }, { kind: "vague", label: "詢價來了就處理。" }],
+      [{ kind: "risk", label: "直接寄出報價。" }, { kind: "vague", label: "照平常方式處理。" }, { kind: "concrete", label: "查核規格與可用資料，整理成報價草稿。" }],
+      [{ kind: "vague", label: "有問題就小心一點。" }, { kind: "concrete", label: "價格、交期或規格缺資料時，停下來請負責人確認。" }, { kind: "risk", label: "資料不全時，用常見做法補齊並繼續。" }],
+      [{ kind: "risk", label: "讓 agent 自己調整規則，不必回報。" }, { kind: "concrete", label: "由負責人維護；出錯或流程變動時回頭檢視。" }, { kind: "vague", label: "之後再看。" }],
     ],
-    optionKinds: ["含糊", "具體可用", "看似具體但有風險"],
+    kindNames: { vague: "含糊", concrete: "具體可用", risk: "看似具體但有風險" },
     preview: "組好的規則", outcomeTitle: "agent 照這條規則會怎麼做",
     status: { vague: "還不夠清楚", concrete: "具體可用", risk: "做得到，但有風險" },
     vagueResult: "條件還不清楚，agent 只能猜。它應先停下來，指出缺少的資訊。",
@@ -44,12 +44,12 @@ const COPY = {
     desk: "Build a rule from experience", deskLead: "Choose one option in each field and see how the agent would follow it.",
     fields: ["When", "What to do", "When to stop and ask", "Who updates it, and when to review"],
     options: [
-      ["Handle enquiries when they arrive.", "When a customer enquires, first check that the request fields are complete.", "Treat every enquiry as a confirmed order."],
-      ["Handle it as usual.", "Check the available specifications and information, then prepare a quote draft.", "Send the quote directly."],
-      ["Be careful if something is unclear.", "If price, lead time or specifications are missing, stop and ask the decision-maker.", "Fill gaps with common practice and keep going."],
-      ["Review it later.", "The decision-maker maintains it and reviews it after an error or process change.", "Let the agent change the rule without reporting back."],
+      [{ kind: "concrete", label: "When a customer enquires, first check that the request fields are complete." }, { kind: "risk", label: "Treat every enquiry as a confirmed order." }, { kind: "vague", label: "Handle enquiries when they arrive." }],
+      [{ kind: "risk", label: "Send the quote directly." }, { kind: "vague", label: "Handle it as usual." }, { kind: "concrete", label: "Check the available specifications and information, then prepare a quote draft." }],
+      [{ kind: "vague", label: "Be careful if something is unclear." }, { kind: "concrete", label: "If price, lead time or specifications are missing, stop and ask the decision-maker." }, { kind: "risk", label: "Fill gaps with common practice and keep going." }],
+      [{ kind: "risk", label: "Let the agent change the rule without reporting back." }, { kind: "concrete", label: "The decision-maker maintains it and reviews it after an error or process change." }, { kind: "vague", label: "Review it later." }],
     ],
-    optionKinds: ["Vague", "Concrete and usable", "Specific-looking but risky"],
+    kindNames: { vague: "Vague", concrete: "Concrete and usable", risk: "Specific-looking but risky" },
     preview: "Your assembled rule", outcomeTitle: "What the agent would do",
     status: { vague: "Still unclear", concrete: "Concrete and usable", risk: "Possible, but risky" },
     vagueResult: "The conditions are unclear, so the agent can only guess. It should pause and point out what is missing.",
@@ -77,7 +77,7 @@ const COPY = {
   },
 };
 
-const state = [0, 0, 0, 0];
+const state = ["vague", "vague", "vague", "vague"];
 const lang = () => document.documentElement.lang.startsWith("en") ? "en" : "zh";
 const node = (tag, className, text) => {
   const item = document.createElement(tag);
@@ -163,12 +163,13 @@ function render() {
     const legend = node("legend", null, field);
     group.append(legend);
     const options = node("div", "rulebench-options");
-    x.options[fieldIndex].forEach((choice, choiceIndex) => {
-      const label = node("label", `rulebench-option kind-${choiceIndex}`);
+    x.options[fieldIndex].forEach((choice) => {
+      const label = node("label", `rulebench-option kind-${choice.kind}`);
+      label.dataset.kind = choice.kind;
       const input = document.createElement("input");
-      input.type = "radio"; input.name = `rulebench-${fieldIndex}`; input.value = String(choiceIndex); input.checked = state[fieldIndex] === choiceIndex;
-      input.addEventListener("change", () => { state[fieldIndex] = choiceIndex; updateOutcome(); });
-      label.append(input, node("span", "rulebench-kind", x.optionKinds[choiceIndex]), node("span", "rulebench-choice", choice));
+      input.type = "radio"; input.name = `rulebench-${fieldIndex}`; input.value = choice.kind; input.checked = state[fieldIndex] === choice.kind;
+      input.addEventListener("change", () => { state[fieldIndex] = choice.kind; updateOutcome(); });
+      label.append(input, node("span", "rulebench-kind", x.kindNames[choice.kind]), node("span", "rulebench-choice", choice.label));
       options.append(label);
     });
     group.append(options);
@@ -192,10 +193,10 @@ function render() {
 
 function updateOutcome() {
   const x = COPY[lang()];
-  const choices = x.options.map((group, index) => group[state[index]]);
-  document.getElementById("rulebench-rule").textContent = choices.join(" ");
-  const riskIndex = state.findIndex((value) => value === 2);
-  const mode = riskIndex >= 0 ? "risk" : state.some((value) => value === 0) ? "vague" : "concrete";
+  const choices = x.options.map((group, index) => group.find((choice) => choice.kind === state[index]));
+  document.getElementById("rulebench-rule").textContent = choices.map((choice) => choice.label).join(" ");
+  const riskIndex = choices.findIndex((choice) => choice.kind === "risk");
+  const mode = riskIndex >= 0 ? "risk" : choices.some((choice) => choice.kind === "vague") ? "vague" : "concrete";
   const status = document.getElementById("rulebench-status");
   status.textContent = x.status[mode];
   document.getElementById("rulebench-outcome").dataset.state = mode;

@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { NAV_CHAPTERS } from "../public/ai-lab/content.js";
+import { TOOLPATH } from "../public/ai-lab/toolpath.js";
 
 const PAGE = "/ai-lab/";
 const screenshots = join(process.cwd(), "docs", "qa", "ai-lab-part2-ch16");
@@ -23,6 +25,16 @@ const COPY = {
     bridge: "The toolkit is ready, but its judgment still lives in people's heads. This chapter puts that judgment into words.",
   },
 };
+const KIND_ORDER = [
+  ["concrete", "risk", "vague"],
+  ["risk", "vague", "concrete"],
+  ["vague", "concrete", "risk"],
+  ["risk", "concrete", "vague"],
+];
+const RISK_RESULTS = {
+  zh: ["把詢價當成已確認訂單，可能跳過需求確認。", COPY.zh.risk, "資料缺漏仍自行補齊，可能把猜測寫進報價。", "讓 agent 自行改規則且不回報，錯誤做法可能繼續沿用。"],
+  en: ["Treating an enquiry as a confirmed order may skip checking what was requested.", COPY.en.risk, "Filling gaps on its own may put guesses into a quote.", "If the agent changes rules without reporting back, a faulty approach may keep being reused."],
+};
 
 for (const lang of ["zh", "en"]) {
   for (const width of [390, 1440]) {
@@ -34,28 +46,22 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("#rulebench-title")).toHaveText(x.title);
       await expect(page.locator("#rulebench-demo")).toContainText(lang === "zh" ? "示範／虛構情境" : "Illustration / fictional scenario");
       await expect(page.locator("#rail [data-target='c16']")).toHaveCount(1);
+      await expect(page.locator("#rail .rail-dot")).toHaveCount(NAV_CHAPTERS.length + 1);
+      await expect(page.locator("#rail [data-target='c16']").evaluate((node) => node.previousElementSibling?.dataset.target)).resolves.toBe("c15");
       await expect(page.locator("#toc a[href='#c16']")).toHaveCount(0);
+      await expect(page.locator("#main .chapter[id^='c']")).toHaveCount(NAV_CHAPTERS.filter(({ id }) => /^c\d+$/.test(id)).length + 1);
       await expect(page.locator("#c16")).toHaveCount(1);
       await expect(page.locator("#c16").evaluate((node) => node.nextElementSibling?.id)).resolves.toBe("latest");
-      if (await page.locator("#c15").count()) {
-        await expect(page.locator("#c16").evaluate((node) => node.previousElementSibling?.id)).resolves.toBe("c15");
-        await expect(page.locator("#c15-to-c16")).toHaveText(x.bridge);
-      } else {
-        await page.evaluate(() => {
-          const fixture = document.createElement("section");
-          fixture.id = "c15";
-          document.getElementById("c16").before(fixture);
-          document.documentElement.lang = document.documentElement.lang.startsWith("en") ? "zh-Hant" : "en";
-        });
-        await expect(page.locator("#c15-to-c16")).toBeAttached();
-        await expect(page.locator("#c15-to-c16")).toHaveText(COPY[lang === "zh" ? "en" : "zh"].bridge);
-        await expect(page.locator("#c16").evaluate((node) => node.previousElementSibling?.id)).resolves.toBe("c15");
-        await page.evaluate((currentLang) => { document.documentElement.lang = currentLang === "zh" ? "zh-Hant" : "en"; }, lang);
-        await expect(page.locator("#c15-to-c16")).toHaveText(x.bridge);
-      }
+      await expect(page.locator("#c15-title")).toHaveText(TOOLPATH[lang].title);
+      await expect(page.locator("#c16").evaluate((node) => node.previousElementSibling?.id)).resolves.toBe("c15");
+      await expect(page.locator("#c15-to-c16")).toHaveCount(1);
+      await expect(page.locator("#c15-to-c16")).toHaveText(x.bridge);
       const groups = page.locator("#rulebench-form fieldset");
       await expect(groups).toHaveCount(4);
-      for (let field = 0; field < 4; field++) await expect(groups.nth(field).locator("input[type=radio]")).toHaveCount(3);
+      for (let field = 0; field < 4; field++) {
+        await expect(groups.nth(field).locator("input[type=radio]")).toHaveCount(3);
+        await expect(groups.nth(field).locator(".rulebench-option").evaluateAll((labels) => labels.map((label) => label.dataset.kind))).resolves.toEqual(KIND_ORDER[field]);
+      }
 
       // Every fixed combination is deterministic: risk takes precedence, then vague, then fully concrete.
       const results = await page.evaluate(() => {
@@ -68,7 +74,8 @@ for (const lang of ["zh", "en"]) {
             input.checked = true;
             input.dispatchEvent(new Event("change", { bubbles: true }));
           }
-          collected.push({ state: document.getElementById("rulebench-outcome").dataset.state, status: document.getElementById("rulebench-status").textContent, text: document.getElementById("rulebench-outcome-text").textContent });
+          const kinds = [...document.querySelectorAll("#rulebench-form fieldset")].map((group) => group.querySelector("input:checked").closest("label").dataset.kind);
+          collected.push({ kinds, state: document.getElementById("rulebench-outcome").dataset.state, status: document.getElementById("rulebench-status").textContent, text: document.getElementById("rulebench-outcome-text").textContent });
         }
         return collected;
       });
@@ -77,18 +84,20 @@ for (const lang of ["zh", "en"]) {
         let value = packed;
         const selection = [];
         for (let field = 0; field < 4; field++) { selection.push(value % 3); value = Math.floor(value / 3); }
-        const risk = selection.findIndex((choice) => choice === 2);
-        const mode = risk >= 0 ? "risk" : selection.some((choice) => choice === 0) ? "vague" : "concrete";
-        const expected = mode === "risk" ? (lang === "zh" ? ["把詢價當成已確認訂單，可能跳過需求確認。", x.risk, "資料缺漏仍自行補齊，可能把猜測寫進報價。", "讓 agent 自行改規則且不回報，錯誤做法可能繼續沿用。"][risk] : ["Treating an enquiry as a confirmed order may skip checking what was requested.", x.risk, "Filling gaps on its own may put guesses into a quote.", "If the agent changes rules without reporting back, a faulty approach may keep being reused."][risk]) : x[mode];
-        expect(results[packed]).toEqual({ state: mode, status: x.status[mode], text: expected });
+        const kinds = selection.map((choice, field) => KIND_ORDER[field][choice]);
+        const risk = kinds.findIndex((kind) => kind === "risk");
+        const mode = risk >= 0 ? "risk" : kinds.includes("vague") ? "vague" : "concrete";
+        const expected = mode === "risk" ? RISK_RESULTS[lang][risk] : x[mode];
+        expect(results[packed]).toEqual({ kinds, state: mode, status: x.status[mode], text: expected });
       }
-      for (let field = 0; field < 4; field++) await groups.nth(field).locator("input").nth(field === 2 ? 2 : 1).check();
+      for (let field = 0; field < 4; field++) await groups.nth(field).locator("input[value='concrete']").check();
+      await groups.nth(2).locator("input[value='risk']").check();
       await expect(page.locator("#rulebench-outcome")).toHaveAttribute("data-state", "risk");
 
-      await groups.nth(0).locator("input").nth(1).check();
-      await groups.nth(1).locator("input").nth(1).check();
-      await groups.nth(2).locator("input").nth(2).check();
-      await groups.nth(3).locator("input").nth(1).check();
+      await groups.nth(0).locator("input[value='concrete']").check();
+      await groups.nth(1).locator("input[value='risk']").check();
+      await groups.nth(2).locator("input[value='vague']").check();
+      await groups.nth(3).locator("input[value='concrete']").check();
       await page.locator("#c16").scrollIntoViewIfNeeded();
       await page.locator("#rulebench-reveal summary").click();
       await expect(page.locator("#rulebench-example")).toBeVisible();
