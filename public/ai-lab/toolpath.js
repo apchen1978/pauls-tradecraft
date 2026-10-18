@@ -1,7 +1,7 @@
 // Fixed, fictional packaging path. Nothing is sent or saved.
 export const TOOLPATH = {
   zh: {
-    bridge: "知道什麼時候讓 agent 上場之前，也要看一句好用的話怎麼慢慢變成大家都能用的工具。",
+    bridge: "知道什麼時候輪到 agent 之後，還有一件事：一句好用的話，怎麼慢慢變成大家都能用的工具。",
     no: "15",
     title: "一句話怎麼變成工具？",
     lead: "示範公司有一句常用的交辦話。試著一級級打包，看看方便了什麼，也看看每升一級要多照顧什麼。",
@@ -54,7 +54,7 @@ export const TOOLPATH = {
     principles: ["先從會重複使用的一句話開始。", "每升一級，就多一份要維護的東西。", "沒有人負責時，先留在上一級。"],
   },
   en: {
-    bridge: "Before deciding when an agent takes a turn, see how one useful sentence can gradually become a tool everyone can use.",
+    bridge: "Once you know when an agent takes its turn, there is one more thing: how one useful sentence gradually becomes a tool everyone can use.",
     no: "15",
     title: "From one sentence to a tool",
     lead: "A fictional company has a useful instruction. Package it one level at a time and see what becomes easier—and what each level adds to maintain.",
