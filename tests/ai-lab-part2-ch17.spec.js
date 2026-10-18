@@ -35,6 +35,9 @@ for (const lang of ["zh", "en"]) {
 
       const rowNames = copy.rows.map(({ tool }) => tool);
       await expect(page.locator("#registry-rows .registry-toggle")).toHaveText(rowNames);
+      const owners = copy.rows.map(({ owner }) => owner);
+      await expect(page.locator("#registry-rows > .registry-item td:nth-child(2)")).toHaveText(owners);
+      expect(copy.rows.find(({ id }) => id === "quote-draft")?.owner).toBe("");
       for (const [index, row] of copy.rows.entries()) {
         const button = page.locator(`#registry-toggle-${row.id}`);
         const panel = page.locator(`#registry-detail-${row.id}`);

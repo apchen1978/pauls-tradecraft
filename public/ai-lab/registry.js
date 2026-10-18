@@ -15,7 +15,7 @@ export const REGISTRY = {
     detailLabels: ["問題在哪裡", "可以怎麼補"],
     rows: [
       {
-        id: "quote-summary", tool: "詢價摘要小工具", owner: "林安", systems: "產品資料庫・唯讀", source: "目前使用的產品資料表", review: "資料來源更新時回看", status: "健康",
+        id: "quote-summary", tool: "詢價摘要小工具", owner: "業務同事", systems: "產品資料庫・唯讀", source: "目前使用的產品資料表", review: "資料來源更新時回看", status: "健康",
         issue: "負責人、系統範圍和資料來源都寫清楚，也安排了回看時機。",
         fix: "維持現有記錄；來源或用途改變時，再確認這些欄位仍合用。",
       },
@@ -25,17 +25,17 @@ export const REGISTRY = {
         fix: "先指定願意照看它的負責人，並約好何時回來檢查。",
       },
       {
-        id: "customer-followup", tool: "客戶跟進整理", owner: "周晴", systems: "客戶紀錄・可寫入", source: "客戶紀錄", review: "流程變更時回看", status: "權限偏寬",
+        id: "customer-followup", tool: "客戶跟進整理", owner: "客服同事", systems: "客戶紀錄・可寫入", source: "客戶紀錄", review: "流程變更時回看", status: "權限偏寬",
         issue: "這個整理任務只需要讀取，現在卻開了寫入權限。",
         fix: "先收回不需要的寫入權限；若日後確實要更新資料，再另設確認和紀錄。",
       },
       {
-        id: "product-lookup", tool: "產品資料查詢", owner: "陳禾", systems: "產品資料庫・唯讀", source: "來源不清或內容已過期", review: "尚未安排", status: "來源待確認",
+        id: "product-lookup", tool: "產品資料查詢", owner: "產品資料管理的同事", systems: "產品資料庫・唯讀", source: "來源不清或內容已過期", review: "尚未安排", status: "來源待確認",
         issue: "看不出資料從哪裡來，也不知道內容是否仍有效。",
         fix: "標明使用的資料表與維護人；來源或內容更新時回頭核對。",
       },
       {
-        id: "weekly-brief", tool: "週報產生器", owner: "許沐", systems: "內部資料・唯讀", source: "部門週報資料夾", review: "很久沒回看", status: "待決定去留",
+        id: "weekly-brief", tool: "週報產生器", owner: "部門助理", systems: "內部資料・唯讀", source: "部門週報資料夾", review: "很久沒回看", status: "待決定去留",
         issue: "很久沒有人使用，也還沒有人決定要保留或收起來。",
         fix: "問清楚是否還有人需要；若沒有，就記下停止維護的決定與原因。",
       },
@@ -71,7 +71,7 @@ export const REGISTRY = {
     detailLabels: ["What needs attention", "One way to address it"],
     rows: [
       {
-        id: "quote-summary", tool: "Enquiry summary helper", owner: "Lin An", systems: "Product database · read-only", source: "Current product table", review: "Revisit when the source changes", status: "Healthy",
+        id: "quote-summary", tool: "Enquiry summary helper", owner: "A sales colleague", systems: "Product database · read-only", source: "Current product table", review: "Revisit when the source changes", status: "Healthy",
         issue: "The owner, system scope and source are clear, with a review point in place.",
         fix: "Keep the record current; check these fields again when the source or purpose changes.",
       },
@@ -81,17 +81,17 @@ export const REGISTRY = {
         fix: "Name someone willing to look after it and agree when to review it.",
       },
       {
-        id: "customer-followup", tool: "Customer follow-up organiser", owner: "Zhou Qing", systems: "Customer records · write access", source: "Customer records", review: "Revisit when the process changes", status: "Access is too broad",
+        id: "customer-followup", tool: "Customer follow-up organiser", owner: "A customer-service colleague", systems: "Customer records · write access", source: "Customer records", review: "Revisit when the process changes", status: "Access is too broad",
         issue: "This organising task only needs read access, but write access is enabled.",
         fix: "Remove write access that is not needed. If updates are needed later, add human review and a record.",
       },
       {
-        id: "product-lookup", tool: "Product lookup", owner: "Chen He", systems: "Product database · read-only", source: "Unclear source or outdated content", review: "Not arranged", status: "Source needs checking",
+        id: "product-lookup", tool: "Product lookup", owner: "A colleague who manages product data", systems: "Product database · read-only", source: "Unclear source or outdated content", review: "Not arranged", status: "Source needs checking",
         issue: "It is unclear where the information came from or whether it is still current.",
         fix: "Name the source table and its maintainer; revisit it when the source or content changes.",
       },
       {
-        id: "weekly-brief", tool: "Weekly brief maker", owner: "Xu Mu", systems: "Internal data · read-only", source: "Department brief folder", review: "Not revisited recently", status: "Keep or retire?",
+        id: "weekly-brief", tool: "Weekly brief maker", owner: "A department assistant", systems: "Internal data · read-only", source: "Department brief folder", review: "Not revisited recently", status: "Keep or retire?",
         issue: "It has not been used for a while, and no one has decided whether to keep it.",
         fix: "Find out whether anyone still needs it. If not, record the decision to retire it and why.",
       },
