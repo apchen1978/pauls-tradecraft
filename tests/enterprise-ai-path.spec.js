@@ -37,6 +37,8 @@ test("each fictional starting point has a stable first move", async ({ page }) =
     if (scenario === "underused") await expect(page.locator("#starting-foundation")).toContainText(COPY.zh.stations.learn.name);
     await add(page, first[scenario]);
     await expect(page.locator("#journey li.steady")).toHaveCount(1);
+    await page.locator("#summary-button").click();
+    if (scenario === "underused") await expect(page.locator("#summary-foundation")).toContainText(COPY.zh.stations.learn.name);
   }
 });
 

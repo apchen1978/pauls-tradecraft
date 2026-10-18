@@ -47,6 +47,8 @@ function render() {
   const initial = STARTING_FOUNDATIONS[state.scenario] || [];
   $("starting-foundation").hidden = !initial.length;
   $("starting-foundation").textContent = initial.length ? `${t.startingFoundation} ${initial.map((id) => t.stations[id].name).join(" · ")}` : "";
+  $("summary-foundation").hidden = !initial.length;
+  $("summary-foundation").textContent = $("starting-foundation").textContent;
   $("start").hidden = state.phase !== "start"; $("route").hidden = state.phase !== "route"; $("summary").hidden = state.phase !== "summary";
   stationButtons.forEach((button, index) => {
     const id = STATIONS[index], data = t.stations[id], done = state.route.find((step) => step.id === id);
