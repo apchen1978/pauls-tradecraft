@@ -1,4 +1,4 @@
-:root{color-scheme:light;--pine:#142c29;--gold:#b89966;--bone:#f6f3ed;--paper:#fffcf6;--muted:#52635c;--line:#cbd2c6;--warning:#79502b;--tech-teal:#146c67;--tech-teal-deep:#0d4e4b}
+:root{color-scheme:light;--pine:#142c29;--gold:#b89966;--bone:#f6f3ed;--paper:#fffcf6;--muted:#52635c;--line:#cbd2c6;--warning:#79502b;--tech-teal:#146c67;--tech-teal-deep:#0d4e4b;--tech-blue:#0b5f91;--tech-violet:#6044ae}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -24,10 +24,10 @@ h1,h2,h3,p{overflow-wrap:break-word}
 h1{font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;font-size:clamp(46px,5.5vw,80px);font-weight:650;letter-spacing:-.05em;line-height:1.08;margin:0 0 20px;text-wrap:balance}
 html[lang=en] h1{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.055em}
 /* A is the default. B and C are review-only classes on <html>; they add no visitor control. */
-.title-style-b h1{position:relative;color:var(--tech-teal-deep)}
-.title-style-b h1::after{content:"";position:absolute;left:0;bottom:-10px;width:52px;height:3px;background:var(--tech-teal)}
+.title-style-b h1{position:relative;color:var(--tech-blue)}
+.title-style-b h1::after{content:"";position:absolute;left:0;bottom:-10px;width:52px;height:3px;background:var(--tech-violet)}
 @supports ((-webkit-background-clip:text) or (background-clip:text)){
-  .title-style-b h1{background:linear-gradient(95deg,var(--pine) 18%,var(--tech-teal-deep) 66%,var(--tech-teal));background-clip:text;-webkit-background-clip:text;color:transparent}
+  .title-style-b h1{background:linear-gradient(95deg,var(--tech-blue),var(--tech-violet));background-clip:text;-webkit-background-clip:text;color:transparent}
 }
 .title-style-c h1{position:relative;color:var(--tech-teal-deep)}
 .title-style-c h1::after{content:"";position:absolute;left:0;bottom:-9px;width:68px;height:1px;background:var(--tech-teal)}
