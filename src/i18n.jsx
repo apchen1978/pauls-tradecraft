@@ -490,7 +490,7 @@ const dict = {
           objectPosition: "center",
         },
         {
-          title: "企業 AI 路線",
+          title: "Which Step Holds? · 先走哪一步，才踩得住？",
           tag: "路線規劃 · 雙語示範",
           hook: "一間示範公司想用 AI。先走哪站，哪些基礎不能跳？",
           teaches: "看懂企業導入 AI 為何要按順序打底，再逐步連接工作。",
@@ -1406,7 +1406,7 @@ const dict = {
           objectPosition: "center",
         },
         {
-          title: "The enterprise AI path · 企業 AI 路線",
+          title: "Which Step Holds? · The enterprise AI path",
           tag: "Route planning · bilingual demo",
           hook: "A fictional company wants to use AI. Which step comes first, and what cannot be skipped?",
           teaches: "Explore why an enterprise AI path needs foundations before connecting more work.",

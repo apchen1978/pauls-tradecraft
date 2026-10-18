@@ -18,8 +18,8 @@ export const STARTING_FOUNDATIONS = { scattered: [], individual: [], underused: 
 
 export const COPY = {
   zh: {
-    title: "企業 AI 路線",
-    subtitle: "先走哪一步，才不會讓下一步踩空？",
+    title: "先走哪一步，才踩得住？",
+    subtitle: "企業 AI 路線",
     lead: "替一間虛構的示範公司排一條路。你可以跳站，但跳過的基礎會在路線上留下痕跡。",
     label: "示範／虛構情境，成效未驗證。所有回應預先寫好，不代表實際企業或模型表現。",
     choose: "先選一個起點",
@@ -75,8 +75,8 @@ export const COPY = {
     ],
   },
   en: {
-    title: "The enterprise AI path",
-    subtitle: "Which step comes first, so the next one has a foundation?",
+    title: "Which Step Holds?",
+    subtitle: "The enterprise AI path",
     lead: "Plan a route for a fictional demo company. You may skip ahead, but a missing foundation leaves a visible mark on your route.",
     label: "Demo / fictional scenario; outcomes not validated. Every response is prewritten; it does not show a real company or model result.",
     choose: "Choose a starting point",
