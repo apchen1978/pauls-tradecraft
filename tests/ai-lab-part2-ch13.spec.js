@@ -29,6 +29,8 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator(".chapter[id^='c']")).toHaveCount(sectionCount);
       await expect(page.locator("#rail .rail-dot")).toHaveCount(NAV_CHAPTERS.length);
       await expect(page.locator("#toc a")).toHaveCount(TEXT[lang].toc.length + 1);
+      await expect(page.locator("#toc a[href='#part2'], #toc a[href='#c13']")).toHaveCount(0);
+      await expect(page.locator("#rail a[href='#part2'], #rail a[href='#c13']")).toHaveCount(2);
       await expect(page.locator("#part2-title")).toHaveText(x.partTitle);
       await expect(page.locator("#part2-intro p")).toHaveCount(2);
       await expect(page.locator("#c13-title")).toHaveText(x.title);
@@ -41,6 +43,15 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("#access-approval")).toBeChecked();
       expect(await page.evaluate(() => localStorage.length)).toBe(0);
       await expect(page.locator("#deep-kicker")).toContainText("05–12");
+
+      // An unnecessary grant changes the outcome even when approval is on.
+      const erpWrite = page.locator('input[data-system="erp"][data-permission="write"]');
+      await erpWrite.check();
+      await expect(page.locator("#access-result")).toHaveAttribute("data-state", "broad");
+      await expect(page.locator("#access-result-status")).toHaveText(x.statuses.broad);
+      await expect(page.locator("#access-result-copy")).toContainText(x.extra);
+      await erpWrite.uncheck();
+      await expect(page.locator("#access-result")).toHaveAttribute("data-state", "safe");
 
       // A missing required read permission is reported immediately.
       await page.locator('[data-task="reply"]').click();
@@ -63,6 +74,8 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("#access-result")).toHaveAttribute("data-state", "missing");
       await page.locator('input[data-system="crm"][data-permission="read"]').check();
       await page.locator('input[data-system="crm"][data-permission="write"]').check();
+      await expect(page.locator("#access-result")).toHaveAttribute("data-state", "broad");
+      await page.locator('input[data-system="products"][data-permission="read"]').uncheck();
       await expect(page.locator("#access-result")).toHaveAttribute("data-state", "safe");
       await page.locator("#access-approval").uncheck();
       await expect(page.locator("#access-result")).toHaveAttribute("data-state", "risky");
@@ -78,6 +91,17 @@ for (const lang of ["zh", "en"]) {
       await erpRead.focus();
       await page.keyboard.press("Space");
       await expect(erpRead).toBeChecked();
+
+      // Leave a readable end state for the four review screenshots.
+      await page.locator('input[data-system="products"][data-permission="read"]').check();
+      await page.locator('input[data-system="crm"][data-permission="read"]').uncheck();
+      await page.locator('input[data-system="crm"][data-permission="write"]').uncheck();
+      await erpRead.uncheck();
+      await expect(page.locator("#access-result")).toHaveAttribute("data-state", "safe");
+      if (lang === "zh" && width === 390) {
+        await erpWrite.check();
+        await expect(page.locator("#access-result")).toHaveAttribute("data-state", "broad");
+      }
 
       const reveal = page.locator("#access-reveal");
       await reveal.locator("summary").click();

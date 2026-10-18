@@ -301,10 +301,10 @@ function renderEnterpriseResult() {
     const labels = missing.map(([system, permission]) => `${x.systems[system]} · ${x.permissions[permission]}`);
     message = `${x.missing} ${labels.join(state.lang === "zh" ? "、" : ", ")}.`;
   } else {
-    status = "safe";
-    message = x.results[state.task];
     const required = new Set(requirements.map(([system, permission]) => `${system}:${permission}`));
-    if (granted.some((key) => !required.has(key))) message += ` ${x.extra}`;
+    const hasExtraAccess = granted.some((key) => !required.has(key));
+    status = hasExtraAccess ? "broad" : "safe";
+    message = x.results[state.task] + (hasExtraAccess ? ` ${x.extra}` : "");
   }
   result.dataset.state = status;
   $("access-result-status").textContent = x.statuses[status];
@@ -679,8 +679,8 @@ function render() {
   $("toc").replaceChildren(...x.toc.map((label, i) => {
     const li = el("li");
     const a = el("a");
-    const target = ["c0", "c1", "c2", "c3", "c4", "part2", "c13"][i];
-    const mark = target === "part2" ? "II" : target.slice(1).padStart(2, "0");
+    const target = ["c0", "c1", "c2", "c3", "c4"][i];
+    const mark = target.slice(1).padStart(2, "0");
     a.href = `#${target}`;
     a.append(el("span", "n", mark), document.createTextNode(label));
     li.appendChild(a);

@@ -33,6 +33,7 @@ export const PART_TWO = {
     resultTitle: "目前設定下會發生什麼？",
     statuses: {
       safe: "做得到・風險低",
+      broad: "做得到・權限偏寬",
       missing: "做不到・權限不足",
       risky: "做得到・風險高",
     },
@@ -95,6 +96,7 @@ export const PART_TWO = {
     resultTitle: "What happens with these settings?",
     statuses: {
       safe: "Can do · Lower risk",
+      broad: "Can do · Access too broad",
       missing: "Cannot do · Access missing",
       risky: "Can do · High risk",
     },
