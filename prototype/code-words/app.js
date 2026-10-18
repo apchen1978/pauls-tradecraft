@@ -104,6 +104,7 @@
       hint: "同一句話，永遠是同一個結果。",
       step1: "第 1 步，共 3 步", pickTitle: "選一句含糊的話", ownLabel: "或自己打一句（最多 12 個字）",
       readBtn: "看 AI agent 怎麼讀",
+      selectionHint: function (phrase) { return "已選「" + phrase + "」，按下方按鈕，看三位 agent 怎麼讀。"; },
       step2: "第 2 步，共 3 步", readingTitle: "三位 agent 的解讀",
       makeBtn: "做成暗號卡", backPick: "換一句",
       cardKicker: "暗號卡 · 示意玩具", lines: ["字面君怎麼讀", "語氣君怎麼讀", "能解開它的一句話"],
@@ -121,6 +122,7 @@
       hint: "The same phrase always gives the same result.",
       step1: "Step 1 of 3", pickTitle: "Pick a vague phrase", ownLabel: "Or type your own (up to 12 characters)",
       readBtn: "See how the AI agents read it",
+      selectionHint: function (phrase) { return "Selected “" + phrase + "”. Use the button below to see how three agents read it."; },
       step2: "Step 2 of 3", readingTitle: "Three agents, three readings",
       makeBtn: "Make my code-word card", backPick: "Pick another",
       cardKicker: "Code-word card · illustrative toy", lines: ["How Literal reads it", "How Tone reads it", "The one line that clears it up"],
@@ -229,15 +231,23 @@
       b.type = "button";
       b.className = "chip";
       b.textContent = p[lang];
-      b.setAttribute("aria-pressed", String(state.phrase && state.phrase.preset === p));
+      var selected = Boolean(state.phrase && state.phrase.preset === p);
+      b.setAttribute("aria-pressed", String(selected));
+      if (selected) {
+        var check = document.createElement("span");
+        check.className = "selection-check";
+        check.setAttribute("aria-hidden", "true");
+        check.textContent = "✓";
+        b.appendChild(check);
+      }
       b.addEventListener("click", function () {
         $("own").value = "";
         state.phrase = { preset: p };
         renderChips();
-        $("read").disabled = false;
       });
       box.appendChild(b);
     });
+    updateSelectionFeedback();
   }
 
   function show(id) {
@@ -468,8 +478,11 @@
     if (!$("result").hidden) renderCard();
   }
 
-  function updateReadButton() {
-    $("read").disabled = !(state.phrase && (state.phrase.preset || state.phrase.text));
+  function updateSelectionFeedback() {
+    var phrase = state.phrase && (state.phrase.preset ? state.phrase.preset[lang] : state.phrase.text);
+    $("read").disabled = !phrase;
+    $("selection-hint").hidden = !phrase;
+    $("selection-hint").textContent = phrase ? UI[lang].selectionHint(phrase) : "";
   }
 
   document.querySelectorAll("[data-set-lang]").forEach(function (b) {
@@ -479,7 +492,6 @@
     var text = $("own").value.trim().slice(0, 12);
     state.phrase = text ? { text: text } : null;
     renderChips();
-    updateReadButton();
   });
   $("read").addEventListener("click", function () {
     renderReading();
@@ -494,11 +506,9 @@
     state.phrase = null;
     $("own").value = "";
     renderChips();
-    updateReadButton();
     show("pick");
   });
   $("download").addEventListener("click", downloadCard);
 
   renderStatic();
-  updateReadButton();
 })();
