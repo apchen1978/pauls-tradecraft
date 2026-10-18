@@ -1,4 +1,4 @@
-:root{color-scheme:light;--pine:#142c29;--gold:#b89966;--bone:#f6f3ed;--paper:#fffcf6;--muted:#52635c;--line:#cbd2c6;--warning:#79502b}
+:root{color-scheme:light;--pine:#142c29;--gold:#b89966;--bone:#f6f3ed;--paper:#fffcf6;--muted:#52635c;--line:#cbd2c6;--warning:#79502b;--tech-teal:#146c67;--tech-teal-deep:#0d4e4b}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -21,7 +21,17 @@ main{max-width:1240px;margin:auto;padding:0 28px 80px}
 .hero-copy{position:relative;z-index:1}
 .eyebrow{margin:0 0 14px;color:#6d634b;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 h1,h2,h3,p{overflow-wrap:break-word}
-h1{font-size:clamp(46px,5.5vw,80px);font-weight:600;letter-spacing:-.06em;line-height:1.08;margin:0 0 20px;text-wrap:balance}
+h1{font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;font-size:clamp(46px,5.5vw,80px);font-weight:650;letter-spacing:-.05em;line-height:1.08;margin:0 0 20px;text-wrap:balance}
+html[lang=en] h1{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.055em}
+/* A is the default. B and C are review-only classes on <html>; they add no visitor control. */
+.title-style-b h1{position:relative;color:var(--tech-teal-deep)}
+.title-style-b h1::after{content:"";position:absolute;left:0;bottom:-10px;width:52px;height:3px;background:var(--tech-teal)}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .title-style-b h1{background:linear-gradient(95deg,var(--pine) 18%,var(--tech-teal-deep) 66%,var(--tech-teal));background-clip:text;-webkit-background-clip:text;color:transparent}
+}
+.title-style-c h1{position:relative;color:var(--tech-teal-deep)}
+.title-style-c h1::after{content:"";position:absolute;left:0;bottom:-9px;width:68px;height:1px;background:var(--tech-teal)}
+html[lang=en].title-style-c h1{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:clamp(40px,4.9vw,70px);letter-spacing:-.07em}
 h2{font-size:clamp(27px,3vw,40px);font-weight:600;line-height:1.25;letter-spacing:-.035em;margin:0 0 16px}
 h3{font-size:21px;line-height:1.3;margin:0 0 12px}
 .hero-subtitle{font-size:18px;font-weight:600;letter-spacing:.01em;line-height:1.3;margin:0 0 12px;color:var(--muted)}
