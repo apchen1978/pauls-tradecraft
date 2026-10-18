@@ -13,7 +13,7 @@ export const TEXT = {
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
-  // why: one line on why the pairing works.
+  // why: one line on why the pairing works. rain, family, tech and chic are Paul's wording (2026-10-16); the slow line is a CC draft awaiting Paul's review.
   rain: { zh: "下雨天想窩在家裡", en: "Rainy day, staying in",
     why: { zh: "窗外偏冷時，屋裡就用暖黃的燈和米白布料把溫度補回來，讓人想宅在家裡一天也很舒服。", en: "When it's cool and grey outside, warm lamps and cream fabrics bring the warmth back indoors, so a whole day at home feels good." }, hemi: .9, win: .7, winCol: "#bccbdb", lamp: 5, fill: 1.2, out: "#eef1f3", exposure: 1.05, floor: 2.2, glow: .55 },
   family: { zh: "Cozy family", en: "Cozy family",
@@ -118,6 +118,8 @@ export async function start({ stage, panel, lang, onReady }) {
     sand: { zh: "暖砂米", en: "Warm sand", paint: "#d9c6a8" },
     olive: { zh: "柔橄欖", en: "Soft olive", paint: "#a9ad8a" },
     blush: { zh: "霧粉", en: "Dusty blush", paint: "#e6cec6" },
+    mist: { zh: "霧灰藍", en: "Misty blue-grey", paint: "#c3ccd2" },
+    pine: { zh: "深松綠", en: "Deep pine", paint: "#46604f" },
     // size = metres per tile (the wall's UVs are in metres); about 5 x 3 tiles on the back wall
     stripe: { zh: "細條紋壁紙", en: "Fine-stripe wallpaper", size: 1.0, tex: image("wallpaper-stripe-v1", true) },
     botanical: { zh: "淡色植紋壁紙", en: "Soft botanical wallpaper", size: 1.5, tex: image("wallpaper-botanical-v1", true) },

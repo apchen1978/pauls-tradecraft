@@ -45,7 +45,7 @@ test("switching language updates the page text and the home link", async ({ page
   await page.goto(`${PAGE}?lang=zh`);
   await page.locator("#lang").click();
   await expect(page.locator("#home")).toHaveAttribute("href", "/?lang=en");
-  await expect(page.locator("#title")).toHaveText("One room, three ways to come home");
+  await expect(page.locator("#title")).toHaveText("One room, many ways to come home");
 });
 
 test("the Garage light-tech shelf links to the 3D room in the visitor's language", async ({ page }) => {
@@ -116,6 +116,72 @@ test("the room lives in the address: a shared link opens the same choices, click
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   await expect(pressed(0)).toHaveText("下雨天想窩在家裡");
   await expect(pressed(2)).toHaveText("藍米條紋");
+});
+
+test("new wall paints restore from the URL and work across all five feelings", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`${PAGE}?lang=en&mood=rain&wall=mist`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
+
+  const groups = page.locator("#panel .opts");
+  const moodButtons = groups.nth(0).locator("button");
+  const wallButtons = groups.nth(1).locator("button");
+  await expect(wallButtons).toHaveCount(8); // six paint options plus two wallpapers, rendered from WALLS
+  await expect(wallButtons.filter({ hasText: "Misty blue-grey" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page).toHaveURL(/wall=mist/);
+
+  for (let mood = 0; mood < 5; mood++) {
+    await moodButtons.nth(mood).click();
+    const wall = mood % 2 === 0 ? "Deep pine" : "Misty blue-grey";
+    const button = wallButtons.filter({ hasText: wall });
+    await button.click();
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+    await expect(page).toHaveURL(new RegExp(`wall=${mood % 2 === 0 ? "pine" : "mist"}`));
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("new wall paint QA: all feelings, four responsive screenshots and the English first screen", async ({ page }) => {
+  const output = "docs/qa/roomverse-small-fixes";
+  const moodReview = "test-results/roomverse-small-fixes-mood-review";
+  await mkdir(moodReview, { recursive: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`${PAGE}?lang=en`);
+  await expect(page.locator("#title")).toHaveText("One room, many ways to come home");
+  await expect(page.locator('meta[property="og:description"]')).not.toHaveAttribute("content", /三種表情/);
+  await page.screenshot({ path: `${output}/english-1440-first-screen.png` });
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
+
+  const groups = page.locator("#panel .opts");
+  const moodButtons = groups.nth(0).locator("button");
+  const wallButtons = groups.nth(1).locator("button");
+  const moods = ["rain", "family", "tech", "chic", "slow"];
+  for (let mood = 0; mood < moods.length; mood++) {
+    await moodButtons.nth(mood).click();
+    for (const [wallKey, wallName] of [["mist", "Misty blue-grey"], ["pine", "Deep pine"]]) {
+      const button = wallButtons.filter({ hasText: wallName });
+      await button.click();
+      await page.waitForTimeout(650); // let mood-light transitions settle before visual review
+      await page.locator("#stage").screenshot({ path: `${moodReview}/${moods[mood]}-${wallKey}-1440.png` });
+    }
+  }
+
+  await moodButtons.nth(1).click(); // keep the required comparisons on the same bright, daytime feeling
+  for (const [wallKey, wallName] of [["mist", "Misty blue-grey"], ["pine", "Deep pine"]]) {
+    const button = wallButtons.filter({ hasText: wallName });
+    await button.click();
+    await page.waitForTimeout(650);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({ path: `${output}/${wallKey}-390.png`, fullPage: true });
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.waitForTimeout(100);
+    await page.screenshot({ path: `${output}/${wallKey}-1440.png`, fullPage: true });
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test("粉領新貴風: a fourth feeling with its own line, plus a blush wall and a dusty rose curtain", async ({ page }) => {
