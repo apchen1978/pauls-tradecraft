@@ -32,7 +32,7 @@ export const GATES = [
   { id: "rules", alone: false },
 ];
 
-export const GLOSSARY = ["llm", "token", "prompt", "context", "hallucination", "rag", "agent", "tools", "mcp", "harness", "hitl", "eval", "multi", "compaction"];
+export const GLOSSARY = ["llm", "token", "prompt", "context", "hallucination", "rag", "agent", "tools", "mcp", "skill", "harness", "hitl", "eval", "multi", "compaction"];
 
 export const MORE = {
   zh: {
@@ -139,7 +139,7 @@ export const MORE = {
     glossary: {
       kicker: "GLOSSARY",
       title: "名詞小卡",
-      lead: "點開一個詞：一句白話，加一個貿易的例子。",
+      lead: "點開一個詞：一句白話，加一個例子。以下是常見的分法，不是嚴格定義；實際產品裡三者的界線有時會重疊。",
       terms: {
         llm: ["LLM（大型語言模型）", "用大量文字訓練、很會「接下一個詞」的模型。", "ChatGPT、Claude 背後的那個東西（第 01 章）。"],
         token: ["Token", "模型讀和寫的小片段；長度和費用都用它來算。", "一封長的詢價信，就是很多個 token。"],
@@ -148,8 +148,9 @@ export const MORE = {
         hallucination: ["幻覺", "說得很像真的，其實是編的（第 01 章）。", "沒查排程，就回「下週可以出貨」。"],
         rag: ["RAG（檢索增強生成）", "先去找相關資料，再根據資料回答。", "先翻產品規格表和過去的報價，再回詢價。"],
         agent: ["Agent", "會自己拆步驟、用工具、檢查結果的 AI（第 02 章）。", "讀信、查資料、找缺口、草擬，最後停下來問人。"],
-        tools: ["工具使用", "agent 讀檔、跑程式、開網頁的能力（第 06 章）。", "開瀏覽器，量每盞燈有沒有站穩。"],
-        mcp: ["MCP", "讓工具用同一種方式接上 agent 的共通規格，像萬用插座（第 06 章）。", "瀏覽器、文件、桌面操作，用同一種方式接上。"],
+        tools: ["工具使用", "agent 讀檔、跑程式、開網頁的能力（第 06 章）。", "開瀏覽器，量每盞燈有沒有站穩。和 skill 是不同職責層，不是誰取代誰；見 skill 小卡。"],
+        mcp: ["MCP", "讓工具用同一種方式接上 agent 的共通規格，像萬用插座（第 06 章）。", "瀏覽器、文件、桌面操作，用同一種方式接上。和 skill 是不同職責層，不是誰取代誰；見 skill 小卡。"],
+        skill: ["Skill", "把某件事該怎麼做，連同說明、步驟和必要時的腳本，整理成可重複用的做法包；agent 需要時才讀取。", "用固定步驟整理一封虛構詢價。"],
         harness: ["Harness（工作環境）", "包住 agent 的那一層：能用哪些工具、哪些事要先問人。", "能改程式，但不能自己上線。"],
         hitl: ["Human in the loop", "關鍵的決定點留給人（第 03、09 章）。", "報價的價格和交期，要負責人點頭才寄出。"],
         eval: ["驗證／評估", "檢查 AI 做得對不對的方法（第 07 章）。", "自動掃過每一句，不能有數字和禁用字。"],
@@ -262,7 +263,7 @@ export const MORE = {
     glossary: {
       kicker: "GLOSSARY",
       title: "Pocket glossary",
-      lead: "Open a term: one plain sentence and one trade example.",
+      lead: "Open a term for a plain explanation and an example. These are common distinctions, not strict definitions; real products may overlap.",
       terms: {
         llm: ["LLM (large language model)", "A model trained on huge amounts of text that is very good at continuing with the next word.", "The thing behind ChatGPT and Claude (chapter 01)."],
         token: ["Token", "The small pieces a model reads and writes; length and cost are counted in them.", "A long enquiry email is a lot of tokens."],
@@ -271,8 +272,9 @@ export const MORE = {
         hallucination: ["Hallucination", "Sounds true, but is made up (chapter 01).", "Replying \"ships next week\" without checking the schedule."],
         rag: ["RAG (retrieval-augmented generation)", "Find the relevant material first, then answer from it.", "Check the spec sheet and past quotes before answering an enquiry."],
         agent: ["Agent", "An AI that plans steps, uses tools and checks results (chapter 02).", "Read, look up, find gaps, draft, then stop and ask."],
-        tools: ["Tool use", "An agent's ability to read files, run code, open web pages (chapter 06).", "Open a browser and check that each lamp stands on something."],
-        mcp: ["MCP", "A shared standard for plugging tools into agents, like a universal socket (chapter 06).", "Browser, documents, desktop control, all connected the same way."],
+        tools: ["Tool use", "An agent's ability to read files, run code, open web pages (chapter 06).", "Open a browser and check that each lamp stands on something. A different responsibility layer from skills, not a replacement; see the skill card."],
+        mcp: ["MCP", "A shared standard for plugging tools into agents, like a universal socket (chapter 06).", "Browser, documents, desktop control, all connected the same way. A different responsibility layer from skills, not a replacement; see the skill card."],
+        skill: ["Skill", "A reusable package for how to do a task, with instructions, steps and, when needed, scripts; an agent reads it when useful.", "A repeatable process for organising a fictional enquiry."],
         harness: ["Harness", "The layer around an agent: which tools it may use, what it must ask first.", "It may change code, but may not put it live."],
         hitl: ["Human in the loop", "Key decision points stay with a person (chapters 03 and 09).", "A quote's price and lead time go out only once the person in charge agrees."],
         eval: ["Evaluation / verification", "Ways of checking whether AI got it right (chapter 07).", "Scan every line automatically: no digits, no banned words."],

@@ -5,6 +5,7 @@ import { LATEST, LATEST_TEXT } from "./latest.js";
 import { SPIRIT } from "./spirit.js";
 import { PART_TWO, SYSTEMS, TASK_REQUIREMENTS } from "./enterprise.js";
 import { LADDER } from "./ladder.js";
+import { TOOLPATH } from "./toolpath.js";
 
 // AI Lab, phase 1. Nothing is stored; only ?lang= goes into the address. Demos are fixed, never random.
 const $ = (id) => document.getElementById(id);
@@ -37,6 +38,8 @@ const state = {
   approval: true,
   ladderLevel: 1,
   ladderSkip: false,
+  packageLevel: 0,
+  packageGates: new Set(),
 };
 let timers = [];
 const t = () => TEXT[state.lang];
@@ -452,6 +455,101 @@ function renderLadder() {
   renderLadderSteps();
 }
 
+function renderPackageState() {
+  const x = TOOLPATH[state.lang];
+  const level = state.packageLevel;
+  const stage = x.stages[level - 1];
+  $("package-stage-name").textContent = stage ? stage.name : x.starting;
+  const features = $("package-features");
+  features.replaceChildren(...x.stages.slice(0, level).map((item, index) => {
+    const section = el("section", "package-feature");
+    section.append(el("h5", null, item.name), el("p", null, item.feature));
+    if (index === 0) {
+      const saved = el("div", "package-saved");
+      saved.append(el("span", null, x.previewSaved), el("p", null, x.original));
+      section.appendChild(saved);
+    }
+    if (index === 1) {
+      const fields = el("dl", "package-fields");
+      x.fields.forEach((field, fieldIndex) => fields.append(el("dt", null, field), el("dd", null, x.fieldValues[fieldIndex])));
+      section.appendChild(fields);
+    }
+    if (index === 2) {
+      const button = el("button", "package-example-button", x.toolButton);
+      button.type = "button";
+      button.disabled = true;
+      section.append(button, el("p", "package-check", x.toolCheck), el("strong", "package-output-title", x.outputTitle), el("p", "package-output", x.output));
+    }
+    if (index === 3) section.append(el("strong", "package-output-title", x.entranceTitle), el("p", "package-output", x.entrance));
+    const tradeoff = el("dl", "package-tradeoff");
+    tradeoff.append(
+      el("dt", null, x.gainLabel), el("dd", null, item.gain),
+      el("dt", null, x.upkeepLabel), el("dd", null, item.upkeep),
+      el("dt", null, x.ownerLabel), el("dd", null, item.owner),
+    );
+    section.appendChild(tradeoff);
+    return section;
+  }));
+  const missing = x.gates.filter((gate) => !state.packageGates.has(gate.id));
+  const finished = level === x.stages.length;
+  const next = $("package-next");
+  next.textContent = finished ? x.finishedButton : missing.length ? x.blockedButton : x.readyButton;
+  next.disabled = finished;
+  next.setAttribute("aria-disabled", String(finished || missing.length > 0));
+  $("package-back").disabled = level === 0;
+  const status = $("package-status");
+  status.dataset.state = finished ? "finished" : missing.length ? "blocked" : "ready";
+  status.replaceChildren(el("p", null, finished ? x.finished : missing.length ? x.blocked : x.ready));
+  if (!finished && missing.length) status.appendChild(el("ul"));
+  if (!finished && missing.length) status.querySelector("ul").replaceChildren(...missing.map((gate) => el("li", null, gate.missing)));
+}
+
+function renderPackage() {
+  const x = TOOLPATH[state.lang];
+  $("c14-to-c15").textContent = x.bridge;
+  $("c15-no").textContent = x.no;
+  $("c15-title").textContent = x.title;
+  $("c15-lead").textContent = x.lead;
+  $("c15-demo").textContent = x.demo;
+  $("package-desk-title").textContent = x.deskTitle;
+  $("package-desk-lead").textContent = x.deskLead;
+  $("package-preview-title").textContent = x.previewTitle;
+  $("package-original-title").textContent = x.originalTitle;
+  $("package-original").textContent = x.original;
+  $("package-checklist-title").textContent = x.checklistTitle;
+  $("package-gates").replaceChildren(...x.gates.map((gate) => {
+    const label = el("label", "package-gate");
+    const input = el("input");
+    input.type = "checkbox";
+    input.value = gate.id;
+    input.checked = state.packageGates.has(gate.id);
+    input.addEventListener("change", () => {
+      if (input.checked) state.packageGates.add(gate.id); else state.packageGates.delete(gate.id);
+      renderPackageState();
+    });
+    label.append(input, el("span", null, gate.label));
+    return label;
+  }));
+  const next = $("package-next");
+  next.onclick = () => {
+    if (state.packageGates.size !== x.gates.length || state.packageLevel === x.stages.length) return;
+    state.packageLevel += 1;
+    renderPackageState();
+  };
+  const back = $("package-back");
+  back.textContent = x.backButton;
+  back.onclick = () => { if (state.packageLevel > 0) { state.packageLevel -= 1; renderPackageState(); } };
+  $("package-reveal").querySelector("summary").textContent = x.revealTitle;
+  $("package-roles").replaceChildren(...x.roles.map((role) => {
+    const li = el("li");
+    li.append(el("strong", null, role.name), el("p", null, role.detail));
+    return li;
+  }));
+  $("package-principles-title").textContent = x.principlesTitle;
+  $("package-principles").replaceChildren(...x.principles.map((principle) => el("li", null, principle)));
+  renderPackageState();
+}
+
 function renderDeep() {
   const x = d();
   $("deep-title").textContent = x.divider;
@@ -603,6 +701,7 @@ function renderSteps() {
     const [term, plain, example] = g.terms[id];
     const d = el("details", "term");
     d.dataset.term = id;
+    d.id = id;
     d.append(el("summary", null, term), el("p", null, plain), el("p", "ex", example));
     return d;
   }));
@@ -764,6 +863,7 @@ function render() {
   renderMore();
   renderEnterprise();
   renderLadder();
+  renderPackage();
   renderSpirit();
   renderConsole(false);
   renderRail();
