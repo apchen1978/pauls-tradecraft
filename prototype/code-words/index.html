@@ -72,7 +72,15 @@
       border: 2.5px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); font-weight: 700;
     }
     .chip:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
-    .chip[aria-pressed="true"] { background: var(--pop); color: var(--pine); }
+    .chip[aria-pressed="true"] {
+      background: var(--pop); color: var(--pine); border: 3px solid var(--pine);
+      box-shadow: 4px 4px 0 var(--pine);
+    }
+    .selection-check {
+      display: inline-grid; place-items: center; width: 20px; height: 20px;
+      margin-left: 9px; border-radius: 50%; background: var(--pine); color: var(--white);
+      font-size: 14px; line-height: 1;
+    }
     .own { display: block; margin-top: 18px; font-size: 14px; font-weight: 700; color: var(--moss); }
     .own input {
       display: block; width: 100%; min-height: 48px; margin-top: 6px; padding: 8px 16px;
@@ -91,7 +99,15 @@
     .primary:hover { filter: brightness(1.12); }
     .primary.ghost { background: var(--white); color: var(--ink); }
     .primary.ghost:hover { filter: none; }
-    .primary[disabled] { opacity: 0.4; cursor: not-allowed; }
+    #read:not([disabled]) { box-shadow: 4px 4px 0 var(--brass); }
+    #read[disabled] {
+      background: var(--paper); color: var(--moss); border-color: var(--line);
+      box-shadow: none; cursor: not-allowed;
+    }
+    .selection-hint {
+      margin: 16px 0 -10px; padding-left: 12px; border-left: 3px solid var(--brass);
+      color: var(--ink); font-size: 15px; font-weight: 700; overflow-wrap: anywhere;
+    }
     .said {
       margin: 18px 0 0; padding: 14px 16px; background: var(--white); border: 2.5px solid var(--ink);
       border-radius: 1.25rem; box-shadow: 4px 4px 0 var(--ink);
@@ -173,6 +189,7 @@
       <label class="own" id="own-label" for="own"><span id="own-text"></span>
         <input id="own" type="text" maxlength="12" autocomplete="off" />
       </label>
+      <p class="selection-hint" id="selection-hint" role="status" aria-live="polite" hidden></p>
       <button type="button" class="primary" id="read" disabled></button>
     </section>
 
