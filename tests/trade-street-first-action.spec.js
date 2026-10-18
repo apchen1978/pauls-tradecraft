@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
 
 const ROOT = resolvePath(fileURLToPath(new URL("../prototype/trade-street", import.meta.url)));
-const SHOTS = resolvePath("output/playwright/trade-street-first-action");
+const SHOTS = resolvePath("docs/qa/trade-street-first-action");
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".webp": "image/webp", ".png": "image/png" };
 let server;
 let base;
