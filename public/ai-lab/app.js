@@ -4,6 +4,7 @@ import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
 import { LATEST, LATEST_TEXT } from "./latest.js";
 import { SPIRIT } from "./spirit.js";
 import { PART_TWO, SYSTEMS, TASK_REQUIREMENTS } from "./enterprise.js";
+import { LADDER } from "./ladder.js";
 
 // AI Lab, phase 1. Nothing is stored; only ?lang= goes into the address. Demos are fixed, never random.
 const $ = (id) => document.getElementById(id);
@@ -34,6 +35,8 @@ const state = {
   task: "products",
   access: new Set(["products:read"]),
   approval: true,
+  ladderLevel: 1,
+  ladderSkip: false,
 };
 let timers = [];
 const t = () => TEXT[state.lang];
@@ -397,6 +400,58 @@ function renderEnterprise() {
   renderEnterpriseResult();
 }
 
+function renderLadderSteps() {
+  const x = LADDER[state.lang];
+  $("ladder-steps").replaceChildren(...x.steps.map((name, index) => {
+    const agentStep = index === 1 || index === 2;
+    const proposedStep = agentStep && state.ladderLevel === 2;
+    const autonomousStep = agentStep && state.ladderLevel === 3;
+    const jumpedStep = index === 3 && state.ladderSkip;
+    const li = el("li", jumpedStep ? "ladder-step jumped" : "ladder-step");
+    li.dataset.owner = jumpedStep || autonomousStep ? "agent" : proposedStep ? "shared" : "human";
+    const heading = el("div", "ladder-step-heading");
+    heading.append(el("strong", null, name), el("span", "ladder-owner", jumpedStep || autonomousStep ? x.agent : proposedStep ? `${x.agent} + ${x.human}` : x.human));
+    li.append(heading, el("p", null, jumpedStep ? x.jumped : x.roles[state.ladderLevel - 1][index]));
+    return li;
+  }));
+  const outcome = $("ladder-outcome");
+  outcome.dataset.state = state.ladderSkip ? "jumped" : "normal";
+  outcome.textContent = state.ladderSkip ? x.jumped : x.normal;
+}
+
+function renderLadder() {
+  const x = LADDER[state.lang];
+  $("c13-to-c14").textContent = x.bridge;
+  $("c14-no").textContent = x.no;
+  $("c14-title").textContent = x.title;
+  $("c14-lead").textContent = x.lead;
+  $("c14-demo").textContent = x.demo;
+  $("ladder-desk-title").textContent = x.deskTitle;
+  $("ladder-desk-lead").textContent = x.deskLead;
+  $("ladder-level-label").textContent = x.levelLabel;
+  $("ladder-step-label").textContent = x.stepLabel;
+  $("ladder-options").replaceChildren(...x.levels.map((level, index) => {
+    const label = el("label", "ladder-option");
+    const input = el("input");
+    input.type = "radio";
+    input.name = "ladder-level";
+    input.value = String(index + 1);
+    input.checked = state.ladderLevel === index + 1;
+    input.addEventListener("change", () => { state.ladderLevel = index + 1; renderLadderSteps(); });
+    label.append(input, el("strong", null, level.name), el("span", null, level.hint));
+    return label;
+  }));
+  const skip = $("ladder-skip");
+  skip.checked = state.ladderSkip;
+  skip.onchange = () => { state.ladderSkip = skip.checked; renderLadderSteps(); };
+  $("ladder-skip-label").textContent = x.skip;
+  $("ladder-reveal").querySelector("summary").textContent = x.reveal;
+  $("ladder-gates").replaceChildren(...x.gates.map((gate) => el("li", null, gate)));
+  $("ladder-principles-title").textContent = x.principlesTitle;
+  $("ladder-principles").replaceChildren(...x.principles.map((principle) => el("li", null, principle)));
+  renderLadderSteps();
+}
+
 function renderDeep() {
   const x = d();
   $("deep-title").textContent = x.divider;
@@ -708,6 +763,7 @@ function render() {
   renderDeep();
   renderMore();
   renderEnterprise();
+  renderLadder();
   renderSpirit();
   renderConsole(false);
   renderRail();
