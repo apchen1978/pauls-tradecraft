@@ -5,7 +5,7 @@ export const PART_TWO = {
     partTitle: "第二部・企業篇",
     partIntro: [
       "第一部從 Paul 個人與小團隊的經驗出發；第二部把鏡頭拉遠，思考多個部門的企業如何安排 agent 權限。",
-      "這是一套思考框架，不是任何一家公司的案例。",
+      "這是一套思考框架，不是任何一家公司的案例；第二部是延伸閱讀，想深入再往下讀，不看也不影響前面的內容。",
     ],
     no: "13",
     title: "給 agent 開權限：開多少才剛好？",
@@ -68,7 +68,7 @@ export const PART_TWO = {
     partTitle: "Part II · The enterprise",
     partIntro: [
       "Part I draws on Paul's work with AI personally and in a small team. Part II steps back to consider how an enterprise with multiple departments might set agent access.",
-      "This is a thinking framework, not a case study of any one company.",
+      "This is a thinking framework, not a case study of any one company. Part II is optional further reading; the earlier chapters stand on their own.",
     ],
     no: "13",
     title: "Giving an agent access: how much is just enough?",
