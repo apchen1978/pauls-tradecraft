@@ -21,6 +21,8 @@ async function add(page, id) {
 test("prerequisite data and bilingual content stay in parity", () => {
   expect(SCENARIOS).toHaveLength(3);
   expect(STATIONS).toHaveLength(7);
+  expect(COPY.zh.stations.collaborate.imageAlt).toBe("三個部門由一座橋連成一體。");
+  expect(COPY.en.stations.collaborate.imageAlt).toBe("Three department blocks joined by one bridge.");
   expect(COPY.zh.label).toBe("示範／虛構情境，成效未驗證。所有回應預先寫好，不代表實際企業或模型表現。");
   expect(COPY.en.label).toBe("Demo / fictional scenario; outcomes not validated. Every response is prewritten; it does not show a real company or model result.");
   for (const id of STATIONS) {
@@ -125,9 +127,9 @@ for (const lang of ["zh", "en"]) {
     }).filter(({ expected, actual }) => expected !== actual));
     expect(mismatches).toEqual([]);
     await add(page, "collaborate");
-    await expect(page.locator("#journey li")).toHaveCSS("background-color", "rgb(248, 248, 239)");
+    await expect(page.locator("#journey li")).toHaveCSS("background-color", "rgb(247, 246, 240)");
     await page.locator("#summary-button").click();
-    await expect(page.locator("#summary-route li")).toHaveCSS("background-color", "rgb(248, 248, 239)");
+    await expect(page.locator("#summary-route li")).toHaveCSS("background-color", "rgb(247, 246, 240)");
     await noOverflow(page);
   });
 }

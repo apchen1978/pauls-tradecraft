@@ -66,7 +66,7 @@ export const COPY = {
       data: { name: "整理乾淨的資料", detail: "先對齊檔案、版本和負責更新的人，再談讓 AI 使用。", gate: "先找出哪份可信、哪份過期。", consequence: "資料還沒對齊，後面每個答案都可能沿用不同版本。", imageAlt: "資料夾正被分類放入整齊的檔案櫃。" },
       search: { name: "讓 AI 查內部資料", detail: "建立知識庫：讓 AI 在指定資料中找線索；向量檢索是按意思找相近內容的一種方式。", gate: "查得到來源，也看得出哪裡還不知道。", consequence: "沒整理資料就讓 AI 查，可能找到過時或互相矛盾的版本。", imageAlt: "放大鏡正檢視有序排好的空白資料卡。" },
       connect: { name: "唯讀連接核心系統", detail: "ERP 管訂單等內部流程；CRM 記客戶往來。先讓 AI 唯讀查詢，不讓它直接改資料。", gate: "先唯讀；寫入與對外送出要由人確認並留紀錄。", consequence: "還沒核對資料和查找來源就接系統，舊資料可能被當成可靠答案。", imageAlt: "插頭連接兩個系統方塊，中間有代表唯讀的眼睛圖樣。" },
-      collaborate: { name: "跨部門一起工作", detail: "把已經能查、能交接的小工具放進共同流程，讓不同部門知道在哪裡接手。", gate: "交接點、權限和負責人要說清楚。", consequence: "小工具、做法或系統資料還沒接穩，跨部門交接會把缺口傳下去。", imageAlt: "三張分開的辦公桌由一條連續橋線接起來。" },
+      collaborate: { name: "跨部門一起工作", detail: "把已經能查、能交接的小工具放進共同流程，讓不同部門知道在哪裡接手。", gate: "交接點、權限和負責人要說清楚。", consequence: "小工具、做法或系統資料還沒接穩，跨部門交接會把缺口傳下去。", imageAlt: "三個部門由一座橋連成一體。" },
     },
     glossaryItems: [
       ["vibe coding", "用自然語言和 AI 一起把想法做成可試的程式；產出仍需要人檢查。"],
@@ -123,7 +123,7 @@ export const COPY = {
       data: { name: "Clean up the data", detail: "Align files, versions, and who updates them before asking AI to use them.", gate: "Identify which version can be trusted and which is outdated.", consequence: "Unaligned data can carry conflicting versions into every later answer.", imageAlt: "Folders are being sorted into an orderly filing cabinet." },
       search: { name: "Let AI search internal data", detail: "Make a knowledge base of approved sources. Vector retrieval is one way to find passages with similar meaning.", gate: "Show the source of a finding and what is still unknown.", consequence: "If data is not organised first, AI may retrieve old or conflicting versions.", imageAlt: "A magnifying glass inspects an orderly shelf of blank reference cards." },
       connect: { name: "Connect core systems read-only", detail: "ERP holds internal order processes; CRM records customer interactions. Let AI look first, not change records directly.", gate: "Start read-only; a person confirms and records any write or external send.", consequence: "Without checked data and sources, an old record may be treated as a reliable answer.", imageAlt: "A plug joins two system blocks, with an eye symbol for read-only access." },
-      collaborate: { name: "Work across departments", detail: "Put reusable tools and checked information into a shared flow so people know where to hand work over.", gate: "Make handoffs, access, and the decision-maker clear.", consequence: "If tools, methods, or system data are still unsteady, a cross-team handoff passes the gap along.", imageAlt: "Three desks are connected by one continuous bridge line." },
+      collaborate: { name: "Work across departments", detail: "Put reusable tools and checked information into a shared flow so people know where to hand work over.", gate: "Make handoffs, access, and the decision-maker clear.", consequence: "If tools, methods, or system data are still unsteady, a cross-team handoff passes the gap along.", imageAlt: "Three department blocks joined by one bridge." },
     },
     glossaryItems: [
       ["Vibe coding", "Building a testable program with AI through natural language; a person still checks the result."],

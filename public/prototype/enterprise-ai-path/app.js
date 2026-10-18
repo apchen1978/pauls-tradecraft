@@ -8,7 +8,7 @@ const asset = (name) => `assets/${name}.webp`;
 // Match each card surface to the sampled outer pixel of its paper-textured icon.
 const ICON_SURFACES = {
   learn: "#f5f3ef", tools: "#f5f4ed", context: "#f5f3ef", data: "#f5f4ed",
-  search: "#f5f3ef", connect: "#f6f4f0", collaborate: "#f8f8ef",
+  search: "#f5f3ef", connect: "#f6f4f0", collaborate: "#f7f6f0",
 };
 
 const scenarioButtons = SCENARIOS.map((id) => {
