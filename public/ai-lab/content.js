@@ -10,7 +10,7 @@ export const NAV_CHAPTERS = [
   { id: "c3", mark: "03" }, { id: "c4", mark: "04" }, { id: "c5", mark: "05" },
   { id: "c6", mark: "06" }, { id: "c7", mark: "07" }, { id: "c8", mark: "08" },
   { id: "c9", mark: "09" }, { id: "c10", mark: "10" }, { id: "c11", mark: "11" },
-  { id: "c12", mark: "12" }, { id: "part2", mark: "II" }, { id: "c13", mark: "13" },
+  { id: "c12", mark: "12" }, { id: "part2", mark: "II" }, { id: "c13", mark: "13" }, { id: "c14", mark: "14" },
   { id: "latest", mark: "NEW" },
 ];
 
@@ -35,7 +35,7 @@ export const TEXT = {
       ["wait", "停下來：等負責人確認價格和交期"],
     ],
     consoleCap: "示範畫面，不是真實模型的輸出。",
-    rail: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "上下文", "工具", "驗證", "多 agent", "治理", "怎麼錯", "前沿", "教負責人", "第二部・企業篇", "權限台", "最新觀察"],
+    rail: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "上下文", "工具", "驗證", "多 agent", "治理", "怎麼錯", "前沿", "教負責人", "第二部・企業篇", "權限台", "交辦階梯", "最新觀察"],
     c0: {
       no: "00",
       title: "你在漏斗的哪一層？",
@@ -140,7 +140,7 @@ export const TEXT = {
       ["wait", "Stop: waiting for the person in charge to confirm price and lead time"],
     ],
     consoleCap: "An illustration, not output from a real model.",
-    rail: ["Which tier", "What AI does", "Chat vs delegate", "The human", "My AI team", "Context", "Tools", "Verification", "Agents", "Governance", "Mistakes", "Frontier", "Teaching", "Part II · Enterprise", "Access desk", "Latest"],
+    rail: ["Which tier", "What AI does", "Chat vs delegate", "The human", "My AI team", "Context", "Tools", "Verification", "Agents", "Governance", "Mistakes", "Frontier", "Teaching", "Part II · Enterprise", "Access desk", "Delegation ladder", "Latest"],
     c0: {
       no: "00",
       title: "Which tier of the funnel are you in?",
