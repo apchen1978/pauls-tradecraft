@@ -41,14 +41,13 @@ h1 { margin: 8px 0 7px; font-family: Georgia, "Noto Serif TC", serif; font-size:
 .step-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .step-heading h2 { margin: 5px 0 0; font-family: Georgia, "Noto Serif TC", serif; font-size: clamp(1.3rem, 3vw, 1.85rem); line-height: 1.2; }
 .step-note { max-width: 43ch; margin: 7px 0 0; color: var(--moss); font-size: .88rem; line-height: 1.55; }
-.mood-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.mood-card { display: grid; grid-template-columns: minmax(100px, .78fr) minmax(0, 1fr); align-items: center; min-height: 140px; padding: 0; overflow: hidden; border: 1.5px solid var(--line); border-radius: 16px; background: #fff; text-align: left; color: var(--ink); cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.mood-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.mood-card { display: grid; grid-template-columns: minmax(86px, .76fr) minmax(0, 1fr); align-items: stretch; min-width: 0; min-height: 152px; padding: 0; overflow: hidden; border: 1.5px solid var(--line); border-radius: 16px; background: #fff; text-align: left; color: var(--ink); cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
 .mood-card:hover { transform: translateY(-2px); border-color: #a5b3a1; }
 .mood-card[aria-pressed="true"] { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-soft); }
-.mood-card img { width: 100%; height: 140px; object-fit: cover; object-position: center 54%; }
-.mood-copy { padding: 12px 15px; }
-.mood-copy strong { display: block; font-size: clamp(.94rem, 2vw, 1.08rem); line-height: 1.3; }
-.mood-copy span { display: block; margin-top: 6px; color: var(--moss); font-size: .78rem; line-height: 1.45; }
+.mood-card img { width: 100%; height: 100%; min-height: 152px; object-fit: cover; object-position: center; }
+.mood-copy { display: flex; align-items: center; padding: 11px 12px; }
+.mood-copy span { display: block; color: var(--ink); font-size: .88rem; font-weight: 650; line-height: 1.5; }
 .hint-line { margin: 12px 0 0; color: var(--moss); font-size: .8rem; }
 .draft-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
 .draft-choice { position: relative; display: flex; min-width: 0; flex-direction: column; padding: 0; overflow: hidden; border: 1.5px solid var(--line); border-radius: 15px; background: white; cursor: pointer; text-align: left; color: var(--ink); }
@@ -101,12 +100,11 @@ h1 { margin: 8px 0 7px; font-family: Georgia, "Noto Serif TC", serif; font-size:
   .step-panel { padding: 14px; border-radius: 17px; }
   .step-heading { margin-bottom: 10px; }
   .step-note { font-size: .81rem; }
-  .mood-grid { gap: 8px; }
-  .mood-card { grid-template-columns: 1fr; grid-template-rows: 112px auto; min-height: 0; border-radius: 13px; }
-  .mood-card img { height: 112px; }
-  .mood-copy { padding: 9px 9px 10px; }
-  .mood-copy strong { font-size: .84rem; }
-  .mood-copy span { margin-top: 4px; font-size: .7rem; }
+  .mood-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .mood-card { grid-template-columns: minmax(62px, .44fr) minmax(0, 1fr); min-height: 132px; border-radius: 13px; }
+  .mood-card img { min-height: 132px; }
+  .mood-copy { padding: 8px; }
+  .mood-copy span { font-size: .78rem; line-height: 1.4; }
   .hint-line { margin-top: 8px; font-size: .74rem; }
   .draft-grid { grid-template-columns: 1fr; gap: 9px; }
   .draft-choice { display: grid; grid-template-columns: minmax(105px, .75fr) minmax(0,1fr); min-height: 125px; }

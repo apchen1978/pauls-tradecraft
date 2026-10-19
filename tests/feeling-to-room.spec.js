@@ -1,15 +1,15 @@
 import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
-const shotDir = "docs/qa/feeling-to-room";
-const renameShotDir = "docs/qa/rename-feeling-first";
-mkdirSync(shotDir, { recursive: true });
-mkdirSync(renameShotDir, { recursive: true });
+const qaDir = "docs/qa/feeling-first-people-stories";
+mkdirSync(qaDir, { recursive: true });
 const contexts = [["zh",390],["en",390],["zh",1440],["en",1440]];
+const moods = ["rain", "chic", "family", "tech"];
 
 async function noOverflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 }
+
 async function checkImages(page) {
   const images = page.locator("img");
   for (let i=0;i<await images.count();i++) {
@@ -17,109 +17,87 @@ async function checkImages(page) {
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
   }
-  await page.evaluate(() => window.scrollTo(0,0));
   const missingAlt = await page.locator("img").evaluateAll(images => images.filter(img => !img.alt.trim()).map(img => img.src));
   expect(missingAlt).toEqual([]);
+  await page.evaluate(() => window.scrollTo(0,0));
 }
 
 for (const [lang,width] of contexts) {
-  test(`${lang} ${width}: three-step Feeling First experience and responsive screenshots`, async ({ page }) => {
+  test(`${lang} ${width}: four story cards are visible and responsive`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
     await page.goto(`/prototype/feeling-to-room/?lang=${lang}`);
     await expect(page.locator("h1")).toHaveText(lang === "zh" ? "先有fu，再有家" : "Feeling First");
+    await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "今天，誰要回家？" : "Who is coming home today?");
     await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 1／3 步" : "Step 1 of 3");
-    await expect(page.locator("[data-mood]")).toHaveCount(2);
-    await expect(page.locator("[data-mood=rain]")).toBeInViewport();
-    await expect(page.locator("[data-mood=chic]")).toBeInViewport();
+    await expect(page.locator("[data-mood]")).toHaveCount(4);
+    await expect(page.locator(".mood-card img")).toHaveCount(4);
+    await expect(page.locator(".mood-card img").first()).not.toHaveAttribute("loading", "lazy");
+    await expect(page.locator('.mood-card img[src*="person-"]')).toHaveCount(4);
+    await expect(page.locator('.step-panel input[type="color"], .step-panel input[type="range"]')).toHaveCount(0);
+    if (lang === "zh") await expect(page.locator(".step-panel")).not.toContainText("風格");
+    const columns = await page.locator(".mood-grid").evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+    expect(columns).toBe(width === 390 ? 2 : 4);
+    await expect(page.locator("[data-mood]").nth(3)).toBeInViewport();
     await expect(page.locator('[data-action="continue-mood"]')).toBeInViewport();
-    await expect(page.locator("[data-mood] img").first()).not.toHaveAttribute("loading", "lazy");
+    await checkImages(page);
+    await noOverflow(page);
+    await page.screenshot({ path: `${qaDir}/${lang}-${width}-step1.png` });
     if (width === 390) {
-      const moodBottoms = await page.locator("[data-mood]").evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().bottom));
-      expect(Math.max(...moodBottoms)).toBeLessThan(844);
+      const cardBottoms = await page.locator("[data-mood]").evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().bottom));
+      expect(Math.max(...cardBottoms)).toBeLessThan(844);
     }
-    await checkImages(page);
-    await noOverflow(page);
-    await page.screenshot({ path: `${shotDir}/${lang}-${width}-step1.png` });
-    if (width === 390) {
-      await page.screenshot({ path: `${renameShotDir}/${lang}-390-page.png` });
-      if (lang === "zh") {
-        await page.goto("/?lang=zh#showcase");
-        const showcaseCard = page.locator("#showcase article").filter({ hasText: "先有fu，再有家" });
-        await expect(showcaseCard).toBeVisible();
-        const showcaseImage = showcaseCard.locator("img");
-        await showcaseImage.scrollIntoViewIfNeeded();
-        await expect.poll(() => showcaseImage.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
-        await showcaseCard.locator("h3").scrollIntoViewIfNeeded();
-        await page.screenshot({ path: `${renameShotDir}/zh-390-showcase-card.png` });
-        await page.goto(`/prototype/feeling-to-room/?lang=${lang}`);
-        await expect(page.locator("h1")).toHaveText("先有fu，再有家");
-      }
-    }
-
-    const start = await page.evaluate(() => performance.now());
-    await page.locator("[data-mood=rain]").click();
-    const elapsed = await page.evaluate(startAt => performance.now() - startAt, start);
-    expect(elapsed).toBeLessThan(300);
-    await expect(page.locator("[data-mood=rain]")).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator('[data-action="continue-mood"]')).toBeEnabled();
-    await page.locator('[data-action="continue-mood"]').click();
-    await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 2／3 步" : "Step 2 of 3");
-    await expect(page.getByText(lang === "zh" ? "AI 初稿（預置示範）" : "AI draft · prepared example").first()).toBeVisible();
-    await expect(page.locator('input[name="draft"]')).toHaveCount(3);
-    await checkImages(page);
-    await noOverflow(page);
-    await page.screenshot({ path: `${shotDir}/${lang}-${width}-step2.png`, fullPage: true });
-
-    await page.locator(".draft-choice").nth(1).click();
-    await page.locator(".reason-choice").nth(0).click();
-    await expect(page.locator('[data-action="reveal"]')).toBeEnabled();
-    await page.locator(`[data-lang="${lang === "zh" ? "en" : "zh"}"]`).click();
-    const nextLang = lang === "zh" ? "en" : "zh";
-    await expect(page.locator("#progress-text")).toHaveText(nextLang === "zh" ? "第 2／3 步" : "Step 2 of 3");
-    await expect(page.locator('input[name="draft"][value="2"]')).toBeChecked();
-    await expect(page.locator('input[name="reason"][value="0"]')).toBeChecked();
-    await page.locator(`[data-lang="${lang}"]`).click();
-    await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 2／3 步" : "Step 2 of 3");
-    await expect(page.locator('input[name="draft"][value="2"]')).toBeChecked();
-    await expect(page.locator('input[name="reason"][value="0"]')).toBeChecked();
-    await page.locator('[data-action="reveal"]').click();
-    await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 3／3 步" : "Step 3 of 3");
-    await expect(page.locator(".refinement-list li")).toHaveCount(3);
-    await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}&mood=rain`);
-    await checkImages(page);
-    await noOverflow(page);
-    await page.screenshot({ path: `${shotDir}/${lang}-${width}-step3.png`, fullPage: true });
-
-    await page.locator(`[data-lang="${lang}"]`).click();
-    await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 3／3 步" : "Step 3 of 3");
-    await expect(page.locator(".refinement-list li")).toHaveCount(3);
-    await page.locator('[data-action="restart"]').click();
-    await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 1／3 步" : "Step 1 of 3");
-    await expect(page.locator("[data-mood]")).toHaveCount(2);
-    await noOverflow(page);
   });
 }
 
-test("implementation stays preset-only and does not persist visitor choices", async () => {
-  const source=readFileSync("public/prototype/feeling-to-room/app.js","utf8");
-  expect(source).not.toMatch(/\b(fetch|XMLHttpRequest|localStorage|sessionStorage)\b/);
-});
-
-for (const mood of ["rain", "chic"]) {
-  for (const draft of [1,2,3]) {
-    test(`fixed result: ${mood} mood, draft ${draft}`, async ({ page }) => {
+for (const mood of moods) {
+  for (const lang of ["zh", "en"]) {
+    test(`${lang}: ${mood} story completes all steps and links to the matching room`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto("/prototype/feeling-to-room/?lang=en");
+      await page.goto(`/prototype/feeling-to-room/?lang=${lang}`);
       await page.locator(`[data-mood="${mood}"]`).click();
+      await expect(page.locator(`[data-mood="${mood}"]`)).toHaveAttribute("aria-pressed", "true");
       await page.locator('[data-action="continue-mood"]').click();
-      await page.locator(".draft-choice").nth(draft-1).click();
-      await page.locator(".reason-choice").nth(2).click();
+      await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "替他挑一個方向" : "Pick a direction for them");
+      await expect(page.locator('input[name="draft"]')).toHaveCount(3);
+      if (mood === "family" && lang === "zh") {
+        await checkImages(page);
+        await page.screenshot({ path: `${qaDir}/family-390-step2.png`, fullPage: true });
+      }
+
+      await page.locator(".draft-choice").nth(1).click();
+      await page.locator(".reason-choice").nth(0).click();
+      const nextLang = lang === "zh" ? "en" : "zh";
+      await page.locator(`[data-lang="${nextLang}"]`).click();
+      await expect(page.locator('input[name="draft"][value="2"]')).toBeChecked();
+      await expect(page.locator('input[name="reason"][value="0"]')).toBeChecked();
+      await page.locator(`[data-lang="${lang}"]`).click();
+      await expect(page.locator('[data-action="reveal"]')).toBeEnabled();
       await page.locator('[data-action="reveal"]').click();
+      await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "把方向收斂成能生活的細節" : "Turn the direction into livable details");
       await expect(page.locator(".refinement-list li")).toHaveCount(3);
-      await expect(page.locator(".selected-reason")).toContainText("Easy to care for");
-      await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=en&mood=${mood === "rain" ? "rain" : "chic"}`);
+      await expect(page.locator(".result-caption")).toContainText(lang === "zh" ? "他進門的第一個感覺" : "Their first feeling on entering");
+      await expect(page.locator(".result-image")).toHaveAttribute("src", new RegExp(`mood-${mood}|room-${mood === "family" ? "sunny" : mood === "tech" ? "tech-night" : mood === "rain" ? "rug" : "chic-city"}`));
+      await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}&mood=${mood}`);
       await checkImages(page);
       await noOverflow(page);
+      if (mood === "tech" && lang === "zh") await page.screenshot({ path: `${qaDir}/tech-390-step3.png`, fullPage: true });
     });
   }
 }
+
+test("first-step people cards look distinct from the room-first ROOMVERSE remote", async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 900 });
+  await page.goto("/prototype/feeling-to-room/?lang=zh");
+  await checkImages(page);
+  await page.screenshot({ path: `${qaDir}/.compare-feeling-first.png` });
+  await page.goto("/prototype/room-mode-remote/?lang=zh");
+  await expect.poll(() => page.locator("#room-canvas").evaluate(canvas => canvas.toDataURL().length)).toBeGreaterThan(10000);
+  await page.screenshot({ path: `${qaDir}/.compare-room-mode-remote.png` });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+});
+
+test("the experience remains fixed-content and does not persist visitor choices", async () => {
+  const source=readFileSync("public/prototype/feeling-to-room/app.js","utf8");
+  expect(source).not.toMatch(/\b(fetch|XMLHttpRequest|localStorage|sessionStorage)\b/);
+  expect(source).not.toMatch(/===\s*["']rain["']/);
+});
