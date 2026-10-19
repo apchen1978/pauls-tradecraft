@@ -12,7 +12,7 @@ const roomPresets = {
   chic: { wall: "original", rug: "ivory", curtain: "rose", print: "hills" },
   family: { wall: "sand", rug: "stripe", curtain: "sage", print: "hills" },
   tech: { wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
-  tv: { wall: "sand", rug: "ivory", curtain: "linen", print: "moon" },
+  tv: { wall: "sand", rug: "ivory", curtain: "linen", print: "moon", view: "tv" },
 };
 
 async function noOverflow(page) {
@@ -186,15 +186,15 @@ for (const mood of moods) {
       await expect(page.locator(".refinement-list li")).toHaveCount(3);
       await expect(page.locator(".result-caption")).toContainText(lang === "zh" ? "她進門的第一個感覺" : "Their first feeling on entering");
       await expect(page.locator(".result-image")).toHaveAttribute("src", new RegExp(`tv-result|mood-${mood}|room-${mood === "family" ? "sunny" : mood === "tech" ? "tech-night" : mood === "rain" ? "rug" : "chic-city"}`));
-      const roomMood = mood === "tv" ? "tech" : mood;
-      const params = new URLSearchParams({ lang, mood: roomMood, ...roomPresets[mood], from: "fu", who: mood });
-      await expect(page.locator(".roomverse-note")).toHaveText(mood === "tv"
-        ? (lang === "zh" ? "3D 房間目前還沒有電視牆，先帶你感受這種夜晚的氣氛；電視牆之後會補上。" : "The 3D room does not have a TV wall yet. It gives you the evening mood for now; the TV wall will come later.")
-        : (lang === "zh"
+      const params = new URLSearchParams({ lang, mood, ...roomPresets[mood], from: "fu", who: mood });
+      if (mood === "tv") await expect(page.locator(".roomverse-note")).toHaveCount(0);
+      else await expect(page.locator(".roomverse-note")).toHaveText(lang === "zh"
           ? "3D 房間帶你感受這種氣氛：光線、牆色、地毯、窗簾與掛畫；家具大小、收納和線材整理，只在上面的文字說明裡。"
-          : "The 3D room gives you the feeling: light, wall colour, rug, curtains and the wall print. Furniture size, storage and cable tidying appear only in the notes above."));
+          : "The 3D room gives you the feeling: light, wall colour, rug, curtains and the wall print. Furniture size, storage and cable tidying appear only in the notes above.");
       await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?${params}`);
-      await expect(page.locator('[data-action="roomverse"]')).toHaveText(lang === "zh" ? "走進她的 ROOMVERSE 3D 房間" : "Step into her ROOMVERSE 3D room");
+      await expect(page.locator('[data-action="roomverse"]')).toHaveText(mood === "tv"
+        ? (lang === "zh" ? "走進她的追劇夜 3D 房間" : "Step into her Series Night 3D room")
+        : (lang === "zh" ? "走進她的 ROOMVERSE 3D 房間" : "Step into her ROOMVERSE 3D room"));
       await checkImages(page);
       await noOverflow(page);
       if (mood === "tv") {
@@ -204,7 +204,7 @@ for (const mood of moods) {
       if (mood === "tv" && lang === "zh") {
         await expect(page.locator(".result-image")).toHaveAttribute("src", /tv-result\.webp$/);
         await expect(page.locator(".result-image")).toHaveAttribute("alt", /立式家用機器人/);
-        await expect(page.locator(".roomverse-note")).toContainText("3D 房間目前還沒有電視牆");
+        await expect(page.locator('[data-action="roomverse"]')).toHaveText("走進她的追劇夜 3D 房間");
       }
     });
   }

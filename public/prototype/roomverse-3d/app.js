@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖曳可以轉一點角度。網址會記住你搭的房間，複製給朋友就能看到同一間。", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room a little. The address remembers your room, so a copied link opens the same one.", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png" },
 };
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -28,11 +28,14 @@ const MOODS = {
   slow: { zh: "週日午後慢慢過", en: "Slow Sunday",
     why: { zh: "白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。", en: "Soft, even daylight with pale wood, linen and one dark accent keeps the room calm, so a Sunday afternoon has nowhere to hurry to." },
     hemi: 1.6, win: 2.2, winCol: "#f4f6f8", lamp: .5, fill: 1.8, out: "#f7f8f6", exposure: 1.08, floor: 0, glow: .04 },
+  tv: { zh: "追劇夜", en: "Series night",
+    why: { zh: "週五晚上，關掉主燈，只留燈帶和一盞暖燈，沙發就是整個世界。", en: "Friday night: ceiling light off, just the warm strips and one lamp; the sofa is the whole world." }, hemi: .62, win: .7, winCol: "#56647f", lamp: 2.5, fill: .55, out: "#c6cad6", exposure: .98, floor: .45, glow: .48 },
 };
 
 export async function start({ stage, panel, lang, onReady }) {
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const compactRender = matchMedia("(max-width: 600px)").matches;
+  const renderer = new THREE.WebGLRenderer({ antialias: !compactRender });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, compactRender ? 1.25 : 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap; // PCF honours shadow.radius: soft shadow edges (PCFSoft ignores it in r160)
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -48,30 +51,37 @@ export async function start({ stage, panel, lang, onReady }) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(44, 1, 0.05, 50);
   const controls = new OrbitControls(camera, renderer.domElement);
+  const orbitCenter = new THREE.Vector3(0, 1.28, 0.1);
+  const requestedView = new URLSearchParams(location.search).get("view");
+  let viewTheta = requestedView === "tv" ? Math.PI : 0;
+  let currentView = requestedView === "tv" ? "tv" : "window";
+  let orbitRadius = 1.9, orbitPhi = Math.PI / 2, viewMoveToken = 0;
   let director = null, directorPreparing = false, directorPrepareToken = 0;
   let intro = false, introEnd = null;
   const stopButton = Object.assign(document.createElement("button"), { type: "button", className: "director-stop", hidden: true });
   stopButton.onclick = () => { if (director) stopDirector(); else if (directorPreparing) cancelPreparation(); };
   stage.append(stopButton);
-  controls.target.set(0.15, 0.85, -0.9);
+  controls.target.copy(orbitCenter);
   controls.enableDamping = true; controls.enablePan = false;
-  controls.minDistance = 2.4; controls.maxDistance = 5.6;
+  controls.minDistance = 1.55; controls.maxDistance = 1.95;
   controls.minPolarAngle = Math.PI * 0.32; controls.maxPolarAngle = Math.PI * 0.5;
-  controls.minAzimuthAngle = -0.55; controls.maxAzimuthAngle = 0.55;
+  controls.minAzimuthAngle = -Math.PI; controls.maxAzimuthAngle = Math.PI;
+  const cameraAt = (theta, radius = orbitRadius, phi = orbitPhi) => new THREE.Vector3(
+    orbitCenter.x + radius * Math.sin(phi) * Math.sin(theta),
+    orbitCenter.y + radius * Math.cos(phi),
+    orbitCenter.z + radius * Math.sin(phi) * Math.cos(theta),
+  );
   function fit() {
     const w = stage.clientWidth, h = stage.clientHeight;
     renderer.setSize(w, h);
     camera.aspect = w / h;
-    // One continuous framing instead of two modes with a jump at an aspect ratio of 0.8 (phones at 0.82 lost the plaque and
-    // the side lamp). The pose blends from the wide-screen pose (aspect >= 0.95) to the portrait pose (aspect <= 0.75),
-    // and below 0.95 the field of view widens so the same width of the back wall stays in view (about 2.08 m each side of
-    // the centre, which is what the wide-screen framing shows at 0.95). The plaque's right edge needs about 1.9 m.
-    const t = Math.max(0, Math.min(1, (0.95 - camera.aspect) / 0.2));
-    const z = 3.5 + (2.85 - 3.5) * t, y = 1.5 + (1.25 - 1.5) * t, ty = 0.85 + (0.72 - 0.85) * t;
-    camera.fov = t === 0 ? 42 : Math.min(66, Math.max(42, 2 * Math.atan(2.08 / (camera.aspect * (z + 2.2))) * 180 / Math.PI));
+    orbitRadius = camera.aspect < .8 ? 1.82 : 1.9;
+    orbitPhi = Math.PI / 2;
+    camera.fov = camera.aspect < .8 ? 66 : 44;
     if (!director) {
-      camera.position.set(0.15, y, z);
-      controls.target.set(0.15, ty, -0.9);
+      controls.target.copy(orbitCenter);
+      camera.position.copy(cameraAt(viewTheta));
+      camera.lookAt(orbitCenter);
     }
     camera.updateProjectionMatrix();
     if (!director) controls.update();
@@ -132,6 +142,7 @@ export async function start({ stage, panel, lang, onReady }) {
 
   // ---------- room ----------
   const W = 5.2, D = 4.6, H = 2.7, BACK = -2.2;
+  const FRONT = BACK + D;
   const add = (geo, mat, x, y, z, cast = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; scene.add(m); return m; };
   const floor = add(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ map: floorTex, roughness: .55 }), 0, 0, BACK + D / 2, false);
   floor.rotation.x = -Math.PI / 2;
@@ -141,6 +152,15 @@ export async function start({ stage, panel, lang, onReady }) {
   wallShape.holes.push(new THREE.Path([new THREE.Vector2(win.x0, win.y0), new THREE.Vector2(win.x1, win.y0), new THREE.Vector2(win.x1, win.y1), new THREE.Vector2(win.x0, win.y1)]));
   const wallMat = new THREE.MeshStandardMaterial({ color: "#e9e1d3", roughness: .9 });
   add(new THREE.ShapeGeometry(wallShape), wallMat, 0, 0, BACK, true); // casts: window light only comes in through the window
+  const frontGeometry = new THREE.PlaneGeometry(W, H);
+  for (let i = 0; i < frontGeometry.attributes.uv.count; i++) {
+    const uv = frontGeometry.attributes.uv;
+    uv.setXY(i, uv.getX(i) * W, uv.getY(i) * H); // keep wallpaper repeat at the same real-world tile scale
+  }
+  frontGeometry.attributes.uv.needsUpdate = true;
+  const frontWall = add(frontGeometry, wallMat, 0, H / 2, FRONT, true);
+  frontWall.rotation.y = Math.PI; // the room-facing side is visible from inside
+  frontWall.name = "front-wall";
   const sideMat = new THREE.MeshStandardMaterial({ color: "#e4ddd0", roughness: .95 });
   // side walls and ceiling cast too: otherwise window light leaks through them (a bright band on the right wall, a patch at the left)
   [-1, 1].forEach((s) => { add(new THREE.PlaneGeometry(D, H + .3), sideMat, s * W / 2, H / 2 - .15, BACK + D / 2, true).rotation.y = -s * Math.PI / 2; });
@@ -148,12 +168,85 @@ export async function start({ stage, panel, lang, onReady }) {
   const wood = new THREE.MeshStandardMaterial({ color: "#8a5a36", roughness: .6 });
   const skirting = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .7 });
   add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, BACK + .01, false);
+  add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, FRONT - .015, false).name = "front-skirting";
   // side skirting too: finishes the room and covers the thin light line where wall meets floor
   [-1, 1].forEach((s) => add(new THREE.BoxGeometry(.02, .09, D), skirting, s * (W / 2 - .01), .045, BACK + D / 2, false));
+
+  // The TV wall is simple code-built furniture: one calm backing, recessed open shelves,
+  // a closed dark screen, and soft warm strips. No additional real-time lights are added.
+  const tvWall = new THREE.Group(); tvWall.name = "tv-wall"; scene.add(tvWall);
+  const tvWallPiece = (geo, mat, x, y, z, name, cast = true) => {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = true; mesh.name = name;
+    tvWall.add(mesh); return mesh;
+  };
+  const tvPanelMat = new THREE.MeshStandardMaterial({ color: "#e8ddca", roughness: .9 });
+  const tvOakMat = new THREE.MeshStandardMaterial({ color: "#d4b58a", roughness: .82 });
+  const tvCabinetMat = new THREE.MeshStandardMaterial({ color: "#c7a578", roughness: .8 });
+  const tvDoorMat = new THREE.MeshStandardMaterial({ color: "#d9bb90", roughness: .84 });
+  const tvTrimMat = new THREE.MeshStandardMaterial({ color: "#d7bd91", roughness: .55, metalness: .2 });
+  const tvScreenMat = new THREE.MeshBasicMaterial({ color: "#141b1e" }); // quiet powered-off face; no point-light specular hotspot
+  const tvStripMat = new THREE.MeshStandardMaterial({ color: "#ffe1a4", emissive: "#ffc477", emissiveIntensity: .18, roughness: .9 });
+  const tvWashMap = canvasTex(64, 64, (ctx, w, h) => {
+    const glow = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+    glow.addColorStop(0, "rgba(255,255,255,.65)"); glow.addColorStop(.5, "rgba(255,255,255,.3)"); glow.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
+  });
+  const tvWashMat = new THREE.MeshBasicMaterial({ color: "#ffd098", map: tvWashMap, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+  const TV_STRIP_GLOW = { rain: .28, family: .18, tech: .08, chic: .2, slow: .13, tv: .82 };
+  tvWallPiece(new THREE.BoxGeometry(2.95, 2.35, .08), tvPanelMat, 0, 1.36, FRONT - .125, "tv-wall-backing");
+  // narrow trim makes the panel read as built-in millwork, not a freestanding equipment display
+  for (const x of [-1.49, 1.49]) tvWallPiece(new THREE.BoxGeometry(.035, 2.36, .045), tvTrimMat, x, 1.36, FRONT - .17, "tv-wall-trim", false);
+  // A continuous wall face with actual niche openings: the backs and returns sit behind
+  // this plane, so the shelves remain recessed when seen from the side.
+  const builtInFace = new THREE.Shape([
+    new THREE.Vector2(-W / 2, 0), new THREE.Vector2(W / 2, 0),
+    new THREE.Vector2(W / 2, H), new THREE.Vector2(-W / 2, H),
+  ]);
+  for (const side of [-1, 1]) {
+    const x = side * 1.82;
+    builtInFace.holes.push(new THREE.Path([
+      new THREE.Vector2(x - .31, .55), new THREE.Vector2(x - .31, 2.17),
+      new THREE.Vector2(x + .31, 2.17), new THREE.Vector2(x + .31, .55),
+    ]));
+  }
+  tvWallPiece(new THREE.ShapeGeometry(builtInFace), wallMat, 0, 0, FRONT - .16, "tv-built-in-surround").rotation.y = Math.PI;
+  for (const side of [-1, 1]) {
+    const x = side * 1.82;
+    tvWallPiece(new THREE.BoxGeometry(.62, 1.62, .025), tvOakMat, x, 1.36, FRONT - .025, "tv-shelf-back");
+    for (const sx of [-1, 1]) {
+      tvWallPiece(new THREE.BoxGeometry(.025, 1.62, .135), tvOakMat, x + sx * .3, 1.36, FRONT - .09, "tv-shelf-return");
+      tvWallPiece(new THREE.BoxGeometry(.012, 1.48, .008), tvStripMat, x + sx * .272, 1.36, FRONT - .05, "tv-shelf-light", false);
+    }
+    for (const y of [.55, 1.09, 1.63, 2.17]) {
+      tvWallPiece(new THREE.BoxGeometry(.62, .035, .135), tvOakMat, x, y, FRONT - .09, "tv-shelf-board");
+    }
+    tvWallPiece(new THREE.PlaneGeometry(.57, 1.54), tvWashMat, x, 1.36, FRONT - .041, "tv-shelf-wash", false).rotation.y = Math.PI;
+  }
+  // A slim, blank television on the central panel; its glass stays dark in every mood.
+  tvWallPiece(new THREE.BoxGeometry(1.58, .94, .075), tvCabinetMat, 0, 1.76, FRONT - .24, "tv-frame");
+  const tvScreen = tvWallPiece(new THREE.PlaneGeometry(1.48, .84), tvScreenMat, 0, 1.76, FRONT - .282, "tv-screen", false);
+  tvScreen.rotation.y = Math.PI;
+  tvWallPiece(new THREE.BoxGeometry(1.5, .014, .012), tvStripMat, 0, 1.285, FRONT - .282, "tv-screen-lower-light", false);
+  tvWallPiece(new THREE.PlaneGeometry(1.85, .28), tvWashMat, 0, 1.19, FRONT - .165, "tv-screen-wall-wash", false).rotation.y = Math.PI;
+  // Grounded low cabinet with two quiet door faces and small brass pulls; no exposed wires.
+  tvWallPiece(new THREE.BoxGeometry(2.05, .5, .4), tvCabinetMat, 0, .34, FRONT - .32, "tv-console");
+  tvWallPiece(new THREE.BoxGeometry(1.74, .075, .36), tvOakMat, 0, .04, FRONT - .32, "tv-console-plinth");
+  for (const side of [-1, 1]) {
+    tvWallPiece(new THREE.BoxGeometry(.94, .42, .025), tvDoorMat, side * .49, .35, FRONT - .527, "tv-console-door", false);
+    tvWallPiece(new THREE.BoxGeometry(.09, .018, .018), tvTrimMat, side * .49, .36, FRONT - .546, "tv-console-pull", false);
+  }
+  // Just two small home objects: a faceted bud vase and a couple of books.
+  tvWallPiece(new THREE.CylinderGeometry(.055, .105, .22, 7), tvTrimMat, -.74, .71, FRONT - .39, "tv-vase-body");
+  tvWallPiece(new THREE.CylinderGeometry(.045, .055, .075, 7), tvTrimMat, -.74, .855, FRONT - .39, "tv-vase-neck");
+  tvWallPiece(new THREE.BoxGeometry(.28, .035, .2), new THREE.MeshStandardMaterial({ color: "#d4c6b1", roughness: .92 }), .72, .62, FRONT - .39, "tv-book-one");
+  tvWallPiece(new THREE.BoxGeometry(.24, .032, .18), new THREE.MeshStandardMaterial({ color: "#718074", roughness: .9 }), .7, .653, FRONT - .39, "tv-book-two");
+  // Concealed strip beneath the panel; emissive material only, so the room keeps its existing light count.
+  tvWallPiece(new THREE.BoxGeometry(2.4, .018, .018), tvStripMat, 0, .18, FRONT - .17, "tv-wall-lower-light", false);
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
-  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family" }; // slow uses the existing daytime street painting; only room lighting changes
+  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family", tv: "tech" }; // slow and series night reuse existing paintings; only room lighting changes
   const viewReady = {};
   const VIEWS = Object.fromEntries(Object.entries(VIEW_FILES).map(([m, f]) => [m, () => {
     let settle;
@@ -217,7 +310,9 @@ export async function start({ stage, panel, lang, onReady }) {
   // shadow box covers the whole room; a smaller box left a bright diagonal band on the right wall
   Object.assign(windowLight.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: .5, far: 14 });
   scene.add(windowLight, windowLight.target);
-  const fill = new THREE.PointLight("#fff1dc", .6, 9, 1.2); fill.position.set(.2, 2.2, 2.2); scene.add(fill);
+  // Keep the soft interior fill inside the room. The previous open-front setup let it sit
+  // behind the new TV wall, which created an unexplained hotspot on the wall surface.
+  const fill = new THREE.PointLight("#fff1dc", .6, 9, 1.2); fill.position.set(.2, 2.45, .1); scene.add(fill);
   // LED strip sits just above the sofa back (below the print) and washes the wall
   const led = new THREE.Group(); scene.add(led);
   const ledLine = new THREE.Mesh(new THREE.BoxGeometry(2.1, .01, .01), new THREE.MeshBasicMaterial({ color: "#bfeaff" })); ledLine.position.set(SX, 1.16, BACK + .02); led.add(ledLine);
@@ -326,6 +421,11 @@ export async function start({ stage, panel, lang, onReady }) {
   const vcol = (opts) => () => new THREE.MeshStandardMaterial({ vertexColors: true, ...opts });
   const coffeeObj = place(coffee, { width: 1.0, x: SX, z: SZ + 1.05 });
   prepare(coffeeObj, vcol({ roughness: .55 }));
+  const coffeeBounds = new THREE.Box3().setFromObject(coffeeObj);
+  const screenReflectionMat = new THREE.MeshStandardMaterial({ color: "#9db9cf", emissive: "#506a7f", emissiveIntensity: .12, roughness: .45, transparent: true, opacity: 0, depthWrite: false });
+  const screenReflection = add(new THREE.PlaneGeometry(.42, .25), screenReflectionMat,
+    coffeeBounds.getCenter(new THREE.Vector3()).x, coffeeBounds.max.y + .004, coffeeBounds.getCenter(new THREE.Vector3()).z - .08, false);
+  screenReflection.rotation.x = -Math.PI / 2; screenReflection.name = "tv-screen-reflection";
   // a small low chair (Hunyuan3D-2.1 shape from the drawing, simplified to 10k faces, colour projected from the drawing), facing the coffee table
   lowChair.scene.rotation.y = 0; // this model already faces +x (toward the table)
   const chairObj = place(lowChair, { height: .5, x: SX - 1.0, z: SZ + 1.15 });
@@ -432,7 +532,7 @@ export async function start({ stage, panel, lang, onReady }) {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, led: m.led ? .5 : 0,
       floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
       shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
-      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out),
+      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], screenReflection: mood === "tv" ? .17 : 0,
     };
   };
   const lights = () => lightForMood(state.mood);
@@ -441,6 +541,7 @@ export async function start({ stage, panel, lang, onReady }) {
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
     shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
+    tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; screenReflectionMat.opacity = v.screenReflection;
   }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
@@ -466,7 +567,42 @@ export async function start({ stage, panel, lang, onReady }) {
   function toUrl() {
     const u = new URL(location.href);
     for (const k in CHOICES) u.searchParams.set(k, state[k]);
+    if (currentView === "tv") u.searchParams.set("view", "tv"); else u.searchParams.delete("view");
     history.replaceState(null, "", u);
+  }
+  function setCameraAngle(theta, radius = orbitRadius, phi = orbitPhi) {
+    controls.target.copy(orbitCenter);
+    camera.position.copy(cameraAt(theta, radius, phi));
+    camera.lookAt(orbitCenter);
+    controls.update();
+    render();
+  }
+  function moveToView(view) {
+    if (director) stopDirector(false);
+    if (directorPreparing) cancelPreparation();
+    settleIntro();
+    const target = view === "tv" ? Math.PI : 0;
+    const offset = camera.position.clone().sub(orbitCenter), radius = Math.min(controls.maxDistance, Math.max(controls.minDistance, offset.length()));
+    const phi = Math.acos(THREE.MathUtils.clamp(offset.y / Math.max(radius, .001), -1, 1));
+    const start = Math.atan2(offset.x, offset.z);
+    const delta = Math.atan2(Math.sin(target - start), Math.cos(target - start));
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const token = ++viewMoveToken;
+    currentView = view; viewTheta = target;
+    if (reduce || Math.abs(delta) < .01) {
+      controls.enabled = true; setCameraAngle(target, radius, phi); toUrl(); drawPanel(); return;
+    }
+    controls.enabled = false;
+    const t0 = performance.now(), duration = 980;
+    const step = (now) => {
+      if (token !== viewMoveToken) return;
+      const k = Math.min(1, (now - t0) / duration), e = k * k * (3 - 2 * k);
+      camera.position.copy(cameraAt(start + delta * e, radius, phi));
+      camera.lookAt(orbitCenter); render();
+      if (k < 1) requestAnimationFrame(step);
+      else { controls.target.copy(orbitCenter); controls.enabled = true; setCameraAngle(target, radius, phi); toUrl(); drawPanel(); }
+    };
+    requestAnimationFrame(step);
   }
   function apply() {
     const m = MOODS[state.mood];
@@ -491,9 +627,16 @@ export async function start({ stage, panel, lang, onReady }) {
     let keep = null;
     if (had && panel.contains(had)) {
       const g = had.closest(".opts");
-      keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("director") ? "director" : had.classList.contains("shuffle") ? "shuffle" : "save" };
+      keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("camera-tv") ? "camera-tv" : had.classList.contains("camera-window") ? "camera-window" : had.classList.contains("director") ? "director" : had.classList.contains("shuffle") ? "shuffle" : "save" };
     }
-    panel.replaceChildren(...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
+    const cameraGroup = document.createElement("div"); cameraGroup.className = "camera-actions"; cameraGroup.setAttribute("role", "group"); cameraGroup.setAttribute("aria-label", state.lang === "zh" ? "房間視角" : "Room view");
+    const windowButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-window", textContent: t.windowView, "aria-label": t.windowView, "aria-pressed": String(currentView === "window"), onclick: () => moveToView("window") });
+    const tvButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-tv", textContent: t.tvView, "aria-label": t.tvView, "aria-pressed": String(currentView === "tv"), onclick: () => moveToView("tv") });
+    windowButton.setAttribute("aria-label", t.windowView); windowButton.setAttribute("aria-pressed", String(currentView === "window"));
+    tvButton.setAttribute("aria-label", t.tvView); tvButton.setAttribute("aria-pressed", String(currentView === "tv"));
+    cameraGroup.append(windowButton, tvButton);
+    const headings = document.createElement("h2"); headings.className = "camera-heading"; headings.textContent = state.lang === "zh" ? "轉換視角" : "Change view";
+    panel.replaceChildren(headings, cameraGroup, ...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
       const box = document.createElement("div"); box.className = "opts"; box.setAttribute("role", "group"); box.setAttribute("aria-label", t[key]);
       box.append(...Object.entries(table).map(([k, v]) => {
@@ -540,8 +683,15 @@ export async function start({ stage, panel, lang, onReady }) {
 
   // postcard: the room as it looks now, with a paper strip naming the chosen feeling, wall and rug
   function postcard() {
-    render(); // read the canvas in the same task as the render, so no preserveDrawingBuffer is needed
-    const src = renderer.domElement, w = src.width, h = src.height, baseStrip = Math.round(Math.max(90, h * .16));
+    // Postcards keep the original window-facing composition, even when the visitor is at the TV wall.
+    const savedPosition = camera.position.clone(), savedTarget = controls.target.clone();
+    const offset = savedPosition.clone().sub(orbitCenter), radius = offset.length();
+    const phi = Math.acos(THREE.MathUtils.clamp(offset.y / Math.max(radius, .001), -1, 1));
+    camera.position.copy(cameraAt(0, radius, phi)); camera.lookAt(orbitCenter); render();
+    const src = document.createElement("canvas"); src.width = renderer.domElement.width; src.height = renderer.domElement.height;
+    src.getContext("2d").drawImage(renderer.domElement, 0, 0); // copy before restoring the live camera
+    camera.position.copy(savedPosition); controls.target.copy(savedTarget); camera.lookAt(savedTarget); controls.update(); render();
+    const w = src.width, h = src.height, baseStrip = Math.round(Math.max(90, h * .16));
     const pad = Math.round(baseStrip * .32), big = Math.round(baseStrip * .26), small = Math.round(baseStrip * .17);
     const c = document.createElement("canvas"), ctx = c.getContext("2d"), l = state.lang;
     ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
@@ -608,11 +758,10 @@ export async function start({ stage, panel, lang, onReady }) {
     if (matchMedia("(max-width: 700px)").matches) stage.scrollIntoView({ behavior: "auto", block: "center" });
   }
   // A deliberately finite tour: no permanent render loop, URL mutation, or change to the visitor's choices.
-  const tourStart = new THREE.Vector3(1.30, 1.60, 4.55);
-  // portrait phones use a wider vertical field of view: from 4.55 m back the bottom of the picture runs past the front edge of the floor (a black strip), so start nearer
-  const tourStartNarrow = new THREE.Vector3(1.05, 1.52, 4.05);
-  const tourEnd = new THREE.Vector3(0.5, 1.34, 3.15);
-  const tourTarget = new THREE.Vector3(0.15, 0.85, -0.9);
+  const tourStart = new THREE.Vector3(.22, 1.55, 1.85);
+  const tourStartNarrow = new THREE.Vector3(.12, 1.5, 1.78);
+  const tourEnd = new THREE.Vector3(.48, 1.34, 1.12);
+  const tourTarget = new THREE.Vector3(0, 1.1, -1.15);
   const smooth = (x) => { const k = Math.max(0, Math.min(1, x)); return k * k * (3 - 2 * k); };
   function blendLights(a, b, k, out) {
     for (const key in a) {
@@ -752,13 +901,20 @@ export async function start({ stage, panel, lang, onReady }) {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (director) stopDirector(); else if (directorPreparing) cancelPreparation(); } });
   function loop() { if (controls.update()) { render(); requestAnimationFrame(loop); } else { render(); looping = false; } }
   controls.addEventListener("start", () => { if (!looping) { looping = true; requestAnimationFrame(loop); } });
-  controls.addEventListener("change", () => { if (!looping) render(); });
+  controls.addEventListener("change", () => {
+    const offset = camera.position.clone().sub(orbitCenter);
+    viewTheta = Math.atan2(offset.x, offset.z);
+    const toWindow = Math.abs(Math.atan2(Math.sin(viewTheta), Math.cos(viewTheta)));
+    const toTv = Math.abs(Math.atan2(Math.sin(viewTheta - Math.PI), Math.cos(viewTheta - Math.PI)));
+    currentView = toTv < toWindow ? "tv" : "window";
+    if (!looping) render();
+  });
   new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
   fit(); apply();
-  // on entering, the camera drifts in from a step back (1.8 s). Skipped with reduced motion; a drag or a test view stops it.
+  // on entering, the camera drifts gently within the room (1.8 s). Skipped with reduced motion; a drag or a test view stops it.
   intro = !matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (intro) {
-    const end = camera.position.clone(), from = end.clone().add(new THREE.Vector3(-.3, .22, .9)), t0 = performance.now();
+    const end = camera.position.clone(), from = end.clone().add(new THREE.Vector3(-.28, .18, 0)), t0 = performance.now();
     introEnd = end;
     controls.addEventListener("start", () => { intro = false; });
     const step = (now) => {
@@ -777,6 +933,12 @@ export async function start({ stage, panel, lang, onReady }) {
     set(k, v) { state[k] = v; apply(); }, // used by tests
     postcard, // used by tests: returns the postcard canvas
     cam: () => camera.position.toArray().map((v) => +v.toFixed(2)), // used by tests: where the camera is
+    angle() { const degrees = Math.atan2(camera.position.x - orbitCenter.x, camera.position.z - orbitCenter.z) * 180 / Math.PI; return (Math.round(degrees) + 360) % 360; },
+    setOrbitAngle(degrees) { intro = false; viewTheta = degrees * Math.PI / 180; setCameraAngle(viewTheta); return camera.position.toArray(); },
+    hasFrontWall: () => !!scene.getObjectByName("front-wall"),
+    hasTvWall: () => !!scene.getObjectByName("tv-screen") && !!scene.getObjectByName("tv-console"),
+    orbitLimits: () => ({ minRadius: controls.minDistance, maxRadius: controls.maxDistance, minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, near: camera.near }),
+    renderFrame: () => renderer.info.render.frame,
     view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
     director: () => ({ playing: !!director?.started, elapsed: director?.started ? (performance.now() - director.started) / 1000 : null, view: director?.view, image: outMat.map?.image?.src, stillOpen: directorStillOpen, controlsEnabled: controls.enabled }), // local QA hook
   };

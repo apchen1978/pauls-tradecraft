@@ -111,10 +111,9 @@ const moods = {
   tv: {
     portrait: "person-tv.webp", story: { zh: "週五晚上，只想窩著追劇。", en: "Friday night, and she wants nothing but the sofa and a good series." },
     portraitAlt: { zh: "一位女性背對畫面，手拿剛脫下的外套走向亮著暖光的電視牆。", en: "A woman seen from behind, carrying her coat toward a softly lit TV wall." },
-    roomImage: "./assets/tv-result.webp", roomAlt: { zh: "黃昏的客廳有落地窗、河濱城市景色、暖光電視牆、沙發、檯燈與地毯，一旁有一台小型立式家用機器人。", en: "At dusk, a living room has a riverfront city view, a warm TV wall, sofa, table lamp and rug, with a small upright home robot nearby." }, moodParam: "tech",
-    roomParams: { wall: "sand", rug: "ivory", curtain: "linen", print: "moon" },
+    roomImage: "./assets/tv-result.webp", roomAlt: { zh: "黃昏的客廳有落地窗、河濱城市景色、暖光電視牆、沙發、檯燈與地毯，一旁有一台小型立式家用機器人。", en: "At dusk, a living room has a riverfront city view, a warm TV wall, sofa, table lamp and rug, with a small upright home robot nearby." }, moodParam: "tv",
+    roomParams: { wall: "sand", rug: "ivory", curtain: "linen", print: "moon", view: "tv" },
     feeling: { zh: "今晚，歸我自己。", en: "Tonight is mine." },
-    roomverseNote: { zh: "3D 房間目前還沒有電視牆，先帶你感受這種夜晚的氣氛；電視牆之後會補上。", en: "The 3D room does not have a TV wall yet. It gives you the evening mood for now; the TV wall will come later." },
     draftNames: { zh: ["電視牆太滿", "窗光打在螢幕上", "玻璃圓桌與電視線"], en: ["Crowded TV wall", "Window glare on the screen", "Glass table and loose cables"] },
     draftSubs: { zh: ["架上擺飾很多，電視反而不突出", "傍晚的光打在螢幕上，看不清楚", "桌邊偏硬，線材外露"], en: ["So many shelf objects that the TV fades into the wall", "Evening light falls on the screen and makes it hard to see", "Hard table edges and loose cables"] },
   },
@@ -156,7 +155,10 @@ function renderResult() {
   const roomQuery = new URLSearchParams({ lang: state.lang, mood: mood.moodParam, ...mood.roomParams, from: "fu", who: state.mood });
   const roomLink=`/prototype/roomverse-3d/?${roomQuery}`;
   const roomverseNote = mood.roomverseNote?.[state.lang] || t.roomverseNote;
-  root.innerHTML=`<section class="step-panel" aria-labelledby="step-heading"><div class="step-heading"><div><p class="step-kicker">${t.step(3)} · ${t.refinementLabel}</p><h2 id="step-heading" class="step-title" tabindex="-1">${t.step3}</h2><p class="step-note">${t.step3Note}</p></div></div><div class="result-layout"><div class="postcard"><img class="result-image" src="${mood.roomImage}" alt="${mood.roomAlt[state.lang]}" width="800" height="1000" decoding="async"><p class="result-caption"><strong>${t.firstFeeling}</strong> ${enc(mood.feeling[state.lang])}</p></div><div><p class="selected-reason">${t.chosenReason} ${enc(reason)}</p><p class="result-summary"><strong>${t.before}</strong> ${String.fromCharCode(64+state.draft)} · ${enc(names[state.draft-1])} — ${enc(sub)}</p><ul class="refinement-list">${items}</ul><p class="hint-line">${t.footNote}</p><p class="roomverse-note">${roomverseNote}</p><div class="actions"><a class="primary" href="${roomLink}" data-action="roomverse">${t.linkRoom}</a><button class="secondary" type="button" data-action="restart">${t.restart}</button></div></div></div></section>`;
+  const roomLinkLabel = state.mood === "tv"
+    ? (state.lang === "zh" ? "走進她的追劇夜 3D 房間" : "Step into her Series Night 3D room")
+    : t.linkRoom;
+  root.innerHTML=`<section class="step-panel" aria-labelledby="step-heading"><div class="step-heading"><div><p class="step-kicker">${t.step(3)} · ${t.refinementLabel}</p><h2 id="step-heading" class="step-title" tabindex="-1">${t.step3}</h2><p class="step-note">${t.step3Note}</p></div></div><div class="result-layout"><div class="postcard"><img class="result-image" src="${mood.roomImage}" alt="${mood.roomAlt[state.lang]}" width="800" height="1000" decoding="async"><p class="result-caption"><strong>${t.firstFeeling}</strong> ${enc(mood.feeling[state.lang])}</p></div><div><p class="selected-reason">${t.chosenReason} ${enc(reason)}</p><p class="result-summary"><strong>${t.before}</strong> ${String.fromCharCode(64+state.draft)} · ${enc(names[state.draft-1])} — ${enc(sub)}</p><ul class="refinement-list">${items}</ul><p class="hint-line">${t.footNote}</p>${state.mood === "tv" ? "" : `<p class="roomverse-note">${roomverseNote}</p>`}<div class="actions"><a class="primary" href="${roomLink}" data-action="roomverse">${roomLinkLabel}</a><button class="secondary" type="button" data-action="restart">${t.restart}</button></div></div></div></section>`;
 }
 function render() {
   const t=copy[state.lang];
