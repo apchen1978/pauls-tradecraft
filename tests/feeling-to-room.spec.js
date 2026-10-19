@@ -2,7 +2,9 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
 const shotDir = "docs/qa/feeling-to-room";
+const renameShotDir = "docs/qa/rename-feeling-first";
 mkdirSync(shotDir, { recursive: true });
+mkdirSync(renameShotDir, { recursive: true });
 const contexts = [["zh",390],["en",390],["zh",1440],["en",1440]];
 
 async function noOverflow(page) {
@@ -24,7 +26,7 @@ for (const [lang,width] of contexts) {
   test(`${lang} ${width}: three-step Feeling First experience and responsive screenshots`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
     await page.goto(`/prototype/feeling-to-room/?lang=${lang}`);
-    await expect(page.locator("h1")).toHaveText(lang === "zh" ? "心情先行" : "Feeling First");
+    await expect(page.locator("h1")).toHaveText(lang === "zh" ? "先有fu，再有家" : "Feeling First");
     await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 1／3 步" : "Step 1 of 3");
     await expect(page.locator("[data-mood]")).toHaveCount(2);
     await expect(page.locator("[data-mood=rain]")).toBeInViewport();
@@ -38,6 +40,21 @@ for (const [lang,width] of contexts) {
     await checkImages(page);
     await noOverflow(page);
     await page.screenshot({ path: `${shotDir}/${lang}-${width}-step1.png` });
+    if (width === 390) {
+      await page.screenshot({ path: `${renameShotDir}/${lang}-390-page.png` });
+      if (lang === "zh") {
+        await page.goto("/?lang=zh#showcase");
+        const showcaseCard = page.locator("#showcase article").filter({ hasText: "先有fu，再有家" });
+        await expect(showcaseCard).toBeVisible();
+        const showcaseImage = showcaseCard.locator("img");
+        await showcaseImage.scrollIntoViewIfNeeded();
+        await expect.poll(() => showcaseImage.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
+        await showcaseCard.locator("h3").scrollIntoViewIfNeeded();
+        await page.screenshot({ path: `${renameShotDir}/zh-390-showcase-card.png` });
+        await page.goto(`/prototype/feeling-to-room/?lang=${lang}`);
+        await expect(page.locator("h1")).toHaveText("先有fu，再有家");
+      }
+    }
 
     const start = await page.evaluate(() => performance.now());
     await page.locator("[data-mood=rain]").click();

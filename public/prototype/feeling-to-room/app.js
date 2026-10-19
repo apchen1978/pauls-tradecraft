@@ -1,6 +1,6 @@
 const copy = {
   zh: {
-    lang: "zh-Hant", back: "回到作品集", eyebrow: "ROOMVERSE · 人機共創示範", title: "心情先行", metaDescription: "先選一種房間心情，再看 AI 初稿如何由人取捨與深化。",
+    lang: "zh-Hant", back: "回到作品集", eyebrow: "ROOMVERSE · 人機共創示範", title: "先有fu，再有家", metaDescription: "先選一種房間心情，再看 AI 初稿如何由人取捨與深化。",
     dek: "先挑一種房間心情，看 AI 怎麼快速給方向，再看人如何把細節想周全。",
     boundary: "示範／虛構情境 · AI 初稿為預置內容，不是即時生成。", progressLabel: "探索進度",
     footer: "一個固定內容的創作示範，不會連接 AI 服務。", roomverse: "走進 ROOMVERSE 3D",
@@ -72,7 +72,8 @@ function reasonId(index) { return `r${index}`; }
 function draftId() { return `${state.mood}-${state.draft}`; }
 function setDocumentLanguage() {
   document.documentElement.lang = copy[state.lang].lang;
-  document.title = state.lang === "zh" ? "心情先行 · Feeling First" : "Feeling First · 心情先行";
+  document.title = state.lang === "zh" ? "先有fu，再有家 · Feeling First" : "Feeling First · 先有fu，再有家";
+  document.querySelector(".fu-note").hidden = state.lang !== "zh";
   document.querySelector('meta[name="description"]').content = copy[state.lang].metaDescription;
   document.querySelectorAll("[data-copy]").forEach(el => { const key = el.dataset.copy; el.textContent = copy[state.lang][key]; });
   document.querySelectorAll("[data-lang]").forEach(btn => btn.setAttribute("aria-pressed", String(btn.dataset.lang === state.lang)));

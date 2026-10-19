@@ -505,7 +505,7 @@ const dict = {
           objectPosition: "center",
         },
         {
-          title: "心情先行 · Feeling First",
+          title: "先有fu，再有家 · Feeling First",
           tag: "人機共創示範 · 雙語作品",
           hook: "先挑一種房間心情，再看看三個 AI 初稿方向。",
           teaches: "看見 AI 如何快速提出方向，也看見人如何取捨與深化細節。",
@@ -1436,7 +1436,7 @@ const dict = {
           objectPosition: "center",
         },
         {
-          title: "Feeling First · 心情先行",
+          title: "Feeling First · 先有fu，再有家",
           tag: "Human–AI co-design demo · bilingual work",
           hook: "Choose a room mood, then explore three directions from a prepared AI draft.",
           teaches: "See how AI can quickly offer directions, while a person chooses and refines the details.",
