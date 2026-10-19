@@ -23,6 +23,7 @@ for (const width of [390, 1440]) {
       await page.goto(`${PAGE}?lang=${lang}`);
       await expect(page.locator("#home")).toHaveAttribute("href", `/?lang=${lang}`);
       await expect(page.locator("#enter")).toBeVisible();
+      await expect(page.locator("#lead")).toContainText(lang === "zh" ? "拖一下轉動房間，或點「看電視牆」" : "Drag to turn the room, or tap ‘Turn to the TV wall’");
       expect(glb, "nothing heavy loads before the visitor asks").toEqual([]);
       const note = await page.locator("#note").textContent();
       expect(note).toContain(lang === "zh" ? "插畫示意" : "Illustrated study");

@@ -180,31 +180,55 @@ export async function start({ stage, panel, lang, onReady }) {
     mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = true; mesh.name = name;
     tvWall.add(mesh); return mesh;
   };
-  const tvPanelMat = new THREE.MeshStandardMaterial({ color: "#d8c6a8", roughness: .9 });
-  const tvOakMat = new THREE.MeshStandardMaterial({ color: "#a77c53", roughness: .72 });
-  const tvCabinetMat = new THREE.MeshStandardMaterial({ color: "#856043", roughness: .7 });
-  const tvDoorMat = new THREE.MeshStandardMaterial({ color: "#9a7350", roughness: .76 });
+  const tvPanelMat = new THREE.MeshStandardMaterial({ color: "#e8ddca", roughness: .9 });
+  const tvOakMat = new THREE.MeshStandardMaterial({ color: "#d4b58a", roughness: .82 });
+  const tvCabinetMat = new THREE.MeshStandardMaterial({ color: "#c7a578", roughness: .8 });
+  const tvDoorMat = new THREE.MeshStandardMaterial({ color: "#d9bb90", roughness: .84 });
   const tvTrimMat = new THREE.MeshStandardMaterial({ color: "#d7bd91", roughness: .55, metalness: .2 });
-  const tvScreenMat = new THREE.MeshStandardMaterial({ color: "#111519", roughness: .28, metalness: .18 }); // powered off: no picture, text, logo, or emissive surface
-  const tvStripMat = new THREE.MeshStandardMaterial({ color: "#f0c27c", emissive: "#ffb957", emissiveIntensity: .18, roughness: .6 });
+  const tvScreenMat = new THREE.MeshBasicMaterial({ color: "#141b1e" }); // quiet powered-off face; no point-light specular hotspot
+  const tvStripMat = new THREE.MeshStandardMaterial({ color: "#ffe1a4", emissive: "#ffc477", emissiveIntensity: .18, roughness: .9 });
+  const tvWashMap = canvasTex(64, 64, (ctx, w, h) => {
+    const glow = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+    glow.addColorStop(0, "rgba(255,255,255,.65)"); glow.addColorStop(.5, "rgba(255,255,255,.3)"); glow.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
+  });
+  const tvWashMat = new THREE.MeshBasicMaterial({ color: "#ffd098", map: tvWashMap, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
   const TV_STRIP_GLOW = { rain: .28, family: .18, tech: .08, chic: .2, slow: .13, tv: .82 };
-  tvWallPiece(new THREE.BoxGeometry(2.95, 2.35, .08), tvPanelMat, 0, 1.36, FRONT - .12, "tv-wall-backing");
+  tvWallPiece(new THREE.BoxGeometry(2.95, 2.35, .08), tvPanelMat, 0, 1.36, FRONT - .125, "tv-wall-backing");
   // narrow trim makes the panel read as built-in millwork, not a freestanding equipment display
   for (const x of [-1.49, 1.49]) tvWallPiece(new THREE.BoxGeometry(.035, 2.36, .045), tvTrimMat, x, 1.36, FRONT - .17, "tv-wall-trim", false);
-  // Two open side niches, each with three shelves and a concealed warm strip behind the shelf edge.
+  // A continuous wall face with actual niche openings: the backs and returns sit behind
+  // this plane, so the shelves remain recessed when seen from the side.
+  const builtInFace = new THREE.Shape([
+    new THREE.Vector2(-W / 2, 0), new THREE.Vector2(W / 2, 0),
+    new THREE.Vector2(W / 2, H), new THREE.Vector2(-W / 2, H),
+  ]);
   for (const side of [-1, 1]) {
     const x = side * 1.82;
-    tvWallPiece(new THREE.BoxGeometry(.62, 1.62, .035), tvOakMat, x, 1.36, FRONT - .205, "tv-shelf-back");
-    for (const sx of [-1, 1]) tvWallPiece(new THREE.BoxGeometry(.045, 1.62, .27), tvOakMat, x + sx * .287, 1.36, FRONT - .34, "tv-shelf-side");
-    for (const y of [.62, 1.22, 1.82]) {
-      tvWallPiece(new THREE.BoxGeometry(.62, .055, .3), tvOakMat, x, y, FRONT - .34, "tv-shelf-board");
+    builtInFace.holes.push(new THREE.Path([
+      new THREE.Vector2(x - .31, .55), new THREE.Vector2(x - .31, 2.17),
+      new THREE.Vector2(x + .31, 2.17), new THREE.Vector2(x + .31, .55),
+    ]));
+  }
+  tvWallPiece(new THREE.ShapeGeometry(builtInFace), wallMat, 0, 0, FRONT - .16, "tv-built-in-surround").rotation.y = Math.PI;
+  for (const side of [-1, 1]) {
+    const x = side * 1.82;
+    tvWallPiece(new THREE.BoxGeometry(.62, 1.62, .025), tvOakMat, x, 1.36, FRONT - .025, "tv-shelf-back");
+    for (const sx of [-1, 1]) {
+      tvWallPiece(new THREE.BoxGeometry(.025, 1.62, .135), tvOakMat, x + sx * .3, 1.36, FRONT - .09, "tv-shelf-return");
+      tvWallPiece(new THREE.BoxGeometry(.012, 1.48, .008), tvStripMat, x + sx * .272, 1.36, FRONT - .05, "tv-shelf-light", false);
     }
-    tvWallPiece(new THREE.BoxGeometry(.48, .018, .015), tvStripMat, x, .66, FRONT - .492, "tv-shelf-light", false);
+    for (const y of [.55, 1.09, 1.63, 2.17]) {
+      tvWallPiece(new THREE.BoxGeometry(.62, .035, .135), tvOakMat, x, y, FRONT - .09, "tv-shelf-board");
+    }
+    tvWallPiece(new THREE.PlaneGeometry(.57, 1.54), tvWashMat, x, 1.36, FRONT - .041, "tv-shelf-wash", false).rotation.y = Math.PI;
   }
   // A slim, blank television on the central panel; its glass stays dark in every mood.
   tvWallPiece(new THREE.BoxGeometry(1.58, .94, .075), tvCabinetMat, 0, 1.76, FRONT - .24, "tv-frame");
   const tvScreen = tvWallPiece(new THREE.PlaneGeometry(1.48, .84), tvScreenMat, 0, 1.76, FRONT - .282, "tv-screen", false);
   tvScreen.rotation.y = Math.PI;
+  tvWallPiece(new THREE.BoxGeometry(1.5, .014, .012), tvStripMat, 0, 1.285, FRONT - .282, "tv-screen-lower-light", false);
+  tvWallPiece(new THREE.PlaneGeometry(1.85, .28), tvWashMat, 0, 1.19, FRONT - .165, "tv-screen-wall-wash", false).rotation.y = Math.PI;
   // Grounded low cabinet with two quiet door faces and small brass pulls; no exposed wires.
   tvWallPiece(new THREE.BoxGeometry(2.05, .5, .4), tvCabinetMat, 0, .34, FRONT - .32, "tv-console");
   tvWallPiece(new THREE.BoxGeometry(1.74, .075, .36), tvOakMat, 0, .04, FRONT - .32, "tv-console-plinth");
@@ -517,7 +541,7 @@ export async function start({ stage, panel, lang, onReady }) {
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
     shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
-    tvStripMat.emissiveIntensity = v.tvWall; screenReflectionMat.opacity = v.screenReflection;
+    tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; screenReflectionMat.opacity = v.screenReflection;
   }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
