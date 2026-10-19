@@ -17,12 +17,13 @@ const COPY = {
 };
 const $ = (id) => document.getElementById(id);
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
-// Keep these sentences verbatim with the four story cards in feeling-to-room/app.js.
+// Keep these sentences verbatim with the five story cards in feeling-to-room/app.js.
 const PEOPLE_STORIES = {
   rain: { zh: "加班到十點，外面下著雨。", en: "Working late; rain is falling outside." },
   chic: { zh: "明早要簡報，想先把自己整理好。", en: "A presentation tomorrow; she wants to feel ready." },
   family: { zh: "週末，兩個孩子和長輩都要來。", en: "The family is coming over this weekend." },
   tech: { zh: "在家寫到半夜，只想要安靜。", en: "Working from home past midnight, they need quiet." },
+  tv: { zh: "週五晚上，只想窩著追劇。", en: "Friday night, and she wants nothing but the sofa and a good series." },
 };
 const entryParams = new URLSearchParams(location.search);
 const storyOrigin = entryParams.get("from") === "fu" ? PEOPLE_STORIES[entryParams.get("who")] : null;

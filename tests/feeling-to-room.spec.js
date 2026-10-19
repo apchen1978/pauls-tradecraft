@@ -1,17 +1,18 @@
 import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
-const qaDir = "docs/qa/feeling-first-people-stories";
+const qaDir = "docs/qa/feeling-first-tv-night";
 const sheQaDir = "docs/qa/feeling-first-she";
 mkdirSync(qaDir, { recursive: true });
 mkdirSync(sheQaDir, { recursive: true });
-const contexts = [["zh",390],["en",390],["zh",1440],["en",1440]];
-const moods = ["rain", "chic", "family", "tech"];
+const contexts = [["zh",390],["en",390],["zh",768],["zh",1024],["zh",1440],["en",1440]];
+const moods = ["rain", "chic", "family", "tech", "tv"];
 const roomPresets = {
   rain: { wall: "sand", rug: "ivory", curtain: "linen", print: "rain" },
   chic: { wall: "original", rug: "ivory", curtain: "rose", print: "hills" },
   family: { wall: "sand", rug: "stripe", curtain: "sage", print: "hills" },
   tech: { wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
+  tv: { wall: "sand", rug: "ivory", curtain: "linen", print: "moon" },
 };
 
 async function noOverflow(page) {
@@ -78,22 +79,59 @@ async function checkImages(page) {
 }
 
 for (const [lang,width] of contexts) {
-  test(`${lang} ${width}: four story cards are visible and responsive`, async ({ page }) => {
+  test(`${lang} ${width}: five story cards are visible and responsive`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
     await page.goto(`/prototype/feeling-to-room/?lang=${lang}`);
     await expect(page.locator("h1")).toHaveText(lang === "zh" ? "先有fu，再有家" : "Feeling First");
     await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "替她選一個方向" : "Who is coming home today?");
     if (lang === "zh") await expect(page.locator('[data-action="continue-mood"]')).toHaveText("看三個方向");
     await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 1／3 步" : "Step 1 of 3");
-    await expect(page.locator("[data-mood]")).toHaveCount(4);
-    await expect(page.locator(".mood-card img")).toHaveCount(4);
+    await expect(page.locator("[data-mood]")).toHaveCount(5);
+    await expect(page.locator(".mood-card img")).toHaveCount(5);
     await expect(page.locator(".mood-card img").first()).not.toHaveAttribute("loading", "lazy");
-    await expect(page.locator('.mood-card img[src*="person-"]')).toHaveCount(4);
+    await expect(page.locator('.mood-card img[src*="person-"]')).toHaveCount(5);
     await expect(page.locator('.step-panel input[type="color"], .step-panel input[type="range"]')).toHaveCount(0);
     if (lang === "zh") await expect(page.locator(".step-panel")).not.toContainText("風格");
     const columns = await page.locator(".mood-grid").evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length);
-    expect(columns).toBe(width === 390 ? 2 : 4);
+    expect(columns).toBe(width === 390 ? 2 : 6);
     await expect(page.locator("[data-mood]").nth(1)).toBeInViewport();
+    const cardRows = await page.locator("[data-mood]").evaluateAll(nodes => nodes.map(node => Math.round(node.getBoundingClientRect().top)));
+    if (width === 390) {
+      expect(cardRows[0]).toBe(cardRows[1]);
+      expect(cardRows[2]).toBe(cardRows[3]);
+      expect(cardRows[4]).toBeGreaterThan(cardRows[3]);
+    } else {
+      expect(cardRows[0]).toBe(cardRows[1]);
+      expect(cardRows[1]).toBe(cardRows[2]);
+      expect(cardRows[3]).toBe(cardRows[4]);
+      expect(cardRows[3]).toBeGreaterThan(cardRows[2]);
+    }
+    const fifthCard = page.locator('[data-mood="tv"]');
+    await expect(fifthCard).toBeEnabled();
+    const fifthGeometry = await fifthCard.evaluate(card => {
+      const image = card.querySelector("img").getBoundingClientRect();
+      const copy = card.querySelector(".mood-copy").getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      return { imageWidth: image.width, cardWidth: cardRect.width, imageTop: image.top, copyTop: copy.top, imageRatio: image.width / image.height };
+    });
+    if (width === 390) {
+      expect(fifthGeometry.imageWidth).toBeGreaterThanOrEqual(fifthGeometry.cardWidth * 0.9);
+      expect(fifthGeometry.imageTop).toBeLessThan(fifthGeometry.copyTop);
+      expect(fifthGeometry.imageRatio).toBeCloseTo(16 / 9, 1);
+    } else {
+      const otherRatios = await page.locator(".mood-card:not(.mood-card--wide) img").evaluateAll(images => images.map(img => {
+        const rect = img.getBoundingClientRect();
+        return rect.width / rect.height;
+      }));
+      for (const ratio of otherRatios) expect(fifthGeometry.imageRatio).toBeCloseTo(ratio, 2);
+      if (width === 768 || width === 1024) {
+        expect(cardRows[0]).toBe(cardRows[1]);
+        expect(cardRows[1]).toBe(cardRows[2]);
+        expect(cardRows[3]).toBe(cardRows[4]);
+        const widths = await page.locator(".mood-card").evaluateAll(cards => cards.map(card => card.getBoundingClientRect().width));
+        for (const cardWidth of widths) expect(cardWidth).toBeCloseTo(widths[0], 0);
+      }
+    }
     const firstRow = await page.locator("[data-mood]").evaluateAll(nodes => nodes.slice(0,2).map(node => {
       const rect = node.getBoundingClientRect();
       return rect.top >= 0 && rect.bottom <= innerHeight;
@@ -102,9 +140,16 @@ for (const [lang,width] of contexts) {
       const rect = node.getBoundingClientRect();
       return { top: rect.top, bottom: rect.bottom, height: rect.height, viewport: innerHeight };
     })))).toEqual([true, true]);
+    for (const card of await page.locator("[data-mood]").all()) {
+      await card.click();
+      await expect(card).toHaveAttribute("aria-pressed", "true");
+    }
     await checkImages(page);
     await noOverflow(page);
     await page.screenshot({ path: `${qaDir}/${lang}-${width}-step1.png` });
+    if (lang === "zh" && (width === 390 || width === 1440)) {
+      await page.screenshot({ path: `${qaDir}/zh-${width}-step1-full.png`, fullPage: true });
+    }
   });
 }
 
@@ -123,6 +168,10 @@ for (const mood of moods) {
         await page.screenshot({ path: `${qaDir}/family-390-step2.png`, fullPage: true });
         await page.screenshot({ path: `${qaDir}/zh-390-step2-text.png`, fullPage: true });
       }
+      if (mood === "tv") {
+        await checkImages(page);
+        await page.screenshot({ path: `${qaDir}/${lang}-390-step2.png`, fullPage: true });
+      }
 
       await page.locator(".draft-choice").nth(1).click();
       await page.locator(".reason-choice").nth(0).click();
@@ -136,18 +185,26 @@ for (const mood of moods) {
       await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "把方向收斂成能生活的細節" : "Turn the direction into livable details");
       await expect(page.locator(".refinement-list li")).toHaveCount(3);
       await expect(page.locator(".result-caption")).toContainText(lang === "zh" ? "她進門的第一個感覺" : "Their first feeling on entering");
-      await expect(page.locator(".result-image")).toHaveAttribute("src", new RegExp(`mood-${mood}|room-${mood === "family" ? "sunny" : mood === "tech" ? "tech-night" : mood === "rain" ? "rug" : "chic-city"}`));
-      const params = new URLSearchParams({ lang, mood, ...roomPresets[mood], from: "fu", who: mood });
-      await expect(page.locator(".roomverse-note")).toHaveText(lang === "zh"
-        ? "3D 房間帶你感受這種氣氛：光線、牆色、地毯、窗簾與掛畫；家具大小、收納和線材整理，只在上面的文字說明裡。"
-        : "The 3D room gives you the feeling: light, wall colour, rug, curtains and the wall print. Furniture size, storage and cable tidying appear only in the notes above.");
+      await expect(page.locator(".result-image")).toHaveAttribute("src", new RegExp(`tv-result|mood-${mood}|room-${mood === "family" ? "sunny" : mood === "tech" ? "tech-night" : mood === "rain" ? "rug" : "chic-city"}`));
+      const roomMood = mood === "tv" ? "tech" : mood;
+      const params = new URLSearchParams({ lang, mood: roomMood, ...roomPresets[mood], from: "fu", who: mood });
+      await expect(page.locator(".roomverse-note")).toHaveText(mood === "tv"
+        ? (lang === "zh" ? "3D 房間目前還沒有電視牆，先帶你感受這種夜晚的氣氛；電視牆之後會補上。" : "The 3D room does not have a TV wall yet. It gives you the evening mood for now; the TV wall will come later.")
+        : (lang === "zh"
+          ? "3D 房間帶你感受這種氣氛：光線、牆色、地毯、窗簾與掛畫；家具大小、收納和線材整理，只在上面的文字說明裡。"
+          : "The 3D room gives you the feeling: light, wall colour, rug, curtains and the wall print. Furniture size, storage and cable tidying appear only in the notes above."));
       await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?${params}`);
       await expect(page.locator('[data-action="roomverse"]')).toHaveText(lang === "zh" ? "走進她的 ROOMVERSE 3D 房間" : "Step into her ROOMVERSE 3D room");
       await checkImages(page);
       await noOverflow(page);
-      if (mood === "tech" && lang === "zh") {
-        await page.screenshot({ path: `${qaDir}/tech-390-step3.png`, fullPage: true });
-        await page.screenshot({ path: `${qaDir}/zh-390-step3-text.png`, fullPage: true });
+      if (mood === "tv") {
+        await page.screenshot({ path: `${qaDir}/${lang}-390-step3.png`, fullPage: true });
+        if (lang === "zh") await page.screenshot({ path: `${qaDir}/zh-390-step3-text.png`, fullPage: true });
+      }
+      if (mood === "tv" && lang === "zh") {
+        await expect(page.locator(".result-image")).toHaveAttribute("src", /tv-result\.webp$/);
+        await expect(page.locator(".result-image")).toHaveAttribute("alt", /立式家用機器人/);
+        await expect(page.locator(".roomverse-note")).toContainText("3D 房間目前還沒有電視牆");
       }
     });
   }
@@ -157,10 +214,10 @@ test("first-step people cards look distinct from the room-first ROOMVERSE remote
   await page.setViewportSize({ width: 900, height: 900 });
   await page.goto("/prototype/feeling-to-room/?lang=zh");
   await checkImages(page);
-  await page.screenshot({ path: `${qaDir}/.compare-feeling-first.png` });
+  await page.screenshot({ path: `${qaDir}/compare-feeling-first.png` });
   await page.goto("/prototype/room-mode-remote/?lang=zh");
   await expect.poll(() => page.locator("#room-canvas").evaluate(canvas => canvas.toDataURL().length)).toBeGreaterThan(10000);
-  await page.screenshot({ path: `${qaDir}/.compare-room-mode-remote.png` });
+  await page.screenshot({ path: `${qaDir}/compare-room-mode-remote.png` });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 });
 
