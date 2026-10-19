@@ -271,8 +271,10 @@ export async function start({ stage, panel, lang, onReady }) {
   const SX = .35, SZ = BACK + .55, TX = SX + 1.35, TZ = SZ - .1;
   // the coffee table, the table lamp and the plant are AI-made models too (loaded with the others below);
   // the table lamp's light lives here, and is moved onto the lamp once the side table is placed
-  const lampLight = new THREE.PointLight("#ffc27a", 3.2, 6, 1.6);
-  lampLight.position.set(TX, .98, TZ); lampLight.castShadow = true; lampLight.shadow.mapSize.set(1024, 1024); lampLight.shadow.bias = -.002; lampLight.shadow.radius = 10; scene.add(lampLight);
+  const lampLight = new THREE.PointLight("#ffc27a", 3.2, 6, 2);
+  lampLight.position.set(TX, .98, TZ); lampLight.castShadow = true; lampLight.shadow.mapSize.set(1024, 1024); lampLight.shadow.bias = -.002; lampLight.shadow.radius = 10;
+  lampLight.shadow.camera.near = .025; lampLight.shadow.camera.far = 6; // the shade is closer than the default .5 m shadow near plane
+  scene.add(lampLight);
   const PX = -2.3, PZ = BACK + .45;
   // art above the sofa: Codex's watercolour prints in a thin oak frame. The visitor picks one
   // (Paul 2026-10-16: 「讓訪客自己選」); only the shown print is loaded.
@@ -449,9 +451,25 @@ export async function start({ stage, panel, lang, onReady }) {
     };
     return mat;
   });
-  tableLampObj.traverse((m) => { if (m.isMesh) m.castShadow = false; }); // the lamp's own light sits inside this closed mesh
-  const tlb = new THREE.Box3().setFromObject(tableLampObj), tlY = tlb.min.y + (tlb.max.y - tlb.min.y) * .72;
-  lampLight.position.set(TX, tlY, TZ); tableHalo.position.set(TX, tlY, TZ + .2);
+  // Measure the actual pale shade vertices in world space, rather than guessing from the whole lamp.
+  const tableShadeBounds = new THREE.Box3(), shadeVertex = new THREE.Vector3();
+  tableLampObj.traverse((m) => {
+    if (!m.isMesh) return;
+    m.castShadow = false; // the illustration-derived shade is closed, including its top and bottom
+    const positions = m.geometry.attributes.position, colors = m.geometry.attributes.color;
+    for (let i = 0; i < positions.count; i++) if (colors?.getZ(i) >= .6) {
+      shadeVertex.fromBufferAttribute(positions, i).applyMatrix4(m.matrixWorld);
+      tableShadeBounds.expandByPoint(shadeVertex);
+    }
+  });
+  if (tableShadeBounds.isEmpty()) throw new Error("Table lamp shade geometry is missing");
+  const tableShadeCenter = tableShadeBounds.getCenter(new THREE.Vector3());
+  const tableShadeSize = tableShadeBounds.getSize(new THREE.Vector3());
+  const tableBulb = tableShadeCenter.clone();
+  tableBulb.y = tableShadeBounds.min.y + tableShadeSize.y * .44; // bulb just below the shade's centre
+  lampLight.position.copy(tableBulb);
+  tableHalo.position.copy(tableBulb); // no camera-facing offset: the glow must stay inside the lamp from every angle
+  tableHalo.scale.setScalar(Math.max(tableShadeSize.x, tableShadeSize.z) * 1.25);
   const plantObj = place(plant, { height: 1.35, x: PX, z: PZ });
   prepare(plantObj, vcol({ roughness: .75 }));
   // a small home robot (Codex's drawing, same pipeline) keeps the plant company by the rug; no caption, just there
@@ -512,6 +530,37 @@ export async function start({ stage, panel, lang, onReady }) {
   const shadeY = lb.min.y + (lb.max.y - lb.min.y) * .8, lampX = (lb.min.x + lb.max.x) / 2, lampZ = (lb.min.z + lb.max.z) / 2;
   const floorLight = new THREE.PointLight("#ffc98a", 0, 5, 1.6); floorLight.position.set(lampX, shadeY - .12, lampZ + .05); scene.add(floorLight);
   const floorHalo = halo(lampX, shadeY, lampZ + .3, 1.1); // a little in front of the shade so the shade does not hide it
+  // A soft fabric-shade emission profile for this point light only: brighter through
+  // the open top/bottom, diffuse transmission through the sides. This is an illustrated
+  // approximation, not a measured photometric file; no extra lights or hard shadow shell.
+  const tableLampProfile = `
+    vec3 tableEmitterView = (viewMatrix * vec4(tableBulbWorld, 1.0)).xyz;
+    if (distance(pointLight.position, tableEmitterView) < .0001) {
+      vec3 tableAxisView = mat3(viewMatrix) * vec3(0.0, 1.0, 0.0);
+      float elevation = abs(dot(light.direction, tableAxisView));
+      light.color *= mix(.32, 1.0, smoothstep(.2, .65, elevation));
+    }
+  `;
+  const profiledMaterials = new Set();
+  scene.traverse((obj) => {
+    for (const mat of Array.isArray(obj.material) ? obj.material : [obj.material]) {
+      if (!mat?.isMeshStandardMaterial || profiledMaterials.has(mat)) continue;
+      profiledMaterials.add(mat);
+      const compile = mat.onBeforeCompile, cacheKey = mat.customProgramCacheKey();
+      mat.onBeforeCompile = function (shader, webgl) {
+        compile.call(this, shader, webgl); // retain fabric weave and both lamps' emissive shaders
+        shader.uniforms.tableBulbWorld = { value: tableBulb };
+        shader.fragmentShader = "uniform vec3 tableBulbWorld;\n" + shader.fragmentShader.replace(
+          "#include <lights_pars_begin>",
+          THREE.ShaderChunk.lights_pars_begin.replace(
+            "light.color *= getDistanceAttenuation( lightDistance, pointLight.distance, pointLight.decay );",
+            "light.color *= getDistanceAttenuation( lightDistance, pointLight.distance, pointLight.decay );" + tableLampProfile,
+          ),
+        );
+      };
+      mat.customProgramCacheKey = () => cacheKey + "|table-lamp-profile-v1";
+    }
+  });
 
   // ---------- state + panel ----------
   const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
@@ -937,6 +986,20 @@ export async function start({ stage, panel, lang, onReady }) {
     setOrbitAngle(degrees) { intro = false; viewTheta = degrees * Math.PI / 180; setCameraAngle(viewTheta); return camera.position.toArray(); },
     hasFrontWall: () => !!scene.getObjectByName("front-wall"),
     hasTvWall: () => !!scene.getObjectByName("tv-screen") && !!scene.getObjectByName("tv-console"),
+    tableLampLighting() {
+      scene.updateMatrixWorld(true);
+      const source = lampLight.getWorldPosition(new THREE.Vector3());
+      const glow = tableHalo.getWorldPosition(new THREE.Vector3());
+      let lightCount = 0, closedLampCastsShadow = false;
+      scene.traverse((obj) => { if (obj.isLight) lightCount++; });
+      tableLampObj.traverse((obj) => { if (obj.isMesh && obj.castShadow) closedLampCastsShadow = true; });
+      return {
+        source: source.toArray(), halo: glow.toArray(),
+        shadeMin: tableShadeBounds.min.toArray(), shadeMax: tableShadeBounds.max.toArray(),
+        sourceInsideShade: tableShadeBounds.containsPoint(source),
+        closedLampCastsShadow, shadowNear: lampLight.shadow.camera.near, decay: lampLight.decay, lightCount,
+      };
+    },
     orbitLimits: () => ({ minRadius: controls.minDistance, maxRadius: controls.maxDistance, minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, near: camera.near }),
     renderFrame: () => renderer.info.render.frame,
     view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
