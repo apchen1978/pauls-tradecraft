@@ -366,6 +366,10 @@ body { overflow-x: clip; }
 
 /* Chapter 14: one sequence, with responsibility made visible at each stage. */
 .chapter-bridge { margin-top: 24px; padding-left: 14px; border-left: 2px solid var(--mint); }
+.chapter-tool-card { display: flex; align-items: flex-start; flex-direction: column; gap: 8px; margin-top: 20px; padding: 18px 20px; border: 1px solid var(--line); border-left: 3px solid var(--gold); border-radius: 14px; background: var(--card); }
+.chapter-tool-card h3 { margin: 0; color: var(--bone); font-size: 1.05rem; }
+.chapter-tool-card .sub { margin: 4px 0 0; }
+.chapter-tool-card a { flex: 0 0 auto; font-weight: 650; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 .ladder-desk { margin-top: 24px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); }
 .ladder-desk h3, .ladder-desk h4, #ladder-principles-title { color: var(--bone); }
 .ladder-desk > .sub { margin-top: 4px; }
@@ -395,6 +399,7 @@ body { overflow-x: clip; }
 #ladder-principles { display: grid; gap: 7px; margin: 10px 0 0; padding-left: 20px; }
 @media (min-width: 760px) {
   .ladder-desk { padding: 24px; }
+  .chapter-tool-card { align-items: center; flex-direction: row; justify-content: space-between; gap: 20px; }
   .ladder-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .ladder-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .ladder-step-heading { display: grid; }

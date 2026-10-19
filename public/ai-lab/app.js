@@ -429,6 +429,11 @@ function renderLadder() {
   $("c14-title").textContent = x.title;
   $("c14-lead").textContent = x.lead;
   $("c14-demo").textContent = x.demo;
+  $("c14-agent-link-title").textContent = state.lang === "zh" ? "動手試試：要開幾個 agent？" : "Try it: How many agents?";
+  $("c14-agent-link-copy").textContent = state.lang === "zh" ? "用一個固定示範情境，看看人手、分工與界線如何改變結果。" : "Use a fixed scenario to see how team size, roles and guardrails change the result.";
+  const agentLink = $("c14-agent-link-anchor");
+  agentLink.textContent = state.lang === "zh" ? "打開互動工具 →" : "Open the interactive study →";
+  agentLink.href = `/prototype/how-many-agents/?lang=${state.lang}`;
   $("ladder-desk-title").textContent = x.deskTitle;
   $("ladder-desk-lead").textContent = x.deskLead;
   $("ladder-level-label").textContent = x.levelLabel;
