@@ -38,10 +38,14 @@ for (const { width, height, lang } of MOBILE_CASES) {
         const element = document.querySelector(selector);
         if (!element) return null;
         const box = element.getBoundingClientRect();
-        return { top: Math.round(box.top + scrollY), bottom: Math.round(box.bottom + scrollY), height: Math.round(box.height) };
+        return { top: Math.round(box.top + scrollY), bottom: Math.round(box.bottom + scrollY), height: Math.round(box.height), width: Math.round(box.width) };
       };
       const businessCards = [...document.querySelectorAll('[data-testid="hero-works"] li')];
       const businessBottom = businessCards.at(-1)?.getBoundingClientRect().bottom + scrollY;
+      const eyebrow = rect("#showcase > div > p:first-of-type");
+      const suggestedStart = rect("#showcase > div > p:nth-of-type(3)");
+      const firstCover = rect("#showcase article:first-child img");
+      const suggestedLink = rect("#showcase > div > p:nth-of-type(3) a");
       const images = performance.getEntriesByType("resource")
         .filter((entry) => /\.(webp|png|jpe?g)(\?|$)/i.test(entry.name))
         .map((entry) => ({ path: new URL(entry.name).pathname, bytes: entry.encodedBodySize }));
@@ -51,7 +55,10 @@ for (const { width, height, lang } of MOBILE_CASES) {
         businessCardsBottom: Math.round(businessBottom),
         showcase: rect("#showcase"),
         showcaseTitle: rect("#showcase-heading"),
-        firstInteractiveImage: rect("#showcase article:first-child img"),
+        showcaseHeader: { top: eyebrow.top, bottom: Math.max(suggestedStart.bottom, suggestedLink.bottom), height: Math.max(suggestedStart.bottom, suggestedLink.bottom) - eyebrow.top },
+        firstInteractiveImage: firstCover,
+        firstCoverVisible: Math.max(0, Math.min(innerHeight, firstCover.bottom) - Math.max(0, firstCover.top)),
+        suggestedLink,
         scrollWidth: document.documentElement.scrollWidth,
         smallestHeroTarget: Math.round(Math.min(...[...document.querySelectorAll("section#top a")].map((link) => link.getBoundingClientRect().height))),
         images,
@@ -69,7 +76,10 @@ for (const { width, height, lang } of MOBILE_CASES) {
     expect(metrics.smallestHeroTarget).toBeGreaterThanOrEqual(44);
     expect(metrics.showcaseTitle.bottom).toBeLessThanOrEqual(height);
     expect(metrics.showcase.top).toBeLessThanOrEqual(700);
-    expect(metrics.firstInteractiveImage.top - height).toBeLessThanOrEqual(300);
+    expect(metrics.suggestedLink.height).toBeGreaterThanOrEqual(44);
+    expect(metrics.suggestedLink.width).toBeGreaterThanOrEqual(44);
+    if (width === 390) expect(metrics.firstCoverVisible).toBeGreaterThanOrEqual(lang === "zh" ? 120 : 60);
+    else expect(metrics.firstInteractiveImage.top - height).toBeLessThanOrEqual(150);
 
     const workLinks = page.locator('[data-testid="hero-works"] a');
     await expect(workLinks).toHaveCount(3);
@@ -93,6 +103,8 @@ for (const { width, height, lang } of MOBILE_CASES) {
     await expect(heroCta).toBeFocused();
     await heroCta.click();
     await expect(page).toHaveURL(/#showcase$/);
+    const anchorPosition = await page.evaluate(() => ({ headingTop: document.querySelector("#showcase-heading").getBoundingClientRect().top, navBottom: document.querySelector("header").getBoundingClientRect().bottom }));
+    expect(anchorPosition.headingTop).toBeGreaterThan(anchorPosition.navBottom);
   });
 }
 

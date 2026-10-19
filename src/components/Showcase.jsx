@@ -58,24 +58,24 @@ export default function Showcase() {
 
   return (
     <section id="showcase" aria-labelledby="showcase-heading" className="scroll-mt-24 border-b border-line bg-white">
-      <div className="mx-auto max-w-7xl px-5 py-6 md:px-6 md:py-28">
-        <p className="text-xs font-semibold tracking-[0.08em] text-moss md:text-sm">{s.eyebrow}</p>
-        <h2 id="showcase-heading" className="mt-2 max-w-[10em] text-[2.25rem] font-semibold leading-[1.1] tracking-[-0.03em] text-ink md:mt-4 md:text-[3.5rem]">
+      <div className="mx-auto max-w-7xl px-5 py-16 md:px-6 md:py-28 max-[768px]:py-1">
+        <p className="text-xs font-semibold tracking-[0.08em] text-moss md:text-sm max-[768px]:leading-[1.3]">{s.eyebrow}</p>
+        <h2 id="showcase-heading" className="mt-4 max-w-[10em] text-[2.25rem] font-semibold leading-[1.1] tracking-[-0.03em] text-ink md:text-[3.5rem] max-[768px]:mt-1 max-[768px]:text-[1.875rem] max-[768px]:leading-[1.05]">
           {s.headline}
         </h2>
-        <p className="mt-3 max-w-[42ch] text-base leading-relaxed text-moss md:mt-5 md:text-lg">{s.intro}</p>
-        <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-moss md:mt-4 md:text-base">
+        <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-moss md:text-lg max-[768px]:mt-1 max-[768px]:max-w-none max-[768px]:text-[0.9375rem] max-[768px]:leading-[1.35]">{s.intro}</p>
+        <p className="mt-4 max-w-[42ch] text-sm leading-relaxed text-moss md:text-base max-[768px]:mt-0.5 max-[768px]:max-w-none max-[768px]:leading-[1.35]">
           {s.startLabel}{" "}
           <a
             href={withDemoLang(s.startHref, lang)}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-sm font-semibold text-ink underline decoration-ink/40 underline-offset-4 hover:decoration-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+            className="rounded-sm font-semibold text-ink underline decoration-ink/40 underline-offset-4 hover:decoration-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink max-[768px]:-my-3 max-[768px]:inline-flex max-[768px]:min-h-11 max-[768px]:items-center"
           >
             {s.startCta}
           </a>
         </p>
-        <ol className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:gap-8 xl:grid-cols-6">
+        <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:gap-8 xl:grid-cols-6 max-[768px]:mt-3">
           {items.map((item, index) => {
             const wide = wideAt(index, items.length);
             return (
