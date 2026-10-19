@@ -76,7 +76,8 @@ for (const [lang,width] of contexts) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
     await page.goto(`/prototype/feeling-to-room/?lang=${lang}`);
     await expect(page.locator("h1")).toHaveText(lang === "zh" ? "先有fu，再有家" : "Feeling First");
-    await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "今天，誰要回家？" : "Who is coming home today?");
+    await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "替她選一個方向" : "Who is coming home today?");
+    if (lang === "zh") await expect(page.locator('[data-action="continue-mood"]')).toHaveText("看三個方向");
     await expect(page.locator("#progress-text")).toHaveText(lang === "zh" ? "第 1／3 步" : "Step 1 of 3");
     await expect(page.locator("[data-mood]")).toHaveCount(4);
     await expect(page.locator(".mood-card img")).toHaveCount(4);
@@ -109,7 +110,7 @@ for (const mood of moods) {
       await page.locator(`[data-mood="${mood}"]`).click();
       await expect(page.locator(`[data-mood="${mood}"]`)).toHaveAttribute("aria-pressed", "true");
       await page.locator('[data-action="continue-mood"]').click();
-      await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "替她挑一個方向" : "Pick a direction for them");
+      await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "她會先挑哪一個？" : "Pick a direction for them");
       await expect(page.locator('input[name="draft"]')).toHaveCount(3);
       if (mood === "family" && lang === "zh") {
         await checkImages(page);
