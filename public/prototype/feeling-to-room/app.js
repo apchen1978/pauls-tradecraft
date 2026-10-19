@@ -1,10 +1,10 @@
 const copy = {
   zh: {
     lang: "zh-Hant", back: "回到作品集", eyebrow: "ROOMVERSE · 人機共創示範", title: "先有fu，再有家", metaDescription: "先認識一個人今天的處境，再替他挑一個回家的方向。",
-    dek: "先認識一個人今天怎麼了，再問他進門那一刻需要什麼；房間，是這個答案的結果。",
+    dek: "先認識一個人今天怎麼了，再問他進門那一刻要什麼。房間，是這個答案的結果。",
     boundary: "示範／虛構情境 · AI 初稿為預置內容，不是即時生成。", progressLabel: "探索進度",
     footer: "固定內容的示範；不會連接 AI 服務。", roomverse: "走進 ROOMVERSE 3D",
-    step: n => `第 ${n}／3 步`, step1: "今天，誰要回家？", step1Note: "先看見一個人今天的處境，再替他想想進門後需要什麼。",
+    step: n => `第 ${n}／3 步`, step1: "今天，誰要回家？", step1Note: "先看他今天的處境，再想想他進門後需要什麼。",
     continueMood: "替他挑一個方向", step2: "替他挑一個方向",
     step2Note: "三個都是預置 AI 初稿；先看哪個方向更照顧眼前的需要。",
     draftBadge: "AI 初稿（預置示範）",
@@ -32,10 +32,10 @@ const copy = {
   },
   en: {
     lang: "en", back: "Back to the portfolio", eyebrow: "ROOMVERSE · Human–AI co-design demo", title: "Feeling First", metaDescription: "Meet someone’s situation before choosing a direction for the feeling of coming home.",
-    dek: "Meet someone in the middle of their day, then ask what they need when they come home. The room is one response to that need.",
+    dek: "Meet someone in their day. Then ask what they need when they come home. The room is one possible answer.",
     boundary: "Demo / fictional scenario · AI drafts are prepared examples, not live generations.", progressLabel: "Your path",
     footer: "A fixed-content demo. It does not connect to an AI service.", roomverse: "Enter ROOMVERSE 3D",
-    step: n => `Step ${n} of 3`, step1: "Who is coming home today?", step1Note: "Start with someone’s situation, then consider what would help when they walk in.",
+    step: n => `Step ${n} of 3`, step1: "Who is coming home today?", step1Note: "See where they are today. Then imagine what might help when they get home.",
     continueMood: "Pick a direction for them", step2: "Pick a direction for them",
     step2Note: "These are three prepared AI drafts. Which one takes better care of the need in front of you?",
     draftBadge: "AI draft · prepared example",

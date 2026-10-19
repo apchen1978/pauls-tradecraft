@@ -10,6 +10,43 @@ async function noOverflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 }
 
+async function noOrphanLines(page, lang) {
+  const findings = await page.evaluate(language => {
+    const selectors = ["h1", ".dek", ".step-title", ".step-note", ".mood-copy span", ".draft-body strong", ".draft-body small", ".reason-fieldset legend", ".reason-choice span", ".result-caption", ".result-summary", ".selected-reason", ".refinement-list strong", ".refinement-list span"];
+    const issues = [];
+    for (const selector of selectors) {
+      for (const element of document.querySelectorAll(selector)) {
+        const lines = new Map();
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node = walker.nextNode())) {
+          let offset = 0;
+          for (const character of Array.from(node.nodeValue)) {
+            const range = document.createRange();
+            range.setStart(node, offset);
+            range.setEnd(node, offset + character.length);
+            const rect = range.getBoundingClientRect();
+            offset += character.length;
+            if (!rect.height) continue;
+            const key = Math.round(rect.top);
+            lines.set(key, (lines.get(key) || "") + character);
+          }
+        }
+        for (const [top, rawLine] of lines) {
+          const line = rawLine.trim();
+          if (!line) continue;
+          const units = language === "zh"
+            ? Array.from(line).length
+            : (line.match(/[A-Za-z]+(?:[’'][A-Za-z]+)*/g) || []).length;
+          if (units === 1) issues.push({ selector, text: element.textContent.trim(), line, top });
+        }
+      }
+    }
+    return issues;
+  }, lang);
+  expect(findings, JSON.stringify(findings)).toEqual([]);
+}
+
 async function checkImages(page) {
   const images = page.locator("img");
   for (let i=0;i<await images.count();i++) {
@@ -37,15 +74,18 @@ for (const [lang,width] of contexts) {
     if (lang === "zh") await expect(page.locator(".step-panel")).not.toContainText("風格");
     const columns = await page.locator(".mood-grid").evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length);
     expect(columns).toBe(width === 390 ? 2 : 4);
-    await expect(page.locator("[data-mood]").nth(3)).toBeInViewport();
-    await expect(page.locator('[data-action="continue-mood"]')).toBeInViewport();
+    await expect(page.locator("[data-mood]").nth(1)).toBeInViewport();
+    const firstRow = await page.locator("[data-mood]").evaluateAll(nodes => nodes.slice(0,2).map(node => {
+      const rect = node.getBoundingClientRect();
+      return rect.top >= 0 && rect.bottom <= innerHeight;
+    }));
+    expect(firstRow, JSON.stringify(await page.locator("[data-mood]").evaluateAll(nodes => nodes.slice(0,2).map(node => {
+      const rect = node.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, height: rect.height, viewport: innerHeight };
+    })))).toEqual([true, true]);
     await checkImages(page);
     await noOverflow(page);
     await page.screenshot({ path: `${qaDir}/${lang}-${width}-step1.png` });
-    if (width === 390) {
-      const cardBottoms = await page.locator("[data-mood]").evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().bottom));
-      expect(Math.max(...cardBottoms)).toBeLessThan(844);
-    }
   });
 }
 
@@ -62,6 +102,7 @@ for (const mood of moods) {
       if (mood === "family" && lang === "zh") {
         await checkImages(page);
         await page.screenshot({ path: `${qaDir}/family-390-step2.png`, fullPage: true });
+        await page.screenshot({ path: `${qaDir}/zh-390-step2-text.png`, fullPage: true });
       }
 
       await page.locator(".draft-choice").nth(1).click();
@@ -80,7 +121,10 @@ for (const mood of moods) {
       await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}&mood=${mood}`);
       await checkImages(page);
       await noOverflow(page);
-      if (mood === "tech" && lang === "zh") await page.screenshot({ path: `${qaDir}/tech-390-step3.png`, fullPage: true });
+      if (mood === "tech" && lang === "zh") {
+        await page.screenshot({ path: `${qaDir}/tech-390-step3.png`, fullPage: true });
+        await page.screenshot({ path: `${qaDir}/zh-390-step3-text.png`, fullPage: true });
+      }
     });
   }
 }
@@ -94,6 +138,24 @@ test("first-step people cards look distinct from the room-first ROOMVERSE remote
   await expect.poll(() => page.locator("#room-canvas").evaluate(canvas => canvas.toDataURL().length)).toBeGreaterThan(10000);
   await page.screenshot({ path: `${qaDir}/.compare-room-mode-remote.png` });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+});
+
+test("no one-character or one-word lines in visitor copy at four widths and both languages", async ({ page }) => {
+  for (const [lang,width] of [["zh",390],["en",390],["zh",414],["en",414],["zh",768],["en",768],["zh",1440],["en",1440]]) {
+    await page.setViewportSize({ width, height: width < 500 ? 844 : 1000 });
+    await page.goto(`/prototype/feeling-to-room/?lang=${lang}`);
+    await noOrphanLines(page, lang);
+    for (const mood of moods) {
+      await page.locator(`[data-mood="${mood}"]`).click();
+      await page.locator('[data-action="continue-mood"]').click();
+      await noOrphanLines(page, lang);
+      await page.locator(".draft-choice").first().click();
+      await page.locator(".reason-choice").first().click();
+      await page.locator('[data-action="reveal"]').click();
+      await noOrphanLines(page, lang);
+      await page.locator('[data-action="restart"]').click();
+    }
+  }
 });
 
 test("the experience remains fixed-content and does not persist visitor choices", async () => {
