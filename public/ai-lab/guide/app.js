@@ -11,4 +11,4 @@ document.querySelectorAll("[data-destination]").forEach((link) => {
 });
 document.querySelector("#brand-link").href = `/ai-lab/?lang=${language}#c12`;
 document.querySelector("#skip-link").textContent = language === "zh" ? "跳至內容" : "Skip to content";
-document.title = language === "zh" ? "負責人的 AI 入門：一頁指南 · AI Lab" : "An owner's first page on AI · AI Lab";
+document.title = language === "zh" ? "負責人的 AI 入門：一頁指南 · AI Lab" : "A decision-maker’s first page on AI · AI Lab";

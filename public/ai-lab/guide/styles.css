@@ -6,6 +6,7 @@ body { background-color: #0D1E1B; background-attachment: scroll; }
 .guide-language a[aria-current="page"] { border-color: var(--gold); background: var(--gold); color: var(--deep); }
 .guide-main { width: min(100% - 32px, 790px); max-width: 790px; margin: 0 auto; padding: 38px 0 48px; }
 .guide-copy { min-width: 0; }
+.no-break { white-space: nowrap; }
 .guide-heading { padding: 0 0 24px; border-bottom: 1px solid var(--line); }
 .guide-kicker { margin: 0; color: var(--gold); font: 700 12px/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .08em; }
 .guide-heading h1 { max-width: 22em; margin: 11px 0 0; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.12; letter-spacing: -.035em; text-wrap: balance; }

@@ -58,9 +58,9 @@ for (const lang of ["zh", "en"]) {
     await expect(page.locator(`.guide-copy[data-language="${lang === "zh" ? "en" : "zh"}"]`)).toBeHidden();
     await expect(copy.locator(".guide-principle")).toHaveCount(5);
     await expect(copy.locator(".guide-misconceptions li")).toHaveCount(3);
-    await expect(page).toHaveTitle(lang === "zh" ? "負責人的 AI 入門：一頁指南 · AI Lab" : "An owner's first page on AI · AI Lab");
-    const text = await page.locator("body").innerText();
-    const prohibited = ["中間層", "A2A", "CDD", "ROI", "轉換率", "成交率", "老闆", "董事長", "Polsia", "DSH", "DeepSeek", "Codex", "GrokBot", "Claude", "Gemini", "OpenAI", "Anthropic"];
+    await expect(page).toHaveTitle(lang === "zh" ? "負責人的 AI 入門：一頁指南 · AI Lab" : "A decision-maker’s first page on AI · AI Lab");
+    const text = `${await page.title()}\n${await page.locator("body").innerText()}`;
+    const prohibited = ["中間層", "A2A", "CDD", "ROI", "轉換率", "成交率", "老闆", "董事長", "Polsia", "DSH", "DeepSeek", "Codex", "GrokBot", "Claude", "Gemini", "OpenAI", "Anthropic", "owner"];
     for (const phrase of prohibited) expect(text.toLowerCase()).not.toContain(phrase.toLowerCase());
     const textWithoutRequiredChapterLabel = text.replace(lang === "zh" ? "第 13 章" : "Chapter 13", "");
     expect(textWithoutRequiredChapterLabel).not.toMatch(/\b\d+\b/);
@@ -78,6 +78,11 @@ for (const lang of ["zh", "en"]) {
       expect(box.height).toBeGreaterThanOrEqual(44);
     }
     await expectNoOrphanLines(page, lang);
+    if (lang === "zh") {
+      const phrase = copy.locator("h1 .no-break");
+      await expect(phrase).toHaveText("入門");
+      expect(await phrase.evaluate((element) => element.getClientRects().length)).toBe(1);
+    }
     await page.screenshot({ path: join(QA, `screen-${lang}-390.png`), fullPage: true });
 
     await page.setViewportSize({ width: 1440, height: 1000 });
