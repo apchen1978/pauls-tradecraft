@@ -507,8 +507,8 @@ const dict = {
         {
           title: "先有fu，再有家 · Feeling First",
           tag: "人機共創示範 · 雙語作品",
-          hook: "先挑一種房間心情，再看看三個 AI 初稿方向。",
-          teaches: "看見 AI 如何快速提出方向，也看見人如何取捨與深化細節。",
+          hook: "先認識一位女生今天的處境，再替她選一個回家的方向。",
+          teaches: "看見 AI 如何快速給三個方向，也看見人如何取捨、深化成能生活的細節。",
           cta: "開始挑選",
           boundary: "示範／虛構情境。AI 初稿是預置內容，不是即時生成或設計建議。",
           href: "/prototype/feeling-to-room/",
@@ -1438,8 +1438,8 @@ const dict = {
         {
           title: "Feeling First · 先有fu，再有家",
           tag: "Human–AI co-design demo · bilingual work",
-          hook: "Choose a room mood, then explore three directions from a prepared AI draft.",
-          teaches: "See how AI can quickly offer directions, while a person chooses and refines the details.",
+          hook: "Meet one woman’s day, then pick a direction for her to come home to.",
+          teaches: "See how AI can offer three directions quickly, and how a person chooses and deepens them into details you can live with.",
           cta: "Start choosing",
           boundary: "Demo / fictional scenario. The AI drafts are prepared examples, not live generations or design advice.",
           href: "/prototype/feeling-to-room/",
