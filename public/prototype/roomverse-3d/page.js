@@ -66,6 +66,8 @@ $("enter").onclick = async () => {
     room = await start({ stage: $("stage"), panel: $("panel"), lang });
     $("status").hidden = true; $("panel").hidden = false; $("panelToggle").hidden = false; setPanelOpen(false);
     window.__room = room; // test hook
+    // The wall is outside the starting view; defer its optional maps until the room is interactive.
+    setTimeout(() => room?.scheduleTvWallTextures(), 1800);
   } catch (e) {
     console.error(e);
     $("poster").hidden = false; $("status").textContent = COPY[lang].failed;

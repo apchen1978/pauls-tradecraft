@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
+import { mkdir, stat } from "node:fs/promises";
 
 // ROOMVERSE 3D: a poster first (no 3D download until the visitor asks), then a 3D room whose feeling,
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
@@ -11,6 +11,72 @@ const storyRooms = {
   tech: { zh: "在家寫到半夜，只想要安靜。", en: "Working from home past midnight, they need quiet.", wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
   tv: { zh: "週五晚上，只想窩著追劇。", en: "Friday night, and she wants nothing but the sofa and a good series.", wall: "sand", rug: "ivory", curtain: "linen", print: "moon", view: "tv" },
 };
+
+test("TV wall uses four small painted maps, independent repeats, and consistent grain on thin boards", async ({ page }) => {
+  const files = ["tv-oak-v1.webp", "tv-door-v1.webp", "tv-frame-v1.webp", "tv-backing-v1.webp"];
+  const bytes = await Promise.all(files.map((file) => stat(`public/prototype/roomverse-3d/tex/${file}`).then((s) => s.size)));
+  expect(bytes.reduce((sum, size) => sum + size, 0)).toBeLessThanOrEqual(150000);
+  const requests = [];
+  page.on("request", (request) => { if (files.some((file) => request.url().endsWith(file))) requests.push(request.url()); });
+  await page.goto(`${PAGE}?lang=zh&mood=tv&view=tv`);
+  expect(requests).toEqual([]); // keep the poster-first gate
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room?.tvWallTexturesReady(), null, { timeout: 60000 });
+  const meshes = await page.evaluate(() => window.__room.tvWallTextures());
+  const painted = meshes.filter((m) => files.includes(m.file));
+  expect(new Set(painted.map((m) => m.file))).toEqual(new Set(files));
+  expect(painted).toHaveLength(20);
+  expect(new Set(painted.map((m) => m.mapId)).size).toBe(painted.length);
+  expect(new Set(painted.map((m) => m.materialId)).size).toBe(painted.length);
+  expect(requests).toHaveLength(4); // clones share the loaded image, not mutable repeat state
+  for (const mesh of painted) {
+    expect(mesh.colorSpace).toBe("srgb"); expect(mesh.anisotropy).toBe(8);
+  }
+  const board = painted.find((m) => m.name === "tv-shelf-board");
+  expect(board.repeat[0]).toBeCloseTo(.62 / .8);
+  expect(board.repeat[1]).toBeCloseTo(.035 / .8);
+  expect(board.faces[0].repeat[0]).toBeCloseTo(.135 / .8); // short end
+  expect(board.faces[2].repeat[1]).toBeCloseTo(.135 / .8); // top depth
+  const console = painted.find((m) => m.name === "tv-console");
+  expect(console.repeat[0]).toBeCloseTo(2.05 / .8);
+  expect(console.repeat).not.toEqual(board.repeat);
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+});
+
+test("regular entry paints before TV textures; the TV button loads them together", async ({ page }) => {
+  const files = ["tv-oak-v1.webp", "tv-door-v1.webp", "tv-frame-v1.webp", "tv-backing-v1.webp"];
+  const requests = [];
+  page.on("request", (request) => { if (files.some((file) => request.url().endsWith(file))) requests.push(request.url()); });
+  await page.addInitScript(() => {
+    window.__roomIdleCallbacks = [];
+    window.requestIdleCallback = (callback) => { window.__roomIdleCallbacks.push(callback); return window.__roomIdleCallbacks.length; };
+  });
+  await page.goto(`${PAGE}?lang=zh&mood=tv`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room && document.querySelector("#stage canvas"), null, { timeout: 60000 });
+  expect(requests).toEqual([]);
+  expect(await page.evaluate(() => window.__room.tvWallTexturesReady())).toBe(false);
+  const before = await page.evaluate(() => window.__room.tvWallTextures().filter((m) => m.file?.startsWith("tv-") && m.loaded).length);
+  expect(before).toBe(0);
+  if (await page.locator("#panelToggle").isVisible()) await page.locator("#panelToggle").click();
+  await page.locator(".camera-tv").click();
+  await page.waitForFunction(() => window.__room?.tvWallTexturesReady(), null, { timeout: 60000 });
+  const meshes = await page.evaluate(() => window.__room.tvWallTextures().filter((m) => m.file?.startsWith("tv-")));
+  expect(meshes).toHaveLength(20);
+  expect(meshes.every((mesh) => mesh.loaded)).toBe(true);
+  expect(requests).toHaveLength(4);
+});
+
+test("regular entry loads TV textures after the room reaches an idle period", async ({ page }) => {
+  const files = ["tv-oak-v1.webp", "tv-door-v1.webp", "tv-frame-v1.webp", "tv-backing-v1.webp"];
+  const requests = [];
+  page.on("request", (request) => { if (files.some((file) => request.url().endsWith(file))) requests.push(request.url()); });
+  await page.goto(`${PAGE}?lang=zh&mood=rain`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForFunction(() => window.__room?.tvWallTexturesReady(), null, { timeout: 20000 });
+  expect(requests).toHaveLength(4);
+});
 
 for (const width of [390, 1440]) {
   for (const lang of ["zh", "en"]) {

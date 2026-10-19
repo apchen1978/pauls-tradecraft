@@ -1,0 +1,302 @@
+[
+  {
+    "phase": "before",
+    "width": 1440,
+    "mood": "tv",
+    "url": "http://127.0.0.1:4173/prototype/roomverse-3d/?lang=zh&mood=tv&view=tv",
+    "pageLoadMs": 57.69999998807907,
+    "firstScreenMs": 1102.800000011921,
+    "heavyBeforeEnter": 0,
+    "enterToReadyMs": 6507.200000047684,
+    "button": {
+      "x": 1421,
+      "y": 302.375,
+      "width": 260,
+      "height": 48,
+      "fullyInFirstScreen": false
+    },
+    "exposures": [
+      0.98,
+      0.98
+    ],
+    "stats": {
+      "total": 39,
+      "mapped": 3,
+      "painted": 0,
+      "lights": 6,
+      "mapping": [],
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "crops": {
+      "door": {
+        "left": 680,
+        "top": 476,
+        "right": 895,
+        "bottom": 578
+      },
+      "shelf": {
+        "left": 965,
+        "top": 148,
+        "right": 1095,
+        "bottom": 469
+      },
+      "sofa": {
+        "left": 913,
+        "top": 441,
+        "right": 1053,
+        "bottom": 581
+      }
+    },
+    "errors": []
+  },
+  {
+    "phase": "before",
+    "width": 1440,
+    "mood": "rain",
+    "url": "http://127.0.0.1:4173/prototype/roomverse-3d/?lang=zh&mood=rain&view=tv",
+    "pageLoadMs": 74,
+    "firstScreenMs": 132.4000000357628,
+    "heavyBeforeEnter": 0,
+    "enterToReadyMs": 1064.699999988079,
+    "button": {
+      "x": 1421,
+      "y": 302.375,
+      "width": 260,
+      "height": 48,
+      "fullyInFirstScreen": false
+    },
+    "exposures": [
+      1.05,
+      1.05
+    ],
+    "stats": {
+      "total": 39,
+      "mapped": 3,
+      "painted": 0,
+      "lights": 6,
+      "mapping": [],
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "crops": {
+      "door": {
+        "left": 680,
+        "top": 476,
+        "right": 895,
+        "bottom": 578
+      },
+      "shelf": {
+        "left": 965,
+        "top": 148,
+        "right": 1095,
+        "bottom": 469
+      },
+      "sofa": {
+        "left": 913,
+        "top": 441,
+        "right": 1053,
+        "bottom": 581
+      }
+    },
+    "errors": []
+  },
+  {
+    "phase": "before",
+    "width": 1440,
+    "mood": "family",
+    "url": "http://127.0.0.1:4173/prototype/roomverse-3d/?lang=zh&mood=family&view=tv",
+    "pageLoadMs": 76.80000001192093,
+    "firstScreenMs": 150.9000000357628,
+    "heavyBeforeEnter": 0,
+    "enterToReadyMs": 1047.1000000238419,
+    "button": {
+      "x": 1421,
+      "y": 302.375,
+      "width": 260,
+      "height": 48,
+      "fullyInFirstScreen": false
+    },
+    "exposures": [
+      1.15,
+      1.15
+    ],
+    "stats": {
+      "total": 39,
+      "mapped": 3,
+      "painted": 0,
+      "lights": 6,
+      "mapping": [],
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "crops": {
+      "door": {
+        "left": 680,
+        "top": 476,
+        "right": 895,
+        "bottom": 578
+      },
+      "shelf": {
+        "left": 965,
+        "top": 148,
+        "right": 1095,
+        "bottom": 469
+      },
+      "sofa": {
+        "left": 913,
+        "top": 441,
+        "right": 1053,
+        "bottom": 581
+      }
+    },
+    "errors": []
+  },
+  {
+    "phase": "before",
+    "width": 390,
+    "mood": "tv",
+    "url": "http://127.0.0.1:4173/prototype/roomverse-3d/?lang=zh&mood=tv&view=tv",
+    "pageLoadMs": 70.30000001192093,
+    "firstScreenMs": 113.80000001192093,
+    "heavyBeforeEnter": 0,
+    "enterToReadyMs": 953.3000000119209,
+    "button": {
+      "x": 30,
+      "y": 775.90625,
+      "width": 330,
+      "height": 48,
+      "fullyInFirstScreen": true
+    },
+    "exposures": [
+      0.98,
+      0.98
+    ],
+    "stats": {
+      "total": 39,
+      "mapped": 3,
+      "painted": 0,
+      "lights": 6,
+      "mapping": [],
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "crops": {
+      "door": {
+        "left": 177,
+        "top": 316,
+        "right": 285,
+        "bottom": 370
+      },
+      "shelf": {
+        "left": 313,
+        "top": 158,
+        "right": 358,
+        "bottom": 317
+      },
+      "sofa": {
+        "left": 283,
+        "top": 293,
+        "right": 358,
+        "bottom": 377
+      }
+    },
+    "errors": []
+  },
+  {
+    "phase": "before",
+    "width": 390,
+    "mood": "rain",
+    "url": "http://127.0.0.1:4173/prototype/roomverse-3d/?lang=zh&mood=rain&view=tv",
+    "pageLoadMs": 69.5,
+    "firstScreenMs": 126.40000003576279,
+    "heavyBeforeEnter": 0,
+    "enterToReadyMs": 967.4000000357628,
+    "button": {
+      "x": 30,
+      "y": 775.90625,
+      "width": 330,
+      "height": 48,
+      "fullyInFirstScreen": true
+    },
+    "exposures": [
+      1.05,
+      1.05
+    ],
+    "stats": {
+      "total": 39,
+      "mapped": 3,
+      "painted": 0,
+      "lights": 6,
+      "mapping": [],
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "crops": {
+      "door": {
+        "left": 177,
+        "top": 316,
+        "right": 285,
+        "bottom": 370
+      },
+      "shelf": {
+        "left": 313,
+        "top": 158,
+        "right": 358,
+        "bottom": 317
+      },
+      "sofa": {
+        "left": 283,
+        "top": 293,
+        "right": 358,
+        "bottom": 377
+      }
+    },
+    "errors": []
+  },
+  {
+    "phase": "before",
+    "width": 390,
+    "mood": "family",
+    "url": "http://127.0.0.1:4173/prototype/roomverse-3d/?lang=zh&mood=family&view=tv",
+    "pageLoadMs": 100.30000001192093,
+    "firstScreenMs": 148.60000002384186,
+    "heavyBeforeEnter": 0,
+    "enterToReadyMs": 991,
+    "button": {
+      "x": 30,
+      "y": 775.90625,
+      "width": 330,
+      "height": 48,
+      "fullyInFirstScreen": true
+    },
+    "exposures": [
+      1.15,
+      1.15
+    ],
+    "stats": {
+      "total": 39,
+      "mapped": 3,
+      "painted": 0,
+      "lights": 6,
+      "mapping": [],
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "crops": {
+      "door": {
+        "left": 177,
+        "top": 316,
+        "right": 285,
+        "bottom": 370
+      },
+      "shelf": {
+        "left": 313,
+        "top": 158,
+        "right": 358,
+        "bottom": 317
+      },
+      "sofa": {
+        "left": 283,
+        "top": 293,
+        "right": 358,
+        "bottom": 377
+      }
+    },
+    "errors": []
+  }
+]

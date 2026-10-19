@@ -1,0 +1,1 @@
+Verified against main 1a0f4f2: MOODS, TV_STRIP_GLOW, tvStripMat, tvWashMat, screenReflectionMat, and their mood mappings unchanged.
