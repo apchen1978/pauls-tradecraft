@@ -461,6 +461,40 @@ test("keyboard use: focus stays on the pressed button, the 3D view has a name, a
   await expect(page.locator('[aria-live="polite"]')).toContainText("冷色燈帶");
 });
 
+for (const width of [390, 1440]) {
+  test(`table lamp at ${width}px: light and halo stay inside the shade through every mood and quarter turn`, async ({ page }) => {
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`${PAGE}?lang=zh&mood=tv`);
+    await page.locator("#enter").click();
+    await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+    const initial = await page.evaluate(() => window.__room.tableLampLighting());
+    expect(initial.sourceInsideShade).toBe(true);
+    expect(initial.closedLampCastsShadow).toBe(false); // the closed GLB must not trap its own bulb's light
+    expect(initial.decay).toBe(2);
+    expect(initial.lightCount).toBe(6); // same lights as before this fix
+    expect(initial.shadowNear).toBeLessThan(.1);
+    expect(initial.source[1]).toBeGreaterThan(initial.shadeMin[1]);
+    expect(initial.source[1]).toBeLessThan((initial.shadeMin[1] + initial.shadeMax[1]) / 2);
+    for (const mood of ["rain", "family", "tech", "chic", "slow", "tv"]) {
+      await page.evaluate((value) => window.__room.set("mood", value), mood);
+      await page.waitForTimeout(650);
+      for (const angle of [0, 90, 180, 270]) {
+        await page.evaluate((value) => window.__room.setOrbitAngle(value), angle);
+        const lighting = await page.evaluate(() => window.__room.tableLampLighting());
+        expect(lighting.source).toEqual(initial.source);
+        expect(lighting.halo).toEqual(lighting.source);
+        expect(lighting.sourceInsideShade).toBe(true);
+        expect(lighting.lightCount).toBe(6);
+      }
+    }
+    expect(errors).toEqual([]);
+  });
+}
+
 test("TV wall, 360-degree safe orbit, accessible view buttons, URL state, and window-facing postcard", async ({ page }) => {
   await mkdir("docs/qa/roomverse-tv-wall", { recursive: true });
   await page.setViewportSize({ width: 390, height: 844 });
