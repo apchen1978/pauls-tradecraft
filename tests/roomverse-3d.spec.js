@@ -128,9 +128,38 @@ test("new wall paints restore from the URL and work across all five feelings", a
   const groups = page.locator("#panel .opts");
   const moodButtons = groups.nth(0).locator("button");
   const wallButtons = groups.nth(1).locator("button");
-  await expect(wallButtons).toHaveCount(8); // six paint options plus two wallpapers, rendered from WALLS
+  const wallKeys = await wallButtons.evaluateAll((buttons) => buttons.map((button) => button.dataset.key));
+  expect(new Set(wallKeys).size).toBe(wallKeys.length); // options are rendered from WALLS, without a frozen count
+  expect(wallKeys).toContain("mist");
+  expect(wallKeys).toContain("pine");
   await expect(wallButtons.filter({ hasText: "Misty blue-grey" })).toHaveAttribute("aria-pressed", "true");
   await expect(page).toHaveURL(/wall=mist/);
+  const postcardDetails = async () => page.evaluate(() => {
+    const postcard = window.__room.postcard();
+    const source = document.querySelector("#stage canvas");
+    const strip = Math.round(Math.max(90, source.height * .16));
+    const pad = Math.round(strip * .23), small = Math.round(strip * .17);
+    const ctx = document.createElement("canvas").getContext("2d");
+    ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
+    const labels = [...document.querySelectorAll("#panel .opts")].map((group) => group.querySelector('button[aria-pressed="true"]')?.textContent ?? "");
+    const lines = [];
+    for (const label of labels) {
+      const last = lines.length - 1, candidate = last < 0 ? label : `${lines[last]}  ·  ${label}`;
+      if (last >= 0 && ctx.measureText(candidate).width > postcard.width - pad * 2) lines.push(label);
+      else if (last < 0) lines.push(label);
+      else lines[last] = candidate;
+    }
+    return { labels, lines, available: postcard.width - pad * 2, widths: lines.map((line) => ctx.measureText(line).width) };
+  });
+  let postcard = await postcardDetails();
+  expect(postcard.labels).toContain("Misty blue-grey");
+  expect(postcard.lines.join(" · ")).toContain("Misty blue-grey");
+  expect(Math.max(...postcard.widths)).toBeLessThanOrEqual(postcard.available);
+  await page.reload();
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
+  await expect(page.locator('#panel .opts').nth(1).locator('button[data-key="mist"]')).toHaveAttribute("aria-pressed", "true");
 
   for (let mood = 0; mood < 5; mood++) {
     await moodButtons.nth(mood).click();
@@ -140,6 +169,18 @@ test("new wall paints restore from the URL and work across all five feelings", a
     await expect(button).toHaveAttribute("aria-pressed", "true");
     await expect(page).toHaveURL(new RegExp(`wall=${mood % 2 === 0 ? "pine" : "mist"}`));
   }
+  const pineButton = page.locator('#panel .opts').nth(1).locator('button[data-key="pine"]');
+  await pineButton.click();
+  await expect(page).toHaveURL(/wall=pine/);
+  postcard = await postcardDetails();
+  expect(postcard.labels).toContain("Deep pine");
+  expect(postcard.lines.join(" · ")).toContain("Deep pine");
+  expect(Math.max(...postcard.widths)).toBeLessThanOrEqual(postcard.available);
+  await page.reload();
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
+  await expect(page.locator('#panel .opts').nth(1).locator('button[data-key="pine"]')).toHaveAttribute("aria-pressed", "true");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
