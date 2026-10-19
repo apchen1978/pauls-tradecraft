@@ -1,0 +1,69 @@
+* { box-sizing: border-box; }
+body { background-color: #0D1E1B; background-attachment: scroll; }
+.guide-top { position: sticky; }
+.guide-language { display: flex; gap: 7px; }
+.guide-language a { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; min-height: 44px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 9px; color: var(--body); text-decoration: none; font-size: 14px; font-weight: 650; }
+.guide-language a[aria-current="page"] { border-color: var(--gold); background: var(--gold); color: var(--deep); }
+.guide-main { width: min(100% - 32px, 790px); max-width: 790px; margin: 0 auto; padding: 38px 0 48px; }
+.guide-copy { min-width: 0; }
+.guide-heading { padding: 0 0 24px; border-bottom: 1px solid var(--line); }
+.guide-kicker { margin: 0; color: var(--gold); font: 700 12px/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .08em; }
+.guide-heading h1 { max-width: 22em; margin: 11px 0 0; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.12; letter-spacing: -.035em; text-wrap: balance; }
+.guide-dek { max-width: 45em; margin: 14px 0 0; color: var(--body); font-size: 1.05rem; line-height: 1.55; text-wrap: pretty; }
+.guide-principles { display: grid; gap: 0; }
+.guide-principle { padding: 18px 0 16px; border-bottom: 1px solid var(--line); }
+.guide-principle h2, .guide-misconceptions h2 { margin: 0; color: var(--bone); font-size: 1.08rem; line-height: 1.35; letter-spacing: -.01em; }
+.guide-principle p { margin: 6px 0 0; color: var(--body); font-size: 1rem; line-height: 1.58; text-wrap: pretty; }
+.guide-misconceptions { margin-top: 22px; padding: 17px 18px 12px; border: 1px solid rgba(184,153,102,.38); border-radius: 13px; background: rgba(184,153,102,.07); }
+.guide-misconceptions h2 { color: var(--gold); font-size: 1rem; }
+.guide-misconceptions ul { display: grid; gap: 10px; margin: 12px 0 0; padding: 0; list-style: none; }
+.guide-misconceptions li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; line-height: 1.5; text-wrap: pretty; }
+.claim { color: var(--bone); font-weight: 650; }
+.response { color: var(--meta); }
+.guide-footer { margin-top: 23px; padding-top: 16px; border-top: 1px solid var(--line); }
+.guide-footer-label { margin: 0; color: var(--gold); font: 700 12px/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.guide-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+.guide-actions a { display: inline-flex; align-items: center; min-height: 46px; padding: 8px 14px; border: 1px solid rgba(184,153,102,.5); border-radius: 999px; color: var(--bone); background: rgba(255,255,255,.035); font-size: .9rem; font-weight: 650; text-decoration: none; text-wrap: balance; }
+.guide-actions a:hover { border-color: var(--gold); background: rgba(184,153,102,.1); }
+.guide-boundary, .guide-brand { margin: 12px 0 0; color: var(--meta); font-size: .78rem; line-height: 1.45; }
+.guide-brand { margin-top: 5px; }
+[hidden] { display: none !important; }
+
+@media (max-width: 600px) {
+  .guide-main { width: calc(100% - 32px); padding-top: 24px; }
+  .guide-heading { padding-bottom: 18px; }
+  .guide-heading h1 { font-size: 2rem; }
+  .guide-dek { font-size: 1rem; }
+  .guide-principle { padding: 15px 0 14px; }
+  .guide-principle h2 { font-size: 1.04rem; }
+  .guide-principle p { font-size: 1rem; }
+  .guide-misconceptions { padding: 14px 14px 11px; }
+  .guide-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .guide-actions a { justify-content: flex-start; min-height: 48px; }
+}
+
+@page { size: A4 portrait; margin: 11mm 13mm; }
+@media print {
+  :focus, :focus-visible { outline: none !important; }
+  html, body { background: #fff !important; background-image: none !important; color: #1A2534 !important; font-size: 10pt; }
+  .guide-top, .skip { display: none !important; }
+  .guide-main { width: 100%; max-width: none; margin: 0; padding: 0; }
+  .guide-heading { padding-bottom: 9pt; border-color: #D8DEE6; }
+  .guide-kicker, .guide-footer-label { color: #79601F; font-size: 8pt; }
+  .guide-heading h1 { max-width: none; margin-top: 5pt; color: #0B1B33; font-size: 23pt; line-height: 1.1; }
+  .guide-dek { margin-top: 6pt; color: #35475B; font-size: 10pt; line-height: 1.35; }
+  .guide-principle { padding: 8pt 0 7pt; border-color: #D8DEE6; break-inside: avoid; }
+  .guide-principle h2, .guide-misconceptions h2 { color: #0B1B33; font-size: 11pt; line-height: 1.25; }
+  .guide-principle p { margin-top: 3pt; color: #263647; font-size: 9.6pt; line-height: 1.32; }
+  .guide-misconceptions { margin-top: 10pt; padding: 9pt 11pt 8pt; border-color: #D8C99B; background: #F7F1DF; break-inside: avoid; }
+  .guide-misconceptions h2 { color: #79601F; font-size: 10pt; }
+  .guide-misconceptions ul { gap: 5pt; margin-top: 6pt; }
+  .guide-misconceptions li { display: block; color: #263647; font-size: 9pt; line-height: 1.28; }
+  .claim { color: #0B1B33; }
+  .response { color: #35475B; }
+  .guide-footer { margin-top: 10pt; padding-top: 8pt; border-color: #D8DEE6; }
+  .guide-actions { gap: 5pt; margin-top: 4pt; }
+  .guide-actions a { min-height: 0; padding: 4pt 8pt; border-color: #C9B87C; color: #0B1B33; font-size: 8.5pt; }
+  .guide-boundary, .guide-brand { margin-top: 6pt; color: #5A6B80; font-size: 8pt; }
+  .guide-brand { margin-top: 2pt; }
+}
