@@ -55,6 +55,15 @@ export const REGISTRY = {
     ],
     bridge: "判斷寫下來了，工具包也準備好；還有最後一個問題：做好了，有人在用嗎？",
     rail: "工具有人用嗎？",
+    agentToolTitle: "動手試試：要開幾個 agent？",
+    agentToolCopy: "用一個固定示範情境，看看人手、分工與界線如何改變結果。",
+    agentToolLink: "打開互動工具 →",
+    irreversibleTitle: "多開幾個 agent，不等於不用管",
+    irreversible: [
+      "有人說，開幾個 agent 就能取代一批員工。先問一件事：做錯了，收得回來嗎？",
+      "改程式可以回到上一版；寄出去的信、出貨、付款，不行。收不回來的事，不管開幾個 agent，最後那一下都要由負責人簽。",
+      "再加一個總管 agent 來檢查大家，只是多一層檢查，它也會花錢、也會錯。設限（分工、預算、來回上限、簽核點）比增加人手更重要。",
+    ],
   },
   en: {
     no: "17",
@@ -111,6 +120,15 @@ export const REGISTRY = {
     ],
     bridge: "The judgment is written down and the toolkit is ready. One last question: has anyone used it?",
     rail: "Is anyone using it?",
+    agentToolTitle: "Try it: How many agents?",
+    agentToolCopy: "Use a fixed scenario to see how team size, roles and guardrails change the result.",
+    agentToolLink: "Open the interactive study →",
+    irreversibleTitle: "More agents do not mean less oversight",
+    irreversible: [
+      "Some say a few agents can replace a team of employees. Start with one question: if something goes wrong, can you take it back?",
+      "Code can return to an earlier version; a sent email, shipment or payment cannot. For actions that cannot be taken back, the decision-maker should sign off on the final step, however many agents are involved.",
+      "Adding a coordinator agent is one more check; it also costs and can be wrong. Clear limits on roles, budget, back-and-forth and sign-off matter more than adding people.",
+    ],
   },
 };
 
@@ -160,7 +178,20 @@ function buildSection() {
   const closingBody = element("div", "registry-closing-body"); closingBody.id = "registry-closing-body";
   closing.append(closingTitle, closingBody);
 
-  section.append(number, title, opening, demo, register, questions, failures, closing);
+  const irreversible = element("section", "registry-reading"); irreversible.setAttribute("aria-labelledby", "registry-irreversible-title");
+  const irreversibleTitle = element("h3", null, ""); irreversibleTitle.id = "registry-irreversible-title";
+  const irreversibleBody = element("div", "registry-irreversible-body"); irreversibleBody.id = "registry-irreversible-body";
+  irreversible.append(irreversibleTitle, irreversibleBody);
+
+  const agentTool = element("aside", "chapter-tool-card"); agentTool.id = "c17-agent-link";
+  const agentCopy = element("div");
+  const agentTitle = element("h3", null, ""); agentTitle.id = "c17-agent-link-title";
+  const agentDescription = element("p", "sub", ""); agentDescription.id = "c17-agent-link-copy";
+  agentCopy.append(agentTitle, agentDescription);
+  const agentAnchor = element("a", null, ""); agentAnchor.id = "c17-agent-link-anchor";
+  agentTool.append(agentCopy, agentAnchor);
+
+  section.append(number, title, opening, demo, register, questions, failures, closing, irreversible, agentTool);
   return { section, headRow, body };
 }
 
@@ -234,6 +265,13 @@ function render() {
   $("registry-links").replaceChildren(link10, document.createTextNode(" · "), link16);
   $("registry-closing-title").textContent = x.closingTitle;
   $("registry-closing-body").replaceChildren(...x.closing.map((text) => element("p", "sub", text)));
+  $("registry-irreversible-title").textContent = x.irreversibleTitle;
+  $("registry-irreversible-body").replaceChildren(...x.irreversible.map((text) => element("p", "sub", text)));
+  $("c17-agent-link-title").textContent = x.agentToolTitle;
+  $("c17-agent-link-copy").textContent = x.agentToolCopy;
+  const agentAnchor = $("c17-agent-link-anchor");
+  agentAnchor.textContent = x.agentToolLink;
+  agentAnchor.href = `/prototype/how-many-agents/?lang=${lang}`;
 
   const chapter16 = $("c16");
   if (chapter16) {

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="用一個固定示範情境，看看 agent 數量、分工、預算、來回上限與簽核如何影響成本、品質與風險。">
+  <meta name="color-scheme" content="light">
+  <title>要開幾個 agent？ · How Many Agents?</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" id="skip-link">跳至內容</a>
+  <header class="topbar">
+    <a class="back-link" id="home-link" href="/ai-lab/?lang=zh#c14">← AI Lab</a>
+    <div class="language-switch" role="group" aria-label="Language">
+      <button type="button" data-lang="zh" aria-pressed="true">中</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+  <main id="main">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow" id="eyebrow"></p>
+      <h1 id="page-title"></h1>
+      <p class="dek" id="dek"></p>
+      <p class="boundary" id="boundary"></p>
+    </section>
+    <div class="progress-row">
+      <span class="progress-text" id="progress-text" aria-live="polite"></span>
+      <div class="progress-track" role="progressbar" id="progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" aria-labelledby="progress-text"><span id="progress-fill"></span></div>
+    </div>
+
+    <section class="step-panel" id="step-one" aria-labelledby="step-heading">
+      <div class="step-heading"><div><p class="step-kicker" id="step-kicker"></p><h2 id="step-heading"></h2><p class="step-note" id="step-note"></p></div></div>
+      <div class="scenario-card">
+        <p class="scenario-label" id="scenario-label"></p>
+        <p id="scenario-task"></p>
+      </div>
+      <div class="agent-slider">
+        <label for="agent-count" id="slider-label"></label>
+        <output id="agent-value" for="agent-count">1</output>
+        <input id="agent-count" type="range" min="1" max="12" step="1" value="1" aria-describedby="slider-help">
+        <p class="control-help" id="slider-help"></p>
+      </div>
+      <div id="step-one-meters"></div>
+      <p class="plain-feedback" id="plain-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+      <label class="switch-card" for="no-limit">
+        <input id="no-limit" type="checkbox">
+        <span class="switch-copy"><strong id="no-limit-label"></strong><small id="no-limit-help"></small></span>
+      </label>
+      <p class="automatic-note" id="automatic-note" hidden aria-live="polite"></p>
+      <fieldset class="reversibility">
+        <legend id="reversibility-legend"></legend>
+        <label class="choice-card"><input type="radio" name="reversibility" value="reversible" checked><span id="reversible-label"></span></label>
+        <label class="choice-card"><input type="radio" name="reversibility" value="irreversible"><span id="irreversible-label"></span></label>
+      </fieldset>
+      <p class="reversibility-note" id="reversibility-note" hidden></p>
+      <div class="actions"><button class="primary" type="button" id="next-one"></button></div>
+    </section>
+
+    <section class="step-panel" id="step-two" aria-labelledby="step-two-heading" hidden>
+      <div class="step-heading"><div><p class="step-kicker" id="step-two-kicker"></p><h2 id="step-two-heading"></h2><p class="step-note" id="step-two-note"></p></div></div>
+      <div class="guardrails">
+        <label class="switch-card" for="roles"><input id="roles" type="checkbox"><span class="switch-copy"><strong id="roles-label"></strong><small id="roles-help"></small></span></label>
+        <label class="switch-card" for="budget"><input id="budget" type="checkbox"><span class="switch-copy"><strong id="budget-label"></strong><small id="budget-help"></small></span></label>
+        <label class="switch-card" for="cap"><input id="cap" type="checkbox"><span class="switch-copy"><strong id="cap-label"></strong><small id="cap-help"></small></span></label>
+        <label class="switch-card" for="signoff"><input id="signoff" type="checkbox"><span class="switch-copy"><strong id="signoff-label"></strong><small id="signoff-help"></small></span></label>
+      </div>
+      <label class="switch-card coordinator-card" for="coordinator"><input id="coordinator" type="checkbox"><span class="switch-copy"><strong id="coordinator-label"></strong><small id="coordinator-help"></small></span></label>
+      <p class="coordinator-note" id="coordinator-note"></p>
+      <div class="comparison" id="comparison" aria-live="polite" aria-atomic="true">
+        <section class="comparison-card" aria-labelledby="before-title"><h3 id="before-title"></h3><div id="before-meters"></div></section>
+        <section class="comparison-card is-after" aria-labelledby="after-title"><h3 id="after-title"></h3><div id="after-meters"></div></section>
+      </div>
+      <ul class="guardrail-effects" id="guardrail-effects"></ul>
+      <div class="actions"><button class="secondary" type="button" id="back-two"></button><button class="primary" type="button" id="next-two"></button></div>
+    </section>
+
+    <section class="step-panel result-panel" id="step-three" aria-labelledby="step-three-heading" hidden>
+      <div class="step-heading"><div><p class="step-kicker" id="step-three-kicker"></p><h2 id="step-three-heading"></h2></div></div>
+      <article class="result-card" id="result-card">
+        <div class="result-top"><span class="result-mark" id="result-mark"></span><p class="scenario-label" id="result-scenario"></p></div>
+        <h3 id="result-summary"></h3>
+        <div id="result-meters"></div>
+        <div class="result-settings"><h4 id="settings-title"></h4><ul id="settings-list"></ul></div>
+        <div class="takeaways" id="takeaways"></div>
+      </article>
+      <p class="result-boundary" id="result-boundary"></p>
+      <nav class="chapter-links" aria-label="AI Lab chapter links">
+        <a id="chapter-14-link" href="/ai-lab/?lang=zh#c14"></a>
+        <a id="chapter-17-link" href="/ai-lab/?lang=zh#c17"></a>
+      </nav>
+      <div class="actions"><button class="secondary" type="button" id="back-three"></button><button class="primary" type="button" id="restart"></button></div>
+    </section>
+    <footer class="page-foot"><span id="foot-boundary"></span><a id="foot-home" href="/ai-lab/?lang=zh#c14"></a></footer>
+  </main>
+</body>
+</html>
