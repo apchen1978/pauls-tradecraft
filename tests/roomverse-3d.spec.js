@@ -9,6 +9,7 @@ const storyRooms = {
   chic: { zh: "明早要簡報，想先把自己整理好。", en: "A presentation tomorrow; she wants to feel ready.", wall: "original", rug: "ivory", curtain: "rose", print: "hills" },
   family: { zh: "週末，兩個孩子和長輩都要來。", en: "The family is coming over this weekend.", wall: "sand", rug: "stripe", curtain: "sage", print: "hills" },
   tech: { zh: "在家寫到半夜，只想要安靜。", en: "Working from home past midnight, they need quiet.", wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
+  tv: { zh: "週五晚上，只想窩著追劇。", en: "Friday night, and she wants nothing but the sofa and a good series.", wall: "sand", rug: "ivory", curtain: "linen", print: "moon" },
 };
 
 for (const width of [390, 1440]) {
@@ -54,7 +55,7 @@ test("switching language updates the page text and the home link", async ({ page
   await expect(page.locator("#title")).toHaveText("One room, many ways to come home");
 });
 
-test("Feeling First links restore four story-matched ROOMVERSE presets at 390px", async ({ page }) => {
+test("Feeling First links restore five story-matched ROOMVERSE presets at 390px", async ({ page }) => {
   await mkdir("test-results/fu-to-roomverse-scenes", { recursive: true });
   const errors = [];
   page.on("pageerror", (error) => errors.push(String(error)));
@@ -63,7 +64,7 @@ test("Feeling First links restore four story-matched ROOMVERSE presets at 390px"
     await page.goto(`/prototype/feeling-to-room/?lang=zh`);
     const cardStory = await page.locator(`[data-mood="${who}"] .mood-copy span`).textContent();
     expect(cardStory).toBe(preset.zh);
-    const query = new URLSearchParams({ lang: "zh", mood: who, wall: preset.wall, rug: preset.rug, curtain: preset.curtain, print: preset.print, from: "fu", who });
+    const query = new URLSearchParams({ lang: "zh", mood: who === "tv" ? "tech" : who, wall: preset.wall, rug: preset.rug, curtain: preset.curtain, print: preset.print, from: "fu", who });
     await page.goto(`${PAGE}?${query}`);
     await expect(page.locator("#originHint")).toBeVisible();
     await expect(page.locator("#originStory")).toHaveText(`這個房間來自「先有fu，再有家」：${preset.zh}`);
@@ -78,7 +79,7 @@ test("Feeling First links restore four story-matched ROOMVERSE presets at 390px"
     await page.locator("#enter").click();
     await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
     const groups = page.locator("#panel .opts");
-    for (const [group, key] of [[0, who], [1, preset.wall], [2, preset.rug], [3, preset.curtain], [4, preset.print]]) {
+    for (const [group, key] of [[0, who === "tv" ? "tech" : who], [1, preset.wall], [2, preset.rug], [3, preset.curtain], [4, preset.print]]) {
       await expect(groups.nth(group).locator(`button[data-key="${key}"]`)).toHaveAttribute("aria-pressed", "true");
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -93,7 +94,7 @@ test("Feeling First links restore four story-matched ROOMVERSE presets at 390px"
   expect(errors).toEqual([]);
 });
 
-test("the English story-origin prompt matches all four stories; ordinary and invalid entries stay unchanged", async ({ page }) => {
+test("the English story-origin prompt matches all five stories; ordinary and invalid entries stay unchanged", async ({ page }) => {
   await mkdir("test-results/fu-to-roomverse-scenes", { recursive: true });
   await page.setViewportSize({ width: 390, height: 844 });
   for (const [who, preset] of Object.entries(storyRooms)) {

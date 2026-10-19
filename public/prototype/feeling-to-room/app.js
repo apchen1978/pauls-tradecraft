@@ -26,6 +26,9 @@ const copy = {
       "tech-1": [["留一個主螢幕，其餘收進側櫃。","桌面不用同時容納每一台設備。"],["把常用小物分進抽屜和收納盒。","手邊留下真正需要的空間。"],["加一盞暖色桌燈。","夜裡工作時，桌面不只剩螢幕的光。"]],
       "tech-2": [["降低藍色燈帶亮度，只留在螢幕後方。","冷光不必佔滿整個房間。"],["加一盞暖色落地燈。","讓視線離開螢幕時有柔和的光。"],["把桌面照明留在工作區。","需要專注時看得清楚，其他地方仍安靜。"]],
       "tech-3": [["用線槽沿桌腳收起延長線。","走動的路上少一些外露線材。"],["把充電集中到一個收納點。","不用在房間裡找不同的插頭。"],["把多餘線長固定在桌後。","地面看起來乾淨，也比較好打掃。"]],
+      "tv-1": [["架上只留幾件喜歡的，其餘收進櫃子。","看劇時，視線有地方安靜。"],["把燈帶留在層架背後，不直接照眼睛。","柔和的光讓畫面更容易成為焦點。"],["讓電視成為牆上唯一的視覺中心。","觀看時不必在擺飾間來回找焦點。"]],
+      "tv-2": [["窗邊加一層薄紗簾調整光線。","白天留住自然光，也減少強烈反射。"],["讓沙發和螢幕稍微錯開窗戶。","坐下看時，窗光不會正對螢幕。"],["傍晚再拉上遮光簾。","夜色來時，畫面會清楚些。"]],
+      "tv-3": [["換成圓角矮桌，選木面或軟面。","坐著伸手不怕撞，畫面也乾淨。"],["把線材收進電視櫃與線槽。","走動時少一點勾到線的機會。"],["把機上盒和遊戲機集中在一處。","地面和櫃面都留得更清爽。"]],
     },
     footNote: "這是固定的設計示範；同一個需要，也可能有別的解法。",
     roomverseNote: "3D 房間帶你感受這種氣氛：光線、牆色、地毯、窗簾與掛畫；家具大小、收納和線材整理，只在上面的文字說明裡。",
@@ -58,6 +61,9 @@ const copy = {
       "tech-1": [["Keep one main screen and move others to a side cabinet.","The desk does not need to hold every device at once."],["Give small accessories a drawer or tray.","Keep the useful work surface open."],["Add a warm desk lamp.","At night, the screen does not have to be the only light."]],
       "tech-2": [["Lower the blue light and keep it behind the screen.","Cool light does not need to fill the whole room."],["Add a warm floor lamp.","Give the eyes softer light when they look away from the screen."],["Keep task lighting over the desk.","Make the work area clear while the rest stays calm."]],
       "tech-3": [["Route the extension cord along the desk leg.","Keep loose cables out of the walking path."],["Gather charging in one place.","Avoid searching around the room for a plug."],["Secure extra cable length behind the desk.","Keep the floor clear and easier to clean."]],
+      "tv-1": [["Keep a few favourite pieces; store the rest.","Give the eye a quiet place while watching."],["Keep the shelf lights behind the displays, out of direct sight.","Softer light lets the screen take focus."],["Let the TV be the wall's one clear focal point.","The eye does not have to jump between objects."]],
+      "tv-2": [["Add a sheer layer at the window to soften the light.","Keep daylight while easing strong reflections."],["Angle the sofa and screen slightly away from the window.","The window light will not face the screen directly."],["Draw the blackout curtain as evening comes.","The picture becomes easier to see as night falls."]],
+      "tv-3": [["Choose a low table with rounded edges and a wood or soft top.","Reach comfortably without a sharp edge in the way."],["Route cables through the console and a cable channel.","Make the walking path less likely to catch a loose wire."],["Keep the set-top box and console together.","Leave the floor and cabinet looking clearer."]],
     },
     footNote: "This is a fixed design example; the same need can have other good answers.",
     roomverseNote: "The 3D room gives you the feeling: light, wall colour, rug, curtains and the wall print. Furniture size, storage and cable tidying appear only in the notes above.",
@@ -102,6 +108,16 @@ const moods = {
     draftNames: { zh: ["螢幕牆", "冷藍氛圍", "線材外露"], en: ["A wall of screens", "Cold blue glow", "Cables left out"] },
     draftSubs: { zh: ["機器太多，桌面很擠", "整間偏冷，看久眼睛累", "線材外露，絆腳又雜亂"], en: ["Too many devices crowd the desk", "Blue light fills the room and tires the eyes", "Loose cables clutter the floor and path"] },
   },
+  tv: {
+    portrait: "person-tv.webp", story: { zh: "週五晚上，只想窩著追劇。", en: "Friday night, and she wants nothing but the sofa and a good series." },
+    portraitAlt: { zh: "一位女性背對畫面，手拿剛脫下的外套走向亮著暖光的電視牆。", en: "A woman seen from behind, carrying her coat toward a softly lit TV wall." },
+    roomImage: "./assets/tv-result.webp", roomAlt: { zh: "黃昏的客廳有落地窗、河濱城市景色、暖光電視牆、沙發、檯燈與地毯，一旁有一台小型立式家用機器人。", en: "At dusk, a living room has a riverfront city view, a warm TV wall, sofa, table lamp and rug, with a small upright home robot nearby." }, moodParam: "tech",
+    roomParams: { wall: "sand", rug: "ivory", curtain: "linen", print: "moon" },
+    feeling: { zh: "今晚，歸我自己。", en: "Tonight is mine." },
+    roomverseNote: { zh: "3D 房間目前還沒有電視牆，先帶你感受這種夜晚的氣氛；電視牆之後會補上。", en: "The 3D room does not have a TV wall yet. It gives you the evening mood for now; the TV wall will come later." },
+    draftNames: { zh: ["電視牆太滿", "窗光打在螢幕上", "玻璃圓桌與電視線"], en: ["Crowded TV wall", "Window glare on the screen", "Glass table and loose cables"] },
+    draftSubs: { zh: ["架上擺飾很多，電視反而不突出", "傍晚的光打在螢幕上，看不清楚", "桌邊偏硬，線材外露"], en: ["So many shelf objects that the TV fades into the wall", "Evening light falls on the screen and makes it hard to see", "Hard table edges and loose cables"] },
+  },
 };
 const state = { lang: new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh", step: 1, mood: null, draft: null, reason: null };
 const root = document.querySelector("#step-content");
@@ -139,7 +155,8 @@ function renderResult() {
   const items=edits.map(([title,why])=>`<li><strong>${title}</strong><span>${why}</span></li>`).join("");
   const roomQuery = new URLSearchParams({ lang: state.lang, mood: mood.moodParam, ...mood.roomParams, from: "fu", who: state.mood });
   const roomLink=`/prototype/roomverse-3d/?${roomQuery}`;
-  root.innerHTML=`<section class="step-panel" aria-labelledby="step-heading"><div class="step-heading"><div><p class="step-kicker">${t.step(3)} · ${t.refinementLabel}</p><h2 id="step-heading" class="step-title" tabindex="-1">${t.step3}</h2><p class="step-note">${t.step3Note}</p></div></div><div class="result-layout"><div class="postcard"><img class="result-image" src="${mood.roomImage}" alt="${mood.roomAlt[state.lang]}" width="800" height="1000" decoding="async"><p class="result-caption"><strong>${t.firstFeeling}</strong> ${enc(mood.feeling[state.lang])}</p></div><div><p class="selected-reason">${t.chosenReason} ${enc(reason)}</p><p class="result-summary"><strong>${t.before}</strong> ${String.fromCharCode(64+state.draft)} · ${enc(names[state.draft-1])} — ${enc(sub)}</p><ul class="refinement-list">${items}</ul><p class="hint-line">${t.footNote}</p><p class="roomverse-note">${t.roomverseNote}</p><div class="actions"><a class="primary" href="${roomLink}" data-action="roomverse">${t.linkRoom}</a><button class="secondary" type="button" data-action="restart">${t.restart}</button></div></div></div></section>`;
+  const roomverseNote = mood.roomverseNote?.[state.lang] || t.roomverseNote;
+  root.innerHTML=`<section class="step-panel" aria-labelledby="step-heading"><div class="step-heading"><div><p class="step-kicker">${t.step(3)} · ${t.refinementLabel}</p><h2 id="step-heading" class="step-title" tabindex="-1">${t.step3}</h2><p class="step-note">${t.step3Note}</p></div></div><div class="result-layout"><div class="postcard"><img class="result-image" src="${mood.roomImage}" alt="${mood.roomAlt[state.lang]}" width="800" height="1000" decoding="async"><p class="result-caption"><strong>${t.firstFeeling}</strong> ${enc(mood.feeling[state.lang])}</p></div><div><p class="selected-reason">${t.chosenReason} ${enc(reason)}</p><p class="result-summary"><strong>${t.before}</strong> ${String.fromCharCode(64+state.draft)} · ${enc(names[state.draft-1])} — ${enc(sub)}</p><ul class="refinement-list">${items}</ul><p class="hint-line">${t.footNote}</p><p class="roomverse-note">${roomverseNote}</p><div class="actions"><a class="primary" href="${roomLink}" data-action="roomverse">${t.linkRoom}</a><button class="secondary" type="button" data-action="restart">${t.restart}</button></div></div></div></section>`;
 }
 function render() {
   const t=copy[state.lang];
