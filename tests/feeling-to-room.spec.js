@@ -7,6 +7,12 @@ mkdirSync(qaDir, { recursive: true });
 mkdirSync(sheQaDir, { recursive: true });
 const contexts = [["zh",390],["en",390],["zh",1440],["en",1440]];
 const moods = ["rain", "chic", "family", "tech"];
+const roomPresets = {
+  rain: { wall: "sand", rug: "ivory", curtain: "linen", print: "rain" },
+  chic: { wall: "original", rug: "ivory", curtain: "rose", print: "hills" },
+  family: { wall: "sand", rug: "stripe", curtain: "sage", print: "hills" },
+  tech: { wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
+};
 
 async function noOverflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
@@ -24,7 +30,7 @@ async function noMalePronounForPerson(page) {
 
 async function noOrphanLines(page, lang) {
   const findings = await page.evaluate(language => {
-    const selectors = ["h1", ".dek", ".step-title", ".step-note", ".mood-copy span", ".draft-body strong", ".draft-body small", ".reason-fieldset legend", ".reason-choice span", ".result-caption", ".result-summary", ".selected-reason", ".refinement-list strong", ".refinement-list span"];
+    const selectors = ["h1", ".dek", ".step-title", ".step-note", ".mood-copy span", ".draft-body strong", ".draft-body small", ".reason-fieldset legend", ".reason-choice span", ".result-caption", ".result-summary", ".selected-reason", ".refinement-list strong", ".refinement-list span", ".roomverse-note"];
     const issues = [];
     for (const selector of selectors) {
       for (const element of document.querySelectorAll(selector)) {
@@ -131,7 +137,12 @@ for (const mood of moods) {
       await expect(page.locator(".refinement-list li")).toHaveCount(3);
       await expect(page.locator(".result-caption")).toContainText(lang === "zh" ? "她進門的第一個感覺" : "Their first feeling on entering");
       await expect(page.locator(".result-image")).toHaveAttribute("src", new RegExp(`mood-${mood}|room-${mood === "family" ? "sunny" : mood === "tech" ? "tech-night" : mood === "rain" ? "rug" : "chic-city"}`));
-      await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}&mood=${mood}`);
+      const params = new URLSearchParams({ lang, mood, ...roomPresets[mood], from: "fu", who: mood });
+      await expect(page.locator(".roomverse-note")).toHaveText(lang === "zh"
+        ? "3D 房間帶你感受這種氣氛：光線、牆色、地毯、窗簾與掛畫；家具大小、收納和線材整理，只在上面的文字說明裡。"
+        : "The 3D room gives you the feeling: light, wall colour, rug, curtains and the wall print. Furniture size, storage and cable tidying appear only in the notes above.");
+      await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?${params}`);
+      await expect(page.locator('[data-action="roomverse"]')).toHaveText(lang === "zh" ? "走進她的 ROOMVERSE 3D 房間" : "Step into her ROOMVERSE 3D room");
       await checkImages(page);
       await noOverflow(page);
       if (mood === "tech" && lang === "zh") {

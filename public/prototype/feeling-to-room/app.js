@@ -28,7 +28,8 @@ const copy = {
       "tech-3": [["用線槽沿桌腳收起延長線。","走動的路上少一些外露線材。"],["把充電集中到一個收納點。","不用在房間裡找不同的插頭。"],["把多餘線長固定在桌後。","地面看起來乾淨，也比較好打掃。"]],
     },
     footNote: "這是固定的設計示範；同一個需要，也可能有別的解法。",
-    linkRoom: "走進對應的 ROOMVERSE 3D 房間", restart: "重新開始",
+    roomverseNote: "3D 房間帶你感受這種氣氛：光線、牆色、地毯、窗簾與掛畫；家具大小、收納和線材整理，只在上面的文字說明裡。",
+    linkRoom: "走進她的 ROOMVERSE 3D 房間", restart: "重新開始",
   },
   en: {
     lang: "en", back: "Back to the portfolio", eyebrow: "ROOMVERSE · Human–AI co-design demo", title: "Feeling First", metaDescription: "Meet someone’s situation before choosing a direction for the feeling of coming home.",
@@ -59,7 +60,8 @@ const copy = {
       "tech-3": [["Route the extension cord along the desk leg.","Keep loose cables out of the walking path."],["Gather charging in one place.","Avoid searching around the room for a plug."],["Secure extra cable length behind the desk.","Keep the floor clear and easier to clean."]],
     },
     footNote: "This is a fixed design example; the same need can have other good answers.",
-    linkRoom: "Enter the matching ROOMVERSE 3D room", restart: "Start again",
+    roomverseNote: "The 3D room gives you the feeling: light, wall colour, rug, curtains and the wall print. Furniture size, storage and cable tidying appear only in the notes above.",
+    linkRoom: "Step into her ROOMVERSE 3D room", restart: "Start again",
   },
 };
 
@@ -68,6 +70,7 @@ const moods = {
     portrait: "person-rain.webp", story: { zh: "加班到十點，外面下著雨。", en: "Working late; rain is falling outside." },
     portraitAlt: { zh: "一位加班回家的人站在雨夜玄關，手邊放著雨傘。", en: "A person arriving home after work, seen from behind beside an umbrella on a rainy night." },
     roomImage: "/prototype/room-mode-remote/assets/room-rug-v2.webp", roomAlt: { zh: "雨夜客廳裡的沙發與暖燈。", en: "A sofa and warm lamp in a living room on a rainy night." }, moodParam: "rain",
+    roomParams: { wall: "sand", rug: "ivory", curtain: "linen", print: "rain" },
     feeling: { zh: "肩膀終於放下來。", en: "At last, their shoulders can drop." },
     draftNames: { zh: ["柔軟鋪陳", "留白相聚", "明亮焦點"], en: ["Soft layers", "Room to gather", "Bright focal point"] },
     draftSubs: { zh: ["花紋太多，她回家還得整理視線", "茶几太大，放下包仍得繞路", "冷暖光一起搶眼，讓人很難鬆下來"], en: ["Too many patterns for a tired evening", "A large table leaves little room to settle", "Warm and cool light compete for attention"] },
@@ -76,6 +79,7 @@ const moods = {
     portrait: "person-chic.webp", story: { zh: "明早要簡報，想先把自己整理好。", en: "A presentation tomorrow; she wants to feel ready." },
     portraitAlt: { zh: "一位準備明日簡報的人背對畫面，手拿資料夾站在晨光裡。", en: "A person with a folder, seen from behind in morning light before a presentation." },
     roomImage: "/prototype/room-mode-remote/assets/room-chic-city-v1.webp", roomAlt: { zh: "晨光照進城市客廳，霧粉窗簾、奶油白沙發與淺色地毯。", en: "Morning light in a city living room with dusty-rose curtains, a cream sofa and pale rug." }, moodParam: "chic",
+    roomParams: { wall: "original", rug: "ivory", curtain: "rose", print: "hills" },
     feeling: { zh: "今天，可以開始了。", en: "Now, the day can begin." },
     draftNames: { zh: ["柔和粉色", "金屬細節", "明亮焦點"], en: ["Soft rose", "Brass details", "Bright focal point"] },
     draftSubs: { zh: ["粉色一路延伸，她想整理自己卻先被房間淹沒", "金屬小物擠滿桌面，準備資料不方便", "地毯與燈具都很搶眼，讓人難安定"] , en: ["Rose carries everywhere before she can settle", "Crowded brass objects leave little desk space", "The rug and lamp compete for attention"] },
@@ -84,6 +88,7 @@ const moods = {
     portrait: "person-family.webp", story: { zh: "週末，兩個孩子和長輩都要來。", en: "The family is coming over this weekend." },
     portraitAlt: { zh: "大人和兩個孩子都以背影出現在玄關，門邊有長輩的手杖。", en: "An adult and two children seen from behind at an entryway, with a cane nearby." },
     roomImage: "/prototype/room-mode-remote/assets/room-sunny-v1.webp", roomAlt: { zh: "白天自然光照著木質家具、綠色靠墊與陶土色細節。", en: "Daylight on wood furniture, green cushions and terracotta accents." }, moodParam: "family",
+    roomParams: { wall: "sand", rug: "stripe", curtain: "sage", print: "hills" },
     feeling: { zh: "大家都在，也都自在。", en: "Everyone is here, and everyone has room." },
     draftNames: { zh: ["熱鬧玩具角", "茶几擋住路", "柔軟大地毯"], en: ["A lively toy corner", "Coffee table in the way", "A soft, pale rug"] },
     draftSubs: { zh: ["玩具和花色很多，聚會後不容易收整", "桌角偏硬，孩子跑動時要留心", "淺色大地毯好看，吃喝時不容易照料"], en: ["Toys and patterns will be hard to put away", "Hard table corners meet a child’s running path", "A pale rug looks lovely but is hard to keep clean"] },
@@ -92,6 +97,7 @@ const moods = {
     portrait: "person-tech.webp", story: { zh: "在家寫到半夜，只想要安靜。", en: "Working from home past midnight, they need quiet." },
     portraitAlt: { zh: "一位深夜在家工作的人背對畫面，放下背包站在一盞暖燈旁。", en: "A person setting down a backpack beside a warm lamp, seen from behind at night." },
     roomImage: "/prototype/room-mode-remote/assets/room-tech-night-v1.webp", roomAlt: { zh: "夜間客廳以暖燈照亮沙發，窗外是深藍夜色。", en: "A warm lamp lights a sofa while deep blue night shows beyond the window." }, moodParam: "tech",
+    roomParams: { wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
     feeling: { zh: "世界安靜了，只剩下專注。", en: "The room settles; focus can stay." },
     draftNames: { zh: ["螢幕牆", "冷藍氛圍", "線材外露"], en: ["A wall of screens", "Cold blue glow", "Cables left out"] },
     draftSubs: { zh: ["機器太多，桌面很擠", "整間偏冷，看久眼睛累", "線材外露，絆腳又雜亂"], en: ["Too many devices crowd the desk", "Blue light fills the room and tires the eyes", "Loose cables clutter the floor and path"] },
@@ -131,8 +137,9 @@ function renderResult() {
   const t=copy[state.lang], id=draftId(), mood=moods[state.mood], edits=t.edits[id], names=mood.draftNames[state.lang], sub=mood.draftSubs[state.lang][state.draft-1];
   const reason=t.reasons[state.reason];
   const items=edits.map(([title,why])=>`<li><strong>${title}</strong><span>${why}</span></li>`).join("");
-  const roomLink=`/prototype/roomverse-3d/?lang=${state.lang}&mood=${mood.moodParam}`;
-  root.innerHTML=`<section class="step-panel" aria-labelledby="step-heading"><div class="step-heading"><div><p class="step-kicker">${t.step(3)} · ${t.refinementLabel}</p><h2 id="step-heading" class="step-title" tabindex="-1">${t.step3}</h2><p class="step-note">${t.step3Note}</p></div></div><div class="result-layout"><div class="postcard"><img class="result-image" src="${mood.roomImage}" alt="${mood.roomAlt[state.lang]}" width="800" height="1000" decoding="async"><p class="result-caption"><strong>${t.firstFeeling}</strong> ${enc(mood.feeling[state.lang])}</p></div><div><p class="selected-reason">${t.chosenReason} ${enc(reason)}</p><p class="result-summary"><strong>${t.before}</strong> ${String.fromCharCode(64+state.draft)} · ${enc(names[state.draft-1])} — ${enc(sub)}</p><ul class="refinement-list">${items}</ul><p class="hint-line">${t.footNote}</p><div class="actions"><a class="primary" href="${roomLink}" data-action="roomverse">${t.linkRoom}</a><button class="secondary" type="button" data-action="restart">${t.restart}</button></div></div></div></section>`;
+  const roomQuery = new URLSearchParams({ lang: state.lang, mood: mood.moodParam, ...mood.roomParams, from: "fu", who: state.mood });
+  const roomLink=`/prototype/roomverse-3d/?${roomQuery}`;
+  root.innerHTML=`<section class="step-panel" aria-labelledby="step-heading"><div class="step-heading"><div><p class="step-kicker">${t.step(3)} · ${t.refinementLabel}</p><h2 id="step-heading" class="step-title" tabindex="-1">${t.step3}</h2><p class="step-note">${t.step3Note}</p></div></div><div class="result-layout"><div class="postcard"><img class="result-image" src="${mood.roomImage}" alt="${mood.roomAlt[state.lang]}" width="800" height="1000" decoding="async"><p class="result-caption"><strong>${t.firstFeeling}</strong> ${enc(mood.feeling[state.lang])}</p></div><div><p class="selected-reason">${t.chosenReason} ${enc(reason)}</p><p class="result-summary"><strong>${t.before}</strong> ${String.fromCharCode(64+state.draft)} · ${enc(names[state.draft-1])} — ${enc(sub)}</p><ul class="refinement-list">${items}</ul><p class="hint-line">${t.footNote}</p><p class="roomverse-note">${t.roomverseNote}</p><div class="actions"><a class="primary" href="${roomLink}" data-action="roomverse">${t.linkRoom}</a><button class="secondary" type="button" data-action="restart">${t.restart}</button></div></div></div></section>`;
 }
 function render() {
   const t=copy[state.lang];

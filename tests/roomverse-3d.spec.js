@@ -4,6 +4,12 @@ import { mkdir } from "node:fs/promises";
 // ROOMVERSE 3D: a poster first (no 3D download until the visitor asks), then a 3D room whose feeling,
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
 const PAGE = "/prototype/roomverse-3d/";
+const storyRooms = {
+  rain: { zh: "加班到十點，外面下著雨。", en: "Working late; rain is falling outside.", wall: "sand", rug: "ivory", curtain: "linen", print: "rain" },
+  chic: { zh: "明早要簡報，想先把自己整理好。", en: "A presentation tomorrow; she wants to feel ready.", wall: "original", rug: "ivory", curtain: "rose", print: "hills" },
+  family: { zh: "週末，兩個孩子和長輩都要來。", en: "The family is coming over this weekend.", wall: "sand", rug: "stripe", curtain: "sage", print: "hills" },
+  tech: { zh: "在家寫到半夜，只想要安靜。", en: "Working from home past midnight, they need quiet.", wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
+};
 
 for (const width of [390, 1440]) {
   for (const lang of ["zh", "en"]) {
@@ -46,6 +52,66 @@ test("switching language updates the page text and the home link", async ({ page
   await page.locator("#lang").click();
   await expect(page.locator("#home")).toHaveAttribute("href", "/?lang=en");
   await expect(page.locator("#title")).toHaveText("One room, many ways to come home");
+});
+
+test("Feeling First links restore four story-matched ROOMVERSE presets at 390px", async ({ page }) => {
+  await mkdir("test-results/fu-to-roomverse-scenes", { recursive: true });
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(String(error)));
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const [who, preset] of Object.entries(storyRooms)) {
+    await page.goto(`/prototype/feeling-to-room/?lang=zh`);
+    const cardStory = await page.locator(`[data-mood="${who}"] .mood-copy span`).textContent();
+    expect(cardStory).toBe(preset.zh);
+    const query = new URLSearchParams({ lang: "zh", mood: who, wall: preset.wall, rug: preset.rug, curtain: preset.curtain, print: preset.print, from: "fu", who });
+    await page.goto(`${PAGE}?${query}`);
+    await expect(page.locator("#originHint")).toBeVisible();
+    await expect(page.locator("#originStory")).toHaveText(`這個房間來自「先有fu，再有家」：${preset.zh}`);
+    await expect(page.locator("#originBack")).toHaveAttribute("href", "/prototype/feeling-to-room/?lang=zh");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (who === "rain") {
+      await page.locator("#originClose").focus();
+      await page.keyboard.press("Enter");
+      await expect(page.locator("#originHint")).toBeHidden();
+      await page.reload();
+    }
+    await page.locator("#enter").click();
+    await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+    const groups = page.locator("#panel .opts");
+    for (const [group, key] of [[0, who], [1, preset.wall], [2, preset.rug], [3, preset.curtain], [4, preset.print]]) {
+      await expect(groups.nth(group).locator(`button[data-key="${key}"]`)).toHaveAttribute("aria-pressed", "true");
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator("#stage").screenshot({ path: `test-results/fu-to-roomverse-scenes/zh-${who}.png` });
+    if (who === "rain") {
+      await groups.nth(2).locator('button[data-key="medallion"]').click();
+      await expect(page).toHaveURL(/from=fu/);
+      await expect(page).toHaveURL(/who=rain/);
+      await expect(page).toHaveURL(/mood=rain/);
+    }
+  }
+  expect(errors).toEqual([]);
+});
+
+test("the English story-origin prompt matches all four stories; ordinary and invalid entries stay unchanged", async ({ page }) => {
+  await mkdir("test-results/fu-to-roomverse-scenes", { recursive: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const [who, preset] of Object.entries(storyRooms)) {
+    await page.goto(`/prototype/feeling-to-room/?lang=en`);
+    const cardStory = await page.locator(`[data-mood="${who}"] .mood-copy span`).textContent();
+    expect(cardStory).toBe(preset.en);
+    const query = new URLSearchParams({ lang: "en", mood: who, wall: preset.wall, rug: preset.rug, curtain: preset.curtain, print: preset.print, from: "fu", who });
+    await page.goto(`${PAGE}?${query}`);
+    await expect(page.locator("#originHint")).toBeVisible();
+    await expect(page.locator("#originStory")).toHaveText(`This room comes from “Feeling First”: ${preset.en}`);
+    await expect(page.locator("#originBack")).toHaveAttribute("href", "/prototype/feeling-to-room/?lang=en");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator("#originHint").screenshot({ path: `test-results/fu-to-roomverse-scenes/en-${who}-hint.png` });
+  }
+  await page.goto(`${PAGE}?lang=zh&mood=slow&wall=original&rug=ivory&curtain=linen&print=hills`);
+  await expect(page.locator("#originHint")).toBeHidden();
+  await page.goto(`${PAGE}?lang=zh&mood=rain&from=fu&who=unknown`);
+  await expect(page.locator("#originHint")).toBeHidden();
 });
 
 test("the Garage light-tech shelf links to the 3D room in the visitor's language", async ({ page }) => {
