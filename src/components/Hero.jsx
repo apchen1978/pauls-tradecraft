@@ -101,7 +101,7 @@ export default function Hero() {
                     className="group flex h-full items-start gap-2 rounded-card border border-line bg-white/85 px-2 py-1.5 shadow-[0_1px_2px_rgb(25_58_53/0.04),0_16px_40px_-28px_rgb(25_58_53/0.25)] transition-[border-color,transform] hover:-translate-y-0.5 hover:border-ink/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink md:gap-4 md:px-5 md:py-4"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block text-base font-semibold leading-snug text-ink md:text-lg">{copy.title}</span>
+                      <span className="block text-base font-semibold leading-snug text-amber md:text-lg">{copy.title}</span>
                       <span className="mt-0.5 block text-sm leading-snug text-moss md:mt-1 md:leading-relaxed">{work.decisionQuestion?.[lang]}</span>
                     </span>
                     <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 text-ink transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
