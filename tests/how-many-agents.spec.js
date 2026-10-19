@@ -7,6 +7,59 @@ const PAGE = "/prototype/how-many-agents/";
 const screenshots = join(process.cwd(), "docs", "qa", "how-many-agents");
 mkdirSync(screenshots, { recursive: true });
 
+async function expectNoOrphanLines(page, lang) {
+  const findings = await page.evaluate((language) => {
+    const panel = document.querySelector("#step-one:not([hidden]), #step-two:not([hidden]), #step-three:not([hidden])");
+    const elements = panel.querySelectorAll("h2, h3, h4, p, legend, button, a, li, output, small, strong, span");
+    const issues = [];
+    for (const element of elements) {
+      const style = getComputedStyle(element);
+      if (style.display === "none" || style.visibility === "hidden" || element.children.length || !element.textContent.trim()) continue;
+      const wholeText = document.createRange();
+      wholeText.selectNodeContents(element);
+      const lineGroups = [];
+      for (const rect of [...wholeText.getClientRects()].filter(item => item.height)) {
+        const group = lineGroups.find(candidate => rect.top < candidate.bottom && rect.bottom > candidate.top);
+        if (group) { group.top = Math.min(group.top, rect.top); group.bottom = Math.max(group.bottom, rect.bottom); }
+        else lineGroups.push({ top: rect.top, bottom: rect.bottom, text: "" });
+      }
+      if (lineGroups.length < 2) continue;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        let offset = 0;
+        for (const character of Array.from(node.nodeValue)) {
+          const range = document.createRange();
+          range.setStart(node, offset);
+          range.setEnd(node, offset + character.length);
+          offset += character.length;
+          const rect = range.getBoundingClientRect();
+          if (!rect.height) continue;
+          let lineGroup = lineGroups[0];
+          let nearest = Infinity;
+          for (const candidate of lineGroups) {
+            const overlap = Math.max(0, Math.min(rect.bottom, candidate.bottom) - Math.max(rect.top, candidate.top));
+            const distance = overlap ? -overlap : Math.abs(rect.top - candidate.top);
+            if (distance < nearest) { nearest = distance; lineGroup = candidate; }
+          }
+          lineGroup.text += character;
+        }
+      }
+      for (const lineGroup of lineGroups) {
+        const rawLine = lineGroup.text;
+        const visibleLine = rawLine.trim();
+        if (!visibleLine) continue;
+        const units = language === "zh"
+          ? Array.from(visibleLine.replace(/\s/g, "")).length
+          : (visibleLine.match(/[A-Za-z]+(?:[’'][A-Za-z]+)*/g) || []).length;
+        if (units === 1) issues.push({ selector: element.id || element.className || element.tagName, text: element.innerText.trim(), line: visibleLine });
+      }
+    }
+    return issues;
+  }, lang);
+  expect(findings, `${lang} ${JSON.stringify(findings)}`).toEqual([]);
+}
+
 test("the illustrative model preserves its intended curves and guardrail effects", () => {
   const one = calculateModel({ agents: 1 });
   const four = calculateModel({ agents: 4 });
@@ -27,6 +80,8 @@ test("the illustrative model preserves its intended curves and guardrail effects
   expect(calculateModel({ agents: 12, budget: true }).cost).toBeLessThanOrEqual(MODEL.budgetCostLimit);
   expect(calculateModel({ agents: 1, noLimit: true }).effectiveAgents).toBe(1 + MODEL.automaticExtraAgents);
   expect(calculateModel({ agents: 12, noLimit: true }).effectiveAgents).toBe(MODEL.maxAgents);
+  expect(calculateModel({ agents: 12, roles: true, budget: true, cap: true, signoff: true, coordinator: true }).summary).toBe("justRight");
+  expect(calculateModel({ agents: 12, noLimit: true }).summary).toBe("tooMany");
 });
 
 for (const lang of ["zh", "en"]) {
@@ -82,6 +137,7 @@ for (const lang of ["zh", "en"]) {
     await expect(page.locator("#chapter-14-link")).toHaveAttribute("href", `/ai-lab/?lang=${lang}#c14`);
     await expect(page.locator("#chapter-17-link")).toHaveAttribute("href", `/ai-lab/?lang=${lang}#c17`);
     await page.screenshot({ path: join(screenshots, `${lang}-390-step3-result.png`), fullPage: true });
+    if (lang === "zh") await page.screenshot({ path: join(screenshots, "zh-390-step3-all-guardrails.png"), fullPage: true });
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
     expect(await page.evaluate(() => Object.keys(localStorage).length)).toBe(0);
     const disallowed = ["中間層", "A2A", "CDD", "ROI", "轉換率", "成交率", "老闆", "董事長", "DeepSeek", "GrokBot", "Codex", "OpenAI", "Anthropic", "Claude", "Gemini", "ChatGPT"];
@@ -89,6 +145,32 @@ for (const lang of ["zh", "en"]) {
     for (const phrase of disallowed) expect(visibleCopy).not.toContain(phrase);
   });
 }
+
+test("no visible step contains a one-character or one-word orphan at supported review widths", async ({ page }) => {
+  for (const lang of ["zh", "en"]) {
+    for (const width of [390, 414, 768, 1440]) {
+      await page.setViewportSize({ width, height: width < 500 ? 844 : 1000 });
+      await page.goto(`${PAGE}?lang=${lang}`);
+      await expectNoOrphanLines(page, lang);
+
+      await page.locator("#agent-count").evaluate((input) => { input.value = "12"; input.dispatchEvent(new Event("input", { bubbles: true })); });
+      await page.locator("#no-limit").check();
+      await page.locator('input[value="irreversible"]').check();
+      await expectNoOrphanLines(page, lang);
+      await page.locator("#no-limit").uncheck();
+      await page.locator("#next-one").click();
+      for (const id of ["roles", "budget", "cap", "signoff", "coordinator"]) await page.locator(`#${id}`).check();
+      await expectNoOrphanLines(page, lang);
+      await page.locator("#next-two").click();
+      await expectNoOrphanLines(page, lang);
+
+      if (lang === "zh" && width === 390) {
+        await expect(page.locator("#result-card")).toHaveAttribute("data-summary", "justRight");
+        await page.screenshot({ path: join(screenshots, "zh-390-step3-all-guardrails.png"), fullPage: true });
+      }
+    }
+  }
+});
 
 for (const lang of ["zh", "en"]) {
   test(`the ${lang} tool remains within 1440px and controls are comfortably tappable`, async ({ page }) => {

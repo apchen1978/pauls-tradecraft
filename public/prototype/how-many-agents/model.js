@@ -52,7 +52,7 @@ export function calculateModel({ agents = 1, roles = false, budget = false, cap 
       : riskScore <= MODEL.mediumRiskMax ? "medium" : "high";
 
   const summary = effectiveAgents < 3 ? "tooFew"
-    : riskLevel === "high" || effectiveAgents > 7 || (noLimit && !budget) ? "tooMany"
+    : riskLevel === "high" || (noLimit && !budget) || (effectiveAgents > 7 && (!roles || !cap)) ? "tooMany"
       : "justRight";
   return {
     selectedAgents: n,

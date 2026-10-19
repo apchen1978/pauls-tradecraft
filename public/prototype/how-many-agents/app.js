@@ -4,7 +4,7 @@ const COPY = {
   zh: {
     lang: "zh-Hant", title: "要開幾個 agent？", eyebrow: "AI LAB · INTERACTIVE STUDY", dek: "幫一家做手工茶具外銷的虛構小公司決定：這份調查，要開幾個 agent？", boundary: "示意模型，非實測數據；成本用相對單位。",
     steps: ["你想開幾個 agent？", "加上這四道設限", "你的團隊設定"],
-    stepNotes: ["同一件事，人數增加會帶來分工，也會增加協調。", "比較設限前後；另一個總管 agent 也有自己的成本與盲點。", "這是一張示意設定卡，沒有標準答案；帶走你想設的界線。"],
+    stepNotes: ["同一件事，人數增加會帶來分工，也會增加協調。", "比較設限前後；總管 agent 也有自己的成本與盲點。", "這是一張示意設定卡，沒有標準答案；帶走你想設的界線。"],
     scenarioLabel: "虛構任務", scenario: "兩週內，比較三個海外市場的經銷商，交一份建議。", sliderLabel: "想安排幾個 agent？", sliderHelp: "滑動或用鍵盤方向鍵調整。數量只是示意模型輸入。",
     meter: { cost: "成本", quality: "品質", risk: "風險", relative: "相對單位", score: "示意分", levels: { low: "低", medium: "中", high: "高" } },
     noLimit: "我沒有設上限", noLimitHelp: "若沒有預算上限，示意系統會自行增加 agent。", auto: (n) => `系統自己決定開了 ${n} 個 agent。多出的人手也會帶來協調成本。`,
@@ -32,7 +32,7 @@ const COPY = {
     scenarioLabel: "Fictional task", scenario: "Compare distributors in three overseas markets and deliver a recommendation within two weeks.", sliderLabel: "How many agents would you assign?", sliderHelp: "Drag the slider or use the arrow keys. The count is an illustrative model input.",
     meter: { cost: "Cost", quality: "Quality", risk: "Risk", relative: "relative units", score: "illustrative score", levels: { low: "Low", medium: "Medium", high: "High" } },
     noLimit: "I set no limit", noLimitHelp: "Without a budget cap, the illustrative system may add agents on its own.", auto: (n) => `The system decided to open ${n} agents. Extra people also add coordination cost.`,
-    reversibleTitle: "Can this work be undone?", reversible: "Reversible: code, drafts and internal lists can return to an earlier version.", irreversible: "Hard to take back: a customer email, shipment, payment or quote once sent.", irreversibleNote: "A rollback cannot make every mistake disappear.",
+    reversibleTitle: "Can this work be undone?", reversible: "Code, drafts and internal lists can be rolled back.", irreversible: "Hard to take back: a customer email, shipment, payment or quote once sent.", irreversibleNote: "A rollback cannot make every mistake disappear.",
     feedback: { tooFew: "With a small team, only so much work can happen in parallel.", rising: "More people can split tasks; define the roles first to avoid duplication.", repeat: "With more people and no clear roles, tasks may repeat or conflict.", uncontrolled: "Without a limit, the system adds people; coordination and cost rise too." },
     next: "Set the guardrails", back: "Back", finish: "See the settings card", restart: "Try again",
     guardrails: {

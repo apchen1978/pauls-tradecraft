@@ -90,6 +90,7 @@ h1 { margin: 3px 0 3px; color: #1f3c32; font-family: Georgia, "Noto Serif TC", s
 .chapter-links a { min-height: 44px; display: inline-flex; align-items: center; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: white; text-decoration: none; font-size: .82rem; font-weight: 700; }
 .page-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: .76rem; }
 .page-foot a { color: var(--pine); font-weight: 700; text-decoration: none; }
+.step-heading h2, .step-note, .scenario-card p, .agent-slider label, .control-help, .meter-label, .plain-feedback, .switch-copy strong, .switch-copy small, .automatic-note, .reversibility legend, .choice-card span, .reversibility-note, .comparison-card h3, .coordinator-note, .guardrail-effects li, .result-card > h3, .result-settings h4, .result-settings li, .takeaway, .result-boundary, .chapter-links a, .actions button { text-wrap: balance; }
 @media (max-width: 600px) {
   .topbar { min-height: 52px; padding-inline: 14px; }
   main { width: calc(100% - 28px); padding-top: 11px; }
@@ -107,7 +108,8 @@ h1 { margin: 3px 0 3px; color: #1f3c32; font-family: Georgia, "Noto Serif TC", s
   .meter { padding: 7px 7px 6px; }
   .meter-label { font-size: .68rem; }
   .meter-value { font-size: .96rem; }
-  .meter-unit { font-size: .62rem; }
+  .meter-unit { font-size: .62rem; white-space: nowrap; }
+  .meter-value-row { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: 0; }
   .plain-feedback { font-size: .79rem; }
   .guardrails { grid-template-columns: 1fr; gap: 0; }
   .guardrails .switch-card { min-height: 58px; }
