@@ -19,21 +19,21 @@ export default function Hero() {
   const h = t.hero;
   const picks = HERO_WORKS.map((id) => works.find((work) => work.id === id)).filter(Boolean);
   const headlineClass = lang === "en"
-    ? "mt-3 text-[1.7rem] leading-[1.12] sm:text-[1.95rem] md:mt-5 md:text-[2.3rem] md:leading-[1.08] xl:text-[2.75rem] xl:leading-[1.07]"
-    : "mt-4 text-[clamp(1.9rem,7vw,2.15rem)] leading-[1.18] md:mt-5 md:text-5xl md:leading-[1.14] lg:text-[2.75rem] xl:text-[3.3rem]";
+    ? "text-[1.7rem] leading-[1.12] sm:text-[1.95rem] md:text-[2.3rem] md:leading-[1.08] xl:text-[2.75rem] xl:leading-[1.07]"
+    : "text-[clamp(1.9rem,7vw,2.15rem)] leading-[1.18] md:text-5xl md:leading-[1.14] lg:text-[2.75rem] xl:text-[3.3rem]";
 
-  // Phones: the artwork band is the static #hero-art in index.html, so this section is
-  // transparent over its first 14rem (below that, the same light surface).
+  // Phones omit the portrait so the interactive work begins sooner. Desktop keeps
+  // the existing portrait; the 1×1 data fallback prevents a mobile image request.
   return (
-    <section id="top" className="relative isolate overflow-hidden bg-[linear-gradient(to_bottom,transparent_14rem,var(--color-bone)_14rem)] md:bg-bone text-ink border-b border-line">
+    <section id="top" className="relative isolate overflow-hidden bg-bone text-ink border-b border-line">
       <div aria-hidden className="absolute inset-0">
         <picture className="hidden md:block">
           <source media="(min-width: 769px)" srcSet="/images/paul-art.webp" type="image/webp" />
           <img
-            src="/images/paul-art-800.webp"
+            src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
             alt=""
-            width={1229}
-            height={1536}
+            width={1}
+            height={1}
             className="absolute inset-x-0 top-0 h-[14rem] w-full object-cover object-[55%_18%] opacity-90 md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-[50%] md:object-[62%_22%] md:opacity-100 md:[mask-image:linear-gradient(to_right,transparent_0%,black_35%,black_100%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_35%,black_100%)]"
             fetchPriority="high"
             decoding="sync"
@@ -46,16 +46,16 @@ export default function Hero() {
         <div className="absolute -left-24 top-[30%] h-[20rem] w-[20rem] rounded-full bg-[#9EE0C1]/20 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto grid max-w-7xl gap-7 px-4 pb-8 pt-[14.75rem] md:gap-10 md:px-6 md:pb-14 md:pt-16 lg:gap-12 lg:pb-14 lg:pt-20">
+      <div className="relative mx-auto grid max-w-7xl gap-4 px-4 pb-2 pt-4 md:gap-10 md:px-6 md:pb-14 md:pt-16 lg:gap-12 lg:pb-14 lg:pt-20">
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }} className="relative z-10 min-w-0 max-w-2xl md:max-w-[52%]">
           <motion.p variants={fadeUp} className="inline-flex items-center gap-3 text-sm font-semibold tracking-[0.06em] text-amber md:text-[0.9375rem]">
             <span aria-hidden className="hero-gem size-2 rounded-full bg-[#9EE0C1]" />
             {h.kicker}
           </motion.p>
-          <motion.h1 variants={fadeUp} className={`max-w-2xl font-semibold tracking-[-0.04em] text-ink ${headlineClass}`}>
+          <motion.h1 variants={fadeUp} className={`mt-2 max-w-2xl font-semibold tracking-[-0.04em] text-ink md:mt-5 ${headlineClass}`}>
             {h.headline}
           </motion.h1>
-          <motion.p variants={fadeUp} className="mt-4 max-w-[44ch] text-base leading-[1.6] text-ink md:mt-5 md:text-lg">
+          <motion.p variants={fadeUp} className="mt-3 max-w-[44ch] text-base leading-[1.6] text-ink md:mt-5 md:text-lg">
             {h.sub}
           </motion.p>
           <motion.ul variants={fadeUp} className="mt-4 hidden flex-wrap gap-x-5 gap-y-1 text-sm leading-[1.55] text-moss md:flex">
@@ -65,16 +65,16 @@ export default function Hero() {
               </li>
             ))}
           </motion.ul>
-          <motion.div variants={fadeUp} className="mt-6 flex flex-row flex-wrap gap-3 sm:mt-8 sm:items-center sm:gap-4">
+          <motion.div variants={fadeUp} className="mt-3 flex flex-row flex-wrap gap-1 sm:mt-8 sm:items-center sm:gap-4">
             <a
               href="#showcase"
-              className="max-sm:grow rounded-field bg-ink px-5 py-3 text-center text-sm font-semibold text-bone transition-[transform,filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="max-sm:grow rounded-field bg-ink px-3 py-3 text-center text-sm font-semibold text-bone transition-[transform,filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
               {h.ctaPrimary}
             </a>
             <a
               href="#contact"
-              className="max-sm:grow rounded-field border border-ink/30 bg-white/60 px-5 py-3 text-center text-sm font-semibold text-ink transition-[transform,border-color] hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="max-sm:grow rounded-field border border-ink/30 bg-white/60 px-3 py-3 text-center text-sm font-semibold text-ink transition-[transform,border-color] hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] sm:px-7 sm:py-3.5"
             >
               {h.ctaSecondary}
             </a>
@@ -88,7 +88,7 @@ export default function Hero() {
           data-testid="hero-works"
         >
           <p id="hero-works-label" className="text-xs font-semibold tracking-[0.12em] text-moss">{h.worksLabel}</p>
-          <ol aria-labelledby="hero-works-label" className="mt-3 grid gap-3 lg:grid-cols-3 lg:gap-4">
+          <ol aria-labelledby="hero-works-label" className="mt-1 grid gap-1.5 md:mt-3 md:gap-3 lg:grid-cols-3 lg:gap-4">
             {picks.map((work) => {
               const copy = work[lang] || work.zh;
               const href = work.casePage?.href || withDemoLang(work.link, lang);
@@ -98,11 +98,11 @@ export default function Hero() {
                   <a
                     href={href}
                     {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="group flex h-full items-start gap-4 rounded-card border border-line bg-white/85 px-4 py-4 shadow-[0_1px_2px_rgb(25_58_53/0.04),0_16px_40px_-28px_rgb(25_58_53/0.25)] transition-[border-color,transform] hover:-translate-y-0.5 hover:border-ink/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink md:px-5"
+                    className="group flex h-full items-start gap-2 rounded-card border border-line bg-white/85 px-2 py-1.5 shadow-[0_1px_2px_rgb(25_58_53/0.04),0_16px_40px_-28px_rgb(25_58_53/0.25)] transition-[border-color,transform] hover:-translate-y-0.5 hover:border-ink/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink md:gap-4 md:px-5 md:py-4"
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block text-base font-semibold leading-snug text-ink md:text-lg">{copy.title}</span>
-                      <span className="mt-1 block text-sm leading-relaxed text-moss">{work.decisionQuestion?.[lang]}</span>
+                      <span className="mt-0.5 block text-sm leading-snug text-moss md:mt-1 md:leading-relaxed">{work.decisionQuestion?.[lang]}</span>
                     </span>
                     <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 text-ink transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </a>
