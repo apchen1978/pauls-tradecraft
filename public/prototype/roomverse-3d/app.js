@@ -175,15 +175,39 @@ export async function start({ stage, panel, lang, onReady }) {
   // The TV wall is simple code-built furniture: one calm backing, recessed open shelves,
   // a closed dark screen, and soft warm strips. No additional real-time lights are added.
   const tvWall = new THREE.Group(); tvWall.name = "tv-wall"; scene.add(tvWall);
+  const tvSurfaceSpecs = new Map();
   const tvWallPiece = (geo, mat, x, y, z, name, cast = true) => {
+    const surface = tvSurfaceSpecs.get(mat);
+    let textureFaces;
+    if (surface) {
+      const { width, height, depth } = geo.parameters;
+      mat = mat.clone(); mat.map = mat.map.clone(); // repeat belongs to this sized board, never to the shared source image
+      mat.map.repeat.set(surface.panel ? 1 : width / surface.tile, surface.panel ? 1 : height / surface.tile);
+      const faces = [[depth, height], [depth, height], [width, depth], [width, depth], [width, height], [width, height]];
+      textureFaces = faces.map(([u, v], face) => ({ face, repeat: surface.panel ? [u / width, v / height] : [u / surface.tile, v / surface.tile] }));
+      // BoxGeometry starts with 0..1 UVs on every face. Scale the side/top UVs too,
+      // so a thin shelf edge does not stretch the same grain across a fraction of the area.
+      const uv = geo.attributes.uv;
+      for (let face = 0; face < faces.length; face++) for (let corner = 0; corner < 4; corner++) {
+        const i = face * 4 + corner;
+        uv.setXY(i, uv.getX(i) * faces[face][0] / width, uv.getY(i) * faces[face][1] / height);
+      }
+      uv.needsUpdate = true;
+    }
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = true; mesh.name = name;
+    if (textureFaces) mesh.userData.textureFaces = textureFaces;
     tvWall.add(mesh); return mesh;
   };
-  const tvPanelMat = new THREE.MeshStandardMaterial({ color: "#e8ddca", roughness: .9 });
-  const tvOakMat = new THREE.MeshStandardMaterial({ color: "#d4b58a", roughness: .82 });
-  const tvCabinetMat = new THREE.MeshStandardMaterial({ color: "#c7a578", roughness: .8 });
-  const tvDoorMat = new THREE.MeshStandardMaterial({ color: "#d9bb90", roughness: .84 });
+  const tvPanelMat = new THREE.MeshStandardMaterial({ map: image("tv-backing-v1", true)(), roughness: .95 });
+  const tvOakMat = new THREE.MeshStandardMaterial({ map: image("tv-oak-v1", true)(), roughness: .9 });
+  const tvCabinetMat = tvOakMat.clone();
+  const tvDoorMat = new THREE.MeshStandardMaterial({ map: image("tv-door-v1")(), roughness: .9 });
+  const tvFrameMat = new THREE.MeshStandardMaterial({ map: image("tv-frame-v1", true)(), roughness: .86 });
+  tvSurfaceSpecs.set(tvPanelMat, { tile: 1.2 });
+  tvSurfaceSpecs.set(tvOakMat, { tile: .8 }); tvSurfaceSpecs.set(tvCabinetMat, { tile: .8 });
+  tvSurfaceSpecs.set(tvDoorMat, { panel: true }); // one illustrated door face, including its quiet rounded edge line
+  tvSurfaceSpecs.set(tvFrameMat, { tile: .5 });
   const tvTrimMat = new THREE.MeshStandardMaterial({ color: "#d7bd91", roughness: .55, metalness: .2 });
   const tvScreenMat = new THREE.MeshBasicMaterial({ color: "#141b1e" }); // quiet powered-off face; no point-light specular hotspot
   const tvStripMat = new THREE.MeshStandardMaterial({ color: "#ffe1a4", emissive: "#ffc477", emissiveIntensity: .18, roughness: .9 });
@@ -224,7 +248,7 @@ export async function start({ stage, panel, lang, onReady }) {
     tvWallPiece(new THREE.PlaneGeometry(.57, 1.54), tvWashMat, x, 1.36, FRONT - .041, "tv-shelf-wash", false).rotation.y = Math.PI;
   }
   // A slim, blank television on the central panel; its glass stays dark in every mood.
-  tvWallPiece(new THREE.BoxGeometry(1.58, .94, .075), tvCabinetMat, 0, 1.76, FRONT - .24, "tv-frame");
+  tvWallPiece(new THREE.BoxGeometry(1.58, .94, .075), tvFrameMat, 0, 1.76, FRONT - .24, "tv-frame");
   const tvScreen = tvWallPiece(new THREE.PlaneGeometry(1.48, .84), tvScreenMat, 0, 1.76, FRONT - .282, "tv-screen", false);
   tvScreen.rotation.y = Math.PI;
   tvWallPiece(new THREE.BoxGeometry(1.5, .014, .012), tvStripMat, 0, 1.285, FRONT - .282, "tv-screen-lower-light", false);
@@ -236,11 +260,10 @@ export async function start({ stage, panel, lang, onReady }) {
     tvWallPiece(new THREE.BoxGeometry(.94, .42, .025), tvDoorMat, side * .49, .35, FRONT - .527, "tv-console-door", false);
     tvWallPiece(new THREE.BoxGeometry(.09, .018, .018), tvTrimMat, side * .49, .36, FRONT - .546, "tv-console-pull", false);
   }
-  // Just two small home objects: a faceted bud vase and a couple of books.
+  // A faceted bud vase and one book leave space for the reused laptop below.
   tvWallPiece(new THREE.CylinderGeometry(.055, .105, .22, 7), tvTrimMat, -.74, .71, FRONT - .39, "tv-vase-body");
   tvWallPiece(new THREE.CylinderGeometry(.045, .055, .075, 7), tvTrimMat, -.74, .855, FRONT - .39, "tv-vase-neck");
   tvWallPiece(new THREE.BoxGeometry(.28, .035, .2), new THREE.MeshStandardMaterial({ color: "#d4c6b1", roughness: .92 }), .72, .62, FRONT - .39, "tv-book-one");
-  tvWallPiece(new THREE.BoxGeometry(.24, .032, .18), new THREE.MeshStandardMaterial({ color: "#718074", roughness: .9 }), .7, .653, FRONT - .39, "tv-book-two");
   // Concealed strip beneath the panel; emissive material only, so the room keeps its existing light count.
   tvWallPiece(new THREE.BoxGeometry(2.4, .018, .018), tvStripMat, 0, .18, FRONT - .17, "tv-wall-lower-light", false);
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
@@ -438,6 +461,11 @@ export async function start({ stage, panel, lang, onReady }) {
   laptop.scene.rotation.y = -Math.PI / 2 + .55;
   const laptopObj = place(laptop, { width: .3, x: SX + .12, z: SZ + 1.2, baseY: coffeeTop });
   prepare(laptopObj, vcol({ roughness: .5 }));
+  // Reuse the existing laptop model as the third quiet console prop, alongside the book and vase.
+  // No extra download, plant or light; the original coffee-table laptop stays in place.
+  const tvLaptopObj = laptopObj.clone(true); tvLaptopObj.rotation.y = Math.PI;
+  place({ scene: tvLaptopObj }, { width: .28, x: .02, z: FRONT - .34, baseY: .59 });
+  tvLaptopObj.name = "tv-laptop"; tvWall.add(tvLaptopObj);
   add(new THREE.BoxGeometry(.26, .05, .18), new THREE.MeshStandardMaterial({ color: "#6d7d68" }), SX - .12, coffeeTop + .025, SZ + 1.02); // a book
   const sideTop = new THREE.Box3().setFromObject(tableObj).max.y;
   const tableLampObj = place(tableLamp, { height: .45, x: TX, z: TZ, baseY: sideTop });
@@ -986,6 +1014,18 @@ export async function start({ stage, panel, lang, onReady }) {
     setOrbitAngle(degrees) { intro = false; viewTheta = degrees * Math.PI / 180; setCameraAngle(viewTheta); return camera.position.toArray(); },
     hasFrontWall: () => !!scene.getObjectByName("front-wall"),
     hasTvWall: () => !!scene.getObjectByName("tv-screen") && !!scene.getObjectByName("tv-console"),
+    tvWallTextures() {
+      const meshes = [];
+      tvWall.traverse((obj) => {
+        if (!obj.isMesh) return;
+        const map = obj.material.map;
+        meshes.push({ name: obj.name, file: map?.image?.src?.split("/").pop(),
+          mapId: map?.uuid, materialId: obj.material.uuid, loaded: !!map?.image?.width,
+          repeat: map?.repeat.toArray(), faces: obj.userData.textureFaces,
+          size: obj.geometry.parameters, colorSpace: map?.colorSpace, anisotropy: map?.anisotropy });
+      });
+      return meshes;
+    },
     tableLampLighting() {
       scene.updateMatrixWorld(true);
       const source = lampLight.getWorldPosition(new THREE.Vector3());
