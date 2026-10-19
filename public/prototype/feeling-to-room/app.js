@@ -140,7 +140,7 @@ function setDocumentLanguage() {
 function stepHeader(t, n, note) { return `<div class="step-heading"><div><p class="step-kicker">${t.step(n)}</p><h2 id="step-heading" class="step-title" tabindex="-1">${note[0]}</h2><p class="step-note">${note[1]}</p></div></div>`; }
 function renderMood() {
   const t=copy[state.lang];
-  const cards=Object.entries(moods).map(([id,mood])=>`<button class="mood-card" type="button" data-mood="${id}" aria-pressed="${state.mood===id}"><img src="./assets/${mood.portrait}" alt="${mood.portraitAlt[state.lang]}" width="800" height="1000" decoding="async"><span class="mood-copy"><span>${mood.story[state.lang]}</span></span></button>`).join("");
+  const cards=Object.entries(moods).map(([id,mood])=>`<button class="mood-card${id === "tv" ? " mood-card--wide" : ""}" type="button" data-mood="${id}" aria-pressed="${state.mood===id}"><img src="./assets/${mood.portrait}" alt="${mood.portraitAlt[state.lang]}" width="800" height="1000" decoding="async"><span class="mood-copy"><span>${mood.story[state.lang]}</span></span></button>`).join("");
   root.innerHTML=`<section class="step-panel" aria-labelledby="step-heading">${stepHeader(t,1,[t.step1,t.step1Note])}<div class="mood-grid">${cards}</div><div class="actions"><button class="primary" type="button" data-action="continue-mood" ${state.mood ? "" : "disabled"}>${t.continueMood}</button></div></section>`;
 }
 function renderDrafts() {

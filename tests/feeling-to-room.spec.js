@@ -5,7 +5,7 @@ const qaDir = "docs/qa/feeling-first-tv-night";
 const sheQaDir = "docs/qa/feeling-first-she";
 mkdirSync(qaDir, { recursive: true });
 mkdirSync(sheQaDir, { recursive: true });
-const contexts = [["zh",390],["en",390],["zh",1440],["en",1440]];
+const contexts = [["zh",390],["en",390],["zh",768],["zh",1024],["zh",1440],["en",1440]];
 const moods = ["rain", "chic", "family", "tech", "tv"];
 const roomPresets = {
   rain: { wall: "sand", rug: "ivory", curtain: "linen", print: "rain" },
@@ -106,6 +106,32 @@ for (const [lang,width] of contexts) {
       expect(cardRows[3]).toBe(cardRows[4]);
       expect(cardRows[3]).toBeGreaterThan(cardRows[2]);
     }
+    const fifthCard = page.locator('[data-mood="tv"]');
+    await expect(fifthCard).toBeEnabled();
+    const fifthGeometry = await fifthCard.evaluate(card => {
+      const image = card.querySelector("img").getBoundingClientRect();
+      const copy = card.querySelector(".mood-copy").getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      return { imageWidth: image.width, cardWidth: cardRect.width, imageTop: image.top, copyTop: copy.top, imageRatio: image.width / image.height };
+    });
+    if (width === 390) {
+      expect(fifthGeometry.imageWidth).toBeGreaterThanOrEqual(fifthGeometry.cardWidth * 0.9);
+      expect(fifthGeometry.imageTop).toBeLessThan(fifthGeometry.copyTop);
+      expect(fifthGeometry.imageRatio).toBeCloseTo(16 / 9, 1);
+    } else {
+      const otherRatios = await page.locator(".mood-card:not(.mood-card--wide) img").evaluateAll(images => images.map(img => {
+        const rect = img.getBoundingClientRect();
+        return rect.width / rect.height;
+      }));
+      for (const ratio of otherRatios) expect(fifthGeometry.imageRatio).toBeCloseTo(ratio, 2);
+      if (width === 768 || width === 1024) {
+        expect(cardRows[0]).toBe(cardRows[1]);
+        expect(cardRows[1]).toBe(cardRows[2]);
+        expect(cardRows[3]).toBe(cardRows[4]);
+        const widths = await page.locator(".mood-card").evaluateAll(cards => cards.map(card => card.getBoundingClientRect().width));
+        for (const cardWidth of widths) expect(cardWidth).toBeCloseTo(widths[0], 0);
+      }
+    }
     const firstRow = await page.locator("[data-mood]").evaluateAll(nodes => nodes.slice(0,2).map(node => {
       const rect = node.getBoundingClientRect();
       return rect.top >= 0 && rect.bottom <= innerHeight;
@@ -114,9 +140,16 @@ for (const [lang,width] of contexts) {
       const rect = node.getBoundingClientRect();
       return { top: rect.top, bottom: rect.bottom, height: rect.height, viewport: innerHeight };
     })))).toEqual([true, true]);
+    for (const card of await page.locator("[data-mood]").all()) {
+      await card.click();
+      await expect(card).toHaveAttribute("aria-pressed", "true");
+    }
     await checkImages(page);
     await noOverflow(page);
     await page.screenshot({ path: `${qaDir}/${lang}-${width}-step1.png` });
+    if (lang === "zh" && (width === 390 || width === 1440)) {
+      await page.screenshot({ path: `${qaDir}/zh-${width}-step1-full.png`, fullPage: true });
+    }
   });
 }
 
@@ -181,10 +214,10 @@ test("first-step people cards look distinct from the room-first ROOMVERSE remote
   await page.setViewportSize({ width: 900, height: 900 });
   await page.goto("/prototype/feeling-to-room/?lang=zh");
   await checkImages(page);
-  await page.screenshot({ path: `${qaDir}/.compare-feeling-first.png` });
+  await page.screenshot({ path: `${qaDir}/compare-feeling-first.png` });
   await page.goto("/prototype/room-mode-remote/?lang=zh");
   await expect.poll(() => page.locator("#room-canvas").evaluate(canvas => canvas.toDataURL().length)).toBeGreaterThan(10000);
-  await page.screenshot({ path: `${qaDir}/.compare-room-mode-remote.png` });
+  await page.screenshot({ path: `${qaDir}/compare-room-mode-remote.png` });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 });
 
