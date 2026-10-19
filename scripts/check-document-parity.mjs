@@ -108,11 +108,14 @@ if (fs.existsSync(brief)) {
   const pages = (pdf.match(/\/Type\s*\/Page[^s]/g) || []).length;
   check(pages === 7, `Capability Brief page count changed (expected 7, got ${pages})`);
 }
-for (const phrase of ["Global Business Development", "Special Projects", "Commercial Decision Desk", "Business Spending Insight"]) {
+for (const phrase of ["International sales judgment", "Commercial Decision Desk", "ROOMVERSE 3D", "AI Lab"]) {
   check(briefSource.includes(phrase), `Capability Brief source missing '${phrase}'`);
 }
-check(briefSource.indexOf("Global Business Development") < briefSource.indexOf("Commercial Decision Desk"),
-  "Capability Brief does not place global business development before supporting proof");
+const judgmentPageStart = briefSource.indexOf("# ================= Page 2 — International Sales Judgment");
+const evidencePageStart = briefSource.indexOf("# ================= Page 5 — Selected Proof");
+check(judgmentPageStart >= 0 && evidencePageStart > judgmentPageStart &&
+  briefSource.slice(judgmentPageStart, evidencePageStart).includes("國際業務判斷"),
+  "Capability Brief must place International Sales Judgment before the Selected Proof page");
 
 if (failures.length) {
   console.error("DOCUMENT CLOSING GATE: FAIL");
