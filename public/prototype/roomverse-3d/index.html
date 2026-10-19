@@ -27,6 +27,12 @@
   .intro { padding: 4px clamp(16px, 3vw, 40px) 16px; max-width: 900px; }
   .intro h1 { font-size: clamp(26px, 4vw, 44px); line-height: 1.15; margin: 0 0 10px; color: #0086c8; background: linear-gradient(90deg, #0086c8 0%, #3a5cff 52%, #7b4dff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   .intro p { margin: 0; color: var(--muted); line-height: 1.7; font-size: clamp(15px, 1.4vw, 17px); }
+  .origin-hint { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; margin: 0 clamp(16px, 3vw, 40px) 12px; padding: 10px 12px; border: 1px solid var(--line); border-left: 3px solid #977b42; border-radius: 10px; background: color-mix(in srgb, var(--paper) 92%, transparent); }
+  .origin-hint[hidden] { display: none; }
+  .origin-hint p { min-width: 0; margin: 0; color: var(--ink); font-size: 13px; line-height: 1.5; }
+  .origin-hint a { color: var(--moss); font-size: 13px; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 3px; white-space: nowrap; }
+  .origin-hint button { min-width: 40px; min-height: 40px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; cursor: pointer; }
+  .origin-hint a:focus-visible, .origin-hint button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .room { position: relative; margin: 0 clamp(16px, 3vw, 40px); height: min(72vh, 760px); border-radius: 18px; overflow: hidden; background: #ddd6c8; }
   #stage { position: absolute; inset: 0; }
   #stage canvas { display: block; touch-action: none; }
@@ -76,6 +82,9 @@
     .room.panel-open .panel-toggle { right: 318px; }
   }
   @media (max-width: 700px) {
+    .origin-hint { grid-template-columns: minmax(0, 1fr) auto; gap: 7px 9px; margin-bottom: 10px; padding: 9px 10px; }
+    .origin-hint p { grid-column: 1 / -1; }
+    .origin-hint a { white-space: normal; }
     .panel-toggle { display: none; }
     .room { height: auto; aspect-ratio: auto; }
     #stage { position: relative; height: 58vh; }
@@ -95,6 +104,11 @@
   <h1 id="title"></h1>
   <p id="lead"></p>
 </section>
+<aside class="origin-hint" id="originHint" role="note" hidden>
+  <p id="originStory"></p>
+  <a id="originBack" href="/prototype/feeling-to-room/"></a>
+  <button id="originClose" type="button"></button>
+</aside>
 <section class="room" aria-labelledby="title">
   <div id="stage"></div>
   <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
