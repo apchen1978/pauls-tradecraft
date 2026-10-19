@@ -45,8 +45,12 @@ def snap(y):
 
 JH = 'JH'
 JHB = 'JHB'
+LATIN = 'Latin'
+LATIN_BOLD = 'LatinBold'
 pdfmetrics.registerFont(TTFont(JH, r'C:\Windows\Fonts\msjh.ttc', subfontIndex=0))
 pdfmetrics.registerFont(TTFont(JHB, r'C:\Windows\Fonts\msjhbd.ttc', subfontIndex=0))
+pdfmetrics.registerFont(TTFont(LATIN, r'C:\Windows\Fonts\arial.ttf'))
+pdfmetrics.registerFont(TTFont(LATIN_BOLD, r'C:\Windows\Fonts\arialbd.ttf'))
 
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'public', 'files')
 os.makedirs(OUT, exist_ok=True)
@@ -91,7 +95,7 @@ def footer(c, page):
     c.setStrokeColor(LINE)
     c.setLineWidth(0.5)
     c.line(MARGIN, 32, PAGE_W - MARGIN, 32)
-    c.setFont(JH, 7.5)
+    c.setFont(LATIN, 7.5)
     c.setFillColor(FAINT)
     c.drawString(MARGIN, 21, 'Paul\u2019s Tradecraft \u00b7 paulstradecraft.com')
     c.drawRightString(PAGE_W - MARGIN, 21, str(page).zfill(2))
@@ -257,7 +261,7 @@ def evidence_row(c, y_top, number, title, body, accent, bg):
     title_lines = wrap(title, JHB, title_size, w - 66)
     body_lines = wrap(body, JH, body_size, w - 58)
     title_leading = 12.2
-    body_leading = 10.6
+    body_leading = 12.2
     h = max(68, 15 + len(title_lines) * title_leading + 4 + len(body_lines) * body_leading + 10)
     bottom = y_top - h
     c.setFillColor(bg)
@@ -355,7 +359,7 @@ c.setFillColor(NAVY)
 c.rect(0, 0, PAGE_W, PAGE_H, stroke=0, fill=1)
 c.setFillColor(GOLD)
 c.rect(0, PAGE_H - 11, PAGE_W, 3.4, stroke=0, fill=1)
-c.setFont(JHB, 8.5)
+c.setFont(LATIN_BOLD, 8.5)
 c.setFillColor(GOLD)
 c.drawString(MARGIN, PAGE_H - 58, 'PAUL’S TRADECRAFT  /  EXECUTIVE CAPABILITY BRIEF')
 
@@ -580,7 +584,7 @@ proof_items = [
     ('04', 'Commercial Decision Desk · 商務決策工作台',
      '承諾前，把淨貢獻、付款與未知放在同一張桌上，由負責人決定。示範／虛構資料。', ORANGE, PALE_ORANGE),
     ('05', 'AI Lab',
-     '從個人到企業的 AI 實務十七章，附可操作的小互動（例如「要開幾個 agent？」）。示範／虛構情境。', GOLD, CARD_BG),
+     '從個人到企業的 AI 實務十七章，附可操作的小互動，例如「要開幾個 agent？」。示範／虛構情境。', GOLD, CARD_BG),
 ]
 proof_y = PAGE_H - 164
 for number, title, body, accent, bg in proof_items:
