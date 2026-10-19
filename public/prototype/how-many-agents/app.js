@@ -22,7 +22,7 @@ const COPY = {
     summaries: { tooFew: "人手偏少", justRight: "分工與人手暫時平衡", tooMany: "人手或風險偏高" },
     resultScenario: "虛構任務設定", resultMark: "TEAM SETTINGS", selectedTitle: "這次打開的界線", none: "還沒有打開界線", settings: { roles: "固定分工", budget: "預算上限", cap: "來回上限", signoff: "負責人簽核", coordinator: "總管 agent", noLimit: "沒有 agent 數量上限", reversible: "工作可退回上一版", irreversible: "工作可能無法收回" },
     takeaways: ["先固定角色，再增加人手。", "沒有設上限，成本是被決定的，不是被你決定的。", "不可逆的決定，留給負責人。"], coordinatorTakeaway: "總管 agent 是多一層檢查，不是免設限。", irreversibleTakeaway: "改程式可以回滾；寄出去的信、出貨、付款不行。",
-    resultBoundary: "這是固定的示意模型，不是實測結果或真實價格。", chapter14: "回 AI Lab 第 14 章：什麼時候輪到 agent？", chapter17: "回 AI Lab 第 17 章：工具有人用嗎？", foot: "示範／虛構情境，不連接任何 AI 服務。", home: "回 AI Lab",
+    resultBoundary: "這是固定的示意模型，不是實測結果或真實價格。", chapter14: "回 AI Lab 第 14 章：什麼時候輪到 agent？", chapter17: "回 AI Lab 第 17 章：工具有人用嗎？", foot: "示範／虛構情境，不連接任何 AI 服務。", home: "回 AI Lab", guide: "回到一頁指南",
     costUnit: "相對單位", qualityUnit: "示意分", riskBar: "示意程度",
   },
   en: {
@@ -46,7 +46,7 @@ const COPY = {
     summaries: { tooFew: "A small team", justRight: "Team size and roles look balanced for now", tooMany: "Team size or risk is running high" },
     resultScenario: "Fictional task settings", resultMark: "TEAM SETTINGS", selectedTitle: "Boundaries you turned on", none: "No boundaries turned on yet", settings: { roles: "Fixed roles", budget: "Budget cap", cap: "Round limit", signoff: "Decision-maker sign-off", coordinator: "Coordinator agent", noLimit: "No agent-count limit", reversible: "Work can return to an earlier version", irreversible: "Work may be hard to take back" },
     takeaways: ["Set roles before adding people.", "Without a cap, the cost is decided for you.", "Leave irreversible decisions to the decision-maker."], coordinatorTakeaway: "A coordinator agent adds a check; it does not remove the need for limits.", irreversibleTakeaway: "Code can be rolled back; sent emails, shipments and payments cannot.",
-    resultBoundary: "This is a fixed illustrative model, not a measurement or real price.", chapter14: "Back to AI Lab chapter 14: When does an agent take its turn?", chapter17: "Back to AI Lab chapter 17: Is anyone using the tool?", foot: "Illustration / fictional scenario · No AI service connected.", home: "Back to AI Lab",
+    resultBoundary: "This is a fixed illustrative model, not a measurement or real price.", chapter14: "Back to AI Lab chapter 14: When does an agent take its turn?", chapter17: "Back to AI Lab chapter 17: Is anyone using the tool?", foot: "Illustration / fictional scenario · No AI service connected.", home: "Back to AI Lab", guide: "Back to the one-page guide",
     costUnit: "relative units", qualityUnit: "illustrative score", riskBar: "illustrative level",
   },
 };
@@ -169,6 +169,7 @@ function render() {
   $("result-boundary").textContent = x.resultBoundary;
   $("chapter-14-link").textContent = x.chapter14; $("chapter-14-link").href = `/ai-lab/?lang=${state.lang}#c14`;
   $("chapter-17-link").textContent = x.chapter17; $("chapter-17-link").href = `/ai-lab/?lang=${state.lang}#c17`;
+  $("guide-link").textContent = x.guide; $("guide-link").href = `/ai-lab/guide/?lang=${state.lang}`;
   $("foot-boundary").textContent = x.foot; $("foot-home").textContent = x.home; $("foot-home").href = `/ai-lab/?lang=${state.lang}#c14`;
   renderStepOne(); renderStepTwo(); renderResult();
 }

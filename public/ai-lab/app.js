@@ -286,6 +286,11 @@ function renderLessons() {
     return li;
   }));
   $("c12-closing").replaceChildren(...x.closing.map((line) => el("p", "sub", line)));
+  $("c12-guide-link-title").textContent = state.lang === "zh" ? "帶走這份：負責人的一頁指南" : "Take away: A one-page guide for decision-makers";
+  $("c12-guide-link-copy").textContent = state.lang === "zh" ? "把 AI 入門的幾個判斷整理成一頁，方便列印與回看。" : "A printable page of practical first decisions for bringing AI into work.";
+  const guideLink = $("c12-guide-link-anchor");
+  guideLink.textContent = state.lang === "zh" ? "開啟一頁指南" : "Open the one-page guide";
+  guideLink.href = `/ai-lab/guide/?lang=${state.lang}`;
 }
 
 function renderEnterpriseResult() {
