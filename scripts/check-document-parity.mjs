@@ -18,7 +18,7 @@ const expected = {
   positioningEn: "Path · People · Commitment · Numbers",
   positioningZh: "選路 · 選人 · 能不能承諾 · 算不算得過",
   kicker: {
-    ZH: "Paul + AI 人機協作作品集 · 國際業務",
+    ZH: "Paul × AI 協作作品集 · 國際業務",
     EN: "Human–AI collaborative work · International sales",
   },
   disclaimer: {
