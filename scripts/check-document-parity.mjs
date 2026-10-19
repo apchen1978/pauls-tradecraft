@@ -9,8 +9,24 @@ const readJson = (name) => JSON.parse(fs.readFileSync(path.join(ROOT, "content",
 const zh = readJson("onepager-zh.json");
 const en = readJson("onepager-en.json");
 const worksSource = fs.readFileSync(path.join(ROOT, "src", "data", "works.js"), "utf8");
+const i18nSource = fs.readFileSync(path.join(ROOT, "src", "i18n.jsx"), "utf8");
 const briefSource = fs.readFileSync(path.join(ROOT, "scripts", "build_capability_brief.py"), "utf8");
 const brief = process.argv[2] || path.join(ROOT, "public", "files", "PaulTradecraft-Capability-Brief.pdf");
+
+const localeStarts = [...i18nSource.matchAll(/^  (zh|en): \{/gm)];
+if (localeStarts.length !== 2 || localeStarts[0][1] !== "zh" || localeStarts[1][1] !== "en") {
+  throw new Error("Cannot locate both zh and en site translation blocks");
+}
+const siteKickers = {};
+for (const [index, locale] of [[0, "ZH"], [1, "EN"]]) {
+  const section = i18nSource.slice(localeStarts[index].index, localeStarts[index + 1]?.index);
+  const heroStart = section.search(/^    hero: \{\s*$/m);
+  if (heroStart < 0) throw new Error(`Cannot locate ${locale} site Hero block`);
+  const hero = section.slice(heroStart).split(/^    \},\s*$/m, 1)[0];
+  const kickers = [...hero.matchAll(/^      kicker: "([^"\r\n]+)",?\s*$/gm)];
+  if (kickers.length !== 1) throw new Error(`Cannot locate exactly one ${locale} site Hero kicker`);
+  siteKickers[locale] = kickers[0][1];
+}
 
 // One-pager facts approved 2026-10-08; refreshed 2026-10-19 at Paul's direction (AI-first positioning, five main works). The 23/23 pilot figure stays out:
 // it was removed from the site on 2026-10-05 because it had no run record.
@@ -18,8 +34,8 @@ const expected = {
   positioningEn: "Path · People · Commitment · Numbers",
   positioningZh: "選路 · 選人 · 能不能承諾 · 算不算得過",
   kicker: {
-    ZH: "Paul × AI 協作作品集 · 國際業務",
-    EN: "Human–AI collaborative work · International sales",
+    ZH: `${siteKickers.ZH} · 國際業務`,
+    EN: `${siteKickers.EN} · International sales`,
   },
   disclaimer: {
     ZH: "示範案例使用虛構資料，成效未驗證。",
@@ -77,7 +93,8 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
   check(data.stats?.[2]?.value === (locale === "ZH" ? "總監" : "Director"), `${locale} third stat value is not the director title`);
   check(data.stats?.[2]?.label === (locale === "ZH" ? "國際業務總監" : "International Trade Director"), `${locale} third stat label is not the director title`);
   check(!/前職|Former role/i.test(JSON.stringify(data)), `${locale} still says former role`);
-  check(data.kicker === expected.kicker[locale], `${locale} kicker drifted from the site Hero line`);
+  check(data.kicker?.startsWith(siteKickers[locale]) && data.kicker === expected.kicker[locale],
+    `${locale} kicker drifted from the site Hero line: site="${siteKickers[locale]}", One-pager="${data.kicker}" (expected="${expected.kicker[locale]}")`);
   check(data.disclaimer === expected.disclaimer[locale], `${locale} disclaimer is not the single approved line`);
   check(data.worksLead === expected.worksLead[locale], `${locale} works intro is not the approved line`);
   check(!/各自獨立|stay separate/i.test(data.worksLead || ""), `${locale} works intro still says the works stay separate`);
@@ -92,7 +109,6 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
 
 // The AI Lab (public/ai-lab/ and the homepage aiLab block) keeps its own block, separate from the Showcase header.
 // AI wording itself is no longer restricted (Paul 2026-10-17).
-const i18nSource = fs.readFileSync(path.join(ROOT, "src", "i18n.jsx"), "utf8");
 const showcaseHeaders = [...i18nSource.matchAll(/showcase:\s*\{([\s\S]*?)\n\s*items:\s*\[/g)].map((match) => match[1]);
 check(showcaseHeaders.length === 2, "expected exactly two Showcase header blocks in i18n");
 check((i18nSource.match(/\n\s*aiLab:\s*\{/g) || []).length === 2, "expected exactly two aiLab blocks in i18n (zh and en)");
