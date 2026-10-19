@@ -1,17 +1,17 @@
 const copy = {
   zh: {
-    lang: "zh-Hant", back: "回到作品集", eyebrow: "ROOMVERSE · 人機共創示範", title: "先有fu，再有家", metaDescription: "先認識一個人今天的處境，再替他挑一個回家的方向。",
-    dek: "先認識一個人今天怎麼了，再問他進門那一刻要什麼。房間，是這個答案的結果。",
+    lang: "zh-Hant", back: "回到作品集", eyebrow: "ROOMVERSE · 人機共創示範", title: "先有fu，再有家", metaDescription: "先認識一個人今天的處境，再替她挑一個回家的方向。",
+    dek: "先認識一個人今天怎麼了，再問她進門那一刻要什麼。房間，是這個答案的結果。",
     boundary: "示範／虛構情境 · AI 初稿為預置內容，不是即時生成。", progressLabel: "探索進度",
     footer: "固定內容的示範；不會連接 AI 服務。", roomverse: "走進 ROOMVERSE 3D",
-    step: n => `第 ${n}／3 步`, step1: "今天，誰要回家？", step1Note: "先看他今天的處境，再想想他進門後需要什麼。",
-    continueMood: "替他挑一個方向", step2: "替他挑一個方向",
+    step: n => `第 ${n}／3 步`, step1: "今天，誰要回家？", step1Note: "先看她今天的處境，再想想她進門後需要什麼。",
+    continueMood: "替她挑一個方向", step2: "替她挑一個方向",
     step2Note: "三個都是預置 AI 初稿；先看哪個方向更照顧眼前的需要。",
     draftBadge: "AI 初稿（預置示範）",
-    reasonLegend: "我為什麼先選它？", reasons: ["他進門就能放下", "家人走動順", "平常好整理", "能和現有家具搭"],
+    reasonLegend: "我為什麼先選它？", reasons: ["她進門就能放下", "家人走動順", "平常好整理", "能和現有家具搭"],
     reasonHint: "這個理由不會改變固定示範結果；它幫你把自己的取捨說清楚。",
     reveal: "看人怎麼深化", backMood: "回去換一個人", step3: "把方向收斂成能生活的細節",
-    step3Note: "保留初稿想照顧的需要，再把取捨逐項說清楚。", firstFeeling: "他進門的第一個感覺：",
+    step3Note: "保留初稿想照顧的需要，再把取捨逐項說清楚。", firstFeeling: "她進門的第一個感覺：",
     refinementLabel: "人深化後", chosenReason: "你先看重：", before: "初稿方向：", why: "為什麼這樣調：",
     edits: {
       "rain-1": [["留下素色靠墊，先收起相近的繁複花紋。","讓視線有休息的位置，雨天的柔和感仍在。"],["把毯子留在沙發一角，不再同時鋪滿座面。","坐下和起身都比較俐落，也保留柔軟觸感。"],["讓地毯回到低對比的織紋。","把溫暖留在材質，不讓圖案蓋過房間。"]],

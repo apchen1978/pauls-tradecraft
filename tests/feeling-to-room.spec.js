@@ -2,12 +2,24 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
 const qaDir = "docs/qa/feeling-first-people-stories";
+const sheQaDir = "docs/qa/feeling-first-she";
 mkdirSync(qaDir, { recursive: true });
+mkdirSync(sheQaDir, { recursive: true });
 const contexts = [["zh",390],["en",390],["zh",1440],["en",1440]];
 const moods = ["rain", "chic", "family", "tech"];
 
 async function noOverflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+}
+
+async function noMalePronounForPerson(page) {
+  const copy = await page.evaluate(() => {
+    const visible = document.body.innerText.replaceAll("其他", "");
+    const labels = [...document.querySelectorAll("[aria-label]")].map(node => node.getAttribute("aria-label") || "").join(" ").replaceAll("其他", "");
+    return { visible, labels };
+  });
+  expect(copy.visible).not.toContain("他");
+  expect(copy.labels).not.toContain("他");
 }
 
 async function noOrphanLines(page, lang) {
@@ -97,7 +109,7 @@ for (const mood of moods) {
       await page.locator(`[data-mood="${mood}"]`).click();
       await expect(page.locator(`[data-mood="${mood}"]`)).toHaveAttribute("aria-pressed", "true");
       await page.locator('[data-action="continue-mood"]').click();
-      await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "替他挑一個方向" : "Pick a direction for them");
+      await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "替她挑一個方向" : "Pick a direction for them");
       await expect(page.locator('input[name="draft"]')).toHaveCount(3);
       if (mood === "family" && lang === "zh") {
         await checkImages(page);
@@ -116,7 +128,7 @@ for (const mood of moods) {
       await page.locator('[data-action="reveal"]').click();
       await expect(page.locator("#step-heading")).toHaveText(lang === "zh" ? "把方向收斂成能生活的細節" : "Turn the direction into livable details");
       await expect(page.locator(".refinement-list li")).toHaveCount(3);
-      await expect(page.locator(".result-caption")).toContainText(lang === "zh" ? "他進門的第一個感覺" : "Their first feeling on entering");
+      await expect(page.locator(".result-caption")).toContainText(lang === "zh" ? "她進門的第一個感覺" : "Their first feeling on entering");
       await expect(page.locator(".result-image")).toHaveAttribute("src", new RegExp(`mood-${mood}|room-${mood === "family" ? "sunny" : mood === "tech" ? "tech-night" : mood === "rain" ? "rug" : "chic-city"}`));
       await expect(page.locator('[data-action="roomverse"]')).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}&mood=${mood}`);
       await checkImages(page);
@@ -156,6 +168,26 @@ test("no one-character or one-word lines in visitor copy at four widths and both
       await page.locator('[data-action="restart"]').click();
     }
   }
+});
+
+test("Chinese visitor copy refers to the pictured person as 她 across all three steps", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/prototype/feeling-to-room/?lang=zh");
+  await noMalePronounForPerson(page);
+  await checkImages(page);
+  await page.screenshot({ path: `${sheQaDir}/zh-390-step1.png`, fullPage: true });
+  await page.locator('[data-mood="family"]').click();
+  await page.locator('[data-action="continue-mood"]').click();
+  await noMalePronounForPerson(page);
+  await checkImages(page);
+  await page.screenshot({ path: `${sheQaDir}/zh-390-step2.png`, fullPage: true });
+  await page.locator(".draft-choice").first().click();
+  await page.locator(".reason-choice").first().click();
+  await page.locator('[data-action="reveal"]').click();
+  await noMalePronounForPerson(page);
+  await expect(page.locator(".result-caption")).toContainText("她進門的第一個感覺");
+  await checkImages(page);
+  await page.screenshot({ path: `${sheQaDir}/zh-390-step3.png`, fullPage: true });
 });
 
 test("the experience remains fixed-content and does not persist visitor choices", async () => {
