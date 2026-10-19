@@ -8,7 +8,7 @@ const COPY = {
     home: "← 作品集", lang: "EN", open: "點我變風格 ▸", close: "收起 ◂",
   },
   en: {
-    title: "One room, three ways to come home",
+    title: "One room, many ways to come home",
     lead: "Pick a feeling, then change the wall, the rug, the curtains and the print. The light changes with it, and so does the room's mood. Drag to turn it a little.",
     enter: "Step into the 3D room", size: "About 1.3 MB; best on a computer or tablet", loading: "Setting up the room…", failed: "3D can't open on this device; the picture above shows the room.",
     note: "Illustrated study, made through human–AI collaboration: the furniture (sofa, coffee table, side table, table lamp, floor lamp, plant and a small robot) was drawn first, turned into 3D shapes and coloured from the drawings; the small low chair and the laptop are shaped in code (the chair from the side outline of its drawing); the views outside, wall prints, rugs and wallpapers are illustrations too; the room, light and interaction are built in code. Not real products; check real colours and textures with samples and on-site light.",
