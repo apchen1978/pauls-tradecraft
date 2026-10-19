@@ -55,5 +55,4 @@ Desktop 1440×1000 Chinese:
 - `git diff --check`: passed.
 - Full Playwright suite: not run.
 
-The browser checks cover zh/en mobile at 390×844 and 360×740, no horizontal overflow, minimum hero link target size 52px, the three commercial links remain present and ordered, the showcase CTA is keyboard focusable and navigates to `#showcase`, mobile hero-photo request is absent, first and deferred covers load, and desktop portrait/layout remain in place.
-
+The browser checks cover zh/en mobile at 390×844 and 360×740, no horizontal overflow, minimum hero link target size 52px, the three commercial links remain present and ordered, the showcase CTA is keyboard focusable and navigates to `#showcase`, mobile hero-photo request is absent, first and deferred covers load, and desktop portrait/layout remain in place.\n
