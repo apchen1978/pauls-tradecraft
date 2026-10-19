@@ -24,6 +24,13 @@ for (const width of [390, 768, 1440]) {
         await expect(card.locator("h3 + p")).not.toBeEmpty();
         await expect(card.locator("h3 + p + p")).not.toBeEmpty();
       }
+      const feelingFirst = section.locator("article").nth(4);
+      await expect(feelingFirst.locator("h3 + p")).toHaveText(lang === "zh"
+        ? "先認識一位女生今天的處境，再替她選一個回家的方向。"
+        : "Meet one woman’s day, then pick a direction for her to come home to.");
+      await expect(feelingFirst.locator("h3 + p + p")).toHaveText(lang === "zh"
+        ? "看見 AI 如何快速給三個方向，也看見人如何取捨、深化成能生活的細節。"
+        : "See how AI can offer three directions quickly, and how a person chooses and deepens them into details you can live with.");
       await section.scrollIntoViewIfNeeded();
       await page.screenshot({ path: `output/showcase-entry/after-${lang}-${width}.png` });
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
