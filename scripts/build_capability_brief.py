@@ -374,7 +374,7 @@ c.circle(cx + 9, cy - 55, 4, stroke=0, fill=1)
 
 y = PAGE_H - 148
 c.setFillColor(WHITE)
-for ln in ['把 15 年國際業務的判斷，', '做成人和 AI 一起用的工具。']:
+for ln in ['把 15 年國際業務總監的判斷，', '做成人和 AI 一起用的工具。']:
     c.setFont(JHB, 25)
     c.drawString(MARGIN, snap(y), ln)
     y -= 38
@@ -398,7 +398,7 @@ for ln in wrap('Human–AI collaborative work · Judgment stays human; execution
 y -= 6
 c.setFont(JH, 9.2)
 c.setFillColor(HexColor('#C2CEDB'))
-for ln in wrap('15 年國際業務，含中國大陸通路與團隊管理  |  TOEIC 955', JH, 9.2, 430):
+for ln in wrap('15 年國際業務總監，含中國大陸通路與團隊管理  |  TOEIC 955', JH, 9.2, 430):
     c.drawString(MARGIN, snap(y), ln)
     y -= 15
 
