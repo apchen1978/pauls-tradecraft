@@ -1,7 +1,7 @@
 # Mobile first screen lighter — QA
 
-Date: 2026-10-19  
-Branch: `codex/mobile-first-screen-lighter`  
+Date: 2026-10-19
+Branch: `codex/mobile-first-screen-lighter`
 Stage: local production-preview QA; Draft PR planned. No merge or deployment.
 
 ## Scope and result
@@ -56,3 +56,4 @@ Desktop 1440×1000 Chinese:
 - Full Playwright suite: not run.
 
 The browser checks cover zh/en mobile at 390×844 and 360×740, no horizontal overflow, minimum hero link target size 52px, the three commercial links remain present and ordered, the showcase CTA is keyboard focusable and navigates to `#showcase`, mobile hero-photo request is absent, first and deferred covers load, and desktop portrait/layout remain in place.
+
