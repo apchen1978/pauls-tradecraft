@@ -111,12 +111,39 @@ English pages only, reduce `#stage` from 58vh to about 53vh (42.2px less at this
 viewport). This would recover the missing 36.3px without shrinking text or touch
 targets. It is a proposal, not implemented or validated in this texture-only PR.
 
+### Deferred TV textures (PR #386 follow-up)
+
+For ordinary window-facing entry, the TV wall starts with its original block
+materials. The page waits 1.8 seconds after the room becomes interactive, then
+schedules the four painted maps for an idle period. Selecting “TV wall” loads
+them immediately; a direct `view=tv` URL also loads them immediately. The four
+images are assigned together after loading and shader compilation, so there is
+no partially textured wall. The initial view makes zero TV-map requests.
+These materials do not change the room's geometry, camera, mood light, or visible
+result. Captures after deferred loading: [series night](lazy-tv-1440.png),
+[rainy day](lazy-rain-1440.png), [cozy family](lazy-family-1440.png).
+
+Click-to-interactive timing used the same local Chrome, fresh contexts, cache
+disabled, 4× CPU throttling, fixed `?lang=zh&mood=tv` URL, and five alternating
+before/after runs per viewport. The measured endpoint was the 3D canvas and TV
+view controls being present. Values in milliseconds:
+
+| Viewport | Before (eager maps) samples | Median | After (deferred maps) samples | Median | Change |
+| --- | --- | ---: | --- | ---: | ---: |
+| 1440 x 900 | 11,757; 2,471; 2,775; 2,320; 2,550 | 2,550 | 2,771; 2,889; 2,252; 2,651; 2,280 | 2,651 | +101 ms |
+| 390 x 844 | 2,334; 2,213; 2,425; 1,982; 2,481 | 2,334 | 2,999; 2,487; 1,914; 2,427; 2,619 | 2,487 | +153 ms |
+
+Both medians stayed within the requested approximate +200 ms tolerance. The
+first desktop baseline sample was an outlier; medians are reported rather than
+averages. These are local, throttled browser measurements, not production
+network timings.
+
 Raw measurements: [before](before-measurements.json), [after](after-measurements.json),
 including exact URLs, GPU, positions, exposure, mesh repeats and console errors.
 
 ## Validation
 
-- `npx playwright test tests/roomverse-3d.spec.js`: 24 passed (2.4 minutes).
+- `npx playwright test tests/roomverse-3d.spec.js`: 26 passed (3.3 minutes).
 - `npm test`: 89 passed.
 - `git diff --check`: passed.
 - Full Playwright suite not run. No physical mobile-device test.

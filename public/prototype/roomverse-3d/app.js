@@ -117,8 +117,8 @@ export async function start({ stage, panel, lang, onReady }) {
   floorTex.repeat.set(2.6, 2.6);
   // wallpapers and rugs: Codex's painted textures (tex/, WebP); loaded only when chosen
   const texLoader = new THREE.TextureLoader();
-  const image = (name, repeat) => () => {
-    const t = texLoader.load(new URL(`./tex/${name}.webp`, import.meta.url).href, () => render());
+  const image = (name, repeat, onLoad, onError) => () => {
+    const t = texLoader.load(new URL(`./tex/${name}.webp`, import.meta.url).href, (texture) => { onLoad?.(texture); render(); }, undefined, onError);
     t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
     if (repeat) t.wrapS = t.wrapT = THREE.RepeatWrapping;
     return t;
@@ -181,8 +181,8 @@ export async function start({ stage, panel, lang, onReady }) {
     let textureFaces;
     if (surface) {
       const { width, height, depth } = geo.parameters;
-      mat = mat.clone(); mat.map = mat.map.clone(); // repeat belongs to this sized board, never to the shared source image
-      mat.map.repeat.set(surface.panel ? 1 : width / surface.tile, surface.panel ? 1 : height / surface.tile);
+      mat = mat.clone(); // each board gets an independent map later; repeat belongs to this size
+      const repeat = surface.panel ? [1, 1] : [width / surface.tile, height / surface.tile];
       const faces = [[depth, height], [depth, height], [width, depth], [width, depth], [width, height], [width, height]];
       textureFaces = faces.map(([u, v], face) => ({ face, repeat: surface.panel ? [u / width, v / height] : [u / surface.tile, v / surface.tile] }));
       // BoxGeometry starts with 0..1 UVs on every face. Scale the side/top UVs too,
@@ -193,21 +193,25 @@ export async function start({ stage, panel, lang, onReady }) {
         uv.setXY(i, uv.getX(i) * faces[face][0] / width, uv.getY(i) * faces[face][1] / height);
       }
       uv.needsUpdate = true;
+      meshSurfaceRepeat.set(mat, { ...surface, repeat });
     }
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = true; mesh.name = name;
     if (textureFaces) mesh.userData.textureFaces = textureFaces;
+    if (surface) mesh.userData.tvTexture = surface.name;
     tvWall.add(mesh); return mesh;
   };
-  const tvPanelMat = new THREE.MeshStandardMaterial({ map: image("tv-backing-v1", true)(), roughness: .95 });
-  const tvOakMat = new THREE.MeshStandardMaterial({ map: image("tv-oak-v1", true)(), roughness: .9 });
-  const tvCabinetMat = tvOakMat.clone();
-  const tvDoorMat = new THREE.MeshStandardMaterial({ map: image("tv-door-v1")(), roughness: .9 });
-  const tvFrameMat = new THREE.MeshStandardMaterial({ map: image("tv-frame-v1", true)(), roughness: .86 });
-  tvSurfaceSpecs.set(tvPanelMat, { tile: 1.2 });
-  tvSurfaceSpecs.set(tvOakMat, { tile: .8 }); tvSurfaceSpecs.set(tvCabinetMat, { tile: .8 });
-  tvSurfaceSpecs.set(tvDoorMat, { panel: true }); // one illustrated door face, including its quiet rounded edge line
-  tvSurfaceSpecs.set(tvFrameMat, { tile: .5 });
+  const meshSurfaceRepeat = new WeakMap();
+  // Keep the original hand-tuned block materials for the first interactive frame.
+  const tvPanelMat = new THREE.MeshStandardMaterial({ color: "#e8ddca", roughness: .9 });
+  const tvOakMat = new THREE.MeshStandardMaterial({ color: "#d4b58a", roughness: .82 });
+  const tvCabinetMat = new THREE.MeshStandardMaterial({ color: "#c7a578", roughness: .8 });
+  const tvDoorMat = tvCabinetMat.clone();
+  const tvFrameMat = tvCabinetMat.clone();
+  tvSurfaceSpecs.set(tvPanelMat, { name: "tv-backing-v1", tile: 1.2 });
+  tvSurfaceSpecs.set(tvOakMat, { name: "tv-oak-v1", tile: .8 }); tvSurfaceSpecs.set(tvCabinetMat, { name: "tv-oak-v1", tile: .8 });
+  tvSurfaceSpecs.set(tvDoorMat, { name: "tv-door-v1", panel: true }); // one illustrated door face, including its quiet rounded edge line
+  tvSurfaceSpecs.set(tvFrameMat, { name: "tv-frame-v1", tile: .5 });
   const tvTrimMat = new THREE.MeshStandardMaterial({ color: "#d7bd91", roughness: .55, metalness: .2 });
   const tvScreenMat = new THREE.MeshBasicMaterial({ color: "#141b1e" }); // quiet powered-off face; no point-light specular hotspot
   const tvStripMat = new THREE.MeshStandardMaterial({ color: "#ffe1a4", emissive: "#ffc477", emissiveIntensity: .18, roughness: .9 });
@@ -266,6 +270,38 @@ export async function start({ stage, panel, lang, onReady }) {
   tvWallPiece(new THREE.BoxGeometry(.28, .035, .2), new THREE.MeshStandardMaterial({ color: "#d4c6b1", roughness: .92 }), .72, .62, FRONT - .39, "tv-book-one");
   // Concealed strip beneath the panel; emissive material only, so the room keeps its existing light count.
   tvWallPiece(new THREE.BoxGeometry(2.4, .018, .018), tvStripMat, 0, .18, FRONT - .17, "tv-wall-lower-light", false);
+  let tvWallTexturesPromise = null;
+  let tvWallTexturesLoaded = false;
+  async function loadTvWallTextures() {
+    if (tvWallTexturesLoaded) return true;
+    if (tvWallTexturesPromise) return tvWallTexturesPromise;
+    tvWallTexturesPromise = (async () => {
+      const specs = [
+        ["tv-oak-v1", true], ["tv-door-v1", false], ["tv-frame-v1", true], ["tv-backing-v1", true],
+      ];
+      const sources = new Map(await Promise.all(specs.map(([name, repeat]) => new Promise((resolve, reject) => {
+        image(name, repeat, (texture) => resolve([name, texture]), reject)();
+      }))));
+      tvWall.traverse((obj) => {
+        const spec = obj.userData.tvTexture && tvSurfaceSpecsByName.get(obj.userData.tvTexture);
+        const repeat = meshSurfaceRepeat.get(obj.material);
+        if (!spec || !repeat) return;
+        const map = sources.get(spec.name).clone();
+        map.repeat.set(repeat.repeat[0], repeat.repeat[1]);
+        obj.material.map = map;
+        obj.material.color.set("#ffffff");
+        obj.material.needsUpdate = true;
+      });
+      // Compile while idle so opening the TV view does not pay the shader setup cost.
+      if (renderer.compileAsync) { try { await renderer.compileAsync(scene, camera); } catch { /* visible render below remains the fallback */ } }
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      tvWallTexturesLoaded = true;
+      render();
+      return true;
+    })().catch((error) => { console.warn("ROOMVERSE TV wall textures could not load", error); tvWallTexturesPromise = null; return false; });
+    return tvWallTexturesPromise;
+  }
+  const tvSurfaceSpecsByName = new Map([...tvSurfaceSpecs.values()].map((spec) => [spec.name, spec]));
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
@@ -655,6 +691,7 @@ export async function start({ stage, panel, lang, onReady }) {
     render();
   }
   function moveToView(view) {
+    if (view === "tv") void loadTvWallTextures();
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     settleIntro();
@@ -988,6 +1025,8 @@ export async function start({ stage, panel, lang, onReady }) {
   });
   new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
   fit(); apply();
+  // Let the first room frame paint before the optional TV materials request any image bytes.
+  if (requestedView === "tv") void loadTvWallTextures();
   // on entering, the camera drifts gently within the room (1.8 s). Skipped with reduced motion; a drag or a test view stops it.
   intro = !matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (intro) {
@@ -1008,6 +1047,14 @@ export async function start({ stage, panel, lang, onReady }) {
   return {
     setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
     set(k, v) { state[k] = v; apply(); }, // used by tests
+    scheduleTvWallTextures() {
+      const loadWhenIdle = () => {
+        if (document.visibilityState !== "visible") { document.addEventListener("visibilitychange", loadWhenIdle, { once: true }); return; }
+        if ("requestIdleCallback" in window) window.requestIdleCallback(() => void loadTvWallTextures(), { timeout: 2500 });
+        else setTimeout(() => void loadTvWallTextures(), 1500);
+      };
+      requestAnimationFrame(() => requestAnimationFrame(loadWhenIdle));
+    },
     postcard, // used by tests: returns the postcard canvas
     cam: () => camera.position.toArray().map((v) => +v.toFixed(2)), // used by tests: where the camera is
     angle() { const degrees = Math.atan2(camera.position.x - orbitCenter.x, camera.position.z - orbitCenter.z) * 180 / Math.PI; return (Math.round(degrees) + 360) % 360; },
@@ -1019,13 +1066,15 @@ export async function start({ stage, panel, lang, onReady }) {
       tvWall.traverse((obj) => {
         if (!obj.isMesh) return;
         const map = obj.material.map;
-        meshes.push({ name: obj.name, file: map?.image?.src?.split("/").pop(),
+        meshes.push({ name: obj.name, file: obj.userData.tvTexture ? `${obj.userData.tvTexture}.webp` : map?.image?.src?.split("/").pop(),
           mapId: map?.uuid, materialId: obj.material.uuid, loaded: !!map?.image?.width,
           repeat: map?.repeat.toArray(), faces: obj.userData.textureFaces,
           size: obj.geometry.parameters, colorSpace: map?.colorSpace, anisotropy: map?.anisotropy });
       });
       return meshes;
     },
+    loadTvWallTextures,
+    tvWallTexturesReady: () => tvWallTexturesLoaded,
     tableLampLighting() {
       scene.updateMatrixWorld(true);
       const source = lampLight.getWorldPosition(new THREE.Vector3());
