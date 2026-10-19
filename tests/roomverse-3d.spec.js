@@ -9,7 +9,7 @@ const storyRooms = {
   chic: { zh: "明早要簡報，想先把自己整理好。", en: "A presentation tomorrow; she wants to feel ready.", wall: "original", rug: "ivory", curtain: "rose", print: "hills" },
   family: { zh: "週末，兩個孩子和長輩都要來。", en: "The family is coming over this weekend.", wall: "sand", rug: "stripe", curtain: "sage", print: "hills" },
   tech: { zh: "在家寫到半夜，只想要安靜。", en: "Working from home past midnight, they need quiet.", wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
-  tv: { zh: "週五晚上，只想窩著追劇。", en: "Friday night, and she wants nothing but the sofa and a good series.", wall: "sand", rug: "ivory", curtain: "linen", print: "moon" },
+  tv: { zh: "週五晚上，只想窩著追劇。", en: "Friday night, and she wants nothing but the sofa and a good series.", wall: "sand", rug: "ivory", curtain: "linen", print: "moon", view: "tv" },
 };
 
 for (const width of [390, 1440]) {
@@ -55,7 +55,7 @@ test("switching language updates the page text and the home link", async ({ page
   await expect(page.locator("#title")).toHaveText("One room, many ways to come home");
 });
 
-test("Feeling First links restore five story-matched ROOMVERSE presets at 390px", async ({ page }) => {
+test("Feeling First links restore six story-matched ROOMVERSE presets at 390px", async ({ page }) => {
   await mkdir("test-results/fu-to-roomverse-scenes", { recursive: true });
   const errors = [];
   page.on("pageerror", (error) => errors.push(String(error)));
@@ -64,7 +64,7 @@ test("Feeling First links restore five story-matched ROOMVERSE presets at 390px"
     await page.goto(`/prototype/feeling-to-room/?lang=zh`);
     const cardStory = await page.locator(`[data-mood="${who}"] .mood-copy span`).textContent();
     expect(cardStory).toBe(preset.zh);
-    const query = new URLSearchParams({ lang: "zh", mood: who === "tv" ? "tech" : who, wall: preset.wall, rug: preset.rug, curtain: preset.curtain, print: preset.print, from: "fu", who });
+    const query = new URLSearchParams({ lang: "zh", mood: who, wall: preset.wall, rug: preset.rug, curtain: preset.curtain, print: preset.print, ...(preset.view ? { view: preset.view } : {}), from: "fu", who });
     await page.goto(`${PAGE}?${query}`);
     await expect(page.locator("#originHint")).toBeVisible();
     await expect(page.locator("#originStory")).toHaveText(`這個房間來自「先有fu，再有家」：${preset.zh}`);
@@ -79,8 +79,13 @@ test("Feeling First links restore five story-matched ROOMVERSE presets at 390px"
     await page.locator("#enter").click();
     await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
     const groups = page.locator("#panel .opts");
-    for (const [group, key] of [[0, who === "tv" ? "tech" : who], [1, preset.wall], [2, preset.rug], [3, preset.curtain], [4, preset.print]]) {
+    for (const [group, key] of [[0, who], [1, preset.wall], [2, preset.rug], [3, preset.curtain], [4, preset.print]]) {
       await expect(groups.nth(group).locator(`button[data-key="${key}"]`)).toHaveAttribute("aria-pressed", "true");
+    }
+    if (who === "tv") {
+      await expect(page).toHaveURL(/mood=tv/);
+      await expect(page).toHaveURL(/view=tv/);
+      await expect(page.locator(".camera-tv")).toHaveAttribute("aria-pressed", "true");
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.locator("#stage").screenshot({ path: `test-results/fu-to-roomverse-scenes/zh-${who}.png` });
@@ -94,14 +99,14 @@ test("Feeling First links restore five story-matched ROOMVERSE presets at 390px"
   expect(errors).toEqual([]);
 });
 
-test("the English story-origin prompt matches all five stories; ordinary and invalid entries stay unchanged", async ({ page }) => {
+test("the English story-origin prompt matches all six stories; ordinary and invalid entries stay unchanged", async ({ page }) => {
   await mkdir("test-results/fu-to-roomverse-scenes", { recursive: true });
   await page.setViewportSize({ width: 390, height: 844 });
   for (const [who, preset] of Object.entries(storyRooms)) {
     await page.goto(`/prototype/feeling-to-room/?lang=en`);
     const cardStory = await page.locator(`[data-mood="${who}"] .mood-copy span`).textContent();
     expect(cardStory).toBe(preset.en);
-    const query = new URLSearchParams({ lang: "en", mood: who, wall: preset.wall, rug: preset.rug, curtain: preset.curtain, print: preset.print, from: "fu", who });
+    const query = new URLSearchParams({ lang: "en", mood: who, wall: preset.wall, rug: preset.rug, curtain: preset.curtain, print: preset.print, ...(preset.view ? { view: preset.view } : {}), from: "fu", who });
     await page.goto(`${PAGE}?${query}`);
     await expect(page.locator("#originHint")).toBeVisible();
     await expect(page.locator("#originStory")).toHaveText(`This room comes from “Feeling First”: ${preset.en}`);
@@ -185,7 +190,7 @@ test("the room lives in the address: a shared link opens the same choices, click
   await expect(pressed(2)).toHaveText("藍米條紋");
 });
 
-test("new wall paints restore from the URL and work across all five feelings", async ({ page }) => {
+test("new wall paints restore from the URL and work across all six feelings", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${PAGE}?lang=en&mood=rain&wall=mist`);
   await page.locator("#enter").click();
@@ -228,7 +233,7 @@ test("new wall paints restore from the URL and work across all five feelings", a
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
   await expect(page.locator('#panel .opts').nth(1).locator('button[data-key="mist"]')).toHaveAttribute("aria-pressed", "true");
 
-  for (let mood = 0; mood < 5; mood++) {
+  for (let mood = 0; mood < 6; mood++) {
     await moodButtons.nth(mood).click();
     const wall = mood % 2 === 0 ? "Deep pine" : "Misty blue-grey";
     const button = wallButtons.filter({ hasText: wall });
@@ -267,7 +272,7 @@ test("new wall paint QA: all feelings, four responsive screenshots and the Engli
   const groups = page.locator("#panel .opts");
   const moodButtons = groups.nth(0).locator("button");
   const wallButtons = groups.nth(1).locator("button");
-  const moods = ["rain", "family", "tech", "chic", "slow"];
+  const moods = ["rain", "family", "tech", "chic", "slow", "tv"];
   for (let mood = 0; mood < moods.length; mood++) {
     await moodButtons.nth(mood).click();
     for (const [wallKey, wallName] of [["mist", "Misty blue-grey"], ["pine", "Deep pine"]]) {
@@ -316,7 +321,7 @@ test("Slow Sunday: fifth mood restores from the URL, keeps its pairing note, and
   const open = async () => page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); });
   await open();
   const moodButtons = page.locator("#panel .opts").nth(0).locator("button");
-  await expect(moodButtons).toHaveCount(5);
+  await expect(moodButtons).toHaveCount(6);
   await expect(moodButtons.nth(4)).toHaveText("週日午後慢慢過");
   await expect(moodButtons.nth(4)).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#panel .why")).toHaveText("白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。");
@@ -373,6 +378,7 @@ test("existing mood postcards keep the original one-line design when it fits and
       await page.goto(`${PAGE}?lang=${lang}&mood=rain&wall=original&rug=ivory&curtain=linen&print=hills`);
       await page.locator("#enter").click();
       await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+      await page.waitForTimeout(1900); // let the entry drift settle before comparing postcard pixels
       await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); });
       const moodButtons = page.locator("#panel .opts").first().locator("button");
       for (let moodIndex = 0; moodIndex < 4; moodIndex++) {
@@ -422,6 +428,7 @@ test("surprise me: one tap picks a new wall, rug, curtain and print, keeps the f
   await page.goto(`${PAGE}?lang=en&mood=tech&wall=original&rug=stripe&curtain=linen&print=hills`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForTimeout(1900);
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   await page.locator("#panel .shuffle").click();
   const url = new URL(page.url());
@@ -451,4 +458,117 @@ test("keyboard use: focus stays on the pressed button, the 3D view has a name, a
   await expect(page.locator("#stage canvas")).toHaveAttribute("aria-label", /3D/);
   await page.locator("#panel .opts").first().locator("button").nth(2).click();
   await expect(page.locator('[aria-live="polite"]')).toContainText("冷色燈帶");
+});
+
+test("TV wall, 360-degree safe orbit, accessible view buttons, URL state, and window-facing postcard", async ({ page }) => {
+  await mkdir("docs/qa/roomverse-tv-wall", { recursive: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${PAGE}?lang=zh&mood=tv&view=tv`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForTimeout(1900);
+  expect(await page.evaluate(() => window.__room.hasFrontWall())).toBe(true);
+  expect(await page.evaluate(() => window.__room.hasTvWall())).toBe(true);
+  await expect(page.locator("#panel .camera-heading")).toHaveText("轉換視角");
+  await expect(page.locator(".camera-tv")).toHaveAttribute("aria-label", "看電視牆");
+  await expect(page.locator(".camera-window")).toHaveAttribute("aria-label", "回到窗邊");
+  expect(await page.locator(".camera-tv").evaluate((button) => Math.min(button.clientWidth, button.clientHeight))).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => window.__room.angle())).toBe(180);
+  await page.locator("#stage").screenshot({ path: "docs/qa/roomverse-tv-wall/tv-wall-phone-390.png" });
+
+  const limits = await page.evaluate(() => window.__room.orbitLimits());
+  expect(limits.minRadius).toBeGreaterThan(0);
+  expect(limits.maxRadius).toBeLessThanOrEqual(2.0);
+  expect(limits.maxAzimuth - limits.minAzimuth).toBeGreaterThanOrEqual(Math.PI * 1.5);
+  expect(limits.near).toBeLessThan(.1);
+  for (const degrees of [0, 90, 180, 270, 360]) {
+    const cam = await page.evaluate((angle) => window.__room.setOrbitAngle(angle), degrees);
+    expect(cam[0]).toBeGreaterThan(-2.6); expect(cam[0]).toBeLessThan(2.6);
+    expect(cam[1]).toBeGreaterThan(0); expect(cam[1]).toBeLessThan(2.7);
+    expect(cam[2]).toBeGreaterThan(-2.2); expect(cam[2]).toBeLessThan(2.4);
+  }
+
+  await page.locator(".camera-window").focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(() => page.evaluate(() => window.__room.angle())).toBe(0);
+  await expect(page.locator(".camera-window")).toHaveAttribute("aria-pressed", "true");
+  await expect(page).not.toHaveURL(/view=tv/);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.locator(".camera-tv").focus(); await page.keyboard.press("Enter");
+  expect(await page.evaluate(() => window.__room.angle())).toBe(180);
+  await expect(page).toHaveURL(/view=tv/);
+  await expect(page.locator(".camera-tv")).toHaveAttribute("aria-pressed", "true");
+
+  const moodButtons = page.locator("#panel .opts").first().locator("button");
+  await expect(moodButtons).toHaveCount(6);
+  for (const mood of ["rain", "family", "tech", "chic", "slow", "tv"]) {
+    await page.locator("#panel .opts").first().locator(`button[data-key="${mood}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`mood=${mood}`));
+    await expect(page).toHaveURL(/view=tv/);
+  }
+  await page.waitForTimeout(700);
+  const windowPostcard = await page.evaluate(() => window.__room.postcard().toDataURL());
+  await page.evaluate(() => window.__room.setOrbitAngle(0));
+  const windowPostcardAtZero = await page.evaluate(() => window.__room.postcard().toDataURL());
+  expect(windowPostcard).toBe(windowPostcardAtZero);
+  await page.evaluate(() => window.__room.setOrbitAngle(180));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+
+  await page.goto(`${PAGE}?lang=en&mood=rain`); // legacy links without view remain window-facing
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForTimeout(1900);
+  expect(await page.evaluate(() => window.__room.angle())).toBe(0);
+  await expect(page.locator(".camera-tv")).toHaveText("Turn to the TV wall");
+  await expect(page.locator(".camera-window")).toHaveText("Back to the window");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("all six feelings show both views; tour stays inside and postcards keep the window angle", async ({ page }) => {
+  const output = "docs/qa/roomverse-tv-wall";
+  await mkdir(output, { recursive: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`${PAGE}?lang=en&mood=rain`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t?.getAttribute("aria-expanded") === "false") t.click(); });
+  const moods = ["rain", "family", "tech", "chic", "slow", "tv"];
+  for (const mood of moods) {
+    await page.locator("#panel .opts").first().locator(`button[data-key="${mood}"]`).click();
+    await page.waitForTimeout(650);
+    await page.evaluate(() => window.__room.setOrbitAngle(0));
+    await page.locator("#stage").screenshot({ path: `${output}/${mood}-window-1440.png` });
+    await page.evaluate(() => window.__room.setOrbitAngle(180));
+    await page.locator("#stage").screenshot({ path: `${output}/${mood}-tv-wall-1440.png` });
+  }
+  await page.locator("#panel .opts").first().locator('button[data-key="tv"]').click(); await page.waitForTimeout(650);
+  for (const degrees of [0, 90, 180, 270]) {
+    await page.evaluate((angle) => window.__room.setOrbitAngle(angle), degrees);
+    await page.locator("#stage").screenshot({ path: `${output}/orbit-${degrees}-1440.png` });
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator("#panel .opts").first().locator('button[data-key="tv"]').click(); await page.waitForTimeout(650);
+  for (const [view, angle] of [["window", 0], ["tv-wall", 180]]) {
+    await page.evaluate((degrees) => window.__room.setOrbitAngle(degrees), angle);
+    await page.screenshot({ path: `${output}/tv-${view}-390.png`, fullPage: true });
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.locator(`#panel .opts button[data-key="tv"]`).click();
+  await page.locator(".camera-window").click();
+  await expect.poll(() => page.evaluate(() => window.__room.angle())).toBe(0);
+  const cameraBeforeTour = await page.evaluate(() => window.__room.cam());
+  await page.locator(".director").click();
+  await page.waitForFunction(() => window.__room.director().playing, null, { timeout: 10000 });
+  const tourInside = await page.evaluate(async () => {
+    let safe = true;
+    const start = performance.now();
+    while (performance.now() - start < 2400) {
+      const [x, y, z] = window.__room.cam();
+      safe &&= x > -2.6 && x < 2.6 && y > 0 && y < 2.7 && z > -2.2 && z < 2.4;
+      await new Promise(requestAnimationFrame);
+    }
+    return safe;
+  });
+  expect(tourInside).toBe(true);
+  await page.locator(".director-stop").click();
+  expect(await page.evaluate(() => window.__room.cam())).toEqual(cameraBeforeTour);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
