@@ -1,0 +1,188 @@
+[
+  {
+    "id": "imagined-harbor",
+    "source": "gallery-01-imagined-harbor.png",
+    "sourceSha256": "aa9c978e3ac11bf11721f2283af3410f6f444f2444d0c117fbe15db49a477f8e",
+    "derivatives": [
+      {
+        "file": "imagined-harbor.webp",
+        "width": 1024,
+        "height": 683,
+        "bytes": 89916,
+        "quality": "existing approved file, unchanged",
+        "sha256": "8d39bf82650614e722f1bca375bf214f3a2bc82444889c12a25ae3d8f70c02ce"
+      },
+      {
+        "file": "imagined-harbor-mobile.webp",
+        "width": 800,
+        "height": 533,
+        "bytes": 86932,
+        "quality": "existing approved file, unchanged",
+        "sha256": "e7e103dbb50da11e290a8857b7375d39088855c3eda59d7673181e854f83d3e7"
+      },
+      {
+        "file": "imagined-harbor-thumb.webp",
+        "width": 480,
+        "height": 320,
+        "bytes": 43974,
+        "quality": 86,
+        "sha256": "43eaae686aaa6deac4c2cba05199a063dbc11a05f0cc0c72874e49c307151215"
+      }
+    ]
+  },
+  {
+    "id": "modern-harbor",
+    "source": "right-wall-harbor-v1.png",
+    "sourceSha256": "33a61ee6d52cd66ddf7cc5721af815edfa3e069d46353a74a3893c950f6c8376",
+    "derivatives": [
+      {
+        "file": "modern-harbor.webp",
+        "width": 1024,
+        "height": 683,
+        "bytes": 89276,
+        "quality": "existing approved file, unchanged",
+        "sha256": "796ba00b00c374f85f1ee725a33dbc3934f436728eebde9af0d547bf37f9ad28"
+      },
+      {
+        "file": "modern-harbor-mobile.webp",
+        "width": 800,
+        "height": 533,
+        "bytes": 86164,
+        "quality": "existing approved file, unchanged",
+        "sha256": "a569c6179fb927ab38e94f578f2793c0e8a4691552915fc1614773b3e51b732a"
+      },
+      {
+        "file": "modern-harbor-thumb.webp",
+        "width": 480,
+        "height": 320,
+        "bytes": 44524,
+        "quality": 84,
+        "sha256": "b6146a5c3d98076e7088a71a31b01e2838417c855b75d6eefe099964cb03f197"
+      }
+    ]
+  },
+  {
+    "id": "trade-street",
+    "source": "trade-street-final.png",
+    "sourceSha256": "b3ccd15948596e7846d09a01de6d3166c29dbfc588d143aee66a447cca3a9a25",
+    "derivatives": [
+      {
+        "file": "trade-street.webp",
+        "width": 1024,
+        "height": 683,
+        "bytes": 143414,
+        "quality": 46,
+        "sha256": "dfa1af667fba95980ecf55d0da05502f0d9302f94c38a8f763d8965bb1f81003"
+      },
+      {
+        "file": "trade-street-mobile.webp",
+        "width": 800,
+        "height": 533,
+        "bytes": 94194,
+        "quality": 46,
+        "sha256": "5926b8b3434cf77bb9a4693203dc66a5206afe78f09fbdd3a6236ab2db9ccabd"
+      },
+      {
+        "file": "trade-street-thumb.webp",
+        "width": 480,
+        "height": 320,
+        "bytes": 44400,
+        "quality": 60,
+        "sha256": "ecf37fe182dd3f4eac1eca43726a82e8627348a9fa869761b80b174c607ba124"
+      }
+    ]
+  },
+  {
+    "id": "nightglow-together",
+    "source": "nightglow-finale-postcard.png",
+    "sourceSha256": "84de05ed3978b218ec93d6ec4428fc9dbb267efa164e2ff0039a2bba8b3e2f3c",
+    "derivatives": [
+      {
+        "file": "nightglow-together.webp",
+        "width": 1024,
+        "height": 683,
+        "bytes": 125140,
+        "quality": 46,
+        "sha256": "7e093957e87f60720dd26929c546dc183def327df834b504868fedf276f58487"
+      },
+      {
+        "file": "nightglow-together-mobile.webp",
+        "width": 800,
+        "height": 533,
+        "bytes": 88842,
+        "quality": 48,
+        "sha256": "e71c497511bc8a1bca818280ec042632e02323f5e2e1a7b3c80d129b74a7f5c5"
+      },
+      {
+        "file": "nightglow-together-thumb.webp",
+        "width": 480,
+        "height": 320,
+        "bytes": 44702,
+        "quality": 60,
+        "sha256": "56e5546cb06419d16ed6fbf42bd8ec6fc435ea7a123bda855f31d99bc43c7ced"
+      }
+    ]
+  },
+  {
+    "id": "clocktower-map",
+    "source": "easter-clocktower.png",
+    "sourceSha256": "a09afb755464e2fc4a3372bbc044bfb4daaaf0871d631dfecd95c5a9394ead52",
+    "derivatives": [
+      {
+        "file": "clocktower-map.webp",
+        "width": 816,
+        "height": 1020,
+        "bytes": 91922,
+        "quality": 46,
+        "sha256": "d8e9822aa49354840f5848e012a9160935210061f782717d4780876955ddb290"
+      },
+      {
+        "file": "clocktower-map-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 88812,
+        "quality": 46,
+        "sha256": "98b65d019befaed4fede9dbbd0aa2255d1e87ff976bc83a31d17904105670e63"
+      },
+      {
+        "file": "clocktower-map-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 44726,
+        "quality": 50,
+        "sha256": "0a1a101c36dd48bcdd46db9930b08ee25ebeb7739ffbd09779f96edc97ca6e1c"
+      }
+    ]
+  },
+  {
+    "id": "warm-window",
+    "source": "easter-warmwindow.png",
+    "sourceSha256": "fd1e63de1ee5f1fdecb82e606cda5a6abfce47c09d9a4135431f623de2c10a87",
+    "derivatives": [
+      {
+        "file": "warm-window.webp",
+        "width": 816,
+        "height": 1020,
+        "bytes": 88424,
+        "quality": 60,
+        "sha256": "e11ae23e5631effe926882388825e494877e36fdff4eec43cdfb38be643e750b"
+      },
+      {
+        "file": "warm-window-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 88478,
+        "quality": 62,
+        "sha256": "b28ea1b1ebb925bb132a9c84ff945c37cc55a8be61f52e21cea4adc9fccab727"
+      },
+      {
+        "file": "warm-window-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 44890,
+        "quality": 66,
+        "sha256": "f9bf4a9c05751ed8838c7e59db64a6d12736760a7018c07d6b869e9bbba36c8f"
+      }
+    ]
+  }
+]

@@ -1,0 +1,91 @@
+{
+  "method": "Fresh browser context; viewport remains at page top; networkidle; navigation plus ResourceTiming encodedBodySize (HTTP headers excluded). Local preview, no mobile CPU or bandwidth emulation.",
+  "records": [
+    {
+      "width": 390,
+      "requests": 9,
+      "encodedBodyBytes": 187402,
+      "resources": [
+        {
+          "url": "/gallery/styles.css",
+          "bytes": 1891
+        },
+        {
+          "url": "/gallery/app.js",
+          "bytes": 1500
+        },
+        {
+          "url": "/gallery/pieces.js",
+          "bytes": 4341
+        },
+        {
+          "url": "/gallery/assets/imagined-harbor-thumb.webp",
+          "bytes": 43974
+        },
+        {
+          "url": "/gallery/assets/modern-harbor-thumb.webp",
+          "bytes": 44524
+        },
+        {
+          "url": "/gallery/assets/trade-street-thumb.webp",
+          "bytes": 44400
+        },
+        {
+          "url": "/gallery/assets/nightglow-together-thumb.webp",
+          "bytes": 44702
+        },
+        {
+          "url": "/favicon.png",
+          "bytes": 572
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "requests": 11,
+      "encodedBodyBytes": 277018,
+      "resources": [
+        {
+          "url": "/gallery/styles.css",
+          "bytes": 1891
+        },
+        {
+          "url": "/gallery/app.js",
+          "bytes": 1500
+        },
+        {
+          "url": "/gallery/pieces.js",
+          "bytes": 4341
+        },
+        {
+          "url": "/gallery/assets/imagined-harbor-thumb.webp",
+          "bytes": 43974
+        },
+        {
+          "url": "/gallery/assets/modern-harbor-thumb.webp",
+          "bytes": 44524
+        },
+        {
+          "url": "/gallery/assets/trade-street-thumb.webp",
+          "bytes": 44400
+        },
+        {
+          "url": "/gallery/assets/nightglow-together-thumb.webp",
+          "bytes": 44702
+        },
+        {
+          "url": "/gallery/assets/clocktower-map-thumb.webp",
+          "bytes": 44726
+        },
+        {
+          "url": "/gallery/assets/warm-window-thumb.webp",
+          "bytes": 44890
+        },
+        {
+          "url": "/favicon.png",
+          "bytes": 572
+        }
+      ]
+    }
+  ]
+}

@@ -827,6 +827,8 @@ function renderSpirit() {
   $("spirit-end-kicker").textContent = x.close.kicker;
   $("spirit-end-title").textContent = x.close.title;
   $("spirit-end-body").replaceChildren(...spiritBlocks(x.close.blocks));
+  $("gallery-link").textContent = x.close.gallery;
+  $("gallery-link").href = `/gallery/?lang=${state.lang}`;
 }
 
 function render() {
