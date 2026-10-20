@@ -721,3 +721,40 @@ test("all six feelings show both views; tour stays inside and postcards keep the
   expect(await page.evaluate(() => window.__room.cam())).toEqual(cameraBeforeTour);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+for (const lang of ["zh", "en"]) {
+  for (const dpr of [1, 1.25]) {
+    test(`${lang} 390px DPR ${dpr}: postcard title and URL have separate space without changing the canvas`, async ({ browser }, testInfo) => {
+      const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: dpr, reducedMotion: "reduce" });
+      try {
+        const page = await context.newPage();
+        await page.goto(`${PAGE}?lang=${lang}`);
+        await page.locator("#enter").click(); await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+        for (const mood of ["rain", "family", "tech", "chic", "slow", "tv"]) {
+          const result = await page.evaluate((value) => {
+            window.__room.set("mood", value);
+            const original = CanvasRenderingContext2D.prototype.fillText, calls = [];
+            CanvasRenderingContext2D.prototype.fillText = function (text, x, y, ...rest) {
+              if (text === "ROOMVERSE 3D" || text === "paulstradecraft.com") {
+                const width = this.measureText(text).width;
+                calls.push({ text, left: this.textAlign === "right" ? x - width : x, right: this.textAlign === "right" ? x : x + width, font: this.font });
+              }
+              return original.call(this, text, x, y, ...rest);
+            };
+            try { const card = window.__room.postcard(); return { calls, width: card.width, sourceWidth: document.querySelector("#stage canvas").width }; }
+            finally { CanvasRenderingContext2D.prototype.fillText = original; }
+          }, mood);
+          expect(result.calls).toHaveLength(2);
+          const [title, domain] = result.calls;
+          expect(domain.left - title.right).toBeGreaterThanOrEqual(10);
+          expect(title.left).toBeGreaterThanOrEqual(0); expect(domain.right).toBeLessThanOrEqual(result.width);
+          expect(Number(domain.font.match(/([\d.]+)px/)[1])).toBeGreaterThanOrEqual(12);
+          expect(result.width).toBe(result.sourceWidth);
+        }
+        const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: lang === "zh" ? "存成明信片" : "Save as a postcard", exact: true }).click()]);
+        const file = testInfo.outputPath(`${lang}-${dpr}-postcard.png`); await download.saveAs(file);
+        expect((await readFile(file)).subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+      } finally { await context.close(); }
+    });
+  }
+}
