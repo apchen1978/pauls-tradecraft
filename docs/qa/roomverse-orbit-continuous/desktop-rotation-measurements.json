@@ -1,0 +1,36 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "start": 180,
+  "samples": [
+    1,
+    181,
+    1,
+    181
+  ],
+  "travelledDegrees": -719,
+  "releases": [
+    {
+      "angleAtRelease": 91,
+      "angleSettled": 1,
+      "releaseDeltaDegrees": -90
+    },
+    {
+      "angleAtRelease": 268,
+      "angleSettled": 181,
+      "releaseDeltaDegrees": -87
+    },
+    {
+      "angleAtRelease": 91,
+      "angleSettled": 1,
+      "releaseDeltaDegrees": -90
+    },
+    {
+      "angleAtRelease": 260,
+      "angleSettled": 181,
+      "releaseDeltaDegrees": -79
+    }
+  ]
+}

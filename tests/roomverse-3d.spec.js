@@ -819,7 +819,8 @@ test("TV wall, 360-degree safe orbit, accessible view buttons, URL state, and wi
   const limits = await page.evaluate(() => window.__room.orbitLimits());
   expect(limits.minRadius).toBeGreaterThan(0);
   expect(limits.maxRadius).toBeLessThanOrEqual(2.0);
-  expect(limits.maxAzimuth - limits.minAzimuth).toBeGreaterThanOrEqual(Math.PI * 1.5);
+  expect(limits.minAzimuth).toBe(-Infinity);
+  expect(limits.maxAzimuth).toBe(Infinity);
   expect(limits.near).toBeLessThan(.1);
   for (const degrees of [0, 90, 180, 270, 360]) {
     const cam = await page.evaluate((angle) => window.__room.setOrbitAngle(angle), degrees);
@@ -1038,4 +1039,84 @@ for (const lang of ["zh", "en"]) {
       expect(framing.turningFov).toBeLessThanOrEqual(framing.tvFov);
     });
   }
+}
+
+for (const [label, viewport] of [["phone", { width: 390, height: 844 }], ["desktop", { width: 1440, height: 900 }]]) {
+  test(`${label} can orbit through two full turns and does not snap back on release`, async ({ page }) => {
+    const output = "docs/qa/roomverse-orbit-continuous";
+    await mkdir(output, { recursive: true });
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`${PAGE}?lang=zh&mood=tv&view=tv`);
+    await page.locator("#enter").click();
+    await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+    const canvas = page.locator("#stage canvas");
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+    await page.waitForTimeout(300);
+    const start = await page.evaluate(() => window.__room.angle());
+    await canvas.screenshot({ path: `${output}/${label}-rotation-start-tv.png` });
+    await page.evaluate(() => window.__room.setOrbitAngle(135));
+    await canvas.screenshot({ path: `${output}/${label}-rotation-135.png` });
+    await page.evaluate((angle) => window.__room.setOrbitAngle(angle), start);
+
+    const halfTurnDrag = box.height / 2;
+    const x0 = box.x + 30, x1 = x0 + halfTurnDrag, y = box.y + box.height / 2;
+    expect(x1).toBeLessThan(box.x + box.width - 8);
+    const samples = [];
+    const releases = [];
+    for (let i = 1; i <= 4; i++) {
+      await page.mouse.move(x0, y);
+      await page.mouse.down();
+      await page.mouse.move(x1, y, { steps: 12 });
+      await page.mouse.up();
+      const angleAtRelease = await page.evaluate(() => window.__room.angle());
+      let previous = angleAtRelease, stableReads = 0, angleSettled = angleAtRelease;
+      for (let poll = 0; poll < 80 && stableReads < 4; poll++) {
+        await page.waitForTimeout(100);
+        angleSettled = await page.evaluate(() => window.__room.angle());
+        stableReads = angleSettled === previous ? stableReads + 1 : 0;
+        previous = angleSettled;
+      }
+      expect(stableReads).toBeGreaterThanOrEqual(4); // wait for normal damping, not a fixed timing guess
+      samples.push(angleSettled);
+      const releaseDelta = ((angleSettled - angleAtRelease + 540) % 360) - 180;
+      releases.push({ angleAtRelease, angleSettled, releaseDeltaDegrees: releaseDelta });
+      if (i === 1) {
+        const settledDistanceFromTv = Math.abs(((angleSettled - 180 + 540) % 360) - 180);
+        expect(settledDistanceFromTv).toBeGreaterThan(30); // a released drag must not snap back to the TV preset
+      }
+      await canvas.screenshot({ path: `${output}/${label}-rotation-after-${i}-half-turns.png` });
+    }
+
+    const unwrap = (values) => values.reduce((sum, current, index) => {
+      const previous = index === 0 ? start : values[index - 1];
+      const delta = ((current - previous + 540) % 360) - 180;
+      return sum + delta;
+    }, 0);
+    const travelled = unwrap(samples);
+    expect(Math.abs(travelled)).toBeGreaterThan(650);
+    expect(Math.abs(travelled)).toBeLessThan(850);
+    expect(samples).toHaveLength(4);
+    let fovBeforeSeam = null;
+    for (const degrees of [179, 181]) {
+      await page.evaluate((value) => window.__room.setOrbitAngle(value), degrees);
+      const fov = await page.evaluate(() => window.__room.fov());
+      expect(Number.isFinite(fov)).toBe(true);
+      if (degrees === 179) fovBeforeSeam = fov;
+      else expect(Math.abs(fov - fovBeforeSeam)).toBeLessThan(0.1);
+    }
+    const cameraBeforePostcard = await page.evaluate(() => window.__room.cam());
+    await page.evaluate(() => window.__room.postcard().toDataURL());
+    expect(await page.evaluate(() => window.__room.cam())).toEqual(cameraBeforePostcard);
+    const panelToggle = page.locator("#panelToggle");
+    if (await panelToggle.isVisible()) await panelToggle.click();
+    await page.locator(".camera-window").click();
+    expect(await page.evaluate(() => window.__room.angle())).toBe(0);
+    await expect(page).not.toHaveURL(/view=tv/);
+    await page.locator(".camera-tv").click();
+    expect(await page.evaluate(() => window.__room.angle())).toBe(180);
+    await expect(page).toHaveURL(/view=tv/);
+    await writeFile(`${output}/${label}-rotation-measurements.json`, JSON.stringify({ viewport, start, samples, travelledDegrees: travelled, releases }, null, 2));
+  });
 }

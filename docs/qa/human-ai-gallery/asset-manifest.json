@@ -184,5 +184,36 @@
         "sha256": "f9bf4a9c05751ed8838c7e59db64a6d12736760a7018c07d6b869e9bbba36c8f"
       }
     ]
+  },
+  {
+    "id": "harbor-dusk",
+    "source": "docs/gallery/sources/harbor-dusk-clean-master.png",
+    "sourceSha256": "9dc7ba3164935f31cab4cd184c54a8d713a7b99d97e84378b7f16cfaafce58e9",
+    "derivatives": [
+      {
+        "file": "harbor-dusk.webp",
+        "width": 1024,
+        "height": 576,
+        "bytes": 99448,
+        "quality": 85,
+        "sha256": "46a39581dec70ec2f66fb95cf3ab8eaa8bbeff108bb87249fef546e3be5805af"
+      },
+      {
+        "file": "harbor-dusk-mobile.webp",
+        "width": 800,
+        "height": 450,
+        "bytes": 60308,
+        "quality": 85,
+        "sha256": "5b5b67cd47eb615416a33203247b1a29fc1bcbfffc6800067c2863353996e022"
+      },
+      {
+        "file": "harbor-dusk-thumb.webp",
+        "width": 480,
+        "height": 270,
+        "bytes": 22098,
+        "quality": 86,
+        "sha256": "547ca26aeddad56361f7d9fef9ecd70c6528673e29e40cb5575be76150fd6c67"
+      }
+    ]
   }
 ]

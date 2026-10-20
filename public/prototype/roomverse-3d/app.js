@@ -65,7 +65,8 @@ export async function start({ stage, panel, lang, onReady }) {
   controls.enableDamping = true; controls.enablePan = false;
   controls.minDistance = 1.55; controls.maxDistance = 1.95;
   controls.minPolarAngle = Math.PI * 0.32; controls.maxPolarAngle = Math.PI * 0.5;
-  controls.minAzimuthAngle = -Math.PI; controls.maxAzimuthAngle = Math.PI;
+  // Keep azimuth unbounded: clamping at ±π creates a hard seam at the TV wall and prevents a full orbit.
+  controls.minAzimuthAngle = -Infinity; controls.maxAzimuthAngle = Infinity;
   const cameraAt = (theta, radius = orbitRadius, phi = orbitPhi) => new THREE.Vector3(
     orbitCenter.x + radius * Math.sin(phi) * Math.sin(theta),
     orbitCenter.y + radius * Math.cos(phi),
