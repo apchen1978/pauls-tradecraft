@@ -42,7 +42,7 @@ export const PIECES = [
     title: { zh: "黃昏的港口", en: "Harbour at Dusk" },
     alt: { zh: "黃昏的港口，一艘貨櫃船正駛離，岸邊燈籠亮著，遠處有一座燈塔。", en: "A dusk harbour, with a container ship departing, dock lanterns lit, and a distant lighthouse." },
     caption: { zh: "和〈黎明的港口〉成一對。一天的開始，一天的收尾。", en: "Paired with Harbour at Dawn. The start of a day, and its close." },
-    made: { zh: "Paul 提議讓這幅與〈黎明的港口〉配成一對。點子偵察兵 Grok Bot 以〈黎明的港口〉的畫面截圖作為風格參考，用文字生成這幅畫。生成之後，用 OpenCV 把貨櫃上的燈籠縮到合宜的大小，並把風向標稍微調亮。船身文字與標誌另以 OpenCV 修去，放大檢查過畫面上的文字，再用 Pillow 輸出 WebP。", en: "Paul proposed pairing this painting with Harbour at Dawn. Grok Bot, the idea scout, made it as a text-to-image painting, using a screenshot of Harbour at Dawn as the style reference. After generation, OpenCV rescaled the lantern on the containers and brightened the weathervane. An OpenCV inpaint removed the hull text and logo, a manual enlarged check looked for text, and Pillow exported the WebP files." },
+    made: { zh: "Paul 提議讓這幅與〈黎明的港口〉配成一對。Grok Bot 以〈黎明的港口〉為風格參考，用文字生成這幅畫，再以影像工具修整細節。", en: "Paul proposed pairing this painting with Harbour at Dawn. Grok Bot generated it from a text prompt, using Harbour at Dawn as the style reference, then refined the details with image tools." },
   },
   {
     id: "trade-street", date: "2026-10-20", frame: "gilt", width: 1024, height: 683,

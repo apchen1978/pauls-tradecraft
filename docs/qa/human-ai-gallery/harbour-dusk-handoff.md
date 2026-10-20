@@ -2,7 +2,12 @@
 
 2026-10-21。Paul 同意：方案 B；說明保留〈黎明的港口〉。〈黎明的港口〉／Harbour at Dawn 是 ROOMVERSE 右牆那幅。畫廊裡既有的一幅標題仍是〈晨光裡的港口〉／A Harbour in Morning Light。
 
-公開文案用先前草稿的原句，仍待 Paul 最終核可。這是 Draft，尚未合併。合併等 Paul 寫「merge #N」。
+2026-10-21。Paul 同意的文案修改：「怎麼做出來的」改為下面兩句。標題、說明與 alt 維持頁上現句。這是 Draft，尚未合併。合併等 Paul 寫「merge #N」。
+
+- zh: Paul 提議讓這幅與〈黎明的港口〉配成一對。Grok Bot 以〈黎明的港口〉為風格參考，用文字生成這幅畫，再以影像工具修整細節。
+- en: Paul proposed pairing this painting with Harbour at Dawn. Grok Bot generated it from a text prompt, using Harbour at Dawn as the style reference, then refined the details with image tools.
+
+內部製作，不上頁面：生成之後，以 OpenCV 把貨櫃上的燈籠縮到合宜的大小。船身文字與標誌以 OpenCV inpaint 修去，放大檢查過文字，再用 Pillow 輸出 WebP。
 
 ## 這次放上頁面的內容
 
