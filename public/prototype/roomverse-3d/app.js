@@ -267,6 +267,8 @@ export async function start({ stage, panel, lang, onReady }) {
   const TV_STRIP_GLOW = { rain: .28, family: .18, tech: .08, chic: .2, slow: .13, tv: .82 };
   // A restrained wall-local wash warms the same wall surface without adding another light.
   const TV_WALL_WASH = { rain: .34, family: 0, tech: .35, chic: 0, slow: 0, tv: .4 };
+  // Preserve the hue of saturated dark paints; the existing strip and room lights still apply.
+  const WALLS_WITHOUT_WARM_WASH = new Set(["wine", "dusk", "pine"]);
   tvWallPiece(new THREE.BoxGeometry(2.95, 2.35, .08), tvPanelMat, 0, 1.36, FRONT - .125, "tv-wall-backing");
   // narrow trim makes the panel read as built-in millwork, not a freestanding equipment display
   for (const x of [-1.49, 1.49]) tvWallPiece(new THREE.BoxGeometry(.035, 2.36, .045), tvTrimMat, x, 1.36, FRONT - .17, "tv-wall-trim", false);
@@ -765,7 +767,7 @@ export async function start({ stage, panel, lang, onReady }) {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, led: m.led ? .5 : 0,
       floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
       shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
-      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], wallWarmth: TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0,
+      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0,
     };
   };
   const lights = () => lightForMood(state.mood);

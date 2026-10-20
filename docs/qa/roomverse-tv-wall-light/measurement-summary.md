@@ -33,3 +33,10 @@
 - 在內嵌電視牆表面疊一張低成本暖色徑向漸層（`MeshBasicMaterial`，不發光、不新增即時光源），讓電視牆局部比原本暖；三種偏冷心情各自控制強度，其餘為 0。切換仍沿用原本的 600 ms mood 漸變。
 - 新增一個牆面 mesh，燈光總數維持 6；MOODS、電視櫃／電視模型、材質貼圖資產、相機和渲染設定都不變。螢幕仍是黑色。
 - 畫面與明信片只在本機 Chromium 驗證；實體 iPhone、Safari 和實際房間照度為 UNKNOWN。
+
+## 深色牆漆補驗（PR review follow-up）
+
+- 補驗組合：wine、dusk、pine × rain、tech、tv × 電視牆視角 × 1440×900／390×844。18 組 before/after 使用相同 Chromium 腳本、DPR 1、同一工作階段條件；原始圖與比較表在 `dark-walls-before/`、`dark-walls-after/`、`dark-wall-pixel-diff.csv`。
+- 原強度在酒紅牆會帶出明顯褐紅感；暮色藍與深松綠也會失去部分原色純度。故只對這三種深色漆停用 `tv-wall-warm-wash`，不改燈帶、其他場景燈光、曝光、渲染設定或新增光源。淺色牆仍使用原 mood 強度。
+- 重拍後 18 組圖片逐像素差異皆為 0；深色牆完整保留原牆色，同時既有電視牆暖燈與場景光效仍在。
+- 這是特定 Chromium 截圖的像素比較，不能代替真實裝置或實體牆漆觀察。
