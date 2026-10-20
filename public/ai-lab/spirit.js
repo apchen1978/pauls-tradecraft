@@ -12,7 +12,7 @@ export const SPIRIT = {
           h: "一扇門",
           p: [
             "我讀書的年代，每個人都在拚英文。不是因為英文有趣，而是大家相信：學會它，就能走進一個更大的世界。",
-            "現在，AI 給我同樣的感覺，而且門開得更寬。不會英文的人，可以靠它和國外的人溝通；沒學過程式的人，可以靠它做出一個網站。以前被擋在外面的事，一句話就有機會開始。",
+            "現在，AI 給我同樣的感覺，而且門開得更寬。不會英文的人，可以靠它和國外的人溝通；沒學過程式的人，可以靠它做出一個網站。以前要繞很遠才碰得到的事，現在一句話就有機會開始。",
             "AI Lab 想做的，就是把這扇門指給更多人看。",
           ],
         },
@@ -37,9 +37,19 @@ export const SPIRIT = {
           ],
         },
         {
+          h: "作品是沿路的風景，學習是走路的腳力",
+          p: [
+            "做出一件可愛的作品，很開心。但更讓我珍惜的，是做它的路上學會的事。",
+            "作品會被看見，也會慢慢變舊；學會的做法，卻會跟著我走到下一段路。模型會越來越強，工具也會換，可是「先量再改」「先問前提」「有人看過才放行」這些習慣，不會過時。",
+            "這些日子，我和 AI 這樣分工：我決定方向，也決定什麼時候放行；CC 陪我規劃、審查；Codex 負責動手做。每一步都有人在看，每個決定都有人拍板。這就是人在迴路裡（human in the loop）。",
+            "所以我想把作品做出來，也想把這段路記下來。作品是沿路的風景，學習是走路的腳力；兩樣都要，路才走得遠。",
+          ],
+          link: { before: "我們真的犯過的錯，寫在", text: "〈AI 會怎麼錯：我們真的犯過的錯〉（第 10 章）", href: "#c10", after: "。" },
+        },
+        {
           h: "一起學，互相教",
           p: [
-            "我不怕別人比我學得快。我希望朋友們都學會，學會之後再回頭教我，這樣大家都會越來越強。",
+            "我樂見別人比我學得快。我希望朋友們都學會，學會之後再回頭教我，這樣大家都會越來越強。",
             "所以我願意免費教朋友；當我真的替別人創造了價值，我也會收費，這是對彼此的尊重。",
           ],
           link: { before: "我教一位朋友自己用 AI 做網站的經過，寫在", text: "〈教中小企業負責人用 AI：我學到的三件事〉（第 12 章）", href: "#c12", after: "。" },
@@ -47,7 +57,7 @@ export const SPIRIT = {
         {
           h: "五年後，我希望",
           p: [
-            "AI Lab 不是冷冰冰的零與一。我希望它是人和 AI 一起把事情做得更好的地方。",
+            "AI Lab 是人和 AI 一起把事情做得更好的地方。",
             "我自己是基督徒，相信愛是分享，也是彼此幫助。我希望這份心意能傳出去：從我和朋友們開始，幫助中小企業的負責人，幫助親戚朋友，幫助孩子們，也希望有一天，能幫上更多缺少機會的人。",
             "人和 AI 一起，把這個世界變得更好一點。這件事值得我們現在就開始做。",
           ],
@@ -65,7 +75,7 @@ export const SPIRIT = {
           h: "A door",
           p: [
             "In my school years, everyone was working hard at English. Not because English was fun, but because we believed that if you learned it, you could walk into a much bigger world.",
-            "Today AI gives me the same feeling, only the door is wider. Someone who does not speak English can use it to talk with people abroad; someone who never learned to code can use it to build a website. Things that used to be out of reach can begin with a single sentence.",
+            "Today AI gives me the same feeling, only the door is wider. Someone who does not speak English can use it to talk with people abroad; someone who never learned to code can use it to build a website. Things that once took a long detour can begin with a single sentence.",
             "What AI Lab wants to do is point more people to that door.",
           ],
         },
@@ -90,9 +100,19 @@ export const SPIRIT = {
           ],
         },
         {
+          h: "The work is the scenery. The learning is the stride.",
+          p: [
+            "Making something lovable is a joy. What I treasure more is what I learned on the way to making it.",
+            "The work gets seen, and slowly gets old. The way of working comes with me to the next stretch of road. Models will get stronger and tools will change, but habits like \"measure before you fix\", \"check the premise first\" and \"someone looks before it ships\" do not go out of date.",
+            "Lately we work like this: I choose the direction and decide when something may go out; CC plans and reviews with me; Codex builds. Every step has someone watching, and every decision has someone who signs it off. That is human in the loop.",
+            "So I want to make the work, and I also want to write down the road. The work is the scenery; the learning is the stride. I need both to go far.",
+          ],
+          link: { before: "The mistakes we really made are written up in ", text: "\"How AI goes wrong: mistakes we actually made\" (chapter 10)", href: "#c10", after: "." },
+        },
+        {
           h: "Learn together, teach each other",
           p: [
-            "I am not afraid of others learning faster than I do. I hope my friends all learn, and then come back to teach me, so that everyone gets stronger.",
+            "I am glad when others learn faster than I do. I hope my friends all learn, and then come back to teach me, so that everyone gets stronger.",
             "So I am happy to teach friends for free; and when I truly create value for someone, I charge, as a way of respecting each other.",
           ],
           link: { before: "How I taught a friend to build a website with AI on his own is in ", text: "Chapter 12: Teaching SME decision-makers to use AI", href: "#c12", after: "." },
@@ -100,7 +120,7 @@ export const SPIRIT = {
         {
           h: "Five years from now, I hope",
           p: [
-            "AI Lab is not a cold world of zeros and ones. I hope it is a place where people and AI do things better together.",
+            "AI Lab is a place where people and AI do things better together.",
             "I am a Christian, and I believe love means sharing and helping one another. I hope that spirit travels outward: starting with me and my friends, helping the people who run small and medium businesses, relatives and friends, and children, and one day, people who have fewer opportunities.",
             "People and AI, together, making the world a little better. That is worth starting now.",
           ],
