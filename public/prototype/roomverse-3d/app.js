@@ -71,19 +71,36 @@ export async function start({ stage, panel, lang, onReady }) {
     orbitCenter.y + radius * Math.cos(phi),
     orbitCenter.z + radius * Math.sin(phi) * Math.cos(theta),
   );
+  // Base framing stays here: 66° on a tall canvas, 44° otherwise. The TV-wall widening is applied
+  // later, per drawn frame, so this reset can keep doing one job (size, aspect, pose).
+  const baseFov = () => (camera.aspect < .8 ? 66 : 44);
+  let fovProjectionUpdates = 0;
+  function fovForYaw() {
+    if (director || !(camera.aspect < .8)) return baseFov();
+    // 0 faces the window, ±π faces the TV wall. cos eases the 66 → 76 opening and is the same either way around.
+    const yaw = Math.atan2(camera.position.x - orbitCenter.x, camera.position.z - orbitCenter.z);
+    return 66 + 10 * (1 - Math.cos(yaw)) / 2;
+  }
+  function syncFov() {
+    const next = fovForYaw();
+    if (Math.abs(camera.fov - next) < 1e-4) return;
+    camera.fov = next;
+    camera.updateProjectionMatrix();
+    fovProjectionUpdates++;
+  }
   function fit() {
     const w = stage.clientWidth, h = stage.clientHeight;
     renderer.setSize(w, h);
     camera.aspect = w / h;
     orbitRadius = camera.aspect < .8 ? 1.82 : 1.9;
     orbitPhi = Math.PI / 2;
-    camera.fov = camera.aspect < .8 ? 66 : 44;
+    camera.fov = baseFov();
     if (!director) {
       controls.target.copy(orbitCenter);
       camera.position.copy(cameraAt(viewTheta));
       camera.lookAt(orbitCenter);
     }
-    camera.updateProjectionMatrix();
+    camera.updateProjectionMatrix(); // aspect changes need this even when the base fov number does not
     if (!director) controls.update();
   }
 
@@ -652,7 +669,8 @@ export async function start({ stage, panel, lang, onReady }) {
   // Codex's painting, spelling checked letter by letter). About 70 x 28 cm, facing the room, a hair off the wall.
   const plaqueTex = new THREE.TextureLoader().load(new URL("./art/wall-plaque-text-v1.webp", import.meta.url).href, () => render());
   plaqueTex.colorSpace = THREE.SRGBColorSpace; plaqueTex.anisotropy = 8;
-  add(new THREE.PlaneGeometry(.7, .28), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), TX, 1.5, BACK + .015, false);
+  const plaque = add(new THREE.PlaneGeometry(.7, .28), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), TX, 1.5, BACK + .015, false);
+  plaque.name = "house-plaque";
 
   // ---------- light ----------
   const hemi = new THREE.HemisphereLight("#dfe8f0", "#8a6a4f", .35); scene.add(hemi);
@@ -1174,7 +1192,11 @@ export async function start({ stage, panel, lang, onReady }) {
   }
 
   let looping = false;
-  function render() { renderer.render(scene, camera); }
+  // Yaw lives on the frame that is about to be drawn. fit() only knows the saved view and would
+  // widen the window too; the controls "change" event does not run during a view-button turn,
+  // the entrance drift, or the postcard's temporary window camera. Skip the blend while the
+  // short film owns the camera, so that path keeps the base fov fit() already chose.
+  function render() { syncFov(); renderer.render(scene, camera); }
   function showDirectorStop() {
     stopButton.textContent = TEXT[state.lang].stop;
     stopButton.hidden = !(director || directorPreparing);
@@ -1379,6 +1401,27 @@ export async function start({ stage, panel, lang, onReady }) {
     },
     postcard, // used by tests: returns the postcard canvas
     cam: () => camera.position.toArray().map((v) => +v.toFixed(2)), // used by tests: where the camera is
+    fov: () => camera.fov,
+    fovProjectionUpdates: () => fovProjectionUpdates,
+    // QA only: draw one frame at a chosen fov without the yaw blend, so 74° and 76° can be compared.
+    paintFov(value) { camera.fov = value; camera.updateProjectionMatrix(); renderer.render(scene, camera); return camera.fov; },
+    plaqueView() {
+      scene.updateMatrixWorld(true);
+      const center = new THREE.Vector3();
+      plaque.getWorldPosition(center);
+      const caster = new THREE.Raycaster(camera.position.clone(), center.clone().sub(camera.position).normalize());
+      let firstHit = null, firstDistance = Infinity;
+      scene.traverse((obj) => {
+        if (!obj.isMesh) return;
+        const hit = caster.intersectObject(obj, false)[0];
+        if (hit && hit.distance < firstDistance) { firstDistance = hit.distance; firstHit = obj.name || obj.type; }
+      });
+      const corners = [[-.35, -.14], [.35, -.14], [-.35, .14], [.35, .14]].map(([x, y]) => {
+        const p = new THREE.Vector3(x, y, 0).applyMatrix4(plaque.matrixWorld).project(camera);
+        return { x: p.x, y: p.y, z: p.z };
+      });
+      return { firstHit, corners };
+    },
     angle() { const degrees = Math.atan2(camera.position.x - orbitCenter.x, camera.position.z - orbitCenter.z) * 180 / Math.PI; return (Math.round(degrees) + 360) % 360; },
     setOrbitAngle(degrees) { intro = false; viewTheta = degrees * Math.PI / 180; setCameraAngle(viewTheta); return camera.position.toArray(); },
     hasFrontWall: () => !!scene.getObjectByName("front-wall"),

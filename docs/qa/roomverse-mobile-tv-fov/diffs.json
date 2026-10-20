@@ -1,0 +1,266 @@
+[
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      491
+    ],
+    "file": "zh-390x844-window",
+    "aspect": 0.7313351846531967,
+    "fov": 66
+  },
+  {
+    "pixels": 172951,
+    "sameSize": true,
+    "size": [
+      358,
+      491
+    ],
+    "file": "zh-390x844-mid",
+    "aspect": 0.7313351846531967,
+    "fov": 74.53553390593274
+  },
+  {
+    "pixels": 173537,
+    "sameSize": true,
+    "size": [
+      358,
+      491
+    ],
+    "file": "zh-390x844-tv",
+    "aspect": 0.7313351846531967,
+    "fov": 76
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      445
+    ],
+    "file": "en-390x844-window",
+    "aspect": 0.8063063063063063,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      445
+    ],
+    "file": "en-390x844-mid",
+    "aspect": 0.8063063063063063,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      445
+    ],
+    "file": "en-390x844-tv",
+    "aspect": 0.8063063063063063,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      430
+    ],
+    "file": "zh-390x740-window",
+    "aspect": 0.8341342653269259,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      430
+    ],
+    "file": "zh-390x740-mid",
+    "aspect": 0.8341342653269259,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      430
+    ],
+    "file": "zh-390x740-tv",
+    "aspect": 0.8341342653269259,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      341
+    ],
+    "file": "en-390x740-window",
+    "aspect": 1.0529411764705883,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      341
+    ],
+    "file": "en-390x740-mid",
+    "aspect": 1.0529411764705883,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      358,
+      341
+    ],
+    "file": "en-390x740-tv",
+    "aspect": 1.0529411764705883,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      328,
+      430
+    ],
+    "file": "zh-360x740-window",
+    "aspect": 0.7642347458861221,
+    "fov": 66
+  },
+  {
+    "pixels": 138626,
+    "sameSize": true,
+    "size": [
+      328,
+      430
+    ],
+    "file": "zh-360x740-mid",
+    "aspect": 0.7642347458861221,
+    "fov": 74.53553390593274
+  },
+  {
+    "pixels": 139287,
+    "sameSize": true,
+    "size": [
+      328,
+      430
+    ],
+    "file": "zh-360x740-tv",
+    "aspect": 0.7642347458861221,
+    "fov": 76
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      328,
+      341
+    ],
+    "file": "en-360x740-window",
+    "aspect": 0.9647058823529412,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      328,
+      341
+    ],
+    "file": "en-360x740-mid",
+    "aspect": 0.9647058823529412,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      328,
+      341
+    ],
+    "file": "en-360x740-tv",
+    "aspect": 0.9647058823529412,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      1360,
+      649
+    ],
+    "file": "zh-1440x900-window",
+    "aspect": 2.0987654320987654,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      1360,
+      649
+    ],
+    "file": "zh-1440x900-mid",
+    "aspect": 2.0987654320987654,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      1360,
+      649
+    ],
+    "file": "zh-1440x900-tv",
+    "aspect": 2.0987654320987654,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      1360,
+      649
+    ],
+    "file": "en-1440x900-window",
+    "aspect": 2.0987654320987654,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      1360,
+      649
+    ],
+    "file": "en-1440x900-mid",
+    "aspect": 2.0987654320987654,
+    "fov": 44
+  },
+  {
+    "pixels": 0,
+    "sameSize": true,
+    "size": [
+      1360,
+      649
+    ],
+    "file": "en-1440x900-tv",
+    "aspect": 2.0987654320987654,
+    "fov": 44
+  }
+]
