@@ -947,3 +947,64 @@ for (const lang of ["zh", "en"]) {
     });
   }
 }
+
+test("mobile yaw opens the TV wall from 66 to 76; desktop, postcard, plaque and the short film stay put", async ({ page }) => {
+  const expectFov = async (degrees) => {
+    const reading = await page.evaluate((value) => {
+      window.__room.setOrbitAngle(value);
+      const yaw = Math.atan2(Math.sin(value * Math.PI / 180), Math.cos(value * Math.PI / 180));
+      const aspect = document.querySelector("#stage").getBoundingClientRect();
+      const mobile = aspect.width / aspect.height < 0.8;
+      return { fov: window.__room.fov(), expected: mobile ? 66 + 10 * (1 - Math.cos(yaw)) / 2 : 44 };
+    }, degrees);
+    expect(reading.fov).toBeCloseTo(reading.expected, 3);
+    return reading.fov;
+  };
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${PAGE}?lang=zh&mood=rain`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  const stage = await page.evaluate(() => {
+    const box = document.querySelector("#stage").getBoundingClientRect();
+    return { aspect: box.width / box.height, antialias: document.querySelector("#stage canvas").getContext("webgl2").getContextAttributes().antialias };
+  });
+  expect(stage.aspect).toBeLessThan(0.8);
+  expect(stage.antialias).toBe(true);
+  expect(await expectFov(0)).toBeCloseTo(66, 2);
+  const plaque = await page.evaluate(() => window.__room.plaqueView());
+  expect(plaque.firstHit).toBe("house-plaque");
+  const center = plaque.corners.reduce((sum, corner) => ({ x: sum.x + corner.x / 4, y: sum.y + corner.y / 4 }), { x: 0, y: 0 });
+  expect(Math.abs(center.x)).toBeLessThan(1);
+  expect(Math.abs(center.y)).toBeLessThan(1);
+  const at90 = await expectFov(90);
+  const at135 = await expectFov(135);
+  expect(at135).toBeGreaterThan(at90);
+  expect(at135).toBeLessThan(76);
+  expect(at135).toBeGreaterThan(74);
+  await expectFov(180);
+  const updates = await page.evaluate(() => window.__room.fovProjectionUpdates());
+  await page.evaluate(() => window.__room.setOrbitAngle(180));
+  expect(await page.evaluate(() => window.__room.fovProjectionUpdates())).toBe(updates);
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+  const fromTv = await page.evaluate(() => window.__room.postcard().toDataURL());
+  await page.evaluate(() => window.__room.setOrbitAngle(0));
+  expect(await page.evaluate(() => window.__room.postcard().toDataURL())).toBe(fromTv);
+  await page.evaluate(() => window.__room.setOrbitAngle(180));
+  const beforeTour = await page.evaluate(() => window.__room.cam());
+  await page.locator(".director").click();
+  await page.waitForFunction(() => window.__room.director().playing, null, { timeout: 15000 });
+  expect(await page.evaluate(() => window.__room.fov())).toBeCloseTo(66, 2);
+  await page.locator(".director-stop").click();
+  await expect.poll(() => page.evaluate(() => window.__room.cam())).toEqual(beforeTour);
+  expect(await page.evaluate(() => window.__room.fov())).toBeCloseTo(76, 2);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect.poll(() => page.evaluate(() => {
+    const box = document.querySelector("#stage").getBoundingClientRect();
+    const canvas = document.querySelector("#stage canvas");
+    return box.width / box.height >= 0.8 && Math.abs(canvas.width - box.width) < 2;
+  })).toBe(true);
+  expect(await expectFov(0, 44)).toBeCloseTo(44, 2);
+  expect(await expectFov(135, 44)).toBeCloseTo(44, 2);
+  expect(await expectFov(180, 44)).toBeCloseTo(44, 2);
+});
