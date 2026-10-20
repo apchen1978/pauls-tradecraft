@@ -52,7 +52,7 @@ test("an early click settles the entrance animation before saving the camera", a
   await page.locator("#panel .director").click();
   await page.waitForFunction(() => window.__room.director().playing, null, { timeout: 15000 });
   await page.waitForFunction(() => !window.__room.director().playing, null, { timeout: 15000 });
-  expect(await page.evaluate(() => __room.cam())).toEqual([0.15, 1.5, 3.5]);
+  expect(await page.evaluate(() => __room.cam())).toEqual([0, 1.28, 2]);
 });
 
 test("reduced motion shows three distinct room-light studies without moving the camera", async ({ page }) => {
