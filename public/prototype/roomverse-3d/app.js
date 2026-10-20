@@ -251,6 +251,7 @@ export async function start({ stage, panel, lang, onReady }) {
   tvSurfaceSpecs.set(tvFrameMat, { name: "tv-frame-v1", tile: .5 });
   const tvTrimMat = new THREE.MeshStandardMaterial({ color: "#d7bd91", roughness: .55, metalness: .2 });
   const tvScreenMat = new THREE.MeshBasicMaterial({ color: "#141b1e" }); // quiet powered-off face; no point-light specular hotspot
+  let tvScreenArtLoaded = false;
   const tvStripMat = new THREE.MeshStandardMaterial({ color: "#ffe1a4", emissive: "#ffc477", emissiveIntensity: .18, roughness: .9 });
   const tvWashMap = canvasTex(64, 64, (ctx, w, h) => {
     const glow = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
@@ -332,9 +333,19 @@ export async function start({ stage, panel, lang, onReady }) {
       const specs = [
         ["tv-oak-v1", true], ["tv-door-v1", false], ["tv-frame-v1", true], ["tv-backing-v1", true],
       ];
-      const sources = new Map(await Promise.all(specs.map(([name, repeat]) => new Promise((resolve, reject) => {
+      const [entries, screenArt] = await Promise.all([Promise.all(specs.map(([name, repeat]) => new Promise((resolve, reject) => {
         image(name, repeat, (texture) => resolve([name, texture]), reject)();
-      }))));
+      }))), new Promise((resolve) => {
+        // Optional artwork fails independently, leaving the original dark screen usable.
+        image("tv-screen-night-v1", false, resolve, () => resolve(null))();
+      })]);
+      const sources = new Map(entries);
+      if (screenArt) {
+        tvScreenMat.map = screenArt;
+        tvScreenArtLoaded = true;
+        tvScreenMat.color.setScalar((shown ?? lights()).screenLevel);
+        tvScreenMat.needsUpdate = true;
+      }
       tvWall.traverse((obj) => {
         const spec = obj.userData.tvTexture && tvSurfaceSpecsByName.get(obj.userData.tvTexture);
         const repeat = meshSurfaceRepeat.get(obj.material);
@@ -763,11 +774,12 @@ export async function start({ stage, panel, lang, onReady }) {
   // so the room seems to change its light rather than jump to a new picture.
   const lightForMood = (mood) => {
     const m = MOODS[mood];
+    const screenLevel = ({ rain: .1, family: .08, tech: .15, chic: .08, slow: .07, tv: .46 })[mood];
     return {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, led: m.led ? .5 : 0,
       floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
       shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
-      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0,
+      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0, screenLevel,
     };
   };
   const lights = () => lightForMood(state.mood);
@@ -777,6 +789,7 @@ export async function start({ stage, panel, lang, onReady }) {
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
     shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
+    if (tvScreenArtLoaded) tvScreenMat.color.setScalar(v.screenLevel);
   }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
@@ -797,8 +810,18 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   // the visitor's room lives in the address, so a copied link opens the same room (unknown values are ignored)
   const CHOICES = { mood: MOODS, wall: WALLS, rug: RUGS, curtain: CURTAINS, print: PRINTS };
+  // Each feeling starts with a matching existing finish; an explicit URL or visitor pick wins.
+  const DEFAULT_WALL_BY_MOOD = { rain: "original", family: "olive", tech: "mist", chic: "blush", slow: "sand", tv: "wine" };
   const fromUrl = new URLSearchParams(location.search);
+  let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
+  if (!wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[state.mood];
+  function choose(key, value) {
+    if (key === "wall") wallWasChosen = true;
+    if (key === "mood" && !wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[value];
+    state[key] = value;
+    apply();
+  }
   function toUrl() {
     const u = new URL(location.href);
     for (const k in CHOICES) u.searchParams.set(k, state[k]);
@@ -878,7 +901,7 @@ export async function start({ stage, panel, lang, onReady }) {
       box.append(...Object.entries(table).map(([k, v]) => {
         const b = document.createElement("button"); b.type = "button"; b.textContent = v[state.lang]; b.dataset.key = k;
         b.setAttribute("aria-pressed", String(state[key] === k));
-        b.onclick = () => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); state[key] = k; apply(); toUrl(); };
+        b.onclick = () => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); choose(key, k); toUrl(); };
         return b;
       }));
       if (key !== "mood") return [h, box];
@@ -913,6 +936,7 @@ export async function start({ stage, panel, lang, onReady }) {
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     const pick = (table, now) => { const ks = Object.keys(table).filter((k) => k !== now); return ks[Math.floor(Math.random() * ks.length)]; };
+    wallWasChosen = true;
     state.wall = pick(WALLS, state.wall); state.rug = pick(RUGS, state.rug); state.curtain = pick(CURTAINS, state.curtain); state.print = pick(PRINTS, state.print);
     apply(); toUrl();
   }
@@ -1184,7 +1208,7 @@ export async function start({ stage, panel, lang, onReady }) {
   onReady?.();
   return {
     setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
-    set(k, v) { state[k] = v; apply(); }, // used by tests
+    set(k, v) { choose(k, v); }, // used by tests
     scheduleTvWallTextures() {
       const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); };
       const loadWhenIdle = () => {
@@ -1225,7 +1249,7 @@ export async function start({ stage, panel, lang, onReady }) {
     tvWallTextures() {
       const meshes = [];
       tvWall.traverse((obj) => {
-        if (!obj.isMesh) return;
+        if (!obj.isMesh || !obj.userData.tvTexture) return;
         const map = obj.material.map;
         meshes.push({ name: obj.name, file: obj.userData.tvTexture ? `${obj.userData.tvTexture}.webp` : map?.image?.src?.split("/").pop(),
           mapId: map?.uuid, materialId: obj.material.uuid, loaded: !!map?.image?.width,
@@ -1236,6 +1260,7 @@ export async function start({ stage, panel, lang, onReady }) {
     },
     loadTvWallTextures,
     tvWallTexturesReady: () => tvWallTexturesLoaded,
+    tvScreen() { return { loaded: tvScreenArtLoaded, file: tvScreenMat.map?.image?.src?.split("/").pop() ?? null, width: tvScreenMat.map?.image?.width ?? 0, height: tvScreenMat.map?.image?.height ?? 0, brightness: tvScreenMat.color.r }; },
     tableLampLighting() {
       scene.updateMatrixWorld(true);
       const source = lampLight.getWorldPosition(new THREE.Vector3());
