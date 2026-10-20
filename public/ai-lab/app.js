@@ -827,7 +827,10 @@ function renderSpirit() {
   $("spirit-end-kicker").textContent = x.close.kicker;
   $("spirit-end-title").textContent = x.close.title;
   $("spirit-end-body").replaceChildren(...spiritBlocks(x.close.blocks));
-  $("gallery-link").textContent = x.close.gallery;
+  $("gallery-kicker").textContent = x.close.galleryKicker;
+  $("gallery-title").textContent = x.close.galleryTitle;
+  $("gallery-description").textContent = x.close.galleryDescription;
+  $("gallery-cta").textContent = x.close.galleryCta;
   $("gallery-link").href = `/gallery/?lang=${state.lang}`;
 }
 

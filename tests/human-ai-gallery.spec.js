@@ -17,6 +17,7 @@ async function loaded(page) {
 test("collection: bilingual records, local images, provenance and required-field rejection", () => {
   expect(() => validatePieces(PIECES)).not.toThrow();
   expect(PIECES.length).toBeGreaterThanOrEqual(6);
+  for (const id of ["winter-lamplight", "stage-after-show"]) expect(PIECES.some((piece) => piece.id === id)).toBe(true);
   expect(Object.keys(COLLECTION.zh).sort()).toEqual(Object.keys(COLLECTION.en).sort());
   const manifest = JSON.parse(readFileSync(`${QA}/asset-manifest.json`, "utf8"));
   for (const piece of PIECES) {
@@ -112,8 +113,14 @@ for (const width of [390, 1440]) {
       const entry = page.locator("#gallery-link");
       await expect(entry).toHaveAttribute("href", url(lang));
       expect((await entry.boundingBox()).height).toBeGreaterThanOrEqual(44);
-      expect(await page.evaluate(() => performance.getEntriesByType("resource").some((r) => r.name.includes("/gallery/assets/")))).toBe(false);
       await entry.scrollIntoViewIfNeeded();
+      const coverImages = entry.locator(".gallery-entry-cover img");
+      await expect(coverImages).toHaveCount(3);
+      for (const image of await coverImages.all()) {
+        await expect.poll(() => image.evaluate((im) => im.complete && im.naturalWidth > 0)).toBe(true);
+        await image.evaluate((im) => im.decode());
+      }
+      expect(await page.evaluate(() => performance.getEntriesByType("resource").filter((r) => r.name.includes("/gallery/assets/")).length)).toBe(3);
       await page.screenshot({ path: `${QA}/entry-${lang}-${width}.jpg`, quality: 88 });
       await entry.click();
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(COLLECTION[lang].title);
