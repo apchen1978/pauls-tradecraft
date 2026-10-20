@@ -1,8 +1,8 @@
 # 〈黃昏的港口〉交接手記
 
-2026-10-21。Paul 同意：方案 B；說明保留〈黎明的港口〉。〈黎明的港口〉／Harbour at Dawn 是 ROOMVERSE 右牆那幅。畫廊裡既有的一幅標題仍是〈晨光裡的港口〉／A Harbour in Morning Light。
+2026-10-21。Paul 同意：方案 B；說明改為與〈晨光裡的港口〉成對。
 
-2026-10-21。Paul 同意的文案修改：「怎麼做出來的」改為下面兩句。標題、說明與 alt 維持頁上現句。這是 Draft，尚未合併。合併等 Paul 寫「merge #N」。
+2026-10-21。Paul 同意的文案修改：「怎麼做出來的」改為下面兩句。標題與 alt 維持頁上現句。這是 Draft，尚未合併。合併等 Paul 寫「merge #N」。
 
 - zh: Paul 提議讓這幅與〈黎明的港口〉配成一對。Grok Bot 以〈黎明的港口〉為風格參考，用文字生成這幅畫，再以影像工具修整細節。
 - en: Paul proposed pairing this painting with Harbour at Dawn. Grok Bot generated it from a text prompt, using Harbour at Dawn as the style reference, then refined the details with image tools.
@@ -23,7 +23,7 @@
 - 同一輪 Playwright 會先 `npm run build`。通過，只有既有的 chunk 超過 500 kB 警告。
 - 另以中英 × 390／1440 打開〈黃昏的港口〉：Enter 後焦點在「關閉」；右鍵到下一幅（貿易街）；左鍵到上一幅（晨光裡的港口）；Escape 後焦點回到這幅的按鈕。390 與 1440 的橫向溢位都是 0。1440 燈箱用 `harbor-dusk.webp`，390 用 `harbor-dusk-mobile.webp`。
 
-首次載入是畫廊 spec 寫進 `initial-load.json` 的本機觀察：390 為 9 requests、165,508 bytes；1440 為 10 requests、210,210 bytes。都低於 350,000。沒有手機網速或 CPU 模擬。
+首次載入是畫廊 spec 寫進 `initial-load.json` 的本機觀察：390 為 9 requests、165,272 bytes；1440 為 10 requests、209,974 bytes。都低於 350,000。沒有手機網速或 CPU 模擬。
 
 ## 沒跑
 

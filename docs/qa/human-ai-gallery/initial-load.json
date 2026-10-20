@@ -4,7 +4,7 @@
     {
       "width": 390,
       "requests": 9,
-      "encodedBodyBytes": 165508,
+      "encodedBodyBytes": 165272,
       "resources": [
         {
           "url": "/gallery/styles.css",
@@ -16,7 +16,7 @@
         },
         {
           "url": "/gallery/pieces.js",
-          "bytes": 4932
+          "bytes": 4696
         },
         {
           "url": "/gallery/assets/imagined-harbor-thumb.webp",
@@ -27,12 +27,12 @@
           "bytes": 44524
         },
         {
-          "url": "/gallery/assets/trade-street-thumb.webp",
-          "bytes": 44400
-        },
-        {
           "url": "/gallery/assets/harbor-dusk-thumb.webp",
           "bytes": 22098
+        },
+        {
+          "url": "/gallery/assets/trade-street-thumb.webp",
+          "bytes": 44400
         },
         {
           "url": "/favicon.png",
@@ -43,7 +43,7 @@
     {
       "width": 1440,
       "requests": 10,
-      "encodedBodyBytes": 210210,
+      "encodedBodyBytes": 209974,
       "resources": [
         {
           "url": "/gallery/styles.css",
@@ -55,7 +55,7 @@
         },
         {
           "url": "/gallery/pieces.js",
-          "bytes": 4932
+          "bytes": 4696
         },
         {
           "url": "/gallery/assets/imagined-harbor-thumb.webp",
