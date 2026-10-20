@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { mkdir, stat } from "node:fs/promises";
+import { mkdir, readFile, stat } from "node:fs/promises";
 
 // ROOMVERSE 3D: a poster first (no 3D download until the visitor asks), then a 3D room whose feeling,
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
@@ -11,6 +11,54 @@ const storyRooms = {
   tech: { zh: "在家寫到半夜，只想要安靜。", en: "Working from home past midnight, they need quiet.", wall: "mist", rug: "stripe", curtain: "linen", print: "moon" },
   tv: { zh: "週五晚上，只想窩著追劇。", en: "Friday night, and she wants nothing but the sofa and a good series.", wall: "sand", rug: "ivory", curtain: "linen", print: "moon", view: "tv" },
 };
+
+for (const width of [390, 1440]) {
+  test(`closed interior door at ${width}px: clear of furniture, skirting stops at the frame, postcard downloads`, async ({ page }, testInfo) => {
+    expect((await stat("public/prototype/roomverse-3d/tex/door-oak-v1.webp")).size).toBeLessThan(120000);
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    const requests = [], errors = [];
+    page.on("request", (r) => { if (r.url().endsWith("door-oak-v1.webp")) requests.push(r.url()); });
+    page.on("pageerror", (e) => errors.push(String(e)));
+    await page.goto(`${PAGE}?lang=zh&mood=rain`);
+    expect(requests).toHaveLength(0);
+    await page.locator("#enter").click();
+    await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+    expect(await page.evaluate(() => window.__room.loadDoorTexture())).toBe(true);
+    await page.evaluate(() => window.__room.setOrbitAngle(270));
+    const door = await page.evaluate(() => window.__room.roomDoor());
+    expect(door.collisions).toEqual([]);
+    expect(door.bounds.max[1]).toBeCloseTo(2.1);
+    expect(door.bounds.min[1]).toBeCloseTo(0);
+    expect(door.leaf.min[1]).toBeLessThan(.01);
+    expect(door.bounds.max[2] - door.bounds.min[2]).toBeCloseTo(1.05);
+    expect(door.skirting[0].max[2]).toBeCloseTo(door.bounds.min[2]);
+    expect(door.skirting[1].min[2]).toBeCloseTo(door.bounds.max[2]);
+    for (const wall of ["original", "pine", "stripe", "botanical"]) {
+      await page.evaluate((value) => window.__room.set("wall", value), wall);
+      expect((await page.evaluate(() => window.__room.roomDoor())).textureLoaded).toBe(true);
+    }
+    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (await page.locator("#panelToggle").isVisible()) await page.locator("#panelToggle").click();
+    const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "存成明信片", exact: true }).click()]);
+    const file = testInfo.outputPath(`door-postcard-${width}.png`);
+    await download.saveAs(file);
+    expect((await readFile(file)).subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+    expect(errors).toEqual([]);
+  });
+}
+
+test("a failed door texture keeps the door and the room usable", async ({ page }) => {
+  await page.route("**/door-oak-v1.webp", (route) => route.abort());
+  await page.goto(`${PAGE}?lang=zh&mood=tv&view=tv`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  expect(await page.evaluate(() => window.__room.loadDoorTexture())).toBe(false);
+  expect((await page.evaluate(() => window.__room.roomDoor())).textureLoaded).toBe(false);
+  await page.evaluate(() => window.__room.set("mood", "family"));
+  await expect(page.locator("#status")).toBeHidden();
+  expect((await page.evaluate(() => window.__room.roomDoor())).collisions).toEqual([]);
+});
 
 test("TV wall uses four small painted maps, independent repeats, and consistent grain on thin boards", async ({ page }) => {
   const files = ["tv-oak-v1.webp", "tv-door-v1.webp", "tv-frame-v1.webp", "tv-backing-v1.webp"];
