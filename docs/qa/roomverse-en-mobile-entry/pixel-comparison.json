@@ -1,0 +1,98 @@
+[
+  {
+    "lang": "en",
+    "width": 390,
+    "height": 844,
+    "state": "poster",
+    "expected_unchanged": false,
+    "mean_difference": 25.151752946895126
+  },
+  {
+    "lang": "en",
+    "width": 390,
+    "height": 844,
+    "state": "room",
+    "expected_unchanged": false,
+    "mean_difference": 37.6693067201361
+  },
+  {
+    "lang": "en",
+    "width": 390,
+    "height": 740,
+    "state": "poster",
+    "expected_unchanged": false,
+    "mean_difference": 32.120622545622545
+  },
+  {
+    "lang": "en",
+    "width": 390,
+    "height": 740,
+    "state": "room",
+    "expected_unchanged": false,
+    "mean_difference": 32.64902748902749
+  },
+  {
+    "lang": "zh",
+    "width": 390,
+    "height": 844,
+    "state": "poster",
+    "expected_unchanged": true,
+    "mean_difference": 0.0
+  },
+  {
+    "lang": "zh",
+    "width": 390,
+    "height": 844,
+    "state": "room",
+    "expected_unchanged": true,
+    "mean_difference": 0.0
+  },
+  {
+    "lang": "zh",
+    "width": 390,
+    "height": 740,
+    "state": "poster",
+    "expected_unchanged": true,
+    "mean_difference": 0.0
+  },
+  {
+    "lang": "zh",
+    "width": 390,
+    "height": 740,
+    "state": "room",
+    "expected_unchanged": true,
+    "mean_difference": 0.0
+  },
+  {
+    "lang": "en",
+    "width": 1440,
+    "height": 900,
+    "state": "poster",
+    "expected_unchanged": true,
+    "mean_difference": 0.0
+  },
+  {
+    "lang": "en",
+    "width": 1440,
+    "height": 900,
+    "state": "room",
+    "expected_unchanged": true,
+    "mean_difference": 0.0
+  },
+  {
+    "lang": "zh",
+    "width": 1440,
+    "height": 900,
+    "state": "poster",
+    "expected_unchanged": true,
+    "mean_difference": 0.0
+  },
+  {
+    "lang": "zh",
+    "width": 1440,
+    "height": 900,
+    "state": "room",
+    "expected_unchanged": true,
+    "mean_difference": 0.0
+  }
+]
