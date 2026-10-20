@@ -1,4 +1,4 @@
-// Paul approved this selection and the harbour pairing on 2026-10-20.
+// Paul approved this selection and the harbour pairing on 2026-10-20; the after-show scene was added on 2026-10-21.
 // Provenance and source-art records belong in docs/gallery/; visitor copy stays here.
 export const COLLECTION = {
   zh: {
@@ -6,7 +6,7 @@ export const COLLECTION = {
     skip: "跳至畫作", hint: "挑一幅，停下來看看。", home: "回到 Paul’s Tradecraft",
     pairTitle: "同一束晨光，兩種港口",
     pairNote: "帆船與貨櫃船，在想像中共享晨光。這是創作想像的對照，不是航運史考據。",
-    moreTitle: "日光與燈火之間", moreNote: "港邊的一天，和照夜鎮裡相聚的時刻。",
+    moreTitle: "日光與燈火之間", moreNote: "港邊的一天，和冬夜裡相聚的時刻。",
     back: "回到 AI Lab", open: "放大欣賞：", close: "關閉大圖 ×", previous: "← 上一幅", next: "下一幅 →", made: "怎麼做出來的",
   },
   en: {
@@ -14,7 +14,7 @@ export const COLLECTION = {
     skip: "Skip to the paintings", hint: "Choose a picture. Stay a while.", home: "Back to Paul’s Tradecraft",
     pairTitle: "One Morning Light, Two Harbours",
     pairNote: "Sailing ships and container ships share an imagined morning. A creative pairing, rather than a study of shipping history.",
-    moreTitle: "Between Daylight and Lamplight", moreNote: "A day by the harbour, and moments together in Nightglow.",
+    moreTitle: "Between Daylight and Lamplight", moreNote: "A day by the harbour, and moments together on a winter night.",
     back: "Back to AI Lab", open: "View painting: ", close: "Close painting ×", previous: "← Previous", next: "Next →", made: "How it was made",
   },
 };
@@ -61,6 +61,14 @@ export const PIECES = [
     made: { zh: "Codex 用 ImageGen 參照既有角色畫成完整群像；Paul 調整攝影師的站位、隊友間距與中央細節。", en: "Codex used ImageGen and the existing character designs to create a complete group scene. Paul refined the photographer’s position, the spacing and the central details." },
   },
   {
+    id: "winter-lamplight", date: "2026-10-15", frame: "plain", width: 1122, height: 1402,
+    image: "assets/winter-lamplight.webp", imageSmall: "assets/winter-lamplight-mobile.webp", thumbnail: "assets/winter-lamplight-thumb.webp",
+    title: { zh: "街燈下的相遇", en: "A Meeting by Lamplight" },
+    alt: { zh: "雪夜的街燈下，一位女子輕撫白馬，攝影者拍下這一刻，橘貓坐在冒熱氣的杯子旁。", en: "Under a street lamp on a snowy night, a woman greets a white horse as a photographer captures the moment and an orange cat sits beside a steaming cup." },
+    caption: { zh: "一盞街燈下，腳步慢下來，大家留住這個相遇。", en: "Under one street lamp, the night slows as everyone pauses for a shared moment." },
+    made: { zh: "Paul 選定並核可這幅冬夜場景；Codex 使用 ImageGen，參照既有角色造型繪成完整畫面。", en: "Paul selected and approved this winter scene. Codex used ImageGen and the established character designs to paint it as one complete image." },
+  },
+  {
     id: "clocktower-map", date: "2026-10-15", frame: "plain", width: 816, height: 1020,
     image: "assets/clocktower-map.webp", imageSmall: "assets/clocktower-map-mobile.webp", thumbnail: "assets/clocktower-map-thumb.webp",
     title: { zh: "鐘樓下的地圖", en: "A Map Beneath the Clock Tower" },
@@ -75,6 +83,14 @@ export const PIECES = [
     alt: { zh: "暖窗小屋裡，戴安娜修一串小燈，隊友扶梯、陪伴並遞來燈泡，窗外是安靜的雪夜。", en: "Inside a warm-windowed cottage, Diana repairs a string of lights while teammates steady the ladder, keep her company and hand her a bulb, with a quiet snowy night outside." },
     caption: { zh: "窗外落著雪，屋裡還有人忙著。等最後一盞小燈亮起，再一起回家。", en: "Snow falls outside while the cottage stays busy. They will head home together when the last little light comes on." },
     made: { zh: "Paul 指定修燈、扶梯與遞燈泡的互動；Codex 用 ImageGen 沿用既有角色，整幅繪製共同的透視與光線。", en: "Paul chose the actions of fixing lights, steadying a ladder and passing a bulb. Codex used ImageGen with the existing characters to paint the scene with shared perspective and lighting." },
+  },
+  {
+    id: "stage-after-show", date: "2026-10-15", frame: "plain", width: 1122, height: 1402,
+    image: "assets/stage-after-show.webp", imageSmall: "assets/stage-after-show-mobile.webp", thumbnail: "assets/stage-after-show-thumb.webp",
+    title: { zh: "散場以後", en: "After the Show" },
+    alt: { zh: "露天舞台散場後，幾個人收拾折椅、掃去台階上的雪，舞台邊留著一杯冒熱氣的飲料。", en: "After an open-air show, a few people fold chairs and clear snow from the steps, with a steaming drink left at the edge of the stage." },
+    caption: { zh: "散場以後，舞台慢慢安靜下來，雪地上還留著收尾的腳步。", en: "After the show, the stage grows quiet; a few footprints remain in the snow." },
+    made: { zh: "Paul 選定散場後的日常一幕；Codex 使用 ImageGen，將收拾舞台的動作畫成同一個冬夜場景。", en: "Paul chose an everyday moment after a show. Codex used ImageGen to paint the crew tidying the stage as one winter scene." },
   },
 ];
 

@@ -32,3 +32,14 @@
 四幅放大檢視：貿易街船／吊具／小人物、合照人物與衣飾、鐘樓地圖與人物、現代港口船身／岸橋；裁切圖放 QA。未見可讀文字、品牌、真實國旗或故事名稱；這是人工目視檢查，不宣稱自動辨識能排除全部細微瑕疵。
 
 所有畫作均屬創作；不宣稱真實港口、實際營運、歷史考證或商業成效。新增說明文案交 Paul／CC 審定；Paul 已逐字指定的標題與副標照用。
+
+## 2026-10-21：補入冬夜舞台場景與 AI Lab 封面入口
+
+Paul 指示把《十二月的燈》尚未收入畫廊的場景畫加入。核對四張已交稿彩蛋圖後，畫廊原有其中兩幅（鐘樓地圖、暖窗修補）；「大家都在」是另一張終章群像，不是四張彩蛋之一。這輪補入剩下兩幅「街燈下的相遇」與「露天舞台散場後」，公開標題不展示角色姓名或私有故事設定。
+
+| id | 原稿與製作證據 |
+| --- | --- |
+| winter-lamplight | 原稿 `docs/gallery/sources/winter-lamplight-original.png`；來源為 2026-10-15 已由 Paul 看過並同意交稿的冬夜場景。封存素材 README 記錄以內建 Image 2.0 參照既有角色圖重繪；PNG 原稿 1122×1402、3,044,380 bytes。WebP 衍生圖尺寸、bytes 與 SHA256 見 `docs/qa/human-ai-gallery/asset-manifest.json`。 |
+| stage-after-show | 原稿 `docs/gallery/sources/december-stage-original.png`；來源為 2026-10-15 已由 Paul 看過並同意交稿的彩蛋圖。`Desktop/09_封存/2026-10_完工/十二月的燈素材/給Grokbot_彩蛋/README.md` 記錄以內建 Image 2.0 參照既有角色圖重繪場景；PNG 原稿 1122×1402、2,610,743 bytes。WebP 衍生圖尺寸、bytes 與 SHA256 見 `docs/qa/human-ai-gallery/asset-manifest.json`。 |
+
+AI Lab 結尾入口改成雙語作品卡，以三張畫廊縮圖構成預覽封面；資產維持延遲載入，連結仍寫入訪客目前的語言。公開文案不增加故事人名或未公開設定。

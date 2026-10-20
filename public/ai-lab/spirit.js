@@ -28,7 +28,10 @@ export const SPIRIT = {
     close: {
       kicker: "最後",
       title: "把門開得更大",
-      gallery: "走進人機協作畫廊 →",
+      galleryKicker: "從 AI Lab 延伸的一組創作",
+      galleryTitle: "人機協作畫廊",
+      galleryDescription: "從港口晨光到冬夜散場，看看一個想法如何長成一幅畫。",
+      galleryCta: "走進畫廊",
       blocks: [
         {
           h: "商業與創作，互相餵養",
@@ -93,7 +96,10 @@ export const SPIRIT = {
     close: {
       kicker: "AND FINALLY",
       title: "Opening the door wider",
-      gallery: "Visit the Human–AI Gallery →",
+      galleryKicker: "A creative collection beyond AI Lab",
+      galleryTitle: "The Human–AI Gallery",
+      galleryDescription: "From a sunlit harbour to a quiet winter stage, see an idea take shape as a painting.",
+      galleryCta: "Enter the gallery",
       blocks: [
         {
           h: "Business and creation feed each other",

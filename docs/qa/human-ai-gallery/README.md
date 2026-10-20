@@ -30,7 +30,7 @@
 
 `trade-detail-review.jpg`、`finale-detail-review.jpg`、`clocktower-detail-review.jpg`、`modern-detail-review.jpg`：四幅放大裁切。人工目視未見可讀文字、小說名稱、品牌、真實國旗或明顯扭曲；這是人工審圖，不是自動完美性保證。其他原稿來源與製作方法見 `docs/gallery/README.md`。
 
-`asset-manifest.json`：原稿 SHA256，以及所有 WebP 的尺寸、bytes、品質與 SHA256。18 個網站 WebP 合計 1,428,730 bytes；不一次全載。貿易街筆觸密集，大圖 143,414 bytes、800px 圖 94,194 bytes，沒有為湊 90KB 再次破壞畫面；原 PNG 保留桌面。
+`asset-manifest.json`：原稿 SHA256，以及所有 WebP 的尺寸、bytes、品質與 SHA256。加入兩幅冬夜場景後共 24 個網站 WebP，合計 2,624,204 bytes；不一次全載。貿易街筆觸密集，大圖 143,414 bytes、800px 圖 94,194 bytes，沒有為湊 90KB 再次破壞畫面；原 PNG 保留在來源資料夾。
 
 ## 首次載入觀察
 
@@ -38,13 +38,21 @@
 
 | viewport | requests | encoded body bytes |
 | --- | ---: | ---: |
-| 390×844 | 9 | 187,402 |
-| 1440×900 | 11 | 277,018 |
+| 390×844 | 9 | 165,659 |
+| 1440×900 | 10 | 210,361 |
 
-原生 lazy-loading 會預取視窗附近的縮圖，所以桌機此尺寸會載六幅縮圖，手機此尺寸載四幅。開燈箱前沒有載任何大圖；AI Lab 入口頁不請求畫廊資產。這些是本機觀察，不代表正式站傳輸時間、真機效能或跨網路成效。
+原生 lazy-loading 會預取視窗附近的縮圖，所以桌機此尺寸會載六幅縮圖，手機此尺寸載四幅。開燈箱前沒有載任何大圖；AI Lab 頂部不請求畫廊資產，捲到結尾封面卡時載三張預覽縮圖，合計 164,852 bytes。這些是本機觀察，不代表正式站傳輸時間、真機效能或跨網路成效。
 
 ## Document parity
 
 網站新畫廊與 AI Lab 小入口：CHECKED。OnePager ZH／EN、能力簡介：N/A（非能力定位或首頁作品清單改動，無新成果／成效宣稱）；既有 parity 腳本通過。ZH/EN semantic parity：人工檢視，待 CC／Paul 最終審定。Claim boundary：兩港口明寫創作對照，不是航運史考據；未宣稱真實營運。來源不明資產未納入。
 
 FACT：本機結果及截圖如上。INFERENCE：夜間展廳與古今港口並排能讓畫作關係更易理解，尚無訪客回饋。UNKNOWN：實體手機／正式站表現、CC 最終措辭審查。不得以本文件表示已合併或發布。
+
+## 2026-10-21 follow-up
+
+- 畫廊由 7 幅擴為 9 幅；補入已核可的「街燈下的相遇 / A Meeting by Lamplight」及「散場以後 / After the Show」兩幅冬夜場景原稿與 1024／800／480px WebP 衍生圖。來源及公開內容邊界記於 `docs/gallery/README.md`。
+- AI Lab 結尾入口改為雙語封面卡，預覽由三張畫作縮圖組成；只載入縮圖，不預載畫廊大圖，語言仍由 `?lang=` 保留。
+- 驗證：`npm run build` 通過（有既有 >500 KB chunk 警告）；`npm test` 89/89；AI Lab 瀏覽器測試 20/20；畫廊瀏覽器測試 10/10，涵蓋中英 × 390／1440、九幅大圖、雙語接續、入口三圖載入、無水平溢位、燈箱鍵盤／焦點、reduced-motion 與觸控尺寸。
+- 本次畫廊頂部首次載入觀察更新為 390×844：9 requests／165,659 bytes；1440×900：10 requests／210,361 bytes。只在 AI Lab 結尾入口載入的三張縮圖合計 164,852 bytes；不預載大圖。
+- 正式站、實體手機及 Safari 尚未驗證；瀏覽器結果是本機 Chrome。

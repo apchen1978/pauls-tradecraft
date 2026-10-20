@@ -215,5 +215,67 @@
         "sha256": "547ca26aeddad56361f7d9fef9ecd70c6528673e29e40cb5575be76150fd6c67"
       }
     ]
+  },
+  {
+    "id": "stage-after-show",
+    "source": "docs/gallery/sources/december-stage-original.png",
+    "sourceSha256": "889e043853ca68d3b615b1fde0caaf1267abee1c15413cc73ba05e7f271e2545",
+    "derivatives": [
+      {
+        "file": "stage-after-show.webp",
+        "width": 1024,
+        "height": 1280,
+        "bytes": 269092,
+        "quality": 86,
+        "sha256": "0d6265a29c077f5a0240f390984126055dc948d940b8e9b7e958ec59ef5b6941"
+      },
+      {
+        "file": "stage-after-show-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 195964,
+        "quality": 86,
+        "sha256": "1ae8e4c3d926e862573337cd8fa86193a36263fe81ee48b2adfacbc720598371"
+      },
+      {
+        "file": "stage-after-show-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 75750,
+        "quality": 82,
+        "sha256": "08993ab3374e4da28dc511411071e2c6d66091f9d4e96f85edbf9d06cf245162"
+      }
+    ]
+  },
+  {
+    "id": "winter-lamplight",
+    "source": "docs/gallery/sources/winter-lamplight-original.png",
+    "sourceSha256": "f7e000703cbbefa8e2d900d78b92bd7625790c1cb1fe103fe11732319a608ee9",
+    "derivatives": [
+      {
+        "file": "winter-lamplight.webp",
+        "width": 1024,
+        "height": 1280,
+        "bytes": 328408,
+        "quality": 86,
+        "sha256": "69730b49eb982ed2c0c0922af99311ac4567012e069d141a8c6f0d1fa82b2db9"
+      },
+      {
+        "file": "winter-lamplight-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 235410,
+        "quality": 86,
+        "sha256": "05c4ee2371094f01de6d4cee6bbbbc3bbdfc9bdde6c152afe0d7d5c84a490206"
+      },
+      {
+        "file": "winter-lamplight-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 90850,
+        "quality": 82,
+        "sha256": "94f2626b3d4295dd5eda736faa5aa8931eba650d56bcc61e460926cb4b907b44"
+      }
+    ]
   }
 ]
