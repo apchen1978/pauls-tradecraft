@@ -1,0 +1,72 @@
+{
+  "method": "5 alternating fresh contexts per viewport, both app scripts route-fulfilled, cache disabled, CPU 4x, actual entry click to interactive canvas/controls",
+  "viewports": {
+    "390": {
+      "before": [
+        1537,
+        1456,
+        1390,
+        1425,
+        1474
+      ],
+      "after": [
+        1568,
+        1431,
+        1511,
+        1398,
+        2012
+      ],
+      "newImageRequestsBeforeReady": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "decorObjectsBeforeReady": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "beforeMedian": 1456,
+      "afterMedian": 1511,
+      "changeMs": 55
+    },
+    "1440": {
+      "before": [
+        5177,
+        1544,
+        1580,
+        1649,
+        1769
+      ],
+      "after": [
+        2185,
+        1710,
+        1647,
+        1813,
+        1686
+      ],
+      "newImageRequestsBeforeReady": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "decorObjectsBeforeReady": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "beforeMedian": 1649,
+      "afterMedian": 1710,
+      "changeMs": 61
+    }
+  },
+  "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+}
