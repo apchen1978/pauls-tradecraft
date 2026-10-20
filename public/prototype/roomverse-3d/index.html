@@ -93,6 +93,8 @@
     .room { height: auto; aspect-ratio: auto; }
     #stage { position: relative; height: 58vh; }
     .poster { position: absolute; inset: 0; bottom: auto; height: 58vh; background-image: url("poster-mobile.webp"); }
+    /* Reserve room for the longer English introduction and both view controls on short phones. */
+    html[lang="en"] #stage, html[lang="en"] .poster { height: clamp(240px, calc(100svh - 400px), 53vh); }
     .panel { position: static; width: auto; max-height: none; border-radius: 0 0 18px 18px; border-width: 1px 0 0; box-shadow: none; }
     .mark { font-size: 11px; letter-spacing: .1em; }
   }

@@ -4,6 +4,26 @@ import { mkdir, readFile, stat } from "node:fs/promises";
 // ROOMVERSE 3D: a poster first (no 3D download until the visitor asks), then a 3D room whose feeling,
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
 const PAGE = "/prototype/roomverse-3d/";
+for (const height of [844, 740]) {
+  test(`English phone at 390x${height}: entry and both view buttons fit the first screen`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height });
+    await page.goto(`${PAGE}?lang=en`);
+    const entry = await page.locator("#enter").boundingBox();
+    expect(entry.y + entry.height).toBeLessThanOrEqual(height);
+    expect(entry.height).toBeGreaterThanOrEqual(44);
+    const sizes = await page.evaluate(() => ({ stage: document.querySelector("#stage").getBoundingClientRect().height, poster: document.querySelector("#poster").getBoundingClientRect().height }));
+    expect(sizes.stage).toBe(sizes.poster);
+    await page.locator("#enter").click();
+    await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+    await page.evaluate(() => scrollTo(0, 0));
+    for (const selector of [".camera-window", ".camera-tv"]) {
+      const button = await page.locator(selector).boundingBox();
+      expect(button.y + button.height).toBeLessThanOrEqual(height);
+      expect(button.height).toBeGreaterThanOrEqual(44);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}
 const storyRooms = {
   rain: { zh: "加班到十點，外面下著雨。", en: "Working late; rain is falling outside.", wall: "sand", rug: "ivory", curtain: "linen", print: "rain" },
   chic: { zh: "明早要簡報，想先把自己整理好。", en: "A presentation tomorrow; she wants to feel ready.", wall: "original", rug: "ivory", curtain: "rose", print: "hills" },
