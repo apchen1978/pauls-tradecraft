@@ -793,7 +793,7 @@ for (const width of [390, 1440]) {
         expect(lighting.sourceInsideShade).toBe(true);
         const left = await page.evaluate(() => window.__room.leftWallArt());
         expect(lighting.lightCount).toBe(left.built ? 7 : 6);
-        if (left.built) expect(left.spot.castShadow).toBe(false);
+        if (left.built) { expect(left.spot.castShadow).toBe(true); expect(left.spot.shadowMap).toBe(512); }
       }
     }
     expect(errors).toEqual([]);
@@ -989,7 +989,8 @@ test("mobile yaw opens the TV wall from 66 to 76; desktop, postcard, plaque and 
   await page.evaluate(() => window.__room.setOrbitAngle(180));
   expect(await page.evaluate(() => window.__room.fovProjectionUpdates())).toBe(updates);
   expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7); // left wall was opened at 90°, so its picture spot is present
-  expect(await page.evaluate(() => window.__room.leftWallArt().spot.castShadow)).toBe(false);
+  expect(await page.evaluate(() => window.__room.leftWallArt().spot.castShadow)).toBe(true);
+  expect(await page.evaluate(() => window.__room.leftWallArt().spot.shadowMap)).toBe(512);
   const fromTv = await page.evaluate(() => window.__room.postcard().toDataURL());
   await page.evaluate(() => window.__room.setOrbitAngle(0));
   expect(await page.evaluate(() => window.__room.postcard().toDataURL())).toBe(fromTv);

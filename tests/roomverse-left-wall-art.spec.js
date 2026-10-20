@@ -34,7 +34,7 @@ for (const width of [390, 1440]) {
     await page.evaluate(() => __room.setOrbitAngle(0));
     expect((await page.evaluate(() => __room.plaqueView())).firstHit).toBe("house-plaque");
     expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
-    expect((await page.evaluate(() => __room.leftWallArt())).spot.castShadow).toBe(false);
+    expect((await page.evaluate(() => __room.leftWallArt())).spot.castShadow).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.evaluate(() => __room.loadLeftWallArt());
     expect(requests).toHaveLength(1);
@@ -68,20 +68,25 @@ test("left-wall glow follows the mood and both image variants stay in budget", a
     const art = await page.evaluate((m) => { __room.set("mood", m); return __room.leftWallArt(); }, mood);
     levels[mood] = art.glow;
     spots[mood] = art.spot;
-    expect(art.spot.castShadow).toBe(false);
-    expect(art.spot.color).toBe("#ffc48a");
+    expect(art.spot.castShadow).toBe(true);
+    expect(art.spot.shadowMap).toBe(512);
+    expect(art.spot.decay).toBe(2);
+    expect(art.spot.distance).toBeGreaterThan(1.2);
+    expect(art.spot.distance).toBeLessThan(2.5);
+    expect(art.spot.penumbra).toBeGreaterThan(.7);
+    expect(art.spot.color).toBe("#ffc58f");
+    expect(art.spot.bulb).toBe(art.spot.color);
     expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
   }
   const fixture = await page.evaluate(() => __room.leftWallArt().fixture);
   expect(fixture.max[2] - fixture.min[2]).toBeGreaterThan(.3);
   expect(fixture.max[2] - fixture.min[2]).toBeLessThan(.4);
-  // The picture beam stays on in every mood. Series night may be lower, and it does not go dark.
-  for (const mood of ["rain", "tv", "family"]) {
-    expect(levels[mood]).toBeGreaterThan(.1);
-    expect(spots[mood].intensity).toBeGreaterThan(8);
-  }
+  // Rain and Cozy keep the lamp up. Series night is a little lower, and still clearly on.
+  // The beam stays under the rain table lamp (5 cd) so it does not outshine the room.
+  for (const mood of ["rain", "tv", "family"]) expect(spots[mood].intensity).toBeGreaterThan(1.5);
+  expect(spots.rain.intensity).toBeLessThanOrEqual(5);
+  expect(spots.family.intensity).toBe(spots.rain.intensity);
   expect(spots.tv.intensity).toBeLessThan(spots.rain.intensity);
-  expect(spots.family.intensity).toBeGreaterThanOrEqual(spots.rain.intensity);
 });
 
 test("left-wall QA: three moods, two widths, front, side and detail", async ({ page }) => {

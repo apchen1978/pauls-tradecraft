@@ -621,19 +621,23 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   // Left-wall pair to the harbour on the right. Gold frame and a small gallery lamp, built in code.
   // The 16:9 canvas hangs on the open front half of the wall, clear of the floor lamp, plant, armchair and window light.
-  // That stretch has no other lamp, so a picture spot aims down the canvas. It does not cast a shadow.
+  // That stretch has no other lamp. The picture spot uses the renderer's existing physical units
+  // (r160, useLegacyLights left at its default false): candela, decay 2 = 1/d². No renderer change.
   let leftWallArtGroup = null, leftWallArtPromise = null, leftWallArtReady = false, leftWallArtLoaded = false;
   let leftPaintingMat = null, leftArtWallWash = null, leftArtPaintWash = null, leftArtDiffuser = null, leftPictureSpot = null;
   const leftWallArtPlace = { x: -W / 2 + .008, y: 1.5, z: 1 }; // 8 mm off the wall at x=-2.6, same hanging line as the right wall
+  // A 4 W picture LED at ~80 lm/W is 320 lm. Over a ~60° half-angle flood that is about 100 cd at the beam centre.
+  // This room's lamps are authored at 2–5 cd, so 100 cd would clip the canvas under ACES. 4.2 cd is the same
+  // 1/d² lamp at roughly 1/24 of that, and it stays under the rain table lamp (5 cd). Series night is a little lower.
+  const LEFT_ART_CANDELA = 4.2, LEFT_ART_COLOR = "#ffc58f";
   function updateLeftArtLight(v) {
     if (!leftWallArtGroup) return;
-    // Series night can sit a little lower. Daylight and rain stay bright enough to read the canvas.
-    const level = v.hemi < .75 && v.exposure < 1 ? .72 : 1;
-    leftArtWallWash.opacity = .2 * level;
-    leftArtPaintWash.opacity = .1 * level;
-    leftPaintingMat.emissiveIntensity = leftWallArtLoaded ? .22 * level : 0;
-    leftArtDiffuser.emissiveIntensity = 1.15 * level;
-    if (leftPictureSpot) leftPictureSpot.intensity = 48 * level;
+    const level = v.hemi < .75 && v.exposure < 1 ? .84 : 1;
+    leftArtWallWash.opacity = .05 * level;
+    leftArtPaintWash.opacity = .025 * level;
+    leftPaintingMat.emissiveIntensity = leftWallArtLoaded ? .05 * level : 0;
+    leftArtDiffuser.emissiveIntensity = .75 * level;
+    if (leftPictureSpot) leftPictureSpot.intensity = LEFT_ART_CANDELA * level;
   }
   function loadLeftWallArt() {
     if (leftWallArtPromise) return leftWallArtPromise;
@@ -672,20 +676,54 @@ export async function start({ stage, panel, lang, onReady }) {
       piece(new THREE.PlaneGeometry(1.72, 1.22), leftArtWallWash, 0, .16, .002, "left-wall-picture-wash");
       leftArtPaintWash = leftArtWallWash.clone();
       piece(new THREE.PlaneGeometry(paintW, paintH), leftArtPaintWash, 0, 0, .076, "left-wall-painting-wash");
-      // A 36 cm brass gallery lamp. The bulb is about 2800K and the spot below does not cast a shadow.
+      // A 36 cm brass gallery lamp. Bulb and beam are the same ~2900K.
       const brass = new THREE.MeshStandardMaterial({ color: "#b08a4e", metalness: .72, roughness: .36 });
       const lightY = (paintH + .14) / 2 + .055;
       const shadeW = .36;
       piece(new THREE.BoxGeometry(.06, .04, .012), brass, 0, lightY + .045, .016, "left-wall-light-mount");
       piece(new THREE.CylinderGeometry(.007, .007, .055, 8), brass, 0, lightY + .012, .045, "left-wall-light-stem");
-      piece(new THREE.CylinderGeometry(.016, .02, shadeW, 18), brass, 0, lightY, .13, "left-wall-picture-light").rotation.z = Math.PI / 2;
-      leftArtDiffuser = new THREE.MeshStandardMaterial({ color: "#ffe3c2", emissive: "#ffc48a", emissiveIntensity: 0, roughness: .4 });
+      const shade = piece(new THREE.CylinderGeometry(.016, .02, shadeW, 18), brass, 0, lightY, .13, "left-wall-picture-light");
+      shade.rotation.z = Math.PI / 2; shade.castShadow = true;
+      leftWallArtGroup.getObjectByName("left-wall-light-stem").castShadow = true;
+      leftWallArtGroup.getObjectByName("left-wall-light-mount").castShadow = true;
+      leftArtDiffuser = new THREE.MeshStandardMaterial({ color: LEFT_ART_COLOR, emissive: LEFT_ART_COLOR, emissiveIntensity: 0, roughness: .4 });
       piece(new THREE.CylinderGeometry(.007, .007, shadeW - .05, 12), leftArtDiffuser, 0, lightY - .014, .132, "left-wall-light-bulb").rotation.z = Math.PI / 2;
-      leftPictureSpot = new THREE.SpotLight("#ffc48a", 48, 1.8, .9, .7, 2);
+      leftWallArtGroup.traverse((mesh) => {
+        if (!mesh.isMesh || !mesh.name.startsWith("left-wall-frame-") || !mesh.name.endsWith("-horizontal") || mesh.position.y <= 0) return;
+        mesh.castShadow = true; mesh.receiveShadow = true; // the top lip throws a short contact shadow down the canvas
+      });
+      leftWallArtGroup.getObjectByName("left-wall-painting").receiveShadow = true;
+      const contact = canvasTex(8, 48, (ctx, w, h) => {
+        for (let y = 0; y < h; y++) {
+          const v = y / (h - 1);
+          ctx.fillStyle = `rgba(28,16,8,${(1 - v) ** 1.8})`; ctx.fillRect(0, y, w, 1);
+        }
+      });
+      const contactMat = new THREE.MeshBasicMaterial({ map: contact, transparent: true, opacity: .42, depthWrite: false });
+      piece(new THREE.PlaneGeometry(paintW - .04, .07), contactMat, 0, paintH / 2 - .03, .0775, "left-wall-frame-contact");
+      const lampShadow = canvasTex(64, 32, (ctx, w, h) => {
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          const u = x / (w - 1), v = y / (h - 1);
+          const across = Math.sin(Math.PI * u) ** 1.2;
+          const down = (1 - v) ** 1.4;
+          ctx.fillStyle = `rgba(24,14,8,${across * down})`; ctx.fillRect(x, y, 1, 1);
+        }
+      });
+      const lampShadowMat = new THREE.MeshBasicMaterial({ map: lampShadow, transparent: true, opacity: .38, depthWrite: false });
+      piece(new THREE.PlaneGeometry(shadeW + .06, .09), lampShadowMat, 0, lightY - .055, .006, "left-wall-lamp-shadow");
+      // 4.2 cd, decay 2, cutoff 2.2 m. The source sits forward of the shade so 1/d² dims the canvas
+      // gradually instead of blacking the lower edge. Half-angle ~66° and a long penumbra: no hard circle.
+      leftPictureSpot = new THREE.SpotLight(LEFT_ART_COLOR, LEFT_ART_CANDELA, 2.2, 1.15, .78, 2);
       leftPictureSpot.name = "left-wall-picture-spot";
-      leftPictureSpot.castShadow = false;
-      leftPictureSpot.position.set(0, lightY - .02, .28);
-      leftPictureSpot.target.position.set(0, -.06, .07);
+      leftPictureSpot.castShadow = true;
+      leftPictureSpot.shadow.mapSize.set(512, 512);
+      leftPictureSpot.shadow.radius = 4;
+      leftPictureSpot.shadow.bias = -.0004;
+      leftPictureSpot.shadow.normalBias = .012;
+      leftPictureSpot.shadow.camera.near = .05;
+      leftPictureSpot.shadow.camera.far = 2.4;
+      leftPictureSpot.position.set(0, lightY - .04, .42);
+      leftPictureSpot.target.position.set(0, -.04, .074);
       leftPictureSpot.target.name = "left-wall-picture-spot-target";
       leftWallArtGroup.add(leftPictureSpot, leftPictureSpot.target);
       updateLeftArtLight(shown ?? lights());
@@ -1576,7 +1614,12 @@ export async function start({ stage, panel, lang, onReady }) {
         bounds: bounds(leftWallArtGroup), painting: bounds(painting),
         fixture: bounds(leftWallArtGroup.getObjectByName("left-wall-picture-light")),
         glow: leftArtWallWash.opacity,
-        spot: leftPictureSpot ? { intensity: leftPictureSpot.intensity, castShadow: leftPictureSpot.castShadow, color: "#" + leftPictureSpot.color.getHexString() } : null,
+        spot: leftPictureSpot ? {
+          intensity: leftPictureSpot.intensity, castShadow: leftPictureSpot.castShadow,
+          color: "#" + leftPictureSpot.color.getHexString(), decay: leftPictureSpot.decay,
+          distance: leftPictureSpot.distance, angle: leftPictureSpot.angle, penumbra: leftPictureSpot.penumbra,
+          shadowMap: leftPictureSpot.shadow.mapSize.x, bulb: "#" + leftArtDiffuser.emissive.getHexString(),
+        } : null,
         screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
         collisions: Object.entries({ floorLamp: lampObj, plant: plantObj, chair: chairObj, plaque })
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),

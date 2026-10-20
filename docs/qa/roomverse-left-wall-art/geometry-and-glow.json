@@ -51,11 +51,17 @@
         1.1800000071525574
       ]
     },
-    "glow": 0.144,
+    "glow": 0.042,
     "spot": {
-      "intensity": 34.56,
-      "castShadow": false,
-      "color": "#ffc48a"
+      "intensity": 3.528,
+      "castShadow": true,
+      "color": "#ffc58f",
+      "decay": 2,
+      "distance": 2.2,
+      "angle": 1.15,
+      "penumbra": 0.78,
+      "shadowMap": 512,
+      "bulb": "#ffc58f"
     },
     "screenRect": {
       "x": 60.21821366684633,
@@ -117,11 +123,17 @@
         1.1800000071525574
       ]
     },
-    "glow": 0.2,
+    "glow": 0.05,
     "spot": {
-      "intensity": 48,
-      "castShadow": false,
-      "color": "#ffc48a"
+      "intensity": 4.2,
+      "castShadow": true,
+      "color": "#ffc58f",
+      "decay": 2,
+      "distance": 2.2,
+      "angle": 1.15,
+      "penumbra": 0.78,
+      "shadowMap": 512,
+      "bulb": "#ffc58f"
     },
     "screenRect": {
       "x": 60.21821366684633,
@@ -183,11 +195,17 @@
         1.1800000071525574
       ]
     },
-    "glow": 0.2,
+    "glow": 0.05,
     "spot": {
-      "intensity": 48,
-      "castShadow": false,
-      "color": "#ffc48a"
+      "intensity": 4.2,
+      "castShadow": true,
+      "color": "#ffc58f",
+      "decay": 2,
+      "distance": 2.2,
+      "angle": 1.15,
+      "penumbra": 0.78,
+      "shadowMap": 512,
+      "bulb": "#ffc58f"
     },
     "screenRect": {
       "x": 60.21821366684633,
@@ -249,11 +267,17 @@
         1.1800000071525574
       ]
     },
-    "glow": 0.144,
+    "glow": 0.042,
     "spot": {
-      "intensity": 34.56,
-      "castShadow": false,
-      "color": "#ffc48a"
+      "intensity": 3.528,
+      "castShadow": true,
+      "color": "#ffc58f",
+      "decay": 2,
+      "distance": 2.2,
+      "angle": 1.15,
+      "penumbra": 0.78,
+      "shadowMap": 512,
+      "bulb": "#ffc58f"
     },
     "screenRect": {
       "x": 407.6984242761016,
@@ -315,11 +339,17 @@
         1.1800000071525574
       ]
     },
-    "glow": 0.2,
+    "glow": 0.05,
     "spot": {
-      "intensity": 48,
-      "castShadow": false,
-      "color": "#ffc48a"
+      "intensity": 4.2,
+      "castShadow": true,
+      "color": "#ffc58f",
+      "decay": 2,
+      "distance": 2.2,
+      "angle": 1.15,
+      "penumbra": 0.78,
+      "shadowMap": 512,
+      "bulb": "#ffc58f"
     },
     "screenRect": {
       "x": 407.6984242761016,
@@ -381,11 +411,17 @@
         1.1800000071525574
       ]
     },
-    "glow": 0.2,
+    "glow": 0.05,
     "spot": {
-      "intensity": 48,
-      "castShadow": false,
-      "color": "#ffc48a"
+      "intensity": 4.2,
+      "castShadow": true,
+      "color": "#ffc58f",
+      "decay": 2,
+      "distance": 2.2,
+      "angle": 1.15,
+      "penumbra": 0.78,
+      "shadowMap": 512,
+      "bulb": "#ffc58f"
     },
     "screenRect": {
       "x": 407.6984242761016,
