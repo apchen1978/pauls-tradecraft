@@ -28,6 +28,7 @@ export const SPIRIT = {
     close: {
       kicker: "最後",
       title: "把門開得更大",
+      gallery: "走進人機協作畫廊 →",
       blocks: [
         {
           h: "商業與創作，互相餵養",
@@ -91,6 +92,7 @@ export const SPIRIT = {
     close: {
       kicker: "AND FINALLY",
       title: "Opening the door wider",
+      gallery: "Visit the Human–AI Gallery →",
       blocks: [
         {
           h: "Business and creation feed each other",

@@ -8,6 +8,7 @@ html { scroll-behavior: smooth; }
 body { margin: 0; color: var(--body); background-color: var(--deep); background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 48px 48px; background-attachment: fixed; font: 17px/1.7 "Geist Variable", "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 a { color: var(--gold); }
+#gallery-link { display: inline-flex; align-items: center; min-height: 44px; }
 .skip { position: absolute; left: -999px; }
 .skip:focus { left: 12px; top: 12px; z-index: 9; background: var(--gold); color: var(--deep); padding: 6px 12px; border-radius: 6px; }
 .mono, .kicker, .no { font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", monospace; letter-spacing: .08em; }
