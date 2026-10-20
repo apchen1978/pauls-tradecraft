@@ -618,6 +618,81 @@ export async function start({ stage, panel, lang, onReady }) {
     });
     return rightWallArtPromise;
   }
+  // Left-wall pair to the harbour on the right. Same gold frame and brass picture light, built in code.
+  // The 16:9 canvas hangs on the open front half of the wall, clear of the floor lamp, plant, armchair and window light.
+  // Geometry and its one image wait until the room is interactive. The glow is a wall gradient, not another light.
+  let leftWallArtGroup = null, leftWallArtPromise = null, leftWallArtReady = false, leftWallArtLoaded = false;
+  let leftPaintingMat = null, leftArtWallWash = null, leftArtPaintWash = null, leftArtDiffuser = null;
+  const leftWallArtPlace = { x: -W / 2 + .008, y: 1.5, z: 1 }; // 8 mm off the wall at x=-2.6, same hanging line as the right wall
+  function updateLeftArtLight(v) {
+    if (!leftWallArtGroup) return;
+    const level = Math.min(1, Math.max(0, v.tableHalo / .5));
+    leftArtWallWash.opacity = .12 * level;
+    leftArtPaintWash.opacity = .055 * level;
+    leftPaintingMat.emissiveIntensity = leftWallArtLoaded ? .14 * level : 0;
+    leftArtDiffuser.emissiveIntensity = .35 + level * .65;
+  }
+  function loadLeftWallArt() {
+    if (leftWallArtPromise) return leftWallArtPromise;
+    leftWallArtPromise = new Promise((resolve) => {
+      const paintW = 1.2, paintH = .675; // 16:9
+      leftWallArtGroup = new THREE.Group(); leftWallArtGroup.name = "left-wall-gallery";
+      leftWallArtGroup.position.set(leftWallArtPlace.x, leftWallArtPlace.y, leftWallArtPlace.z);
+      leftWallArtGroup.rotation.y = Math.PI / 2; scene.add(leftWallArtGroup);
+      const piece = (geo, mat, x, y, z, name) => {
+        const mesh = new THREE.Mesh(geo, mat); mesh.name = name; mesh.position.set(x, y, z);
+        mesh.castShadow = false; mesh.receiveShadow = false; leftWallArtGroup.add(mesh); return mesh;
+      };
+      const gold = new THREE.MeshStandardMaterial({ color: "#b28a48", metalness: .62, roughness: .47 });
+      const goldEdge = new THREE.MeshStandardMaterial({ color: "#d8b76d", metalness: .58, roughness: .4 });
+      const goldShade = new THREE.MeshStandardMaterial({ color: "#79603a", metalness: .45, roughness: .65 });
+      piece(new THREE.BoxGeometry(paintW + .118, paintH + .118, .018), goldShade, 0, 0, .015, "left-wall-frame-backing");
+      [[paintW + .14, paintH + .14, .04, .038, .034, gold], [paintW + .09, paintH + .09, .026, .025, .061, goldShade], [paintW + .04, paintH + .04, .018, .014, .079, goldEdge]].forEach(([w, h, t, depth, z, mat], layer) => {
+        for (const side of [-1, 1]) {
+          piece(new THREE.BoxGeometry(w, t, depth), mat, 0, side * (h - t) / 2, z, `left-wall-frame-${layer}-horizontal`);
+          piece(new THREE.BoxGeometry(t, h - t * 2, depth), mat, side * (w - t) / 2, 0, z, `left-wall-frame-${layer}-vertical`);
+        }
+      });
+      leftPaintingMat = new THREE.MeshStandardMaterial({ color: "#c7b896", roughness: 1, emissive: "#ffffff", emissiveIntensity: 0 });
+      piece(new THREE.PlaneGeometry(paintW, paintH), leftPaintingMat, 0, 0, .0745, "left-wall-painting");
+      const wash = canvasTex(64, 96, (ctx, w, h) => {
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const u = x / (w - 1), v = y / (h - 1);
+            const edge = Math.sin(Math.PI * u) ** 1.4;
+            const down = Math.sin(Math.PI * v) ** .8 * (.85 - v * .55);
+            ctx.fillStyle = `rgba(255,222,175,${edge * down})`; ctx.fillRect(x, y, 1, 1);
+          }
+        }
+      });
+      leftArtWallWash = new THREE.MeshBasicMaterial({ map: wash, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+      piece(new THREE.PlaneGeometry(paintW + .26, paintH + .3), leftArtWallWash, 0, .025, .002, "left-wall-picture-wash");
+      leftArtPaintWash = leftArtWallWash.clone();
+      piece(new THREE.PlaneGeometry(paintW, paintH), leftArtPaintWash, 0, 0, .076, "left-wall-painting-wash");
+      const brass = new THREE.MeshStandardMaterial({ color: "#bc9a5d", metalness: .65, roughness: .4 });
+      const lightY = (paintH + .14) / 2 + .07;
+      piece(new THREE.BoxGeometry(.085, .085, .015), brass, 0, lightY, .02, "left-wall-light-mount");
+      for (const x of [-.15, .15]) piece(new THREE.CylinderGeometry(.006, .006, .14, 8), brass, x, lightY + .005, .095, "left-wall-light-arm").rotation.x = Math.PI / 2;
+      piece(new THREE.CylinderGeometry(.024, .024, .5, 16), brass, 0, lightY, .17, "left-wall-picture-light").rotation.z = Math.PI / 2;
+      leftArtDiffuser = new THREE.MeshStandardMaterial({ color: "#ffe6b9", emissive: "#ffd59a", emissiveIntensity: 0, roughness: .7 });
+      piece(new THREE.PlaneGeometry(.45, .025), leftArtDiffuser, 0, lightY - .025, .17, "left-wall-light-diffuser").rotation.x = Math.PI / 2;
+      updateLeftArtLight(shown ?? lights());
+      const name = compactRender ? "left-wall-harbor-dusk-mobile-v1" : "left-wall-harbor-dusk-v1";
+      image(name, false, (texture) => {
+        leftPaintingMat.map = texture; leftPaintingMat.emissiveMap = texture;
+        leftPaintingMat.color.set("#ffffff"); leftPaintingMat.needsUpdate = true;
+        leftWallArtLoaded = true; leftWallArtReady = true;
+        updateLeftArtLight(shown ?? lights()); render(); resolve(true);
+      }, () => {
+        leftWallArtReady = true; render(); resolve(false); // the plain canvas and frame remain usable
+      })();
+    });
+    return leftWallArtPromise;
+  }
+  controls.addEventListener("change", () => {
+    const offset = camera.position.clone().sub(orbitCenter);
+    if (Math.sin(Math.atan2(offset.x, offset.z)) > .45) void loadLeftWallArt(); // turning toward the left-hand wall
+  });
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
@@ -975,6 +1050,7 @@ export async function start({ stage, panel, lang, onReady }) {
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
     if (tvScreenArtLoaded) tvScreenMat.color.setScalar(v.screenLevel);
     updateRightArtLight(v);
+    updateLeftArtLight(v);
   }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
@@ -1399,7 +1475,7 @@ export async function start({ stage, panel, lang, onReady }) {
     setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     scheduleTvWallTextures() {
-      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); };
+      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); void loadLeftWallArt(); };
       const loadWhenIdle = () => {
         if (document.visibilityState !== "visible") { document.addEventListener("visibilitychange", loadWhenIdle, { once: true }); return; }
         if ("requestIdleCallback" in window) window.requestIdleCallback(loadWallMaterials, { timeout: 2500 });
@@ -1468,6 +1544,28 @@ export async function start({ stage, panel, lang, onReady }) {
         glow: rightArtWallWash.opacity,
         screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
         collisions: Object.entries({ door: roomDoor, sideTable: tableObj, tableLamp: tableLampObj })
+          .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
+      };
+    },
+    loadLeftWallArt,
+    leftWallArt() { // read-only QA for the left-wall harbour pair
+      if (!leftWallArtGroup) return { ready: false, loaded: false, built: false };
+      scene.updateMatrixWorld(true);
+      const bounds = (obj) => { const box = new THREE.Box3().setFromObject(obj); return { min: box.min.toArray(), max: box.max.toArray() }; };
+      const painting = leftWallArtGroup.getObjectByName("left-wall-painting");
+      const corners = [[-.6, -.3375], [.6, -.3375], [-.6, .3375], [.6, .3375]].map(([x, y]) => new THREE.Vector3(x, y, 0).applyMatrix4(painting.matrixWorld).project(camera));
+      const rect = renderer.domElement.getBoundingClientRect();
+      const xs = corners.map((p) => (p.x + 1) * rect.width / 2), ys = corners.map((p) => (1 - p.y) * rect.height / 2);
+      const box = new THREE.Box3().setFromObject(leftWallArtGroup);
+      return { built: true, ready: leftWallArtReady, loaded: leftWallArtLoaded,
+        file: leftPaintingMat.map?.image?.src?.split("/").pop() ?? null,
+        size: [leftPaintingMat.map?.image?.width ?? 0, leftPaintingMat.map?.image?.height ?? 0],
+        place: { ...leftWallArtPlace },
+        bounds: bounds(leftWallArtGroup), painting: bounds(painting),
+        fixture: bounds(leftWallArtGroup.getObjectByName("left-wall-picture-light")),
+        glow: leftArtWallWash.opacity,
+        screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
+        collisions: Object.entries({ floorLamp: lampObj, plant: plantObj, chair: chairObj, plaque })
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
     },
