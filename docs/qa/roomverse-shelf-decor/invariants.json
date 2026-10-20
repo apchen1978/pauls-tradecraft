@@ -1,0 +1,32 @@
+[
+  {
+    "block": "moods",
+    "equal": true,
+    "before": "4657e852c01fd2544bed42942da5ec5f8ddf21359297c77fcafd727370212600",
+    "after": "4657e852c01fd2544bed42942da5ec5f8ddf21359297c77fcafd727370212600"
+  },
+  {
+    "block": "renderer",
+    "equal": true,
+    "before": "69170c49161a8a9048889e1ff54d62f62ea3fbcd1a86cfbfbd2c8db07dccf07a",
+    "after": "69170c49161a8a9048889e1ff54d62f62ea3fbcd1a86cfbfbd2c8db07dccf07a"
+  },
+  {
+    "block": "wall-options",
+    "equal": true,
+    "before": "33236bc1b5497cf95f6177758236a18816066a6f3b9ada99348ba8e13b3c7165",
+    "after": "33236bc1b5497cf95f6177758236a18816066a6f3b9ada99348ba8e13b3c7165"
+  },
+  {
+    "block": "postcard",
+    "equal": true,
+    "before": "bc5e82636e3efa20fc5cd550acc16791f10467d9c23936dc49611f9442e55ae7",
+    "after": "bc5e82636e3efa20fc5cd550acc16791f10467d9c23936dc49611f9442e55ae7"
+  },
+  {
+    "block": "tour",
+    "equal": true,
+    "before": "b6b1ebd53a998ecdf6cf9e68d4bf013f2af99e7a422711d32f6aa5a63662b3c8",
+    "after": "b6b1ebd53a998ecdf6cf9e68d4bf013f2af99e7a422711d32f6aa5a63662b3c8"
+  }
+]

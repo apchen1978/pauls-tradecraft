@@ -370,6 +370,93 @@ export async function start({ stage, panel, lang, onReady }) {
   // Optional lived-in console details: build only after entry/idle or an explicit TV-view click.
   // Reuse the existing painted oak and plaster images; only the little picture adds image bytes.
   const consoleDecor = new THREE.Group(); consoleDecor.name = "tv-console-decor"; scene.add(consoleDecor);
+  const shelfDecor = new THREE.Group(); shelfDecor.name = "tv-inset-shelf-decor"; scene.add(shelfDecor);
+  let shelfDecorReady = false;
+  function buildShelfDecor(art, surface) {
+    if (shelfDecorReady) return;
+    const oak = surface("tv-console", "#ffffff", [.15 / .8, .10 / .8]);
+    if (!oak.map) oak.color.set("#d4b58a");
+    const paper = surface("tv-wall-backing", "#e6dfcf", [.2, .2]);
+    const blue = surface("tv-wall-backing", "#70888a", [.2, .3]);
+    const moss = surface("tv-wall-backing", "#8a9475", [.2, .3]);
+    const clay = surface("tv-wall-backing", "#b4917a", [.2, .3]);
+    const ceramic = surface("tv-wall-backing", "#d4c6ad", [.25, .2]);
+    const dark = new THREE.MeshStandardMaterial({ color: "#565448", roughness: 1 });
+    const leafMat = new THREE.MeshStandardMaterial({ color: "#718469", roughness: 1 });
+    const contact = new THREE.MeshBasicMaterial({ color: "#473d2c", transparent: true, opacity: .13, depthWrite: false });
+    const mesh = (group, geo, mat, x, y, z) => {
+      const obj = new THREE.Mesh(geo, mat); obj.position.set(x, y, z);
+      obj.castShadow = false; obj.receiveShadow = true; group.add(obj); return obj;
+    };
+    // TV view faces +z, so the viewer's left shelf is at +x. All dimensions are metres.
+    const place = (group, bay, dx, width, depth) => {
+      const [side, row] = bay.split("-");
+      const board = { lower: .55, middle: 1.09, upper: 1.63 }[row];
+      const x = side === "left" ? 1.82 : -1.82;
+      const item = new THREE.Group(); item.name = group.name;
+      item.userData.bay = bay; item.userData.supportY = board + .0175;
+      item.add(group); group.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(group), center = box.getCenter(new THREE.Vector3());
+      group.position.y -= box.min.y;
+      // Keep the contact patch horizontal even when the object above it is tilted or laid flat.
+      const shadow = mesh(item, new THREE.PlaneGeometry(width, depth), contact, center.x, .0002, center.z);
+      shadow.rotation.x = -Math.PI / 2; shadow.receiveShadow = false;
+      item.position.set(x + dx, board + .0175, FRONT - .101);
+      shelfDecor.add(item); item.updateMatrixWorld(true);
+    };
+    const book = (name, width, height, depth, cover) => {
+      const group = new THREE.Group(); group.name = name;
+      mesh(group, new THREE.BoxGeometry(width - .004, height - .009, depth - .005), paper, 0, height / 2, 0);
+      for (const x of [-width / 2 + .001, width / 2 - .001]) mesh(group, new THREE.BoxGeometry(.002, height, depth), cover, x, height / 2, 0);
+      mesh(group, new THREE.BoxGeometry(width, height, .003), cover, 0, height / 2, -depth / 2 + .0015);
+      return group;
+    };
+    // A fuller but still low row uses most of the opening height; varied spines keep it lived-in.
+    [["blue", .040, .315, blue, -.150], ["moss", .035, .285, moss, -.090], ["clay", .043, .355, clay, -.030], ["paper", .038, .300, paper, .040], ["blue-short", .036, .270, blue, .110]].forEach(([name, w, h, mat, x]) => {
+      const volume = book(`shelf-book-${name}`, w, h, .086, mat);
+      volume.rotation.z = name === "clay" ? -.025 : name === "paper" ? .018 : 0;
+      place(volume, "left-upper", x, w + .009, .091);
+    });
+    const frame = new THREE.Group(); frame.name = "shelf-small-frame";
+    mesh(frame, new THREE.BoxGeometry(.205, .252, .014), oak, 0, .126, 0);
+    mesh(frame, new THREE.PlaneGeometry(.176, .221), new THREE.MeshStandardMaterial({ map: art, color: art ? "#ffffff" : "#ddd2b8", roughness: 1 }), 0, .126, .0075);
+    mesh(frame, new THREE.BoxGeometry(.016, .145, .036), oak, 0, .0725, -.023);
+    frame.rotation.set(-.045, Math.PI - .04, 0);
+    place(frame, "left-middle", .075, .215, .069);
+    // Low, elongated ceramic dish: a deliberate shallow silhouette, not a round urn.
+    const dish = new THREE.Group(); dish.name = "shelf-ceramic-dish";
+    const profile = [[0, .003], [.033, .003], [.055, .012], [.066, .026], [.061, .03], [.051, .018], [.03, .009], [0, .009]].map(([x, y]) => new THREE.Vector2(x, y));
+    mesh(dish, new THREE.LatheGeometry(profile, 18), ceramic, 0, 0, 0).scale.set(1.55, 1, .53);
+    place(dish, "left-lower", -.09, .205, .077);
+    const plant = new THREE.Group(); plant.name = "shelf-mini-plant";
+    mesh(plant, new THREE.CylinderGeometry(.034, .029, .060, 7), ceramic, 0, .030, 0);
+    mesh(plant, new THREE.CylinderGeometry(.0295, .0295, .002, 12), dark, 0, .060, 0);
+    mesh(plant, new THREE.CylinderGeometry(.0015, .002, .190, 5), leafMat, 0, .145, 0);
+    const leafGeo = new THREE.SphereGeometry(1, 7, 5);
+    for (let i = 0; i < 9; i++) {
+      const side = i % 2 ? -1 : 1;
+      const leaf = mesh(plant, leafGeo, leafMat, side * (.016 + i * .001), .105 + i * .016, (i % 3 - 1) * .012);
+      leaf.scale.set(.015, .031, .007); leaf.rotation.z = side * -.64;
+    }
+    place(plant, "right-upper", .085, .105, .091);
+    // A tapered, faceted vessel reads as a hand-shaped ceramic form rather than a round urn.
+    const vessel = new THREE.Group(); vessel.name = "shelf-medium-ceramic-vessel";
+    const vesselProfile = [[0,.004],[.030,.004],[.046,.020],[.054,.075],[.050,.150],[.038,.202],[.024,.222],[.022,.285],[.029,.300],[.029,.312],[.018,.312],[.018,.292],[.013,.245],[0,.238]].map(([x,y]) => new THREE.Vector2(x,y));
+    mesh(vessel, new THREE.LatheGeometry(vesselProfile, 8), ceramic, 0, 0, 0);
+    place(vessel, "right-middle", -.075, .13, .094);
+    const stack = new THREE.Group(); stack.name = "shelf-horizontal-book-stack";
+    [[.274,.050,.091,blue,.018],[.252,.052,.088,clay,.077],[.263,.048,.090,moss,.136]].forEach(([w,h,d,mat,y]) => {
+      mesh(stack, new THREE.BoxGeometry(w-.006,h-.005,d-.004), paper, 0, y+h/2, 0);
+      mesh(stack, new THREE.BoxGeometry(w,h,d), mat, 0, y+h/2, 0);
+    });
+    const accent = new THREE.Group(); accent.name = "shelf-small-wood-sculpture";
+    mesh(accent, new THREE.BoxGeometry(.094,.022,.068), oak, 0, .011, 0);
+    mesh(accent, new THREE.BoxGeometry(.062,.072,.048), oak, 0, .058, 0);
+    mesh(accent, new THREE.BoxGeometry(.043,.073,.039), clay, .009, .1305, .002);
+    place(stack, "right-lower", -.035, .286, .096);
+    place(accent, "right-lower", .17, .104, .078);
+    shelfDecorReady = true;
+  }
   let consoleDecorPromise = null, consoleDecorLoaded = false, consoleArtLoaded = false;
   function loadConsoleDecor() {
     if (consoleDecorPromise) return consoleDecorPromise;
@@ -431,6 +518,7 @@ export async function start({ stage, panel, lang, onReady }) {
       buttons.receiveShadow = true; tray.add(buttons);
       piece(tray, new THREE.CylinderGeometry(.003, .003, .002, 8), linenClay, 0, .0215, -.04);
       tray.rotation.y = .14; onConsole(tray, -.40, FRONT - .42);
+      buildShelfDecor(art, surface);
       consoleDecorLoaded = true; render(); return true;
     })().catch((error) => { console.warn("ROOMVERSE console details could not load", error); consoleDecorPromise = null; return false; });
     return consoleDecorPromise;
@@ -1296,6 +1384,21 @@ export async function start({ stage, panel, lang, onReady }) {
     hasFrontWall: () => !!scene.getObjectByName("front-wall"),
     hasTvWall: () => !!scene.getObjectByName("tv-screen") && !!scene.getObjectByName("tv-console"),
     loadConsoleDecor,
+    shelfDecor() { // read-only QA: real object bounds against shelf openings, boards and light strips
+      scene.updateMatrixWorld(true);
+      const objects = shelfDecor.children.map((obj) => {
+        const box = new THREE.Box3().setFromObject(obj);
+        const x = obj.userData.bay.startsWith("left") ? 1.82 : -1.82;
+        const fits = box.min.x > x - .25 && box.max.x < x + .25 && box.min.z > FRONT - .1575 && box.max.z < FRONT - .045;
+        const supported = Math.abs(box.min.y - obj.userData.supportY) < .0001;
+        const rowTop = obj.userData.supportY + .54 - .035;
+        return { name: obj.name, bay: obj.userData.bay, min: box.min.toArray(), max: box.max.toArray(), depth: box.max.z - box.min.z,
+          fits: fits && box.max.y < rowTop, supported };
+      });
+      const boxes = shelfDecor.children.map((obj) => ({ name: obj.name, box: new THREE.Box3().setFromObject(obj) }));
+      const overlaps = boxes.flatMap((a, i) => boxes.slice(i + 1).filter((b) => a.box.intersectsBox(b.box)).map((b) => [a.name, b.name]));
+      return { ready: shelfDecorReady, objects, overlaps };
+    },
     loadRightWallArt,
     rightWallArt() { // read-only QA: frame clearance, responsive image, local glow and projected artwork bounds
       if (!rightWallArtGroup) return { ready: false, loaded: false, built: false };
