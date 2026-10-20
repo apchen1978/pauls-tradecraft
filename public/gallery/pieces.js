@@ -37,6 +37,14 @@ export const PIECES = [
     made: { zh: "Paul 指定改用現代貨船與岸橋；Codex 用 ImageGen 修整構圖與細節，沿用已完成的 ROOMVERSE 掛畫。", en: "Paul asked for modern cargo ships and a gantry crane. Codex refined the composition and details with ImageGen; the gallery reuses the completed ROOMVERSE painting." },
   },
   {
+    id: "harbor-dusk", date: "2026-10-20", frame: "gilt", width: 1024, height: 576,
+    image: "assets/harbor-dusk.webp", imageSmall: "assets/harbor-dusk-mobile.webp", thumbnail: "assets/harbor-dusk-thumb.webp",
+    title: { zh: "黃昏的港口", en: "Harbour at Dusk" },
+    alt: { zh: "黃昏的港口，一艘貨櫃船正駛離，岸邊燈籠亮著，遠處有一座燈塔。", en: "A dusk harbour, with a container ship departing, dock lanterns lit, and a distant lighthouse." },
+    caption: { zh: "和〈黎明的港口〉成一對。一天的開始，一天的收尾。", en: "Paired with Harbour at Dawn. The start of a day, and its close." },
+    made: { zh: "Paul 提議讓這幅與〈黎明的港口〉配成一對。Grok Bot 以〈黎明的港口〉為風格參考，用文字生成這幅畫，再以影像工具修整細節。", en: "Paul proposed pairing this painting with Harbour at Dawn. Grok Bot generated it from a text prompt, using Harbour at Dawn as the style reference, then refined the details with image tools." },
+  },
+  {
     id: "trade-street", date: "2026-10-20", frame: "gilt", width: 1024, height: 683,
     image: "assets/trade-street.webp", imageSmall: "assets/trade-street-mobile.webp", thumbnail: "assets/trade-street-thumb.webp",
     title: { zh: "貿易街・向海的一天", en: "Trade Street: A Day Toward the Sea" },

@@ -63,7 +63,11 @@ function makePainting(piece, index) {
   article.append(button, title, caption);
   return article;
 }
-PIECES.forEach((piece, index) => $(index < 2 ? "harbours" : "collection").append(makePainting(piece, index)));
+PIECES.forEach((piece, index) => {
+  const slot = piece.id === "harbor-dusk" ? "solo" : index < 2 ? "harbours" : "collection";
+  $(slot).append(makePainting(piece, index));
+});
+$("solo-section").hidden = false;
 $("close").addEventListener("click", () => dialog.close());
 $("previous").addEventListener("click", () => showPainting(selected - 1));
 $("next").addEventListener("click", () => showPainting(selected + 1));
