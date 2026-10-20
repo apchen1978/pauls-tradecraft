@@ -1,0 +1,625 @@
+{
+  "method": "390x844 Chromium, Chrome channel, device scale factor 2 and 3; CPU 1x and 4x CDP throttle; five configurations/behaviors measured once per cell. GL draw calls grouped by RAF; settled static is event-driven and has no continuous frame loop. Not physical phones.",
+  "runs": [
+    {
+      "config": "current",
+      "dpr": 2,
+      "cpu": 1,
+      "canvas": {
+        "width": 447,
+        "height": 612,
+        "antialias": false
+      },
+      "startup": {
+        "frames": 102,
+        "p50": 59.88023952095874,
+        "min": 0.35714285714285715
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 145,
+        "p50": 59.880239520962,
+        "min": 58.47953216374766
+      },
+      "tourMid": {
+        "frames": 257,
+        "p50": 59.880239520962,
+        "min": 7.507507507507467
+      },
+      "errors": []
+    },
+    {
+      "config": "pre97",
+      "dpr": 2,
+      "cpu": 1,
+      "canvas": {
+        "width": 716,
+        "height": 980,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 105,
+        "p50": 59.88023952095874,
+        "min": 3.1565656565656557
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 140,
+        "p50": 59.88023952095874,
+        "min": 58.8235294117647
+      },
+      "tourMid": {
+        "frames": 255,
+        "p50": 59.880239520962,
+        "min": 10.02004008016021
+      },
+      "errors": []
+    },
+    {
+      "config": "antialias15",
+      "dpr": 2,
+      "cpu": 1,
+      "canvas": {
+        "width": 537,
+        "height": 735,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 107,
+        "p50": 59.88023952095874,
+        "min": 4
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 141,
+        "p50": 59.88023952095874,
+        "min": 59.17159763313418
+      },
+      "tourMid": {
+        "frames": 254,
+        "p50": 59.880239520962,
+        "min": 7.501875468867258
+      },
+      "errors": []
+    },
+    {
+      "config": "antialias175",
+      "dpr": 2,
+      "cpu": 1,
+      "canvas": {
+        "width": 626,
+        "height": 857,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 107,
+        "p50": 59.88023952095792,
+        "min": 4.284490145672665
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 142,
+        "p50": 59.88023952095874,
+        "min": 57.80346820809188
+      },
+      "tourMid": {
+        "frames": 256,
+        "p50": 59.880239520962,
+        "min": 8.576329331046285
+      },
+      "errors": []
+    },
+    {
+      "config": "adaptive",
+      "dpr": 2,
+      "cpu": 1,
+      "canvas": {
+        "width": 626,
+        "height": 857,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 106,
+        "p50": 59.88023952095874,
+        "min": 3.998400639744102
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 144,
+        "p50": 59.88023952095874,
+        "min": 58.479532163741446
+      },
+      "tourMid": {
+        "frames": 255,
+        "p50": 59.880239520962,
+        "min": 30.12048192771101
+      },
+      "errors": []
+    },
+    {
+      "config": "current",
+      "dpr": 2,
+      "cpu": 4,
+      "canvas": {
+        "width": 447,
+        "height": 612,
+        "antialias": false
+      },
+      "startup": {
+        "frames": 80,
+        "p50": 59.88023952095874,
+        "min": 1.249843769528809
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 198,
+        "p50": 59.88023952095874,
+        "min": 20.04008016032042
+      },
+      "tourMid": {
+        "frames": 236,
+        "p50": 59.880239520962,
+        "min": 5.4585152838427735
+      },
+      "errors": []
+    },
+    {
+      "config": "pre97",
+      "dpr": 2,
+      "cpu": 4,
+      "canvas": {
+        "width": 716,
+        "height": 980,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 80,
+        "p50": 59.88023952095874,
+        "min": 1.249843769528809
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 205,
+        "p50": 59.88023952095874,
+        "min": 29.940119760478552
+      },
+      "tourMid": {
+        "frames": 253,
+        "p50": 59.880239520962,
+        "min": 6.662225183211257
+      },
+      "errors": []
+    },
+    {
+      "config": "antialias15",
+      "dpr": 2,
+      "cpu": 4,
+      "canvas": {
+        "width": 537,
+        "height": 735,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 83,
+        "p50": 59.88023952095874,
+        "min": 1.3633265167007498
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 203,
+        "p50": 59.88023952095874,
+        "min": 19.96007984031958
+      },
+      "tourMid": {
+        "frames": 245,
+        "p50": 59.880239520962,
+        "min": 6.666666666666667
+      },
+      "errors": []
+    },
+    {
+      "config": "antialias175",
+      "dpr": 2,
+      "cpu": 4,
+      "canvas": {
+        "width": 626,
+        "height": 857,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 80,
+        "p50": 59.88023952095874,
+        "min": 1.3042911177774879
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 177,
+        "p50": 59.88023952095874,
+        "min": 20.040080160320787
+      },
+      "tourMid": {
+        "frames": 250,
+        "p50": 59.880239520962,
+        "min": 6.006006006006006
+      },
+      "errors": []
+    },
+    {
+      "config": "adaptive",
+      "dpr": 2,
+      "cpu": 4,
+      "canvas": {
+        "width": 626,
+        "height": 857,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 87,
+        "p50": 59.88023952095874,
+        "min": 1.304461257500652
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 203,
+        "p50": 59.88023952095874,
+        "min": 1.1539349180706204
+      },
+      "tourMid": {
+        "frames": 252,
+        "p50": 59.880239520962,
+        "min": 6.666666666666667
+      },
+      "errors": []
+    },
+    {
+      "config": "current",
+      "dpr": 3,
+      "cpu": 1,
+      "canvas": {
+        "width": 447,
+        "height": 612,
+        "antialias": false
+      },
+      "startup": {
+        "frames": 106,
+        "p50": 59.88023952095874,
+        "min": 3.5285815102328866
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 144,
+        "p50": 59.88023952095874,
+        "min": 58.479532163741446
+      },
+      "tourMid": {
+        "frames": 259,
+        "p50": 59.880239520962,
+        "min": 2.4987506246876516
+      },
+      "errors": []
+    },
+    {
+      "config": "pre97",
+      "dpr": 3,
+      "cpu": 1,
+      "canvas": {
+        "width": 716,
+        "height": 980,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 106,
+        "p50": 59.88023952095833,
+        "min": 4.001600640256103
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 122,
+        "p50": 59.88023952095874,
+        "min": 59.17159763313418
+      },
+      "tourMid": {
+        "frames": 257,
+        "p50": 59.88023952095874,
+        "min": 1.3042911177774867
+      },
+      "errors": []
+    },
+    {
+      "config": "antialias15",
+      "dpr": 3,
+      "cpu": 1,
+      "canvas": {
+        "width": 537,
+        "height": 735,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 102,
+        "p50": 59.88023952095874,
+        "min": 2.220741727737064
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 144,
+        "p50": 59.88023952095874,
+        "min": 58.479532163741446
+      },
+      "tourMid": {
+        "frames": 257,
+        "p50": 59.880239520962,
+        "min": 2.728512960436562
+      },
+      "errors": []
+    },
+    {
+      "config": "antialias175",
+      "dpr": 3,
+      "cpu": 1,
+      "canvas": {
+        "width": 626,
+        "height": 857,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 106,
+        "p50": 59.88023952095833,
+        "min": 3.9984006397441028
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 140,
+        "p50": 59.88023952095874,
+        "min": 58.8235294117647
+      },
+      "tourMid": {
+        "frames": 256,
+        "p50": 59.880239520962,
+        "min": 2.3078698361412453
+      },
+      "errors": []
+    },
+    {
+      "config": "adaptive",
+      "dpr": 3,
+      "cpu": 1,
+      "canvas": {
+        "width": 626,
+        "height": 857,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 103,
+        "p50": 59.88023952095874,
+        "min": 3.155569580309246
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 137,
+        "p50": 59.88023952095874,
+        "min": 58.47953216374456
+      },
+      "tourMid": {
+        "frames": 253,
+        "p50": 59.880239520962,
+        "min": 11.990407673860963
+      },
+      "errors": []
+    },
+    {
+      "config": "current",
+      "dpr": 3,
+      "cpu": 4,
+      "canvas": {
+        "width": 447,
+        "height": 612,
+        "antialias": false
+      },
+      "startup": {
+        "frames": 60,
+        "p50": 59.88023952095874,
+        "min": 0.7406858751203612
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 2,
+        "p50": 59.88023952095548,
+        "min": 59.88023952095548
+      },
+      "tourMid": {
+        "frames": 172,
+        "p50": 59.88023952095548,
+        "min": 5.461496450027297
+      },
+      "errors": []
+    },
+    {
+      "config": "pre97",
+      "dpr": 3,
+      "cpu": 4,
+      "canvas": {
+        "width": 716,
+        "height": 980,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 47,
+        "p50": 59.17159763313418,
+        "min": 0.49178715451952404
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 2,
+        "p50": 59.88023952095874,
+        "min": 59.88023952095874
+      },
+      "tourMid": {
+        "frames": 141,
+        "p50": 30.120481927710184,
+        "min": 5.4585152838427735
+      },
+      "errors": []
+    },
+    {
+      "config": "antialias15",
+      "dpr": 3,
+      "cpu": 4,
+      "canvas": {
+        "width": 537,
+        "height": 735,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 48,
+        "p50": 30.120481927710184,
+        "min": 0.9373828271466069
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 178,
+        "p50": 30.12048192771101,
+        "min": 12.019230769230663
+      },
+      "tourMid": {
+        "frames": 185,
+        "p50": 59.523809523812105,
+        "min": 3.7495313085864166
+      },
+      "errors": []
+    },
+    {
+      "config": "antialias175",
+      "dpr": 3,
+      "cpu": 4,
+      "canvas": {
+        "width": 626,
+        "height": 857,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 47,
+        "p50": 30.030030030029867,
+        "min": 0.9833808634083983
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 2,
+        "p50": 59.88023952095874,
+        "min": 59.88023952095874
+      },
+      "tourMid": {
+        "frames": 157,
+        "p50": 59.52380952380566,
+        "min": 5.4585152838427735
+      },
+      "errors": []
+    },
+    {
+      "config": "adaptive",
+      "dpr": 3,
+      "cpu": 4,
+      "canvas": {
+        "width": 447,
+        "height": 612,
+        "antialias": true
+      },
+      "startup": {
+        "frames": 42,
+        "p50": 59.171597633135775,
+        "min": 0.9231053263177329
+      },
+      "staticIdle": {
+        "frames": 0,
+        "p50": null,
+        "min": null
+      },
+      "manualRotate": {
+        "frames": 187,
+        "p50": 59.52380952380888,
+        "min": 11.990407673860963
+      },
+      "tourMid": {
+        "frames": 200,
+        "p50": 59.88023952095548,
+        "min": 4.284490145672672
+      },
+      "errors": []
+    }
+  ]
+}
