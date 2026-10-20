@@ -626,17 +626,18 @@ export async function start({ stage, panel, lang, onReady }) {
   let leftWallArtGroup = null, leftWallArtPromise = null, leftWallArtReady = false, leftWallArtLoaded = false;
   let leftPaintingMat = null, leftArtWallWash = null, leftArtPaintWash = null, leftArtDiffuser = null, leftPictureSpot = null;
   const leftWallArtPlace = { x: -W / 2 + .008, y: 1.5, z: 1 }; // 8 mm off the wall at x=-2.6, same hanging line as the right wall
-  // A 4 W picture LED at ~80 lm/W is 320 lm. Over a ~60° half-angle flood that is about 100 cd at the beam centre.
-  // This room's lamps are authored at 2–5 cd, so 100 cd would clip the canvas under ACES. 4.2 cd is the same
-  // 1/d² lamp at roughly 1/24 of that, and it stays under the rain table lamp (5 cd). Series night is a little lower.
-  const LEFT_ART_CANDELA = 4.2, LEFT_ART_COLOR = "#ffc58f";
+  // A 4 W picture LED at ~80 lm/W is 320 lm, about 100 cd in a wide flood. The room's other lamps are
+  // authored at 2–5 cd, and the dusk painting is much darker than the dawn painting opposite.
+  // 12.5 cd keeps 1/d². The source sits further forward so the pool covers the canvas
+  // and still falls off toward the bottom, without a second fill. Series night is a little lower.
+  const LEFT_ART_CANDELA = 12.5, LEFT_ART_COLOR = "#ffbe7a";
   function updateLeftArtLight(v) {
     if (!leftWallArtGroup) return;
-    const level = v.hemi < .75 && v.exposure < 1 ? .84 : 1;
-    leftArtWallWash.opacity = .05 * level;
-    leftArtPaintWash.opacity = .025 * level;
-    leftPaintingMat.emissiveIntensity = leftWallArtLoaded ? .05 * level : 0;
-    leftArtDiffuser.emissiveIntensity = .75 * level;
+    const level = v.hemi < .75 && v.exposure < 1 ? .86 : 1;
+    leftArtWallWash.opacity = 0;
+    leftArtPaintWash.opacity = 0;
+    leftPaintingMat.emissiveIntensity = 0;
+    leftArtDiffuser.emissiveIntensity = .9 * level;
     if (leftPictureSpot) leftPictureSpot.intensity = LEFT_ART_CANDELA * level;
   }
   function loadLeftWallArt() {
@@ -650,9 +651,9 @@ export async function start({ stage, panel, lang, onReady }) {
         const mesh = new THREE.Mesh(geo, mat); mesh.name = name; mesh.position.set(x, y, z);
         mesh.castShadow = false; mesh.receiveShadow = false; leftWallArtGroup.add(mesh); return mesh;
       };
-      const gold = new THREE.MeshStandardMaterial({ color: "#b28a48", metalness: .62, roughness: .47 });
-      const goldEdge = new THREE.MeshStandardMaterial({ color: "#d8b76d", metalness: .58, roughness: .4 });
-      const goldShade = new THREE.MeshStandardMaterial({ color: "#79603a", metalness: .45, roughness: .65 });
+      const gold = new THREE.MeshStandardMaterial({ color: "#c49a52", metalness: .78, roughness: .28 });
+      const goldEdge = new THREE.MeshStandardMaterial({ color: "#e2c27a", metalness: .82, roughness: .18 });
+      const goldShade = new THREE.MeshStandardMaterial({ color: "#8a6a3c", metalness: .55, roughness: .48 });
       piece(new THREE.BoxGeometry(paintW + .118, paintH + .118, .018), goldShade, 0, 0, .015, "left-wall-frame-backing");
       [[paintW + .14, paintH + .14, .04, .038, .034, gold], [paintW + .09, paintH + .09, .026, .025, .061, goldShade], [paintW + .04, paintH + .04, .018, .014, .079, goldEdge]].forEach(([w, h, t, depth, z, mat], layer) => {
         for (const side of [-1, 1]) {
@@ -693,27 +694,9 @@ export async function start({ stage, panel, lang, onReady }) {
         mesh.castShadow = true; mesh.receiveShadow = true; // the top lip throws a short contact shadow down the canvas
       });
       leftWallArtGroup.getObjectByName("left-wall-painting").receiveShadow = true;
-      const contact = canvasTex(8, 48, (ctx, w, h) => {
-        for (let y = 0; y < h; y++) {
-          const v = y / (h - 1);
-          ctx.fillStyle = `rgba(28,16,8,${(1 - v) ** 1.8})`; ctx.fillRect(0, y, w, 1);
-        }
-      });
-      const contactMat = new THREE.MeshBasicMaterial({ map: contact, transparent: true, opacity: .42, depthWrite: false });
-      piece(new THREE.PlaneGeometry(paintW - .04, .07), contactMat, 0, paintH / 2 - .03, .0775, "left-wall-frame-contact");
-      const lampShadow = canvasTex(64, 32, (ctx, w, h) => {
-        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-          const u = x / (w - 1), v = y / (h - 1);
-          const across = Math.sin(Math.PI * u) ** 1.2;
-          const down = (1 - v) ** 1.4;
-          ctx.fillStyle = `rgba(24,14,8,${across * down})`; ctx.fillRect(x, y, 1, 1);
-        }
-      });
-      const lampShadowMat = new THREE.MeshBasicMaterial({ map: lampShadow, transparent: true, opacity: .38, depthWrite: false });
-      piece(new THREE.PlaneGeometry(shadeW + .06, .09), lampShadowMat, 0, lightY - .055, .006, "left-wall-lamp-shadow");
-      // 4.2 cd, decay 2, cutoff 2.2 m. The source sits forward of the shade so 1/d² dims the canvas
-      // gradually instead of blacking the lower edge. Half-angle ~66° and a long penumbra: no hard circle.
-      leftPictureSpot = new THREE.SpotLight(LEFT_ART_COLOR, LEFT_ART_CANDELA, 2.2, 1.15, .78, 2);
+      // 12.5 cd, decay 2, cutoff 2.6 m. Aimed down the canvas from the lamp, wide enough to spill
+      // onto the wall and soft at the edge. No second light on the paint.
+      leftPictureSpot = new THREE.SpotLight(LEFT_ART_COLOR, LEFT_ART_CANDELA, 2.6, 1.0, .7, 2);
       leftPictureSpot.name = "left-wall-picture-spot";
       leftPictureSpot.castShadow = true;
       leftPictureSpot.shadow.mapSize.set(512, 512);
@@ -722,8 +705,8 @@ export async function start({ stage, panel, lang, onReady }) {
       leftPictureSpot.shadow.normalBias = .012;
       leftPictureSpot.shadow.camera.near = .05;
       leftPictureSpot.shadow.camera.far = 2.4;
-      leftPictureSpot.position.set(0, lightY - .04, .42);
-      leftPictureSpot.target.position.set(0, -.04, .074);
+      leftPictureSpot.position.set(0, lightY + .02, .62);
+      leftPictureSpot.target.position.set(0, -.06, .074);
       leftPictureSpot.target.name = "left-wall-picture-spot-target";
       leftWallArtGroup.add(leftPictureSpot, leftPictureSpot.target);
       updateLeftArtLight(shown ?? lights());
