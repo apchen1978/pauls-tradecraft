@@ -258,7 +258,15 @@ export async function start({ stage, panel, lang, onReady }) {
     ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
   });
   const tvWashMat = new THREE.MeshBasicMaterial({ color: "#ffd098", map: tvWashMap, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+  const tvWallWashMap = canvasTex(128, 128, (ctx, w, h) => {
+    const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * .78);
+    g.addColorStop(0, "rgba(255,255,255,.75)"); g.addColorStop(.55, "rgba(255,255,255,.4)"); g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  });
+  const tvWallWashMat = new THREE.MeshBasicMaterial({ color: "#e2a15d", map: tvWallWashMap, transparent: true, opacity: 0, depthWrite: false, blending: THREE.NormalBlending });
   const TV_STRIP_GLOW = { rain: .28, family: .18, tech: .08, chic: .2, slow: .13, tv: .82 };
+  // A restrained wall-local wash warms the same wall surface without adding another light.
+  const TV_WALL_WASH = { rain: .34, family: 0, tech: .35, chic: 0, slow: 0, tv: .4 };
   tvWallPiece(new THREE.BoxGeometry(2.95, 2.35, .08), tvPanelMat, 0, 1.36, FRONT - .125, "tv-wall-backing");
   // narrow trim makes the panel read as built-in millwork, not a freestanding equipment display
   for (const x of [-1.49, 1.49]) tvWallPiece(new THREE.BoxGeometry(.035, 2.36, .045), tvTrimMat, x, 1.36, FRONT - .17, "tv-wall-trim", false);
@@ -276,6 +284,12 @@ export async function start({ stage, panel, lang, onReady }) {
     ]));
   }
   tvWallPiece(new THREE.ShapeGeometry(builtInFace), wallMat, 0, 0, FRONT - .16, "tv-built-in-surround").rotation.y = Math.PI;
+  // A broad radial wash follows the inset wall, with the shelf openings kept clear; the TV and console sit in front of it.
+  const tvWallWashGeometry = new THREE.ShapeGeometry(builtInFace);
+  const tvWallWashUv = tvWallWashGeometry.attributes.uv, tvWallWashPositions = tvWallWashGeometry.attributes.position;
+  for (let i = 0; i < tvWallWashUv.count; i++) tvWallWashUv.setXY(i, tvWallWashPositions.getX(i) / W + .5, tvWallWashPositions.getY(i) / H);
+  tvWallWashUv.needsUpdate = true;
+  tvWallPiece(tvWallWashGeometry, tvWallWashMat, 0, 0, FRONT - .175, "tv-wall-warm-wash", false).rotation.y = Math.PI;
   for (const side of [-1, 1]) {
     const x = side * 1.82;
     tvWallPiece(new THREE.BoxGeometry(.62, 1.62, .025), tvOakMat, x, 1.36, FRONT - .025, "tv-shelf-back");
@@ -751,7 +765,7 @@ export async function start({ stage, panel, lang, onReady }) {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, led: m.led ? .5 : 0,
       floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
       shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
-      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], screenReflection: mood === "tv" ? .17 : 0,
+      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], wallWarmth: TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0,
     };
   };
   const lights = () => lightForMood(state.mood);
@@ -760,7 +774,7 @@ export async function start({ stage, panel, lang, onReady }) {
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
     shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
-    tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; screenReflectionMat.opacity = v.screenReflection;
+    tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
   }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
