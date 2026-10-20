@@ -1,0 +1,56 @@
+[
+  {
+    "viewport": 1440,
+    "mood": "tv",
+    "pixelsEqual": true,
+    "size": [
+      1360,
+      752
+    ]
+  },
+  {
+    "viewport": 1440,
+    "mood": "rain",
+    "pixelsEqual": true,
+    "size": [
+      1360,
+      752
+    ]
+  },
+  {
+    "viewport": 1440,
+    "mood": "family",
+    "pixelsEqual": true,
+    "size": [
+      1360,
+      752
+    ]
+  },
+  {
+    "viewport": 390,
+    "mood": "tv",
+    "pixelsEqual": true,
+    "size": [
+      537,
+      853
+    ]
+  },
+  {
+    "viewport": 390,
+    "mood": "rain",
+    "pixelsEqual": true,
+    "size": [
+      537,
+      857
+    ]
+  },
+  {
+    "viewport": 390,
+    "mood": "family",
+    "pixelsEqual": true,
+    "size": [
+      537,
+      857
+    ]
+  }
+]
