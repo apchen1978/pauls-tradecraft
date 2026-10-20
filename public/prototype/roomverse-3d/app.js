@@ -435,6 +435,76 @@ export async function start({ stage, panel, lang, onReady }) {
     })().catch((error) => { console.warn("ROOMVERSE console details could not load", error); consoleDecorPromise = null; return false; });
     return consoleDecorPromise;
   }
+  // Optional gallery corner: create geometry and request its one responsive image only after entry.
+  // The approved full 3:2 painting stays visible inside the stepped frame, including the right-hand crane.
+  let rightWallArtGroup = null, rightWallArtPromise = null, rightWallArtReady = false, rightWallArtLoaded = false;
+  let rightPaintingMat = null, rightArtWallWash = null, rightArtPaintWash = null, rightArtDiffuser = null;
+  function updateRightArtLight(v) {
+    if (!rightWallArtGroup) return;
+    const level = Math.min(1, Math.max(0, v.tableHalo / .5));
+    rightArtWallWash.opacity = .12 * level;
+    rightArtPaintWash.opacity = .055 * level;
+    rightPaintingMat.emissiveIntensity = rightWallArtLoaded ? .14 * level : 0;
+    rightArtDiffuser.emissiveIntensity = .35 + level * .65;
+  }
+  function loadRightWallArt() {
+    if (rightWallArtPromise) return rightWallArtPromise;
+    rightWallArtPromise = new Promise((resolve) => {
+      rightWallArtGroup = new THREE.Group(); rightWallArtGroup.name = "right-wall-gallery";
+      rightWallArtGroup.position.set(W / 2 - .008, 1.5, -.65);
+      rightWallArtGroup.rotation.y = -Math.PI / 2; scene.add(rightWallArtGroup);
+      const piece = (geo, mat, x, y, z, name) => {
+        const mesh = new THREE.Mesh(geo, mat); mesh.name = name; mesh.position.set(x, y, z);
+        // These small details do not cast new shadows into the approved sofa view.
+        mesh.castShadow = false; mesh.receiveShadow = false; rightWallArtGroup.add(mesh); return mesh;
+      };
+      const gold = new THREE.MeshStandardMaterial({ color: "#b28a48", metalness: .62, roughness: .47 });
+      const goldEdge = new THREE.MeshStandardMaterial({ color: "#d8b76d", metalness: .58, roughness: .4 });
+      const goldShade = new THREE.MeshStandardMaterial({ color: "#79603a", metalness: .45, roughness: .65 });
+      piece(new THREE.BoxGeometry(1.318, .918, .018), goldShade, 0, 0, .015, "right-wall-frame-backing");
+      // Stepped rails give a classical profile without carved textures or extra asset requests.
+      [[1.34, .94, .04, .038, .034, gold], [1.29, .89, .026, .025, .061, goldShade], [1.24, .84, .018, .014, .079, goldEdge]].forEach(([w, h, t, depth, z, mat], layer) => {
+        for (const side of [-1, 1]) {
+          piece(new THREE.BoxGeometry(w, t, depth), mat, 0, side * (h - t) / 2, z, `right-wall-frame-${layer}-horizontal`);
+          piece(new THREE.BoxGeometry(t, h - t * 2, depth), mat, side * (w - t) / 2, 0, z, `right-wall-frame-${layer}-vertical`);
+        }
+      });
+      rightPaintingMat = new THREE.MeshStandardMaterial({ color: "#c7b896", roughness: 1, emissive: "#ffffff", emissiveIntensity: 0 });
+      piece(new THREE.PlaneGeometry(1.2, .8), rightPaintingMat, 0, 0, .0745, "right-wall-painting");
+      const wash = canvasTex(64, 96, (ctx, w, h) => {
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const u = x / (w - 1), v = y / (h - 1);
+            const edge = Math.sin(Math.PI * u) ** 1.4;
+            const down = Math.sin(Math.PI * v) ** .8 * (.85 - v * .55);
+            ctx.fillStyle = `rgba(255,222,175,${edge * down})`; ctx.fillRect(x, y, 1, 1);
+          }
+        }
+      });
+      rightArtWallWash = new THREE.MeshBasicMaterial({ map: wash, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+      piece(new THREE.PlaneGeometry(1.46, 1.1), rightArtWallWash, 0, .025, .002, "right-wall-picture-wash");
+      rightArtPaintWash = rightArtWallWash.clone();
+      piece(new THREE.PlaneGeometry(1.2, .8), rightArtPaintWash, 0, 0, .076, "right-wall-painting-wash");
+      // A real brass fixture with a downward diffuser; the wash is local decoration, not another light.
+      const brass = new THREE.MeshStandardMaterial({ color: "#bc9a5d", metalness: .65, roughness: .4 });
+      piece(new THREE.BoxGeometry(.085, .085, .015), brass, 0, .54, .02, "right-wall-light-mount");
+      for (const x of [-.15, .15]) piece(new THREE.CylinderGeometry(.006, .006, .14, 8), brass, x, .545, .095, "right-wall-light-arm").rotation.x = Math.PI / 2;
+      piece(new THREE.CylinderGeometry(.024, .024, .5, 16), brass, 0, .54, .17, "right-wall-picture-light").rotation.z = Math.PI / 2;
+      rightArtDiffuser = new THREE.MeshStandardMaterial({ color: "#ffe6b9", emissive: "#ffd59a", emissiveIntensity: 0, roughness: .7 });
+      piece(new THREE.PlaneGeometry(.45, .025), rightArtDiffuser, 0, .515, .17, "right-wall-light-diffuser").rotation.x = Math.PI / 2;
+      updateRightArtLight(shown ?? lights());
+      const name = compactRender ? "right-wall-harbor-mobile-v1" : "right-wall-harbor-v1";
+      image(name, false, (texture) => {
+        rightPaintingMat.map = texture; rightPaintingMat.emissiveMap = texture;
+        rightPaintingMat.color.set("#ffffff"); rightPaintingMat.needsUpdate = true;
+        rightWallArtLoaded = true; rightWallArtReady = true;
+        updateRightArtLight(shown ?? lights()); render(); resolve(true);
+      }, () => {
+        rightWallArtReady = true; render(); resolve(false); // the solid canvas and frame remain usable
+      })();
+    });
+    return rightWallArtPromise;
+  }
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
@@ -790,6 +860,7 @@ export async function start({ stage, panel, lang, onReady }) {
     shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
     if (tvScreenArtLoaded) tvScreenMat.color.setScalar(v.screenLevel);
+    updateRightArtLight(v);
   }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
@@ -836,7 +907,7 @@ export async function start({ stage, panel, lang, onReady }) {
     render();
   }
   function moveToView(view) {
-    if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); }
+    if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); }
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     settleIntro();
@@ -1179,7 +1250,7 @@ export async function start({ stage, panel, lang, onReady }) {
   controls.addEventListener("change", () => {
     const offset = camera.position.clone().sub(orbitCenter);
     viewTheta = Math.atan2(offset.x, offset.z);
-    if (Math.sin(viewTheta) < -.45) void loadDoorTexture(); // turning toward the right-hand wall
+    if (Math.sin(viewTheta) < -.45) { void loadDoorTexture(); void loadRightWallArt(); } // turning toward the right-hand wall
     const toWindow = Math.abs(Math.atan2(Math.sin(viewTheta), Math.cos(viewTheta)));
     const toTv = Math.abs(Math.atan2(Math.sin(viewTheta - Math.PI), Math.cos(viewTheta - Math.PI)));
     currentView = toTv < toWindow ? "tv" : "window";
@@ -1210,7 +1281,7 @@ export async function start({ stage, panel, lang, onReady }) {
     setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     scheduleTvWallTextures() {
-      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); };
+      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); };
       const loadWhenIdle = () => {
         if (document.visibilityState !== "visible") { document.addEventListener("visibilitychange", loadWhenIdle, { once: true }); return; }
         if ("requestIdleCallback" in window) window.requestIdleCallback(loadWallMaterials, { timeout: 2500 });
@@ -1225,6 +1296,27 @@ export async function start({ stage, panel, lang, onReady }) {
     hasFrontWall: () => !!scene.getObjectByName("front-wall"),
     hasTvWall: () => !!scene.getObjectByName("tv-screen") && !!scene.getObjectByName("tv-console"),
     loadConsoleDecor,
+    loadRightWallArt,
+    rightWallArt() { // read-only QA: frame clearance, responsive image, local glow and projected artwork bounds
+      if (!rightWallArtGroup) return { ready: false, loaded: false, built: false };
+      scene.updateMatrixWorld(true);
+      const bounds = (obj) => { const box = new THREE.Box3().setFromObject(obj); return { min: box.min.toArray(), max: box.max.toArray() }; };
+      const painting = rightWallArtGroup.getObjectByName("right-wall-painting");
+      const corners = [[-.6, -.4], [.6, -.4], [-.6, .4], [.6, .4]].map(([x, y]) => new THREE.Vector3(x, y, 0).applyMatrix4(painting.matrixWorld).project(camera));
+      const rect = renderer.domElement.getBoundingClientRect();
+      const xs = corners.map((p) => (p.x + 1) * rect.width / 2), ys = corners.map((p) => (1 - p.y) * rect.height / 2);
+      const box = new THREE.Box3().setFromObject(rightWallArtGroup);
+      return { built: true, ready: rightWallArtReady, loaded: rightWallArtLoaded,
+        file: rightPaintingMat.map?.image?.src?.split("/").pop() ?? null,
+        size: [rightPaintingMat.map?.image?.width ?? 0, rightPaintingMat.map?.image?.height ?? 0],
+        bounds: bounds(rightWallArtGroup), painting: bounds(painting),
+        fixture: bounds(rightWallArtGroup.getObjectByName("right-wall-picture-light")),
+        glow: rightArtWallWash.opacity,
+        screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
+        collisions: Object.entries({ door: roomDoor, sideTable: tableObj, tableLamp: tableLampObj })
+          .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
+      };
+    },
     consoleDetails() { // local QA only: measured tabletop contacts and inter-object clearance
       scene.updateMatrixWorld(true);
       const old = ["tv-vase-body", "tv-vase-neck", "tv-book-one", "tv-laptop"].map((name) => ({ name, box: new THREE.Box3().setFromObject(scene.getObjectByName(name)) }));

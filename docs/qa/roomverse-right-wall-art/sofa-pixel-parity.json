@@ -1,0 +1,40 @@
+[
+  {
+    "kind": "sofa",
+    "width": 1440,
+    "changedPixels": 16655,
+    "totalPixels": 882640,
+    "differenceBounds": [
+      1293,
+      103,
+      1360,
+      391
+    ]
+  },
+  {
+    "kind": "sofa",
+    "width": 390,
+    "changedPixels": 0,
+    "totalPixels": 703112,
+    "differenceBounds": null
+  },
+  {
+    "kind": "postcard",
+    "width": 1440,
+    "changedPixels": 16655,
+    "totalPixels": 1022720,
+    "differenceBounds": [
+      1293,
+      103,
+      1360,
+      391
+    ]
+  },
+  {
+    "kind": "postcard",
+    "width": 390,
+    "changedPixels": 0,
+    "totalPixels": 460209,
+    "differenceBounds": null
+  }
+]
