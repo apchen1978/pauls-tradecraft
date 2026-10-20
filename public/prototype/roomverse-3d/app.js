@@ -337,6 +337,75 @@ export async function start({ stage, panel, lang, onReady }) {
     return tvWallTexturesPromise;
   }
   const tvSurfaceSpecsByName = new Map([...tvSurfaceSpecs.values()].map((spec) => [spec.name, spec]));
+
+  // Optional lived-in console details: build only after entry/idle or an explicit TV-view click.
+  // Reuse the existing painted oak and plaster images; only the little picture adds image bytes.
+  const consoleDecor = new THREE.Group(); consoleDecor.name = "tv-console-decor"; scene.add(consoleDecor);
+  let consoleDecorPromise = null, consoleDecorLoaded = false, consoleArtLoaded = false;
+  function loadConsoleDecor() {
+    if (consoleDecorPromise) return consoleDecorPromise;
+    consoleDecorPromise = (async () => {
+      const [, art] = await Promise.all([loadTvWallTextures(), new Promise((resolve) => {
+        image("console-art-river-v1", false, resolve, () => resolve(null))();
+      })]);
+      consoleArtLoaded = !!art;
+      const surface = (name, color, repeat) => {
+        const mat = new THREE.MeshStandardMaterial({ color, roughness: .9 });
+        const source = tvWall.getObjectByName(name)?.material.map;
+        if (source) { mat.map = source.clone(); mat.map.repeat.set(...repeat); mat.map.needsUpdate = true; }
+        return mat;
+      };
+      const oak = surface("tv-console", "#ffffff", [.24 / .8, .23 / .8]);
+      const linenBlue = surface("tv-wall-backing", "#8a9fa2", [1, 1]);
+      const linenClay = surface("tv-wall-backing", "#bd9478", [1, 1]);
+      const paper = surface("tv-wall-backing", "#eee9da", [1, 1]);
+      const ceramic = surface("tv-wall-backing", "#e6e1d3", [1, 1]);
+      const piece = (group, geo, mat, x, y, z) => {
+        const mesh = new THREE.Mesh(geo, mat); mesh.position.set(x, y, z);
+        mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh); return mesh;
+      };
+      const onConsole = (group, x, z) => {
+        consoleDecor.add(group); group.position.set(x, 0, z); group.updateMatrixWorld(true);
+        group.position.y += .59 - new THREE.Box3().setFromObject(group).min.y;
+        group.updateMatrixWorld(true);
+      };
+      // A real backed tabletop frame, leaning on a small stand rather than a floating decal.
+      const frame = new THREE.Group(); frame.name = "console-decor-frame";
+      piece(frame, new THREE.BoxGeometry(.188, .226, .014), oak, 0, .113, 0);
+      piece(frame, new THREE.PlaneGeometry(.156, .194), new THREE.MeshStandardMaterial({ map: art, color: art ? "#ffffff" : "#d6c9ad", roughness: .96 }), 0, .113, .0078);
+      piece(frame, new THREE.BoxGeometry(.012, .15, .05), oak, 0, .075, -.032);
+      frame.rotation.set(-.10, Math.PI - .06, 0); onConsole(frame, -.38, FRONT - .21);
+      // Two cloth-bound, blank-spined books, slightly offset rather than evenly lined up.
+      const books = new THREE.Group(); books.name = "console-decor-books";
+      const book = (width, depth, cover, x, y, z, angle) => {
+        const group = new THREE.Group(); group.position.set(x, y, z); group.rotation.y = angle; books.add(group);
+        piece(group, new THREE.BoxGeometry(width, .003, depth), cover, 0, .0015, 0);
+        piece(group, new THREE.BoxGeometry(width - .008, .017, depth - .009), paper, 0, .0115, 0);
+        piece(group, new THREE.BoxGeometry(width, .003, depth), cover, 0, .0215, 0);
+        piece(group, new THREE.BoxGeometry(width, .023, .003), cover, 0, .0115, -depth / 2 + .0015);
+      };
+      book(.25, .16, linenBlue, 0, 0, 0, -.06);
+      book(.21, .15, linenClay, -.01, .023, .006, .10);
+      onConsole(books, .42, FRONT - .35);
+      // A shallow ceramic tray and an unbranded remote: genuine depth from every orbit angle.
+      const tray = new THREE.Group(); tray.name = "console-decor-tray";
+      piece(tray, new THREE.CylinderGeometry(.08, .078, .008, 28), ceramic, 0, .004, 0).scale.set(1.55, 1, .8);
+      const rim = piece(tray, new THREE.TorusGeometry(.075, .0055, 8, 32), ceramic, 0, .008, 0);
+      rim.rotation.x = Math.PI / 2; rim.scale.set(1.55, .8, 1);
+      const remoteMat = new THREE.MeshStandardMaterial({ color: "#424a49", roughness: .85 });
+      const remote = piece(tray, new THREE.CapsuleGeometry(.018, .08, 4, 8), remoteMat, 0, .0143, -.003);
+      remote.rotation.x = Math.PI / 2; remote.scale.set(1, 1, .35);
+      const buttons = new THREE.InstancedMesh(new THREE.BoxGeometry(.009, .002, .008), new THREE.MeshStandardMaterial({ color: "#b7b8ae", roughness: 1 }), 3);
+      const buttonMatrix = new THREE.Matrix4();
+      [-.025, 0, .025].forEach((z, i) => buttons.setMatrixAt(i, buttonMatrix.makeTranslation(0, .0215, z)));
+      buttons.instanceMatrix.needsUpdate = true;
+      buttons.receiveShadow = true; tray.add(buttons);
+      piece(tray, new THREE.CylinderGeometry(.003, .003, .002, 8), linenClay, 0, .0215, -.04);
+      tray.rotation.y = .14; onConsole(tray, -.40, FRONT - .42);
+      consoleDecorLoaded = true; render(); return true;
+    })().catch((error) => { console.warn("ROOMVERSE console details could not load", error); consoleDecorPromise = null; return false; });
+    return consoleDecorPromise;
+  }
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
@@ -726,7 +795,7 @@ export async function start({ stage, panel, lang, onReady }) {
     render();
   }
   function moveToView(view) {
-    if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); }
+    if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); }
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     settleIntro();
@@ -1099,7 +1168,7 @@ export async function start({ stage, panel, lang, onReady }) {
     setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
     set(k, v) { state[k] = v; apply(); }, // used by tests
     scheduleTvWallTextures() {
-      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); };
+      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); };
       const loadWhenIdle = () => {
         if (document.visibilityState !== "visible") { document.addEventListener("visibilitychange", loadWhenIdle, { once: true }); return; }
         if ("requestIdleCallback" in window) window.requestIdleCallback(loadWallMaterials, { timeout: 2500 });
@@ -1113,6 +1182,15 @@ export async function start({ stage, panel, lang, onReady }) {
     setOrbitAngle(degrees) { intro = false; viewTheta = degrees * Math.PI / 180; setCameraAngle(viewTheta); return camera.position.toArray(); },
     hasFrontWall: () => !!scene.getObjectByName("front-wall"),
     hasTvWall: () => !!scene.getObjectByName("tv-screen") && !!scene.getObjectByName("tv-console"),
+    loadConsoleDecor,
+    consoleDetails() { // local QA only: measured tabletop contacts and inter-object clearance
+      scene.updateMatrixWorld(true);
+      const old = ["tv-vase-body", "tv-vase-neck", "tv-book-one", "tv-laptop"].map((name) => ({ name, box: new THREE.Box3().setFromObject(scene.getObjectByName(name)) }));
+      const bounds = consoleDecor.children.map((obj) => ({ name: obj.name, box: new THREE.Box3().setFromObject(obj) }));
+      const collisions = bounds.flatMap((a, i) => [...old, ...bounds.slice(i + 1)].filter((b) => a.box.intersectsBox(b.box)).map((b) => [a.name, b.name]));
+      return { ready: consoleDecorLoaded, artLoaded: consoleArtLoaded, collisions,
+        objects: bounds.map(({ name, box }) => ({ name, min: box.min.toArray(), max: box.max.toArray() })) };
+    },
     loadDoorTexture,
     roomDoor() { // read-only QA: actual world bounds, independent of the orbit angle
       scene.updateMatrixWorld(true);
