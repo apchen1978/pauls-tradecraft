@@ -34,8 +34,8 @@ const MOODS = {
 
 export async function start({ stage, panel, lang, onReady }) {
   const compactRender = matchMedia("(max-width: 600px)").matches;
-  const renderer = new THREE.WebGLRenderer({ antialias: !compactRender });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, compactRender ? 1.25 : 2));
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, compactRender ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap; // PCF honours shadow.radius: soft shadow edges (PCFSoft ignores it in r160)
   renderer.toneMapping = THREE.ACESFilmicToneMapping;

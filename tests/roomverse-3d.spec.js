@@ -4,6 +4,26 @@ import { mkdir, readFile, stat } from "node:fs/promises";
 // ROOMVERSE 3D: a poster first (no 3D download until the visitor asks), then a 3D room whose feeling,
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
 const PAGE = "/prototype/roomverse-3d/";
+for (const dpr of [2, 3]) {
+  test(`mobile renderer keeps antialiasing and caps DPR at 1.5 on DPR ${dpr}`, async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: dpr });
+    const page = await context.newPage();
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`${PAGE}?lang=zh&mood=rain`);
+    await page.locator("#enter").click();
+    await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+    const render = await page.locator("#stage canvas").evaluate((canvas) => ({
+      antialias: canvas.getContext("webgl2")?.getContextAttributes()?.antialias,
+      ratio: canvas.width / canvas.clientWidth,
+      dpr: devicePixelRatio,
+    }));
+    expect(render.antialias).toBe(true);
+    expect(render.dpr).toBe(dpr);
+    expect(render.ratio).toBeCloseTo(1.5, 1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await context.close();
+  });
+}
 for (const height of [844, 740]) {
   test(`English phone at 390x${height}: entry and both view buttons fit the first screen`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height });
