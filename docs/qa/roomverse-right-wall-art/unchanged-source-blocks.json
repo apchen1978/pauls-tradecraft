@@ -1,0 +1,14 @@
+{
+  "MOODS": {
+    "unchanged": true,
+    "sha256": "4657e852c01fd2544bed42942da5ec5f8ddf21359297c77fcafd727370212600"
+  },
+  "renderer": {
+    "unchanged": true,
+    "sha256": "8e8bdfcb071c8022316ed7035ee63948f1ba426d362de566a47eb50419c1f9ca"
+  },
+  "director-camera-and-path": {
+    "unchanged": true,
+    "sha256": "32e0ed7aff70e12593a81540b0c10e4604b5d8f618e14c92ef9d41239d5d6ceb"
+  }
+}

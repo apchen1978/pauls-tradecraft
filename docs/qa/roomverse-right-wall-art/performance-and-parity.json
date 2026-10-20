@@ -1,0 +1,245 @@
+{
+  "baseline": "38b076b",
+  "browser": "155.0.8059.85",
+  "cpuSlowdown": 4,
+  "cache": "disabled, fresh context per trial",
+  "metric": "entry click event to __room assignment after the initial rendered room",
+  "rows": [
+    {
+      "pair": 0,
+      "version": "before",
+      "width": 1440,
+      "ms": 2291.5,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 0,
+      "version": "after",
+      "width": 1440,
+      "ms": 1676.1000000238419,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 1,
+      "version": "after",
+      "width": 1440,
+      "ms": 1589.4000000357628,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 1,
+      "version": "before",
+      "width": 1440,
+      "ms": 1601.9000000357628,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 2,
+      "version": "before",
+      "width": 1440,
+      "ms": 2021.199999988079,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 2,
+      "version": "after",
+      "width": 1440,
+      "ms": 1822.8999999761581,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 3,
+      "version": "after",
+      "width": 1440,
+      "ms": 1686.5,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 3,
+      "version": "before",
+      "width": 1440,
+      "ms": 1571,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 4,
+      "version": "before",
+      "width": 1440,
+      "ms": 1442.5999999642372,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 4,
+      "version": "after",
+      "width": 1440,
+      "ms": 1417,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 0,
+      "version": "before",
+      "width": 390,
+      "ms": 1433.699999988079,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 0,
+      "version": "after",
+      "width": 390,
+      "ms": 1393,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 1,
+      "version": "after",
+      "width": 390,
+      "ms": 1602.300000011921,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 1,
+      "version": "before",
+      "width": 390,
+      "ms": 1548.1000000238419,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 2,
+      "version": "before",
+      "width": 390,
+      "ms": 2757,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 2,
+      "version": "after",
+      "width": 390,
+      "ms": 3544,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 3,
+      "version": "after",
+      "width": 390,
+      "ms": 1700.3999999761581,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 3,
+      "version": "before",
+      "width": 390,
+      "ms": 1583.3999999761581,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 4,
+      "version": "before",
+      "width": 390,
+      "ms": 1398.300000011921,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": false,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    },
+    {
+      "pair": 4,
+      "version": "after",
+      "width": 390,
+      "ms": 1630.1000000238419,
+      "artBuiltAtReady": false,
+      "artFeatureAvailable": true,
+      "moduleRouteHits": 1,
+      "artRequestsBeforeReady": 0
+    }
+  ],
+  "medians": [
+    {
+      "width": 1440,
+      "beforeMs": 1601.9000000357628,
+      "afterMs": 1676.1000000238419,
+      "deltaMs": 74.19999998807907
+    },
+    {
+      "width": 390,
+      "beforeMs": 1548.1000000238419,
+      "afterMs": 1630.1000000238419,
+      "deltaMs": 82
+    }
+  ],
+  "parity": [
+    {
+      "version": "before",
+      "width": 1440,
+      "postcardPixelHash": "529227056ff6d88bdfab1c6e2261a528584a5917cd14b13f2b59bfe3efd9eda3"
+    },
+    {
+      "version": "after",
+      "width": 1440,
+      "postcardPixelHash": "d1d2788e52e98becd4212e14e20f2cfe8f955d5e4d14bf7da18a1cee67699c32"
+    },
+    {
+      "version": "before",
+      "width": 390,
+      "postcardPixelHash": "07cbc816717d7a2ed2371e48a4527a26e75b6389f45622b91f29efdbfcfc6697"
+    },
+    {
+      "version": "after",
+      "width": 390,
+      "postcardPixelHash": "07cbc816717d7a2ed2371e48a4527a26e75b6389f45622b91f29efdbfcfc6697"
+    }
+  ]
+}
