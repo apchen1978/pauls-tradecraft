@@ -1008,3 +1008,31 @@ test("mobile yaw opens the TV wall from 66 to 76; desktop, postcard, plaque and 
   expect(await expectFov(135, 44)).toBeCloseTo(44, 2);
   expect(await expectFov(180, 44)).toBeCloseTo(44, 2);
 });
+
+for (const lang of ["zh", "en"]) {
+  for (const [width, height] of [[390, 844], [390, 740], [360, 740], [360, 640]]) {
+    test(`${lang} ${width}×${height} TV view frames both shelves without changing the window view`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto(`${PAGE}?lang=${lang}&mood=tv&view=tv`);
+      await page.locator("#enter").click();
+      await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+      const framing = await page.evaluate(() => {
+        const stage = document.querySelector("#stage").getBoundingClientRect();
+        window.__room.setOrbitAngle(0);
+        const windowFov = window.__room.fov();
+        window.__room.setOrbitAngle(135);
+        const turningFov = window.__room.fov();
+        window.__room.setOrbitAngle(180);
+        const tvFov = window.__room.fov();
+        const tvCameraZ = window.__room.cam()[2];
+        const visibleHalfWidth = (2.4 - tvCameraZ) * Math.tan(tvFov * Math.PI / 360) * stage.width / stage.height;
+        return { aspect: stage.width / stage.height, windowFov, turningFov, tvFov, visibleHalfWidth };
+      });
+      expect(framing.windowFov).toBe(framing.aspect < .8 ? 66 : 44);
+      expect(framing.visibleHalfWidth).toBeGreaterThanOrEqual(2.23); // shelf edges ±2.13 m, plus visible margin
+      expect(framing.turningFov).toBeGreaterThanOrEqual(framing.windowFov);
+      expect(framing.turningFov).toBeLessThanOrEqual(framing.tvFov);
+    });
+  }
+}
