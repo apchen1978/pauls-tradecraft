@@ -6,9 +6,10 @@ import assert from "node:assert/strict";
 const DIR = "docs/qa/roomverse-shelf-decor";
 const RAW = "output/roomverse-shelf-decor-raw-postcards";
 await mkdir(RAW, { recursive: true });
-const sources = { before: execFileSync("git", ["show", "e07652b:public/prototype/roomverse-3d/app.js"], { encoding: "utf8" }), after: await readFile("public/prototype/roomverse-3d/app.js", "utf8") };
+const baseline = "db19d39"; // PR #399 before the scale refinement.
+const sources = { before: execFileSync("git", ["show", `${baseline}:public/prototype/roomverse-3d/app.js`], { encoding: "utf8" }), after: await readFile("public/prototype/roomverse-3d/app.js", "utf8") };
 const browser = await chromium.launch({ channel: "chrome" });
-const rows = [], parity = [], requestSets = [];
+const rows = [], parity = [], requestSets = [], shelfCounts = [];
 async function enter(version, width, cpu) {
   const context = await browser.newContext({ viewport: { width, height: width === 390 ? 844 : 900 }, deviceScaleFactor: width === 390 ? 2 : 1, reducedMotion: "reduce" });
   const page = await context.newPage(); let hits = 0; const requests = [];
@@ -29,7 +30,7 @@ async function enter(version, width, cpu) {
   await page.goto("http://127.0.0.1:4175/prototype/roomverse-3d/?lang=zh&mood=rain");
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   const metrics = await page.evaluate(() => ({ ms: __readyMs, hasShelf: __hasShelf, shelfCountAtReady: __shelfCountAtReady }));
-  assert.equal(hits, 1); assert.equal(metrics.hasShelf, version === "after"); assert.equal(metrics.shelfCountAtReady, 0);
+  assert.equal(hits, 1); assert.equal(metrics.hasShelf, true); assert.equal(metrics.shelfCountAtReady, 0);
   return { context, page, requests, metrics: { width, version, hits, ...metrics } };
 }
 for (const width of [1440, 390]) {
@@ -45,6 +46,9 @@ for (const width of [1440, 390]) {
   for (const version of ["before", "after"]) {
     const { context, page, requests } = await enter(version, width, false);
     await page.evaluate(() => Promise.all([__room.loadConsoleDecor(), __room.loadDoorTexture(), __room.loadRightWallArt()]));
+    const shelfCount = await page.evaluate(() => __room.shelfDecor().objects.length);
+    assert.equal(shelfCount, version === "before" ? 8 : 11);
+    shelfCounts.push({ width, version, objectsAfterIdle: shelfCount });
     await page.waitForLoadState("networkidle");
     requestSets.push({ width, version, urls: [...new Set(requests)].sort() });
     for (const [mood, wall] of [["tv", "wine"], ["rain", "original"], ["family", "olive"]]) {
@@ -72,5 +76,10 @@ const medians = [1440, 390].map((width) => {
   const after = median(rows.filter((r) => r.width === width && r.version === "after").map((r) => r.ms));
   return { width, beforeMs: before, afterMs: after, deltaMs: after - before };
 });
-await writeFile(`${DIR}/performance-and-parity.json`, JSON.stringify({ baseline: "e07652b", browser: browser.version(), cpu: 4, metric: "entry click to __room assignment after first render; fresh context, cache disabled, one warmup each version and five interleaved pairs", rows, medians, requestSets, parity }, null, 2));
+await writeFile(`${DIR}/performance-and-parity.json`, JSON.stringify({ baseline, browser: browser.version(), cpu: 4, metric: "entry click to __room assignment after first render; fresh context, cache disabled, one warmup each version and five interleaved pairs", rows, medians, requestSets, shelfCounts, parity }, null, 2));
+const postcardPairs = parity.filter((row) => row.version === "after").map((after) => {
+  const before = parity.find((row) => row.version === "before" && row.viewport === after.viewport && row.mood === after.mood);
+  return { viewport: after.viewport, mood: after.mood, pixelsEqual: before.hash === after.hash, size: [after.width, after.height], beforeHash: before.hash, afterHash: after.hash };
+});
+await writeFile(`${DIR}/postcard-parity.json`, JSON.stringify({ baseline, pairs: postcardPairs }, null, 2));
 console.log(JSON.stringify(medians)); await browser.close();

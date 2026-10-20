@@ -411,40 +411,50 @@ export async function start({ stage, panel, lang, onReady }) {
       mesh(group, new THREE.BoxGeometry(width, height, .003), cover, 0, height / 2, -depth / 2 + .0015);
       return group;
     };
-    // Three distinct books are counted as three objects; the remainder of this bay stays open.
-    [["blue", .034, .235, blue, -.15], ["moss", .029, .205, moss, -.102], ["clay", .038, .258, clay, -.052]].forEach(([name, w, h, mat, x]) => {
-      place(book(`shelf-book-${name}`, w, h, .079, mat), "left-upper", x, w + .01, .083);
+    // A fuller but still low row uses most of the opening height; varied spines keep it lived-in.
+    [["blue", .040, .315, blue, -.150], ["moss", .035, .285, moss, -.090], ["clay", .043, .355, clay, -.030], ["paper", .038, .300, paper, .040], ["blue-short", .036, .270, blue, .110]].forEach(([name, w, h, mat, x]) => {
+      const volume = book(`shelf-book-${name}`, w, h, .086, mat);
+      volume.rotation.z = name === "clay" ? -.025 : name === "paper" ? .018 : 0;
+      place(volume, "left-upper", x, w + .009, .091);
     });
     const frame = new THREE.Group(); frame.name = "shelf-small-frame";
-    mesh(frame, new THREE.BoxGeometry(.164, .208, .012), oak, 0, .104, 0);
-    mesh(frame, new THREE.PlaneGeometry(.138, .178), new THREE.MeshStandardMaterial({ map: art, color: art ? "#ffffff" : "#ddd2b8", roughness: 1 }), 0, .104, .0065);
-    mesh(frame, new THREE.BoxGeometry(.014, .12, .033), oak, 0, .06, -.021);
+    mesh(frame, new THREE.BoxGeometry(.205, .252, .014), oak, 0, .126, 0);
+    mesh(frame, new THREE.PlaneGeometry(.176, .221), new THREE.MeshStandardMaterial({ map: art, color: art ? "#ffffff" : "#ddd2b8", roughness: 1 }), 0, .126, .0075);
+    mesh(frame, new THREE.BoxGeometry(.016, .145, .036), oak, 0, .0725, -.023);
     frame.rotation.set(-.045, Math.PI - .04, 0);
-    place(frame, "left-middle", .075, .17, .066);
+    place(frame, "left-middle", .075, .215, .069);
     // Low, elongated ceramic dish: a deliberate shallow silhouette, not a round urn.
     const dish = new THREE.Group(); dish.name = "shelf-ceramic-dish";
     const profile = [[0, .003], [.033, .003], [.055, .012], [.066, .026], [.061, .03], [.051, .018], [.03, .009], [0, .009]].map(([x, y]) => new THREE.Vector2(x, y));
     mesh(dish, new THREE.LatheGeometry(profile, 18), ceramic, 0, 0, 0).scale.set(1.55, 1, .53);
     place(dish, "left-lower", -.09, .205, .077);
     const plant = new THREE.Group(); plant.name = "shelf-mini-plant";
-    mesh(plant, new THREE.CylinderGeometry(.028, .023, .048, 7), ceramic, 0, .024, 0);
-    mesh(plant, new THREE.CylinderGeometry(.0235, .0235, .002, 12), dark, 0, .048, 0);
-    mesh(plant, new THREE.CylinderGeometry(.0015, .002, .125, 5), leafMat, 0, .11, 0);
+    mesh(plant, new THREE.CylinderGeometry(.034, .029, .060, 7), ceramic, 0, .030, 0);
+    mesh(plant, new THREE.CylinderGeometry(.0295, .0295, .002, 12), dark, 0, .060, 0);
+    mesh(plant, new THREE.CylinderGeometry(.0015, .002, .190, 5), leafMat, 0, .145, 0);
     const leafGeo = new THREE.SphereGeometry(1, 7, 5);
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 9; i++) {
       const side = i % 2 ? -1 : 1;
-      const leaf = mesh(plant, leafGeo, leafMat, side * (.014 + i * .001), .075 + i * .014, (i % 3 - 1) * .011);
-      leaf.scale.set(.013, .028, .006); leaf.rotation.z = side * -.64;
+      const leaf = mesh(plant, leafGeo, leafMat, side * (.016 + i * .001), .105 + i * .016, (i % 3 - 1) * .012);
+      leaf.scale.set(.015, .031, .007); leaf.rotation.z = side * -.64;
     }
-    place(plant, "right-upper", .10, .078, .077);
-    const box = new THREE.Group(); box.name = "shelf-thin-wood-box";
-    mesh(box, new THREE.BoxGeometry(.151, .066, .081), oak, 0, .033, 0);
-    mesh(box, new THREE.BoxGeometry(.156, .009, .085), oak, 0, .0705, 0);
-    mesh(box, new THREE.BoxGeometry(.028, .005, .0015), dark, 0, .063, -.041);
-    place(box, "right-middle", -.08, .166, .09);
-    const notebook = book("shelf-flat-book", .026, .18, .077, blue);
-    notebook.rotation.z = Math.PI / 2;
-    place(notebook, "right-lower", .11, .19, .084);
+    place(plant, "right-upper", .085, .105, .091);
+    // A tapered, faceted vessel reads as a hand-shaped ceramic form rather than a round urn.
+    const vessel = new THREE.Group(); vessel.name = "shelf-medium-ceramic-vessel";
+    const vesselProfile = [[0,.004],[.030,.004],[.046,.020],[.054,.075],[.050,.150],[.038,.202],[.024,.222],[.022,.285],[.029,.300],[.029,.312],[.018,.312],[.018,.292],[.013,.245],[0,.238]].map(([x,y]) => new THREE.Vector2(x,y));
+    mesh(vessel, new THREE.LatheGeometry(vesselProfile, 8), ceramic, 0, 0, 0);
+    place(vessel, "right-middle", -.075, .13, .094);
+    const stack = new THREE.Group(); stack.name = "shelf-horizontal-book-stack";
+    [[.274,.050,.091,blue,.018],[.252,.052,.088,clay,.077],[.263,.048,.090,moss,.136]].forEach(([w,h,d,mat,y]) => {
+      mesh(stack, new THREE.BoxGeometry(w-.006,h-.005,d-.004), paper, 0, y+h/2, 0);
+      mesh(stack, new THREE.BoxGeometry(w,h,d), mat, 0, y+h/2, 0);
+    });
+    const accent = new THREE.Group(); accent.name = "shelf-small-wood-sculpture";
+    mesh(accent, new THREE.BoxGeometry(.094,.022,.068), oak, 0, .011, 0);
+    mesh(accent, new THREE.BoxGeometry(.062,.072,.048), oak, 0, .058, 0);
+    mesh(accent, new THREE.BoxGeometry(.043,.073,.039), clay, .009, .1305, .002);
+    place(stack, "right-lower", -.035, .286, .096);
+    place(accent, "right-lower", .17, .104, .078);
     shelfDecorReady = true;
   }
   let consoleDecorPromise = null, consoleDecorLoaded = false, consoleArtLoaded = false;

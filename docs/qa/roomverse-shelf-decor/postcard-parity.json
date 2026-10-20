@@ -1,56 +1,71 @@
-[
-  {
-    "viewport": 1440,
-    "mood": "tv",
-    "pixelsEqual": true,
-    "size": [
-      1360,
-      752
-    ]
-  },
-  {
-    "viewport": 1440,
-    "mood": "rain",
-    "pixelsEqual": true,
-    "size": [
-      1360,
-      752
-    ]
-  },
-  {
-    "viewport": 1440,
-    "mood": "family",
-    "pixelsEqual": true,
-    "size": [
-      1360,
-      752
-    ]
-  },
-  {
-    "viewport": 390,
-    "mood": "tv",
-    "pixelsEqual": true,
-    "size": [
-      537,
-      853
-    ]
-  },
-  {
-    "viewport": 390,
-    "mood": "rain",
-    "pixelsEqual": true,
-    "size": [
-      537,
-      857
-    ]
-  },
-  {
-    "viewport": 390,
-    "mood": "family",
-    "pixelsEqual": true,
-    "size": [
-      537,
-      857
-    ]
-  }
-]
+{
+  "baseline": "db19d39",
+  "pairs": [
+    {
+      "viewport": 1440,
+      "mood": "tv",
+      "pixelsEqual": true,
+      "size": [
+        1360,
+        752
+      ],
+      "beforeHash": "e28e6341bfde1fb889ba6f9acaf542b4ce04e383d33f35ec559a36c282f4732f",
+      "afterHash": "e28e6341bfde1fb889ba6f9acaf542b4ce04e383d33f35ec559a36c282f4732f"
+    },
+    {
+      "viewport": 1440,
+      "mood": "rain",
+      "pixelsEqual": true,
+      "size": [
+        1360,
+        752
+      ],
+      "beforeHash": "022c0763a2c75c41379b5c56213c0182d6fb40a2bb8b76a4854112a676832429",
+      "afterHash": "022c0763a2c75c41379b5c56213c0182d6fb40a2bb8b76a4854112a676832429"
+    },
+    {
+      "viewport": 1440,
+      "mood": "family",
+      "pixelsEqual": true,
+      "size": [
+        1360,
+        752
+      ],
+      "beforeHash": "d1d2788e52e98becd4212e14e20f2cfe8f955d5e4d14bf7da18a1cee67699c32",
+      "afterHash": "d1d2788e52e98becd4212e14e20f2cfe8f955d5e4d14bf7da18a1cee67699c32"
+    },
+    {
+      "viewport": 390,
+      "mood": "tv",
+      "pixelsEqual": true,
+      "size": [
+        537,
+        853
+      ],
+      "beforeHash": "e65de89cee02b3431c3135b6be8143daf3661574d07be999a0edcc797737a810",
+      "afterHash": "e65de89cee02b3431c3135b6be8143daf3661574d07be999a0edcc797737a810"
+    },
+    {
+      "viewport": 390,
+      "mood": "rain",
+      "pixelsEqual": true,
+      "size": [
+        537,
+        857
+      ],
+      "beforeHash": "a88723daaf8b5546f419ddfa0bf1a08c21dc28ff2c34901473aa8f7893356c7d",
+      "afterHash": "a88723daaf8b5546f419ddfa0bf1a08c21dc28ff2c34901473aa8f7893356c7d"
+    },
+    {
+      "viewport": 390,
+      "mood": "family",
+      "pixelsEqual": true,
+      "size": [
+        537,
+        857
+      ],
+      "beforeHash": "07cbc816717d7a2ed2371e48a4527a26e75b6389f45622b91f29efdbfcfc6697",
+      "afterHash": "07cbc816717d7a2ed2371e48a4527a26e75b6389f45622b91f29efdbfcfc6697"
+    }
+  ]
+}
