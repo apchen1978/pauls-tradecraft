@@ -134,6 +134,12 @@ test("deeper: zh and en match, and the measurements behave as described", () => 
   expect(keys(DEEP.zh)).toEqual(keys(DEEP.en));
   for (const c of ["c5", "c7", "c10", "c12"]) expect(keys(DEEP.zh[c])).toEqual(keys(DEEP.en[c]));
   expect(DEEP.zh.c10.cases).toHaveLength(DEEP.en.c10.cases.length);
+  expect(DEEP.zh.c10.cases).toHaveLength(DEEP.zh.c10.kinds.length);
+  expect(DEEP.en.c10.cases).toHaveLength(DEEP.en.c10.kinds.length);
+  for (const lang of ["zh", "en"]) {
+    for (const item of DEEP[lang].c10.cases) expect(item.kind).toBeGreaterThanOrEqual(0);
+    for (const item of DEEP[lang].c10.cases) expect(item.kind).toBeLessThan(DEEP[lang].c10.kinds.length);
+  }
   expect(DEEP.zh.c12.cases).toHaveLength(DEEP.en.c12.cases.length);
   expect(keys(DEEP.zh.c5.items)).toEqual(CONTEXT_ITEMS.map((i) => i.id).sort());
   // the estimated positions really fail for the two lamps that floated or fell off, and pass for the shelf
