@@ -1,0 +1,178 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "languageToggle": {
+    "width": 44.53125,
+    "height": 31
+  },
+  "groups": [
+    {
+      "name": "感覺",
+      "buttons": [
+        {
+          "label": "下雨天想窩在家裡",
+          "width": 126,
+          "height": 30
+        },
+        {
+          "label": "Cozy family",
+          "width": 92.171875,
+          "height": 30
+        },
+        {
+          "label": "未來輕科技宅男",
+          "width": 113,
+          "height": 30
+        },
+        {
+          "label": "粉領新貴風",
+          "width": 87,
+          "height": 30
+        },
+        {
+          "label": "週日午後慢慢過",
+          "width": 113,
+          "height": 30
+        },
+        {
+          "label": "追劇夜",
+          "width": 61,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "name": "牆面",
+      "buttons": [
+        {
+          "label": "原來的米白",
+          "width": 87,
+          "height": 30
+        },
+        {
+          "label": "暖砂米",
+          "width": 61,
+          "height": 30
+        },
+        {
+          "label": "柔橄欖",
+          "width": 61,
+          "height": 30
+        },
+        {
+          "label": "霧粉",
+          "width": 48,
+          "height": 30
+        },
+        {
+          "label": "霧灰藍",
+          "width": 61,
+          "height": 30
+        },
+        {
+          "label": "深松綠",
+          "width": 61,
+          "height": 30
+        },
+        {
+          "label": "暮色深藍",
+          "width": 74,
+          "height": 30
+        },
+        {
+          "label": "深酒紅",
+          "width": 61,
+          "height": 30
+        },
+        {
+          "label": "細條紋壁紙",
+          "width": 87,
+          "height": 30
+        },
+        {
+          "label": "淡色植紋壁紙",
+          "width": 100,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "name": "地毯",
+      "buttons": [
+        {
+          "label": "藍米條紋",
+          "width": 74,
+          "height": 30
+        },
+        {
+          "label": "柔米白",
+          "width": 61,
+          "height": 30
+        },
+        {
+          "label": "古典花紋",
+          "width": 74,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "name": "窗簾",
+      "buttons": [
+        {
+          "label": "亞麻米白",
+          "width": 74,
+          "height": 30
+        },
+        {
+          "label": "霧藍",
+          "width": 48,
+          "height": 30
+        },
+        {
+          "label": "鼠尾草綠",
+          "width": 74,
+          "height": 30
+        },
+        {
+          "label": "陶土",
+          "width": 48,
+          "height": 30
+        },
+        {
+          "label": "霧玫瑰",
+          "width": 61,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "name": "掛畫",
+      "buttons": [
+        {
+          "label": "山丘與太陽",
+          "width": 87,
+          "height": 30
+        },
+        {
+          "label": "新月",
+          "width": 48,
+          "height": 30
+        },
+        {
+          "label": "雨雲",
+          "width": 48,
+          "height": 30
+        }
+      ]
+    }
+  ],
+  "tvView": {
+    "top": 302.375,
+    "bottom": 350.375,
+    "height": 48
+  },
+  "documentWidth": 1440
+}

@@ -1,0 +1,414 @@
+{
+  "before": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "languageToggle": {
+      "width": 44.53125,
+      "height": 31
+    },
+    "groups": [
+      {
+        "name": "感覺",
+        "buttons": [
+          {
+            "label": "下雨天想窩在家裡",
+            "width": 126,
+            "height": 30
+          },
+          {
+            "label": "Cozy family",
+            "width": 92.171875,
+            "height": 30
+          },
+          {
+            "label": "未來輕科技宅男",
+            "width": 113,
+            "height": 30
+          },
+          {
+            "label": "粉領新貴風",
+            "width": 87,
+            "height": 30
+          },
+          {
+            "label": "週日午後慢慢過",
+            "width": 113,
+            "height": 30
+          },
+          {
+            "label": "追劇夜",
+            "width": 61,
+            "height": 30
+          }
+        ]
+      },
+      {
+        "name": "牆面",
+        "buttons": [
+          {
+            "label": "原來的米白",
+            "width": 87,
+            "height": 30
+          },
+          {
+            "label": "暖砂米",
+            "width": 61,
+            "height": 30
+          },
+          {
+            "label": "柔橄欖",
+            "width": 61,
+            "height": 30
+          },
+          {
+            "label": "霧粉",
+            "width": 48,
+            "height": 30
+          },
+          {
+            "label": "霧灰藍",
+            "width": 61,
+            "height": 30
+          },
+          {
+            "label": "深松綠",
+            "width": 61,
+            "height": 30
+          },
+          {
+            "label": "暮色深藍",
+            "width": 74,
+            "height": 30
+          },
+          {
+            "label": "深酒紅",
+            "width": 61,
+            "height": 30
+          },
+          {
+            "label": "細條紋壁紙",
+            "width": 87,
+            "height": 30
+          },
+          {
+            "label": "淡色植紋壁紙",
+            "width": 100,
+            "height": 30
+          }
+        ]
+      },
+      {
+        "name": "地毯",
+        "buttons": [
+          {
+            "label": "藍米條紋",
+            "width": 74,
+            "height": 30
+          },
+          {
+            "label": "柔米白",
+            "width": 61,
+            "height": 30
+          },
+          {
+            "label": "古典花紋",
+            "width": 74,
+            "height": 30
+          }
+        ]
+      },
+      {
+        "name": "窗簾",
+        "buttons": [
+          {
+            "label": "亞麻米白",
+            "width": 74,
+            "height": 30
+          },
+          {
+            "label": "霧藍",
+            "width": 48,
+            "height": 30
+          },
+          {
+            "label": "鼠尾草綠",
+            "width": 74,
+            "height": 30
+          },
+          {
+            "label": "陶土",
+            "width": 48,
+            "height": 30
+          },
+          {
+            "label": "霧玫瑰",
+            "width": 61,
+            "height": 30
+          }
+        ]
+      },
+      {
+        "name": "掛畫",
+        "buttons": [
+          {
+            "label": "山丘與太陽",
+            "width": 87,
+            "height": 30
+          },
+          {
+            "label": "新月",
+            "width": 48,
+            "height": 30
+          },
+          {
+            "label": "雨雲",
+            "width": 48,
+            "height": 30
+          }
+        ]
+      }
+    ],
+    "tvView": {
+      "top": 775.90625,
+      "bottom": 823.90625,
+      "height": 48
+    },
+    "documentWidth": 390
+  },
+  "after": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "language": {
+      "visualWidth": 44.53125,
+      "visualHeight": 31,
+      "hitWidth": 50.53125,
+      "hitHeight": 45
+    },
+    "groups": [
+      {
+        "name": "感覺",
+        "buttons": [
+          {
+            "label": "下雨天想窩在家裡",
+            "visualWidth": 126,
+            "visualHeight": 30,
+            "hitWidth": 132,
+            "hitHeight": 44
+          },
+          {
+            "label": "Cozy family",
+            "visualWidth": 92.171875,
+            "visualHeight": 30,
+            "hitWidth": 98.171875,
+            "hitHeight": 44
+          },
+          {
+            "label": "未來輕科技宅男",
+            "visualWidth": 113,
+            "visualHeight": 30,
+            "hitWidth": 119,
+            "hitHeight": 44
+          },
+          {
+            "label": "粉領新貴風",
+            "visualWidth": 87,
+            "visualHeight": 30,
+            "hitWidth": 93,
+            "hitHeight": 44
+          },
+          {
+            "label": "週日午後慢慢過",
+            "visualWidth": 113,
+            "visualHeight": 30,
+            "hitWidth": 119,
+            "hitHeight": 44
+          },
+          {
+            "label": "追劇夜",
+            "visualWidth": 61,
+            "visualHeight": 30,
+            "hitWidth": 67,
+            "hitHeight": 44
+          }
+        ]
+      },
+      {
+        "name": "牆面",
+        "buttons": [
+          {
+            "label": "原來的米白",
+            "visualWidth": 87,
+            "visualHeight": 30,
+            "hitWidth": 93,
+            "hitHeight": 44
+          },
+          {
+            "label": "暖砂米",
+            "visualWidth": 61,
+            "visualHeight": 30,
+            "hitWidth": 67,
+            "hitHeight": 44
+          },
+          {
+            "label": "柔橄欖",
+            "visualWidth": 61,
+            "visualHeight": 30,
+            "hitWidth": 67,
+            "hitHeight": 44
+          },
+          {
+            "label": "霧粉",
+            "visualWidth": 48,
+            "visualHeight": 30,
+            "hitWidth": 54,
+            "hitHeight": 44
+          },
+          {
+            "label": "霧灰藍",
+            "visualWidth": 61,
+            "visualHeight": 30,
+            "hitWidth": 67,
+            "hitHeight": 44
+          },
+          {
+            "label": "深松綠",
+            "visualWidth": 61,
+            "visualHeight": 30,
+            "hitWidth": 67,
+            "hitHeight": 44
+          },
+          {
+            "label": "暮色深藍",
+            "visualWidth": 74,
+            "visualHeight": 30,
+            "hitWidth": 80,
+            "hitHeight": 44
+          },
+          {
+            "label": "深酒紅",
+            "visualWidth": 61,
+            "visualHeight": 30,
+            "hitWidth": 67,
+            "hitHeight": 44
+          },
+          {
+            "label": "細條紋壁紙",
+            "visualWidth": 87,
+            "visualHeight": 30,
+            "hitWidth": 93,
+            "hitHeight": 44
+          },
+          {
+            "label": "淡色植紋壁紙",
+            "visualWidth": 100,
+            "visualHeight": 30,
+            "hitWidth": 106,
+            "hitHeight": 44
+          }
+        ]
+      },
+      {
+        "name": "地毯",
+        "buttons": [
+          {
+            "label": "藍米條紋",
+            "visualWidth": 74,
+            "visualHeight": 30,
+            "hitWidth": 80,
+            "hitHeight": 44
+          },
+          {
+            "label": "柔米白",
+            "visualWidth": 61,
+            "visualHeight": 30,
+            "hitWidth": 67,
+            "hitHeight": 44
+          },
+          {
+            "label": "古典花紋",
+            "visualWidth": 74,
+            "visualHeight": 30,
+            "hitWidth": 80,
+            "hitHeight": 44
+          }
+        ]
+      },
+      {
+        "name": "窗簾",
+        "buttons": [
+          {
+            "label": "亞麻米白",
+            "visualWidth": 74,
+            "visualHeight": 30,
+            "hitWidth": 80,
+            "hitHeight": 44
+          },
+          {
+            "label": "霧藍",
+            "visualWidth": 48,
+            "visualHeight": 30,
+            "hitWidth": 54,
+            "hitHeight": 44
+          },
+          {
+            "label": "鼠尾草綠",
+            "visualWidth": 74,
+            "visualHeight": 30,
+            "hitWidth": 80,
+            "hitHeight": 44
+          },
+          {
+            "label": "陶土",
+            "visualWidth": 48,
+            "visualHeight": 30,
+            "hitWidth": 54,
+            "hitHeight": 44
+          },
+          {
+            "label": "霧玫瑰",
+            "visualWidth": 61,
+            "visualHeight": 30,
+            "hitWidth": 67,
+            "hitHeight": 44
+          }
+        ]
+      },
+      {
+        "name": "掛畫",
+        "buttons": [
+          {
+            "label": "山丘與太陽",
+            "visualWidth": 87,
+            "visualHeight": 30,
+            "hitWidth": 93,
+            "hitHeight": 44
+          },
+          {
+            "label": "新月",
+            "visualWidth": 48,
+            "visualHeight": 30,
+            "hitWidth": 54,
+            "hitHeight": 44
+          },
+          {
+            "label": "雨雲",
+            "visualWidth": 48,
+            "visualHeight": 30,
+            "hitWidth": 54,
+            "hitHeight": 44
+          }
+        ]
+      }
+    ],
+    "tvView": {
+      "top": 775.90625,
+      "bottom": 823.90625,
+      "visualHeight": 48
+    },
+    "documentWidth": 390
+  }
+}

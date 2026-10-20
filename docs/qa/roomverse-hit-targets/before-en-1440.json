@@ -1,0 +1,178 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "languageToggle": {
+    "width": 39.34375,
+    "height": 35
+  },
+  "groups": [
+    {
+      "name": "Feeling",
+      "buttons": [
+        {
+          "label": "Rainy day, staying in",
+          "width": 144.9375,
+          "height": 30
+        },
+        {
+          "label": "Cozy family",
+          "width": 92.171875,
+          "height": 30
+        },
+        {
+          "label": "Light-tech homebody",
+          "width": 154.109375,
+          "height": 30
+        },
+        {
+          "label": "Chic city professional",
+          "width": 150.546875,
+          "height": 30
+        },
+        {
+          "label": "Slow Sunday",
+          "width": 99.6875,
+          "height": 30
+        },
+        {
+          "label": "Series night",
+          "width": 93.625,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "name": "Wall",
+      "buttons": [
+        {
+          "label": "Original cream",
+          "width": 111.65625,
+          "height": 30
+        },
+        {
+          "label": "Warm sand",
+          "width": 90.953125,
+          "height": 30
+        },
+        {
+          "label": "Soft olive",
+          "width": 78.78125,
+          "height": 30
+        },
+        {
+          "label": "Dusty blush",
+          "width": 93.703125,
+          "height": 30
+        },
+        {
+          "label": "Misty blue-grey",
+          "width": 117.953125,
+          "height": 30
+        },
+        {
+          "label": "Deep pine",
+          "width": 84.765625,
+          "height": 30
+        },
+        {
+          "label": "Dusk navy",
+          "width": 84.265625,
+          "height": 30
+        },
+        {
+          "label": "Deep wine",
+          "width": 86.625,
+          "height": 30
+        },
+        {
+          "label": "Fine-stripe wallpaper",
+          "width": 150.15625,
+          "height": 30
+        },
+        {
+          "label": "Soft botanical wallpaper",
+          "width": 169.140625,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "name": "Rug",
+      "buttons": [
+        {
+          "label": "Blue and cream stripe",
+          "width": 153.609375,
+          "height": 30
+        },
+        {
+          "label": "Soft ivory",
+          "width": 80.234375,
+          "height": 30
+        },
+        {
+          "label": "Classic medallion",
+          "width": 127.0625,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "name": "Curtains",
+      "buttons": [
+        {
+          "label": "Linen cream",
+          "width": 95.9375,
+          "height": 30
+        },
+        {
+          "label": "Mist blue",
+          "width": 78.640625,
+          "height": 30
+        },
+        {
+          "label": "Sage green",
+          "width": 90.828125,
+          "height": 30
+        },
+        {
+          "label": "Terracotta",
+          "width": 83.1875,
+          "height": 30
+        },
+        {
+          "label": "Dusty rose",
+          "width": 86.46875,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "name": "Wall print",
+      "buttons": [
+        {
+          "label": "Hills and sun",
+          "width": 99.46875,
+          "height": 30
+        },
+        {
+          "label": "Crescent moon",
+          "width": 114.625,
+          "height": 30
+        },
+        {
+          "label": "Rain cloud",
+          "width": 86.1875,
+          "height": 30
+        }
+      ]
+    }
+  ],
+  "tvView": {
+    "top": 303.375,
+    "bottom": 351.375,
+    "height": 48
+  },
+  "documentWidth": 1440
+}
