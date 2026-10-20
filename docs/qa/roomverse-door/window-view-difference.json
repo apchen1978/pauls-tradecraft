@@ -1,0 +1,12 @@
+{
+  "1440": {
+    "same_size": true,
+    "mean_channel_difference_0_255": 0.0,
+    "note": "Encoded screenshot comparison, not a pixel-invariant test; door frames cast real shadows."
+  },
+  "390": {
+    "same_size": true,
+    "mean_channel_difference_0_255": 0.0,
+    "note": "Encoded screenshot comparison, not a pixel-invariant test; door frames cast real shadows."
+  }
+}

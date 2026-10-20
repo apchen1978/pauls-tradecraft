@@ -170,7 +170,42 @@ export async function start({ stage, panel, lang, onReady }) {
   add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, BACK + .01, false);
   add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, FRONT - .015, false).name = "front-skirting";
   // side skirting too: finishes the room and covers the thin light line where wall meets floor
-  [-1, 1].forEach((s) => add(new THREE.BoxGeometry(.02, .09, D), skirting, s * (W / 2 - .01), .045, BACK + D / 2, false));
+  const doorZ = 1.25, doorOuterWidth = 1.05;
+  add(new THREE.BoxGeometry(.02, .09, D), skirting, -W / 2 + .01, .045, BACK + D / 2, false);
+  const doorSkirting = [[BACK, doorZ - doorOuterWidth / 2], [doorZ + doorOuterWidth / 2, FRONT]].map(([from, to]) =>
+    add(new THREE.BoxGeometry(.02, .09, to - from), skirting, W / 2 - .01, .045, (from + to) / 2, false));
+
+  // A closed, non-interactive interior door. Keep the wall behind it to prevent light leaks.
+  // Local +z faces into the room; the 2 cm leaf sits just in front of the right wall.
+  const roomDoor = new THREE.Group(); roomDoor.name = "room-door";
+  roomDoor.position.set(W / 2, 0, doorZ); roomDoor.rotation.y = -Math.PI / 2; scene.add(roomDoor);
+  const doorEdgeMat = new THREE.MeshStandardMaterial({ color: "#c5a476", roughness: .9 });
+  const doorFaceMat = new THREE.MeshStandardMaterial({ color: "#d7bd91", roughness: .92 });
+  const doorPiece = (geo, mat, x, y, z, name) => {
+    const mesh = new THREE.Mesh(geo, mat); mesh.position.set(x, y, z); mesh.name = name;
+    mesh.castShadow = true; mesh.receiveShadow = true; roomDoor.add(mesh); return mesh;
+  };
+  doorPiece(new THREE.PlaneGeometry(.9, 2.05), new THREE.MeshStandardMaterial({ color: "#594a36", roughness: 1 }), 0, 1.025, .003, "door-reveal");
+  const doorLeaf = doorPiece(new THREE.BoxGeometry(.886, 2.038, .02),
+    [doorEdgeMat, doorEdgeMat, doorEdgeMat, doorEdgeMat, doorFaceMat, doorEdgeMat], 0, 1.027, .01, "door-leaf");
+  [-1, 1].forEach((s) => doorPiece(new THREE.BoxGeometry(.075, 2.1, .045), skirting, s * .4875, 1.05, .0225, "door-jamb"));
+  doorPiece(new THREE.BoxGeometry(.9, .05, .045), skirting, 0, 2.075, .0225, "door-lintel");
+  const doorBrass = new THREE.MeshStandardMaterial({ color: "#b69a64", metalness: .6, roughness: .38 });
+  doorPiece(new THREE.BoxGeometry(.036, .14, .009), doorBrass, .34, 1.0, .027, "door-handle-plate");
+  doorPiece(new THREE.CylinderGeometry(.009, .009, .035, 10), doorBrass, .34, 1.0, .048, "door-handle-stem").rotation.x = Math.PI / 2;
+  doorPiece(new THREE.CylinderGeometry(.009, .009, .125, 12), doorBrass, .287, 1.0, .065, "door-handle").rotation.z = Math.PI / 2;
+  [.35, 1.7].forEach((y) => doorPiece(new THREE.CylinderGeometry(.008, .008, .065, 8), doorBrass, -.448, y, .025, "door-hinge"));
+  let doorTexturePromise = null, doorTextureLoaded = false;
+  function loadDoorTexture() {
+    if (doorTexturePromise) return doorTexturePromise;
+    doorTexturePromise = new Promise((resolve) => {
+      image("door-oak-v1", false, (texture) => {
+        doorFaceMat.map = texture; doorFaceMat.color.set("#ffffff"); doorFaceMat.needsUpdate = true;
+        doorTextureLoaded = true; resolve(true);
+      }, () => { console.warn("ROOMVERSE door texture unavailable; using the plain wood door"); resolve(false); })();
+    });
+    return doorTexturePromise;
+  }
 
   // The TV wall is simple code-built furniture: one calm backing, recessed open shelves,
   // a closed dark screen, and soft warm strips. No additional real-time lights are added.
@@ -691,7 +726,7 @@ export async function start({ stage, panel, lang, onReady }) {
     render();
   }
   function moveToView(view) {
-    if (view === "tv") void loadTvWallTextures();
+    if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); }
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     settleIntro();
@@ -1018,6 +1053,7 @@ export async function start({ stage, panel, lang, onReady }) {
   controls.addEventListener("change", () => {
     const offset = camera.position.clone().sub(orbitCenter);
     viewTheta = Math.atan2(offset.x, offset.z);
+    if (Math.sin(viewTheta) < -.45) void loadDoorTexture(); // turning toward the right-hand wall
     const toWindow = Math.abs(Math.atan2(Math.sin(viewTheta), Math.cos(viewTheta)));
     const toTv = Math.abs(Math.atan2(Math.sin(viewTheta - Math.PI), Math.cos(viewTheta - Math.PI)));
     currentView = toTv < toWindow ? "tv" : "window";
@@ -1026,7 +1062,7 @@ export async function start({ stage, panel, lang, onReady }) {
   new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
   fit(); apply();
   // Let the first room frame paint before the optional TV materials request any image bytes.
-  if (requestedView === "tv") void loadTvWallTextures();
+  if (requestedView === "tv") { void loadTvWallTextures(); void loadDoorTexture(); }
   // on entering, the camera drifts gently within the room (1.8 s). Skipped with reduced motion; a drag or a test view stops it.
   intro = !matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (intro) {
@@ -1048,10 +1084,11 @@ export async function start({ stage, panel, lang, onReady }) {
     setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
     set(k, v) { state[k] = v; apply(); }, // used by tests
     scheduleTvWallTextures() {
+      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); };
       const loadWhenIdle = () => {
         if (document.visibilityState !== "visible") { document.addEventListener("visibilitychange", loadWhenIdle, { once: true }); return; }
-        if ("requestIdleCallback" in window) window.requestIdleCallback(() => void loadTvWallTextures(), { timeout: 2500 });
-        else setTimeout(() => void loadTvWallTextures(), 1500);
+        if ("requestIdleCallback" in window) window.requestIdleCallback(loadWallMaterials, { timeout: 2500 });
+        else setTimeout(loadWallMaterials, 1500);
       };
       requestAnimationFrame(() => requestAnimationFrame(loadWhenIdle));
     },
@@ -1061,6 +1098,19 @@ export async function start({ stage, panel, lang, onReady }) {
     setOrbitAngle(degrees) { intro = false; viewTheta = degrees * Math.PI / 180; setCameraAngle(viewTheta); return camera.position.toArray(); },
     hasFrontWall: () => !!scene.getObjectByName("front-wall"),
     hasTvWall: () => !!scene.getObjectByName("tv-screen") && !!scene.getObjectByName("tv-console"),
+    loadDoorTexture,
+    roomDoor() { // read-only QA: actual world bounds, independent of the orbit angle
+      scene.updateMatrixWorld(true);
+      const bounds = (obj) => { const b = new THREE.Box3().setFromObject(obj); return { min: b.min.toArray(), max: b.max.toArray() }; };
+      const box = new THREE.Box3().setFromObject(roomDoor);
+      return {
+        bounds: bounds(roomDoor), leaf: bounds(doorLeaf), textureLoaded: doorTextureLoaded,
+        texture: doorFaceMat.map?.image?.src?.split("/").pop(),
+        skirting: doorSkirting.map(bounds),
+        collisions: Object.entries({ sofa: sofaObj, sideTable: tableObj, floorLamp: lampObj, coffeeTable: coffeeObj, plant: plantObj, robot: robotObj, chair: chairObj })
+          .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
+      };
+    },
     tvWallTextures() {
       const meshes = [];
       tvWall.traverse((obj) => {

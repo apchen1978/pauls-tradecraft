@@ -1,0 +1,58 @@
+{
+  "method": "5 alternating fresh-context runs; Chrome; cache disabled; 4x CPU; actual enter click to canvas and controls ready; same machine",
+  "viewports": {
+    "390": {
+      "before": [
+        1897,
+        2207,
+        2228,
+        5458,
+        2282
+      ],
+      "after": [
+        2077,
+        2481,
+        2602,
+        2657,
+        4132
+      ],
+      "afterInitialDoorRequests": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "beforeMedian": 2228,
+      "afterMedian": 2602,
+      "changeMs": 374
+    },
+    "1440": {
+      "before": [
+        10031,
+        2367,
+        2219,
+        2251,
+        2340
+      ],
+      "after": [
+        4388,
+        3101,
+        2443,
+        2464,
+        2374
+      ],
+      "afterInitialDoorRequests": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "beforeMedian": 2340,
+      "afterMedian": 2464,
+      "changeMs": 124
+    }
+  },
+  "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+}
