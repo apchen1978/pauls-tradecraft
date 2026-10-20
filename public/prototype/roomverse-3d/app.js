@@ -843,6 +843,26 @@ export async function start({ stage, panel, lang, onReady }) {
     const w = src.width, h = src.height, baseStrip = Math.round(Math.max(90, h * .16));
     const pad = Math.round(baseStrip * .32), big = Math.round(baseStrip * .26), small = Math.round(baseStrip * .17);
     const c = document.createElement("canvas"), ctx = c.getContext("2d"), l = state.lang;
+    function heading(inset, baseline) {
+      const title = "ROOMVERSE 3D", domain = "paulstradecraft.com", gap = Math.ceil(small * .8);
+      const available = w - inset * 2;
+      let titleSize = big, domainSize = small;
+      ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`;
+      const titleWidth = ctx.measureText(title).width;
+      ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
+      const domainWidth = ctx.measureText(domain).width;
+      if (titleWidth + domainWidth + gap > available) {
+        domainSize = Math.max(Math.min(12, small), Math.min(small, small * (available - titleWidth - gap) / domainWidth));
+        ctx.font = `500 ${domainSize}px system-ui, "Noto Sans TC", sans-serif`;
+        titleSize = Math.min(big, big * (available - ctx.measureText(domain).width - gap) / titleWidth);
+      }
+      ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+      ctx.fillStyle = "#24302c"; ctx.font = `800 ${titleSize}px system-ui, "Noto Sans TC", sans-serif`;
+      ctx.fillText(title, inset, baseline);
+      ctx.fillStyle = "#5b665f"; ctx.font = `500 ${domainSize}px system-ui, "Noto Sans TC", sans-serif`;
+      ctx.textAlign = "right"; ctx.fillText(domain, w - inset, baseline);
+      ctx.textAlign = "left";
+    }
     ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
     const labels = [MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l], CURTAINS[state.curtain][l], PRINTS[state.print][l]];
     const joined = labels.join("  ·  ");
@@ -850,11 +870,9 @@ export async function start({ stage, panel, lang, onReady }) {
       c.width = w; c.height = h + baseStrip;
       ctx.drawImage(src, 0, 0);
       ctx.fillStyle = "#fbfaf6"; ctx.fillRect(0, h, w, baseStrip);
-      ctx.fillStyle = "#24302c"; ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`; ctx.textBaseline = "alphabetic";
-      ctx.fillText("ROOMVERSE 3D", pad, h + pad + big * .8);
+      heading(pad, h + pad + big * .8);
       ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
       ctx.fillText(joined, pad, h + baseStrip - pad * .9);
-      ctx.textAlign = "right"; ctx.fillText("paulstradecraft.com", w - pad, h + pad + big * .8);
       return c;
     }
     const wrapPad = Math.round(baseStrip * .23), maxLine = w - wrapPad * 2;
@@ -869,14 +887,11 @@ export async function start({ stage, panel, lang, onReady }) {
     c.width = w; c.height = h + strip;
     ctx.drawImage(src, 0, 0);
     ctx.fillStyle = "#fbfaf6"; ctx.fillRect(0, h, w, strip);
-    ctx.fillStyle = "#24302c"; ctx.font = `800 ${big}px system-ui, "Noto Sans TC", sans-serif`; ctx.textBaseline = "alphabetic";
     const titleY = h + wrapPad + big * .8;
-    ctx.fillText("ROOMVERSE 3D", wrapPad, titleY);
+    heading(wrapPad, titleY);
     ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
     const detailBottom = h + strip - wrapPad * .6;
     details.forEach((line, i) => ctx.fillText(line, wrapPad, detailBottom - (details.length - 1 - i) * lineHeight));
-    ctx.textAlign = "right"; ctx.fillStyle = "#5b665f"; ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
-    ctx.fillText("paulstradecraft.com", w - wrapPad, titleY);
     return c;
   }
   function savePostcard() {

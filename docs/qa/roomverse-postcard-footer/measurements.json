@@ -1,0 +1,314 @@
+[
+  {
+    "mode": "before",
+    "lang": "zh",
+    "viewport": 390,
+    "dpr": 1,
+    "file": "before-zh-390-dpr1.png",
+    "width": 358,
+    "height": 583,
+    "sceneHeight": 490,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 21,
+        "right": 203.82080078125,
+        "y": 529.4,
+        "font": "800 23px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 196.20654296875,
+        "right": 337,
+        "y": 529.4,
+        "font": "500 15px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "after",
+    "lang": "zh",
+    "viewport": 390,
+    "dpr": 1,
+    "file": "after-zh-390-dpr1.png",
+    "width": 358,
+    "height": 583,
+    "sceneHeight": 490,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 21,
+        "right": 203.82080078125,
+        "y": 529.4,
+        "font": "800 23px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 215.82388305664062,
+        "right": 337,
+        "y": 529.4,
+        "font": "500 12.9103px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "before",
+    "lang": "zh",
+    "viewport": 390,
+    "dpr": 1.25,
+    "file": "before-zh-390-dpr1.25.png",
+    "width": 447,
+    "height": 715,
+    "sceneHeight": 612,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 23,
+        "right": 221.71826171875,
+        "y": 655,
+        "font": "800 25px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 264.43408203125,
+        "right": 424,
+        "y": 655,
+        "font": "500 17px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "after",
+    "lang": "zh",
+    "viewport": 390,
+    "dpr": 1.25,
+    "file": "after-zh-390-dpr1.25.png",
+    "width": 447,
+    "height": 715,
+    "sceneHeight": 612,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 23,
+        "right": 221.71826171875,
+        "y": 655,
+        "font": "800 25px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 264.43408203125,
+        "right": 424,
+        "y": 655,
+        "font": "500 17px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "before",
+    "lang": "zh",
+    "viewport": 1440,
+    "dpr": 1,
+    "file": "before-zh-1440-dpr1.png",
+    "width": 1360,
+    "height": 752,
+    "sceneHeight": 648,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 33,
+        "right": 247.61572265625,
+        "y": 702.6,
+        "font": "800 27px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 1158.0478515625,
+        "right": 1327,
+        "y": 702.6,
+        "font": "500 18px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "after",
+    "lang": "zh",
+    "viewport": 1440,
+    "dpr": 1,
+    "file": "after-zh-1440-dpr1.png",
+    "width": 1360,
+    "height": 752,
+    "sceneHeight": 648,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 33,
+        "right": 247.61572265625,
+        "y": 702.6,
+        "font": "800 27px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 1158.0478515625,
+        "right": 1327,
+        "y": 702.6,
+        "font": "500 18px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "before",
+    "lang": "en",
+    "viewport": 390,
+    "dpr": 1,
+    "file": "before-en-390-dpr1.png",
+    "width": 358,
+    "height": 603,
+    "sceneHeight": 490,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 21,
+        "right": 203.82080078125,
+        "y": 529.4,
+        "font": "800 23px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 196.20654296875,
+        "right": 337,
+        "y": 529.4,
+        "font": "500 15px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "after",
+    "lang": "en",
+    "viewport": 390,
+    "dpr": 1,
+    "file": "after-en-390-dpr1.png",
+    "width": 358,
+    "height": 603,
+    "sceneHeight": 490,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 21,
+        "right": 203.82080078125,
+        "y": 529.4,
+        "font": "800 23px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 215.82388305664062,
+        "right": 337,
+        "y": 529.4,
+        "font": "500 12.9103px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "before",
+    "lang": "en",
+    "viewport": 390,
+    "dpr": 1.25,
+    "file": "before-en-390-dpr1.25.png",
+    "width": 447,
+    "height": 738,
+    "sceneHeight": 612,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 23,
+        "right": 221.71826171875,
+        "y": 655,
+        "font": "800 25px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 264.43408203125,
+        "right": 424,
+        "y": 655,
+        "font": "500 17px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "after",
+    "lang": "en",
+    "viewport": 390,
+    "dpr": 1.25,
+    "file": "after-en-390-dpr1.25.png",
+    "width": 447,
+    "height": 738,
+    "sceneHeight": 612,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 23,
+        "right": 221.71826171875,
+        "y": 655,
+        "font": "800 25px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 264.43408203125,
+        "right": 424,
+        "y": 655,
+        "font": "500 17px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "before",
+    "lang": "en",
+    "viewport": 1440,
+    "dpr": 1,
+    "file": "before-en-1440-dpr1.png",
+    "width": 1360,
+    "height": 752,
+    "sceneHeight": 648,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 33,
+        "right": 247.61572265625,
+        "y": 702.6,
+        "font": "800 27px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 1158.0478515625,
+        "right": 1327,
+        "y": 702.6,
+        "font": "500 18px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  },
+  {
+    "mode": "after",
+    "lang": "en",
+    "viewport": 1440,
+    "dpr": 1,
+    "file": "after-en-1440-dpr1.png",
+    "width": 1360,
+    "height": 752,
+    "sceneHeight": 648,
+    "calls": [
+      {
+        "text": "ROOMVERSE 3D",
+        "left": 33,
+        "right": 247.61572265625,
+        "y": 702.6,
+        "font": "800 27px system-ui, \"Noto Sans TC\", sans-serif"
+      },
+      {
+        "text": "paulstradecraft.com",
+        "left": 1158.0478515625,
+        "right": 1327,
+        "y": 702.6,
+        "font": "500 18px system-ui, \"Noto Sans TC\", sans-serif"
+      }
+    ]
+  }
+]
