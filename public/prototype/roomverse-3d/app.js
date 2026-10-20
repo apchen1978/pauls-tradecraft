@@ -130,6 +130,8 @@ export async function start({ stage, panel, lang, onReady }) {
     blush: { zh: "霧粉", en: "Dusty blush", paint: "#e6cec6" },
     mist: { zh: "霧灰藍", en: "Misty blue-grey", paint: "#c3ccd2" },
     pine: { zh: "深松綠", en: "Deep pine", paint: "#46604f" },
+    dusk: { zh: "暮色深藍", en: "Dusk navy", paint: "#66788d" },
+    wine: { zh: "深酒紅", en: "Deep wine", paint: "#875b5e" },
     // size = metres per tile (the wall's UVs are in metres); about 5 x 3 tiles on the back wall
     stripe: { zh: "細條紋壁紙", en: "Fine-stripe wallpaper", size: 1.0, tex: image("wallpaper-stripe-v1", true) },
     botanical: { zh: "淡色植紋壁紙", en: "Soft botanical wallpaper", size: 1.5, tex: image("wallpaper-botanical-v1", true) },

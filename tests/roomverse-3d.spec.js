@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { mkdir, readFile, stat } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 
 // ROOMVERSE 3D: a poster first (no 3D download until the visitor asks), then a 3D room whose feeling,
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
@@ -392,6 +392,7 @@ test("new wall paints restore from the URL and work across all six feelings", as
   await page.goto(`${PAGE}?lang=en&mood=rain&wall=mist`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForFunction(() => window.__room.tvWallTexturesReady() && window.__room.consoleDetails().ready && window.__room.roomDoor().textureLoaded, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
 
   const groups = page.locator("#panel .opts");
@@ -401,6 +402,10 @@ test("new wall paints restore from the URL and work across all six feelings", as
   expect(new Set(wallKeys).size).toBe(wallKeys.length); // options are rendered from WALLS, without a frozen count
   expect(wallKeys).toContain("mist");
   expect(wallKeys).toContain("pine");
+  expect(wallKeys.slice(wallKeys.indexOf("pine") + 1, wallKeys.indexOf("stripe"))).toEqual(["dusk", "wine"]);
+  expect(wallKeys).toContain("dusk");
+  expect(wallKeys).toContain("wine");
+  await expect(wallButtons.filter({ hasText: "Dusk navy" })).toHaveAttribute("aria-pressed", "false");
   await expect(wallButtons.filter({ hasText: "Misty blue-grey" })).toHaveAttribute("aria-pressed", "true");
   await expect(page).toHaveURL(/wall=mist/);
   const postcardDetails = async () => page.evaluate(() => {
@@ -427,16 +432,29 @@ test("new wall paints restore from the URL and work across all six feelings", as
   await page.reload();
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForFunction(() => window.__room.tvWallTexturesReady() && window.__room.consoleDetails().ready && window.__room.roomDoor().textureLoaded, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
   await expect(page.locator('#panel .opts').nth(1).locator('button[data-key="mist"]')).toHaveAttribute("aria-pressed", "true");
+  const paintRequests = [];
+  const recordPaintRequest = (request) => paintRequests.push(request.url());
+  page.on("request", recordPaintRequest);
+  for (const key of ["dusk", "wine"]) {
+    await page.locator("#panel .opts").nth(1).locator(`button[data-key="${key}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`wall=${key}`));
+  }
+  await page.waitForTimeout(250);
+  page.off("request", recordPaintRequest);
+  expect(paintRequests, "changing a solid wall paint should not request another runtime resource").toEqual([]);
+  await page.locator('#panel .opts').nth(1).locator('button[data-key="mist"]').click();
 
   for (let mood = 0; mood < 6; mood++) {
     await moodButtons.nth(mood).click();
-    const wall = mood % 2 === 0 ? "Deep pine" : "Misty blue-grey";
-    const button = wallButtons.filter({ hasText: wall });
-    await button.click();
-    await expect(button).toHaveAttribute("aria-pressed", "true");
-    await expect(page).toHaveURL(new RegExp(`wall=${mood % 2 === 0 ? "pine" : "mist"}`));
+    for (const [key, name] of [["dusk", "Dusk navy"], ["wine", "Deep wine"]]) {
+      const button = wallButtons.filter({ hasText: name });
+      await button.click();
+      await expect(button).toHaveAttribute("aria-pressed", "true");
+      await expect(page).toHaveURL(new RegExp(`wall=${key}`));
+    }
   }
   const pineButton = page.locator('#panel .opts').nth(1).locator('button[data-key="pine"]');
   await pineButton.click();
@@ -450,7 +468,96 @@ test("new wall paints restore from the URL and work across all six feelings", as
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
   await expect(page.locator('#panel .opts').nth(1).locator('button[data-key="pine"]')).toHaveAttribute("aria-pressed", "true");
+  for (const [key, name] of [["dusk", "Dusk navy"], ["wine", "Deep wine"]]) {
+    await page.locator('#panel .opts').nth(1).locator(`button[data-key="${key}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`wall=${key}`));
+    await expect(page.locator('#panel .opts').nth(1).locator(`button[data-key="${key}"]`)).toHaveAttribute("aria-pressed", "true");
+    postcard = await postcardDetails();
+    expect(postcard.labels).toContain(name);
+    expect(postcard.lines.join(" · ")).toContain(name);
+    expect(Math.max(...postcard.widths)).toBeLessThanOrEqual(postcard.available);
+    await page.reload();
+    await page.locator("#enter").click();
+    await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+    await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
+    await expect(page.locator('#panel .opts').nth(1).locator(`button[data-key="${key}"]`)).toHaveAttribute("aria-pressed", "true");
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const mobilePanel = await page.locator("#panel").evaluate((panel) => ({ scroll: panel.scrollHeight, client: panel.clientHeight, width: panel.scrollWidth, clientWidth: panel.clientWidth }));
+  expect(mobilePanel.width).toBeLessThanOrEqual(mobilePanel.clientWidth);
+  expect(mobilePanel.scroll).toBeLessThan(1100);
+  const newWallLabels = await page.locator('#panel .opts').nth(1).locator('button[data-key="dusk"],button[data-key="wine"]').allTextContents();
+  expect(newWallLabels.join(" ")).not.toMatch(/壁紙|wallpaper/i);
+  for (const [fraction, key] of [[0.6, "dusk"], [0.7, "wine"]]) {
+    await page.evaluate(() => window.__room.set("wall", "original"));
+    await page.evaluate((value) => { const original = Math.random; Math.random = () => value; document.querySelector(".shuffle").click(); Math.random = original; }, fraction);
+    await expect(page).toHaveURL(new RegExp(`wall=${key}`));
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("night paint visuals: two paints across representative moods, views, and screen sizes", async ({ page }) => {
+  const output = "test-results/roomverse-night-wall-paints";
+  await mkdir(output, { recursive: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`${PAGE}?lang=zh&mood=tv&wall=dusk`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForFunction(() => window.__room.tvWallTexturesReady() && window.__room.consoleDetails().ready, null, { timeout: 60000 });
+  const moods = ["tv", "rain", "family"];
+  const views = [["window", 0], ["tv", 180], ["door", 270]];
+  for (const viewport of [[1440, 900], [390, 844]]) {
+    await page.setViewportSize({ width: viewport[0], height: viewport[1] });
+    for (const paint of ["dusk", "wine"]) {
+      for (const mood of moods) {
+        await page.evaluate((value) => window.__room.set("mood", value), mood);
+        for (const [view, angle] of views) {
+          await page.evaluate(({ wall, degrees }) => { window.__room.set("wall", wall); window.__room.setOrbitAngle(degrees); }, { wall: paint, degrees: angle });
+          await page.waitForTimeout(180);
+          const canvas = page.locator("#stage canvas");
+          await canvas.screenshot({ path: `${output}/${paint}-${mood}-${view}-${viewport[0]}.png` });
+        }
+      }
+    }
+  }
+  for (const viewport of [[1440, 900], [390, 844]]) {
+    await page.setViewportSize({ width: viewport[0], height: viewport[1] });
+    for (const [mood, angle] of [["tv", 180], ["family", 0]]) {
+      await page.evaluate(({ feeling, degrees }) => { window.__room.set("mood", feeling); window.__room.setOrbitAngle(degrees); }, { feeling: mood, degrees: angle });
+      for (const wall of ["original", "pine", "dusk", "wine"]) {
+        await page.evaluate((key) => window.__room.set("wall", key), wall);
+        await page.waitForTimeout(180);
+        await page.locator("#stage canvas").screenshot({ path: `${output}/palette-${mood}-${wall}-${viewport[0]}.png` });
+      }
+    }
+  }
+  const qa = "docs/qa/roomverse-tv-night-wall-paints";
+  await mkdir(qa, { recursive: true });
+  for (const [key, zhLabel, label] of [["dusk", "暮色深藍", "Dusk navy"], ["wine", "深酒紅", "Deep wine"]]) {
+    await page.evaluate((wall) => { window.__room.set("wall", wall); window.__room.setOrbitAngle(0); }, key);
+    const capturePostcard = () => page.evaluate(() => {
+      const proto = CanvasRenderingContext2D.prototype, original = proto.fillText, labels = [];
+      proto.fillText = function (text, ...args) { labels.push(String(text)); return original.call(this, text, ...args); };
+      try { const canvas = window.__room.postcard(); return { data: canvas.toDataURL("image/png"), labels }; }
+      finally { proto.fillText = original; }
+    });
+    const zh = await capturePostcard();
+    expect(zh.labels.join(" ")).toContain(zhLabel);
+    await writeFile(`${qa}/postcard-${key}-zh.png`, Buffer.from(zh.data.split(",")[1], "base64"));
+    await page.locator("#lang").click();
+    await expect(page.locator('#panel .opts').nth(1).locator(`button[data-key="${key}"]`)).toHaveText(label);
+    const en = await capturePostcard();
+    expect(en.labels.join(" ")).toContain(label);
+    await writeFile(`${qa}/postcard-${key}-en.png`, Buffer.from(en.data.split(",")[1], "base64"));
+    await page.locator("#lang").click();
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: `${output}/wall-options-390.png`, fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expect(page.locator('#panel .opts').nth(1).locator('button[data-key="dusk"]')).toHaveText("暮色深藍");
+  await expect(page.locator('#panel .opts').nth(1).locator('button[data-key="wine"]')).toHaveText("深酒紅");
 });
 
 test("new wall paint QA: all feelings, four responsive screenshots and the English first screen", async ({ page }) => {
