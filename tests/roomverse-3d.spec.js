@@ -778,7 +778,7 @@ for (const width of [390, 1440]) {
     expect(initial.sourceInsideShade).toBe(true);
     expect(initial.closedLampCastsShadow).toBe(false); // the closed GLB must not trap its own bulb's light
     expect(initial.decay).toBe(2);
-    expect(initial.lightCount).toBe(6); // same lights as before this fix
+    expect(initial.lightCount).toBe(6); // the picture spot is added only when the left wall is built
     expect(initial.shadowNear).toBeLessThan(.1);
     expect(initial.source[1]).toBeGreaterThan(initial.shadeMin[1]);
     expect(initial.source[1]).toBeLessThan((initial.shadeMin[1] + initial.shadeMax[1]) / 2);
@@ -791,7 +791,9 @@ for (const width of [390, 1440]) {
         expect(lighting.source).toEqual(initial.source);
         expect(lighting.halo).toEqual(lighting.source);
         expect(lighting.sourceInsideShade).toBe(true);
-        expect(lighting.lightCount).toBe(6);
+        const left = await page.evaluate(() => window.__room.leftWallArt());
+        expect(lighting.lightCount).toBe(left.built ? 7 : 6);
+        if (left.built) expect(left.spot.castShadow).toBe(false);
       }
     }
     expect(errors).toEqual([]);
@@ -986,7 +988,8 @@ test("mobile yaw opens the TV wall from 66 to 76; desktop, postcard, plaque and 
   const updates = await page.evaluate(() => window.__room.fovProjectionUpdates());
   await page.evaluate(() => window.__room.setOrbitAngle(180));
   expect(await page.evaluate(() => window.__room.fovProjectionUpdates())).toBe(updates);
-  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7); // left wall was opened at 90°, so its picture spot is present
+  expect(await page.evaluate(() => window.__room.leftWallArt().spot.castShadow)).toBe(false);
   const fromTv = await page.evaluate(() => window.__room.postcard().toDataURL());
   await page.evaluate(() => window.__room.setOrbitAngle(0));
   expect(await page.evaluate(() => window.__room.postcard().toDataURL())).toBe(fromTv);

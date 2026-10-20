@@ -33,7 +33,8 @@ for (const width of [390, 1440]) {
     expect(art.collisions).toEqual([]);
     await page.evaluate(() => __room.setOrbitAngle(0));
     expect((await page.evaluate(() => __room.plaqueView())).firstHit).toBe("house-plaque");
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
+    expect((await page.evaluate(() => __room.leftWallArt())).spot.castShadow).toBe(false);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.evaluate(() => __room.loadLeftWallArt());
     expect(requests).toHaveLength(1);
@@ -62,14 +63,25 @@ test("left-wall glow follows the mood and both image variants stay in budget", a
   await page.goto(`${PAGE}?lang=zh&mood=rain`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await page.evaluate(() => __room.loadLeftWallArt());
-  const levels = {};
+  const levels = {}, spots = {};
   for (const mood of ["rain", "tv", "family", "tech", "chic", "slow"]) {
-    levels[mood] = await page.evaluate((m) => { __room.set("mood", m); return __room.leftWallArt().glow; }, mood);
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
+    const art = await page.evaluate((m) => { __room.set("mood", m); return __room.leftWallArt(); }, mood);
+    levels[mood] = art.glow;
+    spots[mood] = art.spot;
+    expect(art.spot.castShadow).toBe(false);
+    expect(art.spot.color).toBe("#ffc48a");
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
   }
-  expect(levels.rain).toBeGreaterThan(levels.family);
-  expect(levels.tv).toBeGreaterThan(levels.family);
-  expect(levels.family).toBeGreaterThan(levels.slow);
+  const fixture = await page.evaluate(() => __room.leftWallArt().fixture);
+  expect(fixture.max[2] - fixture.min[2]).toBeGreaterThan(.3);
+  expect(fixture.max[2] - fixture.min[2]).toBeLessThan(.4);
+  // The picture beam stays on in every mood. Series night may be lower, and it does not go dark.
+  for (const mood of ["rain", "tv", "family"]) {
+    expect(levels[mood]).toBeGreaterThan(.1);
+    expect(spots[mood].intensity).toBeGreaterThan(8);
+  }
+  expect(spots.tv.intensity).toBeLessThan(spots.rain.intensity);
+  expect(spots.family.intensity).toBeGreaterThanOrEqual(spots.rain.intensity);
 });
 
 test("left-wall QA: three moods, two widths, front, side and detail", async ({ page }) => {
