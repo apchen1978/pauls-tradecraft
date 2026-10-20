@@ -1,0 +1,290 @@
+[
+  {
+    "lang": "zh",
+    "width": 390,
+    "height": 844,
+    "stage": {
+      "width": 358,
+      "height": 489.515625,
+      "aspect": 0.7313351846531967
+    },
+    "windowView": {
+      "fov": 66,
+      "cam": [
+        0,
+        1.28,
+        1.92
+      ]
+    },
+    "midway": {
+      "fov": 74.53553390593274,
+      "cam": [
+        1.29,
+        1.28,
+        -1.19
+      ]
+    },
+    "tv": {
+      "fov": 76,
+      "cam": [
+        0,
+        1.28,
+        -1.72
+      ]
+    },
+    "halfWidth": 2.354092471864096,
+    "fullShelfVisible": true
+  },
+  {
+    "lang": "zh",
+    "width": 390,
+    "height": 740,
+    "stage": {
+      "width": 358,
+      "height": 429.1875,
+      "aspect": 0.8341342653269259
+    },
+    "windowView": {
+      "fov": 44,
+      "cam": [
+        0,
+        1.28,
+        2
+      ]
+    },
+    "midway": {
+      "fov": 63.24573263714342,
+      "cam": [
+        1.34,
+        1.28,
+        -1.24
+      ]
+    },
+    "tv": {
+      "fov": 66.5477783220642,
+      "cam": [
+        0,
+        1.28,
+        -1.8
+      ]
+    },
+    "halfWidth": 2.2989951944080387,
+    "fullShelfVisible": true
+  },
+  {
+    "lang": "zh",
+    "width": 360,
+    "height": 740,
+    "stage": {
+      "width": 328,
+      "height": 429.1875,
+      "aspect": 0.7642347458861221
+    },
+    "windowView": {
+      "fov": 66,
+      "cam": [
+        0,
+        1.28,
+        1.92
+      ]
+    },
+    "midway": {
+      "fov": 74.53553390593274,
+      "cam": [
+        1.29,
+        1.28,
+        -1.19
+      ]
+    },
+    "tv": {
+      "fov": 76,
+      "cam": [
+        0,
+        1.28,
+        -1.72
+      ]
+    },
+    "halfWidth": 2.459992763619904,
+    "fullShelfVisible": true
+  },
+  {
+    "lang": "zh",
+    "width": 360,
+    "height": 640,
+    "stage": {
+      "width": 328,
+      "height": 371.1875,
+      "aspect": 0.8836504462030645
+    },
+    "windowView": {
+      "fov": 44,
+      "cam": [
+        0,
+        1.28,
+        2
+      ]
+    },
+    "midway": {
+      "fov": 60.68613532751641,
+      "cam": [
+        1.34,
+        1.28,
+        -1.24
+      ]
+    },
+    "tv": {
+      "fov": 63.549023542532574,
+      "cam": [
+        0,
+        1.28,
+        -1.8
+      ]
+    },
+    "halfWidth": 2.29883818824718,
+    "fullShelfVisible": true
+  },
+  {
+    "lang": "en",
+    "width": 390,
+    "height": 844,
+    "stage": {
+      "width": 358,
+      "height": 444,
+      "aspect": 0.8063063063063063
+    },
+    "windowView": {
+      "fov": 44,
+      "cam": [
+        0,
+        1.28,
+        2
+      ]
+    },
+    "midway": {
+      "fov": 64.79797291745271,
+      "cam": [
+        1.34,
+        1.28,
+        -1.24
+      ]
+    },
+    "tv": {
+      "fov": 68.36634093035094,
+      "cam": [
+        0,
+        1.28,
+        -1.8
+      ]
+    },
+    "halfWidth": 2.3000000000000003,
+    "fullShelfVisible": true
+  },
+  {
+    "lang": "en",
+    "width": 390,
+    "height": 740,
+    "stage": {
+      "width": 358,
+      "height": 340,
+      "aspect": 1.0529411764705883
+    },
+    "windowView": {
+      "fov": 44,
+      "cam": [
+        0,
+        1.28,
+        2
+      ]
+    },
+    "midway": {
+      "fov": 53.3519933360163,
+      "cam": [
+        1.34,
+        1.28,
+        -1.24
+      ]
+    },
+    "tv": {
+      "fov": 54.95654172203108,
+      "cam": [
+        0,
+        1.28,
+        -1.8
+      ]
+    },
+    "halfWidth": 2.3000000000000003,
+    "fullShelfVisible": true
+  },
+  {
+    "lang": "en",
+    "width": 360,
+    "height": 740,
+    "stage": {
+      "width": 328,
+      "height": 340,
+      "aspect": 0.9647058823529412
+    },
+    "windowView": {
+      "fov": 44,
+      "cam": [
+        0,
+        1.28,
+        2
+      ]
+    },
+    "midway": {
+      "fov": 56.942565667230305,
+      "cam": [
+        1.34,
+        1.28,
+        -1.24
+      ]
+    },
+    "tv": {
+      "fov": 59.163158871918256,
+      "cam": [
+        0,
+        1.28,
+        -1.8
+      ]
+    },
+    "halfWidth": 2.3000000000000003,
+    "fullShelfVisible": true
+  },
+  {
+    "lang": "en",
+    "width": 360,
+    "height": 640,
+    "stage": {
+      "width": 328,
+      "height": 240,
+      "aspect": 1.3666666666666667
+    },
+    "windowView": {
+      "fov": 44,
+      "cam": [
+        0,
+        1.28,
+        2
+      ]
+    },
+    "midway": {
+      "fov": 44,
+      "cam": [
+        1.34,
+        1.28,
+        -1.24
+      ]
+    },
+    "tv": {
+      "fov": 44,
+      "cam": [
+        0,
+        1.28,
+        -1.8
+      ]
+    },
+    "halfWidth": 2.3191105362938003,
+    "fullShelfVisible": true
+  }
+]

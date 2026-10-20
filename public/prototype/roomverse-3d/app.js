@@ -74,12 +74,20 @@ export async function start({ stage, panel, lang, onReady }) {
   // Base framing stays here: 66° on a tall canvas, 44° otherwise. The TV-wall widening is applied
   // later, per drawn frame, so this reset can keep doing one job (size, aspect, pose).
   const baseFov = () => (camera.aspect < .8 ? 66 : 44);
+  const phoneViewport = matchMedia("(max-width: 600px)");
   let fovProjectionUpdates = 0;
   function fovForYaw() {
-    if (director || !(camera.aspect < .8)) return baseFov();
-    // 0 faces the window, ±π faces the TV wall. cos eases the 66 → 76 opening and is the same either way around.
+    if (director) return baseFov();
+    const base = baseFov();
+    // Short phone stages can be wider than .8 even though their TV shelves no longer fit at 44°.
+    // Frame the shelves' outer edges (±2.13 m), with a little breathing room, from the TV pose.
+    const tvFov = camera.aspect < .8 ? 76 : phoneViewport.matches
+      ? Math.max(base, 2 * Math.atan(2.3 / ((FRONT - orbitCenter.z + orbitRadius) * camera.aspect)) * 180 / Math.PI)
+      : base;
+    if (tvFov === base) return base;
+    // 0 faces the window, ±π faces the TV wall. The cosine keeps intermediate turns smooth.
     const yaw = Math.atan2(camera.position.x - orbitCenter.x, camera.position.z - orbitCenter.z);
-    return 66 + 10 * (1 - Math.cos(yaw)) / 2;
+    return base + (tvFov - base) * (1 - Math.cos(yaw)) / 2;
   }
   function syncFov() {
     const next = fovForYaw();
