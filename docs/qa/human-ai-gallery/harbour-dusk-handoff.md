@@ -1,0 +1,39 @@
+# 〈黃昏的港口〉交接手記
+
+2026-10-21。Paul 同意：方案 B；說明保留〈黎明的港口〉。〈黎明的港口〉／Harbour at Dawn 是 ROOMVERSE 右牆那幅。畫廊裡既有的一幅標題仍是〈晨光裡的港口〉／A Harbour in Morning Light。
+
+公開文案用先前草稿的原句，仍待 Paul 最終核可。這是 Draft，尚未合併。合併等 Paul 寫「merge #N」。
+
+## 這次放上頁面的內容
+
+- 單獨一幅，放在「同一束晨光，兩種港口」和「日光與燈火之間」中間，沒有新的組名。桌面置中，寬度與並排時的一幅相同；390 為全寬。
+- 圖用 v2 原稿 `docs/gallery/sources/harbor-dusk-clean-master.png`（SHA256 `9dc7ba3164935f31cab4cd184c54a8d713a7b99d97e84378b7f16cfaafce58e9`）轉出的三張 WebP。
+- 其他畫作、頁面標題、副標、AI Lab 入口、頁尾銘牌沒有改字。
+
+## 跑過
+
+- `npm test`：89/89 pass。
+- `node scripts/check-document-parity.mjs`：`DOCUMENT CLOSING GATE: PASS`。
+- `npx playwright test tests/human-ai-gallery.spec.js`：10/10 pass。其中含中英 × 390／1440、七幅燈箱的說明與製作文字、比例、焦點循環、Escape、左右鍵（左右鍵斷言在第一幅）、無橫向溢位、AI Lab 入口與返回。
+- 同一輪 Playwright 會先 `npm run build`。通過，只有既有的 chunk 超過 500 kB 警告。
+- 另以中英 × 390／1440 打開〈黃昏的港口〉：Enter 後焦點在「關閉」；右鍵到下一幅（貿易街）；左鍵到上一幅（晨光裡的港口）；Escape 後焦點回到這幅的按鈕。390 與 1440 的橫向溢位都是 0。1440 燈箱用 `harbor-dusk.webp`，390 用 `harbor-dusk-mobile.webp`。
+
+首次載入是畫廊 spec 寫進 `initial-load.json` 的本機觀察：390 為 9 requests、165,508 bytes；1440 為 10 requests、210,210 bytes。都低於 350,000。沒有手機網速或 CPU 模擬。
+
+## 沒跑
+
+CC 請在本機重跑。這次沒有跑：
+
+- `npx playwright test` 全套
+- `tests/ai-lab.spec.js` 整份（畫廊 spec 已涵蓋 AI Lab 結尾入口、返回與語言切換）
+- `node scripts/verify-export-check.mjs`
+- `node scripts/check-journey-language.mjs`
+- `python scripts/check-onepager-sync.py`
+- `node scripts/measure-onepager-fit.mjs`（沒有改 OnePager）
+- 實體手機
+
+## 截圖
+
+整頁：`gallery-zh-1440.jpg`、`gallery-zh-390.jpg`、`gallery-en-1440.jpg`、`gallery-en-390.jpg`。
+
+`lightbox-plain-*` 現在拍的是資料順序第 5 幅（index 4）〈照夜鎮・大家都在〉，因為〈黃昏的港口〉插在第三筆。AI Lab 入口圖與金框燈箱圖和上一版只有壓縮差異，已還原，不在這次 diff 裡。

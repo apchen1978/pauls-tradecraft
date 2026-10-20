@@ -24,6 +24,8 @@ h1 { margin: 0; font-size: clamp(32px, 4.4vw, 58px); line-height: 1.17; font-wei
 .section-heading h2 { font-weight: 550; font-size: clamp(22px, 2.1vw, 28px); margin: 0; flex: 1; text-wrap: balance; }
 .section-heading p { color: var(--muted); max-width: 440px; margin: 0; font-size: 16px; line-height: 1.75; flex: 1; }
 .art-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 55px 44px; }
+.solo-grid { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+.solo-grid .painting { width: calc((100% - 44px) / 2); }
 .painting { min-width: 0; }
 .art-button { display: block; width: 100%; padding: 9px; border: 1px solid #96805c; background: #3d3529; box-shadow: inset 0 0 0 3px #584930, 0 10px 25px #09100c45; transition: border-color .18s ease; }
 .art-button:hover { border-color: #ebcf93; }
@@ -59,6 +61,7 @@ dialog button:hover { background: #35443c; }
   .section-heading { display: block; margin-bottom: 28px; }
   .section-heading p { font-size: 16px; margin-top: 15px; }
   .art-grid { grid-template-columns: 1fr; gap: 40px; }
+  .solo-grid .painting { width: 100%; }
   .painting h3 { font-size: 21px; margin-top: 20px; }
   .painting p { font-size: 17px; }
   .exhibition { margin-bottom: 48px; }

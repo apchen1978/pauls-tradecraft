@@ -4,19 +4,19 @@
     {
       "width": 390,
       "requests": 9,
-      "encodedBodyBytes": 187402,
+      "encodedBodyBytes": 165508,
       "resources": [
         {
           "url": "/gallery/styles.css",
-          "bytes": 1891
+          "bytes": 1938
         },
         {
           "url": "/gallery/app.js",
-          "bytes": 1500
+          "bytes": 1544
         },
         {
           "url": "/gallery/pieces.js",
-          "bytes": 4341
+          "bytes": 4932
         },
         {
           "url": "/gallery/assets/imagined-harbor-thumb.webp",
@@ -31,8 +31,8 @@
           "bytes": 44400
         },
         {
-          "url": "/gallery/assets/nightglow-together-thumb.webp",
-          "bytes": 44702
+          "url": "/gallery/assets/harbor-dusk-thumb.webp",
+          "bytes": 22098
         },
         {
           "url": "/favicon.png",
@@ -42,20 +42,20 @@
     },
     {
       "width": 1440,
-      "requests": 11,
-      "encodedBodyBytes": 277018,
+      "requests": 10,
+      "encodedBodyBytes": 210210,
       "resources": [
         {
           "url": "/gallery/styles.css",
-          "bytes": 1891
+          "bytes": 1938
         },
         {
           "url": "/gallery/app.js",
-          "bytes": 1500
+          "bytes": 1544
         },
         {
           "url": "/gallery/pieces.js",
-          "bytes": 4341
+          "bytes": 4932
         },
         {
           "url": "/gallery/assets/imagined-harbor-thumb.webp",
@@ -66,20 +66,16 @@
           "bytes": 44524
         },
         {
+          "url": "/gallery/assets/harbor-dusk-thumb.webp",
+          "bytes": 22098
+        },
+        {
           "url": "/gallery/assets/trade-street-thumb.webp",
           "bytes": 44400
         },
         {
           "url": "/gallery/assets/nightglow-together-thumb.webp",
           "bytes": 44702
-        },
-        {
-          "url": "/gallery/assets/clocktower-map-thumb.webp",
-          "bytes": 44726
-        },
-        {
-          "url": "/gallery/assets/warm-window-thumb.webp",
-          "bytes": 44890
         },
         {
           "url": "/favicon.png",
