@@ -43,4 +43,3 @@ Chrome 155.0.8059.85，同機同日，4× CPU 降速。新 context／停用網�
 
 ## 文件一致性
 Website：CHECKED（局部插畫與裝飾，沒有新增對外能力宣稱）。One-pager ZH/EN、能力簡介：N/A（不改定位、作品清單、順序、服務或交付狀態）。ZH/EN semantic parity：PASS（無新增公開文案）；claim boundary parity：PASS；document closing gate：PASS。
-
