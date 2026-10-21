@@ -41,9 +41,9 @@ test("camera starts and stays inside the room across the whole orbit arc", async
 
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
-  await expect(page.locator("#title")).toHaveText("一個人住的套房，白天是這個樣子");
+  await expect(page.locator("#title")).toHaveText("ROOMVERSE 的第二個房間：一個人住的套房");
   await page.locator("#lang").click();
-  await expect(page.locator("#title")).toHaveText("A studio for one, by day");
+  await expect(page.locator("#title")).toHaveText("ROOMVERSE, room two: a studio for one");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });
 
