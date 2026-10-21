@@ -772,6 +772,27 @@ function renderConsole(animate) {
   items.forEach((li, i) => consoleTimers.push(setTimeout(() => li.classList.add("on"), 400 + i * 520)));
 }
 
+function renderFastRoute() {
+  const x = t();
+  $("fast-route-title").textContent = x.fastRoute.title;
+  const steps = [
+    { href: "#c2", mark: "02", label: x.c2.title },
+    { href: "#c3", mark: "03", label: x.c3.title },
+    { href: "#c12", mark: "12", label: d().c12.title },
+    { href: `/ai-lab/guide/?lang=${state.lang}`, mark: "", label: x.fastRoute.guide },
+    { href: "#c13", mark: "13", label: PART_TWO[state.lang].title },
+    { href: "#contact-cta", mark: "", label: x.ctaTitle },
+  ];
+  $("fast-route-steps").replaceChildren(...steps.map((step) => {
+    const li = el("li");
+    const a = el("a");
+    a.href = step.href;
+    a.append(el("span", "n", step.mark), el("span", "fast-label", step.label));
+    li.appendChild(a);
+    return li;
+  }));
+}
+
 function renderRail() {
   const x = t();
   const rail = $("rail");
@@ -792,7 +813,18 @@ function watchChapters() {
       document.querySelectorAll(".rail-dot").forEach((a) => a.classList.toggle("on", a.dataset.target === e.target.id));
     });
   }, { rootMargin: "-45% 0px -50% 0px" });
-  NAV_CHAPTERS.forEach(({ id }) => { const node = $(id); if (node) seen.observe(node); });
+  const watched = new Set();
+  const observeNav = () => {
+    NAV_CHAPTERS.forEach(({ id }) => {
+      const node = $(id);
+      if (!node || watched.has(id)) return;
+      watched.add(id);
+      seen.observe(node);
+    });
+  };
+  observeNav();
+  const main = $("main");
+  if (main) new MutationObserver(observeNav).observe(main, { childList: true, subtree: true });
   if (reduced()) return;
   const reveal = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); reveal.unobserve(e.target); } });
@@ -802,11 +834,20 @@ function watchChapters() {
   });
 }
 
+function spiritParagraph(line) {
+  if (typeof line === "string") return el("p", "sub", line);
+  const p = el("p", "sub");
+  const a = el("a", null, line.text);
+  a.href = line.href;
+  p.append(document.createTextNode(line.before), a, document.createTextNode(line.after));
+  return p;
+}
+
 function spiritBlocks(blocks) {
   return blocks.map((b) => {
     const wrap = el("div", "spirit-block");
     wrap.appendChild(el("h3", null, b.h));
-    b.p.forEach((line) => wrap.appendChild(el("p", "sub", line)));
+    b.p.forEach((line) => wrap.appendChild(spiritParagraph(line)));
     if (b.link) {
       const p = el("p", "sub");
       const a = el("a", null, b.link.text);
@@ -845,6 +886,7 @@ function render() {
   $("kicker").textContent = x.kicker;
   $("title").textContent = x.title;
   $("lead").textContent = x.lead;
+  renderFastRoute();
   $("toc").replaceChildren(...x.toc.map((label, i) => {
     const li = el("li");
     const a = el("a");
@@ -867,8 +909,12 @@ function render() {
   $("c0-x").href = LINKS.x;
   $("c2-demo").textContent = x.c2.demo;
   $("cta-title").textContent = x.ctaTitle;
-  $("cta").textContent = x.cta;
-  $("cta").href = `/?lang=${state.lang}#contact`;
+  $("cta-choices").replaceChildren(...x.ctaChoices.map((choice) => {
+    const a = el("a", "cta-choice");
+    a.href = `/?lang=${state.lang}#contact`;
+    a.append(el("strong", null, choice.title), el("span", null, choice.body));
+    return a;
+  }));
   $("footer").textContent = x.footer;
   renderFunnel();
   renderCompare(false);

@@ -81,7 +81,10 @@ for (const width of [390, 1440]) {
       }
       await expect(page.locator("#story li")).toHaveCount(x.c4.story.length);
       await expect(page.locator("#play-work")).toHaveAttribute("href", `/prototype/match-the-approved-lamp/?lang=${lang}`);
-      await expect(page.locator("#cta")).toHaveAttribute("href", `/?lang=${lang}#contact`);
+      const choices = page.locator("#contact-cta a");
+      await expect(choices).toHaveCount(2);
+      await expect(choices.nth(0)).toHaveAttribute("href", `/?lang=${lang}#contact`);
+      await expect(choices.nth(1)).toHaveAttribute("href", `/?lang=${lang}#contact`);
       await noOverflow(page);
 
       const stored = await page.evaluate(() => ({ local: localStorage.length, cookie: document.cookie }));
@@ -248,7 +251,7 @@ test("polish: the hero console plays to the stop line, the chapter rail follows 
   await expect(page.locator("#console-lines .cl")).toHaveCount(TEXT.zh.console.length);
   await expect(page.locator("#console-lines .cl.on")).toHaveCount(TEXT.zh.console.length, { timeout: 8000 });
   await expect(page.locator("#console-lines .cl.wait")).toContainText(TEXT.zh.console.at(-1)[1]);
-  await expect(page.locator("#rail .rail-dot")).toHaveCount(TEXT.zh.rail.length + 1);
+  await expect(page.locator("#rail .rail-dot")).toHaveCount(TEXT.zh.rail.length);
   await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; document.getElementById("c7").scrollIntoView(); });
   await expect(page.locator('#rail .rail-dot.on')).toHaveAttribute("data-target", "c7");
   // narrow screens hide the rail
