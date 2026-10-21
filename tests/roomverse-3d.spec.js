@@ -955,18 +955,12 @@ for (const lang of ["zh", "en"]) {
   }
 }
 
-test("mobile yaw opens the TV wall from 66 to 76; desktop, postcard, plaque and the short film stay put", async ({ page }) => {
-  const expectFov = async (degrees) => {
-    const reading = await page.evaluate((value) => {
-      window.__room.setOrbitAngle(value);
-      const yaw = Math.atan2(Math.sin(value * Math.PI / 180), Math.cos(value * Math.PI / 180));
-      const aspect = document.querySelector("#stage").getBoundingClientRect();
-      const mobile = aspect.width / aspect.height < 0.8;
-      return { fov: window.__room.fov(), expected: mobile ? 66 + 10 * (1 - Math.cos(yaw)) / 2 : 44 };
-    }, degrees);
-    expect(reading.fov).toBeCloseTo(reading.expected, 3);
-    return reading.fov;
-  };
+test("mobile yaw opens the TV wall from the plaque-fit window fov to at least 76; desktop, postcard and the short film stay put", async ({ page }) => {
+  const readFov = async (degrees) => page.evaluate((value) => {
+    window.__room.setOrbitAngle(value);
+    const box = document.querySelector("#stage").getBoundingClientRect();
+    return { fov: window.__room.fov(), wide: box.width / box.height >= 0.8 };
+  }, degrees);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${PAGE}?lang=zh&mood=rain`);
   await page.locator("#enter").click();
@@ -977,18 +971,23 @@ test("mobile yaw opens the TV wall from 66 to 76; desktop, postcard, plaque and 
   });
   expect(stage.aspect).toBeLessThan(0.8);
   expect(stage.antialias).toBe(true);
-  expect(await expectFov(0)).toBeCloseTo(66, 2);
+  const atWindow = await readFov(0);
+  expect(atWindow.fov).toBeGreaterThan(66);
+  expect(atWindow.fov).toBeLessThan(76);
   const plaque = await page.evaluate(() => window.__room.plaqueView());
   expect(plaque.firstHit).toBe("house-plaque");
-  const center = plaque.corners.reduce((sum, corner) => ({ x: sum.x + corner.x / 4, y: sum.y + corner.y / 4 }), { x: 0, y: 0 });
-  expect(Math.abs(center.x)).toBeLessThan(1);
-  expect(Math.abs(center.y)).toBeLessThan(1);
-  const at90 = await expectFov(90);
-  const at135 = await expectFov(135);
+  const xs = plaque.corners.map((corner) => corner.x);
+  const ys = plaque.corners.map((corner) => Math.abs(corner.y));
+  expect(Math.max(...xs)).toBeLessThanOrEqual(0.97);
+  expect(Math.min(...xs)).toBeGreaterThanOrEqual(-0.97);
+  expect(Math.max(...ys)).toBeLessThanOrEqual(0.97);
+  expect(plaque.corners.every((corner) => corner.z > -1 && corner.z < 1)).toBe(true);
+  const at90 = (await readFov(90)).fov;
+  const at135 = (await readFov(135)).fov;
+  expect(at90).toBeGreaterThan(atWindow.fov);
   expect(at135).toBeGreaterThan(at90);
   expect(at135).toBeLessThan(76);
-  expect(at135).toBeGreaterThan(74);
-  await expectFov(180);
+  await readFov(180);
   const updates = await page.evaluate(() => window.__room.fovProjectionUpdates());
   await page.evaluate(() => window.__room.setOrbitAngle(180));
   expect(await page.evaluate(() => window.__room.fovProjectionUpdates())).toBe(updates);
@@ -1013,14 +1012,22 @@ test("mobile yaw opens the TV wall from 66 to 76; desktop, postcard, plaque and 
     const canvas = document.querySelector("#stage canvas");
     return box.width / box.height >= 0.8 && Math.abs(canvas.width - box.width) < 2;
   })).toBe(true);
-  expect(await expectFov(0, 44)).toBeCloseTo(44, 2);
-  expect(await expectFov(135, 44)).toBeCloseTo(44, 2);
-  expect(await expectFov(180, 44)).toBeCloseTo(44, 2);
+  for (const degrees of [0, 135, 180]) {
+    const reading = await readFov(degrees);
+    expect(reading.wide).toBe(true);
+    expect(reading.fov).toBeCloseTo(44, 2);
+  }
+  await page.evaluate(() => window.__room.setOrbitAngle(0));
+  const desktopPlaque = await page.evaluate(() => window.__room.plaqueView());
+  const desktopXs = desktopPlaque.corners.map((corner) => corner.x);
+  expect(desktopPlaque.firstHit).toBe("house-plaque");
+  expect(Math.max(...desktopXs)).toBeLessThanOrEqual(0.97);
+  expect(desktopPlaque.corners.every((corner) => corner.z > -1 && corner.z < 1)).toBe(true);
 });
 
 for (const lang of ["zh", "en"]) {
   for (const [width, height] of [[390, 844], [390, 740], [360, 740], [360, 640]]) {
-    test(`${lang} ${width}×${height} TV view frames both shelves without changing the window view`, async ({ page }) => {
+    test(`${lang} ${width}×${height} TV view frames both shelves and the window view keeps the plaque`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.emulateMedia({ reducedMotion: "reduce" });
       await page.goto(`${PAGE}?lang=${lang}&mood=tv&view=tv`);
@@ -1030,15 +1037,28 @@ for (const lang of ["zh", "en"]) {
         const stage = document.querySelector("#stage").getBoundingClientRect();
         window.__room.setOrbitAngle(0);
         const windowFov = window.__room.fov();
+        const plaque = window.__room.plaqueView();
+        const xs = plaque.corners.map((corner) => corner.x);
+        const ys = plaque.corners.map((corner) => Math.abs(corner.y));
         window.__room.setOrbitAngle(135);
         const turningFov = window.__room.fov();
         window.__room.setOrbitAngle(180);
         const tvFov = window.__room.fov();
         const tvCameraZ = window.__room.cam()[2];
         const visibleHalfWidth = (2.4 - tvCameraZ) * Math.tan(tvFov * Math.PI / 360) * stage.width / stage.height;
-        return { aspect: stage.width / stage.height, windowFov, turningFov, tvFov, visibleHalfWidth };
+        return {
+          aspect: stage.width / stage.height, windowFov, turningFov, tvFov, visibleHalfWidth,
+          plaqueHit: plaque.firstHit,
+          plaqueMaxX: Math.max(...xs), plaqueMinX: Math.min(...xs), plaqueMaxY: Math.max(...ys),
+          plaqueInFront: plaque.corners.every((corner) => corner.z > -1 && corner.z < 1),
+        };
       });
-      expect(framing.windowFov).toBe(framing.aspect < .8 ? 66 : 44);
+      expect(framing.plaqueHit).toBe("house-plaque");
+      expect(framing.plaqueInFront).toBe(true);
+      expect(framing.plaqueMaxX).toBeLessThanOrEqual(0.97);
+      expect(framing.plaqueMinX).toBeGreaterThanOrEqual(-0.97);
+      expect(framing.plaqueMaxY).toBeLessThanOrEqual(0.97);
+      expect(framing.windowFov).toBeGreaterThanOrEqual(framing.aspect < .8 ? 66 : 44);
       expect(framing.visibleHalfWidth).toBeGreaterThanOrEqual(2.23); // shelf edges ±2.13 m, plus visible margin
       expect(framing.turningFov).toBeGreaterThanOrEqual(framing.windowFov);
       expect(framing.turningFov).toBeLessThanOrEqual(framing.tvFov);
