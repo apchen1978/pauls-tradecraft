@@ -1,0 +1,63 @@
+.journey-page .lang button { min-width: 44px; min-height: 44px; }
+.journey { padding-top: 28px; padding-bottom: 36px; }
+.badge { display: inline-flex; align-items: center; min-height: 32px; margin: 14px 0 0; padding: 4px 12px; border: 1px solid var(--gold); border-radius: 999px; color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: .02em; }
+.fiction { margin: 12px 0 0; color: var(--meta); font-size: 14px; }
+.route-svg { width: 100%; height: 36px; display: block; margin: 18px 0 8px; }
+.route-svg line { stroke: rgba(158, 224, 193, .28); stroke-width: 2; }
+.route-svg line.on { stroke: var(--mint); }
+.route-svg circle { fill: rgba(158, 224, 193, .35); }
+.route-svg circle.done { fill: var(--mint); }
+.route-svg circle.now { fill: var(--gold); }
+.stepper-label { margin: 8px 0; color: var(--meta); font-size: 13px; }
+.stepper { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.stepper button { width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--body); font: inherit; font-size: 14px; line-height: 1.3; text-align: left; cursor: pointer; }
+.stepper button[aria-current="step"] { border-color: var(--gold); background: rgba(184, 153, 102, .14); color: var(--bone); font-weight: 700; }
+.stepper button:disabled, .journey .step-nav button:disabled, .journey .review-actions button:disabled { opacity: .4; cursor: not-allowed; }
+.step-title { margin-top: 22px; font-size: clamp(1.35rem, 3vw, 1.8rem); }
+.why { margin: 8px 0 0; padding-left: 12px; border-left: 3px solid var(--mint); color: var(--bone); }
+.letter, .fact, .quote-line, .follow, .draft, .review-status { overflow-wrap: anywhere; }
+.letter { margin-top: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.letter-meta { display: grid; gap: 8px; margin: 0; }
+.letter-meta div { display: grid; gap: 2px; }
+.letter-meta dt { color: var(--meta); font-size: 12px; }
+.letter-meta dd { margin: 0; color: var(--bone); font-weight: 650; }
+.letter p { margin: 12px 0 0; }
+.signoff { margin-top: 16px; color: var(--bone); }
+.signoff span { display: block; color: var(--meta); font-size: 14px; }
+.facts, .quote, .questions { display: grid; gap: 8px; margin: 14px 0 0; padding: 0; }
+.questions { padding-left: 1.2em; }
+.fact, .quote-line, .follow { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+.fact { display: grid; gap: 4px; }
+.fact dt { color: var(--mint); font-size: 13px; }
+.fact dd, .quote-line p, .follow p { margin: 0; color: var(--bone); }
+.block-title { margin: 18px 0 0; color: var(--bone); font-size: 1rem; }
+.quote-note, .follow-intro, .review-lead, .not-sent { margin: 8px 0 0; color: var(--meta); }
+.quote-line { display: grid; gap: 4px; background: rgba(184, 153, 102, .06); }
+.quote-line strong { color: var(--bone); }
+.quote-value { color: var(--bone); font-family: ui-monospace, Consolas, monospace; font-size: 1.05rem; }
+.tag { justify-self: start; padding: 2px 8px; border: 1px solid var(--gold); border-radius: 999px; color: var(--gold); font-size: 12px; font-weight: 700; }
+.draft { margin: 12px 0 0; padding: 14px; border-radius: 12px; background: rgba(246, 243, 237, .06); color: var(--bone); white-space: pre-wrap; font: inherit; line-height: 1.55; }
+.journey textarea { width: 100%; min-height: 180px; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0, 0, 0, .22); color: var(--bone); font: inherit; line-height: 1.55; }
+.review-actions, .step-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.journey .ghost, .journey .primary, #no-review, #keep-edit { margin-top: 0; min-height: 44px; }
+.review-status { margin-top: 12px; padding: 12px 14px; border-left: 3px solid var(--gold); border-radius: 0 12px 12px 0; background: var(--card); color: var(--bone); }
+.gate { margin: 10px 0 0; color: var(--warn); }
+#no-review { margin-top: 18px; }
+.risk { margin-top: 12px; padding: 14px 16px; border-left: 3px solid var(--warn); border-radius: 0 12px 12px 0; background: rgba(242, 181, 140, .08); }
+.risk p { margin: 0; color: var(--bone); }
+.risk ul { margin: 8px 0 0; padding-left: 1.2em; color: var(--body); }
+.risk-note { margin-top: 8px; color: var(--meta); }
+.follow h3 { margin: 0; font-size: 1rem; }
+.follow .subject { margin-top: 8px; color: var(--meta); font-size: 14px; }
+.panel.human { border-color: rgba(184, 153, 102, .7); }
+.panel li + li { margin-top: 6px; }
+.back-row { margin-top: 8px; }
+.back-row .text-link { display: inline-flex; align-items: center; min-height: 44px; }
+@media (min-width: 900px) {
+  .stepper { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .stepper button { text-align: center; }
+  .quote-line { grid-template-columns: minmax(8em, 14em) minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+}
+@media (max-width: 639px) {
+  .step-nav button, .review-actions button { flex: 1 1 140px; }
+}

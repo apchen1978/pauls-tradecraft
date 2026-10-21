@@ -105,6 +105,8 @@ h3 { margin: 0; color: var(--bone); font-size: 1.1rem; }
 .outcome.warn { border-left-color: var(--warn); }
 .outcome ul { margin: 8px 0 0; padding-left: 1.2em; color: var(--body); }
 .text-link { display: inline-block; margin-top: 16px; font-weight: 600; }
+.c3-links { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.c3-links .text-link { display: inline-flex; align-items: center; min-height: 44px; }
 
 /* Chapter 4: the team */
 .team { display: grid; gap: 14px; margin-top: 26px; }

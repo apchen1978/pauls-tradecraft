@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>一封詢盤的旅程 · AI Lab</title>
+  <meta name="description" content="示範・虛構資料。跟著一封虛構詢盤，看 AI 準備草稿，由負責人決定要不要寄出。Demo · fictional data. AI prepares drafts; a decision-maker decides whether anything is sent.">
+  <link rel="canonical" href="https://paulstradecraft.com/ai-lab/enquiry-demo/">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body class="journey-page">
+  <a class="skip" id="skip" href="#journey">跳至內容</a>
+  <header class="top">
+    <a class="brand" id="home" href="/ai-lab/?lang=zh">AI Lab</a>
+    <div class="lang" id="lang-group" role="group" aria-label="Language">
+      <button type="button" data-lang="zh" aria-pressed="true">中</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+  <main class="journey" id="journey">
+    <p class="kicker" id="kicker"></p>
+    <p class="badge" id="badge"></p>
+    <h1 id="title"></h1>
+    <p class="lead" id="lead"></p>
+    <p class="fiction" id="fiction"></p>
+    <svg id="route-svg" class="route-svg" viewBox="0 0 600 36" aria-hidden="true"></svg>
+    <nav id="stepper-nav" aria-labelledby="stepper-label">
+      <p class="stepper-label" id="stepper-label"></p>
+      <ol class="stepper" id="stepper"></ol>
+    </nav>
+    <section id="panel" aria-live="polite">
+      <h2 class="step-title" id="step-title"></h2>
+      <p class="why" id="why"></p>
+      <div id="step-body"></div>
+    </section>
+    <div class="step-nav">
+      <button type="button" class="ghost" id="back"></button>
+      <button type="button" class="primary" id="next"></button>
+    </div>
+    <p class="gate" id="gate" hidden></p>
+    <button type="button" class="ghost" id="no-review" aria-pressed="false" aria-controls="risk"></button>
+    <div class="risk" id="risk" hidden>
+      <p id="risk-lead"></p>
+      <ul id="risk-list"></ul>
+      <p class="risk-note" id="risk-note"></p>
+    </div>
+    <p class="back-row"><a class="text-link" id="back-link" href="/ai-lab/?lang=zh#c3"></a></p>
+  </main>
+  <footer class="foot" id="footer"></footer>
+</body>
+</html>
