@@ -7,14 +7,14 @@ async function enter(page, lang = "zh") {
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
-  await expect(page.locator("#panel .director")).toBeVisible();
+  await expect(page.locator(".save.director")).toBeVisible();
 }
 
 test("the tour restores the visitor's room, camera, controls and URL", async ({ page }) => {
   await enter(page);
   await page.waitForTimeout(1900);
   const before = await page.evaluate(() => ({ camera: __room.cam(), url: location.href }));
-  await page.locator("#panel .director").click();
+  await page.locator(".save.director").click();
   await expect(page.locator("#stage .director-stop")).toBeVisible();
   await page.waitForFunction(() => window.__room.director().playing, null, { timeout: 15000 });
   await page.waitForFunction(() => !window.__room.director().playing && window.__room.director().controlsEnabled, null, { timeout: 15000 });
@@ -27,7 +27,7 @@ test("Escape cancels a playing tour and restores the camera", async ({ page }) =
   await enter(page, "en");
   await page.waitForTimeout(1900);
   const before = await page.evaluate(() => __room.cam());
-  await page.locator("#panel .director").click();
+  await page.locator(".save.director").click();
   await page.waitForFunction(() => window.__room.director().playing, null, { timeout: 15000 });
   await page.keyboard.press("Escape");
   await expect(page.locator("#stage .director-stop")).toBeHidden();
@@ -37,7 +37,7 @@ test("Escape cancels a playing tour and restores the camera", async ({ page }) =
 test("a 390px visitor sees most of the canvas immediately and has a visible stop control", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await enter(page);
-  await page.locator("#panel .director").click();
+  await page.locator(".save.director").click();
   const visibleRatio = await page.evaluate(() => {
     const r = document.querySelector("#stage canvas").getBoundingClientRect();
     return Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0)) / r.height;
@@ -49,7 +49,7 @@ test("a 390px visitor sees most of the canvas immediately and has a visible stop
 
 test("an early click settles the entrance animation before saving the camera", async ({ page }) => {
   await enter(page);
-  await page.locator("#panel .director").click();
+  await page.locator(".save.director").click();
   await page.waitForFunction(() => window.__room.director().playing, null, { timeout: 15000 });
   await page.waitForFunction(() => !window.__room.director().playing, null, { timeout: 15000 });
   expect(await page.evaluate(() => __room.cam())).toEqual([0, 1.28, 2]);
@@ -60,7 +60,7 @@ test("reduced motion shows three distinct room-light studies without moving the 
   await page.setViewportSize({ width: 390, height: 844 });
   await enter(page, "en");
   const before = await page.evaluate(() => ({ camera: __room.cam(), url: location.href }));
-  await page.locator("#panel .director").click();
+  await page.locator(".save.director").click();
   await expect(page.locator(".director-mini-room")).toHaveCount(3);
   await expect(page.locator(".director-phase")).toContainText(["Rain", "Daylight", "Night"]);
   const after = await page.evaluate(() => ({ camera: __room.cam(), url: location.href }));
@@ -69,7 +69,7 @@ test("reduced motion shows three distinct room-light studies without moving the 
 
 test("a viewport change ends playback and restores control", async ({ page }) => {
   await enter(page);
-  await page.locator("#panel .director").click();
+  await page.locator(".save.director").click();
   await page.waitForFunction(() => window.__room.director().playing, null, { timeout: 15000 });
   await page.setViewportSize({ width: 1300, height: 900 });
   await page.waitForFunction(() => !window.__room.director().playing && window.__room.director().controlsEnabled);

@@ -11,6 +11,11 @@ export const TEXT = {
   zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
   en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png", artFile: "ROOMVERSE-3D-illustrated-postcard.webp" },
 };
+// Short labels for the single-row phone toolbar. The accessible name stays the full phrase above.
+const PHONE_BAR = {
+  zh: { save: "存成明信片", shuffle: "隨機搭一間", director: "8秒短片", stop: "停止短片", close: "收起對照", preparing: "準備中" },
+  en: { save: "Save postcard", shuffle: "Random room", director: "8s tour", stop: "Stop", close: "Close", preparing: "Preparing" },
+};
 const POSTCARD_ART = new Set(["rain", "family", "tech", "chic", "slow", "tv"]);
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -77,6 +82,7 @@ export async function start({ stage, panel, lang, onReady }) {
   // later, per drawn frame, so this reset can keep doing one job (size, aspect, pose).
   const baseFov = () => (camera.aspect < .8 ? 66 : 44);
   const phoneViewport = matchMedia("(max-width: 600px)");
+  const phoneActions = matchMedia("(max-width: 768px)");
   let fovProjectionUpdates = 0;
   function fovForYaw() {
     if (director) return baseFov();
@@ -1178,8 +1184,9 @@ export async function start({ stage, panel, lang, onReady }) {
     const t = TEXT[state.lang];
     // the panel is rebuilt on every choice; remember which button had focus so keyboard users stay where they were
     const had = document.activeElement;
+    const toolbar = document.getElementById("roomToolbar");
     let keep = null;
-    if (had && panel.contains(had)) {
+    if (had && (panel.contains(had) || toolbar?.contains(had))) {
       const g = had.closest(".opts");
       keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("camera-tv") ? "camera-tv" : had.classList.contains("camera-window") ? "camera-window" : had.classList.contains("director") ? "director" : had.classList.contains("shuffle") ? "shuffle" : "save" };
     }
@@ -1202,13 +1209,29 @@ export async function start({ stage, panel, lang, onReady }) {
       if (key !== "mood") return [h, box];
       const why = document.createElement("p"); why.className = "why"; why.textContent = MOODS[state.mood].why[state.lang]; // why this pairing
       return [h, box, why];
-    }), Object.assign(document.createElement("p"), { className: "hint", textContent: t.hint }),
-    Object.assign(document.createElement("button"), { type: "button", className: "save director", textContent: directorPreparing ? t.preparing : director ? t.stop : still && directorStillOpen ? t.close : t.director, onclick: () => toggleDirector() }),
-    ...(still && directorStillOpen ? [staticTour(t)] : []),
-    Object.assign(document.createElement("button"), { type: "button", className: "save shuffle", textContent: t.shuffle, onclick: () => shuffle() }),
-    Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: t.save, onclick: () => savePostcard() }));
+    }), Object.assign(document.createElement("p"), { className: "hint", textContent: t.hint }));
+    const bar = PHONE_BAR[state.lang];
+    const onPhone = phoneActions.matches;
+    const directorFull = directorPreparing ? t.preparing : director ? t.stop : still && directorStillOpen ? t.close : t.director;
+    const directorShort = directorPreparing ? bar.preparing : director ? bar.stop : still && directorStillOpen ? bar.close : bar.director;
+    const directorBtn = Object.assign(document.createElement("button"), { type: "button", className: "save director", textContent: onPhone ? directorShort : directorFull, onclick: () => toggleDirector() });
+    const shuffleBtn = Object.assign(document.createElement("button"), { type: "button", className: "save shuffle", textContent: onPhone ? bar.shuffle : t.shuffle, onclick: () => shuffle() });
+    const saveBtn = Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: onPhone ? bar.save : t.save, onclick: () => savePostcard() });
+    directorBtn.setAttribute("aria-label", directorFull);
+    shuffleBtn.setAttribute("aria-label", t.shuffle);
+    saveBtn.setAttribute("aria-label", t.save);
+    const stillNodes = still && directorStillOpen ? [staticTour(t)] : [];
+    if (onPhone && toolbar) {
+      toolbar.replaceChildren(directorBtn, shuffleBtn, saveBtn);
+      toolbar.setAttribute("aria-label", state.lang === "zh" ? "短片、隨機房間、明信片" : "Tour, random room, postcard");
+      toolbar.hidden = panel.hidden;
+      panel.append(...stillNodes);
+    } else {
+      if (toolbar) { toolbar.replaceChildren(); toolbar.hidden = true; }
+      panel.append(directorBtn, ...stillNodes, shuffleBtn, saveBtn);
+    }
     if (keep) {
-      const target = keep.c ? panel.querySelector("." + keep.c) : panel.querySelectorAll(".opts")[keep.g]?.querySelector(`button[data-key="${keep.k}"]`);
+      const target = keep.c ? (toolbar?.querySelector("." + keep.c) || panel.querySelector("." + keep.c)) : panel.querySelectorAll(".opts")[keep.g]?.querySelector(`button[data-key="${keep.k}"]`);
       target?.focus({ preventScroll: true });
     }
   }
@@ -1226,13 +1249,18 @@ export async function start({ stage, panel, lang, onReady }) {
     box.append(phases, description);
     return box;
   }
-  // a random wall, rug, curtain and print (never the same set twice in a row); the feeling stays the visitor's own
+  // Feeling stays. Each finish is drawn from the options other than the one on screen.
+  // If that draw ever matches the whole room that was just showing, draw once more the same way.
   function shuffle() {
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     const pick = (table, now) => { const ks = Object.keys(table).filter((k) => k !== now); return ks[Math.floor(Math.random() * ks.length)]; };
+    const before = { wall: state.wall, rug: state.rug, curtain: state.curtain, print: state.print };
+    const draw = () => ({ wall: pick(WALLS, before.wall), rug: pick(RUGS, before.rug), curtain: pick(CURTAINS, before.curtain), print: pick(PRINTS, before.print) });
+    let next = draw();
+    if (next.wall === before.wall && next.rug === before.rug && next.curtain === before.curtain && next.print === before.print) next = draw();
     wallWasChosen = true;
-    state.wall = pick(WALLS, state.wall); state.rug = pick(RUGS, state.rug); state.curtain = pick(CURTAINS, state.curtain); state.print = pick(PRINTS, state.print);
+    state.wall = next.wall; state.rug = next.rug; state.curtain = next.curtain; state.print = next.print;
     apply(); toUrl();
   }
 
@@ -1345,8 +1373,8 @@ export async function start({ stage, panel, lang, onReady }) {
     render();
   }
   function showStage() {
-    // The mobile controls sit below the room; immediately bring the movie and its stop button into view.
-    if (matchMedia("(max-width: 700px)").matches) stage.scrollIntoView({ behavior: "auto", block: "center" });
+    // On a phone the tour button sits above the room; keep the movie and its stop button in view.
+    if (phoneActions.matches) stage.scrollIntoView({ behavior: "auto", block: "center" });
   }
   // A deliberately finite tour: no permanent render loop, URL mutation, or change to the visitor's choices.
   const tourStart = new THREE.Vector3(.22, 1.55, 1.85);
@@ -1502,6 +1530,7 @@ export async function start({ stage, panel, lang, onReady }) {
     if (!looping) render();
   });
   new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
+  phoneActions.addEventListener("change", () => drawPanel());
   fit(); apply();
   // Let the first room frame paint before the optional TV materials request any image bytes.
   if (requestedView === "tv") { void loadTvWallTextures(); void loadDoorTexture(); }

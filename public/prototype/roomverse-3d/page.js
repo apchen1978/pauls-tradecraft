@@ -62,9 +62,11 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./app.js?v=10");
+    const { start } = await import("./app.js?v=11");
     room = await start({ stage: $("stage"), panel: $("panel"), lang });
-    $("status").hidden = true; $("panel").hidden = false; $("panelToggle").hidden = false; setPanelOpen(false);
+    $("status").hidden = true; $("panel").hidden = false; $("panelToggle").hidden = false;
+    $("roomToolbar").hidden = !matchMedia("(max-width: 768px)").matches;
+    setPanelOpen(false);
     window.__room = room; // test hook
     // The wall is outside the starting view; defer its optional maps until the room is interactive.
     setTimeout(() => room?.scheduleTvWallTextures(), 1800);
