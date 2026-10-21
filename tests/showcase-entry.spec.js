@@ -19,7 +19,12 @@ for (const width of [390, 768, 1440]) {
       await expect(section.locator("article")).toHaveCount(destinations.length);
       for (const [index, destination] of destinations.entries()) {
         const card = section.locator("article").nth(index);
-        await expect(card.locator("a")).toHaveAttribute("href", `/prototype/${destination}/?lang=${lang}`);
+        const links = card.locator("a");
+        await expect(links).toHaveCount(2);
+        await expect(links.first().locator("img")).toHaveCount(1);
+        for (const link of await links.all()) {
+          await expect(link).toHaveAttribute("href", `/prototype/${destination}/?lang=${lang}`);
+        }
         // Every card now has a visible activity and a takeaway, including the corner.
         await expect(card.locator("h3 + p")).not.toBeEmpty();
         await expect(card.locator("h3 + p + p")).not.toBeEmpty();
