@@ -88,9 +88,9 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
     }
     await noOverflow(page);
     await page.goto(`/?lang=${lang}#showcase`);
-    const card = page.locator('#showcase article').filter({ has: page.locator('img[src="/prototype/enterprise-ai-path/assets/cover-mobile.webp"]') });
+    const card = page.locator('#showcase article').filter({ has: page.locator(`a[href="${PAGE}?lang=${lang}"]`) });
     await expect(card).toHaveCount(1);
-    await expect(card.locator("a")).toHaveAttribute("href", `${PAGE}?lang=${lang}`);
+    await expect(card.locator("a:not(:has(img))")).toHaveAttribute("href", `${PAGE}?lang=${lang}`);
     await expect(card.locator("img")).toHaveAttribute("alt", /.+/);
     await card.scrollIntoViewIfNeeded();
     await expect.poll(() => card.locator("img").evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
