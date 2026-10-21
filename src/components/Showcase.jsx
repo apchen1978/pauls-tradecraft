@@ -81,9 +81,18 @@ export default function Showcase() {
             return (
             <li key={item.href} className={`flex ${wide.li}`}>
               <article className={`flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone ${wide.row}`}>
-                <div className={`overflow-hidden bg-paper ${wideImage[wide.row]}`} style={{ aspectRatio: item.imageRatio }}>
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${item.title} — ${item.cta}`}
+                  tabIndex="-1"
+                  aria-hidden="true"
+                  className={`block overflow-hidden bg-paper focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-ink ${wideImage[wide.row]}`}
+                  style={{ aspectRatio: item.imageRatio }}
+                >
                   <ShowcaseImage item={item} index={index} />
-                </div>
+                </a>
                 <div className="flex flex-1 flex-col p-5 md:p-6">
                   <p className="text-xs font-semibold text-moss">{item.tag}</p>
                   <h3 className="mt-3 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.5rem]">{item.title}</h3>
