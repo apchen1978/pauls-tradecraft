@@ -37,6 +37,10 @@
         <p class="kicker" id="kicker"></p>
         <h1 id="title"></h1>
         <p class="lead" id="lead"></p>
+        <nav class="fast-route" id="fast-route" aria-labelledby="fast-route-title">
+          <p class="fast-route-title" id="fast-route-title"></p>
+          <ol id="fast-route-steps"></ol>
+        </nav>
         <ol class="toc" id="toc"></ol>
       </div>
       <figure class="console" aria-labelledby="console-cap">
@@ -111,7 +115,10 @@
       <ol class="flow" id="flow"></ol>
       <button type="button" class="ghost" id="remove-human" aria-pressed="false"></button>
       <div class="outcome" id="outcome" role="status"></div>
-      <a class="text-link" id="c3-link" href="/cases/commercial-decision-desk/"></a>
+      <div class="c3-links">
+        <a class="text-link" id="c3-link" href="/cases/commercial-decision-desk/"></a>
+        <a class="text-link journey-link" id="c3-journey" href="/ai-lab/enquiry-demo/?lang=zh"></a>
+      </div>
     </section>
 
     <section class="chapter" id="c4" aria-labelledby="c4-title">
@@ -395,9 +402,9 @@
       </a>
     </section>
 
-    <section class="cta" aria-labelledby="cta-title">
+    <section class="cta" id="contact-cta" aria-labelledby="cta-title">
       <h2 id="cta-title"></h2>
-      <a class="primary" id="cta" href="/#contact"></a>
+      <div class="cta-choices" id="cta-choices"></div>
     </section>
   </main>
   <footer class="foot" id="footer"></footer>

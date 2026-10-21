@@ -27,7 +27,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 .kicker { margin: 0; color: var(--gold); font-size: 13px; }
 h1 { margin: 16px 0 0; color: var(--bone); font-size: clamp(2.1rem, 6.4vw, 4.2rem); line-height: 1.12; letter-spacing: -.03em; font-weight: 600; white-space: pre-line; }
 .lead { max-width: 40em; margin: 20px 0 0; font-size: 1.12rem; }
-.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 0; padding: 0; list-style: none; counter-reset: c; }
+.fast-route { margin: 22px 0 0; padding: 12px 12px 10px; border: 1px solid rgba(184, 153, 102, .38); border-radius: 14px; background: rgba(184, 153, 102, .06); }
+.fast-route-title { margin: 0; color: var(--gold); font-size: 14px; font-weight: 700; line-height: 1.4; }
+.fast-route ol { display: grid; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
+.fast-route li { width: 100%; min-width: 0; max-width: 100%; }
+.fast-route a { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; min-height: 44px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--body); text-decoration: none; font-size: 14px; line-height: 1.35; }
+.fast-route a:hover { border-color: var(--gold); color: var(--bone); }
+.fast-route .n { flex: 0 0 1.8em; color: var(--mint); font-family: ui-monospace, Consolas, monospace; font-size: 12px; text-align: right; }
+.fast-route .fast-label { flex: 1 1 auto; min-width: 0; }
+.fast-route .fast-arrow { flex: 0 0 auto; margin-left: auto; color: var(--gold); font-size: 14px; line-height: 1; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; counter-reset: c; }
 .toc a { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--body); text-decoration: none; font-size: 14px; background: var(--card); }
 .toc a:hover { border-color: var(--gold); color: var(--bone); }
 .toc .deep-link { border-color: rgba(158, 224, 193, .45); }
@@ -96,6 +105,8 @@ h3 { margin: 0; color: var(--bone); font-size: 1.1rem; }
 .outcome.warn { border-left-color: var(--warn); }
 .outcome ul { margin: 8px 0 0; padding-left: 1.2em; color: var(--body); }
 .text-link { display: inline-block; margin-top: 16px; font-weight: 600; }
+.c3-links { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.c3-links .text-link { display: inline-flex; align-items: center; min-height: 44px; }
 
 /* Chapter 4: the team */
 .team { display: grid; gap: 14px; margin-top: 26px; }
@@ -274,15 +285,21 @@ body { overflow-x: clip; }
 .tier .here { top: 8px; right: 7%; }
 
 /* CTA with glow */
-.cta { position: relative; overflow: hidden; padding: 56px 24px; background: radial-gradient(40rem 16rem at 50% 120%, rgba(184, 153, 102, .25), transparent 70%), rgba(184, 153, 102, .06); }
+.cta { position: relative; overflow: hidden; padding: 56px 24px; background: radial-gradient(40rem 16rem at 50% 120%, rgba(184, 153, 102, .25), transparent 70%), rgba(184, 153, 102, .06); scroll-margin-top: 72px; }
 .cta h2 { max-width: 20em; margin-left: auto; margin-right: auto; }
+.cta-choices { display: grid; gap: 12px; max-width: 760px; margin: 22px auto 0; text-align: left; }
+.cta-choice { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 44px; padding: 14px 16px; border: 1px solid rgba(184, 153, 102, .55); border-radius: 14px; background: rgba(184, 153, 102, .1); color: var(--bone); text-decoration: none; }
+.cta-choice:hover { border-color: var(--gold); background: rgba(184, 153, 102, .18); }
+.cta-choice strong { font-size: 1.02rem; line-height: 1.35; }
+.cta-choice span { color: var(--body); font-size: .95rem; font-weight: 450; line-height: 1.45; }
+@media (min-width: 720px) { .cta-choices { grid-template-columns: 1fr 1fr; } }
 
 /* scroll reveal: only added by script for sections below the first screen */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
 .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
 
-/* Latest observations (weekly) */
+/* Latest observations (updated from time to time) */
 .latest { margin: 22px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
 @media (min-width: 900px) { .latest { grid-template-columns: 1fr 1fr; } }
 .obs { display: grid; gap: 8px; align-content: start; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02)); }

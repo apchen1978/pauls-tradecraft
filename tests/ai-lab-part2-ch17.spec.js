@@ -29,7 +29,7 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("#rail [data-target='c17'] .mono")).toHaveText("17");
       await expect(page.locator("#rail [data-target='c17']").evaluate((node) => node.previousElementSibling?.dataset.target)).resolves.toBe("c16");
       await expect(page.locator("#toc a[href='#c17']")).toHaveCount(0);
-      await expect(page.locator("#main .chapter[id^='c']")).toHaveCount(NAV_CHAPTERS.filter(({ id }) => /^c\d+$/.test(id)).length + 1);
+      await expect(page.locator("#main .chapter[id^='c']")).toHaveCount(NAV_CHAPTERS.filter(({ id }) => /^c\d+$/.test(id)).length);
       await expect(page.locator("#c16").evaluate((node) => node.nextElementSibling?.id)).resolves.toBe("c17");
       await expect(page.locator("#c17").evaluate((node) => node.nextElementSibling?.id)).resolves.toBe("latest");
 

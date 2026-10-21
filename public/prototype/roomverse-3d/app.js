@@ -8,9 +8,10 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png", artFile: "ROOMVERSE-3D-illustrated-postcard.webp" },
 };
+const POSTCARD_ART = new Set(["rain", "family", "tech", "chic", "slow", "tv"]);
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
   // why: one line on why the pairing works. rain, family, tech and chic are Paul's wording (2026-10-16); the slow line is a CC draft awaiting Paul's review.
@@ -1235,8 +1236,8 @@ export async function start({ stage, panel, lang, onReady }) {
     apply(); toUrl();
   }
 
-  // postcard: the room as it looks now, with a paper strip naming the chosen feeling, wall and rug
-  function postcard() {
+  // Original 3D postcard, retained for QA and as the fallback if a new feeling lacks illustration.
+  function postcard({ includeMood = true } = {}) {
     // Postcards keep the original window-facing composition, even when the visitor is at the TV wall.
     const savedPosition = camera.position.clone(), savedTarget = controls.target.clone();
     const offset = savedPosition.clone().sub(orbitCenter), radius = offset.length();
@@ -1269,7 +1270,7 @@ export async function start({ stage, panel, lang, onReady }) {
       ctx.textAlign = "left";
     }
     ctx.font = `500 ${small}px system-ui, "Noto Sans TC", sans-serif`;
-    const labels = [MOODS[state.mood][l], WALLS[state.wall][l], RUGS[state.rug][l], CURTAINS[state.curtain][l], PRINTS[state.print][l]];
+    const labels = [includeMood ? MOODS[state.mood][l] : null, WALLS[state.wall][l], RUGS[state.rug][l], CURTAINS[state.curtain][l], PRINTS[state.print][l]].filter(Boolean);
     const joined = labels.join("  ·  ");
     if (ctx.measureText(joined).width <= w - pad * 2) {
       c.width = w; c.height = h + baseStrip;
@@ -1299,13 +1300,30 @@ export async function start({ stage, panel, lang, onReady }) {
     details.forEach((line, i) => ctx.fillText(line, wrapPad, detailBottom - (details.length - 1 - i) * lineHeight));
     return c;
   }
-  function savePostcard() {
-    postcard().toBlob((blob) => {
-      if (!blob) return;
-      const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: TEXT[state.lang].file });
-      document.body.append(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    }, "image/png");
+  function downloadPostcard(blob, filename) {
+    if (!blob) return;
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: filename });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  async function savePostcard() {
+    const { mood, lang: downloadLang } = state;
+    // Capture before loading, so a failed art request still represents what was selected at click time.
+    const fallback = postcard({ includeMood: false });
+    if (POSTCARD_ART.has(mood)) {
+      try {
+        const art = new URL(`./postcard/roomverse-postcard-${mood}-v1.webp`, import.meta.url);
+        const response = await fetch(art.href);
+        if (!response.ok) throw new Error(`Postcard art: ${response.status}`);
+        const blob = await response.blob();
+        if (!blob.type.startsWith("image/webp")) throw new Error("Postcard art is not WebP");
+        downloadPostcard(blob, TEXT[downloadLang].artFile);
+        return;
+      } catch (error) {
+        console.warn("Using the 3D postcard fallback", error);
+      }
+    }
+    fallback.toBlob((blob) => downloadPostcard(blob, TEXT[downloadLang].file), "image/png");
   }
 
   let looping = false;
