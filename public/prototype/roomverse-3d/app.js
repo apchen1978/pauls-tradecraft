@@ -24,21 +24,6 @@ const ROBOT_MOOD_LINES = {
   slow: { zh: "慢慢來，也很好。", en: "No rush. This feels good." },
   tv: { zh: "今晚的沙發時間開始啦。", en: "Sofa time starts now." },
 };
-const CORNER_STORAGE_KEY = "roomverse-personal-corner-v1";
-const PERSONAL_CORNER = {
-  copy: {
-    zh: { title: "我的角落", place: "放在邊桌前側", privacy: "只存在你的瀏覽器，不會上傳。", count: (n) => `已擺 ${n}/3 件`, storage: "這個瀏覽器目前無法儲存，重新載入後會清空。" },
-    en: { title: "My corner", place: "On the front of the side table", privacy: "Saved only in this browser. Nothing is uploaded.", count: (n) => `${n}/3 placed`, storage: "This browser cannot save right now; your items may reset when you reload." },
-  },
-  items: {
-    plant: { zh: "小植栽", en: "Tiny plant" },
-    frame: { zh: "桌上相框", en: "Photo frame" },
-    cup: { zh: "小杯子", en: "Small cup" },
-    book: { zh: "小書", en: "Small book" },
-    candle: { zh: "小蠟燭", en: "Candle" },
-    vase: { zh: "小花瓶", en: "Vase" },
-  },
-};
 const POSTCARD_ART = new Set(["rain", "family", "tech", "chic", "slow", "tv"]);
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -1200,8 +1185,7 @@ export async function start({ stage, panel, lang, onReady }) {
     const ex = sx * fw * .2; eye.position.set(ex, fh * .05, -bend * ex * ex + .002); screen.add(eye);
   }
   scene.add(screen); robotObj.attach(screen);
-  const visitorCorner = new THREE.Group(); visitorCorner.name = "visitor-personal-corner";
-  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, chairObj, laptopObj, visitorCorner);
+  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, chairObj, laptopObj);
   // the robot turns around its own centre: hang it on a pivot at its footprint centre
   const rb = new THREE.Box3().setFromObject(robotObj), robotPivot = new THREE.Group();
   robotPivot.position.set((rb.min.x + rb.max.x) / 2, 0, (rb.min.z + rb.max.z) / 2); scene.add(robotPivot); robotPivot.attach(robotObj);
@@ -1473,83 +1457,6 @@ export async function start({ stage, panel, lang, onReady }) {
   const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
   robotBubble = document.getElementById("robotBubble");
   let robotSleeping = false, robotIdleTimer = 0, robotBubbleTimer = 0, robotTurnTimer = 0, robotTurnFrame = 0;
-  let cornerItems = [], cornerStorageAvailable = true;
-  try {
-    const saved = JSON.parse(window.localStorage.getItem(CORNER_STORAGE_KEY) || "[]");
-    if (Array.isArray(saved)) cornerItems = [...new Set(saved.filter((key) => Object.hasOwn(PERSONAL_CORNER.items, key)))].slice(0, 3);
-  } catch { cornerStorageAvailable = false; }
-  const cornerMaterials = {
-    ceramic: new THREE.MeshStandardMaterial({ color: "#e3d5c2", roughness: .7 }),
-    terracotta: new THREE.MeshStandardMaterial({ color: "#bb7955", roughness: .82 }),
-    green: new THREE.MeshStandardMaterial({ color: "#718d62", roughness: .9 }),
-    leafLight: new THREE.MeshStandardMaterial({ color: "#9dad79", roughness: .88 }),
-    wood: new THREE.MeshStandardMaterial({ color: "#8d6648", roughness: .82 }),
-    paper: new THREE.MeshStandardMaterial({ color: "#f2e8d5", roughness: .95 }),
-    ink: new THREE.MeshStandardMaterial({ color: "#55564d", roughness: .78 }),
-    brass: new THREE.MeshStandardMaterial({ color: "#b39255", roughness: .38, metalness: .45 }),
-    wax: new THREE.MeshStandardMaterial({ color: "#f0e4cc", roughness: .88 }),
-    flame: new THREE.MeshBasicMaterial({ color: "#f4b95f" }),
-  };
-  function addCornerMesh(group, geometry, material, name, x, y, z) {
-    const mesh = new THREE.Mesh(geometry, material); mesh.name = name; mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh); return mesh;
-  }
-  function makeCornerItem(key) {
-    const item = new THREE.Group(); item.name = `visitor-corner-item-${key}`;
-    const m = cornerMaterials;
-    if (key === "plant") {
-      addCornerMesh(item, new THREE.CylinderGeometry(.022, .018, .032, 12), m.terracotta, "pot", 0, .016, 0);
-      addCornerMesh(item, new THREE.CylinderGeometry(.019, .019, .003, 12), m.ink, "soil", 0, .034, 0);
-      for (let i = 0; i < 4; i++) {
-        const leaf = addCornerMesh(item, new THREE.SphereGeometry(.015, 8, 6), i % 2 ? m.green : m.leafLight, `leaf-${i}`, Math.cos(i * Math.PI / 2) * .012, .052 + (i % 2) * .006, Math.sin(i * Math.PI / 2) * .012);
-        leaf.scale.set(.62, 1.5, .4); leaf.rotation.z = (i - 1.5) * .28;
-      }
-    } else if (key === "frame") {
-      addCornerMesh(item, new THREE.BoxGeometry(.056, .048, .006), m.wood, "frame", 0, .033, 0);
-      addCornerMesh(item, new THREE.PlaneGeometry(.044, .035), m.paper, "photo", 0, .034, .0032);
-      addCornerMesh(item, new THREE.CircleGeometry(.006, 10), m.terracotta, "photo-mark", -.008, .04, .004);
-      addCornerMesh(item, new THREE.BoxGeometry(.018, .004, .001), m.green, "photo-horizon", .008, .025, .004);
-      addCornerMesh(item, new THREE.BoxGeometry(.028, .012, .004), m.wood, "stand", 0, .007, -.006);
-    } else if (key === "cup") {
-      addCornerMesh(item, new THREE.CylinderGeometry(.017, .015, .032, 14), m.ceramic, "cup", 0, .016, 0);
-      addCornerMesh(item, new THREE.TorusGeometry(.01, .003, 6, 14), m.ceramic, "handle", .021, .018, 0);
-      addCornerMesh(item, new THREE.CircleGeometry(.012, 14), m.ink, "tea", 0, .033, 0);
-    } else if (key === "book") {
-      addCornerMesh(item, new THREE.BoxGeometry(.062, .009, .044), m.wood, "cover-bottom", 0, .005, 0);
-      addCornerMesh(item, new THREE.BoxGeometry(.058, .008, .04), m.paper, "pages", 0, .013, 0);
-      addCornerMesh(item, new THREE.BoxGeometry(.062, .007, .044), m.green, "cover-top", 0, .0205, 0);
-    } else if (key === "candle") {
-      addCornerMesh(item, new THREE.CylinderGeometry(.019, .021, .008, 14), m.brass, "holder", 0, .004, 0);
-      addCornerMesh(item, new THREE.CylinderGeometry(.014, .016, .035, 14), m.wax, "wax", 0, .0255, 0);
-      addCornerMesh(item, new THREE.CylinderGeometry(.0015, .0015, .008, 6), m.ink, "wick", 0, .047, 0);
-      addCornerMesh(item, new THREE.ConeGeometry(.006, .014, 8), m.flame, "flame", 0, .057, 0);
-    } else if (key === "vase") {
-      const profile = [new THREE.Vector2(0, 0), new THREE.Vector2(.014, 0), new THREE.Vector2(.02, .018), new THREE.Vector2(.016, .038), new THREE.Vector2(.008, .047), new THREE.Vector2(.009, .055), new THREE.Vector2(.007, .058)];
-      addCornerMesh(item, new THREE.LatheGeometry(profile, 14), m.ceramic, "vase", 0, 0, 0);
-      addCornerMesh(item, new THREE.CylinderGeometry(.0015, .002, .04, 6), m.green, "stem", 0, .076, 0);
-      const leaf = addCornerMesh(item, new THREE.SphereGeometry(.009, 8, 6), m.leafLight, "leaf", .008, .082, 0); leaf.scale.set(1.3, .55, .55);
-    }
-    return item;
-  }
-  function renderCornerItems() {
-    for (const child of [...visitorCorner.children]) {
-      child.traverse((node) => { if (node.geometry) node.geometry.dispose(); });
-      visitorCorner.remove(child);
-    }
-    const offsets = cornerItems.map((_, index) => (index - (cornerItems.length - 1) / 2) * .09);
-    cornerItems.forEach((key, index) => {
-      const item = makeCornerItem(key);
-      item.position.set(TX + offsets[index], sideTop + .005, TZ + .12);
-      visitorCorner.add(item);
-    });
-    render();
-  }
-  function updateCornerItem(key) {
-    if (cornerItems.includes(key)) cornerItems = cornerItems.filter((item) => item !== key);
-    else if (cornerItems.length < 3) cornerItems = [...cornerItems, key];
-    try { window.localStorage.setItem(CORNER_STORAGE_KEY, JSON.stringify(cornerItems)); }
-    catch { cornerStorageAvailable = false; }
-    renderCornerItems(); drawPanel();
-  }
   let directorStillOpen = false;
   const cache = {};
   const CURTAINS = {
@@ -1633,27 +1540,6 @@ export async function start({ stage, panel, lang, onReady }) {
     render();
     startRobotTurn();
   }
-  function personalCornerPanel() {
-    const copy = PERSONAL_CORNER.copy[state.lang];
-    const section = document.createElement("section"); section.className = "personal-corner"; section.setAttribute("aria-labelledby", "personalCornerTitle");
-    const heading = Object.assign(document.createElement("h2"), { id: "personalCornerTitle", textContent: copy.title });
-    const place = Object.assign(document.createElement("p"), { className: "corner-place", textContent: copy.place });
-    const privacy = Object.assign(document.createElement("p"), { className: "corner-privacy", textContent: copy.privacy });
-    const count = Object.assign(document.createElement("p"), { className: "corner-count", textContent: copy.count(cornerItems.length) });
-    const options = document.createElement("div"); options.className = "opts"; options.setAttribute("role", "group"); options.setAttribute("aria-label", copy.title);
-    options.append(...Object.entries(PERSONAL_CORNER.items).map(([key, label]) => {
-      const selected = cornerItems.includes(key);
-      const button = document.createElement("button"); button.type = "button"; button.className = "corner-item"; button.dataset.key = key;
-      button.textContent = label[state.lang]; button.setAttribute("aria-pressed", String(selected));
-      button.disabled = !selected && cornerItems.length >= 3;
-      button.onclick = () => updateCornerItem(key);
-      return button;
-    }));
-    const removeHint = Object.assign(document.createElement("p"), { textContent: state.lang === "zh" ? "點已選的小物即可移除。" : "Tap a selected item to remove it." });
-    section.append(heading, place, privacy, count, options, removeHint);
-    if (!cornerStorageAvailable) section.append(Object.assign(document.createElement("p"), { className: "corner-storage", textContent: copy.storage }));
-    return section;
-  }
   function moveToView(view) {
     if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); }
     if (director) stopDirector(false);
@@ -1715,7 +1601,7 @@ export async function start({ stage, panel, lang, onReady }) {
     tvButton.setAttribute("aria-label", t.tvView); tvButton.setAttribute("aria-pressed", String(currentView === "tv"));
     cameraGroup.append(windowButton, tvButton);
     const headings = document.createElement("h2"); headings.className = "camera-heading"; headings.textContent = state.lang === "zh" ? "轉換視角" : "Change view";
-    panel.replaceChildren(headings, cameraGroup, personalCornerPanel(), ...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
+    panel.replaceChildren(headings, cameraGroup, ...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
       const box = document.createElement("div"); box.className = "opts"; box.setAttribute("role", "group"); box.setAttribute("aria-label", t[key]);
       box.append(...Object.entries(table).map(([k, v]) => {
@@ -1788,15 +1674,10 @@ export async function start({ stage, panel, lang, onReady }) {
     const savedPosition = camera.position.clone(), savedTarget = controls.target.clone();
     const offset = savedPosition.clone().sub(orbitCenter), radius = offset.length();
     const phi = Math.acos(THREE.MathUtils.clamp(offset.y / Math.max(radius, .001), -1, 1));
-    const cornerVisible = visitorCorner.visible;
-    visitorCorner.visible = false;
     camera.position.copy(cameraAt(0, radius, phi)); camera.lookAt(orbitCenter); render();
     const src = document.createElement("canvas"); src.width = renderer.domElement.width; src.height = renderer.domElement.height;
-    try { src.getContext("2d").drawImage(renderer.domElement, 0, 0); } // copy before restoring the live camera
-    finally {
-      visitorCorner.visible = cornerVisible;
-      camera.position.copy(savedPosition); controls.target.copy(savedTarget); camera.lookAt(savedTarget); controls.update(); render();
-    }
+    src.getContext("2d").drawImage(renderer.domElement, 0, 0); // copy before restoring the live camera
+    camera.position.copy(savedPosition); controls.target.copy(savedTarget); camera.lookAt(savedTarget); controls.update(); render();
     const w = src.width, h = src.height, baseStrip = Math.round(Math.max(90, h * .16));
     const pad = Math.round(baseStrip * .32), big = Math.round(baseStrip * .26), small = Math.round(baseStrip * .17);
     const c = document.createElement("canvas"), ctx = c.getContext("2d"), l = state.lang;
@@ -2615,7 +2496,6 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   buildHallStand();
 
-  renderCornerItems();
   fit(); apply();
   // Let the first room frame paint before the optional TV materials request any image bytes.
   if (requestedView === "tv") { void loadTvWallTextures(); void loadDoorTexture(); }
@@ -2673,15 +2553,6 @@ export async function start({ stage, panel, lang, onReady }) {
         return { x: p.x, y: p.y, z: p.z };
       });
       return { firstHit, corners };
-    },
-    cornerVertexCounts() {
-      const counts = Object.fromEntries(Object.keys(PERSONAL_CORNER.items).map((key) => {
-        const item = makeCornerItem(key); let count = 0;
-        item.traverse((node) => { if (node.isMesh) count += node.geometry.attributes.position.count; });
-        item.traverse((node) => node.geometry?.dispose());
-        return [key, count];
-      }));
-      return { perItem: counts, largestThreeTotal: Object.values(counts).sort((a, b) => b - a).slice(0, 3).reduce((sum, count) => sum + count, 0) };
     },
     angle() { const degrees = Math.atan2(camera.position.x - orbitCenter.x, camera.position.z - orbitCenter.z) * 180 / Math.PI; return (Math.round(degrees) + 360) % 360; },
     setOrbitAngle(degrees) { intro = false; viewTheta = degrees * Math.PI / 180; setCameraAngle(viewTheta); return camera.position.toArray(); },
