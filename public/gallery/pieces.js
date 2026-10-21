@@ -53,6 +53,14 @@ export const PIECES = [
     made: { zh: "沿用貿易街的港口設定，由 Codex 用 ImageGen 畫成全景；Paul 保留構圖，再指定增加油彩筆觸與色層。", en: "Codex used ImageGen to paint a panorama of Trade Street’s existing harbour setting. Paul kept the composition and asked for more oil-paint brushwork and layered colour." },
   },
   {
+    id: "ai-lab-open-horizon", date: "2026-10-21", frame: "plain", width: 1024, height: 576,
+    image: "assets/ai-lab-open-horizon.webp", imageSmall: "assets/ai-lab-open-horizon-mobile.webp", thumbnail: "assets/ai-lab-open-horizon-thumb.webp",
+    title: { zh: "門外，是更大的世界", en: "A Wider World Beyond the Door" },
+    alt: { zh: "明亮工作空間的落地門向海灣與城市敞開。桌上有筆電與書，小機器人站在門邊。", en: "Large glass doors open from a bright workspace toward a bay and city. A laptop and books sit on the table, with a small robot by the doorway." },
+    caption: { zh: "一扇門打開，視線從工作桌延伸到海灣與城市。下一步要去哪裡，還可以慢慢想。", en: "An open door carries the view from a worktable toward the bay and city. There is room to imagine where to go next." },
+    made: { zh: "Paul 希望 AI Lab 的畫面更遼闊、帶一點可親近的未來感；Codex 用 ImageGen 畫出開放的工作空間、海灣與小機器人。", en: "Paul asked for a wider, gently forward-looking AI Lab scene. Codex used ImageGen to create the open workspace, bay and small robot." },
+  },
+  {
     id: "nightglow-together", date: "2026-10-17", frame: "plain", width: 1024, height: 683,
     image: "assets/nightglow-together.webp", imageSmall: "assets/nightglow-together-mobile.webp", thumbnail: "assets/nightglow-together-thumb.webp",
     title: { zh: "照夜鎮・大家都在", en: "Together in Nightglow" },
