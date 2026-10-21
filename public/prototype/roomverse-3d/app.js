@@ -1876,8 +1876,11 @@ export async function start({ stage, panel, lang, onReady }) {
   // Hall stand in the front-left corner: walnut pole, brass hooks, a heavy dark-stone base.
   // The scanned coat was one 60,000-triangle mesh. Cloth triangles reached 25 cm and the pole
   // reached 73 cm, so the coat came apart into shards. The pole was torn the same way, so the
-  // stand is built from plain shapes instead of that file. A red scarf hangs on one hook.
+  // stand is built from plain shapes instead of that file. A red knit scarf hangs on one hook.
   // The baseball cap is not part of the stand. No extra lamp.
+  // Real-world sizes: stand about 1.78 m, wood pole 3.1–3.5 cm across, six hooks about 12 cm
+  // long with the crown at 1.65 m. The scarf is about 1.6 m by 25 cm and 1 cm thick, each tail
+  // dropping about 80 cm.
   const STAND_BASE_R = .205, STAND_DISC_H = .036;
   function knitTexture() {
     const canvas = document.createElement("canvas");
@@ -1896,7 +1899,7 @@ export async function start({ stage, panel, lang, onReady }) {
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(2, 5);
+    tex.repeat.set(4, 9);
     tex.anisotropy = 4;
     return tex;
   }
@@ -2018,7 +2021,7 @@ export async function start({ stage, panel, lang, onReady }) {
   // Thick disc, bullnose edge, then a short turned collar the pole sits in.
   function roundedBaseProfile() {
     const R = STAND_BASE_R, H = STAND_DISC_H, e = .011;
-    const collarR = .046, neck = .024, collarTop = H + .02;
+    const collarR = .046, neck = .015, collarTop = H + .02;
     const pts = [new THREE.Vector2(.002, 0), new THREE.Vector2(R - e, 0)];
     const pushArc = (cx, cy, radius, a0, a1, steps) => {
       for (let i = 1; i <= steps; i++) {
@@ -2052,36 +2055,74 @@ export async function start({ stage, panel, lang, onReady }) {
     uv.needsUpdate = true;
     return geo;
   }
-  function thickRibbon(points, width, thick, segments) {
+  // Two tails over the hook. u = -1 and +1 are the hems; the middle rests on the hook.
+  function scarfCenterline() {
+    const pts = [];
+    for (let i = 0; i <= 28; i++) {
+      const u = i / 28 * 2 - 1;
+      const au = Math.abs(u);
+      const drop = au < .07 ? 0 : Math.pow((au - .07) / .93, 1.06) * .80;
+      const y = .01 - drop;
+      const x = .098 + au * .02 + Math.sin(au * Math.PI) * .012;
+      const z = Math.sin(u * Math.PI * 2) * .03 * (.3 + au);
+      pts.push(new THREE.Vector3(x, y, z));
+    }
+    return pts;
+  }
+  // Width is split so a soft fold can run down the middle, and the cloth has a real 1 cm edge.
+  function knitScarf(points, width, thick, along, across) {
     const curve = new THREE.CatmullRomCurve3(points);
     const positions = [], uvs = [], indices = [];
-    const hw = width / 2, ht = thick / 2;
-    const corners = [[hw, ht], [hw, -ht], [-hw, -ht], [-hw, ht]];
-    for (let i = 0; i <= segments; i++) {
-      const t = i / segments;
+    const ht = thick / 2, cols = across + 1, layers = 2;
+    for (let i = 0; i <= along; i++) {
+      const t = i / along;
       const p = curve.getPoint(t);
       const tan = curve.getTangent(t);
       const up = Math.abs(tan.y) > .92 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
       const side = new THREE.Vector3().crossVectors(tan, up).normalize();
       const bin = new THREE.Vector3().crossVectors(side, tan).normalize();
-      for (const [s, b] of corners) {
-        positions.push(p.x + side.x * s + bin.x * b, p.y + side.y * s + bin.y * b, p.z + side.z * s + bin.z * b);
-        uvs.push(s > 0 ? 1 : 0, t);
+      for (let j = 0; j < cols; j++) {
+        const f = j / across;
+        const s = (f - .5) * width;
+        const fold = Math.sin(t * Math.PI * 4.5) * Math.sin(f * Math.PI) * .016 + Math.sin(t * Math.PI * 2.1 + .5) * .007;
+        const cx = p.x + side.x * s + bin.x * fold;
+        const cy = p.y + side.y * s + bin.y * fold;
+        const cz = p.z + side.z * s + bin.z * fold;
+        for (let layer = 0; layer < layers; layer++) {
+          const sign = layer === 0 ? 1 : -1;
+          positions.push(cx + bin.x * sign * ht, cy + bin.y * sign * ht, cz + bin.z * sign * ht);
+          uvs.push(f, t * 4);
+        }
       }
     }
-    for (let i = 0; i < segments; i++) {
-      for (let k = 0; k < 4; k++) {
-        const a = i * 4 + k, b = i * 4 + (k + 1) % 4, c = a + 4, d = b + 4;
-        indices.push(a, c, b, b, c, d);
+    const stride = cols * layers;
+    const at = (i, j, layer) => i * stride + j * layers + layer;
+    for (let i = 0; i < along; i++) {
+      for (let j = 0; j < across; j++) {
+        for (let layer = 0; layer < layers; layer++) {
+          const a = at(i, j, layer), b = at(i, j + 1, layer), c = at(i + 1, j, layer), d = at(i + 1, j + 1, layer);
+          if (layer === 0) indices.push(a, c, b, b, c, d);
+          else indices.push(a, b, c, b, d, c);
+        }
       }
     }
-    const last = segments * 4;
-    indices.push(0, 2, 1, 0, 3, 2, last, last + 1, last + 2, last, last + 2, last + 3);
+    const link = (a, b, c, d) => indices.push(a, c, b, b, c, d);
+    for (let i = 0; i < along; i++) {
+      link(at(i, 0, 0), at(i, 0, 1), at(i + 1, 0, 0), at(i + 1, 0, 1));
+      link(at(i, across, 1), at(i, across, 0), at(i + 1, across, 1), at(i + 1, across, 0));
+    }
+    for (let j = 0; j < across; j++) {
+      link(at(0, j, 1), at(0, j, 0), at(0, j + 1, 1), at(0, j + 1, 0));
+      link(at(along, j, 0), at(along, j, 1), at(along, j + 1, 0), at(along, j + 1, 1));
+    }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     geo.setIndex(indices);
     geo.computeVertexNormals();
+    geo.userData.along = along;
+    geo.userData.across = across;
+    geo.userData.samples = curve.getPoints(48);
     return geo;
   }
   function standPart(geo, mat, name, parent) {
@@ -2106,39 +2147,37 @@ export async function start({ stage, panel, lang, onReady }) {
     standScarfMat = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide, map: knitTexture() });
     const baseMesh = standPart(weightedBaseGeometry(), standBaseMat, "hall-stand-base", group);
     baseMesh.position.y = .001;
-    const pole = standPart(new THREE.CylinderGeometry(.022, .027, 1.68, 24), walnut, "hall-stand-pole", group);
+    const pole = standPart(new THREE.CylinderGeometry(.0155, .0175, 1.68, 24), walnut, "hall-stand-pole", group);
     pole.position.y = .87;
     const finial = standPart(new THREE.SphereGeometry(.034, 20, 14), walnut, "hall-stand-finial", group);
     finial.position.y = 1.746;
-    const collar = standPart(new THREE.CylinderGeometry(.034, .034, .028, 20), standBrass, "hall-stand-collar", group);
-    collar.position.y = 1.52;
+    const HOOK_Y = 1.65;
+    const collar = standPart(new THREE.CylinderGeometry(.032, .032, .026, 20), standBrass, "hall-stand-collar", group);
+    collar.position.y = HOOK_Y;
     const hookCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(.02, .012, 0), new THREE.Vector3(.055, .022, 0), new THREE.Vector3(.098, .006, 0),
-      new THREE.Vector3(.104, -.028, 0), new THREE.Vector3(.07, -.052, 0),
+      new THREE.Vector3(.01, 0, 0), new THREE.Vector3(.04, .014, 0), new THREE.Vector3(.078, .01, 0),
+      new THREE.Vector3(.108, -.012, 0), new THREE.Vector3(.086, -.04, 0),
     ]);
-    const hookGeo = new THREE.TubeGeometry(hookCurve, 18, .0065, 8, false);
-    const tipGeo = new THREE.SphereGeometry(.009, 12, 8);
+    const hookGeo = new THREE.TubeGeometry(hookCurve, 16, .0055, 8, false);
+    hookGeo.userData.samples = hookCurve.getPoints(24);
+    const tipGeo = new THREE.SphereGeometry(.008, 12, 8);
     const addHook = (angle, kind) => {
       const pivot = new THREE.Group();
-      pivot.position.y = 1.52;
+      pivot.position.y = HOOK_Y;
       pivot.rotation.y = angle;
       pivot.name = kind ? `hall-stand-${kind}-hook` : "hall-stand-spare-hook";
       standPart(hookGeo, standBrass, "hall-stand-hook", pivot);
       const tip = standPart(tipGeo, standBrass, "hall-stand-hook-tip", pivot);
-      tip.position.set(.07, -.052, 0);
+      tip.position.set(.086, -.04, 0);
       if (kind === "scarf") {
-        const scarf = standPart(thickRibbon([
-          new THREE.Vector3(.03, -.5, -.03), new THREE.Vector3(.055, -.2, -.012), new THREE.Vector3(.09, -.01, 0),
-          new THREE.Vector3(.078, .02, .012), new THREE.Vector3(.05, -.22, .028), new THREE.Vector3(.09, -.62, .04),
-        ], .15, .008, 36), standScarfMat, "hall-stand-scarf", pivot);
+        const scarfWidth = .25, scarfThick = .01;
+        const scarf = standPart(knitScarf(scarfCenterline(), scarfWidth, scarfThick, 40, 5), standScarfMat, "hall-stand-scarf", pivot);
         scarf.castShadow = true;
       }
       group.add(pivot);
     };
-    addHook(.15, null);
-    addHook(1.05, "scarf");
-    addHook(Math.PI + .15, null);
-    addHook(Math.PI + 1.05, null);
+    const scarfAngle = .45;
+    for (let i = 0; i < 6; i++) addHook(scarfAngle + i * Math.PI * 2 / 6, i === 0 ? "scarf" : null);
     group.position.set(-2.16, 0, 1.86);
     group.rotation.y = .55;
     const wallX = -W / 2 + .08, frontZ = FRONT - .24, pastPainting = 1.62;
@@ -2206,6 +2245,25 @@ export async function start({ stage, panel, lang, onReady }) {
     if (kind === "room") {
       const eye = new THREE.Vector3(.15, 1.42, .35);
       const focus = new THREE.Vector3(-1.85, 1.05, 1.55);
+      camera.position.copy(eye); camera.lookAt(focus); controls.target.copy(focus); render();
+      return { eye: eye.toArray(), focus: focus.toArray() };
+    }
+    if (kind === "scale") {
+      // The round base (about 41 cm across, 3.6 cm thick) sits in the same frame as the scarf hem,
+      // so the cloth width and the drape can be compared with a part whose size is already fixed.
+      const scarfBox = new THREE.Box3().setFromObject(standGroup.getObjectByName("hall-stand-scarf"));
+      const baseBox = new THREE.Box3().setFromObject(standGroup.getObjectByName("hall-stand-base"));
+      const low = baseBox.min.y - .06;
+      const high = scarfBox.min.y + .32;
+      const baseCenter = baseBox.getCenter(new THREE.Vector3());
+      const scarfCenter = scarfBox.getCenter(new THREE.Vector3());
+      const focus = new THREE.Vector3(baseCenter.x * .6 + scarfCenter.x * .4, (low + high) / 2, baseCenter.z * .55 + scarfCenter.z * .45);
+      const spanY = high - low;
+      const spanX = Math.max(baseBox.max.x - baseBox.min.x, scarfBox.max.x - scarfBox.min.x) + .16;
+      const vFov = THREE.MathUtils.degToRad(camera.fov);
+      const hFov = 2 * Math.atan(Math.tan(vFov / 2) * Math.max(camera.aspect, .4));
+      const dist = Math.max((spanY / 2) / Math.tan(vFov / 2), (spanX / 2) / Math.tan(hFov / 2)) * 1.06;
+      const eye = new THREE.Vector3(focus.x + dist * .7, focus.y + spanY * .02, focus.z - dist * .46);
       camera.position.copy(eye); camera.lookAt(focus); controls.target.copy(focus); render();
       return { eye: eye.toArray(), focus: focus.toArray() };
     }
@@ -2401,6 +2459,47 @@ export async function start({ stage, panel, lang, onReady }) {
       scene.traverse((obj) => { if (obj.isLight) lightCount++; });
       const names = [];
       standGroup.traverse((obj) => { if (obj.name) names.push(obj.name); });
+      const poleMesh = standGroup.getObjectByName("hall-stand-pole");
+      const poleParams = poleMesh.geometry.parameters;
+      const hookPivots = [];
+      standGroup.traverse((obj) => { if (obj.name === "hall-stand-scarf-hook" || obj.name === "hall-stand-spare-hook") hookPivots.push(obj); });
+      const hookMesh = standGroup.getObjectByName("hall-stand-hook");
+      const hookSamples = hookMesh.geometry.userData.samples;
+      const hookLocalY = hookPivots[0].position.y - poleMesh.position.y;
+      const hookT = (hookLocalY + poleParams.height / 2) / poleParams.height;
+      const poleRadiusAtHook = poleParams.radiusBottom + (poleParams.radiusTop - poleParams.radiusBottom) * hookT;
+      let hookLength = 0;
+      for (let i = 1; i < hookSamples.length; i++) {
+        const a = hookSamples[i - 1], b = hookSamples[i];
+        const ra = Math.hypot(a.x, a.z), rb = Math.hypot(b.x, b.z);
+        if (ra < poleRadiusAtHook && rb < poleRadiusAtHook) continue;
+        if (ra >= poleRadiusAtHook && rb >= poleRadiusAtHook) { hookLength += a.distanceTo(b); continue; }
+        const cut = a.clone().lerp(b, THREE.MathUtils.clamp((poleRadiusAtHook - ra) / ((rb - ra) || 1), 0, 1));
+        hookLength += (ra >= poleRadiusAtHook ? a : b).distanceTo(cut);
+      }
+      const hookHeight = hookPivots.reduce((sum, pivot) => sum + pivot.getWorldPosition(new THREE.Vector3()).y, 0) / hookPivots.length;
+      const scarfMesh = standGroup.getObjectByName("hall-stand-scarf");
+      const scarfPos = scarfMesh.geometry.attributes.position;
+      const scarfAlong = scarfMesh.geometry.userData.along, scarfAcross = scarfMesh.geometry.userData.across;
+      const scarfAt = (i, j, layer) => {
+        const k = (i * (scarfAcross + 1) + j) * 2 + layer;
+        return new THREE.Vector3().fromBufferAttribute(scarfPos, k);
+      };
+      const scarfWidth = scarfAt(0, 0, 0).distanceTo(scarfAt(0, scarfAcross, 0));
+      const scarfThick = scarfAt(Math.floor(scarfAlong / 2), 1, 0).distanceTo(scarfAt(Math.floor(scarfAlong / 2), 1, 1));
+      scarfMesh.updateWorldMatrix(true, false);
+      const scarfWorld = scarfMesh.geometry.userData.samples.map((p) => p.clone().applyMatrix4(scarfMesh.matrixWorld));
+      let scarfLength = 0, scarfTop = 0;
+      for (let i = 1; i < scarfWorld.length; i++) scarfLength += scarfWorld[i].distanceTo(scarfWorld[i - 1]);
+      scarfWorld.forEach((p, i) => { if (p.y > scarfWorld[scarfTop].y) scarfTop = i; });
+      const sideDrop = (pts) => scarfWorld[scarfTop].y - Math.min(...pts.map((p) => p.y));
+      const drapeA = sideDrop(scarfWorld.slice(0, scarfTop + 1));
+      const drapeB = sideDrop(scarfWorld.slice(scarfTop));
+      const measured = {
+        poleDiameterTop: poleParams.radiusTop * 2, poleDiameterBottom: poleParams.radiusBottom * 2,
+        hookCount: hookPivots.length, hookLength, hookHeight,
+        scarfLength, scarfWidth, scarfThick, drapeA, drapeB,
+      };
       return {
         ready: true, height: box.max.y - box.min.y, minY: box.min.y, maxY: box.max.y,
         baseDiameter: diameter, bounds: { min: box.min.toArray(), max: box.max.toArray() },
@@ -2411,6 +2510,7 @@ export async function start({ stage, panel, lang, onReady }) {
         baseType: standBaseMat?.type ?? null, baseMetal: standBaseMat?.metalness ?? null,
         baseHasRough: !!standBaseMat?.roughnessMap, baseMapped: !!standBaseMat?.map,
         discHeight: discHigh - discLow, collar, hasCap: names.some((name) => name.includes("cap")),
+        measured,
         castShadow: standGroup.getObjectByProperty("castShadow", true)?.castShadow === true,
         contact: !!standContact, wallShadow: !!standWall, collisions: hits, lightCount,
         clothEdge, edgeByName, vertices, names,
