@@ -19,12 +19,15 @@ for (const width of [390, 768, 1440]) {
       await expect(section.locator("article")).toHaveCount(destinations.length);
       for (const [index, destination] of destinations.entries()) {
         const card = section.locator("article").nth(index);
-        const links = card.locator("a");
-        await expect(links).toHaveCount(2);
-        await expect(links.first().locator("img")).toHaveCount(1);
-        for (const link of await links.all()) {
-          await expect(link).toHaveAttribute("href", `/prototype/${destination}/?lang=${lang}`);
-        }
+        const cover = card.locator("a:has(img)");
+        const cta = card.locator("a:not(:has(img))");
+        await expect(cover).toHaveCount(1);
+        await expect(cover).toHaveAttribute("href", `/prototype/${destination}/?lang=${lang}`);
+        await expect(cover).toHaveAttribute("tabindex", "-1");
+        await expect(cover).toHaveAttribute("aria-hidden", "true");
+        await expect(cover.locator("img")).toHaveCount(1);
+        await expect(cta).toHaveCount(1);
+        await expect(cta).toHaveAttribute("href", `/prototype/${destination}/?lang=${lang}`);
         // Every card now has a visible activity and a takeaway, including the corner.
         await expect(card.locator("h3 + p")).not.toBeEmpty();
         await expect(card.locator("h3 + p + p")).not.toBeEmpty();

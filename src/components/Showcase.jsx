@@ -86,6 +86,8 @@ export default function Showcase() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${item.title} — ${item.cta}`}
+                  tabIndex="-1"
+                  aria-hidden="true"
                   className={`block overflow-hidden bg-paper focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-ink ${wideImage[wide.row]}`}
                   style={{ aspectRatio: item.imageRatio }}
                 >

@@ -132,9 +132,9 @@ for (const lang of ["zh", "en"]) for (const width of [390, 1440]) {
     // Verify the actual homepage card, including the artwork and its language parameter.
     await page.goto(`/?lang=${lang}#showcase`);
     const cards = page.locator("#showcase article");
-    await expect(cards.nth(0).locator("a")).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
-    await expect(cards.nth(1).locator("a")).toHaveAttribute("href", `/prototype/trade-street/?lang=${lang}`);
-    await expect(cards.nth(2).locator("a")).toHaveAttribute("href", `${PAGE}?lang=${lang}`);
+    await expect(cards.nth(0).locator("a:has(img)")).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
+    await expect(cards.nth(1).locator("a:has(img)")).toHaveAttribute("href", `/prototype/trade-street/?lang=${lang}`);
+    await expect(cards.nth(2).locator("a:has(img)")).toHaveAttribute("href", `${PAGE}?lang=${lang}`);
     const image = cards.nth(2).locator("img");
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((img) => img.complete && img.naturalWidth)).toBe(800);
