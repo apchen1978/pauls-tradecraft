@@ -1416,8 +1416,7 @@ export async function start({ stage, panel, lang, onReady }) {
     };
   };
   const lights = () => lightForMood(state.mood);
-  let coatModel = null, coatMaterial = null, coatContact = null, coatWall = null;
-  let coatEnvMap = null, coatEnvCamera = null, coatPmrem = null, coatEnvToken = 0, coatEnvPromise = Promise.resolve(false);
+  let standGroup = null, standContact = null, standWall = null, standCapMat = null, standScarfMat = null, standBrass = null;
   function setLights(v) {
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol);
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out);
@@ -1427,19 +1426,15 @@ export async function start({ stage, panel, lang, onReady }) {
     if (tvScreenArtLoaded) tvScreenMat.color.setScalar(v.screenLevel);
     updateRightArtLight(v);
     updateLeftArtLight(v);
-    // The rack uses the same lamps. Only the reflection strength and the soft contact darken or lift with the mood.
-    if (coatMaterial) {
-      const ambience = Math.min(1.4, v.hemi * .45 + v.win * .12 + v.fill * .18);
-      coatMaterial.envMapIntensity = .42 + ambience * .38;
-    }
-    if (coatContact) coatContact.material.opacity = THREE.MathUtils.clamp(.34 - v.hemi * .08, .16, .34);
-    if (coatWall) coatWall.material.opacity = THREE.MathUtils.clamp(.4 - v.hemi * .1, .16, .4);
+    // The hall stand uses the same lamps. Only the soft floor contact lifts in brighter moods.
+    if (standContact) standContact.material.opacity = THREE.MathUtils.clamp(.34 - v.hemi * .08, .16, .34);
+    if (standWall) standWall.material.opacity = THREE.MathUtils.clamp(.4 - v.hemi * .1, .16, .4);
   }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
   function easeLights() {
     const to = lights();
-    if (!shown || still || shownMood === state.mood) { shown = to; shownMood = state.mood; fade++; setLights(to); scheduleCoatEnv(); return; }
+    if (!shown || still || shownMood === state.mood) { shown = to; shownMood = state.mood; fade++; setLights(to); return; }
     const from = shown, t0 = performance.now(), id = ++fade;
     shownMood = state.mood;
     const step = (now) => {
@@ -1448,7 +1443,7 @@ export async function start({ stage, panel, lang, onReady }) {
       const v = {};
       for (const key in to) v[key] = to[key].isColor ? from[key].clone().lerp(to[key], e) : from[key] + (to[key] - from[key]) * e;
       shown = v; setLights(v); render();
-      if (k < 1) requestAnimationFrame(step); else scheduleCoatEnv();
+      if (k < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
   }
@@ -1480,7 +1475,7 @@ export async function start({ stage, panel, lang, onReady }) {
     render();
   }
   function moveToView(view) {
-    if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); void loadCoatRack(); }
+    if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); }
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     settleIntro();
@@ -1751,7 +1746,6 @@ export async function start({ stage, panel, lang, onReady }) {
     fade++; // cancel any earlier feeling transition, then restore this visitor's original feeling
     shown = lights(); shownMood = state.mood; setLights(shown);
     tourView(state.mood);
-    scheduleCoatEnv();
     robotPivot.rotation.y = robotHome.r;
     robotPivot.position.y = robotHome.y;
     render();
@@ -1867,7 +1861,7 @@ export async function start({ stage, panel, lang, onReady }) {
   controls.addEventListener("change", () => {
     const offset = camera.position.clone().sub(orbitCenter);
     viewTheta = Math.atan2(offset.x, offset.z);
-    if (Math.sin(viewTheta) < -.45) { void loadDoorTexture(); void loadRightWallArt(); } // turning toward the right-hand wall; the coat rack waits for the idle load so this turn stays light
+    if (Math.sin(viewTheta) < -.45) { void loadDoorTexture(); void loadRightWallArt(); } // turning toward the right-hand wall
     const toWindow = Math.abs(Math.atan2(Math.sin(viewTheta), Math.cos(viewTheta)));
     const toTv = Math.abs(Math.atan2(Math.sin(viewTheta - Math.PI), Math.cos(viewTheta - Math.PI)));
     currentView = toTv < toWindow ? "tv" : "window";
@@ -1875,267 +1869,225 @@ export async function start({ stage, panel, lang, onReady }) {
   });
   new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
   phoneActions.addEventListener("change", () => drawPanel());
-  // Freestanding coat rack: walnut pole, brushed brass hooks, marble base, with the beige coat and cream scarf
-  // that are part of the model. Real-world size is about 178 cm tall and a 42 cm base. It stands in the front-left
-  // corner, clear of the plant, the low chair, the door, the smart panel and the light switch.
-  // The file is requested only after the room can be turned, so the first frame stays on the original furniture.
-  const COAT_HEIGHT = 1.78, COAT_BASE = .42;
-  function coatLowBox(obj) {
-    obj.updateMatrixWorld(true);
-    const full = new THREE.Box3().setFromObject(obj);
-    const limit = full.min.y + (full.max.y - full.min.y) * .08;
-    const box = new THREE.Box3(), v = new THREE.Vector3();
-    obj.traverse((mesh) => {
-      if (!mesh.isMesh) return;
-      const pos = mesh.geometry.attributes.position;
-      for (let i = 0; i < pos.count; i++) {
-        v.fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld);
-        if (v.y <= limit) box.expandByPoint(v);
-      }
-    });
-    return box.isEmpty() ? full : box;
-  }
-  function softenCoatGeometry(geometry) {
-    const pos = geometry.attributes.position, norm = geometry.attributes.normal;
-    if (!norm || !geometry.index) return;
-    const idx = geometry.index.array, n = pos.count;
-    const nb = Array.from({ length: n }, () => []);
-    for (let i = 0; i < idx.length; i += 3) {
-      const a = idx[i], b = idx[i + 1], c = idx[i + 2];
-      nb[a].push(b, c); nb[b].push(a, c); nb[c].push(a, b);
-    }
-    // One light pass on nearby vertices only, so compression bumps ease off and the hooks stay crisp.
-    const moved = new Float32Array(pos.array);
-    for (let i = 0; i < n; i++) {
-      let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), ax = 0, ay = 0, az = 0, w = 0;
-      for (const j of nb[i]) {
-        const dx = pos.getX(j) - x, dy = pos.getY(j) - y, dz = pos.getZ(j) - z;
-        if (dx * dx + dy * dy + dz * dz > .0004) continue;
-        ax += pos.getX(j); ay += pos.getY(j); az += pos.getZ(j); w++;
-      }
-      if (!w) continue;
-      moved[i * 3] = x * .9 + ax / w * .1;
-      moved[i * 3 + 1] = y * .9 + ay / w * .1;
-      moved[i * 3 + 2] = z * .9 + az / w * .1;
-    }
-    pos.array.set(moved); pos.needsUpdate = true;
-    const src = new Float32Array(norm.array);
-    for (let pass = 0; pass < 2; pass++) {
-      const next = new Float32Array(src.length);
-      for (let i = 0; i < n; i++) {
-        let x = norm.getX(i), y = norm.getY(i), z = norm.getZ(i), wgt = 1;
-        for (const j of nb[i]) {
-          const jx = norm.getX(j), jy = norm.getY(j), jz = norm.getZ(j);
-          if (x * jx + y * jy + z * jz < .72) continue;
-          x += jx; y += jy; z += jz; wgt++;
-        }
-        const len = Math.hypot(x, y, z) || 1;
-        const ox = src[i * 3], oy = src[i * 3 + 1], oz = src[i * 3 + 2];
-        let nx = ox * .4 + (x / len) * .6, ny = oy * .4 + (y / len) * .6, nz = oz * .4 + (z / len) * .6;
-        const l = Math.hypot(nx, ny, nz) || 1;
-        next[i * 3] = nx / l; next[i * 3 + 1] = ny / l; next[i * 3 + 2] = nz / l;
-      }
-      norm.array.set(next);
-    }
-    norm.needsUpdate = true;
-    geometry.computeBoundingBox(); geometry.computeBoundingSphere();
-  }
-  function retuneCoatMaps(mat) {
-    const albedoImage = mat.map?.image, mrImage = (mat.metalnessMap || mat.roughnessMap)?.image, normalImage = mat.normalMap?.image;
-    if (!albedoImage || !mrImage || !normalImage) return;
-    const read = (image) => {
-      const canvas = document.createElement("canvas");
-      canvas.width = image.width; canvas.height = image.height;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      ctx.drawImage(image, 0, 0);
-      return { canvas, ctx, data: ctx.getImageData(0, 0, canvas.width, canvas.height) };
-    };
-    const albedo = read(albedoImage), mr = read(mrImage), normal = read(normalImage);
-    const a = albedo.data.data, m = mr.data.data, nrm = normal.data.data;
-    const count = Math.min(a.length, m.length, nrm.length);
-    for (let i = 0; i < count; i += 4) {
-      const r = a[i], g = a[i + 1], b = a[i + 2];
-      const rough = m[i + 1] / 255, metal = m[i + 2] / 255;
-      const neutral = Math.abs(r - b) < 18 && Math.abs(g - b) < 18;
-      let nr, nm, kind;
-      if (metal > .22 && r > b + 20) { kind = "brass"; nm = .88; nr = .4; }
-      else if (metal < .2 && rough < .42 && r > 170 && neutral) { kind = "marble"; nm = 0; nr = .32; }
-      else if (r < 120 && g < 95 && b < 80 && r > g && g >= b - 5) { kind = "walnut"; nm = 0; nr = .44; }
-      else { kind = "wool"; nm = 0; nr = .96; }
-      m[i] = 255; m[i + 1] = Math.round(nr * 255); m[i + 2] = Math.round(nm * 255);
-      if (kind === "wool") {
-        const lift = 1.06;
-        a[i] = Math.min(255, r * lift); a[i + 1] = Math.min(255, g * lift); a[i + 2] = Math.min(255, b * lift);
-        nrm[i] = Math.round(128 + (nrm[i] - 128) * .42);
-        nrm[i + 1] = Math.round(128 + (nrm[i + 1] - 128) * .42);
-      } else if (kind === "brass") {
-        a[i] = Math.min(255, r * 1.06 + 6); a[i + 1] = Math.min(255, g * 1.02); a[i + 2] = Math.min(255, b * .94);
+  // Hall stand in the front-left corner: walnut pole, brass hooks, round marble base.
+  // The scanned coat was one 60,000-triangle mesh. Cloth triangles reached 25 cm and the pole
+  // reached 73 cm, so the coat came apart into shards. The pole was torn the same way, so the
+  // stand is built from plain shapes instead of that file. A navy cap and a red scarf hang on
+  // two hooks. No extra lamp.
+  const STAND_BASE_R = .21;
+  function knitTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 64; canvas.height = 96;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#9c3034";
+    ctx.fillRect(0, 0, 64, 96);
+    for (let y = 2; y < 96; y += 6) {
+      for (let x = 2; x < 64; x += 6) {
+        ctx.fillStyle = ((x + y) / 6) % 2 ? "#b84a4c" : "#7c2428";
+        ctx.beginPath();
+        ctx.ellipse(x, y, 2.1, 1.3, 0, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
-    albedo.ctx.putImageData(albedo.data, 0, 0);
-    mr.ctx.putImageData(mr.data, 0, 0);
-    normal.ctx.putImageData(normal.data, 0, 0);
-    const adopt = (canvas, source, colorSpace) => {
-      const tex = new THREE.CanvasTexture(canvas);
-      tex.flipY = source.flipY; tex.colorSpace = colorSpace || source.colorSpace;
-      tex.wrapS = source.wrapS; tex.wrapT = source.wrapT;
-      tex.anisotropy = 8; tex.needsUpdate = true;
-      return tex;
-    };
-    mat.map = adopt(albedo.canvas, mat.map, THREE.SRGBColorSpace);
-    const orm = adopt(mr.canvas, mat.metalnessMap || mat.roughnessMap, THREE.LinearSRGBColorSpace);
-    mat.metalnessMap = orm; mat.roughnessMap = orm;
-    mat.normalMap = adopt(normal.canvas, mat.normalMap, THREE.LinearSRGBColorSpace);
-    mat.metalness = 1; mat.roughness = 1;
-    if (mat.normalScale) mat.normalScale.set(.8, .8);
-    if (mat.specularColor) mat.specularColor.setRGB(1, 1, 1);
-    if ("specularIntensity" in mat) mat.specularIntensity = 1;
-    mat.needsUpdate = true;
-  }
-  function placeCoatRack(model) {
-    model.rotation.y = 0; // the coat's face turns into the room, away from the left-hand wall
-    model.scale.set(1, 1, 1); model.position.set(0, 0, 0); model.updateMatrixWorld(true);
-    const raw = new THREE.Box3().setFromObject(model);
-    const base = coatLowBox(model);
-    const baseSpan = Math.max(base.max.x - base.min.x, base.max.z - base.min.z) || .325;
-    model.scale.set(COAT_BASE / baseSpan, COAT_HEIGHT / (raw.max.y - raw.min.y), COAT_BASE / baseSpan);
-    model.updateMatrixWorld(true);
-    model.position.y -= new THREE.Box3().setFromObject(model).min.y;
-    const seated = coatLowBox(model);
-    model.position.x += -2.2 - (seated.min.x + seated.max.x) / 2;
-    model.position.z += 1.88 - (seated.min.z + seated.max.z) / 2;
-    const wallX = -W / 2 + .06, frontZ = FRONT - .22, pastPainting = 1.68;
-    for (let i = 0; i < 8; i++) {
-      model.updateMatrixWorld(true);
-      const box = new THREE.Box3().setFromObject(model);
-      let moved = false;
-      if (box.min.x < wallX) { model.position.x += wallX - box.min.x; moved = true; }
-      if (box.max.z > frontZ) { model.position.z -= box.max.z - frontZ; moved = true; }
-      if (box.min.z < pastPainting) { model.position.z += pastPainting - box.min.z; moved = true; }
-      if (!moved) break;
-    }
-    model.updateMatrixWorld(true);
-  }
-  function radialTex(draw) {
-    const canvas = document.createElement("canvas"); canvas.width = 128; canvas.height = 128;
-    draw(canvas.getContext("2d"), 128, 128);
     const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(2, 5);
+    tex.anisotropy = 4;
     return tex;
   }
-  async function refreshCoatEnv() {
-    if (!coatMaterial || !coatModel) return false;
-    if (!coatPmrem) coatPmrem = new THREE.PMREMGenerator(renderer);
-    if (!coatEnvCamera) {
-      const target = new THREE.WebGLCubeRenderTarget(96, { type: THREE.HalfFloatType, generateMipmaps: false, colorSpace: THREE.LinearSRGBColorSpace });
-      coatEnvCamera = new THREE.CubeCamera(.08, 18, target);
+  function marbleTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 128;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#e8e2d8";
+    ctx.fillRect(0, 0, 128, 128);
+    ctx.strokeStyle = "rgba(140,136,128,.45)";
+    ctx.lineWidth = 1.1;
+    for (let i = 0; i < 8; i++) {
+      ctx.beginPath();
+      ctx.moveTo(0, 8 + i * 15);
+      ctx.bezierCurveTo(36, i * 12, 78, 28 + i * 11, 128, 6 + i * 16);
+      ctx.stroke();
     }
-    const hidden = [coatModel, coatContact, coatWall];
-    const was = hidden.map((obj) => obj?.visible);
-    hidden.forEach((obj) => { if (obj) obj.visible = false; });
-    const tone = renderer.toneMapping, exposure = renderer.toneMappingExposure, auto = renderer.shadowMap.autoUpdate;
-    renderer.toneMapping = THREE.NoToneMapping; renderer.toneMappingExposure = 1; renderer.shadowMap.autoUpdate = false;
-    const focus = new THREE.Box3().setFromObject(coatModel).getCenter(new THREE.Vector3());
-    focus.y = Math.min(1.2, Math.max(.75, focus.y));
-    coatEnvCamera.position.copy(focus).lerp(new THREE.Vector3(0, focus.y, .15), .42);
-    coatEnvCamera.update(renderer, scene);
-    renderer.toneMapping = tone; renderer.toneMappingExposure = exposure; renderer.shadowMap.autoUpdate = auto;
-    renderer.setRenderTarget(null);
-    const width = renderer.domElement.width, height = renderer.domElement.height;
-    renderer.setViewport(0, 0, width, height);
-    hidden.forEach((obj, i) => { if (obj) obj.visible = was[i]; });
-    const next = coatPmrem.fromCubemap(coatEnvCamera.renderTarget.texture);
-    if (coatEnvMap) coatEnvMap.dispose();
-    coatEnvMap = next;
-    coatMaterial.envMap = coatEnvMap;
-    coatMaterial.needsUpdate = true;
-    return true;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    return tex;
   }
-  function scheduleCoatEnv() {
-    if (!coatMaterial || director) return coatEnvPromise;
-    const token = ++coatEnvToken;
-    coatEnvPromise = new Promise((resolve) => {
-      requestAnimationFrame(() => {
-        if (token !== coatEnvToken || director) { resolve(false); return; }
-        refreshCoatEnv().then(() => { render(); resolve(true); }).catch(() => resolve(false));
-      });
-    });
-    return coatEnvPromise;
-  }
-  let coatRackPromise = null;
-  function loadCoatRack() {
-    if (coatRackPromise) return coatRackPromise;
-    coatRackPromise = (async () => {
-      try {
-        const { MeshoptDecoder } = await import("./vendor/meshopt_decoder.module.js");
-        const coatLoader = new GLTFLoader();
-        coatLoader.setMeshoptDecoder(MeshoptDecoder);
-        const gltf = await coatLoader.loadAsync(new URL("./models/coat-rack.glb", import.meta.url).href);
-        const model = gltf.scene; model.name = "coat-rack";
-        model.traverse((mesh) => {
-          if (!mesh.isMesh) return;
-          mesh.castShadow = true; mesh.receiveShadow = true;
-          if (mesh.material) {
-            mesh.material.shadowSide = THREE.BackSide;
-            softenCoatGeometry(mesh.geometry);
-            retuneCoatMaps(mesh.material);
-            coatMaterial = mesh.material;
-          }
-        });
-        placeCoatRack(model);
-        scene.add(model);
-        coatModel = model;
-        const base = coatLowBox(model);
-        const radius = Math.max(base.max.x - base.min.x, base.max.z - base.min.z) / 2;
-        const cx = (base.min.x + base.max.x) / 2, cz = (base.min.z + base.max.z) / 2;
-        const contactTex = radialTex((ctx, w, h) => {
-          const g = ctx.createRadialGradient(w / 2, h / 2, w * .08, w / 2, h / 2, w / 2);
-          g.addColorStop(0, "rgba(255,255,255,.9)"); g.addColorStop(.45, "rgba(255,255,255,.45)"); g.addColorStop(1, "rgba(255,255,255,0)");
-          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-        });
-        coatContact = new THREE.Mesh(new THREE.CircleGeometry(radius * 1.18, 48), new THREE.MeshBasicMaterial({ map: contactTex, color: "#3d3226", transparent: true, depthWrite: false, opacity: .28 }));
-        coatContact.name = "coat-rack-contact"; coatContact.rotation.x = -Math.PI / 2; coatContact.position.set(cx, .003, cz);
-        coatContact.receiveShadow = false; coatContact.castShadow = false; scene.add(coatContact);
-        const wallTex = radialTex((ctx, w, h) => {
-          const g = ctx.createRadialGradient(w / 2, h * .72, w * .04, w / 2, h * .62, w * .62);
-          g.addColorStop(0, "rgba(255,255,255,.75)"); g.addColorStop(.55, "rgba(255,255,255,.22)"); g.addColorStop(1, "rgba(255,255,255,0)");
-          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-        });
-        coatWall = new THREE.Mesh(new THREE.PlaneGeometry(.3, 1.35), new THREE.MeshBasicMaterial({ map: wallTex, color: "#2e261c", transparent: true, depthWrite: false, opacity: .3, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
-        coatWall.name = "coat-rack-wall-shadow"; coatWall.rotation.y = Math.PI / 2;
-        // Faint mark on the open left wall between the harbour painting and the television, not on the painting.
-        coatWall.position.set(-W / 2 + .02, .74, 1.92);
-        coatWall.castShadow = false; coatWall.receiveShadow = false; scene.add(coatWall);
-        setLights(shown || lights());
-        try { await refreshCoatEnv(); } catch (error) { console.warn("ROOMVERSE coat rack reflections could not be prepared", error); }
-        render();
-        return true;
-      } catch (error) {
-        console.warn("ROOMVERSE coat rack could not load", error);
-        coatRackPromise = null;
-        return false;
+  function thickRibbon(points, width, thick, segments) {
+    const curve = new THREE.CatmullRomCurve3(points);
+    const positions = [], uvs = [], indices = [];
+    const hw = width / 2, ht = thick / 2;
+    const corners = [[hw, ht], [hw, -ht], [-hw, -ht], [-hw, ht]];
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const p = curve.getPoint(t);
+      const tan = curve.getTangent(t);
+      const up = Math.abs(tan.y) > .92 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+      const side = new THREE.Vector3().crossVectors(tan, up).normalize();
+      const bin = new THREE.Vector3().crossVectors(side, tan).normalize();
+      for (const [s, b] of corners) {
+        positions.push(p.x + side.x * s + bin.x * b, p.y + side.y * s + bin.y * b, p.z + side.z * s + bin.z * b);
+        uvs.push(s > 0 ? 1 : 0, t);
       }
-    })();
-    return coatRackPromise;
+    }
+    for (let i = 0; i < segments; i++) {
+      for (let k = 0; k < 4; k++) {
+        const a = i * 4 + k, b = i * 4 + (k + 1) % 4, c = a + 4, d = b + 4;
+        indices.push(a, c, b, b, c, d);
+      }
+    }
+    const last = segments * 4;
+    indices.push(0, 2, 1, 0, 3, 2, last, last + 1, last + 2, last, last + 2, last + 3);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
   }
-  function frameCoatRack(kind = "context") {
-    if (!coatModel) return null;
+  function standPart(geo, mat, name, parent) {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = name;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    parent.add(mesh);
+    return mesh;
+  }
+  function buildHallStand() {
+    const group = new THREE.Group();
+    group.name = "hall-stand";
+    const walnut = new THREE.MeshStandardMaterial({ color: "#6b4428", roughness: .44, metalness: 0 });
+    standBrass = new THREE.MeshStandardMaterial({ color: "#c4a15a", roughness: .4, metalness: .86 });
+    const marble = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .34, metalness: 0, map: marbleTexture() });
+    standCapMat = new THREE.MeshStandardMaterial({ color: "#243044", roughness: .94, metalness: 0, side: THREE.DoubleSide });
+    standScarfMat = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide, map: knitTexture() });
+    standPart(new THREE.LatheGeometry([
+      new THREE.Vector2(.001, 0), new THREE.Vector2(STAND_BASE_R, 0), new THREE.Vector2(STAND_BASE_R, .014),
+      new THREE.Vector2(.186, .03), new THREE.Vector2(.05, .042), new THREE.Vector2(.001, .042),
+    ], 40), marble, "hall-stand-base", group);
+    const pole = standPart(new THREE.CylinderGeometry(.022, .027, 1.68, 24), walnut, "hall-stand-pole", group);
+    pole.position.y = .87;
+    const finial = standPart(new THREE.SphereGeometry(.034, 20, 14), walnut, "hall-stand-finial", group);
+    finial.position.y = 1.746;
+    const collar = standPart(new THREE.CylinderGeometry(.034, .034, .028, 20), standBrass, "hall-stand-collar", group);
+    collar.position.y = 1.52;
+    const hookCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(.02, .012, 0), new THREE.Vector3(.055, .022, 0), new THREE.Vector3(.098, .006, 0),
+      new THREE.Vector3(.104, -.028, 0), new THREE.Vector3(.07, -.052, 0),
+    ]);
+    const hookGeo = new THREE.TubeGeometry(hookCurve, 18, .0065, 8, false);
+    const tipGeo = new THREE.SphereGeometry(.009, 12, 8);
+    const addHook = (angle, kind) => {
+      const pivot = new THREE.Group();
+      pivot.position.y = 1.52;
+      pivot.rotation.y = angle;
+      pivot.name = kind ? `hall-stand-${kind}-hook` : "hall-stand-spare-hook";
+      standPart(hookGeo, standBrass, "hall-stand-hook", pivot);
+      const tip = standPart(tipGeo, standBrass, "hall-stand-hook-tip", pivot);
+      tip.position.set(.07, -.052, 0);
+      if (kind === "cap") {
+        const cap = new THREE.Group();
+        cap.name = "hall-stand-cap";
+        const crown = standPart(new THREE.SphereGeometry(.086, 22, 14, 0, Math.PI * 2, 0, Math.PI * .52), standCapMat, "hall-stand-cap-crown", cap);
+        crown.scale.set(1.05, .82, 1);
+        crown.position.set(.09, -.095, 0);
+        const button = standPart(new THREE.SphereGeometry(.011, 10, 8), standCapMat, "hall-stand-cap-button", cap);
+        button.position.set(.09, -.02, 0);
+        const brimShape = new THREE.Shape();
+        brimShape.moveTo(-.072, 0);
+        brimShape.absellipse(0, 0, .072, .05, Math.PI, 0, true);
+        brimShape.lineTo(-.072, 0);
+        const brimGeo = new THREE.ExtrudeGeometry(brimShape, { depth: .005, bevelEnabled: false, curveSegments: 14 });
+        const brimPos = brimGeo.attributes.position;
+        for (let i = 0; i < brimPos.count; i++) {
+          const forward = Math.max(0, brimPos.getY(i));
+          brimPos.setZ(i, brimPos.getZ(i) - forward * forward * 2.4);
+        }
+        brimGeo.computeVertexNormals();
+        const brim = standPart(brimGeo, standCapMat, "hall-stand-cap-brim", cap);
+        brim.rotation.x = -Math.PI / 2;
+        brim.rotation.z = -.42;
+        brim.position.set(.145, -.145, 0);
+        pivot.add(cap);
+      }
+      if (kind === "scarf") {
+        const scarf = standPart(thickRibbon([
+          new THREE.Vector3(.03, -.5, -.03), new THREE.Vector3(.055, -.2, -.012), new THREE.Vector3(.09, -.01, 0),
+          new THREE.Vector3(.078, .02, .012), new THREE.Vector3(.05, -.22, .028), new THREE.Vector3(.09, -.62, .04),
+        ], .15, .008, 36), standScarfMat, "hall-stand-scarf", pivot);
+        scarf.castShadow = true;
+      }
+      group.add(pivot);
+    };
+    addHook(.15, "cap");
+    addHook(1.05, "scarf");
+    addHook(Math.PI + .15, null);
+    addHook(Math.PI + 1.05, null);
+    group.position.set(-2.16, 0, 1.86);
+    group.rotation.y = .55;
+    const wallX = -W / 2 + .08, frontZ = FRONT - .24, pastPainting = 1.62;
+    for (let i = 0; i < 6; i++) {
+      group.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(group);
+      let moved = false;
+      if (box.min.x < wallX) { group.position.x += wallX - box.min.x; moved = true; }
+      if (box.max.z > frontZ) { group.position.z -= box.max.z - frontZ; moved = true; }
+      if (box.min.z < pastPainting) { group.position.z += pastPainting - box.min.z; moved = true; }
+      if (!moved) break;
+    }
+    scene.add(group);
+    standGroup = group;
+    group.updateMatrixWorld(true);
+    const base = new THREE.Box3().setFromObject(group.getObjectByName("hall-stand-base"));
+    const radius = Math.max(base.max.x - base.min.x, base.max.z - base.min.z) / 2;
+    const contactTex = (() => {
+      const canvas = document.createElement("canvas"); canvas.width = canvas.height = 128;
+      const ctx = canvas.getContext("2d");
+      const g = ctx.createRadialGradient(64, 64, 10, 64, 64, 64);
+      g.addColorStop(0, "rgba(255,255,255,.9)"); g.addColorStop(.45, "rgba(255,255,255,.45)"); g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, 128, 128);
+      const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace; return tex;
+    })();
+    standContact = new THREE.Mesh(new THREE.CircleGeometry(radius * 1.12, 40), new THREE.MeshBasicMaterial({ map: contactTex, color: "#3d3226", transparent: true, depthWrite: false, opacity: .28 }));
+    standContact.name = "hall-stand-contact";
+    standContact.rotation.x = -Math.PI / 2;
+    standContact.position.set((base.min.x + base.max.x) / 2, .003, (base.min.z + base.max.z) / 2);
+    scene.add(standContact);
+    const wallTex = (() => {
+      const canvas = document.createElement("canvas"); canvas.width = 64; canvas.height = 128;
+      const ctx = canvas.getContext("2d");
+      const g = ctx.createRadialGradient(32, 90, 4, 32, 78, 40);
+      g.addColorStop(0, "rgba(255,255,255,.7)"); g.addColorStop(.55, "rgba(255,255,255,.2)"); g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 128);
+      const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace; return tex;
+    })();
+    standWall = new THREE.Mesh(new THREE.PlaneGeometry(.22, 1.35), new THREE.MeshBasicMaterial({ map: wallTex, color: "#2e261c", transparent: true, depthWrite: false, opacity: .28, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+    standWall.name = "hall-stand-wall-shadow";
+    standWall.rotation.y = Math.PI / 2;
+    standWall.position.set(-W / 2 + .02, .72, group.position.z);
+    scene.add(standWall);
+    setLights(shown || lights());
+  }
+  function frameHallStand(kind = "room") {
+    if (!standGroup) return null;
     intro = false;
     if (director) stopDirector(false);
-    const box = new THREE.Box3().setFromObject(coatModel), center = box.getCenter(new THREE.Vector3());
-    // From inside the room, toward the front-left corner. The plaque is checked from the window view.
+    const box = new THREE.Box3().setFromObject(standGroup), center = box.getCenter(new THREE.Vector3());
     if (kind === "room") {
       const eye = new THREE.Vector3(.15, 1.42, .35);
       const focus = new THREE.Vector3(-1.85, 1.05, 1.55);
       camera.position.copy(eye); camera.lookAt(focus); controls.target.copy(focus); render();
       return { eye: eye.toArray(), focus: focus.toArray() };
     }
-    const shot = { context: [1.15, .42, 1.65, .9], close: [.46, .08, .78, 1.02], base: [.85, .32, .72, .16] }[kind] || [1.15, .42, 1.65, .9];
+    const shot = { close: [.55, .12, .42, 1.35], base: [.7, .28, .55, .2] }[kind] || [.55, .12, .42, 1.35];
     const focus = new THREE.Vector3(center.x, shot[3], center.z);
     const eye = new THREE.Vector3(center.x + shot[0], shot[3] + shot[1], center.z - shot[2]);
     camera.position.copy(eye); camera.lookAt(focus); controls.target.copy(focus); render();
     return { eye: eye.toArray(), focus: focus.toArray() };
   }
+  buildHallStand();
 
   fit(); apply();
   // Let the first room frame paint before the optional TV materials request any image bytes.
@@ -2161,7 +2113,7 @@ export async function start({ stage, panel, lang, onReady }) {
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     scheduleTvWallTextures() {
-      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); void loadLeftWallArt(); void loadCoatRack(); };
+      const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); void loadLeftWallArt(); };
       const loadWhenIdle = () => {
         if (document.visibilityState !== "visible") { document.addEventListener("visibilitychange", loadWhenIdle, { once: true }); return; }
         if ("requestIdleCallback" in window) window.requestIdleCallback(loadWallMaterials, { timeout: 2500 });
@@ -2270,32 +2222,59 @@ export async function start({ stage, panel, lang, onReady }) {
         objects: bounds.map(({ name, box }) => ({ name, min: box.min.toArray(), max: box.max.toArray() })) };
     },
     loadDoorTexture,
-    loadCoatRack,
-    whenCoatSettled: () => coatEnvPromise,
-    frameCoatRack,
-    coatRack() {
-      if (!coatModel) return { ready: false };
+    frameHallStand,
+    hallStand() {
+      if (!standGroup) return { ready: false };
       scene.updateMatrixWorld(true);
-      const box = new THREE.Box3().setFromObject(coatModel);
-      const base = coatLowBox(coatModel);
-      const diameter = Math.max(base.max.x - base.min.x, base.max.z - base.min.z);
+      const box = new THREE.Box3().setFromObject(standGroup);
+      const baseMesh = standGroup.getObjectByName("hall-stand-base");
+      baseMesh.geometry.computeBoundingBox();
+      const localBase = baseMesh.geometry.boundingBox;
+      const diameter = Math.max(localBase.max.x - localBase.min.x, localBase.max.z - localBase.min.z);
       const blockers = { door: roomDoor, sofa: sofaObj, sideTable: tableObj, floorLamp: lampObj, coffee: coffeeObj, plant: plantObj, chair: chairObj, plaque, homeBoard, smartPanel, entrySwitch, vent: climateSlot, leftGallery: leftWallArtGroup, console: scene.getObjectByName("tv-console") };
       const hits = Object.entries(blockers).filter(([, obj]) => obj && box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name);
       scene.traverse((obj) => {
         if (!obj.name?.startsWith("tv-shelf-")) return;
         if (box.intersectsBox(new THREE.Box3().setFromObject(obj))) hits.push(obj.name);
       });
+      const clothNames = new Set(["hall-stand-cap-crown", "hall-stand-cap-brim", "hall-stand-scarf"]);
+      let clothEdge = 0, vertices = 0;
+      const edgeByName = {};
+      const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3();
+      standGroup.traverse((obj) => {
+        if (!obj.isMesh) return;
+        const pos = obj.geometry.attributes.position;
+        vertices += pos.count;
+        if (!clothNames.has(obj.name)) return;
+        const idx = obj.geometry.index;
+        const triCount = idx ? idx.count : pos.count;
+        const at = (slot) => idx ? idx.getX(slot) : slot;
+        obj.updateWorldMatrix(true, false);
+        let edge = 0;
+        for (let i = 0; i < triCount; i += 3) {
+          va.fromBufferAttribute(pos, at(i)).applyMatrix4(obj.matrixWorld);
+          vb.fromBufferAttribute(pos, at(i + 1)).applyMatrix4(obj.matrixWorld);
+          vc.fromBufferAttribute(pos, at(i + 2)).applyMatrix4(obj.matrixWorld);
+          edge = Math.max(edge, va.distanceTo(vb), vb.distanceTo(vc), vc.distanceTo(va));
+        }
+        edgeByName[obj.name] = edge;
+        clothEdge = Math.max(clothEdge, edge);
+      });
       let lightCount = 0;
       scene.traverse((obj) => { if (obj.isLight) lightCount++; });
+      const names = [];
+      standGroup.traverse((obj) => { if (obj.name) names.push(obj.name); });
       return {
         ready: true, height: box.max.y - box.min.y, minY: box.min.y, maxY: box.max.y,
-        baseDiameter: diameter, base: { min: base.min.toArray(), max: base.max.toArray() },
-        bounds: { min: box.min.toArray(), max: box.max.toArray() },
-        yaw: coatModel.rotation.y, env: !!coatMaterial?.envMap, envIntensity: coatMaterial?.envMapIntensity ?? 0,
-        specular: coatMaterial?.specularColor ? coatMaterial.specularColor.toArray() : null,
-        specularIntensity: coatMaterial?.specularIntensity ?? null,
-        castShadow: coatModel.getObjectByProperty("castShadow", true)?.castShadow === true,
-        contact: !!coatContact, wallShadow: !!coatWall, collisions: hits, lightCount,
+        baseDiameter: diameter, bounds: { min: box.min.toArray(), max: box.max.toArray() },
+        yaw: standGroup.rotation.y,
+        capSide: standCapMat.side, scarfSide: standScarfMat.side,
+        capRough: standCapMat.roughness, scarfRough: standScarfMat.roughness,
+        capMetal: standCapMat.metalness, scarfMetal: standScarfMat.metalness,
+        brassMetal: standBrass.metalness,
+        castShadow: standGroup.getObjectByProperty("castShadow", true)?.castShadow === true,
+        contact: !!standContact, wallShadow: !!standWall, collisions: hits, lightCount,
+        clothEdge, edgeByName, vertices, names,
         screen: box.getCenter(new THREE.Vector3()).project(camera).toArray(),
       };
     },
