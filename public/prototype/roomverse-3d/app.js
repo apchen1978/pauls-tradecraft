@@ -1409,14 +1409,20 @@ export async function start({ stage, panel, lang, onReady }) {
   scene.add(couplet);
   const coupletTex = new THREE.TextureLoader().load(new URL("./art/blessing-couplet-v1.webp", import.meta.url).href, () => render());
   coupletTex.colorSpace = THREE.SRGBColorSpace;
-  coupletTex.anisotropy = 8;
+  coupletTex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   coupletTex.wrapS = coupletTex.wrapT = THREE.ClampToEdgeWrapping;
-  const coupletMat = new THREE.MeshStandardMaterial({ map: coupletTex, color: "#ffffff", roughness: .8, metalness: 0, alphaTest: .5 });
+  // Matte rice paper: no metalness, no clearcoat, no environment reflection. Any sheen here
+  // reads as a black sheet once the camera turns away from the window light.
+  const coupletMat = new THREE.MeshStandardMaterial({
+    map: coupletTex, color: "#ffffff", roughness: .9, metalness: 0, alphaTest: .5,
+  });
   const coupletPaper = new THREE.Mesh(new THREE.PlaneGeometry(coupletW, coupletH), coupletMat);
   coupletPaper.name = "blessing-couplet-paper";
   coupletPaper.position.set(0, 0, .005);
   coupletPaper.castShadow = false;
-  coupletPaper.receiveShadow = true;
+  // Five millimetres off the wall is close enough for the wall's shadow map to bite into the
+  // paper (shadow acne), so the sheet takes no shadows; the soft mark below supplies the depth.
+  coupletPaper.receiveShadow = false;
   couplet.add(coupletPaper);
   const coupletShadowTex = canvasTex(128, 384, (ctx, w, h) => {
     ctx.clearRect(0, 0, w, h);
@@ -1426,8 +1432,10 @@ export async function start({ stage, panel, lang, onReady }) {
     ctx.filter = "none";
   });
   coupletShadowTex.wrapS = coupletShadowTex.wrapT = THREE.ClampToEdgeWrapping;
+  // The soft mark sits behind the sheet. It must not use polygonOffset: the offset is scaled by
+  // depth slope, so on a grazing view it creeps in front of the paper and the strip turns black.
   const coupletShadow = new THREE.Mesh(new THREE.PlaneGeometry(coupletW + .06, coupletH + .08), new THREE.MeshBasicMaterial({
-    map: coupletShadowTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+    map: coupletShadowTex, transparent: true, depthWrite: false,
   }));
   coupletShadow.name = "blessing-couplet-shadow";
   // Window light comes from above and toward the window, so the soft mark falls down and away from it.
@@ -2664,6 +2672,8 @@ export async function start({ stage, panel, lang, onReady }) {
         pixels: [paper.material.map?.image?.width ?? 0, paper.material.map?.image?.height ?? 0],
         roughness: paper.material.roughness,
         metalness: paper.material.metalness,
+        receiveShadow: paper.receiveShadow,
+        polygonOffset: scene.getObjectByName("blessing-couplet-shadow")?.material.polygonOffset ?? null,
         width: size.z, height: size.y, depth: size.x,
         top: box.max.y, boardTop: face.max.y,
         gap: face.min.z - box.max.z,

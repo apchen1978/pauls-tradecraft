@@ -25,8 +25,12 @@ test("blessing couplet hangs straight beside the glass board", async ({ page }) 
   expect(strip.pixels[1] / strip.pixels[0]).toBeCloseTo(strip.height / strip.width, 2);
   expect(strip.width).toBeCloseTo(.20, 2);
   expect(strip.height).toBeCloseTo(.70, 2);
-  expect(strip.roughness).toBeCloseTo(.8, 2);
+  expect(strip.roughness).toBeCloseTo(.9, 2);
   expect(strip.metalness).toBe(0);
+  // 霧面宣紙：不收陰影（5 mm 貼牆會有 shadow acne），也不做環境反射。
+  expect(strip.receiveShadow).toBe(false);
+  // 陰影貼片不可用 polygonOffset：斜率相關偏移會在斜視時爬到紙面前方，把紅紙蓋黑。
+  expect(strip.polygonOffset).toBe(false);
   expect(strip.rotation[0]).toBe(0);
   expect(strip.rotation[2]).toBe(0);
   expect(strip.rotation[1]).toBeCloseTo(Math.PI / 2, 5);
