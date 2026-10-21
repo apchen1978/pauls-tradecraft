@@ -51,6 +51,13 @@
   .opts button { position: relative; font: inherit; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
   .opts button::before { content: ""; position: absolute; inset: -7px -3px; border-radius: inherit; }
   .opts button[aria-pressed="true"] { background: var(--moss); border-color: var(--moss); color: #fff; }
+  .personal-corner { margin: 12px 0 16px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff9; }
+  .personal-corner h2 { margin: 0 0 4px; }
+  .personal-corner p { margin: 0 0 6px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+  .personal-corner .corner-place { color: var(--ink); font-weight: 600; }
+  .personal-corner .corner-count { margin: 6px 0; }
+  .personal-corner .corner-storage { color: #745a32; }
+  .personal-corner .opts button:disabled { opacity: .55; cursor: not-allowed; }
   .camera-actions { display: grid; grid-template-columns: 1fr; gap: 6px; }
   .camera-actions button { min-height: 48px; border: 1px solid #a8afa5; border-radius: 10px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
   .camera-actions button[aria-pressed="true"] { border-color: var(--moss); background: var(--moss); color: #fff; }
@@ -133,6 +140,6 @@
   <div class="panel" id="panel" hidden></div>
 </section>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=28"></script>
+<script type="module" src="page.js?v=29"></script>
 </body>
 </html>
