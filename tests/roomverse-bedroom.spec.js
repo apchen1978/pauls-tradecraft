@@ -54,9 +54,13 @@ test("the painted window view loads for day and night and always fills the windo
 
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
-  await expect(page.locator("#title")).toHaveText("ROOMVERSE 的第二個房間：一個人住的套房");
+  await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
+  await expect(page).toHaveTitle(/ROOMVERSE 3D｜空間幻境/);
+  await expect(page.locator("#roomNo")).toHaveText("Room 02 · Night Shift");
+  await expect(page.locator("#title")).toHaveText("一個人住的套房");
   await page.locator("#lang").click();
-  await expect(page.locator("#title")).toHaveText("ROOMVERSE, room two: a studio for one");
+  await expect(page.locator("#roomNo")).toHaveText("Room 02 · Night Shift");
+  await expect(page.locator("#title")).toHaveText("A studio for one");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });
 
