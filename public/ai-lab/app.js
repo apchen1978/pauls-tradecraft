@@ -3,7 +3,7 @@ import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.j
 import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
 import { LATEST, LATEST_TEXT } from "./latest.js";
 import { SPIRIT } from "./spirit.js";
-import { PART_TWO, SYSTEMS, TASK_REQUIREMENTS } from "./enterprise.js";
+import { ADOPTION, PART_TWO, SYSTEMS, TASK_REQUIREMENTS } from "./enterprise.js";
 import { LADDER } from "./ladder.js";
 import { TOOLPATH } from "./toolpath.js";
 
@@ -322,6 +322,28 @@ function renderEnterpriseResult() {
   result.dataset.state = status;
   $("access-result-status").textContent = x.statuses[status];
   $("access-result-copy").textContent = message;
+}
+
+function renderAdoption() {
+  const x = ADOPTION[state.lang];
+  const copy = t();
+  $("adopt-kicker").textContent = x.kicker;
+  $("adopt-title").textContent = x.title;
+  $("adopt-lead").textContent = x.lead;
+  $("adopt-links-lead").textContent = x.linksLead;
+  $("adopt-note").textContent = x.note;
+  $("adopt-steps").replaceChildren(...x.steps.map((step, index) => {
+    const li = el("li", "adopt-step");
+    const body = el("div", "adopt-copy");
+    body.append(el("h3", null, step.title), el("p", null, step.body));
+    li.append(el("span", "adopt-no", String(index + 1)), body);
+    return li;
+  }));
+  const journey = el("a", null, copy.c3.journey);
+  journey.href = `/ai-lab/enquiry-demo/?lang=${state.lang}`;
+  const talk = el("a", null, copy.ctaChoices[0].title);
+  talk.href = "#contact-cta";
+  $("adopt-links").replaceChildren(journey, talk);
 }
 
 function renderEnterprise() {
@@ -783,6 +805,7 @@ function renderFastRoute() {
     { href: `/ai-lab/enquiry-demo/?lang=${state.lang}`, mark: "", label: x.fastRoute.enquiry },
     { href: "#c12", mark: "12", label: d().c12.title },
     { href: `/ai-lab/guide/?lang=${state.lang}`, mark: "", label: x.fastRoute.guide },
+    { href: "#adopt", mark: "", label: ADOPTION[state.lang].title },
     { href: "#c13", mark: "13", label: PART_TWO[state.lang].title },
     { href: "#contact-cta", mark: "", label: x.ctaTitle },
   ];
@@ -928,6 +951,7 @@ function render() {
   renderDeep();
   renderMore();
   renderEnterprise();
+  renderAdoption();
   renderLadder();
   renderPackage();
   renderSpirit();

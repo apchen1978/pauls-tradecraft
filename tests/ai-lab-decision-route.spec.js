@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 import { NAV_CHAPTERS, TEXT } from "../public/ai-lab/content.js";
 import { DEEP } from "../public/ai-lab/deep.js";
 import { LATEST_TEXT } from "../public/ai-lab/latest.js";
-import { PART_TWO } from "../public/ai-lab/enterprise.js";
+import { ADOPTION, PART_TWO } from "../public/ai-lab/enterprise.js";
 
 const PAGE = "/ai-lab/";
 const screenshots = join(process.cwd(), "docs", "qa", "ai-lab-decision-route");
@@ -42,13 +42,14 @@ for (const lang of ["zh", "en"]) {
       await expect(toc).toBeVisible();
 
       const steps = page.locator("#fast-route-steps a");
-      await expect(steps).toHaveCount(7);
+      await expect(steps).toHaveCount(8);
       const expected = [
         ["#c2", "02", x.c2.title],
         ["#c3", "03", x.c3.title],
         [`/ai-lab/enquiry-demo/?lang=${lang}`, "", x.fastRoute.enquiry],
         ["#c12", "12", DEEP[lang].c12.title],
         [`/ai-lab/guide/?lang=${lang}`, "", x.fastRoute.guide],
+        ["#adopt", "", ADOPTION[lang].title],
         ["#c13", "13", PART_TWO[lang].title],
         ["#contact-cta", "", x.ctaTitle],
       ];
@@ -67,7 +68,7 @@ for (const lang of ["zh", "en"]) {
         const pad = Number.parseFloat(getComputedStyle(link).paddingRight);
         return arrowBox.right <= linkBox.right - pad + 0.5 && arrowBox.left >= linkBox.left && arrowBox.left > linkBox.left + 24;
       }));
-      expect(arrowsInside).toEqual([true, true, true, true, true, true, true]);
+      expect(arrowsInside).toEqual([true, true, true, true, true, true, true, true]);
 
       await expect(page.locator("#cta-title")).toHaveText(x.ctaTitle);
       const choices = page.locator("#cta-choices a");
