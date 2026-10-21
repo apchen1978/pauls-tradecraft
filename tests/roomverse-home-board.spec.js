@@ -33,10 +33,11 @@ test("home board fills the left wall without covering the painting or the plaque
   expect(placed.lights).toBe(7);
   expect(placed.board.visible).toBe(true);
   expect(placed.board.markers).toBe(4);
-  expect(placed.board.notes).toEqual(["call", "walk", "dentist", "dry"]);
-  expect(placed.board.file).toBe("home-board-en-v2.webp");
-  expect(placed.board.copy.lines).toEqual(["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"]);
-  expect(placed.board.copy.notes).toEqual(["Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"]);
+  expect(placed.board.notes).toEqual(["mom", "keys"]);
+  expect(placed.board.magnets).toBe(2);
+  expect(placed.board.file).toBe("home-board-en-v3.webp");
+  expect(placed.board.copy.lines).toEqual(["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"]);
+  expect(placed.board.copy.notes).toEqual(["mom", "keys"]);
   expect(placed.board.collisions).toEqual([]);
   expect(placed.board.bounds.min[0]).toBeGreaterThan(-2.6);
   expect(placed.board.bounds.max[0]).toBeLessThan(-2.4);
@@ -45,7 +46,6 @@ test("home board fills the left wall without covering the painting or the plaque
   expect(placed.board.face.max[2] - placed.board.face.min[2]).toBeCloseTo(.6, 2);
   const words = [...placed.board.copy.lines, ...placed.board.copy.notes].join(" ");
   for (const name of MOOD_NAMES) expect(words).not.toContain(name);
-  expect(words).not.toMatch(/\d/);
   await page.evaluate(() => window.__room.setOrbitAngle(0));
   expect(await page.evaluate(() => window.__room.plaqueView().firstHit)).toBe("house-plaque");
   expect(await page.evaluate(() => window.__room.postcard().width)).toBeGreaterThan(0);
@@ -56,12 +56,12 @@ test("home board follows the page language and stays up in every feeling", async
   await enter(page, { lang: "en" });
   const english = await page.evaluate(() => window.__room.homeBoard());
   expect(english.lang).toBe("en");
-  expect(english.file).toBe("home-board-en-v2.webp");
-  expect(english.copy.lines).toEqual(["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"]);
-  expect(english.copy.notes).toEqual(["Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"]);
+  expect(english.file).toBe("home-board-en-v3.webp");
+  expect(english.copy.lines).toEqual(["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"]);
+  expect(english.copy.notes).toEqual(["mom", "keys"]);
   await page.evaluate(() => window.__room.setLang("zh"));
   const chinese = await page.evaluate(() => window.__room.homeBoard());
-  expect(chinese.file).toBe("home-board-en-v2.webp");
+  expect(chinese.file).toBe("home-board-en-v3.webp");
   expect(chinese.copy.lines).toEqual(english.copy.lines);
   expect(chinese.copy.notes).toEqual(english.copy.notes);
   for (const mood of ["rain", "family", "tech", "chic", "slow", "tv"]) {
@@ -98,8 +98,8 @@ for (const width of [390, 1440]) {
 
 test("home board pictures stay small", async () => {
   const files = [
-    "home-board-en-v2.webp",
-    "home-note-call-v1.webp", "home-note-dentist-v1.webp", "home-note-dry-v1.webp", "home-note-walk-v1.webp",
+    "home-board-en-v3.webp",
+    "home-note-mom-v1.webp", "home-note-keys-v1.webp",
   ];
   for (const file of files) {
     const size = (await stat(`public/prototype/roomverse-3d/art/${file}`)).size;

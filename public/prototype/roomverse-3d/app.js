@@ -1207,8 +1207,8 @@ export async function start({ stage, panel, lang, onReady }) {
 
   // Home planning board on the open stretch of the left wall, between the harbour frame and the plant.
   // Same lights as the rest of the room: no extra lamp. The words are baked pictures so the page loads no font.
-  const HOME_BOARD_LINES = ["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"];
-  const HOME_BOARD_NOTES = ["Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"];
+  const HOME_BOARD_LINES = ["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"];
+  const HOME_BOARD_NOTES = ["mom", "keys"];
   const HOME_BOARD_COPY = {
     zh: { lines: HOME_BOARD_LINES, notes: HOME_BOARD_NOTES },
     en: { lines: HOME_BOARD_LINES, notes: HOME_BOARD_NOTES },
@@ -1265,27 +1265,21 @@ export async function start({ stage, panel, lang, onReady }) {
     return geo;
   }
   const noteSpecs = [
-    { key: "call", color: "#cfe09c", x: .14, y: .42, z: .024, rot: .12, w: .12, h: .095 },
-    { key: "walk", color: "#bcd6ec", x: .18, y: .24, z: .024, rot: -.12, w: .11, h: .095 },
-    { key: "dentist", color: "#f6d670", x: .16, y: -.32, z: .024, rot: .08, w: .125, h: .10 },
-    { key: "dry", color: "#f4bec4", x: -.06, y: -.40, z: .024, rot: -.06, w: .16, h: .095 },
+    { key: "mom", color: "#f3d56a", x: .14, y: .12, z: .022, rot: .18, w: .072, h: .068 },
+    { key: "keys", color: "#f3bac6", x: -.02, y: -.18, z: .022, rot: -.14, w: .068, h: .064 },
   ];
   const noteMeshes = noteSpecs.map((spec) => {
     const mat = new THREE.MeshStandardMaterial({ color: spec.color, roughness: .88 });
     const mesh = boardPiece(curledNote(spec.w, spec.h), mat, spec.x, spec.y, spec.z, `home-board-note-${spec.key}`);
-    mesh.rotation.z = spec.rot; mesh.userData.note = spec.key; mesh.userData.fixed = !spec.lang;
+    mesh.rotation.z = spec.rot; mesh.userData.note = spec.key; mesh.userData.fixed = true;
     return mesh;
   });
-  const twineMat = new THREE.MeshStandardMaterial({ color: "#c6a67c", roughness: .95 });
-  const addTwine = (points, name) => {
-    const twine = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 14, .0045, 5, false), twineMat);
-    twine.name = name; twine.castShadow = false; twine.receiveShadow = false; homeBoard.add(twine);
+  const addMagnet = (color, x, y, z) => {
+    const mesh = boardPiece(new THREE.CylinderGeometry(.011, .012, .004, 16), new THREE.MeshStandardMaterial({ color, metalness: .5, roughness: .38 }), x, y, z, "home-board-magnet");
+    mesh.rotation.x = Math.PI / 2;
   };
-  addTwine([
-    new THREE.Vector3(.16, .36, .034),
-    new THREE.Vector3(.22, .31, .04),
-    new THREE.Vector3(.17, .27, .032),
-  ], "home-board-twine");
+  addMagnet("#c44b45", .05, .36, .022);
+  addMagnet("#3e6294", .10, .15, .03);
   const boardShadowTex = canvasTex(256, 256, (ctx, w, h) => {
     ctx.clearRect(0, 0, w, h);
     const g = ctx.createRadialGradient(w * .48, h * .42, w * .06, w * .5, h * .5, w * .5);
@@ -1307,7 +1301,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function showBoardLanguage(code) {
     const pack = code === "en" ? "en" : "zh";
-    boardFaceMat.map = boardArtTexture("home-board-en-v2"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
+    boardFaceMat.map = boardArtTexture("home-board-en-v3"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
     for (const mesh of noteMeshes) {
       const file = mesh.userData.fixed ? `home-note-${mesh.userData.note}-v1` : `home-note-${mesh.userData.note}-${pack}-v1`;
       mesh.material.map = boardArtTexture(file);
@@ -1982,6 +1976,7 @@ export async function start({ stage, panel, lang, onReady }) {
         visible: homeBoard.visible, bounds: bounds(homeBoard),
         face: bounds(homeBoard.getObjectByName("home-board-face")),
         markers: homeBoard.children.filter((obj) => obj.name === "home-board-marker").length,
+        magnets: homeBoard.children.filter((obj) => obj.name === "home-board-magnet").length,
         notes: noteMeshes.map((mesh) => mesh.userData.note),
         collisions: Object.entries(around).filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
