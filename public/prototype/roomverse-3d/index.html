@@ -37,6 +37,7 @@
   .room { position: relative; margin: 0 clamp(16px, 3vw, 40px); height: min(72vh, 760px); border-radius: 18px; overflow: hidden; background: #ddd6c8; }
   #stage { position: absolute; inset: 0; }
   #stage canvas { display: block; touch-action: none; }
+  .robot-bubble { position: absolute; z-index: 2; transform: translateX(-50%); max-width: min(220px, calc(100% - 24px)); padding: 7px 11px; border: 1px solid #d6c6a3; border-radius: 13px 13px 13px 4px; background: #fffaf0f2; color: #443d30; font-size: 12px; line-height: 1.45; text-align: center; box-shadow: 0 3px 12px #0002; pointer-events: none; }
   .director-stop { position: absolute; z-index: 3; left: 12px; top: 12px; padding: 9px 14px; border: 1px solid #7e683d; border-radius: 999px; background: #fff9ec; color: #42351c; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 10px #0003; }
   .director-stop[hidden] { display: none; }
   .director-stop:focus-visible { outline: 3px solid #977b42; outline-offset: 3px; }
@@ -125,13 +126,13 @@
 </aside>
 <section class="room" aria-labelledby="title">
   <div class="room-toolbar" id="roomToolbar" role="group" hidden></div>
-  <div id="stage"></div>
+  <div id="stage"><div class="robot-bubble" id="robotBubble" role="status" aria-live="polite" hidden></div></div>
   <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
   <p class="status" id="status" hidden></p>
   <button class="panel-toggle" id="panelToggle" type="button" aria-controls="panel" aria-expanded="false" hidden></button>
   <div class="panel" id="panel" hidden></div>
 </section>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=27"></script>
+<script type="module" src="page.js?v=28"></script>
 </body>
 </html>
