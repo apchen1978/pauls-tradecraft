@@ -11,7 +11,7 @@
 // public label says pre-export costs (inland haulage, export customs, port
 // charges). Funding cost, duty, and the lever scenarios stay in the full tool.
 //
-// Defaults are the fictional US pure-paper wallpaper first container.
+// Defaults are the fictional 27-inch (American-roll) wallpaper first container.
 // Selling price USD 12.50 is the midpoint of FOB Shanghai USD 10–15 per roll.
 // Quantity 4,000 is the midpoint of the 3,000–5,000 roll 20-foot estimate.
 // Purchase USD 7.50 per roll and pre-export costs USD 2,000 per order are
@@ -257,7 +257,7 @@ export const calculatorCopy = {
       c5: "這格還空著，我不會當成 0 去算。先把數字問清楚，再看毛利。",
     },
     title: "先試算這張單的毛利",
-    intro: "虛構的美式純紙牆紙第一櫃：FOB 上海每卷 USD 10–15，MOQ 1,000 直米（約 122 卷），20 呎櫃估算 3,000–5,000 卷，訂金 30%，餘款出貨前付清。",
+    intro: "虛構的美國壁紙第一櫃：FOB 上海每卷 USD 10–15，MOQ 1,000 直米（約 122 卷），20 呎櫃估算 3,000–5,000 卷，訂金 30%，餘款出貨前付清。",
     scope: "空白或負數保持未知，不會當成零。",
     fields: fields.zh,
     profitLabel: "毛利",
@@ -300,7 +300,7 @@ export const calculatorCopy = {
       c5: "This field is still empty, and I won't treat it as 0. I'd get the number first, then look at the margin.",
     },
     title: "Try this order's margin",
-    intro: "Fictional first container of American-style pure-paper wallpaper: FOB Shanghai USD 10–15 per roll, MOQ 1,000 linear meters (直米, about 122 rolls), a 20-foot container estimated at 3,000–5,000 rolls, 30% deposit, balance before shipment.",
+    intro: "Fictional first container of 27-inch (American-roll) wallpaper: FOB Shanghai USD 10–15 per roll, MOQ 1,000 linear meters (直米, about 122 rolls), a 20-foot container estimated at 3,000–5,000 rolls, 30% deposit, balance before shipment.",
     scope: "A blank or negative entry stays unknown and is never treated as zero.",
     fields: fields.en,
     profitLabel: "Gross profit",

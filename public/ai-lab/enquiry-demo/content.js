@@ -30,7 +30,7 @@ export const ENQUIRY = {
       subjectLabel: "主旨",
       subject: "客房軟裝：遮光簾、壁布與地毯",
       paragraphs: [
-        "流明庭酒店要更新客房的軟裝。想一次問三類室內產品：遮光簾、布底壁布的樣冊，以及地毯。",
+        "流明庭酒店要更新客房的軟裝。想一次問三類室內產品：遮光簾、壁布的樣冊，以及地毯。",
         "大約八十間客房，壁布樣冊四本。這兩個數量都是虛構的。地毯要波斯風格的塊毯，還是走廊的滿鋪，信裡沒選。請告訴我們交期，以及報價長什麼樣子。我們希望下個月底前做決定。",
         "寬度、顏色、要不要防火等級、地毯的尺寸，這封信都沒寫。",
       ],
@@ -39,7 +39,7 @@ export const ENQUIRY = {
     },
     summaryTitle: "這封信裡，目前看得到的",
     fields: [
-      { id: "product", label: "產品", value: "軟裝三類：遮光簾、布底壁布樣冊、地毯。" },
+      { id: "product", label: "產品", value: "軟裝三類：遮光簾、壁布樣冊、地毯。" },
       { id: "quantity", label: "數量", value: "約八十間客房，壁布樣冊四本。兩者都是虛構數量。簾子要幾直米、地毯要幾塊或走廊要鋪多大，信裡沒寫。" },
       { id: "destination", label: "目的地", value: "杜拜。" },
       { id: "deadline", label: "期限", value: "希望下個月底前做決定。這是決定的時間，不是出貨日。" },
@@ -57,7 +57,7 @@ export const ENQUIRY = {
     quoteNote: "示意。空白不是價錢，也不能當成已經答應的條件。",
     quoteLines: [
       { id: "curtain", label: "遮光簾", value: "USD __ / m", tag: "示意" },
-      { id: "book", label: "布底壁布樣冊", value: "USD __ / book", tag: "示意" },
+      { id: "book", label: "壁布樣冊", value: "USD __ / book", tag: "示意" },
       { id: "rug", label: "地毯", value: "USD __ / __", tag: "示意" },
       { id: "lead", label: "交期", value: "____", tag: "未填" },
       { id: "freight", label: "運費", value: "誰付，信裡沒寫。", tag: "未寫" },
@@ -67,7 +67,7 @@ export const ENQUIRY = {
     edit: "修改",
     keepEdit: "留下這次修改",
     draftLabel: "回信草稿",
-    draftText: "您好，\n\n謝謝流明庭酒店的軟裝詢問。我們先確認幾件事，再談價格和交期：\n\n遮光簾要什麼顏色、什麼寬度？\n客房要不要指定的防火等級？\n簾子要幾直米，還是這次先看樣冊？\n地毯是波斯風格的塊毯，還是走廊的滿鋪？尺寸呢？\n運費誰付？\n\n報價的形狀（示意，不是報價）：\n遮光簾：USD __ / m\n布底壁布樣冊：USD __ / book\n地毯：USD __ / __\n交期：____（顏色、寬度和地毯做法確認之後才填）\n\n在負責人確認之前，這封信不會寄出。",
+    draftText: "您好，\n\n謝謝流明庭酒店的軟裝詢問。我們先確認幾件事，再談價格和交期：\n\n遮光簾要什麼顏色、什麼寬度？\n客房要不要指定的防火等級？\n簾子要幾直米，還是這次先看樣冊？\n地毯是波斯風格的塊毯，還是走廊的滿鋪？尺寸呢？\n運費誰付？\n\n報價的形狀（示意，不是報價）：\n遮光簾：USD __ / m\n壁布樣冊：USD __ / book\n地毯：USD __ / __\n交期：____（顏色、寬度和地毯做法確認之後才填）\n\n在負責人確認之前，這封信不會寄出。",
     approvedStatus: "已核准。草稿還在這頁上，沒有寄出。",
     editedStatus: "已留下修改。草稿還在這頁上，沒有寄出。",
     bothStatus: "已修改，也已核准。草稿還在這頁上，沒有寄出。",
@@ -127,10 +127,10 @@ export const ENQUIRY = {
       companyLabel: "Company",
       company: "Lumen Court Hotel (fictional), Dubai",
       subjectLabel: "Subject",
-      subject: "Guest-room soft furnishings: blackout curtains, wallcovering and rugs",
+      subject: "Guest-room soft furnishings: blackout curtains, 54-inch fabric-backed wallcovering and rugs",
       paragraphs: [
         "Lumen Court Hotel is refreshing the soft furnishings in its guest rooms. Please look at three indoor products together: blackout curtains, sample books of fabric-backed wallcovering, and rugs.",
-        "The hotel has about eighty guest rooms, and is asking for four wallcovering sample books. Both quantities are fictional. The note does not choose between a Persian-style area rug and wall-to-wall carpet for the corridors. Please tell us the lead time and the shape of a price. We hope to decide before the end of next month.",
+        "The hotel has about eighty guest rooms, and is asking for four fabric-backed wallcovering sample books. Both quantities are fictional. The note does not choose between a Persian-style area rug and wall-to-wall carpet for the corridors. Please tell us the lead time and the shape of a price. We hope to decide before the end of next month.",
         "Width, colour, whether a fire rating is required, and the rug size are not in this note.",
       ],
       signoff: "Layla Haddad",
@@ -139,7 +139,7 @@ export const ENQUIRY = {
     summaryTitle: "What the email actually says",
     fields: [
       { id: "product", label: "Product", value: "Three soft furnishings: blackout curtains, fabric-backed wallcovering sample books, and rugs." },
-      { id: "quantity", label: "Quantity", value: "About eighty guest rooms, and four wallcovering sample books. Both quantities are fictional. Curtain length in linear metres, and how many rugs or how much corridor carpet, are not stated." },
+      { id: "quantity", label: "Quantity", value: "About eighty guest rooms, and four fabric-backed wallcovering sample books. Both quantities are fictional. Curtain length in linear metres, and how many rugs or how much corridor carpet, are not stated." },
       { id: "destination", label: "Destination", value: "Dubai." },
       { id: "deadline", label: "Deadline", value: "They hope to decide before the end of next month. That is a decision date, not a ship date." },
       { id: "missing", label: "Missing", value: "Colour, width, fire rating, linear metres, whether the floor covering is a Persian-style area rug or wall-to-wall carpet for the corridors, size, packing, and who pays the freight." },
@@ -174,7 +174,7 @@ export const ENQUIRY = {
     gate: "Press Approve or Edit before going on. Without that, nothing is sent.",
     followIntro: "Both notes are drafts. They are not sent on their own.",
     follow: [
-      { day: "Day 3", dayMark: "3", subjectLabel: "Subject", subject: "Still waiting on colour, width and the rug", body: "Hello. The request for blackout curtains, wallcovering sample books and rugs is still open. When you can, please send the colour, the width, whether a fire rating is required, and whether the floor covering is a Persian-style area rug or wall-to-wall carpet for the corridors. Until those are known, we will not write a lead time or a price as confirmed." },
+      { day: "Day 3", dayMark: "3", subjectLabel: "Subject", subject: "Still waiting on colour, width and the rug", body: "Hello. The request for blackout curtains, fabric-backed wallcovering sample books and rugs is still open. When you can, please send the colour, the width, whether a fire rating is required, and whether the floor covering is a Persian-style area rug or wall-to-wall carpet for the corridors. Until those are known, we will not write a lead time or a price as confirmed." },
       { day: "Day 7", dayMark: "7", subjectLabel: "Subject", subject: "The quote outline is still waiting on what was missing", body: "Hello. The quote outline is still waiting on colour, width, linear metres and the rug size. Nothing has been promised. If this refresh is no longer going ahead, please tell us and we will set the enquiry aside." },
     ],
     humanTitle: "What the human did",
