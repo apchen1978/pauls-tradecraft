@@ -1872,8 +1872,9 @@ export async function start({ stage, panel, lang, onReady }) {
   // Hall stand in the front-left corner: walnut pole, brass hooks, round marble base.
   // The scanned coat was one 60,000-triangle mesh. Cloth triangles reached 25 cm and the pole
   // reached 73 cm, so the coat came apart into shards. The pole was torn the same way, so the
-  // stand is built from plain shapes instead of that file. A navy cap and a red scarf hang on
-  // two hooks. No extra lamp.
+  // stand is built from plain shapes instead of that file. A fitted cap and a red scarf hang on
+  // two hooks. The cap is six structured panels, a cloth button and a curved brim. The front
+  // mark is a plain stitched letter, not a team logo. No extra lamp.
   const STAND_BASE_R = .21;
   function knitTexture() {
     const canvas = document.createElement("canvas");
@@ -1947,6 +1948,119 @@ export async function start({ stage, panel, lang, onReady }) {
     geo.computeVertexNormals();
     return geo;
   }
+  function woolTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 48;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#f3f1ec";
+    ctx.fillRect(0, 0, 48, 48);
+    for (let y = 0; y < 48; y++) {
+      ctx.fillStyle = y % 2 ? "rgba(255,255,255,.35)" : "rgba(40,36,30,.07)";
+      ctx.fillRect(0, y, 48, 1);
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(5, 7);
+    tex.anisotropy = 4;
+    return tex;
+  }
+  // Plain roman "A" drawn as short stitches. No team name, city, or crest.
+  function stitchLetter() {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 128;
+    const ctx = canvas.getContext("2d");
+    const thread = (x0, y0, x1, y1) => {
+      const len = Math.hypot(x1 - x0, y1 - y0), steps = Math.max(6, Math.round(len / 6));
+      for (let i = 0; i < steps; i++) {
+        const t = (i + .5) / steps;
+        const x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t;
+        const ang = Math.atan2(y1 - y0, x1 - x0) + Math.PI / 2;
+        ctx.strokeStyle = i % 2 ? "#f6f3ec" : "#e7e0d4";
+        ctx.lineWidth = 3.4;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(x - Math.cos(ang) * 3.4, y - Math.sin(ang) * 3.4);
+        ctx.lineTo(x + Math.cos(ang) * 3.4, y + Math.sin(ang) * 3.4);
+        ctx.stroke();
+      }
+    };
+    thread(36, 108, 64, 18);
+    thread(92, 108, 64, 18);
+    thread(46, 68, 82, 68);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    tex.flipY = false;
+    return tex;
+  }
+  function crownProfile(t) {
+    const y = .05 - t * .1;
+    const bell = Math.sin(Math.pow(t, .8) * Math.PI * .5);
+    return { y, r: .018 + bell * .07 - Math.max(0, t - .78) * .028 };
+  }
+  function gridSurface(pointAt, nu, nv) {
+    const positions = [], uvs = [], indices = [];
+    for (let j = 0; j <= nv; j++) {
+      for (let i = 0; i <= nu; i++) {
+        const p = pointAt(i / nu, j / nv);
+        positions.push(p[0], p[1], p[2]);
+        uvs.push(i / nu, j / nv);
+      }
+    }
+    const stride = nu + 1;
+    for (let j = 0; j < nv; j++) {
+      for (let i = 0; i < nu; i++) {
+        const a = j * stride + i;
+        indices.push(a, a + stride, a + 1, a + 1, a + stride, a + stride + 1);
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
+  }
+  function fittedCrown() {
+    const panels = 6, rows = 8, cols = 3;
+    const positions = [], colors = [], indices = [];
+    for (let p = 0; p < panels; p++) {
+      const base = positions.length / 3;
+      for (let j = 0; j <= rows; j++) {
+        const t = j / rows, profile = crownProfile(t);
+        for (let i = 0; i <= cols; i++) {
+          const f = i / cols, bulge = Math.sin(f * Math.PI);
+          const radius = profile.r * (.985 + .03 * bulge);
+          const ang = (p + f) * Math.PI * 2 / panels;
+          positions.push(Math.cos(ang) * radius, profile.y, Math.sin(ang) * radius);
+          const shade = .78 + .22 * bulge;
+          colors.push(shade, shade, shade);
+        }
+      }
+      const stride = cols + 1;
+      for (let j = 0; j < rows; j++) {
+        for (let i = 0; i < cols; i++) {
+          const a = base + j * stride + i;
+          indices.push(a, a + stride, a + 1, a + 1, a + stride, a + stride + 1);
+        }
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
+  }
+  function brimPoint(u, v) {
+    const a = (u * 2 - 1) * 1.02, crownR = .083;
+    const x0 = Math.cos(a) * crownR, z0 = Math.sin(a) * crownR;
+    const x1 = Math.cos(a * .86) * (crownR + .068), z1 = Math.sin(a * .86) * (crownR * .72);
+    const x = x0 + (x1 - x0) * v, z = z0 + (z1 - z0) * v;
+    const y = -.046 - v * v * .016 + Math.abs(u * 2 - 1) * v * .008;
+    return [x, y, z];
+  }
   function standPart(geo, mat, name, parent) {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.name = name;
@@ -1961,7 +2075,7 @@ export async function start({ stage, panel, lang, onReady }) {
     const walnut = new THREE.MeshStandardMaterial({ color: "#6b4428", roughness: .44, metalness: 0 });
     standBrass = new THREE.MeshStandardMaterial({ color: "#c4a15a", roughness: .4, metalness: .86 });
     const marble = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .34, metalness: 0, map: marbleTexture() });
-    standCapMat = new THREE.MeshStandardMaterial({ color: "#243044", roughness: .94, metalness: 0, side: THREE.DoubleSide });
+    standCapMat = new THREE.MeshStandardMaterial({ color: "#1a3054", roughness: .93, metalness: 0, side: THREE.DoubleSide, map: woolTexture() });
     standScarfMat = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide, map: knitTexture() });
     standPart(new THREE.LatheGeometry([
       new THREE.Vector2(.001, 0), new THREE.Vector2(STAND_BASE_R, 0), new THREE.Vector2(STAND_BASE_R, .014),
@@ -1990,26 +2104,50 @@ export async function start({ stage, panel, lang, onReady }) {
       if (kind === "cap") {
         const cap = new THREE.Group();
         cap.name = "hall-stand-cap";
-        const crown = standPart(new THREE.SphereGeometry(.086, 22, 14, 0, Math.PI * 2, 0, Math.PI * .52), standCapMat, "hall-stand-cap-crown", cap);
-        crown.scale.set(1.05, .82, 1);
-        crown.position.set(.09, -.095, 0);
-        const button = standPart(new THREE.SphereGeometry(.011, 10, 8), standCapMat, "hall-stand-cap-button", cap);
-        button.position.set(.09, -.02, 0);
-        const brimShape = new THREE.Shape();
-        brimShape.moveTo(-.072, 0);
-        brimShape.absellipse(0, 0, .072, .05, Math.PI, 0, true);
-        brimShape.lineTo(-.072, 0);
-        const brimGeo = new THREE.ExtrudeGeometry(brimShape, { depth: .005, bevelEnabled: false, curveSegments: 14 });
-        const brimPos = brimGeo.attributes.position;
-        for (let i = 0; i < brimPos.count; i++) {
-          const forward = Math.max(0, brimPos.getY(i));
-          brimPos.setZ(i, brimPos.getZ(i) - forward * forward * 2.4);
+        cap.position.set(.168, -.04, 0);
+        cap.rotation.z = -.42;
+        const crownMat = standCapMat.clone();
+        crownMat.vertexColors = true;
+        standPart(fittedCrown(), crownMat, "hall-stand-cap-crown", cap);
+        const stitchMat = new THREE.MeshStandardMaterial({ color: "#d5dbe3", roughness: .72, metalness: 0, side: THREE.DoubleSide });
+        for (let p = 0; p < 6; p++) {
+          const pts = [];
+          for (let j = 0; j <= 7; j++) {
+            const t = j / 7, profile = crownProfile(t), ang = p * Math.PI * 2 / 6;
+            const radius = profile.r * .99;
+            pts.push(new THREE.Vector3(Math.cos(ang) * radius, profile.y, Math.sin(ang) * radius));
+          }
+          standPart(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 8, .00115, 3, false), stitchMat, "hall-stand-cap-seam", cap);
         }
-        brimGeo.computeVertexNormals();
-        const brim = standPart(brimGeo, standCapMat, "hall-stand-cap-brim", cap);
-        brim.rotation.x = -Math.PI / 2;
-        brim.rotation.z = -.42;
-        brim.position.set(.145, -.145, 0);
+        const button = standPart(new THREE.SphereGeometry(.011, 10, 8), standCapMat, "hall-stand-cap-button", cap);
+        button.position.y = .062;
+        button.scale.y = .78;
+        const bandMat = standCapMat.clone();
+        bandMat.color.set("#121c33");
+        bandMat.map = null;
+        const band = standPart(new THREE.TorusGeometry(.081, .0042, 4, 18), bandMat, "hall-stand-cap-band", cap);
+        band.rotation.x = Math.PI / 2;
+        band.position.y = -.05;
+        const brim = standPart(gridSurface((u, v) => brimPoint(u, v), 12, 6), standCapMat, "hall-stand-cap-brim", cap);
+        brim.castShadow = true;
+        const underMat = new THREE.MeshStandardMaterial({ color: "#245c3e", roughness: .94, metalness: 0, side: THREE.DoubleSide });
+        standPart(gridSurface((u, v) => { const p = brimPoint(u, v); p[1] -= .0042; return p; }, 12, 6), underMat, "hall-stand-cap-underbrim", cap);
+        const emblemMat = new THREE.MeshStandardMaterial({
+          color: "#f4f1ea", roughness: .84, metalness: 0, side: THREE.DoubleSide,
+          map: stitchLetter(), transparent: true, alphaTest: .35, depthWrite: true,
+          polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+        });
+        standPart(gridSurface((u, v) => {
+          const t = .5 + v * .34, ang = (u - .5) * .62;
+          const profile = crownProfile(t), radius = profile.r * 1.02 + .003;
+          return [Math.cos(ang) * radius, profile.y, Math.sin(ang) * radius];
+        }, 6, 8), emblemMat, "hall-stand-cap-emblem", cap);
+        const stickerMat = new THREE.MeshStandardMaterial({ color: "#e2b657", roughness: .26, metalness: .8 });
+        const stickerAt = brimPoint(.62, .72);
+        const sticker = standPart(new THREE.CylinderGeometry(.0072, .0072, .0013, 14), stickerMat, "hall-stand-cap-sticker", cap);
+        sticker.scale.set(1.15, 1, 1.35);
+        sticker.position.set(stickerAt[0], stickerAt[1] - .006, stickerAt[2]);
+        sticker.castShadow = false;
         pivot.add(cap);
       }
       if (kind === "scarf") {
@@ -2237,7 +2375,7 @@ export async function start({ stage, panel, lang, onReady }) {
         if (!obj.name?.startsWith("tv-shelf-")) return;
         if (box.intersectsBox(new THREE.Box3().setFromObject(obj))) hits.push(obj.name);
       });
-      const clothNames = new Set(["hall-stand-cap-crown", "hall-stand-cap-brim", "hall-stand-scarf"]);
+      const clothNames = new Set(["hall-stand-cap-crown", "hall-stand-cap-brim", "hall-stand-cap-underbrim", "hall-stand-cap-emblem", "hall-stand-scarf"]);
       let clothEdge = 0, vertices = 0;
       const edgeByName = {};
       const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3();
@@ -2269,6 +2407,7 @@ export async function start({ stage, panel, lang, onReady }) {
         baseDiameter: diameter, bounds: { min: box.min.toArray(), max: box.max.toArray() },
         yaw: standGroup.rotation.y,
         capSide: standCapMat.side, scarfSide: standScarfMat.side,
+        capColor: "#" + standCapMat.color.getHexString(),
         capRough: standCapMat.roughness, scarfRough: standScarfMat.roughness,
         capMetal: standCapMat.metalness, scarfMetal: standScarfMat.metalness,
         brassMetal: standBrass.metalness,

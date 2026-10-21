@@ -29,8 +29,10 @@ test("hall stand is clean geometry in the front-left corner", async ({ page }) =
   expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
   const rack = await page.evaluate(() => window.__room.hallStand());
   expect(rack.ready).toBe(true);
-  expect(rack.names).toEqual(expect.arrayContaining(["hall-stand-base", "hall-stand-pole", "hall-stand-hook", "hall-stand-cap", "hall-stand-scarf"]));
+  expect(rack.names).toEqual(expect.arrayContaining(["hall-stand-base", "hall-stand-pole", "hall-stand-hook", "hall-stand-cap", "hall-stand-cap-button", "hall-stand-cap-emblem", "hall-stand-cap-sticker", "hall-stand-scarf"]));
   expect(rack.names.some((name) => name.includes("coat"))).toBe(false);
+  expect(rack.names.join(" ").toLowerCase()).not.toMatch(/yankees|dodgers|new era|mlb/);
+  expect(rack.capColor).toBe("#1a3054");
   expect(rack.height).toBeGreaterThanOrEqual(1.74);
   expect(rack.height).toBeLessThanOrEqual(1.82);
   expect(rack.minY).toBeGreaterThanOrEqual(-0.002);
@@ -52,6 +54,8 @@ test("hall stand is clean geometry in the front-left corner", async ({ page }) =
   expect(rack.edgeByName["hall-stand-scarf"]).toBeLessThan(0.18);
   expect(rack.edgeByName["hall-stand-cap-crown"]).toBeLessThan(0.05);
   expect(rack.edgeByName["hall-stand-cap-brim"]).toBeLessThan(0.18);
+  expect(rack.edgeByName["hall-stand-cap-underbrim"]).toBeLessThan(0.08);
+  expect(rack.edgeByName["hall-stand-cap-emblem"]).toBeLessThan(0.05);
   expect(rack.clothEdge).toBeLessThan(0.18);
   expect(rack.vertices).toBeLessThan(4000);
   expect(rack.castShadow).toBe(true);
