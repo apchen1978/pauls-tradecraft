@@ -619,19 +619,26 @@ export async function start({ stage, panel, lang, onReady }) {
     });
     return rightWallArtPromise;
   }
-  // Left-wall pair to the harbour on the right. Same gold frame and brass picture light, built in code.
+  // Left-wall pair to the harbour on the right. Gold frame and a small gallery lamp, built in code.
   // The 16:9 canvas hangs on the open front half of the wall, clear of the floor lamp, plant, armchair and window light.
-  // Geometry and its one image wait until the room is interactive. The glow is a wall gradient, not another light.
+  // That stretch has no other lamp. The picture spot uses the renderer's existing physical units
+  // (r160, useLegacyLights left at its default false): candela, decay 2 = 1/d². No renderer change.
   let leftWallArtGroup = null, leftWallArtPromise = null, leftWallArtReady = false, leftWallArtLoaded = false;
-  let leftPaintingMat = null, leftArtWallWash = null, leftArtPaintWash = null, leftArtDiffuser = null;
+  let leftPaintingMat = null, leftArtWallWash = null, leftArtPaintWash = null, leftArtDiffuser = null, leftPictureSpot = null;
   const leftWallArtPlace = { x: -W / 2 + .008, y: 1.5, z: 1 }; // 8 mm off the wall at x=-2.6, same hanging line as the right wall
+  // A 4 W picture LED at ~80 lm/W is 320 lm, about 100 cd in a wide flood. The room's other lamps are
+  // authored at 2–5 cd, and the dusk painting is much darker than the dawn painting opposite.
+  // 12.5 cd keeps 1/d². The source sits further forward so the pool covers the canvas
+  // and still falls off toward the bottom, without a second fill. Series night is a little lower.
+  const LEFT_ART_CANDELA = 12.5, LEFT_ART_COLOR = "#ffbe7a";
   function updateLeftArtLight(v) {
     if (!leftWallArtGroup) return;
-    const level = Math.min(1, Math.max(0, v.tableHalo / .5));
-    leftArtWallWash.opacity = .12 * level;
-    leftArtPaintWash.opacity = .055 * level;
-    leftPaintingMat.emissiveIntensity = leftWallArtLoaded ? .14 * level : 0;
-    leftArtDiffuser.emissiveIntensity = .35 + level * .65;
+    const level = v.hemi < .75 && v.exposure < 1 ? .86 : 1;
+    leftArtWallWash.opacity = 0;
+    leftArtPaintWash.opacity = 0;
+    leftPaintingMat.emissiveIntensity = 0;
+    leftArtDiffuser.emissiveIntensity = .9 * level;
+    if (leftPictureSpot) leftPictureSpot.intensity = LEFT_ART_CANDELA * level;
   }
   function loadLeftWallArt() {
     if (leftWallArtPromise) return leftWallArtPromise;
@@ -644,9 +651,9 @@ export async function start({ stage, panel, lang, onReady }) {
         const mesh = new THREE.Mesh(geo, mat); mesh.name = name; mesh.position.set(x, y, z);
         mesh.castShadow = false; mesh.receiveShadow = false; leftWallArtGroup.add(mesh); return mesh;
       };
-      const gold = new THREE.MeshStandardMaterial({ color: "#b28a48", metalness: .62, roughness: .47 });
-      const goldEdge = new THREE.MeshStandardMaterial({ color: "#d8b76d", metalness: .58, roughness: .4 });
-      const goldShade = new THREE.MeshStandardMaterial({ color: "#79603a", metalness: .45, roughness: .65 });
+      const gold = new THREE.MeshStandardMaterial({ color: "#c49a52", metalness: .78, roughness: .28 });
+      const goldEdge = new THREE.MeshStandardMaterial({ color: "#e2c27a", metalness: .82, roughness: .18 });
+      const goldShade = new THREE.MeshStandardMaterial({ color: "#8a6a3c", metalness: .55, roughness: .48 });
       piece(new THREE.BoxGeometry(paintW + .118, paintH + .118, .018), goldShade, 0, 0, .015, "left-wall-frame-backing");
       [[paintW + .14, paintH + .14, .04, .038, .034, gold], [paintW + .09, paintH + .09, .026, .025, .061, goldShade], [paintW + .04, paintH + .04, .018, .014, .079, goldEdge]].forEach(([w, h, t, depth, z, mat], layer) => {
         for (const side of [-1, 1]) {
@@ -659,24 +666,49 @@ export async function start({ stage, panel, lang, onReady }) {
       const wash = canvasTex(64, 96, (ctx, w, h) => {
         for (let y = 0; y < h; y++) {
           for (let x = 0; x < w; x++) {
-            const u = x / (w - 1), v = y / (h - 1);
-            const edge = Math.sin(Math.PI * u) ** 1.4;
-            const down = Math.sin(Math.PI * v) ** .8 * (.85 - v * .55);
-            ctx.fillStyle = `rgba(255,222,175,${edge * down})`; ctx.fillRect(x, y, 1, 1);
+            const u = x / (w - 1), v = y / (h - 1); // v = 0 at the lamp, 1 at the bottom
+            const edge = Math.sin(Math.PI * u) ** 1.35;
+            const down = (1 - v) ** 1.15 * (.55 + .45 * (1 - v));
+            ctx.fillStyle = `rgba(255,196,138,${edge * down})`; ctx.fillRect(x, y, 1, 1);
           }
         }
       });
       leftArtWallWash = new THREE.MeshBasicMaterial({ map: wash, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
-      piece(new THREE.PlaneGeometry(paintW + .26, paintH + .3), leftArtWallWash, 0, .025, .002, "left-wall-picture-wash");
+      piece(new THREE.PlaneGeometry(1.72, 1.22), leftArtWallWash, 0, .16, .002, "left-wall-picture-wash");
       leftArtPaintWash = leftArtWallWash.clone();
       piece(new THREE.PlaneGeometry(paintW, paintH), leftArtPaintWash, 0, 0, .076, "left-wall-painting-wash");
-      const brass = new THREE.MeshStandardMaterial({ color: "#bc9a5d", metalness: .65, roughness: .4 });
-      const lightY = (paintH + .14) / 2 + .07;
-      piece(new THREE.BoxGeometry(.085, .085, .015), brass, 0, lightY, .02, "left-wall-light-mount");
-      for (const x of [-.15, .15]) piece(new THREE.CylinderGeometry(.006, .006, .14, 8), brass, x, lightY + .005, .095, "left-wall-light-arm").rotation.x = Math.PI / 2;
-      piece(new THREE.CylinderGeometry(.024, .024, .5, 16), brass, 0, lightY, .17, "left-wall-picture-light").rotation.z = Math.PI / 2;
-      leftArtDiffuser = new THREE.MeshStandardMaterial({ color: "#ffe6b9", emissive: "#ffd59a", emissiveIntensity: 0, roughness: .7 });
-      piece(new THREE.PlaneGeometry(.45, .025), leftArtDiffuser, 0, lightY - .025, .17, "left-wall-light-diffuser").rotation.x = Math.PI / 2;
+      // A 36 cm brass gallery lamp. Bulb and beam are the same ~2900K.
+      const brass = new THREE.MeshStandardMaterial({ color: "#b08a4e", metalness: .72, roughness: .36 });
+      const lightY = (paintH + .14) / 2 + .055;
+      const shadeW = .36;
+      piece(new THREE.BoxGeometry(.06, .04, .012), brass, 0, lightY + .045, .016, "left-wall-light-mount");
+      piece(new THREE.CylinderGeometry(.007, .007, .055, 8), brass, 0, lightY + .012, .045, "left-wall-light-stem");
+      const shade = piece(new THREE.CylinderGeometry(.016, .02, shadeW, 18), brass, 0, lightY, .13, "left-wall-picture-light");
+      shade.rotation.z = Math.PI / 2; shade.castShadow = true;
+      leftWallArtGroup.getObjectByName("left-wall-light-stem").castShadow = true;
+      leftWallArtGroup.getObjectByName("left-wall-light-mount").castShadow = true;
+      leftArtDiffuser = new THREE.MeshStandardMaterial({ color: LEFT_ART_COLOR, emissive: LEFT_ART_COLOR, emissiveIntensity: 0, roughness: .4 });
+      piece(new THREE.CylinderGeometry(.007, .007, shadeW - .05, 12), leftArtDiffuser, 0, lightY - .014, .132, "left-wall-light-bulb").rotation.z = Math.PI / 2;
+      leftWallArtGroup.traverse((mesh) => {
+        if (!mesh.isMesh || !mesh.name.startsWith("left-wall-frame-") || !mesh.name.endsWith("-horizontal") || mesh.position.y <= 0) return;
+        mesh.castShadow = true; mesh.receiveShadow = true; // the top lip throws a short contact shadow down the canvas
+      });
+      leftWallArtGroup.getObjectByName("left-wall-painting").receiveShadow = true;
+      // 12.5 cd, decay 2, cutoff 2.6 m. Aimed down the canvas from the lamp, wide enough to spill
+      // onto the wall and soft at the edge. No second light on the paint.
+      leftPictureSpot = new THREE.SpotLight(LEFT_ART_COLOR, LEFT_ART_CANDELA, 2.6, 1.0, .7, 2);
+      leftPictureSpot.name = "left-wall-picture-spot";
+      leftPictureSpot.castShadow = true;
+      leftPictureSpot.shadow.mapSize.set(512, 512);
+      leftPictureSpot.shadow.radius = 4;
+      leftPictureSpot.shadow.bias = -.0004;
+      leftPictureSpot.shadow.normalBias = .012;
+      leftPictureSpot.shadow.camera.near = .05;
+      leftPictureSpot.shadow.camera.far = 2.4;
+      leftPictureSpot.position.set(0, lightY + .02, .62);
+      leftPictureSpot.target.position.set(0, -.06, .074);
+      leftPictureSpot.target.name = "left-wall-picture-spot-target";
+      leftWallArtGroup.add(leftPictureSpot, leftPictureSpot.target);
       updateLeftArtLight(shown ?? lights());
       const name = compactRender ? "left-wall-harbor-dusk-mobile-v1" : "left-wall-harbor-dusk-v1";
       image(name, false, (texture) => {
@@ -1565,6 +1597,12 @@ export async function start({ stage, panel, lang, onReady }) {
         bounds: bounds(leftWallArtGroup), painting: bounds(painting),
         fixture: bounds(leftWallArtGroup.getObjectByName("left-wall-picture-light")),
         glow: leftArtWallWash.opacity,
+        spot: leftPictureSpot ? {
+          intensity: leftPictureSpot.intensity, castShadow: leftPictureSpot.castShadow,
+          color: "#" + leftPictureSpot.color.getHexString(), decay: leftPictureSpot.decay,
+          distance: leftPictureSpot.distance, angle: leftPictureSpot.angle, penumbra: leftPictureSpot.penumbra,
+          shadowMap: leftPictureSpot.shadow.mapSize.x, bulb: "#" + leftArtDiffuser.emissive.getHexString(),
+        } : null,
         screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
         collisions: Object.entries({ floorLamp: lampObj, plant: plantObj, chair: chairObj, plaque })
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),

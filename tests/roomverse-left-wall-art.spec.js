@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { execFileSync } from "node:child_process";
 import { mkdir, stat, writeFile } from "node:fs/promises";
 
 const PAGE = "/prototype/roomverse-3d/";
@@ -33,7 +34,8 @@ for (const width of [390, 1440]) {
     expect(art.collisions).toEqual([]);
     await page.evaluate(() => __room.setOrbitAngle(0));
     expect((await page.evaluate(() => __room.plaqueView())).firstHit).toBe("house-plaque");
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
+    expect((await page.evaluate(() => __room.leftWallArt())).spot.castShadow).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.evaluate(() => __room.loadLeftWallArt());
     expect(requests).toHaveLength(1);
@@ -62,14 +64,32 @@ test("left-wall glow follows the mood and both image variants stay in budget", a
   await page.goto(`${PAGE}?lang=zh&mood=rain`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await page.evaluate(() => __room.loadLeftWallArt());
-  const levels = {};
+  const levels = {}, spots = {};
   for (const mood of ["rain", "tv", "family", "tech", "chic", "slow"]) {
-    levels[mood] = await page.evaluate((m) => { __room.set("mood", m); return __room.leftWallArt().glow; }, mood);
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
+    const art = await page.evaluate((m) => { __room.set("mood", m); return __room.leftWallArt(); }, mood);
+    levels[mood] = art.glow;
+    spots[mood] = art.spot;
+    expect(art.spot.castShadow).toBe(true);
+    expect(art.spot.shadowMap).toBe(512);
+    expect(art.spot.decay).toBe(2);
+    expect(art.spot.distance).toBeGreaterThan(1.2);
+    expect(art.spot.distance).toBeLessThan(3);
+    expect(art.spot.penumbra).toBeGreaterThan(.6);
+    expect(art.spot.color).toBe("#ffbe7a");
+    expect(art.spot.bulb).toBe(art.spot.color);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
   }
-  expect(levels.rain).toBeGreaterThan(levels.family);
-  expect(levels.tv).toBeGreaterThan(levels.family);
-  expect(levels.family).toBeGreaterThan(levels.slow);
+  const fixture = await page.evaluate(() => __room.leftWallArt().fixture);
+  expect(fixture.max[2] - fixture.min[2]).toBeGreaterThan(.3);
+  expect(fixture.max[2] - fixture.min[2]).toBeLessThan(.4);
+  // Rain and Cozy keep the lamp up. Series night is a little lower. The wash planes stay off:
+  // the canvas is lit only by the picture spot.
+  for (const mood of ["rain", "tv", "family"]) {
+    expect(levels[mood]).toBe(0);
+    expect(spots[mood].intensity).toBeGreaterThan(5);
+  }
+  expect(spots.family.intensity).toBe(spots.rain.intensity);
+  expect(spots.tv.intensity).toBeLessThan(spots.rain.intensity);
 });
 
 test("left-wall QA: three moods, two widths, front, side and detail", async ({ page }) => {
@@ -81,11 +101,14 @@ test("left-wall QA: three moods, two widths, front, side and detail", async ({ p
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto(`${PAGE}?lang=zh&mood=rain`);
     await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-    await page.evaluate(() => __room.loadLeftWallArt());
+    await page.evaluate(() => Promise.all([__room.loadLeftWallArt(), __room.loadRightWallArt()]));
     for (const [mood, wall] of [["tv", "wine"], ["rain", "original"], ["family", "olive"]]) {
       await page.evaluate(([m, w]) => { __room.set("mood", m); __room.set("wall", w); __room.setOrbitAngle(90); }, [mood, wall]);
       await page.waitForTimeout(100);
       await page.locator("#stage").screenshot({ path: `${QA}/${mood}-${width}-front.jpg`, type: "jpeg", quality: 92 });
+      await page.evaluate(() => __room.setOrbitAngle(270));
+      await page.locator("#stage").screenshot({ path: `${QA}/dawn-${mood}-${width}-front.jpg`, type: "jpeg", quality: 92 });
+      await page.evaluate(() => __room.setOrbitAngle(90));
       const art = await page.evaluate(() => __room.leftWallArt());
       measured.push({ mood, width, ...art });
       const rect = art.screenRect;
@@ -99,5 +122,19 @@ test("left-wall QA: three moods, two widths, front, side and detail", async ({ p
     await page.evaluate(() => __room.setOrbitAngle(0));
     expect((await page.evaluate(() => __room.plaqueView())).firstHit).toBe("house-plaque");
   }
+  execFileSync("python3", ["-c", `
+from PIL import Image
+from pathlib import Path
+d = Path(${JSON.stringify(QA)})
+for mood in ["tv", "rain", "family"]:
+  for width in [390, 1440]:
+    left = Image.open(d / f"{mood}-{width}-front.jpg").convert("RGB")
+    right = Image.open(d / f"dawn-{mood}-{width}-front.jpg").convert("RGB")
+    h = max(left.height, right.height)
+    canvas = Image.new("RGB", (left.width + right.width + 8, h), (24, 22, 20))
+    canvas.paste(left, (0, 0))
+    canvas.paste(right, (left.width + 8, 0))
+    canvas.save(d / f"pair-{mood}-{width}.jpg", quality=86)
+`], { stdio: "inherit" });
   await writeFile(`${QA}/geometry-and-glow.json`, JSON.stringify(measured, null, 2));
 });
