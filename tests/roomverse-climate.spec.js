@@ -12,7 +12,16 @@ async function enter(page, width) {
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
 }
 
-test("central-air slot and smart-home panel stay clear of the plaque", async ({ page }) => {
+function inFrame(point) {
+  expect(point.x).toBeGreaterThan(-1);
+  expect(point.x).toBeLessThan(1);
+  expect(point.y).toBeGreaterThan(-1);
+  expect(point.y).toBeLessThan(1);
+  expect(point.z).toBeGreaterThan(-1);
+  expect(point.z).toBeLessThan(1);
+}
+
+test("central-air slot stays, and the smart panel sits on the door's latch side", async ({ page }) => {
   await mkdir(OUTPUT, { recursive: true });
   await enter(page, 1440);
   const climate = await page.evaluate(() => window.__room.climate());
@@ -24,35 +33,39 @@ test("central-air slot and smart-home panel stay clear of the plaque", async ({ 
   expect(Math.max(px, pz)).toBeGreaterThan(0.09);
   expect(Math.max(px, pz)).toBeLessThan(0.13);
   expect(Math.min(px, pz)).toBeLessThan(0.03);
-  expect(panelMidY).toBeGreaterThan(1.28);
-  expect(panelMidY).toBeLessThan(1.42);
-  expect(climate.panel.min[0]).toBeGreaterThan(0.9);
-  expect(climate.panel.max[0]).toBeLessThan(1.3);
-  expect(climate.panel.max[2]).toBeLessThan(-2.05);
+  expect(panelMidY).toBeGreaterThan(1.2);
+  expect(panelMidY).toBeLessThan(1.4);
+  expect(climate.panel.min[0]).toBeGreaterThan(2.45);
+  expect(climate.panel.max[2]).toBeLessThan(2.25);
+  expect(climate.latchSide).toBe(true);
+  expect(climate.frameGap).toBeGreaterThan(0.1);
+  expect(climate.frameGap).toBeLessThan(0.15);
+  expect(climate.switchGap).toBeGreaterThan(0);
+  expect(climate.switchGap).toBeLessThan(0.03);
+  expect(climate.switches.max[2]).toBeLessThan(2.25);
   expect(vx).toBeGreaterThan(1.5);
   expect(vz).toBeLessThan(0.12);
   expect(vy).toBeLessThan(0.03);
   expect(climate.vent.min[1]).toBeGreaterThan(2.6);
+  expect(climate.vent.max[2]).toBeLessThan(-1.8);
   expect(climate.plaqueClear).toBe(true);
   expect(climate.doorClear).toBe(true);
   expect(climate.lightCount).toBe(6);
   expect(climate.fixtureLights).toBe(0);
   expect(climate.emissive).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.__room.plaqueView().firstHit)).toBe("house-plaque");
 
   await page.evaluate(() => window.__room.setOrbitAngle(270));
   expect(await page.evaluate(() => window.__room.angle())).toBe(270);
   expect(await page.evaluate(() => window.__room.orbitLimits().minRadius)).toBe(1.55);
   await page.evaluate(() => window.__room.setOrbitAngle(0));
+
+  await page.evaluate(() => window.__room.loadDoorTexture());
+  await page.evaluate(() => window.__room.frameClimate("entry"));
   const framed = await page.evaluate(() => window.__room.climate());
-  for (const point of [framed.panelNdc, framed.ventNdc]) {
-    expect(point.x).toBeGreaterThan(-1);
-    expect(point.x).toBeLessThan(1);
-    expect(point.y).toBeGreaterThan(-1);
-    expect(point.y).toBeLessThan(1);
-    expect(point.z).toBeGreaterThan(-1);
-    expect(point.z).toBeLessThan(1);
-  }
-  expect(await page.evaluate(() => window.__room.plaqueView().firstHit)).toBe("house-plaque");
+  inFrame(framed.panelNdc);
+  inFrame(framed.switchNdc);
+  expect(framed.fixtureLights).toBe(0);
   await page.locator("#stage").screenshot({ path: `${OUTPUT}/room-1440.png` });
 
   await page.evaluate(() => window.__room.frameClimate("panel"));
@@ -61,14 +74,11 @@ test("central-air slot and smart-home panel stay clear of the plaque", async ({ 
   await enter(page, 390);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(await page.evaluate(() => window.__room.climate().lightCount)).toBe(6);
-  await page.evaluate(() => window.__room.setOrbitAngle(0));
-  const phone = await page.evaluate(() => window.__room.climate());
-  for (const point of [phone.panelNdc, phone.ventNdc]) {
-    expect(point.x).toBeGreaterThan(-1);
-    expect(point.x).toBeLessThan(1);
-    expect(point.y).toBeGreaterThan(-1);
-    expect(point.y).toBeLessThan(1);
-  }
   expect(await page.evaluate(() => window.__room.plaqueView().firstHit)).toBe("house-plaque");
+  await page.evaluate(() => window.__room.loadDoorTexture());
+  await page.evaluate(() => window.__room.frameClimate("entry"));
+  const phone = await page.evaluate(() => window.__room.climate());
+  inFrame(phone.panelNdc);
+  inFrame(phone.switchNdc);
   await page.locator("#stage").screenshot({ path: `${OUTPUT}/room-390.png` });
 });
