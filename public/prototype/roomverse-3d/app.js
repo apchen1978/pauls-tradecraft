@@ -242,6 +242,110 @@ export async function start({ stage, panel, lang, onReady }) {
     return doorTexturePromise;
   }
 
+  // Central air, rather than a wall cassette: one recessed linear slot on the ceiling
+  // above the window, and a flush plate on the free wall at switch height, between
+  // the sofa print and the house plaque. The plate follows the pale housing, dark
+  // 23° screen and snowflake of the gallery room picture. Emissive only; no new light.
+  const climateSlot = new THREE.Group();
+  climateSlot.name = "ceiling-slot-diffuser";
+  climateSlot.position.set((win.x0 + win.x1) / 2, H, BACK + 0.18);
+  scene.add(climateSlot);
+  const ventFlange = new THREE.MeshStandardMaterial({ color: "#e4e0d8", roughness: .96, metalness: 0 });
+  const ventChannel = new THREE.MeshStandardMaterial({ color: "#6a6762", roughness: 1, metalness: 0 });
+  const ventThroat = new THREE.MeshStandardMaterial({ color: "#3c3a37", roughness: 1, metalness: 0 });
+  const ventPiece = (geo, mat, x, y, z, name) => {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = name; mesh.position.set(x, y, z);
+    mesh.castShadow = false; mesh.receiveShadow = true;
+    climateSlot.add(mesh); return mesh;
+  };
+  const slotLength = 1.9, flangeW = .028, slotW = .02;
+  ventPiece(new THREE.BoxGeometry(slotLength - .028, .011, flangeW), ventFlange, 0, -.0055, -(slotW / 2 + flangeW / 2), "ceiling-slot-flange");
+  ventPiece(new THREE.BoxGeometry(slotLength - .028, .011, flangeW), ventFlange, 0, -.0055, slotW / 2 + flangeW / 2, "ceiling-slot-flange");
+  ventPiece(new THREE.BoxGeometry(.014, .011, flangeW * 2 + slotW), ventFlange, slotLength / 2 - .007, -.0055, 0, "ceiling-slot-end");
+  ventPiece(new THREE.BoxGeometry(.014, .011, flangeW * 2 + slotW), ventFlange, -slotLength / 2 + .007, -.0055, 0, "ceiling-slot-end");
+  ventPiece(new THREE.BoxGeometry(slotLength - .05, .004, slotW), ventChannel, 0, -.002, 0, "ceiling-slot-channel");
+  ventPiece(new THREE.BoxGeometry(slotLength - .08, .002, .008), ventThroat, 0, -.0052, 0, "ceiling-slot-throat");
+
+  const smartPanel = new THREE.Group();
+  smartPanel.name = "smart-home-panel";
+  // Switch height on the back wall, in the narrow gap between the sofa print and the plaque.
+  // The open wall left of that print, and every corner, stay clear. Local +z faces the room.
+  smartPanel.position.set(1.00, 1.32, BACK + .001);
+  scene.add(smartPanel);
+  const panelW = .104, panelH = .130, panelD = .009;
+  const roundRect = (ctx, x, y, rw, rh, radius) => {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + rw, y, x + rw, y + rh, radius);
+    ctx.arcTo(x + rw, y + rh, x, y + rh, radius);
+    ctx.arcTo(x, y + rh, x, y, radius);
+    ctx.arcTo(x, y, x + rw, y, radius);
+    ctx.closePath();
+  };
+  const snowflake = (ctx, x, y, r, color) => {
+    ctx.save(); ctx.translate(x, y); ctx.strokeStyle = color; ctx.lineWidth = 7; ctx.lineCap = "round";
+    for (let i = 0; i < 6; i++) {
+      ctx.save(); ctx.rotate(Math.PI / 3 * i);
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -r);
+      ctx.moveTo(0, -r * .55); ctx.lineTo(r * .22, -r * .78);
+      ctx.moveTo(0, -r * .55); ctx.lineTo(-r * .22, -r * .78);
+      ctx.stroke(); ctx.restore();
+    }
+    ctx.restore();
+  };
+  const lampMark = (ctx, x, y, color) => {
+    ctx.save(); ctx.translate(x, y); ctx.strokeStyle = color; ctx.lineWidth = 7; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(0, -2, 16, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-14, 12); ctx.lineTo(14, 12); ctx.moveTo(-9, 20); ctx.lineTo(9, 20); ctx.stroke();
+    ctx.restore();
+  };
+  const paintPanel = (glow) => {
+    const w = 512, h = 640, c = document.createElement("canvas"); c.width = w; c.height = h;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = glow ? "#000000" : "#f3f0e8"; ctx.fillRect(0, 0, w, h);
+    if (!glow) { ctx.strokeStyle = "#e4ddd0"; ctx.lineWidth = 12; ctx.strokeRect(8, 8, w - 16, h - 16); }
+    const sx = 46, sy = 46, sw = w - 92, sh = 392;
+    roundRect(ctx, sx, sy, sw, sh, 28);
+    ctx.fillStyle = glow ? "#0e3038" : "#172226"; ctx.fill();
+    if (!glow) {
+      ctx.save(); roundRect(ctx, sx, sy, sw, sh, 28); ctx.clip();
+      const g = ctx.createLinearGradient(0, sy, 0, sy + sh * .45);
+      g.addColorStop(0, "rgba(255,255,255,.18)"); g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g; ctx.fillRect(sx, sy, sw, sh * .45); ctx.restore();
+    }
+    ctx.fillStyle = glow ? "#e7fbff" : "#f4fbfb";
+    ctx.font = "600 128px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("23°", w / 2, sy + 148);
+    snowflake(ctx, w / 2 - 86, sy + 300, 30, glow ? "#c6eef4" : "#d5f0f3");
+    lampMark(ctx, w / 2 + 86, sy + 292, glow ? "#f6e2b4" : "#f0ddb0");
+    if (!glow) {
+      ctx.beginPath(); ctx.arc(w / 2, 552, 40, 0, Math.PI * 2); ctx.fillStyle = "#f7f4ee"; ctx.fill();
+      ctx.lineWidth = 6; ctx.strokeStyle = "#d0c6b6"; ctx.stroke();
+      ctx.beginPath(); ctx.arc(w / 2, 552, 8, 0, Math.PI * 2); ctx.fillStyle = "#9eb8b4"; ctx.fill();
+    }
+    const texture = new THREE.CanvasTexture(c);
+    texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+    return texture;
+  };
+  const panelAlbedo = paintPanel(false), panelGlow = paintPanel(true);
+  const panelBody = new THREE.MeshStandardMaterial({ color: "#f3f0e8", roughness: .78, metalness: 0 });
+  const panelReveal = new THREE.MeshStandardMaterial({ color: "#c9c2b4", roughness: .9, metalness: 0 });
+  const panelFaceMat = new THREE.MeshStandardMaterial({
+    map: panelAlbedo, emissive: "#b7e0e6", emissiveMap: panelGlow, emissiveIntensity: .62, roughness: .4, metalness: .02,
+  });
+  const panelPiece = (geo, mat, x, y, z, name) => {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = name; mesh.position.set(x, y, z);
+    mesh.castShadow = false; mesh.receiveShadow = true;
+    smartPanel.add(mesh); return mesh;
+  };
+  panelPiece(new THREE.BoxGeometry(panelW + .008, panelH + .008, .003), panelReveal, 0, 0, .0015, "smart-home-panel-reveal");
+  panelPiece(new THREE.BoxGeometry(panelW, panelH, panelD), panelBody, 0, 0, .003 + panelD / 2, "smart-home-panel-body");
+  const panelFace = panelPiece(new THREE.PlaneGeometry(panelW, panelH), panelFaceMat, 0, 0, .003 + panelD + .0008, "smart-home-panel-face");
+  panelFace.castShadow = false;
+
   // The TV wall is simple code-built furniture: one calm backing, recessed open shelves,
   // a closed dark screen, and soft warm strips. No additional real-time lights are added.
   const tvWall = new THREE.Group(); tvWall.name = "tv-wall"; scene.add(tvWall);
@@ -1722,5 +1826,36 @@ export async function start({ stage, panel, lang, onReady }) {
       };
     },
     director: () => ({ playing: !!director?.started, elapsed: director?.started ? (performance.now() - director.started) / 1000 : null, view: director?.view, image: outMat.map?.image?.src, stillOpen: directorStillOpen, controlsEnabled: controls.enabled }), // local QA hook
+    climate() {
+      scene.updateMatrixWorld(true);
+      const boxOf = (obj) => new THREE.Box3().setFromObject(obj);
+      const pack = (obj) => { const b = boxOf(obj); return { min: b.min.toArray(), max: b.max.toArray(), size: b.getSize(new THREE.Vector3()).toArray() }; };
+      const panel = scene.getObjectByName("smart-home-panel");
+      const vent = scene.getObjectByName("ceiling-slot-diffuser");
+      const panelBox = boxOf(panel), ventBox = boxOf(vent);
+      let lightCount = 0, fixtureLights = 0;
+      scene.traverse((obj) => { if (obj.isLight) lightCount++; });
+      panel.traverse((obj) => { if (obj.isLight) fixtureLights++; });
+      vent.traverse((obj) => { if (obj.isLight) fixtureLights++; });
+      const ndc = (obj) => { const p = obj.getWorldPosition(new THREE.Vector3()).project(camera); return { x: p.x, y: p.y, z: p.z }; };
+      return {
+        panel: pack(panel), vent: pack(vent), lightCount, fixtureLights,
+        plaqueClear: !panelBox.intersectsBox(boxOf(plaque)) && !ventBox.intersectsBox(boxOf(plaque)),
+        doorClear: !panelBox.intersectsBox(boxOf(roomDoor)),
+        panelNdc: ndc(panel), ventNdc: ndc(vent),
+        emissive: scene.getObjectByName("smart-home-panel-face").material.emissiveIntensity,
+      };
+    },
+    // QA framing only. Does not change orbit limits or add a light.
+    frameClimate(kind) {
+      intro = false;
+      const panelFocus = scene.getObjectByName("smart-home-panel").getWorldPosition(new THREE.Vector3());
+      if (kind !== "panel") return false;
+      camera.position.set(panelFocus.x + .07, panelFocus.y - .01, panelFocus.z + .46);
+      camera.lookAt(panelFocus);
+      camera.updateProjectionMatrix();
+      render();
+      return true;
+    },
   };
 }
