@@ -1930,25 +1930,60 @@ export async function start({ stage, panel, lang, onReady }) {
   // long with the crown at 1.65 m. The scarf is about 1.6 m by 25 cm and 1 cm thick, each tail
   // dropping about 80 cm.
   const STAND_BASE_R = .205, STAND_DISC_H = .036;
-  function knitTexture() {
-    const canvas = document.createElement("canvas");
-    canvas.width = 64; canvas.height = 96;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#9c3034";
-    ctx.fillRect(0, 0, 64, 96);
-    for (let y = 2; y < 96; y += 6) {
-      for (let x = 2; x < 64; x += 6) {
-        ctx.fillStyle = ((x + y) / 6) % 2 ? "#b84a4c" : "#7c2428";
-        ctx.beginPath();
-        ctx.ellipse(x, y, 2.1, 1.3, 0, 0, Math.PI * 2);
-        ctx.fill();
+  // 精品喀什米爾的細織紋：人字紋短斜線交錯，配一張同圖的凹凸貼圖，
+  // 讓布面會吃光而不是一片平的紅。顏色維持原本的暖紅，不加點綴色。
+  function knitTextures() {
+    const size = 256;
+    const make = () => { const c = document.createElement("canvas"); c.width = c.height = size; return c; };
+    const albedo = make(), bump = make();
+    const actx = albedo.getContext("2d"), bctx = bump.getContext("2d");
+    actx.fillStyle = "#a83234"; actx.fillRect(0, 0, size, size);
+    bctx.fillStyle = "#808080"; bctx.fillRect(0, 0, size, size);
+    const step = 8;
+    for (let row = 0; row * step < size + step; row++) {
+      const dir = row % 2 ? 1 : -1;
+      for (let col = 0; col * step < size + step; col++) {
+        const x = col * step + (row % 2 ? step / 2 : 0), y = row * step;
+        const light = (col + row) % 3 === 0;
+        for (const [ctx, a, b] of [[actx, "#c14a4c", "#8f2528"], [bctx, "#d6d6d6", "#585858"]]) {
+          ctx.strokeStyle = light ? a : b;
+          ctx.lineWidth = 2.4;
+          ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + dir * step * .9, y + step * .55); ctx.stroke();
+        }
       }
+    }
+    for (let i = 0; i < 900; i++) { // faint fibre halo so the weave is not perfectly regular
+      actx.fillStyle = i % 2 ? "rgba(255,214,208,.07)" : "rgba(88,18,18,.06)";
+      actx.fillRect((i * 97) % size, (i * 53) % size, 1, 3);
+    }
+    const map = new THREE.CanvasTexture(albedo);
+    map.colorSpace = THREE.SRGBColorSpace;
+    map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(3, 7); map.anisotropy = 8;
+    const bumpMap = new THREE.CanvasTexture(bump);
+    bumpMap.wrapS = bumpMap.wrapT = THREE.RepeatWrapping; bumpMap.repeat.set(3, 7); bumpMap.anisotropy = 8;
+    return { map, bumpMap };
+  }
+  // 兩端流蘇：一條一條的細線、長度略有不齊，線與線之間是透明的。
+  function scarfFringeTexture() {
+    const w = 256, h = 128;
+    const canvas = document.createElement("canvas"); canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, w, h);
+    for (let i = 0; i < 44; i++) {
+      const x = (i + .5) * (w / 44) + (i % 3 - 1) * 0.6;
+      const len = h * (.6 + ((i * 37) % 34) / 100);
+      ctx.strokeStyle = i % 3 === 0 ? "#8f2528" : "#a83234";
+      ctx.lineWidth = 3.4;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.bezierCurveTo(x + 2, len * .4, x - 2, len * .75, x + (i % 2 ? 2 : -2), len);
+      ctx.stroke();
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(4, 9);
-    tex.anisotropy = 4;
+    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter;
     return tex;
   }
   // Warm Carrara: mostly #ECE8E1, with a few thin grey wisps. One 1024 tile covers the
@@ -2115,22 +2150,25 @@ export async function start({ stage, panel, lang, onReady }) {
     return geo;
   }
   // Two tails over the hook. u = -1 and +1 are the hems; the middle rests on the hook.
+  // 兩條尾巴掛在鉤上，一邊 85 cm、一邊 75 cm（不對稱才像真的掛過）。
+  // u = -1 與 +1 是兩端下擺；中段貼在鉤子上。
   function scarfCenterline() {
     const pts = [];
-    for (let i = 0; i <= 28; i++) {
-      const u = i / 28 * 2 - 1;
+    for (let i = 0; i <= 48; i++) {
+      const u = i / 48 * 2 - 1;
       const au = Math.abs(u);
-      const drop = au < .07 ? 0 : Math.pow((au - .07) / .93, 1.06) * .80;
+      const tail = u < 0 ? .85 : .75;
+      const drop = au < .07 ? 0 : Math.pow((au - .07) / .93, 1.06) * tail;
       const y = .01 - drop;
-      const x = .098 + au * .02 + Math.sin(au * Math.PI) * .012;
-      const z = Math.sin(u * Math.PI * 2) * .03 * (.3 + au);
+      const x = .098 + au * .018 + Math.sin(au * Math.PI) * .010 + Math.sin(u * Math.PI * 1.7) * .006 + Math.tanh(u * 4.5) * .170;
+      const z = Math.sin(u * Math.PI * 2) * .022 * (.3 + au) + u * .012 + Math.tanh(u * 4.5) * .006;
       pts.push(new THREE.Vector3(x, y, z));
     }
     return pts;
   }
   // Width is split so a soft fold can run down the middle, and the cloth has a real 1 cm edge.
   function knitScarf(points, width, thick, along, across) {
-    const curve = new THREE.CatmullRomCurve3(points);
+    const curve = new THREE.CatmullRomCurve3(points, false, "centripetal");
     const positions = [], uvs = [], indices = [];
     const ht = thick / 2, cols = across + 1, layers = 2;
     for (let i = 0; i <= along; i++) {
@@ -2142,14 +2180,22 @@ export async function start({ stage, panel, lang, onReady }) {
       const bin = new THREE.Vector3().crossVectors(side, tan).normalize();
       for (let j = 0; j < cols; j++) {
         const f = j / across;
-        const s = (f - .5) * width;
-        const fold = Math.sin(t * Math.PI * 4.5) * Math.sin(f * Math.PI) * .016 + Math.sin(t * Math.PI * 2.1 + .5) * .007;
-        const cx = p.x + side.x * s + bin.x * fold;
-        const cy = p.y + side.y * s + bin.y * fold;
-        const cz = p.z + side.z * s + bin.z * fold;
+        const pinch = THREE.MathUtils.lerp(.55, 1, Math.min(1, Math.abs(t * 2 - 1) / .35));
+        const s = (f - .5) * width * pinch;
+        // 整條布沿長度慢慢扭轉，垂墜才不會像一片板子。
+        const twist = (t * 2 - 1) * .30;
+        const ct = Math.cos(twist), st = Math.sin(twist);
+        const sx = side.x * ct + bin.x * st, sy = side.y * ct + bin.y * st, sz = side.z * ct + bin.z * st;
+        const bx = -side.x * st + bin.x * ct, by = -side.y * st + bin.y * ct, bz = -side.z * st + bin.z * ct;
+        const fold = Math.sin(t * Math.PI * 5.2) * Math.sin(f * Math.PI) * .028
+          + Math.sin(t * Math.PI * 2.3 + .6) * .008
+          + Math.sin(f * Math.PI * 3 + t * 6) * .004
+        const cx = p.x + sx * s + bx * fold;
+        const cy = p.y + sy * s + by * fold;
+        const cz = p.z + sz * s + bz * fold;
         for (let layer = 0; layer < layers; layer++) {
           const sign = layer === 0 ? 1 : -1;
-          positions.push(cx + bin.x * sign * ht, cy + bin.y * sign * ht, cz + bin.z * sign * ht);
+          positions.push(cx + bx * sign * ht, cy + by * sign * ht, cz + bz * sign * ht);
           uvs.push(f, t * 4);
         }
       }
@@ -2184,6 +2230,32 @@ export async function start({ stage, panel, lang, onReady }) {
     geo.userData.samples = curve.getPoints(48);
     return geo;
   }
+  // 兩端各一片 8 cm 的流蘇面（貼圖帶透明），沿下擺的寬度延伸、順著尾巴方向垂下。
+  function scarfFringeGeometry(points, width, thick) {
+    const curve = new THREE.CatmullRomCurve3(points, false, "centripetal");
+    const positions = [], uvs = [], indices = [];
+    const len = .10;
+    for (const t of [0, 1]) {
+      const p = curve.getPoint(t);
+      const tan = curve.getTangent(t).normalize();
+      const up = Math.abs(tan.y) > .92 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+      const side = new THREE.Vector3().crossVectors(tan, up).normalize();
+      const down = tan.clone().multiplyScalar(-1);
+      const out = new THREE.Vector3().crossVectors(side, down).normalize().multiplyScalar(thick / 2 + .0012);
+      const hw = width / 2, base = positions.length / 3;
+      const corner = (s, l) => p.clone().addScaledVector(side, s).addScaledVector(down, l).add(out);
+      const a = corner(-hw, 0), b = corner(hw, 0), c = corner(-hw, len), d = corner(hw, len);
+      for (const v of [a, b, c, d]) positions.push(v.x, v.y, v.z);
+      uvs.push(0, 1, 1, 1, 0, 0, 1, 0);
+      indices.push(base, base + 2, base + 1, base + 1, base + 2, base + 3);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
+  }
   function standPart(geo, mat, name, parent) {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.name = name;
@@ -2203,7 +2275,15 @@ export async function start({ stage, panel, lang, onReady }) {
       color: "#ffffff", map: stone.map, roughnessMap: stone.roughnessMap,
       roughness: 1, metalness: 0, clearcoat: .1, clearcoatRoughness: .5,
     });
-    standScarfMat = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide, map: knitTexture() });
+    const knit = knitTextures();
+    standScarfMat = new THREE.MeshStandardMaterial({
+      color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide,
+      map: knit.map, bumpMap: knit.bumpMap, bumpScale: .0035,
+    });
+    const fringeMat = new THREE.MeshStandardMaterial({
+      color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide,
+      map: scarfFringeTexture(), transparent: true, alphaTest: .35, depthWrite: false,
+    });
     const baseMesh = standPart(weightedBaseGeometry(), standBaseMat, "hall-stand-base", group);
     baseMesh.position.y = .001;
     const pole = standPart(new THREE.CylinderGeometry(.0155, .0175, 1.68, 24), walnut, "hall-stand-pole", group);
@@ -2229,9 +2309,14 @@ export async function start({ stage, panel, lang, onReady }) {
       const tip = standPart(tipGeo, standBrass, "hall-stand-hook-tip", pivot);
       tip.position.set(.086, -.04, 0);
       if (kind === "scarf") {
-        const scarfWidth = .25, scarfThick = .01;
-        const scarf = standPart(knitScarf(scarfCenterline(), scarfWidth, scarfThick, 40, 5), standScarfMat, "hall-stand-scarf", pivot);
+        // 180 × 30 cm、厚 1 cm；兩條尾巴 85 cm 與 75 cm，兩端各有 8 cm 流蘇。
+        const scarfWidth = .30, scarfThick = .01;
+        const line = scarfCenterline();
+        const scarf = standPart(knitScarf(line, scarfWidth, scarfThick, 48, 4), standScarfMat, "hall-stand-scarf", pivot);
         scarf.castShadow = true;
+        const fringe = standPart(scarfFringeGeometry(line, scarfWidth, scarfThick), fringeMat, "hall-stand-scarf-fringe", pivot);
+        fringe.castShadow = false;
+        fringe.receiveShadow = false;
       }
       group.add(pivot);
     };
@@ -2565,6 +2650,8 @@ export async function start({ stage, panel, lang, onReady }) {
         yaw: standGroup.rotation.y,
         scarfSide: standScarfMat.side,
         scarfRough: standScarfMat.roughness, scarfMetal: standScarfMat.metalness,
+        scarfBump: !!standScarfMat.bumpMap, scarfBumpScale: standScarfMat.bumpScale,
+        scarfFringe: !!standGroup.getObjectByName("hall-stand-scarf-fringe"),
         brassMetal: standBrass.metalness,
         baseType: standBaseMat?.type ?? null, baseMetal: standBaseMat?.metalness ?? null,
         baseHasRough: !!standBaseMat?.roughnessMap, baseMapped: !!standBaseMat?.map,
