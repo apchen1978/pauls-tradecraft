@@ -140,3 +140,66 @@ export const TASK_REQUIREMENTS = {
   reply: [["products", "read"]],
   followup: [["crm", "read"], ["crm", "write"]],
 };
+
+// A plain-language start for decision-makers, placed before chapter 13.
+// Written copy only. No outcome figures.
+export const ADOPTION = {
+  zh: {
+    kicker: "五步",
+    title: "企業導入五步",
+    lead: "給想把 AI 放進日常工作的中小企業負責人。一次只處理一件又痛、又會重複的事。這五步是一種起步方式，不是唯一的順序，也不寫成效。",
+    steps: [
+      {
+        title: "先挑一件又痛又重複的事",
+        body: "例如詢盤怎麼接待、報價之後怎麼跟。做窗簾、壁布、地毯這類室內軟裝時，規格和交期常常要來回確認。先從你已經在重複做的一件開始。",
+      },
+      {
+        title: "把真實例子收進來",
+        body: "留下真實的詢盤、報價，以及後來怎麼跟的紀錄。不必先做成漂亮的表。要看得出當時缺了什麼，以及人是怎麼判斷的。",
+      },
+      {
+        title: "先做一條小流程，中間留給人看",
+        body: "讓 AI 幫忙整理、草擬，或標出下一步。價格、交期，以及要寄出去的內容，都要有人看過才算。",
+      },
+      {
+        title: "負責人點頭，團隊先用幾週",
+        body: "負責人看過並同意之後，讓實際在做這件事的人先用幾週。遇到不順就記下來，先不必加新的做法。",
+      },
+      {
+        title: "回頭看，再選下一件",
+        body: "看哪裡省了事、哪裡仍要人接手、哪裡大家又回到舊做法。值得留的留下，不值得的就停。下一件仍然從一件具體的事開始。",
+      },
+    ],
+    linksLead: "想先看一封虛構詢盤怎麼走完，或想約時間談。",
+    note: "那一頁是寫好的虛構例子，不是真實模型的輸出。",
+  },
+  en: {
+    kicker: "FIVE STEPS",
+    title: "Five steps to bring AI into a company",
+    lead: "For decision-makers at smaller firms who want AI in everyday work. Start with one task that is painful and keeps coming back. These five steps are a way to begin, not the only order, and they claim no results.",
+    steps: [
+      {
+        title: "Pick one painful, repetitive task",
+        body: "For example, how an enquiry is received and how a quote is followed up. With interior soft furnishings such as curtains, fabric-backed wallcovering, and rugs, specification and lead time often go back and forth. Start with one task you already repeat.",
+      },
+      {
+        title: "Collect real examples",
+        body: "Keep real enquiries, quotes, and notes on what happened next. They do not need to become a tidy table. They need to show what was missing, and how a person decided.",
+      },
+      {
+        title: "Build a small flow, with a person in the middle",
+        body: "Let AI help organise, draft, or mark the next step. Price, lead time, and anything that goes out still count only after a person has looked.",
+      },
+      {
+        title: "The decision-maker agrees, then the team uses it for a few weeks",
+        body: "After the decision-maker has seen the flow and agreed, the people who do the work use it for a few weeks. When something feels awkward, write it down. There is no need to add more yet.",
+      },
+      {
+        title: "Review, then choose the next task",
+        body: "Notice where the work got lighter, where a person still had to step in, and where people returned to the old way. Keep what is worth keeping. Stop what is not. The next task still starts as one concrete job.",
+      },
+    ],
+    linksLead: "See one fictional enquiry from start to finish, or talk it through.",
+    note: "That page is a written fictional example, not output from a real model.",
+  },
+};

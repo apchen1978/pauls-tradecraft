@@ -344,6 +344,17 @@ body { overflow-x: clip; }
 
 /* Part II: a compact access-control workbench, usable without horizontal scrolling. */
 .part-divider { margin-top: 40px; }
+#adopt { scroll-margin-top: 72px; }
+.adopt-steps { display: grid; gap: 12px; margin: 26px 0 0; padding: 0; list-style: none; }
+.adopt-step { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; align-items: start; min-width: 0; padding: 16px; border: 1px solid rgba(184, 153, 102, .38); border-radius: 14px; background: rgba(184, 153, 102, .07); }
+.adopt-no { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--gold); border-radius: 50%; background: rgba(184, 153, 102, .14); color: var(--gold); font: 700 15px/1 ui-monospace, Consolas, monospace; }
+.adopt-copy { min-width: 0; padding-top: 8px; }
+.adopt-copy h3 { margin: 0; color: var(--bone); font-size: 1.05rem; line-height: 1.35; }
+.adopt-copy p { margin: 6px 0 0; overflow-wrap: anywhere; }
+.adopt-links { display: grid; gap: 8px; margin-top: 8px; }
+.adopt-links a { display: flex; align-items: center; min-height: 44px; min-width: 0; padding: 8px 14px; border: 1px solid rgba(184, 153, 102, .45); border-radius: 12px; background: var(--card); color: var(--bone); font-weight: 650; line-height: 1.35; text-decoration: none; overflow-wrap: anywhere; }
+.adopt-links a:hover { border-color: var(--gold); color: var(--bone); }
+@media (min-width: 760px) { .adopt-links { grid-template-columns: 1fr 1fr; } }
 .part-intro { display: grid; gap: 8px; max-width: 54em; margin-top: 14px; }
 .part-intro .sub { margin: 0; }
 .part-intro .sub:last-child { color: var(--bone); font-weight: 600; }
