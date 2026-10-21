@@ -1296,7 +1296,6 @@ export async function start({ stage, panel, lang, onReady }) {
     const peg = boardPiece(new THREE.CylinderGeometry(.0045, .0045, ledgeBack - .002, 10), brassMat, x, ledgeTop - ledgeT / 2, (ledgeBack + .002) / 2, "home-board-ledge-peg");
     peg.rotation.x = Math.PI / 2;
   }
-  const markerCapMat = new THREE.MeshStandardMaterial({ color: "#f7f4ee", roughness: .4 });
   const penShadowTex = canvasTex(128, 64, (ctx, w, h) => {
     ctx.clearRect(0, 0, w, h);
     const g = ctx.createRadialGradient(w / 2, h / 2, w * .08, w / 2, h / 2, w * .48);
@@ -1306,11 +1305,13 @@ export async function start({ stage, panel, lang, onReady }) {
   penShadowTex.wrapS = penShadowTex.wrapT = THREE.ClampToEdgeWrapping;
   const penShadowMat = new THREE.MeshBasicMaterial({ map: penShadowTex, transparent: true, depthWrite: false });
   const penR = .008, penLen = .100;
-  [{ color: "#1c1c1c", x: -.17 }, { color: "#243056", x: -.04 }, { color: "#c4785c", x: .09 }].forEach((pen) => {
+  // Black and red only, matching the ink. Two black markers, one red.
+  [{ color: "#1c1c1c", cap: "#2a2a2a", x: -.17 }, { color: "#c43131", cap: "#d24b4b", x: -.04 }, { color: "#1c1c1c", cap: "#2a2a2a", x: .09 }].forEach((pen) => {
     const y = ledgeTop + penR, z = ledgeCenterZ;
     const marker = boardPiece(new THREE.CapsuleGeometry(penR, penLen, 4, 12), new THREE.MeshStandardMaterial({ color: pen.color, roughness: .36 }), pen.x, y, z, "home-board-marker");
     marker.rotation.z = Math.PI / 2;
-    const cap = boardPiece(new THREE.CapsuleGeometry(penR + .0005, .02, 3, 12), markerCapMat, pen.x + penLen / 2 + .002, y, z, "home-board-marker-cap");
+    const capMat = new THREE.MeshStandardMaterial({ color: pen.cap, roughness: .42 });
+    const cap = boardPiece(new THREE.CapsuleGeometry(penR + .0005, .02, 3, 12), capMat, pen.x + penLen / 2 + .002, y, z, "home-board-marker-cap");
     cap.rotation.z = Math.PI / 2;
     const shadow = boardPiece(new THREE.PlaneGeometry(penLen + .028, penR * 3.2), penShadowMat, pen.x + .01, ledgeTop + .0012, z, "home-board-marker-shadow");
     shadow.rotation.x = -Math.PI / 2; shadow.receiveShadow = false;
@@ -1387,7 +1388,10 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function showBoardLanguage(code) {
     const pack = code === "en" ? "en" : "zh";
-    boardFaceMat.map = boardArtTexture("home-board-en-v4"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
+    // Baked marker writing on the 60×90 cm face. Measured on the picture: main caps 4.0 cm
+    // (the F in "Fri dinner 7pm" is 4.0 cm), note caps 3.0 cm, stroke 3.3 mm.
+    // That dinner line is 30.5 cm across, half of the 60 cm width.
+    boardFaceMat.map = boardArtTexture("home-board-en-v5"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
     homeBoard.userData.lang = pack;
   }
   showBoardLanguage(lang);
