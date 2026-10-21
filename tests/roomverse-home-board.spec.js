@@ -41,7 +41,7 @@ test("home board fills the left wall without covering the painting or the plaque
   expect(Math.abs(placed.board.edges.pitch)).toBeLessThan(0.05);
   expect(placed.board.notes).toEqual(["yellow", "sage"]);
   expect(placed.board.magnets).toBe(2);
-  expect(placed.board.file).toBe("home-board-en-v4.webp");
+  expect(placed.board.file).toBe("home-board-en-v5.webp");
   expect(placed.board.copy.lines).toEqual(["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"]);
   expect(placed.board.copy.notes).toEqual([]);
   expect(placed.board.collisions).toEqual([]);
@@ -62,12 +62,12 @@ test("home board follows the page language and stays up in every feeling", async
   await enter(page, { lang: "en" });
   const english = await page.evaluate(() => window.__room.homeBoard());
   expect(english.lang).toBe("en");
-  expect(english.file).toBe("home-board-en-v4.webp");
+  expect(english.file).toBe("home-board-en-v5.webp");
   expect(english.copy.lines).toEqual(["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"]);
   expect(english.copy.notes).toEqual([]);
   await page.evaluate(() => window.__room.setLang("zh"));
   const chinese = await page.evaluate(() => window.__room.homeBoard());
-  expect(chinese.file).toBe("home-board-en-v4.webp");
+  expect(chinese.file).toBe("home-board-en-v5.webp");
   expect(chinese.copy.lines).toEqual(english.copy.lines);
   expect(chinese.copy.notes).toEqual(english.copy.notes);
   for (const mood of ["rain", "family", "tech", "chic", "slow", "tv"]) {
@@ -104,7 +104,7 @@ for (const width of [390, 1440]) {
 
 test("home board pictures stay small", async () => {
   const files = [
-    "home-board-en-v4.webp",
+    "home-board-en-v5.webp",
   ];
   for (const file of files) {
     const size = (await stat(`public/prototype/roomverse-3d/art/${file}`)).size;
