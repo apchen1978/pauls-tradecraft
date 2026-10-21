@@ -2167,10 +2167,23 @@ export async function start({ stage, panel, lang, onReady }) {
     return pts;
   }
   // Width is split so a soft fold can run down the middle, and the cloth has a real 1 cm edge.
+  // 布的截面是一圈封閉的圓角矩形：前緣、右側圓邊、後緣、左側圓邊。
+  // 這樣側面看到的是有厚度的布，不是兩片紙。中段最厚（1 cm），下擺稍薄，
+  // 邊緣再帶一點起伏；後緣用頂點色調暗，內側看起來比較深。
   function knitScarf(points, width, thick, along, across) {
     const curve = new THREE.CatmullRomCurve3(points, false, "centripetal");
-    const positions = [], uvs = [], indices = [];
-    const ht = thick / 2, cols = across + 1, layers = 2;
+    const cols = across + 1;
+    const ring = cols * 2 + 2;
+    const positions = [], uvs = [], colors = [], indices = [];
+    const pushVertex = (p, u, v, frame, f, t, tone) => {
+      const { side, bin, fold } = frame;
+      const x = p.x + side.x * u + bin.x * (v + fold(f));
+      const y = p.y + side.y * u + bin.y * (v + fold(f));
+      const z = p.z + side.z * u + bin.z * (v + fold(f));
+      positions.push(x, y, z);
+      uvs.push(f, t * 4);
+      colors.push(tone, tone, tone);
+    };
     for (let i = 0; i <= along; i++) {
       const t = i / along;
       const p = curve.getPoint(t);
@@ -2178,55 +2191,50 @@ export async function start({ stage, panel, lang, onReady }) {
       const up = Math.abs(tan.y) > .92 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
       const side = new THREE.Vector3().crossVectors(tan, up).normalize();
       const bin = new THREE.Vector3().crossVectors(side, tan).normalize();
-      for (let j = 0; j < cols; j++) {
-        const f = j / across;
-        const pinch = THREE.MathUtils.lerp(.55, 1, Math.min(1, Math.abs(t * 2 - 1) / .35));
-        const s = (f - .5) * width * pinch;
-        // 整條布沿長度慢慢扭轉，垂墜才不會像一片板子。
-        const twist = (t * 2 - 1) * .30;
-        const ct = Math.cos(twist), st = Math.sin(twist);
-        const sx = side.x * ct + bin.x * st, sy = side.y * ct + bin.y * st, sz = side.z * ct + bin.z * st;
-        const bx = -side.x * st + bin.x * ct, by = -side.y * st + bin.y * ct, bz = -side.z * st + bin.z * ct;
-        const fold = Math.sin(t * Math.PI * 5.2) * Math.sin(f * Math.PI) * .028
+      const pinch = THREE.MathUtils.lerp(.55, 1, Math.min(1, Math.abs(t * 2 - 1) / .35));
+      const w = width * pinch;
+      // 中段 1 cm、下擺 0.78 cm，邊緣再有一點沿長度的起伏。
+      const depth = thick * (1 - .22 * Math.pow(Math.abs(t * 2 - 1), 1.6)) * (1 + .04 * Math.sin(t * 11));
+      const half = depth / 2, bevel = half * .92;
+      const twist = (t * 2 - 1) * .30;
+      const ct = Math.cos(twist), st = Math.sin(twist);
+      const rotSide = new THREE.Vector3(side.x * ct + bin.x * st, side.y * ct + bin.y * st, side.z * ct + bin.z * st);
+      const rotBin = new THREE.Vector3(-side.x * st + bin.x * ct, -side.y * st + bin.y * ct, -side.z * st + bin.z * ct);
+      const frame = {
+        side: rotSide, bin: rotBin,
+        fold: (f) => Math.sin(t * Math.PI * 5.2) * Math.sin(f * Math.PI) * .028
           + Math.sin(t * Math.PI * 2.3 + .6) * .008
-          + Math.sin(f * Math.PI * 3 + t * 6) * .004
-        const cx = p.x + sx * s + bx * fold;
-        const cy = p.y + sy * s + by * fold;
-        const cz = p.z + sz * s + bz * fold;
-        for (let layer = 0; layer < layers; layer++) {
-          const sign = layer === 0 ? 1 : -1;
-          positions.push(cx + bx * sign * ht, cy + by * sign * ht, cz + bz * sign * ht);
-          uvs.push(f, t * 4);
-        }
+          + Math.sin(f * Math.PI * 3 + t * 6) * .004,
+      };
+      const inner = w / 2 - bevel;          // 前後緣的平面寬度
+      for (let j = 0; j < cols; j++) {       // 前緣（外側）
+        const f = j / across;
+        pushVertex(p, (f - .5) * 2 * inner, half * .92, frame, f, t, 1);
       }
-    }
-    const stride = cols * layers;
-    const at = (i, j, layer) => i * stride + j * layers + layer;
-    for (let i = 0; i < along; i++) {
-      for (let j = 0; j < across; j++) {
-        for (let layer = 0; layer < layers; layer++) {
-          const a = at(i, j, layer), b = at(i, j + 1, layer), c = at(i + 1, j, layer), d = at(i + 1, j + 1, layer);
-          if (layer === 0) indices.push(a, c, b, b, c, d);
-          else indices.push(a, b, c, b, d, c);
-        }
+      pushVertex(p, w / 2, 0, frame, 1, t, .94);   // 右側圓邊
+      for (let j = cols - 1; j >= 0; j--) {  // 後緣（內側，稍暗）
+        const f = j / across;
+        pushVertex(p, (f - .5) * 2 * inner, -half * .92, frame, f, t, .82);
       }
+      pushVertex(p, -w / 2, 0, frame, 0, t, .94);  // 左側圓邊
     }
-    const link = (a, b, c, d) => indices.push(a, c, b, b, c, d);
     for (let i = 0; i < along; i++) {
-      link(at(i, 0, 0), at(i, 0, 1), at(i + 1, 0, 0), at(i + 1, 0, 1));
-      link(at(i, across, 1), at(i, across, 0), at(i + 1, across, 1), at(i + 1, across, 0));
-    }
-    for (let j = 0; j < across; j++) {
-      link(at(0, j, 1), at(0, j, 0), at(0, j + 1, 1), at(0, j + 1, 0));
-      link(at(along, j, 0), at(along, j, 1), at(along, j + 1, 0), at(along, j + 1, 1));
+      for (let k = 0; k < ring; k++) {
+        const a = i * ring + k, b = i * ring + (k + 1) % ring;
+        const c = (i + 1) * ring + k, d = (i + 1) * ring + (k + 1) % ring;
+        indices.push(a, b, c, b, d, c);
+      }
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
     geo.setIndex(indices);
     geo.computeVertexNormals();
     geo.userData.along = along;
     geo.userData.across = across;
+    geo.userData.width = width;
+    geo.userData.thick = thick;
     geo.userData.samples = curve.getPoints(48);
     return geo;
   }
@@ -2277,7 +2285,7 @@ export async function start({ stage, panel, lang, onReady }) {
     });
     const knit = knitTextures();
     standScarfMat = new THREE.MeshStandardMaterial({
-      color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide,
+      color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide, vertexColors: true,
       map: knit.map, bumpMap: knit.bumpMap, bumpScale: .0035,
     });
     const fringeMat = new THREE.MeshStandardMaterial({
@@ -2312,7 +2320,7 @@ export async function start({ stage, panel, lang, onReady }) {
         // 180 × 30 cm、厚 1 cm；兩條尾巴 85 cm 與 75 cm，兩端各有 8 cm 流蘇。
         const scarfWidth = .30, scarfThick = .01;
         const line = scarfCenterline();
-        const scarf = standPart(knitScarf(line, scarfWidth, scarfThick, 48, 4), standScarfMat, "hall-stand-scarf", pivot);
+        const scarf = standPart(knitScarf(line, scarfWidth, scarfThick, 48, 3), standScarfMat, "hall-stand-scarf", pivot);
         scarf.castShadow = true;
         const fringe = standPart(scarfFringeGeometry(line, scarfWidth, scarfThick), fringeMat, "hall-stand-scarf-fringe", pivot);
         fringe.castShadow = false;
@@ -2623,14 +2631,8 @@ export async function start({ stage, panel, lang, onReady }) {
       }
       const hookHeight = hookPivots.reduce((sum, pivot) => sum + pivot.getWorldPosition(new THREE.Vector3()).y, 0) / hookPivots.length;
       const scarfMesh = standGroup.getObjectByName("hall-stand-scarf");
-      const scarfPos = scarfMesh.geometry.attributes.position;
-      const scarfAlong = scarfMesh.geometry.userData.along, scarfAcross = scarfMesh.geometry.userData.across;
-      const scarfAt = (i, j, layer) => {
-        const k = (i * (scarfAcross + 1) + j) * 2 + layer;
-        return new THREE.Vector3().fromBufferAttribute(scarfPos, k);
-      };
-      const scarfWidth = scarfAt(0, 0, 0).distanceTo(scarfAt(0, scarfAcross, 0));
-      const scarfThick = scarfAt(Math.floor(scarfAlong / 2), 1, 0).distanceTo(scarfAt(Math.floor(scarfAlong / 2), 1, 1));
+      const scarfWidth = scarfMesh.geometry.userData.width;
+      const scarfThick = scarfMesh.geometry.userData.thick;
       scarfMesh.updateWorldMatrix(true, false);
       const scarfWorld = scarfMesh.geometry.userData.samples.map((p) => p.clone().applyMatrix4(scarfMesh.matrixWorld));
       let scarfLength = 0, scarfTop = 0;
