@@ -1396,6 +1396,46 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   showBoardLanguage(lang);
 
+  // A real-size 春聯 strip on the open left wall, on the window side of the glass board.
+  // 20 × 70 cm, five millimetres off the plaster, top lined up with the board.
+  // The four characters are a baked picture, so the page loads no Chinese font.
+  const coupletW = .20, coupletH = .70, coupletGap = .14;
+  const couplet = new THREE.Group();
+  couplet.name = "blessing-couplet";
+  const boardTop = homeBoard.position.y + boardFaceH / 2;
+  const boardWindowZ = homeBoard.position.z - boardFaceW / 2;
+  couplet.position.set(-W / 2, boardTop - coupletH / 2, boardWindowZ - coupletGap - coupletW / 2);
+  couplet.rotation.y = Math.PI / 2;
+  scene.add(couplet);
+  const coupletTex = new THREE.TextureLoader().load(new URL("./art/blessing-couplet-v1.webp", import.meta.url).href, () => render());
+  coupletTex.colorSpace = THREE.SRGBColorSpace;
+  coupletTex.anisotropy = 8;
+  coupletTex.wrapS = coupletTex.wrapT = THREE.ClampToEdgeWrapping;
+  const coupletMat = new THREE.MeshStandardMaterial({ map: coupletTex, color: "#ffffff", roughness: .8, metalness: 0, alphaTest: .5 });
+  const coupletPaper = new THREE.Mesh(new THREE.PlaneGeometry(coupletW, coupletH), coupletMat);
+  coupletPaper.name = "blessing-couplet-paper";
+  coupletPaper.position.set(0, 0, .005);
+  coupletPaper.castShadow = false;
+  coupletPaper.receiveShadow = true;
+  couplet.add(coupletPaper);
+  const coupletShadowTex = canvasTex(128, 384, (ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "rgba(36,18,14,.5)";
+    ctx.filter = "blur(14px)";
+    ctx.fillRect(20, 18, w - 40, h - 32);
+    ctx.filter = "none";
+  });
+  coupletShadowTex.wrapS = coupletShadowTex.wrapT = THREE.ClampToEdgeWrapping;
+  const coupletShadow = new THREE.Mesh(new THREE.PlaneGeometry(coupletW + .06, coupletH + .08), new THREE.MeshBasicMaterial({
+    map: coupletShadowTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  }));
+  coupletShadow.name = "blessing-couplet-shadow";
+  // Window light comes from above and toward the window, so the soft mark falls down and away from it.
+  coupletShadow.position.set(-.012, -.016, .0012);
+  coupletShadow.castShadow = false;
+  coupletShadow.receiveShadow = false;
+  couplet.add(coupletShadow);
+
   // ---------- state + panel ----------
   const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
   let directorStillOpen = false;
@@ -2597,6 +2637,49 @@ export async function start({ stage, panel, lang, onReady }) {
       camera.updateProjectionMatrix();
       renderer.render(scene, camera);
       return this.homeBoard();
+    },
+    blessingCouplet() {
+      scene.updateMatrixWorld(true);
+      const paper = scene.getObjectByName("blessing-couplet-paper");
+      const group = scene.getObjectByName("blessing-couplet");
+      const box = new THREE.Box3().setFromObject(paper);
+      const face = new THREE.Box3().setFromObject(homeBoard.getObjectByName("home-board-face"));
+      const size = box.getSize(new THREE.Vector3());
+      const blocks = { plaque, plant: plantObj, homeBoard };
+      return {
+        text: "福杯滿溢",
+        file: paper.material.map?.image?.src?.split("/").pop() ?? null,
+        loaded: !!paper.material.map?.image?.width,
+        pixels: [paper.material.map?.image?.width ?? 0, paper.material.map?.image?.height ?? 0],
+        roughness: paper.material.roughness,
+        metalness: paper.material.metalness,
+        width: size.z, height: size.y, depth: size.x,
+        top: box.max.y, boardTop: face.max.y,
+        gap: face.min.z - box.max.z,
+        offWall: box.min.x + W / 2,
+        rotation: [group.rotation.x, group.rotation.y, group.rotation.z],
+        shadow: !!scene.getObjectByName("blessing-couplet-shadow"),
+        collisions: Object.entries(blocks).filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
+        bounds: { min: box.min.toArray(), max: box.max.toArray() },
+      };
+    },
+    frameBlessingCouplet(kind = "close") {
+      intro = false;
+      scene.updateMatrixWorld(true);
+      const center = scene.getObjectByName("blessing-couplet-paper").getWorldPosition(new THREE.Vector3());
+      const phone = camera.aspect < .8;
+      if (kind === "close") {
+        camera.position.set(center.x + (phone ? 1.08 : 1.02), center.y, center.z);
+        camera.lookAt(center);
+        camera.fov = phone ? 48 : 44;
+      } else {
+        camera.position.set(phone ? -.42 : -.7, 1.48, phone ? .05 : -.15);
+        camera.lookAt(-2.55, 1.52, -.62);
+        camera.fov = phone ? 56 : 40;
+      }
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+      return this.blessingCouplet();
     },
     framedPictures() { // read-only QA: one file per framed picture that can be on screen together
       return {
