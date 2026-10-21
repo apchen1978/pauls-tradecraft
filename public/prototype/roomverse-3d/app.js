@@ -242,6 +242,147 @@ export async function start({ stage, panel, lang, onReady }) {
     return doorTexturePromise;
   }
 
+  // Central air, rather than a wall cassette: one recessed linear slot on the ceiling
+  // above the window. The control plate sits on the latch side of the entry door,
+  // about 12 cm clear of the frame, with a slim switch plate beside it. The plate
+  // follows the pale housing, dark 23° screen and snowflake of the gallery room
+  // picture. Emissive only; no new light.
+  const climateSlot = new THREE.Group();
+  climateSlot.name = "ceiling-slot-diffuser";
+  climateSlot.position.set((win.x0 + win.x1) / 2, H, BACK + 0.18);
+  scene.add(climateSlot);
+  const ventFlange = new THREE.MeshStandardMaterial({ color: "#e4e0d8", roughness: .96, metalness: 0 });
+  const ventChannel = new THREE.MeshStandardMaterial({ color: "#6a6762", roughness: 1, metalness: 0 });
+  const ventThroat = new THREE.MeshStandardMaterial({ color: "#3c3a37", roughness: 1, metalness: 0 });
+  const ventPiece = (geo, mat, x, y, z, name) => {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = name; mesh.position.set(x, y, z);
+    mesh.castShadow = false; mesh.receiveShadow = true;
+    climateSlot.add(mesh); return mesh;
+  };
+  const slotLength = 1.9, flangeW = .028, slotW = .02;
+  ventPiece(new THREE.BoxGeometry(slotLength - .028, .011, flangeW), ventFlange, 0, -.0055, -(slotW / 2 + flangeW / 2), "ceiling-slot-flange");
+  ventPiece(new THREE.BoxGeometry(slotLength - .028, .011, flangeW), ventFlange, 0, -.0055, slotW / 2 + flangeW / 2, "ceiling-slot-flange");
+  ventPiece(new THREE.BoxGeometry(.014, .011, flangeW * 2 + slotW), ventFlange, slotLength / 2 - .007, -.0055, 0, "ceiling-slot-end");
+  ventPiece(new THREE.BoxGeometry(.014, .011, flangeW * 2 + slotW), ventFlange, -slotLength / 2 + .007, -.0055, 0, "ceiling-slot-end");
+  ventPiece(new THREE.BoxGeometry(slotLength - .05, .004, slotW), ventChannel, 0, -.002, 0, "ceiling-slot-channel");
+  ventPiece(new THREE.BoxGeometry(slotLength - .08, .002, .008), ventThroat, 0, -.0052, 0, "ceiling-slot-throat");
+
+  const panelW = .104, panelH = .130, panelD = .009;
+  // Latch jamb is the +local-x stile (same side as the handle). Its outer edge is half the
+  // 7.5 cm jamb past the stile centre. The plate's near edge is 12 cm beyond that.
+  const latchOuterZ = doorZ + .525;
+  const panelCenterZ = latchOuterZ + .12 + panelW / 2;
+  const smartPanel = new THREE.Group();
+  smartPanel.name = "smart-home-panel";
+  smartPanel.position.set(W / 2 - .001, 1.30, panelCenterZ);
+  smartPanel.rotation.y = -Math.PI / 2; // local +z faces into the room, same as the door
+  scene.add(smartPanel);
+  const roundRect = (ctx, x, y, rw, rh, radius) => {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + rw, y, x + rw, y + rh, radius);
+    ctx.arcTo(x + rw, y + rh, x, y + rh, radius);
+    ctx.arcTo(x, y + rh, x, y, radius);
+    ctx.arcTo(x, y, x + rw, y, radius);
+    ctx.closePath();
+  };
+  const snowflake = (ctx, x, y, r, color) => {
+    ctx.save(); ctx.translate(x, y); ctx.strokeStyle = color; ctx.lineWidth = 7; ctx.lineCap = "round";
+    for (let i = 0; i < 6; i++) {
+      ctx.save(); ctx.rotate(Math.PI / 3 * i);
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -r);
+      ctx.moveTo(0, -r * .55); ctx.lineTo(r * .22, -r * .78);
+      ctx.moveTo(0, -r * .55); ctx.lineTo(-r * .22, -r * .78);
+      ctx.stroke(); ctx.restore();
+    }
+    ctx.restore();
+  };
+  const lampMark = (ctx, x, y, color) => {
+    ctx.save(); ctx.translate(x, y); ctx.strokeStyle = color; ctx.lineWidth = 7; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(0, -2, 16, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-14, 12); ctx.lineTo(14, 12); ctx.moveTo(-9, 20); ctx.lineTo(9, 20); ctx.stroke();
+    ctx.restore();
+  };
+  const paintPanel = (glow) => {
+    const w = 512, h = 640, c = document.createElement("canvas"); c.width = w; c.height = h;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = glow ? "#000000" : "#f3f0e8"; ctx.fillRect(0, 0, w, h);
+    if (!glow) { ctx.strokeStyle = "#e4ddd0"; ctx.lineWidth = 12; ctx.strokeRect(8, 8, w - 16, h - 16); }
+    const sx = 46, sy = 46, sw = w - 92, sh = 392;
+    roundRect(ctx, sx, sy, sw, sh, 28);
+    ctx.fillStyle = glow ? "#0e3038" : "#172226"; ctx.fill();
+    if (!glow) {
+      ctx.save(); roundRect(ctx, sx, sy, sw, sh, 28); ctx.clip();
+      const g = ctx.createLinearGradient(0, sy, 0, sy + sh * .45);
+      g.addColorStop(0, "rgba(255,255,255,.18)"); g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g; ctx.fillRect(sx, sy, sw, sh * .45); ctx.restore();
+    }
+    ctx.fillStyle = glow ? "#e7fbff" : "#f4fbfb";
+    ctx.font = "600 128px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("23°", w / 2, sy + 148);
+    snowflake(ctx, w / 2 - 86, sy + 300, 30, glow ? "#c6eef4" : "#d5f0f3");
+    lampMark(ctx, w / 2 + 86, sy + 292, glow ? "#f6e2b4" : "#f0ddb0");
+    if (!glow) {
+      ctx.beginPath(); ctx.arc(w / 2, 552, 40, 0, Math.PI * 2); ctx.fillStyle = "#f7f4ee"; ctx.fill();
+      ctx.lineWidth = 6; ctx.strokeStyle = "#d0c6b6"; ctx.stroke();
+      ctx.beginPath(); ctx.arc(w / 2, 552, 8, 0, Math.PI * 2); ctx.fillStyle = "#9eb8b4"; ctx.fill();
+    }
+    const texture = new THREE.CanvasTexture(c);
+    texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+    return texture;
+  };
+  const panelAlbedo = paintPanel(false), panelGlow = paintPanel(true);
+  const panelBody = new THREE.MeshStandardMaterial({ color: "#f3f0e8", roughness: .78, metalness: 0 });
+  const panelReveal = new THREE.MeshStandardMaterial({ color: "#c9c2b4", roughness: .9, metalness: 0 });
+  const panelFaceMat = new THREE.MeshStandardMaterial({
+    map: panelAlbedo, emissive: "#b7e0e6", emissiveMap: panelGlow, emissiveIntensity: .62, roughness: .4, metalness: .02,
+  });
+  const panelPiece = (geo, mat, x, y, z, name) => {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = name; mesh.position.set(x, y, z);
+    mesh.castShadow = false; mesh.receiveShadow = true;
+    smartPanel.add(mesh); return mesh;
+  };
+  panelPiece(new THREE.BoxGeometry(panelW + .008, panelH + .008, .003), panelReveal, 0, 0, .0015, "smart-home-panel-reveal");
+  panelPiece(new THREE.BoxGeometry(panelW, panelH, panelD), panelBody, 0, 0, .003 + panelD / 2, "smart-home-panel-body");
+  const panelFace = panelPiece(new THREE.PlaneGeometry(panelW, panelH), panelFaceMat, 0, 0, .003 + panelD + .0008, "smart-home-panel-face");
+  panelFace.castShadow = false;
+  // A matching two-rocker plate on the far side of the panel, still clear of the front corner.
+  const switchW = .086, switchH = .120;
+  const entrySwitch = new THREE.Group();
+  entrySwitch.name = "entry-switch-plate";
+  entrySwitch.position.set(W / 2 - .001, 1.30, panelCenterZ + panelW / 2 + .012 + switchW / 2);
+  entrySwitch.rotation.y = -Math.PI / 2;
+  scene.add(entrySwitch);
+  const paintSwitch = () => {
+    const w = 256, h = 360, c = document.createElement("canvas"); c.width = w; c.height = h;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#f3f0e8"; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "#e4ddd0"; ctx.lineWidth = 10; ctx.strokeRect(8, 8, w - 16, h - 16);
+    [108, 252].forEach((y) => {
+      roundRect(ctx, 48, y - 52, 160, 104, 16);
+      ctx.fillStyle = "#ddd2c2"; ctx.fill();
+      ctx.strokeStyle = "#c9beae"; ctx.lineWidth = 5; ctx.stroke();
+      ctx.fillStyle = "#b7ad9e"; ctx.fillRect(68, y - 3, 120, 6);
+    });
+    const texture = new THREE.CanvasTexture(c);
+    texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+    return texture;
+  };
+  const switchFaceMat = new THREE.MeshStandardMaterial({ map: paintSwitch(), color: "#ffffff", roughness: .8, metalness: 0 });
+  const switchPiece = (geo, mat, x, y, z, name) => {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = name; mesh.position.set(x, y, z);
+    mesh.castShadow = false; mesh.receiveShadow = true;
+    entrySwitch.add(mesh); return mesh;
+  };
+  switchPiece(new THREE.BoxGeometry(switchW + .006, switchH + .006, .003), panelReveal, 0, 0, .0015, "entry-switch-reveal");
+  switchPiece(new THREE.BoxGeometry(switchW, switchH, panelD), panelBody, 0, 0, .003 + panelD / 2, "entry-switch-body");
+  switchPiece(new THREE.PlaneGeometry(switchW, switchH), switchFaceMat, 0, 0, .003 + panelD + .0008, "entry-switch-face");
+
   // The TV wall is simple code-built furniture: one calm backing, recessed open shelves,
   // a closed dark screen, and soft warm strips. No additional real-time lights are added.
   const tvWall = new THREE.Group(); tvWall.name = "tv-wall"; scene.add(tvWall);
@@ -1857,5 +1998,49 @@ export async function start({ stage, panel, lang, onReady }) {
       };
     },
     director: () => ({ playing: !!director?.started, elapsed: director?.started ? (performance.now() - director.started) / 1000 : null, view: director?.view, image: outMat.map?.image?.src, stillOpen: directorStillOpen, controlsEnabled: controls.enabled }), // local QA hook
+    climate() {
+      scene.updateMatrixWorld(true);
+      const boxOf = (obj) => new THREE.Box3().setFromObject(obj);
+      const pack = (obj) => { const b = boxOf(obj); return { min: b.min.toArray(), max: b.max.toArray(), size: b.getSize(new THREE.Vector3()).toArray() }; };
+      const panel = scene.getObjectByName("smart-home-panel");
+      const vent = scene.getObjectByName("ceiling-slot-diffuser");
+      const switches = scene.getObjectByName("entry-switch-plate");
+      const panelBox = boxOf(panel), ventBox = boxOf(vent), switchBox = boxOf(switches), doorBox = boxOf(roomDoor);
+      let lightCount = 0, fixtureLights = 0;
+      scene.traverse((obj) => { if (obj.isLight) lightCount++; });
+      panel.traverse((obj) => { if (obj.isLight) fixtureLights++; });
+      vent.traverse((obj) => { if (obj.isLight) fixtureLights++; });
+      switches.traverse((obj) => { if (obj.isLight) fixtureLights++; });
+      const ndc = (obj) => { const p = obj.getWorldPosition(new THREE.Vector3()).project(camera); return { x: p.x, y: p.y, z: p.z }; };
+      const panelCenter = panelBox.getCenter(new THREE.Vector3());
+      return {
+        panel: pack(panel), vent: pack(vent), switches: pack(switches), lightCount, fixtureLights,
+        plaqueClear: !panelBox.intersectsBox(boxOf(plaque)) && !ventBox.intersectsBox(boxOf(plaque)) && !switchBox.intersectsBox(boxOf(plaque)),
+        doorClear: !panelBox.intersectsBox(doorBox) && !switchBox.intersectsBox(doorBox),
+        frameGap: panelBox.min.z - doorBox.max.z,
+        switchGap: switchBox.min.z - panelBox.max.z,
+        latchSide: panelCenter.z > doorBox.getCenter(new THREE.Vector3()).z,
+        panelNdc: ndc(panel), ventNdc: ndc(vent), switchNdc: ndc(switches),
+        emissive: scene.getObjectByName("smart-home-panel-face").material.emissiveIntensity,
+      };
+    },
+    // QA framing only. Does not change orbit limits or add a light.
+    frameClimate(kind) {
+      intro = false;
+      const panelFocus = scene.getObjectByName("smart-home-panel").getWorldPosition(new THREE.Vector3());
+      if (kind === "panel") {
+        camera.position.set(panelFocus.x - .42, panelFocus.y - .02, panelFocus.z - .06);
+        camera.lookAt(panelFocus.x, panelFocus.y, panelFocus.z + .05);
+      } else if (kind === "entry") {
+        const phone = camera.aspect < .8;
+        // Close enough that the 10 cm plate reads, still showing the latch stile beside it.
+        const lookZ = panelFocus.z - (phone ? .25 : .40);
+        camera.position.set(phone ? 1.55 : 1.35, 1.32, lookZ);
+        camera.lookAt(W / 2 - .05, phone ? 1.26 : 1.28, lookZ);
+      } else return false;
+      camera.updateProjectionMatrix();
+      render();
+      return true;
+    },
   };
 }
