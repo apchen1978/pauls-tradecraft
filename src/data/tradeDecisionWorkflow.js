@@ -143,7 +143,7 @@ export const stages = [
         description: "把剛進來的詢問整理成一份可以判斷的檔案。",
         tool: "整理詢盤內容，抽出買方資訊與產品類別，並把需求排成結構。",
         person: "判斷來源是否可信，以及這筆詢問值不值得花時間。",
-        evidence: "此示範：虛構的 Kensington Pattern Co. 詢問美式純紙牆紙，想了解第一櫃的可能性。沒有真實信件，也沒有接觸。",
+        evidence: "此示範：虛構的 Kensington Pattern Co. 詢問美國壁紙，想了解第一櫃的可能性。沒有真實信件，也沒有接觸。",
         output: "詢盤檔案",
         gate: "是否已有開始資格判斷的最低資訊。",
         pass: "買方、產品類別與詢問目的都已寫下，負責人認為值得繼續。",
@@ -154,7 +154,7 @@ export const stages = [
         description: "Organize a new inquiry into a file a person can judge.",
         tool: "Organize the inquiry, extract buyer information and product category, and structure the requirements.",
         person: "Judge whether the source is credible and whether the inquiry deserves attention.",
-        evidence: "In this demo, fictional Kensington Pattern Co. asks about American-style pure-paper wallpaper and a possible first container. There is no real letter and no contact.",
+        evidence: "In this demo, fictional Kensington Pattern Co. asks about American-roll wallpaper and a possible first container. There is no real letter and no contact.",
         output: "Lead profile",
         gate: "Whether there is enough information to start qualification.",
         pass: "Buyer, product category, and the purpose of the inquiry are written down, and the decision-maker judges it worth continuing.",
@@ -321,11 +321,11 @@ export const stages = [
 export const workflowEntry = {
   zh: {
     cta: "走一遍六道關卡",
-    note: "同一份虛構的純紙牆紙詢盤，在下方案例裡操作。示範／成效未驗證。",
+    note: "同一份虛構的美國壁紙詢盤，在下方案例裡操作。示範／成效未驗證。",
   },
   en: {
     cta: "Walk the six gates",
-    note: "The same fictional pure-paper wallpaper inquiry, in the case detail below. Demo / outcomes not validated.",
+    note: "The same fictional 27-inch (American-roll) wallpaper inquiry, in the case detail below. Demo / outcomes not validated.",
   },
 };
 
@@ -334,8 +334,8 @@ export const workflowCopy = {
     title: "從詢盤到報價：六道關卡",
     intro: "一筆詢盤要走到報價，中間有六道關卡。工具先把資料整理好；價格、風險與承諾由人決定。",
     complement: "走到最後只留下一筆模擬核准紀錄，不會送出任何文件。",
-    scenarioTitle: "虛構情境 · 美式純紙牆紙 · 第一櫃",
-    scenarioBody: "虛構的 Kensington Pattern Co. 詢問美式純紙牆紙，想把第一張單做到一個櫃子。沒有真實接觸。FOB 上海每卷 USD 10–15。卷規格 0.686 × 8.23 m。MOQ 1,000 直米。付款接受線：訂金 30%，餘款出貨前付清。本示範設定的報價毛利約 35%。這些是條件，不是已發生的成效。",
+    scenarioTitle: "虛構情境 · 美國壁紙 · 第一櫃",
+    scenarioBody: "虛構的 Kensington Pattern Co. 詢問美國壁紙，想把第一張單做到一個櫃子。沒有真實接觸。FOB 上海每卷 USD 10–15。卷規格 0.686 × 8.23 m。MOQ 1,000 直米。付款接受線：訂金 30%，餘款出貨前付清。本示範設定的報價毛利約 35%。這些是條件，不是已發生的成效。",
     storyLink: "同一份虛構條件的四站故事線",
     selectHint: "點一關只會打開它，不會把它標為通過。",
     columnsTool: "工具先整理",
@@ -387,8 +387,8 @@ export const workflowCopy = {
     title: "From Inquiry to Quote: Six Decision Gates",
     intro: "Six gates sit between an inquiry and a quotation. Tools prepare the record. A person decides price, risk, and any commitment.",
     complement: "The last step leaves a simulated approval record only. Nothing is sent.",
-    scenarioTitle: "Fictional scenario · pure-paper wallpaper · first container",
-    scenarioBody: "Fictional Kensington Pattern Co. asks about American-style pure-paper wallpaper and whether a first order could fill one container. There was no real contact. FOB Shanghai USD 10–15 per roll. Roll size 0.686 × 8.23 m. MOQ 1,000 linear meters (直米). Acceptable payment line: 30% deposit, balance before shipment. This demo sets the quote margin at about 35%. These are conditions, not results that have occurred.",
+    scenarioTitle: "Fictional scenario · 27-inch (American-roll) wallpaper · first container",
+    scenarioBody: "Fictional Kensington Pattern Co. asks about American-roll wallpaper and whether a first order could fill one container. There was no real contact. FOB Shanghai USD 10–15 per roll. Roll size 0.686 × 8.23 m. MOQ 1,000 linear meters (直米). Acceptable payment line: 30% deposit, balance before shipment. This demo sets the quote margin at about 35%. These are conditions, not results that have occurred.",
     storyLink: "The four-station storyline for these same fictional conditions",
     selectHint: "Selecting a gate opens it. It does not mark the gate as passed.",
     columnsTool: "Prepared by tools",

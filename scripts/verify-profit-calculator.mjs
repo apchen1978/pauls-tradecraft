@@ -203,8 +203,8 @@ test("both languages carry the case facts and the same shape", () => {
   assert.match(text, /35%/);
   assert.match(text, /示範／虛構數字/);
   assert.match(text, /Demo with fictional numbers/);
-  assert.equal(calculatorCopy.zh.intro, "虛構的美式純紙牆紙第一櫃：FOB 上海每卷 USD 10–15，MOQ 1,000 直米（約 122 卷），20 呎櫃估算 3,000–5,000 卷，訂金 30%，餘款出貨前付清。");
-  assert.equal(calculatorCopy.en.intro, "Fictional first container of American-style pure-paper wallpaper: FOB Shanghai USD 10–15 per roll, MOQ 1,000 linear meters (直米, about 122 rolls), a 20-foot container estimated at 3,000–5,000 rolls, 30% deposit, balance before shipment.");
+  assert.equal(calculatorCopy.zh.intro, "虛構的美國壁紙第一櫃：FOB 上海每卷 USD 10–15，MOQ 1,000 直米（約 122 卷），20 呎櫃估算 3,000–5,000 卷，訂金 30%，餘款出貨前付清。");
+  assert.equal(calculatorCopy.en.intro, "Fictional first container of 27-inch (American-roll) wallpaper: FOB Shanghai USD 10–15 per roll, MOQ 1,000 linear meters (直米, about 122 rolls), a 20-foot container estimated at 3,000–5,000 rolls, 30% deposit, balance before shipment.");
   assert.equal(text.includes("售價取這個區間的中間"), false);
   assert.equal(text.includes("middle of that band"), false);
   assert.equal(calculatorCopy.zh.fields.freight.label, "出口前費用（內陸運輸、報關、港雜）");
