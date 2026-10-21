@@ -322,11 +322,41 @@ function renderEnterpriseResult() {
   $("access-result-copy").textContent = message;
 }
 
+function renderRollout() {
+  const x = PART_TWO[state.lang];
+  $("rollout-title").textContent = x.rolloutTitle;
+  $("rollout-lead").textContent = x.rolloutLead;
+  $("rollout-steps").replaceChildren(...x.rollout.map((step, index) => {
+    const item = el("li");
+    const link = el("a", "rollout-step");
+    link.href = step.href;
+    link.append(el("span", "rollout-mark", String(index + 1)), el("span", "rollout-label", step.label));
+    item.appendChild(link);
+    if (index < x.rollout.length - 1) {
+      const arrow = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      arrow.setAttribute("class", "rollout-arrow");
+      arrow.setAttribute("viewBox", "0 0 16 16");
+      arrow.setAttribute("aria-hidden", "true");
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", "M3 8h9M8 3.5 12.5 8 8 12.5");
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "currentColor");
+      path.setAttribute("stroke-width", "1.5");
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("stroke-linejoin", "round");
+      arrow.appendChild(path);
+      item.appendChild(arrow);
+    }
+    return item;
+  }));
+}
+
 function renderEnterprise() {
   const x = PART_TWO[state.lang];
   $("part2-kicker").textContent = x.partKicker;
   $("part2-title").textContent = x.partTitle;
   $("part2-intro").replaceChildren(...x.partIntro.map((line) => el("p", "sub", line)));
+  renderRollout();
   $("c13-no").textContent = x.no;
   $("c13-title").textContent = x.title;
   $("c13-lead").textContent = x.lead;
