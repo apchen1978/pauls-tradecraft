@@ -1896,8 +1896,9 @@ export async function start({ stage, panel, lang, onReady }) {
   let downAt = null, hopping = false, hopRun = 0, suppressTap = false;
   function positionRobotBubble() {
     if (!robotBubble || robotBubble.hidden) return;
-    const head = robotObj.getWorldPosition(new THREE.Vector3());
-    head.y += rH * .72;
+    robotObj.updateWorldMatrix(true, true);
+    const bounds = new THREE.Box3().setFromObject(robotObj);
+    const head = new THREE.Vector3((bounds.min.x + bounds.max.x) / 2, bounds.max.y, (bounds.min.z + bounds.max.z) / 2);
     head.project(camera);
     const rect = stage.getBoundingClientRect();
     const half = robotBubble.offsetWidth / 2;
