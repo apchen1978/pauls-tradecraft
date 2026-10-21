@@ -23,7 +23,7 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("#c15-demo")).toHaveText(x.demo);
       expect(x.bridge).toBe(EXPECTED_BRIDGE[lang]);
       await expect(page.locator("#c14-to-c15")).toHaveText(x.bridge);
-      await expect(page.locator("#rail .rail-dot")).toHaveCount(NAV_CHAPTERS.length + 1);
+      await expect(page.locator("#rail .rail-dot")).toHaveCount(NAV_CHAPTERS.length);
       await expect(page.locator("#rail a[href='#c15']")).toHaveCount(1);
       await expect(page.locator("#toc a[href='#c15']")).toHaveCount(0);
       await expect(page.locator("#toc a")).toHaveCount(TEXT[lang].toc.length + 1);

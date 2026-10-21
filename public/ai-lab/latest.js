@@ -1,4 +1,4 @@
-// AI Lab "latest observations": a few new AI capabilities each week, what they do, what we took from them.
+// AI Lab "latest observations": a few new AI capabilities from time to time, what they do, what we took from them.
 // Source of truth for the notes: digital-garage/observations/AI能力觀察筆記.md. Only verified or clearly labelled reports;
 // links only, no copied images or code. Add new entries at the top; keep about six on the page.
 // tag: "inUse" = we already use it or its method; "watching" = observing, not adopted.
@@ -67,6 +67,6 @@ export const LATEST = [
 ];
 
 export const LATEST_TEXT = {
-  zh: { kicker: "LATEST · 每週更新", title: "最新觀察", lead: "每週記下幾則新的 AI 能力：它做到了什麼、我們學到什麼、要不要用。只寫查得到的，附來源。", tags: { inUse: "我們在用", watching: "觀察中" }, source: "來源", took: "我們怎麼看" },
-  en: { kicker: "LATEST · weekly", title: "Latest observations", lead: "Each week, a few new AI capabilities: what they do, what we took from them, and whether we use them. Only what can be checked, with sources.", tags: { inUse: "We use this", watching: "Watching" }, source: "Source", took: "Our take" },
+  zh: { kicker: "LATEST · 不定期更新", title: "最新觀察", lead: "不定期記下幾則新的 AI 能力：它做到了什麼、我們學到什麼、要不要用。只寫查得到的，附來源。", tags: { inUse: "我們在用", watching: "觀察中" }, source: "來源", took: "我們怎麼看" },
+  en: { kicker: "LATEST · Updated from time to time", title: "Latest observations", lead: "From time to time, a few new AI capabilities: what they do, what we took from them, and whether we use them. Only what can be checked, with sources.", tags: { inUse: "We use this", watching: "Watching" }, source: "Source", took: "Our take" },
 };

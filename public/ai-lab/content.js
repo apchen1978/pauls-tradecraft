@@ -11,7 +11,7 @@ export const NAV_CHAPTERS = [
   { id: "c6", mark: "06" }, { id: "c7", mark: "07" }, { id: "c8", mark: "08" },
   { id: "c9", mark: "09" }, { id: "c10", mark: "10" }, { id: "c11", mark: "11" },
   { id: "c12", mark: "12" }, { id: "part2", mark: "II" }, { id: "c13", mark: "13" }, { id: "c14", mark: "14" }, { id: "c15", mark: "15" },
-  { id: "c17", mark: "17" }, { id: "latest", mark: "NEW" },
+  { id: "c16", mark: "16" }, { id: "c17", mark: "17" }, { id: "latest", mark: "NEW" },
 ];
 
 export const TEXT = {
@@ -35,7 +35,7 @@ export const TEXT = {
       ["wait", "停下來：等負責人確認價格和交期"],
     ],
     consoleCap: "示範畫面，不是真實模型的輸出。",
-    rail: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "上下文", "工具", "驗證", "多 agent", "治理", "怎麼錯", "前沿", "教負責人", "第二部・企業篇", "權限台", "交辦階梯", "打包台", "工具有人用嗎？", "最新觀察"],
+    rail: ["你在哪一層", "AI 在做什麼", "聊天和交辦", "人在哪裡", "我的 AI 團隊", "上下文", "工具", "驗證", "多 agent", "治理", "怎麼錯", "前沿", "教負責人", "第二部・企業篇", "權限台", "交辦階梯", "打包台", "寫下判斷", "工具有人用嗎？", "最新觀察"],
     c0: {
       no: "00",
       title: "你在漏斗的哪一層？",
@@ -116,8 +116,15 @@ export const TEXT = {
       playWork: "玩這件作品",
       method: "我的工作方法",
     },
+    fastRoute: {
+      title: "我是負責人：15 分鐘版",
+      guide: "負責人的 AI 入門：一頁指南",
+    },
     ctaTitle: "想看看你的哪一件工作，可以先交給 AI？",
-    cta: "聊聊你的工作",
+    ctaChoices: [
+      { title: "帶負責人上手 AI", body: "談怎麼帶負責人開始用 AI。" },
+      { title: "詢盤接待與報價跟進", body: "談詢價進來後怎麼接待，以及報價之後怎麼跟。" },
+    ],
     footer: "示範內容不是真實模型的輸出，不宣稱任何成效。第三方的估計都標了來源。",
   },
   en: {
@@ -140,7 +147,7 @@ export const TEXT = {
       ["wait", "Stop: waiting for the person in charge to confirm price and lead time"],
     ],
     consoleCap: "An illustration, not output from a real model.",
-    rail: ["Which tier", "What AI does", "Chat vs delegate", "The human", "My AI team", "Context", "Tools", "Verification", "Agents", "Governance", "Mistakes", "Frontier", "Teaching", "Part II · Enterprise", "Access desk", "Delegation ladder", "Packaging desk", "Is anyone using it?", "Latest"],
+    rail: ["Which tier", "What AI does", "Chat vs delegate", "The human", "My AI team", "Context", "Tools", "Verification", "Agents", "Governance", "Mistakes", "Frontier", "Teaching", "Part II · Enterprise", "Access desk", "Delegation ladder", "Packaging desk", "Write the judgment", "Is anyone using it?", "Latest"],
     c0: {
       no: "00",
       title: "Which tier of the funnel are you in?",
@@ -221,8 +228,15 @@ export const TEXT = {
       playWork: "Play the work",
       method: "How I work",
     },
+    fastRoute: {
+      title: "For decision-makers: the 15-minute route",
+      guide: "A decision-maker’s first page on AI",
+    },
     ctaTitle: "Which part of your work could you hand to AI first?",
-    cta: "Talk about your work",
+    ctaChoices: [
+      { title: "Help decision-makers get started with AI", body: "Talk about helping a decision-maker start with AI." },
+      { title: "Enquiry handling and quote follow-up", body: "Talk about receiving an enquiry and following up after a quote." },
+    ],
     footer: "Examples are written, not output from a real model, and claim no results. Third-party estimates carry their source.",
   },
 };
