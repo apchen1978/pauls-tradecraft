@@ -41,7 +41,7 @@ test("collection: bilingual records, local images, provenance and required-field
   }
 });
 
-for (const width of [390, 1440]) {
+for (const width of [390, 768, 1440]) {
   for (const lang of ["zh", "en"]) {
     test(`${lang} ${width}: full frames, lightbox, keyboard, focus and responsive assets`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -55,6 +55,14 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#harbours article").first()).toHaveAttribute("data-piece", "imagined-harbor");
       await expect(page.locator("#harbours article").last()).toHaveAttribute("data-piece", "modern-harbor");
       await expect(page.locator("#pair-note")).toHaveText(COLLECTION[lang].pairNote);
+      await expect(page.locator("#doors-title")).toHaveText(COLLECTION[lang].doorsTitle);
+      await expect(page.locator("#doors-note")).toHaveText(COLLECTION[lang].doorsNote);
+      await expect(page.locator("#doors article")).toHaveCount(2);
+      await expect(page.locator("#doors article").first()).toHaveAttribute("data-piece", "ai-lab-digital-room");
+      await expect(page.locator("#doors article").last()).toHaveAttribute("data-piece", "ai-lab-open-horizon");
+      const doorBoxes = await page.locator("#doors article").evaluateAll((articles) => articles.map((article) => ({ left: article.getBoundingClientRect().left, top: article.getBoundingClientRect().top })));
+      if (width === 390) expect(doorBoxes[1].top).toBeGreaterThan(doorBoxes[0].top);
+      else expect(Math.abs(doorBoxes[1].top - doorBoxes[0].top)).toBeLessThan(2);
       await noOverflow(page);
       const before = await page.evaluate(() => performance.getEntriesByType("resource").map((r) => r.name));
       expect(before.filter((r) => /gallery\/assets\/.*\.webp/.test(r)).every((r) => r.endsWith("-thumb.webp"))).toBe(true);

@@ -279,6 +279,37 @@
     ]
   },
   {
+    "id": "ai-lab-digital-room",
+    "source": "docs/gallery/sources/ai-lab-digital-room-smart-home-wallpaper-v3.png",
+    "sourceSha256": "859a954a0a4bc0abd2fe4aac714c9031a20b34df1778da1992d7f5fc08301688",
+    "derivatives": [
+      {
+        "file": "ai-lab-digital-room.webp",
+        "width": 1024,
+        "height": 576,
+        "bytes": 83556,
+        "quality": 72,
+        "sha256": "72e73fffa362c955068e6c47b68b486a3d3f7e12ff768c4a04c574945c343f26"
+      },
+      {
+        "file": "ai-lab-digital-room-mobile.webp",
+        "width": 800,
+        "height": 450,
+        "bytes": 62228,
+        "quality": 76,
+        "sha256": "184f76a6caa0f5b4ee002f2f182ccb3d6ef23d6d1b2e480caf9b6fdd74214929"
+      },
+      {
+        "file": "ai-lab-digital-room-thumb.webp",
+        "width": 480,
+        "height": 270,
+        "bytes": 31016,
+        "quality": 80,
+        "sha256": "6141251d29273423bd7dcfad607b6cafc42a5e3b7e2229b0401ee05ea31fb35e"
+      }
+    ]
+  },
+  {
     "id": "ai-lab-open-horizon",
     "source": "docs/gallery/sources/ai-lab-open-horizon-original.png",
     "sourceSha256": "bce97476b81837bd32645d454a613ba72bb3e6ba98cb2353e7d0cb2755b44ff6",

@@ -6,7 +6,7 @@ const copy = COLLECTION[lang];
 const $ = (id) => document.getElementById(id);
 document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
 document.title = `${copy.title} · Paul’s Tradecraft`;
-for (const [id, key] of Object.entries({ title: "title", subtitle: "subtitle", skip: "skip", hint: "hint", "pair-title": "pairTitle", "pair-note": "pairNote", "more-title": "moreTitle", "more-note": "moreNote", back: "back", close: "close", previous: "previous", next: "next", "made-label": "made" })) $(id).textContent = copy[key];
+for (const [id, key] of Object.entries({ title: "title", subtitle: "subtitle", skip: "skip", hint: "hint", "pair-title": "pairTitle", "pair-note": "pairNote", "doors-title": "doorsTitle", "doors-note": "doorsNote", "more-title": "moreTitle", "more-note": "moreNote", back: "back", close: "close", previous: "previous", next: "next", "made-label": "made" })) $(id).textContent = copy[key];
 $("home").href = `/?lang=${lang}`;
 $("home").ariaLabel = copy.home;
 $("back").href = `/ai-lab/?lang=${lang}#spirit-end`;
@@ -64,7 +64,7 @@ function makePainting(piece, index) {
   return article;
 }
 PIECES.forEach((piece, index) => {
-  const slot = piece.id === "harbor-dusk" ? "solo" : index < 2 ? "harbours" : "collection";
+  const slot = piece.id === "harbor-dusk" ? "solo" : ["ai-lab-digital-room", "ai-lab-open-horizon"].includes(piece.id) ? "doors" : index < 2 ? "harbours" : "collection";
   $(slot).append(makePainting(piece, index));
 });
 $("solo-section").hidden = false;
