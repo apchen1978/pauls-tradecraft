@@ -33,8 +33,20 @@ test("enquiry copy matches in both languages and echoes chapter 03", () => {
   expect(JSON.stringify(ENQUIRY.zh.quoteLines)).toContain("USD __ / m");
   expect(JSON.stringify(ENQUIRY.en.quoteLines)).toContain("USD __ / m");
   expect(JSON.stringify(ENQUIRY.zh.quoteLines)).toContain("示意");
+  const letter = `${ENQUIRY.zh.email.subject}\n${ENQUIRY.zh.email.paragraphs.join("\n")}\n${ENQUIRY.en.email.subject}\n${ENQUIRY.en.email.paragraphs.join("\n")}`;
+  expect(letter).toContain("遮光簾");
+  expect(letter).toContain("壁布");
+  expect(letter).toContain("波斯風格");
+  expect(letter).toContain("走廊");
+  expect(letter).toContain("blackout curtains");
+  expect(letter).toContain("fabric-backed wallcovering");
+  expect(letter).toContain("Persian-style area rug");
+  expect(letter).toContain("wall-to-wall carpet for the corridors");
+  expect(ENQUIRY.zh.email.subject.indexOf("遮光簾")).toBeLessThan(ENQUIRY.zh.email.subject.indexOf("壁布"));
+  expect(ENQUIRY.en.email.subject.toLowerCase().indexOf("blackout")).toBeLessThan(ENQUIRY.en.email.subject.toLowerCase().indexOf("wallcovering"));
+  expect(letter).not.toMatch(/壁紙|wallpaper|戶外|outdoor/i);
   const blob = JSON.stringify(ENQUIRY);
-  expect(blob).not.toMatch(/ROI|轉換率|成交率|保證|guarantee|老闆|老板|中間層|\bA2A\b|\bCDD\b|前職|Former role|\bowner\b|\bboss\b/i);
+  expect(blob).not.toMatch(/ROI|轉換率|成交率|保證|guarantee|老闆|老板|中間層|\bA2A\b|\bCDD\b|前職|Former role|\bowner\b|\bboss\b|壁紙|wallpaper|戶外|outdoor/i);
   for (const step of [...ENQUIRY.zh.steps, ...ENQUIRY.en.steps]) expect(step.why.endsWith(step.why.includes("。") ? "。" : ".") || step.why.endsWith(".")).toBe(true);
 });
 
