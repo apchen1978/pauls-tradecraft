@@ -1431,7 +1431,7 @@ export async function start({ stage, panel, lang, onReady }) {
     updateRightArtLight(v);
     updateLeftArtLight(v);
     // The hall stand uses the same lamps. Only the soft floor contact lifts in brighter moods.
-    if (standContact) standContact.material.opacity = THREE.MathUtils.clamp(.34 - v.hemi * .08, .16, .34);
+    if (standContact) standContact.material.opacity = THREE.MathUtils.clamp(.22 - v.hemi * .05, .1, .22);
     if (standWall) standWall.material.opacity = THREE.MathUtils.clamp(.4 - v.hemi * .1, .16, .4);
   }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1873,7 +1873,7 @@ export async function start({ stage, panel, lang, onReady }) {
   });
   new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
   phoneActions.addEventListener("change", () => drawPanel());
-  // Hall stand in the front-left corner: walnut pole, brass hooks, a heavy dark-stone base.
+  // Hall stand in the front-left corner: walnut pole, brass hooks, a warm white stone base.
   // The scanned coat was one 60,000-triangle mesh. Cloth triangles reached 25 cm and the pole
   // reached 73 cm, so the coat came apart into shards. The pole was torn the same way, so the
   // stand is built from plain shapes instead of that file. A red knit scarf hangs on one hook.
@@ -1903,24 +1903,10 @@ export async function start({ stage, panel, lang, onReady }) {
     tex.anisotropy = 4;
     return tex;
   }
-  function hashUnit(x, y) {
-    const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-    return n - Math.floor(n);
-  }
-  function fadeUnit(t) { return t * t * (3 - 2 * t); }
-  function valueNoise(x, y) {
-    const x0 = Math.floor(x), y0 = Math.floor(y);
-    const tx = fadeUnit(x - x0), ty = fadeUnit(y - y0);
-    const a = hashUnit(x0, y0), b = hashUnit(x0 + 1, y0), c = hashUnit(x0, y0 + 1), d = hashUnit(x0 + 1, y0 + 1);
-    return a + (b - a) * tx + (c - a) * ty + (a - b - c + d) * tx * ty;
-  }
-  function stoneFbm(x, y) {
-    return valueNoise(x, y) * .55 + valueNoise(x * 2.1, y * 2.1) * .3 + valueNoise(x * 4.3, y * 4.3) * .15;
-  }
-  // Dark honed marble: low-contrast mineral grain and a few soft veins, plus a roughness map
-  // so the same lamps pick out the round edge instead of a flat painted disc.
-  function honedMarbleTextures() {
-    const size = 192;
+  // Warm Carrara: mostly #ECE8E1, with a few thin grey wisps. One 1024 tile covers the
+  // whole disc, so the same veins can walk off the top and down the rounded rim.
+  function carraraTextures() {
+    const size = 1024;
     const albedo = document.createElement("canvas");
     albedo.width = albedo.height = size;
     const actx = albedo.getContext("2d", { willReadFrequently: true });
@@ -1930,35 +1916,56 @@ export async function start({ stage, panel, lang, onReady }) {
     const rctx = roughCanvas.getContext("2d", { willReadFrequently: true });
     const roughPx = rctx.createImageData(size, size);
     const color = pixels.data, rough = roughPx.data;
+    const hash2 = (ix, iy) => {
+      let n = Math.imul(ix, 374761393) + Math.imul(iy, 668265263);
+      n = Math.imul(n ^ (n >>> 13), 1274126177);
+      return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+    };
+    const fade = (t) => t * t * (3 - 2 * t);
+    const noise = (x, y) => {
+      const x0 = Math.floor(x), y0 = Math.floor(y);
+      const tx = fade(x - x0), ty = fade(y - y0);
+      const a = hash2(x0, y0), b = hash2(x0 + 1, y0), c = hash2(x0, y0 + 1), d = hash2(x0 + 1, y0 + 1);
+      return a + (b - a) * tx + (c - a) * ty + (a - b - c + d) * tx * ty;
+    };
+    const fbm = (x, y) => noise(x, y) * .55 + noise(x * 2.03 + 1.7, y * 2.03) * .3 + noise(x * 4.07 + 3.1, y * 4.07) * .15;
+    const clampByte = (v) => v < 0 ? 0 : v > 255 ? 255 : v;
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
         const i = (y * size + x) * 4;
-        const warp = stoneFbm(x * .018 + 2.2, y * .018);
-        const grain = stoneFbm(x * .09, y * .09);
-        const fine = valueNoise(x * .42, y * .42);
-        const band = Math.sin(x * .05 + warp * 4.8 + Math.sin(y * .028) * 1.7);
-        const vein = Math.exp(-band * band * 7.5);
-        const band2 = Math.sin(y * .024 + x * .011 + warp * 3);
-        const vein2 = Math.exp(-band2 * band2 * 11) * .5;
-        let v = 48 + grain * 18 + (fine - .5) * 12 + vein * 52 + vein2 * 28;
-        v = Math.max(28, Math.min(148, v));
-        color[i] = v * 1.05; color[i + 1] = v * .99; color[i + 2] = v * .94; color[i + 3] = 255;
-        let nr = .78 - vein * .2 - vein2 * .1 + (fine - .5) * .07;
-        nr = Math.max(.48, Math.min(.9, nr));
-        const g = Math.round(nr * 255);
-        rough[i] = rough[i + 1] = rough[i + 2] = g; rough[i + 3] = 255;
+        const wx = fbm(x * .0035 + 2.2, y * .0035);
+        const wy = fbm(x * .0035 + 8.4, y * .0035 + 3.7);
+        const field = fbm(x * .009 + wy * 7.5, y * .009 + wx * 7.5);
+        const region = fbm(x * .0024 + 14, y * .0024 + 2);
+        const mask = Math.max(0, (region - .46) / .42);
+        const vein = Math.exp(-(field - .5) * (field - .5) * 260) * mask;
+        const wispField = fbm(x * .016 + wx * 4 + 20, y * .014 + wy * 4);
+        const wisp = Math.exp(-(wispField - .58) * (wispField - .58) * 520) * Math.max(0, region - .52);
+        const cloud = (fbm(x * .006, y * .006) - .5) * 7;
+        const fine = (noise(x * .28, y * .28) - .5) * 3.5;
+        const shade = vein * 36 + wisp * 18;
+        color[i] = clampByte(236 + cloud + fine - shade * 1.05);
+        color[i + 1] = clampByte(232 + cloud * .9 + fine * .85 - shade * .95);
+        color[i + 2] = clampByte(225 + cloud * .8 + fine * .7 - shade * .72);
+        color[i + 3] = 255;
+        let nr = .3 + (fine / 3.5) * .02 + vein * .03;
+        if (nr < .25) nr = .25;
+        if (nr > .35) nr = .35;
+        const g = (nr * 255 + .5) | 0;
+        rough[i] = rough[i + 1] = rough[i + 2] = g;
+        rough[i + 3] = 255;
       }
     }
     actx.putImageData(pixels, 0, 0);
     rctx.putImageData(roughPx, 0, 0);
     const map = new THREE.CanvasTexture(albedo);
     map.colorSpace = THREE.SRGBColorSpace;
-    map.anisotropy = 4;
-    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+    map.anisotropy = 8;
+    map.wrapS = map.wrapT = THREE.ClampToEdgeWrapping;
     const roughnessMap = new THREE.CanvasTexture(roughCanvas);
     roughnessMap.colorSpace = THREE.LinearSRGBColorSpace;
-    roughnessMap.anisotropy = 4;
-    roughnessMap.wrapS = roughnessMap.wrapT = THREE.RepeatWrapping;
+    roughnessMap.anisotropy = 8;
+    roughnessMap.wrapS = roughnessMap.wrapT = THREE.ClampToEdgeWrapping;
     return { map, roughnessMap };
   }
   function walnutMaps() {
@@ -2047,10 +2054,14 @@ export async function start({ stage, panel, lang, onReady }) {
     const geo = new THREE.LatheGeometry(roundedBaseProfile(), 56);
     const pos = geo.attributes.position, uv = geo.attributes.uv;
     geo.computeVertexNormals();
-    const nrm = geo.attributes.normal, span = STAND_BASE_R * 2;
+    // Unfold the top, the bullnose, and the collar into one radial patch. Walking
+    // down the rim adds the vertical run to the radius, so a vein keeps its width.
+    const H = STAND_DISC_H, span = (STAND_BASE_R + .06) * 2;
     for (let i = 0; i < pos.count; i++) {
-      if (nrm.getY(i) < .5) continue;
-      uv.setXY(i, pos.getX(i) / span + .5, pos.getZ(i) / span + .5);
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      const r = Math.hypot(x, z) || 1e-6;
+      const uRadius = r + Math.max(0, H - y) + Math.max(0, y - H);
+      uv.setXY(i, .5 + (x / r) * uRadius / span, .5 + (z / r) * uRadius / span);
     }
     uv.needsUpdate = true;
     return geo;
@@ -2139,10 +2150,10 @@ export async function start({ stage, panel, lang, onReady }) {
     const wood = walnutMaps();
     const walnut = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 1, metalness: .04, map: wood.map, roughnessMap: wood.roughnessMap });
     standBrass = new THREE.MeshStandardMaterial({ color: "#c4a15a", roughness: .42, metalness: .86, roughnessMap: variedRoughness(.14) });
-    const stone = honedMarbleTextures();
+    const stone = carraraTextures();
     standBaseMat = new THREE.MeshPhysicalMaterial({
       color: "#ffffff", map: stone.map, roughnessMap: stone.roughnessMap,
-      roughness: 1, metalness: .04, clearcoat: .05, clearcoatRoughness: .78,
+      roughness: 1, metalness: 0, clearcoat: .1, clearcoatRoughness: .5,
     });
     standScarfMat = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .96, metalness: 0, side: THREE.DoubleSide, map: knitTexture() });
     const baseMesh = standPart(weightedBaseGeometry(), standBaseMat, "hall-stand-base", group);
@@ -2201,10 +2212,10 @@ export async function start({ stage, panel, lang, onReady }) {
       const cx = size / 2;
       const g = ctx.createRadialGradient(cx, cx, cx * .58, cx, cx, cx);
       g.addColorStop(0, "rgba(255,255,255,0)");
-      g.addColorStop(.62, "rgba(255,255,255,.05)");
-      g.addColorStop(.74, "rgba(255,255,255,.92)");
-      g.addColorStop(.84, "rgba(255,255,255,.48)");
-      g.addColorStop(.94, "rgba(255,255,255,.16)");
+      g.addColorStop(.62, "rgba(255,255,255,.03)");
+      g.addColorStop(.74, "rgba(255,255,255,.58)");
+      g.addColorStop(.84, "rgba(255,255,255,.28)");
+      g.addColorStop(.94, "rgba(255,255,255,.08)");
       g.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = g; ctx.fillRect(0, 0, size, size);
       const img = ctx.getImageData(0, 0, size, size), data = img.data;
@@ -2217,7 +2228,7 @@ export async function start({ stage, panel, lang, onReady }) {
       ctx.putImageData(img, 0, 0);
       const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace; return tex;
     })();
-    standContact = new THREE.Mesh(new THREE.CircleGeometry(radius * 1.36, 48), new THREE.MeshBasicMaterial({ map: contactTex, color: "#2a241c", transparent: true, depthWrite: false, opacity: .32, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }));
+    standContact = new THREE.Mesh(new THREE.CircleGeometry(radius * 1.36, 48), new THREE.MeshBasicMaterial({ map: contactTex, color: "#6a6258", transparent: true, depthWrite: false, opacity: .18, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }));
     standContact.name = "hall-stand-contact";
     standContact.rotation.x = -Math.PI / 2;
     standContact.position.set((base.min.x + base.max.x) / 2, .003, (base.min.z + base.max.z) / 2);
