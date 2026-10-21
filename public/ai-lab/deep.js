@@ -165,7 +165,7 @@ export const DEEP = {
       closing: [
         "這一章只寫過程，不寫成果。那位朋友的網站，Paul 說已經做得相當完整、很漂亮，連他自己都被 AI 的能力嚇了一跳。",
         "有趣的是，問題反過來了：他覺得網站太複雜。看網站的人常常只停留一兩分鐘，所以他現在在想怎麼改成「少即是多」。網站還沒部署，也沒有量過省了多少時間或費用。",
-        "Paul 覺得這次教學最值得的，是對方親眼看到了成果。那位原本對 AI 有距離的人，現在願意自己動手、持續學習：一開始只把 AI 當聊天機器人，慢慢看 Paul 給的圖片和影片連結，後來加入一起學。",
+        "Paul 覺得這次教學最值得的，是對方親眼看到了成果。",
         "Paul 說：「我光覺得他是我的學習 partner，就覺得非常欣慰。」他仍常來問問題，還不能說已經獨立。",
       ],
     },
@@ -313,7 +313,7 @@ export const DEEP = {
       closing: [
         "This chapter covers the process only, not results. Paul says the friend's site is already quite complete and very good-looking, and the friend himself was startled by what AI could do.",
         "The interesting part is that the problem has flipped: he now feels it is too complicated. People often stay on a website only a minute or two, so he is working out how to make it \"less is more\". The site is not deployed, and no time or cost saving has been measured.",
-        "For Paul, the most worthwhile part was that the decision-maker saw the results first-hand. Someone who kept a distance from AI now builds things himself and keeps learning: he started by using AI only as a chatbot, slowly worked through the images and video links Paul sent, and then joined in.",
+        "For Paul, the most worthwhile part was that the decision-maker saw the results first-hand.",
         "Paul says: \"Just feeling that he is my learning partner makes me very happy.\" He still asks questions often, so it would be too early to call him independent.",
       ],
     },
