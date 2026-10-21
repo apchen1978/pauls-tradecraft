@@ -81,9 +81,11 @@ for (const width of [390, 1440]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (await page.locator("#panelToggle").isVisible()) await page.locator("#panelToggle").click();
     const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "存成明信片", exact: true }).click()]);
-    const file = testInfo.outputPath(`door-postcard-${width}.png`);
+    const file = testInfo.outputPath(`door-postcard-${width}.webp`);
     await download.saveAs(file);
-    expect((await readFile(file)).subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+    const art = await readFile(file);
+    expect(art.toString("ascii", 0, 4)).toBe("RIFF");
+    expect(art.toString("ascii", 8, 12)).toBe("WEBP");
     expect(errors).toEqual([]);
   });
 }
@@ -944,8 +946,10 @@ for (const lang of ["zh", "en"]) {
           expect(result.width).toBe(result.sourceWidth);
         }
         const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: lang === "zh" ? "存成明信片" : "Save as a postcard", exact: true }).click()]);
-        const file = testInfo.outputPath(`${lang}-${dpr}-postcard.png`); await download.saveAs(file);
-        expect((await readFile(file)).subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+        const file = testInfo.outputPath(`${lang}-${dpr}-postcard.webp`); await download.saveAs(file);
+        const art = await readFile(file);
+        expect(art.toString("ascii", 0, 4)).toBe("RIFF");
+        expect(art.toString("ascii", 8, 12)).toBe("WEBP");
       } finally { await context.close(); }
     });
   }
