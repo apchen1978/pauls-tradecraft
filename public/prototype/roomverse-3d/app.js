@@ -16,6 +16,14 @@ const PHONE_BAR = {
   zh: { save: "存成明信片", shuffle: "隨機搭一間", director: "8秒短片", stop: "停止短片", close: "收起對照", preparing: "準備中" },
   en: { save: "Save postcard", shuffle: "Random room", director: "8s tour", stop: "Stop", close: "Close", preparing: "Preparing" },
 };
+const ROBOT_MOOD_LINES = {
+  rain: { zh: "聽雨聲，剛剛好。", en: "The rain sounds just right." },
+  family: { zh: "好像聞到晚餐香了。", en: "Feels like dinner is nearly ready." },
+  tech: { zh: "安靜一點，靈感來了。", en: "A little quiet, a little inspiration." },
+  chic: { zh: "今天的光很有精神。", en: "The light has a little sparkle today." },
+  slow: { zh: "慢慢來，也很好。", en: "No rush. This feels good." },
+  tv: { zh: "今晚的沙發時間開始啦。", en: "Sofa time starts now." },
+};
 const POSTCARD_ART = new Set(["rain", "family", "tech", "chic", "slow", "tv"]);
 const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
@@ -63,7 +71,7 @@ export async function start({ stage, panel, lang, onReady }) {
   let currentView = requestedView === "tv" ? "tv" : "window";
   let orbitRadius = 1.9, orbitPhi = Math.PI / 2, viewMoveToken = 0;
   let director = null, directorPreparing = false, directorPrepareToken = 0;
-  let intro = false, introEnd = null;
+  let intro = false, introEnd = null, robotBubble = null;
   const stopButton = Object.assign(document.createElement("button"), { type: "button", className: "director-stop", hidden: true });
   stopButton.onclick = () => { if (director) stopDirector(); else if (directorPreparing) cancelPreparation(); };
   stage.append(stopButton);
@@ -1171,6 +1179,7 @@ export async function start({ stage, panel, lang, onReady }) {
   const screen = new THREE.Mesh(screenGeo, new THREE.MeshStandardMaterial({ color: "#2b2d30", roughness: .35, metalness: .1 }));
   screen.position.set(rcx, fy, zc + lift + .02); // 2 cm proud: the sampled lift alone still let a bump show through the lower middle
   const eyeMat = new THREE.MeshBasicMaterial({ color: "#ffe2a8" });
+  const awakeEyeColor = eyeMat.color.clone();
   for (const sx of [-1, 1]) {
     const eye = new THREE.Mesh(new THREE.CircleGeometry(fh * .13, 20), eyeMat);
     const ex = sx * fw * .2; eye.position.set(ex, fh * .05, -bend * ex * ex + .002); screen.add(eye);
@@ -1446,6 +1455,8 @@ export async function start({ stage, panel, lang, onReady }) {
 
   // ---------- state + panel ----------
   const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
+  robotBubble = document.getElementById("robotBubble");
+  let robotSleeping = false, robotIdleTimer = 0, robotBubbleTimer = 0, robotTurnTimer = 0, robotTurnFrame = 0;
   let directorStillOpen = false;
   const cache = {};
   const CURTAINS = {
@@ -1508,9 +1519,11 @@ export async function start({ stage, panel, lang, onReady }) {
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
   if (!wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[state.mood];
   function choose(key, value) {
+    const previous = state[key];
     if (key === "wall") wallWasChosen = true;
     if (key === "mood" && !wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[value];
     state[key] = value;
+    if (key === "mood" && previous !== value) showRobotMood(value);
     apply();
   }
   function toUrl() {
@@ -1525,6 +1538,7 @@ export async function start({ stage, panel, lang, onReady }) {
     camera.lookAt(orbitCenter);
     controls.update();
     render();
+    startRobotTurn();
   }
   function moveToView(view) {
     if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); }
@@ -1749,7 +1763,7 @@ export async function start({ stage, panel, lang, onReady }) {
   // widen the window too; the controls "change" event does not run during a view-button turn,
   // the entrance drift, or the postcard's temporary window camera. Skip the blend while the
   // short film owns the camera, so that path keeps the base fov fit() already chose.
-  function render() { syncFov(); renderer.render(scene, camera); }
+  function render() { syncFov(); renderer.render(scene, camera); positionRobotBubble(); }
   function showDirectorStop() {
     stopButton.textContent = TEXT[state.lang].stop;
     stopButton.hidden = !(director || directorPreparing);
@@ -1880,6 +1894,59 @@ export async function start({ stage, panel, lang, onReady }) {
   // Only a tap counts (a drag to turn the room does not); with reduced motion it just turns to look.
   const ray = new THREE.Raycaster(), tap = new THREE.Vector2(), robotHome = { y: robotPivot.position.y, r: robotPivot.rotation.y };
   let downAt = null, hopping = false, hopRun = 0, suppressTap = false;
+  function positionRobotBubble() {
+    if (!robotBubble || robotBubble.hidden) return;
+    const head = robotObj.getWorldPosition(new THREE.Vector3());
+    head.y += rH * .72;
+    head.project(camera);
+    const rect = stage.getBoundingClientRect();
+    const half = robotBubble.offsetWidth / 2;
+    const bubbleHeight = robotBubble.offsetHeight;
+    const left = THREE.MathUtils.clamp((head.x + 1) * rect.width / 2, half + 8, rect.width - half - 8);
+    const top = THREE.MathUtils.clamp((1 - head.y) * rect.height / 2 - bubbleHeight - 10, 8, rect.height - bubbleHeight - 8);
+    robotBubble.style.left = `${left}px`;
+    robotBubble.style.top = `${top}px`;
+  }
+  function showRobotMood(mood) {
+    robotBubble.textContent = ROBOT_MOOD_LINES[mood][state.lang];
+    robotBubble.hidden = false;
+    clearTimeout(robotBubbleTimer);
+    clearTimeout(robotTurnTimer);
+    robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; }, 3000);
+    render();
+  }
+  function wakeRobot() {
+    clearTimeout(robotIdleTimer);
+    if (robotSleeping) { robotSleeping = false; eyeMat.color.copy(awakeEyeColor); render(); }
+    if (!still) robotIdleTimer = setTimeout(() => {
+      robotSleeping = true;
+      eyeMat.color.set("#756b5b");
+      render();
+    }, 20000);
+  }
+  function startRobotTurn() {
+    if (still || robotSleeping || hopping || director) return;
+    clearTimeout(robotTurnTimer);
+    if (robotTurnFrame) cancelAnimationFrame(robotTurnFrame);
+    if (intro) { robotTurnTimer = setTimeout(startRobotTurn, 300); return; }
+    const look = Math.atan2(camera.position.x - robotPivot.position.x, camera.position.z - robotPivot.position.z);
+    const difference = Math.atan2(Math.sin(look - robotPivot.rotation.y), Math.cos(look - robotPivot.rotation.y));
+    const target = robotPivot.rotation.y + THREE.MathUtils.clamp(difference, -.58, .58);
+    if (Math.abs(target - robotPivot.rotation.y) < .01) return;
+    const from = robotPivot.rotation.y, started = performance.now(), duration = 1150;
+    const step = (now) => {
+      const t = Math.min(1, (now - started) / duration), eased = t * t * (3 - 2 * t);
+      robotPivot.rotation.y = from + (target - from) * eased;
+      render();
+      if (t < 1) robotTurnFrame = requestAnimationFrame(step);
+      else robotTurnFrame = 0;
+    };
+    robotTurnFrame = requestAnimationFrame(step);
+  }
+  const resetRobotIdle = () => wakeRobot();
+  for (const event of ["pointerdown", "keydown", "wheel"]) window.addEventListener(event, resetRobotIdle, { passive: true });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") resetRobotIdle(); });
+  controls.addEventListener("end", () => { if (!still) robotTurnTimer = setTimeout(startRobotTurn, 240); });
   renderer.domElement.addEventListener("pointerdown", (e) => {
     if (director) { suppressTap = true; stopDirector(); downAt = null; return; }
     downAt = [e.clientX, e.clientY];
@@ -2447,10 +2514,13 @@ export async function start({ stage, panel, lang, onReady }) {
     // safety net for very slow devices: if the drift has not finished by 2.2 s, settle at the end position
     setTimeout(() => { if (intro) { intro = false; camera.position.copy(end); camera.lookAt(controls.target); controls.update(); render(); } }, 2200);
   }
+  wakeRobot();
+  if (!still) setTimeout(startRobotTurn, 500);
   onReady?.();
   return {
-    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
+    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.textContent = ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
+    robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
     scheduleTvWallTextures() {
       const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); void loadLeftWallArt(); };
       const loadWhenIdle = () => {
