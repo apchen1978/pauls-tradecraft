@@ -30,12 +30,12 @@ h1 { margin: 16px 0 0; color: var(--bone); font-size: clamp(2.1rem, 6.4vw, 4.2re
 .fast-route { margin: 22px 0 0; padding: 12px 12px 10px; border: 1px solid rgba(184, 153, 102, .38); border-radius: 14px; background: rgba(184, 153, 102, .06); }
 .fast-route-title { margin: 0; color: var(--gold); font-size: 14px; font-weight: 700; line-height: 1.4; }
 .fast-route ol { display: grid; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
-.fast-route li { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; max-width: 100%; }
-.fast-route li:not(:last-child)::after { content: "→"; flex: 0 0 auto; color: var(--gold); font-size: 14px; line-height: 1; }
-.fast-route a { display: flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--body); text-decoration: none; font-size: 14px; line-height: 1.35; }
+.fast-route li { width: 100%; min-width: 0; max-width: 100%; }
+.fast-route a { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; min-height: 44px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--body); text-decoration: none; font-size: 14px; line-height: 1.35; }
 .fast-route a:hover { border-color: var(--gold); color: var(--bone); }
 .fast-route .n { flex: 0 0 1.8em; color: var(--mint); font-family: ui-monospace, Consolas, monospace; font-size: 12px; text-align: right; }
-.fast-route .fast-label { min-width: 0; }
+.fast-route .fast-label { flex: 1 1 auto; min-width: 0; }
+.fast-route .fast-arrow { flex: 0 0 auto; margin-left: auto; color: var(--gold); font-size: 14px; line-height: 1; }
 .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; counter-reset: c; }
 .toc a { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--body); text-decoration: none; font-size: 14px; background: var(--card); }
 .toc a:hover { border-color: var(--gold); color: var(--bone); }

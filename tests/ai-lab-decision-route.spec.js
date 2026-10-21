@@ -58,6 +58,15 @@ for (const lang of ["zh", "en"]) {
       }
       const heights = await steps.evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
       for (const height of heights) expect(height).toBeGreaterThanOrEqual(44);
+      const arrowsInside = await steps.evaluateAll((nodes) => nodes.map((link) => {
+        const arrow = link.querySelector(".fast-arrow");
+        if (!arrow || arrow.textContent !== "→") return false;
+        const linkBox = link.getBoundingClientRect();
+        const arrowBox = arrow.getBoundingClientRect();
+        const pad = Number.parseFloat(getComputedStyle(link).paddingRight);
+        return arrowBox.right <= linkBox.right - pad + 0.5 && arrowBox.left >= linkBox.left && arrowBox.left > linkBox.left + 24;
+      }));
+      expect(arrowsInside).toEqual([true, true, true, true, true, true]);
 
       await expect(page.locator("#cta-title")).toHaveText(x.ctaTitle);
       const choices = page.locator("#cta-choices a");

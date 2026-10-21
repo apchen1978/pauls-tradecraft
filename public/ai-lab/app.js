@@ -787,7 +787,9 @@ function renderFastRoute() {
     const li = el("li");
     const a = el("a");
     a.href = step.href;
-    a.append(el("span", "n", step.mark), el("span", "fast-label", step.label));
+    const arrow = el("span", "fast-arrow", "→");
+    arrow.setAttribute("aria-hidden", "true");
+    a.append(el("span", "n", step.mark), el("span", "fast-label", step.label), arrow);
     li.appendChild(a);
     return li;
   }));
