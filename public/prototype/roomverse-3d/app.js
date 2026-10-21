@@ -800,6 +800,7 @@ export async function start({ stage, panel, lang, onReady }) {
   let leftWallArtGroup = null, leftWallArtPromise = null, leftWallArtReady = false, leftWallArtLoaded = false;
   let leftPaintingMat = null, leftArtWallWash = null, leftArtPaintWash = null, leftArtDiffuser = null, leftPictureSpot = null;
   const leftWallArtPlace = { x: -W / 2 + .008, y: 1.5, z: 1 }; // 8 mm off the wall at x=-2.6, same hanging line as the right wall
+  const leftPaintSize = { w: 1.2, h: .675 }, leftFrameMargin = .118; // 16:9 picture; the frame adds 5.9 cm on each side
   // A 4 W picture LED at ~80 lm/W is 320 lm, about 100 cd in a wide flood. The room's other lamps are
   // authored at 2–5 cd, and the dusk painting is much darker than the dawn painting opposite.
   // 12.5 cd keeps 1/d². The source sits further forward so the pool covers the canvas
@@ -817,7 +818,7 @@ export async function start({ stage, panel, lang, onReady }) {
   function loadLeftWallArt() {
     if (leftWallArtPromise) return leftWallArtPromise;
     leftWallArtPromise = new Promise((resolve) => {
-      const paintW = 1.2, paintH = .675; // 16:9
+      const paintW = leftPaintSize.w, paintH = leftPaintSize.h;
       leftWallArtGroup = new THREE.Group(); leftWallArtGroup.name = "left-wall-gallery";
       leftWallArtGroup.position.set(leftWallArtPlace.x, leftWallArtPlace.y, leftWallArtPlace.z);
       leftWallArtGroup.rotation.y = Math.PI / 2; scene.add(leftWallArtGroup);
@@ -828,7 +829,7 @@ export async function start({ stage, panel, lang, onReady }) {
       const gold = new THREE.MeshStandardMaterial({ color: "#c49a52", metalness: .78, roughness: .28 });
       const goldEdge = new THREE.MeshStandardMaterial({ color: "#e2c27a", metalness: .82, roughness: .18 });
       const goldShade = new THREE.MeshStandardMaterial({ color: "#8a6a3c", metalness: .55, roughness: .48 });
-      piece(new THREE.BoxGeometry(paintW + .118, paintH + .118, .018), goldShade, 0, 0, .015, "left-wall-frame-backing");
+      piece(new THREE.BoxGeometry(paintW + leftFrameMargin, paintH + leftFrameMargin, .018), goldShade, 0, 0, .015, "left-wall-frame-backing");
       [[paintW + .14, paintH + .14, .04, .038, .034, gold], [paintW + .09, paintH + .09, .026, .025, .061, goldShade], [paintW + .04, paintH + .04, .018, .014, .079, goldEdge]].forEach(([w, h, t, depth, z, mat], layer) => {
         for (const side of [-1, 1]) {
           piece(new THREE.BoxGeometry(w, t, depth), mat, 0, side * (h - t) / 2, z, `left-wall-frame-${layer}-horizontal`);
@@ -1405,15 +1406,16 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   showBoardLanguage(lang);
 
-  // A real-size 春聯 strip on the open left wall, on the window side of the glass board.
-  // 20 × 70 cm, five millimetres off the plaster, top lined up with the board.
+  // A real-size 春聯 strip on the left wall, centred in the open plaster between the glass board and the
+  // harbour painting's frame (Paul, 2026-10-22). 20 × 70 cm, five millimetres off the plaster, top lined up with the board.
   // The four characters are a baked picture, so the page loads no Chinese font.
-  const coupletW = .20, coupletH = .70, coupletGap = .14;
+  const coupletW = .20, coupletH = .70;
   const couplet = new THREE.Group();
   couplet.name = "blessing-couplet";
   const boardTop = homeBoard.position.y + boardFaceH / 2;
-  const boardWindowZ = homeBoard.position.z - boardFaceW / 2;
-  couplet.position.set(-W / 2, boardTop - coupletH / 2, boardWindowZ - coupletGap - coupletW / 2);
+  const boardRoomZ = homeBoard.position.z + boardFaceW / 2; // the board's edge on the painting side
+  const artFrameNearZ = leftWallArtPlace.z - (leftPaintSize.w + leftFrameMargin) / 2;
+  couplet.position.set(-W / 2, boardTop - coupletH / 2, (boardRoomZ + artFrameNearZ) / 2);
   couplet.rotation.y = Math.PI / 2;
   scene.add(couplet);
   const coupletTex = new THREE.TextureLoader().load(new URL("./art/blessing-couplet-v1.webp", import.meta.url).href, () => render());
@@ -2836,7 +2838,8 @@ export async function start({ stage, panel, lang, onReady }) {
         polygonOffset: scene.getObjectByName("blessing-couplet-shadow")?.material.polygonOffset ?? null,
         width: size.z, height: size.y, depth: size.x,
         top: box.max.y, boardTop: face.max.y,
-        gap: face.min.z - box.max.z,
+        gapBoard: box.min.z - face.max.z,
+        gapArt: leftWallArtPlace.z - (leftPaintSize.w + leftFrameMargin) / 2 - box.max.z,
         offWall: box.min.x + W / 2,
         rotation: [group.rotation.x, group.rotation.y, group.rotation.z],
         shadow: !!scene.getObjectByName("blessing-couplet-shadow"),
