@@ -1207,18 +1207,19 @@ export async function start({ stage, panel, lang, onReady }) {
 
   // Home planning board on the open stretch of the left wall, between the harbour frame and the plant.
   // Same lights as the rest of the room: no extra lamp. The words are baked pictures so the page loads no font.
+  // Plumb to the wall: only rotation.y. The room camera stays level, so these edges stay vertical on screen.
   const HOME_BOARD_LINES = ["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"];
-  const HOME_BOARD_NOTES = ["mom", "keys"];
+  const HOME_BOARD_NOTES = [];
   const HOME_BOARD_COPY = {
     zh: { lines: HOME_BOARD_LINES, notes: HOME_BOARD_NOTES },
     en: { lines: HOME_BOARD_LINES, notes: HOME_BOARD_NOTES },
   };
   const homeBoard = new THREE.Group();
   homeBoard.name = "home-board";
-  const boardFaceW = .60, boardFaceH = .90, boardRail = .016;
-  const boardOuterW = boardFaceW + boardRail * 2;
-  // Harbour frame's near edge is about world z 0.33. The board's near edge sits at -0.10, leaving roughly 43 cm of wall.
-  homeBoard.position.set(-W / 2 + .008, 1.38, -.10 - boardOuterW / 2);
+  const boardFaceW = .60, boardFaceH = .90, boardCorner = .022;
+  const glassBack = .018, glassDepth = .008, glassFront = glassBack + glassDepth;
+  // Harbour frame's near edge is about world z 0.33. The glass's near edge stays at world z -0.10.
+  homeBoard.position.set(-W / 2 + .008, 1.38, -.10 - boardFaceW / 2);
   homeBoard.rotation.y = Math.PI / 2;
   scene.add(homeBoard);
   const boardPiece = (geo, mat, x, y, z, name) => {
@@ -1227,32 +1228,86 @@ export async function start({ stage, panel, lang, onReady }) {
     mesh.castShadow = false; mesh.receiveShadow = true;
     homeBoard.add(mesh); return mesh;
   };
-  const boardFrameMat = new THREE.MeshStandardMaterial({ color: "#e6e0d4", metalness: .32, roughness: .42 });
-  const boardRevealMat = new THREE.MeshStandardMaterial({ color: "#cfc6b8", roughness: .82 });
-  const boardFaceMat = new THREE.MeshStandardMaterial({ color: "#f7f4ee", roughness: .46, metalness: .02 });
-  const trayMat = new THREE.MeshStandardMaterial({ color: "#c4a36e", roughness: .58 });
-  boardPiece(new THREE.BoxGeometry(boardFaceW + .004, boardFaceH + .004, .008), boardRevealMat, 0, 0, .006, "home-board-reveal");
-  const railY = (boardFaceH + boardRail) / 2;
-  boardPiece(new THREE.BoxGeometry(boardFaceW + boardRail * 2, boardRail, .02), boardFrameMat, 0, railY, .012, "home-board-frame");
-  boardPiece(new THREE.BoxGeometry(boardFaceW + boardRail * 2, boardRail, .02), boardFrameMat, 0, -railY, .012, "home-board-frame");
-  boardPiece(new THREE.BoxGeometry(boardRail, boardFaceH, .02), boardFrameMat, (boardFaceW + boardRail) / 2, 0, .012, "home-board-frame");
-  boardPiece(new THREE.BoxGeometry(boardRail, boardFaceH, .02), boardFrameMat, -(boardFaceW + boardRail) / 2, 0, .012, "home-board-frame");
-  boardPiece(new THREE.PlaneGeometry(boardFaceW, boardFaceH), boardFaceMat, 0, 0, .016, "home-board-face");
-  const trayY = -railY - .002; // overlaps the lower rail so the tray reads as part of the frame
-  const trayW = .50;
-  boardPiece(new THREE.BoxGeometry(trayW, .026, .064), trayMat, 0, trayY, .038, "home-board-tray");
-  boardPiece(new THREE.BoxGeometry(trayW, .012, .01), trayMat, 0, trayY + .01, .066, "home-board-tray-lip");
-  const markerCapMat = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .4 });
-  [["#3a4450", -.15], ["#2b6ea8", -.05], ["#3d8b5e", .05], ["#d06858", .13]].forEach(([color, x], i) => {
-    const marker = boardPiece(new THREE.CapsuleGeometry(.008, .078, 3, 8), new THREE.MeshStandardMaterial({ color, roughness: .42 }), x, trayY + .022, .048 + (i % 2) * .006, "home-board-marker");
-    marker.rotation.z = Math.PI / 2; marker.rotation.x = (i - 1.5) * .12;
-    const cap = boardPiece(new THREE.CapsuleGeometry(.0084, .016, 2, 8), markerCapMat, x + .044, trayY + .022, marker.position.z, "home-board-marker-cap");
-    cap.rotation.z = Math.PI / 2; cap.rotation.x = marker.rotation.x;
+  function roundedRectShape(w, h, r) {
+    const shape = new THREE.Shape();
+    const x = -w / 2, y = -h / 2;
+    shape.moveTo(x + r, y);
+    shape.lineTo(x + w - r, y);
+    shape.quadraticCurveTo(x + w, y, x + w, y + r);
+    shape.lineTo(x + w, y + h - r);
+    shape.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    shape.lineTo(x + r, y + h);
+    shape.quadraticCurveTo(x, y + h, x, y + h - r);
+    shape.lineTo(x, y + r);
+    shape.quadraticCurveTo(x, y, x + r, y);
+    return shape;
+  }
+  function roundedMask(w, h, r) {
+    const cw = 512, ch = Math.round(cw * h / w);
+    const c = document.createElement("canvas"); c.width = cw; c.height = ch;
+    const ctx = c.getContext("2d");
+    const rx = r / w * cw;
+    ctx.clearRect(0, 0, cw, ch); ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.moveTo(rx, 0);
+    ctx.lineTo(cw - rx, 0); ctx.quadraticCurveTo(cw, 0, cw, rx);
+    ctx.lineTo(cw, ch - rx); ctx.quadraticCurveTo(cw, ch, cw - rx, ch);
+    ctx.lineTo(rx, ch); ctx.quadraticCurveTo(0, ch, 0, ch - rx);
+    ctx.lineTo(0, rx); ctx.quadraticCurveTo(0, 0, rx, 0);
+    ctx.closePath(); ctx.fill();
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.NoColorSpace; tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+    return tex;
+  }
+  const glassMat = new THREE.MeshStandardMaterial({ color: "#f3f2ee", roughness: .32, metalness: .08 });
+  const boardFaceMat = new THREE.MeshStandardMaterial({
+    color: "#f7f6f2", roughness: .55, metalness: .02, transparent: true, alphaTest: .5, alphaMap: roundedMask(boardFaceW, boardFaceH, boardCorner),
   });
-  const eraserBase = new THREE.MeshStandardMaterial({ color: "#5e656c", roughness: .72 });
-  const eraserFelt = new THREE.MeshStandardMaterial({ color: "#f6f3ec", roughness: .9 });
-  boardPiece(new THREE.BoxGeometry(.06, .012, .026), eraserBase, .22, trayY + .02, .05, "home-board-eraser");
-  boardPiece(new THREE.BoxGeometry(.06, .008, .026), eraserFelt, .22, trayY + .028, .05, "home-board-eraser-felt");
+  const brassMat = new THREE.MeshStandardMaterial({ color: "#c2a36a", metalness: .48, roughness: .58 });
+  const ledgeMat = new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 });
+  boardPiece(new THREE.ExtrudeGeometry(roundedRectShape(boardFaceW, boardFaceH, boardCorner), { depth: glassDepth, bevelEnabled: false, curveSegments: 8 }), glassMat, 0, 0, glassBack, "home-board-glass");
+  boardPiece(new THREE.PlaneGeometry(boardFaceW, boardFaceH), boardFaceMat, 0, 0, glassFront + .0006, "home-board-face");
+  for (const x of [-1, 1]) for (const y of [-1, 1]) {
+    const sx = x * (boardFaceW / 2 - .042), sy = y * (boardFaceH / 2 - .048);
+    const rose = boardPiece(new THREE.CylinderGeometry(.008, .008, .002, 16), brassMat, sx, sy, .0015, "home-board-standoff");
+    rose.rotation.x = Math.PI / 2;
+    const peg = boardPiece(new THREE.CylinderGeometry(.0042, .0042, glassBack - .002, 12), brassMat, sx, sy, glassBack / 2, "home-board-standoff");
+    peg.rotation.x = Math.PI / 2;
+  }
+  const ledgeW = .52, ledgeD = .04, ledgeT = .007;
+  const ledgeTop = -boardFaceH / 2 - .014;
+  const ledgeCenterZ = glassFront + ledgeD / 2 - .006;
+  boardPiece(new THREE.BoxGeometry(ledgeW, ledgeT, ledgeD), ledgeMat, 0, ledgeTop - ledgeT / 2, ledgeCenterZ, "home-board-ledge");
+  boardPiece(new THREE.BoxGeometry(ledgeW, .006, .006), ledgeMat, 0, ledgeTop + .003, ledgeCenterZ + ledgeD / 2 - .003, "home-board-ledge-lip");
+  const ledgeBack = ledgeCenterZ - ledgeD / 2;
+  for (const x of [-.16, .16]) {
+    const peg = boardPiece(new THREE.CylinderGeometry(.0045, .0045, ledgeBack - .002, 10), brassMat, x, ledgeTop - ledgeT / 2, (ledgeBack + .002) / 2, "home-board-ledge-peg");
+    peg.rotation.x = Math.PI / 2;
+  }
+  const markerCapMat = new THREE.MeshStandardMaterial({ color: "#f7f4ee", roughness: .4 });
+  const penShadowTex = canvasTex(128, 64, (ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    const g = ctx.createRadialGradient(w / 2, h / 2, w * .08, w / 2, h / 2, w * .48);
+    g.addColorStop(0, "rgba(40,28,18,.55)"); g.addColorStop(.7, "rgba(40,28,18,.18)"); g.addColorStop(1, "rgba(40,28,18,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  });
+  penShadowTex.wrapS = penShadowTex.wrapT = THREE.ClampToEdgeWrapping;
+  const penShadowMat = new THREE.MeshBasicMaterial({ map: penShadowTex, transparent: true, depthWrite: false });
+  const penR = .008, penLen = .100;
+  [{ color: "#1c1c1c", x: -.17 }, { color: "#243056", x: -.04 }, { color: "#c4785c", x: .09 }].forEach((pen) => {
+    const y = ledgeTop + penR, z = ledgeCenterZ;
+    const marker = boardPiece(new THREE.CapsuleGeometry(penR, penLen, 4, 12), new THREE.MeshStandardMaterial({ color: pen.color, roughness: .36 }), pen.x, y, z, "home-board-marker");
+    marker.rotation.z = Math.PI / 2;
+    const cap = boardPiece(new THREE.CapsuleGeometry(penR + .0005, .02, 3, 12), markerCapMat, pen.x + penLen / 2 + .002, y, z, "home-board-marker-cap");
+    cap.rotation.z = Math.PI / 2;
+    const shadow = boardPiece(new THREE.PlaneGeometry(penLen + .028, penR * 3.2), penShadowMat, pen.x + .01, ledgeTop + .0012, z, "home-board-marker-shadow");
+    shadow.rotation.x = -Math.PI / 2; shadow.receiveShadow = false;
+  });
+  const eraserFelt = new THREE.MeshStandardMaterial({ color: "#a7abae", roughness: .94 });
+  const eraserX = .19, eraserY = ledgeTop + .006, eraserZ = ledgeCenterZ;
+  boardPiece(new THREE.BoxGeometry(.058, .012, .026), eraserFelt, eraserX, eraserY, eraserZ, "home-board-eraser");
+  const eraserShadow = boardPiece(new THREE.PlaneGeometry(.066, .032), penShadowMat, eraserX, ledgeTop + .0012, eraserZ, "home-board-marker-shadow");
+  eraserShadow.rotation.x = -Math.PI / 2; eraserShadow.receiveShadow = false;
   function curledNote(w, h) {
     const geo = new THREE.PlaneGeometry(w, h, 7, 7);
     const pos = geo.attributes.position;
@@ -1265,8 +1320,8 @@ export async function start({ stage, panel, lang, onReady }) {
     return geo;
   }
   const noteSpecs = [
-    { key: "mom", color: "#f3d56a", x: .14, y: .12, z: .022, rot: .18, w: .072, h: .068 },
-    { key: "keys", color: "#f3bac6", x: -.02, y: -.18, z: .022, rot: -.14, w: .068, h: .064 },
+    { key: "yellow", color: "#f4e7b0", x: .13, y: .08, z: glassFront + .004, rot: .1, w: .05, h: .046 },
+    { key: "sage", color: "#d5dec8", x: -.05, y: -.2, z: glassFront + .004, rot: -.08, w: .048, h: .044 },
   ];
   const noteMeshes = noteSpecs.map((spec) => {
     const mat = new THREE.MeshStandardMaterial({ color: spec.color, roughness: .88 });
@@ -1274,20 +1329,28 @@ export async function start({ stage, panel, lang, onReady }) {
     mesh.rotation.z = spec.rot; mesh.userData.note = spec.key; mesh.userData.fixed = true;
     return mesh;
   });
-  const addMagnet = (color, x, y, z) => {
-    const mesh = boardPiece(new THREE.CylinderGeometry(.011, .012, .004, 16), new THREE.MeshStandardMaterial({ color, metalness: .5, roughness: .38 }), x, y, z, "home-board-magnet");
+  const addMagnet = (x, y, z) => {
+    const mesh = boardPiece(new THREE.CylinderGeometry(.007, .007, .003, 20), brassMat, x, y, z, "home-board-magnet");
     mesh.rotation.x = Math.PI / 2;
   };
-  addMagnet("#c44b45", .05, .36, .022);
-  addMagnet("#3e6294", .10, .15, .03);
-  const boardShadowTex = canvasTex(256, 256, (ctx, w, h) => {
+  addMagnet(.148, .096, glassFront + .006);
+  addMagnet(-.032, -.184, glassFront + .006);
+  const boardShadowTex = canvasTex(256, 384, (ctx, w, h) => {
     ctx.clearRect(0, 0, w, h);
-    const g = ctx.createRadialGradient(w * .48, h * .42, w * .06, w * .5, h * .5, w * .5);
-    g.addColorStop(0, "rgba(48,34,22,.5)"); g.addColorStop(.55, "rgba(48,34,22,.2)"); g.addColorStop(1, "rgba(48,34,22,0)");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = "rgba(48,34,22,.38)";
+    ctx.filter = "blur(14px)";
+    const inset = 22, rx = 18;
+    ctx.beginPath();
+    ctx.moveTo(inset + rx, inset);
+    ctx.lineTo(w - inset - rx, inset); ctx.quadraticCurveTo(w - inset, inset, w - inset, inset + rx);
+    ctx.lineTo(w - inset, h - inset - rx); ctx.quadraticCurveTo(w - inset, h - inset, w - inset - rx, h - inset);
+    ctx.lineTo(inset + rx, h - inset); ctx.quadraticCurveTo(inset, h - inset, inset, h - inset - rx);
+    ctx.lineTo(inset, inset + rx); ctx.quadraticCurveTo(inset, inset, inset + rx, inset);
+    ctx.closePath(); ctx.fill();
+    ctx.filter = "none";
   });
   boardShadowTex.wrapS = boardShadowTex.wrapT = THREE.ClampToEdgeWrapping;
-  const boardShadow = boardPiece(new THREE.PlaneGeometry(boardFaceW + boardRail * 2 + .04, boardFaceH + boardRail * 2 + .2), new THREE.MeshBasicMaterial({ map: boardShadowTex, transparent: true, depthWrite: false }), .03, -.07, -.003, "home-board-contact-shadow");
+  const boardShadow = boardPiece(new THREE.PlaneGeometry(boardFaceW + .05, boardFaceH + .2), new THREE.MeshBasicMaterial({ map: boardShadowTex, transparent: true, depthWrite: false }), 0, -.06, .001, "home-board-contact-shadow");
   boardShadow.receiveShadow = false;
   const boardArt = {};
   function boardArtTexture(name) {
@@ -1299,14 +1362,20 @@ export async function start({ stage, panel, lang, onReady }) {
     }
     return boardArt[name];
   }
+  function boardEdgeLean() {
+    camera.updateMatrixWorld(true);
+    const offset = camera.position.clone().sub(controls.target);
+    const pitch = Math.atan2(offset.y, Math.hypot(offset.x, offset.z)) * 180 / Math.PI;
+    const lean = (x) => {
+      const top = new THREE.Vector3(x, boardFaceH / 2, glassFront).applyMatrix4(homeBoard.matrixWorld).project(camera);
+      const bot = new THREE.Vector3(x, -boardFaceH / 2, glassFront).applyMatrix4(homeBoard.matrixWorld).project(camera);
+      return Math.atan2(top.x - bot.x, top.y - bot.y) * 180 / Math.PI;
+    };
+    return { pitch, left: lean(-boardFaceW / 2), right: lean(boardFaceW / 2) };
+  }
   function showBoardLanguage(code) {
     const pack = code === "en" ? "en" : "zh";
-    boardFaceMat.map = boardArtTexture("home-board-en-v3"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
-    for (const mesh of noteMeshes) {
-      const file = mesh.userData.fixed ? `home-note-${mesh.userData.note}-v1` : `home-note-${mesh.userData.note}-${pack}-v1`;
-      mesh.material.map = boardArtTexture(file);
-      mesh.material.color.set("#ffffff"); mesh.material.needsUpdate = true;
-    }
+    boardFaceMat.map = boardArtTexture("home-board-en-v4"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
     homeBoard.userData.lang = pack;
   }
   showBoardLanguage(lang);
@@ -2279,8 +2348,25 @@ export async function start({ stage, panel, lang, onReady }) {
         markers: homeBoard.children.filter((obj) => obj.name === "home-board-marker").length,
         magnets: homeBoard.children.filter((obj) => obj.name === "home-board-magnet").length,
         notes: noteMeshes.map((mesh) => mesh.userData.note),
+        rotation: [homeBoard.rotation.x, homeBoard.rotation.y, homeBoard.rotation.z],
+        edges: boardEdgeLean(),
         collisions: Object.entries(around).filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
+    },
+    frameHomeBoard() {
+      intro = false;
+      scene.updateMatrixWorld(true);
+      const center = new THREE.Vector3();
+      homeBoard.getObjectByName("home-board-face").getWorldPosition(center);
+      controls.target.copy(center);
+      camera.position.set(center.x + 1.58, center.y, center.z);
+      camera.lookAt(center);
+      controls.update();
+      // render() widens fov from the yaw blend. This portrait is a level close-up, so draw it at 42° after that.
+      camera.fov = 42;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+      return this.homeBoard();
     },
     framedPictures() { // read-only QA: one file per framed picture that can be on screen together
       return {
