@@ -1064,6 +1064,110 @@ export async function start({ stage, panel, lang, onReady }) {
     }
   });
 
+  // Home planning board on the open stretch of the left wall, between the harbour frame and the plant.
+  // Same lights as the rest of the room: no extra lamp. The words are baked pictures so the page loads no font.
+  const HOME_BOARD_COPY = {
+    zh: { lines: ["買牛奶", "澆花", "週五家庭聚餐", "換床單"], notes: ["週末散步", "謝謝你", "早點休息"] },
+    en: { lines: ["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"], notes: ["Weekend walk", "Thank you", "Rest early"] },
+  };
+  const homeBoard = new THREE.Group();
+  homeBoard.name = "home-board";
+  const boardFaceW = 1.05, boardFaceH = .70, boardRail = .016;
+  homeBoard.position.set(-W / 2 + .008, 1.40, .05 - (boardFaceW + boardRail * 2) / 2);
+  homeBoard.rotation.y = Math.PI / 2;
+  scene.add(homeBoard);
+  const boardPiece = (geo, mat, x, y, z, name) => {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = name; mesh.position.set(x, y, z);
+    mesh.castShadow = false; mesh.receiveShadow = true;
+    homeBoard.add(mesh); return mesh;
+  };
+  const boardFrameMat = new THREE.MeshStandardMaterial({ color: "#e6e0d4", metalness: .32, roughness: .42 });
+  const boardRevealMat = new THREE.MeshStandardMaterial({ color: "#cfc6b8", roughness: .82 });
+  const boardFaceMat = new THREE.MeshStandardMaterial({ color: "#f7f4ee", roughness: .46, metalness: .02 });
+  const trayMat = new THREE.MeshStandardMaterial({ color: "#c4a36e", roughness: .58 });
+  boardPiece(new THREE.BoxGeometry(boardFaceW + .004, boardFaceH + .004, .008), boardRevealMat, 0, 0, .006, "home-board-reveal");
+  const railY = (boardFaceH + boardRail) / 2;
+  boardPiece(new THREE.BoxGeometry(boardFaceW + boardRail * 2, boardRail, .02), boardFrameMat, 0, railY, .012, "home-board-frame");
+  boardPiece(new THREE.BoxGeometry(boardFaceW + boardRail * 2, boardRail, .02), boardFrameMat, 0, -railY, .012, "home-board-frame");
+  boardPiece(new THREE.BoxGeometry(boardRail, boardFaceH, .02), boardFrameMat, (boardFaceW + boardRail) / 2, 0, .012, "home-board-frame");
+  boardPiece(new THREE.BoxGeometry(boardRail, boardFaceH, .02), boardFrameMat, -(boardFaceW + boardRail) / 2, 0, .012, "home-board-frame");
+  boardPiece(new THREE.PlaneGeometry(boardFaceW, boardFaceH), boardFaceMat, 0, 0, .016, "home-board-face");
+  const trayY = -railY - .002; // overlaps the lower rail so the tray reads as part of the frame
+  boardPiece(new THREE.BoxGeometry(.9, .03, .078), trayMat, .02, trayY, .042, "home-board-tray");
+  boardPiece(new THREE.BoxGeometry(.9, .016, .012), trayMat, .02, trayY + .012, .076, "home-board-tray-lip");
+  const markerCapMat = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .4 });
+  [["#3a4450", -.30], ["#2b6ea8", -.12], ["#3d8b5e", .06], ["#d06858", .24]].forEach(([color, x], i) => {
+    const marker = boardPiece(new THREE.CapsuleGeometry(.009, .1, 3, 8), new THREE.MeshStandardMaterial({ color, roughness: .42 }), x, trayY + .026, .052, "home-board-marker");
+    marker.rotation.z = Math.PI / 2; marker.rotation.x = (i - 1.5) * .14;
+    const cap = boardPiece(new THREE.CapsuleGeometry(.0096, .018, 2, 8), markerCapMat, x + .052, trayY + .026, .052, "home-board-marker-cap");
+    cap.rotation.z = Math.PI / 2; cap.rotation.x = marker.rotation.x;
+  });
+  const eraserBase = new THREE.MeshStandardMaterial({ color: "#5e656c", roughness: .72 });
+  const eraserFelt = new THREE.MeshStandardMaterial({ color: "#f6f3ec", roughness: .9 });
+  boardPiece(new THREE.BoxGeometry(.07, .014, .03), eraserBase, .42, trayY + .024, .052, "home-board-eraser");
+  boardPiece(new THREE.BoxGeometry(.07, .01, .03), eraserFelt, .42, trayY + .034, .052, "home-board-eraser-felt");
+  function curledNote(w, h) {
+    const geo = new THREE.PlaneGeometry(w, h, 7, 7);
+    const pos = geo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const u = pos.getX(i) / w + .5, v = pos.getY(i) / h + .5;
+      const curl = Math.max(0, u - .75) / .25 * Math.max(0, v - .72) / .28;
+      pos.setZ(i, curl * curl * .014);
+    }
+    geo.computeVertexNormals();
+    return geo;
+  }
+  const noteSpecs = [
+    { key: "yellow", color: "#f3d56a", x: .34, y: .18, z: .022, rot: -.12, w: .17, h: .155 },
+    { key: "pink", color: "#f3bac6", x: .28, y: -.18, z: .022, rot: .14, w: .16, h: .148 },
+    { key: "blue", color: "#bad6f2", x: .1, y: .355, z: .03, rot: -.04, w: .168, h: .15 },
+  ];
+  const noteMeshes = noteSpecs.map((spec) => {
+    const mat = new THREE.MeshStandardMaterial({ color: spec.color, roughness: .88 });
+    const mesh = boardPiece(curledNote(spec.w, spec.h), mat, spec.x, spec.y, spec.z, `home-board-note-${spec.key}`);
+    mesh.rotation.z = spec.rot; mesh.userData.note = spec.key;
+    return mesh;
+  });
+  const twine = new THREE.Mesh(
+    new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
+      new THREE.Vector3(.12, .29, .036),
+      new THREE.Vector3(.22, .24, .044),
+      new THREE.Vector3(.3, .22, .03),
+    ]), 14, .0045, 5, false),
+    new THREE.MeshStandardMaterial({ color: "#c6a67c", roughness: .95 }),
+  );
+  twine.name = "home-board-twine"; twine.castShadow = false; twine.receiveShadow = false; homeBoard.add(twine);
+  const boardShadowTex = canvasTex(256, 256, (ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    const g = ctx.createRadialGradient(w * .48, h * .42, w * .06, w * .5, h * .5, w * .5);
+    g.addColorStop(0, "rgba(48,34,22,.5)"); g.addColorStop(.55, "rgba(48,34,22,.2)"); g.addColorStop(1, "rgba(48,34,22,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  });
+  boardShadowTex.wrapS = boardShadowTex.wrapT = THREE.ClampToEdgeWrapping;
+  const boardShadow = boardPiece(new THREE.PlaneGeometry(boardFaceW + boardRail * 2 + .04, boardFaceH + boardRail * 2 + .2), new THREE.MeshBasicMaterial({ map: boardShadowTex, transparent: true, depthWrite: false }), .03, -.07, -.003, "home-board-contact-shadow");
+  boardShadow.receiveShadow = false;
+  const boardArt = {};
+  function boardArtTexture(name) {
+    if (!boardArt[name]) {
+      boardArt[name] = texLoader.load(new URL(`./art/${name}.webp`, import.meta.url).href, () => render(), undefined, () => {
+        console.warn("ROOMVERSE home board picture unavailable");
+      });
+      boardArt[name].colorSpace = THREE.SRGBColorSpace; boardArt[name].anisotropy = 8;
+    }
+    return boardArt[name];
+  }
+  function showBoardLanguage(code) {
+    const pack = code === "en" ? "en" : "zh";
+    boardFaceMat.map = boardArtTexture(`home-board-${pack}-v1`); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
+    for (const mesh of noteMeshes) {
+      mesh.material.map = boardArtTexture(`home-note-${mesh.userData.note}-${pack}-v1`);
+      mesh.material.color.set("#ffffff"); mesh.material.needsUpdate = true;
+    }
+    homeBoard.userData.lang = pack;
+  }
+  showBoardLanguage(lang);
+
   // ---------- state + panel ----------
   const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
   let directorStillOpen = false;
@@ -1558,7 +1662,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   onReady?.();
   return {
-    setLang(l) { state.lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
+    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     scheduleTvWallTextures() {
       const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); void loadLeftWallArt(); };
@@ -1714,6 +1818,24 @@ export async function start({ stage, panel, lang, onReady }) {
     orbitLimits: () => ({ minRadius: controls.minDistance, maxRadius: controls.maxDistance, minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, near: camera.near }),
     renderFrame: () => renderer.info.render.frame,
     view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
+    homeBoard() {
+      scene.updateMatrixWorld(true);
+      const bounds = (obj) => { const b = new THREE.Box3().setFromObject(obj); return { min: b.min.toArray(), max: b.max.toArray() }; };
+      const box = new THREE.Box3().setFromObject(homeBoard);
+      const around = { plant: plantObj, chair: chairObj, floorLamp: lampObj, plaque, sofa: sofaObj, robot: robotObj };
+      if (leftWallArtGroup) around.leftArt = leftWallArtGroup;
+      const pack = homeBoard.userData.lang;
+      return {
+        lang: pack, copy: HOME_BOARD_COPY[pack],
+        file: boardFaceMat.map?.image?.src?.split("/").pop() ?? null,
+        loaded: !!boardFaceMat.map?.image?.width,
+        visible: homeBoard.visible, bounds: bounds(homeBoard),
+        face: bounds(homeBoard.getObjectByName("home-board-face")),
+        markers: homeBoard.children.filter((obj) => obj.name === "home-board-marker").length,
+        notes: noteMeshes.map((mesh) => mesh.userData.note),
+        collisions: Object.entries(around).filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
+      };
+    },
     framedPictures() { // read-only QA: one file per framed picture that can be on screen together
       return {
         sofa: pictureFile(printMat.map), console: pictureFile(consoleArtTexture), shelf: shelfArtFile,

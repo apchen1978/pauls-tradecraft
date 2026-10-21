@@ -62,7 +62,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./app.js?v=12");
+    const { start } = await import("./app.js?v=13");
     room = await start({ stage: $("stage"), panel: $("panel"), lang });
     $("status").hidden = true; $("panel").hidden = false; $("panelToggle").hidden = false;
     $("roomToolbar").hidden = !matchMedia("(max-width: 768px)").matches;
