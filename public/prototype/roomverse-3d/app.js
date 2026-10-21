@@ -84,12 +84,24 @@ export async function start({ stage, panel, lang, onReady }) {
   const phoneViewport = matchMedia("(max-width: 600px)");
   const phoneActions = matchMedia("(max-width: 768px)");
   let fovProjectionUpdates = 0;
+  // The house plaque's right edge (TX + 0.35 m) is the first thing a phone window-view clips.
+  // 66° still misses it on a tall canvas; 44° misses it once the English stage is only a little
+  // wider than 0.8. Ask for the vertical fov that puts that edge at 0.96 NDC from the level
+  // window pose. Wider aspects, including desktop, already clear it at the base fov.
+  function plaqueWindowFov() {
+    if (!(camera.aspect > 0)) return 0;
+    const radius = camera.aspect < .8 ? 1.82 : 1.9;
+    const depth = orbitCenter.z + radius - (BACK + .015);
+    const tanHalf = (TX + .35) / (depth * camera.aspect * .96);
+    return 2 * Math.atan(tanHalf) * 180 / Math.PI;
+  }
   function fovForYaw() {
     if (director) return baseFov();
-    const base = baseFov();
+    const base = Math.max(baseFov(), plaqueWindowFov());
     // Short phone stages can be wider than .8 even though their TV shelves no longer fit at 44°.
     // Frame the shelves' outer edges (±2.13 m), with a little breathing room, from the TV pose.
-    const tvFov = camera.aspect < .8 ? 76 : phoneViewport.matches
+    // Keep the TV end at least as wide as the window, so the blend never tightens mid-turn.
+    const tvFov = camera.aspect < .8 ? Math.max(76, base) : phoneViewport.matches
       ? Math.max(base, 2 * Math.atan(2.3 / ((FRONT - orbitCenter.z + orbitRadius) * camera.aspect)) * 180 / Math.PI)
       : base;
     if (tvFov === base) return base;
