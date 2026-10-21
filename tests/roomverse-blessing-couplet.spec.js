@@ -13,7 +13,7 @@ async function enter(page, { width = 1440 } = {}) {
   await page.waitForFunction(() => window.__room.blessingCouplet().loaded);
 }
 
-test("blessing couplet hangs straight beside the glass board", async ({ page }) => {
+test("blessing couplet hangs straight, centred between the glass board and the painting", async ({ page }) => {
   const errors = [];
   page.on("pageerror", (error) => errors.push(String(error)));
   await enter(page);
@@ -35,8 +35,9 @@ test("blessing couplet hangs straight beside the glass board", async ({ page }) 
   expect(strip.rotation[2]).toBe(0);
   expect(strip.rotation[1]).toBeCloseTo(Math.PI / 2, 5);
   expect(strip.top).toBeCloseTo(strip.boardTop, 2);
-  expect(strip.gap).toBeGreaterThan(.10);
-  expect(strip.gap).toBeLessThan(.20);
+  // Centred between the glass board and the harbour painting's frame: equal plaster on both sides.
+  expect(strip.gapBoard).toBeGreaterThan(.08);
+  expect(Math.abs(strip.gapBoard - strip.gapArt)).toBeLessThan(.005);
   expect(strip.offWall).toBeGreaterThan(.003);
   expect(strip.offWall).toBeLessThan(.012);
   expect(strip.shadow).toBe(true);
