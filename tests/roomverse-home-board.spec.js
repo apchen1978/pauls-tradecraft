@@ -32,7 +32,13 @@ test("home board fills the left wall without covering the painting or the plaque
   });
   expect(placed.lights).toBe(7);
   expect(placed.board.visible).toBe(true);
-  expect(placed.board.markers).toBe(4);
+  expect(placed.board.markers).toBe(3);
+  expect(placed.board.rotation[0]).toBe(0);
+  expect(placed.board.rotation[2]).toBe(0);
+  expect(placed.board.rotation[1]).toBeCloseTo(Math.PI / 2, 5);
+  expect(Math.abs(placed.board.edges.left)).toBeLessThan(0.05);
+  expect(Math.abs(placed.board.edges.right)).toBeLessThan(0.05);
+  expect(Math.abs(placed.board.edges.pitch)).toBeLessThan(0.05);
   expect(placed.board.notes).toEqual(["mom", "keys"]);
   expect(placed.board.magnets).toBe(2);
   expect(placed.board.file).toBe("home-board-en-v3.webp");
