@@ -280,32 +280,32 @@
   },
   {
     "id": "ai-lab-digital-room",
-    "source": "docs/gallery/sources/ai-lab-digital-room-original.png",
-    "sourceSha256": "191738bc3851d822954825e258b880154e6730faf078f60fa20112876ee56e9b",
+    "source": "docs/gallery/sources/ai-lab-digital-room-smart-home-wallpaper-v3.png",
+    "sourceSha256": "859a954a0a4bc0abd2fe4aac714c9031a20b34df1778da1992d7f5fc08301688",
     "derivatives": [
       {
         "file": "ai-lab-digital-room.webp",
         "width": 1024,
         "height": 576,
-        "bytes": 75198,
+        "bytes": 83556,
         "quality": 72,
-        "sha256": "8c22dd4d47a848fa8c84cdd224f739bce6ce09ca3a702db842ed11f94285bebe"
+        "sha256": "72e73fffa362c955068e6c47b68b486a3d3f7e12ff768c4a04c574945c343f26"
       },
       {
         "file": "ai-lab-digital-room-mobile.webp",
         "width": 800,
         "height": 450,
-        "bytes": 54780,
+        "bytes": 62228,
         "quality": 76,
-        "sha256": "3c487673d1888e0b1779975589d5d299ed474cfd4cc6f1ca1cdbd97aaed80e07"
+        "sha256": "184f76a6caa0f5b4ee002f2f182ccb3d6ef23d6d1b2e480caf9b6fdd74214929"
       },
       {
         "file": "ai-lab-digital-room-thumb.webp",
         "width": 480,
         "height": 270,
-        "bytes": 27640,
+        "bytes": 31016,
         "quality": 80,
-        "sha256": "29e314b6d16a321633b5be864c836ff2006dc8ff6cacf5be8159869c55b22205"
+        "sha256": "6141251d29273423bd7dcfad607b6cafc42a5e3b7e2229b0401ee05ea31fb35e"
       }
     ]
   },

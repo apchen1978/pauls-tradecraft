@@ -52,4 +52,6 @@ Paul 希望「和 AI 一起推開一扇門」的畫面更遼闊，並決定使�
 
 ## 2026-10-21：AI Lab 兩幅門與遠方並排
 
-Paul 核准新完成的室內門窗畫，並指定在這組對照中放第一幅、上述開闊海灣畫放第二幅。新原稿獨立保留在 `docs/gallery/sources/ai-lab-digital-room-original.png`，沒有覆蓋任何既有畫作；畫廊桌機並排、手機上下排列。作品敘述將它標為概念插畫，不宣稱這是已存在的產品或技術。原稿與 1024／800／480px WebP 的 SHA256、大小與尺寸見 `docs/qa/human-ai-gallery/asset-manifest.json`。
+Paul 核准新完成的室內門窗畫，並指定在這組對照中放第一幅、上述開闊海灣畫放第二幅。第一版原稿保留在 `docs/gallery/sources/ai-lab-digital-room-original.png`；加上智能面板、窗上方冷暖氣機與霧藍織紋壁紙後的定稿另存 `docs/gallery/sources/ai-lab-digital-room-smart-home-wallpaper-v3.png`，沒有覆蓋任何既有畫作。畫廊桌機並排、手機上下排列；作品敘述將它標為概念插畫，不宣稱這是已存在的產品或技術。定稿與 1024／800／480px WebP 的 SHA256、大小與尺寸見 `docs/qa/human-ai-gallery/asset-manifest.json`。
+
+同一張定稿也替換 AI Lab 開場插畫：桌機為 1600×900 WebP；另以定稿為參照、重新構圖一張 780×1100 手機版，來源保留在 `docs/gallery/sources/ai-lab-digital-room-mobile-v1.png`。先前的開闊海灣插畫仍留在畫廊第二幅，舊 AI Lab 資產也沒有覆蓋。

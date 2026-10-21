@@ -132,6 +132,21 @@ test("spirit: zh and en have the same blocks, paragraphs and links", () => {
   }
 });
 
+for (const width of [390, 1440]) {
+  for (const lang of ["zh", "en"]) {
+    test(`spirit illustration ${lang} ${width}: final room asset loads`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.goto(`/ai-lab/?lang=${lang}`);
+      const image = page.locator("#spirit-img");
+      await image.scrollIntoViewIfNeeded();
+      await expect(image).toHaveAttribute("alt", SPIRIT[lang].open.alt);
+      await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
+      expect(await image.evaluate((el) => el.currentSrc)).toContain(`ailab-digital-room-${width === 390 ? "mobile" : "desktop"}.webp`);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    });
+  }
+}
+
 test("deeper: zh and en match, and the measurements behave as described", () => {
   const keys = (o) => Object.keys(o).sort();
   expect(keys(DEEP.zh)).toEqual(keys(DEEP.en));

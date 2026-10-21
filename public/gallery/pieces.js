@@ -52,9 +52,9 @@ export const PIECES = [
     id: "ai-lab-digital-room", date: "2026-10-21", frame: "plain", width: 1024, height: 576,
     image: "assets/ai-lab-digital-room.webp", imageSmall: "assets/ai-lab-digital-room-mobile.webp", thumbnail: "assets/ai-lab-digital-room-thumb.webp",
     title: { zh: "當牆也有了風景", en: "When Walls Hold a View" },
-    alt: { zh: "霧藍色客廳裡，四格窗各有不同風景；兩側牆面像數位壁紙，玻璃門通向花園，機器人站在沙發旁。", en: "In a mist-blue room, each windowpane opens onto a different view; the side walls resemble digital wallpaper, a glass door leads to a garden, and a small robot stands beside the sofa." },
+    alt: { zh: "霧藍織紋壁紙的客廳裡，四格窗各有不同風景；窗上方是薄型冷暖氣機，窗與花園門之間有顯示 23°C 的控制面板，機器人站在沙發旁。", en: "In a mist-blue textile-wallpapered room, each windowpane has a different view. A slim heating and cooling unit sits above the window, a 23°C control panel between window and garden door, and a robot beside the sofa." },
     caption: { zh: "窗外四景保留著，牆面也加入新的想像。房間沒有離開日常，只是多了一點可變換的可能。", en: "Four views remain beyond the window while the walls offer another imagined layer. It is still an everyday room, with room for change." },
-    made: { zh: "Paul 保留四格窗的構想，逐步指定家具、畫家筆觸、數位牆、霧藍色與科技燈，再將門窗調整為細金屬框。Codex 用 ImageGen 逐版修整；整幅畫是概念插畫。", en: "Paul kept the four-window idea and directed the furnishings, painterly texture, digital walls, mist-blue colour and lighting, then refined the metal-framed door and window. Codex iterated with ImageGen; this is a concept illustration." },
+    made: { zh: "Paul 保留四格窗，逐步指定家具、數位牆、細金屬門窗框、智能面板、薄型冷暖氣機與正面的霧藍織紋壁紙。Codex 用 ImageGen 逐版修整；整幅畫是概念插畫。", en: "Paul kept the four-window idea and directed the furnishings, digital walls, fine metal frames, smart panel, slim climate unit and mist-blue textile wallpaper. Codex iterated with ImageGen; this is a concept illustration." },
   },
   {
     id: "ai-lab-open-horizon", date: "2026-10-21", frame: "plain", width: 1024, height: 576,
