@@ -1,4 +1,4 @@
-﻿// ROOMVERSE 3D: the same soft-furnishing idea as ROOM MODE REMOTE, as a small 3D room you can turn.
+// ROOMVERSE 3D: the same soft-furnishing idea as ROOM MODE REMOTE, as a small 3D room you can turn.
 // Loaded only after the visitor presses "enter" (index.html), so the portfolio page stays light.
 // Furniture: sofa, coffee table, side table, table lamp, floor lamp and plant were drawn as single illustrations, turned into shapes by an
 // image-to-3D model, then coloured locally from the same illustrations. Walls, rug, light: drawn by code.

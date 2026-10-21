@@ -1,4 +1,4 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { stat } from "node:fs/promises";
 
 const PAGE = "/prototype/roomverse-3d/";
