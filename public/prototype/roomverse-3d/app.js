@@ -400,13 +400,15 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   const tvSurfaceSpecsByName = new Map([...tvSurfaceSpecs.values()].map((spec) => [spec.name, spec]));
 
-  // Optional lived-in console details: build only after entry/idle or an explicit TV-view click.
-  // Reuse the existing painted oak and plaster images; only the little picture adds image bytes.
+  // Optional lived-in console and shelf details: build only after entry/idle or an explicit TV-view click.
+  // Oak and plaster reuse the TV wall images. The console and the shelf each have their own small print.
   const consoleDecor = new THREE.Group(); consoleDecor.name = "tv-console-decor"; scene.add(consoleDecor);
   const shelfDecor = new THREE.Group(); shelfDecor.name = "tv-inset-shelf-decor"; scene.add(shelfDecor);
-  let shelfDecorReady = false;
+  let shelfDecorReady = false, shelfArtFile = null, consoleArtTexture = null;
+  const pictureFile = (texture) => texture?.image?.src?.split("?")[0].split("/").pop() ?? null;
   function buildShelfDecor(art, surface) {
     if (shelfDecorReady) return;
+    shelfArtFile = pictureFile(art);
     const oak = surface("tv-console", "#ffffff", [.15 / .8, .10 / .8]);
     if (!oak.map) oak.color.set("#d4b58a");
     const paper = surface("tv-wall-backing", "#e6dfcf", [.2, .2]);
@@ -494,9 +496,13 @@ export async function start({ stage, panel, lang, onReady }) {
   function loadConsoleDecor() {
     if (consoleDecorPromise) return consoleDecorPromise;
     consoleDecorPromise = (async () => {
-      const [, art] = await Promise.all([loadTvWallTextures(), new Promise((resolve) => {
-        image("console-art-river-v1", false, resolve, () => resolve(null))();
-      })]);
+      const loadPicture = (name) => new Promise((resolve) => { image(name, false, resolve, () => resolve(null))(); });
+      const [, art, shelfArt] = await Promise.all([
+        loadTvWallTextures(),
+        loadPicture("console-art-river-v1"),
+        loadPicture("shelf-art-still-v1"),
+      ]);
+      consoleArtTexture = art;
       consoleArtLoaded = !!art;
       const surface = (name, color, repeat) => {
         const mat = new THREE.MeshStandardMaterial({ color, roughness: .9 });
@@ -551,7 +557,7 @@ export async function start({ stage, panel, lang, onReady }) {
       buttons.receiveShadow = true; tray.add(buttons);
       piece(tray, new THREE.CylinderGeometry(.003, .003, .002, 8), linenClay, 0, .0215, -.04);
       tray.rotation.y = .14; onConsole(tray, -.40, FRONT - .42);
-      buildShelfDecor(art, surface);
+      buildShelfDecor(shelfArt, surface);
       consoleDecorLoaded = true; render(); return true;
     })().catch((error) => { console.warn("ROOMVERSE console details could not load", error); consoleDecorPromise = null; return false; });
     return consoleDecorPromise;
@@ -1604,7 +1610,7 @@ export async function start({ stage, panel, lang, onReady }) {
       });
       const boxes = shelfDecor.children.map((obj) => ({ name: obj.name, box: new THREE.Box3().setFromObject(obj) }));
       const overlaps = boxes.flatMap((a, i) => boxes.slice(i + 1).filter((b) => a.box.intersectsBox(b.box)).map((b) => [a.name, b.name]));
-      return { ready: shelfDecorReady, objects, overlaps };
+      return { ready: shelfDecorReady, art: shelfArtFile, objects, overlaps };
     },
     loadRightWallArt,
     rightWallArt() { // read-only QA: frame clearance, responsive image, local glow and projected artwork bounds
@@ -1660,7 +1666,7 @@ export async function start({ stage, panel, lang, onReady }) {
       const old = ["tv-vase-body", "tv-vase-neck", "tv-book-one", "tv-laptop"].map((name) => ({ name, box: new THREE.Box3().setFromObject(scene.getObjectByName(name)) }));
       const bounds = consoleDecor.children.map((obj) => ({ name: obj.name, box: new THREE.Box3().setFromObject(obj) }));
       const collisions = bounds.flatMap((a, i) => [...old, ...bounds.slice(i + 1)].filter((b) => a.box.intersectsBox(b.box)).map((b) => [a.name, b.name]));
-      return { ready: consoleDecorLoaded, artLoaded: consoleArtLoaded, collisions,
+      return { ready: consoleDecorLoaded, artLoaded: consoleArtLoaded, artFile: pictureFile(consoleArtTexture), collisions,
         objects: bounds.map(({ name, box }) => ({ name, min: box.min.toArray(), max: box.max.toArray() })) };
     },
     loadDoorTexture,
@@ -1708,6 +1714,13 @@ export async function start({ stage, panel, lang, onReady }) {
     orbitLimits: () => ({ minRadius: controls.minDistance, maxRadius: controls.maxDistance, minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, near: camera.near }),
     renderFrame: () => renderer.info.render.frame,
     view(x, y, z) { intro = false; camera.position.set(x, y, z); controls.update(); render(); },
+    framedPictures() { // read-only QA: one file per framed picture that can be on screen together
+      return {
+        sofa: pictureFile(printMat.map), console: pictureFile(consoleArtTexture), shelf: shelfArtFile,
+        left: pictureFile(leftPaintingMat?.map), right: pictureFile(rightPaintingMat?.map),
+        plaque: pictureFile(plaqueTex), window: pictureFile(outMat.map),
+      };
+    },
     director: () => ({ playing: !!director?.started, elapsed: director?.started ? (performance.now() - director.started) / 1000 : null, view: director?.view, image: outMat.map?.image?.src, stillOpen: directorStillOpen, controlsEnabled: controls.enabled }), // local QA hook
   };
 }
