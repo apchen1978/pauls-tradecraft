@@ -1969,11 +1969,11 @@ export async function start({ stage, panel, lang, onReady }) {
     const canvas = document.createElement("canvas"); canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, w, h);
-    for (let i = 0; i < 30; i++) {
-      const x = (i + .5) * (w / 30) + (i % 3 - 1) * 1.0;
+    for (let i = 0; i < 44; i++) {
+      const x = (i + .5) * (w / 44) + (i % 3 - 1) * 0.6;
       const len = h * (.6 + ((i * 37) % 34) / 100);
       ctx.strokeStyle = i % 3 === 0 ? "#8f2528" : "#a83234";
-      ctx.lineWidth = 4.2;
+      ctx.lineWidth = 3.4;
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.bezierCurveTo(x + 2, len * .4, x - 2, len * .75, x + (i % 2 ? 2 : -2), len);
@@ -1983,6 +1983,7 @@ export async function start({ stage, panel, lang, onReady }) {
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
     tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter;
     return tex;
   }
   // Warm Carrara: mostly #ECE8E1, with a few thin grey wisps. One 1024 tile covers the
@@ -2153,21 +2154,21 @@ export async function start({ stage, panel, lang, onReady }) {
   // u = -1 與 +1 是兩端下擺；中段貼在鉤子上。
   function scarfCenterline() {
     const pts = [];
-    for (let i = 0; i <= 32; i++) {
-      const u = i / 32 * 2 - 1;
+    for (let i = 0; i <= 48; i++) {
+      const u = i / 48 * 2 - 1;
       const au = Math.abs(u);
       const tail = u < 0 ? .85 : .75;
       const drop = au < .07 ? 0 : Math.pow((au - .07) / .93, 1.06) * tail;
       const y = .01 - drop;
-      const x = .098 + au * .018 + Math.sin(au * Math.PI) * .010 + Math.sin(u * Math.PI * 1.7) * .006 + Math.tanh(u * 9) * .016;
-      const z = Math.sin(u * Math.PI * 2) * .022 * (.3 + au) + u * .012 + Math.tanh(u * 9) * .014;
+      const x = .098 + au * .018 + Math.sin(au * Math.PI) * .010 + Math.sin(u * Math.PI * 1.7) * .006 + Math.tanh(u * 4.5) * .170;
+      const z = Math.sin(u * Math.PI * 2) * .022 * (.3 + au) + u * .012 + Math.tanh(u * 4.5) * .006;
       pts.push(new THREE.Vector3(x, y, z));
     }
     return pts;
   }
   // Width is split so a soft fold can run down the middle, and the cloth has a real 1 cm edge.
   function knitScarf(points, width, thick, along, across) {
-    const curve = new THREE.CatmullRomCurve3(points);
+    const curve = new THREE.CatmullRomCurve3(points, false, "centripetal");
     const positions = [], uvs = [], indices = [];
     const ht = thick / 2, cols = across + 1, layers = 2;
     for (let i = 0; i <= along; i++) {
@@ -2231,7 +2232,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   // 兩端各一片 8 cm 的流蘇面（貼圖帶透明），沿下擺的寬度延伸、順著尾巴方向垂下。
   function scarfFringeGeometry(points, width, thick) {
-    const curve = new THREE.CatmullRomCurve3(points);
+    const curve = new THREE.CatmullRomCurve3(points, false, "centripetal");
     const positions = [], uvs = [], indices = [];
     const len = .10;
     for (const t of [0, 1]) {
@@ -2311,7 +2312,7 @@ export async function start({ stage, panel, lang, onReady }) {
         // 180 × 30 cm、厚 1 cm；兩條尾巴 85 cm 與 75 cm，兩端各有 8 cm 流蘇。
         const scarfWidth = .30, scarfThick = .01;
         const line = scarfCenterline();
-        const scarf = standPart(knitScarf(line, scarfWidth, scarfThick, 40, 5), standScarfMat, "hall-stand-scarf", pivot);
+        const scarf = standPart(knitScarf(line, scarfWidth, scarfThick, 48, 4), standScarfMat, "hall-stand-scarf", pivot);
         scarf.castShadow = true;
         const fringe = standPart(scarfFringeGeometry(line, scarfWidth, scarfThick), fringeMat, "hall-stand-scarf-fringe", pivot);
         fringe.castShadow = false;
