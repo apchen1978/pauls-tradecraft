@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ROOMVERSE 第二個房間｜施工中</title>
+<meta name="description" content="ROOMVERSE 像 universe 一樣不只一個房間。第二個房間：一個人住的套房，施工中。">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ecebe5">
+<style>
+  :root { --ink: #24302c; --paper: #fbfaf6; --moss: #315c5d; --muted: #5b665f; --line: #cfd8d1; --bg: #ecebe5; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, "Noto Sans TC", sans-serif; }
+  [hidden] { display: none !important; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px clamp(16px, 3vw, 40px); }
+  .left { display: flex; align-items: center; gap: 14px; }
+  .home { color: var(--moss); text-decoration: none; font-weight: 700; font-size: 14px; padding: 7px 12px; border: 1px solid #a8afa5; border-radius: 999px; }
+  .mark { font-weight: 800; letter-spacing: .14em; font-size: 13px; }
+  #lang { position: relative; border: 1px solid #a8afa5; background: none; border-radius: 999px; padding: 7px 12px; font-weight: 700; color: var(--moss); cursor: pointer; }
+  #lang::before { content: ""; position: absolute; inset: -7px -3px; border-radius: inherit; }
+  .intro { padding: 4px clamp(16px, 3vw, 40px) 16px; max-width: 900px; }
+  .intro h1 { font-size: clamp(26px, 4vw, 44px); line-height: 1.15; margin: 0 0 10px; color: #0086c8; background: linear-gradient(90deg, #0086c8 0%, #3a5cff 52%, #7b4dff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .intro p { margin: 0; color: var(--muted); line-height: 1.7; font-size: clamp(15px, 1.4vw, 17px); }
+  .room { position: relative; margin: 0 clamp(16px, 3vw, 40px); height: min(72vh, 760px); border-radius: 18px; overflow: hidden; background: #ddd6c8; }
+  #stage { position: absolute; inset: 0; }
+  #stage canvas { display: block; touch-action: none; }
+  .poster { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(180deg, #cfe0ee 0%, #e8e4d8 58%, #c9b79c 58%, #b7a283 100%); }
+  .poster button { font: inherit; font-weight: 700; font-size: 17px; padding: 14px 22px; border: 0; border-radius: 999px; background: var(--moss); color: #fff; cursor: pointer; box-shadow: 0 10px 30px #0003; }
+  .poster button:focus-visible { outline: 3px solid #977b42; outline-offset: 3px; }
+  .poster small { display: block; margin-top: 8px; text-align: center; color: #24302c; font-size: 13px; }
+  .status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fffd; padding: 10px 16px; border-radius: 999px; font-size: 14px; }
+  .note { padding: 14px clamp(16px, 3vw, 40px) 40px; color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 900px; }
+  @media (max-width: 768px) {
+    .room { height: auto; }
+    #stage { position: relative; height: 58vh; }
+    .poster { height: 58vh; bottom: auto; }
+    .mark { font-size: 11px; letter-spacing: .1em; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="left"><a class="home" id="home" href="../">← ROOMVERSE</a><span class="mark">ROOMVERSE STUDIO</span></div>
+  <button id="lang" type="button">EN</button>
+</header>
+<section class="intro">
+  <h1 id="title"></h1>
+  <p id="lead"></p>
+</section>
+<section class="room" aria-labelledby="title">
+  <div id="stage"></div>
+  <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
+  <p class="status" id="status" hidden></p>
+</section>
+<p class="note" id="note"></p>
+<script type="module" src="page.js?v=1"></script>
+</body>
+</html>
