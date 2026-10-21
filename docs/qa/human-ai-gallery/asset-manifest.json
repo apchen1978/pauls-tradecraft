@@ -277,5 +277,36 @@
         "sha256": "94f2626b3d4295dd5eda736faa5aa8931eba650d56bcc61e460926cb4b907b44"
       }
     ]
+  },
+  {
+    "id": "ai-lab-open-horizon",
+    "source": "docs/gallery/sources/ai-lab-open-horizon-original.png",
+    "sourceSha256": "bce97476b81837bd32645d454a613ba72bb3e6ba98cb2353e7d0cb2755b44ff6",
+    "derivatives": [
+      {
+        "file": "ai-lab-open-horizon.webp",
+        "width": 1024,
+        "height": 576,
+        "bytes": 88082,
+        "quality": 72,
+        "sha256": "b77d1d923b03a1620ec035fa028950818faabeb55256878e50135dabdfcfda36"
+      },
+      {
+        "file": "ai-lab-open-horizon-mobile.webp",
+        "width": 800,
+        "height": 450,
+        "bytes": 62596,
+        "quality": 76,
+        "sha256": "4e082f188bc59f2ff2578e905d345d756a7d60a60414e97c1f59067e44a502c4"
+      },
+      {
+        "file": "ai-lab-open-horizon-thumb.webp",
+        "width": 480,
+        "height": 270,
+        "bytes": 29528,
+        "quality": 80,
+        "sha256": "130c363a40a7b24a40cbad111eeff5b30c3bb2c9ec22a7614cdf4e7c189f43fc"
+      }
+    ]
   }
 ]

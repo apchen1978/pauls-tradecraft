@@ -6,7 +6,7 @@ export const SPIRIT = {
     open: {
       kicker: "AI LAB 的初衷",
       title: "和 AI 一起推開一扇門。",
-      alt: "明亮的客廳：一面大窗的四格窗格各是不同的世界（雨中庭園、金色日落、夜晚城市、晴朗湖岸），旁邊一扇半開的木門通向庭園小徑，小機器人站在門邊。",
+      alt: "明亮的工作空間敞開大片落地門，望向海灣、城市與遠山。桌上放著筆電和書，小機器人站在門邊。",
       blocks: [
         {
           h: "一扇門",
@@ -75,7 +75,7 @@ export const SPIRIT = {
     open: {
       kicker: "WHY AI LAB",
       title: "Open doors, together with AI.",
-      alt: "A bright living room: the four panes of one large window show four different worlds (a rainy garden, a golden sunset, a city at night, a sunny lakeshore), and a half-open wooden door beside it leads to a garden path, with a small robot standing by the door.",
+      alt: "A bright workspace opens through large glass doors onto a bay, a city and distant mountains. A laptop and books sit on the table, with a small robot by the doorway.",
       blocks: [
         {
           h: "A door",

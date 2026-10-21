@@ -43,3 +43,9 @@ Paul 指示把《十二月的燈》尚未收入畫廊的場景畫加入。核對
 | stage-after-show | 原稿 `docs/gallery/sources/december-stage-original.png`；來源為 2026-10-15 已由 Paul 看過並同意交稿的彩蛋圖。`Desktop/09_封存/2026-10_完工/十二月的燈素材/給Grokbot_彩蛋/README.md` 記錄以內建 Image 2.0 參照既有角色圖重繪場景；PNG 原稿 1122×1402、2,610,743 bytes。WebP 衍生圖尺寸、bytes 與 SHA256 見 `docs/qa/human-ai-gallery/asset-manifest.json`。 |
 
 AI Lab 結尾入口改成雙語作品卡，以三張畫廊縮圖構成預覽封面；資產維持延遲載入，連結仍寫入訪客目前的語言。公開文案不增加故事人名或未公開設定。
+
+## 2026-10-21：AI Lab「門外，是更大的世界」
+
+Paul 希望「和 AI 一起推開一扇門」的畫面更遼闊，並決定使用沒有飛行車的版本。以 ImageGen 完成的原稿保存在 `docs/gallery/sources/ai-lab-open-horizon-original.png`；AI Lab 用一張 1600×900 桌機 WebP 和一張由同一原稿取景的 780×1100 手機 WebP。畫廊另新增一筆 `ai-lab-open-horizon`，使用 1024／800／480px 的獨立衍生圖。尺寸、品質和雜湊值記錄在 `docs/qa/human-ai-gallery/asset-manifest.json`。
+
+原有的〈想像的港口〉、〈晨光裡的港口〉及其飛行車畫面沒有修改；這件新作也不宣稱畫面是真實場景或具體未來技術。
