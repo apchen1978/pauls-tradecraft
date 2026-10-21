@@ -33,18 +33,19 @@ test("home board fills the left wall without covering the painting or the plaque
   expect(placed.lights).toBe(7);
   expect(placed.board.visible).toBe(true);
   expect(placed.board.markers).toBe(4);
-  expect(placed.board.notes).toEqual(["yellow", "pink", "blue", "call", "dentist", "dry", "walk"]);
-  expect(placed.board.file).toBe("home-board-en-v1.webp");
-  expect(placed.board.copy.lines).toEqual(["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"]);
+  expect(placed.board.notes).toEqual(["mom", "keys"]);
+  expect(placed.board.magnets).toBe(2);
+  expect(placed.board.file).toBe("home-board-en-v3.webp");
+  expect(placed.board.copy.lines).toEqual(["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"]);
+  expect(placed.board.copy.notes).toEqual(["mom", "keys"]);
   expect(placed.board.collisions).toEqual([]);
   expect(placed.board.bounds.min[0]).toBeGreaterThan(-2.6);
   expect(placed.board.bounds.max[0]).toBeLessThan(-2.4);
-  expect(placed.board.bounds.max[2]).toBeLessThan(placed.artZ - .2);
-  expect(placed.board.face.max[1] - placed.board.face.min[1]).toBeCloseTo(.7, 2);
-  expect(placed.board.face.max[2] - placed.board.face.min[2]).toBeCloseTo(1.05, 2);
+  expect(placed.board.bounds.max[2]).toBeLessThan(placed.artZ - .40);
+  expect(placed.board.face.max[1] - placed.board.face.min[1]).toBeCloseTo(.9, 2);
+  expect(placed.board.face.max[2] - placed.board.face.min[2]).toBeCloseTo(.6, 2);
   const words = [...placed.board.copy.lines, ...placed.board.copy.notes].join(" ");
   for (const name of MOOD_NAMES) expect(words).not.toContain(name);
-  expect(words).not.toMatch(/\d/);
   await page.evaluate(() => window.__room.setOrbitAngle(0));
   expect(await page.evaluate(() => window.__room.plaqueView().firstHit)).toBe("house-plaque");
   expect(await page.evaluate(() => window.__room.postcard().width)).toBeGreaterThan(0);
@@ -55,14 +56,14 @@ test("home board follows the page language and stays up in every feeling", async
   await enter(page, { lang: "en" });
   const english = await page.evaluate(() => window.__room.homeBoard());
   expect(english.lang).toBe("en");
-  expect(english.file).toBe("home-board-en-v1.webp");
-  expect(english.copy.lines).toEqual(["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"]);
-  expect(english.copy.notes).toEqual(["Weekend walk", "Thank you", "Rest early", "Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"]);
+  expect(english.file).toBe("home-board-en-v3.webp");
+  expect(english.copy.lines).toEqual(["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"]);
+  expect(english.copy.notes).toEqual(["mom", "keys"]);
   await page.evaluate(() => window.__room.setLang("zh"));
-  await page.waitForFunction(() => window.__room.homeBoard().file === "home-board-en-v1.webp" && window.__room.homeBoard().noteFile === "home-note-yellow-zh-v1.webp");
   const chinese = await page.evaluate(() => window.__room.homeBoard());
-  expect(chinese.copy.lines).toEqual(["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"]);
-  expect(chinese.copy.notes.slice(0, 3)).toEqual(["週末散步", "謝謝你", "早點休息"]);
+  expect(chinese.file).toBe("home-board-en-v3.webp");
+  expect(chinese.copy.lines).toEqual(english.copy.lines);
+  expect(chinese.copy.notes).toEqual(english.copy.notes);
   for (const mood of ["rain", "family", "tech", "chic", "slow", "tv"]) {
     const board = await page.evaluate((value) => { window.__room.set("mood", value); return window.__room.homeBoard(); }, mood);
     expect(board.visible).toBe(true);
@@ -97,10 +98,8 @@ for (const width of [390, 1440]) {
 
 test("home board pictures stay small", async () => {
   const files = [
-    "home-board-en-v1.webp",
-    "home-note-yellow-zh-v1.webp", "home-note-pink-zh-v1.webp", "home-note-blue-zh-v1.webp",
-    "home-note-yellow-en-v1.webp", "home-note-pink-en-v1.webp", "home-note-blue-en-v1.webp",
-    "home-note-call-v1.webp", "home-note-dentist-v1.webp", "home-note-dry-v1.webp", "home-note-walk-v1.webp",
+    "home-board-en-v3.webp",
+    "home-note-mom-v1.webp", "home-note-keys-v1.webp",
   ];
   for (const file of files) {
     const size = (await stat(`public/prototype/roomverse-3d/art/${file}`)).size;

@@ -1207,15 +1207,18 @@ export async function start({ stage, panel, lang, onReady }) {
 
   // Home planning board on the open stretch of the left wall, between the harbour frame and the plant.
   // Same lights as the rest of the room: no extra lamp. The words are baked pictures so the page loads no font.
-  const HOME_BOARD_LINES = ["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"];
+  const HOME_BOARD_LINES = ["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"];
+  const HOME_BOARD_NOTES = ["mom", "keys"];
   const HOME_BOARD_COPY = {
-    zh: { lines: HOME_BOARD_LINES, notes: ["週末散步", "謝謝你", "早點休息", "Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"] },
-    en: { lines: HOME_BOARD_LINES, notes: ["Weekend walk", "Thank you", "Rest early", "Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"] },
+    zh: { lines: HOME_BOARD_LINES, notes: HOME_BOARD_NOTES },
+    en: { lines: HOME_BOARD_LINES, notes: HOME_BOARD_NOTES },
   };
   const homeBoard = new THREE.Group();
   homeBoard.name = "home-board";
-  const boardFaceW = 1.05, boardFaceH = .70, boardRail = .016;
-  homeBoard.position.set(-W / 2 + .008, 1.40, .05 - (boardFaceW + boardRail * 2) / 2);
+  const boardFaceW = .60, boardFaceH = .90, boardRail = .016;
+  const boardOuterW = boardFaceW + boardRail * 2;
+  // Harbour frame's near edge is about world z 0.33. The board's near edge sits at -0.10, leaving roughly 43 cm of wall.
+  homeBoard.position.set(-W / 2 + .008, 1.38, -.10 - boardOuterW / 2);
   homeBoard.rotation.y = Math.PI / 2;
   scene.add(homeBoard);
   const boardPiece = (geo, mat, x, y, z, name) => {
@@ -1236,19 +1239,20 @@ export async function start({ stage, panel, lang, onReady }) {
   boardPiece(new THREE.BoxGeometry(boardRail, boardFaceH, .02), boardFrameMat, -(boardFaceW + boardRail) / 2, 0, .012, "home-board-frame");
   boardPiece(new THREE.PlaneGeometry(boardFaceW, boardFaceH), boardFaceMat, 0, 0, .016, "home-board-face");
   const trayY = -railY - .002; // overlaps the lower rail so the tray reads as part of the frame
-  boardPiece(new THREE.BoxGeometry(.9, .03, .078), trayMat, .02, trayY, .042, "home-board-tray");
-  boardPiece(new THREE.BoxGeometry(.9, .016, .012), trayMat, .02, trayY + .012, .076, "home-board-tray-lip");
+  const trayW = .50;
+  boardPiece(new THREE.BoxGeometry(trayW, .026, .064), trayMat, 0, trayY, .038, "home-board-tray");
+  boardPiece(new THREE.BoxGeometry(trayW, .012, .01), trayMat, 0, trayY + .01, .066, "home-board-tray-lip");
   const markerCapMat = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .4 });
-  [["#3a4450", -.30], ["#2b6ea8", -.12], ["#3d8b5e", .06], ["#d06858", .24]].forEach(([color, x], i) => {
-    const marker = boardPiece(new THREE.CapsuleGeometry(.009, .1, 3, 8), new THREE.MeshStandardMaterial({ color, roughness: .42 }), x, trayY + .026, .052, "home-board-marker");
-    marker.rotation.z = Math.PI / 2; marker.rotation.x = (i - 1.5) * .14;
-    const cap = boardPiece(new THREE.CapsuleGeometry(.0096, .018, 2, 8), markerCapMat, x + .052, trayY + .026, .052, "home-board-marker-cap");
+  [["#3a4450", -.15], ["#2b6ea8", -.05], ["#3d8b5e", .05], ["#d06858", .13]].forEach(([color, x], i) => {
+    const marker = boardPiece(new THREE.CapsuleGeometry(.008, .078, 3, 8), new THREE.MeshStandardMaterial({ color, roughness: .42 }), x, trayY + .022, .048 + (i % 2) * .006, "home-board-marker");
+    marker.rotation.z = Math.PI / 2; marker.rotation.x = (i - 1.5) * .12;
+    const cap = boardPiece(new THREE.CapsuleGeometry(.0084, .016, 2, 8), markerCapMat, x + .044, trayY + .022, marker.position.z, "home-board-marker-cap");
     cap.rotation.z = Math.PI / 2; cap.rotation.x = marker.rotation.x;
   });
   const eraserBase = new THREE.MeshStandardMaterial({ color: "#5e656c", roughness: .72 });
   const eraserFelt = new THREE.MeshStandardMaterial({ color: "#f6f3ec", roughness: .9 });
-  boardPiece(new THREE.BoxGeometry(.07, .014, .03), eraserBase, .42, trayY + .024, .052, "home-board-eraser");
-  boardPiece(new THREE.BoxGeometry(.07, .01, .03), eraserFelt, .42, trayY + .034, .052, "home-board-eraser-felt");
+  boardPiece(new THREE.BoxGeometry(.06, .012, .026), eraserBase, .22, trayY + .02, .05, "home-board-eraser");
+  boardPiece(new THREE.BoxGeometry(.06, .008, .026), eraserFelt, .22, trayY + .028, .05, "home-board-eraser-felt");
   function curledNote(w, h) {
     const geo = new THREE.PlaneGeometry(w, h, 7, 7);
     const pos = geo.attributes.position;
@@ -1261,35 +1265,21 @@ export async function start({ stage, panel, lang, onReady }) {
     return geo;
   }
   const noteSpecs = [
-    { key: "yellow", color: "#f3d56a", x: .34, y: .18, z: .022, rot: -.12, w: .17, h: .155, lang: true },
-    { key: "pink", color: "#f3bac6", x: .28, y: -.18, z: .022, rot: .14, w: .16, h: .148, lang: true },
-    { key: "blue", color: "#bad6f2", x: .1, y: .355, z: .03, rot: -.04, w: .168, h: .15, lang: true },
-    { key: "call", color: "#cfe09c", x: -.30, y: .43, z: .028, rot: .18, w: .15, h: .125 },
-    { key: "dentist", color: "#f6d670", x: -.55, y: -.22, z: .026, rot: .14, w: .145, h: .12 },
-    { key: "dry", color: "#f4bec4", x: .56, y: .08, z: .026, rot: -.18, w: .19, h: .12 },
-    { key: "walk", color: "#bcd6ec", x: .36, y: .45, z: .03, rot: -.22, w: .15, h: .125 },
+    { key: "mom", color: "#f3d56a", x: .14, y: .12, z: .022, rot: .18, w: .072, h: .068 },
+    { key: "keys", color: "#f3bac6", x: -.02, y: -.18, z: .022, rot: -.14, w: .068, h: .064 },
   ];
   const noteMeshes = noteSpecs.map((spec) => {
     const mat = new THREE.MeshStandardMaterial({ color: spec.color, roughness: .88 });
     const mesh = boardPiece(curledNote(spec.w, spec.h), mat, spec.x, spec.y, spec.z, `home-board-note-${spec.key}`);
-    mesh.rotation.z = spec.rot; mesh.userData.note = spec.key; mesh.userData.fixed = !spec.lang;
+    mesh.rotation.z = spec.rot; mesh.userData.note = spec.key; mesh.userData.fixed = true;
     return mesh;
   });
-  const twineMat = new THREE.MeshStandardMaterial({ color: "#c6a67c", roughness: .95 });
-  const addTwine = (points, name) => {
-    const twine = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 14, .0045, 5, false), twineMat);
-    twine.name = name; twine.castShadow = false; twine.receiveShadow = false; homeBoard.add(twine);
+  const addMagnet = (color, x, y, z) => {
+    const mesh = boardPiece(new THREE.CylinderGeometry(.011, .012, .004, 16), new THREE.MeshStandardMaterial({ color, metalness: .5, roughness: .38 }), x, y, z, "home-board-magnet");
+    mesh.rotation.x = Math.PI / 2;
   };
-  addTwine([
-    new THREE.Vector3(.12, .29, .036),
-    new THREE.Vector3(.22, .24, .044),
-    new THREE.Vector3(.3, .22, .03),
-  ], "home-board-twine");
-  addTwine([
-    new THREE.Vector3(-.2, .46, .04),
-    new THREE.Vector3(-.04, .5, .048),
-    new THREE.Vector3(.08, .42, .038),
-  ], "home-board-twine");
+  addMagnet("#c44b45", .05, .36, .022);
+  addMagnet("#3e6294", .10, .15, .03);
   const boardShadowTex = canvasTex(256, 256, (ctx, w, h) => {
     ctx.clearRect(0, 0, w, h);
     const g = ctx.createRadialGradient(w * .48, h * .42, w * .06, w * .5, h * .5, w * .5);
@@ -1311,7 +1301,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function showBoardLanguage(code) {
     const pack = code === "en" ? "en" : "zh";
-    boardFaceMat.map = boardArtTexture("home-board-en-v1"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
+    boardFaceMat.map = boardArtTexture("home-board-en-v3"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
     for (const mesh of noteMeshes) {
       const file = mesh.userData.fixed ? `home-note-${mesh.userData.note}-v1` : `home-note-${mesh.userData.note}-${pack}-v1`;
       mesh.material.map = boardArtTexture(file);
@@ -1986,6 +1976,7 @@ export async function start({ stage, panel, lang, onReady }) {
         visible: homeBoard.visible, bounds: bounds(homeBoard),
         face: bounds(homeBoard.getObjectByName("home-board-face")),
         markers: homeBoard.children.filter((obj) => obj.name === "home-board-marker").length,
+        magnets: homeBoard.children.filter((obj) => obj.name === "home-board-magnet").length,
         notes: noteMeshes.map((mesh) => mesh.userData.note),
         collisions: Object.entries(around).filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
