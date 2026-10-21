@@ -49,3 +49,7 @@ AI Lab 結尾入口改成雙語作品卡，以三張畫廊縮圖構成預覽封�
 Paul 希望「和 AI 一起推開一扇門」的畫面更遼闊，並決定使用沒有飛行車的版本。以 ImageGen 完成的原稿保存在 `docs/gallery/sources/ai-lab-open-horizon-original.png`；AI Lab 用一張 1600×900 桌機 WebP 和一張由同一原稿取景的 780×1100 手機 WebP。畫廊另新增一筆 `ai-lab-open-horizon`，使用 1024／800／480px 的獨立衍生圖。尺寸、品質和雜湊值記錄在 `docs/qa/human-ai-gallery/asset-manifest.json`。
 
 原有的〈想像的港口〉、〈晨光裡的港口〉及其飛行車畫面沒有修改；這件新作也不宣稱畫面是真實場景或具體未來技術。
+
+## 2026-10-21：AI Lab 兩幅門與遠方並排
+
+Paul 核准新完成的室內門窗畫，並指定在這組對照中放第一幅、上述開闊海灣畫放第二幅。新原稿獨立保留在 `docs/gallery/sources/ai-lab-digital-room-original.png`，沒有覆蓋任何既有畫作；畫廊桌機並排、手機上下排列。作品敘述將它標為概念插畫，不宣稱這是已存在的產品或技術。原稿與 1024／800／480px WebP 的 SHA256、大小與尺寸見 `docs/qa/human-ai-gallery/asset-manifest.json`。

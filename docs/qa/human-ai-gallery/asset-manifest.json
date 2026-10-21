@@ -279,6 +279,37 @@
     ]
   },
   {
+    "id": "ai-lab-digital-room",
+    "source": "docs/gallery/sources/ai-lab-digital-room-original.png",
+    "sourceSha256": "191738bc3851d822954825e258b880154e6730faf078f60fa20112876ee56e9b",
+    "derivatives": [
+      {
+        "file": "ai-lab-digital-room.webp",
+        "width": 1024,
+        "height": 576,
+        "bytes": 75198,
+        "quality": 72,
+        "sha256": "8c22dd4d47a848fa8c84cdd224f739bce6ce09ca3a702db842ed11f94285bebe"
+      },
+      {
+        "file": "ai-lab-digital-room-mobile.webp",
+        "width": 800,
+        "height": 450,
+        "bytes": 54780,
+        "quality": 76,
+        "sha256": "3c487673d1888e0b1779975589d5d299ed474cfd4cc6f1ca1cdbd97aaed80e07"
+      },
+      {
+        "file": "ai-lab-digital-room-thumb.webp",
+        "width": 480,
+        "height": 270,
+        "bytes": 27640,
+        "quality": 80,
+        "sha256": "29e314b6d16a321633b5be864c836ff2006dc8ff6cacf5be8159869c55b22205"
+      }
+    ]
+  },
+  {
     "id": "ai-lab-open-horizon",
     "source": "docs/gallery/sources/ai-lab-open-horizon-original.png",
     "sourceSha256": "bce97476b81837bd32645d454a613ba72bb3e6ba98cb2353e7d0cb2755b44ff6",
