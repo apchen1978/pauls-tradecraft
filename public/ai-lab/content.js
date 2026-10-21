@@ -87,6 +87,7 @@ export const TEXT = {
       without: "報價直接寄出。可能發生：",
       risks: ["價格低於底價，也照樣寄出。", "答應了工廠做不到的交期。", "把「還要確認」寫成「確定」。"],
       link: "看一件真的這樣做的作品：商務決策工作台",
+      journey: "一封詢盤的旅程",
     },
     c4: {
       no: "04",
@@ -119,6 +120,7 @@ export const TEXT = {
     fastRoute: {
       title: "我是負責人：15 分鐘版",
       guide: "負責人的 AI 入門：一頁指南",
+      enquiry: "一封詢盤的旅程",
     },
     ctaTitle: "想看看你的哪一件工作，可以先交給 AI？",
     ctaChoices: [
@@ -199,6 +201,7 @@ export const TEXT = {
       without: "The quote goes straight out. What can happen:",
       risks: ["A price below the floor goes out anyway.", "A lead time the factory can't meet gets promised.", "\"Still to confirm\" turns into \"confirmed\"."],
       link: "See a work built this way: Commercial Decision Desk",
+      journey: "One enquiry, start to finish",
     },
     c4: {
       no: "04",
@@ -231,6 +234,7 @@ export const TEXT = {
     fastRoute: {
       title: "For decision-makers: the 15-minute route",
       guide: "A decision-maker’s first page on AI",
+      enquiry: "One enquiry, start to finish",
     },
     ctaTitle: "Which part of your work could you hand to AI first?",
     ctaChoices: [

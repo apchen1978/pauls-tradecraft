@@ -155,6 +155,8 @@ function renderFlow() {
   }
   $("c3-link").textContent = x.link;
   $("c3-link").href = `/cases/commercial-decision-desk/${state.lang === "en" ? "#en" : ""}`;
+  $("c3-journey").textContent = x.journey;
+  $("c3-journey").href = `/ai-lab/enquiry-demo/?lang=${state.lang}`;
 }
 
 function renderTeam() {
@@ -778,6 +780,7 @@ function renderFastRoute() {
   const steps = [
     { href: "#c2", mark: "02", label: x.c2.title },
     { href: "#c3", mark: "03", label: x.c3.title },
+    { href: `/ai-lab/enquiry-demo/?lang=${state.lang}`, mark: "", label: x.fastRoute.enquiry },
     { href: "#c12", mark: "12", label: d().c12.title },
     { href: `/ai-lab/guide/?lang=${state.lang}`, mark: "", label: x.fastRoute.guide },
     { href: "#c13", mark: "13", label: PART_TWO[state.lang].title },
