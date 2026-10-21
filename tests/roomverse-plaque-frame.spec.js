@@ -38,14 +38,20 @@ for (const lang of ["zh", "en"]) {
         fov: window.__room.fov(),
         view: window.__room.plaqueView(),
         clear: window.__room.climate().plaqueClear,
+        vent: !!window.__room.climate().vent,
+        panel: !!window.__room.climate().panel,
         board: window.__room.homeBoard().visible,
+        boardClear: !window.__room.homeBoard().collisions.includes("plaque"),
         overflow: document.documentElement.scrollWidth <= innerWidth,
       }));
       const fit = placed(initial.view);
       expect(fit.hit, where).toBe("house-plaque");
       expect(fit.whole, where).toBe(true);
       expect(initial.clear, where).toBe(true);
+      expect(initial.vent, where).toBe(true);
+      expect(initial.panel, where).toBe(true);
       expect(initial.board, where).toBe(true);
+      expect(initial.boardClear, where).toBe(true);
       expect(initial.overflow, where).toBe(true);
       expect(initial.fov, where).toBeGreaterThanOrEqual(initial.aspect < 0.8 ? 66 : 44);
 
@@ -60,6 +66,19 @@ for (const lang of ["zh", "en"]) {
       await page.evaluate(() => window.__room.postcard());
       expect(await page.evaluate(() => window.__room.cam()), where).toEqual(beforeCard);
       expect(placed(await page.evaluate(() => window.__room.plaqueView())).whole, `${where} postcard`).toBe(true);
+
+      if (width === 390 && height === 844) {
+        expect(await page.evaluate(() => window.__room.loadCoatRack()), where).toBe(true);
+        await page.evaluate(() => window.__room.whenCoatSettled());
+        const settled = await page.evaluate(() => {
+          window.__room.setOrbitAngle(0);
+          const rack = window.__room.coatRack();
+          return { ready: rack.ready, collisions: rack.collisions, view: window.__room.plaqueView() };
+        });
+        expect(settled.ready, where).toBe(true);
+        expect(settled.collisions, where).not.toContain("plaque");
+        expect(placed(settled.view).whole, `${where} with the coat rack`).toBe(true);
+      }
     }
   });
 }
