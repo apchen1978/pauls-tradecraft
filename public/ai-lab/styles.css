@@ -345,6 +345,22 @@ body { overflow-x: clip; }
 .part-intro { display: grid; gap: 8px; max-width: 54em; margin-top: 14px; }
 .part-intro .sub { margin: 0; }
 .part-intro .sub:last-child { color: var(--bone); font-weight: 600; }
+.rollout { margin-top: 22px; padding: 14px 14px 16px; border: 1px solid rgba(184, 153, 102, .38); border-radius: 14px; background: rgba(184, 153, 102, .06); }
+.rollout h3 { margin: 0; color: var(--bone); font-size: 1.15rem; line-height: 1.35; }
+.rollout .sub { margin: 6px 0 0; max-width: 46em; }
+.rollout ol { display: flex; flex-direction: column; align-items: stretch; gap: 0; margin: 12px 0 0; padding: 0; list-style: none; }
+.rollout li { display: flex; flex-direction: column; align-items: center; min-width: 0; max-width: 100%; }
+.rollout-step { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--body); text-decoration: none; font-size: 15px; line-height: 1.35; }
+.rollout-step:hover { border-color: var(--gold); color: var(--bone); }
+.rollout-mark { flex: 0 0 auto; color: var(--mint); font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+.rollout-label { min-width: 0; }
+.rollout-arrow { display: block; width: 16px; height: 18px; margin: 2px 0; color: var(--gold); transform: rotate(90deg); flex: 0 0 auto; }
+@media (min-width: 900px) {
+  .rollout ol { flex-direction: row; align-items: stretch; }
+  .rollout li { flex: 1 1 0; flex-direction: row; align-items: stretch; }
+  .rollout-step { flex: 1 1 0; width: auto; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; height: 100%; }
+  .rollout-arrow { width: 18px; height: 16px; margin: auto 2px; transform: none; align-self: center; }
+}
 .access-demo { display: inline-block; margin-top: 14px; padding: 4px 10px; border: 1px solid rgba(158, 224, 193, .32); border-radius: 999px; }
 .access-desk { margin-top: 24px; padding: 24px; border: 1px solid rgba(158, 224, 193, .3); border-radius: 18px; background: linear-gradient(150deg, rgba(20, 44, 41, .78), rgba(10, 24, 22, .82)); }
 .access-heading h3 { color: var(--bone); font-size: 1.35rem; }
