@@ -33,7 +33,9 @@ test("home board fills the left wall without covering the painting or the plaque
   expect(placed.lights).toBe(7);
   expect(placed.board.visible).toBe(true);
   expect(placed.board.markers).toBe(4);
-  expect(placed.board.notes).toEqual(["yellow", "pink", "blue"]);
+  expect(placed.board.notes).toEqual(["yellow", "pink", "blue", "call", "dentist", "dry", "walk"]);
+  expect(placed.board.file).toBe("home-board-en-v1.webp");
+  expect(placed.board.copy.lines).toEqual(["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"]);
   expect(placed.board.collisions).toEqual([]);
   expect(placed.board.bounds.min[0]).toBeGreaterThan(-2.6);
   expect(placed.board.bounds.max[0]).toBeLessThan(-2.4);
@@ -54,11 +56,13 @@ test("home board follows the page language and stays up in every feeling", async
   const english = await page.evaluate(() => window.__room.homeBoard());
   expect(english.lang).toBe("en");
   expect(english.file).toBe("home-board-en-v1.webp");
-  expect(english.copy.lines).toContain("Buy milk");
+  expect(english.copy.lines).toEqual(["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"]);
+  expect(english.copy.notes).toEqual(["Weekend walk", "Thank you", "Rest early", "Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"]);
   await page.evaluate(() => window.__room.setLang("zh"));
-  await page.waitForFunction(() => window.__room.homeBoard().file === "home-board-zh-v1.webp" && window.__room.homeBoard().loaded);
+  await page.waitForFunction(() => window.__room.homeBoard().file === "home-board-en-v1.webp" && window.__room.homeBoard().noteFile === "home-note-yellow-zh-v1.webp");
   const chinese = await page.evaluate(() => window.__room.homeBoard());
-  expect(chinese.copy.lines).toEqual(["買牛奶", "澆花", "週五家庭聚餐", "換床單"]);
+  expect(chinese.copy.lines).toEqual(["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"]);
+  expect(chinese.copy.notes.slice(0, 3)).toEqual(["週末散步", "謝謝你", "早點休息"]);
   for (const mood of ["rain", "family", "tech", "chic", "slow", "tv"]) {
     const board = await page.evaluate((value) => { window.__room.set("mood", value); return window.__room.homeBoard(); }, mood);
     expect(board.visible).toBe(true);
@@ -93,9 +97,10 @@ for (const width of [390, 1440]) {
 
 test("home board pictures stay small", async () => {
   const files = [
-    "home-board-zh-v1.webp", "home-board-en-v1.webp",
+    "home-board-en-v1.webp",
     "home-note-yellow-zh-v1.webp", "home-note-pink-zh-v1.webp", "home-note-blue-zh-v1.webp",
     "home-note-yellow-en-v1.webp", "home-note-pink-en-v1.webp", "home-note-blue-en-v1.webp",
+    "home-note-call-v1.webp", "home-note-dentist-v1.webp", "home-note-dry-v1.webp", "home-note-walk-v1.webp",
   ];
   for (const file of files) {
     const size = (await stat(`public/prototype/roomverse-3d/art/${file}`)).size;

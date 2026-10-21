@@ -1066,9 +1066,10 @@ export async function start({ stage, panel, lang, onReady }) {
 
   // Home planning board on the open stretch of the left wall, between the harbour frame and the plant.
   // Same lights as the rest of the room: no extra lamp. The words are baked pictures so the page loads no font.
+  const HOME_BOARD_LINES = ["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"];
   const HOME_BOARD_COPY = {
-    zh: { lines: ["買牛奶", "澆花", "週五家庭聚餐", "換床單"], notes: ["週末散步", "謝謝你", "早點休息"] },
-    en: { lines: ["Buy milk", "Water the plants", "Friday family dinner", "Fresh sheets"], notes: ["Weekend walk", "Thank you", "Rest early"] },
+    zh: { lines: HOME_BOARD_LINES, notes: ["週末散步", "謝謝你", "早點休息", "Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"] },
+    en: { lines: HOME_BOARD_LINES, notes: ["Weekend walk", "Thank you", "Rest early", "Call mom", "Book dentist", "Pick up dry cleaning", "Walk the dog"] },
   };
   const homeBoard = new THREE.Group();
   homeBoard.name = "home-board";
@@ -1119,25 +1120,35 @@ export async function start({ stage, panel, lang, onReady }) {
     return geo;
   }
   const noteSpecs = [
-    { key: "yellow", color: "#f3d56a", x: .34, y: .18, z: .022, rot: -.12, w: .17, h: .155 },
-    { key: "pink", color: "#f3bac6", x: .28, y: -.18, z: .022, rot: .14, w: .16, h: .148 },
-    { key: "blue", color: "#bad6f2", x: .1, y: .355, z: .03, rot: -.04, w: .168, h: .15 },
+    { key: "yellow", color: "#f3d56a", x: .34, y: .18, z: .022, rot: -.12, w: .17, h: .155, lang: true },
+    { key: "pink", color: "#f3bac6", x: .28, y: -.18, z: .022, rot: .14, w: .16, h: .148, lang: true },
+    { key: "blue", color: "#bad6f2", x: .1, y: .355, z: .03, rot: -.04, w: .168, h: .15, lang: true },
+    { key: "call", color: "#cfe09c", x: -.30, y: .43, z: .028, rot: .18, w: .15, h: .125 },
+    { key: "dentist", color: "#f6d670", x: -.55, y: -.22, z: .026, rot: .14, w: .145, h: .12 },
+    { key: "dry", color: "#f4bec4", x: .56, y: .08, z: .026, rot: -.18, w: .19, h: .12 },
+    { key: "walk", color: "#bcd6ec", x: .36, y: .45, z: .03, rot: -.22, w: .15, h: .125 },
   ];
   const noteMeshes = noteSpecs.map((spec) => {
     const mat = new THREE.MeshStandardMaterial({ color: spec.color, roughness: .88 });
     const mesh = boardPiece(curledNote(spec.w, spec.h), mat, spec.x, spec.y, spec.z, `home-board-note-${spec.key}`);
-    mesh.rotation.z = spec.rot; mesh.userData.note = spec.key;
+    mesh.rotation.z = spec.rot; mesh.userData.note = spec.key; mesh.userData.fixed = !spec.lang;
     return mesh;
   });
-  const twine = new THREE.Mesh(
-    new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
-      new THREE.Vector3(.12, .29, .036),
-      new THREE.Vector3(.22, .24, .044),
-      new THREE.Vector3(.3, .22, .03),
-    ]), 14, .0045, 5, false),
-    new THREE.MeshStandardMaterial({ color: "#c6a67c", roughness: .95 }),
-  );
-  twine.name = "home-board-twine"; twine.castShadow = false; twine.receiveShadow = false; homeBoard.add(twine);
+  const twineMat = new THREE.MeshStandardMaterial({ color: "#c6a67c", roughness: .95 });
+  const addTwine = (points, name) => {
+    const twine = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 14, .0045, 5, false), twineMat);
+    twine.name = name; twine.castShadow = false; twine.receiveShadow = false; homeBoard.add(twine);
+  };
+  addTwine([
+    new THREE.Vector3(.12, .29, .036),
+    new THREE.Vector3(.22, .24, .044),
+    new THREE.Vector3(.3, .22, .03),
+  ], "home-board-twine");
+  addTwine([
+    new THREE.Vector3(-.2, .46, .04),
+    new THREE.Vector3(-.04, .5, .048),
+    new THREE.Vector3(.08, .42, .038),
+  ], "home-board-twine");
   const boardShadowTex = canvasTex(256, 256, (ctx, w, h) => {
     ctx.clearRect(0, 0, w, h);
     const g = ctx.createRadialGradient(w * .48, h * .42, w * .06, w * .5, h * .5, w * .5);
@@ -1159,9 +1170,10 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function showBoardLanguage(code) {
     const pack = code === "en" ? "en" : "zh";
-    boardFaceMat.map = boardArtTexture(`home-board-${pack}-v1`); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
+    boardFaceMat.map = boardArtTexture("home-board-en-v1"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
     for (const mesh of noteMeshes) {
-      mesh.material.map = boardArtTexture(`home-note-${mesh.userData.note}-${pack}-v1`);
+      const file = mesh.userData.fixed ? `home-note-${mesh.userData.note}-v1` : `home-note-${mesh.userData.note}-${pack}-v1`;
+      mesh.material.map = boardArtTexture(file);
       mesh.material.color.set("#ffffff"); mesh.material.needsUpdate = true;
     }
     homeBoard.userData.lang = pack;
@@ -1828,6 +1840,7 @@ export async function start({ stage, panel, lang, onReady }) {
       return {
         lang: pack, copy: HOME_BOARD_COPY[pack],
         file: boardFaceMat.map?.image?.src?.split("/").pop() ?? null,
+        noteFile: noteMeshes[0].material.map?.image?.src?.split("/").pop() ?? null,
         loaded: !!boardFaceMat.map?.image?.width,
         visible: homeBoard.visible, bounds: bounds(homeBoard),
         face: bounds(homeBoard.getObjectByName("home-board-face")),
