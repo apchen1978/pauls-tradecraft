@@ -55,6 +55,10 @@ test("hall stand is clean geometry in the front-left corner", async ({ page }) =
   expect(rack.scarfSide).toBe(2);
   expect(rack.scarfRough).toBeGreaterThan(0.9);
   expect(rack.scarfMetal).toBe(0);
+  // 布面要有細織紋凹凸，兩端要有流蘇（精品圍巾的兩個辨識點）。
+  expect(rack.scarfBump).toBe(true);
+  expect(rack.scarfBumpScale).toBeGreaterThan(0);
+  expect(rack.scarfFringe).toBe(true);
   expect(rack.brassMetal).toBeGreaterThan(0.8);
   expect(rack.edgeByName["hall-stand-scarf"]).toBeLessThan(0.18);
   const m = rack.measured;
@@ -69,8 +73,8 @@ test("hall stand is clean geometry in the front-left corner", async ({ page }) =
   expect(m.hookHeight).toBeLessThanOrEqual(1.7);
   expect(m.scarfLength).toBeGreaterThanOrEqual(1.5);
   expect(m.scarfLength).toBeLessThanOrEqual(1.8);
-  expect(m.scarfWidth).toBeGreaterThanOrEqual(0.2);
-  expect(m.scarfWidth).toBeLessThanOrEqual(0.3);
+  expect(m.scarfWidth).toBeGreaterThanOrEqual(0.29);
+  expect(m.scarfWidth).toBeLessThanOrEqual(0.31); // 30 cm
   expect(m.scarfThick).toBeGreaterThanOrEqual(0.008);
   expect(m.scarfThick).toBeLessThanOrEqual(0.014);
   expect(Math.min(m.drapeA, m.drapeB)).toBeGreaterThanOrEqual(0.7);
