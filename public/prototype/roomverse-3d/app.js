@@ -1209,7 +1209,7 @@ export async function start({ stage, panel, lang, onReady }) {
   // Same lights as the rest of the room: no extra lamp. The words are baked pictures so the page loads no font.
   // Plumb to the wall: only rotation.y. The room camera stays level, so these edges stay vertical on screen.
   const HOME_BOARD_LINES = ["milk", "eggs", "bread", "Fri dinner 7pm", "dentist Tue"];
-  const HOME_BOARD_NOTES = ["mom", "keys"];
+  const HOME_BOARD_NOTES = [];
   const HOME_BOARD_COPY = {
     zh: { lines: HOME_BOARD_LINES, notes: HOME_BOARD_NOTES },
     en: { lines: HOME_BOARD_LINES, notes: HOME_BOARD_NOTES },
@@ -1259,22 +1259,22 @@ export async function start({ stage, panel, lang, onReady }) {
     tex.colorSpace = THREE.NoColorSpace; tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
     return tex;
   }
-  const glassMat = new THREE.MeshStandardMaterial({ color: "#f4f1ea", roughness: .34, metalness: .06 });
+  const glassMat = new THREE.MeshStandardMaterial({ color: "#f3f2ee", roughness: .32, metalness: .08 });
   const boardFaceMat = new THREE.MeshStandardMaterial({
-    color: "#f7f4ee", roughness: .48, metalness: .02, transparent: true, alphaTest: .5, alphaMap: roundedMask(boardFaceW, boardFaceH, boardCorner),
+    color: "#f7f6f2", roughness: .55, metalness: .02, transparent: true, alphaTest: .5, alphaMap: roundedMask(boardFaceW, boardFaceH, boardCorner),
   });
-  const brassMat = new THREE.MeshStandardMaterial({ color: "#b08a4e", metalness: .72, roughness: .36 });
-  const ledgeMat = new THREE.MeshStandardMaterial({ color: "#b98a5c", roughness: .58 });
+  const brassMat = new THREE.MeshStandardMaterial({ color: "#c2a36a", metalness: .48, roughness: .58 });
+  const ledgeMat = new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 });
   boardPiece(new THREE.ExtrudeGeometry(roundedRectShape(boardFaceW, boardFaceH, boardCorner), { depth: glassDepth, bevelEnabled: false, curveSegments: 8 }), glassMat, 0, 0, glassBack, "home-board-glass");
   boardPiece(new THREE.PlaneGeometry(boardFaceW, boardFaceH), boardFaceMat, 0, 0, glassFront + .0006, "home-board-face");
   for (const x of [-1, 1]) for (const y of [-1, 1]) {
-    const sx = x * (boardFaceW / 2 - .07), sy = y * (boardFaceH / 2 - .09);
-    const rose = boardPiece(new THREE.CylinderGeometry(.012, .012, .003, 16), brassMat, sx, sy, .002, "home-board-standoff");
+    const sx = x * (boardFaceW / 2 - .042), sy = y * (boardFaceH / 2 - .048);
+    const rose = boardPiece(new THREE.CylinderGeometry(.008, .008, .002, 16), brassMat, sx, sy, .0015, "home-board-standoff");
     rose.rotation.x = Math.PI / 2;
-    const peg = boardPiece(new THREE.CylinderGeometry(.0065, .0065, glassBack - .003, 12), brassMat, sx, sy, glassBack / 2, "home-board-standoff");
+    const peg = boardPiece(new THREE.CylinderGeometry(.0042, .0042, glassBack - .002, 12), brassMat, sx, sy, glassBack / 2, "home-board-standoff");
     peg.rotation.x = Math.PI / 2;
   }
-  const ledgeW = .58, ledgeD = .052, ledgeT = .011;
+  const ledgeW = .52, ledgeD = .04, ledgeT = .007;
   const ledgeTop = -boardFaceH / 2 - .014;
   const ledgeCenterZ = glassFront + ledgeD / 2 - .006;
   boardPiece(new THREE.BoxGeometry(ledgeW, ledgeT, ledgeD), ledgeMat, 0, ledgeTop - ledgeT / 2, ledgeCenterZ, "home-board-ledge");
@@ -1294,7 +1294,7 @@ export async function start({ stage, panel, lang, onReady }) {
   penShadowTex.wrapS = penShadowTex.wrapT = THREE.ClampToEdgeWrapping;
   const penShadowMat = new THREE.MeshBasicMaterial({ map: penShadowTex, transparent: true, depthWrite: false });
   const penR = .008, penLen = .100;
-  [{ color: "#1b1b1b", x: -.20 }, { color: "#1e4f98", x: -.055 }, { color: "#c43730", x: .09 }].forEach((pen) => {
+  [{ color: "#1c1c1c", x: -.17 }, { color: "#243056", x: -.04 }, { color: "#c4785c", x: .09 }].forEach((pen) => {
     const y = ledgeTop + penR, z = ledgeCenterZ;
     const marker = boardPiece(new THREE.CapsuleGeometry(penR, penLen, 4, 12), new THREE.MeshStandardMaterial({ color: pen.color, roughness: .36 }), pen.x, y, z, "home-board-marker");
     marker.rotation.z = Math.PI / 2;
@@ -1303,12 +1303,10 @@ export async function start({ stage, panel, lang, onReady }) {
     const shadow = boardPiece(new THREE.PlaneGeometry(penLen + .028, penR * 3.2), penShadowMat, pen.x + .01, ledgeTop + .0012, z, "home-board-marker-shadow");
     shadow.rotation.x = -Math.PI / 2; shadow.receiveShadow = false;
   });
-  const eraserBase = new THREE.MeshStandardMaterial({ color: "#4e545b", roughness: .7 });
-  const eraserFelt = new THREE.MeshStandardMaterial({ color: "#f6f3ec", roughness: .92 });
-  const eraserX = .215, eraserY = ledgeTop + .011, eraserZ = ledgeCenterZ;
-  boardPiece(new THREE.BoxGeometry(.10, .022, .042), eraserBase, eraserX, eraserY, eraserZ, "home-board-eraser");
-  boardPiece(new THREE.BoxGeometry(.10, .005, .042), eraserFelt, eraserX, ledgeTop + .024, eraserZ, "home-board-eraser-felt");
-  const eraserShadow = boardPiece(new THREE.PlaneGeometry(.11, .05), penShadowMat, eraserX, ledgeTop + .0012, eraserZ, "home-board-marker-shadow");
+  const eraserFelt = new THREE.MeshStandardMaterial({ color: "#a7abae", roughness: .94 });
+  const eraserX = .19, eraserY = ledgeTop + .006, eraserZ = ledgeCenterZ;
+  boardPiece(new THREE.BoxGeometry(.058, .012, .026), eraserFelt, eraserX, eraserY, eraserZ, "home-board-eraser");
+  const eraserShadow = boardPiece(new THREE.PlaneGeometry(.066, .032), penShadowMat, eraserX, ledgeTop + .0012, eraserZ, "home-board-marker-shadow");
   eraserShadow.rotation.x = -Math.PI / 2; eraserShadow.receiveShadow = false;
   function curledNote(w, h) {
     const geo = new THREE.PlaneGeometry(w, h, 7, 7);
@@ -1322,8 +1320,8 @@ export async function start({ stage, panel, lang, onReady }) {
     return geo;
   }
   const noteSpecs = [
-    { key: "mom", color: "#f3d56a", x: .14, y: .12, z: glassFront + .004, rot: .18, w: .072, h: .068 },
-    { key: "keys", color: "#f3bac6", x: -.02, y: -.18, z: glassFront + .004, rot: -.14, w: .068, h: .064 },
+    { key: "yellow", color: "#f4e7b0", x: .13, y: .08, z: glassFront + .004, rot: .1, w: .05, h: .046 },
+    { key: "sage", color: "#d5dec8", x: -.05, y: -.2, z: glassFront + .004, rot: -.08, w: .048, h: .044 },
   ];
   const noteMeshes = noteSpecs.map((spec) => {
     const mat = new THREE.MeshStandardMaterial({ color: spec.color, roughness: .88 });
@@ -1331,15 +1329,15 @@ export async function start({ stage, panel, lang, onReady }) {
     mesh.rotation.z = spec.rot; mesh.userData.note = spec.key; mesh.userData.fixed = true;
     return mesh;
   });
-  const addMagnet = (color, x, y, z) => {
-    const mesh = boardPiece(new THREE.CylinderGeometry(.011, .012, .004, 16), new THREE.MeshStandardMaterial({ color, metalness: .5, roughness: .38 }), x, y, z, "home-board-magnet");
+  const addMagnet = (x, y, z) => {
+    const mesh = boardPiece(new THREE.CylinderGeometry(.007, .007, .003, 20), brassMat, x, y, z, "home-board-magnet");
     mesh.rotation.x = Math.PI / 2;
   };
-  addMagnet("#c44b45", .05, .36, glassFront + .003);
-  addMagnet("#3e6294", .10, .15, glassFront + .003);
+  addMagnet(.148, .096, glassFront + .006);
+  addMagnet(-.032, -.184, glassFront + .006);
   const boardShadowTex = canvasTex(256, 384, (ctx, w, h) => {
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = "rgba(48,34,22,.55)";
+    ctx.fillStyle = "rgba(48,34,22,.38)";
     ctx.filter = "blur(14px)";
     const inset = 22, rx = 18;
     ctx.beginPath();
@@ -1377,12 +1375,7 @@ export async function start({ stage, panel, lang, onReady }) {
   }
   function showBoardLanguage(code) {
     const pack = code === "en" ? "en" : "zh";
-    boardFaceMat.map = boardArtTexture("home-board-en-v3"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
-    for (const mesh of noteMeshes) {
-      const file = mesh.userData.fixed ? `home-note-${mesh.userData.note}-v1` : `home-note-${mesh.userData.note}-${pack}-v1`;
-      mesh.material.map = boardArtTexture(file);
-      mesh.material.color.set("#ffffff"); mesh.material.needsUpdate = true;
-    }
+    boardFaceMat.map = boardArtTexture("home-board-en-v4"); boardFaceMat.color.set("#ffffff"); boardFaceMat.needsUpdate = true;
     homeBoard.userData.lang = pack;
   }
   showBoardLanguage(lang);
