@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-window" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-bed" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -52,15 +52,30 @@ test("the painted window view loads for day and night and always fills the windo
   expect(art.pixels).toEqual([1600, 1000]);
 });
 
+test("the bed has real sizes, stands on the floor beside the wall and clears the window and door", async ({ page }) => {
+  await enter(page);
+  const { bed, vertices } = await page.evaluate(() => window.__bedroom.info());
+  const [x0, y0, z0] = bed.min, [x1, y1, z1] = bed.max;
+  expect(bed.mattressTop).toBeCloseTo(.48, 2);
+  expect(y0).toBeCloseTo(0, 2); // legs on the floor
+  expect(x1 - x0).toBeGreaterThan(1.5); // bed 1.1 m plus the bedside table
+  expect(x1).toBeLessThanOrEqual(2.0); // inside the east wall
+  expect(z0).toBeGreaterThan(-2.501); // inside the north wall
+  expect(z1 - z0).toBeLessThan(2.1); // 2 m bed, nothing hangs further out
+  expect(x0).toBeGreaterThan(.3); // the bedside table stays well clear of the door side of the room
+  expect(y1).toBeLessThan(1.1); // headboard under the window sill height + a little, never blocks the glass
+  expect(vertices).toBeLessThan(16000);
+});
+
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
   await expect(page).toHaveTitle(/ROOMVERSE 3D｜空間幻境/);
   await expect(page.locator("#roomNo")).toHaveText("Room 02 · Night Shift");
-  await expect(page.locator("#title")).toHaveText("一個人住的套房");
+  await expect(page.locator("#title")).toHaveText("Room 02 都市青年Style");
   await page.locator("#lang").click();
   await expect(page.locator("#roomNo")).toHaveText("Room 02 · Night Shift");
-  await expect(page.locator("#title")).toHaveText("A studio for one");
+  await expect(page.locator("#title")).toHaveText("Room 02 · Urban Youth Style");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });
 
@@ -69,6 +84,6 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
   for (const width of [1440, 390]) {
     await enter(page, { width });
     await page.waitForTimeout(600);
-    await page.locator("#stage").screenshot({ path: `${QA}/window-day-${width}.png` });
+    await page.locator("#stage").screenshot({ path: `${QA}/bed-${width}.png` });
   }
 });
