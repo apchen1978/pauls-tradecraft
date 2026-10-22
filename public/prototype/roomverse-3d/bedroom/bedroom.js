@@ -340,9 +340,18 @@ export async function start({ stage, lang = "zh" }) {
       x += w + .002;
     }
   }
-  bp(new THREE.CylinderGeometry(.06, .05, .12, 14), pillowA, "shelf-pot", .22, 1.54 + .07, 0); // a plant on the fourth shelf
-  bp(new THREE.SphereGeometry(.09, 10, 8), new THREE.MeshStandardMaterial({ color: "#6f8a5f", roughness: .9 }), "shelf-plant", .22, 1.54 + .21, 0);
-  bp(box(.2, .26, .02), pillowB, "shelf-frame", -.2, 1.54 + .15, -.05); // a blank frame leaning at the back
+  // Every shelf item must fit its compartment (23 cm clear under the top board). Taller things go on top of the shelf, the way
+  // people store what has no other place: a lidded fabric box and a small plant. info().shelfClash proves nothing passes through a board.
+  const TOP = levels[levels.length - 1] + .01; // upper face of the top board
+  bp(box(.18, .18, .02), pillowB, "shelf-frame", -.2, levels[4] + .01 + .09, -.08); // a blank frame leaning at the back, 18 cm tall
+  bp(box(.36, .2, .26), new THREE.MeshStandardMaterial({ map: weaveTexture("#d9cfbd", "#a99a7f"), roughness: 1 }), "shelf-top-box", -.15, TOP + .1, 0);
+  bp(box(.37, .02, .27), new THREE.MeshStandardMaterial({ color: "#cfc4b0", roughness: 1 }), "shelf-top-box-lid", -.15, TOP + .21, 0);
+  bp(new THREE.CylinderGeometry(.06, .05, .12, 14), pillowA, "shelf-top-pot", .22, TOP + .06, 0);
+  const leafMat = new THREE.MeshStandardMaterial({ color: "#6f8a5f", roughness: .9 });
+  for (const [dx, dy, dz, ry, rz] of [[0, .16, 0, 0, 0], [-.05, .13, .02, .6, .5], [.05, .13, -.02, -.4, -.5], [.02, .12, .05, 1.2, .4], [-.02, .12, -.05, 2.2, -.4]]) {
+    const leaf = bp(new THREE.SphereGeometry(.05, 8, 6), leafMat, "shelf-top-leaf", .22 + dx, TOP + dy, dz);
+    leaf.scale.set(.6, 1.5, .35); leaf.rotation.set(0, ry, rz);
+  }
 
   // ---------- daylight ----------
   scene.add(new THREE.HemisphereLight("#e8f0f8", "#d6c6aa", 1.45));
@@ -380,6 +389,11 @@ export async function start({ stage, lang = "zh" }) {
       desk: { top: new THREE.Box3().setFromObject(root.getObjectByName("desk-top")).max.y, seat: new THREE.Box3().setFromObject(root.getObjectByName("chair-seat")).max.y,
         monitor: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("monitor-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })() },
       lounge: Object.fromEntries(["sofa", "coffee-table", "tv-unit", "bookshelf"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
+      shelfClash: (() => {
+        const sh = root.getObjectByName("bookshelf"), boards = [], items = [];
+        sh.traverse((o) => { if (!o.isMesh) return; const b = new THREE.Box3().setFromObject(o); if (o.name === "shelf-board") boards.push(b); else if (/^shelf-(book|frame|top)/.test(o.name)) items.push([o.name, b]); });
+        return items.filter(([, b]) => boards.some((d) => b.min.y < d.max.y - .002 && b.max.y > d.min.y + .002)).map(([n]) => n);
+      })(),
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };

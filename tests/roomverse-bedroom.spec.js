@@ -101,7 +101,7 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
 
 test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, shelf under the ceiling, nothing crosses the bed or the door", async ({ page }) => {
   await enter(page);
-  const { lounge, tvPanel, vertices } = await page.evaluate(() => window.__bedroom.info());
+  const { lounge, tvPanel, shelfClash, vertices } = await page.evaluate(() => window.__bedroom.info());
   const sofa = lounge.sofa, table = lounge["coffee-table"];
   expect(sofa.max[0] - sofa.min[0]).toBeGreaterThan(.7); expect(sofa.max[0] - sofa.min[0]).toBeLessThan(1.05); // seat depth plus back, under a metre
   expect(sofa.max[2] - sofa.min[2]).toBeCloseTo(1.6, 1); // a 2-seater, 160 cm wide
@@ -111,7 +111,8 @@ test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, s
   expect(table.max[1]).toBeLessThan(.5);
   expect(tvPanel.min[1]).toBeGreaterThan(.45); // panel sits above the 45 cm console
   expect(tvPanel.max[1] - tvPanel.min[1]).toBeCloseTo(.55, 1);
-  expect(lounge.bookshelf.max[1]).toBeLessThan(2.0);
+  expect(lounge.bookshelf.max[1]).toBeLessThan(2.3); // the box and plant stored on top stay well under the 2.6 m ceiling
+  expect(shelfClash).toEqual([]); // no book, frame, box or plant passes through a shelf board
   for (const [n, b] of Object.entries(lounge)) {
     expect(b.min[0], n).toBeGreaterThan(-2.001); expect(b.max[0], n).toBeLessThan(2.0);
     expect(b.max[2], n).toBeLessThan(2.5); expect(b.min[1], n).toBeGreaterThan(-.001);
