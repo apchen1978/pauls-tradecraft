@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-phone-top" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-bed2" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -211,12 +211,12 @@ for (const width of [1440, 390]) {
   });
 }
 
-test("all 16 painted surfaces load (floor, wall, two rugs, oak, two fabrics, three window dressings, screen, five book rows)", async ({ page }) => {
+test("all 15 painted surfaces load (floor, wall, two rugs, oak, the knit throw, three window dressings, screen, five book rows)", async ({ page }) => {
   const failed = [];
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
-  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 16, null, { timeout: 60000 });
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 15, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);

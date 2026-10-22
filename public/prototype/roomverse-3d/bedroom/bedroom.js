@@ -88,7 +88,7 @@ export async function start({ stage, lang = "zh" }) {
     }, undefined, () => { painted[file] = false; });
     return t;
   };
-  const chosen = { wall: "oat", rug: "stripe", window: "roller", bedding: "stone", posters: "C" };
+  const chosen = { wall: "sage", rug: "stripe", window: "roller", bedding: "stone", posters: "C" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -192,7 +192,7 @@ export async function start({ stage, lang = "zh" }) {
   add(box(DOOR.w, ROOM.h - DOOR.h, T), wallMat, "wall-s-above", DOOR.x, (DOOR.h + ROOM.h) / 2, HD + T / 2);
   // the west wall (the big wall in the overview) takes the swappable feature colour; the east wall stays a quiet warm tone
   add(box(T, ROOM.h, ROOM.d + T * 2), mainWallMat, "wall-main-east", HW + T / 2, ROOM.h / 2, 0);
-  const featureMat = new THREE.MeshStandardMaterial({ color: "#f3eadb", roughness: .95 }); // the west wall behind the TV and posters: colour-swappable
+  const featureMat = new THREE.MeshStandardMaterial({ color: "#c6cfb6", roughness: .95 }); // the west wall behind the TV and posters: colour-swappable
   art("room02-e2-warm-wall-v1.webp", { repeat: [2.2, 1.6], apply: wallTexApply }); // a soft micro-cement / paint finish, multiplied by each wall colour
   add(box(T, ROOM.h, ROOM.d + T * 2), featureMat, "wall-west", -HW - T / 2, ROOM.h / 2, 0);
 
@@ -268,15 +268,20 @@ export async function start({ stage, lang = "zh" }) {
   art("room02-a3-oak-grain-v1.webp", { apply: (t) => { oakImg = t; for (const m of woods) { m.map = t; m.bumpMap = t; m.bumpScale = .5; m.color.set(m.userData.tint); m.needsUpdate = true; } } }); // the painted oak, tinted per piece
   const oak = woodMat("#b8895a", { rough: .66, tint: "#e3d6cc" });
   const sheetMat = new THREE.MeshStandardMaterial({ color: "#ece4d4", roughness: .95 });
-  const duvetMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#d9d4ca", "#b9b2a3"), roughness: 1 });
+  const duvetMat = new THREE.MeshStandardMaterial({ roughness: 1 });
   const throwMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#4b5059", "#33373d"), roughness: 1 });
   const beddingArt = {};
+  duvetMat.userData.plain = true;
+  const linenNoise = () => canvasTex(256, 256, (ctx, w, h) => { // plain greige linen: a soft colour with the faintest slubs, no pattern
+    ctx.fillStyle = "#d8d1c4"; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 420; i++) { ctx.fillStyle = `rgba(${i % 2 ? "120,108,92" : "255,252,244"},${.03 + (i % 5) * .012})`; ctx.fillRect((i * 67) % w, (i * 29) % h, 6 + (i * 13) % 26, 1 + (i % 2)); }
+  }, { repeat: [1.6, 1.6] });
   const useBeddingArt = () => { // the painted weaves belong to the "stone" bedding; the other sets keep their code-drawn weaves
-    if (!beddingArt.duvet || !beddingArt.throw) return;
-    duvetMat.map = beddingArt.duvet; duvetMat.color.setScalar(1.22); throwMat.map = beddingArt.throw; throwMat.color.setScalar(1.35);
-    duvetMat.needsUpdate = throwMat.needsUpdate = true;
+    duvetMat.map = linenNoise(); duvetMat.color.set("#ffffff"); duvetMat.needsUpdate = true;
+    if (!beddingArt.throw) return;
+    throwMat.map = beddingArt.throw; throwMat.color.setScalar(1.35); throwMat.needsUpdate = true;
   };
-  art("room02-a5-duvet-weave-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } });
+  duvetMat.map = linenNoise();
   art("room02-a5-throw-weave-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
   const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95 });
   const cushionMat = new THREE.MeshStandardMaterial({ color: "#7b8794", roughness: .95 });
@@ -293,10 +298,24 @@ export async function start({ stage, lang = "zh" }) {
   part(softBox(BED.w + .06, .19, BED.l + .06, .035), upholst, "bed-frame", BED.x, .165, BED.z); // 7 cm to 26 cm, floating on the feet
   part(softBox(BED.w, .22, BED.l - .02, .03), sheetMat, "bed-mattress", BED.x, .26 + .11, BED.z); // top at 48 cm
   for (let k = 0; k < 3; k++) { const ch = part(softBox(BED.w + .06, .09, .225, .05), upholst, "bed-headboard", BED.x, .385 + k * .235, north - .045); ch.rotation.x = Math.PI / 2; } // three channels, 26 cm to 96 cm
-  part(softBox(BED.w - .04, .09, 1.32, .05), duvetMat, "bed-duvet", BED.x, BED.top + .045, BED.z + .3); // foot to mid-bed
-  part(softBox(BED.w - .02, .07, .34, .04), throwMat, "bed-throw", BED.x, BED.top + .1, BED.z + .62); // folded charcoal blanket across the foot (plain, no stripes: a modern, quiet look)
-  part(softBox(.7, .13, .45, .06), pillowMat, "bed-pillow", BED.x, BED.top + .065, north + .36);
-  part(softBox(.45, .12, .3, .05), cushionMat, "bed-cushion", BED.x, BED.top + .19, north + .22).rotation.x = -.28;
+  // Soft goods. A box with segments, pushed into soft folds on top and rolled over at the edges, reads as cloth instead of a slab;
+  // pillows are plump ellipsoids. Sizes are real: duvet 106 cm wide, pillow 70 x 45 cm, cushion 45 x 30 cm.
+  const cloth = (w, h, d, seed, { fold = .014, roll = .05 } = {}) => {
+    const g = new THREE.BoxGeometry(w, h, d, Math.round(w * 14), 1, Math.round(d * 15)), pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), z = pos.getZ(i); let y = pos.getY(i);
+      const up = y > 0 ? 1 : .25, edge = Math.max(Math.abs(x) / (w / 2), Math.abs(z) / (d / 2));
+      y += up * fold * (Math.sin(x * 11 + seed) * Math.sin(z * 7 + seed * 1.7) + .5 * Math.sin(z * 17 + x * 5 + seed)) - up * Math.pow(edge, 5) * roll;
+      pos.setY(i, y);
+    }
+    g.computeVertexNormals(); return g;
+  };
+  const pillowGeo = (w, h, d) => { const g = new THREE.SphereGeometry(.5, 16, 10); g.scale(w, h, d); return g; };
+  part(cloth(BED.w - .04, .1, 1.36, 3), duvetMat, "bed-duvet", BED.x, BED.top + .05, BED.z + .3); // foot to mid-bed
+  const blanket = part(cloth(BED.w - .02, .06, .36, 9, { fold: .01, roll: .03 }), throwMat, "bed-throw", BED.x, BED.top + .115, BED.z + .62); // a folded charcoal knit across the foot
+  for (const sx of [-1, 1]) part(box(.012, .012, .36), throwMat, "bed-throw-fringe", BED.x + sx * (BED.w / 2 - .005), BED.top + .06, BED.z + .62); // the fringe hangs off both ends
+  part(pillowGeo(.7, .15, .46), pillowMat, "bed-pillow", BED.x, BED.top + .075, north + .36);
+  part(pillowGeo(.45, .13, .3), cushionMat, "bed-cushion", BED.x, BED.top + .2, north + .24).rotation.x = -.3;
   // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
   part(rb(.4, .02, .4), oak, "bedside-top", tx, .44, tz);
@@ -398,8 +417,8 @@ export async function start({ stage, lang = "zh" }) {
   const darkOak = woodMat("#7a5a40", { rough: .55, tint: "#8e6f55" });
   const ringTable = (g, name, r, topY, topR, topH, topMat) => {
     const h = hold(g);
-    h(new THREE.CylinderGeometry(topR, topR, topH, 48), topMat, name + "-top", 0, topY, 0);
-    for (const y of [.017, topY - topH / 2 - .02]) h(new THREE.TorusGeometry(r, .012, 8, 48), bronze, name + "-ring", 0, y, 0).rotation.x = Math.PI / 2;
+    h(new THREE.CylinderGeometry(topR, topR, topH, 36), topMat, name + "-top", 0, topY, 0);
+    for (const y of [.017, topY - topH / 2 - .02]) h(new THREE.TorusGeometry(r, .012, 6, 36), bronze, name + "-ring", 0, y, 0).rotation.x = Math.PI / 2;
     for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; h(box(.028, topY - topH / 2 - .02, .02), bronze, name + "-post", Math.cos(a) * r, (topY - topH / 2 - .02) / 2, Math.sin(a) * r).rotation.y = -a + Math.PI / 2; }
     return h;
   };
