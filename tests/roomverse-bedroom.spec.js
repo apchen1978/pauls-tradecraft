@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-moods" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-swaps" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -171,6 +171,34 @@ test("vinyl corner: console under the sill, records inside their cubbies, record
   expect(vinyl.max[0]).toBeLessThan(bed.min[0]); // west of the bedside table
 });
 
+test("round-1 swaps: every button changes the room, and the basketball print hangs over the bed without ever doubling", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.info().posters.loaded);
+  let info = await page.evaluate(() => window.__bedroom.info());
+  expect(info.bedPoster).toBe("A1-v2");
+  const bp = info.bedPosterBox;
+  expect(bp.min[2]).toBeGreaterThan(-2.501); expect(bp.max[2]).toBeLessThan(-2.45); // flat on the window wall
+  expect(bp.min[1]).toBeGreaterThan(1.05); // clear above the headboard (top at 1.01 m)
+  expect(bp.max[1]).toBeLessThan(2.3);
+  expect(bp.min[0]).toBeGreaterThan(.85); // clear of the window frame (x up to .85) ...
+  expect(bp.max[0]).toBeLessThan(2.0); // ... and inside the east wall
+  const choices = await page.evaluate(() => window.__bedroom.choices);
+  for (const [kind, values] of Object.entries(choices)) {
+    for (const v of [...values.slice(1), values[0]]) {
+      await page.locator(`#swapGroups button[data-kind="${kind}"][data-choice="${v}"]`).click();
+      await page.waitForFunction(([k, x]) => window.__bedroom.info().choices[k] === x, [kind, v]);
+      await expect(page.locator(`#swapGroups button[data-kind="${kind}"][data-choice="${v}"]`)).toHaveAttribute("aria-pressed", "true");
+    }
+  }
+  await page.locator('#swapGroups button[data-kind="posters"][data-choice="A"]').click();
+  await page.waitForFunction(() => window.__bedroom.info().choices.posters === "A");
+  expect((await page.evaluate(() => window.__bedroom.info())).bedPoster).toBe("C2-v1"); // the sport set is on the TV wall, so the bed wall changes
+  await page.locator('#swapGroups button[data-kind="window"][data-choice="linen"]').click();
+  expect((await page.evaluate(() => window.__bedroom.info())).curtains).toBe(true);
+  await page.locator('#swapGroups button[data-kind="wall"][data-choice="slate"]').click();
+  expect((await page.evaluate(() => window.__bedroom.info())).featureWall).toBe("#56606c");
+});
+
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
@@ -196,5 +224,13 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
       await page.locator("#stage").screenshot({ path: `${QA}/${mood}-${width}.png` });
     }
     await page.locator("#moods").screenshot({ path: `${QA}/mood-buttons-${width}.png` });
+    await page.locator('#moodRow button[data-mood="focus"]').click();
+    for (const [kind, v] of [["posters", "A"], ["wall", "sage"], ["rug", "oak"], ["window", "linen"], ["bedding", "clay"]]) await page.locator(`#swapGroups button[data-kind="${kind}"][data-choice="${v}"]`).click();
+    await page.waitForFunction(() => window.__bedroom.info().choices.posters === "A");
+    await page.waitForTimeout(300);
+    await page.locator("#stage").screenshot({ path: `${QA}/swapped-${width}.png` });
+    await page.evaluate(() => window.__bedroom.controls.turn(-.45, .05)); // look right, at the bed wall
+    await page.locator("#stage").screenshot({ path: `${QA}/bed-wall-${width}.png` });
+    await page.locator("#swaps").screenshot({ path: `${QA}/swap-buttons-${width}.png` });
   }
 });
