@@ -1,9 +1,8 @@
 // ROOMVERSE studio (bedroom): a second room, built apart from the living room so that room stays untouched.
-// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair).
+// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf).
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
-import { OrbitControls } from "../vendor/OrbitControls.js";
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
@@ -64,7 +63,7 @@ function softBox(w, h, d, r) {
   sh.lineTo(x + w, y + d - r); sh.quadraticCurveTo(x + w, y + d, x + w - r, y + d);
   sh.lineTo(x + r, y + d); sh.quadraticCurveTo(x, y + d, x, y + d - r);
   sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y);
-  const g = new THREE.ExtrudeGeometry(sh, { depth: h - 2 * bt, bevelEnabled: true, bevelThickness: bt, bevelSize: bs, bevelSegments: 2, curveSegments: 4 });
+  const g = new THREE.ExtrudeGeometry(sh, { depth: h - 2 * bt, bevelEnabled: true, bevelThickness: bt, bevelSize: bs, bevelSegments: 1, curveSegments: 2 });
   g.rotateX(-Math.PI / 2); g.translate(0, -(h - 2 * bt) / 2, 0); // lies flat: height along y, centred
   g.computeVertexNormals();
   return g;
@@ -86,18 +85,38 @@ export async function start({ stage, lang = "zh" }) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color("#d9d4c8");
   const camera = new THREE.PerspectiveCamera(50, 1, .05, 40);
-  const controls = new OrbitControls(camera, renderer.domElement);
+  // The camera stands in the south-east corner, high, and the visitor turns their head: drag to look around within a limited range.
+  // (A 4 x 5 m room has no safe orbit circle for this distance, so the camera itself never moves and never leaves the room.)
   // Phones are narrow, so the view is aimed a little further east to keep the bed in frame.
-  // Overview from the south-east corner, looking across the room. The camera stays inside the walls, so the orbit is a
-  // short arc rather than a full circle (a 4 x 5 m room has no safe circle wide enough for this distance).
-  const target = new THREE.Vector3(compact ? .45 : -.2, .9, -.6), home = new THREE.Vector3(1.45, 1.5, 2.0);
-  controls.target.copy(target);
-  controls.enablePan = false; controls.enableDamping = false; controls.enableZoom = false;
-  const offset = home.clone().sub(target), az0 = Math.atan2(offset.x, offset.z), polar0 = Math.acos(offset.y / offset.length());
-  controls.minAzimuthAngle = az0 - .2; controls.maxAzimuthAngle = az0 + .18;
-  controls.minPolarAngle = polar0 - .12; controls.maxPolarAngle = polar0 + .1;
+  const target = new THREE.Vector3(compact ? .05 : -.1, .75, -.35), home = new THREE.Vector3(1.8, 2.05, 2.38);
+  const dir = target.clone().sub(home);
+  const look0 = { yaw: Math.atan2(-dir.x, -dir.z), pitch: Math.atan2(dir.y, Math.hypot(dir.x, dir.z)) };
+  const look = { yaw: look0.yaw, pitch: look0.pitch };
+  const LIMIT = { yaw: .45, pitch: .14 };
   camera.position.copy(home);
-  controls.update();
+  camera.rotation.order = "YXZ";
+  const applyLook = () => camera.rotation.set(look.pitch, look.yaw, 0);
+  applyLook();
+  const controls = {
+    look, look0, limit: LIMIT,
+    turn(dYaw, dPitch) {
+      look.yaw = Math.min(look0.yaw + LIMIT.yaw, Math.max(look0.yaw - LIMIT.yaw, look.yaw + dYaw));
+      look.pitch = Math.min(look0.pitch + LIMIT.pitch, Math.max(look0.pitch - LIMIT.pitch, look.pitch + dPitch));
+      applyLook(); render();
+    },
+  };
+  let drag = null;
+  const el = renderer.domElement;
+  el.style.touchAction = "none"; el.style.cursor = "grab";
+  el.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
+  el.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const k = camera.fov * Math.PI / 180 / (el.clientHeight || 500); // radians per pixel: the scene follows the finger
+    controls.turn((e.clientX - drag.x) * k, (e.clientY - drag.y) * k);
+    drag = { x: e.clientX, y: e.clientY };
+  });
+  const endDrag = () => { drag = null; el.style.cursor = "grab"; };
+  el.addEventListener("pointerup", endDrag); el.addEventListener("pointercancel", endDrag);
 
   // ---------- materials ----------
   const wallMat = new THREE.MeshStandardMaterial({ color: "#e6ddcd", roughness: .95 });
@@ -154,7 +173,7 @@ export async function start({ stage, lang = "zh" }) {
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(WINDOW.w, WINDOW.h), new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: .06, depthWrite: false }));
   glass.name = "window-glass"; glass.position.set(WINDOW.x, WINDOW.sill + WINDOW.h / 2, -HD + .01); root.add(glass);
   // The view outside is a painted pair (day and night), same buildings and framing. The plane sits 1.2 m behind the wall, so a
-  // short orbit moves it against the window frame a little (parallax) without showing its edges; reach() proves that.
+  // camera never gets close enough to see its edges; windowArt().covers proves the four window corners stay inside it.
   const texLoader = new THREE.TextureLoader();
   const skyTex = {};
   const loadSky = (time) => skyTex[time] ??= new Promise((resolve) => {
@@ -280,6 +299,58 @@ export async function start({ stage, lang = "zh" }) {
     cpart(new THREE.SphereGeometry(.027, 8, 6), blackMat, "chair-wheel", Math.cos(a) * .3, .027, Math.sin(a) * .3);
   }
 
+  // ---------- lounge zone: sofa facing a TV on the west wall, coffee table, bookshelf ----------
+  // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
+  // 43-inch TV 95 x 55 cm on a 45 cm low console, about 3 m from the sofa; bookshelf 75 x 30 x 180 cm. Books carry no text.
+  const sofaMat = new THREE.MeshStandardMaterial({ color: "#6d7a86", roughness: 1 });
+  const sofaDark = new THREE.MeshStandardMaterial({ color: "#5b6772", roughness: 1 });
+  const pillowA = new THREE.MeshStandardMaterial({ color: "#c58a62", roughness: .95 });
+  const pillowB = new THREE.MeshStandardMaterial({ color: "#e8dfcf", roughness: .95 });
+  const tvScreen = new THREE.MeshStandardMaterial({ color: "#0e1014", roughness: .15, metalness: .3 });
+  const sofa = new THREE.Group(); sofa.name = "sofa"; sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa); // front looks west
+  const sp = hold(sofa);
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) sp(box(.05, .1, .05), oak, "sofa-leg", dx * .74, .05, dz * .38);
+  sp(box(1.6, .16, .85), sofaDark, "sofa-base", 0, .18, 0); // 10 cm to 26 cm
+  sp(box(1.6, .42, .16), sofaMat, "sofa-backrest", 0, .52, -.345); // top at 73 cm
+  for (const sx of [-1, 1]) sp(softBox(.16, .34, .85, .04), sofaMat, "sofa-arm", sx * .72, .43, 0);
+  for (const sx of [-1, 1]) sp(softBox(.64, .18, .64, .05), sofaMat, "sofa-seat", sx * .32, .35, .05); // top at 44 cm
+  for (const sx of [-1, 1]) { const b = sp(softBox(.64, .12, .44, .06), sofaMat, "sofa-cushion", sx * .32, .58, -.2); b.rotation.x = Math.PI / 2 - .2; } // tops out at 82 cm
+  const pa = sp(softBox(.38, .11, .38, .05), pillowA, "sofa-pillow", -.5, .56, .0); pa.rotation.set(.9, 0, .35);
+  const pb = sp(softBox(.34, .1, .34, .05), pillowB, "sofa-pillow", .55, .56, -.02); pb.rotation.set(.9, 0, -.3);
+  const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.3, 0, .9); ct.rotation.y = Math.PI / 2; root.add(ct);
+  const cp = hold(ct);
+  cp(box(.9, .04, .5), oak, "coffee-table-top", 0, .38, 0);
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) cp(box(.04, .36, .04), blackMat, "coffee-table-leg", dx * .4, .18, dz * .21);
+  cp(box(.24, .035, .18), pillowB, "coffee-table-book", -.2, .4175, .04); cp(box(.2, .03, .15), accentMat, "coffee-table-book", -.2, .45, .04);
+  cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .22, .445, -.06);
+  const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
+  const tp = hold(tv);
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
+  tp(box(1.2, .3, .36), oak, "tv-console", 0, .3, 0); // top at 45 cm
+  for (const sx of [-1, 1]) tp(box(.58, .24, .01), deskMat, "tv-console-door", sx * .295, .3, .185);
+  tp(box(.3, .012, .2), blackMat, "tv-foot", 0, .456, 0);
+  tp(box(.95, .55, .035), blackMat, "tv-panel", 0, .75, 0); // 47 cm to 102 cm
+  const screenFace = new THREE.Mesh(new THREE.PlaneGeometry(.92, .52), tvScreen); screenFace.name = "tv-screen"; screenFace.position.set(0, .75, .0185); tv.add(screenFace);
+  const shelf = new THREE.Group(); shelf.name = "bookshelf"; shelf.position.set(-HW + .15, 0, 2.08); shelf.rotation.y = Math.PI / 2; root.add(shelf);
+  const bp = hold(shelf);
+  bp(box(.75, 1.8, .012), oak, "shelf-back", 0, .9, -.14);
+  for (const sx of [-1, 1]) bp(box(.02, 1.8, .3), oak, "shelf-side", sx * .365, .9, 0);
+  const levels = [.02, .4, .78, 1.16, 1.54, 1.79];
+  for (const y of levels) bp(box(.75, .02, .3), oak, "shelf-board", 0, y, 0);
+  const bookCols = ["#9fae98", "#c58a62", "#e8dfcf", "#5b6b7c", "#c9a14e", "#7d6a8f", "#b9573f"];
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (const [li, fill] of [[0, .85], [1, .7], [2, .8], [3, .55]]) {
+    let x = -.34;
+    while (x < -.34 + .68 * fill) {
+      const w = .018 + rnd() * .03, h = .22 + rnd() * .12, c = bookCols[Math.floor(rnd() * bookCols.length)];
+      bp(box(w, h, .2), new THREE.MeshStandardMaterial({ color: c, roughness: .85 }), "shelf-book", x + w / 2, levels[li] + .01 + h / 2, -.02);
+      x += w + .002;
+    }
+  }
+  bp(new THREE.CylinderGeometry(.06, .05, .12, 14), pillowA, "shelf-pot", .22, 1.54 + .07, 0); // a plant on the fourth shelf
+  bp(new THREE.SphereGeometry(.09, 10, 8), new THREE.MeshStandardMaterial({ color: "#6f8a5f", roughness: .9 }), "shelf-plant", .22, 1.54 + .21, 0);
+  bp(box(.2, .26, .02), pillowB, "shelf-frame", -.2, 1.54 + .15, -.05); // a blank frame leaning at the back
+
   // ---------- daylight ----------
   scene.add(new THREE.HemisphereLight("#e8f0f8", "#d6c6aa", 1.45));
   const sun = new THREE.DirectionalLight("#fff3df", 2.3);
@@ -295,12 +366,11 @@ export async function start({ stage, lang = "zh" }) {
     const w = stage.clientWidth || 800, h = stage.clientHeight || 500;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.fov = camera.aspect < .8 ? 66 : 50;
+    camera.fov = camera.aspect < .8 ? 82 : 60;
     camera.updateProjectionMatrix();
   }
   const render = () => renderer.render(scene, camera);
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
-  controls.addEventListener("change", render);
   resize(); render();
   setTime("day");
 
@@ -316,15 +386,14 @@ export async function start({ stage, lang = "zh" }) {
       work: Object.fromEntries(["desk", "chair"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
       desk: { top: new THREE.Box3().setFromObject(root.getObjectByName("desk-top")).max.y, seat: new THREE.Box3().setFromObject(root.getObjectByName("chair-seat")).max.y,
         monitor: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("monitor-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })() },
+      lounge: Object.fromEntries(["sofa", "coffee-table", "tv-unit", "bookshelf"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
+      sofaSeat: new THREE.Box3().setFromObject(root.getObjectByName("sofa-seat")).max.y,
+      tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
   };
-  // Camera positions at the two ends of the allowed orbit arc, so a test can prove the camera never leaves the room.
-  const reach = () => {
-    const r = Math.hypot(offset.x, offset.z), y = offset.y;
-    const at = (az) => [target.x + r * Math.sin(az), home.y + (y - offset.y), target.z + r * Math.cos(az)].map((v) => +v.toFixed(3));
-    return { min: at(controls.minAzimuthAngle), max: at(controls.maxAzimuthAngle) };
-  };
+  // The camera never moves (the visitor only turns their head), so both ends of the turn share one position; kept so tests can prove it stays inside the room.
+  const reach = () => ({ min: home.toArray(), max: home.toArray() });
   // For a camera position, do the four window corners land inside the sky plane? (the plane must never show its edge)
   const skyCovers = (pos) => {
     const [cx, cy, cz] = pos, k = (cz - SKY.z) / (cz + HD);

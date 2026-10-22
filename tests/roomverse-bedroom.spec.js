@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-work" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-lounge" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -37,6 +37,20 @@ test("camera starts and stays inside the room across the whole orbit arc", async
     expect(y).toBeGreaterThan(.3);
     expect(y).toBeLessThan(2.5);
   }
+});
+
+test("dragging turns the head within a limit and the camera never moves", async ({ page }) => {
+  await enter(page);
+  const before = await page.evaluate(() => window.__bedroom.info().camera);
+  const box = await page.locator("#stage canvas").boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 900, box.y + box.height / 2 + 600, { steps: 8 });
+  await page.mouse.up();
+  const after = await page.evaluate(() => { const c = window.__bedroom.controls; return { cam: window.__bedroom.info().camera, dy: c.look.yaw - c.look0.yaw, dp: c.look.pitch - c.look0.pitch, lim: c.limit }; });
+  expect(after.cam).toEqual(before);
+  expect(Math.abs(after.dy)).toBeCloseTo(after.lim.yaw, 3); // pushed to the end of the allowed turn, not beyond it
+  expect(Math.abs(after.dp)).toBeCloseTo(after.lim.pitch, 3);
 });
 
 test("the painted window view loads for day and night and always fills the window", async ({ page }) => {
@@ -85,6 +99,27 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
   expect(vertices).toBeLessThan(16000);
 });
 
+test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, shelf under the ceiling, nothing crosses the bed or the door", async ({ page }) => {
+  await enter(page);
+  const { lounge, sofaSeat, tvPanel, vertices } = await page.evaluate(() => window.__bedroom.info());
+  expect(sofaSeat).toBeCloseTo(.44, 2);
+  const sofa = lounge.sofa, table = lounge["coffee-table"];
+  expect(sofa.max[1]).toBeLessThan(.86); // back at about 82 cm
+  expect(sofa.min[0] - table.max[0]).toBeGreaterThan(.2); // room to walk and to put legs
+  expect(sofa.min[0] - table.max[0]).toBeLessThan(.5);
+  expect(table.max[1]).toBeLessThan(.5);
+  expect(tvPanel.min[1]).toBeGreaterThan(.45); // panel sits above the 45 cm console
+  expect(tvPanel.max[1] - tvPanel.min[1]).toBeCloseTo(.55, 1);
+  expect(lounge.bookshelf.max[1]).toBeLessThan(2.0);
+  for (const [n, b] of Object.entries(lounge)) {
+    expect(b.min[0], n).toBeGreaterThan(-2.001); expect(b.max[0], n).toBeLessThan(2.0);
+    expect(b.max[2], n).toBeLessThan(2.5); expect(b.min[1], n).toBeGreaterThan(-.001);
+  }
+  expect(lounge.sofa.min[2]).toBeGreaterThan(-.45); // sofa starts past the foot of the bed (z = -0.46)
+  expect(lounge.bookshelf.max[0]).toBeLessThan(-1.65); // stays clear of the door frame (x from -1.6)
+  expect(vertices).toBeLessThan(16000);
+});
+
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
@@ -102,6 +137,6 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
   for (const width of [1440, 390]) {
     await enter(page, { width });
     await page.waitForTimeout(600);
-    await page.locator("#stage").screenshot({ path: `${QA}/work-${width}.png` });
+    await page.locator("#stage").screenshot({ path: `${QA}/lounge-${width}.png` });
   }
 });
