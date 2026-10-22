@@ -17,6 +17,7 @@ const COPY = {
       screen: ["螢幕畫面", { city: "夜城", grid: "霓虹地平線", work: "工作視窗", calm: "柔和桌布" }],
       sofa: ["沙發套", { slate: "灰藍", sand: "沙色", moss: "苔綠", charcoal: "炭灰", terracotta: "陶土" }],
       shelf: ["書架擺設", { mixed: "混搭", airy: "留白", library: "書滿" }],
+      tv: ["電視畫面", { auto: "跟著感覺", off: "關著", film: "電影", game: "遊戲主畫面" }],
     },
     moods: {
       focus: ["專注工作日", "白天的窗光灑在桌上，燈條只留一點點，適合把事情做完。"],
@@ -42,6 +43,7 @@ const COPY = {
       screen: ["Screen", { city: "Night city", grid: "Neon horizon", work: "Work view", calm: "Calm wallpaper" }],
       sofa: ["Sofa cover", { slate: "Slate", sand: "Sand", moss: "Moss", charcoal: "Charcoal", terracotta: "Terracotta" }],
       shelf: ["Bookshelf", { mixed: "Mixed", airy: "Airy", library: "Full library" }],
+      tv: ["TV screen", { auto: "Follow the mood", off: "Off", film: "A film", game: "Console home" }],
     },
     moods: {
       focus: ["Focus day", "Daylight on the desk and just a hint of the strip light: a day for getting things done."],
@@ -65,7 +67,7 @@ function viewButtons() {
     return b;
   }));
 }
-const picked = { posters: "C", wall: "sage", rug: "modern", window: "roller", bedding: "stone", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
+const picked = { posters: "C", wall: "sage", rug: "modern", window: "roller", bedding: "stone", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed", tv: "auto" };
 function swapButtons() {
   const c = COPY[lang], box = $("swapGroups");
   $("swapsTitle").textContent = c.swapsLabel;
@@ -107,7 +109,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=26");
+    const { start } = await import("./bedroom.js?v=28");
     room = await start({ stage: $("stage"), lang });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook

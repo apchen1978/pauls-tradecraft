@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-batch4" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-fixes3" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -211,12 +211,12 @@ for (const width of [1440, 390]) {
   });
 }
 
-test("all 29 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and day/night foreground, ceiling lamp and glow, console and pad skins, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
+test("all 28 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and day/night foreground, ceiling glow, console and pad skins, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
   const failed = [];
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
-  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 29, null, { timeout: 60000 });
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 28, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
@@ -286,7 +286,7 @@ test("phone: the look buttons turn the head to the TV wall and the bed side; the
   expect(v["tv-panel"].x).toBeGreaterThan(-.7); expect(v["tv-panel"].x).toBeLessThan(.7); // the TV is near the middle of the frame
   await expect(page.locator('#viewRow button[data-look="tv"]')).toHaveAttribute("aria-pressed", "true");
   await page.locator('#viewRow button[data-look="bed"]').click();
-  await page.waitForFunction(() => Math.abs(window.__bedroom.looks().yaw + .34) < .005, null, { timeout: 5000 });
+  await page.waitForFunction(() => Math.abs(window.__bedroom.looks().yaw + .4) < .005, null, { timeout: 5000 });
   v = await page.evaluate(() => window.__bedroom.inView(["bed-mattress"]));
   expect(v["bed-mattress"].x).toBeGreaterThan(-.7); expect(v["bed-mattress"].x).toBeLessThan(.7);
   await page.locator('#viewRow button[data-look="work"]').click();
@@ -309,7 +309,9 @@ test("ceiling lamp and its glow sit on the ceiling; the console and pad skins li
   await enter(page);
   await page.waitForFunction(() => window.__bedroom.batch4().ready, null, { timeout: 60000 });
   const b = await page.evaluate(() => window.__bedroom.batch4());
-  expect(b.lamp).toBeGreaterThan(2.4); expect(b.lamp).toBeLessThan(2.6); // its centre is just under the ceiling (the ceiling hides the half above it)
+  expect(b.lamp.max[1]).toBeLessThanOrEqual(2.601); expect(b.lamp.min[1]).toBeGreaterThan(2.2); // the ring lamp hangs under the ceiling, inside the room
+  expect(Math.abs((b.lamp.min[0] + b.lamp.max[0]) / 2 - (b.glow.min[0] + b.glow.max[0]) / 2)).toBeLessThan(.02); // the pool of light is centred on the lamp,
+  expect(Math.abs((b.lamp.min[2] + b.lamp.max[2]) / 2 - (b.glow.min[2] + b.glow.max[2]) / 2)).toBeLessThan(.02); // in both directions
   expect(b.glow.min[1]).toBeGreaterThan(2.59); expect(b.glow.max[1]).toBeLessThan(2.61); // a flat sheet under the ceiling
   expect(b.skin.min[1]).toBeGreaterThan(b.consoleTop - .002); expect(b.skin.max[1]).toBeLessThan(b.consoleTop + .01); // on the console's top plate
   expect(b.skin.min[0]).toBeGreaterThan(b.console.min[0] - .01); expect(b.skin.max[0]).toBeLessThan(b.console.max[0] + .01); // not wider than the console
@@ -318,6 +320,41 @@ test("ceiling lamp and its glow sit on the ceiling; the console and pad skins li
   expect(await page.evaluate(() => window.__bedroom.setTime("night"))).toBe(true);
   const n = await page.evaluate(() => window.__bedroom.batch4());
   expect(n.fgIsNight).toBe(true);
+});
+
+test("bed soft goods: the duvet drapes over the mattress without touching the frame, the pillow rests on the mattress and not under the duvet", async ({ page }) => {
+  await enter(page);
+  const b = await page.evaluate(() => window.__bedroom.bedSoft());
+  expect(b.duvet.min[1]).toBeGreaterThan(b.frame.max[1] + .02); // hangs clear above the frame top
+  expect(b.duvet.max[1]).toBeLessThan(b.mattress.max[1] + .12); // a duvet is a few cm thick, not a block
+  expect(b.duvet.min[0]).toBeGreaterThan(b.mattress.min[0] - .06); expect(b.duvet.max[0]).toBeLessThan(b.mattress.max[0] + .06); // hangs at the mattress edge
+  expect(b.pillow.min[1]).toBeGreaterThan(b.mattress.max[1] - .03); expect(b.pillow.max[1]).toBeLessThan(b.mattress.max[1] + .2);
+  expect(b.pillow.max[2]).toBeLessThan(b.duvet.min[2] + .12); // the pillow is at the head end, past the duvet's turned-back edge
+  expect(b.cushion.min[1]).toBeGreaterThan(b.mattress.max[1] - .03);
+});
+
+test("one coffee table sits 45 cm from the sofa; the TV is a glossy dark glass when off and plays a film or the console home on request", async ({ page }) => {
+  await enter(page);
+  const l = await page.evaluate(() => window.__bedroom.info().lounge);
+  const gap = l.sofa.min[0] - l["coffee-table"].max[0];
+  expect(gap).toBeGreaterThan(.4); expect(gap).toBeLessThan(.5); // designers: 40-45 cm between sofa and coffee table
+  expect(await page.evaluate(() => window.__bedroom.tvState())).toMatchObject({ mode: "off", reflection: true });
+  await page.locator('#swapGroups button[data-kind="tv"][data-choice="film"]').click();
+  await page.waitForFunction(() => window.__bedroom.tvState().mode === "film");
+  await page.locator('#swapGroups button[data-kind="tv"][data-choice="game"]').click();
+  await page.waitForFunction(() => window.__bedroom.tvState().mode === "game");
+  await page.locator('#swapGroups button[data-kind="tv"][data-choice="auto"]').click();
+  await page.locator('#moodRow button[data-mood="weekend"]').click();
+  await page.waitForFunction(() => window.__bedroom.tvState().mode === "film"); // "follow the mood": a film on the weekend mood
+});
+
+test("the linen curtains never cover the house plaque", async ({ page }) => {
+  await enter(page);
+  await page.locator('#swapGroups button[data-kind="window"][data-choice="linen"]').click();
+  await page.waitForFunction(() => window.__bedroom.info().curtains === true);
+  const { curtainPanels, plaque } = await page.evaluate(() => window.__bedroom.info());
+  expect(curtainPanels.length).toBe(2);
+  for (const c of curtainPanels) expect(c.min[0] > plaque.max[0] || c.max[0] < plaque.min[0], "curtain x-range clear of the plaque").toBe(true);
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {
