@@ -1,5 +1,5 @@
 // ROOMVERSE studio (bedroom): a second room, built apart from the living room so that room stays untouched.
-// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf). Stage 5: lived-in details (books, posters, plant, fittings). Stage 6: four moods (lighting). Stage 7: the vinyl corner. Stage 8: round-1 swaps (feature wall, rug, window, bedding, posters), the house plaque.
+// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf). Stage 5: lived-in details (books, posters, plant, fittings). Stage 6: four moods (lighting). Stage 7: the vinyl corner. Stage 8: round-1 swaps (feature wall, rug, window, bedding, posters), the house plaque. Stage 9: Codex's painted surfaces (floor, walls, rugs, oak, fabrics, screen, books).
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
@@ -75,6 +75,20 @@ const rb = (w, h, d) => softBox(w, h, d, Math.min(.012, w / 4, h / 4, d / 4));
 
 export async function start({ stage, lang = "zh" }) {
   const compact = matchMedia("(max-width: 600px)").matches;
+  // Painted surfaces from Codex (floor, walls, rugs, oak, fabrics, window dressings, screen, bookshelf rows). Each material starts with a
+  // code-drawn stand-in and swaps to the painting when it arrives, so a slow or failed download never leaves a blank room.
+  let ready = false;
+  const redraw = () => { if (ready) render(); };
+  const painted = {};
+  const art = (file, { repeat, apply } = {}) => {
+    const t = new THREE.TextureLoader().load(new URL(`./art/${file}`, import.meta.url).href, (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+      if (repeat) { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(...repeat); }
+      painted[file] = true; apply?.(tex); redraw();
+    }, undefined, () => { painted[file] = false; });
+    return t;
+  };
+  const chosen = { wall: "oat", rug: "stripe", window: "roller", bedding: "stone", posters: "C" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -143,15 +157,17 @@ export async function start({ stage, lang = "zh" }) {
   }
 
   // ---------- materials ----------
-  const wallMat = new THREE.MeshStandardMaterial({ color: "#e6ddcd", roughness: .95 });
-  const mainWallMat = new THREE.MeshStandardMaterial({ color: "#d3c7b3", roughness: .95 });
+  const wallMat = new THREE.MeshStandardMaterial({ color: "#f3eadb", roughness: .95 });
+  const mainWallMat = new THREE.MeshStandardMaterial({ color: "#e4d8c3", roughness: .95 });
   const trimMat = new THREE.MeshStandardMaterial({ color: "#efe9dc", roughness: .7 });
   const frameMat = new THREE.MeshStandardMaterial({ color: "#f1ede4", roughness: .55 });
-  const floorMat = new THREE.MeshStandardMaterial({ map: boardsTexture(), roughness: .72 });
+  const floorMat = new THREE.MeshStandardMaterial({ map: boardsTexture(), roughness: .66 });
+  art("room02-e1-oak-floor-v1.webp", { repeat: [ROOM.w / 1.2, ROOM.d / 1.2], apply: (t) => { floorMat.map = t; floorMat.needsUpdate = true; } }); // one picture is about 1.2 m of boards
   const ceilMat = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: 1 });
   const doorMat = new THREE.MeshStandardMaterial({ color: "#a9825a", roughness: .62 });
   const metalMat = new THREE.MeshStandardMaterial({ color: "#8d8a84", roughness: .35, metalness: .6 });
 
+  const wallTexApply = (t) => { for (const m of [wallMat, mainWallMat, featureMat]) { m.map = t; m.needsUpdate = true; } };
   const root = new THREE.Group(); root.name = "bedroom"; scene.add(root);
   const add = (geo, mat, name, x, y, z, { shadow = true } = {}) => {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z);
@@ -176,7 +192,8 @@ export async function start({ stage, lang = "zh" }) {
   add(box(DOOR.w, ROOM.h - DOOR.h, T), wallMat, "wall-s-above", DOOR.x, (DOOR.h + ROOM.h) / 2, HD + T / 2);
   // the west wall (the big wall in the overview) takes the swappable feature colour; the east wall stays a quiet warm tone
   add(box(T, ROOM.h, ROOM.d + T * 2), mainWallMat, "wall-main-east", HW + T / 2, ROOM.h / 2, 0);
-  const featureMat = new THREE.MeshStandardMaterial({ color: "#e6ddcd", roughness: .95 }); // the west wall behind the TV and posters: colour-swappable
+  const featureMat = new THREE.MeshStandardMaterial({ color: "#f3eadb", roughness: .95 }); // the west wall behind the TV and posters: colour-swappable
+  art("room02-e2-warm-wall-v1.webp", { repeat: [2.2, 1.6], apply: wallTexApply }); // a soft micro-cement / paint finish, multiplied by each wall colour
   add(box(T, ROOM.h, ROOM.d + T * 2), featureMat, "wall-west", -HW - T / 2, ROOM.h / 2, 0);
 
   // skirting boards (not across the door)
@@ -226,10 +243,15 @@ export async function start({ stage, lang = "zh" }) {
 
   // ---------- three floor zones ----------
   const zoneRug = (w, d, x, z, mat, name) => { const m = add(new THREE.PlaneGeometry(w, d), mat, name, x, .006, z, { shadow: false }); m.rotation.x = -Math.PI / 2; };
-  zoneRug(1.2, 1.8, .95, -1.45, new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 }), "zone-sleep-rug");
+  const sleepRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
+  zoneRug(1.2, 1.8, .95, -1.45, sleepRugMat, "zone-sleep-rug");
+  art("room02-a2-sleep-rug-v1.webp", { apply: (t) => { sleepRugMat.map = t; sleepRugMat.needsUpdate = true; } }); // a whole rug seen from above, with its fringe
   zoneRug(1.0, .8, -1.35, -1.55, new THREE.MeshStandardMaterial({ map: weaveTexture("#555a61", "#2c3036"), roughness: 1 }), "zone-work-mat");
   const loungeRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 });
   zoneRug(1.6, 2.3, .85, 1.3, loungeRugMat, "zone-lounge-rug");
+  const rugArt = {};
+  for (const [k, file] of [["stripe", "room02-a1-living-rug-v1.webp"], ["oat", "room02-a2-sleep-rug-v1.webp"]])
+    art(file, { apply: (t) => { rugArt[k] = t; if (chosen.rug === k) { loungeRugMat.map = t; loungeRugMat.needsUpdate = true; } } });
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
@@ -240,11 +262,21 @@ export async function start({ stage, lang = "zh" }) {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.bezierCurveTo(w * .3, y + ((i * 7) % 9) - 4, w * .65, y + ((i * 11) % 9) - 4, w, y + ((i * 5) % 7) - 3); ctx.stroke(); }
     for (let i = 0; i < 6; i++) { ctx.fillStyle = "rgba(60,38,20,.10)"; ctx.beginPath(); ctx.ellipse((i * 97) % w, (i * 61) % h, 14, 4, 0, 0, 7); ctx.fill(); } // a few knots and cathedral marks
   });
-  const woodMat = (base, { rough = .62 } = {}) => { const t = woodTex(base, "rgba(70,42,20,A)", "rgba(255,235,200,A)"); return new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: .6, roughness: rough }); };
-  const oak = woodMat("#b8895a", { rough: .66 });
+  const woods = [];
+  const woodMat = (base, { rough = .62, tint = "#ffffff" } = {}) => { const t = woodTex(base, "rgba(70,42,20,A)", "rgba(255,235,200,A)"); const m = new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: .6, roughness: rough }); m.userData.tint = tint; woods.push(m); return m; };
+  art("room02-a3-oak-grain-v1.webp", { apply: (t) => { for (const m of woods) { m.map = t; m.bumpMap = t; m.bumpScale = .5; m.color.set(m.userData.tint); m.needsUpdate = true; } } }); // the painted oak, tinted per piece
+  const oak = woodMat("#b8895a", { rough: .66, tint: "#e3d6cc" });
   const sheetMat = new THREE.MeshStandardMaterial({ color: "#ece4d4", roughness: .95 });
   const duvetMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#d9d4ca", "#b9b2a3"), roughness: 1 });
   const throwMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#4b5059", "#33373d"), roughness: 1 });
+  const beddingArt = {};
+  const useBeddingArt = () => { // the painted weaves belong to the "stone" bedding; the other sets keep their code-drawn weaves
+    if (!beddingArt.duvet || !beddingArt.throw) return;
+    duvetMat.map = beddingArt.duvet; duvetMat.color.setScalar(1.22); throwMat.map = beddingArt.throw; throwMat.color.setScalar(1.35);
+    duvetMat.needsUpdate = throwMat.needsUpdate = true;
+  };
+  art("room02-a5-duvet-weave-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } });
+  art("room02-a5-throw-weave-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
   const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95 });
   const cushionMat = new THREE.MeshStandardMaterial({ color: "#7b8794", roughness: .95 });
   const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
@@ -301,6 +333,7 @@ export async function start({ stage, lang = "zh" }) {
   dpart(box(.05, .2, .02), blackMat, "monitor-neck", 0, .86, -.16);
   dpart(rb(.8, .34, .025), blackMat, "monitor-panel", 0, 1.05, -.15);
   const screen = new THREE.Mesh(new THREE.PlaneGeometry(.77, .31), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }));
+  art("room02-a6-game-screen-v1.webp", { apply: (t) => { screen.material.map = t; screen.material.needsUpdate = true; } });
   screen.name = "monitor-screen"; screen.position.set(0, 1.05, -.15 + .0135); desk.add(screen);
   dpart(box(.42, .018, .13), new THREE.MeshStandardMaterial({ map: keysTex, roughness: .6 }), "keyboard", -.02, .765, .16);
   dpart(softBox(.065, .03, .11, .025), blackMat, "mouse", .33, .767, .16);
@@ -362,70 +395,18 @@ export async function start({ stage, lang = "zh" }) {
   for (const sx of [-1, 1]) bp(rb(.02, 1.8, .3), oak, "shelf-side", sx * .365, .9, 0);
   const levels = [.02, .4, .78, 1.16, 1.54, 1.79];
   for (const y of levels) bp(rb(.75, .02, .3), oak, "shelf-board", 0, y, 0);
-  // Books: real shelves are uneven. Spines carry bands, a title block and a small publisher mark drawn as abstract strokes (never
-  // readable text); pages show cream on top and at the back; heights and depths vary, a few books lean and a few lie in a stack.
-  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const pageMat = new THREE.MeshStandardMaterial({ map: canvasTex(64, 64, (ctx, w, h) => {
-    ctx.fillStyle = "#efe6d2"; ctx.fillRect(0, 0, w, h);
-    for (let y = 0; y < h; y += 2) { ctx.fillStyle = `rgba(150,130,100,${.08 + (y % 6 ? 0 : .08)})`; ctx.fillRect(0, y, w, 1); }
-  }), roughness: .95 });
-  const spineStyles = [
-    // [cover colour, ink colour, style]
-    ["#2f3b52", "#d8c27a", "bands"], ["#f1ece2", "#2b2b2b", "plain"], ["#1f2124", "#e9e4da", "block"], ["#8c3b2e", "#ead9b8", "bands"],
-    ["#c9a14e", "#2b2620", "plain"], ["#3e5a48", "#e3d6b0", "bands"], ["#d6d9dc", "#7b2d26", "block"], ["#5b6b7c", "#f3efe6", "plain"],
-    ["#e5d3b3", "#3a3a3a", "block"], ["#6a4c6e", "#efe3c8", "bands"], ["#b9573f", "#f6efe1", "plain"], ["#9fb4c4", "#1f2a36", "block"],
-  ];
-  const spineMats = spineStyles.map(([bg, ink, style], i) => {
-    const tex = canvasTex(64, 256, (ctx, w, h) => {
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
-      const g = ctx.createLinearGradient(0, 0, w, 0); g.addColorStop(0, "rgba(0,0,0,.18)"); g.addColorStop(.25, "rgba(255,255,255,.06)"); g.addColorStop(.8, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,.2)");
-      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); // a rounded spine catches light in the middle
-      ctx.fillStyle = ink;
-      if (style === "bands") { ctx.fillRect(0, 18, w, 4); ctx.fillRect(0, 26, w, 2); ctx.fillRect(0, h - 30, w, 2); ctx.fillRect(0, h - 24, w, 4); }
-      if (style === "block") { ctx.fillRect(6, 40, w - 12, 70); ctx.fillStyle = bg; }
-      // the title: a column of short strokes (reads as lettering from a distance, says nothing up close)
-      const x0 = w / 2 - 5, y0 = style === "block" ? 50 : 44 + (i % 3) * 10, n = 6 + (i * 5) % 7;
-      for (let k = 0; k < n; k++) ctx.fillRect(x0 + ((k * 7) % 3), y0 + k * 9, 8 + ((k * 3) % 4), 5);
-      ctx.fillStyle = ink; ctx.fillRect(w / 2 - 3, y0 + n * 9 + 18, 6, 2); ctx.fillRect(w / 2 - 6, y0 + n * 9 + 24, 12, 2); // author line
-      ctx.fillRect(w / 2 - 5, h - 18, 10, 10); // publisher mark
-    });
-    return new THREE.MeshStandardMaterial({ map: tex, roughness: style === "plain" ? .55 : .8 });
+  // Books: each compartment shows a painted row of real-looking books (Codex), standing on its board. The code-drawn spines this replaces
+  // never looked like books. The paintings include their own cast shadows; the scene lights still dim them with the mood.
+  const bookRows = [["room02-c1-full-bookshelf-v1.webp", .36], ["room02-c3-hardback-bookshelf-v1.webp", .36], ["room02-c2-seven-tenths-bookshelf-v1.webp", .36], ["room02-c4-sparse-bookshelf-v1.webp", .36], ["room02-c5-top-shelf-v1.webp", .22]];
+  bookRows.forEach(([file, h], i) => {
+    const mat = new THREE.MeshStandardMaterial({ color: "#cfc4b0", roughness: .9 });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(.71, h), mat); m.name = "shelf-books-" + i;
+    m.position.set(0, levels[i] + .01 + h / 2, -.133); m.receiveShadow = true; shelf.add(m);
+    art(file, { apply: (t) => { mat.map = t; mat.color.set("#ffffff"); mat.needsUpdate = true; } });
   });
-  const coverMats = spineStyles.map(([bg]) => new THREE.MeshStandardMaterial({ color: bg, roughness: .7 }));
-  const book = (w, h, d, x, y, z, { lean = 0, flat = false } = {}) => {
-    const k = Math.floor(rnd() * spineMats.length);
-    // box faces: +x, -x (covers), +y (top pages), -y, +z (spine, facing the room), -z (fore-edge at the back)
-    const m = new THREE.Mesh(box(w, h, d), [coverMats[k], coverMats[k], pageMat, pageMat, spineMats[k], pageMat]);
-    m.name = "shelf-book"; m.castShadow = m.receiveShadow = true;
-    m.position.set(x, y, z);
-    if (flat) m.rotation.z = Math.PI / 2;
-    if (lean) m.rotation.z = lean;
-    shelf.add(m); return m;
-  };
-  const inner = { left: -.355, right: .355 };
-  for (const [li, upTo, stack] of [[0, -.02, true], [1, .12, false], [2, -.08, true], [3, -.05, false], [4, -.4, true]]) {
-    const floor = levels[li] + .01;
-    let x = inner.left + .005;
-    while (x < upTo) {
-      const w = .02 + rnd() * .025, h = .2 + rnd() * .1, d = .14 + rnd() * .07;
-      book(w, h, d, x + w / 2, floor + h / 2, .145 - d / 2 - rnd() * .01); // spines roughly flush at the front, not perfectly
-      x += w + .001;
-    }
-    // the last book leans on its neighbour
-    // (its bottom-left corner sits on the shelf, its top-left corner touches the last upright book)
-    if (li < 4) {
-      const lw = .03, lh = .24, a = .3, xl = x + lh * Math.sin(a) + .002;
-      book(lw, lh, .18, xl + lw / 2 * Math.cos(a) - lh / 2 * Math.sin(a), floor + lw / 2 * Math.sin(a) + lh / 2 * Math.cos(a), .05, { lean: a });
-    }
-    if (stack) { // a short horizontal stack in the free space at the right
-      let y = floor;
-      for (let s = 0; s < 3; s++) { const t = .025 + rnd() * .015, len = .24 - s * .02; book(t, len, .17, .23 + (rnd() - .5) * .02, y + t / 2, .05, { flat: true }); y += t; }
-    }
-  }
   // Every shelf item must fit its compartment (23 cm clear under the top board). Taller things go on top of the shelf, the way
   // people store what has no other place: a lidded fabric box and a small plant. info().shelfClash proves nothing passes through a board.
   const TOP = levels[levels.length - 1] + .01; // upper face of the top board
-  bp(box(.18, .18, .02), pillowB, "shelf-frame", -.22, levels[4] + .01 + .09, -.08); // a blank frame standing at the back, 18 cm tall
   bp(box(.36, .2, .26), new THREE.MeshStandardMaterial({ map: weaveTexture("#d9cfbd", "#a99a7f"), roughness: 1 }), "shelf-top-box", -.15, TOP + .1, 0);
   bp(box(.37, .02, .27), new THREE.MeshStandardMaterial({ color: "#cfc4b0", roughness: 1 }), "shelf-top-box-lid", -.15, TOP + .21, 0);
   bp(new THREE.CylinderGeometry(.06, .05, .12, 14), pillowA, "shelf-top-pot", .22, TOP + .06, 0);
@@ -633,30 +614,36 @@ export async function start({ stage, lang = "zh" }) {
     for (let y = 0; y < h; y += 8) { ctx.fillStyle = (y / 8) % 2 ? "#b58a55" : "#c19761"; ctx.fillRect(0, y, w, 7); ctx.fillStyle = "rgba(60,40,20,.45)"; ctx.fillRect(0, y + 7, w, 1); }
     for (let i = 0; i < 80; i++) { ctx.fillStyle = `rgba(80,50,20,${.08 + (i % 5) * .02})`; ctx.fillRect((i * 53) % w, (i * 31) % h, 30 + (i % 7) * 6, 1); }
   }, { repeat: [1, 4] });
+  const windowPaint = {};
+  const swapWindow = () => { const v = chosen.window; if (v === "roller" || v === "bamboo") { blindFabric.material.map = (v === "bamboo" ? windowPaint.bamboo ?? bambooTex : windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true; } };
+  art("room02-a4-roller-linen-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.roller = t; swapWindow(); } });
+  art("room02-a4-bamboo-blind-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.bamboo = t; swapWindow(); } });
+  art("room02-a4-curtain-linen-v1.webp", { repeat: [.85, 6], apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
   const rollerTex = blindFabric.material.map;
   const oakBorderRug = canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = "#1f2124"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#b8925f"; ctx.fillRect(14, 14, w - 28, h - 28);
     for (let y = 14; y < h - 14; y += 4) { ctx.fillStyle = "rgba(70,45,20,.12)"; ctx.fillRect(14, y, w - 28, 1.4); }
   });
   const CHOICES = {
-    wall: { oat: "#e6ddcd", latte: "#d6c3a8", warmGrey: "#c9c3ba", sage: "#b7bfa8", terracotta: "#c9876a", slate: "#56606c" },
-    rug: { stripe: () => weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), oat: () => weaveTexture("#e0d2b8", "#9a8662"), oak: () => oakBorderRug },
+    wall: { oat: "#f3eadb", latte: "#e6d2b5", warmGrey: "#d9d3ca", sage: "#c6cfb6", terracotta: "#d9967a", slate: "#66717e" },
+    rug: { stripe: () => rugArt.stripe ?? weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), oat: () => rugArt.oat ?? weaveTexture("#e0d2b8", "#9a8662"), oak: () => oakBorderRug },
     window: ["roller", "bamboo", "linen"],
     bedding: { stone: ["#d9d4ca", "#b9b2a3", "#4b5059", "#33373d", "#7b8794"], mist: ["#ccd6df", "#9fb0bf", "#f1ede4", "#cfc6b4", "#2f3b52"], clay: ["#e8dfcf", "#bfae8f", "#b9573f", "#8c3b2e", "#c9a14e"] },
     posters: ["A", "B", "C"],
   };
-  const chosen = { wall: "oat", rug: "stripe", window: "roller", bedding: "stone", posters: "C" };
   const rugCache = {};
   async function setChoice(kind, value) {
     if (kind === "posters") { if (!(await setPosters(value))) return false; chosen.posters = value; return true; }
     if (kind === "wall" && CHOICES.wall[value]) featureMat.color.set(CHOICES.wall[value]);
-    else if (kind === "rug" && CHOICES.rug[value]) { loungeRugMat.map = rugCache[value] ??= CHOICES.rug[value](); loungeRugMat.needsUpdate = true; }
+    else if (kind === "rug" && CHOICES.rug[value]) { loungeRugMat.map = value === "oak" ? (rugCache.oak ??= CHOICES.rug.oak()) : CHOICES.rug[value](); loungeRugMat.needsUpdate = true; }
     else if (kind === "window" && CHOICES.window.includes(value)) {
-      blindFabric.material.map = value === "bamboo" ? bambooTex : rollerTex; blindFabric.material.needsUpdate = true;
+      blindFabric.material.map = value === "bamboo" ? (windowPaint.bamboo ?? bambooTex) : (windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true;
       curtains.visible = value === "linen";
     } else if (kind === "bedding" && CHOICES.bedding[value]) {
       const [d0, d1, t0, t1, c] = CHOICES.bedding[value];
+      duvetMat.color.set("#ffffff"); throwMat.color.set("#ffffff");
       duvetMat.map = weaveTexture(d0, d1); throwMat.map = weaveTexture(t0, t1); cushionMat.color.set(c);
+      if (value === "stone") useBeddingArt();
       duvetMat.needsUpdate = throwMat.needsUpdate = true;
     } else return false;
     chosen[kind] = value; render(); return true;
@@ -672,7 +659,7 @@ export async function start({ stage, lang = "zh" }) {
   }
   const render = () => renderer.render(scene, camera);
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
-  resize(); render();
+  resize(); render(); ready = true;
   setMood("focus");
   setPosters("C");
 
@@ -703,6 +690,7 @@ export async function start({ stage, lang = "zh" }) {
       bedPosterBox: (() => { const b = new THREE.Box3().setFromObject(bedPoster); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       plaque: (() => { const b = new THREE.Box3().setFromObject(plaque); return { min: b.min.toArray(), max: b.max.toArray(), loaded: !!plaqueTex.image }; })(),
       plaqueInView: (() => { const b = new THREE.Box3().setFromObject(plaque); camera.updateMatrixWorld(); return [[b.min.x, b.min.y], [b.max.x, b.min.y], [b.min.x, b.max.y], [b.max.x, b.max.y]].every(([x, y]) => { const v = new THREE.Vector3(x, y, b.max.z).project(camera); return Math.abs(v.x) < .98 && Math.abs(v.y) < .98 && v.z < 1; }); })(),
+      painted: { ...painted },
       mood, blind: +((wTop - blindBar.position.y).toFixed(3)),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
