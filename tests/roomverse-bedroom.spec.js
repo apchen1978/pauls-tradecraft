@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-swaps" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-plaque" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -198,6 +198,18 @@ test("round-1 swaps: every button changes the room, and the basketball print han
   await page.locator('#swapGroups button[data-kind="wall"][data-choice="slate"]').click();
   expect((await page.evaluate(() => window.__bedroom.info())).featureWall).toBe("#56606c");
 });
+
+for (const width of [1440, 390]) {
+  test(`the house plaque hangs whole on the window wall and the overview shows all of it (${width})`, async ({ page }) => {
+    await enter(page, { width });
+    await page.waitForFunction(() => window.__bedroom.info().plaque.loaded);
+    const { plaque, plaqueInView, desk } = await page.evaluate(() => window.__bedroom.info());
+    expect(plaque.min[2]).toBeGreaterThan(-2.501); expect(plaque.max[2]).toBeLessThan(-2.45); // flat on the wall
+    expect(plaque.min[0]).toBeGreaterThan(-2.0); expect(plaque.max[0]).toBeLessThan(-.86); // between the west wall and the window frame
+    expect(plaque.min[1]).toBeGreaterThan(desk.monitor.max[1] + .2); // well above the monitor
+    expect(plaqueInView).toBe(true);
+  });
+}
 
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
