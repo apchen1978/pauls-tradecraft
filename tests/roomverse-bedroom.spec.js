@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-tv" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-batch3" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -211,12 +211,12 @@ for (const width of [1440, 390]) {
   });
 }
 
-test("all 15 painted surfaces load (floor, wall, two rugs, oak, the knit throw, three window dressings, screen, five book rows)", async ({ page }) => {
+test("all 22 painted surfaces load (floor, wall, rugs, oak, fabrics, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
   const failed = [];
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
-  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 15, null, { timeout: 60000 });
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 22, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
@@ -254,6 +254,25 @@ test("TV corner: a rug in front of the TV, a game console resting inside the ope
   expect(c.min[1]).toBeGreaterThan(info.shelfTop - .002); // sits on the bay floor, not through it
   expect(c.max[1]).toBeLessThan(info.topUnderside); // fits under the cabinet top with the pad on it
   expect(c.min[2]).toBeGreaterThan(info.unit.min[2]); expect(c.max[2]).toBeLessThan(info.unit.max[2]); // inside the cabinet footprint
+});
+
+test("rugs: each lies on the floor inside the room, none overlap, the runner clears the bed and the bedside table", async ({ page }) => {
+  await enter(page);
+  const r = await page.evaluate(() => window.__bedroom.rugs());
+  const rugs = ["sleep", "work", "lounge", "tv"];
+  for (const n of rugs) {
+    const b = r[n];
+    expect(b.min[1], n).toBeGreaterThan(0); expect(b.max[1], n).toBeLessThan(.02);
+    expect(b.min[0], n).toBeGreaterThan(-2.001); expect(b.max[0], n).toBeLessThan(2.001);
+    expect(b.min[2], n).toBeGreaterThan(-2.501); expect(b.max[2], n).toBeLessThan(2.501);
+  }
+  for (let i = 0; i < rugs.length; i++) for (let j = i + 1; j < rugs.length; j++) {
+    const a = r[rugs[i]], b = r[rugs[j]];
+    const overlap = a.min[0] < b.max[0] && a.max[0] > b.min[0] && a.min[2] < b.max[2] && a.max[2] > b.min[2];
+    expect(overlap, `${rugs[i]} vs ${rugs[j]}`).toBe(false);
+  }
+  expect(r.sleep.max[0]).toBeLessThan(r.bed.min[0] - .02); // beside the bed, not under it
+  expect(r.sleep.min[2]).toBeGreaterThan(r.bedside.max[2]); // starts past the bedside table
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {

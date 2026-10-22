@@ -88,7 +88,9 @@ export async function start({ stage, lang = "zh" }) {
     }, undefined, () => { painted[file] = false; });
     return t;
   };
-  const chosen = { wall: "sage", rug: "stripe", window: "roller", bedding: "stone", posters: "C", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
+  const live = { mood: "focus" }; // the current mood, readable before the moods block exists
+  const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8 };
+  const chosen = { wall: "sage", rug: "modern", window: "roller", bedding: "stone", posters: "C", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -244,16 +246,21 @@ export async function start({ stage, lang = "zh" }) {
   // ---------- three floor zones ----------
   const zoneRug = (w, d, x, z, mat, name) => { const m = add(new THREE.PlaneGeometry(w, d), mat, name, x, .006, z, { shadow: false }); m.rotation.x = -Math.PI / 2; };
   const sleepRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
-  zoneRug(1.2, 1.8, .95, -1.45, sleepRugMat, "zone-sleep-rug");
+  zoneRug(.63, 1.8, .45, -1.0, sleepRugMat, "zone-sleep-rug"); // a runner along the bed's open side, between the bedside table and the foot
+  const cutout = (mat) => { mat.transparent = true; mat.alphaTest = .45; mat.needsUpdate = true; };
   const tvRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
   zoneRug(1.2, 1.7, -1.0, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
-  art("room02-a2-sleep-rug-v1.webp", { apply: (t) => { sleepRugMat.map = t; tvRugMat.map = t; sleepRugMat.needsUpdate = tvRugMat.needsUpdate = true; } }); // a whole rug seen from above, with its fringe
-  zoneRug(1.0, .8, -1.35, -1.55, new THREE.MeshStandardMaterial({ map: weaveTexture("#555a61", "#2c3036"), roughness: 1 }), "zone-work-mat");
+  art("room02-rug-oat-v1.webp", { apply: (t) => { tvRugMat.map = t; cutout(tvRugMat); } }); // an oat rug seen whole from above, with its fringe
+  // The rugs Codex drew on white are trimmed to the rug's own edge with the white made transparent, so a rug is only as big as the rug.
+  art("room02-rug-runner-v1.webp", { apply: (t) => { sleepRugMat.map = t; cutout(sleepRugMat); } });
+  const workRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#555a61", "#2c3036"), roughness: 1 });
+  zoneRug(.885, 1.4, -1.2, -1.75, workRugMat, "zone-work-mat"); // under the desk chair: light terrazzo, a modern foil to the oak
+  art("room02-rug-terrazzo-v1.webp", { apply: (t) => { t.center.set(.5, .5); t.rotation = Math.PI / 2; workRugMat.map = t; cutout(workRugMat); } }); // the picture is wide; the rug is long, so turn it a quarter
   const loungeRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 });
-  zoneRug(1.6, 2.3, .85, 1.3, loungeRugMat, "zone-lounge-rug");
+  zoneRug(1.6, 2.3, .55, 1.3, loungeRugMat, "zone-lounge-rug"); // the sofa's front legs stand on its east end
   const rugArt = {};
-  for (const [k, file] of [["stripe", "room02-a1-living-rug-v1.webp"], ["oat", "room02-a2-sleep-rug-v1.webp"]])
-    art(file, { apply: (t) => { rugArt[k] = t; if (chosen.rug === k) { loungeRugMat.map = t; loungeRugMat.needsUpdate = true; } } });
+  for (const [k, file] of [["modern", "room02-rug-modern-v1.webp"], ["stripe", "room02-a1-living-rug-v1.webp"], ["oat", "room02-rug-oat-v1.webp"]])
+    art(file, { apply: (t) => { rugArt[k] = t; if (chosen.rug === k) { loungeRugMat.map = t; if (k === "modern" || k === "oat") cutout(loungeRugMat); loungeRugMat.needsUpdate = true; } } });
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
@@ -279,13 +286,15 @@ export async function start({ stage, lang = "zh" }) {
     for (let i = 0; i < 420; i++) { ctx.fillStyle = `rgba(${i % 2 ? "120,108,92" : "255,252,244"},${.03 + (i % 5) * .012})`; ctx.fillRect((i * 67) % w, (i * 29) % h, 6 + (i * 13) % 26, 1 + (i % 2)); }
   }, { repeat: [1.6, 1.6] });
   const useBeddingArt = () => { // the painted weaves belong to the "stone" bedding; the other sets keep their code-drawn weaves
-    duvetMat.map = linenNoise(); duvetMat.color.set("#ffffff"); duvetMat.needsUpdate = true;
+    duvetMat.map = beddingArt.duvet ?? linenNoise(); duvetMat.color.setScalar(beddingArt.duvet ? 1.25 : 1); duvetMat.needsUpdate = true;
     if (!beddingArt.throw) return;
     throwMat.map = beddingArt.throw; throwMat.color.setScalar(1.35); throwMat.needsUpdate = true;
   };
   duvetMat.map = linenNoise();
   art("room02-a5-throw-weave-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
+  art("room02-linen-duvet-v1.webp", { repeat: [3.5, 4.5], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
   const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95 });
+  art("room02-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = t; pillowMat.color.set("#ffffff"); pillowMat.needsUpdate = true; } });
   const cushionMat = new THREE.MeshStandardMaterial({ color: "#7b8794", roughness: .95 });
   const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
   const part = (geo, mat, name, x, y, z) => {
@@ -296,6 +305,7 @@ export async function start({ stage, lang = "zh" }) {
   // soft horizontal channels, 95 cm tall. Not a wooden slab, not a classic bed.
   const upholst = new THREE.MeshStandardMaterial({ map: weaveTexture("#b9ad9d", "#8f8576"), roughness: 1 });
   const bedFoot = new THREE.MeshStandardMaterial({ color: "#23262b", roughness: .45, metalness: .25 });
+  art("room02-boucle-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { upholst.map = t; upholst.color.setScalar(1.35); upholst.needsUpdate = true; } }); // bouclé: the little looped yarn that reads as soft upholstery
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) part(box(.07, .07, .07), bedFoot, "bed-leg", BED.x + dx * (BED.w / 2 - .1), .035, BED.z + dz * (BED.l / 2 - .12));
   part(softBox(BED.w + .06, .19, BED.l + .06, .035), upholst, "bed-frame", BED.x, .165, BED.z); // 7 cm to 26 cm, floating on the feet
   part(softBox(BED.w, .22, BED.l - .02, .03), sheetMat, "bed-mattress", BED.x, .26 + .11, BED.z); // top at 48 cm
@@ -422,6 +432,15 @@ export async function start({ stage, lang = "zh" }) {
     p(new THREE.CylinderGeometry(.036, .03, .065, 16), ceramicWhite, "coffee-cup", .56, .795, -.02);
     p(new THREE.CylinderGeometry(.04, .04, .09, 16), ceramicWhite, "coffee-mug", .3, .795, .24);
   });
+  const coffeeParts = [];
+  const sprites = []; // camera-facing cut-outs (unlit, so their brightness is set per mood)
+  deskSets.coffee.children.forEach((m) => { if (/^coffee-(body|top|tray|group|handle|gauge)$/.test(m.name)) coffeeParts.push(m); });
+  art("room02-coffee-machine-v1.webp", { apply: (t) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true })); sp.name = "coffee-sprite";
+    sp.center.set(.5, 0); sp.scale.set(.27, .3, 1); sp.position.set(.56, .751, -.12); deskSets.coffee.add(sp); sprites.push(sp);
+    coffeeParts.forEach((m) => { m.visible = false; });
+    sp.material.color.setScalar(SPRITE_TINT[live.mood] ?? 1); redraw();
+  } });
   deskSet("creative", (p) => {
     p(new THREE.CylinderGeometry(.06, .065, .015, 18), blackMat, "lamp2-base", .56, .758, -.2);
     const a1 = p(box(.012, .3, .012), blackMat, "lamp2-arm-1", .56, .92, -.2); a1.rotation.z = .25;
@@ -711,7 +730,7 @@ export async function start({ stage, lang = "zh" }) {
   async function setMood(name) {
     const m = MOODS[name];
     if (!m) return false;
-    mood = name;
+    mood = name; live.mood = name;
     if (!(await setTime(m.time))) return false;
     skyMat.color.set(m.sky);
     scene.background.set(m.bg);
@@ -726,6 +745,7 @@ export async function start({ stage, lang = "zh" }) {
     tvFace.material.emissiveIntensity = m.tv; tvFace.material.needsUpdate = true;
     setBlind(m.blind);
     applyEnv(name);
+    for (const sp of sprites) sp.material.color.setScalar(SPRITE_TINT[name] ?? 1);
     render();
     return true;
   }
@@ -747,7 +767,7 @@ export async function start({ stage, lang = "zh" }) {
   });
   const CHOICES = {
     wall: { oat: "#f3eadb", latte: "#e6d2b5", warmGrey: "#d9d3ca", sage: "#c6cfb6", terracotta: "#d9967a", slate: "#66717e" },
-    rug: { stripe: () => rugArt.stripe ?? weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), oat: () => rugArt.oat ?? weaveTexture("#e0d2b8", "#9a8662"), oak: () => oakBorderRug },
+    rug: { modern: () => rugArt.modern ?? weaveTexture("#e8dfd2", "#b9ab97"), stripe: () => rugArt.stripe ?? weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), oat: () => rugArt.oat ?? weaveTexture("#e0d2b8", "#9a8662"), oak: () => oakBorderRug },
     window: ["roller", "bamboo", "linen"],
     bedding: { stone: ["#d9d4ca", "#b9b2a3", "#4b5059", "#33373d", "#7b8794"], mist: ["#ccd6df", "#9fb0bf", "#f1ede4", "#cfc6b4", "#2f3b52"], clay: ["#e8dfcf", "#bfae8f", "#b9573f", "#8c3b2e", "#c9a14e"] },
     posters: ["A", "B", "C"],
@@ -761,7 +781,7 @@ export async function start({ stage, lang = "zh" }) {
   async function setChoice(kind, value) {
     if (kind === "posters") { if (!(await setPosters(value))) return false; chosen.posters = value; return true; }
     if (kind === "wall" && CHOICES.wall[value]) featureMat.color.set(CHOICES.wall[value]);
-    else if (kind === "rug" && CHOICES.rug[value]) { loungeRugMat.map = value === "oak" ? (rugCache.oak ??= CHOICES.rug.oak()) : CHOICES.rug[value](); loungeRugMat.needsUpdate = true; }
+    else if (kind === "rug" && CHOICES.rug[value]) { loungeRugMat.map = value === "oak" ? (rugCache.oak ??= CHOICES.rug.oak()) : CHOICES.rug[value](); const cut = (value === "modern" && !!rugArt.modern) || (value === "oat" && !!rugArt.oat); loungeRugMat.transparent = cut; loungeRugMat.alphaTest = cut ? .45 : 0; loungeRugMat.needsUpdate = true; }
     else if (kind === "window" && CHOICES.window.includes(value)) {
       blindFabric.material.map = value === "bamboo" ? (windowPaint.bamboo ?? bambooTex) : (windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true;
       curtains.visible = value === "linen";
@@ -844,6 +864,10 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
+    rugs() { // local QA only
+      const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
+      return { sleep: bx("zone-sleep-rug"), work: bx("zone-work-mat"), lounge: bx("zone-lounge-rug"), tv: bx("zone-tv-rug"), bed: bx("bed-frame"), bedside: bx("bedside-top") };
+    },
     tvCorner() { // local QA only: rug, console and cabinet bounds
       const bx = (o) => { const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
       const get = (n) => root.getObjectByName(n);
