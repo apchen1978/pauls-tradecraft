@@ -9,7 +9,7 @@ const COPY = {
     swaps: {
       posters: ["電視上方海報", { A: "運動", B: "幾何", C: "太空" }],
       wall: ["主牆顏色", { oat: "燕麥白", latte: "奶茶", warmGrey: "暖灰", sage: "鼠尾草綠", terracotta: "赤陶", slate: "炭灰藍" }],
-      rug: ["沙發地毯", { stripe: "灰藍條紋", oat: "燕麥編織", oak: "橡木色黑邊" }],
+      rug: ["沙發地毯", { modern: "現代幾何", stripe: "灰藍條紋", oat: "燕麥編織", oak: "橡木色黑邊" }],
       window: ["窗飾", { roller: "燕麥捲簾", bamboo: "竹木百葉", linen: "亞麻窗簾＋捲簾" }],
       bedding: ["寢具", { stone: "石灰＋炭灰", mist: "霧藍＋米白", clay: "燕麥＋赤陶" }],
       led: ["燈條顏色", { violet: "紫", cyan: "冰藍", amber: "琥珀", pink: "粉紅", white: "冷白" }],
@@ -34,7 +34,7 @@ const COPY = {
     swaps: {
       posters: ["Posters over the TV", { A: "Sport", B: "Geometric", C: "Space" }],
       wall: ["Feature wall", { oat: "Oat white", latte: "Latte", warmGrey: "Warm grey", sage: "Sage", terracotta: "Terracotta", slate: "Slate blue" }],
-      rug: ["Sofa rug", { stripe: "Blue-grey stripe", oat: "Oat weave", oak: "Oak with black border" }],
+      rug: ["Sofa rug", { modern: "Modern geometric", stripe: "Blue-grey stripe", oat: "Oat weave", oak: "Oak with black border" }],
       window: ["Window", { roller: "Oat roller blind", bamboo: "Bamboo blind", linen: "Linen curtains + roller" }],
       bedding: ["Bedding", { stone: "Stone + charcoal", mist: "Mist blue + cream", clay: "Oat + terracotta" }],
       led: ["LED strip", { violet: "Violet", cyan: "Ice blue", amber: "Amber", pink: "Pink", white: "Cool white" }],
@@ -55,7 +55,7 @@ const $ = (id) => document.getElementById(id);
 const arrivedFromRoom01 = new URLSearchParams(location.search).get("from") === "room01"; // came through the door in Room 01
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 let room = null, mood = "focus";
-const picked = { posters: "C", wall: "sage", rug: "stripe", window: "roller", bedding: "stone", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
+const picked = { posters: "C", wall: "sage", rug: "modern", window: "roller", bedding: "stone", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
 function swapButtons() {
   const c = COPY[lang], box = $("swapGroups");
   $("swapsTitle").textContent = c.swapsLabel;
@@ -96,7 +96,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=22");
+    const { start } = await import("./bedroom.js?v=23");
     room = await start({ stage: $("stage"), lang });
     $("status").hidden = true; $("moods").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook
