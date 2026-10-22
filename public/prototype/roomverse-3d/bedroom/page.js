@@ -5,7 +5,7 @@ const COPY = {
     lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、打電動、窩沙發，各有各的角落。選一個感覺，拖一下或按按鈕轉頭看。",
     enter: "走進第二個房間", size: "四種感覺：專注工作日、週末宅在家、深夜遊戲、週日賴床", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
     note: "施工中。這是 ROOMVERSE 的第二個房間，由程式一件一件建起來；下方可以換主牆顏色、地毯、窗飾、寢具和海報。窗外景色和海報是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
-    home: "← Room 01", lang: "EN", moodsLabel: "選一個感覺", swapsLabel: "換什麼", viewsLabel: "看哪裡", views: { work: "書桌與窗邊", tv: "電視牆", bed: "床邊" },
+    home: "← Room 01", lang: "EN", moodsLabel: "選一個感覺", swapsLabel: "換什麼", viewsLabel: "看哪裡", views: { work: "書桌與窗邊", tv: "電視牆", bed: "床邊", center: "站到房間中間" },
     swaps: {
       posters: ["電視上方海報", { A: "運動", B: "幾何", C: "太空" }],
       wall: ["主牆顏色", { oat: "燕麥白", latte: "奶茶", warmGrey: "暖灰", sage: "鼠尾草綠", terracotta: "赤陶", slate: "炭灰藍" }],
@@ -31,7 +31,7 @@ const COPY = {
     lead: "ROOMVERSE works like a universe: it will never be just one room. The first is a living room; this is the second, a studio for one where sleeping, working, gaming and sofa time each get a corner. Pick a mood; drag or use the buttons to look around.",
     enter: "Step into the second room", size: "Four moods: focus day, weekend in, late-night game, Sunday lie-in", loading: "Setting up the room…", failed: "3D can't open on this device.",
     note: "Work in progress. This is ROOMVERSE's second room, built in code piece by piece; below the room you can swap the feature wall colour, rug, window, bedding and posters. The view outside and the posters are illustrations made through human–AI collaboration, not real places. Not real products; check real colours and textures with samples and on-site light.",
-    home: "← Room 01", lang: "中", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side" },
+    home: "← Room 01", lang: "中", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle" },
     swaps: {
       posters: ["Posters over the TV", { A: "Sport", B: "Geometric", C: "Space" }],
       wall: ["Feature wall", { oat: "Oat white", latte: "Latte", warmGrey: "Warm grey", sage: "Sage", terracotta: "Terracotta", slate: "Slate blue" }],
@@ -109,7 +109,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=31");
+    const { start } = await import("./bedroom.js?v=32");
     room = await start({ stage: $("stage"), lang });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook

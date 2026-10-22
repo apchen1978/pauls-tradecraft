@@ -73,7 +73,7 @@ test("the bed has real sizes, stands on the floor beside the wall and clears the
   expect(bed.mattressTop).toBeCloseTo(.48, 2);
   expect(y0).toBeCloseTo(0, 2); // legs on the floor
   expect(x1 - x0).toBeGreaterThan(1.5); // bed 1.1 m plus the bedside table
-  expect(x1).toBeLessThanOrEqual(2.0); // inside the east wall
+  expect(x1).toBeLessThanOrEqual(2.001); // inside the east wall (the duvet drape just touches it; 1 mm for float error)
   expect(z0).toBeGreaterThan(-2.501); // inside the north wall
   expect(z1 - z0).toBeLessThan(2.2); // 2 m bed on a slightly larger frame, plus the headboard thickness
   expect(x0).toBeGreaterThan(.3); // the bedside table stays well clear of the door side of the room
@@ -350,6 +350,25 @@ test("one coffee table sits 45 cm from the sofa; the TV is a glossy dark glass w
   await page.locator('#swapGroups button[data-kind="tv"][data-choice="auto"]').click();
   await page.locator('#moodRow button[data-mood="weekend"]').click();
   await page.waitForFunction(() => window.__bedroom.tvState().mode === "film"); // "follow the mood": a film on the weekend mood
+});
+
+test("stand in the middle: the camera walks to the room's centre and the head turns a full circle; the wardrobe stands clear of the door and the switch", async ({ page }) => {
+  await enter(page);
+  const { wardrobe, room, door } = await page.evaluate(() => window.__bedroom.info());
+  expect(wardrobe.max[2]).toBeLessThan(room.d / 2 + .01); expect(wardrobe.min[2]).toBeGreaterThan(room.d / 2 - .7); // against the south wall, at most 70 cm deep
+  expect(wardrobe.min[0]).toBeGreaterThan(door.x + door.w / 2 + .1); expect(wardrobe.max[0]).toBeLessThan(room.w / 2 - .1); // clear of the door and of the east wall
+  expect(wardrobe.min[0]).toBeGreaterThan(-.45); // the light switch plate (x = -0.54) stays free
+  await page.locator('#viewRow button[data-look="center"]').click();
+  await page.waitForFunction(() => window.__bedroom.info().centred, null, { timeout: 8000 });
+  const cam = await page.evaluate(() => window.__bedroom.camera.position.toArray());
+  expect(cam[1]).toBeGreaterThan(1.4); expect(cam[1]).toBeLessThan(1.7); // eye height
+  expect(Math.abs(cam[0])).toBeLessThan(.6); expect(Math.abs(cam[2])).toBeLessThan(.6); // in the middle, not in a corner
+  const yaw0 = await page.evaluate(() => window.__bedroom.controls.look.yaw);
+  await page.evaluate(() => { for (let i = 0; i < 8; i++) window.__bedroom.controls.turn(Math.PI / 4, 0); }); // one full circle
+  const yaw1 = await page.evaluate(() => window.__bedroom.controls.look.yaw);
+  expect(yaw1 - yaw0).toBeGreaterThan(Math.PI * 2 - .01); // no stop along the way
+  await page.locator('#viewRow button[data-look="work"]').click(); // and back to the corner
+  await page.waitForFunction(() => !window.__bedroom.info().centred && window.__bedroom.camera.position.y > 1.95, null, { timeout: 8000 });
 });
 
 test("the linen curtains never cover the house plaque", async ({ page }) => {
