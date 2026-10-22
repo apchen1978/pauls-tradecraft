@@ -1,5 +1,5 @@
 // ROOMVERSE studio (bedroom): a second room, built apart from the living room so that room stays untouched.
-// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf). Stage 5: lived-in details (books, posters, plant, fittings). Stage 6: four moods (lighting). Stage 7: the vinyl corner.
+// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf). Stage 5: lived-in details (books, posters, plant, fittings). Stage 6: four moods (lighting). Stage 7: the vinyl corner. Stage 8: round-1 swaps (feature wall, rug, window, bedding, posters).
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
@@ -151,9 +151,10 @@ export async function start({ stage, lang = "zh" }) {
   add(box(dx0 + HW, ROOM.h, T), wallMat, "wall-s-left", (-HW + dx0) / 2, ROOM.h / 2, HD + T / 2);
   add(box(HW - dx1, ROOM.h, T), wallMat, "wall-s-right", (dx1 + HW) / 2, ROOM.h / 2, HD + T / 2);
   add(box(DOOR.w, ROOM.h - DOOR.h, T), wallMat, "wall-s-above", DOOR.x, (DOOR.h + ROOM.h) / 2, HD + T / 2);
-  // east wall is the main (colour-swappable) wall; west wall is plain
+  // the west wall (the big wall in the overview) takes the swappable feature colour; the east wall stays a quiet warm tone
   add(box(T, ROOM.h, ROOM.d + T * 2), mainWallMat, "wall-main-east", HW + T / 2, ROOM.h / 2, 0);
-  add(box(T, ROOM.h, ROOM.d + T * 2), wallMat, "wall-west", -HW - T / 2, ROOM.h / 2, 0);
+  const featureMat = new THREE.MeshStandardMaterial({ color: "#e6ddcd", roughness: .95 }); // the west wall behind the TV and posters: colour-swappable
+  add(box(T, ROOM.h, ROOM.d + T * 2), featureMat, "wall-west", -HW - T / 2, ROOM.h / 2, 0);
 
   // skirting boards (not across the door)
   const skirt = (w, x, z, rotY, name) => { const m = add(box(w, SKIRT.h, SKIRT.t), trimMat, name, x, SKIRT.h / 2, z, { shadow: false }); m.rotation.y = rotY; };
@@ -204,7 +205,8 @@ export async function start({ stage, lang = "zh" }) {
   const zoneRug = (w, d, x, z, mat, name) => { const m = add(new THREE.PlaneGeometry(w, d), mat, name, x, .006, z, { shadow: false }); m.rotation.x = -Math.PI / 2; };
   zoneRug(1.2, 1.8, .95, -1.45, new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 }), "zone-sleep-rug");
   zoneRug(1.0, .8, -1.35, -1.55, new THREE.MeshStandardMaterial({ map: weaveTexture("#555a61", "#2c3036"), roughness: 1 }), "zone-work-mat");
-  zoneRug(1.6, 2.3, .85, 1.3, new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 }), "zone-lounge-rug");
+  const loungeRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 });
+  zoneRug(1.6, 2.3, .85, 1.3, loungeRugMat, "zone-lounge-rug");
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
@@ -455,12 +457,20 @@ export async function start({ stage, lang = "zh" }) {
     const art = new THREE.Mesh(new THREE.PlaneGeometry(POSTER.w, POSTER.h), mat); art.name = "poster-print"; art.position.set(x, POSTER.y, .0225); posters.add(art);
     return mat;
   });
-  let posterSet = null;
+  // one bigger print on the window wall above the headboard (it faces the visitor): the basketball poster (A1). When the TV wall shows the sport set, this one
+  // switches to the planet print so the same picture never hangs twice.
+  const BEDPOSTER = { w: .5, h: .5 * 1020 / 720, y: 1.58 };
+  const bedPoster = new THREE.Group(); bedPoster.name = "bed-poster"; bedPoster.position.set(BED.x + .02, 0, -HD); root.add(bedPoster);
+  { const f = new THREE.Mesh(box(BEDPOSTER.w + .04, BEDPOSTER.h + .04, .022), frameBlack); f.name = "bed-poster-frame"; f.position.set(0, BEDPOSTER.y, .011); f.castShadow = true; bedPoster.add(f); }
+  const bedPrintMat = new THREE.MeshStandardMaterial({ color: "#e9e4da", roughness: .6 });
+  { const a = new THREE.Mesh(new THREE.PlaneGeometry(BEDPOSTER.w, BEDPOSTER.h), bedPrintMat); a.name = "bed-poster-print"; a.position.set(0, BEDPOSTER.y, .0225); bedPoster.add(a); }
+  let posterSet = null, bedPosterId = null;
   async function setPosters(set) {
-    const ts = await Promise.all(posterSets[set].map(loadPoster));
+    const ids = posterSets[set], bedId = set === "A" ? "C2-v1" : "A1-v2";
+    const ts = await Promise.all([...ids, bedId].map(loadPoster));
     if (ts.some((t) => !t)) return false;
-    ts.forEach((t, i) => { printMats[i].map = t; printMats[i].color.set("#ffffff"); printMats[i].needsUpdate = true; });
-    posterSet = set; render(); return true;
+    [...printMats, bedPrintMat].forEach((m, i) => { m.map = ts[i]; m.color.set("#ffffff"); m.needsUpdate = true; });
+    posterSet = set; bedPosterId = bedId; render(); return true;
   }
   // Room 01's plant on the west wall, between the desk and the TV
   const plant = await loadModel("plant", { height: 1.2 }); plant.name = "floor-plant"; plant.position.set(-HW + .55, 0, -.35); root.add(plant);
@@ -468,6 +478,17 @@ export async function start({ stage, lang = "zh" }) {
   add(box(WINDOW.w + .12, .07, .08), frameMat, "blind-cassette", WINDOW.x, wTop + .085, -HD + .07, { shadow: false });
   add(new THREE.PlaneGeometry(WINDOW.w - .04, .18), new THREE.MeshStandardMaterial({ map: weaveTexture("#e6dccb", "#b8aa90"), roughness: 1, side: THREE.DoubleSide }), "blind-fabric", WINDOW.x, wTop - .09, -HD + .075, { shadow: false });
   add(box(WINDOW.w - .02, .02, .02), frameMat, "blind-bar", WINDOW.x, wTop - .18, -HD + .075, { shadow: false });
+  // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides
+  const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = false; root.add(curtains);
+  const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
+  { const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, WINDOW.w + .6, 10), metalMat); rod.rotation.z = Math.PI / 2; rod.position.set(WINDOW.x, wTop + .2, -HD + .12); rod.name = "curtain-rod"; curtains.add(rod); }
+  for (const side of [-1, 1]) {
+    const g = new THREE.PlaneGeometry(.34, wTop + .19 - .02, 24, 1), pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin(pos.getX(i) / .34 * Math.PI * 7) * .022); // seven soft pleats
+    g.computeVertexNormals();
+    const panel = new THREE.Mesh(g, linenMat); panel.name = "curtain-panel"; panel.castShadow = true; panel.receiveShadow = true;
+    panel.position.set(WINDOW.x + side * (WINDOW.w / 2 + .14), (wTop + .19 + .02) / 2, -HD + .12); curtains.add(panel);
+  }
   // switch by the door (120 cm), sockets at 30 cm by the desk, the bed and the TV
   const plateMat = new THREE.MeshStandardMaterial({ color: "#f4f1ea", roughness: .4 });
   const plate = (w, h, x, y, z, rotY, name) => { const m = add(box(w, h, .01), plateMat, name, x, y, z, { shadow: false }); m.rotation.y = rotY; return m; };
@@ -535,6 +556,40 @@ export async function start({ stage, lang = "zh" }) {
     return true;
   }
 
+  // ---------- swappable choices (round 1): feature wall, rug, window, bedding, posters ----------
+  const bambooTex = canvasTex(256, 256, (ctx, w, h) => {
+    for (let y = 0; y < h; y += 8) { ctx.fillStyle = (y / 8) % 2 ? "#b58a55" : "#c19761"; ctx.fillRect(0, y, w, 7); ctx.fillStyle = "rgba(60,40,20,.45)"; ctx.fillRect(0, y + 7, w, 1); }
+    for (let i = 0; i < 80; i++) { ctx.fillStyle = `rgba(80,50,20,${.08 + (i % 5) * .02})`; ctx.fillRect((i * 53) % w, (i * 31) % h, 30 + (i % 7) * 6, 1); }
+  }, { repeat: [1, 4] });
+  const rollerTex = blindFabric.material.map;
+  const oakBorderRug = canvasTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = "#1f2124"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#b8925f"; ctx.fillRect(14, 14, w - 28, h - 28);
+    for (let y = 14; y < h - 14; y += 4) { ctx.fillStyle = "rgba(70,45,20,.12)"; ctx.fillRect(14, y, w - 28, 1.4); }
+  });
+  const CHOICES = {
+    wall: { oat: "#e6ddcd", latte: "#d6c3a8", warmGrey: "#c9c3ba", sage: "#b7bfa8", terracotta: "#c9876a", slate: "#56606c" },
+    rug: { stripe: () => weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), oat: () => weaveTexture("#e0d2b8", "#9a8662"), oak: () => oakBorderRug },
+    window: ["roller", "bamboo", "linen"],
+    bedding: { stone: ["#d9d4ca", "#b9b2a3", "#4b5059", "#33373d", "#7b8794"], mist: ["#ccd6df", "#9fb0bf", "#f1ede4", "#cfc6b4", "#2f3b52"], clay: ["#e8dfcf", "#bfae8f", "#b9573f", "#8c3b2e", "#c9a14e"] },
+    posters: ["A", "B", "C"],
+  };
+  const chosen = { wall: "oat", rug: "stripe", window: "roller", bedding: "stone", posters: "C" };
+  const rugCache = {};
+  async function setChoice(kind, value) {
+    if (kind === "posters") { if (!(await setPosters(value))) return false; chosen.posters = value; return true; }
+    if (kind === "wall" && CHOICES.wall[value]) featureMat.color.set(CHOICES.wall[value]);
+    else if (kind === "rug" && CHOICES.rug[value]) { loungeRugMat.map = rugCache[value] ??= CHOICES.rug[value](); loungeRugMat.needsUpdate = true; }
+    else if (kind === "window" && CHOICES.window.includes(value)) {
+      blindFabric.material.map = value === "bamboo" ? bambooTex : rollerTex; blindFabric.material.needsUpdate = true;
+      curtains.visible = value === "linen";
+    } else if (kind === "bedding" && CHOICES.bedding[value]) {
+      const [d0, d1, t0, t1, c] = CHOICES.bedding[value];
+      duvetMat.map = weaveTexture(d0, d1); throwMat.map = weaveTexture(t0, t1); cushionMat.color.set(c);
+      duvetMat.needsUpdate = throwMat.needsUpdate = true;
+    } else return false;
+    chosen[kind] = value; render(); return true;
+  }
+
   // ---------- loop ----------
   function resize() {
     const w = stage.clientWidth || 800, h = stage.clientHeight || 500;
@@ -572,6 +627,8 @@ export async function start({ stage, lang = "zh" }) {
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       vinyl: (() => { const b = new THREE.Box3().setFromObject(vin), r = new THREE.Box3().setFromObject(record), sl = []; vin.traverse((o) => { if (o.name === "vinyl-sleeve") sl.push(new THREE.Box3().setFromObject(o)); });
         return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)) }; })(),
+      choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, bedPoster: bedPosterId,
+      bedPosterBox: (() => { const b = new THREE.Box3().setFromObject(bedPoster); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       mood, blind: +((wTop - blindBar.position.y).toFixed(3)),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
@@ -589,7 +646,8 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
-    info, reach, windowArt, setTime, setMood, setPosters, render, camera, controls, moods: Object.keys(MOODS),
+    info, reach, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
+    choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
     setLang(l) { lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); },
