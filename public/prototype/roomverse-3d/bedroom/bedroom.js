@@ -92,7 +92,7 @@ export async function start({ stage, lang = "zh" }) {
   // The camera stands in the south-east corner, high, and the visitor turns their head: drag to look around within a limited range.
   // (A 4 x 5 m room has no safe orbit circle for this distance, so the camera itself never moves and never leaves the room.)
   // Phones are narrow, so the view is aimed a little further east to keep the bed in frame.
-  const target = new THREE.Vector3(compact ? .05 : -.1, .75, -.35), home = new THREE.Vector3(1.8, 2.05, 2.38);
+  const target = new THREE.Vector3(compact ? .05 : -.1, compact ? .98 : .75, compact ? -.6 : -.35), home = new THREE.Vector3(1.8, 2.05, 2.38);
   const dir = target.clone().sub(home);
   const look0 = { yaw: Math.atan2(-dir.x, -dir.z), pitch: Math.atan2(dir.y, Math.hypot(dir.x, dir.z)) };
   const look = { yaw: look0.yaw, pitch: look0.pitch };
@@ -580,8 +580,8 @@ export async function start({ stage, lang = "zh" }) {
                bedLamp: 0, shade: .12, screen: .4, led: .6, glow: .35, ceiling: .35, monitor: 1, tv: 0, blind: .18 },
     weekend: { time: "day",   sky: "#efe5d8", bg: "#d6cbbb", exposure: 1.08, hemi: [.85, "#f3e6d4", "#cdb79a"], sun: [1.1, "#ffe2b8", 2.3], fill: [4.5, "#ffcf96"],
                bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45 },
-    night:   { time: "night", sky: "#ffffff", bg: "#1d2230", exposure: 1.05, hemi: [.36, "#7d8fb8", "#3a3442"], sun: [0, "#9db4ff", 2.3], fill: [1.0, "#ffcf9a"],
-               bedLamp: .7, shade: .55, screen: 4.5, led: 2, glow: .95, ceiling: 0, monitor: 1.3, tv: 0, blind: .18 },
+    night:   { time: "night", sky: "#ffffff", bg: "#1d2230", exposure: 1.05, hemi: [.44, "#7d8fb8", "#3a3442"], sun: [0, "#9db4ff", 2.3], fill: [1.5, "#ffcf9a"],
+               bedLamp: .7, shade: .55, screen: 2.8, led: 1.4, glow: .45, ceiling: 0, monitor: 1.3, tv: 0, blind: .18 },
     sunday:  { time: "day",   sky: "#ffe6cc", bg: "#dccdb9", exposure: 1.1, hemi: [1.0, "#f8e7d5", "#d6c2a4"], sun: [1.8, "#ffcf94", 1.45], fill: [2.5, "#ffd9b0"],
                bedLamp: 0, shade: .1, screen: 0, led: 0, glow: 0, ceiling: 0, monitor: .2, tv: 0, blind: .62 },
   };
