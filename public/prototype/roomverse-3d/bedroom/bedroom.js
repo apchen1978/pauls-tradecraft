@@ -804,6 +804,26 @@ export async function start({ stage, lang = "zh" }) {
   }
   // Room 01's plant on the west wall, between the desk and the TV
   const plant = await loadModel("plant", { height: 1.2 }); plant.name = "floor-plant"; plant.position.set(-HW + .55, 0, -.35); root.add(plant);
+  // Room 01's little robot has a cousin here: the same model, a soft blue belt, standing on the open floor between the desk and the foot of the
+  // bed, turned towards the corner camera. As in Room 01 the body is re-coloured by height (cream, one belt) and the face is its own dark
+  // screen with two warm eyes, because vertex colours cannot hold a crisp face.
+  loadModel("robot", { height: .46, roughness: .5 }).then((rb) => {
+    rb.name = "room02-robot";
+    const cream = new THREE.Color("#ece6dc"), belt = new THREE.Color("#7a8cc4"), v = new THREE.Vector3();
+    const b0 = new THREE.Box3().setFromObject(rb);
+    rb.traverse((m) => {
+      const c = m.isMesh && m.geometry.attributes.color; if (!c) return;
+      m.geometry = m.geometry.clone(); const cc = m.geometry.attributes.color, pos = m.geometry.attributes.position; m.updateWorldMatrix(true, false);
+      for (let i = 0; i < cc.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); const t = (v.y - b0.min.y) / (b0.max.y - b0.min.y); const col = t > .12 && t < .27 ? belt : cream; cc.setXYZ(i, col.r, col.g, col.b); }
+      cc.needsUpdate = true;
+    });
+    const size = b0.getSize(new THREE.Vector3()), fw = size.x * .55, fh = size.y * .22, fy = b0.max.y - size.y * .29;
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), new THREE.MeshStandardMaterial({ color: "#2b2d30", roughness: .35 })); face.name = "room02-robot-face";
+    face.position.set((b0.min.x + b0.max.x) / 2, fy, b0.max.z + .004);
+    for (const sx of [-1, 1]) { const eye = new THREE.Mesh(new THREE.CircleGeometry(fh * .14, 16), new THREE.MeshBasicMaterial({ color: "#ffe2a8" })); eye.position.set(sx * fw * .2, fh * .05, .002); face.add(eye); }
+    rb.add(face);
+    rb.position.set(.35, 0, -.55); rb.rotation.y = .46; root.add(rb); redraw();
+  }).catch(() => {});
   // roller blind: a slim cassette above the window with the oat fabric pulled down 18 cm
   add(box(WINDOW.w + .12, .07, .08), frameMat, "blind-cassette", WINDOW.x, wTop + .085, -HD + .07, { shadow: false });
   add(new THREE.PlaneGeometry(WINDOW.w - .04, .18), new THREE.MeshStandardMaterial({ map: weaveTexture("#e6dccb", "#b8aa90"), roughness: 1, side: THREE.DoubleSide }), "blind-fabric", WINDOW.x, wTop - .09, -HD + .075, { shadow: false });
