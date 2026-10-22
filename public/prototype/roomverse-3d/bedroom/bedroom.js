@@ -786,11 +786,19 @@ export async function start({ stage, lang = "zh" }) {
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
   { const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, WINDOW.w + .6, 10), metalMat); rod.rotation.z = Math.PI / 2; rod.position.set(WINDOW.x, wTop + .2, -HD + .12); rod.name = "curtain-rod"; curtains.add(rod); }
   for (const side of [-1, 1]) {
-    const g = new THREE.PlaneGeometry(.3, wTop + .19 - .02, 24, 1), pos = g.attributes.position;
-    for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin(pos.getX(i) / .3 * Math.PI * 7) * .022); // seven soft pleats
+    // Gathered at the rod, hanging open at the hem: tight small folds at the top that open into larger, uneven S-folds towards the floor (three
+    // waves of different length), the fabric pulling in a little where it folds, and a hem that is not a straight line, 2 cm off the floor.
+    const H = wTop + .17, g = new THREE.PlaneGeometry(.3, H, 34, 12), pos = g.attributes.position, TAU = Math.PI * 2;
+    for (let i = 0; i < pos.count; i++) {
+      const u = pos.getX(i) / .3 + .5, t = (pos.getY(i) + H / 2) / H, open = Math.pow(1 - t, 1.3), ph = side * .2 + .12 * open;
+      const wave = .62 * Math.sin(TAU * (2.5 * u + ph)) + .28 * Math.sin(TAU * (4.3 * u + .35 + .15 * open)) + .1 * Math.sin(TAU * (1.2 * u + .7));
+      pos.setZ(i, (.012 + .022 * open) * wave);
+      pos.setX(i, pos.getX(i) + open * .012 * Math.sin(TAU * (2.5 * u + ph) + 1.2));
+      pos.setY(i, pos.getY(i) + Math.pow(open, 4) * .016 * Math.sin(u * 13 + side * 1.7));
+    }
     g.computeVertexNormals();
     const panel = new THREE.Mesh(g, linenMat); panel.name = "curtain-panel"; panel.castShadow = true; panel.receiveShadow = true;
-    panel.position.set(WINDOW.x + side * (WINDOW.w / 2), (wTop + .19 + .02) / 2, -HD + .12); curtains.add(panel);
+    panel.position.set(WINDOW.x + side * (WINDOW.w / 2), .02 + H / 2, -HD + .12); curtains.add(panel);
   }
   // A sliding-door wardrobe on the south wall (behind the corner camera, so it only shows when you stand in the middle): light oak doors,
   // one slim mirror door, a dark rail top and bottom. 160 x 55 cm, 225 cm high, clear of the door (x < -0.7) and the light switch.
