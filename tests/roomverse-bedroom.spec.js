@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-night-phone" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-textures" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -196,7 +196,7 @@ test("round-1 swaps: every button changes the room, and the basketball print han
   await page.locator('#swapGroups button[data-kind="window"][data-choice="linen"]').click();
   expect((await page.evaluate(() => window.__bedroom.info())).curtains).toBe(true);
   await page.locator('#swapGroups button[data-kind="wall"][data-choice="slate"]').click();
-  expect((await page.evaluate(() => window.__bedroom.info())).featureWall).toBe("#56606c");
+  expect((await page.evaluate(() => window.__bedroom.info())).featureWall).toBe("#66717e");
 });
 
 for (const width of [1440, 390]) {
@@ -210,6 +210,19 @@ for (const width of [1440, 390]) {
     expect(plaqueInView).toBe(true);
   });
 }
+
+test("all 16 painted surfaces load (floor, wall, two rugs, oak, two fabrics, three window dressings, screen, five book rows)", async ({ page }) => {
+  const failed = [];
+  page.on("requestfailed", (r) => failed.push(r.url()));
+  page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
+  await enter(page);
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 16, null, { timeout: 60000 });
+  const painted = await page.evaluate(() => window.__bedroom.info().painted);
+  expect(Object.values(painted).every(Boolean)).toBe(true);
+  expect(failed).toEqual([]);
+  const { vertices } = await page.evaluate(() => window.__bedroom.info());
+  expect(vertices).toBeLessThan(28000);
+});
 
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
