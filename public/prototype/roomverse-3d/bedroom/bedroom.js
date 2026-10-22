@@ -130,7 +130,7 @@ export async function start({ stage, lang = "zh" }) {
   // Three looks from the corner (the camera never moves, only the head turns): the desk and window (the opening look), the TV wall
   // on the left, and the bed side on the right. On a phone the screen is too narrow to hold the whole room, so the buttons below the
   // room turn the head for you; dragging still works within the same limits.
-  const LOOKS = { work: [0, 0], tv: [.43, .01], bed: compact ? [-.4, -.05, 1.5] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
+  const LOOKS = { work: [0, 0], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
   let lookRun = 0, lookName = "work";
   const setZoom = (z) => { camera.zoom = z; camera.updateProjectionMatrix(); };
   function lookTo(name) {
