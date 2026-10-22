@@ -2,7 +2,7 @@
 const COPY = {
   zh: {
     title: "Room 02 都市青年Style",
-    lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、窩著放鬆都在同一個空間。睡覺、工作、打電動、窩在沙發都有自己的角落。先選一個感覺，看同一個房間在不同時刻的樣子；拖一下可以轉頭看看。",
+    lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、打電動、窩沙發，各有各的角落。選一個感覺，拖一下可以轉頭看看。",
     enter: "走進第二個房間", size: "四種感覺：專注工作日、週末宅在家、深夜遊戲、週日賴床", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
     note: "施工中。這是 ROOMVERSE 的第二個房間，由程式一件一件建起來；下方可以換主牆顏色、地毯、窗飾、寢具和海報。窗外景色和海報是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
     home: "← Room 01", lang: "EN", moodsLabel: "選一個感覺", swapsLabel: "換什麼",
@@ -22,7 +22,7 @@ const COPY = {
   },
   en: {
     title: "Room 02 · Urban Youth Style",
-    lead: "ROOMVERSE works like a universe: it will never be just one room. The first room is a living room; this is the second, a studio for one where sleeping, working and unwinding share one space. Sleeping, working, gaming and sinking into the sofa each have their own corner. Pick a mood to see the same room at a different moment; drag to look around.",
+    lead: "ROOMVERSE works like a universe: it will never be just one room. The first is a living room; this is the second, a studio for one where sleeping, working, gaming and sofa time each get a corner. Pick a mood, and drag to look around.",
     enter: "Step into the second room", size: "Four moods: focus day, weekend in, late-night game, Sunday lie-in", loading: "Setting up the room…", failed: "3D can't open on this device.",
     note: "Work in progress. This is ROOMVERSE's second room, built in code piece by piece; below the room you can swap the feature wall colour, rug, window, bedding and posters. The view outside and the posters are illustrations made through human–AI collaboration, not real places. Not real products; check real colours and textures with samples and on-site light.",
     home: "← Room 01", lang: "中", moodsLabel: "Pick a mood", swapsLabel: "Swap",
@@ -86,9 +86,9 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=18");
+    const { start } = await import("./bedroom.js?v=19");
     room = await start({ stage: $("stage"), lang });
-    $("status").hidden = true; $("moods").hidden = false; $("swaps").hidden = false;
+    $("status").hidden = true; $("moods").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook
     if (arrivedFromRoom01) { document.documentElement.classList.add("ready"); await room.arrive(); } // the dark cover lifts as the walk-in begins
   } catch (e) {
