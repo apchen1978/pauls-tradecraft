@@ -237,6 +237,15 @@ export async function start({ stage, lang = "zh" }) {
   add(box(WINDOW.w + .16, .03, .16), trimMat, "window-sill", WINDOW.x, WINDOW.sill - ft - .005, -HD + .06, { shadow: false });
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(WINDOW.w, WINDOW.h), new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: .06, depthWrite: false }));
   glass.name = "window-glass"; glass.position.set(WINDOW.x, WINDOW.sill + WINDOW.h / 2, -HD + .01); root.add(glass);
+  // Codex's painted frame (a slim white double casement with a handle and hinges; the glass area is fully transparent). It replaces the
+  // five plain boxes once it has loaded, and a little overlap onto the wall hides the seam.
+  const sashMat = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: .04, roughness: .55 });
+  const sash = new THREE.Mesh(new THREE.PlaneGeometry(WINDOW.w + .04, WINDOW.h + .04), sashMat);
+  sash.name = "window-sash"; sash.visible = false; sash.position.set(WINDOW.x, WINDOW.sill + WINDOW.h / 2, -HD + .045); root.add(sash);
+  art("room02-window-frame-v1.webp", { apply: (t) => {
+    sashMat.map = t; sashMat.needsUpdate = true; sash.visible = true;
+    for (const n of ["window-frame-top", "window-frame-bottom", "window-frame-left", "window-frame-right", "window-mullion"]) { const o = root.getObjectByName(n); if (o) o.visible = false; }
+  } });
   // The view outside is a painted pair (day and night), same buildings and framing. The plane sits 1.2 m behind the wall, so a
   // camera never gets close enough to see its edges; windowArt().covers proves the four window corners stay inside it.
   const texLoader = new THREE.TextureLoader();
@@ -249,10 +258,22 @@ export async function start({ stage, lang = "zh" }) {
   const sky = new THREE.Mesh(new THREE.PlaneGeometry(SKY.w, SKY.h), skyMat);
   sky.name = "window-sky"; sky.position.set(0, SKY.y, SKY.z); root.add(sky);
   let skyTime = "day";
+  // A balcony rail and two plants painted on a layer just outside the window, so the city sits beyond them instead of looking pasted on.
+  // The camera only turns, so depth comes from this foreground, not from parallax. The night version has not been painted yet:
+  // until it arrives the day layer is shown darker at night.
+  const fgTex = {};
+  const fgMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false });
+  const fg = new THREE.Mesh(new THREE.PlaneGeometry(2.25, 1.4), fgMat);
+  fg.name = "window-foreground"; fg.visible = false; fg.renderOrder = 2; fg.position.set(WINDOW.x, WINDOW.sill + WINDOW.h / 2 + .02, -HD - .4); root.add(fg);
+  const updateForeground = () => {
+    const t = fgTex[skyTime] ?? fgTex.day; if (!t) return;
+    fgMat.map = t; fgMat.color.setScalar(fgTex[skyTime] ? 1 : .38); fgMat.needsUpdate = true; fg.visible = true; redraw();
+  };
+  art("room02-window-foreground-day-v1.webp", { apply: (t) => { fgTex.day = t; updateForeground(); } });
   async function setTime(time) {
     const t = await loadSky(time);
     if (!t) return false;
-    skyTime = time; skyMat.map = t; skyMat.color.set("#ffffff"); skyMat.needsUpdate = true; render();
+    skyTime = time; skyMat.map = t; skyMat.color.set("#ffffff"); skyMat.needsUpdate = true; updateForeground(); render();
     return true;
   }
 
@@ -654,7 +675,7 @@ export async function start({ stage, lang = "zh" }) {
   // the window, where the overview always shows all of it (plaqueInView() proves that on desktop and phone)
   const plaqueTex = texLoader.load(new URL("../art/wall-plaque-text-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; render(); });
   plaqueTex.anisotropy = 8;
-  const plaque = add(new THREE.PlaneGeometry(.7, .28), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), "house-plaque", -1.4, 1.78, -HD + .015, { shadow: false });
+  const plaque = add(new THREE.PlaneGeometry(.9, .36), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), "house-plaque", -1.4, 1.8, -HD + .015, { shadow: false });
   // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides
   const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = false; root.add(curtains);
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
@@ -885,6 +906,12 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
+    windowParts() { // local QA only
+      const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
+      const sashEl = root.getObjectByName("window-sash"), fgEl = root.getObjectByName("window-foreground");
+      return { sash: sashEl.visible, foreground: fgEl.visible, sashBox: bx("window-sash"), fgBox: bx("window-foreground"),
+        boxesHidden: ["window-frame-top", "window-frame-bottom", "window-frame-left", "window-frame-right", "window-mullion"].every((n) => !root.getObjectByName(n).visible) };
+    },
     inView(names) { // local QA only: where the named objects' centres land on screen (-1..1; z < 1 means in front of the camera)
       camera.updateMatrixWorld(); scene.updateMatrixWorld(true);
       return Object.fromEntries(names.map((n) => { const o = root.getObjectByName(n); const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()).project(camera);
