@@ -8,7 +8,8 @@ import { withDemoLang } from "../demoLinks.js";
 // grid instead of stretching one work into a banner.
 // Five works use a three-plus-two layout to keep the two lamp works together.
 // With six or more, the regular three-column grid keeps every card equally legible.
-const wideAt = (index, count) => {
+const wideAt = (index, count, item) => {
+  if (item?.rooms) return { li: "sm:col-span-2 xl:col-span-6", row: "" }; // ROOMVERSE is a series: one wide card holding every open room
   if (count !== 5 || index < 3) return { li: "xl:col-span-2", row: "" };
   if (index === 4) return { li: "sm:col-span-2 xl:col-span-3", row: "sm:flex-row" };
   return { li: "xl:col-span-3", row: "xl:flex-row" };
@@ -89,7 +90,60 @@ export default function Showcase() {
         </p>
         <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:gap-8 xl:grid-cols-6 max-[768px]:mt-3">
           {items.map((item, index) => {
-            const wide = wideAt(index, items.length);
+            const wide = wideAt(index, items.length, item);
+            if (item.rooms) return (
+            <li key={item.href} className={`flex ${wide.li}`}>
+              <article className="flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone lg:flex-row">
+                <div className="flex flex-col p-5 md:p-8 lg:w-[30%] lg:shrink-0">
+                  <p className="text-xs font-semibold text-moss">{item.tag}</p>
+                  <h3 className="mt-3 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.75rem]">{item.title}</h3>
+                  <p className="mt-3 text-base leading-relaxed text-ink">{item.hook}</p>
+                  <p className="mt-3 text-base leading-relaxed text-ink">{item.teaches}</p>
+                  <p className="mt-auto pt-6 text-sm font-semibold text-amber">{item.roomsNote}</p>
+                  <p className="mt-3 border-t-2 border-dashed border-ink/25 pt-3 text-xs leading-relaxed text-moss">{item.boundary}</p>
+                </div>
+                <ul className="grid flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:p-6 lg:pl-0">
+                  {item.rooms.map((room, roomIndex) => {
+                    const href = withDemoLang(room.href, lang);
+                    return (
+                      <li key={room.href} className="flex">
+                        <div className="flex w-full flex-col overflow-hidden rounded-[1rem] border-2 border-ink bg-white">
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${room.no} ${room.name} — ${room.cta}`}
+                            tabIndex="-1"
+                            aria-hidden="true"
+                            className="block overflow-hidden bg-paper focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-ink"
+                            style={{ aspectRatio: room.imageRatio }}
+                          >
+                            <ShowcaseImage item={room} index={index + roomIndex} />
+                          </a>
+                          <div className="flex flex-1 flex-col p-4 md:p-5">
+                            <p className="text-xs font-semibold tracking-[0.08em] text-amber">{room.no}</p>
+                            <h4 className="mt-1 text-[1.25rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">{room.name}</h4>
+                            <p className="mt-2 text-sm leading-relaxed text-ink md:text-base">{room.desc}</p>
+                            <div className="mt-auto pt-4">
+                              <a
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+                              >
+                                <span>{room.cta}</span>
+                                <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </article>
+            </li>
+            );
             return (
             <li key={item.href} className={`flex ${wide.li}`}>
               <article className={`flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone ${wide.row}`}>
