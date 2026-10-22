@@ -101,10 +101,11 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
 
 test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, shelf under the ceiling, nothing crosses the bed or the door", async ({ page }) => {
   await enter(page);
-  const { lounge, sofaSeat, tvPanel, vertices } = await page.evaluate(() => window.__bedroom.info());
-  expect(sofaSeat).toBeCloseTo(.44, 2);
+  const { lounge, tvPanel, vertices } = await page.evaluate(() => window.__bedroom.info());
   const sofa = lounge.sofa, table = lounge["coffee-table"];
-  expect(sofa.max[1]).toBeLessThan(.86); // back at about 82 cm
+  expect(sofa.max[0] - sofa.min[0]).toBeGreaterThan(.7); expect(sofa.max[0] - sofa.min[0]).toBeLessThan(1.05); // seat depth plus back, under a metre
+  expect(sofa.max[2] - sofa.min[2]).toBeCloseTo(1.6, 1); // a 2-seater, 160 cm wide
+  expect(sofa.max[1]).toBeGreaterThan(.7); expect(sofa.max[1]).toBeLessThan(1.0); // back at about 80-90 cm
   expect(sofa.min[0] - table.max[0]).toBeGreaterThan(.2); // room to walk and to put legs
   expect(sofa.min[0] - table.max[0]).toBeLessThan(.5);
   expect(table.max[1]).toBeLessThan(.5);

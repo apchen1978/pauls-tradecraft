@@ -3,6 +3,7 @@
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
+import { loadSofa } from "./sofa.js?v=1";
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
@@ -210,10 +211,10 @@ export async function start({ stage, lang = "zh" }) {
   const BED = { x: 1.4, z: -1.46, w: 1.1, l: 2.0, top: .48 };
   const oak = new THREE.MeshStandardMaterial({ color: "#b8895a", roughness: .66 });
   const sheetMat = new THREE.MeshStandardMaterial({ color: "#ece4d4", roughness: .95 });
-  const duvetMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#d8cdb8", "#a69878"), roughness: 1 });
-  const throwMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#9fae98", "#6f8068", { stripes: true }), roughness: 1 });
+  const duvetMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#d9d4ca", "#b9b2a3"), roughness: 1 });
+  const throwMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#4b5059", "#33373d"), roughness: 1 });
   const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95 });
-  const cushionMat = new THREE.MeshStandardMaterial({ color: "#c58a62", roughness: .95 });
+  const cushionMat = new THREE.MeshStandardMaterial({ color: "#7b8794", roughness: .95 });
   const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
   const part = (geo, mat, name, x, y, z) => {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; bed.add(m); return m;
@@ -226,7 +227,7 @@ export async function start({ stage, lang = "zh" }) {
   part(softBox(BED.w, .22, BED.l - .02, .03), sheetMat, "bed-mattress", BED.x, .26 + .11, BED.z); // top at 48 cm
   part(box(BED.w + .08, .82, .035), oak, "bed-headboard", BED.x, .6, north - .0225); // 19 cm to 101 cm, against the wall
   part(softBox(BED.w - .04, .09, 1.32, .05), duvetMat, "bed-duvet", BED.x, BED.top + .045, BED.z + .3); // foot to mid-bed
-  part(softBox(BED.w - .02, .07, .34, .04), throwMat, "bed-throw", BED.x, BED.top + .1, BED.z + .62); // folded striped throw across the foot
+  part(softBox(BED.w - .02, .07, .34, .04), throwMat, "bed-throw", BED.x, BED.top + .1, BED.z + .62); // folded charcoal blanket across the foot (plain, no stripes: a modern, quiet look)
   part(softBox(.7, .13, .45, .06), pillowMat, "bed-pillow", BED.x, BED.top + .065, north + .36);
   part(softBox(.45, .12, .3, .05), cushionMat, "bed-cushion", BED.x, BED.top + .19, north + .22).rotation.x = -.28;
   // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
@@ -307,16 +308,8 @@ export async function start({ stage, lang = "zh" }) {
   const pillowA = new THREE.MeshStandardMaterial({ color: "#c58a62", roughness: .95 });
   const pillowB = new THREE.MeshStandardMaterial({ color: "#e8dfcf", roughness: .95 });
   const tvScreen = new THREE.MeshStandardMaterial({ color: "#0e1014", roughness: .15, metalness: .3 });
-  const sofa = new THREE.Group(); sofa.name = "sofa"; sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa); // front looks west
-  const sp = hold(sofa);
-  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) sp(box(.05, .1, .05), oak, "sofa-leg", dx * .74, .05, dz * .38);
-  sp(box(1.6, .16, .85), sofaDark, "sofa-base", 0, .18, 0); // 10 cm to 26 cm
-  sp(box(1.6, .42, .16), sofaMat, "sofa-backrest", 0, .52, -.345); // top at 73 cm
-  for (const sx of [-1, 1]) sp(softBox(.16, .34, .85, .04), sofaMat, "sofa-arm", sx * .72, .43, 0);
-  for (const sx of [-1, 1]) sp(softBox(.64, .18, .64, .05), sofaMat, "sofa-seat", sx * .32, .35, .05); // top at 44 cm
-  for (const sx of [-1, 1]) { const b = sp(softBox(.64, .12, .44, .06), sofaMat, "sofa-cushion", sx * .32, .58, -.2); b.rotation.x = Math.PI / 2 - .2; } // tops out at 82 cm
-  const pa = sp(softBox(.38, .11, .38, .05), pillowA, "sofa-pillow", -.5, .56, .0); pa.rotation.set(.9, 0, .35);
-  const pb = sp(softBox(.34, .1, .34, .05), pillowB, "sofa-pillow", .55, .56, -.02); pb.rotation.set(.9, 0, -.3);
+  // the sofa is the same image-to-3D model as Room 01 (see sofa.js), re-coloured slate blue-grey, front looking west
+  const sofa = await loadSofa({ width: 1.6, tint: "#9db0c2" }); sofa.name = "sofa"; sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
   const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.3, 0, .9); ct.rotation.y = Math.PI / 2; root.add(ct);
   const cp = hold(ct);
   cp(box(.9, .04, .5), oak, "coffee-table-top", 0, .38, 0);
@@ -387,7 +380,6 @@ export async function start({ stage, lang = "zh" }) {
       desk: { top: new THREE.Box3().setFromObject(root.getObjectByName("desk-top")).max.y, seat: new THREE.Box3().setFromObject(root.getObjectByName("chair-seat")).max.y,
         monitor: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("monitor-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })() },
       lounge: Object.fromEntries(["sofa", "coffee-table", "tv-unit", "bookshelf"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
-      sofaSeat: new THREE.Box3().setFromObject(root.getObjectByName("sofa-seat")).max.y,
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
