@@ -29,7 +29,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=2");
+    const { start } = await import("./bedroom.js?v=3");
     room = await start({ stage: $("stage"), lang });
     $("status").hidden = true;
     window.__bedroom = room; // test hook

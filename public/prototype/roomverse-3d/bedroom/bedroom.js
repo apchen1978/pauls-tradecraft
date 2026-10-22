@@ -1,5 +1,5 @@
 // ROOMVERSE studio (bedroom): a second room, built apart from the living room so that room stays untouched.
-// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside).
+// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair).
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
@@ -219,6 +219,67 @@ export async function start({ stage, lang = "zh" }) {
   part(new THREE.CylinderGeometry(.012, .012, .2, 8), metalMat, "lamp-stem", tx, .56, tz);
   part(new THREE.CylinderGeometry(.075, .11, .13, 20, 1, true), new THREE.MeshStandardMaterial({ color: "#f4e6c8", emissive: "#e9b86a", emissiveIntensity: .35, roughness: .9, side: THREE.DoubleSide }), "lamp-shade", tx, .72, tz);
 
+  // ---------- work / game zone: desk along the west wall, ultrawide monitor, console, gaming chair ----------
+  // Real sizes: desk 140 x 65 cm, top at 75 cm; 34-inch ultrawide panel 80 x 34 cm; chair seat at 48 cm. Built facing +z and turned so the
+  // monitor looks east into the room. No logos or text anywhere; the screen is an abstract night-city game scene.
+  const deskMat = new THREE.MeshStandardMaterial({ color: "#c9a77c", roughness: .6 });
+  const blackMat = new THREE.MeshStandardMaterial({ color: "#23262b", roughness: .45, metalness: .25 });
+  const softBlack = new THREE.MeshStandardMaterial({ color: "#2d3036", roughness: .9 });
+  const accentMat = new THREE.MeshStandardMaterial({ color: "#6e5bd6", roughness: .8 });
+  const screenTex = canvasTex(512, 216, (ctx, w, h) => {
+    const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#1b1a4a"); g.addColorStop(.55, "#5a2f86"); g.addColorStop(1, "#e0679a");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = "#f6e6b8"; ctx.beginPath(); ctx.arc(w * .7, h * .36, 26, 0, 7); ctx.fill(); // low sun
+    ctx.fillStyle = "#14122e"; // skyline silhouette
+    for (let x = 0, i = 0; x < w; x += 22 + (i % 3) * 8, i++) { const bh = 38 + ((i * 53) % 70); ctx.fillRect(x, h - bh, 20 + (i % 3) * 8, bh); }
+    ctx.fillStyle = "#ffd66b"; for (let i = 0; i < 70; i++) ctx.fillRect((i * 37) % w, h - 10 - (i * 29) % 70, 3, 3);
+  });
+  const keysTex = canvasTex(256, 80, (ctx, w, h) => {
+    ctx.fillStyle = "#2b2e34"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#454a53";
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 15; c++) ctx.fillRect(6 + c * 16.3, 6 + r * 14, 13.5, 11);
+  });
+  const hold = (parent) => (geo, mat, name, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; parent.add(m); return m; };
+  const desk = new THREE.Group(); desk.name = "desk"; desk.position.set(-HW + .325, 0, -1.75); desk.rotation.y = Math.PI / 2; root.add(desk);
+  const dpart = hold(desk);
+  dpart(box(1.4, .03, .65), deskMat, "desk-top", 0, .735, 0); // top face at 75 cm
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) dpart(box(.04, .72, .04), blackMat, "desk-leg", dx * .66, .36, dz * .29);
+  dpart(box(1.3, .03, .04), blackMat, "desk-rail", 0, .6, -.29);
+  dpart(softBox(.82, .004, .32, .02), softBlack, "desk-mat", 0, .752, .12);
+  dpart(box(.26, .01, .18), blackMat, "monitor-foot", 0, .755, -.1);
+  dpart(box(.05, .2, .02), blackMat, "monitor-neck", 0, .86, -.16);
+  dpart(box(.8, .34, .025), blackMat, "monitor-panel", 0, 1.05, -.15);
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(.77, .31), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }));
+  screen.name = "monitor-screen"; screen.position.set(0, 1.05, -.15 + .0135); desk.add(screen);
+  dpart(box(.42, .018, .13), new THREE.MeshStandardMaterial({ map: keysTex, roughness: .6 }), "keyboard", -.02, .765, .16);
+  dpart(softBox(.065, .03, .11, .025), blackMat, "mouse", .33, .767, .16);
+  dpart(box(.28, .06, .22), new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), "console", -.55, .785, -.08); // white slim console, no logo
+  dpart(box(.012, .004, .2), new THREE.MeshStandardMaterial({ color: "#69b8ff", emissive: "#69b8ff", emissiveIntensity: 1 }), "console-light", -.55, .816, -.08);
+  // LED bias strip: a thin emissive bar on the wall behind the monitor and a soft additive glow on the wall
+  dpart(box(.9, .012, .012), new THREE.MeshStandardMaterial({ color: "#8f7bff", emissive: "#8f7bff", emissiveIntensity: 1.4 }), "led-strip", 0, .92, -.315);
+  const glowTex = canvasTex(256, 256, (ctx, w, h) => {
+    const g = ctx.createRadialGradient(w / 2, h / 2, 6, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(143,123,255,.75)"); g.addColorStop(1, "rgba(143,123,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  });
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.0), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .55, toneMapped: false }));
+  glow.name = "led-glow"; glow.position.set(0, 1.0, -.322); desk.add(glow);
+  // gaming chair, pulled up to the desk
+  const chair = new THREE.Group(); chair.name = "chair"; chair.position.set(-.93, 0, -1.75); chair.rotation.y = -Math.PI / 2 + .1; root.add(chair);
+  const cpart = hold(chair);
+  cpart(softBox(.5, .09, .5, .07), softBlack, "chair-seat", 0, .435, 0); // top at 48 cm
+  const back = cpart(softBox(.5, .1, .72, .07), softBlack, "chair-back", 0, .84, -.255); back.rotation.x = Math.PI / 2 + .12;
+  const stripe = cpart(box(.12, .5, .012), accentMat, "chair-stripe", 0, .84, -.195); stripe.rotation.x = .12;
+  const head = cpart(softBox(.26, .08, .16, .04), accentMat, "chair-headrest", 0, 1.19, -.3); head.rotation.x = Math.PI / 2 + .12;
+  for (const sx of [-1, 1]) {
+    cpart(box(.04, .22, .04), blackMat, "chair-arm-post", sx * .29, .56, -.02);
+    cpart(box(.06, .025, .26), blackMat, "chair-arm", sx * .29, .68, .02);
+  }
+  cpart(new THREE.CylinderGeometry(.035, .035, .26, 10), metalMat, "chair-lift", 0, .27, 0);
+  for (let i = 0; i < 5; i++) {
+    const a = i * Math.PI * 2 / 5, arm = cpart(box(.3, .028, .05), blackMat, "chair-leg", Math.cos(a) * .15, .07, Math.sin(a) * .15);
+    arm.rotation.y = -a;
+    cpart(new THREE.SphereGeometry(.027, 8, 6), blackMat, "chair-wheel", Math.cos(a) * .3, .027, Math.sin(a) * .3);
+  }
+
   // ---------- daylight ----------
   scene.add(new THREE.HemisphereLight("#e8f0f8", "#d6c6aa", 1.45));
   const sun = new THREE.DirectionalLight("#fff3df", 2.3);
@@ -252,6 +313,9 @@ export async function start({ stage, lang = "zh" }) {
       floor: { w: box3.max.x - box3.min.x, d: box3.max.z - box3.min.z },
       zones: ["zone-sleep-rug", "zone-work-mat", "zone-lounge-rug"].map((n) => root.getObjectByName(n)?.name),
       bed: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("bed")), m = new THREE.Box3().setFromObject(root.getObjectByName("bed-mattress")); return { min: b.min.toArray(), max: b.max.toArray(), mattressTop: m.max.y - .0 }; })(),
+      work: Object.fromEntries(["desk", "chair"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
+      desk: { top: new THREE.Box3().setFromObject(root.getObjectByName("desk-top")).max.y, seat: new THREE.Box3().setFromObject(root.getObjectByName("chair-seat")).max.y,
+        monitor: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("monitor-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })() },
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
   };

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-bed" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-work" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -67,6 +67,24 @@ test("the bed has real sizes, stands on the floor beside the wall and clears the
   expect(vertices).toBeLessThan(16000);
 });
 
+test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48 cm, all inside the room and clear of the bed", async ({ page }) => {
+  await enter(page);
+  const { desk, work, vertices } = await page.evaluate(() => window.__bedroom.info());
+  expect(desk.top).toBeCloseTo(.75, 2);
+  expect(desk.seat).toBeCloseTo(.48, 2);
+  const m = desk.monitor, mw = Math.max(m.max[0] - m.min[0], m.max[2] - m.min[2]);
+  expect(mw).toBeCloseTo(.8, 1); // a 34-inch ultrawide is about 80 cm wide
+  expect(m.min[1]).toBeGreaterThan(.8); // the panel floats above the desk, not through it
+  expect(m.max[1]).toBeLessThan(1.3);
+  for (const n of ["desk", "chair"]) {
+    const { min, max } = work[n];
+    expect(min[0]).toBeGreaterThan(-2.001); expect(max[0]).toBeLessThan(.6); // west half, never reaches the bed (x > .85)
+    expect(min[2]).toBeGreaterThan(-2.501); expect(max[2]).toBeLessThan(-.5);
+    expect(min[1]).toBeGreaterThan(-.001);
+  }
+  expect(vertices).toBeLessThan(16000);
+});
+
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
@@ -84,6 +102,6 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
   for (const width of [1440, 390]) {
     await enter(page, { width });
     await page.waitForTimeout(600);
-    await page.locator("#stage").screenshot({ path: `${QA}/bed-${width}.png` });
+    await page.locator("#stage").screenshot({ path: `${QA}/work-${width}.png` });
   }
 });
