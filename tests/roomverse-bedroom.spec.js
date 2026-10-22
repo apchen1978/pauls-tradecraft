@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-realism" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-moods" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -24,7 +24,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-work-mat", "zone-lounge-rug"]);
   expect(info.vertices).toBeLessThan(24000); // whole-room budget: two Room 01 models (sofa, plant) take about 9,500 of it
-  expect(info.lights).toBe(3);
+  expect(info.lights).toBe(5); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods
   expect(errors).toEqual([]);
 });
 
@@ -140,6 +140,23 @@ test("lived-in details: posters hang above the TV inside the wall, the plant sta
   }
 });
 
+test("four moods: buttons switch window, blind and lamps, and no mood is blown out or crushed to black", async ({ page }) => {
+  await enter(page);
+  await expect(page.locator("#moodRow button")).toHaveCount(4);
+  const expected = { focus: ["day", .18], weekend: ["day", .45], night: ["night", .18], sunday: ["day", .62] };
+  for (const [mood, [time, blind]] of Object.entries(expected)) {
+    await page.locator(`#moodRow button[data-mood="${mood}"]`).click();
+    await page.waitForFunction((m) => window.__bedroom.info().mood === m && window.__bedroom.windowArt().loaded, mood);
+    await expect(page.locator(`#moodRow button[data-mood="${mood}"]`)).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("#why")).not.toBeEmpty();
+    const { info, art, light } = await page.evaluate(() => ({ info: window.__bedroom.info(), art: window.__bedroom.windowArt(), light: window.__bedroom.brightness() }));
+    expect(art.time, mood).toBe(time);
+    expect(info.blind, mood).toBeCloseTo(blind, 2);
+    expect(light, mood).toBeGreaterThan(30);
+    expect(light, mood).toBeLessThan(215);
+  }
+});
+
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
@@ -157,8 +174,13 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
   for (const width of [1440, 390]) {
     await enter(page, { width });
     await page.waitForTimeout(600);
-    await page.locator("#stage").screenshot({ path: `${QA}/room-${width}.png` });
-    await page.evaluate(() => window.__bedroom.controls.turn(.45, .02)); // look left, at the bookshelf
-    await page.locator("#stage").screenshot({ path: `${QA}/shelf-${width}.png` });
+    await page.locator("#stage").screenshot({ path: `${QA}/focus-${width}.png` });
+    for (const mood of ["weekend", "night", "sunday"]) {
+      await page.locator(`#moodRow button[data-mood="${mood}"]`).click();
+      await page.waitForFunction((m) => window.__bedroom.info().mood === m && window.__bedroom.windowArt().loaded, mood);
+      await page.waitForTimeout(300);
+      await page.locator("#stage").screenshot({ path: `${QA}/${mood}-${width}.png` });
+    }
+    await page.locator("#moods").screenshot({ path: `${QA}/mood-buttons-${width}.png` });
   }
 });
