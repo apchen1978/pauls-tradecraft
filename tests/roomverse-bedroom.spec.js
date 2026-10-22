@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-lounge" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-realism" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -23,7 +23,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.w).toBeCloseTo(.9, 2);
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-work-mat", "zone-lounge-rug"]);
-  expect(info.vertices).toBeLessThan(16000); // whole-room budget (stage 1 uses a small part of it)
+  expect(info.vertices).toBeLessThan(24000); // whole-room budget: two Room 01 models (sofa, plant) take about 9,500 of it
   expect(info.lights).toBe(3);
   expect(errors).toEqual([]);
 });
@@ -78,7 +78,7 @@ test("the bed has real sizes, stands on the floor beside the wall and clears the
   expect(z1 - z0).toBeLessThan(2.1); // 2 m bed, nothing hangs further out
   expect(x0).toBeGreaterThan(.3); // the bedside table stays well clear of the door side of the room
   expect(y1).toBeLessThan(1.1); // headboard under the window sill height + a little, never blocks the glass
-  expect(vertices).toBeLessThan(16000);
+  expect(vertices).toBeLessThan(24000);
 });
 
 test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48 cm, all inside the room and clear of the bed", async ({ page }) => {
@@ -96,7 +96,7 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
     expect(min[2]).toBeGreaterThan(-2.501); expect(max[2]).toBeLessThan(-.5);
     expect(min[1]).toBeGreaterThan(-.001);
   }
-  expect(vertices).toBeLessThan(16000);
+  expect(vertices).toBeLessThan(24000);
 });
 
 test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, shelf under the ceiling, nothing crosses the bed or the door", async ({ page }) => {
@@ -119,7 +119,25 @@ test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, s
   }
   expect(lounge.sofa.min[2]).toBeGreaterThan(-.45); // sofa starts past the foot of the bed (z = -0.46)
   expect(lounge.bookshelf.max[0]).toBeLessThan(-1.65); // stays clear of the door frame (x from -1.6)
-  expect(vertices).toBeLessThan(16000);
+  expect(vertices).toBeLessThan(24000);
+});
+
+test("lived-in details: posters hang above the TV inside the wall, the plant stands clear of desk and TV", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.info().posters.loaded);
+  let { posters, plant, tvPanel, work, lounge } = await page.evaluate(() => window.__bedroom.info());
+  expect(posters.set).toBe("C");
+  expect(posters.min[1]).toBeGreaterThan(tvPanel.max[1] + .2); // a clear gap above the TV
+  expect(posters.max[1]).toBeLessThan(2.3);
+  expect(posters.min[0]).toBeGreaterThan(-2.001); expect(posters.max[0]).toBeLessThan(-1.95); // flat on the west wall
+  expect(plant.min[1]).toBeGreaterThan(-.001); expect(plant.min[1]).toBeLessThan(.01); // on the floor
+  expect(plant.min[0]).toBeGreaterThan(-2.0);
+  expect(plant.min[2]).toBeGreaterThan(work.desk.max[2]); // between the desk ...
+  expect(plant.max[2]).toBeLessThan(lounge["tv-unit"].min[2]); // ... and the TV
+  for (const set of ["A", "B"]) {
+    expect(await page.evaluate((s) => window.__bedroom.setPosters(s), set)).toBe(true);
+    expect((await page.evaluate(() => window.__bedroom.info().posters)).set).toBe(set);
+  }
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {
@@ -139,6 +157,8 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
   for (const width of [1440, 390]) {
     await enter(page, { width });
     await page.waitForTimeout(600);
-    await page.locator("#stage").screenshot({ path: `${QA}/lounge-${width}.png` });
+    await page.locator("#stage").screenshot({ path: `${QA}/room-${width}.png` });
+    await page.evaluate(() => window.__bedroom.controls.turn(.45, .02)); // look left, at the bookshelf
+    await page.locator("#stage").screenshot({ path: `${QA}/shelf-${width}.png` });
   }
 });
