@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-bed2" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-swaps2" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -269,7 +269,7 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
     await page.locator("#moods").screenshot({ path: `${QA}/mood-buttons-${width}.png` });
     await page.locator('#moodRow button[data-mood="focus"]').click();
     await page.evaluate(() => { document.getElementById("swaps").open = true; });
-    for (const [kind, v] of [["posters", "A"], ["wall", "sage"], ["rug", "oak"], ["window", "linen"], ["bedding", "clay"]]) await page.locator(`#swapGroups button[data-kind="${kind}"][data-choice="${v}"]`).click();
+    for (const [kind, v] of [["posters", "A"], ["wall", "terracotta"], ["rug", "oak"], ["window", "linen"], ["bedding", "clay"], ["led", "cyan"], ["desktop", "coffee"], ["screen", "grid"], ["sofa", "terracotta"], ["shelf", "airy"]]) await page.locator(`#swapGroups button[data-kind="${kind}"][data-choice="${v}"]`).click();
     await page.waitForFunction(() => window.__bedroom.info().choices.posters === "A");
     await page.waitForTimeout(300);
     await page.locator("#stage").screenshot({ path: `${QA}/swapped-${width}.png` });
