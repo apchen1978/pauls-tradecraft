@@ -322,8 +322,11 @@ export async function start({ stage, lang = "zh" }) {
   const woodMat = (base, { rough = .62, tint = "#ffffff" } = {}) => { const t = woodTex(base, "rgba(70,42,20,A)", "rgba(255,235,200,A)"); const m = new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: .6, roughness: rough }); m.userData.tint = tint; woods.push(m); if (oakImg) { m.map = oakImg; m.bumpMap = oakImg; m.bumpScale = .5; m.color.set(tint); } return m; };
   art("room02-a3-oak-grain-v1.webp", { apply: (t) => { oakImg = t; for (const m of woods) { m.map = t; m.bumpMap = t; m.bumpScale = .5; m.color.set(m.userData.tint); m.needsUpdate = true; } } }); // the painted oak, tinted per piece
   const oak = woodMat("#b8895a", { rough: .66, tint: "#e3d6cc" });
-  const sheetMat = new THREE.MeshStandardMaterial({ color: "#ece4d4", roughness: .95 });
+  // Bedding tones: the duvet reads ~4-5 % darker and ~3 % warmer than the sheet, so the two do not merge into one white slab.
+  const DUVET_TINT = [1.03, .995, .94];
+  const sheetMat = new THREE.MeshStandardMaterial({ color: "#efe8dd", roughness: .95 });
   const duvetMat = new THREE.MeshStandardMaterial({ roughness: 1 });
+  duvetMat.color.setRGB(...DUVET_TINT);
   const throwMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#4b5059", "#33373d"), roughness: 1 });
   const beddingArt = {};
   duvetMat.userData.plain = true;
@@ -332,7 +335,7 @@ export async function start({ stage, lang = "zh" }) {
     for (let i = 0; i < 420; i++) { ctx.fillStyle = `rgba(${i % 2 ? "120,108,92" : "255,252,244"},${.03 + (i % 5) * .012})`; ctx.fillRect((i * 67) % w, (i * 29) % h, 6 + (i * 13) % 26, 1 + (i % 2)); }
   }, { repeat: [1.6, 1.6] });
   const useBeddingArt = () => { // the painted weaves belong to the "stone" bedding; the other sets keep their code-drawn weaves
-    duvetMat.map = beddingArt.duvet ?? linenNoise(); duvetMat.color.setScalar(beddingArt.duvet ? 1.25 : 1); duvetMat.needsUpdate = true;
+    duvetMat.map = beddingArt.duvet ?? linenNoise(); const k = beddingArt.duvet ? 1.25 : 1; duvetMat.color.setRGB(DUVET_TINT[0] * k, DUVET_TINT[1] * k, DUVET_TINT[2] * k); duvetMat.needsUpdate = true;
     if (!beddingArt.throw) return;
     throwMat.map = beddingArt.throw; throwMat.color.setScalar(1.35); throwMat.needsUpdate = true;
   };
@@ -387,18 +390,28 @@ export async function start({ stage, lang = "zh" }) {
   };
   // The duvet is one sheet laid over the bed: flat on top with soft folds, rolled over the mattress edges and hanging 15 cm down the sides
   // and the foot, with the head end turned back in a fold. Real sizes: 106 cm across the top, covering from the foot to 30 cm from the head.
+  // The hanging part sags in a low wave (~1.8 cm, 40 cm wavelength), the hem is not a straight line, and the foot/side corner gets soft
+  // diagonal folds instead of a hard crease. Segment counts stay at 26 x 30; the roll radius is 7 cm.
   const duvetGeo = () => {
-    const nu = 26, nv = 30, hx = .53, hzFoot = .7, hzHead = -.68, drape = .15, r = .05, arc = r * Math.PI / 2;
+    const nu = 26, nv = 30, hx = .53, hzFoot = .7, hzHead = -.68, drape = .15, r = .07, arc = r * Math.PI / 2;
     const A = hx + arc + drape, Bmax = hzFoot + arc + drape, pos = [], uv = [], idx = [], row = nu + 1;
     for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
       const a = -A + 2 * A * i / nu, b = hzHead + (Bmax - hzHead) * j / nv;
-      const ex = Math.max(Math.abs(a) - hx, 0), ez = Math.max(b - hzFoot, 0);
+      const ex = Math.max(Math.abs(a) - hx, 0), ez = Math.max(b - hzFoot, 0), hang = Math.max(ex, ez);
       const off = (e) => (e < arc ? r * Math.sin(e / r) : r), dropOf = (e) => (e < arc ? r * (1 - Math.cos(e / r)) : r + (e - arc)); // the roll over an edge, then straight down
       let x = a, z = b, y = 0;
       if (ex > 0 || ez > 0) {
         if (ex > 0) x = Math.sign(a) * (hx + off(ex));
         if (ez > 0) z = hzFoot + off(ez);
         y = -Math.max(dropOf(ex), dropOf(ez));
+        // Gravity sag: the cloth leaves the roll attached, then dips; faded in so the top of the drape stays put.
+        const fade = Math.min(1, Math.max(0, (hang - arc) / .06));
+        y -= (.018 * Math.sin(b * 15.2 + .8) + .011 * Math.sin(a * 12.1 + 2.1)) * fade;
+        // The hem is not a straight line (+-1.5 cm), so the bottom edge reads as fabric.
+        if (hang > arc + drape * .8) y -= (.012 * Math.sin(b * 19.3 + .4) + .009 * Math.sin(a * 17.7 + 1.1));
+        // Soft diagonal folds where the foot and side drapes meet, instead of one hard crease.
+        const corner = Math.exp(-Math.pow(ex - ez, 2) / .0016) * Math.min(1, hang / .08);
+        if (corner > .01) { const push = .010 * Math.sin((ex + ez) * 42 + 1.3) * corner; z += push; } // fold in depth only: keeps the duvet inside the bed width
       } else {
         y += .011 * Math.sin(a * 9 + 1.3) * Math.sin(b * 5.5) + .007 * Math.sin(b * 13 + a * 3) + .018 * Math.exp(-Math.pow((b - (hzHead + .1)) / .07, 2)) // a turned-back head fold
           - .014 * Math.exp(-Math.pow((b - hzHead) / .035, 2));
@@ -945,7 +958,7 @@ export async function start({ stage, lang = "zh" }) {
       curtains.visible = value === "linen";
     } else if (kind === "bedding" && CHOICES.bedding[value]) {
       const [d0, d1, t0, t1, c] = CHOICES.bedding[value];
-      duvetMat.color.set("#ffffff"); throwMat.color.set("#ffffff");
+      duvetMat.color.setRGB(...DUVET_TINT); throwMat.color.set("#ffffff");
       duvetMat.map = weaveTexture(d0, d1); throwMat.map = weaveTexture(t0, t1); cushionMat.color.set(c);
       if (value === "stone") useBeddingArt();
       duvetMat.needsUpdate = throwMat.needsUpdate = true;
