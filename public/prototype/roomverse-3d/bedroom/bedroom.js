@@ -88,7 +88,7 @@ export async function start({ stage, lang = "zh" }) {
     }, undefined, () => { painted[file] = false; });
     return t;
   };
-  const chosen = { wall: "sage", rug: "stripe", window: "roller", bedding: "stone", posters: "C" };
+  const chosen = { wall: "sage", rug: "stripe", window: "roller", bedding: "stone", posters: "C", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -359,20 +359,76 @@ export async function start({ stage, lang = "zh" }) {
   dpart(box(.05, .2, .02), blackMat, "monitor-neck", 0, .86, -.16);
   dpart(rb(.8, .34, .025), blackMat, "monitor-panel", 0, 1.05, -.15);
   const screen = new THREE.Mesh(new THREE.PlaneGeometry(.77, .31), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }));
-  art("room02-a6-game-screen-v1.webp", { apply: (t) => { screen.material.map = t; screen.material.needsUpdate = true; } });
+  art("room02-a6-game-screen-v1.webp", { apply: (t) => { cityScreen = t; if (chosen.screen === "city") screen.material.map = t; screen.material.needsUpdate = true; } });
   screen.name = "monitor-screen"; screen.position.set(0, 1.05, -.15 + .0135); desk.add(screen);
   dpart(box(.42, .018, .13), new THREE.MeshStandardMaterial({ map: keysTex, roughness: .6 }), "keyboard", -.02, .765, .16);
   dpart(softBox(.065, .03, .11, .025), blackMat, "mouse", .33, .767, .16);
   dpart(box(.28, .06, .22), new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), "console", -.55, .785, -.08); // white slim console, no logo
   dpart(box(.012, .004, .2), new THREE.MeshStandardMaterial({ color: "#69b8ff", emissive: "#69b8ff", emissiveIntensity: 1 }), "console-light", -.55, .816, -.08);
+  // Screens (round 2): the painted night city, plus three drawn in code: a neon grid horizon, an editor-like work view made only of
+  // coloured bars (no words), and a calm gradient wallpaper.
+  let cityScreen = screen.material.map; // the painted city replaces this stand-in when it loads
+  const screens = { city: null, grid: null, work: null, calm: null };
+  const drawScreen = (name) => canvasTex(512, 216, (ctx, w, h) => {
+    if (name === "grid") {
+      const g = ctx.createLinearGradient(0, 0, 0, h * .6); g.addColorStop(0, "#150a33"); g.addColorStop(1, "#6a2a8a"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#ffb86b"; ctx.beginPath(); ctx.arc(w / 2, h * .5, 46, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = "#1a0d3a"; ctx.fillRect(0, h * .6, w, h * .4); ctx.strokeStyle = "#ff5fd0"; ctx.lineWidth = 1.3;
+      for (let i = -10; i <= 10; i++) { ctx.beginPath(); ctx.moveTo(w / 2 + i * 12, h * .6); ctx.lineTo(w / 2 + i * 62, h); ctx.stroke(); }
+      for (let k = 0; k < 7; k++) { const y = h * .6 + Math.pow(k / 7, 2) * h * .4; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+    } else if (name === "work") {
+      ctx.fillStyle = "#1b1f27"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#12151b"; ctx.fillRect(0, 0, 70, h); ctx.fillRect(w - 50, 0, 50, h);
+      const cols = ["#7aa2f7", "#9ece6a", "#e0af68", "#bb9af7", "#7dcfff", "#c0caf5"];
+      for (let r = 0; r < 14; r++) { let x = 90 + (r % 4) * 18; for (let k = 0; k < 2 + (r * 3) % 4; k++) { const len = 22 + ((r * 31 + k * 17) % 70); ctx.fillStyle = cols[(r + k * 2) % cols.length]; ctx.fillRect(x, 14 + r * 14, len, 6); x += len + 8; } }
+      ctx.fillStyle = "#2a2f3a"; for (let r = 0; r < 9; r++) ctx.fillRect(10, 16 + r * 18, 44 - (r % 3) * 10, 6);
+    } else {
+      const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "#9fb4d6"); g.addColorStop(.55, "#e8c9b8"); g.addColorStop(1, "#f4dfc0"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      for (const [c, y, a] of [["#8aa0c0", .62, .9], ["#6f8aa8", .74, 1.3], ["#4f6a85", .86, .7]]) { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(0, h); for (let x = 0; x <= w; x += 16) ctx.lineTo(x, h * y + Math.sin(x / 70 * a) * 14); ctx.lineTo(w, h); ctx.fill(); }
+    }
+  });
   // LED bias strip: a thin emissive bar on the wall behind the monitor and a soft additive glow on the wall
   dpart(box(.9, .012, .012), new THREE.MeshStandardMaterial({ color: "#8f7bff", emissive: "#8f7bff", emissiveIntensity: 1.4 }), "led-strip", 0, .92, -.315);
   const glowTex = canvasTex(256, 256, (ctx, w, h) => {
-    const g = ctx.createRadialGradient(w / 2, h / 2, 6, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(143,123,255,.75)"); g.addColorStop(1, "rgba(143,123,255,0)");
+    const g = ctx.createRadialGradient(w / 2, h / 2, 6, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,255,255,.8)"); g.addColorStop(1, "rgba(255,255,255,0)");
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
   });
-  const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.0), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .55, toneMapped: false }));
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.0), new THREE.MeshBasicMaterial({ map: glowTex, color: "#8f7bff", transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .55, toneMapped: false }));
   glow.name = "led-glow"; glow.position.set(0, 1.0, -.322); desk.add(glow);
+  // Desk sets (round 2): minimal (just the keyboard and mouse), gamer (headphones on a stand and a gamepad), coffee (a small espresso machine
+  // and a cup, for people who really like coffee), creative (an adjustable lamp, a notebook and a pen pot). Each is a few dozen cheap shapes.
+  const deskSets = {};
+  const deskSet = (name, build) => { const g = new THREE.Group(); g.name = "deskset-" + name; g.visible = name === "minimal"; desk.add(g); build(hold(g)); deskSets[name] = g; };
+  const steel = new THREE.MeshStandardMaterial({ color: "#b9bcc0", roughness: .3, metalness: .85 });
+  const ceramicWhite = new THREE.MeshStandardMaterial({ color: "#f1ece2", roughness: .4 });
+  deskSet("minimal", () => {});
+  deskSet("gamer", (p) => {
+    p(new THREE.CylinderGeometry(.05, .055, .012, 20), blackMat, "headset-stand-base", .56, .756, -.14);
+    p(new THREE.CylinderGeometry(.008, .008, .2, 8), blackMat, "headset-stand-post", .56, .85, -.14);
+    p(new THREE.TorusGeometry(.085, .009, 6, 16, Math.PI), softBlack, "headset-band", .56, .95, -.14);
+    for (const sx of [-1, 1]) p(new THREE.CylinderGeometry(.045, .045, .03, 16), softBlack, "headset-cup", .56 + sx * .085, .93, -.14).rotation.z = Math.PI / 2;
+    p(rb(.15, .026, .09), new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), "gamepad", .44, .766, .2).rotation.y = .3;
+    for (const sx of [-1, 1]) p(rb(.05, .024, .075), new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), "gamepad-grip", .44 + sx * .065 * Math.cos(.3), .765, .2 - sx * .065 * Math.sin(.3)).rotation.y = .3;
+    p(new THREE.CylinderGeometry(.004, .004, .02, 6), accentMat, "gamepad-light", .44, .782, .2);
+  });
+  deskSet("coffee", (p) => {
+    p(rb(.24, .3, .3), blackMat, "coffee-body", .56, .9, -.15);
+    p(rb(.25, .03, .31), steel, "coffee-top", .56, 1.06, -.15);
+    p(box(.2, .012, .16), steel, "coffee-tray", .56, .763, -.03);
+    p(new THREE.CylinderGeometry(.02, .02, .05, 12), steel, "coffee-group", .56, .93, .02).rotation.x = 0;
+    p(box(.012, .012, .09), blackMat, "coffee-handle", .56, .93, .075);
+    p(new THREE.CylinderGeometry(.03, .03, .006, 20), steel, "coffee-gauge", .56, .99, .005).rotation.x = Math.PI / 2;
+    p(new THREE.CylinderGeometry(.036, .03, .065, 16), ceramicWhite, "coffee-cup", .56, .795, -.02);
+    p(new THREE.CylinderGeometry(.04, .04, .09, 16), ceramicWhite, "coffee-mug", .3, .795, .24);
+  });
+  deskSet("creative", (p) => {
+    p(new THREE.CylinderGeometry(.06, .065, .015, 18), blackMat, "lamp2-base", .56, .758, -.2);
+    const a1 = p(box(.012, .3, .012), blackMat, "lamp2-arm-1", .56, .92, -.2); a1.rotation.z = .25;
+    const a2 = p(box(.012, .26, .012), blackMat, "lamp2-arm-2", .5, 1.08, -.2); a2.rotation.z = -.85;
+    p(new THREE.ConeGeometry(.055, .09, 16, 1, true), new THREE.MeshStandardMaterial({ color: "#2a2b2e", side: THREE.DoubleSide, roughness: .5 }), "lamp2-head", .4, 1.13, -.2).rotation.z = Math.PI + .5;
+    p(rb(.2, .018, .14), new THREE.MeshStandardMaterial({ color: "#c58a62", roughness: .8 }), "notebook", .5, .765, .08).rotation.y = -.15;
+    p(new THREE.CylinderGeometry(.035, .032, .09, 14), ceramicWhite, "pen-pot", -.5, .797, -.2);
+    for (let i = 0; i < 4; i++) p(new THREE.CylinderGeometry(.004, .004, .07, 5), i % 2 ? accentMat : blackMat, "pen", -.5 + (i - 1.5) * .01, .86, -.2).rotation.z = (i - 1.5) * .12;
+  });
   // ergonomic task chair, pulled up to the desk
   const chair = new THREE.Group(); chair.name = "chair"; chair.position.set(-.93, 0, -1.75); chair.rotation.y = -Math.PI / 2 + .1; root.add(chair);
   const cpart = hold(chair);
@@ -445,12 +501,15 @@ export async function start({ stage, lang = "zh" }) {
   // Books: each compartment shows a painted row of real-looking books (Codex), standing on its board. The code-drawn spines this replaces
   // never looked like books. The paintings include their own cast shadows; the scene lights still dim them with the mood.
   const bookRows = [["room02-c1-full-bookshelf-v1.webp", .36], ["room02-c3-hardback-bookshelf-v1.webp", .36], ["room02-c2-seven-tenths-bookshelf-v1.webp", .36], ["room02-c4-sparse-bookshelf-v1.webp", .36], ["room02-c5-top-shelf-v1.webp", .22]];
+  const bookTex = {}, rowMats = [];
+  const SHELF_SETS = { mixed: ["room02-c1-full-bookshelf-v1.webp", "room02-c3-hardback-bookshelf-v1.webp", "room02-c2-seven-tenths-bookshelf-v1.webp", "room02-c4-sparse-bookshelf-v1.webp"], airy: ["room02-c4-sparse-bookshelf-v1.webp", "room02-c2-seven-tenths-bookshelf-v1.webp", "room02-c4-sparse-bookshelf-v1.webp", "room02-c2-seven-tenths-bookshelf-v1.webp"], library: ["room02-c1-full-bookshelf-v1.webp", "room02-c3-hardback-bookshelf-v1.webp", "room02-c1-full-bookshelf-v1.webp", "room02-c3-hardback-bookshelf-v1.webp"] };
+  const applyShelf = () => rowMats.forEach((mat, i) => { const t = bookTex[i === 4 ? bookRows[4][0] : SHELF_SETS[chosen.shelf][i]]; if (t) { mat.map = t; mat.color.set("#ffffff"); mat.needsUpdate = true; } });
   bookRows.forEach(([file, h], i) => {
-    const mat = new THREE.MeshStandardMaterial({ color: "#cfc4b0", roughness: .9 });
+    const mat = new THREE.MeshStandardMaterial({ color: "#cfc4b0", roughness: .9 }); rowMats[i] = mat;
     const m = new THREE.Mesh(new THREE.PlaneGeometry(.71, h), mat); m.name = "shelf-books-" + i;
     m.position.set(0, levels[i] + .01 + h / 2, -.133); m.receiveShadow = true; shelf.add(m);
-    art(file, { apply: (t) => { mat.map = t; mat.color.set("#ffffff"); mat.needsUpdate = true; } });
   });
+  for (const file of new Set([...Object.values(SHELF_SETS).flat(), bookRows[4][0]])) art(file, { apply: (t) => { bookTex[file] = t; applyShelf(); } });
   // Every shelf item must fit its compartment (23 cm clear under the top board). Taller things go on top of the shelf, the way
   // people store what has no other place: a lidded fabric box and a small plant. info().shelfClash proves nothing passes through a board.
   const TOP = levels[levels.length - 1] + .01; // upper face of the top board
@@ -677,6 +736,11 @@ export async function start({ stage, lang = "zh" }) {
     window: ["roller", "bamboo", "linen"],
     bedding: { stone: ["#d9d4ca", "#b9b2a3", "#4b5059", "#33373d", "#7b8794"], mist: ["#ccd6df", "#9fb0bf", "#f1ede4", "#cfc6b4", "#2f3b52"], clay: ["#e8dfcf", "#bfae8f", "#b9573f", "#8c3b2e", "#c9a14e"] },
     posters: ["A", "B", "C"],
+    led: { violet: "#8f7bff", cyan: "#4fd1ff", amber: "#ffb066", pink: "#ff6fb5", white: "#e8f0ff" },
+    desktop: ["minimal", "gamer", "coffee", "creative"],
+    screen: ["city", "grid", "work", "calm"],
+    sofa: { slate: "#9db0c2", sand: "#e6d6bd", moss: "#a9b79a", charcoal: "#6b6f76", terracotta: "#d79a7e" },
+    shelf: ["mixed", "airy", "library"],
   };
   const rugCache = {};
   async function setChoice(kind, value) {
@@ -692,6 +756,16 @@ export async function start({ stage, lang = "zh" }) {
       duvetMat.map = weaveTexture(d0, d1); throwMat.map = weaveTexture(t0, t1); cushionMat.color.set(c);
       if (value === "stone") useBeddingArt();
       duvetMat.needsUpdate = throwMat.needsUpdate = true;
+    } else if (kind === "led" && CHOICES.led[value]) {
+      const c = CHOICES.led[value]; ledStrip.material.color.set(c); ledStrip.material.emissive.set(c); ledGlow.material.color.set(c); screenLight.color.set(c);
+    } else if (kind === "desktop" && CHOICES.desktop.includes(value)) {
+      for (const [n, g] of Object.entries(deskSets)) g.visible = n === value;
+    } else if (kind === "screen" && CHOICES.screen.includes(value)) {
+      screen.material.map = value === "city" ? cityScreen : (screens[value] ??= drawScreen(value)); screen.material.needsUpdate = true;
+    } else if (kind === "sofa" && CHOICES.sofa[value]) {
+      sofa.traverse((o) => { if (o.isMesh) o.material.color.set(CHOICES.sofa[value]); });
+    } else if (kind === "shelf" && CHOICES.shelf.includes(value)) {
+      chosen.shelf = value; applyShelf();
     } else return false;
     chosen[kind] = value; render(); return true;
   }
@@ -712,7 +786,7 @@ export async function start({ stage, lang = "zh" }) {
 
   const info = () => {
     let vertices = 0, meshes = 0;
-    root.traverse((o) => { if (o.isMesh) { meshes++; vertices += o.geometry.attributes.position.count; } });
+    root.traverseVisible((o) => { if (o.isMesh) { meshes++; vertices += o.geometry.attributes.position.count; } });
     const box3 = new THREE.Box3().setFromObject(root.getObjectByName("floor"));
     return {
       room: ROOM, window: WINDOW, door: DOOR, vertices, meshes,
