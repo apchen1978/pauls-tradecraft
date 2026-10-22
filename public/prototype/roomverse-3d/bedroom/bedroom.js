@@ -245,7 +245,9 @@ export async function start({ stage, lang = "zh" }) {
   const zoneRug = (w, d, x, z, mat, name) => { const m = add(new THREE.PlaneGeometry(w, d), mat, name, x, .006, z, { shadow: false }); m.rotation.x = -Math.PI / 2; };
   const sleepRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
   zoneRug(1.2, 1.8, .95, -1.45, sleepRugMat, "zone-sleep-rug");
-  art("room02-a2-sleep-rug-v1.webp", { apply: (t) => { sleepRugMat.map = t; sleepRugMat.needsUpdate = true; } }); // a whole rug seen from above, with its fringe
+  const tvRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
+  zoneRug(1.2, 1.7, -1.0, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
+  art("room02-a2-sleep-rug-v1.webp", { apply: (t) => { sleepRugMat.map = t; tvRugMat.map = t; sleepRugMat.needsUpdate = tvRugMat.needsUpdate = true; } }); // a whole rug seen from above, with its fringe
   zoneRug(1.0, .8, -1.35, -1.55, new THREE.MeshStandardMaterial({ map: weaveTexture("#555a61", "#2c3036"), roughness: 1 }), "zone-work-mat");
   const loungeRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 });
   zoneRug(1.6, 2.3, .85, 1.3, loungeRugMat, "zone-lounge-rug");
@@ -487,8 +489,21 @@ export async function start({ stage, lang = "zh" }) {
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
   const tp = hold(tv);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
-  tp(rb(1.2, .3, .36), oak, "tv-console", 0, .3, 0); // top at 45 cm
-  for (const sx of [-1, 1]) tp(box(.58, .24, .01), deskMat, "tv-console-door", sx * .295, .3, .185);
+  // Cabinet shell: top (45 cm), bottom, two sides, a back, a divider. The left bay has a door; the right bay is open and holds a game console.
+  tp(rb(1.2, .03, .36), oak, "tv-console", 0, .435, 0);
+  tp(box(1.15, .02, .34), oak, "tv-console-bottom", 0, .16, 0);
+  for (const sx of [-1, 1]) tp(box(.025, .3, .36), oak, "tv-console-side", sx * .5875, .3, 0);
+  tp(box(1.15, .27, .012), oak, "tv-console-back", 0, .3, -.174);
+  tp(box(.02, .27, .34), oak, "tv-console-divider", 0, .3, 0);
+  tp(box(.55, .24, .01), deskMat, "tv-console-door", -.295, .3, .185);
+  // A slim black game console of the PS4 kind (275 x 300 x 53 mm): a matte slab with a glossy top plate and a thin blue light bar.
+  // No logos or marks. It lies on the open bay's floor with its front facing the room; a white pad rests on top of it.
+  const consoleBody = new THREE.MeshStandardMaterial({ color: "#1b1c20", roughness: .5, metalness: .2 });
+  const consoleTop = new THREE.MeshStandardMaterial({ color: "#0d0e11", roughness: .18, metalness: .35 });
+  tp(rb(.275, .053, .3), consoleBody, "game-console", .295, .17 + .0265, -.02);
+  tp(rb(.265, .004, .29), consoleTop, "game-console-top", .295, .17 + .053 + .002, -.02);
+  tp(box(.1, .003, .002), new THREE.MeshStandardMaterial({ color: "#4aa8ff", emissive: "#4aa8ff", emissiveIntensity: 1.4 }), "game-console-light", .295, .17 + .053 + .0045, .125);
+  const pad = tp(rb(.15, .026, .09), new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), "game-pad", .295, .17 + .053 + .004 + .013, .02); pad.rotation.y = .4;
   tp(box(.3, .012, .2), blackMat, "tv-foot", 0, .456, 0);
   tp(rb(.95, .55, .035), blackMat, "tv-panel", 0, .75, 0); // 47 cm to 102 cm
   const screenFace = new THREE.Mesh(new THREE.PlaneGeometry(.92, .52), tvScreen); screenFace.name = "tv-screen"; screenFace.position.set(0, .75, .0185); tv.add(screenFace);
@@ -829,6 +844,12 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
+    tvCorner() { // local QA only: rug, console and cabinet bounds
+      const bx = (o) => { const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
+      const get = (n) => root.getObjectByName(n);
+      return { rug: bx(get("zone-tv-rug")), unit: bx(get("tv-unit")), table: bx(get("coffee-table")), console: bx((() => { const g = new THREE.Group(); return get("game-console"); })()), pad: bx(get("game-pad")),
+        shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
+    },
     info, reach, arrive, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
