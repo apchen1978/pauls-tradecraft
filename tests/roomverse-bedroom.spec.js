@@ -146,7 +146,7 @@ test("four moods: buttons switch window, blind and lamps, and no mood is blown o
   const expected = { focus: ["day", .18], weekend: ["day", .45], night: ["night", .18], sunday: ["day", .62] };
   for (const [mood, [time, blind]] of Object.entries(expected)) {
     await page.locator(`#moodRow button[data-mood="${mood}"]`).click();
-    await page.waitForFunction((m) => window.__bedroom.info().mood === m && window.__bedroom.windowArt().loaded, mood);
+    await page.waitForFunction(([m, t]) => window.__bedroom.info().mood === m && window.__bedroom.windowArt().loaded && window.__bedroom.windowArt().time === t, [mood, time]); // the night picture arrives a moment after the button
     await expect(page.locator(`#moodRow button[data-mood="${mood}"]`)).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator("#why")).not.toBeEmpty();
     const { info, art, light } = await page.evaluate(() => ({ info: window.__bedroom.info(), art: window.__bedroom.windowArt(), light: window.__bedroom.brightness() }));
@@ -378,6 +378,17 @@ test("the linen curtains never cover the house plaque", async ({ page }) => {
   const { curtainPanels, plaque } = await page.evaluate(() => window.__bedroom.info());
   expect(curtainPanels.length).toBe(2);
   for (const c of curtainPanels) expect(c.min[0] > plaque.max[0] || c.max[0] < plaque.min[0], "curtain x-range clear of the plaque").toBe(true);
+});
+
+test("two prints hang on the wall behind the sofa, over its length and above its back; the bed's head has two channels, none reaching the window sill", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.info().wallArt, null, { timeout: 30000 });
+  const { wallArt, lounge, room, window: win } = await page.evaluate(() => window.__bedroom.info());
+  expect(wallArt.max[0]).toBeLessThan(room.w / 2); expect(wallArt.min[0]).toBeGreaterThan(room.w / 2 - .05); // flat on the east wall
+  expect(wallArt.min[1]).toBeGreaterThan(lounge.sofa.max[1] + .2); expect(wallArt.max[1]).toBeLessThan(room.h - .3); // above the sofa back, under the ceiling
+  expect(wallArt.min[2]).toBeGreaterThan(lounge.sofa.min[2] - .05); expect(wallArt.max[2]).toBeLessThan(lounge.sofa.max[2] + .05); // over the sofa's length
+  const { headboardTop } = await page.evaluate(() => window.__bedroom.info());
+  expect(headboardTop).toBeLessThan(win.sill - .05); // the sill sticks out of the wall beside the bed: nothing of the headboard may reach it
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {

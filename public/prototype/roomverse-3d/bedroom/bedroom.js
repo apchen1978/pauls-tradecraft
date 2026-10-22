@@ -367,7 +367,7 @@ export async function start({ stage, lang = "zh" }) {
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) part(box(.07, .07, .07), bedFoot, "bed-leg", BED.x + dx * (BED.w / 2 - .1), .035, BED.z + dz * (BED.l / 2 - .12));
   part(softBox(BED.w + .06, .19, BED.l + .06, .035), upholst, "bed-frame", BED.x, .165, BED.z); // 7 cm to 26 cm, floating on the feet
   part(softBox(BED.w, .22, BED.l - .02, .03), sheetMat, "bed-mattress", BED.x, .26 + .11, BED.z); // top at 48 cm
-  for (let k = 0; k < 3; k++) { const ch = part(softBox(BED.w + .06, .09, .225, .05), upholst, "bed-headboard", BED.x, .385 + k * .235, north - .045); ch.rotation.x = Math.PI / 2; } // three channels, 26 cm to 96 cm
+  for (let k = 0; k < 2; k++) { const ch = part(softBox(BED.w + .06, .09, .225, .05), upholst, "bed-headboard", BED.x, .385 + k * .235, north - .045); ch.rotation.x = Math.PI / 2; } // two channels, 26 cm to 73 cm: a third one would reach the window sill (90 cm), which sticks out of the wall beside the bed
   // Soft goods. A box with segments, pushed into soft folds on top and rolled over at the edges, reads as cloth instead of a slab;
   // pillows are plump ellipsoids. Sizes are real: duvet 106 cm wide, pillow 70 x 45 cm, cushion 45 x 30 cm.
   const cloth = (w, h, d, seed, { fold = .014, roll = .05 } = {}) => {
@@ -796,6 +796,12 @@ export async function start({ stage, lang = "zh" }) {
   const plaqueTex = texLoader.load(new URL("../art/wall-plaque-text-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; render(); });
   plaqueTex.anisotropy = 8;
   const plaque = add(new THREE.PlaneGeometry(.9, .36), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), "house-plaque", -1.45, 1.8, -HD + .015, { shadow: false });
+  // Two framed prints on the wall behind the sofa (the east wall), Codex's pair: sage, terracotta, navy and cream, nothing like the city outside.
+  // 134 x 89 cm in all (two 58 x 78 cm frames), centred over the sofa, bottom edge 115 cm up, well above the sofa back.
+  art("room02-east-pair-v1.webp", { apply: (t) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1.34, .894), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .35, roughness: .8 }));
+    m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.6, .9); m.receiveShadow = true; root.add(m);
+  } });
   // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque)
   const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = false; root.add(curtains);
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
@@ -1046,7 +1052,7 @@ export async function start({ stage, lang = "zh" }) {
     root.traverseVisible((o) => { if (o.isMesh) { meshes++; vertices += o.geometry.attributes.position.count; } });
     const box3 = new THREE.Box3().setFromObject(root.getObjectByName("floor"));
     return {
-      room: ROOM, window: WINDOW, door: DOOR, wardrobe: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("wardrobe")); return { min: b.min.toArray(), max: b.max.toArray() }; })(), centred, vertices, meshes,
+      room: ROOM, window: WINDOW, door: DOOR, headboardTop: Math.max(...root.children.filter((o) => o.name === "bed-headboard").map((o) => new THREE.Box3().setFromObject(o).max.y)), wallArt: (() => { const o = root.getObjectByName("sofa-wall-art"); if (!o) return null; const bb = new THREE.Box3().setFromObject(o); return { min: bb.min.toArray(), max: bb.max.toArray() }; })(), wardrobe: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("wardrobe")); return { min: b.min.toArray(), max: b.max.toArray() }; })(), centred, vertices, meshes,
       floor: { w: box3.max.x - box3.min.x, d: box3.max.z - box3.min.z },
       zones: ["zone-sleep-rug", "zone-work-mat", "zone-lounge-rug"].map((n) => root.getObjectByName(n)?.name),
       bed: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("bed")), m = new THREE.Box3().setFromObject(root.getObjectByName("bed-mattress")); return { min: b.min.toArray(), max: b.max.toArray(), mattressTop: m.max.y - .0 }; })(),

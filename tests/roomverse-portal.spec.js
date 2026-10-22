@@ -26,6 +26,30 @@ test("the door swings open clear of the furniture, the doorway lights up, and cl
   expect(after.door.leaf).toEqual(before.leaf); // the closed door is exactly where it was
 });
 
+test("a second robot stands by the door, clear of the leaf; tapping it hops and says what is behind the door; turning toward the door wall brings the hint once", async ({ page }) => {
+  await enterRoom01(page);
+  await page.waitForTimeout(2500); // let the opening drift settle
+  const g = await page.evaluate(() => window.__room.guideRobot());
+  expect(g.min[1]).toBeLessThan(.01); // on the floor
+  expect(g.max[1] - g.min[1]).toBeGreaterThan(.4); expect(g.max[1] - g.min[1]).toBeLessThan(.52);
+  expect(g.max[0]).toBeLessThan(2.6 - .05); expect(g.min[0]).toBeGreaterThan(1.8); // by the right-hand wall, inside the room
+  expect(g.max[2]).toBeLessThan(.8); // north of the leaf's hinge (z = 0.81): it never stands in the swing
+  expect((await page.evaluate(() => window.__room.guideRobot())).bubble).toBe(false); // quiet until someone looks at the door wall
+  await page.evaluate(() => window.__room.faceDoorWall());
+  await expect.poll(() => page.evaluate(() => window.__room.guideRobot().bubble)).toBe(true); // turning to the door wall brings the hint
+  await expect.poll(() => page.evaluate(() => window.__room.guideRobot().bubble), { timeout: 8000 }).toBe(false); // it goes away by itself
+  await page.evaluate(() => window.__room.faceDoorWall()); // looking again does not repeat it
+  await page.waitForTimeout(600);
+  expect((await page.evaluate(() => window.__room.guideRobot())).bubble).toBe(false);
+  const p = await page.evaluate(() => window.__room.guideRobot());
+  const box = await page.locator("#stage canvas").boundingBox();
+  await page.mouse.click(box.x + (p.ndc.x + 1) / 2 * box.width, box.y + (1 - p.ndc.y) / 2 * box.height);
+  await expect.poll(() => page.evaluate(() => window.__room.guideRobot().bubble)).toBe(true);
+  expect(await page.evaluate(() => window.__room.guideRobot().phrase)).toContain("Room 02");
+  await page.evaluate(() => window.__room.openPortal({ go: false }));
+  expect((await page.evaluate(() => window.__room.doorSwingBounds())).hits).toEqual([]); // the open leaf does not touch the new robot either
+});
+
 for (const lang of ["zh", "en"]) {
   test(`the "Room 02" button opens the portal and arrives in Room 02 with the room already running (${lang})`, async ({ page }) => {
     test.setTimeout(90000);

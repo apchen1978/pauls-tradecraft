@@ -16,6 +16,7 @@ const PHONE_BAR = {
   zh: { save: "存成明信片", shuffle: "隨機搭一間", director: "8秒短片", stop: "停止短片", close: "收起對照", preparing: "準備中" },
   en: { save: "Save postcard", shuffle: "Random room", director: "8s tour", stop: "Stop", close: "Close", preparing: "Preparing" },
 };
+const GUIDE_LINE = { zh: "這扇門後面是 Room 02，推開看看？", en: "Room 02 is behind this door. Take a look?" };
 const ROBOT_MOOD_LINES = {
   rain: { zh: "聽雨聲，剛剛好。", en: "The rain sounds just right." },
   family: { zh: "好像聞到晚餐香了。", en: "Feels like dinner is nearly ready." },
@@ -1198,6 +1199,18 @@ export async function start({ stage, panel, lang, onReady }) {
   const rb = new THREE.Box3().setFromObject(robotObj), robotPivot = new THREE.Group();
   robotPivot.position.set((rb.min.x + rb.max.x) / 2, 0, (rb.min.z + rb.max.z) / 2); scene.add(robotPivot); robotPivot.attach(robotObj);
   robotPivot.rotation.y = .5; // turned a little toward the room
+  // A second robot stands by the door to Room 02 (the same model, a terracotta belt instead of sage) so a visitor knows the door opens.
+  // North of the door, clear of the leaf's swing; it faces into the room, a little towards the door. Tap it for a hint; the door is one tap further.
+  const guidePivot = robotPivot.clone(true); guidePivot.name = "door-robot";
+  const terracotta = new THREE.Color("#c4704c");
+  guidePivot.traverse((m) => {
+    if (!m.isMesh || !m.geometry.attributes.color) return;
+    m.geometry = m.geometry.clone(); const gc = m.geometry.attributes.color;
+    for (let i = 0; i < gc.count; i++) if (Math.hypot(gc.getX(i) - sage.r, gc.getY(i) - sage.g, gc.getZ(i) - sage.b) < .02) gc.setXYZ(i, terracotta.r, terracotta.g, terracotta.b); // the belt is the only sage on the model
+    gc.needsUpdate = true;
+  });
+  guidePivot.position.set(W / 2 - .34, 0, doorZ - .8); guidePivot.rotation.y = -1.3; scene.add(guidePivot);
+  const guideHome = { y: guidePivot.position.y, r: guidePivot.rotation.y };
   // the floor lamp gets its own light just under the shade (no shadow: a light inside the closed shade mesh would be blocked)
   const shadeY = lb.min.y + (lb.max.y - lb.min.y) * .8, lampX = (lb.min.x + lb.max.x) / 2, lampZ = (lb.min.z + lb.max.z) / 2;
   const floorLight = new THREE.PointLight("#ffc98a", 0, 5, 1.6); floorLight.position.set(lampX, shadeY - .12, lampZ + .05); scene.add(floorLight);
@@ -1980,11 +1993,12 @@ export async function start({ stage, panel, lang, onReady }) {
   // a quiet easter egg: tap the little robot and it hops, turns to look at you, then turns back.
   // Only a tap counts (a drag to turn the room does not); with reduced motion it just turns to look.
   const ray = new THREE.Raycaster(), tap = new THREE.Vector2(), robotHome = { y: robotPivot.position.y, r: robotPivot.rotation.y };
+  let bubbleTarget = robotObj, guideHinted = false; // the bubble sits over whichever robot is speaking
   let downAt = null, hopping = false, hopRun = 0, suppressTap = false;
   function positionRobotBubble() {
     if (!robotBubble || robotBubble.hidden) return;
-    robotObj.updateWorldMatrix(true, true);
-    const bounds = new THREE.Box3().setFromObject(robotObj);
+    bubbleTarget.updateWorldMatrix(true, true);
+    const bounds = new THREE.Box3().setFromObject(bubbleTarget);
     const head = new THREE.Vector3((bounds.min.x + bounds.max.x) / 2, bounds.max.y, (bounds.min.z + bounds.max.z) / 2);
     head.project(camera);
     const rect = stage.getBoundingClientRect();
@@ -1995,7 +2009,14 @@ export async function start({ stage, panel, lang, onReady }) {
     robotBubble.style.left = `${left}px`;
     robotBubble.style.top = `${top}px`;
   }
+  function showGuideLine() {
+    bubbleTarget = guidePivot; robotBubble.textContent = GUIDE_LINE[state.lang]; robotBubble.hidden = false;
+    clearTimeout(robotBubbleTimer); clearTimeout(robotTurnTimer);
+    robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; bubbleTarget = robotObj; }, 4200);
+    render();
+  }
   function showRobotMood(mood) {
+    bubbleTarget = robotObj;
     robotBubble.textContent = ROBOT_MOOD_LINES[mood][state.lang];
     robotBubble.hidden = false;
     clearTimeout(robotBubbleTimer);
@@ -2045,20 +2066,23 @@ export async function start({ stage, panel, lang, onReady }) {
     const r = renderer.domElement.getBoundingClientRect();
     tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(tap, camera);
-    if (!ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) void openPortal(); return; } // tapping the door opens the portal
+    const hitGuide = ray.intersectObject(guidePivot, true).length > 0;
+    if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) void openPortal(); return; } // tapping the door opens the portal
+    const pivot = hitGuide ? guidePivot : robotPivot, home = hitGuide ? guideHome : robotHome;
     hopping = true;
     const hop = ++hopRun;
-    const look = Math.atan2(camera.position.x - robotPivot.position.x, camera.position.z - robotPivot.position.z); // the robot faces +z
+    if (hitGuide) showGuideLine();
+    const look = Math.atan2(camera.position.x - pivot.position.x, camera.position.z - pivot.position.z); // the robot faces +z
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now(), T = 1400;
     const step = (now) => {
       if (hop !== hopRun) return;
       const k = Math.min(1, (now - t0) / T);
       const turn = k < .3 ? k / .3 : k < .75 ? 1 : 1 - (k - .75) / .25; // turn to you, hold, turn back
       const ease = turn * turn * (3 - 2 * turn);
-      robotPivot.rotation.y = robotHome.r + (look - robotHome.r) * ease;
-      robotPivot.position.y = robotHome.y + (reduce ? 0 : Math.max(0, Math.sin(Math.min(1, k / .3) * Math.PI)) * .09);
+      pivot.rotation.y = home.r + (look - home.r) * ease;
+      pivot.position.y = home.y + (reduce ? 0 : Math.max(0, Math.sin(Math.min(1, k / .3) * Math.PI)) * .09);
       render();
-      if (k < 1) requestAnimationFrame(step); else { robotPivot.position.y = robotHome.y; robotPivot.rotation.y = robotHome.r; hopping = false; render(); }
+      if (k < 1) requestAnimationFrame(step); else { pivot.position.y = home.y; pivot.rotation.y = home.r; hopping = false; render(); }
     };
     requestAnimationFrame(step);
   });
@@ -2068,7 +2092,7 @@ export async function start({ stage, panel, lang, onReady }) {
   controls.addEventListener("change", () => {
     const offset = camera.position.clone().sub(orbitCenter);
     viewTheta = Math.atan2(offset.x, offset.z);
-    if (Math.sin(viewTheta) < -.45) { void loadDoorTexture(); void loadRightWallArt(); } // turning toward the right-hand wall
+    if (Math.sin(viewTheta) < -.45) { void loadDoorTexture(); void loadRightWallArt(); if (!guideHinted && !intro && !director && !still && robotBubble.hidden) { guideHinted = true; showGuideLine(); } } // turning toward the right-hand wall: the door robot says what is behind the door, once
     const toWindow = Math.abs(Math.atan2(Math.sin(viewTheta), Math.cos(viewTheta)));
     const toTv = Math.abs(Math.atan2(Math.sin(viewTheta - Math.PI), Math.cos(viewTheta - Math.PI)));
     currentView = toTv < toWindow ? "tv" : "window";
@@ -2606,16 +2630,18 @@ export async function start({ stage, panel, lang, onReady }) {
   if (!still) setTimeout(startRobotTurn, 500);
   onReady?.();
   return {
-    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.textContent = ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
+    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
+    guideRobot() { scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(guidePivot), c = b.getCenter(new THREE.Vector3()).project(camera); return { min: b.min.toArray(), max: b.max.toArray(), ndc: { x: c.x, y: c.y, z: c.z }, bubble: !robotBubble.hidden && bubbleTarget === guidePivot, phrase: robotBubble.textContent }; }, // local QA only
+    faceDoorWall() { viewTheta = -Math.PI / 2; camera.position.copy(cameraAt(viewTheta)); camera.lookAt(controls.target); controls.update(); render(); }, // local QA only
     openPortal, closePortal,
     doorNdc() { camera.updateMatrixWorld(); const v = new THREE.Vector3(W / 2, 1.0, doorZ - .1).project(camera); return { x: v.x, y: v.y, z: v.z }; }, // local QA only
     portal: () => ({ open: doorSwing.rotation.y, openMax: DOOR_OPEN, active: !!portal, fadeShown: !!portalFade, glow: !!doorReveal.material.emissiveMap }),
     doorSwingBounds() { // local QA only: the open leaf (and handle) against the furniture near the door
       scene.updateMatrixWorld(true);
       const swing = new THREE.Box3().setFromObject(doorSwing);
-      const near = { sofa: sofaObj, sideTable: tableObj, tableLamp: tableLampObj, floorLamp: lampObj, coffee: coffeeObj, plant: plantObj, chair: chairObj, robot: robotObj };
+      const near = { sofa: sofaObj, sideTable: tableObj, tableLamp: tableLampObj, floorLamp: lampObj, coffee: coffeeObj, plant: plantObj, chair: chairObj, robot: robotObj, doorRobot: guidePivot };
       return { swing: { min: swing.min.toArray(), max: swing.max.toArray() }, hits: Object.entries(near).filter(([, o]) => new THREE.Box3().setFromObject(o).intersectsBox(swing)).map(([n]) => n) };
     },
     scheduleTvWallTextures() {
