@@ -88,6 +88,8 @@ export async function start({ stage, lang = "zh" }) {
     }, undefined, () => { painted[file] = false; });
     return t;
   };
+  const ceil = { sprite: null, glow: null }; // the painted ceiling lamp and its pool of light
+  const CEILING_TINT = { focus: 1, weekend: .72, night: .32, sunday: .5 }, CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2 };
   const live = { mood: "focus" }; // the current mood, readable before the moods block exists
   const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8 };
   const chosen = { wall: "sage", rug: "modern", window: "roller", bedding: "stone", posters: "C", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
@@ -270,6 +272,7 @@ export async function start({ stage, lang = "zh" }) {
     fgMat.map = t; fgMat.color.setScalar(fgTex[skyTime] ? 1 : .38); fgMat.needsUpdate = true; fg.visible = true; redraw();
   };
   art("room02-window-foreground-day-v1.webp", { apply: (t) => { fgTex.day = t; updateForeground(); } });
+  art("room02-window-foreground-night-v1.webp", { apply: (t) => { fgTex.night = t; updateForeground(); } }); // the same railing and plants, in blue night light
   async function setTime(time) {
     const t = await loadSky(time);
     if (!t) return false;
@@ -478,7 +481,7 @@ export async function start({ stage, lang = "zh" }) {
   const sprites = []; // camera-facing cut-outs (unlit, so their brightness is set per mood)
   deskSets.coffee.children.forEach((m) => { if (/^coffee-(body|top|tray|group|handle|gauge)$/.test(m.name)) coffeeParts.push(m); });
   art("room02-coffee-machine-v1.webp", { apply: (t) => {
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true })); sp.name = "coffee-sprite";
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, alphaTest: .03, depthWrite: false })); sp.name = "coffee-sprite";
     sp.center.set(.5, 0); sp.scale.set(.27, .3, 1); sp.position.set(.56, .751, -.12); deskSets.coffee.add(sp); sprites.push(sp);
     coffeeParts.forEach((m) => { m.visible = false; });
     sp.material.color.setScalar(SPRITE_TINT[live.mood] ?? 1); redraw();
@@ -565,6 +568,15 @@ export async function start({ stage, lang = "zh" }) {
   tp(rb(.265, .004, .29), consoleTop, "game-console-top", .295, .17 + .053 + .002, -.02);
   tp(box(.1, .003, .002), new THREE.MeshStandardMaterial({ color: "#4aa8ff", emissive: "#4aa8ff", emissiveIntensity: 1.4 }), "game-console-light", .295, .17 + .053 + .0045, .125);
   const pad = tp(rb(.15, .026, .09), new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), "game-pad", .295, .17 + .053 + .004 + .013, .02); pad.rotation.y = .4;
+  // Codex's painted top of the console (a thin diagonal seam and a blue edge line) and of the pad, laid as flat skins on the 3D shapes
+  const skin = (w, d, y, x, z, rotZ, file, name, bodyToHide) => {
+    const mat = new THREE.MeshBasicMaterial({ transparent: true, alphaTest: .05, toneMapped: false });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat); m.name = name; m.rotation.set(-Math.PI / 2, 0, rotZ); m.position.set(x, y, z); m.visible = false; tv.add(m);
+    art(file, { apply: (t) => { mat.map = t; mat.needsUpdate = true; m.visible = true; if (bodyToHide) bodyToHide.visible = false; mat.color.setScalar(.8); redraw(); } });
+    return m;
+  };
+  skin(.265, .29, .17 + .053 + .0042, .295, -.02, 0, "room02-console-top-v1.webp", "game-console-skin", null);
+  skin(.19, .19, .17 + .053 + .004 + .0275, .295, .02, .4, "room02-controller-top-v1.webp", "game-pad-skin", pad);
   tp(box(.3, .012, .2), blackMat, "tv-foot", 0, .456, 0);
   tp(rb(.95, .55, .035), blackMat, "tv-panel", 0, .75, 0); // 47 cm to 102 cm
   const screenFace = new THREE.Mesh(new THREE.PlaneGeometry(.92, .52), tvScreen); screenFace.name = "tv-screen"; screenFace.position.set(0, .75, .0185); tv.add(screenFace);
@@ -696,6 +708,18 @@ export async function start({ stage, lang = "zh" }) {
   plate(.086, .086, -HW + .005, .3, 1.62, Math.PI / 2, "socket-tv");
   // a flush round ceiling light (glows softly; the room light itself is still the fill light)
   add(new THREE.CylinderGeometry(.2, .22, .06, 28), new THREE.MeshStandardMaterial({ color: "#fbf8f1", emissive: "#fff3dc", emissiveIntensity: .35, roughness: .6 }), "ceiling-light", 0, ROOM.h - .03, .2, { shadow: false });
+  // Codex's painted ceiling lamp (a thin round LED, seen from below at an angle) stands in for the plain disc, and a soft warm pool of
+  // light is laid on the ceiling around it. The lamp is a camera-facing cut-out (the camera never leaves its corner).
+  art("room02-ceiling-light-v1.webp", { apply: (t) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, alphaTest: .03, depthWrite: false })); sp.name = "ceiling-light-art";
+    sp.scale.set(.62, .62, 1); sp.position.set(0, ROOM.h - .06, .2); root.add(sp); ceil.sprite = sp;
+    root.getObjectByName("ceiling-light").visible = false;
+    sp.material.color.setScalar(CEILING_TINT[live.mood] ?? 1); redraw();
+  } });
+  art("room02-ceiling-glow-v1.webp", { apply: (t) => {
+    const g = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4), new THREE.MeshBasicMaterial({ map: t, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, opacity: CEILING_GLOW[live.mood] ?? .5 }));
+    g.name = "ceiling-glow"; g.rotation.x = Math.PI / 2; g.position.set(0, ROOM.h - .004, .2); g.renderOrder = 1; root.add(g); ceil.glow = g; redraw();
+  } });
 
   // ---------- polish: soft reflections, contact shadows, wall corner shading, vignette ----------
   // Reflections: a tiny made-up room (warm floor, pale walls, a bright window panel) baked into an environment map, so wood, metal,
@@ -788,6 +812,8 @@ export async function start({ stage, lang = "zh" }) {
     setBlind(m.blind);
     applyEnv(name);
     for (const sp of sprites) sp.material.color.setScalar(SPRITE_TINT[name] ?? 1);
+    if (ceil.sprite) ceil.sprite.material.color.setScalar(CEILING_TINT[name] ?? 1);
+    if (ceil.glow) ceil.glow.material.opacity = CEILING_GLOW[name] ?? .5;
     render();
     return true;
   }
@@ -906,6 +932,12 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
+    batch4() { // local QA only: the ceiling, console skins and night foreground
+      const bx = (n) => { const o = root.getObjectByName(n) ?? scene.getObjectByName(n); if (!o) return null; const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
+      const lamp = ceil.sprite ? ceil.sprite.position.y : null;
+      const skin = bx("game-console-skin"), padSkin = bx("game-pad-skin"), glow = bx("ceiling-glow");
+      return { ready: !!(lamp !== null && skin && padSkin && glow && fgTex.night), lamp, glow, skin, padSkin, console: bx("game-console"), consoleTop: bx("game-console-top")?.max[1], fgNightLoaded: !!fgTex.night, fgIsNight: fgMat.map === fgTex.night };
+    },
     windowParts() { // local QA only
       const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
       const sashEl = root.getObjectByName("window-sash"), fgEl = root.getObjectByName("window-foreground");

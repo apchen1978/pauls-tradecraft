@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-window2" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-batch4" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -211,12 +211,12 @@ for (const width of [1440, 390]) {
   });
 }
 
-test("all 24 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and foreground, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
+test("all 29 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and day/night foreground, ceiling lamp and glow, console and pad skins, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
   const failed = [];
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
-  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 24, null, { timeout: 60000 });
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 29, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
@@ -303,6 +303,21 @@ test("window: the painted frame replaces the boxes, the foreground layer sits ou
   expect(w.fgBox.max[2]).toBeLessThan(-2.5); // the foreground is outside the wall
   expect(w.fgBox.min[2]).toBeGreaterThan(-3.7); // and in front of the city plane (z = -3.7)
   expect(w.fgBox.min[1]).toBeLessThan(.95); expect(w.fgBox.max[1]).toBeGreaterThan(2.2); // it covers the whole window height
+});
+
+test("ceiling lamp and its glow sit on the ceiling; the console and pad skins lie on top of their shapes; the night foreground matches the day one", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.batch4().ready, null, { timeout: 60000 });
+  const b = await page.evaluate(() => window.__bedroom.batch4());
+  expect(b.lamp).toBeGreaterThan(2.4); expect(b.lamp).toBeLessThan(2.6); // its centre is just under the ceiling (the ceiling hides the half above it)
+  expect(b.glow.min[1]).toBeGreaterThan(2.59); expect(b.glow.max[1]).toBeLessThan(2.61); // a flat sheet under the ceiling
+  expect(b.skin.min[1]).toBeGreaterThan(b.consoleTop - .002); expect(b.skin.max[1]).toBeLessThan(b.consoleTop + .01); // on the console's top plate
+  expect(b.skin.min[0]).toBeGreaterThan(b.console.min[0] - .01); expect(b.skin.max[0]).toBeLessThan(b.console.max[0] + .01); // not wider than the console
+  expect(b.padSkin.min[1]).toBeGreaterThan(b.consoleTop); // the pad lies above the console
+  expect(b.fgNightLoaded).toBe(true);
+  expect(await page.evaluate(() => window.__bedroom.setTime("night"))).toBe(true);
+  const n = await page.evaluate(() => window.__bedroom.batch4());
+  expect(n.fgIsNight).toBe(true);
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {
