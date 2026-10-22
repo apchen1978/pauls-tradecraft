@@ -250,6 +250,13 @@ export async function start({ stage, panel, lang, onReady }) {
   doorPiece(new THREE.CylinderGeometry(.009, .009, .035, 10), doorBrass, .34, 1.0, .048, "door-handle-stem").rotation.x = Math.PI / 2;
   doorPiece(new THREE.CylinderGeometry(.009, .009, .125, 12), doorBrass, .287, 1.0, .065, "door-handle").rotation.z = Math.PI / 2;
   [.35, 1.7].forEach((y) => doorPiece(new THREE.CylinderGeometry(.008, .008, .065, 8), doorBrass, -.448, y, .025, "door-hinge"));
+  // The portal to Room 02: the leaf and handle sit on a pivot at the hinge edge so the door can swing into the room.
+  // At rest the pivot is turned 0 and every world position is exactly what it was before.
+  const doorSwing = new THREE.Group(); doorSwing.name = "door-swing"; doorSwing.position.set(-.443, 0, 0); roomDoor.add(doorSwing);
+  roomDoor.updateMatrixWorld(true);
+  for (const m of [doorLeaf, ...["door-handle-plate", "door-handle-stem", "door-handle"].map((n) => roomDoor.getObjectByName(n))]) doorSwing.attach(m);
+  const doorReveal = roomDoor.getObjectByName("door-reveal");
+  const DOOR_OPEN = .95; // about 54 degrees: wide enough to see through, and clear of the sofa, side table and plant (a test measures it)
   let doorTexturePromise = null, doorTextureLoaded = false;
   function loadDoorTexture() {
     if (doorTexturePromise) return doorTexturePromise;
@@ -1892,6 +1899,84 @@ export async function start({ stage, panel, lang, onReady }) {
     };
     run.frame = requestAnimationFrame(step);
   }
+  // ---- portal: push the door open and walk into Room 02 ----
+  // Tap the door (or use the "Room 02" button under the room). The door swings into the room, light from the other side spills out,
+  // the camera walks to the doorway and the screen fades to Room 02's night colour before the next page opens. With reduced motion
+  // the page simply opens. Coming back with the browser's back button closes the door again.
+  // What the doorway shows: a small painted glimpse of Room 02 at night (violet strip glow, a lit window of city lights, a warm lamp).
+  const glowTex = (() => {
+    const c = document.createElement("canvas"); c.width = 128; c.height = 256; const g = c.getContext("2d");
+    let k = g.createLinearGradient(0, 0, 0, 256); k.addColorStop(0, "#2a2358"); k.addColorStop(.6, "#4a3466"); k.addColorStop(1, "#6a4a40"); g.fillStyle = k; g.fillRect(0, 0, 128, 256);
+    k = g.createLinearGradient(0, 200, 0, 256); k.addColorStop(0, "#7a5638"); k.addColorStop(1, "#a07848"); g.fillStyle = k; g.fillRect(0, 200, 128, 56); // floorboards
+    k = g.createLinearGradient(0, 60, 0, 150); k.addColorStop(0, "#1c2262"); k.addColorStop(1, "#5a56c8"); g.fillStyle = k; g.fillRect(34, 60, 60, 90); // the window at night
+    g.fillStyle = "#141a46"; for (let i = 0; i < 7; i++) g.fillRect(36 + i * 8, 150 - (28 + (i * 37) % 34), 7, 28 + (i * 37) % 34);
+    g.fillStyle = "#ffd98a"; for (let i = 0; i < 40; i++) g.fillRect(37 + (i * 13) % 56, 152 - (i * 29) % 56, 2, 2);
+    g.fillStyle = "#e9e4da"; g.fillRect(32, 58, 64, 3); g.fillRect(32, 150, 64, 3); g.fillRect(32, 58, 3, 95); g.fillRect(93, 58, 3, 95); g.fillRect(62, 58, 3, 95); // frame and mullion
+    k = g.createRadialGradient(12, 130, 2, 12, 130, 70); k.addColorStop(0, "rgba(160,130,255,.85)"); k.addColorStop(1, "rgba(160,130,255,0)"); g.fillStyle = k; g.fillRect(0, 40, 128, 200); // violet strip glow on the left
+    k = g.createRadialGradient(108, 178, 1, 108, 178, 46); k.addColorStop(0, "rgba(255,200,120,.95)"); k.addColorStop(1, "rgba(255,200,120,0)"); g.fillStyle = k; g.fillRect(40, 120, 88, 110); // the bedside lamp
+    g.fillStyle = "#f4e6c8"; g.fillRect(103, 168, 10, 9); g.fillStyle = "#5a4630"; g.fillRect(100, 182, 16, 30); // lamp shade and the table
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })();
+  const revealBase = { color: doorReveal.material.color.clone(), emissive: doorReveal.material.emissive.clone(), emissiveIntensity: doorReveal.material.emissiveIntensity };
+  let portal = null, portalFade = null;
+  const setDoorOpen = (k) => { // k: 0 closed .. 1 open
+    doorSwing.rotation.y = -DOOR_OPEN * k;
+    const lit = Math.min(1, k * 1.6);
+    doorReveal.material.color.copy(revealBase.color).lerp(new THREE.Color("#000000"), lit);
+    doorReveal.material.emissive.set("#ffffff"); doorReveal.material.emissiveMap = lit > 0 ? glowTex : null;
+    doorReveal.material.emissiveIntensity = lit * 1.0; doorReveal.material.needsUpdate = true;
+  };
+  function closePortal() {
+    if (!portal) return;
+    portal.cancel = true;
+    cancelAnimationFrame(portal.frame);
+    portalFade?.remove(); portalFade = null;
+    setDoorOpen(0);
+    camera.position.copy(portal.from.position); camera.quaternion.copy(portal.from.quaternion);
+    controls.target.copy(orbitCenter); controls.enabled = true; controls.update(); portal = null; render();
+  }
+  function openPortal({ go = true } = {}) {
+    if (portal || director || directorPreparing) return Promise.resolve(false);
+    const url = new URL("bedroom/", location.href); url.searchParams.set("lang", state.lang); url.searchParams.set("from", "room01");
+    if (still) { if (go) location.assign(url.href); else setDoorOpen(1); return Promise.resolve(true); }
+    viewMoveToken++; controls.enabled = false;
+    portal = { from: { position: camera.position.clone(), quaternion: camera.quaternion.clone() }, cancel: false, frame: 0 };
+    const start = camera.position.clone(), doorMid = new THREE.Vector3(W / 2, 1.1, doorZ);
+    const stand = new THREE.Vector3(W / 2 - 2.1, 1.38, doorZ), inside = new THREE.Vector3(W / 2 - 1.15, 1.38, doorZ);
+    const startQ = camera.quaternion.clone(), endQ = new THREE.Quaternion();
+    { const m = new THREE.Matrix4().lookAt(stand, doorMid, new THREE.Vector3(0, 1, 0)); endQ.setFromRotationMatrix(m); }
+    const ease = (k) => k * k * (3 - 2 * k), seg = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));
+    const t0 = performance.now(), TOTAL = 3200;
+    return new Promise((resolve) => {
+      const step = (now) => {
+        if (!portal || portal.cancel) { resolve(false); return; }
+        const t = now - t0;
+        setDoorOpen(ease(seg(t, 500, 1700)));
+        const walk = ease(seg(t, 0, 1400)), push = ease(seg(t, 1800, 2800));
+        camera.position.copy(start).lerp(stand, walk).lerp(inside, push);
+        camera.quaternion.copy(startQ).slerp(endQ, walk);
+        if (t > 2400 && go && !portalFade) {
+          portalFade = Object.assign(document.createElement("div"), { className: "portal-fade", "aria-hidden": "true" });
+          Object.assign(portalFade.style, { position: "fixed", inset: "0", zIndex: "60", background: "radial-gradient(ellipse at 50% 55%, #6b5bd8 0%, #2a2150 55%, #0e0c20 100%)", opacity: "0", transition: "opacity .65s ease" });
+          document.body.append(portalFade); requestAnimationFrame(() => { if (portalFade) portalFade.style.opacity = "1"; });
+        }
+        render();
+        if (t < TOTAL) { portal.frame = requestAnimationFrame(step); return; }
+        if (go) location.assign(url.href); // the overlay stays up while the next page loads; closePortal() clears it if the visitor comes back
+        resolve(true);
+      };
+      portal.frame = requestAnimationFrame(step);
+    });
+  }
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && portal && !portalFade) closePortal(); }); // Esc steps back before the fade starts
+  window.addEventListener("pageshow", (e) => { if (e.persisted) closePortal(); }); // back/forward cache: the door closes again
+  renderer.domElement.addEventListener("pointermove", (e) => {
+    if (e.buttons || portal) return;
+    const r = renderer.domElement.getBoundingClientRect();
+    tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(tap, camera);
+    renderer.domElement.style.cursor = ray.intersectObject(roomDoor, true).length ? "pointer" : "";
+  });
   // a quiet easter egg: tap the little robot and it hops, turns to look at you, then turns back.
   // Only a tap counts (a drag to turn the room does not); with reduced motion it just turns to look.
   const ray = new THREE.Raycaster(), tap = new THREE.Vector2(), robotHome = { y: robotPivot.position.y, r: robotPivot.rotation.y };
@@ -1960,7 +2045,7 @@ export async function start({ stage, panel, lang, onReady }) {
     const r = renderer.domElement.getBoundingClientRect();
     tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(tap, camera);
-    if (!ray.intersectObject(robotObj, true).length) return;
+    if (!ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) void openPortal(); return; } // tapping the door opens the portal
     hopping = true;
     const hop = ++hopRun;
     const look = Math.atan2(camera.position.x - robotPivot.position.x, camera.position.z - robotPivot.position.z); // the robot faces +z
@@ -2524,6 +2609,15 @@ export async function start({ stage, panel, lang, onReady }) {
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.textContent = ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
+    openPortal, closePortal,
+    doorNdc() { camera.updateMatrixWorld(); const v = new THREE.Vector3(W / 2, 1.0, doorZ - .1).project(camera); return { x: v.x, y: v.y, z: v.z }; }, // local QA only
+    portal: () => ({ open: doorSwing.rotation.y, openMax: DOOR_OPEN, active: !!portal, fadeShown: !!portalFade, glow: !!doorReveal.material.emissiveMap }),
+    doorSwingBounds() { // local QA only: the open leaf (and handle) against the furniture near the door
+      scene.updateMatrixWorld(true);
+      const swing = new THREE.Box3().setFromObject(doorSwing);
+      const near = { sofa: sofaObj, sideTable: tableObj, tableLamp: tableLampObj, floorLamp: lampObj, coffee: coffeeObj, plant: plantObj, chair: chairObj, robot: robotObj };
+      return { swing: { min: swing.min.toArray(), max: swing.max.toArray() }, hits: Object.entries(near).filter(([, o]) => new THREE.Box3().setFromObject(o).intersectsBox(swing)).map(([n]) => n) };
+    },
     scheduleTvWallTextures() {
       const loadWallMaterials = () => { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); void loadLeftWallArt(); };
       const loadWhenIdle = () => {

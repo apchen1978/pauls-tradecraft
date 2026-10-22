@@ -42,6 +42,7 @@ const COPY = {
   },
 };
 const $ = (id) => document.getElementById(id);
+const arrivedFromRoom01 = new URLSearchParams(location.search).get("from") === "room01"; // came through the door in Room 01
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 let room = null, mood = "focus";
 const picked = { posters: "C", wall: "oat", rug: "stripe", window: "roller", bedding: "stone" };
@@ -85,13 +86,16 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=15");
+    const { start } = await import("./bedroom.js?v=16");
     room = await start({ stage: $("stage"), lang });
     $("status").hidden = true; $("moods").hidden = false; $("swaps").hidden = false;
     window.__bedroom = room; // test hook
+    if (arrivedFromRoom01) { document.documentElement.classList.add("ready"); await room.arrive(); } // the dark cover lifts as the walk-in begins
   } catch (e) {
     console.error(e);
+    document.documentElement.classList.add("ready");
     $("poster").hidden = false; $("status").textContent = COPY[lang].failed;
   }
 };
 text();
+if (arrivedFromRoom01) $("enter").click(); // they already chose to come in
