@@ -443,10 +443,6 @@ const dict = {
       startLabel: "不知道選哪個？",
       startCta: "從《街角的秘密》開始",
       startHref: "/prototype/secrets-on-the-corner/",
-      roomsLead: "或來我們的",
-      roomsCta: "rooms",
-      roomsTail: "裡坐坐。",
-      roomsHref: "/prototype/roomverse-3d/",
       items: [
         {
           title: "ROOMVERSE 3D · 空間幻境",
@@ -462,6 +458,25 @@ const dict = {
           imageHeight: 1020,
           imageRatio: "4 / 5",
           objectPosition: "center",
+          rooms: [
+            {
+              no: "Room 01", name: "客廳",
+              desc: "暖光裡的沙發、窗和牌匾。換牆面、地毯與窗簾，看光怎麼改變一個房間。",
+              cta: "走進客廳", href: "/prototype/roomverse-3d/",
+              image: "/prototype/roomverse-3d/showcase-roomverse-3d-v1.webp",
+              imageAlt: "一扇窗裡同時有雨、夕陽和城市夜景：米白沙發配綠色與陶土色抱枕，橡木茶几上一本書，兩盞燈亮著，地上落著窗形的光",
+              imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
+            },
+            {
+              no: "Room 02", name: "都市青年Style",
+              desc: "一個人住的套房：睡覺、工作、打電動、窩沙發。四種感覺、十五組可以換的搭配。",
+              cta: "走進套房", href: "/prototype/roomverse-3d/bedroom/",
+              image: "/prototype/roomverse-3d/showcase-roomverse-3d-room02-v1.webp",
+              imageAlt: "深夜的套房一角：弧形帶魚屏和紫色燈條，窗外城市亮著燈，布面床頭的單人床，籃球海報，桌邊一台黑膠唱盤",
+              imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
+            },
+          ],
+          roomsNote: "目前開放兩間房，更多房間陸續打開。",
         },
         {
           title: "貿易街 · 一櫃貨出海",
@@ -1378,10 +1393,6 @@ const dict = {
       startLabel: "Not sure where to start?",
       startCta: "Try Secrets on the Corner",
       startHref: "/prototype/secrets-on-the-corner/",
-      roomsLead: "Or come sit a while in our",
-      roomsCta: "rooms",
-      roomsTail: ".",
-      roomsHref: "/prototype/roomverse-3d/",
       items: [
         {
           title: "ROOMVERSE 3D · One room, many ways to come home",
@@ -1397,6 +1408,25 @@ const dict = {
           imageHeight: 1020,
           imageRatio: "4 / 5",
           objectPosition: "center",
+          rooms: [
+            {
+              no: "Room 01", name: "Living Room",
+              desc: "A sofa, a window and a plaque in warm light. Change the walls, rug and curtains and watch the light change the room.",
+              cta: "Step into the living room", href: "/prototype/roomverse-3d/",
+              image: "/prototype/roomverse-3d/showcase-roomverse-3d-v1.webp",
+              imageAlt: "One window holds rain, a sunset and a city night: a cream sofa with green and terracotta cushions, a book on the oak coffee table, two lamps lit, window-shaped light on the floor",
+              imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
+            },
+            {
+              no: "Room 02", name: "Urban Youth Style",
+              desc: "A studio for one: sleeping, working, gaming and sofa time. Four moods and fifteen things to swap.",
+              cta: "Step into the studio", href: "/prototype/roomverse-3d/bedroom/",
+              image: "/prototype/roomverse-3d/showcase-roomverse-3d-room02-v1.webp",
+              imageAlt: "A studio at night: a curved ultrawide screen and a violet light strip, a lit city outside the window, a single bed with a fabric headboard, a basketball poster and a record player beside the desk",
+              imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
+            },
+          ],
+          roomsNote: "Two rooms are open for now; more will open.",
         },
         {
           title: "Trade Street · One Container Ships",
