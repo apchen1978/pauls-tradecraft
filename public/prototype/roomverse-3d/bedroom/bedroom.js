@@ -70,6 +70,9 @@ function softBox(w, h, d, r) {
   return g;
 }
 
+// Furniture edges: a hero piece gets a small rounded edge (radius capped by its thinnest side) so light rolls off it like a real object.
+const rb = (w, h, d) => softBox(w, h, d, Math.min(.012, w / 4, h / 4, d / 4));
+
 export async function start({ stage, lang = "zh" }) {
   const compact = matchMedia("(max-width: 600px)").matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -211,7 +214,14 @@ export async function start({ stage, lang = "zh" }) {
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
   const BED = { x: 1.4, z: -1.46, w: 1.1, l: 2.0, top: .48 };
-  const oak = new THREE.MeshStandardMaterial({ color: "#b8895a", roughness: .66 });
+  const woodTex = (base, dark, light) => canvasTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 140; i++) { const y = (i * 53) % h, a = .05 + (i % 6) * .018; ctx.strokeStyle = (i % 3 ? dark : light).replace("A", a.toFixed(3)); ctx.lineWidth = .8 + (i % 4) * .5;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.bezierCurveTo(w * .3, y + ((i * 7) % 9) - 4, w * .65, y + ((i * 11) % 9) - 4, w, y + ((i * 5) % 7) - 3); ctx.stroke(); }
+    for (let i = 0; i < 6; i++) { ctx.fillStyle = "rgba(60,38,20,.10)"; ctx.beginPath(); ctx.ellipse((i * 97) % w, (i * 61) % h, 14, 4, 0, 0, 7); ctx.fill(); } // a few knots and cathedral marks
+  });
+  const woodMat = (base, { rough = .62 } = {}) => { const t = woodTex(base, "rgba(70,42,20,A)", "rgba(255,235,200,A)"); return new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: .6, roughness: rough }); };
+  const oak = woodMat("#b8895a", { rough: .66 });
   const sheetMat = new THREE.MeshStandardMaterial({ color: "#ece4d4", roughness: .95 });
   const duvetMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#d9d4ca", "#b9b2a3"), roughness: 1 });
   const throwMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#4b5059", "#33373d"), roughness: 1 });
@@ -225,17 +235,17 @@ export async function start({ stage, lang = "zh" }) {
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
     part(box(.05, .12, .05), oak, "bed-leg", BED.x + dx * (BED.w / 2 - .02), .06, BED.z + dz * (BED.l / 2 - .03));
   }
-  part(box(BED.w + .02, .14, BED.l + .02), oak, "bed-frame", BED.x, .19, BED.z); // 12 cm to 26 cm
+  part(rb(BED.w + .02, .14, BED.l + .02), oak, "bed-frame", BED.x, .19, BED.z); // 12 cm to 26 cm
   part(softBox(BED.w, .22, BED.l - .02, .03), sheetMat, "bed-mattress", BED.x, .26 + .11, BED.z); // top at 48 cm
-  part(box(BED.w + .08, .82, .035), oak, "bed-headboard", BED.x, .6, north - .0225); // 19 cm to 101 cm, against the wall
+  part(rb(BED.w + .08, .82, .035), oak, "bed-headboard", BED.x, .6, north - .0225); // 19 cm to 101 cm, against the wall
   part(softBox(BED.w - .04, .09, 1.32, .05), duvetMat, "bed-duvet", BED.x, BED.top + .045, BED.z + .3); // foot to mid-bed
   part(softBox(BED.w - .02, .07, .34, .04), throwMat, "bed-throw", BED.x, BED.top + .1, BED.z + .62); // folded charcoal blanket across the foot (plain, no stripes: a modern, quiet look)
   part(softBox(.7, .13, .45, .06), pillowMat, "bed-pillow", BED.x, BED.top + .065, north + .36);
   part(softBox(.45, .12, .3, .05), cushionMat, "bed-cushion", BED.x, BED.top + .19, north + .22).rotation.x = -.28;
   // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
-  part(box(.4, .02, .4), oak, "bedside-top", tx, .44, tz);
-  part(box(.36, .3, .36), oak, "bedside-body", tx, .28, tz);
+  part(rb(.4, .02, .4), oak, "bedside-top", tx, .44, tz);
+  part(rb(.36, .3, .36), oak, "bedside-body", tx, .28, tz);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) part(box(.03, .13, .03), oak, "bedside-leg", tx + dx * .17, .065, tz + dz * .17);
   part(new THREE.CylinderGeometry(.06, .07, .02, 16), metalMat, "lamp-base", tx, .46, tz);
   part(new THREE.CylinderGeometry(.012, .012, .2, 8), metalMat, "lamp-stem", tx, .56, tz);
@@ -244,7 +254,7 @@ export async function start({ stage, lang = "zh" }) {
   // ---------- work / game zone: desk along the west wall, ultrawide monitor, console, gaming chair ----------
   // Real sizes: desk 140 x 65 cm, top at 75 cm; 34-inch ultrawide panel 80 x 34 cm; chair seat at 48 cm. Built facing +z and turned so the
   // monitor looks east into the room. No logos or text anywhere; the screen is an abstract night-city game scene.
-  const deskMat = new THREE.MeshStandardMaterial({ color: "#c9a77c", roughness: .6 });
+  const deskMat = woodMat("#c9a77c");
   const blackMat = new THREE.MeshStandardMaterial({ color: "#23262b", roughness: .45, metalness: .25 });
   const softBlack = new THREE.MeshStandardMaterial({ color: "#2d3036", roughness: .9 });
   const accentMat = new THREE.MeshStandardMaterial({ color: "#6e5bd6", roughness: .8 });
@@ -263,13 +273,13 @@ export async function start({ stage, lang = "zh" }) {
   const hold = (parent) => (geo, mat, name, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; parent.add(m); return m; };
   const desk = new THREE.Group(); desk.name = "desk"; desk.position.set(-HW + .325, 0, -1.75); desk.rotation.y = Math.PI / 2; root.add(desk);
   const dpart = hold(desk);
-  dpart(box(1.4, .03, .65), deskMat, "desk-top", 0, .735, 0); // top face at 75 cm
+  dpart(rb(1.4, .03, .65), deskMat, "desk-top", 0, .735, 0); // top face at 75 cm
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) dpart(box(.04, .72, .04), blackMat, "desk-leg", dx * .66, .36, dz * .29);
   dpart(box(1.3, .03, .04), blackMat, "desk-rail", 0, .6, -.29);
   dpart(softBox(.82, .004, .32, .02), softBlack, "desk-mat", 0, .752, .12);
   dpart(box(.26, .01, .18), blackMat, "monitor-foot", 0, .755, -.1);
   dpart(box(.05, .2, .02), blackMat, "monitor-neck", 0, .86, -.16);
-  dpart(box(.8, .34, .025), blackMat, "monitor-panel", 0, 1.05, -.15);
+  dpart(rb(.8, .34, .025), blackMat, "monitor-panel", 0, 1.05, -.15);
   const screen = new THREE.Mesh(new THREE.PlaneGeometry(.77, .31), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }));
   screen.name = "monitor-screen"; screen.position.set(0, 1.05, -.15 + .0135); desk.add(screen);
   dpart(box(.42, .018, .13), new THREE.MeshStandardMaterial({ map: keysTex, roughness: .6 }), "keyboard", -.02, .765, .16);
@@ -293,7 +303,7 @@ export async function start({ stage, lang = "zh" }) {
   const head = cpart(softBox(.26, .08, .16, .04), accentMat, "chair-headrest", 0, 1.19, -.3); head.rotation.x = Math.PI / 2 + .12;
   for (const sx of [-1, 1]) {
     cpart(box(.04, .22, .04), blackMat, "chair-arm-post", sx * .29, .56, -.02);
-    cpart(box(.06, .025, .26), blackMat, "chair-arm", sx * .29, .68, .02);
+    cpart(rb(.06, .025, .26), blackMat, "chair-arm", sx * .29, .68, .02);
   }
   cpart(new THREE.CylinderGeometry(.035, .035, .26, 10), metalMat, "chair-lift", 0, .27, 0);
   for (let i = 0; i < 5; i++) {
@@ -314,24 +324,24 @@ export async function start({ stage, lang = "zh" }) {
   const sofa = await loadSofa({ width: 1.6, tint: "#9db0c2" }); sofa.name = "sofa"; sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
   const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.3, 0, .9); ct.rotation.y = Math.PI / 2; root.add(ct);
   const cp = hold(ct);
-  cp(box(.9, .04, .5), oak, "coffee-table-top", 0, .38, 0);
+  cp(rb(.9, .04, .5), oak, "coffee-table-top", 0, .38, 0);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) cp(box(.04, .36, .04), blackMat, "coffee-table-leg", dx * .4, .18, dz * .21);
   cp(box(.24, .035, .18), pillowB, "coffee-table-book", -.2, .4175, .04); cp(box(.2, .03, .15), accentMat, "coffee-table-book", -.2, .45, .04);
   cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .22, .445, -.06);
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
   const tp = hold(tv);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
-  tp(box(1.2, .3, .36), oak, "tv-console", 0, .3, 0); // top at 45 cm
+  tp(rb(1.2, .3, .36), oak, "tv-console", 0, .3, 0); // top at 45 cm
   for (const sx of [-1, 1]) tp(box(.58, .24, .01), deskMat, "tv-console-door", sx * .295, .3, .185);
   tp(box(.3, .012, .2), blackMat, "tv-foot", 0, .456, 0);
-  tp(box(.95, .55, .035), blackMat, "tv-panel", 0, .75, 0); // 47 cm to 102 cm
+  tp(rb(.95, .55, .035), blackMat, "tv-panel", 0, .75, 0); // 47 cm to 102 cm
   const screenFace = new THREE.Mesh(new THREE.PlaneGeometry(.92, .52), tvScreen); screenFace.name = "tv-screen"; screenFace.position.set(0, .75, .0185); tv.add(screenFace);
   const shelf = new THREE.Group(); shelf.name = "bookshelf"; shelf.position.set(-HW + .15, 0, 2.08); shelf.rotation.y = Math.PI / 2; root.add(shelf);
   const bp = hold(shelf);
   bp(box(.75, 1.8, .012), oak, "shelf-back", 0, .9, -.14);
-  for (const sx of [-1, 1]) bp(box(.02, 1.8, .3), oak, "shelf-side", sx * .365, .9, 0);
+  for (const sx of [-1, 1]) bp(rb(.02, 1.8, .3), oak, "shelf-side", sx * .365, .9, 0);
   const levels = [.02, .4, .78, 1.16, 1.54, 1.79];
-  for (const y of levels) bp(box(.75, .02, .3), oak, "shelf-board", 0, y, 0);
+  for (const y of levels) bp(rb(.75, .02, .3), oak, "shelf-board", 0, y, 0);
   // Books: real shelves are uneven. Spines carry bands, a title block and a small publisher mark drawn as abstract strokes (never
   // readable text); pages show cream on top and at the back; heights and depths vary, a few books lean and a few lie in a stack.
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -411,8 +421,8 @@ export async function start({ stage, lang = "zh" }) {
   const vin = new THREE.Group(); vin.name = "vinyl-corner"; vin.position.set(-.45, 0, -HD + .2); root.add(vin);
   const vp = hold(vin);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) vp(box(.035, .12, .035), blackMat, "vinyl-leg", dx * .47, .06, dz * .17);
-  vp(box(1.0, .025, .4), oak, "vinyl-top", 0, .4875, 0); // top face at 50 cm
-  vp(box(1.0, .025, .4), oak, "vinyl-bottom", 0, .1325, 0);
+  vp(rb(1.0, .025, .4), oak, "vinyl-top", 0, .4875, 0); // top face at 50 cm
+  vp(rb(1.0, .025, .4), oak, "vinyl-bottom", 0, .1325, 0);
   for (const x of [-.4875, -.25, 0, .25, .4875]) vp(box(.025, .33, .4), oak, "vinyl-divider", x, .31, 0);
   vp(box(1.0, .33, .01), oak, "vinyl-back", 0, .31, -.195);
   const sleeveCols = ["#1f2124", "#d9c9a8", "#8c3b2e", "#2f3b52", "#c9a14e", "#e9e4da", "#3e5a48", "#b2566a", "#5b6b7c", "#6a4c6e"];
@@ -504,6 +514,42 @@ export async function start({ stage, lang = "zh" }) {
   // a flush round ceiling light (glows softly; the room light itself is still the fill light)
   add(new THREE.CylinderGeometry(.2, .22, .06, 28), new THREE.MeshStandardMaterial({ color: "#fbf8f1", emissive: "#fff3dc", emissiveIntensity: .35, roughness: .6 }), "ceiling-light", 0, ROOM.h - .03, .2, { shadow: false });
 
+  // ---------- polish: soft reflections, contact shadows, wall corner shading, vignette ----------
+  // Reflections: a tiny made-up room (warm floor, pale walls, a bright window panel) baked into an environment map, so wood, metal,
+  // the monitor bezel and ceramics pick up believable highlights instead of looking like flat plastic. Intensity follows the mood.
+  { const e = new THREE.Scene();
+    const grad = canvasTex(8, 256, (ctx, w, h) => { const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#fbf6ec"); g.addColorStop(.5, "#d8d0c0"); g.addColorStop(1, "#a88c6a"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
+    e.add(new THREE.Mesh(new THREE.BoxGeometry(8, 5, 8), new THREE.MeshBasicMaterial({ map: grad, side: THREE.BackSide })));
+    const win = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.5), new THREE.MeshBasicMaterial({ color: "#ffffff" })); win.position.set(0, 0, -3.9); e.add(win);
+    const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(e, .04).texture; pm.dispose(); }
+  const envLevel = { focus: .26, weekend: .2, night: .08, sunday: .22 };
+  const applyEnv = (name) => root.traverse((o) => { if (!o.isMesh) return; for (const m of [].concat(o.material)) if (m.isMeshStandardMaterial) m.envMapIntensity = o.name.startsWith("window-") || /^(wall|floor|ceiling)/.test(o.name) ? .08 * (envLevel[name] / .26) : envLevel[name]; });
+
+  // Contact shadows: a soft dark footprint under each piece, where a real room is darkest (the renderer's shadows cannot reach there).
+  const footprintTex = canvasTex(128, 128, (ctx, w, h) => {
+    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, w, h); // alphaMap reads the green channel: white = solid, black = clear
+    ctx.fillStyle = "#fff"; ctx.shadowColor = "#fff"; ctx.shadowBlur = 20; ctx.shadowOffsetX = 1000;
+    ctx.fillRect(34 - 1000, 34, 60, 60);
+  });
+  const footprintMat = (op) => new THREE.MeshBasicMaterial({ color: "#1c1510", alphaMap: footprintTex, transparent: true, opacity: op, depthWrite: false, toneMapped: false });
+  for (const [name, op, grow] of [["bed", .5, .1], ["desk", .32, .06], ["chair", .4, .06], ["vinyl-corner", .45, .06], ["sofa", .55, .12], ["coffee-table", .32, .06], ["tv-unit", .5, .07], ["bookshelf", .5, .07], ["floor-plant", .5, .06]]) {
+    const o = root.getObjectByName(name); if (!o) continue;
+    const b = new THREE.Box3().setFromObject(o);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2), footprintMat(op));
+    m.name = "contact-" + name; m.rotation.x = -Math.PI / 2; m.position.set((b.min.x + b.max.x) / 2, .0075, (b.min.z + b.max.z) / 2); m.renderOrder = 1; root.add(m);
+  }
+  // Corners: a faint gradient where walls meet the floor, the ceiling and each other, the way real rooms hold a little shade.
+  const edgeTex = (dir) => canvasTex(4, 64, (ctx, w, h) => { const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, dir ? "#000" : "#fff"); g.addColorStop(1, dir ? "#fff" : "#000"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
+  const shadeStrip = (w, h, x, y, z, rotY, tex, op, name) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ alphaMap: tex, color: "#2a1d10", transparent: true, opacity: op, depthWrite: false, toneMapped: false }));
+    m.name = name; m.position.set(x, y, z); m.rotation.y = rotY; m.renderOrder = 1; root.add(m);
+  };
+  const upTex = edgeTex(1), downTex = edgeTex(0), e = .004;
+  for (const [len, x, z, rot, id] of [[ROOM.w, 0, -HD + e, 0, "n"], [ROOM.w, 0, HD - e, Math.PI, "s"], [ROOM.d, HW - e, 0, -Math.PI / 2, "e"], [ROOM.d, -HW + e, 0, Math.PI / 2, "w"]]) {
+    shadeStrip(len, .55, x, .08 + .275, z, rot, upTex, .3, "corner-floor-" + id); // dark at the bottom edge
+    shadeStrip(len, .5, x, ROOM.h - .25, z, rot, downTex, .22, "corner-ceiling-" + id);
+  }
+
   // ---------- daylight ----------
   const hemi = new THREE.HemisphereLight("#e8f0f8", "#d6c6aa", 1.45); scene.add(hemi);
   const sun = new THREE.DirectionalLight("#fff3df", 2.3);
@@ -557,6 +603,7 @@ export async function start({ stage, lang = "zh" }) {
     ceilingLight.material.emissiveIntensity = m.ceiling;
     tvFace.material.emissiveIntensity = m.tv; tvFace.material.needsUpdate = true;
     setBlind(m.blind);
+    applyEnv(name);
     render();
     return true;
   }
