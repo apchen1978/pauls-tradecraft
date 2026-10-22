@@ -3,7 +3,7 @@
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
-import { loadSofa, loadModel, loadGlb } from "./models.js?v=2";
+import { loadModel, loadGlb } from "./models.js?v=4";
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
@@ -641,8 +641,15 @@ export async function start({ stage, lang = "zh" }) {
     ctx.fillStyle = "rgba(205,220,240,.10)"; ctx.fillRect(18, 14, 62, 44); ctx.fillStyle = "rgba(12,14,18,.5)"; ctx.fillRect(48, 14, 2, 44); ctx.fillRect(18, 35, 62, 2); // the window, as a ghost
   });
   const tvScreen = new THREE.MeshStandardMaterial({ color: "#ffffff", map: tvReflect, roughness: .12, metalness: .3 });
-  // the sofa is the same image-to-3D model as Room 01 (see models.js), re-coloured slate blue-grey, front looking west
-  const sofa = await loadSofa({ width: 1.6, tint: "#9db0c2" }); sofa.name = "sofa"; sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
+  // the sofa is Codex's own Japandi model (not Room 01's), slate blue-grey, front looking west
+  const sofa = await loadGlb(new URL("./models/sofa-japandi-v1.glb", import.meta.url).href, { roughness: .95, weave: true }); sofa.name = "sofa"; // Codex's low Japandi two-seater (batch 10): 'fabric' and 'legs' meshes, neutral oat vertex colours
+  sofa.traverse((o) => { if (o.isMesh && o.name !== "legs") o.material.color.set("#8197ab"); else if (o.isMesh) o.scale.y = 1.35; }); // the slate-blue cover; the legs are 35 % longer so their tops go into the rounded underside (at 1:1 they hung below it, not touching)
+  sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
+  // Codex's two cushions (batch 9), not Room 01's: a blue-grey square turned on its corner at one end, an oat-and-sage striped lumbar at the other.
+  // (the GLBs lie flat, thin along y: a quarter turn about x stands them up facing the room, rx then leans them back, ry spins them on their face)
+  for (const [file, name, x, y, z, rx, ry, rz] of [["diamond-cushion-v1.glb", "sofa-cushion-diamond", -.46, .66, -.1, -.3, Math.PI / 4, 0], ["lumbar-cushion-v1.glb", "sofa-cushion-lumbar", .5, .62, -.13, -.32, 0, .05]]) {
+    loadGlb(new URL(`./models/${file}`, import.meta.url).href, { anchor: "center", roughness: 1, weave: true }).then((g) => { g.name = name; if (name.endsWith("lumbar")) g.traverse((o) => { if (o.isMesh) { o.material.vertexColors = false; o.material.color.set("#e2d6c0"); o.material.needsUpdate = true; } }); /* the stripes came out as grey smudges: a plain oat cover */ g.position.set(x, y, z); g.rotation.set(Math.PI / 2 + rx, ry, rz); sofa.add(g); redraw(); }).catch(() => {});
+  }
   // Round coffee table (72 cm, 38 cm high): a travertine top on a dark metal ring base (Codex's D2 reference), plus a small side table.
   const travertine = new THREE.MeshStandardMaterial({ map: canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = "#cdbc9c"; ctx.fillRect(0, 0, w, h);
@@ -807,10 +814,10 @@ export async function start({ stage, lang = "zh" }) {
   plaqueTex.anisotropy = 8;
   const plaque = add(new THREE.PlaneGeometry(.9, .36), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), "house-plaque", -1.45, 1.8, -HD + .015, { shadow: false });
   // Two framed prints on the wall behind the sofa (the east wall), Codex's pair: sage, terracotta, navy and cream, nothing like the city outside.
-  // 134 x 89 cm in all (two 58 x 78 cm frames), centred over the sofa, bottom edge 115 cm up, well above the sofa back.
+  // 134 x 89 cm in all (two 58 x 78 cm frames), centred over the sofa, bottom edge 121 cm up, well above the sofa back.
   art("room02-east-pair-v1.webp", { apply: (t) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1.34, .894), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .35, roughness: .8 }));
-    m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.6, .9); m.receiveShadow = true; root.add(m);
+    m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.66, .9); m.receiveShadow = true; root.add(m);
   } });
   // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque)
   const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = false; root.add(curtains);
@@ -1009,7 +1016,7 @@ export async function start({ stage, lang = "zh" }) {
     led: { violet: "#8f7bff", cyan: "#4fd1ff", amber: "#ffb066", pink: "#ff6fb5", white: "#e8f0ff" },
     desktop: ["minimal", "gamer", "coffee", "creative"],
     screen: ["city", "grid", "work", "calm"],
-    sofa: { slate: "#9db0c2", sand: "#e6d6bd", moss: "#a9b79a", charcoal: "#6b6f76", terracotta: "#d79a7e" },
+    sofa: { slate: "#8197ab", sand: "#e2cfae", moss: "#9aab8a", charcoal: "#666a72", terracotta: "#cf8f74" },
     shelf: ["mixed", "airy", "library"],
     tv: ["auto", "off", "film", "game"],
   };
@@ -1034,7 +1041,7 @@ export async function start({ stage, lang = "zh" }) {
     } else if (kind === "screen" && CHOICES.screen.includes(value)) {
       screen.material.map = value === "city" ? cityScreen : (screens[value] ??= drawScreen(value)); screen.material.needsUpdate = true;
     } else if (kind === "sofa" && CHOICES.sofa[value]) {
-      sofa.traverse((o) => { if (o.isMesh) o.material.color.set(CHOICES.sofa[value]); });
+      sofa.traverse((o) => { if (o.isMesh && o.name !== "legs") o.material.color.set(CHOICES.sofa[value]); }); // the wooden legs keep their wood
     } else if (kind === "tv" && CHOICES.tv.includes(value)) {
       chosen.tv = value; applyTv(live.mood);
     } else if (kind === "shelf" && CHOICES.shelf.includes(value)) {
