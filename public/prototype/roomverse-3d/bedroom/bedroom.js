@@ -125,10 +125,31 @@ export async function start({ stage, lang = "zh" }) {
       applyLook(); render();
     },
   };
+  // Three looks from the corner (the camera never moves, only the head turns): the desk and window (the opening look), the TV wall
+  // on the left, and the bed side on the right. On a phone the screen is too narrow to hold the whole room, so the buttons below the
+  // room turn the head for you; dragging still works within the same limits.
+  const LOOKS = { work: [0, 0], tv: [.43, .01], bed: [-.34, .04] };
+  let lookRun = 0, lookName = "work";
+  function lookTo(name) {
+    const to = LOOKS[name]; if (!to) return Promise.resolve(false);
+    lookName = name;
+    const target = { yaw: look0.yaw + to[0], pitch: look0.pitch + to[1] };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { look.yaw = target.yaw; look.pitch = target.pitch; applyLook(); render(); return Promise.resolve(true); }
+    const from = { yaw: look.yaw, pitch: look.pitch }, t0 = performance.now(), T = 650, run = ++lookRun, ease = (k) => k * k * (3 - 2 * k);
+    return new Promise((resolve) => {
+      const step = (now) => {
+        if (run !== lookRun) { resolve(false); return; }
+        const k = ease(Math.min(1, (now - t0) / T));
+        look.yaw = from.yaw + (target.yaw - from.yaw) * k; look.pitch = from.pitch + (target.pitch - from.pitch) * k; applyLook(); render();
+        if (now - t0 < T) requestAnimationFrame(step); else resolve(true);
+      };
+      requestAnimationFrame(step);
+    });
+  }
   let drag = null, arriving = false;
   const el = renderer.domElement;
   el.style.touchAction = "none"; el.style.cursor = "grab";
-  el.addEventListener("pointerdown", (e) => { if (arriving) return; drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
+  el.addEventListener("pointerdown", (e) => { if (arriving) return; lookRun++; drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
   el.addEventListener("pointermove", (e) => {
     if (!drag || arriving) return;
     const k = camera.fov * Math.PI / 180 / (el.clientHeight || 500); // radians per pixel: the scene follows the finger
@@ -864,6 +885,12 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
+    inView(names) { // local QA only: where the named objects' centres land on screen (-1..1; z < 1 means in front of the camera)
+      camera.updateMatrixWorld(); scene.updateMatrixWorld(true);
+      return Object.fromEntries(names.map((n) => { const o = root.getObjectByName(n); const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()).project(camera);
+        const corners = [b.min.x, b.max.x].flatMap((x) => [b.min.y, b.max.y].flatMap((y) => [b.min.z, b.max.z].map((z) => new THREE.Vector3(x, y, z).project(camera))));
+        return [n, { x: +c.x.toFixed(2), y: +c.y.toFixed(2), z: +c.z.toFixed(3), minX: +Math.min(...corners.map((v) => v.x)).toFixed(2), maxX: +Math.max(...corners.map((v) => v.x)).toFixed(2) }]; }));
+    },
     rugs() { // local QA only
       const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
       return { sleep: bx("zone-sleep-rug"), work: bx("zone-work-mat"), lounge: bx("zone-lounge-rug"), tv: bx("zone-tv-rug"), bed: bx("bed-frame"), bedside: bx("bedside-top") };
@@ -874,7 +901,7 @@ export async function start({ stage, lang = "zh" }) {
       return { rug: bx(get("zone-tv-rug")), unit: bx(get("tv-unit")), table: bx(get("coffee-table")), console: bx((() => { const g = new THREE.Group(); return get("game-console"); })()), pad: bx(get("game-pad")),
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
-    info, reach, arrive, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
+    info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
