@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-looks" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-window2" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -211,12 +211,12 @@ for (const width of [1440, 390]) {
   });
 }
 
-test("all 22 painted surfaces load (floor, wall, rugs, oak, fabrics, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
+test("all 24 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and foreground, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
   const failed = [];
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
-  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 22, null, { timeout: 60000 });
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 24, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
@@ -292,6 +292,17 @@ test("phone: the look buttons turn the head to the TV wall and the bed side; the
   await page.locator('#viewRow button[data-look="work"]').click();
   await page.waitForFunction(() => Math.abs(window.__bedroom.looks().yaw) < .005, null, { timeout: 5000 });
   expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([1.8, 2.05, 2.38]); // the camera never moved
+});
+
+test("window: the painted frame replaces the boxes, the foreground layer sits outside and stays under the city picture's reach", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.windowParts().sash && window.__bedroom.windowParts().foreground);
+  const w = await page.evaluate(() => window.__bedroom.windowParts());
+  expect(w.boxesHidden).toBe(true); // the plain frame boxes are gone once the painted frame shows
+  expect(w.sashBox.max[2]).toBeLessThan(-2.4); // the frame is in the wall plane (north wall at z = -2.5)
+  expect(w.fgBox.max[2]).toBeLessThan(-2.5); // the foreground is outside the wall
+  expect(w.fgBox.min[2]).toBeGreaterThan(-3.7); // and in front of the city plane (z = -3.7)
+  expect(w.fgBox.min[1]).toBeLessThan(.95); expect(w.fgBox.max[1]).toBeGreaterThan(2.2); // it covers the whole window height
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {
