@@ -422,3 +422,15 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
     await page.locator("#swaps").screenshot({ path: `${QA}/swap-buttons-${width}.png` });
   }
 });
+
+test.describe("hi-dpi screens", () => {
+  test.use({ deviceScaleFactor: 2.5 });
+  for (const width of [1440, 390]) {
+    test(`the canvas fits its box and renders at the screen's sharpness, not cropped and half-sharp (${width})`, async ({ page }) => {
+      await enter(page, { width });
+      const m = await page.evaluate(() => { const c = document.querySelector("#stage canvas"), r = c.getBoundingClientRect(), s = document.getElementById("stage").getBoundingClientRect(); return { cssW: r.width, cssH: r.height, stageW: s.width, stageH: s.height, bufW: c.width }; });
+      expect(Math.abs(m.cssW - m.stageW)).toBeLessThan(1.5); expect(Math.abs(m.cssH - m.stageH)).toBeLessThan(1.5); // the same size as its box
+      expect(m.bufW).toBeGreaterThan(m.cssW * 1.4); // and more buffer pixels than CSS pixels
+    });
+  }
+});
