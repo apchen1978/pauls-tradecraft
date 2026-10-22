@@ -443,6 +443,10 @@ const dict = {
       startLabel: "不知道選哪個？",
       startCta: "從《街角的秘密》開始",
       startHref: "/prototype/secrets-on-the-corner/",
+      roomsLead: "或來我們的",
+      roomsCta: "rooms",
+      roomsTail: "裡坐坐。",
+      roomsHref: "/prototype/roomverse-3d/",
       items: [
         {
           title: "ROOMVERSE 3D · 空間幻境",
@@ -1374,6 +1378,10 @@ const dict = {
       startLabel: "Not sure where to start?",
       startCta: "Try Secrets on the Corner",
       startHref: "/prototype/secrets-on-the-corner/",
+      roomsLead: "Or come sit a while in our",
+      roomsCta: "rooms",
+      roomsTail: ".",
+      roomsHref: "/prototype/roomverse-3d/",
       items: [
         {
           title: "ROOMVERSE 3D · One room, many ways to come home",
