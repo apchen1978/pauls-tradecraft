@@ -31,6 +31,12 @@
   .poster button:focus-visible { outline: 3px solid #977b42; outline-offset: 3px; }
   .poster small { display: block; margin-top: 8px; text-align: center; color: #24302c; font-size: 13px; }
   .status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fffd; padding: 10px 16px; border-radius: 999px; font-size: 14px; }
+  .moods { margin: 12px clamp(16px, 3vw, 40px) 0; }
+  .moods .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .moods button { font: inherit; font-size: 14px; font-weight: 700; padding: 10px 14px; min-height: 44px; border-radius: 999px; border: 1px solid #a8afa5; background: var(--paper); color: var(--moss); cursor: pointer; }
+  .moods button[aria-pressed="true"] { background: var(--moss); color: #fff; border-color: var(--moss); }
+  .moods button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
+  .moods p { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; min-height: 1.6em; }
   .note { padding: 14px clamp(16px, 3vw, 40px) 40px; color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 900px; }
   @media (max-width: 768px) {
     .room { height: auto; }
@@ -54,7 +60,8 @@
   <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
   <p class="status" id="status" hidden></p>
 </section>
+<section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=4"></script>
+<script type="module" src="page.js?v=5"></script>
 </body>
 </html>

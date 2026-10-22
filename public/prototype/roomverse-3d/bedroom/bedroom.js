@@ -1,5 +1,5 @@
 // ROOMVERSE studio (bedroom): a second room, built apart from the living room so that room stays untouched.
-// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf). Stage 5: lived-in details (books, posters, plant, fittings).
+// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf). Stage 5: lived-in details (books, posters, plant, fittings). Stage 6: four moods (lighting).
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
@@ -444,7 +444,7 @@ export async function start({ stage, lang = "zh" }) {
   add(new THREE.CylinderGeometry(.2, .22, .06, 28), new THREE.MeshStandardMaterial({ color: "#fbf8f1", emissive: "#fff3dc", emissiveIntensity: .35, roughness: .6 }), "ceiling-light", 0, ROOM.h - .03, .2, { shadow: false });
 
   // ---------- daylight ----------
-  scene.add(new THREE.HemisphereLight("#e8f0f8", "#d6c6aa", 1.45));
+  const hemi = new THREE.HemisphereLight("#e8f0f8", "#d6c6aa", 1.45); scene.add(hemi);
   const sun = new THREE.DirectionalLight("#fff3df", 2.3);
   sun.position.set(1.1, 2.3, -HD - 2.2); sun.target.position.set(-.1, .4, 1.0);
   sun.castShadow = true; sun.shadow.mapSize.set(compact ? 1024 : 2048, compact ? 1024 : 2048);
@@ -452,6 +452,53 @@ export async function start({ stage, lang = "zh" }) {
   sun.shadow.bias = -.0005; sun.shadow.normalBias = .02; sun.shadow.radius = 5;
   scene.add(sun, sun.target);
   const fill = new THREE.PointLight("#ffe9cf", 7, 7, 2); fill.position.set(0, 2.3, .6); scene.add(fill);
+
+  // ---------- four moods: each one sets the window, daylight, room fill and the lamps that really glow ----------
+  // The bedside lamp and the screen are real lights (no shadows, short reach), so a dark mood is lit by what is on in the room.
+  const shade = root.getObjectByName("lamp-shade"), shadePos = shade.getWorldPosition(new THREE.Vector3());
+  const bedLamp = new THREE.PointLight("#ffc98a", 0, 3.2, 2); bedLamp.position.copy(shadePos).add(new THREE.Vector3(0, -.02, 0)); scene.add(bedLamp);
+  const monitor = root.getObjectByName("monitor-screen"), monitorPos = monitor.getWorldPosition(new THREE.Vector3());
+  const screenLight = new THREE.PointLight("#8f9bff", 0, 3, 2); screenLight.position.copy(monitorPos).add(new THREE.Vector3(.35, 0, 0)); scene.add(screenLight);
+  const ledStrip = root.getObjectByName("led-strip"), ledGlow = root.getObjectByName("led-glow"), ceilingLight = root.getObjectByName("ceiling-light");
+  const tvFace = root.getObjectByName("tv-screen");
+  tvFace.material.emissive.set("#ffffff");
+  tvFace.material.emissiveMap = canvasTex(256, 144, (ctx, w, h) => { // a film playing: warm dusk tones, no picture detail, no text
+    const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "#f2b36b"); g.addColorStop(.5, "#b2566a"); g.addColorStop(1, "#2c2f5e");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(20,16,30,.55)"; ctx.fillRect(0, h * .72, w, h * .28);
+  });
+  const blindFabric = root.getObjectByName("blind-fabric"), blindBar = root.getObjectByName("blind-bar");
+  const setBlind = (drop) => { blindFabric.scale.y = drop / .18; blindFabric.position.y = wTop - drop / 2; blindBar.position.y = wTop - drop; };
+  const MOODS = {
+    focus:   { time: "day",   sky: "#ffffff", bg: "#d9d4c8", exposure: 1.18, hemi: [1.45, "#e8f0f8", "#d6c6aa"], sun: [2.3, "#fff3df", 2.3], fill: [7, "#ffe9cf"],
+               bedLamp: 0, shade: .12, screen: .4, led: .6, glow: .35, ceiling: .35, monitor: 1, tv: 0, blind: .18 },
+    weekend: { time: "day",   sky: "#efe5d8", bg: "#d6cbbb", exposure: 1.08, hemi: [.85, "#f3e6d4", "#cdb79a"], sun: [1.1, "#ffe2b8", 2.3], fill: [4.5, "#ffcf96"],
+               bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45 },
+    night:   { time: "night", sky: "#ffffff", bg: "#1d2230", exposure: 1.05, hemi: [.36, "#7d8fb8", "#3a3442"], sun: [0, "#9db4ff", 2.3], fill: [1.0, "#ffcf9a"],
+               bedLamp: .7, shade: .55, screen: 4.5, led: 2, glow: .95, ceiling: 0, monitor: 1.3, tv: 0, blind: .18 },
+    sunday:  { time: "day",   sky: "#ffe6cc", bg: "#dccdb9", exposure: 1.1, hemi: [1.0, "#f8e7d5", "#d6c2a4"], sun: [1.8, "#ffcf94", 1.45], fill: [2.5, "#ffd9b0"],
+               bedLamp: 0, shade: .1, screen: 0, led: 0, glow: 0, ceiling: 0, monitor: .2, tv: 0, blind: .62 },
+  };
+  let mood = "focus";
+  async function setMood(name) {
+    const m = MOODS[name];
+    if (!m) return false;
+    mood = name;
+    if (!(await setTime(m.time))) return false;
+    skyMat.color.set(m.sky);
+    scene.background.set(m.bg);
+    renderer.toneMappingExposure = m.exposure;
+    hemi.intensity = m.hemi[0]; hemi.color.set(m.hemi[1]); hemi.groundColor.set(m.hemi[2]);
+    sun.intensity = m.sun[0]; sun.color.set(m.sun[1]); sun.position.y = m.sun[2]; // a lower sun in the early morning reaches further in
+    fill.intensity = m.fill[0]; fill.color.set(m.fill[1]);
+    bedLamp.intensity = m.bedLamp; shade.material.emissiveIntensity = m.shade;
+    screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
+    ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow;
+    ceilingLight.material.emissiveIntensity = m.ceiling;
+    tvFace.material.emissiveIntensity = m.tv; tvFace.material.needsUpdate = true;
+    setBlind(m.blind);
+    render();
+    return true;
+  }
 
   // ---------- loop ----------
   function resize() {
@@ -464,7 +511,7 @@ export async function start({ stage, lang = "zh" }) {
   const render = () => renderer.render(scene, camera);
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
   resize(); render();
-  setTime("day");
+  setMood("focus");
   setPosters("C");
 
   const info = () => {
@@ -488,6 +535,7 @@ export async function start({ stage, lang = "zh" }) {
       posters: (() => { const b = new THREE.Box3().setFromObject(posters); return { set: posterSet, loaded: printMats.every((m) => !!m.map), min: b.min.toArray(), max: b.max.toArray() }; })(),
       plant: (() => { const b = new THREE.Box3().setFromObject(plant); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
+      mood, blind: +((wTop - blindBar.position.y).toFixed(3)),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
   };
@@ -504,7 +552,9 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
-    info, reach, windowArt, setTime, setPosters, render, camera, controls,
+    info, reach, windowArt, setTime, setMood, setPosters, render, camera, controls, moods: Object.keys(MOODS),
+    // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
+    brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
     setLang(l) { lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); },
   };
 }

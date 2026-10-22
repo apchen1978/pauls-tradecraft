@@ -2,36 +2,60 @@
 const COPY = {
   zh: {
     title: "Room 02 都市青年Style",
-    lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、窩著放鬆都在同一個空間。目前是第 4 階段：睡覺的角落、工作區（書桌、帶魚屏、電競椅）、客廳區（沙發、電視、書架）、牆上的海報和植物都已就位，接下來是燈光氛圍和可以替換的選項。拖一下轉動房間。",
-    enter: "走進第二個房間", size: "施工中的第 1 階段：空房間與白天的光", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
-    note: "施工中。這是 ROOMVERSE 的第二個房間，由程式一件一件建起來；目前只有牆、地板、窗、門和白天的光。窗外景色是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
-    home: "← Room 01", lang: "EN",
+    lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、窩著放鬆都在同一個空間。睡覺、工作、打電動、窩在沙發都有自己的角落。先選一個感覺，看同一個房間在不同時刻的樣子；拖一下可以轉頭看看。",
+    enter: "走進第二個房間", size: "四種感覺：專注工作日、週末宅在家、深夜遊戲、週日賴床", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
+    note: "施工中。這是 ROOMVERSE 的第二個房間，由程式一件一件建起來；可以替換的選項（牆色、地毯、窗飾、寢具、海報）接下來加入。窗外景色和海報是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
+    home: "← Room 01", lang: "EN", moodsLabel: "選一個感覺",
+    moods: {
+      focus: ["專注工作日", "白天的窗光灑在桌上，燈條只留一點點，適合把事情做完。"],
+      weekend: ["週末宅在家", "窗光變柔，床邊小燈亮起，電視開著，整個房間慢下來。"],
+      night: ["深夜遊戲", "房間暗下來，螢幕和身後的燈條成為主角，窗外的城市還亮著。"],
+      sunday: ["週日賴床", "清晨的暖光從半拉的捲簾下照進來，不急著起床。"],
+    },
   },
   en: {
     title: "Room 02 · Urban Youth Style",
-    lead: "ROOMVERSE works like a universe: it will never be just one room. The first room is a living room; this is the second, a studio for one where sleeping, working and unwinding share one space. We are at stage 4: the sleeping corner, the work zone (desk, ultrawide monitor, gaming chair), the lounge (sofa, TV, bookshelf), posters and a plant are in; lighting moods and swappable choices come next. Drag to turn the room.",
-    enter: "Step into the second room", size: "Work in progress, stage 1: the empty room and daylight", loading: "Setting up the room…", failed: "3D can't open on this device.",
-    note: "Work in progress. This is ROOMVERSE's second room, built in code piece by piece; for now it has walls, floor, window, door and daylight. The view outside is an illustration made through human–AI collaboration, not a real place. Not real products; check real colours and textures with samples and on-site light.",
-    home: "← Room 01", lang: "中",
+    lead: "ROOMVERSE works like a universe: it will never be just one room. The first room is a living room; this is the second, a studio for one where sleeping, working and unwinding share one space. Sleeping, working, gaming and sinking into the sofa each have their own corner. Pick a mood to see the same room at a different moment; drag to look around.",
+    enter: "Step into the second room", size: "Four moods: focus day, weekend in, late-night game, Sunday lie-in", loading: "Setting up the room…", failed: "3D can't open on this device.",
+    note: "Work in progress. This is ROOMVERSE's second room, built in code piece by piece; swappable choices (wall colour, rug, window, bedding, posters) come next. The view outside and the posters are illustrations made through human–AI collaboration, not real places. Not real products; check real colours and textures with samples and on-site light.",
+    home: "← Room 01", lang: "中", moodsLabel: "Pick a mood",
+    moods: {
+      focus: ["Focus day", "Daylight on the desk and just a hint of the strip light: a day for getting things done."],
+      weekend: ["Weekend in", "Softer daylight, the bedside lamp on, the TV playing: the whole room slows down."],
+      night: ["Late-night game", "The room goes dark; the screen and the strip behind it take over while the city stays lit outside."],
+      sunday: ["Sunday lie-in", "Early warm light slips under the half-drawn blind; no hurry to get up."],
+    },
   },
 };
 const $ = (id) => document.getElementById(id);
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
-let room = null;
+let room = null, mood = "focus";
+function moodButtons() {
+  const c = COPY[lang], row = $("moodRow");
+  $("moodsLabel").textContent = c.moodsLabel; row.setAttribute("aria-label", c.moodsLabel);
+  row.replaceChildren(...Object.keys(c.moods).map((k) => {
+    const b = document.createElement("button"); b.type = "button"; b.dataset.mood = k; b.textContent = c.moods[k][0];
+    b.setAttribute("aria-pressed", String(k === mood));
+    b.onclick = async () => { mood = k; moodButtons(); await room?.setMood(k); };
+    return b;
+  }));
+  $("why").textContent = c.moods[mood][1];
+}
 function text() {
   const c = COPY[lang];
   document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
   $("title").textContent = c.title; $("lead").textContent = c.lead; $("enter").textContent = c.enter; $("size").textContent = c.size;
   $("note").textContent = c.note; $("home").textContent = c.home; $("home").href = `../?lang=${lang}`; $("lang").textContent = c.lang;
   room?.setLang(lang);
+  moodButtons();
 }
 $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new URL(location.href); u.searchParams.set("lang", lang); history.replaceState(null, "", u); text(); };
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=9");
+    const { start } = await import("./bedroom.js?v=10");
     room = await start({ stage: $("stage"), lang });
-    $("status").hidden = true;
+    $("status").hidden = true; $("moods").hidden = false;
     window.__bedroom = room; // test hook
   } catch (e) {
     console.error(e);
