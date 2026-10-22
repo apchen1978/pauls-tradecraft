@@ -1,5 +1,6 @@
 // ROOMVERSE studio (bedroom): a second room, built apart from the living room so that room stays untouched.
-// Stage 1 of 8: the empty shell (walls, floor, window, door), daylight and three floor zones. Everything is drawn by code.
+// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside).
+// Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
 import { OrbitControls } from "../vendor/OrbitControls.js";
@@ -53,6 +54,22 @@ function weaveTexture(base, line, { stripes = false } = {}) {
   }, { repeat: [3, 4] });
 }
 
+
+// A box with softly rounded vertical edges (mattress, duvet, pillows), centred on its middle. Extruded from a rounded rectangle.
+function softBox(w, h, d, r) {
+  const bt = Math.min(r, h / 2) * .8, bs = r * .5; // the bevel adds to the outline and the height, so shrink both to keep the true size
+  const sh = new THREE.Shape(), x = -(w - 2 * bs) / 2, y = -(d - 2 * bs) / 2;
+  w -= 2 * bs; d -= 2 * bs;
+  sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.quadraticCurveTo(x + w, y, x + w, y + r);
+  sh.lineTo(x + w, y + d - r); sh.quadraticCurveTo(x + w, y + d, x + w - r, y + d);
+  sh.lineTo(x + r, y + d); sh.quadraticCurveTo(x, y + d, x, y + d - r);
+  sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y);
+  const g = new THREE.ExtrudeGeometry(sh, { depth: h - 2 * bt, bevelEnabled: true, bevelThickness: bt, bevelSize: bs, bevelSegments: 2, curveSegments: 4 });
+  g.rotateX(-Math.PI / 2); g.translate(0, -(h - 2 * bt) / 2, 0); // lies flat: height along y, centred
+  g.computeVertexNormals();
+  return g;
+}
+
 export async function start({ stage, lang = "zh" }) {
   const compact = matchMedia("(max-width: 600px)").matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -70,9 +87,10 @@ export async function start({ stage, lang = "zh" }) {
   scene.background = new THREE.Color("#d9d4c8");
   const camera = new THREE.PerspectiveCamera(50, 1, .05, 40);
   const controls = new OrbitControls(camera, renderer.domElement);
+  // Phones are narrow, so the view is aimed a little further east to keep the bed in frame.
   // Overview from the south-east corner, looking across the room. The camera stays inside the walls, so the orbit is a
   // short arc rather than a full circle (a 4 x 5 m room has no safe circle wide enough for this distance).
-  const target = new THREE.Vector3(-.2, .9, -.6), home = new THREE.Vector3(1.45, 1.5, 2.0);
+  const target = new THREE.Vector3(compact ? .45 : -.2, .9, -.6), home = new THREE.Vector3(1.45, 1.5, 2.0);
   controls.target.copy(target);
   controls.enablePan = false; controls.enableDamping = false; controls.enableZoom = false;
   const offset = home.clone().sub(target), az0 = Math.atan2(offset.x, offset.z), polar0 = Math.acos(offset.y / offset.length());
@@ -168,6 +186,39 @@ export async function start({ stage, lang = "zh" }) {
   zoneRug(1.0, .8, -1.35, -1.55, new THREE.MeshStandardMaterial({ map: weaveTexture("#555a61", "#2c3036"), roughness: 1 }), "zone-work-mat");
   zoneRug(1.6, 2.3, .85, 1.3, new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 }), "zone-lounge-rug");
 
+  // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
+  // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
+  const BED = { x: 1.4, z: -1.46, w: 1.1, l: 2.0, top: .48 };
+  const oak = new THREE.MeshStandardMaterial({ color: "#b8895a", roughness: .66 });
+  const sheetMat = new THREE.MeshStandardMaterial({ color: "#ece4d4", roughness: .95 });
+  const duvetMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#d8cdb8", "#a69878"), roughness: 1 });
+  const throwMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#9fae98", "#6f8068", { stripes: true }), roughness: 1 });
+  const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95 });
+  const cushionMat = new THREE.MeshStandardMaterial({ color: "#c58a62", roughness: .95 });
+  const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
+  const part = (geo, mat, name, x, y, z) => {
+    const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; bed.add(m); return m;
+  };
+  const north = BED.z - BED.l / 2; // z of the head end
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+    part(box(.05, .12, .05), oak, "bed-leg", BED.x + dx * (BED.w / 2 - .02), .06, BED.z + dz * (BED.l / 2 - .03));
+  }
+  part(box(BED.w + .02, .14, BED.l + .02), oak, "bed-frame", BED.x, .19, BED.z); // 12 cm to 26 cm
+  part(softBox(BED.w, .22, BED.l - .02, .03), sheetMat, "bed-mattress", BED.x, .26 + .11, BED.z); // top at 48 cm
+  part(box(BED.w + .08, .82, .035), oak, "bed-headboard", BED.x, .6, north - .0225); // 19 cm to 101 cm, against the wall
+  part(softBox(BED.w - .04, .09, 1.32, .05), duvetMat, "bed-duvet", BED.x, BED.top + .045, BED.z + .3); // foot to mid-bed
+  part(softBox(BED.w - .02, .07, .34, .04), throwMat, "bed-throw", BED.x, BED.top + .1, BED.z + .62); // folded striped throw across the foot
+  part(softBox(.7, .13, .45, .06), pillowMat, "bed-pillow", BED.x, BED.top + .065, north + .36);
+  part(softBox(.45, .12, .3, .05), cushionMat, "bed-cushion", BED.x, BED.top + .19, north + .22).rotation.x = -.28;
+  // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
+  const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
+  part(box(.4, .02, .4), oak, "bedside-top", tx, .44, tz);
+  part(box(.36, .3, .36), oak, "bedside-body", tx, .28, tz);
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) part(box(.03, .13, .03), oak, "bedside-leg", tx + dx * .17, .065, tz + dz * .17);
+  part(new THREE.CylinderGeometry(.06, .07, .02, 16), metalMat, "lamp-base", tx, .46, tz);
+  part(new THREE.CylinderGeometry(.012, .012, .2, 8), metalMat, "lamp-stem", tx, .56, tz);
+  part(new THREE.CylinderGeometry(.075, .11, .13, 20, 1, true), new THREE.MeshStandardMaterial({ color: "#f4e6c8", emissive: "#e9b86a", emissiveIntensity: .35, roughness: .9, side: THREE.DoubleSide }), "lamp-shade", tx, .72, tz);
+
   // ---------- daylight ----------
   scene.add(new THREE.HemisphereLight("#e8f0f8", "#d6c6aa", 1.45));
   const sun = new THREE.DirectionalLight("#fff3df", 2.3);
@@ -200,6 +251,7 @@ export async function start({ stage, lang = "zh" }) {
       room: ROOM, window: WINDOW, door: DOOR, vertices, meshes,
       floor: { w: box3.max.x - box3.min.x, d: box3.max.z - box3.min.z },
       zones: ["zone-sleep-rug", "zone-work-mat", "zone-lounge-rug"].map((n) => root.getObjectByName(n)?.name),
+      bed: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("bed")), m = new THREE.Box3().setFromObject(root.getObjectByName("bed-mattress")); return { min: b.min.toArray(), max: b.max.toArray(), mattressTop: m.max.y - .0 }; })(),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
   };
