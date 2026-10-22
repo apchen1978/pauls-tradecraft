@@ -1,5 +1,5 @@
 // ROOMVERSE studio (bedroom): a second room, built apart from the living room so that room stays untouched.
-// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf). Stage 5: lived-in details (books, posters, plant, fittings). Stage 6: four moods (lighting).
+// Stage 1: the empty shell (walls, floor, window, door), daylight and three floor zones. Stage 2: the sleep zone (bed, bedding, bedside). Stage 3: the work/game zone (desk, ultrawide monitor, console, chair). Stage 4: the lounge (sofa, coffee table, TV, bookshelf). Stage 5: lived-in details (books, posters, plant, fittings). Stage 6: four moods (lighting). Stage 7: the vinyl corner.
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
@@ -403,6 +403,41 @@ export async function start({ stage, lang = "zh" }) {
     leaf.scale.set(.6, 1.5, .35); leaf.rotation.set(0, ry, rz);
   }
 
+  // ---------- vinyl corner under the window: record console, turntable, two small speakers ----------
+  // Real sizes: console 100 x 40 x 50 cm (stays under the 90 cm sill), turntable 45 x 35 cm with a 30 cm record, speakers 16 x 25 x 18 cm.
+  // Records stand in four open cubbies; sleeves are plain colour blocks (no album art, no text).
+  const vin = new THREE.Group(); vin.name = "vinyl-corner"; vin.position.set(-.45, 0, -HD + .2); root.add(vin);
+  const vp = hold(vin);
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) vp(box(.035, .12, .035), blackMat, "vinyl-leg", dx * .47, .06, dz * .17);
+  vp(box(1.0, .025, .4), oak, "vinyl-top", 0, .4875, 0); // top face at 50 cm
+  vp(box(1.0, .025, .4), oak, "vinyl-bottom", 0, .1325, 0);
+  for (const x of [-.4875, -.25, 0, .25, .4875]) vp(box(.025, .33, .4), oak, "vinyl-divider", x, .31, 0);
+  vp(box(1.0, .33, .01), oak, "vinyl-back", 0, .31, -.195);
+  const sleeveCols = ["#1f2124", "#d9c9a8", "#8c3b2e", "#2f3b52", "#c9a14e", "#e9e4da", "#3e5a48", "#b2566a", "#5b6b7c", "#6a4c6e"];
+  for (const [c0, n] of [[-.37, 9], [-.125, 7], [.125, 10], [.37, 6]]) {
+    for (let i = 0; i < n; i++) {
+      const sleeve = vp(box(.006, .31, .31), new THREE.MeshStandardMaterial({ color: sleeveCols[(i * 3 + n) % sleeveCols.length], roughness: .7 }), "vinyl-sleeve", c0 - .1 + i * .008 + .004, .145 + .155 + .001, .02);
+      if (i === n - 1) { sleeve.rotation.z = .12; sleeve.position.x += .018; } // the last record leans
+    }
+  }
+  const plinth = vp(box(.45, .07, .35), new THREE.MeshStandardMaterial({ color: "#2a2b2e", roughness: .4, metalness: .2 }), "turntable", 0, .5 + .035, .01);
+  vp(new THREE.CylinderGeometry(.152, .152, .015, 40), metalMat, "turntable-platter", -.05, .5 + .0775, .01);
+  const recordTex = canvasTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = "#101012"; ctx.fillRect(0, 0, w, h);
+    for (let r = 40; r < 128; r += 2) { ctx.strokeStyle = `rgba(255,255,255,${r % 6 ? .03 : .07})`; ctx.beginPath(); ctx.arc(128, 128, r, 0, 7); ctx.stroke(); }
+    ctx.fillStyle = "#c58a62"; ctx.beginPath(); ctx.arc(128, 128, 36, 0, 7); ctx.fill(); // centre label, plain colour
+    ctx.fillStyle = "#e9e4da"; ctx.beginPath(); ctx.arc(128, 128, 3, 0, 7); ctx.fill();
+  });
+  const record = vp(new THREE.CylinderGeometry(.15, .15, .003, 48), [new THREE.MeshStandardMaterial({ color: "#101012", roughness: .3 }), new THREE.MeshStandardMaterial({ map: recordTex, roughness: .35 }), new THREE.MeshStandardMaterial({ color: "#101012" })], "turntable-record", -.05, .5 + .0865, .01);
+  vp(new THREE.CylinderGeometry(.006, .006, .02, 8), metalMat, "tonearm-post", .17, .5 + .08, -.11);
+  const arm = vp(box(.24, .008, .008), metalMat, "tonearm", .09, .5 + .093, -.06); arm.rotation.y = -.55;
+  vp(box(.03, .012, .02), blackMat, "tonearm-head", .0, .5 + .092, .02);
+  for (const sx of [-1, 1]) {
+    vp(box(.16, .25, .18), new THREE.MeshStandardMaterial({ color: "#c9a77c", roughness: .55 }), "speaker", sx * .4, .5 + .125, -.03);
+    vp(new THREE.CylinderGeometry(.045, .045, .01, 24), softBlack, "speaker-woofer", sx * .4, .5 + .095, .062).rotation.x = Math.PI / 2;
+    vp(new THREE.CylinderGeometry(.018, .018, .01, 16), softBlack, "speaker-tweeter", sx * .4, .5 + .19, .062).rotation.x = Math.PI / 2;
+  }
+
   // ---------- lived-in details: posters, a real plant, blind, switch and sockets, ceiling light ----------
   // Like Room 01, the room should hold what a real home holds. Posters are Codex's prints (no text, no real people or brands),
   // the plant is Room 01's image-to-3D plant, and the small fittings sit where an electrician would put them.
@@ -535,6 +570,8 @@ export async function start({ stage, lang = "zh" }) {
       posters: (() => { const b = new THREE.Box3().setFromObject(posters); return { set: posterSet, loaded: printMats.every((m) => !!m.map), min: b.min.toArray(), max: b.max.toArray() }; })(),
       plant: (() => { const b = new THREE.Box3().setFromObject(plant); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
+      vinyl: (() => { const b = new THREE.Box3().setFromObject(vin), r = new THREE.Box3().setFromObject(record), sl = []; vin.traverse((o) => { if (o.name === "vinyl-sleeve") sl.push(new THREE.Box3().setFromObject(o)); });
+        return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)) }; })(),
       mood, blind: +((wTop - blindBar.position.y).toFixed(3)),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };

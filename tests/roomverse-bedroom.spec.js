@@ -157,6 +157,20 @@ test("four moods: buttons switch window, blind and lamps, and no mood is blown o
   }
 });
 
+test("vinyl corner: console under the sill, records inside their cubbies, record on the platter, clear of desk, chair and bed", async ({ page }) => {
+  await enter(page);
+  const { vinyl, work, bed } = await page.evaluate(() => window.__bedroom.info());
+  expect(vinyl.min[1]).toBeGreaterThan(-.001); expect(vinyl.min[1]).toBeLessThan(.01); // legs on the floor
+  expect(vinyl.max[1]).toBeLessThan(.9); // speakers stay under the 90 cm window sill
+  expect(vinyl.min[2]).toBeGreaterThan(-2.501); // against the north wall, not through it
+  expect(vinyl.sleevesMinY).toBeGreaterThan(.144); // standing on the lower board (top face 14.5 cm) ...
+  expect(vinyl.sleevesMaxY).toBeLessThan(.476); // ... and under the top board (lower face 47.5 cm)
+  expect(vinyl.recordY).toBeGreaterThan(.584); // the record lies on the platter, not inside it
+  expect(vinyl.min[0]).toBeGreaterThan(work.desk.max[0]); // east of the desk
+  expect(vinyl.max[2]).toBeLessThan(work.chair.min[2] + .001); // the chair stays in front of it
+  expect(vinyl.max[0]).toBeLessThan(bed.min[0]); // west of the bedside table
+});
+
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
