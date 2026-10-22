@@ -88,11 +88,11 @@ export async function start({ stage, lang = "zh" }) {
     }, undefined, () => { painted[file] = false; });
     return t;
   };
-  const ceil = { sprite: null, glow: null }; // the painted ceiling lamp and its pool of light
-  const CEILING_TINT = { focus: 1, weekend: .72, night: .32, sunday: .5 }, CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2 };
+  const ceil = { glow: null }; // the pool of light on the ceiling
+  const CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2 };
   const live = { mood: "focus" }; // the current mood, readable before the moods block exists
   const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8 };
-  const chosen = { wall: "sage", rug: "modern", window: "roller", bedding: "stone", posters: "C", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
+  const chosen = { wall: "sage", rug: "modern", window: "roller", bedding: "stone", posters: "C", tv: "auto", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -114,7 +114,7 @@ export async function start({ stage, lang = "zh" }) {
   const dir = target.clone().sub(home);
   const look0 = { yaw: Math.atan2(-dir.x, -dir.z), pitch: Math.atan2(dir.y, Math.hypot(dir.x, dir.z)) };
   const look = { yaw: look0.yaw, pitch: look0.pitch };
-  const LIMIT = { yaw: .45, pitch: .14 };
+  const LIMIT = { yaw: .6, pitch: .14 };
   camera.position.copy(home);
   camera.rotation.order = "YXZ";
   const applyLook = () => camera.rotation.set(look.pitch, look.yaw, 0);
@@ -130,19 +130,20 @@ export async function start({ stage, lang = "zh" }) {
   // Three looks from the corner (the camera never moves, only the head turns): the desk and window (the opening look), the TV wall
   // on the left, and the bed side on the right. On a phone the screen is too narrow to hold the whole room, so the buttons below the
   // room turn the head for you; dragging still works within the same limits.
-  const LOOKS = { work: [0, 0], tv: [.43, .01], bed: [-.34, .04] };
+  const LOOKS = { work: [0, 0], tv: [.43, .01], bed: compact ? [-.4, -.05, 1.5] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
   let lookRun = 0, lookName = "work";
+  const setZoom = (z) => { camera.zoom = z; camera.updateProjectionMatrix(); };
   function lookTo(name) {
     const to = LOOKS[name]; if (!to) return Promise.resolve(false);
     lookName = name;
-    const target = { yaw: look0.yaw + to[0], pitch: look0.pitch + to[1] };
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { look.yaw = target.yaw; look.pitch = target.pitch; applyLook(); render(); return Promise.resolve(true); }
-    const from = { yaw: look.yaw, pitch: look.pitch }, t0 = performance.now(), T = 650, run = ++lookRun, ease = (k) => k * k * (3 - 2 * k);
+    const target = { yaw: look0.yaw + to[0], pitch: look0.pitch + to[1], zoom: to[2] ?? 1 };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { look.yaw = target.yaw; look.pitch = target.pitch; setZoom(target.zoom); applyLook(); render(); return Promise.resolve(true); }
+    const from = { yaw: look.yaw, pitch: look.pitch, zoom: camera.zoom }, t0 = performance.now(), T = 650, run = ++lookRun, ease = (k) => k * k * (3 - 2 * k);
     return new Promise((resolve) => {
       const step = (now) => {
         if (run !== lookRun) { resolve(false); return; }
         const k = ease(Math.min(1, (now - t0) / T));
-        look.yaw = from.yaw + (target.yaw - from.yaw) * k; look.pitch = from.pitch + (target.pitch - from.pitch) * k; applyLook(); render();
+        look.yaw = from.yaw + (target.yaw - from.yaw) * k; look.pitch = from.pitch + (target.pitch - from.pitch) * k; setZoom(from.zoom + (target.zoom - from.zoom) * k); applyLook(); render();
         if (now - t0 < T) requestAnimationFrame(step); else resolve(true);
       };
       requestAnimationFrame(step);
@@ -294,7 +295,7 @@ export async function start({ stage, lang = "zh" }) {
   zoneRug(.63, 1.8, .45, -1.0, sleepRugMat, "zone-sleep-rug"); // a runner along the bed's open side, between the bedside table and the foot
   const cutout = (mat) => { mat.transparent = true; mat.alphaTest = .45; mat.needsUpdate = true; };
   const tvRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
-  zoneRug(1.2, 1.7, -1.0, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
+  zoneRug(1.2, 1.7, -1.05, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
   art("room02-rug-oat-v1.webp", { apply: (t) => { tvRugMat.map = t; cutout(tvRugMat); } }); // an oat rug seen whole from above, with its fringe
   // The rugs Codex drew on white are trimmed to the rug's own edge with the white made transparent, so a rug is only as big as the rug.
   art("room02-rug-runner-v1.webp", { apply: (t) => { sleepRugMat.map = t; cutout(sleepRugMat); } });
@@ -337,10 +338,10 @@ export async function start({ stage, lang = "zh" }) {
   };
   duvetMat.map = linenNoise();
   art("room02-a5-throw-weave-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
-  art("room02-linen-duvet-v1.webp", { repeat: [3.5, 4.5], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
-  const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95 });
+  art("room02-linen-duvet-v1.webp", { repeat: [5.7, 5.7], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
+  const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95, side: THREE.DoubleSide });
   art("room02-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = t; pillowMat.color.set("#ffffff"); pillowMat.needsUpdate = true; } });
-  const cushionMat = new THREE.MeshStandardMaterial({ color: "#7b8794", roughness: .95 });
+  const cushionMat = new THREE.MeshStandardMaterial({ color: "#7b8794", roughness: .95, side: THREE.DoubleSide });
   const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
   const part = (geo, mat, name, x, y, z) => {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; bed.add(m); return m;
@@ -367,12 +368,51 @@ export async function start({ stage, lang = "zh" }) {
     }
     g.computeVertexNormals(); return g;
   };
-  const pillowGeo = (w, h, d) => { const g = new THREE.SphereGeometry(.5, 16, 10); g.scale(w, h, d); return g; };
-  part(cloth(BED.w - .04, .1, 1.36, 3), duvetMat, "bed-duvet", BED.x, BED.top + .05, BED.z + .3); // foot to mid-bed
+  // A pillow is two soft sheets sewn along a square outline: thick in the middle, pinched to nothing at the seams, a little dent along the
+  // middle and corners that come to a point. (A smooth ellipsoid reads as a stone.)
+  const pillowGeo = (w, h, d, dent = .02) => {
+    const nx = 14, nz = 10, pos = [], uv = [], idx = [], row = nx + 1, n = row * (nz + 1);
+    for (const side of [1, -1]) for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+      const u = i / nx * 2 - 1, v = j / nz * 2 - 1;
+      const t = Math.pow(Math.max(1 - u * u, 0), .55) * Math.pow(Math.max(1 - v * v, 0), .55);
+      let y = side * (h / 2) * t;
+      if (side > 0) y -= dent * Math.exp(-Math.pow(u / .3, 2)) * (1 - v * v);
+      pos.push(u * w / 2, y, v * d / 2); uv.push(i / nx, j / nz);
+    }
+    for (const [side, b] of [[1, 0], [-1, n]]) for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+      const a = b + j * row + i, c = a + row, bb = a + 1, e = c + 1;
+      if (side > 0) idx.push(a, c, bb, bb, c, e); else idx.push(a, bb, c, bb, e, c);
+    }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); return g;
+  };
+  // The duvet is one sheet laid over the bed: flat on top with soft folds, rolled over the mattress edges and hanging 15 cm down the sides
+  // and the foot, with the head end turned back in a fold. Real sizes: 106 cm across the top, covering from the foot to 30 cm from the head.
+  const duvetGeo = () => {
+    const nu = 26, nv = 30, hx = .53, hzFoot = .7, hzHead = -.68, drape = .15, r = .05, arc = r * Math.PI / 2;
+    const A = hx + arc + drape, Bmax = hzFoot + arc + drape, pos = [], uv = [], idx = [], row = nu + 1;
+    for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
+      const a = -A + 2 * A * i / nu, b = hzHead + (Bmax - hzHead) * j / nv;
+      const ex = Math.max(Math.abs(a) - hx, 0), ez = Math.max(b - hzFoot, 0);
+      const off = (e) => (e < arc ? r * Math.sin(e / r) : r), dropOf = (e) => (e < arc ? r * (1 - Math.cos(e / r)) : r + (e - arc)); // the roll over an edge, then straight down
+      let x = a, z = b, y = 0;
+      if (ex > 0 || ez > 0) {
+        if (ex > 0) x = Math.sign(a) * (hx + off(ex));
+        if (ez > 0) z = hzFoot + off(ez);
+        y = -Math.max(dropOf(ex), dropOf(ez));
+      } else {
+        y += .011 * Math.sin(a * 9 + 1.3) * Math.sin(b * 5.5) + .007 * Math.sin(b * 13 + a * 3) + .018 * Math.exp(-Math.pow((b - (hzHead + .1)) / .07, 2)) // a turned-back head fold
+          - .014 * Math.exp(-Math.pow((b - hzHead) / .035, 2));
+      }
+      pos.push(x, y, z); uv.push((a + A) / (2 * A), (b - hzHead) / (Bmax - hzHead));
+    }
+    for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a = j * row + i, c = a + row; idx.push(a, c, a + 1, a + 1, c, c + 1); }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); return g;
+  };
+  part(duvetGeo(), duvetMat, "bed-duvet", BED.x, BED.top + .06, BED.z + .3); // from the foot to 30 cm from the head
   const blanket = part(cloth(BED.w - .02, .06, .36, 9, { fold: .01, roll: .03 }), throwMat, "bed-throw", BED.x, BED.top + .115, BED.z + .62); // a folded charcoal knit across the foot
   for (const sx of [-1, 1]) part(box(.012, .012, .36), throwMat, "bed-throw-fringe", BED.x + sx * (BED.w / 2 - .005), BED.top + .06, BED.z + .62); // the fringe hangs off both ends
-  part(pillowGeo(.7, .15, .46), pillowMat, "bed-pillow", BED.x, BED.top + .075, north + .36);
-  part(pillowGeo(.45, .13, .3), cushionMat, "bed-cushion", BED.x, BED.top + .2, north + .24).rotation.x = -.3;
+  part(pillowGeo(.7, .17, .46), pillowMat, "bed-pillow", BED.x, BED.top + .08, north + .36);
+  part(pillowGeo(.45, .14, .3, .012), cushionMat, "bed-cushion", BED.x, BED.top + .19, north + .22).rotation.x = -.32;
   // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
   part(rb(.4, .02, .4), oak, "bedside-top", tx, .44, tz);
@@ -526,7 +566,12 @@ export async function start({ stage, lang = "zh" }) {
   const sofaDark = new THREE.MeshStandardMaterial({ color: "#5b6772", roughness: 1 });
   const pillowA = new THREE.MeshStandardMaterial({ color: "#c58a62", roughness: .95 });
   const pillowB = new THREE.MeshStandardMaterial({ color: "#e8dfcf", roughness: .95 });
-  const tvScreen = new THREE.MeshStandardMaterial({ color: "#0e1014", roughness: .15, metalness: .3 });
+  const tvReflect = canvasTex(256, 144, (ctx, w, h) => { // a switched-off TV is not flat black: it holds a faint reflection of the window and the room
+    ctx.fillStyle = "#0c0e12"; ctx.fillRect(0, 0, w, h);
+    const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "rgba(190,205,225,.20)"); g.addColorStop(.45, "rgba(190,205,225,.05)"); g.addColorStop(1, "rgba(255,230,200,.03)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = "rgba(205,220,240,.10)"; ctx.fillRect(18, 14, 62, 44); ctx.fillStyle = "rgba(12,14,18,.5)"; ctx.fillRect(48, 14, 2, 44); ctx.fillRect(18, 35, 62, 2); // the window, as a ghost
+  });
+  const tvScreen = new THREE.MeshStandardMaterial({ color: "#ffffff", map: tvReflect, roughness: .12, metalness: .3 });
   // the sofa is the same image-to-3D model as Room 01 (see models.js), re-coloured slate blue-grey, front looking west
   const sofa = await loadSofa({ width: 1.6, tint: "#9db0c2" }); sofa.name = "sofa"; sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
   // Round coffee table (72 cm, 38 cm high): a travertine top on a dark metal ring base (Codex's D2 reference), plus a small side table.
@@ -544,12 +589,10 @@ export async function start({ stage, lang = "zh" }) {
     for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; h(box(.028, topY - topH / 2 - .02, .02), bronze, name + "-post", Math.cos(a) * r, (topY - topH / 2 - .02) / 2, Math.sin(a) * r).rotation.y = -a + Math.PI / 2; }
     return h;
   };
-  const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.2, 0, .9); root.add(ct);
-  const cp = ringTable(ct, "coffee-table", .31, .385, .36, .03, travertine);
+  const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.025, 0, .9); root.add(ct); // 45 cm in front of the sofa, 80 cm across, half the sofa's length
+  const cp = ringTable(ct, "coffee-table", .34, .385, .4, .03, travertine);
   cp(box(.24, .035, .18), pillowB, "coffee-table-book", -.12, .4175, .04); cp(box(.2, .03, .15), accentMat, "coffee-table-book", -.12, .45, .04);
   cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .15, .445, -.1);
-  const st = new THREE.Group(); st.name = "side-table"; st.position.set(.2, 0, 1.62); root.add(st);
-  ringTable(st, "side-table", .17, .3, .225, .025, darkOak);
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
   const tp = hold(tv);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
@@ -687,17 +730,17 @@ export async function start({ stage, lang = "zh" }) {
   // the window, where the overview always shows all of it (plaqueInView() proves that on desktop and phone)
   const plaqueTex = texLoader.load(new URL("../art/wall-plaque-text-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; render(); });
   plaqueTex.anisotropy = 8;
-  const plaque = add(new THREE.PlaneGeometry(.9, .36), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), "house-plaque", -1.4, 1.8, -HD + .015, { shadow: false });
-  // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides
+  const plaque = add(new THREE.PlaneGeometry(.9, .36), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), "house-plaque", -1.45, 1.8, -HD + .015, { shadow: false });
+  // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque)
   const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = false; root.add(curtains);
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
   { const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, WINDOW.w + .6, 10), metalMat); rod.rotation.z = Math.PI / 2; rod.position.set(WINDOW.x, wTop + .2, -HD + .12); rod.name = "curtain-rod"; curtains.add(rod); }
   for (const side of [-1, 1]) {
-    const g = new THREE.PlaneGeometry(.34, wTop + .19 - .02, 24, 1), pos = g.attributes.position;
-    for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin(pos.getX(i) / .34 * Math.PI * 7) * .022); // seven soft pleats
+    const g = new THREE.PlaneGeometry(.3, wTop + .19 - .02, 24, 1), pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin(pos.getX(i) / .3 * Math.PI * 7) * .022); // seven soft pleats
     g.computeVertexNormals();
     const panel = new THREE.Mesh(g, linenMat); panel.name = "curtain-panel"; panel.castShadow = true; panel.receiveShadow = true;
-    panel.position.set(WINDOW.x + side * (WINDOW.w / 2 + .14), (wTop + .19 + .02) / 2, -HD + .12); curtains.add(panel);
+    panel.position.set(WINDOW.x + side * (WINDOW.w / 2), (wTop + .19 + .02) / 2, -HD + .12); curtains.add(panel);
   }
   // switch by the door (120 cm), sockets at 30 cm by the desk, the bed and the TV
   const plateMat = new THREE.MeshStandardMaterial({ color: "#f4f1ea", roughness: .4 });
@@ -707,15 +750,14 @@ export async function start({ stage, lang = "zh" }) {
   plate(.086, .086, BED.x - BED.w / 2 - .55, .3, -HD + .005, 0, "socket-bed");
   plate(.086, .086, -HW + .005, .3, 1.62, Math.PI / 2, "socket-tv");
   // a flush round ceiling light (glows softly; the room light itself is still the fill light)
-  add(new THREE.CylinderGeometry(.2, .22, .06, 28), new THREE.MeshStandardMaterial({ color: "#fbf8f1", emissive: "#fff3dc", emissiveIntensity: .35, roughness: .6 }), "ceiling-light", 0, ROOM.h - .03, .2, { shadow: false });
-  // Codex's painted ceiling lamp (a thin round LED, seen from below at an angle) stands in for the plain disc, and a soft warm pool of
-  // light is laid on the ceiling around it. The lamp is a camera-facing cut-out (the camera never leaves its corner).
-  art("room02-ceiling-light-v1.webp", { apply: (t) => {
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, alphaTest: .03, depthWrite: false })); sp.name = "ceiling-light-art";
-    sp.scale.set(.62, .62, 1); sp.position.set(0, ROOM.h - .06, .2); root.add(sp); ceil.sprite = sp;
-    root.getObjectByName("ceiling-light").visible = false;
-    sp.material.color.setScalar(CEILING_TINT[live.mood] ?? 1); redraw();
-  } });
+  // A ring lamp: a slim round tube with a thinner ring inside it, hung on three wires 30 cm below the ceiling, the kind of light younger people
+  // choose. It is the real light of the room: the fill light sits at its centre, and a warm pool of light lies on the ceiling above it.
+  const ring = new THREE.Group(); ring.name = "ring-lamp"; ring.position.set(0, ROOM.h - .3, .2); root.add(ring);
+  const ringMat = new THREE.MeshStandardMaterial({ color: "#f4efe6", emissive: "#ffe9c4", emissiveIntensity: 1, roughness: .4 });
+  const ringTube = new THREE.Mesh(new THREE.TorusGeometry(.3, .02, 8, 48), ringMat); ringTube.name = "ceiling-light"; ringTube.rotation.x = Math.PI / 2; ring.add(ringTube);
+  const ringInner = new THREE.Mesh(new THREE.TorusGeometry(.2, .011, 6, 40), ringMat); ringInner.rotation.x = Math.PI / 2; ring.add(ringInner);
+  for (let i = 0; i < 3; i++) { const an = i * Math.PI * 2 / 3 + .5; const w = new THREE.Mesh(new THREE.CylinderGeometry(.0025, .0025, .3, 4), blackMat); w.position.set(Math.cos(an) * .3, .15, Math.sin(an) * .3); ring.add(w); }
+  { const canopy = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .02, 20), blackMat); canopy.position.set(0, .29, 0); ring.add(canopy); }
   art("room02-ceiling-glow-v1.webp", { apply: (t) => {
     const g = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4), new THREE.MeshBasicMaterial({ map: t, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, opacity: CEILING_GLOW[live.mood] ?? .5 }));
     g.name = "ceiling-glow"; g.rotation.x = Math.PI / 2; g.position.set(0, ROOM.h - .004, .2); g.renderOrder = 1; root.add(g); ceil.glow = g; redraw();
@@ -739,11 +781,19 @@ export async function start({ stage, lang = "zh" }) {
     ctx.fillRect(34 - 1000, 34, 60, 60);
   });
   const footprintMat = (op) => new THREE.MeshBasicMaterial({ color: "#1c1510", alphaMap: footprintTex, transparent: true, opacity: op, depthWrite: false, toneMapped: false });
-  for (const [name, op, grow] of [["bed", .5, .1], ["desk", .32, .06], ["chair", .4, .06], ["vinyl-corner", .45, .06], ["sofa", .55, .12], ["coffee-table", .32, .05], ["side-table", .32, .05], ["tv-unit", .5, .07], ["bookshelf", .5, .07], ["floor-plant", .5, .06]]) {
+  for (const [name, op, grow] of [["bed", .5, .1], ["desk", .32, .06], ["chair", .4, .06], ["vinyl-corner", .45, .06], ["sofa", .55, .12], ["coffee-table", .32, .05], ["tv-unit", .5, .07], ["bookshelf", .5, .07], ["floor-plant", .5, .06]]) {
     const o = root.getObjectByName(name); if (!o) continue;
     const b = new THREE.Box3().setFromObject(o);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2), footprintMat(op));
     m.name = "contact-" + name; m.rotation.x = -Math.PI / 2; m.position.set((b.min.x + b.max.x) / 2, .0075, (b.min.z + b.max.z) / 2); m.renderOrder = 1; root.add(m);
+  }
+  // Soft goods rest on each other, so each one gets a faint shadow on the surface under it: the pillow on the mattress, the cushion on the
+  // pillow, the throw on the duvet. The plane sits a few mm above that surface and is pulled forward a hair so it never z-fights.
+  for (const [name, surfaceY, op, grow, shift] of [["bed-pillow", BED.top + .004, .55, .07, .02], ["bed-cushion", BED.top + .17, .3, .04, .01], ["bed-throw", null, .5, .05, .02]]) {
+    const o = root.getObjectByName(name); if (!o) continue;
+    const b = new THREE.Box3().setFromObject(o), m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2), footprintMat(op));
+    m.material.polygonOffset = true; m.material.polygonOffsetFactor = -2; m.material.polygonOffsetUnits = -2;
+    m.name = "contact-" + name; m.rotation.x = -Math.PI / 2; m.position.set((b.min.x + b.max.x) / 2 + shift, surfaceY ?? b.min.y + .01, (b.min.z + b.max.z) / 2 + shift); m.renderOrder = 2; root.add(m);
   }
   // Corners: a faint gradient where walls meet the floor, the ceiling and each other, the way real rooms hold a little shade.
   const edgeTex = (dir) => canvasTex(4, 64, (ctx, w, h) => { const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, dir ? "#000" : "#fff"); g.addColorStop(1, dir ? "#fff" : "#000"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
@@ -765,7 +815,7 @@ export async function start({ stage, lang = "zh" }) {
   Object.assign(sun.shadow.camera, { left: -3.2, right: 3.2, top: 3.2, bottom: -3.2, near: .5, far: 12 });
   sun.shadow.bias = -.0005; sun.shadow.normalBias = .02; sun.shadow.radius = 5;
   scene.add(sun, sun.target);
-  const fill = new THREE.PointLight("#ffe9cf", 7, 7, 2); fill.position.set(0, 2.3, .6); scene.add(fill);
+  const fill = new THREE.PointLight("#ffe9cf", 7, 7, 2); fill.position.set(0, ROOM.h - .32, .2); scene.add(fill); // at the ring lamp's centre
 
   // ---------- four moods: each one sets the window, daylight, room fill and the lamps that really glow ----------
   // The bedside lamp and the screen are real lights (no shadows, short reach), so a dark mood is lit by what is on in the room.
@@ -776,10 +826,22 @@ export async function start({ stage, lang = "zh" }) {
   const ledStrip = root.getObjectByName("led-strip"), ledGlow = root.getObjectByName("led-glow"), ceilingLight = root.getObjectByName("ceiling-light");
   const tvFace = root.getObjectByName("tv-screen");
   tvFace.material.emissive.set("#ffffff");
-  tvFace.material.emissiveMap = canvasTex(256, 144, (ctx, w, h) => { // a film playing: warm dusk tones, no picture detail, no text
-    const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "#f2b36b"); g.addColorStop(.5, "#b2566a"); g.addColorStop(1, "#2c2f5e");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(20,16,30,.55)"; ctx.fillRect(0, h * .72, w, h * .28);
-  });
+  const tvTex = {
+    film: canvasTex(256, 144, (ctx, w, h) => { // a film playing: warm dusk tones, no picture detail, no text
+      const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "#f2b36b"); g.addColorStop(.5, "#b2566a"); g.addColorStop(1, "#2c2f5e");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(20,16,30,.55)"; ctx.fillRect(0, h * .72, w, h * .28);
+    }),
+    game: canvasTex(256, 144, (ctx, w, h) => { // a console home screen made of coloured tiles only (no words, no logos)
+      const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "#10173d"); g.addColorStop(1, "#2a1a52"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      const rr = (x, y, ww, hh, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.roundRect(x, y, ww, hh, 5); ctx.fill(); };
+      rr(14, 30, 78, 78, "#3f6cf0"); rr(98, 30, 44, 36, "#e0679a"); rr(98, 72, 44, 36, "#f2b36b"); rr(148, 30, 44, 36, "#5ec2a4"); rr(148, 72, 44, 36, "#8f7bff"); rr(198, 30, 44, 78, "#2f3a66");
+      ctx.fillStyle = "rgba(255,255,255,.7)"; for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(16 + i * 12, 12, 3, 0, 7); ctx.fill(); }
+    }),
+  };
+  const applyTv = (moodName) => { // "auto": the TV plays a film on the weekend mood and is off otherwise; the visitor can force it
+    const mode = chosen.tv === "auto" ? (moodName === "weekend" ? "film" : "off") : chosen.tv;
+    tvFace.material.emissiveMap = mode === "off" ? null : tvTex[mode]; tvFace.material.emissiveIntensity = mode === "off" ? 0 : .9; tvFace.material.needsUpdate = true;
+  };
   const blindFabric = root.getObjectByName("blind-fabric"), blindBar = root.getObjectByName("blind-bar");
   const setBlind = (drop) => { blindFabric.scale.y = drop / .18; blindFabric.position.y = wTop - drop / 2; blindBar.position.y = wTop - drop; };
   const MOODS = {
@@ -807,12 +869,11 @@ export async function start({ stage, lang = "zh" }) {
     bedLamp.intensity = m.bedLamp; shade.material.emissiveIntensity = m.shade;
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
     ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow;
-    ceilingLight.material.emissiveIntensity = m.ceiling;
-    tvFace.material.emissiveIntensity = m.tv; tvFace.material.needsUpdate = true;
+    ceilingLight.material.emissiveIntensity = m.ceiling * 3;
+    applyTv(name);
     setBlind(m.blind);
     applyEnv(name);
     for (const sp of sprites) sp.material.color.setScalar(SPRITE_TINT[name] ?? 1);
-    if (ceil.sprite) ceil.sprite.material.color.setScalar(CEILING_TINT[name] ?? 1);
     if (ceil.glow) ceil.glow.material.opacity = CEILING_GLOW[name] ?? .5;
     render();
     return true;
@@ -844,6 +905,7 @@ export async function start({ stage, lang = "zh" }) {
     screen: ["city", "grid", "work", "calm"],
     sofa: { slate: "#9db0c2", sand: "#e6d6bd", moss: "#a9b79a", charcoal: "#6b6f76", terracotta: "#d79a7e" },
     shelf: ["mixed", "airy", "library"],
+    tv: ["auto", "off", "film", "game"],
   };
   const rugCache = {};
   async function setChoice(kind, value) {
@@ -867,6 +929,8 @@ export async function start({ stage, lang = "zh" }) {
       screen.material.map = value === "city" ? cityScreen : (screens[value] ??= drawScreen(value)); screen.material.needsUpdate = true;
     } else if (kind === "sofa" && CHOICES.sofa[value]) {
       sofa.traverse((o) => { if (o.isMesh) o.material.color.set(CHOICES.sofa[value]); });
+    } else if (kind === "tv" && CHOICES.tv.includes(value)) {
+      chosen.tv = value; applyTv(live.mood);
     } else if (kind === "shelf" && CHOICES.shelf.includes(value)) {
       chosen.shelf = value; applyShelf();
     } else return false;
@@ -910,7 +974,7 @@ export async function start({ stage, lang = "zh" }) {
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       vinyl: (() => { const b = new THREE.Box3().setFromObject(vin), r = new THREE.Box3().setFromObject(record), sl = []; vin.traverse((o) => { if (o.name === "vinyl-sleeve") sl.push(new THREE.Box3().setFromObject(o)); });
         return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)) }; })(),
-      choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, bedPoster: bedPosterId,
+      choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, curtainPanels: curtains.children.filter((c) => c.name === "curtain-panel").map((c) => { const b = new THREE.Box3().setFromObject(c); return { min: b.min.toArray(), max: b.max.toArray() }; }), bedPoster: bedPosterId,
       bedPosterBox: (() => { const b = new THREE.Box3().setFromObject(bedPoster); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       plaque: (() => { const b = new THREE.Box3().setFromObject(plaque); return { min: b.min.toArray(), max: b.max.toArray(), loaded: !!plaqueTex.image }; })(),
       plaqueInView: (() => { const b = new THREE.Box3().setFromObject(plaque); camera.updateMatrixWorld(); return [[b.min.x, b.min.y], [b.max.x, b.min.y], [b.min.x, b.max.y], [b.max.x, b.max.y]].every(([x, y]) => { const v = new THREE.Vector3(x, y, b.max.z).project(camera); return Math.abs(v.x) < .98 && Math.abs(v.y) < .98 && v.z < 1; }); })(),
@@ -932,11 +996,19 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
+    tvState() { // local QA only
+      const m = tvFace.material, on = !!m.emissiveMap;
+      return { mode: !on ? "off" : m.emissiveMap === tvTex.film ? "film" : "game", reflection: !!m.map };
+    },
+    bedSoft() { // local QA only
+      const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
+      return { duvet: bx("bed-duvet"), pillow: bx("bed-pillow"), cushion: bx("bed-cushion"), throw: bx("bed-throw"), mattress: bx("bed-mattress"), frame: bx("bed-frame") };
+    },
     batch4() { // local QA only: the ceiling, console skins and night foreground
       const bx = (n) => { const o = root.getObjectByName(n) ?? scene.getObjectByName(n); if (!o) return null; const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
-      const lamp = ceil.sprite ? ceil.sprite.position.y : null;
+      const lamp = bx("ring-lamp");
       const skin = bx("game-console-skin"), padSkin = bx("game-pad-skin"), glow = bx("ceiling-glow");
-      return { ready: !!(lamp !== null && skin && padSkin && glow && fgTex.night), lamp, glow, skin, padSkin, console: bx("game-console"), consoleTop: bx("game-console-top")?.max[1], fgNightLoaded: !!fgTex.night, fgIsNight: fgMat.map === fgTex.night };
+      return { ready: !!(lamp && skin && padSkin && glow && fgTex.night), lamp, glow, skin, padSkin, console: bx("game-console"), consoleTop: bx("game-console-top")?.max[1], fgNightLoaded: !!fgTex.night, fgIsNight: fgMat.map === fgTex.night };
     },
     windowParts() { // local QA only
       const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
