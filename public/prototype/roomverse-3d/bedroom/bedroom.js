@@ -53,25 +53,6 @@ function weaveTexture(base, line, { stripes = false } = {}) {
   }, { repeat: [3, 4] });
 }
 
-function skyTexture() {
-  // Daylight behind the window: sky, a few soft clouds and a pale skyline. One flat layer, never lit.
-  return canvasTex(1024, 512, (ctx, w, h) => {
-    const g = ctx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, "#9fc3e6"); g.addColorStop(.55, "#cfe2f2"); g.addColorStop(1, "#eef0e8");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-    ctx.filter = "blur(10px)"; ctx.fillStyle = "rgba(255,255,255,.7)";
-    for (const [x, y, rx] of [[200, 120, 120], [560, 80, 160], [860, 150, 100]]) { ctx.beginPath(); ctx.ellipse(x, y, rx, 26, 0, 0, 7); ctx.fill(); }
-    ctx.filter = "none";
-    let x = 0, i = 0;
-    while (x < w) {
-      const bw = 46 + (i * 29) % 52, bh = 120 + (i * 61) % 170;
-      ctx.fillStyle = `rgb(${168 + (i * 7) % 20}, ${176 + (i * 5) % 16}, ${186 + (i * 3) % 12})`;
-      ctx.fillRect(x, h - bh, bw, bh);
-      x += bw + 6; i++;
-    }
-  });
-}
-
 export async function start({ stage, lang = "zh" }) {
   const compact = matchMedia("(max-width: 600px)").matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -154,8 +135,24 @@ export async function start({ stage, lang = "zh" }) {
   add(box(WINDOW.w + .16, .03, .16), trimMat, "window-sill", WINDOW.x, WINDOW.sill - ft - .005, -HD + .06, { shadow: false });
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(WINDOW.w, WINDOW.h), new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: .06, depthWrite: false }));
   glass.name = "window-glass"; glass.position.set(WINDOW.x, WINDOW.sill + WINDOW.h / 2, -HD + .01); root.add(glass);
-  const sky = new THREE.Mesh(new THREE.PlaneGeometry(14, 7), new THREE.MeshBasicMaterial({ map: skyTexture(), toneMapped: false }));
-  sky.name = "window-sky"; sky.position.set(0, 2.4, -HD - 6); root.add(sky);
+  // The view outside is a painted pair (day and night), same buildings and framing. The plane sits 1.2 m behind the wall, so a
+  // short orbit moves it against the window frame a little (parallax) without showing its edges; reach() proves that.
+  const texLoader = new THREE.TextureLoader();
+  const skyTex = {};
+  const loadSky = (time) => skyTex[time] ??= new Promise((resolve) => {
+    texLoader.load(new URL(`./art/studio-window-${time}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; resolve(t); }, undefined, () => resolve(null));
+  });
+  const SKY = { w: 4.8, h: 3.0, y: 1.6, z: -HD - 1.2 };
+  const skyMat = new THREE.MeshBasicMaterial({ color: "#cfe2f2", toneMapped: false });
+  const sky = new THREE.Mesh(new THREE.PlaneGeometry(SKY.w, SKY.h), skyMat);
+  sky.name = "window-sky"; sky.position.set(0, SKY.y, SKY.z); root.add(sky);
+  let skyTime = "day";
+  async function setTime(time) {
+    const t = await loadSky(time);
+    if (!t) return false;
+    skyTime = time; skyMat.map = t; skyMat.color.set("#ffffff"); skyMat.needsUpdate = true; render();
+    return true;
+  }
 
   // ---------- door: slab, frame, handle ----------
   const dz = HD - .02;
@@ -193,6 +190,7 @@ export async function start({ stage, lang = "zh" }) {
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
   controls.addEventListener("change", render);
   resize(); render();
+  setTime("day");
 
   const info = () => {
     let vertices = 0, meshes = 0;
@@ -211,8 +209,18 @@ export async function start({ stage, lang = "zh" }) {
     const at = (az) => [target.x + r * Math.sin(az), home.y + (y - offset.y), target.z + r * Math.cos(az)].map((v) => +v.toFixed(3));
     return { min: at(controls.minAzimuthAngle), max: at(controls.maxAzimuthAngle) };
   };
+  // For a camera position, do the four window corners land inside the sky plane? (the plane must never show its edge)
+  const skyCovers = (pos) => {
+    const [cx, cy, cz] = pos, k = (cz - SKY.z) / (cz + HD);
+    return [[wx0, WINDOW.sill], [wx1, WINDOW.sill], [wx0, wTop], [wx1, wTop]].every(([x, y]) => {
+      const px = cx + (x - cx) * k, py = cy + (y - cy) * k;
+      return Math.abs(px) < SKY.w / 2 && py > SKY.y - SKY.h / 2 && py < SKY.y + SKY.h / 2;
+    });
+  };
+  const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
+    covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
-    info, reach, render, camera, controls,
+    info, reach, windowArt, setTime, render, camera, controls,
     setLang(l) { lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); },
   };
 }
