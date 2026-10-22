@@ -1006,7 +1006,7 @@ export async function start({ stage, lang = "zh" }) {
   // ---------- loop ----------
   function resize() {
     const w = stage.clientWidth || 800, h = stage.clientHeight || 500;
-    renderer.setSize(w, h, false);
+    renderer.setSize(w, h, true); // true: also set the canvas CSS size, or on a hi-dpi screen the canvas is pixelRatio times too big for its box (cropped and half as sharp)
     camera.aspect = w / h;
     camera.fov = camera.aspect < .8 ? 82 : 60;
     camera.updateProjectionMatrix();
