@@ -2,14 +2,14 @@
 const COPY = {
   zh: {
     title: "Room 02 都市青年Style",
-    lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、窩著放鬆都在同一個空間。目前是第 2 階段：窗外的城市和睡覺的角落（床、寢具、床邊小燈）已經就位，工作和放鬆的家具之後一件一件放進來。拖一下轉動房間。",
+    lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、窩著放鬆都在同一個空間。目前是第 3 階段：窗外的城市、睡覺的角落、工作區（書桌、帶魚屏、電競椅）和客廳區（沙發、電視、書架）都已就位，接下來是燈光氛圍、海報和小物。拖一下轉動房間。",
     enter: "走進第二個房間", size: "施工中的第 1 階段：空房間與白天的光", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
     note: "施工中。這是 ROOMVERSE 的第二個房間，由程式一件一件建起來；目前只有牆、地板、窗、門和白天的光。窗外景色是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
     home: "← Room 01", lang: "EN",
   },
   en: {
     title: "Room 02 · Urban Youth Style",
-    lead: "ROOMVERSE works like a universe: it will never be just one room. The first room is a living room; this is the second, a studio for one where sleeping, working and unwinding share one space. We are at stage 2: the city outside and the sleeping corner (bed, bedding, bedside lamp) are in, and the work and lounge furniture will follow one piece at a time. Drag to turn the room.",
+    lead: "ROOMVERSE works like a universe: it will never be just one room. The first room is a living room; this is the second, a studio for one where sleeping, working and unwinding share one space. We are at stage 3: the city outside, the sleeping corner, the work zone (desk, ultrawide monitor, gaming chair) and the lounge (sofa, TV, bookshelf) are in; lighting moods, posters and small objects come next. Drag to turn the room.",
     enter: "Step into the second room", size: "Work in progress, stage 1: the empty room and daylight", loading: "Setting up the room…", failed: "3D can't open on this device.",
     note: "Work in progress. This is ROOMVERSE's second room, built in code piece by piece; for now it has walls, floor, window, door and daylight. The view outside is an illustration made through human–AI collaboration, not a real place. Not real products; check real colours and textures with samples and on-site light.",
     home: "← Room 01", lang: "中",
@@ -29,7 +29,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=3");
+    const { start } = await import("./bedroom.js?v=7");
     room = await start({ stage: $("stage"), lang });
     $("status").hidden = true;
     window.__bedroom = room; // test hook
