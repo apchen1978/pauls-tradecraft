@@ -43,7 +43,12 @@
   .moods button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .moods p { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; min-height: 1.6em; }
   .swaps { margin: 18px clamp(16px, 3vw, 40px) 0; }
-  .swaps h2 { font-size: 16px; margin: 0 0 8px; }
+  .swaps summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 10px 16px; border: 1px solid #a8afa5; border-radius: 14px; background: var(--paper); color: var(--ink); font-size: 16px; font-weight: 800; cursor: pointer; }
+  .swaps summary::-webkit-details-marker { display: none; }
+  .swaps summary::after { content: "+"; font-size: 22px; line-height: 1; color: var(--moss); }
+  .swaps[open] summary::after { content: "−"; }
+  .swaps summary:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
+  .swaps[open] summary { margin-bottom: 12px; }
   .swaps .group { margin: 0 0 12px; }
   .swaps .glabel { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
   .swaps .row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -52,6 +57,8 @@
   .swaps button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .note { padding: 14px clamp(16px, 3vw, 40px) 40px; color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 900px; }
   @media (max-width: 768px) {
+    .moods .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .moods button { width: 100%; padding: 10px 8px; border-radius: 14px; }
     .room { height: auto; }
     #stage { position: relative; height: 58vh; }
     .poster { height: 58vh; bottom: auto; }
@@ -74,8 +81,8 @@
   <p class="status" id="status" hidden></p>
 </section>
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
-<section class="swaps" id="swaps" hidden aria-labelledby="swapsTitle"><h2 id="swapsTitle"></h2><div id="swapGroups"></div></section>
+<details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=10"></script>
+<script type="module" src="page.js?v=11"></script>
 </body>
 </html>
