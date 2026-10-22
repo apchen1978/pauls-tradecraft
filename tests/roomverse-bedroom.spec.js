@@ -391,6 +391,20 @@ test("two prints hang on the wall behind the sofa, over its length and above its
   expect(headboardTop).toBeLessThan(win.sill - .05); // the sill sticks out of the wall beside the bed: nothing of the headboard may reach it
 });
 
+test("tap the little robot: it hops, turns to look at you and settles back where it was; a drag does not set it off", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  const r0 = await page.evaluate(() => window.__bedroom.robotState());
+  expect(Math.abs(r0.ndc.x)).toBeLessThan(.95); expect(r0.ndc.z).toBeLessThan(1); // in the opening view
+  const box = await page.locator("#stage canvas").boundingBox();
+  const x = box.x + (r0.ndc.x + 1) / 2 * box.width, y = box.y + (1 - r0.ndc.y) / 2 * box.height;
+  await page.mouse.click(x, y);
+  await page.waitForFunction(() => window.__bedroom.robotState().hopping, null, { timeout: 3000 });
+  await page.waitForFunction(() => !window.__bedroom.robotState().hopping, null, { timeout: 5000 });
+  const r1 = await page.evaluate(() => window.__bedroom.robotState());
+  expect(r1.y).toBeCloseTo(r0.y, 5); expect(r1.yaw).toBeCloseTo(r0.yaw, 5); // back home
+});
+
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");

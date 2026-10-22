@@ -173,6 +173,29 @@ export async function start({ stage, lang = "zh" }) {
   });
   const endDrag = () => { drag = null; el.style.cursor = "grab"; };
   el.addEventListener("pointerup", endDrag); el.addEventListener("pointercancel", endDrag);
+  // Tap the little robot (same as Room 01's): it hops, turns to look at you, then turns back. Only a tap counts, not a drag; with reduced
+  // motion it just turns. The robot is loaded later, so it is looked up when tapped.
+  const tapTargets = { robot: null }, tapRay = new THREE.Raycaster(), tapAt = new THREE.Vector2();
+  let downAt = null, hopping = false;
+  el.addEventListener("pointerdown", (e) => { downAt = [e.clientX, e.clientY]; });
+  el.addEventListener("pointerup", (e) => {
+    const rb = tapTargets.robot;
+    if (!rb || !downAt || hopping || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
+    const r = el.getBoundingClientRect(); tapAt.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    tapRay.setFromCamera(tapAt, camera);
+    if (!tapRay.intersectObject(rb, true).length) return;
+    hopping = true;
+    const home = { y: rb.position.y, r: rb.rotation.y }, look = Math.atan2(camera.position.x - rb.position.x, camera.position.z - rb.position.z); // the robot faces +z
+    const dr = Math.atan2(Math.sin(look - home.r), Math.cos(look - home.r)), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now(), T = 1400;
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / T), turn = k < .3 ? k / .3 : k < .75 ? 1 : 1 - (k - .75) / .25, ease = turn * turn * (3 - 2 * turn); // turn to you, hold, turn back
+      rb.rotation.y = home.r + dr * ease;
+      rb.position.y = home.y + (reduce ? 0 : Math.max(0, Math.sin(Math.min(1, k / .3) * Math.PI)) * .09);
+      render();
+      if (k < 1) requestAnimationFrame(step); else { rb.position.y = home.y; rb.rotation.y = home.r; hopping = false; render(); }
+    };
+    requestAnimationFrame(step);
+  });
 
   // Arriving from Room 01's door: the camera starts in the doorway at eye height, looking into the room, then walks along the
   // south wall and rises to the overview corner while the view turns to the usual angle. Reduced motion: it simply starts there.
@@ -822,7 +845,7 @@ export async function start({ stage, lang = "zh" }) {
     face.position.set((b0.min.x + b0.max.x) / 2, fy, b0.max.z + .004);
     for (const sx of [-1, 1]) { const eye = new THREE.Mesh(new THREE.CircleGeometry(fh * .14, 16), new THREE.MeshBasicMaterial({ color: "#ffe2a8" })); eye.position.set(sx * fw * .2, fh * .05, .002); face.add(eye); }
     rb.add(face);
-    rb.position.set(.35, 0, -.55); rb.rotation.y = .46; root.add(rb); redraw();
+    rb.position.set(.35, 0, -.55); rb.rotation.y = .46; root.add(rb); tapTargets.robot = rb; redraw();
   }).catch(() => {});
   // roller blind: a slim cassette above the window with the oat fabric pulled down 18 cm
   add(box(WINDOW.w + .12, .07, .08), frameMat, "blind-cassette", WINDOW.x, wTop + .085, -HD + .07, { shadow: false });
@@ -1165,6 +1188,7 @@ export async function start({ stage, lang = "zh" }) {
       return { rug: bx(get("zone-tv-rug")), unit: bx(get("tv-unit")), table: bx(get("coffee-table")), console: bx((() => { const g = new THREE.Group(); return get("game-console"); })()), pad: bx(get("game-pad")),
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
+    robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, y: rb.position.y, yaw: rb.rotation.y, ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
     info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
