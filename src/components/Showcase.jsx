@@ -75,6 +75,18 @@ export default function Showcase() {
             {s.startCta}
           </a>
         </p>
+        <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-moss md:text-base max-[768px]:mt-0.5 max-[768px]:max-w-none max-[768px]:leading-[1.35]">
+          {s.roomsLead}{" "}
+          <a
+            href={withDemoLang(s.roomsHref, lang)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-sm font-semibold text-ink underline decoration-ink/40 underline-offset-4 hover:decoration-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink max-[768px]:-my-3 max-[768px]:inline-flex max-[768px]:min-h-11 max-[768px]:items-center"
+          >
+            {s.roomsCta}
+          </a>
+          {s.roomsTail}
+        </p>
         <ol className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:gap-8 xl:grid-cols-6 max-[768px]:mt-3">
           {items.map((item, index) => {
             const wide = wideAt(index, items.length);
