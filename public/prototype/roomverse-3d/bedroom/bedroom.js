@@ -380,14 +380,17 @@ export async function start({ stage, lang = "zh" }) {
     }
     g.computeVertexNormals(); return g;
   };
-  // A pillow is two soft sheets sewn along a square outline: thick in the middle, pinched to nothing at the seams, a little dent along the
-  // middle and corners that come to a point. (A smooth ellipsoid reads as a stone.)
+  // A pillow is two soft sheets sewn along a square outline: plump in the middle, pinched at the seam — but the seam keeps a
+  // 1.8 cm welt so the rim reads as fabric rather than paper, and the corners taper to a point. A narrow band joins the two sheets
+  // along the rim, so the pillow is closed and casts a solid shadow. (A smooth ellipsoid reads as a stone.)
   const pillowGeo = (w, h, d, dent = .02) => {
-    const nx = 14, nz = 10, pos = [], uv = [], idx = [], row = nx + 1, n = row * (nz + 1);
+    const nx = 16, nz = 11, row = nx + 1, n = row * (nz + 1), welt = .010;
+    const pos = [], uv = [], idx = [];
     for (const side of [1, -1]) for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
       const u = i / nx * 2 - 1, v = j / nz * 2 - 1;
-      const t = Math.pow(Math.max(1 - u * u, 0), .55) * Math.pow(Math.max(1 - v * v, 0), .55);
-      let y = side * (h / 2) * t;
+      const t = Math.pow(Math.max(1 - u * u, 0), .5) * Math.pow(Math.max(1 - v * v, 0), .5);
+      const corner = Math.min(1, Math.min(1 - Math.abs(u), 1 - Math.abs(v)) / .22); // 0 at the corners, 1 along the edges
+      let y = side * Math.max((h / 2) * t, welt * Math.max(corner, .12));
       if (side > 0) y -= dent * Math.exp(-Math.pow(u / .3, 2)) * (1 - v * v);
       pos.push(u * w / 2, y, v * d / 2); uv.push(i / nx, j / nz);
     }
@@ -395,6 +398,10 @@ export async function start({ stage, lang = "zh" }) {
       const a = b + j * row + i, c = a + row, bb = a + 1, e = c + 1;
       if (side > 0) idx.push(a, c, bb, bb, c, e); else idx.push(a, bb, c, bb, e, c);
     }
+    const F = (i, j) => i + j * row, B = (i, j) => n + i + j * row; // the rim band closes the two sheets along the outline
+    const band = (i0, j0, i1, j1) => idx.push(F(i0, j0), B(i0, j0), F(i1, j1), F(i1, j1), B(i0, j0), B(i1, j1));
+    for (let i = 0; i < nx; i++) { band(i, 0, i + 1, 0); band(i + 1, nz, i, nz); }
+    for (let j = 0; j < nz; j++) { band(0, j, 0, j + 1); band(nx, j + 1, nx, j); }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); return g;
   };
   // The duvet is one sheet laid over the bed: flat on top with soft folds, rolled over the mattress edges and hanging 15 cm down the sides
@@ -461,8 +468,12 @@ export async function start({ stage, lang = "zh" }) {
     throwMat.side = THREE.DoubleSide;
     part(g, throwMat, "bed-throw", tx, ty, tz);
     part(f, throwMat, "bed-throw-fringe", tx, ty, tz); }
-  part(pillowGeo(.7, .17, .46), pillowMat, "bed-pillow", BED.x, BED.top + .08, north + .36);
-  part(pillowGeo(.45, .14, .3, .012), cushionMat, "bed-cushion", BED.x, BED.top + .19, north + .22).rotation.x = -.32;
+  // 19 cm pillow, 16 cm cushion; the two are not copies of each other (a few degrees of yaw/tilt), and the cushion presses a shallow
+  // dent into the pillow's top face (the dent amount is heavier on the pillow than on the cushion).
+  const bedPillow = part(pillowGeo(.7, .19, .46, .02), pillowMat, "bed-pillow", BED.x, BED.top + .082, north + .36);
+  bedPillow.rotation.set(0, .05, .012);
+  const bedCushion = part(pillowGeo(.45, .16, .3, .015), cushionMat, "bed-cushion", BED.x, BED.top + .235, north + .22);
+  bedCushion.rotation.set(-.32, .08, 0);
   // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
   part(rb(.4, .02, .4), oak, "bedside-top", tx, .44, tz);
