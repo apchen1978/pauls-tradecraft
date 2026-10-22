@@ -74,3 +74,16 @@ export async function loadModel(name, { height, roughness = .75 } = {}) {
   const g = new THREE.Group(); g.add(obj);
   return g;
 }
+
+// A self-contained GLB (colours in its vertices, own materials), scaled to `height` metres, standing on y = 0 and centred on x = z = 0.
+export async function loadGlb(url, { height, roughness } = {}) {
+  const gltf = await new GLTFLoader().loadAsync(url);
+  const obj = gltf.scene;
+  const size = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
+  obj.scale.multiplyScalar(height / size.y);
+  const b = new THREE.Box3().setFromObject(obj), c = b.getCenter(new THREE.Vector3());
+  obj.position.set(-c.x, -b.min.y, -c.z);
+  obj.traverse((m) => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; if (roughness !== undefined && m.material.roughness > roughness) m.material.roughness = roughness; });
+  const g = new THREE.Group(); g.add(obj);
+  return g;
+}
