@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-textures" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-modern" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -75,7 +75,7 @@ test("the bed has real sizes, stands on the floor beside the wall and clears the
   expect(x1 - x0).toBeGreaterThan(1.5); // bed 1.1 m plus the bedside table
   expect(x1).toBeLessThanOrEqual(2.0); // inside the east wall
   expect(z0).toBeGreaterThan(-2.501); // inside the north wall
-  expect(z1 - z0).toBeLessThan(2.1); // 2 m bed, nothing hangs further out
+  expect(z1 - z0).toBeLessThan(2.2); // 2 m bed on a slightly larger frame, plus the headboard thickness
   expect(x0).toBeGreaterThan(.3); // the bedside table stays well clear of the door side of the room
   expect(y1).toBeLessThan(1.1); // headboard under the window sill height + a little, never blocks the glass
   expect(vertices).toBeLessThan(28000);

@@ -255,7 +255,7 @@ export async function start({ stage, lang = "zh" }) {
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
-  const BED = { x: 1.4, z: -1.46, w: 1.1, l: 2.0, top: .48 };
+  const BED = { x: 1.4, z: -1.4, w: 1.1, l: 2.0, top: .48 };
   const woodTex = (base, dark, light) => canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
     for (let i = 0; i < 140; i++) { const y = (i * 53) % h, a = .05 + (i % 6) * .018; ctx.strokeStyle = (i % 3 ? dark : light).replace("A", a.toFixed(3)); ctx.lineWidth = .8 + (i % 4) * .5;
@@ -263,8 +263,9 @@ export async function start({ stage, lang = "zh" }) {
     for (let i = 0; i < 6; i++) { ctx.fillStyle = "rgba(60,38,20,.10)"; ctx.beginPath(); ctx.ellipse((i * 97) % w, (i * 61) % h, 14, 4, 0, 0, 7); ctx.fill(); } // a few knots and cathedral marks
   });
   const woods = [];
-  const woodMat = (base, { rough = .62, tint = "#ffffff" } = {}) => { const t = woodTex(base, "rgba(70,42,20,A)", "rgba(255,235,200,A)"); const m = new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: .6, roughness: rough }); m.userData.tint = tint; woods.push(m); return m; };
-  art("room02-a3-oak-grain-v1.webp", { apply: (t) => { for (const m of woods) { m.map = t; m.bumpMap = t; m.bumpScale = .5; m.color.set(m.userData.tint); m.needsUpdate = true; } } }); // the painted oak, tinted per piece
+  let oakImg = null; // set once the painted oak arrives, so pieces made later pick it up too
+  const woodMat = (base, { rough = .62, tint = "#ffffff" } = {}) => { const t = woodTex(base, "rgba(70,42,20,A)", "rgba(255,235,200,A)"); const m = new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: .6, roughness: rough }); m.userData.tint = tint; woods.push(m); if (oakImg) { m.map = oakImg; m.bumpMap = oakImg; m.bumpScale = .5; m.color.set(tint); } return m; };
+  art("room02-a3-oak-grain-v1.webp", { apply: (t) => { oakImg = t; for (const m of woods) { m.map = t; m.bumpMap = t; m.bumpScale = .5; m.color.set(m.userData.tint); m.needsUpdate = true; } } }); // the painted oak, tinted per piece
   const oak = woodMat("#b8895a", { rough: .66, tint: "#e3d6cc" });
   const sheetMat = new THREE.MeshStandardMaterial({ color: "#ece4d4", roughness: .95 });
   const duvetMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#d9d4ca", "#b9b2a3"), roughness: 1 });
@@ -284,12 +285,14 @@ export async function start({ stage, lang = "zh" }) {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; bed.add(m); return m;
   };
   const north = BED.z - BED.l / 2; // z of the head end
-  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-    part(box(.05, .12, .05), oak, "bed-leg", BED.x + dx * (BED.w / 2 - .02), .06, BED.z + dz * (BED.l / 2 - .03));
-  }
-  part(rb(BED.w + .02, .14, BED.l + .02), oak, "bed-frame", BED.x, .19, BED.z); // 12 cm to 26 cm
+  // A low upholstered platform bed (Codex's D1 reference): the fabric frame floats on small black feet and the headboard is three
+  // soft horizontal channels, 95 cm tall. Not a wooden slab, not a classic bed.
+  const upholst = new THREE.MeshStandardMaterial({ map: weaveTexture("#b9ad9d", "#8f8576"), roughness: 1 });
+  const bedFoot = new THREE.MeshStandardMaterial({ color: "#23262b", roughness: .45, metalness: .25 });
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) part(box(.07, .07, .07), bedFoot, "bed-leg", BED.x + dx * (BED.w / 2 - .1), .035, BED.z + dz * (BED.l / 2 - .12));
+  part(softBox(BED.w + .06, .19, BED.l + .06, .035), upholst, "bed-frame", BED.x, .165, BED.z); // 7 cm to 26 cm, floating on the feet
   part(softBox(BED.w, .22, BED.l - .02, .03), sheetMat, "bed-mattress", BED.x, .26 + .11, BED.z); // top at 48 cm
-  part(rb(BED.w + .08, .82, .035), oak, "bed-headboard", BED.x, .6, north - .0225); // 19 cm to 101 cm, against the wall
+  for (let k = 0; k < 3; k++) { const ch = part(softBox(BED.w + .06, .09, .225, .05), upholst, "bed-headboard", BED.x, .385 + k * .235, north - .045); ch.rotation.x = Math.PI / 2; } // three channels, 26 cm to 96 cm
   part(softBox(BED.w - .04, .09, 1.32, .05), duvetMat, "bed-duvet", BED.x, BED.top + .045, BED.z + .3); // foot to mid-bed
   part(softBox(BED.w - .02, .07, .34, .04), throwMat, "bed-throw", BED.x, BED.top + .1, BED.z + .62); // folded charcoal blanket across the foot (plain, no stripes: a modern, quiet look)
   part(softBox(.7, .13, .45, .06), pillowMat, "bed-pillow", BED.x, BED.top + .065, north + .36);
@@ -326,8 +329,12 @@ export async function start({ stage, lang = "zh" }) {
   const desk = new THREE.Group(); desk.name = "desk"; desk.position.set(-HW + .325, 0, -1.75); desk.rotation.y = Math.PI / 2; root.add(desk);
   const dpart = hold(desk);
   dpart(rb(1.4, .03, .65), deskMat, "desk-top", 0, .735, 0); // top face at 75 cm
-  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) dpart(box(.04, .72, .04), blackMat, "desk-leg", dx * .66, .36, dz * .29);
-  dpart(box(1.3, .03, .04), blackMat, "desk-rail", 0, .6, -.29);
+  for (const sx of [-1, 1]) { // an inverted T at each end: a column and a long foot
+    dpart(box(.06, .69, .06), blackMat, "desk-leg", sx * .62, .375, 0);
+    dpart(rb(.06, .03, .58), blackMat, "desk-foot", sx * .62, .015, 0);
+  }
+  dpart(box(1.2, .03, .09), blackMat, "desk-tray", 0, .7, -.24); // a cable tray under the back edge
+  dpart(rb(.36, .09, .4), deskMat, "desk-drawer", .4, .675, .02); // a shallow drawer under the right end
   dpart(softBox(.82, .004, .32, .02), softBlack, "desk-mat", 0, .752, .12);
   dpart(box(.26, .01, .18), blackMat, "monitor-foot", 0, .755, -.1);
   dpart(box(.05, .2, .02), blackMat, "monitor-neck", 0, .86, -.16);
@@ -347,16 +354,22 @@ export async function start({ stage, lang = "zh" }) {
   });
   const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.0), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .55, toneMapped: false }));
   glow.name = "led-glow"; glow.position.set(0, 1.0, -.322); desk.add(glow);
-  // gaming chair, pulled up to the desk
+  // ergonomic task chair, pulled up to the desk
   const chair = new THREE.Group(); chair.name = "chair"; chair.position.set(-.93, 0, -1.75); chair.rotation.y = -Math.PI / 2 + .1; root.add(chair);
   const cpart = hold(chair);
-  cpart(softBox(.5, .09, .5, .07), softBlack, "chair-seat", 0, .435, 0); // top at 48 cm
-  const back = cpart(softBox(.5, .1, .72, .07), softBlack, "chair-back", 0, .84, -.255); back.rotation.x = Math.PI / 2 + .12;
-  const stripe = cpart(box(.12, .5, .012), accentMat, "chair-stripe", 0, .84, -.195); stripe.rotation.x = .12;
-  const head = cpart(softBox(.26, .08, .16, .04), accentMat, "chair-headrest", 0, 1.19, -.3); head.rotation.x = Math.PI / 2 + .12;
+  const meshTex = canvasTex(64, 64, (ctx, w, h) => { // fine woven mesh: a dark grid with a few lighter threads
+    ctx.fillStyle = "#2b2d30"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(255,255,255,.10)";
+    for (let i = 0; i < w; i += 2) { ctx.fillRect(i, 0, 1, h); ctx.fillRect(0, i, w, 1); }
+  }, { repeat: [5, 6] });
+  const meshMat = new THREE.MeshStandardMaterial({ map: meshTex, roughness: .8 });
+  cpart(softBox(.5, .08, .48, .07), softBlack, "chair-seat", 0, .44, 0); // top at 48 cm, a rounded waterfall front
+  cpart(box(.3, .05, .28), blackMat, "chair-mech", 0, .375, -.02);
+  const frameBack = cpart(softBox(.5, .05, .6, .08), blackMat, "chair-back-frame", 0, .78, -.265); frameBack.rotation.x = Math.PI / 2 + .14;
+  const back = cpart(softBox(.44, .03, .54, .07), meshMat, "chair-back", 0, .785, -.24); back.rotation.x = Math.PI / 2 + .14;
+  const lumbar = cpart(softBox(.3, .05, .13, .03), softBlack, "chair-lumbar", 0, .64, -.205); lumbar.rotation.x = Math.PI / 2 + .14;
   for (const sx of [-1, 1]) {
-    cpart(box(.04, .22, .04), blackMat, "chair-arm-post", sx * .29, .56, -.02);
-    cpart(rb(.06, .025, .26), blackMat, "chair-arm", sx * .29, .68, .02);
+    cpart(box(.035, .2, .035), blackMat, "chair-arm-post", sx * .27, .56, -.05);
+    cpart(rb(.06, .025, .27), blackMat, "chair-arm", sx * .27, .68, .03);
   }
   cpart(new THREE.CylinderGeometry(.035, .035, .26, 10), metalMat, "chair-lift", 0, .27, 0);
   for (let i = 0; i < 5; i++) {
@@ -375,12 +388,27 @@ export async function start({ stage, lang = "zh" }) {
   const tvScreen = new THREE.MeshStandardMaterial({ color: "#0e1014", roughness: .15, metalness: .3 });
   // the sofa is the same image-to-3D model as Room 01 (see models.js), re-coloured slate blue-grey, front looking west
   const sofa = await loadSofa({ width: 1.6, tint: "#9db0c2" }); sofa.name = "sofa"; sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
-  const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.3, 0, .9); ct.rotation.y = Math.PI / 2; root.add(ct);
-  const cp = hold(ct);
-  cp(rb(.9, .04, .5), oak, "coffee-table-top", 0, .38, 0);
-  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) cp(box(.04, .36, .04), blackMat, "coffee-table-leg", dx * .4, .18, dz * .21);
-  cp(box(.24, .035, .18), pillowB, "coffee-table-book", -.2, .4175, .04); cp(box(.2, .03, .15), accentMat, "coffee-table-book", -.2, .45, .04);
-  cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .22, .445, -.06);
+  // Round coffee table (72 cm, 38 cm high): a travertine top on a dark metal ring base (Codex's D2 reference), plus a small side table.
+  const travertine = new THREE.MeshStandardMaterial({ map: canvasTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = "#cdbc9c"; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 90; i++) { ctx.fillStyle = `rgba(${150 + (i % 5) * 8}, ${128 + (i % 4) * 8}, ${100 + (i % 3) * 8}, ${.1 + (i % 4) * .04})`; ctx.fillRect((i * 71) % w, (i * 29) % h, 40 + (i * 37) % 160, 1.5 + (i % 3)); } // layered bands
+    for (let i = 0; i < 70; i++) { ctx.fillStyle = "rgba(90,70,50,.35)"; ctx.beginPath(); ctx.ellipse((i * 53) % w, (i * 97) % h, 1 + (i % 3), .8, 0, 0, 7); ctx.fill(); } // small pores
+  }), roughness: .5 });
+  const bronze = new THREE.MeshStandardMaterial({ color: "#2f2b27", roughness: .42, metalness: .55 });
+  const darkOak = woodMat("#7a5a40", { rough: .55, tint: "#8e6f55" });
+  const ringTable = (g, name, r, topY, topR, topH, topMat) => {
+    const h = hold(g);
+    h(new THREE.CylinderGeometry(topR, topR, topH, 48), topMat, name + "-top", 0, topY, 0);
+    for (const y of [.017, topY - topH / 2 - .02]) h(new THREE.TorusGeometry(r, .012, 8, 48), bronze, name + "-ring", 0, y, 0).rotation.x = Math.PI / 2;
+    for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; h(box(.028, topY - topH / 2 - .02, .02), bronze, name + "-post", Math.cos(a) * r, (topY - topH / 2 - .02) / 2, Math.sin(a) * r).rotation.y = -a + Math.PI / 2; }
+    return h;
+  };
+  const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.2, 0, .9); root.add(ct);
+  const cp = ringTable(ct, "coffee-table", .31, .385, .36, .03, travertine);
+  cp(box(.24, .035, .18), pillowB, "coffee-table-book", -.12, .4175, .04); cp(box(.2, .03, .15), accentMat, "coffee-table-book", -.12, .45, .04);
+  cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .15, .445, -.1);
+  const st = new THREE.Group(); st.name = "side-table"; st.position.set(.2, 0, 1.62); root.add(st);
+  ringTable(st, "side-table", .17, .3, .225, .025, darkOak);
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
   const tp = hold(tv);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
@@ -533,7 +561,7 @@ export async function start({ stage, lang = "zh" }) {
     ctx.fillRect(34 - 1000, 34, 60, 60);
   });
   const footprintMat = (op) => new THREE.MeshBasicMaterial({ color: "#1c1510", alphaMap: footprintTex, transparent: true, opacity: op, depthWrite: false, toneMapped: false });
-  for (const [name, op, grow] of [["bed", .5, .1], ["desk", .32, .06], ["chair", .4, .06], ["vinyl-corner", .45, .06], ["sofa", .55, .12], ["coffee-table", .32, .06], ["tv-unit", .5, .07], ["bookshelf", .5, .07], ["floor-plant", .5, .06]]) {
+  for (const [name, op, grow] of [["bed", .5, .1], ["desk", .32, .06], ["chair", .4, .06], ["vinyl-corner", .45, .06], ["sofa", .55, .12], ["coffee-table", .32, .05], ["side-table", .32, .05], ["tv-unit", .5, .07], ["bookshelf", .5, .07], ["floor-plant", .5, .06]]) {
     const o = root.getObjectByName(name); if (!o) continue;
     const b = new THREE.Box3().setFromObject(o);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2), footprintMat(op));
