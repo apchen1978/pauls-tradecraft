@@ -31,10 +31,11 @@
   #stage { position: absolute; inset: 0; }
   #stage canvas { display: block; touch-action: none; }
   .room::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: radial-gradient(ellipse at 50% 46%, transparent 58%, rgba(30,20,12,.22) 100%); } /* a soft lens vignette, like a photograph */
-  .poster { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(180deg, #cfe0ee 0%, #e8e4d8 58%, #c9b79c 58%, #b7a283 100%); }
+  .poster { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(180deg, #0003 0%, #0000 35%, #0006 100%), url("../showcase-roomverse-3d-room02-v2.webp") center / cover no-repeat, #cfc6b4; }
+  .poster > div { text-align: center; }
   .poster button { font: inherit; font-weight: 700; font-size: 17px; padding: 14px 22px; border: 0; border-radius: 999px; background: var(--moss); color: #fff; cursor: pointer; box-shadow: 0 10px 30px #0003; }
   .poster button:focus-visible { outline: 3px solid #977b42; outline-offset: 3px; }
-  .poster small { display: block; margin-top: 8px; text-align: center; color: #24302c; font-size: 13px; }
+  .poster small { display: block; width: fit-content; max-width: 88%; margin: 10px auto 0; padding: 5px 12px; border-radius: 999px; background: #fffc; text-align: center; color: #24302c; font-size: 13px; line-height: 1.4; }
   .status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fffd; padding: 10px 16px; border-radius: 999px; font-size: 14px; }
   .views { margin: 12px clamp(16px, 3vw, 40px) 0; }
   .views .row { display: flex; flex-wrap: wrap; gap: 8px; }
