@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-swaps2" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-tv" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -239,6 +239,21 @@ test("phone first screen: moods sit in a tidy 2x2, the swap options start collap
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true); // no sideways scroll
   await enter(page, { width: 1440 });
   expect(await page.locator("#swaps").evaluate((d) => d.open)).toBe(true); // open on wide screens
+});
+
+test("TV corner: a rug in front of the TV, a game console resting inside the open bay of the cabinet", async ({ page }) => {
+  await enter(page);
+  const info = await page.evaluate(() => window.__bedroom.tvCorner());
+  expect(info.rug.min[1]).toBeGreaterThan(0); expect(info.rug.max[1]).toBeLessThan(.02); // lies on the floor
+  expect(info.rug.max[0]).toBeLessThan(info.table.min[0] - .05); // clear of the coffee table
+  expect(info.rug.min[0]).toBeGreaterThan(info.unit.max[0] - .05); // starts right in front of the cabinet
+  expect(info.rug.min[2]).toBeGreaterThan(-.01); expect(info.rug.max[2]).toBeLessThan(2.45); // inside the room, away from the door wall
+  const c = info.console;
+  expect(c.max[0] - c.min[0]).toBeGreaterThan(.26); expect(c.max[0] - c.min[0]).toBeLessThan(.32); // about 30 cm deep along the cabinet
+  expect(c.max[1] - c.min[1]).toBeLessThan(.07); // a slim slab (5.3 cm plus the top plate)
+  expect(c.min[1]).toBeGreaterThan(info.shelfTop - .002); // sits on the bay floor, not through it
+  expect(c.max[1]).toBeLessThan(info.topUnderside); // fits under the cabinet top with the pad on it
+  expect(c.min[2]).toBeGreaterThan(info.unit.min[2]); expect(c.max[2]).toBeLessThan(info.unit.max[2]); // inside the cabinet footprint
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {
