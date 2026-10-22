@@ -409,8 +409,36 @@ export async function start({ stage, lang = "zh" }) {
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); return g;
   };
   part(duvetGeo(), duvetMat, "bed-duvet", BED.x, BED.top + .06, BED.z + .3); // from the foot to 30 cm from the head
-  const blanket = part(cloth(BED.w - .02, .06, .36, 9, { fold: .01, roll: .03 }), throwMat, "bed-throw", BED.x, BED.top + .115, BED.z + .62); // a folded charcoal knit across the foot
-  for (const sx of [-1, 1]) part(box(.012, .012, .36), throwMat, "bed-throw-fringe", BED.x + sx * (BED.w / 2 - .005), BED.top + .06, BED.z + .62); // the fringe hangs off both ends
+  // The throw is a knitted strip laid across the foot, longer than the bed is wide: flat on the duvet, rolled over the mattress edges and
+  // hanging 10-15 cm down each side, a little longer on one side than the other, with a folded-over band across it and a short fringe on
+  // both hems. Real sizes: 36 cm deep, lying on the duvet's top (6 cm above the mattress).
+  const throwGeo = () => {
+    const nu = 28, nv = 14, d = .36, hx = .55, r = .06, arc = r * Math.PI / 2, pos = [], uv = [], idx = [], row = nu + 1, hems = { "-1": [], 1: [] };
+    const drape = (side, b) => .13 + side * .018 + .014 * Math.sin(b * 16 + 1.1), Amax = hx + arc + .17;
+    const off = (e) => (e < arc ? r * Math.sin(e / r) : r), dropOf = (e) => (e < arc ? r * (1 - Math.cos(e / r)) : r + (e - arc));
+    for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
+      const b = -d / 2 + d * j / nv, a = -Amax + 2 * Amax * i / nu, side = Math.sign(a) || 1, ex = Math.min(Math.max(Math.abs(a) - hx, 0), arc + drape(side, b));
+      let x = a, y = .006 * Math.sin(a * 10 + .8) * Math.sin(b * 9 + .4) + .011 * Math.exp(-Math.pow((b - .05) / .05, 2)) - .012 * Math.pow(Math.abs(b) / (d / 2), 6); // soft waves, a folded-over band, hems that dip
+      if (ex > 0) { x = side * (hx + off(ex)); y -= dropOf(ex) * (1 + .05 * Math.sin(b * 23)); } // rolled over the edge, then straight down, never perfectly
+      pos.push(x, y, b); uv.push(a / 1.06 + .5, b / 1.06 + .5);
+      if (Math.abs(a) >= Amax - 2 * Amax / nu * .5) hems[side].push([x, y, b]);
+    }
+    for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a0 = j * row + i, c = a0 + row; idx.push(a0, c, a0 + 1, a0 + 1, c, c + 1); }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+    // the fringe: 26 thin tassels on each hem, one geometry
+    const fp = [], fuv = [], fidx = []; let k = 0;
+    for (const side of [-1, 1]) for (let n = 0; n < 26; n++) {
+      const b = -d / 2 + .012 + (d - .024) * n / 25, h = hems[side].reduce((m, q) => (Math.abs(q[2] - b) < Math.abs(m[2] - b) ? q : m)), len = .05 + .012 * Math.sin(n * 2.3), w = .004;
+      fp.push(h[0] - w, h[1], b, h[0] + w, h[1], b, h[0] + w * .6, h[1] - len, b, h[0] - w * .6, h[1] - len, b);
+      fuv.push(0, 1, 1, 1, 1, 0, 0, 0); fidx.push(k, k + 1, k + 2, k, k + 2, k + 3); k += 4;
+    }
+    const f = new THREE.BufferGeometry(); f.setAttribute("position", new THREE.Float32BufferAttribute(fp, 3)); f.setAttribute("uv", new THREE.Float32BufferAttribute(fuv, 2)); f.setIndex(fidx); f.computeVertexNormals();
+    return { g, f };
+  };
+  { const { g, f } = throwGeo(), tx = BED.x, ty = BED.top + .084, tz = BED.z + .62;
+    throwMat.side = THREE.DoubleSide;
+    part(g, throwMat, "bed-throw", tx, ty, tz);
+    part(f, throwMat, "bed-throw-fringe", tx, ty, tz); }
   part(pillowGeo(.7, .17, .46), pillowMat, "bed-pillow", BED.x, BED.top + .08, north + .36);
   part(pillowGeo(.45, .14, .3, .012), cushionMat, "bed-cushion", BED.x, BED.top + .19, north + .22).rotation.x = -.32;
   // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
@@ -789,7 +817,7 @@ export async function start({ stage, lang = "zh" }) {
   }
   // Soft goods rest on each other, so each one gets a faint shadow on the surface under it: the pillow on the mattress, the cushion on the
   // pillow, the throw on the duvet. The plane sits a few mm above that surface and is pulled forward a hair so it never z-fights.
-  for (const [name, surfaceY, op, grow, shift] of [["bed-pillow", BED.top + .004, .55, .07, .02], ["bed-cushion", BED.top + .17, .3, .04, .01], ["bed-throw", null, .5, .05, .02]]) {
+  for (const [name, surfaceY, op, grow, shift] of [["bed-pillow", BED.top + .004, .55, .07, .02], ["bed-cushion", BED.top + .17, .3, .04, .01]]) {
     const o = root.getObjectByName(name); if (!o) continue;
     const b = new THREE.Box3().setFromObject(o), m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2), footprintMat(op));
     m.material.polygonOffset = true; m.material.polygonOffsetFactor = -2; m.material.polygonOffsetUnits = -2;
