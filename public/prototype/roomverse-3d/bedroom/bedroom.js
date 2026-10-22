@@ -3,7 +3,7 @@
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
-import { loadSofa, loadModel } from "./models.js?v=1";
+import { loadSofa, loadModel, loadGlb } from "./models.js?v=2";
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
@@ -134,9 +134,12 @@ export async function start({ stage, lang = "zh" }) {
   // on the left, and the bed side on the right. On a phone the screen is too narrow to hold the whole room, so the buttons below the
   // room turn the head for you; dragging still works within the same limits.
   // The fourth look, "centre", is absolute: the camera walks to the middle of the room at eye height and the head can turn a full circle.
-  const LOOKS = { center: { pos: CENTER, yaw: 0, pitch: -.04, zoom: 1 }, work: [0, 0], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
+  const LOOKS = { center: { pos: CENTER, yaw: 0, pitch: -.04, zoom: 1 }, work: compact ? [.1, .1, 1.4] : [.22, .12, 1.35], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
   let lookRun = 0, lookName = "work";
   const setZoom = (z) => { camera.zoom = z; camera.updateProjectionMatrix(); };
+  // The opening look is not the plain corner overview (which showed the bed and the sofa big): it is turned towards the desk, the window and the
+  // plaque, a little flatter and closer. The overview is still reachable by dragging.
+  look.yaw = look0.yaw + LOOKS.work[0]; look.pitch = look0.pitch + LOOKS.work[1]; setZoom(LOOKS.work[2]); applyLook();
   const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a)); // the short way round
   function lookTo(name) {
     const to = LOOKS[name]; if (!to) return Promise.resolve(false);
@@ -183,9 +186,9 @@ export async function start({ stage, lang = "zh" }) {
       const step = (now) => {
         const k = Math.min(1, (now - t0) / T), e = ease(k), lift = ease(Math.min(1, Math.max(0, (k - .25) / .75)));
         camera.position.set(from.pos.x + (home.x - from.pos.x) * e, from.pos.y + (home.y - from.pos.y) * lift, from.pos.z + (home.z - from.pos.z) * e);
-        look.yaw = from.yaw + (look0.yaw - from.yaw) * lift; look.pitch = from.pitch + (look0.pitch - from.pitch) * lift;
+        look.yaw = from.yaw + (look0.yaw + LOOKS.work[0] - from.yaw) * lift; look.pitch = from.pitch + (look0.pitch + LOOKS.work[1] - from.pitch) * lift; setZoom(1 + (LOOKS.work[2] - 1) * lift);
         applyLook(); render();
-        if (k < 1) requestAnimationFrame(step); else { camera.position.copy(home); look.yaw = look0.yaw; look.pitch = look0.pitch; applyLook(); arriving = false; render(); resolve(true); }
+        if (k < 1) requestAnimationFrame(step); else { camera.position.copy(home); look.yaw = look0.yaw + LOOKS.work[0]; look.pitch = look0.pitch + LOOKS.work[1]; setZoom(LOOKS.work[2]); applyLook(); arriving = false; render(); resolve(true); }
       };
       requestAnimationFrame(step);
     });
@@ -308,9 +311,6 @@ export async function start({ stage, lang = "zh" }) {
   art("room02-rug-oat-v1.webp", { apply: (t) => { tvRugMat.map = t; cutout(tvRugMat); } }); // an oat rug seen whole from above, with its fringe
   // The rugs Codex drew on white are trimmed to the rug's own edge with the white made transparent, so a rug is only as big as the rug.
   art("room02-rug-runner-v1.webp", { apply: (t) => { sleepRugMat.map = t; cutout(sleepRugMat); } });
-  const workRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#555a61", "#2c3036"), roughness: 1 });
-  zoneRug(.885, 1.4, -1.2, -1.75, workRugMat, "zone-work-mat"); // under the desk chair: light terrazzo, a modern foil to the oak
-  art("room02-rug-terrazzo-v1.webp", { apply: (t) => { t.center.set(.5, .5); t.rotation = Math.PI / 2; workRugMat.map = t; cutout(workRugMat); } }); // the picture is wide; the rug is long, so turn it a quarter
   const loungeRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 });
   zoneRug(1.6, 2.3, .55, 1.3, loungeRugMat, "zone-lounge-rug"); // the sofa's front legs stand on its east end
   const rugArt = {};
@@ -492,12 +492,16 @@ export async function start({ stage, lang = "zh" }) {
     for (let r = 0; r < 5; r++) for (let c = 0; c < 15; c++) ctx.fillRect(6 + c * 16.3, 6 + r * 14, 13.5, 11);
   });
   const hold = (parent) => (geo, mat, name, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; parent.add(m); return m; };
+  // Pure black took every highlight away and made the chair and the desk legs read as flat silhouettes: a lighter graphite with a little metal
+  // lets the light roll off the edges, and the seat is a slate-grey fabric.
+  const graphite = new THREE.MeshStandardMaterial({ color: "#5d626b", roughness: .4, metalness: .35 });
+  const seatFabric = new THREE.MeshStandardMaterial({ map: weaveTexture("#69727d", "#4f5862"), roughness: .95 });
   const desk = new THREE.Group(); desk.name = "desk"; desk.position.set(-HW + .325, 0, -1.75); desk.rotation.y = Math.PI / 2; root.add(desk);
   const dpart = hold(desk);
   dpart(rb(1.4, .03, .65), deskMat, "desk-top", 0, .735, 0); // top face at 75 cm
   for (const sx of [-1, 1]) { // an inverted T at each end: a column and a long foot
-    dpart(box(.06, .69, .06), blackMat, "desk-leg", sx * .62, .375, 0);
-    dpart(rb(.06, .03, .58), blackMat, "desk-foot", sx * .62, .015, 0);
+    dpart(rb(.06, .69, .06), graphite, "desk-leg", sx * .62, .375, 0);
+    dpart(rb(.06, .03, .58), graphite, "desk-foot", sx * .62, .015, 0);
   }
   dpart(box(1.2, .03, .09), blackMat, "desk-tray", 0, .7, -.24); // a cable tray under the back edge
   dpart(rb(.36, .09, .4), deskMat, "desk-drawer", .4, .675, .02); // a shallow drawer under the right end
@@ -589,24 +593,24 @@ export async function start({ stage, lang = "zh" }) {
   const chair = new THREE.Group(); chair.name = "chair"; chair.position.set(-.93, 0, -1.75); chair.rotation.y = -Math.PI / 2 + .1; root.add(chair);
   const cpart = hold(chair);
   const meshTex = canvasTex(64, 64, (ctx, w, h) => { // fine woven mesh: a dark grid with a few lighter threads
-    ctx.fillStyle = "#2b2d30"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(255,255,255,.10)";
+    ctx.fillStyle = "#555b63"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(255,255,255,.12)";
     for (let i = 0; i < w; i += 2) { ctx.fillRect(i, 0, 1, h); ctx.fillRect(0, i, w, 1); }
   }, { repeat: [5, 6] });
   const meshMat = new THREE.MeshStandardMaterial({ map: meshTex, roughness: .8 });
-  cpart(softBox(.5, .08, .48, .07), softBlack, "chair-seat", 0, .44, 0); // top at 48 cm, a rounded waterfall front
-  cpart(box(.3, .05, .28), blackMat, "chair-mech", 0, .375, -.02);
-  const frameBack = cpart(softBox(.5, .05, .6, .08), blackMat, "chair-back-frame", 0, .78, -.265); frameBack.rotation.x = Math.PI / 2 + .14;
+  cpart(softBox(.5, .08, .48, .07), seatFabric, "chair-seat", 0, .44, 0); // top at 48 cm, a rounded waterfall front
+  cpart(box(.3, .05, .28), graphite, "chair-mech", 0, .375, -.02);
+  const frameBack = cpart(softBox(.5, .05, .6, .08), graphite, "chair-back-frame", 0, .78, -.265); frameBack.rotation.x = Math.PI / 2 + .14;
   const back = cpart(softBox(.44, .03, .54, .07), meshMat, "chair-back", 0, .785, -.24); back.rotation.x = Math.PI / 2 + .14;
-  const lumbar = cpart(softBox(.3, .05, .13, .03), softBlack, "chair-lumbar", 0, .64, -.205); lumbar.rotation.x = Math.PI / 2 + .14;
+  const lumbar = cpart(softBox(.3, .05, .13, .03), seatFabric, "chair-lumbar", 0, .64, -.205); lumbar.rotation.x = Math.PI / 2 + .14;
   for (const sx of [-1, 1]) {
-    cpart(box(.035, .2, .035), blackMat, "chair-arm-post", sx * .27, .56, -.05);
-    cpart(rb(.06, .025, .27), blackMat, "chair-arm", sx * .27, .68, .03);
+    cpart(rb(.035, .2, .035), graphite, "chair-arm-post", sx * .27, .56, -.05);
+    cpart(rb(.06, .025, .27), graphite, "chair-arm", sx * .27, .68, .03);
   }
   cpart(new THREE.CylinderGeometry(.035, .035, .26, 10), metalMat, "chair-lift", 0, .27, 0);
   for (let i = 0; i < 5; i++) {
-    const a = i * Math.PI * 2 / 5, arm = cpart(box(.3, .028, .05), blackMat, "chair-leg", Math.cos(a) * .15, .07, Math.sin(a) * .15);
+    const a = i * Math.PI * 2 / 5, arm = cpart(rb(.3, .028, .05), graphite, "chair-leg", Math.cos(a) * .15, .07, Math.sin(a) * .15);
     arm.rotation.y = -a;
-    cpart(new THREE.SphereGeometry(.027, 8, 6), blackMat, "chair-wheel", Math.cos(a) * .3, .027, Math.sin(a) * .3);
+    cpart(new THREE.SphereGeometry(.027, 8, 6), graphite, "chair-wheel", Math.cos(a) * .3, .027, Math.sin(a) * .3);
   }
 
   // ---------- lounge zone: sofa facing a TV on the west wall, coffee table, bookshelf ----------
@@ -642,7 +646,13 @@ export async function start({ stage, lang = "zh" }) {
   const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.025, 0, .9); root.add(ct); // 45 cm in front of the sofa, 80 cm across, half the sofa's length
   const cp = ringTable(ct, "coffee-table", .34, .385, .4, .03, travertine);
   cp(box(.24, .035, .18), pillowB, "coffee-table-book", -.12, .4175, .04); cp(box(.2, .03, .15), accentMat, "coffee-table-book", -.12, .45, .04);
-  cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .15, .445, -.1);
+  { // Codex's mug (a plain glazed café mug, no brand): the old terracotta cylinder stays until it has loaded, so a slow download never leaves the table bare
+    const stand = cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .15, .445, -.1);
+    loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => {
+      g.name = "coffee-table-mug"; g.position.set(.15, .4, -.1); g.rotation.y = -.7; // the handle turns towards the sofa
+      ct.remove(stand); ct.add(g); redraw();
+    }).catch(() => {});
+  }
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
   const tp = hold(tv);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
@@ -1038,7 +1048,7 @@ export async function start({ stage, lang = "zh" }) {
     return {
       room: ROOM, window: WINDOW, door: DOOR, headboardTop: Math.max(...root.children.filter((o) => o.name === "bed-headboard").map((o) => new THREE.Box3().setFromObject(o).max.y)), wallArt: (() => { const o = root.getObjectByName("sofa-wall-art"); if (!o) return null; const bb = new THREE.Box3().setFromObject(o); return { min: bb.min.toArray(), max: bb.max.toArray() }; })(), wardrobe: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("wardrobe")); return { min: b.min.toArray(), max: b.max.toArray() }; })(), centred, vertices, meshes,
       floor: { w: box3.max.x - box3.min.x, d: box3.max.z - box3.min.z },
-      zones: ["zone-sleep-rug", "zone-work-mat", "zone-lounge-rug"].map((n) => root.getObjectByName(n)?.name),
+      zones: ["zone-sleep-rug", "zone-lounge-rug"].map((n) => root.getObjectByName(n)?.name),
       bed: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("bed")), m = new THREE.Box3().setFromObject(root.getObjectByName("bed-mattress")); return { min: b.min.toArray(), max: b.max.toArray(), mattressTop: m.max.y - .0 }; })(),
       work: Object.fromEntries(["desk", "chair"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
       desk: { top: new THREE.Box3().setFromObject(root.getObjectByName("desk-top")).max.y, seat: new THREE.Box3().setFromObject(root.getObjectByName("chair-seat")).max.y,
@@ -1104,7 +1114,7 @@ export async function start({ stage, lang = "zh" }) {
     },
     rugs() { // local QA only
       const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
-      return { sleep: bx("zone-sleep-rug"), work: bx("zone-work-mat"), lounge: bx("zone-lounge-rug"), tv: bx("zone-tv-rug"), bed: bx("bed-frame"), bedside: bx("bedside-top") };
+      return { sleep: bx("zone-sleep-rug"), lounge: bx("zone-lounge-rug"), tv: bx("zone-tv-rug"), bed: bx("bed-frame"), bedside: bx("bedside-top") };
     },
     tvCorner() { // local QA only: rug, console and cabinet bounds
       const bx = (o) => { const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
