@@ -75,15 +75,31 @@ export async function loadModel(name, { height, roughness = .75 } = {}) {
   return g;
 }
 
-// A self-contained GLB (colours in its vertices, own materials), scaled to `height` metres, standing on y = 0 and centred on x = z = 0.
-export async function loadGlb(url, { height, roughness } = {}) {
+// A fine linen weave sampled from three sides (the models have no UVs), the same one the living room's sofa wears, multiplied over the colour.
+const sharedWeave = { t: null };
+export function addWeave(mat, scale = 3.5) {
+  sharedWeave.t ??= weaveTexture();
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.weave = { value: sharedWeave.t };
+    sh.vertexShader = "varying vec3 vWP; varying vec3 vWN;\n" + sh.vertexShader.replace("#include <project_vertex>", "#include <project_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.)).xyz; vWN = normalize(mat3(modelMatrix) * objectNormal);");
+    sh.fragmentShader = "uniform sampler2D weave; varying vec3 vWP; varying vec3 vWN;\n" + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
+      vec3 bw = pow(abs(normalize(vWN)), vec3(4.)); bw /= bw.x + bw.y + bw.z;
+      float s = ${scale.toFixed(2)};
+      float wv = texture2D(weave, vWP.zy * s).r * bw.x + texture2D(weave, vWP.xz * s).r * bw.y + texture2D(weave, vWP.xy * s).r * bw.z;
+      diffuseColor.rgb *= .75 + .5 * wv;`);
+  };
+  mat.needsUpdate = true;
+}
+
+// A self-contained GLB (colours in its vertices, own materials). With `height` it is scaled to that many metres; without, it keeps its own size.
+// anchor "base": standing on y = 0 and centred on x = z = 0; anchor "center": centred on all three axes.
+export async function loadGlb(url, { height, roughness, anchor = "base", weave = false } = {}) {
   const gltf = await new GLTFLoader().loadAsync(url);
   const obj = gltf.scene;
-  const size = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
-  obj.scale.multiplyScalar(height / size.y);
+  if (height) { const size = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3()); obj.scale.multiplyScalar(height / size.y); }
   const b = new THREE.Box3().setFromObject(obj), c = b.getCenter(new THREE.Vector3());
-  obj.position.set(-c.x, -b.min.y, -c.z);
-  obj.traverse((m) => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; if (roughness !== undefined && m.material.roughness > roughness) m.material.roughness = roughness; });
+  obj.position.set(-c.x, anchor === "center" ? -c.y : -b.min.y, -c.z);
+  obj.traverse((m) => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; if (roughness !== undefined && m.material.roughness > roughness) m.material.roughness = roughness; if (weave && m.name !== "legs") addWeave(m.material); });
   const g = new THREE.Group(); g.add(obj);
   return g;
 }
