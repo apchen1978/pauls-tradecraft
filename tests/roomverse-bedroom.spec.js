@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
-const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-batch3" : null;
+const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-looks" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -275,6 +275,25 @@ test("rugs: each lies on the floor inside the room, none overlap, the runner cle
   expect(r.sleep.min[2]).toBeGreaterThan(r.bedside.max[2]); // starts past the bedside table
 });
 
+test("phone: the look buttons turn the head to the TV wall and the bed side; the opening look shows desk and window", async ({ page }) => {
+  await enter(page, { width: 390 });
+  const inFrame = (v) => v.z < 1 && v.minX > -1.02 && v.maxX < 1.02 ? true : (v.z < 1 && v.x > -.9 && v.x < .9);
+  let v = await page.evaluate(() => window.__bedroom.inView(["desk-top", "window-glass", "house-plaque", "bed-mattress"]));
+  for (const n of ["desk-top", "window-glass", "house-plaque"]) expect(inFrame(v[n]), "opening look: " + n).toBe(true);
+  await page.locator('#viewRow button[data-look="tv"]').click();
+  await page.waitForFunction(() => Math.abs(window.__bedroom.looks().yaw - .43) < .005, null, { timeout: 5000 });
+  v = await page.evaluate(() => window.__bedroom.inView(["tv-panel", "bookshelf"]));
+  expect(v["tv-panel"].x).toBeGreaterThan(-.7); expect(v["tv-panel"].x).toBeLessThan(.7); // the TV is near the middle of the frame
+  await expect(page.locator('#viewRow button[data-look="tv"]')).toHaveAttribute("aria-pressed", "true");
+  await page.locator('#viewRow button[data-look="bed"]').click();
+  await page.waitForFunction(() => Math.abs(window.__bedroom.looks().yaw + .34) < .005, null, { timeout: 5000 });
+  v = await page.evaluate(() => window.__bedroom.inView(["bed-mattress"]));
+  expect(v["bed-mattress"].x).toBeGreaterThan(-.7); expect(v["bed-mattress"].x).toBeLessThan(.7);
+  await page.locator('#viewRow button[data-look="work"]').click();
+  await page.waitForFunction(() => Math.abs(window.__bedroom.looks().yaw) < .005, null, { timeout: 5000 });
+  expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([1.8, 2.05, 2.38]); // the camera never moved
+});
+
 test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
@@ -294,6 +313,10 @@ test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {
     await page.waitForTimeout(600);
     await page.locator("#stage").screenshot({ path: `${QA}/focus-${width}.png` });
     await page.waitForTimeout(400); await page.screenshot({ path: `${QA}/page-${width}.png`, fullPage: true });
+    for (const look of ["tv", "bed", "work"]) {
+      await page.locator(`#viewRow button[data-look="${look}"]`).click(); await page.waitForTimeout(900);
+      await page.locator("#stage").screenshot({ path: `${QA}/look-${look}-${width}.png` });
+    }
     for (const mood of ["weekend", "night", "sunday"]) {
       await page.locator(`#moodRow button[data-mood="${mood}"]`).click();
       await page.waitForFunction((m) => window.__bedroom.info().mood === m && window.__bedroom.windowArt().loaded, mood);

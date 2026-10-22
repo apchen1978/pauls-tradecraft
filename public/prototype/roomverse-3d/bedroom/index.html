@@ -36,6 +36,11 @@
   .poster button:focus-visible { outline: 3px solid #977b42; outline-offset: 3px; }
   .poster small { display: block; margin-top: 8px; text-align: center; color: #24302c; font-size: 13px; }
   .status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fffd; padding: 10px 16px; border-radius: 999px; font-size: 14px; }
+  .views { margin: 12px clamp(16px, 3vw, 40px) 0; }
+  .views .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .views button { font: inherit; font-size: 14px; font-weight: 700; padding: 10px 14px; min-height: 44px; border-radius: 999px; border: 1px solid #a8afa5; background: transparent; color: var(--ink); cursor: pointer; }
+  .views button[aria-pressed="true"] { border-color: var(--moss); background: #e3ece8; color: var(--moss); }
+  .views button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .moods { margin: 12px clamp(16px, 3vw, 40px) 0; }
   .moods .row { display: flex; flex-wrap: wrap; gap: 8px; }
   .moods button { font: inherit; font-size: 14px; font-weight: 700; padding: 10px 14px; min-height: 44px; border-radius: 999px; border: 1px solid #a8afa5; background: var(--paper); color: var(--moss); cursor: pointer; }
@@ -57,6 +62,8 @@
   .swaps button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .note { padding: 14px clamp(16px, 3vw, 40px) 40px; color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 900px; }
   @media (max-width: 768px) {
+    .views .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .views button { width: 100%; padding: 10px 4px; border-radius: 14px; font-size: 13px; }
     .moods .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .moods button { width: 100%; padding: 10px 8px; border-radius: 14px; }
     .room { height: auto; }
@@ -80,9 +87,10 @@
   <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
   <p class="status" id="status" hidden></p>
 </section>
+<section class="views" id="views" hidden aria-label="views"><div class="row" id="viewRow" role="group"></div></section>
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=15"></script>
+<script type="module" src="page.js?v=16"></script>
 </body>
 </html>
