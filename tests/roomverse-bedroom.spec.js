@@ -23,7 +23,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.w).toBeCloseTo(.9, 2);
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-work-mat", "zone-lounge-rug"]);
-  expect(info.vertices).toBeLessThan(28000); // whole-room budget: two Room 01 models (sofa, plant) take about 9,500, rounded furniture edges about 5,000
+  expect(info.vertices).toBeLessThan(30000); // whole-room budget: two Room 01 models (sofa, plant) take about 9,500, rounded furniture edges about 5,000
   expect(info.lights).toBe(5); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods
   expect(errors).toEqual([]);
 });
@@ -78,7 +78,7 @@ test("the bed has real sizes, stands on the floor beside the wall and clears the
   expect(z1 - z0).toBeLessThan(2.2); // 2 m bed on a slightly larger frame, plus the headboard thickness
   expect(x0).toBeGreaterThan(.3); // the bedside table stays well clear of the door side of the room
   expect(y1).toBeLessThan(1.1); // headboard under the window sill height + a little, never blocks the glass
-  expect(vertices).toBeLessThan(28000);
+  expect(vertices).toBeLessThan(30000);
 });
 
 test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48 cm, all inside the room and clear of the bed", async ({ page }) => {
@@ -96,7 +96,7 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
     expect(min[2]).toBeGreaterThan(-2.501); expect(max[2]).toBeLessThan(-.5);
     expect(min[1]).toBeGreaterThan(-.001);
   }
-  expect(vertices).toBeLessThan(28000);
+  expect(vertices).toBeLessThan(30000);
 });
 
 test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, shelf under the ceiling, nothing crosses the bed or the door", async ({ page }) => {
@@ -119,7 +119,7 @@ test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, s
   }
   expect(lounge.sofa.min[2]).toBeGreaterThan(-.45); // sofa starts past the foot of the bed (z = -0.46)
   expect(lounge.bookshelf.max[0]).toBeLessThan(-1.65); // stays clear of the door frame (x from -1.6)
-  expect(vertices).toBeLessThan(28000);
+  expect(vertices).toBeLessThan(30000);
 });
 
 test("lived-in details: posters hang above the TV inside the wall, the plant stands clear of desk and TV", async ({ page }) => {
@@ -221,7 +221,7 @@ test("all 28 painted surfaces load (floor, wall, rugs, oak, fabrics, window fram
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
   const { vertices } = await page.evaluate(() => window.__bedroom.info());
-  expect(vertices).toBeLessThan(28000);
+  expect(vertices).toBeLessThan(30000);
 });
 
 test("phone first screen: moods sit in a tidy 2x2, the swap options start collapsed and open on tap, the intro is short", async ({ page }) => {
@@ -331,6 +331,10 @@ test("bed soft goods: the duvet drapes over the mattress without touching the fr
   expect(b.pillow.min[1]).toBeGreaterThan(b.mattress.max[1] - .03); expect(b.pillow.max[1]).toBeLessThan(b.mattress.max[1] + .2);
   expect(b.pillow.max[2]).toBeLessThan(b.duvet.min[2] + .12); // the pillow is at the head end, past the duvet's turned-back edge
   expect(b.cushion.min[1]).toBeGreaterThan(b.mattress.max[1] - .03);
+  expect(b.throw.min[1]).toBeGreaterThan(b.frame.max[1] + .02); // the throw hangs over the mattress edge but stays clear above the frame
+  expect(b.throw.max[1]).toBeLessThan(b.duvet.max[1] + .06); // it lies on the duvet, not a slab above it
+  expect(b.throw.min[0]).toBeGreaterThan(b.mattress.min[0] - .12); expect(b.throw.max[0]).toBeLessThan(b.mattress.max[0] + .12); // hangs at the sides
+  expect(b.throw.max[2] - b.throw.min[2]).toBeLessThan(.45); // a 36 cm strip, not a blanket
 });
 
 test("one coffee table sits 45 cm from the sofa; the TV is a glossy dark glass when off and plays a film or the console home on request", async ({ page }) => {
