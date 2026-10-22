@@ -109,18 +109,38 @@ export async function start({ stage, lang = "zh" }) {
       applyLook(); render();
     },
   };
-  let drag = null;
+  let drag = null, arriving = false;
   const el = renderer.domElement;
   el.style.touchAction = "none"; el.style.cursor = "grab";
-  el.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
+  el.addEventListener("pointerdown", (e) => { if (arriving) return; drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
   el.addEventListener("pointermove", (e) => {
-    if (!drag) return;
+    if (!drag || arriving) return;
     const k = camera.fov * Math.PI / 180 / (el.clientHeight || 500); // radians per pixel: the scene follows the finger
     controls.turn((e.clientX - drag.x) * k, (e.clientY - drag.y) * k);
     drag = { x: e.clientX, y: e.clientY };
   });
   const endDrag = () => { drag = null; el.style.cursor = "grab"; };
   el.addEventListener("pointerup", endDrag); el.addEventListener("pointercancel", endDrag);
+
+  // Arriving from Room 01's door: the camera starts in the doorway at eye height, looking into the room, then walks along the
+  // south wall and rises to the overview corner while the view turns to the usual angle. Reduced motion: it simply starts there.
+  function arrive() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve(false);
+    arriving = true;
+    const from = { pos: new THREE.Vector3(DOOR.x, 1.58, HD - .25), yaw: 0, pitch: -.04 };
+    camera.position.copy(from.pos); look.yaw = from.yaw; look.pitch = from.pitch; applyLook(); render(); // the first frame is already in the doorway
+    const t0 = performance.now(), T = 2600, ease = (k) => k * k * (3 - 2 * k);
+    return new Promise((resolve) => {
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / T), e = ease(k), lift = ease(Math.min(1, Math.max(0, (k - .25) / .75)));
+        camera.position.set(from.pos.x + (home.x - from.pos.x) * e, from.pos.y + (home.y - from.pos.y) * lift, from.pos.z + (home.z - from.pos.z) * e);
+        look.yaw = from.yaw + (look0.yaw - from.yaw) * lift; look.pitch = from.pitch + (look0.pitch - from.pitch) * lift;
+        applyLook(); render();
+        if (k < 1) requestAnimationFrame(step); else { camera.position.copy(home); look.yaw = look0.yaw; look.pitch = look0.pitch; applyLook(); arriving = false; render(); resolve(true); }
+      };
+      requestAnimationFrame(step);
+    });
+  }
 
   // ---------- materials ----------
   const wallMat = new THREE.MeshStandardMaterial({ color: "#e6ddcd", roughness: .95 });
@@ -700,7 +720,7 @@ export async function start({ stage, lang = "zh" }) {
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   return {
-    info, reach, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
+    info, reach, arrive, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
