@@ -119,9 +119,12 @@ export async function start({ stage, lang = "zh" }) {
   camera.rotation.order = "YXZ";
   const applyLook = () => camera.rotation.set(look.pitch, look.yaw, 0);
   applyLook();
+  let centred = false; // the second way to look: standing in the middle of the room, turning on the spot all the way round
+  const CENTER = new THREE.Vector3(-.2, 1.5, .1), CENTER_PITCH = .5;
   const controls = {
     look, look0, limit: LIMIT,
     turn(dYaw, dPitch) {
+      if (centred) { look.yaw += dYaw; look.pitch = Math.min(CENTER_PITCH, Math.max(-CENTER_PITCH, look.pitch + dPitch)); applyLook(); render(); return; }
       look.yaw = Math.min(look0.yaw + LIMIT.yaw, Math.max(look0.yaw - LIMIT.yaw, look.yaw + dYaw));
       look.pitch = Math.min(look0.pitch + LIMIT.pitch, Math.max(look0.pitch - LIMIT.pitch, look.pitch + dPitch));
       applyLook(); render();
@@ -130,29 +133,35 @@ export async function start({ stage, lang = "zh" }) {
   // Three looks from the corner (the camera never moves, only the head turns): the desk and window (the opening look), the TV wall
   // on the left, and the bed side on the right. On a phone the screen is too narrow to hold the whole room, so the buttons below the
   // room turn the head for you; dragging still works within the same limits.
-  const LOOKS = { work: [0, 0], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
+  // The fourth look, "centre", is absolute: the camera walks to the middle of the room at eye height and the head can turn a full circle.
+  const LOOKS = { center: { pos: CENTER, yaw: 0, pitch: -.04, zoom: 1 }, work: [0, 0], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
   let lookRun = 0, lookName = "work";
   const setZoom = (z) => { camera.zoom = z; camera.updateProjectionMatrix(); };
+  const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a)); // the short way round
   function lookTo(name) {
     const to = LOOKS[name]; if (!to) return Promise.resolve(false);
     lookName = name;
-    const target = { yaw: look0.yaw + to[0], pitch: look0.pitch + to[1], zoom: to[2] ?? 1 };
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { look.yaw = target.yaw; look.pitch = target.pitch; setZoom(target.zoom); applyLook(); render(); return Promise.resolve(true); }
-    const from = { yaw: look.yaw, pitch: look.pitch, zoom: camera.zoom }, t0 = performance.now(), T = 650, run = ++lookRun, ease = (k) => k * k * (3 - 2 * k);
+    const abs = !Array.isArray(to);
+    const target = abs ? { yaw: to.yaw, pitch: to.pitch, zoom: to.zoom, pos: to.pos } : { yaw: look0.yaw + to[0], pitch: look0.pitch + to[1], zoom: to[2] ?? 1, pos: home };
+    const showWardrobe = (v) => { const w = root.getObjectByName("wardrobe"); if (w) w.visible = v; }; // it stands beside the corner camera and on the arrival walk, so it only exists while you are in the middle
+    const apply = (yaw, pitch, zoom, pos) => { look.yaw = yaw; look.pitch = pitch; setZoom(zoom); camera.position.copy(pos); applyLook(); render(); };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { apply(target.yaw, target.pitch, target.zoom, target.pos); centred = abs; showWardrobe(abs); return Promise.resolve(true); }
+    const from = { yaw: look.yaw, pitch: look.pitch, zoom: camera.zoom, pos: camera.position.clone() }, dy = wrapPi(target.yaw - from.yaw), t0 = performance.now(), T = abs || centred ? 1100 : 650, run = ++lookRun, ease = (k) => k * k * (3 - 2 * k);
+    travelling = abs || centred; if (travelling) showWardrobe(true);
     return new Promise((resolve) => {
       const step = (now) => {
-        if (run !== lookRun) { resolve(false); return; }
+        if (run !== lookRun) { travelling = false; resolve(false); return; }
         const k = ease(Math.min(1, (now - t0) / T));
-        look.yaw = from.yaw + (target.yaw - from.yaw) * k; look.pitch = from.pitch + (target.pitch - from.pitch) * k; setZoom(from.zoom + (target.zoom - from.zoom) * k); applyLook(); render();
-        if (now - t0 < T) requestAnimationFrame(step); else resolve(true);
+        apply(from.yaw + dy * k, from.pitch + (target.pitch - from.pitch) * k, from.zoom + (target.zoom - from.zoom) * k, from.pos.clone().lerp(target.pos, k));
+        if (now - t0 < T) requestAnimationFrame(step); else { centred = abs; travelling = false; showWardrobe(abs); look.yaw = target.yaw; applyLook(); render(); resolve(true); }
       };
       requestAnimationFrame(step);
     });
   }
-  let drag = null, arriving = false;
+  let drag = null, arriving = false, travelling = false; // travelling: the camera is walking between the corner and the middle, so a drag waits
   const el = renderer.domElement;
   el.style.touchAction = "none"; el.style.cursor = "grab";
-  el.addEventListener("pointerdown", (e) => { if (arriving) return; lookRun++; drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
+  el.addEventListener("pointerdown", (e) => { if (arriving || travelling) return; lookRun++; drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
   el.addEventListener("pointermove", (e) => {
     if (!drag || arriving) return;
     const k = camera.fov * Math.PI / 180 / (el.clientHeight || 500); // radians per pixel: the scene follows the finger
@@ -426,7 +435,7 @@ export async function start({ stage, lang = "zh" }) {
   // hanging 10-15 cm down each side, a little longer on one side than the other, with a folded-over band across it and a short fringe on
   // both hems. Real sizes: 36 cm deep, lying on the duvet's top (6 cm above the mattress).
   const throwGeo = () => {
-    const nu = 28, nv = 14, d = .36, hx = .55, r = .06, arc = r * Math.PI / 2, pos = [], uv = [], idx = [], row = nu + 1, hems = { "-1": [], 1: [] };
+    const nu = 28, nv = 14, d = .36, hx = .535, r = .052, arc = r * Math.PI / 2, pos = [], uv = [], idx = [], row = nu + 1, hems = { "-1": [], 1: [] };
     const drape = (side, b) => .13 + side * .018 + .014 * Math.sin(b * 16 + 1.1), Amax = hx + arc + .17;
     const off = (e) => (e < arc ? r * Math.sin(e / r) : r), dropOf = (e) => (e < arc ? r * (1 - Math.cos(e / r)) : r + (e - arc));
     for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
@@ -441,7 +450,7 @@ export async function start({ stage, lang = "zh" }) {
     // the fringe: 26 thin tassels on each hem, one geometry
     const fp = [], fuv = [], fidx = []; let k = 0;
     for (const side of [-1, 1]) for (let n = 0; n < 26; n++) {
-      const b = -d / 2 + .012 + (d - .024) * n / 25, h = hems[side].reduce((m, q) => (Math.abs(q[2] - b) < Math.abs(m[2] - b) ? q : m)), len = .05 + .012 * Math.sin(n * 2.3), w = .004;
+      const b = -d / 2 + .012 + (d - .024) * n / 25, h = hems[side].reduce((m, q) => (Math.abs(q[2] - b) < Math.abs(m[2] - b) ? q : m)), len = .07 + .014 * Math.sin(n * 2.3), w = .006;
       fp.push(h[0] - w, h[1], b, h[0] + w, h[1], b, h[0] + w * .6, h[1] - len, b, h[0] - w * .6, h[1] - len, b);
       fuv.push(0, 1, 1, 1, 1, 0, 0, 0); fidx.push(k, k + 1, k + 2, k, k + 2, k + 3); k += 4;
     }
@@ -783,6 +792,22 @@ export async function start({ stage, lang = "zh" }) {
     const panel = new THREE.Mesh(g, linenMat); panel.name = "curtain-panel"; panel.castShadow = true; panel.receiveShadow = true;
     panel.position.set(WINDOW.x + side * (WINDOW.w / 2), (wTop + .19 + .02) / 2, -HD + .12); curtains.add(panel);
   }
+  // A sliding-door wardrobe on the south wall (behind the corner camera, so it only shows when you stand in the middle): light oak doors,
+  // one slim mirror door, a dark rail top and bottom. 160 x 55 cm, 225 cm high, clear of the door (x < -0.7) and the light switch.
+  { const W = { w: 1.6, d: .55, h: 2.25, x: .4 }, wz = HD - W.d / 2, g = new THREE.Group(); g.name = "wardrobe"; g.visible = false; root.add(g);
+    const mirrorTex = canvasTex(64, 256, (ctx, w, h) => { const gr = ctx.createLinearGradient(0, 0, w, h); gr.addColorStop(0, "#c9d3da"); gr.addColorStop(.35, "#eef3f5"); gr.addColorStop(.5, "#d6dee3"); gr.addColorStop(1, "#aeb9c1"); ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(26, 0); ctx.lineTo(10, h); ctx.lineTo(-8, h); ctx.fill(); }); // a soft glass sheen, so the mirror reads as glass
+    const doorMat = new THREE.MeshStandardMaterial({ map: woodTex("#d8b98d", "rgba(110,76,40,A)", "rgba(255,240,215,A)"), roughness: .55 }); // plain veneer, drawn here: the painted oak is a strip made for boards and stretches on a tall door
+    const wp = hold(g), mirrorMat = new THREE.MeshStandardMaterial({ map: mirrorTex, color: "#ffffff", roughness: .08, metalness: .6, envMapIntensity: 1.2 }), railMat = new THREE.MeshStandardMaterial({ color: "#3a3c3f", roughness: .4, metalness: .5 });
+    const dz = HD - W.d + .03; // the door plane, 3 cm inside the front edge; the room is north of the wall (smaller z)
+    wp(box(W.w, W.h, W.d - .05), wallMat, "wardrobe-carcass", W.x, W.h / 2, HD - (W.d - .05) / 2);
+    wp(box(W.w + .04, .04, W.d + .05), oak, "wardrobe-top", W.x, W.h + .02, wz - .025);
+    wp(box(W.w, .03, .05), railMat, "wardrobe-rail-bottom", W.x, .03, dz);
+    wp(box(W.w, .025, .05), railMat, "wardrobe-rail-top", W.x, W.h - .04, dz);
+    const grainUp = (geo) => { const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getY(i) * 1.6, uv.getX(i) * .8); return geo; }; // the grain runs up the door, at about the scale of the desk top
+    wp(grainUp(rb(.56, W.h - .1, .022)), doorMat, "wardrobe-door-a", W.x - .54, W.h / 2, dz - .02); // two oak doors, the right one slid in front of the mirror one
+    wp(grainUp(rb(.56, W.h - .1, .022)), doorMat, "wardrobe-door-b", W.x + .02, W.h / 2, dz - .045);
+    wp(rb(.46, W.h - .1, .018), mirrorMat, "wardrobe-door-mirror", W.x + .6, W.h / 2, dz - .02);
+    for (const hx of [W.x - .29, W.x + .27]) wp(box(.012, .5, .014), railMat, "wardrobe-handle", hx, 1.0, dz - (hx > W.x ? .07 : .045)); }
   // switch by the door (120 cm), sockets at 30 cm by the desk, the bed and the TV
   const plateMat = new THREE.MeshStandardMaterial({ color: "#f4f1ea", roughness: .4 });
   const plate = (w, h, x, y, z, rotY, name) => { const m = add(box(w, h, .01), plateMat, name, x, y, z, { shadow: false }); m.rotation.y = rotY; return m; };
@@ -997,7 +1022,7 @@ export async function start({ stage, lang = "zh" }) {
     root.traverseVisible((o) => { if (o.isMesh) { meshes++; vertices += o.geometry.attributes.position.count; } });
     const box3 = new THREE.Box3().setFromObject(root.getObjectByName("floor"));
     return {
-      room: ROOM, window: WINDOW, door: DOOR, vertices, meshes,
+      room: ROOM, window: WINDOW, door: DOOR, wardrobe: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("wardrobe")); return { min: b.min.toArray(), max: b.max.toArray() }; })(), centred, vertices, meshes,
       floor: { w: box3.max.x - box3.min.x, d: box3.max.z - box3.min.z },
       zones: ["zone-sleep-rug", "zone-work-mat", "zone-lounge-rug"].map((n) => root.getObjectByName(n)?.name),
       bed: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("bed")), m = new THREE.Box3().setFromObject(root.getObjectByName("bed-mattress")); return { min: b.min.toArray(), max: b.max.toArray(), mattressTop: m.max.y - .0 }; })(),

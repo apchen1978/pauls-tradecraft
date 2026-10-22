@@ -352,6 +352,25 @@ test("one coffee table sits 45 cm from the sofa; the TV is a glossy dark glass w
   await page.waitForFunction(() => window.__bedroom.tvState().mode === "film"); // "follow the mood": a film on the weekend mood
 });
 
+test("stand in the middle: the camera walks to the room's centre and the head turns a full circle; the wardrobe stands clear of the door and the switch", async ({ page }) => {
+  await enter(page);
+  const { wardrobe, room, door } = await page.evaluate(() => window.__bedroom.info());
+  expect(wardrobe.max[2]).toBeLessThan(room.d / 2 + .01); expect(wardrobe.min[2]).toBeGreaterThan(room.d / 2 - .7); // against the south wall, at most 70 cm deep
+  expect(wardrobe.min[0]).toBeGreaterThan(door.x + door.w / 2 + .1); expect(wardrobe.max[0]).toBeLessThan(room.w / 2 - .1); // clear of the door and of the east wall
+  expect(wardrobe.min[0]).toBeGreaterThan(-.45); // the light switch plate (x = -0.54) stays free
+  await page.locator('#viewRow button[data-look="center"]').click();
+  await page.waitForFunction(() => window.__bedroom.info().centred, null, { timeout: 8000 });
+  const cam = await page.evaluate(() => window.__bedroom.camera.position.toArray());
+  expect(cam[1]).toBeGreaterThan(1.4); expect(cam[1]).toBeLessThan(1.7); // eye height
+  expect(Math.abs(cam[0])).toBeLessThan(.6); expect(Math.abs(cam[2])).toBeLessThan(.6); // in the middle, not in a corner
+  const yaw0 = await page.evaluate(() => window.__bedroom.controls.look.yaw);
+  await page.evaluate(() => { for (let i = 0; i < 8; i++) window.__bedroom.controls.turn(Math.PI / 4, 0); }); // one full circle
+  const yaw1 = await page.evaluate(() => window.__bedroom.controls.look.yaw);
+  expect(yaw1 - yaw0).toBeGreaterThan(Math.PI * 2 - .01); // no stop along the way
+  await page.locator('#viewRow button[data-look="work"]').click(); // and back to the corner
+  await page.waitForFunction(() => !window.__bedroom.info().centred && window.__bedroom.camera.position.y > 1.95, null, { timeout: 8000 });
+});
+
 test("the linen curtains never cover the house plaque", async ({ page }) => {
   await enter(page);
   await page.locator('#swapGroups button[data-kind="window"][data-choice="linen"]').click();
