@@ -4,6 +4,108 @@ import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 // ROOMVERSE 3D: a poster first (no 3D download until the visitor asks), then a 3D room whose feeling,
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
 const PAGE = "/prototype/roomverse-3d/";
+const IMMERSIVE_QA = process.env.ROOM01_IMMERSIVE_QA;
+if (IMMERSIVE_QA) await mkdir(IMMERSIVE_QA, { recursive: true });
+const immersiveShot = async (page, name) => { if (IMMERSIVE_QA) await page.screenshot({ path: `${IMMERSIVE_QA}/${name}.png` }); };
+
+test.describe("Room 01 mobile immersive", () => {
+  test.use({ deviceScaleFactor: 2 });
+
+  test("portrait keeps the panel state, room controls, and page scroll on exit", async ({ page }) => {
+    const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${PAGE}?lang=zh&mood=golden`);
+    await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+    const before = await page.evaluate(() => ({ room: document.querySelector(".room").getBoundingClientRect().height, canvas: [document.querySelector("#stage canvas").width, document.querySelector("#stage canvas").height], toolbarHidden: document.querySelector("#roomToolbar").hidden, panelHidden: document.querySelector("#panel").hidden }));
+    expect(before.canvas).toEqual([537, 735]);
+    await expect(page.locator("#immersiveEnter")).toBeVisible();
+    await immersiveShot(page, "portrait-before");
+    await page.locator("#immersiveEnter").click();
+    await page.waitForFunction(() => document.querySelector("#stage canvas").height === 1266);
+    const full = await page.evaluate(() => { const r = document.querySelector(".room").getBoundingClientRect(), s = document.querySelector("#stage").getBoundingClientRect(), c = document.querySelector("#stage canvas"); return { room: [r.width, r.height], stage: [s.width, s.height], canvas: [c.width, c.height], overflow: getComputedStyle(document.documentElement).overflow }; });
+    expect(full).toEqual({ room: [390, 844], stage: [390, 844], canvas: [585, 1266], overflow: "hidden" });
+    await page.waitForFunction(() => { const row = document.querySelector("#immersiveControls .immersive-row:nth-child(2)"), selected = row.querySelector('button[data-key="golden"]'), r = row.getBoundingClientRect(), b = selected.getBoundingClientRect(); return b.left >= r.left && b.right <= r.right; });
+    await expect(page.locator("#roomToolbar")).toBeHidden(); await expect(page.locator("#panel")).toBeHidden();
+    await immersiveShot(page, "portrait-full-golden");
+    await page.locator('#immersiveControls button[data-key="tech"]').click();
+    await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="tech"]')).toHaveAttribute("aria-pressed", "true");
+    await immersiveShot(page, "portrait-full-night");
+    await page.locator('#immersiveControls button[data-view="tv"]').click();
+    await expect(page.locator("#panel .camera-tv")).toHaveAttribute("aria-pressed", "true");
+    const canvas = page.locator("#stage canvas"), box = await canvas.boundingBox();
+    await page.waitForTimeout(1050);
+    const cameraBefore = await page.evaluate(() => window.__room.cam());
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down(); await page.mouse.move(box.x + box.width / 2 + 90, box.y + box.height / 2, { steps: 6 }); await page.mouse.up();
+    expect(await page.evaluate(() => window.__room.cam())).not.toEqual(cameraBefore);
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
+    await page.waitForFunction((height) => document.querySelector("#stage canvas").height === height, before.canvas[1]);
+    expect(await page.evaluate(() => ({ room: document.querySelector(".room").getBoundingClientRect().height, overflow: getComputedStyle(document.documentElement).overflow, toolbarHidden: document.querySelector("#roomToolbar").hidden, panelHidden: document.querySelector("#panel").hidden }))).toEqual({ room: before.room, overflow: "visible", toolbarHidden: before.toolbarHidden, panelHidden: before.panelHidden });
+    await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="tech"]')).toHaveAttribute("aria-pressed", "true");
+    await expect(page).toHaveURL(/mood=tech/);
+    await immersiveShot(page, "portrait-after");
+    expect(errors).toEqual([]);
+  });
+
+  test("landscape, rotation, browser back, and desktop visibility", async ({ page }) => {
+    const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.goto(`${PAGE}?lang=en&mood=golden`);
+    await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+    await immersiveShot(page, "landscape-before");
+    await expect(page.locator("#immersiveEnter")).toBeVisible();
+    await page.locator("#immersiveEnter").click();
+    await expect(page.locator("#immersiveExit")).toBeVisible();
+    await page.waitForFunction(() => document.querySelector("#stage canvas").width === 1266);
+    expect(await page.evaluate(() => ({ room: [document.querySelector(".room").clientWidth, document.querySelector(".room").clientHeight], canvas: [document.querySelector("#stage canvas").width, document.querySelector("#stage canvas").height], overflow: document.documentElement.scrollWidth - innerWidth }))).toEqual({ room: [844, 390], canvas: [1266, 585], overflow: 0 });
+    await immersiveShot(page, "landscape-full-golden");
+    await page.setViewportSize({ width: 390, height: 844 }); await page.waitForFunction(() => document.querySelector("#stage canvas").height === 1266);
+    await expect(page.locator(".room")).toHaveClass(/is-immersive/);
+    await page.setViewportSize({ width: 844, height: 390 }); await page.waitForFunction(() => document.querySelector("#stage canvas").width === 1266);
+    await page.locator('#immersiveControls button[data-key="tech"]').click();
+    await immersiveShot(page, "landscape-full-night");
+    await page.goBack(); await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
+    await immersiveShot(page, "landscape-after");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(page.locator("#immersiveEnter")).toBeHidden();
+    await expect(page.locator("#panelToggle")).toBeVisible();
+    await immersiveShot(page, "desktop-1440");
+    expect(errors).toEqual([]);
+  });
+
+  test("guide robot and immersive door work together", async ({ page }) => {
+    const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${PAGE}?lang=zh`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+    await page.locator("#immersiveEnter").click();
+    await page.waitForTimeout(2500); // let the existing opening camera drift settle before projecting the guide robot
+    await page.evaluate(() => window.__room.faceDoorWall());
+    const robot = await page.evaluate(() => window.__room.guideRobot());
+    const box = await page.locator("#stage canvas").boundingBox();
+    await page.mouse.click(box.x + (robot.ndc.x + 1) / 2 * box.width, box.y + (1 - robot.ndc.y) / 2 * box.height);
+    await expect.poll(() => page.evaluate(() => window.__room.guideRobot().bubble)).toBe(true);
+    const bubble = await page.locator("#robotBubble").boundingBox();
+    expect(bubble.x).toBeGreaterThanOrEqual(0); expect(bubble.y).toBeGreaterThanOrEqual(0);
+    await page.locator("#immersiveDoor").click();
+    await expect(page).toHaveURL(/\/bedroom\/\?.*from=room01/, { timeout: 20000 });
+    await page.goBack();
+    await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
+    expect(errors).toEqual([]);
+  });
+
+  test("Room 02 arrival remains a normal page after immersive back", async ({ page }) => {
+    const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${PAGE}?lang=zh&from=room02`);
+    await page.waitForFunction(() => window.__room);
+    await page.waitForTimeout(3200); // the existing walk-in lasts 2.8 s and may finish before Playwright begins polling
+    expect(await page.evaluate(() => window.__room.returnArrival())).toMatchObject({ active: false, controlsEnabled: true, doorOpen: false });
+    await page.locator("#immersiveEnter").click(); await page.goBack();
+    await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
+    await expect(page).toHaveURL(/from=room02/);
+    expect(errors).toEqual([]);
+  });
+});
 for (const dpr of [2, 3]) {
   test(`mobile renderer keeps antialiasing and caps DPR at 1.5 on DPR ${dpr}`, async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: dpr });
