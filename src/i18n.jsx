@@ -469,7 +469,7 @@ const dict = {
             },
             {
               no: "Room 02", name: "都市青年Style",
-              desc: "一個人住的套房：睡覺、工作、打電動、窩沙發。四種感覺、十五組可以換的搭配。",
+              desc: "一個人住的紐約套房：睡覺、工作、打電動、追劇、窩沙發。五種感覺，牆面、地毯、窗簾、寢具隨你換。",
               cta: "走進套房", href: "/prototype/roomverse-3d/bedroom/",
               image: "/prototype/roomverse-3d/showcase-roomverse-3d-room02-v2.webp",
               imageAlt: "午後陽光裡的套房：鼠尾草綠電視牆、圓形石面茶几、升降桌與網布椅、書架、布面床頭的單人床和幾何地毯",
@@ -1419,7 +1419,7 @@ const dict = {
             },
             {
               no: "Room 02", name: "Urban Youth Style",
-              desc: "A studio for one: sleeping, working, gaming and sofa time. Four moods and fifteen things to swap.",
+              desc: "A New York studio for one: sleeping, working, gaming, series nights and sofa time. Five moods, and the walls, rugs, curtains and bedding are yours to swap.",
               cta: "Step into the studio", href: "/prototype/roomverse-3d/bedroom/",
               image: "/prototype/roomverse-3d/showcase-roomverse-3d-room02-v2.webp",
               imageAlt: "A studio in afternoon sun: a sage-green TV wall, a round stone coffee table, a sit-stand desk with a mesh chair, a bookshelf, a single bed with a fabric headboard and geometric rugs",
