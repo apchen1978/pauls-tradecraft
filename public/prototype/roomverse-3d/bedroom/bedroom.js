@@ -1045,18 +1045,18 @@ export async function start({ stage, lang = "zh" }) {
   downlightTrim.name = "desk-downlight"; downlightTrim.position.set(-1.55, ROOM.h - .006, -1.75); scene.add(downlightTrim);
   const downlightLens = new THREE.Mesh(new THREE.CircleGeometry(.035, 24), new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 }));
   downlightLens.rotation.x = Math.PI / 2; downlightLens.position.set(-1.55, ROOM.h - .013, -1.75); scene.add(downlightLens);
-  // More light (Paul 2026-10-23: "this one gives it atmosphere", and a photo of the black track light with round spot heads at home): a black track down the
-  // east side of the ceiling (x = 0.75, clear of the ring lamp) with four round heads on small yokes, each turned towards something. Three really light it (the bed's head, the coffee
-  // table, the poster wall behind the TV: a soft scallop on the wall, like the desk downlight); the fourth looks at the vinyl corner for the picture.
-  // The spots cast no shadows, so each costs one extra light and nothing more.
+  // More light (Paul 2026-10-23: "this one gives it atmosphere", and a photo of the black track light with round spot heads at home): a short black track
+  // in front of the window with four round heads on small yokes, each turned towards something. Three really light it (the house plaque, the bed, the print
+  // by the window: a soft scallop on the wall, like the desk downlight); the second looks at the rug for the picture. The spots cast no shadows, so each
+  // costs one extra light and nothing more.
   const trackBlack = new THREE.MeshStandardMaterial({ color: "#1d1e21", roughness: .5, metalness: .2 });
   const lensMat = new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 });
-  const TRACK_X = .75, trackY = ROOM.h - .012;
-  { const rail = new THREE.Mesh(new THREE.BoxGeometry(.03, .024, 3.9), trackBlack); rail.name = "ceiling-track"; rail.position.set(TRACK_X, trackY, .02); scene.add(rail); }
-  const trackHeads = [[-1.4, [1.4, 1.15, -2.45], "#ffe0b5"], [-.3, [-.7, .45, -1.3], null], [.9, [.025, .42, .9], "#ffe3bd"], [1.8, [-1.95, 1.3, .95], "#ffe3bd"]];
+  const TRACK_Z = -HD + .4, trackY = ROOM.h - .012; // along the window wall, in front of the window and well away from the ring lamp
+  { const rail = new THREE.Mesh(new THREE.BoxGeometry(1.7, .024, .03), trackBlack); rail.name = "ceiling-track"; rail.position.set(0, trackY, TRACK_Z); scene.add(rail); }
+  const trackHeads = [[-.7, [-1.45, 1.8, -HD + .02], "#ffe3bd"], [-.25, [-.3, .3, -1.2], null], [.25, [1.4, .5, -1.5], "#ffe0b5"], [.7, [1.3, 1.5, -HD + .02], "#ffe3bd"]]; // the plaque, the rug, the bed, the print by the window
   const roomSpots = [];
-  for (const [z, [tx, ty, tz], col] of trackHeads) {
-    const head = new THREE.Group(); head.name = "track-head"; head.position.set(TRACK_X, trackY - .02, z); scene.add(head);
+  for (const [hx, [tx, ty, tz], col] of trackHeads) { // hx: the head's place along the track
+    const head = new THREE.Group(); head.name = "track-head"; head.position.set(hx, trackY - .02, TRACK_Z); scene.add(head);
     head.lookAt(new THREE.Vector3(tx, ty, tz)); // local +z now points at the target
     const yoke = new THREE.Mesh(new THREE.BoxGeometry(.012, .05, .05), trackBlack); yoke.position.set(0, .02, 0); head.add(yoke);
     const can = new THREE.Mesh(new THREE.CylinderGeometry(.034, .034, .11, 20), trackBlack); can.rotation.x = Math.PI / 2; can.position.z = .05; head.add(can);
