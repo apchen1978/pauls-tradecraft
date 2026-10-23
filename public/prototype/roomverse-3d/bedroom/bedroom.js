@@ -997,6 +997,20 @@ export async function start({ stage, lang = "zh" }) {
   sun.shadow.bias = -.0005; sun.shadow.normalBias = .02; sun.shadow.radius = 5;
   scene.add(sun, sun.target);
   const fill = new THREE.PointLight("#ffe9cf", 7, 7, 2); fill.position.set(0, ROOM.h - .32, .2); scene.add(fill); // at the ring lamp's centre
+  // A single soft spot over the desk, the way Room 01 lights the picture above its shelf: a narrow pool of warm light with a 512 shadow
+  // map, so the desk edge, the keyboard and the mug get a real light-to-dark transition instead of another flat fill (DSH, plan 3).
+  // It comes from a small recessed downlight in the ceiling, so the pool and the scallop on the wall have a visible source.
+  const deskSpot = new THREE.SpotLight("#ffe3bd", 0, 3.2, .5, .72, 2);
+  deskSpot.position.set(-1.55, ROOM.h - .03, -1.75);
+  deskSpot.target.position.set(-1.7, .76, -1.75);
+  deskSpot.castShadow = true;
+  deskSpot.shadow.mapSize.set(512, 512);
+  deskSpot.shadow.bias = -.0006; deskSpot.shadow.normalBias = .02; deskSpot.shadow.radius = 6;
+  scene.add(deskSpot, deskSpot.target);
+  const downlightTrim = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .012, 24), new THREE.MeshStandardMaterial({ color: "#f2efe8", roughness: .5 }));
+  downlightTrim.name = "desk-downlight"; downlightTrim.position.set(-1.55, ROOM.h - .006, -1.75); scene.add(downlightTrim);
+  const downlightLens = new THREE.Mesh(new THREE.CircleGeometry(.035, 24), new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 }));
+  downlightLens.rotation.x = Math.PI / 2; downlightLens.position.set(-1.55, ROOM.h - .013, -1.75); scene.add(downlightLens);
 
   // ---------- four moods: each one sets the window, daylight, room fill and the lamps that really glow ----------
   // The bedside lamp and the screen are real lights (no shadows, short reach), so a dark mood is lit by what is on in the room.
@@ -1026,14 +1040,14 @@ export async function start({ stage, lang = "zh" }) {
   const blindFabric = root.getObjectByName("blind-fabric"), blindBar = root.getObjectByName("blind-bar");
   const setBlind = (drop) => { blindFabric.scale.y = drop / .18; blindFabric.position.y = wTop - drop / 2; blindBar.position.y = wTop - drop; };
   const MOODS = {
-    focus:   { time: "day",   sky: "#ffffff", bg: "#d9d4c8", exposure: 1.18, hemi: [1.45, "#e8f0f8", "#d6c6aa"], sun: [2.3, "#fff3df", 2.3], fill: [7, "#ffe9cf"],
-               bedLamp: 0, shade: .12, screen: .4, led: .6, glow: .35, ceiling: .35, monitor: 1, tv: 0, blind: .18 },
+    focus:   { time: "day",   sky: "#ffffff", bg: "#d9d4c8", exposure: 1.20, hemi: [1.05, "#e8f0f8", "#d6c6aa"], sun: [2.3, "#fff3df", 2.3], fill: [4.8, "#ffe9cf"],
+               bedLamp: 0, shade: .12, screen: .4, led: .6, glow: .35, ceiling: .35, monitor: 1, tv: 0, blind: .18, deskSpot: 3.4 },
     weekend: { time: "day",   sky: "#efe5d8", bg: "#d6cbbb", exposure: 1.08, hemi: [.85, "#f3e6d4", "#cdb79a"], sun: [1.1, "#ffe2b8", 2.3], fill: [4.5, "#ffcf96"],
-               bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45 },
+               bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45, deskSpot: 2.4 },
     night:   { time: "night", sky: "#ffffff", bg: "#1d2230", exposure: 1.05, hemi: [.44, "#7d8fb8", "#3a3442"], sun: [0, "#9db4ff", 2.3], fill: [1.5, "#ffcf9a"],
-               bedLamp: .7, shade: .55, screen: 2.8, led: 1.4, glow: .45, ceiling: 0, monitor: 1.3, tv: 0, blind: .18 },
+               bedLamp: .7, shade: .55, screen: 2.8, led: 1.4, glow: .45, ceiling: 0, monitor: 1.3, tv: 0, blind: .18, deskSpot: 4.2 },
     sunday:  { time: "day",   sky: "#ffe6cc", bg: "#dccdb9", exposure: 1.1, hemi: [1.0, "#f8e7d5", "#d6c2a4"], sun: [1.8, "#ffcf94", 1.45], fill: [2.5, "#ffd9b0"],
-               bedLamp: 0, shade: .1, screen: 0, led: 0, glow: 0, ceiling: 0, monitor: .2, tv: 0, blind: .62 },
+               bedLamp: 0, shade: .1, screen: 0, led: 0, glow: 0, ceiling: 0, monitor: .2, tv: 0, blind: .62, deskSpot: 1.8 },
   };
   let mood = "focus";
   async function setMood(name) {
@@ -1047,7 +1061,7 @@ export async function start({ stage, lang = "zh" }) {
     hemi.intensity = m.hemi[0]; hemi.color.set(m.hemi[1]); hemi.groundColor.set(m.hemi[2]);
     sun.intensity = m.sun[0]; sun.color.set(m.sun[1]); sun.position.y = m.sun[2]; // a lower sun in the early morning reaches further in
     fill.intensity = m.fill[0]; fill.color.set(m.fill[1]);
-    bedLamp.intensity = m.bedLamp; shade.material.emissiveIntensity = m.shade;
+    bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
     ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow;
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
