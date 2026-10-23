@@ -134,12 +134,12 @@ export async function start({ stage, lang = "zh" }) {
   // on the left, and the bed side on the right. On a phone the screen is too narrow to hold the whole room, so the buttons below the
   // room turn the head for you; dragging still works within the same limits.
   // The fourth look, "centre", is absolute: the camera walks to the middle of the room at eye height and the head can turn a full circle.
-  const LOOKS = { center: { pos: CENTER, yaw: 0, pitch: -.04, zoom: 1 }, work: compact ? [.1, .1, 1.4] : [.22, .12, 1.35], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
-  let lookRun = 0, lookName = "work";
+  const LOOKS = { center: { pos: CENTER, yaw: 0, pitch: compact ? -.22 : -.09, zoom: compact ? .8 : .92 }, work: compact ? [.1, .1, 1.4] : [.22, .12, 1.35], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
+  let lookRun = 0, lookName = "center";
   const setZoom = (z) => { camera.zoom = z; camera.updateProjectionMatrix(); };
-  // The opening look is not the plain corner overview (which showed the bed and the sofa big): it is turned towards the desk, the window and the
-  // plaque, a little flatter and closer. The overview is still reachable by dragging.
-  look.yaw = look0.yaw + LOOKS.work[0]; look.pitch = look0.pitch + LOOKS.work[1]; setZoom(LOOKS.work[2]); applyLook();
+  // The opening look is the centre (Paul, 2026-10-23): standing in the middle of the room facing the window wall, free to turn all the way round.
+  // The corner looks (desk and window, TV wall, bed side) are one tap away.
+  camera.position.copy(CENTER); look.yaw = LOOKS.center.yaw; look.pitch = LOOKS.center.pitch; setZoom(LOOKS.center.zoom); centred = true; applyLook();
   const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a)); // the short way round
   function lookTo(name) {
     const to = LOOKS[name]; if (!to) return Promise.resolve(false);
@@ -197,8 +197,8 @@ export async function start({ stage, lang = "zh" }) {
     requestAnimationFrame(step);
   });
 
-  // Arriving from Room 01's door: the camera starts in the doorway at eye height, looking into the room, then walks along the
-  // south wall and rises to the overview corner while the view turns to the usual angle. Reduced motion: it simply starts there.
+  // Arriving from Room 01's door: the camera starts in the doorway at eye height, looking into the room, then walks to the middle of the
+  // room (the opening look), clear of the wardrobe. Reduced motion: it simply starts there.
   function arrive() {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve(false);
     arriving = true;
@@ -208,10 +208,10 @@ export async function start({ stage, lang = "zh" }) {
     return new Promise((resolve) => {
       const step = (now) => {
         const k = Math.min(1, (now - t0) / T), e = ease(k), lift = ease(Math.min(1, Math.max(0, (k - .25) / .75)));
-        camera.position.set(from.pos.x + (home.x - from.pos.x) * e, from.pos.y + (home.y - from.pos.y) * lift, from.pos.z + (home.z - from.pos.z) * e);
-        look.yaw = from.yaw + (look0.yaw + LOOKS.work[0] - from.yaw) * lift; look.pitch = from.pitch + (look0.pitch + LOOKS.work[1] - from.pitch) * lift; setZoom(1 + (LOOKS.work[2] - 1) * lift);
+        camera.position.lerpVectors(from.pos, CENTER, e);
+        look.yaw = from.yaw + (LOOKS.center.yaw - from.yaw) * lift; look.pitch = from.pitch + (LOOKS.center.pitch - from.pitch) * lift;
         applyLook(); render();
-        if (k < 1) requestAnimationFrame(step); else { camera.position.copy(home); look.yaw = look0.yaw + LOOKS.work[0]; look.pitch = look0.pitch + LOOKS.work[1]; setZoom(LOOKS.work[2]); applyLook(); arriving = false; render(); resolve(true); }
+        if (k < 1) requestAnimationFrame(step); else { camera.position.copy(CENTER); look.yaw = LOOKS.center.yaw; look.pitch = LOOKS.center.pitch; setZoom(LOOKS.center.zoom); centred = true; lookName = "center"; applyLook(); arriving = false; render(); resolve(true); }
       };
       requestAnimationFrame(step);
     });
@@ -376,7 +376,6 @@ export async function start({ stage, lang = "zh" }) {
   art("room02-linen-duvet-v1.webp", { repeat: [5.7, 5.7], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
   const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95, side: THREE.DoubleSide });
   art("room02-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = t; pillowMat.color.set("#ffffff"); pillowMat.needsUpdate = true; } });
-  const cushionMat = new THREE.MeshStandardMaterial({ color: "#7b8794", roughness: .95, side: THREE.DoubleSide });
   const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
   const part = (geo, mat, name, x, y, z) => {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; bed.add(m); return m;
@@ -494,13 +493,9 @@ export async function start({ stage, lang = "zh" }) {
     throwMat.side = THREE.DoubleSide;
     part(g, throwMat, "bed-throw", tx, ty, tz);
     part(f, throwMat, "bed-throw-fringe", tx, ty, tz); }
-  // 19 cm pillow, 16 cm cushion. The pillow's crown is at BED.top + .177; the cushion's flat underside has to sit *below* that, not
-  // graze it: at BED.top + .265 the two solids overlap by ~2 cm at the cushion's own z, which is what makes it read as resting and
-  // leaves a dent, instead of hovering with a lit gap underneath. It also leans further back (−.42) so it meets the headboard.
+  // 19 cm pillow. The grey cushion that leaned on it is gone (Paul: it looked fake); the pillow alone reads cleaner.
   const bedPillow = part(pillowGeo(.7, .19, .46, .026), pillowMat, "bed-pillow", BED.x, BED.top + .082, north + .36);
   bedPillow.rotation.set(0, .05, .012);
-  const bedCushion = part(pillowGeo(.45, .16, .3, .018), cushionMat, "bed-cushion", BED.x, BED.top + .265, north + .215);
-  bedCushion.rotation.set(-.42, .08, 0);
   // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
   part(rb(.4, .02, .4), oak, "bedside-top", tx, .44, tz);
@@ -894,7 +889,7 @@ export async function start({ stage, lang = "zh" }) {
   }
   // A sliding-door wardrobe on the south wall (behind the corner camera, so it only shows when you stand in the middle): light oak doors,
   // one slim mirror door, a dark rail top and bottom. 160 x 55 cm, 225 cm high, clear of the door (x < -0.7) and the light switch.
-  { const W = { w: 1.6, d: .55, h: 2.25, x: .4 }, wz = HD - W.d / 2, g = new THREE.Group(); g.name = "wardrobe"; g.visible = false; root.add(g);
+  { const W = { w: 1.6, d: .55, h: 2.25, x: .4 }, wz = HD - W.d / 2, g = new THREE.Group(); g.name = "wardrobe"; g.visible = centred; root.add(g); // shown while standing in the middle (the opening look)
     const mirrorTex = canvasTex(64, 256, (ctx, w, h) => { const gr = ctx.createLinearGradient(0, 0, w, h); gr.addColorStop(0, "#c9d3da"); gr.addColorStop(.35, "#eef3f5"); gr.addColorStop(.5, "#d6dee3"); gr.addColorStop(1, "#aeb9c1"); ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(26, 0); ctx.lineTo(10, h); ctx.lineTo(-8, h); ctx.fill(); }); // a soft glass sheen, so the mirror reads as glass
     const doorMat = new THREE.MeshStandardMaterial({ map: woodTex("#d8b98d", "rgba(110,76,40,A)", "rgba(255,240,215,A)"), roughness: .55 }); // plain veneer, drawn here: the painted oak is a strip made for boards and stretches on a tall door
     const wp = hold(g), mirrorMat = new THREE.MeshStandardMaterial({ map: mirrorTex, color: "#ffffff", roughness: .08, metalness: .6, envMapIntensity: 1.2 }), railMat = new THREE.MeshStandardMaterial({ color: "#3a3c3f", roughness: .4, metalness: .5 });
@@ -1111,9 +1106,9 @@ export async function start({ stage, lang = "zh" }) {
       blindFabric.material.map = value === "bamboo" ? (windowPaint.bamboo ?? bambooTex) : (windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true;
       curtains.visible = value === "linen";
     } else if (kind === "bedding" && CHOICES.bedding[value]) {
-      const [d0, d1, t0, t1, c] = CHOICES.bedding[value];
+      const [d0, d1, t0, t1] = CHOICES.bedding[value];
       duvetMat.color.setRGB(...DUVET_TINT); throwMat.color.set("#ffffff");
-      duvetMat.map = weaveTexture(d0, d1); throwMat.map = weaveTexture(t0, t1); cushionMat.color.set(c);
+      duvetMat.map = weaveTexture(d0, d1); throwMat.map = weaveTexture(t0, t1);
       if (value === "stone") useBeddingArt();
       duvetMat.needsUpdate = throwMat.needsUpdate = true;
     } else if (kind === "led" && CHOICES.led[value]) {
@@ -1197,7 +1192,7 @@ export async function start({ stage, lang = "zh" }) {
     },
     bedSoft() { // local QA only
       const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
-      return { duvet: bx("bed-duvet"), pillow: bx("bed-pillow"), cushion: bx("bed-cushion"), throw: bx("bed-throw"), mattress: bx("bed-mattress"), frame: bx("bed-frame") };
+      return { duvet: bx("bed-duvet"), pillow: bx("bed-pillow"), cushion: root.getObjectByName("bed-cushion") ? bx("bed-cushion") : null, throw: bx("bed-throw"), mattress: bx("bed-mattress"), frame: bx("bed-frame") };
     },
     batch4() { // local QA only: the ceiling, console skins and night foreground
       const bx = (n) => { const o = root.getObjectByName(n) ?? scene.getObjectByName(n); if (!o) return null; const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };

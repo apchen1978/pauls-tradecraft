@@ -56,7 +56,7 @@ const COPY = {
 const $ = (id) => document.getElementById(id);
 const arrivedFromRoom01 = new URLSearchParams(location.search).get("from") === "room01"; // came through the door in Room 01
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
-let room = null, mood = "focus", look = "work";
+let room = null, mood = "focus", look = "center";
 function viewButtons() {
   const c = COPY[lang], row = $("viewRow");
   row.setAttribute("aria-label", c.viewsLabel);
@@ -109,7 +109,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=45");
+    const { start } = await import("./bedroom.js?v=46");
     room = await start({ stage: $("stage"), lang });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook
