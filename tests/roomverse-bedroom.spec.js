@@ -95,7 +95,7 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
   expect(desk.top).toBeCloseTo(.75, 2);
   expect(desk.seat).toBeCloseTo(.48, 2);
   const m = desk.monitor, mw = Math.max(m.max[0] - m.min[0], m.max[2] - m.min[2]);
-  expect(mw).toBeCloseTo(.8, 1); // a 34-inch ultrawide is about 80 cm wide
+  expect(mw).toBeCloseTo(1.19, 1); // a 49-inch 32:9 curved panel is about 119 cm wide
   expect(m.min[1]).toBeGreaterThan(.8); // the panel floats above the desk, not through it
   expect(m.max[1]).toBeLessThan(1.3);
   for (const n of ["desk", "chair"]) {
@@ -110,13 +110,10 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
 test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, shelf under the ceiling, nothing crosses the bed or the door", async ({ page }) => {
   await enter(page);
   const { lounge, tvPanel, shelfClash, vertices } = await page.evaluate(() => window.__bedroom.info());
-  const sofa = lounge.sofa, table = lounge["coffee-table"];
+  const sofa = lounge.sofa;
   expect(sofa.max[0] - sofa.min[0]).toBeGreaterThan(.7); expect(sofa.max[0] - sofa.min[0]).toBeLessThan(1.05); // seat depth plus back, under a metre
   expect(sofa.max[2] - sofa.min[2]).toBeCloseTo(1.6, 1); // a 2-seater, 160 cm wide
   expect(sofa.max[1]).toBeGreaterThan(.7); expect(sofa.max[1]).toBeLessThan(1.0); // back at about 80-90 cm
-  expect(sofa.min[0] - table.max[0]).toBeGreaterThan(.2); // room to walk and to put legs
-  expect(sofa.min[0] - table.max[0]).toBeLessThan(.5);
-  expect(table.max[1]).toBeLessThan(.5);
   expect(tvPanel.min[1]).toBeGreaterThan(.45); // panel sits above the 45 cm console
   expect(tvPanel.max[1] - tvPanel.min[1]).toBeCloseTo(.55, 1);
   expect(lounge.bookshelf.max[1]).toBeLessThan(2.3); // the box and plant stored on top stay well under the 2.6 m ceiling
@@ -254,7 +251,6 @@ test("TV corner: a rug in front of the TV, a game console resting inside the ope
   await enter(page);
   const info = await page.evaluate(() => window.__bedroom.tvCorner());
   expect(info.rug.min[1]).toBeGreaterThan(0); expect(info.rug.max[1]).toBeLessThan(.02); // lies on the floor
-  expect(info.rug.max[0]).toBeLessThan(info.table.min[0] - .05); // clear of the coffee table
   expect(info.rug.min[0]).toBeGreaterThan(info.unit.max[0] - .05); // starts right in front of the cabinet
   expect(info.rug.min[2]).toBeGreaterThan(-.01); expect(info.rug.max[2]).toBeLessThan(2.45); // inside the room, away from the door wall
   const c = info.console;
@@ -328,7 +324,7 @@ test("ceiling lamp and its glow sit on the ceiling; the console and pad skins li
   expect(b.glow.min[1]).toBeGreaterThan(2.59); expect(b.glow.max[1]).toBeLessThan(2.61); // a flat sheet under the ceiling
   expect(b.skin.min[1]).toBeGreaterThan(b.consoleTop - .002); expect(b.skin.max[1]).toBeLessThan(b.consoleTop + .01); // on the console's top plate
   expect(b.skin.min[0]).toBeGreaterThan(b.console.min[0] - .01); expect(b.skin.max[0]).toBeLessThan(b.console.max[0] + .01); // not wider than the console
-  expect(b.padSkin.min[1]).toBeGreaterThan(.39); expect(b.padSkin.max[1]).toBeLessThan(.45); // the pad lies on the coffee table (40 cm), not on the console
+  expect(b.padSkin.max[1]).toBeLessThan(.06); // the pad lies on the TV rug, not on the console
   expect(b.fgNightLoaded).toBe(true);
   expect(await page.evaluate(() => window.__bedroom.setTime("night"))).toBe(true);
   const n = await page.evaluate(() => window.__bedroom.batch4());
@@ -350,11 +346,8 @@ test("bed soft goods: the duvet drapes over the mattress without touching the fr
   expect(b.throw.max[2] - b.throw.min[2]).toBeLessThan(.45); // a 36 cm strip, not a blanket
 });
 
-test("one coffee table sits 45 cm from the sofa; the TV is a glossy dark glass when off and plays a film or the console home on request", async ({ page }) => {
+test("the TV is a glossy dark glass when off and plays a film or the console home on request", async ({ page }) => {
   await enter(page);
-  const l = await page.evaluate(() => window.__bedroom.info().lounge);
-  const gap = l.sofa.min[0] - l["coffee-table"].max[0];
-  expect(gap).toBeGreaterThan(.4); expect(gap).toBeLessThan(.5); // designers: 40-45 cm between sofa and coffee table
   expect(await page.evaluate(() => window.__bedroom.tvState())).toMatchObject({ mode: "off", reflection: true });
   await page.locator('#swapGroups button[data-kind="tv"][data-choice="film"]').click();
   await page.waitForFunction(() => window.__bedroom.tvState().mode === "film");

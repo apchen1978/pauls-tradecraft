@@ -575,16 +575,18 @@ export async function start({ stage, lang = "zh" }) {
   dpart(box(1.2, .03, .09), blackMat, "desk-tray", 0, .7, -.24); // a cable tray under the back edge
   dpart(rb(.36, .09, .4), deskMat, "desk-drawer", .4, .675, .02); // a shallow drawer under the right end
   dpart(softBox(.82, .004, .32, .02), softBlack, "desk-mat", 0, .752, .12);
-  dpart(box(.26, .01, .18), blackMat, "monitor-foot", 0, .755, -.1);
-  dpart(box(.05, .2, .02), blackMat, "monitor-neck", 0, .86, -.16);
-  dpart(rb(.8, .34, .025), blackMat, "monitor-panel", 0, 1.05, -.15);
-  const screen = new THREE.Mesh(new THREE.PlaneGeometry(.77, .31), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }));
+  // A 49-inch 32:9 curved monitor (Paul: wider, more modern): 119 x 34 cm, radius 1.8 m so the ends come about 10 cm towards you, on a slim silver column and a flat low foot.
+  const MR = 1.8, panelArc = (w, h, r) => { const g = new THREE.CylinderGeometry(r, r, h, 48, 1, true, Math.PI - w / r / 2, w / r); g.translate(0, 0, r); return g; }; // the surface passes through z = 0 at the middle and bends towards +z
+  const silver = new THREE.MeshStandardMaterial({ color: "#9aa0a6", roughness: .35, metalness: .7 });
+  dpart(rb(.28, .008, .17), silver, "monitor-foot", 0, .754, -.1);
+  dpart(box(.04, .2, .014), silver, "monitor-neck", 0, .86, -.17);
+  dpart(panelArc(1.19, .34, MR + .004), new THREE.MeshStandardMaterial({ color: "#1f2125", roughness: .45, metalness: .25, side: THREE.DoubleSide }), "monitor-panel", 0, 1.05, -.15);
+  const screenGeo = panelArc(1.17, .32, MR - .003), screenUv = screenGeo.attributes.uv; for (let i = 0; i < screenUv.count; i++) screenUv.setX(i, 1 - screenUv.getX(i)); // seen from inside the curve, so the picture is turned back the right way round
+  const screen = new THREE.Mesh(screenGeo, new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false, side: THREE.BackSide }));
   art("room02-a6-game-screen-v1.webp", { apply: (t) => { cityScreen = t; if (chosen.screen === "city") screen.material.map = t; screen.material.needsUpdate = true; } });
   screen.name = "monitor-screen"; screen.position.set(0, 1.05, -.15 + .0135); desk.add(screen);
   dpart(box(.42, .018, .13), new THREE.MeshStandardMaterial({ map: keysTex, roughness: .6 }), "keyboard", -.02, .765, .16);
   dpart(softBox(.065, .03, .11, .025), blackMat, "mouse", .33, .767, .16);
-  dpart(box(.28, .06, .22), new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), "console", -.55, .785, -.08); // white slim console, no logo
-  dpart(box(.012, .004, .2), new THREE.MeshStandardMaterial({ color: "#69b8ff", emissive: "#69b8ff", emissiveIntensity: 1 }), "console-light", -.55, .816, -.08);
   // Screens (round 2): the painted night city, plus three drawn in code: a neon grid horizon, an editor-like work view made only of
   // coloured bars (no words), and a calm gradient wallpaper.
   let cityScreen = screen.material.map; // the painted city replaces this stand-in when it loads
@@ -607,12 +609,12 @@ export async function start({ stage, lang = "zh" }) {
     }
   });
   // LED bias strip: a thin emissive bar on the wall behind the monitor and a soft additive glow on the wall
-  dpart(box(.9, .012, .012), new THREE.MeshStandardMaterial({ color: "#ffb066", emissive: "#ffb066", emissiveIntensity: 1.4 }), "led-strip", 0, .92, -.315);
+  dpart(box(1.1, .012, .012), new THREE.MeshStandardMaterial({ color: "#ffb066", emissive: "#ffb066", emissiveIntensity: 1.4 }), "led-strip", 0, .92, -.315);
   const glowTex = canvasTex(256, 256, (ctx, w, h) => {
     const g = ctx.createRadialGradient(w / 2, h / 2, 6, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,255,255,.8)"); g.addColorStop(1, "rgba(255,255,255,0)");
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
   });
-  const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.0), new THREE.MeshBasicMaterial({ map: glowTex, color: "#ffb066", transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .55, toneMapped: false }));
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.0), new THREE.MeshBasicMaterial({ map: glowTex, color: "#ffb066", transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .55, toneMapped: false }));
   glow.name = "led-glow"; glow.position.set(0, 1.0, -.322); desk.add(glow);
   // Desk sets (round 2): minimal (just the keyboard and mouse), gamer (headphones on a stand and a gamepad), coffee (a small espresso machine
   // and a cup, for people who really like coffee), creative (an adjustable lamp, a notebook and a pen pot). Each is a few dozen cheap shapes.
@@ -620,11 +622,7 @@ export async function start({ stage, lang = "zh" }) {
   const deskSet = (name, build) => { const g = new THREE.Group(); g.name = "deskset-" + name; g.visible = name === "minimal"; desk.add(g); build(hold(g)); deskSets[name] = g; };
   const steel = new THREE.MeshStandardMaterial({ color: "#b9bcc0", roughness: .3, metalness: .85 });
   const ceramicWhite = new THREE.MeshStandardMaterial({ color: "#f1ece2", roughness: .4 });
-  deskSet("minimal", (p) => { // keyboard and mouse are on the desk already; one small warm-wood speaker stands at the far end (13 x 20 x 14 cm)
-    p(rb(.13, .2, .14), new THREE.MeshStandardMaterial({ color: "#c9a77c", roughness: .55 }), "desk-speaker", .6, .75 + .1, -.12);
-    p(new THREE.CylinderGeometry(.04, .04, .008, 24), softBlack, "desk-speaker-woofer", .6, .75 + .075, -.12 + .074).rotation.x = Math.PI / 2;
-    p(new THREE.CylinderGeometry(.015, .015, .008, 16), softBlack, "desk-speaker-tweeter", .6, .75 + .163, -.12 + .074).rotation.x = Math.PI / 2;
-  });
+  deskSet("minimal", () => {}); // nothing but the monitor, keyboard, mouse and mat: a clean desk (Paul: it looked messy)
   deskSet("gamer", (p) => {
     p(new THREE.CylinderGeometry(.05, .055, .012, 20), blackMat, "headset-stand-base", .56, .756, -.14);
     p(new THREE.CylinderGeometry(.008, .008, .2, 8), blackMat, "headset-stand-post", .56, .85, -.14);
@@ -662,34 +660,15 @@ export async function start({ stage, lang = "zh" }) {
     p(new THREE.CylinderGeometry(.035, .032, .09, 14), ceramicWhite, "pen-pot", -.5, .797, -.2);
     for (let i = 0; i < 4; i++) p(new THREE.CylinderGeometry(.004, .004, .07, 5), i % 2 ? accentMat : blackMat, "pen", -.5 + (i - 1.5) * .01, .86, -.2).rotation.z = (i - 1.5) * .12;
   });
-  // ergonomic task chair, pulled up to the desk
+  // A quiet desk chair (Paul: the mesh task chair was loud and its five-star base odd): light oak like the desk, four tapered legs, an oat seat and a low back pad.
   const chair = new THREE.Group(); chair.name = "chair"; chair.position.set(-.93, 0, -1.75); chair.rotation.y = -Math.PI / 2 + .1; root.add(chair);
-  const cpart = hold(chair); // the code-made chair stays until Codex's chair (batch 13) has loaded, then it is replaced
-  const meshTex = canvasTex(64, 64, (ctx, w, h) => { // fine woven mesh: a dark grid with a few lighter threads
-    ctx.fillStyle = "#555b63"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(255,255,255,.12)";
-    for (let i = 0; i < w; i += 2) { ctx.fillRect(i, 0, 1, h); ctx.fillRect(0, i, w, 1); }
-  }, { repeat: [5, 6] });
-  const meshMat = new THREE.MeshStandardMaterial({ map: meshTex, roughness: .8 });
-  cpart(softBox(.5, .08, .48, .07), seatFabric, "chair-seat", 0, .44, 0); // top at 48 cm, a rounded waterfall front
-  cpart(box(.3, .05, .28), graphite, "chair-mech", 0, .375, -.02);
-  const frameBack = cpart(softBox(.5, .05, .6, .08), graphite, "chair-back-frame", 0, .78, -.265); frameBack.rotation.x = Math.PI / 2 + .14;
-  const back = cpart(softBox(.44, .03, .54, .07), meshMat, "chair-back", 0, .785, -.24); back.rotation.x = Math.PI / 2 + .14;
-  const lumbar = cpart(softBox(.3, .05, .13, .03), seatFabric, "chair-lumbar", 0, .64, -.205); lumbar.rotation.x = Math.PI / 2 + .14;
-  for (const sx of [-1, 1]) {
-    cpart(rb(.035, .2, .035), graphite, "chair-arm-post", sx * .27, .56, -.05);
-    cpart(rb(.06, .025, .27), graphite, "chair-arm", sx * .27, .68, .03);
-  }
-  cpart(new THREE.CylinderGeometry(.035, .035, .26, 10), metalMat, "chair-lift", 0, .27, 0);
-  for (let i = 0; i < 5; i++) {
-    const a = i * Math.PI * 2 / 5, arm = cpart(rb(.3, .028, .05), graphite, "chair-leg", Math.cos(a) * .15, .07, Math.sin(a) * .15);
-    arm.rotation.y = -a;
-    cpart(new THREE.SphereGeometry(.027, 8, 6), graphite, "chair-wheel", Math.cos(a) * .3, .027, Math.sin(a) * .3);
-  }
-  loadGlb(new URL("./models/computer-chair-v1.glb", import.meta.url).href, { anchor: "none" }).then((g) => {
-    const meshes = []; g.traverse((o) => { if (o.isMesh) meshes.push(o); }); // four parts in the file's order: frame, mesh, seat, metal
-    if (meshes.length === 4) meshes[2].name = "chair-seat";
-    chair.children.slice().forEach((c) => chair.remove(c)); chair.add(g); redraw();
-  }).catch(() => {});
+  const cpart = hold(chair), oatFabric = new THREE.MeshStandardMaterial({ map: weaveTexture("#dcd2bf", "#c5b99f"), roughness: 1 });
+  cpart(softBox(.46, .05, .44, .05), oatFabric, "chair-seat", 0, .455, 0); // top at 48 cm
+  cpart(rb(.42, .03, .4), deskMat, "chair-seat-frame", 0, .415, 0);
+  for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) cpart(new THREE.CylinderGeometry(.024, .014, .4, 12), deskMat, "chair-leg", sx * .185, .2, sz * .17);
+  for (const sx of [-1, 1]) cpart(rb(.03, .46, .03), deskMat, "chair-back-post", sx * .19, .66, -.21).rotation.x = -.1;
+  cpart(rb(.4, .025, .035), deskMat, "chair-back-rail", 0, .875, -.245).rotation.x = -.1;
+  cpart(rb(.36, .24, .04), oatFabric, "chair-back-pad", 0, .73, -.232).rotation.x = -.1;
 
   // ---------- lounge zone: sofa facing a TV on the west wall, coffee table, bookshelf ----------
   // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
@@ -728,21 +707,10 @@ export async function start({ stage, lang = "zh" }) {
     for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; h(box(.028, topY - topH / 2 - .02, .02), bronze, name + "-post", Math.cos(a) * r, (topY - topH / 2 - .02) / 2, Math.sin(a) * r).rotation.y = -a + Math.PI / 2; }
     return h;
   };
-  // A coffee table a home would have (Paul: the ring-and-iron one looked like a hotel's): a solid oak top 50 x 90 cm with softened corners, four tapered
-  // wooden legs and a lower shelf, 45 cm from the sofa.
-  const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.19, 0, .9); root.add(ct);
-  const cp = hold(ct);
-  cp(rb(.5, .035, .9), oak, "coffee-table-top", 0, .3825, 0);
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) cp(new THREE.CylinderGeometry(.027, .017, .365, 14), oak, "coffee-table-leg", sx * .2, .1825, sz * .38);
-  cp(rb(.4, .02, .78), oak, "coffee-table-shelf", 0, .12, 0);
-  cp(box(.24, .035, .18), pillowB, "coffee-table-book", -.12, .4175, .04); cp(box(.2, .03, .15), accentMat, "coffee-table-book", -.12, .45, .04);
-  { // Codex's mug (a plain glazed café mug, no brand): the old terracotta cylinder stays until it has loaded, so a slow download never leaves the table bare
-    const stand = cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .15, .445, -.1);
-    loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => {
-      g.name = "coffee-table-mug"; g.position.set(.15, .4, -.1); g.rotation.y = -.7; // the handle turns towards the sofa
-      ct.remove(stand); ct.add(g); redraw();
-    }).catch(() => {});
-  }
+  // The coffee table is gone (Paul: the middle of the room should breathe). The game pad lies on the TV rug and Codex's mug stands on the bedside table.
+  const padG = new THREE.Group(); padG.name = "game-pad-group"; padG.position.set(-.85, 0, 1.15); root.add(padG);
+  const cp = hold(padG);
+  loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => { g.name = "bedside-mug"; g.position.set(tx + .1, .5, tz + .11); g.rotation.y = -.7; root.add(g); redraw(); }).catch(() => {});
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
   const tp = hold(tv);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
@@ -760,9 +728,9 @@ export async function start({ stage, lang = "zh" }) {
   tp(rb(.275, .053, .3), consoleBody, "game-console", .295, .17 + .0265, -.02);
   tp(rb(.265, .004, .29), consoleTop, "game-console-top", .295, .17 + .053 + .002, -.02);
   tp(box(.1, .003, .002), new THREE.MeshStandardMaterial({ color: "#4aa8ff", emissive: "#4aa8ff", emissiveIntensity: 1.4 }), "game-console-light", .295, .17 + .053 + .0045, .125);
-  // The pad is a real controller lying on the coffee table (PAD_BASE is that table top), where you can see it (Paul: the console is a big thing in a young person's room):
+  // The pad is a real controller lying on the TV rug (PAD_BASE is the rug top), where you can see it (Paul: the console is a big thing in a young person's room):
   // a rounded body, two grips angled back, two sticks, and a blue light bar. Codex's painted top lies on the body.
-  const PAD_BASE = .4, padX = .1, padZ = .15, padMat = new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), padDark = new THREE.MeshStandardMaterial({ color: "#2a2b30", roughness: .55 });
+  const PAD_BASE = .008, padX = 0, padZ = 0, padMat = new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), padDark = new THREE.MeshStandardMaterial({ color: "#2a2b30", roughness: .55 });
   const pad = cp(rb(.15, .028, .09), padMat, "game-pad", padX, PAD_BASE + .014, padZ); pad.rotation.y = .4;
   for (const sx of [-1, 1]) { const grip = cp(rb(.045, .03, .085), padMat, "game-pad-grip", padX, PAD_BASE + .015, padZ); grip.rotation.y = .4; grip.translateX(sx * .062); grip.translateZ(.045); grip.rotateY(-sx * .35); }
   for (const sx of [-1, 1]) { const st = cp(new THREE.CylinderGeometry(.013, .013, .01, 14), padDark, "game-pad-stick", padX, PAD_BASE + .033, padZ); st.rotation.y = .4; st.translateX(sx * .03); st.translateZ(.012); }
@@ -774,7 +742,7 @@ export async function start({ stage, lang = "zh" }) {
     return m;
   };
   skin(.265, .29, .17 + .053 + .0042, .295, -.02, 0, "room02-console-top-v1.webp", "game-console-skin", null);
-  skin(.15, .15, PAD_BASE + .0285, padX, padZ, .4, "room02-controller-top-v1.webp", "game-pad-skin", null, ct);
+  skin(.15, .15, PAD_BASE + .0285, padX, padZ, .4, "room02-controller-top-v1.webp", "game-pad-skin", null, padG);
   tp(box(.5, .006, .02), new THREE.MeshStandardMaterial({ color: "#fff1d6", emissive: "#ffd9a0", emissiveIntensity: 1.1 }), "tv-bay-led", .295, .418, .15); // a warm strip under the top, so the console stands out of the dark bay
   tp(box(.3, .012, .2), blackMat, "tv-foot", 0, .456, 0);
   tp(rb(.95, .55, .035), blackMat, "tv-panel", 0, .75, 0); // 47 cm to 102 cm
@@ -892,7 +860,7 @@ export async function start({ stage, lang = "zh" }) {
     g.traverse((o) => { if (o.isMesh && barColours[o.material.name]) o.material.color.set(barColours[o.material.name]); });
     g.name = "coffee-bar"; g.position.set(-HW + .195, 0, .35 - .04 - .195); g.rotation.y = Math.PI / 2; root.add(g); render(); // front looks east, like the TV unit
   }).catch(() => {});
-  // Room 01's little robot has a cousin here: the same model, a soft blue belt, standing on the open floor between the desk and the foot of the
+  // Room 01's little robot has a cousin here: the same model, a soft blue belt, standing on the open floor in the middle of the lounge, where the coffee table was, turned towards the corner camera. (It first stood between the desk and the foot of the
   // bed, turned towards the corner camera. As in Room 01 the body is re-coloured by height (cream, one belt) and the face is its own dark
   // screen with two warm eyes, because vertex colours cannot hold a crisp face.
   loadModel("robot", { height: .46, roughness: .5 }).then((rb) => {
@@ -910,7 +878,7 @@ export async function start({ stage, lang = "zh" }) {
     face.position.set((b0.min.x + b0.max.x) / 2, fy, b0.max.z + .004);
     for (const sx of [-1, 1]) { const eye = new THREE.Mesh(new THREE.CircleGeometry(fh * .14, 16), new THREE.MeshBasicMaterial({ color: "#ffe2a8" })); eye.position.set(sx * fw * .2, fh * .05, .002); face.add(eye); }
     rb.add(face);
-    rb.position.set(.35, 0, -.55); rb.rotation.y = .46; root.add(rb); tapTargets.robot = rb; redraw();
+    rb.position.set(.28, 0, .25); rb.rotation.y = .7; root.add(rb); tapTargets.robot = rb; redraw();
   }).catch(() => {});
   // roller blind: a slim cassette above the window with the oat fabric pulled down 18 cm
   add(box(WINDOW.w + .12, .07, .08), frameMat, "blind-cassette", WINDOW.x, wTop + .085, -HD + .07, { shadow: false });
@@ -1036,7 +1004,7 @@ export async function start({ stage, lang = "zh" }) {
     ctx.fillRect(34 - 1000, 34, 60, 60);
   });
   const footprintMat = (op) => new THREE.MeshBasicMaterial({ color: "#1c1510", alphaMap: footprintTex, transparent: true, opacity: op, depthWrite: false, toneMapped: false });
-  for (const [name, op, grow] of [["bed", .5, .1], ["desk", .32, .06], ["chair", .4, .06], ["vinyl-corner", .45, .06], ["sofa", .55, .12], ["coffee-table", .32, .05], ["tv-unit", .5, .07], ["bookshelf", .5, .07], ["floor-plant", .5, .06]]) {
+  for (const [name, op, grow] of [["bed", .5, .1], ["desk", .32, .06], ["chair", .4, .06], ["vinyl-corner", .45, .06], ["sofa", .55, .12], ["tv-unit", .5, .07], ["bookshelf", .5, .07], ["floor-plant", .5, .06]]) {
     const o = root.getObjectByName(name); if (!o) continue;
     const b = new THREE.Box3().setFromObject(o);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2), footprintMat(op));
@@ -1251,7 +1219,7 @@ export async function start({ stage, lang = "zh" }) {
       work: Object.fromEntries(["desk", "chair"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
       desk: { top: new THREE.Box3().setFromObject(root.getObjectByName("desk-top")).max.y, seat: new THREE.Box3().setFromObject(root.getObjectByName("chair-seat")).max.y,
         monitor: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("monitor-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })() },
-      lounge: Object.fromEntries(["sofa", "coffee-table", "tv-unit", "bookshelf"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
+      lounge: Object.fromEntries(["sofa", "tv-unit", "bookshelf"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
       shelfClash: (() => {
         const sh = root.getObjectByName("bookshelf"), boards = [], items = [];
         sh.traverse((o) => { if (!o.isMesh) return; const b = new THREE.Box3().setFromObject(o); if (o.name === "shelf-board") boards.push(b); else if (/^shelf-(book|frame|top)/.test(o.name)) items.push([o.name, b]); });
@@ -1317,7 +1285,7 @@ export async function start({ stage, lang = "zh" }) {
     tvCorner() { // local QA only: rug, console and cabinet bounds
       const bx = (o) => { const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
       const get = (n) => root.getObjectByName(n);
-      return { rug: bx(get("zone-tv-rug")), unit: bx(get("tv-unit")), table: bx(get("coffee-table")), console: bx((() => { const g = new THREE.Group(); return get("game-console"); })()), pad: bx(get("game-pad")),
+      return { rug: bx(get("zone-tv-rug")), unit: bx(get("tv-unit")), console: bx((() => { const g = new THREE.Group(); return get("game-console"); })()), pad: bx(get("game-pad")),
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
     robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, y: rb.position.y, yaw: rb.rotation.y, ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
