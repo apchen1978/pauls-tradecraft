@@ -352,7 +352,7 @@ export async function start({ stage, lang = "zh" }) {
   // ---------- three floor zones ----------
   const zoneRug = (w, d, x, z, mat, name) => { const m = add(new THREE.PlaneGeometry(w, d), mat, name, x, .006, z, { shadow: false }); m.rotation.x = -Math.PI / 2; };
   const sleepRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
-  zoneRug(.63, 1.8, .45, -1.0, sleepRugMat, "zone-sleep-rug"); // a runner along the bed's open side, between the bedside table and the foot
+  zoneRug(.63, 1.8, .06, -1.0, sleepRugMat, "zone-sleep-rug"); // a runner along the bed's open side, between the bedside table and the foot
   const cutout = (mat) => { mat.transparent = true; mat.alphaTest = .45; mat.needsUpdate = true; };
   const tvRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
   zoneRug(1.2, 1.7, -1.05, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
@@ -367,7 +367,7 @@ export async function start({ stage, lang = "zh" }) {
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
-  const BED = { x: 1.4, z: -1.25, w: 1.1, l: 2.3, top: .48 }; // 2.3 m long, head against the north wall (Paul: Americans are 1.8 to 2 m tall, the bed looked about 1.75 m; the foot ends 20 cm short of the sofa)
+  const BED = { x: 1.2, z: -1.25, w: 1.5, l: 2.3, top: .48 }; // 1.5 m wide (a real double, Paul), against the east wall at x 1.95 // 2.3 m long, head against the north wall (Paul: Americans are 1.8 to 2 m tall, the bed looked about 1.75 m; the foot ends 20 cm short of the sofa)
   const woodTex = (base, dark, light) => canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
     for (let i = 0; i < 140; i++) { const y = (i * 53) % h, a = .05 + (i % 6) * .018; ctx.strokeStyle = (i % 3 ? dark : light).replace("A", a.toFixed(3)); ctx.lineWidth = .8 + (i % 4) * .5;
@@ -493,7 +493,7 @@ export async function start({ stage, lang = "zh" }) {
   loadGlb(new URL("./models/duvet-v1.glb", import.meta.url).href, { anchor: "none", roughness: 1 }).then((g) => {
     g.traverse((o) => { if (!o.isMesh) return; o.material = duvetMat; const uv = o.geometry.attributes.uv; for (let i = 0; i < uv.array.length; i++) uv.array[i] /= 1.7; uv.needsUpdate = true; });
     const head = BED.z - BED.l / 2, foot = BED.z + BED.l / 2, k = ((foot + .072) - (head + .3)) / 1.772; // the file is made for a 2.0 m bed: stretch it so its fold starts 30 cm from the head and the foot hangs at the foot
-    g.scale.z = k; g.name = "bed-duvet"; g.position.set(BED.x, BED.top, head + .3 + .7 * k); codeDuvet.parent.remove(codeDuvet); root.add(g); redraw();
+    g.scale.z = k; g.scale.x = (BED.w + .06) / 1.242; g.name = "bed-duvet"; g.position.set(BED.x, BED.top, head + .3 + .7 * k); codeDuvet.parent.remove(codeDuvet); root.add(g); redraw();
   }).catch(() => {});
   // The throw is a knitted strip laid across the foot, longer than the bed is wide: flat on the duvet, rolled over the mattress edges and
   // hanging 10-15 cm down each side, a little longer on one side than the other, with a folded-over band across it and a short fringe on
@@ -523,11 +523,12 @@ export async function start({ stage, lang = "zh" }) {
   };
   { const { g, f } = throwGeo(), tx = BED.x, ty = BED.top + .084, tz = BED.z + BED.l / 2 - .38; // 38 cm from the foot
     throwMat.side = THREE.DoubleSide;
-    part(g, throwMat, "bed-throw", tx, ty, tz);
-    part(f, throwMat, "bed-throw-fringe", tx, ty, tz); }
+    part(g, throwMat, "bed-throw", tx, ty, tz).scale.x = 1.3; // made for a 1.1 m bed, stretched across (not the full 1.36, so its hems stay inside the east wall)
+    part(f, throwMat, "bed-throw-fringe", tx, ty, tz).scale.x = 1.3; }
   // 19 cm pillow. The grey cushion that leaned on it is gone (Paul: it looked fake); the pillow alone reads cleaner.
-  const bedPillow = part(pillowGeo(.7, .19, .46, .026), pillowMat, "bed-pillow", BED.x, BED.top + .082, north + .36);
+  const bedPillow = part(pillowGeo(.7, .19, .46, .026), pillowMat, "bed-pillow", BED.x - .38, BED.top + .082, north + .36);
   bedPillow.rotation.set(0, .05, .012);
+  part(pillowGeo(.7, .19, .46, .026), pillowMat, "bed-pillow-2", BED.x + .38, BED.top + .082, north + .36).rotation.set(0, -.04, -.01); // a double bed: two pillows
   // bedside table in the cream-and-walnut style Paul sent a photo of (40 x 40 x 50 cm): a walnut top with a small overhang, a soft cream body with two drawer
   // fronts and a dark gap between them, a black plinth; and a lamp with a turned walnut base and a cone shade; the shade glows a little by itself
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
@@ -818,7 +819,7 @@ export async function start({ stage, lang = "zh" }) {
   // ---------- vinyl corner under the window: record console, turntable, two small speakers ----------
   // Real sizes: console 100 x 40 x 50 cm (stays under the 90 cm sill), turntable 45 x 35 cm with a 30 cm record, speakers 16 x 25 x 18 cm.
   // Records stand in four open cubbies; sleeves are plain colour blocks (no album art, no text).
-  const vin = new THREE.Group(); vin.name = "vinyl-corner"; vin.position.set(-.45, 0, -HD + .2); root.add(vin);
+  const vin = new THREE.Group(); vin.name = "vinyl-corner"; vin.position.set(-.7, 0, -HD + .2); root.add(vin);
   const vp = hold(vin);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) vp(box(.035, .12, .035), blackMat, "vinyl-leg", dx * .47, .06, dz * .17);
   vp(rb(1.0, .025, .4), oak, "vinyl-top", 0, .4875, 0); // top face at 50 cm
@@ -1102,7 +1103,7 @@ export async function start({ stage, lang = "zh" }) {
   const lensMat = new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 });
   const TRACK_Z = -HD + .4, trackY = ROOM.h - .012; // along the window wall, in front of the window and well away from the ring lamp
   { const rail = new THREE.Mesh(new THREE.BoxGeometry(1.7, .024, .03), trackBlack); rail.name = "ceiling-track"; rail.position.set(0, trackY, TRACK_Z); scene.add(rail); }
-  const trackHeads = [[-.7, [-1.45, 1.8, -HD + .02], "#ffe3bd"], [-.25, [-.3, .3, -1.2], null], [.25, [1.4, .5, -1.5], "#ffe0b5"], [.7, [1.3, 1.5, -HD + .02], "#ffe3bd"]]; // the plaque, the rug, the bed, the print by the window
+  const trackHeads = [[-.7, [-1.45, 1.8, -HD + .02], "#ffe3bd"], [-.25, [-.3, .3, -1.2], null], [.25, [1.2, .5, -1.5], "#ffe0b5"], [.7, [1.3, 1.5, -HD + .02], "#ffe3bd"]]; // the plaque, the rug, the bed, the print by the window
   const roomSpots = [];
   for (const [hx, [tx, ty, tz], col] of trackHeads) { // hx: the head's place along the track
     const head = new THREE.Group(); head.name = "track-head"; head.position.set(hx, trackY - .02, TRACK_Z); scene.add(head);
