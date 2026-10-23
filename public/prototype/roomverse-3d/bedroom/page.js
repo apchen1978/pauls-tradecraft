@@ -67,7 +67,7 @@ function viewButtons() {
     return b;
   }));
 }
-const picked = { posters: "C", wall: "paper", rug: "modern", window: "roller", bedding: "stone", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed", tv: "auto" };
+const picked = { posters: "C", wall: "paper", rug: "modern", window: "linen", bedding: "stone", led: "amber", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed", tv: "auto" };
 function swapButtons() {
   const c = COPY[lang], box = $("swapGroups");
   $("swapsTitle").textContent = c.swapsLabel;
@@ -109,7 +109,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=53");
+    const { start } = await import("./bedroom.js?v=54");
     room = await start({ stage: $("stage"), lang });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook

@@ -83,7 +83,7 @@ test("the bed has real sizes, stands on the floor beside the wall and clears the
   expect(x1 - x0).toBeGreaterThan(1.5); // bed 1.1 m plus the bedside table
   expect(x1).toBeLessThanOrEqual(2.001); // inside the east wall (the duvet drape just touches it; 1 mm for float error)
   expect(z0).toBeGreaterThan(-2.501); // inside the north wall
-  expect(z1 - z0).toBeLessThan(2.2); // 2 m bed on a slightly larger frame, plus the headboard thickness
+  expect(z1 - z0).toBeLessThan(2.4); expect(z1 - z0).toBeGreaterThan(2.15); // a 2.15 m mattress (a 185 cm sleeper fits) on a slightly larger frame, plus the headboard
   expect(x0).toBeGreaterThan(.3); // the bedside table stays well clear of the door side of the room
   expect(y1).toBeLessThan(1.1); // headboard under the window sill height + a little, never blocks the glass
   expect(vertices).toBeLessThan(56000);
