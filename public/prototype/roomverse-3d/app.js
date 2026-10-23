@@ -966,7 +966,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   add(new THREE.BoxGeometry(AW, AH, .006), new THREE.MeshStandardMaterial({ color: "#f7f3ea", roughness: .9 }), AX, AY, BACK + .038, false);
   add(new THREE.PlaneGeometry(AW - .14, AH - .14), printMat, AX, AY, BACK + .042, false); // .72 x .46 m, the prints are 1200 x 766
   const rugMat = new THREE.MeshStandardMaterial({ roughness: 1 });
-  add(new THREE.BoxGeometry(2.6, .012, 1.65), rugMat, SX, .006, SZ + .95, false);
+  const rug = add(new THREE.BoxGeometry(2.6, .012, 1.65), rugMat, SX, .006, SZ + .95, false);
+  rug.name = "living-room-rug"; rug.rotation.y = .0873; rug.position.z -= .08;
   // a wooden plaque on the back wall above the side table and lamp: "Christ is the Head of this House" (Paul 2026-10-16;
   // Codex's painting, spelling checked letter by letter). About 70 x 28 cm, facing the room, a hair off the wall.
   const plaqueTex = new THREE.TextureLoader().load(new URL("./art/wall-plaque-text-v1.webp", import.meta.url).href, () => render());
@@ -1014,7 +1015,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   }
   const loader = new GLTFLoader();
   const base = new URL("./models/", import.meta.url).href;
-  const [sofa, table, floorLamp, coffee, tableLamp, plant, robot, lowChair, laptop] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant", "robot", "low-chair-hy21", "laptop"].map((f) => loader.loadAsync(base + f + ".glb")));
+  const mugUrl = new URL("./bedroom/models/mug-v1.glb", import.meta.url).href;
+  const [sofa, table, floorLamp, coffee, tableLamp, plant, robot, lowChair, laptop, mug] = await Promise.all(["sofa", "side-table", "floor-lamp", "coffee-table", "table-lamp", "plant", "robot", "low-chair-hy21", "laptop"].map((f) => loader.loadAsync(base + f + ".glb")).concat(loader.loadAsync(mugUrl)));
   const sofaObj = place(sofa, { width: 2.0, x: SX, z: SZ + .02 });
   // colours projected from the illustration, plus a fine fabric weave. The AI model has no UVs,
   // so the weave is sampled from three sides by world position (triplanar) and blended by the surface normal.
@@ -1107,13 +1109,24 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // so it reads as if someone sat down to work here. Its front (keyboard side) faces +z, so -90deg points it at the chair.
   laptop.scene.rotation.y = -Math.PI / 2 + .55;
   const laptopObj = place(laptop, { width: .3, x: SX + .12, z: SZ + 1.2, baseY: coffeeTop });
+  laptopObj.name = "coffee-table-laptop";
   prepare(laptopObj, vcol({ roughness: .5 }));
+  const mugObj = place(mug, { height: .095, x: SX - .25, z: SZ + 1.25, baseY: coffeeTop });
+  mugObj.name = "coffee-table-mug";
+  const mugMaterials = new Map();
+  prepare(mugObj, (part) => {
+    const coffee = /coffee/i.test(part.material.name);
+    const key = coffee ? "coffee" : "ceramic";
+    if (!mugMaterials.has(key)) mugMaterials.set(key, new THREE.MeshStandardMaterial({ color: coffee ? "#5b3826" : "#f1e5d1", roughness: .42 }));
+    return mugMaterials.get(key);
+  });
   // Reuse the existing laptop model as the third quiet console prop, alongside the book and vase.
   // No extra download, plant or light; the original coffee-table laptop stays in place.
   const tvLaptopObj = laptopObj.clone(true); tvLaptopObj.rotation.y = Math.PI;
   place({ scene: tvLaptopObj }, { width: .28, x: .02, z: FRONT - .34, baseY: .59 });
   tvLaptopObj.name = "tv-laptop"; tvWall.add(tvLaptopObj);
-  add(new THREE.BoxGeometry(.26, .05, .18), new THREE.MeshStandardMaterial({ color: "#6d7d68" }), SX - .12, coffeeTop + .025, SZ + 1.02); // a book
+  const coffeeBook = add(new THREE.BoxGeometry(.26, .05, .18), new THREE.MeshStandardMaterial({ color: "#6d7d68" }), SX - .12, coffeeTop + .025, SZ + 1.02); // a book
+  coffeeBook.name = "coffee-table-book";
   const sideTop = new THREE.Box3().setFromObject(tableObj).max.y;
   const tableLampObj = place(tableLamp, { height: .45, x: TX, z: TZ, baseY: sideTop });
   const tableGlow = { value: .45 };
@@ -1197,7 +1210,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const ex = sx * fw * .2; eye.position.set(ex, fh * .05, -bend * ex * ex + .002); screen.add(eye);
   }
   scene.add(screen); robotObj.attach(screen);
-  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, chairObj, laptopObj);
+  scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, chairObj, laptopObj, mugObj);
   // the robot turns around its own centre: hang it on a pivot at its footprint centre
   const rb = new THREE.Box3().setFromObject(robotObj), robotPivot = new THREE.Group();
   robotPivot.position.set((rb.min.x + rb.max.x) / 2, 0, (rb.min.z + rb.max.z) / 2); scene.add(robotPivot); robotPivot.attach(robotObj);
@@ -2717,6 +2730,63 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       requestAnimationFrame(() => requestAnimationFrame(loadWhenIdle));
     },
     postcard, // used by tests: returns the postcard canvas
+    rugMugDetails() { // local QA only: geometry, rug footprint, tabletop support and clearances
+      scene.updateMatrixWorld(true);
+      const box = (obj) => { const b = new THREE.Box3().setFromObject(obj); return { min: b.min.toArray(), max: b.max.toArray() }; };
+      const rugInverse = rug.matrixWorld.clone().invert();
+      const support = (obj, frontOfZ = -Infinity) => {
+        let minY = Infinity; const v = new THREE.Vector3();
+        obj.traverse((part) => {
+          if (!part.isMesh) return;
+          const pos = part.geometry.attributes.position;
+          for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(part.matrixWorld); minY = Math.min(minY, v.y); }
+        });
+        let total = 0, outside = 0, minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+        obj.traverse((part) => {
+          if (!part.isMesh) return;
+          const pos = part.geometry.attributes.position;
+          for (let i = 0; i < pos.count; i++) {
+            v.fromBufferAttribute(pos, i).applyMatrix4(part.matrixWorld);
+            if (v.y > minY + .02 || v.z < frontOfZ) continue;
+            total++;
+            const local = v.clone().applyMatrix4(rugInverse);
+            minX = Math.min(minX, local.x); maxX = Math.max(maxX, local.x);
+            minZ = Math.min(minZ, local.z); maxZ = Math.max(maxZ, local.z);
+            if (Math.abs(local.x) > 1.3 || Math.abs(local.z) > .825) outside++;
+          }
+        });
+        return { minY, total, outside, footprint: [minX, maxX, minZ, maxZ] };
+      };
+      const mugBox = new THREE.Box3().setFromObject(mugObj);
+      const mugCenter = mugBox.getCenter(new THREE.Vector3());
+      const tableSurface = new THREE.Raycaster(new THREE.Vector3(mugCenter.x, coffeeTop + 1, mugCenter.z), new THREE.Vector3(0, -1, 0)).intersectObject(coffeeObj, true)[0];
+      const clearance = (other) => {
+        const otherBox = new THREE.Box3().setFromObject(other);
+        return { intersects: mugBox.intersectsBox(otherBox), x: Math.max(otherBox.min.x - mugBox.max.x, mugBox.min.x - otherBox.max.x, 0), z: Math.max(otherBox.min.z - mugBox.max.z, mugBox.min.z - otherBox.max.z, 0) };
+      };
+      const sofaSupport = support(sofaObj), sofaFrontSupport = support(sofaObj, new THREE.Box3().setFromObject(sofaObj).getCenter(new THREE.Vector3()).z), tableSupport = support(coffeeObj);
+      const corners = [[-1.3, -.825], [1.3, -.825], [1.3, .825], [-1.3, .825]].map(([x, z]) => new THREE.Vector3(x, 0, z).applyMatrix4(rug.matrixWorld).toArray());
+      let vertices = 0; const materials = new Set();
+      mugObj.traverse((part) => { if (part.isMesh) { vertices += part.geometry.attributes.position.count; materials.add(part.material.color.getHexString()); } });
+      return {
+        rug: { rotationY: rug.rotation.y, bounds: box(rug), corners },
+        sofaSupport, sofaFrontSupport,
+        tableSupport, coffeeTable: { bounds: box(coffeeObj), topY: coffeeBounds.max.y, surfaceYAtMug: tableSurface?.point.y ?? null },
+        mug: { bounds: box(mugObj), vertices, colors: [...materials].sort(), attached: mugObj.parent === scene, triangles: (() => { let n = 0; mugObj.traverse((part) => { if (part.isMesh) n += part.geometry.index ? part.geometry.index.count / 3 : part.geometry.attributes.position.count / 3; }); return n; })() },
+        coffeeTopY: coffeeBounds.max.y, mugBaseY: mugBox.min.y,
+        bookClearance: clearance(coffeeBook), laptopClearance: clearance(laptopObj),
+        windowShadow: { enabled: windowLight.castShadow, radius: windowLight.shadow.radius, mapSize: windowLight.shadow.mapSize.toArray() },
+      };
+    },
+    frameCoffeeMug() { // local QA only: a close view to verify the reused cup reads clearly on the table
+      scene.updateMatrixWorld(true);
+      const focus = new THREE.Box3().setFromObject(mugObj).getCenter(new THREE.Vector3());
+      controls.target.copy(focus);
+      camera.position.copy(focus).add(new THREE.Vector3(.48, .32, .75));
+      camera.lookAt(focus); camera.fov = 42; camera.updateProjectionMatrix(); controls.update(); renderer.render(scene, camera);
+      camera.updateMatrixWorld(true);
+      return focus.toArray();
+    },
     cam: () => camera.position.toArray().map((v) => +v.toFixed(2)), // used by tests: where the camera is
     fov: () => camera.fov,
     fovProjectionUpdates: () => fovProjectionUpdates,

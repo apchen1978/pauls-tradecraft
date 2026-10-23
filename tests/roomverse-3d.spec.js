@@ -948,6 +948,58 @@ test("TV wall, 360-degree safe orbit, accessible view buttons, URL state, and wi
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test("rug rotation and table mug stay grounded and clear in three moods", async ({ page }) => {
+  await mkdir("docs/qa/room01-rug-mug", { recursive: true });
+  const errors = [];
+  const mugRequests = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("request", (request) => { if (request.url().endsWith("/bedroom/models/mug-v1.glb")) mugRequests.push(request.url()); });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  expect(mugRequests).toHaveLength(0);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room?.rugMugDetails(), null, { timeout: 60000 });
+  const details = await page.evaluate(() => window.__room.rugMugDetails());
+  expect(details.rug.rotationY).toBeCloseTo(.0873, 4);
+  expect(details.mug.vertices).toBe(862);
+  expect(details.mug.triangles).toBe(1712);
+  expect(details.mug.attached).toBe(true);
+  expect(details.mug.colors).toEqual(["5b3826", "f1e5d1"]);
+  expect(details.mugBaseY).toBeCloseTo(details.coffeeTopY, 4);
+  expect(details.coffeeTable.surfaceYAtMug).not.toBeNull();
+  expect(Math.abs(details.coffeeTable.surfaceYAtMug - details.mugBaseY)).toBeLessThan(.01);
+  for (const axis of [0, 2]) {
+    expect(details.mug.bounds.min[axis]).toBeGreaterThanOrEqual(details.coffeeTable.bounds.min[axis]);
+    expect(details.mug.bounds.max[axis]).toBeLessThanOrEqual(details.coffeeTable.bounds.max[axis]);
+  }
+  expect(details.bookClearance.intersects).toBe(false);
+  expect(details.laptopClearance.intersects).toBe(false);
+  expect(details.sofaFrontSupport.outside, JSON.stringify({ sofaFront: details.sofaFrontSupport, coffeeTable: details.tableSupport })).toBe(0);
+  expect(details.tableSupport.outside).toBe(0);
+  expect(details.windowShadow).toEqual({ enabled: true, radius: 4, mapSize: [2048, 2048] });
+  expect(mugRequests).toHaveLength(1);
+  for (const [index, corner] of details.rug.corners.entries()) {
+    expect(corner[0], `rug corner ${index} stays inside room width`).toBeGreaterThan(-2.6);
+    expect(corner[0], `rug corner ${index} stays inside room width`).toBeLessThan(2.6);
+    expect(corner[2], `rug corner ${index} stays inside room depth`).toBeGreaterThan(-2.2);
+    expect(corner[2], `rug corner ${index} stays inside room depth`).toBeLessThan(2.4);
+  }
+
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    await page.evaluate(() => window.__room.setOrbitAngle(0));
+    for (const mood of ["golden", "rain", "tv"]) {
+      await page.evaluate((value) => window.__room.set("mood", value), mood);
+      await page.waitForTimeout(350);
+      await page.locator("#stage canvas").screenshot({ path: `docs/qa/room01-rug-mug/${mood}-${width}.png` });
+    }
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.evaluate(() => window.__room.frameCoffeeMug());
+  await page.locator("#stage canvas").screenshot({ path: "docs/qa/room01-rug-mug/mug-detail-1440.png" });
+  expect(errors).toEqual([]);
+});
+
 test("all seven feelings show both views; tour stays inside and postcards keep the window angle", async ({ page }) => {
   const output = "docs/qa/roomverse-tv-wall";
   await mkdir(output, { recursive: true });
