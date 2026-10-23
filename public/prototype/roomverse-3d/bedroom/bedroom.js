@@ -579,7 +579,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   add(box(ft, WINDOW.h, .07), frameMat, "window-frame-left", wx0 - ft / 2, WINDOW.sill + WINDOW.h / 2, fz, { shadow: false });
   add(box(ft, WINDOW.h, .07), frameMat, "window-frame-right", wx1 + ft / 2, WINDOW.sill + WINDOW.h / 2, fz, { shadow: false });
   add(box(.04, WINDOW.h, .05), frameMat, "window-mullion", WINDOW.x, WINDOW.sill + WINDOW.h / 2, fz, { shadow: false });
-  add(box(WINDOW.w + .16, .03, .16), trimMat, "window-sill", WINDOW.x, WINDOW.sill - ft - .005, -HD + .06, { shadow: false });
+  add(box(WINDOW.w + .16, .03, .095), trimMat, "window-sill", WINDOW.x, WINDOW.sill - ft - .005, -HD + .0275, { shadow: false }); // 9.5 cm deep: the linen curtains hang 8.6 cm out, so a deeper sill cut through them
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(WINDOW.w, WINDOW.h), new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: .06, depthWrite: false }));
   glass.name = "window-glass"; glass.position.set(WINDOW.x, WINDOW.sill + WINDOW.h / 2, -HD + .01); root.add(glass);
   // Codex's painted frame (a slim white double casement with a handle and hinges; the glass area is fully transparent). It replaces the
