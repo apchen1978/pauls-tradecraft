@@ -13,8 +13,8 @@ export const TEXT = {
 };
 // Short labels for the single-row phone toolbar. The accessible name stays the full phrase above.
 const PHONE_BAR = {
-  zh: { save: "存成明信片", shuffle: "隨機搭一間", director: "8秒短片", stop: "停止短片", close: "收起對照", preparing: "準備中" },
-  en: { save: "Save postcard", shuffle: "Random room", director: "8s tour", stop: "Stop", close: "Close", preparing: "Preparing" },
+  zh: { save: "存成明信片", director: "8秒短片", stop: "停止短片", close: "收起對照", preparing: "準備中" },
+  en: { save: "Save postcard", director: "8s tour", stop: "Stop", close: "Close", preparing: "Preparing" },
 };
 const GUIDE_LINE = { zh: "這扇門後面是 Room 02，推開看看？", en: "Room 02 is behind this door. Take a look?" };
 const ROBOT_MOOD_LINES = {
@@ -23,6 +23,7 @@ const ROBOT_MOOD_LINES = {
   tech: { zh: "安靜一點，靈感來了。", en: "A little quiet, a little inspiration." },
   chic: { zh: "今天的光很有精神。", en: "The light has a little sparkle today." },
   slow: { zh: "慢慢來，也很好。", en: "No rush. This feels good." },
+  golden: { zh: "今天的夕陽，正好。", en: "Golden hour, just right." },
   tv: { zh: "今晚的沙發時間開始啦。", en: "Sofa time starts now." },
 };
 const POSTCARD_ART = new Set(["rain", "family", "tech", "chic", "slow", "tv"]);
@@ -43,6 +44,8 @@ const MOODS = {
   slow: { zh: "週日午後慢慢過", en: "Slow Sunday",
     why: { zh: "白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。", en: "Soft, even daylight with pale wood, linen and one dark accent keeps the room calm, so a Sunday afternoon has nowhere to hurry to." },
     hemi: 1.6, win: 2.2, winCol: "#f4f6f8", lamp: .5, fill: 1.8, out: "#f7f8f6", exposure: 1.08, floor: 0, glow: .04 },
+  golden: { zh: "傍晚金色時光", en: "Golden hour",
+    why: { zh: "低角度的夕陽把窗影拉長，剛亮起的暖燈讓傍晚更有回家的感覺。", en: "Low golden sunlight stretches the window shadows while newly lit lamps make the evening feel like home." }, hemi: 1.05, win: 3.4, winCol: "#ffcf94", lamp: 2.5, fill: 1.45, out: "#ffdfad", exposure: 1.12, floor: .15, glow: .22, sunY: 1.7 },
   tv: { zh: "追劇夜", en: "Series night",
     why: { zh: "週五晚上，關掉主燈，只留燈帶和一盞暖燈，沙發就是整個世界。", en: "Friday night: ceiling light off, just the warm strips and one lamp; the sofa is the whole world." }, hemi: .62, win: .7, winCol: "#56647f", lamp: 2.5, fill: .55, out: "#c6cad6", exposure: .98, floor: .45, glow: .48 },
 };
@@ -467,9 +470,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
   });
   const tvWallWashMat = new THREE.MeshBasicMaterial({ color: "#e2a15d", map: tvWallWashMap, transparent: true, opacity: 0, depthWrite: false, blending: THREE.NormalBlending });
-  const TV_STRIP_GLOW = { rain: .28, family: .18, tech: .08, chic: .2, slow: .13, tv: .82 };
+  const TV_STRIP_GLOW = { rain: .28, family: .18, tech: .08, chic: .2, slow: .13, golden: .16, tv: .82 };
   // A restrained wall-local wash warms the same wall surface without adding another light.
-  const TV_WALL_WASH = { rain: .34, family: 0, tech: .35, chic: 0, slow: 0, tv: .4 };
+  const TV_WALL_WASH = { rain: .34, family: 0, tech: .35, chic: 0, slow: 0, golden: 0, tv: .4 };
   // Preserve the hue of saturated dark paints; the existing strip and room lights still apply.
   const WALLS_WITHOUT_WARM_WASH = new Set(["wine", "dusk", "pine"]);
   tvWallPiece(new THREE.BoxGeometry(2.95, 2.35, .08), tvPanelMat, 0, 1.36, FRONT - .125, "tv-wall-backing");
@@ -912,7 +915,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
-  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family", tv: "tech" }; // slow and series night reuse existing paintings; only room lighting changes
+  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family", golden: "family", tv: "tech" }; // slow, golden hour and series night reuse existing paintings; golden hour warms the existing daylight view
   const viewReady = {};
   const VIEWS = Object.fromEntries(Object.entries(VIEW_FILES).map(([m, f]) => [m, () => {
     let settle;
@@ -1492,9 +1495,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // so the room seems to change its light rather than jump to a new picture.
   const lightForMood = (mood) => {
     const m = MOODS[mood];
-    const screenLevel = ({ rain: .1, family: .08, tech: .15, chic: .08, slow: .07, tv: .46 })[mood];
+    const screenLevel = ({ rain: .1, family: .08, tech: .15, chic: .08, slow: .07, golden: .07, tv: .46 })[mood];
     return {
-      hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, led: m.led ? .5 : 0,
+      hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, sunY: m.sunY ?? 2.6, led: m.led ? .5 : 0,
       floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
       shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
       winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0, screenLevel,
@@ -1503,7 +1506,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   const lights = () => lightForMood(state.mood);
   let standGroup = null, standContact = null, standWall = null, standScarfMat = null, standBrass = null, standBaseMat = null;
   function setLights(v) {
-    hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol);
+    hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol); windowLight.position.y = v.sunY;
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
     shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
@@ -1535,7 +1538,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // the visitor's room lives in the address, so a copied link opens the same room (unknown values are ignored)
   const CHOICES = { mood: MOODS, wall: WALLS, rug: RUGS, curtain: CURTAINS, print: PRINTS };
   // Each feeling starts with a matching existing finish; an explicit URL or visitor pick wins.
-  const DEFAULT_WALL_BY_MOOD = { rain: "original", family: "olive", tech: "mist", chic: "blush", slow: "sand", tv: "wine" };
+  const DEFAULT_WALL_BY_MOOD = { rain: "original", family: "olive", tech: "mist", chic: "blush", slow: "sand", golden: "sand", tv: "wine" };
   const fromUrl = new URLSearchParams(location.search);
   let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
@@ -1614,7 +1617,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     let keep = null;
     if (had && (panel.contains(had) || toolbar?.contains(had))) {
       const g = had.closest(".opts");
-      keep = g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("camera-tv") ? "camera-tv" : had.classList.contains("camera-window") ? "camera-window" : had.classList.contains("director") ? "director" : had.classList.contains("shuffle") ? "shuffle" : "save" };
+      keep = had.classList.contains("shuffle") ? { c: "shuffle" } : g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("camera-tv") ? "camera-tv" : had.classList.contains("camera-window") ? "camera-window" : had.classList.contains("director") ? "director" : "save" };
     }
     const cameraGroup = document.createElement("div"); cameraGroup.className = "camera-actions"; cameraGroup.setAttribute("role", "group"); cameraGroup.setAttribute("aria-label", state.lang === "zh" ? "房間視角" : "Room view");
     const windowButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-window", textContent: t.windowView, "aria-label": t.windowView, "aria-pressed": String(currentView === "window"), onclick: () => moveToView("window") });
@@ -1632,6 +1635,11 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         b.onclick = () => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); choose(key, k); toUrl(); };
         return b;
       }));
+      if (key === "mood" && phoneActions.matches) {
+        const shuffleBtn = Object.assign(document.createElement("button"), { type: "button", className: "save shuffle mood-shuffle", textContent: state.lang === "zh" ? "隨機搭一間" : "Random room", onclick: () => shuffle() });
+        shuffleBtn.setAttribute("aria-label", t.shuffle);
+        box.append(shuffleBtn);
+      }
       if (key !== "mood") return [h, box];
       const why = document.createElement("p"); why.className = "why"; why.textContent = MOODS[state.mood].why[state.lang]; // why this pairing
       return [h, box, why];
@@ -1641,15 +1649,15 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const directorFull = directorPreparing ? t.preparing : director ? t.stop : still && directorStillOpen ? t.close : t.director;
     const directorShort = directorPreparing ? bar.preparing : director ? bar.stop : still && directorStillOpen ? bar.close : bar.director;
     const directorBtn = Object.assign(document.createElement("button"), { type: "button", className: "save director", textContent: onPhone ? directorShort : directorFull, onclick: () => toggleDirector() });
-    const shuffleBtn = Object.assign(document.createElement("button"), { type: "button", className: "save shuffle", textContent: onPhone ? bar.shuffle : t.shuffle, onclick: () => shuffle() });
+    const shuffleBtn = Object.assign(document.createElement("button"), { type: "button", className: "save shuffle panel-shuffle", textContent: t.shuffle, onclick: () => shuffle() });
     const saveBtn = Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: onPhone ? bar.save : t.save, onclick: () => savePostcard() });
     directorBtn.setAttribute("aria-label", directorFull);
     shuffleBtn.setAttribute("aria-label", t.shuffle);
     saveBtn.setAttribute("aria-label", t.save);
     const stillNodes = still && directorStillOpen ? [staticTour(t)] : [];
     if (onPhone && toolbar) {
-      toolbar.replaceChildren(directorBtn, shuffleBtn, saveBtn);
-      toolbar.setAttribute("aria-label", state.lang === "zh" ? "短片、隨機房間、明信片" : "Tour, random room, postcard");
+      toolbar.replaceChildren(directorBtn, saveBtn);
+      toolbar.setAttribute("aria-label", state.lang === "zh" ? "短片、明信片" : "Tour, postcard");
       toolbar.hidden = panel.hidden;
       panel.append(...stillNodes);
     } else {
