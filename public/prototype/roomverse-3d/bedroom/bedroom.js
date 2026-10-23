@@ -645,6 +645,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const cutout = (mat) => { mat.transparent = true; mat.alphaTest = .45; mat.needsUpdate = true; };
   const tvRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
   zoneRug(1.2, 1.7, -1.05, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
+  root.getObjectByName("zone-tv-rug").rotation.z = .12; // laid a little off square (7 degrees), the way a rug is dropped in a real prewar flat: the lines of the room stop being all parallel and the floor gains depth (Paul 2026-10-24)
   art("room02-rug-oat-v1.webp", { apply: (t) => { tvRugMat.map = t; cutout(tvRugMat); } }); // an oat rug seen whole from above, with its fringe
   // The rugs Codex drew on white are trimmed to the rug's own edge with the white made transparent, so a rug is only as big as the rug.
   art("room02-rug-runner-v1.webp", { apply: (t) => { sleepRugMat.map = t; cutout(sleepRugMat); } });
@@ -686,10 +687,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     throwMat.map = beddingArt.throw; throwMat.color.setScalar(1.35); throwMat.needsUpdate = true;
   };
   duvetMat.map = linenNoise();
-  art("room02-a5-throw-weave-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
-  art("room02-linen-duvet-v1.webp", { repeat: [5.7, 5.7], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
+  art("room02-throw-knit-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
+  art("room02-duvet-linen-v1.webp", { repeat: [5.7, 5.7], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
   const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95, side: THREE.DoubleSide });
-  art("room02-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = t; pillowMat.color.set("#ffffff"); pillowMat.needsUpdate = true; } });
+  art("room02-pillow-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = t; pillowMat.color.set("#ffffff"); pillowMat.needsUpdate = true; } });
   const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
   const part = (geo, mat, name, x, y, z) => {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; bed.add(m); return m;
@@ -1219,9 +1220,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const plaque = add(new THREE.PlaneGeometry(.9, .36), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), "house-plaque", -1.45, 1.8, -HD + .015, { shadow: false });
   // Two framed prints on the wall behind the sofa (the east wall), Codex's pair: sage, terracotta, navy and cream, nothing like the city outside.
   // 134 x 89 cm in all (two 58 x 78 cm frames), centred over the sofa, bottom edge 121 cm up, well above the sofa back.
-  art("room02-east-pair-v1.webp", { apply: (t) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(1.34, .894), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .35, roughness: .8 }));
-    m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.66, .9); m.receiveShadow = true; root.add(m);
+  art("room02-brooklyn-bridge-panorama-v1.webp", { apply: (t) => {
+    // Paul 2026-10-24: one wide picture, wider than the three city posters over the bed (1.79 m), to prove the flat is in New York: Codex's Brooklyn Bridge
+    // at golden hour, 1.84 x 0.726 m with its oak frame (1900 x 750 px), 1.21 m up, centred over the sofa and just clear of the bed's foot
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1.84, 1.84 * 750 / 1900), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .35, roughness: .8 }));
+    m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.21 + 1.84 * 750 / 1900 / 2, .95); m.receiveShadow = true; root.add(m);
   } });
   // Room 01's wall pieces, rebuilt here (Paul 2026-10-23: use Room 01's own pieces). (1) The bed's side wall, the east wall beside the bed: Codex's three
   // American city posters (batch 14: San Francisco, New York, Los Angeles; Paul asked for pictures that fit an American flat) in thin oak frames,
@@ -1485,7 +1488,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const swapWindow = () => { const v = chosen.window; if (v === "roller" || v === "bamboo") { blindFabric.material.map = (v === "bamboo" ? windowPaint.bamboo ?? bambooTex : windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true; } };
   art("room02-a4-roller-linen-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.roller = t; swapWindow(); } });
   art("room02-a4-bamboo-blind-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.bamboo = t; swapWindow(); } });
-  art("room02-a4-curtain-linen-v1.webp", { repeat: [.85, 6], apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
+  art("room02-curtain-linen-v1.webp", { repeat: [.85, 6], apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
   const rollerTex = blindFabric.material.map;
   const oakBorderRug = canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = "#1f2124"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#b8925f"; ctx.fillRect(14, 14, w - 28, h - 28);

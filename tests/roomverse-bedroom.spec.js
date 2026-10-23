@@ -394,7 +394,7 @@ test("two prints hang on the wall behind the sofa, over its length and above its
   const { wallArt, lounge, room, window: win } = await page.evaluate(() => window.__bedroom.info());
   expect(wallArt.max[0]).toBeLessThan(room.w / 2); expect(wallArt.min[0]).toBeGreaterThan(room.w / 2 - .05); // flat on the east wall
   expect(wallArt.min[1]).toBeGreaterThan(lounge.sofa.max[1] + .2); expect(wallArt.max[1]).toBeLessThan(room.h - .3); // above the sofa back, under the ceiling
-  expect(wallArt.min[2]).toBeGreaterThan(lounge.sofa.min[2] - .05); expect(wallArt.max[2]).toBeLessThan(lounge.sofa.max[2] + .05); // over the sofa's length
+  expect(wallArt.min[2]).toBeGreaterThan(lounge.sofa.min[2] - .15); expect(wallArt.max[2]).toBeLessThan(lounge.sofa.max[2] + .25); // over the sofa, a little wider than its 1.6 m (the Brooklyn picture is 1.84 m, wider than the three posters)
   const { headboardTop } = await page.evaluate(() => window.__bedroom.info());
   expect(headboardTop).toBeLessThan(win.sill - .05); // the sill sticks out of the wall beside the bed: nothing of the headboard may reach it
 });
