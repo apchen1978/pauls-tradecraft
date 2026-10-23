@@ -74,7 +74,7 @@ function softBox(w, h, d, r) {
 const rb = (w, h, d) => softBox(w, h, d, Math.min(.012, w / 4, h / 4, d / 4));
 
 export async function start({ stage, bubble = null, hitTarget = null, lang = "zh", copy = () => ({}) }) {
-  const compact = matchMedia("(max-width: 600px)").matches;
+  const compact = matchMedia("(max-width: 768px), (max-width: 1024px) and (max-height: 500px)").matches;
   // Painted surfaces from Codex (floor, walls, rugs, oak, fabrics, window dressings, screen, bookshelf rows). Each material starts with a
   // code-drawn stand-in and swaps to the painting when it arrives, so a slow or failed download never leaves a blank room.
   let ready = false;
@@ -1686,7 +1686,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
     robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, pending: !!pendingRobot, y: rb.position.y, yaw: rb.rotation.y, position: b.getCenter(new THREE.Vector3()).toArray(), ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
-    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, leaveToRoom01, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
+    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, leaveToRoom01, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
