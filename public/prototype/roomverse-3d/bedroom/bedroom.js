@@ -92,7 +92,7 @@ export async function start({ stage, lang = "zh" }) {
   const CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2 };
   const live = { mood: "focus" }; // the current mood, readable before the moods block exists
   const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8 };
-  const chosen = { wall: "paper", rug: "modern", window: "roller", bedding: "stone", posters: "C", tv: "auto", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
+  const chosen = { wall: "paper", rug: "modern", window: "linen", bedding: "stone", posters: "C", tv: "auto", led: "amber", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -236,11 +236,11 @@ export async function start({ stage, lang = "zh" }) {
   }
 
   // ---------- materials ----------
-  const wallMat = new THREE.MeshStandardMaterial({ color: "#f3eadb", roughness: .95 });
-  const mainWallMat = new THREE.MeshStandardMaterial({ color: "#e4d8c3", roughness: .95 });
+  const wallMat = new THREE.MeshStandardMaterial({ color: "#f5eee2", roughness: .95 }); // designer pass: one family of warm whites on the plain walls, not three beiges
+  const mainWallMat = new THREE.MeshStandardMaterial({ color: "#f1e9db", roughness: .95 });
   const trimMat = new THREE.MeshStandardMaterial({ color: "#efe9dc", roughness: .7 });
   const frameMat = new THREE.MeshStandardMaterial({ color: "#f1ede4", roughness: .55 });
-  const floorMat = new THREE.MeshStandardMaterial({ map: boardsTexture(), roughness: .66 });
+  const floorMat = new THREE.MeshStandardMaterial({ map: boardsTexture(), color: "#f0e7da", roughness: .66 }); // a touch less orange: natural oak, not honey
   art("room02-e1-oak-floor-v1.webp", { repeat: [ROOM.w / 1.2, ROOM.d / 1.2], apply: (t) => { floorMat.map = t; floorMat.needsUpdate = true; } }); // one picture is about 1.2 m of boards
   const ceilMat = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: 1 });
   const doorMat = new THREE.MeshStandardMaterial({ color: "#a9825a", roughness: .62 });
@@ -367,7 +367,7 @@ export async function start({ stage, lang = "zh" }) {
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
-  const BED = { x: 1.4, z: -1.4, w: 1.1, l: 2.0, top: .48 };
+  const BED = { x: 1.4, z: -1.325, w: 1.1, l: 2.15, top: .48 }; // 2.15 m long, head against the north wall (Paul: a 185 cm person has to fit)
   const woodTex = (base, dark, light) => canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
     for (let i = 0; i < 140; i++) { const y = (i * 53) % h, a = .05 + (i % 6) * .018; ctx.strokeStyle = (i % 3 ? dark : light).replace("A", a.toFixed(3)); ctx.lineWidth = .8 + (i % 4) * .5;
@@ -492,7 +492,8 @@ export async function start({ stage, lang = "zh" }) {
   // (head at -z). Its UVs are 1 per metre, so they are scaled to the old sheet's so the same linen picture tiles about 30 cm wide.
   loadGlb(new URL("./models/duvet-v1.glb", import.meta.url).href, { anchor: "none", roughness: 1 }).then((g) => {
     g.traverse((o) => { if (!o.isMesh) return; o.material = duvetMat; const uv = o.geometry.attributes.uv; for (let i = 0; i < uv.array.length; i++) uv.array[i] /= 1.7; uv.needsUpdate = true; });
-    g.name = "bed-duvet"; g.position.set(BED.x, BED.top, BED.z); codeDuvet.parent.remove(codeDuvet); root.add(g); redraw();
+    const head = BED.z - BED.l / 2, foot = BED.z + BED.l / 2, k = ((foot + .072) - (head + .3)) / 1.772; // the file is made for a 2.0 m bed: stretch it so its fold starts 30 cm from the head and the foot hangs at the foot
+    g.scale.z = k; g.name = "bed-duvet"; g.position.set(BED.x, BED.top, head + .3 + .7 * k); codeDuvet.parent.remove(codeDuvet); root.add(g); redraw();
   }).catch(() => {});
   // The throw is a knitted strip laid across the foot, longer than the bed is wide: flat on the duvet, rolled over the mattress edges and
   // hanging 10-15 cm down each side, a little longer on one side than the other, with a folded-over band across it and a short fringe on
@@ -520,7 +521,7 @@ export async function start({ stage, lang = "zh" }) {
     const f = new THREE.BufferGeometry(); f.setAttribute("position", new THREE.Float32BufferAttribute(fp, 3)); f.setAttribute("uv", new THREE.Float32BufferAttribute(fuv, 2)); f.setIndex(fidx); f.computeVertexNormals();
     return { g, f };
   };
-  { const { g, f } = throwGeo(), tx = BED.x, ty = BED.top + .084, tz = BED.z + .62;
+  { const { g, f } = throwGeo(), tx = BED.x, ty = BED.top + .084, tz = BED.z + .695; // 38 cm from the foot
     throwMat.side = THREE.DoubleSide;
     part(g, throwMat, "bed-throw", tx, ty, tz);
     part(f, throwMat, "bed-throw-fringe", tx, ty, tz); }
@@ -606,12 +607,12 @@ export async function start({ stage, lang = "zh" }) {
     }
   });
   // LED bias strip: a thin emissive bar on the wall behind the monitor and a soft additive glow on the wall
-  dpart(box(.9, .012, .012), new THREE.MeshStandardMaterial({ color: "#8f7bff", emissive: "#8f7bff", emissiveIntensity: 1.4 }), "led-strip", 0, .92, -.315);
+  dpart(box(.9, .012, .012), new THREE.MeshStandardMaterial({ color: "#ffb066", emissive: "#ffb066", emissiveIntensity: 1.4 }), "led-strip", 0, .92, -.315);
   const glowTex = canvasTex(256, 256, (ctx, w, h) => {
     const g = ctx.createRadialGradient(w / 2, h / 2, 6, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,255,255,.8)"); g.addColorStop(1, "rgba(255,255,255,0)");
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
   });
-  const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.0), new THREE.MeshBasicMaterial({ map: glowTex, color: "#8f7bff", transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .55, toneMapped: false }));
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.0), new THREE.MeshBasicMaterial({ map: glowTex, color: "#ffb066", transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .55, toneMapped: false }));
   glow.name = "led-glow"; glow.position.set(0, 1.0, -.322); desk.add(glow);
   // Desk sets (round 2): minimal (just the keyboard and mouse), gamer (headphones on a stand and a gamepad), coffee (a small espresso machine
   // and a cup, for people who really like coffee), creative (an adjustable lamp, a notebook and a pen pot). Each is a few dozen cheap shapes.
@@ -802,7 +803,7 @@ export async function start({ stage, lang = "zh" }) {
   bp(box(.36, .2, .26), new THREE.MeshStandardMaterial({ map: weaveTexture("#d9cfbd", "#a99a7f"), roughness: 1 }), "shelf-top-box", -.15, TOP + .1, 0);
   bp(box(.37, .02, .27), new THREE.MeshStandardMaterial({ color: "#cfc4b0", roughness: 1 }), "shelf-top-box-lid", -.15, TOP + .21, 0);
   // three sneaker boxes stacked beside it (Paul: the plant on top looked like a cartoon): 33 x 12 x 20 cm, a lid line, a white side label; no logos
-  for (const [y, col, ry] of [[.06, "#d8561b", .06], [.18, "#23252a", -.05], [.3, "#e9e4da", .1]]) {
+  for (const [y, col, ry] of [[.06, "#c4622d", .06], [.18, "#23252a", -.05], [.3, "#e9e4da", .1]]) {
     const bx = bp(box(.33, .12, .2), new THREE.MeshStandardMaterial({ color: col, roughness: .75 }), "shelf-top-shoebox", .22, TOP + y, 0); bx.rotation.y = ry;
     const lid = bp(box(.335, .034, .205), new THREE.MeshStandardMaterial({ color: col, roughness: .7 }), "shelf-top-shoebox-lid", .22, TOP + y + .043, 0); lid.rotation.y = ry;
     const label = bp(box(.07, .045, .002), new THREE.MeshStandardMaterial({ color: col === "#e9e4da" ? "#2a2b2f" : "#f1eee7", roughness: .6 }), "shelf-top-shoebox-label", .22 + .08 * Math.cos(ry), TOP + y - .005, .101 + .08 * Math.sin(ry)); label.rotation.y = ry;
@@ -948,7 +949,7 @@ export async function start({ stage, lang = "zh" }) {
     part(new THREE.BoxGeometry(.5, .006, .006), new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 }), 0, ledgeY + .003, .06, "whiteboard-ledge-lip");
     for (const [x, c] of [[-.16, "#1c1c1c"], [-.04, "#c43131"], [.09, "#1c1c1c"]]) part(new THREE.CapsuleGeometry(.008, .1, 4, 12), new THREE.MeshStandardMaterial({ color: c, roughness: .36 }), x, ledgeY + .0075 + .004, .044, "whiteboard-marker").rotation.z = Math.PI / 2; }
   // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque)
-  const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = false; root.add(curtains);
+  const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = chosen.window === "linen"; root.add(curtains);
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
   { const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, WINDOW.w + .6, 10), metalMat); rod.rotation.z = Math.PI / 2; rod.position.set(WINDOW.x, wTop + .2, -HD + .12); rod.name = "curtain-rod"; curtains.add(rod); }
   for (const side of [-1, 1]) {
@@ -1137,7 +1138,7 @@ export async function start({ stage, lang = "zh" }) {
     weekend: { time: "day",   sky: "#efe5d8", bg: "#d6cbbb", exposure: 1.08, hemi: [.85, "#f3e6d4", "#cdb79a"], sun: [1.1, "#ffe2b8", 2.3], fill: [4.5, "#ffcf96"],
                bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45, deskSpot: 2.4 },
     night:   { time: "night", sky: "#ffffff", bg: "#1d2230", exposure: 1.05, hemi: [.44, "#7d8fb8", "#3a3442"], sun: [0, "#9db4ff", 2.3], fill: [1.5, "#ffcf9a"],
-               bedLamp: .7, shade: .55, screen: 2.8, led: 1.4, glow: .45, ceiling: 0, monitor: 1.3, tv: 0, blind: .18, deskSpot: 4.2 },
+               bedLamp: .7, shade: .55, screen: 1.8, led: 1.4, glow: .35, ceiling: 0, monitor: 1.3, tv: 0, blind: .18, deskSpot: 4.2 },
     sunday:  { time: "day",   sky: "#ffe6cc", bg: "#dccdb9", exposure: 1.1, hemi: [1.0, "#f8e7d5", "#d6c2a4"], sun: [1.8, "#ffcf94", 1.45], fill: [2.5, "#ffd9b0"],
                bedLamp: 0, shade: .1, screen: 0, led: 0, glow: 0, ceiling: 0, monitor: .2, tv: 0, blind: .62, deskSpot: 1.8 },
   };
