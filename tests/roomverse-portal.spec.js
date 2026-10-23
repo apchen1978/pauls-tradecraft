@@ -1,7 +1,9 @@
+import fs from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
 const ROOM01 = "/prototype/roomverse-3d/";
 const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-portal" : null;
+const ARRIVAL_QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/room01-return-arrival" : null;
 
 async function enterRoom01(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -93,6 +95,76 @@ test("turning to the right-hand wall and tapping the door itself opens the porta
   await page.mouse.click(x, y);
   await page.waitForFunction(() => window.__room.portal().active, null, { timeout: 5000 });
   await page.evaluate(() => window.__room.closePortal());
+});
+
+test("Room 01 arrival from Room 02 walks through the open door, closes it, then restores controls", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(String(error)));
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    await page.goto(`${ROOM01}?lang=zh&from=room02`);
+    await page.waitForFunction(() => window.__room?.returnArrival, null, { timeout: 60000 });
+    await page.evaluate(() => window.__room.finishReturnArrival()); // settle the automatic visit before replaying the animation for deterministic QA
+    expect(await page.evaluate(() => window.__room.beginReturnArrival())).toBe(true);
+    const start = await page.evaluate(() => window.__room.returnArrival());
+    expect(start.active).toBe(true);
+    expect(start.controlsEnabled).toBe(false);
+    expect(start.doorOpen).toBe(true);
+    expect(start.startPosition[0]).toBeGreaterThan(2.0); // begin on the room side of the doorway threshold
+    expect(start.camera[0]).toBeGreaterThan(2.0); // the first rendered camera pose is still at the doorway
+    if (ARRIVAL_QA) {
+      await fs.mkdir(ARRIVAL_QA, { recursive: true });
+      await page.waitForTimeout(500); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-entry.png` });
+      await page.waitForTimeout(900); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-walk.png` });
+      await page.waitForTimeout(900); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-settle.png` });
+    } else {
+      await page.waitForTimeout(1400);
+    }
+    const middle = await page.evaluate(() => window.__room.returnArrival());
+    expect(middle.camera[0]).toBeLessThan(start.startPosition[0]); // the visitor has moved into the room
+    await expect.poll(() => page.evaluate(() => window.__room.returnArrival().active), { timeout: 10000 }).toBe(false);
+    const end = await page.evaluate(() => window.__room.returnArrival());
+    expect(end.controlsEnabled).toBe(true);
+    expect(end.doorOpen).toBe(false);
+    expect(end.camera[0]).toBeCloseTo(0, 2);
+    await expect(page.locator(".room-arrival-cover")).toHaveCount(0);
+    if (ARRIVAL_QA) await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-settled.png` });
+    expect(errors).toEqual([]);
+  }
+});
+
+test("input during the Room 01 arrival interrupts the walk and hands control back", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${ROOM01}?lang=zh&from=room02`);
+  await page.waitForFunction(() => window.__room?.returnArrival, null, { timeout: 60000 });
+  await page.evaluate(() => window.__room.finishReturnArrival());
+  expect(await page.evaluate(() => window.__room.beginReturnArrival())).toBe(true);
+  const box = await page.locator("#stage canvas").boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  const state = await page.evaluate(() => window.__room.returnArrival());
+  await page.mouse.up();
+  expect(state.active).toBe(false);
+  expect(state.controlsEnabled).toBe(true);
+  expect(state.doorOpen).toBe(false);
+  await expect(page.locator(".room-arrival-cover")).toHaveCount(0);
+});
+
+test("the room-to-room portal remains usable after the Room 02 to Room 01 arrival", async ({ page }) => {
+  test.setTimeout(120000);
+  await enterRoom01(page);
+  await page.locator("#portalBtn").click();
+  await page.waitForURL(/\/bedroom\/\?.*from=room01/, { timeout: 20000 });
+  await page.waitForFunction(() => window.__bedroom && !window.__bedroom.arriving(), null, { timeout: 30000 });
+  await page.locator("#portalBtn").click();
+  await page.waitForURL(/\?lang=zh&from=room02/, { timeout: 20000 });
+  await page.waitForFunction(() => window.__room?.returnArrival, null, { timeout: 60000 });
+  await page.waitForTimeout(3200);
+  expect(await page.evaluate(() => window.__room.returnArrival().active)).toBe(false);
+  await page.locator("#portalBtn").click();
+  await page.waitForURL(/\/bedroom\/\?.*from=room01/, { timeout: 20000 });
+  await page.waitForFunction(() => window.__bedroom && !window.__bedroom.arriving(), null, { timeout: 30000 });
 });
 
 test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {

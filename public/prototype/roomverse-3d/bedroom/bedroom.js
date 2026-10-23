@@ -125,7 +125,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     look, look0, limit: LIMIT,
     turn(dYaw, dPitch) {
       if (!robotHinted && Math.abs(look.yaw) > Math.PI * .65) { robotHinted = true; showRobotBubble(copy().doorHint || "The living room is behind this door. Tap me to go."); }
-      if (centred) { look.yaw += dYaw; look.pitch = Math.min(CENTER_PITCH, Math.max(-CENTER_PITCH, look.pitch + dPitch)); if (Math.abs(wrapPi(look.yaw)) > Math.PI * .65) look.pitch = Math.min(look.pitch, -.42); applyLook(); render(); return; }
+      if (centred) { look.yaw += dYaw; look.pitch = Math.min(CENTER_PITCH, Math.max(-CENTER_PITCH, look.pitch + dPitch)); if (Math.abs(wrapPi(look.yaw)) > Math.PI * .85) look.pitch = Math.min(look.pitch, -.38); applyLook(); render(); return; }
       look.yaw = Math.min(look0.yaw + LIMIT.yaw, Math.max(look0.yaw - LIMIT.yaw, look.yaw + dYaw));
       look.pitch = Math.min(look0.pitch + LIMIT.pitch, Math.max(look0.pitch - LIMIT.pitch, look.pitch + dPitch));
       applyLook(); render();

@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
 const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-fixes3" : null;
+const ARRIVAL_QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/room01-return-arrival" : null;
 
 async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
@@ -396,6 +397,25 @@ test("two prints hang on the wall behind the sofa, over its length and above its
   expect(wallArt.min[2]).toBeGreaterThan(lounge.sofa.min[2] - .05); expect(wallArt.max[2]).toBeLessThan(lounge.sofa.max[2] + .05); // over the sofa's length
   const { headboardTop } = await page.evaluate(() => window.__bedroom.info());
   expect(headboardTop).toBeLessThan(win.sill - .05); // the sill sticks out of the wall beside the bed: nothing of the headboard may reach it
+});
+
+test("the centred south-wall view keeps the door and its robot in frame", async ({ page }) => {
+  for (const width of [1440, 390]) {
+    await enter(page, { width });
+    await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+    await page.evaluate(() => window.__bedroom.controls.turn(Math.PI, 0));
+    const frame = await page.evaluate(() => ({ door: window.__bedroom.doorState().ndc, robot: window.__bedroom.robotState().ndc }));
+    for (const item of [frame.door, frame.robot]) {
+      expect(Math.abs(item.x), "centered horizontally").toBeLessThan(.6);
+      expect(Math.abs(item.y), "centered vertically").toBeLessThan(.65);
+      expect(item.z, "visible in front of the camera").toBeLessThan(1);
+    }
+    if (ARRIVAL_QA) {
+      const fs = await import("node:fs/promises");
+      await fs.mkdir(ARRIVAL_QA, { recursive: true });
+      await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room02-south-door-${width}.png` });
+    }
+  }
 });
 
 test("tap the door-side robot: it hops, turns to look at you and settles back where it was", async ({ page }) => {

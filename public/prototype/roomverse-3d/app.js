@@ -47,7 +47,7 @@ const MOODS = {
     why: { zh: "週五晚上，關掉主燈，只留燈帶和一盞暖燈，沙發就是整個世界。", en: "Friday night: ceiling light off, just the warm strips and one lamp; the sofa is the whole world." }, hemi: .62, win: .7, winCol: "#56647f", lamp: 2.5, fill: .55, out: "#c6cad6", exposure: .98, floor: .45, glow: .48 },
 };
 
-export async function start({ stage, panel, lang, onReady }) {
+export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = false }) {
   const compactRender = matchMedia("(max-width: 600px)").matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compactRender ? 1.5 : 2));
@@ -72,7 +72,7 @@ export async function start({ stage, panel, lang, onReady }) {
   let currentView = requestedView === "tv" ? "tv" : "window";
   let orbitRadius = 1.9, orbitPhi = Math.PI / 2, viewMoveToken = 0;
   let director = null, directorPreparing = false, directorPrepareToken = 0;
-  let intro = false, introEnd = null, robotBubble = null;
+  let intro = false, introEnd = null, robotBubble = null, arrival = null;
   const stopButton = Object.assign(document.createElement("button"), { type: "button", className: "director-stop", hidden: true });
   stopButton.onclick = () => { if (director) stopDirector(); else if (directorPreparing) cancelPreparation(); };
   stage.append(stopButton);
@@ -132,7 +132,7 @@ export async function start({ stage, panel, lang, onReady }) {
     orbitRadius = camera.aspect < .8 ? 1.82 : 1.9;
     orbitPhi = Math.PI / 2;
     camera.fov = baseFov();
-    if (!director) {
+    if (!director && !arrival) {
       controls.target.copy(orbitCenter);
       camera.position.copy(cameraAt(viewTheta));
       camera.lookAt(orbitCenter);
@@ -1948,6 +1948,58 @@ export async function start({ stage, panel, lang, onReady }) {
     camera.position.copy(portal.from.position); camera.quaternion.copy(portal.from.quaternion);
     controls.target.copy(orbitCenter); controls.enabled = true; controls.update(); portal = null; render();
   }
+  function finishReturnArrival() {
+    if (!arrival) return false;
+    const run = arrival;
+    cancelAnimationFrame(run.frame);
+    clearTimeout(run.coverTimer);
+    run.cover?.remove();
+    camera.position.copy(run.endPosition);
+    camera.quaternion.copy(run.endQuaternion);
+    setDoorOpen(0);
+    guidePivot.rotation.y = guideHome.r;
+    controls.target.copy(orbitCenter);
+    controls.enabled = true;
+    controls.update();
+    arrival = null;
+    render();
+    return true;
+  }
+  function beginReturnArrival() {
+    if (still || !arriveFromRoom02 || arrival) return false;
+    controls.update();
+    const endPosition = camera.position.clone(), endQuaternion = camera.quaternion.clone();
+    const startPosition = new THREE.Vector3(W / 2 - .35, 1.42, doorZ);
+    const entryPosition = new THREE.Vector3(W / 2 - .95, 1.42, doorZ);
+    const startQuaternion = new THREE.Quaternion();
+    startQuaternion.setFromRotationMatrix(new THREE.Matrix4().lookAt(startPosition, new THREE.Vector3(W / 2 - .2, 1.42, doorZ), new THREE.Vector3(0, 1, 0)));
+    const cover = Object.assign(document.createElement("div"), { className: "portal-fade room-arrival-cover", "aria-hidden": "true" });
+    Object.assign(cover.style, { position: "fixed", inset: "0", zIndex: "60", background: "radial-gradient(ellipse at 50% 55%, #6b5bd8 0%, #2a2150 55%, #0e0c20 100%)", opacity: "1", transition: "opacity .5s ease", pointerEvents: "none" });
+    document.body.append(cover);
+    arrival = { frame: 0, started: 0, cover, endPosition, endQuaternion, startPosition, entryPosition, startQuaternion, coverTimer: 0 };
+    controls.enabled = false;
+    setDoorOpen(1);
+    camera.position.copy(startPosition); camera.quaternion.copy(startQuaternion); render();
+    arrival.started = performance.now(); // exclude the first, potentially expensive WebGL frame from the walk duration
+    requestAnimationFrame(() => { if (arrival === null) return; cover.style.opacity = "0"; arrival.coverTimer = setTimeout(() => cover.remove(), 550); });
+    const ease = (k) => k * k * (3 - 2 * k), segment = (time, a, b) => Math.min(1, Math.max(0, (time - a) / (b - a)));
+    const guideStart = guideHome.r, guideTarget = Math.atan2(startPosition.x - guidePivot.position.x, startPosition.z - guidePivot.position.z);
+    const step = (now) => {
+      const run = arrival;
+      if (!run) return;
+      const time = now - run.started, intoRoom = ease(segment(time, 100, 1250)), toHome = ease(segment(time, 1050, 2750));
+      camera.position.copy(run.startPosition).lerp(run.entryPosition, intoRoom).lerp(run.endPosition, toHome);
+      camera.quaternion.copy(run.startQuaternion).slerp(run.endQuaternion, ease(segment(time, 0, 2500)));
+      setDoorOpen(1 - ease(segment(time, 1050, 1800)));
+      const turn = ease(segment(time, 650, 1150)) * (1 - ease(segment(time, 1750, 2250)));
+      guidePivot.rotation.y = guideStart + Math.atan2(Math.sin(guideTarget - guideStart), Math.cos(guideTarget - guideStart)) * turn;
+      render();
+      if (time < 2800) { run.frame = requestAnimationFrame(step); return; }
+      finishReturnArrival();
+    };
+    arrival.frame = requestAnimationFrame(step);
+    return true;
+  }
   function openPortal({ go = true } = {}) {
     if (portal || director || directorPreparing) return Promise.resolve(false);
     const url = new URL("bedroom/", location.href); url.searchParams.set("lang", state.lang); url.searchParams.set("from", "room01");
@@ -2057,6 +2109,7 @@ export async function start({ stage, panel, lang, onReady }) {
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") resetRobotIdle(); });
   controls.addEventListener("end", () => { if (!still) robotTurnTimer = setTimeout(startRobotTurn, 240); });
   renderer.domElement.addEventListener("pointerdown", (e) => {
+    if (arrival) { suppressTap = true; downAt = null; finishReturnArrival(); return; }
     if (director) { suppressTap = true; stopDirector(); downAt = null; return; }
     downAt = [e.clientX, e.clientY];
   });
@@ -2086,7 +2139,7 @@ export async function start({ stage, panel, lang, onReady }) {
     };
     requestAnimationFrame(step);
   });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (director) stopDirector(); else if (directorPreparing) cancelPreparation(); } });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (arrival) finishReturnArrival(); else if (director) stopDirector(); else if (directorPreparing) cancelPreparation(); } });
   function loop() { if (controls.update()) { render(); requestAnimationFrame(loop); } else { render(); looping = false; } }
   controls.addEventListener("start", () => { if (!looping) { looping = true; requestAnimationFrame(loop); } });
   controls.addEventListener("change", () => {
@@ -2611,7 +2664,7 @@ export async function start({ stage, panel, lang, onReady }) {
   // Let the first room frame paint before the optional TV materials request any image bytes.
   if (requestedView === "tv") { void loadTvWallTextures(); void loadDoorTexture(); }
   // on entering, the camera drifts gently within the room (1.8 s). Skipped with reduced motion; a drag or a test view stops it.
-  intro = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  intro = !arriveFromRoom02 && !matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (intro) {
     const end = camera.position.clone(), from = end.clone().add(new THREE.Vector3(-.28, .18, 0)), t0 = performance.now();
     introEnd = end;
@@ -2627,7 +2680,7 @@ export async function start({ stage, panel, lang, onReady }) {
     setTimeout(() => { if (intro) { intro = false; camera.position.copy(end); camera.lookAt(controls.target); controls.update(); render(); } }, 2200);
   }
   wakeRobot();
-  if (!still) setTimeout(startRobotTurn, 500);
+  if (!still && !arriveFromRoom02) setTimeout(startRobotTurn, 500);
   onReady?.();
   return {
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
@@ -2636,6 +2689,8 @@ export async function start({ stage, panel, lang, onReady }) {
     guideRobot() { scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(guidePivot), c = b.getCenter(new THREE.Vector3()).project(camera); return { min: b.min.toArray(), max: b.max.toArray(), ndc: { x: c.x, y: c.y, z: c.z }, bubble: !robotBubble.hidden && bubbleTarget === guidePivot, phrase: robotBubble.textContent }; }, // local QA only
     faceDoorWall() { viewTheta = -Math.PI / 2; camera.position.copy(cameraAt(viewTheta)); camera.lookAt(controls.target); controls.update(); render(); }, // local QA only
     openPortal, closePortal,
+    beginReturnArrival, finishReturnArrival,
+    returnArrival: () => arrival ? { active: true, elapsed: performance.now() - arrival.started, controlsEnabled: controls.enabled, camera: camera.position.toArray(), startPosition: arrival.startPosition.toArray(), doorOpen: doorSwing.rotation.y !== 0 } : { active: false, controlsEnabled: controls.enabled, camera: camera.position.toArray(), doorOpen: doorSwing.rotation.y !== 0 },
     doorNdc() { camera.updateMatrixWorld(); const v = new THREE.Vector3(W / 2, 1.0, doorZ - .1).project(camera); return { x: v.x, y: v.y, z: v.z }; }, // local QA only
     portal: () => ({ open: doorSwing.rotation.y, openMax: DOOR_OPEN, active: !!portal, fadeShown: !!portalFade, glow: !!doorReveal.material.emissiveMap }),
     doorSwingBounds() { // local QA only: the open leaf (and handle) against the furniture near the door
