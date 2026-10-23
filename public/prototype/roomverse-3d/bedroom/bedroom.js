@@ -367,7 +367,7 @@ export async function start({ stage, lang = "zh" }) {
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
-  const BED = { x: 1.4, z: -1.325, w: 1.1, l: 2.15, top: .48 }; // 2.15 m long, head against the north wall (Paul: a 185 cm person has to fit)
+  const BED = { x: 1.4, z: -1.25, w: 1.1, l: 2.3, top: .48 }; // 2.3 m long, head against the north wall (Paul: Americans are 1.8 to 2 m tall, the bed looked about 1.75 m; the foot ends 20 cm short of the sofa)
   const woodTex = (base, dark, light) => canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
     for (let i = 0; i < 140; i++) { const y = (i * 53) % h, a = .05 + (i % 6) * .018; ctx.strokeStyle = (i % 3 ? dark : light).replace("A", a.toFixed(3)); ctx.lineWidth = .8 + (i % 4) * .5;
@@ -521,7 +521,7 @@ export async function start({ stage, lang = "zh" }) {
     const f = new THREE.BufferGeometry(); f.setAttribute("position", new THREE.Float32BufferAttribute(fp, 3)); f.setAttribute("uv", new THREE.Float32BufferAttribute(fuv, 2)); f.setIndex(fidx); f.computeVertexNormals();
     return { g, f };
   };
-  { const { g, f } = throwGeo(), tx = BED.x, ty = BED.top + .084, tz = BED.z + .695; // 38 cm from the foot
+  { const { g, f } = throwGeo(), tx = BED.x, ty = BED.top + .084, tz = BED.z + BED.l / 2 - .38; // 38 cm from the foot
     throwMat.side = THREE.DoubleSide;
     part(g, throwMat, "bed-throw", tx, ty, tz);
     part(f, throwMat, "bed-throw-fringe", tx, ty, tz); }
