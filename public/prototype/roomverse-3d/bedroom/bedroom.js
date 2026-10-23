@@ -690,6 +690,20 @@ export async function start({ stage, lang = "zh" }) {
     g.name = "backpack"; g.position.set(-.5, 0, -1.2); g.rotation.order = "YXZ"; g.rotation.set(-.12, .9, 0); root.add(g); redraw(); // leaning back a little, as if just put down
   }).catch(() => {});
 
+  // A pair of flip-flops under the desk, in front of the chair (Paul: it should look like a young person has just slipped them off; Taiwanese blue-and-white
+  // thongs, and a casual pair like this is just as American at home). Made here: a foam sole 27 x 10 cm with a rounded edge and a thong of two straps.
+  { const sole = new THREE.Shape(); sole.moveTo(0, -.135); sole.bezierCurveTo(.05, -.135, .052, -.07, .05, -.02); sole.bezierCurveTo(.052, .05, .06, .12, 0, .135); sole.bezierCurveTo(-.06, .12, -.052, .05, -.05, -.02); sole.bezierCurveTo(-.052, -.07, -.05, -.135, 0, -.135);
+    const soleGeo = new THREE.ExtrudeGeometry(sole, { depth: .016, bevelEnabled: true, bevelSize: .004, bevelThickness: .003, bevelSegments: 2, curveSegments: 10 });
+    const soleMat = new THREE.MeshStandardMaterial({ color: "#f1ece3", roughness: .8 }), strapMat = new THREE.MeshStandardMaterial({ color: "#3d5a96", roughness: .7 });
+    const strap = (mx) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([[mx * .046, .02, -.015], [mx * .04, .043, .01], [mx * .018, .05, .05], [0, .034, .085]].map((q) => new THREE.Vector3(...q))), 14, .0075, 6);
+    const makeFlip = () => { const g = new THREE.Group();
+      const sl = new THREE.Mesh(soleGeo, soleMat); sl.rotation.x = Math.PI / 2; sl.position.y = .019; sl.castShadow = sl.receiveShadow = true; g.add(sl); // the shape's +y (toe) becomes +z, the thickness points down
+      for (const mx of [-1, 1]) { const st = new THREE.Mesh(strap(mx), strapMat); st.scale.y = .7; st.castShadow = true; g.add(st); }
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(.007, .007, .02, 8), strapMat); post.position.set(0, .028, .085); g.add(post); return g; };
+    const pair = new THREE.Group(); pair.name = "flip-flops"; pair.position.set(-1.42, 0, -1.75); root.add(pair); // under the desk's front edge, toes towards the wall
+    const l = makeFlip(); l.position.set(0, 0, -.13); l.rotation.y = -Math.PI / 2 + .12; pair.add(l);
+    const r = makeFlip(); r.scale.x = -1; r.position.set(.03, 0, .12); r.rotation.y = -Math.PI / 2 - .35; pair.add(r); } // the right one has been kicked a little crooked
+
   // ---------- lounge zone: sofa facing a TV on the west wall, coffee table, bookshelf ----------
   // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
   // 43-inch TV 95 x 55 cm on a 45 cm low console, about 3 m from the sofa; bookshelf 75 x 30 x 180 cm. Books carry no text.
