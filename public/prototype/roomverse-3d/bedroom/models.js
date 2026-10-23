@@ -98,7 +98,7 @@ export async function loadGlb(url, { height, roughness, anchor = "base", weave =
   const obj = gltf.scene;
   if (height) { const size = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3()); obj.scale.multiplyScalar(height / size.y); }
   const b = new THREE.Box3().setFromObject(obj), c = b.getCenter(new THREE.Vector3());
-  obj.position.set(-c.x, anchor === "center" ? -c.y : -b.min.y, -c.z);
+  if (anchor !== "none") obj.position.set(-c.x, anchor === "center" ? -c.y : -b.min.y, -c.z); // "none": keep the model's own origin (the maker placed it)
   obj.traverse((m) => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; if (roughness !== undefined && m.material.roughness > roughness) m.material.roughness = roughness; if (weave && m.name !== "legs") addWeave(m.material); });
   const g = new THREE.Group(); g.add(obj);
   return g;
