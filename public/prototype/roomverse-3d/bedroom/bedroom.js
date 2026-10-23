@@ -274,10 +274,10 @@ export async function start({ stage, lang = "zh" }) {
   // the west wall (the big wall in the overview) takes the swappable feature colour; the east wall stays a quiet warm tone
   add(box(T, ROOM.h, ROOM.d + T * 2), mainWallMat, "wall-main-east", HW + T / 2, ROOM.h / 2, 0);
   // The west wall, behind the desk, the TV and the posters, is wallpaper (Paul 2026-10-23: the view outside reads as New York, and American flats
-  // paper their walls): Room 01's cream pinstripe with sage and gold lines, one picture about 1.6 m wide so the stripes sit about 10 cm apart.
+  // paper their walls): Room 01's botanical leaf paper (Paul chose it): cream with soft sage vines, one picture about 1.1 m wide.
   // The colour options below swap it for plain colour as before.
-  const stripeTex = new THREE.TextureLoader().load(new URL("../tex/wallpaper-stripe-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; renderSoon?.(); }); // render() does not exist yet at this point
-  stripeTex.wrapS = stripeTex.wrapT = THREE.RepeatWrapping; stripeTex.repeat.set((ROOM.d + .2) / 1.6, ROOM.h / 1.6); stripeTex.anisotropy = 8;
+  const stripeTex = new THREE.TextureLoader().load(new URL("../tex/wallpaper-botanical-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; renderSoon?.(); }); // render() does not exist yet at this point
+  stripeTex.wrapS = stripeTex.wrapT = THREE.RepeatWrapping; stripeTex.repeat.set((ROOM.d + .2) / 1.1, ROOM.h / 1.1); stripeTex.anisotropy = 8;
   const featureMat = new THREE.MeshStandardMaterial({ color: "#ffffff", map: stripeTex, roughness: .95 }); // the west wall: wallpaper, or a swappable colour
   art("room02-e2-warm-wall-v1.webp", { repeat: [2.2, 1.6], apply: wallTexApply }); // a soft micro-cement / paint finish, multiplied by each wall colour
   add(box(T, ROOM.h, ROOM.d + T * 2), featureMat, "wall-west", -HW - T / 2, ROOM.h / 2, 0);
@@ -521,14 +521,18 @@ export async function start({ stage, lang = "zh" }) {
   // 19 cm pillow. The grey cushion that leaned on it is gone (Paul: it looked fake); the pillow alone reads cleaner.
   const bedPillow = part(pillowGeo(.7, .19, .46, .026), pillowMat, "bed-pillow", BED.x, BED.top + .082, north + .36);
   bedPillow.rotation.set(0, .05, .012);
-  // bedside table (40 x 40 x 45 cm) with a small lamp; the shade glows a little by itself, no extra light needed
+  // bedside table in the cream-and-walnut style Paul sent a photo of (40 x 40 x 50 cm): a walnut top with a small overhang, a soft cream body with two drawer
+  // fronts and a dark gap between them, a black plinth; and a lamp with a turned walnut base and a cone shade; the shade glows a little by itself
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
-  part(rb(.4, .02, .4), oak, "bedside-top", tx, .44, tz);
-  part(rb(.36, .3, .36), oak, "bedside-body", tx, .28, tz);
-  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) part(box(.03, .13, .03), oak, "bedside-leg", tx + dx * .17, .065, tz + dz * .17);
-  part(new THREE.CylinderGeometry(.06, .07, .02, 16), metalMat, "lamp-base", tx, .46, tz);
-  part(new THREE.CylinderGeometry(.012, .012, .2, 8), metalMat, "lamp-stem", tx, .56, tz);
-  part(new THREE.CylinderGeometry(.075, .11, .13, 20, 1, true), new THREE.MeshStandardMaterial({ color: "#f4e6c8", emissive: "#e9b86a", emissiveIntensity: .35, roughness: .9, side: THREE.DoubleSide }), "lamp-shade", tx, .72, tz);
+  const walnut = new THREE.MeshStandardMaterial({ color: "#6b4a33", roughness: .5 }), creamBody = new THREE.MeshStandardMaterial({ color: "#e6dcca", roughness: .85 });
+  part(rb(.43, .03, .43), walnut, "bedside-top", tx, .485, tz); // top face at 50 cm
+  part(rb(.38, .41, .38), creamBody, "bedside-body", tx, .275, tz);
+  part(box(.34, .06, .34), new THREE.MeshStandardMaterial({ color: "#1f1d1b", roughness: .7 }), "bedside-plinth", tx, .03, tz);
+  for (const y of [.18, .385]) part(rb(.34, .185, .012), creamBody, "bedside-drawer", tx, y, tz + .19 + .003);
+  part(box(.34, .01, .008), new THREE.MeshStandardMaterial({ color: "#5a3f2c", roughness: .6 }), "bedside-drawer-gap", tx, .283, tz + .193);
+  const lampBase = part(new THREE.LatheGeometry([[0, 0], [.055, 0], [.062, .02], [.05, .06], [.032, .1], [.022, .14], [.02, .17], [.03, .2], [.034, .215], [0, .215]].map(([x, y]) => new THREE.Vector2(x, y)), 24), walnut, "lamp-base", tx, .5, tz);
+  part(new THREE.CylinderGeometry(.012, .012, .1, 8), metalMat, "lamp-stem", tx, .73, tz);
+  part(new THREE.CylinderGeometry(.075, .14, .17, 28, 1, true), new THREE.MeshStandardMaterial({ color: "#f4e6c8", emissive: "#e9b86a", emissiveIntensity: .35, roughness: .9, side: THREE.DoubleSide }), "lamp-shade", tx, .785, tz);
 
   // ---------- work / game zone: desk along the west wall, ultrawide monitor, console, gaming chair ----------
   // Real sizes: desk 140 x 65 cm, top at 75 cm; 34-inch ultrawide panel 80 x 34 cm; chair seat at 48 cm. Built facing +z and turned so the
@@ -712,8 +716,13 @@ export async function start({ stage, lang = "zh" }) {
     for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; h(box(.028, topY - topH / 2 - .02, .02), bronze, name + "-post", Math.cos(a) * r, (topY - topH / 2 - .02) / 2, Math.sin(a) * r).rotation.y = -a + Math.PI / 2; }
     return h;
   };
-  const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.025, 0, .9); root.add(ct); // 45 cm in front of the sofa, 80 cm across, half the sofa's length
-  const cp = ringTable(ct, "coffee-table", .34, .385, .4, .03, travertine);
+  // A coffee table a home would have (Paul: the ring-and-iron one looked like a hotel's): a solid oak top 50 x 90 cm with softened corners, four tapered
+  // wooden legs and a lower shelf, 45 cm from the sofa.
+  const ct = new THREE.Group(); ct.name = "coffee-table"; ct.position.set(.19, 0, .9); root.add(ct);
+  const cp = hold(ct);
+  cp(rb(.5, .035, .9), oak, "coffee-table-top", 0, .3825, 0);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) cp(new THREE.CylinderGeometry(.027, .017, .365, 14), oak, "coffee-table-leg", sx * .2, .1825, sz * .38);
+  cp(rb(.4, .02, .78), oak, "coffee-table-shelf", 0, .12, 0);
   cp(box(.24, .035, .18), pillowB, "coffee-table-book", -.12, .4175, .04); cp(box(.2, .03, .15), accentMat, "coffee-table-book", -.12, .45, .04);
   { // Codex's mug (a plain glazed café mug, no brand): the old terracotta cylinder stays until it has loaded, so a slow download never leaves the table bare
     const stand = cp(new THREE.CylinderGeometry(.04, .035, .09, 14), pillowA, "coffee-table-mug", .15, .445, -.1);
@@ -734,21 +743,27 @@ export async function start({ stage, lang = "zh" }) {
   tp(box(.55, .24, .01), deskMat, "tv-console-door", -.295, .3, .185);
   // A slim black game console of the PS4 kind (275 x 300 x 53 mm): a matte slab with a glossy top plate and a thin blue light bar.
   // No logos or marks. It lies on the open bay's floor with its front facing the room; a white pad rests on top of it.
-  const consoleBody = new THREE.MeshStandardMaterial({ color: "#1b1c20", roughness: .5, metalness: .2 });
+  const consoleBody = new THREE.MeshStandardMaterial({ color: "#2b2d33", roughness: .45, metalness: .25 });
   const consoleTop = new THREE.MeshStandardMaterial({ color: "#0d0e11", roughness: .18, metalness: .35 });
   tp(rb(.275, .053, .3), consoleBody, "game-console", .295, .17 + .0265, -.02);
   tp(rb(.265, .004, .29), consoleTop, "game-console-top", .295, .17 + .053 + .002, -.02);
   tp(box(.1, .003, .002), new THREE.MeshStandardMaterial({ color: "#4aa8ff", emissive: "#4aa8ff", emissiveIntensity: 1.4 }), "game-console-light", .295, .17 + .053 + .0045, .125);
-  const pad = tp(rb(.15, .026, .09), new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), "game-pad", .295, .17 + .053 + .004 + .013, .02); pad.rotation.y = .4;
+  // The pad is a real controller lying on the coffee table (PAD_BASE is that table top), where you can see it (Paul: the console is a big thing in a young person's room):
+  // a rounded body, two grips angled back, two sticks, and a blue light bar. Codex's painted top lies on the body.
+  const PAD_BASE = .4, padX = .1, padZ = .15, padMat = new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), padDark = new THREE.MeshStandardMaterial({ color: "#2a2b30", roughness: .55 });
+  const pad = cp(rb(.15, .028, .09), padMat, "game-pad", padX, PAD_BASE + .014, padZ); pad.rotation.y = .4;
+  for (const sx of [-1, 1]) { const grip = cp(rb(.045, .03, .085), padMat, "game-pad-grip", padX, PAD_BASE + .015, padZ); grip.rotation.y = .4; grip.translateX(sx * .062); grip.translateZ(.045); grip.rotateY(-sx * .35); }
+  for (const sx of [-1, 1]) { const st = cp(new THREE.CylinderGeometry(.013, .013, .01, 14), padDark, "game-pad-stick", padX, PAD_BASE + .033, padZ); st.rotation.y = .4; st.translateX(sx * .03); st.translateZ(.012); }
   // Codex's painted top of the console (a thin diagonal seam and a blue edge line) and of the pad, laid as flat skins on the 3D shapes
-  const skin = (w, d, y, x, z, rotZ, file, name, bodyToHide) => {
+  const skin = (w, d, y, x, z, rotZ, file, name, bodyToHide, parent = tv) => {
     const mat = new THREE.MeshBasicMaterial({ transparent: true, alphaTest: .05, toneMapped: false });
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat); m.name = name; m.rotation.set(-Math.PI / 2, 0, rotZ); m.position.set(x, y, z); m.visible = false; tv.add(m);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat); m.name = name; m.rotation.set(-Math.PI / 2, 0, rotZ); m.position.set(x, y, z); m.visible = false; parent.add(m);
     art(file, { apply: (t) => { mat.map = t; mat.needsUpdate = true; m.visible = true; if (bodyToHide) bodyToHide.visible = false; mat.color.setScalar(.8); redraw(); } });
     return m;
   };
   skin(.265, .29, .17 + .053 + .0042, .295, -.02, 0, "room02-console-top-v1.webp", "game-console-skin", null);
-  skin(.19, .19, .17 + .053 + .004 + .0275, .295, .02, .4, "room02-controller-top-v1.webp", "game-pad-skin", pad);
+  skin(.15, .15, PAD_BASE + .0285, padX, padZ, .4, "room02-controller-top-v1.webp", "game-pad-skin", null, ct);
+  tp(box(.5, .006, .02), new THREE.MeshStandardMaterial({ color: "#fff1d6", emissive: "#ffd9a0", emissiveIntensity: 1.1 }), "tv-bay-led", .295, .418, .15); // a warm strip under the top, so the console stands out of the dark bay
   tp(box(.3, .012, .2), blackMat, "tv-foot", 0, .456, 0);
   tp(rb(.95, .55, .035), blackMat, "tv-panel", 0, .75, 0); // 47 cm to 102 cm
   const screenFace = new THREE.Mesh(new THREE.PlaneGeometry(.92, .52), tvScreen); screenFace.name = "tv-screen"; screenFace.position.set(0, .75, .0185); tv.add(screenFace);
@@ -775,11 +790,11 @@ export async function start({ stage, lang = "zh" }) {
   const TOP = levels[levels.length - 1] + .01; // upper face of the top board
   bp(box(.36, .2, .26), new THREE.MeshStandardMaterial({ map: weaveTexture("#d9cfbd", "#a99a7f"), roughness: 1 }), "shelf-top-box", -.15, TOP + .1, 0);
   bp(box(.37, .02, .27), new THREE.MeshStandardMaterial({ color: "#cfc4b0", roughness: 1 }), "shelf-top-box-lid", -.15, TOP + .21, 0);
-  bp(new THREE.CylinderGeometry(.06, .05, .12, 14), pillowA, "shelf-top-pot", .22, TOP + .06, 0);
-  const leafMat = new THREE.MeshStandardMaterial({ color: "#6f8a5f", roughness: .9 });
-  for (const [dx, dy, dz, ry, rz] of [[0, .16, 0, 0, 0], [-.05, .13, .02, .6, .5], [.05, .13, -.02, -.4, -.5], [.02, .12, .05, 1.2, .4], [-.02, .12, -.05, 2.2, -.4]]) {
-    const leaf = bp(new THREE.SphereGeometry(.05, 8, 6), leafMat, "shelf-top-leaf", .22 + dx, TOP + dy, dz);
-    leaf.scale.set(.6, 1.5, .35); leaf.rotation.set(0, ry, rz);
+  // three sneaker boxes stacked beside it (Paul: the plant on top looked like a cartoon): 33 x 12 x 20 cm, a lid line, a white side label; no logos
+  for (const [y, col, ry] of [[.06, "#d8561b", .06], [.18, "#23252a", -.05], [.3, "#e9e4da", .1]]) {
+    const bx = bp(box(.33, .12, .2), new THREE.MeshStandardMaterial({ color: col, roughness: .75 }), "shelf-top-shoebox", .22, TOP + y, 0); bx.rotation.y = ry;
+    const lid = bp(box(.335, .034, .205), new THREE.MeshStandardMaterial({ color: col, roughness: .7 }), "shelf-top-shoebox-lid", .22, TOP + y + .043, 0); lid.rotation.y = ry;
+    const label = bp(box(.07, .045, .002), new THREE.MeshStandardMaterial({ color: col === "#e9e4da" ? "#2a2b2f" : "#f1eee7", roughness: .6 }), "shelf-top-shoebox-label", .22 + .08 * Math.cos(ry), TOP + y - .005, .101 + .08 * Math.sin(ry)); label.rotation.y = ry;
   }
 
   // ---------- vinyl corner under the window: record console, turntable, two small speakers ----------
@@ -820,7 +835,7 @@ export async function start({ stage, lang = "zh" }) {
   // ---------- lived-in details: posters, a real plant, blind, switch and sockets, ceiling light ----------
   // Like Room 01, the room should hold what a real home holds. Posters are Codex's prints (no text, no real people or brands),
   // the plant is Room 01's image-to-3D plant, and the small fittings sit where an electrician would put them.
-  const POSTER = { w: .4, h: .4 * 1020 / 720, y: 1.62, z: .95, gap: .08 }; // A2-like portrait, above the TV
+  const POSTER = { w: .4, h: .4 * 1020 / 720, y: 1.82, z: -1.75, gap: .08 }; // A2-like portrait, over the desk (Paul: a young person hangs favourites above the desk); the TV wall gets Room 01's morning harbour
   const posterSets = { A: ["A1-v2", "A2-v1", "A3-v1"], B: ["B1-v1", "B2-v1", "B3-v1"], C: ["C1-v1", "C2-v1", "C3-v1"] };
   const posterTex = {};
   const loadPoster = (id) => posterTex[id] ??= new Promise((resolve) => texLoader.load(new URL(`./art/bedroom-poster-${id}.webp`, import.meta.url).href,
@@ -834,6 +849,13 @@ export async function start({ stage, lang = "zh" }) {
     const art = new THREE.Mesh(new THREE.PlaneGeometry(POSTER.w, POSTER.h), mat); art.name = "poster-print"; art.position.set(x, POSTER.y, .0225); posters.add(art);
     return mat;
   });
+  // Room 01's morning harbour over the TV (Paul: it lifts the whole wall): the same stepped gold frame, 90 x 60 cm picture, centred 1.62 m up.
+  { const g = new THREE.Group(); g.name = "tv-wall-harbor"; g.position.set(-HW + .018, 1.62, .95); g.rotation.y = Math.PI / 2; root.add(g);
+    const part = (geo, mat, z, cast) => { const m = new THREE.Mesh(geo, mat); m.position.z = z; m.receiveShadow = true; m.castShadow = cast; g.add(m); return m; };
+    const gold = new THREE.MeshStandardMaterial({ color: "#b8934e", roughness: .42, metalness: .55 }), goldDark = new THREE.MeshStandardMaterial({ color: "#6f5428", roughness: .5, metalness: .4 });
+    part(box(1.04, .74, .034), gold, 0, true); part(box(.96, .66, .036), goldDark, 0, false); part(box(.92, .62, .038), gold, 0, false);
+    const harbor = texLoader.load(new URL("../tex/right-wall-harbor-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; renderSoon?.(); });
+    part(new THREE.PlaneGeometry(.9, .6), new THREE.MeshStandardMaterial({ map: harbor, roughness: .8 }), .0205, false); }
   // one bigger print on the window wall above the headboard (it faces the visitor): the basketball poster (A1). When the TV wall shows the sport set, this one
   // switches to the planet print so the same picture never hangs twice.
   const BEDPOSTER = { w: .5, h: .5 * 1020 / 720, y: 1.58 };
@@ -958,7 +980,7 @@ export async function start({ stage, lang = "zh" }) {
   // The bedside lamp's cable: from the back of the lamp base, over the back edge of the table, down behind it, along the floor by the wall, over the skirting board and up
   // into the socket beside the bed, with a small white plug. A gentle curve through real points, 5.6 mm thick.
   { const sx = BED.x - BED.w / 2 - .55, lx = BED.x - BED.w / 2 - .27, lz = north + .27;
-    const pts = [[lx, .46, lz - .055], [lx - .02, .455, lz - .205], [lx - .03, .25, lz - .235], [lx - .06, .015, lz - .285], [sx + .1, .006, -HD + .03], [sx + .025, .008, -HD + .025], [sx, .07, -HD + .021], [sx, .1, -HD + .011], [sx, .26, -HD + .008], [sx, .29, -HD + .016]] /* in front of the skirting board, then over its top and up the wall */.map((q) => new THREE.Vector3(...q));
+    const pts = [[lx, .51, lz - .055], [lx - .02, .505, lz - .205], [lx - .03, .25, lz - .235], [lx - .06, .015, lz - .285], [sx + .1, .006, -HD + .03], [sx + .025, .008, -HD + .025], [sx, .07, -HD + .021], [sx, .1, -HD + .011], [sx, .26, -HD + .008], [sx, .29, -HD + .016]] /* in front of the skirting board, then over its top and up the wall */.map((q) => new THREE.Vector3(...q));
     const cable = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 64, .0028, 6), new THREE.MeshStandardMaterial({ color: "#3a3a3a", roughness: .6 }));
     cable.name = "lamp-cable"; cable.castShadow = true; root.add(cable);
     add(rb(.032, .042, .026), plateMat, "lamp-plug", sx, .3, -HD + .018, { shadow: false }); }

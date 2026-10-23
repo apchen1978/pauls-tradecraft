@@ -29,7 +29,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.w).toBeCloseTo(.9, 2);
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-lounge-rug"]); // no rug under the desk chair: nobody lays one there
-  expect(info.vertices).toBeLessThan(52000); // whole-room budget: two Room 01 models (sofa, plant) take about 9,500, rounded furniture edges about 5,000, the coffee bar GLB about 1,600, the Hunyuan sofa about 6,000; fully loaded (cushions, mug, robot, coffee bar) the room measures about 49,900 and the sofa swap itself added only 2,200
+  expect(info.vertices).toBeLessThan(56000); // whole-room budget: two Room 01 models (sofa, plant) take about 9,500, rounded furniture edges about 5,000, the coffee bar GLB about 1,600, the Hunyuan sofa about 6,000; fully loaded (cushions, mug, robot, coffee bar) the room measures about 52,000 (sneaker boxes, oak table and the harbour frame joined the sofa) and the sofa swap itself added only 2,200
   expect(info.lights).toBe(9); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, the desk downlight and three more (the track light: plaque, bed, print)
   expect(errors).toEqual([]);
 });
@@ -86,7 +86,7 @@ test("the bed has real sizes, stands on the floor beside the wall and clears the
   expect(z1 - z0).toBeLessThan(2.2); // 2 m bed on a slightly larger frame, plus the headboard thickness
   expect(x0).toBeGreaterThan(.3); // the bedside table stays well clear of the door side of the room
   expect(y1).toBeLessThan(1.1); // headboard under the window sill height + a little, never blocks the glass
-  expect(vertices).toBeLessThan(52000);
+  expect(vertices).toBeLessThan(56000);
 });
 
 test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48 cm, all inside the room and clear of the bed", async ({ page }) => {
@@ -104,7 +104,7 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
     expect(min[2]).toBeGreaterThan(-2.501); expect(max[2]).toBeLessThan(-.5);
     expect(min[1]).toBeGreaterThan(-.001);
   }
-  expect(vertices).toBeLessThan(52000);
+  expect(vertices).toBeLessThan(56000);
 });
 
 test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, shelf under the ceiling, nothing crosses the bed or the door", async ({ page }) => {
@@ -127,7 +127,7 @@ test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, s
   }
   expect(lounge.sofa.min[2]).toBeGreaterThan(-.45); // sofa starts past the foot of the bed (z = -0.46)
   expect(lounge.bookshelf.max[0]).toBeLessThan(-1.65); // stays clear of the door frame (x from -1.6)
-  expect(vertices).toBeLessThan(52000);
+  expect(vertices).toBeLessThan(56000);
 });
 
 test("lived-in details: posters hang above the TV inside the wall, the plant stands clear of desk and TV", async ({ page }) => {
@@ -135,7 +135,8 @@ test("lived-in details: posters hang above the TV inside the wall, the plant sta
   await page.waitForFunction(() => window.__bedroom.info().posters.loaded);
   let { posters, plant, tvPanel, work, lounge } = await page.evaluate(() => window.__bedroom.info());
   expect(posters.set).toBe("C");
-  expect(posters.min[1]).toBeGreaterThan(tvPanel.max[1] + .2); // a clear gap above the TV
+  expect(posters.min[1]).toBeGreaterThan(1.4); // over the desk, well above the monitor
+  expect(posters.min[2]).toBeGreaterThan(work.desk.min[2] - .1); expect(posters.max[2]).toBeLessThan(work.desk.max[2] + .1); // within the desk's length
   expect(posters.max[1]).toBeLessThan(2.3);
   expect(posters.min[0]).toBeGreaterThan(-2.001); expect(posters.max[0]).toBeLessThan(-1.95); // flat on the west wall
   expect(plant.min[1]).toBeGreaterThan(-.001); expect(plant.min[1]).toBeLessThan(.01); // on the floor
@@ -229,7 +230,7 @@ test("all 28 painted surfaces load (floor, wall, rugs, oak, fabrics, window fram
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
   const { vertices } = await page.evaluate(() => window.__bedroom.info());
-  expect(vertices).toBeLessThan(52000);
+  expect(vertices).toBeLessThan(56000);
 });
 
 test("phone first screen: moods sit in a tidy 2x2, the swap options start collapsed and open on tap, the intro is short", async ({ page }) => {
@@ -327,7 +328,7 @@ test("ceiling lamp and its glow sit on the ceiling; the console and pad skins li
   expect(b.glow.min[1]).toBeGreaterThan(2.59); expect(b.glow.max[1]).toBeLessThan(2.61); // a flat sheet under the ceiling
   expect(b.skin.min[1]).toBeGreaterThan(b.consoleTop - .002); expect(b.skin.max[1]).toBeLessThan(b.consoleTop + .01); // on the console's top plate
   expect(b.skin.min[0]).toBeGreaterThan(b.console.min[0] - .01); expect(b.skin.max[0]).toBeLessThan(b.console.max[0] + .01); // not wider than the console
-  expect(b.padSkin.min[1]).toBeGreaterThan(b.consoleTop); // the pad lies above the console
+  expect(b.padSkin.min[1]).toBeGreaterThan(.39); expect(b.padSkin.max[1]).toBeLessThan(.45); // the pad lies on the coffee table (40 cm), not on the console
   expect(b.fgNightLoaded).toBe(true);
   expect(await page.evaluate(() => window.__bedroom.setTime("night"))).toBe(true);
   const n = await page.evaluate(() => window.__bedroom.batch4());
