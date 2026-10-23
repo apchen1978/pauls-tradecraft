@@ -3,7 +3,7 @@
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
-import { loadModel, loadGlb } from "./models.js?v=4";
+import { loadModel, loadGlb } from "./models.js?v=5";
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
@@ -487,7 +487,13 @@ export async function start({ stage, lang = "zh" }) {
     for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a = j * row + i, c = a + row; idx.push(a, c, a + 1, a + 1, c, c + 1); }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); return g;
   };
-  part(duvetGeo(), duvetMat, "bed-duvet", BED.x, BED.top + .06, BED.z + .3); // from the foot to 30 cm from the head
+  const codeDuvet = part(duvetGeo(), duvetMat, "bed-duvet", BED.x, BED.top + .06, BED.z + .3); // from the foot to 30 cm from the head: the code-made sheet stays until Codex's duvet has loaded
+  // Codex's duvet (batch 13): one sheet with a turned-back edge at the head, uneven soft folds and hanging sides, origin at the middle of the mattress top
+  // (head at -z). Its UVs are 1 per metre, so they are scaled to the old sheet's so the same linen picture tiles about 30 cm wide.
+  loadGlb(new URL("./models/duvet-v1.glb", import.meta.url).href, { anchor: "none", roughness: 1 }).then((g) => {
+    g.traverse((o) => { if (!o.isMesh) return; o.material = duvetMat; const uv = o.geometry.attributes.uv; for (let i = 0; i < uv.array.length; i++) uv.array[i] /= 1.7; uv.needsUpdate = true; });
+    g.name = "bed-duvet"; g.position.set(BED.x, BED.top, BED.z); codeDuvet.parent.remove(codeDuvet); root.add(g); redraw();
+  }).catch(() => {});
   // The throw is a knitted strip laid across the foot, longer than the bed is wide: flat on the duvet, rolled over the mattress edges and
   // hanging 10-15 cm down each side, a little longer on one side than the other, with a folded-over band across it and a short fringe on
   // both hems. Real sizes: 36 cm deep, lying on the duvet's top (6 cm above the mattress).
@@ -657,7 +663,7 @@ export async function start({ stage, lang = "zh" }) {
   });
   // ergonomic task chair, pulled up to the desk
   const chair = new THREE.Group(); chair.name = "chair"; chair.position.set(-.93, 0, -1.75); chair.rotation.y = -Math.PI / 2 + .1; root.add(chair);
-  const cpart = hold(chair);
+  const cpart = hold(chair); // the code-made chair stays until Codex's chair (batch 13) has loaded, then it is replaced
   const meshTex = canvasTex(64, 64, (ctx, w, h) => { // fine woven mesh: a dark grid with a few lighter threads
     ctx.fillStyle = "#555b63"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(255,255,255,.12)";
     for (let i = 0; i < w; i += 2) { ctx.fillRect(i, 0, 1, h); ctx.fillRect(0, i, w, 1); }
@@ -678,6 +684,11 @@ export async function start({ stage, lang = "zh" }) {
     arm.rotation.y = -a;
     cpart(new THREE.SphereGeometry(.027, 8, 6), graphite, "chair-wheel", Math.cos(a) * .3, .027, Math.sin(a) * .3);
   }
+  loadGlb(new URL("./models/computer-chair-v1.glb", import.meta.url).href, { anchor: "none" }).then((g) => {
+    const meshes = []; g.traverse((o) => { if (o.isMesh) meshes.push(o); }); // four parts in the file's order: frame, mesh, seat, metal
+    if (meshes.length === 4) meshes[2].name = "chair-seat";
+    chair.children.slice().forEach((c) => chair.remove(c)); chair.add(g); redraw();
+  }).catch(() => {});
 
   // ---------- lounge zone: sofa facing a TV on the west wall, coffee table, bookshelf ----------
   // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
