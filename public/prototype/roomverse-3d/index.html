@@ -64,6 +64,7 @@
   .panel .why { margin: 8px 0 2px; font-size: 12.5px; line-height: 1.6; color: var(--ink); background: color-mix(in srgb, var(--moss) 8%, transparent); border-left: 3px solid var(--moss); padding: 6px 9px; border-radius: 0 8px 8px 0; }
   .panel .save { margin-top: 10px; width: 100%; font: inherit; font-weight: 700; font-size: 13px; padding: 8px 12px; border: 1px solid var(--moss); background: none; color: var(--moss); border-radius: 999px; cursor: pointer; }
   .panel .save.shuffle { background: var(--moss); color: #fff; }
+  .opts .mood-shuffle { grid-column: 1 / -1; margin-top: 2px; }
   .panel .director { border-color: #977b42; color: #554422; background: #fbf5e8; }
   .panel button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .director-still { margin-top: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
@@ -100,11 +101,14 @@
     .origin-hint a { white-space: normal; }
     .panel-toggle { display: none; }
     .room { height: auto; aspect-ratio: auto; --actions-bar: 60px; }
-    .room-toolbar:not([hidden]) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; align-items: center; box-sizing: border-box; height: var(--actions-bar); padding: 8px; background: #fbfaf6; }
+    .room-toolbar:not([hidden]) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; align-items: center; box-sizing: border-box; height: var(--actions-bar); padding: 8px; background: #fbfaf6; }
     .room-toolbar button { box-sizing: border-box; height: 44px; min-height: 44px; min-width: 0; margin: 0; padding: 0 4px; width: 100%; font: inherit; font-weight: 700; font-size: 12px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid var(--moss); background: #fff; color: var(--moss); border-radius: 999px; cursor: pointer; }
     .room-toolbar .shuffle { background: var(--moss); color: #fff; }
     .room-toolbar .director { border-color: #977b42; color: #554422; background: #fbf5e8; }
     .room-toolbar button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
+    .opts[aria-label="感覺"], .opts[aria-label="Feeling"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .opts[aria-label="感覺"] button, .opts[aria-label="Feeling"] button { min-width: 0; }
+    .opts .mood-shuffle { width: 100%; margin-top: 0; }
     #stage { position: relative; height: 58vh; }
     .poster { position: absolute; inset: 0; bottom: auto; height: 58vh; background-image: url("poster-mobile.webp"); }
     /* The action bar sits above the room. Shorten only the English stage so both view controls still fit the first screen. */
@@ -139,6 +143,6 @@
 </section>
 <p class="portal" id="portalRow" hidden><button id="portalBtn" type="button"></button><span id="portalHint"></span></p>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=36"></script>
+<script type="module" src="page.js?v=38"></script>
 </body>
 </html>

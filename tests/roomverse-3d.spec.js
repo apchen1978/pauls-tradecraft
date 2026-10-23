@@ -389,7 +389,7 @@ test("the room lives in the address: a shared link opens the same choices, click
   await expect(pressed(2)).toHaveText("藍米條紋");
 });
 
-test("new wall paints restore from the URL and work across all six feelings", async ({ page }) => {
+test("new wall paints restore from the URL and work across all seven feelings", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${PAGE}?lang=en&mood=rain&wall=mist`);
   await page.locator("#enter").click();
@@ -398,7 +398,7 @@ test("new wall paints restore from the URL and work across all six feelings", as
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
 
   const groups = page.locator("#panel .opts");
-  const moodButtons = groups.nth(0).locator("button");
+  const moodButtons = groups.nth(0).locator("button[data-key]");
   const wallButtons = groups.nth(1).locator("button");
   const wallKeys = await wallButtons.evaluateAll((buttons) => buttons.map((button) => button.dataset.key));
   expect(new Set(wallKeys).size).toBe(wallKeys.length); // options are rendered from WALLS, without a frozen count
@@ -449,7 +449,7 @@ test("new wall paints restore from the URL and work across all six feelings", as
   expect(paintRequests, "changing a solid wall paint should not request another runtime resource").toEqual([]);
   await page.locator('#panel .opts').nth(1).locator('button[data-key="mist"]').click();
 
-  for (let mood = 0; mood < 6; mood++) {
+  for (let mood = 0; mood < 7; mood++) {
     await moodButtons.nth(mood).click();
     for (const [key, name] of [["dusk", "Dusk navy"], ["wine", "Deep wine"]]) {
       const button = wallButtons.filter({ hasText: name });
@@ -576,9 +576,9 @@ test("new wall paint QA: all feelings, four responsive screenshots and the Engli
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.getAttribute("aria-expanded") === "false") t.click(); });
 
   const groups = page.locator("#panel .opts");
-  const moodButtons = groups.nth(0).locator("button");
+  const moodButtons = groups.nth(0).locator("button[data-key]");
   const wallButtons = groups.nth(1).locator("button");
-  const moods = ["rain", "family", "tech", "chic", "slow", "tv"];
+  const moods = ["rain", "family", "tech", "chic", "slow", "golden", "tv"];
   for (let mood = 0; mood < moods.length; mood++) {
     await moodButtons.nth(mood).click();
     for (const [wallKey, wallName] of [["mist", "Misty blue-grey"], ["pine", "Deep pine"]]) {
@@ -626,8 +626,8 @@ test("Slow Sunday: fifth mood restores from the URL, keeps its pairing note, and
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   const open = async () => page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); });
   await open();
-  const moodButtons = page.locator("#panel .opts").nth(0).locator("button");
-  await expect(moodButtons).toHaveCount(6);
+  const moodButtons = page.locator("#panel .opts").nth(0).locator("button[data-key]");
+  await expect(moodButtons).toHaveCount(7);
   await expect(moodButtons.nth(4)).toHaveText("週日午後慢慢過");
   await expect(moodButtons.nth(4)).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#panel .why")).toHaveText("白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。");
@@ -675,6 +675,88 @@ test("Slow Sunday: fifth mood restores from the URL, keeps its pairing note, and
   }
 });
 
+test("golden hour works in both languages, stays readable, and gives mobile shuffle a full row", async ({ page }) => {
+  const output = "docs/qa/roomverse-golden-hour-v2";
+  const pageErrors = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  await mkdir(output, { recursive: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
+  await page.waitForTimeout(700);
+  const moodGroup = page.locator('#panel .opts[aria-label="感覺"]');
+  const goldenButton = moodGroup.locator('button[data-key="golden"]');
+  await expect(moodGroup.locator("button[data-key]")).toHaveCount(7);
+  await expect(goldenButton).toHaveText("傍晚金色時光");
+  await expect(goldenButton).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#panel .why")).toContainText("低角度的夕陽");
+  const shuffle = moodGroup.locator(".mood-shuffle");
+  await expect(shuffle).toHaveAttribute("aria-label", "幫我隨機搭一間");
+  expect(await shuffle.evaluate((button) => [getComputedStyle(button.parentElement).gridTemplateColumns.split(" ").length, getComputedStyle(button).gridColumnStart, getComputedStyle(button).gridColumnEnd])).toEqual([2, "1", "-1"]);
+  await expect(page.locator("#roomToolbar button")).toHaveCount(2);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: `${output}/golden-390.png`, fullPage: true });
+  const brightness = async () => page.evaluate(() => {
+    const image = window.__room.postcard({ includeMood: false });
+    const width = image.width, height = document.querySelector("#stage canvas").height;
+    const data = image.getContext("2d").getImageData(0, 0, width, height).data;
+    const step = Math.max(1, Math.floor(width / 120)); let total = 0, samples = 0, nearBlack = 0, nearWhite = 0;
+    for (let y = step; y < height; y += step) for (let x = step; x < width; x += step) {
+      const i = (y * width + x) * 4, r = data[i], g = data[i + 1], b = data[i + 2];
+      total += .2126 * r + .7152 * g + .0722 * b; samples++;
+      if (Math.max(r, g, b) < 10) nearBlack++;
+      if (Math.min(r, g, b) > 250) nearWhite++;
+    }
+    return { mean: total / samples, nearBlack: nearBlack / samples, nearWhite: nearWhite / samples };
+  });
+  const mobileBrightness = await brightness();
+  expect(mobileBrightness.mean, JSON.stringify(mobileBrightness)).toBeGreaterThan(25);
+  expect(mobileBrightness.mean, JSON.stringify(mobileBrightness)).toBeLessThan(225);
+  expect(mobileBrightness.nearBlack, JSON.stringify(mobileBrightness)).toBeLessThan(.7);
+  expect(mobileBrightness.nearWhite, JSON.stringify(mobileBrightness)).toBeLessThan(.3);
+  for (const mood of ["rain", "slow"]) {
+    await page.locator(`#panel .opts[aria-label="感覺"] button[data-key="${mood}"]`).click();
+    await page.waitForTimeout(700);
+    await page.locator("#stage").screenshot({ path: `${output}/${mood}-stage-390.png` });
+  }
+  await page.locator('#panel .opts button[data-key="golden"]').click();
+  await page.waitForTimeout(700);
+  await page.locator("#stage").screenshot({ path: `${output}/golden-stage-390.png` });
+  await shuffle.click();
+  await expect(page).toHaveURL(/mood=golden/);
+  await expect(moodGroup.locator('button[data-key="golden"]')).toHaveAttribute("aria-pressed", "true");
+  for (const [group, key] of [[1, "sand"], [2, "stripe"], [3, "linen"], [4, "hills"]]) {
+    await page.locator("#panel .opts").nth(group).locator(`button[data-key="${key}"]`).click();
+  }
+  const downloadPromise = page.waitForEvent("download");
+  await page.locator("#roomToolbar button").filter({ hasText: "存成明信片" }).click();
+  expect((await downloadPromise).suggestedFilename()).toBe("ROOMVERSE-3D-明信片.png");
+  await page.locator("#lang").click();
+  await expect(page.locator('#panel .opts[aria-label="Feeling"] button[data-key="golden"]')).toHaveText("Golden hour");
+  await expect(page.locator("#panel .why")).toContainText("Low golden sunlight");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(700);
+  await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t?.getAttribute("aria-expanded") === "false") t.click(); });
+  await expect(page.locator('#panel .opts[aria-label="Feeling"] button[data-key="golden"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#panel .mood-shuffle")).toHaveCount(0);
+  await expect(page.locator("#panel .panel-shuffle")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: `${output}/golden-1440.png`, fullPage: true });
+  await page.locator("#stage").screenshot({ path: `${output}/golden-stage-1440.png` });
+  const desktopBrightness = await brightness();
+  expect(desktopBrightness.mean, JSON.stringify(desktopBrightness)).toBeGreaterThan(25);
+  expect(desktopBrightness.mean, JSON.stringify(desktopBrightness)).toBeLessThan(225);
+  expect(desktopBrightness.nearBlack, JSON.stringify(desktopBrightness)).toBeLessThan(.7);
+  expect(desktopBrightness.nearWhite, JSON.stringify(desktopBrightness)).toBeLessThan(.3);
+  for (const mood of ["rain", "slow"]) {
+    await page.locator(`#panel .opts[aria-label="Feeling"] button[data-key="${mood}"]`).click();
+    await page.waitForTimeout(700);
+    await page.locator("#stage").screenshot({ path: `${output}/${mood}-stage-1440.png` });
+  }
+  expect(pageErrors).toEqual([]);
+});
+
 test("existing mood postcards keep the original one-line design when it fits and wrap only when needed", async ({ page }) => {
   const output = "docs/qa/roomverse-mood-slow";
   await mkdir(output, { recursive: true });
@@ -686,7 +768,7 @@ test("existing mood postcards keep the original one-line design when it fits and
       await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
       await page.waitForTimeout(1900); // let the entry drift settle before comparing postcard pixels
       await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); });
-      const moodButtons = page.locator("#panel .opts").first().locator("button");
+      const moodButtons = page.locator("#panel .opts").first().locator("button[data-key]");
       for (let moodIndex = 0; moodIndex < 4; moodIndex++) {
         await moodButtons.nth(moodIndex).click();
         await page.waitForTimeout(120);
@@ -842,9 +924,9 @@ test("TV wall, 360-degree safe orbit, accessible view buttons, URL state, and wi
   await expect(page).toHaveURL(/view=tv/);
   await expect(page.locator(".camera-tv")).toHaveAttribute("aria-pressed", "true");
 
-  const moodButtons = page.locator("#panel .opts").first().locator("button");
-  await expect(moodButtons).toHaveCount(6);
-  for (const mood of ["rain", "family", "tech", "chic", "slow", "tv"]) {
+  const moodButtons = page.locator("#panel .opts").first().locator("button[data-key]");
+  await expect(moodButtons).toHaveCount(7);
+  for (const mood of ["rain", "family", "tech", "chic", "slow", "golden", "tv"]) {
     await page.locator("#panel .opts").first().locator(`button[data-key="${mood}"]`).click();
     await expect(page).toHaveURL(new RegExp(`mood=${mood}`));
     await expect(page).toHaveURL(/view=tv/);
@@ -866,14 +948,14 @@ test("TV wall, 360-degree safe orbit, accessible view buttons, URL state, and wi
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test("all six feelings show both views; tour stays inside and postcards keep the window angle", async ({ page }) => {
+test("all seven feelings show both views; tour stays inside and postcards keep the window angle", async ({ page }) => {
   const output = "docs/qa/roomverse-tv-wall";
   await mkdir(output, { recursive: true });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${PAGE}?lang=en&mood=rain`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t?.getAttribute("aria-expanded") === "false") t.click(); });
-  const moods = ["rain", "family", "tech", "chic", "slow", "tv"];
+  const moods = ["rain", "family", "tech", "chic", "slow", "golden", "tv"];
   for (const mood of moods) {
     await page.locator("#panel .opts").first().locator(`button[data-key="${mood}"]`).click();
     await page.waitForTimeout(650);
