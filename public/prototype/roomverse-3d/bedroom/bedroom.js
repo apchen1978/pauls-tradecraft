@@ -1045,6 +1045,24 @@ export async function start({ stage, lang = "zh" }) {
   downlightTrim.name = "desk-downlight"; downlightTrim.position.set(-1.55, ROOM.h - .006, -1.75); scene.add(downlightTrim);
   const downlightLens = new THREE.Mesh(new THREE.CircleGeometry(.035, 24), new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 }));
   downlightLens.rotation.x = Math.PI / 2; downlightLens.position.set(-1.55, ROOM.h - .013, -1.75); scene.add(downlightLens);
+  // More light (Paul 2026-10-23: "this one gives it atmosphere", and a photo of the black track light with round spot heads at home): a short black track
+  // in front of the window with four round heads on small yokes, each turned towards something. Three really light it (the house plaque, the bed, the print
+  // by the window: a soft scallop on the wall, like the desk downlight); the second looks at the rug for the picture. The spots cast no shadows, so each
+  // costs one extra light and nothing more.
+  const trackBlack = new THREE.MeshStandardMaterial({ color: "#1d1e21", roughness: .5, metalness: .2 });
+  const lensMat = new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 });
+  const TRACK_Z = -HD + .4, trackY = ROOM.h - .012; // along the window wall, in front of the window and well away from the ring lamp
+  { const rail = new THREE.Mesh(new THREE.BoxGeometry(1.7, .024, .03), trackBlack); rail.name = "ceiling-track"; rail.position.set(0, trackY, TRACK_Z); scene.add(rail); }
+  const trackHeads = [[-.7, [-1.45, 1.8, -HD + .02], "#ffe3bd"], [-.25, [-.3, .3, -1.2], null], [.25, [1.4, .5, -1.5], "#ffe0b5"], [.7, [1.3, 1.5, -HD + .02], "#ffe3bd"]]; // the plaque, the rug, the bed, the print by the window
+  const roomSpots = [];
+  for (const [hx, [tx, ty, tz], col] of trackHeads) { // hx: the head's place along the track
+    const head = new THREE.Group(); head.name = "track-head"; head.position.set(hx, trackY - .02, TRACK_Z); scene.add(head);
+    head.lookAt(new THREE.Vector3(tx, ty, tz)); // local +z now points at the target
+    const yoke = new THREE.Mesh(new THREE.BoxGeometry(.012, .05, .05), trackBlack); yoke.position.set(0, .02, 0); head.add(yoke);
+    const can = new THREE.Mesh(new THREE.CylinderGeometry(.034, .034, .11, 20), trackBlack); can.rotation.x = Math.PI / 2; can.position.z = .05; head.add(can);
+    const lens = new THREE.Mesh(new THREE.CircleGeometry(.028, 20), lensMat); lens.position.z = .106; head.add(lens);
+    if (col) { const sp = new THREE.SpotLight(col, 0, 3.8, .5, .75, 2); sp.position.copy(head.position); sp.target.position.set(tx, ty, tz); scene.add(sp, sp.target); roomSpots.push(sp); }
+  }
 
   // ---------- four moods: each one sets the window, daylight, room fill and the lamps that really glow ----------
   // The bedside lamp and the screen are real lights (no shadows, short reach), so a dark mood is lit by what is on in the room.
@@ -1095,7 +1113,7 @@ export async function start({ stage, lang = "zh" }) {
     hemi.intensity = m.hemi[0]; hemi.color.set(m.hemi[1]); hemi.groundColor.set(m.hemi[2]);
     sun.intensity = m.sun[0]; sun.color.set(m.sun[1]); sun.position.y = m.sun[2]; // a lower sun in the early morning reaches further in
     fill.intensity = m.fill[0]; fill.color.set(m.fill[1]);
-    bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
+    bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; for (const sp of roomSpots) sp.intensity = m.deskSpot * .7; lensMat.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
     ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow;
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
