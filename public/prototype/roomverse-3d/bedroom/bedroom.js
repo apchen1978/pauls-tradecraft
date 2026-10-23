@@ -73,7 +73,7 @@ function softBox(w, h, d, r) {
 // Furniture edges: a hero piece gets a small rounded edge (radius capped by its thinnest side) so light rolls off it like a real object.
 const rb = (w, h, d) => softBox(w, h, d, Math.min(.012, w / 4, h / 4, d / 4));
 
-export async function start({ stage, lang = "zh" }) {
+export async function start({ stage, bubble = null, hitTarget = null, lang = "zh", copy = () => ({}) }) {
   const compact = matchMedia("(max-width: 600px)").matches;
   // Painted surfaces from Codex (floor, walls, rugs, oak, fabrics, window dressings, screen, bookshelf rows). Each material starts with a
   // code-drawn stand-in and swaps to the painting when it arrives, so a slow or failed download never leaves a blank room.
@@ -124,7 +124,8 @@ export async function start({ stage, lang = "zh" }) {
   const controls = {
     look, look0, limit: LIMIT,
     turn(dYaw, dPitch) {
-      if (centred) { look.yaw += dYaw; look.pitch = Math.min(CENTER_PITCH, Math.max(-CENTER_PITCH, look.pitch + dPitch)); applyLook(); render(); return; }
+      if (!robotHinted && Math.abs(look.yaw) > Math.PI * .65) { robotHinted = true; showRobotBubble(copy().doorHint || "The living room is behind this door. Tap me to go."); }
+      if (centred) { look.yaw += dYaw; look.pitch = Math.min(CENTER_PITCH, Math.max(-CENTER_PITCH, look.pitch + dPitch)); if (Math.abs(wrapPi(look.yaw)) > Math.PI * .65) look.pitch = Math.min(look.pitch, -.42); applyLook(); render(); return; }
       look.yaw = Math.min(look0.yaw + LIMIT.yaw, Math.max(look0.yaw - LIMIT.yaw, look.yaw + dYaw));
       look.pitch = Math.min(look0.pitch + LIMIT.pitch, Math.max(look0.pitch - LIMIT.pitch, look.pitch + dPitch));
       applyLook(); render();
@@ -161,58 +162,339 @@ export async function start({ stage, lang = "zh" }) {
       requestAnimationFrame(step);
     });
   }
-  let drag = null, arriving = false, travelling = false; // travelling: the camera is walking between the corner and the middle, so a drag waits
+  let drag = null, arriving = false, travelling = false, leaving = null, pendingRobot = null;
+  let downAt = null, hopping = false, hopRun = 0, suppressTap = false;
+  let robotHinted = false, bubbleTimer = 0, suppressRobotClick = false;
   const el = renderer.domElement;
-  el.style.touchAction = "none"; el.style.cursor = "grab";
-  // Dragging should feel like Room 01's orbit: the scene follows the finger at every zoom (a zoomed look would otherwise run faster than the finger)
-  // and keeps gliding a moment after you let go (a short glide that eases out, like OrbitControls' damping).
+  const tapTargets = { robot: null };
+  const tapRay = new THREE.Raycaster();
+  const tapAt = new THREE.Vector2();
   let glide = 0, vel = { x: 0, y: 0 }, lastMove = 0;
-  el.addEventListener("pointerdown", (e) => { if (arriving || travelling) return; lookRun++; glide++; vel = { x: 0, y: 0 }; drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
-  el.addEventListener("pointermove", (e) => {
-    if (!drag || arriving) return;
-    const k = camera.fov * Math.PI / 180 / (el.clientHeight || 500) / camera.zoom; // radians per pixel
-    const now = performance.now(), dt = Math.max(8, now - (lastMove || now - 16)) / 1000;
-    const dx = (e.clientX - drag.x) * k, dy = (e.clientY - drag.y) * k;
-    controls.turn(dx, dy);
-    vel = { x: vel.x * .5 + dx / dt * .5, y: vel.y * .5 + dy / dt * .5 }; lastMove = now;
-    drag = { x: e.clientX, y: e.clientY };
-  });
-  const endDrag = () => {
-    const wasDragging = !!drag; drag = null; el.style.cursor = "grab";
-    if (!wasDragging || matchMedia("(prefers-reduced-motion: reduce)").matches || performance.now() - lastMove > 90 || Math.hypot(vel.x, vel.y) < .08) { lastMove = 0; return; }
-    lastMove = 0; const run = ++glide; let t = performance.now();
-    const step = (now) => {
-      if (run !== glide || arriving || travelling) return;
-      const dt = Math.min(.05, (now - t) / 1000); t = now;
-      const before = look.yaw + look.pitch; controls.turn(vel.x * dt, vel.y * dt);
-      const f = Math.exp(-dt / .22); vel = { x: vel.x * f, y: vel.y * f };
-      if (Math.hypot(vel.x, vel.y) > .02 && (look.yaw + look.pitch !== before)) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  };
-  el.addEventListener("pointerup", endDrag); el.addEventListener("pointercancel", endDrag);
-  // Tap the little robot (same as Room 01's): it hops, turns to look at you, then turns back. Only a tap counts, not a drag; with reduced
-  // motion it just turns. The robot is loaded later, so it is looked up when tapped.
-  const tapTargets = { robot: null }, tapRay = new THREE.Raycaster(), tapAt = new THREE.Vector2();
-  let downAt = null, hopping = false;
-  el.addEventListener("pointerdown", (e) => { downAt = [e.clientX, e.clientY]; });
-  el.addEventListener("pointerup", (e) => {
+  const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.style.touchAction = "none";
+  el.style.cursor = "grab";
+
+  function positionRobotBubble() {
     const rb = tapTargets.robot;
-    if (!rb || !downAt || hopping || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
-    const r = el.getBoundingClientRect(); tapAt.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-    tapRay.setFromCamera(tapAt, camera);
-    if (!tapRay.intersectObject(rb, true).length) return;
-    hopping = true;
-    const home = { y: rb.position.y, r: rb.rotation.y }, look = Math.atan2(camera.position.x - rb.position.x, camera.position.z - rb.position.z); // the robot faces +z
-    const dr = Math.atan2(Math.sin(look - home.r), Math.cos(look - home.r)), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now(), T = 1400;
-    const step = (now) => {
-      const k = Math.min(1, (now - t0) / T), turn = k < .3 ? k / .3 : k < .75 ? 1 : 1 - (k - .75) / .25, ease = turn * turn * (3 - 2 * turn); // turn to you, hold, turn back
-      rb.rotation.y = home.r + dr * ease;
-      rb.position.y = home.y + (reduce ? 0 : Math.max(0, Math.sin(Math.min(1, k / .3) * Math.PI)) * .09);
+    if (!rb) return;
+    scene.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(rb);
+    const center = new THREE.Vector3(
+      (bounds.min.x + bounds.max.x) / 2,
+      (bounds.min.y + bounds.max.y) / 2,
+      (bounds.min.z + bounds.max.z) / 2,
+    ).project(camera);
+    const head = new THREE.Vector3(
+      (bounds.min.x + bounds.max.x) / 2,
+      bounds.max.y + .12,
+      (bounds.min.z + bounds.max.z) / 2,
+    ).project(camera);
+    const rect = stage.getBoundingClientRect();
+    const x = Math.max(34, Math.min(rect.width - 34, (center.x + 1) * rect.width / 2));
+    const y = Math.max(34, Math.min(rect.height - 34, (1 - center.y) * rect.height / 2));
+
+    if (hitTarget) {
+      hitTarget.style.left = `${x}px`;
+      hitTarget.style.top = `${y}px`;
+      hitTarget.hidden = center.z >= 1 || Math.abs(center.x) > 1.05 || Math.abs(center.y) > 1.05;
+      hitTarget.setAttribute("aria-label", copy().robotLine || "Follow me, back to the living room.");
+    }
+    if (!bubble || bubble.hidden) return;
+    bubble.style.left = `${x}px`;
+    bubble.style.top = `${Math.max(8, Math.min(rect.height - 8, (1 - head.y) * rect.height / 2))}px`;
+  }
+
+  function showRobotBubble(message) {
+    if (!bubble) return;
+    clearTimeout(bubbleTimer);
+    bubble.textContent = message;
+    bubble.hidden = false;
+    positionRobotBubble();
+    bubbleTimer = setTimeout(() => {
+      bubble.hidden = true;
       render();
-      if (k < 1) requestAnimationFrame(step); else { rb.position.y = home.y; rb.rotation.y = home.r; hopping = false; render(); }
+    }, 4200);
+  }
+
+  function hideRobotBubble() {
+    clearTimeout(bubbleTimer);
+    if (bubble) bubble.hidden = true;
+    render();
+  }
+
+  function clearPendingRobot(restore = true) {
+    if (!pendingRobot) return false;
+    clearTimeout(pendingRobot.timer);
+    if (restore && tapTargets.robot) {
+      tapTargets.robot.position.y = pendingRobot.y;
+      tapTargets.robot.rotation.y = pendingRobot.yaw;
+    }
+    pendingRobot = null;
+    hopRun++;
+    hopping = false;
+    hideRobotBubble();
+    render();
+    return true;
+  }
+
+  function tapRobot() {
+    if (suppressRobotClick) {
+      suppressRobotClick = false;
+      return false;
+    }
+    const rb = tapTargets.robot;
+    if (!rb || hopping || pendingRobot || leaving) return false;
+
+    const home = { y: rb.position.y, yaw: rb.rotation.y };
+    const facing = Math.atan2(camera.position.x - rb.position.x, camera.position.z - rb.position.z);
+    const delta = Math.atan2(Math.sin(facing - home.yaw), Math.cos(facing - home.yaw));
+    const run = ++hopRun;
+    const started = performance.now();
+    const duration = reducedMotion() ? 1 : 420;
+
+    showRobotBubble(copy().robotLine || "Follow me, back to the living room.");
+    hopping = true;
+    pendingRobot = {
+      y: home.y,
+      yaw: home.yaw,
+      timer: setTimeout(() => {
+        if (!pendingRobot) return;
+        pendingRobot = null;
+        void leaveToRoom01();
+      }, 1200),
+    };
+
+    const animate = (now) => {
+      if (run !== hopRun || !pendingRobot) return;
+      const progress = Math.min(1, (now - started) / duration);
+      const eased = progress * progress * (3 - 2 * progress);
+      rb.rotation.y = home.yaw + delta * eased;
+      rb.position.y = home.y + (reducedMotion() ? 0 : Math.sin(progress * Math.PI) * .1);
+      render();
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+        return;
+      }
+      rb.position.y = home.y;
+      rb.rotation.y = home.yaw;
+      hopping = false;
+    };
+    requestAnimationFrame(animate);
+    return true;
+  }
+
+  function setDoorOpen(progress) {
+    doorPivot.rotation.y = -1.28 * progress;
+    doorRevealMat.opacity = Math.min(.86, progress * .86);
+  }
+
+  function makeFade() {
+    const node = Object.assign(document.createElement("div"), {
+      className: "portal-fade",
+      "aria-hidden": "true",
+    });
+    Object.assign(node.style, {
+      position: "fixed",
+      inset: "0",
+      zIndex: "60",
+      background: "radial-gradient(ellipse at 50% 55%, #6b5bd8 0%, #2a2150 55%, #0e0c20 100%)",
+      opacity: "0",
+      transition: "opacity .65s ease",
+    });
+    document.body.append(node);
+    requestAnimationFrame(() => {
+      if (node.isConnected) node.style.opacity = "1";
+    });
+    return node;
+  }
+
+  function closePortal(force = false) {
+    if (!leaving || (leaving.fading && !force)) return false;
+    leaving.cancelled = true;
+    cancelAnimationFrame(leaving.frame);
+    leaving.fade?.remove();
+    setDoorOpen(0);
+    camera.position.copy(leaving.position);
+    look.yaw = leaving.yaw;
+    look.pitch = leaving.pitch;
+    applyLook();
+    leaving = null;
+    drag = null;
+    render();
+    return true;
+  }
+
+  function leaveToRoom01() {
+    if (leaving) return Promise.resolve(false);
+    clearPendingRobot(false);
+    hideRobotBubble();
+    glide++;
+
+    const destination = new URL("../", location.href);
+    destination.searchParams.set("lang", lang);
+    destination.searchParams.set("from", "room02");
+    const from = { position: camera.position.clone(), yaw: look.yaw, pitch: look.pitch };
+    if (reducedMotion()) {
+      location.assign(destination.href);
+      return Promise.resolve(true);
+    }
+
+    leaving = { ...from, cancelled: false, fading: null, frame: 0, started: performance.now() };
+    const run = leaving;
+    const stand = new THREE.Vector3(DOOR.x, 1.5, 1.56);
+    const inward = new THREE.Vector3(1.8, 1.5, 1.0);
+    const start = from.position.clone();
+    const doorway = new THREE.Vector3(DOOR.x, 1.45, HD);
+    const yawFor = (target, pos) => Math.atan2(-(target.x - pos.x), -(target.z - pos.z));
+    const ease = (k) => k * k * (3 - 2 * k);
+    const segment = (time, begin, end) => Math.min(1, Math.max(0, (time - begin) / (end - begin)));
+    const started = performance.now();
+    const total = 3200;
+
+    return new Promise((resolve) => {
+      const step = (now) => {
+        if (run.cancelled || leaving !== run) {
+          resolve(false);
+          return;
+        }
+        const time = now - started;
+        const moveInward = ease(segment(time, 900, 1500));
+        const walkToDoor = ease(segment(time, 1500, 2200));
+        const stepThrough = ease(segment(time, 2200, 2400));
+        camera.position.copy(start)
+          .lerp(inward, moveInward)
+          .lerp(stand, walkToDoor)
+          .lerp(new THREE.Vector3(DOOR.x, 1.5, 1.68), stepThrough);
+
+        const targetYaw = yawFor(doorway, camera.position);
+        const yawDelta = Math.atan2(Math.sin(targetYaw - from.yaw), Math.cos(targetYaw - from.yaw));
+        look.yaw = from.yaw + yawDelta * ease(segment(time, 0, 1000));
+        look.pitch = from.pitch + (-.02 - from.pitch) * ease(segment(time, 200, 1200));
+        setDoorOpen(ease(segment(time, 350, 1500)));
+
+        if (time > 2400 && !run.fade) {
+          run.fading = true;
+          run.fade = makeFade();
+        }
+        render();
+        if (time < total) {
+          run.frame = requestAnimationFrame(step);
+          return;
+        }
+        location.assign(destination.href);
+        resolve(true);
+      };
+      run.frame = requestAnimationFrame(step);
+    });
+  }
+
+  function cancelPendingForInput(event) {
+    if (!pendingRobot) return;
+    const portalButton = event.target?.closest?.("#portalBtn");
+    clearPendingRobot(true);
+    if (portalButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      void leaveToRoom01();
+      return;
+    }
+    suppressTap = true;
+  }
+
+  el.addEventListener("pointerdown", (event) => {
+    cancelPendingForInput(event);
+    if (arriving || travelling || leaving) return;
+    downAt = [event.clientX, event.clientY];
+    lookRun++;
+    glide++;
+    vel = { x: 0, y: 0 };
+    drag = { x: event.clientX, y: event.clientY };
+    el.setPointerCapture(event.pointerId);
+    el.style.cursor = "grabbing";
+  });
+
+  el.addEventListener("pointermove", (event) => {
+    if (leaving || !drag || arriving) return;
+    const radiansPerPixel = camera.fov * Math.PI / 180 / (el.clientHeight || 500) / camera.zoom;
+    const now = performance.now();
+    const dt = Math.max(8, now - (lastMove || now - 16)) / 1000;
+    const dx = (event.clientX - drag.x) * radiansPerPixel;
+    const dy = (event.clientY - drag.y) * radiansPerPixel;
+    controls.turn(dx, dy);
+    vel = { x: vel.x * .5 + dx / dt * .5, y: vel.y * .5 + dy / dt * .5 };
+    lastMove = now;
+    drag = { x: event.clientX, y: event.clientY };
+  });
+
+  function endDrag() {
+    const wasDragging = !!drag;
+    drag = null;
+    if (!leaving) el.style.cursor = "grab";
+    if (!wasDragging || reducedMotion() || performance.now() - lastMove > 90 || Math.hypot(vel.x, vel.y) < .08) {
+      lastMove = 0;
+      return;
+    }
+    lastMove = 0;
+    const run = ++glide;
+    let last = performance.now();
+    const step = (now) => {
+      if (run !== glide || arriving || travelling || leaving) return;
+      const dt = Math.min(.05, (now - last) / 1000);
+      last = now;
+      const before = look.yaw + look.pitch;
+      controls.turn(vel.x * dt, vel.y * dt);
+      const friction = Math.exp(-dt / .22);
+      vel = { x: vel.x * friction, y: vel.y * friction };
+      if (Math.hypot(vel.x, vel.y) > .02 && look.yaw + look.pitch !== before) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
+  }
+
+  el.addEventListener("pointerup", (event) => {
+    endDrag();
+    if (suppressTap) {
+      suppressTap = false;
+      return;
+    }
+    if (!downAt || Math.hypot(event.clientX - downAt[0], event.clientY - downAt[1]) > 6) return;
+
+    const rect = el.getBoundingClientRect();
+    tapAt.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    tapRay.setFromCamera(tapAt, camera);
+    scene.updateMatrixWorld(true);
+    const robot = tapTargets.robot;
+    const robotBounds = robot ? new THREE.Box3().setFromObject(robot).expandByScalar(.05) : null;
+    const hitRobot = !!(robotBounds && tapRay.ray.intersectBox(robotBounds, new THREE.Vector3()));
+    const hitDoor = tapRay.intersectObject(doorPivot, true).length > 0;
+    if (hitDoor) {
+      void leaveToRoom01();
+      return;
+    }
+    if (hitRobot) tapRobot();
+  });
+  el.addEventListener("pointercancel", endDrag);
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!pendingRobot || event.target === el || event.target?.closest?.("#portalBtn")) return;
+    suppressRobotClick = event.target === hitTarget;
+    clearPendingRobot(true);
+  }, true);
+
+  el.addEventListener("pointermove", (event) => {
+    if (event.buttons || leaving) return;
+    const rect = el.getBoundingClientRect();
+    tapAt.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    tapRay.setFromCamera(tapAt, camera);
+    el.style.cursor = tapRay.intersectObject(doorPivot, true).length ? "pointer" : "grab";
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (pendingRobot) clearPendingRobot(true);
+    else closePortal();
+  });
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) closePortal(true);
   });
 
   // Arriving from Room 01's door: the camera starts in the doorway at eye height, looking into the room, then walks to the middle of the
@@ -343,11 +625,18 @@ export async function start({ stage, lang = "zh" }) {
 
   // ---------- door: slab, frame, handle ----------
   const dz = HD - .02;
-  add(box(DOOR.w - .02, DOOR.h - .01, .04), doorMat, "door-slab", DOOR.x, DOOR.h / 2, dz, { shadow: false });
+  const glowCanvas=document.createElement("canvas"); glowCanvas.width=128; glowCanvas.height=256;
+  const glowCtx=glowCanvas.getContext("2d"), doorGlowGradient=glowCtx.createRadialGradient(64,128,12,64,128,154);
+  doorGlowGradient.addColorStop(0,"rgba(255,248,220,1)"); doorGlowGradient.addColorStop(.34,"rgba(255,201,108,.98)"); doorGlowGradient.addColorStop(.72,"rgba(229,122,44,.9)"); doorGlowGradient.addColorStop(1,"rgba(92,42,18,.32)"); glowCtx.fillStyle=doorGlowGradient; glowCtx.fillRect(0,0,128,256);
+  const doorGlowTexture=new THREE.CanvasTexture(glowCanvas); doorGlowTexture.colorSpace=THREE.SRGBColorSpace;
+  const doorRevealMat = new THREE.MeshBasicMaterial({ map: doorGlowTexture, color: "#ffffff", transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false });
+  const doorReveal = new THREE.Mesh(new THREE.PlaneGeometry(DOOR.w - .04, DOOR.h - .04), doorRevealMat); doorReveal.name = "door-reveal"; doorReveal.position.set(DOOR.x, DOOR.h / 2, HD + .025); root.add(doorReveal);
+  const doorPivot = new THREE.Group(); doorPivot.name = "door-pivot"; doorPivot.position.set(dx0 + .01, 0, dz); root.add(doorPivot);
+  const slab = new THREE.Mesh(box(DOOR.w - .02, DOOR.h - .01, .04), doorMat); slab.name = "door-slab"; slab.position.set((DOOR.w - .02) / 2, DOOR.h / 2, 0); doorPivot.add(slab);
+  const handle = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, .13, 12), metalMat); handle.name = "door-handle"; handle.position.set(DOOR.w - .09 - .01, 1.0, -.06); handle.rotation.z = Math.PI / 2; doorPivot.add(handle);
   add(box(.045, DOOR.h + .045, .07), frameMat, "door-frame-left", dx0 - .0225, (DOOR.h + .045) / 2, dz, { shadow: false });
   add(box(.045, DOOR.h + .045, .07), frameMat, "door-frame-right", dx1 + .0225, (DOOR.h + .045) / 2, dz, { shadow: false });
   add(box(DOOR.w + .09, .045, .07), frameMat, "door-frame-top", DOOR.x, DOOR.h + .0225, dz, { shadow: false });
-  add(new THREE.CylinderGeometry(.02, .02, .13, 12), metalMat, "door-handle", dx1 - .09, 1.0, dz - .06, { shadow: false }).rotation.z = Math.PI / 2;
 
   // ---------- three floor zones ----------
   const zoneRug = (w, d, x, z, mat, name) => { const m = add(new THREE.PlaneGeometry(w, d), mat, name, x, .006, z, { shadow: false }); m.rotation.x = -Math.PI / 2; };
@@ -917,7 +1206,7 @@ export async function start({ stage, lang = "zh" }) {
     face.position.set((b0.min.x + b0.max.x) / 2, fy, b0.max.z + .004);
     for (const sx of [-1, 1]) { const eye = new THREE.Mesh(new THREE.CircleGeometry(fh * .14, 16), new THREE.MeshBasicMaterial({ color: "#ffe2a8" })); eye.position.set(sx * fw * .2, fh * .05, .002); face.add(eye); }
     rb.add(face);
-    rb.position.set(.28, 0, .25); rb.rotation.y = .7; root.add(rb); tapTargets.robot = rb; redraw();
+    rb.position.set(-.22, 0, 1.58); rb.rotation.y = Math.PI; root.add(rb); tapTargets.robot = rb; redraw();
   }).catch(() => {});
   // roller blind: a slim cassette above the window with the oat fabric pulled down 18 cm
   add(box(WINDOW.w + .12, .07, .08), frameMat, "blind-cassette", WINDOW.x, wTop + .085, -HD + .07, { shadow: false });
@@ -1250,7 +1539,7 @@ export async function start({ stage, lang = "zh" }) {
     camera.fov = camera.aspect < .8 ? 82 : 60;
     camera.updateProjectionMatrix();
   }
-  const render = () => renderer.render(scene, camera); renderSoon = render;
+  const render = () => { renderer.render(scene, camera); positionRobotBubble(); }; renderSoon = render;
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
   resize(); render(); ready = true;
   setMood("focus");
@@ -1261,7 +1550,33 @@ export async function start({ stage, lang = "zh" }) {
     root.traverseVisible((o) => { if (o.isMesh) { meshes++; vertices += o.geometry.attributes.position.count; } });
     const box3 = new THREE.Box3().setFromObject(root.getObjectByName("floor"));
     return {
-      room: ROOM, window: WINDOW, door: DOOR, headboardTop: Math.max(...root.children.filter((o) => o.name === "bed-headboard").map((o) => new THREE.Box3().setFromObject(o).max.y)), wallArt: (() => { const o = root.getObjectByName("sofa-wall-art"); if (!o) return null; const bb = new THREE.Box3().setFromObject(o); return { min: bb.min.toArray(), max: bb.max.toArray() }; })(), wardrobe: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("wardrobe")); return { min: b.min.toArray(), max: b.max.toArray() }; })(), centred, vertices, meshes,
+      room: ROOM, window: WINDOW, door: DOOR, portalPath: (() => {
+        const path = [
+          camera.position.clone(),
+          new THREE.Vector3(1.8, 1.5, 1.0),
+          new THREE.Vector3(DOOR.x, 1.5, 1.56),
+          new THREE.Vector3(DOOR.x, 1.5, 1.68),
+        ];
+        const obstacles = ["wardrobe", "door-mat", "sneakers"].map((name) => {
+          const object = root.getObjectByName(name);
+          return [name, new THREE.Box3().setFromObject(object)];
+        });
+        const hits = new Set();
+        for (let segment = 0; segment < path.length - 1; segment++) {
+          for (let step = 0; step <= 24; step++) {
+            const point = path[segment].clone().lerp(path[segment + 1], step / 24);
+            for (const [name, bounds] of obstacles) {
+              const overlaps = point.x + .18 > bounds.min.x && point.x - .18 < bounds.max.x
+                && point.y + .12 > bounds.min.y && point.y - .12 < bounds.max.y
+                && point.z + .18 > bounds.min.z && point.z - .18 < bounds.max.z;
+              if (overlaps) hits.add(name);
+            }
+          }
+        }
+        const matBounds = obstacles.find(([name]) => name === "door-mat")[1];
+        const matGap = +(matBounds.min.z - (path.at(-1).z + .18)).toFixed(3);
+        return { waypoints: path.map((point) => point.toArray()), hits: [...hits], matGap, clear: hits.size === 0 && matGap >= 0 };
+      })(), headboardTop: Math.max(...root.children.filter((o) => o.name === "bed-headboard").map((o) => new THREE.Box3().setFromObject(o).max.y)), wallArt: (() => { const o = root.getObjectByName("sofa-wall-art"); if (!o) return null; const bb = new THREE.Box3().setFromObject(o); return { min: bb.min.toArray(), max: bb.max.toArray() }; })(), wardrobe: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("wardrobe")); return { min: b.min.toArray(), max: b.max.toArray() }; })(), centred, vertices, meshes,
       floor: { w: box3.max.x - box3.min.x, d: box3.max.z - box3.min.z },
       zones: ["zone-sleep-rug", "zone-lounge-rug"].map((n) => root.getObjectByName(n)?.name),
       bed: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("bed")), m = new THREE.Box3().setFromObject(root.getObjectByName("bed-mattress")); return { min: b.min.toArray(), max: b.max.toArray(), mattressTop: m.max.y - .0 }; })(),
@@ -1337,11 +1652,11 @@ export async function start({ stage, lang = "zh" }) {
       return { rug: bx(get("zone-tv-rug")), unit: bx(get("tv-unit")), console: bx((() => { const g = new THREE.Group(); return get("game-console"); })()), pad: bx(get("game-pad")),
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
-    robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, y: rb.position.y, yaw: rb.rotation.y, ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
-    info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
+    robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, pending: !!pendingRobot, y: rb.position.y, yaw: rb.rotation.y, position: b.getCenter(new THREE.Vector3()).toArray(), ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
+    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, leaveToRoom01, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
-    setLang(l) { lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); },
+    setLang(l) { lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if(hitTarget)hitTarget.setAttribute("aria-label",copy().robotLine||"Follow me, back to the living room."); },
   };
 }

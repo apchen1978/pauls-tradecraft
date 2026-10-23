@@ -398,19 +398,103 @@ test("two prints hang on the wall behind the sofa, over its length and above its
   expect(headboardTop).toBeLessThan(win.sill - .05); // the sill sticks out of the wall beside the bed: nothing of the headboard may reach it
 });
 
-test("tap the little robot: it hops, turns to look at you and settles back where it was; a drag does not set it off", async ({ page }) => {
+test("tap the door-side robot: it hops, turns to look at you and settles back where it was", async ({ page }) => {
   await enter(page);
-  await toCorner(page);
   await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); }); // face the new robot at the south door
   const r0 = await page.evaluate(() => window.__bedroom.robotState());
   expect(Math.abs(r0.ndc.x)).toBeLessThan(.95); expect(r0.ndc.z).toBeLessThan(1); // in the opening view
-  const box = await page.locator("#stage canvas").boundingBox();
-  const x = box.x + (r0.ndc.x + 1) / 2 * box.width, y = box.y + (1 - r0.ndc.y) / 2 * box.height;
-  await page.mouse.click(x, y);
+  await page.locator("#robotHitTarget").click();
   await page.waitForFunction(() => window.__bedroom.robotState().hopping, null, { timeout: 3000 });
   await page.waitForFunction(() => !window.__bedroom.robotState().hopping, null, { timeout: 5000 });
   const r1 = await page.evaluate(() => window.__bedroom.robotState());
   expect(r1.y).toBeCloseTo(r0.y, 5); expect(r1.yaw).toBeCloseTo(r0.yaw, 5); // back home
+});
+
+test("Room 02 return door, robot hint, and cancellable countdown", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  await expect(page.locator("#portalRow")).toBeVisible();
+  const rb = await page.evaluate(() => ({ state: window.__bedroom.robotState(), path: window.__bedroom.info().portalPath }));
+  expect(rb.state.position[0]).toBeLessThan(0); expect(rb.state.position[2]).toBeGreaterThan(1.2);
+  expect(rb.path.hits).toEqual([]); expect(rb.path.matGap).toBeGreaterThan(0); expect(rb.path.clear).toBe(true);
+  await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
+  await expect(page.locator("#robotBubble")).toContainText("門後面是客廳");
+  await expect(page.locator("#robotBubble")).toBeVisible();
+});
+
+test("tapping the Room 02 robot starts a cancellable 1.2 second return", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
+  const state = await page.evaluate(() => ({ robot: window.__bedroom.robotState(), hit: (() => {const e=document.querySelector("#robotHitTarget"),r=e.getBoundingClientRect();return {hidden:e.hidden,left:e.style.left,top:e.style.top,rect:[r.x,r.y,r.width,r.height],display:getComputedStyle(e).display};})() }));
+  expect(state.hit.hidden).toBe(false);
+  await page.locator("#robotHitTarget").click();
+  await expect(page.locator("#robotBubble")).toContainText("跟我來，我帶你回客廳");
+  await page.waitForFunction(() => window.__bedroom.robotState().pending, null, { timeout: 3000 });
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#robotBubble")).toBeHidden();
+  await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
+  await expect(page.locator(".portal-fade")).toHaveCount(0);
+});
+
+test("a 390px visitor can tap the door-side robot and cancel by tapping blank room space", async ({ page }) => {
+  await enter(page, { width: 390 });
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
+  await expect(page.locator("#robotHitTarget")).toBeVisible();
+  await page.locator("#robotHitTarget").click();
+  await page.waitForFunction(() => window.__bedroom.robotState().pending, null, { timeout: 3000 });
+  const stage=await page.locator("#stage canvas").boundingBox();
+  await page.mouse.click(stage.x+12,stage.y+12);
+  await expect(page.locator("#robotBubble")).toBeHidden();
+  await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth === document.documentElement.clientWidth)).toBe(true);
+});
+
+test("the door animation can be cancelled before its fade and restores the closed state", async ({ page }) => {
+  await enter(page);
+  await page.locator("#portalBtn").click();
+  await page.waitForFunction(() => window.__bedroom.doorState().open, null, { timeout: 5000 });
+  await page.keyboard.press("Escape");
+  expect(await page.evaluate(() => window.__bedroom.doorState())).toMatchObject({ open: false, active: false, fading: false });
+  await expect(page.locator(".portal-fade")).toHaveCount(0);
+  await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
+});
+
+test("390px reduced-motion visitors can tap the door itself to return", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await enter(page, { width: 390 });
+  await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
+  const door = await page.evaluate(() => window.__bedroom.doorState().ndc);
+  const box = await page.locator("#stage canvas").boundingBox();
+  await page.mouse.click(box.x+(door.x+1)*box.width/2,box.y+(1-door.y)*box.height/2);
+  await page.waitForURL(/from=room02/, { timeout: 10000 });
+});
+
+test("reduced motion sends the door button directly to Room 01", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await enter(page);
+  await page.locator("#portalBtn").click();
+  await page.waitForURL(/from=room02/, { timeout: 10000 });
+});
+
+test("the Room 02 door button returns to Room 01 and Room 01 opens normally from the return URL", async ({ page }) => {
+  const errors=[]; page.on("pageerror",e=>errors.push(String(e))); page.on("console",m=>{if(m.type()==="error")errors.push(m.text());});
+  await enter(page);
+  await page.locator("#portalBtn").click();
+  await page.waitForURL(/from=room02/, { timeout: 12000 });
+  await page.waitForFunction(() => window.__room, null, { timeout: 90000 });
+  expect(errors).toEqual([]);
+  await expect(page.locator("#poster")).toBeHidden();
+  await expect(page.locator("#status")).toBeHidden();
+});
+
+test("the return portal label follows the selected language", async ({ page }) => {
+  await enter(page);
+  await expect(page.locator("#portalBtn")).toHaveText("推開那扇門 → Room 01");
+  await page.locator("#lang").click();
+  await expect(page.locator("#portalBtn")).toHaveText("Push the door → Room 01");
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {
@@ -423,6 +507,37 @@ test("the page switches between Chinese and English", async ({ page }) => {
   await expect(page.locator("#roomNo")).toHaveText("Room 02 · Brooklyn Studio");
   await expect(page.locator("#title")).toHaveText("Room 02 · Urban Youth Style");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+});
+
+test("Room 02 door portal review frames (set ROOMVERSE_DOOR_QA=1)", async ({ page }) => {
+  test.skip(process.env.ROOMVERSE_DOOR_QA !== "1", "only when collecting door portal review frames");
+  const fs = await import("node:fs/promises");
+  const out = "docs/qa/room02-door-back"; await fs.mkdir(out, { recursive: true });
+  for (const width of [1440, 390]) for (const mood of ["focus", "night"]) {
+    await enter(page, { width });
+    if (mood === "night") { await page.evaluate(() => window.__bedroom.setMood("night")); await page.waitForTimeout(250); }
+    await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+    await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
+    // Slow only the captured transition so PNG encoding cannot skip the requested review states.
+    await page.evaluate(() => {
+      const rawNow = performance.now.bind(performance);
+      const originalFrame = window.requestAnimationFrame.bind(window);
+      const origin = rawNow();
+      const scaled = (time) => origin + (time - origin) * .07;
+      Object.defineProperty(performance, "now", { configurable: true, value: () => scaled(rawNow()) });
+      window.requestAnimationFrame = (callback) => originalFrame((time) => callback(scaled(time)));
+    });
+    await page.locator("#portalBtn").click();
+    const suffix = `${mood}-${width}`;
+    await page.waitForFunction(() => Math.abs(window.__bedroom.doorState().angle) > .25, null, { timeout: 30000 });
+    await page.locator("#stage").screenshot({ path: `${out}/opening-${suffix}.png` });
+    await page.waitForFunction(() => Math.abs(window.__bedroom.doorState().angle) > 1.1, null, { timeout: 30000 });
+    await page.locator("#stage").screenshot({ path: `${out}/glow-${suffix}.png` });
+    await page.waitForFunction(() => window.__bedroom.doorState().elapsed > 2150, null, { timeout: 30000 });
+    await page.locator("#stage").screenshot({ path: `${out}/pre-fade-${suffix}.png` });
+    await page.evaluate(() => window.__bedroom.closePortal(true));
+    await page.goto(`${PAGE}?lang=zh`);
+  }
 });
 
 test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {

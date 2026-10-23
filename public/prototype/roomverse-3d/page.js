@@ -78,3 +78,4 @@ $("enter").onclick = async () => {
   }
 };
 text();
+if (entryParams.get("from") === "room02") $("enter").click(); // PR1: return to the living room without the PR2 arrival animation

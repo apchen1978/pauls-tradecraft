@@ -5,7 +5,7 @@ const COPY = {
     lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、打電動、窩沙發，各有各的角落。選一個感覺，拖一下或按按鈕轉頭看。",
     enter: "走進第二個房間", size: "五種感覺：專注工作日、週末宅在家、深夜遊戲、週日賴床、追劇夜", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
     note: "這是 ROOMVERSE 的第二個房間：一間在紐約租的套房，一件一件搬進來。下方可以換主牆、地毯、窗飾、寢具和海報，也可以按「隨機搭一間」。窗外景色和海報是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
-    home: "← Room 01", lang: "EN", shuffle: "隨機搭一間", moodsLabel: "選一個感覺", swapsLabel: "換什麼", viewsLabel: "看哪裡", views: { work: "書桌與窗邊", tv: "電視牆", bed: "床邊", center: "站到房間中間" },
+    home: "← Room 01", lang: "EN", portal: "推開那扇門 → Room 01", portalHint: "回到客廳", robotLine: "跟我來，我帶你回客廳", doorHint: "門後面是客廳，點我帶你過去", shuffle: "隨機搭一間", moodsLabel: "選一個感覺", swapsLabel: "換什麼", viewsLabel: "看哪裡", views: { work: "書桌與窗邊", tv: "電視牆", bed: "床邊", center: "站到房間中間" },
     swaps: {
       posters: ["電視上方海報", { A: "運動", B: "幾何", C: "太空" }],
       wall: ["主牆", { paper: "葉紋壁紙", oat: "燕麥白", latte: "奶茶", warmGrey: "暖灰", sage: "鼠尾草綠", terracotta: "赤陶", slate: "炭灰藍" }],
@@ -32,7 +32,7 @@ const COPY = {
     lead: "ROOMVERSE works like a universe: it will never be just one room. The first is a living room; this is the second, a studio for one where sleeping, working, gaming and sofa time each get a corner. Pick a mood; drag or use the buttons to look around.",
     enter: "Step into the second room", size: "Five moods: focus day, weekend in, late-night game, Sunday lie-in, series night", loading: "Setting up the room…", failed: "3D can't open on this device.",
     note: "This is ROOMVERSE's second room: a rented studio in New York, furnished one piece at a time. Below the room you can swap the feature wall, rug, window, bedding and posters, or press “Surprise me”. The view outside and the posters are illustrations made through human–AI collaboration, not real places. Not real products; check real colours and textures with samples and on-site light.",
-    home: "← Room 01", lang: "中", shuffle: "Surprise me", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle" },
+    home: "← Room 01", lang: "中", portal: "Push the door → Room 01", portalHint: "Back to the living room", robotLine: "Follow me, back to the living room.", doorHint: "The living room is behind this door. Tap me to go.", shuffle: "Surprise me", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle" },
     swaps: {
       posters: ["Posters over the TV", { A: "Sport", B: "Geometric", C: "Space" }],
       wall: ["Feature wall", { paper: "Leaf wallpaper", oat: "Oat white", latte: "Latte", warmGrey: "Warm grey", sage: "Sage", terracotta: "Terracotta", slate: "Slate blue" }],
@@ -59,6 +59,7 @@ const $ = (id) => document.getElementById(id);
 const arrivedFromRoom01 = new URLSearchParams(location.search).get("from") === "room01"; // came through the door in Room 01
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 let room = null, mood = "focus", look = "center";
+const returningFromRoom02 = new URLSearchParams(location.search).get("from") === "room02";
 function viewButtons() {
   const c = COPY[lang], row = $("viewRow");
   row.setAttribute("aria-label", c.viewsLabel);
@@ -108,20 +109,23 @@ function text() {
   const c = COPY[lang];
   document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
   $("title").textContent = c.title; $("lead").textContent = c.lead; $("enter").textContent = c.enter; $("size").textContent = c.size;
-  $("note").textContent = c.note; $("home").textContent = c.home; $("home").href = `../?lang=${lang}`; $("lang").textContent = c.lang;
+  $("note").textContent = c.note; $("portalBtn").textContent = c.portal; $("portalHint").textContent = c.portalHint; $("home").textContent = c.home; $("home").href = `../?lang=${lang}`; $("lang").textContent = c.lang;
   room?.setLang(lang);
   moodButtons();
   swapButtons();
   viewButtons();
 }
+$("portalBtn").onclick = () => { void room?.leaveToRoom01(); };
+$("robotHitTarget").onclick = () => room?.tapRobot();
 $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new URL(location.href); u.searchParams.set("lang", lang); history.replaceState(null, "", u); text(); };
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=63");
-    room = await start({ stage: $("stage"), lang });
+    const { start } = await import("./bedroom.js?v=64");
+    room = await start({ stage: $("stage"), bubble: $("robotBubble"), hitTarget: $("robotHitTarget"), lang, copy: () => COPY[lang] });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook
+    $("portalRow").hidden = false;
     if (arrivedFromRoom01) { document.documentElement.classList.add("ready"); await room.arrive(); } // the dark cover lifts as the walk-in begins
   } catch (e) {
     console.error(e);
@@ -130,4 +134,4 @@ $("enter").onclick = async () => {
   }
 };
 text();
-if (arrivedFromRoom01) $("enter").click(); // they already chose to come in
+if (arrivedFromRoom01 || returningFromRoom02) $("enter").click(); // portal arrivals continue straight into the room
