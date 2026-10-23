@@ -830,7 +830,14 @@ export async function start({ stage, lang = "zh" }) {
     posterSet = set; bedPosterId = bedId; render(); return true;
   }
   // Room 01's plant on the west wall, between the desk and the TV
-  const plant = await loadModel("plant", { height: 1.2 }); plant.name = "floor-plant"; plant.position.set(-HW + .55, 0, -.35); root.add(plant);
+  const plant = await loadModel("plant", { height: 1.2 }); plant.name = "floor-plant"; plant.position.set(-HW + .55, 0, -.5); root.add(plant);
+  // Codex's coffee bar (batch 12): a 39 cm oak cabinet with a sage door and the espresso machine on top, against the west wall just north of the TV unit.
+  // Its colours are written as linear factors and wash out to cream and mint here, so the wood and the door get the room's own oak and sage.
+  const barColours = { pale_oak: "#b38759", oak_grain: "#a07549", oak_interior: "#80603d", sage_door: "#6f8568" };
+  loadGlb(new URL("./models/coffee-bar-v1.glb", import.meta.url).href).then((g) => {
+    g.traverse((o) => { if (o.isMesh && barColours[o.material.name]) o.material.color.set(barColours[o.material.name]); });
+    g.name = "coffee-bar"; g.position.set(-HW + .195, 0, .35 - .04 - .195); g.rotation.y = Math.PI / 2; root.add(g); render(); // front looks east, like the TV unit
+  }).catch(() => {});
   // Room 01's little robot has a cousin here: the same model, a soft blue belt, standing on the open floor between the desk and the foot of the
   // bed, turned towards the corner camera. As in Room 01 the body is re-coloured by height (cream, one belt) and the face is its own dark
   // screen with two warm eyes, because vertex colours cannot hold a crisp face.
