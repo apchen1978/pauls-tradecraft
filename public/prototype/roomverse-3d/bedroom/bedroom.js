@@ -868,6 +868,27 @@ export async function start({ stage, lang = "zh" }) {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1.34, .894), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .35, roughness: .8 }));
     m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.66, .9); m.receiveShadow = true; root.add(m);
   } });
+  // Room 01's wall pieces, rebuilt here (Paul 2026-10-23: use Room 01's own pieces). (1) The bed's side wall, the east wall beside the bed: Room 01's
+  // "hills and sun" print in the same thin oak frame and cream mount (86 x 60 cm), over the bed's middle, centre 1.55 m up.
+  { const AW = .86, AH = .6, g = new THREE.Group(); g.name = "bed-wall-print"; g.position.set(HW - .02, 1.55, BED.z); g.rotation.y = -Math.PI / 2; root.add(g);
+    const part = (geo, mat, z, shadow) => { const m = new THREE.Mesh(geo, mat); m.position.z = z; m.receiveShadow = true; m.castShadow = shadow; g.add(m); return m; };
+    part(new THREE.BoxGeometry(AW + .06, AH + .06, .035), new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 }), 0, true);
+    part(new THREE.BoxGeometry(AW, AH, .006), new THREE.MeshStandardMaterial({ color: "#f7f3ea", roughness: .9 }), .018, false);
+    const hills = texLoader.load(new URL("../art/wall-print-hills-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; render(); }); hills.anisotropy = 8;
+    part(new THREE.PlaneGeometry(AW - .14, AH - .14), new THREE.MeshStandardMaterial({ map: hills, roughness: .85 }), .022, false); }
+  // (2) Room 01's glass planning board, on the west wall beside the desk, between the desk and the plant (its own words: a work list, the red line is
+  // the one that matters). A glass slab on four brass stand-offs, a small oak ledge with two black markers and a red one.
+  { const BW = .58, BH = .84, g = new THREE.Group(); g.name = "whiteboard"; g.position.set(-HW + .004, 1.6, -.6); g.rotation.y = Math.PI / 2; root.add(g);
+    const part = (geo, mat, x, y, z, name) => { const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.receiveShadow = true; g.add(m); return m; };
+    const brass = new THREE.MeshStandardMaterial({ color: "#c2a36a", metalness: .48, roughness: .58 });
+    part(rb(BW, BH, .008), new THREE.MeshStandardMaterial({ color: "#f3f2ee", roughness: .32, metalness: .08 }), 0, 0, .022, "whiteboard-glass");
+    const faceTex = texLoader.load(new URL("../art/room02-whiteboard-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; render(); }); faceTex.anisotropy = 8;
+    part(new THREE.PlaneGeometry(BW - .01, BH - .01), new THREE.MeshStandardMaterial({ map: faceTex, roughness: .55 }), 0, 0, .0265, "whiteboard-face");
+    for (const sx of [-1, 1]) for (const sy of [-1, 1]) part(new THREE.CylinderGeometry(.0042, .0042, .018, 12), brass, sx * (BW / 2 - .04), sy * (BH / 2 - .045), .009, "whiteboard-standoff").rotation.x = Math.PI / 2;
+    const ledgeY = -BH / 2 - .016;
+    part(new THREE.BoxGeometry(.5, .007, .04), new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 }), 0, ledgeY, .042, "whiteboard-ledge");
+    part(new THREE.BoxGeometry(.5, .006, .006), new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 }), 0, ledgeY + .003, .06, "whiteboard-ledge-lip");
+    for (const [x, c] of [[-.16, "#1c1c1c"], [-.04, "#c43131"], [.09, "#1c1c1c"]]) part(new THREE.CapsuleGeometry(.008, .1, 4, 12), new THREE.MeshStandardMaterial({ color: c, roughness: .36 }), x, ledgeY + .0075 + .004, .044, "whiteboard-marker").rotation.z = Math.PI / 2; }
   // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque)
   const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = false; root.add(curtains);
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
