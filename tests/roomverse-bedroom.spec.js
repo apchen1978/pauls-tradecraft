@@ -218,12 +218,12 @@ for (const width of [1440, 390]) {
   });
 }
 
-test("all 27 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and day/night foreground, ceiling glow, console skin, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
+test("all 29 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and day/night foreground, ceiling glow, console skin, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
   const failed = [];
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
-  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 27, null, { timeout: 60000 });
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 29, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
@@ -497,6 +497,12 @@ test("reduced motion sends the door button directly to Room 01", async ({ page }
   await enter(page);
   await page.locator("#portalBtn").click();
   await page.waitForURL(/from=room02/, { timeout: 10000 });
+});
+
+test("arriving through Room 01's door lands in golden hour", async ({ page }) => {
+  await page.goto(`${PAGE}?lang=zh&from=room01`);
+  await page.waitForFunction(() => window.__bedroom && window.__bedroom.info().mood === "golden", null, { timeout: 60000 });
+  await expect(page.locator('#moodRow button[data-mood="golden"]')).toHaveAttribute("aria-pressed", "true");
 });
 
 test("the Room 02 door button returns to Room 01 and Room 01 opens normally from the return URL", async ({ page }) => {
