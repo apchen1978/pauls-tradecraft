@@ -114,7 +114,7 @@ export async function start({ stage, lang = "zh" }) {
   const dir = target.clone().sub(home);
   const look0 = { yaw: Math.atan2(-dir.x, -dir.z), pitch: Math.atan2(dir.y, Math.hypot(dir.x, dir.z)) };
   const look = { yaw: look0.yaw, pitch: look0.pitch };
-  const LIMIT = { yaw: .6, pitch: .14 };
+  const LIMIT = { yaw: .9, pitch: .3 }; // wide enough that every look (the TV wall sits .43 and the bed side -.4 from the corner view) still has .45 or more to turn either way, so a drag never hits a stop right away
   camera.position.copy(home);
   camera.rotation.order = "YXZ";
   const applyLook = () => camera.rotation.set(look.pitch, look.yaw, 0);
@@ -143,7 +143,7 @@ export async function start({ stage, lang = "zh" }) {
   const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a)); // the short way round
   function lookTo(name) {
     const to = LOOKS[name]; if (!to) return Promise.resolve(false);
-    lookName = name;
+    lookName = name; glide++;
     const abs = !Array.isArray(to);
     const target = abs ? { yaw: to.yaw, pitch: to.pitch, zoom: to.zoom, pos: to.pos } : { yaw: look0.yaw + to[0], pitch: look0.pitch + to[1], zoom: to[2] ?? 1, pos: home };
     const showWardrobe = (v) => { const w = root.getObjectByName("wardrobe"); if (w) w.visible = v; }; // it stands beside the corner camera and on the arrival walk, so it only exists while you are in the middle
@@ -164,14 +164,32 @@ export async function start({ stage, lang = "zh" }) {
   let drag = null, arriving = false, travelling = false; // travelling: the camera is walking between the corner and the middle, so a drag waits
   const el = renderer.domElement;
   el.style.touchAction = "none"; el.style.cursor = "grab";
-  el.addEventListener("pointerdown", (e) => { if (arriving || travelling) return; lookRun++; drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
+  // Dragging should feel like Room 01's orbit: the scene follows the finger at every zoom (a zoomed look would otherwise run faster than the finger)
+  // and keeps gliding a moment after you let go (a short glide that eases out, like OrbitControls' damping).
+  let glide = 0, vel = { x: 0, y: 0 }, lastMove = 0;
+  el.addEventListener("pointerdown", (e) => { if (arriving || travelling) return; lookRun++; glide++; vel = { x: 0, y: 0 }; drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; });
   el.addEventListener("pointermove", (e) => {
     if (!drag || arriving) return;
-    const k = camera.fov * Math.PI / 180 / (el.clientHeight || 500); // radians per pixel: the scene follows the finger
-    controls.turn((e.clientX - drag.x) * k, (e.clientY - drag.y) * k);
+    const k = camera.fov * Math.PI / 180 / (el.clientHeight || 500) / camera.zoom; // radians per pixel
+    const now = performance.now(), dt = Math.max(8, now - (lastMove || now - 16)) / 1000;
+    const dx = (e.clientX - drag.x) * k, dy = (e.clientY - drag.y) * k;
+    controls.turn(dx, dy);
+    vel = { x: vel.x * .5 + dx / dt * .5, y: vel.y * .5 + dy / dt * .5 }; lastMove = now;
     drag = { x: e.clientX, y: e.clientY };
   });
-  const endDrag = () => { drag = null; el.style.cursor = "grab"; };
+  const endDrag = () => {
+    const wasDragging = !!drag; drag = null; el.style.cursor = "grab";
+    if (!wasDragging || matchMedia("(prefers-reduced-motion: reduce)").matches || performance.now() - lastMove > 90 || Math.hypot(vel.x, vel.y) < .08) { lastMove = 0; return; }
+    lastMove = 0; const run = ++glide; let t = performance.now();
+    const step = (now) => {
+      if (run !== glide || arriving || travelling) return;
+      const dt = Math.min(.05, (now - t) / 1000); t = now;
+      const before = look.yaw + look.pitch; controls.turn(vel.x * dt, vel.y * dt);
+      const f = Math.exp(-dt / .22); vel = { x: vel.x * f, y: vel.y * f };
+      if (Math.hypot(vel.x, vel.y) > .02 && (look.yaw + look.pitch !== before)) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
   el.addEventListener("pointerup", endDrag); el.addEventListener("pointercancel", endDrag);
   // Tap the little robot (same as Room 01's): it hops, turns to look at you, then turns back. Only a tap counts, not a drag; with reduced
   // motion it just turns. The robot is loaded later, so it is looked up when tapped.
