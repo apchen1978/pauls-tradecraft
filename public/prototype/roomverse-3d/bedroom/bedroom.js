@@ -89,9 +89,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     return t;
   };
   const ceil = { glow: null }; // the pool of light on the ceiling
-  const CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2, series: 0 };
+  const CEILING_GLOW = { focus: .55, weekend: .34, golden: .18, night: 0, sunday: .2, series: 0 };
   const live = { mood: "focus" }; // the current mood, readable before the moods block exists
-  const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8, series: .6 };
+  const SPRITE_TINT = { focus: 1, weekend: .88, golden: .85, night: .45, sunday: .8, series: .6 };
   const chosen = { wall: "paper", rug: "modern", window: "linen", bedding: "stone", posters: "C", tv: "auto", led: "auto", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
@@ -645,6 +645,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const cutout = (mat) => { mat.transparent = true; mat.alphaTest = .45; mat.needsUpdate = true; };
   const tvRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
   zoneRug(1.2, 1.7, -1.05, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
+  root.getObjectByName("zone-tv-rug").rotation.z = .12; // laid a little off square (7 degrees), the way a rug is dropped in a real prewar flat: the lines of the room stop being all parallel and the floor gains depth (Paul 2026-10-24)
   art("room02-rug-oat-v1.webp", { apply: (t) => { tvRugMat.map = t; cutout(tvRugMat); } }); // an oat rug seen whole from above, with its fringe
   // The rugs Codex drew on white are trimmed to the rug's own edge with the white made transparent, so a rug is only as big as the rug.
   art("room02-rug-runner-v1.webp", { apply: (t) => { sleepRugMat.map = t; cutout(sleepRugMat); } });
@@ -686,10 +687,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     throwMat.map = beddingArt.throw; throwMat.color.setScalar(1.35); throwMat.needsUpdate = true;
   };
   duvetMat.map = linenNoise();
-  art("room02-a5-throw-weave-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
-  art("room02-linen-duvet-v1.webp", { repeat: [5.7, 5.7], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
+  art("room02-throw-knit-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
+  art("room02-duvet-linen-v1.webp", { repeat: [5.7, 5.7], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
   const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95, side: THREE.DoubleSide });
-  art("room02-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = t; pillowMat.color.set("#ffffff"); pillowMat.needsUpdate = true; } });
+  art("room02-pillow-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = t; pillowMat.color.set("#ffffff"); pillowMat.needsUpdate = true; } });
   const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
   const part = (geo, mat, name, x, y, z) => {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; bed.add(m); return m;
@@ -1219,9 +1220,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const plaque = add(new THREE.PlaneGeometry(.9, .36), new THREE.MeshStandardMaterial({ map: plaqueTex, transparent: true, alphaTest: .5, roughness: .7 }), "house-plaque", -1.45, 1.8, -HD + .015, { shadow: false });
   // Two framed prints on the wall behind the sofa (the east wall), Codex's pair: sage, terracotta, navy and cream, nothing like the city outside.
   // 134 x 89 cm in all (two 58 x 78 cm frames), centred over the sofa, bottom edge 121 cm up, well above the sofa back.
-  art("room02-east-pair-v1.webp", { apply: (t) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(1.34, .894), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .35, roughness: .8 }));
-    m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.66, .9); m.receiveShadow = true; root.add(m);
+  art("room02-brooklyn-bridge-panorama-v1.webp", { apply: (t) => {
+    // Paul 2026-10-24: one wide picture, wider than the three city posters over the bed (1.79 m), to prove the flat is in New York: Codex's Brooklyn Bridge
+    // at golden hour, 1.84 x 0.726 m with its oak frame (1900 x 750 px), 1.21 m up, centred over the sofa and just clear of the bed's foot
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1.84, 1.84 * 750 / 1900), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .35, roughness: .8 }));
+    m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.21 + 1.84 * 750 / 1900 / 2, .95); m.receiveShadow = true; root.add(m);
   } });
   // Room 01's wall pieces, rebuilt here (Paul 2026-10-23: use Room 01's own pieces). (1) The bed's side wall, the east wall beside the bed: Codex's three
   // American city posters (batch 14: San Francisco, New York, Los Angeles; Paul asked for pictures that fit an American flat) in thin oak frames,
@@ -1324,7 +1327,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     e.add(new THREE.Mesh(new THREE.BoxGeometry(8, 5, 8), new THREE.MeshBasicMaterial({ map: grad, side: THREE.BackSide })));
     const win = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.5), new THREE.MeshBasicMaterial({ color: "#ffffff" })); win.position.set(0, 0, -3.9); e.add(win);
     const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(e, .04).texture; pm.dispose(); }
-  const envLevel = { focus: .26, weekend: .2, night: .08, sunday: .22, series: .12 };
+  const envLevel = { focus: .26, weekend: .2, golden: .2, night: .08, sunday: .22, series: .12 };
   const applyEnv = (name) => root.traverse((o) => { if (!o.isMesh) return; for (const m of [].concat(o.material)) if (m.isMeshStandardMaterial) m.envMapIntensity = o.name.startsWith("window-") || /^(wall|floor|ceiling)/.test(o.name) ? .08 * (envLevel[name] / .26) : envLevel[name]; });
 
   // Contact shadows: a soft dark footprint under each piece, where a real room is darkest (the renderer's shadows cannot reach there).
@@ -1435,6 +1438,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
                bedLamp: 0, shade: .12, screen: .4, led: .6, glow: .35, ceiling: .35, monitor: 1, tv: 0, blind: .18, deskSpot: 3.4, ledCol: "#ffb066", screenCol: "#c6cdf0" },
     weekend: { time: "day",   sky: "#efe5d8", bg: "#d6cbbb", exposure: 1.08, hemi: [.85, "#f3e6d4", "#cdb79a"], sun: [1.1, "#ffe2b8", 2.3], fill: [4.5, "#ffcf96"],
                bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45, deskSpot: 2.4, ledCol: "#ffb066", screenCol: "#c6cdf0" },
+    // Golden hour: the painted day view warmed to late afternoon, a low orange sun that throws the window's long shadows across the floor, the blind open, one lamp just coming on
+    golden:  { time: "day",   sky: "#ffcf9a", bg: "#d5bf9f", exposure: 1.14, hemi: [.78, "#ffe0bd", "#c7a578"], sun: [2.8, "#ffb263", 1.15], fill: [3.4, "#ffc487"],
+               bedLamp: 1.6, shade: .55, screen: 0, led: .45, glow: .2, ceiling: 0, monitor: .6, tv: 0, blind: .08, deskSpot: 2.0, ledCol: "#ffb066", screenCol: "#c6cdf0" },
     night:   { time: "night", sky: "#ffffff", bg: "#1d2230", exposure: 1.05, hemi: [.44, "#7d8fb8", "#3a3442"], sun: [0, "#9db4ff", 2.3], fill: [1.5, "#ffcf9a"],
                bedLamp: .7, shade: .55, screen: 2.8, led: 1.4, glow: .45, ceiling: 0, monitor: 1.3, tv: 0, blind: .18, deskSpot: 4.2, ledCol: "#8f7bff", screenCol: "#8f9bff" }, // the violet gamer glow, as it was
     sunday:  { time: "day",   sky: "#ffe6cc", bg: "#dccdb9", exposure: 1.1, hemi: [1.0, "#f8e7d5", "#d6c2a4"], sun: [1.8, "#ffcf94", 1.45], fill: [2.5, "#ffd9b0"],
@@ -1482,7 +1488,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const swapWindow = () => { const v = chosen.window; if (v === "roller" || v === "bamboo") { blindFabric.material.map = (v === "bamboo" ? windowPaint.bamboo ?? bambooTex : windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true; } };
   art("room02-a4-roller-linen-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.roller = t; swapWindow(); } });
   art("room02-a4-bamboo-blind-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.bamboo = t; swapWindow(); } });
-  art("room02-a4-curtain-linen-v1.webp", { repeat: [.85, 6], apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
+  art("room02-curtain-linen-v1.webp", { repeat: [.85, 6], apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
   const rollerTex = blindFabric.material.map;
   const oakBorderRug = canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = "#1f2124"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#b8925f"; ctx.fillRect(14, 14, w - 28, h - 28);

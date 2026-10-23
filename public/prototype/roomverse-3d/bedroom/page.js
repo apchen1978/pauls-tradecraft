@@ -3,7 +3,7 @@ const COPY = {
   zh: {
     title: "Room 02 都市青年Style",
     lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、打電動、窩沙發，各有各的角落。選一個感覺，拖一下或按按鈕轉頭看。",
-    enter: "走進第二個房間", size: "五種感覺：專注工作日、週末宅在家、深夜遊戲、週日賴床、追劇夜", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
+    enter: "走進第二個房間", size: "六種感覺：專注工作日、週末宅在家、傍晚金色時光、深夜遊戲、週日賴床、追劇夜", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
     note: "這是 ROOMVERSE 的第二個房間：一間在紐約租的套房，一件一件搬進來。下方可以換主牆、地毯、窗飾、寢具和海報，也可以按「隨機搭一間」。窗外景色和海報是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
     home: "← Room 01", lang: "EN", portal: "推開那扇門 → Room 01", portalHint: "回到客廳", robotLine: "跟我來，我帶你回客廳", doorHint: "門後面是客廳，點我帶你過去", shuffle: "隨機搭一間", moodsLabel: "選一個感覺", swapsLabel: "換什麼", viewsLabel: "看哪裡", views: { work: "書桌與窗邊", tv: "電視牆", bed: "床邊", center: "站到房間中間" },
     swaps: {
@@ -22,6 +22,7 @@ const COPY = {
     moods: {
       focus: ["專注工作日", "白天的窗光灑在桌上，燈條只留一點點，適合把事情做完。"],
       weekend: ["週末宅在家", "窗光變柔，床邊小燈亮起，電視開著，整個房間慢下來。"],
+      golden: ["傍晚金色時光", "下班前的最後一小時：低低的夕陽從窗口斜斜照進來，地板上拉出長長的窗影，泡杯咖啡，看城市慢慢變金黃。"],
       night: ["深夜遊戲", "房間暗下來，螢幕和身後的燈條成為主角，窗外的城市還亮著。"],
       sunday: ["週日賴床", "清晨的暖光從半拉的捲簾下照進來，不急著起床。"],
       series: ["追劇夜", "週五晚上，關掉主燈，只留琥珀燈帶和一盞暖燈，電視亮著，沙發就是整個世界。"],
@@ -30,7 +31,7 @@ const COPY = {
   en: {
     title: "Room 02 · Urban Youth Style",
     lead: "ROOMVERSE works like a universe: it will never be just one room. The first is a living room; this is the second, a studio for one where sleeping, working, gaming and sofa time each get a corner. Pick a mood; drag or use the buttons to look around.",
-    enter: "Step into the second room", size: "Five moods: focus day, weekend in, late-night game, Sunday lie-in, series night", loading: "Setting up the room…", failed: "3D can't open on this device.",
+    enter: "Step into the second room", size: "Six moods: focus day, weekend in, golden hour, late-night game, Sunday lie-in, series night", loading: "Setting up the room…", failed: "3D can't open on this device.",
     note: "This is ROOMVERSE's second room: a rented studio in New York, furnished one piece at a time. Below the room you can swap the feature wall, rug, window, bedding and posters, or press “Surprise me”. The view outside and the posters are illustrations made through human–AI collaboration, not real places. Not real products; check real colours and textures with samples and on-site light.",
     home: "← Room 01", lang: "中", portal: "Push the door → Room 01", portalHint: "Back to the living room", robotLine: "Follow me, back to the living room.", doorHint: "The living room is behind this door. Tap me to go.", shuffle: "Surprise me", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle" },
     swaps: {
@@ -49,6 +50,7 @@ const COPY = {
     moods: {
       focus: ["Focus day", "Daylight on the desk and just a hint of the strip light: a day for getting things done."],
       weekend: ["Weekend in", "Softer daylight, the bedside lamp on, the TV playing: the whole room slows down."],
+      golden: ["Golden hour", "The last hour before dinner: a low sun slants through the window and stretches long shadows over the floor; coffee in hand, the city slowly turns gold."],
       night: ["Late-night game", "The room goes dark; the screen and the strip behind it take over while the city stays lit outside."],
       sunday: ["Sunday lie-in", "Early warm light slips under the half-drawn blind; no hurry to get up."],
       series: ["Series night", "Friday night: ceiling light off, just the amber strip and one warm lamp, the TV playing; the sofa is the whole world."],
@@ -121,7 +123,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=66");
+    const { start } = await import("./bedroom.js?v=69");
     room = await start({ stage: $("stage"), bubble: $("robotBubble"), hitTarget: $("robotHitTarget"), lang, copy: () => COPY[lang] });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook
