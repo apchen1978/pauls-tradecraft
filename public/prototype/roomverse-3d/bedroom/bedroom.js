@@ -89,9 +89,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     return t;
   };
   const ceil = { glow: null }; // the pool of light on the ceiling
-  const CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2, series: 0 };
+  const CEILING_GLOW = { focus: .55, weekend: .34, golden: .18, night: 0, sunday: .2, series: 0 };
   const live = { mood: "focus" }; // the current mood, readable before the moods block exists
-  const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8, series: .6 };
+  const SPRITE_TINT = { focus: 1, weekend: .88, golden: .85, night: .45, sunday: .8, series: .6 };
   const chosen = { wall: "paper", rug: "modern", window: "linen", bedding: "stone", posters: "C", tv: "auto", led: "auto", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
@@ -1324,7 +1324,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     e.add(new THREE.Mesh(new THREE.BoxGeometry(8, 5, 8), new THREE.MeshBasicMaterial({ map: grad, side: THREE.BackSide })));
     const win = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.5), new THREE.MeshBasicMaterial({ color: "#ffffff" })); win.position.set(0, 0, -3.9); e.add(win);
     const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(e, .04).texture; pm.dispose(); }
-  const envLevel = { focus: .26, weekend: .2, night: .08, sunday: .22, series: .12 };
+  const envLevel = { focus: .26, weekend: .2, golden: .2, night: .08, sunday: .22, series: .12 };
   const applyEnv = (name) => root.traverse((o) => { if (!o.isMesh) return; for (const m of [].concat(o.material)) if (m.isMeshStandardMaterial) m.envMapIntensity = o.name.startsWith("window-") || /^(wall|floor|ceiling)/.test(o.name) ? .08 * (envLevel[name] / .26) : envLevel[name]; });
 
   // Contact shadows: a soft dark footprint under each piece, where a real room is darkest (the renderer's shadows cannot reach there).
@@ -1435,6 +1435,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
                bedLamp: 0, shade: .12, screen: .4, led: .6, glow: .35, ceiling: .35, monitor: 1, tv: 0, blind: .18, deskSpot: 3.4, ledCol: "#ffb066", screenCol: "#c6cdf0" },
     weekend: { time: "day",   sky: "#efe5d8", bg: "#d6cbbb", exposure: 1.08, hemi: [.85, "#f3e6d4", "#cdb79a"], sun: [1.1, "#ffe2b8", 2.3], fill: [4.5, "#ffcf96"],
                bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45, deskSpot: 2.4, ledCol: "#ffb066", screenCol: "#c6cdf0" },
+    // Golden hour: the painted day view warmed to late afternoon, a low orange sun that throws the window's long shadows across the floor, the blind open, one lamp just coming on
+    golden:  { time: "day",   sky: "#ffcf9a", bg: "#d5bf9f", exposure: 1.14, hemi: [.78, "#ffe0bd", "#c7a578"], sun: [2.8, "#ffb263", 1.15], fill: [3.4, "#ffc487"],
+               bedLamp: 1.6, shade: .55, screen: 0, led: .45, glow: .2, ceiling: 0, monitor: .6, tv: 0, blind: .08, deskSpot: 2.0, ledCol: "#ffb066", screenCol: "#c6cdf0" },
     night:   { time: "night", sky: "#ffffff", bg: "#1d2230", exposure: 1.05, hemi: [.44, "#7d8fb8", "#3a3442"], sun: [0, "#9db4ff", 2.3], fill: [1.5, "#ffcf9a"],
                bedLamp: .7, shade: .55, screen: 2.8, led: 1.4, glow: .45, ceiling: 0, monitor: 1.3, tv: 0, blind: .18, deskSpot: 4.2, ledCol: "#8f7bff", screenCol: "#8f9bff" }, // the violet gamer glow, as it was
     sunday:  { time: "day",   sky: "#ffe6cc", bg: "#dccdb9", exposure: 1.1, hemi: [1.0, "#f8e7d5", "#d6c2a4"], sun: [1.8, "#ffcf94", 1.45], fill: [2.5, "#ffd9b0"],
