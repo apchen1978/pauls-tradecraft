@@ -89,10 +89,10 @@ export async function start({ stage, lang = "zh" }) {
     return t;
   };
   const ceil = { glow: null }; // the pool of light on the ceiling
-  const CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2 };
+  const CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2, series: 0 };
   const live = { mood: "focus" }; // the current mood, readable before the moods block exists
-  const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8 };
-  const chosen = { wall: "paper", rug: "modern", window: "linen", bedding: "stone", posters: "C", tv: "auto", led: "amber", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
+  const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8, series: .6 };
+  const chosen = { wall: "paper", rug: "modern", window: "linen", bedding: "stone", posters: "C", tv: "auto", led: "auto", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -1003,7 +1003,7 @@ export async function start({ stage, lang = "zh" }) {
     e.add(new THREE.Mesh(new THREE.BoxGeometry(8, 5, 8), new THREE.MeshBasicMaterial({ map: grad, side: THREE.BackSide })));
     const win = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.5), new THREE.MeshBasicMaterial({ color: "#ffffff" })); win.position.set(0, 0, -3.9); e.add(win);
     const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(e, .04).texture; pm.dispose(); }
-  const envLevel = { focus: .26, weekend: .2, night: .08, sunday: .22 };
+  const envLevel = { focus: .26, weekend: .2, night: .08, sunday: .22, series: .12 };
   const applyEnv = (name) => root.traverse((o) => { if (!o.isMesh) return; for (const m of [].concat(o.material)) if (m.isMeshStandardMaterial) m.envMapIntensity = o.name.startsWith("window-") || /^(wall|floor|ceiling)/.test(o.name) ? .08 * (envLevel[name] / .26) : envLevel[name]; });
 
   // Contact shadows: a soft dark footprint under each piece, where a real room is darkest (the renderer's shadows cannot reach there).
@@ -1104,22 +1104,30 @@ export async function start({ stage, lang = "zh" }) {
     }),
   };
   const applyTv = (moodName) => { // "auto": the TV plays a film on the weekend mood and is off otherwise; the visitor can force it
-    const mode = chosen.tv === "auto" ? (moodName === "weekend" ? "film" : "off") : chosen.tv;
+    const mode = chosen.tv === "auto" ? (moodName === "weekend" || moodName === "series" ? "film" : "off") : chosen.tv;
     tvFace.material.emissiveMap = mode === "off" ? null : tvTex[mode]; tvFace.material.emissiveIntensity = mode === "off" ? 0 : .9; tvFace.material.needsUpdate = true;
   };
   const blindFabric = root.getObjectByName("blind-fabric"), blindBar = root.getObjectByName("blind-bar");
   const setBlind = (drop) => { blindFabric.scale.y = drop / .18; blindFabric.position.y = wTop - drop / 2; blindBar.position.y = wTop - drop; };
   const MOODS = {
     focus:   { time: "day",   sky: "#ffffff", bg: "#d9d4c8", exposure: 1.20, hemi: [1.05, "#e8f0f8", "#d6c6aa"], sun: [2.3, "#fff3df", 2.3], fill: [4.8, "#ffe9cf"],
-               bedLamp: 0, shade: .12, screen: .4, led: .6, glow: .35, ceiling: .35, monitor: 1, tv: 0, blind: .18, deskSpot: 3.4 },
+               bedLamp: 0, shade: .12, screen: .4, led: .6, glow: .35, ceiling: .35, monitor: 1, tv: 0, blind: .18, deskSpot: 3.4, ledCol: "#ffb066", screenCol: "#c6cdf0" },
     weekend: { time: "day",   sky: "#efe5d8", bg: "#d6cbbb", exposure: 1.08, hemi: [.85, "#f3e6d4", "#cdb79a"], sun: [1.1, "#ffe2b8", 2.3], fill: [4.5, "#ffcf96"],
-               bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45, deskSpot: 2.4 },
+               bedLamp: 3, shade: .9, screen: 0, led: .25, glow: .15, ceiling: .1, monitor: .45, tv: .9, blind: .45, deskSpot: 2.4, ledCol: "#ffb066", screenCol: "#c6cdf0" },
     night:   { time: "night", sky: "#ffffff", bg: "#1d2230", exposure: 1.05, hemi: [.44, "#7d8fb8", "#3a3442"], sun: [0, "#9db4ff", 2.3], fill: [1.5, "#ffcf9a"],
-               bedLamp: .7, shade: .55, screen: 1.8, led: 1.4, glow: .35, ceiling: 0, monitor: 1.3, tv: 0, blind: .18, deskSpot: 4.2 },
+               bedLamp: .7, shade: .55, screen: 2.8, led: 1.4, glow: .45, ceiling: 0, monitor: 1.3, tv: 0, blind: .18, deskSpot: 4.2, ledCol: "#8f7bff", screenCol: "#8f9bff" }, // the violet gamer glow, as it was
     sunday:  { time: "day",   sky: "#ffe6cc", bg: "#dccdb9", exposure: 1.1, hemi: [1.0, "#f8e7d5", "#d6c2a4"], sun: [1.8, "#ffcf94", 1.45], fill: [2.5, "#ffd9b0"],
-               bedLamp: 0, shade: .1, screen: 0, led: 0, glow: 0, ceiling: 0, monitor: .2, tv: 0, blind: .62, deskSpot: 1.8 },
+               bedLamp: 0, shade: .1, screen: 0, led: 0, glow: 0, ceiling: 0, monitor: .2, tv: 0, blind: .62, deskSpot: 1.8, ledCol: "#ffb066", screenCol: "#c6cdf0" },
+    // Room 01's 追劇夜 (series night), now here too: ceiling light off, the TV playing, the amber strip and one warm lamp, the blind drawn most of the way
+    series:  { time: "night", sky: "#ffffff", bg: "#1b2030", exposure: 1.12, hemi: [.62, "#7a86ad", "#4a4350"], sun: [0, "#9db4ff", 2.3], fill: [1.9, "#ffb978"],
+               bedLamp: 3, shade: .9, screen: .8, led: 1.7, glow: .6, ceiling: 0, monitor: .55, tv: 1.2, blind: .5, deskSpot: 1.7, ledCol: "#ff9a55", screenCol: "#c6cdf0" },
   };
   let mood = "focus";
+  // The strip's colour follows the mood unless the visitor picked one ("auto"): amber by day, violet for the late-night game, deeper amber for the series night
+  function applyLed() {
+    const m = MOODS[mood], auto = chosen.led === "auto", c = auto ? m.ledCol : CHOICES.led[chosen.led];
+    ledStrip.material.color.set(c); ledStrip.material.emissive.set(c); ledGlow.material.color.set(c); screenLight.color.set(auto ? m.screenCol : c);
+  }
   async function setMood(name) {
     const m = MOODS[name];
     if (!m) return false;
@@ -1133,7 +1141,7 @@ export async function start({ stage, lang = "zh" }) {
     fill.intensity = m.fill[0]; fill.color.set(m.fill[1]);
     bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; for (const sp of roomSpots) sp.intensity = m.deskSpot * .7; lensMat.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
-    ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow;
+    ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow; applyLed();
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
     applyTv(name);
     setBlind(m.blind);
@@ -1186,8 +1194,8 @@ export async function start({ stage, lang = "zh" }) {
       duvetMat.map = weaveTexture(d0, d1); throwMat.map = weaveTexture(t0, t1);
       if (value === "stone") useBeddingArt();
       duvetMat.needsUpdate = throwMat.needsUpdate = true;
-    } else if (kind === "led" && CHOICES.led[value]) {
-      const c = CHOICES.led[value]; ledStrip.material.color.set(c); ledStrip.material.emissive.set(c); ledGlow.material.color.set(c); screenLight.color.set(c);
+    } else if (kind === "led" && (value === "auto" || CHOICES.led[value])) {
+      chosen.led = value; applyLed();
     } else if (kind === "desktop" && CHOICES.desktop.includes(value)) {
       for (const [n, g] of Object.entries(deskSets)) g.visible = n === value;
     } else if (kind === "screen" && CHOICES.screen.includes(value)) {

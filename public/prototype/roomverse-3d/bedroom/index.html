@@ -45,6 +45,7 @@
   .moods { margin: 12px clamp(16px, 3vw, 40px) 0; }
   .moods .row { display: flex; flex-wrap: wrap; gap: 8px; }
   .moods button { font: inherit; font-size: 14px; font-weight: 700; padding: 10px 14px; min-height: 44px; border-radius: 999px; border: 1px solid #a8afa5; background: var(--paper); color: var(--moss); cursor: pointer; }
+  .moods button.shuffle { background: var(--moss); color: #fff; border-color: var(--moss); }
   .moods button[aria-pressed="true"] { background: var(--moss); color: #fff; border-color: var(--moss); }
   .moods button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .moods p { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; min-height: 1.6em; }
@@ -92,6 +93,6 @@
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=49"></script>
+<script type="module" src="page.js?v=50"></script>
 </body>
 </html>
