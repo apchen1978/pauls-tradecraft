@@ -677,6 +677,19 @@ export async function start({ stage, lang = "zh" }) {
     chair.add(g, marker); redraw();
   }).catch(() => {});
 
+  // Lived-in (Paul 2026-10-23: a casual young person really lives here): Codex's sneakers (batch 15) kicked off just inside the door on a small mat, and a
+  // campus backpack on the floor beside the desk chair. The files' pale colours wash out here, so the parts are re-coloured in sRGB by material name.
+  const recolour = (g, colours) => g.traverse((o) => { if (o.isMesh && colours[o.material.name]) { o.material.color.set(colours[o.material.name]); o.material.vertexColors = false; o.material.needsUpdate = true; } });
+  { const mat = new THREE.Mesh(rb(.55, .012, .34), new THREE.MeshStandardMaterial({ color: "#b9a78a", roughness: 1 }), "door-mat"); mat.name = "door-mat"; mat.position.set(DOOR.x - .02, .006, HD - .42); mat.receiveShadow = true; root.add(mat); }
+  loadGlb(new URL("./models/sneakers-cream-rust-v1.glb", import.meta.url).href, { roughness: .8 }).then((g) => {
+    recolour(g, { upper: "#ece6dc", sole: "#d9cdb8", accent: "#c4622d", laces: "#f1ece3", lining: "#3a3a3e" });
+    g.name = "sneakers"; g.position.set(DOOR.x - .02, .012, HD - .42); g.rotation.y = Math.PI + .5; root.add(g); redraw(); // toes towards the room, the way they come off at the door
+  }).catch(() => {});
+  loadGlb(new URL("./models/campus-backpack-v1.glb", import.meta.url).href, { roughness: .85 }).then((g) => {
+    recolour(g, { body: "#33405a", strap: "#2f3136", zip: "#c4622d", base: "#1f2125" });
+    g.name = "backpack"; g.position.set(-.5, 0, -1.2); g.rotation.order = "YXZ"; g.rotation.set(-.12, .9, 0); root.add(g); redraw(); // leaning back a little, as if just put down
+  }).catch(() => {});
+
   // ---------- lounge zone: sofa facing a TV on the west wall, coffee table, bookshelf ----------
   // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
   // 43-inch TV 95 x 55 cm on a 45 cm low console, about 3 m from the sofa; bookshelf 75 x 30 x 180 cm. Books carry no text.
