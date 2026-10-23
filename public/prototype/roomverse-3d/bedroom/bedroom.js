@@ -92,7 +92,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const CEILING_GLOW = { focus: .55, weekend: .34, golden: .18, night: 0, sunday: .2, series: 0 };
   const live = { mood: "focus" }; // the current mood, readable before the moods block exists
   const SPRITE_TINT = { focus: 1, weekend: .88, golden: .85, night: .45, sunday: .8, series: .6 };
-  const chosen = { wall: "paper", rug: "modern", window: "linen", bedding: "stone", posters: "C", tv: "auto", led: "auto", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
+  const chosen = { wall: "paper", rug: "modern", window: "linen", bedding: "olive", posters: "C", tv: "auto", led: "auto", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -681,16 +681,22 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     ctx.fillStyle = "#d8d1c4"; ctx.fillRect(0, 0, w, h);
     for (let i = 0; i < 420; i++) { ctx.fillStyle = `rgba(${i % 2 ? "120,108,92" : "255,252,244"},${.03 + (i % 5) * .012})`; ctx.fillRect((i * 67) % w, (i * 29) % h, 6 + (i * 13) % 26, 1 + (i % 2)); }
   }, { repeat: [1.6, 1.6] });
+  const BED_TINT = { olive: "#c6c9b0" };
   const useBeddingArt = () => { // the painted weaves belong to the "stone" bedding; the other sets keep their code-drawn weaves
     duvetMat.map = beddingArt.duvet ?? linenNoise(); const k = beddingArt.duvet ? 1.25 : 1; duvetMat.color.setRGB(DUVET_TINT[0] * k, DUVET_TINT[1] * k, DUVET_TINT[2] * k); duvetMat.needsUpdate = true;
+    if (BED_TINT[chosen.bedding]) duvetMat.color.set(BED_TINT[chosen.bedding]); // the olive set tints the same painted linen
     if (!beddingArt.throw) return;
     throwMat.map = beddingArt.throw; throwMat.color.setScalar(1.35); throwMat.needsUpdate = true;
   };
   duvetMat.map = linenNoise();
-  art("room02-throw-knit-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone") useBeddingArt(); } });
-  art("room02-duvet-linen-v1.webp", { repeat: [5.7, 5.7], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
+  art("room02-throw-knit-v1.webp", { repeat: [3.3, 3.3], apply: (t) => { beddingArt.throw = t; if (chosen.bedding === "stone" || chosen.bedding === "olive") useBeddingArt(); } });
+  art("room02-duvet-linen-v1.webp", { repeat: [5.7, 5.7], apply: (t) => { beddingArt.duvet = t; if (chosen.bedding === "stone" || chosen.bedding === "olive") useBeddingArt(); } }); // Codex's plain greige linen, about 30 cm a tile
   const pillowMat = new THREE.MeshStandardMaterial({ color: "#f3eee3", roughness: .95, side: THREE.DoubleSide });
-  art("room02-pillow-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = t; pillowMat.color.set("#ffffff"); pillowMat.needsUpdate = true; } });
+  const pillowMatB = pillowMat.clone(); // two pillows, two colours (Paul 2026-10-24: two white ones looked like a hotel): an American pair, each bedding set has its own
+  const PILLOWS = { olive: ["#2f4258", "#c0703f"], stone: ["#2f4258", "#c0703f"], mist: ["#f1ede4", "#b9573f"], clay: ["#e8dfcf", "#2f3b52"] }; // navy + rust, cream + rust, oat + navy
+  const setPillows = (set) => { const [a, b] = PILLOWS[set] ?? PILLOWS.olive; pillowMat.color.set(a); pillowMatB.color.set(b); pillowMat.needsUpdate = pillowMatB.needsUpdate = true; };
+  setPillows(chosen.bedding);
+  art("room02-pillow-cotton-v1.webp", { repeat: [2.3, 1.5], apply: (t) => { pillowMat.map = pillowMatB.map = t; setPillows(chosen.bedding); } });
   const bed = new THREE.Group(); bed.name = "bed"; root.add(bed);
   const part = (geo, mat, name, x, y, z) => {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; bed.add(m); return m;
@@ -818,7 +824,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // 19 cm pillow. The grey cushion that leaned on it is gone (Paul: it looked fake); the pillow alone reads cleaner.
   const bedPillow = part(pillowGeo(.7, .19, .46, .026), pillowMat, "bed-pillow", BED.x - .38, BED.top + .082, north + .36);
   bedPillow.rotation.set(0, .05, .012);
-  part(pillowGeo(.7, .19, .46, .026), pillowMat, "bed-pillow-2", BED.x + .38, BED.top + .082, north + .36).rotation.set(0, -.04, -.01); // a double bed: two pillows
+  part(pillowGeo(.7, .19, .46, .026), pillowMatB, "bed-pillow-2", BED.x + .38, BED.top + .082, north + .36).rotation.set(0, -.04, -.01); // a double bed: two pillows
   // bedside table in the cream-and-walnut style Paul sent a photo of (40 x 40 x 50 cm): a walnut top with a small overhang, a soft cream body with two drawer
   // fronts and a dark gap between them, a black plinth; and a lamp with a turned walnut base and a cone shade; the shade glows a little by itself
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
@@ -1498,7 +1504,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     wall: { paper: "#ffffff", oat: "#f3eadb", latte: "#e6d2b5", warmGrey: "#d9d3ca", sage: "#c6cfb6", terracotta: "#d9967a", slate: "#66717e" },
     rug: { modern: () => rugArt.modern ?? weaveTexture("#e8dfd2", "#b9ab97"), stripe: () => rugArt.stripe ?? weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), oat: () => rugArt.oat ?? weaveTexture("#e0d2b8", "#9a8662"), oak: () => oakBorderRug },
     window: ["roller", "bamboo", "linen"],
-    bedding: { stone: ["#d9d4ca", "#b9b2a3", "#4b5059", "#33373d", "#7b8794"], mist: ["#ccd6df", "#9fb0bf", "#f1ede4", "#cfc6b4", "#2f3b52"], clay: ["#e8dfcf", "#bfae8f", "#b9573f", "#8c3b2e", "#c9a14e"] },
+    bedding: { olive: ["#aeb596", "#8f967a", "#4b5059", "#33373d", "#7b8794"], stone: ["#d9d4ca", "#b9b2a3", "#4b5059", "#33373d", "#7b8794"], mist: ["#ccd6df", "#9fb0bf", "#f1ede4", "#cfc6b4", "#2f3b52"], clay: ["#e8dfcf", "#bfae8f", "#b9573f", "#8c3b2e", "#c9a14e"] },
     posters: ["A", "B", "C"],
     led: { violet: "#8f7bff", cyan: "#4fd1ff", amber: "#ffb066", pink: "#ff6fb5", white: "#e8f0ff" },
     desktop: ["minimal", "gamer", "coffee", "creative"],
@@ -1519,7 +1525,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       const [d0, d1, t0, t1] = CHOICES.bedding[value];
       duvetMat.color.setRGB(...DUVET_TINT); throwMat.color.set("#ffffff");
       duvetMat.map = weaveTexture(d0, d1); throwMat.map = weaveTexture(t0, t1);
-      if (value === "stone") useBeddingArt();
+      chosen.bedding = value; setPillows(value);
+      if (value === "stone" || value === "olive") useBeddingArt();
       duvetMat.needsUpdate = throwMat.needsUpdate = true;
     } else if (kind === "led" && (value === "auto" || CHOICES.led[value])) {
       chosen.led = value; applyLed();
