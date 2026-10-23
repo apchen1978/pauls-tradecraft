@@ -676,7 +676,9 @@ test("Slow Sunday: fifth mood restores from the URL, keeps its pairing note, and
 });
 
 test("golden hour works in both languages, stays readable, and gives mobile shuffle a full row", async ({ page }) => {
-  const output = "docs/qa/roomverse-golden-hour";
+  const output = "docs/qa/roomverse-golden-hour-v2";
+  const pageErrors = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
   await mkdir(output, { recursive: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${PAGE}?lang=zh&mood=golden`);
@@ -695,9 +697,38 @@ test("golden hour works in both languages, stays readable, and gives mobile shuf
   await expect(page.locator("#roomToolbar button")).toHaveCount(2);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `${output}/golden-390.png`, fullPage: true });
+  const brightness = async () => page.evaluate(() => {
+    const image = window.__room.postcard({ includeMood: false });
+    const width = image.width, height = document.querySelector("#stage canvas").height;
+    const data = image.getContext("2d").getImageData(0, 0, width, height).data;
+    const step = Math.max(1, Math.floor(width / 120)); let total = 0, samples = 0, nearBlack = 0, nearWhite = 0;
+    for (let y = step; y < height; y += step) for (let x = step; x < width; x += step) {
+      const i = (y * width + x) * 4, r = data[i], g = data[i + 1], b = data[i + 2];
+      total += .2126 * r + .7152 * g + .0722 * b; samples++;
+      if (Math.max(r, g, b) < 10) nearBlack++;
+      if (Math.min(r, g, b) > 250) nearWhite++;
+    }
+    return { mean: total / samples, nearBlack: nearBlack / samples, nearWhite: nearWhite / samples };
+  });
+  const mobileBrightness = await brightness();
+  expect(mobileBrightness.mean, JSON.stringify(mobileBrightness)).toBeGreaterThan(25);
+  expect(mobileBrightness.mean, JSON.stringify(mobileBrightness)).toBeLessThan(225);
+  expect(mobileBrightness.nearBlack, JSON.stringify(mobileBrightness)).toBeLessThan(.7);
+  expect(mobileBrightness.nearWhite, JSON.stringify(mobileBrightness)).toBeLessThan(.3);
+  for (const mood of ["rain", "slow"]) {
+    await page.locator(`#panel .opts[aria-label="感覺"] button[data-key="${mood}"]`).click();
+    await page.waitForTimeout(700);
+    await page.locator("#stage").screenshot({ path: `${output}/${mood}-stage-390.png` });
+  }
+  await page.locator('#panel .opts button[data-key="golden"]').click();
+  await page.waitForTimeout(700);
+  await page.locator("#stage").screenshot({ path: `${output}/golden-stage-390.png` });
   await shuffle.click();
   await expect(page).toHaveURL(/mood=golden/);
   await expect(moodGroup.locator('button[data-key="golden"]')).toHaveAttribute("aria-pressed", "true");
+  for (const [group, key] of [[1, "sand"], [2, "stripe"], [3, "linen"], [4, "hills"]]) {
+    await page.locator("#panel .opts").nth(group).locator(`button[data-key="${key}"]`).click();
+  }
   const downloadPromise = page.waitForEvent("download");
   await page.locator("#roomToolbar button").filter({ hasText: "存成明信片" }).click();
   expect((await downloadPromise).suggestedFilename()).toBe("ROOMVERSE-3D-明信片.png");
@@ -712,6 +743,18 @@ test("golden hour works in both languages, stays readable, and gives mobile shuf
   await expect(page.locator("#panel .panel-shuffle")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `${output}/golden-1440.png`, fullPage: true });
+  await page.locator("#stage").screenshot({ path: `${output}/golden-stage-1440.png` });
+  const desktopBrightness = await brightness();
+  expect(desktopBrightness.mean, JSON.stringify(desktopBrightness)).toBeGreaterThan(25);
+  expect(desktopBrightness.mean, JSON.stringify(desktopBrightness)).toBeLessThan(225);
+  expect(desktopBrightness.nearBlack, JSON.stringify(desktopBrightness)).toBeLessThan(.7);
+  expect(desktopBrightness.nearWhite, JSON.stringify(desktopBrightness)).toBeLessThan(.3);
+  for (const mood of ["rain", "slow"]) {
+    await page.locator(`#panel .opts[aria-label="Feeling"] button[data-key="${mood}"]`).click();
+    await page.waitForTimeout(700);
+    await page.locator("#stage").screenshot({ path: `${output}/${mood}-stage-1440.png` });
+  }
+  expect(pageErrors).toEqual([]);
 });
 
 test("existing mood postcards keep the original one-line design when it fits and wrap only when needed", async ({ page }) => {
