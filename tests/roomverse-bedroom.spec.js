@@ -417,10 +417,10 @@ test("the page switches between Chinese and English", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
   await expect(page).toHaveTitle(/ROOMVERSE 3D｜空間幻境/);
-  await expect(page.locator("#roomNo")).toHaveText("Room 02 · Night Shift");
+  await expect(page.locator("#roomNo")).toHaveText("Room 02 · Brooklyn Studio");
   await expect(page.locator("#title")).toHaveText("Room 02 都市青年Style");
   await page.locator("#lang").click();
-  await expect(page.locator("#roomNo")).toHaveText("Room 02 · Night Shift");
+  await expect(page.locator("#roomNo")).toHaveText("Room 02 · Brooklyn Studio");
   await expect(page.locator("#title")).toHaveText("Room 02 · Urban Youth Style");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });
