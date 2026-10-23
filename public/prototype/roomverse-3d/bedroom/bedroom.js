@@ -664,12 +664,12 @@ export async function start({ stage, lang = "zh" }) {
   });
   const tvScreen = new THREE.MeshStandardMaterial({ color: "#ffffff", map: tvReflect, roughness: .12, metalness: .3 });
   // the sofa is Codex's own Japandi model (not Room 01's), slate blue-grey, front looking west
-  const sofa = await loadGlb(new URL("./models/sofa-japandi-v1.glb", import.meta.url).href, { roughness: .95, weave: true }); sofa.name = "sofa"; // Codex's low Japandi two-seater (batch 10): 'fabric' and 'legs' meshes, neutral oat vertex colours
-  sofa.traverse((o) => { if (o.isMesh && o.name !== "legs") o.material.color.set("#8197ab"); else if (o.isMesh) o.scale.y = 1.35; }); // the slate-blue cover; the legs are 35 % longer so their tops go into the rounded underside (at 1:1 they hung below it, not touching)
+  const sofa = await loadGlb(new URL("./models/sofa-hunyuan-v1.glb", import.meta.url).href, { roughness: .95, weave: true }); sofa.name = "sofa"; // Codex's Hunyuan-made Japandi two-seater (batch 11, 11.9k triangles): two height-zone materials, 'legs_wood_height_zone' and 'upholstery_height_zone'
+  sofa.traverse((o) => { if (!o.isMesh) return; o.material.vertexColors = false; o.material.color.set(o.material.name.startsWith("legs") ? "#b38759" : "#8197ab"); o.material.needsUpdate = true; }); // its painted colours came out as blotches: plain slate-blue cover and room-oak legs
   sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
   // Codex's two cushions (batch 9), not Room 01's: a blue-grey square turned on its corner at one end, an oat-and-sage striped lumbar at the other.
   // (the GLBs lie flat, thin along y: a quarter turn about x stands them up facing the room, rx then leans them back, ry spins them on their face)
-  for (const [file, name, x, y, z, rx, ry, rz] of [["diamond-cushion-v1.glb", "sofa-cushion-diamond", -.46, .66, -.1, -.3, Math.PI / 4, 0], ["lumbar-cushion-v1.glb", "sofa-cushion-lumbar", .5, .62, -.13, -.32, 0, .05]]) {
+  for (const [file, name, x, y, z, rx, ry, rz] of [["diamond-cushion-v1.glb", "sofa-cushion-diamond", -.4, .62, -.08, -.3, Math.PI / 4, 0], ["lumbar-cushion-v1.glb", "sofa-cushion-lumbar", .36, .5, -.1, -.32, 0, .05]]) {
     loadGlb(new URL(`./models/${file}`, import.meta.url).href, { anchor: "center", roughness: 1, weave: true }).then((g) => { g.name = name; if (name.endsWith("lumbar")) g.traverse((o) => { if (o.isMesh) { o.material.vertexColors = false; o.material.color.set("#e2d6c0"); o.material.needsUpdate = true; } }); /* the stripes came out as grey smudges: a plain oat cover */ g.position.set(x, y, z); g.rotation.set(Math.PI / 2 + rx, ry, rz); sofa.add(g); redraw(); }).catch(() => {});
   }
   // Round coffee table (72 cm, 38 cm high): a travertine top on a dark metal ring base (Codex's D2 reference), plus a small side table.
