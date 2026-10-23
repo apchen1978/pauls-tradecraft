@@ -51,7 +51,7 @@ const MOODS = {
 };
 
 export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = false }) {
-  const compactRender = matchMedia("(max-width: 600px)").matches;
+  const compactRender = matchMedia("(max-width: 768px), (max-width: 1024px) and (max-height: 500px)").matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compactRender ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -1568,7 +1568,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const u = new URL(location.href);
     for (const k in CHOICES) u.searchParams.set(k, state[k]);
     if (currentView === "tv") u.searchParams.set("view", "tv"); else u.searchParams.delete("view");
-    history.replaceState(null, "", u);
+    history.replaceState(history.state, "", u);
   }
   function setCameraAngle(theta, radius = orbitRadius, phi = orbitPhi) {
     controls.target.copy(orbitCenter);
@@ -1627,6 +1627,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     // the panel is rebuilt on every choice; remember which button had focus so keyboard users stay where they were
     const had = document.activeElement;
     const toolbar = document.getElementById("roomToolbar");
+    const immersiveControls = document.getElementById("immersiveControls");
+    const immersiveScroll = immersiveControls ? [...immersiveControls.querySelectorAll(".immersive-row")].map((row) => row.scrollLeft) : [];
+    const immersiveFocus = immersiveControls?.contains(had) ? { view: had.dataset.view, mood: had.dataset.key, shuffle: had.classList.contains("shuffle") } : null;
     let keep = null;
     if (had && (panel.contains(had) || toolbar?.contains(had))) {
       const g = had.closest(".opts");
@@ -1680,6 +1683,23 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     if (keep) {
       const target = keep.c ? (toolbar?.querySelector("." + keep.c) || panel.querySelector("." + keep.c)) : panel.querySelectorAll(".opts")[keep.g]?.querySelector(`button[data-key="${keep.k}"]`);
       target?.focus({ preventScroll: true });
+    }
+    if (immersiveControls) {
+      const views = document.createElement("div"); views.className = "immersive-row"; views.setAttribute("role", "group"); views.setAttribute("aria-label", state.lang === "zh" ? "房間視角" : "Room view");
+      for (const [view, label] of [["window", t.windowView], ["tv", t.tvView]]) {
+        const b = document.createElement("button"); b.type = "button"; b.dataset.view = view; b.textContent = label; b.setAttribute("aria-pressed", String(currentView === view)); b.onclick = () => { moveToView(view); drawPanel(); }; views.append(b);
+      }
+      const moods = document.createElement("div"); moods.className = "immersive-row"; moods.setAttribute("role", "group"); moods.setAttribute("aria-label", t.mood);
+      for (const [key, item] of Object.entries(MOODS)) {
+        const b = document.createElement("button"); b.type = "button"; b.dataset.key = key; b.textContent = item[state.lang]; b.setAttribute("aria-pressed", String(state.mood === key)); b.onclick = () => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); choose("mood", key); toUrl(); }; moods.append(b);
+      }
+      const shuffleButton = document.createElement("button"); shuffleButton.type = "button"; shuffleButton.className = "shuffle"; shuffleButton.textContent = state.lang === "zh" ? "隨機搭一間" : "Random room"; shuffleButton.setAttribute("aria-label", t.shuffle); shuffleButton.onclick = () => shuffle(); moods.append(shuffleButton);
+      immersiveControls.replaceChildren(views, moods);
+      views.scrollLeft = immersiveScroll[0] ?? 0; moods.scrollLeft = immersiveScroll[1] ?? 0;
+      if (immersiveFocus) {
+        const target = immersiveFocus.view ? views.querySelector(`button[data-view="${immersiveFocus.view}"]`) : immersiveFocus.shuffle ? shuffleButton : moods.querySelector(`button[data-key="${immersiveFocus.mood}"]`);
+        target?.focus({ preventScroll: true });
+      }
     }
   }
   function staticTour(t) {
@@ -2710,6 +2730,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     guideRobot() { scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(guidePivot), c = b.getCenter(new THREE.Vector3()).project(camera); return { min: b.min.toArray(), max: b.max.toArray(), ndc: { x: c.x, y: c.y, z: c.z }, bubble: !robotBubble.hidden && bubbleTarget === guidePivot, phrase: robotBubble.textContent }; }, // local QA only
     faceDoorWall() { viewTheta = -Math.PI / 2; camera.position.copy(cameraAt(viewTheta)); camera.lookAt(controls.target); controls.update(); render(); }, // local QA only
     openPortal, closePortal,
+    resize() { fit(); render(); },
+    syncUrl: toUrl,
     beginReturnArrival, finishReturnArrival,
     returnArrival: () => arrival ? { active: true, elapsed: performance.now() - arrival.started, controlsEnabled: controls.enabled, camera: camera.position.toArray(), startPosition: arrival.startPosition.toArray(), doorOpen: doorSwing.rotation.y !== 0 } : { active: false, controlsEnabled: controls.enabled, camera: camera.position.toArray(), doorOpen: doorSwing.rotation.y !== 0 },
     doorNdc() { camera.updateMatrixWorld(); const v = new THREE.Vector3(W / 2, 1.0, doorZ - .1).project(camera); return { x: v.x, y: v.y, z: v.z }; }, // local QA only
