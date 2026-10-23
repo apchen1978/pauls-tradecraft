@@ -55,3 +55,14 @@ Paul 希望「和 AI 一起推開一扇門」的畫面更遼闊，並決定使�
 Paul 核准新完成的室內門窗畫，並指定在這組對照中放第一幅、上述開闊海灣畫放第二幅。第一版原稿保留在 `docs/gallery/sources/ai-lab-digital-room-original.png`；加上智能面板、窗上方冷暖氣機與霧藍織紋壁紙後的定稿另存 `docs/gallery/sources/ai-lab-digital-room-smart-home-wallpaper-v3.png`，沒有覆蓋任何既有畫作。畫廊桌機並排、手機上下排列；作品敘述將它標為概念插畫，不宣稱這是已存在的產品或技術。定稿與 1024／800／480px WebP 的 SHA256、大小與尺寸見 `docs/qa/human-ai-gallery/asset-manifest.json`。
 
 同一張定稿也替換 AI Lab 開場插畫：桌機為 1600×900 WebP；另以定稿為參照、重新構圖一張 780×1100 手機版，來源保留在 `docs/gallery/sources/ai-lab-digital-room-mobile-v1.png`。先前的開闊海灣插畫仍留在畫廊第二幅，舊 AI Lab 資產也沒有覆蓋。
+
+## 2026-10-24：ROOMVERSE 01 與 02 概念畫作
+
+Paul 選定兩幅加入畫廊：Room 01 使用精修機器人的畫家筆觸版本；Room 02 使用 Brooklyn Studio 畫家筆觸版本。兩幅都是概念畫作，沒有替換 ROOMVERSE 的作品封面或 3D 場景。
+
+| id | 原稿與製作證據 |
+| --- | --- |
+| roomverse-room01-concept | `docs/gallery/sources/roomverse-room01-concept-source.png`；參照 Room 01 已完成封面，以 ImageGen 增加畫家筆觸，再局部精修機器人。Paul 指定使用精修機器人的版本。 |
+| roomverse-room02-brooklyn-concept | `docs/gallery/sources/roomverse-room02-brooklyn-concept-source.png`；參照 Room 02 Brooklyn Studio 封面，以 ImageGen 加強布魯克林街屋、水塔、大橋與畫家筆觸。Paul 指定使用此版本。 |
+
+公開圖使用 1122×1402 原比例 WebP、800×1000 手機圖與 480×600 縮圖；檔案大小與 SHA256 記在 `docs/qa/human-ai-gallery/asset-manifest.json`。Room 02 畫面允許比互動場景更自由的城市想像，公開文字均標為概念畫作。
