@@ -237,13 +237,13 @@ export async function start({ stage, lang = "zh" }) {
 
   // ---------- materials ----------
   const wallMat = new THREE.MeshStandardMaterial({ color: "#f5eee2", roughness: .95 }); // designer pass: one family of warm whites on the plain walls, not three beiges
-  const mainWallMat = new THREE.MeshStandardMaterial({ color: "#f1e9db", roughness: .95 });
+  const mainWallMat = new THREE.MeshStandardMaterial({ color: "#f5ede0", roughness: .95 });
   const trimMat = new THREE.MeshStandardMaterial({ color: "#efe9dc", roughness: .7 });
   const frameMat = new THREE.MeshStandardMaterial({ color: "#f1ede4", roughness: .55 });
   const floorMat = new THREE.MeshStandardMaterial({ map: boardsTexture(), color: "#f0e7da", roughness: .66 }); // a touch less orange: natural oak, not honey
   art("room02-e1-oak-floor-v1.webp", { repeat: [ROOM.w / 1.2, ROOM.d / 1.2], apply: (t) => { floorMat.map = t; floorMat.needsUpdate = true; } }); // one picture is about 1.2 m of boards
   const ceilMat = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: 1 });
-  const doorMat = new THREE.MeshStandardMaterial({ color: "#a9825a", roughness: .62 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: "#f1ece3", roughness: .5 }); // a painted white interior door, the American way (was a plain tan slab)
   const metalMat = new THREE.MeshStandardMaterial({ color: "#8d8a84", roughness: .35, metalness: .6 });
 
   let renderSoon = null; // set to render() further down, once it exists
@@ -904,8 +904,8 @@ export async function start({ stage, lang = "zh" }) {
   } });
   // Room 01's wall pieces, rebuilt here (Paul 2026-10-23: use Room 01's own pieces). (1) The bed's side wall, the east wall beside the bed: Codex's three
   // American city posters (batch 14: San Francisco, New York, Los Angeles; Paul asked for pictures that fit an American flat) in thin oak frames,
-  // each 40 x 53 cm with its cream paper border, 10 cm apart, centred over the bed at 1.55 m.
-  { const PW = .4, PH = .4 * 4 / 3, GAP = .1, g = new THREE.Group(); g.name = "bed-wall-print"; g.position.set(HW - .02, 1.55, BED.z); g.rotation.y = -Math.PI / 2; root.add(g);
+  // each 50 x 67 cm with its cream paper border, 10 cm apart, centred over the bed at 1.55 m.
+  { const PW = .5, PH = .5 * 4 / 3, GAP = .1, g = new THREE.Group(); g.name = "bed-wall-print"; g.position.set(HW - .02, 1.55, BED.z); g.rotation.y = -Math.PI / 2; root.add(g);
     const frameOak = new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 });
     ["san-francisco", "new-york", "los-angeles"].forEach((city, i) => {
       const x = (i - 1) * (PW + GAP + .03), fr = new THREE.Mesh(new THREE.BoxGeometry(PW + .03, PH + .03, .03), frameOak); fr.position.set(x, 0, 0); fr.castShadow = true; fr.receiveShadow = true; g.add(fr);
@@ -948,7 +948,7 @@ export async function start({ stage, lang = "zh" }) {
   // one slim mirror door, a dark rail top and bottom. 160 x 55 cm, 225 cm high, clear of the door (x < -0.7) and the light switch.
   { const W = { w: 1.6, d: .55, h: 2.25, x: .4 }, wz = HD - W.d / 2, g = new THREE.Group(); g.name = "wardrobe"; g.visible = centred; root.add(g); // shown while standing in the middle (the opening look)
     const mirrorTex = canvasTex(64, 256, (ctx, w, h) => { const gr = ctx.createLinearGradient(0, 0, w, h); gr.addColorStop(0, "#c9d3da"); gr.addColorStop(.35, "#eef3f5"); gr.addColorStop(.5, "#d6dee3"); gr.addColorStop(1, "#aeb9c1"); ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(26, 0); ctx.lineTo(10, h); ctx.lineTo(-8, h); ctx.fill(); }); // a soft glass sheen, so the mirror reads as glass
-    const doorMat = new THREE.MeshStandardMaterial({ map: woodTex("#d8b98d", "rgba(110,76,40,A)", "rgba(255,240,215,A)"), roughness: .55 }); // plain veneer, drawn here: the painted oak is a strip made for boards and stretches on a tall door
+    const doorMat = new THREE.MeshStandardMaterial({ map: woodTex("#e4d3b6", "rgba(110,76,40,A)", "rgba(255,240,215,A)"), roughness: .55 }); // plain veneer, drawn here: the painted oak is a strip made for boards and stretches on a tall door
     const wp = hold(g), mirrorMat = new THREE.MeshStandardMaterial({ map: mirrorTex, color: "#ffffff", roughness: .08, metalness: .6, envMapIntensity: 1.2 }), railMat = new THREE.MeshStandardMaterial({ color: "#3a3c3f", roughness: .4, metalness: .5 });
     const dz = HD - W.d + .03; // the door plane, 3 cm inside the front edge; the room is north of the wall (smaller z)
     wp(box(W.w, W.h, W.d - .05), wallMat, "wardrobe-carcass", W.x, W.h / 2, HD - (W.d - .05) / 2);
@@ -1087,7 +1087,7 @@ export async function start({ stage, lang = "zh" }) {
   const shade = root.getObjectByName("lamp-shade"), shadePos = shade.getWorldPosition(new THREE.Vector3());
   const bedLamp = new THREE.PointLight("#ffc98a", 0, 3.2, 2); bedLamp.position.copy(shadePos).add(new THREE.Vector3(0, -.02, 0)); scene.add(bedLamp);
   const monitor = root.getObjectByName("monitor-screen"), monitorPos = monitor.getWorldPosition(new THREE.Vector3());
-  const screenLight = new THREE.PointLight("#8f9bff", 0, 3, 2); screenLight.position.copy(monitorPos).add(new THREE.Vector3(.35, 0, 0)); scene.add(screenLight);
+  const screenLight = new THREE.PointLight("#c6cdf0", 0, 3, 2); screenLight.position.copy(monitorPos).add(new THREE.Vector3(.35, 0, 0)); scene.add(screenLight);
   const ledStrip = root.getObjectByName("led-strip"), ledGlow = root.getObjectByName("led-glow"), ceilingLight = root.getObjectByName("ceiling-light");
   const tvFace = root.getObjectByName("tv-screen");
   tvFace.material.emissive.set("#ffffff");
