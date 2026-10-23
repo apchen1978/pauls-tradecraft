@@ -339,5 +339,67 @@
         "sha256": "130c363a40a7b24a40cbad111eeff5b30c3bb2c9ec22a7614cdf4e7c189f43fc"
       }
     ]
+  },
+  {
+    "id": "roomverse-room01-concept",
+    "source": "roomverse-room01-concept-source.png",
+    "sourceSha256": "818d6a144e0a4fb64632c3afd9f06e216e4a91558cd66809a56f0d44b85b9ecb",
+    "derivatives": [
+      {
+        "file": "roomverse-room01-concept.webp",
+        "width": 1122,
+        "height": 1402,
+        "bytes": 184396,
+        "quality": 82,
+        "sha256": "33bee6fca786a745d8de4ce420ae9366ceafa6b1d39dbeaf370e1f885b4644d2"
+      },
+      {
+        "file": "roomverse-room01-concept-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 92776,
+        "quality": 78,
+        "sha256": "c85236c26622869ccf79b80f53b799c90149f45c881ca19c911bd1740290a4df"
+      },
+      {
+        "file": "roomverse-room01-concept-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 36740,
+        "quality": 76,
+        "sha256": "cf4a17b4bdb1ee05d38c6bf86d58b4c4f77b26d93c91cbd4230839c4f891abf4"
+      }
+    ]
+  },
+  {
+    "id": "roomverse-room02-brooklyn-concept",
+    "source": "roomverse-room02-brooklyn-concept-source.png",
+    "sourceSha256": "bb13c518d6b1b5dc19bc98796e3e9f39328e1d4a90024f76f6ab573661d2043d",
+    "derivatives": [
+      {
+        "file": "roomverse-room02-brooklyn-concept.webp",
+        "width": 1122,
+        "height": 1402,
+        "bytes": 311396,
+        "quality": 82,
+        "sha256": "6a00d1fd3fac1078c97a3125e31dbca2c4cc29649116e2c2e134c77645224c3a"
+      },
+      {
+        "file": "roomverse-room02-brooklyn-concept-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 152154,
+        "quality": 78,
+        "sha256": "ea8be4d8bd53ac65789da57137eee6753260b3d2e3291c214700ea6e2d2b27d6"
+      },
+      {
+        "file": "roomverse-room02-brooklyn-concept-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 53474,
+        "quality": 76,
+        "sha256": "40d77648e73868cde678971d98f7682c18871d9d108401024d05204f1c650952"
+      }
+    ]
   }
 ]
