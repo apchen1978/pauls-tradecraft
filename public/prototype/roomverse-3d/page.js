@@ -17,6 +17,7 @@ const COPY = {
 };
 const $ = (id) => document.getElementById(id);
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
+const arrivedFromRoom02 = new URLSearchParams(location.search).get("from") === "room02";
 // Keep these sentences verbatim with the five story cards in feeling-to-room/app.js.
 const PEOPLE_STORIES = {
   rain: { zh: "加班到十點，外面下著雨。", en: "Working late; rain is falling outside." },
@@ -64,12 +65,13 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./app.js?v=33");
-    room = await start({ stage: $("stage"), panel: $("panel"), lang });
+    const { start } = await import("./app.js?v=34");
+    room = await start({ stage: $("stage"), panel: $("panel"), lang, arriveFromRoom02: arrivedFromRoom02 });
     $("status").hidden = true; $("panel").hidden = false; $("panelToggle").hidden = false; $("portalRow").hidden = false;
     $("roomToolbar").hidden = !matchMedia("(max-width: 768px)").matches;
     setPanelOpen(false);
     window.__room = room; // test hook
+    if (arrivedFromRoom02) room.beginReturnArrival();
     // The wall is outside the starting view; defer its optional maps until the room is interactive.
     setTimeout(() => room?.scheduleTvWallTextures(), 1800);
   } catch (e) {
@@ -78,4 +80,4 @@ $("enter").onclick = async () => {
   }
 };
 text();
-if (entryParams.get("from") === "room02") $("enter").click(); // PR1: return to the living room without the PR2 arrival animation
+if (arrivedFromRoom02) $("enter").click(); // the return trip opens straight into the living room arrival walk
