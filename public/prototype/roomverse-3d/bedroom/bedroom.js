@@ -714,8 +714,8 @@ export async function start({ stage, lang = "zh" }) {
     for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; h(box(.028, topY - topH / 2 - .02, .02), bronze, name + "-post", Math.cos(a) * r, (topY - topH / 2 - .02) / 2, Math.sin(a) * r).rotation.y = -a + Math.PI / 2; }
     return h;
   };
-  // The coffee table is gone (Paul: the middle of the room should breathe). The game pad lies on the TV rug and Codex's mug stands on the bedside table.
-  const padG = new THREE.Group(); padG.name = "game-pad-group"; padG.position.set(-.85, 0, 1.15); root.add(padG);
+  // The coffee table is gone (Paul: the middle of the room should breathe). The game pad lies on the TV unit and Codex's mug stands on the bedside table.
+  const padG = new THREE.Group(); padG.name = "game-pad-group"; root.add(padG); // moved onto the TV unit below
   const cp = hold(padG);
   loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => { g.name = "bedside-mug"; g.position.set(tx + .1, .5, tz + .11); g.rotation.y = -.7; root.add(g); redraw(); }).catch(() => {});
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
@@ -735,12 +735,17 @@ export async function start({ stage, lang = "zh" }) {
   tp(rb(.275, .053, .3), consoleBody, "game-console", .295, .17 + .0265, -.02);
   tp(rb(.265, .004, .29), consoleTop, "game-console-top", .295, .17 + .053 + .002, -.02);
   tp(box(.1, .003, .002), new THREE.MeshStandardMaterial({ color: "#4aa8ff", emissive: "#4aa8ff", emissiveIntensity: 1.4 }), "game-console-light", .295, .17 + .053 + .0045, .125);
-  // The pad is a real controller lying on the TV rug (PAD_BASE is the rug top), where you can see it (Paul: the console is a big thing in a young person's room):
-  // a rounded body, two grips angled back, two sticks, and a blue light bar. Codex's painted top lies on the body.
-  const PAD_BASE = .008, padX = 0, padZ = 0, padMat = new THREE.MeshStandardMaterial({ color: "#e9e6df", roughness: .5 }), padDark = new THREE.MeshStandardMaterial({ color: "#2a2b30", roughness: .55 });
-  const pad = cp(rb(.15, .028, .09), padMat, "game-pad", padX, PAD_BASE + .014, padZ); pad.rotation.y = .4;
-  for (const sx of [-1, 1]) { const grip = cp(rb(.045, .03, .085), padMat, "game-pad-grip", padX, PAD_BASE + .015, padZ); grip.rotation.y = .4; grip.translateX(sx * .062); grip.translateZ(.045); grip.rotateY(-sx * .35); }
-  for (const sx of [-1, 1]) { const st = cp(new THREE.CylinderGeometry(.013, .013, .01, 14), padDark, "game-pad-stick", padX, PAD_BASE + .033, padZ); st.rotation.y = .4; st.translateX(sx * .03); st.translateZ(.012); }
+  // The pad is a real controller lying on the TV unit's top beside the TV (Paul: on the rug it looked like a ghost with a white wrapper, so it moves up
+  // where it is clear): a dark graphite body with two grips angled towards you, two sticks, a small touch bar, a d-pad, four coloured buttons and a blue light bar.
+  tv.add(padG); padG.position.set(.4, .45, .1); padG.rotation.y = .35; // the unit's top face is at 45 cm; beside the TV foot, in front of the panel
+  const padBody = new THREE.MeshStandardMaterial({ color: "#2e3036", roughness: .5 }), padDark = new THREE.MeshStandardMaterial({ color: "#15161a", roughness: .5 }), padGrey = new THREE.MeshStandardMaterial({ color: "#5a5f68", roughness: .55 });
+  const pad = cp(rb(.15, .026, .095), padBody, "game-pad", 0, .013, 0);
+  for (const sx of [-1, 1]) cp(rb(.04, .024, .075), padBody, "game-pad-grip", sx * .052, .012, .032).rotation.y = -sx * .22;
+  for (const sx of [-1, 1]) { cp(new THREE.CylinderGeometry(.014, .014, .006, 16), padGrey, "game-pad-stick-base", sx * .03, .029, .018); cp(new THREE.CylinderGeometry(.011, .011, .012, 16), padDark, "game-pad-stick", sx * .03, .037, .018); }
+  cp(box(.04, .003, .02), padGrey, "game-pad-touch", 0, .0275, -.022);
+  cp(box(.03, .005, .009), padGrey, "game-pad-dpad", -.045, .0285, -.014); cp(box(.009, .005, .03), padGrey, "game-pad-dpad", -.045, .0285, -.014);
+  for (const [dx, dz, col] of [[0, -.014, "#c4622d"], [.014, 0, "#6f8568"], [0, .014, "#8197ab"], [-.014, 0, "#ece6dc"]]) cp(new THREE.CylinderGeometry(.0075, .0075, .005, 14), new THREE.MeshStandardMaterial({ color: col, roughness: .5 }), "game-pad-button", .045 + dx, .0285, -.014 + dz);
+  cp(box(.05, .003, .004), new THREE.MeshStandardMaterial({ color: "#4aa8ff", emissive: "#4aa8ff", emissiveIntensity: 1.2 }), "game-pad-light", 0, .0265, -.047);
   // Codex's painted top of the console (a thin diagonal seam and a blue edge line) and of the pad, laid as flat skins on the 3D shapes
   const skin = (w, d, y, x, z, rotZ, file, name, bodyToHide, parent = tv) => {
     const mat = new THREE.MeshBasicMaterial({ transparent: true, alphaTest: .05, toneMapped: false });
@@ -749,7 +754,6 @@ export async function start({ stage, lang = "zh" }) {
     return m;
   };
   skin(.265, .29, .17 + .053 + .0042, .295, -.02, 0, "room02-console-top-v1.webp", "game-console-skin", null);
-  skin(.15, .15, PAD_BASE + .0285, padX, padZ, .4, "room02-controller-top-v1.webp", "game-pad-skin", null, padG);
   tp(box(.5, .006, .02), new THREE.MeshStandardMaterial({ color: "#fff1d6", emissive: "#ffd9a0", emissiveIntensity: 1.1 }), "tv-bay-led", .295, .418, .15); // a warm strip under the top, so the console stands out of the dark bay
   tp(box(.3, .012, .2), blackMat, "tv-foot", 0, .456, 0);
   tp(rb(.95, .55, .035), blackMat, "tv-panel", 0, .75, 0); // 47 cm to 102 cm
@@ -1280,8 +1284,8 @@ export async function start({ stage, lang = "zh" }) {
     batch4() { // local QA only: the ceiling, console skins and night foreground
       const bx = (n) => { const o = root.getObjectByName(n) ?? scene.getObjectByName(n); if (!o) return null; const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
       const lamp = bx("ring-lamp");
-      const skin = bx("game-console-skin"), padSkin = bx("game-pad-skin"), glow = bx("ceiling-glow");
-      return { ready: !!(lamp && skin && padSkin && glow && fgTex.night), lamp, glow, skin, padSkin, console: bx("game-console"), consoleTop: bx("game-console-top")?.max[1], fgNightLoaded: !!fgTex.night, fgIsNight: fgMat.map === fgTex.night };
+      const skin = bx("game-console-skin"), glow = bx("ceiling-glow");
+      return { ready: !!(lamp && skin && glow && fgTex.night), lamp, glow, skin, console: bx("game-console"), consoleTop: bx("game-console-top")?.max[1], fgNightLoaded: !!fgTex.night, fgIsNight: fgMat.map === fgTex.night };
     },
     windowParts() { // local QA only
       const bx = (n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return { min: b.min.toArray(), max: b.max.toArray() }; };
