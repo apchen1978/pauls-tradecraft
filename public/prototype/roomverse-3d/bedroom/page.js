@@ -123,11 +123,12 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=70");
+    const { start } = await import("./bedroom.js?v=74");
     room = await start({ stage: $("stage"), bubble: $("robotBubble"), hitTarget: $("robotHitTarget"), lang, copy: () => COPY[lang] });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook
     $("portalRow").hidden = false;
+    if (arrivedFromRoom01) { mood = "golden"; moodButtons(); await room.setMood("golden"); } // coming through the door from the daytime living room, the visitor walks into the low golden sun (Paul 2026-10-24)
     if (arrivedFromRoom01) { document.documentElement.classList.add("ready"); await room.arrive(); } // the dark cover lifts as the walk-in begins
   } catch (e) {
     console.error(e);

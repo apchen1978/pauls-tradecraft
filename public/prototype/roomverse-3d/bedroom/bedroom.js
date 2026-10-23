@@ -523,7 +523,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const trimMat = new THREE.MeshStandardMaterial({ color: "#efe9dc", roughness: .7 });
   const frameMat = new THREE.MeshStandardMaterial({ color: "#f1ede4", roughness: .55 });
   const floorMat = new THREE.MeshStandardMaterial({ map: boardsTexture(), color: "#f0e7da", roughness: .66 }); // a touch less orange: natural oak, not honey
-  art("room02-e1-oak-floor-v1.webp", { repeat: [ROOM.w / 1.2, ROOM.d / 1.2], apply: (t) => { floorMat.map = t; floorMat.needsUpdate = true; } }); // one picture is about 1.2 m of boards
+  art("room02-brooklyn-oak-floor-v1.webp", { repeat: [ROOM.w / 1.2, ROOM.d / 1.2], apply: (t) => { floorMat.map = t; floorMat.needsUpdate = true; } }); // Codex's batch 19 narrow-strip oak (17 boards a picture, about 7 cm each); one picture is about 1.2 m of boards
   const ceilMat = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: 1 });
   const doorMat = new THREE.MeshStandardMaterial({ color: "#f1ece3", roughness: .5 }); // a painted white interior door, the American way (was a plain tan slab)
   const metalMat = new THREE.MeshStandardMaterial({ color: "#8d8a84", roughness: .35, metalness: .6 });
@@ -644,8 +644,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   zoneRug(.63, 1.8, .06, -1.0, sleepRugMat, "zone-sleep-rug"); // a runner along the bed's open side, between the bedside table and the foot
   const cutout = (mat) => { mat.transparent = true; mat.alphaTest = .45; mat.needsUpdate = true; };
   const tvRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#e0d2b8", "#9a8662"), roughness: 1 });
-  zoneRug(1.2, 1.7, -1.05, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
-  root.getObjectByName("zone-tv-rug").rotation.z = .12; // laid a little off square (7 degrees), the way a rug is dropped in a real prewar flat: the lines of the room stop being all parallel and the floor gains depth (Paul 2026-10-24)
+  zoneRug(1.2, 1.7, -.97, .95, tvRugMat, "zone-tv-rug"); // in front of the TV, between the console and the coffee table
+  root.getObjectByName("zone-tv-rug").rotation.z = .09; // laid a little off square (5 degrees), the way a rug is dropped in a real prewar flat: the lines of the room stop being all parallel and the floor gains depth (Paul 2026-10-24)
   art("room02-rug-oat-v1.webp", { apply: (t) => { tvRugMat.map = t; cutout(tvRugMat); } }); // an oat rug seen whole from above, with its fringe
   // The rugs Codex drew on white are trimmed to the rug's own edge with the white made transparent, so a rug is only as big as the rug.
   art("room02-rug-runner-v1.webp", { apply: (t) => { sleepRugMat.map = t; cutout(sleepRugMat); } });
@@ -834,6 +834,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   part(box(.34, .06, .34), new THREE.MeshStandardMaterial({ color: "#1f1d1b", roughness: .7 }), "bedside-plinth", tx, .03, tz);
   for (const y of [.18, .385]) part(rb(.34, .185, .012), creamBody, "bedside-drawer", tx, y, tz + .19 + .003);
   part(box(.34, .01, .008), new THREE.MeshStandardMaterial({ color: "#5a3f2c", roughness: .6 }), "bedside-drawer-gap", tx, .283, tz + .193);
+  // lived-in clutter on the bedside table (Paul 2026-10-24: someone lives here): two books in a short stack, one turned a little, and a phone lying face down
+  { const bookA = part(box(.15, .032, .22), new THREE.MeshStandardMaterial({ color: "#2f4258", roughness: .8 }), "bedside-book", tx - .1, .5 + .016, tz + .06); bookA.rotation.y = .25;
+    const bookB = part(box(.13, .022, .2), new THREE.MeshStandardMaterial({ color: "#b8643a", roughness: .8 }), "bedside-book", tx - .098, .5 + .032 + .011, tz + .062); bookB.rotation.y = -.1;
+    const phone = part(rb(.072, .009, .15), new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: .35 }), "bedside-phone", tx + .075, .5 + .0045, tz - .09); phone.rotation.y = .5; }
   const lampBase = part(new THREE.LatheGeometry([[0, 0], [.055, 0], [.062, .02], [.05, .06], [.032, .1], [.022, .14], [.02, .17], [.03, .2], [.034, .215], [0, .215]].map(([x, y]) => new THREE.Vector2(x, y)), 24), walnut, "lamp-base", tx, .5, tz);
   part(new THREE.CylinderGeometry(.012, .012, .1, 8), metalMat, "lamp-stem", tx, .73, tz);
   part(new THREE.CylinderGeometry(.075, .14, .17, 28, 1, true), new THREE.MeshStandardMaterial({ color: "#f4e6c8", emissive: "#e9b86a", emissiveIntensity: .35, roughness: .9, side: THREE.DoubleSide }), "lamp-shade", tx, .785, tz);
@@ -1193,7 +1197,23 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const barColours = { pale_oak: "#b38759", oak_grain: "#a07549", oak_interior: "#80603d", sage_door: "#6f8568" };
   loadGlb(new URL("./models/coffee-bar-v1.glb", import.meta.url).href).then((g) => {
     g.traverse((o) => { if (o.isMesh && barColours[o.material.name]) o.material.color.set(barColours[o.material.name]); });
-    g.name = "coffee-bar"; g.position.set(-HW + .195, 0, .35 - .04 - .195); g.rotation.y = Math.PI / 2; root.add(g); render(); // front looks east, like the TV unit
+    g.name = "coffee-bar"; g.position.set(-HW + .195, 0, .35 - .04 - .195); g.rotation.y = Math.PI / 2; root.add(g); // front looks east, like the TV unit
+    // The American coffee corner (Paul 2026-10-24; Americans keep beans in an opaque airtight canister and a clamped kraft bag, never in the fridge):
+    // the machine moves 8.5 cm towards the plant of the 39 cm top, a folded kraft bag stands on the free strip, and the matte graphite canister with a scoop on its lid sits on the open shelf below
+    // (where Paul circled the empty spot) (Codex batch 18 pictures). Local coordinates of the cabinet, top at 0.85 m.
+    const machine = g.getObjectByName("machine"); if (machine) machine.position.x += .085;
+    const corner = new THREE.Group(); corner.name = "coffee-corner"; g.add(corner);
+    const canMat = new THREE.MeshStandardMaterial({ color: "#3a3d42", roughness: .45, metalness: .55 }), lidMat = new THREE.MeshStandardMaterial({ color: "#8d9096", roughness: .4, metalness: .7 });
+    const can = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .17, 20), canMat); can.name = "coffee-canister"; can.position.set(-.06, .133 + .085, .04); can.castShadow = true; corner.add(can);
+    const lid = new THREE.Mesh(new THREE.CylinderGeometry(.052, .052, .018, 20), lidMat); lid.position.set(-.06, .133 + .179, .04); corner.add(lid);
+    const scoop = new THREE.Mesh(new THREE.BoxGeometry(.075, .006, .02), lidMat); scoop.position.set(-.06, .133 + .191, .04); scoop.rotation.y = .5; corner.add(scoop);
+    const kraft = new THREE.MeshStandardMaterial({ color: "#9a7048", roughness: .95 });
+    const bag = new THREE.Mesh(new THREE.BoxGeometry(.125, .205, .07), kraft); bag.name = "coffee-bag"; bag.position.set(-.115, .85 + .1025, .05); bag.rotation.y = -.6; bag.castShadow = true; corner.add(bag);
+    const bagFace = new THREE.Mesh(new THREE.PlaneGeometry(.142, .142 * 768 / 512), new THREE.MeshStandardMaterial({ roughness: .95, transparent: true, alphaTest: .3 })); bagFace.name = "coffee-bag-face"; bagFace.position.set(-.1356, .85 + .1065, .0801); bagFace.rotation.y = -.6; // the bag is turned towards the south (the corner camera), its face just in front of the box
+    corner.add(bagFace);
+    art("room02-canister-graphite-brush-v1.webp", { apply: (t) => { canMat.map = t; canMat.color.set("#ffffff"); canMat.needsUpdate = true; } });
+    art("room02-coffee-bag-front-v1.webp", { apply: (t) => { bagFace.material.map = t; bagFace.material.needsUpdate = true; } });
+    render();
   }).catch(() => {});
   // Room 01's little robot has a cousin here: the same model, a soft blue belt, standing on the open floor in the middle of the lounge, where the coffee table was, turned towards the corner camera. (It first stood between the desk and the foot of the
   // bed, turned towards the corner camera. As in Room 01 the body is re-coloured by height (cream, one belt) and the face is its own dark
