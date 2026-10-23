@@ -669,6 +669,13 @@ export async function start({ stage, lang = "zh" }) {
   for (const sx of [-1, 1]) cpart(rb(.03, .46, .03), deskMat, "chair-back-post", sx * .19, .66, -.21).rotation.x = -.1;
   cpart(rb(.4, .025, .035), deskMat, "chair-back-rail", 0, .875, -.245).rotation.x = -.1;
   cpart(rb(.36, .24, .04), oatFabric, "chair-back-pad", 0, .73, -.232).rotation.x = -.1;
+  // Codex's oak desk chair (batch 14) replaces this stand-in once loaded; a tiny invisible marker keeps the 48 cm seat height readable for the checks
+  loadGlb(new URL("./models/oak-desk-chair-v1.glb", import.meta.url).href, { anchor: "none" }).then((g) => {
+    chair.children.slice().forEach((c) => chair.remove(c));
+    g.traverse((o) => { if (!o.isMesh) return; const wood = o.material.name === "wood"; o.material.color.set(wood ? "#c19a68" : "#d8ccb6"); o.material.roughness = wood ? .6 : .95; }); // the file's pale colours washed out to white here: the desk's oak and an oat cloth
+    const marker = new THREE.Mesh(new THREE.BoxGeometry(.01, .002, .01), new THREE.MeshBasicMaterial({ visible: false })); marker.name = "chair-seat"; marker.position.set(0, .479, 0);
+    chair.add(g, marker); redraw();
+  }).catch(() => {});
 
   // ---------- lounge zone: sofa facing a TV on the west wall, coffee table, bookshelf ----------
   // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
@@ -895,14 +902,16 @@ export async function start({ stage, lang = "zh" }) {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1.34, .894), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .35, roughness: .8 }));
     m.name = "sofa-wall-art"; m.rotation.y = -Math.PI / 2; m.position.set(HW - .012, 1.66, .9); m.receiveShadow = true; root.add(m);
   } });
-  // Room 01's wall pieces, rebuilt here (Paul 2026-10-23: use Room 01's own pieces). (1) The bed's side wall, the east wall beside the bed: Room 01's
-  // "hills and sun" print in the same thin oak frame and cream mount (86 x 60 cm), over the bed's middle, centre 1.55 m up.
-  { const AW = .86, AH = .6, g = new THREE.Group(); g.name = "bed-wall-print"; g.position.set(HW - .02, 1.55, BED.z); g.rotation.y = -Math.PI / 2; root.add(g);
-    const part = (geo, mat, z, shadow) => { const m = new THREE.Mesh(geo, mat); m.position.z = z; m.receiveShadow = true; m.castShadow = shadow; g.add(m); return m; };
-    part(new THREE.BoxGeometry(AW + .06, AH + .06, .035), new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 }), 0, true);
-    part(new THREE.BoxGeometry(AW, AH, .006), new THREE.MeshStandardMaterial({ color: "#f7f3ea", roughness: .9 }), .018, false);
-    const hills = texLoader.load(new URL("../art/wall-print-hills-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; render(); }); hills.anisotropy = 8;
-    part(new THREE.PlaneGeometry(AW - .14, AH - .14), new THREE.MeshStandardMaterial({ map: hills, roughness: .85 }), .022, false); }
+  // Room 01's wall pieces, rebuilt here (Paul 2026-10-23: use Room 01's own pieces). (1) The bed's side wall, the east wall beside the bed: Codex's three
+  // American city posters (batch 14: San Francisco, New York, Los Angeles; Paul asked for pictures that fit an American flat) in thin oak frames,
+  // each 40 x 53 cm with its cream paper border, 10 cm apart, centred over the bed at 1.55 m.
+  { const PW = .4, PH = .4 * 4 / 3, GAP = .1, g = new THREE.Group(); g.name = "bed-wall-print"; g.position.set(HW - .02, 1.55, BED.z); g.rotation.y = -Math.PI / 2; root.add(g);
+    const frameOak = new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 });
+    ["san-francisco", "new-york", "los-angeles"].forEach((city, i) => {
+      const x = (i - 1) * (PW + GAP + .03), fr = new THREE.Mesh(new THREE.BoxGeometry(PW + .03, PH + .03, .03), frameOak); fr.position.set(x, 0, 0); fr.castShadow = true; fr.receiveShadow = true; g.add(fr);
+      const tex = texLoader.load(new URL(`../art/room02-city-${city}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; render(); });
+      const pic = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({ map: tex, roughness: .85 })); pic.position.set(x, 0, .0155); pic.receiveShadow = true; g.add(pic);
+    }); }
   // (2) Room 01's glass planning board, on the west wall beside the desk, between the desk and the plant (its own words: a work list, the red line is
   // the one that matters). A glass slab on four brass stand-offs, a small oak ledge with two black markers and a red one.
   { const BW = .58, BH = .84, g = new THREE.Group(); g.name = "whiteboard"; g.position.set(-HW + .004, 1.6, -.6); g.rotation.y = Math.PI / 2; root.add(g);
