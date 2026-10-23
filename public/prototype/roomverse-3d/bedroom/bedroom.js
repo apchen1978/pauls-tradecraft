@@ -92,7 +92,7 @@ export async function start({ stage, lang = "zh" }) {
   const CEILING_GLOW = { focus: .55, weekend: .34, night: 0, sunday: .2 };
   const live = { mood: "focus" }; // the current mood, readable before the moods block exists
   const SPRITE_TINT = { focus: 1, weekend: .88, night: .45, sunday: .8 };
-  const chosen = { wall: "sage", rug: "modern", window: "roller", bedding: "stone", posters: "C", tv: "auto", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
+  const chosen = { wall: "paper", rug: "modern", window: "roller", bedding: "stone", posters: "C", tv: "auto", led: "violet", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed" };
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
@@ -246,7 +246,9 @@ export async function start({ stage, lang = "zh" }) {
   const doorMat = new THREE.MeshStandardMaterial({ color: "#a9825a", roughness: .62 });
   const metalMat = new THREE.MeshStandardMaterial({ color: "#8d8a84", roughness: .35, metalness: .6 });
 
-  const wallTexApply = (t) => { for (const m of [wallMat, mainWallMat, featureMat]) { m.map = t; m.needsUpdate = true; } };
+  let renderSoon = null; // set to render() further down, once it exists
+  let wallCement = null; // the soft paint finish, kept so a colour swap can put it back after the wallpaper
+  const wallTexApply = (t) => { wallCement = t; for (const m of [wallMat, mainWallMat, featureMat]) { if (m === featureMat && chosen.wall === "paper") continue; m.map = t; m.needsUpdate = true; } };
   const root = new THREE.Group(); root.name = "bedroom"; scene.add(root);
   const add = (geo, mat, name, x, y, z, { shadow = true } = {}) => {
     const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x, y, z);
@@ -271,7 +273,12 @@ export async function start({ stage, lang = "zh" }) {
   add(box(DOOR.w, ROOM.h - DOOR.h, T), wallMat, "wall-s-above", DOOR.x, (DOOR.h + ROOM.h) / 2, HD + T / 2);
   // the west wall (the big wall in the overview) takes the swappable feature colour; the east wall stays a quiet warm tone
   add(box(T, ROOM.h, ROOM.d + T * 2), mainWallMat, "wall-main-east", HW + T / 2, ROOM.h / 2, 0);
-  const featureMat = new THREE.MeshStandardMaterial({ color: "#c6cfb6", roughness: .95 }); // the west wall behind the TV and posters: colour-swappable
+  // The west wall, behind the desk, the TV and the posters, is wallpaper (Paul 2026-10-23: the view outside reads as New York, and American flats
+  // paper their walls): Room 01's cream pinstripe with sage and gold lines, one picture about 1.6 m wide so the stripes sit about 10 cm apart.
+  // The colour options below swap it for plain colour as before.
+  const stripeTex = new THREE.TextureLoader().load(new URL("../tex/wallpaper-stripe-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; renderSoon?.(); }); // render() does not exist yet at this point
+  stripeTex.wrapS = stripeTex.wrapT = THREE.RepeatWrapping; stripeTex.repeat.set((ROOM.d + .2) / 1.6, ROOM.h / 1.6); stripeTex.anisotropy = 8;
+  const featureMat = new THREE.MeshStandardMaterial({ color: "#ffffff", map: stripeTex, roughness: .95 }); // the west wall: wallpaper, or a swappable colour
   art("room02-e2-warm-wall-v1.webp", { repeat: [2.2, 1.6], apply: wallTexApply }); // a soft micro-cement / paint finish, multiplied by each wall colour
   add(box(T, ROOM.h, ROOM.d + T * 2), featureMat, "wall-west", -HW - T / 2, ROOM.h / 2, 0);
 
@@ -1142,7 +1149,7 @@ export async function start({ stage, lang = "zh" }) {
     for (let y = 14; y < h - 14; y += 4) { ctx.fillStyle = "rgba(70,45,20,.12)"; ctx.fillRect(14, y, w - 28, 1.4); }
   });
   const CHOICES = {
-    wall: { oat: "#f3eadb", latte: "#e6d2b5", warmGrey: "#d9d3ca", sage: "#c6cfb6", terracotta: "#d9967a", slate: "#66717e" },
+    wall: { paper: "#ffffff", oat: "#f3eadb", latte: "#e6d2b5", warmGrey: "#d9d3ca", sage: "#c6cfb6", terracotta: "#d9967a", slate: "#66717e" },
     rug: { modern: () => rugArt.modern ?? weaveTexture("#e8dfd2", "#b9ab97"), stripe: () => rugArt.stripe ?? weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), oat: () => rugArt.oat ?? weaveTexture("#e0d2b8", "#9a8662"), oak: () => oakBorderRug },
     window: ["roller", "bamboo", "linen"],
     bedding: { stone: ["#d9d4ca", "#b9b2a3", "#4b5059", "#33373d", "#7b8794"], mist: ["#ccd6df", "#9fb0bf", "#f1ede4", "#cfc6b4", "#2f3b52"], clay: ["#e8dfcf", "#bfae8f", "#b9573f", "#8c3b2e", "#c9a14e"] },
@@ -1157,7 +1164,7 @@ export async function start({ stage, lang = "zh" }) {
   const rugCache = {};
   async function setChoice(kind, value) {
     if (kind === "posters") { if (!(await setPosters(value))) return false; chosen.posters = value; return true; }
-    if (kind === "wall" && CHOICES.wall[value]) featureMat.color.set(CHOICES.wall[value]);
+    if (kind === "wall" && CHOICES.wall[value]) { featureMat.color.set(CHOICES.wall[value]); featureMat.map = value === "paper" ? stripeTex : wallCement; featureMat.needsUpdate = true; }
     else if (kind === "rug" && CHOICES.rug[value]) { loungeRugMat.map = value === "oak" ? (rugCache.oak ??= CHOICES.rug.oak()) : CHOICES.rug[value](); const cut = (value === "modern" && !!rugArt.modern) || (value === "oat" && !!rugArt.oat); loungeRugMat.transparent = cut; loungeRugMat.alphaTest = cut ? .45 : 0; loungeRugMat.needsUpdate = true; }
     else if (kind === "window" && CHOICES.window.includes(value)) {
       blindFabric.material.map = value === "bamboo" ? (windowPaint.bamboo ?? bambooTex) : (windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true;
@@ -1192,7 +1199,7 @@ export async function start({ stage, lang = "zh" }) {
     camera.fov = camera.aspect < .8 ? 82 : 60;
     camera.updateProjectionMatrix();
   }
-  const render = () => renderer.render(scene, camera);
+  const render = () => renderer.render(scene, camera); renderSoon = render;
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
   resize(); render(); ready = true;
   setMood("focus");
