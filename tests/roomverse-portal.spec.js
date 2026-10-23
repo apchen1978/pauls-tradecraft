@@ -63,7 +63,7 @@ for (const lang of ["zh", "en"]) {
     await page.waitForFunction(() => document.documentElement.classList.contains("ready"));
     await page.waitForFunction(() => !window.__bedroom.arriving(), null, { timeout: 15000 });
     const camera = await page.evaluate(() => window.__bedroom.info().camera);
-    expect(camera).toEqual([1.8, 2.05, 2.38]); // the walk ends at the usual overview corner
+    expect(camera).toEqual([-.2, 1.5, .1]); // the walk ends in the middle of the room (the opening look)
   });
 }
 
@@ -74,7 +74,7 @@ test("with reduced motion the button simply opens Room 02, and arriving needs no
   await page.locator("#portalBtn").click();
   await page.waitForURL(/\/bedroom\/\?.*from=room01/, { timeout: 20000 });
   await page.waitForFunction(() => window.__bedroom && !window.__bedroom.arriving());
-  expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([1.8, 2.05, 2.38]);
+  expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([-.2, 1.5, .1]); // starts in the middle, like everyone else
 });
 
 test("turning to the right-hand wall and tapping the door itself opens the portal", async ({ page }) => {

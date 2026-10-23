@@ -9,6 +9,12 @@ async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__bedroom);
 }
+// The room opens standing in the middle; tests about the corner looks walk to the corner first.
+async function toCorner(page) {
+  await page.locator('#viewRow button[data-look="work"]').click();
+  await page.waitForFunction(() => !window.__bedroom.info().centred && window.__bedroom.camera.position.y > 1.95 && window.__bedroom.looks().name === "work", null, { timeout: 8000 });
+  await page.waitForTimeout(200);
+}
 
 test("studio shell has the planned size, window, door and three floor zones", async ({ page }) => {
   const errors = [];
@@ -41,6 +47,7 @@ test("camera starts and stays inside the room across the whole orbit arc", async
 
 test("dragging turns the head within a limit and the camera never moves", async ({ page }) => {
   await enter(page);
+  await toCorner(page);
   const before = await page.evaluate(() => window.__bedroom.info().camera);
   const box = await page.locator("#stage canvas").boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -275,11 +282,13 @@ test("rugs: each lies on the floor inside the room, none overlap, the runner cle
   expect(r.sleep.min[2]).toBeGreaterThan(r.bedside.max[2]); // starts past the bedside table
 });
 
-test("phone: the look buttons turn the head to the TV wall and the bed side; the opening look shows desk and window", async ({ page }) => {
+test("phone: the room opens in the middle facing the window and plaque; the look buttons turn to the TV wall, the bed side and the desk", async ({ page }) => {
   await enter(page, { width: 390 });
   const inFrame = (v) => v.z < 1 && v.minX > -1.02 && v.maxX < 1.02 ? true : (v.z < 1 && v.x > -.9 && v.x < .9);
-  let v = await page.evaluate(() => window.__bedroom.inView(["desk-top", "window-glass", "house-plaque", "bed-mattress"]));
-  for (const n of ["desk-top", "window-glass", "house-plaque"]) expect(inFrame(v[n]), "opening look: " + n).toBe(true);
+  expect(await page.evaluate(() => window.__bedroom.info().centred)).toBe(true);
+  await expect(page.locator('#viewRow button[data-look="center"]')).toHaveAttribute("aria-pressed", "true");
+  let v = await page.evaluate(() => window.__bedroom.inView(["window-glass", "house-plaque"]));
+  for (const n of ["window-glass", "house-plaque"]) expect(inFrame(v[n]), "opening look: " + n).toBe(true);
   await page.locator('#viewRow button[data-look="tv"]').click();
   await page.waitForFunction(() => Math.abs(window.__bedroom.looks().yaw - .43) < .005, null, { timeout: 5000 });
   v = await page.evaluate(() => window.__bedroom.inView(["tv-panel", "bookshelf"]));
@@ -290,8 +299,10 @@ test("phone: the look buttons turn the head to the TV wall and the bed side; the
   v = await page.evaluate(() => window.__bedroom.inView(["bed-mattress"]));
   expect(v["bed-mattress"].x).toBeGreaterThan(-.7); expect(v["bed-mattress"].x).toBeLessThan(.7);
   await page.locator('#viewRow button[data-look="work"]').click();
-  await page.waitForFunction((w) => Math.abs(window.__bedroom.looks().yaw - w) < .005, .1, { timeout: 5000 }); // this test is the 390 phone: its opening look is [.1, .1, 1.4]; the desktop one is [.22, .12, 1.35] // the opening look is turned a little towards the desk and window
-  expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([1.8, 2.05, 2.38]); // the camera never moved
+  await page.waitForFunction((w) => Math.abs(window.__bedroom.looks().yaw - w) < .005, .1, { timeout: 5000 }); // this test is the 390 phone: its desk look is [.1, .1, 1.4]; the desktop one is [.22, .12, 1.35]
+  v = await page.evaluate(() => window.__bedroom.inView(["desk-top", "window-glass", "house-plaque"]));
+  for (const n of ["desk-top", "window-glass", "house-plaque"]) expect(inFrame(v[n]), "desk look: " + n).toBe(true);
+  expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([1.8, 2.05, 2.38]); // the corner looks share one camera spot
 });
 
 test("window: the painted frame replaces the boxes, the foreground layer sits outside and stays under the city picture's reach", async ({ page }) => {
@@ -330,7 +341,7 @@ test("bed soft goods: the duvet drapes over the mattress without touching the fr
   expect(b.duvet.min[0]).toBeGreaterThan(b.mattress.min[0] - .06); expect(b.duvet.max[0]).toBeLessThan(b.mattress.max[0] + .06); // hangs at the mattress edge
   expect(b.pillow.min[1]).toBeGreaterThan(b.mattress.max[1] - .03); expect(b.pillow.max[1]).toBeLessThan(b.mattress.max[1] + .2);
   expect(b.pillow.max[2]).toBeLessThan(b.duvet.min[2] + .12); // the pillow is at the head end, past the duvet's turned-back edge
-  expect(b.cushion.min[1]).toBeGreaterThan(b.mattress.max[1] - .03);
+  expect(b.cushion).toBeNull(); // the grey cushion on the pillow was taken out
   expect(b.throw.min[1]).toBeGreaterThan(b.frame.max[1] + .02); // the throw hangs over the mattress edge but stays clear above the frame
   expect(b.throw.max[1]).toBeLessThan(b.duvet.max[1] + .06); // it lies on the duvet, not a slab above it
   expect(b.throw.min[0]).toBeGreaterThan(b.mattress.min[0] - .12); expect(b.throw.max[0]).toBeLessThan(b.mattress.max[0] + .12); // hangs at the sides
@@ -358,8 +369,10 @@ test("stand in the middle: the camera walks to the room's centre and the head tu
   expect(wardrobe.max[2]).toBeLessThan(room.d / 2 + .01); expect(wardrobe.min[2]).toBeGreaterThan(room.d / 2 - .7); // against the south wall, at most 70 cm deep
   expect(wardrobe.min[0]).toBeGreaterThan(door.x + door.w / 2 + .1); expect(wardrobe.max[0]).toBeLessThan(room.w / 2 - .1); // clear of the door and of the east wall
   expect(wardrobe.min[0]).toBeGreaterThan(-.45); // the light switch plate (x = -0.54) stays free
+  await toCorner(page); // the room opens in the middle, so walk to the corner and back
   await page.locator('#viewRow button[data-look="center"]').click();
-  await page.waitForFunction(() => window.__bedroom.info().centred, null, { timeout: 8000 });
+  await page.waitForFunction(() => window.__bedroom.info().centred && window.__bedroom.camera.position.y < 1.7, null, { timeout: 8000 });
+  await page.waitForTimeout(300);
   const cam = await page.evaluate(() => window.__bedroom.camera.position.toArray());
   expect(cam[1]).toBeGreaterThan(1.4); expect(cam[1]).toBeLessThan(1.7); // eye height
   expect(Math.abs(cam[0])).toBeLessThan(.6); expect(Math.abs(cam[2])).toBeLessThan(.6); // in the middle, not in a corner
@@ -393,6 +406,7 @@ test("two prints hang on the wall behind the sofa, over its length and above its
 
 test("tap the little robot: it hops, turns to look at you and settles back where it was; a drag does not set it off", async ({ page }) => {
   await enter(page);
+  await toCorner(page);
   await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
   const r0 = await page.evaluate(() => window.__bedroom.robotState());
   expect(Math.abs(r0.ndc.x)).toBeLessThan(.95); expect(r0.ndc.z).toBeLessThan(1); // in the opening view
