@@ -146,10 +146,10 @@ test("lived-in details: posters hang above the TV inside the wall, the plant sta
   }
 });
 
-test("four moods: buttons switch window, blind and lamps, and no mood is blown out or crushed to black", async ({ page }) => {
+test("five moods: buttons switch window, blind and lamps, and no mood is blown out or crushed to black", async ({ page }) => {
   await enter(page);
-  await expect(page.locator("#moodRow button")).toHaveCount(4);
-  const expected = { focus: ["day", .18], weekend: ["day", .45], night: ["night", .18], sunday: ["day", .62] };
+  await expect(page.locator("#moodRow button[data-mood]")).toHaveCount(5); await expect(page.locator("#moodRow button[data-shuffle]")).toHaveCount(1);
+  const expected = { focus: ["day", .18], weekend: ["day", .45], night: ["night", .18], sunday: ["day", .62], series: ["night", .5] };
   for (const [mood, [time, blind]] of Object.entries(expected)) {
     await page.locator(`#moodRow button[data-mood="${mood}"]`).click();
     await page.waitForFunction(([m, t]) => window.__bedroom.info().mood === m && window.__bedroom.windowArt().loaded && window.__bedroom.windowArt().time === t, [mood, time]); // the night picture arrives a moment after the button
@@ -230,11 +230,11 @@ test("all 28 painted surfaces load (floor, wall, rugs, oak, fabrics, window fram
   expect(vertices).toBeLessThan(56000);
 });
 
-test("phone first screen: moods sit in a tidy 2x2, the swap options start collapsed and open on tap, the intro is short", async ({ page }) => {
+test("phone first screen: moods sit in a tidy two-column grid (five moods and the random button), the swap options start collapsed and open on tap, the intro is short", async ({ page }) => {
   await enter(page, { width: 390 });
   const boxes = await page.locator("#moodRow button").evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; }));
-  expect(boxes).toHaveLength(4);
-  expect(boxes[0][1]).toBe(boxes[1][1]); expect(boxes[2][1]).toBe(boxes[3][1]); // two rows of two
+  expect(boxes).toHaveLength(6);
+  expect(boxes[0][1]).toBe(boxes[1][1]); expect(boxes[2][1]).toBe(boxes[3][1]); expect(boxes[4][1]).toBe(boxes[5][1]); // three rows of two
   expect(boxes[2][1]).toBeGreaterThan(boxes[0][1]);
   expect(boxes[0][0]).toBe(boxes[2][0]); expect(boxes[0][2]).toBe(boxes[1][2]); // aligned columns, equal widths
   expect(await page.locator("#swaps").evaluate((d) => d.open)).toBe(false);
