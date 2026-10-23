@@ -9,7 +9,7 @@ document.title = `${copy.title} · Paul’s Tradecraft`;
 for (const [id, key] of Object.entries({ title: "title", subtitle: "subtitle", skip: "skip", hint: "hint", "pair-title": "pairTitle", "pair-note": "pairNote", "doors-title": "doorsTitle", "doors-note": "doorsNote", "roomverse-title": "roomverseTitle", "roomverse-note": "roomverseNote", "more-title": "moreTitle", "more-note": "moreNote", back: "back", close: "close", previous: "previous", next: "next", "made-label": "made" })) $(id).textContent = copy[key];
 $("home").href = `/?lang=${lang}`;
 $("home").ariaLabel = copy.home;
-$("back").href = `/ai-lab/?lang=${lang}#spirit-end`;
+$("back").href = `/ai-lab/?lang=${lang}#gallery-front`;
 document.querySelectorAll(".languages a").forEach((a) => {
   if (a.getAttribute("lang") === document.documentElement.lang) a.setAttribute("aria-current", "page");
   else a.removeAttribute("aria-current");

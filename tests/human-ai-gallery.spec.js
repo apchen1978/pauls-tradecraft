@@ -110,14 +110,14 @@ for (const width of [390, 768, 1440]) {
         await page.locator("#close").click();
       }
       await noOverflow(page);
-      await expect(page.locator("#back")).toHaveAttribute("href", `/ai-lab/?lang=${lang}#spirit-end`);
+      await expect(page.locator("#back")).toHaveAttribute("href", `/ai-lab/?lang=${lang}#gallery-front`);
       expect(await page.evaluate(() => ({ stored: localStorage.length, cookie: document.cookie }))).toEqual({ stored: 0, cookie: "" });
       expect(problems).toEqual([]);
     });
 
-    test(`${lang} ${width}: AI Lab closing entry, return link, language switch`, async ({ page }) => {
+    test(`${lang} ${width}: AI Lab front entry, return link, language switch`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-      await page.goto(`/ai-lab/?lang=${lang}#spirit-end`);
+      await page.goto(`/ai-lab/?lang=${lang}#gallery-front`);
       const entry = page.locator("#gallery-link");
       await expect(entry).toHaveAttribute("href", url(lang));
       expect((await entry.boundingBox()).height).toBeGreaterThanOrEqual(44);
@@ -136,7 +136,7 @@ for (const width of [390, 768, 1440]) {
       const other = lang === "zh" ? "en" : "zh";
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(COLLECTION[other].title);
       await page.locator("#back").click();
-      await expect(page).toHaveURL(new RegExp(`/ai-lab/\\?lang=${other}#spirit-end$`));
+      await expect(page).toHaveURL(new RegExp(`/ai-lab/\\?lang=${other}#gallery-front$`));
     });
   }
 }
