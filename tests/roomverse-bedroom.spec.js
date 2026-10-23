@@ -30,7 +30,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-lounge-rug"]); // no rug under the desk chair: nobody lays one there
   expect(info.vertices).toBeLessThan(52000); // whole-room budget: two Room 01 models (sofa, plant) take about 9,500, rounded furniture edges about 5,000, the coffee bar GLB about 1,600, the Hunyuan sofa about 6,000; fully loaded (cushions, mug, robot, coffee bar) the room measures about 49,900 and the sofa swap itself added only 2,200
-  expect(info.lights).toBe(6); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, and the desk downlight
+  expect(info.lights).toBe(9); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, the desk downlight and three more (the track light: plaque, bed, print)
   expect(errors).toEqual([]);
 });
 
