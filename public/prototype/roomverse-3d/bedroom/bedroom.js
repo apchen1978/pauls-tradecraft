@@ -589,7 +589,11 @@ export async function start({ stage, lang = "zh" }) {
   const deskSet = (name, build) => { const g = new THREE.Group(); g.name = "deskset-" + name; g.visible = name === "minimal"; desk.add(g); build(hold(g)); deskSets[name] = g; };
   const steel = new THREE.MeshStandardMaterial({ color: "#b9bcc0", roughness: .3, metalness: .85 });
   const ceramicWhite = new THREE.MeshStandardMaterial({ color: "#f1ece2", roughness: .4 });
-  deskSet("minimal", () => {});
+  deskSet("minimal", (p) => { // keyboard and mouse are on the desk already; one small warm-wood speaker stands at the far end (13 x 20 x 14 cm)
+    p(rb(.13, .2, .14), new THREE.MeshStandardMaterial({ color: "#c9a77c", roughness: .55 }), "desk-speaker", .6, .75 + .1, -.12);
+    p(new THREE.CylinderGeometry(.04, .04, .008, 24), softBlack, "desk-speaker-woofer", .6, .75 + .075, -.12 + .074).rotation.x = Math.PI / 2;
+    p(new THREE.CylinderGeometry(.015, .015, .008, 16), softBlack, "desk-speaker-tweeter", .6, .75 + .163, -.12 + .074).rotation.x = Math.PI / 2;
+  });
   deskSet("gamer", (p) => {
     p(new THREE.CylinderGeometry(.05, .055, .012, 20), blackMat, "headset-stand-base", .56, .756, -.14);
     p(new THREE.CylinderGeometry(.008, .008, .2, 8), blackMat, "headset-stand-post", .56, .85, -.14);
@@ -903,6 +907,20 @@ export async function start({ stage, lang = "zh" }) {
   plate(.086, .086, DOOR.x + DOOR.w / 2 + .16, 1.2, HD - .005, 0, "switch");
   plate(.086, .086, -HW + .005, .3, -.92, Math.PI / 2, "socket-desk");
   plate(.086, .086, BED.x - BED.w / 2 - .55, .3, -HD + .005, 0, "socket-bed");
+  // The bedside lamp's cable: from the back of the lamp base, over the back edge of the table, down behind it, along the floor by the wall, over the skirting board and up
+  // into the socket beside the bed, with a small white plug. A gentle curve through real points, 5.6 mm thick.
+  { const sx = BED.x - BED.w / 2 - .55, lx = BED.x - BED.w / 2 - .27, lz = north + .27;
+    const pts = [[lx, .46, lz - .055], [lx - .02, .455, lz - .205], [lx - .03, .25, lz - .235], [lx - .06, .015, lz - .285], [sx + .1, .006, -HD + .03], [sx + .025, .008, -HD + .025], [sx, .07, -HD + .021], [sx, .1, -HD + .011], [sx, .26, -HD + .008], [sx, .29, -HD + .016]] /* in front of the skirting board, then over its top and up the wall */.map((q) => new THREE.Vector3(...q));
+    const cable = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 64, .0028, 6), new THREE.MeshStandardMaterial({ color: "#3a3a3a", roughness: .6 }));
+    cable.name = "lamp-cable"; cable.castShadow = true; root.add(cable);
+    add(rb(.032, .042, .026), plateMat, "lamp-plug", sx, .3, -HD + .018, { shadow: false }); }
+  // The monitor's cable, to the nearest socket (west wall, 30 cm up, just past the desk's south end): from the back of the monitor neck over the
+  // desk's back edge, down the gap behind the desk, along the floor in front of the skirting board, over it and up into the socket.
+  { const w = -HW, sz = -.92;
+    const pts = [[-1.86, .8, -1.75], [w + .03, .755, -1.72], [w + .015, .5, -1.6], [w + .02, .1, -1.35], [w + .025, .008, -1.1], [w + .025, .008, sz - .05], [w + .021, .07, sz - .005], [w + .011, .1, sz], [w + .008, .26, sz], [w + .016, .29, sz]].map((q) => new THREE.Vector3(...q));
+    const cable = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 80, .0028, 6), new THREE.MeshStandardMaterial({ color: "#2e2f33", roughness: .6 }));
+    cable.name = "monitor-cable"; cable.castShadow = true; root.add(cable);
+    add(rb(.026, .042, .032), plateMat, "monitor-plug", w + .018, .3, sz, { shadow: false }); }
   plate(.086, .086, -HW + .005, .3, 1.62, Math.PI / 2, "socket-tv");
   // a flush round ceiling light (glows softly; the room light itself is still the fill light)
   // A ring lamp: a slim round tube with a thinner ring inside it, hung on three wires 30 cm below the ceiling, the kind of light younger people
