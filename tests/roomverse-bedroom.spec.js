@@ -217,12 +217,12 @@ for (const width of [1440, 390]) {
   });
 }
 
-test("all 28 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and day/night foreground, ceiling glow, console and pad skins, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
+test("all 27 painted surfaces load (floor, wall, rugs, oak, fabrics, window frame and day/night foreground, ceiling glow, console skin, window dressings, screen, coffee machine, five book rows)", async ({ page }) => {
   const failed = [];
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
-  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 28, null, { timeout: 60000 });
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 27, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
@@ -324,7 +324,6 @@ test("ceiling lamp and its glow sit on the ceiling; the console and pad skins li
   expect(b.glow.min[1]).toBeGreaterThan(2.59); expect(b.glow.max[1]).toBeLessThan(2.61); // a flat sheet under the ceiling
   expect(b.skin.min[1]).toBeGreaterThan(b.consoleTop - .002); expect(b.skin.max[1]).toBeLessThan(b.consoleTop + .01); // on the console's top plate
   expect(b.skin.min[0]).toBeGreaterThan(b.console.min[0] - .01); expect(b.skin.max[0]).toBeLessThan(b.console.max[0] + .01); // not wider than the console
-  expect(b.padSkin.max[1]).toBeLessThan(.06); // the pad lies on the TV rug, not on the console
   expect(b.fgNightLoaded).toBe(true);
   expect(await page.evaluate(() => window.__bedroom.setTime("night"))).toBe(true);
   const n = await page.evaluate(() => window.__bedroom.batch4());
