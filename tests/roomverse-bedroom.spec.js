@@ -54,6 +54,7 @@ test("dragging turns the head within a limit and the camera never moves", async 
   await page.mouse.down();
   await page.mouse.move(box.x + box.width / 2 + 900, box.y + box.height / 2 + 600, { steps: 8 });
   await page.mouse.up();
+  await page.waitForFunction(() => { const y = window.__bedroom.controls.look.yaw, prev = window.__lastYaw; window.__lastYaw = y; return prev === y; }, null, { timeout: 8000, polling: 200 }); // the release glide has finished
   const after = await page.evaluate(() => { const c = window.__bedroom.controls; return { cam: window.__bedroom.info().camera, dy: c.look.yaw - c.look0.yaw, dp: c.look.pitch - c.look0.pitch, lim: c.limit }; });
   expect(after.cam).toEqual(before);
   expect(Math.abs(after.dy)).toBeCloseTo(after.lim.yaw, 3); // pushed to the end of the allowed turn, not beyond it
