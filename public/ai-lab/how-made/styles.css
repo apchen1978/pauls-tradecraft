@@ -1,0 +1,8 @@
+.made-list { display: grid; gap: 10px; margin: 10px 0 0; padding-left: 1.3em; color: var(--body); font-size: 1rem; line-height: 1.58; text-wrap: pretty; }
+.made-list strong { color: var(--bone); }
+.guide-principle h3 { margin: 18px 0 0; color: var(--gold); font-size: 1rem; line-height: 1.4; }
+.guide-principle a { color: var(--bone); text-underline-offset: 4px; }
+.made-quote { margin: 14px 0 0; padding-left: 14px; border-left: 3px solid var(--gold); color: var(--bone); font-weight: 650; line-height: 1.5; }
+.made-lesson { color: var(--meta); font-style: normal; }
+.made-lesson::before { content: "→ "; color: var(--gold); }
+.made-closing { margin: 0 0 18px; color: var(--bone); font-size: 1.05rem; font-weight: 650; line-height: 1.55; text-wrap: balance; }

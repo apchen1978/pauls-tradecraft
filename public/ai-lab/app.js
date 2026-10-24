@@ -293,6 +293,11 @@ function renderLessons() {
   const guideLink = $("c12-guide-link-anchor");
   guideLink.textContent = state.lang === "zh" ? "開啟一頁指南" : "Open the one-page guide";
   guideLink.href = `/ai-lab/guide/?lang=${state.lang}`;
+  $("c12-howmade-link-title").textContent = state.lang === "zh" ? "看製作過程：這是怎麼做出來的" : "See the process: how this was made";
+  $("c12-howmade-link-copy").textContent = state.lang === "zh" ? "ROOMVERSE 三間房裡，誰決定、誰製作、哪裡出過差錯，以及怎麼修回來。" : "Who decided, who built, where things went wrong and how they were fixed, across the three ROOMVERSE rooms.";
+  const madeLink = $("c12-howmade-link-anchor");
+  madeLink.textContent = state.lang === "zh" ? "打開製作記錄" : "Open the making-of";
+  madeLink.href = `/ai-lab/how-made/?lang=${state.lang}`;
 }
 
 function renderEnterpriseResult() {
