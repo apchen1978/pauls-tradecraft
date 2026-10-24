@@ -52,6 +52,30 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await shot(page, "desktop-golden-zh");
   });
 
+  test("covers the dining furniture with a raised rug and keeps it readable at night", async ({ page }) => {
+    await loadRoom(page);
+    const golden = await page.evaluate(() => window.__room03.info());
+    expect(golden.rug.size[0]).toBeCloseTo(2.9, 2);
+    expect(golden.rug.size[2]).toBeCloseTo(2.1, 2);
+    expect(golden.rug.min[1]).toBeCloseTo(0.01, 3);
+    expect(golden.rug.max[1]).toBeCloseTo(0.02, 3);
+    expect(golden.categories.rug).toEqual({ vertices: 24, meshes: 1 });
+    expect(golden.vertices).toBeLessThanOrEqual(25000);
+
+    await page.locator('#moods button[data-mood="night"]').click();
+    await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+    const night = await page.evaluate(() => {
+      const { rug, floorBesideRug } = window.__room03.info().rugSamples;
+      return {
+        rug: window.__room03.sampleNdc(rug, 0.012),
+        floor: window.__room03.sampleNdc(floorBesideRug, 0.012),
+      };
+    });
+    console.log("Room 03 rug dimensions and night samples:", JSON.stringify({ rug: golden.rug, night }));
+    expect(night.rug.meanLuminance, "night rug should read brighter than adjacent polished floor").toBeGreaterThan(night.floor.meanLuminance + 4);
+    await shot(page, "desktop-night-zh");
+  });
+
   test("switches moods and language while preserving one consistent room title", async ({ page }) => {
     await loadRoom(page);
     await page.getByRole("button", { name: "夜晚" }).click();
