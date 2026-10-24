@@ -87,6 +87,35 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
   });
 
+  test("keeps mobile night ambience varied and the wok-door reveal brighter than its closed panel", async ({ page }) => {
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    await loadRoom(page, 390);
+    await page.locator('#moods button[data-mood="night"]').click();
+    await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+    const upper = await page.evaluate(() => window.__room03.samplePixels({ left: 0.05, top: 0.01, width: 0.9, height: 0.23 }));
+    await shot(page, "mobile-night-pixel-checked");
+    await loadRoom(page, 1440);
+    await page.locator('#moods button[data-mood="night"]').click();
+    await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+    const door = await page.evaluate(() => {
+      const info = window.__room03.info();
+      return {
+        reveal: window.__room03.sampleNdc(info.projectedRegions.doorReveal, 0.006),
+        panel: window.__room03.sampleNdc(info.projectedRegions.doorPanel, 0.006),
+        projectedRegions: info.projectedRegions,
+      };
+    });
+    await shot(page, "desktop-night-pixel-checked");
+    const metrics = { upper, door };
+    console.log("Room 03 night pixel checks:", JSON.stringify(metrics));
+    expect(upper.meanLuminance, "upper field should not be crushed to near black").toBeGreaterThan(20);
+    expect(upper.luminanceStdDev, "mobile upper field should contain visible lighting and wood variation").toBeGreaterThan(6);
+    expect(upper.blue - upper.red, "mobile upper field should not read as a solid blue slab").toBeLessThan(55);
+    expect(door.reveal.meanLuminance, "warm-lit reveal should outshine the closed door panel").toBeGreaterThan(door.panel.meanLuminance + 12);
+    expect(errors).toEqual([]);
+  });
+
   test("keeps the bounded entry camera outside room walls while orbiting", async ({ page }) => {
     await loadRoom(page);
     const positions = [];

@@ -5,7 +5,7 @@ import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
 const COLORS = Object.freeze({
-  cream: 0xd9c6ab, oak: 0xbc8a53, ceiling: 0xa9713c, olive: 0x4b5034,
+  cream: 0xe7ddca, oak: 0xbc8a53, beam: 0x8a5a2e, ceiling: 0xc48a4a, olive: 0x4b5034,
   stone: 0xc9c0ae, black: 0x282a27, steel: 0x8e918b, jute: 0xc4ae80,
   terracotta: 0xad452b, opal: 0xf2d7a0,
 });
@@ -34,26 +34,90 @@ function makeFineNoise(seed, alpha = 0.035) {
   });
 }
 
-function makeWoodTexture(planks = false) {
+function makeMottleTexture(seed, strength = 0.06) {
+  let state = seed;
+  const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+  return makeTexture((ctx, w, h) => {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 34; i++) {
+      const x = random() * w, y = random() * h, radius = 18 + random() * 62;
+      const shade = random() > 0.52 ? "60,48,35" : "255,255,255";
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+      gradient.addColorStop(0, `rgba(${shade},${strength * (0.5 + random() * 0.5)})`);
+      gradient.addColorStop(1, `rgba(${shade},0)`);
+      ctx.fillStyle = gradient; ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    }
+    for (let i = 0; i < 900; i++) {
+      const shade = random() > 0.5 ? 80 : 150;
+      ctx.fillStyle = `rgba(${shade},${shade},${shade},${strength * 0.55 * random()})`;
+      ctx.fillRect(random() * w, random() * h, 1, 1);
+    }
+  });
+}
+
+function makeWoodTexture(planks = false, alongDepth = false) {
   return makeTexture((ctx, w, h) => {
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
     if (planks) {
-      for (let y = 0; y < h; y += 42) {
-        ctx.fillStyle = "rgba(70,48,30,.10)"; ctx.fillRect(0, y, w, 1.4);
-        ctx.fillStyle = "rgba(255,255,255,.16)"; ctx.fillRect(0, y + 2, w, 1);
-        for (const x of [52, 174]) {
-          ctx.fillStyle = "rgba(80,58,35,.07)"; ctx.fillRect(x, y + 2, 1, 40);
+      if (alongDepth) {
+        for (let x = 0; x < w; x += 42) {
+          ctx.fillStyle = "rgba(70,48,30,.12)"; ctx.fillRect(x, 0, 1.4, h);
+          ctx.fillStyle = "rgba(255,255,255,.20)"; ctx.fillRect(x + 2, 0, 1, h);
+          for (const y of [52, 174]) {
+            ctx.fillStyle = "rgba(80,58,35,.065)"; ctx.fillRect(x + 2, y, 40, 1);
+          }
+        }
+      } else {
+        for (let y = 0; y < h; y += 42) {
+          ctx.fillStyle = "rgba(70,48,30,.10)"; ctx.fillRect(0, y, w, 1.4);
+          ctx.fillStyle = "rgba(255,255,255,.16)"; ctx.fillRect(0, y + 2, w, 1);
+          for (const x of [52, 174]) {
+            ctx.fillStyle = "rgba(80,58,35,.07)"; ctx.fillRect(x, y + 2, 1, 40);
+          }
         }
       }
     }
     for (let i = 0; i < 76; i++) {
-      const y = (i * 37) % h + (i % 3);
+      const across = (i * 37) % (alongDepth ? w : h) + (i % 3);
       const shade = i % 2 ? "rgba(104,72,40,.13)" : "rgba(255,255,255,.15)";
       ctx.strokeStyle = shade; ctx.lineWidth = 0.6 + (i % 3) * 0.3;
-      ctx.beginPath(); ctx.moveTo(0, y);
-      ctx.bezierCurveTo(w * 0.34, y - 2, w * 0.67, y + 2, w, y - 1); ctx.stroke();
+      ctx.beginPath();
+      if (alongDepth) {
+        ctx.moveTo(across, 0);
+        ctx.bezierCurveTo(across - 2, h * 0.34, across + 2, h * 0.67, across - 1, h); ctx.stroke();
+      } else {
+        ctx.moveTo(0, across);
+        ctx.bezierCurveTo(w * 0.34, across - 2, w * 0.67, across + 2, w, across - 1); ctx.stroke();
+      }
     }
   });
+}
+
+function makeSunPatchTexture() {
+  return makeTexture((ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    const glow = ctx.createRadialGradient(w * 0.48, h * 0.5, h * 0.05, w * 0.48, h * 0.5, w * 0.52);
+    glow.addColorStop(0, "rgba(255,226,174,.72)");
+    glow.addColorStop(0.58, "rgba(255,222,164,.38)");
+    glow.addColorStop(1, "rgba(255,220,160,0)");
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
+  });
+}
+
+function makeSkyTexture(night) {
+  return makeTexture((ctx, w, h) => {
+    const gradient = ctx.createLinearGradient(0, 0, 0, h);
+    if (night) {
+      gradient.addColorStop(0, "#454d57");
+      gradient.addColorStop(0.52, "#58616a");
+      gradient.addColorStop(1, "#746c61");
+    } else {
+      gradient.addColorStop(0, "#d4c2a7");
+      gradient.addColorStop(0.62, "#e5d2b1");
+      gradient.addColorStop(1, "#c1a887");
+    }
+    ctx.fillStyle = gradient; ctx.fillRect(0, 0, w, h);
+  }, 8, 256);
 }
 
 function makeRugTexture() {
@@ -90,17 +154,20 @@ function makeSeatTexture() {
 function makeMaterials() {
   const std = (color, roughness = 0.8, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   return {
-    floor: std(0xaaa49a, 0.88, { map: makeFineNoise(11, 0.045) }),
-    wall: std(COLORS.cream, 0.92, { map: makeFineNoise(19, 0.025) }),
-    ceiling: std(COLORS.ceiling, 0.9, { map: makeWoodTexture(true), emissive: 0x9b6938, emissiveIntensity: 0.34 }),
+    floor: std(0x8f877b, 0.66, { map: makeMottleTexture(11, 0.055), metalness: 0.025 }),
+    wall: std(COLORS.cream, 0.92, { map: makeMottleTexture(19, 0.028) }),
+    ceiling: std(COLORS.ceiling, 0.86, { map: makeWoodTexture(true, true), emissive: 0x9b6938, emissiveIntensity: 0.34 }),
     oak: std(COLORS.oak, 0.76, { map: makeWoodTexture(false) }),
+    beam: std(COLORS.beam, 0.79, { map: makeWoodTexture(false) }),
     olive: std(COLORS.olive, 0.82),
     stone: std(COLORS.stone, 0.45, { map: makeFineNoise(23, 0.025) }),
     black: std(COLORS.black, 0.44), steel: std(COLORS.steel, 0.38),
     jute: std(COLORS.jute, 1, { map: makeRugTexture() }), seat: std(0xb8a17e, 0.98, { map: makeSeatTexture() }),
     red: std(COLORS.terracotta, 0.34), glass: new THREE.MeshPhysicalMaterial({ color: 0xb9d3d1, roughness: 0.12, metalness: 0.06, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }),
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
-    warmGlow: new THREE.MeshBasicMaterial({ color: 0xffd295, transparent: true, opacity: 0.94, side: THREE.DoubleSide }),
+    warmGlow: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.94, side: THREE.DoubleSide, depthWrite: false }),
+    sunlight: new THREE.MeshBasicMaterial({ color: 0xffdda0, map: makeSunPatchTexture(), transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide }),
+    reveal: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.98, depthWrite: false, side: THREE.DoubleSide }),
   };
 }
 
@@ -139,7 +206,7 @@ function buildArchitecture(b, m, scene, onYardLoad) {
   addBox(b, "shell", m.ceiling, [ROOM.width, 0.16, ROOM.depth], [0, 2.69, 0]);
 
   // Three exposed timber beams run from the glass wall into the kitchen.
-  for (const x of [-2.05, 0, 2.05]) addBox(b, "structure", m.oak, [0.16, 0.18, 4.72], [x, 2.57, 0]);
+  for (const x of [-2.05, 0, 2.05]) addBox(b, "structure", m.beam, [0.16, 0.18, 4.72], [x, 2.57, 0]);
   addBox(b, "trim", m.oak, [ROOM.width, 0.09, 0.08], [0, 0.1, -2.31]);
   addBox(b, "trim", m.oak, [0.08, 0.09, ROOM.depth], [2.91, 0.1, 0]);
   // A simple fixed, slightly ajar multi-panel glass slider on the left wall.
@@ -214,15 +281,23 @@ function buildSideKitchen(b, m, scene) {
   addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, 2.4]);
   addBox(b, "side-kitchen", m.black, [0.025, 0.22, 0.025], [2.81, 1.1, 2.16]);
   addBox(b, "side-kitchen", m.black, [0.08, 1.9, 1.15], [4.05, 1.02, 1.55]);
-  addBox(b, "side-kitchen", m.stone, [0.7, 0.1, 0.65], [3.38, 0.9, 1.62]);
-  addBox(b, "side-kitchen", m.steel, [0.66, 0.16, 0.42], [3.41, 1.63, 1.58]);
+  // Align the small wok and hood with the 10 cm reveal so they read through the gap.
+  addBox(b, "side-kitchen", m.stone, [0.7, 0.1, 0.65], [3.38, 0.9, 2.34]);
+  addBox(b, "side-kitchen", m.steel, [0.66, 0.16, 0.42], [3.41, 1.63, 2.34]);
   const wok = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.1, 0.19, 18, 1, true), m.black);
-  wok.position.set(3.32, 1.06, 1.58); wok.name = "wok-kitchen-wok"; wok.userData.category = "side-kitchen"; b.get(`shapes:${m.black.uuid}`) ?? b.set(`shapes:${m.black.uuid}`, { category: "side-kitchen", material: m.black, geometries: [], meshes: [] }); b.get(`shapes:${m.black.uuid}`).meshes.push(wok);
-  // Keep the warm source aligned behind the narrow reveal from both default cameras.
-  const revealGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 1.2), m.warmGlow);
-  revealGlow.position.set(3.32, 1.02, 1.58); revealGlow.rotation.y = Math.PI / 2;
+  wok.position.set(3.32, 1.06, 2.34); wok.name = "wok-kitchen-wok"; wok.userData.category = "side-kitchen"; b.get(`shapes:${m.black.uuid}`) ?? b.set(`shapes:${m.black.uuid}`, { category: "side-kitchen", material: m.black, geometries: [], meshes: [] }); b.get(`shapes:${m.black.uuid}`).meshes.push(wok);
+  // A narrow luminous backing aligns exactly with the visible slit, in front of the utensils.
+  const revealGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 1.48), m.reveal);
+  revealGlow.position.set(2.80, 1.06, 2.35); revealGlow.rotation.y = Math.PI / 2;
   revealGlow.name = "wok-kitchen-door-reveal"; revealGlow.userData.category = "side-kitchen"; scene.add(revealGlow);
-  const sideLight = new THREE.PointLight(0xffad64, 0, 1.5, 2); sideLight.position.set(3.3, 1.55, 1.58); sideLight.name = "side-kitchen-warm-source"; scene.add(sideLight);
+  // Tiny silhouettes sit in the aperture: a range hood above and a wok below the glow.
+  addBox(b, "side-kitchen", m.steel, [0.16, 0.045, 0.075], [2.77, 1.72, 2.35]);
+  const peekWok = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.035, 0.055, 12), m.black);
+  peekWok.position.set(2.76, 0.93, 2.35); peekWok.name = "wok-kitchen-door-peek"; peekWok.userData.category = "side-kitchen";
+  peekWok.castShadow = false; peekWok.receiveShadow = false;
+  b.get(`shapes:${m.black.uuid}`).meshes.push(peekWok);
+  addBox(b, "side-kitchen", m.black, [0.14, 0.014, 0.014], [2.82, 0.95, 2.35]);
+  const sideLight = new THREE.PointLight(0xffad64, 0, 1.7, 2); sideLight.position.set(3.3, 1.55, 2.34); sideLight.name = "side-kitchen-warm-source"; scene.add(sideLight);
   return sideLight;
 }
 
@@ -293,7 +368,8 @@ function assemble(b, scene) {
 
 export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xb9aa93);
+  const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true) };
+  scene.background = skyMaterials.golden;
   const compact = window.innerWidth < 500;
   const camera = new THREE.PerspectiveCamera(compact ? 60 : 50, 1, 0.05, 50);
   camera.position.set(1.25, compact ? 1.74 : 1.65, 4.95);
@@ -319,7 +395,7 @@ export async function start({ stage, onReady = () => {} }) {
   buildTable(buckets, materials);
   assemble(buckets, scene);
   const sunTarget = new THREE.Object3D(); sunTarget.position.set(0, 0, 0); scene.add(sunTarget);
-  const sun = new THREE.DirectionalLight(0xffd6a1, 2.4); sun.position.set(-4.2, 1.35, 3.2); sun.target = sunTarget; sun.castShadow = true;
+  const sun = new THREE.DirectionalLight(0xffd6a1, 2.4); sun.position.set(-4.2, 1.2, 3.6); sun.target = sunTarget; sun.castShadow = true;
   sun.shadow.mapSize.set(512, 512); sun.shadow.camera.left = -4; sun.shadow.camera.right = 4; sun.shadow.camera.top = 4; sun.shadow.camera.bottom = -4; sun.shadow.bias = -0.0002; sun.shadow.radius = 4; scene.add(sun);
   const hemi = new THREE.HemisphereLight(0xfff0d4, 0x6f6658, 0.68); scene.add(hemi);
   const ambient = new THREE.AmbientLight(0xffffff, 0.28); scene.add(ambient);
@@ -327,10 +403,16 @@ export async function start({ stage, onReady = () => {} }) {
   const underLight = new THREE.SpotLight(0xffca91, 0, 2.8, Math.PI / 3.5, 0.65, 2); underLight.position.set(0, 1.42, -1.82); underLight.target.position.set(0, 0.96, -1.45); scene.add(underLight, underLight.target);
   const sideLight = [...scene.children].find((o) => o.name === "side-kitchen-warm-source");
   buildRedPot(scene, materials);
+  const sunlightPatch = new THREE.Mesh(new THREE.PlaneGeometry(3.35, 1.85), materials.sunlight);
+  sunlightPatch.rotation.set(-Math.PI / 2, 0, 0);
+  sunlightPatch.position.set(-1.15, 0.012, 0.48);
+  sunlightPatch.name = "golden-hour-floor-patch";
+  sunlightPatch.userData.category = "lighting";
+  scene.add(sunlightPatch);
 
   const moods = {
-    golden: { sun: 2.4, hemi: 0.68, ambient: 0.28, pendant: 0, under: 0, side: 0.12, exposure: 1.02, yard: 0xffffff, background: 0xb9aa93, globe: 0.12 },
-    night: { sun: 0, hemi: 0.3, ambient: 0.26, pendant: 3.4, under: 1.9, side: 1.5, exposure: 1.02, yard: 0x52627c, background: 0x273244, globe: 1.05 },
+    golden: { sun: 3.5, hemi: 0.54, ambient: 0.16, pendant: 0.32, under: 0.42, side: 0.48, exposure: 1.06, yard: 0xffd7a1, globe: 0.34 },
+    night: { sun: 0, hemi: 0.34, ambient: 0.2, pendant: 5.1, under: 2.7, side: 2.3, exposure: 1.06, yard: 0x7187a5, globe: 1.35 },
   };
   let currentMood = "golden";
   function setMood(name) {
@@ -339,12 +421,14 @@ export async function start({ stage, onReady = () => {} }) {
     sun.intensity = preset.sun; hemi.intensity = preset.hemi; ambient.intensity = preset.ambient;
     pendantLight.intensity = preset.pendant; underLight.intensity = preset.under; sideLight.intensity = preset.side;
     renderer.toneMappingExposure = preset.exposure;
-    scene.background.setHex(preset.background);
+    scene.background = skyMaterials[name];
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
     if (yardMaterial) { yardMaterial.color.setHex(preset.yard); yardMaterial.needsUpdate = true; }
     materials.opal.emissiveIntensity = preset.globe;
-    materials.ceiling.emissiveIntensity = name === "golden" ? 0.34 : 0.18;
-    materials.warmGlow.opacity = name === "night" ? 0.98 : 0.55;
+    materials.ceiling.emissiveIntensity = name === "golden" ? 0.3 : 0.5;
+    materials.warmGlow.opacity = name === "night" ? 1 : 0.72;
+    materials.sunlight.opacity = name === "golden" ? 0.32 : 0;
+    materials.reveal.opacity = name === "night" ? 1 : 0.72;
     for (const light of [sun, pendantLight, underLight, sideLight]) light.visible = light.intensity > 0;
     render();
   }
@@ -360,6 +444,36 @@ export async function start({ stage, onReady = () => {} }) {
   controls.addEventListener("change", render);
   const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(stage);
   resize(); controls.update(); setMood("golden");
+  const samplePixels = (rect) => {
+    const width = Math.min(renderer.domElement.width, 1200);
+    const height = Math.max(1, Math.round(width * stage.clientHeight / stage.clientWidth));
+    const target = new THREE.WebGLRenderTarget(width, height, { depthBuffer: true, stencilBuffer: false });
+    target.texture.colorSpace = THREE.SRGBColorSpace;
+    renderer.setRenderTarget(target);
+    const pixelRatio = renderer.getPixelRatio();
+    renderer.setViewport(0, 0, width / pixelRatio, height / pixelRatio);
+    renderer.render(scene, camera);
+    const x = Math.max(0, Math.floor(rect.left * width));
+    const top = Math.max(0, Math.floor(rect.top * height));
+    const sampleWidth = Math.max(1, Math.min(width - x, Math.ceil(rect.width * width)));
+    const sampleHeight = Math.max(1, Math.min(height - top, Math.ceil(rect.height * height)));
+    const rgba = new Uint8Array(sampleWidth * sampleHeight * 4);
+    renderer.readRenderTargetPixels(target, x, height - top - sampleHeight, sampleWidth, sampleHeight, rgba);
+    let red = 0, green = 0, blue = 0, luminance = 0, luminanceSq = 0;
+    for (let i = 0; i < rgba.length; i += 4) {
+      const r = rgba[i], g = rgba[i + 1], b = rgba[i + 2];
+      const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      red += r; green += g; blue += b; luminance += l; luminanceSq += l * l;
+    }
+    const count = sampleWidth * sampleHeight;
+    renderer.setRenderTarget(null);
+    renderer.setViewport(0, 0, stage.clientWidth, stage.clientHeight);
+    renderer.render(scene, camera);
+    target.dispose();
+    const mean = luminance / count;
+    return { meanLuminance: mean, luminanceStdDev: Math.sqrt(Math.max(0, luminanceSq / count - mean * mean)), red: red / count, green: green / count, blue: blue / count, samples: count };
+  };
+  const sampleNdc = (point, radius = 0.012) => samplePixels({ left: (point[0] + 1) / 2 - radius, top: (1 - point[1]) / 2 - radius, width: radius * 2, height: radius * 2 });
   const info = () => {
     const categories = {};
     const project = (point) => new THREE.Vector3(...point).project(camera).toArray();
@@ -372,11 +486,11 @@ export async function start({ stage, onReady = () => {} }) {
       categories[key] ??= { vertices: 0, meshes: 0 };
       categories[key].vertices += count; categories[key].meshes++;
     });
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([2.84, 1.05, 1.98]) } };
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([2.84, 1.05, 2.35]), doorReveal: project([2.80, 1.05, 2.35]), doorPanel: project([2.86, 1.05, 2.0]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
-    setLang: () => {},
+    setLang: () => {}, samplePixels, sampleNdc,
     setView: (azimuth = 0) => {
       const offset = camera.position.clone().sub(controls.target);
       const spherical = new THREE.Spherical().setFromVector3(offset);
@@ -384,7 +498,7 @@ export async function start({ stage, onReady = () => {} }) {
       camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
       controls.update(); render();
     },
-    dispose: () => { resizeObserver.disconnect(); controls.dispose(); renderer.dispose(); scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); Object.values(materials).forEach((m) => { m.map?.dispose(); m.dispose(); }); },
+    dispose: () => { resizeObserver.disconnect(); controls.dispose(); renderer.dispose(); scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); Object.values(materials).forEach((m) => { m.map?.dispose(); m.dispose(); }); Object.values(skyMaterials).forEach((texture) => texture.dispose()); },
   };
   onReady(instance);
   return instance;
