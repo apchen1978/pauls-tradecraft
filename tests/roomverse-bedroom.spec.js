@@ -741,3 +741,17 @@ test("Room 02 opens in golden hour when entered from the home cover; a direct vi
     await expect(page.locator(`#moodRow button[data-mood="${expected}"]`), query || "direct visit").toHaveAttribute("aria-pressed", "true");
   }
 });
+
+test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints without changing scene geometry", async ({ page }) => {
+  const cityResponses = new Map();
+  page.on("response", (response) => {
+    const match = response.url().match(/room02-city-(san-francisco|new-york|brooklyn)-v1\.webp/);
+    if (match) cityResponses.set(match[1], response.status());
+  });
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  await expect.poll(() => cityResponses.size).toBe(3);
+  const room = await page.evaluate(() => window.__bedroom.info());
+  expect([...cityResponses.entries()].sort()).toEqual([["brooklyn", 200], ["new-york", 200], ["san-francisco", 200]]);
+  expect(room).toMatchObject({ vertices: 59816, meshes: 311, mood: "focus" });
+});
