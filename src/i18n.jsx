@@ -468,7 +468,7 @@ const dict = {
               imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
             },
             {
-              no: "Room 02", name: "都市青年Style",
+              no: "Room 02", name: "Brooklyn Studio",
               desc: "一個人住的紐約套房：睡覺、工作、打電動、追劇、窩沙發。六種感覺，牆面、地毯、窗簾、寢具隨你換。",
               cta: "走進套房", href: "/prototype/roomverse-3d/bedroom/",
               image: "/prototype/roomverse-3d/showcase-roomverse-3d-room02-v4.webp",
@@ -1418,7 +1418,7 @@ const dict = {
               imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
             },
             {
-              no: "Room 02", name: "Urban Youth Style",
+              no: "Room 02", name: "Brooklyn Studio",
               desc: "A New York studio for one: sleeping, working, gaming, series nights and sofa time. Six moods, and the walls, rugs, curtains and bedding are yours to swap.",
               cta: "Step into the studio", href: "/prototype/roomverse-3d/bedroom/",
               image: "/prototype/roomverse-3d/showcase-roomverse-3d-room02-v4.webp",

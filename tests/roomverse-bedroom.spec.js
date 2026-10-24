@@ -617,7 +617,7 @@ test("the page switches between Chinese and English", async ({ page }) => {
   await expect(page.locator(".mark")).toContainText("ROOMVERSE 3D");
   await expect(page).toHaveTitle(/ROOMVERSE 3D｜空間幻境/);
   await expect(page.locator("#roomNo")).toHaveText("Room 02 · Brooklyn Studio");
-  await expect(page.locator("#title")).toHaveText("Room 02｜布魯克林套房");
+  await expect(page.locator("#title")).toHaveText("Room 02｜Brooklyn Studio");
   await page.locator("#lang").click();
   await expect(page.locator("#roomNo")).toHaveText("Room 02 · Brooklyn Studio");
   await expect(page.locator("#title")).toHaveText("Room 02 · Brooklyn Studio");
