@@ -1497,7 +1497,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     sunday:  { time: "day",   sky: "#ffe6cc", bg: "#dccdb9", exposure: 1.1, hemi: [1.0, "#f8e7d5", "#d6c2a4"], sun: [1.8, "#ffcf94", 1.45], fill: [2.5, "#ffd9b0"],
                bedLamp: 0, shade: .1, screen: 0, led: 0, glow: 0, ceiling: 0, monitor: .2, tv: 0, blind: .62, deskSpot: 1.8, ledCol: "#ffb066", screenCol: "#c6cdf0" },
     // Room 01's 追劇夜 (series night), now here too: ceiling light off, the TV playing, the amber strip and one warm lamp, the blind drawn most of the way
-    series:  { time: "night", sky: "#ffffff", bg: "#1b2030", exposure: 1.12, hemi: [.62, "#7a86ad", "#4a4350"], sun: [0, "#9db4ff", 2.3], fill: [1.9, "#ffb978"],
+    series:  { time: "night", sky: "#ffffff", bg: "#1b2030", exposure: 1.12, hemi: [.62, "#7a86ad", "#4a4350"], sun: [0, "#9db4ff", 2.3], fill: [0, "#ffb978"], // the fill light sits at the ceiling ring; turn it off with the fixture
                bedLamp: 3, shade: .9, screen: .8, led: 1.7, glow: .6, ceiling: 0, monitor: .55, tv: 1.2, blind: .5, deskSpot: 1.7, ledCol: "#ff9a55", screenCol: "#c6cdf0" },
   };
   let mood = "focus";
@@ -1654,6 +1654,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)) }; })(),
       choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, curtainPanels: curtains.children.filter((c) => c.name === "curtain-panel").map((c) => { const b = new THREE.Box3().setFromObject(c); return { min: b.min.toArray(), max: b.max.toArray(), vertices: c.geometry.attributes.position.count }; }), bedPoster: bedPosterId,
       bedPosterBox: (() => { const b = new THREE.Box3().setFromObject(bedPoster); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
+      ceilingLamp: { color: "#" + ceilingLight.material.color.getHexString(), emissiveIntensity: ceilingLight.material.emissiveIntensity, glowOpacity: ceil.glow?.material.opacity ?? null },
+      fillIntensity: fill.intensity,
       plaque: (() => { const b = new THREE.Box3().setFromObject(plaque); return { min: b.min.toArray(), max: b.max.toArray(), loaded: !!plaqueTex.image }; })(),
       plaqueInView: (() => { const b = new THREE.Box3().setFromObject(plaque); camera.updateMatrixWorld(); return [[b.min.x, b.min.y], [b.max.x, b.min.y], [b.min.x, b.max.y], [b.max.x, b.max.y]].every(([x, y]) => { const v = new THREE.Vector3(x, y, b.max.z).project(camera); return Math.abs(v.x) < .98 && Math.abs(v.y) < .98 && v.z < 1; }); })(),
       painted: { ...painted },
