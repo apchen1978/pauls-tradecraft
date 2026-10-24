@@ -897,14 +897,16 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       leftWallArtGroup.add(leftPictureSpot, leftPictureSpot.target);
       updateLeftArtLight(shown ?? lights());
       const name = compactRender ? "left-wall-harbor-dusk-mobile-v1" : "left-wall-harbor-dusk-v1";
-      image(name, false, (texture) => {
+      const fetchArt = (attempt) => image(name, false, (texture) => {
         leftPaintingMat.map = texture; leftPaintingMat.emissiveMap = texture;
         leftPaintingMat.color.set("#ffffff"); leftPaintingMat.needsUpdate = true;
         leftWallArtLoaded = true; leftWallArtReady = true;
         updateLeftArtLight(shown ?? lights()); render(); resolve(true);
       }, () => {
-        leftWallArtReady = true; render(); resolve(false); // the plain canvas and frame remain usable
+        leftWallArtReady = true; render(); if (attempt === 0) resolve(false); // the plain canvas and frame remain usable
+        if (attempt < 2) setTimeout(() => fetchArt(attempt + 1), attempt ? 6000 : 2000); // a flaky phone connection gets two quiet retries, so the painting appears without a reload
       })();
+      fetchArt(0);
     });
     return leftWallArtPromise;
   }

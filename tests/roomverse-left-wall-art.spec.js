@@ -138,3 +138,14 @@ for mood in ["tv", "rain", "family"]:
 `], { stdio: "inherit" });
   await writeFile(`${QA}/geometry-and-glow.json`, JSON.stringify(measured, null, 2));
 });
+
+test("a left-wall painting whose first download fails appears by itself on a retry, without reloading the page", async ({ page }) => {
+  let hits = 0;
+  await page.route("**/left-wall-harbor-dusk*.webp", (route) => (++hits === 1 ? route.abort() : route.continue()));
+  await page.goto(`${PAGE}?lang=zh&mood=rain`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  expect(await page.evaluate(() => __room.loadLeftWallArt())).toBe(false);
+  expect((await page.evaluate(() => __room.leftWallArt())).loaded).toBe(false);
+  await page.waitForFunction(() => __room.leftWallArt().loaded, null, { timeout: 8000 });
+  expect(hits).toBeGreaterThanOrEqual(2);
+});
