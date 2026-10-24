@@ -6,14 +6,15 @@ const PAGE = "/prototype/roomverse-3d/";
 const QA = "docs/qa/roomverse-left-wall-art";
 
 for (const width of [390, 1440]) {
-  test(`left-wall painting at ${width}px: delayed, 16:9, clear of lamp, plant and chair`, async ({ page }) => {
+  test(`left-wall small print at ${width}px: delayed, 4:3, aligned and clear`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.addInitScript(() => { window.requestIdleCallback = () => 1; });
-    const requests = [], posterRequests = [], errors = [];
+    const requests = [], printRequests = [], alternateRequests = [], errors = [];
     page.on("request", (r) => {
       if (r.url().includes("left-wall-harbor-dusk")) requests.push(r.url());
-      if (r.url().includes("room01-wall-print-geometric-v1.webp")) posterRequests.push(r.url());
+      if (r.url().includes("room01-wall-print-v2-botanical-window.webp")) printRequests.push(r.url());
+      if (r.url().includes("room01-wall-print-v2-neighborhood-corner.webp")) alternateRequests.push(r.url());
     });
     page.on("pageerror", (e) => errors.push(String(e)));
     await page.goto(`${PAGE}?lang=zh&mood=rain`);
@@ -22,23 +23,29 @@ for (const width of [390, 1440]) {
     await page.waitForFunction(() => window.__room);
     expect(requests).toHaveLength(0);
     expect((await page.evaluate(() => __room.leftWallArt())).built).toBe(false);
-    expect(await page.evaluate(() => __room.leftWallPoster().built)).toBe(false);
-    expect(posterRequests).toHaveLength(0); // B2 must not join the existing idle preload
-    await page.evaluate(() => Promise.all([__room.loadLeftWallArt(), __room.loadRightWallArt(), __room.loadConsoleDecor(), __room.loadTvWallTextures(), __room.loadDoorTexture()])); // reproduce the complete idle-loaded room before measuring the poster delta
+    expect(await page.evaluate(() => __room.leftWallSmallPrint().built)).toBe(false);
+    expect(printRequests).toHaveLength(0); // small print must not join the existing idle preload
+    expect(alternateRequests).toHaveLength(0); // candidate 2 stays disconnected
+    await page.evaluate(() => Promise.all([__room.loadLeftWallArt(), __room.loadRightWallArt(), __room.loadConsoleDecor(), __room.loadTvWallTextures(), __room.loadDoorTexture()])); // reproduce the complete idle-loaded room before measuring the small-print delta
     await page.waitForFunction(() => __room.leftWallArt().loaded);
     await page.waitForTimeout(500);
+    expect((await stat("public/prototype/roomverse-3d/art/room01-wall-print-v2-botanical-window.webp")).size).toBeLessThanOrEqual(60000);
+    expect((await stat("public/prototype/roomverse-3d/art/room01-wall-print-v2-neighborhood-corner.webp")).size).toBeLessThanOrEqual(60000);
     const beforePoster = await page.evaluate(() => __room.geometryMetrics());
     await page.evaluate(() => __room.setOrbitAngle(90));
-    await page.waitForFunction(() => __room.leftWallPoster().loaded);
+    await page.waitForFunction(() => __room.leftWallSmallPrint().loaded);
     const afterPoster = await page.evaluate(() => __room.geometryMetrics());
-    const poster = await page.evaluate(() => __room.leftWallPoster());
-    expect(posterRequests).toHaveLength(1);
+    const poster = await page.evaluate(() => __room.leftWallSmallPrint());
+    expect(printRequests).toHaveLength(1);
+    expect(alternateRequests).toHaveLength(0);
     expect(poster.ready).toBe(true);
-    expect(poster.file).toBe("room01-wall-print-geometric-v1.webp");
-    expect(poster.size).toEqual([720, 1020]);
-    expect(poster.place).toEqual({ x: -2.592, y: 1.79, z: -1.07 });
-    expect(poster.image.max[1] - poster.image.min[1]).toBeCloseTo(0.5 * 1020 / 720, 5);
+    expect(poster.file).toBe("room01-wall-print-v2-botanical-window.webp");
+    expect(poster.size).toEqual([1000, 750]);
+    expect(poster.place).toEqual({ x: -2.592, y: 1.6225, z: -1.07 });
+    expect(poster.image.max[1] - poster.image.min[1]).toBeCloseTo(0.375, 5);
     expect(poster.image.max[2] - poster.image.min[2]).toBeCloseTo(.5, 5);
+    expect(poster.bounds.max[1]).toBeCloseTo(poster.boardBounds.max[1], 2);
+    expect(Math.abs(poster.bounds.max[1] - poster.boardBounds.max[1])).toBeLessThanOrEqual(.01);
     expect(poster.vertices).toBe(124);
     expect(poster.meshes).toBe(6);
     expect(afterPoster.vertices - beforePoster.vertices).toBe(poster.vertices);
@@ -170,15 +177,15 @@ for mood in ["tv", "rain", "family"]:
   await writeFile(`${QA}/geometry-and-glow.json`, JSON.stringify(measured, null, 2));
 });
 
-test("the B2 poster stays clear of the director camera and robot turn path", async ({ page }) => {
+test("the left-wall small print stays clear of the director camera and robot turn path", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ reducedMotion: "no-preference" });
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(`${PAGE}?lang=zh&mood=rain`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await page.evaluate(() => __room.setOrbitAngle(90));
-  await page.waitForFunction(() => __room.leftWallPoster().loaded);
-  const poster = await page.evaluate(() => __room.leftWallPoster());
+  await page.waitForFunction(() => __room.leftWallSmallPrint().loaded);
+  const poster = await page.evaluate(() => __room.leftWallSmallPrint());
   expect(poster.clearances.roomRobot.intersects).toBe(false);
   expect(poster.clearances.roomRobot.distance).toBeGreaterThan(.06);
   expect(poster.clearances.guideRobot.intersects).toBe(false);
@@ -211,18 +218,18 @@ test("the B2 poster stays clear of the director camera and robot turn path", asy
   expect(errors).toEqual([]);
 });
 
-test("the B2 poster is lazy and appears after its first image request fails", async ({ page }) => {
+test("the left-wall small print is lazy and appears after its first image request fails", async ({ page }) => {
   let hits = 0;
-  await page.route("**/room01-wall-print-geometric-v1.webp", (route) => (++hits === 1 ? route.abort() : route.continue()));
+  await page.route("**/room01-wall-print-v2-botanical-window.webp", (route) => (++hits === 1 ? route.abort() : route.continue()));
   await page.addInitScript(() => { window.requestIdleCallback = () => 1; });
   await page.goto(`${PAGE}?lang=zh&mood=rain`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-  expect(await page.evaluate(() => __room.leftWallPoster().built)).toBe(false);
+  expect(await page.evaluate(() => __room.leftWallSmallPrint().built)).toBe(false);
   await page.evaluate(() => __room.setOrbitAngle(90));
-  await page.waitForFunction(() => __room.leftWallPoster().loaded, null, { timeout: 12000 });
-  const poster = await page.evaluate(() => __room.leftWallPoster());
+  await page.waitForFunction(() => __room.leftWallSmallPrint().loaded, null, { timeout: 12000 });
+  const poster = await page.evaluate(() => __room.leftWallSmallPrint());
   expect(hits).toBeGreaterThanOrEqual(2);
-  expect(poster.file).toBe("room01-wall-print-geometric-v1.webp");
+  expect(poster.file).toBe("room01-wall-print-v2-botanical-window.webp");
 });
 
 test("a left-wall painting whose first download fails appears by itself on a retry, without reloading the page", async ({ page }) => {
