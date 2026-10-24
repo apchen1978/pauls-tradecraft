@@ -65,4 +65,10 @@ Paul 選定兩幅加入畫廊：Room 01 使用精修機器人的畫家筆觸版�
 | roomverse-room01-concept | `docs/gallery/sources/roomverse-room01-concept-source.png`；參照 Room 01 已完成封面，以 ImageGen 增加畫家筆觸，再局部精修機器人。Paul 指定使用精修機器人的版本。 |
 | roomverse-room02-brooklyn-concept | `docs/gallery/sources/roomverse-room02-brooklyn-concept-source.png`；參照 Room 02 Brooklyn Studio 封面，以 ImageGen 加強布魯克林街屋、水塔、大橋與畫家筆觸。Paul 指定使用此版本。 |
 
+## 2026-10-24：ROOMVERSE 房間裡的收藏畫
+
+Paul 核准把曾掛在 Room 02 的南加州海岸日落插畫收入畫廊。它在 ROOMVERSE 區塊以獨立副標呈現，不與 Room 01、Room 02 的全房概念畫混列；公開說明只稱想像插畫，不推定房間住戶曾到訪該地。原 Room 02 WebP 不變。
+
+來源、製作步驟與 UNKNOWN 清單見 [`room02-la-coast-provenance.md`](room02-la-coast-provenance.md)。ImageGen 原始 PNG 與 1200×1600 紙邊母檔保存在 `sources/`；桌機 WebP 沿用原 Room 02 檔案且位元組相同，手機與縮圖由母檔縮小。各檔 SHA256、尺寸與 bytes 見 `docs/qa/human-ai-gallery/asset-manifest.json`。
+
 公開圖使用 1122×1402 原比例 WebP、800×1000 手機圖與 480×600 縮圖；檔案大小與 SHA256 記在 `docs/qa/human-ai-gallery/asset-manifest.json`。Room 02 畫面允許比互動場景更自由的城市想像，公開文字均標為概念畫作。
