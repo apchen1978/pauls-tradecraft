@@ -401,5 +401,36 @@
         "sha256": "40d77648e73868cde678971d98f7682c18871d9d108401024d05204f1c650952"
       }
     ]
+  },
+  {
+    "id": "room02-la-coast-collection",
+    "source": "docs/gallery/sources/roomverse-room02-la-coast-source.png",
+    "sourceSha256": "ef30bc9177ecc81b9386d30272e3348d369c76be4f987477e46664ce4b9e922d",
+    "derivatives": [
+      {
+        "file": "roomverse-room02-la-coast.webp",
+        "width": 1200,
+        "height": 1600,
+        "bytes": 110526,
+        "quality": 48,
+        "sha256": "78f0321b01a6e1b784a7019cffeb07d2ee86d5a38560509d76e8a29288af045b"
+      },
+      {
+        "file": "roomverse-room02-la-coast-mobile.webp",
+        "width": 800,
+        "height": 1067,
+        "bytes": 102764,
+        "quality": 78,
+        "sha256": "4037ef13114df4c3531af2e11003fa07a7cc4c8944ec9fdef7b6462cf851e237"
+      },
+      {
+        "file": "roomverse-room02-la-coast-thumb.webp",
+        "width": 480,
+        "height": 640,
+        "bytes": 40844,
+        "quality": 76,
+        "sha256": "8bbb0fe93924659df3cf5687eaa5eb7712292a7ba71e3bdf0406ee395a527143"
+      }
+    ]
   }
 ]
