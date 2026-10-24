@@ -23,7 +23,7 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("html")).toHaveAttribute("lang", lang === "zh" ? "zh-Hant" : "en");
 
       await expect(copy.locator("h1")).toHaveCount(1);
-      await expect(copy.locator(".guide-principle")).toHaveCount(4);
+      await expect(copy.locator(".guide-principle")).toHaveCount(5);
       await expect(copy.locator(".guide-principle h3")).toHaveCount(4);
       await expect(copy.locator(".made-lesson")).toHaveCount(4);
       await expect(copy.locator(".guide-misconceptions li")).toHaveCount(2);
@@ -34,6 +34,8 @@ for (const lang of ["zh", "en"]) {
       expect(text).toContain("Claude Code");
       expect(text).toContain("Codex");
       expect(text).toContain("Rucker Park");
+      expect(text).toContain("Eichler");
+      expect(text).toContain("Bed-Stuy");
 
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(0);
