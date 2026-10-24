@@ -787,7 +787,26 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // Codex's duvet (batch 13): one sheet with a turned-back edge at the head, uneven soft folds and hanging sides, origin at the middle of the mattress top
   // (head at -z). Its UVs are 1 per metre, so they are scaled to the old sheet's so the same linen picture tiles about 30 cm wide.
   loadGlb(new URL("./models/duvet-v1.glb", import.meta.url).href, { anchor: "none", roughness: 1 }).then((g) => {
-    g.traverse((o) => { if (!o.isMesh) return; o.material = duvetMat; const uv = o.geometry.attributes.uv; for (let i = 0; i < uv.array.length; i++) uv.array[i] /= 1.7; uv.needsUpdate = true; });
+    g.traverse((o) => {
+      if (!o.isMesh) return;
+      o.material = duvetMat;
+      const pos = o.geometry.attributes.position, uv = o.geometry.attributes.uv;
+      let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+      for (let i = 0; i < uv.count; i++) { u0 = Math.min(u0, uv.getX(i)); u1 = Math.max(u1, uv.getX(i)); v0 = Math.min(v0, uv.getY(i)); v1 = Math.max(v1, uv.getY(i)); }
+      // Use the duvet's existing vertices for a few shallow, offset folds and an irregular hem; no mesh density is added.
+      for (let i = 0; i < pos.count; i++) {
+        const u = (uv.getX(i) - u0) / (u1 - u0), v = (uv.getY(i) - v0) / (v1 - v0), y = pos.getY(i);
+        const edge = Math.min(u, 1 - u, v, 1 - v), t = Math.max(0, Math.min(1, edge / .08));
+        const inset = t * t * (3 - 2 * t), top = Math.max(0, Math.min(1, (y + .01) / .035));
+        const hem = Math.max(0, Math.min(1, (-y - .105) / .05));
+        const fold = (.008 * Math.sin(Math.PI * 2 * (3 * u + .8 * v) + .3) + .005 * Math.sin(Math.PI * 2 * (4.6 * v - 1.15 * u) + .9)) * inset * top;
+        const hemWave = .008 * Math.sin(Math.PI * 2 * (3.6 * u + .55 * v) + .5) * hem;
+        pos.setY(i, y + fold + hemWave);
+      }
+      pos.needsUpdate = true; o.geometry.computeVertexNormals();
+      for (let i = 0; i < uv.array.length; i++) uv.array[i] /= 1.7;
+      uv.needsUpdate = true;
+    });
     const head = BED.z - BED.l / 2, foot = BED.z + BED.l / 2, k = ((foot + .072) - (head + .3)) / 1.772; // the file is made for a 2.0 m bed: stretch it so its fold starts 30 cm from the head and the foot hangs at the foot
     g.scale.z = k; g.scale.x = (BED.w + .06) / 1.242; g.name = "bed-duvet"; g.position.set(BED.x, BED.top, head + .3 + .7 * k); codeDuvet.parent.remove(codeDuvet); root.add(g); redraw();
   }).catch(() => {});
@@ -822,9 +841,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     part(g, throwMat, "bed-throw", tx, ty, tz).scale.x = 1.3; // made for a 1.1 m bed, stretched across (not the full 1.36, so its hems stay inside the east wall)
     part(f, throwMat, "bed-throw-fringe", tx, ty, tz).scale.x = 1.3; }
   // 19 cm pillow. The grey cushion that leaned on it is gone (Paul: it looked fake); the pillow alone reads cleaner.
-  const bedPillow = part(pillowGeo(.7, .19, .46, .026), pillowMat, "bed-pillow", BED.x - .38, BED.top + .082, north + .36);
+  const bedPillow = part(pillowGeo(.7, .19, .46, .034), pillowMat, "bed-pillow", BED.x - .38, BED.top + .082, north + .36);
   bedPillow.rotation.set(0, .05, .012);
-  part(pillowGeo(.7, .19, .46, .026), pillowMatB, "bed-pillow-2", BED.x + .38, BED.top + .082, north + .36).rotation.set(0, -.04, -.01); // a double bed: two pillows
+  part(pillowGeo(.7, .19, .46, .034), pillowMatB, "bed-pillow-2", BED.x + .38, BED.top + .082, north + .36).rotation.set(0, -.04, -.01); // a double bed: two pillows
   // bedside table in the cream-and-walnut style Paul sent a photo of (40 x 40 x 50 cm): a walnut top with a small overhang, a soft cream body with two drawer
   // fronts and a dark gap between them, a black plinth; and a lamp with a turned walnut base and a cone shade; the shade glows a little by itself
   const tx = BED.x - BED.w / 2 - .27, tz = north + .27;
