@@ -472,9 +472,16 @@ test("the linen curtains never cover the house plaque", async ({ page }) => {
   await enter(page);
   await page.locator('#swapGroups button[data-kind="window"][data-choice="linen"]').click();
   await page.waitForFunction(() => window.__bedroom.info().curtains === true);
-  const { curtainPanels, plaque } = await page.evaluate(() => window.__bedroom.info());
+  const { curtainPanels, plaque, work, vertices } = await page.evaluate(() => window.__bedroom.info());
   expect(curtainPanels.length).toBe(2);
-  for (const c of curtainPanels) expect(c.min[0] > plaque.max[0] || c.max[0] < plaque.min[0], "curtain x-range clear of the plaque").toBe(true);
+  expect(vertices).toBeLessThan(62000);
+  for (const c of curtainPanels) {
+    expect(c.min[0] > plaque.max[0] || c.max[0] < plaque.min[0], "curtain x-range clear of the plaque").toBe(true);
+    expect(c.vertices).toBe(455); // same 35 × 13 grid per panel; no added vertices
+    expect(c.min[1]).toBeGreaterThanOrEqual(.01); // gentle hem ripple stays above the floor
+    expect(c.max[1]).toBeLessThan(2.4); // top edge stays below the ceiling and rod area
+    expect(c.max[0] <= work.desk.min[0] || c.min[0] >= work.desk.max[0], "curtain panel clear of the desk in x").toBe(true);
+  }
 });
 
 test("two prints hang on the wall behind the sofa, over its length and above its back; the bed's head has two channels, none reaching the window sill", async ({ page }) => {
