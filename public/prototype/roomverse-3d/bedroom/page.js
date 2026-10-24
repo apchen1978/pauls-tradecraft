@@ -73,7 +73,7 @@ function viewButtons() {
     return b;
   }));
 }
-const picked = { posters: "C", wall: "paper", rug: "modern", window: "linen", bedding: "olive", led: "auto", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed", tv: "auto" };
+const picked = { posters: "C", wall: "paper", rug: "modern", window: "linen", bedding: "clay", led: "auto", desktop: "minimal", screen: "city", sofa: "slate", shelf: "mixed", tv: "auto" };
 function swapButtons() {
   const c = COPY[lang], box = $("swapGroups");
   $("swapsTitle").textContent = c.swapsLabel;
@@ -152,6 +152,7 @@ $("enter").onclick = async () => {
     room = await start({ stage: $("stage"), bubble: $("robotBubble"), hitTarget: $("robotHitTarget"), lang, copy: () => COPY[lang] });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook
+    await room.setChoice("bedding", "clay"); // the oat duvet, terracotta throw and navy pillow are the first look (Paul 2026-10-24, from the shuffle)
     $("portalRow").hidden = false;
     $("immersiveEnter").hidden = false;
     if (arrivedFromRoom01) { mood = "golden"; moodButtons(); await room.setMood("golden"); } // coming through the door from the daytime living room, the visitor walks into the low golden sun (Paul 2026-10-24)
