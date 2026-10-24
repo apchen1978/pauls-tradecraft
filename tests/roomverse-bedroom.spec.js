@@ -704,3 +704,10 @@ test.describe("hi-dpi screens", () => {
     });
   }
 });
+
+test("Room 02 opens in golden hour when entered from the home cover; a direct visit keeps the focus day", async ({ page }) => {
+  for (const [query, expected] of [["from=home", "golden"], ["", "focus"]]) {
+    await page.goto(`${PAGE}?lang=zh${query ? `&${query}` : ""}`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__bedroom);
+    await expect(page.locator(`#moodRow button[data-mood="${expected}"]`), query || "direct visit").toHaveAttribute("aria-pressed", "true");
+  }
+});
