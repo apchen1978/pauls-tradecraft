@@ -1299,16 +1299,22 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
   { const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, WINDOW.w + .6, 10), metalMat); rod.rotation.z = Math.PI / 2; rod.position.set(WINDOW.x, wTop + .2, -HD + .12); rod.name = "curtain-rod"; curtains.add(rod); }
   for (const side of [-1, 1]) {
-    // Gathered at the rod, hanging open at the hem: tight small folds at the top that open into larger, uneven S-folds towards the floor (three
-    // waves of different length), the fabric pulling in a little where it folds, and a hem that is not a straight line, 2 cm off the floor.
+    // Gathered at the rod: keep the upper folds orderly, then let their spacing relax slightly toward the hem.
+    // The two existing grids also turn the side edges and hem forward as shallow folded-return cues without adding vertices.
     const H = wTop + .17, g = new THREE.PlaneGeometry(.3, H, 34, 12), pos = g.attributes.position, TAU = Math.PI * 2;
+    const smooth = (a, b, x) => { const q = Math.max(0, Math.min(1, (x - a) / (b - a))); return q * q * (3 - 2 * q); };
     for (let i = 0; i < pos.count; i++) {
-      const u = pos.getX(i) / .3 + .5, t = (pos.getY(i) + H / 2) / H, open = Math.pow(1 - t, 1.3), ph = side * .2 + .12 * open;
-      const wave = .62 * Math.sin(TAU * (2.5 * u + ph)) + .28 * Math.sin(TAU * (4.3 * u + .35 + .15 * open)) + .1 * Math.sin(TAU * (1.2 * u + .7));
-      pos.setZ(i, (.012 + .022 * open) * wave);
-      pos.setX(i, pos.getX(i) + open * .012 * Math.sin(TAU * (2.5 * u + ph) + 1.2));
-      pos.setY(i, pos.getY(i) + Math.pow(open, 4) * .016 * Math.sin(u * 13 + side * 1.7));
+      const u = pos.getX(i) / .3 + .5, t = (pos.getY(i) + H / 2) / H, open = Math.pow(1 - t, 1.3);
+      const upper = smooth(.42, .98, t), lower = 1 - upper, hem = 1 - smooth(0, .14, t);
+      const phaseU = u + .045 * lower * Math.sin(TAU * (1.05 * u + side * .14));
+      const ph = side * .18 + .08 * open + .11 * lower * Math.sin(TAU * (1.3 * u + side * .08));
+      const wave = .62 * Math.sin(TAU * (2.5 * phaseU + ph)) + .28 * Math.sin(TAU * (4.3 * phaseU + .35 + .08 * lower)) + .1 * Math.sin(TAU * (1.2 * phaseU + .7 + .04 * open));
+      const edge = 1 - smooth(0, .07, Math.min(u, 1 - u));
+      pos.setZ(i, pos.getZ(i) + (.022 + .006 * upper) * wave + edge * (.005 + .002 * Math.sin(TAU * (.85 * t + side * .13))) + hem * (.0025 + .002 * Math.sin(Math.PI * u)));
+      pos.setX(i, pos.getX(i) * (1 - .07 * upper) + lower * .007 * Math.sin(TAU * (2.2 * u + side * .12)));
+      pos.setY(i, pos.getY(i) + hem * (.005 * Math.sin(TAU * (2.2 * u + side * .12)) + .002 * Math.sin(TAU * (1.05 * u + .35 * side))));
     }
+    pos.needsUpdate = true;
     g.computeVertexNormals();
     const panel = new THREE.Mesh(g, linenMat); panel.name = "curtain-panel"; panel.castShadow = true; panel.receiveShadow = true;
     panel.position.set(WINDOW.x + side * (WINDOW.w / 2), .02 + H / 2, -HD + .12); curtains.add(panel);
@@ -1646,7 +1652,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       vinyl: (() => { const b = new THREE.Box3().setFromObject(vin), r = new THREE.Box3().setFromObject(record), sl = []; vin.traverse((o) => { if (o.name === "vinyl-sleeve") sl.push(new THREE.Box3().setFromObject(o)); });
         return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)) }; })(),
-      choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, curtainPanels: curtains.children.filter((c) => c.name === "curtain-panel").map((c) => { const b = new THREE.Box3().setFromObject(c); return { min: b.min.toArray(), max: b.max.toArray() }; }), bedPoster: bedPosterId,
+      choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, curtainPanels: curtains.children.filter((c) => c.name === "curtain-panel").map((c) => { const b = new THREE.Box3().setFromObject(c); return { min: b.min.toArray(), max: b.max.toArray(), vertices: c.geometry.attributes.position.count }; }), bedPoster: bedPosterId,
       bedPosterBox: (() => { const b = new THREE.Box3().setFromObject(bedPoster); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       plaque: (() => { const b = new THREE.Box3().setFromObject(plaque); return { min: b.min.toArray(), max: b.max.toArray(), loaded: !!plaqueTex.image }; })(),
       plaqueInView: (() => { const b = new THREE.Box3().setFromObject(plaque); camera.updateMatrixWorld(); return [[b.min.x, b.min.y], [b.max.x, b.min.y], [b.min.x, b.max.y], [b.max.x, b.max.y]].every(([x, y]) => { const v = new THREE.Vector3(x, y, b.max.z).project(camera); return Math.abs(v.x) < .98 && Math.abs(v.y) < .98 && v.z < 1; }); })(),
