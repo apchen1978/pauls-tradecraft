@@ -253,6 +253,36 @@ test("six moods: buttons switch window, blind and lamps, and no mood is blown ou
   }
 });
 
+test("series night ceiling fixture is visibly off while every other mood keeps its original finish and geometry", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(String(error)));
+  await enter(page);
+  await page.waitForFunction(() => {
+    const info = window.__bedroom.info();
+    return Object.values(info.painted).every(Boolean) && window.__bedroom.robotState().loaded && info.vertices > 59000;
+  }, null, { timeout: 60000 });
+  let previous = -1, stable = 0;
+  while (stable < 4) {
+    const vertices = await page.evaluate(() => window.__bedroom.info().vertices);
+    stable = vertices === previous ? stable + 1 : 0;
+    previous = vertices;
+    await page.waitForTimeout(250);
+  }
+  const initial = await page.evaluate(() => window.__bedroom.info());
+  const expected = { focus: [1.05, .55, 4.8], weekend: [.3, .34, 4.5], golden: [0, .18, 3.4], night: [0, 0, 1.5], sunday: [0, .2, 2.5], series: [0, 0, 0] };
+  for (const [mood, [intensity, glow, fill]] of Object.entries(expected)) {
+    await page.evaluate((name) => window.__bedroom.setMood(name), mood);
+    const { ceilingLamp, fillIntensity, vertices, meshes } = await page.evaluate(() => window.__bedroom.info());
+    expect(ceilingLamp.emissiveIntensity, mood).toBeCloseTo(intensity, 5);
+    expect(ceilingLamp.glowOpacity, `${mood} ceiling pool`).toBeCloseTo(glow, 5);
+    expect(ceilingLamp.color, mood).toBe("#f4efe6");
+    expect(fillIntensity, `${mood} room fill`).toBeCloseTo(fill, 5);
+    expect(vertices, `${mood} vertex count`).toBe(initial.vertices);
+    expect(meshes, `${mood} mesh count`).toBe(initial.meshes);
+  }
+  expect(errors).toEqual([]);
+});
+
 test("vinyl corner: console under the sill, records inside their cubbies, record on the platter, clear of desk, chair and bed", async ({ page }) => {
   await enter(page);
   const { vinyl, work, bed } = await page.evaluate(() => window.__bedroom.info());
