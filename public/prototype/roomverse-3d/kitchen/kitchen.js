@@ -55,6 +55,25 @@ function makeMottleTexture(seed, strength = 0.06) {
   });
 }
 
+function makeFloorTexture(seed, strength = 0.12) {
+  const texture = makeMottleTexture(seed, strength);
+  const { width, height } = texture.image;
+  const ctx = texture.image.getContext("2d");
+  // Baked, broad window-side lift: a soft matte gradient, not a reflection or extra light.
+  const direction = ctx.createLinearGradient(0, height * 0.18, width, height * 0.52);
+  direction.addColorStop(0, "#f4e6cc");
+  direction.addColorStop(0.18, "#fff9eb");
+  direction.addColorStop(0.42, "#f8edd8");
+  direction.addColorStop(0.72, "#eee1c8");
+  direction.addColorStop(1, "#f0e4ce");
+  ctx.globalCompositeOperation = "multiply";
+  ctx.fillStyle = direction;
+  ctx.fillRect(0, 0, width, height);
+  ctx.globalCompositeOperation = "source-over";
+  texture.needsUpdate = true;
+  return texture;
+}
+
 function makeWoodTexture(planks = false, alongDepth = false) {
   return makeTexture((ctx, w, h) => {
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
@@ -122,21 +141,39 @@ function makeSkyTexture(night) {
 
 function makeRugTexture() {
   return makeTexture((ctx, w, h) => {
-    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
-    // Fine, low-contrast irregular jute fibers; avoid a checkerboard weave.
-    for (let i = 0; i < 90; i++) {
-      const y = (i * 19) % h;
-      ctx.strokeStyle = i % 3 ? "rgba(117,89,51,.10)" : "rgba(255,255,255,.22)";
-      ctx.lineWidth = i % 5 === 0 ? 1.3 : 0.7;
-      ctx.beginPath(); ctx.moveTo(0, y);
-      ctx.bezierCurveTo(w * 0.28, y - 2, w * 0.62, y + 2, w, y - 1); ctx.stroke();
+    ctx.fillStyle = "#e7dcc2"; ctx.fillRect(0, 0, w, h);
+    // Coarse, softly irregular jute strands; no regular checkerboard grid.
+    let state = 37;
+    const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+    for (let i = 0; i < 38; i++) {
+      const y = 7 + random() * (h - 14);
+      ctx.strokeStyle = random() > 0.48 ? "rgba(117,89,51,.15)" : "rgba(255,255,255,.23)";
+      ctx.lineWidth = 0.7 + random() * 1.25;
+      const start = random() * 16, end = w - random() * 16;
+      ctx.beginPath(); ctx.moveTo(start, y);
+      ctx.bezierCurveTo(w * 0.28, y + (random() - 0.5) * 5, w * 0.68, y + (random() - 0.5) * 5, end, y + (random() - 0.5) * 4);
+      ctx.stroke();
     }
-    for (let i = 0; i < 44; i++) {
-      const x = (i * 31) % w;
-      ctx.strokeStyle = i % 2 ? "rgba(133,101,59,.055)" : "rgba(255,255,255,.11)";
-      ctx.lineWidth = 0.6;
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 2, h); ctx.stroke();
+    for (let i = 0; i < 20; i++) {
+      const x = 7 + random() * (w - 14), start = random() * 24, end = h - random() * 24;
+      ctx.strokeStyle = random() > 0.5 ? "rgba(133,101,59,.085)" : "rgba(255,255,255,.16)";
+      ctx.lineWidth = 0.65 + random() * 0.9;
+      ctx.beginPath(); ctx.moveTo(x, start);
+      ctx.bezierCurveTo(x + (random() - 0.5) * 5, h * 0.35, x + (random() - 0.5) * 5, h * 0.7, x + (random() - 0.5) * 5, end);
+      ctx.stroke();
     }
+    for (let i = 0; i < 100; i++) {
+      const x = random() * w, y = random() * h, length = 2 + random() * 7;
+      ctx.strokeStyle = random() > 0.5 ? "rgba(121,91,54,.12)" : "rgba(255,255,255,.2)";
+      ctx.lineWidth = 0.5 + random() * 0.65;
+      ctx.beginPath(); ctx.moveTo(x, y);
+      ctx.lineTo(x + (random() - 0.5) * length, y + (random() - 0.5) * length); ctx.stroke();
+    }
+    // A pale woven binding, about 2 cm at this texture scale.
+    ctx.strokeStyle = "rgba(255,250,232,.96)"; ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, w - 2, h - 2);
+    ctx.strokeStyle = "rgba(247,238,213,.85)"; ctx.lineWidth = 1;
+    ctx.strokeRect(4, 4, w - 8, h - 8);
   });
 }
 
@@ -154,7 +191,7 @@ function makeSeatTexture() {
 function makeMaterials() {
   const std = (color, roughness = 0.8, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   return {
-    floor: std(0x8f877b, 0.66, { map: makeMottleTexture(11, 0.055), metalness: 0.025 }),
+    floor: std(0xcdbb9e, 0.42, { map: makeFloorTexture(31, 0.15), metalness: 0.025 }),
     wall: std(COLORS.cream, 0.92, { map: makeMottleTexture(19, 0.028) }),
     ceiling: std(COLORS.ceiling, 0.86, { map: makeWoodTexture(true, true), emissive: 0x9b6938, emissiveIntensity: 0.34 }),
     oak: std(COLORS.oak, 0.76, { map: makeWoodTexture(false) }),
@@ -162,7 +199,7 @@ function makeMaterials() {
     olive: std(COLORS.olive, 0.82),
     stone: std(COLORS.stone, 0.45, { map: makeFineNoise(23, 0.025) }),
     black: std(COLORS.black, 0.44), steel: std(COLORS.steel, 0.38),
-    jute: std(COLORS.jute, 1, { map: makeRugTexture() }), seat: std(0xb8a17e, 0.98, { map: makeSeatTexture() }),
+    jute: std(COLORS.jute, 0.96, { map: makeRugTexture() }), seat: std(0xb8a17e, 0.98, { map: makeSeatTexture() }),
     red: std(COLORS.terracotta, 0.34), glass: new THREE.MeshPhysicalMaterial({ color: 0xb9d3d1, roughness: 0.12, metalness: 0.06, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }),
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
     warmGlow: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.94, side: THREE.DoubleSide, depthWrite: false }),
@@ -304,7 +341,8 @@ function buildSideKitchen(b, m, scene) {
 function buildTable(b, m) {
   const z = 0.5;
   // 2.0 × 0.9 m dining table with clear floor around four chairs.
-  addBox(b, "rug", m.jute, [2.65, 0.025, 2.05], [0, 0.015, z]);
+  // 2.9 × 2.1 m rug; its underside sits 10 mm above the floor to avoid z-fighting.
+  addBox(b, "rug", m.jute, [2.9, 0.01, 2.1], [0, 0.015, z]);
   addBox(b, "dining-table", m.oak, [2.0, 0.075, 0.9], [0, 0.76, z]);
   addBox(b, "dining-table", m.oak, [1.66, 0.12, 0.11], [0, 0.65, z]);
   for (const x of [-0.82, 0.82]) for (const zz of [z - 0.31, z + 0.31]) addBox(b, "dining-table", m.oak, [0.09, 0.64, 0.09], [x, 0.34, zz]);
@@ -425,6 +463,8 @@ export async function start({ stage, onReady = () => {} }) {
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
     if (yardMaterial) { yardMaterial.color.setHex(preset.yard); yardMaterial.needsUpdate = true; }
     materials.opal.emissiveIntensity = preset.globe;
+    materials.floor.color.setHex(name === "night" ? 0xc2a77b : 0xcdbb9e);
+    materials.jute.color.setHex(name === "night" ? 0xd9c99f : 0xd0b47f);
     materials.ceiling.emissiveIntensity = name === "golden" ? 0.3 : 0.5;
     materials.warmGlow.opacity = name === "night" ? 1 : 0.72;
     materials.sunlight.opacity = name === "golden" ? 0.32 : 0;
@@ -486,7 +526,15 @@ export async function start({ stage, onReady = () => {} }) {
       categories[key] ??= { vertices: 0, meshes: 0 };
       categories[key].vertices += count; categories[key].meshes++;
     });
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([2.84, 1.05, 2.35]), doorReveal: project([2.80, 1.05, 2.35]), doorPanel: project([2.86, 1.05, 2.0]) } };
+    const rug = scene.getObjectByName("merged-rug");
+    rug?.geometry.computeBoundingBox();
+    const bounds = rug?.geometry.boundingBox;
+    const rugBounds = bounds ? {
+      min: bounds.min.toArray(), max: bounds.max.toArray(),
+      size: bounds.getSize(new THREE.Vector3()).toArray(),
+      materialColor: `#${rug.material.color.getHexString()}`, roughness: rug.material.roughness,
+    } : null;
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([2.84, 1.05, 2.35]), doorReveal: project([2.80, 1.05, 2.35]), doorPanel: project([2.86, 1.05, 2.0]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
