@@ -1555,6 +1555,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   const fromUrl = new URLSearchParams(location.search);
   let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
+  if (fromUrl.get("from") === "home" && !Object.hasOwn(MOODS, fromUrl.get("mood") ?? "")) state.mood = "golden"; // arriving from the home cover (a golden-hour painting) the first look matches it; an explicit mood in the address wins
   if (!wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[state.mood];
   function choose(key, value) {
     const previous = state[key];

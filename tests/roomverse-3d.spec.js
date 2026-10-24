@@ -395,7 +395,7 @@ for (const width of [390, 1440]) {
       await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
       await expect(page.locator("#panel")).toBeVisible();
       await expect(page.locator("#stage canvas")).toBeVisible();
-      expect(glb.filter((u) => u.endsWith(".glb"))).toHaveLength(9);
+      expect(glb.filter((u) => u.endsWith(".glb"))).toHaveLength(10); // the coffee mug (#517) is the tenth
 
       const groups = page.locator("#panel .opts");
       await expect(groups).toHaveCount(5);
@@ -498,7 +498,7 @@ test("homepage Showcase: ROOMVERSE 3D is a formal work with its tag, cover and a
       const card = page.locator("#showcase article", { hasText: title });
       await expect(card).toHaveCount(1);
       await expect(card).toContainText(tag);
-      await expect(card.locator("a").first()).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
+      await expect(card.locator("a").first()).toHaveAttribute("href", `/prototype/roomverse-3d/?from=home&lang=${lang}`);
       const img = card.locator('img[src*="roomverse-3d/showcase-roomverse-3d-v4.webp"]');
       await img.scrollIntoViewIfNeeded();
       await expect.poll(() => img.evaluate((el) => el.complete && el.naturalWidth)).toBe(816);
@@ -512,7 +512,7 @@ test("homepage Showcase: ROOMVERSE 3D is the first card, with Trade Street besid
     await page.goto(`/?lang=${lang}#showcase`);
     await expect(page.locator("#showcase article").nth(0)).toContainText(title);
     await expect(page.locator("#showcase article").nth(1)).toContainText(next);
-    await expect(page.locator("#showcase article").nth(0).locator("a").first()).toHaveAttribute("href", `/prototype/roomverse-3d/?lang=${lang}`);
+    await expect(page.locator("#showcase article").nth(0).locator("a").first()).toHaveAttribute("href", `/prototype/roomverse-3d/?from=home&lang=${lang}`);
   }
 });
 
@@ -1443,3 +1443,10 @@ for (const [label, viewport] of [["phone", { width: 390, height: 844 }], ["deskt
     await writeFile(`${output}/${label}-rotation-measurements.json`, JSON.stringify({ viewport, start, samples, travelledDegrees: travelled, releases }, null, 2));
   });
 }
+
+test("Room 01 opens in golden hour only when it is entered from the home cover; an explicit mood or a direct visit keeps the old first look", async ({ page }) => {
+  for (const [query, expected] of [["from=home", "golden"], ["from=home&mood=rain", "rain"], ["from=home&mood=tv", "tv"], ["", "rain"], ["from=room02", "rain"]]) {
+    await page.goto(`${PAGE}?lang=zh${query ? `&${query}` : ""}`); if (await page.locator("#enter").isVisible()) await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+    await expect(page.locator(`#panel .opts[aria-label="感覺"] button[data-key="${expected}"]`), query || "direct visit").toHaveAttribute("aria-pressed", "true");
+  }
+});
