@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>這是怎麼做出來的：一個人與幾個 AI · AI Lab</title>
+  <meta name="description" content="ROOMVERSE 的三間房怎麼做出來：誰決定、誰製作、哪裡出過差錯，以及怎麼修回來。">
+  <link rel="canonical" href="https://paulstradecraft.com/ai-lab/how-made/">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../guide/styles.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#guide-main" id="skip-link">跳至內容</a>
+  <header class="top guide-top">
+    <a class="brand" id="brand-link" href="/ai-lab/?lang=zh">AI Lab</a>
+    <nav class="guide-language" aria-label="Language">
+      <a href="?lang=zh" data-language-link="zh" aria-label="繁體中文">中</a>
+      <a href="?lang=en" data-language-link="en" aria-label="English">EN</a>
+    </nav>
+  </header>
+
+  <main class="guide-main" id="guide-main">
+    <article class="guide-copy" data-language="zh">
+      <header class="guide-heading">
+        <p class="guide-kicker">AI LAB · 製作記錄</p>
+        <h1><span class="no-break">這是怎麼做出來的</span>：<span class="no-break">一個人與幾個 AI</span></h1>
+        <p class="guide-dek">ROOMVERSE 的三間房，是我（Paul）和幾個 AI 一起做出來的。這一頁不是要展示 AI 有多會畫，而是把過程攤開：誰決定什麼、誰負責什麼、哪裡出過差錯，以及怎麼修回來。</p>
+      </header>
+
+      <div class="guide-principles">
+        <section class="guide-principle">
+          <h2>一、誰做什麼</h2>
+          <ul class="made-list">
+            <li><strong>我（Paul）</strong>：決定方向與品味。這間房像不像真的有人住？顏色對不對？哪一幅畫該留下？最後說「好」，才會上線。</li>
+            <li><strong>規劃與審核的 AI（Claude Code）</strong>：把想法寫成任務卡，檢查截圖與測試，查證資料，發現問題就退件。</li>
+            <li><strong>繪圖與建模的 AI（Codex）</strong>：照任務卡畫概念圖、做 3D 模型、寫程式。</li>
+            <li><strong>規則</strong>：一次只改一小步；先查證再動手；事實、推測、未知分開寫；沒有我的同意，不會合併或上線。</li>
+          </ul>
+          <p class="made-quote">沒有人說「好」，什麼都不會上線。</p>
+        </section>
+
+        <section class="guide-principle">
+          <h2>二、一間房是怎麼誕生的：以 Room 03 灣區廚房為例</h2>
+          <ol class="made-list">
+            <li><strong>我先說方向。</strong>想做灣區華人家庭的廚房，要有真實生活，不要刻板印象。</li>
+            <li><strong>先查證。</strong>灣區確實有人把小儲藏室改成獨立的炒鍋廚房，因為一般爐具炒菜容易觸發煙霧警報。這份資料只有單一個人部落格，所以標明「單一來源」。老房子的廚房特徵、院子的植物查不到，標為「未知」，沒有補進畫面。</li>
+            <li><strong>概念圖。</strong>AI 畫了金色時光與夜晚兩張。我看過，把餐桌中央的小旋轉盤拿掉。</li>
+            <li><strong>第一版 3D 被退件。</strong>鏡頭太近，牆被拉歪；餐桌佔了半個畫面；右邊的門像一大塊橘色板子。審核的 AI 列出六個問題退回。</li>
+            <li><strong>修了幾輪。</strong>取景退後、地毯換成黃麻質感、木天花有了木板紋、地板變暖。每一輪都有前後對照圖，我看過才說「好」。</li>
+            <li><strong>還在追趕的部分。</strong>畫面質感離概念圖還有距離，下一步要把家具換成更精緻的模型。</li>
+          </ol>
+        </section>
+
+        <section class="guide-principle">
+          <h2>三、三件真的發生過的事</h2>
+          <h3>1. 沒對齊的海報</h3>
+          <p>Room 01 的左牆原本掛了一幅幾何海報。我在手機上一看就說：沒有對齊，不太好看，畫也不好看。AI 先試著把它往下移來對齊白板，結果壓到後面的盆栽，只好退回。最後換成一幅較小的橫幅畫，頂邊和白板對齊。</p>
+          <p class="made-lesson">AI 能量尺寸、能算空隙，但「看起來順不順」要由人來說。</p>
+          <h3>2. 頂點數的謎</h3>
+          <p>同一間房的 3D 頂點數，在不同時間量到的數字從五萬三千到六萬之間，差了好幾千。審核的 AI 曾經猜是機器人載入的時機造成。我糾正：原因是「未知」，不能猜。之後訂了規則：要加幾何之前，先在固定的完整載入條件下重測，並記錄條件、頂點數與 mesh 數。</p>
+          <p class="made-lesson">AI 很擅長給出解釋，但沒查到，就要說「不知道」。</p>
+          <h3>3. Brooklyn 的畫</h3>
+          <p>Room 02 是 Brooklyn Studio。原本牆上有洛杉磯的海岸畫，我說這個房間需要「本地人的視角」。查證時發現，一般人以為的籃球聖地 Rucker Park 其實在 Harlem，不在 Brooklyn，所以沒有用它；換成了 Bed-Stuy 的褐石排屋與門前台階。被換下的洛杉磯畫沒有丟掉，收進了<a href="/gallery/?lang=zh">人機協作畫廊</a>。</p>
+          <p class="made-lesson">外人眼中的刻板印象，本地人一看就知道。</p>
+          <h3>4. 一個漏掉的測試</h3>
+          <p>有一次，審核的 AI 改了首頁的連結，沒有跑相關的測試，讓另一頁的測試失敗。隔天發現、修好，並且告訴我。</p>
+          <p class="made-lesson">AI 也會漏，所以需要測試，也需要人再看一次。</p>
+        </section>
+
+        <section class="guide-principle">
+          <h2>四、我們研究了哪些在地文化與室內設計</h2>
+          <p>每一間房，都先問同一個問題：住在那裡的人，看了會不會說「對，這就是我們那裡」？所以動手畫之前，先查。查到的標來源，查不到的標「未知」。</p>
+          <ul class="made-list">
+            <li><strong>Room 01 客廳：</strong>一間可以被讀成上海或台北的家。牆上的福字春聯、家庭白板、港口油畫，都照華人家庭的日常來放；美式落地燈也是合理的選擇。</li>
+            <li><strong>Room 02 Brooklyn：</strong>研究的是本地人的日常，不是觀光客的 Brooklyn。褐石排屋（brownstone）與門前台階（stoop）是 Bed-Stuy 一帶的典型街景；Bushwick 以壁畫與街頭藝術聞名；Brooklyn 有許多社區籃球場。也因此發現 Rucker Park 在 Harlem，不是 Brooklyn。住戶設定成年輕的基督徒，所以牆上有「Christ is the Head of this House」，畫作選擇偏安靜；金門大橋留作住戶出差帶回的紀念，說得通。</li>
+            <li><strong>Room 03 灣區：</strong>房子選了 Eichler 風：1950–60 年代的中世紀現代住宅，單層、外露木樑、大片玻璃，廚房常常小而呈直線，常見圓球吊燈。炒鍋廚房來自一個真實例子，也牽涉到中式爆炒需要更寬、外排式的抽油煙機。我們也查過旋轉桌面的歷史，但只找到單一個人的軼事，所以拿掉了，沒有拿它當事實。</li>
+            <li><strong>色彩與光：</strong>三間房都用「中性底色上的一點紅」：Room 01 的紅圍巾、Room 02 的紅色毯子、Room 03 爐上的赤陶紅鍋。我們也看了 2026 的廚房趨勢，例如暖木、深綠櫥櫃、石灰泥牆，這些是全美國的趨勢，不一定是灣區專屬，所以只當參考。</li>
+            <li><strong>設計師的眼睛：</strong>我們請 AI 以專業室內設計師的視角看兩間房，找出問題：牆上的畫太多、被子表面太平、窗簾缺少垂褶，再一項一項改。</li>
+            <li><strong>沒查到的：</strong>舊金山老房子的廚房、灣區華人家庭的餐桌擺設、院子的植物。這些保持空白，等有可靠資料再補。</li>
+          </ul>
+        </section>
+
+        <section class="guide-principle">
+          <h2>五、時間軸</h2>
+          <ol class="made-list">
+            <li><strong>Room 01</strong>：第一間客廳，會轉的 3D 房間。</li>
+            <li><strong>手機全螢幕與明信片</strong>：在手機和 App 內建瀏覽器也能玩、能存。</li>
+            <li><strong>Room 02</strong>：Brooklyn Studio，金色時光與夜晚。</li>
+            <li><strong>畫作</strong>：Brooklyn 的畫換上牆，被換下的畫收進畫廊。</li>
+            <li><strong>Room 03</strong>：灣區廚房，第一版已能開啟，仍在精修。</li>
+          </ol>
+        </section>
+      </div>
+
+      <section class="guide-misconceptions" aria-labelledby="limits-zh">
+        <h2 id="limits-zh">這一頁沒有的東西</h2>
+        <ul>
+          <li><span class="claim">畫面質感。</span> <span class="response">仍在追趕概念圖。</span></li>
+          <li><span class="claim">品味與在地感。</span> <span class="response">來自我；AI 負責查證、製作與驗收。</span></li>
+        </ul>
+      </section>
+
+      <footer class="guide-footer">
+        <p class="made-closing">想了解 AI，不是看它能不能畫得好，而是看人和它之間怎麼分工、怎麼出錯、怎麼修。</p>
+        <p class="guide-footer-label">延伸看看</p>
+        <nav class="guide-actions" aria-label="延伸連結">
+          <a href="/prototype/roomverse-3d/?lang=zh" data-destination="room">走進 ROOMVERSE</a>
+          <a href="/ai-lab/?lang=zh#c12" data-destination="lab">回到 AI Lab 第 12 章</a>
+        </nav>
+        <p class="guide-boundary">這是製作過程的記錄，不是成效宣稱；沒有量過的事，頁面上都標為未知。</p>
+        <p class="guide-brand">Paul’s Tradecraft · paulstradecraft.com</p>
+      </footer>
+    </article>
+
+    <article class="guide-copy" data-language="en" hidden>
+      <header class="guide-heading">
+        <p class="guide-kicker">AI LAB · HOW IT WAS MADE</p>
+        <h1>How this was made: one person and a few AIs</h1>
+        <p class="guide-dek">The three ROOMVERSE rooms were made by me (Paul) together with several AIs. This page is not about how well an AI can draw. It lays out the process: who decided what, who did what, where things went wrong, and how they were fixed.</p>
+      </header>
+
+      <div class="guide-principles">
+        <section class="guide-principle">
+          <h2>1. Who does what</h2>
+          <ul class="made-list">
+            <li><strong>Me (Paul):</strong> I set direction and taste. Does this room feel like someone really lives there? Is the colour right? Which picture stays? I say “good” last, and only then does anything go live.</li>
+            <li><strong>The planning and review AI (Claude Code):</strong> turns ideas into task cards, checks screenshots and tests, verifies facts, and sends work back when something is wrong.</li>
+            <li><strong>The drawing and modelling AI (Codex):</strong> follows the task cards to draw concept art, build 3D models and write code.</li>
+            <li><strong>Rules:</strong> one small change at a time; verify before building; facts, guesses and unknowns written separately; nothing is merged or published without my approval.</li>
+          </ul>
+          <p class="made-quote">Nothing goes live until a person says “good”.</p>
+        </section>
+
+        <section class="guide-principle">
+          <h2>2. How a room is born: Room 03, a Bay Area kitchen</h2>
+          <ol class="made-list">
+            <li><strong>I set the direction.</strong> A kitchen for a Chinese-American family in the Bay Area, with real daily life and no stereotypes.</li>
+            <li><strong>Verify first.</strong> Someone in the Bay Area really did turn a small pantry into a separate wok kitchen, because an ordinary range tends to set off the smoke alarm when stir-frying. That comes from a single personal blog, so it is marked “single source”. What older kitchens there look like, and which garden plants are typical, could not be found; those are marked “unknown” and left out of the picture.</li>
+            <li><strong>Concept art.</strong> The AI drew a golden-hour image and a night image. I looked and removed the small turntable from the middle of the table.</li>
+            <li><strong>The first 3D version was sent back.</strong> The camera was too close and bent the walls; the table filled half the frame; the door on the right looked like a big orange board. The review AI sent it back with six problems listed.</li>
+            <li><strong>Several rounds of fixes.</strong> The camera moved back, the rug became jute, the ceiling got wood planks, the floor turned warmer. Every round came with before-and-after images, and I said “good” only after looking.</li>
+            <li><strong>Still catching up.</strong> The surfaces are still some way from the concept art; the next step is replacing the furniture with finer models.</li>
+          </ol>
+        </section>
+
+        <section class="guide-principle">
+          <h2>3. Three things that really happened</h2>
+          <h3>1. The poster that did not line up</h3>
+          <p>Room 01 had a geometric poster on its left wall. Looking at it on my phone I said: it does not line up, it is not pretty, and the picture is not good either. The AI first tried to lower it to match the whiteboard, but it overlapped the plant behind it, so that was undone. In the end it was replaced by a smaller landscape picture whose top edge lines up with the whiteboard.</p>
+          <p class="made-lesson">An AI can measure sizes and gaps, but whether it looks right is a person’s call.</p>
+          <h3>2. The mystery of the vertex count</h3>
+          <p>The 3D vertex count of the same room, measured at different times, came out anywhere from about 53,000 to 60,000. The review AI guessed it was caused by when the robot loaded. I corrected that: the cause is “unknown” and must not be guessed. We then set a rule: before adding geometry, re-measure under fixed full-load conditions and record the conditions, the vertex count and the mesh count.</p>
+          <p class="made-lesson">An AI is very good at producing explanations. When it has not found out, it should say “I don’t know”.</p>
+          <h3>3. Pictures for Brooklyn</h3>
+          <p>Room 02 is Brooklyn Studio. Its wall originally held a Los Angeles coast painting, and I said the room needs a “local resident’s view”. While checking, we found that Rucker Park, the basketball landmark most people think of, is in Harlem and not in Brooklyn, so it was not used. A Bed-Stuy brownstone and its stoop took its place. The Los Angeles painting was not thrown away; it went into the <a href="/gallery/?lang=en">Human–AI Gallery</a>.</p>
+          <p class="made-lesson">A stereotype from the outside is something a local can spot at a glance.</p>
+          <h3>4. A test that was missed</h3>
+          <p>Once, the review AI changed a link on the home page without running the related tests, and a test on another page failed. It was found the next day, fixed, and reported to me.</p>
+          <p class="made-lesson">An AI misses things too, which is why tests and a second pair of human eyes are needed.</p>
+        </section>
+
+        <section class="guide-principle">
+          <h2>4. The local culture and interior design we looked into</h2>
+          <p>For every room we ask the same question: would a person who lives there say “yes, that is how it is where we live”? So we research before drawing. What we find is marked with its source; what we cannot find is marked “unknown”.</p>
+          <ul class="made-list">
+            <li><strong>Room 01, the living room:</strong> a home that can be read as Shanghai or Taipei. The red blessing couplet, the family whiteboard and the harbour painting on the wall follow the daily life of a Chinese household; American-style floor lamps are a reasonable choice too.</li>
+            <li><strong>Room 02, Brooklyn:</strong> we studied the everyday life of locals, not a visitor’s Brooklyn. Brownstones and their stoops are typical of the Bed-Stuy streetscape; Bushwick is known for murals and street art; Brooklyn has many neighbourhood basketball courts. That is also how we found that Rucker Park is in Harlem, not Brooklyn. The resident is a young Christian, so the wall carries “Christ is the Head of this House” and the pictures lean quiet; the Golden Gate Bridge stays as a souvenir from a business trip, which makes sense.</li>
+            <li><strong>Room 03, the Bay Area:</strong> the house is Eichler-style: a 1950s–60s mid-century modern home, single storey, with exposed timber beams and large glass walls, a small linear kitchen and often a globe pendant. The wok kitchen comes from a real example, and ties into the fact that Chinese high-heat cooking needs a wider, ducted range hood. We also looked into the history of the lazy Susan, but found only a single personal anecdote, so it was removed rather than treated as fact.</li>
+            <li><strong>Colour and light:</strong> all three rooms use “one touch of red on a neutral base”: the red scarf in Room 01, the red throw in Room 02, the terracotta-red pot on the stove in Room 03. We also read 2026 kitchen trends, such as warm wood, deep green cabinets and limewash walls. These are nationwide trends, not necessarily Bay Area ones, so they serve as reference only.</li>
+            <li><strong>A designer’s eye:</strong> we asked an AI to look at two rooms as a professional interior designer would and list the problems: too many pictures on the wall, a bed cover that is too flat, curtains without folds. Then we fixed them one by one.</li>
+            <li><strong>What we could not find:</strong> kitchens in older San Francisco houses, how Chinese-American families in the Bay Area set their tables, and garden plants. These stay blank until reliable sources turn up.</li>
+          </ul>
+        </section>
+
+        <section class="guide-principle">
+          <h2>5. Timeline</h2>
+          <ol class="made-list">
+            <li><strong>Room 01:</strong> the first living room, a 3D room you can turn.</li>
+            <li><strong>Phone full screen and postcards:</strong> playable and saveable on phones and in in-app browsers.</li>
+            <li><strong>Room 02:</strong> Brooklyn Studio, in golden hour and at night.</li>
+            <li><strong>Paintings:</strong> Brooklyn pictures on the wall, replaced ones moved into the gallery.</li>
+            <li><strong>Room 03:</strong> the Bay Area kitchen; a first version opens and is still being refined.</li>
+          </ol>
+        </section>
+      </div>
+
+      <section class="guide-misconceptions" aria-labelledby="limits-en">
+        <h2 id="limits-en">What this page does not have</h2>
+        <ul>
+          <li><span class="claim">Surface quality.</span> <span class="response">Still catching up with the concept art.</span></li>
+          <li><span class="claim">Taste and local feel.</span> <span class="response">These come from me; the AIs verify, build and review.</span></li>
+        </ul>
+      </section>
+
+      <footer class="guide-footer">
+        <p class="made-closing">To understand AI, do not just ask whether it can draw well. Look at how a person and an AI divide the work, where they go wrong, and how they fix it.</p>
+        <p class="guide-footer-label">Keep exploring</p>
+        <nav class="guide-actions" aria-label="Further links">
+          <a href="/prototype/roomverse-3d/?lang=en" data-destination="room">Walk into ROOMVERSE</a>
+          <a href="/ai-lab/?lang=en#c12" data-destination="lab">Back to AI Lab, chapter 12</a>
+        </nav>
+        <p class="guide-boundary">This is a record of the process, not a claim of results; anything not measured is marked unknown on this page.</p>
+        <p class="guide-brand">Paul’s Tradecraft · paulstradecraft.com</p>
+      </footer>
+    </article>
+  </main>
+</body>
+</html>
