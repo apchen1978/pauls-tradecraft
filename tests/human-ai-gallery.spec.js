@@ -17,7 +17,8 @@ async function loaded(page) {
 
 test("collection: bilingual records, local images, provenance and required-field rejection", () => {
   expect(() => validatePieces(PIECES)).not.toThrow();
-  expect(PIECES.length).toBeGreaterThanOrEqual(6);
+  expect(PIECES).toHaveLength(15);
+  expect(PIECES.slice(7, 9).map((piece) => piece.id)).toEqual(["room02-la-coast-collection", "room01-corner-watercolour"]);
   for (const id of ["winter-lamplight", "stage-after-show"]) expect(PIECES.some((piece) => piece.id === id)).toBe(true);
   expect(Object.keys(COLLECTION.zh).sort()).toEqual(Object.keys(COLLECTION.en).sort());
   const manifest = JSON.parse(readFileSync(`${QA}/asset-manifest.json`, "utf8"));
@@ -44,6 +45,17 @@ test("collection: bilingual records, local images, provenance and required-field
     expect(statSync(path).size).toBe(derivative.bytes);
     expect(createHash("sha256").update(readFileSync(path)).digest("hex")).toBe(derivative.sha256);
   }
+  const corner = PIECES.find((piece) => piece.id === "room01-corner-watercolour");
+  const cornerRecord = manifest.find((record) => record.id === corner.id);
+  expect(cornerRecord.source).toBe("docs/gallery/sources/roomverse-room01-corner-watercolour-source.png");
+  expect(createHash("sha256").update(readFileSync(resolve(cornerRecord.source))).digest("hex")).toBe(cornerRecord.sourceSha256);
+  for (const derivative of cornerRecord.derivatives) {
+    const path = resolve("public/gallery/assets", derivative.file);
+    expect(statSync(path).size).toBe(derivative.bytes);
+    expect(createHash("sha256").update(readFileSync(path)).digest("hex")).toBe(derivative.sha256);
+  }
+  expect(cornerRecord.derivatives.map(({ width, height }) => width / height)).toEqual([4 / 3, 4 / 3, 4 / 3]);
+  expect(JSON.stringify({ title: corner.title, caption: corner.caption, alt: corner.alt })).not.toMatch(/Brooklyn|Bed-Stuy|布魯克林|貝德福德/i);
   const visible = JSON.stringify({ copy: COLLECTION, pieces: PIECES.map(({ title, caption, alt, made }) => ({ title, caption, alt, made })) });
   expect(visible).not.toMatch(/十二月的依依|玉仔|ROI|A2A|CDD|老闆|董事長|保證|guaranteed/i);
   const harbour = manifest.filter((p) => ["imagined-harbor", "modern-harbor"].includes(p.id));
@@ -75,9 +87,13 @@ for (const width of [390, 768, 1440]) {
       await expect(page.locator("#doors article").last()).toHaveAttribute("data-piece", "ai-lab-open-horizon");
       await expect(page.locator("#roomverse article")).toHaveCount(2);
       await expect(page.locator("#room-collection-title")).toHaveText(COLLECTION[lang].roomCollectionTitle);
-      await expect(page.locator("#room-collection article")).toHaveCount(1);
-      await expect(page.locator("#room-collection article")).toHaveAttribute("data-piece", "room02-la-coast-collection");
-      await expect(page.locator("#room-collection article h4")).toHaveText(PIECES.find((piece) => piece.id === "room02-la-coast-collection").title[lang]);
+      await expect(page.locator("#room-collection article")).toHaveCount(2);
+      await expect(page.locator("#room-collection article").first()).toHaveAttribute("data-piece", "room02-la-coast-collection");
+      await expect(page.locator("#room-collection article").last()).toHaveAttribute("data-piece", "room01-corner-watercolour");
+      await expect(page.locator("#room-collection article h4")).toHaveText(PIECES.slice(7, 9).map((piece) => piece.title[lang]));
+      const collectionBoxes = await page.locator("#room-collection article").evaluateAll((articles) => articles.map((article) => article.getBoundingClientRect().toJSON()));
+      if (width === 390) expect(collectionBoxes[1].top).toBeGreaterThan(collectionBoxes[0].bottom);
+      else expect(Math.abs(collectionBoxes[1].top - collectionBoxes[0].top)).toBeLessThan(2);
       const doorBoxes = await page.locator("#doors article").evaluateAll((articles) => articles.map((article) => ({ left: article.getBoundingClientRect().left, top: article.getBoundingClientRect().top })));
       if (width === 390) expect(doorBoxes[1].top).toBeGreaterThan(doorBoxes[0].top);
       else expect(Math.abs(doorBoxes[1].top - doorBoxes[0].top)).toBeLessThan(2);
@@ -92,6 +108,7 @@ for (const width of [390, 768, 1440]) {
       await page.screenshot({ path: `${QA}/gallery-${lang}-${width}.jpg`, fullPage: true, quality: 88 });
       await page.locator("#room-collection").scrollIntoViewIfNeeded();
       await page.screenshot({ path: `${QA}/room-collection-${lang}-${width}.jpg`, quality: 90 });
+      await page.locator("#room-collection").screenshot({ path: `${QA}/room-collection-pair-${lang}-${width}.jpg`, quality: 90 });
 
       const first = page.getByRole("button", { name: openName(lang, 0), exact: true });
       await first.focus();
@@ -126,17 +143,26 @@ for (const width of [390, 768, 1440]) {
         await expect(page.locator("#viewer-made")).toHaveText(PIECES[i].made[lang]);
         const geometry = await page.locator("#viewer-image").evaluate((im) => ({ natural: im.naturalWidth / im.naturalHeight, declared: Number(im.getAttribute("width")) / Number(im.getAttribute("height")) }));
         expect(Math.abs(geometry.natural - geometry.declared)).toBeLessThan(.005);
-        if (PIECES[i].id === "room02-la-coast-collection") {
+        if (["room02-la-coast-collection", "room01-corner-watercolour"].includes(PIECES[i].id)) {
           await expect(page.locator("#viewer-title")).toHaveText(PIECES[i].title[lang]);
           await expect(page.locator("#viewer-image")).toHaveAttribute("alt", PIECES[i].alt[lang]);
-          expect(await page.locator("#viewer-image").evaluate((im) => im.currentSrc)).toContain(width === 390 ? "roomverse-room02-la-coast-mobile.webp" : "roomverse-room02-la-coast.webp");
-          await page.screenshot({ path: `${QA}/room-collection-lightbox-${lang}-${width}.jpg`, quality: 90 });
+          const name = PIECES[i].id === "room02-la-coast-collection" ? "roomverse-room02-la-coast" : "roomverse-room01-corner-watercolour";
+          expect(await page.locator("#viewer-image").evaluate((im) => im.currentSrc)).toContain(`${name}${width === 390 ? "-mobile" : ""}.webp`);
+          await page.screenshot({ path: `${QA}/${PIECES[i].id}-lightbox-${lang}-${width}.jpg`, quality: 90 });
           await page.locator("#previous").click();
           await expect(page.locator("#viewer-title")).toHaveText(PIECES[i - 1].title[lang]);
+          if (PIECES[i].id === "room01-corner-watercolour") {
+            await loaded(page);
+            await page.screenshot({ path: `${QA}/room01-corner-watercolour-previous-${lang}-${width}.jpg`, quality: 90 });
+          }
           await page.locator("#next").click();
           await expect(page.locator("#viewer-title")).toHaveText(PIECES[i].title[lang]);
           await page.locator("#next").click();
           await expect(page.locator("#viewer-title")).toHaveText(PIECES[i + 1].title[lang]);
+          if (PIECES[i].id === "room01-corner-watercolour") {
+            await loaded(page);
+            await page.screenshot({ path: `${QA}/room01-corner-watercolour-next-${lang}-${width}.jpg`, quality: 90 });
+          }
           await page.locator("#previous").click();
           await expect(page.locator("#viewer-title")).toHaveText(PIECES[i].title[lang]);
         }
