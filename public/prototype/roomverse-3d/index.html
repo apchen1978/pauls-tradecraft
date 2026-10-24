@@ -133,6 +133,15 @@
     .room.is-immersive .immersive-row button[aria-pressed="true"], .room.is-immersive .immersive-row button.shuffle { border-color: #315c5d; background: #315c5d; color: #fff; }
   }
   html.room-immersive, html.room-immersive body { overflow: hidden; overscroll-behavior: none; }
+  .postcard-preview { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); background: #111815f2; color: #202a25; }
+  .postcard-preview[hidden] { display: none; }
+  .postcard-preview__dialog { position: relative; width: min(100%, 760px); max-height: 100%; overflow: auto; padding: 54px 16px 18px; border-radius: 18px; background: #f7f6ef; text-align: center; box-shadow: 0 18px 60px #0005; }
+  .postcard-preview__close { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid #78837b; border-radius: 50%; background: #fff; color: #24302c; font: 32px/1 system-ui, sans-serif; cursor: pointer; }
+  .postcard-preview__title { margin: 0 48px 12px; font: 700 19px/1.4 system-ui, sans-serif; }
+  .postcard-preview__image { display: block; width: auto; max-width: 100%; height: auto; max-height: min(62dvh, 620px); margin: 0 auto 12px; object-fit: contain; }
+  .postcard-preview__hint { margin: 0 0 7px; font: 700 16px/1.5 system-ui, sans-serif; }
+  .postcard-preview__detail { max-width: 540px; margin: 0 auto; color: #59645e; font: 14px/1.55 system-ui, sans-serif; }
+  html.postcard-preview-open, html.postcard-preview-open body { overflow: hidden; }
 </style>
 
 </head>
@@ -163,6 +172,6 @@
 </section>
 <p class="portal" id="portalRow" hidden><button id="portalBtn" type="button"></button><span id="portalHint"></span></p>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=40"></script>
+<script type="module" src="page.js?v=41"></script>
 </body>
 </html>

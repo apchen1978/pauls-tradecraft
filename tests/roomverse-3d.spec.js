@@ -5,8 +5,11 @@ import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 // wall and rug can be changed. Furniture models are placed on the floor by their measured bounds.
 const PAGE = "/prototype/roomverse-3d/";
 const IMMERSIVE_QA = process.env.ROOM01_IMMERSIVE_QA;
+const POSTCARD_QA = process.env.ROOM01_POSTCARD_QA;
 if (IMMERSIVE_QA) await mkdir(IMMERSIVE_QA, { recursive: true });
+if (POSTCARD_QA) await mkdir(POSTCARD_QA, { recursive: true });
 const immersiveShot = async (page, name) => { if (IMMERSIVE_QA) await page.screenshot({ path: `${IMMERSIVE_QA}/${name}.png` }); };
+const postcardShot = async (page, name) => { if (POSTCARD_QA) await page.screenshot({ path: `${POSTCARD_QA}/${name}.png` }); };
 
 test.describe("Room 01 mobile immersive", () => {
   test.use({ deviceScaleFactor: 2 });
@@ -106,6 +109,65 @@ test.describe("Room 01 mobile immersive", () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe("Room 01 postcard in-app browser", () => {
+  test("standard browser keeps the direct postcard download", async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await context.newPage(), errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    try {
+      await page.goto(`${PAGE}?lang=zh&mood=rain`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+      const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "存成明信片", exact: true }).click()]);
+      expect(download.suggestedFilename()).toBe("ROOMVERSE-3D-插畫明信片.webp");
+      await expect(page.locator(".postcard-preview")).toHaveCount(0);
+      expect(errors).toEqual([]);
+    } finally { await context.close(); }
+  });
+
+  test("WeChat-style UA shows the Chinese preview; close, Escape, and browser back preserve room history", async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36 MicroMessenger/8.0.50" });
+    const page = await context.newPage(), errors = []; let downloads = 0;
+    page.on("pageerror", (error) => errors.push(error.message)); page.on("download", () => downloads++);
+    try {
+      await page.goto(`${PAGE}?lang=zh&mood=rain`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+      const save = page.getByRole("button", { name: "存成明信片", exact: true });
+      await save.click();
+      const dialog = page.getByRole("dialog", { name: "明信片已準備好" });
+      await expect(dialog).toBeVisible(); await expect(dialog.getByText("長按圖片即可儲存到相簿")).toBeVisible();
+      await expect(dialog.getByText("或點右上角「⋯」選「在瀏覽器開啟」後再按存成明信片")).toBeVisible();
+      await expect(dialog.locator("img")).toHaveAttribute("src", /^blob:/);
+      await expect.poll(() => dialog.locator("img").evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
+      const geometry = await page.evaluate(() => { const o = document.querySelector(".postcard-preview").getBoundingClientRect(), d = document.querySelector(".postcard-preview__dialog").getBoundingClientRect(); return { viewport: [innerWidth, innerHeight], overlay: [o.left, o.top, o.right, o.bottom], dialog: [d.left, d.top, d.right, d.bottom], pageOverflow: document.documentElement.scrollWidth - innerWidth, z: Number(getComputedStyle(document.querySelector(".postcard-preview")).zIndex) }; });
+      expect(geometry.overlay).toEqual([0, 0, geometry.viewport[0], geometry.viewport[1]]);
+      expect(geometry.dialog[0]).toBeGreaterThanOrEqual(0); expect(geometry.dialog[2]).toBeLessThanOrEqual(geometry.viewport[0]); expect(geometry.pageOverflow).toBe(0); expect(geometry.z).toBeGreaterThan(50);
+      await postcardShot(page, "zh-preview-390x844");
+      await dialog.getByRole("button", { name: "關閉明信片預覽" }).click(); await expect(dialog).toHaveCount(0);
+      await save.click(); await expect(page.getByRole("dialog")).toBeVisible(); await page.keyboard.press("Escape"); await expect(page.getByRole("dialog")).toHaveCount(0);
+      await save.click(); await expect(page.getByRole("dialog")).toBeVisible(); await page.goBack(); await expect(page.getByRole("dialog")).toHaveCount(0);
+      await expect(page).toHaveURL(/mood=rain/);
+      await page.locator("#immersiveEnter").click(); await expect(page.locator(".room")).toHaveClass(/is-immersive/);
+      await page.goBack(); await expect(page.locator(".room")).not.toHaveClass(/is-immersive/); await expect(page).toHaveURL(/mood=rain/);
+      expect(downloads).toBe(0); expect(errors).toEqual([]);
+    } finally { await context.close(); }
+  });
+
+  test("Meta-style UA shows the English preview and backdrop closes it", async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/467.0.0.50.100;]" });
+    const page = await context.newPage(), errors = []; let downloads = 0;
+    page.on("pageerror", (error) => errors.push(error.message)); page.on("download", () => downloads++);
+    try {
+      await page.goto(`${PAGE}?lang=en&mood=rain`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+      await page.getByRole("button", { name: "Save as a postcard", exact: true }).click();
+      const dialog = page.getByRole("dialog", { name: "Your postcard is ready" });
+      await expect(dialog).toBeVisible(); await expect(dialog.getByText("Press and hold the picture to save it to your photos")).toBeVisible();
+      await expect(dialog.getByText(/tap “⋯” in the upper-right menu/i)).toBeVisible();
+      await postcardShot(page, "en-preview-390x844");
+      await page.locator(".postcard-preview").click({ position: { x: 4, y: 4 } }); await expect(dialog).toHaveCount(0);
+      expect(downloads).toBe(0); expect(errors).toEqual([]);
+    } finally { await context.close(); }
+  });
+});
+
 for (const dpr of [2, 3]) {
   test(`mobile renderer keeps antialiasing and caps DPR at 1.5 on DPR ${dpr}`, async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: dpr });

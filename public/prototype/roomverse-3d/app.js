@@ -8,8 +8,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png", artFile: "ROOMVERSE-3D-illustrated-postcard.webp" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", previewTitle: "明信片已準備好", previewLongPress: "長按圖片即可儲存到相簿", previewOpenBrowser: "或點右上角「⋯」選「在瀏覽器開啟」後再按存成明信片", previewClose: "關閉明信片預覽", previewAlt: "ROOMVERSE 3D 明信片", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", previewTitle: "Your postcard is ready", previewLongPress: "Press and hold the picture to save it to your photos", previewOpenBrowser: "Or tap “⋯” in the upper-right menu and choose “Open in browser”, then tap Save as a postcard", previewClose: "Close postcard preview", previewAlt: "ROOMVERSE 3D postcard", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png", artFile: "ROOMVERSE-3D-illustrated-postcard.webp" },
 };
 // Short labels for the single-row phone toolbar. The accessible name stays the full phrase above.
 const PHONE_BAR = {
@@ -1801,6 +1801,52 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
+  function isInAppBrowser(ua = navigator.userAgent) {
+    return /MicroMessenger|FBAN|FBAV|FB_IAB|FBIOS|MessengerForiOS|Orca-Android|Instagram|\bLine\/|weibo__|WeiboliteIOS|WeiboIntlIOS|WhatsApp\/|;\s*wv\)/i.test(ua);
+  }
+  let postcardPreview = null;
+  function closePostcardPreview(fromHistory = false) {
+    if (!postcardPreview) return;
+    const { overlay, imageUrl, previousFocus, onPopState } = postcardPreview;
+    postcardPreview = null;
+    window.removeEventListener("popstate", onPopState);
+    document.documentElement.classList.remove("postcard-preview-open");
+    overlay.remove(); URL.revokeObjectURL(imageUrl);
+    if (!fromHistory && history.state?.room01PostcardPreview) history.back();
+    if (previousFocus?.isConnected && previousFocus.getClientRects().length) previousFocus.focus({ preventScroll: true });
+  }
+  function showPostcardPreview(blob, lang = state.lang) {
+    if (!blob) return;
+    if (postcardPreview) return;
+    const imageUrl = URL.createObjectURL(blob), copy = TEXT[lang];
+    const overlay = document.createElement("div"); overlay.className = "postcard-preview"; overlay.setAttribute("role", "presentation");
+    const dialog = document.createElement("section"); dialog.className = "postcard-preview__dialog"; dialog.setAttribute("role", "dialog"); dialog.setAttribute("aria-modal", "true"); dialog.setAttribute("aria-label", copy.previewTitle);
+    const close = Object.assign(document.createElement("button"), { type: "button", className: "postcard-preview__close", textContent: "×" }); close.setAttribute("aria-label", copy.previewClose);
+    const title = Object.assign(document.createElement("h2"), { className: "postcard-preview__title", textContent: copy.previewTitle });
+    const image = Object.assign(document.createElement("img"), { className: "postcard-preview__image", src: imageUrl, alt: copy.previewAlt });
+    const longPress = Object.assign(document.createElement("p"), { className: "postcard-preview__hint", textContent: copy.previewLongPress });
+    const openBrowser = Object.assign(document.createElement("p"), { className: "postcard-preview__detail", textContent: copy.previewOpenBrowser });
+    dialog.append(close, title, image, longPress, openBrowser); overlay.append(dialog); document.body.append(overlay);
+    const previousFocus = document.activeElement;
+    const onPopState = (event) => { if (!event.state?.room01PostcardPreview) closePostcardPreview(true); };
+    postcardPreview = { overlay, imageUrl, previousFocus, onPopState };
+    document.documentElement.classList.add("postcard-preview-open");
+    history.pushState({ ...(history.state && typeof history.state === "object" ? history.state : {}), room01PostcardPreview: true }, "", location.href);
+    window.addEventListener("popstate", onPopState);
+    const closeFromUser = () => closePostcardPreview();
+    close.onclick = closeFromUser;
+    overlay.onclick = (event) => { if (event.target === overlay) closeFromUser(); };
+    overlay.onkeydown = (event) => {
+      if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closeFromUser(); }
+      else if (event.key === "Tab") { event.preventDefault(); close.focus({ preventScroll: true }); }
+    };
+    close.focus({ preventScroll: true });
+  }
+  function deliverPostcard(blob, filename, lang = state.lang) {
+    if (!blob) return;
+    if (isInAppBrowser()) showPostcardPreview(blob, lang);
+    else downloadPostcard(blob, filename);
+  }
   async function savePostcard() {
     const { mood, lang: downloadLang } = state;
     // Capture before loading, so a failed art request still represents what was selected at click time.
@@ -1812,13 +1858,13 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         if (!response.ok) throw new Error(`Postcard art: ${response.status}`);
         const blob = await response.blob();
         if (!blob.type.startsWith("image/webp")) throw new Error("Postcard art is not WebP");
-        downloadPostcard(blob, TEXT[downloadLang].artFile);
+        deliverPostcard(blob, TEXT[downloadLang].artFile, downloadLang);
         return;
       } catch (error) {
         console.warn("Using the 3D postcard fallback", error);
       }
     }
-    fallback.toBlob((blob) => downloadPostcard(blob, TEXT[downloadLang].file), "image/png");
+    fallback.toBlob((blob) => deliverPostcard(blob, TEXT[downloadLang].file, downloadLang), "image/png");
   }
 
   let looping = false;
