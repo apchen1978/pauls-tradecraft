@@ -55,12 +55,15 @@ test.describe("Room 03 Bay Area Kitchen", () => {
   test("covers the dining furniture with a raised rug and keeps it readable at night", async ({ page }) => {
     await loadRoom(page);
     const golden = await page.evaluate(() => window.__room03.info());
+    const goldenFloor = await page.evaluate(() => window.__room03.sampleNdc(window.__room03.info().floorSamples.farFromWindow, 0.012));
     expect(golden.rug.size[0]).toBeCloseTo(2.9, 2);
     expect(golden.rug.size[2]).toBeCloseTo(2.1, 2);
     expect(golden.rug.min[1]).toBeCloseTo(0.01, 3);
     expect(golden.rug.max[1]).toBeCloseTo(0.02, 3);
     expect(golden.categories.rug).toEqual({ vertices: 24, meshes: 1 });
-    expect(golden.vertices).toBeLessThanOrEqual(25000);
+    expect(golden.vertices).toBe(4155);
+    // Baseline captured from commit 084384e at the same world point and viewport.
+    expect(goldenFloor.meanLuminance, "far floor should brighten by at least 12/255 from 084384e").toBeGreaterThan(81.5994 + 12);
 
     await page.locator('#moods button[data-mood="night"]').click();
     await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
@@ -73,6 +76,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     });
     console.log("Room 03 rug dimensions and night samples:", JSON.stringify({ rug: golden.rug, night }));
     expect(night.rug.meanLuminance, "night rug should read brighter than adjacent polished floor").toBeGreaterThan(night.floor.meanLuminance + 4);
+    expect(night.floor.meanLuminance, "night floor outside the pendant pool should remain visible").toBeGreaterThanOrEqual(55);
+    expect(night.floor.red, "night floor outside the pendant pool should stay warm").toBeGreaterThan(night.floor.blue);
+    console.log("Room 03 floor luminance comparison:", JSON.stringify({ baseline084384e: 81.5994, currentGolden: goldenFloor, currentNight: night.floor, worldPoint: [1.72, 0.002, 0.5] }));
     await shot(page, "desktop-night-zh");
   });
 

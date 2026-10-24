@@ -55,6 +55,25 @@ function makeMottleTexture(seed, strength = 0.06) {
   });
 }
 
+function makeFloorTexture(seed, strength = 0.12) {
+  const texture = makeMottleTexture(seed, strength);
+  const { width, height } = texture.image;
+  const ctx = texture.image.getContext("2d");
+  // Baked, broad window-side lift: a soft matte gradient, not a reflection or extra light.
+  const direction = ctx.createLinearGradient(0, height * 0.18, width, height * 0.52);
+  direction.addColorStop(0, "#f4e6cc");
+  direction.addColorStop(0.18, "#fff9eb");
+  direction.addColorStop(0.42, "#f8edd8");
+  direction.addColorStop(0.72, "#eee1c8");
+  direction.addColorStop(1, "#f0e4ce");
+  ctx.globalCompositeOperation = "multiply";
+  ctx.fillStyle = direction;
+  ctx.fillRect(0, 0, width, height);
+  ctx.globalCompositeOperation = "source-over";
+  texture.needsUpdate = true;
+  return texture;
+}
+
 function makeWoodTexture(planks = false, alongDepth = false) {
   return makeTexture((ctx, w, h) => {
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
@@ -172,7 +191,7 @@ function makeSeatTexture() {
 function makeMaterials() {
   const std = (color, roughness = 0.8, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   return {
-    floor: std(0x968b7c, 0.54, { map: makeMottleTexture(11, 0.072), metalness: 0.025 }),
+    floor: std(0xcdbb9e, 0.42, { map: makeFloorTexture(31, 0.15), metalness: 0.025 }),
     wall: std(COLORS.cream, 0.92, { map: makeMottleTexture(19, 0.028) }),
     ceiling: std(COLORS.ceiling, 0.86, { map: makeWoodTexture(true, true), emissive: 0x9b6938, emissiveIntensity: 0.34 }),
     oak: std(COLORS.oak, 0.76, { map: makeWoodTexture(false) }),
@@ -444,6 +463,7 @@ export async function start({ stage, onReady = () => {} }) {
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
     if (yardMaterial) { yardMaterial.color.setHex(preset.yard); yardMaterial.needsUpdate = true; }
     materials.opal.emissiveIntensity = preset.globe;
+    materials.floor.color.setHex(name === "night" ? 0xc2a77b : 0xcdbb9e);
     materials.jute.color.setHex(name === "night" ? 0xd9c99f : 0xd0b47f);
     materials.ceiling.emissiveIntensity = name === "golden" ? 0.3 : 0.5;
     materials.warmGlow.opacity = name === "night" ? 1 : 0.72;
@@ -514,7 +534,7 @@ export async function start({ stage, onReady = () => {} }) {
       size: bounds.getSize(new THREE.Vector3()).toArray(),
       materialColor: `#${rug.material.color.getHexString()}`, roughness: rug.material.roughness,
     } : null;
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([2.84, 1.05, 2.35]), doorReveal: project([2.80, 1.05, 2.35]), doorPanel: project([2.86, 1.05, 2.0]) } };
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([2.84, 1.05, 2.35]), doorReveal: project([2.80, 1.05, 2.35]), doorPanel: project([2.86, 1.05, 2.0]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
