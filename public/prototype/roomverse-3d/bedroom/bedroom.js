@@ -1276,7 +1276,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // each 50 x 67 cm with its cream paper border, 10 cm apart, centred over the bed at 1.55 m.
   { const PW = .5, PH = .5 * 4 / 3, GAP = .1, g = new THREE.Group(); g.name = "bed-wall-print"; g.position.set(HW - .02, 1.55, BED.z); g.rotation.y = -Math.PI / 2; root.add(g);
     const frameOak = new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 });
-    ["san-francisco", "new-york", "los-angeles"].forEach((city, i) => {
+    ["san-francisco", "new-york", "brooklyn"].forEach((city, i) => {
       const x = (i - 1) * (PW + GAP + .03), fr = new THREE.Mesh(new THREE.BoxGeometry(PW + .03, PH + .03, .03), frameOak); fr.position.set(x, 0, 0); fr.castShadow = true; fr.receiveShadow = true; g.add(fr);
       const tex = texLoader.load(new URL(`../art/room02-city-${city}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; render(); });
       const pic = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({ map: tex, roughness: .85 })); pic.position.set(x, 0, .0155); pic.receiveShadow = true; g.add(pic);
