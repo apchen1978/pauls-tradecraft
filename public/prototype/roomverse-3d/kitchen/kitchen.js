@@ -193,6 +193,9 @@ function makeMaterials() {
   return {
     floor: std(0xcdbb9e, 0.42, { map: makeFloorTexture(31, 0.15), metalness: 0.025 }),
     wall: std(COLORS.cream, 0.92, { map: makeMottleTexture(19, 0.028) }),
+    wokWall: std(0xa58a6b, 0.9, { map: makeFineNoise(47, 0.025) }),
+    wokSteel: std(0xbfc3c0, 0.34, { metalness: 0.22, emissive: 0x2e1e0e, emissiveIntensity: 0.45 }),
+    wokIron: std(0x343733, 0.42, { metalness: 0.08, emissive: 0x16120e, emissiveIntensity: 0.18 }),
     ceiling: std(COLORS.ceiling, 0.86, { map: makeWoodTexture(true, true), emissive: 0x9b6938, emissiveIntensity: 0.34 }),
     oak: std(COLORS.oak, 0.76, { map: makeWoodTexture(false) }),
     beam: std(COLORS.beam, 0.79, { map: makeWoodTexture(false) }),
@@ -204,6 +207,7 @@ function makeMaterials() {
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
     warmGlow: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.94, side: THREE.DoubleSide, depthWrite: false }),
     sunlight: new THREE.MeshBasicMaterial({ color: 0xffdda0, map: makeSunPatchTexture(), transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide }),
+    wokGlow: new THREE.MeshBasicMaterial({ color: 0xffd39a, transparent: true, opacity: 0.98, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }),
     reveal: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.98, depthWrite: false, side: THREE.DoubleSide }),
   };
 }
@@ -237,9 +241,10 @@ function buildArchitecture(b, m, scene, onYardLoad) {
   const hx = ROOM.width / 2, hz = ROOM.depth / 2, h = ROOM.height;
   addBox(b, "shell", m.floor, [ROOM.width, 0.14, ROOM.depth], [0, -0.07, 0]);
   addBox(b, "shell", m.wall, [ROOM.width, h, 0.12], [0, h / 2, -hz]);
-  // Move the small wok-kitchen opening toward the front so it reads from the entry camera.
-  addBox(b, "shell", m.wall, [0.12, h, 3.95], [hx, h / 2, -0.425]);
-  addBox(b, "shell", m.wall, [0.12, 0.55, 0.85], [hx, 2.42, 1.975]);
+  // Shift the side-kitchen opening 0.275 m toward the back for a clearer mobile sightline.
+  addBox(b, "shell", m.wall, [0.12, h, 3.625], [hx, h / 2, -0.5875]);
+  addBox(b, "shell", m.wall, [0.12, h, 0.325], [hx, h / 2, 2.2375]);
+  addBox(b, "shell", m.wall, [0.12, 0.55, 0.85], [hx, 2.42, 1.65]);
   addBox(b, "shell", m.ceiling, [ROOM.width, 0.16, ROOM.depth], [0, 2.69, 0]);
 
   // Three exposed timber beams run from the glass wall into the kitchen.
@@ -310,31 +315,40 @@ function buildKitchen(b, m) {
 }
 
 function buildSideKitchen(b, m, scene) {
-  // One dark-framed slider covers most of the opening and leaves a narrow warm-lit slit.
-  addBox(b, "side-kitchen", m.black, [0.08, 0.055, 0.85], [2.84, 2.05, 1.975]);
-  // Dark olive slider leaves a narrow reveal on the courtyard-facing edge.
-  addBox(b, "side-kitchen", m.olive, [0.055, 1.98, 0.75], [2.86, 1.0, 1.925]);
-  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, 1.55]);
-  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, 2.4]);
-  addBox(b, "side-kitchen", m.black, [0.025, 0.22, 0.025], [2.81, 1.1, 2.16]);
-  addBox(b, "side-kitchen", m.black, [0.08, 1.9, 1.15], [4.05, 1.02, 1.55]);
-  // Align the small wok and hood with the 10 cm reveal so they read through the gap.
-  addBox(b, "side-kitchen", m.stone, [0.7, 0.1, 0.65], [3.38, 0.9, 2.34]);
-  addBox(b, "side-kitchen", m.steel, [0.66, 0.16, 0.42], [3.41, 1.63, 2.34]);
-  const wok = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.1, 0.19, 18, 1, true), m.black);
-  wok.position.set(3.32, 1.06, 2.34); wok.name = "wok-kitchen-wok"; wok.userData.category = "side-kitchen"; b.get(`shapes:${m.black.uuid}`) ?? b.set(`shapes:${m.black.uuid}`, { category: "side-kitchen", material: m.black, geometries: [], meshes: [] }); b.get(`shapes:${m.black.uuid}`).meshes.push(wok);
-  // A narrow luminous backing aligns exactly with the visible slit, in front of the utensils.
-  const revealGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 1.48), m.reveal);
-  revealGlow.position.set(2.80, 1.06, 2.35); revealGlow.rotation.y = Math.PI / 2;
-  revealGlow.name = "wok-kitchen-door-reveal"; revealGlow.userData.category = "side-kitchen"; scene.add(revealGlow);
-  // Tiny silhouettes sit in the aperture: a range hood above and a wok below the glow.
-  addBox(b, "side-kitchen", m.steel, [0.16, 0.045, 0.075], [2.77, 1.72, 2.35]);
-  const peekWok = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.035, 0.055, 12), m.black);
-  peekWok.position.set(2.76, 0.93, 2.35); peekWok.name = "wok-kitchen-door-peek"; peekWok.userData.category = "side-kitchen";
-  peekWok.castShadow = false; peekWok.receiveShadow = false;
-  b.get(`shapes:${m.black.uuid}`).meshes.push(peekWok);
-  addBox(b, "side-kitchen", m.black, [0.14, 0.014, 0.014], [2.82, 0.95, 2.35]);
-  const sideLight = new THREE.PointLight(0xffad64, 0, 1.7, 2); sideLight.position.set(3.3, 1.55, 2.34); sideLight.name = "side-kitchen-warm-source"; scene.add(sideLight);
+  // The slider stays on the wall plane and leaves a 30 cm sightline at the front side of the opening.
+  addBox(b, "side-kitchen", m.black, [0.08, 0.055, 0.85], [2.84, 2.05, 1.65]);
+  addBox(b, "side-kitchen", m.olive, [0.055, 1.98, 0.75], [2.86, 1.0, 1.4]);
+  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, 1.225]);
+  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, 2.075]);
+  addBox(b, "side-kitchen", m.black, [0.025, 0.22, 0.025], [2.81, 1.1, 1.4]);
+  addBox(b, "side-kitchen", m.black, [0.08, 1.9, 1.15], [4.05, 1.02, 1.0]);
+  // Keep the warm plaster inside the nook behind the 30 cm door reveal.
+  const wokBackdrop = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.7), m.wokWall);
+  wokBackdrop.position.set(3.16, 1.44, 1.65); wokBackdrop.rotation.y = -Math.PI / 2; wokBackdrop.name = "wok-kitchen-warm-backsplash"; wokBackdrop.userData.category = "side-kitchen";
+  wokBackdrop.castShadow = false; wokBackdrop.receiveShadow = false; sceneAddToBucket(b, wokBackdrop, "wok-kitchen-backdrop");
+  addBox(b, "side-kitchen", m.stone, [0.1, 0.09, 0.34], [3.0, 0.89, 1.95]);
+  addBox(b, "side-kitchen", m.black, [0.1, 0.035, 0.3], [3.0, 0.952, 1.95]);
+  const burner = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.014, 5, 16), m.wokSteel);
+  burner.position.set(3.0, 0.976, 1.95); burner.rotation.x = Math.PI / 2; burner.name = "wok-kitchen-burner"; burner.userData.category = "side-kitchen";
+  burner.castShadow = false; burner.receiveShadow = false;
+  b.get(`shapes:${m.wokSteel.uuid}`) ?? b.set(`shapes:${m.wokSteel.uuid}`, { category: "side-kitchen", material: m.wokSteel, geometries: [], meshes: [] }); b.get(`shapes:${m.wokSteel.uuid}`).meshes.push(burner);
+  // A shallow, open iron bowl reads as a wok instead of a small upright pot.
+  const wok = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), m.wokIron);
+  wok.scale.set(1.05, 0.72, 1.05); wok.position.set(3.0, 1.105, 1.95); wok.name = "wok-kitchen-wok"; wok.userData.category = "side-kitchen";
+  b.get(`shapes:${m.wokIron.uuid}`) ?? b.set(`shapes:${m.wokIron.uuid}`, { category: "side-kitchen", material: m.wokIron, geometries: [], meshes: [] }); b.get(`shapes:${m.wokIron.uuid}`).meshes.push(wok);
+  const wokRim = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.012, 6, 18), m.wokSteel);
+  wokRim.position.set(3.0, 1.12, 1.95); wokRim.rotation.x = Math.PI / 2; wokRim.name = "wok-kitchen-rim"; wokRim.userData.category = "side-kitchen";
+  b.get(`shapes:${m.wokSteel.uuid}`) ?? b.set(`shapes:${m.wokSteel.uuid}`, { category: "side-kitchen", material: m.wokSteel, geometries: [], meshes: [] }); b.get(`shapes:${m.wokSteel.uuid}`).meshes.push(wokRim);
+  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.2, 8), m.oak);
+  wokHandle.rotation.z = Math.PI / 2; wokHandle.position.set(2.84, 1.12, 1.95); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
+  b.get(`shapes:${m.oak.uuid}`) ?? b.set(`shapes:${m.oak.uuid}`, { category: "side-kitchen", material: m.oak, geometries: [], meshes: [] }); b.get(`shapes:${m.oak.uuid}`).meshes.push(wokHandle);
+  // A broad stainless hood, a short flue, and one amber underlight are the visible story cues.
+  addBox(b, "side-kitchen", m.wokSteel, [0.52, 0.14, 0.12], [2.92, 1.73, 1.95], -0.55);
+  addBox(b, "side-kitchen", m.wokSteel, [0.14, 0.31, 0.14], [2.92, 1.96, 1.95], -0.55);
+  const hoodLight = new THREE.Mesh(new THREE.PlaneGeometry(0.54, 0.045), m.wokGlow);
+  hoodLight.position.set(2.92, 1.625, 1.95); hoodLight.rotation.y = -0.55; hoodLight.name = "wok-kitchen-hood-light"; hoodLight.userData.category = "side-kitchen";
+  sceneAddToBucket(b, hoodLight, "wok-kitchen-hood-light");
+  const sideLight = new THREE.PointLight(0xffad64, 0, 0.72, 2); sideLight.position.set(3.2, 1.55, 1.75); sideLight.name = "side-kitchen-warm-source"; scene.add(sideLight);
   return sideLight;
 }
 
@@ -534,7 +548,7 @@ export async function start({ stage, onReady = () => {} }) {
       size: bounds.getSize(new THREE.Vector3()).toArray(),
       materialColor: `#${rug.material.color.getHexString()}`, roughness: rug.material.roughness,
     } : null;
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([2.84, 1.05, 2.35]), doorReveal: project([2.80, 1.05, 2.35]), doorPanel: project([2.86, 1.05, 2.0]) } };
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([3.16, 1.44, 1.65]), wokBowl: project([3.0, 1.105, 1.95]), wokHood: project([3.0, 1.73, 1.95]), wokGlow: project([2.69, 1.625, 1.95]), doorReveal: project([2.92, 1.625, 1.95]), doorPanel: project([2.86, 1.05, 1.4]), wallBesideWok: project([2.91, 1.4, 2.2]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,

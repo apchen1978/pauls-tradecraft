@@ -19,7 +19,7 @@ async function shot(page, name) {
 
 async function expectMainRegionsInFrame(page) {
   const regions = await page.evaluate(() => window.__room03.info().projectedRegions);
-  for (const [name, [x, y]] of Object.entries(regions)) {
+  for (const [name, [x, y]] of Object.entries({ dining: regions.dining, kitchen: regions.kitchen })) {
     expect(x, `${name} should fit horizontally in the default camera`).toBeGreaterThan(-0.94);
     expect(x, `${name} should fit horizontally in the default camera`).toBeLessThan(0.94);
     expect(y, `${name} should fit vertically in the default camera`).toBeGreaterThan(-0.94);
@@ -61,7 +61,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.rug.min[1]).toBeCloseTo(0.01, 3);
     expect(golden.rug.max[1]).toBeCloseTo(0.02, 3);
     expect(golden.categories.rug).toEqual({ vertices: 24, meshes: 1 });
-    expect(golden.vertices).toBe(4155);
+    expect(golden.vertices).toBe(4509);
+    expect(golden.vertices - 4155, "wok-kitchen work should stay within its geometry budget").toBeLessThanOrEqual(1500);
+    expect(golden.meshes - 45, "wok-kitchen work should add only a small number of meshes").toBe(3);
     // Baseline captured from commit 084384e at the same world point and viewport.
     expect(goldenFloor.meanLuminance, "far floor should brighten by at least 12/255 from 084384e").toBeGreaterThan(81.5994 + 12);
 
@@ -131,7 +133,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     const door = await page.evaluate(() => {
       const info = window.__room03.info();
       return {
-        reveal: window.__room03.sampleNdc(info.projectedRegions.doorReveal, 0.006),
+        reveal: window.__room03.sampleNdc(info.projectedRegions.wokGlow, 0.006),
         panel: window.__room03.sampleNdc(info.projectedRegions.doorPanel, 0.006),
         projectedRegions: info.projectedRegions,
       };
@@ -142,7 +144,57 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(upper.meanLuminance, "upper field should not be crushed to near black").toBeGreaterThan(20);
     expect(upper.luminanceStdDev, "mobile upper field should contain visible lighting and wood variation").toBeGreaterThan(6);
     expect(upper.blue - upper.red, "mobile upper field should not read as a solid blue slab").toBeLessThan(55);
-    expect(door.reveal.meanLuminance, "warm-lit reveal should outshine the closed door panel").toBeGreaterThan(door.panel.meanLuminance + 12);
+    expect(door.reveal.meanLuminance, "visible wok interior should outshine the closed door panel").toBeGreaterThan(door.panel.meanLuminance + 12);
+    expect(errors).toEqual([]);
+  });
+
+  test("shows the wok kitchen through the default opening at desktop and mobile sizes", async ({ page }) => {
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    for (const width of [1440, 390]) {
+      await loadRoom(page, width);
+      const info = await page.evaluate(() => window.__room03.info());
+      const projected = info.projectedRegions;
+      const visible = [projected.wokDoor, projected.wokBowl, projected.wokHood, projected.wokGlow];
+      for (const [index, [x, y, depth]] of visible.entries()) {
+        expect(x, `wok detail ${index} should fit horizontally at ${width}px`).toBeGreaterThan(-0.96);
+        expect(x, `wok detail ${index} should fit horizontally at ${width}px`).toBeLessThan(0.96);
+        expect(y, `wok detail ${index} should fit vertically at ${width}px`).toBeGreaterThan(-0.96);
+        expect(y, `wok detail ${index} should fit vertically at ${width}px`).toBeLessThan(0.96);
+        expect(depth, `wok detail ${index} should be in front of the camera at ${width}px`).toBeLessThan(1);
+      }
+      const goldenSamples = await page.evaluate(() => {
+        const p = window.__room03.info().projectedRegions;
+        return {
+          interior: window.__room03.sampleNdc(p.wokGlow, 0.006),
+          wall: window.__room03.sampleNdc(p.wallBesideWok, 0.018),
+        };
+      });
+      await shot(page, `${width === 390 ? "mobile" : "desktop"}-golden-wok`);
+      await page.locator('#moods button[data-mood="night"]').click();
+      await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+      const nightSamples = await page.evaluate(() => {
+        const p = window.__room03.info().projectedRegions;
+        return {
+          interior: window.__room03.sampleNdc(p.wokGlow, 0.006),
+          wall: window.__room03.sampleNdc(p.wallBesideWok, 0.018),
+        };
+      });
+      console.log(`Room 03 wok interior samples ${width}px:`, JSON.stringify({ goldenSamples, nightSamples, projected }));
+      expect(goldenSamples.interior.red, `golden-hour wok interior should stay warm at ${width}px`).toBeGreaterThan(goldenSamples.interior.blue);
+      expect(nightSamples.interior.meanLuminance, `night wok interior should read brighter than adjacent wall at ${width}px`).toBeGreaterThan(nightSamples.wall.meanLuminance + 10);
+      await shot(page, `${width === 390 ? "mobile" : "desktop"}-night-wok`);
+      if (width === 1440 && QA) {
+        await page.evaluate(() => {
+          const { camera, controls, render } = window.__room03;
+          controls.target.set(3.02, 1.4, 1.95);
+          camera.position.set(1.95, 1.55, 3.7);
+          controls.update();
+          render();
+        });
+        await shot(page, "desktop-night-wok-closeup");
+      }
+    }
     expect(errors).toEqual([]);
   });
 
