@@ -59,6 +59,7 @@ const COPY = {
 };
 const $ = (id) => document.getElementById(id);
 const arrivedFromRoom01 = new URLSearchParams(location.search).get("from") === "room01"; // came through the door in Room 01
+const arrivedFromHome = new URLSearchParams(location.search).get("from") === "home"; // came in from the portfolio home cover (a golden-hour painting)
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 let room = null, mood = "focus", look = "center";
 let immersive = false;
@@ -155,7 +156,7 @@ $("enter").onclick = async () => {
     await room.setChoice("bedding", "clay"); // the oat duvet, terracotta throw and navy pillow are the first look (Paul 2026-10-24, from the shuffle)
     $("portalRow").hidden = false;
     $("immersiveEnter").hidden = false;
-    if (arrivedFromRoom01) { mood = "golden"; moodButtons(); await room.setMood("golden"); } // coming through the door from the daytime living room, the visitor walks into the low golden sun (Paul 2026-10-24)
+    if (arrivedFromRoom01 || arrivedFromHome) { mood = "golden"; moodButtons(); await room.setMood("golden"); } // coming through the door from the daytime living room, the visitor walks into the low golden sun (Paul 2026-10-24)
     if (arrivedFromRoom01) { document.documentElement.classList.add("ready"); await room.arrive(); } // the dark cover lifts as the walk-in begins
   } catch (e) {
     console.error(e);

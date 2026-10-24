@@ -470,7 +470,7 @@ const dict = {
             {
               no: "Room 02", name: "Brooklyn Studio",
               desc: "一個人住的紐約套房：睡覺、工作、打電動、追劇、窩沙發。六種感覺，牆面、地毯、窗簾、寢具隨你換。",
-              cta: "走進套房", href: "/prototype/roomverse-3d/bedroom/",
+              cta: "走進套房", href: "/prototype/roomverse-3d/bedroom/?from=home",
               image: "/prototype/roomverse-3d/showcase-roomverse-3d-room02-v4.webp",
               imageAlt: "午後金黃陽光裡的布魯克林套房：窗外是紅磚街屋、屋頂水塔和布魯克林大橋，曲面螢幕書桌、橡木電視櫃、亞麻長窗簾和床上方的城市畫。",
               imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
@@ -1420,7 +1420,7 @@ const dict = {
             {
               no: "Room 02", name: "Brooklyn Studio",
               desc: "A New York studio for one: sleeping, working, gaming, series nights and sofa time. Six moods, and the walls, rugs, curtains and bedding are yours to swap.",
-              cta: "Step into the studio", href: "/prototype/roomverse-3d/bedroom/",
+              cta: "Step into the studio", href: "/prototype/roomverse-3d/bedroom/?from=home",
               image: "/prototype/roomverse-3d/showcase-roomverse-3d-room02-v4.webp",
               imageAlt: "A Brooklyn studio in golden afternoon light: brick rowhouses, a rooftop water tower and the Brooklyn Bridge outside the window, a curved-monitor desk, an oak TV unit, long linen curtains and city art over the bed.",
               imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
