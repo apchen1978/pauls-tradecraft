@@ -10,8 +10,11 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.addInitScript(() => { window.requestIdleCallback = () => 1; });
-    const requests = [], errors = [];
-    page.on("request", (r) => { if (r.url().includes("left-wall-harbor-dusk")) requests.push(r.url()); });
+    const requests = [], posterRequests = [], errors = [];
+    page.on("request", (r) => {
+      if (r.url().includes("left-wall-harbor-dusk")) requests.push(r.url());
+      if (r.url().includes("room01-wall-print-geometric-v1.webp")) posterRequests.push(r.url());
+    });
     page.on("pageerror", (e) => errors.push(String(e)));
     await page.goto(`${PAGE}?lang=zh&mood=rain`);
     expect(requests).toHaveLength(0);
@@ -19,8 +22,36 @@ for (const width of [390, 1440]) {
     await page.waitForFunction(() => window.__room);
     expect(requests).toHaveLength(0);
     expect((await page.evaluate(() => __room.leftWallArt())).built).toBe(false);
+    expect(await page.evaluate(() => __room.leftWallPoster().built)).toBe(false);
+    expect(posterRequests).toHaveLength(0); // B2 must not join the existing idle preload
+    await page.evaluate(() => Promise.all([__room.loadLeftWallArt(), __room.loadRightWallArt(), __room.loadConsoleDecor(), __room.loadTvWallTextures(), __room.loadDoorTexture()])); // reproduce the complete idle-loaded room before measuring the poster delta
+    await page.waitForFunction(() => __room.leftWallArt().loaded);
+    await page.waitForTimeout(500);
+    const beforePoster = await page.evaluate(() => __room.geometryMetrics());
     await page.evaluate(() => __room.setOrbitAngle(90));
-    await page.waitForFunction(() => __room.leftWallArt().ready);
+    await page.waitForFunction(() => __room.leftWallPoster().loaded);
+    const afterPoster = await page.evaluate(() => __room.geometryMetrics());
+    const poster = await page.evaluate(() => __room.leftWallPoster());
+    expect(posterRequests).toHaveLength(1);
+    expect(poster.ready).toBe(true);
+    expect(poster.file).toBe("room01-wall-print-geometric-v1.webp");
+    expect(poster.size).toEqual([720, 1020]);
+    expect(poster.place).toEqual({ x: -2.592, y: 1.79, z: -1.07 });
+    expect(poster.image.max[1] - poster.image.min[1]).toBeCloseTo(0.5 * 1020 / 720, 5);
+    expect(poster.image.max[2] - poster.image.min[2]).toBeCloseTo(.5, 5);
+    expect(poster.vertices).toBe(124);
+    expect(poster.meshes).toBe(6);
+    expect(afterPoster.vertices - beforePoster.vertices).toBe(poster.vertices);
+    expect(afterPoster.meshes - beforePoster.meshes).toBe(poster.meshes);
+    for (const name of ["plant", "board", "couplet", "harbor"]) {
+      expect(poster.clearances[name].intersects, `${name} overlap`).toBe(false);
+      expect(poster.clearances[name].distance, `${name} clearance`).toBeGreaterThanOrEqual(.06);
+    }
+    expect(poster.screenRect.x).toBeGreaterThanOrEqual(0);
+    expect(poster.screenRect.y).toBeGreaterThanOrEqual(0);
+    expect(poster.screenRect.x + poster.screenRect.width).toBeLessThanOrEqual(width);
+    expect(poster.screenRect.y + poster.screenRect.height).toBeLessThanOrEqual(width === 390 ? 844 : 900);
+    expect((await page.evaluate(() => __room.leftWallArt())).ready).toBe(true);
     const art = await page.evaluate(() => __room.leftWallArt());
     expect(art.loaded).toBe(true);
     expect(art.file).toBe(width === 390 ? "left-wall-harbor-dusk-mobile-v1.webp" : "left-wall-harbor-dusk-v1.webp");
@@ -137,6 +168,61 @@ for mood in ["tv", "rain", "family"]:
     canvas.save(d / f"pair-{mood}-{width}.jpg", quality=86)
 `], { stdio: "inherit" });
   await writeFile(`${QA}/geometry-and-glow.json`, JSON.stringify(measured, null, 2));
+});
+
+test("the B2 poster stays clear of the director camera and robot turn path", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=rain`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await page.evaluate(() => __room.setOrbitAngle(90));
+  await page.waitForFunction(() => __room.leftWallPoster().loaded);
+  const poster = await page.evaluate(() => __room.leftWallPoster());
+  expect(poster.clearances.roomRobot.intersects).toBe(false);
+  expect(poster.clearances.roomRobot.distance).toBeGreaterThan(.06);
+  expect(poster.clearances.guideRobot.intersects).toBe(false);
+  expect(poster.clearances.guideRobot.distance).toBeGreaterThan(.06);
+  expect(poster.clearances.roomRobotTurn.intersects).toBe(false);
+  expect(poster.clearances.roomRobotTurn.distance).toBeGreaterThan(.06);
+  expect(poster.clearances.guideRobotTurn.intersects).toBe(false);
+  expect(poster.clearances.guideRobotTurn.distance).toBeGreaterThan(.06);
+  await page.evaluate(() => __room.setOrbitAngle(0));
+  await page.locator("#panelToggle").click().catch(() => {});
+  await page.waitForTimeout(1900);
+  const before = await page.evaluate(() => ({ camera: __room.cam(), url: location.href }));
+  await page.locator(".save.director").click();
+  await page.waitForFunction(() => __room.director().playing, null, { timeout: 15000 });
+  const samples = [];
+  while (await page.evaluate(() => __room.director().playing)) {
+    samples.push(await page.evaluate(() => __room.cam()));
+    await page.waitForTimeout(80);
+  }
+  const distance = ([x, y, z]) => {
+    const dx = Math.max(poster.bounds.min[0] - x, x - poster.bounds.max[0], 0);
+    const dy = Math.max(poster.bounds.min[1] - y, y - poster.bounds.max[1], 0);
+    const dz = Math.max(poster.bounds.min[2] - z, z - poster.bounds.max[2], 0);
+    return Math.hypot(dx, dy, dz);
+  };
+  expect(samples.length).toBeGreaterThan(40);
+  expect(Math.min(...samples.map(distance))).toBeGreaterThan(1);
+  await page.waitForFunction(() => !__room.director().playing && __room.director().controlsEnabled);
+  expect(await page.evaluate(() => ({ camera: __room.cam(), url: location.href }))).toEqual(before);
+  expect(errors).toEqual([]);
+});
+
+test("the B2 poster is lazy and appears after its first image request fails", async ({ page }) => {
+  let hits = 0;
+  await page.route("**/room01-wall-print-geometric-v1.webp", (route) => (++hits === 1 ? route.abort() : route.continue()));
+  await page.addInitScript(() => { window.requestIdleCallback = () => 1; });
+  await page.goto(`${PAGE}?lang=zh&mood=rain`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  expect(await page.evaluate(() => __room.leftWallPoster().built)).toBe(false);
+  await page.evaluate(() => __room.setOrbitAngle(90));
+  await page.waitForFunction(() => __room.leftWallPoster().loaded, null, { timeout: 12000 });
+  const poster = await page.evaluate(() => __room.leftWallPoster());
+  expect(hits).toBeGreaterThanOrEqual(2);
+  expect(poster.file).toBe("room01-wall-print-geometric-v1.webp");
 });
 
 test("a left-wall painting whose first download fails appears by itself on a retry, without reloading the page", async ({ page }) => {

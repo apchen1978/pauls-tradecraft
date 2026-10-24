@@ -810,6 +810,10 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // (r160, useLegacyLights left at its default false): candela, decay 2 = 1/d². No renderer change.
   let leftWallArtGroup = null, leftWallArtPromise = null, leftWallArtReady = false, leftWallArtLoaded = false;
   let leftPaintingMat = null, leftArtWallWash = null, leftArtPaintWash = null, leftArtDiffuser = null, leftPictureSpot = null;
+  let leftWallPosterGroup = null, leftWallPosterPromise = null, leftWallPosterLoaded = false, leftWallPosterReady = false;
+  let leftWallPosterMat = null;
+  const leftWallPosterPlace = { x: -W / 2 + .008, y: 1.79, z: -1.07 };
+  const leftWallPosterSize = { w: .5, h: .5 * 1020 / 720 }, leftWallPosterFrame = .02; // 50 × 70.8 cm image; 2 cm oak frame
   const leftWallArtPlace = { x: -W / 2 + .008, y: 1.5, z: 1 }; // 8 mm off the wall at x=-2.6, same hanging line as the right wall
   const leftPaintSize = { w: 1.2, h: .675 }, leftFrameMargin = .118; // 16:9 picture; the frame adds 5.9 cm on each side
   // A 4 W picture LED at ~80 lm/W is 320 lm, about 100 cd in a wide flood. The room's other lamps are
@@ -910,9 +914,46 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     });
     return leftWallArtPromise;
   }
+  function loadLeftWallPoster() {
+    if (leftWallPosterPromise) return leftWallPosterPromise;
+    leftWallPosterPromise = new Promise((resolve) => {
+      const { w, h } = leftWallPosterSize, frame = leftWallPosterFrame;
+      leftWallPosterGroup = new THREE.Group(); leftWallPosterGroup.name = "room01-left-wall-poster";
+      leftWallPosterGroup.position.set(leftWallPosterPlace.x, leftWallPosterPlace.y, leftWallPosterPlace.z);
+      leftWallPosterGroup.rotation.y = Math.PI / 2; scene.add(leftWallPosterGroup);
+      const piece = (geo, mat, x, y, z, name) => {
+        const mesh = new THREE.Mesh(geo, mat); mesh.name = name; mesh.position.set(x, y, z);
+        mesh.castShadow = false; mesh.receiveShadow = false; leftWallPosterGroup.add(mesh); return mesh;
+      };
+      const oak = new THREE.MeshStandardMaterial({ color: "#9b774c", roughness: .78, metalness: 0 });
+      const outerW = w + frame * 2, outerH = h + frame * 2;
+      piece(new THREE.BoxGeometry(outerW, outerH, .018), oak, 0, 0, .014, "room01-left-wall-poster-backing");
+      for (const side of [-1, 1]) {
+        piece(new THREE.BoxGeometry(outerW, frame, .018), oak, 0, side * (h + frame) / 2, .023, `room01-left-wall-poster-frame-horizontal-${side}`);
+        piece(new THREE.BoxGeometry(frame, h, .018), oak, side * (w + frame) / 2, 0, .023, `room01-left-wall-poster-frame-vertical-${side}`);
+      }
+      leftWallPosterMat = new THREE.MeshStandardMaterial({ color: "#e8dfcc", roughness: .85, metalness: 0 });
+      piece(new THREE.PlaneGeometry(w, h), leftWallPosterMat, 0, 0, .024, "room01-left-wall-poster-image");
+      const fetchPoster = (attempt) => {
+        const texture = new THREE.TextureLoader().load(new URL("./art/room01-wall-print-geometric-v1.webp", import.meta.url).href, () => {
+          texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+          leftWallPosterMat.map = texture; leftWallPosterMat.color.set("#ffffff"); leftWallPosterMat.needsUpdate = true;
+          leftWallPosterLoaded = true; leftWallPosterReady = true; render(); resolve(true);
+        }, undefined, () => {
+          leftWallPosterReady = true; render(); if (attempt === 0) resolve(false);
+          if (attempt < 2) setTimeout(() => fetchPoster(attempt + 1), attempt ? 6000 : 2000); // retry a brief network failure without reloading the room
+        });
+      };
+      fetchPoster(0);
+    });
+    return leftWallPosterPromise;
+  }
   controls.addEventListener("change", () => {
     const offset = camera.position.clone().sub(orbitCenter);
-    if (Math.sin(Math.atan2(offset.x, offset.z)) > .45) void loadLeftWallArt(); // turning toward the left-hand wall
+    if (Math.sin(Math.atan2(offset.x, offset.z)) > .45) {
+      void loadLeftWallArt(); // existing harbor art
+      void loadLeftWallPoster(); // Room 01 poster is opt-in on the first turn toward this wall
+    }
   });
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
@@ -2773,6 +2814,16 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   if (!still && !arriveFromRoom02) setTimeout(startRobotTurn, 500);
   onReady?.();
   return {
+    geometryMetrics() { // local QA: count loaded scene geometry using BufferGeometry position attributes
+      let meshes = 0, vertices = 0, triangles = 0;
+      scene.traverse((obj) => {
+        if (!obj.isMesh) return;
+        const count = obj.geometry.attributes.position?.count ?? 0;
+        meshes++; vertices += count;
+        triangles += obj.geometry.index ? obj.geometry.index.count / 3 : count / 3;
+      });
+      return { meshes, vertices, triangles, robotLoaded: robotObj.children.length > 0 };
+    },
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
@@ -2922,6 +2973,37 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       };
     },
     loadLeftWallArt,
+    leftWallPoster() { // local QA: physical size, image, geometry and clearance to neighbouring wall objects
+      if (!leftWallPosterGroup) return { built: false, ready: false, loaded: false };
+      scene.updateMatrixWorld(true);
+      const boxOf = (obj) => new THREE.Box3().setFromObject(obj);
+      const pack = (box) => ({ min: box.min.toArray(), max: box.max.toArray() });
+      const box = boxOf(leftWallPosterGroup), image = leftWallPosterGroup.getObjectByName("room01-left-wall-poster-image");
+      const imageBox = boxOf(image), rect = renderer.domElement.getBoundingClientRect();
+      const corners = [[-leftWallPosterSize.w / 2, -leftWallPosterSize.h / 2], [leftWallPosterSize.w / 2, -leftWallPosterSize.h / 2], [-leftWallPosterSize.w / 2, leftWallPosterSize.h / 2], [leftWallPosterSize.w / 2, leftWallPosterSize.h / 2]].map(([x, y]) => new THREE.Vector3(x, y, 0).applyMatrix4(image.matrixWorld).project(camera));
+      const gaps = (other) => {
+        const b = boxOf(other), dx = Math.max(b.min.x - box.max.x, box.min.x - b.max.x, 0);
+        const dy = Math.max(b.min.y - box.max.y, box.min.y - b.max.y, 0), dz = Math.max(b.min.z - box.max.z, box.min.z - b.max.z, 0);
+        return { intersects: box.intersectsBox(b), distance: Math.hypot(dx, dy, dz), z: dz };
+      };
+      const turnEnvelope = (other) => {
+        const b = boxOf(other), center = b.getCenter(new THREE.Vector3()), radius = b.getSize(new THREE.Vector3()).length() / 2;
+        const dx = Math.max(box.min.x - center.x, center.x - box.max.x, 0);
+        const dy = Math.max(box.min.y - center.y, center.y - box.max.y, 0);
+        const dz = Math.max(box.min.z - center.z, center.z - box.max.z, 0);
+        const clearance = Math.hypot(dx, dy, dz) - radius;
+        return { intersects: clearance <= 0, distance: Math.max(0, clearance), radius };
+      };
+      let vertices = 0, meshes = 0;
+      leftWallPosterGroup.traverse((obj) => { if (obj.isMesh) { meshes++; vertices += obj.geometry.attributes.position.count; } });
+      const xs = corners.map((p) => (p.x + 1) * rect.width / 2), ys = corners.map((p) => (1 - p.y) * rect.height / 2);
+      return { built: true, ready: leftWallPosterReady, loaded: leftWallPosterLoaded,
+        file: leftWallPosterMat.map?.image?.src?.split("/").pop() ?? null,
+        size: [leftWallPosterMat.map?.image?.width ?? 0, leftWallPosterMat.map?.image?.height ?? 0],
+        place: { ...leftWallPosterPlace }, bounds: pack(box), image: pack(imageBox), vertices, meshes,
+        screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
+        clearances: { plant: gaps(plantObj), board: gaps(homeBoard), couplet: gaps(couplet), harbor: leftWallArtGroup ? gaps(leftWallArtGroup) : null, floorLamp: gaps(lampObj), roomRobot: gaps(robotObj), guideRobot: gaps(guidePivot), roomRobotTurn: turnEnvelope(robotObj), guideRobotTurn: turnEnvelope(guidePivot) } };
+    },
     leftWallArt() { // read-only QA for the left-wall harbour pair
       if (!leftWallArtGroup) return { ready: false, loaded: false, built: false };
       scene.updateMatrixWorld(true);
