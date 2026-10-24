@@ -34,7 +34,7 @@
     @media (max-width:768px) {
       header { padding:10px 14px; }
       .intro { padding:4px 14px 12px; }
-      .room { margin:0 8px; height:60vh; min-height:430px; border-radius:14px; }
+      .room { margin:0 8px; height:clamp(360px,100vw,450px); min-height:360px; border-radius:14px; }
       .immersive-enter:not([hidden]) { display:block; position:absolute; z-index:3; right:10px; bottom:10px; background:#29352de8; border-color:#fff9; color:#fff; }
       .room.is-immersive { position:fixed; z-index:50; inset:0; width:100vw; height:100vh; height:100dvh; min-height:0; margin:0; border-radius:0; }
       .room.is-immersive #stage { height:100%; }

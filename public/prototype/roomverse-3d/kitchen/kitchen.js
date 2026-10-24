@@ -6,39 +6,101 @@ export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
 const COLORS = Object.freeze({
   cream: 0xd9c6ab, oak: 0xbc8a53, ceiling: 0xa9713c, olive: 0x4b5034,
-  stone: 0xc9c0ae, black: 0x282a27, steel: 0x8e918b, jute: 0xa88d67,
+  stone: 0xc9c0ae, black: 0x282a27, steel: 0x8e918b, jute: 0xc4ae80,
   terracotta: 0xad452b, opal: 0xf2d7a0,
 });
 
-function makeRugTexture() {
+function makeTexture(paint, width = 256, height = 256) {
   const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 128;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#a98e68";
-  ctx.fillRect(0, 0, 128, 128);
-  for (let i = 0; i < 128; i += 4) {
-    ctx.strokeStyle = i % 8 ? "#806d51" : "#d0b995";
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + 10, 128); ctx.stroke();
-    ctx.strokeStyle = i % 8 ? "#d0b995" : "#806d51";
-    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(128, i + 6); ctx.stroke();
-  }
+  canvas.width = width; canvas.height = height;
+  paint(canvas.getContext("2d"), width, height);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(3, 2);
+  texture.anisotropy = 4;
   return texture;
+}
+
+function makeFineNoise(seed, alpha = 0.035) {
+  let state = seed;
+  const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+  return makeTexture((ctx, w, h) => {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 1500; i++) {
+      const value = random() > 0.5 ? 70 : 125;
+      ctx.fillStyle = `rgba(${value},${value},${value},${alpha * random()})`;
+      ctx.fillRect(random() * w, random() * h, 1 + random() * 2, 1 + random() * 2);
+    }
+  });
+}
+
+function makeWoodTexture(planks = false) {
+  return makeTexture((ctx, w, h) => {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+    if (planks) {
+      for (let y = 0; y < h; y += 42) {
+        ctx.fillStyle = "rgba(70,48,30,.10)"; ctx.fillRect(0, y, w, 1.4);
+        ctx.fillStyle = "rgba(255,255,255,.16)"; ctx.fillRect(0, y + 2, w, 1);
+        for (const x of [52, 174]) {
+          ctx.fillStyle = "rgba(80,58,35,.07)"; ctx.fillRect(x, y + 2, 1, 40);
+        }
+      }
+    }
+    for (let i = 0; i < 76; i++) {
+      const y = (i * 37) % h + (i % 3);
+      const shade = i % 2 ? "rgba(104,72,40,.13)" : "rgba(255,255,255,.15)";
+      ctx.strokeStyle = shade; ctx.lineWidth = 0.6 + (i % 3) * 0.3;
+      ctx.beginPath(); ctx.moveTo(0, y);
+      ctx.bezierCurveTo(w * 0.34, y - 2, w * 0.67, y + 2, w, y - 1); ctx.stroke();
+    }
+  });
+}
+
+function makeRugTexture() {
+  return makeTexture((ctx, w, h) => {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+    // Fine, low-contrast irregular jute fibers; avoid a checkerboard weave.
+    for (let i = 0; i < 90; i++) {
+      const y = (i * 19) % h;
+      ctx.strokeStyle = i % 3 ? "rgba(117,89,51,.10)" : "rgba(255,255,255,.22)";
+      ctx.lineWidth = i % 5 === 0 ? 1.3 : 0.7;
+      ctx.beginPath(); ctx.moveTo(0, y);
+      ctx.bezierCurveTo(w * 0.28, y - 2, w * 0.62, y + 2, w, y - 1); ctx.stroke();
+    }
+    for (let i = 0; i < 44; i++) {
+      const x = (i * 31) % w;
+      ctx.strokeStyle = i % 2 ? "rgba(133,101,59,.055)" : "rgba(255,255,255,.11)";
+      ctx.lineWidth = 0.6;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 2, h); ctx.stroke();
+    }
+  });
+}
+
+function makeSeatTexture() {
+  return makeTexture((ctx, w, h) => {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 40; i++) {
+      const y = i * 7;
+      ctx.strokeStyle = i % 2 ? "rgba(115,94,64,.12)" : "rgba(255,255,255,.2)";
+      ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y + 4); ctx.stroke();
+    }
+  });
 }
 
 function makeMaterials() {
   const std = (color, roughness = 0.8, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   return {
-    floor: std(0xaaa49a, 0.88), wall: std(COLORS.cream), ceiling: std(COLORS.ceiling, 0.9),
-    oak: std(COLORS.oak, 0.76), olive: std(COLORS.olive, 0.82), stone: std(COLORS.stone, 0.45),
-    black: std(COLORS.black, 0.44), steel: std(COLORS.steel, 0.38), jute: std(0xffffff, 1, { map: makeRugTexture() }),
+    floor: std(0xaaa49a, 0.88, { map: makeFineNoise(11, 0.045) }),
+    wall: std(COLORS.cream, 0.92, { map: makeFineNoise(19, 0.025) }),
+    ceiling: std(COLORS.ceiling, 0.9, { map: makeWoodTexture(true), emissive: 0x9b6938, emissiveIntensity: 0.34 }),
+    oak: std(COLORS.oak, 0.76, { map: makeWoodTexture(false) }),
+    olive: std(COLORS.olive, 0.82),
+    stone: std(COLORS.stone, 0.45, { map: makeFineNoise(23, 0.025) }),
+    black: std(COLORS.black, 0.44), steel: std(COLORS.steel, 0.38),
+    jute: std(COLORS.jute, 1, { map: makeRugTexture() }), seat: std(0xb8a17e, 0.98, { map: makeSeatTexture() }),
     red: std(COLORS.terracotta, 0.34), glass: new THREE.MeshPhysicalMaterial({ color: 0xb9d3d1, roughness: 0.12, metalness: 0.06, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }),
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
-    warmGlow: new THREE.MeshBasicMaterial({ color: 0xffbd70, transparent: true, opacity: 0.92, side: THREE.DoubleSide }),
+    warmGlow: new THREE.MeshBasicMaterial({ color: 0xffd295, transparent: true, opacity: 0.94, side: THREE.DoubleSide }),
   };
 }
 
@@ -71,9 +133,9 @@ function buildArchitecture(b, m, scene, onYardLoad) {
   const hx = ROOM.width / 2, hz = ROOM.depth / 2, h = ROOM.height;
   addBox(b, "shell", m.floor, [ROOM.width, 0.14, ROOM.depth], [0, -0.07, 0]);
   addBox(b, "shell", m.wall, [ROOM.width, h, 0.12], [0, h / 2, -hz]);
-  addBox(b, "shell", m.wall, [0.12, h, 1.8], [hx, h / 2, -1.5]);
-  addBox(b, "shell", m.wall, [0.12, h, 1.8], [hx, h / 2, 1.5]);
-  addBox(b, "shell", m.wall, [0.12, 0.55, 1.2], [hx, 2.42, 0]);
+  // Move the small wok-kitchen opening toward the front so it reads from the entry camera.
+  addBox(b, "shell", m.wall, [0.12, h, 3.95], [hx, h / 2, -0.425]);
+  addBox(b, "shell", m.wall, [0.12, 0.55, 0.85], [hx, 2.42, 1.975]);
   addBox(b, "shell", m.ceiling, [ROOM.width, 0.16, ROOM.depth], [0, 2.69, 0]);
 
   // Three exposed timber beams run from the glass wall into the kitchen.
@@ -145,35 +207,47 @@ function buildKitchen(b, m) {
 
 function buildSideKitchen(b, m, scene) {
   // One dark-framed slider covers most of the opening and leaves a narrow warm-lit slit.
-  addBox(b, "side-kitchen", m.black, [0.08, 0.055, 1.2], [2.84, 2.05, 0]);
-  addBox(b, "side-kitchen", m.ceiling, [0.055, 1.98, 0.88], [2.86, 1.0, -0.12]);
-  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, -0.6]);
-  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, 0.6]);
-  addBox(b, "side-kitchen", m.black, [0.025, 0.22, 0.025], [2.81, 1.1, 0.25]);
-  addBox(b, "side-kitchen", m.warmGlow, [0.025, 1.65, 0.28], [3.04, 1.03, 0.46]);
-  addBox(b, "side-kitchen", m.black, [0.08, 1.9, 1.15], [4.05, 1.02, 0.2]);
-  addBox(b, "side-kitchen", m.stone, [0.7, 0.1, 0.65], [3.38, 0.9, 0.4]);
-  addBox(b, "side-kitchen", m.steel, [0.66, 0.16, 0.42], [3.41, 1.63, 0.25]);
+  addBox(b, "side-kitchen", m.black, [0.08, 0.055, 0.85], [2.84, 2.05, 1.975]);
+  // Dark olive slider leaves a narrow reveal on the courtyard-facing edge.
+  addBox(b, "side-kitchen", m.olive, [0.055, 1.98, 0.75], [2.86, 1.0, 1.925]);
+  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, 1.55]);
+  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.84, 1.05, 2.4]);
+  addBox(b, "side-kitchen", m.black, [0.025, 0.22, 0.025], [2.81, 1.1, 2.16]);
+  addBox(b, "side-kitchen", m.black, [0.08, 1.9, 1.15], [4.05, 1.02, 1.55]);
+  addBox(b, "side-kitchen", m.stone, [0.7, 0.1, 0.65], [3.38, 0.9, 1.62]);
+  addBox(b, "side-kitchen", m.steel, [0.66, 0.16, 0.42], [3.41, 1.63, 1.58]);
   const wok = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.1, 0.19, 18, 1, true), m.black);
-  wok.position.set(3.32, 1.06, 0.48); wok.name = "wok-kitchen-wok"; wok.userData.category = "side-kitchen"; b.get(`shapes:${m.black.uuid}`) ?? b.set(`shapes:${m.black.uuid}`, { category: "side-kitchen", material: m.black, geometries: [], meshes: [] }); b.get(`shapes:${m.black.uuid}`).meshes.push(wok);
-  const sideLight = new THREE.PointLight(0xffad64, 0, 1.5, 2); sideLight.position.set(3.3, 1.55, 0.55); sideLight.name = "side-kitchen-warm-source"; scene.add(sideLight);
+  wok.position.set(3.32, 1.06, 1.58); wok.name = "wok-kitchen-wok"; wok.userData.category = "side-kitchen"; b.get(`shapes:${m.black.uuid}`) ?? b.set(`shapes:${m.black.uuid}`, { category: "side-kitchen", material: m.black, geometries: [], meshes: [] }); b.get(`shapes:${m.black.uuid}`).meshes.push(wok);
+  // Keep the warm source aligned behind the narrow reveal from both default cameras.
+  const revealGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 1.2), m.warmGlow);
+  revealGlow.position.set(3.32, 1.02, 1.58); revealGlow.rotation.y = Math.PI / 2;
+  revealGlow.name = "wok-kitchen-door-reveal"; revealGlow.userData.category = "side-kitchen"; scene.add(revealGlow);
+  const sideLight = new THREE.PointLight(0xffad64, 0, 1.5, 2); sideLight.position.set(3.3, 1.55, 1.58); sideLight.name = "side-kitchen-warm-source"; scene.add(sideLight);
   return sideLight;
 }
 
 function buildTable(b, m) {
-  const z = 0.35;
-  // Flat jute texture; table is 2.25 x 0.98 m, around 75 cm high.
-  addBox(b, "rug", m.jute, [2.9, 0.025, 1.9], [0, 0.015, z]);
-  addBox(b, "dining-table", m.oak, [2.28, 0.075, 1.0], [0, 0.76, z]);
-  addBox(b, "dining-table", m.oak, [1.94, 0.12, 0.11], [0, 0.65, z]);
-  for (const x of [-0.96, 0.96]) for (const zz of [z - 0.36, z + 0.36]) addBox(b, "dining-table", m.oak, [0.09, 0.64, 0.09], [x, 0.34, zz]);
-  // Four chairs with open backs; all remain inside the room and off the wall.
-  for (const x of [-0.72, 0.72]) for (const cz of [z - 0.86, z + 0.86]) {
+  const z = 0.5;
+  // 2.0 × 0.9 m dining table with clear floor around four chairs.
+  addBox(b, "rug", m.jute, [2.65, 0.025, 2.05], [0, 0.015, z]);
+  addBox(b, "dining-table", m.oak, [2.0, 0.075, 0.9], [0, 0.76, z]);
+  addBox(b, "dining-table", m.oak, [1.66, 0.12, 0.11], [0, 0.65, z]);
+  for (const x of [-0.82, 0.82]) for (const zz of [z - 0.31, z + 0.31]) addBox(b, "dining-table", m.oak, [0.09, 0.64, 0.09], [x, 0.34, zz]);
+  // Four restrained mid-century chairs: woven seats and curved timber backs.
+  for (const x of [-0.5, 0.5]) for (const cz of [z - 0.72, z + 0.72]) {
     const facing = cz < z ? Math.PI : 0;
-    addBox(b, "dining-chairs", m.oak, [0.48, 0.075, 0.45], [x, 0.47, cz]);
-    for (const dx of [-0.19, 0.19]) for (const dz of [-0.16, 0.16]) addBox(b, "dining-chairs", m.oak, [0.045, 0.43, 0.045], [x + dx, 0.235, cz + dz]);
-    addBox(b, "dining-chairs", m.oak, [0.48, 0.09, 0.06], [x, 0.92, cz + (facing ? -0.17 : 0.17)]);
-    for (const xx of [-0.2, 0.2]) addBox(b, "dining-chairs", m.oak, [0.055, 0.46, 0.055], [x + xx, 0.69, cz + (facing ? -0.17 : 0.17)]);
+    addBox(b, "dining-chairs", m.seat, [0.44, 0.07, 0.42], [x, 0.47, cz]);
+    for (const dx of [-0.18, 0.18]) for (const dz of [-0.16, 0.16]) addBox(b, "dining-chairs", m.oak, [0.045, 0.43, 0.045], [x + dx, 0.235, cz + dz]);
+    const backZ = cz + (facing ? -0.18 : 0.18);
+    for (const xx of [-0.19, 0.19]) addBox(b, "dining-chairs", m.oak, [0.045, 0.46, 0.045], [x + xx, 0.69, backZ]);
+    const curve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(-0.2, 0.88, 0),
+      new THREE.Vector3(0, 1.11, 0),
+      new THREE.Vector3(0.2, 0.88, 0),
+    );
+    const arch = new THREE.Mesh(new THREE.TubeGeometry(curve, 14, 0.026, 5, false), m.oak);
+    arch.position.set(x, 0, backZ); arch.name = "curved-chair-back"; arch.userData.category = "dining-chairs";
+    arch.castShadow = true; arch.receiveShadow = true; b.set(`chair-arch-${x}-${cz}`, { category: "dining-chairs", material: m.oak, geometries: [], meshes: [arch] });
   }
 }
 
@@ -220,8 +294,9 @@ function assemble(b, scene) {
 export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xb9aa93);
-  const camera = new THREE.PerspectiveCamera(65, 1, 0.05, 40);
-  camera.position.set(-0.45, 1.95, 1.7);
+  const compact = window.innerWidth < 500;
+  const camera = new THREE.PerspectiveCamera(compact ? 60 : 50, 1, 0.05, 50);
+  camera.position.set(1.25, compact ? 1.74 : 1.65, 4.95);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
   renderer.setPixelRatio(1.5);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -232,8 +307,9 @@ export async function start({ stage, onReady = () => {} }) {
   stage.replaceChildren(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = false; controls.enablePan = false;
-  controls.target.set(window.innerWidth < 500 ? 0.2 : 0, 1.25, 0); controls.minDistance = 1.6; controls.maxDistance = 2.1;
-  controls.minPolarAngle = 0.85; controls.maxPolarAngle = 2.0; controls.minAzimuthAngle = -Math.PI; controls.maxAzimuthAngle = Math.PI;
+  controls.target.set(0.8, 1.25, -0.1); controls.minDistance = 4.5;
+  controls.minPolarAngle = 1.3; controls.maxPolarAngle = 1.88; controls.minAzimuthAngle = -0.6; controls.maxAzimuthAngle = 0.35;
+  controls.maxDistance = compact ? 6.2 : 5.8;
   const materials = makeMaterials();
   const buckets = new Map();
   let yardLoaded = false;
@@ -243,18 +319,18 @@ export async function start({ stage, onReady = () => {} }) {
   buildTable(buckets, materials);
   assemble(buckets, scene);
   const sunTarget = new THREE.Object3D(); sunTarget.position.set(0, 0, 0); scene.add(sunTarget);
-  const sun = new THREE.DirectionalLight(0xffc27f, 2.2); sun.position.set(-4.2, 1.35, 3.2); sun.target = sunTarget; sun.castShadow = true;
+  const sun = new THREE.DirectionalLight(0xffd6a1, 2.4); sun.position.set(-4.2, 1.35, 3.2); sun.target = sunTarget; sun.castShadow = true;
   sun.shadow.mapSize.set(512, 512); sun.shadow.camera.left = -4; sun.shadow.camera.right = 4; sun.shadow.camera.top = 4; sun.shadow.camera.bottom = -4; sun.shadow.bias = -0.0002; sun.shadow.radius = 4; scene.add(sun);
-  const hemi = new THREE.HemisphereLight(0xfff0d4, 0x6f6658, 0.9); scene.add(hemi);
-  const ambient = new THREE.AmbientLight(0xffffff, 0.42); scene.add(ambient);
+  const hemi = new THREE.HemisphereLight(0xfff0d4, 0x6f6658, 0.68); scene.add(hemi);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.28); scene.add(ambient);
   const pendantLight = buildPendant(scene, materials);
   const underLight = new THREE.SpotLight(0xffca91, 0, 2.8, Math.PI / 3.5, 0.65, 2); underLight.position.set(0, 1.42, -1.82); underLight.target.position.set(0, 0.96, -1.45); scene.add(underLight, underLight.target);
   const sideLight = [...scene.children].find((o) => o.name === "side-kitchen-warm-source");
   buildRedPot(scene, materials);
 
   const moods = {
-    golden: { sun: 2.2, hemi: 0.9, ambient: 0.42, pendant: 0, under: 0, side: 0.12, exposure: 1.08, yard: 0xffffff, background: 0xb9aa93, globe: 0.16 },
-    night: { sun: 0, hemi: 0.28, ambient: 0.22, pendant: 2.0, under: 1.15, side: 1.05, exposure: 1.0, yard: 0x617087, background: 0x273244, globe: 1.0 },
+    golden: { sun: 2.4, hemi: 0.68, ambient: 0.28, pendant: 0, under: 0, side: 0.12, exposure: 1.02, yard: 0xffffff, background: 0xb9aa93, globe: 0.12 },
+    night: { sun: 0, hemi: 0.3, ambient: 0.26, pendant: 3.4, under: 1.9, side: 1.5, exposure: 1.02, yard: 0x52627c, background: 0x273244, globe: 1.05 },
   };
   let currentMood = "golden";
   function setMood(name) {
@@ -267,6 +343,7 @@ export async function start({ stage, onReady = () => {} }) {
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
     if (yardMaterial) { yardMaterial.color.setHex(preset.yard); yardMaterial.needsUpdate = true; }
     materials.opal.emissiveIntensity = preset.globe;
+    materials.ceiling.emissiveIntensity = name === "golden" ? 0.34 : 0.18;
     materials.warmGlow.opacity = name === "night" ? 0.98 : 0.55;
     for (const light of [sun, pendantLight, underLight, sideLight]) light.visible = light.intensity > 0;
     render();
@@ -274,7 +351,7 @@ export async function start({ stage, onReady = () => {} }) {
   function resize() {
     const rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return;
     camera.aspect = rect.width / rect.height;
-    camera.fov = rect.width < 500 ? 104 : 78;
+    camera.fov = rect.width < 500 ? 78 : 52;
     camera.updateProjectionMatrix();
     renderer.setSize(rect.width, rect.height, false);
     render();
@@ -285,6 +362,7 @@ export async function start({ stage, onReady = () => {} }) {
   resize(); controls.update(); setMood("golden");
   const info = () => {
     const categories = {};
+    const project = (point) => new THREE.Vector3(...point).project(camera).toArray();
     let vertices = 0, triangles = 0, meshes = 0;
     scene.traverse((object) => {
       if (!object.isMesh || !object.geometry?.attributes?.position) return;
@@ -294,7 +372,7 @@ export async function start({ stage, onReady = () => {} }) {
       categories[key] ??= { vertices: 0, meshes: 0 };
       categories[key].vertices += count; categories[key].meshes++;
     });
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight] };
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), wokDoor: project([2.84, 1.05, 1.98]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
@@ -306,7 +384,7 @@ export async function start({ stage, onReady = () => {} }) {
       camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
       controls.update(); render();
     },
-    dispose: () => { resizeObserver.disconnect(); controls.dispose(); renderer.dispose(); scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); Object.values(materials).forEach((m) => m.dispose()); },
+    dispose: () => { resizeObserver.disconnect(); controls.dispose(); renderer.dispose(); scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); Object.values(materials).forEach((m) => { m.map?.dispose(); m.dispose(); }); },
   };
   onReady(instance);
   return instance;

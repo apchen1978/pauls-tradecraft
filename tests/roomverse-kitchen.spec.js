@@ -17,6 +17,16 @@ async function shot(page, name) {
   if (QA) await page.locator(".room").screenshot({ path: `${QA}/${name}.png` });
 }
 
+async function expectMainRegionsInFrame(page) {
+  const regions = await page.evaluate(() => window.__room03.info().projectedRegions);
+  for (const [name, [x, y]] of Object.entries(regions)) {
+    expect(x, `${name} should fit horizontally in the default camera`).toBeGreaterThan(-0.94);
+    expect(x, `${name} should fit horizontally in the default camera`).toBeLessThan(0.94);
+    expect(y, `${name} should fit vertically in the default camera`).toBeGreaterThan(-0.94);
+    expect(y, `${name} should fit vertically in the default camera`).toBeLessThan(0.94);
+  }
+}
+
 test.describe("Room 03 Bay Area Kitchen", () => {
   test("loads the direct noindex room with a rendered scene within the geometry budget", async ({ page }) => {
     const errors = [];
@@ -27,6 +37,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await expect(page.locator("canvas")).toBeVisible();
     const info = await page.evaluate(() => window.__room03.info());
     console.log("Room 03 measured scene:", JSON.stringify(info));
+    await expectMainRegionsInFrame(page);
     expect(info.mood).toBe("golden");
     expect(info.dimensions).toEqual({ width: 6, depth: 4.8, height: 2.7 });
     expect(info.vertices).toBeGreaterThan(3000);
@@ -56,6 +67,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
 
   test("fits a 390px screen and fake fullscreen exits by button, Escape, and browser back", async ({ page }) => {
     await loadRoom(page, 390);
+    await expectMainRegionsInFrame(page);
     const pageWidth = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
     expect(pageWidth.scroll).toBeLessThanOrEqual(pageWidth.client);
     await shot(page, "mobile-golden-zh");
@@ -75,7 +87,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
   });
 
-  test("keeps the camera inside room bounds while orbiting around all sides", async ({ page }) => {
+  test("keeps the bounded entry camera outside room walls while orbiting", async ({ page }) => {
     await loadRoom(page);
     const positions = [];
     for (let i = 0; i < 12; i++) positions.push(await page.evaluate((angle) => window.__room03.setView(angle), i * Math.PI / 6).then(() => page.evaluate(() => window.__room03.info().camera)));
@@ -83,7 +95,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       expect(Math.abs(x)).toBeLessThan(3);
       expect(y).toBeGreaterThan(0);
       expect(y).toBeLessThan(2.7);
-      expect(Math.abs(z)).toBeLessThan(2.4);
+      expect(z).toBeGreaterThan(2.4);
     }
   });
 });
