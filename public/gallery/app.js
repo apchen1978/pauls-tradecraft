@@ -1,8 +1,9 @@
-import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=3";
+import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=4";
 
 validatePieces(PIECES);
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COLLECTION[lang];
+const roomCollectionIds = new Set(["room02-la-coast-collection", "room01-corner-watercolour"]);
 const $ = (id) => document.getElementById(id);
 document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
 document.title = `${copy.title} · Paul’s Tradecraft`;
@@ -56,7 +57,7 @@ function makePainting(piece, index) {
   image.decoding = "async";
   button.append(image);
   button.addEventListener("click", () => openPainting(index, button));
-  const title = document.createElement(piece.id === "room02-la-coast-collection" ? "h4" : "h3");
+  const title = document.createElement(roomCollectionIds.has(piece.id) ? "h4" : "h3");
   title.textContent = piece.title[lang];
   const caption = document.createElement("p");
   caption.textContent = piece.caption[lang];
@@ -64,7 +65,7 @@ function makePainting(piece, index) {
   return article;
 }
 PIECES.forEach((piece, index) => {
-  const slot = piece.id === "harbor-dusk" ? "solo" : ["ai-lab-digital-room", "ai-lab-open-horizon"].includes(piece.id) ? "doors" : piece.id === "room02-la-coast-collection" ? "room-collection" : piece.id.startsWith("roomverse-") ? "roomverse" : index < 2 ? "harbours" : "collection";
+  const slot = piece.id === "harbor-dusk" ? "solo" : ["ai-lab-digital-room", "ai-lab-open-horizon"].includes(piece.id) ? "doors" : roomCollectionIds.has(piece.id) ? "room-collection" : piece.id.startsWith("roomverse-") ? "roomverse" : index < 2 ? "harbours" : "collection";
   $(slot).append(makePainting(piece, index));
 });
 $("solo-section").hidden = false;

@@ -432,5 +432,36 @@
         "sha256": "8bbb0fe93924659df3cf5687eaa5eb7712292a7ba71e3bdf0406ee395a527143"
       }
     ]
+  },
+  {
+    "id": "room01-corner-watercolour",
+    "source": "docs/gallery/sources/roomverse-room01-corner-watercolour-source.png",
+    "sourceSha256": "b19b4e4342e5791217ea35b75cb2cd0177d3e8869306fb2bedae15c4e978bb53",
+    "derivatives": [
+      {
+        "file": "roomverse-room01-corner-watercolour.webp",
+        "width": 1200,
+        "height": 900,
+        "bytes": 131754,
+        "quality": 54,
+        "sha256": "bcaaeb41d3ceba1de0925fdd42300b030c17cf6901dd0fd950379da1a8e9d633"
+      },
+      {
+        "file": "roomverse-room01-corner-watercolour-mobile.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 89628,
+        "quality": 72,
+        "sha256": "e2010679974176eb69397500c1a82345daf5197338a871664b5d18511b2f7cc8"
+      },
+      {
+        "file": "roomverse-room01-corner-watercolour-thumb.webp",
+        "width": 480,
+        "height": 360,
+        "bytes": 34844,
+        "quality": 72,
+        "sha256": "05b420917711302b85dfb31cc45bd05252b98a242c4583383adfaeaf7c1a5c4c"
+      }
+    ]
   }
 ]

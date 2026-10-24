@@ -10,7 +10,7 @@ export const COLLECTION = {
     doorsNote: "先看一個重新想像的房間，再把視線帶到海灣與城市。兩幅都是概念插畫，不是真實場景或商品展示。",
     roomverseTitle: "ROOMVERSE：兩間房的概念畫作",
     roomverseNote: "Room 01 的暖光客廳，與 Room 02 的 Brooklyn Studio。兩幅畫加入畫家筆觸，呈現房間的想像。",
-    roomCollectionTitle: "房間裡的收藏畫",
+    roomCollectionTitle: "從房間延伸的畫作",
     moreTitle: "日光與燈火之間", moreNote: "港邊的一天，和冬夜裡相聚的時刻。",
     back: "回到 AI Lab", open: "放大欣賞：", close: "關閉大圖 ×", previous: "← 上一幅", next: "下一幅 →", made: "怎麼做出來的",
   },
@@ -93,6 +93,14 @@ export const PIECES = [
     alt: { zh: "奶油色紙邊內，海岸公路沿棕櫚樹旁的海岸線延伸，夕陽落在海面與粉橘色天空之間。", en: "Within a cream paper border, a coastal road runs past palm trees along the shoreline as the sun sets over the water beneath a peach sky." },
     caption: { zh: "曾掛在 Room 02 房間裡的一幅想像插畫，不是真實地點的照片。", en: "An imagined illustration that once hung in Room 02; it is not a photograph of a real place." },
     made: { zh: "Paul 提出「適合美式公寓的城市畫」方向並選定這幅；Codex 使用內建 ImageGen 繪製，再按三聯畫規格加入紙邊並輸出 WebP。", en: "Paul set the direction—city art for an American apartment—and selected this image. Codex drew it with built-in ImageGen, then prepared the cream border and WebP for the triptych." },
+  },
+  {
+    id: "room01-corner-watercolour", date: "2026-10-25", frame: "plain", width: 1200, height: 900,
+    image: "assets/roomverse-room01-corner-watercolour.webp", imageSmall: "assets/roomverse-room01-corner-watercolour-mobile.webp", thumbnail: "assets/roomverse-room01-corner-watercolour-thumb.webp",
+    title: { zh: "雨後的街角", en: "A Street Corner After the Rain" },
+    alt: { zh: "水彩畫中的雨後街角：紅磚與米色石牆的轉角房子、紅色前門、黑色鐵欄杆、街樹與映著光的濕路面。", en: "A watercolour of a street corner after rain: a red-brick and cream-stone corner building, red front door, black iron railings, street tree and wet pavement reflecting the light." },
+    caption: { zh: "Room 01 左牆小畫的候選之一。最後沒有掛上牆，這幅想像的街角水彩改放在這裡；它不描繪真實地點。", en: "One of the candidates for the small print on Room 01’s left wall. It was not hung there, so this imagined street-corner watercolour now lives here. It depicts no real location." },
+    made: { zh: "Paul 提出安靜街角的方向，並選擇將這幅候選畫收進畫廊；Codex 繪製水彩原圖，再等比例輸出畫廊用 WebP。", en: "Paul set the direction for a quiet street corner and chose to place this candidate in the gallery. Codex painted the original watercolour, then prepared proportionally scaled WebP images for the gallery." },
   },
   {
     id: "trade-street", date: "2026-10-20", frame: "gilt", width: 1024, height: 683,
