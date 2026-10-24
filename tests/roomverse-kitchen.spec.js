@@ -187,8 +187,10 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       if (width === 1440 && QA) {
         await page.evaluate(() => {
           const { camera, controls, render } = window.__room03;
-          controls.target.set(3.02, 1.4, 1.95);
-          camera.position.set(1.95, 1.55, 3.7);
+          controls.minDistance = 0.5;
+          controls.maxDistance = 10;
+          controls.target.set(3.1, 1.45, 1.95);
+          camera.position.set(2.35, 1.45, 2.85);
           controls.update();
           render();
         });
