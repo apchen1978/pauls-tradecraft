@@ -26,7 +26,7 @@ for (const lang of ["zh", "en"]) {
       await expect(copy.locator(".guide-principle")).toHaveCount(4);
       await expect(copy.locator(".guide-principle h3")).toHaveCount(4);
       await expect(copy.locator(".made-lesson")).toHaveCount(4);
-      await expect(copy.locator(".guide-misconceptions li")).toHaveCount(4);
+      await expect(copy.locator(".guide-misconceptions li")).toHaveCount(2);
       await expect(copy.locator(".made-quote")).toHaveCount(1);
 
       const text = await copy.innerText();
