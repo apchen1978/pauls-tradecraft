@@ -1,6 +1,7 @@
 import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
+import { GLTFLoader } from "../vendor/GLTFLoader.js";
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
@@ -424,6 +425,76 @@ function buildPendant(scene, m) {
   return bulb;
 }
 
+function loadFurniture(scene, materials) {
+  const loader = new GLTFLoader();
+  const urls = {
+    table: new URL("./models/dining-table-v1.glb", import.meta.url).href,
+    chair: new URL("./models/dining-chair-v1.glb", import.meta.url).href,
+    pendant: new URL("./models/opal-globe-pendant-v1.glb", import.meta.url).href,
+  };
+  const status = { table: "fallback", chair: "fallback", pendant: "fallback" };
+  const removeCategory = (category) => {
+    for (const object of [...scene.children]) {
+      if (object.userData.category === category || object.name === `merged-${category}`) {
+        scene.remove(object);
+        object.traverse((child) => { if (child.geometry) child.geometry.dispose(); });
+      }
+    }
+  };
+  const loadOne = async (kind) => {
+    try {
+      const gltf = await loader.loadAsync(urls[kind]);
+      const model = gltf.scene;
+      model.traverse((object) => {
+        if (!object.isMesh) return;
+        object.castShadow = true;
+        object.receiveShadow = true;
+        object.userData.category = kind === "table" ? "dining-table" : kind === "chair" ? "dining-chairs" : "lighting";
+        object.userData.furnitureAsset = kind;
+        if (kind === "pendant") {
+          object.name = object.name || "room03-opal-pendant-part";
+          const materialList = Array.isArray(object.material) ? object.material : [object.material];
+          for (const material of materialList) {
+            if (material?.name === "warm-opal-glass") {
+              material.emissiveIntensity = materials.opal.emissiveIntensity;
+              material.needsUpdate = true;
+            }
+          }
+        }
+      });
+      if (kind === "table") {
+        removeCategory("dining-table");
+        model.position.set(0, 0, 0.5);
+      } else if (kind === "chair") {
+        removeCategory("dining-chairs");
+        for (const x of [-0.5, 0.5]) for (const z of [-0.22, 1.22]) {
+          const instance = model.clone(true);
+          instance.traverse((object) => { if (object.isMesh) { object.userData.category = "dining-chairs"; object.userData.furnitureAsset = "chair"; } });
+          instance.position.set(x, 0, z);
+          instance.rotation.y = z > 0.5 ? Math.PI : 0;
+          instance.name = `room03-dining-chair-${x}-${z}`;
+          scene.add(instance);
+        }
+        status.chair = "glb";
+        return;
+      } else {
+        for (const name of ["pendant-canopy", "pendant-cord", "single-opal-globe"]) {
+          const fallback = scene.getObjectByName(name);
+          if (fallback) { scene.remove(fallback); fallback.geometry.dispose(); }
+        }
+        model.position.set(0, 1.8075, 0.15);
+      }
+      model.name = `room03-${kind}-glb`;
+      scene.add(model);
+      status[kind] = "glb";
+    } catch (error) {
+      status[kind] = "fallback";
+      console.warn(`Room 03 ${kind} GLB failed; keeping procedural fallback.`, error);
+    }
+  };
+  return { status, ready: Promise.all([loadOne("table"), loadOne("chair"), loadOne("pendant")]), urls };
+}
+
 function assemble(b, scene) {
   for (const [key, bucket] of b) {
     if (bucket.existing) { scene.add(bucket.existing); continue; }
@@ -476,6 +547,7 @@ export async function start({ stage, onReady = () => {} }) {
   const hemi = new THREE.HemisphereLight(0xfff0d4, 0x6f6658, 0.68); scene.add(hemi);
   const ambient = new THREE.AmbientLight(0xffffff, 0.28); scene.add(ambient);
   const pendantLight = buildPendant(scene, materials);
+  const furniture = loadFurniture(scene, materials);
   const underLight = new THREE.SpotLight(0xffca91, 0, 2.8, Math.PI / 3.5, 0.65, 2); underLight.position.set(0, 1.42, -1.82); underLight.target.position.set(0, 0.96, -1.45); scene.add(underLight, underLight.target);
   const sideLight = [...scene.children].find((o) => o.name === "side-kitchen-warm-source");
   buildRedPot(scene, materials);
@@ -501,6 +573,12 @@ export async function start({ stage, onReady = () => {} }) {
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
     if (yardMaterial) { yardMaterial.color.setHex(preset.yard); yardMaterial.needsUpdate = true; }
     materials.opal.emissiveIntensity = preset.globe;
+    scene.traverse((object) => {
+      if (!object.isMesh) return;
+      for (const material of (Array.isArray(object.material) ? object.material : [object.material])) {
+        if (material?.name === "warm-opal-glass") material.emissiveIntensity = preset.globe;
+      }
+    });
     materials.floor.color.setHex(name === "night" ? 0xc2a77b : 0xcdbb9e);
     materials.jute.color.setHex(name === "night" ? 0xd9c99f : 0xd0b47f);
     materials.ceiling.emissiveIntensity = name === "golden" ? 0.3 : 0.5;
@@ -523,6 +601,8 @@ export async function start({ stage, onReady = () => {} }) {
   controls.addEventListener("change", render);
   const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(stage);
   resize(); controls.update(); setMood("golden");
+  await furniture.ready;
+  setMood(currentMood);
   const samplePixels = (rect) => {
     const width = Math.min(renderer.domElement.width, 1200);
     const height = Math.max(1, Math.round(width * stage.clientHeight / stage.clientWidth));
@@ -555,6 +635,7 @@ export async function start({ stage, onReady = () => {} }) {
   const sampleNdc = (point, radius = 0.012) => samplePixels({ left: (point[0] + 1) / 2 - radius, top: (1 - point[1]) / 2 - radius, width: radius * 2, height: radius * 2 });
   const info = () => {
     const categories = {};
+    const furnitureAssets = {};
     const project = (point) => new THREE.Vector3(...point).project(camera).toArray();
     let vertices = 0, triangles = 0, meshes = 0;
     scene.traverse((object) => {
@@ -564,6 +645,13 @@ export async function start({ stage, onReady = () => {} }) {
       const key = object.userData.category || "other";
       categories[key] ??= { vertices: 0, meshes: 0 };
       categories[key].vertices += count; categories[key].meshes++;
+      const asset = object.userData.furnitureAsset;
+      if (asset) {
+        furnitureAssets[asset] ??= { vertices: 0, triangles: 0, meshes: 0 };
+        furnitureAssets[asset].vertices += count;
+        furnitureAssets[asset].triangles += object.geometry.index ? object.geometry.index.count / 3 : count / 3;
+        furnitureAssets[asset].meshes++;
+      }
     });
     const rug = scene.getObjectByName("merged-rug");
     rug?.geometry.computeBoundingBox();
@@ -573,7 +661,13 @@ export async function start({ stage, onReady = () => {} }) {
       size: bounds.getSize(new THREE.Vector3()).toArray(),
       materialColor: `#${rug.material.color.getHexString()}`, roughness: rug.material.roughness,
     } : null;
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
+    const boxFor = (name) => {
+      const object = scene.getObjectByName(name); if (!object) return null;
+      const box = new THREE.Box3().setFromObject(object);
+      return { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
+    };
+    const chairBounds = [-0.5, 0.5].flatMap((x) => [-0.22, 1.22].map((z) => boxFor(`room03-dining-chair-${x}-${z}`)));
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
@@ -585,7 +679,20 @@ export async function start({ stage, onReady = () => {} }) {
       camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
       controls.update(); render();
     },
-    dispose: () => { resizeObserver.disconnect(); controls.dispose(); renderer.dispose(); scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); Object.values(materials).forEach((m) => { m.map?.dispose(); m.dispose(); }); Object.values(skyMaterials).forEach((texture) => texture.dispose()); },
+    dispose: () => {
+      resizeObserver.disconnect(); controls.dispose(); renderer.dispose();
+      const disposedTextures = new Set();
+      scene.traverse((object) => {
+        if (object.geometry) object.geometry.dispose();
+        for (const material of (Array.isArray(object.material) ? object.material : [object.material])) {
+          if (!material) continue;
+          for (const value of Object.values(material)) if (value?.isTexture && !disposedTextures.has(value)) { disposedTextures.add(value); value.dispose(); }
+          material.dispose();
+        }
+      });
+      Object.values(materials).forEach((material) => { material.map?.dispose(); material.dispose(); });
+      Object.values(skyMaterials).forEach((texture) => texture.dispose());
+    },
   };
   onReady(instance);
   return instance;
