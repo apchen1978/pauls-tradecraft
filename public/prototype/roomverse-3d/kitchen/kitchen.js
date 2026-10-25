@@ -452,15 +452,17 @@ function buildRoomWallArt(scene, materials, onTextureLoad) {
   texture.anisotropy = 4;
   const artMaterial = new THREE.MeshStandardMaterial({ map: texture, color: 0xffffff, roughness: 1, metalness: 0 });
   artMaterial.name = "room03-original-garden-art";
-  const group = buildPropGroup(scene, "room03-wall-art", [2.923, 1.52, -0.42], ({ box, shape }) => {
-    // A slim oak frame and backing stay within 3.4 cm of the room-side wall face.
-    box(materials.oak, [0.034, 0.03, 0.96], [0, 0.365, 0]);
-    box(materials.oak, [0.034, 0.03, 0.96], [0, -0.365, 0]);
-    box(materials.oak, [0.034, 0.73, 0.03], [0, 0, -0.465]);
-    box(materials.oak, [0.034, 0.73, 0.03], [0, 0, 0.465]);
-    box(materials.oak, [0.012, 0.7, 0.9], [0.011, 0, 0]);
-    shape(new THREE.PlaneGeometry(0.9, 0.7), artMaterial, [-0.015, 0, 0], [0, -Math.PI / 2, 0]);
+  const group = buildPropGroup(scene, "room03-wall-art", [2.923, 1.52, -0.02], ({ box, shape }) => {
+    // Keep the image aspect ratio while enlarging the oak frame to about 1.2 x 0.94 m.
+    box(materials.oak, [0.034, 0.035, 1.2], [0, 0.4525, 0]);
+    box(materials.oak, [0.034, 0.035, 1.2], [0, -0.4525, 0]);
+    box(materials.oak, [0.034, 0.87, 0.035], [0, 0, -0.5825]);
+    box(materials.oak, [0.034, 0.87, 0.035], [0, 0, 0.5825]);
+    box(materials.oak, [0.012, 0.87, 1.13], [0.011, 0, 0]);
+    shape(new THREE.PlaneGeometry(1.13, 0.87), artMaterial, [-0.015, 0, 0], [0, -Math.PI / 2, 0]);
   });
+  const imagePlane = group.children.find((child) => child.material === artMaterial);
+  if (imagePlane) imagePlane.receiveShadow = false;
   return { group, texture };
 }
 
@@ -899,8 +901,16 @@ export async function start({ stage, onReady = () => {} }) {
     const chairBounds = [-0.5, 0.5].flatMap((x) => [-0.22, 1.22].map((z) => boxFor(`room03-dining-chair-${x}-${z}`)));
     const plantGroup = scene.getObjectByName("prop-window-fiddle-leaf-fig");
     const cookbookGroup = scene.getObjectByName("prop-cookbooks");
-    const wallArtCorners = [[2.908, 1.17, -0.87], [2.908, 1.87, -0.87], [2.908, 1.17, 0.03], [2.908, 1.87, 0.03]].map(project);
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtTextureSize: [wallArt.texture.image?.naturalWidth || wallArt.texture.image?.width || 0, wallArt.texture.image?.naturalHeight || wallArt.texture.image?.height || 0], wallArtColorSpace: wallArt.texture.colorSpace, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtClearanceBounds: { beams: boxFor("merged-structure"), sideKitchen: boxFor("merged-side-kitchen"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: boxFor("merged-wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.42]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
+    const wallArtCorners = [[2.908, 1.05, -0.62], [2.908, 1.99, -0.62], [2.908, 1.05, 0.58], [2.908, 1.99, 0.58]].map(project);
+    const wallArtNdc = wallArtCorners.map(([x, y]) => [x, y]);
+    const wallArtPixels = {
+      width: (Math.max(...wallArtNdc.map(([x]) => x)) - Math.min(...wallArtNdc.map(([x]) => x))) * stage.clientWidth / 2,
+      height: (Math.max(...wallArtNdc.map(([, y]) => y)) - Math.min(...wallArtNdc.map(([, y]) => y))) * stage.clientHeight / 2,
+      center: [(Math.min(...wallArtNdc.map(([x]) => x)) + Math.max(...wallArtNdc.map(([x]) => x))) / 2, (Math.min(...wallArtNdc.map(([, y]) => y)) + Math.max(...wallArtNdc.map(([, y]) => y))) / 2],
+    };
+    const wallArtDoorFrameBounds = { min: [2.86, 0, 1.2025], max: [2.94, 2.1, 2.0975], size: [0.08, 2.1, 0.895] };
+    const wallArtImagePlane = wallArt.group.children.find((child) => child.material?.name === "room03-original-garden-art");
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtTextureSize: [wallArt.texture.image?.naturalWidth || wallArt.texture.image?.width || 0, wallArt.texture.image?.naturalHeight || wallArt.texture.image?.height || 0], wallArtColorSpace: wallArt.texture.colorSpace, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: boxFor("merged-wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
