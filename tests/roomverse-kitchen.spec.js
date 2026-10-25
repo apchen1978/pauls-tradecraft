@@ -27,6 +27,18 @@ async function expectMainRegionsInFrame(page) {
   }
 }
 
+async function setReviewCamera(page, target, position, fov = 42) {
+  await page.evaluate(({ target, position, fov }) => {
+    const { camera, controls, render } = window.__room03;
+    controls.minDistance = 0.2; controls.maxDistance = 12;
+    controls.minAzimuthAngle = -Math.PI; controls.maxAzimuthAngle = Math.PI;
+    controls.minPolarAngle = 0.05; controls.maxPolarAngle = Math.PI - 0.05;
+    controls.target.set(...target);
+    camera.fov = fov; camera.position.set(...position); camera.updateProjectionMatrix();
+    controls.update(); render();
+  }, { target, position, fov });
+}
+
 test.describe("Room 03 Bay Area Kitchen", () => {
   test("loads the direct noindex room with a rendered scene within the geometry budget", async ({ page }) => {
     const errors = [];
@@ -44,8 +56,10 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.mood).toBe("golden");
     expect(info.dimensions).toEqual({ width: 6, depth: 4.8, height: 2.7 });
     expect(info.vertices).toBeGreaterThan(3000);
-    expect(info.vertices).toBeLessThanOrEqual(12500);
-    expect(info.meshes).toBeLessThan(60);
+    expect(info.vertices).toBeLessThanOrEqual(15000);
+    expect(info.meshes).toBeLessThan(90);
+    expect(info.categories["household-props"].vertices).toBeGreaterThan(0);
+    expect(info.categories["household-props"].vertices).toBeLessThanOrEqual(3000);
     expect(info.categories.structure.vertices).toBeGreaterThan(0);
     expect(info.categories["dining-table"].vertices).toBeGreaterThan(0);
     expect(info.furniture).toMatchObject({ table: "glb", chair: "glb", pendant: "glb" });
@@ -126,6 +140,59 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
   });
 
+  test("adds the requested household objects on existing surfaces within budget", async ({ page }) => {
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    await loadRoom(page);
+    const info = await page.evaluate(() => window.__room03.info());
+    const propBounds = info.propBounds;
+    const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt"];
+    expect(Object.keys(propBounds)).toHaveLength(8);
+    for (const key of Object.keys(propBounds)) expect(propBounds[key], `${key} should be present`).not.toBeNull();
+    for (const key of counterProps) {
+      const difference = Math.abs(propBounds[key].min[1] - 0.955);
+      expect(difference, `${key} should rest within 2 cm of the counter`).toBeLessThanOrEqual(0.02);
+    }
+    expect(propBounds["drip-coffee-maker"].size[1]).toBeGreaterThanOrEqual(0.27);
+    expect(propBounds["drip-coffee-maker"].size[1]).toBeLessThanOrEqual(0.35);
+    expect(propBounds["electric-kettle"].size[0]).toBeLessThanOrEqual(0.3);
+    expect(propBounds["cutting-board"].size[1]).toBeGreaterThan(propBounds["cutting-board"].size[2] * 4);
+    expect(Math.abs(propBounds["tabletop-succulents"].min[1] - 0.75)).toBeLessThanOrEqual(0.02);
+    expect(Math.abs(propBounds["window-fiddle-leaf-fig"].min[1])).toBeLessThanOrEqual(0.02);
+    expect(Math.abs(propBounds.cookbooks.min[1] - 2.11)).toBeLessThanOrEqual(0.02);
+    expect(info.categories["household-props"].vertices).toBeLessThanOrEqual(3000);
+    expect(info.vertices).toBeLessThanOrEqual(15000);
+    expect(info.camera[0]).toBeCloseTo(1.25, 3);
+    expect(info.camera[1]).toBeCloseTo(1.65, 3);
+    expect(info.camera[2]).toBeCloseTo(4.95, 3);
+    const inFrame = Object.values(propBounds).filter(({ projectedCenter: [x, y, z] }) => x > -0.94 && x < 0.94 && y > -0.94 && y < 0.94 && z < 1).length;
+    expect(inFrame, "the default view should include at least three prop sets").toBeGreaterThanOrEqual(3);
+    console.log("Room 03 prop geometry and render summary:", JSON.stringify({ baseline: { vertices: 11124, triangles: 7632, meshes: 55, drawCalls: 61 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }, newProps: info.categories["household-props"], propBounds, viewport: info.viewport, pixelRatio: info.pixelRatio, camera: info.camera }));
+    expect(errors).toEqual([]);
+
+    await shot(page, "props-desktop-golden-1440");
+    if (QA) {
+      await setReviewCamera(page, [0, 1.08, -2.0], [0, 1.42, 0.5], 52);
+      await shot(page, "props-counter-closeup");
+      await setReviewCamera(page, [0, 0.86, 0.5], [0, 1.32, 2.65], 42);
+      await shot(page, "props-dining-closeup");
+      await setReviewCamera(page, [-1.93, 0.7, 1.68], [-0.95, 1.2, 3.4], 48);
+      await shot(page, "props-plant-closeup");
+      await setReviewCamera(page, [0.8, 1.25, -0.1], [1.25, 1.65, 4.95], 50);
+      await page.locator('#moods button[data-mood="night"]').click();
+      await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+      await shot(page, "props-desktop-night-1440");
+    }
+
+    await loadRoom(page, 390);
+    await page.locator('#moods button[data-mood="night"]').click();
+    await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+    await shot(page, "props-mobile-night-390");
+    await expectMainRegionsInFrame(page);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    expect(errors).toEqual([]);
+  });
+
   test("keeps procedural furniture visible if any GLB request fails", async ({ page }) => {
     await page.route("**/kitchen/models/*.glb", (route) => route.abort());
     await loadRoom(page);
@@ -146,7 +213,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.rug.max[1]).toBeCloseTo(0.02, 3);
     expect(golden.categories.rug).toEqual({ vertices: 24, meshes: 1 });
     expect(golden.vertices).toBeGreaterThanOrEqual(4509);
-    expect(golden.vertices, "complete loaded room should stay within the geometry budget").toBeLessThanOrEqual(25000);
+    expect(golden.vertices, "complete loaded room should stay within the geometry budget").toBeLessThanOrEqual(15000);
     expect(Object.values(golden.furnitureAssets).reduce((sum, asset) => sum + asset.vertices, 0), "new dining furniture should stay within its combined budget").toBeLessThanOrEqual(14000);
     // Baseline captured from commit 084384e at the same world point and viewport.
     expect(goldenFloor.meanLuminance, "far floor should brighten by at least 12/255 from 084384e").toBeGreaterThan(81.5994 + 12);
