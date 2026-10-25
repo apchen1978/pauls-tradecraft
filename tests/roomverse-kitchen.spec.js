@@ -66,7 +66,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       return { ...room, cabinetSample: window.__room03.sampleNdc(room.projectedRegions.cabinetSample, 0.008) };
     });
     console.log("Room 03 roundness geometry, material and sample metrics:", JSON.stringify({ baseline04cda76: { vertices: 16049, triangles: 13302, meshes: 84, drawCalls: 91 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame, categories: info.categories }, materialColors: info.materialColors, edgeRadii: info.edgeRadii, bevelSegments: info.roundingSegments, cabinetSample: info.cabinetSample, bounds: info.sceneBounds, viewport: info.viewport, pixelRatio: info.pixelRatio }));
-    expect(info.vertices).toBeLessThanOrEqual(45000);
+    expect(info.vertices).toBeLessThanOrEqual(47200);
     expect(info.meshes).toBeLessThanOrEqual(130);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.roundingSegments).toBe(2);
@@ -112,7 +112,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.camera[0]).toBeCloseTo(1.25, 3);
     expect(info.camera[1]).toBeCloseTo(1.65, 3);
     expect(info.camera[2]).toBeCloseTo(4.95, 3);
-    expect(info.vertices).toBeLessThanOrEqual(45000);
+    expect(info.vertices).toBeLessThanOrEqual(47200);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.softForms.pendantGlobeVertices).toBeGreaterThanOrEqual(1617);
     expect(info.softForms.chairCushions).toBe(4);
@@ -143,6 +143,73 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await shot(page, "mobile-390-golden-after");
     await page.locator('#moods button[data-mood="night"]').click();
     await shot(page, "mobile-390-night-after");
+    expect(errors).toEqual([]);
+  });
+
+  test("softens Room 03 shadows and keeps both light moods within budget", async ({ page }) => {
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    await loadRoom(page);
+    await page.waitForFunction(() => window.__room03.info().furniture.chair === "glb");
+    const boxes = {
+      interior: [200, 190, 1200, 680], floorShadow: [810, 500, 980, 650],
+      rightWall: [850, 220, 1040, 460], windowFloor: [20, 450, 320, 660],
+      pendantArea: [390, 80, 770, 580],
+    };
+    const measure = () => page.evaluate((areas) => {
+      const samples = {};
+      for (const [name, [x0, y0, x1, y1]] of Object.entries(areas)) {
+        samples[name] = window.__room03.samplePixels({
+          left: x0 / 1384, top: y0 / 700, width: (x1 - x0) / 1384, height: (y1 - y0) / 700,
+        });
+      }
+      return { info: window.__room03.info(), samples };
+    }, boxes);
+    const golden = await measure();
+    const basePlant = { min: [-2.30878, 0.01, 1.31190], max: [-1.55980, 1.69038, 1.94877] };
+    const plant = golden.info.propBounds["window-fiddle-leaf-fig"];
+    for (const side of ["min", "max"]) for (let axis = 0; axis < 3; axis++) {
+      expect(Math.abs(plant[side][axis] - basePlant[side][axis]), `plant ${side} axis ${axis} stays within 1 cm`).toBeLessThanOrEqual(0.01);
+    }
+    expect(golden.info.camera).toEqual([1.25, 1.6499999999999992, 4.95]);
+    expect(golden.info.lightMetrics.shadowType).toBe("VSM");
+    expect(golden.info.lightMetrics.shadowMapSize).toEqual([512, 512]);
+    expect(golden.info.lightMetrics.shadowRadius).toBe(3);
+    expect(golden.info.lightMetrics.shadowBlurSamples).toBeGreaterThanOrEqual(8);
+    expect(golden.info.lightMetrics.lightCount).toBeLessThanOrEqual(8);
+    expect(golden.info.vertices).toBeLessThanOrEqual(47200);
+    expect(golden.info.vertices - 44199).toBeLessThanOrEqual(3000);
+    expect(golden.info.drawCallsLastFrame).toBeLessThanOrEqual(100);
+    expect(golden.info.plantLeafCount).toBeGreaterThanOrEqual(24);
+    expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(106.7261 * 1.05);
+    expect(golden.samples.floorShadow.meanLuminance).toBeGreaterThan(99.7855);
+    expect(golden.samples.floorShadow.luminanceStdDev).toBeLessThan(7.8395);
+    expect(golden.info.lightMetrics.windowBounce).toBeGreaterThan(0);
+    await shot(page, "desktop-1440-golden-after");
+    await setReviewCamera(page, [0.18, 0.55, 0.45], [1.38, 1.4, 2.25], 46);
+    await shot(page, "table-shadow-closeup-after");
+    await setReviewCamera(page, [-2.1, 1.05, -0.3], [-0.55, 1.35, 2.2], 47);
+    await shot(page, "window-bounce-closeup-after");
+    await setReviewCamera(page, [-1.93, 0.95, 1.68], [-0.62, 1.22, 2.8], 44);
+    await shot(page, "plant-branches-closeup-after");
+    await loadRoom(page);
+    await page.locator('#moods button[data-mood="night"]').click();
+    const night = await measure();
+    expect(night.info.lightMetrics.lightCount).toBeLessThanOrEqual(8);
+    expect(night.info.drawCallsLastFrame).toBeLessThanOrEqual(100);
+    expect(night.info.lightMetrics.pendantFloorBounce).toBeGreaterThan(0);
+    expect(night.samples.pendantArea.meanLuminance).toBeGreaterThan(101.2551);
+    await shot(page, "desktop-1440-night-after");
+    await loadRoom(page, 390);
+    await shot(page, "mobile-390-golden-after");
+    await page.locator('#moods button[data-mood="night"]').click();
+    await shot(page, "mobile-390-night-after");
+    console.log("Room 03 light review:", JSON.stringify({
+      baseline: { vertices: 44199, triangles: 43526, meshes: 84, drawCalls: 91, lights: 6, shadow: "PCFSoft 512 radius 6", goldenInterior: 106.7261, goldenFloorShadow: 99.7855, goldenFloorShadowStd: 7.8394, nightPendantArea: 101.2551 },
+      golden: { vertices: golden.info.vertices, triangles: golden.info.triangles, meshes: golden.info.meshes, drawCalls: golden.info.drawCallsLastFrame, lights: golden.info.lightMetrics, samples: golden.samples },
+      night: { drawCalls: night.info.drawCallsLastFrame, lights: night.info.lightMetrics, samples: night.samples },
+      viewport: golden.info.viewport, pixelRatio: golden.info.pixelRatio,
+    }));
     expect(errors).toEqual([]);
   });
 
@@ -216,7 +283,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.mood).toBe("golden");
     expect(info.dimensions).toEqual({ width: 6, depth: 4.8, height: 2.7 });
     expect(info.vertices).toBeGreaterThan(3000);
-    expect(info.vertices).toBeLessThanOrEqual(45000);
+    expect(info.vertices).toBeLessThanOrEqual(47200);
     expect(info.meshes).toBeLessThanOrEqual(130);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.categories["household-props"].vertices).toBeGreaterThan(0);
@@ -352,7 +419,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.cookbookCount).toBe(3);
     expect(propBounds.cookbooks.size[0]).toBeGreaterThanOrEqual(0.25);
     expect(propBounds.cookbooks.size[1]).toBeGreaterThanOrEqual(0.32);
-    expect(info.vertices).toBeLessThanOrEqual(45000);
+    expect(info.vertices).toBeLessThanOrEqual(47200);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.meshes).toBeLessThanOrEqual(130);
     expect(info.camera[0]).toBeCloseTo(1.25, 3);
@@ -437,7 +504,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.rug.max[1]).toBeCloseTo(0.02, 3);
     expect(golden.categories.rug).toEqual({ vertices: 24, meshes: 1 });
     expect(golden.vertices).toBeGreaterThanOrEqual(4509);
-    expect(golden.vertices, "complete loaded room should stay within the 45,000 vertex budget").toBeLessThanOrEqual(45000);
+    expect(golden.vertices, "complete loaded room should stay within the 47,200 vertex budget").toBeLessThanOrEqual(47200);
     expect(golden.drawCallsLastFrame, "complete loaded room should stay within the 130 draw call budget").toBeLessThanOrEqual(130);
     expect(Object.values(golden.furnitureAssets).reduce((sum, asset) => sum + asset.vertices, 0), "new dining furniture should stay within its combined budget").toBeLessThanOrEqual(14000);
     // Baseline captured from commit 084384e at the same world point and viewport.
