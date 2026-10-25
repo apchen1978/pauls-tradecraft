@@ -207,7 +207,7 @@ function makeMaterials() {
     red: std(COLORS.terracotta, 0.34), glass: new THREE.MeshPhysicalMaterial({ color: 0xb9d3d1, roughness: 0.12, metalness: 0.06, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }),
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
     porcelain: std(0xe1ddd2, 0.72), coffee: std(0x47372b, 0.78),
-    oilGlass: std(0x526044, 0.4, { metalness: 0.04 }), leafGreen: std(0x60734d, 0.9), soil: std(0x62513d, 0.98),
+    oilGlass: std(0x526044, 0.4, { metalness: 0.04 }), leafGreen: std(0x405b3d, 0.78, { side: THREE.DoubleSide }), leafGreenLight: std(0x778b53, 0.8, { side: THREE.DoubleSide }), soil: std(0x62513d, 0.98),
     warmGlow: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.94, side: THREE.DoubleSide, depthWrite: false }),
     sunlight: new THREE.MeshBasicMaterial({ color: 0xffdda0, map: makeSunPatchTexture(), transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide }),
     wokGlow: new THREE.MeshBasicMaterial({ color: 0xffd39a, transparent: true, opacity: 0.98, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }),
@@ -492,8 +492,8 @@ function buildHouseholdProps(scene, m) {
     shape(new THREE.CylinderGeometry(0.041, 0.041, 0.022, 8), m.stone, [1.84, 0.127, -1.96]);
   });
 
-  // Three restrained succulents in one low rectangular planter on the dining table.
-  buildPropGroup(scene, "tabletop-succulents", [0, 0.75, 0.5], ({ box, shape }) => {
+  // Three restrained succulents in one low rectangular planter, brought forward for the default view.
+  const succulents = buildPropGroup(scene, "tabletop-succulents", [0, 0.75, 0.76], ({ box, shape }) => {
     box(m.oak, [0.56, 0.075, 0.19], [0, 0.039, 0]);
     box(m.soil, [0.52, 0.012, 0.15], [0, 0.082, 0]);
     const leafGeometry = new THREE.SphereGeometry(1, 6, 4);
@@ -508,34 +508,87 @@ function buildHouseholdProps(scene, m) {
     }
     leafGeometry.dispose();
   });
+  succulents.scale.setScalar(1.3);
 
-  // One modest fiddle-leaf fig beside the glazing; leaf count is deliberately capped.
-  buildPropGroup(scene, "window-fiddle-leaf-fig", [-1.93, 0, 1.68], ({ box, shape }) => {
+  // Fiddle-leaf fig with broad, cupped leaves, a visible midrib, and three restrained branches.
+  const leafCount = 24;
+  const fig = buildPropGroup(scene, "window-fiddle-leaf-fig", [-1.93, 0, 1.68], ({ box, shape }) => {
     shape(new THREE.CylinderGeometry(0.14, 0.17, 0.27, 10), m.stone, [0, 0.145, 0]);
     shape(new THREE.CylinderGeometry(0.125, 0.125, 0.014, 10), m.soil, [0, 0.284, 0]);
-    shape(new THREE.CylinderGeometry(0.019, 0.026, 0.62, 6), m.oak, [0, 0.61, 0]);
-    for (const [side, y] of [[-1, 0.68], [1, 0.81], [-1, 0.95], [1, 1.08], [-1, 1.2]]) {
-      box(m.oak, [0.018, 0.21, 0.018], [side * 0.055, y, 0], [0, 0, side * -0.48]);
-    }
-    const leafGeometry = new THREE.SphereGeometry(1, 8, 5);
-    const leaves = [
-      [-0.16, 0.72, 0], [0.16, 0.85, 0.015], [-0.18, 0.99, -0.01],
-      [0.17, 1.12, 0], [-0.13, 1.26, 0.01], [0.03, 1.35, 0],
-      [0.02, 0.67, 0.12], [-0.02, 0.96, -0.12], [0.02, 1.18, 0.12],
-    ];
-    for (const [x, y, z] of leaves) shape(leafGeometry.clone(), m.leafGreen, [x, y, z], [0.12, 0, x < 0 ? -0.3 : 0.3], [0.12, 0.047, 0.08]);
-    leafGeometry.dispose();
-  });
+    shape(new THREE.CylinderGeometry(0.017, 0.028, 1.16, 8), m.oak, [0, 0.87, 0]);
+    for (const [x, y, z, length, angle] of [
+      [-0.09, 1.17, 0.005, 0.64, -0.3], [0.09, 1.29, 0, 0.56, 0.32], [0.005, 1.34, -0.045, 0.48, -0.06],
+    ]) box(m.oak, [0.016, length, 0.016], [x, y, z], [0.08, 0, angle]);
 
-  // Recipe books are placed on the existing upper-cabinet top as the available shelf-like ledge.
-  buildPropGroup(scene, "cookbooks", [-1.52, 2.11, -2.16], ({ box }) => {
-    for (let index = 0; index < 3; index++) {
-      const y = 0.016 + index * 0.031;
-      const material = [m.olive, m.beam, m.black][index];
-      box(material, [0.24, 0.026, 0.17], [index * 0.014, y, index * -0.01], [0, index * 0.035, 0]);
-      box(m.porcelain, [0.222, 0.012, 0.165], [index * 0.014, y, index * -0.01 + 0.002]);
+    const widths = [0.08, 0.25, 0.58, 0.88, 1, 0.98, 0.84, 0.56, 0.08];
+    const columns = 7;
+    const positions = [], uvs = [], indices = [];
+    for (let row = 0; row < widths.length; row++) {
+      const t = row / (widths.length - 1);
+      for (let column = 0; column <= columns; column++) {
+        const u = (column / columns) * 2 - 1;
+        positions.push(u * widths[row], t, 0.08 * (1 - u * u) * Math.sin(Math.PI * t));
+        uvs.push(column / columns, t);
+      }
+    }
+    for (let row = 0; row < widths.length - 1; row++) for (let column = 0; column < columns; column++) {
+      const a = row * (columns + 1) + column, b = a + columns + 1;
+      indices.push(a, b, a + 1, b, b + 1, a + 1);
+    }
+    const leafGeometry = new THREE.BufferGeometry();
+    leafGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    leafGeometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    leafGeometry.setIndex(indices);
+    leafGeometry.computeVertexNormals();
+    const veinCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0, 0.015), new THREE.Vector3(0, 0.32, 0.019),
+      new THREE.Vector3(0, 0.68, 0.019), new THREE.Vector3(0, 1, 0.012),
+    ]);
+    const veinGeometry = new THREE.TubeGeometry(veinCurve, 6, 0.009, 3, false);
+    for (let index = 0; index < leafCount; index++) {
+      const level = Math.floor(index / 3), around = index % 3;
+      const angle = level * 1.73 + around * (Math.PI * 2 / 3);
+      const baseY = 0.58 + level * 0.12 + around * 0.02;
+      const radius = 0.08 + Math.sin((level / 7) * Math.PI) * 0.1;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius * 0.72;
+      const length = 0.24 + level * 0.004 + ((level + around) % 3) * 0.01;
+      const width = 0.22 + level * 0.006 + ((level * 2 + around) % 3) * 0.01;
+      const rotation = [0.1 * Math.sin(angle), 0.3 * Math.sin(angle + 0.4), 0.58 * Math.sin(angle * 1.3 + index * 0.17)];
+      const scale = [width / 2, length, 0.24];
+      const leafMaterial = index % 7 === 0 ? m.leafGreenLight : m.leafGreen;
+      shape(leafGeometry.clone(), leafMaterial, [x, baseY, z], rotation, scale);
+      shape(veinGeometry.clone(), m.leafGreenLight, [x, baseY, z], rotation, scale);
+    }
+    leafGeometry.dispose();
+    veinGeometry.dispose();
+  });
+  fig.userData.leafCount = leafCount;
+
+  // Three upright cookbooks on the existing cabinet top; one leans gently against its neighbor.
+  const cookbooks = buildPropGroup(scene, "cookbooks", [-1.52, 2.11, -2.16], ({ shape }) => {
+    const addBookPart = (material, size, center, pivotX, tilt) => {
+      const geometry = new THREE.BoxGeometry(...size);
+      geometry.translate(...center);
+      geometry.translate(-pivotX, 0, 0);
+      geometry.rotateZ(tilt);
+      geometry.translate(pivotX, 0, 0);
+      shape(geometry, material);
+    };
+    const books = [
+      { x: -0.09, width: 0.082, height: 0.24, depth: 0.15, cover: m.olive, tilt: -0.11 },
+      { x: 0, width: 0.088, height: 0.285, depth: 0.16, cover: m.beam, tilt: 0 },
+      { x: 0.096, width: 0.084, height: 0.325, depth: 0.15, cover: m.black, tilt: 0 },
+    ];
+    for (const book of books) {
+      const { x, width, height, depth, cover, tilt } = book;
+      addBookPart(cover, [width, height, depth], [x, height / 2, 0], x, tilt);
+      addBookPart(m.porcelain, [width - 0.012, height - 0.02, depth - 0.022], [x, height / 2, 0.004], x, tilt);
+      addBookPart(m.porcelain, [width * 0.67, height - 0.012, 0.006], [x + width * 0.165, height / 2, depth / 2 + 0.004], x, tilt);
+      addBookPart(cover, [width * 0.32, height, 0.008], [x - width * 0.34, height / 2, depth / 2 + 0.006], x, tilt);
     }
   });
+  cookbooks.userData.bookCount = 3;
 }
 
 function buildRedPot(scene, m) {
@@ -810,8 +863,20 @@ export async function start({ stage, onReady = () => {} }) {
       const center = box.getCenter(new THREE.Vector3());
       return [key, { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray(), projectedCenter: project(center.toArray()) }];
     }));
+    const propGeometry = Object.fromEntries(propKeys.map((key) => {
+      const object = scene.getObjectByName(`prop-${key}`);
+      let propVertices = 0, propMeshes = 0;
+      object?.traverse((child) => {
+        if (!child.isMesh || !child.geometry?.attributes?.position) return;
+        propVertices += child.geometry.attributes.position.count;
+        propMeshes++;
+      });
+      return [key, { vertices: propVertices, meshes: propMeshes }];
+    }));
     const chairBounds = [-0.5, 0.5].flatMap((x) => [-0.22, 1.22].map((z) => boxFor(`room03-dining-chair-${x}-${z}`)));
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, wokSupport: { bounds: boxFor("merged-wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
+    const plantGroup = scene.getObjectByName("prop-window-fiddle-leaf-fig");
+    const cookbookGroup = scene.getObjectByName("prop-cookbooks");
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: boxFor("merged-wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
