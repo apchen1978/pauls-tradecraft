@@ -44,16 +44,17 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.mood).toBe("golden");
     expect(info.dimensions).toEqual({ width: 6, depth: 4.8, height: 2.7 });
     expect(info.vertices).toBeGreaterThan(3000);
-    expect(info.vertices).toBeLessThanOrEqual(25000);
+    expect(info.vertices).toBeLessThanOrEqual(12500);
     expect(info.meshes).toBeLessThan(60);
     expect(info.categories.structure.vertices).toBeGreaterThan(0);
     expect(info.categories["dining-table"].vertices).toBeGreaterThan(0);
     expect(info.furniture).toMatchObject({ table: "glb", chair: "glb", pendant: "glb" });
+    expect(info.furnitureAssets.table.vertices).toBe(864);
     expect(info.furnitureAssets.table.vertices).toBeLessThanOrEqual(2500);
     expect(info.furnitureAssets.chair.vertices / 4).toBeLessThanOrEqual(1800);
     expect(info.furnitureAssets.pendant.vertices).toBeLessThanOrEqual(1200);
     expect(info.furnitureAssets.chair.meshes).toBeGreaterThan(0);
-    const modelSizes = ["dining-table-v1.glb", "dining-chair-v1.glb", "opal-globe-pendant-v1.glb"].map((name) => statSync(`public/prototype/roomverse-3d/kitchen/models/${name}`).size);
+    const modelSizes = ["dining-table-v2.glb", "dining-chair-v1.glb", "opal-globe-pendant-v1.glb"].map((name) => statSync(`public/prototype/roomverse-3d/kitchen/models/${name}`).size);
     expect(modelSizes.every((size) => size <= 400 * 1024)).toBe(true);
     expect(modelSizes.reduce((sum, size) => sum + size, 0)).toBeLessThanOrEqual(1.5 * 1024 * 1024);
     const addedFurnitureVertices = Object.values(info.furnitureAssets).reduce((sum, asset) => sum + asset.vertices, 0);
@@ -64,6 +65,19 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.furnitureBounds.table.max[0]).toBeLessThanOrEqual(3);
     expect(info.furnitureBounds.table.min[2]).toBeGreaterThanOrEqual(-2.4);
     expect(info.furnitureBounds.table.max[2]).toBeLessThanOrEqual(2.4);
+    expect(info.categories["wok-base-cabinet"].vertices).toBe(24);
+    expect(info.categories["wok-base-cabinet"].meshes).toBe(1);
+    expect(info.wokSupport.bounds.min[1]).toBeCloseTo(0.02, 3);
+    expect(info.wokSupport.bounds.max[1]).toBeCloseTo(0.8125, 3);
+    expect(info.wokSupport.bounds.size[0]).toBeCloseTo(0.47, 3);
+    expect(info.wokSupport.counterBottomY - info.wokSupport.bounds.max[1]).toBeLessThanOrEqual(0.02);
+    expect(info.wokSupport.counterTopY - info.wokSupport.bounds.min[1]).toBeGreaterThanOrEqual(0.85);
+    expect(info.wokSupport.counterTopY - info.wokSupport.bounds.min[1]).toBeLessThanOrEqual(0.9);
+    expect(info.wokSupport.bounds.max[0]).toBeCloseTo(2.94, 3);
+    expect(info.wokSupport.bounds.min[0]).toBeGreaterThanOrEqual(2.45);
+    expect(info.wokSupport.bounds.min[2]).toBeGreaterThan(1.225);
+    expect(info.wokSupport.bounds.max[2]).toBeLessThan(2.075);
+    expect(info.wokSupport.bounds.size[2]).toBeCloseTo(0.43, 3);
     expect(info.furnitureBounds.chairs).toHaveLength(4);
     for (const chair of info.furnitureBounds.chairs) {
       expect(chair.min[1]).toBeCloseTo(info.rug.max[1], 3);
@@ -88,6 +102,18 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(errors).toEqual([]);
     await shot(page, "desktop-golden-zh");
     await shot(page, "desktop-golden-furniture");
+    if (QA) {
+      await page.evaluate(() => {
+        const { camera, controls, render } = window.__room03;
+        controls.minDistance = 0.2; controls.maxDistance = 10;
+        controls.minAzimuthAngle = -Math.PI; controls.maxAzimuthAngle = Math.PI;
+        controls.minPolarAngle = 0.05; controls.maxPolarAngle = Math.PI - 0.05;
+        controls.target.set(0.82, 0.7, 0.86);
+        camera.fov = 35; camera.position.set(1.35, 1.25, 2.35); camera.updateProjectionMatrix();
+        controls.update(); render();
+      });
+      await shot(page, "desktop-table-corner-closeup");
+    }
     if (QA) {
       await page.evaluate(() => {
         const { camera, controls, render } = window.__room03;
