@@ -728,9 +728,12 @@ export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true) };
   scene.background = skyMaterials.golden;
+  const DESKTOP_CAMERA = { position: [1.25, 1.65, 4.95], target: [0.8, 1.25, -0.1], fov: 52, maxDistance: 5.8 };
+  const PORTRAIT_CAMERA = { position: [1.36, 1.71, 4.49], target: [1.15, 1.25, 0], fov: 84, maxDistance: 6.2 };
   const compact = window.innerWidth < 500;
   const camera = new THREE.PerspectiveCamera(compact ? 60 : 50, 1, 0.05, 50);
-  camera.position.set(compact ? 1.55 : 1.25, compact ? 1.74 : 1.65, 4.95);
+  const initialCamera = compact ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
+  camera.position.set(...initialCamera.position);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
   renderer.setPixelRatio(1.5);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -741,9 +744,10 @@ export async function start({ stage, onReady = () => {} }) {
   stage.replaceChildren(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = false; controls.enablePan = false;
-  controls.target.set(0.8, 1.25, -0.1); controls.minDistance = 4.5;
+  controls.target.set(...initialCamera.target); controls.minDistance = 4.5;
   controls.minPolarAngle = 1.3; controls.maxPolarAngle = 1.88; controls.minAzimuthAngle = -0.6; controls.maxAzimuthAngle = 0.35;
-  controls.maxDistance = compact ? 6.2 : 5.8;
+  controls.maxDistance = initialCamera.maxDistance;
+  let compactCameraActive = compact;
   const materials = makeMaterials();
   const buckets = new Map();
   let yardLoaded = false;
@@ -805,8 +809,17 @@ export async function start({ stage, onReady = () => {} }) {
   }
   function resize() {
     const rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return;
+    const nextCompact = rect.width < 500;
+    if (nextCompact !== compactCameraActive) {
+      compactCameraActive = nextCompact;
+      const preset = compactCameraActive ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
+      camera.position.set(...preset.position);
+      controls.target.set(...preset.target);
+      controls.maxDistance = preset.maxDistance;
+      controls.update();
+    }
     camera.aspect = rect.width / rect.height;
-    camera.fov = rect.width < 500 ? 78 : 52;
+    camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov;
     camera.updateProjectionMatrix();
     renderer.setSize(rect.width, rect.height, false);
     render();
@@ -910,7 +923,7 @@ export async function start({ stage, onReady = () => {} }) {
     };
     const wallArtDoorFrameBounds = { min: [2.86, 0, 1.2025], max: [2.94, 2.1, 2.0975], size: [0.08, 2.1, 0.895] };
     const wallArtImagePlane = wallArt.group.children.find((child) => child.material?.name === "room03-original-garden-art");
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtTextureSize: [wallArt.texture.image?.naturalWidth || wallArt.texture.image?.width || 0, wallArt.texture.image?.naturalHeight || wallArt.texture.image?.height || 0], wallArtColorSpace: wallArt.texture.colorSpace, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: boxFor("merged-wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtTextureSize: [wallArt.texture.image?.naturalWidth || wallArt.texture.image?.width || 0, wallArt.texture.image?.naturalHeight || wallArt.texture.image?.height || 0], wallArtColorSpace: wallArt.texture.colorSpace, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: boxFor("merged-wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
