@@ -14,6 +14,14 @@ async function loadRoom(page, width = 1440, lang = "zh") {
   await page.waitForFunction(() => window.__room03.info().drawCallsLastFrame > 0);
 }
 
+async function loadRoomAt(page, width, height, lang = "zh") {
+  await page.setViewportSize({ width, height });
+  await page.goto(`${PAGE}?lang=${lang}`);
+  await page.waitForFunction(() => Boolean(window.__room03?.info));
+  await page.waitForFunction(() => window.__room03.info().yardLoaded && window.__room03.info().wallArtLoaded);
+  await page.waitForFunction(() => window.__room03.info().drawCallsLastFrame > 0);
+}
+
 async function shot(page, name) {
   if (QA) await page.locator(".room").screenshot({ path: `${QA}/${name}.png` });
 }
@@ -49,6 +57,106 @@ function boxesDistance(a, b) {
 }
 
 test.describe("Room 03 Bay Area Kitchen", () => {
+  test("captures baseline and two portrait camera candidates with projected-object measurements", async ({ page }) => {
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    await loadRoom(page, 390);
+    await page.evaluate(() => {
+      const { camera, controls, render } = window.__room03;
+      controls.target.set(0.8, 1.25, -0.1);
+      camera.position.set(1.55, 1.74, 4.95);
+      camera.fov = 78; camera.updateProjectionMatrix();
+      controls.update(); render();
+    });
+    const before = await page.evaluate(() => window.__room03.info());
+    console.log("Room 03 mobile camera baseline:", JSON.stringify({ position: before.camera, target: before.cameraTarget, fov: before.cameraFov, projectedRegions: before.projectedRegions, artPixels: before.wallArtPixels }));
+    await shot(page, "mobile-390-golden-before");
+    await page.locator('#moods button[data-mood="night"]').click();
+    await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+    await shot(page, "mobile-390-night-before");
+
+    const candidates = [
+      { name: "A", position: [1.25, 1.70, 4.55], target: [1.1, 1.25, 0], fov: 82 },
+      { name: "B", position: [1.36, 1.71, 4.49], target: [1.15, 1.25, 0], fov: 84 },
+    ];
+    for (const candidate of candidates) {
+      await page.locator('#moods button[data-mood="golden"]').click();
+      await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("golden");
+      await page.evaluate((config) => {
+        const { camera, controls, render } = window.__room03;
+        controls.target.set(...config.target);
+        camera.position.set(...config.position);
+        camera.fov = config.fov;
+        camera.updateProjectionMatrix();
+        controls.update(); render();
+      }, candidate);
+      const info = await page.evaluate(() => window.__room03.info());
+      const keys = ["dining", "countertop", "wokBowl", "wokHood", "wallArt", "plantTrunk"];
+      const visibility = Object.fromEntries(keys.map((key) => {
+        const [x, y, depth] = info.projectedRegions[key];
+        return [key, { inFrame: x > -1 && x < 1 && y > -1 && y < 1 && depth < 1, ndc: [x, y, depth] }];
+      }));
+      console.log(`Room 03 mobile candidate ${candidate.name}:`, JSON.stringify({ position: info.camera, target: info.cameraTarget, fov: info.cameraFov, viewport: info.viewport, visibility, artPixels: info.wallArtPixels }));
+      await shot(page, `mobile-390-golden-candidate-${candidate.name.toLowerCase()}`);
+      await page.locator('#moods button[data-mood="night"]').click();
+      await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+      await shot(page, `mobile-390-night-candidate-${candidate.name.toLowerCase()}`);
+    }
+
+    await page.locator('#moods button[data-mood="golden"]').click();
+    await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("golden");
+    await page.setViewportSize({ width: 844, height: 390 });
+    await expect.poll(() => page.evaluate(() => window.__room03.info().viewport[0])).toBeGreaterThan(500);
+    const landscape = await page.evaluate(() => window.__room03.info());
+    console.log("Room 03 landscape baseline:", JSON.stringify({ position: landscape.camera, target: landscape.cameraTarget, fov: landscape.cameraFov, viewport: landscape.viewport, projectedRegions: landscape.projectedRegions }));
+    expect(landscape.camera[0]).toBeCloseTo(1.25, 3);
+    expect(landscape.camera[1]).toBeCloseTo(1.65, 3);
+    expect(landscape.camera[2]).toBeCloseTo(4.95, 3);
+    expect(landscape.cameraTarget[0]).toBeCloseTo(0.8, 3);
+    expect(landscape.cameraTarget[1]).toBeCloseTo(1.25, 3);
+    expect(landscape.cameraTarget[2]).toBeCloseTo(-0.1, 3);
+    expect(landscape.cameraFov).toBe(52);
+    await shot(page, "mobile-landscape-844x390-after");
+    await loadRoom(page, 1440);
+    const desktop = await page.evaluate(() => window.__room03.info());
+    console.log("Room 03 desktop baseline:", JSON.stringify({ position: desktop.camera, target: desktop.cameraTarget, fov: desktop.cameraFov, viewport: desktop.viewport }));
+    await shot(page, "desktop-1440-golden-after");
+    expect(errors).toEqual([]);
+  });
+
+  test("keeps priority objects in the recommended portrait view at 390px and 360px", async ({ page }) => {
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    for (const [width, height] of [[390, 844], [360, 780]]) {
+      await loadRoomAt(page, width, height);
+      const info = await page.evaluate(() => window.__room03.info());
+      expect(info.camera[0]).toBeCloseTo(1.36, 3);
+      expect(info.camera[1]).toBeCloseTo(1.71, 3);
+      expect(info.camera[2]).toBeCloseTo(4.49, 3);
+      expect(info.cameraTarget[0]).toBeCloseTo(1.15, 3);
+      expect(info.cameraTarget[1]).toBeCloseTo(1.25, 3);
+      expect(info.cameraTarget[2]).toBeCloseTo(0, 3);
+      expect(info.cameraFov).toBe(84);
+      const keys = ["dining", "countertop", "wokBowl", "wokHood", "wallArt", "plantTrunk"];
+      const visibility = Object.fromEntries(keys.map((key) => {
+        const [x, y, depth] = info.projectedRegions[key];
+        return [key, { inFrame: x > -1 && x < 1 && y > -1 && y < 1 && depth < 1, ndc: [x, y, depth] }];
+      }));
+      console.log(`Room 03 recommended portrait view ${width}px:`, JSON.stringify({ position: info.camera, target: info.cameraTarget, fov: info.cameraFov, visibility, wallArtCssPx: info.wallArtPixels }));
+      for (const key of ["dining", "countertop", "wokBowl", "wokHood"]) expect(visibility[key].inFrame, `${key} must be in the ${width}px default view`).toBe(true);
+      const canvas = await page.locator("canvas").boundingBox();
+      const fullscreen = await page.locator("#immersiveEnter").boundingBox();
+      for (const key of ["dining", "countertop", "wokBowl", "wokHood", "wallArt"]) {
+        const [x, y] = info.projectedRegions[key];
+        const point = { x: canvas.x + ((x + 1) / 2) * canvas.width, y: canvas.y + ((1 - y) / 2) * canvas.height };
+        const covered = point.x >= fullscreen.x && point.x <= fullscreen.x + fullscreen.width && point.y >= fullscreen.y && point.y <= fullscreen.y + fullscreen.height;
+        expect(covered, `${key} must not be covered by the fullscreen button at ${width}px`).toBe(false);
+      }
+      expect(info.wallArtPixels.width).toBeGreaterThan(20);
+    }
+    expect(errors).toEqual([]);
+  });
+
   test("loads the direct noindex room with a rendered scene within the geometry budget", async ({ page }) => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(String(error)));
@@ -79,6 +187,10 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.camera[0]).toBeCloseTo(1.25, 3);
     expect(info.camera[1]).toBeCloseTo(1.65, 3);
     expect(info.camera[2]).toBeCloseTo(4.95, 3);
+    expect(info.cameraTarget[0]).toBeCloseTo(0.8, 3);
+    expect(info.cameraTarget[1]).toBeCloseTo(1.25, 3);
+    expect(info.cameraTarget[2]).toBeCloseTo(-0.1, 3);
+    expect(info.cameraFov).toBe(52);
     expect(info.mood).toBe("golden");
     expect(info.dimensions).toEqual({ width: 6, depth: 4.8, height: 2.7 });
     expect(info.vertices).toBeGreaterThan(3000);
@@ -271,9 +383,13 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await shot(page, "props-mobile-night-390");
     const mobileArt = await page.evaluate(() => window.__room03.info());
     const mobileVisibleCorners = mobileArt.wallArtCorners.filter(([x, y, depth]) => x > -0.98 && x < 0.98 && y > -0.98 && y < 0.98 && depth < 1);
-    expect(mobileArt.camera[0]).toBeCloseTo(1.55, 3);
-    expect(mobileArt.camera[1]).toBeCloseTo(1.74, 3);
-    expect(mobileArt.camera[2]).toBeCloseTo(4.95, 3);
+    expect(mobileArt.camera[0]).toBeCloseTo(1.36, 3);
+    expect(mobileArt.camera[1]).toBeCloseTo(1.71, 3);
+    expect(mobileArt.camera[2]).toBeCloseTo(4.49, 3);
+    expect(mobileArt.cameraTarget[0]).toBeCloseTo(1.15, 3);
+    expect(mobileArt.cameraTarget[1]).toBeCloseTo(1.25, 3);
+    expect(mobileArt.cameraTarget[2]).toBeCloseTo(0, 3);
+    expect(mobileArt.cameraFov).toBe(84);
     expect(mobileVisibleCorners.length, "most of the framed painting should fit the default 390px camera").toBeGreaterThanOrEqual(3);
     expect(Math.abs(mobileArt.wallArtPixels.center[0])).toBeLessThan(0.94);
     expect(Math.abs(mobileArt.wallArtPixels.center[1])).toBeLessThan(0.94);
@@ -344,8 +460,11 @@ test.describe("Room 03 Bay Area Kitchen", () => {
   test("fits a 390px screen and fake fullscreen exits by button, Escape, and browser back", async ({ page }) => {
     await loadRoom(page, 390);
     await expectMainRegionsInFrame(page);
-    const mobileCamera = await page.evaluate(() => window.__room03.info().camera);
-    expect(mobileCamera[0]).toBeCloseTo(1.55, 3);
+    const mobileInfo = await page.evaluate(() => window.__room03.info());
+    expect(mobileInfo.camera[0]).toBeCloseTo(1.36, 3);
+    expect(mobileInfo.camera[1]).toBeCloseTo(1.71, 3);
+    expect(mobileInfo.camera[2]).toBeCloseTo(4.49, 3);
+    expect(mobileInfo.cameraFov).toBe(84);
     const pageWidth = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
     expect(pageWidth.scroll).toBeLessThanOrEqual(pageWidth.client);
     await shot(page, "mobile-golden-zh");
