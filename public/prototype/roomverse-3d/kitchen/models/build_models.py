@@ -90,8 +90,9 @@ class Part:
             pts=[]
             for cx,cz,start in ((ww/2-r,dd/2-r,0),(-ww/2+r,dd/2-r,90),(-ww/2+r,-dd/2+r,180),(ww/2-r,-dd/2+r,270)):
                 # order is clockwise when seen from top, starting near +x,+z
-                for s in range(5):
-                    ang=math.radians(start+s*22.5)
+                # Eight segments per corner keep the close-up edge from reading as a small notch.
+                for s in range(9):
+                    ang=math.radians(start+s*11.25)
                     pts.append((cx+r*math.cos(ang),y,cz+r*math.sin(ang)))
             return pts
         loops=[outline(w-2*bevel,d-2*bevel,radius*.65,0),outline(w,d,radius,bevel),outline(w,d,radius,h-bevel),outline(w-2*bevel,d-2*bevel,radius*.65,h)]
@@ -237,17 +238,18 @@ t=Part('oak-table',wood); t.round_slab(2.0,.9,.075,.012,.045)
 for i,p in enumerate(t.p): t.p[i]=(p[0],p[1]+.675,p[2])
 for sx in (-1,1):
   for sz in (-1,1):
-    tx=sx*.82; tz=sz*.33
-    t.frustum((tx+sx*.035,.02,tz+sz*.035,.038,.038),(tx,.675,tz,.062,.062))
+    tx=sx*.90; tz=sz*.39
+    t.frustum((tx+sx*.03,.02,tz+sz*.03,.038,.038),(tx,.675,tz,.062,.062))
+# Move the legs and apron closer to the rounded corners so the top reads as supported.
 # Four unobtrusive apron rails, with the long rails visible from seated eye level.
-for z in (-.31,.31): t.box((-0.76,.61,z-.028),(.76,.69,z+.028),grain_vertical=True)
-for x in (-.75,.75): t.box((x-.028,.61,-.29),(x+.028,.69,.29),grain_vertical=True)
+for z in (-.37,.37): t.box((-.84,.61,z-.028),(.84,.69,z+.028),grain_vertical=True)
+for x in (-.86,.86): t.box((x-.028,.61,-.35),(x+.028,.69,.35),grain_vertical=True)
 # A central, recessed stretcher preserves the concept's light under-table structure.
 t.box((-.66,.57,-.025),(.66,.615,.025),grain_vertical=True)
 table=GLB(); oak=table.add_texture('directional-oak',png_bytes(oak_texture())); wm=table.add_material('matte-oiled-oak',[1,1,1,1],.78,.02,oak)
 # t currently carries previous builder's material index; rebuild material binding by matching the same geometry.
 # material index 0 exists in both builders, so reuse t data.
-print('TABLE',table.finish(OUT/'dining-table-v1.glb','room03-dining-table',[(t,wm)]))
+print('TABLE',table.finish(OUT/'dining-table-v2.glb','room03-dining-table',[(t,wm)]))
 
 # CHAIR: one 0.46 x 1.10 x 0.48 m chair; the app clones the same GLB four times.
 c=GLB(); oak=c.add_texture('directional-oak',png_bytes(oak_texture())); cane=c.add_texture('woven-cane',png_bytes(cane_texture())); wood=c.add_material('matte-oak-frame',[1,1,1,1],.82,.015,oak); seatmat=c.add_material('natural-woven-cane',[1,1,1,1],.94,0,cane)

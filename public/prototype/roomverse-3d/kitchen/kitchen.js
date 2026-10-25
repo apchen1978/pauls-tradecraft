@@ -338,6 +338,8 @@ function buildSideKitchen(b, m, scene) {
   };
   // Bring the cooking group 35 cm toward the room so its silhouette clears the slider.
   const centerX = 2.65, centerZ = 1.8;
+  // The built-in olive base cabinet reaches the back wall and stays flush with the counter front.
+  addBox(b, "wok-base-cabinet", m.olive, [0.47, 0.7925, 0.43], [2.705, 0.41625, centerZ]);
   addBox(b, "side-kitchen", m.stone, [0.36, 0.085, 0.43], [centerX, 0.855, centerZ]);
   addBox(b, "side-kitchen", m.black, [0.31, 0.025, 0.38], [centerX, 0.91, centerZ]);
   const burner = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.012, 5, 20), m.wokSteel);
@@ -428,7 +430,7 @@ function buildPendant(scene, m) {
 function loadFurniture(scene, materials) {
   const loader = new GLTFLoader();
   const urls = {
-    table: new URL("./models/dining-table-v1.glb", import.meta.url).href,
+    table: new URL("./models/dining-table-v2.glb", import.meta.url).href,
     chair: new URL("./models/dining-chair-v1.glb", import.meta.url).href,
     pendant: new URL("./models/opal-globe-pendant-v1.glb", import.meta.url).href,
   };
@@ -667,7 +669,7 @@ export async function start({ stage, onReady = () => {} }) {
       return { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
     const chairBounds = [-0.5, 0.5].flatMap((x) => [-0.22, 1.22].map((z) => boxFor(`room03-dining-chair-${x}-${z}`)));
-    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
+    return { title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, wokSupport: { bounds: boxFor("merged-wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), pendant: project([0, 1.98, 0.15]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
