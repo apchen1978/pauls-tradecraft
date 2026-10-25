@@ -10,6 +10,7 @@ async function loadRoom(page, width = 1440, lang = "zh") {
   await page.goto(`${PAGE}?lang=${lang}`);
   await page.waitForFunction(() => Boolean(window.__room03?.info));
   await page.waitForFunction(() => window.__room03.info().yardLoaded);
+  await page.waitForFunction(() => window.__room03.info().wallArtLoaded);
   await page.waitForFunction(() => window.__room03.info().drawCallsLastFrame > 0);
 }
 
@@ -39,6 +40,10 @@ async function setReviewCamera(page, target, position, fov = 42) {
   }, { target, position, fov });
 }
 
+function boxesOverlap(a, b) {
+  return a.min.every((value, axis) => value < b.max[axis] && b.min[axis] < a.max[axis]);
+}
+
 test.describe("Room 03 Bay Area Kitchen", () => {
   test("loads the direct noindex room with a rendered scene within the geometry budget", async ({ page }) => {
     const errors = [];
@@ -49,6 +54,18 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await expect(page.locator("canvas")).toBeVisible();
     const info = await page.evaluate(() => window.__room03.info());
     console.log("Room 03 measured scene:", JSON.stringify(info));
+    expect(info.wallArtLoaded).toBe(true);
+    expect(info.wallArtTextureSize).toEqual([1376, 1070]);
+    expect(info.wallArtColorSpace).toBe("srgb");
+    expect(statSync("public/prototype/roomverse-3d/kitchen/art/room03-wall-art-v1.webp").size).toBeLessThanOrEqual(150000);
+    expect(info.wallArtBounds.size[1]).toBeCloseTo(0.76, 2);
+    expect(info.wallArtBounds.size[2]).toBeCloseTo(0.96, 2);
+    expect(info.wallArtBounds.size[0]).toBeCloseTo(0.034, 2);
+    expect(info.wallArtBounds.min[0]).toBeGreaterThanOrEqual(2.9);
+    expect(info.wallArtBounds.max[0]).toBeLessThanOrEqual(2.941);
+    expect(info.wallArtBounds.max[0]).toBeCloseTo(2.94, 2);
+    const wallArtVisibleCorners = info.wallArtCorners.filter(([x, y, depth]) => x > -0.98 && x < 0.98 && y > -0.98 && y < 0.98 && depth < 1);
+    expect(wallArtVisibleCorners.length, "most of the framed painting should fit the default desktop camera").toBeGreaterThanOrEqual(3);
     await expectMainRegionsInFrame(page);
     expect(info.camera[0]).toBeCloseTo(1.25, 3);
     expect(info.camera[1]).toBeCloseTo(1.65, 3);
@@ -146,6 +163,11 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await loadRoom(page);
     const info = await page.evaluate(() => window.__room03.info());
     const propBounds = info.propBounds;
+    expect(info.wallArtLoaded).toBe(true);
+    for (const [name, obstacle] of Object.entries(info.wallArtClearanceBounds)) {
+      expect(obstacle, `${name} bounds should be measurable`).not.toBeNull();
+      expect(boxesOverlap(info.wallArtBounds, obstacle), `painting should clear ${name}`).toBe(false);
+    }
     const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt"];
     expect(Object.keys(propBounds)).toHaveLength(8);
     for (const key of Object.keys(propBounds)) expect(propBounds[key], `${key} should be present`).not.toBeNull();
@@ -180,8 +202,11 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(propBounds.cookbooks.size[1]).toBeGreaterThanOrEqual(0.32);
     expect(info.vertices - 13903, "incremental room geometry should stay within 2,500 vertices from the merged #541 baseline").toBeLessThanOrEqual(2500);
     expect(info.vertices).toBeLessThanOrEqual(16500);
+    expect(info.vertices - 15925, "wall art should add no more than 500 vertices from the merged plant baseline").toBeLessThanOrEqual(500);
     expect(info.drawCallsLastFrame - 88, "merged #541 baseline was 88 draw calls at 1440x1000, DPR 1.5").toBeLessThanOrEqual(8);
     expect(info.meshes - 81).toBeLessThanOrEqual(8);
+    expect(info.drawCallsLastFrame - 89, "wall art should add no more than 3 draw calls from the merged plant baseline").toBeLessThanOrEqual(3);
+    expect(info.meshes - 82, "wall art should add no more than 3 meshes from the merged plant baseline").toBeLessThanOrEqual(3);
     expect(info.camera[0]).toBeCloseTo(1.25, 3);
     expect(info.camera[1]).toBeCloseTo(1.65, 3);
     expect(info.camera[2]).toBeCloseTo(4.95, 3);
@@ -210,6 +235,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       await shot(page, "props-plant-closeup");
       await setReviewCamera(page, [-1.52, 2.28, -2.16], [-1.42, 2.33, -1.08], 42);
       await shot(page, "props-cookbooks-closeup");
+      await setReviewCamera(page, [2.94, 1.52, -0.42], [2.34, 1.52, -0.42], 42);
+      await shot(page, "wall-art-closeup");
       await setReviewCamera(page, [0, 0.85, 0.65], [0.4, 1.2, 3.15], 48);
       await shot(page, "props-succulents-closeup");
       await setReviewCamera(page, [0.8, 1.25, -0.1], [1.25, 1.65, 4.95], 50);
@@ -222,6 +249,12 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await page.locator('#moods button[data-mood="night"]').click();
     await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
     await shot(page, "props-mobile-night-390");
+    const mobileArt = await page.evaluate(() => window.__room03.info());
+    const mobileVisibleCorners = mobileArt.wallArtCorners.filter(([x, y, depth]) => x > -0.98 && x < 0.98 && y > -0.98 && y < 0.98 && depth < 1);
+    expect(mobileArt.camera[0]).toBeCloseTo(1.55, 3);
+    expect(mobileArt.camera[1]).toBeCloseTo(1.74, 3);
+    expect(mobileArt.camera[2]).toBeCloseTo(4.95, 3);
+    expect(mobileVisibleCorners.length, "most of the framed painting should fit the default 390px camera").toBeGreaterThanOrEqual(3);
     await expectMainRegionsInFrame(page);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
     expect(errors).toEqual([]);
