@@ -25,19 +25,13 @@ def oak_texture():
             px[x,y]=(max(0,min(255,int(183+k))),max(0,min(255,int(126+k*.78))),max(0,min(255,int(69+k*.55))))
     return im
 
-def cane_texture():
+def linen_texture():
     w=h=128; im=Image.new('RGB',(w,h)); p=im.load()
     for y in range(h):
         for x in range(w):
-            warp=math.sin(y*.18)*1.2+math.sin(x*.16)*.7
-            dx=(x+warp)%8; dy=(y+math.sin(x*.19))%8
-            vertical=abs(dx-2.0)<1.55; horizontal=abs(dy-2.0)<1.55
-            base=197 + ((x*13+y*7)%9-4)
-            if vertical or horizontal:
-                lift=21 if vertical and ((y//8)%2==0) else (8 if horizontal else 0)
-                c=max(0,min(255,base+lift))
-            else: c=base-18
-            p[x,y]=(c,min(255,int(c*.82)),min(255,int(c*.59)))
+            thread=(3 if x%5==0 else 0)+(2 if y%5==0 else 0)
+            fleck=((x*19+y*31)%9-4)
+            p[x,y]=(198+thread+fleck,181+thread+fleck,157+thread+fleck)
     return im
 
 def png_bytes(im):
@@ -123,6 +117,23 @@ class Part:
         # caps
         self.tri(tuple(a),ra[0],ra[-1],normal=tuple(-q for q in d))
         self.tri(tuple(b),rb[-1],rb[0],normal=tuple(d))
+    def tapered_leg(self,a,b,r0,r1,sides=10):
+        dx=[b[k]-a[k] for k in range(3)]; ll=math.sqrt(sum(q*q for q in dx)); axis=[q/ll for q in dx]
+        ref=(0,0,1) if abs(axis[1])>.9 else (0,1,0)
+        side=[axis[1]*ref[2]-axis[2]*ref[1],axis[2]*ref[0]-axis[0]*ref[2],axis[0]*ref[1]-axis[1]*ref[0]]
+        sn=math.sqrt(sum(q*q for q in side)); side=[q/sn for q in side]
+        depth=[axis[1]*side[2]-axis[2]*side[1],axis[2]*side[0]-axis[0]*side[2],axis[0]*side[1]-axis[1]*side[0]]
+        lower=[]; upper=[]
+        for i in range(sides+1):
+            t=i/sides; angle=t*2*math.pi
+            radial=[side[k]*math.cos(angle)+depth[k]*math.sin(angle) for k in range(3)]
+            lower.append(self._add(tuple(a[k]+radial[k]*r0 for k in range(3)),radial,(t,0)))
+            upper.append(self._add(tuple(b[k]+radial[k]*r1 for k in range(3)),radial,(t,1)))
+        for i in range(sides):
+            self.idx.extend((lower[i],upper[i],lower[i+1],lower[i+1],upper[i],upper[i+1]))
+        for i in range(sides):
+            self.tri(tuple(a),self.p[lower[i+1]],self.p[lower[i]],normal=tuple(-q for q in axis))
+            self.tri(tuple(b),self.p[upper[i]],self.p[upper[i+1]],normal=tuple(axis))
     def curved_seat(self,w,d,y,thick):
         n=8; top=[]; bot=[]
         for j in range(n+1):
@@ -142,25 +153,57 @@ class Part:
         for j in range(n):
             self.quad(top[j*stride],top[(j+1)*stride],bot[(j+1)*stride],bot[j*stride]); k=j*stride+n; self.quad(top[k],bot[k],bot[k+stride],top[k+stride])
     def curved_back(self,w,h,zcenter,y0,thick):
-        nx=12; ny=4; front=[]; back=[]
+        nx=18; ny=6; front=[]; back=[]
         for j in range(ny+1):
             v=j/ny
             for i in range(nx+1):
                 u=i/nx; x=(u-.5)*w
-                curve=.045*(1-(2*u-1)**2)
-                y=y0+v*h + .012*(1-(2*u-1)**2)*(v-.5)
+                crown=1-(2*u-1)**2
+                curve=.06*crown
+                y=y0+v*h - .035*(1-crown)*v + .025*crown*v
                 z=zcenter+curve
                 front.append((x,y,z)); back.append((x,y,z-thick))
         stride=nx+1
+        front_idx=[]; back_idx=[]
+        for j in range(ny+1):
+            for i in range(nx+1):
+                u=i/nx; v=j/ny
+                slope=-.24*(2*u-1)/w
+                nl=math.hypot(1,slope)
+                front_idx.append(self._add(front[j*stride+i],(-slope/nl,0,1/nl),(u,v)))
+                back_idx.append(self._add(back[j*stride+i],(slope/nl,0,-1/nl),(u,v)))
         for j in range(ny):
             for i in range(nx):
                 a=j*stride+i; b=a+1; c=a+stride+1; dd=a+stride
-                self.quad(front[a],front[b],front[c],front[dd],uvs=((i/nx,j/ny),((i+1)/nx,j/ny),((i+1)/nx,(j+1)/ny),(i/nx,(j+1)/ny)))
-                self.quad(back[dd],back[c],back[b],back[a],uvs=((i/nx,(j+1)/ny),((i+1)/nx,(j+1)/ny),((i+1)/nx,j/ny),(i/nx,j/ny)))
+                self.idx.extend((front_idx[a],front_idx[b],front_idx[c],front_idx[a],front_idx[c],front_idx[dd]))
+                self.idx.extend((back_idx[dd],back_idx[c],back_idx[b],back_idx[dd],back_idx[b],back_idx[a]))
         for i in range(nx):
             self.quad(front[i],back[i],back[i+1],front[i+1]); k=ny*stride+i; self.quad(front[k+1],back[k+1],back[k],front[k])
         for j in range(ny):
             self.quad(front[j*stride],front[(j+1)*stride],back[(j+1)*stride],back[j*stride]); k=j*stride+nx; self.quad(front[k],back[k],back[k+stride],front[k+stride])
+    def soft_cushion(self,w,d,bottom=.468,thickness=.038):
+        nx=14; nz=10; stride=nx+1; top=[]; underside=[]
+        for j in range(nz+1):
+            v=j/nz*2-1
+            for i in range(nx+1):
+                u=i/nx*2-1; x=u*w/2*(1-.065*abs(v)**8); z=v*d/2*(1-.065*abs(u)**8)
+                fill=max(0,1-u*u)*max(0,1-v*v)
+                top_y=bottom+.030+.008*fill-.002*math.cos(u*math.pi*2)*fill
+                low_y=bottom+.004*fill
+                nx_slope=.016*u*(1-v*v)/(w/2)+.25*u; nz_slope=.016*v*(1-u*u)/(d/2)+.25*v
+                nl=math.sqrt(nx_slope*nx_slope+1+nz_slope*nz_slope)
+                top.append(self._add((x,top_y,z),(nx_slope/nl,1/nl,nz_slope/nl),((u+1)/2,(v+1)/2)))
+                underside.append(self._add((x,low_y,z),(0,-1,0),((u+1)/2,(v+1)/2)))
+        for j in range(nz):
+            for i in range(nx):
+                a=j*stride+i; b=a+1; c=a+stride+1; dd=a+stride
+                self.idx.extend((top[a],top[dd],top[b],top[b],top[dd],top[c]))
+                self.idx.extend((underside[a],underside[b],underside[dd],underside[b],underside[c],underside[dd]))
+        def edge(a,b):
+            pa=self.p[top[a]]; pb=self.p[top[b]]; qa=self.p[underside[a]]; qb=self.p[underside[b]]
+            self.quad(pa,pb,qb,qa)
+        for i in range(nx): edge(i,i+1); edge(nz*stride+i+1,nz*stride+i)
+        for j in range(nz): edge((j+1)*stride,j*stride); edge(j*stride+nx,(j+1)*stride+nx)
     def sphere(self,c,r,segments=24,rings=16):
         cx,cy,cz=c; start=len(self.p)
         for j in range(rings+1):
@@ -251,14 +294,13 @@ table=GLB(); oak=table.add_texture('directional-oak',png_bytes(oak_texture())); 
 # material index 0 exists in both builders, so reuse t data.
 print('TABLE',table.finish(OUT/'dining-table-v2.glb','room03-dining-table',[(t,wm)]))
 
-# CHAIR: one 0.46 x 1.10 x 0.48 m chair; the app clones the same GLB four times.
-c=GLB(); oak=c.add_texture('directional-oak',png_bytes(oak_texture())); cane=c.add_texture('woven-cane',png_bytes(cane_texture())); wood=c.add_material('matte-oak-frame',[1,1,1,1],.82,.015,oak); seatmat=c.add_material('natural-woven-cane',[1,1,1,1],.94,0,cane)
-f=Part('oak-frame',wood)
+# CHAIR: one softly shaped, low-backed oak chair; the app clones the same GLB four times.
+f=Part('oak-frame',0)
 # Splayed legs: front z=+; curved back posts continue to the curved broad slat.
 for x in (-.18,.18):
-  f.frustum((x*1.12,.02,.19,.034,.034),(x,.455,.15,.048,.048))
-  f.frustum((x*1.10,.02,-.18,.034,.034),(x,.455,-.15,.05,.05))
-  f.frustum((x*1.10,.02,-.18,.034,.034),(x*1.02,1.01,-.19,.038,.038))
+  f.tapered_leg((x*1.12,.022,.19),(x,.455,.15),.023,.031)
+  f.tapered_leg((x*1.10,.022,-.18),(x,.455,-.15),.023,.031)
+  f.tapered_leg((x*1.10,.022,-.18),(x*1.02,.97,-.19),.026,.025)
 # Seat rails and front apron.
 f.box((-.205,.405,.13),(.205,.455,.17)); f.box((-.205,.405,-.17),(.205,.455,-.13))
 f.box((-.205,.405,-.13),(-.165,.455,.13)); f.box((.165,.405,-.13),(.205,.455,.13))
@@ -267,13 +309,14 @@ f.box((-.18,.19,-.16),(-.14,.225,.16)); f.box((.14,.19,-.16),(.18,.225,.16)); f.
 # Broad, gently curved horizontal backrest.
 f.curved_back(.42,.18,-.18,.82,.035)
 # Curved top cap rail follows the backrest contour; the broad slat stays the focal detail.
-for side in (-1,1): f.tube((side*.19,.96,-.145),(side*.21,1.015,-.145),.018,.018,8)
-s=Part('cane-seat',seatmat); s.curved_seat(.39,.34,.462,.025)
-chair=GLB(); oak=chair.add_texture('directional-oak',png_bytes(oak_texture())); cane=chair.add_texture('woven-cane',png_bytes(cane_texture())); wood=chair.add_material('matte-oak-frame',[1,1,1,1],.82,.015,oak); seatmat=chair.add_material('natural-woven-cane',[1,1,1,1],.94,0,cane)
-print('CHAIR',chair.finish(OUT/'dining-chair-v1.glb','room03-dining-chair',[(f,wood),(s,seatmat)]))
+for side in (-1,1): f.tube((side*.19,.92,-.145),(side*.21,.97,-.145),.018,.018,8)
+f.box((-.19,.443,-.16),(.19,.465,.16))
+cushion=Part('oat-linen-cushion',0); cushion.soft_cushion(.39,.34)
+chair=GLB(); oak=chair.add_texture('directional-oak',png_bytes(oak_texture())); linen=chair.add_texture('subtle-oat-linen',png_bytes(linen_texture())); wood=chair.add_material('matte-oak-frame',[1,1,1,1],.82,.015,oak); cushionmat=chair.add_material('warm-oat-linen',[1,1,1,1],.98,0,linen)
+print('CHAIR',chair.finish(OUT/'dining-chair-v2.glb','room03-dining-chair',[(f,wood),(cushion,cushionmat)]))
 
 # PENDANT: opal globe, fine bronze suspension wire and ceiling canopy. Local origin is bottom of globe.
 l=GLB(); bronze=l.add_material('brushed-dark-bronze',[.25,.21,.16,1],.55,.72); opal=l.add_material('warm-opal-glass',[.94,.86,.72,1],.22,.0,emissive=[.62,.45,.27])
-metal=Part('bronze-parts',bronze); metal.cylinder_y(0,.64,0,.09,.025,24); metal.cylinder_y(0,.49,0,.0045,.28,8)
-shade=Part('opal-globe',opal); shade.sphere((0,.16,0),.16,24,16)
-print('PENDANT',l.finish(OUT/'opal-globe-pendant-v1.glb','room03-opal-globe-pendant',[(metal,bronze),(shade,opal)]))
+metal=Part('bronze-parts',bronze); metal.cylinder_y(0,.64,0,.09,.025,32); metal.cylinder_y(0,.49,0,.0045,.28,10)
+shade=Part('opal-globe',opal); shade.sphere((0,.16,0),.16,48,32)
+print('PENDANT',l.finish(OUT/'opal-globe-pendant-v2.glb','room03-opal-globe-pendant',[(metal,bronze),(shade,opal)]))
