@@ -277,7 +277,7 @@ class GLB:
 
 # TABLE: 2.0 x .9 x .75 m, eased solid oak top, tapered/splayed legs, restrained rails.
 g=GLB(); oak=g.add_texture('directional-oak',png_bytes(oak_texture())); wood=g.add_material('matte-oiled-oak',[1,1,1,1],.78,.02,oak)
-t=Part('oak-table',wood); t.round_slab(2.0,.9,.075,.012,.045)
+t=Part('oak-table',wood); t.round_slab(2.0,.9,.075,.008,.032)
 for i,p in enumerate(t.p): t.p[i]=(p[0],p[1]+.675,p[2])
 for sx in (-1,1):
   for sz in (-1,1):

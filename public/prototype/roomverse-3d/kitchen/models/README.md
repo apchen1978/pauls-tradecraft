@@ -6,7 +6,7 @@ The furniture GLBs in this folder were modeled procedurally in Python from the a
 
 | Asset | Dimensions / orientation | Vertices | Triangles | GLB bytes | Materials / primitives |
 |---|---|---:|---:|---:|---|
-| `dining-table-v2.glb` | 2.00 × 0.73 × 0.90 m extents; Y-up; +Z room-forward; foot bottoms seat at rug top Y 0.02 m; tabletop top Y 0.75 m | 864 | 396 | 81,956 | 1 / 1 |
+| `dining-table-v2.glb` | 2.00 × 0.73 × 0.90 m extents; Y-up; +Z room-forward; foot bottoms seat at rug top Y 0.02 m; tabletop top Y 0.75 m | 864 | 396 | 81,984 | 1 / 1 |
 | `dining-chair-v2.glb` | 0.453 × 1.005 × 0.427 m extents; Y-up; +Z chair-front; feet sit at rug top Y 0.02 m | 1,740 | 1,556 | 118,704 | 2 / 2 |
 | `opal-globe-pendant-v2.glb` | 0.32 × 0.6525 × 0.32 m; Y-up; origin at globe bottom | 2,037 | 3,240 | 86,624 | 2 / 2 |
 
@@ -14,7 +14,7 @@ Four chair instances share one GLB: their scene contribution is 6,960 vertices a
 
 ## Materials and validation
 
-- Table: matte oiled oak with directionally mapped grain, rounded slab, tapered legs moved closer to the corners, apron rails, and recessed stretcher. Each rounded corner uses eight segments to avoid the faceted close-up notch in v1.
+- Table: matte oiled oak with directionally mapped grain, rounded slab, tapered legs moved closer to the corners, apron rails, and recessed stretcher. Each rounded corner uses eight segments; this revision narrows the tabletop bevel from 12 mm to 8 mm and reduces the corner radius from 45 mm to 32 mm, retaining its 75 mm slab thickness and 2.00 × 0.90 m footprint.
 - Chair: matte oak frame, arched back, tapered legs, and a 3.8 cm warm oat linen cushion; one shared model is instantiated four times.
 - Pendant: 48 × 32 segment opal globe, bronze canopy and finer suspension, with its emissive response linked to the room's existing golden/night presets. The existing point light remains the scene light source.
 - All models contain normals and UV coordinates; no compression extensions are used.
