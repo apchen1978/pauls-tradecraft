@@ -177,8 +177,8 @@ function makeLoungeShadowTexture() {
   return makeTexture((ctx, w, h) => {
     ctx.clearRect(0, 0, w, h);
     const shade = ctx.createRadialGradient(w / 2, h / 2, w * 0.06, w / 2, h / 2, w * 0.47);
-    shade.addColorStop(0, "rgba(38,28,18,.28)");
-    shade.addColorStop(0.55, "rgba(38,28,18,.12)");
+    shade.addColorStop(0, "rgba(38,28,18,.36)");
+    shade.addColorStop(0.55, "rgba(38,28,18,.16)");
     shade.addColorStop(1, "rgba(38,28,18,0)");
     ctx.fillStyle = shade; ctx.fillRect(0, 0, w, h);
   }, 128, 128);
@@ -546,7 +546,7 @@ function buildTable(b, m) {
 }
 
 // Local, four-material procedural furniture: no external model or cloth simulation.
-const LOUNGE_PLACEMENT = Object.freeze({ position: [-2.35, 0, -0.20], yaw: Math.PI / 9 });
+const LOUNGE_PLACEMENT = Object.freeze({ position: [-2.29, 0, -0.20], yaw: THREE.MathUtils.degToRad(8) });
 
 function makeLoungePillowGeometry() {
   const nx = 12, ny = 12, row = nx + 1;
@@ -584,7 +584,7 @@ function makeLoungePillowGeometry() {
 }
 
 function makeLoungeThrowGeometry() {
-  const nx = 12, nz = 18, row = nx + 1;
+  const nx = 16, nz = 22, row = nx + 1;
   const positions = [], uvs = [], indices = [];
   const crossSection = new THREE.CatmullRomCurve3([
     new THREE.Vector3(0.205, 0.515, 0), new THREE.Vector3(0.23, 0.642, 0),
@@ -594,10 +594,11 @@ function makeLoungeThrowGeometry() {
   for (const side of [1, -1]) for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
     const u = i / nx, t = j / nz;
     const point = crossSection.getPoint(u);
-    const fold = 0.013 * Math.sin(t * 15 + u * 2) + 0.007 * Math.sin(t * 29 - u * 3);
-    const x = point.x + 0.005 * Math.sin(t * 12) * Math.sin(Math.PI * u);
-    const y = point.y + fold * Math.sin(Math.PI * u);
-    const z = -0.22 + t * (0.48 + 0.012 * u) + 0.009 * Math.sin(t * 10 + u * 3) * u;
+    const fold = Math.sin(t * Math.PI * 7 + u * 0.5) + 0.18 * Math.sin(t * Math.PI * 14 - u * 0.7);
+    const drape = 0.28 + 0.72 * u;
+    const x = point.x + 0.006 * fold * drape;
+    const y = point.y + 0.012 * fold * drape;
+    const z = -0.22 + t * (0.48 + 0.012 * u) + 0.005 * fold * drape + 0.008 * Math.sin(t * 8 + u * 2) * u;
     positions.push(x, y + side * 0.005, z);
     uvs.push(u, t);
   }
@@ -817,7 +818,7 @@ function buildHouseholdProps(scene, m) {
     }
     trunk.computeVertexNormals();
     shape(trunk, m.oak, [0, 0.87, 0]);
-    const profile = [0.06, 0.18, 0.35, 0.53, 0.66, 0.69, 0.64, 0.72, 0.86, 0.97, 0.84, 0.54, 0.025];
+    const profile = [0.025, 0.14, 0.34, 0.58, 0.80, 0.94, 1.0, 0.98, 0.9, 0.78, 0.62, 0.42, 0.025];
     const rows = 18;
     const widthAt = (t) => {
       const position = t * (profile.length - 1);
@@ -827,7 +828,7 @@ function buildHouseholdProps(scene, m) {
       const c = profile[index + 1], d = profile[Math.min(profile.length - 1, index + 2)];
       return Math.max(0.025, 0.5 * (2 * b + (-a + c) * u + (2 * a - 5 * b + 4 * c - d) * u * u + (-a + 3 * b - 3 * c + d) * u * u * u));
     };
-    const columns = 12;
+    const columns = 13;
     const positions = [], uvs = [], indices = [];
     for (const face of [1, -1]) {
       for (let row = 0; row < rows; row++) {
@@ -941,6 +942,7 @@ function loadFurniture(scene, materials) {
     pendant: new URL("./models/opal-globe-pendant-v2.glb", import.meta.url).href,
   };
   const status = { table: "fallback", chair: "fallback", pendant: "fallback" };
+  let tabletopEdgeHeightDeviation = null;
   const removeCategory = (category) => {
     for (const object of [...scene.children]) {
       if (object.userData.category === category || object.name === `merged-${category}`) {
@@ -973,6 +975,16 @@ function loadFurniture(scene, materials) {
       if (kind === "table") {
         removeCategory("dining-table");
         model.position.set(0, 0, 0.5);
+        const edgeHeights = [];
+        model.traverse((object) => {
+          if (!object.isMesh || !object.geometry?.attributes?.position) return;
+          const positions = object.geometry.attributes.position;
+          for (let i = 0; i < positions.count; i++) {
+            const x = positions.getX(i), y = positions.getY(i), z = positions.getZ(i);
+            if (y >= 0.73 && (Math.abs(x) >= 0.85 || Math.abs(z) >= 0.36)) edgeHeights.push(y);
+          }
+        });
+        tabletopEdgeHeightDeviation = edgeHeights.length ? Math.max(...edgeHeights) - Math.min(...edgeHeights) : null;
       } else if (kind === "chair") {
         removeCategory("dining-chairs");
         for (const x of [-0.5, 0.5]) for (const z of [-0.22, 1.22]) {
@@ -1000,7 +1012,7 @@ function loadFurniture(scene, materials) {
       console.warn(`Room 03 ${kind} GLB failed; keeping procedural fallback.`, error);
     }
   };
-  return { status, ready: Promise.all([loadOne("table"), loadOne("chair"), loadOne("pendant")]), urls };
+  return { status, ready: Promise.all([loadOne("table"), loadOne("chair"), loadOne("pendant")]), urls, get tabletopEdgeHeightDeviation() { return tabletopEdgeHeightDeviation; } };
 }
 
 function assemble(b, scene) {
@@ -1073,15 +1085,27 @@ export async function start({ stage, onReady = () => {} }) {
   sunlightPatch.name = "golden-hour-floor-patch";
   sunlightPatch.userData.category = "lighting";
   scene.add(sunlightPatch);
-  // The sun casts the daytime contact shadow; at night a faint pooled shadow grounds the chair.
+  // Four subtle contact patches are merged into one horizontal mesh for both light moods.
+  const loungeChairLocal = [
+    [-0.26, -0.25], [-0.26, 0.25], [0.26, -0.25], [0.26, 0.25],
+  ].map(([x, z]) => {
+    const patch = new THREE.PlaneGeometry(0.18, 0.15);
+    patch.rotateX(-Math.PI / 2);
+    patch.translate(x, 0.003, z);
+    patch.applyMatrix4(new THREE.Matrix4().compose(
+      new THREE.Vector3(...LOUNGE_PLACEMENT.position),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, LOUNGE_PLACEMENT.yaw, 0)),
+      new THREE.Vector3(1, 1, 1),
+    ));
+    return patch;
+  });
   const loungeContactShadow = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.77, 0.72),
-    new THREE.MeshBasicMaterial({ map: makeLoungeShadowTexture(), transparent: true, opacity: 0.65, depthWrite: false }),
+    mergeGeometries(loungeChairLocal, false),
+    new THREE.MeshBasicMaterial({ map: makeLoungeShadowTexture(), transparent: true, opacity: 0.8, depthWrite: false }),
   );
-  loungeContactShadow.name = "lounge-night-contact-shadow";
+  loungeContactShadow.name = "lounge-foot-contact-shadows";
   loungeContactShadow.userData.category = "lounge-chair";
-  loungeContactShadow.rotation.x = -Math.PI / 2;
-  loungeContactShadow.position.set(-2.35, 0.003, -0.2);
+  loungeContactShadow.position.set(0, 0, 0);
   loungeContactShadow.visible = false;
   scene.add(loungeContactShadow);
   const makeBouncePlane = (name, size, position, rotation, color) => {
@@ -1124,7 +1148,7 @@ export async function start({ stage, onReady = () => {} }) {
     materials.wokGlow.opacity = name === "night" ? 1 : 0.72;
     materials.sunlight.opacity = name === "golden" ? 0.32 : 0;
     sunlightPatch.visible = name === "golden";
-    loungeContactShadow.visible = name === "night";
+    loungeContactShadow.visible = true;
     windowWallBounce.material.opacity = name === "golden" ? 0.22 : 0;
     pendantFloorBounce.material.opacity = name === "night" ? 0.34 : 0;
     pendantCeilingBounce.material.opacity = name === "night" ? 0.22 : 0;
@@ -1265,7 +1289,7 @@ export async function start({ stage, onReady = () => {} }) {
     const chairBounds = [-0.5, 0.5].flatMap((x) => [-0.22, 1.22].map((z) => boxFor(`room03-dining-chair-${x}-${z}`)));
     const loungeBounds = boxFor(loungeChair.name);
     const lounge = {
-      bounds: loungeBounds, position: loungeChair.position.toArray(), yawDegrees: THREE.MathUtils.radToDeg(loungeChair.rotation.y), contactShadowVisible: loungeContactShadow.visible,
+      bounds: loungeBounds, position: loungeChair.position.toArray(), yawDegrees: THREE.MathUtils.radToDeg(loungeChair.rotation.y), contactShadowVisible: loungeContactShadow.visible, contactShadowBounds: boxFor(loungeContactShadow.name),
       projectedCenter: project(new THREE.Box3().setFromObject(loungeChair).getCenter(new THREE.Vector3()).toArray()),
       parts: Object.fromEntries(loungeChair.children.map((part) => [part.name, { bounds: boxFor(part.name), vertices: part.geometry.attributes.position.count }])),
     };
@@ -1280,7 +1304,7 @@ export async function start({ stage, onReady = () => {} }) {
     };
     const wallArtDoorFrameBounds = { min: [2.86, 0, 1.2025], max: [2.94, 2.1, 2.0975], size: [0.08, 2.1, 0.895] };
     const wallArtImagePlane = wallArt.group.children.find((child) => child.material?.name === "room03-original-garden-art");
-    return { lounge, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtTextureSize: [wallArt.texture.image?.naturalWidth || wallArt.texture.image?.width || 0, wallArt.texture.image?.naturalHeight || wallArt.texture.image?.height || 0], wallArtColorSpace: wallArt.texture.colorSpace, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
+    return { lounge, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtTextureSize: [wallArt.texture.image?.naturalWidth || wallArt.texture.image?.width || 0, wallArt.texture.image?.naturalHeight || wallArt.texture.image?.height || 0], wallArtColorSpace: wallArt.texture.colorSpace, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info,
