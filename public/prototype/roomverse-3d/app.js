@@ -207,6 +207,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   floor.rotation.x = -Math.PI / 2;
   // back wall = one shape with the window cut out, so a wallpaper covers the whole wall, around the window too
   const win = { x0: -2.1, x1: -0.95, y0: 0.75, y1: 2.25 };
+  const windowFrameParts = [], curtainParts = [];
   const wallShape = new THREE.Shape([new THREE.Vector2(-W / 2, 0), new THREE.Vector2(W / 2, 0), new THREE.Vector2(W / 2, H), new THREE.Vector2(-W / 2, H)]);
   wallShape.holes.push(new THREE.Path([new THREE.Vector2(win.x0, win.y0), new THREE.Vector2(win.x1, win.y0), new THREE.Vector2(win.x1, win.y1), new THREE.Vector2(win.x0, win.y1)]));
   const wallMat = new THREE.MeshStandardMaterial({ color: "#e9e1d3", roughness: .9 });
@@ -815,6 +816,11 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   const leftWallSmallPrintPlace = { x: -W / 2 + .008, y: 1.6225, z: -1.07 };
   const leftWallSmallPrintSize = { w: .5, h: .375 }, leftWallSmallPrintFrame = .02; // 50 × 37.5 cm image; 2 cm oak frame
   const leftWallSmallPrintAsset = "room01-wall-print-v2-botanical-window.webp";
+  let leftWallSecondPrintGroup = null, leftWallSecondPrintPromise = null, leftWallSecondPrintLoaded = false, leftWallSecondPrintReady = false;
+  let leftWallSecondPrintMat = null;
+  const leftWallSecondPrintGap = .16;
+  const leftWallSecondPrintPlace = { x: leftWallSmallPrintPlace.x, y: leftWallSmallPrintPlace.y, z: leftWallSmallPrintPlace.z - leftWallSmallPrintSize.w / 2 - leftWallSmallPrintFrame - leftWallSecondPrintGap - leftWallSmallPrintSize.w / 2 - leftWallSmallPrintFrame };
+  const leftWallSecondPrintAsset = "room01-wall-print-v2-neighborhood-corner.webp";
   const leftWallArtPlace = { x: -W / 2 + .008, y: 1.5, z: 1 }; // 8 mm off the wall at x=-2.6, same hanging line as the right wall
   const leftPaintSize = { w: 1.2, h: .675 }, leftFrameMargin = .118; // 16:9 picture; the frame adds 5.9 cm on each side
   // A 4 W picture LED at ~80 lm/W is 320 lm, about 100 cd in a wide flood. The room's other lamps are
@@ -949,11 +955,46 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     });
     return leftWallSmallPrintPromise;
   }
+  function loadLeftWallSecondPrint() {
+    if (leftWallSecondPrintPromise) return leftWallSecondPrintPromise;
+    leftWallSecondPrintPromise = new Promise((resolve) => {
+      const { w, h } = leftWallSmallPrintSize, frame = leftWallSmallPrintFrame;
+      leftWallSecondPrintGroup = new THREE.Group(); leftWallSecondPrintGroup.name = "room01-left-wall-second-print";
+      leftWallSecondPrintGroup.position.set(leftWallSecondPrintPlace.x, leftWallSecondPrintPlace.y, leftWallSecondPrintPlace.z);
+      leftWallSecondPrintGroup.rotation.y = Math.PI / 2; scene.add(leftWallSecondPrintGroup);
+      const piece = (geo, mat, x, y, z, name) => {
+        const mesh = new THREE.Mesh(geo, mat); mesh.name = name; mesh.position.set(x, y, z);
+        mesh.castShadow = false; mesh.receiveShadow = false; leftWallSecondPrintGroup.add(mesh); return mesh;
+      };
+      const oak = new THREE.MeshStandardMaterial({ color: "#9b774c", roughness: .78, metalness: 0 });
+      const outerW = w + frame * 2, outerH = h + frame * 2;
+      piece(new THREE.BoxGeometry(outerW, outerH, .018), oak, 0, 0, .014, "room01-left-wall-second-print-backing");
+      for (const side of [-1, 1]) {
+        piece(new THREE.BoxGeometry(outerW, frame, .018), oak, 0, side * (h + frame) / 2, .023, "room01-left-wall-second-print-frame-horizontal-" + side);
+        piece(new THREE.BoxGeometry(frame, h, .018), oak, side * (w + frame) / 2, 0, .023, "room01-left-wall-second-print-frame-vertical-" + side);
+      }
+      leftWallSecondPrintMat = new THREE.MeshStandardMaterial({ color: "#e8dfcc", roughness: .85, metalness: 0 });
+      piece(new THREE.PlaneGeometry(w, h), leftWallSecondPrintMat, 0, 0, .024, "room01-left-wall-second-print-image");
+      const fetchPoster = (attempt) => {
+        const texture = new THREE.TextureLoader().load(new URL("./art/" + leftWallSecondPrintAsset, import.meta.url).href, () => {
+          texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+          leftWallSecondPrintMat.map = texture; leftWallSecondPrintMat.color.set("#ffffff"); leftWallSecondPrintMat.needsUpdate = true;
+          leftWallSecondPrintLoaded = true; leftWallSecondPrintReady = true; render(); resolve(true);
+        }, undefined, () => {
+          leftWallSecondPrintReady = true; render(); if (attempt === 0) resolve(false);
+          if (attempt < 2) setTimeout(() => fetchPoster(attempt + 1), attempt ? 6000 : 2000);
+        });
+      };
+      fetchPoster(0);
+    });
+    return leftWallSecondPrintPromise;
+  }
   controls.addEventListener("change", () => {
     const offset = camera.position.clone().sub(orbitCenter);
     if (Math.sin(Math.atan2(offset.x, offset.z)) > .45) {
       void loadLeftWallArt(); // existing harbor art
       void loadLeftWallSmallPrint(); // Room 01 poster is opt-in on the first turn toward this wall
+      void loadLeftWallSecondPrint(); // existing neighbourhood-corner print is opt-in on the same turn
     }
   });
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
@@ -972,14 +1013,14 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   const outMat = new THREE.MeshBasicMaterial();
   const wx = (win.x0 + win.x1) / 2, wy = (win.y0 + win.y1) / 2, ww = win.x1 - win.x0, wh = win.y1 - win.y0;
   add(new THREE.PlaneGeometry(ww, wh), outMat, wx, wy, BACK - .06, false);
-  const frame = (x, y, w, h) => add(new THREE.BoxGeometry(w, h, .08), wood, x, y, BACK - .02);
+  const frame = (x, y, w, h) => { const part = add(new THREE.BoxGeometry(w, h, .08), wood, x, y, BACK - .02); windowFrameParts.push(part); return part; };
   frame(wx, win.y0, ww + .1, .06); frame(wx, win.y1, ww + .1, .06); frame(win.x0, wy, .06, wh); frame(win.x1, wy, .06, wh); frame(wx, wy, .04, wh); frame(wx, wy + .2, ww, .04);
-  add(new THREE.CylinderGeometry(.015, .015, ww + .9, 12), wood, wx, win.y1 + .2, BACK + .12).rotation.z = Math.PI / 2;
+  const curtainRod = add(new THREE.CylinderGeometry(.015, .015, ww + .9, 12), wood, wx, win.y1 + .2, BACK + .12); curtainRod.rotation.z = Math.PI / 2; windowFrameParts.push(curtainRod);
   const linen = new THREE.MeshStandardMaterial({ color: "#e6ddcc", roughness: 1, side: THREE.DoubleSide, transparent: true, opacity: .93 });
   [win.x0 - .14, win.x1 + .14].forEach((x) => {
     const g = new THREE.PlaneGeometry(.42, win.y1 + .2, 40, 1); const p = g.attributes.position;
     for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 46) * .035);
-    g.computeVertexNormals(); add(g, linen, x, (win.y1 + .2) / 2, BACK + .12);
+    g.computeVertexNormals(); curtainParts.push(add(g, linen, x, (win.y1 + .2) / 2, BACK + .12));
   });
   const SX = .35, SZ = BACK + .55, TX = SX + 1.35, TZ = SZ - .1;
   // the coffee table, the table lamp and the plant are AI-made models too (loaded with the others below);
@@ -3004,6 +3045,35 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         place: { ...leftWallSmallPrintPlace }, bounds: pack(box), image: pack(imageBox), boardBounds: pack(boardBox), vertices, meshes,
         screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
         clearances: { plant: gaps(plantObj), board: gaps(homeBoard), couplet: gaps(couplet), harbor: leftWallArtGroup ? gaps(leftWallArtGroup) : null, floorLamp: gaps(lampObj), roomRobot: gaps(robotObj), guideRobot: gaps(guidePivot), roomRobotTurn: turnEnvelope(robotObj), guideRobotTurn: turnEnvelope(guidePivot) } };
+    },
+    leftWallSecondPrint() { // local QA: bounds, shared hanging line, lazy load, and neighbouring-object clearance
+      if (!leftWallSecondPrintGroup) return { built: false, ready: false, loaded: false };
+      scene.updateMatrixWorld(true);
+      const boxOf = (obj) => new THREE.Box3().setFromObject(obj);
+      const pack = (box) => ({ min: box.min.toArray(), max: box.max.toArray() });
+      const box = boxOf(leftWallSecondPrintGroup), image = leftWallSecondPrintGroup.getObjectByName("room01-left-wall-second-print-image");
+      const imageBox = boxOf(image), firstBox = leftWallSmallPrintGroup ? boxOf(leftWallSmallPrintGroup) : null, rect = renderer.domElement.getBoundingClientRect();
+      const corners = [[-leftWallSmallPrintSize.w / 2, -leftWallSmallPrintSize.h / 2], [leftWallSmallPrintSize.w / 2, -leftWallSmallPrintSize.h / 2], [-leftWallSmallPrintSize.w / 2, leftWallSmallPrintSize.h / 2], [leftWallSmallPrintSize.w / 2, leftWallSmallPrintSize.h / 2]].map(([x, y]) => new THREE.Vector3(x, y, 0).applyMatrix4(image.matrixWorld).project(camera));
+      const blockers = { plant: plantObj, firstPrint: leftWallSmallPrintGroup, board: homeBoard, harbor: leftWallArtGroup, floorLamp: lampObj, windowFrame: windowFrameParts, curtains: curtainParts };
+      const separation = (other) => {
+        const b = boxOf(other), dx = Math.max(b.min.x - box.max.x, box.min.x - b.max.x, 0);
+        const dy = Math.max(b.min.y - box.max.y, box.min.y - b.max.y, 0), dz = Math.max(b.min.z - box.max.z, box.min.z - b.max.z, 0);
+        return { intersects: box.intersectsBox(b), distance: Math.hypot(dx, dy, dz), x: dx, y: dy, z: dz };
+      };
+      const clearances = Object.fromEntries(Object.entries(blockers).map(([name, value]) => {
+        const parts = (Array.isArray(value) ? value : [value]).filter(Boolean).map(separation);
+        return [name, parts.reduce((near, current) => !near || current.distance < near.distance ? current : near, null)];
+      }));
+      const collisions = Object.entries(blockers).flatMap(([name, value]) => (Array.isArray(value) ? value : [value]).filter(Boolean).some((part) => box.intersectsBox(boxOf(part))) ? [name] : []);
+      let vertices = 0, meshes = 0;
+      leftWallSecondPrintGroup.traverse((obj) => { if (obj.isMesh) { meshes++; vertices += obj.geometry.attributes.position.count; } });
+      const xs = corners.map((p) => (p.x + 1) * rect.width / 2), ys = corners.map((p) => (1 - p.y) * rect.height / 2);
+      return { built: true, ready: leftWallSecondPrintReady, loaded: leftWallSecondPrintLoaded,
+        file: leftWallSecondPrintMat.map?.image?.src?.split("/").pop() ?? null,
+        size: [leftWallSecondPrintMat.map?.image?.width ?? 0, leftWallSecondPrintMat.map?.image?.height ?? 0],
+        place: { ...leftWallSecondPrintPlace }, bounds: pack(box), image: pack(imageBox), vertices, meshes, collisions, clearances,
+        gapToFirst: firstBox ? firstBox.min.z - box.max.z : null, cornerClearance: box.min.z - BACK,
+        screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) } };
     },
     leftWallArt() { // read-only QA for the left-wall harbour pair
       if (!leftWallArtGroup) return { ready: false, loaded: false, built: false };
