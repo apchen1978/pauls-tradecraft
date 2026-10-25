@@ -48,11 +48,66 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.meshes).toBeLessThan(60);
     expect(info.categories.structure.vertices).toBeGreaterThan(0);
     expect(info.categories["dining-table"].vertices).toBeGreaterThan(0);
+    expect(info.furniture).toMatchObject({ table: "glb", chair: "glb", pendant: "glb" });
+    expect(info.furnitureAssets.table.vertices).toBeLessThanOrEqual(2500);
+    expect(info.furnitureAssets.chair.vertices / 4).toBeLessThanOrEqual(1800);
+    expect(info.furnitureAssets.pendant.vertices).toBeLessThanOrEqual(1200);
+    expect(info.furnitureAssets.chair.meshes).toBeGreaterThan(0);
+    const modelSizes = ["dining-table-v1.glb", "dining-chair-v1.glb", "opal-globe-pendant-v1.glb"].map((name) => statSync(`public/prototype/roomverse-3d/kitchen/models/${name}`).size);
+    expect(modelSizes.every((size) => size <= 400 * 1024)).toBe(true);
+    expect(modelSizes.reduce((sum, size) => sum + size, 0)).toBeLessThanOrEqual(1.5 * 1024 * 1024);
+    const addedFurnitureVertices = Object.values(info.furnitureAssets).reduce((sum, asset) => sum + asset.vertices, 0);
+    expect(addedFurnitureVertices).toBeLessThanOrEqual(14000);
+    expect(info.furnitureBounds.table.max[1]).toBeCloseTo(0.75, 2);
+    expect(info.furnitureBounds.table.min[1]).toBeCloseTo(info.rug.max[1], 3);
+    expect(info.furnitureBounds.table.min[0]).toBeGreaterThanOrEqual(-3);
+    expect(info.furnitureBounds.table.max[0]).toBeLessThanOrEqual(3);
+    expect(info.furnitureBounds.table.min[2]).toBeGreaterThanOrEqual(-2.4);
+    expect(info.furnitureBounds.table.max[2]).toBeLessThanOrEqual(2.4);
+    expect(info.furnitureBounds.chairs).toHaveLength(4);
+    for (const chair of info.furnitureBounds.chairs) {
+      expect(chair.min[1]).toBeCloseTo(info.rug.max[1], 3);
+      expect(chair.min[0]).toBeGreaterThanOrEqual(-3);
+      expect(chair.max[0]).toBeLessThanOrEqual(3);
+      expect(chair.min[2]).toBeGreaterThanOrEqual(-2.4);
+      expect(chair.max[2]).toBeLessThanOrEqual(2.4);
+    }
+    for (let i = 0; i < info.furnitureBounds.chairs.length; i++) for (let j = i + 1; j < info.furnitureBounds.chairs.length; j++) {
+      const a = info.furnitureBounds.chairs[i], b = info.furnitureBounds.chairs[j];
+      expect(a.max[0] <= b.min[0] || b.max[0] <= a.min[0] || a.max[2] <= b.min[2] || b.max[2] <= a.min[2], "chair bounding boxes should not overlap").toBe(true);
+    }
+    for (const chair of info.furnitureBounds.chairs) {
+      const gap = chair.max[2] < 0.05 ? 0.05 - chair.max[2] : chair.min[2] - 0.95;
+      expect(gap, "dining chairs should clear the table's z footprint").toBeGreaterThanOrEqual(0.04);
+    }
+    expect(info.furnitureBounds.pendant.min[1]).toBeCloseTo(1.8075, 2);
+    expect(info.furnitureBounds.pendant.max[1]).toBeLessThanOrEqual(2.48);
     expect(info.categories.yard.vertices).toBe(4);
     expect(info.pixelRatio).toBe(1.5);
     expect(statSync("public/prototype/roomverse-3d/kitchen/courtyard-v1.webp").size).toBeLessThanOrEqual(150 * 1024);
     expect(errors).toEqual([]);
     await shot(page, "desktop-golden-zh");
+    await shot(page, "desktop-golden-furniture");
+    if (QA) {
+      await page.evaluate(() => {
+        const { camera, controls, render } = window.__room03;
+        controls.minDistance = 0.5; controls.maxDistance = 10;
+        controls.target.set(0, 0.62, 0.5);
+        camera.fov = 42; camera.position.set(0.55, 1.55, 2.75); camera.updateProjectionMatrix();
+        controls.update(); render();
+      });
+      await shot(page, "desktop-furniture-closeup");
+    }
+  });
+
+  test("keeps procedural furniture visible if any GLB request fails", async ({ page }) => {
+    await page.route("**/kitchen/models/*.glb", (route) => route.abort());
+    await loadRoom(page);
+    const info = await page.evaluate(() => window.__room03.info());
+    expect(info.furniture).toMatchObject({ table: "fallback", chair: "fallback", pendant: "fallback" });
+    expect(info.categories["dining-table"].vertices).toBeGreaterThan(0);
+    expect(info.categories["dining-chairs"].vertices).toBeGreaterThan(0);
+    await expect(page.locator("canvas")).toBeVisible();
   });
 
   test("covers the dining furniture with a raised rug and keeps it readable at night", async ({ page }) => {
@@ -65,7 +120,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.rug.max[1]).toBeCloseTo(0.02, 3);
     expect(golden.categories.rug).toEqual({ vertices: 24, meshes: 1 });
     expect(golden.vertices).toBeGreaterThanOrEqual(4509);
-    expect(golden.vertices - 4509, "door-visibility update should stay within its geometry budget").toBeLessThanOrEqual(1500);
+    expect(golden.vertices, "complete loaded room should stay within the geometry budget").toBeLessThanOrEqual(25000);
+    expect(Object.values(golden.furnitureAssets).reduce((sum, asset) => sum + asset.vertices, 0), "new dining furniture should stay within its combined budget").toBeLessThanOrEqual(14000);
     // Baseline captured from commit 084384e at the same world point and viewport.
     expect(goldenFloor.meanLuminance, "far floor should brighten by at least 12/255 from 084384e").toBeGreaterThan(81.5994 + 12);
 
@@ -91,6 +147,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await page.getByRole("button", { name: "夜晚" }).click();
     await expect(page.getByRole("button", { name: "夜晚" })).toHaveAttribute("aria-pressed", "true");
     await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+    const globe = await page.evaluate(() => window.__room03.sampleNdc(window.__room03.info().projectedRegions.pendant, 0.008));
+    expect(globe.meanLuminance, "night pendant globe should be one of the bright accents without clipping").toBeGreaterThan(190);
+    expect(globe.meanLuminance, "night pendant globe should not blow out to white").toBeLessThan(245);
     await shot(page, "desktop-night-zh");
     await page.locator("#lang").click();
     await expect(page.locator("h1")).toHaveText("Room 03｜Bay Area Kitchen");
