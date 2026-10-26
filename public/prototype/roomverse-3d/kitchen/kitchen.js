@@ -527,21 +527,73 @@ function buildTable(b, m) {
   addBox(b, "dining-table", m.oak, [2.0, 0.075, 0.9], [0, 0.76, z]);
   addBox(b, "dining-table", m.oak, [1.66, 0.12, 0.11], [0, 0.65, z]);
   for (const x of [-0.82, 0.82]) for (const zz of [z - 0.31, z + 0.31]) addBox(b, "dining-table", m.oak, [0.09, 0.64, 0.09], [x, 0.34, zz]);
-  // Four restrained mid-century chairs: woven seats and curved timber backs.
-  for (const x of [-0.5, 0.5]) for (const cz of [z - 0.72, z + 0.72]) {
-    const facing = cz < z ? Math.PI : 0;
-    addBox(b, "dining-chairs", m.seat, [0.44, 0.07, 0.42], [x, 0.47, cz]);
-    for (const dx of [-0.18, 0.18]) for (const dz of [-0.16, 0.16]) addBox(b, "dining-chairs", m.oak, [0.045, 0.43, 0.045], [x + dx, 0.235, cz + dz]);
-    const backZ = cz + (facing ? -0.18 : 0.18);
-    for (const xx of [-0.19, 0.19]) addBox(b, "dining-chairs", m.oak, [0.045, 0.46, 0.045], [x + xx, 0.69, backZ]);
-    const curve = new THREE.QuadraticBezierCurve3(
-      new THREE.Vector3(-0.2, 0.88, 0),
-      new THREE.Vector3(0, 1.11, 0),
-      new THREE.Vector3(0.2, 0.88, 0),
-    );
-    const arch = new THREE.Mesh(new THREE.TubeGeometry(curve, 14, 0.026, 5, false), m.oak);
-    arch.position.set(x, 0, backZ); arch.name = "curved-chair-back"; arch.userData.category = "dining-chairs";
-    arch.castShadow = true; arch.receiveShadow = true; b.set(`chair-arch-${x}-${cz}`, { category: "dining-chairs", material: m.oak, geometries: [], meshes: [arch] });
+}
+
+// One continuous upholstered seat/back surface, with short solid-oak legs.
+// All surfaces and UVs are authored here; no generated model or texture is loaded.
+function makeDiningShellGeometry() {
+  const stations = [
+    [0.45, 0.22, 0.12, 0.026], [0.45, 0.19, 0.205, 0.060],
+    [0.45, 0.10, 0.225, 0.075], [0.45, -0.08, 0.225, 0.075],
+    [0.50, -0.19, 0.225, 0.073], [0.60, -0.22, 0.225, 0.075],
+    [0.70, -0.24, 0.22, 0.072], [0.79, -0.255, 0.205, 0.060],
+    [0.835, -0.265, 0.12, 0.028],
+  ];
+  const around = 12, positions = [], uvs = [], indices = [];
+  for (let s = 0; s < stations.length; s++) {
+    const [y, z, halfWidth, thickness] = stations[s];
+    for (let a = 0; a < around; a++) {
+      const theta = 2 * Math.PI * a / around;
+      const x = Math.cos(theta) * halfWidth;
+      const front = Math.sin(theta);
+      const cushion = s < 4 ? 0.017 * (1 - Math.pow(x / halfWidth, 2)) : 0;
+      const backBulge = s >= 4 ? 0.022 * (1 - Math.pow(x / halfWidth, 2)) * Math.sin(Math.PI * (s - 4) / 4) : 0;
+      positions.push(x, y + (s < 4 ? front * thickness + cushion : 0), z + (s < 4 ? 0 : front * thickness + backBulge));
+      uvs.push(a / around, s / (stations.length - 1));
+    }
+  }
+  for (let s = 0; s < stations.length - 1; s++) for (let a = 0; a < around; a++) {
+    const b = s * around + a, n = s * around + (a + 1) % around;
+    indices.push(b, b + around, n, n, b + around, n + around);
+  }
+  positions.push(0, stations[0][0], stations[0][1], 0, stations.at(-1)[0], stations.at(-1)[1]);
+  uvs.push(0.5, 0, 0.5, 1);
+  const start = stations.length * around;
+  for (let a = 0; a < around; a++) {
+    indices.push(start, (a + 1) % around, a);
+    indices.push(start + 1, (stations.length - 1) * around + a, (stations.length - 1) * around + (a + 1) % around);
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices); geometry.computeVertexNormals();
+  return geometry;
+}
+
+function buildProceduralDiningChairs(scene, m) {
+  const shell = makeDiningShellGeometry();
+  const legParts = [];
+  for (const x of [-0.17, 0.17]) for (const z of [-0.16, 0.16]) {
+    const leg = new THREE.CylinderGeometry(0.029, 0.018, 0.365, 8);
+    leg.translate(x, 0.2025, z);
+    legParts.push(leg);
+  }
+  const legs = mergeGeometries(legParts, false);
+  legParts.forEach((part) => part.dispose());
+  const upholstery = m.loungeFabric.clone(); upholstery.name = "warm-oat-linen";
+  for (const x of [-0.5, 0.5]) for (const z of [-0.22, 1.22]) {
+    const chair = new THREE.Group();
+    chair.name = `room03-dining-chair-${x}-${z}`;
+    chair.position.set(x, 0, z);
+    chair.rotation.y = z > 0.5 ? Math.PI : 0;
+    chair.userData.category = "dining-chairs";
+    for (const [name, geometry, material] of [["upholstered-shell", shell, upholstery], ["tapered-oak-legs", legs, m.oak]]) {
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.name = name; mesh.castShadow = true; mesh.receiveShadow = true;
+      mesh.userData.category = "dining-chairs"; mesh.userData.furnitureAsset = "chair";
+      chair.add(mesh);
+    }
+    scene.add(chair);
   }
 }
 
@@ -594,12 +646,13 @@ function makeLoungeThrowGeometry() {
   for (const side of [1, -1]) for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
     const u = i / nx, t = j / nz;
     const point = crossSection.getPoint(u);
-    const fold = Math.sin(t * Math.PI * 7 + u * 0.5) + 0.18 * Math.sin(t * Math.PI * 14 - u * 0.7);
+    const fold = Math.sin(t * Math.PI * 3.6 + u * 0.5) + 0.22 * Math.sin(t * Math.PI * 7.1 - u * 0.7);
     const drape = 0.28 + 0.72 * u;
     const x = point.x + 0.006 * fold * drape;
     const y = point.y + 0.012 * fold * drape;
-    const z = -0.22 + t * (0.48 + 0.012 * u) + 0.005 * fold * drape + 0.008 * Math.sin(t * 8 + u * 2) * u;
-    positions.push(x, y + side * 0.005, z);
+    const z = -0.22 + t * (0.48 + 0.012 * u) + 0.005 * fold * drape + 0.009 * Math.sin(t * 5 + u * 2) * u;
+    const edgeRound = 0.003 * Math.sin(Math.PI * u) * Math.sin(Math.PI * t);
+    positions.push(x, y + side * (0.008 + edgeRound), z);
     uvs.push(u, t);
   }
   const faceCount = row * (nz + 1);
@@ -644,15 +697,15 @@ function buildLoungeChair(scene, m) {
     chair.add(mesh);
   };
   const body = [
-    placed(new THREE.SphereGeometry(1, 20, 14), [0, 0.355, 0.025], [0.33, 0.085, 0.345]),
-    placed(new THREE.SphereGeometry(1, 20, 14), [0, 0.625, -0.263], [0.34, 0.21, 0.127], [-0.12, 0, 0]),
-    ...[-1, 1].map((side) => placed(new THREE.SphereGeometry(1, 16, 12), [side * 0.298, 0.535, -0.012], [0.067, 0.139, 0.335], [-0.12, 0, side * 0.08])),
+    placed(new THREE.SphereGeometry(1, 20, 14), [0, 0.355, 0.025], [0.34, 0.087, 0.345]),
+    placed(new THREE.SphereGeometry(1, 20, 14), [0, 0.59, -0.26], [0.355, 0.19, 0.135], [-0.12, 0, 0]),
+    ...[-1, 1].map((side) => placed(new THREE.SphereGeometry(1, 16, 12), [side * 0.311, 0.52, -0.012], [0.075, 0.138, 0.335], [-0.12, 0, side * 0.08])),
   ];
   const paddedRim = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-0.302, 0.562, 0.205), new THREE.Vector3(-0.31, 0.637, -0.115),
-    new THREE.Vector3(-0.24, 0.763, -0.287), new THREE.Vector3(0, 0.822, -0.305),
-    new THREE.Vector3(0.24, 0.763, -0.287), new THREE.Vector3(0.31, 0.637, -0.115),
-    new THREE.Vector3(0.302, 0.562, 0.205),
+    new THREE.Vector3(-0.32, 0.55, 0.205), new THREE.Vector3(-0.33, 0.61, -0.115),
+    new THREE.Vector3(-0.25, 0.715, -0.287), new THREE.Vector3(0, 0.775, -0.305),
+    new THREE.Vector3(0.25, 0.715, -0.287), new THREE.Vector3(0.33, 0.61, -0.115),
+    new THREE.Vector3(0.32, 0.55, 0.205),
   ]);
   body.push(new THREE.TubeGeometry(paddedRim, 32, 0.047, 7, false));
   addPart("lounge-upholstery", mergeGeometries(body, false), m.loungeFabric);
@@ -796,30 +849,31 @@ function buildHouseholdProps(scene, m) {
   succulents.scale.setScalar(1.3);
 
   // Fiddle-leaf fig: each petiole grows upward from the trunk instead of forming horizontal rungs.
-  const leafCount = 24;
+  const leafCount = 30;
   let leafVerticesPerBlade = 0;
-  const figLeaf = m.leafGreen.clone(); figLeaf.color.setHex(0x607d4d);
-  const figLeafLight = m.leafGreenLight.clone(); figLeafLight.color.setHex(0x87a365);
+  const figLeaf = m.leafGreen.clone(); figLeaf.color.setHex(0x668354);
+  const figLeafLight = m.leafGreenLight.clone(); figLeafLight.color.setHex(0x8ca668);
   const fig = buildPropGroup(scene, "window-fiddle-leaf-fig", [-1.93, 0, 1.68], ({ shape }) => {
     const potProfile = [
       new THREE.Vector2(0.105, 0.01), new THREE.Vector2(0.14, 0.022),
       new THREE.Vector2(0.17, 0.13), new THREE.Vector2(0.158, 0.255),
-      new THREE.Vector2(0.149, 0.275), new THREE.Vector2(0.13, 0.275),
+      new THREE.Vector2(0.163, 0.266), new THREE.Vector2(0.157, 0.279),
+      new THREE.Vector2(0.139, 0.284), new THREE.Vector2(0.125, 0.27),
       new THREE.Vector2(0.122, 0.245),
     ];
     shape(new THREE.LatheGeometry(potProfile, 24), m.stone);
-    shape(new THREE.TorusGeometry(0.149, 0.012, 8, 24), m.stone, [0, 0.27, 0], [Math.PI / 2, 0, 0]);
-    shape(new THREE.CylinderGeometry(0.125, 0.125, 0.014, 18), m.soil, [0, 0.284, 0]);
+    shape(new THREE.CylinderGeometry(0.123, 0.123, 0.009, 18), m.soil, [0, 0.263, 0]);
     const trunk = new THREE.CylinderGeometry(0.015, 0.028, 1.16, 12, 8);
     const trunkPositions = trunk.attributes.position;
     for (let i = 0; i < trunkPositions.count; i++) {
       const t = (trunkPositions.getY(i) + 0.58) / 1.16;
-      trunkPositions.setX(i, trunkPositions.getX(i) + 0.014 * Math.sin(t * Math.PI));
+      trunkPositions.setX(i, trunkPositions.getX(i) + 0.035 * Math.sin(t * Math.PI));
+      trunkPositions.setZ(i, trunkPositions.getZ(i) + 0.016 * Math.sin(t * Math.PI * 1.6));
     }
     trunk.computeVertexNormals();
     shape(trunk, m.oak, [0, 0.87, 0]);
-    const profile = [0.025, 0.14, 0.34, 0.58, 0.80, 0.94, 1.0, 0.98, 0.9, 0.78, 0.62, 0.42, 0.025];
-    const rows = 18;
+    const profile = [0.025, 0.18, 0.42, 0.68, 0.79, 0.74, 0.67, 0.69, 0.82, 0.97, 1.0, 0.94, 0.77, 0.54, 0.27, 0.025];
+    const rows = 16;
     const widthAt = (t) => {
       const position = t * (profile.length - 1);
       const index = Math.min(Math.floor(position), profile.length - 2);
@@ -828,25 +882,21 @@ function buildHouseholdProps(scene, m) {
       const c = profile[index + 1], d = profile[Math.min(profile.length - 1, index + 2)];
       return Math.max(0.025, 0.5 * (2 * b + (-a + c) * u + (2 * a - 5 * b + 4 * c - d) * u * u + (-a + 3 * b - 3 * c + d) * u * u * u));
     };
-    const columns = 13;
+    const columns = 15;
     const positions = [], uvs = [], indices = [];
-    for (const face of [1, -1]) {
-      for (let row = 0; row < rows; row++) {
-        const t = row / (rows - 1);
-        for (let column = 0; column <= columns; column++) {
-          const u = (column / columns) * 2 - 1;
-          const fold = Math.sin(Math.PI * t);
-          const bend = 0.10 * (1 - u * u) * fold - 0.035 * t * t + 0.035 * u * u * fold;
-          positions.push(u * widthAt(t), t - 0.025 * fold * (1 - u * u), bend + face * 0.005);
-          uvs.push(column / columns, t);
-        }
+    for (let row = 0; row < rows; row++) {
+      const t = row / (rows - 1);
+      for (let column = 0; column <= columns; column++) {
+        const u = (column / columns) * 2 - 1;
+        const fold = Math.sin(Math.PI * t);
+        const bend = 0.10 * (1 - u * u) * fold - 0.035 * t * t + 0.035 * u * u * fold;
+        positions.push(u * widthAt(t), t - 0.025 * fold * (1 - u * u), bend);
+        uvs.push(column / columns, t);
       }
     }
-    const perFace = rows * (columns + 1);
-    for (let face = 0; face < 2; face++) for (let row = 0; row < rows - 1; row++) for (let column = 0; column < columns; column++) {
-      const a = face * perFace + row * (columns + 1) + column, b = a + columns + 1;
-      if (face === 0) indices.push(a, a + 1, b, b, a + 1, b + 1);
-      else indices.push(a, b, a + 1, b, b + 1, a + 1);
+    for (let row = 0; row < rows - 1; row++) for (let column = 0; column < columns; column++) {
+      const a = row * (columns + 1) + column, b = a + columns + 1;
+      indices.push(a, a + 1, b, b, a + 1, b + 1);
     }
     const leafGeometry = new THREE.BufferGeometry();
     leafGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
@@ -861,14 +911,14 @@ function buildHouseholdProps(scene, m) {
     for (let index = 0; index < leafCount; index++) {
       const level = Math.floor(index / 3), around = index % 3;
       const angle = level * 1.73 + around * (Math.PI * 2 / 3);
-      const baseY = 0.58 + level * 0.12 + around * 0.02;
-      const radius = 0.14 + Math.sin((level / 7) * Math.PI) * 0.12;
+      const baseY = 0.51 + level * 0.085 + around * 0.018;
+      const radius = 0.17 + Math.sin((level / 9) * Math.PI) * 0.13;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius * 0.72;
-      const length = 0.21 + level * 0.003 + ((level + around) % 3) * 0.012;
-      const width = 0.19 + level * 0.004 + ((level * 2 + around) % 3) * 0.012;
-      const rotation = [0.28 * Math.sin(angle), angle, 0.38 * Math.cos(angle + index * 0.13)];
-      const scale = [width / 2, length, 0.24];
+      const length = 0.22 + level * 0.007 + ((level + around) % 3) * 0.012;
+      const width = 0.23 + level * 0.005 + ((level * 2 + around) % 3) * 0.012;
+      const rotation = [0.48 * Math.sin(angle), angle, 0.52 * Math.cos(angle + index * 0.13)];
+      const scale = [width / 2, length, 0.75];
       const leafMaterial = index % 7 === 0 ? figLeafLight : figLeaf;
       const petiole = new THREE.QuadraticBezierCurve3(
         new THREE.Vector3(0, baseY - 0.10, 0),
@@ -885,6 +935,7 @@ function buildHouseholdProps(scene, m) {
   });
   fig.userData.leafCount = leafCount;
   fig.userData.leafVerticesPerBlade = leafVerticesPerBlade;
+  fig.scale.set(0.9, 1, 0.9);
 
   // Three upright cookbooks on the existing cabinet top; one leans gently against its neighbor.
   const cookbooks = buildPropGroup(scene, "cookbooks", [-1.52, 2.11, -2.16], ({ shape }) => {
@@ -938,10 +989,9 @@ function loadFurniture(scene, materials) {
   const loader = new GLTFLoader();
   const urls = {
     table: new URL("./models/dining-table-v2.glb", import.meta.url).href,
-    chair: new URL("./models/dining-chair-v2.glb", import.meta.url).href,
     pendant: new URL("./models/opal-globe-pendant-v2.glb", import.meta.url).href,
   };
-  const status = { table: "fallback", chair: "fallback", pendant: "fallback" };
+  const status = { table: "fallback", chair: "procedural-v2", pendant: "fallback" };
   let tabletopEdgeHeightDeviation = null;
   const removeCategory = (category) => {
     for (const object of [...scene.children]) {
@@ -959,7 +1009,7 @@ function loadFurniture(scene, materials) {
         if (!object.isMesh) return;
         object.castShadow = true;
         object.receiveShadow = true;
-        object.userData.category = kind === "table" ? "dining-table" : kind === "chair" ? "dining-chairs" : "lighting";
+        object.userData.category = kind === "table" ? "dining-table" : "lighting";
         object.userData.furnitureAsset = kind;
         if (kind === "pendant") {
           object.name = object.name || "room03-opal-pendant-part";
@@ -985,18 +1035,6 @@ function loadFurniture(scene, materials) {
           }
         });
         tabletopEdgeHeightDeviation = edgeHeights.length ? Math.max(...edgeHeights) - Math.min(...edgeHeights) : null;
-      } else if (kind === "chair") {
-        removeCategory("dining-chairs");
-        for (const x of [-0.5, 0.5]) for (const z of [-0.22, 1.22]) {
-          const instance = model.clone(true);
-          instance.traverse((object) => { if (object.isMesh) { object.userData.category = "dining-chairs"; object.userData.furnitureAsset = "chair"; } });
-          instance.position.set(x, 0, z);
-          instance.rotation.y = z > 0.5 ? Math.PI : 0;
-          instance.name = `room03-dining-chair-${x}-${z}`;
-          scene.add(instance);
-        }
-        status.chair = "glb";
-        return;
       } else {
         for (const name of ["pendant-canopy", "pendant-cord", "single-opal-globe"]) {
           const fallback = scene.getObjectByName(name);
@@ -1012,7 +1050,7 @@ function loadFurniture(scene, materials) {
       console.warn(`Room 03 ${kind} GLB failed; keeping procedural fallback.`, error);
     }
   };
-  return { status, ready: Promise.all([loadOne("table"), loadOne("chair"), loadOne("pendant")]), urls, get tabletopEdgeHeightDeviation() { return tabletopEdgeHeightDeviation; } };
+  return { status, ready: Promise.all([loadOne("table"), loadOne("pendant")]), urls, get tabletopEdgeHeightDeviation() { return tabletopEdgeHeightDeviation; } };
 }
 
 function assemble(b, scene) {
@@ -1065,6 +1103,7 @@ export async function start({ stage, onReady = () => {} }) {
   buildKitchen(buckets, materials);
   buildSideKitchen(buckets, materials, scene);
   buildTable(buckets, materials);
+  buildProceduralDiningChairs(scene, materials);
   buildHouseholdProps(scene, materials);
   const loungeChair = buildLoungeChair(scene, materials);
   const wallArt = buildRoomWallArt(scene, materials, () => { wallArtLoaded = true; render(); });
@@ -1215,7 +1254,7 @@ export async function start({ stage, onReady = () => {} }) {
   const info = () => {
     const categories = {};
     const furnitureAssets = {};
-    const softForms = { chairCushions: 0, cushionThicknesses: [], pendantGlobeVertices: 0 };
+    const softForms = { chairShells: 0, shellHeights: [], pendantGlobeVertices: 0 };
     let lightCount = 0;
     scene.traverse((object) => { if (object.isLight) lightCount++; });
     const lightMetrics = {
@@ -1244,8 +1283,8 @@ export async function start({ stage, onReady = () => {} }) {
         furnitureAssets[asset].triangles += object.geometry.index ? object.geometry.index.count / 3 : count / 3;
         furnitureAssets[asset].meshes++;
         if (asset === "chair" && object.material?.name === "warm-oat-linen") {
-          softForms.chairCushions++;
-          softForms.cushionThicknesses.push(new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3()).y);
+          softForms.chairShells++;
+          softForms.shellHeights.push(new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3()).y);
         }
         if (asset === "pendant" && object.material?.name === "warm-opal-glass") softForms.pendantGlobeVertices = count;
       }

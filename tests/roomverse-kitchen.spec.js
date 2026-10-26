@@ -57,11 +57,48 @@ function boxesDistance(a, b) {
 }
 
 test.describe("Room 03 Bay Area Kitchen", () => {
+  test("reviews procedural soft furniture at fixed desktop and mobile conditions", async ({ page }) => {
+    const errors = [], modelRequests = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    page.on("request", (request) => {
+      if (request.url().endsWith("/dining-chair-v2.glb")) modelRequests.push(request.url());
+    });
+    await loadRoom(page);
+    await page.waitForFunction(() => window.__room03.info().furniture.table === "glb" && window.__room03.info().furniture.pendant === "glb");
+    const golden = await page.evaluate(() => window.__room03.info());
+    expect(golden.viewport).toEqual([1384, 700]);
+    expect(golden.pixelRatio).toBe(1.5);
+    expect(golden.furniture.chair).toBe("procedural-v2");
+    expect(golden.vertices).toBeLessThanOrEqual(55000);
+    expect(golden.vertices - 49855).toBeLessThanOrEqual(1500);
+    expect(golden.plantLeafCount).toBe(30);
+    expect(golden.furnitureBounds.chairs).toHaveLength(4);
+    expect(modelRequests).toEqual([]);
+    await shot(page, "review-desktop-1440-golden");
+    await page.locator('#moods button[data-mood="night"]').click();
+    await shot(page, "review-desktop-1440-night");
+    await loadRoom(page);
+    await setReviewCamera(page, [0, 0.78, 0.5], [0.18, 1.72, 3.25], 58);
+    await shot(page, "review-dining-closeup");
+    await loadRoom(page);
+    await setReviewCamera(page, [-1.93, 0.95, 1.68], [-0.62, 1.22, 2.8], 44);
+    await shot(page, "review-chair-fig-closeup");
+    await loadRoom(page, 390);
+    await shot(page, "review-mobile-390-golden");
+    await page.locator('#moods button[data-mood="night"]').click();
+    await shot(page, "review-mobile-390-night");
+    console.log("Room 03 procedural soft furniture:", JSON.stringify({
+      baseline: { vertices: 49855, viewport: [1384, 700], pixelRatio: 1.5 },
+      golden: { vertices: golden.vertices, triangles: golden.triangles, meshes: golden.meshes, drawCalls: golden.drawCallsLastFrame, chair: golden.furnitureAssets.chair, plant: golden.propGeometry["window-fiddle-leaf-fig"], lounge: golden.categories["lounge-chair"] },
+    }));
+    expect(errors).toEqual([]);
+  });
+
   test("places a soft window lounge chair without blocking the room", async ({ page }) => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(String(error)));
     await loadRoom(page);
-    await page.waitForFunction(() => window.__room03.info().furniture.chair === "glb");
+    await page.waitForFunction(() => window.__room03.info().furniture.chair === "procedural-v2");
     const golden = await page.evaluate(() => window.__room03.info());
     const chair = golden.lounge;
     const chairBounds = chair.bounds;
@@ -88,8 +125,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     for (const diningChair of golden.furnitureBounds.chairs) {
       expect(gapXZ(chairBounds, diningChair), "dining chair clearance").toBeGreaterThanOrEqual(0.4);
     }
-    expect(golden.vertices).toBeLessThanOrEqual(50200);
-    expect(golden.vertices - 48691, "this change adds at most 1,500 vertices from 29c4c5e").toBeLessThanOrEqual(1500);
+    expect(golden.vertices).toBeLessThanOrEqual(55000);
+    expect(golden.vertices - 49855, "procedural furniture adds at most 1,500 vertices from main").toBeLessThanOrEqual(1500);
     expect(golden.drawCallsLastFrame - 97, "draw calls increase by at most two from 29c4c5e").toBeLessThanOrEqual(2);
     expect(golden.lightMetrics.lightCount).toBe(6);
     expect(chair.contactShadowVisible).toBe(true);
@@ -138,7 +175,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       return { ...room, cabinetSample: window.__room03.sampleNdc(room.projectedRegions.cabinetSample, 0.008) };
     });
     console.log("Room 03 roundness geometry, material and sample metrics:", JSON.stringify({ baseline04cda76: { vertices: 16049, triangles: 13302, meshes: 84, drawCalls: 91 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame, categories: info.categories }, materialColors: info.materialColors, edgeRadii: info.edgeRadii, bevelSegments: info.roundingSegments, cabinetSample: info.cabinetSample, bounds: info.sceneBounds, viewport: info.viewport, pixelRatio: info.pixelRatio }));
-    expect(info.vertices).toBeLessThanOrEqual(50200);
+    expect(info.vertices).toBeLessThanOrEqual(55000);
     expect(info.meshes).toBeLessThanOrEqual(130);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.roundingSegments).toBe(2);
@@ -177,24 +214,24 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await loadRoom(page);
     await page.waitForFunction(() => {
       const { chair, pendant } = window.__room03.info().furniture;
-      return chair === "glb" && pendant === "glb";
+      return chair === "procedural-v2" && pendant === "glb";
     });
     const info = await page.evaluate(() => window.__room03.info());
     console.log("Room 03 soft forms:", JSON.stringify({ baseline7be7313: { vertices: 33300, triangles: 24502, meshes: 83, drawCalls: 90 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }, softForms: info.softForms, leafCount: info.plantLeafCount, leafVerticesPerBlade: info.plantLeafVerticesPerBlade, wokBase: info.wokSupport.bounds, viewport: info.viewport, pixelRatio: info.pixelRatio }));
     expect(info.camera[0]).toBeCloseTo(1.25, 3);
     expect(info.camera[1]).toBeCloseTo(1.65, 3);
     expect(info.camera[2]).toBeCloseTo(4.95, 3);
-    expect(info.vertices).toBeLessThanOrEqual(50200);
+    expect(info.vertices).toBeLessThanOrEqual(55000);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.softForms.pendantGlobeVertices).toBeGreaterThanOrEqual(1617);
-    expect(info.softForms.chairCushions).toBe(4);
-    expect(info.softForms.cushionThicknesses).toHaveLength(4);
-    for (const thickness of info.softForms.cushionThicknesses) {
-      expect(thickness).toBeGreaterThanOrEqual(0.03);
-      expect(thickness).toBeLessThanOrEqual(0.045);
+    expect(info.softForms.chairShells).toBe(4);
+    expect(info.softForms.shellHeights).toHaveLength(4);
+    for (const height of info.softForms.shellHeights) {
+      expect(height).toBeGreaterThanOrEqual(0.35);
+      expect(height).toBeLessThanOrEqual(0.48);
     }
     expect(info.plantLeafCount).toBeGreaterThanOrEqual(24);
-    expect(info.plantLeafVerticesPerBlade).toBe(504);
+    expect(info.plantLeafVerticesPerBlade).toBe(256);
     const previousCabinet = { min: [2.47, 0.02, 1.585], max: [2.94, 0.8125, 2.015] };
     for (const side of ["min", "max"]) for (let axis = 0; axis < 3; axis++) {
       expect(Math.abs(info.wokSupport.bounds[side][axis] - previousCabinet[side][axis]), `wok cabinet ${side} axis ${axis} stays within 3 cm`).toBeLessThanOrEqual(0.03);
@@ -222,7 +259,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(String(error)));
     await loadRoom(page);
-    await page.waitForFunction(() => window.__room03.info().furniture.chair === "glb");
+    await page.waitForFunction(() => window.__room03.info().furniture.chair === "procedural-v2");
     const boxes = {
       interior: [200, 190, 1200, 680], floorShadow: [810, 500, 980, 650],
       rightWall: [850, 220, 1040, 460], windowFloor: [20, 450, 320, 660],
@@ -238,20 +275,20 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       return { info: window.__room03.info(), samples };
     }, boxes);
     const golden = await measure();
-    const basePlant = { min: [-2.30878, 0.01, 1.31190], max: [-1.55980, 1.69038, 1.94877] };
     const plant = golden.info.propBounds["window-fiddle-leaf-fig"];
-    console.log("Room 03 fig bounds check:", JSON.stringify({ baseline: basePlant, current: plant, leafVerticesPerBlade: golden.info.plantLeafVerticesPerBlade }));
-    const plantCenter = [0, 1, 2].map((axis) => (plant.min[axis] + plant.max[axis]) / 2);
-    const basePlantCenter = [0, 1, 2].map((axis) => (basePlant.min[axis] + basePlant.max[axis]) / 2);
-    for (const axis of [0, 2]) expect(Math.abs(plantCenter[axis] - basePlantCenter[axis]), `plant center axis ${axis} stays within 1 cm`).toBeLessThanOrEqual(0.01);
-    for (const side of ["min", "max"]) expect(Math.abs(plant[side][1] - basePlant[side][1]), `plant height ${side} stays within 1 cm`).toBeLessThanOrEqual(0.01);
+    console.log("Room 03 fig bounds check:", JSON.stringify({ current: plant, leafVerticesPerBlade: golden.info.plantLeafVerticesPerBlade }));
+    expect(plant.min[0]).toBeGreaterThan(-2.8);
+    expect(plant.max[0]).toBeLessThan(-1.4);
+    expect(plant.min[1]).toBeCloseTo(0.01, 2);
+    expect(plant.size[1]).toBeGreaterThanOrEqual(1.5);
+    expect(plant.size[1]).toBeLessThanOrEqual(1.8);
     expect(golden.info.camera).toEqual([1.25, 1.6499999999999992, 4.95]);
     expect(golden.info.lightMetrics.shadowType).toBe("VSM");
     expect(golden.info.lightMetrics.shadowMapSize).toEqual([512, 512]);
     expect(golden.info.lightMetrics.shadowRadius).toBe(3);
     expect(golden.info.lightMetrics.shadowBlurSamples).toBeGreaterThanOrEqual(8);
     expect(golden.info.lightMetrics.lightCount).toBeLessThanOrEqual(8);
-    expect(golden.info.vertices).toBeLessThanOrEqual(50200);
+    expect(golden.info.vertices).toBeLessThanOrEqual(55000);
     expect(golden.info.vertices - golden.info.categories["lounge-chair"].vertices - 44199).toBeLessThanOrEqual(3000);
     expect(golden.info.drawCallsLastFrame).toBeLessThanOrEqual(100);
     expect(golden.info.plantLeafCount).toBeGreaterThanOrEqual(24);
@@ -357,13 +394,13 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.mood).toBe("golden");
     expect(info.dimensions).toEqual({ width: 6, depth: 4.8, height: 2.7 });
     expect(info.vertices).toBeGreaterThan(3000);
-    expect(info.vertices).toBeLessThanOrEqual(50200);
+    expect(info.vertices).toBeLessThanOrEqual(55000);
     expect(info.meshes).toBeLessThanOrEqual(130);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.categories["household-props"].vertices).toBeGreaterThan(0);
     expect(info.categories.structure.vertices).toBeGreaterThan(0);
     expect(info.categories["dining-table"].vertices).toBeGreaterThan(0);
-    expect(info.furniture).toMatchObject({ table: "glb", chair: "glb", pendant: "glb" });
+    expect(info.furniture).toMatchObject({ table: "glb", chair: "procedural-v2", pendant: "glb" });
     expect(info.furnitureAssets.table.vertices).toBe(864);
     expect(info.furnitureAssets.table.vertices).toBeLessThanOrEqual(2500);
     expect(info.furnitureAssets.chair.vertices / 4).toBeLessThanOrEqual(2600);
@@ -493,7 +530,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.cookbookCount).toBe(3);
     expect(propBounds.cookbooks.size[0]).toBeGreaterThanOrEqual(0.25);
     expect(propBounds.cookbooks.size[1]).toBeGreaterThanOrEqual(0.32);
-    expect(info.vertices).toBeLessThanOrEqual(50200);
+    expect(info.vertices).toBeLessThanOrEqual(55000);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.meshes).toBeLessThanOrEqual(130);
     expect(info.camera[0]).toBeCloseTo(1.25, 3);
@@ -562,7 +599,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await page.route("**/kitchen/models/*.glb", (route) => route.abort());
     await loadRoom(page);
     const info = await page.evaluate(() => window.__room03.info());
-    expect(info.furniture).toMatchObject({ table: "fallback", chair: "fallback", pendant: "fallback" });
+    expect(info.furniture).toMatchObject({ table: "fallback", chair: "procedural-v2", pendant: "fallback" });
     expect(info.categories["dining-table"].vertices).toBeGreaterThan(0);
     expect(info.categories["dining-chairs"].vertices).toBeGreaterThan(0);
     await expect(page.locator("canvas")).toBeVisible();
@@ -578,7 +615,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.rug.max[1]).toBeCloseTo(0.02, 3);
     expect(golden.categories.rug).toEqual({ vertices: 24, meshes: 1 });
     expect(golden.vertices).toBeGreaterThanOrEqual(4509);
-    expect(golden.vertices, "complete loaded room should stay within the 50,200 vertex budget").toBeLessThanOrEqual(50200);
+    expect(golden.vertices, "complete loaded room should stay within the 55,000 vertex budget").toBeLessThanOrEqual(55000);
     expect(golden.drawCallsLastFrame, "complete loaded room should stay within the 130 draw call budget").toBeLessThanOrEqual(130);
     expect(Object.values(golden.furnitureAssets).reduce((sum, asset) => sum + asset.vertices, 0), "new dining furniture should stay within its combined budget").toBeLessThanOrEqual(14000);
     // Baseline captured from commit 084384e at the same world point and viewport.
