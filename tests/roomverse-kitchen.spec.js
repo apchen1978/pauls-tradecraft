@@ -57,6 +57,16 @@ function boxesDistance(a, b) {
 }
 
 test.describe("Room 03 Bay Area Kitchen", () => {
+  test("removes the oversized side-kitchen wall slab without closing the wok entrance", async ({ page }) => {
+    await loadRoom(page, 1440);
+    const info = await page.evaluate(() => window.__room03.info());
+    expect(
+      info.sceneBounds.sideKitchen.max[0],
+      "side-kitchen geometry should end at the wok enclosure, not extend as a black wall slab",
+    ).toBeLessThan(3.1);
+    expect(info.wokOpeningWidth).toBe(0.55);
+  });
+
   test("reviews procedural soft furniture at fixed desktop and mobile conditions", async ({ page }) => {
     const errors = [], modelRequests = [];
     page.on("pageerror", (error) => errors.push(String(error)));
