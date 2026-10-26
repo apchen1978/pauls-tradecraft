@@ -463,5 +463,36 @@
         "sha256": "05b420917711302b85dfb31cc45bd05252b98a242c4583383adfaeaf7c1a5c4c"
       }
     ]
+  },
+  {
+    "id": "roomverse-room03-bay-area-kitchen-concept",
+    "source": "docs/gallery/sources/roomverse-room03-bay-area-kitchen-concept-source.png",
+    "sourceSha256": "f6d298a929c3b506a8062f526daae12bf8426d838a174359e2ac93f726c24eec",
+    "derivatives": [
+      {
+        "file": "roomverse-room03-bay-area-kitchen-concept.webp",
+        "width": 1122,
+        "height": 1402,
+        "bytes": 272692,
+        "quality": 82,
+        "sha256": "90334a28c0cdff244587338aa87ccafbf3e914fa611d60e23fb45c6b1835d3c5"
+      },
+      {
+        "file": "roomverse-room03-bay-area-kitchen-concept-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 147662,
+        "quality": 78,
+        "sha256": "05a9683e079648bd96cad58e5956a1a97b20ad802858c2cd2d580495eac7821a"
+      },
+      {
+        "file": "roomverse-room03-bay-area-kitchen-concept-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 56864,
+        "quality": 76,
+        "sha256": "6556cc6d4c8d4bdcf19f7b20cef279324f09a78078d03b3ba5ae96a8840ce0a8"
+      }
+    ]
   }
 ]

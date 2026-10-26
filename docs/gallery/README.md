@@ -64,6 +64,9 @@ Paul 選定兩幅加入畫廊：Room 01 使用精修機器人的畫家筆觸版�
 | --- | --- |
 | roomverse-room01-concept | `docs/gallery/sources/roomverse-room01-concept-source.png`；參照 Room 01 已完成封面，以 ImageGen 增加畫家筆觸，再局部精修機器人。Paul 指定使用精修機器人的版本。 |
 | roomverse-room02-brooklyn-concept | `docs/gallery/sources/roomverse-room02-brooklyn-concept-source.png`；參照 Room 02 Brooklyn Studio 封面，以 ImageGen 加強布魯克林街屋、水塔、大橋與畫家筆觸。Paul 指定使用此版本。 |
+| roomverse-room03-bay-area-kitchen-concept | `docs/gallery/sources/roomverse-room03-bay-area-kitchen-concept-source.png`；Paul 指定並選定 Room 03 封面 A-v3。Codex 以內建 ImageGen 繪製並逐版修整，沒有使用 Hunyuan 或其他第三方 3D 模型輸出。 |
+
+Room 03 A-v3 的來源與製作記錄見 [`room03-bay-area-kitchen-provenance.md`](room03-bay-area-kitchen-provenance.md)。三幅 ROOMVERSE 概念畫作以 1122／800／480px WebP 提供桌機、手機和縮圖版本；尺寸、bytes 與 SHA256 見 `docs/qa/human-ai-gallery/asset-manifest.json`。這些均為概念插畫，不是實景照片。
 
 ## 2026-10-24：ROOMVERSE 房間裡的收藏畫
 

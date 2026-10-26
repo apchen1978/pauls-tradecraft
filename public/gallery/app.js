@@ -1,4 +1,4 @@
-import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=4";
+import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=5";
 
 validatePieces(PIECES);
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
