@@ -188,9 +188,9 @@ function makeSkyTexture(night) {
   return makeTexture((ctx, w, h) => {
     const gradient = ctx.createLinearGradient(0, 0, 0, h);
     if (night) {
-      gradient.addColorStop(0, "#454d57");
-      gradient.addColorStop(0.52, "#58616a");
-      gradient.addColorStop(1, "#746c61");
+      gradient.addColorStop(0, "#344252");
+      gradient.addColorStop(0.52, "#42566a");
+      gradient.addColorStop(1, "#5b5f5c");
     } else {
       gradient.addColorStop(0, "#d4c2a7");
       gradient.addColorStop(0.62, "#e5d2b1");
@@ -1183,7 +1183,7 @@ export async function start({ stage, onReady = () => {} }) {
 
   const moods = {
     golden: { sun: 2.8, hemi: 0.9, ambient: 0.30, pendant: 0.32, under: 0.42, side: 0.48, exposure: 1.10, yard: 0xffd7a1, globe: 0.34 },
-    night: { sun: 0, hemi: 0.46, ambient: 0.29, pendant: 6.1, under: 2.7, side: 2.3, exposure: 1.08, yard: 0x7187a5, globe: 1.55 },
+    night: { sun: 0, hemi: 0.46, ambient: 0.29, pendant: 6.1, under: 2.7, side: 2.3, exposure: 1.08, yard: 0x5d7593, globe: 1.55 },
   };
   let currentMood = "golden";
   function setMood(name) {
