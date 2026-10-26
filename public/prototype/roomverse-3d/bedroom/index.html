@@ -8,6 +8,7 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#ecebe5">
 <script>if (new URLSearchParams(location.search).get("from") === "room01") document.documentElement.classList.add("arriving");</script>
+<link rel="stylesheet" href="../travel-door.css?v=2">
 <style>
   html.arriving::before { content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; background: radial-gradient(ellipse at 50% 55%, #6b5bd8 0%, #2a2150 55%, #0e0c20 100%); opacity: 1; transition: opacity 1s ease; }
   html.arriving.ready::before { opacity: 0; }
@@ -38,7 +39,7 @@
   .poster small { display: block; width: fit-content; max-width: 88%; margin: 10px auto 0; padding: 5px 12px; border-radius: 999px; background: #fffc; text-align: center; color: #24302c; font-size: 13px; line-height: 1.4; }
   .robot-hit { position: absolute; z-index: 4; width: 64px; height: 64px; padding: 0; border: 0; border-radius: 50%; background: transparent; transform: translate(-50%, -50%); cursor: pointer; touch-action: manipulation; }
   .robot-hit:focus-visible { outline: 3px solid #5a4cc8; outline-offset: 2px; }
-  .robot-bubble { position: absolute; z-index: 5; transform: translate(-50%, -110%); max-width: min(260px, 78%); padding: 9px 13px; border-radius: 14px; background: #fffc; color: #24302c; box-shadow: 0 5px 18px #0003; font-size: 14px; font-weight: 700; line-height: 1.4; text-align: center; pointer-events: none; cursor: default; }
+  .robot-bubble { position: absolute; z-index: 5; transform: translateX(-50%); max-width: min(260px, 78%); padding: 9px 13px; border-radius: 14px; background: #fffc; color: #24302c; box-shadow: 0 5px 18px #0003; font-size: 14px; font-weight: 700; line-height: 1.4; text-align: center; pointer-events: none; cursor: default; }
   .immersive-enter, .immersive-exit, .immersive-door, .immersive-controls { display: none; }
   .portal { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 14px clamp(16px, 3vw, 40px) 0; }
   .portal button { font: inherit; font-weight: 700; font-size: 15px; min-height: 48px; padding: 12px 20px; border: 1px solid #5a4cc8; border-radius: 999px; background: linear-gradient(90deg, #f6f3ff 0%, #ece6ff 100%); color: #3a2f9e; cursor: pointer; }
@@ -100,6 +101,10 @@
     .room.is-immersive .moods p { display: none; }
   }
   html.room-immersive, html.room-immersive body { overflow: hidden; overscroll-behavior: none; }
+  .portal .travel-door-trigger { border-color: #aab5aa; background: #fbfaf6; color: #315c5d; }
+  .robot-bubble { pointer-events: auto; }
+  .robot-bubble [data-travel-door-action] { display: block; min-height: 44px; margin: 7px auto 0; padding: 8px 12px; border: 1px solid #aab5aa; border-radius: 999px; background: #fbfaf6; color: #315c5d; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .robot-bubble [data-travel-door-action]:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -116,17 +121,17 @@
   <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
   <p class="status" id="status" hidden></p>
   <button class="robot-hit" id="robotHitTarget" type="button" hidden></button>
-  <div class="robot-bubble" id="robotBubble" role="status" aria-live="polite" hidden></div>
+  <div class="robot-bubble" id="robotBubble" hidden><span data-bubble-copy aria-live="polite"></span><button class="travel-door-trigger" data-travel-door-trigger data-travel-door-action type="button" hidden></button></div>
   <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
   <button class="immersive-exit" id="immersiveExit" type="button"></button>
   <button class="immersive-door" id="immersiveDoor" type="button"></button>
   <div class="immersive-controls" id="immersiveControls"></div>
 </section>
-<p class="portal" id="portalRow" hidden><button id="portalBtn" type="button"></button><span id="portalHint"></span></p>
+<p class="portal" id="portalRow" hidden><button id="portalBtn" type="button"></button><button id="travelDoorBtn" data-travel-door-trigger type="button"></button><span id="portalHint"></span></p>
 <section class="views" id="views" hidden aria-label="views"><div class="row" id="viewRow" role="group"></div></section>
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=78"></script>
+<script type="module" src="page.js?v=79"></script>
 </body>
 </html>

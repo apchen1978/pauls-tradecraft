@@ -1,4 +1,6 @@
 // ROOMVERSE 3D page: text, language, and loading the 3D room only when the visitor asks for it.
+import { initTravelDoor } from "./travel-door.js?v=1";
+const TRAVEL_COPY = { zh: { button: "去別的房間 · Travel", bubble: "看看其他房間" }, en: { button: "Travel to another room", bubble: "Explore other rooms" } };
 const COPY = {
   zh: {
     title: "換一道光，房間就換了心情",
@@ -31,6 +33,7 @@ const storyOrigin = entryParams.get("from") === "fu" ? PEOPLE_STORIES[entryParam
 let storyHintDismissed = false;
 let room = null;
 let immersive = false, immersiveHistoryExit = false;
+let travelDoor = null;
 function renderOriginHint() {
   const hint = $("originHint");
   if (!storyOrigin || storyHintDismissed) { hint.hidden = true; return; }
@@ -49,9 +52,12 @@ function text() {
   $("title").textContent = c.title; $("lead").textContent = c.lead; $("enter").textContent = c.enter; $("size").textContent = c.size;
   $("note").textContent = c.note; $("home").textContent = c.home; $("home").href = `/?lang=${lang}`; $("lang").textContent = c.lang;
   $("portalBtn").textContent = c.portal; $("portalHint").textContent = c.portalHint;
+  $("travelDoorBtn").textContent = TRAVEL_COPY[lang].button;
+  document.querySelectorAll("[data-travel-door-action]").forEach((button) => { button.textContent = TRAVEL_COPY[lang].bubble; });
   $("immersiveEnter").textContent = c.fullScreen; $("immersiveExit").textContent = c.exitFullScreen; $("immersiveDoor").textContent = c.portal;
   renderOriginHint();
   room?.setLang(lang);
+  travelDoor?.refresh();
   setPanelOpen(document.querySelector(".room").classList.contains("panel-open"));
 }
 // On wide screens the options start tucked away so the whole room can be seen; the button brings them back.
@@ -62,6 +68,13 @@ function setPanelOpen(open) {
 $("panelToggle").onclick = () => setPanelOpen(!document.querySelector(".room").classList.contains("panel-open"));
 $("portalBtn").onclick = () => { void room?.openPortal(); };
 $("immersiveDoor").onclick = () => { void room?.openPortal(); };
+travelDoor = initTravelDoor({
+  currentRoom: "room01",
+  getLang: () => lang,
+  onChoose: (destination, href) => { void room?.openPortal({ transitionColor: destination.transitionColor, destinationUrl: href }); },
+  beforeOpen: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.pauseGuideBubble(); },
+  afterClose: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.resumeGuideBubble(); },
+});
 function setImmersive(on, pushHistory = true) {
   if (!room || immersive === on) return;
   immersive = on;
@@ -105,7 +118,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./app.js?v=45");
+    const { start } = await import("./app.js?v=46");
     room = await start({ stage: $("stage"), panel: $("panel"), lang, arriveFromRoom02: arrivedFromRoom02 });
     $("status").hidden = true; $("panel").hidden = false; $("panelToggle").hidden = false; $("portalRow").hidden = false;
     $("roomToolbar").hidden = !matchMedia("(max-width: 768px)").matches;
