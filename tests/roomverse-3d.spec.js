@@ -396,6 +396,8 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#panel")).toBeVisible();
       await expect(page.locator("#stage canvas")).toBeVisible();
       expect(glb.filter((u) => u.endsWith(".glb"))).toHaveLength(10); // the coffee mug (#517) is the tenth
+      expect(glb.some((url) => url.endsWith("/low-chair.glb"))).toBe(true);
+      expect(glb.some((url) => url.endsWith("/low-chair-hy21.glb"))).toBe(false);
 
       const groups = page.locator("#panel .opts");
       await expect(groups).toHaveCount(5);
