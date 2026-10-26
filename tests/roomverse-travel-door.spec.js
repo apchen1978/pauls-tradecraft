@@ -32,6 +32,40 @@ async function assertNoOverflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 }
 
+function contrastRatio(foreground, background) {
+  const luminance = (hex) => {
+    const channels = hex.match(/[0-9a-f]{2}/gi).map((channel) => parseInt(channel, 16) / 255)
+      .map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+  };
+  const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
+  return (values[0] + 0.05) / (values[1] + 0.05);
+}
+
+async function waitForTravelDoorEnd(dialog) {
+  await expect(dialog).toHaveCSS("opacity", "1");
+}
+
+async function measureCardContrast(dialog) {
+  return dialog.evaluate((element) => {
+    const read = (node, backgroundNode = node) => {
+      const style = getComputedStyle(node);
+      return { color: style.color, background: getComputedStyle(backgroundNode).backgroundColor };
+    };
+    const card = element.querySelector(".travel-door-card");
+    return {
+      body: read(element.querySelector(".travel-door-meta"), card),
+      secondary: read(element.querySelector(".travel-door-meta p"), card),
+      action: read(element.querySelector(".travel-door-go")),
+      opacity: Number(getComputedStyle(element).opacity),
+    };
+  });
+}
+
+function rgbToHex(rgb) {
+  return `#${rgb.match(/\d+/g).slice(0, 3).map((channel) => Number(channel).toString(16).padStart(2, "0")).join("")}`;
+}
+
 test("the shared directory has three rooms and the travel card never lists or links Room 03", async ({ page }) => {
   await page.goto(ROOM01);
   const rooms = await page.evaluate(async () => (await import("/prototype/roomverse-3d/rooms.js?v=1")).ROOMS);
@@ -55,6 +89,15 @@ test("Room 01 travel card is bilingual, keyboard dismissible, focus returning, a
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: "要去哪？" });
   await expect(dialog).toBeVisible();
+  await waitForTravelDoorEnd(dialog);
+  const tones = await measureCardContrast(dialog);
+  expect(tones.opacity).toBe(1);
+  expect(contrastRatio(rgbToHex(tones.body.color), rgbToHex(tones.body.background))).toBeGreaterThanOrEqual(4.5);
+  expect(contrastRatio(rgbToHex(tones.secondary.color), rgbToHex(tones.secondary.background))).toBeGreaterThanOrEqual(4.5);
+  expect(contrastRatio(rgbToHex(tones.action.color), rgbToHex(tones.action.background))).toBeGreaterThanOrEqual(4.5);
+  const cover = await dialog.locator("img").evaluate((image) => ({ fit: getComputedStyle(image).objectFit, ratio: image.getBoundingClientRect().width / image.getBoundingClientRect().height }));
+  expect(cover.fit).toBe("cover");
+  expect(cover.ratio).toBeLessThan(1);
   await page.keyboard.press("Tab");
   await expect(dialog.locator(".travel-door-go")).toBeFocused();
   await page.keyboard.press("Tab");
@@ -76,6 +119,7 @@ test("Room 01 travel card is bilingual, keyboard dismissible, focus returning, a
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
     await page.evaluate(() => window.__room.resize());
     await trigger.click();
+    await waitForTravelDoorEnd(page.getByRole("dialog"));
     await assertNoOverflow(page);
     await page.keyboard.press("Escape");
   }
@@ -162,6 +206,8 @@ test("travel-door screenshots and fixed-condition geometry counts (ROOMVERSE_QA_
         const trigger = page.locator("#travelDoorBtn");
         await trigger.scrollIntoViewIfNeeded();
         await trigger.click();
+        const dialog = page.getByRole("dialog");
+        await waitForTravelDoorEnd(dialog);
         await page.screenshot({ path: `${QA}/${roomId}-${lang}-${width}-card.png` });
         await page.keyboard.press("Escape");
         const oldHidden = await trigger.evaluate((el) => { const wasHidden = el.hidden; el.hidden = true; return wasHidden; });
