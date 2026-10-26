@@ -623,6 +623,18 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.diningChairQA.samplesPerFoot).toBeGreaterThan(0);
     expect(info.diningChairQA.maxPlanarOffset, "each contact patch should center on its foot").toBeLessThanOrEqual(0.002);
     expect(info.diningChairQA.maxVerticalOffset, "contact patches should sit 1 mm below the foot bottoms").toBeCloseTo(0.001, 3);
+    const gaps = info.diningChairQA.seatGapMeasurements;
+    expect(gaps.frontFeet, "measure both front legs on each of the four chairs").toHaveLength(8);
+    expect(gaps.rails, "measure all four crossbar midpoints on each chair").toHaveLength(16);
+    for (const foot of gaps.frontFeet) {
+      expect(foot.afterGapMm, `${foot.chair} front foot gap should be closed`).toBeLessThanOrEqual(3);
+      expect(foot.maxSampledGapAfterMm, `${foot.chair} front foot perimeter should remain hidden by the cushion`).toBeLessThanOrEqual(3);
+    }
+    for (const rail of gaps.rails) {
+      expect(rail.afterGapMm, `${rail.chair} ${rail.name} midpoint gap should be closed`).toBeLessThanOrEqual(3);
+      expect(rail.afterHeight, `${rail.chair} ${rail.name} crossbar should stay a slim rail`).toBeGreaterThanOrEqual(0.025);
+      expect(rail.afterHeight, `${rail.chair} ${rail.name} crossbar should not become a slab`).toBeLessThanOrEqual(0.04);
+    }
   });
 
   test("covers the dining furniture with a raised rug and keeps it readable at night", async ({ page }) => {

@@ -579,6 +579,66 @@ const DINING_CHAIR_PLACEMENTS = Object.freeze([
 const DINING_CHAIR_FOOT_CENTERS = Object.freeze([
   [-0.192, -0.182], [-0.192, 0.182], [0.192, -0.182], [0.192, 0.182],
 ]);
+// Derived from vertical rays against the current seat shell; the QA hook remeasures them.
+const DINING_CHAIR_FRONT_LEG_TOP_Y = Object.freeze({ left: 0.43344, right: 0.431981 });
+const DINING_CHAIR_RAIL_TOP_Y = Object.freeze({
+  "side-left": 0.407428, "side-right": 0.407428, "end-front": 0.4005, "end-rear": 0.4398,
+});
+const DINING_CHAIR_RAIL_HEIGHT = 0.03;
+
+function measureDiningSeatGaps(shell) {
+  const shellMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+  const shellMesh = new THREE.Mesh(shell, shellMaterial);
+  const shellRaycaster = new THREE.Raycaster();
+  const shellBottomAt = (x, z) => {
+    shellRaycaster.set(new THREE.Vector3(x, 2, z), new THREE.Vector3(0, -1, 0));
+    const intersections = shellRaycaster.intersectObject(shellMesh, false);
+    if (!intersections.length) throw new Error(`No dining seat shell surface at ${x}, ${z}`);
+    return Math.min(...intersections.map(({ point }) => point.y));
+  };
+  const railCenters = [
+    { name: "side-left", point: [-0.15, 0] }, { name: "side-right", point: [0.15, 0] },
+    { name: "end-front", point: [0, 0.145] }, { name: "end-rear", point: [0, -0.145] },
+  ];
+  const frontFeet = DINING_CHAIR_FOOT_CENTERS.filter(([, footZ]) => footZ > 0).map(([footX, footZ]) => {
+    const topX = footX - Math.sign(footX) * 0.022;
+    const topZ = footZ - 0.022;
+    const shellBottomY = shellBottomAt(topX, topZ);
+    let maxShellBottomY = shellBottomY;
+    for (let around = 0; around < 12; around++) {
+      const angle = around / 12 * Math.PI * 2;
+      maxShellBottomY = Math.max(maxShellBottomY, shellBottomAt(topX + Math.cos(angle) * 0.023, topZ + Math.sin(angle) * 0.023));
+    }
+    const afterTopY = DINING_CHAIR_FRONT_LEG_TOP_Y[footX < 0 ? "left" : "right"];
+    return {
+      localFoot: [footX, footZ], localTopSample: [topX, topZ], shellBottomY,
+      beforeTopY: 0.385, afterTopY,
+      beforeGapMm: (shellBottomY - 0.385) * 1000,
+      afterGapMm: (shellBottomY - afterTopY) * 1000,
+      maxSampledShellBottomY: maxShellBottomY,
+      maxSampledGapAfterMm: (maxShellBottomY - afterTopY) * 1000,
+    };
+  });
+  const rails = railCenters.map(({ name, point: [x, z] }) => {
+    const shellBottomY = shellBottomAt(x, z);
+    const afterTopY = DINING_CHAIR_RAIL_TOP_Y[name];
+    return {
+      name, midpoint: [x, z], shellBottomY, beforeTopY: 0.375, afterTopY,
+      afterBottomY: afterTopY - DINING_CHAIR_RAIL_HEIGHT, afterHeight: DINING_CHAIR_RAIL_HEIGHT,
+      beforeGapMm: (shellBottomY - 0.375) * 1000,
+      afterGapMm: (shellBottomY - afterTopY) * 1000,
+    };
+  });
+  shellMaterial.dispose();
+  return {
+    frontFeet: DINING_CHAIR_PLACEMENTS.flatMap((placement) => frontFeet.map((measurement) => ({
+      chair: `room03-dining-chair-${placement.x}-${placement.z}`, ...measurement,
+    }))),
+    rails: DINING_CHAIR_PLACEMENTS.flatMap((placement) => rails.map((measurement) => ({
+      chair: `room03-dining-chair-${placement.x}-${placement.z}`, ...measurement,
+    }))),
+  };
+}
 
 function buildProceduralDiningChairs(scene, m) {
   const shell = makeDiningShellGeometry();
@@ -599,6 +659,20 @@ function buildProceduralDiningChairs(scene, m) {
     position.needsUpdate = true;
     leg.computeVertexNormals();
     legParts.push(leg);
+    if (footZ > 0) {
+      const targetY = DINING_CHAIR_FRONT_LEG_TOP_Y[footX < 0 ? "left" : "right"];
+      const originalTop = new THREE.Vector3(topX, 0.02 + height, topZ);
+      const horizontalPerY = new THREE.Vector3(topX - footX, 0, topZ - footZ).divideScalar(height);
+      const start = originalTop.clone().addScaledVector(horizontalPerY, -0.001);
+      start.y -= 0.001;
+      const deltaY = targetY - start.y;
+      const end = new THREE.Vector3(start.x + horizontalPerY.x * deltaY, targetY, start.z + horizontalPerY.z * deltaY);
+      const direction = end.clone().sub(start);
+      const extension = new THREE.CylinderGeometry(0.023, 0.023, direction.length(), 10, 1);
+      extension.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.clone().normalize()));
+      extension.translate((start.x + end.x) / 2, (start.y + end.y) / 2, (start.z + end.z) / 2);
+      legParts.push(extension);
+    }
   }
   for (const sign of [-1, 1]) {
     const backPost = new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
@@ -611,11 +685,17 @@ function buildProceduralDiningChairs(scene, m) {
     legParts.push(backPost);
   }
   for (const sign of [-1, 1]) {
-    const sideRail = new THREE.BoxGeometry(0.026, 0.03, 0.29);
-    sideRail.translate(sign * 0.15, 0.36, 0);
+    const sideRailName = sign < 0 ? "side-left" : "side-right";
+    const sideRailTop = DINING_CHAIR_RAIL_TOP_Y[sideRailName];
+    const sideRailHeight = DINING_CHAIR_RAIL_HEIGHT;
+    const sideRail = new THREE.BoxGeometry(0.026, sideRailHeight, 0.29);
+    sideRail.translate(sign * 0.15, sideRailTop - sideRailHeight / 2, 0);
     legParts.push(sideRail);
-    const endRail = new THREE.BoxGeometry(0.29, 0.03, 0.026);
-    endRail.translate(0, 0.36, sign * 0.145);
+    const endRailName = sign < 0 ? "end-rear" : "end-front";
+    const endRailTop = DINING_CHAIR_RAIL_TOP_Y[endRailName];
+    const endRailHeight = DINING_CHAIR_RAIL_HEIGHT;
+    const endRail = new THREE.BoxGeometry(0.29, endRailHeight, 0.026);
+    endRail.translate(0, endRailTop - endRailHeight / 2, sign * 0.145);
     legParts.push(endRail);
   }
   const legs = mergeGeometries(legParts, false);
@@ -641,6 +721,8 @@ function buildProceduralDiningChairs(scene, m) {
     }
     scene.add(chair);
   }
+  let cachedSeatGapMeasurements = null;
+  return () => (cachedSeatGapMeasurements ??= measureDiningSeatGaps(shell));
 }
 
 // Local, four-material procedural furniture: no external model or cloth simulation.
@@ -1149,7 +1231,7 @@ export async function start({ stage, onReady = () => {} }) {
   buildKitchen(buckets, materials);
   buildSideKitchen(buckets, materials, scene);
   buildTable(buckets, materials);
-  buildProceduralDiningChairs(scene, materials);
+  const diningChairSeatGap = buildProceduralDiningChairs(scene, materials);
   buildHouseholdProps(scene, materials);
   const loungeChair = buildLoungeChair(scene, materials);
   const wallArt = buildRoomWallArt(scene, materials, () => { wallArtLoaded = true; render(); });
@@ -1439,6 +1521,7 @@ export async function start({ stage, onReady = () => {} }) {
       maxPlanarOffset: Math.max(...diningFootAlignment.map((item) => item.planarOffset)),
       maxVerticalOffset: Math.max(...diningFootAlignment.map((item) => item.verticalOffset)),
       samplesPerFoot: Math.min(...diningFootAlignment.map((item) => item.samples)),
+      seatGapMeasurements: diningChairSeatGap(),
       upholsteryMapIsolated: diningUpholsteryMap !== loungeUpholsteryMap,
       chairTextureRepeat: diningUpholsteryMap?.repeat.toArray() || null,
       loungeTextureRepeat: loungeUpholsteryMap?.repeat.toArray() || null,
