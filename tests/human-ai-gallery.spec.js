@@ -17,8 +17,13 @@ async function loaded(page) {
 
 test("collection: bilingual records, local images, provenance and required-field rejection", () => {
   expect(() => validatePieces(PIECES)).not.toThrow();
-  expect(PIECES).toHaveLength(15);
-  expect(PIECES.slice(7, 9).map((piece) => piece.id)).toEqual(["room02-la-coast-collection", "room01-corner-watercolour"]);
+  expect(PIECES).toHaveLength(16);
+  expect(PIECES.slice(5, 8).map((piece) => piece.id)).toEqual([
+    "roomverse-room01-concept",
+    "roomverse-room02-brooklyn-concept",
+    "roomverse-room03-bay-area-kitchen-concept",
+  ]);
+  expect(PIECES.filter((piece) => ["room02-la-coast-collection", "room01-corner-watercolour"].includes(piece.id)).map((piece) => piece.id)).toEqual(["room02-la-coast-collection", "room01-corner-watercolour"]);
   for (const id of ["winter-lamplight", "stage-after-show"]) expect(PIECES.some((piece) => piece.id === id)).toBe(true);
   expect(Object.keys(COLLECTION.zh).sort()).toEqual(Object.keys(COLLECTION.en).sort());
   const manifest = JSON.parse(readFileSync(`${QA}/asset-manifest.json`, "utf8"));
@@ -55,6 +60,19 @@ test("collection: bilingual records, local images, provenance and required-field
     expect(createHash("sha256").update(readFileSync(path)).digest("hex")).toBe(derivative.sha256);
   }
   expect(cornerRecord.derivatives.map(({ width, height }) => width / height)).toEqual([4 / 3, 4 / 3, 4 / 3]);
+  const room03 = PIECES.find((piece) => piece.id === "roomverse-room03-bay-area-kitchen-concept");
+  const room03Record = manifest.find((record) => record.id === room03.id);
+  expect(room03Record.source).toBe("docs/gallery/sources/roomverse-room03-bay-area-kitchen-concept-source.png");
+  expect(createHash("sha256").update(readFileSync(resolve(room03Record.source))).digest("hex")).toBe(room03Record.sourceSha256);
+  expect(room03Record.derivatives.map(({ width, height }) => [width, height])).toEqual([[1122, 1402], [800, 1000], [480, 600]]);
+  expect(room03Record.derivatives.map(({ bytes }) => bytes)).toEqual(room03Record.derivatives.map(({ file }) => statSync(resolve("public/gallery/assets", file)).size));
+  expect(room03Record.derivatives[0].bytes).toBeLessThan(350000);
+  expect(room03Record.derivatives[1].bytes).toBeLessThan(200000);
+  expect(room03Record.derivatives[2].bytes).toBeLessThan(65000);
+  for (const derivative of room03Record.derivatives) {
+    const path = resolve("public/gallery/assets", derivative.file);
+    expect(createHash("sha256").update(readFileSync(path)).digest("hex")).toBe(derivative.sha256);
+  }
   expect(JSON.stringify({ title: corner.title, caption: corner.caption, alt: corner.alt })).not.toMatch(/Brooklyn|Bed-Stuy|布魯克林|貝德福德/i);
   const visible = JSON.stringify({ copy: COLLECTION, pieces: PIECES.map(({ title, caption, alt, made }) => ({ title, caption, alt, made })) });
   expect(visible).not.toMatch(/十二月的依依|玉仔|ROI|A2A|CDD|老闆|董事長|保證|guaranteed/i);
@@ -85,12 +103,17 @@ for (const width of [390, 768, 1440]) {
       await expect(page.locator("#doors article")).toHaveCount(2);
       await expect(page.locator("#doors article").first()).toHaveAttribute("data-piece", "ai-lab-digital-room");
       await expect(page.locator("#doors article").last()).toHaveAttribute("data-piece", "ai-lab-open-horizon");
-      await expect(page.locator("#roomverse article")).toHaveCount(2);
+      await expect(page.locator("#roomverse article")).toHaveCount(3);
+      await expect(page.locator("#roomverse-title")).toHaveText(COLLECTION[lang].roomverseTitle);
+      await expect(page.locator("#roomverse-note")).toHaveText(COLLECTION[lang].roomverseNote);
       await expect(page.locator("#room-collection-title")).toHaveText(COLLECTION[lang].roomCollectionTitle);
       await expect(page.locator("#room-collection article")).toHaveCount(2);
       await expect(page.locator("#room-collection article").first()).toHaveAttribute("data-piece", "room02-la-coast-collection");
       await expect(page.locator("#room-collection article").last()).toHaveAttribute("data-piece", "room01-corner-watercolour");
-      await expect(page.locator("#room-collection article h4")).toHaveText(PIECES.slice(7, 9).map((piece) => piece.title[lang]));
+      await expect(page.locator("#room-collection article h4")).toHaveText(PIECES.filter((piece) => ["room02-la-coast-collection", "room01-corner-watercolour"].includes(piece.id)).map((piece) => piece.title[lang]));
+      const roomverseBoxes = await page.locator("#roomverse article").evaluateAll((articles) => articles.map((article) => article.getBoundingClientRect().toJSON()));
+      if (width >= 1000) expect(roomverseBoxes.map(({ top }) => top)).toEqual([roomverseBoxes[0].top, roomverseBoxes[0].top, roomverseBoxes[0].top]);
+      if (width === 390) expect(roomverseBoxes[2].top).toBeGreaterThan(roomverseBoxes[1].bottom);
       const collectionBoxes = await page.locator("#room-collection article").evaluateAll((articles) => articles.map((article) => article.getBoundingClientRect().toJSON()));
       if (width === 390) expect(collectionBoxes[1].top).toBeGreaterThan(collectionBoxes[0].bottom);
       else expect(Math.abs(collectionBoxes[1].top - collectionBoxes[0].top)).toBeLessThan(2);
@@ -106,6 +129,8 @@ for (const width of [390, 768, 1440]) {
       }
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: `${QA}/gallery-${lang}-${width}.jpg`, fullPage: true, quality: 88 });
+      await page.locator("#roomverse").scrollIntoViewIfNeeded();
+      await page.locator("#roomverse").screenshot({ path: `${QA}/roomverse-three-concepts-${lang}-${width}.jpg`, quality: 90 });
       await page.locator("#room-collection").scrollIntoViewIfNeeded();
       await page.screenshot({ path: `${QA}/room-collection-${lang}-${width}.jpg`, quality: 90 });
       await page.locator("#room-collection").screenshot({ path: `${QA}/room-collection-pair-${lang}-${width}.jpg`, quality: 90 });
@@ -165,6 +190,12 @@ for (const width of [390, 768, 1440]) {
           }
           await page.locator("#previous").click();
           await expect(page.locator("#viewer-title")).toHaveText(PIECES[i].title[lang]);
+        }
+        if (PIECES[i].id === "roomverse-room03-bay-area-kitchen-concept") {
+          await expect(page.locator("#viewer-title")).toHaveText(PIECES[i].title[lang]);
+          await expect(page.locator("#viewer-image")).toHaveAttribute("alt", PIECES[i].alt[lang]);
+          expect(await page.locator("#viewer-image").evaluate((im) => im.currentSrc)).toContain(`roomverse-room03-bay-area-kitchen-concept${width === 390 ? "-mobile" : ""}.webp`);
+          await page.screenshot({ path: `${QA}/room03-concept-lightbox-${lang}-${width}.jpg`, quality: 90 });
         }
         if (i === 4) await page.screenshot({ path: `${QA}/lightbox-plain-${lang}-${width}.jpg`, quality: 90 });
         await page.locator("#close").click();
