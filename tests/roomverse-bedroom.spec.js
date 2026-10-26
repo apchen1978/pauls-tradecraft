@@ -617,6 +617,22 @@ test("Room 02 robot keeps the travel choice available at 2 seconds and cancels f
   await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
 });
 
+test("Escape cancels Room 02 robot follow-me at 2 seconds", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
+  await page.locator("#robotHitTarget").click();
+  await page.waitForFunction(() => window.__bedroom.robotState().pending, null, { timeout: 3000 });
+  await page.waitForTimeout(2000);
+  expect(await page.evaluate(() => window.__bedroom.robotState().pending)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#robotBubble")).toBeHidden();
+  expect(await page.evaluate(() => window.__bedroom.robotState().pending)).toBe(false);
+  await page.waitForTimeout(3000);
+  await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
+  await expect(page.locator(".portal-fade")).toHaveCount(0);
+});
+
 test("Room 02 robot follow-me starts after the 2.5 second delay when its travel choice is ignored", async ({ page }) => {
   await enter(page);
   await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
