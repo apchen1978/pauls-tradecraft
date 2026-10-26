@@ -36,20 +36,21 @@
       .intro { padding:4px 14px 12px; }
       .room { margin:0 8px; height:clamp(360px,100vw,450px); min-height:360px; border-radius:14px; }
       .immersive-enter:not([hidden]) { display:block; position:absolute; z-index:3; right:10px; bottom:10px; background:#29352de8; border-color:#fff9; color:#fff; }
-      .room.is-immersive { position:fixed; z-index:50; inset:0; width:100vw; height:100vh; height:100dvh; min-height:0; margin:0; border-radius:0; }
-      .room.is-immersive #stage { height:100%; }
-      .room.is-immersive .immersive-enter { display:none; }
-      .room.is-immersive .immersive-exit { display:block; position:absolute; z-index:4; top:calc(8px + env(safe-area-inset-top)); left:calc(8px + env(safe-area-inset-left)); background:#29352de8; border-color:#fff9; color:#fff; }
       .toolbar { margin:10px 8px 0; }
-      .room.is-immersive + .toolbar { display:none; }
-      .room.is-immersive ~ .mood-note { display:none; }
-      .room.is-immersive .immersive-controls { display:flex; position:absolute; z-index:4; right:0; bottom:0; left:0; padding:8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left)); background:linear-gradient(transparent,#171a14dc 28%); }
-      .room.is-immersive .moods { flex-wrap:nowrap; width:100%; overflow-x:auto; scrollbar-width:none; }
-      .room.is-immersive .moods::-webkit-scrollbar { display:none; }
-      .room.is-immersive .moods button { flex:0 0 auto; background:#faf8f2ee; white-space:nowrap; }
-      .room.is-immersive .moods button[aria-pressed="true"] { background:#596043; color:#fff; }
       .note { padding-top:10px; }
     }
+    /* Once entered, immersive mode remains usable across orientation changes. */
+    .room.is-immersive { position:fixed; z-index:50; inset:0; width:100vw; height:100vh; height:100dvh; min-height:0; margin:0; border-radius:0; }
+    .room.is-immersive #stage { height:100%; }
+    .room.is-immersive .immersive-enter { display:none; }
+    .room.is-immersive .immersive-exit { display:block; position:absolute; z-index:4; top:calc(8px + env(safe-area-inset-top)); left:calc(8px + env(safe-area-inset-left)); background:#29352de8; border-color:#fff9; color:#fff; }
+    .room.is-immersive + .toolbar { display:none; }
+    .room.is-immersive ~ .mood-note { display:none; }
+    .room.is-immersive .immersive-controls { display:flex; position:absolute; z-index:4; right:0; bottom:0; left:0; padding:8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left)); background:linear-gradient(transparent,#171a14dc 28%); }
+    .room.is-immersive .moods { flex-wrap:nowrap; width:100%; overflow-x:auto; scrollbar-width:none; }
+    .room.is-immersive .moods::-webkit-scrollbar { display:none; }
+    .room.is-immersive .moods button { flex:0 0 auto; background:#faf8f2ee; white-space:nowrap; }
+    .room.is-immersive .moods button[aria-pressed="true"] { background:#596043; color:#fff; }
   </style>
 </head>
 <body>
@@ -75,6 +76,6 @@
     <p class="mood-note" id="why" aria-live="polite"></p>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=28"></script>
+  <script type="module" src="page.js?v=29"></script>
 </body>
 </html>
