@@ -1074,8 +1074,8 @@ export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true) };
   scene.background = skyMaterials.golden;
-  const DESKTOP_CAMERA = { position: [1.25, 1.65, 4.95], target: [0.8, 1.25, -0.1], fov: 52, maxDistance: 5.8 };
-  const PORTRAIT_CAMERA = { position: [1.36, 1.71, 4.49], target: [1.15, 1.25, 0], fov: 84, maxDistance: 6.2 };
+  const DESKTOP_CAMERA = { position: [1.25, 1.65, 4.95], target: [0.8, 1.25, -0.1], fov: 52, maxDistance: 5.3 };
+  const PORTRAIT_CAMERA = { position: [1.36, 1.71, 4.49], target: [1.15, 1.25, 0], fov: 84, maxDistance: 5.0 };
   const compact = window.innerWidth < 500;
   const camera = new THREE.PerspectiveCamera(compact ? 60 : 50, 1, 0.05, 50);
   const initialCamera = compact ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
@@ -1091,7 +1091,7 @@ export async function start({ stage, onReady = () => {} }) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = false; controls.enablePan = false;
   controls.target.set(...initialCamera.target); controls.minDistance = 4.5;
-  controls.minPolarAngle = 1.3; controls.maxPolarAngle = 1.88; controls.minAzimuthAngle = -0.6; controls.maxAzimuthAngle = 0.35;
+  controls.minPolarAngle = 1.36; controls.maxPolarAngle = 1.55; controls.minAzimuthAngle = -0.24; controls.maxAzimuthAngle = 0.31;
   controls.maxDistance = initialCamera.maxDistance;
   let compactCameraActive = compact;
   const materials = makeMaterials();
