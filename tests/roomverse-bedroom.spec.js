@@ -119,7 +119,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.w).toBeCloseTo(.9, 2);
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-lounge-rug"]); // no rug under the desk chair: nobody lays one there
-  expect(info.vertices).toBeLessThan(62000); // whole-room budget: two Room 01 models (sofa, plant) take about 9,500, rounded furniture edges about 5,000, the coffee bar GLB about 1,600, the Hunyuan sofa about 6,000; fully loaded (cushions, mug, robot, coffee bar) the room measures about 52,000 (sneaker boxes, oak table and the harbour frame joined the sofa) and the sofa swap itself added only 2,200
+  expect(info.vertices).toBeLessThan(62000); // full-room geometry ceiling; the settled scene now includes the procedural sofa, cushions and loaded room assets
   expect(info.lights).toBe(9); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, the desk downlight and three more (the track light: plaque, bed, print)
   expect(errors).toEqual([]);
 });
@@ -217,6 +217,36 @@ test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, s
   expect(vertices).toBeLessThan(62000);
 });
 
+test("Room 02 sofa is procedural, keeps the five covers and pillow anchors, and does not request either unverified sofa GLB", async ({ page }) => {
+  const sofaRequests = [];
+  page.on("request", (request) => { if (/sofa-(?:hunyuan|japandi)-v1\.glb/.test(request.url())) sofaRequests.push(request.url()); });
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.info().sofaAsset.pillows.every(Boolean));
+  const colors = { slate: "#8197ab", sand: "#e2cfae", moss: "#9aab8a", charcoal: "#666a72", terracotta: "#cf8f74" };
+  let { sofaAsset, lounge, vertices } = await page.evaluate(() => window.__bedroom.info());
+  expect(sofaAsset.source).toBe("procedural");
+  expect(sofaAsset.legs).toBe(4);
+  expect(sofaAsset.seatHeight).toBeCloseTo(.44, 2);
+  expect(sofaAsset.backHeight).toBeCloseTo(.82, 2);
+  expect(lounge.sofa.max[0] - lounge.sofa.min[0]).toBeCloseTo(.85, 1);
+  expect(lounge.sofa.max[2] - lounge.sofa.min[2]).toBeCloseTo(1.6, 1);
+  expect(sofaAsset.vertices).toBeLessThan(12000);
+  expect(sofaAsset.triangles).toBeLessThan(4000);
+  const fixedLegColor = sofaAsset.legColor;
+  expect(sofaAsset.pillows.map(({ name, position }) => [name, position])).toEqual([
+    ["sofa-cushion-diamond", [-.4, .62, -.08]], ["sofa-cushion-lumbar", [.36, .5, -.1]],
+  ]);
+  for (const [choice, color] of Object.entries(colors)) {
+    expect(await page.evaluate((key) => window.__bedroom.setChoice("sofa", key), choice)).toBe(true);
+    sofaAsset = (await page.evaluate(() => window.__bedroom.info())).sofaAsset;
+    expect(sofaAsset.coverColor).toBe(color);
+    expect(sofaAsset.legColor).toBe(fixedLegColor);
+  }
+  ({ vertices } = await page.evaluate(() => window.__bedroom.info()));
+  expect(vertices).toBeLessThan(62000);
+  expect(sofaRequests).toEqual([]);
+});
+
 test("lived-in details: posters hang above the TV inside the wall, the plant stands clear of desk and TV", async ({ page }) => {
   await enter(page);
   await page.waitForFunction(() => window.__bedroom.info().posters.loaded);
@@ -259,7 +289,7 @@ test("series night ceiling fixture is visibly off while every other mood keeps i
   await enter(page);
   await page.waitForFunction(() => {
     const info = window.__bedroom.info();
-    return Object.values(info.painted).every(Boolean) && window.__bedroom.robotState().loaded && info.vertices > 59000;
+    return Object.values(info.painted).every(Boolean) && window.__bedroom.robotState().loaded && info.sofaAsset.source === "procedural" && info.vertices > 50000;
   }, null, { timeout: 60000 });
   let previous = -1, stable = 0;
   while (stable < 4) {

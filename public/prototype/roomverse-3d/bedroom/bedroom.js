@@ -56,7 +56,7 @@ function weaveTexture(base, line, { stripes = false } = {}) {
 
 
 // A box with softly rounded vertical edges (mattress, duvet, pillows), centred on its middle. Extruded from a rounded rectangle.
-function softBox(w, h, d, r) {
+function softBox(w, h, d, r, { bevelSegments = 1, curveSegments = 2 } = {}) {
   const bt = Math.min(r, h / 2) * .8, bs = r * .5; // the bevel adds to the outline and the height, so shrink both to keep the true size
   const sh = new THREE.Shape(), x = -(w - 2 * bs) / 2, y = -(d - 2 * bs) / 2;
   w -= 2 * bs; d -= 2 * bs;
@@ -64,7 +64,7 @@ function softBox(w, h, d, r) {
   sh.lineTo(x + w, y + d - r); sh.quadraticCurveTo(x + w, y + d, x + w - r, y + d);
   sh.lineTo(x + r, y + d); sh.quadraticCurveTo(x, y + d, x, y + d - r);
   sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y);
-  const g = new THREE.ExtrudeGeometry(sh, { depth: h - 2 * bt, bevelEnabled: true, bevelThickness: bt, bevelSize: bs, bevelSegments: 1, curveSegments: 2 });
+  const g = new THREE.ExtrudeGeometry(sh, { depth: h - 2 * bt, bevelEnabled: true, bevelThickness: bt, bevelSize: bs, bevelSegments, curveSegments });
   g.rotateX(-Math.PI / 2); g.translate(0, -(h - 2 * bt) / 2, 0); // lies flat: height along y, centred
   g.computeVertexNormals();
   return g;
@@ -1027,19 +1027,29 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // ---------- lounge zone: sofa facing a TV on the west wall, coffee table, bookshelf ----------
   // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
   // 43-inch TV 95 x 55 cm on a 45 cm low console, about 3 m from the sofa; bookshelf 75 x 30 x 180 cm. Books carry no text.
-  const sofaMat = new THREE.MeshStandardMaterial({ color: "#6d7a86", roughness: 1 });
-  const sofaDark = new THREE.MeshStandardMaterial({ color: "#5b6772", roughness: 1 });
-  const pillowA = new THREE.MeshStandardMaterial({ color: "#c58a62", roughness: .95 });
-  const pillowB = new THREE.MeshStandardMaterial({ color: "#e8dfcf", roughness: .95 });
+  const sofaMat = new THREE.MeshStandardMaterial({ color: "#8197ab", map: weaveTexture("#f5f1e8", "rgba(55,50,44,.8)"), roughness: .98 });
+  const sofaLegMat = woodMat("#b38759", { rough: .7, tint: "#e3d6cc" });
   const tvReflect = canvasTex(256, 144, (ctx, w, h) => { // a switched-off TV is not flat black: it holds a faint reflection of the window and the room
     ctx.fillStyle = "#0c0e12"; ctx.fillRect(0, 0, w, h);
     const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "rgba(190,205,225,.20)"); g.addColorStop(.45, "rgba(190,205,225,.05)"); g.addColorStop(1, "rgba(255,230,200,.03)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = "rgba(205,220,240,.10)"; ctx.fillRect(18, 14, 62, 44); ctx.fillStyle = "rgba(12,14,18,.5)"; ctx.fillRect(48, 14, 2, 44); ctx.fillRect(18, 35, 62, 2); // the window, as a ghost
   });
   const tvScreen = new THREE.MeshStandardMaterial({ color: "#ffffff", map: tvReflect, roughness: .12, metalness: .3 });
-  // the sofa is Codex's own Japandi model (not Room 01's), slate blue-grey, front looking west
-  const sofa = await loadGlb(new URL("./models/sofa-hunyuan-v1.glb", import.meta.url).href, { roughness: .95, weave: true }); sofa.name = "sofa"; // Codex's Hunyuan-made Japandi two-seater (batch 11, 11.9k triangles): two height-zone materials, 'legs_wood_height_zone' and 'upholstery_height_zone'
-  sofa.traverse((o) => { if (!o.isMesh) return; o.material.vertexColors = false; o.material.color.set(o.material.name.startsWith("legs") ? "#b38759" : "#8197ab"); o.material.needsUpdate = true; }); // its painted colours came out as blotches: plain slate-blue cover and room-oak legs
+  // A fully procedural, source-clean two-seater: soft rounded volumes, woven cover, and four tapered oak feet.
+  const sofa = new THREE.Group(); sofa.name = "sofa"; sofa.userData.source = "procedural";
+  const sofaBody = new THREE.Group(); sofaBody.name = "sofa-procedural"; sofaBody.userData.source = "procedural"; sofa.add(sofaBody);
+  const sofaSoftBox = (w, h, d, r) => softBox(w, h, d, r, { bevelSegments: 3, curveSegments: 6 });
+  const sofaPart = (geometry, material, name, x, y, z, target = sofaBody) => {
+    const mesh = new THREE.Mesh(geometry, material); mesh.name = name; mesh.position.set(x, y, z); mesh.userData.sofaPart = name;
+    mesh.castShadow = mesh.receiveShadow = true; target.add(mesh); return mesh;
+  };
+  sofaPart(sofaSoftBox(1.5, .2, .84, .1), sofaMat, "sofa-seat-base", 0, .28, .02); // base top at 38 cm
+  for (const x of [-.38, .38]) sofaPart(sofaSoftBox(.72, .08, .66, .09), sofaMat, "sofa-seat-cushion", x, .4, .07); // seated surface at 44 cm
+  sofaPart(sofaSoftBox(1.48, .44, .18, .09), sofaMat, "sofa-back-frame", 0, .60, -.32); // 82 cm overall back
+  for (const x of [-.36, .36]) sofaPart(sofaSoftBox(.70, .34, .10, .075), sofaMat, "sofa-back-cushion", x, .61, -.205);
+  for (const x of [-.67, .67]) sofaPart(sofaSoftBox(.26, .31, .80, .12), sofaMat, "sofa-rounded-arm", x, .485, .02);
+  const legGeometry = new THREE.CylinderGeometry(.024, .036, .18, 12, 1);
+  for (const x of [-.62, .62]) for (const z of [-.30, .31]) sofaPart(legGeometry, sofaLegMat, "legs", x, .09, z);
   sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
   // Codex's two cushions (batch 9), not Room 01's: a blue-grey square turned on its corner at one end, an oat-and-sage striped lumbar at the other.
   // (the GLBs lie flat, thin along y: a quarter turn about x stands them up facing the room, rx then leans them back, ry spins them on their face)
@@ -1608,7 +1618,14 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     root.traverseVisible((o) => { if (o.isMesh) { meshes++; vertices += o.geometry.attributes.position.count; } });
     const box3 = new THREE.Box3().setFromObject(root.getObjectByName("floor"));
     return {
-      room: ROOM, window: WINDOW, door: DOOR, portalPath: (() => {
+      room: ROOM, window: WINDOW, door: DOOR, drawCalls: renderer.info.render.calls, sofaAsset: (() => {
+        let sofaVertices = 0, sofaTriangles = 0, sofaMeshes = 0, legs = 0;
+        sofaBody.traverse((o) => { if (!o.isMesh) return; sofaMeshes++; sofaVertices += o.geometry.attributes.position.count; sofaTriangles += (o.geometry.index?.count ?? o.geometry.attributes.position.count) / 3; if (o.name === "legs") legs++; });
+        const cover = sofaBody.getObjectByName("sofa-seat-base").material;
+        return { source: sofa.userData.source, vertices: sofaVertices, triangles: sofaTriangles, meshes: sofaMeshes, legs, seatHeight: new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-seat-cushion")).max.y,
+          backHeight: new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-back-frame")).max.y,
+          coverColor: "#" + cover.color.getHexString(), legColor: "#" + sofaLegMat.color.getHexString(), pillows: ["sofa-cushion-diamond", "sofa-cushion-lumbar"].map((name) => { const o = sofa.getObjectByName(name); return o ? { name, position: o.position.toArray() } : null; }) };
+      })(), portalPath: (() => {
         const path = [
           camera.position.clone(),
           new THREE.Vector3(1.8, 1.5, 1.0),
