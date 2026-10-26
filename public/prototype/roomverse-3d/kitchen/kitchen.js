@@ -405,9 +405,10 @@ function sceneAddToBucket(b, mesh, name) {
 
 function buildKitchen(b, m) {
   // Straight olive cabinet run, kept low and uncluttered.
-  addBox(b, "kitchen", m.olive, [4.24, 0.78, 0.62], [0, 0.47, -2.04]);
+  addBox(b, "kitchen", m.olive, [4.24, 0.75, 0.62], [0, 0.485, -2.04]);
+  addBox(b, "kitchen", m.olive, [4.0, 0.11, 0.54], [0, 0.055, -2.04]);
   for (const x of [-1.55, -0.52, 0.52, 1.55]) {
-    addBox(b, "kitchen", m.olive, [0.96, 0.72, 0.035], [x, 0.47, -1.715]);
+    addBox(b, "kitchen", m.olive, [0.99, 0.72, 0.035], [x, 0.47, -1.715]);
     addBox(b, "hardware", m.black, [0.27, 0.018, 0.025], [x, 0.71, -1.69]);
   }
   addBox(b, "counter", m.stone, [4.46, 0.09, 0.74], [0, 0.91, -2.02]);
