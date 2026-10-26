@@ -3,15 +3,15 @@ import { mkdirSync, writeFileSync } from "node:fs";
 
 const output = process.env.ROOM03_VIEW_QA;
 const phase = process.env.ROOM03_VIEW_PHASE || "after";
-const views = ["default", "az-min", "az-max", "polar-min", "polar-max", "distance-max", "shared-left", "shared-right"];
+const views = ["default", "az-min", "az-max", "polar-min", "polar-max", "distance-max", "az-min-distance-max", "shared-left", "shared-right"];
 
 async function setOrbit(page, view, baseline) {
   return page.evaluate(({ name, baseline }) => {
     const { camera, controls, render } = window.__room03;
     const target = controls.target;
     const { theta: defaultTheta, phi: defaultPhi } = baseline;
-    const radius = name === "distance-max" ? controls.maxDistance : baseline.radius;
-    const theta = name === "az-min" ? controls.minAzimuthAngle : name === "az-max" ? controls.maxAzimuthAngle : name === "shared-left" ? -0.2 : name === "shared-right" ? 0.2 : defaultTheta;
+    const radius = name.includes("distance-max") ? controls.maxDistance : baseline.radius;
+    const theta = name === "az-min" || name === "az-min-distance-max" ? controls.minAzimuthAngle : name === "az-max" ? controls.maxAzimuthAngle : name === "shared-left" ? -0.2 : name === "shared-right" ? 0.2 : defaultTheta;
     const phi = name === "polar-min" ? controls.minPolarAngle : name === "polar-max" ? controls.maxPolarAngle : defaultPhi;
     camera.position.set(
       target.x + radius * Math.sin(phi) * Math.sin(theta),
@@ -70,15 +70,16 @@ for (const width of [1440, 390]) {
       }
     }
     if (output) writeFileSync(`${output}/${phase}-${width}-metrics.json`, JSON.stringify(records, null, 2));
-    expect(records).toHaveLength(16);
+    expect(records).toHaveLength(18);
     expect(records.every(({ vertices }) => vertices === records[0].vertices)).toBe(true);
     expect(records.every(({ meshes }) => meshes === records[0].meshes)).toBe(true);
     if (phase === "after") {
       const limits = records[0].limits;
       expect(limits.polarMax, "camera must stay above the floor-facing horizon").toBeLessThan(Math.PI / 2);
       expect(limits.azMax - limits.azMin, "Room 03 must retain useful left/right exploration").toBeGreaterThanOrEqual(0.55);
-      expect(limits.distanceMax, "default camera must not be moved by the zoom limit").toBeGreaterThanOrEqual(baseline.radius);
-      expect(limits.distanceMax - baseline.radius, "zooming out should not reveal the room shell").toBeLessThan(0.3);
+      expect(limits.distanceMax, "zoom limit must match the reviewed camera preset").toBeCloseTo(width === 390 ? 5 : 5.3, 2);
+      expect(limits.distanceMax, "default camera must remain within the zoom limit").toBeGreaterThanOrEqual(baseline.radius);
+      expect(limits.distanceMax - limits.distanceMin, "mobile zoom range must remain useful").toBeGreaterThanOrEqual(width === 390 ? 0.49 : 0.79);
       for (const mood of ["golden", "night"]) {
         const sides = records.filter((record) => record.mood === mood && ["az-min", "az-max"].includes(record.view));
         expect(sides.some((record) => Math.abs(record.lounge[0]) < 1), "window chair must stay reachable").toBe(true);
