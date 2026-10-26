@@ -599,19 +599,56 @@ test("Room 02 return door, robot hint, and cancellable countdown", async ({ page
   await expect(page.locator("#robotBubble")).toBeVisible();
 });
 
-test("tapping the Room 02 robot starts a cancellable 1.2 second return", async ({ page }) => {
+test("Room 02 robot keeps the travel choice available at 2 seconds and cancels follow-me", async ({ page }) => {
+  await enter(page, { width: 390 });
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
+  await page.locator("#robotHitTarget").click();
+  await expect(page.locator("#robotBubble [data-travel-door-action]")).toBeVisible();
+  await page.waitForTimeout(2000);
+  expect(page.url()).toContain("/bedroom/");
+  expect(await page.evaluate(() => window.__bedroom.robotState().pending)).toBe(true);
+  const travelAction = page.locator("#robotBubble [data-travel-door-action]");
+  await expect(travelAction).toBeVisible();
+  await travelAction.click();
+  await expect(page.getByRole("dialog", { name: "要去哪？" })).toBeVisible();
+  expect(await page.evaluate(() => window.__bedroom.robotState().pending)).toBe(false);
+  await page.waitForTimeout(700);
+  await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
+});
+
+test("Escape cancels Room 02 robot follow-me at 2 seconds", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
+  await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
+  await page.locator("#robotHitTarget").click();
+  await page.waitForFunction(() => window.__bedroom.robotState().pending, null, { timeout: 3000 });
+  await page.waitForTimeout(2000);
+  expect(await page.evaluate(() => window.__bedroom.robotState().pending)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#robotBubble")).toBeHidden();
+  expect(await page.evaluate(() => window.__bedroom.robotState().pending)).toBe(false);
+  await page.waitForTimeout(3000);
+  await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
+  await expect(page.locator(".portal-fade")).toHaveCount(0);
+});
+
+test("Room 02 robot follow-me starts after the 2.5 second delay when its travel choice is ignored", async ({ page }) => {
   await enter(page);
   await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
   await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
   const state = await page.evaluate(() => ({ robot: window.__bedroom.robotState(), hit: (() => {const e=document.querySelector("#robotHitTarget"),r=e.getBoundingClientRect();return {hidden:e.hidden,left:e.style.left,top:e.style.top,rect:[r.x,r.y,r.width,r.height],display:getComputedStyle(e).display};})() }));
   expect(state.hit.hidden).toBe(false);
+  const startedAt = await page.evaluate(() => performance.now());
   await page.locator("#robotHitTarget").click();
   await expect(page.locator("#robotBubble")).toContainText("跟我來，我帶你回客廳");
   await page.waitForFunction(() => window.__bedroom.robotState().pending, null, { timeout: 3000 });
-  await page.keyboard.press("Escape");
-  await expect(page.locator("#robotBubble")).toBeHidden();
-  await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
-  await expect(page.locator(".portal-fade")).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => window.__bedroom.doorState().active), { timeout: 7000, intervals: [50, 100] }).toBe(true);
+  const elapsed = await page.evaluate((start) => performance.now() - start, startedAt);
+  expect(elapsed).toBeGreaterThanOrEqual(2300);
+  expect(elapsed).toBeLessThan(4500);
+  expect(await page.evaluate(() => window.__bedroom.robotState().pending)).toBe(false);
+  await page.waitForURL(/from=room02/, { timeout: 10000 });
 });
 
 test("a 390px visitor can tap the door-side robot and cancel by tapping blank room space", async ({ page }) => {

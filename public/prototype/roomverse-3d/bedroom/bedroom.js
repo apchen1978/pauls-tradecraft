@@ -261,6 +261,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   bubble?.addEventListener("pointerenter", pauseRobotForTravelChoice);
   bubble?.addEventListener("focusin", pauseRobotForTravelChoice);
 
+  const ROBOT_FOLLOW_DELAY_MS = 2500;
   function tapRobot() {
     if (suppressRobotClick) {
       suppressRobotClick = false;
@@ -285,7 +286,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         if (!pendingRobot) return;
         pendingRobot = null;
         void leaveToRoom01();
-      }, 1200),
+      }, ROBOT_FOLLOW_DELAY_MS),
     };
 
     const animate = (now) => {
