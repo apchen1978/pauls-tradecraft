@@ -1203,8 +1203,8 @@ export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true) };
   scene.background = skyMaterials.golden;
-  const DESKTOP_CAMERA = { position: [1.25, 1.65, 4.95], target: [0.8, 1.25, -0.1], fov: 52, maxDistance: 5.3 };
-  const PORTRAIT_CAMERA = { position: [1.36, 1.71, 4.49], target: [1.15, 1.25, 0], fov: 84, maxDistance: 5.0 };
+  const DESKTOP_CAMERA = { position: [1.15, 1.58, 4.76], target: [0.76, 1.14, -0.04], fov: 52, maxDistance: 5.3 };
+  const PORTRAIT_CAMERA = { position: [1.36, 1.71, 4.53], target: [1.15, 1.20, 0.05], fov: 80, maxDistance: 5.0 };
   const compact = window.innerWidth < 500;
   const camera = new THREE.PerspectiveCamera(compact ? 60 : 50, 1, 0.05, 50);
   const initialCamera = compact ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
