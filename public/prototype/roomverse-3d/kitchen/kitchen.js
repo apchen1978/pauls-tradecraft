@@ -1146,6 +1146,29 @@ export async function start({ stage, onReady = () => {} }) {
   loungeContactShadow.position.set(0, 0, 0);
   loungeContactShadow.visible = false;
   scene.add(loungeContactShadow);
+  const diningContactPatchParts = [];
+  const addDiningContactPatch = (x, z, width, depth) => {
+    const patch = new THREE.PlaneGeometry(width, depth);
+    patch.rotateX(-Math.PI / 2);
+    patch.translate(x, 0.021, z);
+    diningContactPatchParts.push(patch);
+  };
+  for (const x of [-0.82, 0.82]) for (const z of [0.19, 0.81]) addDiningContactPatch(x, z, 0.16, 0.14);
+  for (const x of [-0.5, 0.5]) for (const z of [-0.22, 1.22]) {
+    for (const legX of [-0.17, 0.17]) for (const legZ of [-0.16, 0.16]) {
+      addDiningContactPatch(x + legX, z + (z > 0.5 ? -legZ : legZ), 0.11, 0.10);
+    }
+  }
+  const diningContactShadow = new THREE.Mesh(
+    mergeGeometries(diningContactPatchParts, false),
+    new THREE.MeshBasicMaterial({ map: loungeContactShadow.material.map, transparent: true, opacity: 0.28, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }),
+  );
+  diningContactShadow.name = "dining-foot-contact-shadows";
+  diningContactShadow.userData.category = "contact-shadow";
+  diningContactShadow.userData.patchCount = diningContactPatchParts.length;
+  diningContactShadow.renderOrder = 1;
+  scene.add(diningContactShadow);
+  diningContactPatchParts.forEach((geometry) => geometry.dispose());
   const makeBouncePlane = (name, size, position, rotation, color) => {
     const material = new THREE.MeshBasicMaterial({ color, map: materials.sunlight.map, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(...size), material);
@@ -1187,6 +1210,7 @@ export async function start({ stage, onReady = () => {} }) {
     materials.sunlight.opacity = name === "golden" ? 0.32 : 0;
     sunlightPatch.visible = name === "golden";
     loungeContactShadow.visible = true;
+    diningContactShadow.material.opacity = name === "night" ? 0.42 : 0.28;
     windowWallBounce.material.opacity = name === "golden" ? 0.22 : 0;
     pendantFloorBounce.material.opacity = name === "night" ? 0.34 : 0;
     pendantCeilingBounce.material.opacity = name === "night" ? 0.22 : 0;
