@@ -201,13 +201,18 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     }
     if (!bubble || bubble.hidden) return;
     bubble.style.left = `${x}px`;
-    bubble.style.top = `${Math.max(8, Math.min(rect.height - 8, (1 - head.y) * rect.height / 2))}px`;
+    const bubbleHeight = bubble.offsetHeight;
+    const headY = (1 - head.y) * rect.height / 2;
+    bubble.style.top = `${Math.max(8, Math.min(rect.height - bubbleHeight - 8, headY - bubbleHeight - 10))}px`;
   }
 
   function showRobotBubble(message) {
     if (!bubble) return;
     clearTimeout(bubbleTimer);
-    bubble.textContent = message;
+    const text = bubble.querySelector("[data-bubble-copy]");
+    if (text) text.textContent = message;
+    const action = bubble.querySelector("[data-travel-door-action]");
+    if (action) action.hidden = message !== (copy().robotLine || "Follow me, back to the living room.");
     bubble.hidden = false;
     positionRobotBubble();
     bubbleTimer = setTimeout(() => {
@@ -222,7 +227,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     render();
   }
 
-  function clearPendingRobot(restore = true) {
+  function clearPendingRobot(restore = true, hideBubble = true) {
     if (!pendingRobot) return false;
     clearTimeout(pendingRobot.timer);
     if (restore && tapTargets.robot) {
@@ -232,10 +237,29 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     pendingRobot = null;
     hopRun++;
     hopping = false;
-    hideRobotBubble();
+    if (hideBubble) hideRobotBubble();
     render();
     return true;
   }
+
+  function pauseRobotForTravelChoice() {
+    if (bubble && !bubble.hidden) clearTimeout(bubbleTimer);
+    if (!pendingRobot) return false;
+    return clearPendingRobot(true, false);
+  }
+
+  function resumeTravelBubble() {
+    if (!bubble || bubble.hidden) return false;
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(() => {
+      bubble.hidden = true;
+      render();
+    }, 4200);
+    return true;
+  }
+
+  bubble?.addEventListener("pointerenter", pauseRobotForTravelChoice);
+  bubble?.addEventListener("focusin", pauseRobotForTravelChoice);
 
   function tapRobot() {
     if (suppressRobotClick) {
@@ -288,7 +312,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     doorRevealMat.opacity = Math.min(.86, progress * .86);
   }
 
-  function makeFade() {
+  function makeFade(transitionColor = "#6b5bd8") {
     const node = Object.assign(document.createElement("div"), {
       className: "portal-fade",
       "aria-hidden": "true",
@@ -297,7 +321,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       position: "fixed",
       inset: "0",
       zIndex: "60",
-      background: "radial-gradient(ellipse at 50% 55%, #6b5bd8 0%, #2a2150 55%, #0e0c20 100%)",
+      background: `radial-gradient(ellipse at 50% 55%, ${transitionColor} 0%, #2a2150 55%, #0e0c20 100%)`,
       opacity: "0",
       transition: "opacity .65s ease",
     });
@@ -324,13 +348,13 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     return true;
   }
 
-  function leaveToRoom01() {
+  function leaveToRoom01({ transitionColor = "#6b5bd8", destinationUrl = null } = {}) {
     if (leaving) return Promise.resolve(false);
     clearPendingRobot(false);
     hideRobotBubble();
     glide++;
 
-    const destination = new URL("../", location.href);
+    const destination = new URL(destinationUrl || "../", location.href);
     destination.searchParams.set("lang", lang);
     destination.searchParams.set("from", "room02");
     const from = { position: camera.position.clone(), yaw: look.yaw, pitch: look.pitch };
@@ -374,7 +398,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
 
         if (time > 2400 && !run.fade) {
           run.fading = true;
-          run.fade = makeFade();
+          run.fade = makeFade(transitionColor);
         }
         render();
         if (time < total) {
@@ -389,6 +413,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   }
 
   function cancelPendingForInput(event) {
+    if (event.target?.closest?.("[data-travel-door-action]")) return;
     if (!pendingRobot) return;
     const portalButton = event.target?.closest?.("#portalBtn");
     clearPendingRobot(true);
@@ -476,6 +501,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
 
   document.addEventListener("pointerdown", (event) => {
     if (!pendingRobot || event.target === el || event.target?.closest?.("#portalBtn")) return;
+    if (event.target?.closest?.("[data-travel-door-action]")) { pauseRobotForTravelChoice(); return; }
     suppressRobotClick = event.target === hitTarget;
     clearPendingRobot(true);
   }, true);
@@ -1730,7 +1756,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
     robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, pending: !!pendingRobot, y: rb.position.y, yaw: rb.rotation.y, position: b.getCenter(new THREE.Vector3()).toArray(), ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
-    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, leaveToRoom01, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
+    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },

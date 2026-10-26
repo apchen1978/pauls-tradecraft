@@ -1,4 +1,6 @@
 // ROOMVERSE studio page: text, language, and loading the 3D room only when the visitor asks for it.
+import { initTravelDoor } from "../travel-door.js?v=1";
+const TRAVEL_COPY = { zh: { button: "去別的房間 · Travel", bubble: "看看其他房間" }, en: { button: "Travel to another room", bubble: "Explore other rooms" } };
 const COPY = {
   zh: {
     title: "Room 02｜Brooklyn Studio",
@@ -63,6 +65,7 @@ const arrivedFromHome = new URLSearchParams(location.search).get("from") === "ho
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 let room = null, mood = "focus", look = "center";
 let immersive = false;
+let travelDoor = null;
 const returningFromRoom02 = new URLSearchParams(location.search).get("from") === "room02";
 function viewButtons() {
   const c = COPY[lang], row = $("viewRow");
@@ -114,8 +117,11 @@ function text() {
   document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
   $("title").textContent = c.title; $("lead").textContent = c.lead; $("enter").textContent = c.enter; $("size").textContent = c.size;
   $("note").textContent = c.note; $("portalBtn").textContent = c.portal; $("portalHint").textContent = c.portalHint; $("home").textContent = c.home; $("home").href = `../?lang=${lang}`; $("lang").textContent = c.lang;
+  $("travelDoorBtn").textContent = TRAVEL_COPY[lang].button;
+  document.querySelectorAll("[data-travel-door-action]").forEach((button) => { button.textContent = TRAVEL_COPY[lang].bubble; });
   $("immersiveEnter").textContent = c.fullScreen; $("immersiveExit").textContent = c.exitFullScreen; $("immersiveDoor").textContent = c.portal;
   room?.setLang(lang);
+  travelDoor?.refresh();
   moodButtons();
   swapButtons();
   viewButtons();
@@ -123,6 +129,13 @@ function text() {
 $("portalBtn").onclick = () => { void room?.leaveToRoom01(); };
 $("immersiveDoor").onclick = () => { void room?.leaveToRoom01(); };
 $("robotHitTarget").onclick = () => room?.tapRobot();
+travelDoor = initTravelDoor({
+  currentRoom: "room02",
+  getLang: () => lang,
+  onChoose: (destination, href) => { void room?.leaveToRoom01({ transitionColor: destination.transitionColor, destinationUrl: href }); },
+  beforeOpen: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.cancelRobotFollow(); },
+  afterClose: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.resumeTravelBubble(); },
+});
 function setImmersive(on, pushHistory = true) {
   if (!room || immersive === on) return;
   immersive = on;
@@ -149,7 +162,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=80");
+    const { start } = await import("./bedroom.js?v=81");
     room = await start({ stage: $("stage"), bubble: $("robotBubble"), hitTarget: $("robotHitTarget"), lang, copy: () => COPY[lang] });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook

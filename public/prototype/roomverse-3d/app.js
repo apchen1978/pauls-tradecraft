@@ -2173,9 +2173,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     arrival.frame = requestAnimationFrame(step);
     return true;
   }
-  function openPortal({ go = true } = {}) {
+  function openPortal({ go = true, transitionColor = "#6b5bd8", destinationUrl = null } = {}) {
     if (portal || director || directorPreparing) return Promise.resolve(false);
-    const url = new URL("bedroom/", location.href); url.searchParams.set("lang", state.lang); url.searchParams.set("from", "room01");
+    const url = new URL(destinationUrl || "bedroom/", location.href); url.searchParams.set("lang", state.lang); url.searchParams.set("from", "room01");
     if (still) { if (go) location.assign(url.href); else setDoorOpen(1); return Promise.resolve(true); }
     viewMoveToken++; controls.enabled = false;
     portal = { from: { position: camera.position.clone(), quaternion: camera.quaternion.clone() }, cancel: false, frame: 0 };
@@ -2195,7 +2195,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         camera.quaternion.copy(startQ).slerp(endQ, walk);
         if (t > 2400 && go && !portalFade) {
           portalFade = Object.assign(document.createElement("div"), { className: "portal-fade", "aria-hidden": "true" });
-          Object.assign(portalFade.style, { position: "fixed", inset: "0", zIndex: "60", background: "radial-gradient(ellipse at 50% 55%, #6b5bd8 0%, #2a2150 55%, #0e0c20 100%)", opacity: "0", transition: "opacity .65s ease" });
+          Object.assign(portalFade.style, { position: "fixed", inset: "0", zIndex: "60", background: `radial-gradient(ellipse at 50% 55%, ${transitionColor} 0%, #2a2150 55%, #0e0c20 100%)`, opacity: "0", transition: "opacity .65s ease" });
           document.body.append(portalFade); requestAnimationFrame(() => { if (portalFade) portalFade.style.opacity = "1"; });
         }
         render();
@@ -2235,14 +2235,29 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     robotBubble.style.top = `${top}px`;
   }
   function showGuideLine() {
-    bubbleTarget = guidePivot; robotBubble.textContent = GUIDE_LINE[state.lang]; robotBubble.hidden = false;
+    bubbleTarget = guidePivot;
+    robotBubble.querySelector("[data-bubble-copy]").textContent = GUIDE_LINE[state.lang];
+    const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = false;
+    robotBubble.hidden = false;
     clearTimeout(robotBubbleTimer); clearTimeout(robotTurnTimer);
     robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; bubbleTarget = robotObj; }, 4200);
     render();
   }
+  function pauseGuideBubble() {
+    if (robotBubble.hidden || bubbleTarget !== guidePivot) return false;
+    clearTimeout(robotBubbleTimer);
+    return true;
+  }
+  function resumeGuideBubble() {
+    if (robotBubble.hidden || bubbleTarget !== guidePivot) return false;
+    clearTimeout(robotBubbleTimer);
+    robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; bubbleTarget = robotObj; }, 4200);
+    return true;
+  }
   function showRobotMood(mood) {
     bubbleTarget = robotObj;
-    robotBubble.textContent = ROBOT_MOOD_LINES[mood][state.lang];
+    robotBubble.querySelector("[data-bubble-copy]").textContent = ROBOT_MOOD_LINES[mood][state.lang];
+    const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = true;
     robotBubble.hidden = false;
     clearTimeout(robotBubbleTimer);
     clearTimeout(robotTurnTimer);
@@ -2866,12 +2881,12 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       });
       return { meshes, vertices, triangles, robotLoaded: robotObj.children.length > 0 };
     },
-    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
+    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
-    robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
-    guideRobot() { scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(guidePivot), c = b.getCenter(new THREE.Vector3()).project(camera); return { min: b.min.toArray(), max: b.max.toArray(), ndc: { x: c.x, y: c.y, z: c.z }, bubble: !robotBubble.hidden && bubbleTarget === guidePivot, phrase: robotBubble.textContent }; }, // local QA only
+    robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.querySelector("[data-bubble-copy]").textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
+    guideRobot() { scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(guidePivot), c = b.getCenter(new THREE.Vector3()).project(camera); return { min: b.min.toArray(), max: b.max.toArray(), ndc: { x: c.x, y: c.y, z: c.z }, bubble: !robotBubble.hidden && bubbleTarget === guidePivot, phrase: robotBubble.querySelector("[data-bubble-copy]").textContent }; }, // local QA only
     faceDoorWall() { viewTheta = -Math.PI / 2; camera.position.copy(cameraAt(viewTheta)); camera.lookAt(controls.target); controls.update(); render(); }, // local QA only
-    openPortal, closePortal,
+    openPortal, closePortal, pauseGuideBubble, resumeGuideBubble,
     resize() { fit(); render(); },
     syncUrl: toUrl,
     beginReturnArrival, finishReturnArrival,

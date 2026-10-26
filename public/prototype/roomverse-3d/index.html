@@ -14,6 +14,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="3D 軟裝房間：米白沙發、兩個抱枕、條紋地毯和窗邊的落地燈。">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="travel-door.css?v=1">
 <style>
   :root { --ink: #24302c; --paper: #fbfaf6; --moss: #315c5d; --muted: #5b665f; --line: #cfd8d1; --bg: #ecebe5; }
   * { box-sizing: border-box; }
@@ -142,6 +143,10 @@
   .postcard-preview__hint { margin: 0 0 7px; font: 700 16px/1.5 system-ui, sans-serif; }
   .postcard-preview__detail { max-width: 540px; margin: 0 auto; color: #59645e; font: 14px/1.55 system-ui, sans-serif; }
   html.postcard-preview-open, html.postcard-preview-open body { overflow: hidden; }
+  .portal .travel-door-trigger { border-color: #aab5aa; background: #fbfaf6; color: #315c5d; }
+  .robot-bubble { pointer-events: auto; }
+  .robot-bubble [data-travel-door-action] { display: block; min-height: 44px; margin: 7px auto 0; padding: 8px 12px; border: 1px solid #aab5aa; border-radius: 999px; background: #fbfaf6; color: #315c5d; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .robot-bubble [data-travel-door-action]:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
 </style>
 
 </head>
@@ -161,7 +166,7 @@
 </aside>
 <section class="room" aria-labelledby="title">
   <div class="room-toolbar" id="roomToolbar" role="group" hidden></div>
-  <div id="stage"><div class="robot-bubble" id="robotBubble" role="status" aria-live="polite" hidden></div><button class="immersive-enter" id="immersiveEnter" type="button" hidden></button></div>
+  <div id="stage"><div class="robot-bubble" id="robotBubble" hidden><span data-bubble-copy aria-live="polite"></span><button class="travel-door-trigger" data-travel-door-trigger data-travel-door-action type="button" hidden></button></div><button class="immersive-enter" id="immersiveEnter" type="button" hidden></button></div>
   <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
   <p class="status" id="status" hidden></p>
   <button class="panel-toggle" id="panelToggle" type="button" aria-controls="panel" aria-expanded="false" hidden></button>
@@ -170,8 +175,8 @@
   <button class="immersive-door" id="immersiveDoor" type="button"></button>
   <div class="immersive-controls" id="immersiveControls"></div>
 </section>
-<p class="portal" id="portalRow" hidden><button id="portalBtn" type="button"></button><span id="portalHint"></span></p>
+<p class="portal" id="portalRow" hidden><button id="portalBtn" type="button"></button><button id="travelDoorBtn" data-travel-door-trigger type="button"></button><span id="portalHint"></span></p>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=47"></script>
+<script type="module" src="page.js?v=48"></script>
 </body>
 </html>
