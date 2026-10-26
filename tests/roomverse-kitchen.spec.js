@@ -632,6 +632,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
     for (const rail of gaps.rails) {
       expect(rail.afterGapMm, `${rail.chair} ${rail.name} midpoint gap should be closed`).toBeLessThanOrEqual(3);
+      expect(rail.afterHeight, `${rail.chair} ${rail.name} crossbar should stay a slim rail`).toBeGreaterThanOrEqual(0.025);
+      expect(rail.afterHeight, `${rail.chair} ${rail.name} crossbar should not become a slab`).toBeLessThanOrEqual(0.04);
     }
   });
 

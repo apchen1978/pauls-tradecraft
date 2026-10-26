@@ -584,6 +584,7 @@ const DINING_CHAIR_FRONT_LEG_TOP_Y = Object.freeze({ left: 0.43344, right: 0.431
 const DINING_CHAIR_RAIL_TOP_Y = Object.freeze({
   "side-left": 0.407428, "side-right": 0.407428, "end-front": 0.4005, "end-rear": 0.4398,
 });
+const DINING_CHAIR_RAIL_HEIGHT = 0.03;
 
 function measureDiningSeatGaps(shell) {
   const shellMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
@@ -623,6 +624,7 @@ function measureDiningSeatGaps(shell) {
     const afterTopY = DINING_CHAIR_RAIL_TOP_Y[name];
     return {
       name, midpoint: [x, z], shellBottomY, beforeTopY: 0.375, afterTopY,
+      afterBottomY: afterTopY - DINING_CHAIR_RAIL_HEIGHT, afterHeight: DINING_CHAIR_RAIL_HEIGHT,
       beforeGapMm: (shellBottomY - 0.375) * 1000,
       afterGapMm: (shellBottomY - afterTopY) * 1000,
     };
@@ -640,7 +642,6 @@ function measureDiningSeatGaps(shell) {
 
 function buildProceduralDiningChairs(scene, m) {
   const shell = makeDiningShellGeometry();
-  const railBottomY = 0.345;
   const legParts = [];
   for (const [footX, footZ] of DINING_CHAIR_FOOT_CENTERS) {
     const topX = footX - Math.sign(footX) * 0.022;
@@ -686,15 +687,15 @@ function buildProceduralDiningChairs(scene, m) {
   for (const sign of [-1, 1]) {
     const sideRailName = sign < 0 ? "side-left" : "side-right";
     const sideRailTop = DINING_CHAIR_RAIL_TOP_Y[sideRailName];
-    const sideRailHeight = sideRailTop - railBottomY;
+    const sideRailHeight = DINING_CHAIR_RAIL_HEIGHT;
     const sideRail = new THREE.BoxGeometry(0.026, sideRailHeight, 0.29);
-    sideRail.translate(sign * 0.15, railBottomY + sideRailHeight / 2, 0);
+    sideRail.translate(sign * 0.15, sideRailTop - sideRailHeight / 2, 0);
     legParts.push(sideRail);
     const endRailName = sign < 0 ? "end-rear" : "end-front";
     const endRailTop = DINING_CHAIR_RAIL_TOP_Y[endRailName];
-    const endRailHeight = endRailTop - railBottomY;
+    const endRailHeight = DINING_CHAIR_RAIL_HEIGHT;
     const endRail = new THREE.BoxGeometry(0.29, endRailHeight, 0.026);
-    endRail.translate(0, railBottomY + endRailHeight / 2, sign * 0.145);
+    endRail.translate(0, endRailTop - endRailHeight / 2, sign * 0.145);
     legParts.push(endRail);
   }
   const legs = mergeGeometries(legParts, false);
