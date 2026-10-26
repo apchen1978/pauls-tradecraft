@@ -105,8 +105,7 @@ function makeMottleTexture(seed, strength = 0.06) {
   });
 }
 
-function makeFloorTexture(seed, strength = 0.12) {
-  const texture = makeMottleTexture(seed, strength);
+function applyFloorWindowLift(texture) {
   const { width, height } = texture.image;
   const ctx = texture.image.getContext("2d");
   // Baked, broad window-side lift: a soft matte gradient, not a reflection or extra light.
@@ -121,6 +120,32 @@ function makeFloorTexture(seed, strength = 0.12) {
   ctx.fillRect(0, 0, width, height);
   ctx.globalCompositeOperation = "source-over";
   texture.needsUpdate = true;
+  return texture;
+}
+
+
+function makeFloorTexture(seed, strength = 0.23) {
+  // Same base generator and window lift, with a stronger but bounded mottle.
+  const texture = makeMottleTexture(seed, strength);
+  const ctx = texture.image.getContext("2d"), w = texture.image.width, h = texture.image.height;
+  const detail = makeMottleTexture(73, 0.085);
+  ctx.globalAlpha = .4; ctx.globalCompositeOperation = "multiply";
+  // An incommensurate, cropped second scale avoids a repeated regular tile.
+  ctx.drawImage(detail.image, 29, 41, 185, 193, 0, 0, w, h);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; detail.dispose();
+  applyFloorWindowLift(texture);
+  // Keep the old mean RGB, so added mottle does not simply darken the room.
+  const reference = applyFloorWindowLift(makeMottleTexture(seed, .15));
+  const before = reference.image.getContext("2d").getImageData(0, 0, w, h).data;
+  const image = ctx.getImageData(0, 0, w, h), count = w * h;
+  const target = [0, 0, 0];
+  for (let i = 0; i < before.length; i += 4) for (let c = 0; c < 3; c++) target[c] += before[i + c] / count;
+  for (let pass = 0; pass < 3; pass++) {
+    const mean = [0, 0, 0];
+    for (let i = 0; i < image.data.length; i += 4) for (let c = 0; c < 3; c++) mean[c] += image.data[i + c] / count;
+    for (let i = 0; i < image.data.length; i += 4) for (let c = 0; c < 3; c++) image.data[i + c] = Math.max(0, Math.min(255, Math.round(image.data[i + c] + target[c] - mean[c])));
+  }
+  ctx.putImageData(image, 0, 0); reference.dispose(); texture.needsUpdate = true;
   return texture;
 }
 
@@ -201,41 +226,37 @@ function makeSkyTexture(night) {
 }
 
 function makeRugTexture() {
-  return makeTexture((ctx, w, h) => {
+  const texture = makeTexture((ctx, w, h) => {
     ctx.fillStyle = "#e7dcc2"; ctx.fillRect(0, 0, w, h);
-    // Coarse, softly irregular jute strands; no regular checkerboard grid.
     let state = 37;
-    const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
-    for (let i = 0; i < 38; i++) {
-      const y = 7 + random() * (h - 14);
-      ctx.strokeStyle = random() > 0.48 ? "rgba(117,89,51,.15)" : "rgba(255,255,255,.23)";
-      ctx.lineWidth = 0.7 + random() * 1.25;
-      const start = random() * 16, end = w - random() * 16;
-      ctx.beginPath(); ctx.moveTo(start, y);
-      ctx.bezierCurveTo(w * 0.28, y + (random() - 0.5) * 5, w * 0.68, y + (random() - 0.5) * 5, end, y + (random() - 0.5) * 4);
-      ctx.stroke();
-    }
-    for (let i = 0; i < 20; i++) {
-      const x = 7 + random() * (w - 14), start = random() * 24, end = h - random() * 24;
-      ctx.strokeStyle = random() > 0.5 ? "rgba(133,101,59,.085)" : "rgba(255,255,255,.16)";
-      ctx.lineWidth = 0.65 + random() * 0.9;
-      ctx.beginPath(); ctx.moveTo(x, start);
-      ctx.bezierCurveTo(x + (random() - 0.5) * 5, h * 0.35, x + (random() - 0.5) * 5, h * 0.7, x + (random() - 0.5) * 5, end);
-      ctx.stroke();
-    }
-    for (let i = 0; i < 100; i++) {
-      const x = random() * w, y = random() * h, length = 2 + random() * 7;
-      ctx.strokeStyle = random() > 0.5 ? "rgba(121,91,54,.12)" : "rgba(255,255,255,.2)";
-      ctx.lineWidth = 0.5 + random() * 0.65;
+    const rand = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+    ctx.save(); ctx.beginPath(); ctx.rect(5, 5, w - 10, h - 10); ctx.clip();
+    // Broken bundles, random spacing and short cross-fibres; no full-length cross grid.
+    for (let i = 0; i < 170; i++) {
+      const x = rand() * w, y = rand() * h, length = 9 + rand() * 42;
+      ctx.strokeStyle = rand() > 0.48 ? "rgba(117,89,51,.085)" : "rgba(255,255,255,.15)";
+      ctx.lineWidth = 0.9 + rand() * 1.2;
       ctx.beginPath(); ctx.moveTo(x, y);
-      ctx.lineTo(x + (random() - 0.5) * length, y + (random() - 0.5) * length); ctx.stroke();
+      ctx.bezierCurveTo(x + length * .28, y - 1, x + length * .7, y + 1.5, x + length, y + (rand() - .5) * 3); ctx.stroke();
     }
-    // A pale woven binding, about 2 cm at this texture scale.
-    ctx.strokeStyle = "rgba(255,250,232,.96)"; ctx.lineWidth = 2;
-    ctx.strokeRect(1, 1, w - 2, h - 2);
-    ctx.strokeStyle = "rgba(247,238,213,.85)"; ctx.lineWidth = 1;
-    ctx.strokeRect(4, 4, w - 8, h - 8);
+    for (let i = 0; i < 32; i++) {
+      const x = rand() * w, y = rand() * h;
+      ctx.strokeStyle = rand() > .5 ? "rgba(133,101,59,.045)" : "rgba(255,255,255,.08)";
+      ctx.lineWidth = .8 + rand() * .7;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + (rand() - .5) * 3, y + 3 + rand() * 11); ctx.stroke();
+    }
+    for (let i = 0; i < 160; i++) {
+      const x = rand() * w, y = rand() * h;
+      ctx.strokeStyle = rand() > .5 ? "rgba(121,91,54,.07)" : "rgba(255,255,255,.12)";
+      ctx.lineWidth = .8;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 2 + rand() * 4, y + (rand() - .5) * 3); ctx.stroke();
+    }
+    ctx.restore();
+    // Keep the pale woven binding within the original UV bounds.
+    ctx.strokeStyle = "rgba(255,250,232,.96)"; ctx.lineWidth = 2; ctx.strokeRect(1, 1, w - 2, h - 2);
+    ctx.strokeStyle = "rgba(247,238,213,.85)"; ctx.lineWidth = 1; ctx.strokeRect(4, 4, w - 8, h - 8);
   });
+  return texture;
 }
 
 function makeSeatTexture() {
@@ -267,7 +288,7 @@ function makeMaterials() {
   const std = (color, roughness = 0.8, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   const boucle = makeBoucleTexture();
   return {
-    floor: std(0xcdbb9e, 0.42, { map: makeFloorTexture(31, 0.15), metalness: 0.025 }),
+    floor: std(0xcdbb9e, 0.42, { map: makeFloorTexture(31, 0.23), metalness: 0.025 }),
     wall: std(COLORS.cream, 0.94, { map: makePlasterTexture() }),
     wokWall: std(0x907258, 0.9, { map: makeFineNoise(47, 0.025) }),
     wokSteel: std(0xbfc3c0, 0.34, { metalness: 0.22, emissive: 0x2e1e0e, emissiveIntensity: 0.45 }),
