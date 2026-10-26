@@ -615,6 +615,16 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await expect(page.locator("canvas")).toBeVisible();
   });
 
+  test("aligns dining foot shadows and isolates its upholstery texture", async ({ page }) => {
+    await loadRoom(page);
+    const info = await page.evaluate(() => window.__room03.info());
+    console.log("Room 03 dining chair foot and textile QA:", JSON.stringify(info.diningChairQA));
+    expect(info.diningChairQA).toMatchObject({ footCount: 16, patchCount: 16, samplesPerFoot: expect.any(Number), upholsteryMapIsolated: true, chairTextureRepeat: [2, 2], loungeTextureRepeat: [1, 1] });
+    expect(info.diningChairQA.samplesPerFoot).toBeGreaterThan(0);
+    expect(info.diningChairQA.maxPlanarOffset, "each contact patch should center on its foot").toBeLessThanOrEqual(0.002);
+    expect(info.diningChairQA.maxVerticalOffset, "contact patches should sit 1 mm below the foot bottoms").toBeCloseTo(0.001, 3);
+  });
+
   test("covers the dining furniture with a raised rug and keeps it readable at night", async ({ page }) => {
     await loadRoom(page);
     const golden = await page.evaluate(() => window.__room03.info());
