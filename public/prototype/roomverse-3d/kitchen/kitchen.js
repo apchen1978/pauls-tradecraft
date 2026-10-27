@@ -1224,8 +1224,8 @@ export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true) };
   scene.background = skyMaterials.golden;
-  const DESKTOP_CAMERA = { position: [1.15, 1.58, 4.76], target: [0.76, 1.14, -0.04], fov: 52, maxDistance: 5.3 };
-  const PORTRAIT_CAMERA = { position: [1.36, 1.71, 4.53], target: [1.15, 1.20, 0.05], fov: 80, maxDistance: 5.0 };
+  const DESKTOP_CAMERA = { position: [0, 1.56, 1.58], target: [0, 1.48, 0], fov: 62, maxDistance: 1.72 };
+  const PORTRAIT_CAMERA = { position: [0.408432, 1.591908, 1.524290], target: [0, 1.48, 0], fov: 84, maxDistance: 1.72 };
   const compact = window.innerWidth < 500;
   const camera = new THREE.PerspectiveCamera(compact ? 60 : 50, 1, 0.05, 50);
   const initialCamera = compact ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
@@ -1240,8 +1240,9 @@ export async function start({ stage, onReady = () => {} }) {
   stage.replaceChildren(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = false; controls.enablePan = false;
-  controls.target.set(...initialCamera.target); controls.minDistance = 4.5;
-  controls.minPolarAngle = 1.36; controls.maxPolarAngle = 1.55; controls.minAzimuthAngle = -0.24; controls.maxAzimuthAngle = 0.31;
+  controls.target.set(...initialCamera.target); controls.minDistance = 1.48;
+  controls.minPolarAngle = 1.24; controls.maxPolarAngle = 1.65;
+  controls.minAzimuthAngle = -Infinity; controls.maxAzimuthAngle = Infinity;
   controls.maxDistance = initialCamera.maxDistance;
   let compactCameraActive = compact;
   const materials = makeMaterials();
@@ -1249,6 +1250,16 @@ export async function start({ stage, onReady = () => {} }) {
   let yardLoaded = false;
   let wallArtLoaded = false;
   buildArchitecture(buckets, materials, scene, () => { yardLoaded = true; render(); });
+  {
+    const boxes = [
+      [[2.1, 2.7, 0.12], [-2.05, 1.35, 2.4]], [[2.1, 2.7, 0.12], [2.05, 1.35, 2.4]], [[2.0, 0.6, 0.12], [0, 2.4, 2.4]],
+      [[0.12, 2.7, 1.4], [-1, 1.35, 3.1]], [[0.12, 2.7, 1.4], [1, 1.35, 3.1]],
+      [[2.0, 0.12, 1.4], [0, -0.06, 3.1]], [[2.0, 0.12, 1.4], [0, 2.64, 3.1]], [[2.0, 2.7, 0.12], [0, 1.35, 3.8]],
+    ];
+    const parts = boxes.map(([size, position]) => { const geometry = new THREE.BoxGeometry(...size); geometry.translate(...position); return geometry; });
+    const geometry = mergeGeometries(parts, false); parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
+    const hall = new THREE.Mesh(geometry, materials.wall); hall.name = "entry-hall"; hall.userData.category = "entry-architecture"; hall.castShadow = false; hall.receiveShadow = true; scene.add(hall);
+  }
   buildKitchen(buckets, materials);
   buildSideKitchen(buckets, materials, scene);
   buildTable(buckets, materials);
