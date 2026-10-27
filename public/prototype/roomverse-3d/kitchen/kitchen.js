@@ -907,27 +907,219 @@ function buildPropGroup(scene, key, position, build) {
   return group;
 }
 
-function buildRoomWallArt(scene, materials, onTextureLoad) {
-  const texture = new THREE.TextureLoader().load(
-    new URL("./art/room03-wall-art-v1.webp", import.meta.url).href,
-    onTextureLoad,
-  );
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 4;
-  const artMaterial = new THREE.MeshStandardMaterial({ map: texture, color: 0xffffff, roughness: 1, metalness: 0 });
-  artMaterial.name = "room03-original-garden-art";
-  const group = buildPropGroup(scene, "room03-wall-art", [2.923, 1.52, -0.02], ({ box, shape }) => {
-    // Keep the image aspect ratio while enlarging the oak frame to about 1.2 x 0.94 m.
-    box(materials.oak, [0.034, 0.035, 1.2], [0, 0.4525, 0]);
-    box(materials.oak, [0.034, 0.035, 1.2], [0, -0.4525, 0]);
-    box(materials.oak, [0.034, 0.87, 0.035], [0, 0, -0.5825]);
-    box(materials.oak, [0.034, 0.87, 0.035], [0, 0, 0.5825]);
-    box(materials.oak, [0.012, 0.87, 1.13], [0.011, 0, 0]);
-    shape(new THREE.PlaneGeometry(1.13, 0.87), artMaterial, [-0.015, 0, 0], [0, -Math.PI / 2, 0]);
-  });
-  const imagePlane = group.children.find((child) => child.material === artMaterial);
-  if (imagePlane) imagePlane.receiveShadow = false;
-  return { group, texture };
+function buildRoomWallArt(scene, materials, woodGeometries) {
+  const imageGeometries = [];
+  const makeFrame = (key, position, frameBoxes, imageSize, imageOffset, imageRotation = [0, 0, 0], atlasRect) => {
+    const group = new THREE.Group();
+    group.name = key === "cable-car" ? "prop-room03-wall-art" : `prop-room03-wall-art-${key}`;
+    group.userData.category = "household-props";
+    group.userData.artworkKey = key;
+    group.position.set(...position);
+    const parts = frameBoxes.map(([size, offset]) => {
+      const geometry = new THREE.BoxGeometry(...size);
+      geometry.translate(...offset);
+      return geometry;
+    });
+    const frameGeometry = mergeGeometries(parts, false);
+    parts.forEach((geometry) => geometry.dispose());
+    if (!frameGeometry) throw new Error(`Could not build Room 03 wall-art frame: ${key}`);
+    const worldMatrix = new THREE.Matrix4().makeTranslation(...position);
+    frameGeometry.applyMatrix4(worldMatrix);
+    frameGeometry.computeVertexNormals();
+    frameGeometry.computeBoundingBox();
+    woodGeometries.push(frameGeometry);
+    const imageGeometry = new THREE.PlaneGeometry(...imageSize);
+    const uv = imageGeometry.attributes.uv;
+    for (let vertex = 0; vertex < uv.count; vertex++) {
+      const localU = uv.getX(vertex), localV = uv.getY(vertex);
+      const u = atlasRect.flip ? 1 - localU : localU;
+      uv.setXY(vertex, atlasRect.u0 + u * (atlasRect.u1 - atlasRect.u0), atlasRect.v0 + localV * (atlasRect.v1 - atlasRect.v0));
+    }
+    uv.needsUpdate = true;
+    const imageRotationQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(...imageRotation));
+    const imageWorld = new THREE.Matrix4().compose(new THREE.Vector3(position[0] + imageOffset[0], position[1] + imageOffset[1], position[2] + imageOffset[2]), imageRotationQuat, new THREE.Vector3(1, 1, 1));
+    imageGeometry.applyMatrix4(imageWorld);
+    imageGeometry.computeBoundingBox();
+    imageGeometries.push(imageGeometry);
+    const image = new THREE.Object3D();
+    image.name = `room03-wall-art-${key}-image`;
+    image.userData.artworkKey = key;
+    image.userData.loadStatus = "pending";
+    image.userData.bounds = {
+      min: imageGeometry.boundingBox.min.toArray(), max: imageGeometry.boundingBox.max.toArray(),
+      size: imageGeometry.boundingBox.getSize(new THREE.Vector3()).toArray(),
+    };
+    group.userData.bounds = {
+      min: frameGeometry.boundingBox.min.toArray(), max: frameGeometry.boundingBox.max.toArray(),
+      size: frameGeometry.boundingBox.getSize(new THREE.Vector3()).toArray(),
+    };
+    group.add(image);
+    scene.add(group);
+    return { key, group, image, status: "pending", texture: null, atlasRect };
+  };
+  const cableCar = makeFrame("cable-car", [2.923, 1.52, -0.02], [
+    [[0.034, 0.035, 1.2], [0, 0.4525, 0]], [[0.034, 0.035, 1.2], [0, -0.4525, 0]],
+    [[0.034, 0.87, 0.035], [0, 0, -0.5825]], [[0.034, 0.87, 0.035], [0, 0, 0.5825]],
+    [[0.012, 0.87, 1.13], [0.011, 0, 0]],
+  ], [1.13, 0.87], [-0.015, 0, 0], [0, -Math.PI / 2, 0], { u0: 0, u1: 0.5, v0: 0, v1: 1, flip: false });
+  const redwoodPath = makeFrame("redwood-path", [0.86, 1.78, 3.70], [
+    [[1.61, 0.03, 0.035], [0, 0.59, 0]], [[1.61, 0.03, 0.035], [0, -0.59, 0]],
+    [[0.03, 1.21, 0.035], [-0.79, 0, 0]], [[0.03, 1.21, 0.035], [0.79, 0, 0]],
+    [[1.55, 1.1625, 0.012], [0, 0, 0.012]],
+  ], [1.55, 1.1625], [0, 0, -0.02], [0, Math.PI, 0], { u0: 0.5, u1: 1, v0: 0.012987, v1: 0.987013, flip: true });
+  const assets = { cableCar, redwoodPath };
+  const atlasCanvas = document.createElement("canvas");
+  atlasCanvas.width = 1600;
+  atlasCanvas.height = 616;
+  const atlasContext = atlasCanvas.getContext("2d");
+  atlasContext.fillStyle = "#d8cbb5";
+  atlasContext.fillRect(0, 0, atlasCanvas.width, atlasCanvas.height);
+  const atlasTexture = new THREE.CanvasTexture(atlasCanvas);
+  atlasTexture.colorSpace = THREE.SRGBColorSpace;
+  const imageGeometry = mergeGeometries(imageGeometries, false);
+  imageGeometries.forEach((part) => part.dispose());
+  if (!imageGeometry) throw new Error("Could not merge Room 03 wall-art images");
+  const imageMesh = new THREE.Mesh(imageGeometry, new THREE.MeshBasicMaterial({ map: atlasTexture, color: 0xffffff, side: THREE.DoubleSide, toneMapped: false }));
+  imageMesh.name = "room03-wall-art-image-atlas";
+  imageMesh.userData.category = "household-props";
+  imageMesh.castShadow = false;
+  imageMesh.receiveShadow = false;
+  scene.add(imageMesh);
+  let startedAfterFirstRender = false;
+  let settled = 0;
+  return {
+    assets,
+    imageMesh,
+    get group() { return cableCar.group; },
+    get texture() { return atlasTexture; },
+    material: imageMesh.material,
+    load(onSettled) {
+      if (startedAfterFirstRender) return;
+      startedAfterFirstRender = true;
+      const loader = new THREE.TextureLoader();
+      const urls = {
+        cableCar: new URL("./art/room03-bay-cable-car-v1.webp", import.meta.url).href,
+        redwoodPath: new URL("./art/room03-bay-redwood-path-v1.webp", import.meta.url).href,
+      };
+      for (const [name, asset] of Object.entries(assets)) {
+        loader.load(urls[name], (texture) => {
+          texture.colorSpace = THREE.SRGBColorSpace;
+          asset.texture = texture;
+          const source = texture.image;
+          const x = asset.atlasRect.u0 * atlasCanvas.width;
+          const width = (asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width;
+          const y = asset.key === "redwood-path" ? 8 : 0;
+          const height = asset.key === "redwood-path" ? 600 : atlasCanvas.height;
+          atlasContext.clearRect(x, 0, width, atlasCanvas.height);
+          atlasContext.fillStyle = "#d8cbb5";
+          atlasContext.fillRect(x, 0, width, atlasCanvas.height);
+          atlasContext.save();
+          if (asset.atlasRect.flip) {
+            atlasContext.translate(x + width, 0);
+            atlasContext.scale(-1, 1);
+            atlasContext.drawImage(source, 0, y, width, height);
+          } else atlasContext.drawImage(source, x, y, width, height);
+          atlasContext.restore();
+          texture.dispose();
+          atlasTexture.needsUpdate = true;
+          asset.status = "loaded";
+          asset.image.userData.loadStatus = "loaded";
+          settled += 1;
+          onSettled({ status: asset.status, startedAfterFirstRender, settled, total: 2 });
+        }, undefined, () => {
+          asset.status = "fallback";
+          asset.image.userData.loadStatus = "fallback";
+          settled += 1;
+          onSettled({ status: asset.status, startedAfterFirstRender, settled, total: 2 });
+        });
+      }
+    },
+    get startedAfterFirstRender() { return startedAfterFirstRender; },
+  };
+}
+
+function buildRoom03MediaUnit(scene, materials, woodGeometries) {
+  const group = new THREE.Group();
+  group.name = "prop-room03-screen-and-console";
+  group.userData.category = "room03-media";
+  const centerX = -0.65;
+  const screenCenterY = 1.06;
+  const screenFrameParts = [
+    [[0.98, 0.02, 0.03], [centerX, screenCenterY + 0.275, 0]],
+    [[0.98, 0.02, 0.03], [centerX, screenCenterY - 0.275, 0]],
+    [[0.02, 0.53, 0.03], [centerX - 0.48, screenCenterY, 0]],
+    [[0.02, 0.53, 0.03], [centerX + 0.48, screenCenterY, 0]],
+  ];
+  const consoleParts = [
+    [[1.30, 0.05, 0.32], [centerX, 0.55, -0.17]],
+    [[0.05, 0.30, 0.30], [centerX - 0.625, 0.375, -0.17]],
+    [[0.05, 0.30, 0.30], [centerX + 0.625, 0.375, -0.17]],
+    [[1.20, 0.04, 0.30], [centerX, 0.22, -0.17]],
+    [[0.56, 0.27, 0.012], [centerX - 0.315, 0.385, -0.014]],
+    [[0.56, 0.27, 0.012], [centerX + 0.315, 0.385, -0.014]],
+    [[1.15, 0.06, 0.25], [centerX, 0.08, -0.17]],
+  ];
+  const mergeBoxes = (parts, name) => {
+    const geometries = parts.map(([size, position]) => {
+      const geometry = new THREE.BoxGeometry(...size);
+      geometry.translate(...position);
+      return geometry;
+    });
+    const merged = mergeGeometries(geometries, false);
+    geometries.forEach((geometry) => geometry.dispose());
+    if (!merged) throw new Error(`Could not build Room 03 ${name}`);
+    merged.computeVertexNormals();
+    return merged;
+  };
+  const frame = new THREE.Object3D();
+  frame.name = "room03-tv-screen-frame";
+  frame.userData.bounds = {
+    min: [centerX - 0.49, screenCenterY - 0.275, 3.685],
+    max: [centerX + 0.49, screenCenterY + 0.275, 3.715],
+    size: [0.98, 0.55, 0.03],
+  };
+  const console = new THREE.Object3D();
+  console.name = "room03-tv-low-console";
+  console.userData.bounds = {
+    min: [centerX - 0.65, 0.05, 3.365],
+    max: [centerX + 0.65, 0.575, 3.686],
+    size: [1.30, 0.525, 0.321],
+  };
+  group.add(frame, console);
+  const woodwork = mergeBoxes([...screenFrameParts, ...consoleParts], "screen-and-console woodwork");
+  woodwork.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, 3.70));
+  woodwork.computeBoundingBox();
+  woodGeometries.push(woodwork);
+
+  const screenSlot = new THREE.Group();
+  screenSlot.name = "mood-slot-screen-content";
+  screenSlot.userData.moodSlot = "screen-content";
+  const screenMaterial = new THREE.MeshBasicMaterial({ color: 0x171918, side: THREE.DoubleSide });
+  screenMaterial.name = "room03-screen-powered-off";
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.94, 0.53), screenMaterial);
+  screen.name = "screen-content-surface";
+  screen.userData.moodSlot = "screen-content";
+  screen.position.set(centerX, screenCenterY, -0.022);
+  screenSlot.add(screen);
+  group.add(screenSlot);
+  group.position.set(0, 0, 3.70);
+  scene.add(group);
+  return { group, frame, console, screenSlot, screen, centerX, screenCenterY };
+}
+
+function addRoom03Woodwork(scene, material, geometries) {
+  const geometry = mergeGeometries(geometries, false);
+  geometries.forEach((part) => part.dispose());
+  if (!geometry) throw new Error("Could not merge Room 03 wall-art and media woodwork");
+  geometry.computeVertexNormals();
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.name = "room03-wall-art-and-media-woodwork";
+  mesh.userData.category = "wall-art-frame";
+  mesh.userData.room03MediaWoodwork = true;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  scene.add(mesh);
+  return mesh;
 }
 
 function buildHouseholdProps(scene, m) {
@@ -979,23 +1171,48 @@ function buildHouseholdProps(scene, m) {
     shape(new THREE.CylinderGeometry(0.041, 0.041, 0.022, 8), m.stone, [1.84, 0.127, -1.96]);
   });
 
-  // Three restrained succulents in one low rectangular planter, brought forward for the default view.
+  // One mood-slot keeps the small tabletop centerpiece easy to replace later.
+  const centerpieceSlot = new THREE.Group();
+  centerpieceSlot.name = "mood-slot-tabletop-centerpiece";
+  centerpieceSlot.userData.moodSlot = "tabletop-centerpiece";
+  const planterMaterial = m.porcelain.clone();
+  planterMaterial.color.setHex(0xe5e2d9);
+  planterMaterial.roughness = 0.9;
+  const rosetteLeafMaterial = m.leafGreen.clone();
+  rosetteLeafMaterial.color.setHex(0xffffff);
+  rosetteLeafMaterial.vertexColors = true;
+  rosetteLeafMaterial.name = "room03-rosette-leaves-vertex-color";
+  const tintGeometry = (geometry, colorHex) => {
+    const color = new THREE.Color(colorHex);
+    const colors = new Float32Array(geometry.attributes.position.count * 3);
+    for (let vertex = 0; vertex < geometry.attributes.position.count; vertex++) color.toArray(colors, vertex * 3);
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    return geometry;
+  };
   const succulents = buildPropGroup(scene, "tabletop-succulents", [0, 0.75, 0.76], ({ box, shape }) => {
-    box(m.oak, [0.56, 0.075, 0.19], [0, 0.039, 0]);
+    box(planterMaterial, [0.56, 0.075, 0.19], [0, 0.039, 0]);
     box(m.soil, [0.52, 0.012, 0.15], [0, 0.082, 0]);
-    const leafGeometry = new THREE.SphereGeometry(1, 10, 8);
-    for (const centerX of [-0.18, 0, 0.18]) {
-      shape(new THREE.SphereGeometry(0.035, 10, 8), m.leafGreen, [centerX, 0.115, 0]);
-      for (let leaf = 0; leaf < 4; leaf++) {
-        const angle = leaf * Math.PI / 2 + (centerX < 0 ? 0.22 : 0);
-        const x = centerX + Math.cos(angle) * 0.032;
-        const z = Math.sin(angle) * 0.032;
-        shape(leafGeometry.clone(), m.leafGreen, [x, 0.136, z], [0.25 * Math.sin(angle), 0, -0.52 * Math.cos(angle)], [0.035, 0.014, 0.027]);
+    const leafGeometry = new THREE.SphereGeometry(1, 8, 5);
+    [-0.18, 0, 0.18].forEach((centerX, index) => {
+      const leafCount = index === 1 ? 9 : 8;
+      for (let leaf = 0; leaf < leafCount; leaf++) {
+        const angle = 2 * Math.PI * leaf / leafCount + index * 0.22;
+        const radius = 0.034 + (leaf % 3) * 0.003;
+        shape(tintGeometry(leafGeometry.clone(), (leaf + index) % 2 ? 0x9aa581 : 0x728263), rosetteLeafMaterial,
+          [centerX + Math.cos(angle) * radius, 0.137 + (leaf % 2) * 0.003, Math.sin(angle) * radius],
+          [0.05 * Math.sin(angle), -angle, -0.32 * Math.cos(angle)], [0.043, 0.012, 0.024]);
       }
-    }
+      shape(tintGeometry(new THREE.SphereGeometry(0.021, 8, 6), index % 2 ? 0x9aa581 : 0x728263), rosetteLeafMaterial, [centerX, 0.122, 0]);
+    });
     leafGeometry.dispose();
   });
   succulents.scale.setScalar(1.3);
+  succulents.traverse((object) => { if (object.isMesh) object.castShadow = false; });
+  succulents.userData.form = "three-low-rosette-succulents";
+  succulents.userData.moodReplaceable = true;
+  succulents.removeFromParent();
+  centerpieceSlot.add(succulents);
+  scene.add(centerpieceSlot);
 
   // Fiddle-leaf fig: each petiole grows upward from the trunk instead of forming horizontal rungs.
   const leafCount = 30;
@@ -1174,6 +1391,28 @@ function loadFurniture(scene, materials) {
       if (kind === "table") {
         removeCategory("dining-table");
         model.position.set(0, 0, 0.5);
+        const softenedMaps = new Set();
+        model.traverse((object) => {
+          if (!object.isMesh) return;
+          const list = Array.isArray(object.material) ? object.material : [object.material];
+          for (const material of list) {
+            const map = material?.map;
+            if (!map?.image || softenedMaps.has(map)) continue;
+            const image = map.image;
+            const canvas = document.createElement("canvas");
+            canvas.width = image.naturalWidth || image.width;
+            canvas.height = image.naturalHeight || image.height;
+            const context = canvas.getContext("2d");
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            context.fillStyle = "rgba(216, 197, 164, 0.14)";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            map.image = canvas;
+            map.needsUpdate = true;
+            material.roughness = Math.max(material.roughness ?? 0.66, 0.72);
+            material.needsUpdate = true;
+            softenedMaps.add(map);
+          }
+        });
         const edgeHeights = [];
         model.traverse((object) => {
           if (!object.isMesh || !object.geometry?.attributes?.position) return;
@@ -1249,6 +1488,8 @@ export async function start({ stage, onReady = () => {} }) {
   const buckets = new Map();
   let yardLoaded = false;
   let wallArtLoaded = false;
+  let wallArtSettled = 0;
+  let firstFrameRendered = false;
   buildArchitecture(buckets, materials, scene, () => { yardLoaded = true; render(); });
   {
     const boxes = [
@@ -1266,7 +1507,11 @@ export async function start({ stage, onReady = () => {} }) {
   const diningChairSeatGap = buildProceduralDiningChairs(scene, materials);
   buildHouseholdProps(scene, materials);
   const loungeChair = buildLoungeChair(scene, materials);
-  const wallArt = buildRoomWallArt(scene, materials, () => { wallArtLoaded = true; render(); });
+  const woodGeometries = [];
+  const wallArt = buildRoomWallArt(scene, materials, woodGeometries);
+  const mediaUnit = buildRoom03MediaUnit(scene, materials, woodGeometries);
+  const mediaWoodwork = addRoom03Woodwork(scene, materials.oak, woodGeometries);
+  const moodSlots = { screen: mediaUnit.screen, tabletopCenterpiece: scene.getObjectByName("mood-slot-tabletop-centerpiece") };
   assemble(buckets, scene);
   const sunTarget = new THREE.Object3D(); sunTarget.position.set(0, 0, 0); scene.add(sunTarget);
   const sun = new THREE.DirectionalLight(0xffd6a1, 2.4); sun.position.set(-4.2, 1.2, 3.6); sun.target = sunTarget; sun.castShadow = true;
@@ -1408,7 +1653,17 @@ export async function start({ stage, onReady = () => {} }) {
     renderer.setSize(rect.width, rect.height, false);
     render();
   }
-  function render() { renderer.render(scene, camera); }
+  function render() {
+    renderer.render(scene, camera);
+    if (!firstFrameRendered) {
+      firstFrameRendered = true;
+      requestAnimationFrame(() => wallArt.load(({ settled, total }) => {
+        wallArtSettled = settled;
+        if (settled === total) wallArtLoaded = true;
+        render();
+      }));
+    }
+  }
   controls.addEventListener("change", render);
   const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(stage);
   resize(); controls.update(); setMood("golden");
@@ -1492,6 +1747,7 @@ export async function start({ stage, onReady = () => {} }) {
     } : null;
     const boxFor = (name) => {
       const object = scene.getObjectByName(name); if (!object) return null;
+      if (object.userData.bounds) return object.userData.bounds;
       const box = new THREE.Box3().setFromObject(object);
       return { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
@@ -1574,11 +1830,69 @@ export async function start({ stage, onReady = () => {} }) {
       center: [(Math.min(...wallArtNdc.map(([x]) => x)) + Math.max(...wallArtNdc.map(([x]) => x))) / 2, (Math.min(...wallArtNdc.map(([, y]) => y)) + Math.max(...wallArtNdc.map(([, y]) => y))) / 2],
     };
     const wallArtDoorFrameBounds = { min: [2.86, 0, 1.2025], max: [2.94, 2.1, 2.0975], size: [0.08, 2.1, 0.895] };
-    const wallArtImagePlane = wallArt.group.children.find((child) => child.material?.name === "room03-original-garden-art");
-    return { lounge, diningChairQA, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtTextureSize: [wallArt.texture.image?.naturalWidth || wallArt.texture.image?.width || 0, wallArt.texture.image?.naturalHeight || wallArt.texture.image?.height || 0], wallArtColorSpace: wallArt.texture.colorSpace, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
+    const wallArtImagePlane = wallArt.imageMesh;
+    const projectedPixelsFor = (object) => {
+      const bounds = object.userData.bounds
+        ? new THREE.Box3(new THREE.Vector3(...object.userData.bounds.min), new THREE.Vector3(...object.userData.bounds.max))
+        : new THREE.Box3().setFromObject(object);
+      const points = [];
+      for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) points.push(project([x, y, z]));
+      const xs = points.map(([x]) => x), ys = points.map(([, y]) => y);
+      return { width: (Math.max(...xs) - Math.min(...xs)) * stage.clientWidth / 2, height: (Math.max(...ys) - Math.min(...ys)) * stage.clientHeight / 2 };
+    };
+    const boxGap = (a, b) => {
+      const gaps = [0, 1, 2].map((axis) => Math.max(0, a.min[axis] - b.max[axis], b.min[axis] - a.max[axis]));
+      return Math.hypot(...gaps);
+    };
+    const artInfo = (asset) => {
+      const bounds = boxFor(asset.group.name);
+      const image = asset.texture?.image;
+      return {
+        status: asset.status,
+        textureSize: image ? [image.naturalWidth || image.width, image.naturalHeight || image.height] : [0, 0],
+        bounds,
+        imagePixels: projectedPixelsFor(asset.image),
+        fallbackColor: "#d8cbb5",
+      };
+    };
+    const screenMaterial = mediaUnit.screen.material;
+    const screenBounds = boxFor(mediaUnit.screen.name);
+    const consoleBounds = boxFor(mediaUnit.console.name);
+    const redwoodBounds = boxFor(wallArt.assets.redwoodPath.group.name);
+    const redwoodPixels = projectedPixelsFor(wallArt.assets.redwoodPath.image);
+    const normalizedYaw = (THREE.MathUtils.radToDeg(controls.getAzimuthalAngle()) + 360) % 360;
+    const wallArtAssets = {
+      cableCar: artInfo(wallArt.assets.cableCar),
+      redwoodPath: {
+        ...artInfo(wallArt.assets.redwoodPath),
+        phone180Pixels: compactCameraActive && Math.abs(normalizedYaw - 180) < 15 ? redwoodPixels : { width: 0, height: 0 },
+        gapToScreen: boxGap(redwoodBounds, boxFor("room03-tv-screen-frame")),
+        topBelowHorizontalBand: redwoodBounds.max[1] <= 2.4,
+      },
+      canopyInRoom: false,
+      startedAfterFirstRender: wallArt.startedAfterFirstRender && firstFrameRendered,
+      settled: wallArtSettled,
+    };
+    const moodSlotInfo = {
+      screen: {
+        name: mediaUnit.screen.name,
+        type: screenMaterial.type,
+        hasMap: Boolean(screenMaterial.map),
+        off: screenMaterial.isMeshBasicMaterial && screenMaterial.color.getHex() === 0x171918,
+        width: screenBounds.size[0],
+      },
+      console: { name: mediaUnit.console.name, width: consoleBounds.size[0], bounds: consoleBounds },
+      tabletopCenterpiece: {
+        name: moodSlots.tabletopCenterpiece.name,
+        visible: moodSlots.tabletopCenterpiece.visible,
+        childCount: moodSlots.tabletopCenterpiece.children.length,
+        childName: moodSlots.tabletopCenterpiece.children[0]?.name || null,
+      },
+    };
+    return { lounge, diningChairQA, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
   };
   const instance = {
-    setMood, resize, render, camera, controls, info,
+    setMood, resize, render, camera, controls, info, moodSlots,
     setLang: () => {}, samplePixels, sampleNdc,
     setView: (azimuth = 0) => {
       const offset = camera.position.clone().sub(controls.target);
