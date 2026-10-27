@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=38";
+import { start, ROOM_TITLE } from "./kitchen.js?v=39";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -8,6 +8,7 @@ const COPY = {
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
     moods: {
       golden: ["金色時光", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
+      movie: ["追劇夜", "中央吊燈關掉，螢幕放冷色城市，落地燈與桌燈留著暖光。"],
       night: ["夜晚", "院子轉為藍調，圓球燈、櫥下燈與側廚房暖光照亮餐區。"],
     },
   },
@@ -19,6 +20,7 @@ const COPY = {
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
     moods: {
       golden: ["Golden hour", "Low, warm afternoon light enters through the glass doors; the pendant stays soft."],
+      movie: ["Movie night", "The pendant is off, the screen shows a cool city, and the floor and table lamps stay warm."],
       night: ["Night", "The garden turns blue while the globe pendant, counter light and side kitchen warm the dining room."],
     },
   },
