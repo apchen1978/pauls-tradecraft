@@ -20,7 +20,9 @@ async function loadRoom(page, width) {
 test("Thanksgiving changes the light, the screen, and the courtyard, and adds no props", async ({ page }) => {
   await loadRoom(page, 1440);
   await expect(page.getByRole("button", { name: "感恩節" })).toBeVisible();
-  expect(await page.evaluate(() => window.__room03.info().propBounds.length)).toBe(7);
+  const propKeys = await page.evaluate(() => Object.keys(window.__room03.info().propBounds));
+  expect(propKeys).toHaveLength(7);
+  expect(propKeys.join(" ")).not.toMatch(/pumpkin|wreath|candle|apple/i);
 
   await page.evaluate(() => window.__room03.setMood("thanksgiving"));
   await page.waitForFunction(() => {
@@ -38,7 +40,7 @@ test("Thanksgiving changes the light, the screen, and the courtyard, and adds no
       screenCoolOn: lights.screenCool.intensity,
       screen: info.screenContent,
       courtyard: info.courtyardMap,
-      props: info.propBounds.length,
+      props: Object.keys(info.propBounds).length,
       fields: Object.keys(info.moodLook.moods.thanksgiving).sort().join(),
       required: [...info.moodLook.fields].sort().join(),
     };
