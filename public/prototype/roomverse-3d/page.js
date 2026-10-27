@@ -83,7 +83,7 @@ function setImmersive(on, pushHistory = true) {
   if (on) {
     if (pushHistory) history.pushState({ ...(history.state && typeof history.state === "object" ? history.state : {}), room01Immersive: true }, "", location.href);
     $("immersiveExit").focus({ preventScroll: true });
-  } else $("immersiveEnter").focus({ preventScroll: true });
+  } else ($("immersiveEnter").getClientRects().length ? $("immersiveEnter") : $("portalBtn")).focus({ preventScroll: true });
   room.resize();
   requestAnimationFrame(() => {
     room.resize();
