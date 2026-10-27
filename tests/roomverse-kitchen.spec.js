@@ -161,7 +161,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.drawCallsLastFrame - 97, "draw calls increase by at most two from 29c4c5e").toBeLessThanOrEqual(2);
     expect(golden.lightMetrics.lightCount).toBe(6);
     expect(chair.contactShadowVisible).toBe(true);
-    expect(chair.contactShadowBounds.size[1], "four contact patches stay on the floor").toBeLessThanOrEqual(0.001);
+    // The decals are one merged mesh now: rug-top patches at y 0.021 and floor patches at y 0.003, so the envelope is 18 mm.
+    expect(chair.contactShadowBounds.size[1], "contact decals sit just above the rug and the floor").toBeLessThanOrEqual(0.02);
     expect(golden.furniture.tabletopEdgeHeightDeviation).not.toBeNull();
     expect(golden.furniture.tabletopEdgeHeightDeviation, "table top edge stays within a 1.5 cm height envelope").toBeLessThanOrEqual(0.015);
     await rotateTo(page, 90);
