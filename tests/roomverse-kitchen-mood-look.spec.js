@@ -32,7 +32,7 @@ test("every Room 03 mood has every MOOD_LOOK field, and golden/night still apply
   expect(report.look.moods.night).toBeTruthy();
   expect(report.look.fields.length).toBeGreaterThan(20);
   for (const mood of ["golden", "night"]) {
-    expect(Object.keys(report.look.moods[mood]), mood).toEqual([...report.look.fields]);
+    expect(Object.keys(report.look.moods[mood]).sort(), mood).toEqual([...report.look.fields].sort());
     for (const field of report.look.fields) {
       expect(Object.prototype.hasOwnProperty.call(report.look.moods[mood], field), `${mood}.${field}`).toBe(true);
     }

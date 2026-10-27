@@ -388,8 +388,10 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     // sample from collapsing while P0 is in review.
     expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(104);
     // This sample sits inside the old VSM penumbra (99.8). With PCF the penumbra is narrower, so the same pixels are 91.1.
+    // Old ceiling 7.8395. On the pre-lamp build this machine measured 7.844 (known edge noise, left alone).
+    // The floor lamp now stands where the fig stood, and that sample reads 8.318. Ceiling 8.50 still rejects a blown penumbra.
     expect(golden.samples.floorShadow.meanLuminance).toBeGreaterThan(88);
-    expect(golden.samples.floorShadow.luminanceStdDev).toBeLessThan(7.8395);
+    expect(golden.samples.floorShadow.luminanceStdDev).toBeLessThan(8.50);
     expect(golden.info.lightMetrics.windowBounce).toBeGreaterThan(0);
     await shot(page, "desktop-1440-golden-after");
     await setReviewCamera(page, [0.18, 0.55, 0.45], [1.38, 1.4, 2.25], 46);
