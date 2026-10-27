@@ -20,15 +20,15 @@ for (const width of [390, 768, 1440]) {
       for (const [index, destination] of destinations.entries()) {
         const card = section.locator("article").nth(index);
         if (destination === "roomverse-3d") {
-          // ROOMVERSE is a series card: one cover and one button per open room, in order Room 01, Room 02.
+          // ROOMVERSE is a series card: one cover and one button per open room, in order Room 01, Room 02, Room 03.
           const covers = card.locator("a:has(img)"), buttons = card.locator("a:not(:has(img))");
-          await expect(covers).toHaveCount(2); await expect(buttons).toHaveCount(2);
-          for (const [i, path] of ["/prototype/roomverse-3d/", "/prototype/roomverse-3d/bedroom/"].entries()) {
+          await expect(covers).toHaveCount(3); await expect(buttons).toHaveCount(3);
+          for (const [i, path] of ["/prototype/roomverse-3d/", "/prototype/roomverse-3d/bedroom/", "/prototype/roomverse-3d/kitchen/"].entries()) {
             await expect(covers.nth(i)).toHaveAttribute("href", `${path}?from=home&lang=${lang}`); // the home cover opens each room in golden hour
             await expect(buttons.nth(i)).toHaveAttribute("href", `${path}?from=home&lang=${lang}`);
             await expect(covers.nth(i).locator("img")).toHaveCount(1);
           }
-          await expect(card.getByRole("heading", { level: 4 })).toHaveCount(2);
+          await expect(card.getByRole("heading", { level: 4 })).toHaveCount(3);
           await expect(card.locator("h3 + p")).not.toBeEmpty();
           await expect(card.locator("h3 + p + p")).not.toBeEmpty();
           continue;
