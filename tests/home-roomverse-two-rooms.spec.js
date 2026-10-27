@@ -13,7 +13,7 @@ for (const lang of ["zh", "en"]) {
       await expect(card.getByRole("heading", { level: 4 })).toHaveCount(2);
       await expect(card.getByRole("heading", { level: 4 }).nth(0)).toContainText(lang === "zh" ? "客廳" : "Living Room");
       await expect(card.getByRole("heading", { level: 4 }).nth(1)).toContainText("Brooklyn Studio");
-      await expect(card.getByText(lang === "zh" ? "目前開放兩間房" : "Two rooms are open")).toBeVisible();
+      await expect(card.getByText(lang === "zh" ? "目前開放三間房" : "Three rooms are open")).toBeVisible();
       await card.scrollIntoViewIfNeeded();
       await page.waitForTimeout(500);
       // both covers load (images are lazy on phones)

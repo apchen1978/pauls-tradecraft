@@ -34,6 +34,6 @@ export const ROOMS = Object.freeze([
     }),
     url: "/prototype/roomverse-3d/kitchen/",
     transitionColor: "#6b5bd8",
-    listed: false,
+    listed: true,
   }),
 ]);
