@@ -81,8 +81,8 @@ export default function Showcase() {
             const wide = wideAt(index, items.length, item);
             if (item.rooms) return (
             <li key={item.href} className={`flex ${wide.li}`}>
-              <article className="flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone lg:flex-row">
-                <div className="flex flex-col p-5 md:p-8 lg:w-[30%] lg:shrink-0">
+              <article className="flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone xl:flex-row">
+                <div className="flex flex-col p-5 md:p-8 xl:w-[30%] xl:shrink-0">
                   <p className="text-xs font-semibold text-moss">{item.tag}</p>
                   <h3 className="mt-3 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.75rem]">{item.title}</h3>
                   <p className="mt-3 text-base leading-relaxed text-ink">{item.hook}</p>
@@ -90,24 +90,31 @@ export default function Showcase() {
                   <p className="mt-auto pt-6 text-sm font-semibold text-amber">{item.roomsNote}</p>
                   <p className="mt-3 border-t-2 border-dashed border-ink/25 pt-3 text-xs leading-relaxed text-moss">{item.boundary}</p>
                 </div>
-                <ul className="grid flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:p-6 lg:pl-0">
+                <ul className="mx-auto grid w-full max-w-[28rem] flex-1 grid-cols-1 gap-4 p-4 md:mx-0 md:max-w-none md:grid-cols-3 md:p-6 xl:pl-0">
                   {item.rooms.map((room, roomIndex) => {
                     const href = withDemoLang(room.href, lang);
                     return (
                       <li key={room.href} className="flex">
                         <div className="flex w-full flex-col overflow-hidden rounded-[1rem] border-2 border-ink bg-white">
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`${room.no} ${room.name} — ${room.cta}`}
-                            tabIndex="-1"
-                            aria-hidden="true"
-                            className="block overflow-hidden bg-paper focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-ink"
-                            style={{ aspectRatio: room.imageRatio }}
-                          >
-                            <ShowcaseImage item={room} index={index + roomIndex} />
-                          </a>
+                          <div className="relative">
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`${room.no} ${room.name} — ${room.cta}`}
+                              tabIndex="-1"
+                              aria-hidden="true"
+                              className="block overflow-hidden bg-paper focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-ink"
+                              style={{ aspectRatio: room.imageRatio }}
+                            >
+                              <ShowcaseImage item={room} index={index + roomIndex} />
+                            </a>
+                            {room.wip && (
+                              <span className="pointer-events-none absolute left-3 top-3 rounded-full border border-bone/70 bg-ink px-3 py-1.5 text-xs font-semibold leading-none text-bone">
+                                {room.wip}
+                              </span>
+                            )}
+                          </div>
                           <div className="flex flex-1 flex-col p-4 md:p-5">
                             <p className="text-xs font-semibold tracking-[0.08em] text-amber">{room.no}</p>
                             <h4 className="mt-1 text-[1.25rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">{room.name}</h4>
