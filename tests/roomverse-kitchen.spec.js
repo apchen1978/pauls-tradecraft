@@ -308,7 +308,16 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(defaultCamera[0]).toBeCloseTo(0, 3);
     expect(defaultCamera[1]).toBeCloseTo(1.56, 3);
     expect(defaultCamera[2]).toBeCloseTo(1.58, 3);
-    await page.evaluate(() => { window.__room03.qaScene.getObjectByName("entry-hall").visible = false; });
+    await page.evaluate(() => {
+      const scene = window.__room03.qaScene;
+      scene.getObjectByName("entry-hall").visible = false;
+      // Keep this legacy pixel sample comparable: its camera is outside the room,
+      // behind the new media wall. The room furniture must not occlude the light-only sample.
+      for (const name of ["room03-wall-art-and-media-woodwork", "room03-wall-art-image-atlas", "prop-room03-screen-and-console"]) {
+        const object = scene.getObjectByName(name);
+        if (object) object.visible = false;
+      }
+    });
     await setReviewCamera(page, [0.76, 1.14, -0.04], [1.15, 1.58, 4.76], 52);
     const boxes = {
       interior: [200, 190, 1200, 680], floorShadow: [810, 500, 980, 650],
@@ -353,7 +362,14 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await setReviewCamera(page, [-1.93, 0.95, 1.68], [-0.62, 1.22, 2.8], 44);
     await shot(page, "plant-branches-closeup-after");
     await loadRoom(page);
-    await page.evaluate(() => { window.__room03.qaScene.getObjectByName("entry-hall").visible = false; });
+    await page.evaluate(() => {
+      const scene = window.__room03.qaScene;
+      scene.getObjectByName("entry-hall").visible = false;
+      for (const name of ["room03-wall-art-and-media-woodwork", "room03-wall-art-image-atlas", "prop-room03-screen-and-console"]) {
+        const object = scene.getObjectByName(name);
+        if (object) object.visible = false;
+      }
+    });
     await setReviewCamera(page, [0.76, 1.14, -0.04], [1.15, 1.58, 4.76], 52);
     await page.locator('#moods button[data-mood="night"]').click();
     const night = await measure();
@@ -424,7 +440,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     const info = await page.evaluate(() => window.__room03.info());
     console.log("Room 03 measured scene:", JSON.stringify(info));
     expect(info.wallArtLoaded).toBe(true);
-    expect(info.wallArtTextureSize).toEqual([1376, 1070]);
+    expect(info.wallArtTextureSize).toEqual([800, 616]);
     expect(info.wallArtColorSpace).toBe("srgb");
     expect(statSync("public/prototype/roomverse-3d/kitchen/art/room03-wall-art-v1.webp").size).toBeLessThanOrEqual(150000);
     expect(info.wallArtBounds.size[1]).toBeCloseTo(0.94, 2);
@@ -433,7 +449,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.wallArtBounds.min[0]).toBeGreaterThanOrEqual(2.9);
     expect(info.wallArtBounds.max[0]).toBeLessThanOrEqual(2.941);
     expect(info.wallArtBounds.max[0]).toBeCloseTo(2.94, 2);
-    expect(info.wallArtMaterial).toBe("MeshStandardMaterial");
+    expect(info.wallArtMaterial).toBe("MeshBasicMaterial");
     expect(info.wallArtReceivesShadow).toBe(false);
     expect(info.wallArtDoorFrameBounds.min[2] - info.wallArtBounds.max[2]).toBeGreaterThanOrEqual(0.6);
     await expectMainRegionsInFrame(page);
