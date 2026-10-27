@@ -201,6 +201,29 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(errors).toEqual([]);
   });
 
+  test("drapes the lounge throw, seats the pillow, and embeds the four feet", async ({ page }) => {
+    await loadRoom(page);
+    const report = await page.evaluate(() => ({ fit: window.__room03.info().lounge.fit, footToBody: window.__room03.info().footToBody }));
+    const { fit } = report;
+    expect(fit.throw.vertices).toBe(782);
+    expect(fit.pillow.vertices).toBe(338);
+    expect(fit.legVertices).toBe(208);
+    expect(fit.throw.armClearanceMm, "throw stays at least 1 cm off both armrests").toBeGreaterThanOrEqual(10);
+    expect(fit.throw.backClearanceMm, "throw does not pass through the back").toBeGreaterThanOrEqual(0);
+    expect(fit.throw.rimClearanceMm, "throw does not pass through the padded rim").toBeGreaterThanOrEqual(0);
+    expect(fit.throw.seatClearanceMm, "throw rests on the seat without stabbing it").toBeGreaterThanOrEqual(0);
+    expect(fit.throw.seatClearanceMm, "throw actually meets the seat").toBeLessThanOrEqual(8);
+    expect(fit.throw.nearSeatSamples, "a patch of the throw lies on the seat").toBeGreaterThanOrEqual(80);
+    expect(fit.pillow.inSeatBackZone, "pillow center sits in the seat-back corner").toBe(true);
+    expect(fit.pillow.seatEmbedMm, "pillow is pressed into the seat").toBeGreaterThanOrEqual(4);
+    expect(fit.pillow.seatEmbedMm).toBeLessThanOrEqual(16);
+    expect(fit.pillow.backClearanceMm, "pillow does not pass through the back").toBeGreaterThanOrEqual(0);
+    expect(fit.pillow.armClearanceMm).toBeGreaterThanOrEqual(10);
+    expect(fit.feet).toHaveLength(4);
+    for (const foot of fit.feet) expect(foot.embedMm, `${foot.name} foot top embeds at least 5 mm`).toBeGreaterThanOrEqual(5);
+    console.log("Room 03 lounge fit:", JSON.stringify(report));
+  });
+
   test("captures roundness review views and reports the measured scene", async ({ page }) => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(String(error)));
