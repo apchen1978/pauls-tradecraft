@@ -1373,7 +1373,7 @@ function loadFurniture(scene, materials) {
       const model = gltf.scene;
       model.traverse((object) => {
         if (!object.isMesh) return;
-        object.castShadow = true;
+        object.castShadow = kind !== "pendant"; // the pendant's own glass must not shadow the light inside it
         object.receiveShadow = true;
         object.userData.category = kind === "table" ? "dining-table" : "lighting";
         object.userData.furnitureAsset = kind;
@@ -1475,7 +1475,9 @@ export async function start({ stage, onReady = () => {} }) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.08;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.VSMShadowMap;
+  // PCF instead of VSM: a 512 px VSM shadow map over an 8 x 8 m room blurred every edge into mush, so cabinets and
+  // chairs had no readable shadow. PCF with a larger map keeps a soft edge without washing the contact area away.
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   stage.replaceChildren(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = false; controls.enablePan = false;
@@ -1515,10 +1517,21 @@ export async function start({ stage, onReady = () => {} }) {
   assemble(buckets, scene);
   const sunTarget = new THREE.Object3D(); sunTarget.position.set(0, 0, 0); scene.add(sunTarget);
   const sun = new THREE.DirectionalLight(0xffd6a1, 2.4); sun.position.set(-4.2, 1.2, 3.6); sun.target = sunTarget; sun.castShadow = true;
-  sun.shadow.mapSize.set(512, 512); sun.shadow.camera.left = -4; sun.shadow.camera.right = 4; sun.shadow.camera.top = 4; sun.shadow.camera.bottom = -4; sun.shadow.bias = -0.0002; sun.shadow.radius = 3; sun.shadow.blurSamples = 8; scene.add(sun);
+  // 2048 on desktop, 1024 on phones: the shadow camera still covers the room, but phones get a quarter of the texels so the
+  // per-frame depth pass stays cheap (no real-device numbers yet — Paul measures iPhone FPS/heat).
+  sun.shadow.mapSize.set(compact ? 1024 : 2048, compact ? 1024 : 2048);
+  sun.shadow.camera.left = -4; sun.shadow.camera.right = 4; sun.shadow.camera.top = 4; sun.shadow.camera.bottom = -4;
+  sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02; sun.shadow.radius = 4; scene.add(sun);
   const hemi = new THREE.HemisphereLight(0xfff0d4, 0x6f6658, 0.68); scene.add(hemi);
   const ambient = new THREE.AmbientLight(0xffffff, 0.28); scene.add(ambient);
   const pendantLight = buildPendant(scene, materials);
+  // The pendant is the only real light at night: casting a shadow from it is what puts the plant, table and chairs on the
+  // floor at night. Desktop only for now; phones keep it off until Paul has looked at an iPhone.
+  pendantLight.castShadow = !compact;
+  pendantLight.shadow.mapSize.set(512, 512);
+  pendantLight.shadow.bias = -0.004;
+  pendantLight.shadow.camera.near = 0.1;
+  pendantLight.shadow.camera.far = 6;
   const furniture = loadFurniture(scene, materials);
   const underLight = new THREE.SpotLight(0xffca91, 0, 2.8, Math.PI / 3.5, 0.65, 2); underLight.position.set(0, 1.42, -1.82); underLight.target.position.set(0, 0.96, -1.45); scene.add(underLight, underLight.target);
   const sideLight = [...scene.children].find((o) => o.name === "side-kitchen-warm-source");
@@ -1597,8 +1610,11 @@ export async function start({ stage, onReady = () => {} }) {
   const pendantCeilingBounce = makeBouncePlane("pendant-ceiling-bounce", [2.3, 1.65], [0, 2.601, 0.15], [Math.PI / 2, 0, 0], 0xffd5a0);
 
   const moods = {
-    golden: { sun: 2.8, hemi: 0.9, ambient: 0.30, pendant: 0.32, under: 0.42, side: 0.48, exposure: 1.10, yard: 0xffd7a1, globe: 0.34 },
-    night: { sun: 0, hemi: 0.46, ambient: 0.29, pendant: 6.1, under: 2.7, side: 2.3, exposure: 1.08, yard: 0x5d7593, globe: 1.55 },
+    // P0 lighting: the old golden preset leaned on 0.9 hemi + 0.30 ambient, which filled every crevice and left the new
+    // PCF shadows without contrast. Ambient is pulled down and exposure lifted to keep the room just as bright on average
+    // (mean luminance within 2 % of the previous build; see the PR numbers).
+    golden: { sun: 3.1, hemi: 0.55, ambient: 0.16, pendant: 0.32, under: 0.42, side: 0.48, exposure: 1.26, yard: 0xffd7a1, globe: 0.34 },
+    night: { sun: 0, hemi: 0.55, ambient: 0.26, pendant: 7.0, under: 2.7, side: 2.3, exposure: 1.20, yard: 0x5d7593, globe: 1.55 },
   };
   let currentMood = "golden";
   function setMood(name) {
@@ -1622,15 +1638,17 @@ export async function start({ stage, onReady = () => {} }) {
     materials.ceiling.emissiveIntensity = name === "golden" ? 0.3 : 0.55;
     materials.warmGlow.opacity = name === "night" ? 1 : 0.72;
     materials.wokGlow.opacity = name === "night" ? 1 : 0.72;
-    materials.sunlight.opacity = name === "golden" ? 0.32 : 0;
-    sunlightPatch.visible = name === "golden";
+    materials.sunlight.opacity = 0; // the painted "golden hour" floor patch is retired: the PCF sun now lays a real light patch
+    sunlightPatch.visible = false;
     loungeContactShadow.visible = true;
     diningContactShadow.material.opacity = name === "night" ? 0.42 : 0.28;
-    windowWallBounce.material.opacity = name === "golden" ? 0.22 : 0;
-    pendantFloorBounce.material.opacity = name === "night" ? 0.34 : 0;
-    pendantCeilingBounce.material.opacity = name === "night" ? 0.22 : 0;
+    windowWallBounce.material.opacity = name === "golden" ? 0.12 : 0;
+    // Of the three painted light layers, only the faintest survives (the pendant's ceiling glow at 0.10). The floor bounce
+    // and the golden floor patch are switched off: with a real sun shadow and a shadow-casting pendant they read as paint.
+    pendantFloorBounce.material.opacity = 0;
+    pendantCeilingBounce.material.opacity = name === "night" ? 0.05 : 0;
     windowWallBounce.visible = name === "golden";
-    pendantFloorBounce.visible = name === "night";
+    pendantFloorBounce.visible = false;
     pendantCeilingBounce.visible = name === "night";
     materials.reveal.opacity = name === "night" ? 1 : 0.72;
     for (const light of [sun, pendantLight, underLight, sideLight]) light.visible = light.intensity > 0;
@@ -1650,6 +1668,8 @@ export async function start({ stage, onReady = () => {} }) {
     camera.aspect = rect.width / rect.height;
     camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov;
     camera.updateProjectionMatrix();
+    // P0b: the pendant shadow follows the same compact flag the camera uses, so a phone never pays for the point-light pass.
+    pendantLight.castShadow = !compactCameraActive;
     renderer.setSize(rect.width, rect.height, false);
     render();
   }
@@ -1706,11 +1726,14 @@ export async function start({ stage, onReady = () => {} }) {
     let lightCount = 0;
     scene.traverse((object) => { if (object.isLight) lightCount++; });
     const lightMetrics = {
-      lightCount, shadowType: renderer.shadowMap.type === THREE.VSMShadowMap ? "VSM" : "other",
+      lightCount, shadowType: renderer.shadowMap.type === THREE.PCFShadowMap ? "PCF" : (renderer.shadowMap.type === THREE.VSMShadowMap ? "VSM" : "other"),
       shadowMapSize: sun.shadow.mapSize.toArray(), shadowRadius: sun.shadow.radius,
-      shadowBlurSamples: sun.shadow.blurSamples, sun: sun.intensity, hemi: hemi.intensity,
+      shadowBias: sun.shadow.bias, shadowNormalBias: sun.shadow.normalBias,
+      pendantCastsShadow: pendantLight.castShadow, pendantShadowMapSize: pendantLight.shadow.mapSize.toArray(),
+      sun: sun.intensity, hemi: hemi.intensity,
       ambient: ambient.intensity, pendant: pendantLight.intensity,
       exposure: renderer.toneMappingExposure,
+      goldenFloorPatch: sunlightPatch.visible ? materials.sunlight.opacity : 0,
       windowBounce: windowWallBounce.visible ? windowWallBounce.material.opacity : 0,
       pendantFloorBounce: pendantFloorBounce.visible ? pendantFloorBounce.material.opacity : 0,
       pendantCeilingBounce: pendantCeilingBounce.visible ? pendantCeilingBounce.material.opacity : 0,
