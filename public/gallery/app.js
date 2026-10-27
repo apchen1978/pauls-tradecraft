@@ -1,4 +1,4 @@
-import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=5";
+import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=6";
 
 validatePieces(PIECES);
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
@@ -7,7 +7,7 @@ const roomCollectionIds = new Set(["room02-la-coast-collection", "room01-corner-
 const $ = (id) => document.getElementById(id);
 document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
 document.title = `${copy.title} · Paul’s Tradecraft`;
-for (const [id, key] of Object.entries({ title: "title", subtitle: "subtitle", skip: "skip", hint: "hint", "pair-title": "pairTitle", "pair-note": "pairNote", "doors-title": "doorsTitle", "doors-note": "doorsNote", "roomverse-title": "roomverseTitle", "roomverse-note": "roomverseNote", "room-collection-title": "roomCollectionTitle", "more-title": "moreTitle", "more-note": "moreNote", back: "back", close: "close", previous: "previous", next: "next", "made-label": "made" })) $(id).textContent = copy[key];
+for (const [id, key] of Object.entries({ title: "title", subtitle: "subtitle", skip: "skip", hint: "hint", "pair-title": "pairTitle", "pair-note": "pairNote", "doors-title": "doorsTitle", "doors-note": "doorsNote", "roomverse-title": "roomverseTitle", "roomverse-note": "roomverseNote", "room-collection-title": "roomCollectionTitle", "bay-title": "bayTitle", "bay-note": "bayNote", "more-title": "moreTitle", "more-note": "moreNote", back: "back", close: "close", previous: "previous", next: "next", "made-label": "made" })) $(id).textContent = copy[key];
 $("home").href = `/?lang=${lang}`;
 $("home").ariaLabel = copy.home;
 $("back").href = `/ai-lab/?lang=${lang}#gallery-front`;
@@ -65,7 +65,7 @@ function makePainting(piece, index) {
   return article;
 }
 PIECES.forEach((piece, index) => {
-  const slot = piece.id === "harbor-dusk" ? "solo" : ["ai-lab-digital-room", "ai-lab-open-horizon"].includes(piece.id) ? "doors" : roomCollectionIds.has(piece.id) ? "room-collection" : piece.id.startsWith("roomverse-") ? "roomverse" : index < 2 ? "harbours" : "collection";
+  const slot = piece.id === "harbor-dusk" ? "solo" : ["ai-lab-digital-room", "ai-lab-open-horizon"].includes(piece.id) ? "doors" : roomCollectionIds.has(piece.id) ? "room-collection" : piece.id.startsWith("roomverse-") ? "roomverse" : piece.id.startsWith("bayarea-") ? "bayarea" : index < 2 ? "harbours" : "collection";
   $(slot).append(makePainting(piece, index));
 });
 $("solo-section").hidden = false;

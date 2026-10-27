@@ -17,7 +17,7 @@ async function loaded(page) {
 
 test("collection: bilingual records, local images, provenance and required-field rejection", () => {
   expect(() => validatePieces(PIECES)).not.toThrow();
-  expect(PIECES).toHaveLength(16);
+  expect(PIECES).toHaveLength(19);
   expect(PIECES.slice(5, 8).map((piece) => piece.id)).toEqual([
     "roomverse-room01-concept",
     "roomverse-room02-brooklyn-concept",
@@ -257,4 +257,42 @@ test("reduced motion, mobile touch targets and measured first-load payload", asy
     await context.close();
   }
   writeFileSync(`${QA}/initial-load.json`, JSON.stringify({ method: "Fresh browser context; viewport remains at page top; networkidle; navigation plus ResourceTiming encodedBodySize (HTTP headers excluded). Local preview, no mobile CPU or bandwidth emulation.", records }, null, 2));
+});
+
+test("bay area section: three imagined Room 03 candidates with provenance, budgets and a labelled section", async ({ page }) => {
+  const ids = ["bayarea-redwood-canopy", "bayarea-foggy-harbor", "bayarea-golden-oaks"];
+  const pieces = ids.map((id) => PIECES.find((piece) => piece.id === id));
+  expect(pieces.every(Boolean)).toBe(true);
+  const manifest = JSON.parse(readFileSync(`${QA}/asset-manifest.json`, "utf8"));
+  const records = [
+    ["bay-redwood-canopy", "docs/gallery/sources/room03-human-touch-r1/room03-bay-redwood-canopy-source.png"],
+    ["bay-foggy-harbor", "docs/gallery/sources/room03-bay-foggy-harbor-source.png"],
+    ["california-golden-oaks", "docs/gallery/sources/room03-california-golden-oaks-source.png"],
+  ];
+  for (const [index, [stem, source]] of records.entries()) {
+    expect(pieces[index].image).toBe(`assets/${stem}.webp`);
+    const record = manifest.find((item) => item.id === pieces[index].id);
+    expect(record.source).toBe(source);
+    expect(createHash("sha256").update(readFileSync(resolve(source))).digest("hex")).toBe(record.sourceSha256);
+    expect(statSync(resolve(source)).size).toBeLessThan(5 * 1024 * 1024);
+    expect(record.derivatives.map(({ width, height }) => [width, height])).toEqual([[1200, 900], [800, 600], [480, 360]]);
+    expect(record.derivatives.map(({ bytes }) => bytes).every((bytes, i) => bytes <= [150000, 100000, 45000][i])).toBe(true);
+    for (const derivative of record.derivatives) {
+      const path = resolve("public/gallery/assets", derivative.file);
+      expect(statSync(path).size).toBe(derivative.bytes);
+      expect(createHash("sha256").update(readFileSync(path)).digest("hex")).toBe(derivative.sha256);
+    }
+  }
+  const visible = JSON.stringify({ copy: [COLLECTION.zh.bayTitle, COLLECTION.zh.bayNote, COLLECTION.en.bayTitle, COLLECTION.en.bayNote], pieces: pieces.map(({ title, caption, alt, made }) => ({ title, caption, alt, made })) });
+  expect(visible).not.toMatch(/Golden Gate|金門|Alcatraz|惡魔島|Muir|Yosemite|優勝美地|\/Users\/|Desktop|桌面/i);
+  for (const lang of ["zh", "en"]) {
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(url(lang));
+      await expect(page.locator("#bay-title")).toHaveText(COLLECTION[lang].bayTitle);
+      await expect(page.locator("#bayarea article")).toHaveCount(3);
+      await expect(page.locator("#bayarea article h3")).toHaveText(pieces.map((piece) => piece.title[lang]));
+      await noOverflow(page);
+    }
+  }
 });
