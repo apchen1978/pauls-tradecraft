@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=28";
+import { start, ROOM_TITLE } from "./kitchen.js?v=29";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -75,7 +75,8 @@ function setImmersive(on, pushHistory = true) {
   } else {
     document.querySelector(".toolbar").append($("moods"));
     if (pushHistory) history.back();
-    $("immersiveEnter").focus({ preventScroll: true });
+    const returnTarget = $("immersiveEnter").getClientRects().length ? $("immersiveEnter") : $("lang");
+    returnTarget.focus({ preventScroll: true });
   }
   room.resize();
   requestAnimationFrame(() => room.resize());
