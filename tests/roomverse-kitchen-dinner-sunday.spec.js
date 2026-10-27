@@ -17,7 +17,8 @@ async function loadRoom(page, width) {
 test("dinner and sunday morning are readable, and five mood buttons stay usable", async ({ page }) => {
   await loadRoom(page, 1440);
   const labels = await page.locator("#moods button").allTextContents();
-  expect(labels).toEqual(["金色時光", "追劇夜", "夜晚", "晚餐", "週日早晨"]);
+  // Old: five labels, ending at 週日早晨. Thanksgiving is the sixth mood.
+  expect(labels).toEqual(["金色時光", "追劇夜", "夜晚", "晚餐", "週日早晨", "感恩節"]);
   await page.locator('#moods button[data-mood="dinner"]').click();
   const pressed = await page.locator('#moods button[aria-pressed="true"]').count();
   expect(pressed).toBe(1);

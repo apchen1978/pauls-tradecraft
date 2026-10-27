@@ -2025,7 +2025,7 @@ export async function start({ stage, onReady = () => {} }) {
   // only when that object exists, so this table does not change the picture.
   const MOOD_LOOK_FIELDS = Object.freeze([
     "sun", "sunColor", "sunPosition", "hemi", "hemiSky", "hemiGround", "ambient", "ambientColor",
-    "pendant", "under", "side", "exposure", "yard", "globe", "sky", "floor", "jute", "ceilingEmissive",
+    "pendant", "under", "side", "exposure", "yard", "yardMap", "globe", "sky", "floor", "jute", "ceilingEmissive",
     "warmGlow", "wokGlow", "sunlightOpacity", "sunlightVisible", "windowWallBounce", "windowWallBounceVisible",
     "pendantFloorBounce", "pendantFloorBounceVisible", "pendantCeilingBounce", "pendantCeilingBounceVisible",
     "reveal", "contactShadow", "loungePillow", "screenColor", "screenToneMapped", "screenMap",
@@ -2038,6 +2038,7 @@ export async function start({ stage, onReady = () => {} }) {
     pendantFloorBounce: 0, pendantFloorBounceVisible: false,
     loungePillow: 0x7f946c, screenColor: 0x171918, screenToneMapped: true, screenMap: null,
     floorLamp: 0, tableLamp: 0, screenCool: 0, pictureLightEmissive: 0, counterPendantEmissive: 0,
+    yardMap: null,
   };
   const MOOD_LOOK = Object.freeze({
     golden: Object.freeze({
@@ -2118,6 +2119,26 @@ export async function start({ stage, onReady = () => {} }) {
       pictureLightEmissive: 0.2, counterPendantEmissive: 0.25,
       blind: "half",
     }),
+    // Thanksgiving is lights and pictures only. Side kitchen stays off so the
+    // true lights that are on stay at 7. The autumn photo is not tinted; amber
+    // comes from the lamps and the low sun.
+    thanksgiving: Object.freeze({
+      ...sharedLook,
+      sun: 0.6, sunColor: 0xffb15a, sunPosition: [-4.2, 1.10, 3.6],
+      hemi: 0.55, hemiSky: 0xffe2c0, hemiGround: 0xc49a62,
+      ambient: 0.18, ambientColor: 0xfff4e6,
+      pendant: 2.2, under: 1.2, side: 0,
+      exposure: 1.12, yard: 0xffffff, yardMap: "courtyard-autumn-v1", globe: 0.45, sky: "golden",
+      floor: 0xc9a67a, jute: 0xd0b47f, ceilingEmissive: 0.20,
+      warmGlow: 0.70, wokGlow: 0.45,
+      windowWallBounce: 0.08, windowWallBounceVisible: true,
+      pendantCeilingBounce: 0.02, pendantCeilingBounceVisible: true,
+      reveal: 0.50, contactShadow: 0.22,
+      screenColor: 0xffffff, screenToneMapped: false, screenMap: "screen-thanksgiving-parade-v1",
+      floorLamp: 1.4, tableLamp: 1.8, screenCool: 0,
+      pictureLightEmissive: 0.55, counterPendantEmissive: 0.80,
+      blind: "half",
+    }),
   });
   let floorLampLight = null, tableLampLight = null, screenCoolLight = null;
   let pictureLightMaterial = null, counterPendantMaterial = null;
@@ -2134,19 +2155,32 @@ export async function start({ stage, onReady = () => {} }) {
   }
   let currentMood = "golden";
   let movieScreenTexture = null;
+  let thanksgivingScreenTexture = null;
+  let autumnCourtyardTexture = null;
+  const courtyardMesh = scene.getObjectByName("courtyard-background");
+  const courtyardDefaultMap = courtyardMesh?.material?.map || null;
+  if (courtyardDefaultMap) courtyardDefaultMap.name = "courtyard-v1";
+  const reloadMoodPicture = () => { if (currentMood === "movie" || currentMood === "thanksgiving") setMood(currentMood); };
   new THREE.TextureLoader().load(new URL("./art/screen-movie-city-night-v1.webp", import.meta.url).href, (texture) => {
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = 8;
     texture.name = "screen-movie-city-night-v1";
     movieScreenTexture = texture;
-    if (currentMood === "movie") {
-      const screenMaterial = mediaUnit.screen.material;
-      screenMaterial.map = texture;
-      screenMaterial.color.setHex(0xffffff);
-      screenMaterial.toneMapped = false;
-      screenMaterial.needsUpdate = true;
-      render();
-    }
+    reloadMoodPicture();
+  });
+  new THREE.TextureLoader().load(new URL("./art/screen-thanksgiving-parade-v1.webp", import.meta.url).href, (texture) => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 8;
+    texture.name = "screen-thanksgiving-parade-v1";
+    thanksgivingScreenTexture = texture;
+    reloadMoodPicture();
+  });
+  new THREE.TextureLoader().load(new URL("./art/courtyard-autumn-v1.webp", import.meta.url).href, (texture) => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 4;
+    texture.name = "courtyard-autumn-v1";
+    autumnCourtyardTexture = texture;
+    reloadMoodPicture();
   });
   function setMood(name) {
     const look = MOOD_LOOK[name]; if (!look) return;
@@ -2161,7 +2195,12 @@ export async function start({ stage, onReady = () => {} }) {
     renderer.toneMappingExposure = look.exposure;
     scene.background = skyMaterials[look.sky];
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
-    if (yardMaterial) { yardMaterial.color.setHex(look.yard); yardMaterial.needsUpdate = true; }
+    if (yardMaterial) {
+      yardMaterial.color.setHex(look.yard);
+      const autumnReady = look.yardMap === "courtyard-autumn-v1" && autumnCourtyardTexture?.image;
+      yardMaterial.map = autumnReady ? autumnCourtyardTexture : courtyardDefaultMap;
+      yardMaterial.needsUpdate = true;
+    }
     materials.opal.emissiveIntensity = look.globe;
     scene.traverse((object) => {
       if (!object.isMesh) return;
@@ -2191,16 +2230,22 @@ export async function start({ stage, onReady = () => {} }) {
     if (floorShadeMaterial) floorShadeMaterial.emissiveIntensity = look.floorLamp > 0 ? 0.45 : 0;
     if (tableShadeMaterial) tableShadeMaterial.emissiveIntensity = look.tableLamp > 0 ? 0.45 : 0;
     const screenMaterial = mediaUnit.screen.material;
-    const movieReady = look.screenMap === "screen-movie-city-night-v1" && movieScreenTexture?.image;
-    if (movieReady) {
-      screenMaterial.map = movieScreenTexture;
+    const screenTexture = look.screenMap === "screen-movie-city-night-v1" ? movieScreenTexture
+      : look.screenMap === "screen-thanksgiving-parade-v1" ? thanksgivingScreenTexture
+      : null;
+    if (look.screenMap && screenTexture?.image) {
+      screenMaterial.map = screenTexture;
       screenMaterial.color.setHex(look.screenColor);
       screenMaterial.toneMapped = look.screenToneMapped;
-    } else {
-      // Missing city art stays the dark powered-off screen. No white or black stand-in.
+    } else if (look.screenMap) {
+      // Missing picture stays the dark powered-off screen. No white or black stand-in.
       screenMaterial.map = null;
-      screenMaterial.color.setHex(look.screenMap ? 0x171918 : look.screenColor);
-      screenMaterial.toneMapped = look.screenMap ? true : look.screenToneMapped;
+      screenMaterial.color.setHex(0x171918);
+      screenMaterial.toneMapped = true;
+    } else {
+      screenMaterial.map = null;
+      screenMaterial.color.setHex(look.screenColor);
+      screenMaterial.toneMapped = look.screenToneMapped;
     }
     screenMaterial.needsUpdate = true;
     scene.userData.room03Blind = look.blind;
@@ -2582,9 +2627,10 @@ export async function start({ stage, onReady = () => {} }) {
       color: screenMaterialNow.color.getHex(),
       toneMapped: screenMaterialNow.toneMapped,
       ready: Boolean(movieScreenTexture?.image),
-      asset: movieScreenTexture?.name || null,
+      asset: screenMaterialNow.map?.name || null,
     };
-    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, screenContent, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque,
@@ -2610,6 +2656,8 @@ export async function start({ stage, onReady = () => {} }) {
       Object.values(materials).forEach((material) => { material.map?.dispose(); material.dispose(); });
       Object.values(skyMaterials).forEach((texture) => texture.dispose());
       movieScreenTexture?.dispose();
+      thanksgivingScreenTexture?.dispose();
+      autumnCourtyardTexture?.dispose();
     },
   };
   onReady(instance);
