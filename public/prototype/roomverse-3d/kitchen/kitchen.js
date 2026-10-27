@@ -1976,48 +1976,95 @@ export async function start({ stage, onReady = () => {} }) {
   const pendantFloorBounce = makeBouncePlane("pendant-floor-bounce", [2.55, 1.9], [0, 0.027, 0.3], [-Math.PI / 2, 0, 0], 0xffcf91);
   const pendantCeilingBounce = makeBouncePlane("pendant-ceiling-bounce", [2.3, 1.65], [0, 2.601, 0.15], [Math.PI / 2, 0, 0], 0xffd5a0);
 
-  const moods = {
-    // P0 lighting: the old golden preset leaned on 0.9 hemi + 0.30 ambient, which filled every crevice and left the new
-    // PCF shadows without contrast. Ambient is pulled down and exposure lifted to keep the room just as bright on average
-    // (mean luminance within 2 % of the previous build; see the PR numbers).
-    golden: { sun: 3.1, hemi: 0.55, ambient: 0.16, pendant: 0.32, under: 0.42, side: 0.48, exposure: 1.26, yard: 0xffd7a1, globe: 0.34 },
-    night: { sun: 0, hemi: 0.55, ambient: 0.26, pendant: 7.0, under: 2.7, side: 2.3, exposure: 1.20, yard: 0x5d7593, globe: 1.55 },
+  // One table for every per-mood switch. Golden and night keep the values setMood used to
+  // hard-code. Fields that have no mesh yet (blind, the three new lamps) are stored and applied
+  // only when that object exists, so this table does not change the picture.
+  const MOOD_LOOK_FIELDS = Object.freeze([
+    "sun", "sunColor", "sunPosition", "hemi", "hemiSky", "hemiGround", "ambient", "ambientColor",
+    "pendant", "under", "side", "exposure", "yard", "globe", "sky", "floor", "jute", "ceilingEmissive",
+    "warmGlow", "wokGlow", "sunlightOpacity", "sunlightVisible", "windowWallBounce", "windowWallBounceVisible",
+    "pendantFloorBounce", "pendantFloorBounceVisible", "pendantCeilingBounce", "pendantCeilingBounceVisible",
+    "reveal", "contactShadow", "loungePillow", "screenColor", "screenToneMapped", "screenMap",
+    "floorLamp", "tableLamp", "screenCool", "pictureLightEmissive", "counterPendantEmissive", "blind",
+  ]);
+  const sharedLook = {
+    sunColor: 0xffd6a1, sunPosition: [-4.2, 1.2, 3.6],
+    hemiSky: 0xfff0d4, hemiGround: 0x6f6658, ambientColor: 0xffffff,
+    sunlightOpacity: 0, sunlightVisible: false,
+    pendantFloorBounce: 0, pendantFloorBounceVisible: false,
+    loungePillow: 0x7f946c, screenColor: 0x171918, screenToneMapped: true, screenMap: null,
+    floorLamp: 0, tableLamp: 0, screenCool: 0, pictureLightEmissive: 0, counterPendantEmissive: 0,
   };
+  const MOOD_LOOK = Object.freeze({
+    golden: Object.freeze({
+      ...sharedLook,
+      sun: 3.1, hemi: 0.55, ambient: 0.16, pendant: 0.32, under: 0.42, side: 0.48,
+      exposure: 1.26, yard: 0xffd7a1, globe: 0.34, sky: "golden",
+      floor: 0xcdbb9e, jute: 0xd0b47f, ceilingEmissive: 0.3,
+      warmGlow: 0.72, wokGlow: 0.72,
+      windowWallBounce: 0.12, windowWallBounceVisible: true,
+      pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
+      reveal: 0.72, contactShadow: 0.30, blind: "open",
+    }),
+    night: Object.freeze({
+      ...sharedLook,
+      sun: 0, hemi: 0.55, ambient: 0.26, pendant: 7.0, under: 2.7, side: 2.3,
+      exposure: 1.20, yard: 0x5d7593, globe: 1.55, sky: "night",
+      floor: 0xc2a77b, jute: 0xd9c99f, ceilingEmissive: 0.55,
+      warmGlow: 1, wokGlow: 1,
+      windowWallBounce: 0, windowWallBounceVisible: false,
+      pendantCeilingBounce: 0.05, pendantCeilingBounceVisible: true,
+      reveal: 1, contactShadow: 0.12, blind: "closed",
+    }),
+  });
+  let floorLampLight = null, tableLampLight = null, screenCoolLight = null;
+  let pictureLightMaterial = null, counterPendantMaterial = null;
   let currentMood = "golden";
   function setMood(name) {
-    const preset = moods[name]; if (!preset) return;
+    const look = MOOD_LOOK[name]; if (!look) return;
     currentMood = name;
-    sun.intensity = preset.sun; hemi.intensity = preset.hemi; ambient.intensity = preset.ambient;
-    pendantLight.intensity = preset.pendant; underLight.intensity = preset.under; sideLight.intensity = preset.side;
-    renderer.toneMappingExposure = preset.exposure;
-    scene.background = skyMaterials[name];
+    sun.intensity = look.sun; sun.color.setHex(look.sunColor); sun.position.set(...look.sunPosition);
+    hemi.intensity = look.hemi; hemi.color.setHex(look.hemiSky); hemi.groundColor.setHex(look.hemiGround);
+    ambient.intensity = look.ambient; ambient.color.setHex(look.ambientColor);
+    pendantLight.intensity = look.pendant; underLight.intensity = look.under; sideLight.intensity = look.side;
+    if (floorLampLight) { floorLampLight.intensity = look.floorLamp; floorLampLight.visible = look.floorLamp > 0; }
+    if (tableLampLight) { tableLampLight.intensity = look.tableLamp; tableLampLight.visible = look.tableLamp > 0; }
+    if (screenCoolLight) { screenCoolLight.intensity = look.screenCool; screenCoolLight.visible = look.screenCool > 0; }
+    renderer.toneMappingExposure = look.exposure;
+    scene.background = skyMaterials[look.sky];
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
-    if (yardMaterial) { yardMaterial.color.setHex(preset.yard); yardMaterial.needsUpdate = true; }
-    materials.opal.emissiveIntensity = preset.globe;
+    if (yardMaterial) { yardMaterial.color.setHex(look.yard); yardMaterial.needsUpdate = true; }
+    materials.opal.emissiveIntensity = look.globe;
     scene.traverse((object) => {
       if (!object.isMesh) return;
       for (const material of (Array.isArray(object.material) ? object.material : [object.material])) {
-        if (material?.name === "warm-opal-glass") material.emissiveIntensity = preset.globe;
+        if (material?.name === "warm-opal-glass") material.emissiveIntensity = look.globe;
       }
     });
-    materials.floor.color.setHex(name === "night" ? 0xc2a77b : 0xcdbb9e);
-    materials.jute.color.setHex(name === "night" ? 0xd9c99f : 0xd0b47f);
-    materials.ceiling.emissiveIntensity = name === "golden" ? 0.3 : 0.55;
-    materials.warmGlow.opacity = name === "night" ? 1 : 0.72;
-    materials.wokGlow.opacity = name === "night" ? 1 : 0.72;
-    materials.sunlight.opacity = 0; // the painted "golden hour" floor patch is retired: the PCF sun now lays a real light patch
-    sunlightPatch.visible = false;
+    materials.floor.color.setHex(look.floor);
+    materials.jute.color.setHex(look.jute);
+    materials.ceiling.emissiveIntensity = look.ceilingEmissive;
+    materials.warmGlow.opacity = look.warmGlow;
+    materials.wokGlow.opacity = look.wokGlow;
+    materials.sunlight.opacity = look.sunlightOpacity;
+    sunlightPatch.visible = look.sunlightVisible;
     contactShadow.visible = true;
-    contactShadow.material.opacity = name === "night" ? CONTACT_SHADOW_ALPHA.night : CONTACT_SHADOW_ALPHA.golden;
-    windowWallBounce.material.opacity = name === "golden" ? 0.12 : 0;
-    // Of the three painted light layers, only the faintest survives (the pendant's ceiling glow at 0.10). The floor bounce
-    // and the golden floor patch are switched off: with a real sun shadow and a shadow-casting pendant they read as paint.
-    pendantFloorBounce.material.opacity = 0;
-    pendantCeilingBounce.material.opacity = name === "night" ? 0.05 : 0;
-    windowWallBounce.visible = name === "golden";
-    pendantFloorBounce.visible = false;
-    pendantCeilingBounce.visible = name === "night";
-    materials.reveal.opacity = name === "night" ? 1 : 0.72;
+    contactShadow.material.opacity = look.contactShadow;
+    windowWallBounce.material.opacity = look.windowWallBounce;
+    windowWallBounce.visible = look.windowWallBounceVisible;
+    pendantFloorBounce.material.opacity = look.pendantFloorBounce;
+    pendantFloorBounce.visible = look.pendantFloorBounceVisible;
+    pendantCeilingBounce.material.opacity = look.pendantCeilingBounce;
+    pendantCeilingBounce.visible = look.pendantCeilingBounceVisible;
+    materials.reveal.opacity = look.reveal;
+    materials.loungePillow.color.setHex(look.loungePillow);
+    if (pictureLightMaterial) pictureLightMaterial.emissiveIntensity = look.pictureLightEmissive;
+    if (counterPendantMaterial) counterPendantMaterial.emissiveIntensity = look.counterPendantEmissive;
+    const screenMaterial = mediaUnit.screen.material;
+    screenMaterial.color.setHex(look.screenColor);
+    screenMaterial.toneMapped = look.screenToneMapped;
+    if (look.screenMap == null) screenMaterial.map = null;
+    scene.userData.room03Blind = look.blind;
     for (const light of [sun, pendantLight, underLight, sideLight]) light.visible = light.intensity > 0;
     render();
   }
@@ -2366,7 +2413,7 @@ export async function start({ stage, onReady = () => {} }) {
       },
     };
     const footToBody = measureRoomFootToBody(scene, furniture.status.table, diningChairSeatGap(), loungeFit);
-    return { plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque,
