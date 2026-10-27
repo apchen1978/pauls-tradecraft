@@ -4,7 +4,7 @@ const COPY = {
     title: ROOM_TITLE,
     lead: "灣區中世紀現代風的開放廚房與餐區。拖曳畫面，從室內看看木樑、玻璃門與小院。",
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
-    otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間",
+    otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
     moods: {
       golden: ["金色時光", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
@@ -15,7 +15,7 @@ const COPY = {
     title: ROOM_TITLE,
     lead: "An open kitchen and dining room inspired by Bay Area mid-century modern homes. Drag to look around the timber beams, glass doors and small garden.",
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
-    otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room",
+    otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
     moods: {
       golden: ["Golden hour", "Low, warm afternoon light enters through the glass doors; the pendant stays soft."],
@@ -39,6 +39,7 @@ function otherRoomsUrl() {
 function renderMoods() {
   const copy = COPY[lang];
   const group = $("moods");
+  const focusedMood = document.activeElement?.dataset?.mood;
   group.setAttribute("aria-label", lang === "zh" ? "選擇感覺" : "Choose a mood");
   group.replaceChildren(...Object.entries(copy.moods).map(([key, [label]]) => {
     const button = document.createElement("button");
@@ -55,6 +56,7 @@ function renderMoods() {
     return button;
   }));
   $("why").textContent = copy.moods[mood][1];
+  if (focusedMood) group.querySelector('[data-mood="' + focusedMood + '"]')?.focus({ preventScroll: true });
 }
 
 function renderCopy() {
@@ -65,6 +67,9 @@ function renderCopy() {
   $("lead").textContent = copy.lead;
   $("note").textContent = copy.note;
   $("lang").textContent = copy.lang;
+  $("lang").setAttribute("aria-label", copy.languageLabel);
+  document.querySelector(".room").setAttribute("aria-label", copy.roomLabel);
+  document.querySelector(".toolbar").setAttribute("aria-label", copy.settingsLabel);
   $("immersiveEnter").textContent = copy.full;
   $("immersiveExit").textContent = copy.exit;
   for (const id of ["headerOtherRooms", "immersiveOtherRooms"]) {

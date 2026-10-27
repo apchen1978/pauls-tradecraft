@@ -46,6 +46,70 @@ async function waitForTravelDoorEnd(dialog) {
   await expect(dialog).toHaveCSS("opacity", "1", { timeout: 20000 });
 }
 
+test("travel card header remains visible and closes at the bottom in both rooms", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const currentRoom of ["room01", "room02"]) {
+    await page.goto("/prototype/roomverse-3d/rooms.js");
+    await page.evaluate(async (room) => {
+      document.head.insertAdjacentHTML("beforeend", '<link rel="stylesheet" href="/prototype/roomverse-3d/travel-door.css">');
+      document.body.innerHTML = '<button id="travelDoorBtn" data-travel-door-trigger>Travel</button>';
+      const { initTravelDoor } = await import("/prototype/roomverse-3d/travel-door.js?v=2");
+      initTravelDoor({ currentRoom: room, getLang: () => "zh", onChoose: () => {} });
+    }, currentRoom);
+    const trigger = page.locator("#travelDoorBtn");
+    await trigger.click();
+    const dialog = page.getByRole("dialog");
+    const header = dialog.locator(".travel-door-head");
+    const close = dialog.locator(".travel-door-close");
+    await expect(dialog).toBeVisible();
+    await expect(header).toHaveCSS("position", "sticky");
+    const scroll = await dialog.evaluate((el) => {
+      el.scrollTop = el.scrollHeight;
+      const dialogRect = el.getBoundingClientRect();
+      const headerRect = el.querySelector(".travel-door-head").getBoundingClientRect();
+      const closeRect = el.querySelector(".travel-door-close").getBoundingClientRect();
+      return { top: el.scrollTop, dialogTop: dialogRect.top, headerTop: headerRect.top, closeTop: closeRect.top, closeBottom: closeRect.bottom, dialogBottom: dialogRect.bottom };
+    });
+    expect(scroll.top).toBeGreaterThan(0);
+    expect(scroll.headerTop).toBeGreaterThanOrEqual(scroll.dialogTop);
+    expect(scroll.closeTop).toBeGreaterThanOrEqual(scroll.dialogTop);
+    expect(scroll.closeBottom).toBeLessThanOrEqual(scroll.dialogBottom);
+    await close.click();
+    await expect(dialog).not.toBeVisible();
+    await expect(trigger).toBeFocused();
+  }
+});
+
+test("travel card final viewport screenshots (ROOMVERSE_QA_DIR)", async ({ page }) => {
+  test.skip(!QA, "set ROOMVERSE_QA_DIR to save handoff screenshots");
+  test.setTimeout(240000);
+  await fs.mkdir(QA, { recursive: true });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [room, enter] of [["room01", enterRoom01], ["room02", enterRoom02]]) {
+    await enter(page, { lang: "zh" });
+    for (const lang of ["zh", "en"]) {
+      if (lang === "en") await page.locator("#lang").click();
+      for (const [label, width, height] of [["1440", 1440, 1000], ["390", 390, 844], ["844x390", 844, 390]]) {
+        await page.setViewportSize({ width, height });
+        if (room === "room01") await page.evaluate(() => window.__room.resize());
+        const trigger = page.locator("#travelDoorBtn");
+        await trigger.scrollIntoViewIfNeeded();
+        await trigger.click();
+        const dialog = page.getByRole("dialog");
+        await expect(dialog).toBeVisible();
+        await dialog.evaluate((element) => { element.scrollTop = 0; });
+        await page.screenshot({ path: `${QA}/${room}-${lang}-${label}-after-top.png` });
+        await dialog.evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        await expect(dialog.locator(".travel-door-close")).toBeVisible();
+        await page.screenshot({ path: `${QA}/${room}-${lang}-${label}-after-bottom.png` });
+        await dialog.locator(".travel-door-close").click();
+        await expect(trigger).toBeFocused();
+      }
+    }
+  }
+});
+
 async function measureCardContrast(dialog) {
   return dialog.evaluate((element) => {
     const read = (node, backgroundNode = node) => {
@@ -94,9 +158,9 @@ test("Room 01 travel card is bilingual, keyboard dismissible, focus returning, a
   expect(contrastRatio(rgbToHex(tones.body.color), rgbToHex(tones.body.background))).toBeGreaterThanOrEqual(4.5);
   expect(contrastRatio(rgbToHex(tones.secondary.color), rgbToHex(tones.secondary.background))).toBeGreaterThanOrEqual(4.5);
   expect(contrastRatio(rgbToHex(tones.action.color), rgbToHex(tones.action.background))).toBeGreaterThanOrEqual(4.5);
-  const cover = await dialog.locator("img").first().evaluate((image) => ({ fit: getComputedStyle(image).objectFit, ratio: image.getBoundingClientRect().width / image.getBoundingClientRect().height }));
+  const cover = await dialog.locator("img").first().evaluate((image) => ({ fit: getComputedStyle(image).objectFit, height: image.getBoundingClientRect().height, viewport: innerHeight }));
   expect(cover.fit).toBe("cover");
-  expect(cover.ratio).toBeLessThan(1);
+  expect(cover.height).toBeLessThanOrEqual(cover.viewport * 0.4 + 1);
   await page.keyboard.press("Tab");
   await expect(dialog.locator(".travel-door-go").nth(0)).toBeFocused();
   await page.keyboard.press("Tab");
