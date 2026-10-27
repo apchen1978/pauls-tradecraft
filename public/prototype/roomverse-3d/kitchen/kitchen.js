@@ -2,6 +2,7 @@ import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { GLTFLoader } from "../vendor/GLTFLoader.js";
+import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
@@ -869,127 +870,24 @@ function makeLoungePillowGeometry() {
 }
 
 function makeLoungeThrowGeometry() {
-  // One cloth, same 16×22 sheet as before. It comes over the back crest, sags onto the seat,
-  // and is pushed back out of the cushions so the armrests stay clear.
+  // Positions are the settled cloth from #577: 782 vertices, 16×22 sheet, both sides of the
+  // 6.5 mm shell, after the 12 + 12 + 6 clearance passes. Load reads those bytes instead of
+  // running the settle loop (~45–60 ms). UVs and the index winding are the same grid.
   const nx = 16, nz = 22, row = nx + 1;
-  const stations = [
-    { t: 0, y: 0.56, z: -0.47, half: 0.10 },
-    { t: 0.16, y: 0.708, z: -0.36, half: 0.12 },
-    { t: 0.32, y: 0.64, z: -0.20, half: 0.155 },
-    { t: 0.48, y: 0.545, z: -0.05, half: 0.175 },
-    { t: 0.66, y: 0.485, z: 0.08, half: 0.185 },
-    { t: 0.84, y: 0.462, z: 0.18, half: 0.17 },
-    { t: 1, y: 0.452, z: 0.27, half: 0.155 },
-  ];
-  const at = (t) => {
-    let index = 0;
-    while (index < stations.length - 2 && stations[index + 1].t < t) index += 1;
-    const a = stations[index], b = stations[index + 1];
-    const u = (t - a.t) / (b.t - a.t);
-    const s = u * u * (3 - 2 * u);
-    return { y: a.y + (b.y - a.y) * s, z: a.z + (b.z - a.z) * s, half: a.half + (b.half - a.half) * s };
-  };
-  const seat = loungeSolid(LOUNGE_SEAT);
-  const back = loungeSolid(LOUNGE_BACK);
-  const arms = LOUNGE_ARMS.map(loungeSolid);
-  const rimSamples = new THREE.CatmullRomCurve3(LOUNGE_RIM.map((point) => new THREE.Vector3(...point))).getPoints(120);
-  const grid = [];
-  for (let j = 0; j <= nz; j++) {
-    const t = j / nz;
-    const base = at(t);
-    const rowPoints = [];
-    for (let i = 0; i <= nx; i++) {
-      const u = i / nx;
-      const across = u * 2 - 1;
-      const hang = Math.sin(Math.PI * Math.min(1, t / 0.72)) ** 1.2;
-      const seatRest = Math.max(0, (t - 0.5) / 0.5);
-      const fold = (0.012 * Math.sin(t * Math.PI * 2.6 + 0.5) * Math.cos(across * 2.2) + 0.007 * Math.sin(t * 11 + across * 5)) * (0.25 + 0.75 * hang) * (1 - 0.65 * seatRest);
-      const sag = 0.018 * hang * (1 - across * across);
-      const hem = t > 0.9 ? (t - 0.9) / 0.1 : 0;
-      const crestFold = Math.exp(-((t - 0.18) ** 2) / 0.0035) * 0.008 * (1 - 0.35 * across * across);
-      rowPoints.push(new THREE.Vector3(
-        across * base.half + 0.012 * Math.sin(t * 6.2) * hang,
-        base.y + fold - sag - hem * (0.008 + 0.006 * Math.abs(Math.sin(across * 4.2 + 0.3))) + crestFold,
-        base.z + hem * 0.012 * Math.sin(across * 7.5) + 0.006 * Math.sin(across * 3 + t * 4) * hang,
-      ));
-    }
-    grid.push(rowPoints);
-  }
-  const pushOut = (point, gap, solid) => {
-    const hit = loungeClosest(point, solid);
-    if (hit.signed >= gap) return;
-    const outward = hit.signed < 0 ? hit.point.clone().sub(point) : point.clone().sub(hit.point);
-    if (outward.lengthSq() < 1e-10) outward.copy(hit.point).sub(solid.center);
-    point.addScaledVector(outward.normalize(), gap - hit.signed);
-  };
-  const settle = (points) => {
-    for (let iter = 0; iter < 12; iter++) {
-      for (const point of points) {
-        for (const arm of arms) pushOut(point, 0.022, arm);
-        pushOut(point, 0.008, back);
-        if (loungeRimDistance(point, rimSamples) < 0.006) {
-          let nearest = rimSamples[0];
-          for (const sample of rimSamples) if (point.distanceTo(sample) < point.distanceTo(nearest)) nearest = sample;
-          const out = point.clone().sub(nearest);
-          if (out.lengthSq() > 1e-10) point.addScaledVector(out.normalize(), 0.006 - loungeRimDistance(point, rimSamples));
-        }
-        const seatGap = loungeSignedDistance(point, seat);
-        if (seatGap < 0.008) pushOut(point, 0.008, seat);
-        else if (seatGap > 0.02 && seatGap < 0.14 && point.z > -0.02) {
-          const hit = loungeClosest(point, seat);
-          const intoSeat = hit.point.clone().sub(point);
-          if (intoSeat.lengthSq() > 1e-10) point.addScaledVector(intoSeat.normalize(), Math.min(0.014, seatGap - 0.008));
-        }
-      }
-    }
-  };
-  settle(grid.flat());
-  const smoothed = grid.map((row) => row.map((point) => point.clone()));
-  for (let j = 1; j < nz; j++) for (let i = 1; i < nx; i++) {
-    const average = new THREE.Vector3().add(grid[j][i - 1]).add(grid[j][i + 1]).add(grid[j - 1][i]).add(grid[j + 1][i]).multiplyScalar(0.25);
-    smoothed[j][i].lerp(average, 0.28);
-  }
-  for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) grid[j][i].copy(smoothed[j][i]);
-  settle(grid.flat());
-  const normals = [];
-  for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
-    const dx = new THREE.Vector3().subVectors(grid[j][Math.min(nx, i + 1)], grid[j][Math.max(0, i - 1)]);
-    const dz = new THREE.Vector3().subVectors(grid[Math.min(nz, j + 1)][i], grid[Math.max(0, j - 1)][i]);
-    const normal = new THREE.Vector3().crossVectors(dx, dz);
-    if (normal.lengthSq() < 1e-10) normal.set(0, 1, 0);
-    normal.normalize();
-    if (normal.y < 0) normal.negate();
-    normals.push(normal);
-  }
-  const positions = [], uvs = [], indices = [];
-  const thick = 0.0065;
-  const center = grid.flat();
-  for (const side of [1, -1]) {
-    let k = 0;
-    for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++, k++) {
-      const point = center[k].clone().addScaledVector(normals[k], side * thick);
-      positions.push(point.x, point.y, point.z);
-      uvs.push(i / nx, j / nz);
+  const binary = atob(LOUNGE_THROW_POSITIONS_B64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const positions = new Float32Array(bytes.buffer);
+  const count = positions.length / 3;
+  const uvs = new Float32Array(count * 2);
+  let uv = 0;
+  for (let side = 0; side < 2; side++) {
+    for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+      uvs[uv++] = i / nx;
+      uvs[uv++] = j / nz;
     }
   }
-  const shell = [];
-  for (let k = 0; k < positions.length; k += 3) shell.push(new THREE.Vector3(positions[k], positions[k + 1], positions[k + 2]));
-  for (let iter = 0; iter < 6; iter++) {
-    for (const point of shell) {
-      for (const arm of arms) pushOut(point, 0.012, arm);
-      if (loungeSignedDistance(point, back) < 0.002) pushOut(point, 0.002, back);
-      if (loungeSignedDistance(point, seat) < 0.0015) pushOut(point, 0.0015, seat);
-      if (loungeRimDistance(point, rimSamples) < 0.002) {
-        let nearest = rimSamples[0];
-        for (const sample of rimSamples) if (point.distanceTo(sample) < point.distanceTo(nearest)) nearest = sample;
-        const out = point.clone().sub(nearest);
-        if (out.lengthSq() > 1e-10) point.addScaledVector(out.normalize(), 0.002 - loungeRimDistance(point, rimSamples));
-      }
-    }
-  }
-  for (let k = 0; k < shell.length; k++) {
-    positions[k * 3] = shell[k].x; positions[k * 3 + 1] = shell[k].y; positions[k * 3 + 2] = shell[k].z;
-  }
+  const indices = [];
   const faceCount = row * (nz + 1);
   for (let side = 0; side < 2; side++) for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
     const a = side * faceCount + j * row + i, b = a + 1, c = a + row, d = c + 1;
@@ -1007,7 +905,8 @@ function makeLoungeThrowGeometry() {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-  geometry.setIndex(indices); geometry.computeVertexNormals();
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
   return geometry;
 }
 
