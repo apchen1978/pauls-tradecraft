@@ -233,14 +233,20 @@ test("Room 02 sofa is procedural, keeps the five covers and pillow anchors, and 
   expect(sofaAsset.vertices).toBeLessThan(12000);
   expect(sofaAsset.triangles).toBeLessThan(4000);
   const fixedLegColor = sofaAsset.legColor;
+  const cushionColors = sofaAsset.pillows.map(({ color }) => color);
   expect(sofaAsset.pillows.map(({ name, position }) => [name, position])).toEqual([
-    ["sofa-cushion-diamond", [-.4, .62, -.08]], ["sofa-cushion-lumbar", [.36, .5, -.1]],
+    ["sofa-cushion-diamond", [-.4, .62, -.11]], ["sofa-cushion-lumbar", [.34, .55, -.11]],
   ]);
+  for (const { bottomY } of sofaAsset.pillows) {
+    expect(bottomY).toBeGreaterThan(.35); // the loose cushion enters the padded seat, not the frame
+    expect(bottomY).toBeLessThan(sofaAsset.seatHeight); // no floating above the seat
+  }
   for (const [choice, color] of Object.entries(colors)) {
     expect(await page.evaluate((key) => window.__bedroom.setChoice("sofa", key), choice)).toBe(true);
     sofaAsset = (await page.evaluate(() => window.__bedroom.info())).sofaAsset;
     expect(sofaAsset.coverColor).toBe(color);
     expect(sofaAsset.legColor).toBe(fixedLegColor);
+    expect(sofaAsset.pillows.map(({ color }) => color)).toEqual(cushionColors);
   }
   ({ vertices } = await page.evaluate(() => window.__bedroom.info()));
   expect(vertices).toBeLessThan(62000);

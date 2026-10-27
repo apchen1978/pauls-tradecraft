@@ -1078,10 +1078,14 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const legGeometry = new THREE.CylinderGeometry(.024, .036, .18, 12, 1);
   for (const x of [-.62, .62]) for (const z of [-.30, .31]) sofaPart(legGeometry, sofaLegMat, "legs", x, .09, z);
   sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
-  // Codex's two cushions (batch 9), not Room 01's: a blue-grey square turned on its corner at one end, an oat-and-sage striped lumbar at the other.
-  // (the GLBs lie flat, thin along y: a quarter turn about x stands them up facing the room, rx then leans them back, ry spins them on their face)
-  for (const [file, name, x, y, z, rx, ry, rz] of [["diamond-cushion-v1.glb", "sofa-cushion-diamond", -.4, .62, -.08, -.3, Math.PI / 4, 0], ["lumbar-cushion-v1.glb", "sofa-cushion-lumbar", .36, .5, -.1, -.32, 0, .05]]) {
-    loadGlb(new URL(`./models/${file}`, import.meta.url).href, { anchor: "center", roughness: 1, weave: true }).then((g) => { g.name = name; if (name.endsWith("lumbar")) g.traverse((o) => { if (o.isMesh) { o.material.vertexColors = false; o.material.color.set("#e2d6c0"); o.material.needsUpdate = true; } }); /* the stripes came out as grey smudges: a plain oat cover */ g.position.set(x, y, z); g.rotation.set(Math.PI / 2 + rx, ry, rz); sofa.add(g); redraw(); }).catch(() => {});
+  // Keep the two loose cushions inside the seat/back corner. A slight lean and uneven roll read as fabric at rest;
+  // the previous 45-degree yaw made the square cushion show mostly its thin side from the room.
+  const sofaCushions = [
+    { file: "diamond-cushion-v1.glb", name: "sofa-cushion-diamond", position: [-.4, .62, -.11], rotation: [-.25, .38, -.06], scale: [.96, 1, .96] },
+    { file: "lumbar-cushion-v1.glb", name: "sofa-cushion-lumbar", position: [.34, .55, -.11], rotation: [-.25, -.03, .08], scale: [.98, 1, 1] },
+  ];
+  for (const { file, name, position, rotation, scale } of sofaCushions) {
+    loadGlb(new URL(`./models/${file}`, import.meta.url).href, { anchor: "center", roughness: 1, weave: true }).then((g) => { g.name = name; if (name.endsWith("lumbar")) g.traverse((o) => { if (o.isMesh) { o.material.vertexColors = false; o.material.color.set("#e2d6c0"); o.material.needsUpdate = true; } }); /* the stripes came out as grey smudges: a plain oat cover */ g.position.set(...position); g.rotation.set(Math.PI / 2 + rotation[0], rotation[1], rotation[2]); g.scale.set(...scale); sofa.add(g); redraw(); }).catch(() => {});
   }
   // Round coffee table (72 cm, 38 cm high): a travertine top on a dark metal ring base (Codex's D2 reference), plus a small side table.
   const travertine = new THREE.MeshStandardMaterial({ map: canvasTex(256, 256, (ctx, w, h) => {
@@ -1617,7 +1621,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     } else if (kind === "screen" && CHOICES.screen.includes(value)) {
       screen.material.map = value === "city" ? cityScreen : (screens[value] ??= drawScreen(value)); screen.material.needsUpdate = true;
     } else if (kind === "sofa" && CHOICES.sofa[value]) {
-      sofa.traverse((o) => { if (o.isMesh && o.name !== "legs") o.material.color.set(CHOICES.sofa[value]); }); // the wooden legs keep their wood
+      sofaBody.traverse((o) => { if (o.isMesh && o.name !== "legs") o.material.color.set(CHOICES.sofa[value]); }); // loose cushions and wooden legs keep their own colours
     } else if (kind === "tv" && CHOICES.tv.includes(value)) {
       chosen.tv = value; applyTv(live.mood);
     } else if (kind === "shelf" && CHOICES.shelf.includes(value)) {
@@ -1651,7 +1655,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         const cover = sofaBody.getObjectByName("sofa-seat-base").material;
         return { source: sofa.userData.source, vertices: sofaVertices, triangles: sofaTriangles, meshes: sofaMeshes, legs, seatHeight: new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-seat-cushion")).max.y,
           backHeight: new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-back-frame")).max.y,
-          coverColor: "#" + cover.color.getHexString(), legColor: "#" + sofaLegMat.color.getHexString(), pillows: ["sofa-cushion-diamond", "sofa-cushion-lumbar"].map((name) => { const o = sofa.getObjectByName(name); return o ? { name, position: o.position.toArray() } : null; }) };
+          coverColor: "#" + cover.color.getHexString(), legColor: "#" + sofaLegMat.color.getHexString(), pillows: ["sofa-cushion-diamond", "sofa-cushion-lumbar"].map((name) => {
+            const o = sofa.getObjectByName(name); if (!o) return null;
+            let cushionMesh; o.traverse((m) => { if (!cushionMesh && m.isMesh) cushionMesh = m; });
+            return { name, position: o.position.toArray(), color: cushionMesh?.material.color.getHexString(), bottomY: new THREE.Box3().setFromObject(o).min.y };
+          }) };
       })(), portalPath: (() => {
         const path = [
           camera.position.clone(),
