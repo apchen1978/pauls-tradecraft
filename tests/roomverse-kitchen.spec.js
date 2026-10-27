@@ -821,3 +821,25 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
   });
 });
+
+test("Room 03 keeps mood focus and localizes accessible names in both languages", async ({ page }) => {
+  await loadRoom(page, 390, "zh");
+  const lang = page.locator("#lang");
+  const mood = page.locator('#moods button[data-mood="night"]');
+  const size = await lang.boundingBox();
+  expect(size.height).toBeGreaterThanOrEqual(44);
+  expect(await lang.getAttribute("aria-label")).toBe("切換語言");
+  expect(await page.locator(".room").getAttribute("aria-label")).toBe("Room 03 3D 房間");
+  expect(await page.locator(".toolbar").getAttribute("aria-label")).toBe("Room 03 設定");
+  expect(await page.locator("#moods").getAttribute("aria-label")).toBe("選擇感覺");
+  await mood.click();
+  await expect(mood).toBeFocused();
+  await lang.click();
+  expect(await lang.getAttribute("aria-label")).toBe("Switch language");
+  expect(await page.locator(".room").getAttribute("aria-label")).toBe("Room 03 3D room");
+  expect(await page.locator(".toolbar").getAttribute("aria-label")).toBe("Room 03 settings");
+  expect(await page.locator("#moods").getAttribute("aria-label")).toBe("Choose a mood");
+  const englishNight = page.locator('#moods button[data-mood="night"]');
+  await englishNight.click();
+  await expect(englishNight).toBeFocused();
+});

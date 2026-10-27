@@ -63,12 +63,17 @@ test("keyboard reaches exit before language, with a visible focus outline", asyn
   await expect(page.locator("#lang")).toBeFocused();
 });
 
-test("fullscreen Tab stays in the room after a mood button is replaced", async ({ page }) => {
+test("fullscreen Tab stays in the room after mood selection preserves focus", async ({ page }) => {
   await openRoom(page);
   await page.locator("#immersiveEnter").click();
   await page.keyboard.press("Tab");
   await expect(page.locator('#moods button[data-mood="golden"]')).toBeFocused();
   await page.keyboard.press("Enter");
+  await expect(page.locator('#moods button[data-mood="golden"]')).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator('#moods button[data-mood="night"]')).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#immersiveOtherRooms")).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.locator("#immersiveExit")).toBeFocused();
   await page.keyboard.press("Shift+Tab");
