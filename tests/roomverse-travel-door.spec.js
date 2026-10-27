@@ -43,7 +43,7 @@ function contrastRatio(foreground, background) {
 }
 
 async function waitForTravelDoorEnd(dialog) {
-  await expect(dialog).toHaveCSS("opacity", "1");
+  await expect(dialog).toHaveCSS("opacity", "1", { timeout: 20000 });
 }
 
 async function measureCardContrast(dialog) {
@@ -66,19 +66,18 @@ function rgbToHex(rgb) {
   return `#${rgb.match(/\d+/g).slice(0, 3).map((channel) => Number(channel).toString(16).padStart(2, "0")).join("")}`;
 }
 
-test("the shared directory has three rooms and the travel card never lists or links Room 03", async ({ page }) => {
+test("the shared directory lists three rooms and travel cards include Room 03", async ({ page }) => {
   await page.goto(ROOM01);
-  const rooms = await page.evaluate(async () => (await import("/prototype/roomverse-3d/rooms.js?v=1")).ROOMS);
+  const rooms = await page.evaluate(async () => (await import("/prototype/roomverse-3d/rooms.js?v=2")).ROOMS);
   expect(rooms).toHaveLength(3);
-  expect(rooms.find((room) => room.id === "room03").listed).toBe(false);
-  expect(rooms.filter((room) => room.listed).map((room) => room.id)).toEqual(["room01", "room02"]);
+  expect(rooms.find((room) => room.id === "room03").listed).toBe(true);
+  expect(rooms.filter((room) => room.listed).map((room) => room.id)).toEqual(["room01", "room02", "room03"]);
   await enterRoom01(page);
   await page.locator("#travelDoorBtn").click();
   const dialog = page.getByRole("dialog", { name: "要去哪？" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText(/Room 03|Bay Area|灣區/)).toHaveCount(0);
-  await expect(dialog.locator("a[href*='kitchen']")).toHaveCount(0);
-  await expect(dialog.locator(".travel-door-card")).toHaveCount(1);
+  await expect(dialog.getByText(/Room 03/)).toHaveCount(1);
+  await expect(dialog.locator(".travel-door-card")).toHaveCount(2);
 });
 
 test("Room 01 travel card is bilingual, keyboard dismissible, focus returning, and fits 390/1440", async ({ page }) => {
@@ -95,15 +94,17 @@ test("Room 01 travel card is bilingual, keyboard dismissible, focus returning, a
   expect(contrastRatio(rgbToHex(tones.body.color), rgbToHex(tones.body.background))).toBeGreaterThanOrEqual(4.5);
   expect(contrastRatio(rgbToHex(tones.secondary.color), rgbToHex(tones.secondary.background))).toBeGreaterThanOrEqual(4.5);
   expect(contrastRatio(rgbToHex(tones.action.color), rgbToHex(tones.action.background))).toBeGreaterThanOrEqual(4.5);
-  const cover = await dialog.locator("img").evaluate((image) => ({ fit: getComputedStyle(image).objectFit, ratio: image.getBoundingClientRect().width / image.getBoundingClientRect().height }));
+  const cover = await dialog.locator("img").first().evaluate((image) => ({ fit: getComputedStyle(image).objectFit, ratio: image.getBoundingClientRect().width / image.getBoundingClientRect().height }));
   expect(cover.fit).toBe("cover");
   expect(cover.ratio).toBeLessThan(1);
   await page.keyboard.press("Tab");
-  await expect(dialog.locator(".travel-door-go")).toBeFocused();
+  await expect(dialog.locator(".travel-door-go").nth(0)).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(dialog.locator(".travel-door-go").nth(1)).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(dialog.locator(".travel-door-close")).toBeFocused();
   const urlWhileOpen = page.url();
-  await expect(page.getByRole("button", { name: "推開那扇門", exact: true })).toBeVisible();
+  await expect(dialog.locator(".travel-door-card").filter({ hasText: "Room 02" }).getByRole("button", { name: "推開那扇門", exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(await page.evaluate(() => document.activeElement.id)).toBe("travelDoorBtn");
@@ -112,7 +113,7 @@ test("Room 01 travel card is bilingual, keyboard dismissible, focus returning, a
   await page.locator("#lang").click();
   await trigger.click();
   await expect(page.getByRole("dialog", { name: "Where to?" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Step through the door" })).toBeVisible();
+  await expect(page.locator(".travel-door-card").first().getByRole("button", { name: "Step through the door" })).toBeVisible();
   await page.keyboard.press("Escape");
 
   for (const width of [1440, 390]) {
@@ -169,16 +170,31 @@ test("choosing a travel destination preserves language and uses the existing roo
   await enterRoom01(page, { lang: "en" });
   await page.locator("#travelDoorBtn").click();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("button", { name: "Step through the door" })).toBeFocused();
+  await expect(page.locator(".travel-door-card").first().getByRole("button", { name: "Step through the door" })).toBeFocused();
   await page.keyboard.press("Enter");
   await page.waitForURL(/\/bedroom\/\?lang=en&from=room01/);
   await page.waitForFunction(() => window.__bedroom?.info);
   await page.locator("#travelDoorBtn").click();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("button", { name: "Step through the door" })).toBeFocused();
+  await expect(page.locator(".travel-door-card").first().getByRole("button", { name: "Step through the door" })).toBeFocused();
   await page.keyboard.press("Enter");
   await page.waitForURL(/\/prototype\/roomverse-3d\/\?lang=en&from=room02/);
   await page.waitForFunction(() => window.__room?.geometryMetrics);
+});
+
+test("Room 01 and Room 02 can travel to Room 03 and return with language preserved", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [source, enter, lang] of [["room01", enterRoom01, "zh"], ["room02", enterRoom02, "en"]]) {
+    await enter(page, { lang });
+    await page.locator("#travelDoorBtn").click();
+    await page.locator(".travel-door-card").filter({ hasText: "Room 03" }).locator("button").click();
+    await page.waitForURL(new RegExp(`/kitchen/\\?lang=${lang}&from=${source}`));
+    const exit = page.locator("#headerOtherRooms");
+    await expect(exit).toHaveAttribute("href", new RegExp(`lang=${lang}`));
+    await exit.click();
+    await page.waitForURL(source === "room01" ? /roomverse-3d\/\?lang=zh/ : /bedroom\/\?lang=en/);
+  }
 });
 
 test("travel-door screenshots and fixed-condition geometry counts (ROOMVERSE_QA_DIR)", async ({ page }) => {

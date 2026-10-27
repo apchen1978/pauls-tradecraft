@@ -1,5 +1,5 @@
 // ROOMVERSE 3D page: text, language, and loading the 3D room only when the visitor asks for it.
-import { initTravelDoor } from "./travel-door.js?v=1";
+import { initTravelDoor } from "./travel-door.js?v=2";
 const TRAVEL_COPY = { zh: { button: "去別的房間 · Travel", bubble: "看看其他房間" }, en: { button: "Travel to another room", bubble: "Explore other rooms" } };
 const COPY = {
   zh: {

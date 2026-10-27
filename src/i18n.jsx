@@ -476,7 +476,7 @@ const dict = {
               imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
             },
           ],
-          roomsNote: "目前開放兩間房，更多房間陸續打開。",
+          roomsNote: "目前開放三間房，更多房間陸續打開。",
         },
         {
           title: "貿易街 · 一櫃貨出海",
@@ -1426,7 +1426,7 @@ const dict = {
               imageWidth: 816, imageHeight: 1020, imageRatio: "4 / 5", objectPosition: "center",
             },
           ],
-          roomsNote: "Two rooms are open for now; more will open.",
+          roomsNote: "Three rooms are open for now; more will open.",
         },
         {
           title: "Trade Street · One Container Ships",

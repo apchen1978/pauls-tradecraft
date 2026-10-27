@@ -1,4 +1,4 @@
-import { ROOMS } from "./rooms.js?v=1";
+import { ROOMS } from "./rooms.js?v=2";
 
 const COPY = {
   zh: { title: "要去哪？", close: "×", closeLabel: "關閉旅行選擇", go: "推開那扇門", action: "看看其他房間", button: "去別的房間 · Travel" },
