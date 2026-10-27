@@ -75,3 +75,17 @@ Paul 核准把曾掛在 Room 02 的南加州海岸日落插畫收入畫廊。它
 來源、製作步驟與 UNKNOWN 清單見 [`room02-la-coast-provenance.md`](room02-la-coast-provenance.md)。ImageGen 原始 PNG 與 1200×1600 紙邊母檔保存在 `sources/`；桌機 WebP 沿用原 Room 02 檔案且位元組相同，手機與縮圖由母檔縮小。各檔 SHA256、尺寸與 bytes 見 `docs/qa/human-ai-gallery/asset-manifest.json`。
 
 公開圖使用 1122×1402 原比例 WebP、800×1000 手機圖與 480×600 縮圖；檔案大小與 SHA256 記在 `docs/qa/human-ai-gallery/asset-manifest.json`。Room 02 畫面允許比互動場景更自由的城市想像，公開文字均標為概念畫作。
+
+## 2026-10-28：灣區的光（Room 03 牆畫候選）
+
+Paul 指示：Room 03 沒有掛上牆的灣區畫作放進畫廊，讓收藏更豐富。新增三幅、新區塊「灣區的光」，放在 ROOMVERSE 區塊之後、「日光與燈火之間」之前。三幅都是風格化的想像概念畫，不描繪特定真實地點；公開文字不稱它們是實景照片。
+
+| id | 原稿與製作證據 |
+| --- | --- |
+| bayarea-redwood-canopy | `docs/gallery/sources/room03-human-touch-r1/room03-bay-redwood-canopy-source.png`（1448×1086）；ImageGen 繪製，仰視紅木林。來源紀錄見 [`room03-human-touch-r1-provenance.md`](room03-human-touch-r1-provenance.md)。 |
+| bayarea-foggy-harbor | `docs/gallery/sources/room03-bay-foggy-harbor-source.png`（1448×1086）；ImageGen 繪製，晨霧海灣、木棧橋與帆船。 |
+| bayarea-golden-oaks | `docs/gallery/sources/room03-california-golden-oaks-source.png`（1448×1086）；ImageGen 繪製，金黃丘陵與橡樹。 |
+
+晨霧小港與金黃山丘是 2026-10-27 的 Room 03 繪圖交付（Codex，內建 ImageGen），三幅原稿 SHA256 與衍生圖尺寸、bytes、SHA256 見 `docs/qa/human-ai-gallery/asset-manifest.json`。衍生圖保持 4:3 原比例（1200×900、800×600、480×360），不裁切。
+
+生成過程使用原創提示，不含特定藝術家或作品名、品牌、文字、簽名或清楚的人臉；這是人工目視檢查，沒有做外部相似性檢索或法律審查。這些畫沒有被放進 Room 03 的 3D 場景；Room 03 實際掛的是纜車與紅木林步道兩幅（見 `room03-human-touch-r1-provenance.md`）。

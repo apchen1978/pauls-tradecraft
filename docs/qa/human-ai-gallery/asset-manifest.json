@@ -494,5 +494,98 @@
         "sha256": "6556cc6d4c8d4bdcf19f7b20cef279324f09a78078d03b3ba5ae96a8840ce0a8"
       }
     ]
+  },
+  {
+    "id": "bayarea-redwood-canopy",
+    "source": "docs/gallery/sources/room03-human-touch-r1/room03-bay-redwood-canopy-source.png",
+    "sourceSha256": "6ef185724e6808d104c8aa3ad043d2db73cc6d6b1cfb52df2a8c061b652f0888",
+    "derivatives": [
+      {
+        "file": "bay-redwood-canopy.webp",
+        "width": 1200,
+        "height": 900,
+        "bytes": 136098,
+        "quality": 56,
+        "sha256": "8fd0ae66d69e1a0310f9078bc9bf04a577882ed1ef71bcc4a7e9150545dd42c1"
+      },
+      {
+        "file": "bay-redwood-canopy-mobile.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 87992,
+        "quality": 70,
+        "sha256": "692f311cb809fc6034a70096ce362f5747964a243fb408ca14ac75f43a1ed753"
+      },
+      {
+        "file": "bay-redwood-canopy-thumb.webp",
+        "width": 480,
+        "height": 360,
+        "bytes": 38544,
+        "quality": 74,
+        "sha256": "35c85ccdfb62bedd62aacfe9e92e1bdebe254cb4157f36b4d065e211109af217"
+      }
+    ]
+  },
+  {
+    "id": "bayarea-foggy-harbor",
+    "source": "docs/gallery/sources/room03-bay-foggy-harbor-source.png",
+    "sourceSha256": "4b197ea27094fd4597e800017bad01b5d62f594784a7bb949ae0725fcc1eb391",
+    "derivatives": [
+      {
+        "file": "bay-foggy-harbor.webp",
+        "width": 1200,
+        "height": 900,
+        "bytes": 138268,
+        "quality": 76,
+        "sha256": "800ba89c31282cc027dfd97625642765c7c5b716ee3dfddfb8447fc240b3753d"
+      },
+      {
+        "file": "bay-foggy-harbor-mobile.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 88024,
+        "quality": 80,
+        "sha256": "105e693ef12f8be84d64055e93b6e48fd85dcc71dc9b389ea455edfe4aac5bd0"
+      },
+      {
+        "file": "bay-foggy-harbor-thumb.webp",
+        "width": 480,
+        "height": 360,
+        "bytes": 37366,
+        "quality": 80,
+        "sha256": "e1dd2e02a495c7dc5e1b1e7d72563ebd1dae75bbd515cb700462864d7af0f71f"
+      }
+    ]
+  },
+  {
+    "id": "bayarea-golden-oaks",
+    "source": "docs/gallery/sources/room03-california-golden-oaks-source.png",
+    "sourceSha256": "eea5dcb909b204835878757f26a66ac1182b3a9e16488cc0e40d13302312fc5b",
+    "derivatives": [
+      {
+        "file": "california-golden-oaks.webp",
+        "width": 1200,
+        "height": 900,
+        "bytes": 138330,
+        "quality": 76,
+        "sha256": "161f287fbb2f3437bfc5ea2cafabf96706cf4400014b24c3d7641f081a5d0765"
+      },
+      {
+        "file": "california-golden-oaks-mobile.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 82314,
+        "quality": 78,
+        "sha256": "785e3051e2fac8f39109d37771fd9069e8f6f3b34512a1dadbbb0f6a1499bc38"
+      },
+      {
+        "file": "california-golden-oaks-thumb.webp",
+        "width": 480,
+        "height": 360,
+        "bytes": 37448,
+        "quality": 80,
+        "sha256": "2bff8c9e7b1af28a15cbaaf178d83818bc32e8e47383733d7f52f75aee032449"
+      }
+    ]
   }
 ]
