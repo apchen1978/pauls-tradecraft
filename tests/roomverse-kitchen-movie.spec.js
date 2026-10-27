@@ -90,8 +90,8 @@ async function measureViews(page, width) {
         point.set(x, y, z);
         return point.project(room.camera).toArray();
       };
-      // Image-right third at 180° is the wall beside the screen, not the lamp shade.
-      const rightWall = room.samplePixels({ left: 0.70, top: 0.40, width: 0.18, height: 0.28 });
+      // Upper image-right is the wall beside the screen. The lower-right includes the floor lamp.
+      const rightWall = room.samplePixels({ left: 0.72, top: 0.22, width: 0.16, height: 0.16 });
       const floorWall = project(-2.45, 1.05, 1.5);
       return {
         frame,
