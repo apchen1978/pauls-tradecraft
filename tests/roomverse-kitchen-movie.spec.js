@@ -90,15 +90,13 @@ async function measureViews(page, width) {
         point.set(x, y, z);
         return point.project(room.camera).toArray();
       };
-      const rightWall = [project(1.55, 1.45, 2.25), project(-1.55, 1.2, 2.15), project(2.55, 1.25, 0.3), project(-2.4, 1.15, 0.4)]
-        .filter((ndc) => ndc[2] < 1 && ndc[0] > 0.15 && ndc[0] < 0.92 && Math.abs(ndc[1]) < 0.75)
-        .sort((a, b) => b[0] - a[0])[0];
+      // Image-right third at 180° is the wall beside the screen, not the lamp shade.
+      const rightWall = room.samplePixels({ left: 0.70, top: 0.40, width: 0.18, height: 0.28 });
       const floorWall = project(-2.45, 1.05, 1.5);
       return {
         frame,
-        rightWall: rightWall ? room.sampleNdc(rightWall, 0.03) : null,
-        rightWallNdc: rightWall || null,
-        floorWall: floorWall[2] < 1 ? room.sampleNdc(floorWall, 0.025) : null,
+        rightWall,
+        floorWall: floorWall[2] < 1 && Math.abs(floorWall[0]) < 1.2 ? room.sampleNdc(floorWall, 0.025) : null,
         floorWallNdc: floorWall,
       };
     });
@@ -106,8 +104,9 @@ async function measureViews(page, width) {
     expect(sample.frame.meanLuminance, `${width}px ${degrees}° mean`).toBeGreaterThanOrEqual(40);
     expect(sample.frame.darkRatio, `${width}px ${degrees}° dark`).toBeLessThanOrEqual(0.45);
     if (degrees === 180) {
-      expect(sample.rightWall, `${width}px 180° has a right-wall sample`).toBeTruthy();
       expect(sample.rightWall.blue, `${width}px 180° right wall is not purple`).toBeLessThan(sample.rightWall.red);
+      expect(sample.rightWall.meanLuminance, `${width}px 180° right wall is the wall, not a lamp`).toBeLessThan(200);
+      expect(sample.rightWall.blownRatio, `${width}px 180° right wall blown`).toBeLessThanOrEqual(0.01);
     }
     if (degrees === 90) {
       expect(sample.floorWall, `${width}px 90° sees the wall by the floor lamp`).toBeTruthy();
@@ -119,7 +118,7 @@ async function measureViews(page, width) {
       std: sample.frame.luminanceStdDev,
       blown: sample.frame.blownRatio,
       dark: sample.frame.darkRatio,
-      rightWall: sample.rightWall ? { red: sample.rightWall.red, green: sample.rightWall.green, blue: sample.rightWall.blue, ndc: sample.rightWallNdc } : null,
+      rightWall: { red: sample.rightWall.red, green: sample.rightWall.green, blue: sample.rightWall.blue, mean: sample.rightWall.meanLuminance, blown: sample.rightWall.blownRatio },
       floorWall: sample.floorWall ? { mean: sample.floorWall.meanLuminance, blown: sample.floorWall.blownRatio, red: sample.floorWall.red, blue: sample.floorWall.blue, ndc: sample.floorWallNdc } : null,
     };
   }
