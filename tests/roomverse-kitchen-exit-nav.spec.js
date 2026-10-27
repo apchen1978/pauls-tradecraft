@@ -76,6 +76,12 @@ test("fullscreen Tab stays in the room after mood selection preserves focus", as
   await page.keyboard.press("Tab");
   await expect(page.locator('#moods button[data-mood="night"]')).toBeFocused();
   await page.keyboard.press("Tab");
+  // Old: night was the last mood, so the next Tab reached the other-rooms link.
+  // Dinner and Sunday morning now follow night.
+  await expect(page.locator('#moods button[data-mood="dinner"]')).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator('#moods button[data-mood="sunday"]')).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(page.locator("#immersiveOtherRooms")).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.locator("#immersiveExit")).toBeFocused();

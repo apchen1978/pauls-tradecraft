@@ -2082,6 +2082,42 @@ export async function start({ stage, onReady = () => {} }) {
       pictureLightEmissive: 0.5, counterPendantEmissive: 0.8,
       blind: "closed",
     }),
+    // Dinner and Sunday morning. Sky stays the golden gradient; the yard tint carries
+    // the recipe color. Jute and the pillow stay the golden cloth. The screen stays off.
+    // Sun height is the y of the existing sun vector. warmGlow, wokGlow, reveal, and the
+    // bounce planes are not in the proposal table.
+    dinner: Object.freeze({
+      ...sharedLook,
+      sun: 0.8, sunColor: 0xffb263, sunPosition: [-4.2, 1.15, 3.6],
+      hemi: 0.70, hemiSky: 0xffe0bd, hemiGround: 0xc7a578,
+      ambient: 0.18,
+      pendant: 3.2, under: 1.6, side: 0,
+      exposure: 1.14, yard: 0xffc79a, globe: 0.55, sky: "golden",
+      floor: 0xcdbb9e, ceilingEmissive: 0.22,
+      warmGlow: 0.80, wokGlow: 0.25,
+      windowWallBounce: 0.06, windowWallBounceVisible: true,
+      pendantCeilingBounce: 0.03, pendantCeilingBounceVisible: true,
+      reveal: 0.55, contactShadow: 0.26,
+      floorLamp: 1.6, tableLamp: 2.4, screenCool: 0,
+      pictureLightEmissive: 0.6, counterPendantEmissive: 1.0,
+      blind: "half",
+    }),
+    sunday: Object.freeze({
+      ...sharedLook,
+      sun: 2.2, sunColor: 0xffd9b8, sunPosition: [-4.2, 1.05, 3.6],
+      hemi: 0.80, hemiSky: 0xeef2f8, hemiGround: 0xcfc6b6,
+      ambient: 0.20,
+      pendant: 0, under: 0.3, side: 0.4,
+      exposure: 1.22, yard: 0xbfd3d8, globe: 0.15, sky: "golden",
+      floor: 0xc9bb9f, ceilingEmissive: 0.12,
+      warmGlow: 0.35, wokGlow: 0.40,
+      windowWallBounce: 0.10, windowWallBounceVisible: true,
+      pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
+      reveal: 0.35, contactShadow: 0.24,
+      floorLamp: 0.8, tableLamp: 0.6, screenCool: 0,
+      pictureLightEmissive: 0.2, counterPendantEmissive: 0.25,
+      blind: "half",
+    }),
   });
   let floorLampLight = null, tableLampLight = null, screenCoolLight = null;
   let pictureLightMaterial = null, counterPendantMaterial = null;

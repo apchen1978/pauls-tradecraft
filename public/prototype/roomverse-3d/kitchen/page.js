@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=39";
+import { start, ROOM_TITLE } from "./kitchen.js?v=40";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -10,6 +10,8 @@ const COPY = {
       golden: ["金色時光", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
       movie: ["追劇夜", "中央吊燈關掉，螢幕放冷色城市，落地燈與桌燈留著暖光。"],
       night: ["夜晚", "院子轉為藍調，圓球燈、櫥下燈與側廚房暖光照亮餐區。"],
+      dinner: ["晚餐", "吊燈轉暖，檯面雙吊燈與桌燈點著，低角度的暖陽還留一點。"],
+      sunday: ["週日早晨", "光線偏冷、偏亮，吊燈關著，落地燈與桌燈只微微亮。"],
     },
   },
   en: {
@@ -22,6 +24,8 @@ const COPY = {
       golden: ["Golden hour", "Low, warm afternoon light enters through the glass doors; the pendant stays soft."],
       movie: ["Movie night", "The pendant is off, the screen shows a cool city, and the floor and table lamps stay warm."],
       night: ["Night", "The garden turns blue while the globe pendant, counter light and side kitchen warm the dining room."],
+      dinner: ["Dinner", "The pendant warms up, the counter lamps and table lamp are on, and a low warm sun remains."],
+      sunday: ["Sunday morning", "The light is cooler and brighter, the pendant is off, and the floor and table lamps stay dim."],
     },
   },
 };
@@ -112,6 +116,15 @@ $("immersiveOtherRooms").addEventListener("click", (event) => {
   location.replace(destination);
 });
 document.addEventListener("keydown", (event) => {
+  if ((event.key === "ArrowRight" || event.key === "ArrowLeft") && event.target?.dataset?.mood) {
+    const buttons = [...$("moods").querySelectorAll("button")];
+    const index = buttons.indexOf(event.target);
+    if (index < 0) return;
+    event.preventDefault();
+    const step = event.key === "ArrowRight" ? 1 : buttons.length - 1;
+    buttons[(index + step) % buttons.length].focus();
+    return;
+  }
   if (event.key !== "Tab" || !immersive) return;
   const controls = [...document.querySelectorAll(".room button, .room a[href]")]
     .filter((element) => element.getClientRects().length && !element.disabled);
