@@ -51,11 +51,17 @@
     .room.is-immersive .moods::-webkit-scrollbar { display:none; }
     .room.is-immersive .moods button { flex:0 0 auto; background:#faf8f2ee; white-space:nowrap; }
     .room.is-immersive .moods button[aria-pressed="true"] { background:#596043; color:#fff; }
+    header .brand { margin-right:auto; }
+    .exit-nav { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:8px 13px; border:1px solid #a9a38f; border-radius:999px; background:var(--paper); color:var(--olive); font:700 13px system-ui,sans-serif; text-decoration:none; cursor:pointer; }
+    .exit-nav:focus-visible { outline:3px solid #b57943; outline-offset:3px; }
+    .immersive-other-rooms { display:none; }
+    .room.is-immersive .immersive-other-rooms { display:inline-flex; position:absolute; z-index:5; top:calc(8px + env(safe-area-inset-top)); right:calc(8px + env(safe-area-inset-right)); background:#29352de8; border-color:#fff9; color:#fff; }
   </style>
 </head>
 <body>
   <header>
     <span class="brand">ROOMVERSE 3D</span>
+    <a id="headerOtherRooms" class="exit-nav" href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
     <button id="lang" type="button" aria-label="Switch language">EN</button>
   </header>
   <main>
@@ -69,6 +75,7 @@
       <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
       <button class="immersive-exit" id="immersiveExit" type="button"></button>
       <div class="immersive-controls" id="immersiveControls"></div>
+      <a id="immersiveOtherRooms" class="exit-nav immersive-other-rooms" href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
     </section>
     <section class="toolbar" aria-label="Room settings">
       <div class="moods" id="moods" role="group" aria-label="Choose a mood"></div>
@@ -76,6 +83,6 @@
     <p class="mood-note" id="why" aria-live="polite"></p>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=29"></script>
+  <script type="module" src="page.js?v=30"></script>
 </body>
 </html>

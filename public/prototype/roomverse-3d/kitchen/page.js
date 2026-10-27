@@ -1,9 +1,10 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=29";
+import { start, ROOM_TITLE } from "./kitchen.js?v=30";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
     lead: "灣區中世紀現代風的開放廚房與餐區。拖曳畫面，從室內看看木樑、玻璃門與小院。",
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
+    otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
     moods: {
       golden: ["金色時光", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
@@ -14,6 +15,7 @@ const COPY = {
     title: ROOM_TITLE,
     lead: "An open kitchen and dining room inspired by Bay Area mid-century modern homes. Drag to look around the timber beams, glass doors and small garden.",
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
+    otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
     moods: {
       golden: ["Golden hour", "Low, warm afternoon light enters through the glass doors; the pendant stays soft."],
@@ -26,6 +28,13 @@ let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "z
 let room = null;
 let mood = "golden";
 let immersive = false;
+
+function otherRoomsUrl() {
+  const from = new URLSearchParams(location.search).get("from");
+  const url = new URL(from === "room02" ? "../bedroom/" : "../", location.href);
+  url.searchParams.set("lang", lang === "en" ? "en" : "zh");
+  return url.href;
+}
 
 function renderMoods() {
   const copy = COPY[lang];
@@ -58,6 +67,12 @@ function renderCopy() {
   $("lang").textContent = copy.lang;
   $("immersiveEnter").textContent = copy.full;
   $("immersiveExit").textContent = copy.exit;
+  for (const id of ["headerOtherRooms", "immersiveOtherRooms"]) {
+    const link = $(id);
+    link.textContent = copy.otherRooms;
+    link.setAttribute("aria-label", copy.otherRoomsLabel);
+    link.href = otherRoomsUrl();
+  }
   renderMoods();
   room?.setLang(lang);
 }
@@ -82,6 +97,23 @@ function setImmersive(on, pushHistory = true) {
   requestAnimationFrame(() => room.resize());
 }
 
+$("immersiveOtherRooms").addEventListener("click", (event) => {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  const destination = otherRoomsUrl();
+  setImmersive(false, false);
+  location.replace(destination);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Tab" || !immersive) return;
+  const controls = [...document.querySelectorAll(".room button, .room a[href]")]
+    .filter((element) => element.getClientRects().length && !element.disabled);
+  const first = controls[0], last = controls.at(-1);
+  if (!first || !last) return;
+  if (!document.activeElement.closest(".room")) { event.preventDefault(); (event.shiftKey ? last : first).focus(); return; }
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
 $("immersiveEnter").addEventListener("click", () => setImmersive(true));
 $("immersiveExit").addEventListener("click", () => setImmersive(false));
 addEventListener("popstate", (event) => setImmersive(Boolean(event.state?.room03Immersive), false));
