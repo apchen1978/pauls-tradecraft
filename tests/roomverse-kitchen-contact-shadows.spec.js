@@ -46,7 +46,7 @@ for (const width of [1440, 390]) {
       expect(initial.info.vertices).toBeGreaterThan(0);
       expect(initial.info.triangles).toBeGreaterThan(0);
       expect(initial.info.meshes).toBeGreaterThan(0);
-      expect(initial.info.categories["contact-shadow"]).toEqual({ vertices: 80, meshes: 1 });
+      expect(initial.info.categories["contact-shadow"]).toEqual({ vertices: 108, meshes: 1 }); // one merged mesh: 4 table feet + 16 chair feet + island/side strips + fig pot + 4 lounge feet
     });
   }
 }

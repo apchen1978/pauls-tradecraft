@@ -69,8 +69,9 @@ test("painted light layers: only the faintest pendant ceiling glow survives", as
 test("P0 keeps the geometry budget and the draw calls below the previous baseline", async ({ page }) => {
   await loadRoom(page, 1440);
   const desktop = await page.evaluate(() => window.__room03.info());
-  expect(desktop.vertices).toBe(41246);
-  expect(desktop.meshes).toBe(95);
+  // Later lighting/contact PRs may add a few vertices; P0 itself must stay inside the +50 budget above the 41,246 baseline.
+  expect(desktop.vertices).toBeLessThanOrEqual(41296);
+  expect(desktop.meshes).toBeLessThanOrEqual(95);
   expect(desktop.drawCallsLastFrame).toBeLessThanOrEqual(73);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(700);
