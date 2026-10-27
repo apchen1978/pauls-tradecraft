@@ -20,19 +20,7 @@ async function loadRoom(page, width) {
 test("Thanksgiving changes the light, the screen, and the courtyard, and adds no props", async ({ page }) => {
   await loadRoom(page, 1440);
   await expect(page.getByRole("button", { name: "感恩節" })).toBeVisible();
-  const before = await page.evaluate(() => ({
-    props: window.__room03.info().propBounds.length,
-    names: [],
-  }));
-  const names = await page.evaluate(() => {
-    const found = [];
-    window.__room03.camera.parent?.traverse?.(() => {});
-    const sceneNames = [];
-    // info() does not list every name; the mood must not add a prop mesh.
-    return window.__room03.info().propBounds.length;
-  });
-  expect(names).toBe(before.props);
-  expect(before.props).toBe(7);
+  expect(await page.evaluate(() => window.__room03.info().propBounds.length)).toBe(7);
 
   await page.evaluate(() => window.__room03.setMood("thanksgiving"));
   await page.waitForFunction(() => {
