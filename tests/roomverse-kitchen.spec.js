@@ -350,8 +350,12 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.info.vertices - golden.info.categories["lounge-chair"].vertices - 44199).toBeLessThanOrEqual(3000);
     expect(golden.info.drawCallsLastFrame).toBeLessThanOrEqual(100);
     expect(golden.info.plantLeafCount).toBeGreaterThanOrEqual(24);
-    // P0 lowered hemi 0.9->0.55 and ambient 0.30->0.16, so this local interior sample is 4.5 % darker (107.1) even though the\n    // whole-frame mean is unchanged (111.1 -> 111.6). Old floor was 106.7261 * 1.05 = 112.1; the new floor keeps the sample\n    // from collapsing while P0 is in review.\n    expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(104);
-    // This sample sits inside the old VSM penumbra (99.8). With PCF the penumbra is narrower, so the same pixels are 91.1.\n    expect(golden.samples.floorShadow.meanLuminance).toBeGreaterThan(88);
+    // P0 lowered hemi 0.9->0.55 and ambient 0.30->0.16, so this local interior sample is 4.5 % darker (107.1) even though
+    // the whole-frame mean is unchanged (111.1 -> 111.6). Old floor was 106.7261 * 1.05 = 112.1; the new floor keeps the
+    // sample from collapsing while P0 is in review.
+    expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(104);
+    // This sample sits inside the old VSM penumbra (99.8). With PCF the penumbra is narrower, so the same pixels are 91.1.
+    expect(golden.samples.floorShadow.meanLuminance).toBeGreaterThan(88);
     expect(golden.samples.floorShadow.luminanceStdDev).toBeLessThan(7.8395);
     expect(golden.info.lightMetrics.windowBounce).toBeGreaterThan(0);
     await shot(page, "desktop-1440-golden-after");
