@@ -149,7 +149,7 @@ function setImmersive(on, pushHistory = true) {
   } else {
     document.body.insertBefore($("views"), $("swaps"));
     document.body.insertBefore($("moods"), $("swaps"));
-    $("immersiveEnter").focus({ preventScroll: true });
+    ($("immersiveEnter").getClientRects().length ? $("immersiveEnter") : $("portalBtn")).focus({ preventScroll: true });
   }
   room.resize();
   requestAnimationFrame(() => room.resize());
