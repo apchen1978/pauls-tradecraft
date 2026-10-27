@@ -287,6 +287,10 @@ function makeBoucleTexture() {
 function makeMaterials() {
   const std = (color, roughness = 0.8, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   const boucle = makeBoucleTexture();
+  const pillowWeave = boucle.clone();
+  pillowWeave.repeat.set(1.7, 1.35);
+  const throwWeave = boucle.clone();
+  throwWeave.repeat.set(1.35, 2.1);
   return {
     floor: std(0xcdbb9e, 0.42, { map: makeFloorTexture(31, 0.23), metalness: 0.025 }),
     wall: std(COLORS.cream, 0.94, { map: makePlasterTexture() }),
@@ -302,8 +306,9 @@ function makeMaterials() {
     hoodSteel: std(0xd1d3cc, 0.56, { map: makeBrushedMetalTexture(), metalness: 0.08 }),
     jute: std(COLORS.jute, 0.96, { map: makeRugTexture() }), seat: std(0xb8a17e, 0.98, { map: makeSeatTexture() }),
     loungeFabric: std(0xe4d5bd, 0.98, { map: boucle }),
-    loungePillow: std(0x9ba88a, 0.98, { map: boucle, side: THREE.DoubleSide }),
-    loungeThrow: std(0xc8af87, 0.99, { map: boucle, side: THREE.DoubleSide }),
+    // Deeper sage and a warmer camel, only on this chair's loose cushions, so the pillow reads as cotton and the throw as linen.
+    loungePillow: std(0x7f946c, 0.94, { map: pillowWeave, side: THREE.DoubleSide }),
+    loungeThrow: std(0xb18458, 1, { map: throwWeave, side: THREE.DoubleSide }),
     red: std(COLORS.terracotta, 0.34), glass: new THREE.MeshPhysicalMaterial({ color: 0xb9d3d1, roughness: 0.12, metalness: 0.06, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }),
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
     porcelain: std(0xe1ddd2, 0.72), coffee: std(0x47372b, 0.78),
@@ -749,30 +754,98 @@ function buildProceduralDiningChairs(scene, m) {
 // Local, four-material procedural furniture: no external model or cloth simulation.
 const LOUNGE_PLACEMENT = Object.freeze({ position: [-2.29, 0, -0.20], yaw: THREE.MathUtils.degToRad(8) });
 
+// Seat, back and arms are the same ellipsoids buildLoungeChair places. Fit checks use these, not the tessellated mesh.
+const LOUNGE_SEAT = Object.freeze({ center: [0, 0.355, 0.025], radii: [0.34, 0.087, 0.345], rotation: [0, 0, 0] });
+const LOUNGE_BACK = Object.freeze({ center: [0, 0.59, -0.26], radii: [0.355, 0.19, 0.135], rotation: [-0.12, 0, 0] });
+const LOUNGE_ARMS = Object.freeze([-1, 1].map((side) => Object.freeze({
+  center: [side * 0.311, 0.52, -0.012], radii: [0.075, 0.138, 0.335], rotation: [-0.12, 0, side * 0.08],
+})));
+const LOUNGE_RIM = Object.freeze([
+  [-0.32, 0.55, 0.205], [-0.33, 0.61, -0.115], [-0.25, 0.715, -0.287], [0, 0.775, -0.305],
+  [0.25, 0.715, -0.287], [0.33, 0.61, -0.115], [0.32, 0.55, 0.205],
+]);
+const LOUNGE_PILLOW_POSE = Object.freeze({ position: [0.02, 0.53, -0.023], rotation: [0.75, 0.16, -0.03] });
+const LOUNGE_LEG_PULL = 0.065;
+const LOUNGE_LEG_TOP_Y = 0.35;
+
+function loungeSolid(spec) {
+  const quat = new THREE.Quaternion().setFromEuler(new THREE.Euler(...spec.rotation));
+  return { center: new THREE.Vector3(...spec.center), radii: spec.radii, quat };
+}
+
+function loungeClosest(point, solid) {
+  const local = point.clone().sub(solid.center).applyQuaternion(solid.quat.clone().invert());
+  const [a, b, c] = solid.radii;
+  const a2 = a * a, b2 = b * b, c2 = c * c;
+  const implicit = (local.x * local.x) / a2 + (local.y * local.y) / b2 + (local.z * local.z) / c2;
+  if (local.lengthSq() < 1e-10) {
+    const minRadius = Math.min(a, b, c);
+    const axis = a <= b && a <= c ? new THREE.Vector3(a, 0, 0) : b <= c ? new THREE.Vector3(0, b, 0) : new THREE.Vector3(0, 0, c);
+    return { point: axis.applyQuaternion(solid.quat).add(solid.center), signed: -minRadius };
+  }
+  const gOf = (t) => (a * local.x / (a2 + t)) ** 2 + (b * local.y / (b2 + t)) ** 2 + (c * local.z / (c2 + t)) ** 2 - 1;
+  let lo;
+  let hi;
+  if (implicit > 1) {
+    lo = 0; hi = 1;
+    while (gOf(hi) > 0) hi *= 2;
+  } else {
+    hi = 0;
+    lo = -Math.min(a2, b2, c2) + 1e-6;
+    let guard = 0;
+    while (gOf(lo) < 0 && guard < 20) { lo = (lo - Math.min(a2, b2, c2)) * 0.5; guard += 1; }
+  }
+  for (let step = 0; step < 50; step += 1) {
+    const mid = (lo + hi) / 2;
+    if (gOf(mid) > 0) lo = mid; else hi = mid;
+  }
+  const t = (lo + hi) / 2;
+  const closest = new THREE.Vector3(a2 * local.x / (a2 + t), b2 * local.y / (b2 + t), c2 * local.z / (c2 + t));
+  closest.applyQuaternion(solid.quat).add(solid.center);
+  return { point: closest, signed: point.distanceTo(closest) * (implicit < 1 ? -1 : 1) };
+}
+
+function loungeSignedDistance(point, solid) {
+  return loungeClosest(point, solid).signed;
+}
+
+function loungeRimDistance(point, samples) {
+  let best = Infinity;
+  for (const sample of samples) best = Math.min(best, point.distanceTo(sample));
+  return best - 0.047;
+}
+
 function makeLoungePillowGeometry() {
-  const nx = 12, ny = 12, row = nx + 1;
+  // A sewn cushion: plump crown, flatter underside, a welt, pinched corners and one sitting dent.
+  // Same 12×12 sheet as before so the vertex count does not move.
+  const nx = 12, nz = 12, row = nx + 1;
+  const width = 0.34, depth = 0.26, thick = 0.058;
   const positions = [], uvs = [], indices = [];
   for (const side of [1, -1]) {
-    for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) {
-      const u = i / nx * 2 - 1, v = j / ny * 2 - 1;
-      const inflation = Math.pow(Math.max(0, 1 - u * u), 0.6) * Math.pow(Math.max(0, 1 - v * v), 0.6);
-      const dent = side > 0 ? 0.014 * Math.exp(-7 * (u * u + v * v)) : 0;
-      const crease = side > 0 ? 0.006 * Math.sin(4 * u + 3 * v) * Math.max(0, Math.abs(u * v) - 0.15) : 0;
-      positions.push(u * 0.20 * Math.sqrt(1 - 0.5 * v * v), v * 0.20 * Math.sqrt(1 - 0.5 * u * u), side * (0.011 + 0.069 * inflation) - dent + crease);
-      uvs.push(i / nx, j / ny);
+    for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+      const u = i / nx * 2 - 1, v = j / nz * 2 - 1;
+      const dome = Math.pow(Math.max(0, 1 - u * u), 0.58) * Math.pow(Math.max(0, 1 - v * v), 0.66);
+      const edge = Math.max(Math.abs(u), Math.abs(v));
+      const pinch = Math.pow(Math.max(0, Math.abs(u) + Math.abs(v) - 1.05), 2);
+      const crown = side > 0 ? dome : Math.pow(dome, 1.45);
+      let y = side * Math.max(thick * crown, 0.011 * (1 - 0.35 * edge));
+      if (side > 0) y -= 0.014 * Math.exp(-(u * u * 2.2 + v * v * 0.7));
+      y -= side * 0.012 * pinch;
+      positions.push(u * width * 0.5 * (1 - 0.06 * v * v), y, v * depth * 0.5 * (1 - 0.05 * u * u));
+      uvs.push(i / nx, j / nz);
     }
   }
   const faceCount = row * row;
-  for (let side = 0; side < 2; side++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+  for (let side = 0; side < 2; side++) for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
     const a = side * faceCount + j * row + i, b = a + 1, c = a + row, d = c + 1;
     if (side === 0) indices.push(a, b, d, a, d, c);
     else indices.push(a, d, b, a, c, d);
   }
   const rim = [];
   for (let i = 0; i <= nx; i++) rim.push(i);
-  for (let j = 1; j <= ny; j++) rim.push(j * row + nx);
-  for (let i = nx - 1; i >= 0; i--) rim.push(ny * row + i);
-  for (let j = ny - 1; j > 0; j--) rim.push(j * row);
+  for (let j = 1; j <= nz; j++) rim.push(j * row + nx);
+  for (let i = nx - 1; i >= 0; i--) rim.push(nz * row + i);
+  for (let j = nz - 1; j > 0; j--) rim.push(j * row);
   for (let k = 0; k < rim.length; k++) {
     const a = rim[k], b = rim[(k + 1) % rim.length];
     indices.push(a, a + faceCount, b + faceCount, a, b + faceCount, b);
@@ -785,24 +858,126 @@ function makeLoungePillowGeometry() {
 }
 
 function makeLoungeThrowGeometry() {
+  // One cloth, same 16×22 sheet as before. It comes over the back crest, sags onto the seat,
+  // and is pushed back out of the cushions so the armrests stay clear.
   const nx = 16, nz = 22, row = nx + 1;
+  const stations = [
+    { t: 0, y: 0.56, z: -0.47, half: 0.10 },
+    { t: 0.16, y: 0.708, z: -0.36, half: 0.12 },
+    { t: 0.32, y: 0.64, z: -0.20, half: 0.155 },
+    { t: 0.48, y: 0.545, z: -0.05, half: 0.175 },
+    { t: 0.66, y: 0.485, z: 0.08, half: 0.185 },
+    { t: 0.84, y: 0.462, z: 0.18, half: 0.17 },
+    { t: 1, y: 0.452, z: 0.27, half: 0.155 },
+  ];
+  const at = (t) => {
+    let index = 0;
+    while (index < stations.length - 2 && stations[index + 1].t < t) index += 1;
+    const a = stations[index], b = stations[index + 1];
+    const u = (t - a.t) / (b.t - a.t);
+    const s = u * u * (3 - 2 * u);
+    return { y: a.y + (b.y - a.y) * s, z: a.z + (b.z - a.z) * s, half: a.half + (b.half - a.half) * s };
+  };
+  const seat = loungeSolid(LOUNGE_SEAT);
+  const back = loungeSolid(LOUNGE_BACK);
+  const arms = LOUNGE_ARMS.map(loungeSolid);
+  const rimSamples = new THREE.CatmullRomCurve3(LOUNGE_RIM.map((point) => new THREE.Vector3(...point))).getPoints(120);
+  const grid = [];
+  for (let j = 0; j <= nz; j++) {
+    const t = j / nz;
+    const base = at(t);
+    const rowPoints = [];
+    for (let i = 0; i <= nx; i++) {
+      const u = i / nx;
+      const across = u * 2 - 1;
+      const hang = Math.sin(Math.PI * Math.min(1, t / 0.72)) ** 1.2;
+      const seatRest = Math.max(0, (t - 0.5) / 0.5);
+      const fold = (0.012 * Math.sin(t * Math.PI * 2.6 + 0.5) * Math.cos(across * 2.2) + 0.007 * Math.sin(t * 11 + across * 5)) * (0.25 + 0.75 * hang) * (1 - 0.65 * seatRest);
+      const sag = 0.018 * hang * (1 - across * across);
+      const hem = t > 0.9 ? (t - 0.9) / 0.1 : 0;
+      const crestFold = Math.exp(-((t - 0.18) ** 2) / 0.0035) * 0.008 * (1 - 0.35 * across * across);
+      rowPoints.push(new THREE.Vector3(
+        across * base.half + 0.012 * Math.sin(t * 6.2) * hang,
+        base.y + fold - sag - hem * (0.008 + 0.006 * Math.abs(Math.sin(across * 4.2 + 0.3))) + crestFold,
+        base.z + hem * 0.012 * Math.sin(across * 7.5) + 0.006 * Math.sin(across * 3 + t * 4) * hang,
+      ));
+    }
+    grid.push(rowPoints);
+  }
+  const pushOut = (point, gap, solid) => {
+    const hit = loungeClosest(point, solid);
+    if (hit.signed >= gap) return;
+    const outward = hit.signed < 0 ? hit.point.clone().sub(point) : point.clone().sub(hit.point);
+    if (outward.lengthSq() < 1e-10) outward.copy(hit.point).sub(solid.center);
+    point.addScaledVector(outward.normalize(), gap - hit.signed);
+  };
+  const settle = (points) => {
+    for (let iter = 0; iter < 12; iter++) {
+      for (const point of points) {
+        for (const arm of arms) pushOut(point, 0.022, arm);
+        pushOut(point, 0.008, back);
+        if (loungeRimDistance(point, rimSamples) < 0.006) {
+          let nearest = rimSamples[0];
+          for (const sample of rimSamples) if (point.distanceTo(sample) < point.distanceTo(nearest)) nearest = sample;
+          const out = point.clone().sub(nearest);
+          if (out.lengthSq() > 1e-10) point.addScaledVector(out.normalize(), 0.006 - loungeRimDistance(point, rimSamples));
+        }
+        const seatGap = loungeSignedDistance(point, seat);
+        if (seatGap < 0.008) pushOut(point, 0.008, seat);
+        else if (seatGap > 0.02 && seatGap < 0.14 && point.z > -0.02) {
+          const hit = loungeClosest(point, seat);
+          const intoSeat = hit.point.clone().sub(point);
+          if (intoSeat.lengthSq() > 1e-10) point.addScaledVector(intoSeat.normalize(), Math.min(0.014, seatGap - 0.008));
+        }
+      }
+    }
+  };
+  settle(grid.flat());
+  const smoothed = grid.map((row) => row.map((point) => point.clone()));
+  for (let j = 1; j < nz; j++) for (let i = 1; i < nx; i++) {
+    const average = new THREE.Vector3().add(grid[j][i - 1]).add(grid[j][i + 1]).add(grid[j - 1][i]).add(grid[j + 1][i]).multiplyScalar(0.25);
+    smoothed[j][i].lerp(average, 0.28);
+  }
+  for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) grid[j][i].copy(smoothed[j][i]);
+  settle(grid.flat());
+  const normals = [];
+  for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+    const dx = new THREE.Vector3().subVectors(grid[j][Math.min(nx, i + 1)], grid[j][Math.max(0, i - 1)]);
+    const dz = new THREE.Vector3().subVectors(grid[Math.min(nz, j + 1)][i], grid[Math.max(0, j - 1)][i]);
+    const normal = new THREE.Vector3().crossVectors(dx, dz);
+    if (normal.lengthSq() < 1e-10) normal.set(0, 1, 0);
+    normal.normalize();
+    if (normal.y < 0) normal.negate();
+    normals.push(normal);
+  }
   const positions = [], uvs = [], indices = [];
-  const crossSection = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0.205, 0.515, 0), new THREE.Vector3(0.23, 0.642, 0),
-    new THREE.Vector3(0.29, 0.695, 0), new THREE.Vector3(0.345, 0.656, 0),
-    new THREE.Vector3(0.377, 0.57, 0), new THREE.Vector3(0.392, 0.408, 0),
-  ]);
-  for (const side of [1, -1]) for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
-    const u = i / nx, t = j / nz;
-    const point = crossSection.getPoint(u);
-    const fold = Math.sin(t * Math.PI * 3.6 + u * 0.5) + 0.22 * Math.sin(t * Math.PI * 7.1 - u * 0.7);
-    const drape = 0.28 + 0.72 * u;
-    const x = point.x + 0.006 * fold * drape;
-    const y = point.y + 0.012 * fold * drape;
-    const z = -0.22 + t * (0.48 + 0.012 * u) + 0.005 * fold * drape + 0.009 * Math.sin(t * 5 + u * 2) * u;
-    const edgeRound = 0.003 * Math.sin(Math.PI * u) * Math.sin(Math.PI * t);
-    positions.push(x, y + side * (0.008 + edgeRound), z);
-    uvs.push(u, t);
+  const thick = 0.0065;
+  const center = grid.flat();
+  for (const side of [1, -1]) {
+    let k = 0;
+    for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++, k++) {
+      const point = center[k].clone().addScaledVector(normals[k], side * thick);
+      positions.push(point.x, point.y, point.z);
+      uvs.push(i / nx, j / nz);
+    }
+  }
+  const shell = [];
+  for (let k = 0; k < positions.length; k += 3) shell.push(new THREE.Vector3(positions[k], positions[k + 1], positions[k + 2]));
+  for (let iter = 0; iter < 6; iter++) {
+    for (const point of shell) {
+      for (const arm of arms) pushOut(point, 0.012, arm);
+      if (loungeSignedDistance(point, back) < 0.002) pushOut(point, 0.002, back);
+      if (loungeSignedDistance(point, seat) < 0.0015) pushOut(point, 0.0015, seat);
+      if (loungeRimDistance(point, rimSamples) < 0.002) {
+        let nearest = rimSamples[0];
+        for (const sample of rimSamples) if (point.distanceTo(sample) < point.distanceTo(nearest)) nearest = sample;
+        const out = point.clone().sub(nearest);
+        if (out.lengthSq() > 1e-10) point.addScaledVector(out.normalize(), 0.002 - loungeRimDistance(point, rimSamples));
+      }
+    }
+  }
+  for (let k = 0; k < shell.length; k++) {
+    positions[k * 3] = shell[k].x; positions[k * 3 + 1] = shell[k].y; positions[k * 3 + 2] = shell[k].z;
   }
   const faceCount = row * (nz + 1);
   for (let side = 0; side < 2; side++) for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
@@ -823,6 +998,240 @@ function makeLoungeThrowGeometry() {
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices); geometry.computeVertexNormals();
   return geometry;
+}
+
+function makeLoungeLegGeometry() {
+  // The old tops splayed past the seat. Pull each top inward under the cushion and keep the floor footprint.
+  const bottoms = [];
+  for (const x of [-0.26, 0.26]) for (const z of [-0.25, 0.25]) {
+    const probe = new THREE.CylinderGeometry(0.028, 0.018, 0.31, 8);
+    probe.applyMatrix4(new THREE.Matrix4().compose(
+      new THREE.Vector3(x, 0.155, z),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(0.065 * Math.sign(z), 0, -0.065 * Math.sign(x))),
+      new THREE.Vector3(1, 1, 1),
+    ));
+    const source = probe.attributes.position;
+    const points = [];
+    for (let i = 0; i < source.count; i++) points.push(new THREE.Vector3().fromBufferAttribute(source, i));
+    points.sort((a, b) => a.y - b.y);
+    bottoms.push(points.slice(0, 10).reduce((sum, point) => sum.add(point), new THREE.Vector3()).multiplyScalar(0.1));
+    probe.dispose();
+  }
+  const legs = bottoms.map((bottom) => {
+    const inward = new THREE.Vector3(-bottom.x, 0, 0.025 - bottom.z).normalize();
+    const top = new THREE.Vector3(bottom.x + inward.x * LOUNGE_LEG_PULL, LOUNGE_LEG_TOP_Y, bottom.z + inward.z * LOUNGE_LEG_PULL);
+    const axis = new THREE.Vector3().subVectors(top, bottom);
+    const leg = new THREE.CylinderGeometry(0.028, 0.018, axis.length(), 8);
+    leg.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.clone().normalize()));
+    leg.translate((bottom.x + top.x) / 2, (bottom.y + top.y) / 2, (bottom.z + top.z) / 2);
+    return leg;
+  });
+  const merged = mergeGeometries(legs, false);
+  legs.forEach((leg) => leg.dispose());
+  merged.computeBoundingBox();
+  merged.translate(0, -merged.boundingBox.min.y, 0);
+  return merged;
+}
+
+function measureLoungeFit(chair) {
+  if (chair.userData.loungeFit) return chair.userData.loungeFit;
+  const seat = loungeSolid(LOUNGE_SEAT);
+  const back = loungeSolid(LOUNGE_BACK);
+  const arms = LOUNGE_ARMS.map(loungeSolid);
+  const rimSamples = new THREE.CatmullRomCurve3(LOUNGE_RIM.map((point) => new THREE.Vector3(...point))).getPoints(120);
+  const pointsOf = (name) => {
+    const position = chair.getObjectByName(name).geometry.attributes.position;
+    const points = [];
+    for (let i = 0; i < position.count; i++) points.push(new THREE.Vector3().fromBufferAttribute(position, i));
+    return points;
+  };
+  const throwPoints = pointsOf("lounge-draped-throw");
+  let throwSeat = Infinity, throwBack = Infinity, throwArm = Infinity, throwRim = Infinity, nearSeat = 0;
+  for (const point of throwPoints) {
+    const seatGap = loungeSignedDistance(point, seat);
+    throwSeat = Math.min(throwSeat, seatGap);
+    throwBack = Math.min(throwBack, loungeSignedDistance(point, back));
+    throwRim = Math.min(throwRim, loungeRimDistance(point, rimSamples));
+    for (const arm of arms) throwArm = Math.min(throwArm, loungeSignedDistance(point, arm));
+    if (seatGap > -0.004 && seatGap < 0.014) nearSeat += 1;
+  }
+  const pillowPoints = pointsOf("lounge-sage-pillow");
+  const pillowCenter = pillowPoints.reduce((sum, point) => sum.add(point), new THREE.Vector3()).multiplyScalar(1 / pillowPoints.length);
+  let pillowSeat = Infinity, pillowBack = Infinity, pillowArm = Infinity, pressed = 0;
+  for (const point of pillowPoints) {
+    const seatGap = loungeSignedDistance(point, seat);
+    pillowSeat = Math.min(pillowSeat, seatGap);
+    pillowBack = Math.min(pillowBack, loungeSignedDistance(point, back));
+    for (const arm of arms) pillowArm = Math.min(pillowArm, loungeSignedDistance(point, arm));
+    if (seatGap < -0.002) pressed += 1;
+  }
+  const centerBack = loungeSignedDistance(pillowCenter, back);
+  const centerSeat = loungeSignedDistance(pillowCenter, seat);
+  const legPoints = pointsOf("lounge-oak-legs");
+  const groups = new Map();
+  for (const point of legPoints) {
+    const name = `${point.x < 0 ? "left" : "right"}-${point.z < 0 ? "back" : "front"}`;
+    if (!groups.has(name)) groups.set(name, []);
+    groups.get(name).push(point);
+  }
+  const feet = [...groups.entries()].map(([name, points]) => {
+    const topY = points.reduce((best, point) => Math.max(best, point.y), -Infinity);
+    const cap = points.filter((point) => point.y > topY - 0.012);
+    const worstSigned = cap.reduce((best, point) => Math.max(best, loungeSignedDistance(point, seat)), -Infinity);
+    return { name, embedMm: -worstSigned * 1000, signedGapMm: worstSigned * 1000, topY };
+  }).sort((a, b) => a.name.localeCompare(b.name));
+  const fit = {
+    throw: {
+      armClearanceMm: throwArm * 1000,
+      seatClearanceMm: throwSeat * 1000,
+      backClearanceMm: throwBack * 1000,
+      rimClearanceMm: throwRim * 1000,
+      nearSeatSamples: nearSeat,
+      vertices: throwPoints.length,
+    },
+    pillow: {
+      inSeatBackZone: Math.abs(pillowCenter.x) <= 0.14 && pillowCenter.y >= 0.46 && pillowCenter.y <= 0.58 && pillowCenter.z >= -0.05 && pillowCenter.z <= 0.12 && centerBack > 0.015 && centerSeat > 0.02,
+      center: pillowCenter.toArray(),
+      seatEmbedMm: -pillowSeat * 1000,
+      backClearanceMm: pillowBack * 1000,
+      armClearanceMm: pillowArm * 1000,
+      pressedFraction: pressed / pillowPoints.length,
+      vertices: pillowPoints.length,
+    },
+    feet,
+    legVertices: legPoints.length,
+  };
+  chair.userData.loungeFit = fit;
+  return fit;
+}
+
+function collectWorldPoints(root) {
+  const points = [];
+  if (!root) return points;
+  root.updateWorldMatrix(true, true);
+  root.traverse((object) => {
+    if (!object.isMesh || !object.geometry?.attributes?.position) return;
+    const position = object.geometry.attributes.position;
+    for (let i = 0; i < position.count; i++) points.push(new THREE.Vector3().fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld));
+  });
+  return points;
+}
+
+function measureRoomFootToBody(scene, tableStatus, diningGaps, loungeFit) {
+  const round = (millimetres) => Math.round(millimetres * 10) / 10;
+  const rows = loungeFit.feet.map((foot) => ({
+    item: `window lounge chair, ${foot.name} foot`,
+    support: "seat cushion",
+    gapMm: round(foot.signedGapMm),
+    repairedInThisPr: true,
+    note: "negative means the foot top is inside the cushion",
+  }));
+  const seenChairs = new Set();
+  for (const measurement of diningGaps.frontFeet) {
+    if (seenChairs.has(measurement.chair)) continue;
+    seenChairs.add(measurement.chair);
+    const feet = diningGaps.frontFeet.filter((item) => item.chair === measurement.chair);
+    const rails = diningGaps.rails.filter((item) => item.chair === measurement.chair);
+    const worst = Math.max(...feet.map((item) => item.afterGapMm), ...rails.map((item) => item.afterGapMm));
+    rows.push({
+      item: measurement.chair,
+      support: "seat shell",
+      gapMm: round(worst),
+      repairedInThisPr: false,
+      note: "existing front-foot and rail gap; left unchanged",
+    });
+  }
+  const table = scene.getObjectByName(tableStatus === "glb" ? "room03-table-glb" : "merged-dining-table");
+  let tableTrianglesToRail = 0;
+  if (table) {
+    table.updateWorldMatrix(true, true);
+    table.traverse((object) => {
+      const index = object.geometry?.index;
+      const position = object.geometry?.attributes?.position;
+      if (!object.isMesh || !index || !position) return;
+      const pointAt = (vertex) => new THREE.Vector3().fromBufferAttribute(position, vertex).applyMatrix4(object.matrixWorld);
+      for (let triangle = 0; triangle < index.count; triangle += 3) {
+        const ys = [0, 1, 2].map((offset) => pointAt(index.getX(triangle + offset)).y);
+        if (Math.min(...ys) < 0.08 && Math.max(...ys) >= 0.67) tableTrianglesToRail += 1;
+      }
+    });
+  }
+  rows.push({
+    item: "dining table",
+    support: tableStatus === "glb" ? "dining-table-v2.glb" : "procedural fallback",
+    gapMm: tableTrianglesToRail > 0 ? 0 : null,
+    trianglesFromFloorIntoRail: tableTrianglesToRail,
+    repairedInThisPr: false,
+    note: tableTrianglesToRail > 0 ? "leg faces run from the floor vertices into the rail" : "no face joins a floor vertex to the rail",
+  });
+  const islandPoints = collectWorldPoints(scene.getObjectByName("merged-kitchen")).filter((point) => point.z < -1.55 && point.z > -2.45 && Math.abs(point.x) < 2.2 && point.y < 1);
+  const islandKick = islandPoints.filter((point) => point.y < 0.112);
+  const islandBody = islandPoints.filter((point) => point.y >= 0.112 && point.y < 0.9);
+  rows.push({
+    item: "kitchen island cabinet",
+    support: "kick and cabinet box",
+    gapMm: islandKick.length && islandBody.length ? round((Math.min(...islandBody.map((point) => point.y)) - Math.max(...islandKick.map((point) => point.y))) * 1000) : null,
+    repairedInThisPr: false,
+    note: "measured on the merged cabinet mesh; not changed",
+  });
+  const wokPoints = collectWorldPoints(scene.getObjectByName("merged-wok-base-cabinet"));
+  const wokKick = wokPoints.filter((point) => point.y < 0.121);
+  const wokBody = wokPoints.filter((point) => point.y >= 0.121 && point.y < 0.5);
+  rows.push({
+    item: "wok base cabinet",
+    support: "kick and cabinet box",
+    gapMm: wokKick.length && wokBody.length ? round((Math.min(...wokBody.map((point) => point.y)) - Math.max(...wokKick.map((point) => point.y))) * 1000) : null,
+    repairedInThisPr: false,
+    note: "under 5 mm; left unchanged",
+  });
+  const fig = scene.getObjectByName("prop-window-fiddle-leaf-fig");
+  const figMinY = fig ? new THREE.Box3().setFromObject(fig).min.y : null;
+  rows.push({
+    item: "window fiddle-leaf fig",
+    support: "floor",
+    gapMm: figMinY === null ? null : round(figMinY * 1000),
+    repairedInThisPr: false,
+    note: "the pot base ring is the body; there is no separate foot",
+  });
+  const succulents = scene.getObjectByName("prop-tabletop-succulents");
+  const tableBox = table ? new THREE.Box3().setFromObject(table) : null;
+  const succulentBox = succulents ? new THREE.Box3().setFromObject(succulents) : null;
+  rows.push({
+    item: "tabletop succulents",
+    support: tableStatus === "glb" ? "dining table GLB top" : "fallback table top",
+    gapMm: succulentBox && tableBox ? round((succulentBox.min.y - tableBox.max.y) * 1000) : null,
+    repairedInThisPr: false,
+    note: "planter bottom against the loaded table top",
+  });
+  const redPot = scene.getObjectByName("single-terracotta-pot");
+  const appliancePoints = [];
+  scene.traverse((object) => {
+    if (!object.isMesh || object.userData.category !== "appliances" || !object.geometry?.attributes?.position) return;
+    object.updateWorldMatrix(true, false);
+    const position = object.geometry.attributes.position;
+    for (let i = 0; i < position.count; i++) appliancePoints.push(new THREE.Vector3().fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld));
+  });
+  const potBox = redPot ? new THREE.Box3().setFromObject(redPot) : null;
+  const cooktop = potBox ? appliancePoints.filter((point) => Math.hypot(point.x - 0.82, point.z + 2.02) < 0.46 && point.y > 0.9 && point.y <= potBox.min.y + 0.001) : [];
+  const cooktopTop = cooktop.length ? Math.max(...cooktop.map((point) => point.y)) : null;
+  rows.push({
+    item: "terracotta pot",
+    support: "main cooktop",
+    gapMm: potBox && cooktopTop !== null ? round((potBox.min.y - cooktopTop) * 1000) : null,
+    repairedInThisPr: false,
+    note: "pot bottom against the cooktop under it",
+  });
+  const mediaPoints = collectWorldPoints(scene.getObjectByName("room03-wall-art-and-media-woodwork")).filter((point) => point.x > -1.35 && point.x < 0.05 && point.z > 3.25 && point.z < 3.85);
+  const plinth = mediaPoints.filter((point) => point.y < 0.15);
+  const shelf = mediaPoints.filter((point) => point.y >= 0.16 && point.y < 0.28);
+  rows.push({
+    item: "media console",
+    support: "plinth to the shelf above",
+    gapMm: plinth.length && shelf.length ? round((Math.min(...shelf.map((point) => point.y)) - Math.max(...plinth.map((point) => point.y))) * 1000) : null,
+    repairedInThisPr: false,
+    note: "open plinth; listed only, not changed",
+  });
+  return rows;
 }
 
 function buildLoungeChair(scene, m) {
@@ -846,24 +1255,15 @@ function buildLoungeChair(scene, m) {
     chair.add(mesh);
   };
   const body = [
-    placed(new THREE.SphereGeometry(1, 20, 14), [0, 0.355, 0.025], [0.34, 0.087, 0.345]),
-    placed(new THREE.SphereGeometry(1, 20, 14), [0, 0.59, -0.26], [0.355, 0.19, 0.135], [-0.12, 0, 0]),
-    ...[-1, 1].map((side) => placed(new THREE.SphereGeometry(1, 16, 12), [side * 0.311, 0.52, -0.012], [0.075, 0.138, 0.335], [-0.12, 0, side * 0.08])),
+    placed(new THREE.SphereGeometry(1, 20, 14), LOUNGE_SEAT.center, LOUNGE_SEAT.radii, LOUNGE_SEAT.rotation),
+    placed(new THREE.SphereGeometry(1, 20, 14), LOUNGE_BACK.center, LOUNGE_BACK.radii, LOUNGE_BACK.rotation),
+    ...LOUNGE_ARMS.map((arm) => placed(new THREE.SphereGeometry(1, 16, 12), arm.center, arm.radii, arm.rotation)),
   ];
-  const paddedRim = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-0.32, 0.55, 0.205), new THREE.Vector3(-0.33, 0.61, -0.115),
-    new THREE.Vector3(-0.25, 0.715, -0.287), new THREE.Vector3(0, 0.775, -0.305),
-    new THREE.Vector3(0.25, 0.715, -0.287), new THREE.Vector3(0.33, 0.61, -0.115),
-    new THREE.Vector3(0.32, 0.55, 0.205),
-  ]);
+  const paddedRim = new THREE.CatmullRomCurve3(LOUNGE_RIM.map((point) => new THREE.Vector3(...point)));
   body.push(new THREE.TubeGeometry(paddedRim, 32, 0.047, 7, false));
   addPart("lounge-upholstery", mergeGeometries(body, false), m.loungeFabric);
-  const legs = [];
-  for (const x of [-0.26, 0.26]) for (const z of [-0.25, 0.25]) {
-    legs.push(placed(new THREE.CylinderGeometry(0.028, 0.018, 0.31, 8), [x, 0.155, z], [1, 1, 1], [0.065 * Math.sign(z), 0, -0.065 * Math.sign(x)]));
-  }
-  addPart("lounge-oak-legs", mergeGeometries(legs, false), m.oak);
-  addPart("lounge-sage-pillow", placed(makeLoungePillowGeometry(), [-0.06, 0.525, -0.113], [1, 1, 1], [-0.23, -0.13, 0.13]), m.loungePillow);
+  addPart("lounge-oak-legs", makeLoungeLegGeometry(), m.oak);
+  addPart("lounge-sage-pillow", placed(makeLoungePillowGeometry(), LOUNGE_PILLOW_POSE.position, [1, 1, 1], LOUNGE_PILLOW_POSE.rotation), m.loungePillow);
   addPart("lounge-draped-throw", makeLoungeThrowGeometry(), m.loungeThrow);
   scene.add(chair);
   return chair;
@@ -1866,10 +2266,12 @@ export async function start({ stage, onReady = () => {} }) {
       coverage: ["dining-table", "dining-chair-0.5-1.22", "dining-chair-0.5--0.22", "dining-chair--0.5-1.22", "dining-chair--0.5--0.22", "kitchen-island", "side-kitchen", "window-fiddle-leaf-fig", "lounge-chair"],
     };
     const loungeBounds = boxFor(loungeChair.name);
+    const loungeFit = measureLoungeFit(loungeChair);
     const lounge = {
       bounds: loungeBounds, position: loungeChair.position.toArray(), yawDegrees: THREE.MathUtils.radToDeg(loungeChair.rotation.y), contactShadowVisible: contactShadow.visible, contactShadowBounds: boxFor(contactShadow.name), contactShadowOpacity: contactShadow.material.opacity,
       projectedCenter: project(new THREE.Box3().setFromObject(loungeChair).getCenter(new THREE.Vector3()).toArray()),
       parts: Object.fromEntries(loungeChair.children.map((part) => [part.name, { bounds: boxFor(part.name), vertices: part.geometry.attributes.position.count }])),
+      fit: loungeFit,
     };
     const plantGroup = scene.getObjectByName("prop-window-fiddle-leaf-fig");
     const cookbookGroup = scene.getObjectByName("prop-cookbooks");
@@ -1940,7 +2342,8 @@ export async function start({ stage, onReady = () => {} }) {
         childName: moodSlots.tabletopCenterpiece.children[0]?.name || null,
       },
     };
-    return { lounge, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
+    const footToBody = measureRoomFootToBody(scene, furniture.status.table, diningChairSeatGap(), loungeFit);
+    return { lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots,
