@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=53";
+import { start, ROOM_TITLE } from "./kitchen.js?v=54";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -10,6 +10,7 @@ const COPY = {
     swaps: {
       "cable-car": ["右側牆的畫", { "cable-car": "舊金山電車", "fog-bridge": "霧中金門大橋", "marin-hills": "馬林海岬", "poster-sun": "山丘與太陽" }],
       "redwood-path": ["入口走廊的畫", { "redwood-path": "紅杉步道", "ferry-building": "渡輪大廈", "oak-street": "橡樹街", "poster-arch": "拱門海報", "poster-leaf": "葉片海報" }],
+      yard: ["窗外景色", { auto: "跟著感覺", "fog-morning": "濃霧早晨", "spring-bloom": "春天花開", "overcast-rain": "陰天微雨" }],
     }, canvasLabel: "房間視角。中心模式可用方向鍵環顧。",
     moods: {
       golden: ["金色時光", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
@@ -30,6 +31,7 @@ const COPY = {
     swaps: {
       "cable-car": ["Painting, right wall", { "cable-car": "Cable car", "fog-bridge": "Golden Gate in fog", "marin-hills": "Marin headlands", "poster-sun": "Hills and sun" }],
       "redwood-path": ["Painting, entry hall", { "redwood-path": "Redwood path", "ferry-building": "Ferry Building", "oak-street": "Oak street", "poster-arch": "Arch poster", "poster-leaf": "Leaf poster" }],
+      yard: ["View outside", { auto: "Follow the mood", "fog-morning": "Foggy morning", "spring-bloom": "Spring bloom", "overcast-rain": "Overcast and damp" }],
     }, canvasLabel: "Room view. Use arrow keys to look around in center mode.",
     moods: {
       golden: ["Golden hour", "Low, warm afternoon light enters through the glass doors; the pendant stays soft."],
@@ -55,7 +57,7 @@ function otherRoomsUrl() {
   return url.href;
 }
 
-const artChoice = { "cable-car": "cable-car", "redwood-path": "redwood-path" };
+const artChoice = { "cable-car": "cable-car", "redwood-path": "redwood-path", yard: "auto" };
 function renderSwaps() {
   const copy = COPY[lang];
   $("swapsTitle").textContent = copy.swapsLabel;
@@ -78,7 +80,7 @@ function renderSwaps() {
       button.setAttribute("aria-pressed", String(artChoice[frame] === key));
       button.addEventListener("click", () => {
         artChoice[frame] = key;
-        room?.setArtwork(frame, key);
+        if (frame === "yard") room?.setYardView(key); else room?.setArtwork(frame, key);
         for (const other of row.children) other.setAttribute("aria-pressed", String(other.dataset.art === key));
       });
       row.append(button);
