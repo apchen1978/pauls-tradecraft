@@ -1621,6 +1621,103 @@ function buildLoungeChair(scene, m) {
   return chair;
 }
 
+// A low round ottoman in front of the window lounge chair (Paul 2026-10-29: nothing in front of the chair looked odd; somewhere to rest the feet).
+// Round bouclé cushion on four splayed oak legs, the same cloth and wood as the chair so it reads as one set. The chair faces +z in its own frame.
+const OTTOMAN = Object.freeze({
+  chairLocal: [0.02, 0.72], yawOffset: 0.12,
+  radius: 0.24, bottomY: 0.22, height: 0.12,
+  legRadius: [0.026, 0.016], legRing: 0.15, legSplay: 0.07, legEmbed: 0.006,
+});
+
+function buildLoungeOttoman(scene, m, chair) {
+  const group = new THREE.Group();
+  group.name = "room03-lounge-ottoman";
+  group.userData.category = "lounge-chair";
+  const yaw = chair.rotation.y;
+  const cosYaw = Math.cos(yaw), sinYaw = Math.sin(yaw);
+  const [localX, localZ] = OTTOMAN.chairLocal;
+  group.position.set(chair.position.x + localX * cosYaw + localZ * sinYaw, 0, chair.position.z - localX * sinYaw + localZ * cosYaw);
+  group.rotation.y = yaw + OTTOMAN.yawOffset;
+  const r = OTTOMAN.radius, h = OTTOMAN.height, y0 = OTTOMAN.bottomY;
+  const profile = [[0, 0], [r * 0.82, 0], [r * 0.95, h * 0.1], [r, h * 0.36], [r * 0.998, h * 0.62], [r * 0.97, h * 0.82], [r * 0.88, h * 0.96], [r * 0.6, h * 0.995], [0, h]];
+  const cushion = new THREE.LatheGeometry(profile.map(([x, y]) => new THREE.Vector2(x, y)), 28);
+  cushion.translate(0, y0, 0);
+  cushion.computeVertexNormals();
+  const cloth = m.loungeFabric.clone();
+  cloth.name = "ottoman-warm-oat-boucle";
+  cloth.map = cloth.map.clone();
+  cloth.map.repeat.set(3, 1);
+  cloth.map.needsUpdate = true;
+  const legParts = [];
+  const legTopY = y0 + OTTOMAN.legEmbed;
+  const footRingLocal = [];
+  for (let i = 0; i < 4; i++) {
+    const angle = Math.PI / 4 + i * Math.PI / 2;
+    const dx = Math.cos(angle), dz = Math.sin(angle);
+    const top = new THREE.Vector3(dx * OTTOMAN.legRing, legTopY, dz * OTTOMAN.legRing);
+    const bottom = new THREE.Vector3(dx * (OTTOMAN.legRing + OTTOMAN.legSplay), 0, dz * (OTTOMAN.legRing + OTTOMAN.legSplay));
+    const axis = new THREE.Vector3().subVectors(top, bottom);
+    const leg = new THREE.CylinderGeometry(OTTOMAN.legRadius[0], OTTOMAN.legRadius[1], axis.length(), 10);
+    leg.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.clone().normalize()));
+    leg.translate((top.x + bottom.x) / 2, (top.y + bottom.y) / 2, (top.z + bottom.z) / 2);
+    legParts.push(leg);
+    footRingLocal.push([bottom.x, bottom.z]);
+  }
+  const legs = mergeGeometries(legParts, false);
+  legParts.forEach((part) => part.dispose());
+  // Tilted cylinders: their lowest rim point sits below the end-cap centre, so lift the legs until the lowest vertex rests exactly on the floor.
+  legs.computeBoundingBox();
+  legs.translate(0, -legs.boundingBox.min.y, 0);
+  legs.computeBoundingBox();
+  for (const [name, geometry, material] of [["lounge-ottoman-cushion", cushion, cloth], ["lounge-ottoman-legs", legs, m.oak]]) {
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = name; mesh.userData.category = "lounge-chair";
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    group.add(mesh);
+  }
+  scene.add(group);
+  scene.updateMatrixWorld(true);
+  // World positions of the four feet (for the contact-shadow decals) and measured fit, all in millimetres.
+  const matrix = group.matrixWorld;
+  const feet = footRingLocal.map(([x, z]) => new THREE.Vector3(x, 0, z).applyMatrix4(matrix).toArray());
+  group.userData.feet = feet;
+  group.userData.vertices = cushion.attributes.position.count + legs.attributes.position.count;
+  group.userData.measure = () => {
+    scene.updateMatrixWorld(true);
+    const world = new THREE.Matrix4().copy(group.matrixWorld);
+    const legMesh = group.getObjectByName("lounge-ottoman-legs"), cushionMesh = group.getObjectByName("lounge-ottoman-cushion");
+    const legBox = new THREE.Box3().setFromObject(legMesh), cushionBox = new THREE.Box3().setFromObject(cushionMesh);
+    // Chair-local distance from the cushion rim to the chair's seat and arms (analytic ellipsoids, not the tessellated mesh).
+    const chairInverse = new THREE.Matrix4().copy(chair.matrixWorld).invert();
+    const seat = loungeSolid(LOUNGE_SEAT), arms = LOUNGE_ARMS.map(loungeSolid);
+    let chairClearance = Infinity;
+    for (let i = 0; i < 48; i++) {
+      const a = i * Math.PI * 2 / 48;
+      for (const y of [OTTOMAN.bottomY + 0.01, OTTOMAN.bottomY + OTTOMAN.height * 0.5, OTTOMAN.bottomY + OTTOMAN.height]) {
+        const point = new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r).applyMatrix4(world).applyMatrix4(chairInverse);
+        chairClearance = Math.min(chairClearance, loungeSignedDistance(point, seat), ...arms.map((arm) => loungeSignedDistance(point, arm)));
+      }
+    }
+    // Leg tops against the cushion underside, in the ottoman's own frame.
+    cushionMesh.geometry.computeBoundingBox();
+    const legPositions = legMesh.geometry.attributes.position;
+    let legTopY = -Infinity;
+    for (let i = 0; i < legPositions.count; i++) legTopY = Math.max(legTopY, legPositions.getY(i));
+    return {
+      position: group.position.toArray(), yawDegrees: THREE.MathUtils.radToDeg(group.rotation.y),
+      topY: Number(cushionBox.max.y.toFixed(4)), seatTopY: Number((LOUNGE_SEAT.center[1] + LOUNGE_SEAT.radii[1]).toFixed(4)),
+      footFloorGapMm: Number((legBox.min.y * 1000).toFixed(2)),
+      legTopEmbedMm: Number(((legTopY - OTTOMAN.bottomY) * 1000).toFixed(2)),
+      cushionBottomGapMm: Number(((cushionBox.min.y - OTTOMAN.bottomY) * 1000).toFixed(2)),
+      chairClearanceMm: Number((chairClearance * 1000).toFixed(1)),
+      diameterMm: Number((cushionMesh.geometry.boundingBox ? (cushionMesh.geometry.boundingBox.max.x - cushionMesh.geometry.boundingBox.min.x) * 1000 : 0).toFixed(0)),
+      bounds: { min: cushionBox.min.toArray(), max: cushionBox.max.toArray() },
+      legBounds: { min: legBox.min.toArray(), max: legBox.max.toArray() },
+    };
+  };
+  return group;
+}
+
 function buildPropGroup(scene, key, position, build) {
   const group = new THREE.Group();
   group.name = `prop-${key}`;
@@ -2572,6 +2669,7 @@ export async function start({ stage, onReady = () => {} }) {
   const diningChairSeatGap = buildProceduralDiningChairs(scene, materials);
   buildHouseholdProps(scene, materials);
   const loungeChair = buildLoungeChair(scene, materials);
+  const loungeOttoman = buildLoungeOttoman(scene, materials, loungeChair);
   const woodGeometries = [];
   const wallArt = buildRoomWallArt(scene, materials, woodGeometries);
   const mediaUnit = buildRoom03MediaUnit(scene, materials, woodGeometries);
@@ -2653,6 +2751,8 @@ export async function start({ stage, onReady = () => {} }) {
   addContactStrip("merged-kitchen", "+z", 0.34, 2.7);
   // The side-kitchen strip follows the continuous base cabinet, not the old door frame.
   addContactStrip("merged-wok-base-cabinet", "-x", 0.28, 1.5);
+  // Ottoman feet: one soft decal under each, like the chair's.
+  for (const [footX, footZ] of loungeOttoman.userData.feet.map(([x, , z]) => [x, z])) addContactPatch(footX, footZ, 0.10, 0.09, 0.003);
   // The fig pot patch from #576 is gone with the plant. Lounge-chair feet keep their four patches.
   for (const [localX, localZ] of [[-0.26, -0.25], [-0.26, 0.25], [0.26, -0.25], [0.26, 0.25]]) {
     const patch = new THREE.PlaneGeometry(0.18, 0.15);
@@ -3415,7 +3515,7 @@ export async function start({ stage, onReady = () => {} }) {
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
     const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
-    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path") }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path") }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
