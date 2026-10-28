@@ -915,6 +915,8 @@ function render() {
   $("skip").textContent = x.skip;
   $("home").href = `/?lang=${state.lang}`;
   $("home").setAttribute("aria-label", x.home);
+  $("back-home").href = `/?lang=${state.lang}`;
+  $("back-home").textContent = `← ${x.home}`;
   document.querySelectorAll("#lang-group button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang)));
   $("kicker").textContent = x.kicker;
   $("title").textContent = x.title;
