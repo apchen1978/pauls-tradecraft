@@ -709,6 +709,27 @@ const DINING_CHAIR_PLACEMENTS = Object.freeze([
   { x: 0.5, z: 1.22, position: [0.5, 0, 1.27], yaw: Math.PI - THREE.MathUtils.degToRad(4) },
 ]);
 
+// Fine linen weave for the table runner and napkins: a 128 px canvas tile (no download), deterministic.
+function makeLinenTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 128;
+  const context = canvas.getContext("2d");
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, 128, 128);
+  const hash = (n) => Math.abs(Math.sin(n * 12.9898) * 43758.5453) % 1;
+  for (let i = 0; i < 128; i += 2) {
+    context.fillStyle = `rgba(96, 74, 44, ${0.02 + 0.05 * hash(i)})`;
+    context.fillRect(0, i, 128, 1);
+    context.fillStyle = `rgba(96, 74, 44, ${0.02 + 0.05 * hash(i + 300)})`;
+    context.fillRect(i, 0, 1, 128);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  return texture;
+}
+
 function buildTableware(scene) {
   const group = new THREE.Group();
   group.name = "mood-slot-dinner-tableware";
@@ -742,7 +763,7 @@ function buildTableware(scene) {
     return hit.point.y;
   };
 
-  const geometryParts = { ceramic: [], glass: [], liquid: [], metal: [] };
+  const geometryParts = { ceramic: [], glass: [], liquid: [], metal: [], linen: [] };
   const settings = [];
   const setVertexColor = (geometry, colorHex, speckle = false) => {
     const color = new THREE.Color(colorHex);
@@ -767,9 +788,17 @@ function buildTableware(scene) {
     geometryParts[bucket].push(geometry);
     return geometry;
   };
-  const addBox = (bucket, size, position, color) => {
+  // Optional yaw = [radians, pivotX, pivotZ]: turn the piece about a pivot so four settings are not clones of each other.
+  const placeBox = (geometry, position, yaw) => {
+    if (yaw) {
+      geometry.translate(position[0] - yaw[1], position[1], position[2] - yaw[2]);
+      geometry.rotateY(yaw[0]);
+      geometry.translate(yaw[1], 0, yaw[2]);
+    } else geometry.translate(...position);
+  };
+  const addBox = (bucket, size, position, color, yaw) => {
     const geometry = new THREE.BoxGeometry(...size);
-    geometry.translate(...position);
+    placeBox(geometry, position, yaw);
     setVertexColor(geometry, color);
     geometryParts[bucket].push(geometry);
     return geometry;
@@ -780,6 +809,7 @@ function buildTableware(scene) {
     wineDiameter: 0.088, wineHeight: 0.100,
     waterDiameter: 0.072, waterHeight: 0.082,
     edgeClearance: 0.060,
+    accentDiameter: 0.190, accentHeight: 0.012,
   });
   const plateRadius = TABLEWARE.plateDiameter / 2, bowlRadius = TABLEWARE.bowlDiameter / 2;
   const wineRadius = TABLEWARE.wineDiameter / 2, waterRadius = TABLEWARE.waterDiameter / 2;
@@ -787,6 +817,14 @@ function buildTableware(scene) {
   const bowlProfile = [[0, 0], [bowlRadius * 0.55, 0], [bowlRadius * 0.75, 0.006], [bowlRadius * 0.875, 0.018], [bowlRadius * 0.963, TABLEWARE.bowlHeight * 0.76], [bowlRadius, TABLEWARE.bowlHeight * 0.96], [bowlRadius * 0.95, TABLEWARE.bowlHeight], [bowlRadius * 0.888, TABLEWARE.bowlHeight * 0.853], [bowlRadius * 0.763, TABLEWARE.bowlHeight * 0.4], [bowlRadius * 0.625, 0.014], [0, 0.014]];
   const wineProfile = [[0, 0.001], [wineRadius * 0.59, 0.001], [wineRadius * 0.77, 0.006], [wineRadius * 0.89, 0.019], [wineRadius, TABLEWARE.wineHeight * 0.55], [wineRadius * 0.977, TABLEWARE.wineHeight * 0.80], [wineRadius * 0.91, TABLEWARE.wineHeight * 0.96], [wineRadius * 0.82, TABLEWARE.wineHeight], [wineRadius * 0.75, TABLEWARE.wineHeight * 0.97], [wineRadius * 0.80, TABLEWARE.wineHeight * 0.78], [wineRadius * 0.77, TABLEWARE.wineHeight * 0.55], [wineRadius * 0.66, 0.025], [wineRadius * 0.50, 0.011], [0, 0.011]];
   const waterProfile = [[0, 0.001], [waterRadius * 0.64, 0.001], [waterRadius * 0.83, 0.004], [waterRadius * 0.97, 0.012], [waterRadius, TABLEWARE.waterHeight * 0.78], [waterRadius * 0.97, TABLEWARE.waterHeight * 0.976], [waterRadius * 0.89, TABLEWARE.waterHeight], [waterRadius * 0.83, TABLEWARE.waterHeight * 0.951], [waterRadius * 0.83, 0.012], [waterRadius * 0.67, 0.008], [0, 0.008]];
+  // Bay Area table: a smaller matte-glazed plate (sage and terracotta, diagonal pairs) between the oatmeal dinner plate and the speckled bowl.
+  const accentRadius = TABLEWARE.accentDiameter / 2;
+  const accentProfile = [[0, 0], [accentRadius * 0.6, 0], [accentRadius * 0.78, 0.001], [accentRadius * 0.9, 0.003], [accentRadius * 0.97, TABLEWARE.accentHeight * 0.7], [accentRadius, TABLEWARE.accentHeight], [accentRadius * 0.96, TABLEWARE.accentHeight * 0.92], [accentRadius * 0.85, TABLEWARE.accentHeight * 0.55], [accentRadius * 0.6, TABLEWARE.accentHeight * 0.38], [0, TABLEWARE.accentHeight * 0.38]];
+  const ACCENT_COLORS = [0x777f63, 0x9a6a50, 0x9a6a50, 0x777f63];
+  const NAPKIN_YAW = [-2.5, 1.8, 3.2, -1.2];
+  const NAPKIN_HEM = [true, false, true, true];
+  const NAPKIN_COLOR = 0xdacfba, LINEN_COLOR = 0xcdbfa7;
+  const addLinenBox = (size, position, color, yaw) => addBox("linen", size, position, color, yaw);
   const settingGeometryRanges = [];
   const wineY = 0.001 + TABLEWARE.wineHeight * 0.42;
   const waterY = 0.001 + TABLEWARE.waterHeight * 0.44;
@@ -801,11 +839,14 @@ function buildTableware(scene) {
     const outward = Math.sign(x);
     const inward = z < 0.5 ? 1 : -1;
     const plateCenter = [x, tableY, z];
-    const plateGeometry = addLathe("ceramic", plateProfile, 24, plateCenter, 0xe8e0d2);
+    const plateGeometry = addLathe("ceramic", plateProfile, 24, plateCenter, 0xe3dacb);
     const plateTopRay = new THREE.Raycaster(new THREE.Vector3(x, tableY + 0.025, z), down);
     const plateTop = plateTopRay.intersectObject(new THREE.Mesh(plateGeometry), false)[0]?.point.y;
     if (plateTop == null) throw new Error(`Cannot measure plate support for ${chair.x}, ${chair.z}`);
-    const bowlGeometry = addLathe("ceramic", bowlProfile, 24, [x, plateTop, z], 0xc6b79e, true);
+    const accentGeometry = addLathe("ceramic", accentProfile, 24, [x, plateTop, z], ACCENT_COLORS[index]);
+    const accentTop = new THREE.Raycaster(new THREE.Vector3(x, plateTop + 0.025, z), down).intersectObject(new THREE.Mesh(accentGeometry), false)[0]?.point.y;
+    if (accentTop == null) throw new Error(`Cannot measure accent plate support for ${chair.x}, ${chair.z}`);
+    const bowlGeometry = addLathe("ceramic", bowlProfile, 24, [x, accentTop, z], 0xd8ccb6, true);
     // Glasses sit just inside each setting; this keeps the lemon bowl clear while preserving the 60 mm plate margin.
     const wine = [x + outward * 0.21, tableY + 0.001, z + inward * 0.145];
     const water = [x + outward * 0.21, tableY + 0.001, z + inward * 0.245];
@@ -822,13 +863,20 @@ function buildTableware(scene) {
     setVertexColor(waterLiquid, 0xdbe7e5);
     geometryParts.liquid.push(waterLiquid);
 
-    // Four-piece fork and a rounded table knife. All metalware shares one merged mesh/material.
+    // Folded linen napkin beside each plate (one hem fold on three of them); the fork rests on it, the knife on the table.
+    const yaw = NAPKIN_YAW[index] * Math.PI / 180;
     const cutleryZ = z + inward * 0.015;
     const forkX = x - outward * 0.19, knifeX = x + outward * 0.19;
-    addBox("metal", [0.010, 0.003, 0.105], [forkX, tableY + 0.002, cutleryZ], 0xb6b3ad);
-    for (let tine = 0; tine < 4; tine++) addBox("metal", [0.003, 0.003, 0.028], [forkX + (tine - 1.5) * 0.004, tableY + 0.002, cutleryZ - inward * 0.063], 0xb6b3ad);
-    addBox("metal", [0.013, 0.004, 0.067], [knifeX, tableY + 0.002, cutleryZ + inward * 0.019], 0xb6b3ad);
-    addBox("metal", [0.008, 0.003, 0.038], [knifeX, tableY + 0.002, cutleryZ - inward * 0.034], 0x88755e);
+    const napkinX = forkX - outward * 0.012;
+    const napkinThickness = 0.004;
+    const napkinGeometry = addLinenBox([0.100, napkinThickness, 0.190], [napkinX, tableY + napkinThickness / 2, cutleryZ], NAPKIN_COLOR, [yaw, napkinX, cutleryZ]);
+    if (NAPKIN_HEM[index]) addLinenBox([0.100, 0.0025, 0.040], [napkinX, tableY + napkinThickness + 0.00125, cutleryZ + inward * 0.075], 0xcfc3ac, [yaw, napkinX, cutleryZ]);
+    // Four-piece fork on the napkin (0.2 mm embedded so it reads as resting) and a rounded table knife. Brushed stainless, one merged mesh.
+    const forkY = tableY + napkinThickness + 0.0013, forkYaw = [yaw * 0.5, forkX, cutleryZ];
+    const forkHandle = addBox("metal", [0.010, 0.003, 0.105], [forkX, forkY, cutleryZ], 0xaeb0ad, forkYaw);
+    for (let tine = 0; tine < 4; tine++) addBox("metal", [0.003, 0.003, 0.028], [forkX + (tine - 1.5) * 0.004, forkY, cutleryZ - inward * 0.063], 0xaeb0ad, forkYaw);
+    addBox("metal", [0.013, 0.004, 0.067], [knifeX, tableY + 0.002, cutleryZ + inward * 0.019], 0xaeb0ad, [-yaw * 0.4, knifeX, cutleryZ]);
+    addBox("metal", [0.008, 0.003, 0.038], [knifeX, tableY + 0.002, cutleryZ - inward * 0.034], 0xa5a7a4, [-yaw * 0.4, knifeX, cutleryZ]);
 
     const plateEdge = {
       left: x - plateRadius - tabletopBounds.min.x,
@@ -839,7 +887,11 @@ function buildTableware(scene) {
     const edgeClearanceMm = Math.round(Math.min(...Object.values(plateEdge)) * 1000);
     plateGeometry.computeBoundingBox(); bowlGeometry.computeBoundingBox();
     const plateTableGapMm = Math.round((plateGeometry.boundingBox.min.y - tableY) * 1000);
-    const bowlPlateGapMm = Math.round((bowlGeometry.boundingBox.min.y - plateTop) * 1000);
+    const bowlPlateGapMm = Math.round((bowlGeometry.boundingBox.min.y - accentTop) * 1000);
+    accentGeometry.computeBoundingBox(); napkinGeometry.computeBoundingBox(); forkHandle.computeBoundingBox();
+    const accentPlateGapMm = Math.round((accentGeometry.boundingBox.min.y - plateTop) * 1000);
+    const napkinTableGapMm = Math.round((napkinGeometry.boundingBox.min.y - tableY) * 1000);
+    const forkNapkinGapMm = Number(((forkHandle.boundingBox.min.y - (tableY + napkinThickness)) * 1000).toFixed(1));
     wineGeometry.computeBoundingBox(); waterGeometry.computeBoundingBox();
     const wineTableGapMm = Math.round((wineGeometry.boundingBox.min.y - tableY) * 1000);
     const waterTableGapMm = Math.round((waterGeometry.boundingBox.min.y - tableY) * 1000);
@@ -855,22 +907,84 @@ function buildTableware(scene) {
       chair: `room03-dining-chair-${chair.x}-${chair.z}`,
       tableY, plateCenter, wineCenter: wine, waterCenter: water,
       plateDiameterMm: TABLEWARE.plateDiameter * 1000, bowlDiameterMm: TABLEWARE.bowlDiameter * 1000, bowlHeightMm: TABLEWARE.bowlHeight * 1000,
-      plateTableGapMm, bowlPlateGapMm,
+      plateTableGapMm, bowlPlateGapMm, accentPlateGapMm, napkinTableGapMm, forkNapkinGapMm,
       wineTableGapMm, waterTableGapMm,
       edgeClearanceMm,
       lemonClearanceMm: null,
       tableEdgeMm: Object.fromEntries(Object.entries(plateEdge).map(([key, value]) => [key, Math.round(value * 1000)])),
     });
   }
+  // ---- Centre of the table (dinner and Thanksgiving only): linen runner, stoneware pitcher, bread on a board ----
+  // The lemon bowl sits on the runner (centred on the table, z 0.5). Each piece is measured to the millimetre and reported in userData.extras.
+  const extraBoxes = {};
+  const keepBox = (name, geometry) => { geometry.computeBoundingBox(); extraBoxes[name] = geometry.boundingBox.clone(); return geometry; };
+  const CENTRE_Z = 0.5, RUNNER = { length: 1.24, width: 0.22, thickness: 0.0012 };
+  const runnerBaseY = tableYAt(0, CENTRE_Z);
+  const runnerTop = runnerBaseY + RUNNER.thickness;
+  keepBox("runner", addLinenBox([RUNNER.length, RUNNER.thickness, RUNNER.width], [0, runnerBaseY + RUNNER.thickness / 2, CENTRE_Z], LINEN_COLOR));
+  const PITCHER_X = 0.53;
+  const pitcherProfile = [[0, 0], [0.040, 0], [0.048, 0.004], [0.054, 0.050], [0.050, 0.100], [0.039, 0.145], [0.037, 0.168], [0.042, 0.180], [0.040, 0.181], [0.035, 0.170], [0.036, 0.146], [0.046, 0.100], [0.050, 0.050], [0, 0.022]];
+  keepBox("pitcher", addLathe("ceramic", pitcherProfile, 24, [PITCHER_X, runnerTop, CENTRE_Z], 0xe9e1d2, true));
+  const handleCurve = new THREE.CatmullRomCurve3([[0.038, 0.152], [0.074, 0.145], [0.084, 0.108], [0.072, 0.070], [0.050, 0.052]].map(([dx, dy]) => new THREE.Vector3(PITCHER_X + dx, runnerTop + dy, CENTRE_Z)));
+  const pitcherHandle = new THREE.TubeGeometry(handleCurve, 12, 0.0065, 6, false);
+  setVertexColor(pitcherHandle, 0xe9e1d2);
+  geometryParts.ceramic.push(pitcherHandle);
+  extraBoxes.pitcher.union(new THREE.Box3().setFromBufferAttribute(pitcherHandle.attributes.position));
+  const BOARD = { x: 0.30, length: 0.28, depth: 0.15, thickness: 0.02, radius: 0.012 };
+  const boardShape = new THREE.Shape();
+  {
+    const hx = BOARD.length / 2 - BOARD.radius, hy = BOARD.depth / 2 - BOARD.radius, r = BOARD.radius;
+    boardShape.moveTo(-hx, -hy - r); boardShape.lineTo(hx, -hy - r); boardShape.absarc(hx, -hy, r, -Math.PI / 2, 0, false);
+    boardShape.lineTo(hx + r, hy); boardShape.absarc(hx, hy, r, 0, Math.PI / 2, false);
+    boardShape.lineTo(-hx, hy + r); boardShape.absarc(-hx, hy, r, Math.PI / 2, Math.PI, false);
+    boardShape.lineTo(-hx - r, -hy); boardShape.absarc(-hx, -hy, r, Math.PI, Math.PI * 1.5, false);
+  }
+  // Extrude output is non-indexed; merge vertices so it can join the indexed lathe geometry in one mesh.
+  const boardRaw = new THREE.ExtrudeGeometry(boardShape, { depth: BOARD.thickness, bevelEnabled: false, curveSegments: 4 });
+  const boardGeometry = mergeVertices(boardRaw);
+  boardRaw.dispose();
+  boardGeometry.rotateX(-Math.PI / 2);
+  boardGeometry.translate(BOARD.x, runnerTop, CENTRE_Z);
+  setVertexColor(boardGeometry, 0x9b7448);
+  geometryParts.ceramic.push(keepBox("board", boardGeometry));
+  const boardTop = runnerTop + BOARD.thickness;
+  const addEllipsoid = (bucket, radii, position, color, yawRad, tilt = 0) => {
+    const geometry = new THREE.SphereGeometry(1, 14, 8);
+    geometry.scale(...radii);
+    geometry.rotateZ(tilt); geometry.rotateY(yawRad);
+    geometry.translate(...position);
+    setVertexColor(geometry, color);
+    geometryParts[bucket].push(geometry);
+    return geometry;
+  };
+  // Loaf pressed 3 mm into the board; two slices cut off the near end, uneven on purpose.
+  keepBox("loaf", addEllipsoid("ceramic", [0.115, 0.042, 0.050], [BOARD.x - 0.045, boardTop + 0.042 - 0.003, CENTRE_Z - 0.004], 0xa9763f, 0.14));
+  for (const [index, [dx, dz, yawRad]] of [[0.092, 0.022, 0.10], [0.108, -0.012, -0.18]].entries()) {
+    const sliceCentre = [BOARD.x + dx, boardTop + 0.034 - 0.002, CENTRE_Z + dz];
+    const tilt = 0.06 * (index ? -1 : 1);
+    keepBox(`slice-${index}`, addEllipsoid("ceramic", [0.0070, 0.034, 0.040], sliceCentre, 0xa9763f, yawRad, tilt));
+    addEllipsoid("ceramic", [0.0074, 0.030, 0.036], sliceCentre, 0xe3c98f, yawRad, tilt);
+  }
+
   const materials = {
     ceramic: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.84, vertexColors: true }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.18, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true }),
     liquid: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.22, transparent: true, opacity: 0.78, depthWrite: false, vertexColors: true }),
     metal: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.38, metalness: 0.48, vertexColors: true }),
+    linen: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.96, map: makeLinenTexture(), vertexColors: true }),
   };
-  const renderOrder = { liquid: 1, glass: 2, ceramic: 3, metal: 3 };
+  const renderOrder = { liquid: 1, glass: 2, ceramic: 3, metal: 3, linen: 3 };
   let vertices = 0;
   for (const [kind, parts] of Object.entries(geometryParts)) {
+    if (kind === "linen") {
+      // Planar weave mapping in world metres (one 128 px tile per 25 cm) so runner and napkins share one weave scale.
+      for (const part of parts) {
+        const position = part.attributes.position;
+        const uv = new Float32Array(position.count * 2);
+        for (let i = 0; i < position.count; i++) { uv[i * 2] = position.getX(i) * 4; uv[i * 2 + 1] = position.getZ(i) * 4; }
+        part.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+      }
+    }
     const geometry = mergeGeometries(parts, false);
     parts.forEach((part) => part.dispose());
     if (!geometry) throw new Error(`Could not merge Room 03 ${kind} tableware`);
@@ -904,7 +1018,19 @@ function buildTableware(scene) {
     glass: { transparent: materials.glass.transparent, depthWrite: materials.glass.depthWrite, renderOrder: renderOrder.glass },
     liquid: { transparent: materials.liquid.transparent, depthWrite: materials.liquid.depthWrite, renderOrder: renderOrder.liquid },
   };
-  group.userData.colors = { wine: "#5c1823", plate: "#e8e0d2", bowl: "#c6b79e" };
+  group.userData.colors = { wine: "#5c1823", plate: "#e3dacb", bowl: "#d8ccb6", accent: ["#777f63", "#9a6a50"], linen: "#cdbfa7", napkin: "#dacfba" };
+  const mm = (value) => Number((value * 1000).toFixed(1));
+  const boxClear = (a, b) => mm(Math.hypot(Math.max(a.min.x - b.max.x, b.min.x - a.max.x, 0), Math.max(a.min.y - b.max.y, b.min.y - a.max.y, 0), Math.max(a.min.z - b.max.z, b.min.z - a.max.z, 0)));
+  // Plan-view distance from a round tableware footprint (plate, glasses) to a piece's bounding rectangle; a union box per setting would be too coarse.
+  const circleClear = ([cx, cz], radius, box) => Math.hypot(Math.max(box.min.x - cx, cx - box.max.x, 0), Math.max(box.min.z - cz, cz - box.max.z, 0)) - radius;
+  const FOOTPRINTS = settings.flatMap((setting) => [[[setting.plateCenter[0], setting.plateCenter[2]], plateRadius], [[setting.wineCenter[0], setting.wineCenter[2]], wineRadius], [[setting.waterCenter[0], setting.waterCenter[2]], waterRadius]]);
+  const minSettingClearance = (box) => mm(Math.min(...FOOTPRINTS.map(([centre, radius]) => circleClear(centre, radius, box))));
+  group.userData.extras = {
+    runner: { widthMm: mm(RUNNER.width), lengthMm: mm(RUNNER.length), gapMm: mm(extraBoxes.runner.min.y - runnerBaseY), minSettingClearanceMm: minSettingClearance(extraBoxes.runner), maxX: Number(extraBoxes.runner.max.x.toFixed(3)) },
+    pitcher: { heightMm: mm(extraBoxes.pitcher.max.y - extraBoxes.pitcher.min.y), gapMm: mm(extraBoxes.pitcher.min.y - runnerTop), minSettingClearanceMm: minSettingClearance(extraBoxes.pitcher), lemonClearanceMm: boxClear(extraBoxes.pitcher, lemonBounds), boardClearanceMm: boxClear(extraBoxes.pitcher, extraBoxes.board), maxX: Number(extraBoxes.pitcher.max.x.toFixed(3)) },
+    board: { gapMm: mm(extraBoxes.board.min.y - runnerTop), minSettingClearanceMm: minSettingClearance(extraBoxes.board), lemonClearanceMm: boxClear(extraBoxes.board, lemonBounds) },
+    bread: { loafBottomMm: mm(extraBoxes.loaf.min.y - boardTop), sliceBottomsMm: [0, 1].map((i) => mm(extraBoxes[`slice-${i}`].min.y - boardTop)), maxXOverBoardMm: mm(Math.max(extraBoxes.loaf.max.x, extraBoxes["slice-0"].max.x, extraBoxes["slice-1"].max.x) - extraBoxes.board.max.x) },
+  };
   return group;
 }
 
@@ -1873,7 +1999,7 @@ function buildHouseholdProps(scene, m) {
   centerpieceGeometries.forEach((geometry) => geometry.dispose());
   const lemonBowl = new THREE.Group();
   lemonBowl.name = "prop-tabletop-meyer-lemon-bowl";
-  lemonBowl.position.set(0, 0.75, 0.76);
+  lemonBowl.position.set(0, 0.75, 0.5);
   lemonBowl.userData.category = "household-props";
   lemonBowl.userData.propKey = "tabletop-meyer-lemon-bowl";
   lemonBowl.userData.form = "lathed-stoneware-bowl-five-low-poly-meyer-lemons";
@@ -3155,7 +3281,7 @@ export async function start({ stage, onReady = () => {} }) {
     };
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
-    const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors } : null;
+    const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
     return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {

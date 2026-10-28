@@ -669,7 +669,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(propBounds["tabletop-succulents"]).toBeUndefined(); // Old: three rosettes and a long trough; new: one Meyer lemon bowl.
     expect(propBounds["tabletop-meyer-lemon-bowl"].size[0]).toBeCloseTo(0.26, 2); // Old width 0.728 m -> bowl diameter 0.26 m.
     expect(propBounds["tabletop-meyer-lemon-bowl"].size[2]).toBeCloseTo(0.26, 2); // Old depth 0.247 m -> round bowl depth 0.26 m.
-    expect((propBounds["tabletop-meyer-lemon-bowl"].min[2] + propBounds["tabletop-meyer-lemon-bowl"].max[2]) / 2).toBeCloseTo(0.76, 2); // Centerline retained at z=0.76 m.
+    expect((propBounds["tabletop-meyer-lemon-bowl"].min[2] + propBounds["tabletop-meyer-lemon-bowl"].max[2]) / 2).toBeCloseTo(0.5, 2); // Old z=0.76 m (off-centre, carried over from the succulents) -> 0.5 m, the table centreline, so the runner can run under it.
     expect(propBounds["tabletop-meyer-lemon-bowl"].max[2]).toBeLessThan(info.furnitureBounds.table.max[2]); // New bowl remains inside the table edge.
     expect(Math.abs(propBounds["tabletop-meyer-lemon-bowl"].min[1] - 0.75)).toBeLessThanOrEqual(0.02); // Old planter base -> new bowl base still rests on the tabletop.
     expect(info.centerpieceFit).toHaveLength(5);
@@ -1005,7 +1005,8 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
   expect(info.vertices).toBe(30220);
   expect(info.meshes).toBe(93);
-  expect(info.drawCallsLastFrame).toBe(69);
+  // Old 69 -> new 70: lemon bowl moved to the table centreline and now enters the default desktop frame (+1).
+  expect(info.drawCallsLastFrame).toBe(70);
   expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
   expect(info.wokTile.colorSpace).toBe("srgb");
   expect(info.wokTile.anisotropy).toBeGreaterThanOrEqual(8);

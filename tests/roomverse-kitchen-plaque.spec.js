@@ -61,7 +61,8 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   // 30,696 → 30,220 (−476). Meshes 96 → 93. Opening draw calls stay 69.
   expect(desktop.vertices).toBe(30220);
   expect(desktop.meshes).toBe(93);
-  expect(desktop.drawCallsLastFrame).toBe(69);
+  // Old 69 -> new 70: the lemon bowl now sits on the table centreline (z 0.5) and enters the default desktop frame (+1 draw call; vertices and meshes unchanged).
+  expect(desktop.drawCallsLastFrame).toBe(70);
   const hiddenDesktop = await page.evaluate(() => {
     window.__room03.plaqueMesh.visible = false;
     window.__room03.render();
