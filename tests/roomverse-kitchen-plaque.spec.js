@@ -57,12 +57,10 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   expect(turned.corners.every(([x, y, z]) => Math.abs(x) < 0.98 && Math.abs(y) < 0.98 && z < 1)).toBe(true);
   await shot(page, "plaque-desktop-1440-180");
   const desktopTurned = await page.evaluate(() => window.__room03.info());
-  // Old on the plaque commit: 41,262 verts, 95 meshes, 70 opening draw calls.
-  // Lamps PR: fig −10,464, fig contact patch −4, four lamps +1,347 verts; meshes 95 − 5 + 8 = 98.
-  // Removing the two counter-pendant meshes: vertices 32,141 → 31,603, meshes 98 → 96, opening calls 72 → 70.
-  expect(desktop.vertices).toBe(31603);
-  expect(desktop.meshes).toBe(96);
-  expect(desktop.drawCallsLastFrame).toBe(70);
+  // Red Dutch oven replacement: vertices 31,603 → 31,989 (+386), meshes 96 → 98 (+2), desktop opening draw calls 70 → 72 (+2).
+  expect(desktop.vertices).toBe(31989);
+  expect(desktop.meshes).toBe(98);
+  expect(desktop.drawCallsLastFrame).toBe(72);
   const hiddenDesktop = await page.evaluate(() => {
     window.__room03.plaqueMesh.visible = false;
     window.__room03.render();
@@ -77,8 +75,8 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   const mobileOpening = await page.evaluate(() => window.__room03.info());
   await shot(page, "plaque-mobile-390-default");
   expect(mobileOpening.plaque.inView).toBe(false);
-  // The two counter-pendant meshes are gone: phone opening calls 74 → 72. The plaque remains outside the frustum.
-  expect(mobileOpening.drawCallsLastFrame).toBe(72);
+  // Red Dutch oven replacement adds two meshes: phone opening calls 72 → 74. The plaque remains outside the frustum.
+  expect(mobileOpening.drawCallsLastFrame).toBe(74);
   await page.evaluate(() => window.__room03.setView(Math.PI));
   const mobile = await page.evaluate(() => window.__room03.info());
   expect(mobile.plaque.inView).toBe(true);
