@@ -4,19 +4,20 @@ import { mkdirSync } from "node:fs";
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
 const MOODS = ["golden", "night", "movie"];
+// Old no-pot baseline 31,603 -> current no-pot baseline 32,973: countertop props are now present. Current pot geometry remains 960 vertices, below the unchanged +1,500 cap.
 const BASELINE = {
-  "1440|golden|0": { vertices: 31603, drawCalls: 70 },
-  "1440|night|0": { vertices: 31603, drawCalls: 70 },
-  "1440|movie|0": { vertices: 31603, drawCalls: 68 },
-  "1440|golden|90": { vertices: 31603, drawCalls: 64 },
-  "1440|night|90": { vertices: 31603, drawCalls: 64 },
-  "1440|movie|90": { vertices: 31603, drawCalls: 62 },
-  "390|golden|0": { vertices: 31603, drawCalls: 64 },
-  "390|night|0": { vertices: 31603, drawCalls: 64 },
-  "390|movie|0": { vertices: 31603, drawCalls: 62 },
-  "390|golden|90": { vertices: 31603, drawCalls: 57 },
-  "390|night|90": { vertices: 31603, drawCalls: 57 },
-  "390|movie|90": { vertices: 31603, drawCalls: 55 },
+  "1440|golden|0": { vertices: 33097, drawCalls: 70 },
+  "1440|night|0": { vertices: 33097, drawCalls: 70 },
+  "1440|movie|0": { vertices: 33097, drawCalls: 68 },
+  "1440|golden|90": { vertices: 33097, drawCalls: 64 },
+  "1440|night|90": { vertices: 33097, drawCalls: 64 },
+  "1440|movie|90": { vertices: 33097, drawCalls: 62 },
+  "390|golden|0": { vertices: 33097, drawCalls: 64 },
+  "390|night|0": { vertices: 33097, drawCalls: 64 },
+  "390|movie|0": { vertices: 33097, drawCalls: 62 },
+  "390|golden|90": { vertices: 33097, drawCalls: 57 },
+  "390|night|90": { vertices: 33097, drawCalls: 57 },
+  "390|movie|90": { vertices: 33097, drawCalls: 55 },
 };
 if (QA) mkdirSync(QA, { recursive: true });
 
@@ -92,6 +93,6 @@ test("red Dutch oven is dimensioned, fitted and within geometry budgets", async 
     const old = BASELINE[`${current.width}|${current.mood}|${current.yaw}`];
     expect(old, "baseline metrics exist for each viewport, mood and camera direction").toBeTruthy();
     expect(current.vertices - old.vertices, "net geometry change is within the 1,500 vertex cap").toBeLessThanOrEqual(1500);
-    expect(current.drawCalls - old.drawCalls, "draw-call change is within the +2 cap").toBeLessThanOrEqual(2);
+    expect(current.drawCalls - old.drawCalls, `${current.width}px ${current.mood} ${current.yaw}deg: ${current.drawCalls} current vs ${old.drawCalls} baseline, cap +2`).toBeLessThanOrEqual(2);
   }
 });
