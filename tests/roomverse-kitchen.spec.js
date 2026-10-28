@@ -630,11 +630,21 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(propBounds["drip-coffee-maker"].size[1]).toBeLessThanOrEqual(0.35);
     expect(propBounds["electric-kettle"].size[0]).toBeLessThanOrEqual(0.3);
     expect(propBounds["cutting-board"].size[1]).toBeGreaterThan(propBounds["cutting-board"].size[2] * 4);
-    expect(propBounds["tabletop-succulents"].size[0]).toBeCloseTo(0.728, 2);
-    expect(propBounds["tabletop-succulents"].size[2]).toBeCloseTo(0.247, 2);
-    expect((propBounds["tabletop-succulents"].min[2] + propBounds["tabletop-succulents"].max[2]) / 2).toBeCloseTo(0.76, 2);
-    expect(propBounds["tabletop-succulents"].max[2]).toBeLessThan(info.furnitureBounds.table.max[2]);
-    expect(Math.abs(propBounds["tabletop-succulents"].min[1] - 0.75)).toBeLessThanOrEqual(0.02);
+    expect(propBounds["tabletop-succulents"]).toBeUndefined(); // Old: three rosettes and a long trough; new: one Meyer lemon bowl.
+    expect(propBounds["tabletop-meyer-lemon-bowl"].size[0]).toBeCloseTo(0.26, 2); // Old width 0.728 m -> bowl diameter 0.26 m.
+    expect(propBounds["tabletop-meyer-lemon-bowl"].size[2]).toBeCloseTo(0.26, 2); // Old depth 0.247 m -> round bowl depth 0.26 m.
+    expect((propBounds["tabletop-meyer-lemon-bowl"].min[2] + propBounds["tabletop-meyer-lemon-bowl"].max[2]) / 2).toBeCloseTo(0.76, 2); // Centerline retained at z=0.76 m.
+    expect(propBounds["tabletop-meyer-lemon-bowl"].max[2]).toBeLessThan(info.furnitureBounds.table.max[2]); // New bowl remains inside the table edge.
+    expect(Math.abs(propBounds["tabletop-meyer-lemon-bowl"].min[1] - 0.75)).toBeLessThanOrEqual(0.02); // Old planter base -> new bowl base still rests on the tabletop.
+    expect(info.centerpieceFit).toHaveLength(5);
+    expect(info.centerpieceFit.filter(({ support }) => support === "bowl")).toHaveLength(3);
+    expect(info.centerpieceFit.filter(({ support }) => support === "fruit")).toHaveLength(2);
+    for (const lemon of info.centerpieceFit) {
+      expect(lemon.gapMm, `${lemon.lemon} bottom to bowl inner floor in mm`).toBeGreaterThanOrEqual(-3);
+      expect(lemon.gapMm, `${lemon.lemon} bottom to bowl inner floor in mm`).toBeLessThanOrEqual(0);
+    }
+    expect(info.propGeometry["tabletop-meyer-lemon-bowl"].vertices).toBeLessThanOrEqual(2079); // Old succulent group: 2,079 vertices -> new bowl group must not exceed it.
+    expect(info.propGeometry["tabletop-meyer-lemon-bowl"].meshes).toBeLessThanOrEqual(3); // Old: 3 meshes -> new: one merged vertex-color mesh.
     const floorLamp = info.lamps["floor-reading-lamp"].bounds;
     expect(Math.abs(floorLamp.min[1])).toBeLessThanOrEqual(0.02);
     expect(floorLamp.size[1]).toBeGreaterThanOrEqual(1.45);
@@ -652,14 +662,17 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(propBounds.cookbooks.size[0]).toBeGreaterThanOrEqual(0.25);
     expect(propBounds.cookbooks.size[1]).toBeGreaterThanOrEqual(0.32);
     expect(info.vertices).toBeLessThanOrEqual(55000);
+    expect(info.vertices).toBeLessThanOrEqual(31989); // Old complete scene: 31,989 -> new scene must not add vertices.
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
+    expect(info.drawCallsLastFrame).toBeLessThanOrEqual(72); // Old complete desktop scene: 72 draw calls -> new must not increase.
     expect(info.meshes).toBeLessThanOrEqual(130);
+    expect(info.meshes).toBeLessThanOrEqual(98); // Old complete scene: 98 meshes -> new must not increase.
     expect(info.camera[0]).toBeCloseTo(0, 3);
     expect(info.camera[1]).toBeCloseTo(1.56, 3);
     expect(info.camera[2]).toBeCloseTo(1.58, 3);
     await rotateTo(page, 90);
     const visiblePropBounds = (await page.evaluate(() => window.__room03.info())).propBounds;
-    for (const key of ["tabletop-succulents", "cookbooks"]) {
+    for (const key of ["tabletop-meyer-lemon-bowl", "cookbooks"]) {
       const [x, y, z] = visiblePropBounds[key].projectedCenter;
       expect(x, `${key} center should be visible horizontally in the window-side view`).toBeGreaterThan(-0.94);
       expect(x, `${key} center should be visible horizontally in the window-side view`).toBeLessThan(0.94);
@@ -669,9 +682,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
     const inFrame = Object.values(visiblePropBounds).filter(({ projectedCenter: [x, y, z] }) => x > -0.94 && x < 0.94 && y > -0.94 && y < 0.94 && z < 1).length;
     expect(inFrame, "the window-side view should include at least three prop sets").toBeGreaterThanOrEqual(3);
-    const refinedKeys = ["tabletop-succulents", "cookbooks"];
+    const refinedKeys = ["tabletop-meyer-lemon-bowl", "cookbooks"];
     const refinedPropVertices = refinedKeys.reduce((sum, key) => sum + info.propGeometry[key].vertices, 0);
-    console.log("Room 03 prop geometry and render summary:", JSON.stringify({ base04cda76: { vertices: 16049, triangles: 13302, meshes: 84, drawCalls: 91 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame, refinedPropVertices }, newProps: info.categories["household-props"], propGeometry: info.propGeometry, plantLeafCount: info.plantLeafCount, cookbookCount: info.cookbookCount, propBounds, viewport: info.viewport, pixelRatio: info.pixelRatio, camera: info.camera }));
+    console.log("Room 03 prop geometry and render summary:", JSON.stringify({ base04cda76: { vertices: 16049, triangles: 13302, meshes: 84, drawCalls: 91 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame, refinedPropVertices }, newProps: info.categories["household-props"], propGeometry: info.propGeometry, centerpieceFit: info.centerpieceFit, plantLeafCount: info.plantLeafCount, cookbookCount: info.cookbookCount, propBounds, viewport: info.viewport, pixelRatio: info.pixelRatio, camera: info.camera }));
     expect(errors).toEqual([]);
 
     await shot(page, "props-desktop-golden-1440");
@@ -688,7 +701,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       await setReviewCamera(page, [2.94, 1.52, -0.02], [2.34, 1.52, -0.02], 42);
       await shot(page, "wall-art-closeup");
       await setReviewCamera(page, [0, 0.85, 0.65], [0.4, 1.2, 3.15], 48);
-      await shot(page, "props-succulents-closeup");
+      await shot(page, "props-meyer-lemon-bowl-closeup");
       await setReviewCamera(page, [0.8, 1.25, -0.1], [1.25, 1.65, 4.95], 50);
       await page.locator('#moods button[data-mood="night"]').click();
       await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");

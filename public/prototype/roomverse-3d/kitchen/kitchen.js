@@ -1103,15 +1103,15 @@ function measureRoomFootToBody(scene, tableStatus, diningGaps, loungeFit) {
     repairedInThisPr: true,
     note: "replaces the fiddle-leaf fig; the base sits on the floor",
   });
-  const succulents = scene.getObjectByName("prop-tabletop-succulents");
+  const centerpiece = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl");
   const tableBox = table ? new THREE.Box3().setFromObject(table) : null;
-  const succulentBox = succulents ? new THREE.Box3().setFromObject(succulents) : null;
+  const centerpieceBox = centerpiece ? new THREE.Box3().setFromObject(centerpiece) : null;
   rows.push({
-    item: "tabletop succulents",
+    item: "Meyer lemon bowl",
     support: tableStatus === "glb" ? "dining table GLB top" : "fallback table top",
-    gapMm: succulentBox && tableBox ? round((succulentBox.min.y - tableBox.max.y) * 1000) : null,
-    repairedInThisPr: false,
-    note: "planter bottom against the loaded table top",
+    gapMm: centerpieceBox && tableBox ? round((centerpieceBox.min.y - tableBox.max.y) * 1000) : null,
+    repairedInThisPr: true,
+    note: "bowl base rests on the loaded table top",
   });
   const redPot = scene.getObjectByName("single-terracotta-pot");
   const potBox = redPot ? new THREE.Box3().setFromObject(redPot) : null;
@@ -1507,43 +1507,98 @@ function buildHouseholdProps(scene, m) {
   const centerpieceSlot = new THREE.Group();
   centerpieceSlot.name = "mood-slot-tabletop-centerpiece";
   centerpieceSlot.userData.moodSlot = "tabletop-centerpiece";
-  const planterMaterial = m.porcelain.clone();
-  planterMaterial.color.setHex(0xe5e2d9);
-  planterMaterial.roughness = 0.9;
-  const rosetteLeafMaterial = m.leafGreen.clone();
-  rosetteLeafMaterial.color.setHex(0xffffff);
-  rosetteLeafMaterial.vertexColors = true;
-  rosetteLeafMaterial.name = "room03-rosette-leaves-vertex-color";
-  const tintGeometry = (geometry, colorHex) => {
+  const centerpieceMaterial = m.porcelain.clone();
+  centerpieceMaterial.color.setHex(0xffffff);
+  centerpieceMaterial.roughness = 0.88;
+  centerpieceMaterial.vertexColors = true;
+  centerpieceMaterial.name = "room03-lemon-bowl-vertex-color";
+  const centerpieceGeometries = [];
+  const lemonSupportSamples = [];
+  const addCenterpieceGeometry = (geometry, colorHex, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+    geometry.applyMatrix4(new THREE.Matrix4().compose(
+      new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(...scale),
+    ));
     const color = new THREE.Color(colorHex);
     const colors = new Float32Array(geometry.attributes.position.count * 3);
     for (let vertex = 0; vertex < geometry.attributes.position.count; vertex++) color.toArray(colors, vertex * 3);
     geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    centerpieceGeometries.push(geometry);
     return geometry;
   };
-  const succulents = buildPropGroup(scene, "tabletop-succulents", [0, 0.75, 0.76], ({ box, shape }) => {
-    box(planterMaterial, [0.56, 0.075, 0.19], [0, 0.039, 0]);
-    box(m.soil, [0.52, 0.012, 0.15], [0, 0.082, 0]);
-    const leafGeometry = new THREE.SphereGeometry(1, 8, 5);
-    [-0.18, 0, 0.18].forEach((centerX, index) => {
-      const leafCount = index === 1 ? 9 : 8;
-      for (let leaf = 0; leaf < leafCount; leaf++) {
-        const angle = 2 * Math.PI * leaf / leafCount + index * 0.22;
-        const radius = 0.034 + (leaf % 3) * 0.003;
-        shape(tintGeometry(leafGeometry.clone(), (leaf + index) % 2 ? 0x9aa581 : 0x728263), rosetteLeafMaterial,
-          [centerX + Math.cos(angle) * radius, 0.137 + (leaf % 2) * 0.003, Math.sin(angle) * radius],
-          [0.05 * Math.sin(angle), -angle, -0.32 * Math.cos(angle)], [0.043, 0.012, 0.024]);
-      }
-      shape(tintGeometry(new THREE.SphereGeometry(0.021, 8, 6), index % 2 ? 0x9aa581 : 0x728263), rosetteLeafMaterial, [centerX, 0.122, 0]);
-    });
-    leafGeometry.dispose();
+  // One thin-walled lathed bowl. Its broad, shallow inner floor leaves room for five fruit.
+  const bowlGeometry = new THREE.LatheGeometry([
+    [0, 0.001], [0.045, 0.001], [0.061, 0.003], [0.071, 0.010], [0.101, 0.030],
+    [0.121, 0.066], [0.130, 0.095], [0.125, 0.100], [0.116, 0.092], [0.098, 0.055],
+    [0.074, 0.024], [0.055, 0.018], [0, 0.018],
+  ].map(([radius, y]) => new THREE.Vector2(radius, y)), 16);
+  addCenterpieceGeometry(bowlGeometry, 0xb8a891);
+  const lemonPlacements = [
+    { x: -0.05, z: 0, support: "bowl" }, { x: 0, z: 0, support: "bowl" }, { x: 0.05, z: 0, support: "bowl" },
+    { x: -0.025, z: 0, support: "fruit" }, { x: 0.025, z: 0, support: "fruit" },
+  ];
+  const supportRaycaster = new THREE.Raycaster();
+  const supportDoubleSide = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+  const supportBowlMesh = new THREE.Mesh(bowlGeometry, supportDoubleSide);
+  const supportLemonMeshes = [];
+  for (let index = 0; index < lemonPlacements.length; index++) {
+    const placement = lemonPlacements[index];
+    let supportY = null;
+    if (placement.support === "bowl") {
+      supportRaycaster.set(new THREE.Vector3(placement.x, 0.2, placement.z), new THREE.Vector3(0, -1, 0));
+      supportY = supportRaycaster.intersectObject(supportBowlMesh, false)[0]?.point.y ?? null;
+    } else {
+      supportRaycaster.set(new THREE.Vector3(placement.x, 0.2, placement.z), new THREE.Vector3(0, -1, 0));
+      const hits = supportLemonMeshes.flatMap((supportMesh) => supportRaycaster.intersectObject(supportMesh, false));
+      supportY = hits.length ? Math.max(...hits.map(({ point }) => point.y)) : null;
+    }
+    if (supportY === null) throw new Error(`Could not measure support for Meyer lemon ${index + 1}`);
+    const lemonGeometry = new THREE.SphereGeometry(1, 10, 8);
+    const positions = lemonGeometry.attributes.position;
+    for (let vertex = 0; vertex < positions.count; vertex++) {
+      const x = positions.getX(vertex), taper = Math.abs(x);
+      positions.setXYZ(vertex, x * (1 + 0.13 * taper), positions.getY(vertex) * (1 - 0.10 * taper), positions.getZ(vertex) * (1 - 0.10 * taper));
+    }
+    positions.needsUpdate = true;
+    lemonGeometry.computeVertexNormals();
+    const lemonCenterY = supportY + 0.034 - 0.002;
+    const transformed = addCenterpieceGeometry(lemonGeometry, [0xd6a53b, 0xd2a13a, 0xd9aa42][index % 3],
+      [placement.x, lemonCenterY, placement.z], [0, index * 0.47, 0], [0.038, 0.034, 0.030]);
+    let minY = Infinity;
+    for (let vertex = 0; vertex < transformed.attributes.position.count; vertex++) minY = Math.min(minY, transformed.attributes.position.getY(vertex));
+    lemonSupportSamples.push({ name: `lemon-${index + 1}`, support: placement.support, bottomY: minY, supportY });
+    supportLemonMeshes.push(new THREE.Mesh(transformed, supportDoubleSide));
+  }
+  const leafGeometry = new THREE.SphereGeometry(1, 6, 4);
+  for (const [index, placement] of [[-0.017, 0.045], [0.018, 0.046]].entries()) {
+    addCenterpieceGeometry(leafGeometry.clone(), 0x687451, [placement[0], 0.084, placement[1]], [0.12, index ? -0.5 : 0.45, index ? 0.18 : -0.14], [0.020, 0.004, 0.009]);
+  }
+  leafGeometry.dispose();
+  const lemonBowlGeometry = mergeGeometries(centerpieceGeometries, false);
+  if (!lemonBowlGeometry) throw new Error("Could not merge Meyer lemon bowl geometry");
+  lemonBowlGeometry.computeVertexNormals();
+  centerpieceGeometries.forEach((geometry) => geometry.dispose());
+  const lemonBowl = new THREE.Group();
+  lemonBowl.name = "prop-tabletop-meyer-lemon-bowl";
+  lemonBowl.position.set(0, 0.75, 0.76);
+  lemonBowl.userData.category = "household-props";
+  lemonBowl.userData.propKey = "tabletop-meyer-lemon-bowl";
+  lemonBowl.userData.form = "lathed-stoneware-bowl-five-low-poly-meyer-lemons";
+  lemonBowl.userData.moodReplaceable = true;
+  const lemonBowlMesh = new THREE.Mesh(lemonBowlGeometry, centerpieceMaterial);
+  lemonBowlMesh.name = "prop-tabletop-meyer-lemon-bowl-part";
+  lemonBowlMesh.userData.category = "household-props";
+  lemonBowlMesh.userData.propKey = "tabletop-meyer-lemon-bowl";
+  lemonBowlMesh.castShadow = false;
+  lemonBowlMesh.receiveShadow = true;
+  lemonBowl.add(lemonBowlMesh);
+  const centerpieceFit = lemonSupportSamples.map((sample) => {
+    const gapMm = Math.round((sample.bottomY - sample.supportY) * 1000);
+    return { lemon: sample.name, support: sample.support, bottomY: Number((lemonBowl.position.y + sample.bottomY).toFixed(4)), supportY: Number((lemonBowl.position.y + sample.supportY).toFixed(4)), gapMm };
   });
-  succulents.scale.setScalar(1.3);
-  succulents.traverse((object) => { if (object.isMesh) object.castShadow = false; });
-  succulents.userData.form = "three-low-rosette-succulents";
-  succulents.userData.moodReplaceable = true;
-  succulents.removeFromParent();
-  centerpieceSlot.add(succulents);
+  supportDoubleSide.dispose();
+  bowlGeometry.dispose();
+  lemonBowl.userData.fit = centerpieceFit;
+  centerpieceSlot.add(lemonBowl);
   scene.add(centerpieceSlot);
 
   // Three upright cookbooks on the existing cabinet top; one leans gently against its neighbor.
@@ -2418,7 +2473,7 @@ export async function start({ stage, onReady = () => {} }) {
       scene.traverse((object) => { if (object.isMesh && object.userData.category === category) box.expandByObject(object); });
       return box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
-    const propKeys = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "tabletop-succulents", "cookbooks"];
+    const propKeys = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "tabletop-meyer-lemon-bowl", "cookbooks"];
     const propBounds = Object.fromEntries(propKeys.map((key) => {
       const object = scene.getObjectByName(`prop-${key}`);
       if (!object) return [key, null];
@@ -2668,7 +2723,8 @@ export async function start({ stage, onReady = () => {} }) {
       asset: screenMaterialNow.map?.name || null,
     };
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
-    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque,
