@@ -25,6 +25,12 @@
     .immersive-enter,.immersive-exit { display:none; }
     .toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin:12px clamp(12px,2vw,28px) 0; }
     .moods { display:flex; flex-wrap:wrap; gap:8px; }
+    @media (max-width:500px) {
+      .toolbar .moods button { flex:1 1 30%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .moods, .moods button, .mood-note { transition:none; scroll-behavior:auto; }
+    }
     .moods button,.immersive-enter,.immersive-exit { min-height:44px; padding:9px 14px; border:1px solid #a9a38f; border-radius:999px; background:var(--paper); color:var(--olive); font:700 14px system-ui,sans-serif; cursor:pointer; }
     .moods button[aria-pressed="true"] { background:var(--olive); border-color:var(--olive); color:#fff; }
     button:focus-visible { outline:3px solid #b57943; outline-offset:3px; }
@@ -47,9 +53,9 @@
     .room.is-immersive + .toolbar { display:none; }
     .room.is-immersive ~ .mood-note { display:none; }
     .room.is-immersive .immersive-controls { display:flex; position:absolute; z-index:4; right:0; bottom:0; left:0; padding:8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left)); background:linear-gradient(transparent,#171a14dc 28%); }
-    .room.is-immersive .moods { flex-wrap:nowrap; width:100%; overflow-x:auto; scrollbar-width:none; }
+    .room.is-immersive .moods { flex-wrap:nowrap; width:100%; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; }
     .room.is-immersive .moods::-webkit-scrollbar { display:none; }
-    .room.is-immersive .moods button { flex:0 0 auto; background:#faf8f2ee; white-space:nowrap; }
+    .room.is-immersive .moods button { flex:0 0 auto; background:#faf8f2ee; white-space:nowrap; scroll-snap-align:start; }
     .room.is-immersive .moods button[aria-pressed="true"] { background:#596043; color:#fff; }
     header .brand { margin-right:auto; }
     .exit-nav { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:8px 13px; border:1px solid #a9a38f; border-radius:999px; background:var(--paper); color:var(--olive); font:700 13px system-ui,sans-serif; text-decoration:none; cursor:pointer; }
@@ -83,6 +89,6 @@
     <p class="mood-note" id="why" aria-live="polite"></p>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=40"></script>
+  <script type="module" src="page.js?v=41"></script>
 </body>
 </html>
