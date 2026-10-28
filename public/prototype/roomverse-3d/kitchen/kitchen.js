@@ -1810,15 +1810,22 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     [[0.034, 0.035, 1.2], [0, 0.4525, 0]], [[0.034, 0.035, 1.2], [0, -0.4525, 0]],
     [[0.034, 0.87, 0.035], [0, 0, -0.5825]], [[0.034, 0.87, 0.035], [0, 0, 0.5825]],
     [[0.012, 0.87, 1.13], [0.011, 0, 0]],
-  ], [1.13, 0.87], [-0.015, 0, 0], [0, -Math.PI / 2, 0], { u0: 0, u1: 0.5, v0: 0, v1: 1, flip: false });
+  ], [1.13, 0.87], [-0.015, 0, 0], [0, -Math.PI / 2, 0], { u0: 0, u1: 1 / 3, v0: 0, v1: 1, flip: false });
   const redwoodPath = makeFrame("redwood-path", [0.86, 1.78, 3.70], [
     [[1.61, 0.03, 0.035], [0, 0.59, 0]], [[1.61, 0.03, 0.035], [0, -0.59, 0]],
     [[0.03, 1.21, 0.035], [-0.79, 0, 0]], [[0.03, 1.21, 0.035], [0.79, 0, 0]],
     [[1.55, 1.1625, 0.012], [0, 0, 0.012]],
-  ], [1.55, 1.1625], [0, 0, -0.02], [0, Math.PI, 0], { u0: 0.5, u1: 1, v0: 0.012987, v1: 0.987013, flip: true });
-  const assets = { cableCar, redwoodPath };
+  ], [1.55, 1.1625], [0, 0, -0.02], [0, Math.PI, 0], { u0: 1 / 3, u1: 2 / 3, v0: 0.012987, v1: 0.987013, flip: true });
+  // Third frame (Paul 2026-10-29: the room felt plain): a 4:3 painting on the entry wall above the window-side floor lamp. It hangs 18 mm off the
+  // wall face (z 2.34) and faces the room, like the redwood frame; it shares the atlas, so it adds no mesh and no draw call.
+  const lampWall = makeFrame("lamp-wall", [-1.93, 1.86, 2.321], [
+    [[0.86, 0.03, 0.035], [0, 0.315, 0]], [[0.86, 0.03, 0.035], [0, -0.315, 0]],
+    [[0.03, 0.65, 0.035], [-0.415, 0, 0]], [[0.03, 0.65, 0.035], [0.415, 0, 0]],
+    [[0.80, 0.60, 0.012], [0, 0, 0.012]],
+  ], [0.80, 0.60], [0, 0, -0.02], [0, Math.PI, 0], { u0: 2 / 3, u1: 1, v0: 0.012987, v1: 0.987013, flip: true });
+  const assets = { cableCar, redwoodPath, lampWall };
   const atlasCanvas = document.createElement("canvas");
-  atlasCanvas.width = 1600;
+  atlasCanvas.width = 2400;
   atlasCanvas.height = 616;
   const atlasContext = atlasCanvas.getContext("2d");
   atlasContext.fillStyle = "#d8cbb5";
@@ -1838,7 +1845,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
   let settled = 0;
   // Swappable prints for the two frames (Paul 2026-10-29). Each option is fetched only when chosen, painted into the same atlas
   // region as the original and then released, so vertices, meshes and draw calls never change and nothing extra loads up front.
-  const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path" };
+  const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "botanical-window" };
   const ART_OPTIONS = {
     "cable-car": {
       "cable-car": "./art/room03-bay-cable-car-v1.webp",
@@ -1853,14 +1860,19 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       "poster-arch": "./art/room03-print-poster-arch-v1.webp",
       "poster-leaf": "./art/room03-print-poster-leaf-v1.webp",
     },
+    "lamp-wall": {
+      "botanical-window": "./art/room03-lamp-wall-botanical-window-v1.webp",
+      "hills-sun": "./art/room03-lamp-wall-hills-sun-v1.webp",
+      "moon-hills": "./art/room03-lamp-wall-moon-hills-v1.webp",
+    },
   };
-  const frameAssetByKey = { "cable-car": cableCar, "redwood-path": redwoodPath };
+  const frameAssetByKey = { "cable-car": cableCar, "redwood-path": redwoodPath, "lamp-wall": lampWall };
   // Paint a picture into a frame's atlas region, cover-fitted (centre crop) to the region's aspect.
   const paintRegion = (asset, source) => {
     const x = asset.atlasRect.u0 * atlasCanvas.width;
     const width = (asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width;
-    const y = asset.key === "redwood-path" ? 8 : 0;
-    const height = asset.key === "redwood-path" ? 600 : atlasCanvas.height;
+    const y = asset.key !== "cable-car" ? 8 : 0;
+    const height = asset.key !== "cable-car" ? 600 : atlasCanvas.height;
     const sw0 = source.naturalWidth || source.width, sh0 = source.naturalHeight || source.height;
     const scale = Math.max(width / sw0, height / sh0);
     const sw = width / scale, sh = height / scale;
@@ -1915,6 +1927,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       const urls = {
         cableCar: new URL("./art/room03-bay-cable-car-v1.webp", import.meta.url).href,
         redwoodPath: new URL("./art/room03-bay-redwood-path-v1.webp", import.meta.url).href,
+        lampWall: new URL("./art/room03-lamp-wall-botanical-window-v1.webp", import.meta.url).href,
       };
       for (const [name, asset] of Object.entries(assets)) {
         loader.load(urls[name], (texture) => {
@@ -1923,8 +1936,8 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
           const source = texture.image;
           const x = asset.atlasRect.u0 * atlasCanvas.width;
           const width = (asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width;
-          const y = asset.key === "redwood-path" ? 8 : 0;
-          const height = asset.key === "redwood-path" ? 600 : atlasCanvas.height;
+          const y = asset.key !== "cable-car" ? 8 : 0;
+          const height = asset.key !== "cable-car" ? 600 : atlasCanvas.height;
           atlasContext.clearRect(x, 0, width, atlasCanvas.height);
           atlasContext.fillStyle = "#d8cbb5";
           atlasContext.fillRect(x, 0, width, atlasCanvas.height);
@@ -1940,12 +1953,12 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
           asset.status = "loaded";
           asset.image.userData.loadStatus = "loaded";
           settled += 1;
-          onSettled({ status: asset.status, startedAfterFirstRender, settled, total: 2 });
+          onSettled({ status: asset.status, startedAfterFirstRender, settled, total: 3 });
         }, undefined, () => {
           asset.status = "fallback";
           asset.image.userData.loadStatus = "fallback";
           settled += 1;
-          onSettled({ status: asset.status, startedAfterFirstRender, settled, total: 2 });
+          onSettled({ status: asset.status, startedAfterFirstRender, settled, total: 3 });
         });
       }
     },
@@ -3570,7 +3583,7 @@ export async function start({ stage, onReady = () => {} }) {
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
     const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
-    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path") }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
