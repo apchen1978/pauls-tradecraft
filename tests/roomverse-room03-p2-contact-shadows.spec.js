@@ -25,6 +25,10 @@ test("PR2: contact shadows are one merged mesh covering the listed furniture", a
   for (const covered of ["dining-table", "dining-chair-0.5-1.22", "dining-chair-0.5--0.22", "dining-chair--0.5-1.22", "dining-chair--0.5--0.22", "kitchen-island", "side-kitchen", "lounge-chair"]) {
     expect(info.contactShadow.coverage).toContain(covered);
   }
+  // The side strip now follows the 1.28 m base cabinet. The old door-frame strip was shorter than 0.9 m.
+  expect(info.contactShadow.sideRun.size[2]).toBeGreaterThan(1.05);
+  expect(info.contactShadow.sideRun.min[2]).toBeGreaterThan(0.9);
+  expect(info.contactShadow.sideRun.max[0]).toBeLessThan(2.7);
   // One decal layer just above the rug (0.021) and one just above the floor (0.003); nothing is buried inside the rug.
   expect(info.contactShadow.bounds.min[1]).toBeGreaterThan(0.0025);
   expect(info.contactShadow.bounds.max[1]).toBeLessThan(0.025);
