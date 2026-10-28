@@ -993,3 +993,50 @@ test("Room 03 keeps mood focus and localizes accessible names in both languages"
   await englishNight.click();
   await expect(englishNight).toBeFocused();
 });
+
+test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget", async ({ page }) => {
+  await loadRoom(page, 1440);
+  await page.waitForFunction(() => window.__room03.info().wokTile.status === "loaded");
+  const info = await page.evaluate(() => window.__room03.info());
+  // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
+  expect(info.vertices).toBe(30220);
+  expect(info.meshes).toBe(93);
+  expect(info.drawCallsLastFrame).toBe(69);
+  expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
+  expect(info.wokTile.colorSpace).toBe("srgb");
+  expect(info.wokTile.anisotropy).toBeGreaterThanOrEqual(8);
+  expect(info.wokTile.generateMipmaps).toBe(true);
+  expect(info.wokTile.mipmapped).toBe(true);
+  expect(info.wokTile.repeats).toBe(true);
+  expect(info.wokTile.image).toEqual([1024, 1024]);
+  expect(info.wokTile.metresPerRepeat).toBeCloseTo((1024 / 109) * 0.075, 3);
+  expect(info.wokTile.brickHeightM).toBeCloseTo(0.075, 3);
+  expect(info.wokTile.brickWidthM).toBeCloseTo(0.15, 3);
+  expect(info.wokTile.color).toBe(0xffffff);
+  const sampleBacksplash = async (mood) => page.evaluate((value) => {
+    window.__room03.setMood(value);
+    const { camera, controls, render } = window.__room03;
+    controls.minDistance = 0.2; controls.maxDistance = 8;
+    controls.minPolarAngle = 0.2; controls.maxPolarAngle = 2.2;
+    controls.target.set(2.62, 1.25, 1.75);
+    camera.fov = 48; camera.position.set(1.05, 1.38, 1.15); camera.updateProjectionMatrix();
+    controls.update(); render();
+    return window.__room03.samplePixels({ left: 0.62, top: 0.40, width: 0.1, height: 0.14 });
+  }, mood);
+  const goldenTile = await sampleBacksplash("golden");
+  const nightTile = await sampleBacksplash("night");
+  expect(goldenTile.blownRatio, "golden tile should not blow out").toBeLessThan(0.02);
+  expect(nightTile.blownRatio, "night tile should not blow out").toBeLessThan(0.02);
+  expect(goldenTile.red).toBeGreaterThan(goldenTile.blue);
+  expect(nightTile.red).toBeGreaterThan(nightTile.blue);
+
+  const failed = await page.context().browser().newPage({ viewport: { width: 1440, height: 1000 } });
+  await failed.route("**/tile-b-subway.webp", (route) => route.abort());
+  await failed.goto("/prototype/roomverse-3d/kitchen/?lang=zh");
+  await failed.waitForFunction(() => window.__room03?.info && window.__room03.info().drawCallsLastFrame > 0);
+  await failed.waitForFunction(() => window.__room03.info().wokTile.status === "failed");
+  const fallback = await failed.evaluate(() => window.__room03.info().wokTile);
+  expect(fallback.color).toBe(0xc9c0ae);
+  expect(fallback.image).toEqual([0, 0]);
+  await failed.close();
+});
