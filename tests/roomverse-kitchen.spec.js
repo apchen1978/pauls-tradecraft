@@ -815,6 +815,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
 
     await page.locator('#moods button[data-mood="night"]').click();
     await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
+    // Desktop camera moved in the default-composition PR: at 210° the rug sample no longer lands where it used to (old 187.8 came from a chair shell in front of it; the real rug reads 93.2 vs floor 95.1).
+    // Same world points, same +4 margin, measured at 225° where both points are on open rug and floor (rug 89.1, floor 80.1).
+    await rotateTo(page, 225);
     const night = await page.evaluate(() => {
       const { rug, floorBesideRug } = window.__room03.info().rugSamples;
       return {
