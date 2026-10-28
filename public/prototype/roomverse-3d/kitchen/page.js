@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=49";
+import { start, ROOM_TITLE } from "./kitchen.js?v=50";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -6,6 +6,7 @@ const COPY = {
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
+    center: "站在房間中間", orbit: "回到環繞視角", canvasLabel: "房間視角。中心模式可用方向鍵環顧。",
     moods: {
       golden: ["金色時光", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
       movie: ["追劇夜", "中央吊燈關掉，螢幕放冷色城市，落地燈與桌燈留著暖光。"],
@@ -21,6 +22,7 @@ const COPY = {
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
     otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
+    center: "Stand in the room", orbit: "Return to orbit", canvasLabel: "Room view. Use arrow keys to look around in center mode.",
     moods: {
       golden: ["Golden hour", "Low, warm afternoon light enters through the glass doors; the pendant stays soft."],
       movie: ["Movie night", "The pendant is off, the screen shows a cool city, and the floor and table lamps stay warm."],
@@ -36,6 +38,7 @@ let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "z
 let room = null;
 let mood = "golden";
 let immersive = false;
+let centerMode = false;
 
 function otherRoomsUrl() {
   const from = new URLSearchParams(location.search).get("from");
@@ -101,6 +104,9 @@ function renderCopy() {
   document.querySelector(".toolbar").setAttribute("aria-label", copy.settingsLabel);
   $("immersiveEnter").textContent = copy.full;
   $("immersiveExit").textContent = copy.exit;
+  $("centerView").textContent = centerMode ? copy.orbit : copy.center;
+  $("centerView").setAttribute("aria-pressed", String(centerMode));
+  document.querySelector('#stage canvas')?.setAttribute('aria-label', copy.canvasLabel);
   for (const id of ["headerOtherRooms", "immersiveOtherRooms"]) {
     const link = $(id);
     link.textContent = copy.otherRooms;
@@ -149,7 +155,7 @@ document.addEventListener("keydown", (event) => {
     return;
   }
   if (event.key !== "Tab" || !immersive) return;
-  const controls = [...document.querySelectorAll(".room button, .room a[href]")]
+  const controls = [...document.querySelectorAll('.room button, .room a[href], .room canvas[tabindex="0"]')]
     .filter((element) => element.getClientRects().length && !element.disabled);
   const first = controls[0], last = controls.at(-1);
   if (!first || !last) return;
@@ -158,6 +164,7 @@ document.addEventListener("keydown", (event) => {
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
 });
 $("immersiveEnter").addEventListener("click", () => setImmersive(true));
+$("centerView").addEventListener("click", () => { centerMode = !centerMode; room?.setCenterView(centerMode); renderCopy(); });
 $("immersiveExit").addEventListener("click", () => setImmersive(false));
 addEventListener("popstate", (event) => setImmersive(Boolean(event.state?.room03Immersive), false));
 addEventListener("keydown", (event) => {
@@ -181,6 +188,8 @@ start({ stage: $("stage"), onReady: (instance) => {
   window.__room03 = instance;
   $("status").hidden = true;
   $("immersiveEnter").hidden = false;
+  $("centerView").hidden = false;
+  renderCopy();
   void room.setMood(mood);
 } }).catch((error) => {
   console.error(error);

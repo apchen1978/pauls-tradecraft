@@ -2393,6 +2393,71 @@ export async function start({ stage, onReady = () => {} }) {
   controls.minAzimuthAngle = -Infinity; controls.maxAzimuthAngle = Infinity;
   controls.maxDistance = initialCamera.maxDistance;
   let compactCameraActive = compact;
+  const CENTER_STATION = [0, 1.55, -0.85];
+  let centerView = null, savedOrbit = null, centerPointer = null;
+  const canvas = renderer.domElement;
+  canvas.tabIndex = -1;
+  function renderCenterView() {
+    if (!centerView) return;
+    const { yaw, pitch } = centerView;
+    camera.position.set(...CENTER_STATION);
+    camera.lookAt(CENTER_STATION[0] + Math.sin(yaw) * Math.cos(pitch), CENTER_STATION[1] + Math.sin(pitch), CENTER_STATION[2] - Math.cos(yaw) * Math.cos(pitch));
+    camera.updateMatrixWorld();
+    render();
+  }
+  function setCenterView(on) {
+    if (on === Boolean(centerView)) return;
+    if (on) {
+      savedOrbit = { position: camera.position.clone(), target: controls.target.clone(), zoom: camera.zoom };
+      controls.enabled = false;
+      canvas.tabIndex = 0;
+      centerView = { yaw: -1.85, pitch: compactCameraActive ? -0.38 : -0.35 };
+      camera.fov = compactCameraActive ? 84 : 86;
+      camera.zoom = 1;
+      camera.updateProjectionMatrix();
+      renderCenterView();
+    } else {
+      centerView = null;
+      centerPointer = null;
+      canvas.tabIndex = -1;
+      camera.position.copy(savedOrbit.position);
+      controls.target.copy(savedOrbit.target);
+      camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov;
+      camera.zoom = savedOrbit.zoom;
+      camera.updateProjectionMatrix();
+      controls.enabled = true;
+      controls.update();
+      render();
+    }
+  }
+  function centerPointerDown(event) {
+    if (!centerView || !event.isPrimary || event.button !== 0) return;
+    centerPointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    canvas.setPointerCapture(event.pointerId);
+  }
+  function centerPointerMove(event) {
+    if (!centerView || !centerPointer || centerPointer.id !== event.pointerId) return;
+    const height = Math.max(1, canvas.clientHeight);
+    centerView.yaw -= (event.clientX - centerPointer.x) * 3 / height;
+    centerView.pitch = THREE.MathUtils.clamp(centerView.pitch + (event.clientY - centerPointer.y) * 2 / height, -0.5, 0.5);
+    centerPointer.x = event.clientX; centerPointer.y = event.clientY;
+    renderCenterView();
+  }
+  function centerPointerEnd(event) { if (centerPointer?.id === event.pointerId) centerPointer = null; }
+  function centerKey(event) {
+    if (!centerView || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === 'ArrowLeft') centerView.yaw -= 0.12;
+    if (event.key === 'ArrowRight') centerView.yaw += 0.12;
+    if (event.key === 'ArrowUp') centerView.pitch = THREE.MathUtils.clamp(centerView.pitch + 0.08, -0.5, 0.5);
+    if (event.key === 'ArrowDown') centerView.pitch = THREE.MathUtils.clamp(centerView.pitch - 0.08, -0.5, 0.5);
+    renderCenterView();
+  }
+  canvas.addEventListener('pointerdown', centerPointerDown);
+  canvas.addEventListener('pointermove', centerPointerMove);
+  canvas.addEventListener('pointerup', centerPointerEnd);
+  canvas.addEventListener('pointercancel', centerPointerEnd);
+  canvas.addEventListener('keydown', centerKey);
   const materials = makeMaterials();
   const buckets = new Map();
   let yardLoaded = false;
@@ -2803,13 +2868,15 @@ export async function start({ stage, onReady = () => {} }) {
     if (nextCompact !== compactCameraActive) {
       compactCameraActive = nextCompact;
       const preset = compactCameraActive ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
-      camera.position.set(...preset.position);
-      controls.target.set(...preset.target);
       controls.maxDistance = preset.maxDistance;
-      controls.update();
+      if (!centerView) {
+        camera.position.set(...preset.position);
+        controls.target.set(...preset.target);
+        controls.update();
+      }
     }
     camera.aspect = rect.width / rect.height;
-    camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov;
+    camera.fov = centerView ? (compactCameraActive ? 84 : 86) : (compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov);
     camera.updateProjectionMatrix();
     // P0b: the pendant shadow follows the same compact flag the camera uses, so a phone never pays for the point-light pass.
     pendantLight.castShadow = !compactCameraActive;
@@ -3285,7 +3352,8 @@ export async function start({ stage, onReady = () => {} }) {
     return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
-    setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque,
+    setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
+    centerViewInfo: () => centerView ? { station: [...CENTER_STATION], yaw: centerView.yaw, pitch: centerView.pitch } : null,
     setLang: () => {}, samplePixels, sampleNdc,
     setView: (azimuth = 0) => {
       const offset = camera.position.clone().sub(controls.target);
@@ -3295,6 +3363,11 @@ export async function start({ stage, onReady = () => {} }) {
       controls.update(); render();
     },
     dispose: () => {
+      canvas.removeEventListener('pointerdown', centerPointerDown);
+      canvas.removeEventListener('pointermove', centerPointerMove);
+      canvas.removeEventListener('pointerup', centerPointerEnd);
+      canvas.removeEventListener('pointercancel', centerPointerEnd);
+      canvas.removeEventListener('keydown', centerKey);
       resizeObserver.disconnect(); controls.dispose(); renderer.dispose();
       const disposedTextures = new Set();
       scene.traverse((object) => {

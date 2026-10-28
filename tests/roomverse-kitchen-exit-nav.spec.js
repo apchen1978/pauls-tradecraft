@@ -87,7 +87,12 @@ test("fullscreen Tab stays in the room after mood selection preserves focus", as
   await page.keyboard.press("Tab");
   await expect(page.locator("#immersiveOtherRooms")).toBeFocused();
   await page.keyboard.press("Tab");
+  // Previously the loop returned directly to Exit; center-view is now the first room control.
+  await expect(page.locator("#centerView")).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(page.locator("#immersiveExit")).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(page.locator("#centerView")).toBeFocused();
   await page.keyboard.press("Shift+Tab");
   await expect(page.locator("#immersiveOtherRooms")).toBeFocused();
 });
