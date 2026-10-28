@@ -48,6 +48,7 @@ function renderMoods() {
   const copy = COPY[lang];
   const group = $("moods");
   const focusedMood = document.activeElement?.dataset?.mood;
+  const previousScrollLeft = group.scrollLeft;
   group.setAttribute("aria-label", lang === "zh" ? "選擇感覺" : "Choose a mood");
   group.replaceChildren(...Object.entries(copy.moods).map(([key, [label]]) => {
     const button = document.createElement("button");
@@ -64,7 +65,27 @@ function renderMoods() {
     return button;
   }));
   $("why").textContent = copy.moods[mood][1];
-  if (focusedMood) group.querySelector('[data-mood="' + focusedMood + '"]')?.focus({ preventScroll: true });
+  group.scrollLeft = previousScrollLeft;
+  const selectedButton = group.querySelector('[data-mood="' + mood + '"]');
+  let moodToReveal = selectedButton;
+  if (focusedMood) {
+    const focusedButton = group.querySelector('[data-mood="' + focusedMood + '"]');
+    focusedButton?.focus({ preventScroll: true });
+    moodToReveal = focusedButton || selectedButton;
+  }
+  if (moodToReveal) {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (moodToReveal.isConnected && group.scrollWidth > group.clientWidth) {
+        const groupRect = group.getBoundingClientRect();
+        const buttonRect = moodToReveal.getBoundingClientRect();
+        const originalSnap = group.style.scrollSnapType;
+        group.style.scrollSnapType = "none";
+        if (buttonRect.left < groupRect.left) group.scrollLeft = 0;
+        else if (buttonRect.right > groupRect.right) group.scrollLeft = group.scrollWidth - group.clientWidth;
+        requestAnimationFrame(() => { group.style.scrollSnapType = originalSnap; });
+      }
+    }));
+  }
 }
 
 function renderCopy() {
