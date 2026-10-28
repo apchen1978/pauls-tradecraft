@@ -654,17 +654,64 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(householdArt.wallArtPixels.width).toBeGreaterThan(52);
     expect(householdArt.wallArtPixels.height).toBeGreaterThanOrEqual(130);
     console.log("Room 03 wall art placement:", JSON.stringify({ bounds: info.wallArtBounds, wokRunGap: info.wokZone.clearance.cableCar, hoodGap: boxesDistance(info.wallArtBounds, info.wallArtClearanceBounds.hood), desktopProjectionCssPx: info.wallArtPixels, desktopWidthTargetMet: info.wallArtPixels.width >= 90, material: info.wallArtMaterial, receivesShadow: info.wallArtReceivesShadow, camera: info.camera, vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }));
-    const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt"];
-    // Old: 8 prop groups, including the fig. The fig is gone, so 7 remain.
-    expect(Object.keys(propBounds)).toHaveLength(7);
+    const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "oak-utensil-crock", "glass-pantry-jar"];
+    // Old: 7 measured prop groups; new: crock, pantry jar and saucepan add 3, so 10 are measured.
+    expect(Object.keys(propBounds)).toHaveLength(10);
     for (const key of Object.keys(propBounds)) expect(propBounds[key], `${key} should be present`).not.toBeNull();
     for (const key of counterProps) {
       const difference = Math.abs(propBounds[key].min[1] - 0.955);
       expect(difference, `${key} should rest within 2 cm of the counter`).toBeLessThanOrEqual(0.02);
     }
+    expect(info.propGeometry["oak-utensil-crock"].meshes).toBe(1); // New: same oak material is merged across crock and three spoons.
+    expect(info.propGeometry["oak-utensil-crock"].vertices).toBeLessThanOrEqual(1000); // New: turned hollow crock and three formed spoon bowls stay low-poly.
+    expect(info.utensilCrockFit.crockDiameterMm).toBe(120);
+    expect(info.utensilCrockFit.crockHeightMm).toBe(148);
+    expect(info.utensilCrockFit.gapMm).toBeGreaterThanOrEqual(-1);
+    expect(info.utensilCrockFit.gapMm).toBeLessThanOrEqual(1);
+    expect(info.utensilCrockFit.embedMm).toBeGreaterThanOrEqual(1);
+    expect(info.utensilCrockFit.embedMm).toBeLessThanOrEqual(3);
+    expect(info.propGeometry["glass-pantry-jar"].meshes).toBe(2); // New: one opaque oak mesh and one sorted transparent glass shell.
+    expect(info.propGeometry["glass-pantry-jar"].vertices).toBeLessThanOrEqual(700); // New jar uses a turned shell, grain fill and fitted oak lid.
+    expect(info.pantryJarFit.bodyDiameterMm).toBe(120);
+    expect(info.pantryJarFit.totalHeightMm).toBeGreaterThanOrEqual(178);
+    expect(info.pantryJarFit.totalHeightMm).toBeLessThanOrEqual(182);
+    expect(info.pantryJarFit.gapMm).toBeGreaterThanOrEqual(-1);
+    expect(info.pantryJarFit.gapMm).toBeLessThanOrEqual(1);
+    expect(info.pantryJarFit.embedMm).toBeGreaterThanOrEqual(1);
+    expect(info.pantryJarFit.embedMm).toBeLessThanOrEqual(3);
+    expect(info.pantryJarFit.glass).toEqual({ depthWrite: false, renderOrder: 2 });
+    expect(boxesDistance(propBounds["glass-pantry-jar"], propBounds["electric-kettle"]) * 1000).toBeGreaterThanOrEqual(10);
+    expect(boxesDistance(propBounds["glass-pantry-jar"], propBounds["oak-utensil-crock"]) * 1000).toBeGreaterThanOrEqual(10);
+    expect(info.propGeometry["steel-saucepan"].meshes).toBe(2); // New pan shell/handle are batched into existing steel/black countertop meshes.
+    expect(info.propGeometry["steel-saucepan"].vertices).toBeLessThanOrEqual(500);
+    expect(info.saucepanFit.panDiameterMm).toBe(180);
+    expect(info.saucepanFit.bodyHeightMm).toBe(90); // Old rough estimate 89 -> measured 90 mm body profile; card dimensions remain 9 cm.
+    expect(info.saucepanFit.overallLengthMm).toBe(340); // Old estimate 355 -> measured 340 mm end-to-end, matching the task card's approximate handle-inclusive length.
+    expect(info.saucepanFit.gapMm).toBeGreaterThanOrEqual(-1);
+    expect(info.saucepanFit.gapMm).toBeLessThanOrEqual(1);
+    expect(info.saucepanFit.embedMm).toBeGreaterThanOrEqual(1);
+    expect(info.saucepanFit.embedMm).toBeLessThanOrEqual(3);
+    expect(Math.abs(info.saucepanFit.supportY - 0.9975)).toBeLessThanOrEqual(0.001); // Old shared countertop expectation -> actual cooktop surface; the saucepan rests on the rear burner, not the adjacent counter.
+    expect(info.saucepanFit.redPotClearanceMm).toBeGreaterThanOrEqual(10);
     expect(propBounds["drip-coffee-maker"].size[1]).toBeGreaterThanOrEqual(0.27);
     expect(propBounds["drip-coffee-maker"].size[1]).toBeLessThanOrEqual(0.35);
     expect(propBounds["electric-kettle"].size[0]).toBeLessThanOrEqual(0.3);
+    expect(info.propGeometry["electric-kettle"].vertices).toBe(1416); // Old 499 -> new 1,416 after smoother shoulder, metal collars, inset spout mouth and washered knob; exact measured count, within Paul's updated scene budget.
+    expect(info.electricKettleFit.gapMm).toBeGreaterThanOrEqual(-1);
+    expect(info.electricKettleFit.gapMm).toBeLessThanOrEqual(1);
+    expect(info.electricKettleFit.embedMm).toBeGreaterThanOrEqual(1);
+    expect(info.electricKettleFit.embedMm).toBeLessThanOrEqual(3);
+    expect(info.electricKettleFit.overallSizeMm[1]).toBeGreaterThanOrEqual(225);
+    expect(info.electricKettleFit.overallSizeMm[1]).toBeLessThanOrEqual(245);
+    for (const [key, fit] of [["drip-coffee-maker", info.dripCoffeeMakerFit], ["rice-cooker", info.riceCookerFit]]) {
+      expect(fit, `${key} support measurement`).not.toBeNull();
+      expect(fit.gapMm, `${key} support gap in mm`).toBeGreaterThanOrEqual(-1);
+      expect(fit.gapMm, `${key} support gap in mm`).toBeLessThanOrEqual(1);
+      expect(fit.embedMm, `${key} support embed in mm`).toBeGreaterThanOrEqual(1);
+      expect(fit.embedMm, `${key} support embed in mm`).toBeLessThanOrEqual(3);
+    }
+    expect(info.propGeometry["drip-coffee-maker"].meshes).toBe(4); // Old -> new: same four material batches; shaped carafe and nozzle details are baked into existing glass/black batches.
+    expect(info.propGeometry["rice-cooker"].meshes).toBe(4); // Old -> new: same four material batches; curved shell, lid seam and side handles add no mesh.
     expect(propBounds["cutting-board"].size[1]).toBeGreaterThan(propBounds["cutting-board"].size[2] * 4);
     expect(propBounds["tabletop-succulents"]).toBeUndefined(); // Old: three rosettes and a long trough; new: one Meyer lemon bowl.
     expect(propBounds["tabletop-meyer-lemon-bowl"].size[0]).toBeCloseTo(0.26, 2); // Old width 0.728 m -> bowl diameter 0.26 m.
@@ -698,7 +745,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(propBounds.cookbooks.size[0]).toBeGreaterThanOrEqual(0.25);
     expect(propBounds.cookbooks.size[1]).toBeGreaterThanOrEqual(0.32);
     expect(info.vertices).toBeLessThanOrEqual(55000);
-    expect(info.vertices).toBeLessThanOrEqual(31989); // Old complete scene: 31,989 -> new scene must not add vertices.
+    expect(info.vertices).toBeLessThanOrEqual(34877); // Old cap 33,677 -> 34,877: task-card baseline 30,877 + Paul's updated 4,000-vertex budget for this prop set.
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(72); // Old complete desktop scene: 72 draw calls -> new must not increase.
     expect(info.meshes).toBeLessThanOrEqual(130);
@@ -1003,11 +1050,10 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   await page.waitForFunction(() => window.__room03.info().wokTile.status === "loaded");
   const info = await page.evaluate(() => window.__room03.info());
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
-  // Lounge ottoman + foot decals: 30,220 -> 30,753 vertices, 93 -> 95 meshes; lamp-wall painting +124 vertices, no mesh -> 30,877.
-  expect(info.vertices).toBe(30877);
-  expect(info.meshes).toBe(95);
-  // Old 69 -> new 70: lemon bowl moved to the table centreline and now enters the default desktop frame (+1).
-  expect(info.drawCallsLastFrame).toBe(70);
+// Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and opening calls 70 -> 69.
+  expect(info.vertices).toBe(34057);
+  expect(info.meshes).toBe(94);
+  expect(info.drawCallsLastFrame).toBe(69);
   expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
   expect(info.wokTile.colorSpace).toBe("srgb");
   expect(info.wokTile.anisotropy).toBeGreaterThanOrEqual(8);
