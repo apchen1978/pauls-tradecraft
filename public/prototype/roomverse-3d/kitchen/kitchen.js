@@ -2508,7 +2508,8 @@ export async function start({ stage, onReady = () => {} }) {
       hemi: 0.70, hemiSky: 0xffe0bd, hemiGround: 0xc7a578,
       ambient: 0.18,
       pendant: 3.2, under: 1.6, side: 0,
-      exposure: 1.14, yard: 0xffc79a, globe: 0.55, sky: "golden",
+      // Dinner is dusk: the golden-hour yard photo is tinted blue-hour so the window no longer reads as afternoon (Paul 2026-10-28).
+      exposure: 1.14, yard: 0x6f7a96, globe: 0.55, sky: "golden",
       floor: 0xcdbb9e, jute: 0xd0b47f, ceilingEmissive: 0.22,
       warmGlow: 0.80, wokGlow: 0.25,
       windowWallBounce: 0.06, windowWallBounceVisible: true,
