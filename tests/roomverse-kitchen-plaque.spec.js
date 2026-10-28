@@ -59,10 +59,12 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   const desktopTurned = await page.evaluate(() => window.__room03.info());
   // Wok run A (stacked after the lemon bowl and red Dutch oven): door, frames and exterior backboard out; continuous counter, duct and returns in.
   // 30,696 → 30,220 (−476). Meshes 96 → 93. Opening draw calls stay 69.
-// Room 03 main after the lamp-wall painting: 30,877 vertices, 95 meshes. The countertop refinements add 3,180 vertices and vertex-color batching reduces meshes to 94: 34,057 vertices, 94 meshes. Opening calls 70 -> 69.
-  expect(desktop.vertices).toBe(34057);
-  expect(desktop.meshes).toBe(94);
-  expect(desktop.drawCallsLastFrame).toBe(69);
+// Room 03 main after the lamp-wall painting: 30,877 vertices, 95 meshes. The countertop refinements add 3,180 vertices and vertex-color batching reduces meshes to 94: 34,061 vertices, 94 meshes. Opening calls 70 -> 69.
+  expect(desktop.vertices).toBe(34061);
+  // Grasscloth wallpaper panel: +4 vertices and +1 mesh (34,057/94 -> 34,061/95).
+  expect(desktop.meshes).toBe(95);
+  // Grasscloth wall is in the default desktop frame: opening calls 69 -> 70 (the phone default frame does not see it, 71 unchanged).
+  expect(desktop.drawCallsLastFrame).toBe(70);
   const hiddenDesktop = await page.evaluate(() => {
     window.__room03.plaqueMesh.visible = false;
     window.__room03.render();
@@ -78,7 +80,8 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   await shot(page, "plaque-mobile-390-default");
   expect(mobileOpening.plaque.inView).toBe(false);
   // Old 72 -> new 71 after steel/black hardware batching; the plaque remains outside the mobile opening frustum.
-  expect(mobileOpening.drawCallsLastFrame).toBe(71);
+  // The grasscloth wall also reaches the phone's wide default frame: opening calls 71 -> 72.
+  expect(mobileOpening.drawCallsLastFrame).toBe(72);
   await page.evaluate(() => window.__room03.setView(Math.PI));
   const mobile = await page.evaluate(() => window.__room03.info());
   expect(mobile.plaque.inView).toBe(true);
