@@ -15,6 +15,9 @@ a { color: var(--gold); }
 
 .top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; background: rgba(13, 30, 27, .86); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 .brand { color: var(--bone); font-weight: 700; text-decoration: none; letter-spacing: -.01em; }
+.back-pill { margin-right: auto; margin-left: 8px; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1px solid var(--gold); border-radius: 999px; color: var(--gold); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.back-pill:hover { background: var(--gold); color: var(--deep); }
+@media (max-width: 520px) { .top .brand { display: none; } .back-pill { margin-left: 0; } }
 .lang { display: flex; gap: 6px; }
 .lang button { min-width: 44px; min-height: 36px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--body); font: inherit; font-size: 14px; cursor: pointer; }
 .lang button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--deep); font-weight: 700; }
