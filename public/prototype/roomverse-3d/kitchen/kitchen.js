@@ -5,6 +5,17 @@ import { GLTFLoader } from "../vendor/GLTFLoader.js";
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
+// Shared with Room 01 and Room 02: "Christ is the Head of this House", 5:2, about 76 × 30.4 cm.
+// The right pier of the entry front wall is the empty stretch beside the doorway. Its box is
+// centered at (2.05, 1.35, 2.4) with size (2.1, 2.7, 0.12), so the room-facing face is z = 2.34
+// and the pier covers x = 1.00 to 3.10. x = 1.72 keeps the board on that pier (x = 1.34 to 2.10),
+// 34 cm clear of the doorway band at x = 1, and clear of the wok door at x ≈ 2.9. The left pier is the
+// alternative; the fiddle-leaf fig stands in front of it, so the board would be hidden there.
+const HOUSE_PLAQUE = Object.freeze({
+  width: 0.76,
+  height: 0.304,
+  position: Object.freeze([1.72, 1.64, 2.325]),
+});
 const ROUNDING_SEGMENTS = 2;
 const COLORS = Object.freeze({
   cream: 0xf0e8da, oak: 0xbc8a53, beam: 0x8a5a2e, ceiling: 0xc48a4a, olive: 0x71805b,
@@ -1859,6 +1870,44 @@ function assemble(b, scene) {
   }
 }
 
+function addHousePlaque(scene, onChange) {
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xffffff, roughness: 0.7, transparent: true, alphaTest: 0.5, opacity: 0,
+  });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(HOUSE_PLAQUE.width, HOUSE_PLAQUE.height), material);
+  mesh.name = "house-plaque";
+  mesh.position.set(...HOUSE_PLAQUE.position);
+  mesh.rotation.y = Math.PI;
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
+  mesh.visible = false;
+  mesh.userData.plaqueStatus = "pending";
+  scene.add(mesh);
+  new THREE.TextureLoader().load(new URL("../art/wall-plaque-text-v1.webp", import.meta.url).href, (texture) => {
+    const image = texture.image;
+    if (!image || !(image.naturalWidth || image.width)) {
+      mesh.userData.plaqueStatus = "failed";
+      onChange();
+      return;
+    }
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 8;
+    material.map = texture;
+    material.opacity = 1;
+    material.needsUpdate = true;
+    mesh.visible = true;
+    mesh.userData.plaqueStatus = "loaded";
+    onChange();
+  }, undefined, () => {
+    material.map = null;
+    material.opacity = 0;
+    mesh.visible = false;
+    mesh.userData.plaqueStatus = "failed";
+    onChange();
+  });
+  return mesh;
+}
+
 export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true) };
@@ -2103,6 +2152,7 @@ export async function start({ stage, onReady = () => {} }) {
       }));
     }
   }
+  const housePlaque = addHousePlaque(scene, () => render());
   controls.addEventListener("change", render);
   const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(stage);
   resize(); controls.update(); setMood("golden");
@@ -2342,11 +2392,85 @@ export async function start({ stage, onReady = () => {} }) {
         childName: moodSlots.tabletopCenterpiece.children[0]?.name || null,
       },
     };
+    const plaqueMaterial = housePlaque.material;
+    const plaqueMap = plaqueMaterial.map;
+    housePlaque.updateWorldMatrix(true, true);
+    const plaqueWidth = housePlaque.geometry.parameters.width;
+    const plaqueHeight = housePlaque.geometry.parameters.height;
+    const plaqueCorners = [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sy]) => {
+      const world = new THREE.Vector3(sx * plaqueWidth / 2, sy * plaqueHeight / 2, 0).applyMatrix4(housePlaque.matrixWorld);
+      const ndc = world.clone().project(camera);
+      return {
+        world,
+        ndc: [ndc.x, ndc.y, ndc.z],
+        inside: ndc.z > -1 && ndc.z < 1 && Math.abs(ndc.x) < 0.98 && Math.abs(ndc.y) < 0.98,
+      };
+    });
+    const plaqueBox = new THREE.Box3().setFromObject(housePlaque);
+    const plaqueBounds = { min: plaqueBox.min.toArray(), max: plaqueBox.max.toArray(), size: plaqueBox.getSize(new THREE.Vector3()).toArray() };
+    const entryHallBounds = boxFor("entry-hall");
+    const bandBounds = { min: [-1, 2.1, 2.34], max: [1, 2.7, 2.46] };
+    // The wok door's nearer jamb. Built at (2.9, 1.05, 2.075), size (0.08, 2.1, 0.045).
+    const wokDoorBounds = { min: [2.86, 0, 1.2025], max: [2.94, 2.1, 2.0975] };
+    const frameCenters = {
+      cableCar: boxFor("prop-room03-wall-art"),
+      redwood: boxFor("prop-room03-wall-art-redwood-path"),
+      screen: boxFor("room03-tv-screen-frame"),
+    };
+    const midY = (bounds) => bounds ? (bounds.min[1] + bounds.max[1]) / 2 : null;
+    const plaqueCenterY = midY(plaqueBounds);
+    const raycaster = new THREE.Raycaster();
+    const occluders = plaqueCorners.map((corner) => {
+      if (corner.ndc[2] >= 1) return "behind-camera";
+      const direction = corner.world.clone().sub(camera.position);
+      const distance = direction.length();
+      raycaster.set(camera.position, direction.normalize());
+      const blocker = raycaster.intersectObjects(scene.children, true).find((hit) => hit.object.visible && hit.object !== housePlaque && hit.distance < distance - 0.01);
+      return blocker?.object.name || null;
+    });
+    const plaque = {
+      name: housePlaque.name,
+      status: housePlaque.userData.plaqueStatus,
+      visible: housePlaque.visible,
+      width: plaqueWidth,
+      height: plaqueHeight,
+      position: housePlaque.position.toArray(),
+      wallGap: entryHallBounds ? entryHallBounds.min[2] - plaqueBounds.max[2] : null,
+      vertices: housePlaque.geometry.attributes.position.count,
+      bounds: plaqueBounds,
+      inView: housePlaque.visible && plaqueCorners.every((corner) => corner.inside),
+      corners: plaqueCorners.map((corner) => corner.ndc),
+      unobstructed: occluders.every((name) => name == null),
+      occluders,
+      belowBand: plaqueBounds.max[1] <= bandBounds.min[1],
+      clearance: {
+        band: boxGap(plaqueBounds, bandBounds),
+        cableCar: frameCenters.cableCar ? boxGap(plaqueBounds, frameCenters.cableCar) : null,
+        redwood: frameCenters.redwood ? boxGap(plaqueBounds, frameCenters.redwood) : null,
+        screen: frameCenters.screen ? boxGap(plaqueBounds, frameCenters.screen) : null,
+        pendant: boxFor("room03-pendant-glb") ? boxGap(plaqueBounds, boxFor("room03-pendant-glb")) : null,
+        wokDoor: boxGap(plaqueBounds, wokDoorBounds),
+      },
+      frameCenterDeltaY: {
+        cableCar: frameCenters.cableCar ? Math.abs(plaqueCenterY - midY(frameCenters.cableCar)) : null,
+        redwood: frameCenters.redwood ? Math.abs(plaqueCenterY - midY(frameCenters.redwood)) : null,
+        screen: frameCenters.screen ? Math.abs(plaqueCenterY - midY(frameCenters.screen)) : null,
+      },
+      material: {
+        type: plaqueMaterial.type,
+        transparent: plaqueMaterial.transparent,
+        alphaTest: plaqueMaterial.alphaTest,
+        roughness: plaqueMaterial.roughness,
+        colorSpace: plaqueMap?.colorSpace || null,
+        anisotropy: plaqueMap?.anisotropy ?? null,
+        hasMap: Boolean(plaqueMap),
+      },
+    };
     const footToBody = measureRoomFootToBody(scene, furniture.status.table, diningChairSeatGap(), loungeFit);
-    return { lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
+    return { plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
   };
   const instance = {
-    setMood, resize, render, camera, controls, info, moodSlots,
+    setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque,
     setLang: () => {}, samplePixels, sampleNdc,
     setView: (azimuth = 0) => {
       const offset = camera.position.clone().sub(controls.target);
