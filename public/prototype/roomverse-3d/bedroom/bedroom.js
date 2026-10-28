@@ -3,7 +3,6 @@
 // Everything is drawn by code.
 // Units are metres. North is the window wall (z = -ROOM.d / 2); the door is on the south wall.
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
-import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 import { loadModel, loadGlb } from "./models.js?v=5";
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
@@ -888,114 +887,6 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const lampBase = part(new THREE.LatheGeometry([[0, 0], [.055, 0], [.062, .02], [.05, .06], [.032, .1], [.022, .14], [.02, .17], [.03, .2], [.034, .215], [0, .215]].map(([x, y]) => new THREE.Vector2(x, y)), 24), walnut, "lamp-base", tx, .5, tz);
   part(new THREE.CylinderGeometry(.012, .012, .1, 8), metalMat, "lamp-stem", tx, .73, tz);
   part(new THREE.CylinderGeometry(.075, .14, .17, 28, 1, true), new THREE.MeshStandardMaterial({ color: "#f4e6c8", emissive: "#e9b86a", emissiveIntensity: .35, roughness: .9, side: THREE.DoubleSide }), "lamp-shade", tx, .785, tz);
-  // Pocket set for the bedside. The lamp, phone and mug already fill the middle; the two-book stack (Paul 2026-10-24) is the visible front-left,
-  // so the glasses case sits on the upper book and the pouch, coiled cable and charge puck sit on the open right-hand wood, where a turn toward
-  // the bed shows them. No text, no brands. Two meshes. The puck changes its emissive read with the mood; it is not a new light.
-  const BEDSIDE_POCKET_EMBED = 0.002, BEDSIDE_POCKET_CASE_EMBED = 0.0015;
-  const BEDSIDE_POCKET_GLOW = { focus: 0.02, weekend: 1.8, golden: 0.85, night: 2.4, sunday: 0.02, series: 2.0 };
-  const pocketGlowMat = new THREE.MeshStandardMaterial({ color: "#6e5840", emissive: "#ffb15a", emissiveIntensity: BEDSIDE_POCKET_GLOW.focus, roughness: .4 });
-  const bedsidePocket = (() => {
-    scene.updateMatrixWorld(true);
-    const top = root.getObjectByName("bedside-top");
-    const ray = new THREE.Raycaster();
-    const yawOf = (lx, lz, yaw) => { const c = Math.cos(yaw), s = Math.sin(yaw); return [lx * c + lz * s, -lx * s + lz * c]; };
-    const supportY = (x, z) => {
-      ray.set(new THREE.Vector3(x, .9, z), new THREE.Vector3(0, -1, 0));
-      const hit = ray.intersectObject(top, false)[0];
-      if (!hit) throw new Error(`bedside pocket missed the nightstand at ${x.toFixed(3)}, ${z.toFixed(3)}`);
-      return hit.point.y;
-    };
-    const paint = (geo, hex) => {
-      const color = new THREE.Color(hex), arr = new Float32Array(geo.attributes.position.count * 3);
-      for (let i = 0; i < geo.attributes.position.count; i++) color.toArray(arr, i * 3);
-      geo.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3));
-      return geo;
-    };
-    const fit = [], boxes = {}, solids = [];
-    const seat = (geo, { name, support, x, z, yaw = 0, halfY, footprint, bottomY }) => {
-      const ys = footprint.map(([lx, lz]) => { const [dx, dz] = yawOf(lx, lz, yaw); return supportY(x + dx, z + dz); });
-      const bottom = bottomY ?? ys[0] - BEDSIDE_POCKET_EMBED;
-      const gaps = ys.map((y) => (bottom - y) * 1000);
-      fit.push({ name, support, gapMm: +((bottom - ys[0]) * 1000).toFixed(2), minGapMm: +Math.min(...gaps).toFixed(2), maxGapMm: +Math.max(...gaps).toFixed(2) });
-      geo.rotateY(yaw);
-      geo.translate(x, bottom + halfY, z);
-      geo.computeBoundingBox();
-      boxes[name] = geo.boundingBox.clone();
-      return geo;
-    };
-    const books = [];
-    root.traverse((o) => { if (o.isMesh && o.name === "bedside-book") books.push(o); });
-    const upperBook = books.sort((a, b) => b.position.y - a.position.y)[0];
-    if (!upperBook) throw new Error("bedside pocket could not find the upper book");
-    const bookY = (x, z) => {
-      ray.set(new THREE.Vector3(x, .9, z), new THREE.Vector3(0, -1, 0));
-      const hit = ray.intersectObject(upperBook, false)[0];
-      if (!hit) throw new Error(`glasses case missed the upper book at ${x.toFixed(3)}, ${z.toFixed(3)}`);
-      return hit.point.y;
-    };
-    const caseSize = [.036, .018, .1], caseYaw = upperBook.rotation.y, caseHalfY = caseSize[1] / 2;
-    const caseX = upperBook.position.x - .01, caseZ = upperBook.position.z + .028;
-    const caseFoot = [[0, 0], [caseSize[0] / 2, caseSize[2] / 2], [caseSize[0] / 2, -caseSize[2] / 2], [-caseSize[0] / 2, caseSize[2] / 2], [-caseSize[0] / 2, -caseSize[2] / 2]];
-    const seamH = .003, claspH = .006;
-    const caseGeo = paint(new THREE.BoxGeometry(...caseSize), "#6d7a62");
-    const caseYs = caseFoot.map(([lx, lz]) => { const [dx, dz] = yawOf(lx, lz, caseYaw); return bookY(caseX + dx, caseZ + dz); });
-    const caseBottomY = caseYs[0] - BEDSIDE_POCKET_EMBED;
-    const caseCenterYLive = caseBottomY + caseHalfY;
-    caseGeo.rotateY(caseYaw);
-    caseGeo.translate(caseX, caseCenterYLive, caseZ);
-    caseGeo.computeBoundingBox();
-    boxes["glasses-case"] = caseGeo.boundingBox.clone();
-    const caseGaps = caseYs.map((y) => (caseBottomY - y) * 1000);
-    fit.push({ name: "glasses-case", support: "bedside-book", gapMm: +((caseBottomY - caseYs[0]) * 1000).toFixed(2), minGapMm: +Math.min(...caseGaps).toFixed(2), maxGapMm: +Math.max(...caseGaps).toFixed(2) });
-    solids.push(caseGeo);
-    const lid = (geo, name, hex, height, ly, local) => {
-      geo.translate(local[0], ly, local[1]);
-      geo.rotateY(caseYaw);
-      geo.translate(caseX, caseCenterYLive, caseZ);
-      geo.computeBoundingBox();
-      const bottom = caseCenterYLive + ly - height / 2, supportTop = caseCenterYLive + caseHalfY;
-      fit.push({ name, support: "glasses-case", gapMm: +((bottom - supportTop) * 1000).toFixed(2), minGapMm: +((bottom - supportTop) * 1000).toFixed(2), maxGapMm: +((bottom - supportTop) * 1000).toFixed(2) });
-      boxes[name] = geo.boundingBox.clone();
-      solids.push(paint(geo, hex));
-    };
-    lid(new THREE.BoxGeometry(.0045, seamH, .09), "glasses-seam", "#3c4338", seamH, caseHalfY - BEDSIDE_POCKET_CASE_EMBED + seamH / 2, [0, 0]);
-    lid(new THREE.BoxGeometry(.012, claspH, .014), "glasses-clasp", "#b08a5a", claspH, caseHalfY - BEDSIDE_POCKET_CASE_EMBED + claspH / 2, [0, .032]);
-    const pouchSize = [.044, .016, .028], pouchYaw = .35, pouchX = tx + .16, pouchZ = tz + .185;
-    const pouchFoot = [[0, 0], [pouchSize[0] / 2, pouchSize[2] / 2], [pouchSize[0] / 2, -pouchSize[2] / 2], [-pouchSize[0] / 2, pouchSize[2] / 2], [-pouchSize[0] / 2, -pouchSize[2] / 2]];
-    solids.push(paint(seat(new THREE.BoxGeometry(...pouchSize), { name: "soft-pouch", support: "bedside-top", x: pouchX, z: pouchZ, yaw: pouchYaw, halfY: pouchSize[1] / 2, footprint: pouchFoot }), "#c4a27a"));
-    const coilR = .016, coilTube = .0032, coilX = tx + .175, coilZ = tz + .02;
-    const coilFoot = [[0, 0]];
-    for (let i = 0; i < 8; i++) coilFoot.push([(coilR + coilTube) * Math.cos(i * Math.PI / 4), (coilR + coilTube) * Math.sin(i * Math.PI / 4)]);
-    const coilGeo = paint(new THREE.TorusGeometry(coilR, coilTube, 6, 14), "#2c2e32");
-    coilGeo.rotateX(Math.PI / 2);
-    solids.push(seat(coilGeo, { name: "cable-coil", support: "bedside-top", x: coilX, z: coilZ, halfY: coilTube, footprint: coilFoot }));
-    const puckR = .011, puckH = .008, puckX = tx + .188, puckZ = tz + .048;
-    const puckFoot = [[0, 0]];
-    for (let i = 0; i < 8; i++) puckFoot.push([puckR * Math.cos(i * Math.PI / 4), puckR * Math.sin(i * Math.PI / 4)]);
-    const leadYaw = Math.atan2(-(puckZ - coilZ), puckX - coilX);
-    const leadLen = .034, leadH = .004;
-    solids.push(paint(seat(new THREE.BoxGeometry(leadLen, leadH, .005), { name: "cable-lead", support: "bedside-top", x: (coilX + puckX) / 2, z: (coilZ + puckZ) / 2, yaw: leadYaw, halfY: leadH / 2, footprint: [[0, 0], [leadLen / 2, .0025], [leadLen / 2, -.0025], [-leadLen / 2, .0025], [-leadLen / 2, -.0025]] }), "#2c2e32"));
-    const puckGeo = new THREE.CylinderGeometry(puckR, puckR, puckH, 8);
-    seat(puckGeo, { name: "charge-puck", support: "bedside-top", x: puckX, z: puckZ, halfY: puckH / 2, footprint: puckFoot });
-    const merged = mergeGeometries(solids, false);
-    if (!merged) throw new Error("bedside pocket geometries could not be merged");
-    solids.forEach((geo) => geo.dispose());
-    const group = new THREE.Group(); group.name = "bedside-pocket"; root.add(group);
-    const set = new THREE.Mesh(merged, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .72 }));
-    set.name = "bedside-pocket-set"; set.castShadow = false; set.receiveShadow = true; group.add(set);
-    const puck = new THREE.Mesh(puckGeo, pocketGlowMat);
-    puck.name = "bedside-pocket-puck"; puck.castShadow = false; puck.receiveShadow = true; group.add(puck);
-    const names = ["glasses-case", "soft-pouch", "cable-coil", "charge-puck"];
-    return {
-      names, meshes: 2, meshNames: [set.name, puck.name], vertices: merged.attributes.position.count + puckGeo.attributes.position.count, fit, boxes,
-      pieces: {
-        "glasses-case": { w: caseSize[0], h: caseSize[1], d: caseSize[2] },
-        "soft-pouch": { w: pouchSize[0], h: pouchSize[1], d: pouchSize[2] },
-        "cable-coil": { outer: (coilR + coilTube) * 2, tube: coilTube * 2 },
-        "charge-puck": { d: puckR * 2, h: puckH },
-      },
-    };
-  })();
 
   // ---------- work / game zone: desk along the west wall, ultrawide monitor, console, gaming chair ----------
   // Real sizes: desk 140 x 65 cm, top at 75 cm; 34-inch ultrawide panel 80 x 34 cm; chair seat at 48 cm. Built facing +z and turned so the
@@ -1668,7 +1559,6 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     sun.intensity = m.sun[0]; sun.color.set(m.sun[1]); sun.position.y = m.sun[2]; // a lower sun in the early morning reaches further in
     fill.intensity = m.fill[0]; fill.color.set(m.fill[1]);
     bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; for (const sp of roomSpots) sp.intensity = m.deskSpot * .7; lensMat.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
-    pocketGlowMat.emissiveIntensity = BEDSIDE_POCKET_GLOW[name] ?? 0;
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
     ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow; applyLed();
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
@@ -1819,21 +1709,6 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       ceilingLamp: { color: "#" + ceilingLight.material.color.getHexString(), emissiveIntensity: ceilingLight.material.emissiveIntensity, glowOpacity: ceil.glow?.material.opacity ?? null },
       fillIntensity: fill.intensity,
       plaque: (() => { const b = new THREE.Box3().setFromObject(plaque); return { min: b.min.toArray(), max: b.max.toArray(), loaded: !!plaqueTex.image }; })(),
-      bedsidePocket: (() => {
-        const gap = (a, b) => {
-          const dx = Math.max(a.min.x - b.max.x, b.min.x - a.max.x), dy = Math.max(a.min.y - b.max.y, b.min.y - a.max.y), dz = Math.max(a.min.z - b.max.z, b.min.z - a.max.z);
-          if (dx < 0 && dy < 0 && dz < 0) return Math.max(dx, dy, dz);
-          return Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0));
-        };
-        const watch = ["bedside-book", "bedside-phone", "lamp-base", "lamp-shade"];
-        const obstacles = [];
-        root.traverse((o) => { if (o.isMesh && watch.includes(o.name)) obstacles.push([o.name, new THREE.Box3().setFromObject(o)]); });
-        const mug = root.getObjectByName("bedside-mug");
-        if (mug) obstacles.push(["bedside-mug", new THREE.Box3().setFromObject(mug)]);
-        const clearance = [];
-        for (const [piece, box] of Object.entries(bedsidePocket.boxes)) for (const [obstacle, bounds] of obstacles) clearance.push({ piece, obstacle, gapMm: +(gap(box, bounds) * 1000).toFixed(1) });
-        return { names: bedsidePocket.names, meshes: bedsidePocket.meshes, meshNames: bedsidePocket.meshNames, vertices: bedsidePocket.vertices, pieces: bedsidePocket.pieces, fit: bedsidePocket.fit, glow: pocketGlowMat.emissiveIntensity, mugLoaded: !!root.getObjectByName("bedside-mug"), clearance };
-      })(),
       plaqueInView: (() => { const b = new THREE.Box3().setFromObject(plaque); camera.updateMatrixWorld(); return [[b.min.x, b.min.y], [b.max.x, b.min.y], [b.min.x, b.max.y], [b.max.x, b.max.y]].every(([x, y]) => { const v = new THREE.Vector3(x, y, b.max.z).project(camera); return Math.abs(v.x) < .98 && Math.abs(v.y) < .98 && v.z < 1; }); })(),
       painted: { ...painted },
       mood, blind: +((wTop - blindBar.position.y).toFixed(3)),

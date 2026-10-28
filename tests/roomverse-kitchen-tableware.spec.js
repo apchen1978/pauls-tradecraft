@@ -9,7 +9,8 @@ const MOODS = ["golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
 const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
 // Measured from main 7f42bd2 (after lemon bowl, wok run A, tile B; Codex first measured 30696/96 on db23c06); non-tableware moods must retain these exact scene totals.
 const BASELINE_BY_WIDTH_AND_MOOD = {
-  1440: { golden: [30220, 93, 69], movie: [30220, 93, 67], night: [30220, 93, 69], dinner: [30220, 93, 71], sunday: [30220, 93, 69], thanksgiving: [30220, 93, 71] },
+  // Desktop draw calls +1 in every mood versus the first v2 baseline (69/67/69/71/69/71): the lemon bowl moved from z 0.76 to the table centre 0.5 and now enters the default desktop frame. Phone views are unchanged.
+  1440: { golden: [30220, 93, 70], movie: [30220, 93, 68], night: [30220, 93, 70], dinner: [30220, 93, 72], sunday: [30220, 93, 70], thanksgiving: [30220, 93, 72] },
   390: { golden: [30220, 93, 72], movie: [30220, 93, 70], night: [30220, 93, 72], dinner: [30220, 93, 74], sunday: [30220, 93, 72], thanksgiving: [30220, 93, 74] },
 };
 
@@ -44,11 +45,13 @@ test("tableware mood flag is complete and only dinner and Thanksgiving attach it
         expect(info.meshes, `${mood} meshes remain at main`).toBe(baselineMeshes);
         expect(info.drawCallsLastFrame, `${mood} draw calls remain at main`).toBe(baselineCalls);
       } else {
-        expect(info.tableware.vertices).toBeLessThanOrEqual(7000);
+        // v2 (linen runner, napkins, accent plates, pitcher, bread board): ceiling raised 7,000 -> 9,000 vertices per the v2 task card; measured 8,488.
+        expect(info.tableware.vertices).toBeLessThanOrEqual(9000);
         expect(info.vertices - baselineVertices).toBe(info.tableware.vertices);
         expect(info.meshes - baselineMeshes).toBe(info.tableware.meshes);
         expect(info.drawCallsLastFrame - baselineCalls).toBeLessThanOrEqual(8);
-        expect(info.tableware.meshes).toBeLessThanOrEqual(4);
+        // Old: ceramic, glass, liquid, metal (4). New: plus one linen mesh (5); everything else is merged into those.
+        expect(info.tableware.meshes).toBeLessThanOrEqual(5);
       }
       reports.push({ mood, vertices: info.vertices, meshes: info.meshes, calls: info.drawCallsLastFrame, tableware: info.tableware?.vertices ?? null });
       if (QA && (mood === "dinner" || mood === "thanksgiving")) {
@@ -76,6 +79,9 @@ test("four place settings fit the loaded table and glass has a stable transparen
     expect(Math.abs(place.waterTableGapMm), `${place.chair} water glass to table`).toBeLessThanOrEqual(1);
     expect(place.edgeClearanceMm, `${place.chair} clearance from tabletop edges`).toBeGreaterThanOrEqual(60);
     expect(place.lemonClearanceMm, `${place.chair} clears the Meyer lemon bowl`).toBeGreaterThan(0);
+    expect(Math.abs(place.accentPlateGapMm), `${place.chair} accent plate to dinner plate`).toBeLessThanOrEqual(1);
+    expect(Math.abs(place.napkinTableGapMm), `${place.chair} napkin to table`).toBeLessThanOrEqual(1);
+    expect(Math.abs(place.forkNapkinGapMm), `${place.chair} fork rests on the napkin`).toBeLessThanOrEqual(1);
     expect(place.plateDiameterMm).toBeCloseTo(270, 0);
     expect(place.bowlDiameterMm).toBeCloseTo(160, 0);
     expect(place.bowlHeightMm).toBeCloseTo(70, 0);
@@ -83,4 +89,21 @@ test("four place settings fit the loaded table and glass has a stable transparen
   expect(info.tableware.materials.glass).toMatchObject({ transparent: true, depthWrite: false, renderOrder: 2 });
   expect(info.tableware.materials.liquid).toMatchObject({ transparent: true, depthWrite: false, renderOrder: 1 });
   expect(info.tableware.colors.wine).toBe("#5c1823");
+  // Table centre: linen runner, pitcher, bread board and bread, all measured to the millimetre.
+  const extras = info.tableware.extras;
+  expect(extras.runner.gapMm, "runner lies on the tabletop").toBeLessThanOrEqual(1);
+  expect(extras.runner.minSettingClearanceMm, "runner clears plates and glasses in plan view").toBeGreaterThanOrEqual(0);
+  expect(extras.pitcher.gapMm, "pitcher base on the runner").toBeLessThanOrEqual(1);
+  expect(extras.pitcher.minSettingClearanceMm, "pitcher clears plates and glasses").toBeGreaterThanOrEqual(40);
+  expect(extras.pitcher.boardClearanceMm, "pitcher clears the bread board").toBeGreaterThanOrEqual(20);
+  expect(extras.pitcher.lemonClearanceMm).toBeGreaterThanOrEqual(100);
+  expect(extras.board.gapMm, "bread board on the runner").toBeLessThanOrEqual(1);
+  expect(extras.board.lemonClearanceMm, "board clears the lemon bowl").toBeGreaterThanOrEqual(20);
+  expect(extras.board.minSettingClearanceMm).toBeGreaterThanOrEqual(40);
+  expect(extras.bread.loafBottomMm, "loaf pressed 1-4 mm into the board").toBeGreaterThanOrEqual(-4);
+  expect(extras.bread.loafBottomMm).toBeLessThanOrEqual(-1);
+  for (const bottom of extras.bread.sliceBottomsMm) { expect(bottom).toBeGreaterThanOrEqual(-4); expect(bottom).toBeLessThanOrEqual(-1); }
+  expect(extras.bread.maxXOverBoardMm, "bread stays on the board").toBeLessThanOrEqual(0);
+  expect(extras.runner.maxX, "runner ends before the glasses").toBeLessThan(0.67);
+  expect(info.tableware.colors.accent).toEqual(["#777f63", "#9a6a50"]);
 });
