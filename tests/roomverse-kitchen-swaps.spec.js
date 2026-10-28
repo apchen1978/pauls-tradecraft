@@ -8,7 +8,7 @@ if (QA) mkdirSync(QA, { recursive: true });
 const FRAMES = {
   "cable-car": ["cable-car", "fog-bridge", "marin-hills", "poster-sun"],
   "redwood-path": ["redwood-path", "ferry-building", "oak-street", "poster-arch", "poster-leaf"],
-  "lamp-wall": ["botanical-window", "hills-sun", "moon-hills"],
+  "lamp-wall": ["moon-hills", "hills-sun", "botanical-window"],
 };
 
 async function loadRoom(page, width, lang = "zh") {
@@ -25,12 +25,12 @@ for (const width of [1440, 390]) {
   test(`every painting option paints its frame, fetches only when chosen and costs no geometry at ${width}px`, async ({ page }) => {
     const printRequests = [];
     page.on("request", (request) => { // The lamp-wall frame's own default picture loads with the room, so only its alternatives count as "chosen" downloads.
-    if (request.url().includes("room03-print-") || /room03-lamp-wall-(hills|moon)/.test(request.url())) printRequests.push(request.url()); });
+    if (request.url().includes("room03-print-") || /room03-lamp-wall-(hills|botanical)/.test(request.url())) printRequests.push(request.url()); });
     await loadRoom(page, width);
     expect(printRequests, "no replacement print is downloaded until one is chosen").toEqual([]);
     const base = await page.evaluate(() => window.__room03.info());
     expect(await page.evaluate(() => window.__room03.artOptions())).toEqual(FRAMES);
-    expect(base.wallArtChoice).toEqual({ "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "botanical-window" });
+    expect(base.wallArtChoice).toEqual({ "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "moon-hills" });
     await page.locator("#swaps summary").click();
     const baseMean = base.wallArtMean;
     for (const [frame, options] of Object.entries(FRAMES)) {

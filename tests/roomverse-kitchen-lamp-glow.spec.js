@@ -71,7 +71,8 @@ test("the framed paintings follow the mood's light instead of glowing the same a
     await page.evaluate((name) => window.__room03.setMood(name), mood);
     light[mood] = (await page.evaluate(() => window.__room03.info().wallArtLight));
   }
-  expect(light.golden, "full colour by day").toEqual([1, 1, 1]);
+  // Under full strength by day so a painting sits below the bright window beside it and is not a glowing patch on a shaded wall (was [1, 1, 1]).
+  for (const channel of light.golden) { expect(channel).toBeGreaterThanOrEqual(0.8); expect(channel).toBeLessThanOrEqual(0.9); }
   for (const mood of ["movie", "night"]) for (const channel of light[mood]) expect(channel, `${mood} painting dimmed to about half`).toBeLessThan(0.6);
   expect(light.dinner[0], "dinner sits between day and night").toBeLessThan(light.golden[0]);
   expect(light.dinner[0]).toBeGreaterThan(light.night[0]);
