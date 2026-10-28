@@ -57,10 +57,10 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   expect(turned.corners.every(([x, y, z]) => Math.abs(x) < 0.98 && Math.abs(y) < 0.98 && z < 1)).toBe(true);
   await shot(page, "plaque-desktop-1440-180");
   const desktopTurned = await page.evaluate(() => window.__room03.info());
-  // Red Dutch oven replacement: vertices 31,603 → 31,989 (+386), meshes 96 → 98 (+2), desktop opening draw calls 70 → 72 (+2).
-  expect(desktop.vertices).toBe(31989);
-  expect(desktop.meshes).toBe(98);
-  expect(desktop.drawCallsLastFrame).toBe(72);
+  // Lemon bowl replaces the 2,079-vertex/3-mesh succulent trough with a 786-vertex/1-mesh bowl: scene 31,989 → 30,696 vertices (-1,293), 98 → 96 meshes (-2), desktop opening calls 72 → 69 (-3).
+  expect(desktop.vertices).toBe(30696);
+  expect(desktop.meshes).toBe(96);
+  expect(desktop.drawCallsLastFrame).toBe(69);
   const hiddenDesktop = await page.evaluate(() => {
     window.__room03.plaqueMesh.visible = false;
     window.__room03.render();
@@ -75,8 +75,8 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   const mobileOpening = await page.evaluate(() => window.__room03.info());
   await shot(page, "plaque-mobile-390-default");
   expect(mobileOpening.plaque.inView).toBe(false);
-  // Red Dutch oven replacement adds two meshes: phone opening calls 72 → 74. The plaque remains outside the frustum.
-  expect(mobileOpening.drawCallsLastFrame).toBe(74);
+  // Lemon bowl uses one mesh instead of the three-mesh succulent trough: phone opening calls 74 → 72 (-2); the plaque remains outside the frustum.
+  expect(mobileOpening.drawCallsLastFrame).toBe(72);
   await page.evaluate(() => window.__room03.setView(Math.PI));
   const mobile = await page.evaluate(() => window.__room03.info());
   expect(mobile.plaque.inView).toBe(true);
