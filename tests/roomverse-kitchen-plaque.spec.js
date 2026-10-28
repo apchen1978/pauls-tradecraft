@@ -57,9 +57,10 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   expect(turned.corners.every(([x, y, z]) => Math.abs(x) < 0.98 && Math.abs(y) < 0.98 && z < 1)).toBe(true);
   await shot(page, "plaque-desktop-1440-180");
   const desktopTurned = await page.evaluate(() => window.__room03.info());
-  // Lemon bowl replaces the 2,079-vertex/3-mesh succulent trough with a 786-vertex/1-mesh bowl: scene 31,989 → 30,696 vertices (-1,293), 98 → 96 meshes (-2), desktop opening calls 72 → 69 (-3).
-  expect(desktop.vertices).toBe(30696);
-  expect(desktop.meshes).toBe(96);
+  // Wok run A (stacked after the lemon bowl and red Dutch oven): door, frames and exterior backboard out; continuous counter, duct and returns in.
+  // 30,696 → 30,220 (−476). Meshes 96 → 93. Opening draw calls stay 69.
+  expect(desktop.vertices).toBe(30220);
+  expect(desktop.meshes).toBe(93);
   expect(desktop.drawCallsLastFrame).toBe(69);
   const hiddenDesktop = await page.evaluate(() => {
     window.__room03.plaqueMesh.visible = false;

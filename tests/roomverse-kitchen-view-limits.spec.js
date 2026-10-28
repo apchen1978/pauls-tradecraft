@@ -38,6 +38,7 @@ async function setOrbit(page, view, baseline) {
       meshes: info.meshes,
       drawCallsLastFrame: info.drawCallsLastFrame,
       lounge: info.lounge.projectedCenter,
+      // The doorway is gone. This point is the wok itself, so the side orbit still has to reach it.
       wok: info.projectedRegions.wokOpening,
       pendant: info.projectedRegions.pendant,
     };

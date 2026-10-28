@@ -10,8 +10,8 @@ const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
 // The right pier of the entry front wall is the empty stretch beside the doorway. Its box is
 // centered at (2.05, 1.35, 2.4) with size (2.1, 2.7, 0.12), so the room-facing face is z = 2.34
 // and the pier covers x = 1.00 to 3.10. x = 1.72 keeps the board on that pier (x = 1.34 to 2.10),
-// 34 cm clear of the doorway band at x = 1, and clear of the wok door at x ≈ 2.9. #578 measured this
-// spot; the board stays here after the fig came out.
+// 34 cm clear of the doorway band at x = 1. The side-wall wok door is gone; the board stays on this
+// pier. #578 measured this spot; the board stays here after the fig came out.
 const HOUSE_PLAQUE = Object.freeze({
   width: 0.76,
   height: 0.304,
@@ -399,10 +399,8 @@ function buildArchitecture(b, m, scene, onYardLoad) {
   const hx = ROOM.width / 2, hz = ROOM.depth / 2, h = ROOM.height;
   addBox(b, "shell", m.floor, [ROOM.width, 0.14, ROOM.depth], [0, -0.07, 0]);
   addBox(b, "shell", m.wall, [ROOM.width, h, 0.12], [0, h / 2, -hz]);
-  // Shift the side-kitchen opening 0.275 m toward the back for a clearer mobile sightline.
-  addBox(b, "shell", m.wall, [0.12, h, 3.625], [hx, h / 2, -0.5875]);
-  addBox(b, "shell", m.wall, [0.12, h, 0.325], [hx, h / 2, 2.2375]);
-  addBox(b, "shell", m.wall, [0.12, 0.55, 0.85], [hx, 2.42, 1.65]);
+  // Solid right wall. The wok doorway used to be three boxes with a 0.55 m hole; the run now sits against this face.
+  addBox(b, "shell", m.wall, [0.12, h, ROOM.depth], [hx, h / 2, 0]);
   addBox(b, "shell", m.ceiling, [ROOM.width, 0.16, ROOM.depth], [0, 2.69, 0]);
 
   // Three exposed timber beams run from the glass wall into the kitchen.
@@ -490,70 +488,134 @@ function buildKitchen(b, m) {
 }
 
 function buildSideKitchen(b, m, scene) {
-  // The panel slides flush along the wall and leaves a 55 cm clear reveal.
-  addBox(b, "side-kitchen", m.black, [0.08, 0.055, 0.85], [2.9, 2.05, 1.65]);
-  addBox(b, "side-kitchen", m.olive, [0.055, 1.98, 0.75], [2.91, 1.0, 1.15]);
-  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.9, 1.05, 1.225]);
-  addBox(b, "side-kitchen", m.black, [0.08, 2.1, 0.045], [2.9, 1.05, 2.075]);
-  addBox(b, "side-kitchen", m.black, [0.025, 0.22, 0.025], [2.88, 1.1, 1.15]);
-  const wokBackdrop = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.7), m.wokWall);
-  wokBackdrop.position.set(3.16, 1.44, 1.65); wokBackdrop.rotation.y = -Math.PI / 2; wokBackdrop.name = "wok-kitchen-warm-backsplash"; wokBackdrop.userData.category = "side-kitchen";
-  wokBackdrop.castShadow = false; wokBackdrop.receiveShadow = false; sceneAddToBucket(b, wokBackdrop, "wok-kitchen-backdrop");
-  const addSideMesh = (geometry, material, name, position, rotation = [0, 0, 0]) => {
+  // Continuous wok run on the solid right wall. No slider, frames, or exterior backboard.
+  // Joins are settled in millimetres: counter and backsplash bury 3 mm into the side wall and
+  // the entry-hall wall (inside the 120 mm thickness, so nothing shows through), the cabinet
+  // top meets the counter bottom, and the duct cap buries 3 mm into the ceiling soffit at y 2.61.
+  const wallFaceX = 2.94;
+  const frontFaceZ = 2.34;
+  const embed = 0.003;
+  const counterH = 0.09;
+  const counterY = 0.91;
+  const counterTop = counterY + counterH / 2;
+  const counterLen = 1.32;
+  const counterDepth = 0.59;
+  const counterMaxZ = frontFaceZ + embed;
+  const counterMinZ = counterMaxZ - counterLen;
+  const counterZ = (counterMinZ + counterMaxZ) / 2;
+  const counterMaxX = wallFaceX + embed;
+  const counterX = counterMaxX - counterDepth / 2;
+  const cabDepth = 0.55;
+  const cabLen = 1.28;
+  const cabMaxX = wallFaceX + embed - 0.002;
+  const cabX = cabMaxX - cabDepth / 2;
+  const bodyTop = counterY - counterH / 2;
+  const kickTop = 0.12;
+  const bodyH = bodyTop - kickTop;
+  const bodyY = kickTop + bodyH / 2;
+  const cookX = 2.64;
+  const cookZ = counterZ;
+
+  const addSideMesh = (geometry, material, name, position, rotation = [0, 0, 0], { shadow = true } = {}) => {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.name = name; mesh.userData.category = "side-kitchen";
     mesh.position.set(...position); mesh.rotation.set(...rotation);
-    mesh.castShadow = true; mesh.receiveShadow = true;
+    mesh.castShadow = shadow; mesh.receiveShadow = shadow;
     const key = `shapes:${material.uuid}`;
     b.get(key) ?? b.set(key, { category: "side-kitchen", material, geometries: [], meshes: [] });
     b.get(key).meshes.push(mesh);
     return mesh;
   };
-  // Bring the cooking group 35 cm toward the room so its silhouette clears the slider.
-  const centerX = 2.65, centerZ = 1.8;
-  // A recessed kick, two framed fronts and handles keep the small cabinet readable from the entrance.
-  addBox(b, "wok-base-cabinet", m.olive, [0.47, 0.69, 0.43], [2.705, 0.4675, centerZ]);
-  addBox(b, "wok-base-cabinet", m.olive, [0.38, 0.10, 0.33], [2.705, 0.07, centerZ - 0.04]);
-  for (const dx of [-0.113, 0.113]) {
-    addBox(b, "wok-base-cabinet", m.olive, [0.216, 0.60, 0.012], [2.705 + dx, 0.455, centerZ + 0.22]);
-    addBox(b, "wok-base-cabinet", m.steel, [0.009, 0.095, 0.016], [2.705 + dx + (dx < 0 ? 0.075 : -0.075), 0.49, centerZ + 0.235]);
+
+  addBox(b, "wok-base-cabinet", m.olive, [cabDepth, bodyH, cabLen], [cabX, bodyY, counterZ]);
+  const kickDepth = 0.46;
+  const kickMaxX = 2.872;
+  const kickX = kickMaxX - kickDepth / 2;
+  addBox(b, "wok-base-cabinet", m.olive, [kickDepth, 0.10, cabLen - 0.08], [kickX, 0.07, counterZ]);
+  const doorX = cabX - cabDepth / 2 + 0.006;
+  for (const dz of [-0.32, 0.32]) {
+    addBox(b, "wok-base-cabinet", m.olive, [0.012, 0.62, 0.60], [doorX, 0.47, counterZ + dz]);
+    addBox(b, "wok-base-cabinet", m.steel, [0.016, 0.09, 0.012], [doorX - 0.012, 0.50, counterZ + dz]);
   }
-  addGeometryToBucket(b, "side-kitchen", m.stone, roundedBoxGeometry([0.36, 0.085, 0.43], 0.025), [centerX, 0.855, centerZ]);
-  addBox(b, "side-kitchen", m.black, [0.31, 0.025, 0.38], [centerX, 0.91, centerZ]);
-  const burner = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.012, 5, 20), m.wokSteel);
-  burner.position.set(centerX, 0.938, centerZ); burner.rotation.x = Math.PI / 2; burner.name = "wok-kitchen-burner-outer"; burner.userData.category = "side-kitchen";
-  burner.castShadow = false; burner.receiveShadow = false;
-  b.get(`shapes:${m.wokSteel.uuid}`) ?? b.set(`shapes:${m.wokSteel.uuid}`, { category: "side-kitchen", material: m.wokSteel, geometries: [], meshes: [] }); b.get(`shapes:${m.wokSteel.uuid}`).meshes.push(burner);
-  const innerBurner = new THREE.Mesh(new THREE.TorusGeometry(0.061, 0.009, 5, 16), m.wokSteel);
-  innerBurner.position.set(centerX, 0.941, centerZ); innerBurner.rotation.x = Math.PI / 2; innerBurner.name = "wok-kitchen-burner-inner"; innerBurner.userData.category = "side-kitchen";
-  innerBurner.castShadow = false; innerBurner.receiveShadow = false; b.get(`shapes:${m.wokSteel.uuid}`).meshes.push(innerBurner);
+
+  addGeometryToBucket(b, "wok-counter", m.stone, roundedBoxGeometry([counterDepth, counterH, counterLen], 0.025), [counterX, counterY, counterZ]);
+  addBox(b, "side-kitchen", m.black, [0.42, 0.028, 0.48], [cookX, counterY + 0.055, cookZ]);
+
+  const placeRing = (geometry, y) => {
+    geometry.rotateX(Math.PI / 2);
+    geometry.translate(cookX, y, cookZ);
+    return geometry;
+  };
+  const burners = mergeGeometries([
+    placeRing(new THREE.TorusGeometry(0.105, 0.012, 5, 20), counterY + 0.078),
+    placeRing(new THREE.TorusGeometry(0.061, 0.009, 5, 16), counterY + 0.081),
+    placeRing(new THREE.TorusGeometry(0.174, 0.011, 6, 24), counterY + 0.212),
+  ], false);
+  addSideMesh(burners, m.wokSteel, "wok-kitchen-burners", [0, 0, 0], [0, 0, 0], { shadow: false });
   const wokProfile = [
     new THREE.Vector2(0, 0.015), new THREE.Vector2(0.065, 0.005), new THREE.Vector2(0.13, 0.035),
     new THREE.Vector2(0.175, 0.105), new THREE.Vector2(0.182, 0.14), new THREE.Vector2(0.166, 0.142),
     new THREE.Vector2(0.152, 0.108), new THREE.Vector2(0.105, 0.055), new THREE.Vector2(0.04, 0.032), new THREE.Vector2(0, 0.03),
   ];
-  addSideMesh(new THREE.LatheGeometry(wokProfile, 24), m.wokIron, "wok-kitchen-wok", [centerX, 0.935, centerZ]);
-  const wokRim = new THREE.Mesh(new THREE.TorusGeometry(0.174, 0.011, 6, 24), m.wokSteel);
-  wokRim.position.set(centerX, 1.077, centerZ); wokRim.rotation.x = Math.PI / 2; wokRim.name = "wok-kitchen-rim"; wokRim.userData.category = "side-kitchen";
-  b.get(`shapes:${m.wokSteel.uuid}`).meshes.push(wokRim);
-  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.016, 0.24, 10), m.oak);
-  wokHandle.rotation.z = Math.PI / 2; wokHandle.position.set(2.46, 1.025, centerZ); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
+  addSideMesh(new THREE.LatheGeometry(wokProfile, 24), m.wokIron, "wok-kitchen-wok", [cookX, counterY + 0.07, cookZ]);
+  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.016, 0.22, 10), m.oak);
+  wokHandle.rotation.z = Math.PI / 2; wokHandle.position.set(cookX - 0.16, counterY + 0.15, cookZ); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
   b.get(`shapes:${m.oak.uuid}`) ?? b.set(`shapes:${m.oak.uuid}`, { category: "side-kitchen", material: m.oak, geometries: [], meshes: [] }); b.get(`shapes:${m.oak.uuid}`).meshes.push(wokHandle);
-  // A short shelf is fixed to the rear wall with two restrained silhouettes.
-  addBox(b, "side-kitchen", m.oak, [0.15, 0.025, 0.42], [3.08, 1.36, centerZ]);
-  addSideMesh(new THREE.CylinderGeometry(0.032, 0.04, 0.13, 10), m.wokIron, "wok-kitchen-oil-bottle", [3.01, 1.435, 1.7]);
-  addSideMesh(new THREE.CylinderGeometry(0.007, 0.009, 0.19, 6), m.black, "wok-kitchen-spatula", [3.04, 1.46, 1.9], [0, 0, -0.15]);
-  // A sloped trapezoid hood and a warm row of light face the default room camera.
+
+  // Past the hood's +Z edge so the shelf, bottle and rail read from the room, not inside the canopy.
+  const shelfZ = 2.14;
+  const shelfTop = 1.4325;
+  addBox(b, "side-kitchen", m.oak, [0.16, 0.025, 0.32], [wallFaceX - 0.078, 1.42, shelfZ]);
+  addSideMesh(new THREE.CylinderGeometry(0.032, 0.04, 0.13, 10), m.wokIron, "wok-kitchen-oil-bottle", [wallFaceX - 0.15, shelfTop + 0.065, shelfZ - 0.06]);
+  addBox(b, "side-kitchen", m.black, [0.012, 0.012, 0.24], [wallFaceX - 0.02, 1.36, shelfZ + 0.04]);
+  const spatulaA = new THREE.CylinderGeometry(0.007, 0.009, 0.19, 6);
+  spatulaA.translate(0, 0, 0);
+  const spatulaB = new THREE.CylinderGeometry(0.006, 0.008, 0.17, 6);
+  spatulaB.translate(0, -0.01, 0.16);
+  const spatulas = mergeGeometries([spatulaA, spatulaB], false);
+  spatulaA.dispose(); spatulaB.dispose();
+  addSideMesh(spatulas, m.black, "wok-kitchen-spatula", [wallFaceX - 0.08, 1.30, shelfZ], [0.35, 0, 0.08]);
+
+  // Backsplash meets the counter top and the hood underside. The open end overruns the counter
+  // by 4 cm (the slack that still leaves 0.40 m to the cable-car frame). Each end gets a 13 cm
+  // stone return so the run is not a freestanding island.
+  const splashBottom = counterTop - 0.002;
+  const splashTop = 1.60;
+  const splashH = splashTop - splashBottom;
+  const splashY = splashBottom + splashH / 2;
+  const splashMinZ = counterMinZ - 0.04;
+  const splashLen = counterMaxZ - splashMinZ;
+  const splashZ = splashMinZ + splashLen / 2;
+  addBox(b, "backsplash", m.stone, [0.02, splashH, splashLen], [wallFaceX - 0.007, splashY, splashZ]);
+  addBox(b, "backsplash", m.stone, [0.13, splashH, 0.016], [wallFaceX - 0.062, splashY, counterMinZ + 0.008]);
+  addBox(b, "backsplash", m.stone, [0.13, splashH, 0.016], [wallFaceX - 0.062, splashY, counterMaxZ - 0.008]);
+
   const hoodShape = new THREE.Shape();
-  hoodShape.moveTo(-0.24, -0.11); hoodShape.lineTo(-0.135, 0.095); hoodShape.lineTo(0.135, 0.095); hoodShape.lineTo(0.24, -0.11); hoodShape.closePath();
-  const hoodGeometry = new THREE.ExtrudeGeometry(hoodShape, { depth: 0.16, bevelEnabled: true, bevelSegments: 1, bevelThickness: 0.008, bevelSize: 0.006 });
-  hoodGeometry.translate(0, 0, -0.08);
-  addSideMesh(hoodGeometry, m.wokSteel, "wok-kitchen-sloped-hood", [2.65, 1.65, centerZ], [0, -0.55, 0]);
-  addBox(b, "side-kitchen", m.wokSteel, [0.12, 0.28, 0.12], [2.88, 1.88, centerZ], -0.55);
-  const hoodLight = new THREE.Mesh(new THREE.PlaneGeometry(0.43, 0.045), m.wokGlow);
-  hoodLight.position.set(2.48, 1.535, centerZ); hoodLight.rotation.y = -0.55; hoodLight.name = "wok-kitchen-hood-light"; hoodLight.userData.category = "side-kitchen";
+  hoodShape.moveTo(-0.26, -0.12); hoodShape.lineTo(-0.14, 0.10); hoodShape.lineTo(0.14, 0.10); hoodShape.lineTo(0.26, -0.12); hoodShape.closePath();
+  const hoodGeometry = new THREE.ExtrudeGeometry(hoodShape, { depth: 0.38, bevelEnabled: true, bevelSegments: 1, bevelThickness: 0.008, bevelSize: 0.006 });
+  hoodGeometry.translate(0, 0, -0.19);
+  addSideMesh(hoodGeometry, m.wokSteel, "wok-kitchen-sloped-hood", [cookX + 0.04, 1.72, cookZ], [0, Math.PI / 2, 0]);
+
+  const soffitY = 2.61;
+  const capH = 0.05;
+  const capTop = soffitY + embed;
+  const capY = capTop - capH / 2;
+  const ductBottom = 1.80;
+  const ductTop = capY - capH / 2 + 0.002;
+  const ductH = ductTop - ductBottom;
+  const ductX = wallFaceX - 0.09;
+  const duct = new THREE.Mesh(new THREE.BoxGeometry(0.16, ductH, 0.22), m.wokSteel);
+  duct.position.set(ductX, ductBottom + ductH / 2, cookZ); duct.name = "wok-kitchen-hood-duct"; duct.userData.category = "side-kitchen";
+  duct.castShadow = true; duct.receiveShadow = true; scene.add(duct);
+  const ductCap = new THREE.Mesh(new THREE.BoxGeometry(0.20, capH, 0.26), m.wokSteel);
+  ductCap.position.set(ductX, capY, cookZ); ductCap.name = "wok-kitchen-hood-duct-cap"; ductCap.userData.category = "side-kitchen";
+  ductCap.castShadow = true; ductCap.receiveShadow = true; scene.add(ductCap);
+
+  const hoodLight = new THREE.Mesh(new THREE.PlaneGeometry(0.40, 0.06), m.wokGlow);
+  hoodLight.position.set(cookX - 0.02, 1.55, cookZ); hoodLight.rotation.y = Math.PI / 2; hoodLight.name = "wok-kitchen-hood-light"; hoodLight.userData.category = "side-kitchen";
+  hoodLight.castShadow = false; hoodLight.receiveShadow = false;
   sceneAddToBucket(b, hoodLight, "wok-kitchen-hood-light");
-  const sideLight = new THREE.PointLight(0xffad64, 0, 0.68, 2); sideLight.position.set(2.92, 1.43, centerZ); sideLight.name = "side-kitchen-warm-source"; scene.add(sideLight);
+  const sideLight = new THREE.PointLight(0xffad64, 0, 0.9, 2); sideLight.position.set(cookX, 1.50, cookZ); sideLight.name = "side-kitchen-warm-source"; scene.add(sideLight);
   return sideLight;
 }
 
@@ -1091,8 +1153,8 @@ function measureRoomFootToBody(scene, tableStatus, diningGaps, loungeFit) {
     item: "wok base cabinet",
     support: "kick and cabinet box",
     gapMm: wokKick.length && wokBody.length ? round((Math.min(...wokBody.map((point) => point.y)) - Math.max(...wokKick.map((point) => point.y))) * 1000) : null,
-    repairedInThisPr: false,
-    note: "under 5 mm; left unchanged",
+    repairedInThisPr: true,
+    note: "kick and cabinet share y 0.12; the reading is the next bevel vertex above that plane",
   });
   const floorLamp = scene.getObjectByName("floor-reading-lamp");
   const floorLampMinY = floorLamp ? new THREE.Box3().setFromObject(floorLamp).min.y : null;
@@ -2074,7 +2136,8 @@ export async function start({ stage, onReady = () => {} }) {
     }
   };
   addContactStrip("merged-kitchen", "+z", 0.34, 2.7);
-  addContactStrip("merged-side-kitchen", "-x", 0.30, 3.4);
+  // The side-kitchen strip follows the continuous base cabinet, not the old door frame.
+  addContactStrip("merged-wok-base-cabinet", "-x", 0.28, 1.5);
   // The fig pot patch from #576 is gone with the plant. Lounge-chair feet keep their four patches.
   for (const [localX, localZ] of [[-0.26, -0.25], [-0.26, 0.25], [0.26, -0.25], [0.26, 0.25]]) {
     const patch = new THREE.PlaneGeometry(0.18, 0.15);
@@ -2531,6 +2594,11 @@ export async function start({ stage, onReady = () => {} }) {
       chairTextureRepeat: diningUpholsteryMap?.repeat.toArray() || null,
       loungeTextureRepeat: loungeUpholsteryMap?.repeat.toArray() || null,
     };
+    const sideRunShadow = new THREE.Box3();
+    for (let index = 0; index < shadowPositions.count; index++) {
+      const point = new THREE.Vector3().fromBufferAttribute(shadowPositions, index);
+      if (point.x > 2.2) sideRunShadow.expandByPoint(point);
+    }
     const contactShadowInfo = {
       name: contactShadow.name, meshes: 1, materialType: contactShadow.material.type,
       vertices: contactShadow.geometry.attributes.position.count,
@@ -2539,6 +2607,7 @@ export async function start({ stage, onReady = () => {} }) {
       depthWrite: contactShadow.material.depthWrite, polygonOffsetFactor: contactShadow.material.polygonOffsetFactor,
       renderOrder: contactShadow.renderOrder,
       coverage: ["dining-table", "dining-chair-0.5-1.22", "dining-chair-0.5--0.22", "dining-chair--0.5-1.22", "dining-chair--0.5--0.22", "kitchen-island", "side-kitchen", "lounge-chair"],
+      sideRun: sideRunShadow.isEmpty() ? null : { min: sideRunShadow.min.toArray(), max: sideRunShadow.max.toArray(), size: sideRunShadow.getSize(new THREE.Vector3()).toArray() },
     };
     const loungeBounds = boxFor(loungeChair.name);
     const loungeFit = measureLoungeFit(loungeChair);
@@ -2579,7 +2648,6 @@ export async function start({ stage, onReady = () => {} }) {
       height: (Math.max(...wallArtNdc.map(([, y]) => y)) - Math.min(...wallArtNdc.map(([, y]) => y))) * stage.clientHeight / 2,
       center: [(Math.min(...wallArtNdc.map(([x]) => x)) + Math.max(...wallArtNdc.map(([x]) => x))) / 2, (Math.min(...wallArtNdc.map(([, y]) => y)) + Math.max(...wallArtNdc.map(([, y]) => y))) / 2],
     };
-    const wallArtDoorFrameBounds = { min: [2.86, 0, 1.2025], max: [2.94, 2.1, 2.0975], size: [0.08, 2.1, 0.895] };
     const wallArtImagePlane = wallArt.imageMesh;
     const projectedPixelsFor = (object) => {
       const bounds = object.userData.bounds
@@ -2593,6 +2661,66 @@ export async function start({ stage, onReady = () => {} }) {
     const boxGap = (a, b) => {
       const gaps = [0, 1, 2].map((axis) => Math.max(0, a.min[axis] - b.max[axis], b.min[axis] - a.max[axis]));
       return Math.hypot(...gaps);
+    };
+    const horizontalGap = (a, b) => {
+      if (!a || !b) return null;
+      const dx = Math.max(0, b.min[0] - a.max[0], a.min[0] - b.max[0]);
+      const dz = Math.max(0, b.min[2] - a.max[2], a.min[2] - b.max[2]);
+      return Math.hypot(dx, dz);
+    };
+    const boundsFromBox = (box) => box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
+    const unionBounds = (items) => {
+      const box = new THREE.Box3();
+      for (const item of items) {
+        if (!item) continue;
+        box.expandByPoint(new THREE.Vector3(...item.min));
+        box.expandByPoint(new THREE.Vector3(...item.max));
+      }
+      return boundsFromBox(box);
+    };
+    const sideBacksplashBounds = () => {
+      const mesh = scene.getObjectByName("merged-backsplash");
+      if (!mesh?.geometry?.attributes?.position) return null;
+      mesh.updateWorldMatrix(true, false);
+      const position = mesh.geometry.attributes.position;
+      const box = new THREE.Box3();
+      for (let index = 0; index < position.count; index++) {
+        const point = new THREE.Vector3().fromBufferAttribute(position, index).applyMatrix4(mesh.matrixWorld);
+        if (point.x > 2.5) box.expandByPoint(point);
+      }
+      return boundsFromBox(box);
+    };
+    const wokCounterBounds = boxFor("merged-wok-counter");
+    const wokCabinetBounds = categoryBoxFor("wok-base-cabinet");
+    const wokHoodBounds = boxFor("wok-kitchen-sloped-hood");
+    const wokDuctBounds = boxFor("wok-kitchen-hood-duct");
+    const wokDuctCapBounds = boxFor("wok-kitchen-hood-duct-cap");
+    const wokSplashBounds = sideBacksplashBounds();
+    const wokRunBounds = unionBounds([wokCounterBounds, wokCabinetBounds, wokHoodBounds, wokDuctBounds, wokDuctCapBounds, wokSplashBounds]);
+    const entryDoorway = { min: [-1, 0, 2.34], max: [1, 2.7, 3.16] };
+    const shellMeshes = [];
+    scene.traverse((object) => { if (object.name === "merged-shell") shellMeshes.push(object); });
+    const shellRay = new THREE.Raycaster(new THREE.Vector3(1.6, 1.25, 1.65), new THREE.Vector3(1, 0, 0));
+    const shellHit = shellMeshes.length ? shellRay.intersectObjects(shellMeshes, false)[0] : null;
+    const wokZone = {
+      openingWidth: 0,
+      wallHitX: shellHit ? shellHit.point.x : null,
+      counter: wokCounterBounds,
+      cabinet: wokCabinetBounds,
+      hood: wokHoodBounds,
+      duct: wokDuctBounds,
+      ductCap: wokDuctCapBounds,
+      backsplash: wokSplashBounds,
+      run: wokRunBounds,
+      doorway: entryDoorway,
+      clearance: {
+        cableCar: horizontalGap(wokRunBounds, boxFor("prop-room03-wall-art")),
+        window: horizontalGap(wokRunBounds, boxFor("glass-slider-panel")),
+        pendant: horizontalGap(wokRunBounds, boxFor("room03-pendant-glb")),
+        entryHallDoorway: horizontalGap(wokRunBounds, entryDoorway),
+        entryHallMesh: horizontalGap(wokRunBounds, boxFor("entry-hall")),
+        chairs: [-0.5, 0.5].flatMap((x) => [-0.22, 1.22].map((z) => horizontalGap(wokRunBounds, boxFor(`room03-dining-chair-${x}-${z}`)))),
+      },
     };
     const artInfo = (asset) => {
       const bounds = boxFor(asset.group.name);
@@ -2657,8 +2785,6 @@ export async function start({ stage, onReady = () => {} }) {
     const plaqueBounds = { min: plaqueBox.min.toArray(), max: plaqueBox.max.toArray(), size: plaqueBox.getSize(new THREE.Vector3()).toArray() };
     const entryHallBounds = boxFor("entry-hall");
     const bandBounds = { min: [-1, 2.1, 2.34], max: [1, 2.7, 2.46] };
-    // The wok door's nearer jamb. Built at (2.9, 1.05, 2.075), size (0.08, 2.1, 0.045).
-    const wokDoorBounds = { min: [2.86, 0, 1.2025], max: [2.94, 2.1, 2.0975] };
     const frameCenters = {
       cableCar: boxFor("prop-room03-wall-art"),
       redwood: boxFor("prop-room03-wall-art-redwood-path"),
@@ -2696,7 +2822,10 @@ export async function start({ stage, onReady = () => {} }) {
         redwood: frameCenters.redwood ? boxGap(plaqueBounds, frameCenters.redwood) : null,
         screen: frameCenters.screen ? boxGap(plaqueBounds, frameCenters.screen) : null,
         pendant: boxFor("room03-pendant-glb") ? boxGap(plaqueBounds, boxFor("room03-pendant-glb")) : null,
-        wokDoor: boxGap(plaqueBounds, wokDoorBounds),
+        wokRun: (() => {
+          const pieces = [wokCounterBounds, wokCabinetBounds, wokHoodBounds, wokDuctBounds, wokDuctCapBounds, wokSplashBounds].filter(Boolean);
+          return pieces.length ? Math.min(...pieces.map((piece) => boxGap(plaqueBounds, piece))) : null;
+        })(),
       },
       frameCenterDeltaY: {
         cableCar: frameCenters.cableCar ? Math.abs(plaqueCenterY - midY(frameCenters.cableCar)) : null,
@@ -2724,7 +2853,7 @@ export async function start({ stage, onReady = () => {} }) {
     };
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
-    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque,

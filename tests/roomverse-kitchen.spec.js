@@ -76,14 +76,45 @@ function boxesDistance(a, b) {
 }
 
 test.describe("Room 03 Bay Area Kitchen", () => {
-  test("removes the oversized side-kitchen wall slab without closing the wok entrance", async ({ page }) => {
+  test("closes the side-wall doorway and keeps the wok run on a continuous counter", async ({ page }) => {
     await loadRoom(page, 1440);
     const info = await page.evaluate(() => window.__room03.info());
-    expect(
-      info.sceneBounds.sideKitchen.max[0],
-      "side-kitchen geometry should end at the wok enclosure, not extend as a black wall slab",
-    ).toBeLessThan(3.1);
-    expect(info.wokOpeningWidth).toBe(0.55);
+    const zone = info.wokZone;
+    // Old: the wall was cut for a 0.55 m reveal and side-kitchen geometry stopped short of a slab past the room.
+    // The doorway is gone. A ray through the old opening hits the solid right wall, and the run stays inside it.
+    expect(info.wokOpeningWidth).toBe(0);
+    expect(zone.openingWidth).toBe(0);
+    expect(zone.wallHitX).toBeGreaterThan(2.93);
+    expect(zone.wallHitX).toBeLessThan(2.96);
+    expect(zone.run.max[0]).toBeLessThan(2.96);
+    expect(zone.counter).not.toBeNull();
+    expect(zone.counter.size[2]).toBeGreaterThan(1.28);
+    expect(zone.counter.size[2]).toBeLessThan(1.36);
+    const counterCenterY = (zone.counter.min[1] + zone.counter.max[1]) / 2;
+    expect(counterCenterY).toBeCloseTo(0.91, 2);
+    expect(zone.counter.max[1]).toBeCloseTo(0.955, 2);
+    expect(zone.cabinet.max[1]).toBeCloseTo(zone.counter.min[1], 3);
+    expect(zone.duct, "the hood duct is a named mesh").not.toBeNull();
+    expect(zone.ductCap, "the duct cap is a named mesh").not.toBeNull();
+    expect(zone.duct.min[1]).toBeLessThanOrEqual(zone.hood.max[1] + 0.02);
+    expect(zone.ductCap.max[1]).toBeGreaterThan(2.605);
+    expect(zone.ductCap.max[1]).toBeLessThan(2.62);
+    const hoodZ = (zone.hood.min[2] + zone.hood.max[2]) / 2;
+    const counterZ = (zone.counter.min[2] + zone.counter.max[2]) / 2;
+    expect(Math.abs(hoodZ - counterZ), "hood stays centered on the counter").toBeLessThan(0.05);
+    expect(zone.clearance.cableCar).toBeGreaterThanOrEqual(0.4);
+    expect(zone.clearance.window).toBeGreaterThanOrEqual(0.4);
+    expect(zone.clearance.pendant).toBeGreaterThanOrEqual(0.4);
+    expect(zone.clearance.entryHallDoorway).toBeGreaterThanOrEqual(0.4);
+    for (const gap of zone.clearance.chairs) expect(gap).toBeGreaterThanOrEqual(0.4);
+    // 3 mm embed into the entry-hall wall. The whole entry-hall mesh shares that corner; the walkable gap is the doorway above.
+    expect(zone.counter.max[2]).toBeGreaterThan(2.34);
+    expect(zone.counter.max[2]).toBeLessThan(2.35);
+    expect(zone.counter.max[0]).toBeGreaterThan(2.94);
+    expect(zone.counter.max[0]).toBeLessThan(2.95);
+    expect(zone.clearance.entryHallMesh).toBe(0);
+    expect(zone.backsplash.min[2]).toBeLessThan(zone.counter.min[2]);
+    expect(zone.backsplash.size[0]).toBeGreaterThanOrEqual(0.12);
   });
 
   test("reviews procedural soft furniture at fixed desktop and mobile conditions", async ({ page }) => {
@@ -298,10 +329,10 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     // Old: plantLeafCount >= 24 and 256 verts per blade. The fig and those leaves are removed.
     expect(info.plantLeafCount).toBe(0);
     expect(info.plantLeafVerticesPerBlade).toBe(0);
-    const previousCabinet = { min: [2.47, 0.02, 1.585], max: [2.94, 0.8125, 2.015] };
-    for (const side of ["min", "max"]) for (let axis = 0; axis < 3; axis++) {
-      expect(Math.abs(info.wokSupport.bounds[side][axis] - previousCabinet[side][axis]), `wok cabinet ${side} axis ${axis} stays within 3 cm`).toBeLessThanOrEqual(0.03);
-    }
+    // Old cabinet was a 0.47 × 0.43 m box under the slider. The continuous run is a separate counter mesh.
+    expect(info.wokSupport.bounds.size[2]).toBeGreaterThan(1.2);
+    expect(info.wokSupport.counter.size[2]).toBeCloseTo(1.32, 2);
+    expect(info.wokSupport.counterTopY).toBeCloseTo(0.955, 2);
     await shot(page, "desktop-1440-golden-after");
     await page.locator('#moods button[data-mood="night"]').click();
     await shot(page, "desktop-1440-night-after");
@@ -454,7 +485,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
         [key, { inFrame: x > -1 && x < 1 && y > -1 && y < 1 && depth < 1, ndc: [x, y, depth] }]));
       console.log(`Room 03 portrait views ${width}px:`, JSON.stringify({ position: info.camera, target: info.cameraTarget, fov: info.cameraFov, visibility, wallArtCssPx: artView.wallArtPixels }));
       for (const key of ["dining", "countertop", "wokBowl", "wokHood"]) expect(visibility[key].inFrame, `${key} must be in the ${width}px appropriate view`).toBe(true);
-      expect(visibility.wokDoor.inFrame, `wokDoor must be in the ${width}px wok-facing view`).toBe(true);
+      // Remeasured: wokDoor is the hood center, not the old exterior door slab. 390 → 0.826, 360 → 0.829.
+      expect(visibility.wokDoor.inFrame, `wok zone must be in the ${width}px wok-facing view`).toBe(true);
       expect(visibility.wokDoor.ndc[0]).toBeGreaterThan(0.8);
       expect(visibility.wokDoor.ndc[0]).toBeLessThan(0.92);
       const canvas = await page.locator("canvas").boundingBox();
@@ -491,7 +523,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.wallArtBounds.max[0]).toBeCloseTo(2.94, 2);
     expect(info.wallArtMaterial).toBe("MeshBasicMaterial");
     expect(info.wallArtReceivesShadow).toBe(false);
-    expect(info.wallArtDoorFrameBounds.min[2] - info.wallArtBounds.max[2]).toBeGreaterThanOrEqual(0.6);
+    expect(info.wokZone.clearance.cableCar, "cable-car frame stays 0.4 m from the wok run").toBeGreaterThanOrEqual(0.4);
     await expectMainRegionsInFrame(page);
     await rotateTo(page, 250);
     const artView = await page.evaluate(() => window.__room03.info());
@@ -501,7 +533,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(wallArtVisibleCorners.length, "most of the framed painting should fit the art-facing desktop camera").toBeGreaterThanOrEqual(3);
     await rotateTo(page, 300);
     const wokView = await page.evaluate(() => window.__room03.info());
-    expect(wokView.projectedRegions.wokDoor[0]).toBeCloseTo(0.80, 1);
+    // Remeasured hood center at azimuth 300°. The old door slab sat near 0.80.
+    expect(wokView.projectedRegions.wokDoor[0]).toBeCloseTo(0.77, 1);
     expect(info.camera[0]).toBeCloseTo(0, 3);
     expect(info.camera[1]).toBeCloseTo(1.56, 3);
     expect(info.camera[2]).toBeCloseTo(1.58, 3);
@@ -537,17 +570,19 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.furnitureBounds.table.max[2]).toBeLessThanOrEqual(2.4);
     expect(info.categories["wok-base-cabinet"].vertices).toBeGreaterThan(24);
     expect(info.categories["wok-base-cabinet"].meshes).toBe(2);
-    expect(info.wokSupport.bounds.min[1]).toBeCloseTo(0.02, 3);
-    expect(info.wokSupport.bounds.max[1]).toBeCloseTo(0.8125, 3);
-    expect(info.wokSupport.bounds.size[0]).toBeCloseTo(0.47, 3);
-    expect(info.wokSupport.counterBottomY - info.wokSupport.bounds.max[1]).toBeLessThanOrEqual(0.02);
-    expect(info.wokSupport.counterTopY - info.wokSupport.bounds.min[1]).toBeGreaterThanOrEqual(0.85);
-    expect(info.wokSupport.counterTopY - info.wokSupport.bounds.min[1]).toBeLessThanOrEqual(0.9);
-    expect(info.wokSupport.bounds.max[0]).toBeCloseTo(2.94, 3);
-    expect(info.wokSupport.bounds.min[0]).toBeGreaterThanOrEqual(2.45);
-    expect(info.wokSupport.bounds.min[2]).toBeGreaterThan(1.225);
-    expect(info.wokSupport.bounds.max[2]).toBeLessThan(2.075);
-    expect(Math.abs(info.wokSupport.bounds.size[2] - 0.43)).toBeLessThanOrEqual(0.03);
+    // Cabinet numbers stay on the base. The stone top is wokSupport.counter, not this box.
+    expect(info.wokSupport.bounds.min[1]).toBeCloseTo(0.02, 2);
+    expect(info.wokSupport.bounds.max[1]).toBeCloseTo(0.865, 2);
+    expect(info.wokSupport.bounds.size[0]).toBeGreaterThan(0.52);
+    expect(info.wokSupport.bounds.size[0]).toBeLessThan(0.62);
+    expect(info.wokSupport.bounds.size[2]).toBeCloseTo(1.28, 2);
+    expect(Math.abs(info.wokSupport.counterBottomY - info.wokSupport.bounds.max[1])).toBeLessThanOrEqual(0.002);
+    expect(info.wokSupport.counterTopY).toBeCloseTo(0.955, 2);
+    expect(info.wokSupport.counter.size[1]).toBeCloseTo(0.09, 2);
+    expect(info.wokSupport.counter.size[2]).toBeCloseTo(1.32, 2);
+    expect(info.wokSupport.bounds.max[0]).toBeCloseTo(2.941, 2);
+    expect(info.wokSupport.bounds.min[2]).toBeGreaterThan(1.0);
+    expect(info.wokSupport.bounds.max[2]).toBeLessThan(2.34);
     expect(info.furnitureBounds.chairs).toHaveLength(4);
     for (const chair of info.furnitureBounds.chairs) {
       expect(chair.min[1]).toBeCloseTo(info.rug.max[1], 3);
@@ -607,8 +642,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       expect(obstacle, `${name} bounds should be measurable`).not.toBeNull();
       expect(boxesOverlap(info.wallArtBounds, obstacle), `painting should clear ${name}`).toBe(false);
     }
-    expect(boxesOverlap(info.wallArtBounds, info.wallArtDoorFrameBounds), "painting should not intersect the wok door frame").toBe(false);
-    expect(boxesDistance(info.wallArtBounds, info.wallArtDoorFrameBounds), "painting should keep 0.6 m from the wok door frame").toBeGreaterThanOrEqual(0.6);
+    expect(info.wokZone.clearance.cableCar, "painting stays 0.4 m from the wok run").toBeGreaterThanOrEqual(0.4);
+    expect(boxesOverlap(info.wallArtBounds, info.wokZone.run), "painting should not intersect the wok run").toBe(false);
     expect(boxesDistance(info.wallArtBounds, info.wallArtClearanceBounds.hood), "painting should keep 0.6 m from the hood").toBeGreaterThanOrEqual(0.6);
     expect(Math.max(0, info.wallArtBounds.max[0] - 2.94), "frame protrusion beyond the wall face").toBeLessThanOrEqual(0.04);
     expect(info.wallArtBounds.size[1]).toBeCloseTo(0.94, 2);
@@ -617,7 +652,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     const householdArt = await page.evaluate(() => window.__room03.info());
     expect(householdArt.wallArtPixels.width).toBeGreaterThan(52);
     expect(householdArt.wallArtPixels.height).toBeGreaterThanOrEqual(130);
-    console.log("Room 03 wall art placement:", JSON.stringify({ bounds: info.wallArtBounds, doorFrameGap: boxesDistance(info.wallArtBounds, info.wallArtDoorFrameBounds), hoodGap: boxesDistance(info.wallArtBounds, info.wallArtClearanceBounds.hood), desktopProjectionCssPx: info.wallArtPixels, desktopWidthTargetMet: info.wallArtPixels.width >= 90, material: info.wallArtMaterial, receivesShadow: info.wallArtReceivesShadow, camera: info.camera, vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }));
+    console.log("Room 03 wall art placement:", JSON.stringify({ bounds: info.wallArtBounds, wokRunGap: info.wokZone.clearance.cableCar, hoodGap: boxesDistance(info.wallArtBounds, info.wallArtClearanceBounds.hood), desktopProjectionCssPx: info.wallArtPixels, desktopWidthTargetMet: info.wallArtPixels.width >= 90, material: info.wallArtMaterial, receivesShadow: info.wallArtReceivesShadow, camera: info.camera, vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }));
     const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt"];
     // Old: 8 prop groups, including the fig. The fig is gone, so 7 remain.
     expect(Object.keys(propBounds)).toHaveLength(7);
@@ -837,7 +872,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
   });
 
-  test("keeps mobile night ambience varied and the wok-door reveal brighter than its closed panel", async ({ page }) => {
+  test("keeps mobile night ambience varied and the wok burner brighter than the adjacent wall", async ({ page }) => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(String(error)));
     await loadRoom(page, 390);
@@ -863,11 +898,11 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(upper.meanLuminance, "upper field should not be crushed to near black").toBeGreaterThan(20);
     expect(upper.luminanceStdDev, "mobile upper field should contain visible lighting and wood variation").toBeGreaterThan(6);
     expect(upper.blue - upper.red, "mobile upper field should not read as a solid blue slab").toBeLessThan(55);
-    expect(door.reveal.meanLuminance, "visible wok interior should outshine the closed door panel").toBeGreaterThan(door.panel.meanLuminance + 12);
+    expect(door.reveal.meanLuminance, "night wok glow should outshine the adjacent plaster").toBeGreaterThan(door.panel.meanLuminance + 12);
     expect(errors).toEqual([]);
   });
 
-  test("shows the wok kitchen after turning toward its opening at desktop and mobile sizes", async ({ page }) => {
+  test("shows the wok kitchen after turning toward the side wall at desktop and mobile sizes", async ({ page }) => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(String(error)));
     for (const width of [1440, 390]) {
