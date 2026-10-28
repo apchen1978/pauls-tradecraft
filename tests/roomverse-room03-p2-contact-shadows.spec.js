@@ -18,10 +18,11 @@ test("PR2: contact shadows are one merged mesh covering the listed furniture", a
   expect(info.contactShadow.meshes).toBe(1);
   expect(info.contactShadow.materialType).toBe("MeshBasicMaterial");
   // Old: 108 vertices, 27 patches, including the fig pot. That one plane (4 vertices) left with the plant.
-  expect(info.contactShadow.vertices).toBe(104);
-  expect(info.contactShadow.totalPatchCount).toBe(26);
+  // Four soft decals under the lounge ottoman's feet: 26 -> 30 patches, 104 -> 120 vertices.
+  expect(info.contactShadow.vertices).toBe(120);
+  expect(info.contactShadow.totalPatchCount).toBe(30);
   expect(info.contactShadow.patchCount).toBe(20); // 4 table feet + 16 chair feet, the order the QA hook aligns by
-  expect(info.categories["contact-shadow"]).toEqual({ vertices: 104, meshes: 1 });
+  expect(info.categories["contact-shadow"]).toEqual({ vertices: 120, meshes: 1 }); // same four ottoman decals: 104 -> 120
   for (const covered of ["dining-table", "dining-chair-0.5-1.22", "dining-chair-0.5--0.22", "dining-chair--0.5-1.22", "dining-chair--0.5--0.22", "kitchen-island", "side-kitchen", "lounge-chair"]) {
     expect(info.contactShadow.coverage).toContain(covered);
   }
