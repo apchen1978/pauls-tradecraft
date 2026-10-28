@@ -9,10 +9,10 @@ const MOODS = ["golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
 const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
 // Measured from main 7f42bd2 (after lemon bowl, wok run A, tile B; Codex first measured 30696/96 on db23c06); non-tableware moods must retain these exact scene totals.
 const BASELINE_BY_WIDTH_AND_MOOD = {
-  // Lounge ottoman: every baseline +533 vertices and +2 meshes (30,220/93 -> 30,753/95); draw calls unchanged.
+  // Lounge ottoman: every baseline +533 vertices and +2 meshes (30,220/93 -> 30,753/95), then the lamp-wall painting adds 124 vertices and no mesh (-> 30,877/95); draw calls unchanged.
   // Desktop draw calls +1 in every mood versus the first v2 baseline (69/67/69/71/69/71): the lemon bowl moved from z 0.76 to the table centre 0.5 and now enters the default desktop frame. Phone views are unchanged.
-  1440: { golden: [30753, 95, 70], movie: [30753, 95, 68], night: [30753, 95, 70], dinner: [30753, 95, 72], sunday: [30753, 95, 70], thanksgiving: [30753, 95, 72] },
-  390: { golden: [30753, 95, 72], movie: [30753, 95, 70], night: [30753, 95, 72], dinner: [30753, 95, 74], sunday: [30753, 95, 72], thanksgiving: [30753, 95, 74] },
+  1440: { golden: [30877, 95, 70], movie: [30877, 95, 68], night: [30877, 95, 70], dinner: [30877, 95, 72], sunday: [30877, 95, 70], thanksgiving: [30877, 95, 72] },
+  390: { golden: [30877, 95, 72], movie: [30877, 95, 70], night: [30877, 95, 72], dinner: [30877, 95, 74], sunday: [30877, 95, 72], thanksgiving: [30877, 95, 74] },
 };
 
 async function loadRoom(page, width) {

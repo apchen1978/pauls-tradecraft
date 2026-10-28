@@ -8,6 +8,7 @@ if (QA) mkdirSync(QA, { recursive: true });
 const FRAMES = {
   "cable-car": ["cable-car", "fog-bridge", "marin-hills", "poster-sun"],
   "redwood-path": ["redwood-path", "ferry-building", "oak-street", "poster-arch", "poster-leaf"],
+  "lamp-wall": ["botanical-window", "hills-sun", "moon-hills"],
 };
 
 async function loadRoom(page, width, lang = "zh") {
@@ -23,12 +24,13 @@ const distance = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 for (const width of [1440, 390]) {
   test(`every painting option paints its frame, fetches only when chosen and costs no geometry at ${width}px`, async ({ page }) => {
     const printRequests = [];
-    page.on("request", (request) => { if (request.url().includes("room03-print-")) printRequests.push(request.url()); });
+    page.on("request", (request) => { // The lamp-wall frame's own default picture loads with the room, so only its alternatives count as "chosen" downloads.
+    if (request.url().includes("room03-print-") || /room03-lamp-wall-(hills|moon)/.test(request.url())) printRequests.push(request.url()); });
     await loadRoom(page, width);
     expect(printRequests, "no replacement print is downloaded until one is chosen").toEqual([]);
     const base = await page.evaluate(() => window.__room03.info());
     expect(await page.evaluate(() => window.__room03.artOptions())).toEqual(FRAMES);
-    expect(base.wallArtChoice).toEqual({ "cable-car": "cable-car", "redwood-path": "redwood-path" });
+    expect(base.wallArtChoice).toEqual({ "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "botanical-window" });
     await page.locator("#swaps summary").click();
     const baseMean = base.wallArtMean;
     for (const [frame, options] of Object.entries(FRAMES)) {
@@ -61,7 +63,7 @@ for (const width of [1440, 390]) {
       // Every other option reads clearly different from the original.
       for (const [option, mean] of seen.slice(1)) expect(distance(mean, baseMean[frame]), `${option} differs from the original`).toBeGreaterThan(6);
     }
-    expect(printRequests.length, "each print is fetched once per choice, never all at once").toBeGreaterThanOrEqual(7);
+    expect(printRequests.length, "each print is fetched once per choice, never all at once").toBeGreaterThanOrEqual(9);
   });
 }
 

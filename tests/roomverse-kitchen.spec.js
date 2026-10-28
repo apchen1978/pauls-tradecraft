@@ -1003,8 +1003,8 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   await page.waitForFunction(() => window.__room03.info().wokTile.status === "loaded");
   const info = await page.evaluate(() => window.__room03.info());
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
-  // Lounge ottoman + foot decals: 30,220 -> 30,753 vertices, 93 -> 95 meshes.
-  expect(info.vertices).toBe(30753);
+  // Lounge ottoman + foot decals: 30,220 -> 30,753 vertices, 93 -> 95 meshes; lamp-wall painting +124 vertices, no mesh -> 30,877.
+  expect(info.vertices).toBe(30877);
   expect(info.meshes).toBe(95);
   // Old 69 -> new 70: lemon bowl moved to the table centreline and now enters the default desktop frame (+1).
   expect(info.drawCallsLastFrame).toBe(70);
