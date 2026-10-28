@@ -957,13 +957,52 @@ function buildTableware(scene) {
     geometryParts[bucket].push(geometry);
     return geometry;
   };
+  // A scored batard rather than a plain egg (Paul 2026-10-29: the bread and food looked flat): poles along the loaf so its ends taper, a flatter
+  // underside, three slanted scoring grooves cut 4.5 mm into the crust and tinted crumb-gold, and a crust that darkens toward the board and
+  // is dusted with flour on top. Same ceramic material and batch, so no extra draw call.
+  const makeLoafGeometry = (radii) => {
+    const geometry = new THREE.SphereGeometry(1, 28, 18);
+    geometry.rotateZ(Math.PI / 2);
+    const position = geometry.attributes.position;
+    const colors = new Float32Array(position.count * 3);
+    const crustLow = new THREE.Color(0x7d4f26), crustHigh = new THREE.Color(0xb8864a), crumb = new THREE.Color(0xe8cf9b), dust = new THREE.Color(0xd9b982);
+    const tint = new THREE.Color();
+    const grooves = [-0.06, 0.0, 0.06];
+    for (let i = 0; i < position.count; i++) {
+      const ux = position.getX(i), uy = position.getY(i), uz = position.getZ(i);
+      const taper = 1 - 0.28 * Math.pow(Math.abs(ux), 3.5);
+      const x = ux * radii[0], z = uz * radii[2] * taper;
+      let y = uy * (uy < 0 ? 0.30 : 1) * radii[1] * (0.85 + 0.15 * taper);
+      let groove = 0;
+      if (y > radii[1] * 0.25) {
+        for (const centre of grooves) {
+          const distance = Math.abs(x - centre - 0.4 * z);
+          if (distance < 0.0075) groove = Math.max(groove, 1 - (distance / 0.0075) ** 2);
+        }
+        y -= groove * 0.0045;
+      }
+      position.setXYZ(i, x, y, z);
+      const height = THREE.MathUtils.clamp((y / radii[1] + 0.3) / 1.3, 0, 1);
+      tint.copy(crustLow).lerp(crustHigh, height);
+      const noise = Math.abs(Math.sin(x * 271.1 + z * 97.7) * 43758.5453) % 1;
+      if (y > 0) tint.lerp(dust, 0.22 * noise * height);
+      if (groove > 0) tint.lerp(crumb, Math.min(1, groove * 1.3));
+      tint.toArray(colors, i * 3);
+    }
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    geometry.computeVertexNormals();
+    return geometry;
+  };
   // Loaf pressed 3 mm into the board; two slices cut off the near end, uneven on purpose.
-  keepBox("loaf", addEllipsoid("ceramic", [0.115, 0.042, 0.050], [BOARD.x - 0.045, boardTop + 0.042 - 0.003, CENTRE_Z - 0.004], 0xa9763f, 0.14));
+  const loafGeometry = makeLoafGeometry([0.115, 0.044, 0.050]);
+  loafGeometry.rotateY(0.14);
+  loafGeometry.translate(BOARD.x - 0.045, boardTop - 0.003 + 0.30 * 0.044, CENTRE_Z - 0.004);
+  geometryParts.ceramic.push(keepBox("loaf", loafGeometry));
   for (const [index, [dx, dz, yawRad]] of [[0.092, 0.022, 0.10], [0.108, -0.012, -0.18]].entries()) {
     const sliceCentre = [BOARD.x + dx, boardTop + 0.034 - 0.002, CENTRE_Z + dz];
     const tilt = 0.06 * (index ? -1 : 1);
     keepBox(`slice-${index}`, addEllipsoid("ceramic", [0.0070, 0.034, 0.040], sliceCentre, 0xa9763f, yawRad, tilt));
-    addEllipsoid("ceramic", [0.0074, 0.030, 0.036], sliceCentre, 0xe3c98f, yawRad, tilt);
+    addEllipsoid("ceramic", [0.0074, 0.0315, 0.0376], sliceCentre, 0xe8cf9b, yawRad, tilt); // crust ring about 2.5 mm, not a donut
   }
 
   const materials = {
