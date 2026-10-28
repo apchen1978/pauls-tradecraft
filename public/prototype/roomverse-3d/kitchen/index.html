@@ -23,7 +23,8 @@
     .room::after { position:absolute; inset:0; content:""; pointer-events:none; background:radial-gradient(ellipse at 50% 48%,transparent 60%,#241c1124 100%); }
     .status { position:absolute; z-index:2; top:50%; left:50%; transform:translate(-50%,-50%); padding:9px 14px; border-radius:999px; background:#fffE; font-size:14px; }
     .immersive-enter,.immersive-exit { display:none; }
-    .center-view { position:absolute; z-index:4; top:10px; left:10px; min-height:44px; padding:9px 14px; border:1px solid #fff9; border-radius:999px; background:#29352de8; color:#fff; font:700 14px system-ui,sans-serif; cursor:pointer; }
+    .view-buttons { position:absolute; z-index:4; top:10px; left:10px; display:flex; flex-wrap:wrap; gap:8px; }
+    .center-view, .plaque-view { min-height:44px; padding:9px 14px; border:1px solid #fff9; border-radius:999px; background:#29352de8; color:#fff; font:700 14px system-ui,sans-serif; cursor:pointer; }
     .toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin:12px clamp(12px,2vw,28px) 0; }
     .moods { display:flex; flex-wrap:wrap; gap:8px; }
     @media (max-width:500px) {
@@ -51,7 +52,7 @@
     .room.is-immersive #stage { height:100%; }
     .room.is-immersive .immersive-enter { display:none; }
     .room.is-immersive .immersive-exit { display:block; position:absolute; z-index:4; top:calc(8px + env(safe-area-inset-top)); left:calc(8px + env(safe-area-inset-left)); background:#29352de8; border-color:#fff9; color:#fff; }
-    .room.is-immersive .center-view { top:calc(60px + env(safe-area-inset-top)); left:calc(8px + env(safe-area-inset-left)); }
+    .room.is-immersive .view-buttons { top:calc(60px + env(safe-area-inset-top)); left:calc(8px + env(safe-area-inset-left)); }
     .room.is-immersive + .toolbar { display:none; }
     .room.is-immersive ~ .mood-note { display:none; }
     .room.is-immersive .immersive-controls { display:flex; position:absolute; z-index:4; right:0; bottom:0; left:0; padding:8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left)); background:linear-gradient(transparent,#171a14dc 28%); }
@@ -80,7 +81,10 @@
     <section class="room" aria-label="Room 03 3D room">
       <div id="stage"></div>
       <p id="status" class="status" role="status"></p>
-      <button class="center-view" id="centerView" type="button" aria-pressed="false" hidden></button>
+      <div class="view-buttons">
+        <button class="center-view" id="centerView" type="button" aria-pressed="false" hidden></button>
+        <button class="plaque-view" id="plaqueView" type="button" hidden></button>
+      </div>
       <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
       <button class="immersive-exit" id="immersiveExit" type="button"></button>
       <div class="immersive-controls" id="immersiveControls"></div>
@@ -92,6 +96,6 @@
     <p class="mood-note" id="why" aria-live="polite"></p>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=50"></script>
+  <script type="module" src="page.js?v=51"></script>
 </body>
 </html>
