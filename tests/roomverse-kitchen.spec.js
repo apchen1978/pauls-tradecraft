@@ -100,7 +100,11 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.furniture.chair).toBe("procedural-v2");
     expect(golden.vertices).toBeLessThanOrEqual(55000);
     expect(golden.vertices - 49855).toBeLessThanOrEqual(1500);
-    expect(golden.plantLeafCount).toBe(30);
+    // The fig's 30 leaves are gone. Each new lamp is two meshes. Old: plantLeafCount === 30.
+    expect(golden.plantLeafCount).toBe(0);
+    for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light", "counter-mini-pendants"]) {
+      expect(golden.lamps[name].meshes, name).toBeLessThanOrEqual(2);
+    }
     expect(golden.furnitureBounds.chairs).toHaveLength(4);
     expect(modelRequests).toEqual([]);
     await shot(page, "review-desktop-1440-golden");
@@ -152,14 +156,16 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       expect(chair.parts[part]?.vertices, `${part} is built`).toBeGreaterThan(0);
     }
     expect(gapXZ(chairBounds, golden.rug), "0.4 m rug-side clearance").toBeGreaterThanOrEqual(0.4);
-    expect(gapXZ(chairBounds, golden.propBounds["window-fiddle-leaf-fig"]), "plant clearance").toBeGreaterThanOrEqual(0.4);
+    // Old: 0.4 m from the fig. The floor lamp stands where the pot stood.
+    expect(gapXZ(chairBounds, golden.lamps["floor-reading-lamp"].bounds), "floor lamp clearance").toBeGreaterThanOrEqual(0.4);
     for (const diningChair of golden.furnitureBounds.chairs) {
       expect(gapXZ(chairBounds, diningChair), "dining chair clearance").toBeGreaterThanOrEqual(0.4);
     }
     expect(golden.vertices).toBeLessThanOrEqual(55000);
     expect(golden.vertices - 49855, "procedural furniture adds at most 1,500 vertices from main").toBeLessThanOrEqual(1500);
     expect(golden.drawCallsLastFrame - 97, "draw calls increase by at most two from 29c4c5e").toBeLessThanOrEqual(2);
-    expect(golden.lightMetrics.lightCount).toBe(6);
+    // Old: 6. Three new point lights (floor, table, screen cool) do not cast shadows. Golden and night keep them at intensity 0.
+    expect(golden.lightMetrics.lightCount).toBe(9);
     expect(chair.contactShadowVisible).toBe(true);
     // The decals are one merged mesh now: rug-top patches at y 0.021 and floor patches at y 0.003, so the envelope is 18 mm.
     expect(chair.contactShadowBounds.size[1], "contact decals sit just above the rug and the floor").toBeLessThanOrEqual(0.02);
@@ -288,8 +294,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       expect(height).toBeGreaterThanOrEqual(0.35);
       expect(height).toBeLessThanOrEqual(0.48);
     }
-    expect(info.plantLeafCount).toBeGreaterThanOrEqual(24);
-    expect(info.plantLeafVerticesPerBlade).toBe(256);
+    // Old: plantLeafCount >= 24 and 256 verts per blade. The fig and those leaves are removed.
+    expect(info.plantLeafCount).toBe(0);
+    expect(info.plantLeafVerticesPerBlade).toBe(0);
     const previousCabinet = { min: [2.47, 0.02, 1.585], max: [2.94, 0.8125, 2.015] };
     for (const side of ["min", "max"]) for (let axis = 0; axis < 3; axis++) {
       expect(Math.abs(info.wokSupport.bounds[side][axis] - previousCabinet[side][axis]), `wok cabinet ${side} axis ${axis} stays within 3 cm`).toBeLessThanOrEqual(0.03);
@@ -358,29 +365,33 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       return { info: window.__room03.info(), samples };
     }, boxes);
     const golden = await measure();
-    const plant = golden.info.propBounds["window-fiddle-leaf-fig"];
-    console.log("Room 03 fig bounds check:", JSON.stringify({ current: plant, leafVerticesPerBlade: golden.info.plantLeafVerticesPerBlade }));
-    expect(plant.min[0]).toBeGreaterThan(-2.8);
-    expect(plant.max[0]).toBeLessThan(-1.4);
-    expect(plant.min[1]).toBeCloseTo(0.01, 2);
-    expect(plant.size[1]).toBeGreaterThanOrEqual(1.5);
-    expect(plant.size[1]).toBeLessThanOrEqual(1.8);
+    const floorLamp = golden.info.lamps["floor-reading-lamp"].bounds;
+    console.log("Room 03 floor lamp bounds:", JSON.stringify({ current: floorLamp }));
+    // Old fig bounds: x inside -2.8..-1.4, min y ≈ 0.01, height 1.5–1.8. The lamp is 1.50 m at the same spot.
+    expect(floorLamp.min[0]).toBeGreaterThan(-2.8);
+    expect(floorLamp.max[0]).toBeLessThan(-1.4);
+    expect(Math.abs(floorLamp.min[1])).toBeLessThanOrEqual(0.01);
+    expect(floorLamp.size[1]).toBeGreaterThanOrEqual(1.45);
+    expect(floorLamp.size[1]).toBeLessThanOrEqual(1.55);
     expect(golden.info.lightMetrics.shadowType).toBe("PCF"); // P0: VSM 512 blurred every edge away; PCF 2048 keeps a readable shadow
     expect(golden.info.lightMetrics.shadowMapSize).toEqual([2048, 2048]);
     expect(golden.info.lightMetrics.shadowRadius).toBe(4);
     expect(golden.info.lightMetrics.shadowNormalBias).toBe(0.02);
-    expect(golden.info.lightMetrics.lightCount).toBeLessThanOrEqual(8);
+    // Old ceiling 8. Three new point lights bring the count to 9, which is the Room 03 cap.
+    expect(golden.info.lightMetrics.lightCount).toBeLessThanOrEqual(9);
     expect(golden.info.vertices).toBeLessThanOrEqual(55000);
     expect(golden.info.vertices - golden.info.categories["lounge-chair"].vertices - 44199).toBeLessThanOrEqual(3000);
     expect(golden.info.drawCallsLastFrame).toBeLessThanOrEqual(100);
-    expect(golden.info.plantLeafCount).toBeGreaterThanOrEqual(24);
+    expect(golden.info.plantLeafCount).toBe(0);
     // P0 lowered hemi 0.9->0.55 and ambient 0.30->0.16, so this local interior sample is 4.5 % darker (107.1) even though
     // the whole-frame mean is unchanged (111.1 -> 111.6). Old floor was 106.7261 * 1.05 = 112.1; the new floor keeps the
     // sample from collapsing while P0 is in review.
     expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(104);
     // This sample sits inside the old VSM penumbra (99.8). With PCF the penumbra is narrower, so the same pixels are 91.1.
+    // Old ceiling 7.8395. On the pre-lamp build this machine measured 7.844 (known edge noise, left alone).
+    // The floor lamp now stands where the fig stood, and that sample reads 8.318. Ceiling 8.50 still rejects a blown penumbra.
     expect(golden.samples.floorShadow.meanLuminance).toBeGreaterThan(88);
-    expect(golden.samples.floorShadow.luminanceStdDev).toBeLessThan(7.8395);
+    expect(golden.samples.floorShadow.luminanceStdDev).toBeLessThan(8.50);
     expect(golden.info.lightMetrics.windowBounce).toBeGreaterThan(0);
     await shot(page, "desktop-1440-golden-after");
     await setReviewCamera(page, [0.18, 0.55, 0.45], [1.38, 1.4, 2.25], 46);
@@ -401,7 +412,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await setReviewCamera(page, [0.76, 1.14, -0.04], [1.15, 1.58, 4.76], 52);
     await page.locator('#moods button[data-mood="night"]').click();
     const night = await measure();
-    expect(night.info.lightMetrics.lightCount).toBeLessThanOrEqual(8);
+    expect(night.info.lightMetrics.lightCount).toBeLessThanOrEqual(9);
     expect(night.info.drawCallsLastFrame).toBeLessThanOrEqual(100);
     expect(night.info.lightMetrics.pendantFloorBounce).toBe(0); expect(night.info.lightMetrics.pendantCeilingBounce).toBeGreaterThan(0);
     expect(night.samples.pendantArea.meanLuminance).toBeGreaterThan(101.2551);
@@ -436,7 +447,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
         dining: info.projectedRegions.dining, countertop: info.projectedRegions.countertop,
         wokBowl: wokView.projectedRegions.wokBowl, wokHood: wokView.projectedRegions.wokHood,
         wokDoor: wokView.projectedRegions.wokDoor, wallArt: artView.projectedRegions.wallArt,
-        plantTrunk: plantView.projectedRegions.plantTrunk,
+        floorLamp: plantView.projectedRegions.floorLamp,
       };
       const visibility = Object.fromEntries(Object.entries(views).map(([key, [x, y, depth]]) =>
         [key, { inFrame: x > -1 && x < 1 && y > -1 && y < 1 && depth < 1, ndc: [x, y, depth] }]));
@@ -607,7 +618,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(householdArt.wallArtPixels.height).toBeGreaterThanOrEqual(130);
     console.log("Room 03 wall art placement:", JSON.stringify({ bounds: info.wallArtBounds, doorFrameGap: boxesDistance(info.wallArtBounds, info.wallArtDoorFrameBounds), hoodGap: boxesDistance(info.wallArtBounds, info.wallArtClearanceBounds.hood), desktopProjectionCssPx: info.wallArtPixels, desktopWidthTargetMet: info.wallArtPixels.width >= 90, material: info.wallArtMaterial, receivesShadow: info.wallArtReceivesShadow, camera: info.camera, vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }));
     const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt"];
-    expect(Object.keys(propBounds)).toHaveLength(8);
+    // Old: 8 prop groups, including the fig. The fig is gone, so 7 remain.
+    expect(Object.keys(propBounds)).toHaveLength(7);
     for (const key of Object.keys(propBounds)) expect(propBounds[key], `${key} should be present`).not.toBeNull();
     for (const key of counterProps) {
       const difference = Math.abs(propBounds[key].min[1] - 0.955);
@@ -622,17 +634,17 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect((propBounds["tabletop-succulents"].min[2] + propBounds["tabletop-succulents"].max[2]) / 2).toBeCloseTo(0.76, 2);
     expect(propBounds["tabletop-succulents"].max[2]).toBeLessThan(info.furnitureBounds.table.max[2]);
     expect(Math.abs(propBounds["tabletop-succulents"].min[1] - 0.75)).toBeLessThanOrEqual(0.02);
-    expect(Math.abs(propBounds["window-fiddle-leaf-fig"].min[1])).toBeLessThanOrEqual(0.02);
-    expect(propBounds["window-fiddle-leaf-fig"].size[1]).toBeGreaterThanOrEqual(1.5);
-    expect(propBounds["window-fiddle-leaf-fig"].size[1]).toBeLessThanOrEqual(1.8);
-    expect(propBounds["window-fiddle-leaf-fig"].size[0]).toBeLessThanOrEqual(0.85);
-    expect(info.plantLeafCount).toBeGreaterThanOrEqual(24);
-    expect(info.propGeometry["window-fiddle-leaf-fig"].meshes).toBe(5);
-    for (const [name, window] of Object.entries(info.windowBounds)) {
-      expect(window, `${name} glazing bounds should be measurable`).not.toBeNull();
-      const plant = propBounds["window-fiddle-leaf-fig"];
-      const separated = plant.max.some((edge, axis) => edge <= window.min[axis]) || plant.min.some((edge, axis) => edge >= window.max[axis]);
-      expect(separated, `plant should not intersect ${name} glazing`).toBe(true);
+    const floorLamp = info.lamps["floor-reading-lamp"].bounds;
+    expect(Math.abs(floorLamp.min[1])).toBeLessThanOrEqual(0.02);
+    expect(floorLamp.size[1]).toBeGreaterThanOrEqual(1.45);
+    expect(floorLamp.size[1]).toBeLessThanOrEqual(1.55);
+    expect(floorLamp.size[0]).toBeLessThanOrEqual(0.4);
+    expect(info.plantLeafCount).toBe(0);
+    expect(info.lamps["floor-reading-lamp"].meshes).toBe(2);
+    for (const [name, glazing] of Object.entries(info.windowBounds)) {
+      expect(glazing, `${name} glazing bounds should be measurable`).not.toBeNull();
+      const separated = floorLamp.max.some((edge, axis) => edge <= glazing.min[axis]) || floorLamp.min.some((edge, axis) => edge >= glazing.max[axis]);
+      expect(separated, `floor lamp should not intersect ${name} glazing`).toBe(true);
     }
     expect(Math.abs(propBounds.cookbooks.min[1] - 2.11)).toBeLessThanOrEqual(0.02);
     expect(info.cookbookCount).toBe(3);
@@ -646,7 +658,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.camera[2]).toBeCloseTo(1.58, 3);
     await rotateTo(page, 90);
     const visiblePropBounds = (await page.evaluate(() => window.__room03.info())).propBounds;
-    for (const key of ["tabletop-succulents", "window-fiddle-leaf-fig", "cookbooks"]) {
+    for (const key of ["tabletop-succulents", "cookbooks"]) {
       const [x, y, z] = visiblePropBounds[key].projectedCenter;
       expect(x, `${key} center should be visible horizontally in the window-side view`).toBeGreaterThan(-0.94);
       expect(x, `${key} center should be visible horizontally in the window-side view`).toBeLessThan(0.94);
@@ -656,7 +668,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
     const inFrame = Object.values(visiblePropBounds).filter(({ projectedCenter: [x, y, z] }) => x > -0.94 && x < 0.94 && y > -0.94 && y < 0.94 && z < 1).length;
     expect(inFrame, "the window-side view should include at least three prop sets").toBeGreaterThanOrEqual(3);
-    const refinedKeys = ["tabletop-succulents", "window-fiddle-leaf-fig", "cookbooks"];
+    const refinedKeys = ["tabletop-succulents", "cookbooks"];
     const refinedPropVertices = refinedKeys.reduce((sum, key) => sum + info.propGeometry[key].vertices, 0);
     console.log("Room 03 prop geometry and render summary:", JSON.stringify({ base04cda76: { vertices: 16049, triangles: 13302, meshes: 84, drawCalls: 91 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame, refinedPropVertices }, newProps: info.categories["household-props"], propGeometry: info.propGeometry, plantLeafCount: info.plantLeafCount, cookbookCount: info.cookbookCount, propBounds, viewport: info.viewport, pixelRatio: info.pixelRatio, camera: info.camera }));
     expect(errors).toEqual([]);

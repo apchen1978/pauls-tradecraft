@@ -57,10 +57,12 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   expect(turned.corners.every(([x, y, z]) => Math.abs(x) < 0.98 && Math.abs(y) < 0.98 && z < 1)).toBe(true);
   await shot(page, "plaque-desktop-1440-180");
   const desktopTurned = await page.evaluate(() => window.__room03.info());
-  expect(desktop.vertices).toBe(41262); // 41,258 on main e996f45 plus this plane's 4 vertices
-  expect(desktop.meshes).toBe(95); // 94 plus one mesh
-  // The opening camera faces the kitchen, so frustum culling leaves the first screen at the old 70 calls.
-  expect(desktop.drawCallsLastFrame).toBe(70);
+  // Old on the plaque commit: 41,262 verts, 95 meshes, 70 opening draw calls.
+  // Lamps PR: fig −10,464, fig contact patch −4, four lamps +1,347 verts; meshes 95 − 5 + 8 = 98.
+  // Opening view shows the two counter-pendant meshes, so draw calls 70 → 72.
+  expect(desktop.vertices).toBe(32141);
+  expect(desktop.meshes).toBe(98);
+  expect(desktop.drawCallsLastFrame).toBe(72);
   const hiddenDesktop = await page.evaluate(() => {
     window.__room03.plaqueMesh.visible = false;
     window.__room03.render();
@@ -75,7 +77,8 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   const mobileOpening = await page.evaluate(() => window.__room03.info());
   await shot(page, "plaque-mobile-390-default");
   expect(mobileOpening.plaque.inView).toBe(false);
-  expect(mobileOpening.drawCallsLastFrame).toBe(72); // phone first screen, plaque outside the frustum
+  // Old phone first screen 72. Same two pendant meshes → 74. The plaque is still outside the frustum.
+  expect(mobileOpening.drawCallsLastFrame).toBe(74);
   await page.evaluate(() => window.__room03.setView(Math.PI));
   const mobile = await page.evaluate(() => window.__room03.info());
   expect(mobile.plaque.inView).toBe(true);

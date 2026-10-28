@@ -10,8 +10,8 @@ const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
 // The right pier of the entry front wall is the empty stretch beside the doorway. Its box is
 // centered at (2.05, 1.35, 2.4) with size (2.1, 2.7, 0.12), so the room-facing face is z = 2.34
 // and the pier covers x = 1.00 to 3.10. x = 1.72 keeps the board on that pier (x = 1.34 to 2.10),
-// 34 cm clear of the doorway band at x = 1, and clear of the wok door at x ≈ 2.9. The left pier is the
-// alternative; the fiddle-leaf fig stands in front of it, so the board would be hidden there.
+// 34 cm clear of the doorway band at x = 1, and clear of the wok door at x ≈ 2.9. #578 measured this
+// spot; the board stays here after the fig came out.
 const HOUSE_PLAQUE = Object.freeze({
   width: 0.76,
   height: 0.304,
@@ -1094,14 +1094,14 @@ function measureRoomFootToBody(scene, tableStatus, diningGaps, loungeFit) {
     repairedInThisPr: false,
     note: "under 5 mm; left unchanged",
   });
-  const fig = scene.getObjectByName("prop-window-fiddle-leaf-fig");
-  const figMinY = fig ? new THREE.Box3().setFromObject(fig).min.y : null;
+  const floorLamp = scene.getObjectByName("floor-reading-lamp");
+  const floorLampMinY = floorLamp ? new THREE.Box3().setFromObject(floorLamp).min.y : null;
   rows.push({
-    item: "window fiddle-leaf fig",
+    item: "floor reading lamp",
     support: "floor",
-    gapMm: figMinY === null ? null : round(figMinY * 1000),
-    repairedInThisPr: false,
-    note: "the pot base ring is the body; there is no separate foot",
+    gapMm: floorLampMinY === null ? null : round(floorLampMinY * 1000),
+    repairedInThisPr: true,
+    note: "replaces the fiddle-leaf fig; the base sits on the floor",
   });
   const succulents = scene.getObjectByName("prop-tabletop-succulents");
   const tableBox = table ? new THREE.Box3().setFromObject(table) : null;
@@ -1524,95 +1524,6 @@ function buildHouseholdProps(scene, m) {
   centerpieceSlot.add(succulents);
   scene.add(centerpieceSlot);
 
-  // Fiddle-leaf fig: each petiole grows upward from the trunk instead of forming horizontal rungs.
-  const leafCount = 30;
-  let leafVerticesPerBlade = 0;
-  const figLeaf = m.leafGreen.clone(); figLeaf.color.setHex(0x668354);
-  const figLeafLight = m.leafGreenLight.clone(); figLeafLight.color.setHex(0x8ca668);
-  const fig = buildPropGroup(scene, "window-fiddle-leaf-fig", [-1.93, 0, 1.68], ({ shape }) => {
-    const potProfile = [
-      new THREE.Vector2(0.105, 0.01), new THREE.Vector2(0.14, 0.022),
-      new THREE.Vector2(0.17, 0.13), new THREE.Vector2(0.158, 0.255),
-      new THREE.Vector2(0.163, 0.266), new THREE.Vector2(0.157, 0.279),
-      new THREE.Vector2(0.139, 0.284), new THREE.Vector2(0.125, 0.27),
-      new THREE.Vector2(0.122, 0.245),
-    ];
-    shape(new THREE.LatheGeometry(potProfile, 24), m.stone);
-    shape(new THREE.CylinderGeometry(0.123, 0.123, 0.009, 18), m.soil, [0, 0.263, 0]);
-    const trunk = new THREE.CylinderGeometry(0.015, 0.028, 1.16, 12, 8);
-    const trunkPositions = trunk.attributes.position;
-    for (let i = 0; i < trunkPositions.count; i++) {
-      const t = (trunkPositions.getY(i) + 0.58) / 1.16;
-      trunkPositions.setX(i, trunkPositions.getX(i) + 0.035 * Math.sin(t * Math.PI));
-      trunkPositions.setZ(i, trunkPositions.getZ(i) + 0.016 * Math.sin(t * Math.PI * 1.6));
-    }
-    trunk.computeVertexNormals();
-    shape(trunk, m.oak, [0, 0.87, 0]);
-    const profile = [0.025, 0.18, 0.42, 0.68, 0.79, 0.74, 0.67, 0.69, 0.82, 0.97, 1.0, 0.94, 0.77, 0.54, 0.27, 0.025];
-    const rows = 16;
-    const widthAt = (t) => {
-      const position = t * (profile.length - 1);
-      const index = Math.min(Math.floor(position), profile.length - 2);
-      const u = position - index;
-      const a = profile[Math.max(0, index - 1)], b = profile[index];
-      const c = profile[index + 1], d = profile[Math.min(profile.length - 1, index + 2)];
-      return Math.max(0.025, 0.5 * (2 * b + (-a + c) * u + (2 * a - 5 * b + 4 * c - d) * u * u + (-a + 3 * b - 3 * c + d) * u * u * u));
-    };
-    const columns = 15;
-    const positions = [], uvs = [], indices = [];
-    for (let row = 0; row < rows; row++) {
-      const t = row / (rows - 1);
-      for (let column = 0; column <= columns; column++) {
-        const u = (column / columns) * 2 - 1;
-        const fold = Math.sin(Math.PI * t);
-        const bend = 0.10 * (1 - u * u) * fold - 0.035 * t * t + 0.035 * u * u * fold;
-        positions.push(u * widthAt(t), t - 0.025 * fold * (1 - u * u), bend);
-        uvs.push(column / columns, t);
-      }
-    }
-    for (let row = 0; row < rows - 1; row++) for (let column = 0; column < columns; column++) {
-      const a = row * (columns + 1) + column, b = a + columns + 1;
-      indices.push(a, a + 1, b, b, a + 1, b + 1);
-    }
-    const leafGeometry = new THREE.BufferGeometry();
-    leafGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    leafGeometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-    leafGeometry.setIndex(indices);
-    leafGeometry.computeVertexNormals();
-    const veinCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, 0, 0.015), new THREE.Vector3(0, 0.31, 0.09),
-      new THREE.Vector3(0, 0.67, 0.093), new THREE.Vector3(0, 1, -0.02),
-    ]);
-    const veinGeometry = new THREE.TubeGeometry(veinCurve, 8, 0.005, 3, false);
-    for (let index = 0; index < leafCount; index++) {
-      const level = Math.floor(index / 3), around = index % 3;
-      const angle = level * 1.73 + around * (Math.PI * 2 / 3);
-      const baseY = 0.51 + level * 0.085 + around * 0.018;
-      const radius = 0.17 + Math.sin((level / 9) * Math.PI) * 0.13;
-      const x = Math.cos(angle) * radius;
-      const z = Math.sin(angle) * radius * 0.72;
-      const length = 0.22 + level * 0.007 + ((level + around) % 3) * 0.012;
-      const width = 0.23 + level * 0.005 + ((level * 2 + around) % 3) * 0.012;
-      const rotation = [0.48 * Math.sin(angle), angle, 0.52 * Math.cos(angle + index * 0.13)];
-      const scale = [width / 2, length, 0.75];
-      const leafMaterial = index % 7 === 0 ? figLeafLight : figLeaf;
-      const petiole = new THREE.QuadraticBezierCurve3(
-        new THREE.Vector3(0, baseY - 0.10, 0),
-        new THREE.Vector3(x * 0.38, baseY - 0.02, z * 0.38),
-        new THREE.Vector3(x, baseY, z),
-      );
-      shape(new THREE.TubeGeometry(petiole, 7, 0.0045, 4, false), m.oak);
-      shape(leafGeometry.clone(), leafMaterial, [x, baseY, z], rotation, scale);
-      shape(veinGeometry.clone(), figLeafLight, [x, baseY, z], rotation, scale);
-    }
-    leafVerticesPerBlade = leafGeometry.attributes.position.count;
-    leafGeometry.dispose();
-    veinGeometry.dispose();
-  });
-  fig.userData.leafCount = leafCount;
-  fig.userData.leafVerticesPerBlade = leafVerticesPerBlade;
-  fig.scale.set(0.9, 1, 0.9);
-
   // Three upright cookbooks on the existing cabinet top; one leans gently against its neighbor.
   const cookbooks = buildPropGroup(scene, "cookbooks", [-1.52, 2.11, -2.16], ({ shape }) => {
     const addBookPart = (material, size, center, pivotX, tilt) => {
@@ -1807,6 +1718,141 @@ function addHousePlaque(scene, onChange) {
   return mesh;
 }
 
+function addRoom03Lamps(scene, materials) {
+  // Four fixtures, two meshes each. Coordinates come from the measured console, redwood frame and hood,
+  // not from the proposal's first guess. Golden and night leave the new point lights at intensity 0.
+  const paint = (geometry, hex) => {
+    const color = new THREE.Color(hex);
+    const colors = new Float32Array(geometry.attributes.position.count * 3);
+    for (let i = 0; i < geometry.attributes.position.count; i++) {
+      colors[i * 3] = color.r; colors[i * 3 + 1] = color.g; colors[i * 3 + 2] = color.b;
+    }
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    return geometry;
+  };
+  const place = (geometry, position, rotation) => {
+    geometry.applyMatrix4(new THREE.Matrix4().compose(
+      new THREE.Vector3(...position),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(...(rotation || [0, 0, 0]))),
+      new THREE.Vector3(1, 1, 1),
+    ));
+    return geometry;
+  };
+  const mergeParts = (parts) => {
+    const merged = mergeGeometries(parts, false);
+    parts.forEach((part) => part.dispose());
+    if (!merged) throw new Error("Could not merge a Room 03 lamp");
+    merged.computeVertexNormals();
+    return merged;
+  };
+  const addMesh = (parent, name, geometry, material) => {
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = name;
+    mesh.userData.category = "lighting";
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    parent.add(mesh);
+    return mesh;
+  };
+  const hardwareMaterial = () => {
+    const material = materials.black.clone();
+    material.vertexColors = true;
+    material.roughness = 0.45;
+    material.metalness = 0.25;
+    return material;
+  };
+  const shadeMaterial = (emissive) => {
+    const material = materials.opal.clone();
+    material.color.setHex(0xfff4e4);
+    material.emissive.setHex(emissive);
+    material.emissiveIntensity = 0;
+    material.roughness = 0.35;
+    material.metalness = 0;
+    return material;
+  };
+
+  const floor = new THREE.Group();
+  floor.name = "floor-reading-lamp";
+  floor.position.set(-1.93, 0, 1.68);
+  const floorShade = shadeMaterial(0xffc27a);
+  addMesh(floor, "floor-reading-lamp-hardware", mergeParts([
+    paint(place(new THREE.CylinderGeometry(0.16, 0.18, 0.02, 16), [0, 0.01, 0]), 0x2a2622),
+    paint(place(new THREE.CylinderGeometry(0.012, 0.014, 1.30, 8), [0, 0.67, 0]), 0x2a2622),
+  ]), hardwareMaterial());
+  addMesh(floor, "floor-reading-lamp-shade", mergeParts([
+    place(new THREE.SphereGeometry(0.08, 14, 10), [0, 1.42, 0]),
+  ]), floorShade);
+  scene.add(floor);
+  const floorLight = new THREE.PointLight(0xffc27a, 0, 6, 2);
+  floorLight.name = "floor-lamp-light";
+  floorLight.castShadow = false;
+  floorLight.position.set(-1.93, 1.42, 1.68);
+  scene.add(floorLight);
+
+  // Left end of the console top (x -1.30 to 0, top y 0.575). The screen frame occupies x -1.14 to -0.16,
+  // so the 15 cm globe stays at x -1.295 to -1.145.
+  const table = new THREE.Group();
+  table.name = "console-table-lamp";
+  table.position.set(-1.22, 0.575, 3.52);
+  const tableShade = shadeMaterial(0xffcf9e);
+  addMesh(table, "console-table-lamp-hardware", mergeParts([
+    paint(place(new THREE.CylinderGeometry(0.055, 0.07, 0.16, 14), [0, 0.08, 0]), 0xe4d2b4),
+    paint(place(new THREE.TorusGeometry(0.04, 0.006, 6, 12), [0, 0.17, 0], [Math.PI / 2, 0, 0]), 0x8a5a32),
+    paint(place(new THREE.CylinderGeometry(0.008, 0.008, 0.08, 8), [0, 0.22, 0]), 0x8a5a32),
+  ]), hardwareMaterial());
+  addMesh(table, "console-table-lamp-shade", mergeParts([
+    place(new THREE.SphereGeometry(0.075, 14, 10), [0, 0.325, 0]),
+  ]), tableShade);
+  scene.add(table);
+  const tableLight = new THREE.PointLight(0xffcf9e, 0, 4, 2);
+  tableLight.name = "table-lamp-light";
+  tableLight.castShadow = false;
+  tableLight.position.set(-1.22, 0.90, 3.52);
+  scene.add(tableLight);
+
+  // Above the redwood frame (top y ≈ 2.385) and in front of the end wall (face z ≈ 3.74).
+  // The entry-hall band is at z ≈ 2.4; this fixture stays on the end wall.
+  const picture = new THREE.Group();
+  picture.name = "redwood-picture-light";
+  picture.position.set(0.86, 2.50, 3.66);
+  const pictureShade = shadeMaterial(0xffe1b0);
+  addMesh(picture, "redwood-picture-light-bar", mergeParts([
+    paint(place(new THREE.BoxGeometry(0.50, 0.028, 0.04), [0, 0.02, 0]), 0xb08a4e),
+    paint(place(new THREE.BoxGeometry(0.02, 0.04, 0.03), [-0.22, -0.01, 0.01]), 0xb08a4e),
+    paint(place(new THREE.BoxGeometry(0.02, 0.04, 0.03), [0.22, -0.01, 0.01]), 0xb08a4e),
+  ]), hardwareMaterial());
+  addMesh(picture, "redwood-picture-light-diffuser", mergeParts([
+    place(new THREE.BoxGeometry(0.42, 0.012, 0.045), [0, -0.004, 0.01]),
+  ]), pictureShade);
+  scene.add(picture);
+
+  // Clear of the hood (x 0.13–1.51, front z ≈ -1.735) and in front of the upper cabinets (front z ≈ -1.92).
+  const pendants = new THREE.Group();
+  pendants.name = "counter-mini-pendants";
+  const pendantShade = shadeMaterial(0xffe6c4);
+  const pendantCenters = [[-0.70, 1.88, -1.78], [1.78, 1.88, -1.78]];
+  const wires = [];
+  const globes = [];
+  for (const [x, y, z] of pendantCenters) {
+    const wireLength = 2.61 - (y + 0.10);
+    wires.push(paint(place(new THREE.CylinderGeometry(0.004, 0.004, wireLength, 6), [x, y + 0.10 + wireLength / 2, z]), 0x2a2622));
+    wires.push(paint(place(new THREE.CylinderGeometry(0.03, 0.03, 0.015, 10), [x, 2.602, z]), 0x8a5a32));
+    globes.push(place(new THREE.SphereGeometry(0.10, 14, 10), [x, y, z]));
+  }
+  addMesh(pendants, "counter-mini-pendants-hardware", mergeParts(wires), hardwareMaterial());
+  addMesh(pendants, "counter-mini-pendants-shades", mergeParts(globes), pendantShade);
+  pendants.userData.pendantCenters = pendantCenters.map((center) => [...center]);
+  scene.add(pendants);
+
+  const screenCoolLight = new THREE.PointLight(0xcdd6f0, 0, 5, 2);
+  screenCoolLight.name = "screen-cool-light";
+  screenCoolLight.castShadow = false;
+  screenCoolLight.position.set(-0.65, 1.06, 3.40);
+  scene.add(screenCoolLight);
+
+  return { floorLight, tableLight, screenCoolLight, pictureShade, pendantShade, floorShade, tableShade };
+}
+
 export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true) };
@@ -1892,7 +1938,7 @@ export async function start({ stage, onReady = () => {} }) {
   scene.add(sunlightPatch);
   // PR2: every piece that should sit on the floor shares one merged contact-shadow mesh (one material, one draw call).
   // Parts stay in this order: four dining-table feet, four chairs' foot dots, then island front edge, side-kitchen front
-  // edge, fig pot and the four lounge-chair feet. The QA hook aligns the dining patches by index, so that order matters.
+  // edge and the four lounge-chair feet. The #576 fig-pot patch is not in this list. The QA hook aligns the dining patches by index, so that order matters.
   // Night keeps a fainter decal than golden: the pendant point light already draws a real shadow there and two dark layers
   // would read as a stain. Candidate strengths: faint = { golden: 0.20, night: 0.08 }, recommended here = 0.30 / 0.12.
   const CONTACT_SHADOW_ALPHA = Object.freeze({ golden: 0.30, night: 0.12 });
@@ -1936,9 +1982,7 @@ export async function start({ stage, onReady = () => {} }) {
   };
   addContactStrip("merged-kitchen", "+z", 0.34, 2.7);
   addContactStrip("merged-side-kitchen", "-x", 0.30, 3.4);
-  // The fig pot: a round patch, not a strip.
-  addContactPatch(-1.93, 1.68, 0.46, 0.46, 0.004);
-  // Lounge-chair feet keep the four patches they already had.
+  // The fig pot patch from #576 is gone with the plant. Lounge-chair feet keep their four patches.
   for (const [localX, localZ] of [[-0.26, -0.25], [-0.26, 0.25], [0.26, -0.25], [0.26, 0.25]]) {
     const patch = new THREE.PlaneGeometry(0.18, 0.15);
     patch.rotateX(-Math.PI / 2);
@@ -1976,48 +2020,108 @@ export async function start({ stage, onReady = () => {} }) {
   const pendantFloorBounce = makeBouncePlane("pendant-floor-bounce", [2.55, 1.9], [0, 0.027, 0.3], [-Math.PI / 2, 0, 0], 0xffcf91);
   const pendantCeilingBounce = makeBouncePlane("pendant-ceiling-bounce", [2.3, 1.65], [0, 2.601, 0.15], [Math.PI / 2, 0, 0], 0xffd5a0);
 
-  const moods = {
-    // P0 lighting: the old golden preset leaned on 0.9 hemi + 0.30 ambient, which filled every crevice and left the new
-    // PCF shadows without contrast. Ambient is pulled down and exposure lifted to keep the room just as bright on average
-    // (mean luminance within 2 % of the previous build; see the PR numbers).
-    golden: { sun: 3.1, hemi: 0.55, ambient: 0.16, pendant: 0.32, under: 0.42, side: 0.48, exposure: 1.26, yard: 0xffd7a1, globe: 0.34 },
-    night: { sun: 0, hemi: 0.55, ambient: 0.26, pendant: 7.0, under: 2.7, side: 2.3, exposure: 1.20, yard: 0x5d7593, globe: 1.55 },
+  // One table for every per-mood switch. Golden and night keep the values setMood used to
+  // hard-code. Fields that have no mesh yet (blind, the three new lamps) are stored and applied
+  // only when that object exists, so this table does not change the picture.
+  const MOOD_LOOK_FIELDS = Object.freeze([
+    "sun", "sunColor", "sunPosition", "hemi", "hemiSky", "hemiGround", "ambient", "ambientColor",
+    "pendant", "under", "side", "exposure", "yard", "globe", "sky", "floor", "jute", "ceilingEmissive",
+    "warmGlow", "wokGlow", "sunlightOpacity", "sunlightVisible", "windowWallBounce", "windowWallBounceVisible",
+    "pendantFloorBounce", "pendantFloorBounceVisible", "pendantCeilingBounce", "pendantCeilingBounceVisible",
+    "reveal", "contactShadow", "loungePillow", "screenColor", "screenToneMapped", "screenMap",
+    "floorLamp", "tableLamp", "screenCool", "pictureLightEmissive", "counterPendantEmissive", "blind",
+  ]);
+  const sharedLook = {
+    sunColor: 0xffd6a1, sunPosition: [-4.2, 1.2, 3.6],
+    hemiSky: 0xfff0d4, hemiGround: 0x6f6658, ambientColor: 0xffffff,
+    sunlightOpacity: 0, sunlightVisible: false,
+    pendantFloorBounce: 0, pendantFloorBounceVisible: false,
+    loungePillow: 0x7f946c, screenColor: 0x171918, screenToneMapped: true, screenMap: null,
+    floorLamp: 0, tableLamp: 0, screenCool: 0, pictureLightEmissive: 0, counterPendantEmissive: 0,
   };
+  const MOOD_LOOK = Object.freeze({
+    golden: Object.freeze({
+      ...sharedLook,
+      sun: 3.1, hemi: 0.55, ambient: 0.16, pendant: 0.32, under: 0.42, side: 0.48,
+      exposure: 1.26, yard: 0xffd7a1, globe: 0.34, sky: "golden",
+      floor: 0xcdbb9e, jute: 0xd0b47f, ceilingEmissive: 0.3,
+      warmGlow: 0.72, wokGlow: 0.72,
+      windowWallBounce: 0.12, windowWallBounceVisible: true,
+      pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
+      reveal: 0.72, contactShadow: 0.30, blind: "open",
+    }),
+    night: Object.freeze({
+      ...sharedLook,
+      sun: 0, hemi: 0.55, ambient: 0.26, pendant: 7.0, under: 2.7, side: 2.3,
+      exposure: 1.20, yard: 0x5d7593, globe: 1.55, sky: "night",
+      floor: 0xc2a77b, jute: 0xd9c99f, ceilingEmissive: 0.55,
+      warmGlow: 1, wokGlow: 1,
+      windowWallBounce: 0, windowWallBounceVisible: false,
+      pendantCeilingBounce: 0.05, pendantCeilingBounceVisible: true,
+      reveal: 1, contactShadow: 0.12, blind: "closed",
+    }),
+  });
+  let floorLampLight = null, tableLampLight = null, screenCoolLight = null;
+  let pictureLightMaterial = null, counterPendantMaterial = null;
+  let floorShadeMaterial = null, tableShadeMaterial = null;
+  {
+    const lamps = addRoom03Lamps(scene, materials);
+    floorLampLight = lamps.floorLight;
+    tableLampLight = lamps.tableLight;
+    screenCoolLight = lamps.screenCoolLight;
+    pictureLightMaterial = lamps.pictureShade;
+    counterPendantMaterial = lamps.pendantShade;
+    floorShadeMaterial = lamps.floorShade;
+    tableShadeMaterial = lamps.tableShade;
+  }
   let currentMood = "golden";
   function setMood(name) {
-    const preset = moods[name]; if (!preset) return;
+    const look = MOOD_LOOK[name]; if (!look) return;
     currentMood = name;
-    sun.intensity = preset.sun; hemi.intensity = preset.hemi; ambient.intensity = preset.ambient;
-    pendantLight.intensity = preset.pendant; underLight.intensity = preset.under; sideLight.intensity = preset.side;
-    renderer.toneMappingExposure = preset.exposure;
-    scene.background = skyMaterials[name];
+    sun.intensity = look.sun; sun.color.setHex(look.sunColor); sun.position.set(...look.sunPosition);
+    hemi.intensity = look.hemi; hemi.color.setHex(look.hemiSky); hemi.groundColor.setHex(look.hemiGround);
+    ambient.intensity = look.ambient; ambient.color.setHex(look.ambientColor);
+    pendantLight.intensity = look.pendant; underLight.intensity = look.under; sideLight.intensity = look.side;
+    if (floorLampLight) { floorLampLight.intensity = look.floorLamp; floorLampLight.visible = look.floorLamp > 0; }
+    if (tableLampLight) { tableLampLight.intensity = look.tableLamp; tableLampLight.visible = look.tableLamp > 0; }
+    if (screenCoolLight) { screenCoolLight.intensity = look.screenCool; screenCoolLight.visible = look.screenCool > 0; }
+    renderer.toneMappingExposure = look.exposure;
+    scene.background = skyMaterials[look.sky];
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
-    if (yardMaterial) { yardMaterial.color.setHex(preset.yard); yardMaterial.needsUpdate = true; }
-    materials.opal.emissiveIntensity = preset.globe;
+    if (yardMaterial) { yardMaterial.color.setHex(look.yard); yardMaterial.needsUpdate = true; }
+    materials.opal.emissiveIntensity = look.globe;
     scene.traverse((object) => {
       if (!object.isMesh) return;
       for (const material of (Array.isArray(object.material) ? object.material : [object.material])) {
-        if (material?.name === "warm-opal-glass") material.emissiveIntensity = preset.globe;
+        if (material?.name === "warm-opal-glass") material.emissiveIntensity = look.globe;
       }
     });
-    materials.floor.color.setHex(name === "night" ? 0xc2a77b : 0xcdbb9e);
-    materials.jute.color.setHex(name === "night" ? 0xd9c99f : 0xd0b47f);
-    materials.ceiling.emissiveIntensity = name === "golden" ? 0.3 : 0.55;
-    materials.warmGlow.opacity = name === "night" ? 1 : 0.72;
-    materials.wokGlow.opacity = name === "night" ? 1 : 0.72;
-    materials.sunlight.opacity = 0; // the painted "golden hour" floor patch is retired: the PCF sun now lays a real light patch
-    sunlightPatch.visible = false;
+    materials.floor.color.setHex(look.floor);
+    materials.jute.color.setHex(look.jute);
+    materials.ceiling.emissiveIntensity = look.ceilingEmissive;
+    materials.warmGlow.opacity = look.warmGlow;
+    materials.wokGlow.opacity = look.wokGlow;
+    materials.sunlight.opacity = look.sunlightOpacity;
+    sunlightPatch.visible = look.sunlightVisible;
     contactShadow.visible = true;
-    contactShadow.material.opacity = name === "night" ? CONTACT_SHADOW_ALPHA.night : CONTACT_SHADOW_ALPHA.golden;
-    windowWallBounce.material.opacity = name === "golden" ? 0.12 : 0;
-    // Of the three painted light layers, only the faintest survives (the pendant's ceiling glow at 0.10). The floor bounce
-    // and the golden floor patch are switched off: with a real sun shadow and a shadow-casting pendant they read as paint.
-    pendantFloorBounce.material.opacity = 0;
-    pendantCeilingBounce.material.opacity = name === "night" ? 0.05 : 0;
-    windowWallBounce.visible = name === "golden";
-    pendantFloorBounce.visible = false;
-    pendantCeilingBounce.visible = name === "night";
-    materials.reveal.opacity = name === "night" ? 1 : 0.72;
+    contactShadow.material.opacity = look.contactShadow;
+    windowWallBounce.material.opacity = look.windowWallBounce;
+    windowWallBounce.visible = look.windowWallBounceVisible;
+    pendantFloorBounce.material.opacity = look.pendantFloorBounce;
+    pendantFloorBounce.visible = look.pendantFloorBounceVisible;
+    pendantCeilingBounce.material.opacity = look.pendantCeilingBounce;
+    pendantCeilingBounce.visible = look.pendantCeilingBounceVisible;
+    materials.reveal.opacity = look.reveal;
+    materials.loungePillow.color.setHex(look.loungePillow);
+    if (pictureLightMaterial) pictureLightMaterial.emissiveIntensity = look.pictureLightEmissive;
+    if (counterPendantMaterial) counterPendantMaterial.emissiveIntensity = look.counterPendantEmissive;
+    if (floorShadeMaterial) floorShadeMaterial.emissiveIntensity = look.floorLamp > 0 ? 0.45 : 0;
+    if (tableShadeMaterial) tableShadeMaterial.emissiveIntensity = look.tableLamp > 0 ? 0.45 : 0;
+    const screenMaterial = mediaUnit.screen.material;
+    screenMaterial.color.setHex(look.screenColor);
+    screenMaterial.toneMapped = look.screenToneMapped;
+    if (look.screenMap == null) screenMaterial.map = null;
+    scene.userData.room03Blind = look.blind;
     for (const light of [sun, pendantLight, underLight, sideLight]) light.visible = light.intensity > 0;
     render();
   }
@@ -2147,7 +2251,7 @@ export async function start({ stage, onReady = () => {} }) {
       scene.traverse((object) => { if (object.isMesh && object.userData.category === category) box.expandByObject(object); });
       return box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
-    const propKeys = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "tabletop-succulents", "window-fiddle-leaf-fig", "cookbooks"];
+    const propKeys = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "tabletop-succulents", "cookbooks"];
     const propBounds = Object.fromEntries(propKeys.map((key) => {
       const object = scene.getObjectByName(`prop-${key}`);
       if (!object) return [key, null];
@@ -2212,7 +2316,7 @@ export async function start({ stage, onReady = () => {} }) {
       opacity: contactShadow.material.opacity, bounds: boxFor(contactShadow.name),
       depthWrite: contactShadow.material.depthWrite, polygonOffsetFactor: contactShadow.material.polygonOffsetFactor,
       renderOrder: contactShadow.renderOrder,
-      coverage: ["dining-table", "dining-chair-0.5-1.22", "dining-chair-0.5--0.22", "dining-chair--0.5-1.22", "dining-chair--0.5--0.22", "kitchen-island", "side-kitchen", "window-fiddle-leaf-fig", "lounge-chair"],
+      coverage: ["dining-table", "dining-chair-0.5-1.22", "dining-chair-0.5--0.22", "dining-chair--0.5-1.22", "dining-chair--0.5--0.22", "kitchen-island", "side-kitchen", "lounge-chair"],
     };
     const loungeBounds = boxFor(loungeChair.name);
     const loungeFit = measureLoungeFit(loungeChair);
@@ -2222,8 +2326,29 @@ export async function start({ stage, onReady = () => {} }) {
       parts: Object.fromEntries(loungeChair.children.map((part) => [part.name, { bounds: boxFor(part.name), vertices: part.geometry.attributes.position.count }])),
       fit: loungeFit,
     };
-    const plantGroup = scene.getObjectByName("prop-window-fiddle-leaf-fig");
     const cookbookGroup = scene.getObjectByName("prop-cookbooks");
+    const lampInfo = {};
+    for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light", "counter-mini-pendants"]) {
+      const object = scene.getObjectByName(name);
+      const box = new THREE.Box3().setFromObject(object);
+      let meshes = 0, vertices = 0;
+      object.traverse((child) => {
+        if (!child.isMesh || !child.geometry?.attributes?.position) return;
+        meshes += 1;
+        vertices += child.geometry.attributes.position.count;
+      });
+      lampInfo[name] = {
+        bounds: { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() },
+        center: box.getCenter(new THREE.Vector3()).toArray(),
+        meshes, vertices,
+        pendantCenters: object.userData.pendantCenters || null,
+      };
+    }
+    lampInfo.lights = {
+      floor: { intensity: floorLampLight.intensity, castShadow: floorLampLight.castShadow, color: floorLampLight.color.getHex() },
+      table: { intensity: tableLampLight.intensity, castShadow: tableLampLight.castShadow, color: tableLampLight.color.getHex() },
+      screenCool: { intensity: screenCoolLight.intensity, castShadow: screenCoolLight.castShadow, color: screenCoolLight.color.getHex() },
+    };
     const wallArtCorners = [[2.908, 1.05, -0.62], [2.908, 1.99, -0.62], [2.908, 1.05, 0.58], [2.908, 1.99, 0.58]].map(project);
     const wallArtNdc = wallArtCorners.map(([x, y]) => [x, y]);
     const wallArtPixels = {
@@ -2366,7 +2491,7 @@ export async function start({ stage, onReady = () => {} }) {
       },
     };
     const footToBody = measureRoomFootToBody(scene, furniture.status.table, diningChairSeatGap(), loungeFit);
-    return { plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: plantGroup?.userData.leafCount || 0, plantLeafVerticesPerBlade: plantGroup?.userData.leafVerticesPerBlade || 0, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), plantTrunk: project([-1.93, 0.87, 1.68]) } };
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wallArtDoorFrameBounds, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: categoryBoxFor("wok-base-cabinet"), counterBottomY: 0.8125, counterTopY: 0.8975 }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0.55, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project([3.08, 1.44, 1.8]), wokBowl: project([2.65, 1.02, 1.8]), wokHood: project([2.65, 1.68, 1.8]), wokGlow: project([2.48, 1.535, 1.8]), wokBase: project([2.705, 0.41625, 1.8]), doorReveal: project([2.48, 1.535, 1.8]), doorPanel: project([2.91, 1.05, 1.15]), wokOpening: project([2.7, 1.32, 1.8]), wallBesideWok: project([2.92, 1.4, 2.2]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque,

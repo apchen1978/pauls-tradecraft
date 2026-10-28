@@ -71,7 +71,8 @@ test("P0 keeps the geometry budget and the draw calls below the previous baselin
   const desktop = await page.evaluate(() => window.__room03.info());
   // Later lighting/contact PRs may add a few vertices; P0 itself must stay inside the +50 budget above the 41,246 baseline.
   expect(desktop.vertices).toBeLessThanOrEqual(41296);
-  expect(desktop.meshes).toBeLessThanOrEqual(95);
+  // Old ceiling 95. Plaque +1, fig −5, four lamps +8 meshes → 98.
+  expect(desktop.meshes).toBeLessThanOrEqual(98);
   expect(desktop.drawCallsLastFrame).toBeLessThanOrEqual(73);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(700);
