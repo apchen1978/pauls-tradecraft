@@ -815,6 +815,64 @@ test("Room 02 opens in golden hour when entered from the home cover; a direct vi
   }
 });
 
+test("bedside pocket set sits on the nightstand, stays inside the prop budget, and the charge puck changes with the mood", async ({ page }) => {
+  await enter(page);
+  await page.waitForFunction(() => window.__bedroom.robotState().loaded && window.__bedroom.info().bedsidePocket.mugLoaded, null, { timeout: 30000 });
+  let previous = -1, stable = 0;
+  while (stable < 3) {
+    const vertices = await page.evaluate(() => window.__bedroom.info().vertices);
+    stable = vertices === previous ? stable + 1 : 0;
+    previous = vertices;
+    await page.waitForTimeout(200);
+  }
+  const info = await page.evaluate(() => { window.__bedroom.render(); return window.__bedroom.info(); });
+  const pocket = info.bedsidePocket;
+  expect(pocket.names).toEqual(["glasses-case", "soft-pouch", "cable-coil", "charge-puck"]);
+  expect(pocket.names.length).toBeGreaterThanOrEqual(3);
+  expect(pocket.names.length).toBeLessThanOrEqual(5);
+  expect(pocket.meshNames).toEqual(["bedside-pocket-set", "bedside-pocket-puck"]);
+  expect(pocket.meshes).toBe(2);
+  expect(pocket.meshes).toBeLessThanOrEqual(3);
+  expect(pocket.vertices).toBe(277);
+  expect(pocket.vertices).toBeLessThanOrEqual(1500);
+  // Clean-main settled room, robot loaded, same count as the travel-door baseline: 58,794 verts, 321 meshes, 174 draw calls.
+  expect(info.vertices - pocket.vertices).toBe(58794);
+  expect(info.meshes - pocket.meshes).toBe(321);
+  expect(info.drawCalls - 174).toBeLessThanOrEqual(2);
+  expect(info.drawCalls).toBeGreaterThanOrEqual(174);
+  for (const row of pocket.fit) {
+    expect(row.minGapMm, row.name).toBeGreaterThanOrEqual(-3);
+    expect(row.maxGapMm, row.name).toBeLessThanOrEqual(1);
+  }
+  const tableParts = pocket.fit.filter((row) => row.support === "bedside-top");
+  expect(tableParts.map((row) => row.name)).toEqual(["soft-pouch", "cable-coil", "cable-lead", "charge-puck"]);
+  expect(pocket.fit.find((row) => row.name === "glasses-case").support).toBe("bedside-book");
+  const bookTouch = pocket.clearance.filter((row) => row.piece === "glasses-case" && row.obstacle === "bedside-book").map((row) => row.gapMm);
+  expect(bookTouch.length).toBeGreaterThan(0);
+  expect(Math.min(...bookTouch), "glasses case rests on the upper book").toBeGreaterThanOrEqual(-3);
+  expect(Math.min(...bookTouch), "glasses case rests on the upper book").toBeLessThanOrEqual(1);
+  for (const row of pocket.clearance) {
+    if (row.piece === "glasses-case" && row.obstacle === "bedside-book") continue;
+    expect(row.gapMm, `${row.piece} vs ${row.obstacle}`).toBeGreaterThan(0);
+  }
+  expect(pocket.clearance.some((row) => row.obstacle === "bedside-mug")).toBe(true);
+  expect(pocket.clearance.some((row) => row.obstacle === "lamp-base")).toBe(true);
+  expect(pocket.glow).toBeLessThan(0.2);
+  await page.evaluate(() => window.__bedroom.setMood("weekend"));
+  const weekend = await page.evaluate(() => window.__bedroom.info().bedsidePocket.glow);
+  await page.evaluate(() => window.__bedroom.setMood("night"));
+  const night = await page.evaluate(() => window.__bedroom.info().bedsidePocket.glow);
+  await page.evaluate(() => window.__bedroom.setMood("focus"));
+  const focus = await page.evaluate(() => window.__bedroom.info().bedsidePocket.glow);
+  expect(weekend).toBeGreaterThan(focus + 0.5);
+  expect(night).toBeGreaterThan(focus + 0.5);
+  expect(night).not.toBe(weekend);
+  const after = await page.evaluate(() => window.__bedroom.info());
+  expect(after.vertices).toBe(info.vertices);
+  expect(after.meshes).toBe(info.meshes);
+  expect(after.lights).toBe(9);
+});
+
 test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints without changing scene geometry", async ({ page }) => {
   const cityResponses = new Map();
   page.on("response", (response) => {
