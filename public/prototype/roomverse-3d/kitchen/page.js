@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=50";
+import { start, ROOM_TITLE } from "./kitchen.js?v=51";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -6,7 +6,11 @@ const COPY = {
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
-    center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", canvasLabel: "房間視角。中心模式可用方向鍵環顧。",
+    center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", swapsLabel: "換搭配",
+    swaps: {
+      "cable-car": ["右側牆的畫", { "cable-car": "舊金山電車", "fog-bridge": "霧中金門大橋", "marin-hills": "馬林海岬", "poster-sun": "山丘與太陽" }],
+      "redwood-path": ["入口走廊的畫", { "redwood-path": "紅杉步道", "ferry-building": "渡輪大廈", "oak-street": "橡樹街", "poster-arch": "拱門海報", "poster-leaf": "葉片海報" }],
+    }, canvasLabel: "房間視角。中心模式可用方向鍵環顧。",
     moods: {
       golden: ["金色時光", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
       movie: ["追劇夜", "中央吊燈關掉，螢幕放冷色城市，落地燈與桌燈留著暖光。"],
@@ -22,7 +26,11 @@ const COPY = {
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
     otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
-    center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", canvasLabel: "Room view. Use arrow keys to look around in center mode.",
+    center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", swapsLabel: "Swap the look",
+    swaps: {
+      "cable-car": ["Painting, right wall", { "cable-car": "Cable car", "fog-bridge": "Golden Gate in fog", "marin-hills": "Marin headlands", "poster-sun": "Hills and sun" }],
+      "redwood-path": ["Painting, entry hall", { "redwood-path": "Redwood path", "ferry-building": "Ferry Building", "oak-street": "Oak street", "poster-arch": "Arch poster", "poster-leaf": "Leaf poster" }],
+    }, canvasLabel: "Room view. Use arrow keys to look around in center mode.",
     moods: {
       golden: ["Golden hour", "Low, warm afternoon light enters through the glass doors; the pendant stays soft."],
       movie: ["Movie night", "The pendant is off, the screen shows a cool city, and the floor and table lamps stay warm."],
@@ -45,6 +53,39 @@ function otherRoomsUrl() {
   const url = new URL(from === "room02" ? "../bedroom/" : "../", location.href);
   url.searchParams.set("lang", lang === "en" ? "en" : "zh");
   return url.href;
+}
+
+const artChoice = { "cable-car": "cable-car", "redwood-path": "redwood-path" };
+function renderSwaps() {
+  const copy = COPY[lang];
+  $("swapsTitle").textContent = copy.swapsLabel;
+  $("swapGroups").replaceChildren(...Object.entries(copy.swaps).map(([frame, [label, options]]) => {
+    const group = document.createElement("div");
+    group.className = "swap-group";
+    group.dataset.frame = frame;
+    const title = document.createElement("h3");
+    title.textContent = label;
+    const row = document.createElement("div");
+    row.className = "swap-options";
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", label);
+    for (const [key, text] of Object.entries(options)) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.frame = frame;
+      button.dataset.art = key;
+      button.textContent = text;
+      button.setAttribute("aria-pressed", String(artChoice[frame] === key));
+      button.addEventListener("click", () => {
+        artChoice[frame] = key;
+        room?.setArtwork(frame, key);
+        for (const other of row.children) other.setAttribute("aria-pressed", String(other.dataset.art === key));
+      });
+      row.append(button);
+    }
+    group.append(title, row);
+    return group;
+  }));
 }
 
 function renderMoods() {
@@ -107,6 +148,7 @@ function renderCopy() {
   $("centerView").textContent = centerMode ? copy.orbit : copy.center;
   $("centerView").setAttribute("aria-pressed", String(centerMode));
   $("plaqueView").textContent = copy.plaque;
+  renderSwaps();
   document.querySelector('#stage canvas')?.setAttribute('aria-label', copy.canvasLabel);
   for (const id of ["headerOtherRooms", "immersiveOtherRooms"]) {
     const link = $(id);
@@ -193,6 +235,7 @@ start({ stage: $("stage"), onReady: (instance) => {
   $("immersiveEnter").hidden = false;
   $("centerView").hidden = false;
   $("plaqueView").hidden = false;
+  $("swaps").hidden = false;
   renderCopy();
   void room.setMood(mood);
 } }).catch((error) => {
