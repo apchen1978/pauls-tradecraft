@@ -100,11 +100,12 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.furniture.chair).toBe("procedural-v2");
     expect(golden.vertices).toBeLessThanOrEqual(55000);
     expect(golden.vertices - 49855).toBeLessThanOrEqual(1500);
-    // The fig's 30 leaves are gone. Each new lamp is two meshes. Old: plantLeafCount === 30.
+    // The fig's 30 leaves are gone. Each retained new lamp is two meshes. Old: plantLeafCount === 30.
     expect(golden.plantLeafCount).toBe(0);
-    for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light", "counter-mini-pendants"]) {
+    for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light"]) {
       expect(golden.lamps[name].meshes, name).toBeLessThanOrEqual(2);
     }
+    expect(golden.lamps["counter-mini-pendants"]).toBeNull(); // Paul chose to remove the two counter globes
     expect(golden.furnitureBounds.chairs).toHaveLength(4);
     expect(modelRequests).toEqual([]);
     await shot(page, "review-desktop-1440-golden");

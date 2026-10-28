@@ -8,14 +8,14 @@ async function loadRoom(page) {
   await page.waitForFunction(() => window.__room03?.info && window.__room03.info().lamps && window.__room03.info().drawCallsLastFrame > 0);
 }
 
-test("four lamps sit on measured surfaces and the new lights stay off in golden and night", async ({ page }) => {
+test("three lamps sit on measured surfaces, counter pendants are removed, and new lights stay off in golden and night", async ({ page }) => {
   await loadRoom(page);
   const info = await page.evaluate(() => window.__room03.info());
   expect(info.propBounds["window-fiddle-leaf-fig"]).toBeUndefined();
   expect(info.plantLeafCount).toBe(0);
   expect(info.lightMetrics.lightCount).toBe(9);
   expect(info.vertices).toBeLessThan(41262);
-  for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light", "counter-mini-pendants"]) {
+  for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light"]) {
     expect(info.lamps[name].meshes, name).toBeLessThanOrEqual(2);
     expect(info.lamps[name].meshes, name).toBeGreaterThan(0);
   }
@@ -42,17 +42,9 @@ test("four lamps sit on measured surfaces and the new lights stay off in golden 
   expect(picture.min[2] - 2.46, "picture light stays off the entry-hall band").toBeGreaterThan(0.4);
   expect((picture.min[0] + picture.max[0]) / 2).toBeCloseTo(0.86, 2);
 
-  const hood = info.wallArtClearanceBounds.hood;
-  const pendants = info.lamps["counter-mini-pendants"];
-  expect(pendants.bounds.max[1]).toBeGreaterThanOrEqual(2.59);
-  expect(pendants.bounds.max[1]).toBeLessThanOrEqual(2.7);
-  expect(pendants.pendantCenters).toHaveLength(2);
-  for (const center of pendants.pendantCenters) {
-    const [x, y, z] = center;
-    const separated = x + 0.1 <= hood.min[0] || x - 0.1 >= hood.max[0] || y + 0.1 <= hood.min[1] || y - 0.1 >= hood.max[1] || z + 0.1 <= hood.min[2] || z - 0.1 >= hood.max[2];
-    expect(separated, `pendant at ${x} misses the hood`).toBe(true);
-    expect(z - 0.1, "globe stays in front of the upper-cabinet doors").toBeGreaterThan(-1.91);
-  }
+  // Old: two globes at y=1.88 and hardware reaching y=2.61, clear of the hood but floating in front of cabinet doors.
+  // Paul chose removal: these placement/clearance checks become an assertion that no pendant group remains.
+  expect(info.lamps["counter-mini-pendants"], "no counter pendant geometry remains").toBeNull();
 
   const night = await page.evaluate(() => {
     window.__room03.setMood("night");
