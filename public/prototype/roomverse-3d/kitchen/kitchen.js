@@ -2465,6 +2465,35 @@ function addRoom03Lamps(scene, materials) {
     return material;
   };
 
+  // Paul 2026-10-29: the light must read as coming from the middle of the bulb. A lit wall beside a dull globe looks like the light is
+  // somewhere else, so each globe also gets a soft additive halo centred on it, and its emissive follows how strong the light is.
+  const haloTexture = (() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 128;
+    const context = canvas.getContext("2d");
+    const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gradient.addColorStop(0, "rgba(255,236,200,1)");
+    gradient.addColorStop(0.18, "rgba(255,214,150,0.65)");
+    gradient.addColorStop(0.5, "rgba(255,190,120,0.18)");
+    gradient.addColorStop(1, "rgba(255,180,110,0)");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 128, 128);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+  })();
+  const addHalo = (name, position, size) => {
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTexture, color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+    sprite.name = name;
+    sprite.position.set(...position);
+    sprite.scale.set(size, size, 1);
+    sprite.visible = false;
+    sprite.renderOrder = 4;
+    sprite.raycast = () => {}; // a halo is light, not an object: it must never block a ray (Sprite.raycast also needs raycaster.camera, which review rays do not set)
+    scene.add(sprite);
+    return sprite;
+  };
+
   const floor = new THREE.Group();
   floor.name = "floor-reading-lamp";
   floor.position.set(-1.93, 0, 1.68);
@@ -2482,6 +2511,7 @@ function addRoom03Lamps(scene, materials) {
   floorLight.castShadow = false;
   floorLight.position.set(-1.93, 1.42, 1.68);
   scene.add(floorLight);
+  const floorHalo = addHalo("floor-lamp-halo", [-1.93, 1.42, 1.68], 0.62);
 
   // Left end of the console top (x -1.30 to 0, top y 0.575). The screen frame occupies x -1.14 to -0.16,
   // so the 15 cm globe stays at x -1.295 to -1.145.
@@ -2503,6 +2533,7 @@ function addRoom03Lamps(scene, materials) {
   tableLight.castShadow = false;
   tableLight.position.set(-1.22, 0.90, 3.52);
   scene.add(tableLight);
+  const tableHalo = addHalo("table-lamp-halo", [-1.22, 0.90, 3.52], 0.46);
 
   // Above the redwood frame (top y ≈ 2.385) and in front of the end wall (face z ≈ 3.74).
   // The entry-hall band is at z ≈ 2.4; this fixture stays on the end wall.
@@ -2526,7 +2557,7 @@ function addRoom03Lamps(scene, materials) {
   screenCoolLight.position.set(-0.65, 1.06, 3.40);
   scene.add(screenCoolLight);
 
-  return { floorLight, tableLight, screenCoolLight, pictureShade, floorShade, tableShade };
+  return { floorLight, tableLight, screenCoolLight, pictureShade, floorShade, tableShade, floorHalo, tableHalo };
 }
 
 export async function start({ stage, onReady = () => {} }) {
@@ -2801,7 +2832,7 @@ export async function start({ stage, onReady = () => {} }) {
     "warmGlow", "wokGlow", "sunlightOpacity", "sunlightVisible", "windowWallBounce", "windowWallBounceVisible",
     "pendantFloorBounce", "pendantFloorBounceVisible", "pendantCeilingBounce", "pendantCeilingBounceVisible",
     "reveal", "contactShadow", "loungePillow", "screenColor", "screenToneMapped", "screenMap",
-    "floorLamp", "tableLamp", "screenCool", "pictureLightEmissive", "counterPendantEmissive", "blind", "tableware",
+    "floorLamp", "tableLamp", "screenCool", "pictureLightEmissive", "counterPendantEmissive", "blind", "tableware", "artLight",
   ]);
   const sharedLook = {
     sunColor: 0xffd6a1, sunPosition: [-4.2, 1.2, 3.6],
@@ -2821,7 +2852,7 @@ export async function start({ stage, onReady = () => {} }) {
       warmGlow: 0.72, wokGlow: 0.72,
       windowWallBounce: 0.12, windowWallBounceVisible: true,
       pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
-      reveal: 0.72, contactShadow: 0.30, blind: "open", tableware: false,
+      reveal: 0.72, contactShadow: 0.30, blind: "open", tableware: false, artLight: [1, 1, 1],
     }),
     night: Object.freeze({
       ...sharedLook,
@@ -2831,7 +2862,7 @@ export async function start({ stage, onReady = () => {} }) {
       warmGlow: 1, wokGlow: 1,
       windowWallBounce: 0, windowWallBounceVisible: false,
       pendantCeilingBounce: 0.05, pendantCeilingBounceVisible: true,
-      reveal: 1, contactShadow: 0.12, blind: "closed", tableware: false,
+      reveal: 1, contactShadow: 0.12, blind: "closed", tableware: false, artLight: [0.52, 0.47, 0.42],
     }),
     // Movie night. Golden and night stay as they were. Sky reuses the night gradient
     // because there is no third sky texture; the yard tint is the movie color.
@@ -2853,7 +2884,7 @@ export async function start({ stage, onReady = () => {} }) {
       screenColor: 0xffffff, screenToneMapped: false, screenMap: "screen-movie-city-night-v1",
       floorLamp: 3.1, tableLamp: 1.9, screenCool: 2.6,
       pictureLightEmissive: 0.5, counterPendantEmissive: 0.8,
-      blind: "closed", tableware: false,
+      blind: "closed", tableware: false, artLight: [0.5, 0.5, 0.52],
     }),
     // Dinner and Sunday morning. Sky stays the golden gradient; the yard tint carries
     // the recipe color. Jute and the pillow stay the golden cloth. The screen stays off.
@@ -2874,7 +2905,7 @@ export async function start({ stage, onReady = () => {} }) {
       reveal: 0.55, contactShadow: 0.26,
       floorLamp: 1.6, tableLamp: 2.4, screenCool: 0,
       pictureLightEmissive: 0.6, counterPendantEmissive: 1.0,
-      blind: "half", tableware: true,
+      blind: "half", tableware: true, artLight: [0.8, 0.74, 0.66],
     }),
     sunday: Object.freeze({
       ...sharedLook,
@@ -2890,7 +2921,7 @@ export async function start({ stage, onReady = () => {} }) {
       reveal: 0.35, contactShadow: 0.24,
       floorLamp: 0.8, tableLamp: 0.6, screenCool: 0,
       pictureLightEmissive: 0.2, counterPendantEmissive: 0.25,
-      blind: "half", tableware: false,
+      blind: "half", tableware: false, artLight: [0.95, 0.93, 0.9],
     }),
     // Thanksgiving is lights and pictures only. Side kitchen stays off so the
     // true lights that are on stay at 7. The autumn photo is not tinted; amber
@@ -2910,12 +2941,12 @@ export async function start({ stage, onReady = () => {} }) {
       screenColor: 0xffffff, screenToneMapped: false, screenMap: "screen-thanksgiving-parade-v1",
       floorLamp: 1.4, tableLamp: 1.8, screenCool: 0,
       pictureLightEmissive: 0.55, counterPendantEmissive: 0.80,
-      blind: "half", tableware: true,
+      blind: "half", tableware: true, artLight: [0.82, 0.76, 0.68],
     }),
   });
   let floorLampLight = null, tableLampLight = null, screenCoolLight = null;
   let pictureLightMaterial = null;
-  let floorShadeMaterial = null, tableShadeMaterial = null;
+  let floorShadeMaterial = null, tableShadeMaterial = null, floorHalo = null, tableHalo = null;
   {
     const lamps = addRoom03Lamps(scene, materials);
     floorLampLight = lamps.floorLight;
@@ -2924,6 +2955,8 @@ export async function start({ stage, onReady = () => {} }) {
     pictureLightMaterial = lamps.pictureShade;
     floorShadeMaterial = lamps.floorShade;
     tableShadeMaterial = lamps.tableShade;
+    floorHalo = lamps.floorHalo;
+    tableHalo = lamps.tableHalo;
   }
   let currentMood = "golden";
   let movieScreenTexture = null;
@@ -2978,6 +3011,9 @@ export async function start({ stage, onReady = () => {} }) {
       yardMaterial.map = autumnReady ? autumnCourtyardTexture : courtyardDefaultMap;
       yardMaterial.needsUpdate = true;
     }
+    // The two framed paintings are unlit (accurate colour), so by day and night they looked identical and read as windows (Paul 2026-10-29).
+    // Dim and warm them with the mood like the wall around them.
+    wallArt.material.color.setRGB(...look.artLight);
     materials.opal.emissiveIntensity = look.globe;
     scene.traverse((object) => {
       if (!object.isMesh) return;
@@ -3003,8 +3039,11 @@ export async function start({ stage, onReady = () => {} }) {
     materials.reveal.opacity = look.reveal;
     materials.loungePillow.color.setHex(look.loungePillow);
     if (pictureLightMaterial) pictureLightMaterial.emissiveIntensity = look.pictureLightEmissive;
-    if (floorShadeMaterial) floorShadeMaterial.emissiveIntensity = look.floorLamp > 0 ? 0.45 : 0;
-    if (tableShadeMaterial) tableShadeMaterial.emissiveIntensity = look.tableLamp > 0 ? 0.45 : 0;
+    // The globe glows in proportion to the light it throws (old: a flat 0.45 whatever the mood, so a strongly lit wall sat beside a dull globe).
+    if (floorShadeMaterial) floorShadeMaterial.emissiveIntensity = look.floorLamp > 0 ? Math.min(2.2, 0.55 + 0.5 * look.floorLamp) : 0;
+    if (tableShadeMaterial) tableShadeMaterial.emissiveIntensity = look.tableLamp > 0 ? Math.min(2.2, 0.55 + 0.5 * look.tableLamp) : 0;
+    if (floorHalo) { floorHalo.material.opacity = look.floorLamp > 0 ? Math.min(0.5, 0.15 * look.floorLamp) : 0; floorHalo.visible = look.floorLamp > 0; }
+    if (tableHalo) { tableHalo.material.opacity = look.tableLamp > 0 ? Math.min(0.5, 0.15 * look.tableLamp) : 0; tableHalo.visible = look.tableLamp > 0; }
     const screenMaterial = mediaUnit.screen.material;
     const screenTexture = look.screenMap === "screen-movie-city-night-v1" ? movieScreenTexture
       : look.screenMap === "screen-thanksgiving-parade-v1" ? thanksgivingScreenTexture
@@ -3266,6 +3305,12 @@ export async function start({ stage, onReady = () => {} }) {
       table: { intensity: tableLampLight.intensity, castShadow: tableLampLight.castShadow, color: tableLampLight.color.getHex() },
       screenCool: { intensity: screenCoolLight.intensity, castShadow: screenCoolLight.castShadow, color: screenCoolLight.color.getHex() },
     };
+    // Each lamp's globe, its light and its halo must share one centre (Paul 2026-10-29: the light has to come from the middle of the bulb).
+    const globeCentre = (name) => { const object = scene.getObjectByName(name); return object ? new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3()).toArray() : null; };
+    lampInfo.glow = {
+      floor: { globe: globeCentre("floor-reading-lamp-shade"), light: floorLampLight.position.toArray(), halo: floorHalo?.position.toArray() ?? null, haloVisible: floorHalo?.visible ?? false, haloOpacity: floorHalo?.material.opacity ?? 0, emissive: floorShadeMaterial?.emissiveIntensity ?? 0 },
+      table: { globe: globeCentre("console-table-lamp-shade"), light: tableLampLight.position.toArray(), halo: tableHalo?.position.toArray() ?? null, haloVisible: tableHalo?.visible ?? false, haloOpacity: tableHalo?.material.opacity ?? 0, emissive: tableShadeMaterial?.emissiveIntensity ?? 0 },
+    };
     const wallArtCorners = [[2.908, 1.05, -0.62], [2.908, 1.99, -0.62], [2.908, 1.05, 0.58], [2.908, 1.99, 0.58]].map(project);
     const wallArtNdc = wallArtCorners.map(([x, y]) => [x, y]);
     const wallArtPixels = {
@@ -3515,7 +3560,7 @@ export async function start({ stage, onReady = () => {} }) {
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
     const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
-    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path") }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path") }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
