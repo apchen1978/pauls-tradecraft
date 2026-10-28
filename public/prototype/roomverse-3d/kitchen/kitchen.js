@@ -1719,7 +1719,7 @@ function addHousePlaque(scene, onChange) {
 }
 
 function addRoom03Lamps(scene, materials) {
-  // Four fixtures, two meshes each. Coordinates come from the measured console, redwood frame and hood,
+  // Three fixtures, two meshes each. Coordinates come from the measured console and redwood frame,
   // not from the proposal's first guess. Golden and night leave the new point lights at intensity 0.
   const paint = (geometry, hex) => {
     const color = new THREE.Color(hex);
@@ -1826,31 +1826,13 @@ function addRoom03Lamps(scene, materials) {
   ]), pictureShade);
   scene.add(picture);
 
-  // Clear of the hood (x 0.13–1.51, front z ≈ -1.735) and in front of the upper cabinets (front z ≈ -1.92).
-  const pendants = new THREE.Group();
-  pendants.name = "counter-mini-pendants";
-  const pendantShade = shadeMaterial(0xffe6c4);
-  const pendantCenters = [[-0.70, 1.88, -1.78], [1.78, 1.88, -1.78]];
-  const wires = [];
-  const globes = [];
-  for (const [x, y, z] of pendantCenters) {
-    const wireLength = 2.61 - (y + 0.10);
-    wires.push(paint(place(new THREE.CylinderGeometry(0.004, 0.004, wireLength, 6), [x, y + 0.10 + wireLength / 2, z]), 0x2a2622));
-    wires.push(paint(place(new THREE.CylinderGeometry(0.03, 0.03, 0.015, 10), [x, 2.602, z]), 0x8a5a32));
-    globes.push(place(new THREE.SphereGeometry(0.10, 14, 10), [x, y, z]));
-  }
-  addMesh(pendants, "counter-mini-pendants-hardware", mergeParts(wires), hardwareMaterial());
-  addMesh(pendants, "counter-mini-pendants-shades", mergeParts(globes), pendantShade);
-  pendants.userData.pendantCenters = pendantCenters.map((center) => [...center]);
-  scene.add(pendants);
-
   const screenCoolLight = new THREE.PointLight(0xcdd6f0, 0, 5, 2);
   screenCoolLight.name = "screen-cool-light";
   screenCoolLight.castShadow = false;
   screenCoolLight.position.set(-0.65, 1.06, 3.40);
   scene.add(screenCoolLight);
 
-  return { floorLight, tableLight, screenCoolLight, pictureShade, pendantShade, floorShade, tableShade };
+  return { floorLight, tableLight, screenCoolLight, pictureShade, floorShade, tableShade };
 }
 
 export async function start({ stage, onReady = () => {} }) {
@@ -2023,6 +2005,7 @@ export async function start({ stage, onReady = () => {} }) {
   // One table for every per-mood switch. Golden and night keep the values setMood used to
   // hard-code. Fields that have no mesh yet (blind, the three new lamps) are stored and applied
   // only when that object exists, so this table does not change the picture.
+  // Keep the counterPendantEmissive field in the existing mood schema; its fixture was removed.
   const MOOD_LOOK_FIELDS = Object.freeze([
     "sun", "sunColor", "sunPosition", "hemi", "hemiSky", "hemiGround", "ambient", "ambientColor",
     "pendant", "under", "side", "exposure", "yard", "yardMap", "globe", "sky", "floor", "jute", "ceilingEmissive",
@@ -2141,7 +2124,7 @@ export async function start({ stage, onReady = () => {} }) {
     }),
   });
   let floorLampLight = null, tableLampLight = null, screenCoolLight = null;
-  let pictureLightMaterial = null, counterPendantMaterial = null;
+  let pictureLightMaterial = null;
   let floorShadeMaterial = null, tableShadeMaterial = null;
   {
     const lamps = addRoom03Lamps(scene, materials);
@@ -2149,7 +2132,6 @@ export async function start({ stage, onReady = () => {} }) {
     tableLampLight = lamps.tableLight;
     screenCoolLight = lamps.screenCoolLight;
     pictureLightMaterial = lamps.pictureShade;
-    counterPendantMaterial = lamps.pendantShade;
     floorShadeMaterial = lamps.floorShade;
     tableShadeMaterial = lamps.tableShade;
   }
@@ -2226,7 +2208,6 @@ export async function start({ stage, onReady = () => {} }) {
     materials.reveal.opacity = look.reveal;
     materials.loungePillow.color.setHex(look.loungePillow);
     if (pictureLightMaterial) pictureLightMaterial.emissiveIntensity = look.pictureLightEmissive;
-    if (counterPendantMaterial) counterPendantMaterial.emissiveIntensity = look.counterPendantEmissive;
     if (floorShadeMaterial) floorShadeMaterial.emissiveIntensity = look.floorLamp > 0 ? 0.45 : 0;
     if (tableShadeMaterial) tableShadeMaterial.emissiveIntensity = look.tableLamp > 0 ? 0.45 : 0;
     const screenMaterial = mediaUnit.screen.material;
@@ -2460,6 +2441,7 @@ export async function start({ stage, onReady = () => {} }) {
     const lampInfo = {};
     for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light", "counter-mini-pendants"]) {
       const object = scene.getObjectByName(name);
+      if (!object) { lampInfo[name] = null; continue; }
       const box = new THREE.Box3().setFromObject(object);
       let meshes = 0, vertices = 0;
       object.traverse((child) => {
