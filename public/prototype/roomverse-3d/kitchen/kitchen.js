@@ -1114,22 +1114,44 @@ function measureRoomFootToBody(scene, tableStatus, diningGaps, loungeFit) {
     note: "planter bottom against the loaded table top",
   });
   const redPot = scene.getObjectByName("single-terracotta-pot");
-  const appliancePoints = [];
-  scene.traverse((object) => {
-    if (!object.isMesh || object.userData.category !== "appliances" || !object.geometry?.attributes?.position) return;
-    object.updateWorldMatrix(true, false);
-    const position = object.geometry.attributes.position;
-    for (let i = 0; i < position.count; i++) appliancePoints.push(new THREE.Vector3().fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld));
-  });
   const potBox = redPot ? new THREE.Box3().setFromObject(redPot) : null;
-  const cooktop = potBox ? appliancePoints.filter((point) => Math.hypot(point.x - 0.82, point.z + 2.02) < 0.46 && point.y > 0.9 && point.y <= potBox.min.y + 0.001) : [];
-  const cooktopTop = cooktop.length ? Math.max(...cooktop.map((point) => point.y)) : null;
+  const potPartBounds = (name) => {
+    const part = redPot?.getObjectByName(name);
+    if (!part) return null;
+    return new THREE.Box3().setFromObject(part);
+  };
+  const bodyBox = potPartBounds("single-terracotta-pot-body");
+  const rimBox = potPartBounds("terracotta-pot-rim");
+  const lidBox = potPartBounds("terracotta-pot-lid");
+  const leftHandleBox = potPartBounds("terracotta-pot-handle-left");
+  const rightHandleBox = potPartBounds("terracotta-pot-handle-right");
+  const applianceSurface = scene.getObjectByName("merged-appliances");
+  let cooktopTop = null;
+  if (potBox && applianceSurface) {
+    const raycaster = new THREE.Raycaster(new THREE.Vector3(0.82, potBox.min.y + 0.1, -2.02), new THREE.Vector3(0, -1, 0), 0, 0.2);
+    const hit = raycaster.intersectObject(applianceSurface, false).find(({ point }) => Math.hypot(point.x - 0.82, point.z + 2.02) < 0.025);
+    cooktopTop = hit?.point.y ?? null;
+  }
   rows.push({
     item: "terracotta pot",
     support: "main cooktop",
     gapMm: potBox && cooktopTop !== null ? round((potBox.min.y - cooktopTop) * 1000) : null,
-    repairedInThisPr: false,
-    note: "pot bottom against the cooktop under it",
+    repairedInThisPr: true,
+    note: "vertical ray at pot center against the merged appliance surface; negative means the pot intersects the cooktop",
+    geometry: potBox && bodyBox && rimBox && lidBox && leftHandleBox && rightHandleBox ? {
+      position: [round(redPot.position.x * 1000) / 1000, round(redPot.position.y * 1000) / 1000, round(redPot.position.z * 1000) / 1000],
+      body: { size: bodyBox.getSize(new THREE.Vector3()).toArray().map((value) => round(value * 1000) / 1000) },
+      bounds: { size: potBox.getSize(new THREE.Vector3()).toArray().map((value) => round(value * 1000) / 1000) },
+      leftHandleOutstandMm: round((bodyBox.min.x - leftHandleBox.min.x) * 1000),
+      rightHandleOutstandMm: round((rightHandleBox.max.x - bodyBox.max.x) * 1000),
+      handleLidClearanceMm: round((lidBox.min.y - Math.max(leftHandleBox.max.y, rightHandleBox.max.y)) * 1000),
+      lidRimOverlapMm: round((Math.min(lidBox.max.y, rimBox.max.y) - Math.max(lidBox.min.y, rimBox.min.y)) * 1000),
+      vertices: redPot.children.reduce((sum, part) => sum + (part.geometry?.attributes?.position?.count || 0), 0),
+      triangles: redPot.children.reduce((sum, part) => sum + (part.geometry?.index ? part.geometry.index.count / 3 : (part.geometry?.attributes?.position?.count || 0) / 3), 0),
+      meshes: redPot.children.filter((part) => part.isMesh).length,
+      bodyColor: `#${redPot.getObjectByName("single-terracotta-pot-body")?.material.color.getHexString() || ""}`,
+      knobColor: `#${redPot.getObjectByName("terracotta-pot-knob")?.material.color.getHexString() || ""}`,
+    } : null,
   });
   const mediaPoints = collectWorldPoints(scene.getObjectByName("room03-wall-art-and-media-woodwork")).filter((point) => point.x > -1.35 && point.x < 0.05 && point.z > 3.25 && point.z < 3.85);
   const plinth = mediaPoints.filter((point) => point.y < 0.15);
@@ -1551,14 +1573,48 @@ function buildHouseholdProps(scene, m) {
 }
 
 function buildRedPot(scene, m) {
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.16, 0.2, 32, 1), m.red);
-  body.position.set(0.82, 1.1, -2.02); body.name = "single-terracotta-pot"; body.userData.category = "accent"; body.castShadow = true; body.receiveShadow = true; scene.add(body);
-  const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.195, 0.195, 0.035, 32), m.red);
-  lid.position.set(0.82, 1.22, -2.02); lid.name = "terracotta-pot-lid"; lid.userData.category = "accent"; scene.add(lid);
-  for (const dx of [-0.22, 0.22]) {
-    const handle = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.014, 6, 12), m.red);
-    handle.position.set(0.82 + dx, 1.12, -2.02); handle.rotation.y = Math.PI / 2; handle.name = "terracotta-pot-handle"; handle.userData.category = "accent"; scene.add(handle);
+  const placement = { x: 0.82, baseY: 0.9975, z: -2.02 };
+  const redEnamel = m.red.clone();
+  redEnamel.color.set("#9b211e"); redEnamel.roughness = 0.27; redEnamel.metalness = 0.035;
+  const brushedSteel = m.steel.clone();
+  brushedSteel.color.set("#92918c"); brushedSteel.roughness = 0.42; brushedSteel.metalness = 0.32;
+  const pot = new THREE.Group();
+  pot.name = "single-terracotta-pot"; pot.position.set(placement.x, placement.baseY, placement.z); pot.userData.category = "accent";
+  const addPart = (name, geometry, material, { shadow = true } = {}) => {
+    const mesh = new THREE.Mesh(geometry, material); mesh.name = name; mesh.userData.category = "accent";
+    mesh.castShadow = shadow; mesh.receiveShadow = shadow; pot.add(mesh); return mesh;
+  };
+  const lathe = (name, profile, material, segments = 32) => addPart(name, new THREE.LatheGeometry(profile.map(([radius, y]) => new THREE.Vector2(radius, y)), segments), material);
+  const bodyTop = 0.081;
+  const body = lathe("terracotta-pot-body", [
+    [0, 0], [0.084, 0], [0.091, 0.003], [0.097, 0.012], [0.108, 0.029], [0.117, 0.052], [0.12, 0.073], [0.118, bodyTop],
+  ], redEnamel, 16);
+  body.name = "single-terracotta-pot-body";
+  body.userData.part = "body";
+  // A shallow flared rim gives the lid a real bearing surface without a separate ring mesh.
+  lathe("terracotta-pot-rim", [[0.114, 0.078], [0.12, 0.079], [0.121, 0.083], [0.121, 0.087], [0.116, 0.088]], redEnamel, 16);
+  // The lid's stepped profile forms the rim and two concentric raised rings in one lathed mesh.
+  const lid = lathe("terracotta-pot-lid", [
+    [0.116, 0.083], [0.122, 0.085], [0.122, 0.089], [0.118, 0.091],
+    [0.113, 0.094], [0.109, 0.097], [0.104, 0.099], [0.098, 0.100],
+    [0.092, 0.098], [0.088, 0.100], [0.083, 0.102], [0.078, 0.103],
+    [0.073, 0.101], [0.069, 0.103], [0.064, 0.104], [0, 0.104],
+  ], redEnamel, 16);
+  lid.userData.part = "lid";
+  // Compact rectangular loop handles, short in plan and immediately below the lid edge.
+  const handlePath = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0.116, 0.068, 0), new THREE.Vector3(0.149, 0.068, 0),
+    new THREE.Vector3(0.153, 0.070, 0), new THREE.Vector3(0.153, 0.072, 0),
+    new THREE.Vector3(0.149, 0.074, 0), new THREE.Vector3(0.116, 0.074, 0),
+  ], true, "centripetal", 0.25);
+  for (const side of [-1, 1]) {
+    const handle = addPart(`terracotta-pot-handle-${side < 0 ? "left" : "right"}`, new THREE.TubeGeometry(handlePath, 24, 0.004, 6, true), redEnamel);
+    if (side < 0) handle.rotation.y = Math.PI;
+    handle.userData.part = side < 0 ? "left-handle" : "right-handle";
   }
+  // A low turned mushroom knob in a separate finish; the full pot remains below 12 cm.
+  lathe("terracotta-pot-knob", [[0, 0.103], [0.009, 0.103], [0.011, 0.107], [0.014, 0.111], [0.019, 0.113], [0.02, 0.116], [0.018, 0.119], [0.011, 0.120], [0, 0.120]], brushedSteel, 12);
+  scene.add(pot);
 }
 
 function buildPendant(scene, m) {
