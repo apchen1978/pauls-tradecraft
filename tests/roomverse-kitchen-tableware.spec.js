@@ -7,10 +7,10 @@ if (QA) mkdirSync(QA, { recursive: true });
 
 const MOODS = ["golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
 const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
-// Measured from main db23c06 (before -> after tableware); non-tableware moods must retain these exact scene totals.
+// Measured from main 7f42bd2 (after lemon bowl, wok run A, tile B; Codex first measured 30696/96 on db23c06); non-tableware moods must retain these exact scene totals.
 const BASELINE_BY_WIDTH_AND_MOOD = {
-  1440: { golden: [30696, 96, 69], movie: [30696, 96, 67], night: [30696, 96, 69], dinner: [30696, 96, 71], sunday: [30696, 96, 69], thanksgiving: [30696, 96, 71] },
-  390: { golden: [30696, 96, 72], movie: [30696, 96, 70], night: [30696, 96, 72], dinner: [30696, 96, 74], sunday: [30696, 96, 72], thanksgiving: [30696, 96, 74] },
+  1440: { golden: [30220, 93, 69], movie: [30220, 93, 67], night: [30220, 93, 69], dinner: [30220, 93, 71], sunday: [30220, 93, 69], thanksgiving: [30220, 93, 71] },
+  390: { golden: [30220, 93, 72], movie: [30220, 93, 70], night: [30220, 93, 72], dinner: [30220, 93, 74], sunday: [30220, 93, 72], thanksgiving: [30220, 93, 74] },
 };
 
 async function loadRoom(page, width) {
