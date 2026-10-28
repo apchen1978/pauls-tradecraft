@@ -2093,39 +2093,233 @@ function addRoom03Woodwork(scene, material, geometries) {
 function buildHouseholdProps(scene, m) {
   const counterY = 0.955;
   // A compact American drip brewer: a warm-white housing and visible glass carafe.
-  buildPropGroup(scene, "drip-coffee-maker", [-0.34, counterY, -2.03], ({ box, shape }) => {
+  const coffeeMaker = buildPropGroup(scene, "drip-coffee-maker", [-0.34, counterY - 0.001, -2.03], ({ box, shape }) => {
     box(m.porcelain, [0.28, 0.036, 0.25], [0, 0.018, 0]);
     box(m.porcelain, [0.22, 0.18, 0.15], [0, 0.125, -0.035]);
     box(m.porcelain, [0.26, 0.065, 0.16], [0, 0.245, -0.04]);
     box(m.black, [0.12, 0.018, 0.1], [0, 0.29, -0.04]);
-    shape(new THREE.CylinderGeometry(0.071, 0.058, 0.125, 10), m.glass, [0, 0.105, 0.065]);
+    const carafeProfile = [
+      new THREE.Vector2(0.050, 0.008), new THREE.Vector2(0.058, 0.008),
+      new THREE.Vector2(0.060, 0.016), new THREE.Vector2(0.060, 0.092),
+      new THREE.Vector2(0.055, 0.108), new THREE.Vector2(0.046, 0.118),
+      new THREE.Vector2(0.041, 0.125), new THREE.Vector2(0.036, 0.125),
+      new THREE.Vector2(0.036, 0.118), new THREE.Vector2(0.041, 0.111),
+      new THREE.Vector2(0.049, 0.101), new THREE.Vector2(0.050, 0.020),
+      new THREE.Vector2(0, 0.020),
+    ];
+    shape(new THREE.LatheGeometry(carafeProfile, 20), m.glass, [0, 0.105, 0.065]);
     shape(new THREE.CylinderGeometry(0.055, 0.052, 0.032, 10), m.coffee, [0, 0.078, 0.065]);
-    shape(new THREE.TorusGeometry(0.045, 0.008, 5, 12), m.black, [0.075, 0.115, 0.065]);
+    shape(new THREE.TorusGeometry(0.045, 0.008, 5, 20), m.black, [0.075, 0.115, 0.065]);
     shape(new THREE.SphereGeometry(0.012, 8, 6), m.black, [0.085, 0.205, 0.015]);
+    const outlet = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0.205, 0.01), new THREE.Vector3(0, 0.174, 0.018), new THREE.Vector3(0, 0.15, 0.036),
+    ]);
+    shape(new THREE.TubeGeometry(outlet, 8, 0.006, 8, false), m.black);
+    shape(new THREE.TorusGeometry(0.009, 0.003, 4, 10), m.black, [0, 0.148, 0.036], [Math.PI / 2, 0, 0]);
   });
 
   // One ordinary electric kettle beside the sink, scaled like a 25 cm counter appliance.
-  const kettle = buildPropGroup(scene, "electric-kettle", [-0.76, counterY, -2.04], ({ shape }) => {
+  const kettle = buildPropGroup(scene, "electric-kettle", [-0.76, counterY - 0.011, -2.04], ({ shape }) => {
     const profile = [
-      new THREE.Vector2(0, 0.012), new THREE.Vector2(0.09, 0.012), new THREE.Vector2(0.12, 0.045),
-      new THREE.Vector2(0.125, 0.15), new THREE.Vector2(0.105, 0.205), new THREE.Vector2(0, 0.205),
+      new THREE.Vector2(0, 0.01), new THREE.Vector2(0.066, 0.01), new THREE.Vector2(0.091, 0.022),
+      new THREE.Vector2(0.104, 0.05), new THREE.Vector2(0.108, 0.12), new THREE.Vector2(0.105, 0.145),
+      new THREE.Vector2(0.096, 0.165), new THREE.Vector2(0.078, 0.187), new THREE.Vector2(0.066, 0.195),
+      new THREE.Vector2(0, 0.195),
     ];
-    shape(new THREE.LatheGeometry(profile, 18), m.porcelain, [0, 0, 0]);
-    shape(new THREE.CylinderGeometry(0.08, 0.08, 0.018, 18), m.black, [0, 0.207, 0]);
+    shape(new THREE.LatheGeometry(profile, 24), m.porcelain, [0, 0, 0]);
+    shape(new THREE.TorusGeometry(0.074, 0.003, 5, 24), m.steel, [0, 0.197, 0], [Math.PI / 2, 0, 0]);
+    shape(new THREE.TorusGeometry(0.106, 0.0022, 5, 24), m.steel, [0, 0.132, 0], [Math.PI / 2, 0, 0]);
+    shape(new THREE.TorusGeometry(0.074, 0.003, 5, 20), m.black, [0, 0.013, 0], [Math.PI / 2, 0, 0]);
+    shape(new THREE.CylinderGeometry(0.08, 0.08, 0.018, 20), m.black, [0, 0.207, 0]);
+    shape(new THREE.TorusGeometry(0.018, 0.002, 4, 16), m.steel, [0, 0.216, 0], [Math.PI / 2, 0, 0]);
+    shape(new THREE.CylinderGeometry(0.006, 0.006, 0.008, 10), m.steel, [0, 0.216, 0]);
     shape(new THREE.SphereGeometry(0.021, 12, 8), m.porcelain, [0, 0.228, 0]);
-    shape(new THREE.TorusGeometry(0.068, 0.011, 7, 16), m.black, [-0.112, 0.14, -0.015]);
-    shape(new THREE.CylinderGeometry(0.012, 0.032, 0.105, 12), m.porcelain, [0.14, 0.145, -0.012], [0, 0, Math.PI / 2]);
+    shape(new THREE.TorusGeometry(0.068, 0.010, 7, 18), m.black, [-0.112, 0.14, -0.015]);
+    const spoutPath = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0.09, 0.125, -0.012), new THREE.Vector3(0.122, 0.138, -0.012),
+      new THREE.Vector3(0.151, 0.17, -0.012), new THREE.Vector3(0.174, 0.198, -0.012),
+    ]);
+    shape(new THREE.TubeGeometry(spoutPath, 14, 0.013, 8, false), m.porcelain);
+    shape(new THREE.SphereGeometry(0.006, 8, 6), m.black, [0.174, 0.198, -0.012]);
   });
   kettle.scale.x = 0.75;
 
   // Plain rice cooker: plausible for the household, but prevalence remains an inference.
-  buildPropGroup(scene, "rice-cooker", [-1.92, counterY, -2.03], ({ box, shape }) => {
-    shape(new THREE.CylinderGeometry(0.11, 0.12, 0.17, 20), m.porcelain, [0, 0.09, 0]);
-    shape(new THREE.CylinderGeometry(0.124, 0.124, 0.026, 20), m.steel, [0, 0.188, 0]);
-    box(m.porcelain, [0.1, 0.018, 0.05], [0, 0.213, -0.015]);
+  const riceCooker = buildPropGroup(scene, "rice-cooker", [-1.92, counterY - 0.004, -2.03], ({ box, shape }) => {
+    const cookerProfile = [
+      new THREE.Vector2(0, 0.003), new THREE.Vector2(0.093, 0.003),
+      new THREE.Vector2(0.112, 0.012), new THREE.Vector2(0.124, 0.034),
+      new THREE.Vector2(0.130, 0.062), new THREE.Vector2(0.130, 0.142),
+      new THREE.Vector2(0.126, 0.163), new THREE.Vector2(0.117, 0.178),
+      new THREE.Vector2(0, 0.178),
+    ];
+    shape(new THREE.LatheGeometry(cookerProfile, 24), m.porcelain);
+    shape(new THREE.TorusGeometry(0.123, 0.004, 5, 20), m.steel, [0, 0.179, 0], [Math.PI / 2, 0, 0]);
+    shape(new THREE.CylinderGeometry(0.119, 0.119, 0.014, 20), m.steel, [0, 0.184, 0]);
+    shape(new THREE.SphereGeometry(0.021, 10, 7), m.porcelain, [0, 0.203, -0.01]);
+    for (const side of [-1, 1]) {
+      const handlePath = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(side * 0.118, 0.145, -0.004), new THREE.Vector3(side * 0.158, 0.145, -0.004),
+        new THREE.Vector3(side * 0.164, 0.128, -0.004), new THREE.Vector3(side * 0.16, 0.105, -0.004),
+        new THREE.Vector3(side * 0.12, 0.105, -0.004),
+      ]);
+      shape(new THREE.TubeGeometry(handlePath, 12, 0.008, 6, false), m.black);
+    }
     box(m.black, [0.046, 0.04, 0.018], [0, 0.105, 0.115]);
+    box(m.black, [0.013, 0.006, 0.004], [-0.012, 0.137, 0.126]);
+    box(m.black, [0.013, 0.006, 0.004], [0.012, 0.137, 0.126]);
     shape(new THREE.SphereGeometry(0.012, 8, 6), m.olive, [0, 0.108, 0.13]);
   });
+
+  // A turned oak utensil crock with a rolled lip, a real hollow, and three
+  // softly splayed spoons. The low radial segment count keeps it lightweight.
+  const utensilCrock = buildPropGroup(scene, "oak-utensil-crock", [-1.72, counterY - 0.003, -1.73], ({ shape }) => {
+    const crockProfile = [
+      new THREE.Vector2(0.052, 0.002), new THREE.Vector2(0.056, 0.004),
+      new THREE.Vector2(0.059, 0.012), new THREE.Vector2(0.060, 0.022),
+      new THREE.Vector2(0.060, 0.130), new THREE.Vector2(0.059, 0.140),
+      new THREE.Vector2(0.056, 0.146), new THREE.Vector2(0.052, 0.148),
+      new THREE.Vector2(0.049, 0.145), new THREE.Vector2(0.048, 0.139),
+      new THREE.Vector2(0.048, 0.026), new THREE.Vector2(0.044, 0.019),
+      new THREE.Vector2(0, 0.018),
+    ];
+    shape(new THREE.LatheGeometry(crockProfile, 20), m.oak);
+    shape(new THREE.TorusGeometry(0.054, 0.003, 5, 20), m.oak, [0, 0.145, 0], [Math.PI / 2, 0, 0]);
+
+    const makeSpoonBowl = () => {
+      const radialSegments = 10, rings = [0.34, 0.68, 1];
+      const positions = [[0, -0.004, 0]];
+      for (const r of rings) for (let i = 0; i < radialSegments; i++) {
+        const angle = i * Math.PI * 2 / radialSegments;
+        positions.push([Math.cos(angle) * 0.018 * r, -0.004 * (1 - r * r), Math.sin(angle) * 0.028 * r]);
+      }
+      const indices = [];
+      for (let i = 0; i < radialSegments; i++) indices.push(0, 1 + i, 1 + ((i + 1) % radialSegments));
+      for (let ring = 0; ring < rings.length - 1; ring++) {
+        const a = 1 + ring * radialSegments, b = a + radialSegments;
+        for (let i = 0; i < radialSegments; i++) {
+          const next = (i + 1) % radialSegments;
+          indices.push(a + i, b + i, a + next, a + next, b + i, b + next);
+        }
+      }
+      const bowl = new THREE.BufferGeometry();
+      bowl.setAttribute("position", new THREE.Float32BufferAttribute(positions.flat(), 3));
+      bowl.setAttribute("uv", new THREE.Float32BufferAttribute(positions.flatMap(([x, , z]) => [x / 0.036 + 0.5, z / 0.056 + 0.5]), 2));
+      bowl.setIndex(indices); bowl.computeVertexNormals();
+      return bowl;
+    };
+    const spoonAngles = [
+      { x: -0.022, z: 0.004, tilt: -0.13, yaw: -0.38, height: 0.215 },
+      { x: 0.006, z: -0.012, tilt: 0.08, yaw: 0.22, height: 0.229 },
+      { x: 0.022, z: 0.008, tilt: 0.16, yaw: 0.58, height: 0.204 },
+    ];
+    for (const spoon of spoonAngles) {
+      const handleLength = spoon.height - 0.024;
+      shape(new THREE.CylinderGeometry(0.0048, 0.0062, handleLength, 8), m.oak,
+        [spoon.x, 0.018 + handleLength / 2, spoon.z], [spoon.tilt, 0, spoon.yaw]);
+      shape(makeSpoonBowl(), m.oak,
+        [spoon.x + Math.sin(spoon.tilt) * handleLength * 0.46, spoon.height, spoon.z], [0, spoon.yaw, 0]);
+    }
+  });
+
+  // Clear pantry jar with a warm oat fill. Glass is a separate depth-write-off
+  // shell, rendered after the opaque grain and oak lid to keep sorting stable.
+  const pantryJar = buildPropGroup(scene, "glass-pantry-jar", [-0.99, counterY - 0.003, -1.73], ({ shape }) => {
+    const jarProfile = [
+      new THREE.Vector2(0.052, 0.002), new THREE.Vector2(0.057, 0.006),
+      new THREE.Vector2(0.060, 0.014), new THREE.Vector2(0.060, 0.132),
+      new THREE.Vector2(0.059, 0.144), new THREE.Vector2(0.056, 0.151),
+      new THREE.Vector2(0.052, 0.151), new THREE.Vector2(0.050, 0.146),
+      new THREE.Vector2(0.050, 0.019), new THREE.Vector2(0.045, 0.015),
+      new THREE.Vector2(0, 0.015),
+    ];
+    shape(new THREE.LatheGeometry(jarProfile, 20), m.glass);
+    const grainProfile = [
+      new THREE.Vector2(0, 0.022), new THREE.Vector2(0.038, 0.022),
+      new THREE.Vector2(0.047, 0.028), new THREE.Vector2(0.048, 0.075),
+      new THREE.Vector2(0.044, 0.082), new THREE.Vector2(0.032, 0.087),
+      new THREE.Vector2(0.018, 0.09), new THREE.Vector2(0, 0.091),
+    ];
+    shape(new THREE.LatheGeometry(grainProfile, 16), m.oak);
+    shape(new THREE.CylinderGeometry(0.062, 0.061, 0.029, 20), m.oak, [0, 0.1665, 0]);
+    shape(new THREE.TorusGeometry(0.060, 0.0025, 5, 20), m.oak, [0, 0.151, 0], [Math.PI / 2, 0, 0]);
+  });
+  const saucepan = buildPropGroup(scene, "steel-saucepan", [0.53, 0.9965, -2.18], ({ shape }) => {
+    const panProfile = [
+      new THREE.Vector2(0.072, 0), new THREE.Vector2(0.082, 0.001),
+      new THREE.Vector2(0.088, 0.012), new THREE.Vector2(0.090, 0.026),
+      new THREE.Vector2(0.090, 0.071), new THREE.Vector2(0.088, 0.084),
+      new THREE.Vector2(0.085, 0.090), new THREE.Vector2(0.081, 0.087),
+      new THREE.Vector2(0.079, 0.078), new THREE.Vector2(0.079, 0.018),
+      new THREE.Vector2(0.070, 0.014), new THREE.Vector2(0, 0.014),
+    ];
+    shape(new THREE.LatheGeometry(panProfile, 20), m.steel);
+    shape(new THREE.CylinderGeometry(0.013, 0.019, 0.035, 10), m.steel, [-0.094, 0.062, 0], [0, 0, Math.PI / 2]);
+    shape(new THREE.CylinderGeometry(0.012, 0.019, 0.17, 10), m.black, [-0.165, 0.062, 0], [0, 0, Math.PI / 2]);
+  });
+  // Batch the matching oak and glass surfaces across these countertop props:
+  // the jar adds detail without adding a desktop/mobile draw call.
+  const savePropMeasure = (group) => {
+    group.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(group);
+    group.userData.qaBounds = { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
+    let vertices = 0, meshes = 0;
+    group.traverse((child) => {
+      if (!child.isMesh || !child.geometry?.attributes?.position) return;
+      vertices += child.geometry.attributes.position.count; meshes++;
+    });
+    group.userData.qaGeometry = { vertices, meshes };
+  };
+  [coffeeMaker, kettle, utensilCrock, pantryJar, riceCooker, saucepan].forEach(savePropMeasure);
+  const mergeWorldMaterialMeshes = (groups, material, name, renderOrder = 0) => {
+    const sourceMeshes = groups.flatMap((group) => group.children.filter((child) => child.isMesh && child.material === material));
+    const geometries = sourceMeshes.map((mesh) => mesh.geometry.clone().applyMatrix4(mesh.matrixWorld));
+    const merged = mergeGeometries(geometries, false);
+    geometries.forEach((geometry) => geometry.dispose());
+    if (!merged) throw new Error(`Could not batch countertop material: ${name}`);
+    merged.computeVertexNormals();
+    for (const mesh of sourceMeshes) { mesh.parent.remove(mesh); mesh.geometry.dispose(); }
+    const combined = new THREE.Mesh(merged, material);
+    combined.name = name;
+    combined.userData.category = "household-props";
+    combined.renderOrder = renderOrder;
+    combined.castShadow = material === m.oak;
+    combined.receiveShadow = material === m.oak;
+    scene.add(combined);
+    return combined;
+  };
+  const mergeWorldTintedMeshes = (groups, materials, name, renderOrder = 0) => {
+    const sourceMeshes = groups.flatMap((group) => group.children.filter((child) => child.isMesh && materials.includes(child.material)));
+    const geometries = sourceMeshes.map((mesh) => {
+      const geometry = mesh.geometry.clone().applyMatrix4(mesh.matrixWorld);
+      const color = mesh.material.color;
+      const colors = new Float32Array(geometry.attributes.position.count * 3);
+      for (let i = 0; i < geometry.attributes.position.count; i++) colors.set([color.r, color.g, color.b], i * 3);
+      geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+      return geometry;
+    });
+    const merged = mergeGeometries(geometries, false);
+    geometries.forEach((geometry) => geometry.dispose());
+    if (!merged) throw new Error(`Could not batch countertop materials: ${name}`);
+    merged.computeVertexNormals();
+    for (const mesh of sourceMeshes) { mesh.parent.remove(mesh); mesh.geometry.dispose(); }
+    const combinedMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.42, metalness: 0.12, vertexColors: true });
+    const combined = new THREE.Mesh(merged, combinedMaterial);
+    combined.name = name;
+    combined.userData.category = "household-props";
+    combined.renderOrder = renderOrder;
+    combined.castShadow = false;
+    combined.receiveShadow = false;
+    scene.add(combined);
+    return combined;
+  };
+  mergeWorldMaterialMeshes([utensilCrock, pantryJar], m.oak, "prop-countertop-oak-shared");
+  const sharedCounterGlass = mergeWorldMaterialMeshes([coffeeMaker, pantryJar], m.glass, "prop-countertop-glass-shared", 2);
+  sharedCounterGlass.castShadow = false;
+  sharedCounterGlass.receiveShadow = false;
+  // Preserve the steel/black distinction as per-vertex color while merging
+  // these small hardware parts into one draw call for narrow mobile views.
+  mergeWorldTintedMeshes([kettle, riceCooker, saucepan], [m.steel, m.black], "prop-countertop-hardware-shared");
 
   // Cutting board, unbranded oil and salt sit at the free end of the counter.
   buildPropGroup(scene, "cutting-board", [0, counterY, 0], ({ box, shape }) => {
@@ -3263,16 +3457,19 @@ export async function start({ stage, onReady = () => {} }) {
       scene.traverse((object) => { if (object.isMesh && object.userData.category === category) box.expandByObject(object); });
       return box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
-    const propKeys = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "tabletop-meyer-lemon-bowl", "cookbooks"];
+    const propKeys = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "oak-utensil-crock", "glass-pantry-jar", "steel-saucepan", "tabletop-meyer-lemon-bowl", "cookbooks"];
     const propBounds = Object.fromEntries(propKeys.map((key) => {
       const object = scene.getObjectByName(`prop-${key}`);
       if (!object) return [key, null];
-      const box = new THREE.Box3().setFromObject(object);
+      const box = object.userData.qaBounds
+        ? new THREE.Box3(new THREE.Vector3(...object.userData.qaBounds.min), new THREE.Vector3(...object.userData.qaBounds.max))
+        : new THREE.Box3().setFromObject(object);
       const center = box.getCenter(new THREE.Vector3());
       return [key, { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray(), projectedCenter: project(center.toArray()) }];
     }));
     const propGeometry = Object.fromEntries(propKeys.map((key) => {
       const object = scene.getObjectByName(`prop-${key}`);
+      if (object?.userData.qaGeometry) return [key, object.userData.qaGeometry];
       let propVertices = 0, propMeshes = 0;
       object?.traverse((child) => {
         if (!child.isMesh || !child.geometry?.attributes?.position) return;
@@ -3281,6 +3478,94 @@ export async function start({ stage, onReady = () => {} }) {
       });
       return [key, { vertices: propVertices, meshes: propMeshes }];
     }));
+    const utensilObject = scene.getObjectByName("prop-oak-utensil-crock");
+    const counterSurface = scene.getObjectByName("merged-counter");
+    scene.updateMatrixWorld(true);
+    const measureCounterPropFit = (key, x, z) => {
+      const object = scene.getObjectByName(`prop-${key}`);
+      const ray = new THREE.Raycaster(new THREE.Vector3(x, 1.3, z), new THREE.Vector3(0, -1, 0), 0, 1);
+      const hit = counterSurface ? ray.intersectObject(counterSurface, false).find(({ face }) => {
+        if (!face) return false;
+        const normal = face.normal.clone().applyMatrix3(new THREE.Matrix3().getNormalMatrix(counterSurface.matrixWorld)).normalize();
+        return normal.y > 0.9;
+      }) : null;
+      const box = object?.userData.qaBounds
+        ? new THREE.Box3(new THREE.Vector3(...object.userData.qaBounds.min), new THREE.Vector3(...object.userData.qaBounds.max))
+        : object ? new THREE.Box3().setFromObject(object) : null;
+      return hit && box ? {
+        supportY: Number(hit.point.y.toFixed(4)), bottomY: Number(box.min.y.toFixed(4)),
+        gapMm: Number(((box.min.y - hit.point.y) * 1000).toFixed(2)),
+        embedMm: Number((Math.max(0, hit.point.y - box.min.y) * 1000).toFixed(2)),
+        overallSizeMm: box.getSize(new THREE.Vector3()).toArray().map((value) => Number((value * 1000).toFixed(1))),
+      } : null;
+    };
+    const crockSupportRay = new THREE.Raycaster(new THREE.Vector3(-1.72, 1.3, -1.73), new THREE.Vector3(0, -1, 0), 0, 1);
+    const crockSupportHit = counterSurface ? crockSupportRay.intersectObject(counterSurface, false).find(({ face }) => {
+      if (!face) return false;
+      const normal = face.normal.clone().applyMatrix3(new THREE.Matrix3().getNormalMatrix(counterSurface.matrixWorld)).normalize();
+      return normal.y > 0.9;
+    }) : null;
+    const utensilBox = utensilObject?.userData.qaBounds
+      ? new THREE.Box3(new THREE.Vector3(...utensilObject.userData.qaBounds.min), new THREE.Vector3(...utensilObject.userData.qaBounds.max))
+      : utensilObject ? new THREE.Box3().setFromObject(utensilObject) : null;
+    const utensilCrockFit = crockSupportHit && utensilBox ? {
+      supportY: Number(crockSupportHit.point.y.toFixed(4)),
+      bottomY: Number(utensilBox.min.y.toFixed(4)),
+      gapMm: Number(((utensilBox.min.y - crockSupportHit.point.y) * 1000).toFixed(2)),
+      embedMm: Number((Math.max(0, crockSupportHit.point.y - utensilBox.min.y) * 1000).toFixed(2)),
+      crockDiameterMm: 120, crockHeightMm: 148,
+      overallSizeMm: utensilBox.getSize(new THREE.Vector3()).toArray().map((value) => Number((value * 1000).toFixed(1))),
+    } : null;
+    const jarObject = scene.getObjectByName("prop-glass-pantry-jar");
+    const jarSupportRay = new THREE.Raycaster(new THREE.Vector3(-0.99, 1.3, -1.73), new THREE.Vector3(0, -1, 0), 0, 1);
+    const jarSupportHit = counterSurface ? jarSupportRay.intersectObject(counterSurface, false).find(({ face }) => {
+      if (!face) return false;
+      const normal = face.normal.clone().applyMatrix3(new THREE.Matrix3().getNormalMatrix(counterSurface.matrixWorld)).normalize();
+      return normal.y > 0.9;
+    }) : null;
+    const jarBox = jarObject?.userData.qaBounds
+      ? new THREE.Box3(new THREE.Vector3(...jarObject.userData.qaBounds.min), new THREE.Vector3(...jarObject.userData.qaBounds.max))
+      : jarObject ? new THREE.Box3().setFromObject(jarObject) : null;
+    const jarGlassMesh = scene.getObjectByName("prop-countertop-glass-shared");
+    const pantryJarFit = jarSupportHit && jarBox ? {
+      supportY: Number(jarSupportHit.point.y.toFixed(4)),
+      bottomY: Number(jarBox.min.y.toFixed(4)),
+      gapMm: Number(((jarBox.min.y - jarSupportHit.point.y) * 1000).toFixed(2)),
+      embedMm: Number((Math.max(0, jarSupportHit.point.y - jarBox.min.y) * 1000).toFixed(2)),
+      bodyDiameterMm: 120, totalHeightMm: Number((jarBox.getSize(new THREE.Vector3()).y * 1000).toFixed(1)),
+      overallSizeMm: jarBox.getSize(new THREE.Vector3()).toArray().map((value) => Number((value * 1000).toFixed(1))),
+      glass: { depthWrite: jarGlassMesh?.material.depthWrite ?? null, renderOrder: jarGlassMesh?.renderOrder ?? null },
+    } : null;
+    const dripCoffeeMakerFit = measureCounterPropFit("drip-coffee-maker", -0.34, -2.03);
+    const riceCookerFit = measureCounterPropFit("rice-cooker", -1.92, -2.03);
+    const electricKettleFit = measureCounterPropFit("electric-kettle", -0.76, -2.04);
+    const saucepanObject = scene.getObjectByName("prop-steel-saucepan");
+    const cooktopSurface = scene.getObjectByName("merged-appliances");
+    const saucepanSupportRay = new THREE.Raycaster(new THREE.Vector3(0.53, 1.3, -2.18), new THREE.Vector3(0, -1, 0), 0, 1);
+    const saucepanSupportHit = cooktopSurface ? saucepanSupportRay.intersectObject(cooktopSurface, false).find(({ face }) => {
+      if (!face) return false;
+      const normal = face.normal.clone().applyMatrix3(new THREE.Matrix3().getNormalMatrix(cooktopSurface.matrixWorld)).normalize();
+      return normal.y > 0.9;
+    }) : null;
+    const saucepanBox = saucepanObject?.userData.qaBounds
+      ? new THREE.Box3(new THREE.Vector3(...saucepanObject.userData.qaBounds.min), new THREE.Vector3(...saucepanObject.userData.qaBounds.max))
+      : saucepanObject ? new THREE.Box3().setFromObject(saucepanObject) : null;
+    const redPotObject = scene.getObjectByName("single-terracotta-pot");
+    const redPotBox = redPotObject ? new THREE.Box3().setFromObject(redPotObject) : null;
+    const panPotGap = saucepanBox && redPotBox ? Math.hypot(
+      Math.max(0, redPotBox.min.x - saucepanBox.max.x, saucepanBox.min.x - redPotBox.max.x),
+      Math.max(0, redPotBox.min.y - saucepanBox.max.y, saucepanBox.min.y - redPotBox.max.y),
+      Math.max(0, redPotBox.min.z - saucepanBox.max.z, saucepanBox.min.z - redPotBox.max.z),
+    ) : null;
+    const saucepanFit = saucepanSupportHit && saucepanBox ? {
+      supportY: Number(saucepanSupportHit.point.y.toFixed(4)),
+      bottomY: Number(saucepanBox.min.y.toFixed(4)),
+      gapMm: Number(((saucepanBox.min.y - saucepanSupportHit.point.y) * 1000).toFixed(2)),
+      embedMm: Number((Math.max(0, saucepanSupportHit.point.y - saucepanBox.min.y) * 1000).toFixed(2)),
+      panDiameterMm: 180, bodyHeightMm: 90, overallLengthMm: 340,
+      overallSizeMm: saucepanBox.getSize(new THREE.Vector3()).toArray().map((value) => Number((value * 1000).toFixed(1))),
+      redPotClearanceMm: panPotGap === null ? null : Number((panPotGap * 1000).toFixed(1)),
+    } : null;
     const chairBounds = [-0.5, 0.5].flatMap((x) => [-0.22, 1.22].map((z) => boxFor(`room03-dining-chair-${x}-${z}`)));
     const diningFootAlignment = [];
     const shadowPositions = contactShadow.geometry.attributes.position;
@@ -3623,7 +3908,7 @@ export async function start({ stage, onReady = () => {} }) {
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
     const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
-    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,

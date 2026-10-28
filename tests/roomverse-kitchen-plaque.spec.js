@@ -59,11 +59,10 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   const desktopTurned = await page.evaluate(() => window.__room03.info());
   // Wok run A (stacked after the lemon bowl and red Dutch oven): door, frames and exterior backboard out; continuous counter, duct and returns in.
   // 30,696 → 30,220 (−476). Meshes 96 → 93. Opening draw calls stay 69.
-  // Lounge ottoman: +517 vertices and 4 foot decals (+16): 30,220 -> 30,753 vertices, 93 -> 95 meshes; the lamp-wall painting then adds 124 (frame boxes and one image plane, no mesh): 30,753 -> 30,877; opening draw calls unchanged (it is outside the default frame).
-  expect(desktop.vertices).toBe(30877);
-  expect(desktop.meshes).toBe(95);
-  // Old 69 -> new 70: the lemon bowl now sits on the table centreline (z 0.5) and enters the default desktop frame (+1 draw call; vertices and meshes unchanged).
-  expect(desktop.drawCallsLastFrame).toBe(70);
+// Room 03 main after the lamp-wall painting: 30,877 vertices, 95 meshes. The countertop refinements add 3,180 vertices and vertex-color batching reduces meshes to 94: 34,057 vertices, 94 meshes. Opening calls 70 -> 69.
+  expect(desktop.vertices).toBe(34057);
+  expect(desktop.meshes).toBe(94);
+  expect(desktop.drawCallsLastFrame).toBe(69);
   const hiddenDesktop = await page.evaluate(() => {
     window.__room03.plaqueMesh.visible = false;
     window.__room03.render();
@@ -78,8 +77,8 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   const mobileOpening = await page.evaluate(() => window.__room03.info());
   await shot(page, "plaque-mobile-390-default");
   expect(mobileOpening.plaque.inView).toBe(false);
-  // Lemon bowl uses one mesh instead of the three-mesh succulent trough: phone opening calls 74 → 72 (-2); the plaque remains outside the frustum.
-  expect(mobileOpening.drawCallsLastFrame).toBe(72);
+  // Old 72 -> new 71 after steel/black hardware batching; the plaque remains outside the mobile opening frustum.
+  expect(mobileOpening.drawCallsLastFrame).toBe(71);
   await page.evaluate(() => window.__room03.setView(Math.PI));
   const mobile = await page.evaluate(() => window.__room03.info());
   expect(mobile.plaque.inView).toBe(true);
