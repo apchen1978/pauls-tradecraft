@@ -1884,7 +1884,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
   let settled = 0;
   // Swappable prints for the two frames (Paul 2026-10-29). Each option is fetched only when chosen, painted into the same atlas
   // region as the original and then released, so vertices, meshes and draw calls never change and nothing extra loads up front.
-  const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "botanical-window" };
+  const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "moon-hills" };
   const ART_OPTIONS = {
     "cable-car": {
       "cable-car": "./art/room03-bay-cable-car-v1.webp",
@@ -1900,9 +1900,9 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       "poster-leaf": "./art/room03-print-poster-leaf-v1.webp",
     },
     "lamp-wall": {
-      "botanical-window": "./art/room03-lamp-wall-botanical-window-v1.webp",
-      "hills-sun": "./art/room03-lamp-wall-hills-sun-v1.webp",
       "moon-hills": "./art/room03-lamp-wall-moon-hills-v1.webp",
+      "hills-sun": "./art/room03-lamp-wall-hills-sun-v1.webp",
+      "botanical-window": "./art/room03-lamp-wall-botanical-window-v1.webp",
     },
   };
   const frameAssetByKey = { "cable-car": cableCar, "redwood-path": redwoodPath, "lamp-wall": lampWall };
@@ -1912,9 +1912,13 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     const width = (asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width;
     const y = asset.key !== "cable-car" ? 8 : 0;
     const height = asset.key !== "cable-car" ? 600 : atlasCanvas.height;
+    // A cream mat (passe-partout) around the picture, painted into the texture: it is what makes a painting read as a hung, framed object
+    // instead of a bright hole in the wall like the window beside it (Paul 2026-10-29). No geometry, no draw call.
+    const mat = Math.round(width * 0.07);
     const sw0 = source.naturalWidth || source.width, sh0 = source.naturalHeight || source.height;
-    const scale = Math.max(width / sw0, height / sh0);
-    const sw = width / scale, sh = height / scale;
+    const innerWidth = width - 2 * mat, innerHeight = height - 2 * mat;
+    const scale = Math.max(innerWidth / sw0, innerHeight / sh0);
+    const sw = innerWidth / scale, sh = innerHeight / scale;
     const sx = (sw0 - sw) / 2, sy = (sh0 - sh) / 2;
     atlasContext.fillStyle = "#d8cbb5";
     atlasContext.fillRect(x, 0, width, atlasCanvas.height);
@@ -1922,17 +1926,28 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     if (asset.atlasRect.flip) {
       atlasContext.translate(x + width, 0);
       atlasContext.scale(-1, 1);
-      atlasContext.drawImage(source, sx, sy, sw, sh, 0, y, width, height);
-    } else atlasContext.drawImage(source, sx, sy, sw, sh, x, y, width, height);
+    }
+    const left = asset.atlasRect.flip ? 0 : x;
+    atlasContext.fillStyle = "#eee5d2";
+    atlasContext.fillRect(left, y, width, height);
+    atlasContext.drawImage(source, sx, sy, sw, sh, left + mat, y + mat, innerWidth, innerHeight);
+    // A thin bevel line where the mat meets the picture: darker on top and left, lighter below and right.
+    atlasContext.lineWidth = 2;
+    atlasContext.strokeStyle = "rgba(70, 55, 35, 0.35)";
+    atlasContext.strokeRect(left + mat - 1, y + mat - 1, innerWidth + 2, innerHeight + 2);
     atlasContext.restore();
     atlasTexture.needsUpdate = true;
   };
   const regionMean = (asset) => {
     // A coarse 10 x 8 grid of single pixels: enough to tell two pictures apart without reading the whole region on every info() call.
-    const x0 = Math.round(asset.atlasRect.u0 * atlasCanvas.width), width = Math.round((asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width);
+    // Sampled inside the cream mat, so the reading is the picture itself.
+    const regionX = Math.round(asset.atlasRect.u0 * atlasCanvas.width), regionWidth = Math.round((asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width);
+    const mat = Math.round(regionWidth * 0.07);
+    const y0 = (asset.key !== "cable-car" ? 8 : 0) + mat, height = (asset.key !== "cable-car" ? 600 : atlasCanvas.height) - 2 * mat;
+    const x0 = regionX + mat, width = regionWidth - 2 * mat;
     let r = 0, g = 0, b = 0, n = 0;
     for (let i = 0; i < 10; i++) for (let j = 0; j < 8; j++) {
-      const [pr, pg, pb] = atlasContext.getImageData(x0 + Math.floor((i + 0.5) * width / 10), Math.floor((j + 0.5) * atlasCanvas.height / 8), 1, 1).data;
+      const [pr, pg, pb] = atlasContext.getImageData(x0 + Math.floor((i + 0.5) * width / 10), y0 + Math.floor((j + 0.5) * height / 8), 1, 1).data;
       r += pr; g += pg; b += pb; n += 1;
     }
     return [r / n, g / n, b / n].map((value) => Number(value.toFixed(1)));
@@ -1966,27 +1981,13 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       const urls = {
         cableCar: new URL("./art/room03-bay-cable-car-v1.webp", import.meta.url).href,
         redwoodPath: new URL("./art/room03-bay-redwood-path-v1.webp", import.meta.url).href,
-        lampWall: new URL("./art/room03-lamp-wall-botanical-window-v1.webp", import.meta.url).href,
+        lampWall: new URL("./art/room03-lamp-wall-moon-hills-v1.webp", import.meta.url).href,
       };
       for (const [name, asset] of Object.entries(assets)) {
         loader.load(urls[name], (texture) => {
           texture.colorSpace = THREE.SRGBColorSpace;
           asset.texture = texture;
-          const source = texture.image;
-          const x = asset.atlasRect.u0 * atlasCanvas.width;
-          const width = (asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width;
-          const y = asset.key !== "cable-car" ? 8 : 0;
-          const height = asset.key !== "cable-car" ? 600 : atlasCanvas.height;
-          atlasContext.clearRect(x, 0, width, atlasCanvas.height);
-          atlasContext.fillStyle = "#d8cbb5";
-          atlasContext.fillRect(x, 0, width, atlasCanvas.height);
-          atlasContext.save();
-          if (asset.atlasRect.flip) {
-            atlasContext.translate(x + width, 0);
-            atlasContext.scale(-1, 1);
-            atlasContext.drawImage(source, 0, y, width, height);
-          } else atlasContext.drawImage(source, x, y, width, height);
-          atlasContext.restore();
+          paintRegion(asset, texture.image);
           texture.dispose();
           atlasTexture.needsUpdate = true;
           asset.status = "loaded";
@@ -2904,7 +2905,7 @@ export async function start({ stage, onReady = () => {} }) {
       warmGlow: 0.72, wokGlow: 0.72,
       windowWallBounce: 0.12, windowWallBounceVisible: true,
       pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
-      reveal: 0.72, contactShadow: 0.30, blind: "open", tableware: false, artLight: [1, 1, 1],
+      reveal: 0.72, contactShadow: 0.30, blind: "open", tableware: false, artLight: [0.86, 0.84, 0.82],
     }),
     night: Object.freeze({
       ...sharedLook,
@@ -2957,7 +2958,7 @@ export async function start({ stage, onReady = () => {} }) {
       reveal: 0.55, contactShadow: 0.26,
       floorLamp: 1.6, tableLamp: 2.4, screenCool: 0,
       pictureLightEmissive: 0.6, counterPendantEmissive: 1.0,
-      blind: "half", tableware: true, artLight: [0.8, 0.74, 0.66],
+      blind: "half", tableware: true, artLight: [0.74, 0.68, 0.6],
     }),
     sunday: Object.freeze({
       ...sharedLook,
@@ -2973,7 +2974,7 @@ export async function start({ stage, onReady = () => {} }) {
       reveal: 0.35, contactShadow: 0.24,
       floorLamp: 0.8, tableLamp: 0.6, screenCool: 0,
       pictureLightEmissive: 0.2, counterPendantEmissive: 0.25,
-      blind: "half", tableware: false, artLight: [0.95, 0.93, 0.9],
+      blind: "half", tableware: false, artLight: [0.84, 0.82, 0.8],
     }),
     // Thanksgiving is lights and pictures only. Side kitchen stays off so the
     // true lights that are on stay at 7. The autumn photo is not tinted; amber
@@ -2993,7 +2994,7 @@ export async function start({ stage, onReady = () => {} }) {
       screenColor: 0xffffff, screenToneMapped: false, screenMap: "screen-thanksgiving-parade-v1",
       floorLamp: 1.4, tableLamp: 1.8, screenCool: 0,
       pictureLightEmissive: 0.55, counterPendantEmissive: 0.80,
-      blind: "half", tableware: true, artLight: [0.82, 0.76, 0.68],
+      blind: "half", tableware: true, artLight: [0.76, 0.7, 0.63],
     }),
   });
   let floorLampLight = null, tableLampLight = null, screenCoolLight = null;
