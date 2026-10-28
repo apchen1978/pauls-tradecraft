@@ -1051,9 +1051,11 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   const info = await page.evaluate(() => window.__room03.info());
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
 // Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and opening calls 70 -> 69.
-  expect(info.vertices).toBe(34057);
-  expect(info.meshes).toBe(94);
-  expect(info.drawCallsLastFrame).toBe(69);
+  expect(info.vertices).toBe(34061);
+  // Grasscloth wallpaper panel: +4 vertices and +1 mesh (34,057/94 -> 34,061/95).
+  expect(info.meshes).toBe(95);
+  // Grasscloth wall in the default desktop frame: 69 -> 70.
+  expect(info.drawCallsLastFrame).toBe(70);
   expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
   expect(info.wokTile.colorSpace).toBe("srgb");
   expect(info.wokTile.anisotropy).toBeGreaterThanOrEqual(8);
