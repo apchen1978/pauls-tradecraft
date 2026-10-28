@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=40";
+import { start, ROOM_TITLE } from "./kitchen.js?v=41";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -12,6 +12,7 @@ const COPY = {
       night: ["夜晚", "院子轉為藍調，圓球燈、櫥下燈與側廚房暖光照亮餐區。"],
       dinner: ["晚餐", "吊燈轉暖，檯面雙吊燈與桌燈點著，低角度的暖陽還留一點。"],
       sunday: ["週日早晨", "光線偏冷、偏亮，吊燈關著，落地燈與桌燈只微微亮。"],
+      thanksgiving: ["感恩節", "院子換成秋色，螢幕放遊行，燈光是琥珀色。"],
     },
   },
   en: {
@@ -26,6 +27,7 @@ const COPY = {
       night: ["Night", "The garden turns blue while the globe pendant, counter light and side kitchen warm the dining room."],
       dinner: ["Dinner", "The pendant warms up, the counter lamps and table lamp are on, and a low warm sun remains."],
       sunday: ["Sunday morning", "The light is cooler and brighter, the pendant is off, and the floor and table lamps stay dim."],
+      thanksgiving: ["Thanksgiving", "The garden turns to autumn, the screen shows a parade, and the light is amber."],
     },
   },
 };
