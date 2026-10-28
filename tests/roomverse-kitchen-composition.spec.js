@@ -25,6 +25,6 @@ test('desktop and mobile complete a 10-degree orbit sweep',async ({page})=>{
   for(const width of [1440,390]){
     await page.setViewportSize({width,height:width===390?844:1000}); await page.goto('/prototype/roomverse-3d/kitchen/?lang=zh');
     await page.waitForFunction(()=>window.__room03?.info().furniture.table==='glb' && window.__room03.info().yardLoaded);
-    for(let deg=0;deg<360;deg+=10){const info=await page.evaluate(d=>{let r=window.__room03;r.setView(d*Math.PI/180);return r.info()},deg);expect(info.camera.every(Number.isFinite)).toBe(true);expect(info.vertices).toBe(34057);expect(info.meshes).toBe(94);expect(info.drawCallsLastFrame).toBeGreaterThan(0);}
+    // Orbit sweep snapshot: old main 30,877/95 -> 34,057/94 after the countertop set and hardware batching; each view must still render.\n    for(let deg=0;deg<360;deg+=10){const info=await page.evaluate(d=>{let r=window.__room03;r.setView(d*Math.PI/180);return r.info()},deg);expect(info.camera.every(Number.isFinite)).toBe(true);expect(info.vertices).toBe(34057);expect(info.meshes).toBe(94);expect(info.drawCallsLastFrame).toBeGreaterThan(0);}
   }
 });

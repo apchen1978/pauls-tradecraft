@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
 const MOODS = ["golden", "night", "movie"];
-// Old no-pot baseline 31,603 -> current no-pot baseline 32,973: countertop props are now present. Current pot geometry remains 960 vertices, below the unchanged +1,500 cap.
+// No-pot baseline: 31,603 -> 33,097 after the countertop prop set (+1,370) and #603 lamp-wall art (+124). The red pot remains 960 vertices; the +1,500 cap is unchanged.
 const BASELINE = {
   "1440|golden|0": { vertices: 33097, drawCalls: 70 },
   "1440|night|0": { vertices: 33097, drawCalls: 70 },
