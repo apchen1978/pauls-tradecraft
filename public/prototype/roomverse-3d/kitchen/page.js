@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=56";
+import { start, ROOM_TITLE } from "./kitchen.js?v=57";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -10,7 +10,7 @@ const COPY = {
     swaps: {
       "cable-car": ["右側牆的畫", { "cable-car": "舊金山電車", "fog-bridge": "霧中金門大橋", "marin-hills": "馬林海岬", "poster-sun": "山丘與太陽" }],
       "redwood-path": ["入口走廊的畫", { "redwood-path": "紅杉步道", "ferry-building": "渡輪大廈", "oak-street": "橡樹街", "poster-arch": "拱門海報", "poster-leaf": "葉片海報" }],
-      "lamp-wall": ["窗邊燈上方的畫", { "botanical-window": "窗台花瓶", "hills-sun": "丘陵與日", "moon-hills": "丘陵與月" }],
+      "lamp-wall": ["窗邊燈上方的畫", { "moon-hills": "丘陵與月", "hills-sun": "丘陵與日", "botanical-window": "窗台花瓶" }],
       yard: ["窗外景色", { auto: "跟著感覺", "fog-morning": "濃霧早晨", "spring-bloom": "春天花開", "overcast-rain": "陰天微雨" }],
     }, canvasLabel: "房間視角。中心模式可用方向鍵環顧。",
     moods: {
@@ -32,7 +32,7 @@ const COPY = {
     swaps: {
       "cable-car": ["Painting, right wall", { "cable-car": "Cable car", "fog-bridge": "Golden Gate in fog", "marin-hills": "Marin headlands", "poster-sun": "Hills and sun" }],
       "redwood-path": ["Painting, entry hall", { "redwood-path": "Redwood path", "ferry-building": "Ferry Building", "oak-street": "Oak street", "poster-arch": "Arch poster", "poster-leaf": "Leaf poster" }],
-      "lamp-wall": ["Painting above the lamp", { "botanical-window": "Window-sill vase", "hills-sun": "Hills and sun", "moon-hills": "Hills and moon" }],
+      "lamp-wall": ["Painting above the lamp", { "moon-hills": "Hills and moon", "hills-sun": "Hills and sun", "botanical-window": "Window-sill vase" }],
       yard: ["View outside", { auto: "Follow the mood", "fog-morning": "Foggy morning", "spring-bloom": "Spring bloom", "overcast-rain": "Overcast and damp" }],
     }, canvasLabel: "Room view. Use arrow keys to look around in center mode.",
     moods: {
@@ -59,7 +59,7 @@ function otherRoomsUrl() {
   return url.href;
 }
 
-const artChoice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "botanical-window", yard: "auto" };
+const artChoice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "moon-hills", yard: "auto" };
 function renderSwaps() {
   const copy = COPY[lang];
   $("swapsTitle").textContent = copy.swapsLabel;
