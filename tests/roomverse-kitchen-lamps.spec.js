@@ -15,15 +15,19 @@ test("three lamps sit on measured surfaces, counter pendants are removed, and ne
   expect(info.propBounds["window-fiddle-leaf-fig"]).toBeUndefined();
   expect(info.plantLeafCount).toBe(0);
   expect(info.lightMetrics.lightCount).toBe(9);
-  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices); // door: 47,680 -> 50,368 (+2,688); // 42,700 -> 47,800: the Room 03 robot model (+5,098); 41,700 -> 42,700: the right-wall credenza (+1,480) // Old generic ceiling 41,262 -> 41,700: main 39,105 + living details 2,498 = 47,680 (the ceiling predates the wok, gas-hob and nook work).
+  // Latest main is the budget baseline. Card 3 adds +1,977 vertices, +2 meshes and +1 opening call (within +3,000 / +4 / +2).
+  expect(info.vertices - LEDGER.scene.vertices).toBeLessThanOrEqual(3000);
+  expect(info.meshes - LEDGER.scene.meshes).toBeLessThanOrEqual(4);
+  expect(info.drawCallsLastFrame - LEDGER.openingDrawCalls.desktop).toBeLessThanOrEqual(2);
   for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light"]) {
     expect(info.lamps[name].meshes, name).toBeLessThanOrEqual(2);
     expect(info.lamps[name].meshes, name).toBeGreaterThan(0);
   }
 
   const floor = info.lamps["floor-reading-lamp"].bounds;
-  expect(floor.size[1]).toBeGreaterThanOrEqual(1.45);
-  expect(floor.size[1]).toBeLessThanOrEqual(1.55);
+  // Old spherical fitting was 1.50 m. New paper drum reaches 1.65 m from the same floor base to fit beneath the window header.
+  expect(floor.size[1]).toBeGreaterThanOrEqual(1.62);
+  expect(floor.size[1]).toBeLessThanOrEqual(1.67);
   expect(Math.abs(floor.min[1])).toBeLessThanOrEqual(0.01);
   expect((floor.min[0] + floor.max[0]) / 2).toBeCloseTo(-1.93, 2);
   expect((floor.min[2] + floor.max[2]) / 2).toBeCloseTo(1.68, 2);
