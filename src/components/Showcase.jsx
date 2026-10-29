@@ -84,7 +84,7 @@ export default function Showcase() {
               <article className="flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone xl:flex-row">
                 <div className="flex flex-col p-5 md:p-8 xl:w-[30%] xl:shrink-0">
                   <p className="text-xs font-semibold text-moss">{item.tag}</p>
-                  <h3 className="mt-3 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[1.75rem]">{item.title}</h3>
+                  <h3 className="mt-3 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-amber md:text-[1.75rem]">{item.title}</h3>
                   <p className="mt-3 text-base leading-relaxed text-ink">{item.hook}</p>
                   <p className="mt-3 text-base leading-relaxed text-ink">{item.teaches}</p>
                   <p className="mt-auto pt-6 text-sm font-semibold text-amber">{item.roomsNote}</p>
