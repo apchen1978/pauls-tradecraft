@@ -2991,6 +2991,98 @@ function buildHouseholdProps(scene, m) {
 
 // Three compact living details, each batched to one vertex-colour mesh. Their
 // silhouettes stay genuinely three-dimensional while keeping draw calls low.
+// Foliage cards for the Meyer lemon tree (Paul 2026-10-29: programmatic leaf balls are not 3D enough; image-to-3D turned the crown into a flat slab).
+// Real, painted leaves and lemons were cut out of Codex's concept pictures into an alpha atlas (3 x 2 patches), and 46 small cards are scattered through
+// an ellipsoid crown, each with its outward normal blended in so the crown shades like a volume. Every card has a front and a back quad (no flipped normals).
+// A canvas atlas draws instantly; the painted webp replaces it when it loads (if it fails, the canvas leaves stay).
+function buildLemonLeafCards(crown) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 768; canvas.height = 512;
+  const context = canvas.getContext("2d");
+  let seed = 5;
+  const random = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  for (let slot = 0; slot < 6; slot++) {
+    const ox = (slot % 3) * 256, oy = Math.floor(slot / 3) * 256;
+    context.save();
+    context.beginPath(); context.ellipse(ox + 128, oy + 128, 118, 118, 0, 0, Math.PI * 2); context.clip();
+    for (let i = 0; i < 16; i++) {
+      context.save();
+      context.translate(ox + 40 + random() * 176, oy + 40 + random() * 176);
+      context.rotate(random() * Math.PI * 2);
+      const gradient = context.createLinearGradient(-28, 0, 28, 0);
+      gradient.addColorStop(0, random() > 0.5 ? "#4f6a34" : "#5b7a3a"); gradient.addColorStop(1, "#7b9150");
+      context.fillStyle = gradient;
+      context.beginPath(); context.ellipse(0, 0, 30 + random() * 8, 11 + random() * 3, 0, 0, Math.PI * 2); context.fill();
+      context.strokeStyle = "rgba(220,235,170,0.55)"; context.lineWidth = 1.2; context.beginPath(); context.moveTo(-28, 0); context.lineTo(28, 0); context.stroke();
+      context.restore();
+    }
+    if (slot >= 3) {
+      context.fillStyle = "#d9a937"; context.beginPath(); context.ellipse(ox + 118, oy + 130, 34, 44, 0.2, 0, Math.PI * 2); context.fill();
+    }
+    context.restore();
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  new THREE.TextureLoader().load(new URL("./art/room03-lemon-leaf-atlas-v1.webp", import.meta.url).href, (loaded) => {
+    texture.image = loaded.image; texture.needsUpdate = true; loaded.dispose();
+  }, undefined, () => { /* keep the canvas atlas */ });
+  const material = new THREE.MeshStandardMaterial({ map: texture, alphaTest: 0.45, roughness: 0.55, metalness: 0, side: THREE.FrontSide, emissive: 0x2c3b1b, emissiveMap: texture, emissiveIntensity: 0.28 });
+  const positions = [], normals = [], uvs = [], indices = [];
+  const up = new THREE.Vector3(0, 1, 0), centre = new THREE.Vector3(crown.cx, crown.cy, crown.cz);
+  const count = 46;
+  for (let i = 0; i < count; i++) {
+    // Fibonacci sphere, flattened a little and pulled in at random depths; fewer cards on the underside
+    const t = (i + 0.5) / count;
+    const polar = Math.acos(1 - 2 * t * 0.92 - 0.08);
+    const azimuth = i * 2.399963;
+    const depth = 0.55 + 0.45 * ((i * 37) % 11) / 10;
+    const radial = new THREE.Vector3(Math.sin(polar) * Math.cos(azimuth), Math.cos(polar), Math.sin(polar) * Math.sin(azimuth));
+    const position = new THREE.Vector3(crown.cx + radial.x * crown.rx * depth, crown.cy + radial.y * crown.ry * depth, crown.cz + radial.z * crown.rz * depth);
+    const wobble = new THREE.Vector3(Math.sin(i * 12.9898) , Math.sin(i * 78.233), Math.sin(i * 37.719)).multiplyScalar(0.3);
+    const facing = radial.clone().multiplyScalar(0.75).add(wobble).normalize();
+    const side = new THREE.Vector3().crossVectors(up, facing);
+    if (side.lengthSq() < 1e-4) side.set(1, 0, 0);
+    side.normalize();
+    const high = new THREE.Vector3().crossVectors(facing, side).normalize();
+    const roll = (i * 1.7) % (Math.PI * 2);
+    const u = side.clone().multiplyScalar(Math.cos(roll)).addScaledVector(high, Math.sin(roll));
+    const v = high.clone().multiplyScalar(Math.cos(roll)).addScaledVector(side, -Math.sin(roll));
+    const size = 0.205 + 0.05 * (((i * 53) % 7) / 6);
+    // slot: lemon patches (3, 4, 5) go mainly to the outer, front-facing cards
+    const outer = depth > 0.82 && radial.z > -0.2;
+    const slot = outer && i % 3 === 0 ? 3 + (i % 3 + i % 2) % 3 : (i % 3);
+    const col = slot % 3, row = Math.floor(slot / 3);
+    const u0 = col / 3, u1 = (col + 1) / 3, v0 = 1 - (row + 1) / 2, v1 = 1 - row / 2;
+    const shadeNormal = radial.clone().multiplyScalar(0.65).addScaledVector(facing, 0.35).normalize();
+    for (const flip of [1, -1]) {
+      const base = positions.length / 3;
+      const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+      for (const [cx, cy] of corners) {
+        const point = position.clone().addScaledVector(u, cx * size / 2).addScaledVector(v, cy * size / 2);
+        positions.push(point.x, point.y, point.z);
+        normals.push(shadeNormal.x, shadeNormal.y, shadeNormal.z);
+        uvs.push(cx < 0 ? u0 : u1, cy < 0 ? v0 : v1);
+      }
+      if (flip === 1) indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+      else indices.push(base, base + 2, base + 1, base, base + 3, base + 2);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeBoundingBox(); geometry.computeBoundingSphere();
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.name = "prop-window-meyer-lemon-tree-leaf-cards";
+  mesh.userData.category = "household-props";
+  mesh.userData.propKey = "window-meyer-lemon-tree";
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
+  return { mesh, vertices: positions.length / 3 };
+}
+
 function buildRoom03LivingDetails(scene) {
   const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.82, metalness: 0.01, vertexColors: true });
   const batches = [];
@@ -3095,20 +3187,15 @@ function buildRoom03LivingDetails(scene) {
   const potProfile = [[0, 0], [0.094, 0], [0.108, 0.012], [0.12, 0.205], [0.116, 0.22], [0.101, 0.22], [0.096, 0.035], [0, 0.035]];
   const potGeometry = plant.add(new THREE.LatheGeometry(potProfile.map(([r, y]) => new THREE.Vector2(r, y)), 16), "#9a6a50", [plantX, 0.0005, plantZ]);
   plant.add(new THREE.CylinderGeometry(0.012, 0.018, 0.47, 8), "#786044", [plantX, 0.0005 + potHeight + 0.225, plantZ]);
-  // A rounded crown made of 13 smaller, tilted leaf masses on a golden-angle spiral (the first version had five big balls that read as a lollipop),
-  // and four lemons set on the outside of the crown so they can be seen.
-  const crown = [];
-  for (let i = 0; i < 13; i++) {
-    const angle = i * 2.399963, t = i / 12;
-    const reach = 0.05 + 0.13 * Math.sqrt(t) + (i % 3) * 0.012;
-    const x = Math.cos(angle) * reach, z = Math.sin(angle) * reach, y = 0.56 + 0.34 * t + (i % 2) * 0.03;
-    const size = 0.088 + (i % 4) * 0.008;
-    crown.push({ x, y, z, size });
-    plant.add(new THREE.SphereGeometry(size, 8, 5), i % 2 ? "#6f7b56" : "#7d875d", [plantX + x, y, plantZ + z], [(i % 3 - 1) * 0.35, angle, (i % 2 ? 0.3 : -0.3)], [1.18, 0.62, 0.84]);
+  // Three thin branches carry the foliage cards (the crown itself is built from painted leaf cards after the batches are merged), plus three 3D lemons
+  // hanging on the outside of the crown so the fruit has real depth.
+  const CROWN = { cx: plantX, cy: 0.80, cz: plantZ, rx: 0.205, ry: 0.19, rz: 0.205 };
+  const trunkTop = [plantX, 0.0005 + potHeight + 0.45, plantZ];
+  for (const [index, [dx, dy, dz]] of [[-0.10, 0.17, 0.04], [0.09, 0.15, -0.06], [0.02, 0.2, 0.10]].entries()) {
+    plant.tube(index % 2 ? "#7a6247" : "#6f573d", [trunkTop, [trunkTop[0] + dx * 0.5, trunkTop[1] + dy * 0.55, trunkTop[2] + dz * 0.5], [trunkTop[0] + dx, trunkTop[1] + dy, trunkTop[2] + dz]], 0.0075 - index * 0.0008, 5);
   }
-  for (const [index, source] of [1, 4, 8, 11].entries()) {
-    const c = crown[source], length = Math.hypot(c.x, c.z) || 1;
-    plant.sphere(index % 2 ? "#d1a34a" : "#d6a53b", 0.040, [plantX + c.x + (c.x / length) * (c.size * 0.95), c.y - 0.03, plantZ + c.z + (c.z / length) * (c.size * 0.95)], [0.82, 1.16, 0.82], [8, 6]);
+  for (const [index, [dx, dy, dz]] of [[-0.17, -0.02, 0.09], [0.13, -0.06, 0.14], [0.05, -0.10, -0.17]].entries()) {
+    plant.sphere(index % 2 ? "#d1a34a" : "#d6a53b", 0.030, [CROWN.cx + dx, CROWN.cy + dy, CROWN.cz + dz], [0.82, 1.16, 0.82], [8, 6]);
   }
 
   const fit = {};
@@ -3126,12 +3213,19 @@ function buildRoom03LivingDetails(scene) {
     mesh.castShadow = !["window-meyer-lemon-tree", "tv-console-living-set"].includes(batch.key);
     mesh.receiveShadow = true;
     batch.group.add(mesh);
+    let batchVertices = merged.attributes.position.count, batchMeshes = 1;
+    if (batch.key === "window-meyer-lemon-tree") {
+      const cards = buildLemonLeafCards(CROWN);
+      batch.group.add(cards.mesh);
+      batchVertices += cards.vertices; batchMeshes += 1;
+      batch.group.userData.leafCards = cards.mesh;
+    }
     batch.group.updateMatrixWorld(true);
-    const box = new THREE.Box3().setFromObject(mesh);
+    const box = new THREE.Box3().setFromObject(batch.group);
     const size = box.getSize(new THREE.Vector3());
     batch.group.userData.qaBounds = { min: box.min.toArray(), max: box.max.toArray(), size: size.toArray() };
-    batch.group.userData.qaGeometry = { vertices: merged.attributes.position.count, meshes: 1 };
-    fit[batch.key] = { bounds: batch.group.userData.qaBounds, vertices: merged.attributes.position.count, meshes: 1 };
+    batch.group.userData.qaGeometry = { vertices: batchVertices, meshes: batchMeshes };
+    fit[batch.key] = { bounds: batch.group.userData.qaBounds, vertices: batchVertices, meshes: batchMeshes };
   }
   const distanceBetweenXZ = (a, b) => {
     const dx = Math.max(0, a.min[0] - b.max[0], b.min[0] - a.max[0]);

@@ -54,9 +54,9 @@ test("PR2: contact shadows stay inside the vertex, mesh and draw-call budget", a
   const desktop = await page.evaluate(() => window.__room03.info());
   expect(desktop.vertices).toBeLessThanOrEqual(41650); // main 41,246 + 50
   // Main 261fbc4 has 96 meshes; this PR adds 3 merged living-detail meshes → 99, within the task-card +5 cap.
-  expect(desktop.meshes).toBeLessThanOrEqual(99);
+  expect(desktop.meshes).toBeLessThanOrEqual(100); // 99 -> 100: lemon tree leaf cards
   expect(desktop.drawCallsLastFrame).toBeLessThanOrEqual(72); // measured: main 71 -> 70 (-1), budget allows +1
-  expect(desktop.vertices - 41246).toBeLessThanOrEqual(360); // Old +50 over the 41,246 PR2 baseline -> +360: the scene is now 41,603 after the wok, hob, nook and living-detail work (the +50 allowance predates them).
+  expect(desktop.vertices - 41246).toBeLessThanOrEqual(360); // Old +50 over the 41,246 PR2 baseline -> +360: the scene is now 41,440 after the wok, hob, nook and living-detail work (the +50 allowance predates them).
 
   // A phone loads at 390 px; resizing a desktop page keeps a wider frustum and is not the real phone case.
   const phone = await page.context().browser().newPage({ viewport: { width: 390, height: 844 } });

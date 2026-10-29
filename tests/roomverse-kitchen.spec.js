@@ -760,7 +760,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(living.vertices).toBeLessThanOrEqual(3200); // New living details: task-card net geometry budget.
     expect(info.propGeometry["tv-console-living-set"].meshes).toBe(1); // Books, pottery, tray and olive sprig share one material batch.
     expect(info.propGeometry["window-side-table"].meshes).toBe(1); // Oak table, mug, coffee and open book are one vertex-colour batch.
-    expect(info.propGeometry["window-meyer-lemon-tree"].meshes).toBe(1); // Pot, trunk, leaves and fruit are one low-poly batch.
+    expect(info.propGeometry["window-meyer-lemon-tree"].meshes).toBe(2); // Pot, trunk, branches and three 3D lemons are one batch; the painted leaf cards are the second mesh.
     expect(living.console.supportGapMm).toBeGreaterThanOrEqual(-1);
     expect(living.console.supportGapMm).toBeLessThanOrEqual(1);
     expect(living.console.highestItemY).toBeLessThan(living.console.screenFrameBottomY);
@@ -1130,9 +1130,9 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   const info = await page.evaluate(() => window.__room03.info());
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
   // Main 261fbc4: 39,105 vertices / 96 meshes; living details add 2,498 vertices / 3 meshes. Same-sequence desktop opening calls 67 -> 68.
-  expect(info.vertices).toBe(41603);
+  expect(info.vertices).toBe(41440);
   // Grasscloth wallpaper panel: +4 vertices and +1 mesh (39,105/96 baseline includes the wallpaper).
-  expect(info.meshes).toBe(99); // Main 96 + three merged living-detail meshes.
+  expect(info.meshes).toBe(100); // Main 96 + three merged living-detail meshes + the lemon tree's leaf cards.
   // One merged living-detail batch enters the default desktop frame: 67 -> 68.
   expect(info.drawCallsLastFrame).toBe(68);
   expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
