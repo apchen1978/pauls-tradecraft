@@ -48,12 +48,13 @@ test("tableware mood flag is complete and only dinner and Thanksgiving attach it
         expect(info.drawCallsLastFrame, `${mood} draw calls remain at main`).toBe(baselineCalls);
       } else {
         // v2 (linen runner, napkins, accent plates, pitcher, bread board): ceiling raised 7,000 -> 9,000 vertices per the v2 task card; measured 8,488.
-        expect(info.tableware.vertices).toBeLessThanOrEqual(9000);
+        // Roast chicken feast (platter, bird, potatoes, carrots, rosemary, lemon halves, croutons): ceiling 9,000 -> 12,500 (Paul 2026-10-29); measured 11,924.
+        expect(info.tableware.vertices).toBeLessThanOrEqual(12500);
         expect(info.vertices - baselineVertices).toBe(info.tableware.vertices);
         expect(info.meshes - baselineMeshes).toBe(info.tableware.meshes);
         expect(info.drawCallsLastFrame - baselineCalls).toBeLessThanOrEqual(8);
-        // Old: ceramic, glass, liquid, metal (4). New: plus one linen mesh (5); everything else is merged into those.
-        expect(info.tableware.meshes).toBeLessThanOrEqual(5);
+        // Old: ceramic, glass, liquid, metal (4). Then plus one linen mesh (5). Now plus one glossy food mesh (6); everything else is merged into those.
+        expect(info.tableware.meshes).toBeLessThanOrEqual(6);
       }
       reports.push({ mood, vertices: info.vertices, meshes: info.meshes, calls: info.drawCallsLastFrame, tableware: info.tableware?.vertices ?? null });
       if (QA && (mood === "dinner" || mood === "thanksgiving")) {
@@ -107,5 +108,19 @@ test("four place settings fit the loaded table and glass has a stable transparen
   for (const bottom of extras.bread.sliceBottomsMm) { expect(bottom).toBeGreaterThanOrEqual(-4); expect(bottom).toBeLessThanOrEqual(-1); }
   expect(extras.bread.maxXOverBoardMm, "bread stays on the board").toBeLessThanOrEqual(0);
   expect(extras.runner.maxX, "runner ends before the glasses").toBeLessThan(0.67);
+  const feast = extras.feast;
+  expect(feast.platterWidthMm, "oval platter about 34 cm long").toBeGreaterThanOrEqual(330);
+  expect(feast.platterWidthMm).toBeLessThanOrEqual(360);
+  expect(feast.platterDepthMm, "and 19-21 cm deep, inside the 22 cm runner").toBeGreaterThanOrEqual(185);
+  expect(feast.platterDepthMm).toBeLessThanOrEqual(210);
+  expect(feast.platterGapMm, "platter sits on the runner").toBeLessThanOrEqual(1);
+  expect(feast.platterSettingClearanceMm, "platter clears plates and glasses").toBeGreaterThanOrEqual(10);
+  expect(feast.platterLemonClearanceMm, "platter clears the lemon bowl").toBeGreaterThanOrEqual(20);
+  expect(feast.platterBoardClearanceMm).toBeGreaterThanOrEqual(20);
+  expect(feast.minRestGapMm, "food is pressed 1-3 mm into the platter").toBeGreaterThanOrEqual(-3);
+  expect(feast.maxRestGapMm).toBeLessThanOrEqual(-1);
+  expect(feast.overhangMm, "no food overhangs the platter rim").toBeLessThanOrEqual(0);
+  expect(feast.topMm, "the bird stays below 8 cm").toBeLessThanOrEqual(80);
+  expect(feast.potatoes).toBe(5); expect(feast.carrots).toBe(3); expect(feast.lemonHalves).toBe(2); expect(feast.croutons).toBe(5);
   expect(info.tableware.colors.accent).toEqual(["#777f63", "#9a6a50"]);
 });
