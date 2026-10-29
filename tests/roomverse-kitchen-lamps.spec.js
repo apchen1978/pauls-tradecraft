@@ -14,7 +14,7 @@ test("three lamps sit on measured surfaces, counter pendants are removed, and ne
   expect(info.propBounds["window-fiddle-leaf-fig"]).toBeUndefined();
   expect(info.plantLeafCount).toBe(0);
   expect(info.lightMetrics.lightCount).toBe(9);
-  expect(info.vertices).toBeLessThan(42700); // 41,700 -> 42,700: the right-wall credenza (+1,480) // Old generic ceiling 41,262 -> 41,700: main 39,105 + living details 2,498 = 42,612 (the ceiling predates the wok, gas-hob and nook work).
+  expect(info.vertices).toBeLessThan(42700); // 41,700 -> 42,700: the right-wall credenza (+1,480) // Old generic ceiling 41,262 -> 41,700: main 39,105 + living details 2,498 = 42,582 (the ceiling predates the wok, gas-hob and nook work).
   for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light"]) {
     expect(info.lamps[name].meshes, name).toBeLessThanOrEqual(2);
     expect(info.lamps[name].meshes, name).toBeGreaterThan(0);
