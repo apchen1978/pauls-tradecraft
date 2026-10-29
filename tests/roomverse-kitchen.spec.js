@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { LEDGER, CAPS, budgetFor } from "./helpers/room03-ledger.js";
 import { mkdirSync, statSync } from "node:fs";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
@@ -788,11 +789,11 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.contactShadow.totalPatchCount).toBe(34); // Old 30 -> 34: three side-table feet plus the tree-pot contact patch, merged into the existing mesh.
     expect(info.contactShadow.vertices).toBe(136); // Old 120 -> 136: four added decals × four vertices; draw calls remain unchanged.
     expect(info.vertices).toBeLessThanOrEqual(55000);
-    expect(info.vertices).toBeLessThanOrEqual(50500); // door: +2,688 (50,368); // Main 39,105 + the task-card 3,200-vertex cap; measured living-detail net is 2,498.
+    expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices); // door: +2,688 (50,368); // Main 39,105 + the task-card 3,200-vertex cap; measured living-detail net is 2,498.
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
-    expect(info.drawCallsLastFrame).toBeLessThanOrEqual(73); // 72 -> 73: the door leaf in the opening view; 71 -> 72: the robot; 70 -> 71: the right-wall credenza; dish dryer frame and face are in the opening view: 69 -> 70. Main opening 67 + task-card maximum +2; measured opening is expected to remain within this cap.
+    expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls); // 72 -> 73: the door leaf in the opening view; 71 -> 72: the robot; 70 -> 71: the right-wall credenza; dish dryer frame and face are in the opening view: 69 -> 70. Main opening 67 + task-card maximum +2; measured opening is expected to remain within this cap.
     expect(info.meshes).toBeLessThanOrEqual(130);
-    expect(info.meshes).toBeLessThanOrEqual(107); // door: 106 -> 107 (leaf and doorway light; the frame joins the trim mesh); Main 96 + task-card maximum +5; living details add 3 merged meshes.
+    expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes); // door: 106 -> 107 (leaf and doorway light; the frame joins the trim mesh); Main 96 + task-card maximum +5; living details add 3 merged meshes.
     expect(info.camera[0]).toBeCloseTo(0.22, 3); // Desktop camera 0 -> 0.22: separate globe from hood.
     expect(info.camera[1]).toBeCloseTo(1.64, 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
     expect(info.camera[2]).toBeCloseTo(1.52, 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
@@ -1133,11 +1134,11 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   const info = await page.evaluate(() => window.__room03.info());
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
   // Main 261fbc4: 39,105 vertices / 96 meshes; living details add 2,498 vertices / 3 meshes. Same-sequence desktop opening calls 67 -> 68.
-  expect(info.vertices).toBe(50288); // door: +2,688
+  expect(info.vertices).toBe(LEDGER.scene.vertices); // door: +2,688
   // Grasscloth wallpaper panel: +4 vertices and +1 mesh (39,105/96 baseline includes the wallpaper).
-  expect(info.meshes).toBe(107); /* door: +2 meshes (leaf, doorway light) */  // Main 96 + three merged living-detail meshes + the lemon tree's leaf cards.
+  expect(info.meshes).toBe(LEDGER.scene.meshes); /* door: +2 meshes (leaf, doorway light) */  // Main 96 + three merged living-detail meshes + the lemon tree's leaf cards.
   // One merged living-detail batch enters the default desktop frame: 67 -> 68.
-  expect(info.drawCallsLastFrame).toBe(73); // 68 -> 70: dish dryer frame and face; 70 -> 71: credenza; 71 -> 72: robot; 72 -> 73: door leaf
+  expect(info.drawCallsLastFrame).toBe(LEDGER.openingDrawCalls.desktop); // 68 -> 70: dish dryer frame and face; 70 -> 71: credenza; 71 -> 72: robot; 72 -> 73: door leaf
   expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
   expect(info.wokTile.colorSpace).toBe("srgb");
   expect(info.wokTile.anisotropy).toBeGreaterThanOrEqual(8);

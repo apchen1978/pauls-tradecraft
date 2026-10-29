@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { LEDGER, CAPS, budgetFor } from "./helpers/room03-ledger.js";
 import { mkdirSync } from "node:fs";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
@@ -60,11 +61,11 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   // Wok run A (stacked after the lemon bowl and red Dutch oven): door, frames and exterior backboard out; continuous counter, duct and returns in.
   // 30,696 → 30,220 (−476). Meshes 96 → 93. Opening draw calls stay 69.
 // Room 03 main 261fbc4: 39,105/96 -> 47,680/99: living details add 2,498 vertices and 3 meshes; measured 1440 opening calls 65 -> 66.
-  expect(desktop.vertices).toBe(50288); // door: +2,688
+  expect(desktop.vertices).toBe(LEDGER.scene.vertices); // door: +2,688
   // Grasscloth wallpaper remains in the main baseline; living-detail batches add no wallpaper geometry.
-  expect(desktop.meshes).toBe(107); /* door: +2 meshes (leaf, doorway light) */  // 102 -> 103: right-wall credenza (one mesh); 100 -> 102: dish dryer frame and face; 99 -> 100: lemon tree leaf cards (95 -> 96: coffee maker temperature display).
+  expect(desktop.meshes).toBe(LEDGER.scene.meshes); /* door: +2 meshes (leaf, doorway light) */  // 102 -> 103: right-wall credenza (one mesh); 100 -> 102: dish dryer frame and face; 99 -> 100: lemon tree leaf cards (95 -> 96: coffee maker temperature display).
   // Same-sequence opening baseline: desktop 67 -> 68; one living-detail batch enters the view.
-  expect(desktop.drawCallsLastFrame).toBe(73); // Main 67 -> 68 (living detail) -> 70 (dish dryer frame and face) -> 71 (right-wall credenza) -> 72 (robot) -> 73 (door leaf in the opening view).
+  expect(desktop.drawCallsLastFrame).toBe(LEDGER.openingDrawCalls.desktop); // Main 67 -> 68 (living detail) -> 70 (dish dryer frame and face) -> 71 (right-wall credenza) -> 72 (robot) -> 73 (door leaf in the opening view).
   const hiddenDesktop = await page.evaluate(() => {
     window.__room03.plaqueMesh.visible = false;
     window.__room03.render();
@@ -81,7 +82,7 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   expect(mobileOpening.plaque.inView).toBe(false);
   // Old 72 -> new 71 after steel/black hardware batching; the plaque remains outside the mobile opening frustum.
   // Same-sequence phone opening baseline: 69 -> 70; one living-detail batch enters the view.
-  expect(mobileOpening.drawCallsLastFrame).toBe(74); // Main 69 -> 70 (living detail) -> 72 (dish dryer frame and face) -> 73 (merged robot mesh) -> 74 (door leaf in the phone opening view).
+  expect(mobileOpening.drawCallsLastFrame).toBe(LEDGER.openingDrawCalls.phone); // Main 69 -> 70 (living detail) -> 72 (dish dryer frame and face) -> 73 (merged robot mesh) -> 74 (door leaf in the phone opening view).
   await page.evaluate(() => window.__room03.setView(Math.PI));
   const mobile = await page.evaluate(() => window.__room03.info());
   expect(mobile.plaque.inView).toBe(true);
