@@ -134,7 +134,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       if (request.url().endsWith("/dining-chair-v2.glb")) modelRequests.push(request.url());
     });
     await loadRoom(page);
-    await page.waitForFunction(() => window.__room03.info().furniture.table === "glb" && window.__room03.info().furniture.pendant === "glb");
+    await page.waitForFunction(() => window.__room03.info().furniture.table === "glb" && window.__room03.info().furniture.pendant === "tiered-paper");
     const golden = await page.evaluate(() => window.__room03.info());
     expect(golden.viewport).toEqual([1384, 700]);
     expect(golden.pixelRatio).toBe(1.5);
@@ -321,7 +321,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await loadRoom(page);
     await page.waitForFunction(() => {
       const { chair, pendant } = window.__room03.info().furniture;
-      return chair === "procedural-v2" && pendant === "glb";
+      return chair === "procedural-v2" && pendant === "tiered-paper";
     });
     const info = await page.evaluate(() => window.__room03.info());
     console.log("Room 03 soft forms:", JSON.stringify({ baseline7be7313: { vertices: 33300, triangles: 24502, meshes: 83, drawCalls: 90 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }, softForms: info.softForms, leafCount: info.plantLeafCount, leafVerticesPerBlade: info.plantLeafVerticesPerBlade, wokBase: info.wokSupport.bounds, viewport: info.viewport, pixelRatio: info.pixelRatio }));
@@ -567,13 +567,13 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.categories["household-props"].vertices).toBeGreaterThan(0);
     expect(info.categories.structure.vertices).toBeGreaterThan(0);
     expect(info.categories["dining-table"].vertices).toBeGreaterThan(0);
-    expect(info.furniture).toMatchObject({ table: "glb", chair: "procedural-v2", pendant: "glb" });
+    expect(info.furniture).toMatchObject({ table: "glb", chair: "procedural-v2", pendant: "tiered-paper" }); // the dining pendant is now a built paper piece, not a model
     expect(info.furnitureAssets.table.vertices).toBe(864);
     expect(info.furnitureAssets.table.vertices).toBeLessThanOrEqual(2500);
     expect(info.furnitureAssets.chair.vertices / 4).toBeLessThanOrEqual(2600);
     expect(info.furnitureAssets.pendant.vertices).toBeLessThanOrEqual(2100);
     expect(info.furnitureAssets.chair.meshes).toBeGreaterThan(0);
-    const modelSizes = ["dining-table-v2.glb", "dining-chair-v2.glb", "opal-globe-pendant-v2.glb"].map((name) => statSync(`public/prototype/roomverse-3d/kitchen/models/${name}`).size);
+    const modelSizes = ["dining-table-v2.glb", "dining-chair-v2.glb"].map((name) => statSync(`public/prototype/roomverse-3d/kitchen/models/${name}`).size);
     expect(modelSizes.every((size) => size <= 400 * 1024)).toBe(true);
     expect(modelSizes.reduce((sum, size) => sum + size, 0)).toBeLessThanOrEqual(1.5 * 1024 * 1024);
     const addedFurnitureVertices = Object.values(info.furnitureAssets).reduce((sum, asset) => sum + asset.vertices, 0);
@@ -615,7 +615,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       const gap = chair.max[2] < 0.05 ? 0.05 - chair.max[2] : chair.min[2] - 0.95;
       expect(gap, "dining chairs should clear the table's z footprint").toBeGreaterThanOrEqual(0.04);
     }
-    expect(info.furnitureBounds.pendant.min[1]).toBeCloseTo(1.8075, 2);
+    expect(info.furnitureBounds.pendant.min[1]).toBeCloseTo(1.80, 2); // 1.8075 -> 1.80: the three-tier paper pendant's lowest tier (Paul's reference; above the 1.64 m eye)
     expect(info.furnitureBounds.pendant.max[1]).toBeLessThanOrEqual(2.48);
     expect(info.categories.yard.vertices).toBe(4);
     expect(info.pixelRatio).toBe(1.5);
@@ -897,7 +897,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await page.route("**/kitchen/models/*.glb", (route) => route.abort());
     await loadRoom(page);
     const info = await page.evaluate(() => window.__room03.info());
-    expect(info.furniture).toMatchObject({ table: "fallback", chair: "procedural-v2", pendant: "fallback" });
+    expect(info.furniture).toMatchObject({ table: "fallback", chair: "procedural-v2", pendant: "tiered-paper" }); // the pendant is built in code, so a failed model request cannot touch it
     expect(info.categories["dining-table"].vertices).toBeGreaterThan(0);
     expect(info.categories["dining-chairs"].vertices).toBeGreaterThan(0);
     await expect(page.locator("canvas")).toBeVisible();
@@ -1133,7 +1133,7 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   const info = await page.evaluate(() => window.__room03.info());
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
   // Main 261fbc4: 39,105 vertices / 96 meshes; living details add 2,498 vertices / 3 meshes. Same-sequence desktop opening calls 67 -> 68.
-  expect(info.vertices).toBe(50368); // door: +2,688
+  expect(info.vertices).toBe(50288); // door: +2,688
   // Grasscloth wallpaper panel: +4 vertices and +1 mesh (39,105/96 baseline includes the wallpaper).
   expect(info.meshes).toBe(107); /* door: +2 meshes (leaf, doorway light) */  // Main 96 + three merged living-detail meshes + the lemon tree's leaf cards.
   // One merged living-detail batch enters the default desktop frame: 67 -> 68.
