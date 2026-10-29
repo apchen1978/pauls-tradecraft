@@ -798,7 +798,7 @@ function buildTableware(scene) {
     return hit.point.y;
   };
 
-  const geometryParts = { ceramic: [], glass: [], liquid: [], metal: [], linen: [] };
+  const geometryParts = { ceramic: [], glass: [], liquid: [], metal: [], linen: [], food: [] };
   const settings = [];
   const setVertexColor = (geometry, colorHex, speckle = false) => {
     const color = new THREE.Color(colorHex);
@@ -1040,14 +1040,166 @@ function buildTableware(scene) {
     addEllipsoid("ceramic", [0.0074, 0.0315, 0.0376], sliceCentre, 0xe8cf9b, yawRad, tilt); // crust ring about 2.5 mm, not a donut
   }
 
+
+  // ---- Roast chicken feast (Paul 2026-10-29: a roast-chicken dinner mood; shared with Thanksgiving) ----
+  // Zuni Cafe's roast chicken with bread salad is a San Francisco classic, so the platter carries a golden bird on bread-salad croutons, roasted
+  // potatoes, carrots, rosemary and lemon halves. Every piece rests on the platter (2 mm embedded) and is measured; the food shares one glossy mesh.
+  const PLATTER = { x: -0.345, z: CENTRE_Z, halfLength: 0.172, halfDepth: 0.095 };
+  const platterProfile = [[0, 0], [0.064, 0], [0.088, 0.002], [0.099, 0.012], [0.103, 0.021], [0.098, 0.0205], [0.090, 0.011], [0.068, 0.0075], [0, 0.0075]];
+  const platterGeometry = addLathe("ceramic", platterProfile, 28, [0, runnerTop, 0], 0xf0ebdf);
+  platterGeometry.scale(PLATTER.halfLength / 0.103, 1, PLATTER.halfDepth / 0.103);
+  platterGeometry.translate(PLATTER.x, 0, PLATTER.z);
+  keepBox("platter", platterGeometry);
+  const platterTop = runnerTop + 0.0075;
+  const foodRaycaster = new THREE.Raycaster();
+  const foodNoise = (x, y, z) => Math.abs(Math.sin(x * 211.3 + y * 97.1 + z * 173.9) * 43758.5453) % 1;
+  const paintFood = (geometry, lowHex, highHex, { speckle = 0.18, burn = 0 } = {}) => {
+    geometry.computeBoundingBox();
+    const position = geometry.attributes.position;
+    const low = new THREE.Color(lowHex), high = new THREE.Color(highHex), burnt = new THREE.Color(0x6a3615), tint = new THREE.Color();
+    const floor = geometry.boundingBox.min.y, span = Math.max(1e-6, geometry.boundingBox.max.y - floor);
+    const colors = new Float32Array(position.count * 3);
+    for (let i = 0; i < position.count; i++) {
+      const noise = foodNoise(position.getX(i), position.getY(i), position.getZ(i));
+      tint.copy(low).lerp(high, THREE.MathUtils.clamp((position.getY(i) - floor) / span, 0, 1));
+      tint.multiplyScalar(1 - speckle * noise);
+      if (burn && noise > 0.8) tint.lerp(burnt, burn * (noise - 0.8) / 0.2);
+      tint.toArray(colors, i * 3);
+    }
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    return geometry;
+  };
+  const foodItems = [];
+  // Place a piece on the platter at local (x, z) so its lowest point is `embed` below the platter surface, paint it, and file it for measuring.
+  const placeFood = (name, geometry, lx, lz, lowHex, highHex, options, embed = 0.002) => {
+    geometry.translate(PLATTER.x + lx, 0, PLATTER.z + lz);
+    geometry.computeBoundingBox();
+    geometry.translate(0, platterTop - embed - geometry.boundingBox.min.y, 0);
+    paintFood(geometry, lowHex, highHex, options);
+    geometry.computeBoundingBox();
+    geometryParts.food.push(geometry);
+    foodItems.push({ name, box: geometry.boundingBox.clone(), embed });
+    return geometry;
+  };
+  // The bird: plump breast toward -x, narrower tail toward +x, flat underside, a shallow breast-line groove, golden skin with darker edges and a few burnt flecks.
+  const chickenGeometry = new THREE.SphereGeometry(1, 30, 20);
+  {
+    const position = chickenGeometry.attributes.position;
+    for (let i = 0; i < position.count; i++) {
+      const ux = position.getX(i), uy = position.getY(i), uz = position.getZ(i);
+      const taper = ux > 0 ? 1 - 0.34 * ux * ux : 1 - 0.05 * ux * ux;
+      let y = uy * (uy < 0 ? 0.30 : 1) * 0.052 * (0.9 + 0.1 * taper);
+      if (uy > 0) y += 0.010 * Math.exp(-((ux + 0.32) ** 2) / 0.11) * uy - 0.0035 * Math.exp(-(uz * uz) / 0.012) * uy;
+      position.setXYZ(i, ux * 0.085, y, uz * 0.057 * taper);
+    }
+    chickenGeometry.computeVertexNormals();
+  }
+  chickenGeometry.rotateY(0.07);
+  placeFood("chicken", chickenGeometry, -0.022, 0, 0xa95f26, 0xe0a85a, { speckle: 0.22, burn: 0.75 });
+  const chickenMesh = new THREE.Mesh(chickenGeometry);
+  const chickenTopAt = (x, z) => {
+    foodRaycaster.set(new THREE.Vector3(x, platterTop + 0.2, z), down);
+    return foodRaycaster.intersectObject(chickenMesh, false)[0]?.point.y ?? platterTop;
+  };
+  // Two crossed drumsticks at the tail, with bone ends; the second sits 10 mm higher so the cross reads.
+  const legUp = new THREE.Vector3(0, 1, 0);
+  [[-0.034, 1, 0], [0.034, -1, 0.010]].forEach(([baseZ, side, lift], index) => {
+    const direction = new THREE.Vector3(0.9, 0.26, 0.62 * side).normalize();
+    const matrix = new THREE.Matrix4().compose(new THREE.Vector3(0.050, 0.020 + lift, baseZ), new THREE.Quaternion().setFromUnitVectors(legUp, direction), new THREE.Vector3(1, 1, 1));
+    const meat = new THREE.CylinderGeometry(0.0105, 0.0195, 0.078, 10); meat.translate(0, 0.039, 0);
+    const bone = new THREE.CylinderGeometry(0.0055, 0.0065, 0.024, 8); bone.translate(0, 0.078 + 0.012, 0);
+    const knob = new THREE.SphereGeometry(0.0088, 8, 6); knob.translate(0, 0.078 + 0.026, 0);
+    for (const [part, low, high, opts] of [[meat, 0xa8602a, 0xdca058, { speckle: 0.2, burn: 0.7 }], [bone, 0xe6dac2, 0xf1e8d4, { speckle: 0.05 }], [knob, 0xe6dac2, 0xf1e8d4, { speckle: 0.05 }]]) {
+      part.applyMatrix4(matrix);
+      part.translate(PLATTER.x - 0.022, 0, PLATTER.z);
+      paintFood(part, low, high, opts);
+      part.computeBoundingBox();
+      geometryParts.food.push(part);
+    }
+    // The leg's lowest point is the thick end: sink the whole leg so it touches the platter (same rule as every other piece).
+    const legParts = geometryParts.food.slice(-3);
+    const legBox = new THREE.Box3().makeEmpty();
+    legParts.forEach((part) => legBox.union(part.boundingBox));
+    const drop = platterTop - 0.002 - legBox.min.y;
+    const raise = index ? 0.011 : 0;
+    legParts.forEach((part) => { part.translate(0, drop + raise, 0); part.computeBoundingBox(); });
+    const finalBox = new THREE.Box3().makeEmpty();
+    legParts.forEach((part) => finalBox.union(part.boundingBox));
+    foodItems.push({ name: `drumstick-${index}`, box: finalBox, embed: index ? -0.009 : 0.002 });
+  });
+  // Wings tucked against the flanks.
+  for (const side of [-1, 1]) {
+    const wing = new THREE.SphereGeometry(1, 10, 6);
+    wing.scale(0.034, 0.013, 0.019); wing.rotateY(side * 0.45);
+    placeFood(`wing-${side}`, wing, -0.045, side * 0.055, 0xa35a24, 0xd6974d, { speckle: 0.2, burn: 0.8 }, 0.001);
+  }
+  // Roasted potatoes (crisp edges), carrots and lemon halves around the bird.
+  [[-0.118, 0.060, 0.020, 0.014, 0.016, 0.4], [-0.005, 0.066, 0.021, 0.015, 0.017, -0.3], [-0.078, -0.062, 0.019, 0.013, 0.016, 1.1], [0.046, -0.064, 0.022, 0.014, 0.016, 0.7], [0.133, 0.000, 0.017, 0.012, 0.014, 0.2]].forEach(([lx, lz, rx, ry, rz, yaw], index) => {
+    const potato = new THREE.SphereGeometry(1, 10, 7);
+    potato.scale(rx, ry, rz); potato.rotateY(yaw);
+    placeFood(`potato-${index}`, potato, lx, lz, 0xb9792f, 0xe0ad5e, { speckle: 0.24, burn: 0.85 });
+  });
+  [[0.092, 0.070, -0.12], [-0.044, -0.062, 0.18], [0.102, -0.058, 0.35]].forEach(([lx, lz, yaw], index) => {
+    const carrot = new THREE.CylinderGeometry(0.0050, 0.0075, 0.074, 8);
+    carrot.rotateZ(Math.PI / 2); carrot.rotateY(yaw);
+    placeFood(`carrot-${index}`, carrot, lx, lz, 0xb8591d, 0xdb8035, { speckle: 0.16, burn: 0.4 });
+  });
+  [[0.120, 0.053, 0.3], [-0.130, -0.058, -0.5]].forEach(([lx, lz, yaw], index) => {
+    const half = new THREE.SphereGeometry(1, 10, 5, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+    half.scale(0.019, 0.015, 0.0165);
+    const face = new THREE.CircleGeometry(1, 10); face.rotateX(-Math.PI / 2); face.scale(0.0185, 1, 0.016); face.translate(0, 0.0004, 0);
+    const lemonPieces = [half, face]; lemonPieces.forEach((piece) => piece.rotateY(yaw));
+    const [rind, flesh] = lemonPieces;
+    placeFood(`lemon-half-${index}`, rind, lx, lz, 0xc99a2e, 0xdcb445, { speckle: 0.1 });
+    placeFood(`lemon-face-${index}`, flesh, lx, lz, 0xf1de93, 0xf1de93, { speckle: 0.06 }, 0.0002);
+    foodItems.pop(); // the face is part of the half: it was placed relative to its own bottom, re-seat it on the rind rim below
+    const rindBox = foodItems[foodItems.length - 1].box;
+    flesh.translate(0, rindBox.max.y + 0.0004 - flesh.boundingBox.min.y, 0);
+    flesh.computeBoundingBox();
+  });
+  // Bread-salad croutons and a few arugula leaves at the left end (Zuni's bread salad nod).
+  [[-0.136, -0.030, 0.014, 0.4], [-0.123, 0.004, 0.015, -0.6], [-0.136, 0.034, 0.013, 1.0], [-0.119, -0.036, 0.012, 0.2], [-0.129, 0.022, 0.011, 0.9]].forEach(([lx, lz, size, yaw], index) => {
+    const cube = new THREE.BoxGeometry(size, size * 0.8, size);
+    cube.rotateY(yaw); cube.rotateZ(0.05 * (index % 2 ? 1 : -1));
+    placeFood(`crouton-${index}`, cube, lx, lz, 0x9a6a31, 0xcfa062, { speckle: 0.3, burn: 0.5 });
+  });
+  [[-0.130, 0.010, 0.013, 0.5], [-0.134, -0.010, 0.012, -0.8]].forEach(([lx, lz, size, yaw], index) => {
+    const leaf = new THREE.SphereGeometry(1, 8, 5);
+    leaf.scale(size, 0.0025, size * 0.45); leaf.rotateY(yaw);
+    // Leaves lie on top of the croutons (about 12-16 mm above the platter), so they are measured as lifted pieces.
+    placeFood(`arugula-${index}`, leaf, lx, lz, 0x4f6a34, 0x7b9150, { speckle: 0.2 }, -(0.012 + index * 0.004));
+    foodItems[foodItems.length - 1].lifted = true;
+  });
+  // Rosemary sprigs laid on the breast: a thin stem and a few needle-like leaves each, resting on the skin.
+  [[-0.060, -0.014, 0.35], [-0.040, 0.016, -0.5], [-0.020, -0.006, 0.9], [0.002, 0.020, -0.2]].forEach(([lx, lz, yaw]) => {
+    const worldX = PLATTER.x + lx, worldZ = PLATTER.z + lz;
+    const topY = chickenTopAt(worldX, worldZ);
+    const parts = [new THREE.CylinderGeometry(0.0009, 0.0013, 0.052, 5).rotateZ(Math.PI / 2)];
+    for (let needle = 0; needle < 5; needle++) {
+      const blade = new THREE.SphereGeometry(1, 5, 3);
+      blade.scale(0.0075, 0.0011, 0.0016);
+      blade.rotateY(needle % 2 ? 0.7 : -0.7);
+      blade.translate(-0.020 + needle * 0.0095, 0, 0);
+      parts.push(blade);
+    }
+    parts.forEach((part) => {
+      part.rotateY(yaw);
+      part.translate(worldX, topY + 0.0016, worldZ);
+      paintFood(part, 0x55663a, 0x6f8248, { speckle: 0.22 });
+      part.computeBoundingBox();
+      geometryParts.food.push(part);
+    });
+  });
+
   const materials = {
     ceramic: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.84, vertexColors: true }),
+    food: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.46, vertexColors: true }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.18, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true }),
     liquid: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.22, transparent: true, opacity: 0.78, depthWrite: false, vertexColors: true }),
     metal: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.38, metalness: 0.48, vertexColors: true }),
     linen: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.96, map: makeLinenTexture(), vertexColors: true }),
   };
-  const renderOrder = { liquid: 1, glass: 2, ceramic: 3, metal: 3, linen: 3 };
+  const renderOrder = { liquid: 1, glass: 2, ceramic: 3, metal: 3, linen: 3, food: 3 };
   let vertices = 0;
   for (const [kind, parts] of Object.entries(geometryParts)) {
     if (kind === "linen") {
@@ -1067,7 +1219,7 @@ function buildTableware(scene) {
     const mesh = new THREE.Mesh(geometry, materials[kind]);
     mesh.name = `room03-tableware-${kind}`;
     mesh.userData.category = "tableware";
-    mesh.castShadow = kind === "ceramic" || kind === "metal";
+    mesh.castShadow = kind === "ceramic" || kind === "metal" || kind === "food";
     mesh.receiveShadow = true;
     mesh.renderOrder = renderOrder[kind];
     group.add(mesh);
@@ -1103,6 +1255,23 @@ function buildTableware(scene) {
     runner: { widthMm: mm(RUNNER.width), lengthMm: mm(RUNNER.length), gapMm: mm(extraBoxes.runner.min.y - runnerBaseY), minSettingClearanceMm: minSettingClearance(extraBoxes.runner), maxX: Number(extraBoxes.runner.max.x.toFixed(3)) },
     pitcher: { heightMm: mm(extraBoxes.pitcher.max.y - extraBoxes.pitcher.min.y), gapMm: mm(extraBoxes.pitcher.min.y - runnerTop), minSettingClearanceMm: minSettingClearance(extraBoxes.pitcher), lemonClearanceMm: boxClear(extraBoxes.pitcher, lemonBounds), boardClearanceMm: boxClear(extraBoxes.pitcher, extraBoxes.board), maxX: Number(extraBoxes.pitcher.max.x.toFixed(3)) },
     board: { gapMm: mm(extraBoxes.board.min.y - runnerTop), minSettingClearanceMm: minSettingClearance(extraBoxes.board), lemonClearanceMm: boxClear(extraBoxes.board, lemonBounds) },
+    feast: (() => {
+      const restItems = foodItems.filter((item) => !item.lifted && item.embed > 0);
+      const platterBox = extraBoxes.platter;
+      const foodBox = new THREE.Box3().makeEmpty();
+      foodItems.forEach((item) => foodBox.union(item.box));
+      return {
+        platterWidthMm: mm(platterBox.max.x - platterBox.min.x), platterDepthMm: mm(platterBox.max.z - platterBox.min.z), platterGapMm: mm(platterBox.min.y - runnerTop),
+        platterSettingClearanceMm: minSettingClearance(platterBox), platterLemonClearanceMm: boxClear(platterBox, lemonBounds), platterBoardClearanceMm: boxClear(platterBox, extraBoxes.board),
+        platterMaxX: Number(platterBox.max.x.toFixed(3)),
+        pieces: foodItems.length,
+        minRestGapMm: Math.min(...restItems.map((item) => mm(item.box.min.y - platterTop))), maxRestGapMm: Math.max(...restItems.map((item) => mm(item.box.min.y - platterTop))),
+        overhangMm: Math.max(0, mm(Math.max(foodBox.max.x - (PLATTER.x + PLATTER.halfLength - 0.02), (PLATTER.x - PLATTER.halfLength + 0.02) - foodBox.min.x, foodBox.max.z - (PLATTER.z + PLATTER.halfDepth - 0.012), (PLATTER.z - PLATTER.halfDepth + 0.012) - foodBox.min.z))),
+        topMm: mm(foodBox.max.y - platterTop),
+        potatoes: foodItems.filter((item) => item.name.startsWith("potato")).length, carrots: foodItems.filter((item) => item.name.startsWith("carrot")).length,
+        lemonHalves: foodItems.filter((item) => item.name.startsWith("lemon-half")).length, croutons: foodItems.filter((item) => item.name.startsWith("crouton")).length,
+      };
+    })(),
     bread: { loafBottomMm: mm(extraBoxes.loaf.min.y - boardTop), sliceBottomsMm: [0, 1].map((i) => mm(extraBoxes[`slice-${i}`].min.y - boardTop)), maxXOverBoardMm: mm(Math.max(extraBoxes.loaf.max.x, extraBoxes["slice-0"].max.x, extraBoxes["slice-1"].max.x) - extraBoxes.board.max.x) },
   };
   return group;
