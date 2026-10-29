@@ -36,7 +36,7 @@ test("grasscloth covers the right-hand wall behind the counter, clear of the pai
   expect(wall.seamMetres, "one wallpaper roll width").toBeCloseTo(0.69, 2);
   expect(wall.repeat[0] * wall.seamMetres, "tiles span the panel width").toBeCloseTo(wall.bounds.size[2], 2);
   expect(info.meshes - 94, "one extra mesh over the Codex countertop baseline of 94").toBe(1);
-  expect(info.vertices - 34057, "four vertices").toBe(4);
+  expect(info.vertices - 34057, "four grasscloth vertices + 2,241 wok-area polish vertices").toBe(2245);
   if (QA) {
     await page.evaluate(() => window.__room03.setView(270 * Math.PI / 180));
     await page.locator(".room").screenshot({ path: `${QA}/wallpaper-1440-270.png` });
@@ -54,7 +54,7 @@ for (const width of [1440, 390]) {
       await page.waitForFunction((name) => window.__room03.info().wallpaper.choice === name, option);
       const info = await page.evaluate(() => window.__room03.info());
       expect(info.wallpaper.visible, `${option}: visible only when a wallpaper is chosen`).toBe(option !== "none");
-      expect(info.vertices, `${option}: geometry does not change with the choice`).toBe(34061);
+      expect(info.vertices, `${option}: geometry does not change with the choice`).toBe(36302);
       colours[option] = info.wallpaper.color;
       expect(await page.locator(`#swapGroups button[data-frame="wallpaper"][aria-pressed="true"]`).getAttribute("data-art")).toBe(option);
     }
