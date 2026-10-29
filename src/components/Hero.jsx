@@ -1,8 +1,22 @@
+import { Fragment } from "react";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
+
+// Phones: keep each comma-separated clause on one line, so a line breaks after the comma instead of
+// splitting a phrase ("值得／遇到對的買家") or stranding two words ("with you."). md and up are unchanged.
+function Clauses({ text }) {
+  const chunks = [...String(text ?? "").matchAll(/([^，,]+[，,]?)(\s*)/g)];
+  if (chunks.length < 2) return text;
+  return chunks.map(([, clause, gap], i) => (
+    <Fragment key={i}>
+      <span className="max-md:inline-block">{clause}</span>
+      {gap}
+    </Fragment>
+  ));
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
@@ -54,10 +68,10 @@ export default function Hero() {
             {h.kicker}
           </motion.p>
           <motion.h1 variants={fadeUp} className={`mt-2 max-w-2xl font-semibold tracking-[-0.04em] text-ink md:mt-5 ${headlineClass}`}>
-            {h.headline}
+            <Clauses text={h.headline} />
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-3 max-w-[44ch] text-base leading-[1.6] text-ink md:mt-5 md:text-lg">
-            {h.sub}
+            <Clauses text={h.sub} />
           </motion.p>
           <motion.ul variants={fadeUp} className="mt-4 hidden flex-wrap gap-x-5 gap-y-1 text-sm leading-[1.55] text-moss md:flex">
             {h.credentials.map((c) => (
@@ -103,7 +117,7 @@ export default function Hero() {
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block text-base font-semibold leading-snug text-amber md:text-lg">{copy.title}</span>
-                      <span className="mt-0.5 block text-sm leading-snug text-moss md:mt-1 md:leading-relaxed">{work.decisionQuestion?.[lang]}</span>
+                      <span className="mt-0.5 block text-sm leading-snug text-moss md:mt-1 md:leading-relaxed"><Clauses text={work.decisionQuestion?.[lang]} /></span>
                     </span>
                     <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 text-ink transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </a>
