@@ -60,7 +60,7 @@ for (const { width, height, lang } of MOBILE_CASES) {
         firstCoverVisible: Math.max(0, Math.min(innerHeight, firstCover.bottom) - Math.max(0, firstCover.top)),
         suggestedLink,
         scrollWidth: document.documentElement.scrollWidth,
-        smallestHeroTarget: Math.round(Math.min(...[...document.querySelectorAll("section#top a")].map((link) => link.getBoundingClientRect().height))),
+        smallestHeroTarget: Math.round(Math.min(...[...document.querySelectorAll("section#top a")].map((link) => link.getBoundingClientRect().height).filter((height) => height > 0))),
         images,
         perf: window.__firstScreenPerf,
       };
@@ -98,13 +98,10 @@ for (const { width, height, lang } of MOBILE_CASES) {
     await expect(secondCover).toHaveAttribute("src", /showcase-trade-street-cover\.webp/);
     expect(await secondCover.evaluate((image) => image.complete && image.naturalWidth > 0)).toBe(true);
 
-    const heroCta = page.locator('section#top a[href="#showcase"]').first();
-    await heroCta.focus();
-    await expect(heroCta).toBeFocused();
-    await heroCta.click();
-    await expect(page).toHaveURL(/#showcase$/);
-    const anchorPosition = await page.evaluate(() => ({ headingTop: document.querySelector("#showcase-heading").getBoundingClientRect().top, navBottom: document.querySelector("header").getBoundingClientRect().bottom }));
-    expect(anchorPosition.headingTop).toBeGreaterThan(anchorPosition.navBottom);
+    // Paul 2026-10-30: the hero buttons are desktop-only; on phones the work cards and the nav carry those jobs.
+    await expect(page.locator('section#top a[href="#showcase"]')).toBeHidden();
+    await expect(page.locator('section#top a[href="#contact"]')).toBeHidden();
+    await expect(page.locator('header a[href="#contact"]').first()).toBeAttached();
   });
 }
 
@@ -118,6 +115,8 @@ test("desktop 1440: hero portrait and layout remain in place", async ({ page }) 
   const portrait = page.locator('section#top picture img');
   await expect(portrait).toBeVisible();
   await expect(page.locator("#showcase-heading")).toBeVisible();
+  await expect(page.locator('section#top a[href="#showcase"]')).toBeVisible();
+  await expect(page.locator('section#top a[href="#contact"]')).toBeVisible();
   const currentSrc = await portrait.evaluate((image) => image.currentSrc);
   expect(currentSrc).toContain("/images/paul-art.webp");
   expect(imageRequests.filter((path) => /\/images\/paul-art(?:-800)?\.webp$/.test(path))).toEqual(["/images/paul-art.webp"]);

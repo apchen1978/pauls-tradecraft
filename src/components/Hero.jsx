@@ -10,8 +10,9 @@ const fadeUp = {
 };
 
 // Paul 2026-10-17: the dark hero with stats and long text felt heavy on phones. The hero is now light (bone),
-// keeps one claim and two buttons, and shows the three most important commercial works; the interactive
-// works follow right below it (see BelowFold). The credentials line stays, but only from md up.
+// keeps one claim and shows the three most important commercial works; the interactive
+// works follow right below it (see BelowFold). Paul 2026-10-30: the two buttons duplicated the work cards and the
+// nav's contact link on phones, so like the credentials line they show from md up only.
 const HERO_WORKS = ["commercial-decision-desk", "overseas-lead-discovery", "trade-profit-navigator"];
 
 export default function Hero() {
@@ -65,16 +66,16 @@ export default function Hero() {
               </li>
             ))}
           </motion.ul>
-          <motion.div variants={fadeUp} className="mt-3 flex flex-row flex-wrap gap-1 sm:mt-8 sm:items-center sm:gap-4">
+          <motion.div variants={fadeUp} className="mt-8 hidden flex-wrap items-center gap-4 md:flex">
             <a
               href="#showcase"
-              className="max-sm:grow rounded-field bg-ink px-3 py-3 text-center text-sm font-semibold text-bone transition-[transform,filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="rounded-field bg-ink px-7 py-3.5 text-center text-sm font-semibold text-bone transition-[transform,filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98]"
             >
               {h.ctaPrimary}
             </a>
             <a
               href="#contact"
-              className="max-sm:grow rounded-field border border-ink/30 bg-white/60 px-3 py-3 text-center text-sm font-semibold text-ink transition-[transform,border-color] hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] sm:px-7 sm:py-3.5"
+              className="rounded-field border border-ink/30 bg-white/60 px-7 py-3.5 text-center text-sm font-semibold text-ink transition-[transform,border-color] hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98]"
             >
               {h.ctaSecondary}
             </a>
