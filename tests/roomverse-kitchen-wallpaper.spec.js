@@ -24,7 +24,7 @@ test("grasscloth covers the whole right-hand wall, behind the painting up to the
   expect(requests, "the weave is drawn on a canvas: nothing to download").toEqual([]);
   expect(wall.choice).toBe("grasscloth-oat");
   expect(wall.visible).toBe(true);
-  expect(wall.vertices, "one plane").toBe(4);
+  expect(wall.vertices, "three planes around the doorway, one mesh").toBe(12);
   expect(wall.bounds.min[0], "stands 4 mm in front of the wall face at x 2.94").toBeCloseTo(2.936, 3);
   const frame = info.wallArtBounds;
   // Old: stopped 5 cm short of the cable-car frame. New (Paul 2026-10-29): the whole wall is papered, behind the painting, up to the wok backsplash at z 0.983.
@@ -39,8 +39,8 @@ test("grasscloth covers the whole right-hand wall, behind the painting up to the
   expect(wall.seamMetres, "one wallpaper roll width").toBeCloseTo(0.69, 2);
   expect(wall.repeat[0] * wall.seamMetres, "tiles span the panel width").toBeCloseTo(wall.bounds.size[2], 2);
   // Main 261fbc4: 39,105 vertices / 96 meshes -> 47,680 / 99; this PR adds 2,498 vertices and 3 merged meshes.
-  expect(info.meshes - 96, "three merged living-detail meshes, the lemon tree leaf cards and the dish dryer frame and face, the credenza mesh, the TV glass reflection and the robot's one merged mesh over the current main baseline").toBe(9);
-  expect(info.vertices - 39105, "the living-detail groups add 2,335 vertices; the dish dryer adds 176 and the removed upper-door handles save 484: net 2,027, plus the credenza 1,480, minus 30 for the looser lemon crown with two more fruit and the TV glass, plus the robot model 5,098: 8,575 over the 39,105 baseline").toBe(8575);
+  expect(info.meshes - 96, /* door +2: leaf and doorway light */ "three merged living-detail meshes, the lemon tree leaf cards and the dish dryer frame and face, the credenza mesh, the TV glass reflection and the robot's one merged mesh over the current main baseline").toBe(11);
+  expect(info.vertices - 39105, "the living-detail groups add 2,335 vertices; the dish dryer adds 176 and the removed upper-door handles save 484: net 2,027, plus the credenza 1,480, minus 30 for the looser lemon crown with two more fruit and the TV glass, plus the robot model 5,098: 8,575 over the 39,105 baseline").toBe(11263);
   if (QA) {
     await page.evaluate(() => window.__room03.setView(270 * Math.PI / 180));
     await page.locator(".room").screenshot({ path: `${QA}/wallpaper-1440-270.png` });
@@ -58,7 +58,7 @@ for (const width of [1440, 390]) {
       await page.waitForFunction((name) => window.__room03.info().wallpaper.choice === name, option);
       const info = await page.evaluate(() => window.__room03.info());
       expect(info.wallpaper.visible, `${option}: visible only when a wallpaper is chosen`).toBe(option !== "none");
-      expect(info.vertices, `${option}: geometry does not change with the choice`).toBe(47680);
+      expect(info.vertices, `${option}: geometry does not change with the choice`).toBe(50368); // door: +2,688
       colours[option] = info.wallpaper.color;
       expect(await page.locator(`#swapGroups button[data-frame="wallpaper"][aria-pressed="true"]`).getAttribute("data-art")).toBe(option);
     }
