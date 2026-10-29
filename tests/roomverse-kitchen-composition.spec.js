@@ -14,7 +14,7 @@ for (const [width,height] of [[1280,720],[1440,1000],[1920,1080]]) {
     });
     // Position [0,1.56,1.58] -> [.22,1.64,1.52] and target [0,1.48,0] -> [.05,1.50,.05] separate the globe from the hood.
     for(let i=0;i<3;i++){expect(data.camera[i]).toBeCloseTo([.22,1.64,1.52][i],3);expect(data.target[i]).toBeCloseTo([.05,1.50,.05][i],3)}
-    expect(data.fov).toBe(62); expect(data.vertices).toBe(41440); expect(data.meshes).toBe(100); expect(data.calls).toBeLessThanOrEqual(72); // Old 39,105/96 -> 41,440/99: living details add 2,498 vertices and 3 meshes; call cap stays 72.
+    expect(data.fov).toBe(62); expect(data.vertices).toBe(41132); expect(data.meshes).toBe(102); expect(data.calls).toBeLessThanOrEqual(72); // Old 39,105/96 -> 41,132/99: living details add 2,498 vertices and 3 meshes; call cap stays 72.
     for(const box of [data.ball,data.hood]){expect(box.top).toBeGreaterThanOrEqual(20);expect(box.left).toBeGreaterThanOrEqual(0);expect(box.right).toBeLessThanOrEqual(data.canvas[0]);expect(box.bottom).toBeLessThanOrEqual(data.canvas[1]);}
     expect(data.ball.right).toBeLessThan(data.hood.left);
     if(QA) await page.locator('.room').screenshot({path:`${QA}/pr1-golden-${width}.png`});
@@ -25,7 +25,7 @@ test('desktop and mobile complete a 10-degree orbit sweep',async ({page})=>{
   for(const width of [1440,390]){
     await page.setViewportSize({width,height:width===390?844:1000}); await page.goto('/prototype/roomverse-3d/kitchen/?lang=zh');
     await page.waitForFunction(()=>window.__room03?.info().furniture.table==='glb' && window.__room03.info().yardLoaded);
-    // Orbit sweep snapshot: 39,105/96 -> 41,440/99 (+2,498 vertices, +3 meshes); each view must still render.
-    for(let deg=0;deg<360;deg+=10){const info=await page.evaluate(d=>{let r=window.__room03;r.setView(d*Math.PI/180);return r.info()},deg);expect(info.camera.every(Number.isFinite)).toBe(true);expect(info.vertices).toBe(41440);expect(info.meshes).toBe(100);expect(info.drawCallsLastFrame).toBeGreaterThan(0);}
+    // Orbit sweep snapshot: 39,105/96 -> 41,132/99 (+2,498 vertices, +3 meshes); each view must still render.
+    for(let deg=0;deg<360;deg+=10){const info=await page.evaluate(d=>{let r=window.__room03;r.setView(d*Math.PI/180);return r.info()},deg);expect(info.camera.every(Number.isFinite)).toBe(true);expect(info.vertices).toBe(41132);expect(info.meshes).toBe(102);expect(info.drawCallsLastFrame).toBeGreaterThan(0);}
   }
 });

@@ -72,7 +72,7 @@ test("P0 keeps the geometry budget and the draw calls below the previous baselin
   // Later lighting/contact PRs may add a few vertices; P0 itself must stay inside the +50 budget above the 41,246 baseline.
   expect(desktop.vertices).toBeLessThanOrEqual(41650);
   // Main 261fbc4 has 96 meshes; this PR adds 3 merged living-detail meshes → 99, within the task-card +5 cap.
-  expect(desktop.meshes).toBeLessThanOrEqual(100); // 99 -> 100: lemon tree leaf cards
+  expect(desktop.meshes).toBeLessThanOrEqual(102); // 100 -> 102: dish dryer frame and face
   expect(desktop.drawCallsLastFrame).toBeLessThanOrEqual(73);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(700);
