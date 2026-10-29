@@ -4423,11 +4423,11 @@ export async function start({ stage, onReady = () => {} }) {
     // lighter, less orange wood overhead; golden hour stays as a choice.
     daylight: Object.freeze({
       ...sharedLook,
-      sun: 1.05, sunColor: 0xfff3e6, sunPosition: [-3.6, 2.1, 3.4],
-      hemi: 1.4, hemiSky: 0xf1f5fb, hemiGround: 0xd8d0c3, ambient: 0.45, pendant: 0.2, under: 0.70, side: 0.70,
-      exposure: 1.0, yard: 0xcfd6d8, globe: 0.2, sky: "day",
-      floor: 0xd3c9b6, jute: 0xcfc2a4, ceilingEmissive: 0.10,
-      ceilingColor: 0xd8b98c, ceilingEmissiveColor: 0xa8957a, beamColor: 0x9a7a52, tableTint: 0xd4c9ba,
+      sun: 1.25, sunColor: 0xfff3e6, sunPosition: [-3.6, 2.1, 3.4],
+      hemi: 1.15, hemiSky: 0xf1f5fb, hemiGround: 0xd8d0c3, ambient: 0.36, pendant: 0.2, under: 0.70, side: 0.70,
+      exposure: 0.96, yard: 0xc2c9cb, globe: 0.2, sky: "day",
+      floor: 0xc8bda9, jute: 0xcfc2a4, ceilingEmissive: 0.10,
+      ceilingColor: 0xcdae80, ceilingEmissiveColor: 0xa8957a, beamColor: 0x9a7a52, tableTint: 0xd4c9ba,
       warmGlow: 0.4, wokGlow: 0.6,
       windowWallBounce: 0.10, windowWallBounceVisible: true,
       pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
