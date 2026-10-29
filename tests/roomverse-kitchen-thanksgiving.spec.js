@@ -21,7 +21,7 @@ test("Thanksgiving changes the light, the screen, and the courtyard, and adds no
   await loadRoom(page, 1440);
   await expect(page.getByRole("button", { name: "感恩節" })).toBeVisible();
   const propKeys = await page.evaluate(() => Object.keys(window.__room03.info().propBounds));
-  expect(propKeys).toHaveLength(10); // Old 7 -> 10 after adding the oak utensil crock, pantry jar and saucepan; Thanksgiving adds no seasonal props.
+  expect(propKeys).toHaveLength(13); // Old 10 -> 13 after adding the console set, side table and Meyer lemon tree; Thanksgiving adds no seasonal props.
   expect(propKeys.join(" ")).not.toMatch(/pumpkin|wreath|candle|apple/i);
 
   await page.evaluate(() => window.__room03.setMood("thanksgiving"));
@@ -52,7 +52,7 @@ test("Thanksgiving changes the light, the screen, and the courtyard, and adds no
   expect(applied.screen.asset).toBe("screen-thanksgiving-parade-v1");
   expect(applied.screen.toneMapped).toBe(false);
   expect(applied.courtyard).toBe("courtyard-autumn-v1");
-  expect(applied.props).toBe(10); // Old 7 -> 10 persistent household props; the three new countertop objects exist in every mood, but no seasonal props are added.
+  expect(applied.props).toBe(13); // Main 10 -> 13: the console set, side table and Meyer lemon tree are permanent; Thanksgiving adds no seasonal props.
 
   const desktop = await measure(page, 1440);
   console.log("Room 03 thanksgiving desktop:", JSON.stringify(desktop));

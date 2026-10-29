@@ -46,9 +46,8 @@ for (const width of [1440, 390]) {
       expect(initial.info.vertices).toBeGreaterThan(0);
       expect(initial.info.triangles).toBeGreaterThan(0);
       expect(initial.info.meshes).toBeGreaterThan(0);
-      // Old: 108 vertices, including the fig-pot plane. That plane left with the plant, so 104.
-      // Four ottoman foot decals: 26 -> 30 patches, 104 -> 120 vertices.
-      expect(initial.info.categories["contact-shadow"]).toEqual({ vertices: 120, meshes: 1 });
+      // Old: 30 patches / 120 vertices. The three side-table feet and tree-pot decal add 4 merged patches / 16 vertices.
+      expect(initial.info.categories["contact-shadow"]).toEqual({ vertices: 136, meshes: 1 });
     });
   }
 }

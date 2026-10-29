@@ -67,6 +67,16 @@ async function setReviewCamera(page, target, position, fov = 42) {
   }, { target, position, fov });
 }
 
+async function restoreCamera(page, info) {
+  await page.evaluate((state) => {
+    const { camera, controls, render } = window.__room03;
+    controls.target.fromArray(state.cameraTarget);
+    camera.position.fromArray(state.camera);
+    camera.fov = state.cameraFov;
+    camera.updateProjectionMatrix(); controls.update(); render();
+  }, info);
+}
+
 function boxesOverlap(a, b) {
   return a.min.every((value, axis) => value < b.max[axis] && b.min[axis] < a.max[axis]);
 }
@@ -657,8 +667,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(householdArt.wallArtPixels.height).toBeGreaterThanOrEqual(130);
     console.log("Room 03 wall art placement:", JSON.stringify({ bounds: info.wallArtBounds, wokRunGap: info.wokZone.clearance.cableCar, hoodGap: boxesDistance(info.wallArtBounds, info.wallArtClearanceBounds.hood), desktopProjectionCssPx: info.wallArtPixels, desktopWidthTargetMet: info.wallArtPixels.width >= 90, material: info.wallArtMaterial, receivesShadow: info.wallArtReceivesShadow, camera: info.camera, vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }));
     const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "oak-utensil-crock", "glass-pantry-jar"];
-    // Old: 7 measured prop groups; new: crock, pantry jar and saucepan add 3, so 10 are measured.
-    expect(Object.keys(propBounds)).toHaveLength(10);
+    // Old: 10 measured prop groups; new: console living set, side table and lemon tree add 3.
+    expect(Object.keys(propBounds)).toHaveLength(13);
     for (const key of Object.keys(propBounds)) expect(propBounds[key], `${key} should be present`).not.toBeNull();
     for (const key of counterProps) {
       const difference = Math.abs(propBounds[key].min[1] - 0.955);
@@ -746,12 +756,40 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.cookbookCount).toBe(3);
     expect(propBounds.cookbooks.size[0]).toBeGreaterThanOrEqual(0.25);
     expect(propBounds.cookbooks.size[1]).toBeGreaterThanOrEqual(0.32);
+    const living = info.room03LivingDetails;
+    expect(living.vertices).toBeLessThanOrEqual(3200); // New living details: task-card net geometry budget.
+    expect(info.propGeometry["tv-console-living-set"].meshes).toBe(1); // Books, pottery, tray and olive sprig share one material batch.
+    expect(info.propGeometry["window-side-table"].meshes).toBe(1); // Oak table, mug, coffee and open book are one vertex-colour batch.
+    expect(info.propGeometry["window-meyer-lemon-tree"].meshes).toBe(1); // Pot, trunk, leaves and fruit are one low-poly batch.
+    expect(living.console.supportGapMm).toBeGreaterThanOrEqual(-1);
+    expect(living.console.supportGapMm).toBeLessThanOrEqual(1);
+    expect(living.console.highestItemY).toBeLessThan(living.console.screenFrameBottomY);
+    expect(living.sideTable.topDiameterMm).toBe(380);
+    expect(living.sideTable.heightMm).toBeGreaterThanOrEqual(519);
+    expect(living.sideTable.heightMm).toBeLessThanOrEqual(520);
+    expect(living.sideTable.footFloorGapMm).toBeGreaterThanOrEqual(0);
+    expect(living.sideTable.footFloorGapMm).toBeLessThanOrEqual(1);
+    expect(living.sideTable.feet).toHaveLength(3);
+    expect(living.sideTable.cupBaseGapMm).toBeGreaterThanOrEqual(0);
+    expect(living.sideTable.cupBaseGapMm).toBeLessThanOrEqual(1);
+    expect(living.sideTable.bookBaseGapMm).toBeGreaterThanOrEqual(-1);
+    expect(living.sideTable.bookBaseGapMm).toBeLessThanOrEqual(1);
+    for (const [name, clearance] of Object.entries(living.sideTable.clearancesMm)) expect(clearance, `side table to ${name} clearance in mm`).toBeGreaterThanOrEqual(300);
+    expect(living.plant.potDiameterMm).toBe(240);
+    expect(living.plant.potHeightMm).toBe(220);
+    expect(living.plant.overallHeightMm).toBeGreaterThanOrEqual(900);
+    expect(living.plant.overallHeightMm).toBeLessThanOrEqual(1100);
+    expect(living.plant.footFloorGapMm).toBeGreaterThanOrEqual(0);
+    expect(living.plant.footFloorGapMm).toBeLessThanOrEqual(1);
+    for (const [name, clearance] of Object.entries(living.plant.clearancesMm)) expect(clearance, `lemon tree to ${name} clearance in mm`).toBeGreaterThanOrEqual(300);
+    expect(info.contactShadow.totalPatchCount).toBe(34); // Old 30 -> 34: three side-table feet plus the tree-pot contact patch, merged into the existing mesh.
+    expect(info.contactShadow.vertices).toBe(136); // Old 120 -> 136: four added decals × four vertices; draw calls remain unchanged.
     expect(info.vertices).toBeLessThanOrEqual(55000);
-    expect(info.vertices).toBeLessThanOrEqual(39200); // Old cap 36,400 -> 39,200 after the gas hob and the entry TV nook (+2,803); before that 34,877 -> 36,400 after the wok-area polish (+2,241: rail tools, brackets, oil bottle, handle); earlier: 33,677 -> 34,877: task-card baseline 30,877 + Paul's updated 4,000-vertex budget for this prop set.
+    expect(info.vertices).toBeLessThanOrEqual(42305); // Main 39,105 + the task-card 3,200-vertex cap; measured living-detail net is 2,498.
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
-    expect(info.drawCallsLastFrame).toBeLessThanOrEqual(72); // Old complete desktop scene: 72 draw calls -> new must not increase.
+    expect(info.drawCallsLastFrame).toBeLessThanOrEqual(69); // Main opening 67 + task-card maximum +2; measured opening is expected to remain within this cap.
     expect(info.meshes).toBeLessThanOrEqual(130);
-    expect(info.meshes).toBeLessThanOrEqual(98); // Old complete scene: 98 meshes -> new must not increase.
+    expect(info.meshes).toBeLessThanOrEqual(101); // Main 96 + task-card maximum +5; living details add 3 merged meshes.
     expect(info.camera[0]).toBeCloseTo(0.22, 3); // Desktop camera 0 -> 0.22: separate globe from hood.
     expect(info.camera[1]).toBeCloseTo(1.64, 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
     expect(info.camera[2]).toBeCloseTo(1.52, 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
@@ -773,8 +811,15 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(errors).toEqual([]);
 
     await shot(page, "props-desktop-golden-1440");
+    await shot(page, "living-details-desktop-golden-1440");
     await shot(page, "wall-art-desktop-golden-1440");
     if (QA) {
+      await setReviewCamera(page, [-2.20, 0.46, -1.25], [-1.45, 1.0, 0.3], 38);
+      await shot(page, "living-details-side-table-golden-1440");
+      await setReviewCamera(page, [-1.13, 0.55, 1.60], [0.10, 1.10, 2.80], 42);
+      await shot(page, "living-details-lemon-tree-golden-1440");
+      await setReviewCamera(page, [-0.55, 0.66, 3.50], [-0.55, 1.05, 1.95], 42);
+      await shot(page, "living-details-console-golden-1440");
       await setReviewCamera(page, [0, 1.08, -2.0], [0, 1.42, 0.5], 52);
       await shot(page, "props-counter-closeup");
       await setReviewCamera(page, [0, 0.86, 0.5], [0, 1.32, 2.65], 42);
@@ -787,6 +832,17 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       await shot(page, "wall-art-closeup");
       await setReviewCamera(page, [0, 0.85, 0.65], [0.4, 1.2, 3.15], 48);
       await shot(page, "props-meyer-lemon-bowl-closeup");
+      await page.locator('#moods button[data-mood="dinner"]').click();
+      await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("dinner");
+      await restoreCamera(page, info);
+      await shot(page, "living-details-desktop-dinner-1440");
+      await setReviewCamera(page, [-2.20, 0.46, -1.25], [-1.45, 1.0, 0.3], 38);
+      await shot(page, "living-details-side-table-dinner-1440");
+      await setReviewCamera(page, [-1.13, 0.55, 1.60], [0.10, 1.10, 2.80], 42);
+      await shot(page, "living-details-lemon-tree-dinner-1440");
+      await setReviewCamera(page, [-0.55, 0.66, 3.50], [-0.55, 1.05, 1.95], 42);
+      await shot(page, "living-details-console-dinner-1440");
+      await restoreCamera(page, info);
       await setReviewCamera(page, [0.8, 1.25, -0.1], [1.25, 1.65, 4.95], 50);
       await page.locator('#moods button[data-mood="night"]').click();
       await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
@@ -795,6 +851,27 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
 
     await loadRoom(page, 390);
+    const mobileOpening = await page.evaluate(() => window.__room03.info());
+    await shot(page, "living-details-mobile-golden-390");
+    if (QA) {
+      await setReviewCamera(page, [-2.20, 0.46, -1.25], [-1.45, 1.0, 0.3], 38);
+      await shot(page, "living-details-side-table-golden-390");
+      await setReviewCamera(page, [-1.13, 0.55, 1.60], [0.10, 1.10, 2.80], 42);
+      await shot(page, "living-details-lemon-tree-golden-390");
+      await setReviewCamera(page, [-0.55, 0.66, 3.50], [-0.55, 1.05, 1.95], 42);
+      await shot(page, "living-details-console-golden-390");
+      await restoreCamera(page, mobileOpening);
+      await page.locator('#moods button[data-mood="dinner"]').click();
+      await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("dinner");
+      await shot(page, "living-details-mobile-dinner-390");
+      await setReviewCamera(page, [-2.20, 0.46, -1.25], [-1.45, 1.0, 0.3], 38);
+      await shot(page, "living-details-side-table-dinner-390");
+      await setReviewCamera(page, [-1.13, 0.55, 1.60], [0.10, 1.10, 2.80], 42);
+      await shot(page, "living-details-lemon-tree-dinner-390");
+      await setReviewCamera(page, [-0.55, 0.66, 3.50], [-0.55, 1.05, 1.95], 42);
+      await shot(page, "living-details-console-dinner-390");
+      await restoreCamera(page, mobileOpening);
+    }
     await page.locator('#moods button[data-mood="night"]').click();
     await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");
     await shot(page, "props-mobile-night-390");
@@ -1052,12 +1129,12 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   await page.waitForFunction(() => window.__room03.info().wokTile.status === "loaded");
   const info = await page.evaluate(() => window.__room03.info());
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
-// Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and opening calls 70 -> 69.
-  expect(info.vertices).toBe(39105);
-  // Grasscloth wallpaper panel: +4 vertices and +1 mesh (34,057/94 -> 34,061/95).
-  expect(info.meshes).toBe(96); // 95 -> 96: coffee maker temperature display.
-  // Grasscloth wall in the default desktop frame: 69 -> 70.
-  expect(info.drawCallsLastFrame).toBe(67); // 70 -> 67: gas hob batching (-3).
+  // Main 261fbc4: 39,105 vertices / 96 meshes; living details add 2,498 vertices / 3 meshes. Same-sequence desktop opening calls 67 -> 68.
+  expect(info.vertices).toBe(41603);
+  // Grasscloth wallpaper panel: +4 vertices and +1 mesh (39,105/96 baseline includes the wallpaper).
+  expect(info.meshes).toBe(99); // Main 96 + three merged living-detail meshes.
+  // One merged living-detail batch enters the default desktop frame: 67 -> 68.
+  expect(info.drawCallsLastFrame).toBe(68);
   expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
   expect(info.wokTile.colorSpace).toBe("srgb");
   expect(info.wokTile.anisotropy).toBeGreaterThanOrEqual(8);

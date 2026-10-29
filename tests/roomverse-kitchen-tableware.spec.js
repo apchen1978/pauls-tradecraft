@@ -7,15 +7,15 @@ if (QA) mkdirSync(QA, { recursive: true });
 
 const MOODS = ["golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
 const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
-// Measured from main 7f42bd2 (after lemon bowl, wok run A, tile B; Codex first measured 30696/96 on db23c06); non-tableware moods must retain these exact scene totals.
+// Old main 39,105/96 -> 41,603/99 after the living-detail batches (+2,498 vertices, +3 meshes, +1 opening call).
 const BASELINE_BY_WIDTH_AND_MOOD = {
   // Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and saves one opening call.
   // Desktop draw calls 70 -> 67 (-3) in every mood: the gas hob replaces four separate steel ring meshes with parts of the existing batches.
-  // Desktop draw calls +1 in every mood: the grasscloth wall is in the default desktop frame (phone unchanged).
-  1440: { golden: [39105, 96, 67], movie: [39105, 96, 65], night: [39105, 96, 67], dinner: [39105, 96, 69], sunday: [39105, 96, 67], thanksgiving: [39105, 96, 69] },
-  // Phone opening calls 72 -> 69 (-3): the gas hob batching, same as desktop.
-  // Phone default frame sees the grasscloth wall too: +1 in every mood.
-  390: { golden: [39105, 96, 69], movie: [39105, 96, 67], night: [39105, 96, 69], dinner: [39105, 96, 71], sunday: [39105, 96, 69], thanksgiving: [39105, 96, 71] },
+  // Same-test-sequence opening calls: desktop main 67 -> 68; phone main 69 -> 70.
+  1440: { golden: [41603, 99, 68], movie: [41603, 99, 66], night: [41603, 99, 68], dinner: [41603, 99, 68], sunday: [41603, 99, 68], thanksgiving: [41603, 99, 68] },
+  // Phone opening calls: main 69 -> 70; later camera turns are measured separately.
+  // Tableware deltas are measured from the new main-plus-living-details baseline.
+  390: { golden: [41603, 99, 70], movie: [41603, 99, 68], night: [41603, 99, 70], dinner: [41603, 99, 70], sunday: [41603, 99, 70], thanksgiving: [41603, 99, 70] },
 };
 
 async function loadRoom(page, width) {
