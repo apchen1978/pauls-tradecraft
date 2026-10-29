@@ -77,6 +77,13 @@
     "Commercial Decision Desk — before any commitment, net contribution, payment, and unknowns on one table; the decision-maker decides.",
     "AI Lab — seventeen chapters of practical AI, from individuals to enterprises, with interactive tools such as “How Many Agents?”"
   ],
+  "workLinks": [
+    "https://paulstradecraft.com/prototype/roomverse-3d/?lang=en",
+    "https://paulstradecraft.com/prototype/trade-street/?lang=en",
+    "https://paulstradecraft.com/prototype/enterprise-ai-path/?lang=en",
+    "https://paulstradecraft.com/cases/commercial-decision-desk/#en",
+    "https://paulstradecraft.com/ai-lab/?lang=en"
+  ],
   "processTitle": "START WITH ONE QUESTION",
   "process": "Bring one product, an old catalogue, a stuck process, or a task you want AI to help with. Clarify where it is stuck first, then decide the next step.",
   "disclaimer": "Demo cases use fictional data; outcomes not verified."

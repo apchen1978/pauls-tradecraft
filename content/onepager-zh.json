@@ -77,6 +77,13 @@
     "商務決策工作台 — 承諾前，把淨貢獻、付款與未知放在同一張桌，由負責人決定。",
     "AI Lab — 從個人到企業的 AI 實務十七章，附互動工具，如「要開幾個 agent？」。"
   ],
+  "workLinks": [
+    "https://paulstradecraft.com/prototype/roomverse-3d/?lang=zh",
+    "https://paulstradecraft.com/prototype/trade-street/?lang=zh",
+    "https://paulstradecraft.com/prototype/enterprise-ai-path/?lang=zh",
+    "https://paulstradecraft.com/cases/commercial-decision-desk/",
+    "https://paulstradecraft.com/ai-lab/?lang=zh"
+  ],
   "processTitle": "START WITH ONE QUESTION · 從一個問題開始",
   "process": "帶一項產品、一份舊型錄、一個卡住的流程，或想請 AI 幫忙的事。先看清楚卡在哪，再決定下一步。",
   "disclaimer": "示範案例使用虛構資料，成效未驗證。"
