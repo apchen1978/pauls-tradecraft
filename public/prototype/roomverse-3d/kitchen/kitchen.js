@@ -2877,6 +2877,183 @@ function buildHouseholdProps(scene, m) {
   cookbooks.userData.bookCount = 3;
 }
 
+// Three compact living details, each batched to one vertex-colour mesh. Their
+// silhouettes stay genuinely three-dimensional while keeping draw calls low.
+function buildRoom03LivingDetails(scene) {
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.82, metalness: 0.01, vertexColors: true });
+  const batches = [];
+  const makeBatch = (key, position = [0, 0, 0]) => {
+    const group = new THREE.Group();
+    group.name = `prop-${key}`;
+    group.position.set(...position);
+    group.userData.category = "household-props";
+    group.userData.propKey = key;
+    group.userData.moodReplaceable = false;
+    scene.add(group);
+    const geometries = [];
+    const bounds = new THREE.Box3().makeEmpty();
+    const add = (geometry, color, offset = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+      const matrix = new THREE.Matrix4().compose(
+        new THREE.Vector3(...offset), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(...scale),
+      );
+      geometry.applyMatrix4(matrix);
+      geometry.computeVertexNormals();
+      geometry.computeBoundingBox();
+      bounds.union(geometry.boundingBox);
+      const tint = new THREE.Color(color);
+      const colors = new Float32Array(geometry.attributes.position.count * 3);
+      for (let i = 0; i < geometry.attributes.position.count; i++) tint.toArray(colors, i * 3);
+      geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+      geometries.push(geometry);
+      return geometry;
+    };
+    const box = (color, size, offset, rotation = [0, 0, 0], radius = 0.004) => add(
+      roundedBoxGeometry(size, Math.min(radius, Math.min(...size) * 0.2)), color, offset, rotation,
+    );
+    const sphere = (color, radius, offset, scale = [1, 1, 1], segments = [10, 7]) => add(
+      new THREE.SphereGeometry(radius, segments[0], segments[1]), color, offset, [0, 0, 0], scale,
+    );
+    const tube = (color, points, radius = 0.003, radial = 5) => add(
+      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map((point) => new THREE.Vector3(...point))), Math.max(6, points.length * 4), radius, radial, false), color,
+    );
+    batches.push({ group, key, geometries, bounds, add, box, sphere, tube });
+    return batches[batches.length - 1];
+  };
+
+  // Low, slightly offset books and a small turned vase make the console feel used.
+  const console = makeBatch("tv-console-living-set");
+  const book = (x, y, z, width, depth, color, angle) => {
+    console.box(color, [width, 0.018, depth], [x, y + 0.009, z], [0, angle, 0], 0.001);
+    console.box("#e4d9c8", [width - 0.012, 0.004, depth - 0.012], [x, y + 0.019, z], [0, angle, 0], 0.001);
+  };
+  const consoleTop = 0.575;
+  book(-1.075, consoleTop + 0.001, 3.50, 0.19, 0.13, "#a77b55", -0.045);
+  book(-1.058, consoleTop + 0.020, 3.50, 0.17, 0.12, "#788064", 0.035);
+  const vaseX = -0.53, vaseZ = 3.50;
+  const vaseProfile = [[0, 0], [0.029, 0], [0.037, 0.012], [0.039, 0.035], [0.032, 0.062], [0.022, 0.078], [0.020, 0.095], [0.015, 0.101], [0.014, 0.094], [0.016, 0.079], [0, 0.076]];
+  console.add(new THREE.LatheGeometry(vaseProfile.map(([r, y]) => new THREE.Vector2(r, y)), 12), "#9a6a50", [vaseX, consoleTop + 0.001, vaseZ]);
+  const branchTop = [vaseX + 0.015, consoleTop + 0.175, vaseZ - 0.004];
+  console.tube("#715c3d", [[vaseX, consoleTop + 0.088, vaseZ], [vaseX + 0.004, consoleTop + 0.13, vaseZ - 0.004], branchTop], 0.0028, 5);
+  for (let i = 0; i < 7; i++) {
+    const t = 0.086 + i * 0.010;
+    const side = i % 2 ? 1 : -1;
+    const leafX = vaseX + side * (0.018 + (i % 3) * 0.004);
+    const leafY = consoleTop + t;
+    const leafZ = vaseZ + (i % 2 ? 0.012 : -0.012);
+    console.sphere(i % 3 ? "#74805e" : "#87906b", 0.024, [leafX, leafY, leafZ], [0.60, 0.22, 0.34], [7, 5]);
+  }
+  // A shallow tray and one small fruit stay below the screen frame.
+  console.box("#b88b5b", [0.17, 0.012, 0.105], [-0.16, consoleTop + 0.006, 3.50], [0, 0.04, 0], 0.001);
+  console.sphere("#b27b3c", 0.022, [-0.16, consoleTop + 0.024, 3.50], [1.3, 0.8, 0.9], [8, 6]);
+
+  // 38 cm round side table beside the lounge chair, behind its ottoman and clear of dining.
+  const table = makeBatch("window-side-table");
+  const tableX = -2.20, tableZ = -1.25, tableTopY = 0.52;
+  const tableTopGeometry = table.add(new THREE.CylinderGeometry(0.19, 0.187, 0.025, 24), "#b88b5b", [tableX, tableTopY - 0.0125, tableZ]);
+  const legFeet = [];
+  for (let i = 0; i < 3; i++) {
+    const angle = -Math.PI / 2 + i * Math.PI * 2 / 3;
+    const foot = [tableX + Math.cos(angle) * 0.145, 0.0005, tableZ + Math.sin(angle) * 0.145];
+    const top = [tableX + Math.cos(angle) * 0.115, tableTopY - 0.02, tableZ + Math.sin(angle) * 0.115];
+    const start = new THREE.Vector3(...foot), end = new THREE.Vector3(...top);
+    const axis = end.clone().sub(start);
+    const leg = new THREE.CylinderGeometry(0.019, 0.024, axis.length(), 7);
+    leg.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.clone().normalize()));
+    leg.translate(...start.clone().add(end).multiplyScalar(0.5).toArray());
+    leg.computeBoundingBox();
+    leg.translate(0, 0.0005 - leg.boundingBox.min.y, 0);
+    table.add(leg, "#a77c4e");
+    leg.computeBoundingBox();
+    legFeet.push([foot[0], 0.0005, foot[2]]);
+  }
+  // The cup, coffee, loop handle and open two-page book sit 1 mm above the tabletop.
+  const cupX = tableX + 0.055, cupZ = tableZ - 0.015, cupBase = tableTopY + 0.001;
+  const cupProfile = [[0, 0], [0.026, 0], [0.031, 0.006], [0.034, 0.064], [0.031, 0.070], [0.027, 0.067], [0.028, 0.012], [0, 0.012]];
+  const cupBodyGeometry = table.add(new THREE.LatheGeometry(cupProfile.map(([r, y]) => new THREE.Vector2(r, y)), 10), "#ded6c8", [cupX, cupBase, cupZ]);
+  table.add(new THREE.CylinderGeometry(0.027, 0.027, 0.005, 12), "#574232", [cupX, cupBase + 0.053, cupZ]);
+  table.tube("#d9cfbf", [[cupX + 0.028, cupBase + 0.055, cupZ], [cupX + 0.051, cupBase + 0.058, cupZ], [cupX + 0.051, cupBase + 0.033, cupZ], [cupX + 0.028, cupBase + 0.034, cupZ]], 0.004, 5);
+  const bookCenter = [tableX - 0.055, tableTopY + 0.006, tableZ + 0.035];
+  const openBookGeometry = table.box("#72806c", [0.13, 0.012, 0.105], bookCenter, [0, -0.16, 0], 0.001);
+  table.box("#e7dfd2", [0.119, 0.004, 0.096], [bookCenter[0], bookCenter[1] + 0.008, bookCenter[2]], [0, -0.16, 0], 0.001);
+
+  // A small potted Meyer-lemon tree at the far window end, below the reading lamp.
+  const plant = makeBatch("window-meyer-lemon-tree");
+  const plantX = -1.13, plantZ = 1.60, potHeight = 0.22;
+  const potProfile = [[0, 0], [0.094, 0], [0.108, 0.012], [0.12, 0.205], [0.116, 0.22], [0.101, 0.22], [0.096, 0.035], [0, 0.035]];
+  const potGeometry = plant.add(new THREE.LatheGeometry(potProfile.map(([r, y]) => new THREE.Vector2(r, y)), 16), "#9a6a50", [plantX, 0.0005, plantZ]);
+  plant.add(new THREE.CylinderGeometry(0.012, 0.018, 0.47, 8), "#786044", [plantX, 0.0005 + potHeight + 0.225, plantZ]);
+  const leafClusters = [
+    [-0.13, 0.55, -0.03, [1.15, 0.62, 0.72]], [-0.06, 0.68, 0.05, [1.0, 0.68, 0.75]],
+    [0.08, 0.58, -0.05, [1.2, 0.65, 0.7]], [0.14, 0.72, 0.02, [1.05, 0.72, 0.68]],
+    [-0.10, 0.83, 0.02, [1.08, 0.68, 0.72]],
+  ];
+  for (let i = 0; i < leafClusters.length; i++) {
+    const [x, y, z, scale] = leafClusters[i];
+    plant.sphere(i % 2 ? "#6f7b56" : "#7d875d", 0.155, [plantX + x, y, plantZ + z], scale, [8, 5]);
+  }
+  const lemonLocations = [[-0.12, 0.67, 0.00], [0.12, 0.73, -0.01], [0.02, 0.88, 0.08], [-0.02, 0.53, -0.12]];
+  for (let i = 0; i < lemonLocations.length; i++) {
+    const [x, y, z] = lemonLocations[i];
+    plant.sphere(i % 2 ? "#d1a34a" : "#d6a53b", 0.045, [plantX + x, y, plantZ + z], [0.82, 1.16, 0.82], [8, 6]);
+  }
+
+  const fit = {};
+  for (const batch of batches) {
+    const merged = mergeGeometries(batch.geometries, false);
+    batch.geometries.forEach((geometry) => geometry.dispose());
+    if (!merged) throw new Error(`Could not merge Room 03 living details: ${batch.key}`);
+    merged.computeVertexNormals();
+    const mesh = new THREE.Mesh(merged, material);
+    mesh.name = `prop-${batch.key}-mesh`;
+    mesh.userData.category = "household-props";
+    mesh.userData.propKey = batch.key;
+    // The plant and small console accessories are grounded by their surfaces/decal; their
+    // broad low-poly group shadows add noise to the established room-light QA sample.
+    mesh.castShadow = !["window-meyer-lemon-tree", "tv-console-living-set"].includes(batch.key);
+    mesh.receiveShadow = true;
+    batch.group.add(mesh);
+    batch.group.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(mesh);
+    const size = box.getSize(new THREE.Vector3());
+    batch.group.userData.qaBounds = { min: box.min.toArray(), max: box.max.toArray(), size: size.toArray() };
+    batch.group.userData.qaGeometry = { vertices: merged.attributes.position.count, meshes: 1 };
+    fit[batch.key] = { bounds: batch.group.userData.qaBounds, vertices: merged.attributes.position.count, meshes: 1 };
+  }
+  const distanceBetweenXZ = (a, b) => {
+    const dx = Math.max(0, a.min[0] - b.max[0], b.min[0] - a.max[0]);
+    const dz = Math.max(0, a.min[2] - b.max[2], b.min[2] - a.max[2]);
+    return Math.hypot(dx, dz);
+  };
+  const toArray = (box) => ({ min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() });
+  const side = toArray(new THREE.Box3(new THREE.Vector3(...fit["window-side-table"].bounds.min), new THREE.Vector3(...fit["window-side-table"].bounds.max)));
+  const plantBox = toArray(new THREE.Box3(new THREE.Vector3(...fit["window-meyer-lemon-tree"].bounds.min), new THREE.Vector3(...fit["window-meyer-lemon-tree"].bounds.max)));
+  const loungeBox = new THREE.Box3().setFromObject(scene.getObjectByName("room03-window-lounge-chair"));
+  const ottomanBox = new THREE.Box3().setFromObject(scene.getObjectByName("room03-lounge-ottoman"));
+  const lampBox = new THREE.Box3().setFromObject(scene.getObjectByName("floor-reading-lamp"));
+  const diningTableBox = new THREE.Box3().setFromObject(scene.getObjectByName("room03-table-glb") || scene.getObjectByName("merged-dining-table"));
+  const windowBox = new THREE.Box3().setFromObject(scene.getObjectByName("glass-slider-panel"));
+  const clearances = {
+    sideTable: Object.fromEntries([["lounge", loungeBox], ["ottoman", ottomanBox], ["floorLamp", lampBox], ["window", windowBox], ["diningTable", diningTableBox]].map(([key, box]) => [key, Number((distanceBetweenXZ(side, toArray(box)) * 1000).toFixed(1))])),
+    plant: Object.fromEntries([["lounge", loungeBox], ["ottoman", ottomanBox], ["floorLamp", lampBox], ["window", windowBox], ["diningTable", diningTableBox]].map(([key, box]) => [key, Number((distanceBetweenXZ(plantBox, toArray(box)) * 1000).toFixed(1))])),
+  };
+  const tableMesh = batches.find(({ key }) => key === "window-side-table").group.children[0];
+  // Sample an exposed part of the tabletop away from the mug and open book.
+  const tableSupportSample = [tableX + 0.12, tableZ + 0.08];
+  const tableSupportRay = new THREE.Raycaster(new THREE.Vector3(tableSupportSample[0], 1, tableSupportSample[1]), new THREE.Vector3(0, -1, 0), 0, 1);
+  const measuredTableTopY = tableSupportRay.intersectObject(tableMesh, false).find(({ point }) => Math.abs(point.x - tableSupportSample[0]) < 0.01 && Math.abs(point.z - tableSupportSample[1]) < 0.01)?.point.y ?? null;
+  const consoleWoodwork = scene.getObjectByName("room03-wall-art-and-media-woodwork");
+  scene.updateMatrixWorld(true);
+  const consoleSupportRay = new THREE.Raycaster(new THREE.Vector3(-0.53, 1, 3.50), new THREE.Vector3(0, -1, 0), 0, 1);
+  const measuredConsoleTopY = consoleWoodwork ? consoleSupportRay.intersectObject(consoleWoodwork, false).find(({ point }) => Math.abs(point.x + 0.53) < 0.01 && Math.abs(point.z - 3.50) < 0.18)?.point.y ?? null : null;
+  tableTopGeometry.computeBoundingBox(); cupBodyGeometry.computeBoundingBox(); openBookGeometry.computeBoundingBox(); potGeometry.computeBoundingBox();
+  const furnitureFit = {
+    sideTable: { topDiameterMm: Number((tableTopGeometry.boundingBox.max.x - tableTopGeometry.boundingBox.min.x).toFixed(3)) * 1000, heightMm: Number(((measuredTableTopY - fit["window-side-table"].bounds.min[1]) * 1000).toFixed(1)), footFloorGapMm: Number((fit["window-side-table"].bounds.min[1] * 1000).toFixed(1)), feet: legFeet.map(([x, y, z]) => [x, y, z]), tableTopY: measuredTableTopY, cupBaseGapMm: Number(((cupBodyGeometry.boundingBox.min.y - measuredTableTopY) * 1000).toFixed(1)), bookBaseGapMm: Number(((openBookGeometry.boundingBox.min.y - measuredTableTopY) * 1000).toFixed(1)), clearancesMm: clearances.sideTable },
+    plant: { potDiameterMm: Number((potGeometry.boundingBox.max.x - potGeometry.boundingBox.min.x).toFixed(3)) * 1000, potHeightMm: Number(((potGeometry.boundingBox.max.y - potGeometry.boundingBox.min.y) * 1000).toFixed(1)), overallHeightMm: Number(((plantBox.max[1] - plantBox.min[1]) * 1000).toFixed(1)), footFloorGapMm: Number((plantBox.min[1] * 1000).toFixed(1)), clearancesMm: clearances.plant },
+    console: { supportY: measuredConsoleTopY, supportGapMm: Number(((fit["tv-console-living-set"].bounds.min[1] - measuredConsoleTopY) * 1000).toFixed(1)), lowestItemY: Number(fit["tv-console-living-set"].bounds.min[1].toFixed(4)), highestItemY: Number(fit["tv-console-living-set"].bounds.max[1].toFixed(4)), screenFrameBottomY: 0.785 },
+  };
+  return { fit, furnitureFit, sideTableFeet: legFeet.map(([x, y, z]) => [x, y, z]), plantPosition: [plantX, 0.0005, plantZ], vertices: Object.values(fit).reduce((sum, value) => sum + value.vertices, 0) };
+}
+
 function buildRedPot(scene, m) {
   const placement = { x: 0.82, baseY: 0.9975, z: -2.02 };
   const redEnamel = m.red.clone();
@@ -3627,6 +3804,18 @@ export async function start({ stage, onReady = () => {} }) {
     floorHalo = lamps.floorHalo;
     tableHalo = lamps.tableHalo;
   }
+  const room03LivingDetails = buildRoom03LivingDetails(scene);
+  // Keep new floor contact decals in the existing single shadow mesh/draw call.
+  const existingContactPatchCount = contactShadow.userData.totalPatchCount;
+  for (const [x, , z] of room03LivingDetails.sideTableFeet) addContactPatch(x, z, 0.085, 0.085, 0.003);
+  addContactPatch(room03LivingDetails.plantPosition[0], room03LivingDetails.plantPosition[2], 0.34, 0.30, 0.003);
+  const addedContactPatches = contactShadowParts.slice(existingContactPatchCount);
+  const extendedContactGeometry = mergeGeometries([contactShadow.geometry, ...addedContactPatches], false);
+  if (!extendedContactGeometry) throw new Error("Could not extend Room 03 living-detail contact shadows");
+  contactShadow.geometry.dispose();
+  contactShadow.geometry = extendedContactGeometry;
+  addedContactPatches.forEach((geometry) => geometry.dispose());
+  contactShadow.userData.totalPatchCount = existingContactPatchCount + addedContactPatches.length;
   let currentMood = "golden";
   let movieScreenTexture = null;
   let thanksgivingScreenTexture = null;
@@ -3881,7 +4070,7 @@ export async function start({ stage, onReady = () => {} }) {
       scene.traverse((object) => { if (object.isMesh && object.userData.category === category) box.expandByObject(object); });
       return box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
-    const propKeys = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "oak-utensil-crock", "glass-pantry-jar", "steel-saucepan", "tabletop-meyer-lemon-bowl", "cookbooks"];
+    const propKeys = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "oak-utensil-crock", "glass-pantry-jar", "steel-saucepan", "tabletop-meyer-lemon-bowl", "cookbooks", "tv-console-living-set", "window-side-table", "window-meyer-lemon-tree"];
     const propBounds = Object.fromEntries(propKeys.map((key) => {
       const object = scene.getObjectByName(`prop-${key}`);
       if (!object) return [key, null];
@@ -4332,7 +4521,7 @@ export async function start({ stage, onReady = () => {} }) {
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
     const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
-    return { moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, wallpaper: grasscloth.info(), entryNook: entryNook.info(), yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, wallpaper: grasscloth.info(), entryNook: entryNook.info(), yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-1.55, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,

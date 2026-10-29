@@ -17,12 +17,11 @@ test("PR2: contact shadows are one merged mesh covering the listed furniture", a
   expect(info.contactShadow.name).toBe("room03-contact-shadows");
   expect(info.contactShadow.meshes).toBe(1);
   expect(info.contactShadow.materialType).toBe("MeshBasicMaterial");
-  // Old: 108 vertices, 27 patches, including the fig pot. That one plane (4 vertices) left with the plant.
-  // Four soft decals under the lounge ottoman's feet: 26 -> 30 patches, 104 -> 120 vertices.
-  expect(info.contactShadow.vertices).toBe(120);
-  expect(info.contactShadow.totalPatchCount).toBe(30);
+  // Old 30 patches / 120 vertices -> 34 / 136: three side-table feet and the tree-pot decal join the existing mesh.
+  expect(info.contactShadow.vertices).toBe(136);
+  expect(info.contactShadow.totalPatchCount).toBe(34);
   expect(info.contactShadow.patchCount).toBe(20); // 4 table feet + 16 chair feet, the order the QA hook aligns by
-  expect(info.categories["contact-shadow"]).toEqual({ vertices: 120, meshes: 1 }); // same four ottoman decals: 104 -> 120
+  expect(info.categories["contact-shadow"]).toEqual({ vertices: 136, meshes: 1 }); // +16 decal vertices, same single merged mesh.
   for (const covered of ["dining-table", "dining-chair-0.5-1.22", "dining-chair-0.5--0.22", "dining-chair--0.5-1.22", "dining-chair--0.5--0.22", "kitchen-island", "side-kitchen", "lounge-chair"]) {
     expect(info.contactShadow.coverage).toContain(covered);
   }
@@ -54,8 +53,8 @@ test("PR2: contact shadows stay inside the vertex, mesh and draw-call budget", a
   await loadRoom(page, 1440);
   const desktop = await page.evaluate(() => window.__room03.info());
   expect(desktop.vertices).toBeLessThanOrEqual(41296); // main 41,246 + 50
-  // Old ceiling 95 (main 95). Plaque +1, fig −5, four lamps +8 → 98.
-  expect(desktop.meshes).toBeLessThanOrEqual(98);
+  // Main 261fbc4 has 96 meshes; this PR adds 3 merged living-detail meshes → 99, within the task-card +5 cap.
+  expect(desktop.meshes).toBeLessThanOrEqual(99);
   expect(desktop.drawCallsLastFrame).toBeLessThanOrEqual(72); // measured: main 71 -> 70 (-1), budget allows +1
   expect(desktop.vertices - 41246).toBeLessThanOrEqual(50);
 

@@ -4,20 +4,20 @@ import { mkdirSync } from "node:fs";
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
 const MOODS = ["golden", "night", "movie"];
-// No-pot baseline: 31,603 -> 33,097 after the countertop prop set (+1,370) and #603 lamp-wall art (+124). The red pot remains 960 vertices; the +1,500 cap is unchanged.
+// Clean origin/main 261fbc4 measured 39,105 vertices / 96 meshes; this branch adds 2,066 vertices / 3 meshes. Draw calls are captured per viewport and yaw below.
 const BASELINE = {
-  "1440|golden|0": { vertices: 33097, drawCalls: 70 },
-  "1440|night|0": { vertices: 33097, drawCalls: 70 },
-  "1440|movie|0": { vertices: 33097, drawCalls: 68 },
-  "1440|golden|90": { vertices: 33097, drawCalls: 64 },
-  "1440|night|90": { vertices: 33097, drawCalls: 64 },
-  "1440|movie|90": { vertices: 33097, drawCalls: 62 },
-  "390|golden|0": { vertices: 33097, drawCalls: 64 },
-  "390|night|0": { vertices: 33097, drawCalls: 64 },
-  "390|movie|0": { vertices: 33097, drawCalls: 62 },
-  "390|golden|90": { vertices: 33097, drawCalls: 57 },
-  "390|night|90": { vertices: 33097, drawCalls: 57 },
-  "390|movie|90": { vertices: 33097, drawCalls: 55 },
+  "1440|golden|0": { vertices: 39105, drawCalls: 65 },
+  "1440|night|0": { vertices: 39105, drawCalls: 65 },
+  "1440|movie|0": { vertices: 39105, drawCalls: 63 },
+  "1440|golden|90": { vertices: 39105, drawCalls: 67 },
+  "1440|night|90": { vertices: 39105, drawCalls: 67 },
+  "1440|movie|90": { vertices: 39105, drawCalls: 67 },
+  "390|golden|0": { vertices: 39105, drawCalls: 61 },
+  "390|night|0": { vertices: 39105, drawCalls: 61 },
+  "390|movie|0": { vertices: 39105, drawCalls: 59 },
+  "390|golden|90": { vertices: 39105, drawCalls: 58 },
+  "390|night|90": { vertices: 39105, drawCalls: 58 },
+  "390|movie|90": { vertices: 39105, drawCalls: 57 },
 };
 if (QA) mkdirSync(QA, { recursive: true });
 
@@ -92,7 +92,7 @@ test("red Dutch oven is dimensioned, fitted and within geometry budgets", async 
   for (const current of measurements) {
     const old = BASELINE[`${current.width}|${current.mood}|${current.yaw}`];
     expect(old, "baseline metrics exist for each viewport, mood and camera direction").toBeTruthy();
-    expect(current.vertices - old.vertices, "net geometry change vs the red-pot baseline: old 1,500 cap -> 6,008 measured = 3,205 (countertop, grasscloth, wok polish) + 2,803 (gas hob, entry nook)").toBeLessThanOrEqual(6008);
+    expect(current.vertices - old.vertices, "living-detail geometry remains within the task-card +3,200 cap").toBeLessThanOrEqual(3200);
     expect(current.drawCalls - old.drawCalls, `${current.width}px ${current.mood} ${current.yaw}deg: ${current.drawCalls} current vs ${old.drawCalls} baseline, cap +5 (was +2: the entry nook's bench, cushions, pillows and rug are visible at 90 degrees, the coffee maker's display too; the gas hob batching takes three away elsewhere)`).toBeLessThanOrEqual(5);
   }
 });
