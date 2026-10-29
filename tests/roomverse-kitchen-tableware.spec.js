@@ -10,10 +10,12 @@ const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
 // Measured from main 7f42bd2 (after lemon bowl, wok run A, tile B; Codex first measured 30696/96 on db23c06); non-tableware moods must retain these exact scene totals.
 const BASELINE_BY_WIDTH_AND_MOOD = {
   // Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and saves one opening call.
+  // Desktop draw calls 70 -> 67 (-3) in every mood: the gas hob replaces four separate steel ring meshes with parts of the existing batches.
   // Desktop draw calls +1 in every mood: the grasscloth wall is in the default desktop frame (phone unchanged).
-  1440: { golden: [36302, 95, 70], movie: [36302, 95, 68], night: [36302, 95, 70], dinner: [36302, 95, 72], sunday: [36302, 95, 70], thanksgiving: [36302, 95, 72] },
+  1440: { golden: [39105, 96, 67], movie: [39105, 96, 65], night: [39105, 96, 67], dinner: [39105, 96, 69], sunday: [39105, 96, 67], thanksgiving: [39105, 96, 69] },
+  // Phone opening calls 72 -> 69 (-3): the gas hob batching, same as desktop.
   // Phone default frame sees the grasscloth wall too: +1 in every mood.
-  390: { golden: [36302, 95, 72], movie: [36302, 95, 70], night: [36302, 95, 72], dinner: [36302, 95, 74], sunday: [36302, 95, 72], thanksgiving: [36302, 95, 74] },
+  390: { golden: [39105, 96, 69], movie: [39105, 96, 67], night: [39105, 96, 69], dinner: [39105, 96, 71], sunday: [39105, 96, 69], thanksgiving: [39105, 96, 71] },
 };
 
 async function loadRoom(page, width) {
@@ -41,6 +43,7 @@ test("tableware mood flag is complete and only dinner and Thanksgiving attach it
       expect(info.moodLook.moods[mood].tableware, `${mood}.tableware`).toBe(shown);
       expect(info.moodSlots.tableware.visible, `${mood} visible flag`).toBe(shown);
       expect(info.moodSlots.tableware.mounted, `${mood} scene attachment`).toBe(shown);
+      expect(info.moodSlots.tabletopCenterpiece.visible, `${mood}: the lemon bowl steps aside for the roast chicken`).toBe(!shown);
       const [baselineVertices, baselineMeshes, baselineCalls] = BASELINE_BY_WIDTH_AND_MOOD[width][mood];
       if (!shown) {
         expect(info.vertices, `${mood} vertices remain at main`).toBe(baselineVertices);
@@ -109,18 +112,18 @@ test("four place settings fit the loaded table and glass has a stable transparen
   expect(extras.bread.maxXOverBoardMm, "bread stays on the board").toBeLessThanOrEqual(0);
   expect(extras.runner.maxX, "runner ends before the glasses").toBeLessThan(0.67);
   const feast = extras.feast;
-  expect(feast.platterWidthMm, "oval platter about 34 cm long").toBeGreaterThanOrEqual(330);
-  expect(feast.platterWidthMm).toBeLessThanOrEqual(360);
+  expect(feast.platterWidthMm, "oval platter about 52 cm long (was 34 cm before the bird moved to the table centre)").toBeGreaterThanOrEqual(500);
+  expect(feast.platterWidthMm).toBeLessThanOrEqual(540);
+  expect(Math.abs(feast.platterCenterXMm), "platter is on the table's centre line").toBeLessThanOrEqual(5);
   expect(feast.platterDepthMm, "and 19-21 cm deep, inside the 22 cm runner").toBeGreaterThanOrEqual(185);
   expect(feast.platterDepthMm).toBeLessThanOrEqual(210);
   expect(feast.platterGapMm, "platter sits on the runner").toBeLessThanOrEqual(1);
   expect(feast.platterSettingClearanceMm, "platter clears plates and glasses").toBeGreaterThanOrEqual(10);
-  expect(feast.platterLemonClearanceMm, "platter clears the lemon bowl").toBeGreaterThanOrEqual(20);
   expect(feast.platterBoardClearanceMm).toBeGreaterThanOrEqual(20);
   expect(feast.minRestGapMm, "food is pressed 1-3 mm into the platter").toBeGreaterThanOrEqual(-3);
   expect(feast.maxRestGapMm).toBeLessThanOrEqual(-1);
   expect(feast.overhangMm, "no food overhangs the platter rim").toBeLessThanOrEqual(0);
-  expect(feast.topMm, "the bird stays below 8 cm").toBeLessThanOrEqual(80);
-  expect(feast.potatoes).toBe(5); expect(feast.carrots).toBe(3); expect(feast.lemonHalves).toBe(2); expect(feast.croutons).toBe(5);
+  expect(feast.topMm, "the bird and rosemary stay below 11 cm").toBeLessThanOrEqual(110);
+  expect(feast.potatoes).toBe(4); expect(feast.carrots).toBe(3); expect(feast.lemonHalves).toBe(2); expect(feast.croutons).toBe(5);
   expect(info.tableware.colors.accent).toEqual(["#777f63", "#9a6a50"]);
 });
