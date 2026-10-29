@@ -73,6 +73,7 @@ export default function Hero() {
           <motion.p variants={fadeUp} className="mt-3 max-w-[44ch] text-base leading-[1.6] text-ink md:mt-5 md:text-lg">
             <Clauses text={h.sub} />
           </motion.p>
+          <motion.p variants={fadeUp} className="mt-2 text-[0.8125rem] leading-snug text-moss md:hidden">{h.credentialsLine}</motion.p>
           <motion.ul variants={fadeUp} className="mt-4 hidden flex-wrap gap-x-5 gap-y-1 text-sm leading-[1.55] text-moss md:flex">
             {h.credentials.map((c) => (
               <li key={c.value} className="whitespace-nowrap">
