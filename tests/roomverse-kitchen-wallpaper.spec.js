@@ -35,9 +35,9 @@ test("grasscloth covers the right-hand wall behind the counter, clear of the pai
   expect(wall.bounds.min[2], "from the back wall").toBeGreaterThanOrEqual(-2.34);
   expect(wall.seamMetres, "one wallpaper roll width").toBeCloseTo(0.69, 2);
   expect(wall.repeat[0] * wall.seamMetres, "tiles span the panel width").toBeCloseTo(wall.bounds.size[2], 2);
-  // Main 261fbc4: 39,105 vertices / 96 meshes -> 41,603 / 99; this PR adds 2,498 vertices and 3 merged meshes.
-  expect(info.meshes - 96, "three merged living-detail meshes over the current main baseline").toBe(3);
-  expect(info.vertices - 39105, "the three living-detail groups add 2,498 vertices over current main").toBe(2498);
+  // Main 261fbc4: 39,105 vertices / 96 meshes -> 41,440 / 99; this PR adds 2,498 vertices and 3 merged meshes.
+  expect(info.meshes - 96, "three merged living-detail meshes plus the lemon tree leaf cards over the current main baseline").toBe(4);
+  expect(info.vertices - 39105, "the living-detail groups add 2,335 vertices over current main (2,498 with the old sphere crown, 163 fewer with the leaf cards)").toBe(2335);
   if (QA) {
     await page.evaluate(() => window.__room03.setView(270 * Math.PI / 180));
     await page.locator(".room").screenshot({ path: `${QA}/wallpaper-1440-270.png` });
@@ -55,7 +55,7 @@ for (const width of [1440, 390]) {
       await page.waitForFunction((name) => window.__room03.info().wallpaper.choice === name, option);
       const info = await page.evaluate(() => window.__room03.info());
       expect(info.wallpaper.visible, `${option}: visible only when a wallpaper is chosen`).toBe(option !== "none");
-      expect(info.vertices, `${option}: geometry does not change with the choice`).toBe(41603);
+      expect(info.vertices, `${option}: geometry does not change with the choice`).toBe(41440);
       colours[option] = info.wallpaper.color;
       expect(await page.locator(`#swapGroups button[data-frame="wallpaper"][aria-pressed="true"]`).getAttribute("data-art")).toBe(option);
     }
