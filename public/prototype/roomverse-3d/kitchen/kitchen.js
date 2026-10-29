@@ -4069,7 +4069,7 @@ function addRoom03Lamps(scene, materials) {
   const paperShadeMaterial = (emissive) => {
     const material = shadeMaterial(emissive);
     material.color.setHex(0xffffff);
-    material.name = "warm-opal-glass";
+    material.name = "paper-floor-lamp-shade";
     material.roughness = 0.92;
     material.side = THREE.DoubleSide;
     material.vertexColors = true;
@@ -4143,23 +4143,23 @@ function addRoom03Lamps(scene, materials) {
   ]), hardwareMaterial());
   floorHardwareMesh.castShadow = false;
   const paperRings = [
-    [0.145, 1.25], [0.153, 1.33], [0.16, 1.42], [0.153, 1.51], [0.145, 1.59],
+    [0.145, 1.10], [0.153, 1.18], [0.16, 1.27], [0.153, 1.36], [0.145, 1.44],
   ].map(([radius, y]) => paint(place(new THREE.TorusGeometry(radius, 0.003, 4, 24), [0, y, 0], [Math.PI / 2, 0, 0]), 0xe4d3b3));
   const lanternProfile = [
     [0.137, -0.23], [0.15, -0.20], [0.158, -0.13], [0.16, -0.05],
     [0.16, 0.05], [0.158, 0.13], [0.15, 0.20], [0.137, 0.23],
   ].map(([radius, y]) => new THREE.Vector2(radius, y));
   const lanternPaper = paint(new THREE.LatheGeometry(lanternProfile, 24), 0xf2e6cd);
-  lanternPaper.translate(0, 1.42, 0);
+  lanternPaper.translate(0, 1.27, 0);
   const floorShadeMesh = addMesh(floor, "floor-reading-lamp-shade", mergeParts([lanternPaper, ...paperRings]), floorShade);
   floorShadeMesh.castShadow = false;
   scene.add(floor);
   const floorLight = new THREE.PointLight(0xffc27a, 0, 6, 2);
   floorLight.name = "floor-lamp-light";
   floorLight.castShadow = false;
-  floorLight.position.set(-1.93, 1.42, 1.68);
+  floorLight.position.set(-1.93, 1.27, 1.68);
   scene.add(floorLight);
-  const floorHalo = addHalo("floor-lamp-halo", [-1.93, 1.42, 1.68], 0.62);
+  const floorHalo = addHalo("floor-lamp-halo", [-1.93, 1.27, 1.68], 0.62);
 
   // Left end of the console top (x -1.30 to 0, top y 0.575). The screen frame occupies x -1.14 to -0.16,
   // so the 15 cm globe stays at x -1.295 to -1.145.
@@ -4883,10 +4883,10 @@ export async function start({ stage, onReady = () => {} }) {
     materials.reveal.opacity = look.reveal;
     materials.loungePillow.color.setHex(look.loungePillow);
     if (pictureLightMaterial) pictureLightMaterial.emissiveIntensity = look.pictureLightEmissive;
-    // The globe glows in proportion to the light it throws (old: a flat 0.45 whatever the mood, so a strongly lit wall sat beside a dull globe).
+    // Keep the paper drum visibly lit without clipping its white surface in the 180-degree movie view.
     if (floorShadeMaterial) floorShadeMaterial.emissiveIntensity = look.floorLamp > 0
-      ? Math.min(2.2, 0.55 + 0.5 * look.floorLamp)
-      : 0.2;
+      ? Math.min(1.9, 0.45 + 0.45 * look.floorLamp)
+      : 0;
     if (tableShadeMaterial) tableShadeMaterial.emissiveIntensity = look.tableLamp > 0 ? Math.min(2.2, 0.55 + 0.5 * look.tableLamp) : 0;
     if (floorHalo) { floorHalo.material.opacity = look.floorLamp > 0 ? Math.min(0.5, 0.15 * look.floorLamp) : 0; floorHalo.visible = look.floorLamp > 0; }
     if (tableHalo) { tableHalo.material.opacity = look.tableLamp > 0 ? Math.min(0.5, 0.15 * look.tableLamp) : 0; tableHalo.visible = look.tableLamp > 0; }

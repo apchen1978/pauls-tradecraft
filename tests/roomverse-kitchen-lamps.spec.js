@@ -15,19 +15,18 @@ test("three lamps sit on measured surfaces, counter pendants are removed, and ne
   expect(info.propBounds["window-fiddle-leaf-fig"]).toBeUndefined();
   expect(info.plantLeafCount).toBe(0);
   expect(info.lightMetrics.lightCount).toBe(9);
-  // Latest main is the budget baseline. Card 3 adds +1,977 vertices, +2 meshes and +1 opening call (within +3,000 / +4 / +2).
-  expect(info.vertices - LEDGER.scene.vertices).toBeLessThanOrEqual(3000);
-  expect(info.meshes - LEDGER.scene.meshes).toBeLessThanOrEqual(4);
-  expect(info.drawCallsLastFrame - LEDGER.openingDrawCalls.desktop).toBeLessThanOrEqual(2);
+  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
+  expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
+  expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls);
   for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light"]) {
     expect(info.lamps[name].meshes, name).toBeLessThanOrEqual(2);
     expect(info.lamps[name].meshes, name).toBeGreaterThan(0);
   }
 
   const floor = info.lamps["floor-reading-lamp"].bounds;
-  // Old spherical fitting was 1.50 m. New paper drum reaches 1.65 m from the same floor base to fit beneath the window header.
-  expect(floor.size[1]).toBeGreaterThanOrEqual(1.62);
-  expect(floor.size[1]).toBeLessThanOrEqual(1.67);
+  // 1.62-1.67 m overlapped the wall art; the shorter drum restores its 1.45-1.55 m clearance range.
+  expect(floor.size[1]).toBeGreaterThanOrEqual(1.45);
+  expect(floor.size[1]).toBeLessThanOrEqual(1.55);
   expect(Math.abs(floor.min[1])).toBeLessThanOrEqual(0.01);
   expect((floor.min[0] + floor.max[0]) / 2).toBeCloseTo(-1.93, 2);
   expect((floor.min[2] + floor.max[2]) / 2).toBeCloseTo(1.68, 2);

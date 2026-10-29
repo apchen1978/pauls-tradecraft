@@ -26,6 +26,7 @@ test("a 4:3 painting hangs on the entry wall above the window-side floor lamp, l
   const lamp = info.lamps["floor-reading-lamp"].bounds;
   const lampCentreX = (lamp.min[0] + lamp.max[0]) / 2;
   const artCentreX = (art.imageBounds.min[0] + art.imageBounds.max[0]) / 2;
+  console.log("Room 03 lamp-to-art clearance (m):", art.imageBounds.min[1] - lamp.max[1]);
   expect(Math.abs(artCentreX - lampCentreX), "centred over the lamp").toBeLessThanOrEqual(0.05);
   expect(art.imageBounds.min[1] - lamp.max[1], "bottom edge just above the globe, not hidden behind it").toBeGreaterThanOrEqual(0.02);
   expect(art.imageBounds.min[1] - lamp.max[1]).toBeLessThanOrEqual(0.12);

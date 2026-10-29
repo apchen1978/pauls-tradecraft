@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { LEDGER, CAPS } from "./helpers/room03-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 
@@ -18,13 +19,14 @@ test("paper drum lamp echoes the pendant family while retaining the measured cen
   expect(lamp.bounds.size[0]).toBeLessThanOrEqual(0.34);
   expect(lamp.bounds.size[2]).toBeGreaterThanOrEqual(0.30);
   expect(lamp.bounds.size[2]).toBeLessThanOrEqual(0.34);
-  expect(lamp.bounds.size[1]).toBeCloseTo(1.646, 2);
-  expect(info.lamps.glow.floor.materialName).toBe("warm-opal-glass");
+  expect(lamp.bounds.size[1]).toBeGreaterThanOrEqual(1.45);
+  expect(lamp.bounds.size[1]).toBeLessThanOrEqual(1.52);
+  expect(info.lamps.glow.floor.materialName).toBe("paper-floor-lamp-shade");
   expect(info.lamps.glow.floor.roughness).toBeGreaterThanOrEqual(0.9);
-  expect(info.lamps.glow.floor.globe[1]).toBeCloseTo(1.42, 2);
-  expect(info.lamps.glow.floor.light[1]).toBeCloseTo(1.42, 2);
-  expect(info.lamps.glow.floor.halo[1]).toBeCloseTo(1.42, 2);
-  expect(info.lamps.glow.floor.emissive).toBeCloseTo(0.2, 2);
+  expect(info.lamps.glow.floor.globe[1]).toBeCloseTo(1.27, 2);
+  expect(info.lamps.glow.floor.light[1]).toBeCloseTo(1.27, 2);
+  expect(info.lamps.glow.floor.halo[1]).toBeCloseTo(1.27, 2);
+  expect(info.lamps.glow.floor.emissive).toBe(0);
   expect(info.lamps.lights.floor.intensity).toBe(0);
   expect(info.lamps.lights.lightCount ?? info.lightMetrics.lightCount).toBe(9);
 });
@@ -75,7 +77,9 @@ test("entry mirror, hooks, coat and key dish stay under the Redwood print and cl
 test("mobile opening stays within the two-draw-call Card 3 budget", async ({ page }) => {
   await loadRoom(page, 390);
   const info = await page.evaluate(() => window.__room03.info());
-  expect(info.vertices - 50288).toBeLessThanOrEqual(3000);
-  expect(info.meshes - 107).toBeLessThanOrEqual(4);
-  expect(info.drawCallsLastFrame - 74).toBeLessThanOrEqual(2);
+  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
+  expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
+  expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.phoneCalls);
+  expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(info.meshes).toBe(LEDGER.scene.meshes);
 });

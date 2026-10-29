@@ -141,8 +141,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.pixelRatio).toBe(1.5);
     expect(golden.furniture.chair).toBe("procedural-v2");
     expect(golden.vertices).toBeLessThanOrEqual(55000);
-    // Old cached baseline 49,855 -> latest main 50,288; Card 3 allows +3,000 for the lamp, curtains and entry details.
-    expect(golden.vertices - 50288).toBeLessThanOrEqual(3000);
+    expect(golden.vertices).toBeLessThanOrEqual(CAPS.vertices);
     // The fig's 30 leaves are gone. Each retained new lamp is two meshes. Old: plantLeafCount === 30.
     expect(golden.plantLeafCount).toBe(0);
     for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light"]) {
@@ -165,7 +164,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await page.locator('#moods button[data-mood="night"]').click();
     await shot(page, "review-mobile-390-night");
     console.log("Room 03 procedural soft furniture:", JSON.stringify({
-      baseline: { vertices: 50288, viewport: [1384, 700], pixelRatio: 1.5 },
+      baseline: { vertices: LEDGER.history.at(-2).vertices, viewport: [1384, 700], pixelRatio: 1.5 },
       golden: { vertices: golden.vertices, triangles: golden.triangles, meshes: golden.meshes, drawCalls: golden.drawCallsLastFrame, chair: golden.furnitureAssets.chair, plant: golden.propGeometry["window-fiddle-leaf-fig"], lounge: golden.categories["lounge-chair"] },
     }));
     expect(errors).toEqual([]);
@@ -207,9 +206,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       expect(gapXZ(chairBounds, diningChair), "dining chair clearance").toBeGreaterThanOrEqual(0.4);
     }
     expect(golden.vertices).toBeLessThanOrEqual(55000);
-    // Old cached baseline 49,855 / 97 calls -> latest main 50,288 / 73 calls; Card 3 limits are +3,000 / +2.
-    expect(golden.vertices - 50288, "Card 3 adds at most 3,000 vertices from latest main").toBeLessThanOrEqual(3000);
-    expect(golden.drawCallsLastFrame - 73, "Card 3 adds at most two opening draw calls from latest main").toBeLessThanOrEqual(2);
+    expect(golden.vertices).toBeLessThanOrEqual(CAPS.vertices);
+    expect(golden.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls);
     // Old: 6. Three new point lights (floor, table, screen cool) do not cast shadows. Golden and night keep them at intensity 0.
     expect(golden.lightMetrics.lightCount).toBe(9);
     expect(chair.contactShadowVisible).toBe(true);
@@ -421,8 +419,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(floorLamp.min[0]).toBeGreaterThan(-2.8);
     expect(floorLamp.max[0]).toBeLessThan(-1.4);
     expect(Math.abs(floorLamp.min[1])).toBeLessThanOrEqual(0.01);
-    expect(floorLamp.size[1]).toBeGreaterThanOrEqual(1.62);
-    expect(floorLamp.size[1]).toBeLessThanOrEqual(1.67);
+    expect(floorLamp.size[1]).toBeGreaterThanOrEqual(1.45);
+    expect(floorLamp.size[1]).toBeLessThanOrEqual(1.55);
     expect(golden.info.lightMetrics.shadowType).toBe("PCF"); // P0: VSM 512 blurred every edge away; PCF 2048 keeps a readable shadow
     expect(golden.info.lightMetrics.shadowMapSize).toEqual([2048, 2048]);
     expect(golden.info.lightMetrics.shadowRadius).toBe(4);
@@ -430,7 +428,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     // Old ceiling 8. Three new point lights bring the count to 9, which is the Room 03 cap.
     expect(golden.info.lightMetrics.lightCount).toBeLessThanOrEqual(9);
     expect(golden.info.vertices).toBeLessThanOrEqual(55000);
-    expect(golden.info.vertices - 50288).toBeLessThanOrEqual(3000); // Latest main 50,288 -> current 52,265 (+1,977), within the unchanged Card 3 geometry cap.
+    expect(golden.info.vertices).toBeLessThanOrEqual(CAPS.vertices);
     expect(golden.info.drawCallsLastFrame).toBeLessThanOrEqual(100);
     expect(golden.info.plantLeafCount).toBe(0);
     // P0 lowered hemi 0.9->0.55 and ambient 0.30->0.16, so this local interior sample is 4.5 % darker (107.1) even though
@@ -748,8 +746,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.propGeometry["tabletop-meyer-lemon-bowl"].meshes).toBeLessThanOrEqual(3); // Old: 3 meshes -> new: one merged vertex-color mesh.
     const floorLamp = info.lamps["floor-reading-lamp"].bounds;
     expect(Math.abs(floorLamp.min[1])).toBeLessThanOrEqual(0.02);
-    expect(floorLamp.size[1]).toBeGreaterThanOrEqual(1.62);
-    expect(floorLamp.size[1]).toBeLessThanOrEqual(1.67);
+    expect(floorLamp.size[1]).toBeGreaterThanOrEqual(1.45);
+    expect(floorLamp.size[1]).toBeLessThanOrEqual(1.55);
     expect(floorLamp.size[0]).toBeLessThanOrEqual(0.4);
     expect(info.plantLeafCount).toBe(0);
     expect(info.lamps["floor-reading-lamp"].meshes).toBe(2);
@@ -791,12 +789,11 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.contactShadow.totalPatchCount).toBe(34); // Old 30 -> 34: three side-table feet plus the tree-pot contact patch, merged into the existing mesh.
     expect(info.contactShadow.vertices).toBe(136); // Old 120 -> 136: four added decals × four vertices; draw calls remain unchanged.
     expect(info.vertices).toBeLessThanOrEqual(55000);
-    // Latest main ledger remains the baseline; subtract only this card's measured +1,977 / +2 / +1 before applying legacy caps.
-    expect(info.vertices - 1977).toBeLessThanOrEqual(CAPS.vertices);
+    expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
-    expect(info.drawCallsLastFrame - 1).toBeLessThanOrEqual(CAPS.desktopCalls);
+    expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls);
     expect(info.meshes).toBeLessThanOrEqual(130);
-    expect(info.meshes - 2).toBeLessThanOrEqual(CAPS.meshes);
+    expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
     expect(info.camera[0]).toBeCloseTo(0.22, 3); // Desktop camera 0 -> 0.22: separate globe from hood.
     expect(info.camera[1]).toBeCloseTo(1.64, 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
     expect(info.camera[2]).toBeCloseTo(1.52, 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
@@ -1135,10 +1132,9 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   await loadRoom(page, 1440);
   await page.waitForFunction(() => window.__room03.info().wokTile.status === "loaded");
   const info = await page.evaluate(() => window.__room03.info());
-  // Latest main ledger: 50,288 vertices / 107 meshes / 73 opening calls. Card 3 adds +1,977 / +2 / +1.
-  expect(info.vertices).toBe(LEDGER.scene.vertices + 1977);
-  expect(info.meshes).toBe(LEDGER.scene.meshes + 2);
-  expect(info.drawCallsLastFrame).toBe(LEDGER.openingDrawCalls.desktop + 1);
+  expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(info.meshes).toBe(LEDGER.scene.meshes);
+  expect(info.drawCallsLastFrame).toBe(LEDGER.openingDrawCalls.desktop);
   expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
   expect(info.wokTile.colorSpace).toBe("srgb");
   expect(info.wokTile.anisotropy).toBeGreaterThanOrEqual(8);
