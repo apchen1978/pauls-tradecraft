@@ -15,7 +15,7 @@ async function loadRoom(page, width, lang = "zh") {
 }
 
 // Paul 2026-10-29: Bay Area designers use wallpaper, and the current taste is texture over pattern (grasscloth); one wall of Room 03 gets it, on by default.
-test("grasscloth covers the right-hand wall behind the counter, clear of the painting, with one panel and no download", async ({ page }) => {
+test("grasscloth covers the whole right-hand wall, behind the painting up to the wok backsplash, with one panel and no download", async ({ page }) => {
   const requests = [];
   page.on("request", (request) => { if (/grass|wallpaper/i.test(request.url())) requests.push(request.url()); });
   await loadRoom(page, 1440);
@@ -27,7 +27,10 @@ test("grasscloth covers the right-hand wall behind the counter, clear of the pai
   expect(wall.vertices, "one plane").toBe(4);
   expect(wall.bounds.min[0], "stands 4 mm in front of the wall face at x 2.94").toBeCloseTo(2.936, 3);
   const frame = info.wallArtBounds;
-  expect(frame.min[2] - wall.bounds.max[2], "stops at least 5 cm short of the cable-car frame").toBeGreaterThanOrEqual(0.05);
+  // Old: stopped 5 cm short of the cable-car frame. New (Paul 2026-10-29): the whole wall is papered, behind the painting, up to the wok backsplash at z 0.983.
+  expect(wall.bounds.min[2] < frame.min[2] && wall.bounds.max[2] > frame.max[2], "the paper runs behind the whole painting").toBe(true);
+  expect(wall.bounds.max[2], "stops before the wok backsplash (z 0.983)").toBeLessThan(0.983);
+  expect(wall.bounds.max[2]).toBeGreaterThan(0.95);
   expect(wall.bounds.size[1], "floor trim to under the beam").toBeGreaterThan(2.2);
   expect(wall.bounds.size[1]).toBeLessThan(2.4);
   expect(wall.bounds.min[1], "above the baseboard").toBeGreaterThanOrEqual(0.09);
@@ -35,9 +38,9 @@ test("grasscloth covers the right-hand wall behind the counter, clear of the pai
   expect(wall.bounds.min[2], "from the back wall").toBeGreaterThanOrEqual(-2.34);
   expect(wall.seamMetres, "one wallpaper roll width").toBeCloseTo(0.69, 2);
   expect(wall.repeat[0] * wall.seamMetres, "tiles span the panel width").toBeCloseTo(wall.bounds.size[2], 2);
-  // Main 261fbc4: 39,105 vertices / 96 meshes -> 41,132 / 99; this PR adds 2,498 vertices and 3 merged meshes.
-  expect(info.meshes - 96, "three merged living-detail meshes, the lemon tree leaf cards and the dish dryer frame and face over the current main baseline").toBe(6);
-  expect(info.vertices - 39105, "the living-detail groups add 2,335 vertices; the dish dryer adds 176 and the removed upper-door handles save 484: net 2,027 over the 39,105 baseline").toBe(2027);
+  // Main 261fbc4: 39,105 vertices / 96 meshes -> 42,612 / 99; this PR adds 2,498 vertices and 3 merged meshes.
+  expect(info.meshes - 96, "three merged living-detail meshes, the lemon tree leaf cards and the dish dryer frame and face, and the credenza mesh over the current main baseline").toBe(7);
+  expect(info.vertices - 39105, "the living-detail groups add 2,335 vertices; the dish dryer adds 176 and the removed upper-door handles save 484: net 2,027, plus the credenza 1,480: 3,507 over the 39,105 baseline").toBe(3507);
   if (QA) {
     await page.evaluate(() => window.__room03.setView(270 * Math.PI / 180));
     await page.locator(".room").screenshot({ path: `${QA}/wallpaper-1440-270.png` });
@@ -55,7 +58,7 @@ for (const width of [1440, 390]) {
       await page.waitForFunction((name) => window.__room03.info().wallpaper.choice === name, option);
       const info = await page.evaluate(() => window.__room03.info());
       expect(info.wallpaper.visible, `${option}: visible only when a wallpaper is chosen`).toBe(option !== "none");
-      expect(info.vertices, `${option}: geometry does not change with the choice`).toBe(41132);
+      expect(info.vertices, `${option}: geometry does not change with the choice`).toBe(42612);
       colours[option] = info.wallpaper.color;
       expect(await page.locator(`#swapGroups button[data-frame="wallpaper"][aria-pressed="true"]`).getAttribute("data-art")).toBe(option);
     }

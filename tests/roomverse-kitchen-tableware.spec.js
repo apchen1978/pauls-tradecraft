@@ -7,16 +7,16 @@ if (QA) mkdirSync(QA, { recursive: true });
 
 const MOODS = ["golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
 const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
-// Old main 39,105/96 -> 41,132/99 after the living-detail batches (+2,498 vertices, +3 meshes, +1 opening call).
+// Old main 39,105/96 -> 42,612/99 after the living-detail batches (+2,498 vertices, +3 meshes, +1 opening call).
 const BASELINE_BY_WIDTH_AND_MOOD = {
   // Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and saves one opening call.
   // Desktop draw calls 70 -> 67 (-3) in every mood: the gas hob replaces four separate steel ring meshes with parts of the existing batches.
   // Same-test-sequence opening calls: desktop main 67 -> 68; phone main 69 -> 70.
   // Dish dryer frame + face are in the opening view: +2 meshes, +2 opening calls (desktop).
-  1440: { golden: [41132, 102, 70], movie: [41132, 102, 68], night: [41132, 102, 70], dinner: [41132, 102, 70], sunday: [41132, 102, 70], thanksgiving: [41132, 102, 70] },
+  1440: { golden: [42612, 103, 71], movie: [42612, 103, 69], night: [42612, 103, 71], dinner: [42612, 103, 71], sunday: [42612, 103, 71], thanksgiving: [42612, 103, 71] }, // credenza: +1 desktop call
   // Phone opening calls: main 69 -> 70; later camera turns are measured separately.
   // Tableware deltas are measured from the new main-plus-living-details baseline.
-  390: { golden: [41132, 102, 72], movie: [41132, 102, 70], night: [41132, 102, 72], dinner: [41132, 102, 72], sunday: [41132, 102, 72], thanksgiving: [41132, 102, 72] },
+  390: { golden: [42612, 103, 72], movie: [42612, 103, 70], night: [42612, 103, 72], dinner: [42612, 103, 72], sunday: [42612, 103, 72], thanksgiving: [42612, 103, 72] },
 };
 
 async function loadRoom(page, width) {
