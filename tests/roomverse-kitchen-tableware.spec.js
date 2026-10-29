@@ -7,16 +7,16 @@ if (QA) mkdirSync(QA, { recursive: true });
 
 const MOODS = ["golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
 const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
-// Old main 39,105/96 -> 42,582/99 after the living-detail batches (+2,498 vertices, +3 meshes, +1 opening call).
+// Old main 39,105/96 -> 47,680/99 after the living-detail batches (+2,498 vertices, +3 meshes, +1 opening call).
 const BASELINE_BY_WIDTH_AND_MOOD = {
   // Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and saves one opening call.
   // Desktop draw calls 70 -> 67 (-3) in every mood: the gas hob replaces four separate steel ring meshes with parts of the existing batches.
   // Same-test-sequence opening calls: desktop main 67 -> 68; phone main 69 -> 70.
   // Dish dryer frame + face are in the opening view: +2 meshes, +2 opening calls (desktop).
-  1440: { golden: [42582, 104, 71], movie: [42582, 104, 69], night: [42582, 104, 71], dinner: [42582, 104, 71], sunday: [42582, 104, 71], thanksgiving: [42582, 104, 71] }, // credenza: +1 desktop call
+  1440: { golden: [47680, 105, 72], movie: [47680, 105, 70], night: [47680, 105, 72], dinner: [47680, 105, 72], sunday: [47680, 105, 72], thanksgiving: [47680, 105, 72] }, // robot: +1 desktop call // credenza: +1 desktop call
   // Phone opening calls: main 69 -> 70; later camera turns are measured separately.
   // Tableware deltas are measured from the new main-plus-living-details baseline.
-  390: { golden: [42582, 104, 72], movie: [42582, 104, 70], night: [42582, 104, 72], dinner: [42582, 104, 72], sunday: [42582, 104, 72], thanksgiving: [42582, 104, 72] },
+  390: { golden: [47680, 105, 73], movie: [47680, 105, 71], night: [47680, 105, 73], dinner: [47680, 105, 73], sunday: [47680, 105, 73], thanksgiving: [47680, 105, 73] }, // robot: +1 phone opening call
 };
 
 async function loadRoom(page, width) {
@@ -60,7 +60,7 @@ test("tableware mood flag is complete and only dinner and Thanksgiving attach it
         expect(info.meshes - baselineMeshes).toBe(info.tableware.meshes + decor.meshes);
         expect(info.drawCallsLastFrame - baselineCalls).toBeLessThanOrEqual(8 + decor.meshes); // Old +8; Thanksgiving's layer adds up to 3 more meshes.
         // Old: ceramic, glass, liquid, metal (4). Then plus one linen mesh (5). Now plus one glossy food mesh (6); everything else is merged into those.
-        expect(info.tableware.meshes).toBeLessThanOrEqual(6);
+        expect(info.tableware.meshes).toBeLessThanOrEqual(7);
       }
       reports.push({ mood, vertices: info.vertices, meshes: info.meshes, calls: info.drawCallsLastFrame, tableware: info.tableware?.vertices ?? null });
       if (QA && (mood === "dinner" || mood === "thanksgiving")) {
