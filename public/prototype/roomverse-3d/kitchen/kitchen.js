@@ -2615,6 +2615,153 @@ function addRoom03Woodwork(scene, material, geometries) {
 // cabinet colour). It lines up with the wok run and stops 23 mm short of its counter; 45 cm deep and 81.5 cm high with an oak top, so the painting
 // keeps about 25 cm of air above it. Four doors with slim brass pulls on a recessed dark plinth. Muted terracotta complements the olive cabinets
 // without competing with the red Dutch oven.
+// The third ROOMVERSE robot (Paul 2026-10-29: every room has the little robot; this one gets its own colour). Same model as Rooms 01 and 02, recoloured
+// by height like Room 01: cream body with a lemon-yellow belt (Room 01 sage, its door robot terracotta). It stands beside the dining table where the first view sees it;
+// a tap makes it hop and the page shows a bubble with the way to the other rooms.
+function loadRoom03Robot(scene, onReady) {
+  // Beside the dining table on the counter side, in the opening view, turned a little toward the visitor (the hall spot was hidden behind the chairs).
+  const ROBOT = { x: 1.45, z: -0.95, height: 0.46, yaw: -0.45 }; // the model faces +z, so this turns it toward the opening camera
+  const pivot = new THREE.Group();
+  pivot.name = "room03-robot";
+  pivot.userData.category = "robot";
+  pivot.position.set(ROBOT.x, 0, ROBOT.z);
+  pivot.rotation.y = ROBOT.yaw;
+  scene.add(pivot);
+  const state = { pivot, ready: false, home: 0, hopUntil: 0, bounds: null };
+  new GLTFLoader().load(new URL("../models/robot.glb", import.meta.url).href, (gltf) => {
+    const model = gltf.scene;
+    model.updateMatrixWorld(true);
+    let box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const scale = ROBOT.height / size.y;
+    model.scale.setScalar(scale);
+    model.updateMatrixWorld(true);
+    box = new THREE.Box3().setFromObject(model);
+    const centre = box.getCenter(new THREE.Vector3());
+    model.position.set(-centre.x, -box.min.y, -centre.z);
+    pivot.add(model);
+    pivot.updateMatrixWorld(true);
+    // Face: a dark rounded screen with two warm eyes, fitted to the curve of the head exactly like Room 01 (the model has no face of its own).
+    // Measured with the pivot unturned, so the head's box is the model's own box (a turned box is wider and put the screen too wide and low).
+    pivot.rotation.y = 0; pivot.updateMatrixWorld(true);
+    {
+      const bodyBox = new THREE.Box3().setFromObject(model);
+      const toLocal = new THREE.Matrix4().copy(pivot.matrixWorld).invert();
+      const rH = bodyBox.max.y - bodyBox.min.y;
+      const local = bodyBox.clone().applyMatrix4(toLocal);
+      const rW = local.max.x - local.min.x, rcx = (local.min.x + local.max.x) / 2, fy = local.max.y - rH * 0.29;
+      const v = new THREE.Vector3();
+      const frontZ = (x, y) => {
+        let z = -Infinity;
+        model.traverse((mesh) => { if (!mesh.isMesh) return; const pos = mesh.geometry.attributes.position;
+          for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld).applyMatrix4(toLocal); if (Math.abs(v.x - x) < rW * 0.06 && Math.abs(v.y - y) < rH * 0.05) z = Math.max(z, v.z); } });
+        return z;
+      };
+      const fw = rW * 0.6, fh = rH * 0.25, zc = frontZ(rcx, fy), ze = frontZ(rcx + fw / 2, fy);
+      const bend = Number.isFinite(ze) && Number.isFinite(zc) ? (zc - ze) / ((fw / 2) ** 2) : 0;
+      let lift = 0;
+      for (const gx of [-0.45, -0.25, 0, 0.25, 0.45]) for (const gy of [-0.5, -0.25, 0, 0.25, 0.5]) {
+        const x = gx * fw, z = frontZ(rcx + x, fy + gy * fh);
+        if (Number.isFinite(z)) lift = Math.max(lift, z - (zc - bend * x * x));
+      }
+      const shape = new THREE.Shape(), rr = fh * 0.35;
+      shape.moveTo(-fw / 2 + rr, -fh / 2); shape.lineTo(fw / 2 - rr, -fh / 2); shape.quadraticCurveTo(fw / 2, -fh / 2, fw / 2, -fh / 2 + rr);
+      shape.lineTo(fw / 2, fh / 2 - rr); shape.quadraticCurveTo(fw / 2, fh / 2, fw / 2 - rr, fh / 2); shape.lineTo(-fw / 2 + rr, fh / 2);
+      shape.quadraticCurveTo(-fw / 2, fh / 2, -fw / 2, fh / 2 - rr); shape.lineTo(-fw / 2, -fh / 2 + rr); shape.quadraticCurveTo(-fw / 2, -fh / 2, -fw / 2 + rr, -fh / 2);
+      const screenGeometry = new THREE.ShapeGeometry(shape, 12);
+      { const q = screenGeometry.attributes.position; for (let i = 0; i < q.count; i++) q.setZ(i, -bend * q.getX(i) ** 2); screenGeometry.computeVertexNormals(); }
+      const face = new THREE.Mesh(screenGeometry, new THREE.MeshStandardMaterial({ color: 0x2b2d30, roughness: 0.35, metalness: 0.1 }));
+      face.name = "room03-robot-face";
+      face.position.set(rcx, fy, (Number.isFinite(zc) ? zc : local.max.z) + lift + 0.02); // 2 cm proud like Room 01: the head's front bump showed through at 6 mm
+      const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xffe2a8 });
+      for (const sx of [-1, 1]) {
+        const eye = new THREE.Mesh(new THREE.CircleGeometry(fh * 0.13, 20), eyeMaterial);
+        const ex = sx * fw * 0.2; eye.position.set(ex, fh * 0.05, -bend * ex * ex + 0.002); face.add(eye);
+      }
+      pivot.add(face);
+    }
+    pivot.rotation.y = ROBOT.yaw; pivot.updateMatrixWorld(true);
+    const cream = new THREE.Color("#ece6dc"), belt = new THREE.Color("#e3b23c");
+    const local = new THREE.Box3().setFromObject(model);
+    const v = new THREE.Vector3();
+    model.traverse((mesh) => {
+      if (!mesh.isMesh) return;
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      const colors = mesh.geometry.attributes.color;
+      if (!colors) return;
+      mesh.geometry = mesh.geometry.clone();
+      const c = mesh.geometry.attributes.color, p = mesh.geometry.attributes.position;
+      for (let i = 0; i < c.count; i++) {
+        v.fromBufferAttribute(p, i).applyMatrix4(mesh.matrixWorld);
+        const t = (v.y - local.min.y) / (local.max.y - local.min.y);
+        const col = t > 0.12 && t < 0.27 ? belt : cream;
+        c.setXYZ(i, col.r, col.g, col.b);
+      }
+      c.needsUpdate = true;
+      if (mesh.material) { mesh.material = mesh.material.clone(); mesh.material.vertexColors = true; }
+    });
+    // One mesh, one draw call: body, face screen and eyes are baked into pivot space and merged (they were four meshes, +4 opening calls).
+    {
+      const toPivot = new THREE.Matrix4().copy(pivot.matrixWorld).invert();
+      const parts = [];
+      // GLB attributes can be interleaved (not mergeable): copy position, normal and colour into plain attributes first.
+      const plain = (source) => {
+        const geometry = new THREE.BufferGeometry();
+        for (const [name, size] of [["position", 3], ["normal", 3], ["color", 3]]) {
+          const attribute = source.attributes[name];
+          if (!attribute) continue;
+          const array = new Float32Array(attribute.count * size);
+          for (let i = 0; i < attribute.count; i++) for (let k = 0; k < size; k++) array[i * size + k] = [attribute.getX, attribute.getY, attribute.getZ][k].call(attribute, i);
+          geometry.setAttribute(name, new THREE.BufferAttribute(array, size));
+        }
+        if (source.index) geometry.setIndex(Array.from(source.index.array));
+        return geometry;
+      };
+      const prepare = (source, matrix, fallbackColor) => {
+        const geometry = plain(source);
+        geometry.applyMatrix4(matrix);
+        if (geometry.attributes.uv) geometry.deleteAttribute("uv");
+        if (!geometry.attributes.normal) geometry.computeVertexNormals();
+        if (!geometry.attributes.color) {
+          const colors = new Float32Array(geometry.attributes.position.count * 3);
+          for (let i = 0; i < colors.length; i += 3) fallbackColor.toArray(colors, i);
+          geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+        }
+        if (!geometry.index) geometry.setIndex([...Array(geometry.attributes.position.count).keys()]);
+        parts.push(geometry);
+      };
+      model.updateMatrixWorld(true);
+      const bodyMeshes = [];
+      model.traverse((mesh) => { if (mesh.isMesh) bodyMeshes.push(mesh); });
+      for (const mesh of bodyMeshes) prepare(mesh.geometry.clone(), new THREE.Matrix4().multiplyMatrices(toPivot, mesh.matrixWorld), cream);
+      const face = pivot.getObjectByName("room03-robot-face");
+      if (face) {
+        face.updateMatrixWorld(true);
+        const faceToPivot = new THREE.Matrix4().multiplyMatrices(toPivot, face.matrixWorld);
+        prepare(face.geometry.clone(), faceToPivot, new THREE.Color(0x2b2d30));
+        for (const eye of [...face.children]) {
+          eye.updateMatrixWorld(true);
+          prepare(eye.geometry.clone(), new THREE.Matrix4().multiplyMatrices(toPivot, eye.matrixWorld), new THREE.Color(0xffe2a8));
+        }
+        pivot.remove(face);
+      }
+      pivot.remove(model);
+      const merged = mergeGeometries(parts, false);
+      parts.forEach((part) => part.dispose());
+      merged.computeVertexNormals();
+      const body = new THREE.Mesh(merged, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.5, metalness: 0 }));
+      body.name = "room03-robot-body"; body.userData.category = "robot";
+      body.castShadow = true; body.receiveShadow = true;
+      pivot.add(body);
+      pivot.userData.vertices = merged.attributes.position.count;
+    }
+    state.bounds = new THREE.Box3().setFromObject(pivot);
+    state.ready = true;
+    onReady();
+  }, undefined, () => { /* no robot if the model fails to load; the room still works */ });
+  return state;
+}
+
 function buildRightWallCredenza(scene, m) {
   const WALL_X = 2.94, Z_MIN = -0.80, Z_MAX = 1.00, DEPTH = 0.45, TOP_Y = 0.815, PLINTH = 0.08, TOP_T = 0.03;
   const length = Z_MAX - Z_MIN, zMid = (Z_MIN + Z_MAX) / 2, xBack = WALL_X - 0.002, xFront = xBack - DEPTH, xMid = (xBack + xFront) / 2;
@@ -4373,8 +4520,10 @@ export async function start({ stage, onReady = () => {} }) {
     renderer.setSize(rect.width, rect.height, false);
     render();
   }
+  const renderListeners = [];
   function render() {
     renderer.render(scene, camera);
+    for (const listener of renderListeners) listener();
     if (!firstFrameRendered) {
       firstFrameRendered = true;
       requestAnimationFrame(() => wallArt.load(({ settled, total }) => {
@@ -4391,6 +4540,33 @@ export async function start({ stage, onReady = () => {} }) {
   await furniture.ready;
   tablewareGroup = buildTableware(scene);
   thanksgivingGroup = buildThanksgivingDecor(scene);
+  const robot = loadRoom03Robot(scene, () => render());
+  // Screen rectangle of the robot for the page's tap target (null when it is behind the camera or off screen).
+  const robotScreen = () => {
+    if (!robot.ready) return null;
+    scene.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(robot.pivot);
+    const corners = [];
+    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) corners.push(new THREE.Vector3(x, y, z).project(camera));
+    if (corners.some((p) => p.z >= 1)) return null;
+    const xs = corners.map((p) => (p.x + 1) / 2 * stage.clientWidth), ys = corners.map((p) => (1 - p.y) / 2 * stage.clientHeight);
+    const rect = { left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys), bottom: Math.max(...ys) };
+    if (rect.right < 0 || rect.left > stage.clientWidth || rect.bottom < 0 || rect.top > stage.clientHeight) return null;
+    return rect;
+  };
+  // A small hop toward the camera when tapped (no motion if the visitor prefers reduced motion).
+  const robotHop = () => {
+    if (!robot.ready || matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    const started = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - started) / 420);
+      robot.pivot.position.y = Math.sin(k * Math.PI) * 0.06;
+      render();
+      if (k < 1) requestAnimationFrame(step); else { robot.pivot.position.y = 0; render(); }
+    };
+    requestAnimationFrame(step);
+    return true;
+  };
   moodSlots.tableware = tablewareGroup;
   setMood(currentMood);
   const samplePixels = (rect) => {
@@ -4942,6 +5118,8 @@ export async function start({ stage, onReady = () => {} }) {
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
+    robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
+    robotInfo: () => robot.ready ? (() => { const b = new THREE.Box3().setFromObject(robot.pivot); return { ready: true, heightMm: Number(((b.max.y - b.min.y) * 1000).toFixed(1)), floorGapMm: Number((b.min.y * 1000).toFixed(1)), centre: [Number(((b.min.x + b.max.x) / 2).toFixed(3)), Number(((b.min.z + b.max.z) / 2).toFixed(3))], belt: "#e3b23c" }; })() : { ready: false },
     wallpaperOptions: () => [...grasscloth.options],
     setWallpaper: (name) => { const done = grasscloth.set(name); render(); return done; },
     yardViews: () => ["auto", ...Object.keys(YARD_VIEWS)],

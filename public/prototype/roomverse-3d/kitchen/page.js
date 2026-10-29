@@ -1,10 +1,10 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=68";
+import { start, ROOM_TITLE } from "./kitchen.js?v=69";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
     lead: "灣區中世紀現代風的開放廚房與餐區。拖曳畫面，從室內看看木樑、玻璃門與小院。",
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
-    otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
+    otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", robotLabel: "廚房小機器人：點我看要去哪個房間", robotLine: "我是廚房的小幫手。想去哪個房間？", robotToLiving: "← 客廳 Room 01", robotToBedroom: "臥室 Room 02 →", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
     center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", swapsLabel: "換搭配",
     swaps: {
@@ -27,7 +27,7 @@ const COPY = {
     title: ROOM_TITLE,
     lead: "An open kitchen and dining room inspired by Bay Area mid-century modern homes. Drag to look around the timber beams, glass doors and small garden.",
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
-    otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
+    otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", robotLabel: "Kitchen robot: tap to choose another room", robotLine: "I look after the kitchen. Where would you like to go?", robotToLiving: "← Living room, Room 01", robotToBedroom: "Bedroom, Room 02 →", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
     center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", swapsLabel: "Swap the look",
     swaps: {
@@ -234,9 +234,47 @@ $("lang").addEventListener("click", () => {
 
 renderCopy();
 $("status").textContent = COPY[lang].loading;
+// The robot's tap target and bubble float over the 3D view and follow the robot on screen.
+const robotHit = document.createElement("button");
+robotHit.type = "button"; robotHit.id = "robotHit"; robotHit.className = "robot-hit"; robotHit.hidden = true;
+const robotBubble = document.createElement("div");
+robotBubble.id = "robotBubble"; robotBubble.className = "robot-bubble"; robotBubble.hidden = true; robotBubble.setAttribute("role", "dialog");
+robotBubble.innerHTML = '<p data-robot-line></p><div class="robot-links"><a data-robot-living></a><a data-robot-bedroom></a></div>';
+$("stage").parentElement.append(robotHit, robotBubble);
+let robotBubbleTimer = 0;
+function roomUrl(path) { const url = new URL(path, location.href); url.searchParams.set("lang", lang === "en" ? "en" : "zh"); return url.href; }
+function renderRobotCopy() {
+  const copy = COPY[lang];
+  robotHit.setAttribute("aria-label", copy.robotLabel);
+  robotBubble.querySelector("[data-robot-line]").textContent = copy.robotLine;
+  const living = robotBubble.querySelector("[data-robot-living]"), bedroom = robotBubble.querySelector("[data-robot-bedroom]");
+  living.textContent = copy.robotToLiving; living.href = roomUrl("../");
+  bedroom.textContent = copy.robotToBedroom; bedroom.href = roomUrl("../bedroom/");
+}
+function placeRobotUi() {
+  const rect = room?.robotScreen?.();
+  if (!rect) { robotHit.hidden = true; robotBubble.hidden = true; return; }
+  const width = Math.max(44, rect.right - rect.left), height = Math.max(44, rect.bottom - rect.top);
+  robotHit.hidden = false;
+  Object.assign(robotHit.style, { left: `${rect.left + (rect.right - rect.left) / 2 - width / 2}px`, top: `${rect.top + (rect.bottom - rect.top) / 2 - height / 2}px`, width: `${width}px`, height: `${height}px` });
+  if (!robotBubble.hidden) Object.assign(robotBubble.style, { left: `${(rect.left + rect.right) / 2}px`, top: `${Math.max(8, rect.top - 10)}px` });
+}
+robotHit.addEventListener("click", () => {
+  room?.robotHop?.();
+  renderRobotCopy();
+  robotBubble.hidden = false;
+  placeRobotUi();
+  clearTimeout(robotBubbleTimer);
+  robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; }, 6000);
+});
+robotBubble.addEventListener("pointerenter", () => clearTimeout(robotBubbleTimer));
+robotBubble.addEventListener("focusin", () => clearTimeout(robotBubbleTimer));
+
 start({ stage: $("stage"), onReady: (instance) => {
   room = instance;
   window.__room03 = instance;
+  renderRobotCopy();
+  instance.onRender?.(placeRobotUi);
   $("status").hidden = true;
   $("immersiveEnter").hidden = false;
   $("centerView").hidden = false;
