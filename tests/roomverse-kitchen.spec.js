@@ -408,6 +408,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       }
       return { info: window.__room03.info(), samples };
     }, boxes);
+    // The shadow-softness and sample budgets below were set for the golden-hour look, so select it explicitly (the arrival mood is daylight now).
+    await page.evaluate(() => window.__room03.setMood("golden"));
+    await page.waitForTimeout(600);
     const golden = await measure();
     const floorLamp = golden.info.lamps["floor-reading-lamp"].bounds;
     console.log("Room 03 floor lamp bounds:", JSON.stringify({ current: floorLamp }));
@@ -555,7 +558,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.cameraTarget[1]).toBeCloseTo(1.50, 3); // Desktop target 1.48 -> 1.50: retain top margin.
     expect(info.cameraTarget[2]).toBeCloseTo(0.05, 3); // Desktop target 0 -> 0.05: frame the adjusted camera.
     expect(info.cameraFov).toBe(62);
-    expect(info.mood).toBe("golden");
+    expect(info.mood).toBe("daylight"); // daylight is the arrival mood (Paul 2026-10-30); golden hour is a choice
     expect(info.dimensions).toEqual({ width: 6, depth: 4.8, height: 2.7 });
     expect(info.vertices).toBeGreaterThan(3000);
     expect(info.vertices).toBeLessThanOrEqual(55000);

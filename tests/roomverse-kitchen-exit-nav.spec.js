@@ -67,9 +67,11 @@ test("fullscreen Tab stays in the room after mood selection preserves focus", as
   await openRoom(page);
   await page.locator("#immersiveEnter").click();
   await page.keyboard.press("Tab");
-  await expect(page.locator('#moods button[data-mood="golden"]')).toBeFocused();
+  await expect(page.locator('#moods button[data-mood="daylight"]')).toBeFocused(); // daylight is now the first mood button
   await page.keyboard.press("Enter");
-  await expect(page.locator('#moods button[data-mood="golden"]')).toBeFocused();
+  await expect(page.locator('#moods button[data-mood="daylight"]')).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator('#moods button[data-mood="golden"]')).toBeFocused(); // golden hour follows daylight
   await page.keyboard.press("Tab");
   // Old: the next mood was night. Movie night now sits between golden and night.
   await expect(page.locator('#moods button[data-mood="movie"]')).toBeFocused();

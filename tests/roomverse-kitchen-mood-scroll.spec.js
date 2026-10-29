@@ -11,7 +11,7 @@ for (const lang of ['zh', 'en']) {
     test(`full-screen selected mood remains visible after redraw (${lang}, ${width}px)`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 375 ? 667 : 780 });
       await page.goto(`${PAGE}?lang=${lang}`);
-      await page.waitForFunction(() => window.__room03 && document.querySelectorAll('#moods button').length === 6);
+      await page.waitForFunction(() => window.__room03 && document.querySelectorAll('#moods button').length === 7);
       await page.locator('#immersiveEnter').click();
       await expect(page.locator('.room')).toHaveClass(/is-immersive/);
 
