@@ -6,6 +6,9 @@ import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
+// The room's door (Paul 2026-10-30: every room has one; beside the cable-car painting on the right wall). A doorway is cut through the 120 mm wall
+// (face x 2.94), the wall panel and the skirting; leaf 0.85 x 2.04 m, hinged on the painting side, so the leaf opens into the room.
+const ROOM_DOOR = Object.freeze({ wallFaceX: 2.94, wallBackX: 3.06, zMid: -1.58, halfHole: 0.443, holeHeight: 2.07, casing: 0.06, leafWidth: 0.85, leafHeight: 2.04 });
 // Shared with Room 01 and Room 02: "Christ is the Head of this House", 5:2, about 76 × 30.4 cm.
 // The right pier of the entry front wall is the empty stretch beside the doorway. Its box is
 // centered at (2.05, 1.35, 2.4) with size (2.1, 2.7, 0.12), so the room-facing face is z = 2.34
@@ -395,18 +398,44 @@ function addShape(scene, geometry, material, category, position, rotation = null
   return mesh;
 }
 
+// Oak casing on the room face, a thin lining through the 120 mm wall and a threshold; they join the shared trim bucket, so they cost no draw call.
+const DOOR_CASE_T = 0.045, DOOR_LINING = 0.012, DOOR_LEAF_BOTTOM = 0.014;
+function doorFrameBoxes() {
+  const { wallFaceX: WF, wallBackX: WB, zMid, halfHole: H, holeHeight: HH, casing: C } = ROOM_DOOR;
+  const wallDepth = WB - WF, zOuterLow = zMid - H - C, zOuterHigh = zMid + H + C, strip = C + DOOR_LINING;
+  return [
+    [[DOOR_CASE_T, HH + C, strip], [WF - DOOR_CASE_T / 2, (HH + C) / 2, zOuterLow + strip / 2]],
+    [[DOOR_CASE_T, HH + C, strip], [WF - DOOR_CASE_T / 2, (HH + C) / 2, zOuterHigh - strip / 2]],
+    [[DOOR_CASE_T, strip, zOuterHigh - zOuterLow], [WF - DOOR_CASE_T / 2, HH - DOOR_LINING + strip / 2, zMid]],
+    [[wallDepth, HH, DOOR_LINING], [WF + wallDepth / 2, HH / 2, zMid - H + DOOR_LINING / 2]],
+    [[wallDepth, HH, DOOR_LINING], [WF + wallDepth / 2, HH / 2, zMid + H - DOOR_LINING / 2]],
+    [[wallDepth, DOOR_LINING, 2 * H], [WF + wallDepth / 2, HH - DOOR_LINING / 2, zMid]],
+    [[wallDepth, DOOR_LEAF_BOTTOM - 0.002, 2 * H - 2 * DOOR_LINING], [WF + wallDepth / 2, (DOOR_LEAF_BOTTOM - 0.002) / 2, zMid]],
+  ];
+}
 function buildArchitecture(b, m, scene, onYardLoad) {
   const hx = ROOM.width / 2, hz = ROOM.depth / 2, h = ROOM.height;
   addBox(b, "shell", m.floor, [ROOM.width, 0.14, ROOM.depth], [0, -0.07, 0]);
   addBox(b, "shell", m.wall, [ROOM.width, h, 0.12], [0, h / 2, -hz]);
-  // Solid right wall. The wok doorway used to be three boxes with a 0.55 m hole; the run now sits against this face.
-  addBox(b, "shell", m.wall, [0.12, h, ROOM.depth], [hx, h / 2, 0]);
+  // Right wall with the room door cut through it: a full-height piece each side of the doorway and a lintel over it.
+  {
+    const zLow = ROOM_DOOR.zMid - ROOM_DOOR.halfHole, zHigh = ROOM_DOOR.zMid + ROOM_DOOR.halfHole;
+    addBox(b, "shell", m.wall, [0.12, h, zLow + hz], [hx, h / 2, (zLow - hz) / 2]);
+    addBox(b, "shell", m.wall, [0.12, h, hz - zHigh], [hx, h / 2, (zHigh + hz) / 2]);
+    addBox(b, "shell", m.wall, [0.12, h - ROOM_DOOR.holeHeight, zHigh - zLow], [hx, (h + ROOM_DOOR.holeHeight) / 2, ROOM_DOOR.zMid]);
+  }
   addBox(b, "shell", m.ceiling, [ROOM.width, 0.16, ROOM.depth], [0, 2.69, 0]);
 
   // Three exposed timber beams run from the glass wall into the kitchen.
   for (const x of [-2.05, 0, 2.05]) addBox(b, "structure", m.beam, [0.16, 0.18, 4.72], [x, 2.57, 0]);
   addBox(b, "trim", m.oak, [ROOM.width, 0.09, 0.08], [0, 0.1, -2.31]);
-  addBox(b, "trim", m.oak, [0.08, 0.09, ROOM.depth], [2.91, 0.1, 0]);
+  {
+    // Skirting on the right wall stops at the door casing on both sides.
+    const zLow = ROOM_DOOR.zMid - ROOM_DOOR.halfHole - ROOM_DOOR.casing, zHigh = ROOM_DOOR.zMid + ROOM_DOOR.halfHole + ROOM_DOOR.casing;
+    addBox(b, "trim", m.oak, [0.08, 0.09, zLow + hz], [2.91, 0.1, (zLow - hz) / 2]);
+    addBox(b, "trim", m.oak, [0.08, 0.09, hz - zHigh], [2.91, 0.1, (zHigh + hz) / 2]);
+    for (const [size, position] of doorFrameBoxes()) addBox(b, "trim", m.oak, size, position);
+  }
   // A simple fixed, slightly ajar multi-panel glass slider on the left wall.
   const wx = -2.91;
   addBox(b, "window-frames", m.black, [0.07, 2.28, 0.07], [wx, 1.22, -2.18]);
@@ -2263,9 +2292,20 @@ function makeGrasscloth(scene) {
   // short of the wok backsplash (z 0.983): Paul 2026-10-29, a half-papered wall read as unfinished.
   const PANEL = { x: 2.936, zMin: -2.30, zMax: 0.97, yMin: 0.10, yMax: 2.45 };
   const width = PANEL.zMax - PANEL.zMin, height = PANEL.yMax - PANEL.yMin;
-  texture.repeat.set(width / SEAM_WIDTH, height / SEAM_WIDTH);
   const material = new THREE.MeshStandardMaterial({ color: 0xf9efd5, roughness: 0.96, map: texture });
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+  // The panel is one mesh of three pieces around the doorway (beside the cable-car painting). UVs run in seam widths from the panel's low corner,
+  // so the weave and the 69 cm seams carry on across the gap exactly as they did on the single plane.
+  const doorLow = ROOM_DOOR.zMid - ROOM_DOOR.halfHole, doorHigh = ROOM_DOOR.zMid + ROOM_DOOR.halfHole;
+  const pieces = [[PANEL.zMin, doorLow, PANEL.yMin, PANEL.yMax], [doorHigh, PANEL.zMax, PANEL.yMin, PANEL.yMax], [doorLow, doorHigh, ROOM_DOOR.holeHeight, PANEL.yMax]].map(([z0, z1, y0, y1]) => {
+    const piece = new THREE.PlaneGeometry(z1 - z0, y1 - y0);
+    piece.translate((z0 + z1) / 2 - (PANEL.zMin + PANEL.zMax) / 2, (y0 + y1) / 2 - (PANEL.yMin + PANEL.yMax) / 2, 0);
+    const uv = piece.attributes.uv, position = piece.attributes.position;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, (position.getX(i) + width / 2) / SEAM_WIDTH, (position.getY(i) + height / 2) / SEAM_WIDTH);
+    return piece;
+  });
+  const panelGeometry = mergeGeometries(pieces, false);
+  pieces.forEach((piece) => piece.dispose());
+  const mesh = new THREE.Mesh(panelGeometry, material);
   mesh.name = "room03-grasscloth-wallpaper";
   mesh.userData.category = "wall-covering";
   mesh.rotation.y = -Math.PI / 2;
@@ -2289,7 +2329,7 @@ function makeGrasscloth(scene) {
       const box = new THREE.Box3().setFromObject(mesh);
       return {
         choice, visible: mesh.visible, color: `#${material.color.getHexString()}`, seamMetres: SEAM_WIDTH,
-        repeat: texture.repeat.toArray(), vertices: mesh.geometry.attributes.position.count,
+        repeat: [width / SEAM_WIDTH, height / SEAM_WIDTH], vertices: mesh.geometry.attributes.position.count,
         bounds: { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() },
       };
     },
@@ -2760,6 +2800,131 @@ function loadRoom03Robot(scene, onReady) {
     onReady();
   }, undefined, () => { /* no robot if the model fails to load; the room still works */ });
   return state;
+}
+
+// The room door (Paul 2026-10-30, drawn by Codex: deep olive leaf, oak casing, brass lever, one narrow frosted slot, hinges on the painting side).
+// Three meshes: the oak frame, the leaf (olive, frosted glass and brass as vertex colours, one mesh) and a soft light panel in the doorway so
+// the opening reads as a passage to the other rooms. The leaf turns about its hinge edge; the light panel follows the mood like the paintings.
+function buildRoomDoor(scene, m) {
+  const { wallFaceX: WF, wallBackX: WB, zMid, halfHole: H, holeHeight: HH, casing: C, leafWidth: LW, leafHeight: LH } = ROOM_DOOR;
+  const LEAF_T = 0.04;
+  const group = new THREE.Group();
+  group.name = "room03-door";
+  group.userData.category = "door";
+  const place = (geometry, position) => { geometry.translate(...position); return geometry; };
+  const box = (sx, sy, sz, x, y, z) => place(new THREE.BoxGeometry(sx, sy, sz), [x, y, z]);
+  const mergeAll = (parts) => { const geometry = mergeGeometries(parts, false); parts.forEach((part) => part.dispose()); geometry.computeVertexNormals(); return geometry; };
+
+  // The oak frame is built with the architecture (doorFrameBoxes); only its bounds are needed here.
+  const wallDepth = WB - WF, LINING = DOOR_LINING, LEAF_BOTTOM = DOOR_LEAF_BOTTOM;
+  const frameBox = new THREE.Box3(new THREE.Vector3(WF - DOOR_CASE_T, 0, zMid - H - C), new THREE.Vector3(WB, HH + C, zMid + H + C));
+
+  // Leaf, in pivot space: the hinge edge is the origin and the leaf runs toward -z; +x points into the room's wall, so the room face is at -x.
+  const pivot = new THREE.Group();
+  pivot.name = "room03-door-leaf";
+  pivot.userData.category = "door";
+  const HINGE_Z = zMid + LW / 2, LEAF_X = (WF + WB) / 2;
+  pivot.position.set(LEAF_X, 0, HINGE_Z);
+  const colour = (geometry, hex) => {
+    const tint = new THREE.Color(hex), colors = new Float32Array(geometry.attributes.position.count * 3);
+    for (let i = 0; i < geometry.attributes.position.count; i++) tint.toArray(colors, i * 3);
+    geometry.deleteAttribute("uv");
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    return geometry;
+  };
+  const OLIVE = 0x566339, GLASS = 0xe2dccb, BRASS = 0xb08d4e;
+  const top = LEAF_BOTTOM + LH, slotLow = 0.30, slotHigh = 1.80, stile = 0.15, slotW = 0.12;
+  const leafBox = (z0, z1, y0, y1, hex) => colour(box(LEAF_T, y1 - y0, z1 - z0, 0, (y0 + y1) / 2, (z0 + z1) / 2), hex);
+  const parts = [
+    leafBox(-LW, -LW + stile, LEAF_BOTTOM, top, OLIVE),
+    leafBox(-LW + stile + slotW, 0, LEAF_BOTTOM, top, OLIVE),
+    leafBox(-LW + stile, -LW + stile + slotW, LEAF_BOTTOM, slotLow, OLIVE),
+    leafBox(-LW + stile, -LW + stile + slotW, slotHigh, top, OLIVE),
+    colour(box(0.012, slotHigh - slotLow, slotW, 0, (slotLow + slotHigh) / 2, -LW + stile + slotW / 2), GLASS),
+  ];
+  const leverZ = -LW + stile / 2, leverY = 1.0;
+  for (const side of [-1, 1]) {
+    const rose = new THREE.CylinderGeometry(0.028, 0.028, 0.012, 14);
+    rose.rotateZ(Math.PI / 2);
+    parts.push(colour(place(rose, [side * (LEAF_T / 2 + 0.006), leverY, leverZ]), BRASS));
+    parts.push(colour(box(0.014, 0.018, 0.115, side * (LEAF_T / 2 + 0.019), leverY, leverZ + 0.0475), BRASS));
+  }
+  for (const y of [0.25, 1.0, 1.8]) {
+    const knuckle = new THREE.CylinderGeometry(0.011, 0.011, 0.10, 8);
+    parts.push(colour(place(knuckle, [-LEAF_T / 2 + 0.004, y, -0.004]), BRASS));
+  }
+  const leafGeometry = mergeAll(parts);
+  const leafMesh = new THREE.Mesh(leafGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.82, metalness: 0.0 }));
+  leafMesh.name = "room03-door-leaf-mesh"; leafMesh.userData.category = "door";
+  leafMesh.castShadow = true; leafMesh.receiveShadow = true;
+  pivot.add(leafMesh);
+  group.add(pivot);
+
+  // Light in the doorway: a soft warm panel just inside the back face of the wall (no download, drawn on a small canvas).
+  const canvas = document.createElement("canvas");
+  canvas.width = 64; canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createLinearGradient(0, 0, 0, 256);
+  gradient.addColorStop(0, "#fff1d4"); gradient.addColorStop(0.55, "#f6dfb4"); gradient.addColorStop(1, "#e9c98f");
+  ctx.fillStyle = gradient; ctx.fillRect(0, 0, 64, 256);
+  const side = ctx.createLinearGradient(0, 0, 64, 0);
+  side.addColorStop(0, "rgba(120,90,50,0.28)"); side.addColorStop(0.2, "rgba(120,90,50,0)"); side.addColorStop(0.8, "rgba(120,90,50,0)"); side.addColorStop(1, "rgba(120,90,50,0.28)");
+  ctx.fillStyle = side; ctx.fillRect(0, 0, 64, 256);
+  const lightTexture = new THREE.CanvasTexture(canvas);
+  lightTexture.colorSpace = THREE.SRGBColorSpace;
+  const lightMaterial = new THREE.MeshBasicMaterial({ map: lightTexture, color: 0xffffff });
+  const light = new THREE.Mesh(new THREE.PlaneGeometry(2 * H, HH), lightMaterial);
+  light.name = "room03-door-light"; light.userData.category = "door";
+  light.rotation.y = -Math.PI / 2;
+  light.position.set(WB - 0.002, HH / 2, zMid);
+  group.add(light);
+  light.visible = false; // the closed leaf hides it, so it costs no draw call until the door opens
+  scene.add(group);
+
+  const OPEN_ANGLE = 70 * Math.PI / 180;
+  const state = { angle: 0, target: 0, animating: false };
+  const apply = (angle) => { state.angle = angle; pivot.rotation.y = angle; light.visible = angle > 0.001; pivot.updateMatrixWorld(true); };
+  const mm = (v) => Number((v * 1000).toFixed(1));
+  const vertexCount = () => leafGeometry.attributes.position.count + light.geometry.attributes.position.count;
+  return {
+    group, leafMesh, light, pivot, vertices: vertexCount(),
+    setMoodLight: (rgb) => lightMaterial.color.setRGB(...rgb),
+    isOpen: () => state.target > 0,
+    // Opens or closes the leaf; with animate false (or reduced motion) the leaf jumps to its end position. Returns false if nothing changed.
+    set(open, animate, render) {
+      const target = open ? OPEN_ANGLE : 0;
+      if (state.target === target) return false;
+      state.target = target;
+      if (!animate || matchMedia("(prefers-reduced-motion: reduce)").matches) { apply(target); render(); return true; }
+      const from = state.angle, started = performance.now();
+      state.animating = true;
+      const step = (now) => {
+        if (state.target !== target) return;
+        const k = Math.min(1, (now - started) / 450), eased = k * k * (3 - 2 * k);
+        apply(from + (target - from) * eased);
+        render();
+        if (k < 1) requestAnimationFrame(step); else state.animating = false;
+      };
+      requestAnimationFrame(step);
+      return true;
+    },
+    bounds: () => { scene.updateMatrixWorld(true); return new THREE.Box3().setFromObject(leafMesh).union(frameBox); },
+    leafBounds: () => { scene.updateMatrixWorld(true); return new THREE.Box3().setFromObject(leafMesh); },
+    info: () => {
+      scene.updateMatrixWorld(true);
+      const leafBox3 = new THREE.Box3().setFromObject(leafMesh);
+      return {
+        open: state.target > 0, angleDeg: Number((state.angle * 180 / Math.PI).toFixed(1)),
+        leafWidthMm: mm(LW), leafHeightMm: mm(LH), leafThicknessMm: mm(LEAF_T), hingeSide: "painting (z max)",
+        clearOpeningMm: [mm(2 * H - 2 * LINING), mm(HH - LINING - LEAF_BOTTOM + 0.002)],
+        sideGapMm: mm((2 * H - 2 * LINING - LW) / 2), floorGapMm: mm(LEAF_BOTTOM),
+        casingMm: mm(C), wallDepthMm: mm(wallDepth), colour: "#566339", frameColour: "oak",
+        frameBounds: { min: frameBox.min.toArray(), max: frameBox.max.toArray() },
+        leafBounds: { min: leafBox3.min.toArray(), max: leafBox3.max.toArray() },
+        meshes: 2, vertices: vertexCount(), frameBoxes: doorFrameBoxes().length,
+      };
+    },
+  };
 }
 
 function buildRightWallCredenza(scene, m) {
@@ -4109,7 +4274,7 @@ export async function start({ stage, onReady = () => {} }) {
   const mediaUnit = buildRoom03MediaUnit(scene, materials, woodGeometries);
   const mediaWoodwork = addRoom03Woodwork(scene, materials.oak, woodGeometries);
   const moodSlots = { screen: mediaUnit.screen, tabletopCenterpiece: scene.getObjectByName("mood-slot-tabletop-centerpiece"), tableware: null };
-  let tablewareGroup = null, thanksgivingGroup = null;
+  let tablewareGroup = null, thanksgivingGroup = null, roomDoor = null;
   assemble(buckets, scene);
   const sunTarget = new THREE.Object3D(); sunTarget.position.set(0, 0, 0); scene.add(sunTarget);
   const sun = new THREE.DirectionalLight(0xffd6a1, 2.4); sun.position.set(-4.2, 1.2, 3.6); sun.target = sunTarget; sun.castShadow = true;
@@ -4446,6 +4611,7 @@ export async function start({ stage, onReady = () => {} }) {
     // The two framed paintings are unlit (accurate colour), so by day and night they looked identical and read as windows (Paul 2026-10-29).
     // Dim and warm them with the mood like the wall around them.
     wallArt.material.color.setRGB(...look.artLight);
+    roomDoor?.setMoodLight(look.artLight);
     materials.opal.emissiveIntensity = look.globe;
     scene.traverse((object) => {
       if (!object.isMesh) return;
@@ -4541,6 +4707,19 @@ export async function start({ stage, onReady = () => {} }) {
   tablewareGroup = buildTableware(scene);
   thanksgivingGroup = buildThanksgivingDecor(scene);
   const robot = loadRoom03Robot(scene, () => render());
+  roomDoor = buildRoomDoor(scene, materials);
+  roomDoor.setMoodLight(MOOD_LOOK[currentMood].artLight);
+  // Screen rectangle of the doorway (frame and, once open, the leaf) for the page's tap target.
+  const doorScreen = () => {
+    const box = roomDoor.bounds();
+    const corners = [];
+    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) corners.push(new THREE.Vector3(x, y, z).project(camera));
+    if (corners.some((p) => p.z >= 1)) return null;
+    const xs = corners.map((p) => (p.x + 1) / 2 * stage.clientWidth), ys = corners.map((p) => (1 - p.y) / 2 * stage.clientHeight);
+    const rect = { left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys), bottom: Math.max(...ys) };
+    if (rect.right < 0 || rect.left > stage.clientWidth || rect.bottom < 0 || rect.top > stage.clientHeight) return null;
+    return rect;
+  };
   // Screen rectangle of the robot for the page's tap target (null when it is behind the camera or off screen).
   const robotScreen = () => {
     if (!robot.ready) return null;
@@ -5118,6 +5297,7 @@ export async function start({ stage, onReady = () => {} }) {
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
+    doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
     robotInfo: () => robot.ready ? (() => { const b = new THREE.Box3().setFromObject(robot.pivot); return { ready: true, heightMm: Number(((b.max.y - b.min.y) * 1000).toFixed(1)), floorGapMm: Number((b.min.y * 1000).toFixed(1)), centre: [Number(((b.min.x + b.max.x) / 2).toFixed(3)), Number(((b.min.z + b.max.z) / 2).toFixed(3))], belt: "#e3b23c" }; })() : { ready: false },
     wallpaperOptions: () => [...grasscloth.options],

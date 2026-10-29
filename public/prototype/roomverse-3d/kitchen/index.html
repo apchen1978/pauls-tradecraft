@@ -73,6 +73,7 @@
     .immersive-other-rooms { display:none; }
     .room.is-immersive .immersive-other-rooms { display:inline-flex; position:absolute; z-index:5; top:calc(8px + env(safe-area-inset-top)); right:calc(8px + env(safe-area-inset-right)); background:#29352de8; border-color:#fff9; color:#fff; }
     .robot-hit { position:absolute; z-index:4; background:transparent; border:0; border-radius:40%; cursor:pointer; padding:0; }
+    .door-hit { border-radius:6px; }
     .robot-hit:focus-visible { outline:3px solid #e3b23c; outline-offset:2px; }
     .robot-bubble { position:absolute; z-index:5; transform:translate(-50%,-100%); max-width:260px; background:#fffaf0; color:#2f3529; border-radius:14px; padding:10px 12px; box-shadow:0 10px 26px #2b241a33; font-size:14px; line-height:1.45; }
     .robot-bubble p { margin:0 0 8px; }
@@ -111,6 +112,6 @@
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=70"></script>
+  <script type="module" src="page.js?v=71"></script>
 </body>
 </html>

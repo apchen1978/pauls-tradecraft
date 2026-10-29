@@ -13,10 +13,10 @@ const BASELINE_BY_WIDTH_AND_MOOD = {
   // Desktop draw calls 70 -> 67 (-3) in every mood: the gas hob replaces four separate steel ring meshes with parts of the existing batches.
   // Same-test-sequence opening calls: desktop main 67 -> 68; phone main 69 -> 70.
   // Dish dryer frame + face are in the opening view: +2 meshes, +2 opening calls (desktop).
-  1440: { golden: [47680, 105, 72], movie: [47680, 105, 70], night: [47680, 105, 72], dinner: [47680, 105, 72], sunday: [47680, 105, 72], thanksgiving: [47680, 105, 72] }, // robot: +1 desktop call // credenza: +1 desktop call
+  1440: { golden: [50368, 107, 73], movie: [50368, 107, 71], night: [50368, 107, 73], dinner: [50368, 107, 73], sunday: [50368, 107, 73], thanksgiving: [50368, 107, 73] }, // robot: +1 desktop call // credenza: +1 desktop call // door: +1 desktop call (the leaf is in the opening view)
   // Phone opening calls: main 69 -> 70; later camera turns are measured separately.
   // Tableware deltas are measured from the new main-plus-living-details baseline.
-  390: { golden: [47680, 105, 73], movie: [47680, 105, 71], night: [47680, 105, 73], dinner: [47680, 105, 73], sunday: [47680, 105, 73], thanksgiving: [47680, 105, 73] }, // robot: +1 phone opening call
+  390: { golden: [50368, 107, 74], movie: [50368, 107, 72], night: [50368, 107, 74], dinner: [50368, 107, 74], sunday: [50368, 107, 74], thanksgiving: [50368, 107, 74] }, // robot: +1 phone opening call // door: +1 phone opening call
 };
 
 async function loadRoom(page, width) {
