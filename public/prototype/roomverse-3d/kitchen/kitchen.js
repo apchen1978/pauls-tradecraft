@@ -558,30 +558,65 @@ function buildSideKitchen(b, m, scene) {
     new THREE.Vector2(0.152, 0.108), new THREE.Vector2(0.105, 0.055), new THREE.Vector2(0.04, 0.032), new THREE.Vector2(0, 0.03),
   ];
   addSideMesh(new THREE.LatheGeometry(wokProfile, 24), m.wokIron, "wok-kitchen-wok", [cookX, counterY + 0.07, cookZ]);
-  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.016, 0.22, 10), m.oak);
-  wokHandle.rotation.z = Math.PI / 2; wokHandle.position.set(cookX - 0.16, counterY + 0.15, cookZ); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
+  // Long wooden handle tapering toward the grip and rising 8 degrees (it was a short level rod); the pan also gets a helper loop opposite it.
+  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.017, 0.30, 10), m.oak);
+  wokHandle.rotation.z = Math.PI / 2 - 0.15; wokHandle.position.set(cookX - 0.323, counterY + 0.182, cookZ); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
   b.get(`shapes:${m.oak.uuid}`) ?? b.set(`shapes:${m.oak.uuid}`, { category: "side-kitchen", material: m.oak, geometries: [], meshes: [] }); b.get(`shapes:${m.oak.uuid}`).meshes.push(wokHandle);
 
   // Past the hood's +Z edge so the shelf, bottle and rail read from the room, not inside the canopy.
   const shelfZ = 2.14;
   const shelfTop = 1.4325;
   addBox(b, "side-kitchen", m.oak, [0.16, 0.025, 0.32], [wallFaceX - 0.078, 1.42, shelfZ]);
+  // Two L brackets carry the shelf: a plate on the wall and an arm under the board (it hung in the air before).
+  for (const dz of [-0.11, 0.11]) {
+    addBox(b, "side-kitchen", m.black, [0.008, 0.075, 0.014], [wallFaceX - 0.004, 1.3725, shelfZ + dz]);
+    addBox(b, "side-kitchen", m.black, [0.13, 0.01, 0.014], [wallFaceX - 0.073, 1.4075 - 0.005, shelfZ + dz]);
+  }
   // The bottle shares the wok iron mesh. A separate mesh would spend the draw call the tile needs.
   const wokMesh = [...(b.get(`shapes:${m.wokIron.uuid}`)?.meshes || [])].find((mesh) => mesh.name === "wok-kitchen-wok");
-  const oilGeo = new THREE.CylinderGeometry(0.032, 0.04, 0.13, 10);
-  oilGeo.translate(wallFaceX - 0.15 - cookX, shelfTop + 0.065 - (counterY + 0.07), shelfZ - 0.06 - cookZ);
-  const wokWithOil = mergeGeometries([wokMesh.geometry, oilGeo], false);
+  // Oil bottle with a shoulder, neck and stopper instead of a plain cylinder (same dark mesh, same position).
+  const oilGeo = new THREE.LatheGeometry([[0, 0], [0.036, 0], [0.04, 0.012], [0.041, 0.07], [0.036, 0.095], [0.016, 0.115], [0.014, 0.14], [0.017, 0.147], [0, 0.147]].map(([x, y]) => new THREE.Vector2(x, y)), 12);
+  oilGeo.translate(wallFaceX - 0.15 - cookX, shelfTop - (counterY + 0.07), shelfZ - 0.06 - cookZ);
+  // The wok's helper loop on the side away from the handle, in the same iron mesh.
+  const earGeo = new THREE.TorusGeometry(0.03, 0.0065, 5, 10, Math.PI);
+  earGeo.rotateZ(-Math.PI / 2);
+  earGeo.translate(0.184, 0.115, 0);
+  const wokWithOil = mergeGeometries([wokMesh.geometry, oilGeo, earGeo], false);
   oilGeo.dispose();
+  earGeo.dispose();
   wokMesh.geometry.dispose();
   wokMesh.geometry = wokWithOil;
-  addBox(b, "side-kitchen", m.black, [0.012, 0.012, 0.24], [wallFaceX - 0.02, 1.36, shelfZ + 0.04]);
-  const spatulaA = new THREE.CylinderGeometry(0.007, 0.009, 0.19, 6);
-  spatulaA.translate(0, 0, 0);
-  const spatulaB = new THREE.CylinderGeometry(0.006, 0.008, 0.17, 6);
-  spatulaB.translate(0, -0.01, 0.16);
-  const spatulas = mergeGeometries([spatulaA, spatulaB], false);
-  spatulaA.dispose(); spatulaB.dispose();
-  addSideMesh(spatulas, m.black, "wok-kitchen-spatula", [wallFaceX - 0.08, 1.30, shelfZ], [0.35, 0, 0.08]);
+  // Rail on two wall brackets with three tools hanging from S-hooks: a ladle, a spatula and a skimmer, each with a real head. Before, a rail floated
+  // in the air with two bare sticks. The tools share the black mesh that already existed, so there is no extra draw call.
+  const railX = wallFaceX - 0.034, railY = 1.36, railZ = shelfZ + 0.04;
+  addBox(b, "side-kitchen", m.black, [0.012, 0.012, 0.26], [railX, railY, railZ]);
+  for (const dz of [-0.11, 0.11]) addBox(b, "side-kitchen", m.black, [0.026, 0.022, 0.012], [wallFaceX - 0.013, railY, railZ + dz]);
+  const toolParts = [];
+  const tool = (geometry, x, y, z, rotation = [0, 0, 0]) => {
+    geometry.rotateX(rotation[0]); geometry.rotateY(rotation[1]); geometry.rotateZ(rotation[2]);
+    geometry.translate(x, y, z);
+    toolParts.push(geometry);
+  };
+  [-0.085, 0, 0.085].forEach((dz, index) => {
+    const z = railZ + dz;
+    tool(new THREE.TorusGeometry(0.008, 0.0016, 5, 10, Math.PI * 1.5), railX, railY - 0.004, z, [0, Math.PI / 2, 0]);
+    const handleLength = [0.17, 0.19, 0.15][index];
+    tool(new THREE.CylinderGeometry(0.0055, 0.0065, handleLength, 7), railX, railY - 0.012 - handleLength / 2, z);
+    const headY = railY - 0.012 - handleLength;
+    if (index === 0) {
+      const bowl = new THREE.SphereGeometry(0.03, 9, 7);
+      bowl.scale(0.5, 1, 1);
+      tool(bowl, railX, headY - 0.02, z);
+    } else if (index === 1) {
+      tool(new THREE.BoxGeometry(0.004, 0.075, 0.052), railX, headY - 0.036, z);
+    } else {
+      tool(new THREE.TorusGeometry(0.03, 0.0035, 5, 14), railX, headY - 0.028, z, [0, Math.PI / 2, 0]);
+      tool(new THREE.CylinderGeometry(0.03, 0.03, 0.003, 14), railX, headY - 0.028, z, [0, 0, Math.PI / 2]);
+    }
+  });
+  const spatulas = mergeGeometries(toolParts, false);
+  toolParts.forEach((part) => part.dispose());
+  addSideMesh(spatulas, m.black, "wok-kitchen-spatula", [0, 0, 0]);
 
   // Backsplash meets the counter top and the hood underside. The open end overruns the counter
   // by 4 cm (the slack that still leaves 0.40 m to the cable-car frame). Each end gets a 13 cm

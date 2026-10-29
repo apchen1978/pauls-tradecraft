@@ -39,7 +39,7 @@ test("a 4:3 painting hangs on the entry wall above the window-side floor lamp, l
   // The picture shares the atlas: no new mesh, and the vertices added are the frame boxes and one image plane.
   // Old main after the lamp-wall painting: 30,877 vertices and 95 meshes -> 34,061 vertices and 94 meshes after countertop props and hardware batching; the painting itself still adds no mesh.
   expect(info.meshes).toBe(95);
-  expect(info.vertices).toBe(34061);
+  expect(info.vertices).toBe(36302);
   expect(info.wallArtLight, "lit like the other paintings").toBeTruthy();
   if (QA) {
     await page.evaluate(() => window.__room03.setView(Math.PI));

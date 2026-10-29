@@ -11,9 +11,9 @@ const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
 const BASELINE_BY_WIDTH_AND_MOOD = {
   // Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and saves one opening call.
   // Desktop draw calls +1 in every mood: the grasscloth wall is in the default desktop frame (phone unchanged).
-  1440: { golden: [34061, 95, 70], movie: [34061, 95, 68], night: [34061, 95, 70], dinner: [34061, 95, 72], sunday: [34061, 95, 70], thanksgiving: [34061, 95, 72] },
+  1440: { golden: [36302, 95, 70], movie: [36302, 95, 68], night: [36302, 95, 70], dinner: [36302, 95, 72], sunday: [36302, 95, 70], thanksgiving: [36302, 95, 72] },
   // Phone default frame sees the grasscloth wall too: +1 in every mood.
-  390: { golden: [34061, 95, 72], movie: [34061, 95, 70], night: [34061, 95, 72], dinner: [34061, 95, 74], sunday: [34061, 95, 72], thanksgiving: [34061, 95, 74] },
+  390: { golden: [36302, 95, 72], movie: [36302, 95, 70], night: [36302, 95, 72], dinner: [36302, 95, 74], sunday: [36302, 95, 72], thanksgiving: [36302, 95, 74] },
 };
 
 async function loadRoom(page, width) {
