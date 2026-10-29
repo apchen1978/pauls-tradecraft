@@ -33,8 +33,15 @@ export function renderOnePagerHtml(data, locale = "zh") {
     : '"Geist Variable", "Segoe UI", "Helvetica Neue", Arial, sans-serif';
   const htmlLang = isCJK ? "zh-Hant" : "en";
 
+  // works stay plain strings (the parity gate reads them); workLinks[i] links the title before the first "—"
   const worksList = (data.works || [])
-    .map((w) => `<li>${esc(w)}</li>`)
+    .map((w, i) => {
+      const href = (data.workLinks || [])[i];
+      const cut = String(w).indexOf("—");
+      if (!href || cut < 0) return `<li>${esc(w)}</li>`;
+      const title = w.slice(0, cut).trimEnd();
+      return `<li><a class="work-title" href="${esc(href)}">${esc(title)}</a>${esc(w.slice(title.length))}</li>`;
+    })
     .join("");
   const worksSecondaryList = (data.worksSecondary || [])
     .map((w) => `<li>${esc(w)}</li>`)
@@ -69,61 +76,64 @@ export function renderOnePagerHtml(data, locale = "zh") {
 <head>
 <meta charset="utf-8">
 <style>
+  /* Colours follow the site palette B (src/index.css @theme): pine #142C29 is the dark surface,
+     #B89966 is goldOnDark (no third gold), #BDCDC3 / #A9BEB4 are body / meta text on pine. */
   @page { size: A4; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     width: 210mm; height: 297mm; overflow: hidden;
     font-family: ${fontStack};
-    background: #0B1B33; color: #fff; padding: 15mm 15mm 12mm;
+    background: #142C29; color: #F6F3ED; padding: 15mm 15mm 12mm;
     display: flex; flex-direction: column;
   }
   a { color: inherit; text-decoration: underline; text-underline-offset: 1.5pt; }
-  .topline { width: 100%; height: 2mm; background: #C9A227; margin-bottom: 7mm; }
-  .kicker { font-size: 9pt; letter-spacing: 2.5pt; color: #3B82F6; font-weight: 700; text-transform: uppercase; }
+  .topline { width: 100%; height: 2mm; background: #B89966; margin-bottom: 7mm; }
+  .kicker { font-size: 9pt; letter-spacing: 2.5pt; color: #B89966; font-weight: 700; text-transform: uppercase; }
   h1 { font-size: ${isCJK ? "20pt" : "16.5pt"}; line-height: 1.28; margin-top: 3.4mm; font-weight: 800; max-width: 180mm; }
-  .positioning { font-size: 10.5pt; font-weight: 700; color: #C9A227; margin-top: 2.4mm; letter-spacing: 0.3pt; }
-  .sub { font-size: 10.5pt; color: #C7D2E0; margin-top: 2.8mm; line-height: 1.55; }
+  .positioning { font-size: 10.5pt; font-weight: 700; color: #B89966; margin-top: 2.4mm; letter-spacing: 0.3pt; }
+  .sub { font-size: 10.5pt; color: #BDCDC3; margin-top: 2.8mm; line-height: 1.55; }
   .stats { display: flex; gap: 4mm; margin-top: 5.5mm; }
-  .stat { flex: 1 1 0; min-width: 0; background: #122B52; border-left: 1.2mm solid #C9A227; padding: 3mm 4mm; }
-  .stat b { display: block; font-size: 16pt; color: #fff; line-height: 1.15; }
-  .stat span { display: block; font-size: 8.2pt; color: #C7D2E0; line-height: 1.35; margin-top: 0.8mm; }
-  h2 { font-size: 10.5pt; color: #3B82F6; margin: 5.6mm 0 2.2mm; letter-spacing: 1.2pt; text-transform: uppercase; }
+  .stat { flex: 1 1 0; min-width: 0; background: #193A35; border-left: 1.2mm solid #B89966; padding: 3mm 4mm; }
+  .stat b { display: block; font-size: 16pt; color: #F6F3ED; line-height: 1.15; }
+  .stat span { display: block; font-size: 8.2pt; color: #BDCDC3; line-height: 1.35; margin-top: 0.8mm; }
+  h2 { font-size: 10.5pt; color: #B89966; margin: 5.6mm 0 2.2mm; letter-spacing: 1.2pt; text-transform: uppercase; }
   h2 a { text-decoration-thickness: 0.4pt; }
   ul { list-style: none; }
-  li { font-size: 9.5pt; color: #E2E8F0; line-height: 1.55; padding-left: 4mm; position: relative; }
-  li::before { content: "▪"; color: #C9A227; position: absolute; left: 0; }
+  li { font-size: 9.5pt; color: #F6F3ED; line-height: 1.55; padding-left: 4mm; position: relative; }
+  li::before { content: "▪"; color: #B89966; position: absolute; left: 0; }
   .deliverables { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
-  .deliverable { border-top: 0.5mm solid #C9A227; padding-top: 1.6mm; }
-  .deliverable span { display: block; font-size: 7.5pt; color: #3B82F6; font-weight: 700; letter-spacing: 1pt; }
-  .deliverable h3 { font-size: 9pt; line-height: 1.3; margin-top: 0.8mm; color: #fff; }
-  .deliverable p { font-size: 7.6pt; line-height: 1.4; color: #C7D2E0; margin-top: 0.8mm; }
-  .leverage { margin-top: 4mm; padding: 2.8mm 3.5mm; border-left: 0.8mm solid #C9A227; background: #102545; }
-  .leverage-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.1pt; color: #3B82F6; text-transform: uppercase; }
-  .leverage p:last-child { margin-top: 0.8mm; font-size: 8.5pt; line-height: 1.45; color: #E2E8F0; }
-  .works-lead { font-size: 8.8pt; color: #C7D2E0; line-height: 1.5; margin-bottom: 1.8mm; }
-  .works { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2mm 7mm; }
+  .deliverable { border-top: 0.5mm solid #B89966; padding-top: 1.6mm; }
+  .deliverable span { display: block; font-size: 7.5pt; color: #B89966; font-weight: 700; letter-spacing: 1pt; }
+  .deliverable h3 { font-size: 9pt; line-height: 1.3; margin-top: 0.8mm; color: #F6F3ED; }
+  .deliverable p { font-size: 7.6pt; line-height: 1.4; color: #BDCDC3; margin-top: 0.8mm; }
+  .leverage { margin-top: 4mm; padding: 2.8mm 3.5mm; border-left: 0.8mm solid #B89966; background: #193A35; }
+  .leverage-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.1pt; color: #B89966; text-transform: uppercase; }
+  .leverage p:last-child { margin-top: 0.8mm; font-size: 8.5pt; line-height: 1.45; color: #F6F3ED; }
+  .works-lead { font-size: 8.8pt; color: #BDCDC3; line-height: 1.5; margin-bottom: 1.8mm; }
+  .works { display: grid; grid-template-columns: 1fr; gap: 1.2mm; }
+  .works .work-title { font-weight: 700; color: #F6F3ED; text-decoration-color: #B89966; }
   .works li { font-size: 9pt; line-height: 1.48; }
-  .works-secondary-label { font-size: 8pt; color: #64748B; letter-spacing: 1pt; text-transform: uppercase; margin-top: 3mm; }
+  .works-secondary-label { font-size: 8pt; color: #A9BEB4; letter-spacing: 1pt; text-transform: uppercase; margin-top: 3mm; }
   .works-secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; margin-top: 1.5mm; }
-  .works-secondary li { font-size: 7.5pt; color: #94A3B8; line-height: 1.55; }
-  .process { font-size: 10.6pt; color: #E2E8F0; line-height: 1.58; }
-  .footer { margin-top: auto; border-top: 0.3mm solid #24405F; padding-top: 3mm; display: flex; flex-direction: column; gap: 1.6mm; font-size: 8.5pt; color: #C7D2E0; }
+  .works-secondary li { font-size: 7.5pt; color: #A9BEB4; line-height: 1.55; }
+  .process { font-size: 10.6pt; color: #F6F3ED; line-height: 1.58; }
+  .footer { margin-top: auto; border-top: 0.3mm solid rgba(189, 205, 195, 0.28); padding-top: 3mm; display: flex; flex-direction: column; gap: 1.6mm; font-size: 8.5pt; color: #BDCDC3; }
   .footer-row { display: flex; justify-content: space-between; gap: 6mm; align-items: baseline; }
-  .disclaimer { font-size: 8pt; line-height: 1.4; color: #94A3B8; }
-  .latin { padding: 13mm 15mm 10mm; }
-  .latin .topline { margin-bottom: 5.5mm; }
-  .latin h1 { font-size: 15.5pt; line-height: 1.18; margin-top: 2.6mm; }
-  .latin .sub { font-size: 9.5pt; line-height: 1.45; margin-top: 2.2mm; }
-  .latin .stats { margin-top: 4mm; }
-  .latin h2 { margin: 4.2mm 0 1.7mm; font-size: 10pt; }
-  .latin li { font-size: 8.7pt; line-height: 1.42; }
-  .latin .deliverable p { font-size: 7.4pt; line-height: 1.35; }
-  .latin .leverage { margin-top: 2.8mm; padding: 2.2mm 3.5mm; }
-  .latin .leverage p:last-child { font-size: 8.2pt; line-height: 1.4; }
-  .latin .works-lead { font-size: 8.1pt; margin-bottom: 1.4mm; }
-  .latin .works { gap: 0.8mm 7mm; }
-  .latin .works li { font-size: 8.1pt; line-height: 1.38; }
-  .latin .process { font-size: 9.7pt; line-height: 1.45; }
+  .disclaimer { font-size: 8pt; line-height: 1.4; color: #A9BEB4; }
+  .latin { padding: 13mm 15mm 11mm; }
+  .latin .topline { margin-bottom: 6mm; }
+  .latin h1 { font-size: 17pt; line-height: 1.22; margin-top: 3.2mm; }
+  .latin .sub { font-size: 10pt; line-height: 1.5; margin-top: 2.8mm; }
+  .latin .stats { margin-top: 4.5mm; }
+  .latin h2 { margin: 4.6mm 0 1.9mm; font-size: 10.5pt; }
+  .latin li { font-size: 9pt; line-height: 1.46; }
+  .latin .deliverable p { font-size: 7.8pt; line-height: 1.42; }
+  .latin .leverage { margin-top: 3.8mm; padding: 2.6mm 3.5mm; }
+  .latin .leverage p:last-child { font-size: 8.6pt; line-height: 1.45; }
+  .latin .works-lead { font-size: 8.8pt; margin-bottom: 2mm; }
+  .latin .works { gap: 1.2mm; }
+  .latin .works li { font-size: 8.8pt; line-height: 1.42; }
+  .latin .process { font-size: 10.2pt; line-height: 1.5; }
   .cjk .topline { margin-bottom: 8mm; }
   .cjk h1 { margin-top: 4mm; }
   .cjk .sub { line-height: 1.65; }
