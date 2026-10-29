@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { LEDGER, CAPS, budgetFor } from "./helpers/room03-ledger.js";
 import { mkdirSync } from "node:fs";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
@@ -8,16 +9,9 @@ if (QA) mkdirSync(QA, { recursive: true });
 const MOODS = ["golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
 const TABLEWARE_MOODS = new Set(["dinner", "thanksgiving"]);
 // Old main 39,105/96 -> 47,680/99 after the living-detail batches (+2,498 vertices, +3 meshes, +1 opening call).
-const BASELINE_BY_WIDTH_AND_MOOD = {
-  // Room 03 main after the lamp-wall painting: 30,877 vertices and 95 meshes. Countertop refinements add 3,180 vertices; vertex-color batching reduces meshes to 94 and saves one opening call.
-  // Desktop draw calls 70 -> 67 (-3) in every mood: the gas hob replaces four separate steel ring meshes with parts of the existing batches.
-  // Same-test-sequence opening calls: desktop main 67 -> 68; phone main 69 -> 70.
-  // Dish dryer frame + face are in the opening view: +2 meshes, +2 opening calls (desktop).
-  1440: { golden: [50288, 107, 73], movie: [50288, 107, 71], night: [50288, 107, 73], dinner: [50288, 107, 73], sunday: [50288, 107, 73], thanksgiving: [50288, 107, 73] }, // robot: +1 desktop call // credenza: +1 desktop call // door: +1 desktop call (the leaf is in the opening view)
-  // Phone opening calls: main 69 -> 70; later camera turns are measured separately.
-  // Tableware deltas are measured from the new main-plus-living-details baseline.
-  390: { golden: [50288, 107, 74], movie: [50288, 107, 72], night: [50288, 107, 74], dinner: [50288, 107, 74], sunday: [50288, 107, 74], thanksgiving: [50288, 107, 74] }, // robot: +1 phone opening call // door: +1 phone opening call
-};
+// Baselines live in tests/helpers/room03-ledger.js (one place for every Room 03 spec).
+const BASELINE_BY_WIDTH_AND_MOOD = { 1440: Object.fromEntries(MOODS.map((mood) => [mood, budgetFor(1440, mood)])), 390: Object.fromEntries(MOODS.map((mood) => [mood, budgetFor(390, mood)])) };
+
 
 async function loadRoom(page, width) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
