@@ -59,10 +59,10 @@ test("hangs the shared house plaque on the entry wall, fully in frame at 180 deg
   const desktopTurned = await page.evaluate(() => window.__room03.info());
   // Wok run A (stacked after the lemon bowl and red Dutch oven): door, frames and exterior backboard out; continuous counter, duct and returns in.
   // 30,696 → 30,220 (−476). Meshes 96 → 93. Opening draw calls stay 69.
-// Room 03 main 261fbc4: 39,105/96 -> 42,612/99: living details add 2,498 vertices and 3 meshes; measured 1440 opening calls 65 -> 66.
-  expect(desktop.vertices).toBe(42612);
+// Room 03 main 261fbc4: 39,105/96 -> 42,582/99: living details add 2,498 vertices and 3 meshes; measured 1440 opening calls 65 -> 66.
+  expect(desktop.vertices).toBe(42582);
   // Grasscloth wallpaper remains in the main baseline; living-detail batches add no wallpaper geometry.
-  expect(desktop.meshes).toBe(103); // 102 -> 103: right-wall credenza (one mesh); 100 -> 102: dish dryer frame and face; 99 -> 100: lemon tree leaf cards (95 -> 96: coffee maker temperature display).
+  expect(desktop.meshes).toBe(104); // 102 -> 103: right-wall credenza (one mesh); 100 -> 102: dish dryer frame and face; 99 -> 100: lemon tree leaf cards (95 -> 96: coffee maker temperature display).
   // Same-sequence opening baseline: desktop 67 -> 68; one living-detail batch enters the view.
   expect(desktop.drawCallsLastFrame).toBe(71); // Main 67 -> 68 (living detail) -> 70 (dish dryer frame and face) -> 71 (right-wall credenza).
   const hiddenDesktop = await page.evaluate(() => {

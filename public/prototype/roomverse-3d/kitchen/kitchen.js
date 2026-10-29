@@ -2570,6 +2570,22 @@ function buildRoom03MediaUnit(scene, materials, woodGeometries) {
   screen.userData.moodSlot = "screen-content";
   screen.position.set(centerX, screenCenterY, -0.022);
   screenSlot.add(screen);
+  // A faint glass reflection in front of the panel (GrokBot review: the TV read as a flat black card). Drawn once on a canvas: a soft top-to-bottom
+  // sheen and one diagonal streak. It sits 3 mm in front of the picture, so it also lies over the movie and parade pictures, like real glass.
+  {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256; canvas.height = 144;
+    const c = canvas.getContext("2d");
+    const sheen = c.createLinearGradient(0, 0, 0, 144); sheen.addColorStop(0, "rgba(255,255,255,0.10)"); sheen.addColorStop(0.45, "rgba(255,255,255,0.02)"); sheen.addColorStop(1, "rgba(255,255,255,0)");
+    c.fillStyle = sheen; c.fillRect(0, 0, 256, 144);
+    const streak = c.createLinearGradient(40, 0, 150, 144); streak.addColorStop(0, "rgba(255,255,255,0)"); streak.addColorStop(0.5, "rgba(255,255,255,0.12)"); streak.addColorStop(1, "rgba(255,255,255,0)");
+    c.fillStyle = streak; c.beginPath(); c.moveTo(70, 0); c.lineTo(130, 0); c.lineTo(70, 144); c.lineTo(10, 144); c.fill();
+    const reflection = new THREE.CanvasTexture(canvas); reflection.colorSpace = THREE.SRGBColorSpace;
+    const glass = new THREE.Mesh(new THREE.PlaneGeometry(0.94, 0.53), new THREE.MeshBasicMaterial({ map: reflection, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+    glass.name = "screen-glass-reflection"; glass.renderOrder = 4;
+    glass.position.set(centerX, screenCenterY, -0.025);
+    screenSlot.add(glass);
+  }
   group.add(screenSlot);
   group.position.set(0, 0, 3.70);
   scene.add(group);
@@ -3200,13 +3216,15 @@ function buildLemonLeafCards(crown) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 4;
-  new THREE.TextureLoader().load(new URL("./art/room03-lemon-leaf-atlas-v1.webp", import.meta.url).href, (loaded) => {
+  new THREE.TextureLoader().load(new URL("./art/room03-lemon-leaf-atlas-v2.webp", import.meta.url).href, (loaded) => {
     texture.image = loaded.image; texture.needsUpdate = true; loaded.dispose();
   }, undefined, () => { /* keep the canvas atlas */ });
-  const material = new THREE.MeshStandardMaterial({ map: texture, alphaTest: 0.45, roughness: 0.55, metalness: 0, side: THREE.FrontSide, emissive: 0x2c3b1b, emissiveMap: texture, emissiveIntensity: 0.28 });
+  const material = new THREE.MeshStandardMaterial({ map: texture, alphaTest: 0.5, roughness: 0.55, metalness: 0, side: THREE.FrontSide, emissive: 0x2c3b1b, emissiveMap: texture, emissiveIntensity: 0.28 });
   const positions = [], normals = [], uvs = [], indices = [];
   const up = new THREE.Vector3(0, 1, 0), centre = new THREE.Vector3(crown.cx, crown.cy, crown.cz);
+  // 46 slots, but a few low front cards are left out so the trunk and branches show through (a real crown is loose, not a solid ball).
   const count = 46;
+  let placed = 0;
   for (let i = 0; i < count; i++) {
     // Fibonacci sphere, flattened a little and pulled in at random depths; fewer cards on the underside
     const t = (i + 0.5) / count;
@@ -3214,6 +3232,9 @@ function buildLemonLeafCards(crown) {
     const azimuth = i * 2.399963;
     const depth = 0.55 + 0.45 * ((i * 37) % 11) / 10;
     const radial = new THREE.Vector3(Math.sin(polar) * Math.cos(azimuth), Math.cos(polar), Math.sin(polar) * Math.sin(azimuth));
+    if (radial.y < 0.15 && i % 3 !== 0) continue;
+    if (radial.y > 0.2 && radial.y < 0.55 && i % 5 === 2) continue;
+    placed++;
     const position = new THREE.Vector3(crown.cx + radial.x * crown.rx * depth, crown.cy + radial.y * crown.ry * depth, crown.cz + radial.z * crown.rz * depth);
     const wobble = new THREE.Vector3(Math.sin(i * 12.9898) , Math.sin(i * 78.233), Math.sin(i * 37.719)).multiplyScalar(0.3);
     const facing = radial.clone().multiplyScalar(0.75).add(wobble).normalize();
@@ -3359,7 +3380,8 @@ function buildRoom03LivingDetails(scene) {
 
   // A small potted Meyer-lemon tree at the far window end, below the reading lamp.
   const plant = makeBatch("window-meyer-lemon-tree");
-  const plantX = -1.13, plantZ = 1.60, potHeight = 0.22;
+  // Moved 8 cm toward the room and 20 cm toward the hall so it no longer overlaps the floor lamp in view.
+  const plantX = -1.05, plantZ = 1.80, potHeight = 0.22;
   const potProfile = [[0, 0], [0.094, 0], [0.108, 0.012], [0.12, 0.205], [0.116, 0.22], [0.101, 0.22], [0.096, 0.035], [0, 0.035]];
   const potGeometry = plant.add(new THREE.LatheGeometry(potProfile.map(([r, y]) => new THREE.Vector2(r, y)), 16), "#9a6a50", [plantX, 0.0005, plantZ]);
   plant.add(new THREE.CylinderGeometry(0.012, 0.018, 0.47, 8), "#786044", [plantX, 0.0005 + potHeight + 0.225, plantZ]);
@@ -3370,8 +3392,9 @@ function buildRoom03LivingDetails(scene) {
   for (const [index, [dx, dy, dz]] of [[-0.10, 0.17, 0.04], [0.09, 0.15, -0.06], [0.02, 0.2, 0.10]].entries()) {
     plant.tube(index % 2 ? "#7a6247" : "#6f573d", [trunkTop, [trunkTop[0] + dx * 0.5, trunkTop[1] + dy * 0.55, trunkTop[2] + dz * 0.5], [trunkTop[0] + dx, trunkTop[1] + dy, trunkTop[2] + dz]], 0.0075 - index * 0.0008, 5);
   }
-  for (const [index, [dx, dy, dz]] of [[-0.17, -0.02, 0.09], [0.13, -0.06, 0.14], [0.05, -0.10, -0.17]].entries()) {
-    plant.sphere(index % 2 ? "#d1a34a" : "#d6a53b", 0.030, [CROWN.cx + dx, CROWN.cy + dy, CROWN.cz + dz], [0.82, 1.16, 0.82], [8, 6]);
+  // Bright Meyer-lemon yellow (the old tone read orange, like kumquats, in the golden light); five fruit, two of them tucked inside the crown.
+  for (const [index, [dx, dy, dz]] of [[-0.17, -0.02, 0.09], [0.13, -0.06, 0.14], [0.05, -0.10, -0.17], [-0.06, 0.04, 0.11], [0.09, 0.02, -0.06]].entries()) {
+    plant.sphere(index % 2 ? "#f0c63c" : "#e9bd2e", 0.030, [CROWN.cx + dx, CROWN.cy + dy, CROWN.cz + dz], [0.82, 1.16, 0.82], [8, 6]);
   }
 
   const fit = {};

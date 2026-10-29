@@ -37,9 +37,9 @@ test("a 4:3 painting hangs on the entry wall above the window-side floor lamp, l
   expect(plaque.min[0] - art.bounds.max[0], "well clear of the house plaque").toBeGreaterThanOrEqual(0.4);
   expect(art.bounds.max[1], "below the ceiling beams").toBeLessThan(2.4);
   // The picture shares the atlas: no new mesh, and the vertices added are the frame boxes and one image plane.
-  // Old main after the lamp-wall painting: 39,105/96 -> 42,612/99 after the living-detail batches (+2,498 vertices, +3 meshes); the painting itself still adds no mesh.
-  expect(info.meshes).toBe(103); // 102 -> 103: the right-wall credenza is one vertex-coloured mesh; 100 -> 102: the dish dryer adds a frame and a face mesh; 99 -> 100: the lemon tree's leaf cards are one more mesh (95 -> 96: the coffee maker's temperature display is its own mesh (the entry nook and gas hob add no opening mesh).
-  expect(info.vertices).toBe(42612);
+  // Old main after the lamp-wall painting: 39,105/96 -> 42,582/99 after the living-detail batches (+2,498 vertices, +3 meshes); the painting itself still adds no mesh.
+  expect(info.meshes).toBe(104); // 102 -> 103: the right-wall credenza is one vertex-coloured mesh; 100 -> 102: the dish dryer adds a frame and a face mesh; 99 -> 100: the lemon tree's leaf cards are one more mesh (95 -> 96: the coffee maker's temperature display is its own mesh (the entry nook and gas hob add no opening mesh).
+  expect(info.vertices).toBe(42582);
   expect(info.wallArtLight, "lit like the other paintings").toBeTruthy();
   if (QA) {
     await page.evaluate(() => window.__room03.setView(Math.PI));
