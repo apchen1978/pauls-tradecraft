@@ -2927,8 +2927,9 @@ function buildRoom03LivingDetails(scene) {
     console.box("#e4d9c8", [width - 0.012, 0.004, depth - 0.012], [x, y + 0.019, z], [0, angle, 0], 0.001);
   };
   const consoleTop = 0.575;
-  book(-1.075, consoleTop + 0.001, 3.50, 0.19, 0.13, "#a77b55", -0.045);
-  book(-1.058, consoleTop + 0.020, 3.50, 0.17, 0.12, "#788064", 0.035);
+  // The hall wall's inner face is at x -0.94 and the console runs into it, so the books sit at x -0.80 where they can be seen.
+  book(-0.80, consoleTop + 0.001, 3.50, 0.19, 0.13, "#a77b55", -0.045);
+  book(-0.785, consoleTop + 0.020, 3.50, 0.17, 0.12, "#788064", 0.035);
   const vaseX = -0.53, vaseZ = 3.50;
   const vaseProfile = [[0, 0], [0.029, 0], [0.037, 0.012], [0.039, 0.035], [0.032, 0.062], [0.022, 0.078], [0.020, 0.095], [0.015, 0.101], [0.014, 0.094], [0.016, 0.079], [0, 0.076]];
   console.add(new THREE.LatheGeometry(vaseProfile.map(([r, y]) => new THREE.Vector2(r, y)), 12), "#9a6a50", [vaseX, consoleTop + 0.001, vaseZ]);
@@ -2982,19 +2983,20 @@ function buildRoom03LivingDetails(scene) {
   const potProfile = [[0, 0], [0.094, 0], [0.108, 0.012], [0.12, 0.205], [0.116, 0.22], [0.101, 0.22], [0.096, 0.035], [0, 0.035]];
   const potGeometry = plant.add(new THREE.LatheGeometry(potProfile.map(([r, y]) => new THREE.Vector2(r, y)), 16), "#9a6a50", [plantX, 0.0005, plantZ]);
   plant.add(new THREE.CylinderGeometry(0.012, 0.018, 0.47, 8), "#786044", [plantX, 0.0005 + potHeight + 0.225, plantZ]);
-  const leafClusters = [
-    [-0.13, 0.55, -0.03, [1.15, 0.62, 0.72]], [-0.06, 0.68, 0.05, [1.0, 0.68, 0.75]],
-    [0.08, 0.58, -0.05, [1.2, 0.65, 0.7]], [0.14, 0.72, 0.02, [1.05, 0.72, 0.68]],
-    [-0.10, 0.83, 0.02, [1.08, 0.68, 0.72]],
-  ];
-  for (let i = 0; i < leafClusters.length; i++) {
-    const [x, y, z, scale] = leafClusters[i];
-    plant.sphere(i % 2 ? "#6f7b56" : "#7d875d", 0.155, [plantX + x, y, plantZ + z], scale, [8, 5]);
+  // A rounded crown made of 13 smaller, tilted leaf masses on a golden-angle spiral (the first version had five big balls that read as a lollipop),
+  // and four lemons set on the outside of the crown so they can be seen.
+  const crown = [];
+  for (let i = 0; i < 13; i++) {
+    const angle = i * 2.399963, t = i / 12;
+    const reach = 0.05 + 0.13 * Math.sqrt(t) + (i % 3) * 0.012;
+    const x = Math.cos(angle) * reach, z = Math.sin(angle) * reach, y = 0.56 + 0.34 * t + (i % 2) * 0.03;
+    const size = 0.088 + (i % 4) * 0.008;
+    crown.push({ x, y, z, size });
+    plant.add(new THREE.SphereGeometry(size, 8, 5), i % 2 ? "#6f7b56" : "#7d875d", [plantX + x, y, plantZ + z], [(i % 3 - 1) * 0.35, angle, (i % 2 ? 0.3 : -0.3)], [1.18, 0.62, 0.84]);
   }
-  const lemonLocations = [[-0.12, 0.67, 0.00], [0.12, 0.73, -0.01], [0.02, 0.88, 0.08], [-0.02, 0.53, -0.12]];
-  for (let i = 0; i < lemonLocations.length; i++) {
-    const [x, y, z] = lemonLocations[i];
-    plant.sphere(i % 2 ? "#d1a34a" : "#d6a53b", 0.045, [plantX + x, y, plantZ + z], [0.82, 1.16, 0.82], [8, 6]);
+  for (const [index, source] of [1, 4, 8, 11].entries()) {
+    const c = crown[source], length = Math.hypot(c.x, c.z) || 1;
+    plant.sphere(index % 2 ? "#d1a34a" : "#d6a53b", 0.040, [plantX + c.x + (c.x / length) * (c.size * 0.95), c.y - 0.03, plantZ + c.z + (c.z / length) * (c.size * 0.95)], [0.82, 1.16, 0.82], [8, 6]);
   }
 
   const fit = {};

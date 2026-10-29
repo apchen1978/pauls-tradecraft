@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
 const MOODS = ["golden", "night", "movie"];
-// Clean origin/main 261fbc4 measured 39,105 vertices / 96 meshes; this branch adds 2,066 vertices / 3 meshes. Draw calls are captured per viewport and yaw below.
+// Clean origin/main 261fbc4 measured 39,105 vertices / 96 meshes; this branch adds 2,498 vertices / 3 meshes. Draw calls are captured per viewport and yaw below.
 const BASELINE = {
   "1440|golden|0": { vertices: 39105, drawCalls: 65 },
   "1440|night|0": { vertices: 39105, drawCalls: 65 },

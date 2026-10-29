@@ -785,7 +785,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.contactShadow.totalPatchCount).toBe(34); // Old 30 -> 34: three side-table feet plus the tree-pot contact patch, merged into the existing mesh.
     expect(info.contactShadow.vertices).toBe(136); // Old 120 -> 136: four added decals × four vertices; draw calls remain unchanged.
     expect(info.vertices).toBeLessThanOrEqual(55000);
-    expect(info.vertices).toBeLessThanOrEqual(42305); // Main 39,105 + the task-card 3,200-vertex cap; measured living-detail net is 2,066.
+    expect(info.vertices).toBeLessThanOrEqual(42305); // Main 39,105 + the task-card 3,200-vertex cap; measured living-detail net is 2,498.
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(69); // Main opening 67 + task-card maximum +2; measured opening is expected to remain within this cap.
     expect(info.meshes).toBeLessThanOrEqual(130);
@@ -1129,8 +1129,8 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   await page.waitForFunction(() => window.__room03.info().wokTile.status === "loaded");
   const info = await page.evaluate(() => window.__room03.info());
   // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
-  // Main 261fbc4: 39,105 vertices / 96 meshes; living details add 2,066 vertices / 3 meshes. Same-sequence desktop opening calls 67 -> 68.
-  expect(info.vertices).toBe(41171);
+  // Main 261fbc4: 39,105 vertices / 96 meshes; living details add 2,498 vertices / 3 meshes. Same-sequence desktop opening calls 67 -> 68.
+  expect(info.vertices).toBe(41603);
   // Grasscloth wallpaper panel: +4 vertices and +1 mesh (39,105/96 baseline includes the wallpaper).
   expect(info.meshes).toBe(99); // Main 96 + three merged living-detail meshes.
   // One merged living-detail batch enters the default desktop frame: 67 -> 68.
