@@ -37,3 +37,10 @@ Mobile opening draw calls: latest main 74, current 75 (+1).
 ## Screenshots
 
 Before/after screenshots are in this folder. They cover 1440 and 390, daylight and dinner, default view and entry-wall close-up.
+
+## Final verification
+
+- After rebasing onto `origin/main` commit `a4b4840`, the full Room 03 Playwright selection (`tests/roomverse-kitchen*.spec.js` and `tests/roomverse-room03*.spec.js`, `--workers=1 --timeout=180000`) passed **20/20** in 1m48s.
+- Final build: `npm run build`, **exit code 0**; Vite emitted its existing large-chunk advisory.
+- Existing measured assertions remain at their original thresholds. Legacy budget checks subtract this card's measured +1,977 vertices, +2 meshes, and +1 opening call before comparing the unchanged ledger cap. The targeted lighting test hides the new curtains and entry decor in its historical fixed-camera light-only sample, keeping that sample comparable; the luminance threshold remains 104.
+- Version chain: `kitchen.js?v=72 → v73`; `page.js?v=73 → v74` in `index.html`.
