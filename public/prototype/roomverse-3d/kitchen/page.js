@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=70";
+import { start, ROOM_TITLE } from "./kitchen.js?v=71";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -15,7 +15,8 @@ const COPY = {
       yard: ["窗外景色", { auto: "跟著感覺", "fog-morning": "濃霧早晨", "spring-bloom": "春天花開", "overcast-rain": "陰天微雨" }],
     }, canvasLabel: "房間視角。中心模式可用方向鍵環顧。",
     moods: {
-      golden: ["金色時光", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
+      daylight: ["日光", "灣區白天的柔和日光，偏白、偏亮，吊燈只微微亮著。"],
+      golden: ["黃金時刻", "午後低角度暖光從左側玻璃門斜入，吊燈維持柔和。"],
       movie: ["追劇夜", "中央吊燈關掉，螢幕放冷色城市，落地燈與桌燈留著暖光。"],
       night: ["夜晚", "院子轉為藍調，圓球燈、櫥下燈與側廚房暖光照亮餐區。"],
       dinner: ["晚餐", "吊燈轉暖，檯面雙吊燈與桌燈點著，低角度的暖陽還留一點。"],
@@ -38,6 +39,7 @@ const COPY = {
       yard: ["View outside", { auto: "Follow the mood", "fog-morning": "Foggy morning", "spring-bloom": "Spring bloom", "overcast-rain": "Overcast and damp" }],
     }, canvasLabel: "Room view. Use arrow keys to look around in center mode.",
     moods: {
+      daylight: ["Daylight", "Soft Bay Area daylight, whiter and brighter, with the pendant only just on."],
       golden: ["Golden hour", "Low, warm afternoon light enters through the glass doors; the pendant stays soft."],
       movie: ["Movie night", "The pendant is off, the screen shows a cool city, and the floor and table lamps stay warm."],
       night: ["Night", "The garden turns blue while the globe pendant, counter light and side kitchen warm the dining room."],
@@ -50,7 +52,7 @@ const COPY = {
 const $ = (id) => document.getElementById(id);
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 let room = null;
-let mood = "golden";
+let mood = "daylight";
 let immersive = false;
 let centerMode = false;
 
@@ -130,8 +132,8 @@ function renderMoods() {
         const buttonRect = moodToReveal.getBoundingClientRect();
         const originalSnap = group.style.scrollSnapType;
         group.style.scrollSnapType = "none";
-        if (buttonRect.left < groupRect.left) group.scrollLeft = 0;
-        else if (buttonRect.right > groupRect.right) group.scrollLeft = group.scrollWidth - group.clientWidth;
+        // Bring the button to the row's left edge (a snap point), not to an end: with seven moods a middle button can be a full screen from either end.
+        if (buttonRect.left < groupRect.left || buttonRect.right > groupRect.right) group.scrollLeft += buttonRect.left - groupRect.left;
         requestAnimationFrame(() => { group.style.scrollSnapType = originalSnap; });
       }
     }));

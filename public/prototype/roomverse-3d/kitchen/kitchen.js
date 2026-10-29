@@ -224,10 +224,15 @@ function makeLoungeShadowTexture() {
   }, 128, 128);
 }
 
-function makeSkyTexture(night) {
+function makeSkyTexture(night, day = false) {
   return makeTexture((ctx, w, h) => {
     const gradient = ctx.createLinearGradient(0, 0, 0, h);
-    if (night) {
+    if (day) {
+      // Bay Area daylight: a pale, slightly cool marine-layer sky instead of the warm golden one.
+      gradient.addColorStop(0, "#d9e2e8");
+      gradient.addColorStop(0.62, "#e8ebe8");
+      gradient.addColorStop(1, "#cdd1cc");
+    } else if (night) {
       gradient.addColorStop(0, "#344252");
       gradient.addColorStop(0.52, "#42566a");
       gradient.addColorStop(1, "#5b5f5c");
@@ -4125,8 +4130,8 @@ function addRoom03Lamps(scene, materials) {
 
 export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
-  const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true) };
-  scene.background = skyMaterials.golden;
+  const skyMaterials = { golden: makeSkyTexture(false), night: makeSkyTexture(true), day: makeSkyTexture(false, true) };
+  scene.background = skyMaterials.day;
   const DESKTOP_CAMERA = { position: [0.22, 1.64, 1.52], target: [0.05, 1.50, 0.05], fov: 62, maxDistance: 1.72 };
   const PORTRAIT_CAMERA = { position: [0.408432, 1.591908, 1.524290], target: [0, 1.48, 0], fov: 84, maxDistance: 1.72 };
   const compact = window.innerWidth < 500;
@@ -4401,6 +4406,7 @@ export async function start({ stage, onReady = () => {} }) {
     "pendantFloorBounce", "pendantFloorBounceVisible", "pendantCeilingBounce", "pendantCeilingBounceVisible",
     "reveal", "contactShadow", "loungePillow", "screenColor", "screenToneMapped", "screenMap",
     "floorLamp", "tableLamp", "screenCool", "pictureLightEmissive", "counterPendantEmissive", "blind", "tableware", "thanksgivingDecor", "artLight",
+    "ceilingColor", "ceilingEmissiveColor", "beamColor", "tableTint",
   ]);
   const sharedLook = {
     sunColor: 0xffd6a1, sunPosition: [-4.2, 1.2, 3.6],
@@ -4410,8 +4416,23 @@ export async function start({ stage, onReady = () => {} }) {
     loungePillow: 0x7f946c, screenColor: 0x171918, screenToneMapped: true, screenMap: null,
     floorLamp: 0, tableLamp: 0, screenCool: 0, pictureLightEmissive: 0, counterPendantEmissive: 0,
     yardMap: null,
+    ceilingColor: COLORS.ceiling, ceilingEmissiveColor: 0x9b6938, beamColor: COLORS.beam, tableTint: 0xffffff,
   };
   const MOOD_LOOK = Object.freeze({
+    // Bay Area daylight (Paul 2026-10-30: the golden look read as a video game at the door). Neutral-white sun, a cool pale sky, an untinted garden and
+    // lighter, less orange wood overhead; golden hour stays as a choice.
+    daylight: Object.freeze({
+      ...sharedLook,
+      sun: 1.25, sunColor: 0xfff3e6, sunPosition: [-3.6, 2.1, 3.4],
+      hemi: 1.15, hemiSky: 0xf1f5fb, hemiGround: 0xd8d0c3, ambient: 0.36, pendant: 0.2, under: 0.70, side: 0.70,
+      exposure: 0.96, yard: 0xc2c9cb, globe: 0.2, sky: "day",
+      floor: 0xc8bda9, jute: 0xcfc2a4, ceilingEmissive: 0.10,
+      ceilingColor: 0xcdae80, ceilingEmissiveColor: 0xa8957a, beamColor: 0x9a7a52, tableTint: 0xd4c9ba,
+      warmGlow: 0.4, wokGlow: 0.6,
+      windowWallBounce: 0.10, windowWallBounceVisible: true,
+      pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
+      reveal: 0.6, contactShadow: 0.30, blind: "open", tableware: false, thanksgivingDecor: false, artLight: [0.92, 0.92, 0.9],
+    }),
     golden: Object.freeze({
       ...sharedLook,
       sun: 3.1, hemi: 0.55, ambient: 0.16, pendant: 0.32, under: 0.42, side: 0.48,
@@ -4538,7 +4559,7 @@ export async function start({ stage, onReady = () => {} }) {
   contactShadow.geometry = extendedContactGeometry;
   addedContactPatches.forEach((geometry) => geometry.dispose());
   contactShadow.userData.totalPatchCount = existingContactPatchCount + addedContactPatches.length;
-  let currentMood = "golden";
+  let currentMood = "daylight";
   let movieScreenTexture = null;
   let thanksgivingScreenTexture = null;
   let autumnCourtyardTexture = null;
@@ -4576,6 +4597,20 @@ export async function start({ stage, onReady = () => {} }) {
     autumnCourtyardTexture = texture;
     reloadMoodPicture();
   });
+  // The dining table is a downloaded model, so its wood is tinted (multiplied) rather than repainted; the model's own colour is kept to restore it.
+  function tintDiningTable(tint) {
+    const table = scene.getObjectByName("room03-table-glb");
+    if (!table) return;
+    const factor = new THREE.Color(tint);
+    table.traverse((object) => {
+      if (!object.isMesh) return;
+      for (const material of (Array.isArray(object.material) ? object.material : [object.material])) {
+        if (!material?.color) continue;
+        if (!material.userData.baseColor) material.userData.baseColor = material.color.clone();
+        material.color.copy(material.userData.baseColor).multiply(factor);
+      }
+    });
+  }
   function setMood(name) {
     const look = MOOD_LOOK[name]; if (!look) return;
     currentMood = name;
@@ -4620,6 +4655,9 @@ export async function start({ stage, onReady = () => {} }) {
       }
     });
     materials.floor.color.setHex(look.floor);
+    materials.ceiling.color.setHex(look.ceilingColor); materials.ceiling.emissive.setHex(look.ceilingEmissiveColor);
+    materials.beam.color.setHex(look.beamColor);
+    tintDiningTable(look.tableTint);
     materials.jute.color.setHex(look.jute);
     materials.ceiling.emissiveIntensity = look.ceilingEmissive;
     materials.warmGlow.opacity = look.warmGlow;
@@ -4702,8 +4740,9 @@ export async function start({ stage, onReady = () => {} }) {
   const housePlaque = addHousePlaque(scene, () => render());
   controls.addEventListener("change", render);
   const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(stage);
-  resize(); controls.update(); setMood("golden");
+  resize(); controls.update(); setMood("daylight");
   await furniture.ready;
+  tintDiningTable(MOOD_LOOK[currentMood].tableTint);
   tablewareGroup = buildTableware(scene);
   thanksgivingGroup = buildThanksgivingDecor(scene);
   const robot = loadRoom03Robot(scene, () => render());
@@ -5293,7 +5332,7 @@ export async function start({ stage, onReady = () => {} }) {
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
     const thanksgivingInfo = thanksgivingGroup ? { vertices: thanksgivingGroup.userData.vertices, meshes: thanksgivingGroup.children.filter((child) => child.isMesh).length, visible: thanksgivingGroup.visible, mounted: thanksgivingGroup.parent === scene, items: thanksgivingGroup.userData.items, minNeighbourMm: thanksgivingGroup.userData.minNeighbourMm } : null;
     const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
-    return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, wallpaper: grasscloth.info(), entryNook: entryNook.info(), yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, wallpaper: grasscloth.info(), entryNook: entryNook.info(), yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-glb") }, propBounds, propGeometry, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}`, ceiling: `#${materials.ceiling.color.getHexString()}`, beam: `#${materials.beam.color.getHexString()}`, floor: `#${materials.floor.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,

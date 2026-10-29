@@ -18,7 +18,7 @@ test("dinner and sunday morning are readable, and five mood buttons stay usable"
   await loadRoom(page, 1440);
   const labels = await page.locator("#moods button").allTextContents();
   // Old: five labels, ending at 週日早晨. Thanksgiving is the sixth mood.
-  expect(labels).toEqual(["金色時光", "追劇夜", "夜晚", "晚餐", "週日早晨", "感恩節"]);
+  expect(labels).toEqual(["日光", "黃金時刻", "追劇夜", "夜晚", "晚餐", "週日早晨", "感恩節"]);
   await page.locator('#moods button[data-mood="dinner"]').click();
   const pressed = await page.locator('#moods button[aria-pressed="true"]').count();
   expect(pressed).toBe(1);
