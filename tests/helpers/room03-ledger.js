@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 55331, meshes: 111 }),
+  scene: Object.freeze({ vertices: 56427, meshes: 111 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 77, phone: 77 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
@@ -37,6 +37,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-31", change: "lemon tree: 46 round photo cards replaced by about 200 single leaf cards in sprigs (+848 vertices, same mesh)", vertices: 53520, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
     { date: "2026-10-31", change: "credenza top styled like Room 01 shelves: books, vessel with dried stems, potted plant, dish with stones (one merged mesh, +1811 vertices)", vertices: 55331, meshes: 111, desktopCalls: 76, phoneCalls: 76 },
     { date: "2026-10-31", change: "entry hall: the three inner walls are dusty pink (second material on the same mesh, +1 draw call, no new geometry)", vertices: 55331, meshes: 111, desktopCalls: 77, phoneCalls: 77 },
+    { date: "2026-10-31", change: "wok side: brass tool rail with five wooden-handled tools plus two shelf canisters replace the three black sticks (one new vertex-colour mesh replaces the old black one; net +1,096 vertices, no extra draw call)", vertices: 56427, meshes: 111, desktopCalls: 77, phoneCalls: 77 },
   ]),
 });
 
