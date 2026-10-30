@@ -52,8 +52,9 @@ test("keeps the off screen and tabletop centerpiece independently switchable for
   await loadRoom(page);
   const before = await page.evaluate(() => window.__room03.info());
   expect(before.moodSlots.screen).toMatchObject({ name: "screen-content-surface", type: "MeshBasicMaterial", hasMap: false, off: true });
-  expect(before.moodSlots.screen.width).toBeCloseTo(0.94, 2);
-  expect(before.moodSlots.screen.width).toBeLessThanOrEqual(1.05);
+  // 2026-10-31: the TV became a 55 in wall-mounted panel (Paul: the 40 in one read as a picture frame); its left quarter hides inside the side wall.
+  expect(before.moodSlots.screen.width).toBeCloseTo(1.2, 2);
+  expect(before.moodSlots.screen.width).toBeLessThanOrEqual(1.3);
   expect(before.moodSlots.console.width).toBeGreaterThanOrEqual(1.15);
   expect(before.moodSlots.console.width).toBeLessThanOrEqual(1.35);
   expect(before.moodSlots.tabletopCenterpiece).toMatchObject({ name: "mood-slot-tabletop-centerpiece", visible: true, childCount: 1 });
