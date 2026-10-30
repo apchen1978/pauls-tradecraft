@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 52672, meshes: 110 }),
+  scene: Object.freeze({ vertices: 53520, meshes: 110 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 75, phone: 76 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
@@ -34,6 +34,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-30", change: "entry wall: linen coat replaced by one red dish towel on the middle hook", vertices: 52268, meshes: 109, desktopCalls: 74, phoneCalls: 75 },
     { date: "2026-10-30", change: "smart kitchen hub: one unlit display plane on the backsplash above the hob (bezel painted into the texture)", vertices: 52272, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
     { date: "2026-10-30", change: "entry wall: flat grey mirror disc replaced by an oak-rimmed round wall clock (same mesh, +400 vertices)", vertices: 52672, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
+    { date: "2026-10-31", change: "lemon tree: 46 round photo cards replaced by about 200 single leaf cards in sprigs (+848 vertices, same mesh)", vertices: 53520, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
   ]),
 });
 

@@ -3520,98 +3520,122 @@ function buildHouseholdProps(scene, m) {
 
 // Three compact living details, each batched to one vertex-colour mesh. Their
 // silhouettes stay genuinely three-dimensional while keeping draw calls low.
-// Foliage cards for the Meyer lemon tree (Paul 2026-10-29: programmatic leaf balls are not 3D enough; image-to-3D turned the crown into a flat slab).
-// Real, painted leaves and lemons were cut out of Codex's concept pictures into an alpha atlas (3 x 2 patches), and 46 small cards are scattered through
-// an ellipsoid crown, each with its outward normal blended in so the crown shades like a volume. Every card has a front and a back quad (no flipped normals).
-// A canvas atlas draws instantly; the painted webp replaces it when it loads (if it fails, the canvas leaves stay).
+// Foliage for the Meyer lemon tree. First version (Paul 2026-10-29): 46 big round cards, each a photo of a whole leaf cluster; from the room they read as flat
+// discs ("billboards", Paul 2026-10-30). Now the crown is ~170 single leaves, each its own small leaf-shaped card (alpha cut to a real leaf outline,
+// painted leaf texture inside, a midrib), grouped in sprigs of six that fan outward and droop, and darker toward the inside of the crown so it reads as a volume.
+// The leaf texture is cut from Codex's painted atlas; a canvas atlas draws instantly and is repainted when the painting loads (if it fails, the canvas leaves stay).
+// Every card has a front and a back quad, and its normal is blended with the outward direction of the crown so it shades like a ball of leaves.
 function buildLemonLeafCards(crown) {
+  const CELL = 256, COLS = 4, ROWS = 2;
   const canvas = document.createElement("canvas");
-  canvas.width = 768; canvas.height = 512;
+  canvas.width = CELL * COLS; canvas.height = CELL * ROWS;
   const context = canvas.getContext("2d");
-  let seed = 5;
-  const random = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  for (let slot = 0; slot < 6; slot++) {
-    const ox = (slot % 3) * 256, oy = Math.floor(slot / 3) * 256;
-    context.save();
-    context.beginPath(); context.ellipse(ox + 128, oy + 128, 118, 118, 0, 0, Math.PI * 2); context.clip();
-    for (let i = 0; i < 16; i++) {
+  const SOURCE_PATCHES = [[1150, 126, 260, 260], [638, 126, 260, 260], [1150, 638, 260, 260]];
+  const paintAtlas = (source) => {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    let seed = 11;
+    const random = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let cell = 0; cell < COLS * ROWS; cell++) {
+      const x0 = (cell % COLS) * CELL, y0 = Math.floor(cell / COLS) * CELL, cx = x0 + CELL / 2;
+      const hw = CELL * (0.20 + 0.03 * random()), bend = (random() - 0.5) * CELL * 0.14;
+      const leaf = new Path2D();
+      leaf.moveTo(cx, y0 + CELL - 8);
+      leaf.bezierCurveTo(cx + hw * 1.55, y0 + CELL * 0.70, cx + hw * 1.25 + bend, y0 + CELL * 0.28, cx + bend, y0 + 6);
+      leaf.bezierCurveTo(cx - hw * 1.25 + bend, y0 + CELL * 0.28, cx - hw * 1.55, y0 + CELL * 0.70, cx, y0 + CELL - 8);
       context.save();
-      context.translate(ox + 40 + random() * 176, oy + 40 + random() * 176);
-      context.rotate(random() * Math.PI * 2);
-      const gradient = context.createLinearGradient(-28, 0, 28, 0);
-      gradient.addColorStop(0, random() > 0.5 ? "#4f6a34" : "#5b7a3a"); gradient.addColorStop(1, "#7b9150");
-      context.fillStyle = gradient;
-      context.beginPath(); context.ellipse(0, 0, 30 + random() * 8, 11 + random() * 3, 0, 0, Math.PI * 2); context.fill();
-      context.strokeStyle = "rgba(220,235,170,0.55)"; context.lineWidth = 1.2; context.beginPath(); context.moveTo(-28, 0); context.lineTo(28, 0); context.stroke();
+      context.clip(leaf);
+      if (source) {
+        const [px, py, pw, ph] = SOURCE_PATCHES[cell % SOURCE_PATCHES.length];
+        const size = 150 + random() * 60;
+        context.translate(cx, y0 + CELL / 2); context.rotate((random() - 0.5) * 0.7);
+        context.drawImage(source, px + random() * (pw - size), py + random() * (ph - size), size, size, -CELL / 2, -CELL / 2, CELL, CELL);
+        context.setTransform(1, 0, 0, 1, 0, 0);
+      } else {
+        const gradient = context.createLinearGradient(x0, y0 + CELL, x0, y0);
+        gradient.addColorStop(0, "#3f5a2e"); gradient.addColorStop(1, random() > 0.5 ? "#6f8d45" : "#5b7a3a");
+        context.fillStyle = gradient; context.fillRect(x0, y0, CELL, CELL);
+      }
+      // A little shade over the whole leaf, a dark outline, a pale midrib and a few side veins.
+      context.fillStyle = "rgba(25,50,15,0.24)"; context.fillRect(x0, y0, CELL, CELL);
       context.restore();
+      context.strokeStyle = "rgba(30,55,20,0.55)"; context.lineWidth = 3; context.stroke(leaf);
+      context.strokeStyle = "rgba(225,235,170,0.65)"; context.lineWidth = 2.2;
+      context.beginPath(); context.moveTo(cx, y0 + CELL - 8); context.quadraticCurveTo(cx + bend * 0.2, y0 + CELL * 0.5, cx + bend, y0 + 12); context.stroke();
+      context.lineWidth = 1.1; context.strokeStyle = "rgba(225,235,170,0.4)";
+      for (const t of [0.35, 0.5, 0.65]) {
+        const y = y0 + CELL - 8 - (CELL - 20) * t;
+        context.beginPath(); context.moveTo(cx + bend * t, y); context.lineTo(cx + hw * 0.95, y - 26); context.moveTo(cx + bend * t, y); context.lineTo(cx - hw * 0.95, y - 26); context.stroke();
+      }
     }
-    if (slot >= 3) {
-      context.fillStyle = "#d9a937"; context.beginPath(); context.ellipse(ox + 118, oy + 130, 34, 44, 0.2, 0, Math.PI * 2); context.fill();
-    }
-    context.restore();
-  }
+  };
+  paintAtlas(null);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 4;
   new THREE.TextureLoader().load(new URL("./art/room03-lemon-leaf-atlas-v2.webp", import.meta.url).href, (loaded) => {
-    texture.image = loaded.image; texture.needsUpdate = true; loaded.dispose();
+    paintAtlas(loaded.image); texture.needsUpdate = true; loaded.dispose();
   }, undefined, () => { /* keep the canvas atlas */ });
-  const material = new THREE.MeshStandardMaterial({ map: texture, alphaTest: 0.5, roughness: 0.55, metalness: 0, side: THREE.FrontSide, emissive: 0x2c3b1b, emissiveMap: texture, emissiveIntensity: 0.28 });
-  const positions = [], normals = [], uvs = [], indices = [];
-  const up = new THREE.Vector3(0, 1, 0), centre = new THREE.Vector3(crown.cx, crown.cy, crown.cz);
-  // 46 slots, but a few low front cards are left out so the trunk and branches show through (a real crown is loose, not a solid ball).
-  const count = 46;
-  let placed = 0;
-  for (let i = 0; i < count; i++) {
-    // Fibonacci sphere, flattened a little and pulled in at random depths; fewer cards on the underside
-    const t = (i + 0.5) / count;
-    const polar = Math.acos(1 - 2 * t * 0.92 - 0.08);
-    const azimuth = i * 2.399963;
-    const depth = 0.55 + 0.45 * ((i * 37) % 11) / 10;
+  const material = new THREE.MeshStandardMaterial({ map: texture, alphaTest: 0.5, roughness: 0.95, metalness: 0, side: THREE.FrontSide, vertexColors: true, emissive: 0x2c3b1b, emissiveMap: texture, emissiveIntensity: 0.2 });
+  const positions = [], normals = [], uvs = [], colors = [], indices = [];
+  const up = new THREE.Vector3(0, 1, 0);
+  let seed = 7;
+  const random = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const SPRIGS = 36, PER_SPRIG = 6;
+  let leaves = 0;
+  for (let s = 0; s < SPRIGS; s++) {
+    // Fibonacci sphere over the crown, pulled in at random depths, fewer sprigs on the underside so the trunk shows through.
+    const t = (s + 0.5) / SPRIGS;
+    const polar = Math.acos(1 - 2 * t * 0.94 - 0.06);
+    const azimuth = s * 2.399963;
     const radial = new THREE.Vector3(Math.sin(polar) * Math.cos(azimuth), Math.cos(polar), Math.sin(polar) * Math.sin(azimuth));
-    if (radial.y < 0.15 && i % 3 !== 0) continue;
-    if (radial.y > 0.2 && radial.y < 0.55 && i % 5 === 2) continue;
-    placed++;
-    const position = new THREE.Vector3(crown.cx + radial.x * crown.rx * depth, crown.cy + radial.y * crown.ry * depth, crown.cz + radial.z * crown.rz * depth);
-    const wobble = new THREE.Vector3(Math.sin(i * 12.9898) , Math.sin(i * 78.233), Math.sin(i * 37.719)).multiplyScalar(0.3);
-    const facing = radial.clone().multiplyScalar(0.75).add(wobble).normalize();
-    const side = new THREE.Vector3().crossVectors(up, facing);
-    if (side.lengthSq() < 1e-4) side.set(1, 0, 0);
-    side.normalize();
-    const high = new THREE.Vector3().crossVectors(facing, side).normalize();
-    const roll = (i * 1.7) % (Math.PI * 2);
-    const u = side.clone().multiplyScalar(Math.cos(roll)).addScaledVector(high, Math.sin(roll));
-    const v = high.clone().multiplyScalar(Math.cos(roll)).addScaledVector(side, -Math.sin(roll));
-    const size = 0.205 + 0.05 * (((i * 53) % 7) / 6);
-    // slot: lemon patches (3, 4, 5) go mainly to the outer, front-facing cards
-    const outer = depth > 0.82 && radial.z > -0.2;
-    const slot = outer && i % 3 === 0 ? 3 + (i % 3 + i % 2) % 3 : (i % 3);
-    const col = slot % 3, row = Math.floor(slot / 3);
-    const u0 = col / 3, u1 = (col + 1) / 3, v0 = 1 - (row + 1) / 2, v1 = 1 - row / 2;
-    const shadeNormal = radial.clone().multiplyScalar(0.65).addScaledVector(facing, 0.35).normalize();
-    for (const flip of [1, -1]) {
-      const base = positions.length / 3;
-      const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
-      for (const [cx, cy] of corners) {
-        const point = position.clone().addScaledVector(u, cx * size / 2).addScaledVector(v, cy * size / 2);
-        positions.push(point.x, point.y, point.z);
-        normals.push(shadeNormal.x, shadeNormal.y, shadeNormal.z);
-        uvs.push(cx < 0 ? u0 : u1, cy < 0 ? v0 : v1);
+    if (radial.y < 0.1 && s % 3 !== 0) continue;
+    const depth = 0.5 + 0.5 * random();
+    const anchor = new THREE.Vector3(crown.cx + radial.x * crown.rx * depth * 0.88, crown.cy + radial.y * crown.ry * depth * 0.88, crown.cz + radial.z * crown.rz * depth * 0.88);
+    for (let k = 0; k < PER_SPRIG; k++) {
+      const around = (k / PER_SPRIG) * Math.PI * 2 + random() * 0.8;
+      const spread = new THREE.Vector3(Math.cos(around), 0, Math.sin(around)).multiplyScalar(0.55);
+      const dir = radial.clone().add(spread).add(new THREE.Vector3(0, -0.18 - 0.25 * random(), 0)).normalize();
+      const sideways = new THREE.Vector3().crossVectors(up, dir);
+      if (sideways.lengthSq() < 1e-4) sideways.set(1, 0, 0);
+      sideways.normalize();
+      // The leaf plane holds the leaf axis; its normal leans up and outward, so most leaves lie like real ones, a little tilted.
+      const lean = up.clone().multiplyScalar(0.7).addScaledVector(radial, 0.5).addScaledVector(sideways, (random() - 0.5) * 0.9);
+      lean.addScaledVector(dir, -lean.dot(dir)).normalize();
+      const wide = new THREE.Vector3().crossVectors(dir, lean).normalize();
+      const length = 0.11 + 0.045 * random();
+      const cell = Math.floor(random() * COLS * ROWS);
+      const col = cell % COLS, row = Math.floor(cell / COLS);
+      const u0 = col / COLS, u1 = (col + 1) / COLS, v0 = 1 - (row + 1) / ROWS, v1 = 1 - row / ROWS;
+      const centre = anchor.clone().addScaledVector(dir, length * 0.45);
+      const shadeNormal = radial.clone().multiplyScalar(0.6).addScaledVector(lean, 0.4).normalize();
+      const shade = 0.58 + 0.34 * depth + 0.06 * (random() - 0.5);
+      leaves++;
+      for (const flip of [1, -1]) {
+        const base = positions.length / 3;
+        for (const [cx, cy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+          const point = centre.clone().addScaledVector(wide, cx * length / 2).addScaledVector(dir, cy * length / 2);
+          positions.push(point.x, point.y, point.z);
+          normals.push(shadeNormal.x, shadeNormal.y, shadeNormal.z);
+          uvs.push(cx < 0 ? u0 : u1, cy < 0 ? v0 : v1);
+          colors.push(shade, shade, shade);
+        }
+        if (flip === 1) indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+        else indices.push(base, base + 2, base + 1, base, base + 3, base + 2);
       }
-      if (flip === 1) indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
-      else indices.push(base, base + 2, base + 1, base, base + 3, base + 2);
     }
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geometry.setIndex(indices);
   geometry.computeBoundingBox(); geometry.computeBoundingSphere();
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = "prop-window-meyer-lemon-tree-leaf-cards";
   mesh.userData.category = "household-props";
   mesh.userData.propKey = "window-meyer-lemon-tree";
+  mesh.userData.leaves = leaves;
   mesh.castShadow = false;
   mesh.receiveShadow = false;
   return { mesh, vertices: positions.length / 3 };
