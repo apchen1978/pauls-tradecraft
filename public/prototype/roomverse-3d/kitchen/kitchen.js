@@ -482,7 +482,20 @@ function buildKitchen(b, m) {
     addBox(b, "hardware", m.black, [0.27, 0.018, 0.025], [x, 0.71, -1.69]);
   }
   addBox(b, "counter", m.stone, [4.46, 0.09, 0.74], [0, 0.91, -2.02]);
-  addBox(b, "backsplash", m.stone, [4.34, 0.5, 0.035], [0, 1.21, -2.285]);
+  {
+    // Main backsplash in the same glazed subway tile as the wok side (GrokBot 2026-10-31: a Bay Area kitchen wants a handmade-looking tile), tinted a pale sage-oat so it
+    // sits between the olive cabinets and the mist-blue wall. The picture is shared with the wok tile and loaded once; the plain stone colour is the fallback.
+    const tileRepeatM = (1024 / 109) * 0.075;
+    m.mainTile = m.stone.clone();
+    m.mainTile.name = "main-backsplash-tile";
+    m.mainTile.color.setHex(0xc9c0ae);
+    const geometry = roundedBoxGeometry([4.34, 0.5, 0.035], 0.004);
+    geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 1.21, -2.285));
+    const position = geometry.attributes.position, uv = geometry.attributes.uv;
+    for (let index = 0; index < position.count; index++) uv.setXY(index, position.getX(index) / tileRepeatM, position.getY(index) / tileRepeatM);
+    uv.needsUpdate = true;
+    addGeometryToBucket(b, "backsplash", m.mainTile, geometry, [0, 0, 0]);
+  }
   addBox(b, "kitchen", m.olive, [4.24, 0.66, 0.42], [0, 1.78, -2.16]);
   // Handle-less push-to-open doors with a slim shadow gap along the lower edge (Paul 2026-10-29: make the top row more modern and technical), and the
   // far-left door is replaced by a built-in dish dryer (buildDishDryer).
@@ -2425,7 +2438,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
   let settled = 0;
   // Swappable prints for the two frames (Paul 2026-10-29). Each option is fetched only when chosen, painted into the same atlas
   // region as the original and then released, so vertices, meshes and draw calls never change and nothing extra loads up front.
-  const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "moon-hills" };
+  const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "fog-bridge" };
   const ART_OPTIONS = {
     "cable-car": {
       "cable-car": "./art/room03-bay-cable-car-v1.webp",
@@ -2441,6 +2454,8 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       "poster-leaf": "./art/room03-print-poster-leaf-v1.webp",
     },
     "lamp-wall": {
+      "fog-bridge": "./art/room03-print-fog-bridge-v1.webp",
+      "ferry-building": "./art/room03-print-ferry-building-v1.webp",
       "moon-hills": "./art/room03-lamp-wall-moon-hills-v1.webp",
       "hills-sun": "./art/room03-lamp-wall-hills-sun-v1.webp",
       "botanical-window": "./art/room03-lamp-wall-botanical-window-v1.webp",
@@ -2522,7 +2537,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       const urls = {
         cableCar: new URL("./art/room03-bay-cable-car-v1.webp", import.meta.url).href,
         redwoodPath: new URL("./art/room03-bay-redwood-path-v1.webp", import.meta.url).href,
-        lampWall: new URL("./art/room03-lamp-wall-moon-hills-v1.webp", import.meta.url).href,
+        lampWall: new URL("./art/room03-print-fog-bridge-v1.webp", import.meta.url).href,
       };
       for (const [name, asset] of Object.entries(assets)) {
         loader.load(urls[name], (texture) => {
@@ -4768,6 +4783,10 @@ export async function start({ stage, onReady = () => {} }) {
       wokTileState.material.roughness = 0.86;
       wokTileState.material.needsUpdate = true;
       wokTileState.status = "loaded";
+      materials.mainTile.map = texture;
+      materials.mainTile.color.setHex(0xdde5d0);
+      materials.mainTile.roughness = 0.8;
+      materials.mainTile.needsUpdate = true;
       render();
     }, undefined, () => {
       wokTileState.material.map = null;
@@ -4775,6 +4794,8 @@ export async function start({ stage, onReady = () => {} }) {
       wokTileState.material.roughness = materials.stone.roughness;
       wokTileState.material.needsUpdate = true;
       wokTileState.status = "failed";
+      materials.mainTile.map = null;
+      materials.mainTile.needsUpdate = true;
       render();
     });
   }

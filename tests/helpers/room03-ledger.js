@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 58699, meshes: 112 }),
+  scene: Object.freeze({ vertices: 58723, meshes: 112 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 79, phone: 78 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
@@ -41,6 +41,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-31", change: "default camera pulled back 0.2 m along the same line of sight (desktop and phone): one more mesh is inside the opening frustum on desktop, no new geometry", vertices: 56427, meshes: 111, desktopCalls: 78, phoneCalls: 77 },
     { date: "2026-10-31", change: "counter: a sourdough boule on a round oak board and a bowl of apples (one merged mesh, +1,768 vertices, +1 mesh, +1 draw call)", vertices: 58195, meshes: 112, desktopCalls: 79, phoneCalls: 78 },
     { date: "2026-10-31", change: "hood vent slots, knobs and polished lip; dish dryer polished lip and stronger glass glare; all inside existing meshes (+504 vertices, no new mesh or draw call)", vertices: 58699, meshes: 112, desktopCalls: 79, phoneCalls: 78 },
+    { date: "2026-10-31", change: "main backsplash uses a rounded tiled box instead of a plain box (+24 vertices, same bucket, no new mesh or draw call)", vertices: 58723, meshes: 112, desktopCalls: 79, phoneCalls: 78 },
   ]),
 });
 
