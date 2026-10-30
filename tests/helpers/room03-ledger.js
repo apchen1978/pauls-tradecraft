@@ -10,19 +10,19 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 56427, meshes: 111 }),
+  scene: Object.freeze({ vertices: 58195, meshes: 112 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 78, phone: 77 }),
+  openingDrawCalls: Object.freeze({ desktop: 79, phone: 78 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
   // without the tableware layer; their measured totals are 82/83 and 83/86, respectively.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 78, golden: 78, movie: 76, night: 78, dinner: 78, sunday: 78, thanksgiving: 78 }),
-    phone: Object.freeze({ daylight: 77, golden: 77, movie: 75, night: 77, dinner: 77, sunday: 77, thanksgiving: 77 }),
+    desktop: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 79, sunday: 79, thanksgiving: 79 }),
+    phone: Object.freeze({ daylight: 78, golden: 78, movie: 76, night: 78, dinner: 78, sunday: 78, thanksgiving: 78 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
   headroom: Object.freeze({ vertices: 117, meshes: 0, desktopCalls: 0, phoneCalls: 0 }),
-  resizedPhoneCalls: 77,
+  resizedPhoneCalls: 78,
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -39,6 +39,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-31", change: "entry hall: the three inner walls are dusty pink (second material on the same mesh, +1 draw call, no new geometry)", vertices: 55331, meshes: 111, desktopCalls: 77, phoneCalls: 77 },
     { date: "2026-10-31", change: "wok side: brass tool rail with five wooden-handled tools plus two shelf canisters replace the three black sticks (one new vertex-colour mesh replaces the old black one; net +1,096 vertices, no extra draw call)", vertices: 56427, meshes: 111, desktopCalls: 77, phoneCalls: 77 },
     { date: "2026-10-31", change: "default camera pulled back 0.2 m along the same line of sight (desktop and phone): one more mesh is inside the opening frustum on desktop, no new geometry", vertices: 56427, meshes: 111, desktopCalls: 78, phoneCalls: 77 },
+    { date: "2026-10-31", change: "counter: a sourdough boule on a round oak board and a bowl of apples (one merged mesh, +1,768 vertices, +1 mesh, +1 draw call)", vertices: 58195, meshes: 112, desktopCalls: 79, phoneCalls: 78 },
   ]),
 });
 
