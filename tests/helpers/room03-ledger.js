@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 53520, meshes: 110 }),
+  scene: Object.freeze({ vertices: 55331, meshes: 111 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 75, phone: 76 }),
+  openingDrawCalls: Object.freeze({ desktop: 76, phone: 76 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
   // without the tableware layer; their measured totals are 82/83 and 83/86, respectively.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 75, golden: 75, movie: 73, night: 75, dinner: 75, sunday: 75, thanksgiving: 75 }),
+    desktop: Object.freeze({ daylight: 76, golden: 76, movie: 74, night: 76, dinner: 76, sunday: 76, thanksgiving: 76 }),
     phone: Object.freeze({ daylight: 76, golden: 76, movie: 74, night: 76, dinner: 76, sunday: 76, thanksgiving: 76 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
@@ -35,6 +35,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-30", change: "smart kitchen hub: one unlit display plane on the backsplash above the hob (bezel painted into the texture)", vertices: 52272, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
     { date: "2026-10-30", change: "entry wall: flat grey mirror disc replaced by an oak-rimmed round wall clock (same mesh, +400 vertices)", vertices: 52672, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
     { date: "2026-10-31", change: "lemon tree: 46 round photo cards replaced by about 200 single leaf cards in sprigs (+848 vertices, same mesh)", vertices: 53520, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
+    { date: "2026-10-31", change: "credenza top styled like Room 01 shelves: books, vessel with dried stems, potted plant, dish with stones (one merged mesh, +1811 vertices)", vertices: 55331, meshes: 111, desktopCalls: 76, phoneCalls: 76 },
   ]),
 });
 
