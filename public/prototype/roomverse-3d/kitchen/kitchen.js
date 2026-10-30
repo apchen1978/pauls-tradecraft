@@ -4637,7 +4637,7 @@ export async function start({ stage, onReady = () => {} }) {
       hemi: 1.15, hemiSky: 0xf1f5fb, hemiGround: 0xd8d0c3, ambient: 0.36, pendant: 0.2, under: 0.70, side: 0.70,
       exposure: 0.96, yard: 0xc2c9cb, globe: 0.2, sky: "day",
       floor: 0xc8bda9, jute: 0xcfc2a4, ceilingEmissive: 0.10,
-      ceilingColor: 0xcdae80, ceilingEmissiveColor: 0xa8957a, beamColor: 0x9a7a52, tableTint: 0xd4c9ba,
+      ceilingColor: 0xd8c6a8, ceilingEmissiveColor: 0xa8957a, beamColor: 0x8e765a, tableTint: new THREE.Color().setRGB(1.0, 1.2, 1.6),
       warmGlow: 0.4, wokGlow: 0.6,
       windowWallBounce: 0.10, windowWallBounceVisible: true,
       pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
@@ -4811,7 +4811,7 @@ export async function start({ stage, onReady = () => {} }) {
   function tintDiningTable(tint) {
     const table = scene.getObjectByName("room03-table-glb");
     if (!table) return;
-    const factor = new THREE.Color(tint);
+    const factor = tint.isColor ? tint : new THREE.Color(tint);
     table.traverse((object) => {
       if (!object.isMesh) return;
       for (const material of (Array.isArray(object.material) ? object.material : [object.material])) {
