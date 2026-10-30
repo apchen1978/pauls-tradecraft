@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 59886, meshes: 113 }),
+  scene: Object.freeze({ vertices: 60430, meshes: 114 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 79, phone: 78 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
@@ -45,6 +45,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-31", change: "counter story: a slice cut from the sourdough, crumbs and a lemon half (same mesh, +891 vertices, no new mesh or draw call)", vertices: 59614, meshes: 112, desktopCalls: 79, phoneCalls: 78 },
     { date: "2026-10-31", change: "entry-hall wall clock modernised: matte black thin frame, white dial, quarter batons, slim hands and a coral second hand (same mesh, +344 vertices)", vertices: 59958, meshes: 112, desktopCalls: 79, phoneCalls: 78 },
     { date: "2026-10-31", change: "entry-hall TV: a 55 in wall-mounted panel with a thin black bezel (one black slab mesh) replaces the 40 in oak-framed one; left quarter sits inside the side wall (-72 vertices, +1 mesh)", vertices: 59886, meshes: 113, desktopCalls: 79, phoneCalls: 78 },
+    { date: "2026-10-31", change: "reading corner by the floor lamp: oak stool, folded blanket and a book with a ribbon bookmark (one merged mesh, +544 vertices, +1 mesh; not in the opening frustum, so the opening draw calls stay 79 / 78)", vertices: 60430, meshes: 114, desktopCalls: 79, phoneCalls: 78 },
   ]),
 });
 
