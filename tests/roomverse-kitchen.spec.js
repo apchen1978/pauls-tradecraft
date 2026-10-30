@@ -434,7 +434,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     // P0 lowered hemi 0.9->0.55 and ambient 0.30->0.16, so this local interior sample is 4.5 % darker (107.1) even though
     // the whole-frame mean is unchanged (111.1 -> 111.6). Old floor was 106.7261 * 1.05 = 112.1; the new floor keeps the
     // sample from collapsing while P0 is in review.
-    expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(104);
+    // 2026-10-31: styling the credenza top (books, vessel, plant) moved this sample from >= 104 to 103.98, a 0.016 difference nobody can see. Floor 103.5 (Paul: budgets are QA tools, measure first).
+    expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(103.5);
     // This sample sits inside the old VSM penumbra (99.8). With PCF the penumbra is narrower, so the same pixels are 91.1.
     // Old ceiling 7.8395. On the pre-lamp build this machine measured 7.844 (known edge noise, left alone).
     // The floor lamp now stands where the fig stood, and that sample reads 8.318. Ceiling 8.50 still rejects a blown penumbra.
