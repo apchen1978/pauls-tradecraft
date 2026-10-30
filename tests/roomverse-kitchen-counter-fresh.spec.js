@@ -18,4 +18,6 @@ test("a sourdough board and a bowl of fruit stand on the kitchen counter, inside
   expect(fresh.bounds.max[0], "inside the counter run (ends at x 2.23)").toBeLessThanOrEqual(2.2);
   expect(fresh.bounds.min[2], "in front of the backsplash").toBeGreaterThanOrEqual(-2.3);
   expect(fresh.bounds.max[2], "inside the counter depth (front edge z -1.65)").toBeLessThanOrEqual(-1.7);
+  expect(fresh.bounds.max[2], "the cut slice and the lemon half lie in front of the board").toBeGreaterThanOrEqual(-1.8);
+  expect(fresh.vertices, "board, loaf, slice, crumbs, lemon half, bowl and fruit").toBeGreaterThan(2400);
 });
