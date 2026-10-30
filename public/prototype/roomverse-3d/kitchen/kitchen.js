@@ -323,7 +323,7 @@ function makeMaterials() {
     olive: std(COLORS.olive, 0.88, { map: makeCabinetTexture() }),
     stone: std(COLORS.stone, 0.45, { map: makeFineNoise(23, 0.025) }),
     black: std(COLORS.black, 0.44), steel: std(COLORS.steel, 0.38),
-    hoodSteel: std(0xd1d3cc, 0.56, { map: makeBrushedMetalTexture(), metalness: 0.08 }),
+    hoodSteel: std(0xc4c9ca, 0.5, { map: makeBrushedMetalTexture(), metalness: 0.2 }),
     jute: std(COLORS.jute, 0.96, { map: makeRugTexture() }), seat: std(0xb8a17e, 0.98, { map: makeSeatTexture() }),
     loungeFabric: std(0xe4d5bd, 0.98, { map: boucle }),
     // Deeper sage and a warmer camel, only on this chair's loose cushions, so the pillow reads as cotton and the throw as linen.
@@ -529,6 +529,11 @@ function buildKitchen(b, m) {
   });
   hoodBody.translate(0, 0, -hoodCoreDepth / 2);
   addGeometryToBucket(b, "hood", m.hoodSteel, mergeVertices(hoodBody), [0.82, 2.43, -2.21]);
+  // Canopy details (GrokBot 2026-10-31: the hood read as a plain grey block): five dark vent slots in the underside, a row of three steel knobs on the front
+  // face and a pale polished lip along the front edge. They join the existing black and steel appliance meshes, so no draw call is added.
+  for (const dz of [-0.14, -0.07, 0, 0.07, 0.14]) addGeometryToBucket(b, "appliances", m.black, new THREE.BoxGeometry(0.9, 0.003, 0.022), [0.82, 2.0535, -2.01 + dz]);
+  for (const dx of [-0.52, -0.40, 0.52]) addGeometryToBucket(b, "appliances", m.steel, new THREE.CylinderGeometry(0.014, 0.016, 0.014, 14), [0.82 + dx, 2.1, -1.735 + 0.007], [Math.PI / 2, 0, 0]);
+  addGeometryToBucket(b, "appliances", m.steel, new THREE.BoxGeometry(1.34, 0.006, 0.006), [0.82, 2.058, -1.735 + 0.001]);
   // Under-cabinet light is an emissive strip plus a single low-power task spot.
   addBox(b, "light-fixtures", m.warmGlow, [3.45, 0.018, 0.024], [0, 1.43, -1.91]);
 }
@@ -3057,17 +3062,30 @@ function buildDishDryer(scene, m) {
   const CX = -1.55, CY = 1.78, DOOR_Z = -1.94, W = 0.96, H = 0.60, D = 0.035;
   const TOP = 0.075, BOTTOM = 0.028, SIDE = 0.04;
   const parts = [];
-  const bar = (w, h, d, x, y, z) => { const g = new THREE.BoxGeometry(w, h, d); g.translate(x, y, z); parts.push(g); };
+  // Vertex colour 0.9 for the body and 1.0 for the polished inner lip, so the frame has an edge highlight even without an environment map.
+  const bar = (w, h, d, x, y, z, shade = 0.9) => {
+    const g = new THREE.BoxGeometry(w, h, d); g.translate(x, y, z);
+    const colors = new Float32Array(g.attributes.position.count * 3).fill(shade);
+    g.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    parts.push(g);
+  };
   bar(W, TOP, D, CX, CY + H / 2 - TOP / 2, DOOR_Z);
   bar(W, BOTTOM, D, CX, CY - H / 2 + BOTTOM / 2, DOOR_Z);
   const innerTop = CY + H / 2 - TOP, innerBottom = CY - H / 2 + BOTTOM, innerHeight = innerTop - innerBottom, innerY = (innerTop + innerBottom) / 2;
   for (const side of [-1, 1]) bar(SIDE, innerHeight, D, CX + side * (W / 2 - SIDE / 2), innerY, DOOR_Z);
   // three ribs across the top band, like the pull-down grille on the real unit
   for (const dy of [-0.012, 0, 0.012]) bar(W - 0.02, 0.0035, 0.004, CX, CY + H / 2 - TOP / 2 + dy, DOOR_Z + D / 2 + 0.0012);
+  // Polished lip around the opening, 3 mm proud of the frame face.
+  {
+    const lipZ = DOOR_Z + D / 2 + 0.0016;
+    bar(W - 2 * SIDE, 0.003, 0.003, CX, innerTop - 0.0015, lipZ, 1.0);
+    bar(W - 2 * SIDE, 0.003, 0.003, CX, innerBottom + 0.0015, lipZ, 1.0);
+    for (const side of [-1, 1]) bar(0.003, innerHeight, 0.003, CX + side * (W / 2 - SIDE - 0.0015), innerY, lipZ, 1.0);
+  }
   const frameGeometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
   frameGeometry.computeVertexNormals();
-  const steel = m.hoodSteel.clone(); steel.color.set(0x8f9598); steel.metalness = 0.3; steel.roughness = 0.5; // cooler stainless than the beige-leaning hood steel
+  const steel = m.hoodSteel.clone(); steel.vertexColors = true; steel.color.set(0x8f9598); steel.metalness = 0.3; steel.roughness = 0.5; // cooler stainless than the beige-leaning hood steel
   const frame = new THREE.Mesh(frameGeometry, steel);
   frame.name = "dish-dryer-frame"; frame.userData.category = "appliances"; frame.castShadow = true; frame.receiveShadow = true;
   group.add(frame);
@@ -3081,8 +3099,8 @@ function buildDishDryer(scene, m) {
   const glass = c.createLinearGradient(0, 0, cw, ch); glass.addColorStop(0, "#0b0e11"); glass.addColorStop(1, "#05070a");
   c.fillStyle = glass; c.fillRect(0, 0, cw, ch);
   // soft reflection streaks on the black glass
-  c.fillStyle = "rgba(255,255,255,0.035)"; c.beginPath(); c.moveTo(0, ch * 0.55); c.lineTo(cw * 0.45, 0); c.lineTo(cw * 0.62, 0); c.lineTo(0, ch * 0.9); c.fill();
-  c.fillStyle = "rgba(255,255,255,0.025)"; c.beginPath(); c.moveTo(cw * 0.5, ch); c.lineTo(cw, ch * 0.3); c.lineTo(cw, ch * 0.5); c.lineTo(cw * 0.75, ch); c.fill();
+  c.fillStyle = "rgba(255,255,255,0.075)"; c.beginPath(); c.moveTo(0, ch * 0.55); c.lineTo(cw * 0.45, 0); c.lineTo(cw * 0.62, 0); c.lineTo(0, ch * 0.9); c.fill();
+  c.fillStyle = "rgba(255,255,255,0.05)"; c.beginPath(); c.moveTo(cw * 0.5, ch); c.lineTo(cw, ch * 0.3); c.lineTo(cw, ch * 0.5); c.lineTo(cw * 0.75, ch); c.fill();
   // clear window with the UV tubes and a wire rack
   const wx = cw * 0.12, wy = ch * 0.07, ww = cw * 0.58, wh = ch * 0.86;
   const haze = c.createLinearGradient(0, wy, 0, wy + wh); haze.addColorStop(0, "#14333c"); haze.addColorStop(0.5, "#0b1c22"); haze.addColorStop(1, "#070e12");
