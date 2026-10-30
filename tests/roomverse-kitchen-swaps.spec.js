@@ -8,7 +8,7 @@ if (QA) mkdirSync(QA, { recursive: true });
 const FRAMES = {
   "cable-car": ["cable-car", "fog-bridge", "marin-hills", "poster-sun"],
   "redwood-path": ["redwood-path", "ferry-building", "oak-street", "poster-arch", "poster-leaf"],
-  "lamp-wall": ["moon-hills", "hills-sun", "botanical-window"],
+  "lamp-wall": ["fog-bridge", "ferry-building", "moon-hills", "hills-sun", "botanical-window"],
 };
 
 async function loadRoom(page, width, lang = "zh") {
@@ -27,10 +27,11 @@ for (const width of [1440, 390]) {
     page.on("request", (request) => { // The lamp-wall frame's own default picture loads with the room, so only its alternatives count as "chosen" downloads.
     if (request.url().includes("room03-print-") || /room03-lamp-wall-(hills|botanical)/.test(request.url())) printRequests.push(request.url()); });
     await loadRoom(page, width);
-    expect(printRequests, "no replacement print is downloaded until one is chosen").toEqual([]);
+    // The lamp-wall frame now opens on the Golden Gate fog print (2026-10-31), so that one file loads with the room; every other print waits until chosen.
+    expect(printRequests.map((url) => url.split("/").pop()), "no replacement print is downloaded until one is chosen").toEqual(["room03-print-fog-bridge-v1.webp"]);
     const base = await page.evaluate(() => window.__room03.info());
     expect(await page.evaluate(() => window.__room03.artOptions())).toEqual(FRAMES);
-    expect(base.wallArtChoice).toEqual({ "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "moon-hills" });
+    expect(base.wallArtChoice).toEqual({ "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "fog-bridge" });
     await page.locator("#swaps summary").click();
     const baseMean = base.wallArtMean;
     for (const [frame, options] of Object.entries(FRAMES)) {
@@ -71,10 +72,10 @@ test("the swap panel is labelled in both languages and stays out of fullscreen",
   await loadRoom(page, 390);
   await expect(page.locator("#swapsTitle")).toHaveText("換搭配");
   await page.locator("#swaps summary").click();
-  await expect(page.locator('#swapGroups button[data-art="fog-bridge"]')).toHaveText("霧中金門大橋");
+  await expect(page.locator('#swapGroups button[data-frame="cable-car"][data-art="fog-bridge"]')).toHaveText("霧中金門大橋");
   await page.locator("#lang").click();
   await expect(page.locator("#swapsTitle")).toHaveText("Swap the look");
-  await expect(page.locator('#swapGroups button[data-art="fog-bridge"]')).toHaveText("Golden Gate in fog");
+  await expect(page.locator('#swapGroups button[data-frame="cable-car"][data-art="fog-bridge"]')).toHaveText("Golden Gate in fog");
   for (const button of await page.locator("#swapGroups button").all()) expect((await button.boundingBox()).height).toBeGreaterThanOrEqual(44);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow, "no horizontal overflow at 390 px").toBeLessThanOrEqual(0);
