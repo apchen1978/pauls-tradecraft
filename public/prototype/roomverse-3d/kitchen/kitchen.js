@@ -4605,19 +4605,24 @@ function buildRoom03EntryWallDetails(scene) {
     return geometry;
   };
   const parts = [];
-  // Round wall clock under the Redwood print (Paul 2026-10-30: the flat blue-grey mirror disc read as a strange colour). Cream face, the same oak rim,
-  // twelve black ticks and two hands at 10:10. Seen from the room the wall's x axis runs right-to-left, hence the mirrored sin below.
+  // Round wall clock under the Redwood print. First a cream face with an oak rim (Paul 2026-10-30: the grey mirror disc read strange), then modernised
+  // (Paul 2026-10-31, after a look at what US shoppers buy: a 12 in matte-black thin metal frame, white matte dial, a silent sweep movement, bold quarter
+  // batons with fine ticks between, slim black hands and one slim coral second hand). Seen from the room the wall's x axis runs right-to-left, hence
+  // the mirrored sin below.
   const CLOCK = [0.32, 0.83];
-  parts.push(paint(place(new THREE.CylinderGeometry(0.205, 0.205, 0.008, 24), [CLOCK[0], CLOCK[1], 3.735], [Math.PI / 2, 0, 0]), 0xf1e9d8));
-  parts.push(paint(place(new THREE.TorusGeometry(0.218, 0.012, 6, 24), [CLOCK[0], CLOCK[1], 3.728]), 0xb88b5b));
+  parts.push(paint(place(new THREE.CylinderGeometry(0.205, 0.205, 0.008, 40), [CLOCK[0], CLOCK[1], 3.735], [Math.PI / 2, 0, 0]), 0xf4f2ec));
+  parts.push(paint(place(new THREE.TorusGeometry(0.212, 0.0085, 6, 40), [CLOCK[0], CLOCK[1], 3.728]), 0x232422));
   const clockBar = (length, width, radius, angle, z, color, centered = true) => {
     const reach = centered ? radius : radius + length / 2;
     parts.push(paint(place(new THREE.BoxGeometry(width, length, 0.004), [CLOCK[0] - Math.sin(angle) * reach, CLOCK[1] + Math.cos(angle) * reach, z], [0, 0, angle]), color));
   };
-  for (let i = 0; i < 12; i++) clockBar(i % 3 === 0 ? 0.034 : 0.018, i % 3 === 0 ? 0.008 : 0.005, 0.165, (i * Math.PI) / 6, 3.7285, 0x2b2b2b);
-  clockBar(0.095, 0.014, 0, (305 * Math.PI) / 180, 3.7265, 0x2b2b2b, false);
-  clockBar(0.145, 0.009, 0, (60 * Math.PI) / 180, 3.7245, 0x2b2b2b, false);
-  parts.push(paint(place(new THREE.CylinderGeometry(0.011, 0.011, 0.006, 10), [CLOCK[0], CLOCK[1], 3.7255], [Math.PI / 2, 0, 0]), 0x2b2b2b));
+  for (let i = 0; i < 12; i++) clockBar(i % 3 === 0 ? 0.04 : 0.012, i % 3 === 0 ? 0.011 : 0.003, 0.168, (i * Math.PI) / 6, 3.7285, 0x232422);
+  clockBar(0.10, 0.009, 0, (305 * Math.PI) / 180, 3.7265, 0x232422, false);
+  clockBar(0.152, 0.006, 0, (60 * Math.PI) / 180, 3.7245, 0x232422, false);
+  clockBar(0.178, 0.0022, 0, (215 * Math.PI) / 180, 3.7225, 0xe2674a, false);
+  clockBar(0.044, 0.0035, 0, (35 * Math.PI) / 180, 3.7225, 0xe2674a, false);
+  parts.push(paint(place(new THREE.CylinderGeometry(0.0085, 0.0085, 0.006, 14), [CLOCK[0], CLOCK[1], 3.7255], [Math.PI / 2, 0, 0]), 0x232422));
+  parts.push(paint(place(new THREE.CylinderGeometry(0.0045, 0.0045, 0.006, 10), [CLOCK[0], CLOCK[1], 3.7215], [Math.PI / 2, 0, 0]), 0xe2674a));
   // Three black iron J-hooks and one dish towel, mounted in front of the wall and below the existing artwork.
   parts.push(paint(place(new THREE.BoxGeometry(0.31, 0.022, 0.014), [0.73, 1.145, 3.733]), 0x2b2b2b));
   for (const x of [0.62, 0.73, 0.84]) {
