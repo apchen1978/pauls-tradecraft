@@ -6,5 +6,5 @@ Paul 2026-10-30: the hob area should feel like 2026 Bay Area: a temperature cont
 - Reads: KITCHEN 72 F with AIR GOOD; HOB four zone levels (two lit); TIMER 04:32; WOK 380 F with a progress bar. Numbers are decor, not a claim about a real appliance.
 - Drawn once on a canvas, `toneMapped` off, so it reads in every mood and nothing runs per frame.
 - Ledger: vertices 52,268 -> 52,272, meshes 109 -> 110, draw calls +1 (desktop 75, phone 76). `resizedPhoneCalls` 75 -> 76.
-- Cache-bust: `kitchen.js?v=75`, `page.js?v=76` (same numbers as the daylight-tone PR; whichever merges second gets bumped again).
+- Cache-bust: `kitchen.js?v=76`, `page.js?v=77` (bumped once more after the daylight-tone PR merged).
 - Real iPhone Safari: UNKNOWN until Paul checks. Screenshots: `after-390.png`, `after-1440.png`.
