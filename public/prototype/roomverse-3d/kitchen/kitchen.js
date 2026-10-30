@@ -4502,6 +4502,18 @@ function buildRoom03CounterFresh(scene) {
   for (const [dx, dz, yaw] of [[-0.03, -0.005, 0.55], [0, 0.0, 0.55], [0.03, 0.005, 0.55]]) {
     add(new THREE.SphereGeometry(0.05, 10, 6), 0xa56a2d, [BX + dx, loafY + 0.05, BZ + dz], [0, yaw + 0.4, 0], [1, 0.07, 0.07]);
   }
+  // A story on the counter (GrokBot 2026-10-31: tiny details people look for): one slice already cut from the loaf and lying in front of the board with its
+  // crumbs, and a lemon half, cut side up, beside it (the lemons of the fruit bowl on the table).
+  const SX = BX + 0.03, SZ = -1.86;
+  add(new THREE.CylinderGeometry(0.063, 0.063, 0.016, 22), 0xb9803f, [SX, TOP + 0.008, SZ], [0, 0.25, 0], [1, 1, 0.86]);
+  add(new THREE.CylinderGeometry(0.056, 0.056, 0.0165, 22), 0xe9d6a6, [SX, TOP + 0.00825, SZ], [0, 0.25, 0], [1, 1, 0.86]);
+  for (const [i, [dx, dz]] of [[-0.09, 0.03], [-0.075, -0.045], [0.085, 0.045], [0.1, -0.025], [-0.03, 0.075], [0.04, -0.07], [0.0, 0.1], [-0.11, -0.01]].entries()) {
+    add(new THREE.SphereGeometry(0.0034 + (i % 3) * 0.0008, 5, 4), i % 2 ? 0xe2c58c : 0xc99a58, [SX + dx, TOP + 0.003, SZ + dz]);
+  }
+  const LX = BX + 0.19, LZ = -1.9;
+  add(new THREE.SphereGeometry(0.033, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0xe0b92d, [LX, TOP + 0.0004, LZ], [0, 0.4, 0], [1.25, 1, 1]);
+  add(new THREE.CylinderGeometry(0.0325, 0.0325, 0.0008, 16), 0xf3e28f, [LX, TOP + 0.0006, LZ], [0, 0.4, 0], [1.25, 1, 1]);
+  for (let k = 0; k < 6; k++) add(new THREE.BoxGeometry(0.058, 0.0006, 0.0014), 0xfaf1c4, [LX, TOP + 0.0011, LZ], [0, 0.4 + k * Math.PI / 6, 0], [1, 1, 1]);
   // Bowl of fruit at x 2.02, z -2.04: glazed cream bowl, four apples around and one on top, one orange.
   const FX = 2.02, FZ = -2.04;
   add(lathe([[0, 0], [0.05, 0], [0.058, 0.006], [0.098, 0.04], [0.108, 0.07], [0.102, 0.072], [0.092, 0.05], [0.05, 0.016], [0, 0.014]], 20), 0xd9cdb8, [FX, TOP, FZ]);
