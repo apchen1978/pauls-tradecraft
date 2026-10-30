@@ -4611,14 +4611,21 @@ export async function start({ stage, onReady = () => {} }) {
   let firstFrameRendered = false;
   buildArchitecture(buckets, materials, scene, () => { yardLoaded = true; render(); });
   {
-    const boxes = [
+    // The entry hall: the front wall (two piers and a lintel), the floor and ceiling slabs keep the room's mist blue; the three walls inside the hall
+    // are dusty pink (Paul 2026-10-31: blue everywhere made the small room read flat). One mesh, two materials.
+    const BLUE_BOXES = [
       [[2.1, 2.7, 0.12], [-2.05, 1.35, 2.4]], [[2.1, 2.7, 0.12], [2.05, 1.35, 2.4]], [[2.0, 0.6, 0.12], [0, 2.4, 2.4]],
-      [[0.12, 2.7, 1.4], [-1, 1.35, 3.1]], [[0.12, 2.7, 1.4], [1, 1.35, 3.1]],
-      [[2.0, 0.12, 1.4], [0, -0.06, 3.1]], [[2.0, 0.12, 1.4], [0, 2.64, 3.1]], [[2.0, 2.7, 0.12], [0, 1.35, 3.8]],
+      [[2.0, 0.12, 1.4], [0, -0.06, 3.1]], [[2.0, 0.12, 1.4], [0, 2.64, 3.1]],
     ];
-    const parts = boxes.map(([size, position]) => { const geometry = new THREE.BoxGeometry(...size); geometry.translate(...position); return geometry; });
-    const geometry = mergeGeometries(parts, false); parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
-    const hall = new THREE.Mesh(geometry, materials.wall); hall.name = "entry-hall"; hall.userData.category = "entry-architecture"; hall.castShadow = false; hall.receiveShadow = true; scene.add(hall);
+    const PINK_BOXES = [[[0.12, 2.7, 1.4], [-1, 1.35, 3.1]], [[0.12, 2.7, 1.4], [1, 1.35, 3.1]], [[2.0, 2.7, 0.12], [0, 1.35, 3.8]]];
+    const merge = (list) => {
+      const parts = list.map(([size, position]) => { const geometry = new THREE.BoxGeometry(...size); geometry.translate(...position); return geometry; });
+      const merged = mergeGeometries(parts, false); parts.forEach((part) => part.dispose()); return merged;
+    };
+    const blueGeometry = merge(BLUE_BOXES), pinkGeometry = merge(PINK_BOXES);
+    const geometry = mergeGeometries([blueGeometry, pinkGeometry], true); blueGeometry.dispose(); pinkGeometry.dispose(); geometry.computeVertexNormals();
+    const pinkWall = materials.wall.clone(); pinkWall.name = "wall-entry-hall-pink"; pinkWall.color.setHex(0xe9bdb9);
+    const hall = new THREE.Mesh(geometry, [materials.wall, pinkWall]); hall.name = "entry-hall"; hall.userData.category = "entry-architecture"; hall.castShadow = false; hall.receiveShadow = true; scene.add(hall);
   }
   buildKitchen(buckets, materials);
   buildSideKitchen(buckets, materials, scene);

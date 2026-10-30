@@ -12,17 +12,17 @@ export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
   scene: Object.freeze({ vertices: 55331, meshes: 111 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 76, phone: 76 }),
+  openingDrawCalls: Object.freeze({ desktop: 77, phone: 77 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
   // without the tableware layer; their measured totals are 82/83 and 83/86, respectively.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 76, golden: 76, movie: 74, night: 76, dinner: 76, sunday: 76, thanksgiving: 76 }),
-    phone: Object.freeze({ daylight: 76, golden: 76, movie: 74, night: 76, dinner: 76, sunday: 76, thanksgiving: 76 }),
+    desktop: Object.freeze({ daylight: 77, golden: 77, movie: 75, night: 77, dinner: 77, sunday: 77, thanksgiving: 77 }),
+    phone: Object.freeze({ daylight: 77, golden: 77, movie: 75, night: 77, dinner: 77, sunday: 77, thanksgiving: 77 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
   headroom: Object.freeze({ vertices: 117, meshes: 0, desktopCalls: 0, phoneCalls: 0 }),
-  resizedPhoneCalls: 76,
+  resizedPhoneCalls: 77,
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -36,6 +36,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-30", change: "entry wall: flat grey mirror disc replaced by an oak-rimmed round wall clock (same mesh, +400 vertices)", vertices: 52672, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
     { date: "2026-10-31", change: "lemon tree: 46 round photo cards replaced by about 200 single leaf cards in sprigs (+848 vertices, same mesh)", vertices: 53520, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
     { date: "2026-10-31", change: "credenza top styled like Room 01 shelves: books, vessel with dried stems, potted plant, dish with stones (one merged mesh, +1811 vertices)", vertices: 55331, meshes: 111, desktopCalls: 76, phoneCalls: 76 },
+    { date: "2026-10-31", change: "entry hall: the three inner walls are dusty pink (second material on the same mesh, +1 draw call, no new geometry)", vertices: 55331, meshes: 111, desktopCalls: 77, phoneCalls: 77 },
   ]),
 });
 
