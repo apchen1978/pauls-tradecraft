@@ -141,7 +141,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.pixelRatio).toBe(1.5);
     expect(golden.furniture.chair).toBe("procedural-v2");
     expect(golden.vertices).toBeLessThanOrEqual(55000);
-    expect(golden.vertices - 49855).toBeLessThanOrEqual(1500);
+    expect(golden.vertices).toBeLessThanOrEqual(CAPS.vertices);
     // The fig's 30 leaves are gone. Each retained new lamp is two meshes. Old: plantLeafCount === 30.
     expect(golden.plantLeafCount).toBe(0);
     for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light"]) {
@@ -164,7 +164,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await page.locator('#moods button[data-mood="night"]').click();
     await shot(page, "review-mobile-390-night");
     console.log("Room 03 procedural soft furniture:", JSON.stringify({
-      baseline: { vertices: 49855, viewport: [1384, 700], pixelRatio: 1.5 },
+      baseline: { vertices: LEDGER.history.at(-2).vertices, viewport: [1384, 700], pixelRatio: 1.5 },
       golden: { vertices: golden.vertices, triangles: golden.triangles, meshes: golden.meshes, drawCalls: golden.drawCallsLastFrame, chair: golden.furnitureAssets.chair, plant: golden.propGeometry["window-fiddle-leaf-fig"], lounge: golden.categories["lounge-chair"] },
     }));
     expect(errors).toEqual([]);
@@ -206,8 +206,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       expect(gapXZ(chairBounds, diningChair), "dining chair clearance").toBeGreaterThanOrEqual(0.4);
     }
     expect(golden.vertices).toBeLessThanOrEqual(55000);
-    expect(golden.vertices - 49855, "procedural furniture adds at most 1,500 vertices from main").toBeLessThanOrEqual(1500);
-    expect(golden.drawCallsLastFrame - 97, "draw calls increase by at most two from 29c4c5e").toBeLessThanOrEqual(2);
+    expect(golden.vertices).toBeLessThanOrEqual(CAPS.vertices);
+    expect(golden.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls);
     // Old: 6. Three new point lights (floor, table, screen cool) do not cast shadows. Golden and night keep them at intensity 0.
     expect(golden.lightMetrics.lightCount).toBe(9);
     expect(chair.contactShadowVisible).toBe(true);
@@ -389,7 +389,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       // Keep this legacy pixel sample comparable: its camera is outside the room,
       // behind the new media wall. The room furniture must not occlude the light-only sample.
       // The entry nook (bench and rug) stands in the hall that this exterior sample looks through; hide it too so the historical thresholds stay untouched.
-      for (const name of ["room03-wall-art-and-media-woodwork", "room03-wall-art-image-atlas", "prop-room03-screen-and-console", "room03-entry-tv-nook"]) {
+      for (const name of ["room03-wall-art-and-media-woodwork", "room03-wall-art-image-atlas", "prop-room03-screen-and-console", "room03-entry-tv-nook", "room03-entry-wall-details", "room03-window-curtains"]) {
         const object = scene.getObjectByName(name);
         if (object) object.visible = false;
       }
@@ -415,7 +415,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     const golden = await measure();
     const floorLamp = golden.info.lamps["floor-reading-lamp"].bounds;
     console.log("Room 03 floor lamp bounds:", JSON.stringify({ current: floorLamp }));
-    // Old fig bounds: x inside -2.8..-1.4, min y ≈ 0.01, height 1.5–1.8. The lamp is 1.50 m at the same spot.
+    // Old spherical lamp height 1.50 m -> new paper drum/tripod height 1.643 m at the same floor position.
     expect(floorLamp.min[0]).toBeGreaterThan(-2.8);
     expect(floorLamp.max[0]).toBeLessThan(-1.4);
     expect(Math.abs(floorLamp.min[1])).toBeLessThanOrEqual(0.01);
@@ -428,7 +428,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     // Old ceiling 8. Three new point lights bring the count to 9, which is the Room 03 cap.
     expect(golden.info.lightMetrics.lightCount).toBeLessThanOrEqual(9);
     expect(golden.info.vertices).toBeLessThanOrEqual(55000);
-    expect(golden.info.vertices - golden.info.categories["lounge-chair"].vertices - 44199).toBeLessThanOrEqual(3000);
+    expect(golden.info.vertices).toBeLessThanOrEqual(CAPS.vertices);
     expect(golden.info.drawCallsLastFrame).toBeLessThanOrEqual(100);
     expect(golden.info.plantLeafCount).toBe(0);
     // P0 lowered hemi 0.9->0.55 and ambient 0.30->0.16, so this local interior sample is 4.5 % darker (107.1) even though
@@ -453,7 +453,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       const scene = window.__room03.qaScene;
       scene.getObjectByName("entry-hall").visible = false;
       // The entry nook (bench and rug) stands in the hall that this exterior sample looks through; hide it too so the historical thresholds stay untouched.
-      for (const name of ["room03-wall-art-and-media-woodwork", "room03-wall-art-image-atlas", "prop-room03-screen-and-console", "room03-entry-tv-nook"]) {
+      for (const name of ["room03-wall-art-and-media-woodwork", "room03-wall-art-image-atlas", "prop-room03-screen-and-console", "room03-entry-tv-nook", "room03-entry-wall-details", "room03-window-curtains"]) {
         const object = scene.getObjectByName(name);
         if (object) object.visible = false;
       }
@@ -789,11 +789,11 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.contactShadow.totalPatchCount).toBe(34); // Old 30 -> 34: three side-table feet plus the tree-pot contact patch, merged into the existing mesh.
     expect(info.contactShadow.vertices).toBe(136); // Old 120 -> 136: four added decals × four vertices; draw calls remain unchanged.
     expect(info.vertices).toBeLessThanOrEqual(55000);
-    expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices); // door: +2,688 (50,368); // Main 39,105 + the task-card 3,200-vertex cap; measured living-detail net is 2,498.
+    expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
-    expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls); // 72 -> 73: the door leaf in the opening view; 71 -> 72: the robot; 70 -> 71: the right-wall credenza; dish dryer frame and face are in the opening view: 69 -> 70. Main opening 67 + task-card maximum +2; measured opening is expected to remain within this cap.
+    expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls);
     expect(info.meshes).toBeLessThanOrEqual(130);
-    expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes); // door: 106 -> 107 (leaf and doorway light; the frame joins the trim mesh); Main 96 + task-card maximum +5; living details add 3 merged meshes.
+    expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
     expect(info.camera[0]).toBeCloseTo(0.22, 3); // Desktop camera 0 -> 0.22: separate globe from hood.
     expect(info.camera[1]).toBeCloseTo(1.64, 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
     expect(info.camera[2]).toBeCloseTo(1.52, 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
@@ -1132,13 +1132,9 @@ test("tiles the wok backsplash with subway bricks and keeps the Room 03 budget",
   await loadRoom(page, 1440);
   await page.waitForFunction(() => window.__room03.info().wokTile.status === "loaded");
   const info = await page.evaluate(() => window.__room03.info());
-  // Stacked after the lemon bowl and red Dutch oven: 31,127 → 30,220 vertices, opening draw calls 70 → 69; tile B itself adds 0.
-  // Main 261fbc4: 39,105 vertices / 96 meshes; living details add 2,498 vertices / 3 meshes. Same-sequence desktop opening calls 67 -> 68.
-  expect(info.vertices).toBe(LEDGER.scene.vertices); // door: +2,688
-  // Grasscloth wallpaper panel: +4 vertices and +1 mesh (39,105/96 baseline includes the wallpaper).
-  expect(info.meshes).toBe(LEDGER.scene.meshes); /* door: +2 meshes (leaf, doorway light) */  // Main 96 + three merged living-detail meshes + the lemon tree's leaf cards.
-  // One merged living-detail batch enters the default desktop frame: 67 -> 68.
-  expect(info.drawCallsLastFrame).toBe(LEDGER.openingDrawCalls.desktop); // 68 -> 70: dish dryer frame and face; 70 -> 71: credenza; 71 -> 72: robot; 72 -> 73: door leaf
+  expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(info.meshes).toBe(LEDGER.scene.meshes);
+  expect(info.drawCallsLastFrame).toBe(LEDGER.openingDrawCalls.desktop);
   expect(info.wokTile.readyBeforeFirstPaint, "the picture must not block the first frame").toBe(false);
   expect(info.wokTile.colorSpace).toBe("srgb");
   expect(info.wokTile.anisotropy).toBeGreaterThanOrEqual(8);

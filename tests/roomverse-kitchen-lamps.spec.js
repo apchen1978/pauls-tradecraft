@@ -15,13 +15,16 @@ test("three lamps sit on measured surfaces, counter pendants are removed, and ne
   expect(info.propBounds["window-fiddle-leaf-fig"]).toBeUndefined();
   expect(info.plantLeafCount).toBe(0);
   expect(info.lightMetrics.lightCount).toBe(9);
-  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices); // door: 47,680 -> 50,368 (+2,688); // 42,700 -> 47,800: the Room 03 robot model (+5,098); 41,700 -> 42,700: the right-wall credenza (+1,480) // Old generic ceiling 41,262 -> 41,700: main 39,105 + living details 2,498 = 47,680 (the ceiling predates the wok, gas-hob and nook work).
+  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
+  expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
+  expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls);
   for (const name of ["floor-reading-lamp", "console-table-lamp", "redwood-picture-light"]) {
     expect(info.lamps[name].meshes, name).toBeLessThanOrEqual(2);
     expect(info.lamps[name].meshes, name).toBeGreaterThan(0);
   }
 
   const floor = info.lamps["floor-reading-lamp"].bounds;
+  // 1.62-1.67 m overlapped the wall art; the shorter drum restores its 1.45-1.55 m clearance range.
   expect(floor.size[1]).toBeGreaterThanOrEqual(1.45);
   expect(floor.size[1]).toBeLessThanOrEqual(1.55);
   expect(Math.abs(floor.min[1])).toBeLessThanOrEqual(0.01);

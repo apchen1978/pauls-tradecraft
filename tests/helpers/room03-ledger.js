@@ -10,14 +10,14 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 50288, meshes: 107 }),
+  scene: Object.freeze({ vertices: 52265, meshes: 109 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 73, phone: 74 }),
-  // Draw calls per mood (first frame after the mood is set). For dinner and Thanksgiving the entry is the BASE scene without the tableware layer
-  // (the tableware spec checks that layer by its own vertex count); the measuring tool prints the real numbers (dinner 80/81, Thanksgiving 81/84).
+  openingDrawCalls: Object.freeze({ desktop: 74, phone: 75 }),
+  // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
+  // without the tableware layer; their measured totals are 81/82 and 82/85, respectively.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 73, golden: 73, movie: 71, night: 73, dinner: 73, sunday: 73, thanksgiving: 73 }),
-    phone: Object.freeze({ daylight: 74, golden: 74, movie: 72, night: 74, dinner: 74, sunday: 74, thanksgiving: 74 }),
+    desktop: Object.freeze({ daylight: 74, golden: 74, movie: 72, night: 74, dinner: 74, sunday: 74, thanksgiving: 74 }),
+    phone: Object.freeze({ daylight: 75, golden: 75, movie: 73, night: 75, dinner: 75, sunday: 75, thanksgiving: 75 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -30,6 +30,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-30", change: "door beside the cable-car painting (#627): leaf and doorway light; frame joins the trim mesh", vertices: 50368, meshes: 107, desktopCalls: 73, phoneCalls: 74 },
     { date: "2026-10-30", change: "daylight arrival mood (#628): no geometry change", vertices: 50368, meshes: 107, desktopCalls: 73, phoneCalls: 74 },
     { date: "2026-10-30", change: "three-tier paper pendant replaces the opal-globe model (#629)", vertices: 50288, meshes: 107, desktopCalls: 73, phoneCalls: 74 },
+    { date: "2026-10-30", change: "Room 03 Card 3: paper floor lamp, gathered curtains, entry mirror and hooks (#631)", vertices: 52265, meshes: 109, desktopCalls: 74, phoneCalls: 75 },
   ]),
 });
 

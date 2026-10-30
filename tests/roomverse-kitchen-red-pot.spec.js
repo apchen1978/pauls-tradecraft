@@ -5,20 +5,22 @@ import { mkdirSync } from "node:fs";
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
 const MOODS = ["golden", "night", "movie"];
-// Clean origin/main 261fbc4 measured 39,105 vertices / 96 meshes; this branch adds 2,498 vertices / 3 meshes. Draw calls are captured per viewport and yaw below.
+// Clean origin/main a4b4840 measured these per-view draw calls before Card 3.
+// Old 261fbc4 baselines (65/67 desktop, 61/58 phone) were stale after intervening room changes.
+// Card 3 adds one call at 0 degrees and two at 90 degrees in the measured scenes; the per-card cap is +2, tighter than the former +7 historical allowance.
 const BASELINE = {
-  "1440|golden|0": { vertices: 39105, drawCalls: 65 },
-  "1440|night|0": { vertices: 39105, drawCalls: 65 },
-  "1440|movie|0": { vertices: 39105, drawCalls: 63 },
-  "1440|golden|90": { vertices: 39105, drawCalls: 67 },
-  "1440|night|90": { vertices: 39105, drawCalls: 67 },
-  "1440|movie|90": { vertices: 39105, drawCalls: 67 },
-  "390|golden|0": { vertices: 39105, drawCalls: 61 },
-  "390|night|0": { vertices: 39105, drawCalls: 61 },
-  "390|movie|0": { vertices: 39105, drawCalls: 59 },
-  "390|golden|90": { vertices: 39105, drawCalls: 58 },
-  "390|night|90": { vertices: 39105, drawCalls: 58 },
-  "390|movie|90": { vertices: 39105, drawCalls: 57 },
+  "1440|golden|0": { drawCalls: 71 },
+  "1440|night|0": { drawCalls: 71 },
+  "1440|movie|0": { drawCalls: 69 },
+  "1440|golden|90": { drawCalls: 73 },
+  "1440|night|90": { drawCalls: 73 },
+  "1440|movie|90": { drawCalls: 73 },
+  "390|golden|0": { drawCalls: 66 },
+  "390|night|0": { drawCalls: 66 },
+  "390|movie|0": { drawCalls: 64 },
+  "390|golden|90": { drawCalls: 64 },
+  "390|night|90": { drawCalls: 64 },
+  "390|movie|90": { drawCalls: 63 },
 };
 if (QA) mkdirSync(QA, { recursive: true });
 
@@ -94,6 +96,6 @@ test("red Dutch oven is dimensioned, fitted and within geometry budgets", async 
     const old = BASELINE[`${current.width}|${current.mood}|${current.yaw}`];
     expect(old, "baseline metrics exist for each viewport, mood and camera direction").toBeTruthy();
     expect(current.vertices, "scene size stays inside the ledger cap (replaces the old 39,105-baseline delta check)").toBeLessThanOrEqual(CAPS.vertices); /* door +2,688 (11,263 measured) */
-    expect(current.drawCalls - old.drawCalls, `${current.width}px ${current.mood} ${current.yaw}deg: ${current.drawCalls} current vs ${old.drawCalls} baseline, cap +7 (the robot adds one more; the right-wall credenza one; was +5, before that +2: the entry nook's bench, cushions, pillows and rug are visible at 90 degrees, the coffee maker's display too; the gas hob batching takes three away elsewhere)`).toBeLessThanOrEqual(7);
+    expect(current.drawCalls - old.drawCalls, `${current.width}px ${current.mood} ${current.yaw}deg: ${current.drawCalls} current vs ${old.drawCalls} clean main, Card 3 cap +2`).toBeLessThanOrEqual(2);
   }
 });
