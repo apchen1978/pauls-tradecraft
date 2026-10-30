@@ -1442,7 +1442,6 @@ function buildThanksgivingDecor(scene) {
     if (!hit) throw new Error(`Cannot measure the dining tabletop under ${x}, ${z}`);
     return hit.point.y;
   };
-  const NEAR_Z = 0.72;
   const parts = { decor: [], glass: [], liquid: [] };
   const items = [];
   const paint = (geometry, colorAt) => {
@@ -1466,44 +1465,65 @@ function buildThanksgivingDecor(scene) {
     return y;
   };
 
-  // Burgundy-style wine bottle: dark green glass, a blank cream label band, a burgundy foil capsule.
-  const bottleProfile = [[0, 0], [0.034, 0], [0.038, 0.006], [0.038, 0.17], [0.034, 0.19], [0.022, 0.215], [0.0155, 0.235], [0.015, 0.285], [0.0165, 0.292], [0.0165, 0.30], [0, 0.30]];
-  place("decor", "wine-bottle", paint(lathe(bottleProfile, 20), (y, n) => (y > 0.255 ? 0x5a1a22 : y > 0.06 && y < 0.14 ? 0xd8ceba : n > 0.9 ? 0x2c3a2f : 0x1f2b22)), 0.17, NEAR_Z, 0.038);
-  // Two brass candlesticks with cream taper candles (unlit, so no new light source).
-  const holderProfile = [[0, 0], [0.034, 0], [0.036, 0.005], [0.014, 0.012], [0.009, 0.06], [0.014, 0.085], [0.018, 0.092], [0.012, 0.096], [0, 0.096]];
-  for (const [index, x] of [-0.28, 0.28].entries()) {
-    const y = place("decor", `candlestick-${index}`, paint(lathe(holderProfile, 14), () => 0xb08d4e), x, NEAR_Z, 0.036);
-    const candle = new THREE.CylinderGeometry(0.0095, 0.0105, 0.19, 10);
-    candle.translate(x, y + 0.096 + 0.095 - 0.002, NEAR_Z);
-    parts.decor.push(paint(candle, (yy) => (yy > y + 0.28 ? 0xcfc2a8 : 0xe9dfc9)));
-    const wick = new THREE.CylinderGeometry(0.0009, 0.0009, 0.012, 4);
-    wick.translate(x, y + 0.096 + 0.19 + 0.004, NEAR_Z);
-    parts.decor.push(paint(wick, () => 0x2b2b2b));
-  }
-  // Stoneware bowl heaped with cranberries (muted deep red; the berries are the only red on the table).
-  const bowlProfile = [[0, 0], [0.026, 0], [0.034, 0.006], [0.048, 0.034], [0.050, 0.046], [0.046, 0.046], [0.044, 0.036], [0.030, 0.014], [0, 0.014]];
-  const bowlY = place("decor", "cranberry-bowl", paint(lathe(bowlProfile, 18), (y, n) => (n > 0.8 ? 0xcfc3ae : 0xd8ccb6)), -0.16, NEAR_Z, 0.050);
-  const berryLayers = [[7, 0.026, 0.040], [5, 0.016, 0.050], [2, 0.006, 0.057]];
-  let berryIndex = 0;
-  for (const [count, ring, height] of berryLayers) {
-    for (let i = 0; i < count; i++) {
-      const angle = i * (Math.PI * 2 / count) + berryIndex * 0.6;
-      const berry = new THREE.SphereGeometry(0.0095, 7, 5);
-      berry.translate(-0.16 + Math.cos(angle) * ring, bowlY + height, NEAR_Z + Math.sin(angle) * ring);
-      parts.decor.push(paint(berry, (y, n) => (n > 0.6 ? 0x7a2230 : 0x6a1d2b)));
-      berryIndex++;
+  for (const row of [0, 1]) {
+    const NEAR_Z = row === 0 ? 0.72 : 0.28;
+    // Burgundy-style wine bottle: dark green glass, a blank cream label band, a burgundy foil capsule.
+    const bottleProfile = [[0, 0], [0.034, 0], [0.038, 0.006], [0.038, 0.17], [0.034, 0.19], [0.022, 0.215], [0.0155, 0.235], [0.015, 0.285], [0.0165, 0.292], [0.0165, 0.30], [0, 0.30]];
+    if (row === 0) place("decor", "wine-bottle", paint(lathe(bottleProfile, 20), (y, n) => (y > 0.255 ? 0x5a1a22 : y > 0.06 && y < 0.14 ? 0xd8ceba : n > 0.9 ? 0x2c3a2f : 0x1f2b22)), 0.17, NEAR_Z, 0.038);
+    // Two brass candlesticks with cream taper candles (unlit, so no new light source).
+    const holderProfile = [[0, 0], [0.034, 0], [0.036, 0.005], [0.014, 0.012], [0.009, 0.06], [0.014, 0.085], [0.018, 0.092], [0.012, 0.096], [0, 0.096]];
+    for (const [index0, x] of [-0.28, 0.28].entries()) {
+      const index = index0 + row * 2;
+      const y = place("decor", `candlestick-${index}`, paint(lathe(holderProfile, 14), () => 0xb08d4e), x, NEAR_Z, 0.036);
+      const candle = new THREE.CylinderGeometry(0.0095, 0.0105, 0.19, 10);
+      candle.translate(x, y + 0.096 + 0.095 - 0.002, NEAR_Z);
+      parts.decor.push(paint(candle, (yy) => (yy > y + 0.28 ? 0xcfc2a8 : 0xe9dfc9)));
+      const wick = new THREE.CylinderGeometry(0.0009, 0.0009, 0.012, 4);
+      wick.translate(x, y + 0.096 + 0.19 + 0.004, NEAR_Z);
+      parts.decor.push(paint(wick, () => 0x2b2b2b));
+    }
+    // Stoneware bowl heaped with cranberries (muted deep red; the berries are the only red on the table).
+    if (row === 0) {
+    const bowlProfile = [[0, 0], [0.026, 0], [0.034, 0.006], [0.048, 0.034], [0.050, 0.046], [0.046, 0.046], [0.044, 0.036], [0.030, 0.014], [0, 0.014]];
+    const bowlY = place("decor", "cranberry-bowl", paint(lathe(bowlProfile, 18), (y, n) => (n > 0.8 ? 0xcfc3ae : 0xd8ccb6)), -0.16, NEAR_Z, 0.050);
+    const berryLayers = [[7, 0.026, 0.040], [5, 0.016, 0.050], [2, 0.006, 0.057]];
+    let berryIndex = 0;
+    for (const [count, ring, height] of berryLayers) {
+      for (let i = 0; i < count; i++) {
+        const angle = i * (Math.PI * 2 / count) + berryIndex * 0.6;
+        const berry = new THREE.SphereGeometry(0.0095, 7, 5);
+        berry.translate(-0.16 + Math.cos(angle) * ring, bowlY + height, NEAR_Z + Math.sin(angle) * ring);
+        parts.decor.push(paint(berry, (y, n) => (n > 0.6 ? 0x7a2230 : 0x6a1d2b)));
+        berryIndex++;
+      }
+    }
+    }
+    // Two extra wine glasses, the same glass and liquid treatment as the place settings.
+    const wineRadius = 0.044, wineHeight = 0.100;
+    const wineProfile = [[0, 0.001], [wineRadius * 0.59, 0.001], [wineRadius * 0.77, 0.006], [wineRadius * 0.89, 0.019], [wineRadius, wineHeight * 0.55], [wineRadius * 0.977, wineHeight * 0.80], [wineRadius * 0.91, wineHeight * 0.96], [wineRadius * 0.82, wineHeight], [wineRadius * 0.75, wineHeight * 0.97], [wineRadius * 0.80, wineHeight * 0.78], [wineRadius * 0.77, wineHeight * 0.55], [wineRadius * 0.66, 0.025], [wineRadius * 0.50, 0.011], [0, 0.011]];
+    for (const [index0, [x0, fill]] of (row === 0 ? [[-0.045, 0.44], [0.065, 0.30]] : [[-0.015, 0.36], [0.10, 0.50]]).entries()) {
+      const index = index0 + row * 2, x = x0;
+      const y = place("glass", `wine-glass-${index}`, paint(lathe(wineProfile, 20), () => 0xe8f0ed), x, NEAR_Z, wineRadius);
+      const wine = new THREE.CylinderGeometry(0.031, 0.031, 0.0015, 20, 1, false);
+      wine.translate(x, y + 0.001 + wineHeight * fill, NEAR_Z);
+      parts.liquid.push(paint(wine, () => 0x5c1823));
+    }
+
+    // Second bread course on the far side (Paul 2026-10-30: more abundant): a stoneware plate of five baked dinner rolls where the bottle stands on the other side.
+    if (row === 1) {
+      const platePro = [[0, 0], [0.052, 0], [0.067, 0.007], [0.070, 0.011], [0.064, 0.011], [0.048, 0.004], [0, 0.004]];
+      const breadX = -0.155;
+      const plateY = place("decor", "bread-plate", paint(lathe(platePro, 22), () => 0xd8ccb6), breadX, NEAR_Z, 0.070);
+      const roll = (dx, dz, r, lift, tone) => {
+        const geometry = new THREE.SphereGeometry(r, 10, 7);
+        geometry.scale(1.08, 0.72, 1);
+        geometry.translate(breadX + dx, plateY + 0.005 + r * 0.72 + lift, NEAR_Z + dz);
+        parts.decor.push(paint(geometry, (y, n) => (y > plateY + 0.005 + r * 0.72 + lift + r * 0.2 ? (n > 0.5 ? 0xc78d4a : 0xb97d3d) : tone)));
+      };
+      for (let i = 0; i < 4; i++) roll(Math.cos(i * Math.PI / 2 + 0.5) * 0.033, Math.sin(i * Math.PI / 2 + 0.5) * 0.033, 0.023, 0, 0xd2a569);
+      roll(0, 0, 0.022, 0.017, 0xd2a569);
     }
   }
-  // Two extra wine glasses, the same glass and liquid treatment as the place settings.
-  const wineRadius = 0.044, wineHeight = 0.100;
-  const wineProfile = [[0, 0.001], [wineRadius * 0.59, 0.001], [wineRadius * 0.77, 0.006], [wineRadius * 0.89, 0.019], [wineRadius, wineHeight * 0.55], [wineRadius * 0.977, wineHeight * 0.80], [wineRadius * 0.91, wineHeight * 0.96], [wineRadius * 0.82, wineHeight], [wineRadius * 0.75, wineHeight * 0.97], [wineRadius * 0.80, wineHeight * 0.78], [wineRadius * 0.77, wineHeight * 0.55], [wineRadius * 0.66, 0.025], [wineRadius * 0.50, 0.011], [0, 0.011]];
-  for (const [index, [x, fill]] of [[-0.045, 0.44], [0.065, 0.30]].entries()) {
-    const y = place("glass", `wine-glass-${index}`, paint(lathe(wineProfile, 20), () => 0xe8f0ed), x, NEAR_Z, wineRadius);
-    const wine = new THREE.CylinderGeometry(0.031, 0.031, 0.0015, 20, 1, false);
-    wine.translate(x, y + 0.001 + wineHeight * fill, NEAR_Z);
-    parts.liquid.push(paint(wine, () => 0x5c1823));
-  }
-
   const materials = {
     decor: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.38, vertexColors: true }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.18, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true }),
