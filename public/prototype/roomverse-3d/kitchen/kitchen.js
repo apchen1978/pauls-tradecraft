@@ -4739,7 +4739,7 @@ export async function start({ stage, onReady = () => {} }) {
     night: Object.freeze({
       ...sharedLook,
       sun: 0, hemi: 0.55, ambient: 0.26, pendant: 7.0, under: 2.7, side: 2.3,
-      exposure: 1.20, yard: 0x5d7593, globe: 1.55, sky: "night",
+      exposure: 1.20, yard: 0xd2dcf0, yardMap: "courtyard-night-moon-v1", globe: 1.55, sky: "night",
       floor: 0xc2a77b, jute: 0xd9c99f, ceilingEmissive: 0.55,
       warmGlow: 1, wokGlow: 1,
       windowWallBounce: 0, windowWallBounceVisible: false,
@@ -4756,7 +4756,7 @@ export async function start({ stage, onReady = () => {} }) {
       hemi: 0.42, hemiSky: 0xc3cde8, hemiGround: 0x5a5668,
       ambient: 0.23, ambientColor: 0xd8e0f2,
       pendant: 0, under: 1.3, side: 0.85,
-      exposure: 1.20, yard: 0x4a5a7c, globe: 0.06, sky: "night",
+      exposure: 1.20, yard: 0x8d9ab8, yardMap: "courtyard-night-moon-v1", globe: 0.06, sky: "night",
       floor: 0xbfa982, jute: 0xcbb894, ceilingEmissive: 0.06,
       warmGlow: 0.55, wokGlow: 0.55,
       windowWallBounce: 0, windowWallBounceVisible: false,
@@ -4855,7 +4855,7 @@ export async function start({ stage, onReady = () => {} }) {
   let currentMood = "daylight";
   let movieScreenTexture = null;
   let thanksgivingScreenTexture = null;
-  let autumnCourtyardTexture = null;
+  let autumnCourtyardTexture = null, nightYardTexture = null, nightYardRequested = false;
   const courtyardMesh = scene.getObjectByName("courtyard-background");
   const courtyardDefaultMap = courtyardMesh?.material?.map || null;
   if (courtyardDefaultMap) courtyardDefaultMap.name = "courtyard-v1";
@@ -4890,6 +4890,18 @@ export async function start({ stage, onReady = () => {} }) {
     autumnCourtyardTexture = texture;
     reloadMoodPicture();
   });
+  // The real night yard (full moon, hills, oaks; Codex 2026-10-30) is only fetched the first time Night or Movie is chosen.
+  const requestNightYard = () => {
+    if (nightYardRequested) return;
+    nightYardRequested = true;
+    new THREE.TextureLoader().load(new URL("./art/room03-yard-night-moon-v1.webp", import.meta.url).href, (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = 4;
+      texture.name = "courtyard-night-moon-v1";
+      nightYardTexture = texture;
+      if (MOOD_LOOK[currentMood]?.yardMap === "courtyard-night-moon-v1") setMood(currentMood);
+    });
+  };
   // The dining table is a downloaded model, so its wood is tinted (multiplied) rather than repainted; the model's own colour is kept to restore it.
   function tintDiningTable(tint) {
     const table = scene.getObjectByName("room03-table-glb");
@@ -4931,9 +4943,11 @@ export async function start({ stage, onReady = () => {} }) {
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
     if (yardMaterial) {
       yardMaterial.color.setHex(look.yard);
+      if (look.yardMap === "courtyard-night-moon-v1") requestNightYard();
       const autumnReady = look.yardMap === "courtyard-autumn-v1" && autumnCourtyardTexture?.image;
+      const nightReady = look.yardMap === "courtyard-night-moon-v1" && nightYardTexture?.image;
       const chosenYard = yardView !== "auto" ? yardViewTextures[yardView] : null;
-      yardMaterial.map = chosenYard?.image ? chosenYard : (autumnReady ? autumnCourtyardTexture : courtyardDefaultMap);
+      yardMaterial.map = chosenYard?.image ? chosenYard : (autumnReady ? autumnCourtyardTexture : nightReady ? nightYardTexture : courtyardDefaultMap);
       yardMaterial.needsUpdate = true;
     }
     // The two framed paintings are unlit (accurate colour), so by day and night they looked identical and read as windows (Paul 2026-10-29).
@@ -5684,6 +5698,7 @@ export async function start({ stage, onReady = () => {} }) {
       movieScreenTexture?.dispose();
       thanksgivingScreenTexture?.dispose();
       autumnCourtyardTexture?.dispose();
+      nightYardTexture?.dispose();
     },
   };
   onReady(instance);
