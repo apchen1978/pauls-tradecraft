@@ -80,9 +80,9 @@ for (const width of [1440, 390]) {
       expect(limits.azMin).toBe(-Infinity);
       expect(limits.azMax).toBe(Infinity);
       expect(limits.distanceMin).toBeCloseTo(1.48, 2);
-      expect(limits.distanceMax, "zoom limit must match the reviewed camera preset").toBeCloseTo(1.72, 2);
+      expect(limits.distanceMax, "zoom limit must match the reviewed camera preset").toBeCloseTo(1.92, 2);
       expect(limits.distanceMax, "default camera must remain within the zoom limit").toBeGreaterThanOrEqual(baseline.radius);
-      expect(limits.distanceMax - limits.distanceMin, "interior zoom range matches the approved bounds").toBeCloseTo(0.24, 2);
+      expect(limits.distanceMax - limits.distanceMin, "interior zoom range matches the approved bounds").toBeCloseTo(0.44, 2);
       for (const mood of ["golden", "night"]) {
         const sides = records.filter((record) => record.mood === mood && ["az-east", "az-west"].includes(record.view));
         expect(sides.some((record) => Math.abs(record.lounge[0]) < 1), "window chair must stay reachable").toBe(true);

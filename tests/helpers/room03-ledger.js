@@ -12,11 +12,11 @@ export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
   scene: Object.freeze({ vertices: 56427, meshes: 111 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 77, phone: 77 }),
+  openingDrawCalls: Object.freeze({ desktop: 78, phone: 77 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
   // without the tableware layer; their measured totals are 82/83 and 83/86, respectively.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 77, golden: 77, movie: 75, night: 77, dinner: 77, sunday: 77, thanksgiving: 77 }),
+    desktop: Object.freeze({ daylight: 78, golden: 78, movie: 76, night: 78, dinner: 78, sunday: 78, thanksgiving: 78 }),
     phone: Object.freeze({ daylight: 77, golden: 77, movie: 75, night: 77, dinner: 77, sunday: 77, thanksgiving: 77 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
@@ -38,6 +38,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-31", change: "credenza top styled like Room 01 shelves: books, vessel with dried stems, potted plant, dish with stones (one merged mesh, +1811 vertices)", vertices: 55331, meshes: 111, desktopCalls: 76, phoneCalls: 76 },
     { date: "2026-10-31", change: "entry hall: the three inner walls are dusty pink (second material on the same mesh, +1 draw call, no new geometry)", vertices: 55331, meshes: 111, desktopCalls: 77, phoneCalls: 77 },
     { date: "2026-10-31", change: "wok side: brass tool rail with five wooden-handled tools plus two shelf canisters replace the three black sticks (one new vertex-colour mesh replaces the old black one; net +1,096 vertices, no extra draw call)", vertices: 56427, meshes: 111, desktopCalls: 77, phoneCalls: 77 },
+    { date: "2026-10-31", change: "default camera pulled back 0.2 m along the same line of sight (desktop and phone): one more mesh is inside the opening frustum on desktop, no new geometry", vertices: 56427, meshes: 111, desktopCalls: 78, phoneCalls: 77 },
   ]),
 });
 

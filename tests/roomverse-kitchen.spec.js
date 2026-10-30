@@ -5,6 +5,8 @@ import { mkdirSync, statSync } from "node:fs";
 // Whole-room vertex cap. 55,000 until 2026-10-31; the lemon-tree leaves and the credenza styling brought the room to 55,331 with 76 of 130 draw calls,
 // so it is now 58,000 (Paul: budgets are QA tools; measure FPS, draw calls and memory before cutting visual detail).
 const ROOM_VERTEX_CAP = 58000;
+// Default desktop camera. 2026-10-31: pulled 0.2 m back along the same line of sight (was [0.22, 1.64, 1.52]) so the table front and the front chairs are not cropped.
+const DESKTOP_CAMERA = [0.242141, 1.658234, 1.711458];
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
@@ -50,7 +52,7 @@ function expectPortraitOrbit(info) {
   const radius = Math.hypot(x - tx, y - ty, z - tz);
   expect(info.cameraTarget).toEqual([0, 1.48, 0]);
   expect(radius).toBeGreaterThanOrEqual(1.48);
-  expect(radius).toBeLessThanOrEqual(1.72);
+  expect(radius).toBeLessThanOrEqual(1.92);
   expect(Math.atan2(x - tx, z - tz)).toBeCloseTo(Math.PI / 12, 2);
   expect(Math.acos((y - ty) / radius)).toBeCloseTo(1.50, 2);
   expect(info.cameraFov).toBe(84);
@@ -187,9 +189,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       Math.max(0, b.min[2] - a.max[2], a.min[2] - b.max[2]),
     );
     // Desktop position [0, 1.56, 1.58] -> [0.22, 1.64, 1.52]: separate globe from hood.
-    expect(golden.camera[0]).toBeCloseTo(0.22, 3);
-    expect(golden.camera[1]).toBeCloseTo(1.64, 3);
-    expect(golden.camera[2]).toBeCloseTo(1.52, 3);
+    expect(golden.camera[0]).toBeCloseTo(DESKTOP_CAMERA[0], 3);
+    expect(golden.camera[1]).toBeCloseTo(DESKTOP_CAMERA[1], 3);
+    expect(golden.camera[2]).toBeCloseTo(DESKTOP_CAMERA[2], 3);
     expect(chair.position).toEqual([-2.29, 0, -0.2]);
     expect(chair.yawDegrees).toBeCloseTo(8, 2);
     expect(chairBounds.size[0]).toBeGreaterThan(0.73);
@@ -330,9 +332,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     });
     const info = await page.evaluate(() => window.__room03.info());
     console.log("Room 03 soft forms:", JSON.stringify({ baseline7be7313: { vertices: 33300, triangles: 24502, meshes: 83, drawCalls: 90 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }, softForms: info.softForms, leafCount: info.plantLeafCount, leafVerticesPerBlade: info.plantLeafVerticesPerBlade, wokBase: info.wokSupport.bounds, viewport: info.viewport, pixelRatio: info.pixelRatio }));
-    expect(info.camera[0]).toBeCloseTo(0.22, 3); // Desktop camera 0 -> 0.22: separate globe from hood.
-    expect(info.camera[1]).toBeCloseTo(1.64, 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
-    expect(info.camera[2]).toBeCloseTo(1.52, 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
+    expect(info.camera[0]).toBeCloseTo(DESKTOP_CAMERA[0], 3); // Desktop camera 0 -> 0.22: separate globe from hood.
+    expect(info.camera[1]).toBeCloseTo(DESKTOP_CAMERA[1], 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
+    expect(info.camera[2]).toBeCloseTo(DESKTOP_CAMERA[2], 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
     expect(info.vertices).toBeLessThanOrEqual(ROOM_VERTEX_CAP);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.softForms.pendantGlobeVertices).toBeGreaterThanOrEqual(1617);
@@ -384,9 +386,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await loadRoom(page);
     await page.waitForFunction(() => window.__room03.info().furniture.chair === "procedural-v2");
     const defaultCamera = await page.evaluate(() => window.__room03.info().camera);
-    expect(defaultCamera[0]).toBeCloseTo(0.22, 3); // Desktop camera 0 -> 0.22: separate globe from hood.
-    expect(defaultCamera[1]).toBeCloseTo(1.64, 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
-    expect(defaultCamera[2]).toBeCloseTo(1.52, 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
+    expect(defaultCamera[0]).toBeCloseTo(DESKTOP_CAMERA[0], 3); // Desktop camera 0 -> 0.22: separate globe from hood.
+    expect(defaultCamera[1]).toBeCloseTo(DESKTOP_CAMERA[1], 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
+    expect(defaultCamera[2]).toBeCloseTo(DESKTOP_CAMERA[2], 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
     await page.evaluate(() => {
       const scene = window.__room03.qaScene;
       scene.getObjectByName("entry-hall").visible = false;
@@ -509,7 +511,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       for (const key of ["dining", "countertop", "wokBowl", "wokHood"]) expect(visibility[key].inFrame, `${key} must be in the ${width}px appropriate view`).toBe(true);
       // Remeasured: wokDoor is the hood center, not the old exterior door slab. 390 → 0.826, 360 → 0.829.
       expect(visibility.wokDoor.inFrame, `wok zone must be in the ${width}px wok-facing view`).toBe(true);
-      expect(visibility.wokDoor.ndc[0]).toBeGreaterThan(0.8);
+      // 2026-10-31: the default camera moved 0.2 m back, so the hood centre sits a little nearer the middle of this view (0.78); still well inside the frame.
+      expect(visibility.wokDoor.ndc[0]).toBeGreaterThan(0.75);
       expect(visibility.wokDoor.ndc[0]).toBeLessThan(0.92);
       const canvas = await page.locator("canvas").boundingBox();
       const fullscreen = await page.locator("#immersiveEnter").boundingBox();
@@ -557,9 +560,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     const wokView = await page.evaluate(() => window.__room03.info());
     // Remeasured hood center at azimuth 300°. The old door slab sat near 0.80.
     expect(wokView.projectedRegions.wokDoor[0]).toBeCloseTo(0.77, 1);
-    expect(info.camera[0]).toBeCloseTo(0.22, 3); // Desktop camera 0 -> 0.22: separate globe from hood.
-    expect(info.camera[1]).toBeCloseTo(1.64, 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
-    expect(info.camera[2]).toBeCloseTo(1.52, 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
+    expect(info.camera[0]).toBeCloseTo(DESKTOP_CAMERA[0], 3); // Desktop camera 0 -> 0.22: separate globe from hood.
+    expect(info.camera[1]).toBeCloseTo(DESKTOP_CAMERA[1], 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
+    expect(info.camera[2]).toBeCloseTo(DESKTOP_CAMERA[2], 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
     expect(info.cameraTarget[0]).toBeCloseTo(0.05, 3); // Desktop target 0 -> 0.05: frame the adjusted camera.
     expect(info.cameraTarget[1]).toBeCloseTo(1.50, 3); // Desktop target 1.48 -> 1.50: retain top margin.
     expect(info.cameraTarget[2]).toBeCloseTo(0.05, 3); // Desktop target 0 -> 0.05: frame the adjusted camera.
@@ -799,9 +802,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls);
     expect(info.meshes).toBeLessThanOrEqual(130);
     expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
-    expect(info.camera[0]).toBeCloseTo(0.22, 3); // Desktop camera 0 -> 0.22: separate globe from hood.
-    expect(info.camera[1]).toBeCloseTo(1.64, 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
-    expect(info.camera[2]).toBeCloseTo(1.52, 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
+    expect(info.camera[0]).toBeCloseTo(DESKTOP_CAMERA[0], 3); // Desktop camera 0 -> 0.22: separate globe from hood.
+    expect(info.camera[1]).toBeCloseTo(DESKTOP_CAMERA[1], 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
+    expect(info.camera[2]).toBeCloseTo(DESKTOP_CAMERA[2], 3); // Desktop camera 1.58 -> 1.52: separate globe from hood.
     await rotateTo(page, 90);
     const visiblePropBounds = (await page.evaluate(() => window.__room03.info())).propBounds;
     for (const key of ["tabletop-meyer-lemon-bowl", "cookbooks"]) {
