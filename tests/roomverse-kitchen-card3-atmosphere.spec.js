@@ -51,7 +51,7 @@ test("curtains stay gathered outside the clear yard opening and tint correctly i
   expect(new Set(colors).size).toBeGreaterThan(1);
 });
 
-test("entry mirror, hooks, towel and key dish stay under the Redwood print and clear of protected areas", async ({ page }) => {
+test("entry clock, hooks, towel and key dish stay under the Redwood print and clear of protected areas", async ({ page }) => {
   await loadRoom(page);
   const result = await page.evaluate(() => {
     const info = window.__room03.info();
@@ -63,8 +63,8 @@ test("entry mirror, hooks, towel and key dish stay under the Redwood print and c
   expect(result.entry.bounds.max[1]).toBeLessThan(1.175, "hooks and towel remain below the Redwood frame");
   expect(result.entry.bounds.min[2]).toBeGreaterThanOrEqual(3.61, "wall details remain in front of the measured z=3.74 wall face");
   expect(result.entry.bounds.max[2]).toBeLessThanOrEqual(3.741, "wall details do not penetrate beyond the measured z=3.74 wall face");
-  expect(result.entry.mirror.diameterMm).toBe(410);
-  expect(result.entry.mirror.wallGapMm).toBeLessThanOrEqual(1);
+  expect(result.entry.clock.diameterMm).toBe(410);
+  expect(result.entry.clock.wallGapMm).toBeLessThanOrEqual(1);
   expect(result.entry.hooks.count).toBe(3);
   expect(result.entry.shelf.dishTopY).toBeGreaterThan(result.entry.shelf.center[1]);
   expect(result.door.min[0]).toBeGreaterThan(result.entry.bounds.max[0] + 1.5, "entry details stay clear of the right-wall door in x");
