@@ -313,7 +313,7 @@ function makeMaterials() {
   throwWeave.repeat.set(1.35, 2.1);
   return {
     floor: std(0xcdbb9e, 0.42, { map: makeFloorTexture(31, 0.23), metalness: 0.025 }),
-    wall: std(0xbfd0dd, 0.94, { map: makePlasterTexture() }),
+    wall: std(0xd0deea, 0.94, { map: makePlasterTexture() }),
     wokWall: std(0x907258, 0.9, { map: makeFineNoise(47, 0.025) }),
     wokSteel: std(0xbfc3c0, 0.34, { metalness: 0.22, emissive: 0x2e1e0e, emissiveIntensity: 0.45 }),
     wokIron: std(0x343733, 0.42, { metalness: 0.08, emissive: 0x16120e, emissiveIntensity: 0.18 }),
