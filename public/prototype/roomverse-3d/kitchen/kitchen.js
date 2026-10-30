@@ -4292,7 +4292,7 @@ function buildRoom03EntryWallDetails(scene) {
   // Low-reflection mirror, mounted below the Redwood print; frame and glass share one draw call through vertex colours.
   parts.push(paint(place(new THREE.CylinderGeometry(0.205, 0.205, 0.008, 24), [0.32, 0.83, 3.735], [Math.PI / 2, 0, 0]), 0x9ca7a7));
   parts.push(paint(place(new THREE.TorusGeometry(0.218, 0.012, 6, 24), [0.32, 0.83, 3.728]), 0xb88b5b));
-  // Three black iron J-hooks and one simple linen coat, mounted in front of the wall and below the existing artwork.
+  // Three black iron J-hooks and one dish towel, mounted in front of the wall and below the existing artwork.
   parts.push(paint(place(new THREE.BoxGeometry(0.31, 0.022, 0.014), [0.73, 1.145, 3.733]), 0x2b2b2b));
   for (const x of [0.62, 0.73, 0.84]) {
     const hookPath = new THREE.CatmullRomCurve3([
@@ -4304,11 +4304,14 @@ function buildRoom03EntryWallDetails(scene) {
     ]);
     parts.push(paint(new THREE.TubeGeometry(hookPath, 10, 0.0055, 6, false), 0x2b2b2b));
   }
-  const coat = new THREE.Shape();
-  coat.moveTo(-0.115, 0.04); coat.lineTo(-0.075, 0.15); coat.lineTo(-0.035, 0.19); coat.lineTo(0, 0.16);
-  coat.lineTo(0.035, 0.19); coat.lineTo(0.075, 0.15); coat.lineTo(0.115, 0.04); coat.lineTo(0.08, 0.015);
-  coat.lineTo(0.065, 0.07); coat.lineTo(0.058, -0.17); coat.lineTo(-0.058, -0.17); coat.lineTo(-0.065, 0.07); coat.lineTo(-0.08, 0.015); coat.closePath();
-  parts.push(paint(place(new THREE.ShapeGeometry(coat, 5), [0.73, 0.90, 3.72]), 0xcdbfa7));
+  // One red kitchen towel over the middle hook (Paul 2026-10-30: a small linen coat read as odd next to the TV). Each is a flat cloth with a cream
+  // stripe pair near the hem and a darker fold at the top where it lies over the hook; the two outer hooks stay free.
+  const towel = (x, h, tone, fold) => {
+    parts.push(paint(place(new THREE.PlaneGeometry(0.15, h), [x, 1.09 - h / 2, 3.722]), tone));
+    parts.push(paint(place(new THREE.PlaneGeometry(0.15, 0.03), [x, 1.075, 3.7215]), fold));
+    for (const dy of [0.075, 0.105]) parts.push(paint(place(new THREE.PlaneGeometry(0.15, 0.012), [x, 1.09 - h + dy, 3.7215]), 0xf1e6d2));
+  };
+  towel(0.73, 0.34, 0xb83a2e, 0x8f2822);
   // A shallow floating key shelf with a single low oak dish, tucked below the mirror.
   parts.push(paint(place(new THREE.BoxGeometry(0.38, 0.025, 0.12), [0.32, 0.43, 3.68]), 0xb88b5b));
   parts.push(paint(place(new THREE.CylinderGeometry(0.052, 0.058, 0.012, 14), [0.32, 0.449, 3.68]), 0xc6a77e));

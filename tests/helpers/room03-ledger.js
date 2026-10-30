@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 52265, meshes: 109 }),
+  scene: Object.freeze({ vertices: 52268, meshes: 109 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 74, phone: 75 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
@@ -31,6 +31,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-30", change: "daylight arrival mood (#628): no geometry change", vertices: 50368, meshes: 107, desktopCalls: 73, phoneCalls: 74 },
     { date: "2026-10-30", change: "three-tier paper pendant replaces the opal-globe model (#629)", vertices: 50288, meshes: 107, desktopCalls: 73, phoneCalls: 74 },
     { date: "2026-10-30", change: "Room 03 Card 3: paper floor lamp, gathered curtains, entry mirror and hooks (#631)", vertices: 52265, meshes: 109, desktopCalls: 74, phoneCalls: 75 },
+    { date: "2026-10-30", change: "entry wall: linen coat replaced by one red dish towel on the middle hook", vertices: 52268, meshes: 109, desktopCalls: 74, phoneCalls: 75 },
   ]),
 });
 
