@@ -10,19 +10,19 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 52268, meshes: 109 }),
+  scene: Object.freeze({ vertices: 52272, meshes: 110 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 74, phone: 75 }),
+  openingDrawCalls: Object.freeze({ desktop: 75, phone: 76 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
-  // without the tableware layer; their measured totals are 81/82 and 82/85, respectively.
+  // without the tableware layer; their measured totals are 82/83 and 83/86, respectively.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 74, golden: 74, movie: 72, night: 74, dinner: 74, sunday: 74, thanksgiving: 74 }),
-    phone: Object.freeze({ daylight: 75, golden: 75, movie: 73, night: 75, dinner: 75, sunday: 75, thanksgiving: 75 }),
+    desktop: Object.freeze({ daylight: 75, golden: 75, movie: 73, night: 75, dinner: 75, sunday: 75, thanksgiving: 75 }),
+    phone: Object.freeze({ daylight: 76, golden: 76, movie: 74, night: 76, dinner: 76, sunday: 76, thanksgiving: 76 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
   headroom: Object.freeze({ vertices: 117, meshes: 0, desktopCalls: 0, phoneCalls: 0 }),
-  resizedPhoneCalls: 75,
+  resizedPhoneCalls: 76,
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -32,6 +32,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-30", change: "three-tier paper pendant replaces the opal-globe model (#629)", vertices: 50288, meshes: 107, desktopCalls: 73, phoneCalls: 74 },
     { date: "2026-10-30", change: "Room 03 Card 3: paper floor lamp, gathered curtains, entry mirror and hooks (#631)", vertices: 52265, meshes: 109, desktopCalls: 74, phoneCalls: 75 },
     { date: "2026-10-30", change: "entry wall: linen coat replaced by one red dish towel on the middle hook", vertices: 52268, meshes: 109, desktopCalls: 74, phoneCalls: 75 },
+    { date: "2026-10-30", change: "smart kitchen hub: one unlit display plane on the backsplash above the hob (bezel painted into the texture)", vertices: 52272, meshes: 110, desktopCalls: 75, phoneCalls: 76 },
   ]),
 });
 
