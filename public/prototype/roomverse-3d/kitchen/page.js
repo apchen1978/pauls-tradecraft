@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { start, ROOM_TITLE } from "./kitchen.js?v=77";
+=======
+import { start, ROOM_TITLE } from "./kitchen.js?v=75";
+>>>>>>> 3b404d9 (feat(room03): mist-blue walls, after Room 01)
 const COPY = {
   zh: {
     title: ROOM_TITLE,
