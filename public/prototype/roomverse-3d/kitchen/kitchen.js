@@ -2567,13 +2567,11 @@ function buildRoom03MediaUnit(scene, materials, woodGeometries) {
   group.name = "prop-room03-screen-and-console";
   group.userData.category = "room03-media";
   const centerX = -0.65;
-  const screenCenterY = 1.06;
-  const screenFrameParts = [
-    [[0.98, 0.02, 0.03], [centerX, screenCenterY + 0.275, 0]],
-    [[0.98, 0.02, 0.03], [centerX, screenCenterY - 0.275, 0]],
-    [[0.02, 0.53, 0.03], [centerX - 0.48, screenCenterY, 0]],
-    [[0.02, 0.53, 0.03], [centerX + 0.48, screenCenterY, 0]],
-  ];
+  // The TV (Paul 2026-10-31: it read as a picture frame, and nobody buys a TV this small): a 55 in wall-mounted panel, 1.20 x 0.675 m, with a thin black bezel
+  // instead of the oak frame. It is wider than the hall's side wall allows, so its left quarter sits inside the wall and the doorway hides it, as a real wide
+  // TV would be hidden from the dining room. The bottom edge stays where it was (0.78 m), so the things on the console still stand below it.
+  const SCREEN_W = 1.20, SCREEN_H = 0.675, BEZEL = 0.012;
+  const screenCenterY = 0.795 + SCREEN_H / 2;
   const consoleParts = [
     [[1.30, 0.05, 0.32], [centerX, 0.55, -0.17]],
     [[0.05, 0.30, 0.30], [centerX - 0.625, 0.375, -0.17]],
@@ -2598,9 +2596,9 @@ function buildRoom03MediaUnit(scene, materials, woodGeometries) {
   const frame = new THREE.Object3D();
   frame.name = "room03-tv-screen-frame";
   frame.userData.bounds = {
-    min: [centerX - 0.49, screenCenterY - 0.275, 3.685],
-    max: [centerX + 0.49, screenCenterY + 0.275, 3.715],
-    size: [0.98, 0.55, 0.03],
+    min: [centerX - SCREEN_W / 2 - BEZEL, screenCenterY - SCREEN_H / 2 - BEZEL, 3.685],
+    max: [centerX + SCREEN_W / 2 + BEZEL, screenCenterY + SCREEN_H / 2 + BEZEL, 3.715],
+    size: [SCREEN_W + 2 * BEZEL, SCREEN_H + 2 * BEZEL, 0.03],
   };
   const console = new THREE.Object3D();
   console.name = "room03-tv-low-console";
@@ -2610,7 +2608,13 @@ function buildRoom03MediaUnit(scene, materials, woodGeometries) {
     size: [1.30, 0.525, 0.321],
   };
   group.add(frame, console);
-  const woodwork = mergeBoxes([...screenFrameParts, ...consoleParts], "screen-and-console woodwork");
+  // The panel body: one black slab, 3 cm deep, whose 12 mm margin around the picture is the bezel. One extra draw call.
+  const body = new THREE.Mesh(new THREE.BoxGeometry(SCREEN_W + 2 * BEZEL, SCREEN_H + 2 * BEZEL, 0.03), new THREE.MeshStandardMaterial({ color: 0x131514, roughness: 0.38, metalness: 0.2 }));
+  body.name = "room03-tv-body"; body.userData.category = "room03-media";
+  body.position.set(centerX, screenCenterY, 0);
+  body.castShadow = true; body.receiveShadow = true;
+  group.add(body);
+  const woodwork = mergeBoxes(consoleParts, "screen-and-console woodwork");
   woodwork.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, 3.70));
   woodwork.computeBoundingBox();
   woodGeometries.push(woodwork);
@@ -2620,10 +2624,10 @@ function buildRoom03MediaUnit(scene, materials, woodGeometries) {
   screenSlot.userData.moodSlot = "screen-content";
   const screenMaterial = new THREE.MeshBasicMaterial({ color: 0x171918, side: THREE.DoubleSide });
   screenMaterial.name = "room03-screen-powered-off";
-  const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.94, 0.53), screenMaterial);
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(SCREEN_W, SCREEN_H), screenMaterial);
   screen.name = "screen-content-surface";
   screen.userData.moodSlot = "screen-content";
-  screen.position.set(centerX, screenCenterY, -0.022);
+  screen.position.set(centerX, screenCenterY, -0.018);
   screenSlot.add(screen);
   // A faint glass reflection in front of the panel (GrokBot review: the TV read as a flat black card). Drawn once on a canvas: a soft top-to-bottom
   // sheen and one diagonal streak. It sits 3 mm in front of the picture, so it also lies over the movie and parade pictures, like real glass.
@@ -2636,9 +2640,9 @@ function buildRoom03MediaUnit(scene, materials, woodGeometries) {
     const streak = c.createLinearGradient(40, 0, 150, 144); streak.addColorStop(0, "rgba(255,255,255,0)"); streak.addColorStop(0.5, "rgba(255,255,255,0.12)"); streak.addColorStop(1, "rgba(255,255,255,0)");
     c.fillStyle = streak; c.beginPath(); c.moveTo(70, 0); c.lineTo(130, 0); c.lineTo(70, 144); c.lineTo(10, 144); c.fill();
     const reflection = new THREE.CanvasTexture(canvas); reflection.colorSpace = THREE.SRGBColorSpace;
-    const glass = new THREE.Mesh(new THREE.PlaneGeometry(0.94, 0.53), new THREE.MeshBasicMaterial({ map: reflection, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+    const glass = new THREE.Mesh(new THREE.PlaneGeometry(SCREEN_W, SCREEN_H), new THREE.MeshBasicMaterial({ map: reflection, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
     glass.name = "screen-glass-reflection"; glass.renderOrder = 4;
-    glass.position.set(centerX, screenCenterY, -0.025);
+    glass.position.set(centerX, screenCenterY, -0.021);
     screenSlot.add(glass);
   }
   group.add(screenSlot);
