@@ -3104,7 +3104,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const artBox = rightWallArtGroup ? new THREE.Box3().setFromObject(rightWallArtGroup) : null;
     const wallX = artBox ? artBox.min.x : W / 2 - .02;
     const artZ = artBox ? (artBox.min.z + artBox.max.z) / 2 : -.65;
-    const yaw = -.72;
+    const yaw = -1.02; // turned further toward the room, so the handle bar and the wheel line both read from the sofa side
     const centre = new THREE.Vector3(wallX - .36, 0, artZ);
     centre.x = Math.min(W / 2 - .42, Math.max(-W / 2 + .42, centre.x));
     centre.z = Math.min(FRONT - .5, Math.max(BACK + .5, centre.z));
@@ -3122,17 +3122,23 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     darkG.push(slab(CASE_W - .06, CASE_D - .06, .05, .018, .004, 3, 1).translate(0, WHEEL_H + .286, 0)); // dark liner so the groove is not hollow
     // two latches on the broad face, flush and small
     for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.05, .024, .008).translate(sx * .105, WHEEL_H + .288, CASE_D / 2 + .002));
-    // four spinner wheels, in the gap under the shell so they read from the room
+    // four spinner wheels: a dark wheel-well plate in the shell's lower corners, a housing and a wheel with a polished hubcap, all inside the
+    // visible 7 cm gap under the shell so the case really stands on them
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-      const wx = sx * .146, wz = sz * .078;
-      darkG.push(new THREE.BoxGeometry(.048, .05, .048).translate(wx, WHEEL_H - .026, wz));
-      darkG.push(new THREE.CylinderGeometry(.029, .029, .026, 16).rotateZ(Math.PI / 2).translate(wx + sx * .008, .029, wz));
-      metalG.push(new THREE.CylinderGeometry(.011, .011, .030, 10).rotateZ(Math.PI / 2).translate(wx + sx * .008, .029, wz));
+      const wx = sx * .17, wz = sz * .088;
+      darkG.push(new THREE.BoxGeometry(.06, .018, .07).translate(sx * .148, WHEEL_H - .006, wz)); // wheel well, flush with the floor of the shell
+      darkG.push(new THREE.BoxGeometry(.052, .05, .052).translate(wx - sx * .012, WHEEL_H - .03, wz));
+      darkG.push(new THREE.CylinderGeometry(.036, .036, .03, 18).rotateZ(Math.PI / 2).translate(wx, .036, wz));
+      metalG.push(new THREE.CylinderGeometry(.014, .014, .034, 12).rotateZ(Math.PI / 2).translate(wx, .036, wz));
     }
-    // handle: two short chrome posts into a solid chrome bar with a rubber top; short and wide, so it never reads as wire
-    for (const sx of [-1, 1]) { chromeG.push(new THREE.CylinderGeometry(.022, .024, .055, 14).translate(sx * .11, WHEEL_H + BODY_H + .024, -.02)); chromeG.push(new THREE.CylinderGeometry(.03, .03, .012, 14).translate(sx * .11, WHEEL_H + BODY_H + .002, -.02)); }
-    chromeG.push(new THREE.BoxGeometry(.235, .03, .036).translate(0, WHEEL_H + BODY_H + .058, -.02));
-    darkG.push(new THREE.BoxGeometry(.175, .012, .028).translate(0, WHEEL_H + BODY_H + .078, -.02));
+    // the handle is a retracted telescopic unit, not two wires: a housing plate let into the shell top, thick posts that start inside it, and a
+    // chrome bar that meets the posts exactly, with a rubber grip on top
+    const topY = WHEEL_H + BODY_H;
+    metalG.push(new THREE.BoxGeometry(.28, .018, .105).translate(0, topY + .004, -.02)); // housing plate, let into the shell top
+    for (const sx of [-1, 1]) chromeG.push(new THREE.CylinderGeometry(.022, .024, .052, 14).translate(sx * .108, topY + .035, -.02)); // posts
+    chromeG.push(new THREE.BoxGeometry(.24, .03, .038).translate(0, topY + .07, -.02)); // bar: its underside meets the posts
+    darkG.push(new THREE.BoxGeometry(.18, .012, .03).translate(0, topY + .09, -.02)); // rubber grip
+    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.05, .012, .046).translate(sx * .108, topY + .014, -.02)); // ferrules
 
     const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(
       new THREE.Vector3(centre.x, 0, centre.z),
