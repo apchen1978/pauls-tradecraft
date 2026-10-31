@@ -3131,14 +3131,12 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       darkG.push(new THREE.CylinderGeometry(.036, .036, .03, 18).rotateZ(Math.PI / 2).translate(wx, .036, wz));
       metalG.push(new THREE.CylinderGeometry(.014, .014, .034, 12).rotateZ(Math.PI / 2).translate(wx, .036, wz));
     }
-    // the handle is a retracted telescopic unit, not two wires: a housing plate let into the shell top, thick posts that start inside it, and a
-    // chrome bar that meets the posts exactly, with a rubber grip on top
+    // Paul 2026-11-01: the telescopic handle stays fully retracted and flush with the shell top. No posts, no bar above the case: a recessed slot
+    // with a chrome bar sitting inside it, so the silhouette is just the lacquered shell and its wheels.
     const topY = WHEEL_H + BODY_H;
-    metalG.push(new THREE.BoxGeometry(.28, .018, .105).translate(0, topY + .004, -.02)); // housing plate, let into the shell top
-    for (const sx of [-1, 1]) chromeG.push(new THREE.CylinderGeometry(.022, .024, .052, 14).translate(sx * .108, topY + .035, -.02)); // posts
-    chromeG.push(new THREE.BoxGeometry(.24, .03, .038).translate(0, topY + .07, -.02)); // bar: its underside meets the posts
-    darkG.push(new THREE.BoxGeometry(.18, .012, .03).translate(0, topY + .09, -.02)); // rubber grip
-    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.05, .012, .046).translate(sx * .108, topY + .014, -.02)); // ferrules
+    darkG.push(new THREE.BoxGeometry(.215, .016, .07).translate(0, topY - .005, -.02)); // the pocket the handle retracts into
+    metalG.push(new THREE.BoxGeometry(.175, .009, .038).translate(0, topY + .0035, -.02)); // flush chrome bar
+    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.024, .012, .05).translate(sx * .1, topY + .002, -.02)); // flush end caps
 
     const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(
       new THREE.Vector3(centre.x, 0, centre.z),

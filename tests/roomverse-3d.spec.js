@@ -1469,8 +1469,8 @@ test("the two coffee-table books sit on the table and the red suitcase stands on
   expect(d.suitcase, "the suitcase is built").not.toBeNull();
   expect(Math.abs(d.suitcase.floorGapMm), "wheels touch the floor within 2 mm").toBeLessThanOrEqual(2);
   expect(d.suitcase.flat, "Paul asked for it upright").toBe(false);
-  expect(d.suitcase.heightMm, "a cabin case stands around 65-80 cm with the handle").toBeGreaterThan(600);
-  expect(d.suitcase.heightMm).toBeLessThan(900);
+  expect(d.suitcase.heightMm, "a cabin case with the handle retracted stands around 56-72 cm").toBeGreaterThan(560);
+  expect(d.suitcase.heightMm).toBeLessThan(760);
   expect(d.suitcase.lacquer, "the shell carries a clearcoat").toBe(true);
   expect(d.suitcase.contactShadow, "a contact shadow decal grounds it").toBe(true);
   expect(d.suitcase.insideRoom).toBe(true);
