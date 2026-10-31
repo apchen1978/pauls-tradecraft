@@ -3,13 +3,13 @@ import { LEDGER } from "./helpers/room03-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 
-test("the wok tool rail holds five tools clear of the counter, and two canisters sit on the oak shelf", async ({ page }) => {
+test("the wok tool rail holds five tools clear of the counter, and a canister and soy bottle sit on the oak shelf", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`${PAGE}?lang=zh`);
   await page.waitForFunction(() => window.__room03?.info && window.__room03.info().drawCallsLastFrame > 0);
   const info = await page.evaluate(() => window.__room03.info());
   const tools = info.wokTools;
-  expect(tools.vertices, "one merged mesh with the rail, five tools and two canisters").toBeGreaterThan(1500);
+  expect(tools.vertices, "one merged mesh with the rail, five tools, canister and bottle").toBeGreaterThan(1500);
   expect(info.vertices).toBe(LEDGER.scene.vertices);
   // Wok counter top is at 0.955; the lowest tool head must hang well above it.
   expect(tools.bounds.min[1] - 0.955, "tools hang clear of the counter").toBeGreaterThanOrEqual(0.05);
