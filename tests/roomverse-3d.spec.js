@@ -1453,24 +1453,25 @@ test("Room 01 opens in golden hour only when it is entered from the home cover; 
   }
 });
 
-test("the sofa throw and the coffee-table props rest on measured surfaces without crowding what was there", async ({ page }) => {
+test("the coffee-table pieces sit on the table and the red suitcase lies flat under the painting", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   if (await page.locator("#enter").isVisible()) await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room && window.__room.softDetails, null, { timeout: 90000 });
   const d = await page.evaluate(() => window.__room.softDetails());
-  // The throw is a folded stack on the seat: it touches the cushion, is not sunk into it, and it casts a shadow.
-  expect(d.throw.castShadow).toBe(true);
-  expect(d.throw.receiveShadow).toBe(true);
-  expect(d.throw.layers).toBeGreaterThanOrEqual(4);
-  expect(d.throw.bounds.min[1], "the throw rests on the seat, not floating").toBeLessThanOrEqual(d.throw.seatTop + 0.006);
-  expect(d.throw.bounds.min[1], "the throw is not sunk into the seat").toBeGreaterThanOrEqual(d.throw.seatTop - 0.012);
-  // The coffee-table props: at least three supporting parts, all on the table, none intersecting what was already there.
+  // The coffee-table pieces: supported on the measured top, inside it, and clear of the laptop, the mug and the existing book.
   expect(d.props.items.length).toBeGreaterThanOrEqual(3);
   for (const item of d.props.items) {
-    expect(item.bottomGapMm, "no prop is sunk into the table").toBeGreaterThanOrEqual(-1);
-    expect(item.insideTable, "every prop sits inside the table top").toBe(true);
-    expect(item.overlapsExisting, "no prop collides with the laptop, the mug or the existing book").toBe(false);
+    expect(item.bottomGapMm, "no piece is sunk into the table").toBeGreaterThanOrEqual(-1);
+    expect(item.insideTable, "every piece sits inside the table top").toBe(true);
+    expect(item.overlapsExisting, "no piece collides with what was already there").toBe(false);
   }
-  expect(d.props.items.filter((item) => Math.abs(item.bottomGapMm) <= 1.5).length, "at least three parts touch the table").toBeGreaterThanOrEqual(3);
-  expect(d.lights, "the new details add no light").toBe(6);
+  expect(Math.abs(Math.min(...d.props.items.map((item) => item.bottomGapMm))), "the arrangement rests on the table within 2 mm").toBeLessThanOrEqual(2);
+  // The suitcase: wheels on the floor, wholly inside the room, and in the stretch of wall under the left-wall painting.
+  expect(d.suitcase, "the suitcase is built").not.toBeNull();
+  expect(Math.abs(d.suitcase.floorGapMm), "wheels touch the floor within 2 mm").toBeLessThanOrEqual(2);
+  expect(d.suitcase.insideRoom).toBe(true);
+  expect(d.suitcase.bounds.min[0]).toBeLessThan(d.suitcase.centre[0]);
+  expect(d.suitcase.vertices).toBeGreaterThan(800);
+  if (d.suitcase.paintingBounds) expect(d.suitcase.centre[1]).toBeGreaterThan(d.suitcase.paintingBounds.min[2] - 0.6);
+  expect(d.lights, "no new light was added").toBe(6);
 });

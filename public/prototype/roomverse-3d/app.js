@@ -1297,61 +1297,36 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   }
   scene.add(screen); robotObj.attach(screen);
   scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, chairObj, laptopObj, mugObj);
-  // ---------- lived-in details (Paul 2026-11-01: Room 01 reads emptier than Rooms 02/03) ----------
-  // Two additions only, both in the opening view: a folded throw over the sofa's left arm, and three small things on the side table.
-  // The throw follows the arm top measured with a downward ray every 3 cm, so it lies on the upholstery instead of floating; the props use
-  // the measured side-table top. No new lights (the room's light count stays 6, or 7 with the left gallery spot) and no new text.
+  // ---------- lived-in details, cloth pass 2 (Paul 2026-11-01: the first pass read as boxes — “非常幾何”) ----------
+  // The throw is a draped strip: rounded roll over the seat edge, a hanging face with a sag and an uneven hem, alpha-strand fringe.
+  // The coffee-table pieces use rounded extrusions (bevelled book covers with a page block, a footed bowl, a rounded remote).
+  // No new lights and no new text.
   const softTint = (geometry, hex) => {
     const colour = new THREE.Color(hex), count = geometry.attributes.position.count, a = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) colour.toArray(a, i * 3);
     geometry.setAttribute("color", new THREE.Float32BufferAttribute(a, 3));
     return geometry;
   };
-  const soft = { throwMesh: null, propMesh: null, throwInfo: null, propBounds: [], propInfo: [] };
+  const softMerge = (list) => {
+    const merged = new THREE.BufferGeometry();
+    if (!list.length) return merged;
+    const total = list.reduce((n, part) => n + part.attributes.position.count, 0);
+    const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), col = new Float32Array(total * 3);
+    let offset = 0;
+    for (const part of list) {
+      pos.set(part.attributes.position.array, offset * 3);
+      nor.set(part.attributes.normal.array, offset * 3);
+      col.set(part.attributes.color.array, offset * 3);
+      offset += part.attributes.position.count;
+    }
+    merged.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    merged.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
+    merged.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    return merged;
+  };
+  const soft = { throwMesh: null, fringeMesh: null, propMesh: null, suitcaseShell: null, suitcaseHard: null, throwInfo: null, propBounds: [], propInfo: null, suitcaseInfo: null };
   {
-    // 1) a folded throw on the seat beside the rust cushion. Two attempts to drape it over the arm failed the same way: the arm's rounded
-    //    edge swallowed the cloth and only a thin strip showed. A folded stack on the seat reads as fabric from the front, sits in the table
-    //    lamp's pool of light, and is about 200 vertices.
-    const sofaBox = new THREE.Box3().setFromObject(sofaObj);
-    const seatX = sofaBox.max.x - .52, seatZ = sofaBox.max.z - .20;
-    const seatRay = new THREE.Raycaster(); seatRay.far = 3;
-    seatRay.set(new THREE.Vector3(seatX, sofaBox.max.y + .4, seatZ), new THREE.Vector3(0, -1, 0));
-    const seatHit = seatRay.intersectObject(sofaObj, true)[0];
-    const seatTop = seatHit ? seatHit.point.y : .42;
-    const throwParts = [];
-    [[0xb98a63, .34, .015, .44], [0xd9b98c, .325, .014, .425], [0xc9a87e, .31, .014, .41], [0xd9b98c, .295, .013, .395]].forEach(([hex, w, h, d], i) => {
-      const geometry = new THREE.BoxGeometry(w, h, d);
-      geometry.rotateY(.10 + (i % 2 ? -.05 : .02));
-      geometry.translate(seatX + (i % 2 ? .006 : -.005), seatTop + .0075 + i * .015, seatZ + (i % 2 ? .008 : -.007));
-      throwParts.push(softTint(geometry, hex));
-    });
-    const flapGeometry = new THREE.BoxGeometry(.28, .12, .016);
-    flapGeometry.rotateX(-.15); flapGeometry.rotateY(.10);
-    flapGeometry.translate(seatX, seatTop + .075, seatZ + .21);
-    throwParts.push(softTint(flapGeometry, 0xc9a87e));
-    const throwGeometry = (() => {
-      const total = throwParts.reduce((n, part) => n + part.attributes.position.count, 0);
-      const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), col = new Float32Array(total * 3);
-      let offset = 0;
-      for (const part of throwParts) {
-        pos.set(part.attributes.position.array, offset * 3);
-        nor.set(part.attributes.normal.array, offset * 3);
-        col.set(part.attributes.color.array, offset * 3);
-        offset += part.attributes.position.count;
-      }
-      const merged = new THREE.BufferGeometry();
-      merged.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-      merged.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
-      merged.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
-      return merged;
-    })();
-    const throwMesh = new THREE.Mesh(throwGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 }));
-    throwMesh.name = "sofa-throw"; throwMesh.castShadow = true; throwMesh.receiveShadow = true;
-    scene.add(throwMesh); soft.throwMesh = throwMesh;
-    soft.throwInfo = { seatTop: Number(seatTop.toFixed(3)), layers: 5, vertices: throwGeometry.attributes.position.count };
-    // 2) small things on the coffee table. The side table is fully under the lamp shade (measured: the shade bbox covers its whole top), so
-    //    a stack there would be hidden; the coffee table has a free corner. Two books and a shallow bowl, placed against the measured table
-    //    bounds and kept clear of the laptop, the mug and the book that are already on it.
+    // 2) coffee-table pieces, rounded: two bevelled books with a page block, a footed bowl, a rounded remote.
     const coffeeBox = new THREE.Box3().setFromObject(coffeeObj);
     const occupied = [laptopObj, mugObj, coffeeBook].map((obj) => new THREE.Box3().setFromObject(obj));
     const pad = .012;
@@ -1374,38 +1349,36 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       return null;
     };
     const parts = [];
-    const put = (geometry, hex) => { geometry.computeBoundingBox(); soft.propBounds.push(geometry.boundingBox.clone()); parts.push(softTint(geometry, hex)); };
-    const bookSpot = take(.085, .0625);
+    const put = (geometry, hex, yaw = 0, at = [0, 0, 0]) => {
+      if (yaw) geometry.rotateY(yaw);
+      geometry.translate(at[0], at[1], at[2]);
+      geometry.computeBoundingBox();
+      soft.propBounds.push(geometry.boundingBox.clone());
+      parts.push(softTint(geometry, hex));
+    };
+    const slab = (w, d, r, thickness, bevel) => new THREE.ExtrudeGeometry(roundedRectShape(w, d, r), { depth: thickness, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel, bevelSegments: 2, curveSegments: 4 }).rotateX(-Math.PI / 2);
+    const bookSpot = take(.085, .07);
     if (bookSpot) {
-      put(new THREE.BoxGeometry(.17, .024, .125).translate(bookSpot[0], coffeeTop + .012, bookSpot[1]), 0x6d7d68);
-      put(new THREE.BoxGeometry(.155, .020, .115).rotateY(.06).translate(bookSpot[0] + .004, coffeeTop + .034, bookSpot[1] + .004), 0x8b6f57);
+      const [bx, bz] = bookSpot;
+      put(slab(.175, .135, .010, .020, .0025), 0x64755f, .10, [bx, coffeeTop + .011, bz]);
+      put(slab(.160, .123, .008, .016, .002), 0xf1e9d8, .10, [bx + .006, coffeeTop + .029, bz]);
+      put(slab(.168, .130, .009, .018, .0022), 0x8b6a4f, -.06, [bx + .004, coffeeTop + .047, bz + .004]);
     }
-    const bowlSpot = take(.055, .055);
-    if (bowlSpot) put(new THREE.LatheGeometry([[0, 0], [.040, 0], [.052, .010], [.050, .028], [.042, .032], [0, .026]].map(([r, y]) => new THREE.Vector2(r, y)), 16).translate(bowlSpot[0], coffeeTop, bowlSpot[1]), 0xb9b3a5);
-    const remoteSpot = take(.0675, .022);
+    const bowlSpot = take(.062, .062);
+    if (bowlSpot) {
+      const [wx, wz] = bowlSpot;
+      const bowlProfile = [[0, 0], [.026, 0], [.031, .004], [.030, .012], [.026, .014], [.056, .048], [.062, .058], [.058, .059], [.052, .050], [.022, .017], [0, .015]];
+      put(new THREE.LatheGeometry(bowlProfile.map(([r, y]) => new THREE.Vector2(r, y)), 28), 0xd8d2c4, 0, [wx, coffeeTop, wz]);
+    }
+    const remoteSpot = take(.070, .026);
     if (remoteSpot) {
-      put(new THREE.BoxGeometry(.135, .014, .042).translate(remoteSpot[0], coffeeTop + .007, remoteSpot[1]), 0x2f3236);
-      put(new THREE.BoxGeometry(.085, .005, .026).translate(remoteSpot[0], coffeeTop + .016, remoteSpot[1]), 0x5b5f66);
+      const [rx2, rz2] = remoteSpot;
+      put(slab(.135, .044, .012, .012, .0022), 0x3a3d42, .14, [rx2, coffeeTop + .006, rz2]);
+      for (const off of [-.030, 0, .030]) put(new THREE.CylinderGeometry(.0038, .0038, .0025, 10), 0x9aa0a6, 0, [rx2 + off * Math.cos(.14), coffeeTop + .0135, rz2 + off * Math.sin(.14)]);
     }
-    const mergedProps = (() => {
-      const merged = new THREE.BufferGeometry();
-      if (!parts.length) return merged;
-      // merge by hand: all parts share the same attribute set (position, normal, color)
-      const total = parts.reduce((n, p) => n + p.attributes.position.count, 0);
-      const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), col = new Float32Array(total * 3);
-      let offset = 0;
-      for (const part of parts) {
-        const p = part.attributes.position, n = part.attributes.normal, c = part.attributes.color;
-        pos.set(p.array, offset * 3); nor.set(n.array, offset * 3); col.set(c.array, offset * 3);
-        offset += p.count;
-      }
-      merged.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-      merged.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
-      merged.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
-      return merged;
-    })();
+    const mergedProps = softMerge(parts);
     if (mergedProps.attributes.position) {
-      const propMesh = new THREE.Mesh(mergedProps, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .74, metalness: .02 }));
+      const propMesh = new THREE.Mesh(mergedProps, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .72, metalness: .02 }));
       propMesh.name = "coffee-table-props"; propMesh.castShadow = true; propMesh.receiveShadow = true;
       scene.add(propMesh); soft.propMesh = propMesh;
     }
@@ -3130,7 +3103,107 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     camera.position.copy(eye); camera.lookAt(focus); controls.target.copy(focus); render();
     return { eye: eye.toArray(), focus: focus.toArray() };
   }
+  // ---------- red hardshell suitcase (Paul 2026-11-01) ----------
+  // A carry-on standing on its spinner wheels beside the hall stand, i.e. under the painting the stand sits below. Built as one shell mesh (body,
+  // ribs, lid seam is hardware) and one hardware mesh (wheels, handles, tubes), so it costs two draw calls. Size is a real cabin case:
+  // 40 x 52 x 19 cm shell, wheels 3.5 cm, handle out to 84 cm.
+  function buildSuitcase() {
+    // Lying flat under the right-wall harbour painting (Paul 2026-11-01: "另外一邊、平躺"). That wall's floor is open between the sofa and the side
+    // table, and a closed case on its back is what unpacked luggage actually looks like.
+    const artBox = rightWallArtGroup ? new THREE.Box3().setFromObject(rightWallArtGroup) : null;
+    const wallX = artBox ? artBox.min.x : W / 2 - .02;
+    const artZ = artBox ? (artBox.min.z + artBox.max.z) / 2 : -.65;
+    const yaw = -.14;
+    const centre = new THREE.Vector3(wallX - .46, 0, artZ);
+    centre.x = Math.min(W / 2 - .45, Math.max(-W / 2 + .45, centre.x));
+    centre.z = Math.min(FRONT - .5, Math.max(BACK + .5, centre.z));
+
+    const shellParts = [], hardParts = [];
+    const RED = 0xa63028, RED_DARK = 0x8d2821, DARK = 0x2b2b2e, METAL = 0x8a8f96, TYRE = 0x17181a;
+    const extrudeSlab = (w, h, r, depth, bevel) => new THREE.ExtrudeGeometry(roundedRectShape(w, h, r), {
+      depth, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel, bevelSegments: 3, curveSegments: 6,
+    });
+    // shell: 40 x 52 cm rounded, 19 cm deep, bevelled (a hardshell is not a cube)
+    const body = extrudeSlab(.40, .52, .055, .166, .012).translate(0, 0, -.083);
+    body.translate(0, .335, 0);
+    shellParts.push(softTint(body, RED));
+    // lid seam: a 3 mm dark line around the upper third, where a top-lid case opens
+    for (const zOff of [-.096, .096]) {
+      const seam = new THREE.BoxGeometry(.372, .004, .003);
+      seam.translate(0, .402, zOff);
+      hardParts.push(softTint(seam, DARK));
+    }
+    for (const xOff of [-.176, .176]) {
+      const seam = new THREE.BoxGeometry(.003, .004, .188);
+      seam.translate(xOff, .402, 0);
+      hardParts.push(softTint(seam, DARK));
+    }
+    // moulded ribs, two bands on each broad face
+    for (const zOff of [-.099, .099]) for (const xOff of [-.072, .072]) {
+      const rib = new THREE.BoxGeometry(.028, .40, .005);
+      rib.translate(xOff, .315, zOff);
+      shellParts.push(softTint(rib, RED_DARK));
+    }
+    // four spinner wheels: housing plus a 3.5 cm wheel, the case stands on them
+    for (const xOff of [-.155, .155]) for (const zOff of [-.062, .062]) {
+      const housing = new THREE.BoxGeometry(.052, .042, .034);
+      housing.translate(xOff, .062, zOff);
+      hardParts.push(softTint(housing, DARK));
+      const wheel = new THREE.CylinderGeometry(.032, .032, .020, 16);
+      wheel.rotateZ(Math.PI / 2).translate(xOff, .033, zOff);
+      hardParts.push(softTint(wheel, TYRE));
+    }
+    // telescopic handle, out for the trip: two tubes and a grip above the shell
+    for (const xOff of [-.108, .108]) {
+      const tube = new THREE.CylinderGeometry(.0085, .0085, .16, 10);
+      tube.translate(xOff, .60, -.088);
+      hardParts.push(softTint(tube, METAL));
+    }
+    const grip = extrudeSlab(.21, .03, .012, .022, .004).rotateX(-Math.PI / 2).translate(0, .67, -.082);
+    hardParts.push(softTint(grip, DARK));
+    // top and side carry handles
+    const topHandle = extrudeSlab(.13, .028, .012, .020, .004).rotateX(-Math.PI / 2).translate(0, .605, .02);
+    hardParts.push(softTint(topHandle, DARK));
+    const sideHandle = new THREE.BoxGeometry(.020, .085, .030);
+    sideHandle.translate(.202, .44, .012);
+    hardParts.push(softTint(sideHandle, DARK));
+
+    // flatten it: rotate the upright case onto its back, then drop the whole thing onto the floor
+    const flatten = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
+    const turn = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0));
+    const quat = turn.multiply(flatten);
+    const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(centre.x, 0, centre.z), quat, new THREE.Vector3(1, 1, 1)));
+    const shellGeometry = softMerge(shellParts.map(place));
+    const hardGeometry = softMerge(hardParts.map(place));
+    shellGeometry.computeBoundingBox(); hardGeometry.computeBoundingBox();
+    const dropToFloor = -Math.min(shellGeometry.boundingBox.min.y, hardGeometry.boundingBox.min.y);
+    shellGeometry.translate(0, dropToFloor, 0);
+    hardGeometry.translate(0, dropToFloor, 0);
+    const shellMesh = new THREE.Mesh(shellGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .34, metalness: .06 }));
+    shellMesh.name = "red-suitcase-shell"; shellMesh.castShadow = true; shellMesh.receiveShadow = true;
+    const hardMesh = new THREE.Mesh(hardGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .46, metalness: .32 }));
+    hardMesh.name = "red-suitcase-hardware"; hardMesh.castShadow = true; hardMesh.receiveShadow = true;
+    scene.add(shellMesh, hardMesh);
+    soft.suitcaseShell = shellMesh; soft.suitcaseHard = hardMesh;
+    scene.updateMatrixWorld(true);
+    const shellBox = new THREE.Box3().setFromObject(shellMesh), hardBox = new THREE.Box3().setFromObject(hardMesh);
+    const allBox = shellBox.clone().union(hardBox);
+    soft.suitcaseInfo = {
+      centre: [Number(centre.x.toFixed(3)), Number(centre.z.toFixed(3))],
+      yaw: Number(yaw.toFixed(3)),
+      flat: true,
+      bounds: { min: allBox.min.toArray().map((v) => Number(v.toFixed(3))), max: allBox.max.toArray().map((v) => Number(v.toFixed(3))) },
+      heightMm: Number(((allBox.max.y - allBox.min.y) * 1000).toFixed(1)),
+      floorGapMm: Number((allBox.min.y * 1000).toFixed(2)),
+      wheelsDownMm: Number((hardBox.min.y * 1000).toFixed(2)),
+      paintingBounds: artBox ? { min: artBox.min.toArray().map((v) => Number(v.toFixed(3))), max: artBox.max.toArray().map((v) => Number(v.toFixed(3))) } : null,
+      insideRoom: allBox.min.x > -W / 2 + .05 && allBox.max.x < W / 2 - .05 && allBox.min.z > BACK + .05 && allBox.max.z < FRONT - .05,
+      vertices: shellMesh.geometry.attributes.position.count + hardMesh.geometry.attributes.position.count,
+    };
+  }
+
   buildHallStand();
+  buildSuitcase();
 
   fit(); apply();
   // Let the first room frame paint before the optional TV materials request any image bytes.
@@ -3435,7 +3508,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
     },
-    softDetails() { // local QA only: the throw's arm contact and the coffee-table props' support
+    softDetails() { // local QA only: the coffee-table props' support and the flat suitcase's floor contact
       scene.updateMatrixWorld(true);
       const rounded = (v) => Number(v.toFixed(4));
       const bounds = (obj) => { if (!obj) return null; const b = new THREE.Box3().setFromObject(obj); return { min: b.min.toArray().map(rounded), max: b.max.toArray().map(rounded) }; };
@@ -3448,8 +3521,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         insideTable: b.min.x > soft.propInfo.coffeeBounds.min[0] && b.max.x < soft.propInfo.coffeeBounds.max[0] && b.min.z > soft.propInfo.coffeeBounds.min[2] && b.max.z < soft.propInfo.coffeeBounds.max[2],
       }));
       return {
-        throw: { bounds: bounds(soft.throwMesh), vertices: soft.throwInfo.vertices, layers: soft.throwInfo.layers, seatTop: soft.throwInfo.seatTop, castShadow: soft.throwMesh.castShadow, receiveShadow: soft.throwMesh.receiveShadow },
         props: { bounds: bounds(soft.propMesh), vertices: soft.propInfo.vertices, items, coffeeTable: soft.propInfo.coffeeBounds, coffeeTop: soft.propInfo.coffeeTop, spots: { book: soft.propInfo.bookSpot, bowl: soft.propInfo.bowlSpot, remote: soft.propInfo.remoteSpot } },
+        suitcase: soft.suitcaseInfo,
         lights: scene.children.filter((child) => child.isLight).length,
       };
     },
