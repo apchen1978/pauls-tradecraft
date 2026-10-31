@@ -3098,50 +3098,41 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // ribs, lid seam is hardware) and one hardware mesh (wheels, handles, tubes), so it costs two draw calls. Size is a real cabin case:
   // 40 x 52 x 19 cm shell, wheels 3.5 cm, handle out to 84 cm.
   function buildSuitcase() {
-    // Paul 2026-11-01: "全力把紅色行李箱做漂亮一點 … 高級感拉滿". A cabin hardshell standing at a three-quarter angle under the right-wall harbour
-    // painting: it should read as "the owner just got back from a trip" next to that painting. Built directly in upright coordinates (x width, y up,
-    // z depth) so the silhouette, the seam and the wheels are authored where they are seen: lacquered shell with a clearcoat highlight, a recessed
-    // seam with two metal latches, four spinner wheels in a visible gap under the shell, a chrome telescopic handle, a leather side handle and tag.
+    // Paul 2026-11-01: a premium red hardshell, standing under the right-wall harbour painting — then "毛邊修掉、拉桿做實在". Clean pass: two
+    // lacquered shell halves with a real opening groove, a slim chrome handle that reads solid, four spinner wheels with hubcaps in a visible gap,
+    // and nothing else on the silhouette. No corner blobs, no dangling tag: at this distance the clean outline is what reads as expensive.
     const artBox = rightWallArtGroup ? new THREE.Box3().setFromObject(rightWallArtGroup) : null;
     const wallX = artBox ? artBox.min.x : W / 2 - .02;
     const artZ = artBox ? (artBox.min.z + artBox.max.z) / 2 : -.65;
-    const yaw = -.72; // three-quarter: the room sees the broad face and one side
+    const yaw = -.72;
     const centre = new THREE.Vector3(wallX - .36, 0, artZ);
     centre.x = Math.min(W / 2 - .42, Math.max(-W / 2 + .42, centre.x));
     centre.z = Math.min(FRONT - .5, Math.max(BACK + .5, centre.z));
 
-    const CASE_W = .40, CASE_D = .235, BODY_H = .52, WHEEL_H = .072; // a real cabin case: 55 x 40 x 23 cm, plus wheels and handle
-    const RED = 0x9c1d17, METAL = 0xd0d4da, CHROME = 0xe6e9ee, DARK = 0x17181b, LEATHER = 0x4a352c;
-    const shellG = [], metalG = [], chromeG = [], darkG = [], leatherG = [];
-    const slab = (w, d, r, thickness, bevel, curveSegments = 6, bevelSegments = 3) => new THREE.ExtrudeGeometry(roundedRectShape(w, d, r), {
+    const CASE_W = .40, CASE_D = .235, BODY_H = .52, WHEEL_H = .072;
+    const RED = 0x9c1d17, METAL = 0xd2d6dc, CHROME = 0xe8ebef, DARK = 0x17181b;
+    const shellG = [], metalG = [], chromeG = [], darkG = [];
+    const slab = (w, d, r, thickness, bevel, curveSegments = 5, bevelSegments = 2) => new THREE.ExtrudeGeometry(roundedRectShape(w, d, r), {
       depth: thickness, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel * .8, bevelSegments, curveSegments,
     }).rotateX(-Math.PI / 2);
-    // body and lid: two stacked halves with a real recessed seam between them
-    shellG.push(slab(CASE_W, CASE_D, .075, .285, .016).translate(0, WHEEL_H, 0));
-    shellG.push(slab(CASE_W, CASE_D, .075, .22, .016).translate(0, WHEEL_H + .29, 0));
-    // the opening: a dark groove and a brushed-aluminium band, then two latches on the broad face
-    darkG.push(slab(CASE_W + .004, CASE_D + .004, .063, .012, .002, 4, 1).translate(0, WHEEL_H + .28, 0));
-    metalG.push(slab(CASE_W + .010, CASE_D + .010, .064, .008, .002, 4, 1).translate(0, WHEEL_H + .29, 0));
-    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.055, .028, .012).translate(sx * .11, WHEEL_H + .285, CASE_D / 2 + .004));
-    // four spinner wheels, set in the gap under the shell so they are visible from the room
+    // two halves with a 5 mm gap between them: the opening reads as a groove instead of a fin glued on the shell
+    shellG.push(slab(CASE_W, CASE_D, .075, .283, .016).translate(0, WHEEL_H, 0));
+    shellG.push(slab(CASE_W, CASE_D, .075, .218, .016).translate(0, WHEEL_H + .293, 0));
+    metalG.push(slab(CASE_W - .01, CASE_D - .01, .0735, .004, .001, 4, 1).translate(0, WHEEL_H + .2915, 0)); // the aluminium lip inside the groove
+    darkG.push(slab(CASE_W - .06, CASE_D - .06, .05, .018, .004, 3, 1).translate(0, WHEEL_H + .286, 0)); // dark liner so the groove is not hollow
+    // two latches on the broad face, flush and small
+    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.05, .024, .008).translate(sx * .105, WHEEL_H + .288, CASE_D / 2 + .002));
+    // four spinner wheels, in the gap under the shell so they read from the room
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
       const wx = sx * .146, wz = sz * .078;
-      darkG.push(new THREE.BoxGeometry(.05, .05, .05).translate(wx, WHEEL_H - .026, wz));
-      darkG.push(new THREE.CylinderGeometry(.029, .029, .026, 18).rotateZ(Math.PI / 2).translate(wx + sx * .008, .029, wz));
-      metalG.push(new THREE.CylinderGeometry(.013, .013, .032, 12).rotateZ(Math.PI / 2).translate(wx + sx * .010, .032, wz));
+      darkG.push(new THREE.BoxGeometry(.048, .05, .048).translate(wx, WHEEL_H - .026, wz));
+      darkG.push(new THREE.CylinderGeometry(.029, .029, .026, 16).rotateZ(Math.PI / 2).translate(wx + sx * .008, .029, wz));
+      metalG.push(new THREE.CylinderGeometry(.011, .011, .030, 10).rotateZ(Math.PI / 2).translate(wx + sx * .008, .029, wz));
     }
-    // telescopic handle: two chrome tubes and a wide grip with a rubber insert
-    for (const sx of [-1, 1]) chromeG.push(new THREE.CylinderGeometry(.015, .015, .07, 12).translate(sx * .125, WHEEL_H + BODY_H + .025, -.02));
-    chromeG.push(new THREE.BoxGeometry(.28, .032, .036).translate(0, WHEEL_H + BODY_H + .078, -.02));
-    darkG.push(new THREE.BoxGeometry(.18, .024, .028).translate(0, WHEEL_H + BODY_H + .079, -.02));
-    // leather side handle and luggage tag on the side the room sees
-    leatherG.push(new THREE.BoxGeometry(.028, .10, .018).translate(CASE_W / 2 + .004, WHEEL_H + .17, .02));
-    leatherG.push(new THREE.CylinderGeometry(.0022, .0022, .07, 6).translate(CASE_W / 2 + .012, WHEEL_H + .115, .05));
-    leatherG.push(new THREE.BoxGeometry(.05, .006, .075).translate(CASE_W / 2 + .012, WHEEL_H + .07, .075));
-    for (const yOff of [WHEEL_H + .16, WHEEL_H + .31]) darkG.push(new THREE.BoxGeometry(CASE_W - .04, .006, .004).translate(0, yOff, CASE_D / 2 + .002)); // panel lines
-    for (const yOff of [WHEEL_H + .16, WHEEL_H + .31]) darkG.push(new THREE.BoxGeometry(CASE_W - .04, .006, .004).translate(0, yOff, -CASE_D / 2 - .002));
-    // four corner bumpers on the lid
-    for (const sx of [-1, 1]) for (const sz of [-1, 1]) darkG.push(new THREE.BoxGeometry(.05, .05, .05).translate(sx * .168, WHEEL_H + BODY_H - .02, sz * .10));
+    // handle: two short chrome posts into a solid chrome bar with a rubber top; short and wide, so it never reads as wire
+    for (const sx of [-1, 1]) { chromeG.push(new THREE.CylinderGeometry(.022, .024, .055, 14).translate(sx * .11, WHEEL_H + BODY_H + .024, -.02)); chromeG.push(new THREE.CylinderGeometry(.03, .03, .012, 14).translate(sx * .11, WHEEL_H + BODY_H + .002, -.02)); }
+    chromeG.push(new THREE.BoxGeometry(.235, .03, .036).translate(0, WHEEL_H + BODY_H + .058, -.02));
+    darkG.push(new THREE.BoxGeometry(.175, .012, .028).translate(0, WHEEL_H + BODY_H + .078, -.02));
 
     const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(
       new THREE.Vector3(centre.x, 0, centre.z),
@@ -3160,10 +3151,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const shellMesh = addPart(shellG, new THREE.MeshPhysicalMaterial({
       color: RED, roughness: .26, metalness: .0, clearcoat: 1, clearcoatRoughness: .08, reflectivity: .5,
     }), "red-suitcase-shell");
-    addPart(metalG, new THREE.MeshStandardMaterial({ color: METAL, roughness: .2, metalness: .92 }), "red-suitcase-metal");
-    addPart(chromeG, new THREE.MeshStandardMaterial({ color: CHROME, roughness: .1, metalness: .96 }), "red-suitcase-chrome");
-    addPart(darkG, new THREE.MeshStandardMaterial({ color: DARK, roughness: .58, metalness: .25 }), "red-suitcase-hardware");
-    addPart(leatherG, new THREE.MeshStandardMaterial({ color: LEATHER, roughness: .78, metalness: .02 }), "red-suitcase-leather");
+    addPart(metalG, new THREE.MeshStandardMaterial({ color: METAL, roughness: .22, metalness: .9 }), "red-suitcase-metal");
+    addPart(chromeG, new THREE.MeshStandardMaterial({ color: CHROME, roughness: .12, metalness: .95 }), "red-suitcase-chrome");
+    addPart(darkG, new THREE.MeshStandardMaterial({ color: DARK, roughness: .6, metalness: .22 }), "red-suitcase-hardware");
     const union = new THREE.Box3();
     for (const mesh of meshes) union.expandByObject(mesh);
     const drop = -union.min.y;
