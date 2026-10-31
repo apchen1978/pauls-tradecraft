@@ -1178,13 +1178,11 @@ function buildTableware(scene) {
     foodItems.push({ name: `drumstick-${index}`, box: finalBox, embed: index ? -0.009 : 0.002 });
   });
   // Wings tucked against the flanks.
-  const turkeyWingStart = geometryParts.food.length;
   for (const side of [-1, 1]) {
     const wing = new THREE.SphereGeometry(1, 10, 6);
     wing.scale(0.034, 0.013, 0.017); wing.rotateY(side * 0.45);
     placeFood(`wing-${side}`, wing, BX - 0.023 * FS, side * 0.042 * FS, 0xa35a24, 0xd6974d, { speckle: 0.2, burn: 0.8 }, 0.001, FS);
   }
-  const turkeyBirdEnd = geometryParts.food.length;
   // Roasted potatoes and carrots along the two long sides, lemon halves at the tail end.
   [[-0.120, 0.076, 0.017, 0.012, 0.014, 0.4], [0.060, 0.076, 0.018, 0.013, 0.015, -0.3], [-0.070, -0.076, 0.016, 0.012, 0.014, 1.1], [0.110, -0.076, 0.018, 0.012, 0.014, 0.7]].forEach(([lx, lz, rx, ry, rz, yaw], index) => {
     const potato = new THREE.SphereGeometry(1, 10, 7);
@@ -1196,7 +1194,6 @@ function buildTableware(scene) {
     carrot.rotateZ(Math.PI / 2); carrot.rotateY(yaw);
     placeFood(`carrot-${index}`, carrot, lx, lz, 0xb8591d, 0xdb8035, { speckle: 0.16, burn: 0.4 });
   });
-  const turkeyGarnishStart = geometryParts.food.length;
   [[0.212, 0.050, 0.3], [0.212, -0.050, -0.5]].forEach(([lx, lz, yaw], index) => {
     const half = new THREE.SphereGeometry(1, 10, 5, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
     half.scale(0.019, 0.015, 0.0165);
@@ -1223,7 +1220,6 @@ function buildTableware(scene) {
     placeFood(`arugula-${index}`, leaf, lx, lz, 0x4f6a34, 0x7b9150, { speckle: 0.2 }, -(0.012 + index * 0.004));
     foodItems[foodItems.length - 1].lifted = true;
   });
-  const turkeyHerbStart = geometryParts.food.length;
   // Rosemary sprigs laid on the breast: a thin stem and a few needle-like leaves each, resting on the skin (offsets from the bird's centre).
   [[-0.038, -0.014, 0.35], [-0.018, 0.016, -0.5], [0.002, -0.006, 0.9], [0.024, 0.020, -0.2]].forEach(([dx, dz, yaw]) => {
     const worldX = PLATTER.x + BX + dx * FS, worldZ = PLATTER.z + dz * FS;
@@ -1266,85 +1262,231 @@ function buildTableware(scene) {
         part.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
       }
     }
-    // Dinner retains the original roast chicken. Thanksgiving swaps the food geometry in the same mesh:
-    // a fuller bird, roasted vegetables, cranberries, squash and herbs on the existing platter.
+    // Dinner retains the original roast chicken. Thanksgiving swaps the food geometry in the same mesh (no extra draw call) for a
+    // roast turkey after the reference board (concept A): crowned breast with a breastbone ridge, thigh bulges, knobbly drumsticks with
+    // bone tips, wings tucked to the flanks, and apple wedges, acorn-squash crescents, cranberries and rosemary/thyme sprigs around it.
+    // Every piece is seated by raycast (wings against the body, garnish onto the platter, herbs onto the skin) and recorded in turkeyFit.
     let turkeyGeometry = null;
     if (kind === "food") {
-      const turkeyParts = parts.map((part, index) => {
-        if (index < turkeyWingStart) return null; // replace the chicken breast and legs with turkey-specific forms
-        if (index >= turkeyGarnishStart && index < turkeyHerbStart) return null;
-        const copy = part.clone();
-        if (index >= turkeyHerbStart) copy.userData.restOnBreast = true;
-        if (index < turkeyBirdEnd || index >= turkeyHerbStart) {
-          copy.translate(-(PLATTER.x + BX), -platterTop, -PLATTER.z);
-          copy.scale(1.10, 1.18, 1.06);
-          copy.translate(PLATTER.x + BX, platterTop, PLATTER.z);
-          copy.computeVertexNormals();
+      const T = { x: PLATTER.x + BX, z: PLATTER.z };
+      const turkeyParts = [], turkeyFit = [];
+      const tint = new THREE.Color();
+      const roastPaint = (geometry, { deep = 0x7c3c14, gold = 0xc77b34, light = 0xeab36a, crown = 0.6 } = {}) => {
+        geometry.computeBoundingBox();
+        const position = geometry.attributes.position, colors = new Float32Array(position.count * 3);
+        const floor = geometry.boundingBox.min.y, span = Math.max(1e-6, geometry.boundingBox.max.y - floor);
+        const cDeep = new THREE.Color(deep), cGold = new THREE.Color(gold), cLight = new THREE.Color(light);
+        for (let i = 0; i < position.count; i++) {
+          const x = position.getX(i), y = position.getY(i), z = position.getZ(i);
+          const h = THREE.MathUtils.clamp((y - floor) / span, 0, 1), n = foodNoise(x, y, z), mottle = 0.5 + 0.25 * Math.sin(x * 160 + z * 90) + 0.25 * Math.sin(z * 210 - y * 130);
+          tint.copy(cGold).lerp(cDeep, THREE.MathUtils.clamp(crown * h * h + 0.35 * mottle - 0.15 + (h < 0.18 ? 0.25 : 0), 0, 1));
+          if (n > 0.9 && h > 0.35) tint.lerp(cLight, 0.55);
+          else tint.multiplyScalar(1 - 0.12 * n);
+          tint.toArray(colors, i * 3);
         }
-        return copy;
-      }).filter(Boolean);
-      // A fuller breast with a flattened underside and gentle skin irregularities; built separately so dinner's chicken is unchanged.
-      const turkeyBreast = new THREE.SphereGeometry(1, 40, 26);
-      const breastPos = turkeyBreast.attributes.position;
-      for (let i = 0; i < breastPos.count; i++) {
-        const ux = breastPos.getX(i), uy = breastPos.getY(i), uz = breastPos.getZ(i);
-        const taper = ux > 0 ? 1 - 0.27 * ux * ux : 1 - 0.04 * ux * ux;
-        const skin = uy > 0 ? 0.0014 * (Math.sin(ux * 19 + uz * 9) + Math.sin(uz * 23 - ux * 7)) * uy : 0;
-        let y = uy * (uy < 0 ? 0.28 : 1) * 0.060 * (0.9 + 0.1 * taper);
-        if (uy > 0) y += 0.010 * Math.exp(-((ux + 0.32) ** 2) / 0.11) * uy - 0.003 * Math.exp(-(uz * uz) / 0.012) * uy;
-        breastPos.setXYZ(i, ux * 0.094, y + skin, uz * 0.061 * taper);
-      }
-      turkeyBreast.scale(FS, FS, FS); turkeyBreast.rotateY(0.07);
-      turkeyBreast.translate(PLATTER.x + BX, 0, PLATTER.z);
-      turkeyBreast.computeBoundingBox();
-      turkeyBreast.translate(0, platterTop - 0.002 - turkeyBreast.boundingBox.min.y, 0);
-      turkeyBreast.computeVertexNormals();
-      // The rosemary was placed for the chicken's skin; re-seat each sprig piece on the new breast so it rests 0.5 mm into the skin, not floating.
-      const breastProbe = new THREE.Mesh(turkeyBreast);
-      const herbRay = new THREE.Raycaster(), herbPoint = new THREE.Vector3(), herbDown = new THREE.Vector3(0, -1, 0);
-      for (const herb of turkeyParts) {
-        if (!herb.userData.restOnBreast) continue;
-        const herbPos = herb.attributes.position;
-        let gap = Infinity;
-        for (let i = 0; i < herbPos.count; i++) {
-          herbPoint.fromBufferAttribute(herbPos, i);
-          herbRay.set(herbPoint.clone().setY(herbPoint.y + 0.2), herbDown);
-          const hit = herbRay.intersectObject(breastProbe, false)[0];
-          if (hit) gap = Math.min(gap, herbPoint.y - hit.point.y);
+        geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+        return geometry;
+      };
+      const flatPaint = (geometry, colourAt) => {
+        const position = geometry.attributes.position, colors = new Float32Array(position.count * 3);
+        for (let i = 0; i < position.count; i++) { tint.set(colourAt(position.getX(i), position.getY(i), position.getZ(i), foodNoise(position.getX(i), position.getY(i), position.getZ(i)))).toArray(colors, i * 3); }
+        geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+        return geometry;
+      };
+      // Platter probe (same lathe as the ceramic platter) so garnish is seated on the real dished surface.
+      const probeGeometry = new THREE.LatheGeometry(platterProfile.map(([r, y]) => new THREE.Vector2(r, y)), 48);
+      probeGeometry.scale(PLATTER.halfLength / 0.103, 1, PLATTER.halfDepth / 0.103);
+      probeGeometry.translate(PLATTER.x, runnerTop, PLATTER.z);
+      const platterProbe = new THREE.Mesh(probeGeometry, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+      const seatRay = new THREE.Raycaster(), seatPoint = new THREE.Vector3();
+      // Slide a piece along `dir` from 15 cm back until its first vertex meets one of `targets`, then push it `embed` metres in.
+      const seat = (name, geometry, dir, targets, embed = 0.0005) => {
+        geometry.translate(-dir.x * 0.15, -dir.y * 0.15, -dir.z * 0.15);
+        const position = geometry.attributes.position;
+        let travel = Infinity;
+        for (let i = 0; i < position.count; i++) {
+          seatPoint.fromBufferAttribute(position, i);
+          seatRay.set(seatPoint, dir); seatRay.far = 0.4;
+          const hit = seatRay.intersectObjects(targets, false)[0];
+          if (hit) travel = Math.min(travel, hit.distance);
         }
-        if (Number.isFinite(gap)) herb.translate(0, -gap - 0.0005, 0);
+        if (!Number.isFinite(travel)) throw new Error(`Turkey piece ${name} found nothing to rest on`);
+        geometry.translate(dir.x * (travel + embed), dir.y * (travel + embed), dir.z * (travel + embed));
+        turkeyFit.push({ name, embedMm: Number((embed * 1000).toFixed(1)) });
+        return geometry;
+      };
+      const down = new THREE.Vector3(0, -1, 0);
+      // Body: one high-segment form. Flattened underside, rounded crown with a soft breastbone ridge and two breast lobes,
+      // narrower at the neck end (-x) than at the cavity/leg end (+x).
+      const body = new THREE.SphereGeometry(1, 56, 36);
+      const bodyPos = body.attributes.position;
+      for (let i = 0; i < bodyPos.count; i++) {
+        const ux = bodyPos.getX(i), uy = bodyPos.getY(i), uz = bodyPos.getZ(i);
+        const width = 0.065 * (1 - 0.16 * (ux < 0 ? ux * ux : 0.4 * ux * ux));
+        let y = uy < 0 ? uy * 0.018 : uy * 0.074 * (1 - 0.22 * ux * ux);
+        if (uy > 0) y += uy * uy * (0.007 * Math.exp(-(uz * uz) / 0.012) + 0.006 * Math.exp(-((Math.abs(uz) - 0.42) ** 2) / 0.05)) * (1 - 0.5 * ux * ux);
+        y += uy > 0 ? 0.0009 * Math.sin(ux * 23 + uz * 11) * Math.sin(uz * 17 - ux * 5) * uy : 0;
+        bodyPos.setXYZ(i, ux * 0.122, y, uz * width);
       }
-      turkeyParts.push(paintFood(turkeyBreast, 0x9d5421, 0xe1a65d, { speckle: 0.19, burn: 0.6 }));
-      // Turkey drumsticks are fuller and rounded, with a short bone tip, rather than the chicken's long tapered legs.
+      body.translate(T.x, 0, T.z);
+      body.computeBoundingBox();
+      body.translate(0, platterTop - 0.0015 - body.boundingBox.min.y, 0);
+      body.computeVertexNormals();
+      turkeyFit.push({ name: "body", embedMm: 1.5 });
+      const bodyTop = body.boundingBox.max.y + (platterTop - 0.0015 - body.boundingBox.min.y);
+      const bodyMesh = new THREE.Mesh(body);
+      bodyMesh.updateMatrixWorld(true);
+      turkeyParts.push(roastPaint(body, { crown: 0.75 }));
+      const bodyCentreY = platterTop + 0.035;
+      // Thighs: rounded bulges where the legs meet the body (part of the same skin, so they overlap the body by design).
+      const legEnds = [];
       for (const side of [-1, 1]) {
-        const direction = new THREE.Vector3(0.9, 0.15, side * 0.42).normalize();
-        const rotation = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
-        const origin = new THREE.Vector3(PLATTER.x + BX + 0.055, platterTop + 0.026, PLATTER.z + side * 0.040);
-        const leg = new THREE.LatheGeometry([[0,0],[0.018,0.001],[0.025,0.016],[0.027,0.035],[0.024,0.055],[0.017,0.075],[0.010,0.095],[0.007,0.105],[0,0.107]].map(([r,y]) => new THREE.Vector2(r,y)), 20);
-        leg.applyQuaternion(rotation); leg.translate(origin.x, origin.y, origin.z);
-        leg.computeBoundingBox();
-        if (leg.boundingBox.min.y < platterTop - 0.002) leg.translate(0, platterTop - 0.002 - leg.boundingBox.min.y, 0);
-        turkeyParts.push(paintFood(leg, 0x94501e, 0xe0a45b, { speckle: 0.16, burn: 0.55 }));
-        const tip = new THREE.SphereGeometry(0.006, 10, 7);
-        const end = origin.clone().addScaledVector(direction, 0.105);
-        tip.translate(end.x, end.y, end.z);
-        turkeyParts.push(paintFood(tip, 0xd5c3a0, 0xeadbc0, { speckle: 0.03 }));
+        const thigh = new THREE.SphereGeometry(1, 24, 16);
+        thigh.scale(0.046, 0.034, 0.030); thigh.rotateY(side * -0.35); thigh.rotateZ(0.35);
+        thigh.translate(T.x + 0.062, bodyCentreY + 0.006, T.z + side * 0.050);
+        turkeyParts.push(roastPaint(thigh, { crown: 0.5 }));
+        // Drumstick: fleshy, knobbly lathe rising up and back from the thigh, ending in a knuckle and a pale bone tip.
+        const dir = new THREE.Vector3(0.62, 0.70, side * 0.26).normalize();
+        const origin = new THREE.Vector3(T.x + 0.088, bodyCentreY + 0.012, T.z + side * 0.056);
+        const profile = [[0, 0], [0.016, 0.002], [0.023, 0.014], [0.0245, 0.030], [0.022, 0.046], [0.016, 0.060], [0.0105, 0.072], [0.0085, 0.080], [0.0105, 0.086], [0.0115, 0.091], [0.008, 0.096], [0, 0.098]];
+        const leg = new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), 24, 0, Math.PI * 2);
+        const legPos = leg.attributes.position;
+        for (let i = 0; i < legPos.count; i++) {
+          const y = legPos.getY(i), a = Math.atan2(legPos.getZ(i), legPos.getX(i)), bump = y > 0.008 && y < 0.07 ? 1 + 0.06 * Math.sin(a * 3 + y * 90) : 1;
+          legPos.setXYZ(i, legPos.getX(i) * bump, y, legPos.getZ(i) * bump);
+        }
+        leg.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir));
+        leg.translate(origin.x, origin.y, origin.z);
+        roastPaint(leg, { crown: 0.85, deep: 0x6e3412 });
+        // Knuckle and bone tip turn pale where the skin pulls back.
+        const legColors = leg.attributes.color, p = new THREE.Vector3();
+        for (let i = 0; i < legPos.count; i++) { p.fromBufferAttribute(legPos, i).sub(origin); if (p.dot(dir) > 0.083) new THREE.Color(0xe6d6b4).lerp(new THREE.Color(0xcdb893), foodNoise(p.x, p.y, p.z)).toArray(legColors.array, i * 3); }
+        turkeyParts.push(leg);
+        legEnds.push([origin.clone(), origin.clone().addScaledVector(dir, 0.098)]);
       }
-      for (const [x, z] of [[-0.195,-0.035],[-0.185,0.015],[-0.15,0.072],[0.16,-0.055],[0.18,-0.035],[0.195,0.025]]) {
-        const berry = new THREE.SphereGeometry(0.007, 10, 7);
-        berry.translate(PLATTER.x + x, platterTop + 0.005, PLATTER.z + z);
-        turkeyParts.push(paintFood(berry, 0x681a25, 0x9f2630, { speckle: 0.07 }));
+      // Wings tucked flat against each flank, seated sideways onto the body with a 1.5 mm embed (no longer buried in the breast).
+      for (const side of [-1, 1]) {
+        const wing = new THREE.SphereGeometry(1, 20, 12);
+        const wingPos = wing.attributes.position;
+        for (let i = 0; i < wingPos.count; i++) { const ux = wingPos.getX(i); wingPos.setX(i, ux * (ux > 0 ? 1 : 0.8)); }
+        wing.scale(0.048, 0.020, 0.011);
+        wing.rotateZ(-0.35); wing.rotateY(side * 0.12); wing.rotateX(side * -0.25);
+        wing.translate(T.x - 0.035, bodyCentreY + 0.004, T.z);
+        seat(`wing-${side}`, wing, new THREE.Vector3(0, 0, -side), [bodyMesh], 0.0015);
+        turkeyParts.push(roastPaint(wing, { crown: 0.9, deep: 0x6a3110 }));
       }
-      for (const [x, z, yaw] of [[-0.18,-0.055,0.3],[-0.18,0.04,-0.5],[0.16,0.055,0.2]]) {
-        const squash = new THREE.SphereGeometry(1, 12, 7);
-        squash.scale(0.023, 0.009, 0.014); squash.rotateY(yaw);
-        squash.translate(PLATTER.x + x, platterTop + 0.007, PLATTER.z + z);
-        turkeyParts.push(paintFood(squash, 0x9e5820, 0xd9963c, { speckle: 0.12, burn: 0.25 }));
+      // Garnish ring: apple wedges, acorn-squash crescents, cranberry clusters and rosemary/thyme sprigs on clear spots of the platter,
+      // each footprint kept off the bird, the legs and every other piece; all inside the platter's flat well.
+      const footprints = [];
+      const bodyClear = (x, z, r) => ((x - T.x) / (0.122 + r + 0.003)) ** 2 + ((z - T.z) / (0.065 + r + 0.003)) ** 2 > 1
+        && legEnds.every(([a, b]) => { const t = THREE.MathUtils.clamp(((x - a.x) * (b.x - a.x) + (z - a.z) * (b.z - a.z)) / ((b.x - a.x) ** 2 + (b.z - a.z) ** 2), 0, 1); return Math.hypot(x - a.x - t * (b.x - a.x), z - a.z - t * (b.z - a.z)) > r + 0.027; });
+      const inPlatter = (x, z, r) => Math.hypot((x - PLATTER.x) / (PLATTER.halfLength * 0.9 - r), (z - PLATTER.z) / (PLATTER.halfDepth * 0.9 - r)) <= 1;
+      const freeSpot = (x, z, r) => inPlatter(x, z, r) && bodyClear(x, z, r) && footprints.every(([fx, fz, fr]) => Math.hypot(x - fx, z - fz) > r + fr + 0.002);
+      const wedge = (outer, inner, angle, thickness, segments = 12) => {
+        const shape = new THREE.Shape();
+        shape.absarc(0, 0, outer, -angle / 2, angle / 2, false);
+        if (inner > 0) shape.absarc(0, 0, inner, angle / 2, -angle / 2, true); else shape.lineTo(0, 0);
+        const g = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: true, bevelThickness: 0.0018, bevelSize: 0.0015, bevelSegments: 2, curveSegments: segments });
+        g.translate(-(outer + inner) / 2, 0, -thickness / 2);
+        return mergeVertices(g.deleteAttribute("normal").deleteAttribute("uv"));
+      };
+      const garnish = [];
+      const candidates = [];
+      for (let gx = -0.215; gx <= 0.216; gx += 0.0125) for (const gz of [-0.074, -0.062, -0.05, -0.035, -0.018, 0, 0.018, 0.035, 0.05, 0.062, 0.074]) candidates.push([gx, gz]);
+      candidates.sort((a, b) => Math.abs(b[0]) - Math.abs(a[0]) || Math.abs(b[1]) - Math.abs(a[1]));
+      const kinds = ["apple", "squash", "berries", "rosemary", "apple", "squash", "berries", "thyme"];
+      let made = 0;
+      for (const [lx, lz] of candidates) {
+        const type = kinds[made % kinds.length];
+        const r = type === "berries" ? 0.012 : type === "rosemary" || type === "thyme" ? 0.014 : 0.0175;
+        const x = PLATTER.x + lx, z = PLATTER.z + lz;
+        if (!freeSpot(x, z, r)) continue;
+        footprints.push([x, z, r]);
+        const outward = Math.atan2(lz / PLATTER.halfDepth, lx / PLATTER.halfLength);
+        if (type === "apple") {
+          const g = wedge(0.030, 0, 1.0, 0.012);
+          g.rotateX(-Math.PI / 2); g.rotateY(-outward); g.rotateZ(0.12);
+          g.translate(x, platterTop + 0.03, z);
+          flatPaint(g, (px, py, pz, n) => (Math.hypot(px - x, pz - z) > 0.012 && py < platterTop + 0.03 + 0.007 && Math.abs(py - (platterTop + 0.03)) > 0.004 ? (n > 0.5 ? 0xb3262c : 0x9c1f27) : Math.hypot(px - x, pz - z) > 0.016 ? (n > 0.6 ? 0xa82a2e : 0xf1e5c4) : 0xf3e9cc));
+          garnish.push([`apple-${made}`, g]);
+        } else if (type === "squash") {
+          const g = wedge(0.031, 0.019, 1.15, 0.014);
+          g.rotateX(-Math.PI / 2); g.rotateY(-outward);
+          g.translate(x, platterTop + 0.03, z);
+          flatPaint(g, (px, py, pz, n) => { return n > 0.93 ? 0x6b3a12 : (py > platterTop + 0.03 + 0.0075 ? 0xd98a2a : 0xc7731f); });
+          // Dark green rind on the outer arc.
+          const pos = g.attributes.position, col = g.attributes.color, c = new THREE.Vector3();
+          let maxD = 0; for (let i = 0; i < pos.count; i++) maxD = Math.max(maxD, Math.hypot(pos.getX(i) - x, pos.getZ(i) - z));
+          for (let i = 0; i < pos.count; i++) { if (Math.hypot(pos.getX(i) - x, pos.getZ(i) - z) > maxD - 0.004) tint.set(foodNoise(pos.getX(i), pos.getY(i), pos.getZ(i)) > 0.7 ? 0x48532a : 0x2f3d1f).toArray(col.array, i * 3); }
+          garnish.push([`squash-${made}`, g]);
+        } else if (type === "berries") {
+          for (const [ox, oz] of [[0, 0], [0.0125, 0.004], [0.004, 0.0122]]) {
+            const berry = new THREE.SphereGeometry(0.0062, 12, 9);
+            berry.translate(x + ox - 0.005, platterTop + 0.03, z + oz - 0.005);
+            flatPaint(berry, (px, py, pz, n) => (py > platterTop + 0.0335 && n > 0.7 ? 0xb83846 : n > 0.4 ? 0x7d1a28 : 0x6a1522));
+            garnish.push([`cranberry-${made}-${ox}`, berry]);
+          }
+        } else {
+          // A sprig: a thin woody stem with needles (rosemary) or small round leaves (thyme) along both sides.
+          const sprig = [];
+          const stem = new THREE.CylinderGeometry(0.0006, 0.0009, 0.042, 5); stem.rotateZ(Math.PI / 2);
+          sprig.push(flatPaint(stem, () => 0x5d5a31));
+          const count = type === "rosemary" ? 14 : 10;
+          for (let k = 0; k < count; k++) {
+            const leaf = new THREE.SphereGeometry(1, 5, 3);
+            if (type === "rosemary") leaf.scale(0.0048, 0.0006, 0.0009); else leaf.scale(0.0019, 0.0006, 0.0015);
+            leaf.rotateY((k % 2 ? 1 : -1) * (type === "rosemary" ? 0.75 : 0.4));
+            leaf.translate(-0.018 + (k >> 1) * (0.036 / (count / 2)) + (k % 2 ? 0.002 : 0), 0.0006, (k % 2 ? 1 : -1) * (type === "rosemary" ? 0.0028 : 0.0022));
+            sprig.push(flatPaint(leaf, (px, py, pz, n) => (n > 0.6 ? 0x56703c : 0x3f5a2e)));
+          }
+          const g = mergeGeometries(sprig.map((s) => s.deleteAttribute("uv") && s.deleteAttribute("normal") && s), false);
+          sprig.forEach((s) => s.dispose());
+          g.rotateY(-outward + Math.PI / 2 + (made % 3) * 0.3);
+          g.translate(x, platterTop + 0.03, z);
+          garnish.push([`${type}-${made}`, g]);
+        }
+        made++;
+        if (made >= 22) break;
       }
-      turkeyGeometry = mergeGeometries(turkeyParts, false);
-      turkeyParts.forEach((part) => part.dispose());
-      if (!turkeyGeometry) throw new Error("Could not merge Thanksgiving roast food");
+      for (const [name, g] of garnish) { g.computeBoundingBox(); seat(name, g, down, [platterProbe], 0.0005); turkeyParts.push(g); }
+      // Three sprigs laid over the crown, seated onto the skin.
+      [[-0.045, -0.012, 0.35], [-0.005, 0.014, -0.45], [0.032, -0.006, 0.8]].forEach(([dx, dz, yaw], index) => {
+        const sprig = [];
+        const stem = new THREE.CylinderGeometry(0.0006, 0.0009, 0.046, 5); stem.rotateZ(Math.PI / 2);
+        sprig.push(flatPaint(stem, () => 0x5d5a31));
+        for (let k = 0; k < 16; k++) {
+          const leaf = new THREE.SphereGeometry(1, 5, 3);
+          leaf.scale(0.0048, 0.0006, 0.0009);
+          leaf.rotateY(k % 2 ? 0.75 : -0.75);
+          leaf.translate(-0.020 + (k >> 1) * 0.0052, 0.0006, (k % 2 ? 1 : -1) * 0.0028);
+          sprig.push(flatPaint(leaf, (px, py, pz, n) => (n > 0.6 ? 0x56703c : 0x3f5a2e)));
+        }
+        const g = mergeGeometries(sprig.map((s) => s.deleteAttribute("uv") && s.deleteAttribute("normal") && s), false);
+        sprig.forEach((s) => s.dispose());
+        g.rotateY(yaw); g.translate(T.x + dx, bodyTop + 0.02, T.z + dz);
+        seat(`crown-rosemary-${index}`, g, down, [bodyMesh], 0.0005);
+        turkeyParts.push(g);
+      });
+      probeGeometry.dispose(); platterProbe.material.dispose();
+      // Match the food mesh's attribute set (position, normal, uv, color; indexed) before merging.
+      const ready = turkeyParts.map((part) => {
+        let g = part.index ? part : mergeVertices(part);
+        for (const name of Object.keys(g.attributes)) if (!["position", "color"].includes(name)) g.deleteAttribute(name);
+        g.computeVertexNormals();
+        const position = g.attributes.position, uv = new Float32Array(position.count * 2);
+        for (let i = 0; i < position.count; i++) { uv[i * 2] = position.getX(i) * 4; uv[i * 2 + 1] = position.getZ(i) * 4; }
+        g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+        return g;
+      });
+      const template = parts[0];
+      for (const g of ready) for (const name of Object.keys(template.attributes)) if (!g.attributes[name]) throw new Error(`Turkey piece missing ${name}`);
+      for (const g of ready) for (const name of Object.keys(g.attributes)) if (!template.attributes[name]) g.deleteAttribute(name);
+      turkeyGeometry = mergeGeometries(ready, false);
+      ready.forEach((part) => part.dispose());
+      if (!turkeyGeometry) throw new Error("Could not merge Thanksgiving roast turkey");
       turkeyGeometry.computeVertexNormals();
+      group.userData.turkeyFit = turkeyFit;
+      if (globalThis.__ROOMVERSE_QA) globalThis.__ROOMVERSE_QA.turkey = { parts: ready.map((g) => g.clone()), fit: turkeyFit, platterTop };
     }
     const geometry = mergeGeometries(parts, false);
     parts.forEach((part) => part.dispose());
@@ -1539,6 +1681,34 @@ function buildThanksgivingDecor(scene) {
     return y;
   };
 
+  // Costco-style bulk pack of paper napkins (Paul 2026-10-31): a soft-plastic wrapped white stack with a generic red band and an abstract,
+  // unreadable label block (no real brand name or logo). Slightly squashed: flat base on the table, bulging sides, pinched seams at both ends.
+  {
+    const pack = new THREE.BoxGeometry(0.19, 0.074, 0.105, 16, 6, 10);
+    const packPos = pack.attributes.position;
+    for (let i = 0; i < packPos.count; i++) {
+      const x = packPos.getX(i), y = packPos.getY(i), z = packPos.getZ(i);
+      const u = x / 0.095, v = (y + 0.037) / 0.074, w = z / 0.0525;
+      const bulge = Math.sin(Math.PI * Math.min(1, v * 1.05)) * (1 - u * u * 0.6);
+      const pinch = Math.max(0, Math.abs(u) - 0.86) / 0.14;
+      const nz = z * (1 + 0.06 * bulge) * (1 - 0.10 * pinch);
+      const ny = (y + 0.037) * (1 - 0.06 * pinch) * (1 + 0.035 * (1 - w * w) * (1 - u * u)) + 0.0012 * Math.sin(x * 140 + z * 60) * v * v;
+      packPos.setXYZ(i, x * (1 - 0.02 * v * v), ny, nz);
+    }
+    pack.rotateY(0.18);
+    paint(pack, () => 0xf1f0ea);
+    const colors = pack.attributes.color, local = new THREE.Vector3(), rot = new THREE.Matrix4().makeRotationY(-0.18), c = new THREE.Color();
+    for (let i = 0; i < packPos.count; i++) {
+      local.fromBufferAttribute(packPos, i).applyMatrix4(rot);
+      const n = Math.abs(Math.sin(local.x * 191.3 + local.y * 83.7 + local.z * 151.1) * 43758.5453) % 1;
+      if (Math.abs(local.x) < 0.034) c.set(0xb0242b);
+      else c.set(n > 0.85 ? 0xdfe0dc : 0xf2f1eb);
+      // Abstract label: a cream block with a few darker bars on the band's front face (deliberately unreadable).
+      if (Math.abs(local.x) < 0.024 && local.z > 0.045 && local.y > 0.022 && local.y < 0.052) c.set(Math.sin(local.x * 900) > 0.6 && local.y > 0.034 ? 0x6e1a20 : 0xeee3cf);
+      c.toArray(colors.array, i * 3);
+    }
+    place("decor", "napkin-pack", pack, 0.80, 0.47, 0.105);
+  }
   for (const row of [0, 1]) {
     const NEAR_Z = row === 0 ? 0.72 : 0.28;
     // Burgundy-style wine bottle: dark green glass, a blank cream label band, a burgundy foil capsule.

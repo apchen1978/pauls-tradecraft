@@ -26,7 +26,7 @@ test("the Thanksgiving table layer (bottle, two extra glasses, cranberries, cand
   expect(decor.meshes, "one opaque mesh plus glass and wine, like the place settings").toBe(3);
   expect(decor.vertices, "geometry budget for the layer").toBeLessThanOrEqual(6000);
   const names = decor.items.map((item) => item.name).sort();
-  expect(names).toEqual(["bread-plate", "candlestick-0", "candlestick-1", "candlestick-2", "candlestick-3", "cranberry-bowl", "wine-bottle", "wine-glass-0", "wine-glass-1", "wine-glass-2", "wine-glass-3"]);
+  expect(names).toEqual(["bread-plate", "candlestick-0", "candlestick-1", "candlestick-2", "candlestick-3", "cranberry-bowl", "napkin-pack", "wine-bottle", "wine-glass-0", "wine-glass-1", "wine-glass-2", "wine-glass-3"]);
   for (const item of decor.items) expect(item.gapMm, `${item.name} rests on the tabletop`).toBeLessThanOrEqual(1);
   for (const item of decor.items) expect(item.gapMm, `${item.name} is not sunk into the table`).toBeGreaterThanOrEqual(-1);
   expect(decor.items.find((item) => item.name === "wine-bottle").heightMm, "a standard 750 ml bottle is about 30 cm").toBeGreaterThanOrEqual(295);
