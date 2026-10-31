@@ -12,18 +12,19 @@ test("Room 03 arrives in Bay Area daylight and golden hour stays a choice that r
   await loadRoom(page, 1440);
   const day = await page.evaluate(() => window.__room03.info());
   expect(day.mood).toBe("daylight");
-  expect(day.materialColors.ceiling, "lighter, less orange wood overhead").toBe("#d8c6a8");
-  expect(day.materialColors.beam).toBe("#8e765a");
+  // 2026-10-31: whitewashed oak and cream beams replace the darker orange timber across moods.
+  expect(day.materialColors.ceiling, "lighter, less orange wood overhead").toBe("#e8ddc9");
+  expect(day.materialColors.beam).toBe("#ebe4d6");
   await expect(page.locator('#moods button[data-mood="daylight"]')).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator('#moods button[data-mood="golden"]')).toHaveText("黃金時刻");
   await page.locator('#moods button[data-mood="golden"]').click();
   await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("golden");
   const golden = await page.evaluate(() => window.__room03.info());
-  expect(golden.materialColors.ceiling, "golden hour keeps the original orange timber").toBe("#c48a4a");
-  expect(golden.materialColors.beam).toBe("#8a5a2e");
+  expect(golden.materialColors.ceiling, "golden hour keeps the lighter warm timber").toBe("#e1cfaf");
+  expect(golden.materialColors.beam).toBe("#e2d9c8");
   await page.locator('#moods button[data-mood="daylight"]').click();
   await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("daylight");
-  expect((await page.evaluate(() => window.__room03.info().materialColors.ceiling))).toBe("#d8c6a8");
+  expect((await page.evaluate(() => window.__room03.info().materialColors.ceiling))).toBe("#e8ddc9");
 });
 
 for (const width of [1440, 390]) {
