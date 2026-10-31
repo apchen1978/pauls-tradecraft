@@ -51,7 +51,7 @@ test("curtains stay gathered outside the clear yard opening and tint correctly i
   expect(new Set(colors).size).toBeGreaterThan(1);
 });
 
-test("entry cork board, hooks with tote and cap, and key dish stay under the Redwood print and clear of protected areas", async ({ page }) => {
+test("entry cork board, hooks with two canvas totes, and key dish stay under the Redwood print and clear of protected areas", async ({ page }) => {
   await loadRoom(page);
   const result = await page.evaluate(() => {
     const info = window.__room03.info();
@@ -60,7 +60,7 @@ test("entry cork board, hooks with tote and cap, and key dish stay under the Red
   expect(result.entry.vertices).toBeGreaterThan(0);
   expect(result.entry.bounds.min[0]).toBeGreaterThanOrEqual(0.05);
   expect(result.entry.bounds.max[0]).toBeLessThanOrEqual(0.9);
-  expect(result.entry.bounds.max[1]).toBeLessThan(1.175, "cork board, hooks, tote and cap remain below the Redwood frame");
+  expect(result.entry.bounds.max[1]).toBeLessThan(1.175, "cork board, hooks and totes remain below the Redwood frame");
   expect(result.entry.bounds.min[2]).toBeGreaterThanOrEqual(3.61, "wall details remain in front of the measured z=3.74 wall face");
   expect(result.entry.bounds.max[2]).toBeLessThanOrEqual(3.741, "wall details do not penetrate beyond the measured z=3.74 wall face");
   // Paul 2026-10-31: the round clock is gone; a cork board hangs at a natural height between the TV and the hooks.
@@ -83,11 +83,23 @@ test("entry cork board, hooks with tote and cap, and key dish stay under the Red
   expect(tote.wallGapMm, "tote body touches the wall").toBeLessThanOrEqual(0.5);
   expect(tote.wallGapMm, "tote body barely embeds").toBeGreaterThanOrEqual(-1);
   expect(tote.minX, "tote clears the key shelf (x <= 0.51)").toBeGreaterThan(0.51 + 0.015);
-  // Plain cap on another hook, clear of the cork board (cap radius 85 mm) and of the tote.
-  expect(result.entry.cap.plain).toBe(true);
-  expect(result.entry.cap.hookX).not.toBe(tote.hookX);
-  expect((result.entry.cap.hookX - 0.085 - board.maxX) * 1000, "cap clears the cork board").toBeGreaterThanOrEqual(15);
-  expect((tote.minX - (result.entry.cap.hookX + 0.085)) * 1000, "cap does not touch the tote").toBeGreaterThan(0);
+  // Paul 2026-10-31: the cap is gone; a second, brick-red tote of a different size hangs on another hook with the same strap-in-cup contact.
+  expect(result.entry.cap, "the cap was replaced by a second tote").toBeNull();
+  const red = result.entry.redTote;
+  expect(result.entry.hooks.xs).toContain(red.hookX);
+  expect(red.hookX).not.toBe(tote.hookX);
+  expect(red.colour).not.toBe(tote.colour);
+  const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const [r, g, b] = rgb(red.colour);
+  expect(r - Math.max(g, b), "second tote reads red/brick").toBeGreaterThan(80);
+  expect(red.sizeMm, "second tote is not a copy of the first").not.toEqual(tote.sizeMm);
+  expect(red.strapHookEmbedMm).toBeGreaterThanOrEqual(0);
+  expect(red.strapHookEmbedMm).toBeLessThanOrEqual(1);
+  expect(red.wallGapMm, "red tote touches the wall").toBeLessThanOrEqual(0.5);
+  expect(red.wallGapMm, "red tote barely embeds").toBeGreaterThanOrEqual(-1);
+  expect((tote.minX - red.maxX) * 1000, "totes do not overlap").toBeGreaterThanOrEqual(5);
+  expect((red.minX - board.maxX) * 1000, "red tote clears the cork board").toBeGreaterThanOrEqual(5);
+  expect((red.bottomY - (result.entry.shelf.center[1] + 0.0125)) * 1000, "red tote clears the key shelf top").toBeGreaterThanOrEqual(5);
   expect(result.entry.shelf.dishTopY).toBeGreaterThan(result.entry.shelf.center[1]);
   expect(result.door.min[0]).toBeGreaterThan(result.entry.bounds.max[0] + 1.5, "entry details stay clear of the right-wall door in x");
   expect(result.robot.ready).toBe(true);
