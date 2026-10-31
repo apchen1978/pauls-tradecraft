@@ -1707,10 +1707,13 @@ function buildRoom03NookDecor(scene) {
   };
   const lathe = (profile, segments) => new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), segments);
   const CLAY = 0xa8644a, MOSS = 0x6f7d5a, BLUE = 0x6c7f93, CREAM = 0xe6dccb, STRAW = 0xc9a971, STRAW_DARK = 0xa98b57, INK = 0x2f3a33;
-  // Rug fringe: 28 flat cream strands on each short end of the rug (rug x -0.90 to 0.50, z 2.48 to 3.28, thickness 0.012).
+  // Rug fringe: 28 flat cream strands on each short end of the rug (rug x -0.90 to 0.50, z 2.48 to 3.28, thickness 0.012). Paul 2026-11-01: every
+  // strand was exactly 4 cm and evenly tilted, which read as a comb; lengths and angles now vary a little, at the same vertex count.
   for (const endX of [-0.90, 0.50]) for (let i = 0; i < 28; i++) {
     const z = 2.50 + i * (0.76 / 27), sign = endX < 0 ? -1 : 1;
-    add(new THREE.PlaneGeometry(0.04, 0.007), i % 3 === 0 ? 0xcdbf9f : 0xe6dccb, [endX + sign * 0.02, 0.004, z], [-Math.PI / 2, 0, 0.05 * (i % 5 - 2)]);
+    const wobble = Math.sin(i * 2.3) * 0.5 + Math.sin(i * 0.7) * 0.5;
+    const length = 0.036 + Math.abs(wobble) * 0.012;
+    add(new THREE.PlaneGeometry(length, 0.007), i % 3 === 0 ? 0xcdbf9f : 0xe6dccb, [endX + sign * (length * 0.5), 0.004, z], [-Math.PI / 2, 0, (0.05 + wobble * 0.05) * (i % 5 - 2)]);
   }
   // Folded striped throw on the bench seat (cushion top about y 0.395). Paul 2026-11-01: it read as four stacked planks, so each fold is now a little
   // narrower and turned differently, the top fold is pulled back, and one short flap hangs over the cushion's front edge like real cloth (4 extra vertices).
@@ -1767,6 +1770,21 @@ function buildRoom03NookDecor(scene) {
     add(new THREE.CylinderGeometry(0.0015, 0.002, height, 4), 0xa08e62, mid.toArray(), [tiltX, 0, tiltZ]);
     add(new THREE.SphereGeometry(1, 7, 5), i % 3 ? 0xd8c8a4 : 0xe9dfc6, top.toArray(), [tiltX, 0, tiltZ], [0.016, 0.055, 0.016]);
   }
+  // Paul 2026-11-01: one thing worth finding — a small sleeping puppy plush curled on the console top, beside the vase, facing the room. It is a single
+  // story object (not a shelf of them): body, head, folded ears, muzzle, closed eyes and a curled tail merge into the same vertex-colour mesh, so it
+  // costs vertices only (about 480), no new mesh and no new draw call.
+  const PUP = [-0.40, 0.575, 3.46];
+  const PUP_BODY = 0xd9c7ac, PUP_EAR = 0xbfa383, PUP_MUZZLE = 0xf2e8d8, PUP_DARK = 0x2b2622;
+  add(new THREE.SphereGeometry(1, 10, 7), PUP_BODY, [PUP[0], PUP[1] + 0.046, PUP[2]], [0, 0.3, 0], [0.085, 0.045, 0.055]);
+  const pupHead = [PUP[0] + 0.048, PUP[1] + 0.066, PUP[2] - 0.030];
+  add(new THREE.SphereGeometry(1, 10, 7), PUP_BODY, pupHead, [0.2, 0.3, 0], [0.047, 0.043, 0.045]);
+  for (const side of [-1, 1]) {
+    add(new THREE.SphereGeometry(1, 6, 4), PUP_EAR, [pupHead[0] + side * 0.040, pupHead[1] + 0.022, pupHead[2] - 0.006], [0, 0, side * 0.7], [0.020, 0.014, 0.010]);
+    add(new THREE.SphereGeometry(1, 6, 4), PUP_DARK, [pupHead[0] + side * 0.020, pupHead[1] + 0.010, pupHead[2] - 0.041], [0, 0, 0], [0.006, 0.0045, 0.004]);
+  }
+  add(new THREE.SphereGeometry(1, 8, 6), PUP_MUZZLE, [pupHead[0] + 0.004, pupHead[1] - 0.012, pupHead[2] - 0.040], [0, 0, 0], [0.024, 0.019, 0.022]);
+  add(new THREE.SphereGeometry(1, 6, 4), PUP_DARK, [pupHead[0] + 0.002, pupHead[1] - 0.008, pupHead[2] - 0.060], [0, 0, 0], [0.008, 0.006, 0.005]);
+  add(new THREE.TorusGeometry(0.028, 0.009, 5, 8), PUP_BODY, [PUP[0] - 0.075, PUP[1] + 0.052, PUP[2] + 0.014], [0, 1.1, 0.5]);
   // Two flush recessed downlights in the hall ceiling (underside y 2.58), the same cream trim and warm lens as Room 02's desk downlight. They are small on
   // purpose: the room's star is outside. The glow follows the mood in setMood.
   const DOWNLIGHTS = [[-0.35, 2.92], [0.30, 3.32]];
@@ -5479,12 +5497,13 @@ export async function start({ stage, onReady = () => {} }) {
     if (event.key === 'ArrowDown') centerView.pitch = THREE.MathUtils.clamp(centerView.pitch - 0.08, -0.5, 0.5);
     renderCenterView();
   }
-  // Paul 2026-11-01: three things in the nook are worth finding, and they are the ones the closer view actually frames (the slippers and the basket
-  // sit below the frame now that the view keeps the whole print in shot). One click shows one line of story; the first visit gets a hint.
+  // Paul 2026-11-01: the things in the nook worth finding are the ones the closer view actually frames (the slippers and the basket sit below the frame
+  // now that the view keeps the whole print in shot). The hint names three; the puppy on the console is the one a visitor finds on their own.
   const NOOK_HOTSPOTS = [
     { key: "totes", box: [[0.46, 0.42, 3.60], [0.94, 0.94, 3.76]], zh: "帆布袋掛在門邊，明天要帶去市場。", en: "The canvas totes wait by the door; market tomorrow." },
     { key: "corkboard", box: [[0.06, 0.82, 3.70], [0.48, 1.18, 3.76]], zh: "軟木板上的蠟筆畫，是小姪女畫的。", en: "The crayon drawing on the board is from my niece." },
     { key: "keyShelf", box: [[0.16, 0.36, 3.58], [0.48, 0.50, 3.76]], zh: "鑰匙層板：回家先把鑰匙放下。", en: "The key shelf: keys land here before anything else." },
+    { key: "puppy", box: [[-0.50, 0.57, 3.36], [-0.29, 0.71, 3.57]], zh: "小狗在等誰回家，等到睡著了。", en: "The puppy fell asleep waiting for someone to come home." },
   ];
   let nookLang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
   let nookCaptionKey = null, nookHintShown = false, nookCaptionTimer = 0;

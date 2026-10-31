@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=105";
+import { start, ROOM_TITLE } from "./kitchen.js?v=106";
 const COPY = {
   zh: {
     title: ROOM_TITLE,

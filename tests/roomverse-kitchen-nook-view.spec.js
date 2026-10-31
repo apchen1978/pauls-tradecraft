@@ -175,12 +175,12 @@ test("the nook view always shows a lit TV and lit downlights, and the whole TV s
 });
 
 // Paul 2026-11-01: three things in the nook can be found by clicking them; the first visit gets a hint, and the stories follow the UI language.
-test("the nook view tells three small stories on click, in the reader's language", async ({ page }) => {
+test("the nook view tells its small stories on click, in the reader's language", async ({ page }) => {
   await loadRoom(page, 1280);
   await page.locator("#nookView").click();
   await settleNook(page);
   const info = await page.evaluate(() => window.__room03.nookHotspotInfo());
-  expect(info.keys).toEqual(["totes", "corkboard", "keyShelf"]);
+  expect(info.keys).toEqual(["totes", "corkboard", "keyShelf", "puppy"]);
   expect(info.hintShown, "the first visit shows where to look").toBe(true);
   expect(info.caption, "the hint names the three things").toContain("點一下");
   expect(info.tvCutHidden, "the panel end stays hidden while the stories are reachable").toBe(true);
@@ -188,6 +188,7 @@ test("the nook view tells three small stories on click, in the reader's language
     totes: "帆布袋掛在門邊，明天要帶去市場。",
     corkboard: "軟木板上的蠟筆畫，是小姪女畫的。",
     keyShelf: "鑰匙層板：回家先把鑰匙放下。",
+    puppy: "小狗在等誰回家，等到睡著了。",
   };
   for (const key of info.keys) {
     const [x, y] = info.screen[key];
