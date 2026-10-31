@@ -3139,13 +3139,12 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     darkG.push(new THREE.BoxGeometry(.155, .011, .032).translate(0, topY + .009, -.02)); // the black grip itself, proud by 1 mm only
     for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.024, .012, .052).translate(sx * .1, topY + .002, -.02)); // flush end caps
 
-    // Paul 2026-11-01 (TO DSH.jpg): the red "HAPPY FLIGHT" luggage tag on its black rubber loop, hanging from a small side handle on the face the
-    // room sees. Red glossy plastic, a lighter band where the print sits, and a black torus loop through the handle.
-    leatherG.push(new THREE.BoxGeometry(.028, .09, .022).translate(CASE_W / 2 - .004, WHEEL_H + .21, .02)); // side handle the tag hangs from
-    darkG.push(new THREE.TorusGeometry(.028, .006, 8, 18).translate(CASE_W / 2 + .012, WHEEL_H + .175, .04)); // rubber loop
-    tagG.push(new THREE.BoxGeometry(.105, .165, .013).rotateZ(.16).translate(CASE_W / 2 + .028, WHEEL_H + .085, .045)); // the tag itself
-    whiteG.push(new THREE.BoxGeometry(.075, .022, .002).rotateZ(.16).translate(CASE_W / 2 + .026, WHEEL_H + .135, .052)); // printed band
-    whiteG.push(new THREE.BoxGeometry(.03, .03, .002).rotateZ(.16).translate(CASE_W / 2 + .026, WHEEL_H + .095, .052));
+    // Paul: keep the reference tag as one connected red tag, ring and printed face.
+    // The ring overlaps both the handle and the upper edge of the tag; the tag lies on the
+    // broad front of the case so its white plane motif is visible at room scale.
+    leatherG.push(new THREE.BoxGeometry(.034, .075, .025).translate(.142, WHEEL_H + .305, CASE_D / 2 + .004));
+    darkG.push(new THREE.TorusGeometry(.023, .005, 8, 20).translate(.142, WHEEL_H + .272, CASE_D / 2 + .024));
+    tagG.push(new THREE.ExtrudeGeometry(roundedRectShape(.072, .146, .009), { depth: .008, bevelEnabled: true, bevelSize: .002, bevelThickness: .001, bevelSegments: 1, curveSegments: 4 }).translate(.142, WHEEL_H + .178, CASE_D / 2 + .031));
 
     const place = (geometry) => geometry.applyMatrix4(
       new THREE.Matrix4().compose(
@@ -3169,7 +3168,22 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     addPart(chromeG, new THREE.MeshStandardMaterial({ color: CHROME, roughness: .12, metalness: .95 }), "red-suitcase-chrome");
     addPart(darkG, new THREE.MeshStandardMaterial({ color: DARK, roughness: .6, metalness: .22 }), "red-suitcase-hardware");
     addPart(tagG, new THREE.MeshStandardMaterial({ color: 0xc22b1d, roughness: .32, metalness: .03 }), "red-suitcase-tag");
-    addPart(whiteG, new THREE.MeshStandardMaterial({ color: 0xf4f2ec, roughness: .5, metalness: .02 }), "red-suitcase-tag-print");
+    // Small procedural canvas, no downloaded font or image; colour and proportions match Paul's reference.
+    const tagPrint = canvasTex(256, 512, (ctx, w, h) => {
+      ctx.fillStyle = '#bd251c'; ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = '#e56052'; ctx.lineWidth = 4; ctx.strokeRect(9, 9, w - 18, h - 18);
+      ctx.fillStyle = '#ffece6'; ctx.textAlign = 'center'; ctx.font = 'bold 35px sans-serif';
+      ctx.fillText('HAPPY', w / 2, 92); ctx.fillText('FLIGHT', w / 2, 135);
+      ctx.save(); ctx.translate(w / 2, 276); ctx.rotate(-.38); ctx.scale(1.05, 1.05);
+      ctx.beginPath(); ctx.moveTo(0,-86); ctx.bezierCurveTo(18,-86,18,-60,18,-38);
+      ctx.lineTo(82,7); ctx.lineTo(82,25); ctx.lineTo(18,8); ctx.lineTo(16,60);
+      ctx.lineTo(39,76); ctx.lineTo(39,88); ctx.lineTo(0,78); ctx.lineTo(-39,88);
+      ctx.lineTo(-39,76); ctx.lineTo(-16,60); ctx.lineTo(-18,8); ctx.lineTo(-82,25);
+      ctx.lineTo(-82,7); ctx.lineTo(-18,-38); ctx.bezierCurveTo(-18,-60,-18,-86,0,-86); ctx.fill(); ctx.restore();
+    });
+    const printGeometry = new THREE.PlaneGeometry(.066, .136).translate(.142, WHEEL_H + .178, CASE_D / 2 + .044);
+    const printMesh = new THREE.Mesh(place(printGeometry), new THREE.MeshStandardMaterial({ map: tagPrint, color: 0xffffff, roughness: .38, metalness: .02 }));
+    printMesh.name = "red-suitcase-tag-print"; meshes.push(printMesh);
     addPart(leatherG, new THREE.MeshStandardMaterial({ color: 0x4a352c, roughness: .8, metalness: .02 }), "red-suitcase-leather");
     const union = new THREE.Box3();
     for (const mesh of meshes) union.expandByObject(mesh);
