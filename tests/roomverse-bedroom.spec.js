@@ -887,12 +887,9 @@ test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints w
   expect(room).toMatchObject({ vertices: 59816, meshes: 311, mood: "focus" });
 });
 
-test("the lounge throw hangs on the sofa back and stays inside the room's vertex ceiling", async ({ page }) => {
+test("the sofa carries no throw and the room stays inside its vertex ceiling", async ({ page }) => {
   await enter(page);
   const info = await page.evaluate(() => window.__bedroom.info());
-  expect(info.sofaThrow.present, "the throw is built").toBe(true);
-  expect(info.sofaThrow.onSofa, "it hangs on the sofa, not floating in the room").toBe(true);
-  expect(info.sofaThrow.vertices).toBeGreaterThan(200);
-  expect(info.sofaThrow.hangingMm, "the hanging face drops well below the sofa back").toBeGreaterThan(250);
+  expect(info.sofaThrow, "the throw was removed (Paul 2026-11-01)").toBeUndefined();
   expect(info.vertices, "the room stays under its geometry ceiling").toBeLessThan(62000);
 });
