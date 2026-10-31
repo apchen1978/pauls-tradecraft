@@ -1201,11 +1201,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // a hanging face and an alpha fringe, and it carries its own woven cover in two tones rather than the sofa's fabric.
   const sofaThrow = new THREE.Group(); sofaThrow.name = "sofa-throw"; sofa.add(sofaThrow);
   {
-    const backTop = .82, thick = .018, hang = .36, rows = 16, halfWidth = .28;
+    const backTop = .83, thick = .018, hang = .36, rows = 16, halfWidth = .32;
     const profile = [
       { z: -.46, y: -.24 }, { z: -.425, y: -.06 }, { z: -.398, y: .001 }, { z: -.36, y: .006 },
-      { z: -.30, y: .006 }, { z: -.252, y: .001 }, { z: -.218, y: -.036 }, { z: -.193, y: -.10 },
-      { z: -.178, y: -.19 }, { z: -.170, y: -.28 }, { z: -.166, y: -hang },
+      { z: -.29, y: .006 }, { z: -.225, y: .03 }, { z: -.18, y: .02 }, { z: -.14, y: -.03 },
+      { z: -.118, y: -.13 }, { z: -.112, y: -.27 }, { z: -.11, y: -hang },
     ].map((p) => ({ z: p.z, y: backTop + p.y }));
     const normals = profile.map((_, i) => {
       const a = profile[Math.max(0, i - 1)], b = profile[Math.min(profile.length - 1, i + 1)];
@@ -1219,7 +1219,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       const x = -halfWidth + 2 * halfWidth * t + Math.sin(t * 6.1) * .006;
       const sag = -.016 * Math.pow(1 - Math.abs(2 * t - 1), 2);
       const wave = .004 * Math.sin(t * Math.PI * 3.4);
-      const band = Math.floor(t * 5) % 5 < 2 ? CLAY : SAND;
+      const band = (t > .07 && t < .11) || (t > .89 && t < .93) ? SAND : CLAY; // one terracotta cloth with a pale stripe near each end (five bands read as a cow hide)
       const loop = profile.length * 2;
       for (let k = 0; k < loop; k++) {
         const side = k >= profile.length ? 1 : 0;
@@ -1258,7 +1258,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     });
     const fringe = new THREE.Mesh(new THREE.PlaneGeometry(halfWidth * 2, .055, 1, 1), new THREE.MeshStandardMaterial({ map: fringeTexture, alphaTest: .4, side: THREE.DoubleSide, roughness: .98 }));
     fringe.name = "sofa-throw-fringe";
-    fringe.position.set(0, backTop - hang - .024, -.166 + .016);
+    fringe.position.set(0, backTop - hang - .024, -.11 + .016);
     fringe.receiveShadow = true;
     sofaThrow.add(fringe);
   }
