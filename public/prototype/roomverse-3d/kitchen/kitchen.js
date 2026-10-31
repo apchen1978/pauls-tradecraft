@@ -1712,12 +1712,14 @@ function buildRoom03NookDecor(scene) {
     const z = 2.50 + i * (0.76 / 27), sign = endX < 0 ? -1 : 1;
     add(new THREE.PlaneGeometry(0.04, 0.007), i % 3 === 0 ? 0xcdbf9f : 0xe6dccb, [endX + sign * 0.02, 0.004, z], [-Math.PI / 2, 0, 0.05 * (i % 5 - 2)]);
   }
-  // Folded striped throw on the bench seat (cushion top about y 0.395).
+  // Folded striped throw on the bench seat (cushion top about y 0.395). Paul 2026-11-01: it read as four stacked planks, so each fold is now a little
+  // narrower and turned differently, the top fold is pulled back, and one short flap hangs over the cushion's front edge like real cloth (4 extra vertices).
   let layerY = 0.395;
-  [[CREAM, 0.012], [CLAY, 0.01], [CREAM, 0.012], [MOSS, 0.01]].forEach(([hex, h], i) => {
-    add(new THREE.BoxGeometry(0.34 - i * 0.004, h, 0.25), hex, [-0.64, layerY + h / 2, 2.86], [0, 0.12, 0]);
+  [[CREAM, 0.013, 0.345, 0.255, 0.10], [CLAY, 0.011, 0.335, 0.25, -0.04], [CREAM, 0.013, 0.32, 0.245, 0.05], [MOSS, 0.011, 0.30, 0.235, -0.02]].forEach(([hex, h, w, d, yaw]) => {
+    add(new THREE.BoxGeometry(w, h, d), hex, [-0.64, layerY + h / 2, 2.86], [0, 0.12 + yaw, 0]);
     layerY += h;
   });
+  add(new THREE.PlaneGeometry(0.30, 0.17), CREAM, [-0.64, layerY - 0.088, 2.737], [-1.33, 0.12, 0.03]);
   // Woven basket on the console's lower shelf (shelf top y 0.24, centre z about 3.53): ribbed body, rolled towel, two lying books.
   const basketProfile = [[0, 0], [0.105, 0], [0.12, 0.02], [0.135, 0.09], [0.14, 0.14], [0.132, 0.145], [0.126, 0.138], [0.11, 0.02], [0, 0.012]];
   add(lathe(basketProfile, 16), STRAW, [-0.40, 0.24, 3.54]);
@@ -2992,11 +2994,11 @@ function buildRoom03MediaUnit(scene, materials, woodGeometries) {
   const group = new THREE.Group();
   group.name = "prop-room03-screen-and-console";
   group.userData.category = "room03-media";
-  const centerX = -0.65;
-  // The TV (Paul 2026-10-31: it read as a picture frame, and nobody buys a TV this small): a 55 in wall-mounted panel, 1.20 x 0.675 m, with a thin black bezel
-  // instead of the oak frame. It is wider than the hall's side wall allows, so its left quarter sits inside the wall and the doorway hides it, as a real wide
-  // TV would be hidden from the dining room. The bottom edge stays where it was (0.78 m), so the things on the console still stand below it.
-  const SCREEN_W = 1.20, SCREEN_H = 0.675, BEZEL = 0.012;
+  const centerX = -0.95;
+  // The TV (Paul 2026-10-31, widened 2026-11-01): a wide wall-mounted panel, 1.45 x 0.816 m, with a thin black bezel instead of the oak frame. Its left end
+  // now reaches the hall's side wall (x -1.64) and disappears behind it, so the cut edge of the panel is out of sight from every camera the nook view allows
+  // instead of ending in open wall. The bottom edge stays at 0.795 m, so the things on the console still stand below it.
+  const SCREEN_W = 1.45, SCREEN_H = 0.816, BEZEL = 0.012;
   const screenCenterY = 0.795 + SCREEN_H / 2;
   const consoleParts = [
     [[1.30, 0.05, 0.32], [centerX, 0.55, -0.17]],
@@ -5372,30 +5374,75 @@ export async function start({ stage, onReady = () => {} }) {
   // 1.58-1.92 m, so the closest any orbit can bring the camera is z ~2.31 with x -0.12..0.82, never into the lintel, the piers or the nook's
   // side walls (x +/-0.94). Leaving restores the previous orbit and limits.
   // Paul 2026-10-31: the first nook view (1.5 m from the wall, straight on) cut the redwood print at the top and showed where the wide TV runs into the
-  // hall's side wall. The view now stands 2.8 m back (still inside the main room, looking through the opening), with the whole print, board, totes, key
-  // shelf and TV in frame and the orbit held to +/-0.12 rad and 2.5-3.2 m.
-  const NOOK_VIEW = { target: [0.30, 1.36, 3.74], position: [0.40, 1.50, 0.90], azimuthHalfRange: 0.12, minDistance: 2.5, maxDistance: 3.2, halfHfovDeg: 30, minFov: 46 };
+  // hall's side wall. The view now stands 2.6 m back (still inside the main room, looking through the opening), with the whole print, board, totes, key
+  // shelf and TV in frame and the orbit held to +/-0.12 rad and 2.2-2.9 m. Paul 2026-11-01: the panel end is hidden by the side wall itself now, so the
+  // view can come closer than 2.8 m, and it walks in over 0.9 s instead of jumping there.
+  const NOOK_VIEW = { target: [0.35, 1.44, 3.74], position: [0.40, 1.50, 1.14], azimuthHalfRange: 0.12, minDistance: 2.2, maxDistance: 2.9, halfHfovDeg: 30, minFov: 46 };
   const nookFov = (aspect) => Math.min(compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov, Math.max(NOOK_VIEW.minFov, 2 * Math.atan(Math.tan(NOOK_VIEW.halfHfovDeg * Math.PI / 360 * 2) / aspect) * 180 / Math.PI));
   let nookSaved = null;
+  let nookTween = null;
+  const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  function nookPowerOn() {
+    // The TV picture and the two downlights warm up over 380 ms, so walking in feels like switching the corner on rather than cutting to a lit set.
+    const screenMaterial = mediaUnit.screen.material;
+    const litColour = screenMaterial.color.clone();
+    const haloMaterial = nookDecor.halo.material, haloOpacity = haloMaterial.opacity, lensIntensity = nookDecor.lensMaterial.emissiveIntensity;
+    const start = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - start) / 380);
+      screenMaterial.color.copy(litColour).multiplyScalar(0.18 + 0.82 * k);
+      haloMaterial.opacity = haloOpacity * k;
+      nookDecor.lensMaterial.emissiveIntensity = lensIntensity * k;
+      render();
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  function tweenNook(fromPosition, fromTarget, fromFov, toPosition, toTarget, toFov, onDone) {
+    if (nookTween) cancelAnimationFrame(nookTween);
+    const start = performance.now(), duration = 900;
+    const fromPositionV = fromPosition.clone(), fromTargetV = fromTarget.clone(), toPositionV = toPosition.clone(), toTargetV = toTarget.clone();
+    const step = (now) => {
+      const k = easeInOutCubic(Math.min(1, (now - start) / duration));
+      camera.position.lerpVectors(fromPositionV, toPositionV, k);
+      controls.target.lerpVectors(fromTargetV, toTargetV, k);
+      camera.fov = fromFov + (toFov - fromFov) * k;
+      camera.updateProjectionMatrix(); controls.update(); render();
+      if (k < 1) { nookTween = requestAnimationFrame(step); return; }
+      nookTween = null;
+      camera.position.copy(toPositionV); controls.target.copy(toTargetV); camera.fov = toFov;
+      camera.updateProjectionMatrix(); controls.update(); render();
+      onDone?.();
+    };
+    nookTween = requestAnimationFrame(step);
+  }
   function setNookView(on) {
     if (on === Boolean(nookSaved)) return;
     if (on) {
       if (centerView) setCenterView(false);
       nookSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance };
       controls.minDistance = NOOK_VIEW.minDistance; controls.maxDistance = NOOK_VIEW.maxDistance;
-      controls.target.set(...NOOK_VIEW.target);
-      camera.position.set(...NOOK_VIEW.position);
-      camera.fov = nookFov(camera.aspect); camera.updateProjectionMatrix();
       controls.minAzimuthAngle = Math.PI - NOOK_VIEW.azimuthHalfRange;
       controls.maxAzimuthAngle = -Math.PI + NOOK_VIEW.azimuthHalfRange;
+      tweenNook(
+        camera.position, controls.target, camera.fov,
+        new THREE.Vector3(...NOOK_VIEW.position), new THREE.Vector3(...NOOK_VIEW.target), nookFov(camera.aspect),
+        () => { setMood(currentMood); nookPowerOn(); showNookHint(); },
+      );
     } else {
-      camera.position.copy(nookSaved.position);
-      controls.target.copy(nookSaved.target);
-      camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov; camera.updateProjectionMatrix();
-      controls.minAzimuthAngle = nookSaved.minAzimuth; controls.maxAzimuthAngle = nookSaved.maxAzimuth; controls.minDistance = nookSaved.minDistance; controls.maxDistance = nookSaved.maxDistance;
+      // Leaving stays instant: the plaque / centre / immersive views set their own camera in the same click, and an exit tween would fight them.
+      const saved = nookSaved;
+      if (nookTween) { cancelAnimationFrame(nookTween); nookTween = null; }
+      nookCaption.style.opacity = "0"; nookCaptionKey = null;
+      camera.position.copy(saved.position);
+      controls.target.copy(saved.target);
+      camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov;
+      camera.updateProjectionMatrix();
+      controls.minAzimuthAngle = saved.minAzimuth; controls.maxAzimuthAngle = saved.maxAzimuth;
+      controls.minDistance = saved.minDistance; controls.maxDistance = saved.maxDistance;
       nookSaved = null;
+      controls.update(); setMood(currentMood); render();
     }
-    controls.update(); setMood(currentMood);
   }
   function centerPointerDown(event) {
     if (!centerView || !event.isPrimary || event.button !== 0) return;
@@ -5419,6 +5466,90 @@ export async function start({ stage, onReady = () => {} }) {
     if (event.key === 'ArrowUp') centerView.pitch = THREE.MathUtils.clamp(centerView.pitch + 0.08, -0.5, 0.5);
     if (event.key === 'ArrowDown') centerView.pitch = THREE.MathUtils.clamp(centerView.pitch - 0.08, -0.5, 0.5);
     renderCenterView();
+  }
+  // Paul 2026-11-01: three things in the nook are worth finding, and they are the ones the closer view actually frames (the slippers and the basket
+  // sit below the frame now that the view keeps the whole print in shot). One click shows one line of story; the first visit gets a hint.
+  const NOOK_HOTSPOTS = [
+    { key: "totes", box: [[0.46, 0.42, 3.60], [0.94, 0.94, 3.76]], zh: "帆布袋掛在門邊，明天要帶去市場。", en: "The canvas totes wait by the door; market tomorrow." },
+    { key: "corkboard", box: [[0.06, 0.82, 3.70], [0.48, 1.18, 3.76]], zh: "軟木板上的蠟筆畫，是小姪女畫的。", en: "The crayon drawing on the board is from my niece." },
+    { key: "keyShelf", box: [[0.16, 0.36, 3.58], [0.48, 0.50, 3.76]], zh: "鑰匙層板：回家先把鑰匙放下。", en: "The key shelf: keys land here before anything else." },
+  ];
+  let nookLang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
+  let nookCaptionKey = null, nookHintShown = false, nookCaptionTimer = 0;
+  const nookCaption = document.createElement("div");
+  nookCaption.id = "nookCaption";
+  nookCaption.setAttribute("role", "status");
+  nookCaption.setAttribute("aria-live", "polite");
+  Object.assign(nookCaption.style, {
+    position: "absolute", left: "50%", bottom: "16%", transform: "translateX(-50%)", maxWidth: "min(84%, 460px)",
+    padding: "9px 16px", borderRadius: "999px", background: "rgba(24,28,26,0.82)", color: "#f4efe6",
+    font: "500 14px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif", textAlign: "center",
+    pointerEvents: "none", opacity: "0", transition: "opacity 240ms ease", zIndex: "5",
+  });
+  (canvas.parentElement || document.body).appendChild(nookCaption);
+  const nookCaptionText = (key) => { const spot = NOOK_HOTSPOTS.find((s) => s.key === key); return spot ? spot[nookLang] : ""; };
+  function showNookCaption(text, key = null, hold = 4600) {
+    nookCaptionKey = key;
+    nookCaption.textContent = text;
+    nookCaption.style.opacity = "1";
+    clearTimeout(nookCaptionTimer);
+    nookCaptionTimer = setTimeout(() => { nookCaption.style.opacity = "0"; nookCaptionKey = null; }, hold);
+  }
+  function showNookHint() {
+    if (nookHintShown) return;
+    nookHintShown = true;
+    showNookCaption(nookLang === "zh" ? "點一下帆布袋、軟木板或鑰匙層板。" : "Tap the totes, the board or the key shelf.", null, 4200);
+  }
+  const nookRaycaster = new THREE.Raycaster();
+  function nookSpotAt(clientX, clientY) {
+    if (!nookSaved) return null;
+    const rect = canvas.getBoundingClientRect();
+    nookRaycaster.setFromCamera({ x: ((clientX - rect.left) / rect.width) * 2 - 1, y: -((clientY - rect.top) / rect.height) * 2 + 1 }, camera);
+    const hits = nookRaycaster.intersectObjects(scene.children, true)
+      .filter((hit) => hit.object.visible && hit.object.name !== "room03-nook-downlight-halo" && !(hit.object.material?.transparent && hit.object.material?.opacity < 0.5));
+    if (!hits.length) return null;
+    const point = hits[0].point;
+    const direct = NOOK_HOTSPOTS.find((spot) => point.x >= spot.box[0][0] && point.x <= spot.box[1][0] && point.y >= spot.box[0][1] && point.y <= spot.box[1][1] && point.z >= spot.box[0][2] && point.z <= spot.box[1][2]);
+    if (direct) return direct;
+    // A console leg or the bench frame can sit in front of a small prop; a ray that passes within 9 cm of a prop's centre still counts as a
+    // click on it, so the basket under the TV does not need pixel hunting through the leg.
+    let nearest = null, nearestDistance = 0.09;
+    for (const spot of NOOK_HOTSPOTS) {
+      const centre = new THREE.Vector3((spot.box[0][0] + spot.box[1][0]) / 2, (spot.box[0][1] + spot.box[1][1]) / 2, (spot.box[0][2] + spot.box[1][2]) / 2);
+      const offset = centre.clone().sub(nookRaycaster.ray.origin);
+      const along = offset.dot(nookRaycaster.ray.direction);
+      if (along <= 0) continue;
+      const distance = offset.clone().addScaledVector(nookRaycaster.ray.direction, -along).length();
+      if (distance < nearestDistance) { nearestDistance = distance; nearest = spot; }
+    }
+    return nearest;
+  }
+  let nookPointer = null;
+  canvas.addEventListener("pointerdown", (event) => { if (!nookSaved || !event.isPrimary) return; nookPointer = { x: event.clientX, y: event.clientY }; });
+  canvas.addEventListener("pointerup", (event) => {
+    if (!nookPointer || !event.isPrimary) return;
+    const moved = Math.hypot(event.clientX - nookPointer.x, event.clientY - nookPointer.y);
+    nookPointer = null;
+    if (moved > 6) return;
+    const spot = nookSpotAt(event.clientX, event.clientY);
+    if (spot) showNookCaption(nookCaptionText(spot.key), spot.key);
+  });
+  // The panel end must stay behind the hall's side wall from every camera the nook view allows (Paul 2026-11-01). Raycast the end point: a closer
+  // opaque hit means the cut edge is hidden.
+  function nookTvCutHidden() {
+    const end = new THREE.Vector3(-1.687, 1.0, 3.70), direction = end.clone().sub(camera.position), distance = direction.length();
+    nookRaycaster.set(camera.position, direction.normalize());
+    const hit = nookRaycaster.intersectObjects(scene.children, true)
+      .find((candidate) => candidate.object.visible && !(candidate.object.material?.transparent && candidate.object.material?.opacity < 0.5));
+    return Boolean(hit && hit.distance < distance - 0.01);
+  }
+  function nookHotspotInfo() {
+    const rect = canvas.getBoundingClientRect(), screen = {}, probe = new THREE.Vector3();
+    for (const spot of NOOK_HOTSPOTS) {
+      probe.set((spot.box[0][0] + spot.box[1][0]) / 2, (spot.box[0][1] + spot.box[1][1]) / 2, (spot.box[0][2] + spot.box[1][2]) / 2).project(camera);
+      screen[spot.key] = [rect.left + ((probe.x + 1) / 2) * rect.width, rect.top + ((1 - probe.y) / 2) * rect.height];
+    }
+    return { keys: NOOK_HOTSPOTS.map((spot) => spot.key), caption: nookCaption.textContent, visible: nookCaption.style.opacity === "1", hintShown: nookHintShown, tvCutHidden: nookTvCutHidden(), screen };
   }
   canvas.addEventListener('pointerdown', centerPointerDown);
   canvas.addEventListener('pointermove', centerPointerMove);
@@ -5595,6 +5726,11 @@ export async function start({ stage, onReady = () => {} }) {
     ));
     contactShadowParts.push(patch);
   }
+  // Entry nook props (Paul 2026-11-01: the shoe tray, the pampas vase and the bench sat on the new rug without any shadow, so they floated).
+  // The bench feet stand on the kilim (surface y 0.012), the tray and the vase on the floor. Same merged decal mesh, +24 vertices, no extra draw call.
+  for (const [benchX, benchZ] of [[-0.80, 2.63], [0.00, 2.63], [-0.80, 2.97], [0.00, 2.97]]) addContactPatch(benchX, benchZ, 0.07, 0.07, 0.013);
+  addContactPatch(0.73, 3.46, 0.40, 0.36, 0.003);
+  addContactPatch(0.84, 3.02, 0.20, 0.20, 0.003);
   const contactShadow = new THREE.Mesh(
     mergeGeometries(contactShadowParts, false),
     new THREE.MeshBasicMaterial({
@@ -6613,8 +6749,9 @@ export async function start({ stage, onReady = () => {} }) {
     setArtwork: (frameKey, optionKey, onDone) => wallArt.setArtwork(frameKey, optionKey, (result) => { render(); onDone?.(result); }),
     artOptions: () => Object.fromEntries(Object.entries(wallArt.artOptions).map(([frame, options]) => [frame, Object.keys(options)])),
     setNookView, nookViewInfo: () => nookSaved ? { target: [...NOOK_VIEW.target], position: [...NOOK_VIEW.position], azimuthHalfRange: NOOK_VIEW.azimuthHalfRange, minDistance: NOOK_VIEW.minDistance } : null,
+    nookAnimating: () => Boolean(nookTween), nookTvCutHidden, nookHotspotInfo,
     centerViewInfo: () => centerView ? { station: [...CENTER_STATION], yaw: centerView.yaw, pitch: centerView.pitch } : null,
-    setLang: () => {}, samplePixels, sampleNdc,
+    setLang: (value) => { nookLang = value === "en" ? "en" : "zh"; if (nookCaptionKey) nookCaption.textContent = nookCaptionText(nookCaptionKey); }, samplePixels, sampleNdc,
     setView: (azimuth = 0) => {
       const offset = camera.position.clone().sub(controls.target);
       const spherical = new THREE.Spherical().setFromVector3(offset);
