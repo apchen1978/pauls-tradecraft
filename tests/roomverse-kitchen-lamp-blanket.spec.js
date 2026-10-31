@@ -11,6 +11,11 @@ test("a stool with a folded blanket and a book stands on the floor beside the la
   const corner = info.lampBlanket, lamp = info.lamps["floor-reading-lamp"].bounds;
   expect(corner.vertices, "one merged mesh: stool, three folds, book and ribbon").toBeGreaterThan(400);
   expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(corner.legFit).toHaveLength(3);
+  for (const leg of corner.legFit) {
+    expect(leg.insideApron, "leg side edges intersect the apron mid-plane").toBeGreaterThanOrEqual(10);
+    expect(Math.abs(leg.floorY), "each leg bottom is within 3 mm of the floor").toBeLessThanOrEqual(0.003);
+  }
   expect(Math.abs(corner.bounds.min[1]), "the stool legs stand on the floor").toBeLessThanOrEqual(0.003);
   expect(corner.bounds.max[1], "low enough to read as a stool, not furniture").toBeLessThanOrEqual(0.5);
   expect(lamp.min[0] - corner.bounds.max[0], "at least 12 cm between the stool and the lamp base").toBeGreaterThanOrEqual(0.12);
