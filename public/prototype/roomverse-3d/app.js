@@ -1326,93 +1326,6 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   };
   const soft = { throwMesh: null, fringeMesh: null, propMesh: null, suitcaseShell: null, suitcaseHard: null, throwInfo: null, propBounds: [], propInfo: null, suitcaseInfo: null };
   {
-    // 1) the throw. Measure the seat top and the seat's own front edge by raycast, then wrap a 1.8 cm thick strip over that edge.
-    const sofaBox = new THREE.Box3().setFromObject(sofaObj);
-    const throwX = sofaBox.max.x - .46;
-    const seatRay = new THREE.Raycaster(); seatRay.far = 3;
-    // the front cushion rises above the seat line, so measure the cushion where the cloth actually lies and hang over its front edge
-    seatRay.set(new THREE.Vector3(throwX, sofaBox.max.y + .4, sofaBox.max.z - .10), new THREE.Vector3(0, -1, 0));
-    const seatHit = seatRay.intersectObject(sofaObj, true)[0];
-    const cushionTop = seatHit ? seatHit.point.y : .62;
-    seatRay.set(new THREE.Vector3(throwX, cushionTop - .06, sofaBox.max.z + .9), new THREE.Vector3(0, 0, -1));
-    const frontHit = seatRay.intersectObject(sofaObj, true)[0];
-    const seatFront = frontHit ? frontHit.point.z : sofaBox.max.z - .02;
-    const thick = .018, hang = .22;
-    const profile = [
-      { z: -.16, y: .004 }, { z: -.10, y: .008 }, { z: -.05, y: .012 }, { z: -.008, y: .014 },
-      { z: .014, y: .003 }, { z: .026, y: -.022 }, { z: .030, y: -.075 }, { z: .028, y: -.145 }, { z: .024, y: -hang },
-    ].map((p) => ({ z: seatFront + p.z, y: cushionTop + p.y }));
-    // a 2D normal for every profile point, pointing into the sofa, so the ribbon has real thickness instead of a paper edge
-    const normals = profile.map((_, i) => {
-      const a = profile[Math.max(0, i - 1)], b = profile[Math.min(profile.length - 1, i + 1)];
-      const dz = b.z - a.z, dy = b.y - a.y, len = Math.hypot(dz, dy) || 1;
-      return { z: dy / len, y: -dz / len };
-    });
-    const rows = 18, cols = profile.length, halfWidth = .25;
-    const positions = [], colours = [], indices = [], uvs = [];
-    const SAND_CLOTH = new THREE.Color(0xdfc9a2), CLAY_CLOTH = new THREE.Color(0xa8763f);
-    for (let r = 0; r <= rows; r++) {
-      const t = r / rows;
-      const x = -halfWidth + 2 * halfWidth * t + Math.sin(t * 6.1) * .007; // ends are not square
-      const sag = -.018 * Math.pow(1 - Math.abs(2 * t - 1), 2); // the strip sags between the cushions
-      const wave = .004 * Math.sin(t * Math.PI * 3.4);
-      const band = Math.floor(t * 5) % 5 < 2 ? CLAY_CLOTH : SAND_CLOTH;
-      for (let k = 0; k < cols * 2; k++) { // outer surface forward, inner surface backwards: one closed ribbon
-        const side = k >= cols ? 1 : 0;
-        const j = side ? 2 * cols - 1 - k : k;
-        const p = profile[j], n = normals[j], off = side ? thick : 0;
-        positions.push(x, p.y + sag + wave + n.y * off, p.z + n.z * off);
-        const c = band.clone().offsetHSL(0, 0, (t - .5) * .03);
-        colours.push(c.r, c.g, c.b);
-        uvs.push(t * 3.2, k / (cols * 2) * 1.6);
-      }
-    }
-    const loop = cols * 2;
-    for (let r = 0; r < rows; r++) for (let k = 0; k < loop; k++) {
-      const k2 = (k + 1) % loop;
-      const a = r * loop + k, b = r * loop + k2, c = (r + 1) * loop + k2, d = (r + 1) * loop + k;
-      indices.push(a, d, b, b, d, c);
-    }
-    const throwGeometry = new THREE.BufferGeometry();
-    throwGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    throwGeometry.setAttribute("color", new THREE.Float32BufferAttribute(colours, 3));
-    throwGeometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-    throwGeometry.setIndex(indices); throwGeometry.computeVertexNormals();
-    // a woven canvas under the colour bands: without it the cloth reads as painted paper next to the sofa's own weave
-    const throwWeave = canvasTex(128, 128, (ctx, w, h) => {
-      ctx.fillStyle = "#f4efe4"; ctx.fillRect(0, 0, w, h);
-      for (let y = 0; y < h; y += 3) for (let x = 0; x < w; x += 3) {
-        const odd = ((x / 3) + (y / 3)) % 2 === 0;
-        ctx.fillStyle = odd ? "rgba(120,104,84,.20)" : "rgba(255,255,255,.22)";
-        ctx.fillRect(x, y, 2, 2);
-      }
-    });
-    throwWeave.wrapS = throwWeave.wrapT = THREE.RepeatWrapping;
-    const throwMesh = new THREE.Mesh(throwGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, map: throwWeave, roughness: .97, side: THREE.DoubleSide }));
-    throwMesh.name = "sofa-throw"; throwMesh.castShadow = true; throwMesh.receiveShadow = true;
-    scene.add(throwMesh); soft.throwMesh = throwMesh;
-    // the hem is not a straight cut: an alpha strand map, 40 uneven threads, two triangles
-    const fringeTexture = canvasTex(256, 128, (ctx, w, h) => {
-      ctx.clearRect(0, 0, w, h);
-      ctx.strokeStyle = "#c9a87e"; ctx.lineWidth = 2.2; ctx.lineCap = "round";
-      for (let i = 0; i < 40; i++) {
-        const x = (i + .5) * w / 40 + Math.sin(i * 1.7) * .8;
-        const len = h * (.5 + .42 * Math.abs(Math.sin(i * 2.9 + .4)));
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + Math.sin(i * 1.3) * 2.2, len); ctx.stroke();
-      }
-    });
-    const fringeGeometry = new THREE.PlaneGeometry(halfWidth * 2, .055, 1, 1);
-    const fringeMesh = new THREE.Mesh(fringeGeometry, new THREE.MeshStandardMaterial({ map: fringeTexture, alphaTest: .4, side: THREE.DoubleSide, roughness: .96 }));
-    fringeMesh.name = "sofa-throw-fringe";
-    fringeMesh.position.set(0, cushionTop - hang - .024, seatFront + .026);
-    fringeMesh.receiveShadow = true;
-    scene.add(fringeMesh); soft.fringeMesh = fringeMesh;
-    soft.throwInfo = {
-      seatTop: Number(cushionTop.toFixed(3)), seatFront: Number(seatFront.toFixed(3)),
-      hang: Number((cushionTop - Math.min(...profile.map((p) => p.y))).toFixed(3)),
-      rows, cols, vertices: throwGeometry.attributes.position.count + fringeGeometry.attributes.position.count,
-    };
-
     // 2) coffee-table pieces, rounded: two bevelled books with a page block, a footed bowl, a rounded remote.
     const coffeeBox = new THREE.Box3().setFromObject(coffeeObj);
     const occupied = [laptopObj, mugObj, coffeeBook].map((obj) => new THREE.Box3().setFromObject(obj));
@@ -3195,13 +3108,13 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // ribs, lid seam is hardware) and one hardware mesh (wheels, handles, tubes), so it costs two draw calls. Size is a real cabin case:
   // 40 x 52 x 19 cm shell, wheels 3.5 cm, handle out to 84 cm.
   function buildSuitcase() {
-    // Under the left-wall harbour painting: it is the only stretch of wall in the room with open floor in front of it (the other frames sit above
-    // cabinets or the sofa). The case is a cabin-size hardshell standing on its wheels, turned a little toward the room.
-    const artBox = leftWallArtGroup ? new THREE.Box3().setFromObject(leftWallArtGroup) : null;
-    const wallX = artBox ? artBox.max.x : -W / 2 + .02;
-    const artZ = artBox ? (artBox.min.z + artBox.max.z) / 2 : 1.0;
-    const yaw = Math.PI / 2;
-    const centre = new THREE.Vector3(wallX + .56, 0, artZ + .08);
+    // Lying flat under the right-wall harbour painting (Paul 2026-11-01: "另外一邊、平躺"). That wall's floor is open between the sofa and the side
+    // table, and a closed case on its back is what unpacked luggage actually looks like.
+    const artBox = rightWallArtGroup ? new THREE.Box3().setFromObject(rightWallArtGroup) : null;
+    const wallX = artBox ? artBox.min.x : W / 2 - .02;
+    const artZ = artBox ? (artBox.min.z + artBox.max.z) / 2 : -.65;
+    const yaw = -.14;
+    const centre = new THREE.Vector3(wallX - .46, 0, artZ);
     centre.x = Math.min(W / 2 - .45, Math.max(-W / 2 + .45, centre.x));
     centre.z = Math.min(FRONT - .5, Math.max(BACK + .5, centre.z));
 
@@ -3242,11 +3155,11 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     }
     // telescopic handle, out for the trip: two tubes and a grip above the shell
     for (const xOff of [-.108, .108]) {
-      const tube = new THREE.CylinderGeometry(.0085, .0085, .30, 10);
-      tube.translate(xOff, .68, -.088);
+      const tube = new THREE.CylinderGeometry(.0085, .0085, .16, 10);
+      tube.translate(xOff, .60, -.088);
       hardParts.push(softTint(tube, METAL));
     }
-    const grip = extrudeSlab(.21, .03, .012, .022, .004).rotateX(-Math.PI / 2).translate(0, .83, -.082);
+    const grip = extrudeSlab(.21, .03, .012, .022, .004).rotateX(-Math.PI / 2).translate(0, .67, -.082);
     hardParts.push(softTint(grip, DARK));
     // top and side carry handles
     const topHandle = extrudeSlab(.13, .028, .012, .020, .004).rotateX(-Math.PI / 2).translate(0, .605, .02);
@@ -3255,14 +3168,20 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     sideHandle.translate(.202, .44, .012);
     hardParts.push(softTint(sideHandle, DARK));
 
-    const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(
-      new THREE.Vector3(centre.x, 0, centre.z),
-      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw + .20, 0)),
-      new THREE.Vector3(1, 1, 1),
-    ));
-    const shellMesh = new THREE.Mesh(softMerge(shellParts.map(place)), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .34, metalness: .06 }));
+    // flatten it: rotate the upright case onto its back, then drop the whole thing onto the floor
+    const flatten = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
+    const turn = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0));
+    const quat = turn.multiply(flatten);
+    const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(centre.x, 0, centre.z), quat, new THREE.Vector3(1, 1, 1)));
+    const shellGeometry = softMerge(shellParts.map(place));
+    const hardGeometry = softMerge(hardParts.map(place));
+    shellGeometry.computeBoundingBox(); hardGeometry.computeBoundingBox();
+    const dropToFloor = -Math.min(shellGeometry.boundingBox.min.y, hardGeometry.boundingBox.min.y);
+    shellGeometry.translate(0, dropToFloor, 0);
+    hardGeometry.translate(0, dropToFloor, 0);
+    const shellMesh = new THREE.Mesh(shellGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .34, metalness: .06 }));
     shellMesh.name = "red-suitcase-shell"; shellMesh.castShadow = true; shellMesh.receiveShadow = true;
-    const hardMesh = new THREE.Mesh(softMerge(hardParts.map(place)), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .46, metalness: .32 }));
+    const hardMesh = new THREE.Mesh(hardGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .46, metalness: .32 }));
     hardMesh.name = "red-suitcase-hardware"; hardMesh.castShadow = true; hardMesh.receiveShadow = true;
     scene.add(shellMesh, hardMesh);
     soft.suitcaseShell = shellMesh; soft.suitcaseHard = hardMesh;
@@ -3271,8 +3190,10 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const allBox = shellBox.clone().union(hardBox);
     soft.suitcaseInfo = {
       centre: [Number(centre.x.toFixed(3)), Number(centre.z.toFixed(3))],
-      yaw: Number((yaw + .20).toFixed(3)),
+      yaw: Number(yaw.toFixed(3)),
+      flat: true,
       bounds: { min: allBox.min.toArray().map((v) => Number(v.toFixed(3))), max: allBox.max.toArray().map((v) => Number(v.toFixed(3))) },
+      heightMm: Number(((allBox.max.y - allBox.min.y) * 1000).toFixed(1)),
       floorGapMm: Number((allBox.min.y * 1000).toFixed(2)),
       wheelsDownMm: Number((hardBox.min.y * 1000).toFixed(2)),
       paintingBounds: artBox ? { min: artBox.min.toArray().map((v) => Number(v.toFixed(3))), max: artBox.max.toArray().map((v) => Number(v.toFixed(3))) } : null,
@@ -3587,7 +3508,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
     },
-    softDetails() { // local QA only: the throw's drape, the coffee-table props' support, the suitcase's floor contact
+    softDetails() { // local QA only: the coffee-table props' support and the flat suitcase's floor contact
       scene.updateMatrixWorld(true);
       const rounded = (v) => Number(v.toFixed(4));
       const bounds = (obj) => { if (!obj) return null; const b = new THREE.Box3().setFromObject(obj); return { min: b.min.toArray().map(rounded), max: b.max.toArray().map(rounded) }; };
@@ -3599,15 +3520,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         overlapsExisting: already.some((other) => other.intersectsBox(b)),
         insideTable: b.min.x > soft.propInfo.coffeeBounds.min[0] && b.max.x < soft.propInfo.coffeeBounds.max[0] && b.min.z > soft.propInfo.coffeeBounds.min[2] && b.max.z < soft.propInfo.coffeeBounds.max[2],
       }));
-      const throwBox = new THREE.Box3().setFromObject(soft.throwMesh);
       return {
-        throw: {
-          bounds: bounds(soft.throwMesh), fringe: bounds(soft.fringeMesh),
-          vertices: soft.throwInfo.vertices, rows: soft.throwInfo.rows, cols: soft.throwInfo.cols,
-          seatTop: soft.throwInfo.seatTop, seatFront: soft.throwInfo.seatFront,
-          hangingMm: Number(((soft.throwInfo.seatTop - throwBox.min.y) * 1000).toFixed(2)),
-          castShadow: soft.throwMesh.castShadow, receiveShadow: soft.throwMesh.receiveShadow,
-        },
         props: { bounds: bounds(soft.propMesh), vertices: soft.propInfo.vertices, items, coffeeTable: soft.propInfo.coffeeBounds, coffeeTop: soft.propInfo.coffeeTop, spots: { book: soft.propInfo.bookSpot, bowl: soft.propInfo.bowlSpot, remote: soft.propInfo.remoteSpot } },
         suitcase: soft.suitcaseInfo,
         lights: scene.children.filter((child) => child.isLight).length,

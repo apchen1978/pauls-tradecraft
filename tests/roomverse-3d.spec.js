@@ -1453,19 +1453,11 @@ test("Room 01 opens in golden hour only when it is entered from the home cover; 
   }
 });
 
-test("the throw hangs on the seat edge, the coffee-table pieces sit on it, and the red suitcase stands on its wheels", async ({ page }) => {
+test("the coffee-table pieces sit on the table and the red suitcase lies flat under the painting", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   if (await page.locator("#enter").isVisible()) await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room && window.__room.softDetails, null, { timeout: 90000 });
   const d = await page.evaluate(() => window.__room.softDetails());
-  // The throw is a draped strip over the seat's front edge: the top stays on the cushion, the hanging face drops well below it, and the
-  // hem carries the alpha fringe instead of a straight cut.
-  expect(d.throw.castShadow).toBe(true);
-  expect(d.throw.receiveShadow).toBe(true);
-  expect(d.throw.rows).toBeGreaterThanOrEqual(12);
-  expect(d.throw.bounds.max[1], "the cloth stays on the cushion, it does not stand up").toBeLessThan(d.throw.seatTop + 0.05);
-  expect(d.throw.hangingMm, "the hanging face drops at least 15 cm").toBeGreaterThan(150);
-  expect(d.throw.fringe, "the hem has fringe geometry").not.toBeNull();
   // The coffee-table pieces: supported on the measured top, inside it, and clear of the laptop, the mug and the existing book.
   expect(d.props.items.length).toBeGreaterThanOrEqual(3);
   for (const item of d.props.items) {
