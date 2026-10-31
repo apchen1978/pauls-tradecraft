@@ -1473,6 +1473,9 @@ test("the two coffee-table books sit on the table and the red suitcase stands on
   expect(d.suitcase.heightMm).toBeLessThan(760);
   expect(d.suitcase.lacquer, "the shell carries a clearcoat").toBe(true);
   expect(d.suitcase.contactShadow, "a contact shadow decal grounds it").toBe(true);
+  expect(d.suitcase.parts, "the red HAPPY FLIGHT tag hangs from the side handle").toContain("red-suitcase-tag");
+  expect(d.suitcase.parts, "the four wheels share one undercarriage").toContain("red-suitcase-hardware");
+  expect(d.suitcase.parts, "the tag print sits on the tag").toContain("red-suitcase-tag-print");
   expect(d.suitcase.insideRoom).toBe(true);
   expect(d.lights, "no new light was added").toBe(6);
 });
