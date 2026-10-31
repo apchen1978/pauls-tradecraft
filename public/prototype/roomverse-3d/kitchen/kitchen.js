@@ -4605,6 +4605,15 @@ function addRoom03Lamps(scene, materials) {
     material.metalness = 0.25;
     return material;
   };
+  // The gallery bar over the redwood print is brass, like Room 01's picture lights; the shared black hardware would swallow the vertex colour.
+  const brassMaterial = () => {
+    const material = materials.black.clone();
+    material.color.setHex(0xffffff);
+    material.vertexColors = true;
+    material.roughness = 0.36;
+    material.metalness = 0.72;
+    return material;
+  };
   const shadeMaterial = (emissive) => {
     const material = materials.opal.clone();
     material.color.setHex(0xfff4e4);
@@ -4741,9 +4750,9 @@ function addRoom03Lamps(scene, materials) {
     paint(place(new THREE.BoxGeometry(0.50, 0.028, 0.04), [0, 0.02, 0]), 0xb08a4e),
     paint(place(new THREE.BoxGeometry(0.02, 0.04, 0.03), [-0.22, -0.01, 0.01]), 0xb08a4e),
     paint(place(new THREE.BoxGeometry(0.02, 0.04, 0.03), [0.22, -0.01, 0.01]), 0xb08a4e),
-  ]), hardwareMaterial());
+  ]), brassMaterial());
   addMesh(picture, "redwood-picture-light-diffuser", mergeParts([
-    place(new THREE.BoxGeometry(0.42, 0.012, 0.045), [0, -0.004, 0.01]),
+    place(new THREE.BoxGeometry(0.44, 0.02, 0.05), [0, -0.006, 0.012]),
   ]), pictureShade);
   scene.add(picture);
 
@@ -5377,7 +5386,7 @@ export async function start({ stage, onReady = () => {} }) {
   // hall's side wall. The view now stands 2.6 m back (still inside the main room, looking through the opening), with the whole print, board, totes, key
   // shelf and TV in frame and the orbit held to +/-0.12 rad and 2.2-2.9 m. Paul 2026-11-01: the panel end is hidden by the side wall itself now, so the
   // view can come closer than 2.8 m, and it walks in over 0.9 s instead of jumping there.
-  const NOOK_VIEW = { target: [0.35, 1.44, 3.74], position: [0.40, 1.50, 1.14], azimuthHalfRange: 0.12, minDistance: 2.2, maxDistance: 2.9, halfHfovDeg: 30, minFov: 46, rotateSpeed: 0.4, zoomSpeed: 0.65 };
+  const NOOK_VIEW = { target: [0.35, 1.50, 3.74], position: [0.40, 1.52, 1.04], azimuthHalfRange: 0.12, minDistance: 2.2, maxDistance: 2.9, halfHfovDeg: 30, minFov: 46, rotateSpeed: 0.4, zoomSpeed: 0.65 };
   const nookFov = (aspect) => Math.min(compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov, Math.max(NOOK_VIEW.minFov, 2 * Math.atan(Math.tan(NOOK_VIEW.halfHfovDeg * Math.PI / 360 * 2) / aspect) * 180 / Math.PI));
   let nookSaved = null;
   let nookTween = null;
@@ -5783,6 +5792,9 @@ export async function start({ stage, onReady = () => {} }) {
     yardMap: null,
     ceilingColor: COLORS.ceiling, ceilingEmissiveColor: 0xb7a68b, beamColor: COLORS.beam, tableTint: 0xffffff, curtainColor: 0xcdbfa8,
   };
+  // Paul 2026-11-01: the brass gallery bar above the redwood print stays on in every mood, the way Room 01's picture lights do — low enough that it
+  // only reads as "on" and never becomes a second key light on the canvas. Moods that already want it brighter keep their own value.
+  const PICTURE_LIGHT_FLOOR = 0.32;
   const MOOD_LOOK = Object.freeze({
     // Bay Area daylight (Paul 2026-10-30: the golden look read as a video game at the door). Neutral-white sun, a cool pale sky, an untinted garden and
     // lighter, less orange wood overhead; golden hour stays as a choice.
@@ -6061,7 +6073,7 @@ export async function start({ stage, onReady = () => {} }) {
     pendantCeilingBounce.visible = look.pendantCeilingBounceVisible;
     materials.reveal.opacity = look.reveal;
     materials.loungePillow.color.setHex(look.loungePillow);
-    if (pictureLightMaterial) pictureLightMaterial.emissiveIntensity = look.pictureLightEmissive;
+    if (pictureLightMaterial) pictureLightMaterial.emissiveIntensity = Math.max(PICTURE_LIGHT_FLOOR, look.pictureLightEmissive);
     // Keep the paper drum visibly lit without clipping its white surface in the 180-degree movie view.
     if (floorShadeMaterial) floorShadeMaterial.emissiveIntensity = look.floorLamp > 0
       ? Math.min(1.9, 0.45 + 0.45 * look.floorLamp)
@@ -6753,6 +6765,7 @@ export async function start({ stage, onReady = () => {} }) {
     artOptions: () => Object.fromEntries(Object.entries(wallArt.artOptions).map(([frame, options]) => [frame, Object.keys(options)])),
     setNookView, nookViewInfo: () => nookSaved ? { target: [...NOOK_VIEW.target], position: [...NOOK_VIEW.position], azimuthHalfRange: NOOK_VIEW.azimuthHalfRange, minDistance: NOOK_VIEW.minDistance } : null,
     nookAnimating: () => Boolean(nookTween), nookTvCutHidden, nookHotspotInfo,
+    pictureLightInfo: () => ({ emissive: pictureLightMaterial ? pictureLightMaterial.emissiveIntensity : null, floor: PICTURE_LIGHT_FLOOR, moodValue: MOOD_LOOK[currentMood]?.pictureLightEmissive ?? 0 }),
     centerViewInfo: () => centerView ? { station: [...CENTER_STATION], yaw: centerView.yaw, pitch: centerView.pitch } : null,
     setLang: (value) => { nookLang = value === "en" ? "en" : "zh"; if (nookCaptionKey) nookCaption.textContent = nookCaptionText(nookCaptionKey); }, samplePixels, sampleNdc,
     setView: (azimuth = 0) => {

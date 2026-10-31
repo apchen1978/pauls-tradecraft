@@ -64,3 +64,17 @@ test("three lamps sit on measured surfaces, counter pendants are removed, and ne
   }
   expect(info.lamps.lights.screenCool.color).toBe(0xcdd6f0);
 });
+
+// Paul 2026-11-01: the brass gallery bar above the redwood print is on in every mood, the way Room 01's picture lights are — but low enough to read
+// as a detail and never as a second key light on the canvas.
+test("the redwood picture light stays on in every mood, dim and warm", async ({ page }) => {
+  await loadRoom(page);
+  const moods = await page.evaluate(() => Object.keys(window.__room03.info().moodLook.moods));
+  expect(moods.length, "every mood is checked").toBeGreaterThanOrEqual(7);
+  for (const mood of moods) {
+    const light = await page.evaluate((m) => { window.__room03.setMood(m); return window.__room03.pictureLightInfo(); }, mood);
+    expect(light.floor, `${mood}: the floor is the shared 0.32`).toBeCloseTo(0.32, 5);
+    expect(light.emissive, `${mood}: the gallery bar is on`).toBeGreaterThanOrEqual(0.32);
+    expect(light.emissive, `${mood}: the gallery bar stays a detail, not a key light`).toBeLessThanOrEqual(0.8);
+  }
+});
