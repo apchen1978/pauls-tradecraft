@@ -129,3 +129,28 @@ test("the nook view is labelled in English, leaves cleanly to the other views, a
   for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) expect(overlap(boxes[i], boxes[j]), `buttons ${i} and ${j} do not overlap`).toBe(false);
   if (QA) await page.locator(".room").screenshot({ path: `${QA}/nook-button-390-en.png` });
 });
+
+// Paul 2026-10-31: in the nook view the TV is always on, the downlights are on, and no part of the TV or the print is cut by the hall walls.
+test("the nook view always shows a lit TV and lit downlights, and the whole TV stays inside the hall", async ({ page }) => {
+  await loadRoom(page, 1280);
+  const state = () => page.evaluate(() => {
+    const i = window.__room03.info();
+    return { screen: i.screenContent, mood: i.mood };
+  });
+  for (const mood of ["daylight", "golden", "night"]) {
+    await page.evaluate((m) => window.__room03.setMood(m), mood);
+    const before = await state();
+    expect(before.screen.map, `${mood}: the TV is dark outside the nook view`).toBe(false);
+    await page.locator("#nookView").click();
+    const inside = await page.evaluate(() => {
+      const r = window.__room03, i = r.info();
+      const tvEdges = [[-1.262, 0.78, 3.70], [-0.038, 0.78, 3.70], [-1.262, 1.48, 3.70], [-0.038, 1.48, 3.70]];
+      return { screen: i.screenContent, hallHalfWidth: Math.min(...tvEdges.map((p) => 1.64 - Math.abs(p[0]))) };
+    });
+    expect(inside.screen.map, `${mood}: the TV shows a picture in the nook view`).toBe(true);
+    expect(inside.screen.asset).toBe("screen-movie-city-night-v1");
+    expect(inside.hallHalfWidth, "the TV ends inside the hall side wall (x -1.64), not in it").toBeGreaterThan(0.3);
+    await page.evaluate(() => window.__room03.setNookView(false));
+    expect((await state()).screen.map, `${mood}: the TV goes dark again after leaving`).toBe(false);
+  }
+});

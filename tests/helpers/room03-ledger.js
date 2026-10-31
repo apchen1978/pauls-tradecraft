@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 67157, meshes: 116 }),
+  scene: Object.freeze({ vertices: 67165, meshes: 117 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 80, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
@@ -51,6 +51,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-31", change: "entry hall: wall clock and red towel replaced by a cork board (crayon drawing, generic menu, market flyer; canvas atlas on the same mesh) and a canvas tote plus plain cap on the hooks (+1,769 vertices, same mesh, no new draw call)", vertices: 63097, meshes: 114, desktopCalls: 79, phoneCalls: 78 },
     { date: "2026-10-31", change: "entry hall: plain cap replaced by a second, narrower brick-red canvas tote on the left hook (-318 vertices, same mesh, no new draw call)", vertices: 62779, meshes: 114, desktopCalls: 79, phoneCalls: 78 },
     { date: "2026-10-31", change: "entry nook decor: kilim rug and fringe, folded throw, basket and books, shoe tray with two pairs of slippers, pampas floor vase (one vertex-colour mesh, +4,378 vertices incl. lenses), two recessed downlights (lens mesh) and one warm point light that follows the mood", vertices: 67157, meshes: 116, desktopCalls: 80, phoneCalls: 79 },
+    { date: "2026-10-31", change: "hall interior widened to x +/-1.64 (same vertex count); nook downlight point light replaced by a ceiling halo mesh (no extra scene light, +8 vertices, +1 mesh); TV and downlights forced on in the nook view", vertices: 67165, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
   ]),
 });
 

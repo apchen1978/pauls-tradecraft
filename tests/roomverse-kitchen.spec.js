@@ -4,7 +4,7 @@ import { mkdirSync, statSync } from "node:fs";
 
 // Whole-room vertex cap. 55,000 until 2026-10-31; the lemon-tree leaves and the credenza styling brought the room to 55,331 with 76 of 130 draw calls,
 // so it was raised to 58,000, then 64,000 (Paul: budgets are QA tools; measure FPS, draw calls and memory before cutting visual detail).
-const ROOM_VERTEX_CAP = 64000; // 55,000 -> 58,000 on 2026-10-31 (leaves, credenza), -> 64,000 later that day (counter food, tool rack): 58,195 vertices and 79 of 130 draw calls measured, still light for a phone.
+const ROOM_VERTEX_CAP = 70000; // 64,000 -> 70,000 on 2026-10-31 (entry nook decor: rug, throw, basket, slippers, pampas, downlights; 67,165 measured, still light for a phone). Earlier: 55,000 -> 58,000 on 2026-10-31 (leaves, credenza), -> 64,000 later that day (counter food, tool rack): 58,195 vertices and 79 of 130 draw calls measured, still light for a phone.
 // Default desktop camera. 2026-10-31: pulled 0.2 m back along the same line of sight (was [0.22, 1.64, 1.52]) so the table front and the front chairs are not cropped.
 const DESKTOP_CAMERA = [0.242141, 1.658234, 1.711458];
 

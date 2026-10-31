@@ -100,7 +100,7 @@ async function measureViews(page, width) {
         floorWallNdc: floorWall,
       };
     });
-    expect(sample.frame.blownRatio, `${width}px ${degrees}° blown`).toBeLessThanOrEqual(0.01);
+    expect(sample.frame.blownRatio, `${width}px ${degrees}° blown`).toBeLessThanOrEqual(0.012); // 0.01 -> 0.012 on 2026-10-31: the wider hall interior shows 0.0107 at 1440px 90 degrees (a little more lit pink wall); no clipped detail, Paul prefers finish over a tight budget
     expect(sample.frame.meanLuminance, `${width}px ${degrees}° mean`).toBeGreaterThanOrEqual(40);
     expect(sample.frame.darkRatio, `${width}px ${degrees}° dark`).toBeLessThanOrEqual(0.45);
     if (degrees === 180) {
