@@ -5377,7 +5377,7 @@ export async function start({ stage, onReady = () => {} }) {
   // hall's side wall. The view now stands 2.6 m back (still inside the main room, looking through the opening), with the whole print, board, totes, key
   // shelf and TV in frame and the orbit held to +/-0.12 rad and 2.2-2.9 m. Paul 2026-11-01: the panel end is hidden by the side wall itself now, so the
   // view can come closer than 2.8 m, and it walks in over 0.9 s instead of jumping there.
-  const NOOK_VIEW = { target: [0.35, 1.44, 3.74], position: [0.40, 1.50, 1.14], azimuthHalfRange: 0.12, minDistance: 2.2, maxDistance: 2.9, halfHfovDeg: 30, minFov: 46 };
+  const NOOK_VIEW = { target: [0.35, 1.44, 3.74], position: [0.40, 1.50, 1.14], azimuthHalfRange: 0.12, minDistance: 2.2, maxDistance: 2.9, halfHfovDeg: 30, minFov: 46, rotateSpeed: 0.4, zoomSpeed: 0.65 };
   const nookFov = (aspect) => Math.min(compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov, Math.max(NOOK_VIEW.minFov, 2 * Math.atan(Math.tan(NOOK_VIEW.halfHfovDeg * Math.PI / 360 * 2) / aspect) * 180 / Math.PI));
   let nookSaved = null;
   let nookTween = null;
@@ -5389,7 +5389,7 @@ export async function start({ stage, onReady = () => {} }) {
     const haloMaterial = nookDecor.halo.material, haloOpacity = haloMaterial.opacity, lensIntensity = nookDecor.lensMaterial.emissiveIntensity;
     const start = performance.now();
     const step = (now) => {
-      const k = Math.min(1, (now - start) / 380);
+      const k = Math.min(1, (now - start) / 500);
       screenMaterial.color.copy(litColour).multiplyScalar(0.18 + 0.82 * k);
       haloMaterial.opacity = haloOpacity * k;
       nookDecor.lensMaterial.emissiveIntensity = lensIntensity * k;
@@ -5400,7 +5400,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   function tweenNook(fromPosition, fromTarget, fromFov, toPosition, toTarget, toFov, onDone) {
     if (nookTween) cancelAnimationFrame(nookTween);
-    const start = performance.now(), duration = 900;
+    const start = performance.now(), duration = 1150;
     const fromPositionV = fromPosition.clone(), fromTargetV = fromTarget.clone(), toPositionV = toPosition.clone(), toTargetV = toTarget.clone();
     const step = (now) => {
       const k = easeInOutCubic(Math.min(1, (now - start) / duration));
@@ -5420,8 +5420,10 @@ export async function start({ stage, onReady = () => {} }) {
     if (on === Boolean(nookSaved)) return;
     if (on) {
       if (centerView) setCenterView(false);
-      nookSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance };
+      nookSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance, rotateSpeed: controls.rotateSpeed, zoomSpeed: controls.zoomSpeed };
       controls.minDistance = NOOK_VIEW.minDistance; controls.maxDistance = NOOK_VIEW.maxDistance;
+      // Paul 2026-11-01: a slow, deliberate orbit feels like standing in the room; the room's default speed is for the big orbit.
+      controls.rotateSpeed = NOOK_VIEW.rotateSpeed; controls.zoomSpeed = NOOK_VIEW.zoomSpeed;
       controls.minAzimuthAngle = Math.PI - NOOK_VIEW.azimuthHalfRange;
       controls.maxAzimuthAngle = -Math.PI + NOOK_VIEW.azimuthHalfRange;
       tweenNook(
@@ -5440,6 +5442,7 @@ export async function start({ stage, onReady = () => {} }) {
       camera.updateProjectionMatrix();
       controls.minAzimuthAngle = saved.minAzimuth; controls.maxAzimuthAngle = saved.maxAzimuth;
       controls.minDistance = saved.minDistance; controls.maxDistance = saved.maxDistance;
+      controls.rotateSpeed = saved.rotateSpeed; controls.zoomSpeed = saved.zoomSpeed;
       nookSaved = null;
       controls.update(); setMood(currentMood); render();
     }

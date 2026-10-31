@@ -52,10 +52,13 @@ for (const width of [1280, 390]) {
         keyShelf: e.shelf.center, tvEdge: [-0.15, 1.0, 3.70], printTopRight: [1.665, 2.385, 3.72],
       };
       const ndc = Object.fromEntries(Object.entries(pts).map(([k, p]) => { const v = r.camera.position.clone().set(...p).project(r.camera); return [k, [v.x, v.y, v.z]]; }));
-      return { info: r.nookViewInfo(), cam: r.camera.position.toArray(), target: r.controls.target.toArray(), ndc, vertices: i.vertices, meshes: i.meshes, center: r.centerViewInfo(), tvCutHidden: r.nookTvCutHidden() };
+      return { info: r.nookViewInfo(), cam: r.camera.position.toArray(), target: r.controls.target.toArray(), ndc, vertices: i.vertices, meshes: i.meshes, center: r.centerViewInfo(), tvCutHidden: r.nookTvCutHidden(), rotateSpeed: r.controls.rotateSpeed, zoomSpeed: r.controls.zoomSpeed };
     });
     expect(view.info).not.toBeNull();
     expect(view.center).toBeNull();
+    // Paul 2026-11-01: a slower orbit in the closer view reads like standing in the room instead of spinning a turntable.
+    expect(view.rotateSpeed, "nook orbit is slowed to 0.4x").toBeCloseTo(0.4, 5);
+    expect(view.zoomSpeed, "nook dolly is slowed to 0.65x").toBeCloseTo(0.65, 5);
     for (let k = 0; k < 3; k++) expect(Math.abs(view.cam[k] - view.info.position[k]), `camera axis ${k}`).toBeLessThan(0.02);
     for (let k = 0; k < 3; k++) expect(Math.abs(view.target[k] - view.info.target[k]), `target axis ${k}`).toBeLessThan(0.001);
     const wallDistance = 3.74 - view.cam[2];
@@ -117,11 +120,13 @@ test("the nook view is labelled in English, leaves cleanly to the other views, a
   // Nook -> entry wall restores the room orbit (target, limits), then turns to 180 degrees as before.
   await plaque.click();
   await settleNook(page);
-  const after = await page.evaluate(() => ({ nook: window.__room03.nookViewInfo(), target: window.__room03.controls.target.toArray(), min: window.__room03.controls.minDistance, az: [window.__room03.controls.minAzimuthAngle, window.__room03.controls.maxAzimuthAngle], azimuth: window.__room03.controls.getAzimuthalAngle() }));
+  const after = await page.evaluate(() => ({ nook: window.__room03.nookViewInfo(), target: window.__room03.controls.target.toArray(), min: window.__room03.controls.minDistance, az: [window.__room03.controls.minAzimuthAngle, window.__room03.controls.maxAzimuthAngle], azimuth: window.__room03.controls.getAzimuthalAngle(), rotateSpeed: window.__room03.controls.rotateSpeed, zoomSpeed: window.__room03.controls.zoomSpeed }));
   expect(after.nook).toBeNull();
   expect(after.target).toEqual(initial.target);
   expect(after.min).toBe(initial.min);
   expect(after.az).toEqual(initial.az);
+  expect(after.rotateSpeed, "the room keeps its own orbit speed after leaving the nook").toBeCloseTo(1, 5);
+  expect(after.zoomSpeed).toBeCloseTo(1, 5);
   expect(Math.abs(Math.abs(after.azimuth) - Math.PI)).toBeLessThan(0.05);
   // Nook -> standing view works too, and back to orbit restores the orbit from before the nook.
   await nook.click();
