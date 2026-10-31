@@ -14,6 +14,12 @@ async function loadRoom(page, width, lang = "zh") {
   await page.waitForFunction(() => window.__room03.info().drawCallsLastFrame > 0);
 }
 
+async function settleNook(page) {
+  // Paul 2026-11-01: the nook view now walks in over 0.9 s instead of jumping; wait for the tween before measuring.
+  await page.waitForFunction(() => !window.__room03.nookAnimating(), null, { timeout: 10000 });
+  await page.waitForTimeout(80);
+}
+
 // The nook camera must stay in the main room: in front of the front-wall face (z 2.34), inside the nook opening's x span (side walls at
 // x +/-0.94), below the lintel (y 2.1) and above the floor.
 function expectClearOfWalls(cam, label) {
@@ -36,24 +42,29 @@ for (const width of [1280, 390]) {
     await expect(button).toHaveText("走近小角落");
     expect((await button.boundingBox()).height).toBeGreaterThanOrEqual(44);
     await button.click();
+    await settleNook(page);
     const view = await page.evaluate(() => {
       const r = window.__room03; const i = r.info();
       const e = i.entryWallDetails;
       const pts = {
         boardLeft: [e.corkboard.minX + 0.02, e.corkboard.center[1], 3.73], boardRight: [e.corkboard.maxX - 0.02, e.corkboard.center[1], 3.73],
         toteNatural: [(e.tote.minX + e.tote.maxX) / 2, (e.tote.bottomY + e.tote.topY) / 2, 3.72], toteRed: [(e.redTote.minX + e.redTote.maxX) / 2, (e.redTote.bottomY + e.redTote.topY) / 2, 3.72],
-        keyShelf: e.shelf.center, tvEdge: [-0.15, 1.0, 3.70],
+        keyShelf: e.shelf.center, tvEdge: [-0.15, 1.0, 3.70], printTopRight: [1.665, 2.385, 3.72],
       };
       const ndc = Object.fromEntries(Object.entries(pts).map(([k, p]) => { const v = r.camera.position.clone().set(...p).project(r.camera); return [k, [v.x, v.y, v.z]]; }));
-      return { info: r.nookViewInfo(), cam: r.camera.position.toArray(), target: r.controls.target.toArray(), ndc, vertices: i.vertices, meshes: i.meshes, center: r.centerViewInfo() };
+      return { info: r.nookViewInfo(), cam: r.camera.position.toArray(), target: r.controls.target.toArray(), ndc, vertices: i.vertices, meshes: i.meshes, center: r.centerViewInfo(), tvCutHidden: r.nookTvCutHidden(), rotateSpeed: r.controls.rotateSpeed, zoomSpeed: r.controls.zoomSpeed };
     });
     expect(view.info).not.toBeNull();
     expect(view.center).toBeNull();
+    // Paul 2026-11-01: a slower orbit in the closer view reads like standing in the room instead of spinning a turntable.
+    expect(view.rotateSpeed, "nook orbit is slowed to 0.4x").toBeCloseTo(0.4, 5);
+    expect(view.zoomSpeed, "nook dolly is slowed to 0.65x").toBeCloseTo(0.65, 5);
     for (let k = 0; k < 3; k++) expect(Math.abs(view.cam[k] - view.info.position[k]), `camera axis ${k}`).toBeLessThan(0.02);
     for (let k = 0; k < 3; k++) expect(Math.abs(view.target[k] - view.info.target[k]), `target axis ${k}`).toBeLessThan(0.001);
     const wallDistance = 3.74 - view.cam[2];
-    expect(wallDistance, "2.6-3.2 m from the entry wall: far enough that the whole redwood print and the TV read naturally").toBeGreaterThanOrEqual(2.6);
-    expect(wallDistance).toBeLessThanOrEqual(3.2);
+    expect(wallDistance, "2.4-2.8 m from the entry wall: closer than the first pulled-back view, now that the panel end hides behind the side wall").toBeGreaterThanOrEqual(2.4);
+    expect(wallDistance).toBeLessThanOrEqual(2.8);
+    expect(view.tvCutHidden, "the end of the wide panel stays behind the hall's side wall").toBe(true);
     expect(view.cam[1], "natural eye height").toBeGreaterThanOrEqual(1.3);
     expect(view.cam[1]).toBeLessThanOrEqual(1.6);
     expectClearOfWalls(view.cam, "preset");
@@ -102,20 +113,26 @@ test("the nook view is labelled in English, leaves cleanly to the other views, a
   await center.click();
   await expect(center).toHaveAttribute("aria-pressed", "true");
   await nook.click();
+  await settleNook(page);
   await expect(center).toHaveAttribute("aria-pressed", "false");
   expect(await page.evaluate(() => window.__room03.centerViewInfo())).toBeNull();
   expect(await page.evaluate(() => window.__room03.nookViewInfo())).not.toBeNull();
   // Nook -> entry wall restores the room orbit (target, limits), then turns to 180 degrees as before.
   await plaque.click();
-  const after = await page.evaluate(() => ({ nook: window.__room03.nookViewInfo(), target: window.__room03.controls.target.toArray(), min: window.__room03.controls.minDistance, az: [window.__room03.controls.minAzimuthAngle, window.__room03.controls.maxAzimuthAngle], azimuth: window.__room03.controls.getAzimuthalAngle() }));
+  await settleNook(page);
+  const after = await page.evaluate(() => ({ nook: window.__room03.nookViewInfo(), target: window.__room03.controls.target.toArray(), min: window.__room03.controls.minDistance, az: [window.__room03.controls.minAzimuthAngle, window.__room03.controls.maxAzimuthAngle], azimuth: window.__room03.controls.getAzimuthalAngle(), rotateSpeed: window.__room03.controls.rotateSpeed, zoomSpeed: window.__room03.controls.zoomSpeed }));
   expect(after.nook).toBeNull();
   expect(after.target).toEqual(initial.target);
   expect(after.min).toBe(initial.min);
   expect(after.az).toEqual(initial.az);
+  expect(after.rotateSpeed, "the room keeps its own orbit speed after leaving the nook").toBeCloseTo(1, 5);
+  expect(after.zoomSpeed).toBeCloseTo(1, 5);
   expect(Math.abs(Math.abs(after.azimuth) - Math.PI)).toBeLessThan(0.05);
   // Nook -> standing view works too, and back to orbit restores the orbit from before the nook.
   await nook.click();
+  await settleNook(page);
   await center.click();
+  await settleNook(page);
   expect(await page.evaluate(() => window.__room03.nookViewInfo())).toBeNull();
   expect(await page.evaluate(() => window.__room03.centerViewInfo())).not.toBeNull();
   await center.click();
@@ -142,6 +159,7 @@ test("the nook view always shows a lit TV and lit downlights, and the whole TV s
     const before = await state();
     expect(before.screen.map, `${mood}: the TV is dark outside the nook view`).toBe(false);
     await page.locator("#nookView").click();
+    await settleNook(page);
     const inside = await page.evaluate(() => {
       const r = window.__room03, i = r.info();
       const tvEdges = [[-1.262, 0.78, 3.70], [-0.038, 0.78, 3.70], [-1.262, 1.48, 3.70], [-0.038, 1.48, 3.70]];
@@ -151,6 +169,43 @@ test("the nook view always shows a lit TV and lit downlights, and the whole TV s
     expect(inside.screen.asset).toBe("screen-movie-city-night-v1");
     expect(inside.hallHalfWidth, "the TV ends inside the hall side wall (x -1.64), not in it").toBeGreaterThan(0.3);
     await page.evaluate(() => window.__room03.setNookView(false));
+    await settleNook(page);
     expect((await state()).screen.map, `${mood}: the TV goes dark again after leaving`).toBe(false);
   }
+});
+
+// Paul 2026-11-01: three things in the nook can be found by clicking them; the first visit gets a hint, and the stories follow the UI language.
+test("the nook view tells three small stories on click, in the reader's language", async ({ page }) => {
+  await loadRoom(page, 1280);
+  await page.locator("#nookView").click();
+  await settleNook(page);
+  const info = await page.evaluate(() => window.__room03.nookHotspotInfo());
+  expect(info.keys).toEqual(["totes", "corkboard", "keyShelf"]);
+  expect(info.hintShown, "the first visit shows where to look").toBe(true);
+  expect(info.caption, "the hint names the three things").toContain("點一下");
+  expect(info.tvCutHidden, "the panel end stays hidden while the stories are reachable").toBe(true);
+  const LINES = {
+    totes: "帆布袋掛在門邊，明天要帶去市場。",
+    corkboard: "軟木板上的蠟筆畫，是小姪女畫的。",
+    keyShelf: "鑰匙層板：回家先把鑰匙放下。",
+  };
+  for (const key of info.keys) {
+    const [x, y] = info.screen[key];
+    await page.mouse.click(x, y);
+    await expect.poll(() => page.evaluate(() => window.__room03.nookHotspotInfo().caption), { timeout: 3000 }).toBe(LINES[key]);
+    expect(await page.evaluate(() => window.__room03.nookHotspotInfo().visible)).toBe(true);
+  }
+  const caption = await page.evaluate(() => window.__room03.nookHotspotInfo().caption);
+  expect(caption.length, "one short line, not a paragraph").toBeLessThanOrEqual(34);
+  // Leaving the nook hides the line and stops the picking.
+  await page.locator("#plaqueView").click();
+  await settleNook(page);
+  expect(await page.evaluate(() => window.__room03.nookHotspotInfo().visible)).toBe(false);
+  // English follows the language switch.
+  await page.locator("#nookView").click();
+  await settleNook(page);
+  await page.locator("#lang").click();
+  const english = await page.evaluate(() => window.__room03.nookHotspotInfo());
+  await page.mouse.click(english.screen.totes[0], english.screen.totes[1]);
+  await expect.poll(() => page.evaluate(() => window.__room03.nookHotspotInfo().caption), { timeout: 3000 }).toContain("market");
 });
