@@ -16,8 +16,8 @@ for (const lang of ["zh", "en"]) {
       await expect(card.getByRole("heading", { level: 4 }).nth(1)).toContainText("Brooklyn Studio");
       await expect(card.getByRole("heading", { level: 4 }).nth(2)).toContainText("Bay Area Kitchen");
       await expect(card.getByText(lang === "zh" ? "目前開放三間房" : "Three rooms are open")).toBeVisible();
-      // Room 03 is still being furnished: the cover says so, and the card opens it straight from home.
-      await expect(card.getByText(lang === "zh" ? "施工中 · 歡迎先進來看看" : "Work in progress · come take a look")).toBeVisible();
+      // Paul 2026-10-31: Room 03 is finished, so it shows like the other rooms with no work-in-progress label; the card opens it straight from home.
+      await expect(card.getByText(lang === "zh" ? "施工中" : "Work in progress")).toHaveCount(0);
       await expect(card.getByRole("link", { name: lang === "zh" ? "走進廚房" : "Step into the kitchen" })).toHaveAttribute("href", `/prototype/roomverse-3d/kitchen/?from=home&lang=${lang}`);
       await card.scrollIntoViewIfNeeded();
       await page.waitForTimeout(500);
