@@ -479,7 +479,6 @@ const dict = {
             {
               no: "Room 03", name: "Bay Area Kitchen",
               desc: "灣區中世紀現代風的開放廚房與餐區：橡木餐桌、鼠尾草綠櫃體、通往小院的玻璃門。站進房間裡拖曳環顧一圈，再切換金色時光與夜晚。",
-              wip: "施工中 · 歡迎先進來看看",
               cta: "走進廚房", href: "/prototype/roomverse-3d/kitchen/?from=home",
               image: "/gallery/assets/roomverse-room03-bay-area-kitchen-concept-mobile.webp",
               imageAlt: "灣區風格的開放廚房概念畫：鼠尾草綠櫃體與赤陶紅鍋，橡木餐桌，窗邊的圓背椅和琴葉榕，落地窗外是小庭院。",
@@ -1439,7 +1438,6 @@ const dict = {
             {
               no: "Room 03", name: "Bay Area Kitchen",
               desc: "An open kitchen and dining room inspired by Bay Area mid-century modern homes: an oak table, sage-green cabinets and glass doors to a small garden. Stand inside and drag to look all the way around, then switch between golden hour and night.",
-              wip: "Work in progress · come take a look",
               cta: "Step into the kitchen", href: "/prototype/roomverse-3d/kitchen/?from=home",
               image: "/gallery/assets/roomverse-room03-bay-area-kitchen-concept-mobile.webp",
               imageAlt: "A Bay Area open-kitchen concept painting: sage-green cabinets and a terracotta pot, an oak dining table, a round-back chair and a fiddle-leaf fig by the window, and a small garden through the glass doors.",
