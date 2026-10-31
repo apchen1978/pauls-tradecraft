@@ -6,6 +6,7 @@
 import * as THREE from "./vendor/three.module.min.js"; // three.js r160 (MIT), self-hosted: the site loads nothing from other hosts
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
+import { mergeGeometries } from "./vendor/BufferGeometryUtils.js";
 
 export const TEXT = {
   zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", previewTitle: "明信片已準備好", previewLongPress: "長按圖片即可儲存到相簿", previewOpenBrowser: "或點右上角「⋯」選「在瀏覽器開啟」後再按存成明信片", previewClose: "關閉明信片預覽", previewAlt: "ROOMVERSE 3D 明信片", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
@@ -1576,6 +1577,167 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   coupletShadow.receiveShadow = false;
   couplet.add(coupletShadow);
 
+  // Low oak sideboard on the left wall under the harbour painting (Paul 2026-10-31: the TV console is full, so the mug and a bulk napkin pack
+  // get their own spot). Warm oak like the TV console, two flat doors with a 3 mm reveal and small brass pulls, a top that overhangs 15 mm with a
+  // softened edge, and a plinth recessed 30 mm. The carcass back rests on the 20 mm skirting face; the top, above the skirting, reaches the
+  // plaster (0.5 mm in). The plinth sinks 2 mm into the floor. Four merged meshes: oak, gilded pulls, the mug and pack, and the vitamin bottle.
+  const SIDEBOARD = Object.freeze({ wallX: -W / 2, backX: -W / 2 + .02, depth: .35, z0: .50, z1: 1.42, height: .68, top: .024, overhang: .015, plinthH: .06, plinthInset: .03, floorEmbed: .002, wallEmbed: .0005, reveal: .003, door: .018 });
+  const sideboard = (() => {
+    const S = SIDEBOARD, len = S.z1 - S.z0, zc = (S.z0 + S.z1) / 2;
+    const frontX = S.backX + S.depth - S.overhang; // carcass front; the top and the doors reach past it
+    const grain = canvasTex(256, 256, (ctx, w, h) => {
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, w, h);
+      for (let k = 0; k < 70; k++) {
+        const y = (k * 37.3) % h, a = .025 + ((k * 7919) % 13) / 260;
+        ctx.strokeStyle = `rgba(110,72,36,${a})`; ctx.lineWidth = 1 + (k % 3);
+        ctx.beginPath(); ctx.moveTo(0, y);
+        for (let x = 0; x <= w; x += 16) ctx.lineTo(x, y + Math.sin(x * .03 + k) * 2.4 + Math.sin(x * .011 + k * 3) * 3);
+        ctx.stroke();
+      }
+    });
+    grain.wrapS = grain.wrapT = THREE.RepeatWrapping;
+    const tint = (geometry, hex) => {
+      const c = new THREE.Color(hex), n = geometry.attributes.position.count, a = new Float32Array(n * 3);
+      for (let k = 0; k < n; k++) c.toArray(a, k * 3);
+      geometry.setAttribute("color", new THREE.Float32BufferAttribute(a, 3)); return geometry;
+    };
+    const box = (sx, sy, sz, x, y, z, hex) => { const g = tint(new THREE.BoxGeometry(sx, sy, sz), hex); g.translate(x, y, z); return g; };
+    const oakParts = [];
+    // Plinth: recessed on the front and both ends, 2 mm into the floor.
+    const plinthBack = S.backX + .01;
+    oakParts.push(box(frontX - S.plinthInset - plinthBack, S.plinthH + S.floorEmbed, len - 2 * S.plinthInset - .02, (plinthBack + frontX - S.plinthInset) / 2, (S.plinthH - S.floorEmbed) / 2, zc, 0x8f6c47));
+    // Carcass (sides, back and the dark shadow line behind the door reveals), sitting on the plinth.
+    const carcassTop = S.height - S.top;
+    oakParts.push(box(frontX - S.backX, carcassTop - S.plinthH, len - .02, (S.backX + frontX) / 2, (S.plinthH + carcassTop) / 2, zc, 0xb48f63));
+    oakParts.push(box(.002, carcassTop - S.plinthH - .01, len - .03, frontX + .001, (S.plinthH + carcassTop) / 2, zc, 0x5d4128));
+    // Top: a rounded-rectangle slab (4 mm bevel) from the plaster to 15 mm past the doors.
+    {
+      const tx0 = S.wallX - S.wallEmbed, tx1 = frontX + S.door + S.overhang, bevel = .004;
+      const shape = new THREE.Shape(), r = .01, w = tx1 - tx0, d = len;
+      shape.moveTo(0, 0); shape.lineTo(w - r, 0); shape.quadraticCurveTo(w, 0, w, r); shape.lineTo(w, d - r); shape.quadraticCurveTo(w, d, w - r, d); shape.lineTo(0, d); shape.lineTo(0, 0);
+      const top = new THREE.ExtrudeGeometry(shape, { depth: S.top - 2 * bevel, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel * .75, bevelSegments: 3, curveSegments: 6 });
+      top.rotateX(Math.PI / 2); // shape y -> z, extrusion -> -y
+      top.computeBoundingBox();
+      top.translate(tx0 - top.boundingBox.min.x, S.height - top.boundingBox.max.y, S.z0 - top.boundingBox.min.z);
+      const uv = top.attributes.uv; for (let k = 0; k < uv.count; k++) uv.setXY(k, uv.getX(k) * 2.2, uv.getY(k) * 2.2);
+      oakParts.push(tint(top, 0xc49a68));
+    }
+    // Two flat doors with a 3 mm reveal between them and around them; the right door's grain runs a touch darker so they do not read as one slab.
+    const doorW = (len - .02 - 3 * S.reveal) / 2, doorY0 = S.plinthH + S.reveal, doorY1 = carcassTop - S.reveal;
+    const doors = [];
+    for (const k of [0, 1]) {
+      const z = S.z0 + .01 + S.reveal + doorW / 2 + k * (doorW + S.reveal);
+      const g = box(S.door, doorY1 - doorY0, doorW, frontX + S.door / 2, (doorY0 + doorY1) / 2, z, k ? 0xbd956a : 0xc39c70);
+      const uv = g.attributes.uv; for (let q = 0; q < uv.count; q++) uv.setXY(q, uv.getX(q) * 1.6 + k * .37, uv.getY(q) * 1.1);
+      oakParts.push(g); doors.push(z);
+    }
+    const oakGeometry = mergeGeometries(oakParts.map((g) => g.index ? g.toNonIndexed() : g), false); oakParts.forEach((g) => g.dispose());
+    const oak = new THREE.Mesh(oakGeometry, new THREE.MeshStandardMaterial({ map: grain, vertexColors: true, roughness: .74 }));
+    oak.name = "left-sideboard"; oak.castShadow = true; oak.receiveShadow = true; scene.add(oak);
+    // Small brass bar pulls, vertical, near the meeting reveal; each sinks 1 mm into its door.
+    const pullParts = [];
+    for (const [k, z] of doors.entries()) {
+      const pz = z + (k ? -1 : 1) * (doorW / 2 - .045);
+      const bar = new THREE.CylinderGeometry(.0045, .0045, .07, 10); bar.translate(frontX + S.door + .014, carcassTop - .1, pz); pullParts.push(bar);
+      for (const dy of [-.028, .028]) { const post = new THREE.CylinderGeometry(.003, .003, .016, 8); post.rotateZ(Math.PI / 2); post.translate(frontX + S.door + .007 - .001, carcassTop - .1 + dy, pz); pullParts.push(post); }
+    }
+    // Gilded pulls (Paul 2026-10-31): warm bright gold, near-full metalness, low roughness so they catch the painting light. The room has no
+    // environment map, so a faint warm emissive keeps the metal from reading black where no light hits it.
+    const pulls = new THREE.Mesh(mergeGeometries(pullParts, false), new THREE.MeshStandardMaterial({ color: "#f2c862", metalness: .95, roughness: .24, emissive: "#8a6018", emissiveIntensity: .45 }));
+    pullParts.forEach((g) => g.dispose());
+    pulls.name = "left-sideboard-pulls"; pulls.castShadow = true; scene.add(pulls);
+    // Props, seated by a downward ray on the real top: the generic mug (Room 03's MUG profile, sage glaze, no logo) and the napkin pack.
+    oak.updateMatrixWorld(true);
+    const ray = new THREE.Raycaster();
+    const topAt = (x, z) => { ray.set(new THREE.Vector3(x, 2, z), new THREE.Vector3(0, -1, 0)); const hit = ray.intersectObject(oak, false)[0]; if (!hit) throw new Error("sideboard top not found"); return hit.point.y; };
+    const propParts = [];
+    const MUG = { radius: .040, profile: [[0, .006], [.0365, .007], [.0365, .093], [.0372, .0948], [.0388, .0952], [.0399, .0935], [.040, .010], [.0395, .004], [.037, 0], [0, 0]] };
+    const mugAt = { x: -2.39, z: .80 };
+    const mugY = topAt(mugAt.x, mugAt.z);
+    {
+      const body = new THREE.LatheGeometry(MUG.profile.map(([r, y]) => new THREE.Vector2(r, y)), 32);
+      const pos = body.attributes.position, col = new Float32Array(pos.count * 3), c = new THREE.Color();
+      for (let k = 0; k < pos.count; k++) { const y = pos.getY(k), rad = Math.hypot(pos.getX(k), pos.getZ(k)); c.set(rad < .0366 && y > .0065 ? 0xe9e3d3 : y < .009 ? 0xd8cfbd : 0x93a487); col.set([c.r, c.g, c.b], k * 3); }
+      body.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+      body.translate(mugAt.x, mugY, mugAt.z); propParts.push(body);
+      // Half-ring handle on the side away from the pack, toward the room; both ends sink 2 mm into the wall of the mug.
+      const handle = tint(new THREE.TorusGeometry(.026, .0055, 8, 20, Math.PI), 0x93a487);
+      const handleYaw = -.7; // direction (cos, 0, -sin): +x is into the room, -z toward the near end
+      handle.rotateZ(-Math.PI / 2); handle.rotateY(handleYaw);
+      handle.translate(mugAt.x + Math.cos(handleYaw) * (MUG.radius - .002), mugY + .052, mugAt.z - Math.sin(handleYaw) * (MUG.radius - .002));
+      propParts.push(handle);
+    }
+    // Bulk paper-napkin pack (same build as Room 03's): white soft plastic over a stack, 190 x 105 mm, a red band, an unreadable label block,
+    // slightly squashed with pinched ends. No brand or logo.
+    const packAt = { x: -2.45, z: 1.15, yaw: .38 };
+    const packY = topAt(packAt.x, packAt.z);
+    {
+      const pack = new THREE.BoxGeometry(.19, .074, .105, 16, 6, 10);
+      const pp = pack.attributes.position, col = new Float32Array(pp.count * 3), c = new THREE.Color();
+      for (let k = 0; k < pp.count; k++) {
+        const x = pp.getX(k), y = pp.getY(k), z = pp.getZ(k);
+        const u = x / .095, v = (y + .037) / .074, w = z / .0525;
+        const bulge = Math.sin(Math.PI * Math.min(1, v * 1.05)) * (1 - u * u * .6);
+        const pinch = Math.max(0, Math.abs(u) - .86) / .14;
+        const nz = z * (1 + .06 * bulge) * (1 - .10 * pinch);
+        const ny = (y + .037) * (1 - .06 * pinch) * (1 + .035 * (1 - w * w) * (1 - u * u)) + .0012 * Math.sin(x * 140 + z * 60) * v * v;
+        pp.setXYZ(k, x * (1 - .02 * v * v), ny, nz);
+        const n = Math.abs(Math.sin(x * 191.3 + y * 83.7 + z * 151.1) * 43758.5453) % 1;
+        if (Math.abs(x) < .034) c.set(0xb0242b); else c.set(n > .85 ? 0xdfe0dc : 0xf2f1eb);
+        if (Math.abs(x) < .024 && z > .045 && ny > .022 && ny < .052) c.set(Math.sin(x * 900) > .6 && ny > .034 ? 0x6e1a20 : 0xeee3cf);
+        col.set([c.r, c.g, c.b], k * 3);
+      }
+      pack.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+      pack.rotateY(Math.PI / 2 + packAt.yaw); // long side runs along the wall, turned a little
+      pack.computeBoundingBox();
+      pack.translate(packAt.x, packY - pack.boundingBox.min.y, packAt.z);
+      propParts.push(pack);
+    }
+    // Generic vitamin bottle beside the mug (Paul's photo, 2026-10-31): white HDPE, 55 mm across, a ribbed white screw cap 60 x 25 mm, 105 mm
+    // overall. Wrap label: white with bold red bands top and bottom and a big red block in the middle. No words, brand or logo.
+    const bottleAt = { x: -2.46, z: .67, yaw: -.35 };
+    const bottleY = topAt(bottleAt.x, bottleAt.z);
+    const bottleParts = [];
+    const labelTex = canvasTex(256, 128, (ctx, w, h) => {
+      ctx.fillStyle = "#f7f6f1"; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#d9262b"; ctx.fillRect(0, 0, w, 20); ctx.fillRect(0, h - 22, w, 22);
+      // The front block sits at u 0.25..0.5 (faces the room after the yaw); a rounded slab and a small cross, shapes only.
+      const bx = w * .26, by = 34, bw = w * .15, bh = 58;
+      ctx.beginPath(); ctx.roundRect(bx, by, bw * 1.05, bh, 9); ctx.fill(); // a plain heavy block, not a letter
+      ctx.fillRect(bx + bw * 1.2, by + 4, bw * .42, 9); ctx.fillRect(bx + bw * 1.36, by - 6, 9, 30);
+      ctx.fillStyle = "rgba(60,40,40,.35)"; ctx.fillRect(bx, by + bh + 8, bw * 1.5, 4); ctx.fillRect(bx, by + bh + 15, bw * 1.1, 3);
+    });
+    {
+      // Body: flat base, 27.5 mm radius wall with a soft heel, rounded shoulder into a 22 mm neck. v runs with height so the label maps flat.
+      const prof = [[0, 0], [.024, 0], [.0272, .003], [.0275, .008], [.0275, .0119], [.0275, .012], ...[.016, .020, .024, .028, .032, .036, .040, .044, .048, .052, .056, .060, .064].map((y) => [.0275, y]), [.0275, .068], [.0275, .0681], [.0275, .070], [.0268, .076], [.0245, .080], [.0225, .082], [.0222, .086], [0, .086]];
+      const body = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(r, y)), 40);
+      const pos = body.attributes.position, uv = body.attributes.uv;
+      for (let k = 0; k < pos.count; k++) { const y = pos.getY(k); uv.setY(k, THREE.MathUtils.clamp((y - .012) / (.068 - .012), 0, 1) * .98 + .01); if (y < .012 || y > .068) uv.setXY(k, .97, .5); }
+      bottleParts.push(body);
+      // Cap: 30 mm radius, 25 mm tall, fine vertical ribs, a slightly domed top; it sits over the neck (1 mm overlap).
+      const capProf = [[.0222, .081], [.030, .081], [.0302, .083], [.0302, .1035], [.0295, .105], [.012, .1055], [0, .1056]];
+      const cap = new THREE.LatheGeometry(capProf.map(([r, y]) => new THREE.Vector2(r, y)), 96);
+      const cp = cap.attributes.position;
+      for (let k = 0; k < cp.count; k++) { const x = cp.getX(k), z = cp.getZ(k), y = cp.getY(k), r = Math.hypot(x, z); if (r > .0299 && y > .0835 && y < .103) { const a = Math.atan2(z, x), f = 1 + .025 * (Math.cos(a * 48) > 0 ? 1 : 0); cp.setXYZ(k, x * f, y, z * f); } }
+      const cuv = cap.attributes.uv; for (let k = 0; k < cuv.count; k++) cuv.setXY(k, .97, .5);
+      bottleParts.push(cap);
+    }
+    const bottleGeometry = mergeGeometries(bottleParts.map((g) => g.index ? g.toNonIndexed() : g), false);
+    bottleParts.forEach((g) => g.dispose());
+    bottleGeometry.computeVertexNormals();
+    bottleGeometry.rotateY(bottleAt.yaw);
+    bottleGeometry.translate(bottleAt.x, bottleY, bottleAt.z);
+    const bottle = new THREE.Mesh(bottleGeometry, new THREE.MeshStandardMaterial({ map: labelTex, color: "#ffffff", roughness: .42 }));
+    bottle.name = "left-sideboard-supplement"; bottle.castShadow = true; bottle.receiveShadow = true; scene.add(bottle);
+    for (const g of propParts) { if (!g.attributes.uv) continue; g.deleteAttribute("uv"); }
+    for (const g of propParts) if (g.attributes.normal) g.deleteAttribute("normal");
+    const propGeometry = mergeGeometries(propParts.map((g) => g.index ? g.toNonIndexed() : g), false);
+    propGeometry.computeVertexNormals();
+    const props = new THREE.Mesh(propGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .5 }));
+    props.name = "left-sideboard-props"; props.castShadow = true; props.receiveShadow = true; scene.add(props);
+    return { oak, pulls, props, bottle, bottleAt, mugAt, mugY, packAt, packY, mugRadius: MUG.radius };
+  })();
+
   // ---------- state + panel ----------
   const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
   robotBubble = document.getElementById("robotBubble");
@@ -2909,6 +3071,40 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       requestAnimationFrame(() => requestAnimationFrame(loadWhenIdle));
     },
     postcard, // used by tests: returns the postcard canvas
+    sideboardDetails() { // local QA only: floor/wall contact, props on the top, clearances (mm)
+      scene.updateMatrixWorld(true);
+      const S = SIDEBOARD, bb = (o) => new THREE.Box3().setFromObject(o);
+      const oakBox = bb(sideboard.oak), propBox = bb(sideboard.props).union(bb(sideboard.bottle)), ray = new THREE.Raycaster();
+      const topY = (x, z) => { ray.set(new THREE.Vector3(x, 2, z), new THREE.Vector3(0, -1, 0)); return ray.intersectObject(sideboard.oak, false)[0]?.point.y ?? null; };
+      const lowest = (geometry, test) => { const p = geometry.attributes.position; let y = Infinity; for (let k = 0; k < p.count; k++) if (test(p.getX(k), p.getZ(k))) y = Math.min(y, p.getY(k)); return y; };
+      const g = sideboard.props.geometry;
+      const mugBase = lowest(g, (x, z) => Math.hypot(x - sideboard.mugAt.x, z - sideboard.mugAt.z) < sideboard.mugRadius + .001);
+      const packBase = lowest(g, (x, z) => Math.hypot(x - sideboard.packAt.x, z - sideboard.packAt.z) < .11);
+      const mm = (v) => Number((v * 1000).toFixed(2));
+      const bottleBox = bb(sideboard.bottle), bottleBase = bottleBox.min.y;
+      // Horizontal clearances from the bottle's cap circle (30 mm) to the mug (body 40 mm + handle) and to the pack's footprint box.
+      const propPts = sideboard.props.geometry.attributes.position;
+      let mugGap = Infinity, packGap = Infinity;
+      for (let k = 0; k < propPts.count; k++) {
+        const x = propPts.getX(k), z = propPts.getZ(k), dist = Math.hypot(x - sideboard.bottleAt.x, z - sideboard.bottleAt.z) - .0306;
+        if (Math.hypot(x - sideboard.mugAt.x, z - sideboard.mugAt.z) < .09) mugGap = Math.min(mugGap, dist); else packGap = Math.min(packGap, dist);
+      }
+      const paintingBottom = leftWallArtPlace.y - leftPaintSize.h / 2 - leftFrameMargin / 2;
+      const stand = standGroup ? bb(standGroup) : null;
+      return {
+        bounds: { min: oakBox.min.toArray(), max: oakBox.max.toArray() }, props: { min: propBox.min.toArray(), max: propBox.max.toArray() },
+        floorEmbedMm: mm(-oakBox.min.y), plasterEmbedMm: mm(S.wallX - oakBox.min.x), carcassToSkirtingMm: mm(S.backX - (S.wallX + .02)),
+        heightMm: mm(oakBox.max.y), lengthMm: mm(oakBox.max.z - oakBox.min.z), depthMm: mm(oakBox.max.x - S.wallX),
+        mugSeatMm: mm(mugBase - topY(sideboard.mugAt.x, sideboard.mugAt.z)), packSeatMm: mm(packBase - topY(sideboard.packAt.x, sideboard.packAt.z)),
+        bottleSeatMm: mm(bottleBase - topY(sideboard.bottleAt.x, sideboard.bottleAt.z)), bottleSizeMm: [mm(bottleBox.max.x - bottleBox.min.x), mm(bottleBox.max.y - bottleBox.min.y)], bottleMugGapMm: mm(mugGap), bottlePackGapMm: mm(packGap),
+        pulls: { color: `#${sideboard.pulls.material.color.getHexString()}`, metalness: sideboard.pulls.material.metalness, roughness: sideboard.pulls.material.roughness },
+        propsInsideTop: propBox.min.x > oakBox.min.x && propBox.max.x < oakBox.max.x && propBox.min.z > oakBox.min.z && propBox.max.z < oakBox.max.z,
+        paintingClearMm: mm(paintingBottom - Math.max(oakBox.max.y, propBox.max.y)), paintingBottomY: paintingBottom,
+        standClearMm: stand ? mm(stand.min.z - Math.max(oakBox.max.z, propBox.max.z)) : null,
+        meshes: [sideboard.oak, sideboard.pulls, sideboard.props, sideboard.bottle].length,
+        vertices: [sideboard.oak, sideboard.pulls, sideboard.props, sideboard.bottle].reduce((n, m) => n + m.geometry.attributes.position.count, 0),
+      };
+    },
     rugMugDetails() { // local QA only: geometry, rug footprint, tabletop support and clearances
       scene.updateMatrixWorld(true);
       const box = (obj) => { const b = new THREE.Box3().setFromObject(obj); return { min: b.min.toArray(), max: b.max.toArray() }; };
