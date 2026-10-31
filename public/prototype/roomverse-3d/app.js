@@ -1297,6 +1297,128 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   }
   scene.add(screen); robotObj.attach(screen);
   scene.add(sofaObj, tableObj, lampObj, coffeeObj, tableLampObj, plantObj, chairObj, laptopObj, mugObj);
+  // ---------- lived-in details (Paul 2026-11-01: Room 01 reads emptier than Rooms 02/03) ----------
+  // Two additions only, both in the opening view: a folded throw over the sofa's left arm, and three small things on the side table.
+  // The throw follows the arm top measured with a downward ray every 3 cm, so it lies on the upholstery instead of floating; the props use
+  // the measured side-table top. No new lights (the room's light count stays 6, or 7 with the left gallery spot) and no new text.
+  const softTint = (geometry, hex) => {
+    const colour = new THREE.Color(hex), count = geometry.attributes.position.count, a = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) colour.toArray(a, i * 3);
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(a, 3));
+    return geometry;
+  };
+  const soft = { throwMesh: null, propMesh: null, throwInfo: null, propBounds: [], propInfo: [] };
+  {
+    // 1) a folded throw on the seat beside the rust cushion. Two attempts to drape it over the arm failed the same way: the arm's rounded
+    //    edge swallowed the cloth and only a thin strip showed. A folded stack on the seat reads as fabric from the front, sits in the table
+    //    lamp's pool of light, and is about 200 vertices.
+    const sofaBox = new THREE.Box3().setFromObject(sofaObj);
+    const seatX = sofaBox.max.x - .52, seatZ = sofaBox.max.z - .20;
+    const seatRay = new THREE.Raycaster(); seatRay.far = 3;
+    seatRay.set(new THREE.Vector3(seatX, sofaBox.max.y + .4, seatZ), new THREE.Vector3(0, -1, 0));
+    const seatHit = seatRay.intersectObject(sofaObj, true)[0];
+    const seatTop = seatHit ? seatHit.point.y : .42;
+    const throwParts = [];
+    [[0xb98a63, .34, .015, .44], [0xd9b98c, .325, .014, .425], [0xc9a87e, .31, .014, .41], [0xd9b98c, .295, .013, .395]].forEach(([hex, w, h, d], i) => {
+      const geometry = new THREE.BoxGeometry(w, h, d);
+      geometry.rotateY(.10 + (i % 2 ? -.05 : .02));
+      geometry.translate(seatX + (i % 2 ? .006 : -.005), seatTop + .0075 + i * .015, seatZ + (i % 2 ? .008 : -.007));
+      throwParts.push(softTint(geometry, hex));
+    });
+    const flapGeometry = new THREE.BoxGeometry(.28, .12, .016);
+    flapGeometry.rotateX(-.15); flapGeometry.rotateY(.10);
+    flapGeometry.translate(seatX, seatTop + .075, seatZ + .21);
+    throwParts.push(softTint(flapGeometry, 0xc9a87e));
+    const throwGeometry = (() => {
+      const total = throwParts.reduce((n, part) => n + part.attributes.position.count, 0);
+      const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), col = new Float32Array(total * 3);
+      let offset = 0;
+      for (const part of throwParts) {
+        pos.set(part.attributes.position.array, offset * 3);
+        nor.set(part.attributes.normal.array, offset * 3);
+        col.set(part.attributes.color.array, offset * 3);
+        offset += part.attributes.position.count;
+      }
+      const merged = new THREE.BufferGeometry();
+      merged.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      merged.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
+      merged.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+      return merged;
+    })();
+    const throwMesh = new THREE.Mesh(throwGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 }));
+    throwMesh.name = "sofa-throw"; throwMesh.castShadow = true; throwMesh.receiveShadow = true;
+    scene.add(throwMesh); soft.throwMesh = throwMesh;
+    soft.throwInfo = { seatTop: Number(seatTop.toFixed(3)), layers: 5, vertices: throwGeometry.attributes.position.count };
+    // 2) small things on the coffee table. The side table is fully under the lamp shade (measured: the shade bbox covers its whole top), so
+    //    a stack there would be hidden; the coffee table has a free corner. Two books and a shallow bowl, placed against the measured table
+    //    bounds and kept clear of the laptop, the mug and the book that are already on it.
+    const coffeeBox = new THREE.Box3().setFromObject(coffeeObj);
+    const occupied = [laptopObj, mugObj, coffeeBook].map((obj) => new THREE.Box3().setFromObject(obj));
+    const pad = .012;
+    const freeAt = (x, z, hx, hz) => {
+      const probe = new THREE.Box3(new THREE.Vector3(x - hx - pad, coffeeTop, z - hz - pad), new THREE.Vector3(x + hx + pad, coffeeTop + .09, z + hz + pad));
+      const inside = x - hx > coffeeBox.min.x + .03 && x + hx < coffeeBox.max.x - .03 && z - hz > coffeeBox.min.z + .03 && z + hz < coffeeBox.max.z - .03;
+      return inside && !occupied.some((b) => b.intersectsBox(probe));
+    };
+    const corners = [
+      [coffeeBox.max.x - .12, coffeeBox.max.z - .12], [coffeeBox.max.x - .12, coffeeBox.min.z + .12],
+      [coffeeBox.min.x + .12, coffeeBox.max.z - .12], [coffeeBox.min.x + .12, coffeeBox.min.z + .12],
+      [coffeeBox.max.x - .12, (coffeeBox.min.z + coffeeBox.max.z) / 2], [(coffeeBox.min.x + coffeeBox.max.x) / 2, coffeeBox.max.z - .12],
+      [(coffeeBox.min.x + coffeeBox.max.x) / 2, coffeeBox.min.z + .12], [coffeeBox.min.x + .12, (coffeeBox.min.z + coffeeBox.max.z) / 2],
+    ];
+    const take = (hx, hz) => {
+      for (const [x, z] of corners) if (freeAt(x, z, hx, hz)) {
+        occupied.push(new THREE.Box3(new THREE.Vector3(x - hx, coffeeTop, z - hz), new THREE.Vector3(x + hx, coffeeTop + .09, z + hz)));
+        return [x, z];
+      }
+      return null;
+    };
+    const parts = [];
+    const put = (geometry, hex) => { geometry.computeBoundingBox(); soft.propBounds.push(geometry.boundingBox.clone()); parts.push(softTint(geometry, hex)); };
+    const bookSpot = take(.085, .0625);
+    if (bookSpot) {
+      put(new THREE.BoxGeometry(.17, .024, .125).translate(bookSpot[0], coffeeTop + .012, bookSpot[1]), 0x6d7d68);
+      put(new THREE.BoxGeometry(.155, .020, .115).rotateY(.06).translate(bookSpot[0] + .004, coffeeTop + .034, bookSpot[1] + .004), 0x8b6f57);
+    }
+    const bowlSpot = take(.055, .055);
+    if (bowlSpot) put(new THREE.LatheGeometry([[0, 0], [.040, 0], [.052, .010], [.050, .028], [.042, .032], [0, .026]].map(([r, y]) => new THREE.Vector2(r, y)), 16).translate(bowlSpot[0], coffeeTop, bowlSpot[1]), 0xb9b3a5);
+    const remoteSpot = take(.0675, .022);
+    if (remoteSpot) {
+      put(new THREE.BoxGeometry(.135, .014, .042).translate(remoteSpot[0], coffeeTop + .007, remoteSpot[1]), 0x2f3236);
+      put(new THREE.BoxGeometry(.085, .005, .026).translate(remoteSpot[0], coffeeTop + .016, remoteSpot[1]), 0x5b5f66);
+    }
+    const mergedProps = (() => {
+      const merged = new THREE.BufferGeometry();
+      if (!parts.length) return merged;
+      // merge by hand: all parts share the same attribute set (position, normal, color)
+      const total = parts.reduce((n, p) => n + p.attributes.position.count, 0);
+      const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), col = new Float32Array(total * 3);
+      let offset = 0;
+      for (const part of parts) {
+        const p = part.attributes.position, n = part.attributes.normal, c = part.attributes.color;
+        pos.set(p.array, offset * 3); nor.set(n.array, offset * 3); col.set(c.array, offset * 3);
+        offset += p.count;
+      }
+      merged.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      merged.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
+      merged.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+      return merged;
+    })();
+    if (mergedProps.attributes.position) {
+      const propMesh = new THREE.Mesh(mergedProps, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .74, metalness: .02 }));
+      propMesh.name = "coffee-table-props"; propMesh.castShadow = true; propMesh.receiveShadow = true;
+      scene.add(propMesh); soft.propMesh = propMesh;
+    }
+    soft.propInfo = {
+      coffeeTop: Number(coffeeTop.toFixed(3)),
+      bookSpot: bookSpot ? bookSpot.map((v) => Number(v.toFixed(3))) : null,
+      bowlSpot: bowlSpot ? bowlSpot.map((v) => Number(v.toFixed(3))) : null,
+      remoteSpot: remoteSpot ? remoteSpot.map((v) => Number(v.toFixed(3))) : null,
+      coffeeBounds: { min: coffeeBox.min.toArray().map((v) => Number(v.toFixed(3))), max: coffeeBox.max.toArray().map((v) => Number(v.toFixed(3))) },
+      vertices: mergedProps.attributes.position ? mergedProps.attributes.position.count : 0,
+    };
+  }
+
   // the robot turns around its own centre: hang it on a pivot at its footprint centre
   const rb = new THREE.Box3().setFromObject(robotObj), robotPivot = new THREE.Group();
   robotPivot.position.set((rb.min.x + rb.max.x) / 2, 0, (rb.min.z + rb.max.z) / 2); scene.add(robotPivot); robotPivot.attach(robotObj);
@@ -3311,6 +3433,24 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         screenRect: { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
         collisions: Object.entries({ floorLamp: lampObj, plant: plantObj, chair: chairObj, plaque })
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
+      };
+    },
+    softDetails() { // local QA only: the throw's arm contact and the coffee-table props' support
+      scene.updateMatrixWorld(true);
+      const rounded = (v) => Number(v.toFixed(4));
+      const bounds = (obj) => { if (!obj) return null; const b = new THREE.Box3().setFromObject(obj); return { min: b.min.toArray().map(rounded), max: b.max.toArray().map(rounded) }; };
+      const already = [laptopObj, mugObj, coffeeBook].map((obj) => new THREE.Box3().setFromObject(obj));
+      const items = soft.propBounds.map((b, i) => ({
+        index: i,
+        min: b.min.toArray().map(rounded), max: b.max.toArray().map(rounded),
+        bottomGapMm: Number(((b.min.y - soft.propInfo.coffeeTop) * 1000).toFixed(2)),
+        overlapsExisting: already.some((other) => other.intersectsBox(b)),
+        insideTable: b.min.x > soft.propInfo.coffeeBounds.min[0] && b.max.x < soft.propInfo.coffeeBounds.max[0] && b.min.z > soft.propInfo.coffeeBounds.min[2] && b.max.z < soft.propInfo.coffeeBounds.max[2],
+      }));
+      return {
+        throw: { bounds: bounds(soft.throwMesh), vertices: soft.throwInfo.vertices, layers: soft.throwInfo.layers, seatTop: soft.throwInfo.seatTop, castShadow: soft.throwMesh.castShadow, receiveShadow: soft.throwMesh.receiveShadow },
+        props: { bounds: bounds(soft.propMesh), vertices: soft.propInfo.vertices, items, coffeeTable: soft.propInfo.coffeeBounds, coffeeTop: soft.propInfo.coffeeTop, spots: { book: soft.propInfo.bookSpot, bowl: soft.propInfo.bowlSpot, remote: soft.propInfo.remoteSpot } },
+        lights: scene.children.filter((child) => child.isLight).length,
       };
     },
     consoleDetails() { // local QA only: measured tabletop contacts and inter-object clearance
