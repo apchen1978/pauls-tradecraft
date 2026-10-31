@@ -3110,8 +3110,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     centre.z = Math.min(FRONT - .5, Math.max(BACK + .5, centre.z));
 
     const CASE_W = .40, CASE_D = .235, BODY_H = .52, WHEEL_H = .072;
-    const RED = 0x9c1d17, METAL = 0xd2d6dc, CHROME = 0xe8ebef, DARK = 0x17181b;
-    const shellG = [], metalG = [], chromeG = [], darkG = [];
+    const RED = 0x9c1d17, METAL = 0xd2d6dc, CHROME = 0xe8ebef, DARK = 0x08090a;
+    const shellG = [], metalG = [], chromeG = [], darkG = [], tagG = [], whiteG = [], leatherG = [];
     const slab = (w, d, r, thickness, bevel, curveSegments = 5, bevelSegments = 2) => new THREE.ExtrudeGeometry(roundedRectShape(w, d, r), {
       depth: thickness, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel * .8, bevelSegments, curveSegments,
     }).rotateX(-Math.PI / 2);
@@ -3122,23 +3122,33 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     darkG.push(slab(CASE_W - .06, CASE_D - .06, .05, .018, .004, 3, 1).translate(0, WHEEL_H + .286, 0)); // dark liner so the groove is not hollow
     // two latches on the broad face, flush and small
     for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.05, .024, .008).translate(sx * .105, WHEEL_H + .288, CASE_D / 2 + .002));
-    // four spinner wheels: a dark wheel-well plate in the shell's lower corners, a housing and a wheel with a polished hubcap, all inside the
-    // visible 7 cm gap under the shell so the case really stands on them
+    // Paul 2026-11-01: the wheels looked scattered. They are one undercarriage now: a dark base rail under the shell floor with four wheels nested
+    // in housings, each with a polished hubcap, so the four wheels read as one engineered part instead of four separate blobs.
+    darkG.push(slab(CASE_W - .02, CASE_D - .02, .05, .02, .005, 5, 2).translate(0, WHEEL_H - .034, 0)); // base rail
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-      const wx = sx * .17, wz = sz * .088;
-      darkG.push(new THREE.BoxGeometry(.06, .018, .07).translate(sx * .148, WHEEL_H - .006, wz)); // wheel well, flush with the floor of the shell
-      darkG.push(new THREE.BoxGeometry(.052, .05, .052).translate(wx - sx * .012, WHEEL_H - .03, wz));
-      darkG.push(new THREE.CylinderGeometry(.036, .036, .03, 18).rotateZ(Math.PI / 2).translate(wx, .036, wz));
-      metalG.push(new THREE.CylinderGeometry(.014, .014, .034, 12).rotateZ(Math.PI / 2).translate(wx, .036, wz));
+      const wx = sx * .155, wz = sz * .086;
+      darkG.push(new THREE.BoxGeometry(.056, .05, .058).translate(wx, .058, wz)); // housing, overlapping the rail
+      darkG.push(new THREE.CylinderGeometry(.038, .038, .032, 20).rotateZ(Math.PI / 2).translate(wx, .038, wz));
+      metalG.push(new THREE.CylinderGeometry(.015, .015, .036, 12).rotateZ(Math.PI / 2).translate(wx, .038, wz)); // hubcap
     }
-    // Paul 2026-11-01: the telescopic handle stays fully retracted and flush with the shell top. No posts, no bar above the case: a recessed slot
-    // with a chrome bar sitting inside it, so the silhouette is just the lacquered shell and its wheels.
+    // Paul 2026-11-01: the handle stays fully retracted and flush; the grip and its pocket go near-black so the "T" reads as one dark part instead
+    // of a grey smudge, and the chrome bar under it stays thin and bright.
     const topY = WHEEL_H + BODY_H;
-    darkG.push(new THREE.BoxGeometry(.215, .016, .07).translate(0, topY - .005, -.02)); // the pocket the handle retracts into
-    metalG.push(new THREE.BoxGeometry(.175, .009, .038).translate(0, topY + .0035, -.02)); // flush chrome bar
-    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.024, .012, .05).translate(sx * .1, topY + .002, -.02)); // flush end caps
+    darkG.push(new THREE.BoxGeometry(.225, .018, .076).translate(0, topY - .006, -.02)); // retraction pocket, near-black
+    metalG.push(new THREE.BoxGeometry(.178, .007, .04).translate(0, topY + .0025, -.02)); // flush chrome bar
+    darkG.push(new THREE.BoxGeometry(.155, .011, .032).translate(0, topY + .009, -.02)); // the black grip itself, proud by 1 mm only
+    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.024, .012, .052).translate(sx * .1, topY + .002, -.02)); // flush end caps
 
-    const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(
+    // Paul 2026-11-01 (TO DSH.jpg): the red "HAPPY FLIGHT" luggage tag on its black rubber loop, hanging from a small side handle on the face the
+    // room sees. Red glossy plastic, a lighter band where the print sits, and a black torus loop through the handle.
+    leatherG.push(new THREE.BoxGeometry(.028, .09, .022).translate(CASE_W / 2 - .004, WHEEL_H + .21, .02)); // side handle the tag hangs from
+    darkG.push(new THREE.TorusGeometry(.028, .006, 8, 18).translate(CASE_W / 2 + .012, WHEEL_H + .175, .04)); // rubber loop
+    tagG.push(new THREE.BoxGeometry(.105, .165, .013).rotateZ(.16).translate(CASE_W / 2 + .028, WHEEL_H + .085, .045)); // the tag itself
+    whiteG.push(new THREE.BoxGeometry(.075, .022, .002).rotateZ(.16).translate(CASE_W / 2 + .026, WHEEL_H + .135, .052)); // printed band
+    whiteG.push(new THREE.BoxGeometry(.03, .03, .002).rotateZ(.16).translate(CASE_W / 2 + .026, WHEEL_H + .095, .052));
+
+    const place = (geometry) => geometry.applyMatrix4(
+      new THREE.Matrix4().compose(
       new THREE.Vector3(centre.x, 0, centre.z),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0)),
       new THREE.Vector3(1, 1, 1),
@@ -3158,6 +3168,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     addPart(metalG, new THREE.MeshStandardMaterial({ color: METAL, roughness: .22, metalness: .9 }), "red-suitcase-metal");
     addPart(chromeG, new THREE.MeshStandardMaterial({ color: CHROME, roughness: .12, metalness: .95 }), "red-suitcase-chrome");
     addPart(darkG, new THREE.MeshStandardMaterial({ color: DARK, roughness: .6, metalness: .22 }), "red-suitcase-hardware");
+    addPart(tagG, new THREE.MeshStandardMaterial({ color: 0xc22b1d, roughness: .32, metalness: .03 }), "red-suitcase-tag");
+    addPart(whiteG, new THREE.MeshStandardMaterial({ color: 0xf4f2ec, roughness: .5, metalness: .02 }), "red-suitcase-tag-print");
+    addPart(leatherG, new THREE.MeshStandardMaterial({ color: 0x4a352c, roughness: .8, metalness: .02 }), "red-suitcase-leather");
     const union = new THREE.Box3();
     for (const mesh of meshes) union.expandByObject(mesh);
     const drop = -union.min.y;
