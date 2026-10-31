@@ -4461,7 +4461,12 @@ function buildRoom03WokTools(scene) {
     add(new THREE.SphereGeometry(0.0085, 7, 5), OAK, [SHELF_X, SHELF_TOP + height + 0.018, z]);
   };
   canister(2.18, 0.036, 0.115, CREAM);
-  canister(2.265, 0.03, 0.085, SAGE);
+  // Unbranded dark soy sauce on the wok shelf: a compact glass bottle with a cream paper band and dark cap.
+  // It replaces the smaller canister so the shelf retains breathing room.
+  const soyZ = 2.265;
+  add(lathe([[0,0],[0.025,0],[0.028,0.006],[0.028,0.100],[0.025,0.115],[0.014,0.130],[0.013,0.151],[0,0.151]], 16), 0x4b3326, [SHELF_X, SHELF_TOP, soyZ]);
+  add(new THREE.CylinderGeometry(0.0282, 0.0282, 0.036, 16), 0xd9c9a8, [SHELF_X, SHELF_TOP + 0.066, soyZ]);
+  add(new THREE.CylinderGeometry(0.015, 0.015, 0.016, 12), 0x403d35, [SHELF_X, SHELF_TOP + 0.155, soyZ]);
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
   geometry.computeVertexNormals();
@@ -4527,6 +4532,18 @@ function buildRoom03CounterFresh(scene) {
     add(new THREE.SphereGeometry(radius, 12, 9), hex, [FX + dx, TOP + lift + radius * 0.85, FZ + dz], [0, i, 0], [1, 0.9, 1]);
   });
   add(new THREE.CylinderGeometry(0.0012, 0.0016, 0.012, 4), 0x5a4630, [FX + 0.045, TOP + 0.034 + 0.034 * 1.7, FZ]);
+  // Two unbranded squeeze bottles set out while preparing food: muted tomato ketchup and mustard.
+  // They stand in front of the cutting board, clear of the oil bottle and the fruit bowl.
+  const squeeze = (x, color) => {
+    const profile = [[0,0],[0.031,0],[0.034,0.008],[0.034,0.113],[0.030,0.135],[0.017,0.151],[0.016,0.16],[0,0.16]];
+    add(lathe(profile, 16), color, [x, TOP, -1.94]);
+    add(new THREE.CylinderGeometry(0.017, 0.017, 0.012, 12), 0xe8dfca, [x, TOP + 0.164, -1.94]);
+    add(new THREE.CylinderGeometry(0.0343, 0.0343, 0.047, 16), 0xe1d5bf, [x, TOP + 0.075, -1.94]);
+    // A simple color mark on the blank label distinguishes the two sauces without a brand or text.
+    add(new THREE.CircleGeometry(0.010, 12), color, [x, TOP + 0.075, -1.905]);
+  };
+  squeeze(1.56, 0x963b30);
+  squeeze(1.66, 0xb99a45);
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
   geometry.computeVertexNormals();
