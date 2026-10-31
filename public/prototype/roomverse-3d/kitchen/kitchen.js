@@ -5498,7 +5498,7 @@ export async function start({ stage, onReady = () => {} }) {
   function showNookHint() {
     if (nookHintShown) return;
     nookHintShown = true;
-    showNookCaption(nookLang === "zh" ? "點一下帆布袋、軟木板或鑰匙層板。" : "Tap the totes, the board or the key shelf.", null, 4200);
+    showNookCaption(nookLang === "zh" ? "點一下：帆布袋、軟木板、鑰匙層板。" : "Tap: totes, board, key shelf.", null, 4200);
   }
   const nookRaycaster = new THREE.Raycaster();
   function nookSpotAt(clientX, clientY) {
