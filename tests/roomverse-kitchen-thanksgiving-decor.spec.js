@@ -33,9 +33,16 @@ test("the Thanksgiving table layer (bottle, two extra glasses, cranberries, cand
   const glassSides = decor.items.filter((item) => item.name.startsWith("wine-glass")).map((item) => Math.sign(item.z - 0.5));
   expect(glassSides.filter((side) => side > 0).length, "the same number of extra glasses on both sides of the table").toBe(glassSides.filter((side) => side < 0).length);
   expect(decor.minNeighbourMm, "no two pieces touch").toBeGreaterThanOrEqual(15);
+  // The Costco-style napkin pack sits on the small wok counter beside the clay-red credenza, not on the dining table (Paul 2026-10-31).
+  const pack = decor.items.find((item) => item.name === "napkin-pack");
+  const counter = info.wokSupport.counter;
+  expect(pack.x - pack.radius, "napkin pack on the wok counter (x)").toBeGreaterThanOrEqual(counter.min[0]);
+  expect(pack.x + pack.radius, "napkin pack on the wok counter (x)").toBeLessThanOrEqual(counter.max[0]);
+  expect(pack.z - pack.radius, "napkin pack on the wok counter (z)").toBeGreaterThanOrEqual(counter.min[2]);
+  expect(pack.z + pack.radius, "napkin pack clear of the stove and wok props").toBeLessThanOrEqual(info.sceneBounds.sideKitchen.min[2] - 0.02);
   // Clear of every place setting's plate (27 cm plates).
   for (const setting of info.tableware.settings) {
-    for (const item of decor.items) {
+    for (const item of decor.items.filter((entry) => entry.name !== "napkin-pack")) {
       const distance = Math.hypot(item.x - setting.plateCenter[0], item.z - setting.plateCenter[2]) - item.radius - 0.135;
       expect(distance * 1000, `${item.name} clears the plate at ${setting.plateCenter[0]}, ${setting.plateCenter[2]}`).toBeGreaterThanOrEqual(30);
     }

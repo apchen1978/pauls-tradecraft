@@ -1707,7 +1707,17 @@ function buildThanksgivingDecor(scene) {
       if (Math.abs(local.x) < 0.024 && local.z > 0.045 && local.y > 0.022 && local.y < 0.052) c.set(Math.sin(local.x * 900) > 0.6 && local.y > 0.034 ? 0x6e1a20 : 0xeee3cf);
       c.toArray(colors.array, i * 3);
     }
-    place("decor", "napkin-pack", pack, 0.80, 0.47, 0.105);
+    // Paul 2026-10-31: on the dining table it crowded a glass, so it lives on the free front end of the small wok counter, beside the clay-red
+    // credenza. Seated on the measured stone top (0 mm), kept 20 mm+ clear of the wok kitchen props (checked in the decor test).
+    const wokCounter = scene.getObjectByName("merged-wok-counter");
+    if (!wokCounter) throw new Error("Cannot place the napkin pack without the wok counter");
+    const counterBox = new THREE.Box3().setFromObject(wokCounter);
+    const packX = (counterBox.min.x + counterBox.max.x) / 2 + 0.02, packZ = counterBox.min.z + 0.20;
+    raycaster.set(new THREE.Vector3(packX, counterBox.max.y + 0.1, packZ), new THREE.Vector3(0, -1, 0));
+    const counterHit = raycaster.intersectObject(wokCounter, true)[0];
+    if (!counterHit) throw new Error("Cannot measure the wok counter top");
+    pack.rotateY(Math.PI / 2 - 0.18 - 0.1);
+    place("decor", "napkin-pack", pack, packX, packZ, 0.105, counterHit.point.y);
   }
   for (const row of [0, 1]) {
     const NEAR_Z = row === 0 ? 0.72 : 0.28;
@@ -5675,6 +5685,7 @@ export async function start({ stage, onReady = () => {} }) {
   tintDiningTable(MOOD_LOOK[currentMood].tableTint);
   tablewareGroup = buildTableware(scene);
   thanksgivingGroup = buildThanksgivingDecor(scene);
+  if (globalThis.__ROOMVERSE_QA) globalThis.__ROOMVERSE_QA.scene = scene;
   const robot = loadRoom03Robot(scene, () => render());
   roomDoor = buildRoomDoor(scene, materials);
   roomDoor.setMoodLight(MOOD_LOOK[currentMood].artLight);
