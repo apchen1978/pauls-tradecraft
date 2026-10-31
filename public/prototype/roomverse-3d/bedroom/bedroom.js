@@ -1196,73 +1196,6 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   for (const { file, name, position, rotation, scale } of sofaCushions) {
     loadGlb(new URL(`./models/${file}`, import.meta.url).href, { anchor: "center", roughness: 1, weave: true }).then((g) => { g.name = name; if (name.endsWith("lumbar")) g.traverse((o) => { if (o.isMesh) { o.material.vertexColors = false; o.material.color.set("#e2d6c0"); o.material.needsUpdate = true; } }); /* the stripes came out as grey smudges: a plain oat cover */ g.position.set(...position); g.rotation.set(Math.PI / 2 + rotation[0], rotation[1], rotation[2]); g.scale.set(...scale); sofa.add(g); redraw(); }).catch(() => {});
   }
-  // A wool throw over the sofa's back (Paul 2026-11-01: moved here from Room 01, where a folded throw read as geometry; the lounge is where a throw
-  // belongs). Built like Room 01's cloth pass: the sofa's own back and seat heights are the anchors, the cloth is a closed ribbon with a rounded roll,
-  // a hanging face and an alpha fringe, and it carries its own woven cover in two tones rather than the sofa's fabric.
-  const sofaThrow = new THREE.Group(); sofaThrow.name = "sofa-throw"; sofa.add(sofaThrow);
-  {
-    const backTop = .82, thick = .018, hang = .36, rows = 16, halfWidth = .28;
-    const profile = [
-      { z: -.46, y: -.24 }, { z: -.425, y: -.06 }, { z: -.398, y: .001 }, { z: -.36, y: .006 },
-      { z: -.30, y: .006 }, { z: -.252, y: .001 }, { z: -.218, y: -.036 }, { z: -.193, y: -.10 },
-      { z: -.178, y: -.19 }, { z: -.170, y: -.28 }, { z: -.166, y: -hang },
-    ].map((p) => ({ z: p.z, y: backTop + p.y }));
-    const normals = profile.map((_, i) => {
-      const a = profile[Math.max(0, i - 1)], b = profile[Math.min(profile.length - 1, i + 1)];
-      const dz = b.z - a.z, dy = b.y - a.y, len = Math.hypot(dz, dy) || 1;
-      return { z: dy / len, y: -dz / len };
-    });
-    const positions = [], colours = [], indices = [], uvs = [];
-    const SAND = new THREE.Color(0xdfc9a2), CLAY = new THREE.Color(0xa8763f);
-    for (let r = 0; r <= rows; r++) {
-      const t = r / rows;
-      const x = -halfWidth + 2 * halfWidth * t + Math.sin(t * 6.1) * .006;
-      const sag = -.016 * Math.pow(1 - Math.abs(2 * t - 1), 2);
-      const wave = .004 * Math.sin(t * Math.PI * 3.4);
-      const band = Math.floor(t * 5) % 5 < 2 ? CLAY : SAND;
-      const loop = profile.length * 2;
-      for (let k = 0; k < loop; k++) {
-        const side = k >= profile.length ? 1 : 0;
-        const j = side ? 2 * profile.length - 1 - k : k;
-        const p = profile[j], n = normals[j], off = side ? thick : 0;
-        positions.push(x, p.y + sag + wave + n.y * off, p.z + n.z * off);
-        const c = band.clone().offsetHSL(0, 0, (t - .5) * .03);
-        colours.push(c.r, c.g, c.b);
-        uvs.push(t * 3.2, k / loop * 1.6);
-      }
-    }
-    const loop = profile.length * 2;
-    for (let r = 0; r < rows; r++) for (let k = 0; k < loop; k++) {
-      const k2 = (k + 1) % loop;
-      const a = r * loop + k, b = r * loop + k2, c = (r + 1) * loop + k2, d = (r + 1) * loop + k;
-      indices.push(a, d, b, b, d, c);
-    }
-    const throwGeometry = new THREE.BufferGeometry();
-    throwGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    throwGeometry.setAttribute("color", new THREE.Float32BufferAttribute(colours, 3));
-    throwGeometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-    throwGeometry.setIndex(indices); throwGeometry.computeVertexNormals();
-    const throwCover = new THREE.Mesh(throwGeometry, new THREE.MeshStandardMaterial({
-      vertexColors: true, map: weaveTexture("#f6efe2", "rgba(96,74,52,.85)"), roughness: .98, side: THREE.DoubleSide,
-    }));
-    throwCover.name = "sofa-throw-cloth"; throwCover.castShadow = throwCover.receiveShadow = true;
-    sofaThrow.add(throwCover);
-    const fringeTexture = canvasTex(256, 128, (ctx, w, h) => {
-      ctx.clearRect(0, 0, w, h);
-      ctx.strokeStyle = "#c9a87e"; ctx.lineWidth = 2.2; ctx.lineCap = "round";
-      for (let i = 0; i < 40; i++) {
-        const x = (i + .5) * w / 40 + Math.sin(i * 1.7) * .8;
-        const len = h * (.5 + .42 * Math.abs(Math.sin(i * 2.9 + .4)));
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + Math.sin(i * 1.3) * 2.2, len); ctx.stroke();
-      }
-    });
-    const fringe = new THREE.Mesh(new THREE.PlaneGeometry(halfWidth * 2, .055, 1, 1), new THREE.MeshStandardMaterial({ map: fringeTexture, alphaTest: .4, side: THREE.DoubleSide, roughness: .98 }));
-    fringe.name = "sofa-throw-fringe";
-    fringe.position.set(0, backTop - hang - .024, -.166 + .016);
-    fringe.receiveShadow = true;
-    sofaThrow.add(fringe);
-  }
-
   // Round coffee table (72 cm, 38 cm high): a travertine top on a dark metal ring base (Codex's D2 reference), plus a small side table.
   const travertine = new THREE.MeshStandardMaterial({ map: canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = "#cdbc9c"; ctx.fillRect(0, 0, w, h);
@@ -1826,11 +1759,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     root.traverseVisible((o) => { if (o.isMesh) { meshes++; vertices += o.geometry.attributes.position.count; } });
     const box3 = new THREE.Box3().setFromObject(root.getObjectByName("floor"));
     return {
-      room: ROOM, window: WINDOW, door: DOOR, drawCalls: renderer.info.render.calls, sofaThrow: (() => {
-        let throwVertices = 0; sofaThrow.traverseVisible((o) => { if (o.isMesh) throwVertices += o.geometry.attributes.position.count; });
-        const throwBox = new THREE.Box3().setFromObject(sofaThrow), backTopY = new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-back-frame")).max.y;
-        return { present: sofaThrow.children.length > 0, vertices: throwVertices, min: throwBox.min.toArray(), max: throwBox.max.toArray(), hangingMm: Number(((backTopY - throwBox.min.y) * 1000).toFixed(1)), onSofa: sofaThrow.parent === sofa };
-      })(), sofaAsset: (() => {
+      room: ROOM, window: WINDOW, door: DOOR, drawCalls: renderer.info.render.calls, sofaAsset: (() => {
         let sofaVertices = 0, sofaTriangles = 0, sofaMeshes = 0, legs = 0;
         sofaBody.traverse((o) => { if (!o.isMesh) return; sofaMeshes++; sofaVertices += o.geometry.attributes.position.count; sofaTriangles += (o.geometry.index?.count ?? o.geometry.attributes.position.count) / 3; if (o.name === "legs") legs++; });
         const cover = sofaBody.getObjectByName("sofa-seat-base").material;
