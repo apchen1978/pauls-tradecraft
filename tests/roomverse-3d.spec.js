@@ -1453,25 +1453,26 @@ test("Room 01 opens in golden hour only when it is entered from the home cover; 
   }
 });
 
-test("the coffee-table pieces sit on the table and the red suitcase lies flat under the painting", async ({ page }) => {
+test("the two coffee-table books sit on the table and the red suitcase stands on its wheels in front of the painting", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`);
   if (await page.locator("#enter").isVisible()) await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room && window.__room.softDetails, null, { timeout: 90000 });
   const d = await page.evaluate(() => window.__room.softDetails());
-  // The coffee-table pieces: supported on the measured top, inside it, and clear of the laptop, the mug and the existing book.
-  expect(d.props.items.length).toBeGreaterThanOrEqual(3);
+  // Two books only: Paul removed the bowl and the remote because they were too small to read.
+  expect(d.props.items.length).toBeGreaterThanOrEqual(2);
   for (const item of d.props.items) {
-    expect(item.bottomGapMm, "no piece is sunk into the table").toBeGreaterThanOrEqual(-1);
-    expect(item.insideTable, "every piece sits inside the table top").toBe(true);
-    expect(item.overlapsExisting, "no piece collides with what was already there").toBe(false);
+    expect(item.bottomGapMm, "no book is sunk into the table").toBeGreaterThanOrEqual(-1);
+    expect(item.insideTable, "both books sit inside the table top").toBe(true);
+    expect(item.overlapsExisting, "neither book collides with what was already there").toBe(false);
   }
-  expect(Math.abs(Math.min(...d.props.items.map((item) => item.bottomGapMm))), "the arrangement rests on the table within 2 mm").toBeLessThanOrEqual(2);
-  // The suitcase: wheels on the floor, wholly inside the room, and in the stretch of wall under the left-wall painting.
+  // The case: upright on its wheels, lacquered shell, contact shadow, in front of the wall painting.
   expect(d.suitcase, "the suitcase is built").not.toBeNull();
   expect(Math.abs(d.suitcase.floorGapMm), "wheels touch the floor within 2 mm").toBeLessThanOrEqual(2);
+  expect(d.suitcase.flat, "Paul asked for it upright").toBe(false);
+  expect(d.suitcase.heightMm, "a cabin case with the handle retracted stands around 56-72 cm").toBeGreaterThan(560);
+  expect(d.suitcase.heightMm).toBeLessThan(760);
+  expect(d.suitcase.lacquer, "the shell carries a clearcoat").toBe(true);
+  expect(d.suitcase.contactShadow, "a contact shadow decal grounds it").toBe(true);
   expect(d.suitcase.insideRoom).toBe(true);
-  expect(d.suitcase.bounds.min[0]).toBeLessThan(d.suitcase.centre[0]);
-  expect(d.suitcase.vertices).toBeGreaterThan(800);
-  if (d.suitcase.paintingBounds) expect(d.suitcase.centre[1]).toBeGreaterThan(d.suitcase.paintingBounds.min[2] - 0.6);
   expect(d.lights, "no new light was added").toBe(6);
 });

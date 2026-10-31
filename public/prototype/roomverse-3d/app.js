@@ -1316,7 +1316,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     for (const part of list) {
       pos.set(part.attributes.position.array, offset * 3);
       nor.set(part.attributes.normal.array, offset * 3);
-      col.set(part.attributes.color.array, offset * 3);
+      if (part.attributes.color) col.set(part.attributes.color.array, offset * 3);
+      else col.fill(1, offset * 3, offset * 3 + part.attributes.position.count * 3);
       offset += part.attributes.position.count;
     }
     merged.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -1364,18 +1365,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       put(slab(.160, .123, .008, .016, .002), 0xf1e9d8, .10, [bx + .006, coffeeTop + .029, bz]);
       put(slab(.168, .130, .009, .018, .0022), 0x8b6a4f, -.06, [bx + .004, coffeeTop + .047, bz + .004]);
     }
-    const bowlSpot = take(.062, .062);
-    if (bowlSpot) {
-      const [wx, wz] = bowlSpot;
-      const bowlProfile = [[0, 0], [.026, 0], [.031, .004], [.030, .012], [.026, .014], [.056, .048], [.062, .058], [.058, .059], [.052, .050], [.022, .017], [0, .015]];
-      put(new THREE.LatheGeometry(bowlProfile.map(([r, y]) => new THREE.Vector2(r, y)), 28), 0xd8d2c4, 0, [wx, coffeeTop, wz]);
-    }
-    const remoteSpot = take(.070, .026);
-    if (remoteSpot) {
-      const [rx2, rz2] = remoteSpot;
-      put(slab(.135, .044, .012, .012, .0022), 0x3a3d42, .14, [rx2, coffeeTop + .006, rz2]);
-      for (const off of [-.030, 0, .030]) put(new THREE.CylinderGeometry(.0038, .0038, .0025, 10), 0x9aa0a6, 0, [rx2 + off * Math.cos(.14), coffeeTop + .0135, rz2 + off * Math.sin(.14)]);
-    }
+    const bowlSpot = null, remoteSpot = null; // Paul 2026-11-01: the bowl and the remote were too small to read; the two books stay
     const mergedProps = softMerge(parts);
     if (mergedProps.attributes.position) {
       const propMesh = new THREE.Mesh(mergedProps, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .72, metalness: .02 }));
@@ -3108,97 +3098,101 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // ribs, lid seam is hardware) and one hardware mesh (wheels, handles, tubes), so it costs two draw calls. Size is a real cabin case:
   // 40 x 52 x 19 cm shell, wheels 3.5 cm, handle out to 84 cm.
   function buildSuitcase() {
-    // Lying flat under the right-wall harbour painting (Paul 2026-11-01: "另外一邊、平躺"). That wall's floor is open between the sofa and the side
-    // table, and a closed case on its back is what unpacked luggage actually looks like.
+    // Paul 2026-11-01: a premium red hardshell, standing under the right-wall harbour painting — then "毛邊修掉、拉桿做實在". Clean pass: two
+    // lacquered shell halves with a real opening groove, a slim chrome handle that reads solid, four spinner wheels with hubcaps in a visible gap,
+    // and nothing else on the silhouette. No corner blobs, no dangling tag: at this distance the clean outline is what reads as expensive.
     const artBox = rightWallArtGroup ? new THREE.Box3().setFromObject(rightWallArtGroup) : null;
     const wallX = artBox ? artBox.min.x : W / 2 - .02;
     const artZ = artBox ? (artBox.min.z + artBox.max.z) / 2 : -.65;
-    const yaw = -.14;
-    const centre = new THREE.Vector3(wallX - .46, 0, artZ);
-    centre.x = Math.min(W / 2 - .45, Math.max(-W / 2 + .45, centre.x));
+    const yaw = -1.02; // turned further toward the room, so the handle bar and the wheel line both read from the sofa side
+    const centre = new THREE.Vector3(wallX - .36, 0, artZ);
+    centre.x = Math.min(W / 2 - .42, Math.max(-W / 2 + .42, centre.x));
     centre.z = Math.min(FRONT - .5, Math.max(BACK + .5, centre.z));
 
-    const shellParts = [], hardParts = [];
-    const RED = 0xa63028, RED_DARK = 0x8d2821, DARK = 0x2b2b2e, METAL = 0x8a8f96, TYRE = 0x17181a;
-    const extrudeSlab = (w, h, r, depth, bevel) => new THREE.ExtrudeGeometry(roundedRectShape(w, h, r), {
-      depth, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel, bevelSegments: 3, curveSegments: 6,
-    });
-    // shell: 40 x 52 cm rounded, 19 cm deep, bevelled (a hardshell is not a cube)
-    const body = extrudeSlab(.40, .52, .055, .166, .012).translate(0, 0, -.083);
-    body.translate(0, .335, 0);
-    shellParts.push(softTint(body, RED));
-    // lid seam: a 3 mm dark line around the upper third, where a top-lid case opens
-    for (const zOff of [-.096, .096]) {
-      const seam = new THREE.BoxGeometry(.372, .004, .003);
-      seam.translate(0, .402, zOff);
-      hardParts.push(softTint(seam, DARK));
+    const CASE_W = .40, CASE_D = .235, BODY_H = .52, WHEEL_H = .072;
+    const RED = 0x9c1d17, METAL = 0xd2d6dc, CHROME = 0xe8ebef, DARK = 0x17181b;
+    const shellG = [], metalG = [], chromeG = [], darkG = [];
+    const slab = (w, d, r, thickness, bevel, curveSegments = 5, bevelSegments = 2) => new THREE.ExtrudeGeometry(roundedRectShape(w, d, r), {
+      depth: thickness, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel * .8, bevelSegments, curveSegments,
+    }).rotateX(-Math.PI / 2);
+    // two halves with a 5 mm gap between them: the opening reads as a groove instead of a fin glued on the shell
+    shellG.push(slab(CASE_W, CASE_D, .075, .283, .016).translate(0, WHEEL_H, 0));
+    shellG.push(slab(CASE_W, CASE_D, .075, .218, .016).translate(0, WHEEL_H + .293, 0));
+    metalG.push(slab(CASE_W - .01, CASE_D - .01, .0735, .004, .001, 4, 1).translate(0, WHEEL_H + .2915, 0)); // the aluminium lip inside the groove
+    darkG.push(slab(CASE_W - .06, CASE_D - .06, .05, .018, .004, 3, 1).translate(0, WHEEL_H + .286, 0)); // dark liner so the groove is not hollow
+    // two latches on the broad face, flush and small
+    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.05, .024, .008).translate(sx * .105, WHEEL_H + .288, CASE_D / 2 + .002));
+    // four spinner wheels: a dark wheel-well plate in the shell's lower corners, a housing and a wheel with a polished hubcap, all inside the
+    // visible 7 cm gap under the shell so the case really stands on them
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+      const wx = sx * .17, wz = sz * .088;
+      darkG.push(new THREE.BoxGeometry(.06, .018, .07).translate(sx * .148, WHEEL_H - .006, wz)); // wheel well, flush with the floor of the shell
+      darkG.push(new THREE.BoxGeometry(.052, .05, .052).translate(wx - sx * .012, WHEEL_H - .03, wz));
+      darkG.push(new THREE.CylinderGeometry(.036, .036, .03, 18).rotateZ(Math.PI / 2).translate(wx, .036, wz));
+      metalG.push(new THREE.CylinderGeometry(.014, .014, .034, 12).rotateZ(Math.PI / 2).translate(wx, .036, wz));
     }
-    for (const xOff of [-.176, .176]) {
-      const seam = new THREE.BoxGeometry(.003, .004, .188);
-      seam.translate(xOff, .402, 0);
-      hardParts.push(softTint(seam, DARK));
-    }
-    // moulded ribs, two bands on each broad face
-    for (const zOff of [-.099, .099]) for (const xOff of [-.072, .072]) {
-      const rib = new THREE.BoxGeometry(.028, .40, .005);
-      rib.translate(xOff, .315, zOff);
-      shellParts.push(softTint(rib, RED_DARK));
-    }
-    // four spinner wheels: housing plus a 3.5 cm wheel, the case stands on them
-    for (const xOff of [-.155, .155]) for (const zOff of [-.062, .062]) {
-      const housing = new THREE.BoxGeometry(.052, .042, .034);
-      housing.translate(xOff, .062, zOff);
-      hardParts.push(softTint(housing, DARK));
-      const wheel = new THREE.CylinderGeometry(.032, .032, .020, 16);
-      wheel.rotateZ(Math.PI / 2).translate(xOff, .033, zOff);
-      hardParts.push(softTint(wheel, TYRE));
-    }
-    // telescopic handle, out for the trip: two tubes and a grip above the shell
-    for (const xOff of [-.108, .108]) {
-      const tube = new THREE.CylinderGeometry(.0085, .0085, .16, 10);
-      tube.translate(xOff, .60, -.088);
-      hardParts.push(softTint(tube, METAL));
-    }
-    const grip = extrudeSlab(.21, .03, .012, .022, .004).rotateX(-Math.PI / 2).translate(0, .67, -.082);
-    hardParts.push(softTint(grip, DARK));
-    // top and side carry handles
-    const topHandle = extrudeSlab(.13, .028, .012, .020, .004).rotateX(-Math.PI / 2).translate(0, .605, .02);
-    hardParts.push(softTint(topHandle, DARK));
-    const sideHandle = new THREE.BoxGeometry(.020, .085, .030);
-    sideHandle.translate(.202, .44, .012);
-    hardParts.push(softTint(sideHandle, DARK));
+    // Paul 2026-11-01: the telescopic handle stays fully retracted and flush with the shell top. No posts, no bar above the case: a recessed slot
+    // with a chrome bar sitting inside it, so the silhouette is just the lacquered shell and its wheels.
+    const topY = WHEEL_H + BODY_H;
+    darkG.push(new THREE.BoxGeometry(.215, .016, .07).translate(0, topY - .005, -.02)); // the pocket the handle retracts into
+    metalG.push(new THREE.BoxGeometry(.175, .009, .038).translate(0, topY + .0035, -.02)); // flush chrome bar
+    for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.024, .012, .05).translate(sx * .1, topY + .002, -.02)); // flush end caps
 
-    // flatten it: rotate the upright case onto its back, then drop the whole thing onto the floor
-    const flatten = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-    const turn = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0));
-    const quat = turn.multiply(flatten);
-    const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(centre.x, 0, centre.z), quat, new THREE.Vector3(1, 1, 1)));
-    const shellGeometry = softMerge(shellParts.map(place));
-    const hardGeometry = softMerge(hardParts.map(place));
-    shellGeometry.computeBoundingBox(); hardGeometry.computeBoundingBox();
-    const dropToFloor = -Math.min(shellGeometry.boundingBox.min.y, hardGeometry.boundingBox.min.y);
-    shellGeometry.translate(0, dropToFloor, 0);
-    hardGeometry.translate(0, dropToFloor, 0);
-    const shellMesh = new THREE.Mesh(shellGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .34, metalness: .06 }));
-    shellMesh.name = "red-suitcase-shell"; shellMesh.castShadow = true; shellMesh.receiveShadow = true;
-    const hardMesh = new THREE.Mesh(hardGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .46, metalness: .32 }));
-    hardMesh.name = "red-suitcase-hardware"; hardMesh.castShadow = true; hardMesh.receiveShadow = true;
-    scene.add(shellMesh, hardMesh);
-    soft.suitcaseShell = shellMesh; soft.suitcaseHard = hardMesh;
+    const place = (geometry) => geometry.applyMatrix4(new THREE.Matrix4().compose(
+      new THREE.Vector3(centre.x, 0, centre.z),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0)),
+      new THREE.Vector3(1, 1, 1),
+    ));
+    const meshes = [];
+    const addPart = (list, material, name) => {
+      if (!list.length) return null;
+      const geometry = softMerge(list.map(place));
+      geometry.computeBoundingBox();
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.name = name; mesh.castShadow = true; mesh.receiveShadow = true;
+      meshes.push(mesh); return mesh;
+    };
+    const shellMesh = addPart(shellG, new THREE.MeshPhysicalMaterial({
+      color: RED, roughness: .26, metalness: .0, clearcoat: 1, clearcoatRoughness: .08, reflectivity: .5,
+    }), "red-suitcase-shell");
+    addPart(metalG, new THREE.MeshStandardMaterial({ color: METAL, roughness: .22, metalness: .9 }), "red-suitcase-metal");
+    addPart(chromeG, new THREE.MeshStandardMaterial({ color: CHROME, roughness: .12, metalness: .95 }), "red-suitcase-chrome");
+    addPart(darkG, new THREE.MeshStandardMaterial({ color: DARK, roughness: .6, metalness: .22 }), "red-suitcase-hardware");
+    const union = new THREE.Box3();
+    for (const mesh of meshes) union.expandByObject(mesh);
+    const drop = -union.min.y;
+    for (const mesh of meshes) mesh.geometry.translate(0, drop, 0);
+    const group = new THREE.Group(); group.name = "red-suitcase";
+    for (const mesh of meshes) group.add(mesh);
+    scene.add(group);
+    soft.suitcaseShell = shellMesh; soft.suitcaseGroup = group;
+    // contact shadow decal: a soft ellipse so the floor reads as shadowed instead of the mesh just ending
+    const shadowTex = canvasTex(256, 256, (ctx, w, h) => {
+      const g = ctx.createRadialGradient(w / 2, h / 2, w * .05, w / 2, h / 2, w * .5);
+      g.addColorStop(0, "rgba(18,12,9,.62)"); g.addColorStop(.5, "rgba(18,12,9,.3)"); g.addColorStop(1, "rgba(18,12,9,0)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    });
+    const contact = new THREE.Mesh(new THREE.PlaneGeometry(.74, .58), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false }));
+    contact.name = "red-suitcase-contact"; contact.rotation.x = -Math.PI / 2; contact.rotation.z = -yaw;
+    contact.position.set(centre.x, .003, centre.z);
+    scene.add(contact);
+
     scene.updateMatrixWorld(true);
-    const shellBox = new THREE.Box3().setFromObject(shellMesh), hardBox = new THREE.Box3().setFromObject(hardMesh);
-    const allBox = shellBox.clone().union(hardBox);
+    const allBox = new THREE.Box3().setFromObject(group);
+    let totalVertices = 0; group.traverse((o) => { if (o.isMesh) totalVertices += o.geometry.attributes.position.count; });
     soft.suitcaseInfo = {
       centre: [Number(centre.x.toFixed(3)), Number(centre.z.toFixed(3))],
       yaw: Number(yaw.toFixed(3)),
-      flat: true,
+      flat: false,
       bounds: { min: allBox.min.toArray().map((v) => Number(v.toFixed(3))), max: allBox.max.toArray().map((v) => Number(v.toFixed(3))) },
       heightMm: Number(((allBox.max.y - allBox.min.y) * 1000).toFixed(1)),
       floorGapMm: Number((allBox.min.y * 1000).toFixed(2)),
-      wheelsDownMm: Number((hardBox.min.y * 1000).toFixed(2)),
       paintingBounds: artBox ? { min: artBox.min.toArray().map((v) => Number(v.toFixed(3))), max: artBox.max.toArray().map((v) => Number(v.toFixed(3))) } : null,
       insideRoom: allBox.min.x > -W / 2 + .05 && allBox.max.x < W / 2 - .05 && allBox.min.z > BACK + .05 && allBox.max.z < FRONT - .05,
-      vertices: shellMesh.geometry.attributes.position.count + hardMesh.geometry.attributes.position.count,
+      parts: group.children.map((m) => m.name),
+      contactShadow: Boolean(contact.visible),
+      lacquer: shellMesh.material.isMeshPhysicalMaterial === true && shellMesh.material.clearcoat === 1,
+      vertices: totalVertices,
     };
   }
 
