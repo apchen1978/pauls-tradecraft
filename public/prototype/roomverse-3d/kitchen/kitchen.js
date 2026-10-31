@@ -898,11 +898,15 @@ function buildTableware(scene) {
   // Glasses are set by hand, not in matching rows (Paul 2026-10-29: two glasses per seat in identical positions looked staged): each seat has its
   // own offsets, one water glass is a shorter tumbler, one wine glass is stemless-short, fill levels differ and one water glass is empty.
   const GLASS_LAYOUT = [
-    { wine: [0.214, 0.147], water: [0.234, 0.247], wineScale: 1, waterScale: 1, wineFill: 0.46, waterFill: 0.52 },
-    { wine: [0.192, 0.160], water: [0.224, 0.256], wineScale: 1, waterScale: 0.82, wineFill: 0.38, waterFill: 0.60 },
-    { wine: [0.230, 0.140], water: [0.202, 0.240], wineScale: 0.9, waterScale: 1, wineFill: 0.55, waterFill: 0 },
-    { wine: [0.204, 0.152], water: [0.240, 0.252], wineScale: 1, waterScale: 0.9, wineFill: 0.42, waterFill: 0.48 },
+    // Paul 2026-10-31: the water glasses of facing seats met near the table's centre line (z 0.5) and overlapped (window end ~39 mm, far end
+    // ~51 mm). The window-end pair is now two ceramic mugs of orange juice in different glazes; the far-end glasses moved apart. The test
+    // asserts that no two drink footprints overlap (>= 15 mm clear).
+    { wine: [0.214, 0.147], water: [0.31, 0.19], wineScale: 1, waterScale: 1, wineFill: 0.46, waterFill: 0.52, mug: { body: 0x1f4a38, band: null, name: "green" } },
+    { wine: [0.192, 0.160], water: [0.30, 0.20], wineScale: 1, waterScale: 0.82, wineFill: 0.38, waterFill: 0.60 },
+    { wine: [0.230, 0.140], water: [0.33, 0.18], wineScale: 0.9, waterScale: 1, wineFill: 0.55, waterFill: 0, mug: { body: 0xeee6d5, band: 0x3f6b55, name: "cream" } },
+    { wine: [0.204, 0.152], water: [0.30, 0.20], wineScale: 1, waterScale: 0.9, wineFill: 0.42, waterFill: 0.48 },
   ];
+  const MUG = { radius: 0.040, profile: [[0, 0.006], [0.0365, 0.007], [0.0365, 0.093], [0.0372, 0.0948], [0.0388, 0.0952], [0.0399, 0.0935], [0.040, 0.010], [0.0395, 0.004], [0.037, 0], [0, 0]] };
   const scaleAboutBase = (geometry, factor, baseY) => { geometry.translate(0, -baseY, 0); geometry.scale(1, factor, 1); geometry.translate(0, baseY, 0); };
 
   for (const [index, chair] of DINING_CHAIR_PLACEMENTS.entries()) {
@@ -930,14 +934,42 @@ function buildTableware(scene) {
     wine[1] = tableY;
     water[1] = tableY;
     const wineGeometry = addLathe("glass", wineProfile, 20, wine, 0xe8f0ed);
-    const waterGeometry = addLathe("glass", waterProfile, 20, water, 0xe8f0ed);
+    let waterGeometry, cupRadius = waterRadius;
+    if (layout.mug) {
+      // Generic coffee-house ceramic mug (no logo or wordmark): 80 mm across, 95 mm tall, 3.5 mm wall, rolled rim, 6 mm foot, a loop handle
+      // facing the table end. Holds orange juice 15 mm below the rim.
+      cupRadius = MUG.radius;
+      waterGeometry = addLathe("ceramic", MUG.profile, 32, water, layout.mug.body);
+      const colours = waterGeometry.attributes.color, position = waterGeometry.attributes.position, tint = new THREE.Color();
+      for (let i = 0; i < position.count; i++) {
+        const local = position.getY(i) - tableY, radial = Math.hypot(position.getX(i) - water[0], position.getZ(i) - water[2]);
+        tint.set(layout.mug.body);
+        if (layout.mug.band && radial > MUG.radius - 0.001 && local > 0.056 && local < 0.068) tint.set(layout.mug.band);
+        if (radial < MUG.radius - 0.003 && local < 0.093) tint.multiplyScalar(layout.mug.band ? 1 : 1.12); // glaze reads a touch lighter inside
+        if (local < 0.004) tint.set(0xcdbfa6); // unglazed foot ring
+        tint.toArray(colours.array, i * 3);
+      }
+      const handle = new THREE.TorusGeometry(0.024, 0.0058, 10, 20, Math.PI);
+      handle.rotateZ(-Math.PI / 2); // arc bulges toward +x
+      handle.scale(0.9, 1.1, 1);
+      if (outward < 0) handle.rotateY(Math.PI);
+      handle.translate(water[0] + outward * (MUG.radius - 0.0025), tableY + 0.050, water[2]);
+      setVertexColor(handle, layout.mug.body);
+      geometryParts.ceramic.push(handle);
+      const juice = new THREE.CylinderGeometry(MUG.radius - 0.0037, MUG.radius - 0.0037, 0.001, 32, 1, false);
+      juice.translate(water[0], tableY + 0.080, water[2]);
+      setVertexColor(juice, 0xe8881f);
+      geometryParts.liquid.push(juice);
+    } else {
+      waterGeometry = addLathe("glass", waterProfile, 20, water, 0xe8f0ed);
+      if (layout.waterScale !== 1) scaleAboutBase(waterGeometry, layout.waterScale, tableY);
+    }
     if (layout.wineScale !== 1) scaleAboutBase(wineGeometry, layout.wineScale, tableY);
-    if (layout.waterScale !== 1) scaleAboutBase(waterGeometry, layout.waterScale, tableY);
     const wineLiquid = new THREE.CylinderGeometry(0.031, 0.031, 0.0015, 20, 1, false);
     wineLiquid.translate(wine[0], tableY + 0.001 + TABLEWARE.wineHeight * layout.wineScale * layout.wineFill, wine[2]);
     setVertexColor(wineLiquid, 0x5c1823);
     geometryParts.liquid.push(wineLiquid);
-    if (layout.waterFill > 0) {
+    if (layout.waterFill > 0 && !layout.mug) {
       const waterLiquid = new THREE.CylinderGeometry(0.026, 0.026, 0.001, 20, 1, false);
       waterLiquid.translate(water[0], tableY + 0.001 + TABLEWARE.waterHeight * layout.waterScale * layout.waterFill, water[2]);
       setVertexColor(waterLiquid, 0xdbe7e5);
@@ -986,7 +1018,7 @@ function buildTableware(scene) {
     settingGeometryRanges.push({ min: settingBounds.min.toArray(), max: settingBounds.max.toArray() });
     settings.push({
       chair: `room03-dining-chair-${chair.x}-${chair.z}`,
-      tableY, plateCenter, wineCenter: wine, waterCenter: water,
+      tableY, plateCenter, wineCenter: wine, waterCenter: water, cup: layout.mug ? { kind: "mug", glaze: layout.mug.name, color: `#${new THREE.Color(layout.mug.body).getHexString()}`, radiusMm: cupRadius * 1000, handleMm: 30, juice: true } : { kind: "water-glass", radiusMm: cupRadius * 1000 },
       plateDiameterMm: TABLEWARE.plateDiameter * 1000, bowlDiameterMm: TABLEWARE.bowlDiameter * 1000, bowlHeightMm: TABLEWARE.bowlHeight * 1000,
       plateTableGapMm, bowlPlateGapMm, accentPlateGapMm, napkinTableGapMm, forkNapkinGapMm,
       wineTableGapMm, waterTableGapMm,
@@ -1029,6 +1061,19 @@ function buildTableware(scene) {
   setVertexColor(boardGeometry, 0x9b7448);
   geometryParts.ceramic.push(keepBox("board", boardGeometry));
   const boardTop = runnerTop + BOARD.thickness;
+  // Orange-juice carafe (Paul 2026-10-31: juice for both dinner and Thanksgiving). Clear glass bottle with a short neck and a cream cap, at the
+  // window-end corner beside seat 0 (off the view axis so it does not hide a mug), clear of the knife, mugs and wine glasses (extras.juice).
+  const JUICE = { x: -0.84, z: 0.30, fill: 0.150 };
+  const juiceY = tableYAt(JUICE.x, JUICE.z);
+  const carafeProfile = [[0, 0], [0.036, 0], [0.042, 0.005], [0.044, 0.020], [0.044, 0.150], [0.040, 0.175], [0.026, 0.198], [0.0175, 0.212], [0.016, 0.238], [0.0172, 0.242]];
+  keepBox("juiceCarafe", addLathe("glass", carafeProfile, 28, [JUICE.x, juiceY, JUICE.z], 0xe8f0ed));
+  // Juice as a closed solid just inside the glass (1.5 mm), so it reads as a filled volume through the glass from every angle.
+  const juiceProfile = [[0, 0.003], [0.035, 0.003], [0.0405, 0.007], [0.0425, 0.020], [0.0425, JUICE.fill], [0, JUICE.fill]];
+  keepBox("juice", addLathe("liquid", juiceProfile, 28, [JUICE.x, juiceY, JUICE.z], 0xe98a1c));
+  const cap = new THREE.CylinderGeometry(0.0185, 0.0185, 0.016, 24, 1, false);
+  cap.translate(JUICE.x, juiceY + 0.242 + 0.007, JUICE.z);
+  setVertexColor(cap, 0xeee6d6);
+  geometryParts.ceramic.push(keepBox("juiceCap", cap));
   const addEllipsoid = (bucket, radii, position, color, yawRad, tilt = 0) => {
     const geometry = new THREE.SphereGeometry(1, 14, 8);
     geometry.scale(...radii);
@@ -1528,11 +1573,12 @@ function buildTableware(scene) {
   const boxClear = (a, b) => mm(Math.hypot(Math.max(a.min.x - b.max.x, b.min.x - a.max.x, 0), Math.max(a.min.y - b.max.y, b.min.y - a.max.y, 0), Math.max(a.min.z - b.max.z, b.min.z - a.max.z, 0)));
   // Plan-view distance from a round tableware footprint (plate, glasses) to a piece's bounding rectangle; a union box per setting would be too coarse.
   const circleClear = ([cx, cz], radius, box) => Math.hypot(Math.max(box.min.x - cx, cx - box.max.x, 0), Math.max(box.min.z - cz, cz - box.max.z, 0)) - radius;
-  const FOOTPRINTS = settings.flatMap((setting) => [[[setting.plateCenter[0], setting.plateCenter[2]], plateRadius], [[setting.wineCenter[0], setting.wineCenter[2]], wineRadius], [[setting.waterCenter[0], setting.waterCenter[2]], waterRadius]]);
+  const FOOTPRINTS = settings.flatMap((setting) => [[[setting.plateCenter[0], setting.plateCenter[2]], plateRadius], [[setting.wineCenter[0], setting.wineCenter[2]], wineRadius], [[setting.waterCenter[0], setting.waterCenter[2]], setting.cup.radiusMm / 1000]]);
   const minSettingClearance = (box) => mm(Math.min(...FOOTPRINTS.map(([centre, radius]) => circleClear(centre, radius, box))));
   group.userData.extras = {
     runner: { widthMm: mm(RUNNER.width), lengthMm: mm(RUNNER.length), gapMm: mm(extraBoxes.runner.min.y - runnerBaseY), minSettingClearanceMm: minSettingClearance(extraBoxes.runner), maxX: Number(extraBoxes.runner.max.x.toFixed(3)) },
     pitcher: { heightMm: mm(extraBoxes.pitcher.max.y - extraBoxes.pitcher.min.y), gapMm: mm(extraBoxes.pitcher.min.y - runnerTop), minSettingClearanceMm: minSettingClearance(extraBoxes.pitcher), lemonClearanceMm: boxClear(extraBoxes.pitcher, lemonBounds), boardClearanceMm: boxClear(extraBoxes.pitcher, extraBoxes.board), maxX: Number(extraBoxes.pitcher.max.x.toFixed(3)) },
+    juice: { x: JUICE.x, z: JUICE.z, radiusMm: 44, heightMm: mm(extraBoxes.juiceCap.max.y - extraBoxes.juiceCarafe.min.y), gapMm: mm(extraBoxes.juiceCarafe.min.y - juiceY), liquidInsideMm: mm(Math.min(extraBoxes.juice.min.y - extraBoxes.juiceCarafe.min.y, extraBoxes.juiceCarafe.max.x - extraBoxes.juice.max.x)), minSettingClearanceMm: minSettingClearance(extraBoxes.juiceCarafe), boardClearanceMm: boxClear(extraBoxes.juiceCarafe, extraBoxes.board), runnerClearanceMm: mm(extraBoxes.runner.min.x - extraBoxes.juiceCarafe.max.x) },
     board: { gapMm: mm(extraBoxes.board.min.y - runnerTop), minSettingClearanceMm: minSettingClearance(extraBoxes.board), lemonClearanceMm: boxClear(extraBoxes.board, lemonBounds) },
     feast: (() => {
       const restItems = foodItems.filter((item) => !item.lifted && item.embed > 0);
