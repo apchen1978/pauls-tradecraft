@@ -5009,52 +5009,173 @@ function buildRoom03EntryWallDetails(scene) {
     return geometry;
   };
   const parts = [];
-  // Round wall clock under the Redwood print. First a cream face with an oak rim (Paul 2026-10-30: the grey mirror disc read strange), then modernised
-  // (Paul 2026-10-31, after a look at what US shoppers buy: a 12 in matte-black thin metal frame, white matte dial, a silent sweep movement, bold quarter
-  // batons with fine ticks between, slim black hands and one slim coral second hand). Seen from the room the wall's x axis runs right-to-left, hence
-  // the mirrored sin below.
-  const CLOCK = [0.32, 0.83];
-  parts.push(paint(place(new THREE.CylinderGeometry(0.205, 0.205, 0.008, 40), [CLOCK[0], CLOCK[1], 3.735], [Math.PI / 2, 0, 0]), 0xf4f2ec));
-  parts.push(paint(place(new THREE.TorusGeometry(0.212, 0.0085, 6, 40), [CLOCK[0], CLOCK[1], 3.728]), 0x232422));
-  const clockBar = (length, width, radius, angle, z, color, centered = true) => {
-    const reach = centered ? radius : radius + length / 2;
-    parts.push(paint(place(new THREE.BoxGeometry(width, length, 0.004), [CLOCK[0] - Math.sin(angle) * reach, CLOCK[1] + Math.cos(angle) * reach, z], [0, 0, angle]), color));
+  // Cork board (Paul 2026-10-31: the round clock read out of place beside the TV). A 360 x 300 mm cork panel in a thin oak frame, hung at a natural
+  // 1.0 m centre between the TV (x <= -0.04) and the hook rail, below the Redwood print (bottom y 1.175), with a child's crayon drawing, a generic
+  // takeout menu and a farmers-market flyer pinned on it (abstract marks only: no readable text, brand or logo). The cork and papers come from one
+  // canvas atlas on this mesh's own material; every other part samples the atlas's white corner, so the wall stays one draw call.
+  const atlas = document.createElement("canvas");
+  atlas.width = atlas.height = 1024;
+  const ctx = atlas.getContext("2d");
+  let seed = 7;
+  const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 1024, 1024);
+  // Cork: warm base, thousands of granules in three tones.
+  ctx.fillStyle = "#b9895a"; ctx.fillRect(0, 0, 640, 480);
+  for (let i = 0; i < 14000; i++) {
+    const tone = rand();
+    ctx.fillStyle = tone < 0.4 ? "#9c6d42" : tone < 0.75 ? "#c99d6c" : tone < 0.93 ? "#86592f" : "#dcb489";
+    const r = 0.8 + rand() * 2.4;
+    ctx.beginPath(); ctx.ellipse(rand() * 640, rand() * 480, r, r * (0.6 + rand() * 0.6), rand() * 3, 0, Math.PI * 2); ctx.fill();
+  }
+  const crayon = (points, colour, width = 5) => {
+    ctx.strokeStyle = colour; ctx.lineWidth = width; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    for (let pass = 0; pass < 3; pass++) {
+      ctx.globalAlpha = 0.55; ctx.beginPath();
+      points.forEach(([x, y], i) => { const jx = x + (rand() - 0.5) * 3, jy = y + (rand() - 0.5) * 3; if (i) ctx.lineTo(jx, jy); else ctx.moveTo(jx, jy); });
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
   };
-  for (let i = 0; i < 12; i++) clockBar(i % 3 === 0 ? 0.04 : 0.012, i % 3 === 0 ? 0.011 : 0.003, 0.168, (i * Math.PI) / 6, 3.7285, 0x232422);
-  clockBar(0.10, 0.009, 0, (305 * Math.PI) / 180, 3.7265, 0x232422, false);
-  clockBar(0.152, 0.006, 0, (60 * Math.PI) / 180, 3.7245, 0x232422, false);
-  clockBar(0.178, 0.0022, 0, (215 * Math.PI) / 180, 3.7225, 0xe2674a, false);
-  clockBar(0.044, 0.0035, 0, (35 * Math.PI) / 180, 3.7225, 0xe2674a, false);
-  parts.push(paint(place(new THREE.CylinderGeometry(0.0085, 0.0085, 0.006, 14), [CLOCK[0], CLOCK[1], 3.7255], [Math.PI / 2, 0, 0]), 0x232422));
-  parts.push(paint(place(new THREE.CylinderGeometry(0.0045, 0.0045, 0.006, 10), [CLOCK[0], CLOCK[1], 3.7215], [Math.PI / 2, 0, 0]), 0xe2674a));
-  // Three black iron J-hooks and one dish towel, mounted in front of the wall and below the existing artwork.
-  parts.push(paint(place(new THREE.BoxGeometry(0.31, 0.022, 0.014), [0.73, 1.145, 3.733]), 0x2b2b2b));
-  for (const x of [0.62, 0.73, 0.84]) {
+  const scribbleFill = (x, y, w, h, colour) => { for (let k = 0; k < h; k += 4) crayon([[x, y + k], [x + w, y + k + 2]], colour, 4); };
+  // Child's drawing (x 0..300, y 500..720): house, sun, a family of three and a lemon tree.
+  ctx.fillStyle = "#fbf8f0"; ctx.fillRect(0, 500, 300, 220);
+  scribbleFill(0, 690, 300, 30, "#6fae4a");
+  crayon([[60, 690], [60, 620], [140, 620], [140, 690]], "#d0463a", 5); crayon([[50, 622], [100, 575], [150, 622]], "#7a4a2a", 6);
+  scribbleFill(88, 650, 22, 40, "#3b6fb6");
+  for (let k = 0; k < 14; k++) { const a = (k / 14) * Math.PI * 2; crayon([[255 + Math.cos(a) * 20, 545 + Math.sin(a) * 20], [255 + Math.cos(a) * 32, 545 + Math.sin(a) * 32]], "#f2b51c", 3); }
+  ctx.fillStyle = "#f6c625"; ctx.beginPath(); ctx.arc(255, 545, 17, 0, Math.PI * 2); ctx.fill();
+  for (const [fx, h] of [[170, 52], [192, 44], [210, 30]]) { crayon([[fx, 690 - h], [fx, 690 - h * 0.35]], "#2b2b2b", 3); crayon([[fx - 8, 690], [fx, 690 - h * 0.35], [fx + 8, 690]], "#2b2b2b", 3); crayon([[fx - 10, 690 - h * 0.7], [fx + 10, 690 - h * 0.7]], "#2b2b2b", 3); ctx.strokeStyle = "#2b2b2b"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(fx, 690 - h - 7, 7, 0, Math.PI * 2); ctx.stroke(); }
+  crayon([[260, 690], [262, 630]], "#7a4a2a", 6);
+  ctx.fillStyle = "#4f9a3c"; ctx.beginPath(); ctx.arc(262, 615, 26, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#f7d21e"; for (const [lx, ly] of [[250, 606], [272, 618], [258, 628], [276, 600]]) { ctx.beginPath(); ctx.ellipse(lx, ly, 5, 4, 0.4, 0, Math.PI * 2); ctx.fill(); }
+  // Generic takeout menu (x 320..520, y 500..800): coloured header band, a bowl icon, rows of unreadable grey "text" bars and dotted price leaders.
+  ctx.fillStyle = "#fffdf6"; ctx.fillRect(320, 500, 200, 300);
+  ctx.fillStyle = "#b8352b"; ctx.fillRect(320, 500, 200, 46);
+  ctx.fillStyle = "#f3e2c0"; for (let k = 0; k < 5; k++) ctx.fillRect(340 + k * 30, 516, 20, 12);
+  ctx.strokeStyle = "#b8352b"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(420, 575, 20, 0, Math.PI); ctx.stroke(); ctx.beginPath(); ctx.moveTo(398, 575); ctx.lineTo(442, 575); ctx.stroke();
+  for (let row = 0; row < 11; row++) { const y = 612 + row * 16; ctx.fillStyle = row % 4 === 0 ? "#6b2c24" : "#8a8580"; ctx.fillRect(334, y, row % 4 === 0 ? 70 : 60 + rand() * 50, 6); ctx.fillStyle = "#c2bdb6"; for (let d = 0; d < 8; d++) ctx.fillRect(440 + d * 6, y + 3, 2, 2); ctx.fillStyle = "#6b6560"; ctx.fillRect(492, y, 16, 6); }
+  // Generic farmers-market flyer (x 540..760, y 500..790): green header, produce illustrations, abstract text bars, a date block.
+  ctx.fillStyle = "#f5efd9"; ctx.fillRect(540, 500, 220, 290);
+  ctx.fillStyle = "#4e7a3a"; ctx.fillRect(540, 500, 220, 54);
+  ctx.fillStyle = "#e8dfb8"; ctx.fillRect(556, 516, 150, 10); ctx.fillRect(556, 532, 100, 8);
+  const produce = [[580, 600, 22, "#d0412f"], [630, 596, 18, "#f2a12a"], [676, 604, 20, "#7aa83c"], [720, 598, 16, "#8c3d6e"], [600, 650, 16, "#e3c13a"], [652, 652, 20, "#d0412f"], [704, 650, 18, "#5d8f34"]];
+  for (const [px, py, pr, pc] of produce) { ctx.fillStyle = pc; ctx.beginPath(); ctx.arc(px, py, pr, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "#3f6a2a"; ctx.fillRect(px - 2, py - pr - 6, 4, 8); }
+  ctx.fillStyle = "#6f6a5c"; for (let row = 0; row < 4; row++) ctx.fillRect(556, 692 + row * 14, 120 + rand() * 60, 6);
+  ctx.fillStyle = "#4e7a3a"; ctx.fillRect(556, 750, 70, 26);
+  const atlasTexture = new THREE.CanvasTexture(atlas);
+  atlasTexture.colorSpace = THREE.SRGBColorSpace; atlasTexture.anisotropy = 4;
+  const textured = new Set();
+  const atlasUv = (geometry, [x0, y0, x1, y1]) => {
+    const uv = geometry.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, (x0 + uv.getX(i) * (x1 - x0)) / 1024, 1 - (y1 - uv.getY(i) * (y1 - y0)) / 1024);
+    textured.add(geometry);
+    return geometry;
+  };
+  const WALL_Z = 3.74;
+  const BOARD = { x: 0.27, y: 1.00, w: 0.36, h: 0.30, frame: 0.018, depth: 0.018 };
+  const boardFront = WALL_Z - BOARD.depth;
+  // Oak frame: four mitred-looking rails, back face on the wall (0 mm).
+  for (const [sx, sy, px, py] of [[BOARD.w + 2 * BOARD.frame, BOARD.frame, 0, BOARD.h / 2 + BOARD.frame / 2], [BOARD.w + 2 * BOARD.frame, BOARD.frame, 0, -BOARD.h / 2 - BOARD.frame / 2], [BOARD.frame, BOARD.h, -BOARD.w / 2 - BOARD.frame / 2, 0], [BOARD.frame, BOARD.h, BOARD.w / 2 + BOARD.frame / 2, 0]]) {
+    parts.push(paint(place(new THREE.BoxGeometry(sx, sy, BOARD.depth), [BOARD.x + px, BOARD.y + py, WALL_Z - BOARD.depth / 2]), 0xb88b5b));
+  }
+  // Cork panel recessed 6 mm behind the frame face. Seen from the room the wall's x axis runs right-to-left, so the panel is turned to face -z.
+  const corkZ = boardFront + 0.006;
+  parts.push(atlasUv(paint(place(new THREE.PlaneGeometry(BOARD.w, BOARD.h), [BOARD.x, BOARD.y, corkZ], [0, Math.PI, 0]), 0xffffff), [0, 0, 640, 480]));
+  // Papers: slightly rotated, bowed off the cork (lifted 1-4 mm at the free corners), each held by a push pin.
+  const pins = [];
+  const paper = (region, w, h, cx, cy, roll, pinColour) => {
+    const sheet = new THREE.PlaneGeometry(w, h, 6, 6);
+    const position = sheet.attributes.position;
+    for (let i = 0; i < position.count; i++) { const u = position.getX(i) / w + 0.5, v = position.getY(i) / h + 0.5; position.setZ(i, 0.0008 + 0.0032 * (1 - v) * (0.4 + Math.abs(u - 0.5)) ); }
+    sheet.rotateZ(roll); sheet.rotateY(Math.PI);
+    sheet.translate(cx, cy, corkZ - 0.0004);
+    parts.push(atlasUv(paint(sheet, 0xffffff), region));
+    const pinX = cx + Math.sin(roll) * (h / 2 - 0.012), pinY = cy + Math.cos(roll) * (h / 2 - 0.012);
+    const head = new THREE.SphereGeometry(0.0055, 12, 8); head.scale(1, 1, 0.75);
+    head.translate(pinX, pinY, corkZ - 0.0062);
+    parts.push(paint(head, pinColour));
+    const shank = new THREE.CylinderGeometry(0.0012, 0.0012, 0.008, 6); shank.rotateX(Math.PI / 2); shank.translate(pinX, pinY, corkZ - 0.0012);
+    parts.push(paint(shank, 0xb9bcbf));
+    pins.push([pinX, pinY]);
+  };
+  // Seen from the room +x is to the left; the drawing is pinned on the TV side, menu in the middle, flyer toward the hooks.
+  paper([0, 500, 300, 720], 0.140, 0.105, BOARD.x - 0.09, BOARD.y + 0.06, -0.05, 0xd8402f);
+  paper([320, 500, 520, 800], 0.100, 0.150, BOARD.x + 0.012, BOARD.y - 0.045, 0.06, 0x2f6fb8);
+  paper([540, 500, 760, 790], 0.100, 0.135, BOARD.x + 0.112, BOARD.y + 0.02, -0.08, 0xf0c531);
+  // Hook rail moved toward the right of the alcove so the board and the hung things each have room: three black iron J-hooks.
+  const RAIL = { x: 0.685, y: 1.145, hooks: [0.585, 0.685, 0.785] };
+  const HOOK_R = 0.0055, CUP = { y: 1.055, z: 3.70 };
+  parts.push(paint(place(new THREE.BoxGeometry(0.31, 0.022, 0.014), [RAIL.x, RAIL.y, 3.733]), 0x2b2b2b));
+  for (const x of RAIL.hooks) {
     const hookPath = new THREE.CatmullRomCurve3([
       new THREE.Vector3(x, 1.145, 3.73),
       new THREE.Vector3(x, 1.115, 3.70),
       new THREE.Vector3(x, 1.08, 3.685),
-      new THREE.Vector3(x, 1.055, 3.70),
+      new THREE.Vector3(x, CUP.y, CUP.z),
       new THREE.Vector3(x, 1.06, 3.72),
     ]);
-    parts.push(paint(new THREE.TubeGeometry(hookPath, 10, 0.0055, 6, false), 0x2b2b2b));
+    parts.push(paint(new THREE.TubeGeometry(hookPath, 10, HOOK_R, 6, false), 0x2b2b2b));
   }
-  // One red kitchen towel over the middle hook (Paul 2026-10-30: a small linen coat read as odd next to the TV). Each is a flat cloth with a cream
-  // stripe pair near the hem and a darker fold at the top where it lies over the hook; the two outer hooks stay free.
-  const towel = (x, h, tone, fold) => {
-    parts.push(paint(place(new THREE.PlaneGeometry(0.15, h), [x, 1.09 - h / 2, 3.722]), tone));
-    parts.push(paint(place(new THREE.PlaneGeometry(0.15, 0.03), [x, 1.075, 3.7215]), fold));
-    for (const dy of [0.075, 0.105]) parts.push(paint(place(new THREE.PlaneGeometry(0.15, 0.012), [x, 1.09 - h + dy, 3.7215]), 0xf1e6d2));
-  };
-  towel(0.73, 0.34, 0xb83a2e, 0x8f2822);
-  // A shallow floating key shelf with a single low oak dish, tucked below the clock.
+  // Natural canvas tote on the right hook (seen from the room): soft body against the wall, fuller at the bottom, top edge sagging between the
+  // handles; two striped webbing handles meet over the hook and rest in its cup (0.5 mm embed). No print, text or logo.
+  const TOTE = { x: RAIL.hooks[2], top: 0.80, w: 0.22, h: 0.30 };
+  const tote = new THREE.BoxGeometry(TOTE.w, TOTE.h, 1, 12, 14, 2);
+  {
+    const position = tote.attributes.position;
+    for (let i = 0; i < position.count; i++) {
+      const x = position.getX(i), y = position.getY(i), z = position.getZ(i);
+      const u = x / TOTE.w * 2, v = y / TOTE.h + 0.5; // v 0 bottom .. 1 top
+      const thick = 0.010 + 0.034 * Math.pow(Math.max(0, 1 - v), 1.3) * (1 - 0.55 * u * u);
+      const sag = -0.012 * (1 - u * u) * Math.pow(Math.max(0, v), 6);
+      const front = z < 0 ? -thick : 0.0005; // back face pressed 0.5 mm into the wall, front bulges into the room
+      position.setXYZ(i, x * (1 - 0.03 * v), y + sag + 0.0015 * Math.sin(x * 70 + y * 40), WALL_Z + front);
+    }
+    tote.translate(TOTE.x, TOTE.top - TOTE.h / 2, 0);
+    const colours = new Float32Array(position.count * 3), c = new THREE.Color();
+    for (let i = 0; i < position.count; i++) { const n = Math.abs(Math.sin(position.getX(i) * 311 + position.getY(i) * 173) * 43758.5) % 1; c.set(position.getY(i) < TOTE.top - TOTE.h + 0.035 ? 0xd3c6a9 : 0xe6dcc4).multiplyScalar(0.96 + 0.06 * n); c.toArray(colours, i * 3); }
+    tote.setAttribute("color", new THREE.Float32BufferAttribute(colours, 3));
+    parts.push(tote);
+  }
+  const STRAP_R = 0.005, strapSeatY = CUP.y + HOOK_R + STRAP_R - 0.0005;
+  for (const side of [-1, 1]) {
+    const x0 = TOTE.x + side * 0.065;
+    const strapPath = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(x0, TOTE.top - 0.015, WALL_Z - 0.012),
+      new THREE.Vector3(x0 - side * 0.02, TOTE.top + 0.09, 3.722),
+      new THREE.Vector3(TOTE.x + side * 0.012, strapSeatY - 0.012, CUP.z + 0.002),
+      new THREE.Vector3(TOTE.x + side * 0.003, strapSeatY, CUP.z),
+    ]);
+    const strap = new THREE.TubeGeometry(strapPath, 24, STRAP_R, 6, false);
+    strap.scale(1, 1, 1);
+    const colours = new Float32Array(strap.attributes.position.count * 3), c = new THREE.Color();
+    for (let i = 0; i < strap.attributes.position.count; i++) { c.set([0x2c3e5c, 0xefe6d2, 0x2c3e5c, 0xb5523a, 0x2c3e5c, 0xefe6d2, 0x2c3e5c][i % 7]); c.toArray(colours, i * 3); }
+    strap.setAttribute("color", new THREE.Float32BufferAttribute(colours, 3));
+    parts.push(strap);
+  }
+  // Plain washed-navy baseball cap on the left hook: hung by its back opening, the opening's top edge resting in the hook cup, crown facing the
+  // room, brim pointing down with its lower edge leaning on the wall. No team logo or text.
+  const CAP = { x: RAIL.hooks[0], r: 0.085, tilt: 0.226 };
+  const capParts = [];
+  const crown = new THREE.SphereGeometry(CAP.r, 28, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+  crown.rotateX(-Math.PI / 2); crown.scale(1, 1, 0.8);
+  capParts.push(paint(crown, 0x34435c));
+  for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2; const seam = new THREE.TorusGeometry(CAP.r * 0.995, 0.0009, 3, 24, Math.PI / 2); seam.rotateY(Math.PI / 2); seam.rotateX(0); seam.rotateZ(a); seam.scale(1, 1, 0.8); capParts.push(paint(seam, 0x283449)); }
+  const button = new THREE.SphereGeometry(0.0065, 10, 6); button.translate(0, 0, -CAP.r * 0.8 - 0.002); capParts.push(paint(button, 0x34435c));
+  const brim = new THREE.CylinderGeometry(1, 1, 0.004, 28, 1, false, -Math.PI / 2, Math.PI);
+  brim.scale(CAP.r * 0.98, 1, 0.075); brim.rotateX(Math.PI / 2); // half-disc in the rim plane, below the crown
+  brim.translate(0, -CAP.r * 0.86, -0.006); brim.rotateX(0.30);
+  capParts.push(paint(brim, 0x2e3b52));
+  for (const g of capParts) { g.rotateX(-CAP.tilt); g.translate(CAP.x, strapSeatY - CAP.r * Math.cos(CAP.tilt) + 0.0005, CUP.z + CAP.r * Math.sin(CAP.tilt)); parts.push(g); }
+  // A shallow floating key shelf with a single low oak dish (unchanged).
   parts.push(paint(place(new THREE.BoxGeometry(0.38, 0.025, 0.12), [0.32, 0.43, 3.68]), 0xb88b5b));
   parts.push(paint(place(new THREE.CylinderGeometry(0.052, 0.058, 0.012, 14), [0.32, 0.449, 3.68]), 0xc6a77e));
+  // Non-textured parts sample the atlas's white corner so vertex colours stay exact.
+  for (const part of parts) if (!textured.has(part)) { const uv = part.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, 0.97, 0.03); }
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
   if (!geometry) throw new Error("Could not merge Room 03 entry wall details");
   geometry.computeVertexNormals();
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.78, metalness: 0.04, side: THREE.DoubleSide });
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.78, metalness: 0.04, side: THREE.DoubleSide, map: atlasTexture });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = "room03-entry-wall-details";
   mesh.userData.category = "entry-details";
@@ -5065,8 +5186,11 @@ function buildRoom03EntryWallDetails(scene) {
     mesh,
     vertices: geometry.attributes.position.count,
     bounds: () => { const box = new THREE.Box3().setFromObject(mesh); return { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() }; },
-    clock: { center: [0.32, 0.83, 3.735], diameterMm: 410, wallGapMm: 1 },
-    hooks: { count: 3, railCenter: [0.73, 1.145, 3.733] },
+    clock: null,
+    corkboard: { center: [BOARD.x, BOARD.y, WALL_Z - BOARD.depth / 2], sizeMm: [Math.round((BOARD.w + 2 * BOARD.frame) * 1000), Math.round((BOARD.h + 2 * BOARD.frame) * 1000)], bottomY: BOARD.y - BOARD.h / 2 - BOARD.frame, topY: BOARD.y + BOARD.h / 2 + BOARD.frame, minX: BOARD.x - BOARD.w / 2 - BOARD.frame, maxX: BOARD.x + BOARD.w / 2 + BOARD.frame, wallGapMm: 0, papers: 3, pins: pins.length },
+    hooks: { count: RAIL.hooks.length, railCenter: [RAIL.x, RAIL.y, 3.733], xs: RAIL.hooks, cupY: CUP.y, cupZ: CUP.z, radiusMm: HOOK_R * 1000 },
+    tote: { hookX: TOTE.x, strapSeatY, strapRadiusMm: STRAP_R * 1000, strapHookEmbedMm: Number(((CUP.y + HOOK_R + STRAP_R - strapSeatY) * 1000).toFixed(2)), minX: tote.boundingBox?.min.x ?? null, ...(() => { tote.computeBoundingBox(); return { minX: tote.boundingBox.min.x, maxX: tote.boundingBox.max.x, bottomY: tote.boundingBox.min.y, wallGapMm: Number(((WALL_Z - tote.boundingBox.max.z) * 1000).toFixed(1)) }; })() },
+    cap: { hookX: CAP.x, plain: true },
     shelf: { center: [0.32, 0.43, 3.68], dishTopY: 0.455 },
   };
 }
@@ -6319,7 +6443,7 @@ export async function start({ stage, onReady = () => {} }) {
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
     const thanksgivingInfo = thanksgivingGroup ? { vertices: thanksgivingGroup.userData.vertices, meshes: thanksgivingGroup.children.filter((child) => child.isMesh).length, visible: thanksgivingGroup.visible, mounted: thanksgivingGroup.parent === scene, items: thanksgivingGroup.userData.items, minNeighbourMm: thanksgivingGroup.userData.minNeighbourMm } : null;
     const tablewareInfo = tablewareGroup ? { foodVariant: tablewareGroup.getObjectByName("room03-tableware-food")?.geometry === tablewareGroup.userData.foodVariants?.thanksgiving ? "turkey" : "chicken", vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
-    return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, wallpaper: grasscloth.info(), entryNook: entryNook.info(), pendantPaper: (() => { const paper = scene.getObjectByName("pendant-paper-tiers"); const box = new THREE.Box3().setFromObject(scene.getObjectByName("room03-pendant-tiered")); return paper ? { tiers: PENDANT_TIERS.radii.length, radiiMm: PENDANT_TIERS.radii.map((r) => Math.round(r * 1000)), emissive: paper.material.emissiveIntensity, materialName: paper.material.name, vertices: paper.geometry.attributes.position.count, bounds: { min: box.min.toArray(), max: box.max.toArray() } } : null; })(), yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-tiered") }, propBounds, propGeometry, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, curtains: room03Curtains.info(), kitchenHub: { vertices: kitchenHub.vertices, bounds: kitchenHub.bounds() }, wokTools: { vertices: wokTools.vertices, bounds: wokTools.bounds() }, counterFresh: { vertices: counterFresh.vertices, bounds: counterFresh.bounds() }, lampBlanket: { vertices: lampBlanket.vertices, bounds: lampBlanket.bounds(), legFit: lampBlanket.legFit }, credenzaDecor: { vertices: credenzaDecor.vertices, bounds: credenzaDecor.bounds() }, entryWallDetails: { vertices: entryWallDetails.vertices, bounds: entryWallDetails.bounds(), clock: entryWallDetails.clock, hooks: entryWallDetails.hooks, shelf: entryWallDetails.shelf }, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}`, ceiling: `#${materials.ceiling.color.getHexString()}`, beam: `#${materials.beam.color.getHexString()}`, floor: `#${materials.floor.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, wallpaper: grasscloth.info(), entryNook: entryNook.info(), pendantPaper: (() => { const paper = scene.getObjectByName("pendant-paper-tiers"); const box = new THREE.Box3().setFromObject(scene.getObjectByName("room03-pendant-tiered")); return paper ? { tiers: PENDANT_TIERS.radii.length, radiiMm: PENDANT_TIERS.radii.map((r) => Math.round(r * 1000)), emissive: paper.material.emissiveIntensity, materialName: paper.material.name, vertices: paper.geometry.attributes.position.count, bounds: { min: box.min.toArray(), max: box.max.toArray() } } : null; })(), yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-tiered") }, propBounds, propGeometry, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, curtains: room03Curtains.info(), kitchenHub: { vertices: kitchenHub.vertices, bounds: kitchenHub.bounds() }, wokTools: { vertices: wokTools.vertices, bounds: wokTools.bounds() }, counterFresh: { vertices: counterFresh.vertices, bounds: counterFresh.bounds() }, lampBlanket: { vertices: lampBlanket.vertices, bounds: lampBlanket.bounds(), legFit: lampBlanket.legFit }, credenzaDecor: { vertices: credenzaDecor.vertices, bounds: credenzaDecor.bounds() }, entryWallDetails: { vertices: entryWallDetails.vertices, bounds: entryWallDetails.bounds(), clock: entryWallDetails.clock, corkboard: entryWallDetails.corkboard, hooks: entryWallDetails.hooks, tote: entryWallDetails.tote, cap: entryWallDetails.cap, shelf: entryWallDetails.shelf }, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}`, ceiling: `#${materials.ceiling.color.getHexString()}`, beam: `#${materials.beam.color.getHexString()}`, floor: `#${materials.floor.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
