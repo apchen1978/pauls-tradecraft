@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./kitchen.js?v=100";
+import { start, ROOM_TITLE } from "./kitchen.js?v=101";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -6,7 +6,7 @@ const COPY = {
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", robotLabel: "廚房小機器人：點我看要去哪個房間", robotLine: "我是廚房的小幫手。想去哪個房間？", doorLabel: "房間的門：點一下打開", doorLine: "這扇門通到其他房間。想去哪一間？", robotToLiving: "← 客廳 Room 01", robotToBedroom: "臥室 Room 02 →", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
-    center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", swapsLabel: "換搭配",
+    center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", nook: "走近小角落", swapsLabel: "換搭配",
     swaps: {
       "cable-car": ["右側牆的畫", { "cable-car": "舊金山電車", "fog-bridge": "霧中金門大橋", "marin-hills": "馬林海岬", "poster-sun": "山丘與太陽" }],
       "redwood-path": ["入口走廊的畫", { "redwood-path": "紅杉步道", "ferry-building": "渡輪大廈", "oak-street": "橡樹街", "poster-arch": "拱門海報", "poster-leaf": "葉片海報" }],
@@ -30,7 +30,7 @@ const COPY = {
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
     otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", robotLabel: "Kitchen robot: tap to choose another room", robotLine: "I look after the kitchen. Where would you like to go?", doorLabel: "Room door: tap to open", doorLine: "This door leads to the other rooms. Where to?", robotToLiving: "← Living room, Room 01", robotToBedroom: "Bedroom, Room 02 →", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
-    center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", swapsLabel: "Swap the look",
+    center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", nook: "Closer to the nook", swapsLabel: "Swap the look",
     swaps: {
       "cable-car": ["Painting, right wall", { "cable-car": "Cable car", "fog-bridge": "Golden Gate in fog", "marin-hills": "Marin headlands", "poster-sun": "Hills and sun" }],
       "redwood-path": ["Painting, entry hall", { "redwood-path": "Redwood path", "ferry-building": "Ferry Building", "oak-street": "Oak street", "poster-arch": "Arch poster", "poster-leaf": "Leaf poster" }],
@@ -156,6 +156,7 @@ function renderCopy() {
   $("centerView").textContent = centerMode ? copy.orbit : copy.center;
   $("centerView").setAttribute("aria-pressed", String(centerMode));
   $("plaqueView").textContent = copy.plaque;
+  $("nookView").textContent = copy.nook;
   renderSwaps();
   document.querySelector('#stage canvas')?.setAttribute('aria-label', copy.canvasLabel);
   for (const id of ["headerOtherRooms", "immersiveOtherRooms"]) {
@@ -215,9 +216,11 @@ document.addEventListener("keydown", (event) => {
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
 });
 $("immersiveEnter").addEventListener("click", () => setImmersive(true));
-$("centerView").addEventListener("click", () => { centerMode = !centerMode; room?.setCenterView(centerMode); renderCopy(); });
+$("centerView").addEventListener("click", () => { if (!centerMode) room?.setNookView?.(false); centerMode = !centerMode; room?.setCenterView(centerMode); renderCopy(); });
 // Turn the orbit to the entry wall (180 degrees), where the house plaque hangs; leaves the standing view first if it is on.
-$("plaqueView").addEventListener("click", () => { if (centerMode) { centerMode = false; room?.setCenterView(false); } room?.setView(Math.PI); renderCopy(); });
+$("plaqueView").addEventListener("click", () => { room?.setNookView?.(false); if (centerMode) { centerMode = false; room?.setCenterView(false); } room?.setView(Math.PI); renderCopy(); });
+// Step closer to the small entry nook (cork board, totes, key shelf); leaves the standing view first, like the entry-wall button.
+$("nookView").addEventListener("click", () => { if (centerMode) { centerMode = false; room?.setCenterView(false); } room?.setNookView(true); renderCopy(); });
 $("immersiveExit").addEventListener("click", () => setImmersive(false));
 addEventListener("popstate", (event) => setImmersive(Boolean(event.state?.room03Immersive), false));
 addEventListener("keydown", (event) => {
@@ -300,6 +303,7 @@ start({ stage: $("stage"), onReady: (instance) => {
   $("immersiveEnter").hidden = false;
   $("centerView").hidden = false;
   $("plaqueView").hidden = false;
+  $("nookView").hidden = false;
   $("swaps").hidden = false;
   renderCopy();
   void room.setMood(mood);

@@ -24,7 +24,7 @@
     .status { position:absolute; z-index:2; top:50%; left:50%; transform:translate(-50%,-50%); padding:9px 14px; border-radius:999px; background:#fffE; font-size:14px; }
     .immersive-enter,.immersive-exit { display:none; }
     .view-buttons { position:absolute; z-index:4; top:10px; left:10px; display:flex; flex-wrap:wrap; gap:8px; }
-    .center-view, .plaque-view { min-height:44px; padding:9px 14px; border:1px solid #fff9; border-radius:999px; background:#29352de8; color:#fff; font:700 14px system-ui,sans-serif; cursor:pointer; }
+    .center-view, .plaque-view, .nook-view { min-height:44px; padding:9px 14px; border:1px solid #fff9; border-radius:999px; background:#29352de8; color:#fff; font:700 14px system-ui,sans-serif; cursor:pointer; }
     .toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin:12px clamp(12px,2vw,28px) 0; }
     .moods { display:flex; flex-wrap:wrap; gap:8px; }
     @media (max-width:500px) {
@@ -99,6 +99,7 @@
       <div class="view-buttons">
         <button class="center-view" id="centerView" type="button" aria-pressed="false" hidden></button>
         <button class="plaque-view" id="plaqueView" type="button" hidden></button>
+        <button class="nook-view" id="nookView" type="button" hidden></button>
       </div>
       <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
       <button class="immersive-exit" id="immersiveExit" type="button"></button>
@@ -112,6 +113,6 @@
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=101"></script>
+  <script type="module" src="page.js?v=102"></script>
 </body>
 </html>

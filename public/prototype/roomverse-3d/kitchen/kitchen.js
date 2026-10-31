@@ -5229,6 +5229,7 @@ export async function start({ stage, onReady = () => {} }) {
   function setCenterView(on) {
     if (on === Boolean(centerView)) return;
     if (on) {
+      if (nookSaved) setNookView(false);
       savedOrbit = { position: camera.position.clone(), target: controls.target.clone(), zoom: camera.zoom };
       controls.enabled = false;
       canvas.tabIndex = 0;
@@ -5250,6 +5251,31 @@ export async function start({ stage, onReady = () => {} }) {
       controls.update();
       render();
     }
+  }
+  // Paul 2026-10-31: visitors want to look closer at the small pink entry nook (cork board, two totes, key shelf, TV, Redwood print). The nook
+  // view re-centres the same orbit on the nook: target on the wall at board/tote height, camera 1.52 m back from the wall in the main room
+  // (z 2.22, in front of the front-wall face at z 2.34) at 1.45 m eye height. Orbit is held to +/-0.30 rad of straight-on and zoom to
+  // 1.58-1.92 m, so the closest any orbit can bring the camera is z ~2.31 with x -0.12..0.82, never into the lintel, the piers or the nook's
+  // side walls (x +/-0.94). Leaving restores the previous orbit and limits.
+  const NOOK_VIEW = { target: [0.35, 1.0, 3.74], position: [0.35, 1.45, 2.22], azimuthHalfRange: 0.30, minDistance: 1.58 };
+  let nookSaved = null;
+  function setNookView(on) {
+    if (on === Boolean(nookSaved)) return;
+    if (on) {
+      if (centerView) setCenterView(false);
+      nookSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance };
+      controls.minDistance = NOOK_VIEW.minDistance;
+      controls.target.set(...NOOK_VIEW.target);
+      camera.position.set(...NOOK_VIEW.position);
+      controls.minAzimuthAngle = Math.PI - NOOK_VIEW.azimuthHalfRange;
+      controls.maxAzimuthAngle = -Math.PI + NOOK_VIEW.azimuthHalfRange;
+    } else {
+      camera.position.copy(nookSaved.position);
+      controls.target.copy(nookSaved.target);
+      controls.minAzimuthAngle = nookSaved.minAzimuth; controls.maxAzimuthAngle = nookSaved.maxAzimuth; controls.minDistance = nookSaved.minDistance;
+      nookSaved = null;
+    }
+    controls.update(); render();
   }
   function centerPointerDown(event) {
     if (!centerView || !event.isPrimary || event.button !== 0) return;
@@ -5812,7 +5838,7 @@ export async function start({ stage, onReady = () => {} }) {
       compactCameraActive = nextCompact;
       const preset = compactCameraActive ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
       controls.maxDistance = preset.maxDistance;
-      if (!centerView) {
+      if (!centerView && !nookSaved) {
         camera.position.set(...preset.position);
         controls.target.set(...preset.target);
         controls.update();
@@ -6461,6 +6487,7 @@ export async function start({ stage, onReady = () => {} }) {
     },
     setArtwork: (frameKey, optionKey, onDone) => wallArt.setArtwork(frameKey, optionKey, (result) => { render(); onDone?.(result); }),
     artOptions: () => Object.fromEntries(Object.entries(wallArt.artOptions).map(([frame, options]) => [frame, Object.keys(options)])),
+    setNookView, nookViewInfo: () => nookSaved ? { target: [...NOOK_VIEW.target], position: [...NOOK_VIEW.position], azimuthHalfRange: NOOK_VIEW.azimuthHalfRange, minDistance: NOOK_VIEW.minDistance } : null,
     centerViewInfo: () => centerView ? { station: [...CENTER_STATION], yaw: centerView.yaw, pitch: centerView.pitch } : null,
     setLang: () => {}, samplePixels, sampleNdc,
     setView: (azimuth = 0) => {
