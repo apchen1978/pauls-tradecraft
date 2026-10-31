@@ -1178,11 +1178,13 @@ function buildTableware(scene) {
     foodItems.push({ name: `drumstick-${index}`, box: finalBox, embed: index ? -0.009 : 0.002 });
   });
   // Wings tucked against the flanks.
+  const turkeyWingStart = geometryParts.food.length;
   for (const side of [-1, 1]) {
     const wing = new THREE.SphereGeometry(1, 10, 6);
     wing.scale(0.034, 0.013, 0.017); wing.rotateY(side * 0.45);
     placeFood(`wing-${side}`, wing, BX - 0.023 * FS, side * 0.042 * FS, 0xa35a24, 0xd6974d, { speckle: 0.2, burn: 0.8 }, 0.001, FS);
   }
+  const turkeyBirdEnd = geometryParts.food.length;
   // Roasted potatoes and carrots along the two long sides, lemon halves at the tail end.
   [[-0.120, 0.076, 0.017, 0.012, 0.014, 0.4], [0.060, 0.076, 0.018, 0.013, 0.015, -0.3], [-0.070, -0.076, 0.016, 0.012, 0.014, 1.1], [0.110, -0.076, 0.018, 0.012, 0.014, 0.7]].forEach(([lx, lz, rx, ry, rz, yaw], index) => {
     const potato = new THREE.SphereGeometry(1, 10, 7);
@@ -1194,6 +1196,7 @@ function buildTableware(scene) {
     carrot.rotateZ(Math.PI / 2); carrot.rotateY(yaw);
     placeFood(`carrot-${index}`, carrot, lx, lz, 0xb8591d, 0xdb8035, { speckle: 0.16, burn: 0.4 });
   });
+  const turkeyGarnishStart = geometryParts.food.length;
   [[0.212, 0.050, 0.3], [0.212, -0.050, -0.5]].forEach(([lx, lz, yaw], index) => {
     const half = new THREE.SphereGeometry(1, 10, 5, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
     half.scale(0.019, 0.015, 0.0165);
@@ -1220,6 +1223,7 @@ function buildTableware(scene) {
     placeFood(`arugula-${index}`, leaf, lx, lz, 0x4f6a34, 0x7b9150, { speckle: 0.2 }, -(0.012 + index * 0.004));
     foodItems[foodItems.length - 1].lifted = true;
   });
+  const turkeyHerbStart = geometryParts.food.length;
   // Rosemary sprigs laid on the breast: a thin stem and a few needle-like leaves each, resting on the skin (offsets from the bird's centre).
   [[-0.038, -0.014, 0.35], [-0.018, 0.016, -0.5], [0.002, -0.006, 0.9], [0.024, 0.020, -0.2]].forEach(([dx, dz, yaw]) => {
     const worldX = PLATTER.x + BX + dx * FS, worldZ = PLATTER.z + dz * FS;
@@ -1262,6 +1266,86 @@ function buildTableware(scene) {
         part.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
       }
     }
+    // Dinner retains the original roast chicken. Thanksgiving swaps the food geometry in the same mesh:
+    // a fuller bird, roasted vegetables, cranberries, squash and herbs on the existing platter.
+    let turkeyGeometry = null;
+    if (kind === "food") {
+      const turkeyParts = parts.map((part, index) => {
+        if (index < turkeyWingStart) return null; // replace the chicken breast and legs with turkey-specific forms
+        if (index >= turkeyGarnishStart && index < turkeyHerbStart) return null;
+        const copy = part.clone();
+        if (index >= turkeyHerbStart) copy.userData.restOnBreast = true;
+        if (index < turkeyBirdEnd || index >= turkeyHerbStart) {
+          copy.translate(-(PLATTER.x + BX), -platterTop, -PLATTER.z);
+          copy.scale(1.10, 1.18, 1.06);
+          copy.translate(PLATTER.x + BX, platterTop, PLATTER.z);
+          copy.computeVertexNormals();
+        }
+        return copy;
+      }).filter(Boolean);
+      // A fuller breast with a flattened underside and gentle skin irregularities; built separately so dinner's chicken is unchanged.
+      const turkeyBreast = new THREE.SphereGeometry(1, 40, 26);
+      const breastPos = turkeyBreast.attributes.position;
+      for (let i = 0; i < breastPos.count; i++) {
+        const ux = breastPos.getX(i), uy = breastPos.getY(i), uz = breastPos.getZ(i);
+        const taper = ux > 0 ? 1 - 0.27 * ux * ux : 1 - 0.04 * ux * ux;
+        const skin = uy > 0 ? 0.0014 * (Math.sin(ux * 19 + uz * 9) + Math.sin(uz * 23 - ux * 7)) * uy : 0;
+        let y = uy * (uy < 0 ? 0.28 : 1) * 0.060 * (0.9 + 0.1 * taper);
+        if (uy > 0) y += 0.010 * Math.exp(-((ux + 0.32) ** 2) / 0.11) * uy - 0.003 * Math.exp(-(uz * uz) / 0.012) * uy;
+        breastPos.setXYZ(i, ux * 0.094, y + skin, uz * 0.061 * taper);
+      }
+      turkeyBreast.scale(FS, FS, FS); turkeyBreast.rotateY(0.07);
+      turkeyBreast.translate(PLATTER.x + BX, 0, PLATTER.z);
+      turkeyBreast.computeBoundingBox();
+      turkeyBreast.translate(0, platterTop - 0.002 - turkeyBreast.boundingBox.min.y, 0);
+      turkeyBreast.computeVertexNormals();
+      // The rosemary was placed for the chicken's skin; re-seat each sprig piece on the new breast so it rests 0.5 mm into the skin, not floating.
+      const breastProbe = new THREE.Mesh(turkeyBreast);
+      const herbRay = new THREE.Raycaster(), herbPoint = new THREE.Vector3(), herbDown = new THREE.Vector3(0, -1, 0);
+      for (const herb of turkeyParts) {
+        if (!herb.userData.restOnBreast) continue;
+        const herbPos = herb.attributes.position;
+        let gap = Infinity;
+        for (let i = 0; i < herbPos.count; i++) {
+          herbPoint.fromBufferAttribute(herbPos, i);
+          herbRay.set(herbPoint.clone().setY(herbPoint.y + 0.2), herbDown);
+          const hit = herbRay.intersectObject(breastProbe, false)[0];
+          if (hit) gap = Math.min(gap, herbPoint.y - hit.point.y);
+        }
+        if (Number.isFinite(gap)) herb.translate(0, -gap - 0.0005, 0);
+      }
+      turkeyParts.push(paintFood(turkeyBreast, 0x9d5421, 0xe1a65d, { speckle: 0.19, burn: 0.6 }));
+      // Turkey drumsticks are fuller and rounded, with a short bone tip, rather than the chicken's long tapered legs.
+      for (const side of [-1, 1]) {
+        const direction = new THREE.Vector3(0.9, 0.15, side * 0.42).normalize();
+        const rotation = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+        const origin = new THREE.Vector3(PLATTER.x + BX + 0.055, platterTop + 0.026, PLATTER.z + side * 0.040);
+        const leg = new THREE.LatheGeometry([[0,0],[0.018,0.001],[0.025,0.016],[0.027,0.035],[0.024,0.055],[0.017,0.075],[0.010,0.095],[0.007,0.105],[0,0.107]].map(([r,y]) => new THREE.Vector2(r,y)), 20);
+        leg.applyQuaternion(rotation); leg.translate(origin.x, origin.y, origin.z);
+        leg.computeBoundingBox();
+        if (leg.boundingBox.min.y < platterTop - 0.002) leg.translate(0, platterTop - 0.002 - leg.boundingBox.min.y, 0);
+        turkeyParts.push(paintFood(leg, 0x94501e, 0xe0a45b, { speckle: 0.16, burn: 0.55 }));
+        const tip = new THREE.SphereGeometry(0.006, 10, 7);
+        const end = origin.clone().addScaledVector(direction, 0.105);
+        tip.translate(end.x, end.y, end.z);
+        turkeyParts.push(paintFood(tip, 0xd5c3a0, 0xeadbc0, { speckle: 0.03 }));
+      }
+      for (const [x, z] of [[-0.195,-0.035],[-0.185,0.015],[-0.15,0.072],[0.16,-0.055],[0.18,-0.035],[0.195,0.025]]) {
+        const berry = new THREE.SphereGeometry(0.007, 10, 7);
+        berry.translate(PLATTER.x + x, platterTop + 0.005, PLATTER.z + z);
+        turkeyParts.push(paintFood(berry, 0x681a25, 0x9f2630, { speckle: 0.07 }));
+      }
+      for (const [x, z, yaw] of [[-0.18,-0.055,0.3],[-0.18,0.04,-0.5],[0.16,0.055,0.2]]) {
+        const squash = new THREE.SphereGeometry(1, 12, 7);
+        squash.scale(0.023, 0.009, 0.014); squash.rotateY(yaw);
+        squash.translate(PLATTER.x + x, platterTop + 0.007, PLATTER.z + z);
+        turkeyParts.push(paintFood(squash, 0x9e5820, 0xd9963c, { speckle: 0.12, burn: 0.25 }));
+      }
+      turkeyGeometry = mergeGeometries(turkeyParts, false);
+      turkeyParts.forEach((part) => part.dispose());
+      if (!turkeyGeometry) throw new Error("Could not merge Thanksgiving roast food");
+      turkeyGeometry.computeVertexNormals();
+    }
     const geometry = mergeGeometries(parts, false);
     parts.forEach((part) => part.dispose());
     if (!geometry) throw new Error(`Could not merge Room 03 ${kind} tableware`);
@@ -1274,6 +1358,7 @@ function buildTableware(scene) {
     mesh.receiveShadow = true;
     mesh.renderOrder = renderOrder[kind];
     group.add(mesh);
+    if (turkeyGeometry) group.userData.foodVariants = { dinner: geometry, thanksgiving: turkeyGeometry };
   }
   const lemon = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl");
   const lemonBounds = lemon ? new THREE.Box3().setFromObject(lemon) : null;
@@ -1291,6 +1376,7 @@ function buildTableware(scene) {
   });
   group.userData.settings = settings;
   group.userData.vertices = vertices;
+  group.userData.baseVertices = vertices;
   group.userData.materials = {
     glass: { transparent: materials.glass.transparent, depthWrite: materials.glass.depthWrite, renderOrder: renderOrder.glass },
     liquid: { transparent: materials.liquid.transparent, depthWrite: materials.liquid.depthWrite, renderOrder: renderOrder.liquid },
@@ -5286,6 +5372,12 @@ export async function start({ stage, onReady = () => {} }) {
     }
     if (tablewareGroup) {
       tablewareGroup.visible = look.tableware;
+      const food = tablewareGroup.getObjectByName("room03-tableware-food");
+      const variants = tablewareGroup.userData.foodVariants;
+      if (food && variants) {
+        food.geometry = name === "thanksgiving" ? variants.thanksgiving : variants.dinner;
+        tablewareGroup.userData.vertices = tablewareGroup.userData.baseVertices - variants.dinner.attributes.position.count + food.geometry.attributes.position.count;
+      }
       if (look.tableware && tablewareGroup.parent !== scene) scene.add(tablewareGroup);
       else if (!look.tableware && tablewareGroup.parent === scene) scene.remove(tablewareGroup);
     }
@@ -5999,7 +6091,7 @@ export async function start({ stage, onReady = () => {} }) {
     const courtyardMap = scene.getObjectByName("courtyard-background")?.material?.map?.name || null;
     const centerpieceFit = scene.getObjectByName("prop-tabletop-meyer-lemon-bowl")?.userData.fit || [];
     const thanksgivingInfo = thanksgivingGroup ? { vertices: thanksgivingGroup.userData.vertices, meshes: thanksgivingGroup.children.filter((child) => child.isMesh).length, visible: thanksgivingGroup.visible, mounted: thanksgivingGroup.parent === scene, items: thanksgivingGroup.userData.items, minNeighbourMm: thanksgivingGroup.userData.minNeighbourMm } : null;
-    const tablewareInfo = tablewareGroup ? { vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
+    const tablewareInfo = tablewareGroup ? { foodVariant: tablewareGroup.getObjectByName("room03-tableware-food")?.geometry === tablewareGroup.userData.foodVariants?.thanksgiving ? "turkey" : "chicken", vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
     return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, centerpieceFit, wallpaper: grasscloth.info(), entryNook: entryNook.info(), pendantPaper: (() => { const paper = scene.getObjectByName("pendant-paper-tiers"); const box = new THREE.Box3().setFromObject(scene.getObjectByName("room03-pendant-tiered")); return paper ? { tiers: PENDANT_TIERS.radii.length, radiiMm: PENDANT_TIERS.radii.map((r) => Math.round(r * 1000)), emissive: paper.material.emissiveIntensity, materialName: paper.material.name, vertices: paper.geometry.attributes.position.count, bounds: { min: box.min.toArray(), max: box.max.toArray() } } : null; })(), yardView, ottoman: { ...loungeOttoman.userData.measure(), vertices: loungeOttoman.userData.vertices, meshes: loungeOttoman.children.length }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-tiered") }, propBounds, propGeometry, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, curtains: room03Curtains.info(), kitchenHub: { vertices: kitchenHub.vertices, bounds: kitchenHub.bounds() }, wokTools: { vertices: wokTools.vertices, bounds: wokTools.bounds() }, counterFresh: { vertices: counterFresh.vertices, bounds: counterFresh.bounds() }, lampBlanket: { vertices: lampBlanket.vertices, bounds: lampBlanket.bounds(), legFit: lampBlanket.legFit }, credenzaDecor: { vertices: credenzaDecor.vertices, bounds: credenzaDecor.bounds() }, entryWallDetails: { vertices: entryWallDetails.vertices, bounds: entryWallDetails.bounds(), clock: entryWallDetails.clock, hooks: entryWallDetails.hooks, shelf: entryWallDetails.shelf }, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}`, ceiling: `#${materials.ceiling.color.getHexString()}`, beam: `#${materials.beam.color.getHexString()}`, floor: `#${materials.floor.color.getHexString()}` }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
@@ -6042,6 +6134,11 @@ export async function start({ stage, onReady = () => {} }) {
       canvas.removeEventListener('pointercancel', centerPointerEnd);
       canvas.removeEventListener('keydown', centerKey);
       resizeObserver.disconnect(); controls.dispose(); renderer.dispose();
+      const foodVariants = tablewareGroup?.userData.foodVariants;
+      const activeFood = tablewareGroup?.getObjectByName("room03-tableware-food")?.geometry;
+      if (foodVariants) for (const geometry of Object.values(foodVariants)) {
+        if (!tablewareGroup.parent || geometry !== activeFood) geometry.dispose();
+      }
       const disposedTextures = new Set();
       scene.traverse((object) => {
         if (object.geometry) object.geometry.dispose();
