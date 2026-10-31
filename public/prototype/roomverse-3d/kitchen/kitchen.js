@@ -1766,7 +1766,7 @@ function buildRoom03NookDecor(scene) {
     add(new THREE.SphereGeometry(1, 7, 5), i % 3 ? 0xd8c8a4 : 0xe9dfc6, top.toArray(), [tiltX, 0, tiltZ], [0.016, 0.055, 0.016]);
   }
   // Two flush recessed downlights in the hall ceiling (underside y 2.58), the same cream trim and warm lens as Room 02's desk downlight. They are small on
-  // purpose: the room's star is outside. One soft warm point light (no shadow) stands for both and follows the mood in setMood.
+  // purpose: the room's star is outside. The glow follows the mood in setMood.
   const DOWNLIGHTS = [[-0.35, 2.92], [0.30, 3.32]];
   for (const [x, z] of DOWNLIGHTS) add(new THREE.CylinderGeometry(0.05, 0.05, 0.012, 24), 0xf2efe8, [x, 2.574, z]);
   const lensGeometry = mergeGeometries(DOWNLIGHTS.map(([x, z]) => { const lens = new THREE.CircleGeometry(0.035, 24); lens.rotateX(Math.PI / 2); lens.translate(x, 2.567, z); return lens; }), false);
@@ -1774,9 +1774,17 @@ function buildRoom03NookDecor(scene) {
   const lens = new THREE.Mesh(lensGeometry, lensMaterial);
   lens.name = "room03-nook-downlight-lenses"; lens.userData.category = "entry-nook";
   scene.add(lens);
-  const downlight = new THREE.PointLight(0xffd7a8, 0, 3.2, 2);
-  downlight.name = "room03-nook-downlight"; downlight.castShadow = false; downlight.position.set(-0.02, 2.40, 3.12);
-  scene.add(downlight);
+  // No extra scene light (the room is at its light budget): each lens gets a soft additive halo on the ceiling instead.
+  const haloCanvas = document.createElement("canvas"); haloCanvas.width = haloCanvas.height = 64;
+  const haloContext = haloCanvas.getContext("2d"), haloGradient = haloContext.createRadialGradient(32, 32, 0, 32, 32, 32);
+  haloGradient.addColorStop(0, "rgba(255,226,180,0.95)"); haloGradient.addColorStop(0.35, "rgba(255,210,150,0.35)"); haloGradient.addColorStop(1, "rgba(255,200,140,0)");
+  haloContext.fillStyle = haloGradient; haloContext.fillRect(0, 0, 64, 64);
+  const haloTexture = new THREE.CanvasTexture(haloCanvas); haloTexture.colorSpace = THREE.SRGBColorSpace;
+  const haloGeometry = mergeGeometries(DOWNLIGHTS.map(([x, z]) => { const disc = new THREE.PlaneGeometry(0.5, 0.5); disc.rotateX(Math.PI / 2); disc.translate(x, 2.562, z); return disc; }), false);
+  const haloMaterial = new THREE.MeshBasicMaterial({ map: haloTexture, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+  const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+  halo.name = "room03-nook-downlight-halo"; halo.userData.category = "entry-nook"; halo.visible = false;
+  scene.add(halo);
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
   geometry.computeVertexNormals();
@@ -1786,8 +1794,8 @@ function buildRoom03NookDecor(scene) {
   mesh.castShadow = true; mesh.receiveShadow = true;
   scene.add(mesh);
   mesh.updateMatrixWorld(true);
-  const vertices = geometry.attributes.position.count + lensGeometry.attributes.position.count;
-  return { vertices, mesh, downlight, lensMaterial, bounds: () => { const box = new THREE.Box3().setFromObject(mesh); return { min: box.min.toArray(), max: box.max.toArray() }; } };
+  const vertices = geometry.attributes.position.count + lensGeometry.attributes.position.count + haloGeometry.attributes.position.count;
+  return { vertices, mesh, halo, lensMaterial, bounds: () => { const box = new THREE.Box3().setFromObject(mesh); return { min: box.min.toArray(), max: box.max.toArray() }; } };
 }
 
 // Thanksgiving-only table layer (Paul 2026-10-29: more than the everyday dinner): a burgundy wine bottle, two extra glasses of red wine, a bowl of
@@ -5387,7 +5395,7 @@ export async function start({ stage, onReady = () => {} }) {
       controls.minAzimuthAngle = nookSaved.minAzimuth; controls.maxAzimuthAngle = nookSaved.maxAzimuth; controls.minDistance = nookSaved.minDistance; controls.maxDistance = nookSaved.maxDistance;
       nookSaved = null;
     }
-    controls.update(); render();
+    controls.update(); setMood(currentMood);
   }
   function centerPointerDown(event) {
     if (!centerView || !event.isPrimary || event.button !== 0) return;
@@ -5429,9 +5437,9 @@ export async function start({ stage, onReady = () => {} }) {
     // are dusty pink (Paul 2026-10-31: blue everywhere made the small room read flat). One mesh, two materials.
     const BLUE_BOXES = [
       [[2.1, 2.7, 0.12], [-2.05, 1.35, 2.4]], [[2.1, 2.7, 0.12], [2.05, 1.35, 2.4]], [[2.0, 0.6, 0.12], [0, 2.4, 2.4]],
-      [[2.0, 0.12, 1.4], [0, -0.06, 3.1]], [[2.0, 0.12, 1.4], [0, 2.64, 3.1]],
+      [[3.5, 0.12, 1.4], [0, -0.06, 3.1]], [[3.5, 0.12, 1.4], [0, 2.64, 3.1]],
     ];
-    const PINK_BOXES = [[[0.12, 2.7, 1.4], [-1, 1.35, 3.1]], [[0.12, 2.7, 1.4], [1, 1.35, 3.1]], [[2.0, 2.7, 0.12], [0, 1.35, 3.8]]];
+    const PINK_BOXES = [[[0.12, 2.7, 1.4], [-1.7, 1.35, 3.1]], [[0.12, 2.7, 1.4], [1.7, 1.35, 3.1]], [[3.5, 2.7, 0.12], [0, 1.35, 3.8]]];
     const merge = (list) => {
       const parts = list.map(([size, position]) => { const geometry = new THREE.BoxGeometry(...size); geometry.translate(...position); return geometry; });
       const merged = mergeGeometries(parts, false); parts.forEach((part) => part.dispose()); return merged;
@@ -5869,7 +5877,7 @@ export async function start({ stage, onReady = () => {} }) {
     if (floorLampLight) { floorLampLight.intensity = look.floorLamp; floorLampLight.visible = look.floorLamp > 0; }
     if (tableLampLight) { tableLampLight.intensity = look.tableLamp; tableLampLight.visible = look.tableLamp > 0; }
     if (screenCoolLight) { screenCoolLight.intensity = look.screenCool; screenCoolLight.visible = look.screenCool > 0; }
-    { const glow = look.tableLamp > 0 ? Math.min(1, 0.4 + look.tableLamp * 0.12) : 0; nookDecor.downlight.intensity = glow * 1.4; nookDecor.downlight.visible = glow > 0; nookDecor.lensMaterial.emissiveIntensity = glow * 4; }
+    { const moodGlow = look.tableLamp > 0 ? Math.min(1, 0.4 + look.tableLamp * 0.12) : 0, glow = nookSaved ? Math.max(moodGlow, 0.7) : moodGlow * 0.5; nookDecor.halo.material.opacity = glow * (nookSaved ? 0.55 : 0.3); nookDecor.halo.visible = glow > 0; nookDecor.lensMaterial.emissiveIntensity = glow * (nookSaved ? 4 : 2.4); }
     renderer.toneMappingExposure = look.exposure;
     scene.background = skyMaterials[look.sky];
     const yardMaterial = scene.getObjectByName("courtyard-background")?.material;
@@ -5923,14 +5931,17 @@ export async function start({ stage, onReady = () => {} }) {
     if (floorHalo) { floorHalo.material.opacity = look.floorLamp > 0 ? Math.min(0.5, 0.15 * look.floorLamp) : 0; floorHalo.visible = look.floorLamp > 0; }
     if (tableHalo) { tableHalo.material.opacity = look.tableLamp > 0 ? Math.min(0.5, 0.15 * look.tableLamp) : 0; tableHalo.visible = look.tableLamp > 0; }
     const screenMaterial = mediaUnit.screen.material;
-    const screenTexture = look.screenMap === "screen-movie-city-night-v1" ? movieScreenTexture
-      : look.screenMap === "screen-thanksgiving-parade-v1" ? thanksgivingScreenTexture
+    // Paul 2026-10-31: the "closer to the nook" view always shows a lit TV (the city-night picture) and the downlights, in every mood that has no picture of its own.
+    const nookLit = Boolean(nookSaved) && !look.screenMap;
+    const screenMap = look.screenMap || (nookLit ? "screen-movie-city-night-v1" : null);
+    const screenTexture = screenMap === "screen-movie-city-night-v1" ? movieScreenTexture
+      : screenMap === "screen-thanksgiving-parade-v1" ? thanksgivingScreenTexture
       : null;
-    if (look.screenMap && screenTexture?.image) {
+    if (screenMap && screenTexture?.image) {
       screenMaterial.map = screenTexture;
-      screenMaterial.color.setHex(look.screenColor);
-      screenMaterial.toneMapped = look.screenToneMapped;
-    } else if (look.screenMap) {
+      screenMaterial.color.setHex(nookLit ? 0xffffff : look.screenColor);
+      screenMaterial.toneMapped = nookLit ? false : look.screenToneMapped;
+    } else if (screenMap) {
       // Missing picture stays the dark powered-off screen. No white or black stand-in.
       screenMaterial.map = null;
       screenMaterial.color.setHex(0x171918);
