@@ -22,7 +22,7 @@ const HOUSE_PLAQUE = Object.freeze({
 });
 const ROUNDING_SEGMENTS = 2;
 const COLORS = Object.freeze({
-  cream: 0xf0e8da, oak: 0xbc8a53, beam: 0x8a5a2e, ceiling: 0xc48a4a, olive: 0x71805b,
+  cream: 0xf0e8da, oak: 0xbc8a53, beam: 0xe2d9c8, ceiling: 0xe1cfaf, olive: 0x71805b,
   stone: 0xc9c0ae, black: 0x282a27, steel: 0x8e918b, jute: 0xc4ae80,
   terracotta: 0xad452b, opal: 0xf2d7a0,
 });
@@ -5033,7 +5033,7 @@ export async function start({ stage, onReady = () => {} }) {
     loungePillow: 0x7f946c, screenColor: 0x171918, screenToneMapped: true, screenMap: null,
     floorLamp: 0, tableLamp: 0, screenCool: 0, pictureLightEmissive: 0, counterPendantEmissive: 0,
     yardMap: null,
-    ceilingColor: COLORS.ceiling, ceilingEmissiveColor: 0x9b6938, beamColor: COLORS.beam, tableTint: 0xffffff, curtainColor: 0xcdbfa8,
+    ceilingColor: COLORS.ceiling, ceilingEmissiveColor: 0xb7a68b, beamColor: COLORS.beam, tableTint: 0xffffff, curtainColor: 0xcdbfa8,
   };
   const MOOD_LOOK = Object.freeze({
     // Bay Area daylight (Paul 2026-10-30: the golden look read as a video game at the door). Neutral-white sun, a cool pale sky, an untinted garden and
@@ -5044,7 +5044,7 @@ export async function start({ stage, onReady = () => {} }) {
       hemi: 1.15, hemiSky: 0xf1f5fb, hemiGround: 0xd8d0c3, ambient: 0.36, pendant: 0.2, under: 0.70, side: 0.70,
       exposure: 0.96, yard: 0xc2c9cb, globe: 0.2, sky: "day",
       floor: 0xc8bda9, jute: 0xcfc2a4, ceilingEmissive: 0.10,
-      ceilingColor: 0xd8c6a8, ceilingEmissiveColor: 0xa8957a, beamColor: 0x8e765a, tableTint: new THREE.Color().setRGB(1.0, 1.2, 1.6),
+      ceilingColor: 0xe8ddc9, ceilingEmissiveColor: 0xb4a995, beamColor: 0xebe4d6, tableTint: new THREE.Color().setRGB(1.0, 1.2, 1.6),
       warmGlow: 0.4, wokGlow: 0.6,
       windowWallBounce: 0.10, windowWallBounceVisible: true,
       pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
