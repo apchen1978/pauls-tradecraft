@@ -10,19 +10,19 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 62779, meshes: 114 }),
+  scene: Object.freeze({ vertices: 67157, meshes: 116 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 79, phone: 78 }),
+  openingDrawCalls: Object.freeze({ desktop: 80, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
   // without the tableware layer; their measured totals are 82/83 and 83/86, respectively.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 79, sunday: 79, thanksgiving: 79 }),
-    phone: Object.freeze({ daylight: 78, golden: 78, movie: 76, night: 78, dinner: 78, sunday: 78, thanksgiving: 78 }),
+    desktop: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 80, sunday: 80, thanksgiving: 80 }),
+    phone: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 79, sunday: 79, thanksgiving: 79 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
   headroom: Object.freeze({ vertices: 117, meshes: 0, desktopCalls: 0, phoneCalls: 0 }),
-  resizedPhoneCalls: 78,
+  resizedPhoneCalls: 79,
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -50,6 +50,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-10-31", change: "unbranded ketchup and mustard on counter; soy bottle replaces one wok-shelf canister; +738 vertices, existing meshes", vertices: 61328, meshes: 114, desktopCalls: 79, phoneCalls: 78 },
     { date: "2026-10-31", change: "entry hall: wall clock and red towel replaced by a cork board (crayon drawing, generic menu, market flyer; canvas atlas on the same mesh) and a canvas tote plus plain cap on the hooks (+1,769 vertices, same mesh, no new draw call)", vertices: 63097, meshes: 114, desktopCalls: 79, phoneCalls: 78 },
     { date: "2026-10-31", change: "entry hall: plain cap replaced by a second, narrower brick-red canvas tote on the left hook (-318 vertices, same mesh, no new draw call)", vertices: 62779, meshes: 114, desktopCalls: 79, phoneCalls: 78 },
+    { date: "2026-10-31", change: "entry nook decor: kilim rug and fringe, folded throw, basket and books, shoe tray with two pairs of slippers, pampas floor vase (one vertex-colour mesh, +4,378 vertices incl. lenses), two recessed downlights (lens mesh) and one warm point light that follows the mood", vertices: 67157, meshes: 116, desktopCalls: 80, phoneCalls: 79 },
   ]),
 });
 
