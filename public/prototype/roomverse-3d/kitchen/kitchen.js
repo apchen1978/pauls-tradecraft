@@ -5257,22 +5257,28 @@ export async function start({ stage, onReady = () => {} }) {
   // (z 2.22, in front of the front-wall face at z 2.34) at 1.45 m eye height. Orbit is held to +/-0.30 rad of straight-on and zoom to
   // 1.58-1.92 m, so the closest any orbit can bring the camera is z ~2.31 with x -0.12..0.82, never into the lintel, the piers or the nook's
   // side walls (x +/-0.94). Leaving restores the previous orbit and limits.
-  const NOOK_VIEW = { target: [0.35, 1.0, 3.74], position: [0.35, 1.45, 2.22], azimuthHalfRange: 0.30, minDistance: 1.58 };
+  // Paul 2026-10-31: the first nook view (1.5 m from the wall, straight on) cut the redwood print at the top and showed where the wide TV runs into the
+  // hall's side wall. The view now stands 2.8 m back (still inside the main room, looking through the opening), with the whole print, board, totes, key
+  // shelf and TV in frame and the orbit held to +/-0.12 rad and 2.5-3.2 m.
+  const NOOK_VIEW = { target: [0.30, 1.36, 3.74], position: [0.40, 1.50, 0.90], azimuthHalfRange: 0.12, minDistance: 2.5, maxDistance: 3.2, halfHfovDeg: 30, minFov: 46 };
+  const nookFov = (aspect) => Math.min(compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov, Math.max(NOOK_VIEW.minFov, 2 * Math.atan(Math.tan(NOOK_VIEW.halfHfovDeg * Math.PI / 360 * 2) / aspect) * 180 / Math.PI));
   let nookSaved = null;
   function setNookView(on) {
     if (on === Boolean(nookSaved)) return;
     if (on) {
       if (centerView) setCenterView(false);
-      nookSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance };
-      controls.minDistance = NOOK_VIEW.minDistance;
+      nookSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance };
+      controls.minDistance = NOOK_VIEW.minDistance; controls.maxDistance = NOOK_VIEW.maxDistance;
       controls.target.set(...NOOK_VIEW.target);
       camera.position.set(...NOOK_VIEW.position);
+      camera.fov = nookFov(camera.aspect); camera.updateProjectionMatrix();
       controls.minAzimuthAngle = Math.PI - NOOK_VIEW.azimuthHalfRange;
       controls.maxAzimuthAngle = -Math.PI + NOOK_VIEW.azimuthHalfRange;
     } else {
       camera.position.copy(nookSaved.position);
       controls.target.copy(nookSaved.target);
-      controls.minAzimuthAngle = nookSaved.minAzimuth; controls.maxAzimuthAngle = nookSaved.maxAzimuth; controls.minDistance = nookSaved.minDistance;
+      camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov; camera.updateProjectionMatrix();
+      controls.minAzimuthAngle = nookSaved.minAzimuth; controls.maxAzimuthAngle = nookSaved.maxAzimuth; controls.minDistance = nookSaved.minDistance; controls.maxDistance = nookSaved.maxDistance;
       nookSaved = null;
     }
     controls.update(); render();
@@ -5845,7 +5851,7 @@ export async function start({ stage, onReady = () => {} }) {
       }
     }
     camera.aspect = rect.width / rect.height;
-    camera.fov = centerView ? (compactCameraActive ? 84 : 86) : (compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov);
+    camera.fov = centerView ? (compactCameraActive ? 84 : 86) : nookSaved ? nookFov(camera.aspect) : (compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov);
     camera.updateProjectionMatrix();
     // P0b: the pendant shadow follows the same compact flag the camera uses, so a phone never pays for the point-light pass.
     pendantLight.castShadow = !compactCameraActive;
