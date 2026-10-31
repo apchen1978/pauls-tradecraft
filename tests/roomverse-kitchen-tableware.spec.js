@@ -52,7 +52,11 @@ test("tableware mood flag is complete and only dinner and Thanksgiving attach it
         // dinner 11,712 / Thanksgiving 12,820 (2026-10-31, v3). v4 (Paul 2026-10-31: detail first, vertices secondary): crowned body, thighs,
         // knobbly drumsticks, tucked wings, apple/squash/cranberry/herb garnish, all merged into the same food mesh. Measured Thanksgiving 18,798;
         // ceiling 13,500 -> 19,750 (~5% headroom). Meshes and draw calls stay at their baselines.
-        expect(info.tableware.vertices).toBeLessThanOrEqual(19750);
+        // Mugs + orange-juice carafe (Paul 2026-10-31, detail first; merged into the ceramic, glass and liquid meshes, no new mesh): measured
+        // dinner 13,252 / Thanksgiving 20,338; ceiling 19,750 -> 21,350 (~5% headroom).
+        expect(info.tableware.vertices).toBeLessThanOrEqual(21350);
+        expect(info.tableware.extras.juice, `${mood} has the orange-juice carafe`).toBeTruthy();
+        expect(info.tableware.extras.juice.gapMm, `${mood} carafe rests on the table`).toBe(0);
         // Thanksgiving also shows its own table layer (bottle, extra glasses, cranberries, candlesticks): tracked in roomverse-kitchen-thanksgiving-decor.spec.js.
         const decor = mood === "thanksgiving" ? info.thanksgivingDecor : { vertices: 0, meshes: 0 };
         expect(info.vertices - baselineVertices).toBe(info.tableware.vertices + decor.vertices);
@@ -97,6 +101,23 @@ test("four place settings fit the loaded table and glass has a stable transparen
   expect(info.tableware.materials.glass).toMatchObject({ transparent: true, depthWrite: false, renderOrder: 2 });
   expect(info.tableware.materials.liquid).toMatchObject({ transparent: true, depthWrite: false, renderOrder: 1 });
   expect(info.tableware.colors.wine).toBe("#5c1823");
+  // Drinks (Paul 2026-10-31): facing water glasses used to overlap on the centre line. Every wine glass, cup and the juice carafe footprint is
+  // now at least 15 mm clear of every other; the window-end pair are two mugs in different glazes, each with juice.
+  const drinks = info.tableware.settings.flatMap((place, index) => [
+    { name: `wine-${index}`, x: place.wineCenter[0], z: place.wineCenter[2], r: 0.044 },
+    { name: `${place.cup.kind}-${index}`, x: place.waterCenter[0], z: place.waterCenter[2], r: place.cup.radiusMm / 1000 },
+  ]).concat([{ name: "juice-carafe", x: info.tableware.extras.juice.x, z: info.tableware.extras.juice.z, r: info.tableware.extras.juice.radiusMm / 1000 }]);
+  for (let a = 0; a < drinks.length; a++) for (let b = a + 1; b < drinks.length; b++) {
+    const gapMm = (Math.hypot(drinks[a].x - drinks[b].x, drinks[a].z - drinks[b].z) - drinks[a].r - drinks[b].r) * 1000;
+    expect(gapMm, `${drinks[a].name} and ${drinks[b].name} do not overlap`).toBeGreaterThanOrEqual(15);
+  }
+  const mugs = info.tableware.settings.filter((place) => place.cup.kind === "mug");
+  expect(mugs).toHaveLength(2);
+  expect(new Set(mugs.map((place) => Math.sign(place.waterCenter[2] - 0.5))).size, "one mug on each side of the table").toBe(2);
+  expect(mugs[0].cup.color, "the two mugs have different glazes").not.toBe(mugs[1].cup.color);
+  for (const place of mugs) expect(place.cup.juice).toBe(true);
+  expect(info.tableware.extras.juice.liquidInsideMm, "juice stays inside the carafe glass").toBeGreaterThan(0);
+  expect(info.tableware.extras.juice.minSettingClearanceMm, "carafe clears the place settings").toBeGreaterThanOrEqual(15);
   // Table centre: linen runner, pitcher, bread board and bread, all measured to the millimetre.
   const extras = info.tableware.extras;
   expect(extras.runner.gapMm, "runner lies on the tabletop").toBeLessThanOrEqual(1);
