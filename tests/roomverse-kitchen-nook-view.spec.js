@@ -18,10 +18,11 @@ async function loadRoom(page, width, lang = "zh") {
 // x +/-0.94), below the lintel (y 2.1) and above the floor.
 function expectClearOfWalls(cam, label) {
   expect(cam[2], `${label}: camera in front of the front wall (z < 2.34)`).toBeLessThan(2.335);
-  expect(cam[2], `${label}: camera stays in the room`).toBeGreaterThan(0.5);
+  expect(cam[2], `${label}: camera stays in the room`).toBeGreaterThan(0.3);
   // Near the opening (z > 2.2) the camera must be inside its x span; further back the main room is about 6 m wide.
   expect(Math.abs(cam[0]), `${label}: camera clear of the nook side walls / piers`).toBeLessThan(cam[2] > 2.2 ? 0.9 : 2.8);
-  expect(cam[1], `${label}: below the lintel`).toBeLessThan(2.05);
+  if (cam[2] > 2.2) expect(cam[1], `${label}: below the lintel`).toBeLessThan(2.05);
+  expect(cam[1], `${label}: below the ceiling`).toBeLessThan(2.65);
   expect(cam[1], `${label}: above the floor`).toBeGreaterThan(0.6);
 }
 
@@ -51,8 +52,8 @@ for (const width of [1280, 390]) {
     for (let k = 0; k < 3; k++) expect(Math.abs(view.cam[k] - view.info.position[k]), `camera axis ${k}`).toBeLessThan(0.02);
     for (let k = 0; k < 3; k++) expect(Math.abs(view.target[k] - view.info.target[k]), `target axis ${k}`).toBeLessThan(0.001);
     const wallDistance = 3.74 - view.cam[2];
-    expect(wallDistance, "1.3-1.6 m from the entry wall").toBeGreaterThanOrEqual(1.3);
-    expect(wallDistance).toBeLessThanOrEqual(1.6);
+    expect(wallDistance, "2.6-3.2 m from the entry wall: far enough that the whole redwood print and the TV read naturally").toBeGreaterThanOrEqual(2.6);
+    expect(wallDistance).toBeLessThanOrEqual(3.2);
     expect(view.cam[1], "natural eye height").toBeGreaterThanOrEqual(1.3);
     expect(view.cam[1]).toBeLessThanOrEqual(1.6);
     expectClearOfWalls(view.cam, "preset");
@@ -69,13 +70,27 @@ for (const width of [1280, 390]) {
     const extremes = await page.evaluate(() => {
       const r = window.__room03, out = [];
       const t = r.controls.target.clone();
-      for (const theta of [Math.PI - 1.2, Math.PI - 0.6, Math.PI, -Math.PI + 0.6, -Math.PI + 1.2]) for (const radius of [0.6, 1.58, 1.7, 3]) for (const phi of [1.0, 1.4, 1.9]) {
+      for (const theta of [Math.PI - 1.2, Math.PI - 0.6, Math.PI, -Math.PI + 0.6, -Math.PI + 1.2]) for (const radius of [0.6, 2.5, 3, 5]) for (const phi of [1.0, 1.4, 1.9]) {
         const p = t.clone().add({ x: radius * Math.sin(phi) * Math.sin(theta), y: radius * Math.cos(phi), z: radius * Math.sin(phi) * Math.cos(theta) });
         r.camera.position.copy(p); r.controls.update(); out.push(r.camera.position.toArray());
       }
       return out;
     });
     extremes.forEach((cam, i) => expectClearOfWalls(cam, `orbit extreme ${i}`));
+    // At the nearest, farthest and both azimuth limits the board, both totes, the key shelf and the top of the print stay in frame.
+    const framed = await page.evaluate(() => {
+      const r = window.__room03, e = r.info().entryWallDetails, out = [];
+      const t = r.controls.target.clone();
+      const pts = { board: [e.corkboard.center[0], e.corkboard.center[1], 3.73], toteNatural: [(e.tote.minX + e.tote.maxX) / 2, e.tote.bottomY, 3.72], toteRed: [(e.redTote.minX + e.redTote.maxX) / 2, e.redTote.bottomY, 3.72], keyShelf: e.shelf.center, printTop: [e.corkboard.center[0], 2.3, 3.72] };
+      for (const dTheta of [-0.12, 0, 0.12]) for (const radius of [2.5, 3.2]) {
+        const theta = Math.PI + dTheta;
+        r.camera.position.set(t.x + radius * Math.sin(theta) * Math.cos(0.1), t.y + radius * Math.sin(0.1) + 0.05, t.z + radius * Math.cos(theta) * Math.cos(0.1));
+        r.controls.update(); r.camera.updateMatrixWorld();
+        for (const [k, p] of Object.entries(pts)) { const v = r.camera.position.clone().set(...p).project(r.camera); out.push({ k, dTheta, radius, x: v.x, y: v.y, z: v.z }); }
+      }
+      return out;
+    });
+    for (const f of framed) { expect(Math.abs(f.x), `${f.k} horizontally framed (${f.dTheta}, ${f.radius})`).toBeLessThanOrEqual(1); expect(Math.abs(f.y), `${f.k} vertically framed (${f.dTheta}, ${f.radius})`).toBeLessThanOrEqual(1); }
   });
 }
 
