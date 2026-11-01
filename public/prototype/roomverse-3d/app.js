@@ -733,6 +733,87 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       buttons.receiveShadow = true; tray.add(buttons);
       piece(tray, new THREE.CylinderGeometry(.003, .003, .002, 8), linenClay, 0, .0215, -.04);
       tray.rotation.y = .14; onConsole(tray, -.40, FRONT - .42);
+      // A matched pair of compact two-way speakers: warm oak cabinets tie into the built-in,
+      // while the graphite baffles and two visible drivers read clearly against the dark TV.
+      // The pair is merged by material so it adds only four draw calls, not one per detail.
+      const SPEAKER = { width: .17, height: .28, depth: .19, x: .82 };
+      const speakerWood = surface("tv-console", "#ffffff", [SPEAKER.width / .8, SPEAKER.height / .8]);
+      const speakerFace = canvasTex(256, 420, (ctx, w, h) => {
+        ctx.fillStyle = "#454640"; ctx.fillRect(0, 0, w, h);
+        const driver = (y, radius, inner) => {
+          ctx.fillStyle = "#c9c1ae"; ctx.beginPath(); ctx.arc(w / 2, y, radius, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#c4a56f"; ctx.lineWidth = 9; ctx.beginPath(); ctx.arc(w / 2, y, radius - 5, 0, Math.PI * 2); ctx.stroke();
+          ctx.fillStyle = "#756f62"; ctx.beginPath(); ctx.arc(w / 2, y, inner, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#e4ddcf"; ctx.beginPath(); ctx.arc(w / 2, y, inner * .45, 0, Math.PI * 2); ctx.fill();
+        };
+        driver(h * .65, w * .36, w * .12);
+        driver(h * .16, w * .17, w * .05);
+      });
+      const speakerBaffleMat = new THREE.MeshStandardMaterial({ map: speakerFace, color: "#ffffff", roughness: .82, side: THREE.DoubleSide });
+      const speakerConeMat = new THREE.MeshStandardMaterial({ color: "#c4bda9", roughness: .90, side: THREE.DoubleSide });
+      const speakerTrimMat = new THREE.MeshStandardMaterial({ color: "#b29b70", metalness: .28, roughness: .62 });
+      const speakerParts = { wood: [], baffle: [], cone: [], trim: [] };
+      // The old vase and single book duplicate the shelf vessel and new console books.
+      // Clear those spots so the speaker pair has a real, collision-free seat.
+      for (const name of ["tv-vase-body", "tv-vase-neck", "tv-book-one"]) {
+        const item = scene.getObjectByName(name);
+        if (item) item.visible = false;
+      }
+      const roundedSpeakerShape = (width, height, radius) => {
+        const s = new THREE.Shape(), x = width / 2, y = height / 2, r = radius;
+        s.moveTo(-x + r, -y); s.lineTo(x - r, -y); s.quadraticCurveTo(x, -y, x, -y + r);
+        s.lineTo(x, y - r); s.quadraticCurveTo(x, y, x - r, y);
+        s.lineTo(-x + r, y); s.quadraticCurveTo(-x, y, -x, y - r);
+        s.lineTo(-x, -y + r); s.quadraticCurveTo(-x, -y, -x + r, -y);
+        return s;
+      };
+      const speakerPart = (geo, list, x, y, z, yaw = Math.PI) => {
+        geo.applyMatrix4(new THREE.Matrix4().compose(
+          new THREE.Vector3(x, y, z),
+          new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0)),
+          new THREE.Vector3(1, 1, 1),
+        ));
+        list.push(geo);
+      };
+      for (const side of [-1, 1]) {
+        const x = side * SPEAKER.x, z = 0, h = SPEAKER.height, d = SPEAKER.depth;
+        const cabinet = new THREE.ExtrudeGeometry(roundedSpeakerShape(SPEAKER.width, h, .014), {
+          depth: d, bevelEnabled: true, bevelSize: .003, bevelThickness: .003, bevelSegments: 2, curveSegments: 5,
+        });
+        cabinet.translate(0, 0, -d / 2);
+        speakerPart(cabinet, speakerParts.wood, x, h / 2, z);
+        const baffle = new THREE.ExtrudeGeometry(roundedSpeakerShape(SPEAKER.width - .016, h - .016, .012), { depth: .003, bevelEnabled: false, curveSegments: 5 });
+        baffle.translate(0, 0, d / 2 + .001);
+        speakerPart(baffle, speakerParts.baffle, x, h / 2, z);
+        // Duplicate the shallow driver relief on both cabinet faces so the room-facing side
+        // stays readable even if the local wall/view convention changes.
+        for (const sign of [-1, 1]) {
+          const yaw = sign > 0 ? Math.PI : 0, faceZ = sign * (d / 2 + .015);
+          const wooferY = .095, tweeterY = .222;
+          speakerPart(new THREE.TorusGeometry(.052, .0042, 8, 32), speakerParts.trim, x, wooferY, faceZ + sign * .002, yaw);
+          speakerPart(new THREE.CircleGeometry(.044, 32), speakerParts.cone, x, wooferY, faceZ + sign * .003, yaw);
+          speakerPart(new THREE.CircleGeometry(.012, 24), speakerParts.trim, x, wooferY, faceZ + sign * .005, yaw);
+          speakerPart(new THREE.TorusGeometry(.021, .0032, 8, 24), speakerParts.trim, x, tweeterY, faceZ + sign * .002, yaw);
+          speakerPart(new THREE.CircleGeometry(.014, 24), speakerParts.cone, x, tweeterY, faceZ + sign * .004, yaw);
+        }
+      }
+      const mergeSpeakerParts = (parts) => {
+        const source = parts.map((geo) => geo.index ? geo.toNonIndexed() : geo);
+        const merged = mergeGeometries(source, false);
+        parts.forEach((geo) => geo.dispose());
+        merged.computeVertexNormals();
+        return merged;
+      };
+      const speakers = new THREE.Group(); speakers.name = "tv-wall-speakers";
+      speakers.userData.unitBoxes = [-SPEAKER.x, SPEAKER.x].map((x) => new THREE.Box3(
+        new THREE.Vector3(x - .088, -.003, -.117),
+        new THREE.Vector3(x + .088, .283, .117),
+      ));
+      for (const [kind, mat] of [["wood", speakerWood], ["baffle", speakerBaffleMat], ["cone", speakerConeMat], ["trim", speakerTrimMat]]) {
+        const mesh = piece(speakers, mergeSpeakerParts(speakerParts[kind]), mat, 0, 0, 0);
+        mesh.name = `tv-speakers-${kind}`;
+      }
+      onConsole(speakers, 0, FRONT - .38);
       buildShelfDecor(shelfArt, surface);
       consoleDecorLoaded = true; render(); return true;
     })().catch((error) => { console.warn("ROOMVERSE console details could not load", error); consoleDecorPromise = null; return false; });
@@ -3753,10 +3834,25 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     },
     consoleDetails() { // local QA only: measured tabletop contacts and inter-object clearance
       scene.updateMatrixWorld(true);
-      const old = ["tv-vase-body", "tv-vase-neck", "tv-book-one", "tv-laptop"].map((name) => ({ name, box: new THREE.Box3().setFromObject(scene.getObjectByName(name)) }));
+      const old = ["tv-vase-body", "tv-vase-neck", "tv-book-one", "tv-laptop"].map((name) => {
+        const item = scene.getObjectByName(name);
+        return item?.visible ? { name, box: new THREE.Box3().setFromObject(item) } : null;
+      }).filter(Boolean);
       const bounds = consoleDecor.children.map((obj) => ({ name: obj.name, box: new THREE.Box3().setFromObject(obj) }));
-      const collisions = bounds.flatMap((a, i) => [...old, ...bounds.slice(i + 1)].filter((b) => a.box.intersectsBox(b.box)).map((b) => [a.name, b.name]));
+      const speakerPair = consoleDecor.getObjectByName("tv-wall-speakers");
+      const speakerBox = speakerPair ? new THREE.Box3().setFromObject(speakerPair) : null;
+      const speakerMeshes = [];
+      speakerPair?.traverse((obj) => { if (obj.isMesh) speakerMeshes.push(obj); });
+      const regularBounds = bounds.filter(({ name }) => name !== "tv-wall-speakers");
+      const collisions = regularBounds.flatMap((a, i) => [...old, ...regularBounds.slice(i + 1)].filter((b) => a.box.intersectsBox(b.box)).map((b) => [a.name, b.name]));
+      const speakerUnits = speakerPair?.userData.unitBoxes.map((localBox, index) => {
+        const box = localBox.clone().applyMatrix4(speakerPair.matrixWorld);
+        [...old, ...regularBounds].filter(({ box: other }) => box.intersectsBox(other)).forEach(({ name }) => collisions.push([`tv-wall-speaker-${index ? "right" : "left"}`, name]));
+        return { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
+      }) ?? [];
       return { ready: consoleDecorLoaded, artLoaded: consoleArtLoaded, artFile: pictureFile(consoleArtTexture), collisions,
+        speakers: speakerBox ? { min: speakerBox.min.toArray(), max: speakerBox.max.toArray(), size: speakerBox.getSize(new THREE.Vector3()).toArray(), meshes: speakerMeshes.length,
+          units: speakerUnits, vertices: speakerMeshes.reduce((sum, obj) => sum + obj.geometry.attributes.position.count, 0) } : null,
         objects: bounds.map(({ name, box }) => ({ name, min: box.min.toArray(), max: box.max.toArray() })) };
     },
     loadDoorTexture,
