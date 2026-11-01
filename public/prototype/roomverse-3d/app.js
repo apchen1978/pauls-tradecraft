@@ -1387,7 +1387,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   robotPivot.position.set((rb.min.x + rb.max.x) / 2, 0, (rb.min.z + rb.max.z) / 2); scene.add(robotPivot); robotPivot.attach(robotObj);
   robotPivot.rotation.y = .5; // turned a little toward the room
   // A second robot stands by the door to Room 02 (the same model, a terracotta belt instead of sage) so a visitor knows the door opens.
-  // North of the door, clear of the leaf's swing; it faces into the room, a little towards the door. Tap it for a hint; the door is one tap further.
+  // Near the TV side, clear of the door swing; it still offers the Room 02 hint and travel action.
   const guidePivot = robotPivot.clone(true); guidePivot.name = "door-robot";
   const terracotta = new THREE.Color("#c4704c");
   guidePivot.traverse((m) => {
@@ -1396,7 +1396,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     for (let i = 0; i < gc.count; i++) if (Math.hypot(gc.getX(i) - sage.r, gc.getY(i) - sage.g, gc.getZ(i) - sage.b) < .02) gc.setXYZ(i, terracotta.r, terracotta.g, terracotta.b); // the belt is the only sage on the model
     gc.needsUpdate = true;
   });
-  guidePivot.position.set(W / 2 - .34, 0, doorZ - .8); guidePivot.rotation.y = -1.3; scene.add(guidePivot);
+  guidePivot.position.set(1.40, 0, 1.43); guidePivot.rotation.y = -2.0; scene.add(guidePivot);
   const guideHome = { y: guidePivot.position.y, r: guidePivot.rotation.y };
   // the floor lamp gets its own light just under the shade (no shadow: a light inside the closed shade mesh would be blocked)
   const shadeY = lb.min.y + (lb.max.y - lb.min.y) * .8, lampX = (lb.min.x + lb.max.x) / 2, lampZ = (lb.min.z + lb.max.z) / 2;
@@ -3103,9 +3103,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     // and nothing else on the silhouette. No corner blobs, no dangling tag: at this distance the clean outline is what reads as expensive.
     const artBox = rightWallArtGroup ? new THREE.Box3().setFromObject(rightWallArtGroup) : null;
     const wallX = artBox ? artBox.min.x : W / 2 - .02;
-    const artZ = artBox ? (artBox.min.z + artBox.max.z) / 2 : -.65;
+
     const yaw = -1.02; // turned further toward the room, so the handle bar and the wheel line both read from the sofa side
-    const centre = new THREE.Vector3(wallX - .36, 0, artZ);
+    const centre = new THREE.Vector3(wallX - .36, 0, .36);
     centre.x = Math.min(W / 2 - .42, Math.max(-W / 2 + .42, centre.x));
     centre.z = Math.min(FRONT - .5, Math.max(BACK + .5, centre.z));
 
@@ -3223,8 +3223,58 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     };
   }
 
+  // A restrained autumn arrangement beside the harbour wall, with no new lights.
+  function buildAutumnPlant() {
+    const group = new THREE.Group(); group.name = "red-leaf-plant";
+    group.position.set(2.31, 0, -0.65); group.scale.y = 0.85;
+    const addPlantPart = (geometry, material, name) => {
+      const mesh = new THREE.Mesh(geometry, material); mesh.name = name;
+      mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh); return mesh;
+    };
+    const points = [[0,0],[.085,0],[.108,.018],[.13,.075],[.135,.14],[.119,.21],[.084,.265],[.081,.28]]
+      .map(([x,y]) => new THREE.Vector2(x,y));
+    const potGeo = new THREE.LatheGeometry(points, 32);
+    const pos = potGeo.attributes.position;
+    for (let i=0;i<pos.count;i++) { const y=pos.getY(i); const d=1 + .012*Math.sin(pos.getX(i)*72 + y*21)*Math.sin(pos.getZ(i)*59 + y*9); pos.setX(i,pos.getX(i)*d);pos.setZ(i,pos.getZ(i)*d); }
+    potGeo.computeVertexNormals();
+    const pot=addPlantPart(potGeo,new THREE.MeshStandardMaterial({color:0xc8bca8,roughness:.94}),"autumn-plant-pot");
+    // Merge the dark soil with the stems: one material and one draw call.
+    const soilGeo=new THREE.CircleGeometry(.079,24).toNonIndexed().rotateX(-Math.PI/2).translate(0,.274,0);
+    const branches=[soilGeo]; const tips=[]; const base=new THREE.Vector3(0,.265,0);
+    for(let i=0;i<6;i++) {
+      const a=i*Math.PI*2/6+.18, r=.095+(i%3)*.014;
+      const tip=new THREE.Vector3(Math.cos(a)*r,0.79+i*.063,Math.sin(a)*r); tips.push(tip);
+      const stem=new THREE.CylinderGeometry(.003,.006,base.distanceTo(tip),7,1).toNonIndexed();
+      stem.rotateZ(Math.PI/2); // local X axis for the transform below
+      const mid=base.clone().add(tip).multiplyScalar(.5), dir=tip.clone().sub(base).normalize();
+      stem.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(-1,0,0),dir));stem.translate(mid.x,mid.y,mid.z);branches.push(stem);
+    }
+    addPlantPart(softMerge(branches),new THREE.MeshStandardMaterial({color:0x695137,roughness:1}),"autumn-plant-branches");
+    // One curved, pointed leaf shared by every instance; shape is geometry, not a flat square.
+    const leaf=new THREE.BufferGeometry(), vs=[], inds=[]; const steps=8;
+    for(let j=0;j<=steps;j++){const t=j/steps,w=.023*Math.pow(Math.sin(Math.PI*t),.85); for(const side of [-1,1])vs.push(side*w,t*.085,.004*Math.sin(Math.PI*t));}
+    for(let j=0;j<steps;j++){let k=j*2;inds.push(k,k+1,k+2,k+1,k+3,k+2);}
+    leaf.setAttribute('position',new THREE.Float32BufferAttribute(vs,3));leaf.setIndex(inds);leaf.computeVertexNormals();
+    const count=6*32, leaves=new THREE.InstancedMesh(leaf,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.55,side:THREE.DoubleSide}),count);
+    leaves.name='autumn-plant-leaves'; const dummy=new THREE.Object3D();let index=0;
+    const green=new THREE.Color('#7f9a45'),orange=new THREE.Color('#c66d2b'),red=new THREE.Color('#922920');
+    tips.forEach((tip,i)=>{const a=i*Math.PI*2/6+.18; for(let j=0;j<32;j++){
+      const upper=j<12, theta=(j%12)*Math.PI/6+a+.12*i;
+      const origin=upper?tip.clone():base.clone().lerp(tip,.20+(j-12)*.038);
+      if(!upper){origin.x+=.012*Math.cos(theta);origin.z+=.012*Math.sin(theta);}
+      const direction=new THREE.Vector3(Math.cos(theta)*.88,upper?.45:.5,Math.sin(theta)*.88).normalize();
+      dummy.position.copy(origin);dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction);
+      dummy.rotateY((i*7+j)*.31);const size=.88+((i*11+j*7)%9)*.04;dummy.scale.set(size,size,size);dummy.updateMatrix();leaves.setMatrixAt(index,dummy.matrix);
+      const c=(upper?(j%3===0?orange:red):(j%3===0?orange:green)).clone();c.multiplyScalar(.86+((i*13+j*5)%7)*.025);leaves.setColorAt(index,c);index++;
+    }});
+    leaves.computeBoundingBox();leaves.computeBoundingSphere();group.add(leaves);
+    const shadowTex=canvasTex(128,128,(ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,w*.08,w/2,h/2,w*.49);g.addColorStop(0,'rgba(30,22,14,.48)');g.addColorStop(1,'rgba(30,22,14,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);});
+    const shade=addPlantPart(new THREE.PlaneGeometry(.36,.36),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}),"autumn-plant-contact");shade.rotation.x=-Math.PI/2;shade.position.y=.002;shade.castShadow=false;
+    scene.add(group);return {group,pot,leaves};
+  }
   buildHallStand();
   buildSuitcase();
+  const autumnPlant = buildAutumnPlant();
 
   fit(); apply();
   // Let the first room frame paint before the optional TV materials request any image bytes.
@@ -3528,6 +3578,15 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         collisions: Object.entries({ floorLamp: lampObj, plant: plantObj, chair: chairObj, plaque })
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
+    },
+    autumnPlantInfo() {
+      scene.updateMatrixWorld(true);const box=o=>new THREE.Box3().setFromObject(o);const b=box(autumnPlant.group), p=box(autumnPlant.pot);
+      const frame=rightWallArtGroup?.getObjectByName('right-wall-frame-0-horizontal');
+      const frameGroup=rightWallArtGroup ? new THREE.Box3().setFromObject(frame) : null;
+      const checks={suitcase:soft.suitcaseGroup,sideTable:tableObj,doorRobot:guidePivot,sideboard:sideboard.oak};
+      const collisions=Object.entries(checks).filter(([,o])=>box(o).intersectsBox(b)).map(([n])=>n);
+      const saved=doorSwing.rotation.y;let doorHits=0,suitcaseDoorHits=0;for(let i=0;i<=40;i++){doorSwing.rotation.y=-DOOR_OPEN*i/40;scene.updateMatrixWorld(true);const door=box(doorSwing);if(door.intersectsBox(b))doorHits++;if(door.intersectsBox(box(soft.suitcaseGroup)))suitcaseDoorHits++;}doorSwing.rotation.y=saved;scene.updateMatrixWorld(true);
+      return {bounds:{min:b.min.toArray(),max:b.max.toArray()},potBottomMm:p.min.y*1000,heightMm:(b.max.y-p.min.y)*1000,leaves:autumnPlant.leaves.count,collisions,doorHits,suitcaseDoorHits,frameBottomClearMm:frameGroup?(frameGroup.min.y-b.max.y)*1000:null,robotHitsTv:box(guidePivot).intersectsBox(box(scene.getObjectByName("tv-console"))),frameLoaded:!!frame};
     },
     softDetails() { // local QA only: the coffee-table props' support and the flat suitcase's floor contact
       scene.updateMatrixWorld(true);
