@@ -13,6 +13,7 @@ for (const width of [1440, 390]) {
     expect(p.heightMm).toBeGreaterThan(950);
     expect(p.heightMm).toBeLessThanOrEqual(1030);
     expect(p.leaves).toBe(192);
+    expect(p.buds).toBe(3);
     expect(p.collisions).toEqual([]);
     expect(p.doorHits).toBe(0);
     expect(p.suitcaseDoorHits).toBe(0);
