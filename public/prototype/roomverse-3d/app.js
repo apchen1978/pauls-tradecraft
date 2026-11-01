@@ -3325,6 +3325,18 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const shade=addPlantPart(new THREE.PlaneGeometry(.36,.36),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}),"autumn-plant-contact");shade.rotation.x=-Math.PI/2;shade.position.y=.002;shade.castShadow=false;
     scene.add(group);return {group,pot,leaves,buds};
   }
+  // Compact umbrella stand by the entrance: a ceramic vessel and one folded umbrella.
+  const umbrellaStand = new THREE.Group(); umbrellaStand.name='entry-umbrella-stand'; umbrellaStand.position.set(2.38,0,2.08);
+  const standMat = new THREE.MeshStandardMaterial({color:0xc6b6a0,roughness:.87});
+  const darkStand = new THREE.MeshStandardMaterial({color:0x665a4e,roughness:1,side:THREE.DoubleSide});
+  const standProfile=[[0,0],[.072,0],[.078,.012],[.08,.19],[.079,.205],[.069,.205],[.067,.19],[.063,.02],[0,.02]].map(([x,y])=>new THREE.Vector2(x,y));
+  const vessel=new THREE.Mesh(new THREE.LatheGeometry(standProfile,24),standMat);vessel.castShadow=true;vessel.receiveShadow=true;umbrellaStand.add(vessel);
+  const umbrella=new THREE.Group(); umbrella.rotation.z=.08;umbrella.position.set(0,.025,0);umbrellaStand.add(umbrella);
+  const cloth=new THREE.Mesh(new THREE.CylinderGeometry(.035,.008,.49,12,1),new THREE.MeshStandardMaterial({color:0x384f55,roughness:.93}));cloth.position.y=.245;cloth.castShadow=true;umbrella.add(cloth);
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.004,.004,.19,10),darkStand);shaft.position.y=.57;umbrella.add(shaft);
+  const handlePath=new THREE.CatmullRomCurve3([new THREE.Vector3(0,.665,0),new THREE.Vector3(.007,.70,0),new THREE.Vector3(.035,.71,0),new THREE.Vector3(.056,.69,0),new THREE.Vector3(.05,.665,0)]);
+  const handle=new THREE.Mesh(new THREE.TubeGeometry(handlePath,16,.006,8,false),new THREE.MeshStandardMaterial({color:0x805b3c,roughness:.65}));umbrella.add(handle);
+  scene.add(umbrellaStand);
   buildHallStand();
   buildSuitcase();
   const autumnPlant = buildAutumnPlant();
