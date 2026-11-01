@@ -28,14 +28,14 @@ test("the door swings open clear of the furniture, the doorway lights up, and cl
   expect(after.door.leaf).toEqual(before.leaf); // the closed door is exactly where it was
 });
 
-test("a second robot stands by the door, clear of the leaf; tapping it hops and says what is behind the door; turning toward the door wall brings the hint once", async ({ page }) => {
+test("the guide robot stands near the TV, clear of the leaf; tapping it says what is behind the door", async ({ page }) => {
   await enterRoom01(page);
   await page.waitForTimeout(2500); // let the opening drift settle
   const g = await page.evaluate(() => window.__room.guideRobot());
   expect(g.min[1]).toBeLessThan(.01); // on the floor
   expect(g.max[1] - g.min[1]).toBeGreaterThan(.4); expect(g.max[1] - g.min[1]).toBeLessThan(.52);
-  expect(g.max[0]).toBeLessThan(2.6 - .05); expect(g.min[0]).toBeGreaterThan(1.8); // by the right-hand wall, inside the room
-  expect(g.max[2]).toBeLessThan(.8); // north of the leaf's hinge (z = 0.81): it never stands in the swing
+  expect(g.min[0]).toBeGreaterThan(1.1); expect(g.max[0]).toBeLessThan(1.8); // moved from door to TV side at Paul request
+  expect(g.min[2]).toBeGreaterThan(1.1); expect(g.max[2]).toBeLessThan(1.8); // near TV, clear of its cabinet
   expect((await page.evaluate(() => window.__room.guideRobot())).bubble).toBe(false); // quiet until someone looks at the door wall
   await page.evaluate(() => window.__room.faceDoorWall());
   await expect.poll(() => page.evaluate(() => window.__room.guideRobot().bubble)).toBe(true); // turning to the door wall brings the hint
