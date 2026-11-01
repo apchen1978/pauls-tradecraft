@@ -3111,7 +3111,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
 
     const CASE_W = .40, CASE_D = .235, BODY_H = .52, WHEEL_H = .072;
     const RED = 0x9c1d17, METAL = 0xd2d6dc, CHROME = 0xe8ebef, DARK = 0x08090a;
-    const shellG = [], metalG = [], chromeG = [], darkG = [], tagG = [], whiteG = [], leatherG = [];
+    const shellG = [], metalG = [], chromeG = [], darkG = [], wheelG = [], wheelHubG = [], tagG = [], whiteG = [], leatherG = [];
     const slab = (w, d, r, thickness, bevel, curveSegments = 5, bevelSegments = 2) => new THREE.ExtrudeGeometry(roundedRectShape(w, d, r), {
       depth: thickness, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel * .8, bevelSegments, curveSegments,
     }).rotateX(-Math.PI / 2);
@@ -3128,8 +3128,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
       const wx = sx * .155, wz = sz * .086;
       darkG.push(new THREE.BoxGeometry(.056, .05, .058).translate(wx, .058, wz)); // housing, overlapping the rail
-      darkG.push(new THREE.CylinderGeometry(.038, .038, .032, 20).rotateZ(Math.PI / 2).translate(wx, .038, wz));
-      metalG.push(new THREE.CylinderGeometry(.015, .015, .036, 12).rotateZ(Math.PI / 2).translate(wx, .038, wz)); // hubcap
+      // Each caster is slightly swivelled, and indexed cylinders are expanded before merging.
+      wheelG.push(new THREE.CylinderGeometry(.038, .038, .032, 20).toNonIndexed().rotateZ(Math.PI / 2).rotateY(-.45).translate(wx, .038, wz));
+      wheelHubG.push(new THREE.CylinderGeometry(.014, .014, .035, 16).toNonIndexed().rotateZ(Math.PI / 2).rotateY(-.45).translate(wx, .038, wz)); // flush metal hub
     }
     // Paul 2026-11-01: the handle stays fully retracted and flush; the grip and its pocket go near-black so the "T" reads as one dark part instead
     // of a grey smudge, and the chrome bar under it stays thin and bright.
@@ -3181,6 +3182,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     addPart(metalG, new THREE.MeshStandardMaterial({ color: METAL, roughness: .22, metalness: .9 }), "red-suitcase-metal");
     addPart(chromeG, new THREE.MeshStandardMaterial({ color: CHROME, roughness: .12, metalness: .95 }), "red-suitcase-chrome");
     addPart(darkG, new THREE.MeshStandardMaterial({ color: DARK, roughness: .6, metalness: .22 }), "red-suitcase-hardware");
+    addPart(wheelG, new THREE.MeshStandardMaterial({ color: 0x37393a, roughness: .8, metalness: .03 }), "red-suitcase-wheels");
+    addPart(wheelHubG, new THREE.MeshStandardMaterial({ color: 0xaaa9a5, roughness: .42, metalness: .6 }), "red-suitcase-wheel-hubs");
     addPart(carryG, new THREE.MeshPhysicalMaterial({ color: 0x3c3b39, roughness: .45, metalness: .08, clearcoat: .25, clearcoatRoughness: .35 }), "red-suitcase-carry-handles");
     addPart(tagG, new THREE.MeshStandardMaterial({ color: 0xc22b1d, roughness: .32, metalness: .03 }), "red-suitcase-tag");
     // Small procedural canvas, no downloaded font or image; colour and proportions match Paul's reference.
@@ -3241,7 +3244,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
           const mountOverlaps = parts.slice(1).filter(g => g.boundingBox.intersectsBox(parts[0].boundingBox)).length;
           return [name, { min: bounds.min.toArray(), max: bounds.max.toArray(), pieces: parts.length, mountOverlaps }];
         })),
-        vertices: totalVertices,
+        wheelFloorGapsMm: wheelG.map(g => { g.computeBoundingBox(); return (g.boundingBox.min.y + drop) * 1000; }),
+      shellBottomMm: (new THREE.Box3().setFromObject(shellMesh).min.y) * 1000,
+      vertices: totalVertices,
     };
   }
 
@@ -3305,6 +3310,29 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   buildHallStand();
   buildSuitcase();
   const autumnPlant = buildAutumnPlant();
+  // Reuse the original Room 02 procedural backpack; optional loading must not block the room.
+  let casualBackpack = null, casualBackpackError = null;
+  loader.loadAsync(new URL("./bedroom/models/campus-backpack-v1.glb", import.meta.url).href).then((asset) => {
+    const bag=place(asset,{height:.42,x:2.18,z:-.17});
+    bag.rotation.y=-Math.PI/2; bag.updateMatrixWorld(true);
+    const b=new THREE.Box3().setFromObject(bag); const c=b.getCenter(new THREE.Vector3());
+    bag.position.add(new THREE.Vector3(2.18-c.x,-b.min.y,-.17-c.z));
+    const palette={body:'#b48888',strap:'#73615e',zip:'#b19a76',base:'#5e5151'};
+    // The source has four untextured materials. Bake their colours and local transforms into
+    // one mesh so the backpack keeps its palette without four separate draw calls.
+    bag.updateMatrixWorld(true); const inverse=bag.matrixWorld.clone().invert(), parts=[];
+    bag.traverse(o=>{if(!o.isMesh)return;const geo=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();
+      geo.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse,o.matrixWorld));
+      const col=new THREE.Color(palette[o.material.name] || '#b48888'), values=new Float32Array(geo.attributes.position.count*3);
+      for(let i=0;i<geo.attributes.position.count;i++)col.toArray(values,i*3);
+      geo.setAttribute('color',new THREE.BufferAttribute(values,3));parts.push(geo);
+    });
+    const merged=new THREE.Mesh(softMerge(parts),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9}));
+    merged.name='room01-backpack-mesh';merged.castShadow=true;merged.receiveShadow=true;bag.clear();bag.add(merged);
+    bag.name='room01-casual-backpack';scene.add(bag);casualBackpack=bag;
+    const tex=canvasTex(128,128,(ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,w*.06,w/2,h/2,w*.48);g.addColorStop(0,'rgba(24,18,16,.52)');g.addColorStop(1,'rgba(24,18,16,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);});
+    const shadow=new THREE.Mesh(new THREE.PlaneGeometry(.42,.38),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));shadow.name='room01-backpack-contact';shadow.rotation.x=-Math.PI/2;shadow.position.set(2.18,.0025,-.17);scene.add(shadow);render();
+  }).catch(e=>{casualBackpackError=String(e);console.warn('Optional backpack unavailable',e);});
 
   fit(); apply();
   // Let the first room frame paint before the optional TV materials request any image bytes.
@@ -3608,6 +3636,13 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         collisions: Object.entries({ floorLamp: lampObj, plant: plantObj, chair: chairObj, plaque })
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
+    },
+    casualBackpackInfo() {
+      if (!casualBackpack) return {ready:false,error:casualBackpackError};
+      scene.updateMatrixWorld(true);const bag=new THREE.Box3().setFromObject(casualBackpack),suit=new THREE.Box3().setFromObject(soft.suitcaseGroup),plant=new THREE.Box3().setFromObject(autumnPlant.group);
+      const initial=doorSwing.rotation.y;let doorHits=0;for(let i=0;i<=40;i++){doorSwing.rotation.y=-DOOR_OPEN*i/40;scene.updateMatrixWorld(true);if(new THREE.Box3().setFromObject(doorSwing).intersectsBox(bag))doorHits++;}doorSwing.rotation.y=initial;scene.updateMatrixWorld(true);
+      let vertices=0;casualBackpack.traverse(o=>{if(o.isMesh)vertices+=o.geometry.attributes.position.count});
+      return {ready:true,bounds:{min:bag.min.toArray(),max:bag.max.toArray()},floorGapMm:bag.min.y*1000,suitcaseHit:bag.intersectsBox(suit),plantHit:bag.intersectsBox(plant),doorHits,vertices};
     },
     autumnPlantInfo() {
       scene.updateMatrixWorld(true);const box=o=>new THREE.Box3().setFromObject(o);const b=box(autumnPlant.group), p=box(autumnPlant.pot);
