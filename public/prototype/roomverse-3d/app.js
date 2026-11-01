@@ -1748,6 +1748,48 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   coupletShadow.receiveShadow = false;
   couplet.add(coupletShadow);
 
+  // A second, matching spring-couplet sheet above the entry suitcase. Keep it narrow so it
+  // reads as a personal blessing beside the large harbour painting, not a competing poster.
+  function buildRenewalCouplet() {
+    const width = .229, height = .70;
+    const suitcaseZ = soft.suitcaseInfo?.centre?.[1] ?? .36;
+    const group = new THREE.Group();
+    group.name = "renewal-couplet";
+    group.position.set(W / 2, 1.61, suitcaseZ);
+    group.rotation.y = -Math.PI / 2;
+    scene.add(group);
+
+    const texture = new THREE.TextureLoader().load(new URL("./art/renewal-couplet-v1.webp", import.meta.url).href, () => render());
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+    const material = new THREE.MeshStandardMaterial({ map: texture, color: "#ffffff", roughness: .9, metalness: 0, alphaTest: .5 });
+    const paper = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+    paper.name = "renewal-couplet-paper";
+    paper.position.z = .005;
+    paper.castShadow = false;
+    paper.receiveShadow = false;
+    group.add(paper);
+
+    const shadowTexture = canvasTex(128, 384, (ctx, w, h) => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "rgba(36,18,14,.42)";
+      ctx.filter = "blur(14px)";
+      ctx.fillRect(20, 18, w - 40, h - 32);
+      ctx.filter = "none";
+    });
+    shadowTexture.wrapS = shadowTexture.wrapT = THREE.ClampToEdgeWrapping;
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(width + .06, height + .08), new THREE.MeshBasicMaterial({
+      map: shadowTexture, transparent: true, depthWrite: false,
+    }));
+    shadow.name = "renewal-couplet-shadow";
+    shadow.position.set(-.012, -.016, .0012);
+    shadow.castShadow = false;
+    shadow.receiveShadow = false;
+    group.add(shadow);
+    return { group, paper, shadow, width, height, texture };
+  }
+
   // Low oak sideboard on the left wall under the harbour painting (Paul 2026-10-31: the TV console is full, so the mug and a bulk napkin pack
   // get their own spot). Warm oak like the TV console, two flat doors with a 3 mm reveal and small brass pulls, a top that overhangs 15 mm with a
   // softened edge, and a plinth recessed 30 mm. The carcass back rests on the 20 mm skirting face; the top, above the skirting, reaches the
@@ -3450,6 +3492,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   scene.add(umbrellaStand);
   buildHallStand();
   buildSuitcase();
+  const renewalCouplet = buildRenewalCouplet();
   const autumnPlant = buildAutumnPlant();
   // Reuse the original Room 02 procedural backpack; optional loading must not block the room.
   let casualBackpack = null, casualBackpackError = null;
@@ -4071,6 +4114,42 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
         shadow: !!scene.getObjectByName("blessing-couplet-shadow"),
         collisions: Object.entries(blocks).filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
         bounds: { min: box.min.toArray(), max: box.max.toArray() },
+      };
+    },
+    renewalCouplet() {
+      scene.updateMatrixWorld(true);
+      camera.updateMatrixWorld(true);
+      const paperBox = new THREE.Box3().setFromObject(renewalCouplet.paper);
+      const suitcaseBox = new THREE.Box3().setFromObject(soft.suitcaseGroup);
+      const artBox = rightWallArtGroup ? new THREE.Box3().setFromObject(rightWallArtGroup) : null;
+      const corners = [
+        new THREE.Vector3(-renewalCouplet.width / 2, -renewalCouplet.height / 2, .005),
+        new THREE.Vector3(renewalCouplet.width / 2, -renewalCouplet.height / 2, .005),
+        new THREE.Vector3(-renewalCouplet.width / 2, renewalCouplet.height / 2, .005),
+        new THREE.Vector3(renewalCouplet.width / 2, renewalCouplet.height / 2, .005),
+      ].map((point) => point.applyMatrix4(renewalCouplet.group.matrixWorld).project(camera));
+      const rect = {
+        x: (Math.min(...corners.map((point) => point.x)) * .5 + .5) * renderer.domElement.clientWidth,
+        y: (-Math.max(...corners.map((point) => point.y)) * .5 + .5) * renderer.domElement.clientHeight,
+        width: (Math.max(...corners.map((point) => point.x)) - Math.min(...corners.map((point) => point.x))) * .5 * renderer.domElement.clientWidth,
+        height: (Math.max(...corners.map((point) => point.y)) - Math.min(...corners.map((point) => point.y))) * .5 * renderer.domElement.clientHeight,
+      };
+      return {
+        text: "重新得力",
+        file: renewalCouplet.texture.image?.src?.split("/").pop() ?? null,
+        loaded: !!renewalCouplet.texture.image?.width,
+        pixels: [renewalCouplet.texture.image?.width ?? 0, renewalCouplet.texture.image?.height ?? 0],
+        width: paperBox.max.z - paperBox.min.z,
+        height: paperBox.max.y - paperBox.min.y,
+        offWall: W / 2 - paperBox.max.x,
+        suitcaseGap: paperBox.min.y - suitcaseBox.max.y,
+        artGap: artBox ? paperBox.min.z - artBox.max.z : null,
+        collisions: [
+          ["suitcase", suitcaseBox],
+          ...(artBox ? [["harbour-art", artBox]] : []),
+        ].filter(([, box]) => paperBox.intersectsBox(box)).map(([name]) => name),
+        bounds: { min: paperBox.min.toArray(), max: paperBox.max.toArray() },
+        screenRect: rect,
       };
     },
     frameBlessingCouplet(kind = "close") {
