@@ -3282,7 +3282,11 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const pos = potGeo.attributes.position;
     for (let i=0;i<pos.count;i++) { const y=pos.getY(i); const d=1 + .012*Math.sin(pos.getX(i)*72 + y*21)*Math.sin(pos.getZ(i)*59 + y*9); pos.setX(i,pos.getX(i)*d);pos.setZ(i,pos.getZ(i)*d); }
     potGeo.computeVertexNormals();
-    const pot=addPlantPart(potGeo,new THREE.MeshStandardMaterial({color:0xc8bca8,roughness:.94}),"autumn-plant-pot");
+    // Soft olive glaze over a warm unglazed clay foot, with quiet tonal variation.
+    const potColors=new Float32Array(pos.count*3);
+    for(let i=0;i<pos.count;i++){const y=pos.getY(i), c=new THREE.Color(y<.028?0xb18c6b:y>.242?0x798771:0x879780);c.multiplyScalar(.96+.035*Math.sin(y*75+pos.getX(i)*11));c.toArray(potColors,i*3);}
+    potGeo.setAttribute('color',new THREE.BufferAttribute(potColors,3));
+    const pot=addPlantPart(potGeo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.72}),"autumn-plant-pot");
     // Merge the dark soil with the stems: one material and one draw call.
     const tintGeometry=(geometry,hex)=>{const c=new THREE.Color(hex),n=geometry.attributes.position.count,colors=new Float32Array(n*3);for(let i=0;i<n;i++)c.toArray(colors,i*3);geometry.setAttribute("color",new THREE.BufferAttribute(colors,3));return geometry;};
     // Recess the soil inside the thick rim; a dark narrow contact ring suggests ambient occlusion.
@@ -3327,10 +3331,11 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   }
   // Compact umbrella stand by the entrance: a ceramic vessel and one folded umbrella.
   const umbrellaStand = new THREE.Group(); umbrellaStand.name='entry-umbrella-stand'; umbrellaStand.position.set(2.38,0,2.08);
-  const standMat = new THREE.MeshStandardMaterial({color:0xc6b6a0,roughness:.87});
+  const standMat = new THREE.MeshStandardMaterial({color:0xa26950,roughness:.75});
   const darkStand = new THREE.MeshStandardMaterial({color:0x665a4e,roughness:1,side:THREE.DoubleSide});
-  const standProfile=[[0,0],[.072,0],[.078,.012],[.08,.19],[.079,.205],[.069,.205],[.067,.19],[.063,.02],[0,.02]].map(([x,y])=>new THREE.Vector2(x,y));
-  const vessel=new THREE.Mesh(new THREE.LatheGeometry(standProfile,24),standMat);vessel.castShadow=true;vessel.receiveShadow=true;umbrellaStand.add(vessel);
+  const standProfile=[[0,0],[.060,0],[.068,.01],[.078,.04],[.085,.11],[.080,.17],[.085,.195],[.090,.205],[.077,.205],[.071,.19],[.067,.17],[.063,.02],[0,.02]].map(([x,y])=>new THREE.Vector2(x,y));
+  const vesselGeometry=new THREE.LatheGeometry(standProfile,48); const vp=vesselGeometry.attributes.position; for(let i=0;i<vp.count;i++){const x=vp.getX(i),z=vp.getZ(i),y=vp.getY(i);if(y>.015 && y<.19){const f=1+.035*Math.cos(Math.atan2(z,x)*12);vp.setX(i,x*f);vp.setZ(i,z*f);}} vesselGeometry.computeVertexNormals();
+  const vessel=new THREE.Mesh(vesselGeometry,standMat);vessel.castShadow=true;vessel.receiveShadow=true;umbrellaStand.add(vessel);
   const umbrella=new THREE.Group(); umbrella.rotation.z=.08;umbrella.position.set(0,.025,0);umbrellaStand.add(umbrella);
   const cloth=new THREE.Mesh(new THREE.CylinderGeometry(.035,.008,.49,12,1),new THREE.MeshStandardMaterial({color:0x384f55,roughness:.93}));cloth.position.y=.245;cloth.castShadow=true;umbrella.add(cloth);
   const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.004,.004,.19,10),darkStand);shaft.position.y=.57;umbrella.add(shaft);
