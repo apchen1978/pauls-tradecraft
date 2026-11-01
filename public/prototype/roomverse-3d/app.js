@@ -121,7 +121,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     // 0 faces the window, ±π faces the TV wall. The cosine keeps intermediate turns smooth.
     const yaw = Math.atan2(camera.position.x - orbitCenter.x, camera.position.z - orbitCenter.z);
     const entryWeight = Math.pow(Math.max(0, -Math.sin(yaw)), 2);
-    const entryWidening = camera.aspect < .8 ? 8 : 14;
+    const entryWidening = camera.aspect < .8 ? 18 : 14;
     return base + (tvFov - base) * (1 - Math.cos(yaw)) / 2 + entryWidening * entryWeight;
   }
   function syncFov() {
