@@ -2029,7 +2029,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   const CHOICES = { mood: MOODS, wall: WALLS, rug: RUGS, curtain: CURTAINS, print: PRINTS };
   // Each feeling starts with a matching existing finish; an explicit URL or visitor pick wins.
   // Soft neutral walls pair with the mist-blue side walls in golden and chic moods.
-  const DEFAULT_WALL_BY_MOOD = { rain: "grasscloth", family: "olive", tech: "mist", chic: "softwhite", slow: "sand", golden: "softwhite", tv: "wine" };
+  const DEFAULT_WALL_BY_MOOD = { rain: "grasscloth", family: "olive", tech: "mist", chic: "blush", slow: "sand", golden: "softwhite", tv: "wine" };
   const fromUrl = new URLSearchParams(location.search);
   let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
