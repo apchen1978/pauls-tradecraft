@@ -1814,6 +1814,19 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     bottleGeometry.translate(bottleAt.x, bottleY, bottleAt.z);
     const bottle = new THREE.Mesh(bottleGeometry, new THREE.MeshStandardMaterial({ map: labelTex, color: "#ffffff", roughness: .42 }));
     bottle.name = "left-sideboard-supplement"; bottle.castShadow = true; bottle.receiveShadow = true; scene.add(bottle);
+    // An orange flip-top vitamin bottle, inspired by Paul's reference photo, without branding.
+    const orangeBottleAt = { x: -2.46, z: .55 };
+    const orangeBottleY = topAt(orangeBottleAt.x, orangeBottleAt.z);
+    const orangeLabel = canvasTex(256, 128, (ctx, w, h) => {
+      ctx.fillStyle = '#f6f4ed'; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#79976b'; ctx.fillRect(w*.28, h*.25, w*.26, 5);
+      ctx.fillStyle = '#c66b3e'; ctx.fillRect(w*.28, h*.52, w*.22, 7);
+      ctx.fillStyle = '#d9b65b'; ctx.beginPath(); ctx.arc(w*.56, h*.42, 7, 0, Math.PI*2); ctx.fill();
+    });
+    const orangeBody = new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.022,0],[.025,.004],[.025,.074],[.023,.080],[.021,.083],[0,.083]].map(([r,y]) => new THREE.Vector2(r,y)),32), new THREE.MeshStandardMaterial({map:orangeLabel,roughness:.65}));
+    orangeBody.position.set(orangeBottleAt.x, orangeBottleY-.001, orangeBottleAt.z); orangeBody.castShadow=true; orangeBody.name='orange-cap-vitamin-body'; scene.add(orangeBody);
+    const orangeCap = new THREE.Mesh(new THREE.CylinderGeometry(.0255,.0255,.022,32),new THREE.MeshStandardMaterial({color:0xe58124,roughness:.42}));
+    orangeCap.position.set(orangeBottleAt.x, orangeBottleY+.092, orangeBottleAt.z); orangeCap.castShadow=true; orangeCap.name='orange-cap-vitamin-lid'; scene.add(orangeCap);
     for (const g of propParts) { if (!g.attributes.uv) continue; g.deleteAttribute("uv"); }
     for (const g of propParts) if (g.attributes.normal) g.deleteAttribute("normal");
     const propGeometry = mergeGeometries(propParts.map((g) => g.index ? g.toNonIndexed() : g), false);
