@@ -227,8 +227,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   frontWall.rotation.y = Math.PI; // the room-facing side is visible from inside
   frontWall.name = "front-wall";
   const sideMat = new THREE.MeshStandardMaterial({ color: "#e4ddd0", roughness: .95 });
+  const entrySideMat = new THREE.MeshStandardMaterial({ color: "#d1d7ca", roughness: .95 }); // a restrained sage-stone accent at the entry; the opposite wall stays warm ivory
   // side walls and ceiling cast too: otherwise window light leaks through them (a bright band on the right wall, a patch at the left)
-  [-1, 1].forEach((s) => { add(new THREE.PlaneGeometry(D, H + .3), sideMat, s * W / 2, H / 2 - .15, BACK + D / 2, true).rotation.y = -s * Math.PI / 2; });
+  [-1, 1].forEach((s) => { add(new THREE.PlaneGeometry(D, H + .3), s === 1 ? entrySideMat : sideMat, s * W / 2, H / 2 - .15, BACK + D / 2, true).rotation.y = -s * Math.PI / 2; });
   add(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ color: "#f6f2ea", emissive: "#f6f2ea", emissiveIntensity: .12 }), 0, H, BACK + D / 2, true).rotation.x = Math.PI / 2;
   const wood = new THREE.MeshStandardMaterial({ color: "#8a5a36", roughness: .6 });
   const skirting = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .7 });
