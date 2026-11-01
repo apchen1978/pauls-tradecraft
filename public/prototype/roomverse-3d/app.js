@@ -117,10 +117,12 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const tvFov = camera.aspect < .8 ? Math.max(76, base) : phoneViewport.matches
       ? Math.max(base, 2 * Math.atan(2.3 / ((FRONT - orbitCenter.z + orbitRadius) * camera.aspect)) * 180 / Math.PI)
       : base;
-    if (tvFov === base) return base;
+
     // 0 faces the window, ±π faces the TV wall. The cosine keeps intermediate turns smooth.
     const yaw = Math.atan2(camera.position.x - orbitCenter.x, camera.position.z - orbitCenter.z);
-    return base + (tvFov - base) * (1 - Math.cos(yaw)) / 2;
+    const entryWeight = Math.pow(Math.max(0, -Math.sin(yaw)), 2);
+    const entryWidening = camera.aspect < .8 ? 8 : 14;
+    return base + (tvFov - base) * (1 - Math.cos(yaw)) / 2 + entryWidening * entryWeight;
   }
   function syncFov() {
     const next = fovForYaw();
