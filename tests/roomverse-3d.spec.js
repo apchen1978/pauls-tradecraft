@@ -1476,6 +1476,12 @@ test("the two coffee-table books sit on the table and the red suitcase stands on
   expect(d.suitcase.parts, "the red HAPPY FLIGHT tag hangs from the side handle").toContain("red-suitcase-tag");
   expect(d.suitcase.parts, "the four wheels share one undercarriage").toContain("red-suitcase-hardware");
   expect(d.suitcase.parts, "the tag print sits on the tag").toContain("red-suitcase-tag-print");
+  expect(d.suitcase.parts).toContain("red-suitcase-carry-handles");
+  for (const handle of Object.values(d.suitcase.handles)) {
+    expect(handle.pieces).toBe(3);
+    expect(handle.mountOverlaps).toBe(2); // grip and both mounts overlap in world-space bounding boxes
+    expect(handle.min.every(Number.isFinite) && handle.max.every(Number.isFinite)).toBe(true);
+  }
   expect(d.suitcase.insideRoom).toBe(true);
   expect(d.lights, "no new light was added").toBe(6);
 });

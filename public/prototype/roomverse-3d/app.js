@@ -3139,6 +3139,20 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     darkG.push(new THREE.BoxGeometry(.155, .011, .032).translate(0, topY + .009, -.02)); // the black grip itself, proud by 1 mm only
     for (const sx of [-1, 1]) metalG.push(new THREE.BoxGeometry(.024, .012, .052).translate(sx * .1, topY + .002, -.02)); // flush end caps
 
+    // Low-profile carry grips, separate from the fully retracted telescopic trolley bar.
+    // Their mounts overlap the shell and the grip, so each reads as one attached part.
+    const carryParts = { top: [], side: [], front: [] }, carryG = [];
+    const carry = (name, geometry) => { const g=geometry.index?geometry.toNonIndexed():geometry; carryParts[name].push(g); carryG.push(g); };
+    // Top grip: a softly rounded horizontal bar on two flush supports.
+    carry('top', new THREE.CapsuleGeometry(.012,.125,4,10).rotateZ(Math.PI/2).translate(0,topY+.024,.055));
+    for(const x of [-.062,.062]) carry('top',new THREE.BoxGeometry(.026,.024,.028).translate(x,topY+.012,.055));
+    // Side grip: runs vertically along the narrow right side of the upright case.
+    carry('side',new THREE.CapsuleGeometry(.011,.115,4,10).translate(CASE_W/2+.032,WHEEL_H+.40,-.015));
+    for(const y of [-.055,.055]) carry('side',new THREE.BoxGeometry(.052,.022,.024).translate(CASE_W/2+.010,WHEEL_H+.40+y,-.015));
+    // A flush handhold on the upper front face, clear of the red luggage tag below.
+    carry('front',new THREE.ExtrudeGeometry(roundedRectShape(.125,.028,.012),{depth:.020,bevelEnabled:true,bevelSize:.002,bevelThickness:.001,bevelSegments:1,curveSegments:4}).translate(-.025,WHEEL_H+.44,CASE_D/2+.025));
+    for(const x of [-.077,.027]) carry('front',new THREE.BoxGeometry(.022,.022,.060).translate(x,WHEEL_H+.44,CASE_D/2+.012));
+
     // Paul: keep the reference tag as one connected red tag, ring and printed face.
     // The ring overlaps both the handle and the upper edge of the tag; the tag lies on the
     // broad front of the case so its white plane motif is visible at room scale.
@@ -3167,6 +3181,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     addPart(metalG, new THREE.MeshStandardMaterial({ color: METAL, roughness: .22, metalness: .9 }), "red-suitcase-metal");
     addPart(chromeG, new THREE.MeshStandardMaterial({ color: CHROME, roughness: .12, metalness: .95 }), "red-suitcase-chrome");
     addPart(darkG, new THREE.MeshStandardMaterial({ color: DARK, roughness: .6, metalness: .22 }), "red-suitcase-hardware");
+    addPart(carryG, new THREE.MeshPhysicalMaterial({ color: 0x3c3b39, roughness: .45, metalness: .08, clearcoat: .25, clearcoatRoughness: .35 }), "red-suitcase-carry-handles");
     addPart(tagG, new THREE.MeshStandardMaterial({ color: 0xc22b1d, roughness: .32, metalness: .03 }), "red-suitcase-tag");
     // Small procedural canvas, no downloaded font or image; colour and proportions match Paul's reference.
     const tagPrint = canvasTex(256, 512, (ctx, w, h) => {
@@ -3219,7 +3234,14 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       parts: group.children.map((m) => m.name),
       contactShadow: Boolean(contact.visible),
       lacquer: shellMesh.material.isMeshPhysicalMaterial === true && shellMesh.material.clearcoat === 1,
-      vertices: totalVertices,
+        handles: Object.fromEntries(Object.entries(carryParts).map(([name,parts]) => {
+          const bounds = new THREE.Box3();
+          for (const geo of parts) { geo.computeBoundingBox(); bounds.union(geo.boundingBox); }
+          bounds.translate(new THREE.Vector3(0,drop,0));
+          const mountOverlaps = parts.slice(1).filter(g => g.boundingBox.intersectsBox(parts[0].boundingBox)).length;
+          return [name, { min: bounds.min.toArray(), max: bounds.max.toArray(), pieces: parts.length, mountOverlaps }];
+        })),
+        vertices: totalVertices,
     };
   }
 
