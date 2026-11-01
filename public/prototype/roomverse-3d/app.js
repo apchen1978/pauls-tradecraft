@@ -3347,7 +3347,14 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       }
       geo.setAttribute('color',new THREE.BufferAttribute(values,3));parts.push(geo);
     });
-    const merged=new THREE.Mesh(softMerge(parts),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9}));
+    // Fine cross-woven texture is evaluated in local space, avoiding extra image downloads.
+    const bagMaterial = new THREE.MeshStandardMaterial({vertexColors:true,roughness:1});
+    bagMaterial.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vBagLocal;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvBagLocal = position;');
+      shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vBagLocal;').replace('#include <color_fragment>', '#include <color_fragment>\nfloat weave = sin(vBagLocal.y * 190.0) * sin((vBagLocal.x + vBagLocal.z) * 190.0);\ndiffuseColor.rgb *= 0.965 + 0.035 * weave;');
+    };
+    bagMaterial.customProgramCacheKey = () => 'room01-bag-weave-v1';
+    const merged=new THREE.Mesh(softMerge(parts),bagMaterial);
     merged.name='room01-backpack-mesh';merged.castShadow=true;merged.receiveShadow=true;bag.clear();bag.add(merged);
     bag.name='room01-casual-backpack';scene.add(bag);casualBackpack=bag;
     // A small fabric bear charm hangs from the bag, facing into the room.
