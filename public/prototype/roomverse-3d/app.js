@@ -236,6 +236,9 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   const skirting = new THREE.MeshStandardMaterial({ color: "#f3efe6", roughness: .7 });
   add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, BACK + .01, false);
   add(new THREE.BoxGeometry(W, .09, .02), skirting, 0, .045, FRONT - .015, false).name = "front-skirting";
+  // A slim warm-white corner bead separates the mist-blue side wall from the sofa/window wall.
+  const curtainSideCornerTrim = add(new THREE.BoxGeometry(.045, H - .09, .045), skirting, -W / 2 + .0225, (H + .09) / 2, BACK + .0225, false);
+  curtainSideCornerTrim.name = "curtain-side-wall-corner-trim";
   // side skirting too: finishes the room and covers the thin light line where wall meets floor
   const doorZ = 1.25, doorOuterWidth = 1.05;
   add(new THREE.BoxGeometry(.02, .09, D), skirting, -W / 2 + .01, .045, BACK + D / 2, false);
