@@ -46,7 +46,7 @@ const MOODS = {
     why: { zh: "白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。", en: "Soft, even daylight with pale wood, linen and one dark accent keeps the room calm, so a Sunday afternoon has nowhere to hurry to." },
     hemi: 1.6, win: 2.2, winCol: "#f4f6f8", lamp: .5, fill: 1.8, out: "#f7f8f6", exposure: 1.08, floor: 0, glow: .04 },
   golden: { zh: "傍晚金色時光", en: "Golden hour",
-    why: { zh: "低角度的夕陽把窗影拉長，剛亮起的暖燈讓傍晚更有回家的感覺。", en: "Low golden sunlight stretches the window shadows while newly lit lamps make the evening feel like home." }, hemi: .95, win: 4.8, winCol: "#ffb866", lamp: 2.5, fill: 1.2, out: "#ffd093", exposure: 1.08, floor: .15, glow: .22, sunY: 1.2, shadowRadius: 4 },
+    why: { zh: "低角度的夕陽把窗影拉長，剛亮起的暖燈讓傍晚更有回家的感覺。", en: "Low golden sunlight stretches the window shadows while newly lit lamps make the evening feel like home." }, hemi: .95, win: 4.8, winCol: "#ffb866", lamp: 2.5, fill: 1.2, out: "#ffd093", exposure: 1.08, floor: 0, glow: .22, sunY: 1.2, shadowRadius: 4 },
   tv: { zh: "追劇夜", en: "Series night",
     why: { zh: "週五晚上，關掉主燈，只留燈帶和一盞暖燈，沙發就是整個世界。", en: "Friday night: ceiling light off, just the warm strips and one lamp; the sofa is the whole world." }, hemi: .62, win: .7, winCol: "#56647f", lamp: 2.5, fill: .55, out: "#c6cad6", exposure: .98, floor: .45, glow: .48 },
 };
