@@ -9,8 +9,8 @@ import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import { mergeGeometries } from "./vendor/BufferGeometryUtils.js";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", previewTitle: "明信片已準備好", previewLongPress: "長按圖片即可儲存到相簿", previewOpenBrowser: "或點右上角「⋯」選「在瀏覽器開啟」後再按存成明信片", previewClose: "關閉明信片預覽", previewAlt: "ROOMVERSE 3D 明信片", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", previewTitle: "Your postcard is ready", previewLongPress: "Press and hold the picture to save it to your photos", previewOpenBrowser: "Or tap “⋯” in the upper-right menu and choose “Open in browser”, then tap Save as a postcard", previewClose: "Close postcard preview", previewAlt: "ROOMVERSE 3D postcard", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png", artFile: "ROOMVERSE-3D-illustrated-postcard.webp" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", entryView: "看看入口角落", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", previewTitle: "明信片已準備好", previewLongPress: "長按圖片即可儲存到相簿", previewOpenBrowser: "或點右上角「⋯」選「在瀏覽器開啟」後再按存成明信片", previewClose: "關閉明信片預覽", previewAlt: "ROOMVERSE 3D 明信片", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", entryView: "Explore the entry", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", previewTitle: "Your postcard is ready", previewLongPress: "Press and hold the picture to save it to your photos", previewOpenBrowser: "Or tap “⋯” in the upper-right menu and choose “Open in browser”, then tap Save as a postcard", previewClose: "Close postcard preview", previewAlt: "ROOMVERSE 3D postcard", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png", artFile: "ROOMVERSE-3D-illustrated-postcard.webp" },
 };
 // Short labels for the single-row phone toolbar. The accessible name stays the full phrase above.
 const PHONE_BAR = {
@@ -72,8 +72,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   const controls = new OrbitControls(camera, renderer.domElement);
   const orbitCenter = new THREE.Vector3(0, 1.28, 0.1);
   const requestedView = new URLSearchParams(location.search).get("view");
-  let viewTheta = requestedView === "tv" ? Math.PI : 0;
-  let currentView = requestedView === "tv" ? "tv" : "window";
+  let viewTheta = requestedView === "tv" ? Math.PI : requestedView === "entry" ? -Math.PI / 2 : 0;
+  let currentView = requestedView === "tv" || requestedView === "entry" ? requestedView : "window";
   let orbitRadius = 1.9, orbitPhi = Math.PI / 2, viewMoveToken = 0;
   let director = null, directorPreparing = false, directorPrepareToken = 0;
   let intro = false, introEnd = null, robotBubble = null, arrival = null;
@@ -1900,7 +1900,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   function toUrl() {
     const u = new URL(location.href);
     for (const k in CHOICES) u.searchParams.set(k, state[k]);
-    if (currentView === "tv") u.searchParams.set("view", "tv"); else u.searchParams.delete("view");
+    if (currentView === "tv" || currentView === "entry") u.searchParams.set("view", currentView); else u.searchParams.delete("view");
     history.replaceState(history.state, "", u);
   }
   function setCameraAngle(theta, radius = orbitRadius, phi = orbitPhi) {
@@ -1916,7 +1916,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     settleIntro();
-    const target = view === "tv" ? Math.PI : 0;
+    const target = view === "tv" ? Math.PI : view === "entry" ? -Math.PI / 2 : 0;
     const offset = camera.position.clone().sub(orbitCenter), radius = Math.min(controls.maxDistance, Math.max(controls.minDistance, offset.length()));
     const phi = Math.acos(THREE.MathUtils.clamp(offset.y / Math.max(radius, .001), -1, 1));
     const start = Math.atan2(offset.x, offset.z);
@@ -1966,14 +1966,16 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     let keep = null;
     if (had && (panel.contains(had) || toolbar?.contains(had))) {
       const g = had.closest(".opts");
-      keep = had.classList.contains("shuffle") ? { c: "shuffle" } : g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("camera-tv") ? "camera-tv" : had.classList.contains("camera-window") ? "camera-window" : had.classList.contains("director") ? "director" : "save" };
+      keep = had.classList.contains("shuffle") ? { c: "shuffle" } : g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("camera-tv") ? "camera-tv" : had.classList.contains("camera-window") ? "camera-window" : had.classList.contains("camera-entry") ? "camera-entry" : had.classList.contains("director") ? "director" : "save" };
     }
     const cameraGroup = document.createElement("div"); cameraGroup.className = "camera-actions"; cameraGroup.setAttribute("role", "group"); cameraGroup.setAttribute("aria-label", state.lang === "zh" ? "房間視角" : "Room view");
     const windowButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-window", textContent: t.windowView, "aria-label": t.windowView, "aria-pressed": String(currentView === "window"), onclick: () => moveToView("window") });
     const tvButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-tv", textContent: t.tvView, "aria-label": t.tvView, "aria-pressed": String(currentView === "tv"), onclick: () => moveToView("tv") });
     windowButton.setAttribute("aria-label", t.windowView); windowButton.setAttribute("aria-pressed", String(currentView === "window"));
     tvButton.setAttribute("aria-label", t.tvView); tvButton.setAttribute("aria-pressed", String(currentView === "tv"));
-    cameraGroup.append(windowButton, tvButton);
+    const entryButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-entry", textContent: t.entryView, onclick: () => moveToView("entry") });
+    entryButton.setAttribute("aria-label", t.entryView); entryButton.setAttribute("aria-pressed", String(currentView === "entry"));
+    cameraGroup.append(windowButton, tvButton, entryButton);
     const headings = document.createElement("h2"); headings.className = "camera-heading"; headings.textContent = state.lang === "zh" ? "轉換視角" : "Change view";
     panel.replaceChildren(headings, cameraGroup, ...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
@@ -2019,7 +2021,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     }
     if (immersiveControls) {
       const views = document.createElement("div"); views.className = "immersive-row"; views.setAttribute("role", "group"); views.setAttribute("aria-label", state.lang === "zh" ? "房間視角" : "Room view");
-      for (const [view, label] of [["window", t.windowView], ["tv", t.tvView]]) {
+      for (const [view, label] of [["window", t.windowView], ["tv", t.tvView], ["entry", t.entryView]]) {
         const b = document.createElement("button"); b.type = "button"; b.dataset.view = view; b.textContent = label; b.setAttribute("aria-pressed", String(currentView === view)); b.onclick = () => { moveToView(view); drawPanel(); }; views.append(b);
       }
       const moods = document.createElement("div"); moods.className = "immersive-row"; moods.setAttribute("role", "group"); moods.setAttribute("aria-label", t.mood);
@@ -2583,7 +2585,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     if (Math.sin(viewTheta) < -.45) { void loadDoorTexture(); void loadRightWallArt(); if (!guideHinted && !intro && !director && !still && robotBubble.hidden) { guideHinted = true; showGuideLine(); } } // turning toward the right-hand wall: the door robot says what is behind the door, once
     const toWindow = Math.abs(Math.atan2(Math.sin(viewTheta), Math.cos(viewTheta)));
     const toTv = Math.abs(Math.atan2(Math.sin(viewTheta - Math.PI), Math.cos(viewTheta - Math.PI)));
-    currentView = toTv < toWindow ? "tv" : "window";
+    const toEntry = Math.abs(Math.atan2(Math.sin(viewTheta + Math.PI / 2), Math.cos(viewTheta + Math.PI / 2)));
+    currentView = toEntry < toWindow && toEntry < toTv ? "entry" : toTv < toWindow ? "tv" : "window";
     if (!looping) render();
   });
   new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
