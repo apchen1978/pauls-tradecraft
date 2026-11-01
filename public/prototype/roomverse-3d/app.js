@@ -3317,14 +3317,21 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     bag.rotation.y=-Math.PI/2; bag.updateMatrixWorld(true);
     const b=new THREE.Box3().setFromObject(bag); const c=b.getCenter(new THREE.Vector3());
     bag.position.add(new THREE.Vector3(2.18-c.x,-b.min.y,-.07-c.z));
-    const palette={body:'#bb566c',strap:'#713c49',zip:'#cead81',base:'#713c49'};
+    const palette={body:'#a86070',strap:'#714b50',zip:'#b99d80',base:'#70494c'};
     // The source has four untextured materials. Bake their colours and local transforms into
     // one mesh so the backpack keeps its palette without four separate draw calls.
     bag.updateMatrixWorld(true); const inverse=bag.matrixWorld.clone().invert(), parts=[];
     bag.traverse(o=>{if(!o.isMesh)return;const geo=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();
       geo.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse,o.matrixWorld));
       const col=new THREE.Color(palette[o.material.name] || '#bb566c'), values=new Float32Array(geo.attributes.position.count*3);
-      for(let i=0;i<geo.attributes.position.count;i++)col.toArray(values,i*3);
+      // Subtle uneven fading and darker lower fabric give the bag a lived-in cloth finish.
+      geo.computeBoundingBox(); const pos=geo.attributes.position, bounds=geo.boundingBox;
+      for(let i=0;i<pos.count;i++) {
+        const x=pos.getX(i), y=pos.getY(i), z=pos.getZ(i);
+        const height=(y-bounds.min.y)/Math.max(bounds.max.y-bounds.min.y,.001);
+        const variation=o.material.name==='body' ? .91 + .075*height + .022*Math.sin(x*27+z*19)*Math.sin(y*31) : .96;
+        values[i*3]=col.r*variation; values[i*3+1]=col.g*variation; values[i*3+2]=col.b*variation;
+      }
       geo.setAttribute('color',new THREE.BufferAttribute(values,3));parts.push(geo);
     });
     const merged=new THREE.Mesh(softMerge(parts),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9}));
@@ -3339,7 +3346,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     charmPart(.010,0,-.024,-.016); charmPart(.010,0,-.024,.016); charmPart(.003,-.019,.039,-.007,dark); charmPart(.003,-.019,.039,.007,dark);
     const cord=new THREE.Mesh(new THREE.CylinderGeometry(.0015,.0015,.035,6),dark);cord.position.set(0,.076,0);charm.add(cord);
     charm.position.set(1.96,.29,-.06);scene.add(charm);
-    const tex=canvasTex(128,128,(ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,w*.06,w/2,h/2,w*.48);g.addColorStop(0,'rgba(24,18,16,.52)');g.addColorStop(1,'rgba(24,18,16,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);});
+    const tex=canvasTex(128,128,(ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,w*.06,w/2,h/2,w*.48);g.addColorStop(0,'rgba(24,18,16,.42)');g.addColorStop(1,'rgba(24,18,16,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);});
     const shadow=new THREE.Mesh(new THREE.PlaneGeometry(.42,.38),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));shadow.name='room01-backpack-contact';shadow.rotation.x=-Math.PI/2;shadow.position.set(2.18,.0025,-.07);scene.add(shadow);render();
   }).catch(e=>{casualBackpackError=String(e);console.warn('Optional backpack unavailable',e);});
 
