@@ -226,7 +226,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   const frontWall = add(frontGeometry, wallMat, 0, H / 2, FRONT, true);
   frontWall.rotation.y = Math.PI; // the room-facing side is visible from inside
   frontWall.name = "front-wall";
-  const sideMat = new THREE.MeshStandardMaterial({ color: "#e4ddd0", roughness: .95 });
+  const sideMat = new THREE.MeshStandardMaterial({ color: "#dce3e8", roughness: .95 }); // lighter mist-blue echo balances the entry accent across the room
   const entrySideMat = new THREE.MeshStandardMaterial({ color: "#d0deea", roughness: .95 }); // mist-blue accent at the entry, echoing Room 03
   // side walls and ceiling cast too: otherwise window light leaks through them (a bright band on the right wall, a patch at the left)
   [-1, 1].forEach((s) => { add(new THREE.PlaneGeometry(D, H + .3), s === 1 ? entrySideMat : sideMat, s * W / 2, H / 2 - .15, BACK + D / 2, true).rotation.y = -s * Math.PI / 2; });
