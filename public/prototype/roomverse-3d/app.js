@@ -195,6 +195,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     // size = metres per tile (the wall's UVs are in metres); about 5 x 3 tiles on the back wall
     stripe: { zh: "細條紋壁紙", en: "Fine-stripe wallpaper", size: 1.0, tex: image("wallpaper-stripe-v1", true) },
     botanical: { zh: "淡色植紋壁紙", en: "Soft botanical wallpaper", size: 1.5, tex: image("wallpaper-botanical-v1", true) },
+    grasscloth: { zh: "暖燕麥草織", en: "Warm oatmeal grasscloth", size: 2.2, tex: image("wallpaper-grasscloth-oat-v1", true) },
+    sagewash: { zh: "鼠尾草石灰洗", en: "Sage limewash", size: 2.4, tex: image("wallpaper-sage-limewash-v1", true) },
   };
   const RUGS = {
     stripe: { zh: "藍米條紋", en: "Blue and cream stripe", tex: image("rug-stripe-v1") },
@@ -1979,7 +1981,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // the visitor's room lives in the address, so a copied link opens the same room (unknown values are ignored)
   const CHOICES = { mood: MOODS, wall: WALLS, rug: RUGS, curtain: CURTAINS, print: PRINTS };
   // Each feeling starts with a matching existing finish; an explicit URL or visitor pick wins.
-  const DEFAULT_WALL_BY_MOOD = { rain: "original", family: "olive", tech: "mist", chic: "blush", slow: "sand", golden: "sand", tv: "wine" };
+  // Quiet grasscloth is the everyday default; chic keeps its blush light but gains a soft sage wall for contrast.
+  const DEFAULT_WALL_BY_MOOD = { rain: "grasscloth", family: "olive", tech: "mist", chic: "sagewash", slow: "sand", golden: "grasscloth", tv: "wine" };
   const fromUrl = new URLSearchParams(location.search);
   let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
