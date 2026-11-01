@@ -3231,7 +3231,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       const mesh = new THREE.Mesh(geometry, material); mesh.name = name;
       mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh); return mesh;
     };
-    const points = [[0,0],[.085,0],[.108,.018],[.13,.075],[.135,.14],[.119,.21],[.084,.265],[.081,.28]]
+    const points = [[0,0],[.085,0],[.108,.018],[.13,.075],[.135,.14],[.119,.21],[.084,.265],[.081,.28],[.073,.28],[.072,.265]]
       .map(([x,y]) => new THREE.Vector2(x,y));
     const potGeo = new THREE.LatheGeometry(points, 32);
     const pos = potGeo.attributes.position;
@@ -3239,17 +3239,20 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     potGeo.computeVertexNormals();
     const pot=addPlantPart(potGeo,new THREE.MeshStandardMaterial({color:0xc8bca8,roughness:.94}),"autumn-plant-pot");
     // Merge the dark soil with the stems: one material and one draw call.
-    const soilGeo=new THREE.CircleGeometry(.079,24).toNonIndexed().rotateX(-Math.PI/2).translate(0,.274,0);
-    const branches=[soilGeo]; const tips=[]; const base=new THREE.Vector3(0,.265,0);
+    const tintGeometry=(geometry,hex)=>{const c=new THREE.Color(hex),n=geometry.attributes.position.count,colors=new Float32Array(n*3);for(let i=0;i<n;i++)c.toArray(colors,i*3);geometry.setAttribute("color",new THREE.BufferAttribute(colors,3));return geometry;};
+    // Recess the soil inside the thick rim; a dark narrow contact ring suggests ambient occlusion.
+    const soilGeo=tintGeometry(new THREE.CircleGeometry(.0725,32).toNonIndexed().rotateX(-Math.PI/2).translate(0,.270,0),0x463321);
+    const rimShadow=tintGeometry(new THREE.RingGeometry(.061,.073,32).toNonIndexed().rotateX(-Math.PI/2).translate(0,.2708,0),0x231a13);
+    const branches=[soilGeo,rimShadow]; const tips=[]; const base=new THREE.Vector3(0,.265,0);
     for(let i=0;i<6;i++) {
       const a=i*Math.PI*2/6+.18, r=.095+(i%3)*.014;
       const tip=new THREE.Vector3(Math.cos(a)*r,0.79+i*.063,Math.sin(a)*r); tips.push(tip);
       const stem=new THREE.CylinderGeometry(.003,.006,base.distanceTo(tip),7,1).toNonIndexed();
       stem.rotateZ(Math.PI/2); // local X axis for the transform below
       const mid=base.clone().add(tip).multiplyScalar(.5), dir=tip.clone().sub(base).normalize();
-      stem.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(-1,0,0),dir));stem.translate(mid.x,mid.y,mid.z);branches.push(stem);
+      stem.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(-1,0,0),dir));stem.translate(mid.x,mid.y,mid.z);branches.push(tintGeometry(stem,0x695137));
     }
-    addPlantPart(softMerge(branches),new THREE.MeshStandardMaterial({color:0x695137,roughness:1}),"autumn-plant-branches");
+    addPlantPart(softMerge(branches),new THREE.MeshStandardMaterial({vertexColors:true,roughness:1}),"autumn-plant-branches");
     // One curved, pointed leaf shared by every instance; shape is geometry, not a flat square.
     const leaf=new THREE.BufferGeometry(), vs=[], inds=[]; const steps=8;
     for(let j=0;j<=steps;j++){const t=j/steps,w=.023*Math.pow(Math.sin(Math.PI*t),.85); for(const side of [-1,1])vs.push(side*w,t*.085,.004*Math.sin(Math.PI*t));}
@@ -3268,9 +3271,14 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       const c=(upper?(j%3===0?orange:red):(j%3===0?orange:green)).clone();c.multiplyScalar(.86+((i*13+j*5)%7)*.025);leaves.setColorAt(index,c);index++;
     }});
     leaves.computeBoundingBox();leaves.computeBoundingSphere();group.add(leaves);
+    // Three quiet cream-gold buds at the centres of separate leaf rosettes.
+    const buds=new THREE.InstancedMesh(new THREE.SphereGeometry(.008,10,7),new THREE.MeshStandardMaterial({color:0xd6b77d,roughness:.73}),3);
+    buds.name="autumn-plant-buds";
+    [0,2,4].forEach((tipIndex,i)=>{const tip=tips[tipIndex];dummy.position.set(tip.x,tip.y+.022,tip.z);dummy.quaternion.identity();dummy.scale.set(1,1.15,1);dummy.updateMatrix();buds.setMatrixAt(i,dummy.matrix);});
+    buds.computeBoundingBox();buds.computeBoundingSphere();group.add(buds);
     const shadowTex=canvasTex(128,128,(ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,w*.08,w/2,h/2,w*.49);g.addColorStop(0,'rgba(30,22,14,.48)');g.addColorStop(1,'rgba(30,22,14,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);});
     const shade=addPlantPart(new THREE.PlaneGeometry(.36,.36),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}),"autumn-plant-contact");shade.rotation.x=-Math.PI/2;shade.position.y=.002;shade.castShadow=false;
-    scene.add(group);return {group,pot,leaves};
+    scene.add(group);return {group,pot,leaves,buds};
   }
   buildHallStand();
   buildSuitcase();
@@ -3586,7 +3594,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
       const checks={suitcase:soft.suitcaseGroup,sideTable:tableObj,doorRobot:guidePivot,sideboard:sideboard.oak};
       const collisions=Object.entries(checks).filter(([,o])=>box(o).intersectsBox(b)).map(([n])=>n);
       const saved=doorSwing.rotation.y;let doorHits=0,suitcaseDoorHits=0;for(let i=0;i<=40;i++){doorSwing.rotation.y=-DOOR_OPEN*i/40;scene.updateMatrixWorld(true);const door=box(doorSwing);if(door.intersectsBox(b))doorHits++;if(door.intersectsBox(box(soft.suitcaseGroup)))suitcaseDoorHits++;}doorSwing.rotation.y=saved;scene.updateMatrixWorld(true);
-      return {bounds:{min:b.min.toArray(),max:b.max.toArray()},potBottomMm:p.min.y*1000,heightMm:(b.max.y-p.min.y)*1000,leaves:autumnPlant.leaves.count,collisions,doorHits,suitcaseDoorHits,frameBottomClearMm:frameGroup?(frameGroup.min.y-b.max.y)*1000:null,robotHitsTv:box(guidePivot).intersectsBox(box(scene.getObjectByName("tv-console"))),frameLoaded:!!frame};
+      return {bounds:{min:b.min.toArray(),max:b.max.toArray()},potBottomMm:p.min.y*1000,heightMm:(b.max.y-p.min.y)*1000,leaves:autumnPlant.leaves.count,buds:autumnPlant.buds.count,collisions,doorHits,suitcaseDoorHits,frameBottomClearMm:frameGroup?(frameGroup.min.y-b.max.y)*1000:null,robotHitsTv:box(guidePivot).intersectsBox(box(scene.getObjectByName("tv-console"))),frameLoaded:!!frame};
     },
     softDetails() { // local QA only: the coffee-table props' support and the flat suitcase's floor contact
       scene.updateMatrixWorld(true);
