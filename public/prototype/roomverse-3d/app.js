@@ -185,6 +185,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   };
   const WALLS = {
     original: { zh: "原來的米白", en: "Original cream", paint: "#e9e1d3" },
+    softwhite: { zh: "柔和霧白", en: "Soft mist white", paint: "#e9e8e2" },
     sand: { zh: "暖砂米", en: "Warm sand", paint: "#d9c6a8" },
     olive: { zh: "柔橄欖", en: "Soft olive", paint: "#a9ad8a" },
     blush: { zh: "霧粉", en: "Dusty blush", paint: "#e6cec6" },
@@ -2024,8 +2025,8 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   // the visitor's room lives in the address, so a copied link opens the same room (unknown values are ignored)
   const CHOICES = { mood: MOODS, wall: WALLS, rug: RUGS, curtain: CURTAINS, print: PRINTS };
   // Each feeling starts with a matching existing finish; an explicit URL or visitor pick wins.
-  // Quiet grasscloth is the everyday default; chic keeps its blush light but gains a soft sage wall for contrast.
-  const DEFAULT_WALL_BY_MOOD = { rain: "grasscloth", family: "olive", tech: "mist", chic: "sagewash", slow: "sand", golden: "grasscloth", tv: "wine" };
+  // Soft neutral walls pair with the mist-blue side walls in golden and chic moods.
+  const DEFAULT_WALL_BY_MOOD = { rain: "grasscloth", family: "olive", tech: "mist", chic: "softwhite", slow: "sand", golden: "softwhite", tv: "wine" };
   const fromUrl = new URLSearchParams(location.search);
   let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
