@@ -3220,6 +3220,14 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     const printGeometry = new THREE.PlaneGeometry(.066, .136).translate(.142, WHEEL_H + .178, CASE_D / 2 + .044);
     const printMesh = new THREE.Mesh(place(printGeometry), new THREE.MeshStandardMaterial({ map: tagPrint, color: 0xffffff, roughness: .38, metalness: .02 }));
     printMesh.name = "red-suitcase-tag-print"; meshes.push(printMesh);
+    // Two small, original travel stickers on the broad shell, with no logos or lettering.
+    const travelSticker=canvasTex(256,256,(ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle='#f2e5cb';ctx.beginPath();ctx.arc(128,128,119,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#b99470';ctx.lineWidth=8;ctx.stroke();ctx.fillStyle='#88a6a0';ctx.beginPath();ctx.arc(128,128,94,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f3d2a1';ctx.beginPath();ctx.arc(164,92,19,0,Math.PI*2);ctx.fill();ctx.fillStyle='#627c74';ctx.beginPath();ctx.moveTo(42,175);ctx.lineTo(97,102);ctx.lineTo(135,151);ctx.lineTo(163,124);ctx.lineTo(216,177);ctx.closePath();ctx.fill();ctx.fillStyle='#344f45';for(const x of [69,87,182]){ctx.fillRect(x,143,5,40);ctx.beginPath();ctx.moveTo(x-8,152);ctx.lineTo(x+2,119);ctx.lineTo(x+12,152);ctx.fill();}});
+    const stickerGeo=new THREE.PlaneGeometry(.065,.065).translate(-.075,WHEEL_H+.18,CASE_D/2+.017);
+    const sticker=new THREE.Mesh(place(stickerGeo),new THREE.MeshStandardMaterial({map:travelSticker,transparent:true,roughness:.75,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));sticker.name='red-suitcase-travel-sticker';meshes.push(sticker);
+    // A second tiny sticker suggests the Brooklyn Bridge without text or logos.
+    const bridgeSticker=canvasTex(256,256,(ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle='#f0e3c9';ctx.beginPath();ctx.roundRect(8,8,240,240,30);ctx.fill();ctx.fillStyle='#91a9a3';ctx.fillRect(28,56,200,132);ctx.fillStyle='#e5bc83';ctx.beginPath();ctx.arc(180,86,17,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#374c4d';ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(30,173);ctx.lineTo(225,173);ctx.moveTo(91,175);ctx.lineTo(91,78);ctx.lineTo(111,78);ctx.lineTo(111,175);ctx.moveTo(163,175);ctx.lineTo(163,94);ctx.lineTo(181,94);ctx.lineTo(181,175);ctx.stroke();ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(29,124);ctx.quadraticCurveTo(100,192,171,128);ctx.quadraticCurveTo(200,105,226,109);ctx.stroke();});
+    const bridgeGeo=new THREE.PlaneGeometry(.057,.057).translate(.025,WHEEL_H+.115,CASE_D/2+.017);
+    const bridge=new THREE.Mesh(place(bridgeGeo),new THREE.MeshStandardMaterial({map:bridgeSticker,transparent:true,roughness:.75,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));bridge.name='red-suitcase-brooklyn-sticker';meshes.push(bridge);
     addPart(leatherG, new THREE.MeshStandardMaterial({ color: 0x4a352c, roughness: .8, metalness: .02 }), "red-suitcase-leather");
     const union = new THREE.Box3();
     for (const mesh of meshes) union.expandByObject(mesh);
@@ -3331,7 +3339,15 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
   }
   // Compact umbrella stand by the entrance: a ceramic vessel and one folded umbrella.
   const umbrellaStand = new THREE.Group(); umbrellaStand.name='entry-umbrella-stand'; umbrellaStand.position.set(2.38,0,2.08);
-  const standMat = new THREE.MeshStandardMaterial({color:0xa26950,roughness:.75});
+  // Original hand-painted botanical ornament: cobalt, leaf green and warm ochre on ivory.
+  const paintedCeramic=canvasTex(512,512,(ctx,w,h)=>{
+    ctx.fillStyle='#eee2ca';ctx.fillRect(0,0,w,h);
+    for(const y of [42,66,443,466]){ctx.strokeStyle=y===42||y===466?'#365d73':'#ba7854';ctx.lineWidth=y===42||y===466?9:4;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+    for(let j=0;j<4;j++){const x=64+j*128;ctx.strokeStyle='#6c8567';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x,408);ctx.bezierCurveTo(x-16,320,x+18,245,x,125);ctx.stroke();
+      for(let k=0;k<4;k++){const y=174+k*59,side=k%2?1:-1;ctx.fillStyle=k%2?'#718e72':'#527b70';ctx.beginPath();ctx.ellipse(x+side*19,y,25,10,side*.55,0,Math.PI*2);ctx.fill();}
+      ctx.fillStyle=j%2?'#cf8b55':'#607e9b';for(let k=0;k<5;k++){const t=k*Math.PI*2/5;ctx.beginPath();ctx.ellipse(x+Math.cos(t)*13,130+Math.sin(t)*13,11,7,t,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#d3aa58';ctx.beginPath();ctx.arc(x,130,6,0,Math.PI*2);ctx.fill();}
+  });
+  const standMat = new THREE.MeshStandardMaterial({map:paintedCeramic,color:0xffffff,roughness:.63});
   const darkStand = new THREE.MeshStandardMaterial({color:0x665a4e,roughness:1,side:THREE.DoubleSide});
   const standProfile=[[0,0],[.060,0],[.068,.01],[.078,.04],[.085,.11],[.080,.17],[.085,.195],[.090,.205],[.077,.205],[.071,.19],[.067,.17],[.063,.02],[0,.02]].map(([x,y])=>new THREE.Vector2(x,y));
   const vesselGeometry=new THREE.LatheGeometry(standProfile,48); const vp=vesselGeometry.attributes.position; for(let i=0;i<vp.count;i++){const x=vp.getX(i),z=vp.getZ(i),y=vp.getY(i);if(y>.015 && y<.19){const f=1+.035*Math.cos(Math.atan2(z,x)*12);vp.setX(i,x*f);vp.setZ(i,z*f);}} vesselGeometry.computeVertexNormals();
