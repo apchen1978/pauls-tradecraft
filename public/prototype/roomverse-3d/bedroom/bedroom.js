@@ -1522,10 +1522,16 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   plate(.086, .086, DOOR.x + DOOR.w / 2 + .16, 1.2, HD - .005, 0, "switch");
   const switchRockerMat = new THREE.MeshStandardMaterial({ color: "#e1ddd4", roughness: .55 });
   const switchRockers = {};
+  const switchLocatorMats = {};
   const wallLightSwitch = (name, x, y, z, rotY) => {
     const group = new THREE.Group(); group.name = `wall-switch-${name}`; group.position.set(x, y, z); group.rotation.y = rotY; root.add(group);
     const face = new THREE.Mesh(box(.09, .14, .01), plateMat); face.name = `switch-face-${name}`; face.userData.lightSwitch = name; face.receiveShadow = true; group.add(face);
     const rocker = new THREE.Mesh(new THREE.BoxGeometry(.036, .064, .012), switchRockerMat); rocker.name = `switch-rocker-${name}`; rocker.position.z = .011; rocker.userData.lightSwitch = name; group.add(rocker);
+    if (name === "bed") {
+      const locatorMat = new THREE.MeshStandardMaterial({ color: "#ddd8ce", emissive: "#d9b969", emissiveIntensity: 0, roughness: .42 });
+      const locator = new THREE.Mesh(new THREE.BoxGeometry(.016, .002, .0015), locatorMat); locator.name = "switch-locator-bed"; locator.position.set(0, -.047, .011); group.add(locator);
+      switchLocatorMats[name] = locatorMat;
+    }
     lightSwitchHits.push(face, rocker); switchRockers[name] = rocker;
   };
   // Keep the original compact wall switch, aligned directly below the bed poster.
@@ -1695,17 +1701,23 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   let mood = "focus";
   const switchOverrides = { bed: null, desk: null };
   const refreshSwitchRockers = () => {
-    const defaults = { bed: MOODS[mood].bedLamp > 0, desk: MOODS[mood].deskSpot > 0 };
-    for (const name of ["bed", "desk"]) switchRockers[name].rotation.x = (switchOverrides[name] ?? defaults[name]) ? -.14 : .14;
+    const defaults = { bed: MOODS[mood].deskSpot > 0, desk: MOODS[mood].deskSpot > 0 };
+    for (const name of ["bed", "desk"]) {
+      const on = switchOverrides[name] ?? defaults[name];
+      switchRockers[name].rotation.x = on ? -.14 : .14;
+      // Locator line glows only while its track-light load is off, like a contemporary US paddle switch.
+      if (switchLocatorMats[name]) switchLocatorMats[name].emissiveIntensity = on ? 0 : .85;
+    }
   };
   toggleLightSwitch = (name) => {
     if (name !== "bed" && name !== "desk") return false;
-    const preset = MOODS[mood], defaults = { bed: preset.bedLamp > 0, desk: preset.deskSpot > 0 };
+    const preset = MOODS[mood], defaults = { bed: preset.deskSpot > 0, desk: preset.deskSpot > 0 };
+    // The bedside wall paddle controls the ceiling track, not the bedside lamp; the desk lamp stays locally controlled.
     switchOverrides[name] = !(switchOverrides[name] ?? defaults[name]);
     if (name === "bed") {
       const on = switchOverrides.bed;
-      bedLamp.intensity = on ? Math.max(preset.bedLamp, 1.8) : 0;
-      shade.material.emissiveIntensity = on ? Math.max(preset.shade, .55) : 0;
+      for (const sp of roomSpots) sp.intensity = on ? preset.deskSpot * .7 : 0;
+      lensMat.emissiveIntensity = on ? preset.deskSpot * .4 : 0;
     } else {
       deskSpot.intensity = switchOverrides.desk ? preset.deskSpot : 0;
       downlightLens.material.emissiveIntensity = switchOverrides.desk ? preset.deskSpot * .4 : 0;
@@ -1878,8 +1890,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       vinyl: (() => { const b = new THREE.Box3().setFromObject(vin), r = new THREE.Box3().setFromObject(record), sl = []; vin.traverse((o) => { if (o.name === "vinyl-sleeve") sl.push(new THREE.Box3().setFromObject(o)); });
         return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)) }; })(),
       radiators: [radiator, radiatorNook].map((item) => { const b = new THREE.Box3().setFromObject(item), bedFrame = new THREE.Box3().setFromObject(root.getObjectByName("bed-frame")); const boxGap = (a, c) => { const d = [a.min.x - c.max.x, c.min.x - a.max.x, a.min.y - c.max.y, c.min.y - a.max.y, a.min.z - c.max.z, c.min.z - a.max.z]; const dx = Math.max(d[0], d[1]), dy = Math.max(d[2], d[3]), dz = Math.max(d[4], d[5]); return dx < 0 && dy < 0 && dz < 0 ? Math.max(dx, dy, dz) : Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0)); }; const obstacles = Object.fromEntries(["desk", "chair", "bed-frame", "vinyl-corner", "sofa", "tv-unit"].map((name) => [name, new THREE.Box3().setFromObject(root.getObjectByName(name))])); return { name: item.name, min: b.min.toArray(), max: b.max.toArray(), vertices: radiatorGeometry.attributes.position.count, meshes: 1, clearances: Object.fromEntries(Object.entries(obstacles).map(([name, bounds]) => [name, +boxGap(b, bounds).toFixed(3)])), bedGap: +(bedFrame.min.x - b.max.x).toFixed(3), wallGap: +(item === radiator ? b.min.z + HD : b.min.x + HW).toFixed(3) }; }),
-      switches: Object.fromEntries(["bed", "desk"].map((name) => { const o = switchRockers[name], b = new THREE.Box3().setFromObject(o), p = b.getCenter(new THREE.Vector3()).project(camera), preset = MOODS[mood], on = switchOverrides[name] ?? (name === "bed" ? preset.bedLamp > 0 : preset.deskSpot > 0); return [name, { on, center: b.getCenter(new THREE.Vector3()).toArray(), ndc: [p.x, p.y], bedLamp: name === "bed" ? bedLamp.intensity : undefined, deskSpot: name === "desk" ? deskSpot.intensity : undefined }]; })),
-      switches: Object.fromEntries(["bed", "desk"].map((name) => { const o = switchRockers[name], b = new THREE.Box3().setFromObject(o), p = b.getCenter(new THREE.Vector3()).project(camera), preset = MOODS[mood], on = switchOverrides[name] ?? (name === "bed" ? preset.bedLamp > 0 : preset.deskSpot > 0); return [name, { on, center: b.getCenter(new THREE.Vector3()).toArray(), ndc: [p.x, p.y], bedLamp: name === "bed" ? bedLamp.intensity : undefined, deskSpot: name === "desk" ? deskSpot.intensity : undefined }]; })),
+      switches: Object.fromEntries(["bed", "desk"].map((name) => { const o = switchRockers[name], b = new THREE.Box3().setFromObject(o), p = b.getCenter(new THREE.Vector3()).project(camera), preset = MOODS[mood], on = switchOverrides[name] ?? (preset.deskSpot > 0); return [name, { on, center: b.getCenter(new THREE.Vector3()).toArray(), ndc: [p.x, p.y], bedLamp: name === "bed" ? bedLamp.intensity : undefined, deskSpot: name === "desk" ? deskSpot.intensity : undefined, trackSpotsOn: name === "bed" ? roomSpots.filter((sp) => sp.intensity > 0).length : undefined, trackLensEmissive: name === "bed" ? lensMat.emissiveIntensity : undefined, locatorLit: name === "bed" ? switchLocatorMats.bed.emissiveIntensity > 0 : undefined }]; })),
       choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, curtainPanels: curtains.children.filter((c) => c.name === "curtain-panel").map((c) => { const b = new THREE.Box3().setFromObject(c); return { min: b.min.toArray(), max: b.max.toArray(), vertices: c.geometry.attributes.position.count }; }), bedPoster: bedPosterId,
       bedPosterBox: (() => { const b = new THREE.Box3().setFromObject(bedPoster); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       ceilingLamp: { color: "#" + ceilingLight.material.color.getHexString(), emissiveIntensity: ceilingLight.material.emissiveIntensity, glowOpacity: ceil.glow?.material.opacity ?? null },
