@@ -323,7 +323,8 @@ test("series night ceiling fixture is visibly off while every other mood keeps i
 
 test("vinyl corner: console under the sill, records inside their cubbies, record on the platter, clear of desk, chair and bed", async ({ page }) => {
   await enter(page);
-  const { vinyl, work, bed } = await page.evaluate(() => window.__bedroom.info());
+  const sceneInfo = await page.evaluate(() => window.__bedroom.info());
+  const { vinyl, work, bed } = sceneInfo;
   expect(vinyl.min[1]).toBeGreaterThan(-.001); expect(vinyl.min[1]).toBeLessThan(.01); // legs on the floor
   expect(vinyl.max[1]).toBeLessThan(.9); // speakers stay under the 90 cm window sill
   expect(vinyl.min[2]).toBeGreaterThan(-2.501); // against the north wall, not through it
@@ -333,6 +334,27 @@ test("vinyl corner: console under the sill, records inside their cubbies, record
   expect(vinyl.min[0]).toBeGreaterThan(work.desk.max[0]); // east of the desk
   expect(vinyl.max[2]).toBeLessThan(work.chair.min[2] + .001); // the chair stays in front of it
   expect(vinyl.max[0]).toBeLessThan(bed.min[0]); // west of the bedside table
+  expect(vinyl.speakers.meshes).toBe(4); // the pair is merged by material, matching Room 01's four-draw-call construction
+  expect(vinyl.speakers.vertices).toBeLessThan(2200);
+  expect(vinyl.speakers.cabinetRoughness).toBeGreaterThanOrEqual(.7); // matte veneer, not a polished plastic block
+  expect(vinyl.speakers.baffleRoughness).toBeGreaterThanOrEqual(.7);
+  for (const unit of vinyl.speakers.units) {
+    expect(unit.size[0]).toBeCloseTo(.16, 3);
+    expect(unit.size[1]).toBeCloseTo(.25, 3);
+    expect(unit.size[2]).toBeCloseTo(.18, 3);
+    expect(unit.min[1]).toBeCloseTo(.5, 3); // cabinet feet sit directly on the console top
+    expect(unit.max[1]).toBeLessThan(.9); // the pair remains beneath the sill
+  }
+  if (SWITCH_QA) {
+    await page.evaluate(() => window.__bedroom.lookTo("work"));
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/room02-speakers-1440.png` });
+    await page.evaluate(() => { const camera = window.__bedroom.camera; camera.position.set(-.7, .76, -1.35); camera.lookAt(-.7, .62, -2.29); window.__bedroom.render(); });
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/room02-speakers-detail-1440.png` });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForFunction(() => window.innerWidth === 390);
+    await page.evaluate(() => window.__bedroom.lookTo("work"));
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/room02-speakers-390.png` });
+  }
 });
 
 test("Brooklyn radiators fit in the window bay and tucked work corner without intersecting furniture", async ({ page }) => {
