@@ -31,6 +31,13 @@
   .room { position: relative; margin: 0 clamp(16px, 3vw, 40px); height: min(72vh, 760px); border-radius: 18px; overflow: hidden; background: #ddd6c8; }
   #stage { position: absolute; inset: 0; }
   #stage canvas { display: block; touch-action: none; }
+  .bed-switch-shortcut { position: absolute; z-index: 5; transform: translateY(-50%); display: flex; align-items: center; gap: 8px; min-width: 96px; min-height: 48px; padding: 5px 12px 5px 5px; border: 1px solid #d6ddd5; border-radius: 999px; background: rgba(250,249,243,.96); color: #24302c; box-shadow: 0 3px 14px #18231e55; font: 700 13px/1 system-ui, sans-serif; cursor: pointer; touch-action: manipulation; }
+  .bed-switch-shortcut[hidden] { display: none; }
+  .bed-switch-icon { position: relative; display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; border-radius: 50%; background: #315c5d; color: #fff; }
+  .bed-switch-icon::before { content: "☼"; font-size: 22px; line-height: 1; }
+  .bed-switch-shortcut[data-on="true"] .bed-switch-icon { background: #9a693b; box-shadow: inset 0 0 0 2px #fff8; }
+  .bed-switch-shortcut:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
+  .bed-switch-shortcut:active { transform: translateY(-50%) scale(.96); }
   .room::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: radial-gradient(ellipse at 50% 46%, transparent 58%, rgba(30,20,12,.22) 100%); } /* a soft lens vignette, like a photograph */
   .poster { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(180deg, #0003 0%, #0000 35%, #0006 100%), url("poster-night-desktop.webp") center / cover no-repeat, #1b1c22; }
   .poster > div { text-align: center; }
@@ -132,6 +139,6 @@
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=88"></script>
+<script type="module" src="page.js?v=89"></script>
 </body>
 </html>

@@ -1521,16 +1521,50 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const plate = (w, h, x, y, z, rotY, name) => { const m = add(box(w, h, .01), plateMat, name, x, y, z, { shadow: false }); m.rotation.y = rotY; return m; };
   plate(.086, .086, DOOR.x + DOOR.w / 2 + .16, 1.2, HD - .005, 0, "switch");
   const switchRockerMat = new THREE.MeshStandardMaterial({ color: "#e1ddd4", roughness: .55 });
+  const smartSwitchScreenMat = new THREE.MeshStandardMaterial({ color: "#263b3b", roughness: .34, metalness: .08 });
+  const smartSwitchIndicatorMat = new THREE.MeshStandardMaterial({ color: "#54746c", emissive: "#76b89b", emissiveIntensity: .12, roughness: .28 });
   const switchRockers = {};
+  const switchIndicators = {};
   const wallLightSwitch = (name, x, y, z, rotY) => {
     const group = new THREE.Group(); group.name = `wall-switch-${name}`; group.position.set(x, y, z); group.rotation.y = rotY; root.add(group);
-    const face = new THREE.Mesh(box(.09, .14, .01), plateMat); face.name = `switch-face-${name}`; face.userData.lightSwitch = name; face.receiveShadow = true; group.add(face);
-    const rocker = new THREE.Mesh(new THREE.BoxGeometry(.036, .064, .012), switchRockerMat); rocker.name = `switch-rocker-${name}`; rocker.position.z = .011; rocker.userData.lightSwitch = name; group.add(rocker);
+    const smart = name === "bed";
+    const face = new THREE.Mesh(smart ? box(.14, .2, .012) : box(.09, .14, .01), plateMat); face.name = `switch-face-${name}`; face.userData.lightSwitch = name; face.receiveShadow = true; group.add(face);
+    let rocker;
+    if (smart) {
+      // A small smart dimmer panel: the dark inset and lit status dot make the bed control read as interactive.
+      const screen = new THREE.Mesh(box(.105, .145, .008), smartSwitchScreenMat); screen.name = "switch-screen-bed"; screen.position.set(0, .018, .012); group.add(screen);
+      rocker = new THREE.Mesh(box(.066, .066, .009), switchRockerMat); rocker.position.set(0, -.045, .022); rocker.name = `switch-rocker-${name}`; rocker.userData.lightSwitch = name; group.add(rocker);
+      const indicator = new THREE.Mesh(new THREE.SphereGeometry(.006, 8, 6), smartSwitchIndicatorMat); indicator.name = "switch-indicator-bed"; indicator.position.set(.035, .073, .019); group.add(indicator); switchIndicators[name] = indicator;
+    } else {
+      rocker = new THREE.Mesh(new THREE.BoxGeometry(.036, .064, .012), switchRockerMat); rocker.name = `switch-rocker-${name}`; rocker.position.z = .011; rocker.userData.lightSwitch = name; group.add(rocker);
+    }
     lightSwitchHits.push(face, rocker); switchRockers[name] = rocker;
   };
-  // Reachable wall switches: beside the bed head and just past the desk's south end.
-  wallLightSwitch("bed", 1.03, .96, -HD + .005, 0);
+  // The bedside control sits just inward of the window frame and slightly higher, where a phone visitor can spot it beside the bed.
+  wallLightSwitch("bed", .93, 1.04, -HD + .005, 0);
   wallLightSwitch("desk", -HW + .005, 1.06, -.88, Math.PI / 2);
+  const bedSwitchShortcut = document.createElement("button");
+  bedSwitchShortcut.type = "button"; bedSwitchShortcut.className = "bed-switch-shortcut"; bedSwitchShortcut.setAttribute("role", "switch");
+  bedSwitchShortcut.innerHTML = '<span class="bed-switch-icon" aria-hidden="true"></span><span class="bed-switch-label"></span>';
+  bedSwitchShortcut.addEventListener("click", (event) => { event.stopPropagation(); toggleLightSwitch("bed"); });
+  stage.append(bedSwitchShortcut);
+  const positionBedSwitchShortcut = () => {
+    const rocker = switchRockers.bed;
+    if (!compact || !rocker) { bedSwitchShortcut.hidden = true; return; }
+    scene.updateMatrixWorld(true); camera.updateMatrixWorld();
+    const point = rocker.getWorldPosition(new THREE.Vector3()).project(camera), rect = stage.getBoundingClientRect();
+    const inView = point.z < 1 && Math.abs(point.x) < .94 && Math.abs(point.y) < .94;
+    bedSwitchShortcut.hidden = !inView;
+    if (!inView) return;
+    const chinese = document.documentElement.lang.startsWith("zh"), label = chinese ? "床頭燈" : "Bed lamp", on = switchOverrides.bed ?? (MOODS[mood].bedLamp > 0);
+    bedSwitchShortcut.querySelector(".bed-switch-label").textContent = label;
+    bedSwitchShortcut.setAttribute("aria-label", chinese ? "切換床頭燈" : "Toggle bedside lamp");
+    bedSwitchShortcut.setAttribute("aria-checked", String(on));
+    bedSwitchShortcut.dataset.on = String(on);
+    const x = Math.max(8, Math.min(rect.width - bedSwitchShortcut.offsetWidth - 8, (point.x + 1) * rect.width / 2 + 8));
+    const y = Math.max(28, Math.min(rect.height - 30, (1 - point.y) * rect.height / 2));
+    bedSwitchShortcut.style.left = `${x}px`; bedSwitchShortcut.style.top = `${y}px`;
+  };
   plate(.086, .086, -HW + .005, .3, -.92, Math.PI / 2, "socket-desk");
   plate(.086, .086, BED.x - BED.w / 2 - .55, .3, -HD + .005, 0, "socket-bed");
   // The bedside lamp's cable: from the back of the lamp base, over the back edge of the table, down behind it, along the floor by the wall, over the skirting board and up
@@ -1696,7 +1730,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const switchOverrides = { bed: null, desk: null };
   const refreshSwitchRockers = () => {
     const defaults = { bed: MOODS[mood].bedLamp > 0, desk: MOODS[mood].deskSpot > 0 };
-    for (const name of ["bed", "desk"]) switchRockers[name].rotation.x = (switchOverrides[name] ?? defaults[name]) ? -.14 : .14;
+    for (const name of ["bed", "desk"]) {
+      const on = switchOverrides[name] ?? defaults[name];
+      switchRockers[name].rotation.x = on ? -.14 : .14;
+      if (switchIndicators[name]) switchIndicators[name].material.emissiveIntensity = on ? 1.15 : .12;
+    }
   };
   toggleLightSwitch = (name) => {
     if (name !== "bed" && name !== "desk") return false;
@@ -1811,7 +1849,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     camera.fov = camera.aspect < .8 ? 82 : 60;
     camera.updateProjectionMatrix();
   }
-  const render = () => { renderer.render(scene, camera); positionRobotBubble(); }; renderSoon = render;
+  const render = () => { renderer.render(scene, camera); positionRobotBubble(); positionBedSwitchShortcut(); }; renderSoon = render;
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
   resize(); render(); ready = true;
   setMood("focus");
