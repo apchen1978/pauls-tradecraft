@@ -89,7 +89,13 @@ export function initTravelDoor({ currentRoom, getLang, onChoose, beforeOpen = ()
   });
   triggers.forEach((trigger) => {
     trigger.classList.add("travel-door-trigger");
-    trigger.addEventListener("click", () => open(trigger));
+    trigger.addEventListener("click", (event) => {
+      if (trigger instanceof HTMLAnchorElement) {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+      }
+      open(trigger);
+    });
   });
   return {
     open,

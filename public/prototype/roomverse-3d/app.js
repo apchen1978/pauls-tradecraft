@@ -17,7 +17,7 @@ const PHONE_BAR = {
   zh: { save: "存成明信片", director: "8秒短片", stop: "停止短片", close: "收起對照", preparing: "準備中" },
   en: { save: "Save postcard", director: "8s tour", stop: "Stop", close: "Close", preparing: "Preparing" },
 };
-const GUIDE_LINE = { zh: "這扇門後面是 Room 02，推開看看？", en: "Room 02 is behind this door. Take a look?" };
+const GUIDE_LINE = { zh: "想去哪個房間？", en: "Which room would you like to visit?" };
 const ROBOT_MOOD_LINES = {
   rain: { zh: "聽雨聲，剛剛好。", en: "The rain sounds just right." },
   family: { zh: "好像聞到晚餐香了。", en: "Feels like dinner is nearly ready." },
@@ -51,7 +51,7 @@ const MOODS = {
     why: { zh: "週五晚上，關掉主燈，只留燈帶和一盞暖燈，沙發就是整個世界。", en: "Friday night: ceiling light off, just the warm strips and one lamp; the sofa is the whole world." }, hemi: .62, win: .7, winCol: "#56647f", lamp: 2.5, fill: .55, out: "#c6cad6", exposure: .98, floor: .45, glow: .48 },
 };
 
-export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = false }) {
+export async function start({ stage, panel, lang, onReady, onTravelChoice = () => {}, arriveFromRoom02 = false }) {
   const compactRender = matchMedia("(max-width: 768px), (max-width: 1024px) and (max-height: 500px)").matches;
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, compactRender ? 1.5 : 2));
@@ -2703,7 +2703,7 @@ export async function start({ stage, panel, lang, onReady, arriveFromRoom02 = fa
     tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(tap, camera);
     const hitGuide = ray.intersectObject(guidePivot, true).length > 0;
-    if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) void openPortal(); return; } // tapping the door opens the portal
+    if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) onTravelChoice(); return; } // tapping the door opens the shared destination chooser
     const pivot = hitGuide ? guidePivot : robotPivot, home = hitGuide ? guideHome : robotHome;
     hopping = true;
     const hop = ++hopRun;

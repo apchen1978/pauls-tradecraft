@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#f0e8dc">
+  <link rel="stylesheet" href="../travel-door.css?v=3">
   <title>ROOMVERSE 3D</title>
   <style>
     :root { color-scheme: light; --ink:#292c26; --muted:#66685e; --paper:#faf8f2; --olive:#596043; --line:#d4cebf; }
@@ -78,14 +79,14 @@
     .robot-bubble { position:absolute; z-index:5; transform:translate(-50%,-100%); max-width:260px; background:#fffaf0; color:#2f3529; border-radius:14px; padding:10px 12px; box-shadow:0 10px 26px #2b241a33; font-size:14px; line-height:1.45; }
     .robot-bubble p { margin:0 0 8px; }
     .robot-links { display:flex; flex-wrap:wrap; gap:6px; }
-    .robot-links a { display:inline-flex; align-items:center; min-height:36px; padding:0 12px; border-radius:999px; background:#38463a; color:#fffaf0; text-decoration:none; font-weight:600; font-size:13px; }
-    .robot-links a:focus-visible { outline:3px solid #e3b23c; outline-offset:2px; }
+    .robot-links .travel-door-trigger { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:8px 12px; border-radius:999px; background:#38463a; color:#fffaf0; font-weight:700; font-size:13px; }
+    .robot-links .travel-door-trigger:focus-visible { outline:3px solid #e3b23c; outline-offset:2px; }
   </style>
 </head>
 <body>
   <header>
     <span class="brand">ROOMVERSE 3D</span>
-    <a id="headerOtherRooms" class="exit-nav" href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
+    <a id="headerOtherRooms" class="exit-nav" data-travel-door-trigger href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
     <button id="lang" type="button" aria-label="Switch language">EN</button>
   </header>
   <main>
@@ -104,7 +105,7 @@
       <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
       <button class="immersive-exit" id="immersiveExit" type="button"></button>
       <div class="immersive-controls" id="immersiveControls"></div>
-      <a id="immersiveOtherRooms" class="exit-nav immersive-other-rooms" href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
+      <a id="immersiveOtherRooms" class="exit-nav immersive-other-rooms" data-travel-door-trigger href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
     </section>
     <section class="toolbar" aria-label="Room settings">
       <div class="moods" id="moods" role="group" aria-label="Choose a mood"></div>
@@ -113,6 +114,6 @@
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=107"></script>
+  <script type="module" src="page.js?v=108"></script>
 </body>
 </html>

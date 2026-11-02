@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 
 const ROOM01 = "/prototype/roomverse-3d/";
 const ROOM02 = "/prototype/roomverse-3d/bedroom/";
+const ROOM03 = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
 
 test.beforeEach(async ({ page }) => {
@@ -28,6 +29,17 @@ async function enterRoom02(page, { lang = "zh", width = 1440 } = {}) {
   await page.waitForFunction(() => window.__bedroom?.robotState?.().loaded);
 }
 
+async function enterRoom03(page, { lang = "zh", width = 1440 } = {}) {
+  await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+  await page.goto(`${ROOM03}?lang=${lang}`);
+  await page.waitForFunction(() => window.__room03);
+}
+
+async function chooseRoom(page, id, lang = "zh") {
+  const label = lang === "en" ? "Step through the door" : "推開那扇門";
+  await page.getByRole("dialog").locator(".travel-door-card").filter({ hasText: id }).getByRole("button", { name: label }).click();
+}
+
 async function assertNoOverflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 }
@@ -46,15 +58,15 @@ async function waitForTravelDoorEnd(dialog) {
   await expect(dialog).toHaveCSS("opacity", "1", { timeout: 20000 });
 }
 
-test("travel card header remains visible and closes at the bottom in both rooms", async ({ page }) => {
+test("travel card header remains visible and closes at the bottom in all three rooms", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const currentRoom of ["room01", "room02"]) {
+  for (const currentRoom of ["room01", "room02", "room03"]) {
     await page.goto("/prototype/roomverse-3d/rooms.js");
     await page.evaluate(async (room) => {
       document.head.insertAdjacentHTML("beforeend", '<link rel="stylesheet" href="/prototype/roomverse-3d/travel-door.css">');
       document.body.innerHTML = '<button id="travelDoorBtn" data-travel-door-trigger>Travel</button>';
-      const { initTravelDoor } = await import("/prototype/roomverse-3d/travel-door.js?v=2");
+      const { initTravelDoor } = await import("/prototype/roomverse-3d/travel-door.js?v=3");
       initTravelDoor({ currentRoom: room, getLang: () => "zh", onChoose: () => {} });
     }, currentRoom);
     const trigger = page.locator("#travelDoorBtn");
@@ -86,14 +98,14 @@ test("travel card final viewport screenshots (ROOMVERSE_QA_DIR)", async ({ page 
   test.setTimeout(240000);
   await fs.mkdir(QA, { recursive: true });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  for (const [room, enter] of [["room01", enterRoom01], ["room02", enterRoom02]]) {
+  for (const [room, enter] of [["room01", enterRoom01], ["room02", enterRoom02], ["room03", enterRoom03]]) {
     await enter(page, { lang: "zh" });
     for (const lang of ["zh", "en"]) {
       if (lang === "en") await page.locator("#lang").click();
       for (const [label, width, height] of [["1440", 1440, 1000], ["390", 390, 844], ["844x390", 844, 390]]) {
         await page.setViewportSize({ width, height });
         if (room === "room01") await page.evaluate(() => window.__room.resize());
-        const trigger = page.locator("#travelDoorBtn");
+        const trigger = page.locator(room === "room03" ? "#headerOtherRooms" : "#travelDoorBtn");
         await trigger.scrollIntoViewIfNeeded();
         await trigger.click();
         const dialog = page.getByRole("dialog");
@@ -233,15 +245,11 @@ test("choosing a travel destination preserves language and uses the existing roo
   await page.emulateMedia({ reducedMotion: "reduce" });
   await enterRoom01(page, { lang: "en" });
   await page.locator("#travelDoorBtn").click();
-  await page.keyboard.press("Tab");
-  await expect(page.locator(".travel-door-card").first().getByRole("button", { name: "Step through the door" })).toBeFocused();
-  await page.keyboard.press("Enter");
+  await chooseRoom(page, "Room 02", "en");
   await page.waitForURL(/\/bedroom\/\?lang=en&from=room01/);
   await page.waitForFunction(() => window.__bedroom?.info);
   await page.locator("#travelDoorBtn").click();
-  await page.keyboard.press("Tab");
-  await expect(page.locator(".travel-door-card").first().getByRole("button", { name: "Step through the door" })).toBeFocused();
-  await page.keyboard.press("Enter");
+  await chooseRoom(page, "Room 01", "en");
   await page.waitForURL(/\/prototype\/roomverse-3d\/\?lang=en&from=room02/);
   await page.waitForFunction(() => window.__room?.geometryMetrics);
 });
@@ -257,7 +265,8 @@ test("Room 01 and Room 02 can travel to Room 03 and return with language preserv
     const exit = page.locator("#headerOtherRooms");
     await expect(exit).toHaveAttribute("href", new RegExp(`lang=${lang}`));
     await exit.click();
-    await page.waitForURL(source === "room01" ? /roomverse-3d\/\?lang=zh/ : /bedroom\/\?lang=en/);
+    await chooseRoom(page, source === "room01" ? "Room 01" : "Room 02", lang);
+    await page.waitForURL(source === "room01" ? /roomverse-3d\/\?lang=zh&from=room03/ : /bedroom\/\?lang=en&from=room03/);
   }
 });
 
