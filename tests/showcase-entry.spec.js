@@ -24,7 +24,7 @@ for (const width of [390, 768, 1440]) {
           const covers = card.locator("a:has(img)"), buttons = card.locator("a:not(:has(img))");
           await expect(covers).toHaveCount(3); await expect(buttons).toHaveCount(3);
           for (const [i, path] of ["/prototype/roomverse-3d/", "/prototype/roomverse-3d/bedroom/", "/prototype/roomverse-3d/kitchen/"].entries()) {
-            await expect(covers.nth(i)).toHaveAttribute("href", `${path}?from=home&lang=${lang}`); // the home cover opens each room in golden hour
+            await expect(covers.nth(i)).toHaveAttribute("href", `${path}?from=home&lang=${lang}`); // the home cover marks the entry route; each room owns its default mood
             await expect(buttons.nth(i)).toHaveAttribute("href", `${path}?from=home&lang=${lang}`);
             await expect(covers.nth(i).locator("img")).toHaveCount(1);
           }
