@@ -1345,10 +1345,57 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   vp(new THREE.CylinderGeometry(.006, .006, .02, 8), metalMat, "tonearm-post", .17, .5 + .08, -.11);
   const arm = vp(box(.24, .008, .008), metalMat, "tonearm", .09, .5 + .093, -.06); arm.rotation.y = -.55;
   vp(box(.03, .012, .02), blackMat, "tonearm-head", .0, .5 + .092, .02);
+  // Compact two-way speakers: match Room 01's layered cabinet/baffle/driver language,
+  // while the darker walnut veneer sits naturally beside the records and oak console.
+  // Pair geometry is merged by material to keep this detail to four draw calls.
+  const SPEAKER = { width: .16, height: .25, depth: .18, x: .4, bottom: .5 };
+  const speakerWood = woodMat("#704a32", { rough: .74, tint: "#987557" });
+  const speakerBaffle = new THREE.MeshStandardMaterial({ color: "#25272a", roughness: .78, metalness: .04 });
+  const speakerCone = new THREE.MeshStandardMaterial({ color: "#55534e", roughness: .86, metalness: .02 });
+  const speakerTrim = new THREE.MeshStandardMaterial({ color: "#79766f", roughness: .62, metalness: .24 });
+  const speakerParts = { wood: [], baffle: [], cone: [], trim: [] };
+  const speakerUnitBounds = [];
+  const speakerPart = (geometry, target, x, y, z, rotationX = 0) => {
+    geometry.applyMatrix4(new THREE.Matrix4().compose(
+      new THREE.Vector3(x, y, z),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(rotationX, 0, 0)),
+      new THREE.Vector3(1, 1, 1),
+    ));
+    geometry.computeBoundingBox();
+    target.push(geometry);
+    return geometry;
+  };
+  const speakerMerge = (parts) => {
+    const merged = mergeGeometries(parts, false);
+    parts.forEach((geometry) => geometry.dispose());
+    if (!merged) throw new Error("Could not merge Room 02 speaker geometry");
+    merged.computeVertexNormals();
+    merged.computeBoundingBox();
+    return merged;
+  };
+  const speakerFrontZ = SPEAKER.depth / 2 - .03; // cabinet front is at z = +6 cm in vinyl-local space
   for (const sx of [-1, 1]) {
-    vp(box(.16, .25, .18), new THREE.MeshStandardMaterial({ color: "#c9a77c", roughness: .55 }), "speaker", sx * .4, .5 + .125, -.03);
-    vp(new THREE.CylinderGeometry(.045, .045, .01, 24), softBlack, "speaker-woofer", sx * .4, .5 + .095, .062).rotation.x = Math.PI / 2;
-    vp(new THREE.CylinderGeometry(.018, .018, .01, 16), softBlack, "speaker-tweeter", sx * .4, .5 + .19, .062).rotation.x = Math.PI / 2;
+    const x = sx * SPEAKER.x, cy = SPEAKER.bottom + SPEAKER.height / 2;
+    const cabinet = speakerPart(rb(SPEAKER.width, SPEAKER.height, SPEAKER.depth), speakerParts.wood, x, cy, -.03);
+    speakerUnitBounds.push(cabinet.boundingBox.clone());
+    // The charcoal front sits just proud of the walnut shell, with the wood edge still visible all around.
+    speakerPart(rb(.144, .234, .008), speakerParts.baffle, x, cy, speakerFrontZ - .001);
+    // A shallow, visible 4-inch woofer: rubber surround, shallow cone and a small domed dust cap.
+    speakerPart(new THREE.TorusGeometry(.041, .003, 6, 18), speakerParts.trim, x, .595, speakerFrontZ + .004);
+    const cone = new THREE.LatheGeometry([
+      new THREE.Vector2(0, .006), new THREE.Vector2(.009, .005),
+      new THREE.Vector2(.031, .001), new THREE.Vector2(.038, .002), new THREE.Vector2(.038, 0),
+    ], 18);
+    speakerPart(cone, speakerParts.cone, x, .595, speakerFrontZ + .006, Math.PI / 2);
+    speakerPart(new THREE.SphereGeometry(.011, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.trim, x, .595, speakerFrontZ + .012, Math.PI / 2);
+    // The smaller tweeter has its own satin ring and rounded dome, so the two-way layout reads at a glance.
+    speakerPart(new THREE.TorusGeometry(.019, .0024, 6, 14), speakerParts.trim, x, .69, speakerFrontZ + .004);
+    speakerPart(new THREE.SphereGeometry(.0105, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.cone, x, .69, speakerFrontZ + .006, Math.PI / 2);
+  }
+  const speakers = new THREE.Group(); speakers.name = "vinyl-speakers"; vin.add(speakers);
+  for (const [kind, material] of [["wood", speakerWood], ["baffle", speakerBaffle], ["cone", speakerCone], ["trim", speakerTrim]]) {
+    const mesh = new THREE.Mesh(speakerMerge(speakerParts[kind]), material);
+    mesh.name = `speaker-pair-${kind}`; mesh.castShadow = true; mesh.receiveShadow = true; speakers.add(mesh);
   }
 
   // ---------- lived-in details: posters, a real plant, blind, switch and sockets, ceiling light ----------
@@ -1887,8 +1934,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       posters: (() => { const b = new THREE.Box3().setFromObject(posters); return { set: posterSet, loaded: printMats.every((m) => !!m.map), min: b.min.toArray(), max: b.max.toArray() }; })(),
       plant: (() => { const b = new THREE.Box3().setFromObject(plant); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
-      vinyl: (() => { const b = new THREE.Box3().setFromObject(vin), r = new THREE.Box3().setFromObject(record), sl = []; vin.traverse((o) => { if (o.name === "vinyl-sleeve") sl.push(new THREE.Box3().setFromObject(o)); });
-        return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)) }; })(),
+      vinyl: (() => { const b = new THREE.Box3().setFromObject(vin), r = new THREE.Box3().setFromObject(record), sl = [], speakerGroup = vin.getObjectByName("vinyl-speakers"), speakerBounds = new THREE.Box3().setFromObject(speakerGroup), speakerMeshes = [];
+        vin.traverse((o) => { if (o.name === "vinyl-sleeve") sl.push(new THREE.Box3().setFromObject(o)); });
+        speakerGroup.traverse((o) => { if (o.isMesh) speakerMeshes.push(o); });
+        const unitBounds = speakerUnitBounds.map((box) => { const world = box.clone().applyMatrix4(vin.matrixWorld); return { min: world.min.toArray(), max: world.max.toArray(), size: world.getSize(new THREE.Vector3()).toArray() }; });
+        return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)),
+          speakers: { min: speakerBounds.min.toArray(), max: speakerBounds.max.toArray(), meshes: speakerMeshes.length, vertices: speakerMeshes.reduce((sum, o) => sum + o.geometry.attributes.position.count, 0), parts: speakerMeshes.map((o) => ({ name: o.name, vertices: o.geometry.attributes.position.count })), units: unitBounds, cabinetRoughness: speakerWood.roughness, baffleRoughness: speakerBaffle.roughness } }; })(),
       radiators: [radiator, radiatorNook].map((item) => { const b = new THREE.Box3().setFromObject(item), bedFrame = new THREE.Box3().setFromObject(root.getObjectByName("bed-frame")); const boxGap = (a, c) => { const d = [a.min.x - c.max.x, c.min.x - a.max.x, a.min.y - c.max.y, c.min.y - a.max.y, a.min.z - c.max.z, c.min.z - a.max.z]; const dx = Math.max(d[0], d[1]), dy = Math.max(d[2], d[3]), dz = Math.max(d[4], d[5]); return dx < 0 && dy < 0 && dz < 0 ? Math.max(dx, dy, dz) : Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0)); }; const obstacles = Object.fromEntries(["desk", "chair", "bed-frame", "vinyl-corner", "sofa", "tv-unit"].map((name) => [name, new THREE.Box3().setFromObject(root.getObjectByName(name))])); return { name: item.name, min: b.min.toArray(), max: b.max.toArray(), vertices: radiatorGeometry.attributes.position.count, meshes: 1, clearances: Object.fromEntries(Object.entries(obstacles).map(([name, bounds]) => [name, +boxGap(b, bounds).toFixed(3)])), bedGap: +(bedFrame.min.x - b.max.x).toFixed(3), wallGap: +(item === radiator ? b.min.z + HD : b.min.x + HW).toFixed(3) }; }),
       switches: Object.fromEntries(["bed", "desk"].map((name) => { const o = switchRockers[name], b = new THREE.Box3().setFromObject(o), p = b.getCenter(new THREE.Vector3()).project(camera), preset = MOODS[mood], on = switchOverrides[name] ?? (preset.deskSpot > 0); return [name, { on, center: b.getCenter(new THREE.Vector3()).toArray(), ndc: [p.x, p.y], bedLamp: name === "bed" ? bedLamp.intensity : undefined, deskSpot: name === "desk" ? deskSpot.intensity : undefined, trackSpotsOn: name === "bed" ? roomSpots.filter((sp) => sp.intensity > 0).length : undefined, trackLensEmissive: name === "bed" ? lensMat.emissiveIntensity : undefined, locatorLit: name === "bed" ? switchLocatorMats.bed.emissiveIntensity > 0 : undefined }]; })),
       choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, curtainPanels: curtains.children.filter((c) => c.name === "curtain-panel").map((c) => { const b = new THREE.Box3().setFromObject(c); return { min: b.min.toArray(), max: b.max.toArray(), vertices: c.geometry.attributes.position.count }; }), bedPoster: bedPosterId,
