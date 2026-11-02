@@ -390,6 +390,21 @@ test("the physical bedside and desk switch plates respond to pointer taps", asyn
   await expect.poll(() => page.evaluate(() => window.__bedroom.info().switches.desk.on)).toBe(false);
 });
 
+test("mobile visitors get a visible, touch-sized bedside smart-light control", async ({ page }) => {
+  await enter(page, { width: 390 });
+  const control = page.locator(".bed-switch-shortcut");
+  await expect(control).toBeVisible();
+  await expect(control).toHaveAttribute("role", "switch");
+  await expect(control).toHaveAttribute("aria-label", "切換床頭燈");
+  const bounds = await control.boundingBox();
+  expect(bounds.width).toBeGreaterThanOrEqual(96);
+  expect(bounds.height).toBeGreaterThanOrEqual(48);
+  expect(await page.evaluate(() => window.__bedroom.info().switches.bed.on)).toBe(false);
+  await control.click();
+  await expect(control).toHaveAttribute("aria-checked", "true");
+  await expect.poll(() => page.evaluate(() => window.__bedroom.info().switches.bed.on)).toBe(true);
+});
+
 test("round-1 swaps: every button changes the room, and the basketball print hangs over the bed without ever doubling", async ({ page }) => {
   await enter(page);
   await page.waitForFunction(() => window.__bedroom.info().posters.loaded);
