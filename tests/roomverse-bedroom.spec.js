@@ -4,6 +4,8 @@ import { mkdirSync } from "node:fs";
 const PAGE = "/prototype/roomverse-3d/bedroom/";
 const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-fixes3" : null;
 const ARRIVAL_QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/room01-return-arrival" : null;
+const SWITCH_QA = process.env.ROOMVERSE_QA_DIR || null;
+if (SWITCH_QA) mkdirSync(SWITCH_QA, { recursive: true });
 const IMMERSIVE_QA = process.env.ROOM02_IMMERSIVE_QA;
 if (IMMERSIVE_QA) mkdirSync(IMMERSIVE_QA, { recursive: true });
 const immersiveShot = async (page, name) => { if (IMMERSIVE_QA) await page.screenshot({ path: `${IMMERSIVE_QA}/${name}.png` }); };
@@ -354,15 +356,23 @@ test("Brooklyn radiators fit in the window bay and tucked work corner without in
   expect(vinyl.min[1]).toBeLessThan(.01); // existing console remains grounded
 });
 
-test("bedside and desk wall switches toggle their local lights and mood presets restore the defaults", async ({ page }) => {
+test("the bedside paddle toggles the ceiling track with an off-state locator, while the desk switch stays local", async ({ page }) => {
   await enter(page);
+  await page.waitForFunction(() => window.__bedroom.info().switches.bed.trackSpotsOn === 3);
   let state = await page.evaluate(() => window.__bedroom.info().switches);
-  expect(state.bed.on).toBe(false); // focus mood keeps the bedside lamp off
+  expect(state.bed.on).toBe(true); // focus mood turns the ceiling track on
+  expect(state.bed.trackSpotsOn).toBe(3);
+  expect(state.bed.trackLensEmissive).toBeGreaterThan(0);
+  expect(state.bed.locatorLit).toBe(false);
   expect(state.desk.on).toBe(true); // focus mood lights the task area
+  const bedsideLampBefore = state.bed.bedLamp;
   await page.evaluate(() => window.__bedroom.toggleLightSwitch("bed"));
   state = await page.evaluate(() => window.__bedroom.info().switches);
-  expect(state.bed.on).toBe(true);
-  expect(state.bed.bedLamp).toBeGreaterThan(0);
+  expect(state.bed.on).toBe(false);
+  expect(state.bed.trackSpotsOn).toBe(0);
+  expect(state.bed.trackLensEmissive).toBe(0);
+  expect(state.bed.locatorLit).toBe(true); // locator is lit while the switched load is off
+  expect(state.bed.bedLamp).toBe(bedsideLampBefore); // the lamp keeps its own control
   await page.evaluate(() => window.__bedroom.toggleLightSwitch("desk"));
   state = await page.evaluate(() => window.__bedroom.info().switches);
   expect(state.desk.on).toBe(false);
@@ -370,6 +380,9 @@ test("bedside and desk wall switches toggle their local lights and mood presets 
   await page.evaluate(() => window.__bedroom.setMood("series"));
   state = await page.evaluate(() => window.__bedroom.info().switches);
   expect(state.bed.on).toBe(true);
+  expect(state.bed.trackSpotsOn).toBe(3);
+  expect(state.bed.trackLensEmissive).toBeGreaterThan(0);
+  expect(state.bed.locatorLit).toBe(false);
   expect(state.desk.on).toBe(true);
   expect(state.bed.bedLamp).toBeGreaterThan(0);
   expect(state.desk.deskSpot).toBeGreaterThan(0);
@@ -378,12 +391,25 @@ test("bedside and desk wall switches toggle their local lights and mood presets 
 
 test("the physical bedside and desk switch plates respond to pointer taps", async ({ page }) => {
   await enter(page);
+  await page.waitForFunction(() => window.__bedroom.info().switches.bed.trackSpotsOn === 3);
   const canvas = page.locator("canvas");
   const bounds = await canvas.boundingBox();
   await page.evaluate(() => window.__bedroom.lookTo("bed"));
   let bedSwitch = await page.evaluate(() => window.__bedroom.info().switches.bed);
+  if (SWITCH_QA) await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/bedside-track-on-1440.png` });
+  if (SWITCH_QA) {
+    await page.evaluate(() => { const c = window.__bedroom.camera; c.position.set(1.22, 1.16, -1.5); c.lookAt(1.22, 1.115, -2.5); window.__bedroom.render(); });
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/bedside-switch-detail-1440.png` });
+    await page.evaluate(() => window.__bedroom.lookTo("bed"));
+    bedSwitch = await page.evaluate(() => window.__bedroom.info().switches.bed);
+  }
   await page.mouse.click(bounds.x + (bedSwitch.ndc[0] + 1) * bounds.width / 2, bounds.y + (1 - bedSwitch.ndc[1]) * bounds.height / 2);
-  await expect.poll(() => page.evaluate(() => window.__bedroom.info().switches.bed.on)).toBe(true);
+  await expect.poll(() => page.evaluate(() => window.__bedroom.info().switches.bed.on)).toBe(false);
+  if (SWITCH_QA) {
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/bedside-track-off-1440.png` });
+    await page.evaluate(() => { const c = window.__bedroom.camera; c.position.set(1.22, 1.16, -1.5); c.lookAt(1.22, 1.115, -2.5); window.__bedroom.render(); });
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/bedside-switch-locator-lit-detail-1440.png` });
+  }
   await page.evaluate(() => window.__bedroom.lookTo("work"));
   const deskSwitch = await page.evaluate(() => window.__bedroom.info().switches.desk);
   await page.mouse.click(bounds.x + (deskSwitch.ndc[0] + 1) * bounds.width / 2, bounds.y + (1 - deskSwitch.ndc[1]) * bounds.height / 2);
@@ -392,10 +418,15 @@ test("the physical bedside and desk switch plates respond to pointer taps", asyn
 
 test("the mobile bedside switch stays compact and sits below the bed poster", async ({ page }) => {
   await enter(page, { width: 390 });
+  await page.waitForFunction(() => window.__bedroom.info().switches.bed.trackSpotsOn === 3);
   await expect(page.locator(".bed-switch-shortcut")).toHaveCount(0);
   const info = await page.evaluate(() => window.__bedroom.info());
   expect(info.switches.bed.center[0]).toBeCloseTo(1.22, 2);
   expect(info.switches.bed.center[1]).toBeLessThan(info.bedPosterBox.min[1] - .02);
+  await page.evaluate(() => window.__bedroom.lookTo("bed"));
+  if (SWITCH_QA) await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/bedside-track-on-390.png` });
+  await page.evaluate(() => window.__bedroom.toggleLightSwitch("bed"));
+  if (SWITCH_QA) await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/bedside-track-off-390.png` });
 });
 
 test("round-1 swaps: every button changes the room, and the basketball print hangs over the bed without ever doubling", async ({ page }) => {
