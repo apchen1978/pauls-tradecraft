@@ -323,6 +323,17 @@ test("series night ceiling fixture is visibly off while every other mood keeps i
 
 test("vinyl corner: console under the sill, records inside their cubbies, record on the platter, clear of desk, chair and bed", async ({ page }) => {
   await enter(page);
+  await page.waitForFunction(() => {
+    const info = window.__bedroom.info();
+    return Object.values(info.painted).every(Boolean) && window.__bedroom.robotState().loaded && info.bedsidePocket.mugLoaded;
+  }, null, { timeout: 60000 });
+  let lastVertices = -1, stableFrames = 0;
+  while (stableFrames < 4) {
+    const vertices = await page.evaluate(() => window.__bedroom.info().vertices);
+    stableFrames = vertices === lastVertices ? stableFrames + 1 : 0;
+    lastVertices = vertices;
+    await page.waitForTimeout(250);
+  }
   const sceneInfo = await page.evaluate(() => window.__bedroom.info());
   const { vinyl, work, bed } = sceneInfo;
   expect(vinyl.min[1]).toBeGreaterThan(-.001); expect(vinyl.min[1]).toBeLessThan(.01); // legs on the floor
@@ -334,8 +345,9 @@ test("vinyl corner: console under the sill, records inside their cubbies, record
   expect(vinyl.min[0]).toBeGreaterThan(work.desk.max[0]); // east of the desk
   expect(vinyl.max[2]).toBeLessThan(work.chair.min[2] + .001); // the chair stays in front of it
   expect(vinyl.max[0]).toBeLessThan(bed.min[0]); // west of the bedside table
-  expect(vinyl.speakers.meshes).toBe(4); // the pair is merged by material, matching Room 01's four-draw-call construction
-  expect(vinyl.speakers.vertices).toBeLessThan(2200);
+  expect(vinyl.speakers.meshes).toBe(2); // walnut body and vertex-coloured driver details are each one merged draw call
+  expect(vinyl.speakers.vertices).toBeLessThan(1200); // simplified baffle edges and radial detail keep full-load room geometry within budget
+  expect(sceneInfo.vertices, "full loaded Room 02 geometry stays under the existing 62,000 vertex ceiling").toBeLessThan(62000);
   expect(vinyl.speakers.cabinetRoughness).toBeGreaterThanOrEqual(.7); // matte veneer, not a polished plastic block
   expect(vinyl.speakers.baffleRoughness).toBeGreaterThanOrEqual(.7);
   for (const unit of vinyl.speakers.units) {
@@ -953,9 +965,9 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   expect(pocket.meshes).toBeLessThanOrEqual(3);
   expect(pocket.vertices).toBe(277);
   expect(pocket.vertices).toBeLessThanOrEqual(1500);
-  // Clean-main settled room, robot loaded, same count as the travel-door baseline: 58,794 verts, 321 meshes, 174 draw calls.
-  expect(info.vertices - pocket.vertices).toBe(58794);
-  expect(info.meshes - pocket.meshes).toBe(321);
+  // Old snapshot 58,794 / 321 is stale after the speaker pair and room-detail merges; current settled main is 61,326 / 324 before the pocket set.
+  expect(info.vertices - pocket.vertices).toBe(61326); // old→new 58,794→61,326: current scene baseline includes the refined speakers and merged room details
+  expect(info.meshes - pocket.meshes).toBe(324); // old→new 321→324: current scene mesh baseline after the same additions
   expect(info.drawCalls - 174).toBeLessThanOrEqual(2);
   expect(info.drawCalls).toBeGreaterThanOrEqual(174);
   for (const row of pocket.fit) {
@@ -1002,7 +1014,7 @@ test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints w
   await expect.poll(() => cityResponses.size).toBe(3);
   const room = await page.evaluate(() => window.__bedroom.info());
   expect([...cityResponses.entries()].sort()).toEqual([["brooklyn", 200], ["new-york", 200], ["san-francisco", 200]]);
-  expect(room).toMatchObject({ vertices: 59816, meshes: 311, mood: "focus" });
+  expect(room).toMatchObject({ vertices: 61603, meshes: 326, mood: "focus" }); // old→new 59,816 / 311→61,603 / 326: current main scene; image loading must still leave geometry unchanged
 });
 
 test("the sofa carries no throw and the room stays inside its vertex ceiling", async ({ page }) => {
