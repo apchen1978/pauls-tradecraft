@@ -333,6 +333,63 @@ test("vinyl corner: console under the sill, records inside their cubbies, record
   expect(vinyl.max[0]).toBeLessThan(bed.min[0]); // west of the bedside table
 });
 
+test("Brooklyn radiators fit in the window bay and tucked work corner without intersecting furniture", async ({ page }) => {
+  await enter(page);
+  const { radiators, window, vinyl, vertices, meshes, drawCalls } = await page.evaluate(() => window.__bedroom.info());
+  console.log(JSON.stringify({ vertices, meshes, drawCalls, radiators }));
+  expect(radiators.map((item) => item.name)).toEqual(["brooklyn-radiator", "brooklyn-radiator-nook"]);
+  const [windowBay, nook] = radiators;
+  for (const radiator of radiators) {
+    expect(radiator.meshes).toBe(1);
+    expect(radiator.vertices).toBeLessThan(1200);
+    expect(radiator.min[1]).toBeGreaterThanOrEqual(-.001); // return pipe reaches the floor without sinking through it
+    expect(radiator.max[1]).toBeLessThan(window.sill); // both stay below the window sill
+    expect(radiator.wallGap).toBeGreaterThanOrEqual(.02); // mounted in front of its wall, not through it
+  }
+  expect(windowBay.clearances["vinyl-corner"]).toBeGreaterThanOrEqual(.08); // clear of the record console
+  expect(windowBay.bedGap).toBeGreaterThanOrEqual(.08); // clear of the actual bed frame footprint
+  for (const name of ["desk", "chair", "bed-frame", "vinyl-corner", "sofa", "tv-unit"]) {
+    expect(nook.clearances[name], `easter-egg radiator clears ${name}`).toBeGreaterThanOrEqual(.08);
+  }
+  expect(vinyl.min[1]).toBeLessThan(.01); // existing console remains grounded
+});
+
+test("bedside and desk wall switches toggle their local lights and mood presets restore the defaults", async ({ page }) => {
+  await enter(page);
+  let state = await page.evaluate(() => window.__bedroom.info().switches);
+  expect(state.bed.on).toBe(false); // focus mood keeps the bedside lamp off
+  expect(state.desk.on).toBe(true); // focus mood lights the task area
+  await page.evaluate(() => window.__bedroom.toggleLightSwitch("bed"));
+  state = await page.evaluate(() => window.__bedroom.info().switches);
+  expect(state.bed.on).toBe(true);
+  expect(state.bed.bedLamp).toBeGreaterThan(0);
+  await page.evaluate(() => window.__bedroom.toggleLightSwitch("desk"));
+  state = await page.evaluate(() => window.__bedroom.info().switches);
+  expect(state.desk.on).toBe(false);
+  expect(state.desk.deskSpot).toBe(0);
+  await page.evaluate(() => window.__bedroom.setMood("series"));
+  state = await page.evaluate(() => window.__bedroom.info().switches);
+  expect(state.bed.on).toBe(true);
+  expect(state.desk.on).toBe(true);
+  expect(state.bed.bedLamp).toBeGreaterThan(0);
+  expect(state.desk.deskSpot).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.__bedroom.toggleLightSwitch("unknown"))).toBe(false);
+});
+
+test("the physical bedside and desk switch plates respond to pointer taps", async ({ page }) => {
+  await enter(page);
+  const canvas = page.locator("canvas");
+  const bounds = await canvas.boundingBox();
+  await page.evaluate(() => window.__bedroom.lookTo("bed"));
+  let bedSwitch = await page.evaluate(() => window.__bedroom.info().switches.bed);
+  await page.mouse.click(bounds.x + (bedSwitch.ndc[0] + 1) * bounds.width / 2, bounds.y + (1 - bedSwitch.ndc[1]) * bounds.height / 2);
+  await expect.poll(() => page.evaluate(() => window.__bedroom.info().switches.bed.on)).toBe(true);
+  await page.evaluate(() => window.__bedroom.lookTo("work"));
+  const deskSwitch = await page.evaluate(() => window.__bedroom.info().switches.desk);
+  await page.mouse.click(bounds.x + (deskSwitch.ndc[0] + 1) * bounds.width / 2, bounds.y + (1 - deskSwitch.ndc[1]) * bounds.height / 2);
+  await expect.poll(() => page.evaluate(() => window.__bedroom.info().switches.desk.on)).toBe(false);
+});
+
 test("round-1 swaps: every button changes the room, and the basketball print hangs over the bed without ever doubling", async ({ page }) => {
   await enter(page);
   await page.waitForFunction(() => window.__bedroom.info().posters.loaded);
