@@ -168,6 +168,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   let robotHinted = false, bubbleTimer = 0, suppressRobotClick = false;
   const el = renderer.domElement;
   const tapTargets = { robot: null };
+  const lightSwitchHits = [];
+  let toggleLightSwitch = () => false;
   const tapRay = new THREE.Raycaster();
   const tapAt = new THREE.Vector2();
   let glide = 0, vel = { x: 0, y: 0 }, lastMove = 0;
@@ -489,6 +491,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     tapAt.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
     tapRay.setFromCamera(tapAt, camera);
     scene.updateMatrixWorld(true);
+    const hitSwitch = tapRay.intersectObjects(lightSwitchHits, false)[0]?.object;
+    if (hitSwitch) { toggleLightSwitch(hitSwitch.userData.lightSwitch); return; }
     const robot = tapTargets.robot;
     const robotBounds = robot ? new THREE.Box3().setFromObject(robot).expandByScalar(.05) : null;
     const hitRobot = !!(robotBounds && tapRay.ray.intersectBox(robotBounds, new THREE.Vector3()));
@@ -650,6 +654,33 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     skyTime = time; skyMat.map = t; skyMat.color.set("#ffffff"); skyMat.needsUpdate = true; updateForeground(); render();
     return true;
   }
+
+  // A compact, painted cast-iron radiator beneath the window, in the clear strip between the record console and bed.
+  // NYC/Brooklyn steam radiators are the inspiration, not a claim about this fictional tenant's exact heating system.
+  const radiator = new THREE.Group(); radiator.name = "brooklyn-radiator"; radiator.position.set(.105, .29, -HD + .06); root.add(radiator);
+  const radiatorPieces = [];
+  for (let i = 0; i < 5; i++) {
+    const rib = new THREE.CapsuleGeometry(.03, .32, 3, 8);
+    rib.translate((i - 2) * .073, 0, 0);
+    radiatorPieces.push(rib);
+  }
+  for (const y of [-.15, .15]) {
+    const header = new THREE.CylinderGeometry(.024, .024, .45, 12);
+    header.rotateZ(Math.PI / 2); header.translate(0, y, 0);
+    radiatorPieces.push(header);
+  }
+  const returnPipe = new THREE.CylinderGeometry(.011, .011, .27, 10);
+  returnPipe.translate(.2, -.145, -.012); radiatorPieces.push(returnPipe);
+  const valveWheel = new THREE.TorusGeometry(.02, .0035, 6, 14);
+  valveWheel.translate(.2, -.035, .018); radiatorPieces.push(valveWheel);
+  const radiatorGeometry = mergeGeometries(radiatorPieces, false);
+  radiatorPieces.forEach((geometry) => geometry.dispose());
+  const radiatorMesh = new THREE.Mesh(radiatorGeometry, new THREE.MeshStandardMaterial({ color: "#817b72", roughness: .76, metalness: .12 }));
+  radiatorMesh.name = "brooklyn-radiator-body"; radiatorMesh.castShadow = true; radiatorMesh.receiveShadow = true; radiator.add(radiatorMesh);
+  // A smaller second radiator is tucked deeper along the west wall by the desk corner as a discovery when visitors turn that way.
+  // It reuses the same merged geometry and material, scaled down slightly, so it adds one draw call rather than new geometry data.
+  const radiatorNook = radiator.clone(); radiatorNook.name = "brooklyn-radiator-nook";
+  radiatorNook.position.set(-HW + .06, .29, -.75); radiatorNook.rotation.y = Math.PI / 2; radiatorNook.scale.x = .75; root.add(radiatorNook);
 
   // ---------- door: slab, frame, handle ----------
   const dz = HD - .02;
@@ -1489,6 +1520,17 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const plateMat = new THREE.MeshStandardMaterial({ color: "#f4f1ea", roughness: .4 });
   const plate = (w, h, x, y, z, rotY, name) => { const m = add(box(w, h, .01), plateMat, name, x, y, z, { shadow: false }); m.rotation.y = rotY; return m; };
   plate(.086, .086, DOOR.x + DOOR.w / 2 + .16, 1.2, HD - .005, 0, "switch");
+  const switchRockerMat = new THREE.MeshStandardMaterial({ color: "#e1ddd4", roughness: .55 });
+  const switchRockers = {};
+  const wallLightSwitch = (name, x, y, z, rotY) => {
+    const group = new THREE.Group(); group.name = `wall-switch-${name}`; group.position.set(x, y, z); group.rotation.y = rotY; root.add(group);
+    const face = new THREE.Mesh(box(.09, .14, .01), plateMat); face.name = `switch-face-${name}`; face.userData.lightSwitch = name; face.receiveShadow = true; group.add(face);
+    const rocker = new THREE.Mesh(new THREE.BoxGeometry(.036, .064, .012), switchRockerMat); rocker.name = `switch-rocker-${name}`; rocker.position.z = .011; rocker.userData.lightSwitch = name; group.add(rocker);
+    lightSwitchHits.push(face, rocker); switchRockers[name] = rocker;
+  };
+  // Reachable wall switches: beside the bed head and just past the desk's south end.
+  wallLightSwitch("bed", 1.03, .96, -HD + .005, 0);
+  wallLightSwitch("desk", -HW + .005, 1.06, -.88, Math.PI / 2);
   plate(.086, .086, -HW + .005, .3, -.92, Math.PI / 2, "socket-desk");
   plate(.086, .086, BED.x - BED.w / 2 - .55, .3, -HD + .005, 0, "socket-bed");
   // The bedside lamp's cable: from the back of the lamp base, over the back edge of the table, down behind it, along the floor by the wall, over the skirting board and up
@@ -1651,6 +1693,25 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
                bedLamp: 3, shade: .9, screen: .8, led: 1.7, glow: .6, ceiling: 0, monitor: .55, tv: 1.2, blind: .5, deskSpot: 1.7, ledCol: "#ff9a55", screenCol: "#c6cdf0" },
   };
   let mood = "focus";
+  const switchOverrides = { bed: null, desk: null };
+  const refreshSwitchRockers = () => {
+    const defaults = { bed: MOODS[mood].bedLamp > 0, desk: MOODS[mood].deskSpot > 0 };
+    for (const name of ["bed", "desk"]) switchRockers[name].rotation.x = (switchOverrides[name] ?? defaults[name]) ? -.14 : .14;
+  };
+  toggleLightSwitch = (name) => {
+    if (name !== "bed" && name !== "desk") return false;
+    const preset = MOODS[mood], defaults = { bed: preset.bedLamp > 0, desk: preset.deskSpot > 0 };
+    switchOverrides[name] = !(switchOverrides[name] ?? defaults[name]);
+    if (name === "bed") {
+      const on = switchOverrides.bed;
+      bedLamp.intensity = on ? Math.max(preset.bedLamp, 1.8) : 0;
+      shade.material.emissiveIntensity = on ? Math.max(preset.shade, .55) : 0;
+    } else {
+      deskSpot.intensity = switchOverrides.desk ? preset.deskSpot : 0;
+      downlightLens.material.emissiveIntensity = switchOverrides.desk ? preset.deskSpot * .4 : 0;
+    }
+    refreshSwitchRockers(); render(); return true;
+  };
   // The strip's colour follows the mood unless the visitor picked one ("auto"): amber by day, violet for the late-night game, deeper amber for the series night
   function applyLed() {
     const m = MOODS[mood], auto = chosen.led === "auto", c = auto ? m.ledCol : CHOICES.led[chosen.led];
@@ -1660,6 +1721,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const m = MOODS[name];
     if (!m) return false;
     mood = name; live.mood = name;
+    switchOverrides.bed = null; switchOverrides.desk = null; // a mood preset restores its own switch defaults
     if (!(await setTime(m.time))) return false;
     skyMat.color.set(m.sky);
     scene.background.set(m.bg);
@@ -1677,6 +1739,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     applyEnv(name);
     for (const sp of sprites) sp.material.color.setScalar(SPRITE_TINT[name] ?? 1);
     if (ceil.glow) ceil.glow.material.opacity = CEILING_GLOW[name] ?? .5;
+    refreshSwitchRockers();
     render();
     return true;
   }
@@ -1814,6 +1877,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       tvPanel: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("tv-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       vinyl: (() => { const b = new THREE.Box3().setFromObject(vin), r = new THREE.Box3().setFromObject(record), sl = []; vin.traverse((o) => { if (o.name === "vinyl-sleeve") sl.push(new THREE.Box3().setFromObject(o)); });
         return { min: b.min.toArray(), max: b.max.toArray(), recordY: r.min.y, sleevesMaxY: Math.max(...sl.map((x) => x.max.y)), sleevesMinY: Math.min(...sl.map((x) => x.min.y)) }; })(),
+      radiators: [radiator, radiatorNook].map((item) => { const b = new THREE.Box3().setFromObject(item), bedFrame = new THREE.Box3().setFromObject(root.getObjectByName("bed-frame")); const boxGap = (a, c) => { const d = [a.min.x - c.max.x, c.min.x - a.max.x, a.min.y - c.max.y, c.min.y - a.max.y, a.min.z - c.max.z, c.min.z - a.max.z]; const dx = Math.max(d[0], d[1]), dy = Math.max(d[2], d[3]), dz = Math.max(d[4], d[5]); return dx < 0 && dy < 0 && dz < 0 ? Math.max(dx, dy, dz) : Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0)); }; const obstacles = Object.fromEntries(["desk", "chair", "bed-frame", "vinyl-corner", "sofa", "tv-unit"].map((name) => [name, new THREE.Box3().setFromObject(root.getObjectByName(name))])); return { name: item.name, min: b.min.toArray(), max: b.max.toArray(), vertices: radiatorGeometry.attributes.position.count, meshes: 1, clearances: Object.fromEntries(Object.entries(obstacles).map(([name, bounds]) => [name, +boxGap(b, bounds).toFixed(3)])), bedGap: +(bedFrame.min.x - b.max.x).toFixed(3), wallGap: +(item === radiator ? b.min.z + HD : b.min.x + HW).toFixed(3) }; }),
+      switches: Object.fromEntries(["bed", "desk"].map((name) => { const o = switchRockers[name], b = new THREE.Box3().setFromObject(o), p = b.getCenter(new THREE.Vector3()).project(camera), preset = MOODS[mood], on = switchOverrides[name] ?? (name === "bed" ? preset.bedLamp > 0 : preset.deskSpot > 0); return [name, { on, center: b.getCenter(new THREE.Vector3()).toArray(), ndc: [p.x, p.y], bedLamp: name === "bed" ? bedLamp.intensity : undefined, deskSpot: name === "desk" ? deskSpot.intensity : undefined }]; })),
+      switches: Object.fromEntries(["bed", "desk"].map((name) => { const o = switchRockers[name], b = new THREE.Box3().setFromObject(o), p = b.getCenter(new THREE.Vector3()).project(camera), preset = MOODS[mood], on = switchOverrides[name] ?? (name === "bed" ? preset.bedLamp > 0 : preset.deskSpot > 0); return [name, { on, center: b.getCenter(new THREE.Vector3()).toArray(), ndc: [p.x, p.y], bedLamp: name === "bed" ? bedLamp.intensity : undefined, deskSpot: name === "desk" ? deskSpot.intensity : undefined }]; })),
       choices: { ...chosen }, featureWall: "#" + featureMat.color.getHexString(), curtains: curtains.visible, curtainPanels: curtains.children.filter((c) => c.name === "curtain-panel").map((c) => { const b = new THREE.Box3().setFromObject(c); return { min: b.min.toArray(), max: b.max.toArray(), vertices: c.geometry.attributes.position.count }; }), bedPoster: bedPosterId,
       bedPosterBox: (() => { const b = new THREE.Box3().setFromObject(bedPoster); return { min: b.min.toArray(), max: b.max.toArray() }; })(),
       ceilingLamp: { color: "#" + ceilingLight.material.color.getHexString(), emissiveIntensity: ceilingLight.material.emissiveIntensity, glowOpacity: ceil.glow?.material.opacity ?? null },
@@ -1890,7 +1956,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
     robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, pending: !!pendingRobot, y: rb.position.y, yaw: rb.rotation.y, position: b.getCenter(new THREE.Vector3()).toArray(), ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
-    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
+    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
