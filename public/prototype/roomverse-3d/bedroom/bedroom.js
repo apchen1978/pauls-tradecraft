@@ -1109,6 +1109,33 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const deskSet = (name, build) => { const g = new THREE.Group(); g.name = "deskset-" + name; g.visible = name === "minimal"; desk.add(g); build(hold(g)); deskSets[name] = g; };
   const steel = new THREE.MeshStandardMaterial({ color: "#b9bcc0", roughness: .3, metalness: .85 });
   const ceramicWhite = new THREE.MeshStandardMaterial({ color: "#f1ece2", roughness: .4 });
+  const takeawayTexture = canvasTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = "#f4f1e9"; ctx.fillRect(0, 0, w, h / 3);
+    for (let y = 5; y < h / 3; y += 9) { ctx.fillStyle = "rgba(151,135,111,.08)"; ctx.fillRect(0, y, w, 1); }
+    ctx.fillStyle = "#b38c65"; ctx.fillRect(0, h / 3, w, h / 3);
+    for (let x = 0; x < w; x += 6) {
+      const shade = x % 3 === 0 ? "rgba(80,53,31,.16)" : "rgba(255,241,216,.14)";
+      ctx.fillStyle = shade; ctx.fillRect(x + (x % 2), h / 3, 1.5, h / 3);
+    }
+    ctx.fillStyle = "rgba(79,53,33,.18)"; ctx.fillRect(0, h / 3 + 2, w, 1); ctx.fillRect(0, 2 * h / 3 - 3, w, 1);
+    ctx.fillStyle = "#292b2d"; ctx.fillRect(0, 2 * h / 3, w, h / 3);
+    for (let x = 12; x < w; x += 36) { ctx.fillStyle = "rgba(255,255,255,.05)"; ctx.fillRect(x, 2 * h / 3 + 4, 1, h / 3 - 8); }
+  });
+  const takeawayCoffee = new THREE.Group(); takeawayCoffee.name = "takeaway-coffee"; desk.add(takeawayCoffee);
+  const takeawayX = -.52, takeawayZ = .06, takeawayBaseY = .75;
+  const takeawayPiece = (geometry, v0, v1, y) => {
+    const uv = geometry.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setY(i, v0 + uv.getY(i) * (v1 - v0));
+    geometry.translate(takeawayX, y, takeawayZ);
+    return geometry;
+  };
+  const takeawayGeometry = mergeGeometries([
+    takeawayPiece(new THREE.CylinderGeometry(.043, .032, .114, 16), .685, .985, takeawayBaseY + .057),
+    takeawayPiece(new THREE.CylinderGeometry(.038, .034, .038, 16), .35, .65, takeawayBaseY + .059),
+    takeawayPiece(new THREE.CylinderGeometry(.046, .043, .009, 16), .015, .315, takeawayBaseY + .1185),
+  ], false);
+  const takeawayMesh = new THREE.Mesh(takeawayGeometry, new THREE.MeshStandardMaterial({ map: takeawayTexture, roughness: .9 }));
+  takeawayMesh.name = "takeaway-coffee-cup"; takeawayMesh.castShadow = false; takeawayMesh.receiveShadow = true; takeawayCoffee.add(takeawayMesh);
   deskSet("minimal", () => {}); // nothing but the monitor, keyboard, mouse and mat: a clean desk (Paul: it looked messy)
   deskSet("gamer", (p) => {
     p(new THREE.CylinderGeometry(.05, .055, .012, 20), blackMat, "headset-stand-base", .56, .756, -.14);
@@ -1854,6 +1881,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       chosen.led = value; applyLed();
     } else if (kind === "desktop" && CHOICES.desktop.includes(value)) {
       for (const [n, g] of Object.entries(deskSets)) g.visible = n === value;
+      takeawayCoffee.visible = value !== "coffee"; // the espresso setup already has its own cup and mug
     } else if (kind === "screen" && CHOICES.screen.includes(value)) {
       screen.material.map = value === "city" ? cityScreen : (screens[value] ??= drawScreen(value)); screen.material.needsUpdate = true;
     } else if (kind === "sofa" && CHOICES.sofa[value]) {
@@ -1928,6 +1956,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       bed: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("bed")), m = new THREE.Box3().setFromObject(root.getObjectByName("bed-mattress")); return { min: b.min.toArray(), max: b.max.toArray(), mattressTop: m.max.y - .0 }; })(),
       work: Object.fromEntries(["desk", "chair"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
       desk: { top: new THREE.Box3().setFromObject(root.getObjectByName("desk-top")).max.y, seat: new THREE.Box3().setFromObject(root.getObjectByName("chair-seat")).max.y,
+        takeawayCoffee: (() => { const group = root.getObjectByName("takeaway-coffee"), cup = new THREE.Box3().setFromObject(group), keyboard = new THREE.Box3().setFromObject(root.getObjectByName("keyboard")), mouse = new THREE.Box3().setFromObject(root.getObjectByName("mouse")); const separated = (a, b) => a.max.x <= b.min.x || b.max.x <= a.min.x || a.max.z <= b.min.z || b.max.z <= a.min.z; return { visible: group.visible, meshes: group.children.filter((o) => o.isMesh).length, min: cup.min.toArray(), max: cup.max.toArray(), baseY: cup.min.y, height: cup.max.y - cup.min.y, clearsKeyboard: separated(cup, keyboard), clearsMouse: separated(cup, mouse) }; })(),
         monitor: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("monitor-panel")); return { min: b.min.toArray(), max: b.max.toArray() }; })() },
       lounge: Object.fromEntries(["sofa", "tv-unit", "bookshelf"].map((n) => { const b = new THREE.Box3().setFromObject(root.getObjectByName(n)); return [n, { min: b.min.toArray(), max: b.max.toArray() }]; })),
       shelfClash: (() => {

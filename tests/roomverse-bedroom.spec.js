@@ -205,6 +205,40 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
   expect(vertices).toBeLessThan(62000);
 });
 
+test("a brandless takeaway coffee sits on the desk clear of the keyboard and hides beside the espresso setup", async ({ page }) => {
+  await enter(page);
+  let { desk, choices } = await page.evaluate(() => window.__bedroom.info());
+  if (SWITCH_QA) {
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/room02-takeaway-coffee-1440.png` });
+    await page.evaluate(() => window.__bedroom.lookTo("work"));
+    await page.waitForTimeout(300);
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/room02-takeaway-coffee-desk-1440.png` });
+    await page.evaluate(() => { window.__bedroom.camera.zoom = 2.2; window.__bedroom.camera.updateProjectionMatrix(); window.__bedroom.render(); });
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/room02-takeaway-coffee-detail-1440.png` });
+    await page.evaluate(() => { window.__bedroom.camera.zoom = 1.35; window.__bedroom.camera.updateProjectionMatrix(); window.__bedroom.render(); });
+    await page.evaluate(() => window.__bedroom.lookTo("center"));
+  }
+  expect(choices.desktop).toBe("minimal");
+  expect(desk.takeawayCoffee.visible).toBe(true);
+  expect(desk.takeawayCoffee.meshes).toBe(1); // cup, sleeve and lid share one textured mesh/draw call
+  expect(desk.takeawayCoffee.baseY).toBeCloseTo(desk.top, 3); // cup base rests on the 75 cm desktop
+  expect(desk.takeawayCoffee.height).toBeGreaterThan(.11); expect(desk.takeawayCoffee.height).toBeLessThan(.14);
+  expect(desk.takeawayCoffee.clearsKeyboard).toBe(true);
+  expect(desk.takeawayCoffee.clearsMouse).toBe(true);
+  if (SWITCH_QA) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.evaluate(() => window.__bedroom.resize());
+    await page.waitForTimeout(250);
+    await page.locator("#stage").screenshot({ path: `${SWITCH_QA}/room02-takeaway-coffee-390.png` });
+  }
+  expect(await page.evaluate(() => window.__bedroom.setChoice("desktop", "coffee"))).toBe(true);
+  desk = (await page.evaluate(() => window.__bedroom.info())).desk;
+  expect(desk.takeawayCoffee.visible).toBe(false); // this set already has its own ceramic cup and mug
+  expect(await page.evaluate(() => window.__bedroom.setChoice("desktop", "gamer"))).toBe(true);
+  desk = (await page.evaluate(() => window.__bedroom.info())).desk;
+  expect(desk.takeawayCoffee.visible).toBe(true);
+});
+
 test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, shelf under the ceiling, nothing crosses the bed or the door", async ({ page }) => {
   await enter(page);
   const { lounge, tvPanel, shelfClash, vertices } = await page.evaluate(() => window.__bedroom.info());
@@ -981,10 +1015,10 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   expect(pocket.vertices).toBe(277);
   expect(pocket.vertices).toBeLessThanOrEqual(1500);
   // Old snapshot 58,794 / 321 is stale after the speaker pair and room-detail merges; current settled main is 61,326 / 324 before the pocket set.
-  expect(info.vertices - pocket.vertices).toBe(61326); // old→new 58,794→61,326: current scene baseline includes the refined speakers and merged room details
-  expect(info.meshes - pocket.meshes).toBe(324); // old→new 321→324: current scene mesh baseline after the same additions
-  expect(info.drawCalls - 174).toBeLessThanOrEqual(2);
-  expect(info.drawCalls).toBeGreaterThanOrEqual(174);
+  expect(info.vertices - pocket.vertices).toBe(61626); // old→new 61,326→61,626: add 300 vertices for the default desk takeaway cup
+  expect(info.meshes - pocket.meshes).toBe(325); // old→new 324→325: cup, sleeve and lid use one merged mesh
+  expect(info.drawCalls - 176).toBeLessThanOrEqual(2); // old→new baseline 174→176: clean main measures 176 before the coffee; the existing +2 ceiling is unchanged
+  expect(info.drawCalls).toBeGreaterThanOrEqual(176);
   for (const row of pocket.fit) {
     expect(row.minGapMm, row.name).toBeGreaterThanOrEqual(-3);
     expect(row.maxGapMm, row.name).toBeLessThanOrEqual(1);
@@ -1029,7 +1063,7 @@ test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints w
   await expect.poll(() => cityResponses.size).toBe(3);
   const room = await page.evaluate(() => window.__bedroom.info());
   expect([...cityResponses.entries()].sort()).toEqual([["brooklyn", 200], ["new-york", 200], ["san-francisco", 200]]);
-  expect(room).toMatchObject({ vertices: 61603, meshes: 326, mood: "focus" }); // old→new 59,816 / 311→61,603 / 326: current main scene; image loading must still leave geometry unchanged
+  expect(room).toMatchObject({ vertices: 61903, meshes: 327, mood: "focus" }); // old→new 61,603 / 326→61,903 / 327: one 300-vertex merged desk cup; image loading leaves geometry unchanged
 });
 
 test("the sofa carries no throw and the room stays inside its vertex ceiling", async ({ page }) => {
