@@ -49,7 +49,6 @@
   .director-stop:focus-visible { outline: 3px solid #977b42; outline-offset: 3px; }
   .poster { position: absolute; inset: 0; display: grid; place-items: center; background: center / cover no-repeat url("poster-desktop.webp"); }
   .poster button { font: inherit; font-weight: 700; font-size: 17px; padding: 14px 22px; border: 0; border-radius: 999px; background: var(--moss); color: #fff; cursor: pointer; box-shadow: 0 10px 30px #0003; }
-  .poster small { display: block; margin-top: 8px; text-align: center; color: #fff; text-shadow: 0 1px 6px #0008; font-size: 13px; }
   .panel { position: absolute; right: 14px; top: 14px; width: 290px; max-height: calc(100% - 28px); overflow: auto; background: color-mix(in srgb, var(--paper) 93%, transparent); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; box-shadow: 0 8px 28px #0002; }
   .panel h2 { font-size: 12px; letter-spacing: .08em; margin: 10px 0 6px; color: var(--muted); }
   .panel h2:first-child { margin-top: 0; }
@@ -167,7 +166,7 @@
 <section class="room" aria-labelledby="title">
   <div class="room-toolbar" id="roomToolbar" role="group" hidden></div>
   <div id="stage"><div class="robot-bubble" id="robotBubble" hidden><span data-bubble-copy aria-live="polite"></span><button class="travel-door-trigger" data-travel-door-trigger data-travel-door-action type="button" hidden></button></div><button class="immersive-enter" id="immersiveEnter" type="button" hidden></button></div>
-  <div class="poster" id="poster"><div><button id="enter" type="button"></button><small id="size"></small></div></div>
+  <div class="poster" id="poster"><button id="enter" type="button"></button></div>
   <p class="status" id="status" hidden></p>
   <button class="panel-toggle" id="panelToggle" type="button" aria-controls="panel" aria-expanded="false" hidden></button>
   <div class="panel" id="panel" hidden></div>
@@ -177,6 +176,6 @@
 </section>
 <p class="portal" id="portalRow" hidden><button id="portalBtn" data-travel-door-trigger type="button"></button><button id="travelDoorBtn" data-travel-door-trigger type="button"></button><span id="portalHint"></span></p>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=76"></script>
+<script type="module" src="page.js?v=77"></script>
 </body>
 </html>
