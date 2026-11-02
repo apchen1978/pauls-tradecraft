@@ -34,7 +34,7 @@ test("from is a strict whitelist and current language is retained", async ({ pag
   }
 });
 
-test("fullscreen exit cleans immersive state before leaving and Back returns normally", async ({ page }) => {
+test("fullscreen room chooser cleans immersive state before leaving and Back returns normally", async ({ page }) => {
   await page.addInitScript(() => addEventListener("pagehide", () => sessionStorage.setItem("exitClean", String(!document.documentElement.classList.contains("room-immersive")))));
   await openRoom(page, 390, "lang=en&from=room02");
   await page.locator("#immersiveEnter").click();
@@ -42,7 +42,10 @@ test("fullscreen exit cleans immersive state before leaving and Back returns nor
   await expect(link).toBeVisible({ timeout: 2500 });
   expect((await link.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await link.click();
-  await expect(page).toHaveURL(/\/bedroom\/\?lang=en/);
+  const dialog = page.getByRole("dialog", { name: "Where to?" });
+  await expect(dialog).toBeVisible();
+  await dialog.locator(".travel-door-card").filter({ hasText: "Room 02" }).locator(".travel-door-go").click();
+  await expect(page).toHaveURL(/\/bedroom\/\?lang=en&from=room03/);
   expect(await page.evaluate(() => sessionStorage.getItem("exitClean"))).toBe("true");
   await page.goBack();
   await page.waitForFunction(() => Boolean(window.__room03));

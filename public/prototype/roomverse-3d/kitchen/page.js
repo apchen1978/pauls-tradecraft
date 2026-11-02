@@ -1,10 +1,11 @@
+import { initTravelDoor } from "../travel-door.js?v=3";
 import { start, ROOM_TITLE } from "./kitchen.js?v=106";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
     lead: "灣區中世紀現代風的開放廚房與餐區。拖曳畫面，從室內看看木樑、玻璃門與小院。",
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
-    otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", robotLabel: "廚房小機器人：點我看要去哪個房間", robotLine: "我是廚房的小幫手。想去哪個房間？", doorLabel: "房間的門：點一下打開", doorLine: "這扇門通到其他房間。想去哪一間？", robotToLiving: "← 客廳 Room 01", robotToBedroom: "臥室 Room 02 →", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
+    otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", robotLabel: "廚房小機器人：點我看要去哪個房間", robotLine: "我是廚房的小幫手。想去哪個房間？", doorLabel: "房間的門：點一下打開", doorLine: "這扇門通到其他房間。想去哪一間？", robotChoose: "看看其他房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
     center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", nook: "走近小角落", swapsLabel: "換搭配",
     swaps: {
@@ -28,7 +29,7 @@ const COPY = {
     title: ROOM_TITLE,
     lead: "An open kitchen and dining room inspired by Bay Area mid-century modern homes. Drag to look around the timber beams, glass doors and small garden.",
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
-    otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", robotLabel: "Kitchen robot: tap to choose another room", robotLine: "I look after the kitchen. Where would you like to go?", doorLabel: "Room door: tap to open", doorLine: "This door leads to the other rooms. Where to?", robotToLiving: "← Living room, Room 01", robotToBedroom: "Bedroom, Room 02 →", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
+    otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", robotLabel: "Kitchen robot: tap to choose another room", robotLine: "I look after the kitchen. Where would you like to go?", doorLabel: "Room door: tap to open", doorLine: "This door leads to the other rooms. Where to?", robotChoose: "Explore other rooms", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
     center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", nook: "Closer to the nook", swapsLabel: "Swap the look",
     swaps: {
@@ -189,14 +190,8 @@ function setImmersive(on, pushHistory = true) {
   requestAnimationFrame(() => room.resize());
 }
 
-$("immersiveOtherRooms").addEventListener("click", (event) => {
-  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-  event.preventDefault();
-  const destination = otherRoomsUrl();
-  setImmersive(false, false);
-  location.replace(destination);
-});
 document.addEventListener("keydown", (event) => {
+  if (travelDoor?.element?.open) return;
   if ((event.key === "ArrowRight" || event.key === "ArrowLeft") && event.target?.dataset?.mood) {
     const buttons = [...$("moods").querySelectorAll("button")];
     const index = buttons.indexOf(event.target);
@@ -246,19 +241,16 @@ const doorHit = document.createElement("button");
 doorHit.type = "button"; doorHit.id = "doorHit"; doorHit.className = "robot-hit door-hit"; doorHit.hidden = true;
 const robotBubble = document.createElement("div");
 robotBubble.id = "robotBubble"; robotBubble.className = "robot-bubble"; robotBubble.hidden = true; robotBubble.setAttribute("role", "dialog");
-robotBubble.innerHTML = '<p data-robot-line></p><div class="robot-links"><a data-robot-living></a><a data-robot-bedroom></a></div>';
+robotBubble.innerHTML = '<p data-robot-line></p><div class="robot-links"><button class="travel-door-trigger" data-travel-door-trigger data-robot-travel type="button"></button></div>';
 $("stage").parentElement.append(robotHit, doorHit, robotBubble);
 let robotBubbleTimer = 0;
 let bubbleOwner = "robot";
-function roomUrl(path) { const url = new URL(path, location.href); url.searchParams.set("lang", lang === "en" ? "en" : "zh"); return url.href; }
 function renderRobotCopy() {
   const copy = COPY[lang];
   robotHit.setAttribute("aria-label", copy.robotLabel);
   doorHit.setAttribute("aria-label", copy.doorLabel);
   robotBubble.querySelector("[data-robot-line]").textContent = bubbleOwner === "door" ? copy.doorLine : copy.robotLine;
-  const living = robotBubble.querySelector("[data-robot-living]"), bedroom = robotBubble.querySelector("[data-robot-bedroom]");
-  living.textContent = copy.robotToLiving; living.href = roomUrl("../");
-  bedroom.textContent = copy.robotToBedroom; bedroom.href = roomUrl("../bedroom/");
+  robotBubble.querySelector("[data-robot-travel]").textContent = copy.robotChoose;
 }
 function placeTarget(button, rect) {
   if (!rect) { button.hidden = true; return; }
@@ -290,9 +282,35 @@ function openBubble(owner) {
 }
 robotHit.addEventListener("click", () => openBubble("robot"));
 doorHit.addEventListener("click", () => openBubble("door"));
+const travelDoor = initTravelDoor({
+  currentRoom: "room03",
+  getLang: () => lang,
+  onChoose: (destination, href) => {
+    clearTimeout(robotBubbleTimer);
+    robotBubble.hidden = true;
+    if (immersive) {
+      setImmersive(false, false);
+      // Clear the immersive history marker before navigation so Back does not reopen full screen.
+      history.replaceState(null, "", location.href);
+    }
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { location.assign(href); return; }
+    const fade = document.createElement("div");
+    fade.className = "portal-fade";
+    Object.assign(fade.style, { position: "fixed", inset: "0", zIndex: "60", background: destination.transitionColor, opacity: "0", transition: "opacity .24s ease" });
+    document.body.append(fade);
+    requestAnimationFrame(() => { fade.style.opacity = "1"; });
+    setTimeout(() => location.assign(href), 260);
+  },
+  beforeOpen: (trigger) => {
+    if (trigger?.matches?.("[data-robot-travel]")) clearTimeout(robotBubbleTimer);
+  },
+  afterClose: (trigger) => {
+    if (trigger?.matches?.("[data-robot-travel]") && !robotBubble.hidden) robotBubbleTimer = setTimeout(closeBubble, 6000);
+  },
+});
 robotBubble.addEventListener("pointerenter", () => clearTimeout(robotBubbleTimer));
 robotBubble.addEventListener("focusin", () => clearTimeout(robotBubbleTimer));
-document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !robotBubble.hidden) { clearTimeout(robotBubbleTimer); closeBubble(); } });
+document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !travelDoor.element.open && !robotBubble.hidden) { clearTimeout(robotBubbleTimer); closeBubble(); } });
 
 start({ stage: $("stage"), onReady: (instance) => {
   room = instance;

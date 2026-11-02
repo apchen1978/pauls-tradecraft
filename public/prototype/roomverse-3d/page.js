@@ -1,5 +1,5 @@
 // ROOMVERSE 3D page: text, language, and loading the 3D room only when the visitor asks for it.
-import { initTravelDoor } from "./travel-door.js?v=2";
+import { initTravelDoor } from "./travel-door.js?v=3";
 const TRAVEL_COPY = { zh: { button: "去別的房間 · Travel", bubble: "看看其他房間" }, en: { button: "Travel to another room", bubble: "Explore other rooms" } };
 const COPY = {
   zh: {
@@ -7,19 +7,20 @@ const COPY = {
     lead: "先選感覺，再換牆、地毯、窗簾和掛畫。光會跟著變，房間的表情也是。拖一下轉動房間，或點「看電視牆」。",
     enter: "走進 3D 房間", size: "約 1.3 MB，建議用電腦或平板", loading: "房間準備中…", failed: "這台裝置打不開 3D，先看看上面的房間圖。",
     note: "插畫示意。以 AI 人機協作完成：家具（沙發、茶几、邊桌、桌燈、落地燈、植物和小機器人）先畫成插畫，再轉成 3D 形狀，顏色取自原插畫；小矮椅和筆電的形狀則由程式生成（小矮椅依插畫的側面輪廓）；窗外景色、掛畫、地毯和壁紙也是插畫；房間、光與互動由程式完成。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
-    home: "← 作品集", portal: "推開那扇門 → Room 02 · Brooklyn Studio", portalHint: "客廳右手邊的門也可以直接點。", lang: "EN", open: "點我變風格 ▸", close: "收起 ◂", fullScreen: "全螢幕", exitFullScreen: "退出",
+    home: "← 作品集", portal: "看看其他房間", portalHint: "選一間繼續逛。", lang: "EN", open: "點我變風格 ▸", close: "收起 ◂", fullScreen: "全螢幕", exitFullScreen: "退出",
   },
   en: {
     title: "One room, many ways to come home",
     lead: "Pick a feeling, then change the wall, the rug, the curtains and the print. The light changes with it, and so does the room's mood. Drag to turn the room, or tap ‘Turn to the TV wall’.",
     enter: "Step into the 3D room", size: "About 1.3 MB; best on a computer or tablet", loading: "Setting up the room…", failed: "3D can't open on this device; the picture above shows the room.",
     note: "Illustrated study, made through human–AI collaboration: the furniture (sofa, coffee table, side table, table lamp, floor lamp, plant and a small robot) was drawn first, turned into 3D shapes and coloured from the drawings; the small low chair and the laptop are shaped in code (the chair from the side outline of its drawing); the views outside, wall prints, rugs and wallpapers are illustrations too; the room, light and interaction are built in code. Not real products; check real colours and textures with samples and on-site light.",
-    home: "← Portfolio", portal: "Push the door → Room 02 · Brooklyn Studio", portalHint: "You can also tap the door on the right-hand wall.", lang: "中", open: "Tap to restyle ▸", close: "Hide ◂", fullScreen: "Full screen", exitFullScreen: "Exit",
+    home: "← Portfolio", portal: "Explore other rooms", portalHint: "Choose a room to keep exploring.", lang: "中", open: "Tap to restyle ▸", close: "Hide ◂", fullScreen: "Full screen", exitFullScreen: "Exit",
   },
 };
 const $ = (id) => document.getElementById(id);
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const arrivedFromRoom02 = new URLSearchParams(location.search).get("from") === "room02";
+const arrivedFromRoom03 = new URLSearchParams(location.search).get("from") === "room03";
 // Keep these sentences verbatim with the five story cards in feeling-to-room/app.js.
 const PEOPLE_STORIES = {
   rain: { zh: "加班到十點，外面下著雨。", en: "Working late; rain is falling outside." },
@@ -66,12 +67,16 @@ function setPanelOpen(open) {
   const t = $("panelToggle"); t.setAttribute("aria-expanded", String(open)); t.textContent = open ? COPY[lang].close : COPY[lang].open;
 }
 $("panelToggle").onclick = () => setPanelOpen(!document.querySelector(".room").classList.contains("panel-open"));
-$("portalBtn").onclick = () => { void room?.openPortal(); };
-$("immersiveDoor").onclick = () => { void room?.openPortal(); };
 travelDoor = initTravelDoor({
   currentRoom: "room01",
   getLang: () => lang,
-  onChoose: (destination, href) => { void room?.openPortal({ transitionColor: destination.transitionColor, destinationUrl: href }); },
+  onChoose: (destination, href) => {
+    if (immersive) {
+      setImmersive(false, false);
+      history.replaceState(null, "", location.href);
+    }
+    void room?.openPortal({ transitionColor: destination.transitionColor, destinationUrl: href });
+  },
   beforeOpen: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.pauseGuideBubble(); },
   afterClose: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.resumeGuideBubble(); },
 });
@@ -113,13 +118,13 @@ addEventListener("pageshow", (event) => {
   }
 });
 $("originClose").onclick = () => { storyHintDismissed = true; $("originHint").hidden = true; };
-document.addEventListener("keydown", (e) => { if (e.key !== "Escape") return; if (immersive) { e.preventDefault(); $("immersiveExit").click(); } else if (document.querySelector(".room").classList.contains("panel-open") && !$("panelToggle").hidden) { setPanelOpen(false); $("panelToggle").focus(); } });
+document.addEventListener("keydown", (e) => { if (e.key !== "Escape" || travelDoor?.element?.open) return; if (immersive) { e.preventDefault(); $("immersiveExit").click(); } else if (document.querySelector(".room").classList.contains("panel-open") && !$("panelToggle").hidden) { setPanelOpen(false); $("panelToggle").focus(); } });
 $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new URL(location.href); u.searchParams.set("lang", lang); history.replaceState(history.state, "", u); text(); };
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./app.js?v=73");
-    room = await start({ stage: $("stage"), panel: $("panel"), lang, arriveFromRoom02: arrivedFromRoom02 });
+    const { start } = await import("./app.js?v=74");
+    room = await start({ stage: $("stage"), panel: $("panel"), lang, arriveFromRoom02: arrivedFromRoom02, onTravelChoice: () => travelDoor?.open(immersive ? $("immersiveDoor") : $("portalBtn")) });
     $("status").hidden = true; $("panel").hidden = false; $("panelToggle").hidden = false; $("portalRow").hidden = false;
     $("roomToolbar").hidden = !matchMedia("(max-width: 768px)").matches;
     $("immersiveEnter").hidden = false;
@@ -134,4 +139,4 @@ $("enter").onclick = async () => {
   }
 };
 text();
-if (arrivedFromRoom02) $("enter").click(); // the return trip opens straight into the living room arrival walk
+if (arrivedFromRoom02 || arrivedFromRoom03) $("enter").click(); // arrivals from other rooms open directly into the living room

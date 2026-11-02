@@ -74,7 +74,7 @@ function softBox(w, h, d, r, { bevelSegments = 1, curveSegments = 2 } = {}) {
 // Furniture edges: a hero piece gets a small rounded edge (radius capped by its thinnest side) so light rolls off it like a real object.
 const rb = (w, h, d) => softBox(w, h, d, Math.min(.012, w / 4, h / 4, d / 4));
 
-export async function start({ stage, bubble = null, hitTarget = null, lang = "zh", copy = () => ({}) }) {
+export async function start({ stage, bubble = null, hitTarget = null, lang = "zh", copy = () => ({}), onTravelChoice = () => {} }) {
   const compact = matchMedia("(max-width: 768px), (max-width: 1024px) and (max-height: 500px)").matches;
   // Painted surfaces from Codex (floor, walls, rugs, oak, fabrics, window dressings, screen, bookshelf rows). Each material starts with a
   // code-drawn stand-in and swaps to the painting when it arrives, so a slow or failed download never leaves a blank room.
@@ -215,7 +215,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const text = bubble.querySelector("[data-bubble-copy]");
     if (text) text.textContent = message;
     const action = bubble.querySelector("[data-travel-door-action]");
-    if (action) action.hidden = message !== (copy().robotLine || "Follow me, back to the living room.");
+    if (action) action.hidden = message !== (copy().robotLine || "Which room would you like to visit?") && message !== copy().doorHint;
     bubble.hidden = false;
     positionRobotBubble();
     bubbleTimer = setTimeout(() => {
@@ -280,7 +280,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const started = performance.now();
     const duration = reducedMotion() ? 1 : 420;
 
-    showRobotBubble(copy().robotLine || "Follow me, back to the living room.");
+    showRobotBubble(copy().robotLine || "Which room would you like to visit?");
     hopping = true;
     pendingRobot = {
       y: home.y,
@@ -288,7 +288,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       timer: setTimeout(() => {
         if (!pendingRobot) return;
         pendingRobot = null;
-        void leaveToRoom01();
+        onTravelChoice();
       }, ROBOT_FOLLOW_DELAY_MS),
     };
 
@@ -424,7 +424,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     if (portalButton) {
       event.preventDefault();
       event.stopPropagation();
-      void leaveToRoom01();
+      onTravelChoice();
       return;
     }
     suppressTap = true;
@@ -498,7 +498,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const hitRobot = !!(robotBounds && tapRay.ray.intersectBox(robotBounds, new THREE.Vector3()));
     const hitDoor = tapRay.intersectObject(doorPivot, true).length > 0;
     if (hitDoor) {
-      void leaveToRoom01();
+      onTravelChoice();
       return;
     }
     if (hitRobot) tapRobot();

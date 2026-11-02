@@ -17,6 +17,10 @@ async function enter(page, { lang = "zh", width = 1440 } = {}) {
   await page.waitForFunction(() => window.__bedroom);
 }
 
+async function chooseRoom01(page) {
+  await page.locator(".travel-door-card").filter({ hasText: "Room 01" }).getByRole("button", { name: "推開那扇門" }).click();
+}
+
 test.describe("Room 02 mobile immersive", () => {
   test.use({ deviceScaleFactor: 2 });
 
@@ -84,6 +88,8 @@ test.describe("Room 02 mobile immersive", () => {
     await enter(page, { width: 390 });
     await page.locator("#immersiveEnter").click();
     await page.locator("#immersiveDoor").click();
+    await expect(page.getByRole("dialog", { name: "要去哪？" })).toBeVisible();
+    await chooseRoom01(page);
     await expect(page).toHaveURL(/roomverse-3d\/?\?lang=zh&from=room02/, { timeout: 15000 });
     expect(errors).toEqual([]);
   });
@@ -731,7 +737,7 @@ test("Room 02 return door, robot hint, and cancellable countdown", async ({ page
   expect(rb.state.position[0]).toBeLessThan(0); expect(rb.state.position[2]).toBeGreaterThan(1.2);
   expect(rb.path.hits).toEqual([]); expect(rb.path.matGap).toBeGreaterThan(0); expect(rb.path.clear).toBe(true);
   await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
-  await expect(page.locator("#robotBubble")).toContainText("門後面是客廳");
+  await expect(page.locator("#robotBubble")).toContainText("這扇門通往其他房間");
   await expect(page.locator("#robotBubble")).toBeVisible();
 });
 
@@ -769,7 +775,7 @@ test("Escape cancels Room 02 robot follow-me at 2 seconds", async ({ page }) => 
   await expect(page.locator(".portal-fade")).toHaveCount(0);
 });
 
-test("Room 02 robot follow-me starts after the 2.5 second delay when its travel choice is ignored", async ({ page }) => {
+test("Room 02 robot opens the shared room chooser after its 2.5 second delay", async ({ page }) => {
   await enter(page);
   await page.waitForFunction(() => window.__bedroom.robotState().loaded, null, { timeout: 30000 });
   await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
@@ -777,14 +783,14 @@ test("Room 02 robot follow-me starts after the 2.5 second delay when its travel 
   expect(state.hit.hidden).toBe(false);
   const startedAt = await page.evaluate(() => performance.now());
   await page.locator("#robotHitTarget").click();
-  await expect(page.locator("#robotBubble")).toContainText("跟我來，我帶你回客廳");
+  await expect(page.locator("#robotBubble")).toContainText("我是這間套房的小幫手");
   await page.waitForFunction(() => window.__bedroom.robotState().pending, null, { timeout: 3000 });
-  await expect.poll(() => page.evaluate(() => window.__bedroom.doorState().active), { timeout: 7000, intervals: [50, 100] }).toBe(true);
+  await expect(page.getByRole("dialog", { name: "要去哪？" })).toBeVisible({ timeout: 7000 });
   const elapsed = await page.evaluate((start) => performance.now() - start, startedAt);
   expect(elapsed).toBeGreaterThanOrEqual(2300);
   expect(elapsed).toBeLessThan(4500);
   expect(await page.evaluate(() => window.__bedroom.robotState().pending)).toBe(false);
-  await page.waitForURL(/from=room02/, { timeout: 10000 });
+  await expect(page).toHaveURL(/bedroom\/?\?lang=zh$/);
 });
 
 test("a 390px visitor can tap the door-side robot and cancel by tapping blank room space", async ({ page }) => {
@@ -801,9 +807,12 @@ test("a 390px visitor can tap the door-side robot and cancel by tapping blank ro
   expect(await page.evaluate(() => document.documentElement.scrollWidth === document.documentElement.clientWidth)).toBe(true);
 });
 
-test("the door animation can be cancelled before its fade and restores the closed state", async ({ page }) => {
+test("choosing Room 01 starts a cancellable door animation before its fade", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await enter(page);
   await page.locator("#portalBtn").click();
+  await expect(page.getByRole("dialog", { name: "要去哪？" })).toBeVisible();
+  await chooseRoom01(page);
   await page.waitForFunction(() => window.__bedroom.doorState().open, null, { timeout: 5000 });
   await page.keyboard.press("Escape");
   expect(await page.evaluate(() => window.__bedroom.doorState())).toMatchObject({ open: false, active: false, fading: false });
@@ -818,13 +827,17 @@ test("390px reduced-motion visitors can tap the door itself to return", async ({
   const door = await page.evaluate(() => window.__bedroom.doorState().ndc);
   const box = await page.locator("#stage canvas").boundingBox();
   await page.mouse.click(box.x+(door.x+1)*box.width/2,box.y+(1-door.y)*box.height/2);
+  await expect(page.getByRole("dialog", { name: "要去哪？" })).toBeVisible();
+  await chooseRoom01(page);
   await page.waitForURL(/from=room02/, { timeout: 10000 });
 });
 
-test("reduced motion sends the door button directly to Room 01", async ({ page }) => {
+test("reduced motion opens the room chooser from the door button", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await enter(page);
   await page.locator("#portalBtn").click();
+  await expect(page.getByRole("dialog", { name: "要去哪？" })).toBeVisible();
+  await chooseRoom01(page);
   await page.waitForURL(/from=room02/, { timeout: 10000 });
 });
 
@@ -838,6 +851,8 @@ test("the Room 02 door button returns to Room 01 and Room 01 opens normally from
   const errors=[]; page.on("pageerror",e=>errors.push(String(e))); page.on("console",m=>{if(m.type()==="error")errors.push(m.text());});
   await enter(page);
   await page.locator("#portalBtn").click();
+  await expect(page.getByRole("dialog", { name: "要去哪？" })).toBeVisible();
+  await chooseRoom01(page);
   await page.waitForURL(/from=room02/, { timeout: 12000 });
   await page.waitForFunction(() => window.__room, null, { timeout: 90000 });
   expect(errors).toEqual([]);
@@ -847,9 +862,9 @@ test("the Room 02 door button returns to Room 01 and Room 01 opens normally from
 
 test("the return portal label follows the selected language", async ({ page }) => {
   await enter(page);
-  await expect(page.locator("#portalBtn")).toHaveText("推開那扇門 → Room 01");
+  await expect(page.locator("#portalBtn")).toHaveText("看看其他房間");
   await page.locator("#lang").click();
-  await expect(page.locator("#portalBtn")).toHaveText("Push the door → Room 01");
+  await expect(page.locator("#portalBtn")).toHaveText("Explore other rooms");
 });
 
 test("the page switches between Chinese and English", async ({ page }) => {
@@ -882,7 +897,7 @@ test("Room 02 door portal review frames (set ROOMVERSE_DOOR_QA=1)", async ({ pag
       Object.defineProperty(performance, "now", { configurable: true, value: () => scaled(rawNow()) });
       window.requestAnimationFrame = (callback) => originalFrame((time) => callback(scaled(time)));
     });
-    await page.locator("#portalBtn").click();
+    await page.evaluate(() => window.__bedroom.leaveToRoom01({ destinationUrl: new URL("../?lang=zh&from=room02", location.href).href }));
     const suffix = `${mood}-${width}`;
     await page.waitForFunction(() => Math.abs(window.__bedroom.doorState().angle) > .25, null, { timeout: 30000 });
     await page.locator("#stage").screenshot({ path: `${out}/opening-${suffix}.png` });

@@ -102,14 +102,14 @@
   .room.is-immersive .moods p { display: none; }
   html.room-immersive, html.room-immersive body { overflow: hidden; overscroll-behavior: none; }
   .portal .travel-door-trigger { border-color: #aab5aa; background: #fbfaf6; color: #315c5d; }
-  .robot-bubble { pointer-events: auto; }
-  .robot-bubble [data-travel-door-action] { display: block; min-height: 44px; margin: 7px auto 0; padding: 8px 12px; border: 1px solid #aab5aa; border-radius: 999px; background: #fbfaf6; color: #315c5d; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .robot-bubble { pointer-events: none; }
+  .robot-bubble [data-travel-door-action] { display: block; min-height: 44px; margin: 7px auto 0; pointer-events: auto; padding: 8px 12px; border: 1px solid #aab5aa; border-radius: 999px; background: #fbfaf6; color: #315c5d; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
   .robot-bubble [data-travel-door-action]:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
 </style>
 </head>
 <body>
 <header>
-  <div class="left"><a class="home" id="home" href="../">← Room 01</a><span class="mark">ROOMVERSE 3D<span class="room-no" id="roomNo">Room 02 · Brooklyn Studio</span></span></div>
+  <div class="left"><a class="home" id="home" data-travel-door-trigger href="../">← Other rooms</a><span class="mark">ROOMVERSE 3D<span class="room-no" id="roomNo">Room 02 · Brooklyn Studio</span></span></div>
   <button id="lang" type="button">EN</button>
 </header>
 <section class="intro">
@@ -124,14 +124,14 @@
   <div class="robot-bubble" id="robotBubble" hidden><span data-bubble-copy aria-live="polite"></span><button class="travel-door-trigger" data-travel-door-trigger data-travel-door-action type="button" hidden></button></div>
   <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
   <button class="immersive-exit" id="immersiveExit" type="button"></button>
-  <button class="immersive-door" id="immersiveDoor" type="button"></button>
+  <button class="immersive-door" id="immersiveDoor" data-travel-door-trigger type="button"></button>
   <div class="immersive-controls" id="immersiveControls"></div>
 </section>
-<p class="portal" id="portalRow" hidden><button id="portalBtn" type="button"></button><button id="travelDoorBtn" data-travel-door-trigger type="button"></button><span id="portalHint"></span></p>
+<p class="portal" id="portalRow" hidden><button id="portalBtn" data-travel-door-trigger type="button"></button><button id="travelDoorBtn" data-travel-door-trigger type="button"></button><span id="portalHint"></span></p>
 <section class="views" id="views" hidden aria-label="views"><div class="row" id="viewRow" role="group"></div></section>
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=93"></script>
+<script type="module" src="page.js?v=94"></script>
 </body>
 </html>

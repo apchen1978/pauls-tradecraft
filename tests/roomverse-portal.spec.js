@@ -12,6 +12,11 @@ async function enterRoom01(page, { lang = "zh", width = 1440 } = {}) {
   await page.waitForFunction(() => window.__room && window.__room.portal);
 }
 
+async function chooseRoom(page, id, lang = "zh") {
+  const action = lang === "en" ? "Step through the door" : "推開那扇門";
+  await page.getByRole("dialog").locator(".travel-door-card").filter({ hasText: id }).getByRole("button", { name: action }).click();
+}
+
 test("the door swings open clear of the furniture, the doorway lights up, and closing restores everything", async ({ page }) => {
   await enterRoom01(page);
   const before = await page.evaluate(() => window.__room.roomDoor());
@@ -28,7 +33,7 @@ test("the door swings open clear of the furniture, the doorway lights up, and cl
   expect(after.door.leaf).toEqual(before.leaf); // the closed door is exactly where it was
 });
 
-test("the guide robot stands near the TV, clear of the leaf; tapping it says what is behind the door", async ({ page }) => {
+test("the guide robot stands near the TV, clear of the leaf; tapping it offers room choices", async ({ page }) => {
   await enterRoom01(page);
   await page.waitForTimeout(2500); // let the opening drift settle
   const g = await page.evaluate(() => window.__room.guideRobot());
@@ -47,7 +52,7 @@ test("the guide robot stands near the TV, clear of the leaf; tapping it says wha
   const box = await page.locator("#stage canvas").boundingBox();
   await page.mouse.click(box.x + (p.ndc.x + 1) / 2 * box.width, box.y + (1 - p.ndc.y) / 2 * box.height);
   await expect.poll(() => page.evaluate(() => window.__room.guideRobot().bubble)).toBe(true);
-  expect(await page.evaluate(() => window.__room.guideRobot().phrase)).toContain("Room 02");
+  expect(await page.evaluate(() => window.__room.guideRobot().phrase)).toContain("想去哪個房間");
   await page.evaluate(() => window.__room.openPortal({ go: false }));
   expect((await page.evaluate(() => window.__room.doorSwingBounds())).hits).toEqual([]); // the open leaf does not touch the new robot either
 });
@@ -57,8 +62,10 @@ for (const lang of ["zh", "en"]) {
     test.setTimeout(90000);
     await enterRoom01(page, { lang });
     await expect(page.locator("#portalRow")).toBeVisible();
-    await expect(page.locator("#portalBtn")).toContainText("Room 02");
+    await expect(page.locator("#portalBtn")).toContainText(lang === "zh" ? "其他房間" : "other rooms");
     await page.locator("#portalBtn").click();
+    await expect(page.getByRole("dialog", { name: lang === "zh" ? "要去哪？" : "Where to?" })).toBeVisible();
+    await chooseRoom(page, "Room 02", lang);
     await page.waitForURL(/\/bedroom\/\?.*from=room01/, { timeout: 20000 });
     expect(new URL(page.url()).searchParams.get("lang")).toBe(lang);
     await page.waitForFunction(() => window.__bedroom, null, { timeout: 30000 }); // no entrance button to press
@@ -69,17 +76,18 @@ for (const lang of ["zh", "en"]) {
   });
 }
 
-test("with reduced motion the button simply opens Room 02, and arriving needs no walk-in", async ({ page }) => {
+test("with reduced motion the chooser opens Room 02, and arriving needs no walk-in", async ({ page }) => {
   test.setTimeout(90000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await enterRoom01(page);
   await page.locator("#portalBtn").click();
+  await chooseRoom(page, "Room 02");
   await page.waitForURL(/\/bedroom\/\?.*from=room01/, { timeout: 20000 });
   await page.waitForFunction(() => window.__bedroom && !window.__bedroom.arriving());
   expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([-.2, 1.5, .1]); // starts in the middle, like everyone else
 });
 
-test("turning to the right-hand wall and tapping the door itself opens the portal", async ({ page }) => {
+test("turning to the right-hand wall and tapping the door itself opens room choices", async ({ page }) => {
   await enterRoom01(page);
   const box = await page.locator("#stage canvas").boundingBox();
   let ndc = null;
@@ -93,46 +101,50 @@ test("turning to the right-hand wall and tapping the door itself opens the porta
   expect(Math.abs(ndc.x), "the door is in view after turning").toBeLessThan(.6);
   const x = box.x + (ndc.x + 1) / 2 * box.width, y = box.y + (1 - ndc.y) / 2 * box.height;
   await page.mouse.click(x, y);
-  await page.waitForFunction(() => window.__room.portal().active, null, { timeout: 5000 });
-  await page.evaluate(() => window.__room.closePortal());
+  await expect(page.getByRole("dialog", { name: "要去哪？" })).toBeVisible({ timeout: 5000 });
 });
 
-test("Room 01 arrival from Room 02 walks through the open door, closes it, then restores controls", async ({ page }) => {
-  const errors = [];
-  page.on("pageerror", (error) => errors.push(String(error)));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
-  for (const width of [1440, 390]) {
+for (const width of [1440, 390]) {
+  test(`Room 01 arrival from Room 02 walks through the open door, closes it, then restores controls (${width}px)`, async ({ page }) => {
+    test.setTimeout(90000);
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-    await page.goto(`${ROOM01}?lang=zh&from=room02`);
-    await page.waitForFunction(() => window.__room?.returnArrival, null, { timeout: 60000 });
-    await page.evaluate(() => window.__room.finishReturnArrival()); // settle the automatic visit before replaying the animation for deterministic QA
-    expect(await page.evaluate(() => window.__room.beginReturnArrival())).toBe(true);
-    const start = await page.evaluate(() => window.__room.returnArrival());
-    expect(start.active).toBe(true);
-    expect(start.controlsEnabled).toBe(false);
-    expect(start.doorOpen).toBe(true);
-    expect(start.startPosition[0]).toBeGreaterThan(2.0); // begin on the room side of the doorway threshold
-    expect(start.camera[0]).toBeGreaterThan(2.0); // the first rendered camera pose is still at the doorway
-    if (ARRIVAL_QA) {
-      await fs.mkdir(ARRIVAL_QA, { recursive: true });
-      await page.waitForTimeout(500); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-entry.png` });
-      await page.waitForTimeout(900); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-walk.png` });
-      await page.waitForTimeout(900); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-settle.png` });
-    } else {
-      await page.waitForTimeout(1400);
-    }
-    const middle = await page.evaluate(() => window.__room.returnArrival());
-    expect(middle.camera[0]).toBeLessThan(start.startPosition[0]); // the visitor has moved into the room
-    await expect.poll(() => page.evaluate(() => window.__room.returnArrival().active), { timeout: 10000 }).toBe(false);
-    const end = await page.evaluate(() => window.__room.returnArrival());
-    expect(end.controlsEnabled).toBe(true);
-    expect(end.doorOpen).toBe(false);
-    expect(end.camera[0]).toBeCloseTo(0, 2);
-    await expect(page.locator(".room-arrival-cover")).toHaveCount(0);
-    if (ARRIVAL_QA) await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-settled.png` });
-    expect(errors).toEqual([]);
-  }
-});
+    await test.step("load Room 01 and expose return-arrival state", async () => {
+      await page.goto(`${ROOM01}?lang=zh&from=room02`, { timeout: 45000 });
+      await page.waitForFunction(() => window.__room?.returnArrival, null, { timeout: 30000 });
+    }, { timeout: 55000 });
+    await test.step("run and verify the arrival animation", async () => {
+      await page.evaluate(() => window.__room.finishReturnArrival()); // settle the automatic visit before replaying the animation for deterministic QA
+      expect(await page.evaluate(() => window.__room.beginReturnArrival())).toBe(true);
+      const start = await page.evaluate(() => window.__room.returnArrival());
+      expect(start.active).toBe(true);
+      expect(start.controlsEnabled).toBe(false);
+      expect(start.doorOpen).toBe(true);
+      expect(start.startPosition[0]).toBeGreaterThan(2.0); // begin on the room side of the doorway threshold
+      expect(start.camera[0]).toBeGreaterThan(2.0); // the first rendered camera pose is still at the doorway
+      if (ARRIVAL_QA) {
+        await fs.mkdir(ARRIVAL_QA, { recursive: true });
+        await page.waitForTimeout(500); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-entry.png` });
+        await page.waitForTimeout(900); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-walk.png` });
+        await page.waitForTimeout(900); await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-settle.png` });
+      } else {
+        await page.waitForTimeout(1400);
+      }
+      const middle = await page.evaluate(() => window.__room.returnArrival());
+      expect(middle.camera[0]).toBeLessThan(start.startPosition[0]); // the visitor has moved into the room
+      await expect.poll(() => page.evaluate(() => window.__room.returnArrival().active), { timeout: 10000 }).toBe(false);
+      const end = await page.evaluate(() => window.__room.returnArrival());
+      expect(end.controlsEnabled).toBe(true);
+      expect(end.doorOpen).toBe(false);
+      expect(end.camera[0]).toBeCloseTo(0, 2);
+      await expect(page.locator(".room-arrival-cover")).toHaveCount(0);
+      if (ARRIVAL_QA) await page.locator("#stage").screenshot({ path: `${ARRIVAL_QA}/room01-arrival-${width}-settled.png` });
+      expect(errors).toEqual([]);
+    }, { timeout: 30000 });
+  });
+}
 
 test("input during the Room 01 arrival interrupts the walk and hands control back", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -155,16 +167,37 @@ test("the room-to-room portal remains usable after the Room 02 to Room 01 arriva
   test.setTimeout(120000);
   await enterRoom01(page);
   await page.locator("#portalBtn").click();
+  await chooseRoom(page, "Room 02");
   await page.waitForURL(/\/bedroom\/\?.*from=room01/, { timeout: 20000 });
   await page.waitForFunction(() => window.__bedroom && !window.__bedroom.arriving(), null, { timeout: 30000 });
   await page.locator("#portalBtn").click();
+  await chooseRoom(page, "Room 01");
   await page.waitForURL(/\?lang=zh&from=room02/, { timeout: 20000 });
   await page.waitForFunction(() => window.__room?.returnArrival, null, { timeout: 60000 });
   await page.waitForTimeout(3200);
   expect(await page.evaluate(() => window.__room.returnArrival().active)).toBe(false);
   await page.locator("#portalBtn").click();
+  await chooseRoom(page, "Room 02");
   await page.waitForURL(/\/bedroom\/\?.*from=room01/, { timeout: 20000 });
   await page.waitForFunction(() => window.__bedroom && !window.__bedroom.arriving(), null, { timeout: 30000 });
+});
+
+test("a visitor can tour Room 01 to Room 03 to Room 02 to Room 01", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await enterRoom01(page);
+  await page.locator("#portalBtn").click();
+  await chooseRoom(page, "Room 03");
+  await page.waitForURL(/\/kitchen\/\?lang=zh&from=room01/);
+  await page.waitForFunction(() => Boolean(window.__room03));
+  await page.locator("#headerOtherRooms").click();
+  await chooseRoom(page, "Room 02");
+  await page.waitForURL(/\/bedroom\/\?lang=zh&from=room03/);
+  await page.waitForFunction(() => Boolean(window.__bedroom));
+  await page.locator("#portalBtn").click();
+  await chooseRoom(page, "Room 01");
+  await page.waitForURL(/\/prototype\/roomverse-3d\/\?lang=zh&from=room02/);
+  await page.waitForFunction(() => Boolean(window.__room));
 });
 
 test("QA screenshots (set ROOMVERSE_QA=1)", async ({ page }) => {

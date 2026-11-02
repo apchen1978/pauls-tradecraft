@@ -1,5 +1,5 @@
 // ROOMVERSE studio page: text, language, and loading the 3D room only when the visitor asks for it.
-import { initTravelDoor } from "../travel-door.js?v=2";
+import { initTravelDoor } from "../travel-door.js?v=3";
 const TRAVEL_COPY = { zh: { button: "去別的房間 · Travel", bubble: "看看其他房間" }, en: { button: "Travel to another room", bubble: "Explore other rooms" } };
 const COPY = {
   zh: {
@@ -7,7 +7,7 @@ const COPY = {
     lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、打電動、窩沙發，各有各的角落。選一個感覺，拖一下或按按鈕轉頭看。",
     enter: "走進第二個房間", size: "六種感覺：專注工作日、週末宅在家、傍晚金色時光、深夜遊戲、週日賴床、追劇夜", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
     note: "這是 ROOMVERSE 的第二個房間：一間在紐約租的套房，一件一件搬進來。下方可以換主牆、地毯、窗飾、寢具和海報，也可以按「隨機搭一間」。窗外景色和海報是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
-    home: "← Room 01", lang: "EN", portal: "推開那扇門 → Room 01", portalHint: "回到客廳", robotLine: "跟我來，我帶你回客廳", doorHint: "門後面是客廳，點我帶你過去", fullScreen: "全螢幕", exitFullScreen: "退出", shuffle: "隨機搭一間", moodsLabel: "選一個感覺", swapsLabel: "換什麼", viewsLabel: "看哪裡", views: { work: "書桌與窗邊", tv: "電視牆", bed: "床邊", center: "站到房間中間" },
+    home: "← 其他房間", lang: "EN", portal: "看看其他房間", portalHint: "選一間繼續逛。", robotLine: "我是這間套房的小幫手。想去哪裡看看？", doorHint: "這扇門通往其他房間，想去哪一間？", fullScreen: "全螢幕", exitFullScreen: "退出", shuffle: "隨機搭一間", moodsLabel: "選一個感覺", swapsLabel: "換什麼", viewsLabel: "看哪裡", views: { work: "書桌與窗邊", tv: "電視牆", bed: "床邊", center: "站到房間中間" },
     swaps: {
       posters: ["電視上方海報", { A: "運動", B: "幾何", C: "太空" }],
       wall: ["主牆", { paper: "葉紋壁紙", oat: "燕麥白", latte: "奶茶", warmGrey: "暖灰", sage: "鼠尾草綠", terracotta: "赤陶", slate: "炭灰藍" }],
@@ -35,7 +35,7 @@ const COPY = {
     lead: "ROOMVERSE works like a universe: it will never be just one room. The first is a living room; this is the second, a studio for one where sleeping, working, gaming and sofa time each get a corner. Pick a mood; drag or use the buttons to look around.",
     enter: "Step into the second room", size: "Six moods: focus day, weekend in, golden hour, late-night game, Sunday lie-in, series night", loading: "Setting up the room…", failed: "3D can't open on this device.",
     note: "This is ROOMVERSE's second room: a rented studio in New York, furnished one piece at a time. Below the room you can swap the feature wall, rug, window, bedding and posters, or press “Surprise me”. The view outside and the posters are illustrations made through human–AI collaboration, not real places. Not real products; check real colours and textures with samples and on-site light.",
-    home: "← Room 01", lang: "中", portal: "Push the door → Room 01", portalHint: "Back to the living room", robotLine: "Follow me, back to the living room.", doorHint: "The living room is behind this door. Tap me to go.", fullScreen: "Full screen", exitFullScreen: "Exit", shuffle: "Surprise me", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle" },
+    home: "← Other rooms", lang: "中", portal: "Explore other rooms", portalHint: "Choose a room to keep exploring.", robotLine: "I look after this studio. Where would you like to go?", doorHint: "This door leads to the other rooms. Where would you like to go?", fullScreen: "Full screen", exitFullScreen: "Exit", shuffle: "Surprise me", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle" },
     swaps: {
       posters: ["Posters over the TV", { A: "Sport", B: "Geometric", C: "Space" }],
       wall: ["Feature wall", { paper: "Leaf wallpaper", oat: "Oat white", latte: "Latte", warmGrey: "Warm grey", sage: "Sage", terracotta: "Terracotta", slate: "Slate blue" }],
@@ -61,6 +61,7 @@ const COPY = {
 };
 const $ = (id) => document.getElementById(id);
 const arrivedFromRoom01 = new URLSearchParams(location.search).get("from") === "room01"; // came through the door in Room 01
+const arrivedFromRoom03 = new URLSearchParams(location.search).get("from") === "room03";
 const arrivedFromHome = new URLSearchParams(location.search).get("from") === "home"; // came in from the portfolio home cover (a golden-hour painting)
 let lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 let room = null, mood = "focus", look = "center";
@@ -126,13 +127,17 @@ function text() {
   swapButtons();
   viewButtons();
 }
-$("portalBtn").onclick = () => { void room?.leaveToRoom01(); };
-$("immersiveDoor").onclick = () => { void room?.leaveToRoom01(); };
 $("robotHitTarget").onclick = () => room?.tapRobot();
 travelDoor = initTravelDoor({
   currentRoom: "room02",
   getLang: () => lang,
-  onChoose: (destination, href) => { void room?.leaveToRoom01({ transitionColor: destination.transitionColor, destinationUrl: href }); },
+  onChoose: (destination, href) => {
+    if (immersive) {
+      setImmersive(false, false);
+      history.replaceState(null, "", location.href);
+    }
+    void room?.leaveToRoom01({ transitionColor: destination.transitionColor, destinationUrl: href });
+  },
   beforeOpen: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.cancelRobotFollow(); },
   afterClose: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.resumeTravelBubble(); },
 });
@@ -157,20 +162,20 @@ function setImmersive(on, pushHistory = true) {
 $("immersiveEnter").onclick = () => setImmersive(true);
 $("immersiveExit").onclick = () => { setImmersive(false); history.back(); };
 addEventListener("popstate", (event) => setImmersive(Boolean(event.state?.room02Immersive), false));
-addEventListener("keydown", (event) => { if (immersive && event.key === "Escape") { event.preventDefault(); $("immersiveExit").click(); } });
+addEventListener("keydown", (event) => { if (immersive && event.key === "Escape" && !travelDoor?.element?.open) { event.preventDefault(); $("immersiveExit").click(); } });
 $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new URL(location.href); u.searchParams.set("lang", lang); history.replaceState(history.state, "", u); text(); };
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=93");
-    room = await start({ stage: $("stage"), bubble: $("robotBubble"), hitTarget: $("robotHitTarget"), lang, copy: () => COPY[lang] });
+    const { start } = await import("./bedroom.js?v=94");
+    room = await start({ stage: $("stage"), bubble: $("robotBubble"), hitTarget: $("robotHitTarget"), lang, copy: () => COPY[lang], onTravelChoice: () => travelDoor?.open(immersive ? $("immersiveDoor") : $("portalBtn")) });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook
     await room.setChoice("bedding", "clay"); // the oat duvet, terracotta throw and navy pillow are the first look (Paul 2026-10-24, from the shuffle)
     $("portalRow").hidden = false;
     $("immersiveEnter").hidden = false;
     if (arrivedFromRoom01 || arrivedFromHome) { mood = "golden"; moodButtons(); await room.setMood("golden"); } // coming through the door from the daytime living room, the visitor walks into the low golden sun (Paul 2026-10-24)
-    if (arrivedFromRoom01) { document.documentElement.classList.add("ready"); await room.arrive(); } // the dark cover lifts as the walk-in begins
+    if (arrivedFromRoom01 || arrivedFromRoom03) { document.documentElement.classList.add("ready"); await room.arrive(); } // Room 03 reuses the established door arrival; only Room 01 switches to golden hour
   } catch (e) {
     console.error(e);
     document.documentElement.classList.add("ready");
@@ -178,4 +183,4 @@ $("enter").onclick = async () => {
   }
 };
 text();
-if (arrivedFromRoom01 || returningFromRoom02) $("enter").click(); // portal arrivals continue straight into the room
+if (arrivedFromRoom01 || arrivedFromRoom03 || returningFromRoom02) $("enter").click(); // portal arrivals continue straight into the room
