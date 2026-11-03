@@ -489,11 +489,9 @@ function buildArchitecture(b, m, scene, onYardLoad) {
   }
   addBox(b, "shell", m.ceiling, [ROOM.width, 0.16, ROOM.depth], [0, 2.69, 0]);
 
-  // Three exposed timber beams run from the glass wall into the kitchen.
-  // The beam directly above the glass wall continues the ceiling's honey wood finish.
-  // Keep the two interior beams in their existing cream finish.
+  // Three exposed timber beams run from the glass wall into the kitchen; keep all three in the ceiling's honey wood finish.
   addBox(b, "structure", m.windowBeam, [0.16, 0.18, 4.72], [-2.05, 2.57, 0]);
-  for (const x of [0, 2.05]) addBox(b, "structure", m.beam, [0.16, 0.18, 4.72], [x, 2.57, 0]);
+  for (const x of [0, 2.05]) addBox(b, "structure", m.windowBeam, [0.16, 0.18, 4.72], [x, 2.57, 0]);
   addBox(b, "trim", m.oak, [ROOM.width, 0.09, 0.08], [0, 0.1, -2.31]);
   {
     // Skirting on the right wall stops at the door casing on both sides.
