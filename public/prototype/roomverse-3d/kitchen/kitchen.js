@@ -2976,6 +2976,10 @@ function buildLoungeOttoman(scene, m, chair) {
   return group;
 }
 
+// Burnt-orange sneaker-box board (Room 02 bookshelf palette #c4622d); created once, shared by both builds.
+let shoeboxOrangeMaterial = null;
+const shoeboxOrange = () => shoeboxOrangeMaterial || (shoeboxOrangeMaterial = new THREE.MeshStandardMaterial({ color: 0xc4622d, roughness: 0.75, name: "shoebox-burnt-orange" }));
+
 function buildPropGroup(scene, key, position, build) {
   const group = new THREE.Group();
   group.name = `prop-${key}`;
@@ -4493,7 +4497,7 @@ function buildHouseholdProps(scene, m) {
   scene.add(centerpieceSlot);
 
   // Three upright cookbooks on the existing cabinet top; one leans gently against its neighbor.
-  const cookbooks = buildPropGroup(scene, "cookbooks", [-1.52, 2.11, -2.16], ({ shape }) => {
+  const cookbooks = buildPropGroup(scene, "cookbooks", [-1.52, 2.11, -2.16], ({ box, shape }) => {
     const addBookPart = (material, size, center, pivotX, tilt) => {
       const geometry = new THREE.BoxGeometry(...size);
       geometry.translate(...center);
@@ -4514,13 +4518,21 @@ function buildHouseholdProps(scene, m) {
       addBookPart(m.porcelain, [width * 0.67, height - 0.012, 0.006], [x + width * 0.165, height / 2, depth / 2 + 0.004], x, tilt);
       addBookPart(cover, [width * 0.32, height, 0.008], [x - width * 0.34, height / 2, depth / 2 + 0.006], x, tilt);
     }
-    // Two lidded storage boxes touch the rightmost book and each other.
-    // Their broad, low bases sit flat on the cabinet and brace the book row.
-    for (const [index, x] of [0.28, 0.565].entries()) {
-      shape(new THREE.BoxGeometry(0.28, 0.18, 0.20), index === 0 ? m.porcelain : m.olive, [x, 0.090, 0]);
-      shape(new THREE.BoxGeometry(0.284, 0.018, 0.204), m.beam, [x, 0.189, 0]);
-      shape(new THREE.BoxGeometry(0.055, 0.025, 0.002), m.black, [x, 0.11, 0.1015]);
-      for (const dx of [-0.014, 0, 0.014]) shape(new THREE.BoxGeometry(0.003, 0.014, 0.001), m.porcelain, [x + dx, 0.11, 0.103]);
+    // Two sneaker-style shoeboxes, ported from Room 02's bookshelf-top boxes (bedroom.js "shelf-top-shoebox"):
+    // Paul 2026-11-04: one box was the exact cabinet olive and read fake. Now a burnt-orange box with a cream label
+    // and a cream box with a charcoal lid (Room 02 palette, neither close to the olive). Bevelled body, separate
+    // overhanging lid with a dark seam line, a blank side label block and a thumb notch. No logos or text.
+    const shoeboxPalette = [
+      { x: 0.28, body: shoeboxOrange(), lid: shoeboxOrange(), label: m.porcelain },
+      { x: 0.565, body: m.porcelain, lid: m.black, label: m.black },
+    ];
+    for (const { x, body, lid, label } of shoeboxPalette) {
+      box(body, [0.272, 0.160, 0.196], [x, 0.080, 0]);
+      box(lid, [0.282, 0.034, 0.206], [x, 0.160, 0]);
+      shape(new THREE.BoxGeometry(0.2735, 0.004, 0.1975), m.black, [x, 0.1415, 0]);
+      box(label, [0.080, 0.050, 0.003], [x + 0.07, 0.075, 0.0985]);
+      box(label, [0.003, 0.050, 0.060], [x - 0.1365, 0.075, 0]);
+      shape(new THREE.CylinderGeometry(0.014, 0.014, 0.0025, 14, 1, false, 0, Math.PI), m.black, [x, 0.150, 0.1035], [Math.PI / 2, 0, Math.PI / 2]);
     }
   });
   cookbooks.userData.bookCount = 3;
