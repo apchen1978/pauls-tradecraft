@@ -2943,7 +2943,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
   let cableCarImageGain = 1;
   // Swappable prints for the two frames (Paul 2026-10-29). Each option is fetched only when chosen, painted into the same atlas
   // region as the original and then released, so vertices, meshes and draw calls never change and nothing extra loads up front.
-  const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "fog-bridge" };
+  const choice = { "cable-car": "cable-car", "redwood-path": "oak-street", "lamp-wall": "fog-bridge" };
   const ART_OPTIONS = {
     "cable-car": {
       "cable-car": "./art/room03-bay-cable-car-v1.webp",
@@ -3055,7 +3055,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       const loader = new THREE.TextureLoader();
       const urls = {
         cableCar: new URL("./art/room03-bay-cable-car-v1.webp", import.meta.url).href,
-        redwoodPath: new URL("./art/room03-bay-redwood-path-v1.webp", import.meta.url).href,
+        redwoodPath: new URL(ART_OPTIONS["redwood-path"][choice["redwood-path"]], import.meta.url).href,
         lampWall: new URL("./art/room03-print-fog-bridge-v1.webp", import.meta.url).href,
       };
       for (const [name, asset] of Object.entries(assets)) {
