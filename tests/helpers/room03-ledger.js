@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 70063, meshes: 118 }),
+  scene: Object.freeze({ vertices: 70063, meshes: 119 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 80, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -56,6 +56,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-03", change: "two differently coloured takeaway coffee cups replace the tiny cup on the terracotta credenza (+581 vertices net, same merged decor mesh; no draw-call increase)", vertices: 68242, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "a 1,660-vertex unbranded San Francisco cable-car keepsake replaces the procedural potted plant on the terracotta credenza (+1,055 net vertices, same merged decor mesh; no draw-call increase)", vertices: 69297, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "paper-napkin pack beside the clay-red credenza is permanent across moods (+766 vertices, one mesh; dinner/Thanksgiving views include it)", vertices: 70063, meshes: 118, desktopCalls: 80, phoneCalls: 79 },
+    { date: "2026-11-03", change: "window-side beam matches the ceiling honey wood finish (+1 mesh; expected opening calls +1 desktop and phone)", vertices: 70063, meshes: 119, desktopCalls: 81, phoneCalls: 80 },
   ]),
 });
 
