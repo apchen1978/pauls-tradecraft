@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 99224, meshes: 129 }),
+  scene: Object.freeze({ vertices: 100520, meshes: 131 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 81, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -63,6 +63,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-04", change: "full bean hopper, sourdough, two credenza water bottles, wooden bowl, cabinet-top storage and two counter mugs (+4,095 vertices, +4 meshes, +1 opening draw call desktop and phone)", vertices: 94726, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
     { date: "2026-11-04", change: "cabinet-top shoeboxes ported from Room 02 (burnt-orange, cream with charcoal lid; bevelled, overhanging lids, seams, blank labels, thumb notches) act as the bookend for two packed upright books, the third book lies flat; credenza book row packed against the sculpture with an oak L bookend (+1,112 vertices; the orange board replaces the olive bucket, so meshes and draw calls are unchanged)", vertices: 95838, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
     { date: "2026-11-04", change: "wok-side rail made American-style: brushed stainless bar on S-hooks with walnut spoon, black slotted turner, balloon whisk, stainless ladle and locking tongs (hang holes); shelf has salt and pepper grinders plus four glass spice jars with black lids (+3,386 vertices, same merged mesh, no new mesh or draw call)", vertices: 99224, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
+    { date: "2026-11-04", change: "credenza water bottles rebuilt as unbranded Evian-style PET (grip ribs, long tapered shoulder, neck ring, fluted cap, shoulder-high water, blank label band) and set as a loose, turned pair at uneven spacing (+1,296 vertices; the white caps add one mesh per bottle, no opening draw-call change)", vertices: 100520, meshes: 131, desktopCalls: 81, phoneCalls: 79 },
   ]),
 });
 
