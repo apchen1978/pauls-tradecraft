@@ -486,7 +486,10 @@ function buildArchitecture(b, m, scene, onYardLoad) {
   addBox(b, "shell", m.ceiling, [ROOM.width, 0.16, ROOM.depth], [0, 2.69, 0]);
 
   // Three exposed timber beams run from the glass wall into the kitchen.
-  for (const x of [-2.05, 0, 2.05]) addBox(b, "structure", m.beam, [0.16, 0.18, 4.72], [x, 2.57, 0]);
+  // The beam directly above the glass wall continues the ceiling's honey wood finish.
+  // Keep the two interior beams in their existing cream finish.
+  addBox(b, "structure", m.ceiling, [0.16, 0.18, 4.72], [-2.05, 2.57, 0]);
+  for (const x of [0, 2.05]) addBox(b, "structure", m.beam, [0.16, 0.18, 4.72], [x, 2.57, 0]);
   addBox(b, "trim", m.oak, [ROOM.width, 0.09, 0.08], [0, 0.1, -2.31]);
   {
     // Skirting on the right wall stops at the door casing on both sides.
@@ -2988,9 +2991,10 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     const width = (asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width;
     const y = asset.key !== "cable-car" ? 8 : 0;
     const height = asset.key !== "cable-car" ? 600 : atlasCanvas.height;
-    // A cream mat (passe-partout) around the picture, painted into the texture: it is what makes a painting read as a hung, framed object
-    // instead of a bright hole in the wall like the window beside it (Paul 2026-10-29). No geometry, no draw call.
-    const mat = Math.round(width * 0.07);
+    // Keep a narrow cream mat on the entry-hall print so the artwork reads larger from the new nook view.
+    // The other frames keep their original 7% mat; this is atlas paint only, with no geometry or draw-call cost.
+    const matRatio = asset.key === "redwood-path" ? 0.04 : 0.07;
+    const mat = Math.round(width * matRatio);
     const sw0 = source.naturalWidth || source.width, sh0 = source.naturalHeight || source.height;
     const innerWidth = width - 2 * mat, innerHeight = height - 2 * mat;
     const scale = Math.max(innerWidth / sw0, innerHeight / sh0);
@@ -3004,7 +3008,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       atlasContext.scale(-1, 1);
     }
     const left = asset.atlasRect.flip ? 0 : x;
-    atlasContext.fillStyle = "#eee5d2";
+    atlasContext.fillStyle = asset.key === "redwood-path" ? "#e5dac9" : "#eee5d2";
     atlasContext.fillRect(left, y, width, height);
     atlasContext.drawImage(source, sx, sy, sw, sh, left + mat, y + mat, innerWidth, innerHeight);
     if (asset.key === "cable-car" && cableCarImageGain < 1) {
@@ -3024,7 +3028,8 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     // A coarse 10 x 8 grid of single pixels: enough to tell two pictures apart without reading the whole region on every info() call.
     // Sampled inside the cream mat, so the reading is the picture itself.
     const regionX = Math.round(asset.atlasRect.u0 * atlasCanvas.width), regionWidth = Math.round((asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width);
-    const mat = Math.round(regionWidth * 0.07);
+    const matRatio = asset.key === "redwood-path" ? 0.04 : 0.07;
+    const mat = Math.round(regionWidth * matRatio);
     const y0 = (asset.key !== "cable-car" ? 8 : 0) + mat, height = (asset.key !== "cable-car" ? 600 : atlasCanvas.height) - 2 * mat;
     const x0 = regionX + mat, width = regionWidth - 2 * mat;
     let r = 0, g = 0, b = 0, n = 0;
