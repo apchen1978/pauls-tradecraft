@@ -164,6 +164,33 @@ function makeFloorTexture(seed, strength = 0.23) {
   return texture;
 }
 
+function makeTerrazzoTexture() {
+  return makeTexture((ctx, w, h) => {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+    let state = 231;
+    const rand = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+    const chips = ["rgba(117,105,87,.15)", "rgba(161,145,119,.13)", "rgba(104,119,111,.10)", "rgba(255,255,255,.20)"];
+    for (let i = 0; i < 170; i++) {
+      const x = rand() * w, y = rand() * h, size = 1 + rand() * 2.4;
+      ctx.fillStyle = chips[Math.floor(rand() * chips.length)];
+      ctx.beginPath(); ctx.ellipse(x, y, size * (0.7 + rand() * 0.65), size * (0.55 + rand() * 0.55), rand() * Math.PI, 0, Math.PI * 2); ctx.fill();
+    }
+  });
+}
+
+function makeCorkFloorTexture() {
+  return makeTexture((ctx, w, h) => {
+    ctx.fillStyle = "#f5e4c7"; ctx.fillRect(0, 0, w, h);
+    let state = 119;
+    const rand = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+    for (let i = 0; i < 1900; i++) {
+      const x = rand() * w, y = rand() * h, r = 0.35 + rand() * 1.1;
+      ctx.fillStyle = rand() > .52 ? "rgba(123,91,53,.13)" : "rgba(255,255,255,.22)";
+      ctx.beginPath(); ctx.ellipse(x, y, r * (0.7 + rand()), r, rand() * Math.PI, 0, Math.PI * 2); ctx.fill();
+    }
+  });
+}
+
 function makeWoodTexture(planks = false, alongDepth = false) {
   return makeTexture((ctx, w, h) => {
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
@@ -245,11 +272,23 @@ function makeSkyTexture(night, day = false) {
   }, 8, 256);
 }
 
-function makeRugTexture() {
+function makeRugTexture(style = "jute") {
   const texture = makeTexture((ctx, w, h) => {
-    ctx.fillStyle = "#e7dcc2"; ctx.fillRect(0, 0, w, h);
+    const bases = { jute: "#e7dcc2", stripe: "#d9d1c3", geometric: "#e4d9c8" };
+    ctx.fillStyle = bases[style] || bases.jute; ctx.fillRect(0, 0, w, h);
     let state = 37;
     const rand = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+    if (style === "stripe") {
+      for (let y = 22; y < h; y += 58) {
+        ctx.fillStyle = "rgba(100,111,93,.14)"; ctx.fillRect(0, y, w, 12);
+        ctx.fillStyle = "rgba(255,255,255,.16)"; ctx.fillRect(0, y + 13, w, 2);
+      }
+    } else if (style === "geometric") {
+      ctx.fillStyle = "rgba(157,111,77,.12)";
+      for (let y = 28; y < h; y += 76) for (let x = 28 + ((Math.floor(y / 76) % 2) * 38); x < w; x += 76) {
+        ctx.beginPath(); ctx.moveTo(x, y - 12); ctx.lineTo(x + 12, y); ctx.lineTo(x, y + 12); ctx.lineTo(x - 12, y); ctx.closePath(); ctx.fill();
+      }
+    }
     ctx.save(); ctx.beginPath(); ctx.rect(5, 5, w - 10, h - 10); ctx.clip();
     // Broken bundles, random spacing and short cross-fibres; no full-length cross grid.
     for (let i = 0; i < 170; i++) {
@@ -312,7 +351,7 @@ function makeMaterials() {
   const throwWeave = boucle.clone();
   throwWeave.repeat.set(1.35, 2.1);
   return {
-    floor: std(0xcdbb9e, 0.42, { map: makeFloorTexture(31, 0.23), metalness: 0.025 }),
+    floor: std(0xcdbb9e, 0.88, { map: makeTerrazzoTexture(), metalness: 0.01 }),
     wall: std(0xd0deea, 0.94, { map: makePlasterTexture() }),
     wokWall: std(0x907258, 0.9, { map: makeFineNoise(47, 0.025) }),
     wokSteel: std(0xbfc3c0, 0.34, { metalness: 0.22, emissive: 0x2e1e0e, emissiveIntensity: 0.45 }),
@@ -324,7 +363,7 @@ function makeMaterials() {
     stone: std(COLORS.stone, 0.45, { map: makeFineNoise(23, 0.025) }),
     black: std(COLORS.black, 0.44), steel: std(COLORS.steel, 0.38),
     hoodSteel: std(0xc4c9ca, 0.5, { map: makeBrushedMetalTexture(), metalness: 0.2 }),
-    jute: std(COLORS.jute, 0.96, { map: makeRugTexture() }), seat: std(0xb8a17e, 0.98, { map: makeSeatTexture() }),
+    jute: std(COLORS.jute, 0.96, { map: makeRugTexture("jute") }), seat: std(0xb8a17e, 0.98, { map: makeSeatTexture() }),
     loungeFabric: std(0xe4d5bd, 0.98, { map: boucle }),
     // Deeper sage and a warmer camel, only on this chair's loose cushions, so the pillow reads as cotton and the throw as linen.
     loungePillow: std(0x7f946c, 0.94, { map: pillowWeave, side: THREE.DoubleSide }),
@@ -5687,6 +5726,41 @@ export async function start({ stage, onReady = () => {} }) {
   canvas.addEventListener('pointercancel', centerPointerEnd);
   canvas.addEventListener('keydown', centerKey);
   const materials = makeMaterials();
+  const WALL_FINISHES = Object.freeze({ mist: 0xd0deea, cream: 0xe6ddcc, sage: 0xcbd2c0, oat: 0xd9cbb6 });
+  const FLOOR_FINISHES = Object.freeze({
+    terrazzo: { make: makeTerrazzoTexture, tint: 0xffffff },
+    cork: { make: makeCorkFloorTexture, tint: 0xfff4df },
+    concrete: { make: () => makeFloorTexture(31, 0.18), tint: 0xf0f1ef },
+  });
+  const RUG_FINISHES = Object.freeze({ jute: "jute", stripe: "stripe", geometric: "geometric" });
+  const surfaceFinish = { wall: "mist", floor: "terrazzo", rug: "jute" };
+  function applySurfaceFinish() {
+    const look = MOOD_LOOK[currentMood];
+    materials.wall.color.setHex(WALL_FINISHES[surfaceFinish.wall]);
+    materials.floor.color.setHex(look.floor).multiply(new THREE.Color(FLOOR_FINISHES[surfaceFinish.floor].tint));
+    materials.jute.color.setHex(look.jute);
+  }
+  function setSurfaceFinish(next = {}) {
+    const wall = next.wall ?? surfaceFinish.wall;
+    const floor = next.floor ?? surfaceFinish.floor;
+    const rug = next.rug ?? surfaceFinish.rug;
+    if (!(wall in WALL_FINISHES) || !(floor in FLOOR_FINISHES) || !(rug in RUG_FINISHES)) return false;
+    if (floor !== surfaceFinish.floor) {
+      const previous = materials.floor.map;
+      materials.floor.map = FLOOR_FINISHES[floor].make();
+      previous?.dispose();
+      materials.floor.needsUpdate = true;
+    }
+    if (rug !== surfaceFinish.rug) {
+      const previous = materials.jute.map;
+      materials.jute.map = makeRugTexture(RUG_FINISHES[rug]);
+      previous?.dispose();
+      materials.jute.needsUpdate = true;
+    }
+    Object.assign(surfaceFinish, { wall, floor, rug });
+    applySurfaceFinish(); render();
+    return { ...surfaceFinish };
+  }
   const buckets = new Map();
   let yardLoaded = false;
   let wallArtLoaded = false;
@@ -6180,11 +6254,10 @@ export async function start({ stage, onReady = () => {} }) {
         if (material?.name === "warm-opal-glass") material.emissiveIntensity = look.globe;
       }
     });
-    materials.floor.color.setHex(look.floor);
+    applySurfaceFinish();
     materials.ceiling.color.setHex(look.ceilingColor); materials.ceiling.emissive.setHex(look.ceilingEmissiveColor);
     materials.beam.color.setHex(look.beamColor);
     tintDiningTable(look.tableTint);
-    materials.jute.color.setHex(look.jute);
     materials.ceiling.emissiveIntensity = look.ceilingEmissive;
     materials.warmGlow.opacity = look.warmGlow;
     materials.wokGlow.opacity = look.wokGlow;
@@ -6875,6 +6948,7 @@ export async function start({ stage, onReady = () => {} }) {
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
     robotInfo: () => robot.ready ? (() => { const b = new THREE.Box3().setFromObject(robot.pivot); return { ready: true, heightMm: Number(((b.max.y - b.min.y) * 1000).toFixed(1)), floorGapMm: Number((b.min.y * 1000).toFixed(1)), centre: [Number(((b.min.x + b.max.x) / 2).toFixed(3)), Number(((b.min.z + b.max.z) / 2).toFixed(3))], belt: "#e3b23c" }; })() : { ready: false },
     wallpaperOptions: () => [...grasscloth.options],
+    setSurfaceFinish, surfaceFinishInfo: () => ({ ...surfaceFinish }),
     setWallpaper: (name) => { const done = grasscloth.set(name); render(); return done; },
     yardViews: () => ["auto", ...Object.keys(YARD_VIEWS)],
     setYardView: (name, onDone = () => {}) => {
