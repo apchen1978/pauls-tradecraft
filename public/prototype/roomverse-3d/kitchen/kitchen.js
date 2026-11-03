@@ -4257,14 +4257,27 @@ function buildHouseholdProps(scene, m) {
   });
   // Two unbranded 1.5 L-style mineral water bottles beside the takeaway cups.
   // Approx. 90 mm wide and 310 mm tall, with water below the shoulders.
-  const waterBottles = [-0.09, 0.12].map((z, index) => {
-    const bottleGroup = buildPropGroup(scene, "mineral-water-bottle-" + (index + 1), [2.55, 0.814, z], ({ shape }) => {
-      const bottle = [[0,0],[0.040,0],[0.045,0.010],[0.045,0.232],[0.041,0.260],[0.021,0.280],[0.018,0.293],[0.018,0.300],[0,0.300]]
+  // Paul 2026-11-04: more real, Evian-style PET bottles (no brand text): a slim body with soft grip ribs, a long tapered shoulder, a neck ring
+  // and a ridged cap; water fills to the shoulder and a blank label band wraps the middle. Placed as a loose pair, not a row: one a little
+  // forward and turned, one set back, at uneven spacing.
+  const bottleSpots = [[2.536, -0.118, 0.4], [2.552, 0.014, -0.7]];
+  const waterBottles = bottleSpots.map(([bx, z, yaw], index) => {
+    const bottleGroup = buildPropGroup(scene, "mineral-water-bottle-" + (index + 1), [bx, 0.814, z], ({ shape }) => {
+      const profile = [[0, 0.001], [0.030, 0.001], [0.038, 0.004], [0.0415, 0.012], [0.042, 0.030], [0.0395, 0.040], [0.042, 0.050], [0.042, 0.150], [0.0395, 0.160], [0.042, 0.170],
+        [0.042, 0.196], [0.039, 0.214], [0.031, 0.236], [0.022, 0.256], [0.0165, 0.272], [0.0155, 0.280], [0.018, 0.283], [0.018, 0.286], [0.0155, 0.288], [0, 0.288]]
         .map(([radius, y]) => new THREE.Vector2(radius, y));
-      shape(new THREE.LatheGeometry(bottle, 20), m.waterBottleGlass);
-      shape(new THREE.CylinderGeometry(0.039, 0.039, 0.210, 20), m.waterClear, [0, 0.115, 0]);
-      shape(new THREE.CylinderGeometry(0.0455, 0.0455, 0.044, 20, 1, true), m.waterLabel, [0, 0.115, 0]);
-      shape(new THREE.CylinderGeometry(0.020, 0.020, 0.014, 16), m.waterLabel, [0, 0.306, 0]);
+      shape(new THREE.LatheGeometry(profile, 28), m.waterBottleGlass, [0, 0, 0], [0, yaw, 0]);
+      const fill = [[0, 0.004], [0.039, 0.006], [0.039, 0.194], [0.036, 0.212], [0, 0.212]].map(([radius, y]) => new THREE.Vector2(radius, y));
+      shape(new THREE.LatheGeometry(fill, 24), m.waterClear);
+      shape(new THREE.CylinderGeometry(0.0425, 0.0425, 0.062, 28, 1, true), m.waterLabel, [0, 0.105, 0], [0, yaw, 0]);
+      // Ridged screw cap: 28 flutes on the side.
+      const cap = new THREE.CylinderGeometry(0.0175, 0.0175, 0.022, 56, 1);
+      const cp = cap.attributes.position;
+      for (let i = 0; i < cp.count; i++) {
+        const x = cp.getX(i), zz = cp.getZ(i), r = Math.hypot(x, zz);
+        if (r > 0.017) { const k = (Math.round(Math.atan2(zz, x) / (Math.PI / 28)) % 2 ? 0.93 : 1); cp.setX(i, x * k); cp.setZ(i, zz * k); }
+      }
+      shape(cap, m.porcelain, [0, 0.299, 0]);
     });
     return bottleGroup;
   });
