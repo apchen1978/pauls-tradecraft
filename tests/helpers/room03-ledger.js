@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 70063, meshes: 119 }),
+  scene: Object.freeze({ vertices: 70539, meshes: 117 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 81, phone: 80 }),
+  openingDrawCalls: Object.freeze({ desktop: 77, phone: 76 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 81, golden: 81, movie: 79, night: 81, dinner: 88, sunday: 81, thanksgiving: 91 }),
-    phone: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 87, sunday: 80, thanksgiving: 90 }),
+    desktop: Object.freeze({ daylight: 77, golden: 77, movie: 75, night: 77, dinner: 84, sunday: 77, thanksgiving: 87 }),
+    phone: Object.freeze({ daylight: 76, golden: 76, movie: 74, night: 76, dinner: 83, sunday: 76, thanksgiving: 86 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -57,6 +57,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-03", change: "a 1,660-vertex unbranded San Francisco cable-car keepsake replaces the procedural potted plant on the terracotta credenza (+1,055 net vertices, same merged decor mesh; no draw-call increase)", vertices: 69297, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "paper-napkin pack beside the clay-red credenza is permanent across moods (+766 vertices, one mesh; dinner/Thanksgiving views include it)", vertices: 70063, meshes: 118, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "window-side beam matches the ceiling honey wood finish (+1 mesh and +1 visible draw call; art mat change is texture-only)", vertices: 70063, meshes: 119, desktopCalls: 81, phoneCalls: 80 },
+    { date: "2026-11-04", change: "wok station detail pass: one 75%-scale solid wall board, four smaller everyday utensils and four seasoning jars; retail-style olive oil moved beside the permanent napkin pack (+476 vertices, net -2 meshes, opening draw calls -4 desktop / -3 phone)", vertices: 70539, meshes: 117, desktopCalls: 77, phoneCalls: 76 },
   ]),
 });
 

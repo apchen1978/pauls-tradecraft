@@ -2,9 +2,9 @@ import { test, expect } from "@playwright/test";
 import { LEDGER, CAPS, budgetFor } from "./helpers/room03-ledger.js";
 import { mkdirSync, statSync } from "node:fs";
 
-// Whole-room vertex cap. 55,000 until 2026-10-31; the lemon-tree leaves and the credenza styling brought the room to 55,331 with 76 of 130 draw calls,
-// so it was raised to 58,000, then 64,000 (Paul: budgets are QA tools; measure FPS, draw calls and memory before cutting visual detail).
-const ROOM_VERTEX_CAP = 70000; // 64,000 -> 70,000 on 2026-10-31 (entry nook decor: rug, throw, basket, slippers, pampas, downlights; 67,165 measured, still light for a phone). Earlier: 55,000 -> 58,000 on 2026-10-31 (leaves, credenza), -> 64,000 later that day (counter food, tool rack): 58,195 vertices and 79 of 130 draw calls measured, still light for a phone.
+// Whole-room exact measured vertex ceiling follows the single Room 03 ledger.
+// Old cap 70,000 -> measured 70,539 (+476) for this approved detail pass; no headroom was added here.
+const ROOM_VERTEX_CAP = LEDGER.scene.vertices;
 // Default desktop camera. 2026-10-31: pulled 0.2 m back along the same line of sight (was [0.22, 1.64, 1.52]) so the table front and the front chairs are not cropped.
 const DESKTOP_CAMERA = [0.242141, 1.658234, 1.711458];
 
@@ -679,9 +679,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(householdArt.wallArtPixels.width).toBeGreaterThan(52);
     expect(householdArt.wallArtPixels.height).toBeGreaterThanOrEqual(130);
     console.log("Room 03 wall art placement:", JSON.stringify({ bounds: info.wallArtBounds, wokRunGap: info.wokZone.clearance.cableCar, hoodGap: boxesDistance(info.wallArtBounds, info.wallArtClearanceBounds.hood), desktopProjectionCssPx: info.wallArtPixels, desktopWidthTargetMet: info.wallArtPixels.width >= 90, material: info.wallArtMaterial, receivesShadow: info.wallArtReceivesShadow, camera: info.camera, vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }));
-    const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "oil-and-salt", "oak-utensil-crock", "glass-pantry-jar"];
-    // Old: 10 measured prop groups; new: console living set, side table and lemon tree add 3.
-    expect(Object.keys(propBounds)).toHaveLength(13);
+    const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "counter-seasoning", "oak-utensil-crock", "glass-pantry-jar"];
+    // Old 13 -> new 14: one separate, unbranded olive-oil bottle now sits by the always-visible paper napkins.
+    expect(Object.keys(propBounds)).toHaveLength(14);
     for (const key of Object.keys(propBounds)) expect(propBounds[key], `${key} should be present`).not.toBeNull();
     for (const key of counterProps) {
       const difference = Math.abs(propBounds[key].min[1] - 0.955);
@@ -737,7 +737,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
     expect(info.propGeometry["drip-coffee-maker"].meshes).toBe(4); // Old -> new: same four material batches; shaped carafe and nozzle details are baked into existing glass/black batches.
     expect(info.propGeometry["rice-cooker"].meshes).toBe(4); // Old -> new: same four material batches; curved shell, lid seam and side handles add no mesh.
-    expect(propBounds["cutting-board"].size[1]).toBeGreaterThan(propBounds["cutting-board"].size[2] * 4);
+    // Old island board 340×420 mm -> new wall-side board 255×315 mm (75%); tall edge rests on the wok backsplash.
+    expect(propBounds["cutting-board"].size[1]).toBeGreaterThan(propBounds["cutting-board"].size[2]);
     expect(propBounds["tabletop-succulents"]).toBeUndefined(); // Old: three rosettes and a long trough; new: one Meyer lemon bowl.
     expect(propBounds["tabletop-meyer-lemon-bowl"].size[0]).toBeCloseTo(0.26, 2); // Old width 0.728 m -> bowl diameter 0.26 m.
     expect(propBounds["tabletop-meyer-lemon-bowl"].size[2]).toBeCloseTo(0.26, 2); // Old depth 0.247 m -> round bowl depth 0.26 m.
