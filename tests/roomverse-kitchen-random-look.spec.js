@@ -76,3 +76,14 @@ test("entry nook wall follows the selected room palette with three alternatives 
   await page.evaluate(() => window.__room03.setSurfaceFinish({ wall: "mist" }));
   expect(await page.evaluate(() => window.__room03.entryHallWallColor())).toBe(base.nook);
 });
+
+test("the random look can land back on the oak plank floor", async ({ page }) => {
+  await loadRoom(page, 1440);
+  const floors = new Set();
+  for (let i = 0; i < 30 && !(floors.has("oak") && floors.size > 1); i++) {
+    await page.locator("#randomLook").click();
+    floors.add((await page.evaluate(() => window.__room03.surfaceFinishInfo())).floor);
+  }
+  expect([...floors], "oak is in the random floor pool").toContain("oak");
+  expect(floors.size, "other floors still appear too").toBeGreaterThan(1);
+});

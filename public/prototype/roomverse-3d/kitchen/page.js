@@ -1,5 +1,5 @@
 import { initTravelDoor } from "../travel-door.js?v=3";
-import { start, ROOM_TITLE } from "./kitchen.js?v=127";
+import { start, ROOM_TITLE } from "./kitchen.js?v=128";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -73,6 +73,8 @@ function otherRoomsUrl() {
 const artChoice = { "cable-car": "cable-car", "redwood-path": "oak-street", "lamp-wall": "fog-bridge", yard: "auto", wallpaper: "grasscloth-oat" };
 const surfaceChoice = { wall: "mist", floor: "oak", rug: "blue-stripe" };
 const LOOK_PACKS = [
+  // Paul 2026-11-04: the shuffle must be able to land back on the oak plank floor.
+  { key: "oak-home", zh: "橡木暖家", en: "Oak home", wall: "oat", floor: "oak", rug: "stripe", wallpaper: "grasscloth-oat", art: { "cable-car": "cable-car", "redwood-path": "oak-street", "lamp-wall": "fog-bridge" } },
   { key: "coastal-oat", zh: "海岸燕麥", en: "Coastal oat", wall: "cream", floor: "terrazzo", rug: "jute", wallpaper: "grasscloth-oat", art: { "cable-car": "fog-bridge", "redwood-path": "redwood-path", "lamp-wall": "ferry-building" } },
   { key: "sage-garden", zh: "鼠尾草庭院", en: "Sage garden", wall: "sage", floor: "cork", rug: "stripe", wallpaper: "grasscloth-sage", art: { "cable-car": "marin-hills", "redwood-path": "oak-street", "lamp-wall": "hills-sun" } },
   { key: "fog-blue", zh: "霧藍海灣", en: "Fog-blue bay", wall: "mist", floor: "concrete", rug: "geometric", wallpaper: "none", art: { "cable-car": "cable-car", "redwood-path": "ferry-building", "lamp-wall": "moon-hills" } },
