@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 
-test("a clay-red credenza fills the wall under the cable-car painting, lined up with the wok run, with air above it", async ({ page }) => {
+test("a walnut credenza fills the wall under the cable-car painting, lined up with the wok run, with air above it", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`${PAGE}?lang=zh`);
   await page.waitForFunction(() => window.__room03?.info && window.__room03.info().drawCallsLastFrame > 0);
@@ -21,5 +21,8 @@ test("a clay-red credenza fills the wall under the cable-car painting, lined up 
   const air = (info.wallArtBounds.min[1] - c.heightMm / 1000) * 1000;
   expect(air, "at least 20 cm of wall between the top and the painting").toBeGreaterThanOrEqual(200);
   expect(c.doors).toBe(4);
-  expect(c.color, "muted clay red, a second cabinet colour beside the olive").toBe("#9c5b45");
+  expect(c.color, "warm walnut credenza body, related to the timber ceiling").toBe("#76543b");
+  expect(c.doorColor, "slightly lighter walnut slab fronts").toBe("#886344");
+  expect(c.hardware, "integrated dark finger grooves keep the fronts visually quiet").toBe("integrated-dark-finger-groove");
+  expect(c.meshes, "cabinet remains one merged mesh").toBe(1);
 });
