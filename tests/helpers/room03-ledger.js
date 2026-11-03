@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 94726, meshes: 129 }),
+  scene: Object.freeze({ vertices: 95838, meshes: 129 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 81, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -61,6 +61,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-04", change: "botanical four-finger oven mitts, utensils scaled against the 244 mm oil bottle, and stainless sink basin floor (+1,781 vertices, +2 meshes; desktop +1 draw call, phone unchanged)", vertices: 84620, meshes: 123, desktopCalls: 78, phoneCalls: 76 },
     { date: "2026-11-04", change: "nook wall palettes; coffee bean hopper and carafe; oval bread; stainless sink with cabinet opening and high-arc faucet (+6,011 vertices, +2 meshes, +2 opening draw calls desktop and phone)", vertices: 90631, meshes: 125, desktopCalls: 80, phoneCalls: 78 },
     { date: "2026-11-04", change: "full bean hopper, sourdough, two credenza water bottles, wooden bowl, cabinet-top storage and two counter mugs (+4,095 vertices, +4 meshes, +1 opening draw call desktop and phone)", vertices: 94726, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
+    { date: "2026-11-04", change: "cabinet-top shoeboxes ported from Room 02 (burnt-orange, cream with charcoal lid; bevelled, overhanging lids, seams, blank labels, thumb notches) act as the bookend for two packed upright books, the third book lies flat; credenza book row packed against the sculpture with an oak L bookend (+1,112 vertices; the orange board replaces the olive bucket, so meshes and draw calls are unchanged)", vertices: 95838, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
   ]),
 });
 
