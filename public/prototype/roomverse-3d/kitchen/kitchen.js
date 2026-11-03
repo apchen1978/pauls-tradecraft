@@ -361,6 +361,12 @@ function makeBoucleTexture() {
 function makeMaterials() {
   const std = (color, roughness = 0.8, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   const boucle = makeBoucleTexture();
+  const ceiling = std(COLORS.ceiling, 0.86, { map: makeWoodTexture(true, true), emissive: 0x9b6938, emissiveIntensity: 0.34 });
+  // The window-head beam's underside reads too pale under the same ceiling material.
+  // Keep the same wood grain and mood hue, but lower its reflected/emissive value slightly.
+  const windowBeam = ceiling.clone();
+  windowBeam.color.multiplyScalar(0.82);
+  windowBeam.emissiveIntensity *= 0.55;
   const pillowWeave = boucle.clone();
   pillowWeave.repeat.set(1.7, 1.35);
   const throwWeave = boucle.clone();
@@ -371,7 +377,8 @@ function makeMaterials() {
     wokWall: std(0x907258, 0.9, { map: makeFineNoise(47, 0.025) }),
     wokSteel: std(0xbfc3c0, 0.34, { metalness: 0.22, emissive: 0x2e1e0e, emissiveIntensity: 0.45 }),
     wokIron: std(0x343733, 0.42, { metalness: 0.08, emissive: 0x16120e, emissiveIntensity: 0.18 }),
-    ceiling: std(COLORS.ceiling, 0.86, { map: makeWoodTexture(true, true), emissive: 0x9b6938, emissiveIntensity: 0.34 }),
+    ceiling,
+    windowBeam,
     oak: std(COLORS.oak, 0.76, { map: makeWoodTexture(false) }),
     beam: std(COLORS.beam, 0.79, { map: makeWoodTexture(false) }),
     olive: std(COLORS.olive, 0.88, { map: makeCabinetTexture() }),
@@ -488,7 +495,7 @@ function buildArchitecture(b, m, scene, onYardLoad) {
   // Three exposed timber beams run from the glass wall into the kitchen.
   // The beam directly above the glass wall continues the ceiling's honey wood finish.
   // Keep the two interior beams in their existing cream finish.
-  addBox(b, "structure", m.ceiling, [0.16, 0.18, 4.72], [-2.05, 2.57, 0]);
+  addBox(b, "structure", m.windowBeam, [0.16, 0.18, 4.72], [-2.05, 2.57, 0]);
   for (const x of [0, 2.05]) addBox(b, "structure", m.beam, [0.16, 0.18, 4.72], [x, 2.57, 0]);
   addBox(b, "trim", m.oak, [ROOM.width, 0.09, 0.08], [0, 0.1, -2.31]);
   {
@@ -6276,9 +6283,11 @@ export async function start({ stage, onReady = () => {} }) {
     });
     applySurfaceFinish();
     materials.ceiling.color.setHex(look.ceilingColor); materials.ceiling.emissive.setHex(look.ceilingEmissiveColor);
+    materials.windowBeam.color.setHex(look.ceilingColor).multiplyScalar(0.82); materials.windowBeam.emissive.setHex(look.ceilingEmissiveColor);
     materials.beam.color.setHex(look.beamColor);
     tintDiningTable(look.tableTint);
     materials.ceiling.emissiveIntensity = look.ceilingEmissive;
+    materials.windowBeam.emissiveIntensity = look.ceilingEmissive * 0.55;
     materials.warmGlow.opacity = look.warmGlow;
     materials.wokGlow.opacity = look.wokGlow;
     materials.sunlight.opacity = look.sunlightOpacity;
