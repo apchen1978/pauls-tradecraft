@@ -3848,8 +3848,11 @@ function buildRoom03CredenzaDecor(scene) {
   }
   // Row of five upright books with a wooden sculpture at the end (z about 0.12).
   const row = [[0.04, 0.27, CLAY], [0.036, 0.235, BLUE], [0.045, 0.30, MOSS], [0.038, 0.25, CREAM], [0.04, 0.215, CLAY]];
-  let rowZ = -0.02;
-  for (const [thick, tall, cover] of row) { book(0.18, tall, thick, cover, [X, TOP_Y, rowZ + thick / 2], 0, 0); rowZ += thick + 0.002; }
+  // Paul 2026-11-04: packed tight (0.5 mm) so the last book rests on the sculpture plinth, with an oak L bookend holding the open end.
+  let rowZ = 0.185 - 0.201;
+  add(new THREE.BoxGeometry(0.10, 0.14, 0.012), OAK, [X, TOP_Y + 0.07, rowZ - 0.0065]);
+  add(new THREE.BoxGeometry(0.10, 0.004, 0.06), OAK, [X, TOP_Y + 0.002, rowZ - 0.0125 - 0.03]);
+  for (const [thick, tall, cover] of row) { book(0.18, tall, thick, cover, [X, TOP_Y, rowZ + thick / 2], 0, 0); rowZ += thick + 0.0005; }
   add(new THREE.BoxGeometry(0.1, 0.022, 0.07), OAK, [X, TOP_Y + 0.011, 0.22]);
   add(new THREE.BoxGeometry(0.065, 0.075, 0.05), OAK, [X, TOP_Y + 0.0595, 0.22]);
   add(new THREE.BoxGeometry(0.045, 0.075, 0.04), CLAY, [X + 0.009, TOP_Y + 0.134, 0.222]);
@@ -4506,10 +4509,11 @@ function buildHouseholdProps(scene, m) {
       geometry.translate(pivotX, 0, 0);
       shape(geometry, material);
     };
+    // Paul 2026-11-04: the upright books stood free with nothing holding them. Now the two upright books are packed tight against the
+    // orange shoebox, which acts as the bookend, and the third book lies flat on its cover beside them.
     const books = [
-      { x: -0.09, width: 0.082, height: 0.24, depth: 0.15, cover: m.olive, tilt: -0.11 },
-      { x: 0, width: 0.088, height: 0.285, depth: 0.16, cover: m.beam, tilt: 0 },
-      { x: 0.096, width: 0.084, height: 0.325, depth: 0.15, cover: m.black, tilt: 0 },
+      { x: 0.019, width: 0.088, height: 0.285, depth: 0.16, cover: m.beam, tilt: 0 },
+      { x: 0.1025, width: 0.079, height: 0.325, depth: 0.15, cover: m.black, tilt: 0 },
     ];
     for (const book of books) {
       const { x, width, height, depth, cover, tilt } = book;
@@ -4518,6 +4522,11 @@ function buildHouseholdProps(scene, m) {
       addBookPart(m.porcelain, [width * 0.67, height - 0.012, 0.006], [x + width * 0.165, height / 2, depth / 2 + 0.004], x, tilt);
       addBookPart(cover, [width * 0.32, height, 0.008], [x - width * 0.34, height / 2, depth / 2 + 0.006], x, tilt);
     }
+    // Lying charcoal-cloth book (240 x 150 x 60 mm), spine to the room, its left edge 4 mm clear of the upright row.
+    const flatX = 0.019 - 0.044 - 0.004 - 0.12;
+    addBookPart(m.black, [0.24, 0.06, 0.15], [flatX, 0.03, 0], flatX, 0);
+    addBookPart(m.porcelain, [0.228, 0.046, 0.146], [flatX + 0.004, 0.03, -0.006], flatX, 0);
+    addBookPart(m.black, [0.24, 0.06 * 0.32, 0.008], [flatX, 0.03, 0.079], flatX, 0);
     // Two sneaker-style shoeboxes, ported from Room 02's bookshelf-top boxes (bedroom.js "shelf-top-shoebox"):
     // Paul 2026-11-04: one box was the exact cabinet olive and read fake. Now a burnt-orange box with a cream label
     // and a cream box with a charcoal lid (Room 02 palette, neither close to the olive). Bevelled body, separate
@@ -4535,7 +4544,7 @@ function buildHouseholdProps(scene, m) {
       shape(new THREE.CylinderGeometry(0.014, 0.014, 0.0025, 14, 1, false, 0, Math.PI), m.black, [x, 0.150, 0.1035], [Math.PI / 2, 0, Math.PI / 2]);
     }
   });
-  cookbooks.userData.bookCount = 3;
+  cookbooks.userData.bookCount = 3; // two upright against the shoebox bookend, one lying flat
   cookbooks.userData.storageBoxCount = 2;
 }
 

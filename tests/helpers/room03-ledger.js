@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 95814, meshes: 130 }),
+  scene: Object.freeze({ vertices: 95838, meshes: 129 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 82, phone: 80 }),
+  openingDrawCalls: Object.freeze({ desktop: 81, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 82, golden: 82, movie: 80, night: 82, dinner: 89, sunday: 82, thanksgiving: 92 }),
-    phone: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 87, sunday: 80, thanksgiving: 90 }),
+    desktop: Object.freeze({ daylight: 81, golden: 81, movie: 79, night: 81, dinner: 88, sunday: 81, thanksgiving: 91 }),
+    phone: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 86, sunday: 79, thanksgiving: 89 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -61,7 +61,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-04", change: "botanical four-finger oven mitts, utensils scaled against the 244 mm oil bottle, and stainless sink basin floor (+1,781 vertices, +2 meshes; desktop +1 draw call, phone unchanged)", vertices: 84620, meshes: 123, desktopCalls: 78, phoneCalls: 76 },
     { date: "2026-11-04", change: "nook wall palettes; coffee bean hopper and carafe; oval bread; stainless sink with cabinet opening and high-arc faucet (+6,011 vertices, +2 meshes, +2 opening draw calls desktop and phone)", vertices: 90631, meshes: 125, desktopCalls: 80, phoneCalls: 78 },
     { date: "2026-11-04", change: "full bean hopper, sourdough, two credenza water bottles, wooden bowl, cabinet-top storage and two counter mugs (+4,095 vertices, +4 meshes, +1 opening draw call desktop and phone)", vertices: 94726, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
-    { date: "2026-11-04", change: "cabinet-top shoeboxes ported from Room 02: burnt-orange and cream/charcoal sneaker boxes (no longer cabinet olive), bevelled bodies, overhanging lids, seam lines, blank labels, thumb notches (+1,088 vertices, +1 mesh / +1 draw call for the orange board)", vertices: 95814, meshes: 130, desktopCalls: 82, phoneCalls: 80 },
+    { date: "2026-11-04", change: "cabinet-top shoeboxes ported from Room 02 (burnt-orange, cream with charcoal lid; bevelled, overhanging lids, seams, blank labels, thumb notches) act as the bookend for two packed upright books, the third book lies flat; credenza book row packed against the sculpture with an oak L bookend (+1,112 vertices; the orange board replaces the olive bucket, so meshes and draw calls are unchanged)", vertices: 95838, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
   ]),
 });
 
