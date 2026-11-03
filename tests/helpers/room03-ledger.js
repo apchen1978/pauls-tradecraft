@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 68242, meshes: 117 }),
+  scene: Object.freeze({ vertices: 69297, meshes: 117 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 80, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
@@ -55,6 +55,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-01", change: "nook pass: TV panel 1.20 x 0.675 -> 1.45 x 0.816 and shifted to the hall side wall so its cut edge hides behind the corner (same mesh and vertex count); throw reshaped with a hanging flap (+4 vertices); contact decals under the bench feet, shoe tray and pampas vase (+24 vertices); no new mesh or draw call", vertices: 67193, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-01", change: "nook micro-world: a sleeping puppy plush on the console top (+468 vertices, same merged decor mesh, no new mesh or draw call) and uneven rug fringe at the same vertex count", vertices: 67661, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "two differently coloured takeaway coffee cups replace the tiny cup on the terracotta credenza (+581 vertices net, same merged decor mesh; no draw-call increase)", vertices: 68242, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
+    { date: "2026-11-03", change: "a 1,660-vertex unbranded San Francisco cable-car keepsake replaces the procedural potted plant on the terracotta credenza (+1,055 net vertices, same merged decor mesh; no draw-call increase)", vertices: 69297, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
   ]),
 });
 
