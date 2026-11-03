@@ -12,16 +12,16 @@ export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
   scene: Object.freeze({ vertices: 70063, meshes: 119 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 80, phone: 79 }),
+  openingDrawCalls: Object.freeze({ desktop: 81, phone: 80 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 87, sunday: 80, thanksgiving: 90 }),
-    phone: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 86, sunday: 79, thanksgiving: 89 }),
+    desktop: Object.freeze({ daylight: 81, golden: 81, movie: 79, night: 81, dinner: 88, sunday: 81, thanksgiving: 91 }),
+    phone: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 87, sunday: 80, thanksgiving: 90 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
   headroom: Object.freeze({ vertices: 117, meshes: 0, desktopCalls: 0, phoneCalls: 0 }),
-  resizedPhoneCalls: 79,
+  resizedPhoneCalls: 80,
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -56,7 +56,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-03", change: "two differently coloured takeaway coffee cups replace the tiny cup on the terracotta credenza (+581 vertices net, same merged decor mesh; no draw-call increase)", vertices: 68242, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "a 1,660-vertex unbranded San Francisco cable-car keepsake replaces the procedural potted plant on the terracotta credenza (+1,055 net vertices, same merged decor mesh; no draw-call increase)", vertices: 69297, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "paper-napkin pack beside the clay-red credenza is permanent across moods (+766 vertices, one mesh; dinner/Thanksgiving views include it)", vertices: 70063, meshes: 118, desktopCalls: 80, phoneCalls: 79 },
-    { date: "2026-11-03", change: "window-side beam matches the ceiling honey wood finish (+1 mesh; expected opening calls +1 desktop and phone)", vertices: 70063, meshes: 119, desktopCalls: 81, phoneCalls: 80 },
+    { date: "2026-11-03", change: "window-side beam matches the ceiling honey wood finish (+1 mesh and +1 visible draw call; art mat change is texture-only)", vertices: 70063, meshes: 119, desktopCalls: 81, phoneCalls: 80 },
   ]),
 });
 
