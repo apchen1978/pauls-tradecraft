@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 70539, meshes: 117 }),
+  scene: Object.freeze({ vertices: 82839, meshes: 121 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 77, phone: 76 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -58,6 +58,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-03", change: "paper-napkin pack beside the clay-red credenza is permanent across moods (+766 vertices, one mesh; dinner/Thanksgiving views include it)", vertices: 70063, meshes: 118, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "window-side beam matches the ceiling honey wood finish (+1 mesh and +1 visible draw call; art mat change is texture-only)", vertices: 70063, meshes: 119, desktopCalls: 81, phoneCalls: 80 },
     { date: "2026-11-04", change: "wok station detail pass: one 75%-scale solid wall board, four smaller everyday utensils and four seasoning jars; retail-style olive oil moved beside the permanent napkin pack (+476 vertices, net -2 meshes, opening draw calls -4 desktop / -3 phone)", vertices: 70539, meshes: 117, desktopCalls: 77, phoneCalls: 76 },
+    { date: "2026-11-04", change: "wok-side oven with wider electronic timer panel and reachable two-mitt / four-hook rail; faucet moved to rear sink deck with raised side lever (+12,300 vertices total from wok-tool baseline, +4 meshes; 65 mm rear deck offset, unchanged desktop/mobile mood draw calls)", vertices: 82839, meshes: 121, desktopCalls: 77, phoneCalls: 76 },
   ]),
 });
 
