@@ -36,7 +36,10 @@ test("the oven, mitts, and sink read as fitted kitchen fixtures with stable clea
     expect(info.wokMitts.count).toBe(2);
     expect(info.wokMitts.hookCount).toBe(4);
     expect(info.wokMitts.occupiedHooks).toBe(2);
-    expect(info.wokMitts.colorFamily).toMatch(/plum|violet/);
+    expect(info.wokMitts.colorFamily).toMatch(/cream|sage|botanical/);
+    expect(info.wokMitts.shape).toBe("one distinct thumb and four-finger mitt silhouette");
+    expect(info.wokMitts.print.leaves).toBeGreaterThanOrEqual(14);
+    expect(info.wokMitts.print.flowers).toBeGreaterThanOrEqual(6);
     expect(info.wokMitts.materialRoughness).toBeGreaterThanOrEqual(0.9);
     expect(info.wokMitts.reachHeightMm).toBeGreaterThanOrEqual(1300);
     expect(info.wokMitts.reachHeightMm).toBeLessThanOrEqual(1600);
@@ -49,6 +52,7 @@ test("the oven, mitts, and sink read as fitted kitchen fixtures with stable clea
 
     expect(info.mainSink.openingMm).toEqual([680, 420]);
     expect(info.mainSink.openingClear, "the countertop has a real opening over the basin").toBe(true);
+    expect(info.mainSink.basinFinish).toBe("brushed stainless steel");
     expect(info.mainSink.smartSensorVisualOnly).toBe(true);
     expect(info.mainSink.faucet).toContain("gooseneck");
     expect(info.mainSink.control).toContain("side lever");
