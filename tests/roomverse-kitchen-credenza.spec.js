@@ -23,6 +23,9 @@ test("a walnut credenza fills the wall under the cable-car painting, lined up wi
   expect(c.doors).toBe(4);
   expect(c.color, "warm walnut credenza body, related to the timber ceiling").toBe("#76543b");
   expect(c.doorColor, "slightly lighter walnut slab fronts").toBe("#886344");
-  expect(c.hardware, "integrated dark finger grooves keep the fronts visually quiet").toBe("integrated-dark-finger-groove");
-  expect(c.meshes, "cabinet remains one merged mesh").toBe(1);
+  expect(c.hardware, "real front-mounted pulls sit at the door opening edges").toContain("vertical brushed-brass pulls");
+  expect(c.hardwareCount).toBe(4);
+  expect(c.hardwareHeightMm).toBeGreaterThanOrEqual(75);
+  expect(c.hardwareHeightMm).toBeLessThanOrEqual(90);
+  expect(c.meshes, "cabinet body stays merged; all pulls share one hardware mesh").toBe(2);
 });
