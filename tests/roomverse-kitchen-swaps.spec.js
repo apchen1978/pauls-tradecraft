@@ -24,14 +24,16 @@ const distance = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 for (const width of [1440, 390]) {
   test(`every painting option paints its frame, fetches only when chosen and costs no geometry at ${width}px`, async ({ page }) => {
     const printRequests = [];
-    page.on("request", (request) => { // The lamp-wall frame's own default picture loads with the room, so only its alternatives count as "chosen" downloads.
+    page.on("request", (request) => { // The entry-hall Oak Street and lamp-wall Golden Gate defaults load with the room; other prints wait until chosen.
     if (request.url().includes("room03-print-") || /room03-lamp-wall-(hills|botanical)/.test(request.url())) printRequests.push(request.url()); });
     await loadRoom(page, width);
-    // The lamp-wall frame now opens on the Golden Gate fog print (2026-10-31), so that one file loads with the room; every other print waits until chosen.
-    expect(printRequests.map((url) => url.split("/").pop()), "no replacement print is downloaded until one is chosen").toEqual(["room03-print-fog-bridge-v1.webp"]);
+    // Oak Street is the entry-hall default; the Golden Gate fog print remains the lamp-wall default.
+    expect(printRequests.map((url) => url.split("/").pop()).sort(), "only the two selected default prints load with the room").toEqual(["room03-print-fog-bridge-v1.webp", "room03-print-oak-street-v1.webp"]);
     const base = await page.evaluate(() => window.__room03.info());
     expect(await page.evaluate(() => window.__room03.artOptions())).toEqual(FRAMES);
-    expect(base.wallArtChoice).toEqual({ "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "fog-bridge" });
+    expect(base.wallArtChoice).toEqual({ "cable-car": "cable-car", "redwood-path": "oak-street", "lamp-wall": "fog-bridge" });
+    await expect(page.locator('#swapGroups button[data-frame="redwood-path"][data-art="oak-street"]')).toHaveAttribute("aria-pressed", "true");
+    if (QA) await page.locator(".room").screenshot({ path: `${QA}/default-${width}.png` });
     await page.locator("#swaps summary").click();
     const baseMean = base.wallArtMean;
     for (const [frame, options] of Object.entries(FRAMES)) {
@@ -39,15 +41,15 @@ for (const width of [1440, 390]) {
       for (const option of options) {
         const before = JSON.stringify((await page.evaluate(() => window.__room03.info())).wallArtMean[frame]);
         await page.locator(`#swapGroups button[data-frame="${frame}"][data-art="${option}"]`).click();
-        await page.waitForFunction(({ frame, option, before, original }) => {
+        await page.waitForFunction(({ frame, option, before, original, selectedAtLoad }) => {
           const info = window.__room03.info();
           if (info.wallArtChoice[frame] !== option) return false;
           const mean = info.wallArtMean[frame];
-          // The original picture is done when the region is back to its first reading; another picture, when it moved off the previous one.
-          return option === Object.keys(window.__room03.artOptions()[frame])[0]
+          // The selected opening picture is done when the region returns to its first reading; another picture when it changes from the previous one.
+          return option === selectedAtLoad
             ? Math.hypot(mean[0] - original[0], mean[1] - original[1], mean[2] - original[2]) < 4
             : JSON.stringify(mean) !== before;
-        }, { frame, option, before, original: baseMean[frame] }, { timeout: 15000 });
+        }, { frame, option, before, original: baseMean[frame], selectedAtLoad: base.wallArtChoice[frame] }, { timeout: 15000 });
         await page.waitForTimeout(150);
         const info = await page.evaluate(() => window.__room03.info());
         expect(info.wallArtChoice[frame], `${frame} choice`).toBe(option);
@@ -59,10 +61,15 @@ for (const width of [1440, 390]) {
         expect(pressed, `${option}: pressed state`).toBe(option);
         if (QA) await page.locator(".room").screenshot({ path: `${QA}/swap-${width}-${option}.png` });
       }
-      // The first option is the original picture: choosing it again must restore the original look.
-      expect(distance(seen[0][1], baseMean[frame]), `${frame}: original restored`).toBeLessThan(4);
-      // Every other option reads clearly different from the original.
-      for (const [option, mean] of seen.slice(1)) expect(distance(mean, baseMean[frame]), `${option} differs from the original`).toBeGreaterThan(6);
+      // The selected opening picture is the baseline; changing away and back must restore it.
+      const selectedAtLoad = base.wallArtChoice[frame];
+      const original = seen.find(([option]) => option === selectedAtLoad)?.[1];
+      expect(original, `${frame}: the opening picture was checked`).toBeTruthy();
+      expect(distance(original, baseMean[frame]), `${frame}: opening picture restored`).toBeLessThan(4);
+      // Every other picture reads clearly different from the opening picture.
+      for (const [option, mean] of seen) {
+        if (option !== selectedAtLoad) expect(distance(mean, baseMean[frame]), `${option} differs from opening`).toBeGreaterThan(6);
+      }
     }
     expect(printRequests.length, "each print is fetched once per choice, never all at once").toBeGreaterThanOrEqual(9);
   });
