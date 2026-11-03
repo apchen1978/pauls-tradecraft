@@ -52,7 +52,16 @@ test("the oven, mitts, and sink read as fitted kitchen fixtures with stable clea
 
     expect(info.mainSink.openingMm).toEqual([680, 420]);
     expect(info.mainSink.openingClear, "the countertop has a real opening over the basin").toBe(true);
+    expect(info.mainSink.basinFloorVisible, "a downward ray reaches stainless before the green cabinet").toBe(true);
     expect(info.mainSink.basinFinish).toBe("brushed stainless steel");
+    expect(info.mainSink.basinMaterial.color, "the basin material is neutral stainless rather than cabinet green").toBe("#969d9e");
+    expect(info.mainSink.basinMaterial.roughness).toBe(0.46);
+    expect(info.mainSink.basinMaterial.metalness).toBe(0.30);
+    expect(info.mainSink.faucetProfile).toContain("single vertical plane");
+    expect(info.mainSink.faucetBase[0], "rear-deck mount is centered across the basin").toBe(info.mainSink.center.x);
+    expect(info.mainSink.outletInsideBasin, "the spout ends over the basin floor").toBe(true);
+    expect(info.mainSink.faucetPeakY - info.mainSink.counterTopY).toBeGreaterThanOrEqual(0.23);
+    expect(info.mainSink.faucetPeakY - info.mainSink.counterTopY).toBeLessThanOrEqual(0.27);
     expect(info.mainSink.smartSensorVisualOnly).toBe(true);
     expect(info.mainSink.faucet).toContain("gooseneck");
     expect(info.mainSink.control).toContain("side lever");

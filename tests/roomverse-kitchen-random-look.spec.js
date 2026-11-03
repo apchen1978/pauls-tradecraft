@@ -55,3 +55,24 @@ test("manual wall, floor and rug options stay synchronized with the selected sta
   await expect(page.locator('#swapGroups button[data-frame="wallColor"][aria-pressed="true"]')).toHaveAttribute("data-art", "sage");
   await expect(page.locator('#swapGroups button[data-frame="rug"][aria-pressed="true"]')).toHaveAttribute("data-art", "stripe");
 });
+
+test("entry nook wall follows the selected room palette with three alternatives and no scene-cost change", async ({ page }) => {
+  await loadRoom(page, 1440);
+  const base = await page.evaluate(() => ({ info: window.__room03.info(), finish: window.__room03.surfaceFinishInfo(), nook: window.__room03.entryHallWallColor() }));
+  expect(base.finish.wall).toBe("mist");
+  expect(base.nook).toBe("#e9bdb9"); // Preserve the existing pink nook under the default mist-blue room palette.
+
+  const variants = { cream: "#e6ddcc", sage: "#cbd2c0", oat: "#d9cbb6" };
+  for (const [wall, expectedColor] of Object.entries(variants)) {
+    await page.evaluate((wall) => window.__room03.setSurfaceFinish({ wall }), wall);
+    const state = await page.evaluate(() => ({ info: window.__room03.info(), finish: window.__room03.surfaceFinishInfo(), nook: window.__room03.entryHallWallColor() }));
+    expect(state.finish.wall).toBe(wall);
+    expect(state.nook).toBe(expectedColor);
+    expect(state.info.vertices).toBe(base.info.vertices);
+    expect(state.info.meshes).toBe(base.info.meshes);
+    expect(state.info.drawCallsLastFrame).toBe(base.info.drawCallsLastFrame);
+  }
+
+  await page.evaluate(() => window.__room03.setSurfaceFinish({ wall: "mist" }));
+  expect(await page.evaluate(() => window.__room03.entryHallWallColor())).toBe(base.nook);
+});
