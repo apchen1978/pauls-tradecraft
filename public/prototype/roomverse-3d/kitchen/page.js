@@ -1,5 +1,5 @@
 import { initTravelDoor } from "../travel-door.js?v=3";
-import { start, ROOM_TITLE } from "./kitchen.js?v=125";
+import { start, ROOM_TITLE } from "./kitchen.js?v=126";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -7,10 +7,10 @@ const COPY = {
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", robotLabel: "廚房小機器人：點我看要去哪個房間", robotLine: "我是廚房的小幫手。想去哪個房間？", doorLabel: "房間的門：點一下打開", doorLine: "這扇門通到其他房間。想去哪一間？", robotChoose: "看看其他房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
-    center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", nook: "走近小角落", swapsLabel: "換搭配", randomLook: "隨機搭一間", defaultLook: "預設搭配：霧藍牆、奶油水磨石、藍米條紋地毯與橡樹街畫", customLook: "目前搭配：自訂組合",
+    center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", nook: "走近小角落", swapsLabel: "換搭配", randomLook: "隨機搭一間", defaultLook: "預設搭配：霧藍牆、橡木地板、藍米條紋地毯與橡樹街畫", customLook: "目前搭配：自訂組合",
     swaps: {
       wallColor: ["主牆色", { mist: "霧藍", cream: "奶油白", sage: "鼠尾草綠", oat: "燕麥暖灰" }],
-      floor: ["地板表面", { terrazzo: "奶油水磨石", cork: "天然軟木", concrete: "霧面混凝土" }],
+      floor: ["地板表面", { oak: "橡木地板", terrazzo: "奶油水磨石", cork: "天然軟木", concrete: "霧面混凝土" }],
       rug: ["地毯", { "blue-stripe": "藍米條紋", jute: "粗麻原色", stripe: "低對比條紋", geometric: "柔和幾何" }],
       "cable-car": ["右側牆的畫", { "cable-car": "舊金山電車", "fog-bridge": "霧中金門大橋", "marin-hills": "馬林海岬", "poster-sun": "山丘與太陽" }],
       "redwood-path": ["入口走廊的畫", { "redwood-path": "紅杉步道", "ferry-building": "渡輪大廈", "oak-street": "橡樹街", "poster-arch": "拱門海報", "poster-leaf": "葉片海報" }],
@@ -34,10 +34,10 @@ const COPY = {
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
     otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", robotLabel: "Kitchen robot: tap to choose another room", robotLine: "I look after the kitchen. Where would you like to go?", doorLabel: "Room door: tap to open", doorLine: "This door leads to the other rooms. Where to?", robotChoose: "Explore other rooms", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
-    center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", nook: "Closer to the nook", swapsLabel: "Swap the look", randomLook: "Randomize the room", defaultLook: "Default: mist-blue walls, cream terrazzo, blue-and-cream rug and the oak-street print", customLook: "Current look: Custom mix",
+    center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", nook: "Closer to the nook", swapsLabel: "Swap the look", randomLook: "Randomize the room", defaultLook: "Default: mist-blue walls, oak plank floor, blue-and-cream rug and the oak-street print", customLook: "Current look: Custom mix",
     swaps: {
       wallColor: ["Main wall colour", { mist: "Mist blue", cream: "Warm cream", sage: "Sage green", oat: "Oat greige" }],
-      floor: ["Floor finish", { terrazzo: "Cream terrazzo", cork: "Natural cork", concrete: "Matte concrete" }],
+      floor: ["Floor finish", { oak: "Oak planks", terrazzo: "Cream terrazzo", cork: "Natural cork", concrete: "Matte concrete" }],
       rug: ["Rug", { "blue-stripe": "Blue and cream stripe", jute: "Natural jute", stripe: "Quiet stripe", geometric: "Soft geometry" }],
       "cable-car": ["Painting, right wall", { "cable-car": "Cable car", "fog-bridge": "Golden Gate in fog", "marin-hills": "Marin headlands", "poster-sun": "Hills and sun" }],
       "redwood-path": ["Painting, entry hall", { "redwood-path": "Redwood path", "ferry-building": "Ferry Building", "oak-street": "Oak street", "poster-arch": "Arch poster", "poster-leaf": "Leaf poster" }],
@@ -71,7 +71,7 @@ function otherRoomsUrl() {
 }
 
 const artChoice = { "cable-car": "cable-car", "redwood-path": "oak-street", "lamp-wall": "fog-bridge", yard: "auto", wallpaper: "grasscloth-oat" };
-const surfaceChoice = { wall: "mist", floor: "terrazzo", rug: "blue-stripe" };
+const surfaceChoice = { wall: "mist", floor: "oak", rug: "blue-stripe" };
 const LOOK_PACKS = [
   { key: "coastal-oat", zh: "海岸燕麥", en: "Coastal oat", wall: "cream", floor: "terrazzo", rug: "jute", wallpaper: "grasscloth-oat", art: { "cable-car": "fog-bridge", "redwood-path": "redwood-path", "lamp-wall": "ferry-building" } },
   { key: "sage-garden", zh: "鼠尾草庭院", en: "Sage garden", wall: "sage", floor: "cork", rug: "stripe", wallpaper: "grasscloth-sage", art: { "cable-car": "marin-hills", "redwood-path": "oak-street", "lamp-wall": "hills-sun" } },

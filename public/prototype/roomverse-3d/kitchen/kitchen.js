@@ -6213,13 +6213,25 @@ export async function start({ stage, onReady = () => {} }) {
   // Keep the entry nook's approved dusty-pink default for mist-blue, while the other room palettes carry through to its three inner walls.
   const ENTRY_HALL_WALL_FINISHES = Object.freeze({ mist: 0xe9bdb9, cream: 0xe6ddcc, sage: 0xcbd2c0, oat: 0xd9cbb6 });
   let entryHallWallMaterial = null;
+  // Oak plank floor ported from Room 02 (bedroom/art/room02-brooklyn-oak-floor-v1.webp, narrow-strip oak, one picture is about 1.2 m of boards).
+  // Paul 2026-11-04: the default Room 03 floor is wood like Rooms 01 and 02; the random looks still use terrazzo, cork and concrete.
+  const makeOakPlankTexture = () => {
+    const texture = new THREE.TextureLoader().load(new URL("../bedroom/art/room02-brooklyn-oak-floor-v1.webp", import.meta.url).href, () => render());
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(ROOM.width / 1.2, ROOM.depth / 1.2);
+    texture.anisotropy = 8;
+    return texture;
+  };
   const FLOOR_FINISHES = Object.freeze({
+    oak: { make: makeOakPlankTexture, tint: 0xfff6ea },
     terrazzo: { make: makeTerrazzoTexture, tint: 0xffffff },
     cork: { make: makeCorkFloorTexture, tint: 0xfff4df },
     concrete: { make: () => makeFloorTexture(31, 0.18), tint: 0xf0f1ef },
   });
   const RUG_FINISHES = Object.freeze({ "blue-stripe": "blue-stripe", jute: "jute", stripe: "stripe", geometric: "geometric" });
-  const surfaceFinish = { wall: "mist", floor: "terrazzo", rug: "blue-stripe" };
+  const surfaceFinish = { wall: "mist", floor: "oak", rug: "blue-stripe" };
+  { const previous = materials.floor.map; materials.floor.map = FLOOR_FINISHES.oak.make(); previous?.dispose(); materials.floor.needsUpdate = true; }
   function applySurfaceFinish() {
     const look = MOOD_LOOK[currentMood];
     materials.wall.color.setHex(WALL_FINISHES[surfaceFinish.wall]);
