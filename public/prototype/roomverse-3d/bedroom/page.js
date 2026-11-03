@@ -35,7 +35,7 @@ const COPY = {
     lead: "ROOMVERSE works like a universe: it will never be just one room. The first is a living room; this is the second, a studio for one where sleeping, working, gaming and sofa time each get a corner. Pick a mood; drag or use the buttons to look around.",
     enter: "Step into the second room", size: "Six moods: focus day, weekend in, golden hour, late-night game, Sunday lie-in, series night", loading: "Setting up the room…", failed: "3D can't open on this device.",
     note: "This is ROOMVERSE's second room: a rented studio in New York, furnished one piece at a time. Below the room you can swap the feature wall, rug, window, bedding and posters, or press “Surprise me”. The view outside and the posters are illustrations made through human–AI collaboration, not real places. Not real products; check real colours and textures with samples and on-site light.",
-    home: "← Other rooms", lang: "中", portal: "Explore other rooms", portalHint: "Choose a room to keep exploring.", robotLine: "I look after this studio. Where would you like to go?", doorHint: "This door leads to the other rooms. Where would you like to go?", fullScreen: "Full screen", exitFullScreen: "Exit", shuffle: "Surprise me", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle" },
+    home: "← Other rooms", lang: "中", portal: "Explore other rooms", portalHint: "Choose a room to keep exploring.", robotLine: "I look after this studio. Where would you like to go?", doorHint: "This door leads to the other rooms. Where would you like to go?", fullScreen: "Full screen", exitFullScreen: "Exit", shuffle: "Random room", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle" },
     swaps: {
       posters: ["Posters over the TV", { A: "Sport", B: "Geometric", C: "Space" }],
       wall: ["Feature wall", { paper: "Leaf wallpaper", oat: "Oat white", latte: "Latte", warmGrey: "Warm grey", sage: "Sage", terracotta: "Terracotta", slate: "Slate blue" }],
@@ -98,13 +98,13 @@ function swapButtons() {
 function moodButtons() {
   const c = COPY[lang], row = $("moodRow");
   $("moodsLabel").textContent = c.moodsLabel; row.setAttribute("aria-label", c.moodsLabel);
-  row.replaceChildren(...Object.keys(c.moods).map((k) => {
+  const shuffleButton = document.createElement("button"); shuffleButton.type = "button"; shuffleButton.dataset.shuffle = "1"; shuffleButton.className = "shuffle"; shuffleButton.textContent = c.shuffle; shuffleButton.setAttribute("aria-label", c.shuffle); shuffleButton.onclick = shuffle;
+  row.replaceChildren(shuffleButton, ...Object.keys(c.moods).map((k) => {
     const b = document.createElement("button"); b.type = "button"; b.dataset.mood = k; b.textContent = c.moods[k][0];
     b.setAttribute("aria-pressed", String(k === mood));
     b.onclick = async () => { mood = k; moodButtons(); await room?.setMood(k); };
     return b;
   }));
-  const s = document.createElement("button"); s.type = "button"; s.dataset.shuffle = "1"; s.className = "shuffle"; s.textContent = c.shuffle; s.onclick = shuffle; row.append(s);
   $("why").textContent = c.moods[mood][1];
 }
 // Room 01's "random room" button: a random wall, rug, curtain, bedding, sofa cover, strip colour, screen and poster set, and a random mood
@@ -167,7 +167,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./bedroom.js?v=95");
+    const { start } = await import("./bedroom.js?v=96");
     room = await start({ stage: $("stage"), bubble: $("robotBubble"), hitTarget: $("robotHitTarget"), lang, copy: () => COPY[lang], onTravelChoice: () => travelDoor?.open(immersive ? $("immersiveDoor") : $("portalBtn")) });
     $("status").hidden = true; $("moods").hidden = false; $("views").hidden = false; $("swaps").hidden = false; $("swaps").open = matchMedia("(min-width: 769px)").matches; // the swap options start tucked away on phones
     window.__bedroom = room; // test hook

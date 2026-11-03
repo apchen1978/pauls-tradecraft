@@ -14,8 +14,8 @@ export const TEXT = {
 };
 // Short labels for the single-row phone toolbar. The accessible name stays the full phrase above.
 const PHONE_BAR = {
-  zh: { save: "存成明信片", director: "8秒短片", stop: "停止短片", close: "收起對照", preparing: "準備中" },
-  en: { save: "Save postcard", director: "8s tour", stop: "Stop", close: "Close", preparing: "Preparing" },
+  zh: { shuffle: "隨機搭一間", save: "存成明信片", director: "8秒短片", stop: "停止短片", close: "收起對照", preparing: "準備中" },
+  en: { shuffle: "Random room", save: "Save postcard", director: "8s tour", stop: "Stop", close: "Close", preparing: "Preparing" },
 };
 const GUIDE_LINE = { zh: "想去哪個房間？", en: "Which room would you like to visit?" };
 const ROBOT_MOOD_LINES = {
@@ -2126,17 +2126,18 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     panel.replaceChildren(headings, cameraGroup, ...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
       const box = document.createElement("div"); box.className = "opts"; box.setAttribute("role", "group"); box.setAttribute("aria-label", t[key]);
-      box.append(...Object.entries(table).map(([k, v]) => {
+      const choices = Object.entries(table).map(([k, v]) => {
         const b = document.createElement("button"); b.type = "button"; b.textContent = v[state.lang]; b.dataset.key = k;
         b.setAttribute("aria-pressed", String(state[key] === k));
         b.onclick = () => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); choose(key, k); toUrl(); };
         return b;
-      }));
-      if (key === "mood" && phoneActions.matches) {
-        const shuffleBtn = Object.assign(document.createElement("button"), { type: "button", className: "save shuffle mood-shuffle", textContent: state.lang === "zh" ? "隨機搭一間" : "Random room", onclick: () => shuffle() });
+      });
+      if (key === "mood" && !phoneActions.matches) {
+        const shuffleBtn = Object.assign(document.createElement("button"), { type: "button", className: "save shuffle mood-shuffle", textContent: t.shuffle, onclick: () => shuffle() });
         shuffleBtn.setAttribute("aria-label", t.shuffle);
-        box.append(shuffleBtn);
-      }
+        shuffleBtn.dataset.shuffle = "1";
+        box.append(shuffleBtn, ...choices);
+      } else box.append(...choices);
       if (key !== "mood") return [h, box];
       const why = document.createElement("p"); why.className = "why"; why.textContent = MOODS[state.mood].why[state.lang]; // why this pairing
       return [h, box, why];
@@ -2146,20 +2147,20 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     const directorFull = directorPreparing ? t.preparing : director ? t.stop : still && directorStillOpen ? t.close : t.director;
     const directorShort = directorPreparing ? bar.preparing : director ? bar.stop : still && directorStillOpen ? bar.close : bar.director;
     const directorBtn = Object.assign(document.createElement("button"), { type: "button", className: "save director", textContent: onPhone ? directorShort : directorFull, onclick: () => toggleDirector() });
-    const shuffleBtn = Object.assign(document.createElement("button"), { type: "button", className: "save shuffle panel-shuffle", textContent: t.shuffle, onclick: () => shuffle() });
+    const shuffleBtn = onPhone ? Object.assign(document.createElement("button"), { type: "button", className: "save shuffle", textContent: bar.shuffle, onclick: () => shuffle() }) : null;
     const saveBtn = Object.assign(document.createElement("button"), { type: "button", className: "save", textContent: onPhone ? bar.save : t.save, onclick: () => savePostcard() });
     directorBtn.setAttribute("aria-label", directorFull);
-    shuffleBtn.setAttribute("aria-label", t.shuffle);
+    shuffleBtn?.setAttribute("aria-label", t.shuffle);
     saveBtn.setAttribute("aria-label", t.save);
     const stillNodes = still && directorStillOpen ? [staticTour(t)] : [];
     if (onPhone && toolbar) {
-      toolbar.replaceChildren(directorBtn, saveBtn);
-      toolbar.setAttribute("aria-label", state.lang === "zh" ? "短片、明信片" : "Tour, postcard");
+      toolbar.replaceChildren(shuffleBtn, directorBtn, saveBtn);
+      toolbar.setAttribute("aria-label", state.lang === "zh" ? "隨機搭配、短片、明信片" : "Random room, tour, postcard");
       toolbar.hidden = panel.hidden;
       panel.append(...stillNodes);
     } else {
       if (toolbar) { toolbar.replaceChildren(); toolbar.hidden = true; }
-      panel.append(directorBtn, ...stillNodes, shuffleBtn, saveBtn);
+      panel.append(directorBtn, ...stillNodes, saveBtn);
     }
     if (keep) {
       const target = keep.c ? (toolbar?.querySelector("." + keep.c) || panel.querySelector("." + keep.c)) : panel.querySelectorAll(".opts")[keep.g]?.querySelector(`button[data-key="${keep.k}"]`);
@@ -2170,13 +2171,15 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
       for (const [view, label] of [["window", t.windowView], ["tv", t.tvView], ["entry", t.entryView]]) {
         const b = document.createElement("button"); b.type = "button"; b.dataset.view = view; b.textContent = label; b.setAttribute("aria-pressed", String(currentView === view)); b.onclick = () => { moveToView(view); drawPanel(); }; views.append(b);
       }
-      const moods = document.createElement("div"); moods.className = "immersive-row"; moods.setAttribute("role", "group"); moods.setAttribute("aria-label", t.mood);
+      const moods = document.createElement("div"); moods.className = "immersive-moods"; moods.setAttribute("role", "group"); moods.setAttribute("aria-label", t.mood);
+      const shuffleButton = document.createElement("button"); shuffleButton.type = "button"; shuffleButton.className = "shuffle"; shuffleButton.textContent = state.lang === "zh" ? "隨機搭一間" : "Random room"; shuffleButton.setAttribute("aria-label", t.shuffle); shuffleButton.onclick = () => shuffle();
+      const moodOptions = document.createElement("div"); moodOptions.className = "immersive-row"; moodOptions.setAttribute("role", "group"); moodOptions.setAttribute("aria-label", t.mood);
+      moods.append(shuffleButton, moodOptions);
       for (const [key, item] of Object.entries(MOODS)) {
-        const b = document.createElement("button"); b.type = "button"; b.dataset.key = key; b.textContent = item[state.lang]; b.setAttribute("aria-pressed", String(state.mood === key)); b.onclick = () => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); choose("mood", key); toUrl(); }; moods.append(b);
+        const b = document.createElement("button"); b.type = "button"; b.dataset.key = key; b.textContent = item[state.lang]; b.setAttribute("aria-pressed", String(state.mood === key)); b.onclick = () => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); choose("mood", key); toUrl(); }; moodOptions.append(b);
       }
-      const shuffleButton = document.createElement("button"); shuffleButton.type = "button"; shuffleButton.className = "shuffle"; shuffleButton.textContent = state.lang === "zh" ? "隨機搭一間" : "Random room"; shuffleButton.setAttribute("aria-label", t.shuffle); shuffleButton.onclick = () => shuffle(); moods.append(shuffleButton);
       immersiveControls.replaceChildren(views, moods);
-      views.scrollLeft = immersiveScroll[0] ?? 0; moods.scrollLeft = immersiveScroll[1] ?? 0;
+      views.scrollLeft = immersiveScroll[0] ?? 0; moodOptions.scrollLeft = immersiveScroll[1] ?? 0;
       if (immersiveFocus) {
         const target = immersiveFocus.view ? views.querySelector(`button[data-view="${immersiveFocus.view}"]`) : immersiveFocus.shuffle ? shuffleButton : moods.querySelector(`button[data-key="${immersiveFocus.mood}"]`);
         target?.focus({ preventScroll: true });

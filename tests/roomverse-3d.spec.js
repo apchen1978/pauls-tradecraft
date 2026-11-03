@@ -27,7 +27,16 @@ test.describe("Room 01 mobile immersive", () => {
     await page.waitForFunction(() => document.querySelector("#stage canvas").height === 1266);
     const full = await page.evaluate(() => { const r = document.querySelector(".room").getBoundingClientRect(), s = document.querySelector("#stage").getBoundingClientRect(), c = document.querySelector("#stage canvas"); return { room: [r.width, r.height], stage: [s.width, s.height], canvas: [c.width, c.height], overflow: getComputedStyle(document.documentElement).overflow }; });
     expect(full).toEqual({ room: [390, 844], stage: [390, 844], canvas: [585, 1266], overflow: "hidden" });
-    await page.waitForFunction(() => { const row = document.querySelector("#immersiveControls .immersive-row:nth-child(2)"), selected = row.querySelector('button[data-key="golden"]'), r = row.getBoundingClientRect(), b = selected.getBoundingClientRect(); return b.left >= r.left && b.right <= r.right; });
+    const immersiveShuffle = page.locator("#immersiveControls .immersive-moods > button.shuffle");
+    await expect(immersiveShuffle).toHaveClass(/shuffle/);
+    await expect(immersiveShuffle).toHaveText("隨機搭一間");
+    const shuffleBox = await immersiveShuffle.boundingBox();
+    expect(shuffleBox.height).toBeGreaterThanOrEqual(44);
+    expect(await immersiveShuffle.evaluate((button) => getComputedStyle(button).backgroundColor)).toBe("rgb(240, 212, 141)");
+    await expect(immersiveShuffle).toBeVisible();
+    await page.waitForFunction(() => { const row = document.querySelector("#immersiveControls .immersive-moods .immersive-row"), selected = row.querySelector('button[data-key="golden"]'), r = row.getBoundingClientRect(), b = selected.getBoundingClientRect(); return b.left >= r.left && b.right <= r.right; });
+    expect(await immersiveShuffle.evaluate((button) => { const r = button.getBoundingClientRect(), row = button.parentElement.getBoundingClientRect(); return r.left >= row.left && r.right <= row.right; })).toBe(true);
+    expect(await page.evaluate(() => { const action = document.querySelector("#immersiveControls .immersive-moods > button.shuffle").getBoundingClientRect(), moods = document.querySelector("#immersiveControls .immersive-moods .immersive-row").getBoundingClientRect(); return action.right <= moods.left; })).toBe(true);
     await expect(page.locator("#roomToolbar")).toBeHidden(); await expect(page.locator("#panel")).toBeHidden();
     await immersiveShot(page, "portrait-full-golden");
     await page.locator('#immersiveControls button[data-key="tech"]').click();
@@ -857,10 +866,12 @@ test("golden hour works in both languages, stays readable, and gives mobile shuf
   await expect(goldenButton).toHaveText("傍晚金色時光");
   await expect(goldenButton).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#panel .why")).toContainText("低角度的夕陽");
-  const shuffle = moodGroup.locator(".mood-shuffle");
+  const shuffle = page.locator("#roomToolbar .shuffle");
   await expect(shuffle).toHaveAttribute("aria-label", "幫我隨機搭一間");
-  expect(await shuffle.evaluate((button) => [getComputedStyle(button.parentElement).gridTemplateColumns.split(" ").length, getComputedStyle(button).gridColumnStart, getComputedStyle(button).gridColumnEnd])).toEqual([2, "1", "-1"]);
-  await expect(page.locator("#roomToolbar button")).toHaveCount(2);
+  await expect(moodGroup.locator(".mood-shuffle")).toHaveCount(0);
+  expect(await shuffle.evaluate((button) => getComputedStyle(button).backgroundColor)).toBe("rgb(240, 212, 141)");
+  expect((await shuffle.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await expect(page.locator("#roomToolbar button")).toHaveCount(3);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `${output}/golden-390.png`, fullPage: true });
   const brightness = async () => page.evaluate(() => {
@@ -905,8 +916,9 @@ test("golden hour works in both languages, stays readable, and gives mobile shuf
   await page.waitForTimeout(700);
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t?.getAttribute("aria-expanded") === "false") t.click(); });
   await expect(page.locator('#panel .opts[aria-label="Feeling"] button[data-key="golden"]')).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator("#panel .mood-shuffle")).toHaveCount(0);
-  await expect(page.locator("#panel .panel-shuffle")).toBeVisible();
+  await expect(page.locator("#panel .mood-shuffle")).toBeVisible();
+  await expect(page.locator('#panel .opts[aria-label="Feeling"] button').first()).toHaveClass(/mood-shuffle/);
+  await expect(page.locator("#panel .panel-shuffle")).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `${output}/golden-1440.png`, fullPage: true });
   await page.locator("#stage").screenshot({ path: `${output}/golden-stage-1440.png` });

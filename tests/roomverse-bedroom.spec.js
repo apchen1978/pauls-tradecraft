@@ -37,6 +37,11 @@ test.describe("Room 02 mobile immersive", () => {
     const full = await page.evaluate(() => { const r = document.querySelector(".room").getBoundingClientRect(), s = document.querySelector("#stage").getBoundingClientRect(), c = document.querySelector("#stage canvas"); return { room: [r.width, r.height], stage: [s.width, s.height], canvas: [c.width, c.height], scroll: getComputedStyle(document.documentElement).overflow, bodyWidth: document.body.scrollWidth, viewportWidth: innerWidth }; });
     expect(full.room).toEqual([390, 844]); expect(full.stage).toEqual([390, 844]);
     expect(full.canvas).toEqual([585, 1266]); expect(full.scroll).toBe("hidden"); expect(full.bodyWidth).toBeLessThanOrEqual(full.viewportWidth);
+    const randomButton = page.locator("#moodRow button").first();
+    await expect(randomButton).toHaveAttribute("data-shuffle", "1");
+    await expect(randomButton).toHaveText("隨機搭一間");
+    expect((await randomButton.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    expect(await randomButton.evaluate((button) => getComputedStyle(button).backgroundColor)).toBe("rgb(240, 212, 141)");
     await immersiveShot(page, "portrait-full-day");
     await page.locator('#moodRow button[data-mood="series"]').click();
     await page.waitForFunction(() => window.__bedroom.info().mood === "series");
@@ -556,13 +561,21 @@ test("all 29 painted surfaces load (floor, wall, rugs, oak, fabrics, window fram
   expect(vertices).toBeLessThan(62000);
 });
 
-test("phone first screen: moods sit in a tidy two-column grid (six moods and the random button, which spans the last row), the swap options start collapsed and open on tap, the intro is short", async ({ page }) => {
+test("phone first screen: the random room button leads the mood grid, swap options open on tap, and the intro is short", async ({ page }) => {
   await enter(page, { width: 390 });
   const boxes = await page.locator("#moodRow button").evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; }));
   expect(boxes).toHaveLength(7);
-  expect(boxes[0][1]).toBe(boxes[1][1]); expect(boxes[2][1]).toBe(boxes[3][1]); expect(boxes[4][1]).toBe(boxes[5][1]); expect(boxes[6][1]).toBeGreaterThan(boxes[4][1]); // three rows of two, then the random button on its own row
-  expect(boxes[2][1]).toBeGreaterThan(boxes[0][1]);
-  expect(boxes[0][0]).toBe(boxes[2][0]); expect(boxes[0][2]).toBe(boxes[1][2]); // aligned columns, equal widths
+  expect(boxes[0][1]).toBeLessThan(boxes[1][1]);
+  expect(boxes[1][1]).toBe(boxes[2][1]); expect(boxes[3][1]).toBe(boxes[4][1]); expect(boxes[5][1]).toBe(boxes[6][1]); // random action first, then three pairs of moods
+  expect(boxes[3][1]).toBeGreaterThan(boxes[1][1]);
+  expect(boxes[1][0]).toBe(boxes[3][0]); expect(boxes[1][2]).toBe(boxes[2][2]); // aligned mood columns, equal widths
+  expect(boxes[0][2]).toBeGreaterThanOrEqual(350); // the action spans the full phone row
+  const randomButton = page.locator("#moodRow button").first();
+  await expect(randomButton).toHaveAttribute("data-shuffle", "1");
+  await page.locator("#lang").click();
+  await expect(randomButton).toHaveText("Random room");
+  await expect(randomButton).toHaveAccessibleName("Random room");
+  await page.locator("#lang").click();
   expect(await page.locator("#swaps").evaluate((d) => d.open)).toBe(false);
   await expect(page.locator('#swapGroups button').first()).toBeHidden();
   await page.locator("#swapsTitle").click();

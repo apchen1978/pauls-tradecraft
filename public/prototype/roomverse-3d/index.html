@@ -63,8 +63,8 @@
   .hint { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
   .panel .why { margin: 8px 0 2px; font-size: 12.5px; line-height: 1.6; color: var(--ink); background: color-mix(in srgb, var(--moss) 8%, transparent); border-left: 3px solid var(--moss); padding: 6px 9px; border-radius: 0 8px 8px 0; }
   .panel .save { margin-top: 10px; width: 100%; font: inherit; font-weight: 700; font-size: 13px; padding: 8px 12px; border: 1px solid var(--moss); background: none; color: var(--moss); border-radius: 999px; cursor: pointer; }
-  .panel .save.shuffle { background: var(--moss); color: #fff; }
-  .opts .mood-shuffle { grid-column: 1 / -1; margin-top: 2px; }
+  .panel .save.shuffle { border-color: #bd9848; background: #f0d48d; color: #34280f; box-shadow: 0 2px 8px #70500d30; }
+  .opts .mood-shuffle { box-sizing: border-box; grid-column: 1 / -1; width: 100%; min-height: 44px; margin: 0 0 2px; padding: 10px 12px; font-size: 14px; font-weight: 800; }
   .panel .director { border-color: #977b42; color: #554422; background: #fbf5e8; }
   .panel button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .director-still { margin-top: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
@@ -102,9 +102,9 @@
     .origin-hint a { white-space: normal; }
     .panel-toggle { display: none; }
     .room { height: auto; aspect-ratio: auto; --actions-bar: 60px; }
-    .room-toolbar:not([hidden]) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; align-items: center; box-sizing: border-box; height: var(--actions-bar); padding: 8px; background: #fbfaf6; }
+    .room-toolbar:not([hidden]) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; align-items: center; box-sizing: border-box; height: var(--actions-bar); padding: 8px; background: #fbfaf6; }
     .room-toolbar button { box-sizing: border-box; height: 44px; min-height: 44px; min-width: 0; margin: 0; padding: 0 4px; width: 100%; font: inherit; font-weight: 700; font-size: 12px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid var(--moss); background: #fff; color: var(--moss); border-radius: 999px; cursor: pointer; }
-    .room-toolbar .shuffle { background: var(--moss); color: #fff; }
+    .room-toolbar .shuffle { border-color: #bd9848; background: #f0d48d; color: #34280f; box-shadow: 0 2px 8px #70500d30; }
     .room-toolbar .director { border-color: #977b42; color: #554422; background: #fbf5e8; }
     .room-toolbar button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
     .opts[aria-label="感覺"], .opts[aria-label="Feeling"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -130,8 +130,11 @@
   .room.is-immersive .immersive-controls { display: flex; position: absolute; z-index: 7; right: 0; bottom: 0; left: 0; flex-direction: column; gap: 5px; padding: 8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left)); background: linear-gradient(transparent, #17201add 20%); }
   .room.is-immersive .immersive-row { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: none; }
   .room.is-immersive .immersive-row::-webkit-scrollbar { display: none; }
-  .room.is-immersive .immersive-row button { flex: 0 0 auto; min-height: 44px; padding: 8px 13px; border: 1px solid #a8afa5; border-radius: 999px; background: #f9f7edee; color: #24302c; font: 700 14px system-ui, sans-serif; white-space: nowrap; cursor: pointer; }
-  .room.is-immersive .immersive-row button[aria-pressed="true"], .room.is-immersive .immersive-row button.shuffle { border-color: #315c5d; background: #315c5d; color: #fff; }
+  .room.is-immersive .immersive-moods { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .room.is-immersive .immersive-moods > .immersive-row { flex: 1 1 0; min-width: 0; }
+  .room.is-immersive .immersive-row button, .room.is-immersive .immersive-moods > button { flex: 0 0 auto; min-height: 44px; padding: 8px 13px; border: 1px solid #a8afa5; border-radius: 999px; background: #f9f7edee; color: #24302c; font: 700 14px system-ui, sans-serif; white-space: nowrap; cursor: pointer; }
+  .room.is-immersive .immersive-row button[aria-pressed="true"] { border-color: #315c5d; background: #315c5d; color: #fff; }
+  .room.is-immersive .immersive-moods > button.shuffle { border-color: #bd9848; background: #f0d48d; color: #34280f; font-weight: 800; box-shadow: 0 2px 8px #0003; }
   html.room-immersive, html.room-immersive body { overflow: hidden; overscroll-behavior: none; }
   .postcard-preview { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); background: #111815f2; color: #202a25; }
   .postcard-preview[hidden] { display: none; }
@@ -176,6 +179,6 @@
 </section>
 <p class="portal" id="portalRow" hidden><button id="portalBtn" data-travel-door-trigger type="button"></button><button id="travelDoorBtn" data-travel-door-trigger type="button"></button><span id="portalHint"></span></p>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=77"></script>
+<script type="module" src="page.js?v=78"></script>
 </body>
 </html>
