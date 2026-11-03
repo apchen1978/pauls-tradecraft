@@ -10,14 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 69297, meshes: 117 }),
+  scene: Object.freeze({ vertices: 70063, meshes: 118 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 80, phone: 79 }),
-  // Draw calls per mood (first frame after the mood is set). Dinner and Thanksgiving record the BASE scene
-  // without the tableware layer; their measured totals are 82/83 and 83/86, respectively.
+  // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 80, sunday: 80, thanksgiving: 80 }),
-    phone: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 79, sunday: 79, thanksgiving: 79 }),
+    desktop: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 87, sunday: 80, thanksgiving: 90 }),
+    phone: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 86, sunday: 79, thanksgiving: 89 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -56,6 +55,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-01", change: "nook micro-world: a sleeping puppy plush on the console top (+468 vertices, same merged decor mesh, no new mesh or draw call) and uneven rug fringe at the same vertex count", vertices: 67661, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "two differently coloured takeaway coffee cups replace the tiny cup on the terracotta credenza (+581 vertices net, same merged decor mesh; no draw-call increase)", vertices: 68242, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
     { date: "2026-11-03", change: "a 1,660-vertex unbranded San Francisco cable-car keepsake replaces the procedural potted plant on the terracotta credenza (+1,055 net vertices, same merged decor mesh; no draw-call increase)", vertices: 69297, meshes: 117, desktopCalls: 80, phoneCalls: 79 },
+    { date: "2026-11-03", change: "paper-napkin pack beside the clay-red credenza is permanent across moods (+766 vertices, one mesh; dinner/Thanksgiving views include it)", vertices: 70063, meshes: 118, desktopCalls: 80, phoneCalls: 79 },
   ]),
 });
 

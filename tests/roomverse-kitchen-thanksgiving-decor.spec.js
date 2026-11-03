@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
-const MOODS = ["golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
+const MOODS = ["daylight", "golden", "movie", "night", "dinner", "sunday", "thanksgiving"];
 
 async function loadRoom(page, width = 1440) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
@@ -19,6 +19,8 @@ test("the Thanksgiving table layer (bottle, two extra glasses, cranberries, cand
     expect(info.moodLook.moods[mood].thanksgivingDecor, `${mood} flag`).toBe(shown);
     expect(info.thanksgivingDecor.visible, `${mood} visible`).toBe(shown);
     expect(info.thanksgivingDecor.mounted, `${mood} mounted`).toBe(shown);
+    expect(info.paperNapkinPack.visible, `${mood}: counter paper napkins remain visible`).toBe(true);
+    expect(info.paperNapkinPack.mounted, `${mood}: counter paper napkins remain in the scene`).toBe(true);
   }
   await page.evaluate(() => window.__room03.setMood("thanksgiving"));
   const info = await page.evaluate(() => window.__room03.info());
@@ -26,15 +28,15 @@ test("the Thanksgiving table layer (bottle, two extra glasses, cranberries, cand
   expect(decor.meshes, "one opaque mesh plus glass and wine, like the place settings").toBe(3);
   expect(decor.vertices, "geometry budget for the layer").toBeLessThanOrEqual(6000);
   const names = decor.items.map((item) => item.name).sort();
-  expect(names).toEqual(["bread-plate", "candlestick-0", "candlestick-1", "candlestick-2", "candlestick-3", "cranberry-bowl", "napkin-pack", "wine-bottle", "wine-glass-0", "wine-glass-1", "wine-glass-2", "wine-glass-3"]);
+  expect(names).toEqual(["bread-plate", "candlestick-0", "candlestick-1", "candlestick-2", "candlestick-3", "cranberry-bowl", "wine-bottle", "wine-glass-0", "wine-glass-1", "wine-glass-2", "wine-glass-3"]);
   for (const item of decor.items) expect(item.gapMm, `${item.name} rests on the tabletop`).toBeLessThanOrEqual(1);
   for (const item of decor.items) expect(item.gapMm, `${item.name} is not sunk into the table`).toBeGreaterThanOrEqual(-1);
   expect(decor.items.find((item) => item.name === "wine-bottle").heightMm, "a standard 750 ml bottle is about 30 cm").toBeGreaterThanOrEqual(295);
   const glassSides = decor.items.filter((item) => item.name.startsWith("wine-glass")).map((item) => Math.sign(item.z - 0.5));
   expect(glassSides.filter((side) => side > 0).length, "the same number of extra glasses on both sides of the table").toBe(glassSides.filter((side) => side < 0).length);
   expect(decor.minNeighbourMm, "no two pieces touch").toBeGreaterThanOrEqual(15);
-  // The Costco-style napkin pack sits on the small wok counter beside the clay-red credenza, not on the dining table (Paul 2026-10-31).
-  const pack = decor.items.find((item) => item.name === "napkin-pack");
+  // The generic red-banded paper-napkin pack stays on the small wok counter in every mood (Paul 2026-11-03).
+  const pack = info.paperNapkinPack.items.find((item) => item.name === "napkin-pack");
   const counter = info.wokSupport.counter;
   expect(pack.x - pack.radius, "napkin pack on the wok counter (x)").toBeGreaterThanOrEqual(counter.min[0]);
   expect(pack.x + pack.radius, "napkin pack on the wok counter (x)").toBeLessThanOrEqual(counter.max[0]);
@@ -42,7 +44,7 @@ test("the Thanksgiving table layer (bottle, two extra glasses, cranberries, cand
   expect(pack.z + pack.radius, "napkin pack clear of the stove and wok props").toBeLessThanOrEqual(info.sceneBounds.sideKitchen.min[2] - 0.02);
   // Clear of every place setting's plate (27 cm plates).
   for (const setting of info.tableware.settings) {
-    for (const item of decor.items.filter((entry) => entry.name !== "napkin-pack")) {
+    for (const item of decor.items) {
       const distance = Math.hypot(item.x - setting.plateCenter[0], item.z - setting.plateCenter[2]) - item.radius - 0.135;
       expect(distance * 1000, `${item.name} clears the plate at ${setting.plateCenter[0]}, ${setting.plateCenter[2]}`).toBeGreaterThanOrEqual(30);
     }
