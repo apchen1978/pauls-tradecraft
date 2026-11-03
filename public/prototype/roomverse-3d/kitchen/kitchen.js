@@ -5435,66 +5435,95 @@ function buildRoom03WokTools(scene) {
     parts.push(geometry);
   };
   const lathe = (profile, segments) => new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), segments);
-  const BRASS = 0xb08d4e, STEEL = 0xb4b6b2, DARK_STEEL = 0x8a8c88, WALNUT = 0x6b4a32, OAK = 0xb88b5b, BAMBOO = 0xcfb176, SPOON = 0xa8794a;
-  // Rail along z with end caps, on two brackets (a plate on the wall and a short neck).
-  add(new THREE.CylinderGeometry(0.0065, 0.0065, 0.46, 10), BRASS, [X, RAIL_Y, Z0], [Math.PI / 2, 0, 0]);
-  for (const dz of [-0.23, 0.23]) {
-    add(new THREE.SphereGeometry(0.0095, 8, 6), BRASS, [X, RAIL_Y, Z0 + dz]);
-  }
+  const BRASS = 0xb08d4e, STEEL = 0xc3c5c2, DARK_STEEL = 0x7d807d, WALNUT = 0x6b4a32, OAK = 0xb88b5b, NYLON = 0x1d1e20, GLASS = 0xd9e2df, LID = 0x222326;
+  // American-style utensil rail (Paul 2026-11-04: "像美國人會用的那種"): brushed stainless bar with round end caps on two wall posts,
+  // five tools on S-hooks, each with a hang hole: walnut spoon, black slotted turner, balloon whisk, stainless ladle, locking tongs.
+  add(new THREE.CylinderGeometry(0.0065, 0.0065, 0.46, 14), STEEL, [X, RAIL_Y, Z0], [Math.PI / 2, 0, 0]);
+  for (const dz of [-0.23, 0.23]) add(lathe([[0, -0.004], [0.0095, -0.004], [0.0105, 0], [0.0095, 0.004], [0, 0.006]], 12), STEEL, [X, RAIL_Y, Z0 + dz], [Math.PI / 2, 0, 0]);
   for (const dz of [-0.19, 0.19]) {
-    add(new THREE.BoxGeometry(0.006, 0.034, 0.016), BRASS, [WALL_X - 0.003, RAIL_Y, Z0 + dz]);
-    add(new THREE.CylinderGeometry(0.004, 0.004, WALL_X - X - 0.003, 6), BRASS, [(WALL_X + X) / 2 - 0.0015, RAIL_Y, Z0 + dz], [0, 0, Math.PI / 2]);
+    add(new THREE.CylinderGeometry(0.011, 0.011, 0.004, 14), STEEL, [WALL_X - 0.002, RAIL_Y, Z0 + dz], [0, 0, Math.PI / 2]);
+    add(new THREE.CylinderGeometry(0.0045, 0.0045, WALL_X - X - 0.003, 8), STEEL, [(WALL_X + X) / 2 - 0.0015, RAIL_Y, Z0 + dz], [0, 0, Math.PI / 2]);
   }
   const TOOLS = [
-    { name: "wood-spoon", dz: -0.145, length: 0.232, wood: WALNUT, head: "spoon", lean: -0.04 },
-    { name: "slotted-spoon", dz: -0.035, length: 0.238, wood: OAK, head: "slotted-spoon", lean: 0.025 },
-    { name: "compact-turner", dz: 0.075, length: 0.228, wood: BAMBOO, head: "turner", lean: -0.02 },
-    { name: "stainless-tongs", dz: 0.17, length: 0.235, wood: STEEL, head: "tongs", lean: 0.045 },
+    { name: "wood-spoon", dz: -0.16 },
+    { name: "slotted-turner", dz: -0.09 },
+    { name: "balloon-whisk", dz: -0.02 },
+    { name: "stainless-ladle", dz: 0.05 },
+    { name: "locking-tongs", dz: 0.12 },
   ];
-  const includeInRecord = (record) => {
-    // `add` accumulates bounds from the transformed built geometry.
-    return { min: [...record.min], max: [...record.max] };
+  const includeInRecord = (record) => ({ min: [...record.min], max: [...record.max] });
+  // Handle with a rounded end and a hang hole near its top; profile runs from y=0 (bottom) up to `len`.
+  const handle = (z, topY, len, rBottom, rTop, hex) => {
+    add(lathe([[0, 0], [rBottom, 0.002], [rBottom * 1.05, len * 0.35], [rTop, len - 0.012], [rTop * 0.75, len - 0.003], [0, len]], 12), hex, [X, topY - len, z]);
+    add(new THREE.TorusGeometry(0.0045, 0.0012, 5, 12), DARK_STEEL, [X, topY - 0.009, z], [0, Math.PI / 2, 0], [1, 1, 1]);
   };
-  for (const { name, dz, length, wood, head, lean } of TOOLS) {
+  for (const { name, dz } of TOOLS) {
     activeBounds = { name, min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity] };
     const z = Z0 + dz;
-    add(new THREE.TorusGeometry(0.007, 0.0015, 5, 10, Math.PI * 1.5), BRASS, [X, RAIL_Y - 0.004, z], [0, Math.PI / 2, 0]);
-    const top = RAIL_Y - 0.012, handleBottom = top - length;
-    add(new THREE.CylinderGeometry(0.006, 0.007, length, 8), wood, [X, top - length / 2, z], [0, 0, lean]);
-    add(new THREE.TorusGeometry(0.004, 0.0013, 4, 8), DARK_STEEL, [X, top - 0.004, z], [0, Math.PI / 2, 0]);
-    if (head === "spoon") {
-      add(new THREE.SphereGeometry(0.026, 12, 8), SPOON, [X, handleBottom - 0.031, z], [0, 0, 0], [0.58, 1.0, 0.9]);
-    } else if (head === "slotted-spoon") {
-      add(new THREE.TorusGeometry(0.024, 0.003, 5, 16), STEEL, [X, handleBottom - 0.038, z], [0, Math.PI / 2, 0]);
-      add(new THREE.CylinderGeometry(0.022, 0.022, 0.002, 16), DARK_STEEL, [X, handleBottom - 0.038, z], [0, 0, Math.PI / 2]);
-      for (const dz0 of [-0.010, 0, 0.010]) add(new THREE.CylinderGeometry(0.0011, 0.0011, 0.0025, 5), STEEL, [X + 0.001, handleBottom - 0.038, z + dz0], [0, 0, Math.PI / 2]);
-    } else if (head === "turner") {
-      add(new THREE.BoxGeometry(0.0035, 0.035, 0.010), STEEL, [X, handleBottom - 0.018, z], [0, 0, lean]);
-      add(new THREE.BoxGeometry(0.0035, 0.062, 0.052), STEEL, [X, handleBottom - 0.068, z], [0, 0, lean]);
-      add(new THREE.BoxGeometry(0.0035, 0.010, 0.050), DARK_STEEL, [X, handleBottom - 0.097, z], [0, 0, lean]);
+    // S-hook: upper half-loop over the rail, lower half-loop through the hang hole.
+    add(new THREE.TorusGeometry(0.0085, 0.0013, 5, 12, Math.PI), STEEL, [X, RAIL_Y, z], [0, Math.PI / 2, 0]);
+    add(new THREE.TorusGeometry(0.006, 0.0013, 5, 12, Math.PI), STEEL, [X, RAIL_Y - 0.0145, z], [0, Math.PI / 2, Math.PI]);
+    const top = RAIL_Y - 0.012;
+    if (name === "wood-spoon") {
+      handle(z, top, 0.22, 0.0055, 0.0085, WALNUT);
+      const neckY = top - 0.22;
+      add(new THREE.CylinderGeometry(0.0055, 0.009, 0.03, 10), WALNUT, [X, neckY - 0.012, z]);
+      const bowl = new THREE.SphereGeometry(0.5, 16, 10);
+      const pos = bowl.attributes.position;
+      for (let i = 0; i < pos.count; i++) if (pos.getX(i) < 0) pos.setX(i, pos.getX(i) * 0.35); // shallow scooped front
+      add(bowl, WALNUT, [X, neckY - 0.058, z], [0, 0, 0], [0.018, 0.075, 0.05]);
+    } else if (name === "slotted-turner") {
+      handle(z, top, 0.165, 0.0065, 0.0085, NYLON);
+      add(new THREE.CylinderGeometry(0.0035, 0.0035, 0.004, 10), STEEL, [X, top - 0.05, z], [0, 0, Math.PI / 2]); // rivet
+      add(new THREE.CylinderGeometry(0.0045, 0.006, 0.045, 8), NYLON, [X, top - 0.187, z], [0, 0, 0.12]);
+      const bladeY = top - 0.255;
+      add(new THREE.BoxGeometry(0.0035, 0.10, 0.068), NYLON, [X - 0.003, bladeY, z], [0, 0, 0.12]);
+      add(new THREE.CylinderGeometry(0.034, 0.034, 0.0035, 20, 1, false, Math.PI / 2, Math.PI), NYLON, [X - 0.009, bladeY - 0.05, z], [0, 0, Math.PI / 2 + 0.12]);
+      for (const sz of [-0.02, -0.0067, 0.0067, 0.02]) add(new THREE.BoxGeometry(0.0045, 0.064, 0.0045), 0x0b0b0c, [X - 0.0062, bladeY - 0.005, z + sz], [0, 0, 0.12]);
+    } else if (name === "balloon-whisk") {
+      handle(z, top, 0.13, 0.009, 0.0095, STEEL);
+      add(new THREE.CylinderGeometry(0.0095, 0.0075, 0.012, 12), DARK_STEEL, [X, top - 0.136, z]); // wire collar
+      const cy = top - 0.142 - 0.085;
+      for (let k = 0; k < 6; k++) add(new THREE.TorusGeometry(0.085, 0.0011, 4, 28), STEEL, [X, cy, z], [0, (k * Math.PI) / 6, 0], [0.34, 1, 0.34]);
+    } else if (name === "stainless-ladle") {
+      handle(z, top, 0.07, 0.0085, 0.009, STEEL);
+      add(new THREE.CylinderGeometry(0.003, 0.0035, 0.20, 8), STEEL, [X, top - 0.07 - 0.10, z]);
+      const cupY = top - 0.27 - 0.03;
+      add(new THREE.SphereGeometry(0.038, 18, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), STEEL, [X - 0.012, cupY + 0.03, z], [0, 0, -0.5]);
+      add(new THREE.TorusGeometry(0.038, 0.0018, 5, 24), DARK_STEEL, [X - 0.012, cupY + 0.03, z], [Math.PI / 2, 0, -0.5]);
     } else {
-      add(new THREE.CylinderGeometry(0.003, 0.003, 0.038, 7), STEEL, [X, handleBottom - 0.019, z]);
-      add(new THREE.TorusGeometry(0.015, 0.0022, 5, 14, Math.PI), STEEL, [X, handleBottom - 0.045, z - 0.010], [0, Math.PI / 2, 0]);
-      add(new THREE.TorusGeometry(0.015, 0.0022, 5, 14, Math.PI), STEEL, [X, handleBottom - 0.045, z + 0.010], [0, -Math.PI / 2, 0]);
+      // Locking tongs: pull ring, a hinged pair of stainless arms with nylon-free scalloped tips.
+      add(new THREE.TorusGeometry(0.009, 0.0016, 6, 14), STEEL, [X, top - 0.004, z], [0, Math.PI / 2, 0]);
+      add(new THREE.CylinderGeometry(0.0085, 0.0085, 0.018, 12), DARK_STEEL, [X, top - 0.02, z]);
+      for (const side of [-1, 1]) {
+        add(new THREE.BoxGeometry(0.004, 0.25, 0.010), STEEL, [X, top - 0.155, z + side * 0.009], [side * 0.03, 0, 0]);
+        add(new THREE.BoxGeometry(0.0045, 0.035, 0.022), STEEL, [X, top - 0.29, z + side * 0.015], [side * 0.03, 0, 0]);
+        for (const ty of [-0.008, 0.004]) add(new THREE.CylinderGeometry(0.0022, 0.0022, 0.022, 6), DARK_STEEL, [X, top - 0.29 + ty, z + side * 0.017], [Math.PI / 2, 0, 0]);
+      }
     }
     toolRecords.push({ name, bounds: includeInRecord(activeBounds) });
     activeBounds = null;
   }
-  const canister = (z, radius, height, hex) => {
-    activeBounds = { name: "seasoning", min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity] };
-    add(lathe([[0, 0], [radius * 0.92, 0], [radius, 0.008], [radius, height - 0.012], [radius * 0.9, height], [0, height]], 14), hex, [SHELF_X, SHELF_TOP, z]);
-    add(new THREE.CylinderGeometry(radius * 0.9, radius * 0.9, 0.016, 14), OAK, [SHELF_X, SHELF_TOP + height + 0.006, z]);
-    add(new THREE.SphereGeometry(0.0085, 7, 5), OAK, [SHELF_X, SHELF_TOP + height + 0.018, z]);
-    jarRecords.push({ bounds: includeInRecord(activeBounds) });
-    activeBounds = null;
-  };
-  const seasoning = [
-    { z: 2.035, r: 0.021, h: 0.072, color: 0xe1d8c7 },
-    { z: 2.105, r: 0.023, h: 0.082, color: 0x78805e },
-    { z: 2.175, r: 0.021, h: 0.068, color: 0xb97b54 },
-    { z: 2.245, r: 0.023, h: 0.078, color: 0xd8c9a9 },
-  ];
-  for (const item of seasoning) canister(item.z, item.r, item.h, item.color);
+  // Shelf: tall black-capped salt and pepper grinders plus four glass spice jars with black screw lids and coloured fills (no labels or logos).
+  const shelfItem = (z, record) => { activeBounds = { name: "seasoning", min: [Infinity, Infinity, Infinity], max: [-Infinity, -Infinity, -Infinity] }; record(); jarRecords.push({ bounds: includeInRecord(activeBounds) }); activeBounds = null; };
+  const grinder = (z, bodyHex) => shelfItem(z, () => {
+    add(lathe([[0, 0], [0.019, 0], [0.020, 0.004], [0.016, 0.03], [0.0175, 0.075], [0.019, 0.085], [0, 0.085]], 18), bodyHex, [SHELF_X, SHELF_TOP, z]);
+    add(new THREE.CylinderGeometry(0.0185, 0.0185, 0.003, 18), DARK_STEEL, [SHELF_X, SHELF_TOP + 0.0865, z]);
+    add(lathe([[0, 0], [0.018, 0], [0.018, 0.012], [0.014, 0.024], [0, 0.026]], 18), LID, [SHELF_X, SHELF_TOP + 0.088, z]);
+    add(new THREE.SphereGeometry(0.004, 8, 5), DARK_STEEL, [SHELF_X, SHELF_TOP + 0.115, z]);
+  });
+  const spiceJar = (z, fillHex, fill) => shelfItem(z, () => {
+    // Spice colour fills the lower glass; the clear shoulder above it reads as pale glass.
+    add(lathe([[0, 0], [0.0165, 0], [0.0175, 0.003], [0.0175, fill]], 16), fillHex, [SHELF_X, SHELF_TOP, z]);
+    add(lathe([[0.0175, 0], [0.0175, 0.056 - fill], [0.014, 0.062 - fill], [0.0135, 0.066 - fill], [0, 0.066 - fill]], 16), GLASS, [SHELF_X, SHELF_TOP + fill, z]);
+    add(lathe([[0, 0], [0.0155, 0], [0.0158, 0.016], [0, 0.017]], 16), LID, [SHELF_X, SHELF_TOP + 0.064, z]);
+  });
+  grinder(2.012, 0xe8e4da);
+  grinder(2.058, 0x2b2c2f);
+  spiceJar(2.112, 0xb2402c, 0.040); // paprika
+  spiceJar(2.158, 0x6f7a46, 0.034); // oregano
+  spiceJar(2.204, 0xc79a3c, 0.044); // cumin
+  spiceJar(2.250, 0xd8c7a4, 0.030); // garlic powder
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
   geometry.computeVertexNormals();
