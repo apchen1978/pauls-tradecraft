@@ -2902,6 +2902,8 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
   let startedAfterFirstRender = false;
   let settled = 0;
   let cableCarImageGain = 1;
+  const CABLE_CAR_MAT_FRACTION = 0.05;
+  const matFractionFor = (asset) => asset.key === "cable-car" ? CABLE_CAR_MAT_FRACTION : 0.07;
   // Swappable prints for the two frames (Paul 2026-10-29). Each option is fetched only when chosen, painted into the same atlas
   // region as the original and then released, so vertices, meshes and draw calls never change and nothing extra loads up front.
   const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "fog-bridge" };
@@ -2936,7 +2938,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     const height = asset.key !== "cable-car" ? 600 : atlasCanvas.height;
     // A cream mat (passe-partout) around the picture, painted into the texture: it is what makes a painting read as a hung, framed object
     // instead of a bright hole in the wall like the window beside it (Paul 2026-10-29). No geometry, no draw call.
-    const mat = Math.round(width * 0.07);
+    const mat = Math.round(width * matFractionFor(asset));
     const sw0 = source.naturalWidth || source.width, sh0 = source.naturalHeight || source.height;
     const innerWidth = width - 2 * mat, innerHeight = height - 2 * mat;
     const scale = Math.max(innerWidth / sw0, innerHeight / sh0);
@@ -2970,7 +2972,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     // A coarse 10 x 8 grid of single pixels: enough to tell two pictures apart without reading the whole region on every info() call.
     // Sampled inside the cream mat, so the reading is the picture itself.
     const regionX = Math.round(asset.atlasRect.u0 * atlasCanvas.width), regionWidth = Math.round((asset.atlasRect.u1 - asset.atlasRect.u0) * atlasCanvas.width);
-    const mat = Math.round(regionWidth * 0.07);
+    const mat = Math.round(regionWidth * matFractionFor(asset));
     const y0 = (asset.key !== "cable-car" ? 8 : 0) + mat, height = (asset.key !== "cable-car" ? 600 : atlasCanvas.height) - 2 * mat;
     const x0 = regionX + mat, width = regionWidth - 2 * mat;
     let r = 0, g = 0, b = 0, n = 0;
@@ -2983,6 +2985,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
   return {
     assets,
     imageMesh,
+    matFraction: (frameKey) => matFractionFor(frameAssetByKey[frameKey]),
     artOptions: ART_OPTIONS,
     get choice() { return { ...choice }; },
     regionMean: (frameKey) => regionMean(frameAssetByKey[frameKey]),
@@ -6702,6 +6705,7 @@ export async function start({ stage, onReady = () => {} }) {
       const image = asset.texture?.image;
       return {
         status: asset.status,
+        matFraction: wallArt.matFraction(asset.key),
         textureSize: image ? [image.naturalWidth || image.width, image.naturalHeight || image.height] : [0, 0],
         bounds,
         imagePixels: projectedPixelsFor(asset.image),
@@ -6723,6 +6727,7 @@ export async function start({ stage, onReady = () => {} }) {
         topBelowHorizontalBand: redwoodBounds.max[1] <= 2.4,
       },
       canopyInRoom: false,
+      lampWallMatFraction: wallArt.matFraction("lamp-wall"),
       startedAfterFirstRender: wallArt.startedAfterFirstRender && firstFrameRendered,
       settled: wallArtSettled,
     };
