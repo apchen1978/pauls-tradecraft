@@ -2882,6 +2882,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
   scene.add(imageMesh);
   let startedAfterFirstRender = false;
   let settled = 0;
+  let cableCarImageGain = 1;
   // Swappable prints for the two frames (Paul 2026-10-29). Each option is fetched only when chosen, painted into the same atlas
   // region as the original and then released, so vertices, meshes and draw calls never change and nothing extra loads up front.
   const choice = { "cable-car": "cable-car", "redwood-path": "redwood-path", "lamp-wall": "fog-bridge" };
@@ -2933,6 +2934,12 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     atlasContext.fillStyle = "#eee5d2";
     atlasContext.fillRect(left, y, width, height);
     atlasContext.drawImage(source, sx, sy, sw, sh, left + mat, y + mat, innerWidth, innerHeight);
+    if (asset.key === "cable-car" && cableCarImageGain < 1) {
+      // The cable-car illustration is a bright, unlit print. Dim only its atlas region per mood;
+      // the redwood and lamp-wall prints keep their existing colour and the mesh/draw-call budget.
+      atlasContext.fillStyle = `rgba(0, 0, 0, ${1 - cableCarImageGain})`;
+      atlasContext.fillRect(left + mat, y + mat, innerWidth, innerHeight);
+    }
     // A thin bevel line where the mat meets the picture: darker on top and left, lighter below and right.
     atlasContext.lineWidth = 2;
     atlasContext.strokeStyle = "rgba(70, 55, 35, 0.35)";
@@ -2960,6 +2967,11 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
     artOptions: ART_OPTIONS,
     get choice() { return { ...choice }; },
     regionMean: (frameKey) => regionMean(frameAssetByKey[frameKey]),
+    get cableCarImageGain() { return cableCarImageGain; },
+    setCableCarImageGain(gain) {
+      cableCarImageGain = THREE.MathUtils.clamp(gain, 0, 1);
+      if (cableCar.sourceImage) paintRegion(cableCar, cableCar.sourceImage);
+    },
     setArtwork(frameKey, optionKey, onDone = () => {}) {
       const urls = ART_OPTIONS[frameKey];
       const asset = frameAssetByKey[frameKey];
@@ -2967,7 +2979,10 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       choice[frameKey] = optionKey;
       new THREE.TextureLoader().load(new URL(urls[optionKey], import.meta.url).href, (texture) => {
         // A later click may have replaced this one while it was loading.
-        if (choice[frameKey] === optionKey) paintRegion(asset, texture.image);
+        if (choice[frameKey] === optionKey) {
+          asset.sourceImage = texture.image;
+          paintRegion(asset, texture.image);
+        }
         texture.dispose();
         onDone({ frameKey, optionKey, status: "loaded" });
       }, undefined, () => onDone({ frameKey, optionKey, status: "failed" }));
@@ -2989,6 +3004,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
         loader.load(urls[name], (texture) => {
           texture.colorSpace = THREE.SRGBColorSpace;
           asset.texture = texture;
+          asset.sourceImage = texture.image;
           paintRegion(asset, texture.image);
           texture.dispose();
           atlasTexture.needsUpdate = true;
@@ -5863,7 +5879,7 @@ export async function start({ stage, onReady = () => {} }) {
     "pendantFloorBounce", "pendantFloorBounceVisible", "pendantCeilingBounce", "pendantCeilingBounceVisible",
     "reveal", "contactShadow", "loungePillow", "screenColor", "screenToneMapped", "screenMap",
     "floorLamp", "tableLamp", "screenCool", "pictureLightEmissive", "counterPendantEmissive", "blind", "curtainColor", "tableware", "thanksgivingDecor", "artLight",
-    "ceilingColor", "ceilingEmissiveColor", "beamColor", "tableTint",
+    "ceilingColor", "ceilingEmissiveColor", "beamColor", "tableTint", "cableCarArtGain",
   ]);
   const sharedLook = {
     sunColor: 0xffd6a1, sunPosition: [-4.2, 1.2, 3.6],
@@ -5871,6 +5887,7 @@ export async function start({ stage, onReady = () => {} }) {
     sunlightOpacity: 0, sunlightVisible: false,
     pendantFloorBounce: 0, pendantFloorBounceVisible: false,
     loungePillow: 0x7f946c, screenColor: 0x171918, screenToneMapped: true, screenMap: null,
+    cableCarArtGain: 0.86,
     floorLamp: 0, tableLamp: 0, screenCool: 0, pictureLightEmissive: 0, counterPendantEmissive: 0,
     yardMap: null,
     ceilingColor: COLORS.ceiling, ceilingEmissiveColor: 0xb7a68b, beamColor: COLORS.beam, tableTint: 0xffffff, curtainColor: 0xcdbfa8,
@@ -5886,6 +5903,7 @@ export async function start({ stage, onReady = () => {} }) {
       sun: 1.25, sunColor: 0xfff3e6, sunPosition: [-3.6, 2.1, 3.4],
       hemi: 1.15, hemiSky: 0xf1f5fb, hemiGround: 0xd8d0c3, ambient: 0.36, pendant: 0.2, under: 0.70, side: 0.70,
       exposure: 0.96, yard: 0xc2c9cb, globe: 0.2, sky: "day",
+      cableCarArtGain: 0.88,
       floor: 0xc8bda9, jute: 0xcfc2a4, ceilingEmissive: 0.10,
       ceilingColor: 0xe8ddc9, ceilingEmissiveColor: 0xb4a995, beamColor: 0xebe4d6, tableTint: new THREE.Color().setRGB(1.0, 1.2, 1.6),
       warmGlow: 0.4, wokGlow: 0.6,
@@ -5897,6 +5915,7 @@ export async function start({ stage, onReady = () => {} }) {
       ...sharedLook,
       sun: 3.1, hemi: 0.55, ambient: 0.16, pendant: 0.32, under: 0.42, side: 0.48,
       exposure: 1.26, yard: 0xffd7a1, globe: 0.34, sky: "golden",
+      cableCarArtGain: 0.74,
       floor: 0xcdbb9e, jute: 0xd0b47f, ceilingEmissive: 0.3,
       warmGlow: 0.72, wokGlow: 0.72,
       windowWallBounce: 0.12, windowWallBounceVisible: true,
@@ -5907,6 +5926,7 @@ export async function start({ stage, onReady = () => {} }) {
       ...sharedLook,
       sun: 0, hemi: 0.55, ambient: 0.26, pendant: 7.0, under: 2.7, side: 2.3,
       exposure: 1.20, yard: 0xd2dcf0, yardMap: "courtyard-night-moon-v1", globe: 1.55, sky: "night",
+      cableCarArtGain: 0.78,
       floor: 0xc2a77b, jute: 0xd9c99f, ceilingEmissive: 0.55,
       warmGlow: 1, wokGlow: 1,
       windowWallBounce: 0, windowWallBounceVisible: false,
@@ -5924,6 +5944,7 @@ export async function start({ stage, onReady = () => {} }) {
       ambient: 0.23, ambientColor: 0xd8e0f2,
       pendant: 0, under: 1.3, side: 0.85,
       exposure: 1.20, yard: 0x8d9ab8, yardMap: "courtyard-night-moon-v1", globe: 0.06, sky: "night",
+      cableCarArtGain: 0.76,
       floor: 0xbfa982, jute: 0xcbb894, ceilingEmissive: 0.06,
       warmGlow: 0.55, wokGlow: 0.55,
       windowWallBounce: 0, windowWallBounceVisible: false,
@@ -5947,6 +5968,7 @@ export async function start({ stage, onReady = () => {} }) {
       pendant: 3.2, under: 1.6, side: 0,
       // Dinner is dusk: the golden-hour yard photo is tinted blue-hour so the window no longer reads as afternoon (Paul 2026-10-28).
       exposure: 1.14, yard: 0x6f7a96, globe: 0.55, sky: "golden",
+      cableCarArtGain: 0.74,
       floor: 0xcdbb9e, jute: 0xd0b47f, ceilingEmissive: 0.22,
       warmGlow: 0.80, wokGlow: 0.25,
       windowWallBounce: 0.06, windowWallBounceVisible: true,
@@ -5963,6 +5985,7 @@ export async function start({ stage, onReady = () => {} }) {
       ambient: 0.20,
       pendant: 0, under: 0.3, side: 0.4,
       exposure: 1.22, yard: 0xbfd3d8, globe: 0.15, sky: "golden",
+      cableCarArtGain: 0.90,
       floor: 0xc9bb9f, jute: 0xd0b47f, ceilingEmissive: 0.12,
       warmGlow: 0.35, wokGlow: 0.40,
       windowWallBounce: 0.10, windowWallBounceVisible: true,
@@ -5982,6 +6005,7 @@ export async function start({ stage, onReady = () => {} }) {
       ambient: 0.18, ambientColor: 0xfff4e6,
       pendant: 2.2, under: 1.2, side: 0,
       exposure: 1.12, yard: 0xffffff, yardMap: "courtyard-autumn-v1", globe: 0.45, sky: "golden",
+      cableCarArtGain: 0.74,
       floor: 0xc9a67a, jute: 0xd0b47f, ceilingEmissive: 0.20,
       warmGlow: 0.70, wokGlow: 0.45,
       windowWallBounce: 0.08, windowWallBounceVisible: true,
@@ -6127,6 +6151,7 @@ export async function start({ stage, onReady = () => {} }) {
     // The two framed paintings are unlit (accurate colour), so by day and night they looked identical and read as windows (Paul 2026-10-29).
     // Dim and warm them with the mood like the wall around them.
     wallArt.material.color.setRGB(...look.artLight);
+    wallArt.setCableCarImageGain(look.cableCarArtGain);
     roomDoor?.setMoodLight(look.artLight);
     materials.opal.emissiveIntensity = look.globe;
     room03Curtains.material.color.setHex(look.curtainColor);
