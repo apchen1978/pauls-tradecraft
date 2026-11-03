@@ -278,7 +278,22 @@ function makeRugTexture(style = "jute") {
     ctx.fillStyle = bases[style] || bases.jute; ctx.fillRect(0, 0, w, h);
     let state = 37;
     const rand = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
-    if (style === "stripe") {
+    if (style === "jute") {
+      // Quiet Bay Area flatweave: a restrained broken border and fine, irregular fibres.
+      ctx.fillStyle = "rgba(107,120,92,.16)"; ctx.fillRect(14, 14, w - 28, 4);
+      ctx.fillStyle = "rgba(161,105,75,.15)"; ctx.fillRect(14, h - 18, w - 28, 4);
+      ctx.fillStyle = "rgba(255,255,255,.30)"; ctx.fillRect(14, 22, w - 28, 2);
+      for (const x of [18, w - 27]) {
+        ctx.fillStyle = "rgba(107,120,92,.12)"; ctx.fillRect(x, 34, 3, h - 68);
+        ctx.fillStyle = "rgba(255,255,255,.24)"; ctx.fillRect(x + 4, 34, 1, h - 68);
+      }
+      for (let i = 0; i < 9; i++) {
+        const x = 36 + i * ((w - 72) / 8), y = 42 + (i % 2) * 3;
+        ctx.strokeStyle = i % 3 === 1 ? "rgba(161,105,75,.19)" : "rgba(107,120,92,.16)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 5, y + 5); ctx.lineTo(x, y + 10); ctx.lineTo(x - 5, y + 5); ctx.closePath(); ctx.stroke();
+      }
+    } else if (style === "stripe") {
       for (let y = 22; y < h; y += 58) {
         ctx.fillStyle = "rgba(100,111,93,.14)"; ctx.fillRect(0, y, w, 12);
         ctx.fillStyle = "rgba(255,255,255,.16)"; ctx.fillRect(0, y + 13, w, 2);
@@ -290,8 +305,8 @@ function makeRugTexture(style = "jute") {
       }
     }
     ctx.save(); ctx.beginPath(); ctx.rect(5, 5, w - 10, h - 10); ctx.clip();
-    // Broken bundles, random spacing and short cross-fibres; no full-length cross grid.
-    for (let i = 0; i < 170; i++) {
+    // Fine broken fibres avoid a coarse checker pattern at the room's normal viewing distance.
+    for (let i = 0; i < 125; i++) {
       const x = rand() * w, y = rand() * h, length = 9 + rand() * 42;
       ctx.strokeStyle = rand() > 0.48 ? "rgba(117,89,51,.085)" : "rgba(255,255,255,.15)";
       ctx.lineWidth = 0.9 + rand() * 1.2;
