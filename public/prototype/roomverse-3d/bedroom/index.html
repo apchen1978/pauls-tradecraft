@@ -54,7 +54,7 @@
   .moods { margin: 12px clamp(16px, 3vw, 40px) 0; }
   .moods .row { display: flex; flex-wrap: wrap; gap: 8px; }
   .moods button { font: inherit; font-size: 14px; font-weight: 700; padding: 10px 14px; min-height: 44px; border-radius: 999px; border: 1px solid #a8afa5; background: var(--paper); color: var(--moss); cursor: pointer; }
-  .moods button.shuffle { background: var(--moss); color: #fff; border-color: var(--moss); }
+  .moods button.shuffle { background: #f0d48d; color: #34280f; border-color: #bd9848; font-weight: 800; box-shadow: 0 2px 8px #70500d30; }
   .moods button[aria-pressed="true"] { background: var(--moss); color: #fff; border-color: var(--moss); }
   .moods button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .moods p { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; min-height: 1.6em; }
@@ -98,7 +98,8 @@
   .room.is-immersive .views .row, .room.is-immersive .moods .row { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: none; }
   .room.is-immersive .views .row::-webkit-scrollbar, .room.is-immersive .moods .row::-webkit-scrollbar { display: none; }
   .room.is-immersive .views button, .room.is-immersive .moods button { flex: 0 0 auto; width: auto; min-height: 44px; padding: 8px 13px; border-radius: 999px; background: #f9f7edee; color: #24302c; white-space: nowrap; }
-  .room.is-immersive .views button[aria-pressed="true"], .room.is-immersive .moods button[aria-pressed="true"], .room.is-immersive .moods button.shuffle { background: #315c5d; color: #fff; }
+  .room.is-immersive .views button[aria-pressed="true"], .room.is-immersive .moods button[aria-pressed="true"] { background: #315c5d; color: #fff; }
+  .room.is-immersive .moods button.shuffle { border-color: #bd9848; background: #f0d48d; color: #34280f; font-weight: 800; box-shadow: 0 2px 8px #0003; }
   .room.is-immersive .moods p { display: none; }
   html.room-immersive, html.room-immersive body { overflow: hidden; overscroll-behavior: none; }
   .portal .travel-door-trigger { border-color: #aab5aa; background: #fbfaf6; color: #315c5d; }
@@ -132,6 +133,6 @@
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=95"></script>
+<script type="module" src="page.js?v=96"></script>
 </body>
 </html>

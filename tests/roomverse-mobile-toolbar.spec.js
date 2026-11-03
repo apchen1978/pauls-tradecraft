@@ -31,18 +31,18 @@ function roomChoice(page) {
 test.beforeAll(async () => { await mkdir(OUT, { recursive: true }); });
 
 for (const lang of ["zh", "en"]) {
-  test(`${lang} at 390px: tour, random room and postcard sit in one row above the room`, async ({ page }) => {
+  test(`${lang} at 390px: random room, tour and postcard sit in one row above the room`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await enter(page, lang);
     const buttons = [
-      page.locator("#roomToolbar .director"),
       page.locator("#roomToolbar .shuffle"),
+      page.locator("#roomToolbar .director"),
       page.locator("#roomToolbar .save:not(.director):not(.shuffle)"),
     ];
     await expect(page.locator("#panel .save")).toHaveCount(0);
     await expect(page.getByRole("button", { name: FULL[lang].save, exact: true })).toHaveCount(1);
     const boxes = [];
-    for (const [button, key] of buttons.map((button, i) => [button, ["director", "shuffle", "save"][i]])) {
+    for (const [button, key] of buttons.map((button, i) => [button, ["shuffle", "director", "save"][i]])) {
       await expect(button).toBeVisible();
       await expect(button).toHaveAccessibleName(FULL[lang][key]);
       await expect(button).toHaveText(SHORT[lang][key]);
@@ -53,6 +53,8 @@ for (const lang of ["zh", "en"]) {
     }
     expect(Math.abs(boxes[0].y - boxes[1].y)).toBeLessThan(1);
     expect(Math.abs(boxes[1].y - boxes[2].y)).toBeLessThan(1);
+    expect(boxes[0].x).toBeLessThan(boxes[1].x);
+    expect(boxes[1].x).toBeLessThan(boxes[2].x);
     const place = await page.evaluate(() => {
       const bar = document.querySelector("#roomToolbar").getBoundingClientRect();
       const stage = document.querySelector("#stage").getBoundingClientRect();
