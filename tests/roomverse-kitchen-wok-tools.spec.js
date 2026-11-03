@@ -20,6 +20,7 @@ test("wok station has one reduced wall board, four everyday tools, four seasonin
   page.on("console", (message) => { if (message.type() === "error") console.log("ROOM03 CONSOLE", message.text()); });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(PAGE + "?lang=zh");
+  await page.waitForFunction(() => window.__room03?.info && window.__room03.info().furniture.table === "glb", null, { timeout: 45000 });
   await page.waitForFunction(() => window.__room03?.info && window.__room03.info().drawCallsLastFrame > 0, null, { timeout: 45000 });
   console.log("ROOM03 RUNTIME ERRORS", JSON.stringify(pageErrors));
   expect(pageErrors).toEqual([]);
@@ -31,6 +32,9 @@ test("wok station has one reduced wall board, four everyday tools, four seasonin
 
   expect(info.vertices).toBe(LEDGER.scene.vertices);
   expect(tools.utensils.map(({ name }) => name)).toEqual(["wood-spoon", "slotted-spoon", "compact-turner", "stainless-tongs"]);
+  const oilBottleHeightMm = info.wokOliveOil.bounds.size[1] * 1000;
+  expect(Math.max(...tools.utensils.map(({ heightMm }) => heightMm)), "longest hanging utensil is visibly larger than the 244 mm olive-oil bottle").toBeGreaterThanOrEqual(oilBottleHeightMm * 1.2);
+  expect(Math.max(...tools.utensils.map(({ bounds }) => bounds.min[1])), "longer tools still clear the counter").toBeGreaterThanOrEqual(1.005);
   expect(tools.spiceJars).toHaveLength(4);
   expect(tools.vertices, "rail, four utensils and four small shelf jars remain one merged draw-call mesh").toBeGreaterThan(1500);
 
