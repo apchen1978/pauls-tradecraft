@@ -13,7 +13,7 @@ function boxGap(a, b) {
   return Math.hypot(dx, dy, dz);
 }
 
-test("wok station has one reduced wall board, four everyday tools, four seasonings and oil beside the paper pack", async ({ page }) => {
+test("wok station has one reduced wall board, five American-style tools, grinders and four spice jars and oil beside the paper pack", async ({ page }) => {
   test.setTimeout(process.env.ROOMVERSE_QA_DIR ? 120000 : 60000);
   const pageErrors = [];
   page.on("pageerror", (error) => { pageErrors.push(error.stack || error.message); console.log("ROOM03 PAGEERROR", error.stack || error.message); });
@@ -31,11 +31,11 @@ test("wok station has one reduced wall board, four everyday tools, four seasonin
   const pack = info.paperNapkinPack.bounds;
 
   expect(info.vertices).toBe(LEDGER.scene.vertices);
-  expect(tools.utensils.map(({ name }) => name)).toEqual(["wood-spoon", "slotted-spoon", "compact-turner", "stainless-tongs"]);
+  expect(tools.utensils.map(({ name }) => name)).toEqual(["wood-spoon", "slotted-turner", "balloon-whisk", "stainless-ladle", "locking-tongs"]);
   const oilBottleHeightMm = info.wokOliveOil.bounds.size[1] * 1000;
   expect(Math.max(...tools.utensils.map(({ heightMm }) => heightMm)), "longest hanging utensil is visibly larger than the 244 mm olive-oil bottle").toBeGreaterThanOrEqual(oilBottleHeightMm * 1.2);
   expect(Math.max(...tools.utensils.map(({ bounds }) => bounds.min[1])), "longer tools still clear the counter").toBeGreaterThanOrEqual(1.005);
-  expect(tools.spiceJars).toHaveLength(4);
+  expect(tools.spiceJars, "salt and pepper grinders plus four spice jars").toHaveLength(6);
   expect(tools.vertices, "rail, four utensils and four small shelf jars remain one merged draw-call mesh").toBeGreaterThan(1500);
 
   // Original board was 340×420 mm on the main island; approved version is 75% (255×315 mm), vertical against the wok backsplash.
