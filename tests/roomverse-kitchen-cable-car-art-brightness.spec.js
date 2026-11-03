@@ -41,6 +41,10 @@ test("the cable-car print dims by mood without changing the other atlas prints o
   const night = await capture("night");
   const movie = await capture("movie");
 
+  expect(golden.wallArtAssets.cableCar.matFraction, "the cable-car print uses a slightly narrower cream mat").toBe(0.05);
+  expect(golden.wallArtAssets.redwoodPath.matFraction, "the redwood print keeps its existing mat").toBe(0.07);
+  expect(golden.wallArtAssets.lampWallMatFraction, "the lamp-wall print keeps its existing mat").toBe(0.07);
+
   const luminance = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
   const dayCable = luminance(daylight.wallArtMean["cable-car"]);
   const goldenCable = luminance(golden.wallArtMean["cable-car"]);
