@@ -680,8 +680,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(householdArt.wallArtPixels.height).toBeGreaterThanOrEqual(130);
     console.log("Room 03 wall art placement:", JSON.stringify({ bounds: info.wallArtBounds, wokRunGap: info.wokZone.clearance.cableCar, hoodGap: boxesDistance(info.wallArtBounds, info.wallArtClearanceBounds.hood), desktopProjectionCssPx: info.wallArtPixels, desktopWidthTargetMet: info.wallArtPixels.width >= 90, material: info.wallArtMaterial, receivesShadow: info.wallArtReceivesShadow, camera: info.camera, vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame }));
     const counterProps = ["drip-coffee-maker", "electric-kettle", "rice-cooker", "cutting-board", "counter-seasoning", "oak-utensil-crock", "glass-pantry-jar"];
-    // Old 13 -> new 14: one separate, unbranded olive-oil bottle now sits by the always-visible paper napkins.
-    expect(Object.keys(propBounds)).toHaveLength(14);
+    // 14 -> 18: two water bottles, a wooden bowl and a pair of mugs are now measured.
+    expect(Object.keys(propBounds)).toHaveLength(18);
     for (const key of Object.keys(propBounds)) expect(propBounds[key], `${key} should be present`).not.toBeNull();
     for (const key of counterProps) {
       const difference = Math.abs(propBounds[key].min[1] - 0.955);
@@ -735,7 +735,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
       expect(fit.embedMm, `${key} support embed in mm`).toBeGreaterThanOrEqual(1);
       expect(fit.embedMm, `${key} support embed in mm`).toBeLessThanOrEqual(3);
     }
-    expect(info.propGeometry["drip-coffee-maker"].meshes).toBe(4); // Old -> new: same four material batches; shaped carafe and nozzle details are baked into existing glass/black batches.
+    expect(info.propGeometry["drip-coffee-maker"].meshes).toBe(5); // 4 -> 5: a second bean colour makes the full hopper legible through the glass.
     expect(info.propGeometry["rice-cooker"].meshes).toBe(4); // Old -> new: same four material batches; curved shell, lid seam and side handles add no mesh.
     // Old island board 340×420 mm -> new wall-side board 255×315 mm (75%); tall edge rests on the wok backsplash.
     expect(propBounds["cutting-board"].size[1]).toBeGreaterThan(propBounds["cutting-board"].size[2]);
@@ -768,6 +768,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
     expect(Math.abs(propBounds.cookbooks.min[1] - 2.11)).toBeLessThanOrEqual(0.02);
     expect(info.cookbookCount).toBe(3);
+    expect(info.storageBoxCount, "two cabinet-top storage boxes brace the books").toBe(2);
     expect(propBounds.cookbooks.size[0]).toBeGreaterThanOrEqual(0.25);
     expect(propBounds.cookbooks.size[1]).toBeGreaterThanOrEqual(0.32);
     const living = info.room03LivingDetails;

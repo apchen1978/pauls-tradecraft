@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 90631, meshes: 125 }),
+  scene: Object.freeze({ vertices: 94726, meshes: 129 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 80, phone: 78 }),
+  openingDrawCalls: Object.freeze({ desktop: 81, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 87, sunday: 80, thanksgiving: 90 }),
-    phone: Object.freeze({ daylight: 78, golden: 78, movie: 76, night: 78, dinner: 85, sunday: 78, thanksgiving: 88 }),
+    desktop: Object.freeze({ daylight: 81, golden: 81, movie: 79, night: 81, dinner: 88, sunday: 81, thanksgiving: 91 }),
+    phone: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 86, sunday: 79, thanksgiving: 89 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -60,6 +60,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-04", change: "wok station detail pass: one 75%-scale solid wall board, four smaller everyday utensils and four seasoning jars; retail-style olive oil moved beside the permanent napkin pack (+476 vertices, net -2 meshes, opening draw calls -4 desktop / -3 phone)", vertices: 70539, meshes: 117, desktopCalls: 77, phoneCalls: 76 },
     { date: "2026-11-04", change: "botanical four-finger oven mitts, utensils scaled against the 244 mm oil bottle, and stainless sink basin floor (+1,781 vertices, +2 meshes; desktop +1 draw call, phone unchanged)", vertices: 84620, meshes: 123, desktopCalls: 78, phoneCalls: 76 },
     { date: "2026-11-04", change: "nook wall palettes; coffee bean hopper and carafe; oval bread; stainless sink with cabinet opening and high-arc faucet (+6,011 vertices, +2 meshes, +2 opening draw calls desktop and phone)", vertices: 90631, meshes: 125, desktopCalls: 80, phoneCalls: 78 },
+    { date: "2026-11-04", change: "full bean hopper, sourdough, two credenza water bottles, wooden bowl, cabinet-top storage and two counter mugs (+4,095 vertices, +4 meshes, +1 opening draw call desktop and phone)", vertices: 94726, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
   ]),
 });
 
