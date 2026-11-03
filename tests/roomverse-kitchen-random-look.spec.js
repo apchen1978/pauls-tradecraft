@@ -13,7 +13,7 @@ for (const width of [1440, 390]) {
   test(`random room packs change finishes without changing geometry, mood or draw calls at ${width}px`, async ({ page }) => {
     await loadRoom(page, width);
     const base = await page.evaluate(() => ({ info: window.__room03.info(), finish: window.__room03.surfaceFinishInfo() }));
-    expect(base.finish).toEqual({ wall: "mist", floor: "terrazzo", rug: "jute" });
+    expect(base.finish).toEqual({ wall: "mist", floor: "terrazzo", rug: "blue-stripe" });
     expect(base.info.materialColors.wall).toBe("#d0deea");
 
     await page.locator("#randomLook").click();
