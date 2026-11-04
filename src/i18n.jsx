@@ -1288,7 +1288,7 @@ const dict = {
         },
         {
           title: "Brand Sites & Sales Tools",
-          desc: "A website is not useful just because it exists. Help brands turn their visual language, services, work, and consultation path into a clear sales journey, with supporting LINE, form, quote, follow-up, delivery, and launch-check tools.",
+          desc: "A website is not useful just because it exists. Help brands turn their visual language, services, work, and inquiry path into a clear sales journey, with supporting LINE, form, quote, follow-up, delivery, and launch-check tools.",
           tags: "Brand Website · Sales Enablement · LINE · Quote · Follow-up",
         },
         {
