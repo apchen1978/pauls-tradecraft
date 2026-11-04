@@ -39,6 +39,7 @@
 - 回報 Paul：簡短繁體中文，先講結論；附 390／1440 前後截圖（中英都要）；不貼大段程式碼或測試輸出。
 
 ## 三、每個 PR 必跑的檢查
+**一律必跑（快，幾秒到一分鐘）：**
 ```bash
 npm test                                   # verify-trade-decision-workflow + verify-profit-calculator
 npm run build                              # 預期只有既有的「chunk 超過 500 kB」警告
@@ -46,10 +47,22 @@ node scripts/verify-export-check.mjs
 node scripts/check-journey-language.mjs
 python scripts/check-onepager-sync.py      # Windows 沒有 python3 時用 python 或 py
 node scripts/check-document-parity.mjs
-node scripts/measure-onepager-fit.mjs      # 改到 OnePager 時必跑（必須仍是一頁 A4）
-npx playwright test                        # tests/ 下全部 spec
+node scripts/measure-onepager-fit.mjs      # 改到 OnePager 或 content/onepager-*.json 時必跑（必須仍是一頁 A4）
 ```
 數字（58/58、61 等）會隨時間變動，以腳本當下輸出為準。
+
+**Playwright 依改動類型決定（2026-11-05，Paul 同意）：**
+| 改動類型 | 要跑的 Playwright |
+| --- | --- |
+| 只改文字（i18n、works 文案）、PDF、檢查腳本 | 不跑全套；只跑 tests/ 裡有引用被改字串的 spec（先 `grep` 被改字串），沒有引用就不跑 |
+| 改元件結構、版面、樣式 | 跑相關頁面的 spec，並附 390／1440 前後截圖 |
+| 改互動作品、3D 房間、Hero 動畫 | 跑該作品自己的 spec；必要時全套 |
+| 改共用 helper、設定檔、套件 | 跑全套（`npx playwright test`） |
+
+執行 Playwright 的規矩：
+- 跑完一律 `git checkout -- docs/qa` 還原測試寫出的 QA 圖，再 `git status --short` 確認 diff 只剩預期檔案。QA 截圖只有在 PR 本來就要更新它們時才 commit。
+- 這台機器 timeout 時，用 repo 外部 config（獨立 port、`workers: 1`、`timeout: 180000`）；若紅的是環境 timeout 而不是斷言，照實回報，不算 PR 失敗。
+- PR 描述要寫：跑了哪些、沒跑哪些、為什麼沒跑（例如「純文字 PR，未跑 Playwright 全套，已 grep 確認無 spec 引用被改字串」）。
 
 ## 四、檔案地圖
 | 用途 | 路徑 |
