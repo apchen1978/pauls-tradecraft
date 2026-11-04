@@ -11,8 +11,8 @@ export default function Contact() {
       : "/files/Paul-Tradecraft-OnePager-ZH.pdf";
   const emailHref =
     lang === "en"
-      ? "mailto:paulchen1978@gmail.com?subject=About%20my%20product&body=Hi%20Paul%2C%0A%0AI%27d%20like%20to%20talk%20about%20my%20product.%0A%0AContext%3A%20"
-      : "mailto:paulchen1978@gmail.com?subject=%E8%81%8A%E8%81%8A%E6%88%91%E7%9A%84%E7%94%A2%E5%93%81&body=Paul%20%E4%BD%A0%E5%A5%BD%EF%BC%8C%0A%0A%E6%88%91%E6%83%B3%E8%81%8A%E8%81%8A%E6%88%91%E7%9A%84%E7%94%A2%E5%93%81%E3%80%82%0A%0A%E5%95%8F%E9%A1%8C%E8%83%8C%E6%99%AF%EF%BC%9A";
+      ? "mailto:paulchen1978@gmail.com?subject=Saw%20your%20site%20%E2%80%94%20let%27s%20talk&body=Hi%20Paul%2C%20I%20saw%20your%20site%20and%20would%20like%20to%20talk."
+      : "mailto:paulchen1978@gmail.com?subject=%E7%B6%B2%E7%AB%99%E4%B8%8A%E7%9C%8B%E5%88%B0%EF%BC%8C%E6%83%B3%E8%81%8A%E8%81%8A&body=Paul%20%E4%BD%A0%E5%A5%BD%EF%BC%8C%0A%0A%E6%88%91%E5%9C%A8%E7%B6%B2%E7%AB%99%E4%B8%8A%E7%9C%8B%E5%88%B0%EF%BC%8C%E6%83%B3%E8%81%8A%E8%81%8A%E3%80%82";
   return (
     <section id="contact" className="scroll-mt-24 bg-pine text-bone">
       <div className="mx-auto max-w-7xl px-4 py-16 text-center md:px-6 md:py-36">
@@ -44,25 +44,9 @@ export default function Contact() {
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a
               href={emailHref}
-              aria-label={`${t.contact.cta} · paulchen1978@gmail.com`}
               className="rounded-field bg-gold px-7 py-3.5 text-sm font-semibold text-pine transition-colors hover:brightness-110 active:scale-[0.98]"
             >
               {t.contact.cta}
-            </a>
-            <a
-              href="https://line.me/ti/p/zSJdkOeQgS"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 rounded-field border border-bone/25 px-6 py-3.5 text-sm font-semibold text-bone transition-colors hover:border-bone/60 active:scale-[0.98]"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-5 items-center justify-center rounded-[5px] px-1.5 text-[0.6875rem] font-semibold tracking-tight text-white"
-                style={{ backgroundColor: "#06c755" }}
-              >
-                LINE
-              </span>
-              {t.contact.line}
             </a>
           </div>
           <a
@@ -81,7 +65,6 @@ export default function Contact() {
             <FilePdf size={16} weight="bold" />
             {t.contact.capabilityBrief}
           </a>
-          <p className="mt-2 text-xs text-ondark-meta">{t.contact.note}</p>
         </motion.div>
       </div>
     </section>

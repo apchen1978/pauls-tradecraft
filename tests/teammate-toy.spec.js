@@ -231,7 +231,7 @@ test.describe("garage listing", () => {
       await page.goto("/?lang=zh#garage");
       const branch = page.locator("#garage-branch-light-tech");
       await expect(branch.getByRole("heading", { level: 3 })).toHaveText("輕科技玩具");
-      await expectBranchFirst(page, "Bring Paul Into the Room");
+      await expectBranchFirst(page, "How I Approach a Problem");
       await expect(branch.getByRole("heading", { name: "AI agent 聽得懂你的暗號嗎？" })).toBeVisible();
       await expect(page.locator("#garage")).toContainText("這裡放還在進行中的實驗。");
       await expect(page.locator("#garage").getByRole("heading", { name: "十二月的燈" })).toHaveCount(0);
@@ -255,7 +255,7 @@ test.describe("garage listing", () => {
       await shootShowcaseAndGarage(page, `home-${width}-zh-showcase-garage`);
       await page.goto("/?lang=en#garage");
       await expect(page.locator("#garage-branch-light-tech").getByRole("heading", { level: 3 })).toHaveText("Light-tech toys");
-      await expectBranchFirst(page, "Bring Paul Into the Room");
+      await expectBranchFirst(page, "How I Approach a Problem");
       await expect(page.locator("#garage")).toContainText("Experiments in progress live here.");
       await expect(page.locator("#garage").getByRole("heading", { name: "December Lights" })).toHaveCount(0);
       const enShowcase = page.locator("#showcase");

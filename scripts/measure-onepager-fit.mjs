@@ -82,6 +82,7 @@ async function measure(locale, html) {
   out.deliverablesBottom = await ev("Math.round(document.querySelector('.deliverables')?.getBoundingClientRect().bottom || 0)");
   out.worksCount = await ev("document.querySelectorAll('.works li').length");
   out.lastWorkBottom = await ev("Math.round([...document.querySelectorAll('.works li')].at(-1).getBoundingClientRect().bottom)");
+  out.siteHref = await ev("document.querySelector('.footer a[href^=\"https://paulstradecraft.com\"]')?.textContent || ''");
   out.lineHref = await ev("document.querySelector('.footer a[href*=\"line.me\"]')?.getAttribute('href') || ''");
   out.emailHref = await ev("document.querySelector('.footer a[href^=\"mailto:\"]')?.textContent || ''");
   ws.close();
@@ -101,7 +102,8 @@ const fit = (r) => r.footerBottom <= r.bodyH
   && r.deliverablesBottom <= r.bodyH
   && r.lastWorkBottom <= r.bodyH
   && r.scrollH <= r.clientH + 1
-  && r.lineHref.startsWith("https://line.me/")
-  && r.emailHref.includes("@");
+  && r.siteHref === "paulstradecraft.com"
+  && r.lineHref === ""
+  && r.emailHref === "";
 console.log("RESULT:", fit(zhR) && fit(enR) ? "PASS" : "FAIL");
 process.exitCode = fit(zhR) && fit(enR) ? 0 : 1;

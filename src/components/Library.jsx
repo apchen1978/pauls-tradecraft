@@ -27,7 +27,7 @@ const copy = {
       notes: ["國貿現場筆記", "報價、出貨與訂艙前，先把下一個問題問對。"],
       verification: ["驗證方式", "每一件作品用什麼可重跑的檢查來證明。"],
       method: ["方法論", "怎麼判斷、怎麼談、怎麼承諾。"],
-      how: ["工作流程", "判斷在人，執行有節奏：一次合作怎麼進行。"],
+      how: ["工作流程", "判斷在人，執行有節奏：我怎麼推進一件事。"],
     },
   },
   en: {
@@ -44,7 +44,7 @@ const copy = {
       notes: ["Trade notes", "Ask the right next question before quoting, shipping or booking."],
       verification: ["How it's verified", "The rerunnable checks behind each work."],
       method: ["Methodology", "How to judge, negotiate and commit."],
-      how: ["How I work", "Judgment first, execution with discipline: how an engagement runs."],
+      how: ["How I work", "Judgment first, execution with discipline: how I move one thing forward."],
     },
   },
 };
