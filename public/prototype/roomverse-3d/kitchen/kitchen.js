@@ -2980,6 +2980,21 @@ function buildLoungeOttoman(scene, m, chair) {
 let shoeboxOrangeMaterial = null;
 const shoeboxOrange = () => shoeboxOrangeMaterial || (shoeboxOrangeMaterial = new THREE.MeshStandardMaterial({ color: 0xc4622d, roughness: 0.75, name: "shoebox-burnt-orange" }));
 
+// Weld a lathe or cylinder into one smooth surface. mergeVertices alone will NOT close a lathe's seam, because the
+// seam's two coincident vertices carry different UVs and mergeVertices keys on every attribute; the surface then
+// keeps a hard normal break that draws a vertical line down the object from any angle (Paul 2026-11-04, the mug and
+// the bean hopper). These materials carry no map, so dropping uv first lets the weld actually happen.
+function weldSmooth(geometry) {
+  // mergeVertices keys on every attribute, so the seam's duplicate vertices only merge once their UVs and normals
+  // agree. These parts are untextured, so the UVs go to zero, the normals are thrown away to be rebuilt below.
+  const count = geometry.attributes.position.count;
+  geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(count * 2), 2));
+  geometry.deleteAttribute("normal");
+  const welded = mergeVertices(geometry);
+  welded.computeVertexNormals();
+  return welded;
+}
+
 function buildPropGroup(scene, key, position, build) {
   const group = new THREE.Group();
   group.name = `prop-${key}`;
@@ -4063,34 +4078,45 @@ function buildHouseholdProps(scene, m) {
       new THREE.Vector2(0.041, 0.055), new THREE.Vector2(0.041, 0.012), new THREE.Vector2(0.038, 0.006),
       new THREE.Vector2(0.042, 0),
     ];
-    shape(new THREE.LatheGeometry(hopperProfile, 18), m.glass, [0, 0.302, -0.04]);
+    // Welded like the mug body: an unwelded lathe seam in this transparent double-sided shell drew a fine vertical
+    // line straight through the middle of the bean pile from the front view.
+    shape(weldSmooth(new THREE.LatheGeometry(hopperProfile, 32)), m.glass, [0, 0.302, -0.04]);
     shape(new THREE.CylinderGeometry(0.054, 0.054, 0.010, 18), m.black, [0, 0.370, -0.04]);
-    // A full hopper (Paul 2026-11-04: it must read as completely filled, not as loose rings with gaps).
-    // The glass inner wall is at 0.041 and its outer face at 0.052, so a bed that stops short of 0.041 leaves a
-    // pale ring that reads as an empty gap. The cavity from the hopper floor (y 0.316) to the underside of the
-    // lid (y 0.3645) is now packed with eight overlapping rows of beans, each with a 20-bean outer course at
-    // radius 0.0342 that reaches the glass, and a dark core behind them so no tile shows through the pile.
+    // A half-full hopper (Paul 2026-11-04). Paul's two complaints, in order: packed to the lid it read as one muddy
+    // mass; with a solid core behind them it read as a dark slug. So the beans now STOP at about half the cavity
+    // height and each one is a separate pill about 9 mm across, spaced with a clear gap so the silhouette between
+    // them is visible. Nothing solid is drawn inside the bed: the only opaque part is a thin floor disc at the
+    // bottom, which keeps the tiled wall from showing through the hopper floor.
     const beanNoise = (index, salt) => {
       const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
       return value - Math.floor(value);
     };
     let beanSeed = 0;
-    for (let row = 0; row < 8; row++) {
-      const y = 0.3205 + row * 0.0057;
-      for (const [ringRadius, count] of [[0, 1], [0.0085, 5], [0.0175, 10], [0.0262, 15], [0.0342, 20]]) {
+    const beanRows = [
+      [0.3196, [[0, 1], [0.0072, 5], [0.0146, 8], [0.0220, 11], [0.0296, 14]]],
+      [0.3230, [[0, 1], [0.0072, 5], [0.0146, 8], [0.0220, 11], [0.0296, 14]]],
+      [0.3264, [[0, 1], [0.0072, 5], [0.0148, 8], [0.0220, 11], [0.0292, 13]]],
+      [0.3298, [[0, 1], [0.0074, 5], [0.0148, 8], [0.0216, 10]]],
+      [0.3332, [[0, 1], [0.0076, 4], [0.0148, 7], [0.0212, 9]]],
+      [0.3364, [[0, 1], [0.0080, 4], [0.0156, 6]]],
+      [0.3392, [[0, 1], [0.0086, 4]]],
+    ];
+    for (const [rowY, rings] of beanRows) {
+      for (const [ringRadius, count] of rings) {
         for (let i = 0; i < count; i++) {
-          const jitteredRadius = ringRadius === 0 ? 0 : Math.min(0.0344, ringRadius + (beanNoise(beanSeed, 1) - 0.5) * 0.0014);
-          const angle = (i / count + (row % 2) / (count * 2)) * Math.PI * 2 + (beanNoise(beanSeed, 2) - 0.5) * 0.22;
-          const lift = (beanNoise(beanSeed, 3) - 0.5) * 0.0009;
-          shape(new THREE.SphereGeometry(0.0070, 5, 3), beanSeed % 4 === 0 ? m.coffee : m.coffeeBeanLight,
-            [Math.cos(angle) * jitteredRadius, y + lift, Math.sin(angle) * jitteredRadius - 0.04],
-            [0, angle, 0], [1, 0.86, 0.95]);
+          const spread = ringRadius === 0 ? 0 : Math.min(0.0330, ringRadius + (beanNoise(beanSeed, 1) - 0.5) * 0.0012);
+          const angle = (i / count + (beanSeed % 2) / (count * 2)) * Math.PI * 2 + (beanNoise(beanSeed, 2) - 0.5) * 0.26;
+          const lift = (beanNoise(beanSeed, 3) - 0.5) * 0.0014;
+          const size = 0.0040 + beanNoise(beanSeed, 4) * 0.0009;
+          shape(new THREE.SphereGeometry(size, 7, 5), beanNoise(beanSeed, 5) < 0.34 ? m.coffee : m.coffeeBeanLight,
+            [Math.cos(angle) * spread, rowY + lift, Math.sin(angle) * spread - 0.04],
+            [(beanNoise(beanSeed, 6) - 0.5) * 1.2, angle, (beanNoise(beanSeed, 7) - 0.5) * 1.2], [1.05, 0.82, 0.92]);
           beanSeed++;
           coffeeBeanCount++;
         }
       }
     }
-    shape(new THREE.CylinderGeometry(0.0300, 0.0300, 0.0470, 14), m.coffeeBeanLight, [0, 0.3395, -0.04]);
+    shape(new THREE.CylinderGeometry(0.0405, 0.0405, 0.0030, 18), m.coffee, [0, 0.3180, -0.04]);
     const carafeProfile = [
       new THREE.Vector2(0.050, 0.008), new THREE.Vector2(0.058, 0.008),
       new THREE.Vector2(0.060, 0.016), new THREE.Vector2(0.060, 0.092),
@@ -4109,6 +4135,16 @@ function buildHouseholdProps(scene, m) {
     // A dark lid sits on the carafe mouth, with a short pour lip.
     shape(new THREE.CylinderGeometry(0.042, 0.040, 0.009, 20), m.black, [0, 0.160, 0.110]);
     box(m.black, [0.035, 0.008, 0.022], [0, 0.160, 0.070]);
+  });
+  // The bean pile sits inside the hopper, under the black lid, so the shadow map was dropping the lid's shadow
+  // straight onto the beans and turning the whole bed into one dark block (Paul 2026-11-04). Beans are small enough
+  // that self-shadowing only muddies them, so they keep their own colour and cast nothing.
+  coffeeMaker.traverse((child) => {
+    if (!child.isMesh) return;
+    if (child.material === m.coffee || child.material === m.coffeeBeanLight) {
+      child.castShadow = false;
+      child.receiveShadow = false;
+    }
   });
   coffeeMaker.userData.brewer = { style: "grind-and-brew drip", hopperLid: "closed", hopperDiameterMm: 108, hopperHeightMm: 73, beansVisible: coffeeBeanCount, carafeDiameterMm: 120, carafeHeightMm: 125, carafeSupportGapMm: 2, carafeRimClearanceToUpperHousingMm: 57 };
 
@@ -4295,26 +4331,45 @@ function buildHouseholdProps(scene, m) {
     });
     return bottleGroup;
   });
-  // Two opaque ceramic mugs, using Room 01's hollow body and embedded handle: an off-white one and a glazed
-  // brick-red one (Paul 2026-11-04: two identical white mugs read as blank shapes from a distance). They stand
-  // at different angles and depths instead of in a tidy row in front of the brewer, and each handle is turned
-  // to its own direction, so the pair looks set down by hand rather than staged.
+  // One opaque ceramic mug, using Room 01's hollow body and embedded handle. Paul 2026-11-04: two mugs side by
+  // side read as one shape split by a seam, so there is now a single glazed brick-red mug, turned so its handle
+  // faces away from the brewer and its rim catches the window light.
   const counterMugs = buildPropGroup(scene, "counter-mugs", [0, 0, 0], ({ shape }) => {
-    const profile = [[0, .006], [.0365, .007], [.0365, .093], [.0372, .0948], [.0388, .0952], [.0399, .0935], [.040, .010], [.0395, .004], [.037, 0], [0, 0]]
+    // One clean hollow body: the old inherited profile climbed the outside, crossed over the rim and then ran
+    // back DOWN at a LARGER radius than the outer wall, so the two walls intersected and the lathe drew thin
+    // vertical slivers on both sides of the mug (Paul 2026-11-04). This profile goes up the outside, over a
+    // rounded rim, down the inside and across the floor, and never turns back on itself.
+    const profile = [[0, 0], [.0330, 0], [.0375, .0035], [.0400, .008], [.0400, .0900], [.0392, .0944], [.0376, .0952], [.0356, .0948], [.0342, .0900], [.0342, .0140], [.0320, .0110], [0, .0110]]
       .map(([radius, y]) => new THREE.Vector2(radius, y));
-    for (const [x, z, yaw, glaze] of [
-      [-0.412, -1.796, -1.15, m.porcelain],
-      [-0.232, -1.706, 0.74, m.mugGlaze],
-    ]) {
-      shape(new THREE.LatheGeometry(profile, 24), glaze, [x, 0.954, z]);
-      const handle = new THREE.TorusGeometry(0.026, 0.0055, 8, 20, Math.PI);
-      handle.rotateZ(-Math.PI / 2); // the half loop bulges toward +x before it is turned
-      handle.rotateY(yaw);
-      handle.translate(x + Math.cos(yaw) * 0.038, 1.006, z - Math.sin(yaw) * 0.038);
-      shape(handle, glaze);
+    const x = -0.30, z = -1.752, yaw = -0.62;
+    // Weld the lathe's duplicated seam vertices first: buildPropGroup recomputes normals on the merged geometry, and
+    // an unwelded seam leaves two coincident vertices with different normals, which drew a hard vertical line down
+    // the mug from every angle (Paul 2026-11-04). 48 segments keeps the silhouette round up close.
+    shape(weldSmooth(new THREE.LatheGeometry(profile, 48)), m.mugGlaze, [x, 0.954, z]);
+    // The handle is a half loop whose two open ends would otherwise show as razor-thin slivers where they meet the
+    // wall, so each end lands exactly on the outer surface (r 0.040) and is capped by a rounded pad of the same
+    // radius, the way a real mug handle is joined. No angle then catches an unswept edge.
+    // The handle is one smooth half loop whose two ends finish INSIDE the 40 mm wall, so the tube never meets the
+    // wall at a grazing angle and never leaves an open mouth on show. Each buried end is closed by a small cap
+    // sphere that stays hidden in the glaze-thick wall, which is how a pulled handle actually meets a mug. Earlier
+    // versions ended the tube exactly on the surface and left a bright splinter at each joint (Paul 2026-11-04).
+    const tubeRadius = 0.0052;
+    const loop = 0.0365;
+    const dirX = Math.cos(yaw), dirZ = -Math.sin(yaw);
+    const handle = new THREE.TorusGeometry(0.0255, tubeRadius, 12, 32, Math.PI);
+    handle.rotateZ(-Math.PI / 2); // the half loop bulges toward +x before it is turned
+    handle.rotateY(yaw);
+    handle.translate(x + dirX * loop, 1.005, z + dirZ * loop);
+    shape(weldSmooth(handle), m.mugGlaze);
+    for (const side of [-1, 1]) {
+      const cap = new THREE.SphereGeometry(tubeRadius, 10, 8);
+      cap.translate(x + dirX * loop, 1.005 + side * 0.0255, z + dirZ * loop);
+      shape(weldSmooth(cap), m.mugGlaze);
     }
   });
-  counterMugs.userData.mugCount = 2;
+  // A 30-40 mm-tall glaze surface picks up shadow-map acne that reads as flat facets, so the mug only casts.
+  counterMugs.traverse((child) => { if (child.isMesh) child.receiveShadow = false; });
+  counterMugs.userData.mugCount = 1;
   // Empty turned wooden serving bowl, on the free end of the wok counter.
   // The 220 mm rim stays clear of the 480 mm cooktop and the counter edges.
   const wokServingBowl = buildPropGroup(scene, "wok-wood-serving-bowl", [2.64, 0.954, 2.14], ({ shape }) => {
@@ -4401,7 +4456,8 @@ function buildHouseholdProps(scene, m) {
   mergeWorldMaterialMeshes(waterBottles, m.waterLabel, "prop-mineral-water-labels", 0);
   // Preserve the steel/black distinction as per-vertex color while merging
   // these small hardware parts into one draw call for narrow mobile views.
-  // The glazed brick-red mug joins the existing tinted batch, so its colour costs no extra mesh or draw call.
+  // The red mug joins the same batched hardware mesh, so its colour costs no extra mesh or draw call. Its lathe is
+  // welded before it gets here, so the batch's normal recompute cannot leave a seam on it.
   mergeWorldTintedMeshes([kettle, riceCooker, saucepan, counterMugs], [m.steel, m.black, m.mugGlaze], "prop-countertop-hardware-shared");
 
   // One reduced solid-wood board leans against the wok-side backsplash; the former island board is removed.
