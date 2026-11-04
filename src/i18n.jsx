@@ -430,7 +430,7 @@ const dict = {
       onePager: "下載一頁簡介 (PDF)",
     },
     footer: {
-      line: "把貿易實務，做成看得見的工具。",
+      line: "國際業務總監的判斷，做成作品。",
       rights: "All rights reserved.",
     },
     showcase: {
@@ -1385,7 +1385,7 @@ const dict = {
       onePager: "Download one-pager (PDF)",
     },
     footer: {
-      line: "Turning trade practice into visible tools.",
+      line: "An international sales director's judgment, made into work.",
       rights: "All rights reserved.",
     },
     showcase: {
