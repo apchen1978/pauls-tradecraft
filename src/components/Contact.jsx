@@ -48,14 +48,6 @@ export default function Contact() {
             <FilePdf size={16} weight="bold" />
             {t.contact.onePager}
           </a>
-          <a
-            href="/files/PaulTradecraft-Capability-Brief.pdf"
-            download
-            className="inline-flex items-center gap-2 text-sm font-medium text-ondark underline decoration-bone/30 underline-offset-4 transition-colors hover:text-gold"
-          >
-            <FilePdf size={16} weight="bold" />
-            {t.contact.capabilityBrief}
-          </a>
         </motion.div>
       </div>
     </section>

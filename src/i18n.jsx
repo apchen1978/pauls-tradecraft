@@ -428,7 +428,6 @@ const dict = {
       headline: "和我一起brainstorming!",
       cta: "有什麼想法，聊聊",
       onePager: "下載一頁簡介 (PDF)",
-      capabilityBrief: "下載能力簡報 (PDF)",
     },
     footer: {
       line: "把貿易實務，做成看得見的工具。",
@@ -1384,7 +1383,6 @@ const dict = {
       headline: "Brainstorm with me!",
       cta: "Something on your mind? Let's talk",
       onePager: "Download one-pager (PDF)",
-      capabilityBrief: "Download capability brief (PDF)",
     },
     footer: {
       line: "Turning trade practice into visible tools.",
