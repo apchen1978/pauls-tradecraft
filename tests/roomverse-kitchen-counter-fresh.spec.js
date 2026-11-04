@@ -47,12 +47,13 @@ test("a sourdough board and a bowl of fruit stand on the kitchen counter, inside
     }
     expect(info.cookbookCount).toBe(3);
     expect(info.storageBoxCount).toBe(2);
-    expect(info.counterMugCount).toBe(2);
+    expect(info.counterMugCount, "one glazed mug, not two").toBe(1);
     const mugs = info.propBounds["counter-mugs"];
-    expect(mugs.min[1] - 0.955, "both mugs sit on the counter").toBeGreaterThanOrEqual(-0.002);
+    expect(mugs.min[1] - 0.955, "the mug sits on the counter").toBeGreaterThanOrEqual(-0.002);
     expect(mugs.min[1] - 0.955).toBeLessThanOrEqual(0.002);
     expect(mugs.max[2], "mugs stay inside the front edge of the counter").toBeLessThanOrEqual(-1.65);
-    expect(mugs.min[2], "mugs clear the coffee maker front").toBeGreaterThan(-1.85);
+    expect(mugs.min[2], "the mug clears the coffee maker front").toBeGreaterThan(-1.85);
+    expect(mugs.max[0] - mugs.min[0], "a mug body with a handle, not a wide prop").toBeLessThan(0.13);
     const bowl = info.propBounds["wok-wood-serving-bowl"];
     expect(bowl.min[1] - 0.955, "wooden bowl sits on the wok counter").toBeGreaterThanOrEqual(-0.002);
     expect(bowl.min[1] - 0.955).toBeLessThanOrEqual(0.002);

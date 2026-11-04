@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 103925, meshes: 131 }),
+  scene: Object.freeze({ vertices: 102895, meshes: 131 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 81, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -65,6 +65,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-04", change: "wok-side rail made American-style: brushed stainless bar on S-hooks with walnut spoon, black slotted turner, balloon whisk, stainless ladle and locking tongs (hang holes); shelf has salt and pepper grinders plus four glass spice jars with black lids (+3,386 vertices, same merged mesh, no new mesh or draw call)", vertices: 99224, meshes: 129, desktopCalls: 81, phoneCalls: 79 },
     { date: "2026-11-04", change: "credenza water bottles rebuilt as unbranded Evian-style PET (grip ribs, long tapered shoulder, neck ring, fluted cap, shoulder-high water, blank label band) and set as a loose, turned pair at uneven spacing (+1,296 vertices; the white caps add one mesh per bottle, no opening draw-call change)", vertices: 100520, meshes: 131, desktopCalls: 81, phoneCalls: 79 },
     { date: "2026-11-04", change: "coffee maker: hopper packed to the glass with eight overlapping bean rows (408 beans, no see-through gaps) and two counter mugs set at different depths and angles, one off-white and one glazed brick-red (+3,048 vertices, same meshes and draw calls)", vertices: 103925, meshes: 131, desktopCalls: 81, phoneCalls: 79 },
+    { date: "2026-11-04", change: "coffee maker refined: the hopper is filled about half way with seven loose bean rows (177 individually visible beans) instead of one packed block, and the counter carries one glazed brick-red mug with a clean welded lathe profile and a buried handle (-1,030 vertices, same meshes and draw calls)", vertices: 102895, meshes: 131, desktopCalls: 81, phoneCalls: 79 },
   ]),
 });
 
