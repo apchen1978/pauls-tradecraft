@@ -548,6 +548,7 @@ function sceneAddToBucket(b, mesh, name) {
   b.get(key).meshes.push(mesh);
 }
 
+let sinkStationInfoRef = null;
 function buildKitchen(b, m) {
   // Straight olive cabinet run, kept low and uncluttered.
   // Leave an opening above the recessed basin: the old solid cabinet top
@@ -4527,7 +4528,71 @@ function buildHouseholdProps(scene, m) {
   // these small hardware parts into one draw call for narrow mobile views.
   // The red mug joins the same batched hardware mesh, so its colour costs no extra mesh or draw call. Its lathe is
   // welded before it gets here, so the batch's normal recompute cannot leave a seam on it.
-  mergeWorldTintedMeshes([kettle, riceCooker, saucepan, counterMugs], [m.steel, m.black, m.mugGlaze], "prop-countertop-hardware-shared");
+  // ---- Sink station: the everyday things that actually live beside a basin (Paul 2026-11-04). ----
+  // Ceramic soap dispenser with a steel pump, a sponge on a small dish, a folded waffle towel, and a paper-towel roll on an under-cabinet bracket.
+  // Authored as prop groups, then folded into the existing countertop hardware batch: the station adds no mesh and no draw call, only vertices.
+  const SINK_STATION = { frontZ: -1.73, wallZ: -2.2625, topY: 0.955 };
+  buildPropGroup(scene, "sink-soap-dispenser", [-1.00, counterY, -1.72], ({ shape, box }) => {
+    shape(new THREE.LatheGeometry([[0, 0], [0.034, 0], [0.036, 0.006], [0.035, 0.10], [0.028, 0.132], [0.019, 0.148], [0.017, 0.152], [0, 0.152]].map(([r, y]) => new THREE.Vector2(r, y)), 30), m.porcelain);
+    shape(new THREE.CylinderGeometry(0.0355, 0.0355, 0.008, 30), m.mugGlaze, [0, 0.095, 0]); // a terracotta band where the label would sit
+    shape(new THREE.CylinderGeometry(0.013, 0.014, 0.014, 18), m.faucetSteel, [0, 0.158, 0]); // collar
+    shape(new THREE.CylinderGeometry(0.006, 0.006, 0.034, 14), m.faucetSteel, [0, 0.178, 0]); // pump stem
+    const spout = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0.194, 0), new THREE.Vector3(0.012, 0.198, 0), new THREE.Vector3(0.026, 0.192, 0), new THREE.Vector3(0.030, 0.178, 0),
+    ]);
+    shape(new THREE.TubeGeometry(spout, 12, 0.0042, 8, false), m.faucetSteel);
+  });
+  buildPropGroup(scene, "sink-sponge-dish", [-1.50, counterY, -1.72], ({ shape, box }) => {
+    shape(new THREE.LatheGeometry([[0, 0], [0.050, 0], [0.056, 0.004], [0.059, 0.012], [0.052, 0.017], [0.030, 0.013], [0, 0.011]].map(([r, y]) => new THREE.Vector2(r, y)), 26), m.porcelain);
+    box(m.leafGreen, [0.080, 0.022, 0.052], [0.005, 0.027, 0.002], [0, 0.14, 0]); // the sponge sits in the dish, one corner proud
+    box(m.porcelain, [0.080, 0.008, 0.052], [0.005, 0.042, 0.002], [0, 0.14, 0]); // cream scrub face on top
+  });
+  buildPropGroup(scene, "sink-folded-towel", [-0.79, counterY, -1.79], ({ box, shape }) => {
+    // Three folded layers, each nudged and turned a hair, with a terracotta hem top and bottom, so it reads as folded cloth on a counter.
+    box(m.porcelain, [0.188, 0.012, 0.132], [0, 0.006, 0], [0, 0.12, 0]);
+    box(m.porcelain, [0.181, 0.012, 0.128], [0.005, 0.018, 0.004], [0, 0.07, 0]);
+    box(m.porcelain, [0.174, 0.011, 0.122], [-0.004, 0.029, -0.003], [0, 0.16, 0]);
+    box(m.mugGlaze, [0.188, 0.0135, 0.014], [0, 0.006, 0.069], [0, 0.12, 0]); // front hem
+    box(m.mugGlaze, [0.181, 0.0135, 0.012], [0.005, 0.018, -0.062], [0, 0.07, 0]); // back hem, offset like a real fold
+  });
+  // sits 4.5 mm lower than the counter top, so the tilted bristle tips actually rest on the stone
+  buildPropGroup(scene, "sink-dish-brush", [-1.34, counterY - 0.0045, -1.735], ({ box, shape }) => {
+    // A small wooden dish brush leaning against the dish, bristles down: the everyday partner of the sponge, and no wall bracket to get wrong.
+    box(m.oak, [0.030, 0.016, 0.130], [0, 0.042, 0], [0.10, 0.18, 0]); // the back of the brush, tilted
+    shape(new THREE.CylinderGeometry(0.011, 0.013, 0.070, 12), m.oak, [0.006, 0.078, 0.060], [0.10, 0.18, 0]); // handle rising from the head
+    for (let row = 0; row < 2; row++) for (let col = 0; col < 5; col++) {
+      shape(new THREE.BoxGeometry(0.011, 0.018, 0.010), m.leafGreen, [-0.009 + col * 0.0105, 0.024 - row * 0.019, -0.050 + row * 0.030], [0.10, 0.18, 0]);
+    }
+  });
+  const sinkSoap = scene.getObjectByName("prop-sink-soap-dispenser");
+  const sinkSponge = scene.getObjectByName("prop-sink-sponge-dish");
+  const sinkTowel = scene.getObjectByName("prop-sink-folded-towel");
+  const sinkBrush = scene.getObjectByName("prop-sink-dish-brush");
+  const sinkStationProps = [sinkSoap, sinkSponge, sinkTowel, sinkBrush];
+  // Settle each prop onto the measured counter top (the craft rule from the Room 03 handoff: measure, then sit it), and only then record the numbers:
+  // the batching merge takes the meshes out of these groups, so the numbers have to be captured first.
+  const sinkStationBoxes = {};
+  scene.updateMatrixWorld(true);
+  for (const group of [sinkSoap, sinkSponge, sinkTowel, sinkBrush]) {
+    if (!group) continue;
+    const gap = new THREE.Box3().setFromObject(group).min.y - SINK_STATION.topY;
+    group.position.y -= gap;
+  }
+  scene.updateMatrixWorld(true);
+  for (const [key, group] of [["soap", sinkSoap], ["sponge", sinkSponge], ["towel", sinkTowel], ["brush", sinkBrush]]) {
+    if (!group) { sinkStationBoxes[key] = null; continue; }
+    const b = new THREE.Box3().setFromObject(group);
+    sinkStationBoxes[key] = {
+      min: b.min.toArray().map((v) => Number(v.toFixed(3))), max: b.max.toArray().map((v) => Number(v.toFixed(3))),
+      bottomGapMm: Number(((b.min.y - SINK_STATION.topY) * 1000).toFixed(1)),
+      onCounter: b.min.x > -2.23 && b.max.x < 2.23 && b.min.z > -2.39 && b.max.z < -1.65,
+      clearOfSink: !(b.max.x > -1.59 && b.min.x < -0.91 && b.max.z > -2.23 && b.min.z < -1.81),
+    };
+  }
+  sinkStationInfoRef = () => JSON.parse(JSON.stringify(sinkStationBoxes));
+
+  scene.updateMatrixWorld(true); // the station props were just created; merge in world space so they land where they belong
+  mergeWorldTintedMeshes([kettle, riceCooker, saucepan, counterMugs, ...sinkStationProps], [m.steel, m.black, m.mugGlaze, m.porcelain, m.faucetSteel, m.leafGreen, m.oak], "prop-countertop-hardware-shared");
 
   // One reduced solid-wood board leans against the wok-side backsplash; the former island board is removed.
   const cuttingBoard = buildPropGroup(scene, "cutting-board", [0, 0, 0], ({ shape }) => {
@@ -7669,7 +7734,8 @@ export async function start({ stage, onReady = () => {} }) {
     setArtwork: (frameKey, optionKey, onDone) => wallArt.setArtwork(frameKey, optionKey, (result) => { render(); onDone?.(result); }),
     artOptions: () => Object.fromEntries(Object.entries(wallArt.artOptions).map(([frame, options]) => [frame, Object.keys(options)])),
     setNookView, nookViewInfo: () => nookSaved ? { target: [...NOOK_VIEW.target], position: [...NOOK_VIEW.position], azimuthHalfRange: NOOK_VIEW.azimuthHalfRange, minDistance: NOOK_VIEW.minDistance } : null,
-    nookAnimating: () => Boolean(nookTween), nookTvCutHidden, nookHotspotInfo,
+    nookAnimating: () => Boolean(nookTween), nookTvCutHidden, nookHotspotInfo, sinkStation: () => (sinkStationInfoRef ? sinkStationInfoRef() : null),
+
     pictureLightInfo: () => ({ emissive: pictureLightMaterial ? pictureLightMaterial.emissiveIntensity : null, floor: PICTURE_LIGHT_FLOOR, moodValue: MOOD_LOOK[currentMood]?.pictureLightEmissive ?? 0 }),
     centerViewInfo: () => centerView ? { station: [...CENTER_STATION], yaw: centerView.yaw, pitch: centerView.pitch } : null,
     setLang: (value) => { nookLang = value === "en" ? "en" : "zh"; if (nookCaptionKey) nookCaption.textContent = nookCaptionText(nookCaptionKey); }, samplePixels, sampleNdc,
