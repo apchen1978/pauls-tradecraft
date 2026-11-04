@@ -58,6 +58,9 @@ export function renderOnePagerHtml(data, locale = "zh") {
   const leverage = data.leverage
     ? `<section class="leverage"><p class="leverage-label">${esc(data.leverageTitle || "")}</p><p>${esc(data.leverage)}</p></section>`
     : "";
+  const featured = data.featuredTitle
+    ? `<section class="featured"><p class="featured-label">${esc(data.featuredLabel || "")}</p><h3>${data.featuredHref ? link(data.featuredHref, data.featuredTitle) : esc(data.featuredTitle)}</h3><p class="featured-body">${esc(data.featuredBody || "")}</p></section>`
+    : "";
   const worksHeading = data.worksHref
     ? link(data.worksHref, data.worksTitle || "")
     : esc(data.worksTitle || "");
@@ -109,6 +112,11 @@ export function renderOnePagerHtml(data, locale = "zh") {
   .leverage { margin-top: 4mm; padding: 2.8mm 3.5mm; border-left: 0.8mm solid #B89966; background: #193A35; }
   .leverage-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.1pt; color: #B89966; text-transform: uppercase; }
   .leverage p:last-child { margin-top: 0.8mm; font-size: 8.5pt; line-height: 1.45; color: #F6F3ED; }
+  .featured { margin-top: 4.5mm; padding: 3.2mm 4mm; border-left: 0.9mm solid #B89966; background: rgba(184, 153, 102, 0.12); }
+  .featured-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.2pt; color: #B89966; text-transform: uppercase; }
+  .featured h3 { font-size: 11.5pt; line-height: 1.35; margin-top: 1.2mm; font-weight: 800; color: #F6F3ED; }
+  .featured h3 a { text-decoration-color: #B89966; }
+  .featured-body { margin-top: 1.2mm; font-size: 9pt; line-height: 1.55; color: #E6EBE5; }
   .works-lead { font-size: 8.8pt; color: #BDCDC3; line-height: 1.5; margin-bottom: 1.8mm; }
   .works { display: grid; grid-template-columns: 1fr; gap: 1.2mm; }
   .works .work-title { font-weight: 700; color: #F6F3ED; text-decoration-color: #B89966; }
@@ -121,15 +129,18 @@ export function renderOnePagerHtml(data, locale = "zh") {
   .footer-row { display: flex; justify-content: space-between; gap: 6mm; align-items: baseline; }
   .disclaimer { font-size: 8pt; line-height: 1.4; color: #A9BEB4; }
   .latin { padding: 13mm 15mm 11mm; }
-  .latin .topline { margin-bottom: 6mm; }
+  .latin .topline { margin-bottom: 5mm; }
   .latin h1 { font-size: 17pt; line-height: 1.22; margin-top: 3.2mm; }
   .latin .sub { font-size: 10pt; line-height: 1.5; margin-top: 2.8mm; }
-  .latin .stats { margin-top: 4.5mm; }
-  .latin h2 { margin: 4.6mm 0 1.9mm; font-size: 10.5pt; }
+  .latin .stats { margin-top: 3.8mm; }
+  .latin h2 { margin: 3.8mm 0 1.6mm; font-size: 10.5pt; }
   .latin li { font-size: 9pt; line-height: 1.46; }
   .latin .deliverable p { font-size: 7.8pt; line-height: 1.42; }
-  .latin .leverage { margin-top: 3.8mm; padding: 2.6mm 3.5mm; }
+  .latin .leverage { margin-top: 3mm; padding: 2.4mm 3.5mm; }
   .latin .leverage p:last-child { font-size: 8.6pt; line-height: 1.45; }
+  .latin .featured { margin-top: 3.2mm; padding: 2.2mm 3.5mm; }
+  .latin .featured h3 { font-size: 10.8pt; }
+  .latin .featured-body { font-size: 8.5pt; line-height: 1.42; }
   .latin .works-lead { font-size: 8.8pt; margin-bottom: 2mm; }
   .latin .works { gap: 1.2mm; }
   .latin .works li { font-size: 8.8pt; line-height: 1.42; }
@@ -137,10 +148,10 @@ export function renderOnePagerHtml(data, locale = "zh") {
   .cjk .topline { margin-bottom: 8mm; }
   .cjk h1 { margin-top: 4mm; }
   .cjk .sub { line-height: 1.65; }
-  .cjk .stats { margin-top: 6.5mm; }
+  .cjk .stats { margin-top: 5.5mm; }
   .cjk h2 { margin: 6.8mm 0 2.6mm; }
   .cjk li { line-height: 1.68; }
-  .cjk .leverage { margin-top: 5mm; padding: 3.2mm 3.5mm; }
+  .cjk .leverage { margin-top: 4mm; padding: 3mm 3.5mm; }
   .cjk .works { gap: 2.2mm 7mm; }
   .cjk .works-lead { margin-bottom: 2.4mm; line-height: 1.6; }
   .cjk .process { font-size: 11pt; line-height: 1.7; }
@@ -153,6 +164,7 @@ export function renderOnePagerHtml(data, locale = "zh") {
   ${data.positioning ? `<p class="positioning">${esc(data.positioning)}</p>` : ""}
   <p class="sub">${esc(data.subtitle || "")}</p>
   <div class="stats">${stats}</div>
+  ${featured}
 
   <h2>${esc(data.servicesTitle || "")}</h2>
   <ul>${servicesList}</ul>
