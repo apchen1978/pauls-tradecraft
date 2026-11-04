@@ -1353,25 +1353,104 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   vp(rb(1.0, .025, .4), oak, "vinyl-bottom", 0, .1325, 0);
   for (const x of [-.4875, -.25, 0, .25, .4875]) vp(box(.025, .33, .4), oak, "vinyl-divider", x, .31, 0);
   vp(box(1.0, .33, .01), oak, "vinyl-back", 0, .31, -.195);
-  const sleeveCols = ["#1f2124", "#d9c9a8", "#8c3b2e", "#2f3b52", "#c9a14e", "#e9e4da", "#3e5a48", "#b2566a", "#5b6b7c", "#6a4c6e"];
-  for (const [c0, n] of [[-.37, 9], [-.125, 7], [.125, 10], [.37, 6]]) {
+  // Records in four open cubbies. Each spine is a thin vertical face, so the whole collection is painted into one 1024 x 512 atlas (32 designs,
+  // no text, no logos) and merged into a single mesh: one draw call instead of 32 separate meshes, and every spine now has bands, label marks and
+  // a printed edge instead of one flat colour. The last record in each row still leans, as it did before.
+  const SPINE_ATLAS = { cols: 32, cellW: 32, cellH: 512 };
+  const spineAtlas = canvasTex(1024, 512, (ctx, w, h) => {
+    const palette = ["#20242c", "#d8c8a8", "#8c3b2e", "#2f3b52", "#c9a14e", "#e9e4da", "#3e5a48", "#b2566a", "#5b6b7c", "#6a4c6e", "#7a4a33", "#23303a"];
+    for (let i = 0; i < SPINE_ATLAS.cols; i++) {
+      const x = i * SPINE_ATLAS.cellW;
+      ctx.fillStyle = palette[i % palette.length];
+      ctx.fillRect(x, 0, SPINE_ATLAS.cellW, h);
+      // printed bands: a title block, a thin rule, and a small catalogue mark (no readable text at this scale)
+      const light = ["#20242c", "#2f3b52", "#3e5a48", "#23303a", "#5b6b7c", "#6a4c6e"].includes(palette[i % palette.length]) ? "rgba(255,255,255,.72)" : "rgba(30,30,34,.62)";
+      ctx.fillStyle = light;
+      ctx.fillRect(x + 7, 72 + (i % 5) * 9, SPINE_ATLAS.cellW - 14, 5);
+      ctx.fillRect(x + 9, 96 + (i % 5) * 9, SPINE_ATLAS.cellW - 18, 3);
+      ctx.fillRect(x + 7, 128 + (i % 4) * 7, SPINE_ATLAS.cellW - 14, 2);
+      ctx.fillRect(x + 7, 300, SPINE_ATLAS.cellW - 14, 2);
+      ctx.beginPath(); ctx.arc(x + SPINE_ATLAS.cellW / 2, 420 + (i % 6) * 8, 5, 0, Math.PI * 2); ctx.fill();
+      // a worn edge along both long sides, so the row is not perfectly flat
+      ctx.fillStyle = "rgba(0,0,0,.22)";
+      ctx.fillRect(x, 0, 3, h); ctx.fillRect(x + SPINE_ATLAS.cellW - 3, 0, 3, h);
+    }
+  });
+  spineAtlas.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  const spineGeometries = [], sleeveRows = [[-.37, 9], [-.125, 7], [.125, 10], [.37, 6]]; // all four cubbies keep their records, 32 in total
+  let spineIndex = 0;
+  for (const [c0, n] of sleeveRows) {
     for (let i = 0; i < n; i++) {
-      const sleeve = vp(box(.006, .31, .31), new THREE.MeshStandardMaterial({ color: sleeveCols[(i * 3 + n) % sleeveCols.length], roughness: .7 }), "vinyl-sleeve", c0 - .1 + i * .008 + .004, .145 + .155 + .001, .02);
-      if (i === n - 1) { sleeve.rotation.z = .12; sleeve.position.x += .018; } // the last record leans
+      const x = c0 - .1 + i * .008 + .004, y = .145 + .155 + .001;
+      const geometry = new THREE.BoxGeometry(.006, .31, .31);
+      // BoxGeometry faces are +x, -x, +y, -y, +z, -z with 4 vertices each; the room sees the +z face, so only that face needs atlas UVs.
+      const uv = geometry.attributes.uv, cell = (spineIndex++ % SPINE_ATLAS.cols) / SPINE_ATLAS.cols;
+      for (let v = 16; v < 20; v++) uv.setXY(v, cell + uv.getX(v) / SPINE_ATLAS.cols, uv.getY(v));
+      geometry.rotateZ(i === n - 1 ? -.12 : 0);
+      geometry.translate(x + (i === n - 1 ? .018 : 0), y, .02);
+      spineGeometries.push(geometry);
     }
   }
-  const plinth = vp(box(.45, .07, .35), new THREE.MeshStandardMaterial({ color: "#2a2b2e", roughness: .4, metalness: .2 }), "turntable", 0, .5 + .035, .01);
-  vp(new THREE.CylinderGeometry(.152, .152, .015, 40), metalMat, "turntable-platter", -.05, .5 + .0775, .01);
+  const spineMesh = new THREE.Mesh(mergeGeometries(spineGeometries, false), new THREE.MeshStandardMaterial({ map: spineAtlas, roughness: .72, metalness: .02 }));
+  spineMesh.name = "vinyl-sleeve-row"; spineMesh.castShadow = true; spineMesh.receiveShadow = true; vin.add(spineMesh);
+  spineGeometries.forEach((g) => g.dispose());
+
+  // Premium turntable: walnut plinth with an inset piano-black top plate, brushed aluminium platter with a felt mat, chrome spindle, a curved
+  // tonearm with a counterweight and headshell, two control knobs, a start/stop button and a power LED. Same footprint and height as before
+  // (45 x 35 cm plinth, console top at 50 cm), so nothing else in the corner moves.
+  const TT = { x: 0, z: .01, top: .5, plinthH: .07, platterR: .172, platterH: .016 };
+  const brassMetal = new THREE.MeshStandardMaterial({ color: "#d9d3c4", roughness: .26, metalness: .92 });
+  const blackGloss = new THREE.MeshStandardMaterial({ color: "#141518", roughness: .24, metalness: .35 });
+  const feltMat = new THREE.MeshStandardMaterial({ color: "#232629", roughness: .98 });
+  const turntablePlinth = woodMat("#5b3b28", { rough: .52, tint: "#8a6448" });
+  vp(softBox(.45, TT.plinthH, .35, .006, { bevelSegments: 1, curveSegments: 2 }), turntablePlinth, "turntable-plinth", TT.x, TT.top + TT.plinthH / 2, TT.z);
+  vp(box(.438, .004, .338), blackGloss, "turntable-top-plate", TT.x, TT.top + TT.plinthH - .001, TT.z);
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) vp(new THREE.CylinderGeometry(.012, .014, .01, 12), blackMat, "turntable-foot", TT.x + dx * .195, TT.top + .004, TT.z + dz * .145);
+  const platterY = TT.top + TT.plinthH + TT.platterH / 2 + .002;
+  vp(new THREE.CylinderGeometry(TT.platterR, TT.platterR * .985, TT.platterH, 56), brassMetal, "turntable-platter", TT.x - .05, platterY, TT.z);
+  vp(new THREE.TorusGeometry(TT.platterR - .003, .004, 8, 56), brassMetal, "turntable-platter-rim", TT.x - .05, platterY + TT.platterH / 2 - .002, TT.z).rotation.x = Math.PI / 2;
+  vp(new THREE.CylinderGeometry(TT.platterR - .012, TT.platterR - .012, .002, 48), feltMat, "turntable-felt-mat", TT.x - .05, platterY + TT.platterH / 2 + .001, TT.z);
+  vp(new THREE.CylinderGeometry(.0035, .003, .014, 10), brassMetal, "turntable-spindle", TT.x - .05, platterY + TT.platterH / 2 + .008, TT.z);
   const recordTex = canvasTex(256, 256, (ctx, w, h) => {
-    ctx.fillStyle = "#101012"; ctx.fillRect(0, 0, w, h);
-    for (let r = 40; r < 128; r += 2) { ctx.strokeStyle = `rgba(255,255,255,${r % 6 ? .03 : .07})`; ctx.beginPath(); ctx.arc(128, 128, r, 0, 7); ctx.stroke(); }
-    ctx.fillStyle = "#c58a62"; ctx.beginPath(); ctx.arc(128, 128, 36, 0, 7); ctx.fill(); // centre label, plain colour
-    ctx.fillStyle = "#e9e4da"; ctx.beginPath(); ctx.arc(128, 128, 3, 0, 7); ctx.fill();
+    ctx.fillStyle = "#0e0f11"; ctx.fillRect(0, 0, w, h);
+    for (let r = 42; r < 128; r += 2) { ctx.strokeStyle = `rgba(255,255,255,${r % 6 ? .035 : .08})`; ctx.beginPath(); ctx.arc(128, 128, r, 0, 7); ctx.stroke(); }
+    // plain two-tone label: a warm ring and a small centre mark, no words
+    ctx.fillStyle = "#b8714f"; ctx.beginPath(); ctx.arc(128, 128, 34, 0, 7); ctx.fill();
+    ctx.fillStyle = "#d8c8a8"; ctx.beginPath(); ctx.arc(128, 128, 26, 0, 7); ctx.fill();
+    ctx.fillStyle = "#7c4a34"; ctx.beginPath(); ctx.arc(128, 128, 4, 0, 7); ctx.fill();
   });
-  const record = vp(new THREE.CylinderGeometry(.15, .15, .003, 48), [new THREE.MeshStandardMaterial({ color: "#101012", roughness: .3 }), new THREE.MeshStandardMaterial({ map: recordTex, roughness: .35 }), new THREE.MeshStandardMaterial({ color: "#101012" })], "turntable-record", -.05, .5 + .0865, .01);
-  vp(new THREE.CylinderGeometry(.006, .006, .02, 8), metalMat, "tonearm-post", .17, .5 + .08, -.11);
-  const arm = vp(box(.24, .008, .008), metalMat, "tonearm", .09, .5 + .093, -.06); arm.rotation.y = -.55;
-  vp(box(.03, .012, .02), blackMat, "tonearm-head", .0, .5 + .092, .02);
+  const record = vp(new THREE.CylinderGeometry(.148, .148, .003, 56), [new THREE.MeshStandardMaterial({ color: "#101012", roughness: .28 }), new THREE.MeshStandardMaterial({ map: recordTex, roughness: .32 }), new THREE.MeshStandardMaterial({ color: "#101012" })], "turntable-record", TT.x - .05, platterY + TT.platterH / 2 + .0035, TT.z);
+  record.rotation.y = .35;
+  // tonearm: pivot, counterweight, a gently curved chrome tube, headshell and stylus
+  const armBase = new THREE.Vector3(.17, TT.top + TT.plinthH + .012, -.11);
+  vp(new THREE.CylinderGeometry(.016, .018, .03, 14), blackMat, "tonearm-pivot", armBase.x, armBase.y, armBase.z);
+  vp(new THREE.CylinderGeometry(.014, .014, .026, 14), blackGloss, "tonearm-counterweight", armBase.x - .045, armBase.y + .004, armBase.z).rotation.z = Math.PI / 2;
+  const armCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(armBase.x - .01, armBase.y + .012, armBase.z),
+    new THREE.Vector3(.115, armBase.y + .026, -.085),
+    new THREE.Vector3(.06, armBase.y + .024, -.03),
+    new THREE.Vector3(.012, armBase.y + .018, .012),
+  ]);
+  const armTube = new THREE.Mesh(new THREE.TubeGeometry(armCurve, 18, .005, 8, false), brassMetal);
+  armTube.name = "tonearm"; armTube.castShadow = true; armTube.receiveShadow = true; vin.add(armTube);
+  vp(softBox(.032, .01, .02, .004, { bevelSegments: 1, curveSegments: 2 }), blackGloss, "tonearm-headshell", .006, armBase.y + .014, .02);
+  vp(new THREE.CylinderGeometry(.0016, .0012, .008, 6), brassMetal, "tonearm-stylus", .006, armBase.y + .008, .028);
+  // controls: pitch knob, speed button, start/stop button and the power LED (the LED is what glows at night)
+  vp(new THREE.CylinderGeometry(.013, .014, .011, 16), blackGloss, "turntable-pitch-knob", .15, TT.top + TT.plinthH + .004, .13);
+  vp(box(.03, .006, .014), blackMat, "turntable-speed-button", .195, TT.top + TT.plinthH + .001, .115);
+  vp(box(.02, .008, .016), blackMat, "turntable-start-button", .195, TT.top + TT.plinthH + .002, .075);
+  const turntableLedMat = new THREE.MeshStandardMaterial({ color: "#ffe6c2", emissive: "#ffb661", emissiveIntensity: 0, roughness: .3 });
+  vp(new THREE.CylinderGeometry(.0045, .0045, .002, 12), turntableLedMat, "turntable-led", .112, TT.top + TT.plinthH + .001, .152);
+  const ledHaloTex = canvasTex(128, 128, (ctx, w, h) => {
+    const g = ctx.createRadialGradient(w / 2, h / 2, 2, w / 2, h / 2, w / 2);
+    g.addColorStop(0, "rgba(255,190,110,.85)"); g.addColorStop(.45, "rgba(255,170,90,.25)"); g.addColorStop(1, "rgba(255,160,80,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  });
+  const turntableGlowMat = new THREE.MeshBasicMaterial({ map: ledHaloTex, transparent: true, depthWrite: false, opacity: 0, toneMapped: false });
+  const ledGlowPlane = new THREE.Mesh(new THREE.PlaneGeometry(.075, .075), turntableGlowMat);
+  ledGlowPlane.name = "turntable-led-glow";
+  ledGlowPlane.rotation.x = -Math.PI / 2; ledGlowPlane.position.set(.112, TT.top + TT.plinthH + .002, .152);
+  ledGlowPlane.renderOrder = 2; vin.add(ledGlowPlane);
   // Compact two-way speakers: match Room 01's layered cabinet/baffle/driver language,
   // while the darker walnut veneer sits naturally beside the records and oak console.
   // Pair geometry is merged by material to keep this detail to two draw calls.
@@ -1670,6 +1749,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2), footprintMat(op));
     m.name = "contact-" + name; m.rotation.x = -Math.PI / 2; m.position.set((b.min.x + b.max.x) / 2, .0075, (b.min.z + b.max.z) / 2); m.renderOrder = 1; root.add(m);
   }
+  { // the turntable sits on the console top, so it gets its own soft footprint on that surface
+    const b = new THREE.Box3().setFromObject(vin.getObjectByName("turntable-plinth"));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + .05, b.max.z - b.min.z + .05), footprintMat(.34));
+    m.name = "contact-turntable"; m.rotation.x = -Math.PI / 2; m.position.set((b.min.x + b.max.x) / 2, .5008, (b.min.z + b.max.z) / 2); m.renderOrder = 1; root.add(m);
+  }
   // Soft goods rest on each other, so each one gets a faint shadow on the surface under it: the pillow on the mattress, the throw on the
   // duvet. The cushion is deliberately not in this list any more: it now sinks ~2 cm into the pillow, so a flat plane at the pillow's
   // surface would be buried inside it. Its own cast shadow (part() enables castShadow) lands on the pillow instead.
@@ -1776,6 +1860,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     series:  { time: "night", sky: "#ffffff", bg: "#1b2030", exposure: 1.12, hemi: [.62, "#7a86ad", "#4a4350"], sun: [0, "#9db4ff", 2.3], fill: [0, "#ffb978"], // the fill light sits at the ceiling ring; turn it off with the fixture
                bedLamp: 3, shade: .9, screen: .8, led: 1.7, glow: .6, ceiling: 0, monitor: .55, tv: 1.2, blind: .5, deskSpot: 1.7, ledCol: "#ff9a55", screenCol: "#c6cdf0" },
   };
+  // How much the turntable power lamp glows per mood: barely visible in daylight, a warm pin-light at night and in series night.
+  const TURNTABLE_LED = { focus: .18, weekend: .5, golden: .9, night: 3.2, sunday: .1, series: 2.2 };
+  const TURNTABLE_GLOW = { focus: .03, weekend: .07, golden: .12, night: .34, sunday: .01, series: .26 };
   let mood = "focus";
   const switchOverrides = { bed: null, desk: null };
   const refreshSwitchRockers = () => {
@@ -1824,6 +1911,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
     ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow; applyLed();
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
+    turntableLedMat.emissiveIntensity = TURNTABLE_LED[name] ?? 0; // the deck's power lamp: dim in daylight, bright at night
+    turntableGlowMat.opacity = TURNTABLE_GLOW[name] ?? 0;
     applyTv(name);
     setBlind(m.blind);
     applyEnv(name);
@@ -1834,6 +1923,26 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     return true;
   }
 
+  // Local QA hook for the vinyl corner: what the sleeve row and the deck actually are, plus how far the power lamp is turned up.
+  const vinylInfo = () => {
+    scene.updateMatrixWorld(true);
+    const box = (name) => { const o = vin.getObjectByName(name); if (!o) return null; const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray().map((v) => Number(v.toFixed(3))), max: b.max.toArray().map((v) => Number(v.toFixed(3))) }; };
+    const plinth = box("turntable-plinth"), platter = vin.getObjectByName("turntable-platter"), rec = vin.getObjectByName("turntable-record");
+    let sleeveMeshes = 0, sleeveVertices = 0;
+    vin.traverse((o) => { if (o.isMesh && o.name === "vinyl-sleeve-row") { sleeveMeshes++; sleeveVertices += o.geometry.attributes.position.count; } });
+    return {
+      sleeves: { meshes: sleeveMeshes, vertices: sleeveVertices, rows: sleeveRows.length, total: sleeveRows.reduce((n, row) => n + row[1], 0) },
+      turntable: {
+        plinth,
+        platterRadiusMm: platter ? Number((platter.geometry.parameters.radiusTop * 1000).toFixed(1)) : null,
+        recordRadiusMm: rec ? Number((rec.geometry.parameters.radiusTop * 1000).toFixed(1)) : null,
+        parts: ["turntable-plinth", "turntable-top-plate", "turntable-platter", "turntable-record", "tonearm", "turntable-led", "turntable-led-glow"].filter((name) => vin.getObjectByName(name)),
+        onConsoleTopMm: plinth ? Number(((plinth.min[1] - .5) * 1000).toFixed(1)) : null,
+      },
+      led: { emissive: Number(turntableLedMat.emissiveIntensity.toFixed(2)), glow: Number(turntableGlowMat.opacity.toFixed(2)) },
+      contact: Boolean(root.getObjectByName("contact-turntable")),
+    };
+  };
   // ---------- swappable choices (round 1): feature wall, rug, window, bedding, posters ----------
   const bambooTex = canvasTex(256, 256, (ctx, w, h) => {
     for (let y = 0; y < h; y += 8) { ctx.fillStyle = (y / 8) % 2 ? "#b58a55" : "#c19761"; ctx.fillRect(0, y, w, 7); ctx.fillStyle = "rgba(60,40,20,.45)"; ctx.fillRect(0, y + 7, w, 1); }
@@ -2051,7 +2160,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
     robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, pending: !!pendingRobot, y: rb.position.y, yaw: rb.rotation.y, position: b.getCenter(new THREE.Vector3()).toArray(), ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
-    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
+    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), vinyl: vinylInfo, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
