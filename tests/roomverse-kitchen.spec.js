@@ -290,14 +290,14 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     });
     console.log("Room 03 roundness geometry, material and sample metrics:", JSON.stringify({ baseline04cda76: { vertices: 16049, triangles: 13302, meshes: 84, drawCalls: 91 }, current: { vertices: info.vertices, triangles: info.triangles, meshes: info.meshes, drawCalls: info.drawCallsLastFrame, categories: info.categories }, materialColors: info.materialColors, edgeRadii: info.edgeRadii, bevelSegments: info.roundingSegments, cabinetSample: info.cabinetSample, bounds: info.sceneBounds, viewport: info.viewport, pixelRatio: info.pixelRatio }));
     expect(info.vertices).toBeLessThanOrEqual(ROOM_VERTEX_CAP);
-    expect(info.meshes).toBeLessThanOrEqual(130);
+    expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.roundingSegments).toBe(2);
     expect(info.materialColors.cabinet).toBe("#71805b");
     expect(info.cabinetSample.meanLuminance, "upper cabinet face should read at least 10% brighter than the 04cda76 sample (71.23/255)").toBeGreaterThan(78.36);
     expect(info.cabinetSample.green).toBeGreaterThan(info.cabinetSample.blue * 1.2);
     expect(info.sceneBounds.kitchen.size[0]).toBeCloseTo(4.24, 2);
-    expect(info.sceneBounds.counter.size[0]).toBeCloseTo(4.46, 2);
+    expect(info.sceneBounds.counter.size[0]).toBeCloseTo(4.466, 3); // 4.46 -> 4.466 on 2026-11-04: the counter run grew 6 mm with the sink and oven work.
     expect(info.sceneBounds.structure.size[1]).toBeCloseTo(0.18, 2);
     for (const [axis, expected] of [[0, 1.51], [1, 2.705], [2, -1.735]]) {
       expect(Math.abs(info.sceneBounds.hood.max[axis] - expected), `hood max axis ${axis} should stay within 2 cm of the 04cda76 envelope`).toBeLessThanOrEqual(0.02);
@@ -435,19 +435,23 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.info.lightMetrics.lightCount).toBeLessThanOrEqual(9);
     expect(golden.info.vertices).toBeLessThanOrEqual(ROOM_VERTEX_CAP);
     expect(golden.info.vertices).toBeLessThanOrEqual(CAPS.vertices);
-    // 100 -> 110 on 2026-10-31: the review camera sees every prop (credenza decor, tool rack, counter food); measured 101 of the 130 overall budget.
-    expect(golden.info.drawCallsLastFrame).toBeLessThanOrEqual(110);
+    // 100 -> 110 on 2026-10-31, 110 -> 122 on 2026-11-04: the review camera hides the front wall and sees every prop, so it counts more than the opening view the
+    // ledger tracks (measured 120 after the sink, oven, coffee corner and credenza props; the 130 overall cap above is unchanged).
+    expect(golden.info.drawCallsLastFrame).toBeLessThanOrEqual(122);
     expect(golden.info.plantLeafCount).toBe(0);
     // P0 lowered hemi 0.9->0.55 and ambient 0.30->0.16, so this local interior sample is 4.5 % darker (107.1) even though
     // the whole-frame mean is unchanged (111.1 -> 111.6). Old floor was 106.7261 * 1.05 = 112.1; the new floor keeps the
     // sample from collapsing while P0 is in review.
     // 2026-10-31: styling the credenza top (books, vessel, plant) moved this sample from >= 104 to 103.98, a 0.016 difference nobody can see. Floor 103.5 (Paul: budgets are QA tools, measure first).
-    expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(103.5);
+    // 103.5 -> 95 on 2026-11-04: the default floor became oak (#724), which is darker than the terrazzo this sample was recorded with; after the oak lift (1.25) it measures 97.3.
+    expect(golden.samples.interior.meanLuminance).toBeGreaterThanOrEqual(95);
     // This sample sits inside the old VSM penumbra (99.8). With PCF the penumbra is narrower, so the same pixels are 91.1.
     // Old ceiling 7.8395. On the pre-lamp build this machine measured 7.844 (known edge noise, left alone).
     // The floor lamp now stands where the fig stood, and that sample reads 8.318. Ceiling 8.50 still rejects a blown penumbra.
-    expect(golden.samples.floorShadow.meanLuminance).toBeGreaterThan(88);
-    expect(golden.samples.floorShadow.luminanceStdDev).toBeLessThan(8.50);
+    // 88 -> 68 on 2026-11-04: this is shaded floor, recorded on terrazzo (and, after the oak change, the same pixels read darker). Oak with the 1.25 lift measures 73.5.
+    expect(golden.samples.floorShadow.meanLuminance).toBeGreaterThan(68);
+    // 8.50 -> 10.5 on 2026-11-04: plank grain and seams add pixel variance that terrazzo did not have (measured 9.5 with the oak lift); a blown penumbra would read far above this.
+    expect(golden.samples.floorShadow.luminanceStdDev).toBeLessThan(10.5);
     expect(golden.info.lightMetrics.windowBounce).toBeGreaterThan(0);
     await shot(page, "desktop-1440-golden-after");
     await setReviewCamera(page, [0.18, 0.55, 0.45], [1.38, 1.4, 2.25], 46);
@@ -470,7 +474,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     await page.locator('#moods button[data-mood="night"]').click();
     const night = await measure();
     expect(night.info.lightMetrics.lightCount).toBeLessThanOrEqual(9);
-    expect(night.info.drawCallsLastFrame).toBeLessThanOrEqual(110);
+    expect(night.info.drawCallsLastFrame).toBeLessThanOrEqual(122);
     expect(night.info.lightMetrics.pendantFloorBounce).toBe(0); expect(night.info.lightMetrics.pendantCeilingBounce).toBeGreaterThan(0);
     expect(night.samples.pendantArea.meanLuminance).toBeGreaterThan(101.2551);
     await shot(page, "desktop-1440-night-after");
@@ -572,7 +576,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.dimensions).toEqual({ width: 6, depth: 4.8, height: 2.7 });
     expect(info.vertices).toBeGreaterThan(3000);
     expect(info.vertices).toBeLessThanOrEqual(ROOM_VERTEX_CAP);
-    expect(info.meshes).toBeLessThanOrEqual(130);
+    expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.categories["household-props"].vertices).toBeGreaterThan(0);
     expect(info.categories.structure.vertices).toBeGreaterThan(0);
@@ -803,7 +807,6 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(CAPS.desktopCalls);
-    expect(info.meshes).toBeLessThanOrEqual(130);
     expect(info.meshes).toBeLessThanOrEqual(CAPS.meshes);
     expect(info.camera[0]).toBeCloseTo(DESKTOP_CAMERA[0], 3); // Desktop camera 0 -> 0.22: separate globe from hood.
     expect(info.camera[1]).toBeCloseTo(DESKTOP_CAMERA[1], 3); // Desktop camera 1.56 -> 1.64: separate globe from hood.
@@ -952,7 +955,9 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(golden.drawCallsLastFrame, "complete loaded room should stay within the 130 draw call budget").toBeLessThanOrEqual(130);
     expect(Object.values(golden.furnitureAssets).reduce((sum, asset) => sum + asset.vertices, 0), "new dining furniture should stay within its combined budget").toBeLessThanOrEqual(14000);
     // Same world point and viewport; the 4a camera is at an interior review angle, so the historical camera is no longer equivalent.
-    expect(goldenFloor.meanLuminance, "far floor should remain above the prior 12/255 acceptance threshold at the interior review angle").toBeGreaterThan(81.5994 + 12);
+    // 93.6 -> 85 on 2026-11-04: the old bar (81.6 + 12) was set for terrazzo. The oak floor measured 80.1 untouched and 89.0 after the 1.25 lift (Paul: "a little brighter"); a bigger lift would
+    // push the night floor up to the rug and break the rug-over-floor read tested below.
+    expect(goldenFloor.meanLuminance, "far floor should stay readable at the interior review angle").toBeGreaterThan(85);
 
     await page.locator('#moods button[data-mood="night"]').click();
     await expect.poll(() => page.evaluate(() => window.__room03.info().mood)).toBe("night");

@@ -4300,9 +4300,10 @@ function buildHouseholdProps(scene, m) {
     box(m.olive, [0.028, 0.006, 0.004], [0, 0.112, 0.125]);
   });
 
+  // 2026-11-04: seated 3 mm higher (was counterY - 0.003): the counter top under it measures 956 mm, so the crock was sunk 4 mm instead of the 1-3 mm the fit spec wants.
   // A turned oak utensil crock with a rolled lip, a real hollow, and three
   // softly splayed spoons. The low radial segment count keeps it lightweight.
-  const utensilCrock = buildPropGroup(scene, "oak-utensil-crock", [-1.72, counterY - 0.003, -1.73], ({ shape }) => {
+  const utensilCrock = buildPropGroup(scene, "oak-utensil-crock", [-1.72, counterY, -1.73], ({ shape }) => {
     const crockProfile = [
       new THREE.Vector2(0.052, 0.002), new THREE.Vector2(0.056, 0.004),
       new THREE.Vector2(0.059, 0.012), new THREE.Vector2(0.060, 0.022),
@@ -6386,7 +6387,8 @@ export async function start({ stage, onReady = () => {} }) {
     return texture;
   };
   const FLOOR_FINISHES = Object.freeze({
-    oak: { make: makeOakPlankTexture, tint: 0xfff6ea },
+    // lift: the Room 02 oak photo is darker than terrazzo and the mood floor colours were tuned for terrazzo, so oak is lifted in linear light (Paul 2026-11-04: brighten the floor a little).
+    oak: { make: makeOakPlankTexture, tint: 0xfff6ea, lift: 1.25 },
     terrazzo: { make: makeTerrazzoTexture, tint: 0xffffff },
     cork: { make: makeCorkFloorTexture, tint: 0xfff4df },
     concrete: { make: () => makeFloorTexture(31, 0.18), tint: 0xf0f1ef },
@@ -6398,7 +6400,7 @@ export async function start({ stage, onReady = () => {} }) {
     const look = MOOD_LOOK[currentMood];
     materials.wall.color.setHex(WALL_FINISHES[surfaceFinish.wall]);
     if (entryHallWallMaterial) entryHallWallMaterial.color.setHex(ENTRY_HALL_WALL_FINISHES[surfaceFinish.wall]);
-    materials.floor.color.setHex(look.floor).multiply(new THREE.Color(FLOOR_FINISHES[surfaceFinish.floor].tint));
+    materials.floor.color.setHex(look.floor).multiply(new THREE.Color(FLOOR_FINISHES[surfaceFinish.floor].tint)).multiplyScalar(FLOOR_FINISHES[surfaceFinish.floor].lift ?? 1);
     materials.jute.color.setHex(look.jute);
   }
   function setSurfaceFinish(next = {}) {
