@@ -3731,17 +3731,67 @@ function buildRoomDoor(scene, m) {
   };
 }
 
+// Oak slab top for the credenza (Paul 2026-11-04: the top read as plastic). Flat vertex colour and one roughness gave it no grain and no sheen variation.
+// Three tileable canvases share one grain field: colour (four boards of slightly different tone, long grain streaks, pores), roughness (pores and
+// cathedral lines rougher, polished mid-board a little smoother) and a very light bump. UVs are in metres, grain runs along the credenza length.
+function makeCredenzaOakMaps() {
+  const W = 1024, H = 512, TAU = Math.PI * 2;
+  let state = 20261104;
+  const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
+  const boards = 4, boardH = H / boards;
+  const tone = [[196, 150, 99], [184, 138, 90], [204, 158, 106], [190, 144, 94]];
+  const streaks = [];
+  for (let i = 0; i < 150; i++) {
+    streaks.push({ y: random() * H, k: 1 + Math.floor(random() * 3), phase: random() * TAU, amp: 1 + random() * 5, width: 0.6 + random() * 1.8, dark: random() < 0.62, alpha: 0.05 + random() * 0.12 });
+  }
+  const pores = [];
+  for (let i = 0; i < 900; i++) pores.push({ x: random() * W, y: random() * H, len: 3 + random() * 16 });
+  const wavy = (ctx, st, dy) => {
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 16) {
+      const y = st.y + dy + st.amp * Math.sin(TAU * st.k * x / W + st.phase);
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  };
+  const color = makeTexture((ctx) => {
+    for (let b = 0; b < boards; b++) { const t = tone[b]; ctx.fillStyle = `rgb(${t[0]},${t[1]},${t[2]})`; ctx.fillRect(0, b * boardH, W, boardH + 1); }
+    for (const st of streaks) {
+      ctx.lineWidth = st.width;
+      ctx.strokeStyle = st.dark ? `rgba(92,58,30,${st.alpha})` : `rgba(240,205,150,${st.alpha * 0.9})`;
+      for (const dy of [-H, 0, H]) wavy(ctx, st, dy);
+    }
+    ctx.fillStyle = "rgba(70,42,22,.30)";
+    for (const po of pores) ctx.fillRect(po.x, po.y, po.len, 0.9);
+    for (let b = 0; b < boards; b++) { ctx.fillStyle = "rgba(60,38,20,.34)"; ctx.fillRect(0, b * boardH, W, 1.4); }
+  }, W, H);
+  const grey = (paint) => { const t = makeTexture(paint, W, H); t.colorSpace = THREE.NoColorSpace; return t; };
+  const roughness = grey((ctx) => {
+    ctx.fillStyle = "rgb(165,165,165)"; ctx.fillRect(0, 0, W, H);
+    for (const st of streaks) { ctx.lineWidth = st.width * 1.4; ctx.strokeStyle = st.dark ? `rgba(215,215,215,${st.alpha * 2})` : `rgba(110,110,110,${st.alpha * 1.6})`; for (const dy of [-H, 0, H]) wavy(ctx, st, dy); }
+    ctx.fillStyle = "rgba(235,235,235,.75)"; for (const po of pores) ctx.fillRect(po.x, po.y, po.len, 1);
+    for (let b = 0; b < boards; b++) { ctx.fillStyle = "rgba(240,240,240,.9)"; ctx.fillRect(0, b * boardH, W, 1.6); }
+  });
+  const bump = grey((ctx) => {
+    ctx.fillStyle = "rgb(150,150,150)"; ctx.fillRect(0, 0, W, H);
+    for (const st of streaks.filter((x) => x.dark)) { ctx.lineWidth = st.width; ctx.strokeStyle = `rgba(90,90,90,${st.alpha * 2.2})`; for (const dy of [-H, 0, H]) wavy(ctx, st, dy); }
+    ctx.fillStyle = "rgba(70,70,70,.7)"; for (const po of pores) ctx.fillRect(po.x, po.y, po.len, 0.9);
+    for (let b = 0; b < boards; b++) { ctx.fillStyle = "rgba(40,40,40,.9)"; ctx.fillRect(0, b * boardH, W, 1.6); }
+  });
+  for (const t of [color, roughness, bump]) { t.anisotropy = 8; t.generateMipmaps = true; }
+  return { color, roughness, bump, tileMetres: [1.0, 0.5] };
+}
+
 function buildRightWallCredenza(scene, m) {
   const WALL_X = 2.94, Z_MIN = -0.80, Z_MAX = 1.00, DEPTH = 0.45, TOP_Y = 0.815, PLINTH = 0.08, TOP_T = 0.03;
   const length = Z_MAX - Z_MIN, zMid = (Z_MIN + Z_MAX) / 2, xBack = WALL_X - 0.002, xFront = xBack - DEPTH, xMid = (xBack + xFront) / 2;
-  const parts = { walnut: [], front: [], oak: [], dark: [] };
+  const parts = { walnut: [], front: [], dark: [] };
   const hardwareParts = [];
   // Rounded edges only where they are seen (top and door fronts, 2 bevel segments); hidden body, plinth and pulls are plain boxes.
   const box = (bucket, size, position, rounded = false) => { const g = rounded ? roundedBoxGeometry(size, Math.min(0.006, Math.min(...size) * 0.25), 2) : new THREE.BoxGeometry(...size); if (!rounded) { g.deleteAttribute("uv"); g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); } g.translate(...position); parts[bucket].push(rounded ? g : g); return g; };
   const bodyH = TOP_Y - TOP_T - PLINTH;
   box("walnut", [DEPTH - 0.02, bodyH, length], [xMid + 0.01, PLINTH + bodyH / 2, zMid]);
   box("dark", [DEPTH - 0.08, PLINTH, length - 0.06], [xMid + 0.04, PLINTH / 2, zMid]);
-  box("oak", [DEPTH + 0.01, TOP_T, length + 0.02], [xMid - 0.005, TOP_Y - TOP_T / 2, zMid], true);
   const doors = 4, gap = 0.006, doorW = (length - gap * (doors + 1)) / doors;
   for (let i = 0; i < doors; i++) {
     const z = Z_MIN + gap + doorW / 2 + i * (doorW + gap);
@@ -3759,7 +3809,7 @@ function buildRightWallCredenza(scene, m) {
     }
   }
   // One mesh: warm walnut, slightly lighter door fronts, oak top and recessed shadow lines share one draw call.
-  const tints = { walnut: 0x76543b, front: 0x886344, oak: 0xb58a5b, dark: 0x292724 };
+  const tints = { walnut: 0x76543b, front: 0x886344, dark: 0x292724 };
   const all = [];
   for (const [kind, list] of Object.entries(parts)) {
     const tint = new THREE.Color(tints[kind]);
@@ -3789,6 +3839,23 @@ function buildRightWallCredenza(scene, m) {
   hardwareMesh.name = "credenza-brass-pulls"; hardwareMesh.userData.category = "credenza";
   hardwareMesh.castShadow = true; hardwareMesh.receiveShadow = true;
   group.add(hardwareMesh);
+  // Oak slab top: its own mesh and material (the one extra draw call), generous 8 mm / 3-segment edge, metre-based UVs by face direction.
+  const topGeometry = roundedBoxGeometry([DEPTH + 0.01, TOP_T, length + 0.02], 0.008, 3);
+  topGeometry.translate(xMid - 0.005, TOP_Y - TOP_T / 2, zMid);
+  topGeometry.computeVertexNormals();
+  const oakMaps = makeCredenzaOakMaps();
+  { const pos = topGeometry.attributes.position, nor = topGeometry.attributes.normal, uv = new Float32Array(pos.count * 2);
+    for (let i = 0; i < pos.count; i++) {
+      const ax = Math.abs(nor.getX(i)), ay = Math.abs(nor.getY(i));
+      const across = ay >= ax ? pos.getX(i) : pos.getY(i); // grain runs along z; the other axis is across the boards
+      uv[i * 2] = pos.getZ(i) / oakMaps.tileMetres[0];
+      uv[i * 2 + 1] = across / oakMaps.tileMetres[1];
+    }
+    topGeometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2)); }
+  const topMesh = new THREE.Mesh(topGeometry, new THREE.MeshStandardMaterial({ name: "credenza-oak-top", color: 0xffffff, map: oakMaps.color, roughness: 1, roughnessMap: oakMaps.roughness, bumpMap: oakMaps.bump, bumpScale: 0.35, metalness: 0 }));
+  topMesh.name = "credenza-oak-top"; topMesh.userData.category = "credenza";
+  topMesh.castShadow = true; topMesh.receiveShadow = true;
+  group.add(topMesh);
   scene.add(group);
   scene.updateMatrixWorld(true);
   const box3 = new THREE.Box3().setFromObject(group);
@@ -3802,7 +3869,8 @@ function buildRightWallCredenza(scene, m) {
       wallGapMm: mm(WALL_X - box3.max.x), wokCounterGapMm: mm(1.023 - box3.max.z),
       paintingAirMm: paintingBox ? mm(paintingBox.min.y - box3.max.y) : null,
       underPainting: paintingBox ? box3.min.z <= paintingBox.min.z && box3.max.z >= paintingBox.max.z : null,
-      doors, color: "#76543b", doorColor: "#886344", topColor: "#b58a5b", hardware: "four slim vertical brushed-brass pulls at alternating door opening edges", hardwareCount: doors, hardwareHeightMm: 82, meshes: group.children.length, vertices: vertices + hardwareGeometry.attributes.position.count,
+      doors, color: "#76543b", doorColor: "#886344", topColor: "#b58a5b", hardware: "four slim vertical brushed-brass pulls at alternating door opening edges", hardwareCount: doors, hardwareHeightMm: 82, meshes: group.children.length, vertices: vertices + hardwareGeometry.attributes.position.count + topGeometry.attributes.position.count,
+      topMaterial: { name: "credenza-oak-top", map: true, roughnessMap: true, bumpMap: true, roughness: "0.65 mid-board, 0.5-0.9 across the map", edgeRadiusMm: 8 },
     }),
   };
 }

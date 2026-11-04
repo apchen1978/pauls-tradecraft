@@ -27,5 +27,6 @@ test("a walnut credenza fills the wall under the cable-car painting, lined up wi
   expect(c.hardwareCount).toBe(4);
   expect(c.hardwareHeightMm).toBeGreaterThanOrEqual(75);
   expect(c.hardwareHeightMm).toBeLessThanOrEqual(90);
-  expect(c.meshes, "cabinet body stays merged; all pulls share one hardware mesh").toBe(2);
+  expect(c.meshes, "merged body, one hardware mesh, and a separate grained oak top").toBe(3);
+  expect(c.topMaterial.map && c.topMaterial.roughnessMap && c.topMaterial.bumpMap, "oak top has colour, roughness and bump maps").toBe(true);
 });
