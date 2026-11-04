@@ -405,7 +405,7 @@ function makeMaterials() {
     waterBottleGlass: new THREE.MeshPhysicalMaterial({ color: 0xc6d8d5, roughness: 0.19, metalness: 0, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false }),
     waterLabel: std(0x78959a, 0.78),
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
-    porcelain: std(0xe1ddd2, 0.72), coffee: std(0x47372b, 0.78), coffeeBeanLight: std(0x805536, 0.8),
+    porcelain: std(0xe1ddd2, 0.72), mugGlaze: std(0xb0533c, 0.30), coffee: std(0x47372b, 0.78), coffeeBeanLight: std(0x805536, 0.8),
     oilGlass: std(0x526044, 0.4, { metalness: 0.04 }), leafGreen: std(0x405b3d, 0.78, { side: THREE.DoubleSide }), leafGreenLight: std(0x778b53, 0.8, { side: THREE.DoubleSide }), soil: std(0x62513d, 0.98),
     warmGlow: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.94, side: THREE.DoubleSide, depthWrite: false }),
     sunlight: new THREE.MeshBasicMaterial({ color: 0xffdda0, map: makeSunPatchTexture(), transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide }),
@@ -4065,18 +4065,32 @@ function buildHouseholdProps(scene, m) {
     ];
     shape(new THREE.LatheGeometry(hopperProfile, 18), m.glass, [0, 0.302, -0.04]);
     shape(new THREE.CylinderGeometry(0.054, 0.054, 0.010, 18), m.black, [0, 0.370, -0.04]);
-    // Staggered rings settle from the floor to near the top of the hopper.
-    // The outer beans meet the 41 mm inner wall without passing through it.
-    for (let layer = 0; layer < 5; layer++) {
-      for (const [radius, count] of [[0, 1], [0.012, 6], [0.024, 12], [0.035, 18]]) {
+    // A full hopper (Paul 2026-11-04: it must read as completely filled, not as loose rings with gaps).
+    // The glass inner wall is at 0.041 and its outer face at 0.052, so a bed that stops short of 0.041 leaves a
+    // pale ring that reads as an empty gap. The cavity from the hopper floor (y 0.316) to the underside of the
+    // lid (y 0.3645) is now packed with eight overlapping rows of beans, each with a 20-bean outer course at
+    // radius 0.0342 that reaches the glass, and a dark core behind them so no tile shows through the pile.
+    const beanNoise = (index, salt) => {
+      const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
+      return value - Math.floor(value);
+    };
+    let beanSeed = 0;
+    for (let row = 0; row < 8; row++) {
+      const y = 0.3205 + row * 0.0057;
+      for (const [ringRadius, count] of [[0, 1], [0.0085, 5], [0.0175, 10], [0.0262, 15], [0.0342, 20]]) {
         for (let i = 0; i < count; i++) {
-          const angle = (i / count + (layer % 2) / (count * 2)) * Math.PI * 2;
-          const x = Math.cos(angle) * radius, z = Math.sin(angle) * radius;
-          shape(new THREE.SphereGeometry(0.0058, 6, 4), (i + layer) % 3 === 0 ? m.coffeeBeanLight : m.coffee, [x, 0.320 + layer * 0.009, z - 0.04], [0, angle, 0], [1, 0.78, 0.85]);
+          const jitteredRadius = ringRadius === 0 ? 0 : Math.min(0.0344, ringRadius + (beanNoise(beanSeed, 1) - 0.5) * 0.0014);
+          const angle = (i / count + (row % 2) / (count * 2)) * Math.PI * 2 + (beanNoise(beanSeed, 2) - 0.5) * 0.22;
+          const lift = (beanNoise(beanSeed, 3) - 0.5) * 0.0009;
+          shape(new THREE.SphereGeometry(0.0070, 5, 3), beanSeed % 4 === 0 ? m.coffee : m.coffeeBeanLight,
+            [Math.cos(angle) * jitteredRadius, y + lift, Math.sin(angle) * jitteredRadius - 0.04],
+            [0, angle, 0], [1, 0.86, 0.95]);
+          beanSeed++;
           coffeeBeanCount++;
         }
       }
     }
+    shape(new THREE.CylinderGeometry(0.0300, 0.0300, 0.0470, 14), m.coffeeBeanLight, [0, 0.3395, -0.04]);
     const carafeProfile = [
       new THREE.Vector2(0.050, 0.008), new THREE.Vector2(0.058, 0.008),
       new THREE.Vector2(0.060, 0.016), new THREE.Vector2(0.060, 0.092),
@@ -4281,13 +4295,23 @@ function buildHouseholdProps(scene, m) {
     });
     return bottleGroup;
   });
-  // Two opaque ceramic mugs, using Room 01's hollow body and embedded handle.
+  // Two opaque ceramic mugs, using Room 01's hollow body and embedded handle: an off-white one and a glazed
+  // brick-red one (Paul 2026-11-04: two identical white mugs read as blank shapes from a distance). They stand
+  // at different angles and depths instead of in a tidy row in front of the brewer, and each handle is turned
+  // to its own direction, so the pair looks set down by hand rather than staged.
   const counterMugs = buildPropGroup(scene, "counter-mugs", [0, 0, 0], ({ shape }) => {
     const profile = [[0, .006], [.0365, .007], [.0365, .093], [.0372, .0948], [.0388, .0952], [.0399, .0935], [.040, .010], [.0395, .004], [.037, 0], [0, 0]]
       .map(([radius, y]) => new THREE.Vector2(radius, y));
-    for (const x of [-0.38, -0.17]) {
-      shape(new THREE.LatheGeometry(profile, 24), m.porcelain, [x, 0.954, -1.73]);
-      shape(new THREE.TorusGeometry(0.026, 0.0055, 8, 20, Math.PI), m.porcelain, [x + 0.038, 1.006, -1.73], [0, 0, -Math.PI / 2]);
+    for (const [x, z, yaw, glaze] of [
+      [-0.412, -1.796, -1.15, m.porcelain],
+      [-0.232, -1.706, 0.74, m.mugGlaze],
+    ]) {
+      shape(new THREE.LatheGeometry(profile, 24), glaze, [x, 0.954, z]);
+      const handle = new THREE.TorusGeometry(0.026, 0.0055, 8, 20, Math.PI);
+      handle.rotateZ(-Math.PI / 2); // the half loop bulges toward +x before it is turned
+      handle.rotateY(yaw);
+      handle.translate(x + Math.cos(yaw) * 0.038, 1.006, z - Math.sin(yaw) * 0.038);
+      shape(handle, glaze);
     }
   });
   counterMugs.userData.mugCount = 2;
@@ -4377,7 +4401,8 @@ function buildHouseholdProps(scene, m) {
   mergeWorldMaterialMeshes(waterBottles, m.waterLabel, "prop-mineral-water-labels", 0);
   // Preserve the steel/black distinction as per-vertex color while merging
   // these small hardware parts into one draw call for narrow mobile views.
-  mergeWorldTintedMeshes([kettle, riceCooker, saucepan], [m.steel, m.black], "prop-countertop-hardware-shared");
+  // The glazed brick-red mug joins the existing tinted batch, so its colour costs no extra mesh or draw call.
+  mergeWorldTintedMeshes([kettle, riceCooker, saucepan, counterMugs], [m.steel, m.black, m.mugGlaze], "prop-countertop-hardware-shared");
 
   // One reduced solid-wood board leans against the wok-side backsplash; the former island board is removed.
   const cuttingBoard = buildPropGroup(scene, "cutting-board", [0, 0, 0], ({ shape }) => {
