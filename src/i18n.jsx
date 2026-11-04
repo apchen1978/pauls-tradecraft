@@ -425,8 +425,7 @@ const dict = {
       ],
     },
     contact: {
-      headline: "聊聊",
-      sub: "交朋友一樣，先交換看法，不急著談事情。",
+      headline: "和我一起brainstorming!",
       cta: "有什麼想法，聊聊",
       onePager: "下載一頁簡介 (PDF)",
       capabilityBrief: "下載能力簡報 (PDF)",
@@ -1382,8 +1381,7 @@ const dict = {
       ],
     },
     contact: {
-      headline: "Let's talk",
-      sub: "Like making friends: views first, no rush to do business.",
+      headline: "Brainstorm with me!",
       cta: "Something on your mind? Let's talk",
       onePager: "Download one-pager (PDF)",
       capabilityBrief: "Download capability brief (PDF)",

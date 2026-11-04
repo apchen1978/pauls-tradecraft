@@ -25,15 +25,6 @@ export default function Contact() {
         >
           {t.contact.headline}
         </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-16px" }}
-          transition={{ duration: 0.35, ease: "easeOut", delay: 0.06 }}
-          className="mx-auto mt-5 max-w-[48ch] text-base leading-relaxed text-ondark-meta"
-        >
-          {t.contact.sub}
-        </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
