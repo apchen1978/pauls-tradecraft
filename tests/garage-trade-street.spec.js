@@ -68,7 +68,7 @@ for (const width of [390, 1440]) {
       await page.goto("/?lang=zh#garage");
       const branch = page.locator("#garage-branch-light-tech");
       await expect(branch.getByRole("heading", { name: "AI agent 聽得懂你的暗號嗎？" })).toBeVisible();
-      await expect(page.locator("#garage").getByRole("heading", { name: "Bring Paul Into the Room · 先把問題帶進來" })).toBeVisible();
+      await expect(page.locator("#garage").getByRole("heading", { name: "How I Approach a Problem · 我怎麼拆解問題" })).toBeVisible();
       await expect(page.locator("#garage")).toContainText("這裡放還在進行中的實驗。");
       for (const name of ["The Project Buyer · 專案型貿易商", "How Far to Bend · 保住客戶，讓到哪裡", "The Handback Sheet · 交接單"]) {
         await expect(page.locator("#garage").getByRole("heading", { name })).toBeVisible();

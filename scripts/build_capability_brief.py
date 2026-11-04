@@ -439,7 +439,7 @@ c.line(MARGIN, 84, PAGE_W - MARGIN, 84)
 c.setFont(JH, 8.5)
 c.setFillColor(HexColor('#A8B7C9'))
 c.drawString(MARGIN, 58, 'paulstradecraft.com')
-c.drawRightString(PAGE_W - MARGIN, 58, 'Paul Chen · paulchen1978@gmail.com')
+c.drawRightString(PAGE_W - MARGIN, 58, 'Paul Chen')
 footer(c, 1)
 c.showPage()
 
@@ -682,18 +682,18 @@ footer(c, 6)
 c.showPage()
 
 # ================= Page 7 — Engagement =====================================
-chapter_opener(c, '06', '合作與聯絡', '如果你有一個值得被好好看待的商業問題，可以從一段對話開始。')
+chapter_opener(c, '06', 'Working Method · 我的工作方式', '先定義邊界，再下判斷；證據走在行動之前。')
 para(c, MARGIN, PAGE_H - 153,
-     '合作不是先買一套工具，而是先看清楚卡在哪。帶一項產品、一份舊型錄、一個卡住的流程，或一件想讓 AI 幫上忙的工作；先判斷值不值得投入、現有證據夠不夠，再決定下一步該由誰做什麼。',
+     '面對一個模糊但重要的商業問題，我先理解情境、整理分散資訊、比較候選，並保留反證與未知；把模糊問題收斂成可判斷的下一步，再由負責人決定。',
      JH, 9.2, INK, CONTENT_W, leading=14)
 c.setFont(JH, 7.5)
 c.setFillColor(MUTED)
-c.drawString(MARGIN, 622, 'Engagement does not start with buying a tool. Start with one question.')
+c.drawString(MARGIN, 622, 'Evidence before action; the decision stays with the person responsible.')
 
 areas = [
-    ('01', '我們有產品與供應能力，但海外商業資源該先投在哪裡？', '從供應商現實、負責人目標與可支持的商業路徑開始。', GOLD, PALE_GOLD),
-    ('02', '這件重要事情跨部門、資訊雜亂，又沒有自然的負責人。', '把問題研究、結構化、挑戰，推向一個可判斷的下一步。', TEAL, PALE_TEAL),
-    ('03', '我們想把新方法用在真實商業工作，不想只做工具實驗。', '先定義人類判斷、外部證據與授權邊界，再決定是否值得做成流程。', BLUE, PALE_BLUE),
+    ('01', '先看供應商現實', '產品、技術、MOQ、價格帶、交期、品質、付款與開發能力，是市場開發的起點。', GOLD, PALE_GOLD),
+    ('02', '把問題結構化並挑戰假設', '整理分散資訊、比較候選、保留反證與未知，檢查矛盾。', TEAL, PALE_TEAL),
+    ('03', '定義人的判斷與授權邊界', '推論不是買方意圖，開發需求不是訂單；承諾仍由負責人拍板。', BLUE, PALE_BLUE),
 ]
 area_gap = 9
 area_w = (CONTENT_W - area_gap * 2) / 3
@@ -709,21 +709,13 @@ c.setFillColor(GOLD)
 c.rect(MARGIN, 211, 4, 114, stroke=0, fill=1)
 c.setFont(JHB, 8)
 c.setFillColor(GOLD)
-c.drawString(MARGIN + 18, 300, 'START WITH A REAL BUSINESS QUESTION')
+c.drawString(MARGIN + 18, 300, '聯絡方式 · CONTACT')
 c.setFont(JH, 8)
 c.setFillColor(HexColor('#C2CEDB'))
 c.drawString(MARGIN + 18, 278, 'WEBSITE')
-c.drawString(MARGIN + CONTENT_W / 2 + 7, 278, 'EMAIL')
 c.setFont(JHB, 12)
 c.setFillColor(WHITE)
 c.drawString(MARGIN + 18, 257, 'paulstradecraft.com')
-c.drawString(MARGIN + CONTENT_W / 2 + 7, 257, 'paulchen1978@gmail.com')
-c.setStrokeColor(HexColor('#344C69'))
-c.setLineWidth(0.7)
-c.line(MARGIN + 18, 244, PAGE_W - MARGIN - 18, 244)
-c.setFont(JHB, 9.5)
-c.setFillColor(WHITE)
-c.drawString(MARGIN + 18, 228, '先把問題攤開；再決定它值不值得推進。')
 footer(c, 7)
 c.showPage()
 

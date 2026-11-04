@@ -42,11 +42,6 @@ export default function DealReadiness() {
               <h3 className="text-base font-semibold text-forest">{service.whenTitle}</h3>
               <p className="mt-2 text-sm leading-relaxed text-moss">{service.when}</p>
             </div>
-
-            <div className="mt-6">
-              <h3 className="text-base font-semibold text-forest">{service.bringTitle}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-moss">{service.bring}</p>
-            </div>
           </details>
 
           <div className="mt-6">

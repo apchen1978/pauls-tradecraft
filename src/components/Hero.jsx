@@ -7,12 +7,12 @@ import { withDemoLang } from "../demoLinks.js";
 
 // Phones: keep each comma-separated clause on one line, so a line breaks after the comma instead of
 // splitting a phrase ("值得／遇到對的買家") or stranding two words ("with you."). md and up are unchanged.
-function Clauses({ text }) {
+function Clauses({ text, always = false }) {
   const chunks = [...String(text ?? "").matchAll(/([^，,]+[，,]?)(\s*)/g)];
   if (chunks.length < 2) return text;
   return chunks.map(([, clause, gap], i) => (
     <Fragment key={i}>
-      <span className="max-md:inline-block">{clause}</span>
+      <span className={always ? "inline-block" : "max-md:inline-block"}>{clause}</span>
       {gap}
     </Fragment>
   ));
@@ -34,8 +34,8 @@ export default function Hero() {
   const h = t.hero;
   const picks = HERO_WORKS.map((id) => works.find((work) => work.id === id)).filter(Boolean);
   const headlineClass = lang === "en"
-    ? "text-[1.7rem] leading-[1.12] sm:text-[1.95rem] md:text-[2.3rem] md:leading-[1.08] xl:text-[2.75rem] xl:leading-[1.07]"
-    : "text-[clamp(1.9rem,7vw,2.15rem)] leading-[1.18] md:text-5xl md:leading-[1.14] lg:text-[2.75rem] xl:text-[3.3rem]";
+    ? "text-[1.35rem] leading-[1.2] sm:text-[1.5rem] md:text-[1.75rem] md:leading-[1.15] xl:text-[2.1rem] xl:leading-[1.12]"
+    : "text-[clamp(1.45rem,5.5vw,1.7rem)] leading-[1.25] md:text-[2.25rem] md:leading-[1.2] lg:text-[2.5rem] xl:text-[2.75rem]";
 
   // Phones omit the portrait so the interactive work begins sooner. Desktop keeps
   // the existing portrait; the 1×1 data fallback prevents a mobile image request.
@@ -67,8 +67,8 @@ export default function Hero() {
             <span aria-hidden className="hero-gem size-2 rounded-full bg-[#9EE0C1]" />
             {h.kicker}
           </motion.p>
-          <motion.h1 variants={fadeUp} className={`mt-2 max-w-2xl font-semibold tracking-[-0.04em] text-ink md:mt-5 ${headlineClass}`}>
-            <Clauses text={h.headline} />
+          <motion.h1 variants={fadeUp} className={`mt-2 max-w-2xl font-semibold tracking-[-0.04em] text-[#2B2723] md:mt-5 ${headlineClass}`}>
+            <Clauses text={h.headline} always />
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-3 max-w-[44ch] text-base leading-[1.6] text-ink md:mt-5 md:text-lg">
             <Clauses text={h.sub} />

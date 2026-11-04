@@ -99,8 +99,8 @@ for (const [locale, data] of [["ZH", zh], ["EN", en]]) {
   check(data.disclaimer === expected.disclaimer[locale], `${locale} disclaimer is not the single approved line`);
   check(data.worksLead === expected.worksLead[locale], `${locale} works intro is not the approved line`);
   check(!/各自獨立|stay separate/i.test(data.worksLead || ""), `${locale} works intro still says the works stay separate`);
-  check(data.email === "paulchen1978@gmail.com", `${locale} email changed`);
-  check(data.lineLabel === "LINE" && data.lineUrl === "https://line.me/ti/p/zSJdkOeQgS", `${locale} LINE contact is missing or shows an ID`);
+  check(!data.email && !/@gmail|@/.test(JSON.stringify(data)), `${locale} still prints an email address`);
+  check(!data.lineLabel && !data.lineUrl && !/line\.me|\bLINE\b/.test(JSON.stringify(data)), `${locale} still carries the removed LINE contact`);
   check(orderedContains(data.services || [], expected.capabilities[locale]), `${locale} human capability hierarchy is stale`);
   check(orderedInText(proofSurface.join("\n"), expected.proofWorks[locale]), `${locale} selected proof ordering is stale`);
   check(Boolean(data.leverage), `${locale} missing how-I-work explanation`);

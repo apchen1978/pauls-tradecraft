@@ -31,7 +31,7 @@ const copy = {
     proofLinks: ["海外客戶研究", "RFQ 工作流", "商務決策工作台"],
     productStartTitle: "從你的產品開始",
     productStartBody: "如果你有一項想試著賣到海外的產品，可以先梳理產品條件與供應限制；已有想嘗試的市場就一併帶上，還沒有也可以從產品開始。",
-    productStartLink: "看看合作可以從哪裡開始",
+    productStartLink: "看看我平常怎麼開始一件事",
     boundary: "研究與準備可以加快；客戶是否有需求、能否報價與承諾，仍要查證並由人決定。",
   },
   en: {
@@ -53,7 +53,7 @@ const copy = {
     proofLinks: ["Overseas Lead Discovery", "RFQ Workflow", "Commercial Decision Desk"],
     productStartTitle: "Start with your product",
     productStartBody: "If you have a product you want to sell overseas, start by clarifying its offer and supply constraints. Bring a target market if you have one; if not, begin with the product.",
-    productStartLink: "See where a collaboration can begin",
+    productStartLink: "See how I usually start",
     boundary: "Research and preparation can move faster. Demand, quotes, and commitments still require verification and human authority.",
   },
 };

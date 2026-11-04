@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { questions: "能做什麼", showcase: "互動作品", works: "商業作品", garage: "創意實驗／小遊戲", notes: "國貿筆記", services: "怎麼合作", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { questions: "能做什麼", showcase: "互動作品", works: "商業作品", garage: "創意實驗／小遊戲", notes: "國貿筆記", services: "我的工作方式", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "15 年＋", label: "帶產品打進海外市場" },
@@ -12,8 +12,8 @@ const dict = {
         { value: "全球", label: "歐美・亞太・中東市場" },
       ],
       kicker: "Paul × AI 協作作品集",
-      headline: "好產品，值得遇到對的買家。",
-      sub: "從產品到買家這一段，我陪你一起打通。",
+      headline: "把國際業務判斷，與看世界的方式，做成作品。",
+      sub: "從產品到買家這一段，每個判斷都能點開檢視。",
       credentialsLine: "15 年國際業務 · NCCU 會計",
       background: "背景：15 年國際業務，含中國大陸通路與團隊管理。貿易經驗加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷，做成能試玩的工具。",
       youGet: "從一個重要問題開始",
@@ -47,7 +47,7 @@ const dict = {
         },
       ],
       ctaPrimary: "試玩作品",
-      ctaSecondary: "聊聊你的生意",
+      ctaSecondary: "歡迎交流",
       worksLabel: "三個商務作品",
       worksNote: "示範用虛構資料，成效未驗證。",
       imgCaption: "Pilot 追蹤器 · 實際畫面",
@@ -85,9 +85,9 @@ const dict = {
     startHere: {
       eyebrow: "從這裡開始",
       headline: "從一個需要做好的決策開始。",
-      intro: "不必先導入一套大系統。帶一個成長機會、一項反覆工作，或一段客戶旅程進來，先把真正的問題與下一步變清楚。",
+      intro: "我不先導入一套大系統。遇到一個成長機會、一項反覆工作，或一段客戶旅程，我會先把真正的問題與下一步變清楚。",
       items: [
-        { title: "想找到值得投入的大型客戶或通路。", outcome: "帶走目標帳戶、匹配理由、待確認條件與下一個開發動作。", cta: "看成長顧問方式", href: "#capabilities" },
+        { title: "想找到值得投入的大型客戶或通路。", outcome: "帶走目標帳戶、匹配理由、待確認條件與下一個開發動作。", cta: "看我的工作方法", href: "#capabilities" },
         { title: "想讓一項工作變成可重複的方法。", outcome: "從一項真實工作開始，留下可重做、可審核、可交接的方法。", cta: "看工作流程設計", href: "#capabilities" },
         { title: "客戶還看不懂你的產品或服務價值。", outcome: "把需求、敘事與互動整理成客戶願意理解並採取下一步的體驗。", cta: "看體驗設計方式", href: "#capabilities" },
       ],
@@ -189,9 +189,9 @@ const dict = {
     },
     dealReadiness: {
       kicker: "承諾前審視",
-      headline: "帶一筆正在談的海外商機，換回承諾前的清楚判斷。",
+      headline: "一筆正在談的海外商機，先換成承諾前的清楚判斷。",
       intro: "把分散在買方、RFQ、報價、付款與交期裡的資訊，整理成負責人和業務團隊能一起檢視的交易決策包。",
-      pathTitle: "一次合作，留下三樣東西",
+      pathTitle: "一個案例會留下三樣東西",
       path: [
         { title: "帶進一筆商業問題", body: "一筆正在談的商機、一段付款壓力，或一個卡住的流程。" },
         { title: "一起看清證據與邊界", body: "釐清已知、未知、控制因素與真正需要負責人判斷的地方。" },
@@ -199,12 +199,10 @@ const dict = {
       ],
       whenTitle: "適合什麼時候使用",
       when: "準備報價、打樣、出差，或正在談付款條件，但還不確定是否值得再投入更多業務、採購或資金資源時。",
-      bringTitle: "帶什麼進來",
-      bring: "買方連結、RFQ、報價或成本概算、付款與交期條件即可。資料不完整沒關係，缺口會被保留為未知。",
       boundaryTitle: "這不是什麼",
       boundary: "它不取代完整財務、法務、合規或信用盡職調查，也不替負責人做最終承諾。",
       cta: "先看商業決策路徑",
-      demoCta: "評估我的商機",
+      demoCta: "試玩商機評估",
       packLabel: "你會留下的交付包",
       packTitle: "一份能帶進下一次會議的 Deal Readiness Pack",
       packIntro: "不是一份漂亮的摘要，而是讓下一輪商業行動、證據與承諾界線都能被討論的工作底稿。",
@@ -263,7 +261,7 @@ const dict = {
       disclosure: "方法論分享；不涉及法律意見，亦不宣稱任何客戶成效。",
     },
     capabilities: {
-      eyebrow: "合作方式",
+      eyebrow: "我的工作方式",
       headline: "從一個重要決策開始",
       tagline: "先把商業問題、證據與下一步整理清楚，再決定需要什麼工具與自動化。",
       detailExpand: "展開交付流程、需求驗證與支援能力",
@@ -271,17 +269,14 @@ const dict = {
       engagement: {
         eyebrow: "從一個商業問題開始",
         title: "先把一個不能憑直覺承諾的問題看清楚。",
-        summary: "不是先導入一套大系統，而是帶一筆正在談的商機、報價或流程卡點進來，先做出團隊能使用的下一步判斷。",
-        bringLabel: "帶什麼進來",
-        workLabel: "一起釐清",
-        takeawayLabel: "你最後帶走",
+        summary: "面對一筆正在談的商機或卡住的流程，我先做出團隊能用的下一步判斷，而不是先導入大系統。",
         cta: "先看交易審視內容",
         boundary: "這是以人工審視與工作底稿為主的商業合作；財務、法務、合規、信用與最終承諾，仍須由負責人與相應專業人士確認。",
         offers: [
           {
             title: "海外商機審視",
             question: "哪些海外客戶值得投入？",
-            bring: "產品與供應基本資料即可開始；若已有想嘗試的市場、買方名稱或公開線索，也可一併帶來。沒有目標市場或買家名單，也能先從產品條件開始梳理。",
+            bring: "我通常從產品與供應的基本資料開始；若已經有想嘗試的市場、買方名稱或公開線索，會一起放進同一張圖。沒有目標市場或買家名單，也能先從產品條件梳理。",
             work: "把候選訊號、來源、未知與下一輪驗證問題分開。",
             takeaway: "你帶走：候選短名單與下一輪該問誰。",
             proof: "Overseas Lead Discovery",
@@ -361,8 +356,8 @@ const dict = {
           tags: "Market Strategy · Supplier Sourcing · QC · Delivery · Dual Sourcing",
         },
         {
-          title: "經營策略與決策顧問",
-          desc: "結合會計訓練、負責人特助與多年商業諮詢經驗，協助經營者釐清問題、拆解選項與排定行動優先序。策略簡報、客戶案例、單頁提案與執行藍圖都是決策推進的工具；核心是讓事實、假設、風險與下一步清楚可用。",
+          title: "經營策略與決策支援（經驗）",
+          desc: "我做過會計、負責人特助，也長期處理商業判斷；習慣把事實、假設、風險與下一步整理清楚。",
           tags: "Executive Advisory · Business Strategy · Financial Lens · Decision Support · Execution Roadmap",
         },
       ],
@@ -425,16 +420,12 @@ const dict = {
       ],
     },
     contact: {
-      headline: "歡迎帶一個想法與 Paul 一起共創！",
-      sub: "帶一項產品、一份舊型錄，或一個卡住的海外開發問題來。",
-      cta: "聊聊你的產品",
-      note: "商務合作與專案洽詢",
-      line: "LINE 聯絡我",
+      headline: "和我一起brainstorming!",
+      cta: "有什麼想法，聊聊",
       onePager: "下載一頁簡介 (PDF)",
-      capabilityBrief: "下載能力簡報 (PDF)",
     },
     footer: {
-      line: "把貿易實務，做成看得見的工具。",
+      line: "國際業務總監的判斷，做成作品。",
       rights: "All rights reserved.",
     },
     showcase: {
@@ -663,7 +654,7 @@ const dict = {
           href: "https://apchen1978.github.io/ai-lyrics-generator-demo/",
         },
         {
-          title: "Bring Paul Into the Room · 先把問題帶進來",
+          title: "How I Approach a Problem · 我怎麼拆解問題",
           tag: "示範實驗 · 英文原型",
           spark: "想加速業務開發？先找出團隊太早把時間花在哪一步。",
           note: "跟著一筆示範 RFQ 走過六個環節，把焦點從「要做什麼工具」轉到「哪個決定還需要釐清」。",
@@ -964,7 +955,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { questions: "What I do", showcase: "Playful Works", works: "Business Works", garage: "Garage / Games", notes: "Trade Notes", services: "Working together", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { questions: "What I do", showcase: "Playful Works", works: "Business Works", garage: "Garage / Games", notes: "Trade Notes", services: "How I Work", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "15+ years", label: "Taking products into overseas markets" },
@@ -972,8 +963,8 @@ const dict = {
         { value: "Global", label: "Europe, Asia-Pacific, Middle East" },
       ],
       kicker: "Human–AI collaborative work",
-      headline: "The right buyer for a good product.",
-      sub: "From product to buyer, I'll clear the path with you.",
+      headline: "Turning international-sales judgment and my way of seeing the world into work.",
+      sub: "From product to buyer, every judgment can be opened and inspected.",
       credentialsLine: "15 years in international sales · NCCU Accounting",
       background: "Background: 15 years in international sales, including mainland China channels and team management. Trade experience plus an AI-native way of working, turning the judgment calls of international sales (finding buyers, working out the profit, closing orders) into tools you can try.",
       youGet: "Start with one important question",
@@ -1007,7 +998,7 @@ const dict = {
         },
       ],
       ctaPrimary: "Try the work",
-      ctaSecondary: "Talk about your deal",
+      ctaSecondary: "Get in touch",
       worksLabel: "Three commercial works",
       worksNote: "Demos use fictional data; outcomes not verified.",
       imgCaption: "Pilot tracker · live view",
@@ -1043,11 +1034,11 @@ const dict = {
       closing: "Experience forms the question · Research widens the view · Evidence decides the next step",
     },
     startHere: {
-      eyebrow: "Consulting start points",
+      eyebrow: "How I Work",
       headline: "Start with one decision that needs to be done well.",
-      intro: "You do not need to adopt a large system first. Bring a growth opportunity, a repeated task, or a customer journey, and make the real problem and next move clear.",
+      intro: "I do not start by adopting a large system. When I meet a growth opportunity, a repeated task, or a customer journey, I make the real problem and the next move clear first.",
       items: [
-        { title: "You need to find major accounts or channels worth pursuing.", outcome: "Leave with target accounts, fit rationale, conditions to verify, and the next development move.", cta: "See growth consulting", href: "#capabilities" },
+        { title: "You need to find major accounts or channels worth pursuing.", outcome: "Leave with target accounts, fit rationale, conditions to verify, and the next development move.", cta: "See how I work", href: "#capabilities" },
         { title: "You want one piece of work turned into a repeatable method.", outcome: "Start with one real task and leave a repeatable, reviewable way of working that others can take over.", cta: "See workflow design", href: "#capabilities" },
         { title: "Customers still cannot see the value of your offer.", outcome: "Turn needs, narrative, and interaction into an experience that makes the next step easier to take.", cta: "See experience design", href: "#capabilities" },
       ],
@@ -1149,22 +1140,20 @@ const dict = {
     },
     dealReadiness: {
       kicker: "Deal readiness review",
-      headline: "Bring one live overseas deal. Leave with a clear basis before commitment.",
+      headline: "One live overseas deal, and a clear basis before commitment.",
       intro: "Turn the information scattered across the buyer, RFQ, quote, payment terms, and timeline into a deal package the decision-maker and commercial team can review together.",
-      pathTitle: "One engagement. Three things left behind.",
+      pathTitle: "A case leaves three things behind.",
       path: [
-        { title: "Bring one commercial problem", body: "A live opportunity, payment pressure, or workflow that is stuck." },
+        { title: "One commercial problem", body: "A live opportunity, payment pressure, or a workflow that is stuck." },
         { title: "Clarify evidence and boundaries", body: "Separate what is known, UNKNOWN, controlling, and still requires the decision-maker's judgment." },
         { title: "Leave with a working next step", body: "Take away meeting questions, evidence requests, actions, and rerun conditions." },
       ],
       whenTitle: "When it helps",
       when: "Before quoting, sampling, travel, or agreeing payment terms, when the team is still unsure whether this deal deserves more sales, sourcing, or cash commitment.",
-      bringTitle: "Bring what you have",
-      bring: "A buyer link, RFQ, quote or cost estimate, and known payment or delivery terms. Incomplete information is acceptable. Gaps remain UNKNOWN.",
       boundaryTitle: "What it does not replace",
       boundary: "It is not full financial, legal, compliance, or credit due diligence. It does not make the decision-maker's final commitment.",
       cta: "See the commercial decision path",
-      demoCta: "Assess my opportunity",
+      demoCta: "Try the deal check",
       packLabel: "The delivery",
       packTitle: "A Deal Readiness Pack for the next commercial meeting",
       packIntro: "Not a polished summary. A working decision brief that makes the next action, evidence, and commitment boundary discussable.",
@@ -1223,7 +1212,7 @@ const dict = {
       disclosure: "Methodology sharing; not legal advice, and no client outcomes are claimed.",
     },
     capabilities: {
-      eyebrow: "Commercial engagements",
+      eyebrow: "How I Work",
       headline: "Start with one decision that matters",
       tagline: "Clarify the commercial problem, evidence, and next move before deciding what to automate or build.",
       detailExpand: "Show delivery flow, demand validation, and supporting capabilities",
@@ -1231,17 +1220,14 @@ const dict = {
       engagement: {
         eyebrow: "Start with a commercial question",
         title: "Make one question you cannot commit on by instinct clear first.",
-        summary: "Do not start by adopting a large system. Bring a live opportunity, quote, or stuck workflow, and make the next judgment usable for the team.",
-        bringLabel: "Bring",
-        workLabel: "Work through",
-        takeawayLabel: "Take away",
+        summary: "When I meet a live opportunity, a quote, or a stuck workflow, I make the next judgment usable for the team before adopting any large system.",
         cta: "See the engagement detail",
         boundary: "This is a human-reviewed commercial engagement built around working briefs. Finance, legal, compliance, credit, and final commitments remain with the decision-maker and the appropriate professionals.",
         offers: [
           {
             title: "Overseas Opportunity Review",
             question: "Which overseas prospects deserve attention?",
-            bring: "Basic product and supplier information is enough to start. If you have a target market, buyer name, or public lead, bring it too; none is required to begin.",
+            bring: "I usually start from the basic product and supplier facts; a target market, buyer name, or public lead goes into the same picture when it exists.",
             work: "Separate candidate signals, source context, UNKNOWNs, and the next verification questions.",
             takeaway: "You take away: a candidate shortlist and the next questions to ask.",
             proof: "Overseas Lead Discovery",
@@ -1302,7 +1288,7 @@ const dict = {
         },
         {
           title: "Brand Sites & Sales Tools",
-          desc: "A website is not useful just because it exists. Help brands turn their visual language, services, work, and consultation path into a clear sales journey, with supporting LINE, form, quote, follow-up, delivery, and launch-check tools.",
+          desc: "A website is not useful just because it exists. Help brands turn their visual language, services, work, and inquiry path into a clear sales journey, with supporting LINE, form, quote, follow-up, delivery, and launch-check tools.",
           tags: "Brand Website · Sales Enablement · LINE · Quote · Follow-up",
         },
         {
@@ -1321,8 +1307,8 @@ const dict = {
           tags: "Market Strategy · Supplier Sourcing · QC · Delivery · Dual Sourcing",
         },
         {
-          title: "Executive Strategy & Decision Advisory",
-          desc: "Combine accounting training with executive-assistant and business-consulting experience to help leaders clarify problems, weigh options, and set action priorities. Strategy decks, client case briefs, one-pagers, and execution blueprints are decision tools; the core work is making facts, assumptions, risks, and next actions clear and usable.",
+          title: "Executive Strategy & Decision Support (experience)",
+          desc: "I have done accounting, executive-assistant work, and long-term commercial judgment; I am used to separating facts, assumptions, risks and next steps.",
           tags: "Executive Advisory · Business Strategy · Financial Lens · Decision Support · Execution Roadmap",
         },
       ],
@@ -1384,16 +1370,12 @@ const dict = {
       ],
     },
     contact: {
-      headline: "Bring an idea and build it with Paul!",
-      sub: "Bring a product, an old catalogue, or an overseas business-development problem you're stuck on.",
-      cta: "Talk about your product",
-      note: "Business inquiries & collaboration",
-      line: "Contact on LINE",
+      headline: "Brainstorm with me!",
+      cta: "Something on your mind? Let's talk",
       onePager: "Download one-pager (PDF)",
-      capabilityBrief: "Download capability brief (PDF)",
     },
     footer: {
-      line: "Turning trade practice into visible tools.",
+      line: "An international sales director's judgment, made into work.",
       rights: "All rights reserved.",
     },
     showcase: {
@@ -1622,7 +1604,7 @@ const dict = {
           href: "https://apchen1978.github.io/ai-lyrics-generator-demo/",
         },
         {
-          title: "Bring Paul Into the Room",
+          title: "How I Approach a Problem",
           tag: "Demo experiment · EN prototype",
           spark: "Want to speed up business development? First, find where the team committed attention too early.",
           note: "Follow a demo RFQ through six steps, shifting the question from what to build to which decision needs clarity.",
@@ -1927,12 +1909,12 @@ const LangContext = createContext({ lang: "zh", t: dict.zh, toggle: () => {} });
 // 語言切換時同步 <html lang>、title 與分享用描述（SEO / a11y）。
 // 用字跟首頁 hero 對齊：中文「賺不賺得到」；英文 "whether it is profitable"。
 const titles = {
-  zh: "Paul's Tradecraft｜好產品，值得遇到對的買家",
-  en: "Paul's Tradecraft | The right buyer for a good product",
+  zh: "Paul's Tradecraft｜國際業務的商業判斷作品集",
+  en: "Paul's Tradecraft | Commercial Judgment Portfolio",
 };
 const ogDescriptions = {
-  zh: "從產品到買家這一段，我陪你一起打通。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
-  en: "From product to buyer, I'll clear the path with you. Paul Chen: 15 years in international sales, including mainland China channels and team management, turning the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
+  zh: "從產品到買家這一段，我把判斷過程做成看得見的作品。Paul Chen：15 年國際業務，含中國大陸通路與團隊管理，把找買家、算利潤、談成訂單的判斷做成能試玩的工具。",
+  en: "From product to buyer, I make the judgment visible as work you can inspect. Paul Chen: 15 years in international sales, including mainland China channels and team management, turning the judgment calls of finding buyers, working out profit and closing orders into tools you can try.",
 };
 
 // 首頁可由 `?lang=en` 進入英文版（雙語 demo 的「回作品集」連結會帶此參數）。
