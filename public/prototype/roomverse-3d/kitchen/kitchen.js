@@ -6200,7 +6200,9 @@ export async function start({ stage, onReady = () => {} }) {
   renderer.shadowMap.type = THREE.PCFShadowMap;
   stage.replaceChildren(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = false; controls.enablePan = false;
+  // Damping + one render per animation frame, like Room 01 (Paul 2026-11-05: finger drag felt choppy next to Room 01). Without damping the
+  // camera followed the raw touch samples and every pointermove rendered synchronously, so a 120 Hz touch screen could draw twice per frame.
+  controls.enableDamping = true; controls.enablePan = false;
   controls.target.set(...initialCamera.target); controls.minDistance = 1.48;
   controls.minPolarAngle = 1.24; controls.maxPolarAngle = 1.65;
   controls.minAzimuthAngle = -Infinity; controls.maxAzimuthAngle = Infinity;
@@ -7099,7 +7101,12 @@ export async function start({ stage, onReady = () => {} }) {
     }
   }
   const housePlaque = addHousePlaque(scene, () => render());
-  controls.addEventListener("change", render);
+  // The loop must survive the first frames after pointer-down (no movement yet, update() is false) and keep gliding after release.
+  let orbitLooping = false, orbitHeld = false;
+  function orbitLoop() { const moving = controls.update(); render(); if (moving || orbitHeld) requestAnimationFrame(orbitLoop); else orbitLooping = false; }
+  controls.addEventListener("start", () => { orbitHeld = true; if (!orbitLooping) { orbitLooping = true; requestAnimationFrame(orbitLoop); } });
+  controls.addEventListener("end", () => { orbitHeld = false; });
+  controls.addEventListener("change", () => { if (!orbitLooping) render(); });
   const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(stage);
   resize(); controls.update(); setMood("daylight");
   await furniture.ready;
