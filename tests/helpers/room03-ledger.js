@@ -10,12 +10,12 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 102895, meshes: 131 }),
+  scene: Object.freeze({ vertices: 103095, meshes: 132 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 81, phone: 79 }),
+  openingDrawCalls: Object.freeze({ desktop: 82, phone: 79 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 81, golden: 81, movie: 79, night: 81, dinner: 88, sunday: 81, thanksgiving: 91 }),
+    desktop: Object.freeze({ daylight: 82, golden: 82, movie: 80, night: 82, dinner: 89, sunday: 82, thanksgiving: 92 }),
     phone: Object.freeze({ daylight: 79, golden: 79, movie: 77, night: 79, dinner: 86, sunday: 79, thanksgiving: 89 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
@@ -66,6 +66,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-04", change: "credenza water bottles rebuilt as unbranded Evian-style PET (grip ribs, long tapered shoulder, neck ring, fluted cap, shoulder-high water, blank label band) and set as a loose, turned pair at uneven spacing (+1,296 vertices; the white caps add one mesh per bottle, no opening draw-call change)", vertices: 100520, meshes: 131, desktopCalls: 81, phoneCalls: 79 },
     { date: "2026-11-04", change: "coffee maker: hopper packed to the glass with eight overlapping bean rows (408 beans, no see-through gaps) and two counter mugs set at different depths and angles, one off-white and one glazed brick-red (+3,048 vertices, same meshes and draw calls)", vertices: 103925, meshes: 131, desktopCalls: 81, phoneCalls: 79 },
     { date: "2026-11-04", change: "coffee maker refined: the hopper is filled about half way with seven loose bean rows (177 individually visible beans) instead of one packed block, and the counter carries one glazed brick-red mug with a clean welded lathe profile and a buried handle (-1,030 vertices, same meshes and draw calls)", vertices: 102895, meshes: 131, desktopCalls: 81, phoneCalls: 79 },
+    { date: "2026-11-04", change: "credenza oak top split out of the merged body into its own mesh with a procedural tileable oak grain (colour, roughness and light bump maps, four boards of slightly different tone, metre-based UVs, 8 mm edge) so it no longer reads as plastic (+200 vertices, +1 mesh, +1 desktop draw call; the phone count is unchanged)", vertices: 103095, meshes: 132, desktopCalls: 82, phoneCalls: 79 },
   ]),
 });
 
