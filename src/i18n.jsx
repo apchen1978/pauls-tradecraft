@@ -270,7 +270,6 @@ const dict = {
         eyebrow: "從一個商業問題開始",
         title: "先把一個不能憑直覺承諾的問題看清楚。",
         summary: "面對一筆正在談的商機或卡住的流程，我先做出團隊能用的下一步判斷，而不是先導入大系統。",
-        workLabel: "一起釐清",
         cta: "先看交易審視內容",
         boundary: "這是以人工審視與工作底稿為主的商業合作；財務、法務、合規、信用與最終承諾，仍須由負責人與相應專業人士確認。",
         offers: [
@@ -1222,7 +1221,6 @@ const dict = {
         eyebrow: "Start with a commercial question",
         title: "Make one question you cannot commit on by instinct clear first.",
         summary: "When I meet a live opportunity, a quote, or a stuck workflow, I make the next judgment usable for the team before adopting any large system.",
-        workLabel: "Work through",
         cta: "See the engagement detail",
         boundary: "This is a human-reviewed commercial engagement built around working briefs. Finance, legal, compliance, credit, and final commitments remain with the decision-maker and the appropriate professionals.",
         offers: [

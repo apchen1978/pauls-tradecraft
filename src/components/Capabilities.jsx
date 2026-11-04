@@ -34,18 +34,6 @@ export default function Capabilities() {
                 <p className="text-xs font-semibold text-gold">{String(index + 1).padStart(2, "0")}</p>
                 <h4 className="mt-2 text-lg font-medium tracking-[-0.02em] text-bone">{offer.title}</h4>
                 <p className="mt-3 text-sm font-semibold leading-relaxed text-ondark">{offer.question}</p>
-                <details className="group mt-4 border-t border-bone/15 pt-3">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-xs font-medium text-gold [&::-webkit-details-marker]:hidden">
-                    {engagement.workLabel}
-                    <CaretDown size={12} weight="bold" aria-hidden="true" className="shrink-0 transition-transform group-open:rotate-180" />
-                  </summary>
-                  <dl className="mt-3 grid gap-4 text-sm leading-relaxed">
-                    <div>
-                      <dt className="text-xs font-medium text-gold">{engagement.workLabel}</dt>
-                      <dd className="mt-1 text-ondark-meta">{offer.work}</dd>
-                    </div>
-                  </dl>
-                </details>
                 <p className="mt-4 text-xs font-medium text-ondark-meta">{offer.proof}</p>
               </article>
             ))}
