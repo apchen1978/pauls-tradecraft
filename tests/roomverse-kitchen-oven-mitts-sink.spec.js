@@ -113,3 +113,28 @@ test("the oven, mitts, and sink read as fitted kitchen fixtures with stable clea
   }
   expect(errors).toEqual([]);
 });
+
+test("the sink station: soap, sponge, dish brush and a folded towel sit on the counter, clear of the basin", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await loadRoom(page, 1440);
+  const station = await page.evaluate(() => window.__room03.sinkStation());
+  expect(station, "the sink station reports its measurements").not.toBeNull();
+  for (const key of ["soap", "sponge", "towel", "brush"]) {
+    const item = station[key];
+    expect(item, `${key} exists`).not.toBeNull();
+    expect(Math.abs(item.bottomGapMm), `${key} rests on the countertop within 2 mm`).toBeLessThanOrEqual(2);
+    expect(item.onCounter, `${key} sits inside the counter run`).toBe(true);
+    expect(item.clearOfSink, `${key} keeps clear of the basin opening`).toBe(true);
+  }
+  // The soap dispenser is the tallest piece and stands beside the basin, not over it.
+  expect(station.soap.max[1]).toBeGreaterThan(station.sponge.max[1]);
+  expect(station.soap.max[1] - station.soap.min[1], "the dispenser is a real bottle height").toBeGreaterThan(0.12);
+  const info = await page.evaluate(() => {
+    const i = window.__room03.info();
+    return { lightCount: i.lightMetrics.lightCount, vertices: i.vertices, meshes: i.meshes };
+  });
+  expect(info.lightCount, "the station adds no light").toBe(9);
+  expect(info.meshes, "the station is batched into the existing countertop props").toBeLessThanOrEqual(130);
+  expect(errors).toEqual([]);
+});
