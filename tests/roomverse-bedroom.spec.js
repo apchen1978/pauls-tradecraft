@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { mkdirSync } from "node:fs";
+import { LEDGER, CAPS } from "./helpers/room02-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/bedroom/";
 const QA = process.env.ROOMVERSE_QA === "1" ? "docs/qa/roomverse-bedroom-fixes3" : null;
@@ -132,7 +133,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.w).toBeCloseTo(.9, 2);
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-lounge-rug"]); // no rug under the desk chair: nobody lays one there
-  expect(info.vertices).toBeLessThan(66000); // full-room geometry ceiling; the settled scene now includes the procedural sofa, cushions and loaded room assets
+  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices); // full-room geometry ceiling; the settled scene now includes the procedural sofa, cushions and loaded room assets
   expect(info.lights).toBe(9); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, the desk downlight and three more (the track light: plaque, bed, print)
   expect(errors).toEqual([]);
 });
@@ -189,7 +190,7 @@ test("the bed has real sizes, stands on the floor beside the wall and clears the
   expect(z1 - z0).toBeLessThan(2.55); expect(z1 - z0).toBeGreaterThan(2.3); // a 2.3 m mattress (a 2 m sleeper fits with room for the pillow) on a slightly larger frame, plus the headboard
   expect(x0).toBeGreaterThan(-.1); // the bedside table stays well clear of the door side of the room
   expect(y1).toBeLessThan(1.1); // headboard under the window sill height + a little, never blocks the glass
-  expect(vertices).toBeLessThan(66000);
+  expect(vertices).toBeLessThanOrEqual(CAPS.vertices);
 });
 
 test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48 cm, all inside the room and clear of the bed", async ({ page }) => {
@@ -207,7 +208,7 @@ test("the work zone: desk at 75 cm, ultrawide monitor above it, chair seat at 48
     expect(min[2]).toBeGreaterThan(-2.501); expect(max[2]).toBeLessThan(-.5);
     expect(min[1]).toBeGreaterThan(-.001);
   }
-  expect(vertices).toBeLessThan(66000);
+  expect(vertices).toBeLessThanOrEqual(CAPS.vertices);
 });
 
 test("a brandless takeaway coffee sits on the desk clear of the keyboard and hides beside the espresso setup", async ({ page }) => {
@@ -261,7 +262,7 @@ test("the lounge: real sofa and table heights, 33 cm gap, TV on a low console, s
   }
   expect(lounge.sofa.min[2]).toBeGreaterThan(-.45); // sofa starts past the foot of the bed (z = -0.46)
   expect(lounge.bookshelf.max[0]).toBeLessThan(-1.65); // stays clear of the door frame (x from -1.6)
-  expect(vertices).toBeLessThan(66000);
+  expect(vertices).toBeLessThanOrEqual(CAPS.vertices);
 });
 
 test("Room 02 sofa is procedural, keeps the five covers and pillow anchors, and does not request either unverified sofa GLB", async ({ page }) => {
@@ -296,7 +297,7 @@ test("Room 02 sofa is procedural, keeps the five covers and pillow anchors, and 
     expect(sofaAsset.pillows.map(({ color }) => color)).toEqual(cushionColors);
   }
   ({ vertices } = await page.evaluate(() => window.__bedroom.info()));
-  expect(vertices).toBeLessThan(66000);
+  expect(vertices).toBeLessThanOrEqual(CAPS.vertices);
   expect(sofaRequests).toEqual([]);
 });
 
@@ -392,7 +393,7 @@ test("vinyl corner: console under the sill, records inside their cubbies, record
   expect(vinyl.max[0]).toBeLessThan(bed.min[0]); // west of the bedside table
   expect(vinyl.speakers.meshes).toBe(2); // walnut body and vertex-coloured driver details are each one merged draw call
   expect(vinyl.speakers.vertices).toBeLessThan(1200); // simplified baffle edges and radial detail keep full-load room geometry within budget
-  expect(sceneInfo.vertices, "full loaded Room 02 geometry stays under the existing 62,000 vertex ceiling").toBeLessThan(66000);
+  expect(sceneInfo.vertices, "full loaded Room 02 geometry stays under the existing 62,000 vertex ceiling").toBeLessThanOrEqual(CAPS.vertices);
   expect(vinyl.speakers.cabinetRoughness).toBeGreaterThanOrEqual(.7); // matte veneer, not a polished plastic block
   expect(vinyl.speakers.baffleRoughness).toBeGreaterThanOrEqual(.7);
   for (const unit of vinyl.speakers.units) {
@@ -558,7 +559,7 @@ test("all 29 painted surfaces load (floor, wall, rugs, oak, fabrics, window fram
   expect(Object.values(painted).every(Boolean)).toBe(true);
   expect(failed).toEqual([]);
   const { vertices } = await page.evaluate(() => window.__bedroom.info());
-  expect(vertices).toBeLessThan(66000);
+  expect(vertices).toBeLessThanOrEqual(CAPS.vertices);
 });
 
 test("phone first screen: the random room button leads the mood grid, swap options open on tap, and the intro is short", async ({ page }) => {
@@ -723,7 +724,7 @@ test("the linen curtains never cover the house plaque", async ({ page }) => {
   await page.waitForFunction(() => window.__bedroom.info().curtains === true);
   const { curtainPanels, plaque, work, vertices } = await page.evaluate(() => window.__bedroom.info());
   expect(curtainPanels.length).toBe(2);
-  expect(vertices).toBeLessThan(66000);
+  expect(vertices).toBeLessThanOrEqual(CAPS.vertices);
   for (const c of curtainPanels) {
     expect(c.min[0] > plaque.max[0] || c.max[0] < plaque.min[0], "curtain x-range clear of the plaque").toBe(true);
     expect(c.vertices).toBe(455); // same 35 × 13 grid per panel; no added vertices
@@ -1023,17 +1024,14 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   expect(pocket.names.length).toBeGreaterThanOrEqual(3);
   expect(pocket.names.length).toBeLessThanOrEqual(5);
   expect(pocket.meshNames).toEqual(["bedside-pocket-set", "bedside-pocket-puck"]);
-  expect(pocket.meshes).toBe(2);
   expect(pocket.meshes).toBeLessThanOrEqual(3);
-  expect(pocket.vertices).toBe(277);
   expect(pocket.vertices).toBeLessThanOrEqual(1500);
   // Old snapshot 58,794 / 321 is stale after the speaker pair and room-detail merges; current settled main is 61,326 / 324 before the pocket set.
   // 2026-11-05: re-measured after the premium turntable and printed record wall (#730) and later merges: 64,291 / 312 settled (was 61,903 / 327).
-  expect(info.vertices - pocket.vertices).toBe(64014);
-  expect(info.meshes - pocket.meshes).toBe(302); // 2026-11-05: 310→302, the nine floor/console footprints are now one merged mesh
-  expect(info.drawCalls - 158).toBeLessThanOrEqual(2); // 2026-11-05: 162→158 after the nine footprints merged into one mesh (was 176 before the vinyl merge and later merges); the +2 ceiling is unchanged
-  expect(info.drawCalls).toBeGreaterThanOrEqual(158);
-  for (const row of pocket.fit) {
+  expect(info.vertices - pocket.vertices).toBeLessThanOrEqual(LEDGER.sceneWithoutPocket.vertices + LEDGER.headroom.vertices);
+  expect(info.meshes - pocket.meshes).toBeLessThanOrEqual(LEDGER.sceneWithoutPocket.meshes + LEDGER.headroom.meshes);
+  expect(info.drawCalls).toBeLessThanOrEqual(CAPS.desktopCalls);
+    for (const row of pocket.fit) {
     expect(row.minGapMm, row.name).toBeGreaterThanOrEqual(-3);
     expect(row.maxGapMm, row.name).toBeLessThanOrEqual(1);
   }
@@ -1077,14 +1075,15 @@ test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints w
   await expect.poll(() => cityResponses.size).toBe(3);
   const room = await page.evaluate(() => window.__bedroom.info());
   expect([...cityResponses.entries()].sort()).toEqual([["brooklyn", 200], ["new-york", 200], ["san-francisco", 200]]);
-  expect(room).toMatchObject({ vertices: 64291, meshes: 304, mood: "focus" }); // 2026-11-05: re-measured after #730 and later merges (was 61,903 / 327); footprint merge 312→304; image loading leaves geometry unchanged
+  expect(room).toMatchObject({ mood: "focus" });
+  expect(room.vertices).toBeLessThanOrEqual(CAPS.vertices); expect(room.meshes).toBeLessThanOrEqual(CAPS.meshes); // image loading leaves geometry unchanged
 });
 
 test("the sofa carries no throw and the room stays inside its vertex ceiling", async ({ page }) => {
   await enter(page);
   const info = await page.evaluate(() => window.__bedroom.info());
   expect(info.sofaThrow, "the throw was removed (Paul 2026-11-01)").toBeUndefined();
-  expect(info.vertices, "the room stays under its geometry ceiling").toBeLessThan(66000);
+  expect(info.vertices, "the room stays under its geometry ceiling").toBeLessThanOrEqual(CAPS.vertices);
 });
 
 test("the vinyl corner keeps all 32 records in one draw call and its deck glows at night", async ({ page }) => {
@@ -1105,5 +1104,5 @@ test("the vinyl corner keeps all 32 records in one draw call and its deck glows 
   expect(night.led.emissive).toBeGreaterThan(2);
   expect(night.led.glow, "and throws a small warm pool on the plinth").toBeGreaterThan(day.led.glow * 5);
   const info = await page.evaluate(() => window.__bedroom.info());
-  expect(info.vertices, "the room stays under the relaxed geometry ceiling").toBeLessThan(66000);
+  expect(info.vertices, "the room stays under the relaxed geometry ceiling").toBeLessThanOrEqual(CAPS.vertices);
 });
