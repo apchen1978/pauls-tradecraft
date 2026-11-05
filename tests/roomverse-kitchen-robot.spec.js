@@ -21,7 +21,9 @@ for (const width of [1440, 390]) {
     await hit.click();
     const bubble = page.locator("#robotBubble");
     await expect(bubble).toBeVisible();
-    const links = await bubble.locator("a").evaluateAll((anchors) => anchors.map((a) => new URL(a.href).pathname));
-    expect(links).toEqual(["/prototype/roomverse-3d/", "/prototype/roomverse-3d/bedroom/"]);
+    // 2026-11-05: the bubble opens the shared travel chooser instead of holding two links.
+    await bubble.locator("[data-robot-travel]").click();
+    const rooms = await page.locator(".travel-door-dialog .travel-door-card h3").allTextContents();
+    expect(rooms.map((name) => name.slice(0, 7))).toEqual(["Room 01", "Room 02"]);
   });
 }

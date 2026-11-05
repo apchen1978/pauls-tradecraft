@@ -47,7 +47,7 @@ for (const width of [1440, 390]) {
       expect(initial.info.triangles).toBeGreaterThan(0);
       expect(initial.info.meshes).toBeGreaterThan(0);
       // Old: 30 patches / 120 vertices. The three side-table feet and tree-pot decal add 4 merged patches / 16 vertices.
-      expect(initial.info.categories["contact-shadow"]).toEqual({ vertices: 136, meshes: 1 });
+      expect(initial.info.categories["contact-shadow"]).toEqual({ vertices: 160, meshes: 1 }) // 2026-11-05: 136 -> 160 (entry nook bench and corner pieces, see the P2 spec);
     });
   }
 }
