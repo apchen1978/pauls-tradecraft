@@ -3580,7 +3580,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
         meshes++; vertices += count;
         triangles += obj.geometry.index ? obj.geometry.index.count / 3 : count / 3;
       });
-      return { meshes, vertices, triangles, robotLoaded: robotObj.children.length > 0 };
+      return { meshes, vertices, triangles, drawCalls: renderer.info.render.calls, robotLoaded: robotObj.children.length > 0 }; // drawCalls: the last rendered frame (QA, for the Room 01 ledger)
     },
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
