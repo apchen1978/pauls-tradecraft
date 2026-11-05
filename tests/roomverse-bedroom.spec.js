@@ -1030,9 +1030,9 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   // Old snapshot 58,794 / 321 is stale after the speaker pair and room-detail merges; current settled main is 61,326 / 324 before the pocket set.
   // 2026-11-05: re-measured after the premium turntable and printed record wall (#730) and later merges: 64,291 / 312 settled (was 61,903 / 327).
   expect(info.vertices - pocket.vertices).toBe(64014);
-  expect(info.meshes - pocket.meshes).toBe(310);
-  expect(info.drawCalls - 162).toBeLessThanOrEqual(2); // 2026-11-05: re-measured 162 on current main (was 176 before the vinyl merge and later merges); the +2 ceiling is unchanged
-  expect(info.drawCalls).toBeGreaterThanOrEqual(162);
+  expect(info.meshes - pocket.meshes).toBe(302); // 2026-11-05: 310→302, the nine floor/console footprints are now one merged mesh
+  expect(info.drawCalls - 158).toBeLessThanOrEqual(2); // 2026-11-05: 162→158 after the nine footprints merged into one mesh (was 176 before the vinyl merge and later merges); the +2 ceiling is unchanged
+  expect(info.drawCalls).toBeGreaterThanOrEqual(158);
   for (const row of pocket.fit) {
     expect(row.minGapMm, row.name).toBeGreaterThanOrEqual(-3);
     expect(row.maxGapMm, row.name).toBeLessThanOrEqual(1);
@@ -1077,7 +1077,7 @@ test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints w
   await expect.poll(() => cityResponses.size).toBe(3);
   const room = await page.evaluate(() => window.__bedroom.info());
   expect([...cityResponses.entries()].sort()).toEqual([["brooklyn", 200], ["new-york", 200], ["san-francisco", 200]]);
-  expect(room).toMatchObject({ vertices: 64291, meshes: 312, mood: "focus" }); // 2026-11-05: re-measured after #730 and later merges (was 61,903 / 327); image loading leaves geometry unchanged
+  expect(room).toMatchObject({ vertices: 64291, meshes: 304, mood: "focus" }); // 2026-11-05: re-measured after #730 and later merges (was 61,903 / 327); footprint merge 312→304; image loading leaves geometry unchanged
 });
 
 test("the sofa carries no throw and the room stays inside its vertex ceiling", async ({ page }) => {
@@ -1097,6 +1097,7 @@ test("the vinyl corner keeps all 32 records in one draw call and its deck glows 
   expect(day.turntable.recordRadiusMm).toBe(148);
   expect(Math.abs(day.turntable.onConsoleTopMm), "the deck sits on the 50 cm console top").toBeLessThanOrEqual(1);
   expect(day.contact, "a soft footprint grounds the deck on the console").toBe(true);
+  expect(day.footprints, "nine footprints share one merged mesh").toHaveLength(9);
   await page.evaluate(() => window.__bedroom.setMood("night"));
   await page.waitForFunction(() => window.__bedroom.info().mood === "night");
   const night = await page.evaluate(() => window.__bedroom.vinyl());

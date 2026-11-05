@@ -1790,16 +1790,31 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     ctx.fillRect(34 - 1000, 34, 60, 60);
   });
   const footprintMat = (op) => new THREE.MeshBasicMaterial({ color: "#1c1510", alphaMap: footprintTex, transparent: true, opacity: op, depthWrite: false, toneMapped: false });
+  // The nine floor and console footprints are merged into ONE mesh (one draw call instead of nine). Each plane keeps its own strength:
+  // the opacity is baked into a per-vertex alpha (RGBA colour attribute), multiplied by the shared alphaMap. The pillow footprint further
+  // down stays separate because it needs its own polygon offset.
+  const footprintColor = new THREE.Color("#1c1510"), footprintParts = [], footprintNames = [];
+  const addFootprint = (name, width, depth, x, y, z, op) => {
+    const g = new THREE.PlaneGeometry(width, depth); g.rotateX(-Math.PI / 2); g.translate(x, y, z);
+    const count = g.attributes.position.count, colors = new Float32Array(count * 4);
+    for (let k = 0; k < count; k++) colors.set([footprintColor.r, footprintColor.g, footprintColor.b, op], k * 4);
+    g.setAttribute("color", new THREE.BufferAttribute(colors, 4));
+    footprintParts.push(g); footprintNames.push(name);
+  };
   for (const [name, op, grow] of [["bed", .5, .1], ["desk", .32, .06], ["chair", .4, .06], ["vinyl-corner", .45, .06], ["sofa", .55, .12], ["tv-unit", .5, .07], ["bookshelf", .5, .07], ["floor-plant", .5, .06]]) {
     const o = root.getObjectByName(name); if (!o) continue;
     const b = new THREE.Box3().setFromObject(o);
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2), footprintMat(op));
-    m.name = "contact-" + name; m.rotation.x = -Math.PI / 2; m.position.set((b.min.x + b.max.x) / 2, .0075, (b.min.z + b.max.z) / 2); m.renderOrder = 1; root.add(m);
+    addFootprint(name, b.max.x - b.min.x + grow * 2, b.max.z - b.min.z + grow * 2, (b.min.x + b.max.x) / 2, .0075, (b.min.z + b.max.z) / 2, op);
   }
   { // the turntable sits on the console top, so it gets its own soft footprint on that surface
     const b = new THREE.Box3().setFromObject(vin.getObjectByName("turntable-plinth"));
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(b.max.x - b.min.x + .05, b.max.z - b.min.z + .05), footprintMat(.34));
-    m.name = "contact-turntable"; m.rotation.x = -Math.PI / 2; m.position.set((b.min.x + b.max.x) / 2, .5008, (b.min.z + b.max.z) / 2); m.renderOrder = 1; root.add(m);
+    addFootprint("turntable", b.max.x - b.min.x + .05, b.max.z - b.min.z + .05, (b.min.x + b.max.x) / 2, .5008, (b.min.z + b.max.z) / 2, .34);
+  }
+  {
+    const merged = mergeGeometries(footprintParts, false);
+    footprintParts.forEach((g) => g.dispose());
+    const m = new THREE.Mesh(merged, new THREE.MeshBasicMaterial({ color: "#ffffff", vertexColors: true, alphaMap: footprintTex, transparent: true, depthWrite: false, toneMapped: false }));
+    m.name = "contact-shadows"; m.renderOrder = 1; m.userData.footprints = footprintNames; root.add(m);
   }
   // Soft goods rest on each other, so each one gets a faint shadow on the surface under it: the pillow on the mattress, the throw on the
   // duvet. The cushion is deliberately not in this list any more: it now sinks ~2 cm into the pillow, so a flat plane at the pillow's
@@ -1987,7 +2002,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         onConsoleTopMm: plinth ? Number(((plinth.min[1] - .5) * 1000).toFixed(1)) : null,
       },
       led: { emissive: Number(turntableLedMat.emissiveIntensity.toFixed(2)), glow: Number(turntableGlowMat.opacity.toFixed(2)) },
-      contact: Boolean(root.getObjectByName("contact-turntable")),
+      contact: Boolean(root.getObjectByName("contact-shadows")?.userData.footprints.includes("turntable")), footprints: root.getObjectByName("contact-shadows")?.userData.footprints ?? [],
     };
   };
   // ---------- swappable choices (round 1): feature wall, rug, window, bedding, posters ----------
