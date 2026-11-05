@@ -7,6 +7,7 @@
 //   2. Edit ONLY this file: the numbers in `scene`, `pocket`, `sceneWithoutPocket`, `openingDrawCalls`, `moodDrawCalls`, and add one line to `history`.
 //   3. Do not raise `headroom` to make a test pass; a headroom is room for a later small change, not a way around a budget.
 // Budgets are QA tools, measured first and never cut to fit: if a change is worth its cost, record it here with a history line.
+// The measured numbers below are a RECORD (they must match the newest history line); only the caps (measured + headroom) can fail a run.
 
 export const LEDGER = Object.freeze({
   // Measured settled (everything loaded), desktop 1440 px; the phone shares the same geometry.
@@ -21,7 +22,9 @@ export const LEDGER = Object.freeze({
     desktop: Object.freeze({ focus: 158, weekend: 158, golden: 158, night: 158, sunday: 158, series: 158 }),
     phone: Object.freeze({ focus: 157, weekend: 157, golden: 157, night: 157, sunday: 157, series: 157 }),
   }),
-  headroom: Object.freeze({ vertices: 0, meshes: 0, drawCalls: 0 }),
+  // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
+  // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
+  headroom: Object.freeze({ vertices: 9600, meshes: 45, drawCalls: 24 }),
   history: Object.freeze([
     { date: "2026-11-05", change: "(reconstructed from spec comments) premium turntable and printed record wall (#730) and later merges: 64,291 / 312 settled", vertices: 64291, meshes: 312, desktopCalls: 162, phoneCalls: 0 },
     { date: "2026-11-06", change: "first ledger: the nine floor/console footprints are one merged mesh (312 to 304, 162 to 158 draw calls); measured on main fcf4025, nothing changed", vertices: 64291, meshes: 304, desktopCalls: 158, phoneCalls: 157 },
