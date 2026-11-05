@@ -70,7 +70,9 @@ test("fullscreen Tab stays in the room after mood selection preserves focus", as
   await openRoom(page);
   await page.locator("#immersiveEnter").click();
   await page.keyboard.press("Tab");
-  await expect(page.locator('#moods button[data-mood="daylight"]')).toBeFocused(); // daylight is now the first mood button
+  await expect(page.locator("#randomLook")).toBeFocused(); // 2026-11-05: the "random mix" button now sits before the moods in fullscreen
+  await page.keyboard.press("Tab");
+  await expect(page.locator('#moods button[data-mood="daylight"]')).toBeFocused(); // daylight is the first mood button
   await page.keyboard.press("Enter");
   await expect(page.locator('#moods button[data-mood="daylight"]')).toBeFocused();
   await page.keyboard.press("Tab");
@@ -98,7 +100,12 @@ test("fullscreen Tab stays in the room after mood selection preserves focus", as
   // The entry-wall button sits right after the center-view button in the same group.
   await expect(page.locator("#plaqueView")).toBeFocused();
   await page.keyboard.press("Tab");
+  // 2026-11-05: the "get closer to the nook" button follows the entry-wall button in the same group.
+  await expect(page.locator("#nookView")).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(page.locator("#immersiveExit")).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(page.locator("#nookView")).toBeFocused();
   await page.keyboard.press("Shift+Tab");
   await expect(page.locator("#plaqueView")).toBeFocused();
   await page.keyboard.press("Shift+Tab");
