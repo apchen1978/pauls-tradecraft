@@ -512,9 +512,45 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       onTravelChoice();
       return;
     }
-    if (hitRobot) tapRobot();
+    if (hitRobot) { tapRobot(); return; }
+    const story = storyAt();
+    if (story) showPropStory(story);
   });
   el.addEventListener("pointercancel", endDrag);
+
+  // Tap a small prop to read one line about it (Room 03's entry nook does the same). Zero geometry: the tap ray finds the prop group by
+  // name; the bedside pocket is tiny, so a ray through its slightly enlarged box also counts when nothing else is in front of it.
+  const PROP_STORIES = {
+    "bedside-pocket": { zh: "床邊口袋：眼鏡盒和充電盤，是睡前最後一個動作。", en: "The bedside pocket: glasses case and charging puck, the last thing before sleep." },
+    "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
+    bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
+  };
+  const storyCaption = document.createElement("div");
+  storyCaption.id = "propStory"; storyCaption.setAttribute("role", "status"); storyCaption.setAttribute("aria-live", "polite");
+  Object.assign(storyCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
+  stage.append(storyCaption);
+  let storyTimer = 0, storyKey = null;
+  function showPropStory(key) {
+    const story = PROP_STORIES[key]; if (!story) return;
+    storyKey = key; storyCaption.textContent = story[lang] || story.zh; storyCaption.style.opacity = "1";
+    clearTimeout(storyTimer); storyTimer = setTimeout(() => { storyCaption.style.opacity = "0"; storyKey = null; }, 4600);
+  }
+  function storyAt() {
+    // The wardrobe carcass is a solid box whose invisible volume reaches into the room from some looks, so it would swallow a tap meant for
+    // the bookshelf beyond it; taps pass through the wardrobe. Glass and other see-through meshes are skipped too.
+    const inWardrobe = (object) => { for (let node = object; node; node = node.parent) if (node.name === "wardrobe") return true; return false; };
+    const hits = tapRay.intersectObjects(root.children, true).filter((hit) => hit.object.visible && !inWardrobe(hit.object) && !(hit.object.material?.transparent && hit.object.material.opacity < .5));
+    const first = hits[0];
+    const keyOf = (object) => { for (let node = object; node; node = node.parent) if (PROP_STORIES[node.name]) return node.name; return null; };
+    const direct = first ? keyOf(first.object) : null;
+    if (direct) return direct;
+    const pocket = root.getObjectByName("bedside-pocket");
+    if (pocket) {
+      const point = tapRay.ray.intersectBox(new THREE.Box3().setFromObject(pocket).expandByScalar(.04), new THREE.Vector3());
+      if (point && (!first || point.distanceTo(tapRay.ray.origin) <= first.distance + .05)) return "bedside-pocket";
+    }
+    return null;
+  }
 
   document.addEventListener("pointerdown", (event) => {
     if (!pendingRobot || event.target === el || event.target?.closest?.("#portalBtn")) return;
@@ -2171,10 +2207,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
     robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, pending: !!pendingRobot, y: rb.position.y, yaw: rb.rotation.y, position: b.getCenter(new THREE.Vector3()).toArray(), ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
-    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, sayMood, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), vinyl: vinylInfo, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
+    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, sayMood, storyAt, storyTargets: () => Object.fromEntries(Object.keys(PROP_STORIES).map((key) => { const o = root.getObjectByName(key), c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).project(camera); return [key, { x: c.x, y: c.y, z: c.z }]; })), propStory: () => ({ key: storyKey, text: storyCaption.textContent, visible: storyCaption.style.opacity === "1" }), tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), vinyl: vinylInfo, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
-    setLang(l) { lang = l; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if(hitTarget)hitTarget.setAttribute("aria-label",copy().robotLine||"Follow me, back to the living room."); },
+    setLang(l) { lang = l; if (storyKey) storyCaption.textContent = PROP_STORIES[storyKey][l] || PROP_STORIES[storyKey].zh; renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if(hitTarget)hitTarget.setAttribute("aria-label",copy().robotLine||"Follow me, back to the living room."); },
   };
 }
