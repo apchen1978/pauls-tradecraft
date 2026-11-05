@@ -224,6 +224,17 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     }, 4200);
   }
 
+  // One short remark when the visitor switches mood (Room 01 does the same). Not a travel prompt, so the "choose a room" link stays hidden.
+  const ROBOT_MOOD_LINES = {
+    focus: { zh: "專注模式，我來守著。", en: "Focus time. I'll keep watch." },
+    weekend: { zh: "週末，不趕時間。", en: "Weekend. No hurry." },
+    golden: { zh: "夕陽照進來了，正好。", en: "The sun is coming in, just right." },
+    night: { zh: "夜深了，小聲一點。", en: "Late night, keep it low." },
+    sunday: { zh: "週日早晨，慢慢來。", en: "Sunday morning, take it slow." },
+    series: { zh: "追劇時間，我先佔位。", en: "Series time. I'll save a seat." },
+  };
+  function sayMood(name) { const line = ROBOT_MOOD_LINES[name]; if (line) showRobotBubble(line[lang] || line.zh); }
+
   function hideRobotBubble() {
     clearTimeout(bubbleTimer);
     if (bubble) bubble.hidden = true;
@@ -2160,7 +2171,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
     robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, pending: !!pendingRobot, y: rb.position.y, yaw: rb.rotation.y, position: b.getCenter(new THREE.Vector3()).toArray(), ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
-    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), vinyl: vinylInfo, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
+    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, sayMood, tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), vinyl: vinylInfo, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },
