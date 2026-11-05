@@ -723,7 +723,7 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(Math.abs(info.saucepanFit.supportY - 0.9975)).toBeLessThanOrEqual(0.001); // Old shared countertop expectation -> actual cooktop surface; the saucepan rests on the rear burner, not the adjacent counter.
     expect(info.saucepanFit.redPotClearanceMm).toBeGreaterThanOrEqual(10);
     expect(propBounds["drip-coffee-maker"].size[1]).toBeGreaterThanOrEqual(0.27);
-    expect(propBounds["drip-coffee-maker"].size[1]).toBeLessThanOrEqual(0.35);
+    expect(propBounds["drip-coffee-maker"].size[1]).toBeLessThanOrEqual(0.38); // 2026-11-05: 0.35 -> 0.38, the machine with its glass bean hopper (#728) measures 0.375 m, a real grinder-and-drip height
     expect(propBounds["electric-kettle"].size[0]).toBeLessThanOrEqual(0.3);
     expect(info.propGeometry["electric-kettle"].vertices).toBe(1416); // Old 499 -> new 1,416 after smoother shoulder, metal collars, inset spout mouth and washered knob; exact measured count, within Paul's updated scene budget.
     expect(info.electricKettleFit.gapMm).toBeGreaterThanOrEqual(-1);
@@ -801,8 +801,8 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     expect(living.plant.footFloorGapMm).toBeGreaterThanOrEqual(0);
     expect(living.plant.footFloorGapMm).toBeLessThanOrEqual(1);
     for (const [name, clearance] of Object.entries(living.plant.clearancesMm)) expect(clearance, `lemon tree to ${name} clearance in mm`).toBeGreaterThanOrEqual(300);
-    expect(info.contactShadow.totalPatchCount).toBe(34); // Old 30 -> 34: three side-table feet plus the tree-pot contact patch, merged into the existing mesh.
-    expect(info.contactShadow.vertices).toBe(136); // Old 120 -> 136: four added decals × four vertices; draw calls remain unchanged.
+    expect(info.contactShadow.totalPatchCount).toBe(40); // 2026-11-05: 34 -> 40 (entry nook bench and corner pieces, #664); old 30 -> 34: three side-table feet plus the tree-pot contact patch, merged into the existing mesh.
+    expect(info.contactShadow.vertices).toBe(160); // 2026-11-05: 136 -> 160 (six more patches); old 120 -> 136: four added decals × four vertices; draw calls remain unchanged.
     expect(info.vertices).toBeLessThanOrEqual(ROOM_VERTEX_CAP);
     expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
     expect(info.drawCallsLastFrame).toBeLessThanOrEqual(130);
