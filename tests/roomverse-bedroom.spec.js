@@ -1028,10 +1028,11 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   expect(pocket.vertices).toBe(277);
   expect(pocket.vertices).toBeLessThanOrEqual(1500);
   // Old snapshot 58,794 / 321 is stale after the speaker pair and room-detail merges; current settled main is 61,326 / 324 before the pocket set.
-  expect(info.vertices - pocket.vertices).toBe(61626); // old→new 61,326→61,626: add 300 vertices for the default desk takeaway cup
-  expect(info.meshes - pocket.meshes).toBe(325); // old→new 324→325: cup, sleeve and lid use one merged mesh
-  expect(info.drawCalls - 176).toBeLessThanOrEqual(2); // old→new baseline 174→176: clean main measures 176 before the coffee; the existing +2 ceiling is unchanged
-  expect(info.drawCalls).toBeGreaterThanOrEqual(176);
+  // 2026-11-05: re-measured after the premium turntable and printed record wall (#730) and later merges: 64,291 / 312 settled (was 61,903 / 327).
+  expect(info.vertices - pocket.vertices).toBe(64014);
+  expect(info.meshes - pocket.meshes).toBe(310);
+  expect(info.drawCalls - 162).toBeLessThanOrEqual(2); // 2026-11-05: re-measured 162 on current main (was 176 before the vinyl merge and later merges); the +2 ceiling is unchanged
+  expect(info.drawCalls).toBeGreaterThanOrEqual(162);
   for (const row of pocket.fit) {
     expect(row.minGapMm, row.name).toBeGreaterThanOrEqual(-3);
     expect(row.maxGapMm, row.name).toBeLessThanOrEqual(1);
@@ -1076,7 +1077,7 @@ test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints w
   await expect.poll(() => cityResponses.size).toBe(3);
   const room = await page.evaluate(() => window.__bedroom.info());
   expect([...cityResponses.entries()].sort()).toEqual([["brooklyn", 200], ["new-york", 200], ["san-francisco", 200]]);
-  expect(room).toMatchObject({ vertices: 61903, meshes: 327, mood: "focus" }); // old→new 61,603 / 326→61,903 / 327: one 300-vertex merged desk cup; image loading leaves geometry unchanged
+  expect(room).toMatchObject({ vertices: 64291, meshes: 312, mood: "focus" }); // 2026-11-05: re-measured after #730 and later merges (was 61,903 / 327); image loading leaves geometry unchanged
 });
 
 test("the sofa carries no throw and the room stays inside its vertex ceiling", async ({ page }) => {
