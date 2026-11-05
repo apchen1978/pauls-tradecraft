@@ -1,5 +1,5 @@
 import { initTravelDoor } from "../travel-door.js?v=3";
-import { start, ROOM_TITLE } from "./kitchen.js?v=134";
+import { start, ROOM_TITLE } from "./kitchen.js?v=135";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -168,6 +168,7 @@ function renderMoods() {
       renderMoods();
       $("why").textContent = COPY[lang].moods[mood][1];
       void room?.setMood(mood);
+      sayMood(mood);
     });
     return button;
   }));
@@ -305,11 +306,24 @@ robotBubble.innerHTML = '<p data-robot-line></p><div class="robot-links"><button
 $("stage").parentElement.append(robotHit, doorHit, robotBubble);
 let robotBubbleTimer = 0;
 let bubbleOwner = "robot";
+// The robot says one short line when the visitor switches mood (Room 01 does the same); the line is a mood remark, not a link, so the
+// "choose a room" button is hidden for it. Nothing is said on first load, and an open door bubble is never interrupted.
+const ROBOT_MOOD_LINES = {
+  daylight: { zh: "早安，廚房今天很亮。", en: "Good morning, the kitchen is bright today." },
+  golden: { zh: "夕陽照在流理台上，正好。", en: "Golden light on the counter, just right." },
+  movie: { zh: "今晚看電影，爆米花備好了嗎？", en: "Movie night. Is the popcorn ready?" },
+  night: { zh: "夜深了，只留一盞小燈。", en: "Late night, just one small light on." },
+  dinner: { zh: "好像聞到晚餐香了。", en: "Smells like dinner is almost ready." },
+  sunday: { zh: "週日早晨，咖啡慢慢泡。", en: "Sunday morning, the coffee takes its time." },
+  thanksgiving: { zh: "感恩節快樂，今年有火雞。", en: "Happy Thanksgiving, there's turkey this year." },
+};
+let moodLineKey = null;
 function renderRobotCopy() {
   const copy = COPY[lang];
   robotHit.setAttribute("aria-label", copy.robotLabel);
   doorHit.setAttribute("aria-label", copy.doorLabel);
-  robotBubble.querySelector("[data-robot-line]").textContent = bubbleOwner === "door" ? copy.doorLine : copy.robotLine;
+  robotBubble.querySelector("[data-robot-line]").textContent = bubbleOwner === "door" ? copy.doorLine : bubbleOwner === "mood" ? ROBOT_MOOD_LINES[moodLineKey][lang] : copy.robotLine;
+  robotBubble.querySelector(".robot-links").hidden = bubbleOwner === "mood";
   robotBubble.querySelector("[data-robot-travel]").textContent = copy.robotChoose;
 }
 function placeTarget(button, rect) {
@@ -339,6 +353,15 @@ function openBubble(owner) {
   placeRobotUi();
   clearTimeout(robotBubbleTimer);
   robotBubbleTimer = setTimeout(closeBubble, 6000);
+}
+function sayMood(key) {
+  if (!ROBOT_MOOD_LINES[key] || (!robotBubble.hidden && bubbleOwner === "door")) return;
+  moodLineKey = key; bubbleOwner = "mood";
+  renderRobotCopy();
+  robotBubble.hidden = false;
+  placeRobotUi();
+  clearTimeout(robotBubbleTimer);
+  robotBubbleTimer = setTimeout(closeBubble, 3000);
 }
 robotHit.addEventListener("click", () => openBubble("robot"));
 doorHit.addEventListener("click", () => openBubble("door"));
