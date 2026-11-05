@@ -113,9 +113,9 @@ async function measureMood(page, width, mood) {
       const floorWall = floorNdc[2] < 1 && Math.abs(floorNdc[0]) < 1.2 ? room.sampleNdc(floorNdc, 0.025) : null;
       return { frame, rightWall, floorWall };
     });
-    // 2026-11-05: the old 1% cap was written before the pendant and table glow grew. Measured worst views: 1440 dinner 90° 1.24%, 390 dinner 0° 2.26%, 390 dinner 90° 1.53%
-    // (the lit pendant and its reflection); caps are 1.5% desktop and 2.5% phone. Paul has not reviewed these as a look decision: a brighter dinner is a visual call.
-    expect(sample.frame.blownRatio, `${width}px ${mood} ${degrees}° blown`).toBeLessThanOrEqual(width <= 500 ? 0.025 : 0.015);
+    // 2026-11-06: dinner was dimmed (Paul asked for a more evening-meal look): phone views dropped from 2.26% to under 1%; the worst view left is
+    // 1440 dinner 90° at 1.11% (the lit pendant bowl and the floor-lamp shade), so the cap is 1.2% instead of 1%.
+    expect(sample.frame.blownRatio, `${width}px ${mood} ${degrees}° blown`).toBeLessThanOrEqual(0.012);
     expect(sample.frame.meanLuminance, `${width}px ${mood} ${degrees}° mean`).toBeGreaterThanOrEqual(40);
     expect(sample.frame.darkRatio, `${width}px ${mood} ${degrees}° dark`).toBeLessThanOrEqual(0.45);
     if (degrees === 180) {

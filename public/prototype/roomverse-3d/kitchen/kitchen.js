@@ -6812,18 +6812,20 @@ export async function start({ stage, onReady = () => {} }) {
     // bounce planes are not in the proposal table.
     dinner: Object.freeze({
       ...sharedLook,
-      sun: 0.8, sunColor: 0xffb263, sunPosition: [-4.2, 1.15, 3.6],
-      hemi: 0.70, hemiSky: 0xffe0bd, hemiGround: 0xc7a578,
+      // Paul 2026-11-06: dinner should read more like an evening meal, so the overall light is lower and the warm lamps carry it
+      // (exposure 1.14 -> 0.96, sun 0.8 -> 0.5, hemi 0.70 -> 0.48, pendant 3.2 -> 2.6, under 1.6 -> 1.3, warmGlow 0.80 -> 0.62, reveal 0.55 -> 0.40, globe 0.55 -> 0.40).
+      sun: 0.5, sunColor: 0xffb263, sunPosition: [-4.2, 1.15, 3.6],
+      hemi: 0.48, hemiSky: 0xffe0bd, hemiGround: 0xc7a578,
       ambient: 0.18,
-      pendant: 3.2, under: 1.6, side: 0,
+      pendant: 2.6, under: 1.3, side: 0,
       // Dinner is dusk: the golden-hour yard photo is tinted blue-hour so the window no longer reads as afternoon (Paul 2026-10-28).
-      exposure: 1.14, yard: 0x6f7a96, globe: 0.55, sky: "golden",
+      exposure: 0.96, yard: 0x6f7a96, globe: 0.40, sky: "golden",
       cableCarArtGain: 0.74,
       floor: 0xcdbb9e, jute: 0xd0b47f, ceilingEmissive: 0.22,
-      warmGlow: 0.80, wokGlow: 0.25,
+      warmGlow: 0.62, wokGlow: 0.25,
       windowWallBounce: 0.06, windowWallBounceVisible: true,
       pendantCeilingBounce: 0.03, pendantCeilingBounceVisible: true,
-      reveal: 0.55, contactShadow: 0.26,
+      reveal: 0.40, contactShadow: 0.26,
       floorLamp: 1.6, tableLamp: 2.4, screenCool: 0,
       pictureLightEmissive: 0.6, counterPendantEmissive: 1.0,
       blind: "half", curtainColor: 0xcdb99a, tableware: true, thanksgivingDecor: false, artLight: [0.74, 0.68, 0.6],
