@@ -55,8 +55,15 @@ for (const width of [1440, 390]) {
     await expect(page.locator("#doorHit")).toHaveAttribute("aria-label", /門/);
     await page.locator("#doorHit").click();
     await expect(page.locator("#robotBubble")).toBeVisible();
-    await expect(page.locator("#robotBubble [data-robot-living]")).toHaveAttribute("href", /\?lang=zh/);
-    await expect(page.locator("#robotBubble [data-robot-bedroom]")).toHaveAttribute("href", /bedroom\/\?lang=zh/);
+    // 2026-11-05: the bubble no longer holds two links; it opens the shared travel chooser, which lists Rooms 01 and 02.
+    await expect(page.locator("#robotBubble [data-robot-travel]")).toBeVisible();
+    await page.locator("#robotBubble [data-robot-travel]").click();
+    const cards = page.locator(".travel-door-dialog .travel-door-card");
+    await expect(cards).toHaveCount(2);
+    await expect(cards.nth(0)).toContainText("Room 01");
+    await expect(cards.nth(1)).toContainText("Room 02");
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".travel-door-dialog")).not.toHaveAttribute("open", "");
     await page.waitForFunction(() => window.__room03.doorInfo().angleDeg === 70, null, { timeout: 5000 });
     await page.keyboard.press("Escape");
     await expect(page.locator("#robotBubble")).toBeHidden();

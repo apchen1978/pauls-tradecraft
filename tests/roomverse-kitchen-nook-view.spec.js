@@ -48,7 +48,7 @@ for (const width of [1280, 390]) {
       const e = i.entryWallDetails;
       const pts = {
         boardLeft: [e.corkboard.minX + 0.02, e.corkboard.center[1], 3.73], boardRight: [e.corkboard.maxX - 0.02, e.corkboard.center[1], 3.73],
-        toteNatural: [(e.tote.minX + e.tote.maxX) / 2, (e.tote.bottomY + e.tote.topY) / 2, 3.72], toteRed: [(e.redTote.minX + e.redTote.maxX) / 2, (e.redTote.bottomY + e.redTote.topY) / 2, 3.72],
+        toteNatural: [(e.tote.minX + e.tote.maxX) / 2, (e.tote.bottomY + e.tote.topY) / 2, 3.72],
         keyShelf: e.shelf.center, tvEdge: [-0.15, 1.0, 3.70], printTopRight: [1.665, 2.385, 3.72],
       };
       const ndc = Object.fromEntries(Object.entries(pts).map(([k, p]) => { const v = r.camera.position.clone().set(...p).project(r.camera); return [k, [v.x, v.y, v.z]]; }));
@@ -92,7 +92,7 @@ for (const width of [1280, 390]) {
     const framed = await page.evaluate(() => {
       const r = window.__room03, e = r.info().entryWallDetails, out = [];
       const t = r.controls.target.clone();
-      const pts = { board: [e.corkboard.center[0], e.corkboard.center[1], 3.73], toteNatural: [(e.tote.minX + e.tote.maxX) / 2, e.tote.bottomY, 3.72], toteRed: [(e.redTote.minX + e.redTote.maxX) / 2, e.redTote.bottomY, 3.72], keyShelf: e.shelf.center, printTop: [e.corkboard.center[0], 2.3, 3.72] };
+      const pts = { board: [e.corkboard.center[0], e.corkboard.center[1], 3.73], toteNatural: [(e.tote.minX + e.tote.maxX) / 2, e.tote.bottomY, 3.72], keyShelf: e.shelf.center, printTop: [e.corkboard.center[0], 2.3, 3.72] };
       for (const dTheta of [-0.12, 0, 0.12]) for (const radius of [2.5, 3.2]) {
         const theta = Math.PI + dTheta;
         r.camera.position.set(t.x + radius * Math.sin(theta) * Math.cos(0.1), t.y + radius * Math.sin(0.1) + 0.05, t.z + radius * Math.cos(theta) * Math.cos(0.1));

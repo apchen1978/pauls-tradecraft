@@ -22,6 +22,9 @@ export const LEDGER = Object.freeze({
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
   headroom: Object.freeze({ vertices: 117, meshes: 0, desktopCalls: 0, phoneCalls: 0 }),
   resizedPhoneCalls: 80,
+  // Opening draw calls when the desktop window is resized (more of the room is in view at the wider sizes). Measured 2026-11-05 on main 4af7e5f;
+  // 1440 px is the ledger's own number (openingDrawCalls.desktop). These were red against the 1440 cap of 80 before.
+  desktopCallsByWidth: Object.freeze({ 1280: 83, 1920: 85 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
