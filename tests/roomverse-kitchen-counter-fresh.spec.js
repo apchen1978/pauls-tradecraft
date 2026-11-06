@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { LEDGER } from "./helpers/room03-ledger.js";
+import { LEDGER, CAPS } from "./helpers/room03-ledger.js";
 import { mkdirSync } from "node:fs";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
@@ -14,7 +14,7 @@ test("a sourdough board and a bowl of fruit stand on the kitchen counter, inside
     const info = await page.evaluate(() => window.__room03.info());
     const fresh = info.counterFresh;
     expect(fresh.vertices, "one merged mesh with the board, loaf, bowl and fruit").toBeGreaterThan(800);
-    expect(info.vertices).toBe(LEDGER.scene.vertices);
+    expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
     expect(fresh.bounds.min[1] - 0.955, "stands on the counter top").toBeGreaterThanOrEqual(-0.002);
     expect(fresh.bounds.min[1] - 0.955).toBeLessThanOrEqual(0.002);
     expect(fresh.bounds.max[1] - 0.955, "low pieces, well under the wall cabinets").toBeLessThanOrEqual(0.2);

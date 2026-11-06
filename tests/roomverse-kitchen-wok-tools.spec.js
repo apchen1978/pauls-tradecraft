@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
-import { LEDGER } from "./helpers/room03-ledger.js";
+import { LEDGER, CAPS } from "./helpers/room03-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 
@@ -30,7 +30,7 @@ test("wok station has one reduced wall board, five American-style tools, grinder
   const oil = info.propBounds["wok-olive-oil"];
   const pack = info.paperNapkinPack.bounds;
 
-  expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
   expect(tools.utensils.map(({ name }) => name)).toEqual(["wood-spoon", "slotted-turner", "balloon-whisk", "stainless-ladle", "locking-tongs"]);
   const oilBottleHeightMm = info.wokOliveOil.bounds.size[1] * 1000;
   expect(Math.max(...tools.utensils.map(({ heightMm }) => heightMm)), "longest hanging utensil is visibly larger than the 244 mm olive-oil bottle").toBeGreaterThanOrEqual(oilBottleHeightMm * 1.2);

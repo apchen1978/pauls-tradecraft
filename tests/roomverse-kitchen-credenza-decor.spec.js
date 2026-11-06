@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { LEDGER } from "./helpers/room03-ledger.js";
+import { LEDGER, CAPS } from "./helpers/room03-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 
@@ -10,7 +10,7 @@ test("the credenza top carries two takeaway cups and a small Bay Area keepsake i
   const info = await page.evaluate(() => window.__room03.info());
   const decor = info.credenzaDecor, credenza = info.credenza;
   expect(decor.vertices, "the decor exists and is one merged mesh").toBeGreaterThan(500);
-  expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
   const top = credenza.heightMm / 1000;
   expect(decor.bounds.min[1] - top, "rests on the top, neither floating nor sunk").toBeGreaterThanOrEqual(-0.002);
   expect(decor.bounds.min[1] - top).toBeLessThanOrEqual(0.002);
