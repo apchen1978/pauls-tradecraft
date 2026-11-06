@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { LEDGER } from "./helpers/room03-ledger.js";
+import { LEDGER, CAPS } from "./helpers/room03-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 
@@ -15,5 +15,5 @@ test("smart kitchen hub sits on the backsplash above the hob, clear of the pots 
   expect(hub.bounds.max[1], "below the under-cabinet strip at 1.4825").toBeLessThanOrEqual(1.43);
   expect(hub.bounds.min[2], "in front of the backsplash face z=-2.2675").toBeGreaterThanOrEqual(-2.2675);
   expect(hub.bounds.max[2]).toBeLessThanOrEqual(-2.25);
-  expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
 });

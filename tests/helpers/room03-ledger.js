@@ -6,7 +6,7 @@
 //   1. Measure:  ROOM03_LEDGER_MEASURE=1 npx playwright test tests/roomverse-room03-ledger-measure.spec.js   (prints a ready-to-paste block)
 //   2. Edit ONLY this file: the numbers in `scene`, `openingDrawCalls`, `moodDrawCalls`, and add one line to `history` with the reason.
 //   3. Run the Room 03 specs. Do not raise `headroom` to make a test pass; a headroom is room for a later small change, not a way around a budget.
-// Exact checks (toBe) use the measured values; cap checks use `CAPS` (measured value + headroom, never looser than the strictest cap the specs had before).
+// Every check is a cap (`CAPS` = measured value + headroom); the measured numbers are a RECORD that must match the newest history line.
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
@@ -20,8 +20,10 @@ export const LEDGER = Object.freeze({
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
-  headroom: Object.freeze({ vertices: 117, meshes: 0, desktopCalls: 0, phoneCalls: 0 }),
-  resizedPhoneCalls: 80,
+  // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
+  // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
+  headroom: Object.freeze({ vertices: 15900, meshes: 19, desktopCalls: 12, phoneCalls: 12 }),
+  resizedPhoneCalls: 92,
   // Opening draw calls when the desktop window is resized (more of the room is in view at the wider sizes). Measured 2026-11-05 on main 4af7e5f;
   // 1440 px is the ledger's own number (openingDrawCalls.desktop). These were red against the 1440 cap of 80 before.
   desktopCallsByWidth: Object.freeze({ 1280: 83, 1920: 85 }),

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { LEDGER } from "./helpers/room03-ledger.js";
+import { LEDGER, CAPS } from "./helpers/room03-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 
@@ -10,7 +10,7 @@ test("a stool with a folded blanket and a book stands on the floor beside the la
   const info = await page.evaluate(() => window.__room03.info());
   const corner = info.lampBlanket, lamp = info.lamps["floor-reading-lamp"].bounds;
   expect(corner.vertices, "one merged mesh: stool, three folds, book and ribbon").toBeGreaterThan(400);
-  expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices);
   expect(corner.legFit).toHaveLength(3);
   for (const leg of corner.legFit) {
     expect(leg.insideApron, "leg side edges intersect the apron mid-plane").toBeGreaterThanOrEqual(10);

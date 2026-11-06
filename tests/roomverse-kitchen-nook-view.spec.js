@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { mkdirSync } from "node:fs";
-import { LEDGER } from "./helpers/room03-ledger.js";
+import { LEDGER, CAPS } from "./helpers/room03-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
@@ -74,7 +74,7 @@ for (const width of [1280, 390]) {
       expect(Math.abs(y), `${name} framed vertically`).toBeLessThanOrEqual(1);
     }
     expect(view.vertices, "zero new geometry").toBe(before.vertices);
-    expect(view.vertices).toBe(LEDGER.scene.vertices);
+    expect(view.vertices).toBeLessThanOrEqual(CAPS.vertices);
     expect(view.meshes).toBe(before.meshes);
     if (QA) await page.locator(".room").screenshot({ path: `${QA}/nook-view-${width}-zh.png` });
     // Orbit and zoom still work from here, but the limits never let the camera into the walls.

@@ -19,8 +19,9 @@ export const LEDGER = Object.freeze({
     desktop: Object.freeze({ rain: 82, family: 82, tech: 84, chic: 82, slow: 82, golden: 82, tv: 82 }),
     phone: Object.freeze({ rain: 63, family: 63, tech: 65, chic: 63, slow: 63, golden: 63, tv: 63 }),
   }),
-  // Room above the measured value that cap checks allow. Starts at zero: any new mesh or draw call shows up as a red test and gets a history line.
-  headroom: Object.freeze({ vertices: 0, meshes: 0, drawCalls: 0 }),
+    // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
+  // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
+  headroom: Object.freeze({ vertices: 17000, meshes: 48, drawCalls: 12 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-06", change: "first ledger: measured on main 8b474fc (nothing changed)", vertices: 113023, meshes: 325, desktopCalls: 82, phoneCalls: 63 },
