@@ -1164,7 +1164,10 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const fill = new THREE.PointLight("#fff1dc", .6, 9, 1.2); fill.position.set(.2, 2.45, .1); scene.add(fill);
   // LED strip sits just above the sofa back (below the print) and washes the wall
   const led = new THREE.Group(); scene.add(led);
-  const ledLine = new THREE.Mesh(new THREE.BoxGeometry(2.1, .01, .01), new THREE.MeshBasicMaterial({ color: "#bfeaff" })); ledLine.position.set(SX, 1.16, BACK + .02); led.add(ledLine);
+  // the strip itself fades out toward both ends (it used to stop dead as a hard bright bar); the wall wash below already fades the same way
+  const ledEndsAlpha = canvasTex(128, 8, (ctx, w, h) => { const g = ctx.createLinearGradient(0, 0, w, 0); g.addColorStop(0, "#000"); g.addColorStop(.3, "#fff"); g.addColorStop(.7, "#fff"); g.addColorStop(1, "#000"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
+  ledEndsAlpha.colorSpace = THREE.NoColorSpace;
+  const ledLine = new THREE.Mesh(new THREE.BoxGeometry(2.1, .01, .01), new THREE.MeshBasicMaterial({ color: "#bfeaff", alphaMap: ledEndsAlpha, transparent: true, depthWrite: false })); ledLine.position.set(SX, 1.16, BACK + .02); led.add(ledLine);
   const washTex = canvasTex(8, 128, (ctx, w, h) => { const g = ctx.createLinearGradient(0, h, 0, 0); g.addColorStop(0, "rgba(140,210,255,.55)"); g.addColorStop(.35, "rgba(140,210,255,.18)"); g.addColorStop(1, "rgba(140,210,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
   const washAlpha = canvasTex(128, 8, (ctx, w, h) => { const g = ctx.createLinearGradient(0, 0, w, 0); g.addColorStop(0, "#000"); g.addColorStop(.15, "#fff"); g.addColorStop(.85, "#fff"); g.addColorStop(1, "#000"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
   washAlpha.colorSpace = THREE.NoColorSpace;
@@ -1983,21 +1986,30 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   };
   // light values for a feeling. Switching feelings eases between them over 0.6 s (skipped with reduced motion),
   // so the room seems to change its light rather than jump to a new picture.
+  // Warm moods used to keep the cool blue sky light and the cool blue side walls, so golden hour read lilac-grey and the side walls clashed with the
+  // warm back wall. These moods now carry their own sky tint and side-wall paint; every other mood keeps the original cool values.
+  const COOL_ROOM_TINT = { hemiSky: "#dfe8f0", sideWall: "#dce3e8", entryWall: "#d0deea" };
+  const MOOD_ROOM_TINT = {
+    golden: { hemiSky: "#ffe6c8", sideWall: "#eadfcf", entryWall: "#ddd9d0" },
+    slow: { hemiSky: "#f2eee4", sideWall: "#e4ddd0", entryWall: "#d9dcd9" },
+    chic: { hemiSky: "#f4e8e4", sideWall: "#e7dedb", entryWall: "#d9dde0" },
+  };
   const lightForMood = (mood) => {
     const m = MOODS[mood];
+    const tint = { ...COOL_ROOM_TINT, ...MOOD_ROOM_TINT[mood] };
     const screenLevel = ({ rain: .1, family: .08, tech: .15, chic: .08, slow: .07, golden: .07, tv: .46 })[mood];
     return {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, sunY: m.sunY ?? 2.6, shadowRadius: m.shadowRadius ?? 8, led: m.led ? .5 : 0,
       floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
       shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
-      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0, screenLevel,
+      winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), hemiSky: new THREE.Color(tint.hemiSky), sideWall: new THREE.Color(tint.sideWall), entryWall: new THREE.Color(tint.entryWall), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0, screenLevel,
     };
   };
   const lights = () => lightForMood(state.mood);
   let standGroup = null, standContact = null, standWall = null, standScarfMat = null, standBrass = null, standBaseMat = null;
   function setLights(v) {
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol); windowLight.position.y = v.sunY; windowLight.shadow.radius = v.shadowRadius;
-    lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out);
+    lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
     shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
