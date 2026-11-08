@@ -71,6 +71,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const camera = new THREE.PerspectiveCamera(44, 1, 0.05, 50);
   const controls = new OrbitControls(camera, renderer.domElement);
   const orbitCenter = new THREE.Vector3(0, 1.28, 0.1);
+  const DESKTOP_EYE_RISE = .22; // metres above orbitCenter.y for the default desktop pose (see fit())
   const requestedView = new URLSearchParams(location.search).get("view");
   let viewTheta = requestedView === "tv" ? Math.PI : requestedView === "entry" ? -Math.PI / 2 : 0;
   let currentView = requestedView === "tv" || requestedView === "entry" ? requestedView : "window";
@@ -136,7 +137,9 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     renderer.setSize(w, h);
     camera.aspect = w / h;
     orbitRadius = camera.aspect < .8 ? 1.82 : 1.9;
-    orbitPhi = Math.PI / 2;
+    // Desktop stages sit a little above the level pose (eye about 1.5 m, looking slightly down) so the low chair and the robot by the rug land
+    // inside the frame instead of being cut by its bottom edge. Phones keep the level pose.
+    orbitPhi = camera.aspect < .8 ? Math.PI / 2 : Math.acos(DESKTOP_EYE_RISE / orbitRadius);
     camera.fov = baseFov();
     if (!director && !arrival) {
       controls.target.copy(orbitCenter);
@@ -1281,7 +1284,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   screenReflection.rotation.x = -Math.PI / 2; screenReflection.name = "tv-screen-reflection";
   // a small low chair (built by code from the side profile of a drawing, so it works without an image-to-3D quota), turned toward the coffee table
   lowChair.scene.rotation.y = Math.PI / 2; // the chair faces +z; turn it to face +x (toward the table)
-  const chairObj = place(lowChair, { height: .5, x: SX - 1.0, z: SZ + 1.15 });
+  const chairObj = place(lowChair, { height: .5, x: SX - 1.0, z: SZ + .75 });
   prepare(chairObj, vcol({ roughness: .62 }));
   const coffeeTop = new THREE.Box3().setFromObject(coffeeObj).max.y;
   // the laptop is open on the coffee table with its screen turned toward the orange chair (left), and a little toward the viewer,
@@ -1340,7 +1343,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const plantObj = place(plant, { height: 1.35, x: PX, z: PZ });
   prepare(plantObj, vcol({ roughness: .75 }));
   // a small home robot (Codex's drawing, same pipeline) keeps the plant company by the rug; no caption, just there
-  const robotObj = place(robot, { height: .46, x: -1.45, z: SZ + 1.45 });
+  const robotObj = place(robot, { height: .46, x: -1.45, z: SZ + 1.05 });
   // Vertex colours cannot hold a crisp screen or small eyes (edges can only fall on vertices: jagged, and the dark
   // screen spilled down the head; DSH review 2026-10-16). So: the dark projected colour becomes body cream, and the
   // face screen and eyes are their own small meshes with clean edges. Greens from the drawing stay.
