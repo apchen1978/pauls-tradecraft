@@ -1235,6 +1235,31 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     }
     pos.needsUpdate = true;
   });
+  // the AI model's two cushions are fused into its mesh and their edges melt into the seat and backrest. Rather than cut them out (that tore holes),
+  // press them flat: inside each cushion's span, any vertex above the seat/backrest profile measured at the sofa's centre seam is lowered to that profile.
+  // No triangles are removed; the procedural cushions below carry the look.
+  {
+    const back = new THREE.Box3().setFromObject(sofaObj).min.z, v = new THREE.Vector3(), inv = new THREE.Matrix4();
+    // [depth from the back (m), height (m)] along the centre seam: backrest top, its front face sloping down, then the seat and its front edge
+    const ARM_TOP = .785, profile = [[0, 1.09], [.3, 1.09], [.4, .86], [.5, .575], [1, .565], [1.1, .53], [9, .5]];
+    const heightAt = (z) => { for (let i = 1; i < profile.length; i++) if (z <= profile[i][0]) { const [z0, y0] = profile[i - 1], [z1, y1] = profile[i]; return y0 + (y1 - y0) * (z - z0) / (z1 - z0); } return profile[profile.length - 1][1]; };
+    const smooth = (a, c, x) => { const t = Math.min(Math.max((x - a) / (c - a), 0), 1); return t * t * (3 - 2 * t); };
+    const span = (x) => Math.max(smooth(-.8, -.72, x) * (1 - smooth(-.3, -.22, x)), smooth(.2, .28, x) * (1 - smooth(.78, .86, x)));
+    sofaObj.updateMatrixWorld(true);
+    sofaObj.traverse((m) => {
+      if (!m.isMesh) return;
+      const g = m.geometry, pos = g.attributes.position; inv.copy(m.matrixWorld).invert();
+      for (let i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+        const dx = v.x - SX, zr = v.z - back;
+        // between the cushions: down to the seat/backrest profile. Over the arms: the cushions' tips rise above the arm top (0.785 m measured), so cap them there.
+        const w = span(dx), arm = smooth(.74, .8, Math.abs(dx)) * (1 - smooth(1, 1.04, Math.abs(dx))) * smooth(.38, .46, zr) * (1 - smooth(.85, .95, zr));
+        const target = w >= arm ? heightAt(zr) : ARM_TOP, k = Math.max(w, arm);
+        if (k > 0 && v.y > target) { v.y -= (v.y - target) * k; v.applyMatrix4(inv); pos.setXYZ(i, v.x, v.y, v.z); }
+      }
+      pos.needsUpdate = true; g.computeVertexNormals();
+    });
+  }
   prepare(sofaObj, () => fabricMat);
   // Scatter cushions: the AI model's two cushions are fused into its mesh and their edges melt into the seat and arm, so two
   // procedural ones (two sewn sheets with a welt, see the procedural-cloth-goods skill) sit on top and cover them. The AI mesh stays unchanged underneath.
