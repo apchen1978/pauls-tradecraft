@@ -1236,6 +1236,45 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     pos.needsUpdate = true;
   });
   prepare(sofaObj, () => fabricMat);
+  // Scatter cushions: the AI model's two cushions are fused into its mesh and their edges melt into the seat and arm, so two
+  // procedural ones (two sewn sheets with a welt, see the procedural-cloth-goods skill) sit on top and cover them. The AI mesh stays unchanged underneath.
+  const pillowGeo = (w, h, d, colour) => {
+    const nx = 16, nz = 14, row = nx + 1, welt = .011, pos = [], col = [], idx = [], c = new THREE.Color(colour);
+    for (const side of [1, -1]) for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+      const u = i / nx * 2 - 1, v = j / nz * 2 - 1;
+      const t = Math.pow(Math.max(1 - u * u, 0), .6) * Math.pow(Math.max(1 - v * v, 0), .6); // 0 on the seam, 1 in the middle (round, not a plateau)
+      let y = welt + (h / 2 - welt) * t;
+      y -= .03 * Math.exp(-Math.pow(u / .32, 2)) * (1 - v * v) * (t > 0 ? 1 : 0); // the pressed middle
+      y += .006 * Math.sin((u + v) * 6.5) * t; // a soft crease or two running in from the corners
+      const grow = 1 + .018 * (1 - t); // the welt bulges slightly outward
+      pos.push(u * w / 2 * grow * (1 - .1 * v * v), side * y, v * d / 2 * grow * (1 - .1 * u * u)); // edges bulge in the middle, corners pull in to a point
+      const shade = .74 + .26 * Math.pow(t, .5); // the seam sits in a little shadow
+      col.push(c.r * shade, c.g * shade, c.b * shade);
+    }
+    const half = (nx + 1) * (nz + 1);
+    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+      const a = j * row + i, b2 = a + 1, c2 = a + row, d2 = c2 + 1;
+      idx.push(a, c2, b2, b2, c2, d2); // the top sheet
+      idx.push(half + a, half + b2, half + c2, half + b2, half + d2, half + c2); // the bottom sheet, wound the other way
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    g.setIndex(idx); g.computeVertexNormals();
+    return g;
+  };
+  const pillowMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 });
+  pillowMat.onBeforeCompile = fabricMat.onBeforeCompile; // the same fine weave as the sofa
+  pillowMat.customProgramCacheKey = () => "sofa-weave-pillow";
+  const sofaBox = new THREE.Box3().setFromObject(sofaObj);
+  // [colour, x offset from the sofa centre, lean from upright, yaw, roll] - leaning on the backrest, one a little more turned than the other
+  const pillowDefs = [["#7a8654", -.56, 30, .14, .05, "sofa-pillow-green"], ["#c26036", .5, 27, -.2, -.06, "sofa-pillow-terracotta"]];
+  for (const [colour, dx, lean, yaw, roll, name] of pillowDefs) {
+    const p = new THREE.Mesh(pillowGeo(.54, .36, .54, colour), pillowMat);
+    p.name = name; p.castShadow = true; p.receiveShadow = true; p.rotation.order = "YXZ";
+    p.rotation.set(Math.PI / 2 - lean * Math.PI / 180, yaw, roll);
+    p.position.set(SX + dx, sofaBox.min.y + .78, sofaBox.min.z + .72);
+    scene.add(p);
+  }
   const tableObj = place(table, { height: .6, x: TX, z: TZ });
   // light oak to match the coffee table, with a faint grain projected from three sides (the model has no UVs)
   const grain = canvasTex(256, 256, (ctx, w, h) => {
@@ -3706,6 +3745,15 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
         bookClearance: clearance(coffeeBook), laptopClearance: clearance(laptopObj),
         windowShadow: { enabled: windowLight.castShadow, radius: windowLight.shadow.radius, mapSize: windowLight.shadow.mapSize.toArray() },
       };
+    },
+    frameSofa(dx = 0, dy = .55, dz = 1.7, fov = 40) { // local QA only: a close view of the sofa to judge cushion edges and fabric
+      scene.updateMatrixWorld(true);
+      const focus = new THREE.Box3().setFromObject(sofaObj).getCenter(new THREE.Vector3());
+      controls.target.copy(focus);
+      camera.position.copy(focus).add(new THREE.Vector3(dx, dy, dz));
+      camera.lookAt(focus); camera.fov = fov; camera.updateProjectionMatrix(); controls.update(); renderer.render(scene, camera);
+      camera.updateMatrixWorld(true);
+      return focus.toArray();
     },
     frameCoffeeMug() { // local QA only: a close view to verify the reused cup reads clearly on the table
       scene.updateMatrixWorld(true);
