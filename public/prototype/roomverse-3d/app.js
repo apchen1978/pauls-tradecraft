@@ -1257,6 +1257,27 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
         const target = w >= arm ? heightAt(zr) : ARM_TOP, k = Math.max(w, arm);
         if (k > 0 && v.y > target) { v.y -= (v.y - target) * k; v.applyMatrix4(inv); pos.setXYZ(i, v.x, v.y, v.z); }
       }
+      // the spikes left where the old cushions met the backrest and arms: a few passes of neighbour averaging, positions and colours, inside that zone only
+      const col = g.attributes.color, idx = g.index && g.index.array;
+      if (idx) {
+        const nb = Array.from({ length: pos.count }, () => new Set());
+        for (let i = 0; i < idx.length; i += 3) { const p = idx[i], q = idx[i + 1], r = idx[i + 2]; nb[p].add(q).add(r); nb[q].add(p).add(r); nb[r].add(p).add(q); }
+        const zone = [], zw = [];
+        for (let i = 0; i < pos.count; i++) {
+          v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+          const z = smooth(.26, .32, v.z - back) * (1 - smooth(.95, 1.02, v.z - back)) * (1 - smooth(.98, 1.04, Math.abs(v.x - SX))) * smooth(.5, .58, v.y);
+          if (z > 0) { zone.push(i); zw.push(z); }
+        }
+        for (let pass = 0; pass < 8; pass++) {
+          const next = zone.map((i) => { let x = 0, y = 0, z = 0, r = 0, gg = 0, bb = 0; const n = nb[i].size || 1; for (const j of nb[i]) { x += pos.getX(j); y += pos.getY(j); z += pos.getZ(j); if (col) { r += col.getX(j); gg += col.getY(j); bb += col.getZ(j); } } return [x / n, y / n, z / n, r / n, gg / n, bb / n]; });
+          zone.forEach((i, t) => {
+            const k = .6 * zw[t], s = next[t];
+            pos.setXYZ(i, pos.getX(i) + (s[0] - pos.getX(i)) * k, pos.getY(i) + (s[1] - pos.getY(i)) * k, pos.getZ(i) + (s[2] - pos.getZ(i)) * k);
+            if (col) col.setXYZ(i, col.getX(i) + (s[3] - col.getX(i)) * k, col.getY(i) + (s[4] - col.getY(i)) * k, col.getZ(i) + (s[5] - col.getZ(i)) * k);
+          });
+        }
+        if (col) col.needsUpdate = true;
+      }
       pos.needsUpdate = true; g.computeVertexNormals();
     });
   }
@@ -1282,6 +1303,13 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
       idx.push(a, c2, b2, b2, c2, d2); // the top sheet
       idx.push(half + a, half + b2, half + c2, half + b2, half + d2, half + c2); // the bottom sheet, wound the other way
     }
+    // sew the seam: the two sheets keep a welt apart at the border, so without a wall between them the rim is an open slit you can see through
+    const ring = [];
+    for (let i = 0; i < nx; i++) ring.push(i);
+    for (let j = 0; j < nz; j++) ring.push(j * row + nx);
+    for (let i = nx; i > 0; i--) ring.push(nz * row + i);
+    for (let j = nz; j > 0; j--) ring.push(j * row);
+    for (let k = 0; k < ring.length; k++) { const p = ring[k], q = ring[(k + 1) % ring.length]; idx.push(p, q, half + q, p, half + q, half + p); }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
     g.setIndex(idx); g.computeVertexNormals();
