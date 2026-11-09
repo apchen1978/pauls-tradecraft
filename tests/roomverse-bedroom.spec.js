@@ -783,7 +783,7 @@ test("Room 02 return door, robot hint, and cancellable countdown", async ({ page
   await expect(page.locator("#portalRow")).toBeVisible();
   const rb = await page.evaluate(() => ({ state: window.__bedroom.robotState(), path: window.__bedroom.info().portalPath }));
   expect(rb.state.position[0]).toBeLessThan(0); expect(rb.state.position[2]).toBeGreaterThan(1.2);
-  expect(rb.path.hits).toEqual([]); expect(rb.path.matGap).toBeGreaterThan(0); expect(rb.path.clear).toBe(true);
+  expect(rb.path.missing).toEqual([]); expect(rb.path.hits).toEqual([]); expect(rb.path.matGap).toBeGreaterThan(0); expect(rb.path.clear).toBe(true);
   await page.evaluate(() => { window.__bedroom.controls.turn(Math.PI, 0); window.__bedroom.controls.turn(0, 0); });
   await expect(page.locator("#robotBubble")).toContainText("這扇門通往其他房間");
   await expect(page.locator("#robotBubble")).toBeVisible();
