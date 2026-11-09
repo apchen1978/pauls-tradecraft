@@ -136,7 +136,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // on the left, and the bed side on the right. On a phone the screen is too narrow to hold the whole room, so the buttons below the
   // room turn the head for you; dragging still works within the same limits.
   // The fourth look, "centre", is absolute: the camera walks to the middle of the room at eye height and the head can turn a full circle.
-  const LOOKS = { center: { pos: CENTER, yaw: 0, pitch: compact ? -.22 : -.09, zoom: compact ? .8 : .92 }, work: compact ? [.1, .1, 1.4] : [.22, .12, 1.35], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
+  const LOOKS = { center: { pos: CENTER, yaw: compact ? -.06 : 0, pitch: compact ? -.2 : -.09, zoom: compact ? .76 : .92 }, work: compact ? [.1, .1, 1.4] : [.22, .12, 1.35], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
   let lookRun = 0, lookName = "center";
   const setZoom = (z) => { camera.zoom = z; camera.updateProjectionMatrix(); };
   // The opening look is the centre (Paul, 2026-10-23): standing in the middle of the room facing the window wall, free to turn all the way round.
