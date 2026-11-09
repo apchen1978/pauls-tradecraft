@@ -1110,12 +1110,26 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const frame = (x, y, w, h) => { const part = add(new THREE.BoxGeometry(w, h, .08), wood, x, y, BACK - .02); windowFrameParts.push(part); return part; };
   frame(wx, win.y0, ww + .1, .06); frame(wx, win.y1, ww + .1, .06); frame(win.x0, wy, .06, wh); frame(win.x1, wy, .06, wh); frame(wx, wy, .04, wh); frame(wx, wy + .2, ww, .04);
   const curtainRod = add(new THREE.CylinderGeometry(.015, .015, ww + .9, 12), wood, wx, win.y1 + .2, BACK + .12); curtainRod.rotation.z = Math.PI / 2; windowFrameParts.push(curtainRod);
-  const linen = new THREE.MeshStandardMaterial({ color: "#e6ddcc", roughness: 1, side: THREE.DoubleSide, transparent: true, opacity: .93 });
-  [win.x0 - .14, win.x1 + .14].forEach((x) => {
-    const g = new THREE.PlaneGeometry(.42, win.y1 + .2, 40, 1); const p = g.attributes.position;
-    for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 46) * .035);
-    g.computeVertexNormals(); curtainParts.push(add(g, linen, x, (win.y1 + .2) / 2, BACK + .12));
-  });
+  // curtains: opaque linen, two sewn layers (1.2 cm thick) with side and hem edges in ONE mesh per panel, so draw calls stay at 2.
+  // Pleats mix two wavelengths in panel space (u = -1..1) and get ~40% denser toward the rod, where the cloth is gathered;
+  // the hem hangs 2.5 cm above the floor with a gentle wave.
+  const linen = new THREE.MeshStandardMaterial({ color: "#e6ddcc", roughness: 1, side: THREE.DoubleSide });
+  const curtainGeo = (phase) => {
+    const NX = 36, NY = 8, TOP = win.y1 + .2 + .005, HEM_W = .46, TH = .006;
+    const pos = [], idx = [];
+    const at = (u, t) => { // t: 0 = hem, 1 = top
+      const y0 = .025 + .008 * Math.sin(u * 2.3 + phase * 1.7), y = y0 + (TOP - y0) * t;
+      const w = HEM_W, k = 1 + .4 * t, amp = .034 - .012 * t; // edges stay plumb; the gather shows as denser, shallower pleats toward the rod
+      const z = amp * (.62 * Math.sin(u * 10.2 * k + phase) + .38 * Math.sin(u * 23 * k + phase * 2.1));
+      return [u * w / 2, y, z];
+    };
+    const sheet = (dz) => { const base = pos.length / 3; for (let j = 0; j <= NY; j++) for (let i = 0; i <= NX; i++) { const [x, y, z] = at(i / NX * 2 - 1, j / NY); pos.push(x, y, z + dz); } for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) { const p = base + j * (NX + 1) + i, q = p + NX + 1; idx.push(p, q, p + 1, p + 1, q, q + 1); } return base; };
+    const front = sheet(TH), back = sheet(-TH), row = NX + 1;
+    const strip = (a0, step, n) => { const base = pos.length / 3; for (let k = 0; k <= n; k++) { const ia = (a0 + k * step) * 3; pos.push(pos[front * 3 + ia], pos[front * 3 + ia + 1], pos[front * 3 + ia + 2]); pos.push(pos[back * 3 + ia], pos[back * 3 + ia + 1], pos[back * 3 + ia + 2]); } for (let k = 0; k < n; k++) { const p = base + k * 2; idx.push(p, p + 2, p + 1, p + 1, p + 2, p + 3); } };
+    strip(0, row, NY); strip(NX, row, NY); strip(0, 1, NX);
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+  };
+  [[win.x0 - .14, .4], [win.x1 + .14, 2.1]].forEach(([x, phase]) => curtainParts.push(add(curtainGeo(phase), linen, x, 0, BACK + .12)));
   const SX = .35, SZ = BACK + .55, TX = SX + 1.35, TZ = SZ - .1;
   // the coffee table, the table lamp and the plant are AI-made models too (loaded with the others below);
   // the table lamp's light lives here, and is moved onto the lamp once the side table is placed
