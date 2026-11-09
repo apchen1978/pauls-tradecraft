@@ -1274,9 +1274,9 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
         if (k > 0 && v.y > target) { v.y -= (v.y - target) * k * (w >= arm ? CUSHION_PRESS : 1); v.applyMatrix4(inv); pos.setXYZ(i, v.x, v.y, v.z); touched[i] = 1; }
       }
       // the spikes left where the old cushions met the backrest and arms: a few passes of neighbour averaging of the positions only (the model's baked vertex shading is kept), inside that zone only
-      const idx = g.index && g.index.array;
+      const idx = g.index && g.index.array; let nb = null;
       if (idx) {
-        const nb = Array.from({ length: pos.count }, () => new Set());
+        nb = Array.from({ length: pos.count }, () => new Set());
         for (let i = 0; i < idx.length; i += 3) { const p = idx[i], q = idx[i + 1], r = idx[i + 2]; nb[p].add(q).add(r); nb[q].add(p).add(r); nb[r].add(p).add(q); }
         const zone = [], zw = [];
         for (let i = 0; i < pos.count; i++) {
@@ -1291,6 +1291,26 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
             pos.setXYZ(i, pos.getX(i) + (s[0] - pos.getX(i)) * k, pos.getY(i) + (s[1] - pos.getY(i)) * k, pos.getZ(i) + (s[2] - pos.getZ(i)) * k);
           });
         }
+      }
+      // the old cushions' baked colours (dark green/orange undersides) are still on the vertices they were pressed into, and show as smudges around the new cushions:
+      // repaint those vertices from their clean neighbours, a ring at a time, so the sofa fabric runs on under and beside the scatter cushions
+      const col = g.attributes.color;
+      if (col && idx) {
+        const clean = new Uint8Array(pos.count), dirty = [];
+        for (let i = 0; i < pos.count; i++) {
+          v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+          const dxm = v.x - SX, zrm = v.z - back, lum = (col.getX(i) + col.getY(i) + col.getZ(i)) / 3, chroma = col.getX(i) - col.getZ(i);
+          const inSpan = Math.abs(dxm) > .22 && Math.abs(dxm) < 1.02 && zrm > .24 && zrm < 1.04 && v.y > .42 && (dxm < 0 ? dxm < -.26 : dxm > .26);
+          if (inSpan && (lum < .5 || chroma > .25)) dirty.push(i); else clean[i] = 1;
+        }
+        for (let ring = 0; ring < 12 && dirty.length; ring++) {
+          const fixed = [], keep = [];
+          for (const i of dirty) { let r = 0, gg = 0, b = 0, n = 0; for (const j of nb[i]) if (clean[j]) { r += col.getX(j); gg += col.getY(j); b += col.getZ(j); n++; } if (n) fixed.push([i, r / n, gg / n, b / n]); else keep.push(i); }
+          if (!fixed.length) break;
+          for (const [i, r, gg, b] of fixed) { col.setXYZ(i, r, gg, b); clean[i] = 1; }
+          dirty.length = 0; dirty.push(...keep);
+        }
+        col.needsUpdate = true;
       }
       pos.needsUpdate = true; g.computeVertexNormals();
       if (normal0) { const na = g.attributes.normal; for (let i = 0; i < pos.count; i++) if (!touched[i]) na.setXYZ(i, normal0[i * 3], normal0[i * 3 + 1], normal0[i * 3 + 2]); na.needsUpdate = true; }
