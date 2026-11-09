@@ -2102,10 +2102,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
           new THREE.Vector3(DOOR.x, 1.5, 1.56),
           new THREE.Vector3(DOOR.x, 1.5, 1.68),
         ];
-        const obstacles = ["wardrobe", "door-mat", "sneakers"].map((name) => {
-          const object = root.getObjectByName(name);
-          return [name, new THREE.Box3().setFromObject(object)];
-        });
+        // The sneakers arrive from a GLB after the page hook exists, so a missing object must not make info() throw; it is reported instead.
+        const names = ["wardrobe", "door-mat", "sneakers"];
+        const missing = names.filter((name) => !root.getObjectByName(name));
+        const obstacles = names.filter((name) => !missing.includes(name)).map((name) => [name, new THREE.Box3().setFromObject(root.getObjectByName(name))]);
         const hits = new Set();
         for (let segment = 0; segment < path.length - 1; segment++) {
           for (let step = 0; step <= 24; step++) {
@@ -2118,9 +2118,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
             }
           }
         }
-        const matBounds = obstacles.find(([name]) => name === "door-mat")[1];
-        const matGap = +(matBounds.min.z - (path.at(-1).z + .18)).toFixed(3);
-        return { waypoints: path.map((point) => point.toArray()), hits: [...hits], matGap, clear: hits.size === 0 && matGap >= 0 };
+        const matEntry = obstacles.find(([name]) => name === "door-mat");
+        const matGap = matEntry ? +(matEntry[1].min.z - (path.at(-1).z + .18)).toFixed(3) : null;
+        return { waypoints: path.map((point) => point.toArray()), hits: [...hits], matGap, missing, clear: missing.length === 0 && hits.size === 0 && matGap >= 0 };
       })(), headboardTop: Math.max(...root.children.filter((o) => o.name === "bed-headboard").map((o) => new THREE.Box3().setFromObject(o).max.y)), wallArt: (() => { const o = root.getObjectByName("sofa-wall-art"); if (!o) return null; const bb = new THREE.Box3().setFromObject(o); return { min: bb.min.toArray(), max: bb.max.toArray() }; })(), wardrobe: (() => { const b = new THREE.Box3().setFromObject(root.getObjectByName("wardrobe")); return { min: b.min.toArray(), max: b.max.toArray() }; })(), centred, vertices, meshes,
       floor: { w: box3.max.x - box3.min.x, d: box3.max.z - box3.min.z },
       zones: ["zone-sleep-rug", "zone-lounge-rug"].map((n) => root.getObjectByName(n)?.name),
