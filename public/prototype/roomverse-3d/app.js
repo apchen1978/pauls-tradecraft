@@ -1241,7 +1241,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   {
     const back = new THREE.Box3().setFromObject(sofaObj).min.z, v = new THREE.Vector3(), inv = new THREE.Matrix4();
     // [depth from the back (m), height (m)] along the centre seam: backrest top, its front face sloping down, then the seat and its front edge
-    const ARM_TOP = .785, profile = [[0, 1.09], [.3, 1.09], [.4, .86], [.5, .575], [1, .565], [1.1, .53], [9, .5]];
+    const CUSHION_PRESS = .35, ARM_TOP = .785, profile = [[0, 1.09], [.3, 1.09], [.4, .86], [.5, .575], [1, .565], [1.1, .53], [9, .5]];
     const heightAt = (z) => { for (let i = 1; i < profile.length; i++) if (z <= profile[i][0]) { const [z0, y0] = profile[i - 1], [z1, y1] = profile[i]; return y0 + (y1 - y0) * (z - z0) / (z1 - z0); } return profile[profile.length - 1][1]; };
     const smooth = (a, c, x) => { const t = Math.min(Math.max((x - a) / (c - a), 0), 1); return t * t * (3 - 2 * t); };
     const span = (x) => Math.max(smooth(-.8, -.72, x) * (1 - smooth(-.3, -.22, x)), smooth(.2, .28, x) * (1 - smooth(.78, .86, x)));
@@ -1249,16 +1249,18 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     sofaObj.traverse((m) => {
       if (!m.isMesh) return;
       const g = m.geometry, pos = g.attributes.position; inv.copy(m.matrixWorld).invert();
+      const normal0 = g.attributes.normal ? g.attributes.normal.array.slice() : null, touched = new Uint8Array(pos.count); // the model's own soft normals stay wherever nothing moved
       for (let i = 0; i < pos.count; i++) {
         v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
         const dx = v.x - SX, zr = v.z - back;
         // between the cushions: down to the seat/backrest profile. Over the arms: the cushions' tips rise above the arm top (0.785 m measured), so cap them there.
         const w = span(dx), arm = smooth(.74, .8, Math.abs(dx)) * (1 - smooth(1, 1.04, Math.abs(dx))) * smooth(.38, .46, zr) * (1 - smooth(.85, .95, zr));
         const target = w >= arm ? heightAt(zr) : ARM_TOP, k = Math.max(w, arm);
-        if (k > 0 && v.y > target) { v.y -= (v.y - target) * k; v.applyMatrix4(inv); pos.setXYZ(i, v.x, v.y, v.z); }
+        // between the cushions only half of the old puff is pressed out, so the seat and backrest stay plump; over the arms the tips are still capped in full
+        if (k > 0 && v.y > target) { v.y -= (v.y - target) * k * (w >= arm ? CUSHION_PRESS : 1); v.applyMatrix4(inv); pos.setXYZ(i, v.x, v.y, v.z); touched[i] = 1; }
       }
-      // the spikes left where the old cushions met the backrest and arms: a few passes of neighbour averaging, positions and colours, inside that zone only
-      const col = g.attributes.color, idx = g.index && g.index.array;
+      // the spikes left where the old cushions met the backrest and arms: a few passes of neighbour averaging of the positions only (the model's baked vertex shading is kept), inside that zone only
+      const idx = g.index && g.index.array;
       if (idx) {
         const nb = Array.from({ length: pos.count }, () => new Set());
         for (let i = 0; i < idx.length; i += 3) { const p = idx[i], q = idx[i + 1], r = idx[i + 2]; nb[p].add(q).add(r); nb[q].add(p).add(r); nb[r].add(p).add(q); }
@@ -1266,19 +1268,18 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
         for (let i = 0; i < pos.count; i++) {
           v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
           const z = smooth(.26, .32, v.z - back) * (1 - smooth(.95, 1.02, v.z - back)) * (1 - smooth(.98, 1.04, Math.abs(v.x - SX))) * smooth(.5, .58, v.y);
-          if (z > 0) { zone.push(i); zw.push(z); }
+          if (z > 0) { zone.push(i); zw.push(z); touched[i] = 1; }
         }
-        for (let pass = 0; pass < 8; pass++) {
-          const next = zone.map((i) => { let x = 0, y = 0, z = 0, r = 0, gg = 0, bb = 0; const n = nb[i].size || 1; for (const j of nb[i]) { x += pos.getX(j); y += pos.getY(j); z += pos.getZ(j); if (col) { r += col.getX(j); gg += col.getY(j); bb += col.getZ(j); } } return [x / n, y / n, z / n, r / n, gg / n, bb / n]; });
+        for (let pass = 0; pass < 4; pass++) {
+          const next = zone.map((i) => { let x = 0, y = 0, z = 0; const n = nb[i].size || 1; for (const j of nb[i]) { x += pos.getX(j); y += pos.getY(j); z += pos.getZ(j); } return [x / n, y / n, z / n]; });
           zone.forEach((i, t) => {
             const k = .6 * zw[t], s = next[t];
             pos.setXYZ(i, pos.getX(i) + (s[0] - pos.getX(i)) * k, pos.getY(i) + (s[1] - pos.getY(i)) * k, pos.getZ(i) + (s[2] - pos.getZ(i)) * k);
-            if (col) col.setXYZ(i, col.getX(i) + (s[3] - col.getX(i)) * k, col.getY(i) + (s[4] - col.getY(i)) * k, col.getZ(i) + (s[5] - col.getZ(i)) * k);
           });
         }
-        if (col) col.needsUpdate = true;
       }
       pos.needsUpdate = true; g.computeVertexNormals();
+      if (normal0) { const na = g.attributes.normal; for (let i = 0; i < pos.count; i++) if (!touched[i]) na.setXYZ(i, normal0[i * 3], normal0[i * 3 + 1], normal0[i * 3 + 2]); na.needsUpdate = true; }
     });
   }
   prepare(sofaObj, () => fabricMat);
@@ -1320,9 +1321,9 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   pillowMat.customProgramCacheKey = () => "sofa-weave-pillow";
   const sofaBox = new THREE.Box3().setFromObject(sofaObj);
   // [colour, x offset from the sofa centre, lean from upright, yaw, roll] - leaning on the backrest, one a little more turned than the other
-  const pillowDefs = [["#7a8654", -.56, 30, .14, .05, "sofa-pillow-green"], ["#c26036", .5, 27, -.2, -.06, "sofa-pillow-terracotta"]];
+  const pillowDefs = [["#7a8654", -.56, 30, .14, .05, "sofa-pillow-green"], ["#c26036", .535, 27, -.2, -.06, "sofa-pillow-terracotta"]];
   for (const [colour, dx, lean, yaw, roll, name] of pillowDefs) {
-    const p = new THREE.Mesh(pillowGeo(.54, .36, .54, colour), pillowMat);
+    const p = new THREE.Mesh(pillowGeo(.48, .32, .48, colour), pillowMat);
     p.name = name; p.castShadow = true; p.receiveShadow = true; p.rotation.order = "YXZ";
     p.rotation.set(Math.PI / 2 - lean * Math.PI / 180, yaw, roll);
     p.position.set(SX + dx, sofaBox.min.y + .78, sofaBox.min.z + .72);
