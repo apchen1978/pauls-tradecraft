@@ -1,5 +1,5 @@
 import { initTravelDoor } from "../travel-door.js?v=3";
-import { start, ROOM_TITLE } from "./kitchen.js?v=137";
+import { start, ROOM_TITLE } from "./kitchen.js?v=138";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
