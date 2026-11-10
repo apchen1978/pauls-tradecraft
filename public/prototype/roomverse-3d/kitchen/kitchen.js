@@ -6176,6 +6176,15 @@ function buildRoom03EntryWallDetails(scene) {
   for (const [px, py, pr, pc] of produce) { ctx.fillStyle = pc; ctx.beginPath(); ctx.arc(px, py, pr, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "#3f6a2a"; ctx.fillRect(px - 2, py - pr - 6, 4, 8); }
   ctx.fillStyle = "#6f6a5c"; for (let row = 0; row < 4; row++) ctx.fillRect(556, 692 + row * 14, 120 + rand() * 60, 6);
   ctx.fillStyle = "#4e7a3a"; ctx.fillRect(556, 750, 70, 26);
+  // Sticky note (Paul 2026-11-11, note 3 of the three-room set, the one in the kitchen): a soft yellow square with a small ink lemon and two lines of
+  // pencil scribble. Abstract marks only, like the other papers here; what it says appears when it is tapped (NOOK_HOTSPOTS "note").
+  ctx.fillStyle = "#f6e58d"; ctx.fillRect(780, 500, 180, 180);
+  ctx.fillStyle = "#ecd878"; ctx.fillRect(780, 500, 180, 16);
+  ctx.fillStyle = "#f2c63a"; ctx.beginPath(); ctx.ellipse(870, 568, 36, 25, -0.3, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#6b5a2a"; ctx.lineWidth = 3; ctx.stroke();
+  crayon([[893, 541], [909, 530], [912, 540]], "#4f7a36", 4);
+  crayon([[802, 622], [830, 618], [858, 624], [888, 619], [920, 623]], "#4a4640", 3);
+  crayon([[802, 648], [826, 645], [852, 650], [880, 646]], "#4a4640", 3);
   const atlasTexture = new THREE.CanvasTexture(atlas);
   atlasTexture.colorSpace = THREE.SRGBColorSpace; atlasTexture.anisotropy = 4;
   const textured = new Set();
@@ -6216,6 +6225,8 @@ function buildRoom03EntryWallDetails(scene) {
   paper([0, 500, 300, 720], 0.140, 0.105, BOARD.x - 0.09, BOARD.y + 0.06, -0.05, 0xd8402f);
   paper([320, 500, 520, 800], 0.100, 0.150, BOARD.x + 0.012, BOARD.y - 0.045, 0.06, 0x2f6fb8);
   paper([540, 500, 760, 790], 0.100, 0.135, BOARD.x + 0.112, BOARD.y + 0.02, -0.08, 0xf0c531);
+  // The note sits in the free lower-right corner of the cork, clear of the flyer (6 mm) and the frame; green pin.
+  paper([780, 500, 960, 680], 0.064, 0.064, BOARD.x + 0.125, BOARD.y - 0.085, 0.12, 0x3aa856);
   // Hook rail moved toward the right of the alcove so the board and the hung things each have room: three black iron J-hooks.
   const RAIL = { x: 0.685, y: 1.145, hooks: [0.585, 0.685, 0.785] };
   const HOOK_R = 0.0055, CUP = { y: 1.055, z: 3.70 };
@@ -6292,7 +6303,7 @@ function buildRoom03EntryWallDetails(scene) {
     vertices: geometry.attributes.position.count,
     bounds: () => { const box = new THREE.Box3().setFromObject(mesh); return { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() }; },
     clock: null,
-    corkboard: { center: [BOARD.x, BOARD.y, WALL_Z - BOARD.depth / 2], sizeMm: [Math.round((BOARD.w + 2 * BOARD.frame) * 1000), Math.round((BOARD.h + 2 * BOARD.frame) * 1000)], bottomY: BOARD.y - BOARD.h / 2 - BOARD.frame, topY: BOARD.y + BOARD.h / 2 + BOARD.frame, minX: BOARD.x - BOARD.w / 2 - BOARD.frame, maxX: BOARD.x + BOARD.w / 2 + BOARD.frame, wallGapMm: 0, papers: 3, pins: pins.length },
+    corkboard: { center: [BOARD.x, BOARD.y, WALL_Z - BOARD.depth / 2], sizeMm: [Math.round((BOARD.w + 2 * BOARD.frame) * 1000), Math.round((BOARD.h + 2 * BOARD.frame) * 1000)], bottomY: BOARD.y - BOARD.h / 2 - BOARD.frame, topY: BOARD.y + BOARD.h / 2 + BOARD.frame, minX: BOARD.x - BOARD.w / 2 - BOARD.frame, maxX: BOARD.x + BOARD.w / 2 + BOARD.frame, wallGapMm: 0, papers: 4, pins: pins.length },
     hooks: { count: RAIL.hooks.length, railCenter: [RAIL.x, RAIL.y, 3.733], xs: RAIL.hooks, cupY: CUP.y, cupZ: CUP.z, radiusMm: HOOK_R * 1000 },
     tote: toteInfo,
     redTote: redToteInfo,
@@ -6474,6 +6485,8 @@ export async function start({ stage, onReady = () => {} }) {
   // now that the view keeps the whole print in shot). The hint names three; the puppy on the console is the one a visitor finds on their own.
   const NOOK_HOTSPOTS = [
     { key: "totes", box: [[0.46, 0.42, 3.60], [0.94, 0.94, 3.76]], zh: "帆布袋掛在門邊，明天要帶去市場。", en: "The canvas totes wait by the door; market tomorrow." },
+    // The note comes BEFORE the board: a tap picks the first box that holds the point, and the board's box covers the whole cork.
+    { key: "note", box: [[0.355, 0.88, 3.70], [0.435, 0.95, 3.76]], zh: "便條 3/3：「桌上有檸檬水，慢慢來。」", en: "Note 3/3: “There's lemon water on the table. Take your time.”" },
     { key: "corkboard", box: [[0.06, 0.82, 3.70], [0.48, 1.18, 3.76]], zh: "軟木板上的蠟筆畫，是小姪女畫的。", en: "The crayon drawing on the board is from my niece." },
     { key: "keyShelf", box: [[0.16, 0.36, 3.58], [0.48, 0.50, 3.76]], zh: "鑰匙層板：回家先把鑰匙放下。", en: "The key shelf: keys land here before anything else." },
     { key: "puppy", box: [[-0.50, 0.57, 3.36], [-0.29, 0.71, 3.57]], zh: "小狗在等誰回家，等到睡著了。", en: "The puppy fell asleep waiting for someone to come home." },
