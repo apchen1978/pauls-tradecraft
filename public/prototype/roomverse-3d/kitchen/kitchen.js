@@ -6750,11 +6750,11 @@ export async function start({ stage, onReady = () => {} }) {
     // lighter, less orange wood overhead; golden hour stays as a choice.
     daylight: Object.freeze({
       ...sharedLook,
-      sun: 1.25, sunColor: 0xfff3e6, sunPosition: [-3.6, 2.1, 3.4],
+      sun: 1.25, sunColor: 0xfff3e6, sunPosition: [-3.9, 1.6, 3.2],
       hemi: 1.15, hemiSky: 0xf1f5fb, hemiGround: 0xd8d0c3, ambient: 0.36, pendant: 0.2, under: 0.70, side: 0.70,
       exposure: 0.96, yard: 0xc2c9cb, globe: 0.2, sky: "day",
       cableCarArtGain: 0.88,
-      floor: 0xc8bda9, jute: 0xcfc2a4, ceilingEmissive: 0.10,
+      floor: 0xd8d8d2, jute: 0xcfc2a4, ceilingEmissive: 0.10,
       ceilingColor: 0xe8ddc9, ceilingEmissiveColor: 0xb4a995, beamColor: 0xebe4d6, tableTint: new THREE.Color().setRGB(1.0, 1.2, 1.6),
       warmGlow: 0.4, wokGlow: 0.6,
       windowWallBounce: 0.10, windowWallBounceVisible: true,
