@@ -13,6 +13,29 @@
 // 封面（cover）：真實截圖裁切 16:9，或品牌設計封面（Forest family）。
 export const works = [
   {
+    id: "city-guides-method",
+    section: "operations",
+    featuredRank: 5,
+    icon: "briefcase",
+    link: "/cases/city-guides/",
+    linkType: "internal",
+    linkLabel: { zh: "閱讀城市指南方法示範", en: "Read the city guide method demonstration" },
+    casePage: {
+      href: "/cases/city-guides/",
+      label: { zh: "閱讀城市指南方法示範", en: "Read the city guide method demonstration" },
+    },
+    zh: {
+      title: "城市指南：人機協作與證據審查",
+      desc: "以公開資料整理馬來西亞與新加坡指南，區分事實、推論與未知，留下可追溯的審查紀錄。方法示範，成效未驗證。",
+      tag: "方法示範 · 公開研究 · 人機協作",
+    },
+    en: {
+      title: "City Guides: Human–AI Collaboration and Evidence Review",
+      desc: "Organise public sources into Malaysia and Singapore guides, separating facts, inferences and unknowns with a traceable review record. Method demonstration; outcomes unverified.",
+      tag: "Method demonstration · Public research · Human–AI collaboration",
+    },
+  },
+  {
     id: "architecture-decision",
     section: "labs",
     featuredRank: Number.MAX_SAFE_INTEGER,
