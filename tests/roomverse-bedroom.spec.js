@@ -361,8 +361,9 @@ test("series night ceiling fixture is visibly off while every other mood keeps i
     expect(ceilingLamp.glowOpacity, `${mood} ceiling pool`).toBeCloseTo(glow, 5);
     expect(ceilingLamp.color, mood).toBe("#f4efe6");
     expect(fillIntensity, `${mood} room fill`).toBeCloseTo(fill, 5);
-    expect(vertices, `${mood} vertex count`).toBe(initial.vertices);
-    expect(meshes, `${mood} mesh count`).toBe(initial.meshes);
+    // Paul 2026-11-11: series night alone adds the bedside phone's lit screen and glow (two 4-vertex planes, hidden in every other mood).
+    expect(vertices, `${mood} vertex count`).toBe(initial.vertices + (mood === "series" ? 8 : 0));
+    expect(meshes, `${mood} mesh count`).toBe(initial.meshes + (mood === "series" ? 2 : 0));
   }
   expect(errors).toEqual([]);
 });

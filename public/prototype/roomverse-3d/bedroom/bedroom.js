@@ -514,7 +514,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     }
     if (hitRobot) { tapRobot(); return; }
     const story = storyAt();
-    if (story) showPropStory(story);
+    if (story) showPropStory(story === "bedside-phone" && mood === "series" ? "bedside-phone-lit" : story);
   });
   el.addEventListener("pointercancel", endDrag);
 
@@ -524,6 +524,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     "bedside-pocket": { zh: "床邊口袋：眼鏡盒和充電盤，是睡前最後一個動作。", en: "The bedside pocket: glasses case and charging puck, the last thing before sleep." },
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
+    "bedside-phone": { zh: "手機面朝下放著，今晚不想被打擾。", en: "The phone lies face down; not to be disturbed tonight." },
+    "bedside-phone-lit": { zh: "手機亮了一下：「到家了嗎？窗邊的燈幫你開著。」", en: "The phone lights up: “Home yet? I left the window lamp on for you.”" },
   };
   const storyCaption = document.createElement("div");
   storyCaption.id = "propStory"; storyCaption.setAttribute("role", "status"); storyCaption.setAttribute("aria-live", "polite");
@@ -548,6 +550,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     if (pocket) {
       const point = tapRay.ray.intersectBox(new THREE.Box3().setFromObject(pocket).expandByScalar(.04), new THREE.Vector3());
       if (point && (!first || point.distanceTo(tapRay.ray.origin) <= first.distance + .05)) return "bedside-pocket";
+    }
+    // The phone is 7 x 15 cm: a few pixels on a phone screen, so a ray through its slightly enlarged box counts too.
+    const phoneObject = root.getObjectByName("bedside-phone");
+    if (phoneObject) {
+      const point = tapRay.ray.intersectBox(new THREE.Box3().setFromObject(phoneObject).expandByScalar(.04), new THREE.Vector3());
+      if (point && (!first || point.distanceTo(tapRay.ray.origin) <= first.distance + .05)) return "bedside-phone";
     }
     return null;
   }
@@ -962,7 +970,34 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // lived-in clutter on the bedside table (Paul 2026-10-24: someone lives here): two books in a short stack, one turned a little, and a phone lying face down
   { const bookA = part(box(.15, .032, .22), new THREE.MeshStandardMaterial({ color: "#2f4258", roughness: .8 }), "bedside-book", tx - .1, .5 + .016, tz + .06); bookA.rotation.y = .25;
     const bookB = part(box(.13, .022, .2), new THREE.MeshStandardMaterial({ color: "#b8643a", roughness: .8 }), "bedside-book", tx - .098, .5 + .032 + .011, tz + .062); bookB.rotation.y = -.1;
-    const phone = part(rb(.072, .009, .15), new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: .35 }), "bedside-phone", tx + .075, .5 + .0045, tz - .09); phone.rotation.y = .5; }
+    const phone = part(rb(.072, .009, .15), new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: .35 }), "bedside-phone", tx + .075, .5 + .0045, tz - .09); phone.rotation.y = .5;
+    // Series night (Paul 2026-11-11): the phone is turned face up and its screen lights a notification now and then. The glass is on the face that
+    // lies against the wood (local -y), so it only shows once the phone is flipped. No text on the glass; the message appears when it is tapped.
+    const screenCanvas = document.createElement("canvas"); screenCanvas.width = 128; screenCanvas.height = 272;
+    const sc = screenCanvas.getContext("2d");
+    sc.fillStyle = "#020306"; sc.fillRect(0, 0, 128, 272);
+    sc.fillStyle = "#d9e2f6"; sc.beginPath(); sc.roundRect(10, 34, 108, 50, 11); sc.fill();           // the notification banner
+    sc.fillStyle = "#5b7cc4"; sc.beginPath(); sc.arc(30, 59, 9, 0, Math.PI * 2); sc.fill();           // its app dot
+    sc.fillStyle = "#4a5470"; sc.fillRect(48, 50, 56, 6); sc.fillRect(48, 63, 38, 5);                 // two abstract text bars
+    sc.fillStyle = "#6a7488"; sc.fillRect(34, 128, 60, 14);                                            // a dim clock block on the lock screen
+    const screenTexture = new THREE.CanvasTexture(screenCanvas); screenTexture.colorSpace = THREE.SRGBColorSpace;
+    const screenMat = new THREE.MeshStandardMaterial({ color: "#05070a", roughness: .2, metalness: .15, emissive: "#ffffff", emissiveMap: screenTexture, emissiveIntensity: 0 });
+    screenMat.name = "bedside-phone-screen";
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(.066, .143), screenMat);
+    screen.name = "bedside-phone-screen"; screen.rotation.x = Math.PI / 2; screen.position.y = -.00455;
+    phone.add(screen); phone.userData.screenMat = screenMat;
+    // A soft cool-white glow on the wood around the phone: the bedside table is small in every look and the lamp hides the phone, so the lit glass
+    // itself would not read; what a visitor sees in a dark room is the pool of light it throws. Additive, 36 cm across, only as bright as the pulse.
+    const glowCanvas = document.createElement("canvas"); glowCanvas.width = glowCanvas.height = 64;
+    const gc = glowCanvas.getContext("2d"), gg = gc.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gg.addColorStop(0, "rgba(255,255,255,1)"); gg.addColorStop(.35, "rgba(255,255,255,.45)"); gg.addColorStop(1, "rgba(255,255,255,0)");
+    gc.fillStyle = gg; gc.fillRect(0, 0, 64, 64);
+    const glowMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(glowCanvas), color: "#a9c2ff", transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+    glowMat.name = "bedside-phone-glow";
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(.36, .36), glowMat);
+    glow.name = "bedside-phone-glow"; glow.rotation.x = -Math.PI / 2; glow.position.set(tx + .075, .5 + .012, tz - .09); // 12 mm above the wood: at 2 mm it sank into the table top and drew nothing
+    phone.parent.add(glow); phone.userData.glowMat = glowMat;
+    phone.userData.screenMesh = screen; phone.userData.glowMesh = glow; screen.visible = false; glow.visible = false; } // both are drawn only in series night: no cost in any other mood
   const lampBase = part(new THREE.LatheGeometry([[0, 0], [.055, 0], [.062, .02], [.05, .06], [.032, .1], [.022, .14], [.02, .17], [.03, .2], [.034, .215], [0, .215]].map(([x, y]) => new THREE.Vector2(x, y)), 24), walnut, "lamp-base", tx, .5, tz);
   part(new THREE.CylinderGeometry(.012, .012, .1, 8), metalMat, "lamp-stem", tx, .73, tz);
   part(new THREE.CylinderGeometry(.075, .14, .17, 28, 1, true), new THREE.MeshStandardMaterial({ color: "#f4e6c8", emissive: "#e9b86a", emissiveIntensity: .35, roughness: .9, side: THREE.DoubleSide }), "lamp-shade", tx, .785, tz);
@@ -1956,6 +1991,37 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const m = MOODS[mood], auto = chosen.led === "auto", c = auto ? m.ledCol : CHOICES.led[chosen.led];
     ledStrip.material.color.set(c); ledStrip.material.emissive.set(c); ledGlow.material.color.set(c); screenLight.color.set(auto ? m.screenCol : c);
   }
+  // Series night: the phone lies face up and its screen lights a notification every ~16 s (a 3.4 s pulse: rise, hold, fade). The room renders on
+  // demand, so the pulse drives its own few frames; with reduced motion the screen just stays lit. Leaving the mood flips it back face down.
+  const PHONE_IDLE = 0.03, PHONE_NOTIFY = 1.1, PHONE_GLOW = 0.85;
+  let phonePulseTimer = 0, phonePulseRun = 0;
+  function stopPhonePulse() { clearTimeout(phonePulseTimer); phonePulseTimer = 0; phonePulseRun += 1; }
+  function applyBedsidePhone(name) {
+    stopPhonePulse();
+    const phone = root.getObjectByName("bedside-phone"), mat = phone?.userData.screenMat, glowMat = phone?.userData.glowMat;
+    if (!phone || !mat || !glowMat) return;
+    const lit = name === "series";
+    phone.rotation.z = lit ? Math.PI : 0;
+    phone.userData.screenMesh.visible = lit; phone.userData.glowMesh.visible = lit;
+    mat.emissiveIntensity = lit ? (reducedMotion() ? PHONE_NOTIFY : PHONE_IDLE) : 0;
+    glowMat.opacity = lit && reducedMotion() ? PHONE_GLOW * .6 : 0;
+    if (!lit || reducedMotion()) return;
+    const fire = () => {
+      const run = ++phonePulseRun, t0 = performance.now();
+      const step = (now) => {
+        if (run !== phonePulseRun) return;
+        const t = (now - t0) / 1000;
+        const k = t < .5 ? t / .5 : t < 2.4 ? 1 : Math.max(0, 1 - (t - 2.4) / 1);
+        mat.emissiveIntensity = PHONE_IDLE + (PHONE_NOTIFY - PHONE_IDLE) * k;
+        glowMat.opacity = PHONE_GLOW * k;
+        render();
+        if (t < 3.4) requestAnimationFrame(step); else { mat.emissiveIntensity = PHONE_IDLE; glowMat.opacity = 0; render(); }
+      };
+      requestAnimationFrame(step);
+    };
+    const schedule = (delay) => { phonePulseTimer = setTimeout(() => { fire(); schedule(16000); }, delay); };
+    schedule(3000);
+  }
   async function setMood(name) {
     const m = MOODS[name];
     if (!m) return false;
@@ -1970,6 +2036,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     fill.intensity = m.fill[0]; fill.color.set(m.fill[1]);
     bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; for (const sp of roomSpots) sp.intensity = m.deskSpot * .7; lensMat.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
     pocketGlowMat.emissiveIntensity = BEDSIDE_POCKET_GLOW[name] ?? 0;
+    applyBedsidePhone(name);
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
     ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow; applyLed();
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
@@ -2151,6 +2218,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       ceilingLamp: { color: "#" + ceilingLight.material.color.getHexString(), emissiveIntensity: ceilingLight.material.emissiveIntensity, glowOpacity: ceil.glow?.material.opacity ?? null },
       fillIntensity: fill.intensity,
       plaque: (() => { const b = new THREE.Box3().setFromObject(plaque); return { min: b.min.toArray(), max: b.max.toArray(), loaded: !!plaqueTex.image }; })(),
+      // Series-night phone: face up (rotation.z = pi) with its screen and glow lit only while a notification pulses.
+      bedsidePhone: (() => { const phone = root.getObjectByName("bedside-phone"); if (!phone) return null; return { faceUp: Math.abs(Math.abs(phone.rotation.z) - Math.PI) < .01, screenEmissive: +phone.userData.screenMat.emissiveIntensity.toFixed(3), glowOpacity: +phone.userData.glowMat.opacity.toFixed(3), meshes: 2 }; })(),
       bedsidePocket: (() => {
         const gap = (a, b) => {
           const dx = Math.max(a.min.x - b.max.x, b.min.x - a.max.x), dy = Math.max(a.min.y - b.max.y, b.min.y - a.max.y), dz = Math.max(a.min.z - b.max.z, b.min.z - a.max.z);
@@ -2222,7 +2291,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         shelfTop: new THREE.Box3().setFromObject(get("tv-console-bottom")).max.y, topUnderside: new THREE.Box3().setFromObject(get("tv-console")).min.y };
     },
     robotState() { const rb = tapTargets.robot; if (!rb) return { loaded: false }; scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(rb), p = b.getCenter(new THREE.Vector3()).project(camera); return { loaded: true, hopping, pending: !!pendingRobot, y: rb.position.y, yaw: rb.rotation.y, position: b.getCenter(new THREE.Vector3()).toArray(), ndc: { x: p.x, y: p.y, z: p.z } }; }, // local QA only
-    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, sayMood, storyAt, storyTargets: () => Object.fromEntries(Object.keys(PROP_STORIES).map((key) => { const o = root.getObjectByName(key), c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).project(camera); return [key, { x: c.x, y: c.y, z: c.z }]; })), propStory: () => ({ key: storyKey, text: storyCaption.textContent, visible: storyCaption.style.opacity === "1" }), tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), vinyl: vinylInfo, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
+    doorState: () => { const b=new THREE.Box3().setFromObject(root.getObjectByName("door-slab")), p=b.getCenter(new THREE.Vector3()).project(camera); return { open: doorPivot.rotation.y !== 0, angle: doorPivot.rotation.y, ndc: { x:p.x,y:p.y,z:p.z }, active: !!leaving, elapsed: leaving ? performance.now()-leaving.started : 0, fading: !!leaving?.fading }; }, toggleLightSwitch, leaveToRoom01, cancelRobotFollow: pauseRobotForTravelChoice, resumeTravelBubble, closePortal, hideRobotBubble, sayMood, storyAt, storyTargets: () => Object.fromEntries(Object.keys(PROP_STORIES).filter((key) => root.getObjectByName(key)).map((key) => { const o = root.getObjectByName(key), c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).project(camera); return [key, { x: c.x, y: c.y, z: c.z }]; })), propStory: () => ({ key: storyKey, text: storyCaption.textContent, visible: storyCaption.style.opacity === "1" }), tapRobot, info, reach, arrive, lookTo, looks: () => ({ name: lookName, yaw: look.yaw - look0.yaw, pitch: look.pitch - look0.pitch }), vinyl: vinylInfo, arriving: () => arriving, windowArt, setTime, setMood, setPosters, setChoice, resize: () => { resize(); render(); }, render, camera, controls, moods: Object.keys(MOODS),
     choices: Object.fromEntries(Object.entries(CHOICES).map(([k, v]) => [k, Array.isArray(v) ? v : Object.keys(v)])),
     // average brightness of the rendered frame (0-255), so tests can prove no mood is blown out or crushed to black
     brightness() { render(); const gl = renderer.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px); let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 37) { sum += (px[i] + px[i + 1] + px[i + 2]) / 3; n++; } return sum / n; },

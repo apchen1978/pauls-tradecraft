@@ -16,11 +16,11 @@ export const LEDGER = Object.freeze({
   pocket: Object.freeze({ vertices: 277, meshes: 2 }),
   sceneWithoutPocket: Object.freeze({ vertices: 64014, meshes: 302 }),
   // Draw calls of the last rendered frame after settling, default (focus) mood: desktop 1440 px and phone 390 px.
-  openingDrawCalls: Object.freeze({ desktop: 158, phone: 157 }),
+  openingDrawCalls: Object.freeze({ desktop: 158, phone: 156 }),
   // Draw calls after switching to each mood.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ focus: 158, weekend: 158, golden: 158, night: 158, sunday: 158, series: 158 }),
-    phone: Object.freeze({ focus: 157, weekend: 157, golden: 157, night: 157, sunday: 157, series: 157 }),
+    desktop: Object.freeze({ focus: 158, weekend: 158, golden: 158, night: 158, sunday: 158, series: 160 }),
+    phone: Object.freeze({ focus: 156, weekend: 156, golden: 156, night: 156, sunday: 156, series: 158 }),
   }),
   // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -28,6 +28,7 @@ export const LEDGER = Object.freeze({
   history: Object.freeze([
     { date: "2026-11-05", change: "(reconstructed from spec comments) premium turntable and printed record wall (#730) and later merges: 64,291 / 312 settled", vertices: 64291, meshes: 312, desktopCalls: 162, phoneCalls: 0 },
     { date: "2026-11-06", change: "first ledger: the nine floor/console footprints are one merged mesh (312 to 304, 162 to 158 draw calls); measured on main fcf4025, nothing changed", vertices: 64291, meshes: 304, desktopCalls: 158, phoneCalls: 157 },
+    { date: "2026-11-11", change: "series-night phone (Paul): the bedside phone flips face up in series night and its screen and a soft glow pulse a notification about every 16 s. The screen plane and the glow plane are drawn only in series night (+2 draw calls there, nothing in other moods; the settled vertex and mesh counts are unchanged because the two meshes are hidden). Phone draw calls re-measured at 156 on current main (the ledger said 157).", vertices: 64291, meshes: 304, desktopCalls: 158, phoneCalls: 156 },
   ]),
 });
 
