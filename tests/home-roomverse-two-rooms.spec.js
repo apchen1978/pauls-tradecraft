@@ -18,7 +18,8 @@ for (const lang of ["zh", "en"]) {
       await expect(card.getByText(lang === "zh" ? "目前開放三間房" : "Three rooms are open")).toBeVisible();
       // Paul 2026-10-31: Room 03 is finished, so it shows like the other rooms with no work-in-progress label; the card opens it straight from home.
       await expect(card.getByText(lang === "zh" ? "施工中" : "Work in progress")).toHaveCount(0);
-      await expect(card.getByRole("link", { name: lang === "zh" ? "走進廚房" : "Step into the kitchen" })).toHaveAttribute("href", `/prototype/roomverse-3d/kitchen/?from=home&lang=${lang}`);
+      // Gallery panel (Paul 2026-11-11): every room link reads "Step inside" and is told apart by the room name in its accessible name.
+      await expect(card.getByRole("link", { name: /Bay Area Kitchen/ })).toHaveAttribute("href", `/prototype/roomverse-3d/kitchen/?from=home&lang=${lang}`);
       await card.scrollIntoViewIfNeeded();
       await page.waitForTimeout(500);
       // all covers load (images are lazy on phones)
