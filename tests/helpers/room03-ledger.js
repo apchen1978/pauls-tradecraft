@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 106225, meshes: 130 }),
+  scene: Object.freeze({ vertices: 107019, meshes: 131 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 80, phone: 77 }),
+  openingDrawCalls: Object.freeze({ desktop: 81, phone: 78 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 80, golden: 80, movie: 78, night: 80, dinner: 87, sunday: 80, thanksgiving: 90 }),
-    phone: Object.freeze({ daylight: 77, golden: 77, movie: 75, night: 77, dinner: 84, sunday: 77, thanksgiving: 87 }),
+    desktop: Object.freeze({ daylight: 81, golden: 81, movie: 79, night: 81, dinner: 87, sunday: 81, thanksgiving: 90 }),
+    phone: Object.freeze({ daylight: 78, golden: 78, movie: 76, night: 78, dinner: 84, sunday: 78, thanksgiving: 87 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -73,6 +73,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-04", change: "coffee maker refined: the hopper is filled about half way with seven loose bean rows (177 individually visible beans) instead of one packed block, and the counter carries one glazed brick-red mug with a clean welded lathe profile and a buried handle (-1,030 vertices, same meshes and draw calls)", vertices: 102895, meshes: 131, desktopCalls: 81, phoneCalls: 79 },
     { date: "2026-11-04", change: "credenza oak top split out of the merged body into its own mesh with a procedural tileable oak grain (colour, roughness and light bump maps, four boards of slightly different tone, metre-based UVs, 8 mm edge) so it no longer reads as plastic (+200 vertices, +1 mesh, +1 desktop draw call; the phone count is unchanged)", vertices: 103095, meshes: 132, desktopCalls: 82, phoneCalls: 79 },
     { date: "2026-11-04", change: "sink station: soap dispenser, sponge on a dish, dish brush and a folded towel batched into the countertop hardware mesh (no new mesh or draw call); vertices +3130, meshes -2, all draw calls -2", vertices: 106225, meshes: 130, desktopCalls: 80, phoneCalls: 77 },
+    { date: "2026-11-11", change: "daylight table: one stoneware water pitcher and two cups in the lemon bowl's mood slot (one merged vertex-colour mesh, +794 vertices, +1 mesh, +1 draw call in the moods that show the centerpiece; dinner and thanksgiving hide it, so they are unchanged)", vertices: 107019, meshes: 131, desktopCalls: 81, phoneCalls: 78 },
   ]),
 });
 
