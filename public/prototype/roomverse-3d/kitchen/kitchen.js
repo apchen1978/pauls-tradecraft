@@ -4726,6 +4726,54 @@ function buildHouseholdProps(scene, m) {
   bowlGeometry.dispose();
   lemonBowl.userData.fit = centerpieceFit;
   centerpieceSlot.add(lemonBowl);
+  // Paul 2026-11-11 (art-polish P1): in daylight the table held only the lemon bowl and read as an empty display table. One stoneware water
+  // pitcher and two cups beside it say "someone is about to sit down". They live in the bowl's mood slot, so they leave with it whenever a
+  // mood lays a full place setting. One merged vertex-colour mesh: +1 mesh and +1 draw call, no new material type.
+  {
+    const waterParts = [];
+    const addWaterPart = (geometry, colorHex, position = [0, 0, 0], rotation = [0, 0, 0]) => {
+      geometry.applyMatrix4(new THREE.Matrix4().compose(
+        new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(1, 1, 1),
+      ));
+      const color = new THREE.Color(colorHex);
+      const colors = new Float32Array(geometry.attributes.position.count * 3);
+      for (let vertex = 0; vertex < geometry.attributes.position.count; vertex++) color.toArray(colors, vertex * 3);
+      geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+      waterParts.push(geometry);
+    };
+    const lathe = (profile, segments = 20) => new THREE.LatheGeometry(profile.map(([radius, y]) => new THREE.Vector2(radius, y)), segments);
+    // Pitcher 0.20 m tall, belly 0.124 m across; thin wall (a closed profile, like the bowl); a half-torus handle on its +x side.
+    addWaterPart(lathe([
+      [0, 0.001], [0.046, 0.001], [0.056, 0.012], [0.062, 0.060], [0.056, 0.120], [0.045, 0.165], [0.043, 0.186], [0.052, 0.198],
+      [0.048, 0.199], [0.039, 0.187], [0.040, 0.165], [0.050, 0.120], [0.055, 0.060], [0.050, 0.016], [0, 0.014],
+    ], 24), 0xd8cbb4);
+    addWaterPart(new THREE.TorusGeometry(0.046, 0.0075, 8, 16, Math.PI), 0xd8cbb4, [0.050, 0.118, 0], [0, 0, -Math.PI / 2]);
+    // Two small stoneware cups on the other side of the pitcher, 0.085 m tall.
+    const cupProfile = [[0, 0.001], [0.030, 0.001], [0.036, 0.004], [0.038, 0.085], [0.0355, 0.085], [0.0335, 0.008], [0, 0.006]];
+    addWaterPart(lathe(cupProfile, 18), 0xb7c0b8, [-0.115, 0, 0.065]);
+    addWaterPart(lathe(cupProfile, 18), 0xd2c4aa, [-0.150, 0, -0.045]);
+    const waterGeometry = mergeGeometries(waterParts, false);
+    if (!waterGeometry) throw new Error("Could not merge the Room 03 daylight water set");
+    waterGeometry.computeVertexNormals();
+    waterParts.forEach((geometry) => geometry.dispose());
+    const waterMaterial = centerpieceMaterial.clone();
+    waterMaterial.name = "room03-water-set-vertex-color";
+    const waterSet = new THREE.Group();
+    waterSet.name = "prop-tabletop-water-set";
+    waterSet.position.set(0.50, 0.75, 0.27);
+    waterSet.userData.category = "household-props";
+    waterSet.userData.propKey = "tabletop-water-set";
+    waterSet.userData.form = "lathed-stoneware-pitcher-and-two-cups";
+    waterSet.userData.moodReplaceable = true;
+    const waterMesh = new THREE.Mesh(waterGeometry, waterMaterial);
+    waterMesh.name = "prop-tabletop-water-set-part";
+    waterMesh.userData.category = "household-props";
+    waterMesh.userData.propKey = "tabletop-water-set";
+    waterMesh.castShadow = true;
+    waterMesh.receiveShadow = true;
+    waterSet.add(waterMesh);
+    centerpieceSlot.add(waterSet);
+  }
   scene.add(centerpieceSlot);
 
   // Three upright cookbooks on the existing cabinet top; one leans gently against its neighbor.
