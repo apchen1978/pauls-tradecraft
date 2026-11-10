@@ -4745,7 +4745,7 @@ function buildHouseholdProps(scene, m) {
       list.push(geometry);
     };
     const lathe = (profile, segments = 28) => new THREE.LatheGeometry(profile.map(([radius, y]) => new THREE.Vector2(radius, y)), segments);
-    const GLASS_TINT = 0xe8f0ed, WATER_TINT = 0xc9e2e4; // water tint = the sideboard mineral-water bottles (waterClear)
+    const GLASS_TINT = 0xe8f0ed, WATER_TINT = 0xa4c8cd; // a touch deeper than the sideboard bottles (waterClear 0xc9e2e4) so a whole pitcher reads as clear water, not milk
     // Contemporary American glass pitcher (the pear-shaped kind sold at Crate & Barrel or West Elm): 0.219 m tall, 0.136 m across the belly, a heavy
     // 12 mm base, a rounded belly that narrows to a neck, a flared lip, a clear glass handle. Not a straight tube.
     const pitcherGlass = lathe([
@@ -4773,6 +4773,9 @@ function buildHouseholdProps(scene, m) {
     ]), 28, 0.0085, 8, false), GLASS_TINT);
     // Water as a closed solid 1.5 mm inside the glass, filled to 0.168 m, so it reads as a volume from every angle.
     bake(waterParts, lathe([[0, 0.014], [0.044, 0.014], [0.0525, 0.022], [0.0625, 0.070], [0.0605, 0.115], [0.0505, 0.160], [0.0485, 0.168], [0, 0.168]], 36), WATER_TINT);
+    // A solid glass base (the 12 mm heavy bottom reads as a dense puck, not an empty shell) and the water surface as a thin lighter disc.
+    bake(waterParts, new THREE.CylinderGeometry(0.043, 0.043, 0.012, 32), 0x9ec2c6, [0, 0.007, 0]);
+    bake(waterParts, new THREE.CylinderGeometry(0.0486, 0.0486, 0.0012, 32), 0xeaf5f5, [0, 0.1686, 0]);
     // Two Meyer-lemon slices floating at the top, tilted a little against each other.
     for (const [x, y, z, tilt, yaw] of [[0.010, 0.158, 0.012, 0.22, 0.3], [-0.016, 0.163, -0.010, -0.30, 1.4]]) {
       bake(waterParts, new THREE.CylinderGeometry(0.0235, 0.0235, 0.004, 18), 0xe9c34c, [x, y, z], [tilt, yaw, 0.12]);
@@ -4794,9 +4797,13 @@ function buildHouseholdProps(scene, m) {
       return merged;
     };
     // Same material numbers as the dinner glassware (buildTableware), same draw order: water first, then glass.
-    const glassMaterial = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.18, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true });
+    // Paul 2026-11-11: with only transparency the pitcher read as a ghost (the chairs and cabinets showed straight through it). Real glass has
+    // bright reflections, a denser body and a heavy base, so this glass takes the room's reflection map (registered as `waterSetGlass` in
+    // reflectiveBase), sits a little more opaque, and the water is a denser body with a visible surface.
+    const glassMaterial = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.06, transparent: true, opacity: 0.40, depthWrite: false, vertexColors: true });
     glassMaterial.name = "room03-water-set-glass";
-    const waterMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.12, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true });
+    m.waterSetGlass = glassMaterial;
+    const waterMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.10, transparent: true, opacity: 0.46, depthWrite: false, vertexColors: true });
     waterMaterial.name = "room03-water-set-water";
     const waterSet = new THREE.Group();
     waterSet.name = "prop-tabletop-water-set";
@@ -4814,6 +4821,29 @@ function buildHouseholdProps(scene, m) {
       mesh.castShadow = false;
       mesh.receiveShadow = false;
       waterSet.add(mesh);
+    }
+    // Soft contact shadow so the set sits on the table instead of floating: one plane, three blurred blobs (pitcher, two tumblers), offset a
+    // little away from the sun (the window side). Same mood slot, so it leaves with the set.
+    {
+      const W = 0.44, D = 0.32, px = 256;
+      const canvas = document.createElement("canvas"); canvas.width = px; canvas.height = Math.round(px * D / W);
+      const ctx = canvas.getContext("2d");
+      const blob = (x, z, radius, alpha) => {
+        const cx = (x + W / 2) / W * canvas.width, cy = (z + D / 2) / D * canvas.height, r = radius / W * canvas.width;
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        g.addColorStop(0, `rgba(38,26,14,${alpha})`); g.addColorStop(0.55, `rgba(38,26,14,${alpha * 0.55})`); g.addColorStop(1, "rgba(38,26,14,0)");
+        ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      };
+      blob(0.014, -0.010, 0.085, 0.42); blob(-0.118 + 0.008, 0.066 - 0.006, 0.050, 0.34); blob(-0.150 + 0.008, -0.050 - 0.006, 0.050, 0.34);
+      const shadowTexture = new THREE.CanvasTexture(canvas); shadowTexture.colorSpace = THREE.SRGBColorSpace;
+      const shadow = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, depthWrite: false }));
+      shadow.name = "prop-tabletop-water-set-contact-shadow";
+      shadow.rotation.x = -Math.PI / 2;
+      shadow.position.set(-0.07, 0.0015, 0.01);
+      shadow.renderOrder = 0;
+      shadow.userData.category = "household-props";
+      shadow.userData.propKey = "tabletop-water-set";
+      waterSet.add(shadow);
     }
     centerpieceSlot.add(waterSet);
   }
@@ -6534,7 +6564,7 @@ export async function start({ stage, onReady = () => {} }) {
   // Soft reflections (ported from Room 02): a tiny made-up room - pale ceiling, warm floor, one bright window panel - baked into an
   // environment map and given ONLY to the metals and glazes below. scene.environment stays unset, so walls, floor and wood keep their
   // exact lighting and no existing luminance check moves. Zero new meshes, zero draw calls.
-  const reflectiveBase = { wokSteel: 0.15, hoodSteel: 0.2, steel: 0.3, brass: 0.9, sinkSteel: 0.5, faucetSteel: 0.9, mugGlaze: 0.45, porcelain: 0.35, red: 0.4, oilGlass: 0.5 };
+  const reflectiveBase = { wokSteel: 0.15, hoodSteel: 0.2, steel: 0.3, brass: 0.9, sinkSteel: 0.5, faucetSteel: 0.9, mugGlaze: 0.45, porcelain: 0.35, red: 0.4, oilGlass: 0.5, waterSetGlass: 1.8 };
   const reflectionMoodScale = { daylight: 1, golden: 0.8, movie: 0.3, night: 0.3, dinner: 0.6, sunday: 0.9, thanksgiving: 0.6 };
   const reflectionEnv = (() => {
     const room = new THREE.Scene();
