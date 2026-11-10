@@ -4726,12 +4726,15 @@ function buildHouseholdProps(scene, m) {
   bowlGeometry.dispose();
   lemonBowl.userData.fit = centerpieceFit;
   centerpieceSlot.add(lemonBowl);
-  // Paul 2026-11-11 (art-polish P1): in daylight the table held only the lemon bowl and read as an empty display table. One stoneware water
-  // pitcher and two cups beside it say "someone is about to sit down". They live in the bowl's mood slot, so they leave with it whenever a
-  // mood lays a full place setting. One merged vertex-colour mesh: +1 mesh and +1 draw call, no new material type.
+  // Paul 2026-11-11 (art-polish P1): in daylight the table held only the lemon bowl and read as an empty display table. A glass pitcher of
+  // lemon water and two tumblers beside it say "someone is about to sit down". First version was one opaque stoneware mesh and Paul said it
+  // looked like a mould, nothing like the glasses already on this table; so this is built the way the dinner glassware is: thin-walled
+  // clear glass (same material numbers as the dinner glass), a closed volume of water just inside it, and the tumbler profile of the dinner
+  // water glass. Lemon slices tie it to the Meyer lemon bowl. The set lives in the bowl's mood slot, so it leaves with the bowl whenever a
+  // mood lays a full place setting. Two merged meshes (glass, water): +2 meshes, +2 draw calls.
   {
-    const waterParts = [];
-    const addWaterPart = (geometry, colorHex, position = [0, 0, 0], rotation = [0, 0, 0]) => {
+    const glassParts = [], waterParts = [];
+    const bake = (list, geometry, colorHex, position = [0, 0, 0], rotation = [0, 0, 0]) => {
       geometry.applyMatrix4(new THREE.Matrix4().compose(
         new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(1, 1, 1),
       ));
@@ -4739,39 +4742,79 @@ function buildHouseholdProps(scene, m) {
       const colors = new Float32Array(geometry.attributes.position.count * 3);
       for (let vertex = 0; vertex < geometry.attributes.position.count; vertex++) color.toArray(colors, vertex * 3);
       geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-      waterParts.push(geometry);
+      list.push(geometry);
     };
-    const lathe = (profile, segments = 20) => new THREE.LatheGeometry(profile.map(([radius, y]) => new THREE.Vector2(radius, y)), segments);
-    // Pitcher 0.20 m tall, belly 0.124 m across; thin wall (a closed profile, like the bowl); a half-torus handle on its +x side.
-    addWaterPart(lathe([
-      [0, 0.001], [0.046, 0.001], [0.056, 0.012], [0.062, 0.060], [0.056, 0.120], [0.045, 0.165], [0.043, 0.186], [0.052, 0.198],
-      [0.048, 0.199], [0.039, 0.187], [0.040, 0.165], [0.050, 0.120], [0.055, 0.060], [0.050, 0.016], [0, 0.014],
-    ], 24), 0xd8cbb4);
-    addWaterPart(new THREE.TorusGeometry(0.046, 0.0075, 8, 16, Math.PI), 0xd8cbb4, [0.050, 0.118, 0], [0, 0, -Math.PI / 2]);
-    // Two small stoneware cups on the other side of the pitcher, 0.085 m tall.
-    const cupProfile = [[0, 0.001], [0.030, 0.001], [0.036, 0.004], [0.038, 0.085], [0.0355, 0.085], [0.0335, 0.008], [0, 0.006]];
-    addWaterPart(lathe(cupProfile, 18), 0xb7c0b8, [-0.115, 0, 0.065]);
-    addWaterPart(lathe(cupProfile, 18), 0xd2c4aa, [-0.150, 0, -0.045]);
-    const waterGeometry = mergeGeometries(waterParts, false);
-    if (!waterGeometry) throw new Error("Could not merge the Room 03 daylight water set");
-    waterGeometry.computeVertexNormals();
-    waterParts.forEach((geometry) => geometry.dispose());
-    const waterMaterial = centerpieceMaterial.clone();
-    waterMaterial.name = "room03-water-set-vertex-color";
+    const lathe = (profile, segments = 28) => new THREE.LatheGeometry(profile.map(([radius, y]) => new THREE.Vector2(radius, y)), segments);
+    const GLASS_TINT = 0xe8f0ed, WATER_TINT = 0xc9e2e4; // water tint = the sideboard mineral-water bottles (waterClear)
+    // Contemporary American glass pitcher (the pear-shaped kind sold at Crate & Barrel or West Elm): 0.219 m tall, 0.136 m across the belly, a heavy
+    // 12 mm base, a rounded belly that narrows to a neck, a flared lip, a clear glass handle. Not a straight tube.
+    const pitcherGlass = lathe([
+      [0, 0.001], [0.046, 0.001], [0.052, 0.006], [0.060, 0.020], [0.068, 0.070], [0.066, 0.115], [0.056, 0.160], [0.047, 0.190],
+      [0.045, 0.205], [0.050, 0.216], [0.0485, 0.219], [0.041, 0.207], [0.043, 0.190], [0.052, 0.160], [0.062, 0.115], [0.064, 0.070],
+      [0.056, 0.022], [0.045, 0.013], [0, 0.012],
+    ], 36);
+    // Pour spout on the -x side (opposite the handle): the top 23 mm of the wall is drawn outward and slightly up along a narrow arc, the way a
+    // pressed-glass pitcher is pinched at the lip.
+    {
+      const pos = pitcherGlass.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+        if (y < 0.207 || x >= 0 || Math.abs(z) > 0.034) continue;
+        const rise = (y - 0.207) / 0.012, across = 1 - (z / 0.034) ** 2;
+        pos.setXYZ(i, x - 0.018 * rise * across, y + 0.005 * rise * across, z);
+      }
+      pos.needsUpdate = true;
+    }
+    bake(glassParts, pitcherGlass, GLASS_TINT);
+    // A large D-shaped handle (thumb-sized, 0.0085 m glass) instead of a small half ring.
+    bake(glassParts, new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0.050, 0.182, 0), new THREE.Vector3(0.080, 0.190, 0), new THREE.Vector3(0.104, 0.145, 0),
+      new THREE.Vector3(0.098, 0.098, 0), new THREE.Vector3(0.078, 0.066, 0), new THREE.Vector3(0.066, 0.064, 0),
+    ]), 28, 0.0085, 8, false), GLASS_TINT);
+    // Water as a closed solid 1.5 mm inside the glass, filled to 0.168 m, so it reads as a volume from every angle.
+    bake(waterParts, lathe([[0, 0.014], [0.044, 0.014], [0.0525, 0.022], [0.0625, 0.070], [0.0605, 0.115], [0.0505, 0.160], [0.0485, 0.168], [0, 0.168]], 36), WATER_TINT);
+    // Two Meyer-lemon slices floating at the top, tilted a little against each other.
+    for (const [x, y, z, tilt, yaw] of [[0.010, 0.158, 0.012, 0.22, 0.3], [-0.016, 0.163, -0.010, -0.30, 1.4]]) {
+      bake(waterParts, new THREE.CylinderGeometry(0.0235, 0.0235, 0.004, 18), 0xe9c34c, [x, y, z], [tilt, yaw, 0.12]);
+    }
+    // The dinner water glass profile (waterDiameter 0.072, waterHeight 0.082), one half full and one nearly empty, set by hand.
+    const tumblerProfile = [
+      [0, 0.001], [0.0230, 0.001], [0.0299, 0.004], [0.0349, 0.012], [0.0360, 0.0640], [0.0349, 0.0800], [0.0320, 0.0820],
+      [0.0299, 0.0780], [0.0299, 0.012], [0.0241, 0.008], [0, 0.008],
+    ];
+    for (const [x, z, fill] of [[-0.118, 0.066, 0.046], [-0.150, -0.050, 0.026]]) {
+      bake(glassParts, lathe(tumblerProfile, 24), GLASS_TINT, [x, 0, z]);
+      bake(waterParts, lathe([[0, 0.008], [0.0235, 0.008], [0.0294, 0.012], [0.0294, fill], [0, fill]], 24), WATER_TINT, [x, 0, z]);
+    }
+    const mergeFor = (list, label) => {
+      const merged = mergeGeometries(list, false);
+      if (!merged) throw new Error(`Could not merge the Room 03 daylight ${label}`);
+      merged.computeVertexNormals();
+      list.forEach((geometry) => geometry.dispose());
+      return merged;
+    };
+    // Same material numbers as the dinner glassware (buildTableware), same draw order: water first, then glass.
+    const glassMaterial = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.18, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true });
+    glassMaterial.name = "room03-water-set-glass";
+    const waterMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.12, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true });
+    waterMaterial.name = "room03-water-set-water";
     const waterSet = new THREE.Group();
     waterSet.name = "prop-tabletop-water-set";
     waterSet.position.set(0.50, 0.75, 0.27);
     waterSet.userData.category = "household-props";
     waterSet.userData.propKey = "tabletop-water-set";
-    waterSet.userData.form = "lathed-stoneware-pitcher-and-two-cups";
+    waterSet.userData.form = "glass-pitcher-with-lemon-water-and-two-tumblers";
     waterSet.userData.moodReplaceable = true;
-    const waterMesh = new THREE.Mesh(waterGeometry, waterMaterial);
-    waterMesh.name = "prop-tabletop-water-set-part";
-    waterMesh.userData.category = "household-props";
-    waterMesh.userData.propKey = "tabletop-water-set";
-    waterMesh.castShadow = true;
-    waterMesh.receiveShadow = true;
-    waterSet.add(waterMesh);
+    for (const [name, list, material, order, label] of [["water", waterParts, waterMaterial, 1, "water"], ["glass", glassParts, glassMaterial, 2, "glass"]]) {
+      const mesh = new THREE.Mesh(mergeFor(list, label), material);
+      mesh.name = `prop-tabletop-water-set-${name}`;
+      mesh.userData.category = "household-props";
+      mesh.userData.propKey = "tabletop-water-set";
+      mesh.renderOrder = order;
+      mesh.castShadow = false;
+      mesh.receiveShadow = false;
+      waterSet.add(mesh);
+    }
     centerpieceSlot.add(waterSet);
   }
   scene.add(centerpieceSlot);
