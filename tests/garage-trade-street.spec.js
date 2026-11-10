@@ -45,6 +45,7 @@ for (const width of [390, 1440]) {
         const href = await link.getAttribute("href");
         expect(href).toContain("/prototype/trade-street/");
         expect(href).toContain(`lang=${lang}`);
+        await card.scrollIntoViewIfNeeded(); // The showcase loads off-screen mobile covers lazily.
         const img = card.locator("img");
         await expect(img).toHaveAttribute("src", "/images/showcase-trade-street-cover.webp");
         await expect(img).toHaveAttribute("width", "408");
