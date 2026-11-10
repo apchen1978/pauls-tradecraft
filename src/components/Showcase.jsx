@@ -80,22 +80,19 @@ export default function Showcase() {
           {items.map((item, index) => {
             const wide = wideAt(index, items.length, item);
             if (item.rooms) return (
-            <li key={item.href} className={`flex ${wide.li}`}>
-              <article className="flex w-full flex-col overflow-hidden rounded-[1.25rem] border-[2.5px] border-ink bg-bone xl:flex-row">
-                <div className="flex flex-col p-5 md:p-8 xl:w-[30%] xl:shrink-0">
-                  <p className="text-xs font-semibold text-moss">{item.tag}</p>
-                  <h3 className="mt-3 text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.02em] text-amber md:text-[1.75rem]">{item.title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-ink">{item.hook}</p>
-                  <p className="mt-3 text-base leading-relaxed text-ink">{item.teaches}</p>
-                  <p className="mt-auto pt-6 text-sm font-semibold text-amber">{item.roomsNote}</p>
-                  <p className="mt-3 border-t-2 border-dashed border-ink/25 pt-3 text-xs leading-relaxed text-moss">{item.boundary}</p>
-                </div>
-                <ul className="mx-auto grid w-full max-w-[28rem] flex-1 grid-cols-1 gap-4 p-4 md:mx-0 md:max-w-none md:grid-cols-3 md:p-6 xl:pl-0">
+            <li key={item.href} className={`flex flex-col ${wide.li}`}>
+              <p className="mx-auto mb-6 max-w-[34em] text-center text-base leading-relaxed text-moss md:mb-8 md:text-lg">{item.bridge}</p>
+              {/* Gallery panel (Paul 2026-11-11): a dark warm band that breaks from the pale cards around it, covers as the main thing, museum-label captions. */}
+              <article className="w-full rounded-[1.25rem] bg-[#1d1915] px-5 py-12 text-[#f1e9da] md:px-12 md:py-20">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#d3ad62] md:text-sm">{item.tag}</p>
+                <h3 className="mt-3 text-[2.25rem] font-normal leading-[1.15] tracking-[0.04em] md:text-[3.4rem]" style={{ fontFamily: '"Noto Serif TC","Songti TC",serif' }}>{item.title}</h3>
+                <p className="mt-4 max-w-[34em] text-[1.35rem] leading-[1.5] tracking-[0.06em] text-[#f2c48a] md:text-[1.9rem]">{item.hook}</p>
+                <ul className="mx-auto mt-10 grid w-full max-w-[28rem] grid-cols-1 gap-12 md:mx-0 md:mt-14 md:max-w-none md:grid-cols-3 md:gap-9">
                   {item.rooms.map((room, roomIndex) => {
                     const href = withDemoLang(room.href, lang);
                     return (
                       <li key={room.href} className="flex">
-                        <div className="flex w-full flex-col overflow-hidden rounded-[1rem] border-2 border-ink bg-white">
+                        <div className="flex w-full flex-col">
                           <div className="relative">
                             <a
                               href={href}
@@ -104,8 +101,7 @@ export default function Showcase() {
                               aria-label={`${room.no} ${room.name} — ${room.cta}`}
                               tabIndex="-1"
                               aria-hidden="true"
-                              className="block overflow-hidden bg-paper focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-ink"
-                              style={{ aspectRatio: room.imageRatio }}
+                              className="block aspect-[4/5] overflow-hidden rounded bg-black shadow-[0_18px_40px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-[#d3ad62] md:aspect-[3/4]"
                             >
                               <ShowcaseImage item={room} index={index + roomIndex} />
                             </a>
@@ -115,27 +111,31 @@ export default function Showcase() {
                               </span>
                             )}
                           </div>
-                          <div className="flex flex-1 flex-col p-4 md:p-5">
-                            <p className="text-xs font-semibold tracking-[0.08em] text-amber">{room.no}</p>
-                            <h4 className="mt-1 text-[1.25rem] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">{room.name}</h4>
-                            <p className="mt-2 text-sm leading-relaxed text-ink md:text-base">{room.desc}</p>
-                            <div className="mt-auto pt-4">
-                              <a
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-bone transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
-                              >
-                                <span>{room.cta}</span>
-                                <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                              </a>
-                            </div>
+                          {/* Museum-wall label: number, name, one light, how it was made. The longer description stays for screen readers and search. */}
+                          <div className="mt-5 border-t border-[#3a342c] pt-4">
+                            <p className="text-xs font-semibold tracking-[0.16em] text-[#d3ad62]">{room.no}</p>
+                            <h4 className="mt-1 text-[1.35rem] font-normal leading-[1.3]" style={{ fontFamily: '"Noto Serif TC","Songti TC",serif' }}>{room.name}</h4>
+                            <p className="mt-1 text-sm text-[#b9ae9a]">{room.light}</p>
+                            <p className="mt-2 text-xs text-[#9a8f7d]">{item.how}</p>
+                            <p className="sr-only">{room.desc}</p>
                           </div>
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${room.cta}: ${room.name}`}
+                            className="group mt-3 inline-flex min-h-11 items-center gap-2 self-start border-b border-[#d3ad62] pb-1 text-base text-[#f1e9da] transition-colors hover:text-[#d3ad62] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d3ad62]"
+                          >
+                            <span aria-hidden="true">{room.cta}</span>
+                            <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                          </a>
                         </div>
                       </li>
                     );
                   })}
                 </ul>
+                <p className="mt-12 text-sm font-semibold text-[#f2c48a]">{item.roomsNote}</p>
+                <p className="mt-2 text-xs leading-relaxed text-[#8f8574]">{item.boundary}</p>
               </article>
             </li>
             );
