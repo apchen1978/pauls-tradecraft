@@ -1320,7 +1320,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   // Scatter cushions: the AI model's two cushions are fused into its mesh and their edges melt into the seat and arm, so two
   // procedural ones (two sewn sheets with a welt, see the procedural-cloth-goods skill) sit on top and cover them. The AI mesh stays unchanged underneath.
   const pillowGeo = (w, h, d, colour) => {
-    const nx = 16, nz = 14, row = nx + 1, welt = .011, pos = [], col = [], idx = [], c = new THREE.Color(colour);
+    const nx = 24, nz = 22, row = nx + 1, welt = .011, pos = [], col = [], idx = [], c = new THREE.Color(colour);
     for (const side of [1, -1]) for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
       const u = i / nx * 2 - 1, v = j / nz * 2 - 1;
       const t = Math.pow(Math.max(1 - u * u, 0), .6) * Math.pow(Math.max(1 - v * v, 0), .6); // 0 on the seam, 1 in the middle (round, not a plateau)
@@ -1363,6 +1363,96 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     p.position.set(SX + dx, sofaBox.min.y + .78, sofaBox.min.z + .72);
     scene.add(p);
   }
+  // Conform the scatter pillows to the sofa (Paul 2026-11-11; card 41 measured that NO rigid pose fits). The AI sofa's backrest is lumpy, and a flat
+  // pillow leaned on it leaves a wedge-shaped gap at the top while its lower back digs in. A real pillow is soft, so each pillow gets (1) a pose, the lean
+  // and back-to-front shift whose rear sheet lies closest to the backrest with its bottom edge on the seat, and (2) a shape: each rear vertex pulled to
+  // 3 mm off the sofa surface along the pillow's back normal (clamped, smoothed, faded toward the rim), the front sheet following by half so the pillow stays
+  // plump, and the lower rows settled onto the seat. The search needs ray casts against the whole sofa mesh (about 1 s per pillow), so it is BAKED: the
+  // numbers below are applied at load with no ray cast. If the sofa mesh ever changes, run `await __room.bakePillowFit()` in the console and paste its output
+  // here. `__room.pillowFit()` measures how the pillows sit (mm; gap > 0 is air, < 0 is the pillow sunk into the sofa). The sofa mesh and colours are untouched.
+  const PILLOW_NX = 24, PILLOW_NZ = 22, PILLOW_ROW = PILLOW_NX + 1, PILLOW_HALF = PILLOW_ROW * (PILLOW_NZ + 1), PILLOW_SEAT_ROWS = 6; // must match pillowGeo's nx, nz
+  const PILLOW_REST = .003, PILLOW_PROBE = .06;
+  const PILLOW_FIT = {"sofa-pillow-green":{"leanDeg":30,"x":-0.27,"y":0.7941,"z":-1.334,"rear":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,3,4,6,9,13,16,18,19,20,20,20,20,19,18,14,7,0,0,3,4,4,4,4,5,7,10,14,18,23,28,32,34,35,35,35,35,35,35,32,26,12,0,0,9,13,13,13,13,14,17,22,26,29,33,36,38,39,39,39,39,39,39,39,37,32,16,0,24,24,27,27,26,26,26,27,30,33,35,37,39,40,40,40,40,40,40,40,40,39,34,18,0,24,31,36,35,33,30,28,28,29,31,34,36,38,39,40,40,40,40,40,40,40,39,35,19,0,24,32,37,34,30,24,20,17,18,21,26,31,34,37,38,38,39,39,40,40,40,39,35,19,0,24,31,34,28,20,11,5,2,2,7,14,21,27,31,33,34,35,37,39,40,40,39,35,19,0,24,27,26,17,7,-3,-9,-12,-10,-5,3,11,18,22,25,27,29,33,37,39,40,39,35,19,0,24,20,14,4,-5,-13,-18,-20,-18,-12,-5,3,9,13,15,18,22,29,35,38,40,39,35,19,0,22,11,0,-8,-14,-19,-22,-23,-21,-17,-10,-3,2,5,8,11,17,26,34,38,40,39,35,19,0,2,-3,-10,-15,-19,-22,-23,-24,-23,-19,-14,-8,-4,0,3,8,16,25,33,38,40,39,35,19,0,-15,-10,-11,-15,-19,-21,-22,-23,-23,-20,-16,-12,-7,-2,3,9,17,27,35,38,40,39,35,19,0,-15,-9,-8,-11,-16,-18,-19,-21,-22,-20,-17,-12,-6,0,6,14,22,30,36,39,40,39,35,19,0,0,-2,-4,-8,-12,-13,-15,-17,-19,-18,-14,-8,-1,6,14,21,29,35,38,40,40,39,35,19,0,0,-1,-2,-5,-7,-7,-9,-12,-14,-12,-7,0,8,16,23,29,34,38,39,40,40,39,36,21,0,0,0,0,-1,1,2,-1,-5,-7,-4,3,11,20,26,32,35,38,39,39,40,40,40,39,31,24,0,0,1,4,10,12,9,4,3,6,13,21,28,32,35,36,37,37,38,39,39,40,40,33,24,0,0,1,7,16,21,17,12,11,14,19,25,29,30,31,30,30,31,33,35,37,38,39,33,24,0,0,1,8,20,25,21,16,13,15,17,20,20,20,19,18,18,19,22,27,31,35,37,32,24,0,0,1,11,22,26,22,16,12,10,10,9,8,7,5,4,5,7,11,16,22,28,32,30,24,0,-1,-2,16,24,24,19,13,9,6,4,2,1,-1,-2,-2,-2,0,3,7,12,17,22,26,24,0,0,-15,23,24,20,15,10,8,5,3,1,0,0,-1,-1,0,1,2,4,6,8,10,12,16],"seat":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,-5,0,-5,0,0,0,0,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,0,0,14,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,0,0,0,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,0,0,0,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-45,-42,-35,0,0,0,-39,-31,-27,-23,-21,-20,-18,-17,-16,-16,-15,-16,-16,-16,-16,-17,-18,-19,-20,-22,-24,-26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-5,-3,-1,0,-1,-1,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-2,-2,-3,-5,-5,0,0,0,0,-10,-5,-2,-1,-2,-2,-2,-2,-2,-1,-1,-1,0,0,-1,-1,-2,-4,-7,-11,-18,0,0,0,0,-10,-5,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-2,-5,-12,-24,0,0,0,-6,-8,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,-6,-18,0,0,0,-12,-12,-9,-7,-6,-4,-4,-3,-3,-2,-1,-2,-2,-1,-2,-2,-3,-4,-4,-5,-7,-8]},"sofa-pillow-terracotta":{"leanDeg":30,"x":0.825,"y":0.7431,"z":-1.334,"rear":[0,0,0,0,0,0,0,0,24,24,24,24,24,24,24,24,24,24,24,24,0,24,24,24,24,0,0,0,1,3,8,14,20,31,34,34,35,35,35,35,34,34,34,34,32,25,32,34,33,24,0,0,0,2,6,15,26,33,38,40,40,40,40,40,40,40,40,39,39,38,37,39,40,33,24,0,0,0,2,7,18,29,37,39,40,40,40,40,40,39,39,38,37,37,37,37,38,39,33,24,0,0,0,2,7,18,30,37,39,40,40,40,40,39,38,36,33,31,30,30,32,35,37,33,24,0,0,0,2,8,19,31,37,39,40,40,40,39,37,34,29,24,20,18,18,22,27,33,31,24,0,0,1,4,12,23,33,38,40,40,40,39,37,33,27,19,12,6,3,5,10,18,27,29,24,0,0,2,7,17,28,36,39,40,40,40,38,35,28,19,9,0,-6,-9,-7,0,10,23,28,24,0,1,4,12,23,33,38,40,40,40,39,37,32,24,13,1,-8,-15,-17,-14,-6,6,19,26,24,0,3,9,18,29,36,39,40,40,40,39,36,30,20,8,-4,-13,-19,-20,-17,-9,3,18,26,24,0,8,18,26,34,38,40,40,40,40,39,36,30,19,7,-5,-14,-19,-20,-17,-9,3,18,26,24,0,14,27,34,38,39,40,40,40,40,39,37,31,22,10,-2,-11,-16,-17,-14,-7,4,18,26,24,0,20,34,38,39,40,40,40,40,39,39,38,34,27,17,7,-2,-8,-10,-9,-4,6,19,26,24,24,30,38,39,39,39,39,38,38,37,37,37,35,31,25,18,10,3,-1,-2,2,10,21,27,24,24,33,39,39,38,36,34,32,31,30,30,30,30,29,27,23,18,12,8,6,8,14,24,28,24,24,32,37,35,31,27,23,19,17,16,15,16,17,18,17,16,14,11,9,9,12,17,26,29,24,24,30,31,25,18,12,6,2,0,-1,-2,-1,0,0,1,0,0,0,1,3,8,15,25,28,24,24,24,19,10,2,-4,-8,-10,-10,-11,-12,-13,-13,-12,-12,-12,-12,-12,-10,-7,-2,6,18,24,24,24,16,5,-4,-9,-11,-12,-11,-10,-10,-12,-13,-14,-14,-14,-14,-14,-14,-13,-13,-10,-5,6,18,24,15,4,-6,-10,-11,-9,-8,-6,-5,-5,-6,-7,-8,-8,-8,-8,-8,-8,-8,-10,-12,-12,-5,9,23,-3,-6,-10,-9,-7,-4,-3,-2,-1,-1,-2,-2,-2,-2,-2,-2,-3,-3,-3,-6,-11,-15,-14,-5,4,-15,-9,-6,-4,-2,-1,-1,0,0,0,0,0,0,0,0,0,0,0,-1,-3,-11,-15,-17,-16,-14,-15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-15,-15,-15,-15,-15],"seat":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-4,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-8,-15,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-17,-10,-8,-17,-21,-24,-26,-27,-28,-29,-28,-28,-27,-27,-27,-29,-31,-32,-32,-32,-32,-32,-32,-30,-26,-21,-11,0,-5,-7,-8,-9,-9,-10,-10,-9,-9,-8,-9,-9,-11,-13,-15,-16,-16,-16,-15,-17,-17,-15,-13,-5,8,16,20,23,25,27,28,30,31,32,32,33,33,32,32,31,29,28,26,24,16,13,9,6,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,0,1,1,2,2,2,2,2,1,1,1,2,2,1,1,1,0,0,0,-1,-3,-3,0,1,3,6,8,10,11,12,12,11,11,10,11,11,11,11,11,9,7,4,2,0,0,-4,-1,4,9,15,19,24,27,0,0,0,0,0,0,0,0,0,0,0,25,21,15,9,4,1,-2,0,16,25,32,37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,37,28,21,14,7,0,17,30,33,36,38,41,0,0,0,0,0,0,0,0,0,0,0,0,40,38,25,22,19,15,11]}};
+  const sofaMeshes = []; sofaObj.traverse((o) => { if (o.isMesh) sofaMeshes.push(o); });
+  const fitRay = new THREE.Raycaster();
+  const fitDistance = (origin, direction, far) => { fitRay.set(origin, direction); fitRay.far = far; const hit = fitRay.intersectObjects(sofaMeshes, false)[0]; return hit ? hit.distance : null; };
+  const pillowProbe = (p) => {
+    const pos = p.geometry.attributes.position, v = new THREE.Vector3(), o = new THREE.Vector3(), down = new THREE.Vector3(0, -1, 0);
+    p.updateMatrixWorld(true);
+    const normal = new THREE.Vector3(0, -1, 0).transformDirection(p.matrixWorld); // the rear sheet faces local -y
+    return {
+      back: (index) => { v.fromBufferAttribute(pos, index).applyMatrix4(p.matrixWorld); o.copy(v).addScaledVector(normal, -PILLOW_PROBE); const t = fitDistance(o, normal, .3); return t === null ? null : t - PILLOW_PROBE; },
+      seat: (index) => { v.fromBufferAttribute(pos, index).applyMatrix4(p.matrixWorld); o.copy(v); o.y += .05; const t = fitDistance(o, down, .2); return t === null ? null : t - .05; },
+    };
+  };
+  // the vertex order of the baked seat rows: front sheet (0) then rear sheet (HALF), rows NZ-3..NZ, columns 0..NX
+  const seatIndices = () => { const list = []; for (const base of [0, PILLOW_HALF]) for (let j = PILLOW_NZ - PILLOW_SEAT_ROWS + 1; j <= PILLOW_NZ; j++) for (let i = 0; i <= PILLOW_NX; i++) list.push(base + j * PILLOW_ROW + i); return list; };
+  const applyPillowFit = (p, fit) => {
+    const pos = p.geometry.attributes.position;
+    p.rotation.x = Math.PI / 2 - fit.leanDeg * Math.PI / 180; p.position.set(fit.x, fit.y, fit.z); p.updateMatrixWorld(true);
+    for (let k = 0; k < PILLOW_HALF; k++) { const d = fit.rear[k] / 1000; pos.setY(PILLOW_HALF + k, pos.getY(PILLOW_HALF + k) - d); pos.setY(k, pos.getY(k) - d * .5); }
+    const inverse = p.quaternion.clone().invert(), pull = new THREE.Vector3(), local = new THREE.Vector3(), indices = seatIndices();
+    indices.forEach((index, n) => { const dy = fit.seat[n] / 1000; if (!dy) return; pull.set(0, dy, 0).applyQuaternion(inverse); local.fromBufferAttribute(pos, index).add(pull); pos.setXYZ(index, local.x, local.y, local.z); });
+    pos.needsUpdate = true; p.geometry.computeVertexNormals(); p.geometry.computeBoundingBox(); p.geometry.computeBoundingSphere();
+  };
+  const pillowBuild = {};
+  for (const name of ["sofa-pillow-green", "sofa-pillow-terracotta"]) { const p = scene.getObjectByName(name), fit = PILLOW_FIT[name]; if (p && fit) { applyPillowFit(p, fit); pillowBuild[name] = { leanDeg: fit.leanDeg, baked: true }; } }
+  // the search that produced PILLOW_FIT (QA only, slow): rebuilds each pillow from its definition, searches the pose, shapes it, and returns the numbers to paste
+  const bakePillowFit = () => {
+    const out = {};
+    for (const [colour, dx, lean, yaw, roll, name] of pillowDefs) {
+      const p = scene.getObjectByName(name); if (!p) continue;
+      p.geometry.dispose(); p.geometry = pillowGeo(.48, .32, .48, colour);
+      p.rotation.set(Math.PI / 2 - lean * Math.PI / 180, yaw, roll); p.position.set(SX + dx, sofaBox.min.y + .78, sofaBox.min.z + .72); p.updateMatrixWorld(true);
+      const pos = p.geometry.attributes.position, started = performance.now();
+      const median = (list) => { const s = list.filter((x) => x !== null).sort((a, b) => a - b); return s.length ? s[s.length >> 1] : null; };
+      const interior = []; for (const jf of [.22, .36, .5, .64, .78]) for (const iff of [.2, .32, .44, .56, .68, .8]) interior.push(PILLOW_HALF + Math.round(jf * PILLOW_NZ) * PILLOW_ROW + Math.round(iff * PILLOW_NX));
+      const rim = []; for (const [jf, iff] of [[.1, .1], [.1, .5], [.1, .9], [.5, .06], [.5, .94], [.9, .1], [.9, .5], [.9, .9]]) rim.push(PILLOW_HALF + Math.round(jf * PILLOW_NZ) * PILLOW_ROW + Math.round(iff * PILLOW_NX));
+      const bottom = []; for (const iff of [.25, .35, .5, .65, .75]) bottom.push(PILLOW_HALF + (PILLOW_NZ - 1) * PILLOW_ROW + Math.round(iff * PILLOW_NX));
+      const restOnSeat = () => { const g = median(bottom.map(pillowProbe(p).seat)); if (g !== null) { p.position.y -= g + PILLOW_REST; p.updateMatrixWorld(true); } };
+      const cost = () => { const probe = pillowProbe(p); let c = 0; for (const k of interior) { const g = probe.back(k), r = g === null ? .2 : Math.max(-.2, Math.min(.2, g - PILLOW_REST)); c += (r < 0 ? 4 : 1) * r * r; }
+        for (const k of rim) { const g = probe.back(k); if (g !== null && g < 0) c += 12 * g * g; } // the rim only counts when it digs into the sofa (arms, backrest)
+        return c; };
+      const z0 = p.position.z, x0 = p.position.x; let best = null;
+      for (let dxs = -.06; dxs <= .0601; dxs += .02) for (let leanDeg = 15; leanDeg <= 70; leanDeg += 5) for (let dz = -.06; dz <= .301; dz += .03) {
+        p.rotation.x = Math.PI / 2 - leanDeg * Math.PI / 180; p.position.set(x0 + dxs, p.position.y, z0 + dz); p.updateMatrixWorld(true); restOnSeat();
+        const c = cost(); if (!best || c < best.c) best = { c, leanDeg, dz, dxs, y: p.position.y };
+      }
+      // refine around the best coarse pose
+      const coarse = { ...best };
+      for (let leanDeg = coarse.leanDeg - 4; leanDeg <= coarse.leanDeg + 4; leanDeg += 2) for (let dz = coarse.dz - .02; dz <= coarse.dz + .0201; dz += .01) {
+        p.rotation.x = Math.PI / 2 - leanDeg * Math.PI / 180; p.position.set(x0 + coarse.dxs, p.position.y, z0 + dz); p.updateMatrixWorld(true); restOnSeat();
+        const c = cost(); if (c < best.c) best = { c, leanDeg, dz, dxs: coarse.dxs, y: p.position.y };
+      }
+      p.rotation.x = Math.PI / 2 - best.leanDeg * Math.PI / 180; p.position.set(x0 + best.dxs, best.y, z0 + best.dz); p.updateMatrixWorld(true);
+      let field = new Float32Array(PILLOW_HALF); const probe = pillowProbe(p);
+      for (let j = 0; j <= PILLOW_NZ; j++) for (let i = 0; i <= PILLOW_NX; i++) { const g = probe.back(PILLOW_HALF + j * PILLOW_ROW + i); field[j * PILLOW_ROW + i] = g === null ? 0 : Math.max(-.025, Math.min(.04, g - PILLOW_REST)); }
+      for (let pass = 0; pass < 6; pass++) { const next = field.slice(); for (let j = 1; j < PILLOW_NZ; j++) for (let i = 1; i < PILLOW_NX; i++) { const k = j * PILLOW_ROW + i; next[k] = (4 * field[k] + field[k - 1] + field[k + 1] + field[k - PILLOW_ROW] + field[k + PILLOW_ROW]) / 8; } field = next; }
+      const rear = []; let maxMove = 0;
+      for (let j = 0; j <= PILLOW_NZ; j++) for (let i = 0; i <= PILLOW_NX; i++) {
+        const k = j * PILLOW_ROW + i, m = Math.max(Math.abs(i / PILLOW_NX * 2 - 1), Math.abs(j / PILLOW_NZ * 2 - 1));
+        const d = field[k] * (1 - .4 * THREE.MathUtils.smoothstep(m, .85, 1)); rear.push(Math.round(d * 1000)); maxMove = Math.max(maxMove, Math.abs(d));
+        pos.setY(PILLOW_HALF + k, pos.getY(PILLOW_HALF + k) - rear[k] / 1000); pos.setY(k, pos.getY(k) - rear[k] / 2000);
+      }
+      const seatProbe = pillowProbe(p), inverse = p.quaternion.clone().invert(), pull = new THREE.Vector3(), local = new THREE.Vector3(), seat = [];
+      for (const index of seatIndices()) {
+        const j = Math.floor((index % PILLOW_HALF) / PILLOW_ROW), g = seatProbe.seat(index); let dy = 0;
+        if (g !== null) { const w = THREE.MathUtils.smoothstep(j, PILLOW_NZ - PILLOW_SEAT_ROWS + 1, PILLOW_NZ); dy = g > 0 ? -Math.min(g, .05) * w : (-g - .008 > 0 ? (-g - .008) * w : 0); }
+        seat.push(Math.round(dy * 1000));
+        if (dy) { pull.set(0, dy, 0).applyQuaternion(inverse); local.fromBufferAttribute(pos, index).add(pull); pos.setXYZ(index, local.x, local.y, local.z); }
+      }
+      pos.needsUpdate = true; p.geometry.computeVertexNormals(); p.geometry.computeBoundingBox(); p.geometry.computeBoundingSphere();
+      out[name] = { leanDeg: best.leanDeg, x: +p.position.x.toFixed(4), y: +p.position.y.toFixed(4), z: +p.position.z.toFixed(4), rear, seat, _maxMoveMm: Math.round(maxMove * 1000), _ms: Math.round(performance.now() - started) };
+    }
+    return out;
+  };
+  const measurePillow = (p) => {
+    const probe = pillowProbe(p), gaps = [], seat = [];
+    for (let j = 1; j < PILLOW_NZ; j++) for (let i = 1; i < PILLOW_NX; i++) { const g = probe.back(PILLOW_HALF + j * PILLOW_ROW + i); if (g !== null) gaps.push(g * 1000); }
+    for (let i = 3; i <= PILLOW_NX - 3; i++) { const g = probe.seat(PILLOW_HALF + (PILLOW_NZ - 1) * PILLOW_ROW + i); if (g !== null) seat.push(g * 1000); }
+    const sorted = [...gaps].sort((a, b) => a - b), at = (q) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))], r1 = (x) => Math.round(x * 10) / 10;
+    return { back: { samples: gaps.length, missed: (PILLOW_NZ - 1) * (PILLOW_NX - 1) - gaps.length, medianMm: r1(at(.5)), p95Mm: r1(at(.95)), maxPenetrationMm: r1(Math.max(0, -sorted[0])) }, seat: { samples: seat.length, medianMm: r1(seat.length ? [...seat].sort((a, b) => a - b)[seat.length >> 1] : 0), maxMm: r1(seat.length ? Math.max(...seat) : 0) } };
+  };
   const tableObj = place(table, { height: .6, x: TX, z: TZ });
   // light oak to match the coffee table, with a faint grain projected from three sides (the model has no UVs)
   const grain = canvasTex(256, 256, (ctx, w, h) => {
@@ -3834,6 +3924,8 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
         windowShadow: { enabled: windowLight.castShadow, radius: windowLight.shadow.radius, mapSize: windowLight.shadow.mapSize.toArray() },
       };
     },
+    pillowFit() { scene.updateMatrixWorld(true); return { build: pillowBuild, ...Object.fromEntries(["sofa-pillow-green", "sofa-pillow-terracotta"].map((name) => [name, measurePillow(scene.getObjectByName(name))])) }; }, // how the scatter pillows sit on the sofa (mm)
+    bakePillowFit() { scene.updateMatrixWorld(true); return bakePillowFit(); }, // QA only: re-runs the pose and shape search that produced PILLOW_FIT
     frameSofa(dx = 0, dy = .55, dz = 1.7, fov = 40) { // local QA only: a close view of the sofa to judge cushion edges and fabric
       scene.updateMatrixWorld(true);
       const focus = new THREE.Box3().setFromObject(sofaObj).getCenter(new THREE.Vector3());
