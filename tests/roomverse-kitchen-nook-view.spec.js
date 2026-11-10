@@ -180,12 +180,13 @@ test("the nook view tells its small stories on click, in the reader's language",
   await page.locator("#nookView").click();
   await settleNook(page);
   const info = await page.evaluate(() => window.__room03.nookHotspotInfo());
-  expect(info.keys).toEqual(["totes", "corkboard", "keyShelf", "puppy"]);
+  expect(info.keys).toEqual(["totes", "note", "corkboard", "keyShelf", "puppy"]);
   expect(info.hintShown, "the first visit shows where to look").toBe(true);
   expect(info.caption, "the hint names the three things").toContain("點一下");
   expect(info.tvCutHidden, "the panel end stays hidden while the stories are reachable").toBe(true);
   const LINES = {
     totes: "帆布袋掛在門邊，明天要帶去市場。",
+    note: "便條 3/3：「桌上有檸檬水，慢慢來。」", // Paul 2026-11-11: the kitchen holds note 3 of the three-room set
     corkboard: "軟木板上的蠟筆畫，是小姪女畫的。",
     keyShelf: "鑰匙層板：回家先把鑰匙放下。",
     puppy: "小狗在等誰回家，等到睡著了。",

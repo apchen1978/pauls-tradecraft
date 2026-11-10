@@ -72,8 +72,9 @@ test("entry cork board, hooks with two canvas totes, and key dish stay under the
   expect(board.minX, "cork board clears the TV screen frame (x <= -0.038)").toBeGreaterThan(-0.038 + 0.05);
   expect(board.bottomY, "cork board clears the key shelf and dish").toBeGreaterThan(result.entry.shelf.dishTopY + 0.3);
   expect(board.wallGapMm).toBe(0);
-  expect(board.papers).toBe(3);
-  expect(board.pins).toBe(3);
+  // Paul 2026-11-11: three papers plus the sticky note (note 3/3 of the three-room set), each on its own pin.
+  expect(board.papers).toBe(4);
+  expect(board.pins).toBe(4);
   expect(result.entry.hooks.count).toBe(3);
   // The canvas tote's straps rest in a hook cup (0-1 mm embed); its body touches the wall (<= 1 mm into it) and stays right of the shelf.
   const tote = result.entry.tote;

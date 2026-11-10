@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 108905, meshes: 133 }),
+  scene: Object.freeze({ vertices: 109111, meshes: 133 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 83, phone: 80 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -76,6 +76,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-11", change: "daylight table: one stoneware water pitcher and two cups in the lemon bowl's mood slot (one merged vertex-colour mesh, +794 vertices, +1 mesh, +1 draw call in the moods that show the centerpiece; dinner and thanksgiving hide it, so they are unchanged)", vertices: 107019, meshes: 131, desktopCalls: 81, phoneCalls: 78 },
     { date: "2026-11-11", change: "daylight table water set rebuilt after Paul said the stoneware one looked like a mould: a pear-shaped glass pitcher with a pour spout, a D handle, lemon-slice water and two tumblers (the dinner water-glass profile), as two merged transparent meshes (water, glass) with the sideboard mineral-water bottle tint instead of the stoneware mesh (+1 mesh, +1 draw call, +1,490 vertices over the previous version; dinner and thanksgiving hide it, so they are unchanged)", vertices: 108509, meshes: 132, desktopCalls: 82, phoneCalls: 79 },
     { date: "2026-11-11", change: "water pitcher no longer reads as a ghost (Paul): the glass takes the room reflection map (waterSetGlass in reflectiveBase) and is a little denser, the water is a denser deeper-aqua body with a visible surface, a solid glass base puck, and one plane with three soft contact-shadow blobs under the set (+396 vertices, +1 mesh, +1 draw call; dinner and thanksgiving hide the set, so they are unchanged)", vertices: 108905, meshes: 133, desktopCalls: 83, phoneCalls: 80 },
+    { date: "2026-11-11", change: "note 3/3 of the three-room note set (Paul): a sticky note with an ink lemon pinned on the entry cork board, drawn into the existing cork atlas and merged into the existing entry-wall mesh, plus a tap hotspot in the nook view (+206 vertices, no new mesh or draw call)", vertices: 109111, meshes: 133, desktopCalls: 83, phoneCalls: 80 },
   ]),
 });
 
