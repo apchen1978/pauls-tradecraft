@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 111497, meshes: 137 }),
+  scene: Object.freeze({ vertices: 112361, meshes: 138 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 85, phone: 82 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 85, golden: 85, movie: 86, night: 85, dinner: 87, sunday: 85, thanksgiving: 90 }),
-    phone: Object.freeze({ daylight: 82, golden: 82, movie: 83, night: 82, dinner: 84, sunday: 82, thanksgiving: 87 }),
+    desktop: Object.freeze({ daylight: 85, golden: 85, movie: 86, night: 85, dinner: 87, sunday: 87, thanksgiving: 90 }),
+    phone: Object.freeze({ daylight: 82, golden: 82, movie: 83, night: 82, dinner: 84, sunday: 84, thanksgiving: 87 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -79,6 +79,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-11", change: "note 3/3 of the three-room note set (Paul): a sticky note with an ink lemon pinned on the entry cork board, drawn into the existing cork atlas and merged into the existing entry-wall mesh, plus a tap hotspot in the nook view (+206 vertices, no new mesh or draw call)", vertices: 109111, meshes: 133, desktopCalls: 83, phoneCalls: 80 },
     { date: "2026-11-11", change: "daylight water set: moved toward the table centre so it no longer sits on the cream chair back; transmissive glass was tried and dropped because it re-rendered the whole room (+70 draw calls); the glass is now a low-opacity MeshPhysicalMaterial with a clearcoat, a darker welded rim and foot, and the room env map actually assigned (the material now lives in makeMaterials), with a visible meniscus at three-quarters full in the pitcher and both tumblers, two opaque lemon slices, and a tighter contact shadow (+1,382 vertices, +1 mesh, +2 opening draw calls in the moods that show the centerpiece; dinner and thanksgiving hide it and are unchanged)", vertices: 110493, meshes: 134, desktopCalls: 85, phoneCalls: 82 },
     { date: "2026-11-11", change: "movie-night phone on the dining table (Paul, after Room 02): a rounded phone body, a lock-screen glass plane and an additive light pool, all hidden outside the movie mood; the screen pulses a notification every ~16 s and a tap reads the message (+1,004 vertices, +3 meshes, movie +3 draw calls, every other mood unchanged)", vertices: 111497, meshes: 137, desktopCalls: 85, phoneCalls: 82 },
+    { date: "2026-11-11", change: "time and season touches (Paul): Sunday morning gets 44 dust motes in the sun and a steam curl over the mug (two additive point clouds, a ~15 fps loop only while that mood is on, still under reduced motion); Thanksgiving gets nine autumn leaves on the floor inside the open panel (one vertex-coloured mesh). Hidden elsewhere (+864 vertices, +1 mesh from the leaves; the two point clouds add no triangles; sunday +2 draw calls, every other mood unchanged)", vertices: 112361, meshes: 138, desktopCalls: 85, phoneCalls: 82 },
   ]),
 });
 
