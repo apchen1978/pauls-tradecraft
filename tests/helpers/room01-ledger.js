@@ -11,12 +11,12 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 119011, meshes: 329 }),
+  scene: Object.freeze({ vertices: 119015, meshes: 330 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 84, phone: 66 }),
+  openingDrawCalls: Object.freeze({ desktop: 85, phone: 66 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ rain: 84, family: 84, tech: 86, chic: 84, slow: 84, golden: 84, tv: 84 }),
+    desktop: Object.freeze({ rain: 85, family: 85, tech: 87, chic: 85, slow: 85, golden: 85, tv: 85 }),
     phone: Object.freeze({ rain: 66, family: 66, tech: 68, chic: 66, slow: 66, golden: 66, tv: 66 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
@@ -27,6 +27,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-06", change: "first ledger: measured on main 8b474fc (nothing changed)", vertices: 113023, meshes: 325, desktopCalls: 82, phoneCalls: 63 },
     { date: "2026-11-11", change: "the ledger had fallen behind main: measured on main 860b507 it was already 115,431 / 327 meshes / 82 desktop 64 phone (the sofa cushions, curtains and later merges, #750-#758, were never recorded). The two scatter pillows now conform to the sofa (a denser 25 x 23 grid per sheet and baked shape offsets, no new mesh or draw call): +1,280 vertices", vertices: 116711, meshes: 327, desktopCalls: 82, phoneCalls: 64 },
     { date: "2026-11-11", change: "sofa pillows, second pass (Paul: from the side the backrest showed a white fold and the single pillow looked huge and fake): the old cushions leaning on the backrest are pressed almost flat (62 percent, seat part unchanged), the coloured pillows shrink from 48 to 40 cm, and a larger plain pillow (oat, dusty blue) sits behind each, as on many American sofas. Two more meshes (+2 draw calls) and +2,300 vertices", vertices: 119011, meshes: 329, desktopCalls: 84, phoneCalls: 66 },
+    { date: "2026-11-11", change: "note 1/3 of the three-room note set (Paul): a yellow sticky note on the plant pot, tappable within 34 px (4 vertices, +1 mesh, +1 desktop draw call; phone unchanged because the note is outside the default 390 px view)", vertices: 119015, meshes: 330, desktopCalls: 85, phoneCalls: 66 },
   ]),
 });
 

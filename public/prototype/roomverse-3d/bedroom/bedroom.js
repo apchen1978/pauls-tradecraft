@@ -143,8 +143,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // The corner looks (desk and window, TV wall, bed side) are one tap away.
   camera.position.copy(CENTER); look.yaw = LOOKS.center.yaw; look.pitch = LOOKS.center.pitch; setZoom(LOOKS.center.zoom); centred = true; applyLook();
   const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a)); // the short way round
+  // Like Room 03's close-up corner: the first time a look frames something tappable, a one-line hint says where to tap (Paul 2026-11-11).
+  const lookHinted = new Set();
+  function hintForLook(name) { const key = name === "work" ? "hint-work" : name === "bed" ? "hint-bed" : null; if (!key || lookHinted.has(key)) return; lookHinted.add(key); setTimeout(() => { if (lookName === name) showPropStory(key); }, 1500); }
   function lookTo(name) {
     const to = LOOKS[name]; if (!to) return Promise.resolve(false);
+    hintForLook(name);
     lookName = name; glide++;
     const abs = !Array.isArray(to);
     const target = abs ? { yaw: to.yaw, pitch: to.pitch, zoom: to.zoom, pos: to.pos } : { yaw: look0.yaw + to[0], pitch: look0.pitch + to[1], zoom: to[2] ?? 1, pos: home };
@@ -513,6 +517,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       return;
     }
     if (hitRobot) { tapRobot(); return; }
+    tapClient = [event.clientX, event.clientY];
     const story = storyAt();
     if (story) showPropStory(story === "bedside-phone" && mood === "series" ? "bedside-phone-lit" : story);
   });
@@ -525,6 +530,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
     "bedside-phone": { zh: "手機面朝下放著，今晚不想被打擾。", en: "The phone lies face down; not to be disturbed tonight." },
+    "hint-work": { zh: "點一下：螢幕邊的小便條。", en: "Tap: the little note on the monitor." },
+    "hint-bed": { zh: "點一下：床頭的手機。", en: "Tap: the phone by the bed." },
     "desk-note": { zh: "便條 2/3：「今晚早點睡，明天的光更好。」", en: "Note 2/3: “Go to bed early tonight; tomorrow's light is better.”" },
     "bedside-phone-lit": { zh: "手機亮了一下：「到家了嗎？窗邊的燈幫你開著。」", en: "The phone lights up: “Home yet? I left the window lamp on for you.”" },
   };
@@ -538,6 +545,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     storyKey = key; storyCaption.textContent = story[lang] || story.zh; storyCaption.style.opacity = "1";
     clearTimeout(storyTimer); storyTimer = setTimeout(() => { storyCaption.style.opacity = "0"; storyKey = null; }, 4600);
   }
+  let tapClient = null; // where the last tap landed on screen (client px), for the finger-sized tap radius below
   function storyAt() {
     // The wardrobe carcass is a solid box whose invisible volume reaches into the room from some looks, so it would swallow a tap meant for
     // the bookshelf beyond it; taps pass through the wardrobe. Glass and other see-through meshes are skipped too.
@@ -553,11 +561,18 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       if (point && (!first || point.distanceTo(tapRay.ray.origin) <= first.distance + .05)) return "bedside-pocket";
     }
     // The phone is 7 x 15 cm: a few pixels on a phone screen, so a ray through its slightly enlarged box counts too.
-    // The phone (7 x 15 cm) and the desk note (7.5 cm) are a few pixels on a phone screen, so a ray through a box enlarged by 4 cm also counts.
-    for (const small of ["bedside-phone", "desk-note"]) {
-      const object = root.getObjectByName(small); if (!object) continue;
-      const point = tapRay.ray.intersectBox(new THREE.Box3().setFromObject(object).expandByScalar(.04), new THREE.Vector3());
-      if (point && (!first || point.distanceTo(tapRay.ray.origin) <= first.distance + .05)) return small;
+    // The phone (7 x 15 cm) and the desk note (9.5 cm) are a few pixels in the overview and a finger is wider than that (Paul 2026-11-11: the note was too small to
+    // tap), so a tap within 34 px of one of them on screen counts, the nearest wins, as long as nothing solid is clearly in front of it.
+    if (tapClient) {
+      const rect = el.getBoundingClientRect(); let best = null, bestDistance = 34;
+      for (const small of ["bedside-phone", "desk-note"]) {
+        const object = root.getObjectByName(small); if (!object || !object.visible) continue;
+        const c = new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3()), p = c.clone().project(camera);
+        if (p.z >= 1 || Math.abs(p.x) > 1 || Math.abs(p.y) > 1) continue;
+        const d = Math.hypot(tapClient[0] - (rect.left + ((p.x + 1) / 2) * rect.width), tapClient[1] - (rect.top + ((1 - p.y) / 2) * rect.height));
+        if (d < bestDistance) { best = small; bestDistance = d; }
+      }
+      if (best) return best;
     }
     return null;
   }
@@ -1169,7 +1184,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     for (const [y, w] of [[88, 84], [106, 58]]) { nc.beginPath(); nc.moveTo(20, y); nc.bezierCurveTo(20 + w * .3, y - 3, 20 + w * .7, y + 3, 20 + w, y - 1); nc.stroke(); }
     const noteTexture = new THREE.CanvasTexture(noteCanvas); noteTexture.colorSpace = THREE.SRGBColorSpace;
     const noteX = -.5, noteR = MR - .003, noteY = 1.05 + .17 - .035;
-    const note = new THREE.Mesh(new THREE.PlaneGeometry(.075, .075), new THREE.MeshStandardMaterial({ map: noteTexture, roughness: .92 }));
+    const note = new THREE.Mesh(new THREE.PlaneGeometry(.095, .095), new THREE.MeshStandardMaterial({ map: noteTexture, roughness: .92 }));
     note.name = "desk-note"; note.userData.category = "decor"; note.rotation.order = "YXZ"; note.rotation.set(0, Math.asin(-noteX / noteR), .09);
     note.position.set(noteX, noteY, -.15 + .0135 + (noteR - Math.sqrt(noteR * noteR - noteX * noteX)) + .0045); desk.add(note);
   }
