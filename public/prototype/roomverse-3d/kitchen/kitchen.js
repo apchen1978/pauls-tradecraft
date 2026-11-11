@@ -7187,9 +7187,100 @@ export async function start({ stage, onReady = () => {} }) {
       }
     });
   }
+  // Movie night (Paul 2026-11-11, after Room 02's series-night phone): a phone lies face up on the dining table, and every ~16 s its screen lights a
+  // notification and throws a soft cool pool of light on the wood. Only in the movie mood (hidden otherwise: no cost anywhere else). The room renders
+  // on demand, so the pulse drives its own frames; with reduced motion the screen simply stays lit. No text on the glass; the message appears when it
+  // is tapped (34 px finger radius, like Room 02) and, once per visit, a hint says so when the mood arrives.
+  const PHONE_AT = Object.freeze({ x: -0.40, z: 0.26, yaw: 0.42 });
+  const PHONE_IDLE = 0.03, PHONE_NOTIFY = 1.1, PHONE_GLOW = 0.8;
+  const PHONE_TEXT = {
+    zh: "手機亮了一下：「晚餐幫你留了一份在爐上，慢慢吃。」",
+    en: "The phone lights up: “I kept a plate warm on the stove. Take your time.”",
+  };
+  const phoneRig = (() => {
+    const tableTopY = 0.75, bodyH = 0.0085, W = 0.072, L = 0.150;
+    const shape = new THREE.Shape(), r = 0.011, x0 = -W / 2, y0 = -L / 2;
+    shape.moveTo(x0 + r, y0); shape.lineTo(-x0 - r, y0); shape.quadraticCurveTo(-x0, y0, -x0, y0 + r); shape.lineTo(-x0, -y0 - r);
+    shape.quadraticCurveTo(-x0, -y0, -x0 - r, -y0); shape.lineTo(x0 + r, -y0); shape.quadraticCurveTo(x0, -y0, x0, -y0 - r); shape.lineTo(x0, y0 + r); shape.quadraticCurveTo(x0, y0, x0 + r, y0);
+    const bodyGeo = new THREE.ExtrudeGeometry(shape, { depth: bodyH - 0.0016, bevelEnabled: true, bevelThickness: 0.0008, bevelSize: 0.0008, bevelSegments: 2, curveSegments: 6 });
+    bodyGeo.rotateX(-Math.PI / 2); bodyGeo.translate(0, 0.0008, 0); // thickness along +y, bottom face on the table
+    const group = new THREE.Group(); group.name = "prop-table-phone"; group.visible = false;
+    group.userData.category = "household-props"; group.userData.propKey = "table-phone";
+    const body = new THREE.Mesh(bodyGeo, new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: 0.35, metalness: 0.2 }));
+    body.name = "prop-table-phone-body"; group.add(body);
+    // the glass: a dark panel with a lock-screen notification banner, lit only while the pulse runs
+    const cv = document.createElement("canvas"); cv.width = 128; cv.height = 272;
+    const c = cv.getContext("2d");
+    c.fillStyle = "#020306"; c.fillRect(0, 0, 128, 272);
+    c.fillStyle = "#e4dcc8"; c.beginPath(); c.roundRect(10, 34, 108, 50, 11); c.fill();
+    c.fillStyle = "#c58a3a"; c.beginPath(); c.arc(30, 59, 9, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#5a5246"; c.fillRect(48, 50, 56, 6); c.fillRect(48, 63, 38, 5);
+    c.fillStyle = "#7a7366"; c.fillRect(34, 128, 60, 14);
+    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+    const screenMat = new THREE.MeshStandardMaterial({ color: "#05070a", roughness: 0.2, metalness: 0.15, emissive: "#ffffff", emissiveMap: tex, emissiveIntensity: 0 });
+    screenMat.name = "table-phone-screen";
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.066, 0.143), screenMat);
+    screen.name = "table-phone-screen"; screen.rotation.x = -Math.PI / 2; screen.position.y = bodyH + 0.0006; group.add(screen);
+    group.position.set(PHONE_AT.x, tableTopY, PHONE_AT.z); group.rotation.y = PHONE_AT.yaw;
+    // soft pool of light on the wood, 12 mm above it (a plane 2 mm above a surface is not drawn)
+    const gcv = document.createElement("canvas"); gcv.width = gcv.height = 64;
+    const gx = gcv.getContext("2d"), gg = gx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gg.addColorStop(0, "rgba(255,255,255,1)"); gg.addColorStop(0.35, "rgba(255,255,255,.45)"); gg.addColorStop(1, "rgba(255,255,255,0)");
+    gx.fillStyle = gg; gx.fillRect(0, 0, 64, 64);
+    const glowMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(gcv), color: "#a9c2ff", transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+    glowMat.name = "table-phone-glow";
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.36), glowMat);
+    glow.name = "table-phone-glow"; glow.rotation.x = -Math.PI / 2; glow.position.set(PHONE_AT.x, tableTopY + 0.012, PHONE_AT.z); glow.visible = false;
+    scene.add(group, glow);
+    return { group, screenMat, glowMat, glow };
+  })();
+  const phoneReduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let phonePulseTimer = 0, phonePulseRun = 0, phoneHintShown = false;
+  function stopPhonePulse() { clearTimeout(phonePulseTimer); phonePulseTimer = 0; phonePulseRun += 1; }
+  function applyTablePhone(name) {
+    stopPhonePulse();
+    const lit = name === "movie", { group, screenMat, glowMat, glow } = phoneRig;
+    group.visible = lit; glow.visible = lit;
+    screenMat.emissiveIntensity = lit ? (phoneReduced() ? PHONE_NOTIFY : PHONE_IDLE) : 0;
+    glowMat.opacity = lit && phoneReduced() ? PHONE_GLOW * 0.6 : 0;
+    if (!lit) return;
+    if (!phoneHintShown) { phoneHintShown = true; setTimeout(() => { if (currentMood === "movie") showNookCaption(nookLang === "zh" ? "點一下：桌上的手機。" : "Tap: the phone on the table.", null, 4200); }, 900); }
+    if (phoneReduced()) return;
+    const fire = () => {
+      const run = ++phonePulseRun, t0 = performance.now();
+      const step = (now) => {
+        if (run !== phonePulseRun) return;
+        const t = (now - t0) / 1000, k = t < 0.5 ? t / 0.5 : t < 2.4 ? 1 : Math.max(0, 1 - (t - 2.4) / 1);
+        screenMat.emissiveIntensity = PHONE_IDLE + (PHONE_NOTIFY - PHONE_IDLE) * k;
+        glowMat.opacity = PHONE_GLOW * k;
+        render();
+        if (t < 3.4) requestAnimationFrame(step); else { screenMat.emissiveIntensity = PHONE_IDLE; glowMat.opacity = 0; render(); }
+      };
+      requestAnimationFrame(step);
+    };
+    const schedule = (delay) => { phonePulseTimer = setTimeout(() => { fire(); schedule(16000); }, delay); };
+    schedule(3000);
+  }
+  // finger-sized tap: anywhere within 34 px of the phone's screen position reads its message (only while it is on the table)
+  let phoneTap = null;
+  canvas.addEventListener("pointerdown", (event) => { if (event.isPrimary) phoneTap = { x: event.clientX, y: event.clientY }; });
+  canvas.addEventListener("pointerup", (event) => {
+    if (!phoneTap || !event.isPrimary) return;
+    const start = phoneTap; phoneTap = null;
+    if (!phoneRig.group.visible || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
+    const rect = canvas.getBoundingClientRect(), p = phoneRig.group.position.clone().setY(0.756).project(camera);
+    if (p.z > 1) return;
+    const px = rect.left + ((p.x + 1) / 2) * rect.width, py = rect.top + ((1 - p.y) / 2) * rect.height;
+    if (Math.hypot(event.clientX - px, event.clientY - py) <= 34) showNookCaption(PHONE_TEXT[nookLang], "phone");
+  });
+  function tablePhoneInfo() {
+    const rect = canvas.getBoundingClientRect(), p = phoneRig.group.position.clone().setY(0.756).project(camera);
+    return { visible: phoneRig.group.visible, faceUp: true, screenEmissive: phoneRig.screenMat.emissiveIntensity, glowOpacity: phoneRig.glowMat.opacity, glowVisible: phoneRig.glow.visible, screen: [rect.left + ((p.x + 1) / 2) * rect.width, rect.top + ((1 - p.y) / 2) * rect.height], caption: nookCaption.textContent, hintShown: phoneHintShown };
+  }
   function setMood(name) {
     const look = MOOD_LOOK[name]; if (!look) return;
     currentMood = name;
+    applyTablePhone(name);
     // The lemon bowl is the everyday centrepiece; in the dinner moods the roast chicken takes the middle of the table instead.
     if (moodSlots.tabletopCenterpiece) moodSlots.tabletopCenterpiece.visible = !look.tableware;
     if (thanksgivingGroup) {
@@ -7975,6 +8066,7 @@ export async function start({ stage, onReady = () => {} }) {
     return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, paperNapkinPack: paperNapkinInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, reflections: { envReady: Boolean(reflectionEnv), materials: Object.fromEntries(Object.keys(reflectiveBase).filter((k) => materials[k]).map((k) => [k, { hasEnv: materials[k].envMap === reflectionEnv, intensity: materials[k].envMapIntensity }])), sceneEnvironment: scene.environment !== null }, centerpieceFit, waterSet: scene.getObjectByName("prop-tabletop-water-set")?.userData.measure ?? null, wallpaper: grasscloth.info(), entryNook: entryNook.info(), nookDecor: { vertices: nookDecor.vertices, bounds: nookDecor.bounds() }, pendantPaper: (() => { const paper = scene.getObjectByName("pendant-paper-tiers"); const box = new THREE.Box3().setFromObject(scene.getObjectByName("room03-pendant-tiered")); return paper ? { tiers: PENDANT_TIERS.radii.length, radiiMm: PENDANT_TIERS.radii.map((r) => Math.round(r * 1000)), emissive: paper.material.emissiveIntensity, materialName: paper.material.name, vertices: paper.geometry.attributes.position.count, bounds: { min: box.min.toArray(), max: box.max.toArray() } } : null; })(), yardView, ottoman: { ...loungeOttoman.userData.measure(), meshes: loungeOttoman.children.length, vertices: loungeOttoman.children.reduce((n, child) => n + (child.geometry?.attributes.position.count || 0), 0) }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-tiered") }, propBounds, propGeometry, cuttingBoardFit, wokOliveOil: { vertices: wokOliveOil.vertices, material: wokOliveOil.material, bounds: wokOliveOil.bounds, supportY: wokOliveOil.supportY, gapMm: wokOliveOil.gapMm, embedMm: wokOliveOil.embedMm }, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, curtains: room03Curtains.info(), kitchenHub: { vertices: kitchenHub.vertices, bounds: kitchenHub.bounds() }, wokTools: { vertices: wokTools.vertices, bounds: wokTools.bounds(), utensils: wokTools.utensils.map((tool) => ({ ...tool, heightMm: Math.round((tool.bounds.max[1] - tool.bounds.min[1]) * 1000) })), spiceJars: wokTools.spiceJars }, mainSink: mainSinkInfo, coffeeMaker: coffeeMakerInfo, wokOven: (() => { const item = scene.userData.wokOven; const bottom = item.centerY - item.height / 2; const top = item.centerY + item.height / 2; const counterBottom = item.counterBottomY; return { style: "built-in under-counter oven", nominalSizeMm: [Math.round(item.width * 1000), Math.round(item.height * 1000), Math.round(item.depth * 1000)], bayMm: [Math.round(item.bay.width * 1000), Math.round((item.bay.top - item.bay.bottom) * 1000)], sideClearanceMm: Math.round((item.bay.width - item.width) * 500), lowerClearanceMm: Math.round((bottom - 0.12) * 1000), upperClearanceMm: Math.round((counterBottom - top) * 1000), rearClearanceMm: Math.round((2.94 - item.backX) * 1000), controls: 2, display: item.display, handle: item.handle, cabinetPulls: item.cabinetPulls, cabinetPullOffsetFromOvenMm: item.cabinetPullOffsetFromOvenMm, displayPanelMm: [240, 60], glassMaterial: materials.ovenGlass.type, transparentGlass: materials.ovenGlass.transparent }; })(), wokMitts: (() => { const item = scene.userData.wokMitts; const box = new THREE.Box3().setFromObject(item.mesh); return { count: item.count, hookCount: item.hookCount, occupiedHooks: item.occupiedHooks, bounds: { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() }, reachHeightMm: Math.round((box.min.y + box.max.y) * 500), lowerClearanceToCounterMm: item.lowerClearanceToCounterMm, vertices: item.mesh.geometry.attributes.position.count, shape: "one distinct thumb and four-finger mitt silhouette", pattern: item.pattern, print: { leaves: item.leafMotifs, flowers: item.flowerMotifs }, colorFamily: "cream cotton with sage botanical print", materialRoughness: item.mesh.material.roughness }; })(), counterFresh: { vertices: counterFresh.vertices, bounds: counterFresh.bounds(), bread: counterFresh.bread }, lampBlanket: { vertices: lampBlanket.vertices, bounds: lampBlanket.bounds(), legFit: lampBlanket.legFit }, credenzaDecor: { vertices: credenzaDecor.vertices, bounds: credenzaDecor.bounds(), cups: credenzaDecor.cups, keepsake: credenzaDecor.keepsake }, entryWallDetails: { vertices: entryWallDetails.vertices, bounds: entryWallDetails.bounds(), clock: entryWallDetails.clock, corkboard: entryWallDetails.corkboard, hooks: entryWallDetails.hooks, tote: entryWallDetails.tote, redTote: entryWallDetails.redTote, cap: entryWallDetails.cap, shelf: entryWallDetails.shelf }, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, storageBoxCount: cookbookGroup?.userData.storageBoxCount || 0, counterMugCount: scene.getObjectByName("prop-counter-mugs")?.userData.mugCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}`, ceiling: `#${materials.ceiling.color.getHexString()}`, windowBeam: `#${materials.windowBeam.color.getHexString()}`, beam: `#${materials.beam.color.getHexString()}`, floor: `#${materials.floor.color.getHexString()}` }, materialEmissiveIntensity: { ceiling: materials.ceiling.emissiveIntensity, windowBeam: materials.windowBeam.emissiveIntensity }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
+    tablePhoneInfo,
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
