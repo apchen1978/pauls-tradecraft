@@ -11,7 +11,7 @@ test("metals and glazes carry the baked reflection, nothing else is lit by it", 
   const day = await page.evaluate(() => window.__room03.info().reflections);
   expect(day.envReady).toBe(true);
   expect(day.sceneEnvironment, "a scene-wide environment would relight the whole room").toBe(false);
-  for (const key of ["wokSteel", "steel", "brass", "sinkSteel", "faucetSteel", "mugGlaze"]) expect(day.materials[key]?.hasEnv, key).toBe(true);
+  for (const key of ["wokSteel", "steel", "brass", "sinkSteel", "faucetSteel", "mugGlaze", "waterSetGlass"]) expect(day.materials[key]?.hasEnv, key).toBe(true);
   expect(day.materials.brass.intensity).toBeGreaterThan(0);
   await page.evaluate(() => window.__room03.setMood("night"));
   const night = await page.evaluate(() => window.__room03.info().reflections);
