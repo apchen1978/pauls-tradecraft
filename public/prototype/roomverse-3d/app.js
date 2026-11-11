@@ -1567,6 +1567,25 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   tableHalo.position.copy(tableBulb); // no camera-facing offset: the glow must stay inside the lamp from every angle
   tableHalo.scale.setScalar(Math.max(tableShadeSize.x, tableShadeSize.z) * 1.25);
   const plantObj = place(plant, { height: 1.35, x: PX, z: PZ });
+  // Note 1/3 of the three-room note set (Paul 2026-11-11, set A): a yellow sticky note stuck on the front of the plant's pot, "remember to water the plants before you
+  // go out". Abstract marks only (a water drop and two pencil lines, no readable text); what it says appears when it is tapped.
+  const deskNoteLines = { zh: "便條 1/3：「出門前，記得澆花。」", en: "Note 1/3: “Water the plants before you head out.”" };
+  const plantNote = (() => {
+    const c = document.createElement("canvas"); c.width = c.height = 128;
+    const x = c.getContext("2d");
+    x.fillStyle = "#f6e58d"; x.fillRect(0, 0, 128, 128); x.fillStyle = "#ecd878"; x.fillRect(0, 0, 128, 12);
+    x.fillStyle = "#5b9bd5"; x.beginPath(); x.moveTo(46, 30); x.bezierCurveTo(30, 54, 28, 66, 46, 72); x.bezierCurveTo(64, 66, 62, 54, 46, 30); x.fill();
+    x.fillStyle = "#cfe6f7"; x.beginPath(); x.ellipse(40, 58, 4, 7, .4, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = "#4a4640"; x.lineWidth = 3; x.lineCap = "round";
+    for (const [y, w] of [[92, 84], [110, 56]]) { x.beginPath(); x.moveTo(20, y); x.bezierCurveTo(20 + w * .3, y - 3, 20 + w * .7, y + 3, 20 + w, y - 1); x.stroke(); }
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(.095, .095), new THREE.MeshStandardMaterial({ map: tex, roughness: .92 }));
+    const box = new THREE.Box3().setFromObject(plantObj);
+    mesh.name = "plant-note"; mesh.rotation.z = -.07;
+    mesh.position.set((box.min.x + box.max.x) / 2, box.min.y + .14, box.max.z + .004); // the pot's front, a hand-width above the floor
+    scene.add(mesh);
+    return mesh;
+  })();
   prepare(plantObj, vcol({ roughness: .75 }));
   // a small home robot (Codex's drawing, same pipeline) keeps the plant company by the rug; no caption, just there
   const robotObj = place(robot, { height: .46, x: -1.45, z: SZ + 1.05 });
@@ -2935,6 +2954,12 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   for (const event of ["pointerdown", "keydown", "wheel"]) window.addEventListener(event, resetRobotIdle, { passive: true });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") resetRobotIdle(); });
   controls.addEventListener("end", () => { if (!still) robotTurnTimer = setTimeout(startRobotTurn, 240); });
+  const noteCaption = document.createElement("div");
+  noteCaption.id = "plantNote"; noteCaption.setAttribute("role", "status"); noteCaption.setAttribute("aria-live", "polite");
+  Object.assign(noteCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
+  stage.append(noteCaption);
+  let noteTimer = 0;
+  function showPlantNote() { noteCaption.textContent = deskNoteLines[state.lang] || deskNoteLines.zh; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, 4600); }
   renderer.domElement.addEventListener("pointerdown", (e) => {
     if (arrival) { suppressTap = true; downAt = null; finishReturnArrival(); return; }
     if (director) { suppressTap = true; stopDirector(); downAt = null; return; }
@@ -2946,6 +2971,9 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     const r = renderer.domElement.getBoundingClientRect();
     tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(tap, camera);
+    // the note on the plant pot (7.5 cm: a few pixels on a phone, so a ray through a box 4 cm bigger counts too)
+    // Paul 2026-11-11: a 7.5 cm note is a few pixels in the overview and a finger is wider than that, so a tap within 34 px of the note on screen counts (when it is in view)
+    if (!robotBubble || robotBubble.hidden) { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); if (c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 34) { showPlantNote(); return; } }
     const hitGuide = ray.intersectObject(guidePivot, true).length > 0;
     if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) onTravelChoice(); return; } // tapping the door opens the shared destination chooser
     const pivot = hitGuide ? guidePivot : robotPivot, home = hitGuide ? guideHome : robotHome;
@@ -3935,6 +3963,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     },
     pillowFit() { scene.updateMatrixWorld(true); return { build: pillowBuild, ...Object.fromEntries(["sofa-pillow-back-oat", "sofa-pillow-back-blue", "sofa-pillow-green", "sofa-pillow-terracotta"].map((name) => [name, measurePillow(scene.getObjectByName(name))])) }; }, // how the scatter pillows sit on the sofa (mm)
     bakePillowFit() { scene.updateMatrixWorld(true); return bakePillowFit(); }, // QA only: re-runs the pose and shape search that produced PILLOW_FIT
+    plantNoteInfo() { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); const r = renderer.domElement.getBoundingClientRect(); return { screen: [r.left + ((c.x + 1) / 2) * r.width, r.top + ((1 - c.y) / 2) * r.height], ndcZ: c.z, caption: noteCaption.textContent, visible: noteCaption.style.opacity === "1" }; }, // note 1/3: where it is on screen and whether its line shows
     frameSofa(dx = 0, dy = .55, dz = 1.7, fov = 40) { // local QA only: a close view of the sofa to judge cushion edges and fabric
       scene.updateMatrixWorld(true);
       const focus = new THREE.Box3().setFromObject(sofaObj).getCenter(new THREE.Vector3());

@@ -9,11 +9,14 @@ test("the desk note sits on the monitor bezel and reads its line, in the reader'
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__bedroom);
   await page.waitForTimeout(2500);
+  // like Room 03's close-up corner, the desk look says where to tap, and a finger-wide miss still counts
+  await page.evaluate(async () => { await window.__bedroom.lookTo("work"); });
+  await expect.poll(() => page.evaluate(() => window.__bedroom.propStory().text), { timeout: 5000 }).toContain("小便條");
   const tapNote = async () => {
     const target = await page.evaluate(() => window.__bedroom.storyTargets()["desk-note"]);
     expect(target, "the note is a tap target").toBeTruthy();
     const box = await page.locator("canvas").first().boundingBox();
-    await page.mouse.click(box.x + ((target.x + 1) / 2) * box.width, box.y + ((1 - target.y) / 2) * box.height);
+    await page.mouse.click(box.x + ((target.x + 1) / 2) * box.width + 18, box.y + ((1 - target.y) / 2) * box.height + 10); // 18 px right, 10 px down: a finger, not a pixel
   };
   await tapNote();
   await expect.poll(() => page.evaluate(() => window.__bedroom.propStory().text), { timeout: 3000 }).toContain("便條 2/3");
