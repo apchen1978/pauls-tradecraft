@@ -2959,7 +2959,18 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   Object.assign(noteCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
   stage.append(noteCaption);
   let noteTimer = 0;
-  function showPlantNote() { noteCaption.textContent = deskNoteLines[state.lang] || deskNoteLines.zh; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, 4600); }
+  function showPlantNote() { plantHintShown = true; noteCaption.textContent = deskNoteLines[state.lang] || deskNoteLines.zh; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, 4600); }
+  // Paul 2026-11-11: the note is a few pixels in the overview, so say it is there. Once per visit, when a turn of the view settles with the note in frame
+  // (not in the default phone view, where the plant is off screen), one line under the picture: "Tap: the little note on the plant pot."
+  let plantHintShown = false, plantHintTimer = 0;
+  const plantNoteInFrame = () => { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); return c.z < 1 && Math.abs(c.x) < 0.97 && Math.abs(c.y) < 0.97; };
+  function maybeHintPlantNote() {
+    if (plantHintShown || still || arrival || director || (robotBubble && !robotBubble.hidden) || !plantNoteInFrame()) return;
+    plantHintShown = true;
+    noteCaption.textContent = state.lang === "en" ? "Tap: the little note on the plant pot." : "點一下：花盆上的小便條。";
+    noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, 4200);
+  }
+  controls.addEventListener("end", () => { clearTimeout(plantHintTimer); plantHintTimer = setTimeout(maybeHintPlantNote, 900); });
   renderer.domElement.addEventListener("pointerdown", (e) => {
     if (arrival) { suppressTap = true; downAt = null; finishReturnArrival(); return; }
     if (director) { suppressTap = true; stopDirector(); downAt = null; return; }
@@ -3963,6 +3974,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     },
     pillowFit() { scene.updateMatrixWorld(true); return { build: pillowBuild, ...Object.fromEntries(["sofa-pillow-back-oat", "sofa-pillow-back-blue", "sofa-pillow-green", "sofa-pillow-terracotta"].map((name) => [name, measurePillow(scene.getObjectByName(name))])) }; }, // how the scatter pillows sit on the sofa (mm)
     bakePillowFit() { scene.updateMatrixWorld(true); return bakePillowFit(); }, // QA only: re-runs the pose and shape search that produced PILLOW_FIT
+    plantNoteHint: () => ({ shown: plantHintShown, inFrame: plantNoteInFrame(), caption: noteCaption.textContent, visible: noteCaption.style.opacity === "1" }),
     plantNoteInfo() { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); const r = renderer.domElement.getBoundingClientRect(); return { screen: [r.left + ((c.x + 1) / 2) * r.width, r.top + ((1 - c.y) / 2) * r.height], ndcZ: c.z, caption: noteCaption.textContent, visible: noteCaption.style.opacity === "1" }; }, // note 1/3: where it is on screen and whether its line shows
     frameSofa(dx = 0, dy = .55, dz = 1.7, fov = 40) { // local QA only: a close view of the sofa to judge cushion edges and fabric
       scene.updateMatrixWorld(true);
