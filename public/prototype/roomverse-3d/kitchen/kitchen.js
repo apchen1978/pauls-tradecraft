@@ -7277,10 +7277,115 @@ export async function start({ stage, onReady = () => {} }) {
     const rect = canvas.getBoundingClientRect(), p = phoneRig.group.position.clone().setY(0.756).project(camera);
     return { visible: phoneRig.group.visible, faceUp: true, screenEmissive: phoneRig.screenMat.emissiveIntensity, glowOpacity: phoneRig.glowMat.opacity, glowVisible: phoneRig.glow.visible, screen: [rect.left + ((p.x + 1) / 2) * rect.width, rect.top + ((1 - p.y) / 2) * rect.height], caption: nookCaption.textContent, hintShown: phoneHintShown };
   }
+  // Sunday morning (Paul 2026-11-11, "time and season touches"): the low sun comes in through the sliding door, so dust turns in its beam, and the mug beside
+  // the coffee maker steams. Two small additive point clouds (2 draw calls), drawn only in the sunday mood. The room renders on demand, so a light loop
+  // (about 15 frames a second, paused when the tab is hidden) moves them only while that mood is on; with reduced motion they hang still. Quiet on purpose:
+  // you notice them after a moment, not at the first glance.
+  const morningRig = (() => {
+    const softCanvas = document.createElement("canvas"); softCanvas.width = softCanvas.height = 64;
+    const sx = softCanvas.getContext("2d"), sg = sx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    sg.addColorStop(0, "rgba(255,255,255,1)"); sg.addColorStop(0.4, "rgba(255,255,255,.5)"); sg.addColorStop(1, "rgba(255,255,255,0)");
+    sx.fillStyle = sg; sx.fillRect(0, 0, 64, 64);
+    const soft = new THREE.CanvasTexture(softCanvas);
+    // deterministic pseudo-random so every visit sees the same first frame
+    let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const DUST = 44, dust = { home: new Float32Array(DUST * 3), phase: new Float32Array(DUST), pos: new Float32Array(DUST * 3), col: new Float32Array(DUST * 3) };
+    for (let i = 0; i < DUST; i++) {
+      // a wedge in front of the sliding door, widest at the glass and thinning toward the room, where the sun slants in
+      const reach = rnd(), x = -2.75 + reach * 1.7, z = -1.9 + rnd() * 1.75, y = 0.7 + rnd() * 1.3;
+      dust.home.set([x, y, z], i * 3); dust.phase[i] = rnd() * Math.PI * 2;
+    }
+    const dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute("position", new THREE.BufferAttribute(dust.pos, 3)); dustGeo.setAttribute("color", new THREE.BufferAttribute(dust.col, 3));
+    const dustMat = new THREE.PointsMaterial({ map: soft, size: 0.016, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false });
+    dustMat.name = "morning-dust"; const dustPoints = new THREE.Points(dustGeo, dustMat); dustPoints.name = "morning-dust"; dustPoints.frustumCulled = false; dustPoints.visible = false;
+    const STEAM = 16, steam = { pos: new Float32Array(STEAM * 3), col: new Float32Array(STEAM * 3), seed: new Float32Array(STEAM) };
+    for (let i = 0; i < STEAM; i++) steam.seed[i] = rnd();
+    const steamGeo = new THREE.BufferGeometry();
+    steamGeo.setAttribute("position", new THREE.BufferAttribute(steam.pos, 3)); steamGeo.setAttribute("color", new THREE.BufferAttribute(steam.col, 3));
+    const steamMat = new THREE.PointsMaterial({ map: soft, size: 0.05, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false });
+    steamMat.name = "morning-steam"; const steamPoints = new THREE.Points(steamGeo, steamMat); steamPoints.name = "morning-steam"; steamPoints.frustumCulled = false; steamPoints.visible = false;
+    dustPoints.raycast = steamPoints.raycast = () => {}; // atmosphere, not objects: taps and the plaque's visibility probe pass straight through
+    scene.add(dustPoints, steamPoints);
+    const MUG = Object.freeze({ x: -0.292, y: 1.05, z: -1.752 }); // the rim of the mug standing beside the coffee maker
+    const update = (t) => {
+      for (let i = 0; i < DUST; i++) {
+        const ph = dust.phase[i], tw = 0.5 + 0.5 * Math.sin(t * 0.55 + ph * 3);
+        dust.pos[i * 3] = dust.home[i * 3] + Math.sin(t * 0.13 + ph) * 0.12;
+        dust.pos[i * 3 + 1] = dust.home[i * 3 + 1] + Math.sin(t * 0.09 + ph * 2) * 0.1;
+        dust.pos[i * 3 + 2] = dust.home[i * 3 + 2] + Math.cos(t * 0.11 + ph) * 0.1;
+        const level = 0.35 + 0.65 * tw; dust.col[i * 3] = 1.0 * level; dust.col[i * 3 + 1] = 0.9 * level; dust.col[i * 3 + 2] = 0.72 * level; // warm, like the sun
+      }
+      dustGeo.attributes.position.needsUpdate = true; dustGeo.attributes.color.needsUpdate = true;
+      for (let i = 0; i < STEAM; i++) {
+        const life = (t * 0.32 + steam.seed[i]) % 1; // 0 at the rim, 1 gone, about three seconds
+        const sway = Math.sin(t * 1.1 + steam.seed[i] * 12) * 0.012 * (0.3 + life * 1.4);
+        steam.pos[i * 3] = MUG.x + sway + life * 0.025; steam.pos[i * 3 + 1] = MUG.y + life * 0.2; steam.pos[i * 3 + 2] = MUG.z + Math.cos(t * 0.9 + steam.seed[i] * 9) * 0.008;
+        const fade = Math.sin(Math.PI * Math.min(1, life * 1.15)) * (1 - life * 0.55); steam.col[i * 3] = fade; steam.col[i * 3 + 1] = fade; steam.col[i * 3 + 2] = fade * 0.97;
+      }
+      steamGeo.attributes.position.needsUpdate = true; steamGeo.attributes.color.needsUpdate = true;
+    };
+    update(0);
+    return { dustPoints, steamPoints, update, dustMat, steamMat };
+  })();
+  // Thanksgiving (Paul 2026-11-11, season touch): the courtyard is in autumn and the second glass panel stands open, so a few oak leaves have blown in and lie on
+  // the boards just inside the door. Nine flat leaves in ONE mesh (one draw call), vertex-coloured rust, ochre and brown, hidden in every other mood. They sit
+  // on the floor between the open panel and the rug, clear of the lounge chair (which ends at z 0.22) and the side table.
+  const leafRig = (() => {
+    const outline = (len, wid) => { // an oak-like leaf: a pointed ellipse with two soft lobes a side
+      const s = new THREE.Shape(), lobes = [[0.18, 0.55], [0.38, 0.8], [0.6, 0.6], [0.8, 0.32]];
+      s.moveTo(0, 0);
+      for (const [t, w] of lobes) s.quadraticCurveTo(t * len - len * 0.04, w * wid * 0.5, (t + 0.05) * len, w * wid * 0.42);
+      s.lineTo(len, 0);
+      for (const [t, w] of [...lobes].reverse()) s.quadraticCurveTo((t + 0.05) * len, -w * wid * 0.5, t * len - len * 0.04, -w * wid * 0.42);
+      s.lineTo(0, 0); return s;
+    };
+    const palette = ["#d9a93f", "#8c2f24", "#5c3b22", "#c9a24a", "#7a8038", "#a63d2b"]; // ochre, deep red, brown, straw, olive, brick: they must read against the orange boards
+    const placed = [ // x, z, yaw, length m, colour index
+      [-2.60, 0.62, 0.4, 0.085, 0], [-2.42, 0.90, 2.3, 0.075, 1], [-2.66, 1.18, 4.1, 0.09, 2], [-2.28, 1.34, 1.1, 0.07, 3], [-2.50, 1.62, 5.2, 0.08, 4],
+      [-2.12, 0.74, 3.3, 0.07, 5], [-2.36, 1.88, 2.7, 0.075, 0], [-2.02, 1.10, 0.1, 0.065, 1], [-2.70, 1.92, 3.9, 0.07, 2],
+    ];
+    const geos = [], color = new THREE.Color();
+    for (const [x, z, yaw, len, ci] of placed) {
+      const g = new THREE.ShapeGeometry(outline(len * 1.7, len * 1.7 * 0.62), 4);
+      g.rotateX(-Math.PI / 2); g.rotateY(yaw); g.translate(x, 0.006 + (ci % 3) * 0.0006, z);
+      const n = g.attributes.position.count, cols = new Float32Array(n * 3); color.set(palette[ci]);
+      for (let i = 0; i < n; i++) { const shade = 0.88 + 0.12 * Math.sin(i * 2.1 + ci); cols[i * 3] = color.r * shade; cols[i * 3 + 1] = color.g * shade; cols[i * 3 + 2] = color.b * shade; }
+      g.setAttribute("color", new THREE.BufferAttribute(cols, 3)); g.deleteAttribute("uv"); geos.push(g);
+    }
+    const merged = mergeGeometries(geos.map((g) => g.toNonIndexed ? g.toNonIndexed() : g), false);
+    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    mat.name = "autumn-leaves"; const mesh = new THREE.Mesh(merged, mat); mesh.name = "prop-autumn-leaves"; mesh.visible = false; mesh.receiveShadow = true; mesh.castShadow = false;
+    mesh.userData.category = "household-props"; mesh.userData.propKey = "autumn-leaves"; scene.add(mesh);
+    return { mesh, count: placed.length, vertices: merged.attributes.position.count };
+  })();
+  function applyAutumnLeaves(name) { leafRig.mesh.visible = name === "thanksgiving"; }
+  function autumnLeavesInfo() { const b = new THREE.Box3().setFromObject(leafRig.mesh); return { visible: leafRig.mesh.visible, leaves: leafRig.count, vertices: leafRig.vertices, bounds: { min: b.min.toArray(), max: b.max.toArray() } }; }
+  let morningRun = 0;
+  const morningReduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function applyMorningTouches(name) {
+    const on = name === "sunday", { dustPoints, steamPoints, update } = morningRig;
+    dustPoints.visible = on; steamPoints.visible = on;
+    const run = ++morningRun;
+    if (!on) return;
+    if (morningReduced()) { update(12.5); return; } // still: motes hang in the beam, one soft curl above the mug
+    const t0 = performance.now(); let last = 0;
+    const step = (now) => {
+      if (run !== morningRun || currentMood !== "sunday") return;
+      if (!document.hidden && now - last > 66) { last = now; update((now - t0) / 1000 + 12.5); render(); }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  function morningTouchInfo() {
+    return { dustVisible: morningRig.dustPoints.visible, steamVisible: morningRig.steamPoints.visible, dustCount: morningRig.dustPoints.geometry.attributes.position.count, steamCount: morningRig.steamPoints.geometry.attributes.position.count, looping: morningRun > 0 };
+  }
   function setMood(name) {
     const look = MOOD_LOOK[name]; if (!look) return;
     currentMood = name;
     applyTablePhone(name);
+    applyMorningTouches(name);
+    applyAutumnLeaves(name);
     // The lemon bowl is the everyday centrepiece; in the dinner moods the roast chicken takes the middle of the table instead.
     if (moodSlots.tabletopCenterpiece) moodSlots.tabletopCenterpiece.visible = !look.tableware;
     if (thanksgivingGroup) {
@@ -8066,7 +8171,7 @@ export async function start({ stage, onReady = () => {} }) {
     return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, paperNapkinPack: paperNapkinInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, reflections: { envReady: Boolean(reflectionEnv), materials: Object.fromEntries(Object.keys(reflectiveBase).filter((k) => materials[k]).map((k) => [k, { hasEnv: materials[k].envMap === reflectionEnv, intensity: materials[k].envMapIntensity }])), sceneEnvironment: scene.environment !== null }, centerpieceFit, waterSet: scene.getObjectByName("prop-tabletop-water-set")?.userData.measure ?? null, wallpaper: grasscloth.info(), entryNook: entryNook.info(), nookDecor: { vertices: nookDecor.vertices, bounds: nookDecor.bounds() }, pendantPaper: (() => { const paper = scene.getObjectByName("pendant-paper-tiers"); const box = new THREE.Box3().setFromObject(scene.getObjectByName("room03-pendant-tiered")); return paper ? { tiers: PENDANT_TIERS.radii.length, radiiMm: PENDANT_TIERS.radii.map((r) => Math.round(r * 1000)), emissive: paper.material.emissiveIntensity, materialName: paper.material.name, vertices: paper.geometry.attributes.position.count, bounds: { min: box.min.toArray(), max: box.max.toArray() } } : null; })(), yardView, ottoman: { ...loungeOttoman.userData.measure(), meshes: loungeOttoman.children.length, vertices: loungeOttoman.children.reduce((n, child) => n + (child.geometry?.attributes.position.count || 0), 0) }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-tiered") }, propBounds, propGeometry, cuttingBoardFit, wokOliveOil: { vertices: wokOliveOil.vertices, material: wokOliveOil.material, bounds: wokOliveOil.bounds, supportY: wokOliveOil.supportY, gapMm: wokOliveOil.gapMm, embedMm: wokOliveOil.embedMm }, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, curtains: room03Curtains.info(), kitchenHub: { vertices: kitchenHub.vertices, bounds: kitchenHub.bounds() }, wokTools: { vertices: wokTools.vertices, bounds: wokTools.bounds(), utensils: wokTools.utensils.map((tool) => ({ ...tool, heightMm: Math.round((tool.bounds.max[1] - tool.bounds.min[1]) * 1000) })), spiceJars: wokTools.spiceJars }, mainSink: mainSinkInfo, coffeeMaker: coffeeMakerInfo, wokOven: (() => { const item = scene.userData.wokOven; const bottom = item.centerY - item.height / 2; const top = item.centerY + item.height / 2; const counterBottom = item.counterBottomY; return { style: "built-in under-counter oven", nominalSizeMm: [Math.round(item.width * 1000), Math.round(item.height * 1000), Math.round(item.depth * 1000)], bayMm: [Math.round(item.bay.width * 1000), Math.round((item.bay.top - item.bay.bottom) * 1000)], sideClearanceMm: Math.round((item.bay.width - item.width) * 500), lowerClearanceMm: Math.round((bottom - 0.12) * 1000), upperClearanceMm: Math.round((counterBottom - top) * 1000), rearClearanceMm: Math.round((2.94 - item.backX) * 1000), controls: 2, display: item.display, handle: item.handle, cabinetPulls: item.cabinetPulls, cabinetPullOffsetFromOvenMm: item.cabinetPullOffsetFromOvenMm, displayPanelMm: [240, 60], glassMaterial: materials.ovenGlass.type, transparentGlass: materials.ovenGlass.transparent }; })(), wokMitts: (() => { const item = scene.userData.wokMitts; const box = new THREE.Box3().setFromObject(item.mesh); return { count: item.count, hookCount: item.hookCount, occupiedHooks: item.occupiedHooks, bounds: { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() }, reachHeightMm: Math.round((box.min.y + box.max.y) * 500), lowerClearanceToCounterMm: item.lowerClearanceToCounterMm, vertices: item.mesh.geometry.attributes.position.count, shape: "one distinct thumb and four-finger mitt silhouette", pattern: item.pattern, print: { leaves: item.leafMotifs, flowers: item.flowerMotifs }, colorFamily: "cream cotton with sage botanical print", materialRoughness: item.mesh.material.roughness }; })(), counterFresh: { vertices: counterFresh.vertices, bounds: counterFresh.bounds(), bread: counterFresh.bread }, lampBlanket: { vertices: lampBlanket.vertices, bounds: lampBlanket.bounds(), legFit: lampBlanket.legFit }, credenzaDecor: { vertices: credenzaDecor.vertices, bounds: credenzaDecor.bounds(), cups: credenzaDecor.cups, keepsake: credenzaDecor.keepsake }, entryWallDetails: { vertices: entryWallDetails.vertices, bounds: entryWallDetails.bounds(), clock: entryWallDetails.clock, corkboard: entryWallDetails.corkboard, hooks: entryWallDetails.hooks, tote: entryWallDetails.tote, redTote: entryWallDetails.redTote, cap: entryWallDetails.cap, shelf: entryWallDetails.shelf }, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, storageBoxCount: cookbookGroup?.userData.storageBoxCount || 0, counterMugCount: scene.getObjectByName("prop-counter-mugs")?.userData.mugCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}`, ceiling: `#${materials.ceiling.color.getHexString()}`, windowBeam: `#${materials.windowBeam.color.getHexString()}`, beam: `#${materials.beam.color.getHexString()}`, floor: `#${materials.floor.color.getHexString()}` }, materialEmissiveIntensity: { ceiling: materials.ceiling.emissiveIntensity, windowBeam: materials.windowBeam.emissiveIntensity }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
-    tablePhoneInfo,
+    tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
