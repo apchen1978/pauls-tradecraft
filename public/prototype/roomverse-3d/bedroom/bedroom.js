@@ -525,6 +525,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
     "bedside-phone": { zh: "手機面朝下放著，今晚不想被打擾。", en: "The phone lies face down; not to be disturbed tonight." },
+    "desk-note": { zh: "便條 2/3：「今晚早點睡，明天的光更好。」", en: "Note 2/3: “Go to bed early tonight; tomorrow's light is better.”" },
     "bedside-phone-lit": { zh: "手機亮了一下：「到家了嗎？窗邊的燈幫你開著。」", en: "The phone lights up: “Home yet? I left the window lamp on for you.”" },
   };
   const storyCaption = document.createElement("div");
@@ -552,10 +553,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       if (point && (!first || point.distanceTo(tapRay.ray.origin) <= first.distance + .05)) return "bedside-pocket";
     }
     // The phone is 7 x 15 cm: a few pixels on a phone screen, so a ray through its slightly enlarged box counts too.
-    const phoneObject = root.getObjectByName("bedside-phone");
-    if (phoneObject) {
-      const point = tapRay.ray.intersectBox(new THREE.Box3().setFromObject(phoneObject).expandByScalar(.04), new THREE.Vector3());
-      if (point && (!first || point.distanceTo(tapRay.ray.origin) <= first.distance + .05)) return "bedside-phone";
+    // The phone (7 x 15 cm) and the desk note (7.5 cm) are a few pixels on a phone screen, so a ray through a box enlarged by 4 cm also counts.
+    for (const small of ["bedside-phone", "desk-note"]) {
+      const object = root.getObjectByName(small); if (!object) continue;
+      const point = tapRay.ray.intersectBox(new THREE.Box3().setFromObject(object).expandByScalar(.04), new THREE.Vector3());
+      if (point && (!first || point.distanceTo(tapRay.ray.origin) <= first.distance + .05)) return small;
     }
     return null;
   }
@@ -1154,6 +1156,23 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const screen = new THREE.Mesh(screenGeo, new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false, side: THREE.BackSide }));
   art("room02-a6-game-screen-v1.webp", { apply: (t) => { cityScreen = t; if (chosen.screen === "city") screen.material.map = t; screen.material.needsUpdate = true; } });
   screen.name = "monitor-screen"; screen.position.set(0, 1.05, -.15 + .0135); desk.add(screen);
+  // Note 2/3 of the three-room note set (Paul 2026-11-11, set A): a yellow sticky note on the monitor's upper-left bezel, turned to follow the curve of the
+  // glass. No readable text on it (a crescent moon and two pencil lines, like the other papers in these rooms); what it says appears when it is tapped.
+  {
+    const noteCanvas = document.createElement("canvas"); noteCanvas.width = noteCanvas.height = 128;
+    const nc = noteCanvas.getContext("2d");
+    nc.fillStyle = "#f6e58d"; nc.fillRect(0, 0, 128, 128);
+    nc.fillStyle = "#ecd878"; nc.fillRect(0, 0, 128, 12);
+    nc.fillStyle = "#f2c63a"; nc.beginPath(); nc.arc(46, 54, 17, 0, Math.PI * 2); nc.fill();
+    nc.fillStyle = "#f6e58d"; nc.beginPath(); nc.arc(54, 49, 15, 0, Math.PI * 2); nc.fill();   // the crescent
+    nc.strokeStyle = "#4a4640"; nc.lineWidth = 3; nc.lineCap = "round";
+    for (const [y, w] of [[88, 84], [106, 58]]) { nc.beginPath(); nc.moveTo(20, y); nc.bezierCurveTo(20 + w * .3, y - 3, 20 + w * .7, y + 3, 20 + w, y - 1); nc.stroke(); }
+    const noteTexture = new THREE.CanvasTexture(noteCanvas); noteTexture.colorSpace = THREE.SRGBColorSpace;
+    const noteX = -.5, noteR = MR - .003, noteY = 1.05 + .17 - .035;
+    const note = new THREE.Mesh(new THREE.PlaneGeometry(.075, .075), new THREE.MeshStandardMaterial({ map: noteTexture, roughness: .92 }));
+    note.name = "desk-note"; note.userData.category = "decor"; note.rotation.order = "YXZ"; note.rotation.set(0, Math.asin(-noteX / noteR), .09);
+    note.position.set(noteX, noteY, -.15 + .0135 + (noteR - Math.sqrt(noteR * noteR - noteX * noteX)) + .0045); desk.add(note);
+  }
   dpart(box(.42, .018, .13), new THREE.MeshStandardMaterial({ map: keysTex, roughness: .6 }), "keyboard", -.02, .765, .16);
   dpart(softBox(.065, .03, .11, .025), blackMat, "mouse", .33, .767, .16);
   // Screens (round 2): the painted night city, plus three drawn in code: a neon grid horizon, an editor-like work view made only of
