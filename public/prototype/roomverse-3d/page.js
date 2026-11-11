@@ -123,7 +123,7 @@ $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; const u = new UR
 $("enter").onclick = async () => {
   $("poster").hidden = true; $("status").hidden = false; $("status").textContent = COPY[lang].loading;
   try {
-    const { start } = await import("./app.js?v=88");
+    const { start } = await import("./app.js?v=89");
     room = await start({ stage: $("stage"), panel: $("panel"), lang, arriveFromRoom02: arrivedFromRoom02, onTravelChoice: () => travelDoor?.open(immersive ? $("immersiveDoor") : $("portalBtn")) });
     $("status").hidden = true; $("panel").hidden = false; $("panelToggle").hidden = false; $("portalRow").hidden = false;
     $("roomToolbar").hidden = !matchMedia("(max-width: 768px)").matches;
