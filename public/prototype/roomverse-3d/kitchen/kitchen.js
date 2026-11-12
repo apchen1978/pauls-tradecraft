@@ -6417,7 +6417,7 @@ export async function start({ stage, onReady = () => {} }) {
   const initialCamera = compact ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
   camera.position.set(...initialCamera.position);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
-  renderer.setPixelRatio(1.5);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, compact ? 1.5 : 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.08;
