@@ -48,7 +48,7 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
   for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
-  expect(info.stage).toBe("section-5-moods-polished");
+  expect(info.stage).toBe("section-6-front-wall");
 });
 
 test("Room 04 moods: five buttons, each sets its look inside the draw-call budget, and the robot and the note answer taps", async ({ page }) => {
@@ -81,4 +81,24 @@ test("Room 04 switches language and keeps the choice in the address", async ({ p
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   expect(new URL(page.url()).searchParams.get("lang")).toBe("en");
   await expect(page.locator("#otherRooms")).toHaveAttribute("href", "/prototype/roomverse-3d/?lang=en");
+});
+
+test("Room 04 can turn all the way round from the middle of the room, and comes back to the same orbit view", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const before = await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov }; });
+  await page.locator("#centerView").click();
+  await expect(page.locator("#centerView")).toHaveAttribute("aria-pressed", "true");
+  expect(await page.evaluate(() => window.__room04.isCenter())).toBe(true);
+  const seen = await page.evaluate(() => {
+    const r = window.__room04, out = [];
+    for (let i = 0; i < 8; i++) { r.centerLook(Math.PI / 4, 0); const d = r.camera.getWorldDirection(new r.camera.position.constructor()); out.push([+d.x.toFixed(2), +d.z.toFixed(2)]); }
+    return out;
+  });
+  expect(new Set(seen.map((d) => d.join(","))).size, "eight different headings round the circle").toBe(8);
+  await page.locator("#centerView").click();
+  const after = await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov, center: r.isCenter() }; });
+  expect(after.center).toBe(false);
+  expect(after.p).toEqual(before.p);
+  expect(after.fov).toBe(before.fov);
+  expect(errors).toEqual([]);
 });

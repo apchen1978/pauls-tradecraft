@@ -805,6 +805,83 @@ export async function start({ stage, onReady = () => {} }) {
     const rug = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.014, 56), [new THREE.MeshStandardMaterial({ color: 0xb59868, roughness: 1 }), new THREE.MeshStandardMaterial({ map: rugTexture, roughness: 1 }), new THREE.MeshStandardMaterial({ color: 0x7a6040 })]);
     rug.name = "window-rug"; rug.position.set(SEAT.x + 0.2, 0.007, SEAT.z + 0.28); rug.receiveShadow = true; scene.add(rug);
   }
+  // ---------- the front wall (behind the visitor): a glass door, a floor-to-ceiling window, hooks, an umbrella stand and a mat (Codex card 47, A) ----------
+  {
+    const FW = FRONT + 1.2, T = 0.2; // the inner face of the front wall and its thickness
+    const WIN = { x0: -1.95, x1: -0.15, y0: 0.12, y1: 2.45 }, DOOR = { x0: 0.0, x1: 0.95, y1: 2.15 }, TOPY = 2.45; // the door leaf is 950 x 2150 under a 300 transom, the window 1800 x 2450
+    // The wall in pieces around the openings, so the street really shows through them.
+    slab("wall", [X0 - 0.22, WIN.x0], [0, ROOM.height], [FW, FW + T], { tile: 1 });
+    slab("wall", [WIN.x1, DOOR.x0], [0, ROOM.height], [FW, FW + T], { tile: 1 });
+    slab("wall", [DOOR.x1, X1 + 0.1], [0, ROOM.height], [FW, FW + T], { tile: 1 });
+    slab("wall", [WIN.x0, DOOR.x1], [TOPY, ROOM.height], [FW, FW + T], { tile: 1 });
+    slab("wall", [WIN.x0, WIN.x1], [0, WIN.y0], [FW, FW + T], { tile: 1 });
+    // Window: a black steel frame 5 cm wide, three panes across and three down, one pane of glass.
+    const bar = 0.05, depth = 0.06, zf = FW + 0.09, W = WIN.x1 - WIN.x0, H = WIN.y1 - WIN.y0;
+    const frameBar = (x0, x1, y0, y1) => slab("frame", [x0, x1], [y0, y1], [zf - depth / 2, zf + depth / 2], { tile: 1 });
+    frameBar(WIN.x0, WIN.x0 + bar, WIN.y0, WIN.y1); frameBar(WIN.x1 - bar, WIN.x1, WIN.y0, WIN.y1);
+    frameBar(WIN.x0, WIN.x1, WIN.y0, WIN.y0 + bar); frameBar(WIN.x0, WIN.x1, WIN.y1 - bar, WIN.y1);
+    for (const k of [1, 2]) { const x = WIN.x0 + (W * k) / 3; frameBar(x - bar / 2, x + bar / 2, WIN.y0, WIN.y1); const y = WIN.y0 + (H * k) / 3; frameBar(WIN.x0, WIN.x1, y - bar / 2, y + bar / 2); }
+    part("pane", new THREE.PlaneGeometry(W, H).rotateY(Math.PI).translate((WIN.x0 + WIN.x1) / 2, (WIN.y0 + WIN.y1) / 2, zf), { tile: 1 });
+    // Door: a steel-framed glass leaf with a push-pull bar, a kick plate, and a glazed transom above.
+    const stile = 0.07, dz = FW + 0.09;
+    const doorBar = (x0, x1, y0, y1) => slab("frame", [x0, x1], [y0, y1], [dz - 0.03, dz + 0.03], { tile: 1 });
+    doorBar(DOOR.x0, DOOR.x0 + stile, 0, DOOR.y1); doorBar(DOOR.x1 - stile, DOOR.x1, 0, DOOR.y1);
+    doorBar(DOOR.x0, DOOR.x1, DOOR.y1 - stile, DOOR.y1); doorBar(DOOR.x0, DOOR.x1, 0, 0.22); doorBar(DOOR.x0, DOOR.x1, DOOR.y1, DOOR.y1 + 0.04);
+    doorBar(DOOR.x0, DOOR.x1, TOPY - 0.04, TOPY); doorBar((DOOR.x0 + DOOR.x1) / 2 - 0.02, (DOOR.x0 + DOOR.x1) / 2 + 0.02, DOOR.y1 + 0.04, TOPY - 0.04);
+    doorBar(DOOR.x0, DOOR.x0 + 0.04, DOOR.y1 + 0.04, TOPY); doorBar(DOOR.x1 - 0.04, DOOR.x1, DOOR.y1 + 0.04, TOPY);
+    part("pane", new THREE.PlaneGeometry(DOOR.x1 - DOOR.x0 - 2 * stile, DOOR.y1 - stile - 0.22).rotateY(Math.PI).translate((DOOR.x0 + DOOR.x1) / 2, (DOOR.y1 - stile + 0.22) / 2, dz), { tile: 1 });
+    part("pane", new THREE.PlaneGeometry(DOOR.x1 - DOOR.x0, TOPY - DOOR.y1 - 0.08).rotateY(Math.PI).translate((DOOR.x0 + DOOR.x1) / 2, (DOOR.y1 + 0.04 + TOPY - 0.04) / 2, dz), { tile: 1 });
+    const hx = DOOR.x1 - stile - 0.045; // a long D-pull bar on the latch side, standing off the glass on two posts
+    part("black", rodGeometry([hx, 0.95, dz - 0.07], [hx, 1.55, dz - 0.07], 0.014, 10), { tile: 1 });
+    for (const y of [0.99, 1.51]) part("black", rodGeometry([hx, y, dz - 0.03], [hx, y, dz - 0.07], 0.01, 8), { tile: 1 });
+    for (const y of [0.4, 1.1, 1.8]) part("black", new THREE.CylinderGeometry(0.014, 0.014, 0.05, 10).rotateX(Math.PI / 2).translate(DOOR.x0 + 0.02, y, dz - 0.04), { tile: 1 }); // hinge knuckles
+    // The street behind it: the painted Xintiandi view, tinted with the mood, on a big plane 1.6 m outside the wall.
+    const street2 = add("front-street-view", new THREE.PlaneGeometry(7.2, 4.8), materials.street, -0.5, 1.6, FW + T + 1.6, { cast: false, receive: false });
+    street2.rotation.y = Math.PI; // faces -z, into the room
+    // Olive board-and-batten wainscot on the front wall, either side of the openings, and skirting.
+    for (const [a0, a1] of [[X0 + 0.04, WIN.x0], [DOOR.x1, X1 - 0.04]]) {
+      slab("olive", [a0, a1], [0.11, 1.08], [FW - 0.024, FW], { tile: 1 });
+      for (let x = a0 + 0.15; x < a1 - 0.05; x += 0.3) slab("olive", [x - 0.025, x + 0.025], [0.11, 1.08], [FW - 0.036, FW - 0.024], { tile: 1 });
+      slab("oak", [a0, a1], [1.08, 1.115], [FW - 0.06, FW], { grain: "x" }); slab("oak", [a0, a1], [0.08, 0.11], [FW - 0.03, FW], { grain: "x" });
+    }
+    slab("oak", [WIN.x0, WIN.x1], [0.08, 0.12], [FW - 0.03, FW], { grain: "x" }); // the sill under the window
+    // Hooks: an oak board with five black coat hooks, a linen coat and a canvas tote.
+    const bx0 = 1.4, bx1 = 2.4;
+    slab("oak", [bx0, bx1], [1.5, 1.56], [FW - 0.03, FW], { grain: "x" });
+    for (let i = 0; i < 5; i++) { const hx2 = bx0 + 0.1 + i * 0.2; part("black", rodGeometry([hx2, 1.53, FW - 0.03], [hx2, 1.53, FW - 0.1], 0.007, 8), { tile: 1 }); part("black", rodGeometry([hx2, 1.53, FW - 0.1], [hx2, 1.58, FW - 0.115], 0.007, 8), { tile: 1 }); part("black", new THREE.SphereGeometry(0.011, 8, 6).translate(hx2, 1.585, FW - 0.116), { tile: 1 }); }
+    const coat = drapeGeometry(0.42, [[FW - 0.115, 1.56], [FW - 0.126, 1.4], [FW - 0.14, 1.0], [FW - 0.15, 0.62]], 0.012, 5); coat.translate(bx0 + 0.3, 0, 0); part("cloth", coat, { tile: 1 });
+    part("cloth", roundedBox(0.34, 0.36, 0.07, 0.03, 0.01).translate(bx0 + 0.8, 1.16, FW - 0.1), { tile: 1 });
+    part("paper", roundedBox(0.3, 0.32, 0.06, 0.03, 0.01).translate(bx0 + 0.8, 1.16, FW - 0.1), { tile: 1 });
+    for (const sx of [-0.07, 0.07]) part("cloth", tubeGeometry([[bx0 + 0.8 + sx, 1.31, FW - 0.1], [bx0 + 0.8 + sx * 0.4, 1.43, FW - 0.108], [bx0 + 0.8, 1.5, FW - 0.115]], 0.006, 10, 5), { tile: 1 });
+    // A blank hanging sign (what it says is for Paul to decide), an umbrella stand with an umbrella, a door mat.
+    slab("black", [1.07, 1.35], [1.84, 1.86], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [1.07, 1.35], [2.0, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 });
+    slab("black", [1.07, 1.09], [1.84, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [1.33, 1.35], [1.84, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 });
+    slab("paper", [1.09, 1.33], [1.86, 2.0], [FW - 0.012, FW - 0.008], { tile: 1 });
+    part("black", rodGeometry([1.12, 2.02, FW - 0.01], [1.21, 2.12, FW - 0.01], 0.003, 6), { tile: 1 }); part("black", rodGeometry([1.3, 2.02, FW - 0.01], [1.21, 2.12, FW - 0.01], 0.003, 6), { tile: 1 });
+    const ux = 1.2, uz = FW - 0.2;
+    for (const y of [0.05, 0.3, 0.55]) part("black", new THREE.TorusGeometry(0.11, 0.006, 6, 24).rotateX(Math.PI / 2).translate(ux, y, uz), { tile: 1 });
+    for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2; part("black", rodGeometry([ux + Math.cos(a) * 0.11, 0.05, uz + Math.sin(a) * 0.11], [ux + Math.cos(a) * 0.11, 0.55, uz + Math.sin(a) * 0.11], 0.0035, 5), { tile: 1 }); }
+    part("black", new THREE.CylinderGeometry(0.11, 0.11, 0.012, 24).translate(ux, 0.006, uz), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.024, 0.04, 0.55, 14).translate(ux - 0.02, 0.45, uz + 0.01), { tile: 1 });
+    part("bentwood", tubeGeometry([[ux - 0.02, 0.72, uz + 0.01], [ux - 0.02, 0.8, uz + 0.01], [ux + 0.02, 0.84, uz + 0.01], [ux + 0.05, 0.8, uz + 0.01]], 0.011, 14, 6), { tile: 1 });
+    slab("cane", [DOOR.x0 + 0.02, DOOR.x1 - 0.02], [0, 0.012], [FW - 0.78, FW - 0.08], { tile: 1 }); // the door mat
+    // From Codex's ceiling plan (card 47, C): a small sister of the window rattan lamp near the door, and two glass globes over the counter.
+    const lampAt = (lx, lz, ly, r, h) => {
+      part("black", new THREE.CylinderGeometry(0.003, 0.003, ROOM.height - ly - h / 2, 8).translate(lx, (ROOM.height + ly + h / 2) / 2, lz), { tile: 1 });
+      part("black", new THREE.CylinderGeometry(0.03, 0.045, 0.02, 20).translate(lx, ROOM.height - 0.01, lz), { tile: 1 });
+      part("pendantShade", new THREE.CylinderGeometry(r * 0.75, r, h, 32, 1, true).translate(lx, ly, lz), { tile: 1 });
+      part("black", new THREE.TorusGeometry(r, 0.005, 8, 32).rotateX(Math.PI / 2).translate(lx, ly - h / 2, lz), { tile: 1 });
+      part("warm", new THREE.SphereGeometry(0.03, 10, 8).translate(lx, ly + 0.02, lz), { tile: 1 });
+    };
+    lampAt(-1.1, 2.9, 2.0, 0.19, 0.2);
+    for (const gx of [-0.4, 0.8]) {
+      part("black", new THREE.CylinderGeometry(0.003, 0.003, ROOM.height - 1.9, 8).translate(gx, (ROOM.height + 1.9) / 2, -0.65), { tile: 1 });
+      part("black", new THREE.CylinderGeometry(0.03, 0.045, 0.02, 20).translate(gx, ROOM.height - 0.01, -0.65), { tile: 1 });
+      part("glass", new THREE.SphereGeometry(0.12, 24, 16).translate(gx, 1.78, -0.65), { tile: 1 });
+      part("warm", new THREE.SphereGeometry(0.045, 12, 8).translate(gx, 1.78, -0.65), { tile: 1 });
+      part("gold", new THREE.CylinderGeometry(0.028, 0.034, 0.05, 14).translate(gx, 1.92, -0.65), { tile: 1 });
+    }
+  }
   const pendantLight = new THREE.PointLight(0xffc88a, 0, 2.6, 2); pendantLight.position.set(SEAT.x + 0.05, 1.7, SEAT.z + 0.05); scene.add(pendantLight);
   flush("polish");
 
@@ -926,20 +1003,59 @@ export async function start({ stage, onReady = () => {} }) {
 
   controls.update(); setMood("morning"); resize();
 
+  // Stand in the middle of the room and turn all the way round (the second way to look, like Room 02 and Room 03): the orbit is switched off, the camera walks to the
+  // station and a drag, or the arrow keys, turn the head. Leaving restores the exact orbit view.
+  const CENTER_STATION = new THREE.Vector3(0.1, 1.55, 1.2), CENTER_FOV = compact ? 84 : 72;
+  let center = null, savedOrbit = null, centerDrag = null;
+  const applyCenter = () => {
+    const { yaw, pitch } = center;
+    camera.position.copy(CENTER_STATION);
+    camera.lookAt(CENTER_STATION.x + Math.sin(yaw) * Math.cos(pitch), CENTER_STATION.y + Math.sin(pitch), CENTER_STATION.z - Math.cos(yaw) * Math.cos(pitch));
+    camera.updateMatrixWorld(); render();
+  };
+  function centerLook(dYaw, dPitch) { if (!center) return; center.yaw += dYaw; center.pitch = Math.min(0.6, Math.max(-0.6, center.pitch + dPitch)); applyCenter(); }
+  function setCenterView(on) {
+    if (on === Boolean(center)) return;
+    const canvas = renderer.domElement;
+    if (on) {
+      savedOrbit = { position: camera.position.clone(), target: controls.target.clone(), fov: camera.fov };
+      controls.enabled = false; canvas.tabIndex = 0;
+      center = { yaw: Math.PI * 0.82, pitch: -0.04 }; // it opens on the new front wall: the street window and the glass door
+      camera.fov = CENTER_FOV; camera.updateProjectionMatrix(); applyCenter();
+    } else {
+      center = null; centerDrag = null; canvas.tabIndex = -1;
+      camera.position.copy(savedOrbit.position); controls.target.copy(savedOrbit.target); camera.fov = savedOrbit.fov; camera.updateProjectionMatrix();
+      controls.enabled = true; controls.update(); render();
+    }
+  }
+  {
+    const canvas = renderer.domElement;
+    canvas.addEventListener("pointerdown", (event) => { if (!center) return; centerDrag = { x: event.clientX, y: event.clientY }; canvas.setPointerCapture?.(event.pointerId); });
+    canvas.addEventListener("pointermove", (event) => { if (!center || !centerDrag) return; const k = (CENTER_FOV * Math.PI / 180) / canvas.clientHeight; centerLook(-(event.clientX - centerDrag.x) * k * 1.1, (event.clientY - centerDrag.y) * k * 0.8); centerDrag = { x: event.clientX, y: event.clientY }; });
+    const end = () => { centerDrag = null; };
+    canvas.addEventListener("pointerup", end); canvas.addEventListener("pointercancel", end);
+    canvas.addEventListener("keydown", (event) => {
+      if (!center) return;
+      const step = event.shiftKey ? 0.25 : 0.1;
+      if (event.key === "ArrowLeft") centerLook(-step, 0); else if (event.key === "ArrowRight") centerLook(step, 0); else if (event.key === "ArrowUp") centerLook(0, step); else if (event.key === "ArrowDown") centerLook(0, -step); else return;
+      event.preventDefault();
+    });
+  }
+
   const instance = {
     camera, controls, render, resize, setMood,
     moods: () => Object.keys(MOODS),
     onRender: (hook) => { onRenderHooks.push(hook); },
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
-    robotHop,
+    robotHop, setCenterView, centerLook, isCenter: () => Boolean(center),
     info() {
       let vertices = 0, meshes = 0;
       scene.traverse((object) => { if (object.isMesh) { meshes++; vertices += object.geometry.attributes.position.count; } });
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-5-moods-polished", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-6-front-wall", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
