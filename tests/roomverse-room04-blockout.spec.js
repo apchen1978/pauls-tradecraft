@@ -38,7 +38,7 @@ for (const [width, key] of [[1440, "desktop"], [390, "phone"]]) {
     expect(info.robot.aboveCounterMm).toBeGreaterThanOrEqual(350);
     expect(info.blockout).not.toContain("blockout-robot");
     expect(info.blockout).not.toContain("blockout-espresso-machine");
-    await expect(page.locator("#stage canvas")).toHaveAttribute("aria-label", "Room 04 咖啡廳的 3D 粗模");
+    await expect(page.locator("#stage canvas")).toHaveAttribute("aria-label", "Room 04 上海咖啡廳的 3D 房間");
     await expect(page.locator("#status")).toBeHidden();
   });
 }
@@ -48,7 +48,29 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
   for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
-  expect(info.stage).toBe("section-4-story");
+  expect(info.stage).toBe("section-5-moods");
+});
+
+test("Room 04 moods: five buttons, each sets its look inside the draw-call budget, and the robot and the note answer taps", async ({ page }) => {
+  const errors = await open(page, 1440);
+  await expect(page.locator("#moods button")).toHaveCount(5);
+  for (const mood of ["noon", "golden", "rain", "closing", "morning"]) {
+    await page.locator(`#moods button[data-mood="${mood}"]`).click();
+    await expect(page.locator(`#moods button[data-mood="${mood}"]`)).toHaveAttribute("aria-pressed", "true");
+    const info = await page.evaluate(() => window.__room04.info());
+    expect(info.mood).toBe(mood);
+    expect(info.drawCalls, `${mood} draw calls`).toBeLessThanOrEqual(LEDGER.caps.desktopCalls);
+  }
+  await expect(page.locator("#robotHit")).toBeVisible();
+  await page.locator("#robotHit").click();
+  await expect(page.locator("#bubble")).toBeVisible();
+  await expect(page.locator("#bubble [data-line]")).toContainText("要來一杯嗎");
+  await page.locator("#bubble [data-close]").click();
+  await expect(page.locator("#bubble")).toBeHidden();
+  await expect(page.locator("#noteHit")).toBeVisible();
+  await page.locator("#noteHit").click();
+  await expect(page.locator("#bubble [data-line]")).toContainText("慢慢來");
+  expect(errors).toEqual([]);
 });
 
 test("Room 04 switches language and keeps the choice in the address", async ({ page }) => {
