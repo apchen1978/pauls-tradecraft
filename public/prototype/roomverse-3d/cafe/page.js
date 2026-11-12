@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./cafe.js?v=2";
+import { start, ROOM_TITLE } from "./cafe.js?v=3";
 
 // Blockout page: title, one line, the room. Moods, the travel door, the robot's lines and the menu come once the blockout is agreed.
 const COPY = {

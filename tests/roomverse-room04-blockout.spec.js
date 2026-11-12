@@ -43,10 +43,10 @@ for (const [width, key] of [[1440, "desktop"], [390, "phone"]]) {
 
 test("Room 04 shell: the painted textures load", async ({ page }) => {
   await open(page, 1440);
-  await page.waitForFunction(() => window.__room04.info().art.length >= 4, null, { timeout: 60000 });
+  await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
-  for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp"]) expect(info.art).toContain(file);
-  expect(info.stage).toBe("section-1-shell");
+  for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
+  expect(info.stage).toBe("section-2-counter");
 });
 
 test("Room 04 switches language and keeps the choice in the address", async ({ page }) => {

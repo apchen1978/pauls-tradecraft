@@ -9,6 +9,8 @@ import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 //   1. SHELL AND LIGHT: painted brick with real relief, plank ceiling, floor, plaster walls, a window with depth and the painted street,
 //      skirting, soft reflections. 2. Counter and back bar. 3. Hero pieces (machine, grinder, pastry case, robot). 4. Story corner. 5. Moods and polish.
 // Everything still named "blockout-*" is a plain stand-in that a later section replaces.
+// Section 2 (counter and back bar) is built from many small real parts (frames, panels, mouldings, brackets, handles) merged by material, because
+// thickness, shadow lines and bevels are what make a room read as 3D. Vertices are not rationed (Paul, 2026-11-13); draw calls are, by merging.
 export const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
 
 // Metres. x: left (-) to right (+); z: brick back wall (-) to the visitor (+); y: up.
@@ -60,6 +62,44 @@ function makePlasterBump() {
   return texture;
 }
 
+// Texture coordinates in metres, so a grain or a stone vein keeps the same size on every part however it is cut. "grain" is the axis the wood runs along
+// (the texture's grain runs along v); on an end face the two tangent axes are used as they come.
+function worldUVs(geometry, tile, grain = "y") {
+  const p = geometry.attributes.position, n = geometry.attributes.normal, uv = new Float32Array(p.count * 2);
+  const axes = { x: 0, y: 1, z: 2 };
+  for (let i = 0; i < p.count; i++) {
+    const normal = [Math.abs(n.getX(i)), Math.abs(n.getY(i)), Math.abs(n.getZ(i))];
+    const dominant = normal.indexOf(Math.max(...normal)), coords = [p.getX(i), p.getY(i), p.getZ(i)];
+    const tangents = [0, 1, 2].filter((axis) => axis !== dominant);
+    const along = tangents.includes(axes[grain]) ? axes[grain] : tangents[1];
+    const across = tangents.find((axis) => axis !== along);
+    uv[i * 2] = coords[across] / tile; uv[i * 2 + 1] = coords[along] / tile;
+  }
+  geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+}
+
+// A slab whose outline is a rectangle with one half-round end (a counter) or a plain rectangle, standing on y0 with a rounded bullnose edge.
+function footprintGeometry(x0, x1, z0, z1, y0, height, { round = true, bevel = 0 } = {}) {
+  const r = (z1 - z0) / 2, zc = (z0 + z1) / 2, shape = new THREE.Shape();
+  shape.moveTo(x0, -z0);
+  if (round) { shape.lineTo(x1 - r, -z0); shape.absarc(x1 - r, -zc, r, Math.PI / 2, -Math.PI / 2, true); } else { shape.lineTo(x1, -z0); shape.lineTo(x1, -z1); }
+  shape.lineTo(x0, -z1); shape.closePath();
+  const geometry = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.001, height - 2 * bevel), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: 28 });
+  geometry.rotateX(-Math.PI / 2); geometry.translate(0, y0 + bevel, 0);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+// A soft dark patch on the floor under a piece of furniture, so it sits on the floor instead of hovering over it.
+function makeContactShadowTexture() {
+  const canvas = document.createElement("canvas"); canvas.width = 128; canvas.height = 128;
+  const g = canvas.getContext("2d");
+  g.shadowColor = "rgba(0,0,0,1)"; g.shadowBlur = 22; g.shadowOffsetX = 1000;
+  g.fillStyle = "#000"; g.fillRect(28 - 1000, 28, 72, 72);
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.NoColorSpace;
+  return texture;
+}
+
 export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const compact = window.innerWidth < 500;
@@ -107,6 +147,8 @@ export async function start({ stage, onReady = () => {} }) {
     floor: new THREE.MeshStandardMaterial({ color: COLORS.floor, roughness: 0.62 }),
     brick: new THREE.MeshStandardMaterial({ color: 0x9a4f33, roughness: 0.93 }),
     oak: new THREE.MeshStandardMaterial({ color: COLORS.oak, roughness: 0.68 }),
+    oakDeep: new THREE.MeshStandardMaterial({ color: 0xa5773f, roughness: 0.78 }), // the recessed panel fields: a shade darker than the frames around them
+    oakDark: new THREE.MeshStandardMaterial({ color: 0x4a3524, roughness: 0.8 }), // the toe-kicks
     olive: new THREE.MeshStandardMaterial({ color: COLORS.olive, roughness: 0.75 }),
     black: new THREE.MeshStandardMaterial({ color: COLORS.black, roughness: 0.6 }),
     frame: new THREE.MeshStandardMaterial({ color: 0x24272a, roughness: 0.5, metalness: 0.2 }),
@@ -121,6 +163,8 @@ export async function start({ stage, onReady = () => {} }) {
     pane: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.04, transparent: true, opacity: 0.07, depthWrite: false }),
     street: new THREE.MeshBasicMaterial({ color: MOODS.morning.sky }),
   };
+  materials.menuA = new THREE.MeshStandardMaterial({ color: 0x2c302f, roughness: 0.96 });
+  materials.menuB = new THREE.MeshStandardMaterial({ color: 0x2c302f, roughness: 0.96 });
   materials.ceiling.bumpMap = materials.ceiling.map;
   materials.ceiling.map.repeat.set(1, (ROOM.depth + 1.2) / (8 * 0.14)); // eight boards of 14 cm per tile
   // Brick: the painted tile covers about 2.2 x 1.1 m. The height map (bright brick face, dark joint) is the relief the low sun rakes across.
@@ -128,6 +172,11 @@ export async function start({ stage, onReady = () => {} }) {
   paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
   paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
   paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; } });
+
+  paint("room04-oak-panel-v1.webp", { then: (t) => { materials.oak.map = t; materials.oak.color.set(0xffffff); materials.oak.needsUpdate = true; materials.oakDeep.map = t; materials.oakDeep.color.set(0xe0bd90); materials.oakDeep.needsUpdate = true; } });
+  paint("room04-counter-stone-v1.webp", { then: (t) => { materials.stone.map = t; materials.stone.color.set(0xffffff); materials.stone.needsUpdate = true; } });
+  paint("room04-menu-board-a-v1.webp", { then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.menuA.map = t; materials.menuA.color.set(0xffffff); materials.menuA.needsUpdate = true; } });
+  paint("room04-menu-board-b-v1.webp", { then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.menuB.map = t; materials.menuB.color.set(0xffffff); materials.menuB.needsUpdate = true; } });
 
   // Soft reflections (the Room 03 recipe): a tiny made-up room (pale ceiling, warm floor, one bright window panel) baked into an environment map and
   // given ONLY to the metals, glass and stone. scene.environment stays unset so walls, wood and brick keep their exact lighting.
@@ -145,7 +194,7 @@ export async function start({ stage, onReady = () => {} }) {
     const texture = pmrem.fromScene(room, 0.04).texture; pmrem.dispose();
     return texture;
   })();
-  const reflectiveBase = { steel: 1.0, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
+  const reflectiveBase = { steel: 1.5, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
   for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
@@ -189,25 +238,96 @@ export async function start({ stage, onReady = () => {} }) {
   addSkirt(X0, BACK_BAR.x0, BACK, BACK + skirtT); addSkirt(BACK_BAR.x1, X1, BACK, BACK + skirtT);
   add("skirting", mergeGeometries(skirting), materials.trim, 0, 0, 0);
 
-  // ---------- counter and back bar ----------
-  const c = COUNTER, endRadius = (c.z1 - c.z0) / 2;
-  box("counter-body", materials.oak, [c.x0, c.x1 - endRadius], [0, c.height - c.top], [c.z0, c.z1]);
-  add("counter-end", new THREE.CylinderGeometry(endRadius, endRadius, c.height - c.top, 24), materials.oak, c.x1 - endRadius, (c.height - c.top) / 2, (c.z0 + c.z1) / 2);
-  box("counter-top", materials.stone, [c.x0 - 0.03, c.x1 - endRadius], [c.height - c.top, c.height], [c.z0 - 0.03, c.z1 + 0.03]);
-  add("counter-top-end", new THREE.CylinderGeometry(endRadius + 0.03, endRadius + 0.03, c.top, 24), materials.stone, c.x1 - endRadius, c.height - c.top / 2, (c.z0 + c.z1) / 2);
-  const b = BACK_BAR;
-  box("back-bar", materials.olive, [b.x0, b.x1], [0, b.height - b.top], [BACK, BACK + b.depth]);
-  box("back-bar-top", materials.stone, [b.x0, b.x1], [b.height - b.top, b.height], [BACK, BACK + b.depth + 0.02]);
+  // ---------- counter and back bar (section 2) ----------
+  // Every part below is real-sized geometry in world coordinates, collected per material and merged, so the whole section costs a handful of draw calls.
+  const parts = new Map();
+  const part = (key, geometry, { tile = 0.9, grain = "y" } = {}) => {
+    const g = geometry.index ? geometry.toNonIndexed() : geometry;
+    worldUVs(g, tile, grain);
+    if (!parts.has(key)) parts.set(key, []);
+    parts.get(key).push(g);
+  };
+  const slab = (key, [x0, x1], [y0, y1], [z0, z1], options) => part(key, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), options);
+  const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0); parts.clear(); };
 
-  // ---------- on the brick wall ----------
-  for (const y of [1.75, 2.15]) box("shelf", materials.oak, [-2.5, -1.0], [y, y + 0.04], [BACK, BACK + 0.24]);
-  // Two framed chalk menus. They stay blank: the menu is Paul's to write.
-  for (const [x, y, w, h] of [[0.35, 2.05, 1.35, 0.68], [1.95, 1.85, 1.3, 0.62]]) {
-    box("menu-frame", materials.oak, [x - w / 2, x + w / 2], [y - h / 2, y + h / 2], [BACK, BACK + 0.04]);
-    box("blockout-menu-board", materials.chalk, [x - w / 2 + 0.05, x + w / 2 - 0.05], [y - h / 2 + 0.05, y + h / 2 - 0.05], [BACK + 0.04, BACK + 0.045], { cast: false });
+  const c = COUNTER, endRadius = (c.z1 - c.z0) / 2, zc = (c.z0 + c.z1) / 2, arcX = c.x1 - endRadius;
+  const bodyY0 = 0.10, bodyY1 = c.height - c.top; // a 10 cm recessed toe-kick, then the body up to the stone
+  // Plinth, body and stone top follow one outline: a straight run with a half-round right end.
+  part("oakDark", footprintGeometry(c.x0 + 0.04, c.x1 - 0.04, c.z0 + 0.04, c.z1 - 0.04, 0, bodyY0 + 0.01), { tile: 1 });
+  part("oak", footprintGeometry(c.x0, c.x1, c.z0, c.z1, bodyY0, bodyY1 - bodyY0), { tile: 0.9, grain: "y" });
+  part("stone", footprintGeometry(c.x0 - 0.03, c.x1 + 0.03, c.z0 - 0.03, c.z1 + 0.03, bodyY1, c.top, { bevel: 0.013 }), { tile: 1 });
+  // Raised-and-fielded front: stiles and rails 2.2 cm proud of the body, and a 1.2 cm bevel moulding framing each recessed panel.
+  const fz = c.z1, bays = 5, run = arcX - c.x0, bayW = run / bays, stile = 0.07, proud = 0.022;
+  slab("oak", [c.x0, arcX], [bodyY1 - 0.09, bodyY1], [fz, fz + proud], { grain: "x" }); // top rail
+  slab("oak", [c.x0, arcX], [bodyY0, bodyY0 + 0.11], [fz, fz + proud], { grain: "x" }); // bottom rail
+  for (let i = 0; i <= bays; i++) {
+    const x = c.x0 + i * bayW, half = i === 0 || i === bays ? stile : stile / 2;
+    slab("oak", [i === 0 ? x : x - half, i === bays ? x : x + half], [bodyY0 + 0.11, bodyY1 - 0.09], [fz, fz + proud], { grain: "y" });
   }
-  // The house plaque keeps its place in every room. Stand-in only: the real plaque is the same carved wood one as Rooms 01 to 03.
+  for (let i = 0; i < bays; i++) {
+    const xa = c.x0 + i * bayW + (i === 0 ? stile : stile / 2), xb = c.x0 + (i + 1) * bayW - (i === bays - 1 ? stile : stile / 2), ya = bodyY0 + 0.11, yb = bodyY1 - 0.09, m = 0.022, d = 0.012;
+    slab("oak", [xa, xb], [ya, ya + m], [fz, fz + d], { grain: "x" }); slab("oak", [xa, xb], [yb - m, yb], [fz, fz + d], { grain: "x" });
+    slab("oak", [xa, xa + m], [ya + m, yb - m], [fz, fz + d], { grain: "y" }); slab("oak", [xb - m, xb], [ya + m, yb - m], [fz, fz + d], { grain: "y" });
+    slab("oakDeep", [xa + m, xb - m], [ya + m, yb - m], [fz, fz + 0.003], { grain: "y" }); // the recessed field
+  }
+  // The half-round end: seven stiles standing on the curve and a top and bottom rail wrapped around it.
+  for (let k = 0; k <= 6; k++) {
+    const theta = Math.PI / 2 - k * (Math.PI / 6); // from the front (+z) round to the back
+    const g = new THREE.BoxGeometry(0.06, bodyY1 - bodyY0, proud).rotateY(Math.PI / 2 - theta).translate(arcX + (endRadius + proud / 2) * Math.cos(theta), (bodyY0 + bodyY1) / 2, zc + (endRadius + proud / 2) * Math.sin(theta));
+    part("oak", g, { grain: "y" });
+  }
+  const wrap = (y0, y1) => part("oak", new THREE.CylinderGeometry(endRadius + proud, endRadius + proud, y1 - y0, 36, 1, true, 0, Math.PI).translate(arcX, (y0 + y1) / 2, zc), { grain: "x" });
+  wrap(bodyY1 - 0.09, bodyY1); wrap(bodyY0, bodyY0 + 0.11);
+  // A brushed-steel foot rail 20 cm off the floor on four arms: a real bar detail that also throws a long shadow line down the front.
+  const railZ = fz + 0.14, railY = 0.2;
+  part("steel", new THREE.CylinderGeometry(0.024, 0.024, run - 0.5, 20).rotateZ(Math.PI / 2).translate((c.x0 + 0.25 + arcX - 0.25) / 2, railY, railZ), { tile: 1 });
+  for (const t of [0.04, 0.36, 0.64, 0.96]) {
+    const x = c.x0 + 0.25 + t * (run - 0.5);
+    slab("steel", [x - 0.014, x + 0.014], [railY - 0.014, railY + 0.014], [fz, railZ]);
+    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.012, 16).rotateX(Math.PI / 2).translate(x, railY, fz + 0.006), { tile: 1 });
+  }
+
+  // Back bar along the brick wall: olive shaker doors on a 10 cm toe-kick under a bullnosed stone top.
+  const bb = BACK_BAR, bbFront = BACK + bb.depth, bbTop = bb.height - bb.top;
+  part("oakDark", footprintGeometry(bb.x0 + 0.03, bb.x1 - 0.03, BACK, bbFront - 0.04, 0, 0.11, { round: false }), { tile: 1 });
+  part("olive", footprintGeometry(bb.x0, bb.x1, BACK, bbFront - 0.02, 0.1, bbTop - 0.1, { round: false }));
+  part("stone", footprintGeometry(bb.x0 - 0.01, bb.x1 + 0.01, BACK, bbFront + 0.025, bbTop, bb.top, { round: false, bevel: 0.009 }), { tile: 1 });
+  const doors = 8, doorW = (bb.x1 - bb.x0) / doors, gap = 0.006, doorY0 = 0.11, doorY1 = bbTop - 0.012, fzb = bbFront - 0.02, frameW = 0.062, thick = 0.02;
+  for (let i = 0; i < doors; i++) {
+    const xa = bb.x0 + i * doorW + gap / 2, xb = bb.x0 + (i + 1) * doorW - gap / 2;
+    slab("olive", [xa, xb], [doorY0, doorY0 + frameW], [fzb, fzb + thick]); slab("olive", [xa, xb], [doorY1 - frameW, doorY1], [fzb, fzb + thick]);
+    slab("olive", [xa, xa + frameW], [doorY0 + frameW, doorY1 - frameW], [fzb, fzb + thick]); slab("olive", [xb - frameW, xb], [doorY0 + frameW, doorY1 - frameW], [fzb, fzb + thick]);
+    slab("olive", [xa + frameW, xb - frameW], [doorY0 + frameW, doorY1 - frameW], [fzb, fzb + thick - 0.011]); // the recessed panel
+    const hx = i % 2 === 0 ? xb - frameW / 2 : xa + frameW / 2; // handles sit beside the meeting edge of each pair
+    slab("black", [hx - 0.006, hx + 0.006], [doorY1 - frameW - 0.19, doorY1 - frameW - 0.03], [fzb + thick + 0.02, fzb + thick + 0.032]);
+    slab("black", [hx - 0.006, hx + 0.006], [doorY1 - frameW - 0.19, doorY1 - frameW - 0.178], [fzb + thick, fzb + thick + 0.02]); slab("black", [hx - 0.006, hx + 0.006], [doorY1 - frameW - 0.042, doorY1 - frameW - 0.03], [fzb + thick, fzb + thick + 0.02]);
+  }
+
+  // ---------- on the brick wall: two shelves on black brackets, two framed chalk menus, the house plaque ----------
+  for (const y of [1.75, 2.15]) {
+    part("oak", new THREE.BoxGeometry(1.5, 0.035, 0.24).translate(-1.75, y + 0.0175, BACK + 0.12), { grain: "x" });
+    for (const x of [-2.4, -1.75, -1.1]) { slab("black", [x - 0.008, x + 0.008], [y - 0.16, y], [BACK, BACK + 0.012]); slab("black", [x - 0.008, x + 0.008], [y - 0.012, y], [BACK, BACK + 0.2]); slab("black", [x - 0.008, x + 0.008], [y - 0.16, y - 0.012], [BACK + 0.012, BACK + 0.02]); }
+  }
+  const menus = [{ x: 0.35, y: 2.05, w: 1.35, h: 0.68, key: "menuA" }, { x: 1.95, y: 1.85, w: 1.3, h: 0.62, key: "menuB" }];
+  for (const m of menus) {
+    const fw = 0.05, depth = 0.04;
+    slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y + m.h / 2 - fw, m.y + m.h / 2], [BACK, BACK + depth], { grain: "x" }); slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y - m.h / 2, m.y - m.h / 2 + fw], [BACK, BACK + depth], { grain: "x" });
+    slab("oak", [m.x - m.w / 2, m.x - m.w / 2 + fw], [m.y - m.h / 2 + fw, m.y + m.h / 2 - fw], [BACK, BACK + depth], { grain: "y" }); slab("oak", [m.x + m.w / 2 - fw, m.x + m.w / 2], [m.y - m.h / 2 + fw, m.y + m.h / 2 - fw], [BACK, BACK + depth], { grain: "y" });
+    slab("oak", [m.x - m.w * 0.4, m.x + m.w * 0.4], [m.y - m.h / 2 - 0.02, m.y - m.h / 2], [BACK, BACK + 0.1], { grain: "x" }); // a chalk ledge under each board
+    const board = add(`menu-board-${m.key === "menuA" ? "a" : "b"}`, new THREE.PlaneGeometry(m.w - 2 * fw, m.h - 2 * fw), materials[m.key], m.x, m.y, BACK + 0.012, { cast: false });
+    board.position.z = BACK + 0.012;
+  }
   box("blockout-house-plaque", materials.oak, [X0, X0 + 0.02], [1.95, 2.17], [-2.05, -1.25], { cast: false });
+  flush("section2");
+
+  // Soft contact shadows on the floor under the counter and the back bar.
+  const contactTexture = makeContactShadowTexture();
+  const contact = (name, x0, x1, z0, z1, opacity) => {
+    const mesh = add(name, new THREE.PlaneGeometry(x1 - x0, z1 - z0), new THREE.MeshBasicMaterial({ map: contactTexture, transparent: true, opacity, depthWrite: false, color: 0x000000 }), (x0 + x1) / 2, 0.004, (z0 + z1) / 2, { cast: false, receive: false });
+    mesh.rotation.x = -Math.PI / 2; mesh.renderOrder = 1;
+  };
+  contact("counter-contact-shadow", c.x0 - 0.35, c.x1 + 0.35, c.z0 - 0.35, c.z1 + 0.45, 0.5);
+  contact("back-bar-contact-shadow", bb.x0 - 0.3, bb.x1 + 0.3, BACK - 0.05, bbFront + 0.4, 0.42);
 
   // ---------- hero stand-ins (plain shapes at the real sizes; each becomes a detailed piece later) ----------
   const top = c.height;
@@ -292,7 +412,7 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-1-shell", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-2-counter", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
