@@ -33,11 +33,11 @@ const COLORS = Object.freeze({
 // Each mood sets the sun, the sky fill, the track lights, a tint on the street painting (until Codex paints one street per mood) and how strongly the steel and glass reflect.
 // sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
-  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, steam: 0.3 }),
-  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfffaf0, lamp: 0, reflect: 1.1, steam: 0.18 }),
-  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xffc592, lamp: 0.6, reflect: 0.85, steam: 0.36 }),
-  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xc4ccd4, lamp: 0.9, reflect: 0.7, steam: 0.4, rain: true }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0x3b4668, lamp: 3.4, reflect: 0.45, steam: 0.42 }),
+  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, steam: 0.3 }),
+  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfffaf0, lamp: 0, reflect: 1.1, pendant: 0.05, steam: 0.18 }),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xffc592, lamp: 0.6, reflect: 0.85, pendant: 0.45, steam: 0.36 }),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xc4ccd4, lamp: 0.9, reflect: 0.7, pendant: 0.85, steam: 0.4, rain: true }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0x3b4668, lamp: 3.4, reflect: 0.45, pendant: 1.4, steam: 0.42 }),
 });
 
 // Plank ceiling drawn on a canvas: white boards 14 cm wide with a dark tongue-and-groove line, used as colour AND bump so the grooves catch the light.
@@ -156,6 +156,17 @@ function drapeGeometry(width, profile, wrinkle = 0.012, seed = 1) {
   const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)); geometry.setIndex(indices); geometry.computeVertexNormals();
   return geometry;
 }
+// A woven jute rug: concentric rings of slightly different tans with a fine cross-weave.
+function makeRugTexture() {
+  const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 512;
+  const g = canvas.getContext("2d");
+  let seed = 3; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  g.fillStyle = "#c9ad7c"; g.fillRect(0, 0, 512, 512);
+  for (let r = 250; r > 4; r -= 5) { const k = rnd(); g.strokeStyle = `rgb(${Math.round(188 + k * 30)},${Math.round(158 + k * 28)},${Math.round(104 + k * 22)})`; g.lineWidth = 5; g.beginPath(); g.arc(256, 256, r, 0, Math.PI * 2); g.stroke(); }
+  g.strokeStyle = "rgba(95,70,40,.16)"; g.lineWidth = 1; for (let i = 0; i < 90; i++) { g.beginPath(); g.arc(256, 256, 8 + i * 2.7, 0, Math.PI * 2); g.stroke(); }
+  g.strokeStyle = "#8a6a3e"; g.lineWidth = 9; g.beginPath(); g.arc(256, 256, 236, 0, Math.PI * 2); g.stroke();
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8; return texture;
+}
 // A soft round puff for steam.
 function makeSteamTexture() {
   const canvas = document.createElement("canvas"); canvas.width = 64; canvas.height = 64;
@@ -244,6 +255,12 @@ export async function start({ stage, onReady = () => {} }) {
     warm: new THREE.MeshBasicMaterial({ color: 0xffe0aa }),
   });
   Object.assign(materials, {
+    pendantShade: new THREE.MeshStandardMaterial({ color: 0xd9bb82, roughness: 0.85, emissive: 0xffc77a, emissiveIntensity: 0, side: THREE.DoubleSide }),
+    sconceGlow: new THREE.MeshStandardMaterial({ color: 0xf3e2c2, roughness: 0.8, emissive: 0xffc77a, emissiveIntensity: 0, side: THREE.DoubleSide }),
+    kraft: new THREE.MeshStandardMaterial({ color: 0xc9a272, roughness: 0.85 }),
+    lid: new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.6 }),
+    tablet: new THREE.MeshStandardMaterial({ color: 0x1d2a33, roughness: 0.25, emissive: 0x9fc5d6, emissiveIntensity: 0.35 }),
+    gold: new THREE.MeshStandardMaterial({ color: 0xcfa25a, roughness: 0.4, metalness: 0.7 }),
     cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
     cloth: new THREE.MeshStandardMaterial({ color: 0xded3bf, roughness: 0.96, side: THREE.DoubleSide }),
@@ -342,7 +359,7 @@ export async function start({ stage, onReady = () => {} }) {
     parts.get(key).push(g);
   };
   const slab = (key, [x0, x1], [y0, y1], [z0, z1], options) => part(key, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), options);
-  const noCast = new Set(["leaf", "leafDark", "bloom", "soil", "water", "paper", "cover", "glass", "muffinCup", "muffin", "croissant", "cookie", "chip", "beans", "coffee", "warm", "eyes", "cane"]);
+  const noCast = new Set(["leaf", "leafDark", "bloom", "soil", "water", "paper", "cover", "glass", "muffinCup", "muffin", "croissant", "cookie", "chip", "beans", "coffee", "warm", "eyes", "cane", "kraft", "lid", "tablet", "gold", "pendantShade", "sconceGlow"]);
   const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0, { cast: !noCast.has(key) }); parts.clear(); };
 
   const c = COUNTER, endRadius = (c.z1 - c.z0) / 2, zc = (c.z0 + c.z1) / 2, arcX = c.x1 - endRadius;
@@ -687,6 +704,66 @@ export async function start({ stage, onReady = () => {} }) {
   note.position.set(1.02, top + 0.032, c.z1 - 0.12); note.rotation.set(-0.28, 0.12, 0); note.castShadow = true; scene.add(note);
   flush("section4");
 
+  // ---------- a more lived-in room (polish pass): wainscot, sconces and a clock on the right wall, a rug and a pendant at the window seat, counter details ----------
+  {
+    // Board-and-batten wainscot on the right wall: olive panel, battens every 30 cm, an oak cap rail and a thin base moulding.
+    const wx = X1, z0w = BACK + 0.04, z1w = FRONT + 1.2;
+    slab("olive", [wx - 0.024, wx], [0.11, 1.08], [z0w, z1w], { tile: 1 });
+    for (let z = z0w + 0.15; z < z1w - 0.05; z += 0.3) slab("olive", [wx - 0.036, wx - 0.024], [0.11, 1.08], [z - 0.025, z + 0.025], { tile: 1 });
+    slab("oak", [wx - 0.06, wx], [1.08, 1.115], [z0w, z1w], { grain: "z" });
+    slab("oak", [wx - 0.03, wx], [0.08, 0.11], [z0w, z1w], { grain: "z" });
+    // Two wall sconces: a black arm and a drum shade that glows in the dim moods.
+    for (const sz of [-0.85, 1.3]) {
+      slab("black", [wx - 0.02, wx], [1.86, 1.94], [sz - 0.04, sz + 0.04], { tile: 1 });
+      part("black", rodGeometry([wx - 0.02, 1.9, sz], [wx - 0.17, 1.9, sz], 0.008), { tile: 1 });
+      part("sconceGlow", new THREE.CylinderGeometry(0.075, 0.095, 0.15, 24, 1, true).translate(wx - 0.2, 1.9, sz), { tile: 1 });
+      part("black", new THREE.CylinderGeometry(0.078, 0.078, 0.006, 24).translate(wx - 0.2, 1.978, sz), { tile: 1 });
+    }
+    // A round oak wall clock.
+    const cz = 0.2, cy = 2.1;
+    part("oak", new THREE.TorusGeometry(0.205, 0.022, 10, 40).rotateY(Math.PI / 2).translate(wx - 0.024, cy, cz), { tile: 0.5 });
+    part("paper", new THREE.CylinderGeometry(0.195, 0.195, 0.012, 40).rotateZ(Math.PI / 2).translate(wx - 0.018, cy, cz), { tile: 1 });
+    for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2, r1 = i % 3 === 0 ? 0.155 : 0.17; part("black", rodGeometry([wx - 0.026, cy + Math.cos(a) * r1, cz + Math.sin(a) * r1], [wx - 0.026, cy + Math.cos(a) * 0.185, cz + Math.sin(a) * 0.185], i % 3 === 0 ? 0.004 : 0.0025), { tile: 1 }); }
+    part("black", rodGeometry([wx - 0.03, cy, cz], [wx - 0.03, cy + 0.085, cz + 0.05], 0.005), { tile: 1 });
+    part("black", rodGeometry([wx - 0.034, cy, cz], [wx - 0.034, cy - 0.04, cz + 0.13], 0.0035), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.012, 0.012, 0.014, 12).rotateZ(Math.PI / 2).translate(wx - 0.032, cy, cz), { tile: 1 });
+  }
+  {
+    // Rattan drum pendant over the window seat, on a black cord and canopy.
+    const px = SEAT.x + 0.05, pz = SEAT.z + 0.05, py = 1.78;
+    part("black", new THREE.CylinderGeometry(0.003, 0.003, ROOM.height - py - 0.14, 8).translate(px, (ROOM.height + py + 0.14) / 2, pz), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.035, 0.05, 0.02, 20).translate(px, ROOM.height - 0.01, pz), { tile: 1 });
+    part("pendantShade", new THREE.CylinderGeometry(0.17, 0.23, 0.26, 36, 1, true).translate(px, py, pz), { tile: 1 });
+    part("black", new THREE.TorusGeometry(0.17, 0.006, 8, 36).rotateX(Math.PI / 2).translate(px, py + 0.13, pz), { tile: 1 });
+    part("black", new THREE.TorusGeometry(0.23, 0.006, 8, 36).rotateX(Math.PI / 2).translate(px, py - 0.13, pz), { tile: 1 });
+    for (let i = 0; i < 18; i++) { const a = (i / 18) * Math.PI * 2; part("black", rodGeometry([px + Math.cos(a) * 0.17, py + 0.13, pz + Math.sin(a) * 0.17], [px + Math.cos(a) * 0.23, py - 0.13, pz + Math.sin(a) * 0.23], 0.0016), { tile: 1 }); }
+    part("warm", new THREE.SphereGeometry(0.035, 12, 8).translate(px, py + 0.03, pz), { tile: 1 });
+  }
+  {
+    // Counter details on the customer side: two stacks of kraft takeaway cups with white lids, a tip jar and a card reader on a stand.
+    const cupStack = (x, z, n) => {
+      for (let i = 0; i < n; i++) part("kraft", new THREE.CylinderGeometry(0.037, 0.027, 0.09, 20, 1, true).translate(x, top + 0.045 + i * 0.03, z), { tile: 1 });
+      part("kraft", new THREE.CylinderGeometry(0.027, 0.027, 0.004, 20).translate(x, top + 0.002, z), { tile: 1 });
+      part("lid", new THREE.CylinderGeometry(0.04, 0.04, 0.008, 20).translate(x, top + 0.03 * (n - 1) + 0.094, z), { tile: 1 });
+      part("lid", new THREE.TorusGeometry(0.038, 0.005, 6, 20).rotateX(Math.PI / 2).translate(x, top + 0.03 * (n - 1) + 0.09, z), { tile: 1 });
+    };
+    cupStack(-0.42, c.z1 - 0.14, 5); cupStack(-0.3, c.z1 - 0.16, 4);
+    part("glass", new THREE.CylinderGeometry(0.06, 0.06, 0.13, 24).translate(-0.12, top + 0.065, c.z1 - 0.13), { tile: 1 });
+    part("gold", new THREE.CylinderGeometry(0.057, 0.057, 0.034, 20).translate(-0.12, top + 0.025, c.z1 - 0.13), { tile: 1 });
+    for (let i = 0; i < 6; i++) part("gold", new THREE.CylinderGeometry(0.011, 0.011, 0.002, 10).rotateX(Math.PI / 2 - 0.4).translate(-0.12 + (i % 3 - 1) * 0.02, top + 0.045 + Math.floor(i / 3) * 0.018, c.z1 - 0.13 + 0.02), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.07, 0.075, 0.012, 24).translate(0.55, top + 0.006, c.z1 - 0.2), { tile: 1 });
+    part("black", rodGeometry([0.55, top + 0.012, c.z1 - 0.2], [0.55, top + 0.12, c.z1 - 0.215], 0.012), { tile: 1 });
+    part("tablet", roundedBox(0.2, 0.14, 0.012, 0.012, 0.002).rotateX(-0.32).translate(0.55, top + 0.165, c.z1 - 0.225), { tile: 1 });
+  }
+  {
+    // A round jute rug under the window seat (a standalone mesh: a lid texture on the top face only).
+    const rugTexture = makeRugTexture();
+    const rug = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.014, 56), [new THREE.MeshStandardMaterial({ color: 0xb59868, roughness: 1 }), new THREE.MeshStandardMaterial({ map: rugTexture, roughness: 1 }), new THREE.MeshStandardMaterial({ color: 0x7a6040 })]);
+    rug.name = "window-rug"; rug.position.set(SEAT.x + 0.2, 0.007, SEAT.z + 0.28); rug.receiveShadow = true; scene.add(rug);
+  }
+  const pendantLight = new THREE.PointLight(0xffc88a, 0, 2.6, 2); pendantLight.position.set(SEAT.x + 0.05, 1.7, SEAT.z + 0.05); scene.add(pendantLight);
+  flush("polish");
+
   // Steam rising from the barista's cup and from the cup on the window table: a few soft puffs, drifting up and widening.
   const steamTexture = makeSteamTexture();
   const steamPositions = [];
@@ -733,7 +810,7 @@ export async function start({ stage, onReady = () => {} }) {
   let currentMood = "morning", moodTween = 0;
   const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const blend = (a, b, k) => a + (b - a) * k;
-  const live = { sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
+  const live = { pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
@@ -742,6 +819,7 @@ export async function start({ stage, onReady = () => {} }) {
     renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street);
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
     steam.material.opacity = live.steam;
+    materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; pendantLight.intensity = live.pendant * 0.9;
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
@@ -749,10 +827,10 @@ export async function start({ stage, onReady = () => {} }) {
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     if (look.rain) { const wet = rainOverStreet(); if (wet) { materials.street.map = wet; materials.street.needsUpdate = true; } }
     else if (materials.street.userData.dry && materials.street.map !== materials.street.userData.dry) { materials.street.map = materials.street.userData.dry; materials.street.needsUpdate = true; }
-    const from = { sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
+    const from = { pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
     const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
-      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam"]) live[key] = blend(from[key], look[key], k);
+      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant"]) live[key] = blend(from[key], look[key], k);
       live.sunColor.copy(from.sunColor).lerp(to.sunColor, k); live.sunPosition.copy(from.sunPosition).lerp(to.sunPosition, k);
       live.hemiSky.copy(from.hemiSky).lerp(to.hemiSky, k); live.hemiGround.copy(from.hemiGround).lerp(to.hemiGround, k);
       live.trackColor.copy(from.trackColor).lerp(to.trackColor, k); live.street.copy(from.street).lerp(to.street, k);
@@ -817,7 +895,7 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-5-moods", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-5-moods-polished", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
