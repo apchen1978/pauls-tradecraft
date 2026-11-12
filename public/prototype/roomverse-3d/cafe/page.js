@@ -3,7 +3,7 @@ import { start, ROOM_TITLE } from "./cafe.js?v=1";
 // Blockout page: title, one line, the room. Moods, the travel door, the robot's lines and the menu come once the blockout is agreed.
 const COPY = {
   zh: {
-    title: ROOM_TITLE, subtitle: "上海，慢慢來",
+    title: ROOM_TITLE, subtitle: "上海慢板",
     lead: "上海一間紅磚小咖啡廳，早晨剛開店。拖曳畫面看看吧台、菜單牆和臨街的窗。",
     note: "這是粗模：尺寸、機位和早晨的光是真的，咖啡機、糕點櫃和機器人先用簡單形狀代替。",
     otherRooms: "← 其他房間", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 咖啡廳的 3D 粗模",
