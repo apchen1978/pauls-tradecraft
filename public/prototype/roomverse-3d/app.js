@@ -1220,11 +1220,12 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const ledEndsAlpha = canvasTex(128, 8, (ctx, w, h) => { const g = ctx.createLinearGradient(0, 0, w, 0); g.addColorStop(0, "#000"); g.addColorStop(.3, "#fff"); g.addColorStop(.7, "#fff"); g.addColorStop(1, "#000"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
   ledEndsAlpha.colorSpace = THREE.NoColorSpace;
   const ledLine = new THREE.Mesh(new THREE.BoxGeometry(2.1, .01, .01), new THREE.MeshBasicMaterial({ color: "#bfeaff", alphaMap: ledEndsAlpha, transparent: true, depthWrite: false })); ledLine.position.set(SX, 1.16, BACK + .02); led.add(ledLine);
-  const washTex = canvasTex(8, 128, (ctx, w, h) => { const g = ctx.createLinearGradient(0, h, 0, 0); g.addColorStop(0, "rgba(140,210,255,.55)"); g.addColorStop(.35, "rgba(140,210,255,.18)"); g.addColorStop(1, "rgba(140,210,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
+  const washTex = canvasTex(8, 128, (ctx, w, h) => { const g = ctx.createLinearGradient(0, h, 0, 0); g.addColorStop(0, "rgba(140,210,255,0)"); g.addColorStop(.14, "rgba(140,210,255,.55)"); g.addColorStop(.45, "rgba(140,210,255,.18)"); g.addColorStop(1, "rgba(140,210,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
+  washTex.wrapT = THREE.ClampToEdgeWrapping; // canvasTex repeats by default: the clear top row was blending with the bright bottom row and drew a thin hard line along the top of the glow
   const washAlpha = canvasTex(128, 8, (ctx, w, h) => { const g = ctx.createLinearGradient(0, 0, w, 0); g.addColorStop(0, "#000"); g.addColorStop(.15, "#fff"); g.addColorStop(.85, "#fff"); g.addColorStop(1, "#000"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
   washAlpha.colorSpace = THREE.NoColorSpace;
-  const wash = new THREE.Mesh(new THREE.PlaneGeometry(2.6, .6), new THREE.MeshBasicMaterial({ map: washTex, alphaMap: washAlpha, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
-  wash.position.set(SX, 1.16 + .3, BACK + .015); led.add(wash); // the strip washes the wall upward and fades at both ends
+  const wash = new THREE.Mesh(new THREE.PlaneGeometry(2.6, .7), new THREE.MeshBasicMaterial({ map: washTex, alphaMap: washAlpha, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  wash.position.set(SX, 1.16 + .25, BACK + .015); led.add(wash); // the strip washes the wall upward and fades at both ends; the plane also reaches 10 cm below the strip and fades there, so the glow no longer starts on a ruled line
   const ledGlow = new THREE.PointLight("#8fd3ff", 0, 3, 2); ledGlow.position.set(SX, 1.2, BACK + .25); scene.add(ledGlow);
   // soft halos around the lamp shades, so a lit lamp looks lit
   const haloTex = canvasTex(128, 128, (ctx, w, h) => { const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,220,160,.9)"); g.addColorStop(.35, "rgba(255,200,130,.35)"); g.addColorStop(1, "rgba(255,190,120,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
