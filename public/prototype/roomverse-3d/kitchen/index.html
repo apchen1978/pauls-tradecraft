@@ -12,8 +12,9 @@
     * { box-sizing:border-box; }
     html,body { margin:0; min-height:100%; background:#f3efe6; color:var(--ink); font-family:system-ui,"Noto Sans TC",sans-serif; }
     [hidden] { display:none !important; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px clamp(16px,3vw,40px); }
+    header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 12px; padding:14px clamp(16px,3vw,40px); }
     .brand { font-size:12px; letter-spacing:.12em; font-weight:800; color:#596043; }
+    .header-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; margin-left:auto; max-width:100%; }
     #lang { min-width:44px; min-height:44px; padding:7px 14px; border:1px solid #a9a38f; border-radius:999px; background:transparent; color:var(--olive); font:700 14px system-ui,sans-serif; cursor:pointer; }
     .intro { max-width:950px; padding:4px clamp(16px,3vw,40px) 14px; }
     h1 { margin:0 0 8px; font-size:clamp(26px,4vw,42px); line-height:1.12; letter-spacing:-.025em; color:#3b4130; }
@@ -76,10 +77,16 @@
     .room.is-immersive .moods button { flex:0 0 auto; background:#faf8f2ee; white-space:nowrap; scroll-snap-align:start; }
     .room.is-immersive .moods button[aria-pressed="true"] { background:#596043; color:#fff; }
     header .brand { margin-right:auto; }
-    .exit-nav { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:8px 13px; border:1px solid #a9a38f; border-radius:999px; background:var(--paper); color:var(--olive); font:700 13px system-ui,sans-serif; text-decoration:none; cursor:pointer; }
+    .exit-nav { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:8px 13px; border:1px solid #a9a38f; border-radius:999px; background:var(--paper); color:var(--olive); font:700 13px system-ui,sans-serif; text-decoration:none; white-space:nowrap; cursor:pointer; }
     .exit-nav:focus-visible { outline:3px solid #b57943; outline-offset:3px; }
-    .immersive-other-rooms { display:none; }
-    .room.is-immersive .immersive-other-rooms { display:inline-flex; position:absolute; z-index:5; top:calc(8px + env(safe-area-inset-top)); right:calc(8px + env(safe-area-inset-right)); background:#29352de8; border-color:#fff9; color:#fff; }
+    .immersive-exits { display:none; }
+    .room.is-immersive .immersive-exits { display:flex; flex-wrap:nowrap; justify-content:flex-end; align-items:center; gap:6px; position:absolute; z-index:5; top:calc(8px + env(safe-area-inset-top)); right:calc(8px + env(safe-area-inset-right)); width:max-content; max-width:calc(100% - 16px - 5.5rem); pointer-events:none; }
+    .room.is-immersive .immersive-exits .exit-nav { display:inline-flex; position:static; pointer-events:auto; background:#29352de8; border-color:#fff9; color:#fff; }
+    @media (max-width:520px) {
+      header { align-items:flex-start; }
+      .header-actions { flex:1 1 100%; justify-content:flex-start; }
+      .room.is-immersive .immersive-exits .exit-nav { font-size:12px; padding:8px 8px; }
+    }
     .robot-hit { position:absolute; z-index:4; background:transparent; border:0; border-radius:40%; cursor:pointer; padding:0; }
     .door-hit { border-radius:6px; }
     .robot-hit:focus-visible { outline:3px solid #e3b23c; outline-offset:2px; }
@@ -93,8 +100,11 @@
 <body>
   <header>
     <span class="brand">ROOMVERSE 3D</span>
-    <a id="headerOtherRooms" class="exit-nav" data-travel-door-trigger href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
-    <button id="lang" type="button" aria-label="Switch language">EN</button>
+    <span class="header-actions">
+      <a id="portfolioHome" class="exit-nav" href="/?lang=zh" aria-label="回到作品集首頁">⌂ 作品集首頁</a>
+      <a id="headerOtherRooms" class="exit-nav" data-travel-door-trigger href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
+      <button id="lang" type="button" aria-label="Switch language">EN</button>
+    </span>
   </header>
   <main>
     <section class="intro" aria-labelledby="title">
@@ -112,7 +122,10 @@
       <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
       <button class="immersive-exit" id="immersiveExit" type="button"></button>
       <div class="immersive-controls" id="immersiveControls"></div>
-      <a id="immersiveOtherRooms" class="exit-nav immersive-other-rooms" data-travel-door-trigger href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
+      <div class="immersive-exits" id="immersiveExits">
+        <a id="immersivePortfolioHome" class="exit-nav" href="/?lang=zh" aria-label="回到作品集首頁">⌂ 作品集首頁</a>
+        <a id="immersiveOtherRooms" class="exit-nav" data-travel-door-trigger href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
+      </div>
     </section>
     <section class="toolbar" aria-label="Room settings">
       <div class="moods" id="moods" role="group" aria-label="Choose a mood"></div>
@@ -127,6 +140,6 @@
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=145"></script>
+  <script type="module" src="page.js?v=146"></script>
 </body>
 </html>

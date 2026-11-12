@@ -6,13 +6,13 @@ const COPY = {
     title: ROOM_TITLE, subtitle: "上海慢板",
     lead: "上海一間紅磚小咖啡廳，早晨剛開店。拖曳畫面看看吧台、菜單牆和臨街的窗。",
     note: "這是粗模：尺寸、機位和早晨的光是真的，咖啡機、糕點櫃和機器人先用簡單形狀代替。",
-    otherRooms: "← 其他房間", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 咖啡廳的 3D 粗模",
+    portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁", otherRooms: "← 其他房間", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 咖啡廳的 3D 粗模",
   },
   en: {
     title: ROOM_TITLE, subtitle: "A cafe in Shanghai",
     lead: "A small red-brick cafe in Shanghai, just opened for the morning. Drag to look at the counter, the menu wall and the street window.",
     note: "This is a blockout: the sizes, the camera and the morning light are real; the espresso machine, the pastry case and the robot are plain stand-ins for now.",
-    otherRooms: "← Other rooms", lang: "中文", loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D blockout of the Room 04 cafe",
+    portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home", otherRooms: "← Other rooms", lang: "中文", loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D blockout of the Room 04 cafe",
   },
 };
 const $ = (id) => document.getElementById(id);
@@ -24,7 +24,7 @@ function renderCopy() {
   document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
   document.title = `${ROOM_TITLE} · ROOMVERSE 3D`;
   $("title").textContent = copy.title; $("subtitle").textContent = copy.subtitle; $("lead").textContent = copy.lead; $("note").textContent = copy.note;
-  $("lang").textContent = copy.lang; $("otherRooms").textContent = copy.otherRooms; $("otherRooms").href = `/prototype/roomverse-3d/?lang=${lang}`;
+  $("lang").textContent = copy.lang; $("portfolioHome").textContent = copy.portfolioHome; $("portfolioHome").href = `/?lang=${lang}`; $("portfolioHome").setAttribute("aria-label", copy.portfolioHomeLabel); $("otherRooms").textContent = copy.otherRooms; $("otherRooms").href = `/prototype/roomverse-3d/?lang=${lang}`;
   $("stage").querySelector("canvas")?.setAttribute("aria-label", copy.canvas);
 }
 $("lang").addEventListener("click", () => {
