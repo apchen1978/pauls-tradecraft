@@ -8,13 +8,14 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 3419, meshes: 51 }),
+  scene: Object.freeze({ vertices: 3567, meshes: 49 }),
   // Draw calls in the first frame of the opening (morning) view.
-  openingDrawCalls: Object.freeze({ desktop: 49, phone: 48 }),
+  openingDrawCalls: Object.freeze({ desktop: 51, phone: 48 }),
   // Starting caps from the look brief, set from Room 03's live size (109,111 vertices, 133 meshes, 83 / 80 opening draw calls).
   caps: Object.freeze({ vertices: 90000, meshes: 140, desktopCalls: 80, phoneCalls: 75 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-13", change: "blockout: shell, window, counter, back bar, shelves, menus, plain stand-ins for the machine, grinder, pastry case, robot and plant", vertices: 3419, meshes: 51, desktopCalls: 49, phoneCalls: 48 },
+    { date: "2026-11-13", change: "section 1 (shell and light): painted brick with height map, plank ceiling, painted floor, plaster bump, window with 22 cm reveal, steel glazing (one merged mesh), sill, apron, painted Xintiandi street, merged skirting, soft reflection map", vertices: 3567, meshes: 49, desktopCalls: 51, phoneCalls: 48 },
   ]),
 });

@@ -1,12 +1,14 @@
 import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
+import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai, just opened for the morning.
 // Look brief approved by Paul on 2026-11-13 (arrival = morning white light; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
 //
-// THIS FILE IS THE BLOCKOUT: real sizes, real positions, the camera and the morning sun, with plain shapes standing in for the hero pieces.
-// It exists to settle three things before any detail is built: (1) the room's proportions, (2) the phone view along the counter,
-// (3) where the window-pane light lands. Every stand-in is named "blockout-*" so it is easy to find and replace.
+// Built in sections, each one finished before the next (Paul, 2026-11-13: Room 03's first week was thin and cost a lot of rework):
+//   1. SHELL AND LIGHT: painted brick with real relief, plank ceiling, floor, plaster walls, a window with depth and the painted street,
+//      skirting, soft reflections. 2. Counter and back bar. 3. Hero pieces (machine, grinder, pastry case, robot). 4. Story corner. 5. Moods and polish.
+// Everything still named "blockout-*" is a plain stand-in that a later section replaces.
 export const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
 
 // Metres. x: left (-) to right (+); z: brick back wall (-) to the visitor (+); y: up.
@@ -28,20 +30,33 @@ const MOODS = Object.freeze({
   morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, exposure: 1.0, sky: 0xdfe7ee }),
 });
 
-// A stand-in brick wall drawn on a canvas, so the blockout already reads as red brick with uneven colour. Codex's painted texture replaces it.
-function makeBrickTexture() {
-  const canvas = document.createElement("canvas"); canvas.width = 1024; canvas.height = 512;
+// Plank ceiling drawn on a canvas: white boards 14 cm wide with a dark tongue-and-groove line, used as colour AND bump so the grooves catch the light.
+function makePlankTexture() {
+  const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 512;
   const g = canvas.getContext("2d");
-  g.fillStyle = "#cfc6b8"; g.fillRect(0, 0, 1024, 512);
-  let seed = 4; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const bw = 64, bh = 20, gap = 3;
-  for (let row = 0; row * (bh + gap) < 512; row++) for (let col = -1; col * (bw + gap) < 1024; col++) {
-    const k = rnd(), r = Math.round(126 + 55 * k), gr = Math.round(63 + 36 * k), b = Math.round(41 + 22 * k);
-    g.fillStyle = `rgb(${r},${gr},${b})`;
-    g.fillRect(col * (bw + gap) + (row % 2 ? (bw + gap) / 2 : 0), row * (bh + gap), bw, bh);
+  const boards = 8, h = 512 / boards;
+  let seed = 9; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < boards; i++) {
+    const k = 236 + Math.round(rnd() * 12);
+    g.fillStyle = `rgb(${k},${k - 2},${k - 7})`; g.fillRect(0, i * h, 512, h);
+    g.strokeStyle = "rgba(120,110,98,.16)"; g.lineWidth = 1; // a faint grain
+    for (let n = 0; n < 5; n++) { const y = i * h + 8 + rnd() * (h - 16); g.beginPath(); g.moveTo(0, y); g.lineTo(512, y + (rnd() - .5) * 4); g.stroke(); }
+    g.fillStyle = "rgba(70,62,54,.55)"; g.fillRect(0, i * h, 512, 3); // the groove
+    g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(0, i * h + 3, 512, 2); // the lit edge below it
   }
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = 8;
+  return texture;
+}
+// Plaster: fine noise used only as a bump, so painted walls are not perfectly flat and the low sun rakes across them.
+function makePlasterBump() {
+  const canvas = document.createElement("canvas"); canvas.width = 256; canvas.height = 256;
+  const g = canvas.getContext("2d"), image = g.createImageData(256, 256);
+  let seed = 21; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 256 * 256; i++) { const v = 128 + (rnd() - .5) * 70; image.data.set([v, v, v, 255], i * 4); }
+  g.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.NoColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   return texture;
 }
 
@@ -72,24 +87,66 @@ export async function start({ stage, onReady = () => {} }) {
   // The visitor's side of the room has no wall in the blockout, so the orbit stays on that side.
   controls.minAzimuthAngle = -1.05; controls.maxAzimuthAngle = 0.75;
 
+  // Painted textures (Codex, cards 45 and 46) are given to a material only when they have loaded, so nothing flashes black; until then the material
+  // keeps a flat colour of the same family.
+  const textureLoader = new THREE.TextureLoader();
+  const artBase = new URL("./art/", import.meta.url).href;
+  const loadedArt = new Set();
+  const maxAnisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  function paint(file, { srgb = true, repeat = [1, 1], then } = {}) {
+    textureLoader.load(artBase + file, (texture) => {
+      texture.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = maxAnisotropy; texture.repeat.set(...repeat);
+      loadedArt.add(file); then(texture); render();
+    });
+  }
+  const plaster = makePlasterBump(); plaster.repeat.set(ROOM.width / 1.0, ROOM.height / 1.0);
   const materials = {
-    wall: new THREE.MeshStandardMaterial({ color: COLORS.wall, roughness: 0.95 }),
-    ceiling: new THREE.MeshStandardMaterial({ color: COLORS.ceiling, roughness: 0.95, emissive: COLORS.ceiling, emissiveIntensity: 0.22 }), // a ceiling faces away from every light; a little glow stands in for light bounced up off the floor
-    floor: new THREE.MeshStandardMaterial({ color: COLORS.floor, roughness: 0.82 }),
-    brick: new THREE.MeshStandardMaterial({ map: makeBrickTexture(), roughness: 0.94 }),
+    wall: new THREE.MeshStandardMaterial({ color: COLORS.wall, roughness: 0.95, bumpMap: plaster, bumpScale: 0.6 }),
+    ceiling: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, map: makePlankTexture(), bumpScale: 1.4, emissive: COLORS.ceiling, emissiveIntensity: 0.16 }), // a ceiling faces away from every light; a little glow stands in for light bounced up off the floor
+    floor: new THREE.MeshStandardMaterial({ color: COLORS.floor, roughness: 0.62 }),
+    brick: new THREE.MeshStandardMaterial({ color: 0x9a4f33, roughness: 0.93 }),
     oak: new THREE.MeshStandardMaterial({ color: COLORS.oak, roughness: 0.68 }),
     olive: new THREE.MeshStandardMaterial({ color: COLORS.olive, roughness: 0.75 }),
     black: new THREE.MeshStandardMaterial({ color: COLORS.black, roughness: 0.6 }),
-    steel: new THREE.MeshStandardMaterial({ color: COLORS.steel, roughness: 0.38, metalness: 0.15 }), // real brushed steel needs an environment map (a metal with nothing to reflect is black); that comes with the detailed machine
+    frame: new THREE.MeshStandardMaterial({ color: 0x24272a, roughness: 0.5, metalness: 0.2 }),
+    steel: new THREE.MeshStandardMaterial({ color: COLORS.steel, roughness: 0.34, metalness: 0.9 }),
     stone: new THREE.MeshStandardMaterial({ color: COLORS.stone, roughness: 0.5 }),
+    trim: new THREE.MeshStandardMaterial({ color: 0xf6f2ea, roughness: 0.7 }),
     chalk: new THREE.MeshStandardMaterial({ color: COLORS.chalk, roughness: 0.95 }),
     plant: new THREE.MeshStandardMaterial({ color: COLORS.plant, roughness: 0.9 }),
     white: new THREE.MeshStandardMaterial({ color: COLORS.robot, roughness: 0.55 }),
     terracotta: new THREE.MeshStandardMaterial({ color: COLORS.terracotta, roughness: 0.7 }),
     glass: new THREE.MeshStandardMaterial({ color: 0xdfeaf0, roughness: 0.08, transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide }),
+    pane: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.04, transparent: true, opacity: 0.07, depthWrite: false }),
     street: new THREE.MeshBasicMaterial({ color: MOODS.morning.sky }),
   };
-  materials.brick.map.repeat.set(ROOM.width / 2.2, ROOM.height / 1.1);
+  materials.ceiling.bumpMap = materials.ceiling.map;
+  materials.ceiling.map.repeat.set(1, (ROOM.depth + 1.2) / (8 * 0.14)); // eight boards of 14 cm per tile
+  // Brick: the painted tile covers about 2.2 x 1.1 m. The height map (bright brick face, dark joint) is the relief the low sun rakes across.
+  paint("room04-brick-red-v1.webp", { repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.map = t; materials.brick.color.set(0xffffff); materials.brick.needsUpdate = true; } });
+  paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
+  paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
+  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; } });
+
+  // Soft reflections (the Room 03 recipe): a tiny made-up room (pale ceiling, warm floor, one bright window panel) baked into an environment map and
+  // given ONLY to the metals, glass and stone. scene.environment stays unset so walls, wood and brick keep their exact lighting.
+  const reflectionEnv = (() => {
+    const room = new THREE.Scene();
+    const cv = document.createElement("canvas"); cv.width = 8; cv.height = 256;
+    const ctx = cv.getContext("2d"), g = ctx.createLinearGradient(0, 0, 0, 256);
+    g.addColorStop(0, "#fbf6ec"); g.addColorStop(0.5, "#d8d0c0"); g.addColorStop(1, "#a88c6a");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 8, 256);
+    const gradient = new THREE.CanvasTexture(cv); gradient.colorSpace = THREE.SRGBColorSpace;
+    room.add(new THREE.Mesh(new THREE.BoxGeometry(8, 5, 8), new THREE.MeshBasicMaterial({ map: gradient, side: THREE.BackSide })));
+    const panel = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.7), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    panel.position.set(-3.9, 0.4, 0); panel.rotation.y = Math.PI / 2; room.add(panel); // the street window, on the left like the real one
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const texture = pmrem.fromScene(room, 0.04).texture; pmrem.dispose();
+    return texture;
+  })();
+  const reflectiveBase = { steel: 1.0, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
+  for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
     const mesh = new THREE.Mesh(geometry, material);
@@ -100,22 +157,37 @@ export async function start({ stage, onReady = () => {} }) {
     add(name, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), material, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, options);
 
   // ---------- shell ----------
+  const LEFT_WALL = 0.22; // thick enough to give the window a real reveal (the glass sits 11 cm inside the opening)
   box("floor", materials.floor, [X0, X1], [-0.05, 0], [BACK, FRONT + 1.2], { cast: false });
   box("ceiling", materials.ceiling, [X0, X1], [ROOM.height, ROOM.height + 0.05], [BACK, FRONT + 1.2], { receive: false });
   box("brick-wall", materials.brick, [X0, X1], [0, ROOM.height], [BACK - 0.1, BACK]);
   box("right-wall", materials.wall, [X1, X1 + 0.1], [0, ROOM.height], [BACK, FRONT + 1.2]);
   // The left wall is four pieces around the window opening, so the sun really comes through the hole and the wall shades the rest.
-  box("left-wall-below", materials.wall, [X0 - 0.1, X0], [0, WINDOW.y0], [BACK, FRONT + 1.2]);
-  box("left-wall-above", materials.wall, [X0 - 0.1, X0], [WINDOW.y1, ROOM.height], [BACK, FRONT + 1.2]);
-  box("left-wall-back", materials.wall, [X0 - 0.1, X0], [WINDOW.y0, WINDOW.y1], [BACK, WINDOW.z0]);
-  box("left-wall-front", materials.wall, [X0 - 0.1, X0], [WINDOW.y0, WINDOW.y1], [WINDOW.z1, FRONT + 1.2]);
-  // Black glazing bars: a frame, two uprights and one rail. They are what draws the pane pattern on the counter.
-  const bar = 0.035, wz = WINDOW.z1 - WINDOW.z0, wy = WINDOW.y1 - WINDOW.y0;
-  for (const z of [WINDOW.z0, WINDOW.z0 + wz / 3, WINDOW.z0 + wz * 2 / 3, WINDOW.z1]) box("window-bar", materials.black, [X0 - 0.07, X0 - 0.03], [WINDOW.y0, WINDOW.y1], [z - bar / 2, z + bar / 2]);
-  for (const y of [WINDOW.y0, WINDOW.y0 + wy / 2, WINDOW.y1]) box("window-bar", materials.black, [X0 - 0.07, X0 - 0.03], [y - bar / 2, y + bar / 2], [WINDOW.z0, WINDOW.z1]);
-  // The street outside is a flat pale plane for now (card 45: Codex paints the Xintiandi morning view, 1536 x 1024).
-  const street = add("blockout-street-view", new THREE.PlaneGeometry(wz + 1.6, wy + 1.2), materials.street, X0 - 0.9, (WINDOW.y0 + WINDOW.y1) / 2, (WINDOW.z0 + WINDOW.z1) / 2, { cast: false, receive: false });
-  street.rotation.y = Math.PI / 2;
+  box("left-wall-below", materials.wall, [X0 - LEFT_WALL, X0], [0, WINDOW.y0], [BACK, FRONT + 1.2]);
+  box("left-wall-above", materials.wall, [X0 - LEFT_WALL, X0], [WINDOW.y1, ROOM.height], [BACK, FRONT + 1.2]);
+  box("left-wall-back", materials.wall, [X0 - LEFT_WALL, X0], [WINDOW.y0, WINDOW.y1], [BACK, WINDOW.z0]);
+  box("left-wall-front", materials.wall, [X0 - LEFT_WALL, X0], [WINDOW.y0, WINDOW.y1], [WINDOW.z1, FRONT + 1.2]);
+  // Black steel glazing: an outer frame, two uprights and one rail, 5 cm wide and 6 cm deep, set at the glass plane inside the reveal.
+  const wz = WINDOW.z1 - WINDOW.z0, wy = WINDOW.y1 - WINDOW.y0, GLASS_X = X0 - 0.11, bar = 0.05, barDepth = 0.06;
+  const bars = [];
+  const addBar = (x0, x1, y0, y1, z0, z1) => bars.push(new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2));
+  for (const z of [WINDOW.z0 + bar / 2, WINDOW.z0 + wz / 3, WINDOW.z0 + wz * 2 / 3, WINDOW.z1 - bar / 2]) addBar(GLASS_X - barDepth / 2, GLASS_X + barDepth / 2, WINDOW.y0, WINDOW.y1, z - bar / 2, z + bar / 2);
+  for (const y of [WINDOW.y0 + bar / 2, WINDOW.y0 + wy / 2, WINDOW.y1 - bar / 2]) addBar(GLASS_X - barDepth / 2, GLASS_X + barDepth / 2, y - bar / 2, y + bar / 2, WINDOW.z0, WINDOW.z1);
+  add("window-frame", mergeGeometries(bars), materials.frame, 0, 0, 0); // one mesh for all seven bars
+  add("window-glass", new THREE.PlaneGeometry(wz, wy), materials.pane, GLASS_X, (WINDOW.y0 + WINDOW.y1) / 2, (WINDOW.z0 + WINDOW.z1) / 2, { cast: false, receive: false }).rotation.y = Math.PI / 2;
+  // An oak sill that sticks 7 cm into the room, and a thin apron under it, so the window reads as built into a thick wall.
+  box("window-sill", materials.oak, [X0 - 0.11, X0 + 0.07], [WINDOW.y0 - 0.035, WINDOW.y0 + 0.005], [WINDOW.z0 - 0.06, WINDOW.z1 + 0.06]);
+  box("window-apron", materials.trim, [X0, X0 + 0.02], [WINDOW.y0 - 0.14, WINDOW.y0 - 0.035], [WINDOW.z0 - 0.02, WINDOW.z1 + 0.02]);
+  // The painted street (Codex card 45) hangs 1.35 m outside the wall: far enough to read as a street, near enough to fill the opening from where the visitor stands.
+  const streetW = 4.5, streetH = streetW / 1.5;
+  const street = add("window-street-view", new THREE.PlaneGeometry(streetW, streetH), materials.street, X0 - 1.35, (WINDOW.y0 + WINDOW.y1) / 2 + 0.05, (WINDOW.z0 + WINDOW.z1) / 2, { cast: false, receive: false });
+  street.rotation.y = Math.PI / 2; // faces +x, into the room
+  // Skirting: 11 cm high and 2 cm thick on the side walls and the two exposed ends of the brick wall, merged into one mesh.
+  const skirting = [], skirtH = 0.11, skirtT = 0.02;
+  const addSkirt = (x0, x1, z0, z1) => skirting.push(new THREE.BoxGeometry(x1 - x0, skirtH, z1 - z0).translate((x0 + x1) / 2, skirtH / 2, (z0 + z1) / 2));
+  addSkirt(X0, X0 + skirtT, BACK, FRONT + 1.2); addSkirt(X1 - skirtT, X1, BACK, FRONT + 1.2);
+  addSkirt(X0, BACK_BAR.x0, BACK, BACK + skirtT); addSkirt(BACK_BAR.x1, X1, BACK, BACK + skirtT);
+  add("skirting", mergeGeometries(skirting), materials.trim, 0, 0, 0);
 
   // ---------- counter and back bar ----------
   const c = COUNTER, endRadius = (c.z1 - c.z0) / 2;
@@ -189,7 +261,7 @@ export async function start({ stage, onReady = () => {} }) {
     ambient.intensity = look.ambient;
     for (const spot of trackLights) spot.intensity = look.track;
     renderer.toneMappingExposure = look.exposure;
-    scene.background = new THREE.Color(look.sky); materials.street.color.setHex(look.sky);
+    scene.background = new THREE.Color(look.sky); if (!materials.street.map) materials.street.color.setHex(look.sky);
     render(); return true;
   }
 
@@ -220,7 +292,7 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "blockout", mood: currentMood, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-1-shell", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
