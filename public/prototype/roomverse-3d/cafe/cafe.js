@@ -33,12 +33,28 @@ const COLORS = Object.freeze({
 // Each mood sets the sun, the sky fill, the track lights, a tint on the street painting (until Codex paints one street per mood) and how strongly the steel and glass reflect.
 // sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
-  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, steam: 0.3 }),
-  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfffaf0, lamp: 0, reflect: 1.1, pendant: 0.05, steam: 0.18 }),
-  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xffc592, lamp: 0.6, reflect: 0.85, pendant: 0.45, steam: 0.36 }),
-  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xc4ccd4, lamp: 0.9, reflect: 0.7, pendant: 0.85, steam: 0.4, rain: true }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0x3b4668, lamp: 3.4, reflect: 0.45, pendant: 1.4, steam: 0.42 }),
+  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, steam: 0.3 }),
+  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfffaf0, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, steam: 0.18 }),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xffc592, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, steam: 0.36 }),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xc4ccd4, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, steam: 0.4, rain: true }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0x3b4668, lamp: 3.4, reflect: 0.45, pendant: 1.4, shaft: 0, steam: 0.42 }),
 });
+
+// The looks (Paul, 2026-11-13: a "random cafe" like the random look of Rooms 01 to 03). Each group swaps colours or tints on existing materials, so a swap costs no
+// geometry and no draw call. A tint is a multiplier on the painted texture (values above 1 lift a channel), a colour replaces the flat colour.
+export const LOOK_GROUPS = Object.freeze({
+  brick: Object.freeze({ red: [1, 1, 1], umber: [0.9, 0.78, 0.64], grey: [0.78, 1.75, 2.6], dusty: [1.2, 2.7, 3.9] }),
+  counter: Object.freeze({ honey: [1, 1, 1], walnut: [0.55, 0.43, 0.35], pale: [1.1, 1.3, 1.65], grey: [0.95, 1.2, 1.5] }),
+  back: Object.freeze({ olive: 0x4d5d3c, navy: 0x2f4560, terracotta: 0xa5563b, charcoal: 0x3a3d3f, sage: 0x88977a }),
+  wall: Object.freeze({ warm: 0xf1ece2, blush: 0xf0dcd4, mist: 0xdde5e2, butter: 0xf3e6c4, grey: 0xdad8d4 }),
+  floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12] }),
+  lamp: Object.freeze({ rattan: 0xd9bb82, paper: 0xf2ede2, black: 0x2b2b2c }),
+  scarf: Object.freeze({ olive: 0x66763f, terracotta: 0xc4623a, mustard: 0xd6a43a, navy: 0x2f4560, rose: 0xd49a96 }),
+  chair: Object.freeze({ bentwood: 0x9a6a3a, black: 0x2a2a2c, natural: 0xc9a06a }),
+  // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
+  wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4] }),
+});
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "rattan", scarf: "olive", chair: "bentwood", wallpaper: "none" });
 
 // Plank ceiling drawn on a canvas: white boards 14 cm wide with a dark tongue-and-groove line, used as colour AND bump so the grooves catch the light.
 function makePlankTexture() {
@@ -213,10 +229,10 @@ export async function start({ stage, onReady = () => {} }) {
     textureLoader.load(artBase + file, (texture) => {
       texture.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = maxAnisotropy; texture.repeat.set(...repeat);
-      loadedArt.add(file); then(texture); render();
+      loadedArt.add(file); then(texture); if (typeof reapplyLook === "function") reapplyLook(); render();
     });
   }
-  const plaster = makePlasterBump(); plaster.repeat.set(ROOM.width / 1.0, ROOM.height / 1.0);
+  const plaster = makePlasterBump(); plaster.repeat.set(2, 2);
   const materials = {
     wall: new THREE.MeshStandardMaterial({ color: COLORS.wall, roughness: 0.95, bumpMap: plaster, bumpScale: 0.6 }),
     ceiling: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, map: makePlankTexture(), bumpScale: 1.4, emissive: COLORS.ceiling, emissiveIntensity: 0.16 }), // a ceiling faces away from every light; a little glow stands in for light bounced up off the floor
@@ -313,8 +329,11 @@ export async function start({ stage, onReady = () => {} }) {
     mesh.name = name; mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = receive;
     scene.add(mesh); return mesh;
   };
-  const box = (name, material, [x0, x1], [y0, y1], [z0, z1], options) =>
-    add(name, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), material, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, options);
+  const box = (name, material, [x0, x1], [y0, y1], [z0, z1], options) => {
+    if (material !== materials.wall) return add(name, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), material, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, options);
+    const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); worldUVs(g, 1);
+    return add(name, g, material, 0, 0, 0, options);
+  };
 
   // ---------- shell ----------
   const LEFT_WALL = 0.22; // thick enough to give the window a real reveal (the glass sits 11 cm inside the opening)
@@ -566,12 +585,14 @@ export async function start({ stage, onReady = () => {} }) {
     const caseLight = new THREE.PointLight(0xffd7a0, 0.9, 1.3, 2); caseLight.position.set(cx, base + Hh - 0.05, (zb + zf) / 2); scene.add(caseLight);
   }
 
-  // Two ROOMVERSE robots work the bar (Paul, 2026-11-13). The GREETER stands on a crate behind the counter by the pastry case, facing the visitors with a cup on a saucer.
-  // The BARISTA stands on a crate in front of the machine, turned three-quarters away from the visitors, and steams milk at the wand: its back is to us, the machine
-  // faces us, so the machine facing out and a robot "inside" the counter work together. Both are 15% over their 60 cm design height so they read from across the room.
-  const robot = new THREE.Group(); robot.name = "robot-barista";
-  const ROBOT_SCALE = 1.15;
-  const buildRobot = (group, withScarfTailsOnBack) => {
+  // Two ROOMVERSE robots work the bar (Paul, 2026-11-13). Paul did not want them floating on the counter: each one now stands on its own FLOOR PEDESTAL (a dark column on a
+  // round base with an orange light ring, reaching up to the egg), behind the counter where its base is hidden, so from the front only the head and shoulders show above the
+  // counter, like a person standing behind it, and from the sides the whole column is there to see. Nothing stands on the counter or the bar except what a cafe puts there.
+  // The GREETER stands by the pastry case and sets a cup of coffee down on the counter; the BARISTA stands at the machine, three-quarters turned away from the visitors,
+  // and steams milk with the pitcher at the wand. Both are 15% over their 60 cm design height so they read from across the room.
+  const robot = new THREE.Group(); robot.name = "robot-barista"; // the greeter's egg and arms (it hops); its pedestal is static
+  const ROBOT_SCALE = 1.15, EGG_BASE = 0.86, ARM_R = 0.036;
+  const buildRobot = (group) => {
     const local = new THREE.Group(); group.add(local);
     const add2 = (key, geometry) => { const mesh = new THREE.Mesh(geometry, materials[key]); mesh.castShadow = true; mesh.receiveShadow = true; local.add(mesh); return mesh; };
     add2("robotBody", eggGeometry());
@@ -581,9 +602,15 @@ export async function start({ stage, onReady = () => {} }) {
     const scarf = add2("scarf", new THREE.TorusGeometry(eggRadius(0.325) + 0.004, 0.026, 10, 36)); scarf.rotation.x = Math.PI / 2; scarf.position.y = 0.325; scarf.scale.set(1, 1, 0.8);
     const knot = add2("scarf", new THREE.SphereGeometry(0.03, 12, 8)); knot.position.set(-0.075, 0.315, eggRadius(0.315) + 0.014);
     for (const [dx, tilt] of [[-0.05, 0.12], [-0.095, -0.1]]) { const tail = add2("scarf", new THREE.BoxGeometry(0.04, 0.1, 0.012)); tail.position.set(dx - 0.025, 0.245, eggRadius(0.25) + 0.016); tail.rotation.z = tilt; }
-    return { local, add2 };
+    // A limb: a capsule between two points in the robot's own frame.
+    const limb = (a, b) => {
+      const from = new THREE.Vector3(...a), to = new THREE.Vector3(...b), length = Math.max(0.01, from.distanceTo(to) - 2 * ARM_R);
+      const g = new THREE.CapsuleGeometry(ARM_R, length, 6, 12); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), to.clone().sub(from).normalize()));
+      g.translate((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2); return add2("robotBody", g);
+    };
+    return { local, add2, limb };
   };
-  // Merge a robot's parts by material (the robot still moves as one group), so each robot costs a handful of draw calls instead of a dozen.
+  // Merge a robot's parts by material (the robot still moves as one group), so each robot costs a handful of draw calls.
   const consolidateRobot = (local) => {
     local.updateMatrixWorld(true);
     const byMaterial = new Map();
@@ -596,35 +623,42 @@ export async function start({ stage, onReady = () => {} }) {
     }
     for (const [material, list] of byMaterial) { const merged = new THREE.Mesh(mergeGeometries(list), material); merged.castShadow = true; merged.receiveShadow = true; local.add(merged); }
   };
+  // The pedestal: a round steel-edged base on the floor with an orange light ring, a tapering dark column, and a collar under the egg.
+  const pedestal = (x, z) => {
+    part("black", new THREE.CylinderGeometry(0.29, 0.31, 0.04, 40).translate(x, 0.02, z), { tile: 1 });
+    part("terracotta", new THREE.TorusGeometry(0.265, 0.006, 8, 48).rotateX(Math.PI / 2).translate(x, 0.043, z), { tile: 1 });
+    part("black", new THREE.LatheGeometry([[0.0005, 0.04], [0.17, 0.04], [0.12, 0.14], [0.11, 0.72], [0.14, 0.84], [0.0005, 0.84]].map((p) => new THREE.Vector2(p[0], p[1])), 40).translate(x, 0, z), { tile: 1 });
+    part("steel", new THREE.TorusGeometry(0.142, 0.012, 8, 40).rotateX(Math.PI / 2).translate(x, 0.84, z), { tile: 1 });
+    const contactMesh = (name, x0, x1, z0, z1, opacity) => { const m = add(name, new THREE.PlaneGeometry(x1 - x0, z1 - z0), new THREE.MeshBasicMaterial({ map: makeContactShadowTexture(), transparent: true, opacity, depthWrite: false, color: 0x000000 }), (x0 + x1) / 2, 0.005, (z0 + z1) / 2, { cast: false, receive: false }); m.rotation.x = -Math.PI / 2; m.renderOrder = 1; };
+    contactMesh(`robot-contact-${Math.round(x * 100)}`, x - 0.62, x + 0.62, z - 0.62, z + 0.62, 0.6);
+  };
+
+  const RG = { x: 0.8, z: -1.28 }; // the greeter
   const greeter = buildRobot(robot);
+  const GREETER_CUP = new THREE.Vector3(1.08, c.height, -0.8); // the cup it has just set down on the counter
   {
-    const rx = 0.8, rz = -1.2, baseY = 0.86;
-    slab("oak", [rx - 0.3, rx + 0.3], [0, baseY], [rz - 0.3, rz + 0.3], { grain: "y" });
-    slab("oakDark", [rx - 0.31, rx + 0.31], [baseY - 0.02, baseY], [rz - 0.31, rz + 0.31], { tile: 1 });
-    greeter.local.position.set(rx, baseY, rz); greeter.local.scale.setScalar(ROBOT_SCALE);
-    const { add2 } = greeter;
-    const armL = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.09, 6, 12)); armL.position.set(-eggRadius(0.27) - 0.012, 0.27, 0.02); armL.rotation.z = 0.12;
-    const armR = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.1, 6, 12)); armR.position.set(eggRadius(0.27) - 0.01, 0.285, 0.1); armR.rotation.x = Math.PI / 2 - 0.1; armR.rotation.z = -0.3;
-    const sx = eggRadius(0.27) + 0.02, sz = 0.255;
-    const saucer = add2("ceramic", new THREE.CylinderGeometry(0.075, 0.058, 0.012, 28)); saucer.position.set(sx, 0.236, sz);
-    const cup = add2("ceramic", new THREE.LatheGeometry([[0, 0], [0.036, 0], [0.05, 0.07], [0.046, 0.07], [0.033, 0.01], [0]].map((p) => new THREE.Vector2(p[0], p[1] ?? 0)), 24)); cup.position.set(sx, 0.242, sz);
-    const liquid = add2("coffee", new THREE.CircleGeometry(0.044, 24)); liquid.rotation.x = -Math.PI / 2; liquid.position.set(sx, 0.304, sz);
+    pedestal(RG.x, RG.z);
+    greeter.local.position.set(RG.x, EGG_BASE, RG.z); greeter.local.scale.setScalar(ROBOT_SCALE); robot.updateMatrixWorld(true);
+    const hand = greeter.local.worldToLocal(new THREE.Vector3(GREETER_CUP.x - 0.055, c.height + 0.03, GREETER_CUP.z));
+    greeter.limb([0.19, 0.34, 0.05], [hand.x, hand.y, hand.z]); // the right arm reaches out over the counter to the cup
+    greeter.limb([-0.19, 0.34, 0.03], [-0.235, 0.2, 0.08]); // the left arm rests at its side
     consolidateRobot(greeter.local);
     scene.add(robot);
+    // The cup of coffee on its saucer, standing on the counter.
+    part("ceramic", new THREE.CylinderGeometry(0.075, 0.058, 0.012, 28).translate(GREETER_CUP.x, c.height + 0.006, GREETER_CUP.z), { tile: 1 });
+    part("ceramic", new THREE.LatheGeometry([[0, 0], [0.036, 0], [0.05, 0.07], [0.046, 0.07], [0.033, 0.01], [0]].map((p) => new THREE.Vector2(p[0], p[1] ?? 0)), 24).translate(GREETER_CUP.x, c.height + 0.012, GREETER_CUP.z), { tile: 1 });
+    part("coffee", new THREE.CircleGeometry(0.044, 24).rotateX(-Math.PI / 2).translate(GREETER_CUP.x, c.height + 0.074, GREETER_CUP.z), { tile: 1 });
   }
   const baristaRobot = new THREE.Group(); baristaRobot.name = "robot-barista-machine";
   const PITCHER = new THREE.Vector3(mx + MACHINE.W / 2 + 0.04, machineY0 + 0.135, machineFront + 0.125); // where the wand tip sits: inside the pitcher
   {
-    const yaw = -2.35, baseY = 0.86, hand = new THREE.Vector3(0.2, 0.27, 0.27); // the hand, in the robot's own frame
-    const offset = hand.clone().multiplyScalar(ROBOT_SCALE).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-    const rx = PITCHER.x - offset.x, rz = PITCHER.z - offset.z;
-    slab("oak", [rx - 0.3, rx + 0.3], [0, baseY], [rz - 0.3, rz + 0.3], { grain: "y" });
-    slab("oakDark", [rx - 0.31, rx + 0.31], [baseY - 0.02, baseY], [rz - 0.31, rz + 0.31], { tile: 1 });
+    const RB = { x: -0.5, z: -1.62 }, yaw = Math.atan2(PITCHER.x - RB.x, PITCHER.z - RB.z); // it faces the wand
+    pedestal(RB.x, RB.z);
     const barista = buildRobot(baristaRobot);
-    barista.local.position.set(rx, baseY, rz); barista.local.rotation.y = yaw; barista.local.scale.setScalar(ROBOT_SCALE);
-    const { add2 } = barista;
-    const armL = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.09, 6, 12)); armL.position.set(-eggRadius(0.27) - 0.012, 0.27, 0.0); armL.rotation.z = 0.12;
-    const armR = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.12, 6, 12)); armR.position.set(0.2, 0.275, 0.14); armR.rotation.x = Math.PI / 2 - 0.05; // reaching forward with the pitcher
+    barista.local.position.set(RB.x, EGG_BASE, RB.z); barista.local.rotation.y = yaw; barista.local.scale.setScalar(ROBOT_SCALE); baristaRobot.updateMatrixWorld(true);
+    const hand = barista.local.worldToLocal(PITCHER.clone());
+    barista.limb([0.19, 0.36, 0.05], [hand.x, hand.y, hand.z]); // the right arm reaches the pitcher under the wand
+    barista.limb([-0.19, 0.34, 0.02], [-0.23, 0.2, 0.06]);
     consolidateRobot(barista.local);
     scene.add(baristaRobot);
     // The milk pitcher in the hand (steel, with a handle) and a white milk surface at its mouth.
@@ -888,7 +922,7 @@ export async function start({ stage, onReady = () => {} }) {
   // Steam rising from the barista's cup and from the cup on the window table: a few soft puffs, drifting up and widening.
   const steamTexture = makeSteamTexture();
   const steamPositions = [];
-  for (const [sx, sy, sz] of [[PITCHER.x, PITCHER.y + 0.04, PITCHER.z], [0.8 + (eggRadius(0.27) + 0.02) * 1.15, 0.86 + 0.304 * 1.15, -1.2 + 0.255 * 1.15], [tx(0.13), tableTop + 0.075, tz(-0.06)]]) {
+  for (const [sx, sy, sz] of [[PITCHER.x, PITCHER.y + 0.04, PITCHER.z], [GREETER_CUP.x, GREETER_CUP.y + 0.074, GREETER_CUP.z], [tx(0.13), tableTop + 0.075, tz(-0.06)]]) {
     for (let i = 0; i < 4; i++) steamPositions.push(sx + Math.sin(i * 1.7) * 0.012, sy + 0.05 + i * 0.07, sz + Math.cos(i * 1.3) * 0.01);
   }
   const steamGeometry = new THREE.BufferGeometry(); steamGeometry.setAttribute("position", new THREE.Float32BufferAttribute(steamPositions, 3));
@@ -913,6 +947,28 @@ export async function start({ stage, onReady = () => {} }) {
   sun.target.position.set(0.5, 0, -0.6);
   scene.add(sun, sun.target);
 
+  // Sun shafts: soft light beams from each pane column of the street window along the sun direction, as pairs of crossed additive quads in one mesh (one draw call).
+  // They show where the light comes from in the morning and at golden hour and fade away at midday, in rain and after closing.
+  const SUN_TARGET = new THREE.Vector3(0.5, 0, -0.6);
+  const shaftTexture = (() => {
+    const canvas = document.createElement("canvas"); canvas.width = 128; canvas.height = 64;
+    const g = canvas.getContext("2d"), img = g.createImageData(128, 64);
+    for (let y = 0; y < 64; y++) for (let x = 0; x < 128; x++) {
+      const along = Math.pow(1 - x / 127, 1.4) * Math.min(1, x / 10), across = Math.pow(Math.sin((y / 63) * Math.PI), 1.2), a = Math.round(255 * along * across);
+      const i = (y * 128 + x) * 4; img.data[i] = img.data[i + 1] = img.data[i + 2] = a; img.data[i + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.NoColorSpace; return texture;
+  })();
+  const SHAFT_LENGTH = 5.2, shaftParts = [];
+  for (const zc of [-0.5, 0.3, 1.1]) {
+    const flat = new THREE.PlaneGeometry(SHAFT_LENGTH, 0.78).rotateX(-Math.PI / 2).translate(SHAFT_LENGTH / 2, 0, zc - 0.3);
+    const upright = new THREE.PlaneGeometry(SHAFT_LENGTH, 1.5).translate(SHAFT_LENGTH / 2, 0, zc - 0.3);
+    shaftParts.push(flat, upright);
+  }
+  const sunShafts = new THREE.Mesh(mergeGeometries(shaftParts.map((g) => (g.index ? g.toNonIndexed() : g))), new THREE.MeshBasicMaterial({ map: shaftTexture, color: 0xfff3e6, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+  sunShafts.name = "sun-shafts"; sunShafts.position.set(X0 - 0.02, 1.7, 0.3); sunShafts.renderOrder = 2; sunShafts.frustumCulled = false; scene.add(sunShafts);
+
   // A warm lamp pool over the counter for the dim moods (a point light: no draw call).
   const lamp = new THREE.PointLight(0xffc88a, 0, 3.6, 2); lamp.position.set(0.4, 2.35, -0.55); scene.add(lamp);
   // The street painting with rain drawn over it, made once the first time the rain mood is chosen: pale falling strokes leaning one way and a few beads.
@@ -931,7 +987,7 @@ export async function start({ stage, onReady = () => {} }) {
   let currentMood = "morning", moodTween = 0;
   const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const blend = (a, b, k) => a + (b - a) * k;
-  const live = { pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
+  const live = { shaft: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
@@ -940,6 +996,8 @@ export async function start({ stage, onReady = () => {} }) {
     renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street);
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
     steam.material.opacity = live.steam;
+    sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
+    sunShafts.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), SUN_TARGET.clone().sub(live.sunPosition).normalize());
     materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; pendantLight.intensity = live.pendant * 0.9;
   }
   function setMood(name) {
@@ -948,10 +1006,10 @@ export async function start({ stage, onReady = () => {} }) {
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     if (look.rain) { const wet = rainOverStreet(); if (wet) { materials.street.map = wet; materials.street.needsUpdate = true; } }
     else if (materials.street.userData.dry && materials.street.map !== materials.street.userData.dry) { materials.street.map = materials.street.userData.dry; materials.street.needsUpdate = true; }
-    const from = { pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
+    const from = { shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
     const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
-      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant"]) live[key] = blend(from[key], look[key], k);
+      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant", "shaft"]) live[key] = blend(from[key], look[key], k);
       live.sunColor.copy(from.sunColor).lerp(to.sunColor, k); live.sunPosition.copy(from.sunPosition).lerp(to.sunPosition, k);
       live.hemiSky.copy(from.hemiSky).lerp(to.hemiSky, k); live.hemiGround.copy(from.hemiGround).lerp(to.hemiGround, k);
       live.trackColor.copy(from.trackColor).lerp(to.trackColor, k); live.street.copy(from.street).lerp(to.street, k);
@@ -964,6 +1022,47 @@ export async function start({ stage, onReady = () => {} }) {
     moodTween = requestAnimationFrame(run);
     return true;
   }
+  // ---------- looks ----------
+  const currentLook = { ...DEFAULT_LOOK };
+  const OAK_BASE = new THREE.Color(0xe0bd90); // the recessed panel fields start a shade deeper than the frames
+  function setLook(group, key) {
+    const options = LOOK_GROUPS[group]; if (!options || !(key in options)) return false;
+    currentLook[group] = key; const v = options[key];
+    if (group === "brick") materials.brick.color.setRGB(...v);
+    else if (group === "counter") { materials.oak.color.setRGB(...v); materials.oakDeep.color.setRGB(OAK_BASE.r * v[0], OAK_BASE.g * v[1], OAK_BASE.b * v[2]); }
+    else if (group === "back") materials.olive.color.setHex(v);
+    else if (group === "wall") { currentLook.wallpaper = "none"; applyWall(); }
+    else if (group === "wallpaper") applyWall();
+    else if (group === "floor") materials.floor.color.setRGB(...v);
+    else if (group === "lamp") { materials.pendantShade.color.setHex(v); materials.sconceGlow.color.setHex(v === 0x2b2b2c ? 0xf3e2c2 : v); }
+    else if (group === "scarf") materials.scarf.color.setHex(v);
+    else if (group === "chair") materials.bentwood.color.setHex(v);
+    render(); return true;
+  }
+  function randomLook(rng = Math.random) {
+    const pick = (group, except = []) => { const keys = Object.keys(LOOK_GROUPS[group]).filter((k) => !except.includes(k)); return keys[Math.floor(rng() * keys.length)]; };
+    const brick = pick("brick");
+    const picks = { brick, counter: pick("counter"), back: pick("back"), wall: pick("wall", brick === "grey" ? ["grey", "mist"] : brick === "dusty" ? ["butter"] : []), floor: pick("floor"), lamp: pick("lamp"), scarf: pick("scarf"), chair: pick("chair") };
+    for (const [group, key] of Object.entries(picks)) setLook(group, key);
+    if (rng() < 0.4) setLook("wallpaper", pick("wallpaper", ["none"])); // two rooms in five get one of Room 01's wallpapers
+    return { ...currentLook };
+  }
+  function reapplyLook() { const paper = currentLook.wallpaper; for (const [group, key] of Object.entries(currentLook)) if (group !== "wallpaper") setLook(group, key); currentLook.wallpaper = paper; applyWall(); } // a texture that loads late must not undo the chosen look
+  // The wall is either a painted colour or one of Room 01's wallpapers (a colour choice replaces the paper, as in Room 01).
+  const wallpaperTextures = {};
+  function applyWall() {
+    const paper = LOOK_GROUPS.wallpaper[currentLook.wallpaper];
+    if (!paper) { materials.wall.map = null; materials.wall.color.setHex(LOOK_GROUPS.wall[currentLook.wall]); }
+    else {
+      const [file, size] = paper;
+      const texture = wallpaperTextures[file] ||= textureLoader.load(new URL(`../tex/${file}`, import.meta.url).href, () => render());
+      texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = maxAnisotropy; texture.repeat.set(1 / size, 1 / size);
+      materials.wall.map = texture; materials.wall.color.setHex(0xffffff);
+    }
+    materials.wall.needsUpdate = true;
+  }
+  const resetLook = () => { for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); return { ...currentLook }; };
+
   // Where the robot's head and the paper note are on screen, in client pixels, so the page can float tap targets and bubbles over them.
   const projectBox = (object) => {
     const box = new THREE.Box3().setFromObject(object), rect = stage.getBoundingClientRect();
@@ -1049,13 +1148,14 @@ export async function start({ stage, onReady = () => {} }) {
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
     robotHop, setCenterView, centerLook, isCenter: () => Boolean(center),
+    lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
     info() {
       let vertices = 0, meshes = 0;
       scene.traverse((object) => { if (object.isMesh) { meshes++; vertices += object.geometry.attributes.position.count; } });
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-6-front-wall", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-6-front-wall", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },

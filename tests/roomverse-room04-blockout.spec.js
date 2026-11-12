@@ -102,3 +102,30 @@ test("Room 04 can turn all the way round from the middle of the room, and comes 
   expect(after.fov).toBe(before.fov);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 looks: swaps change materials without changing the scene size, wallpapers load, and the random cafe button builds a new one", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const base = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
+  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "counter", "floor", "lamp", "scarf", "wall", "wallpaper"]);
+  const groups = await page.evaluate(() => window.__room04.lookGroups());
+  expect(groups.wallpaper).toEqual(["none", "stripe", "botanical", "grasscloth", "sagewash"]);
+  for (const [group, keys] of Object.entries(groups)) for (const key of keys) {
+    const ok = await page.evaluate(([g, k]) => window.__room04.setLook(g, k), [group, key]);
+    expect(ok, `${group}=${key}`).toBe(true);
+  }
+  await page.evaluate(() => window.__room04.resetLook());
+  expect(await page.evaluate(() => window.__room04.setLook("wall", "no-such-colour"))).toBe(false);
+  await page.evaluate(() => window.__room04.setLook("wallpaper", "stripe"));
+  expect((await page.evaluate(() => window.__room04.look())).wallpaper).toBe("stripe");
+  await page.evaluate(() => window.__room04.setLook("wall", "blush")); // a paint colour replaces the paper
+  expect((await page.evaluate(() => window.__room04.look())).wallpaper).toBe("none");
+  await page.locator("#randomLook").click();
+  await expect(page.locator("#resetLook")).toBeVisible();
+  const after = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
+  expect(after.v, "a look swap adds no geometry").toBe(base.v);
+  expect(after.m).toBe(base.m);
+  expect(after.d).toBeLessThanOrEqual(base.d + 1);
+  await page.locator("#resetLook").click();
+  expect(await page.evaluate(() => window.__room04.look())).toEqual(base.look);
+  expect(errors).toEqual([]);
+});
