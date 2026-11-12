@@ -9,6 +9,7 @@ import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 //   1. SHELL AND LIGHT: painted brick with real relief, plank ceiling, floor, plaster walls, a window with depth and the painted street,
 //      skirting, soft reflections. 2. Counter and back bar. 3. Hero pieces (machine, grinder, pastry case, robot). 4. Story corner. 5. Moods and polish.
 // Everything still named "blockout-*" is a plain stand-in that a later section replaces.
+// Section 3 (hero pieces) follows the design sheets Codex drew in card 46: every piece is modelled from rounded profiles, lathes, rods and discs.
 // Section 2 (counter and back bar) is built from many small real parts (frames, panels, mouldings, brackets, handles) merged by material, because
 // thickness, shadow lines and bevels are what make a room read as 3D. Vertices are not rationed (Paul, 2026-11-13); draw calls are, by merging.
 export const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
@@ -100,6 +101,33 @@ function makeContactShadowTexture() {
   return texture;
 }
 
+// A box with rounded vertical edges: a rounded-rectangle profile (w x h) extruded d deep along +z, centred on the origin.
+function roundedBox(w, h, d, r, bevel = 0) {
+  const shape = new THREE.Shape(), x = w / 2 - bevel, y = h / 2 - bevel, rr = Math.max(0.001, r - bevel);
+  shape.moveTo(-x + rr, -y); shape.lineTo(x - rr, -y); shape.quadraticCurveTo(x, -y, x, -y + rr); shape.lineTo(x, y - rr); shape.quadraticCurveTo(x, y, x - rr, y);
+  shape.lineTo(-x + rr, y); shape.quadraticCurveTo(-x, y, -x, y - rr); shape.lineTo(-x, -y + rr); shape.quadraticCurveTo(-x, -y, -x + rr, -y);
+  const geometry = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.001, d - 2 * bevel), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: 8 });
+  geometry.translate(0, 0, -(d - 2 * bevel) / 2); geometry.computeVertexNormals();
+  return geometry;
+}
+// A rod (thin cylinder) between two points.
+function rodGeometry(a, b, radius, segments = 8) {
+  const from = new THREE.Vector3(...a), to = new THREE.Vector3(...b), length = from.distanceTo(to);
+  const geometry = new THREE.CylinderGeometry(radius, radius, length, segments);
+  geometry.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), to.clone().sub(from).normalize()));
+  geometry.translate((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2);
+  return geometry;
+}
+// The robot's egg: a lathe whose widest point sits low. eggRadius(y) also lets the belt, scarf and arms sit exactly on the surface.
+const ROBOT_HEIGHT = 0.6;
+const eggRadius = (y) => { const t = Math.acos(1 - (2 * Math.min(Math.max(y, 0), ROBOT_HEIGHT)) / ROBOT_HEIGHT); return 0.215 * Math.sin(t) * (1 - 0.2 * (y / ROBOT_HEIGHT - 0.4)); };
+function eggGeometry() {
+  const points = [];
+  for (let i = 0; i <= 40; i++) { const y = (ROBOT_HEIGHT * i) / 40; points.push(new THREE.Vector2(Math.max(0.0005, i === 0 ? 0.0005 : eggRadius(y)), y)); }
+  points[0].x = 0.0005; points[40].x = 0.0005;
+  return new THREE.LatheGeometry(points, 40);
+}
+
 export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const compact = window.innerWidth < 500;
@@ -152,7 +180,7 @@ export async function start({ stage, onReady = () => {} }) {
     olive: new THREE.MeshStandardMaterial({ color: COLORS.olive, roughness: 0.75 }),
     black: new THREE.MeshStandardMaterial({ color: COLORS.black, roughness: 0.6 }),
     frame: new THREE.MeshStandardMaterial({ color: 0x24272a, roughness: 0.5, metalness: 0.2 }),
-    steel: new THREE.MeshStandardMaterial({ color: COLORS.steel, roughness: 0.34, metalness: 0.9 }),
+    steel: new THREE.MeshStandardMaterial({ color: COLORS.steel, roughness: 0.42, metalness: 0.75 }),
     stone: new THREE.MeshStandardMaterial({ color: COLORS.stone, roughness: 0.5 }),
     trim: new THREE.MeshStandardMaterial({ color: 0xf6f2ea, roughness: 0.7 }),
     chalk: new THREE.MeshStandardMaterial({ color: COLORS.chalk, roughness: 0.95 }),
@@ -163,6 +191,21 @@ export async function start({ stage, onReady = () => {} }) {
     pane: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.04, transparent: true, opacity: 0.07, depthWrite: false }),
     street: new THREE.MeshBasicMaterial({ color: MOODS.morning.sky }),
   };
+  Object.assign(materials, {
+    ceramic: new THREE.MeshStandardMaterial({ color: 0xf5f1ea, roughness: 0.32 }),
+    beans: new THREE.MeshStandardMaterial({ color: 0x3b2415, roughness: 0.55 }),
+    croissant: new THREE.MeshStandardMaterial({ color: 0xd8963d, roughness: 0.7 }),
+    muffin: new THREE.MeshStandardMaterial({ color: 0xb87a43, roughness: 0.8 }),
+    muffinCup: new THREE.MeshStandardMaterial({ color: 0xe9e0d0, roughness: 0.9, side: THREE.DoubleSide }),
+    cookie: new THREE.MeshStandardMaterial({ color: 0xc58b4b, roughness: 0.85 }),
+    chip: new THREE.MeshStandardMaterial({ color: 0x3a2418, roughness: 0.6 }),
+    visor: new THREE.MeshStandardMaterial({ color: 0x17191c, roughness: 0.22, metalness: 0.15 }),
+    robotBody: new THREE.MeshStandardMaterial({ color: 0xf4f2ec, roughness: 0.42 }),
+    scarf: new THREE.MeshStandardMaterial({ color: 0x66763f, roughness: 0.92 }),
+    coffee: new THREE.MeshStandardMaterial({ color: 0x3b2418, roughness: 0.35 }),
+    eyes: new THREE.MeshBasicMaterial({ color: 0xffffff }),
+    warm: new THREE.MeshBasicMaterial({ color: 0xffe0aa }),
+  });
   materials.menuA = new THREE.MeshStandardMaterial({ color: 0x2c302f, roughness: 0.96 });
   materials.menuB = new THREE.MeshStandardMaterial({ color: 0x2c302f, roughness: 0.96 });
   materials.ceiling.bumpMap = materials.ceiling.map;
@@ -194,7 +237,7 @@ export async function start({ stage, onReady = () => {} }) {
     const texture = pmrem.fromScene(room, 0.04).texture; pmrem.dispose();
     return texture;
   })();
-  const reflectiveBase = { steel: 1.5, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
+  const reflectiveBase = { ceramic: 0.5, visor: 1.2, steel: 1.5, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
   for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
@@ -329,30 +372,141 @@ export async function start({ stage, onReady = () => {} }) {
   contact("counter-contact-shadow", c.x0 - 0.35, c.x1 + 0.35, c.z0 - 0.35, c.z1 + 0.45, 0.5);
   contact("back-bar-contact-shadow", bb.x0 - 0.3, bb.x1 + 0.3, BACK - 0.05, bbFront + 0.4, 0.42);
 
-  // ---------- hero stand-ins (plain shapes at the real sizes; each becomes a detailed piece later) ----------
-  const top = c.height;
-  // Two-group espresso machine: about 75 cm wide, 42 cm tall, 50 cm deep, cups warming on top.
-  box("blockout-espresso-machine", materials.steel, [-1.4, -0.65], [top + 0.06, top + 0.48], [c.z0 + 0.04, c.z0 + 0.54]);
-  box("blockout-espresso-feet", materials.black, [-1.36, -0.69], [top, top + 0.06], [c.z0 + 0.08, c.z0 + 0.5]);
-  for (let i = 0; i < 4; i++) add("blockout-cup", new THREE.CylinderGeometry(0.045, 0.035, 0.07, 16), materials.white, -1.27 + i * 0.165, top + 0.515, c.z0 + 0.3);
-  // Grinder: a black body and a clear hopper.
-  box("blockout-grinder", materials.black, [-1.92, -1.7], [top, top + 0.34], [c.z0 + 0.16, c.z0 + 0.42]);
-  add("blockout-grinder-hopper", new THREE.CylinderGeometry(0.1, 0.07, 0.18, 20), materials.glass, -1.81, top + 0.43, c.z0 + 0.29, { cast: false });
-  // Curved glass pastry case on an oak base: 1.1 m wide, 50 cm tall.
-  box("blockout-pastry-base", materials.oak, [1.2, 2.3], [top, top + 0.04], [c.z0 + 0.06, c.z1 - 0.04]);
-  const dome = add("blockout-pastry-case", new THREE.CylinderGeometry(0.25, 0.25, 1.06, 28, 1, false, 0, Math.PI), materials.glass, 1.75, top + 0.04, (c.z0 + c.z1) / 2 + 0.01, { cast: false });
-  dome.rotation.z = Math.PI / 2; dome.rotation.y = Math.PI / 2; dome.scale.set(1, 1, 1.9);
-  box("blockout-pastry-shelf", materials.glass, [1.25, 2.25], [top + 0.27, top + 0.28], [c.z0 + 0.12, c.z1 - 0.1], { cast: false });
-  // The robot barista stands BEHIND the counter. It is about 60 cm tall, so it stands on a crate to clear a 1.05 m counter:
-  // only its upper half shows from the visitor's side. It stands right of the machine: further left, the machine hides it from the phone's view along the counter.
-  box("blockout-robot-crate", materials.oak, [0.5, 1.1], [0, 0.86], [-1.75, -1.2]);
-  const robot = add("blockout-robot", new THREE.CapsuleGeometry(0.2, 0.2, 8, 20), materials.white, 0.8, 0.86 + 0.3, -1.45);
-  box("blockout-robot-visor", materials.black, [0.68, 0.92], [1.22, 1.32], [-1.27, -1.25], { cast: false });
-  add("blockout-robot-band", new THREE.CylinderGeometry(0.205, 0.205, 0.04, 24), materials.terracotta, 0.8, 1.0, -1.45, { cast: false });
-  // One floor plant under the window, as in the approved look. It stands clear of the phone's standing spot (front left corner),
-  // where a plant filled a third of the screen, and its leaves add a soft shadow to the pane light on the floor.
-  add("blockout-plant-pot", new THREE.CylinderGeometry(0.17, 0.13, 0.42, 20), materials.white, -2.85, 0.21, 0.3);
-  add("blockout-plant", new THREE.SphereGeometry(0.36, 16, 12), materials.plant, -2.85, 1.0, 0.3).scale.set(0.8, 1.5, 0.8);
+  // ---------- hero pieces (section 3) ----------
+  const top = c.height; // the stone top, 1.05 m
+  const mx = -1.025, mz = zc; // the espresso machine's centre on the counter
+
+  // Espresso machine, 75 x 42 x 50 cm: brushed steel body with black end caps, cup warmer and guard rail on top, two group heads with black portafilters
+  // and a pressure gauge on the barista side, a steam wand on the right end, a drip tray and four feet. The visitor sees the plain steel back panel.
+  {
+    const W = 0.75, D = 0.5, H = 0.36, y0 = top + 0.06, front = mz + D / 2, back = mz - D / 2;
+    part("steel", roundedBox(W - 0.06, H, D - 0.02, 0.03, 0.006).translate(mx, y0 + H / 2, mz), { tile: 1 });
+    for (const sign of [-1, 1]) part("black", roundedBox(D, H + 0.02, 0.03, 0.035, 0.005).rotateY(Math.PI / 2).translate(mx + sign * (W / 2 - 0.015), y0 + H / 2, mz), { tile: 1 });
+    slab("steel", [mx - 0.345, mx + 0.345], [y0 + H, y0 + H + 0.012], [mz - 0.23, mz + 0.23], { tile: 1 }); // the cup-warmer plate
+    for (let i = 0; i < 4; i++) part("ceramic", new THREE.LatheGeometry([[0, 0], [0.03, 0], [0.043, 0.062], [0.039, 0.062], [0.027, 0.008], [0]].map((p) => new THREE.Vector2(p[0], p[1] ?? 0)), 16).translate(mx - 0.24 + i * 0.16, y0 + H + 0.012, mz), { tile: 1 });
+    for (const dz of [-0.2, 0.2]) {
+      part("steel", rodGeometry([mx - 0.33, y0 + H + 0.085, mz + dz], [mx + 0.33, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
+      for (const dx of [-0.33, 0.33]) part("steel", rodGeometry([mx + dx, y0 + H + 0.012, mz + dz], [mx + dx, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
+    }
+    part("steel", rodGeometry([mx - 0.33, y0 + H + 0.085, mz - 0.2], [mx - 0.33, y0 + H + 0.085, mz + 0.2], 0.005), { tile: 1 });
+    part("steel", rodGeometry([mx + 0.33, y0 + H + 0.085, mz - 0.2], [mx + 0.33, y0 + H + 0.085, mz + 0.2], 0.005), { tile: 1 });
+    // Barista side (toward the back bar): two group heads with portafilters, gauge, buttons.
+    for (const dx of [-0.17, 0.17]) {
+      part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.05, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.27, back - 0.02), { tile: 1 });
+      part("black", new THREE.CylinderGeometry(0.031, 0.027, 0.03, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.265, back - 0.06), { tile: 1 });
+      part("black", rodGeometry([mx + dx, y0 + 0.265, back - 0.07], [mx + dx + (dx < 0 ? -0.03 : 0.03), y0 + 0.255, back - 0.2], 0.012), { tile: 1 });
+      slab("steel", [mx + dx - 0.05, mx + dx + 0.05], [y0 + 0.2, y0 + 0.208], [back - 0.04, back - 0.01], { tile: 1 });
+    }
+    part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.014, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, back - 0.016), { tile: 1 });
+    part("ceramic", new THREE.CylinderGeometry(0.028, 0.028, 0.004, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, back - 0.024), { tile: 1 });
+    for (let i = 0; i < 4; i++) part("black", new THREE.CylinderGeometry(0.01, 0.01, 0.008, 12).rotateX(Math.PI / 2).translate(mx - 0.1 + i * 0.07, y0 + 0.33, back - 0.014), { tile: 1 });
+    // Steam wand on the right end: a tap, then a tube that drops and bends toward the barista.
+    part("steel", rodGeometry([mx + W / 2 + 0.002, y0 + 0.24, mz - 0.14], [mx + W / 2 + 0.04, y0 + 0.24, mz - 0.14], 0.007), { tile: 1 });
+    part("steel", rodGeometry([mx + W / 2 + 0.04, y0 + 0.24, mz - 0.14], [mx + W / 2 + 0.04, y0 + 0.07, mz - 0.14], 0.006), { tile: 1 });
+    part("steel", rodGeometry([mx + W / 2 + 0.04, y0 + 0.07, mz - 0.14], [mx + W / 2 + 0.035, y0 + 0.03, mz - 0.18], 0.0055), { tile: 1 });
+    part("black", new THREE.SphereGeometry(0.014, 12, 8).translate(mx + W / 2 + 0.045, y0 + 0.25, mz - 0.14), { tile: 1 });
+    // Customer side: two machined reveal lines break up the steel panel.
+    for (const y of [y0 + 0.12, y0 + 0.25]) slab("black", [mx - 0.32, mx + 0.32], [y, y + 0.004], [front - 0.012, front - 0.009], { tile: 1 });
+    // Drip tray with a grille, and four feet.
+    slab("steel", [mx - 0.33, mx + 0.33], [top + 0.034, top + 0.058], [mz - 0.22, mz + 0.22], { tile: 1 });
+    for (let i = 0; i < 12; i++) slab("black", [mx - 0.3 + i * 0.05, mx - 0.27 + i * 0.05], [top + 0.058, top + 0.0605], [mz - 0.19, mz + 0.19], { tile: 1 });
+    for (const dx of [-0.31, 0.31]) for (const dz of [-0.19, 0.19]) part("steel", new THREE.CylinderGeometry(0.022, 0.026, 0.036, 14).translate(mx + dx, top + 0.018, mz + dz), { tile: 1 });
+  }
+
+  // Grinder, about 22 x 34 x 26 cm: black tapered body, steel collar, a clear hopper of beans, a dial and a chute toward the barista.
+  {
+    const gx = -1.81, gz = mz, y0 = top + 0.022, bean = [];
+    part("black", roundedBox(0.26, 0.022, 0.3, 0.014, 0.004).translate(gx, top + 0.011, gz), { tile: 1 });
+    part("black", new THREE.LatheGeometry([[0.0005, 0], [0.108, 0], [0.104, 0.03], [0.078, 0.27], [0.0005, 0.27]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(gx, y0, gz), { tile: 1 });
+    part("steel", new THREE.CylinderGeometry(0.083, 0.083, 0.024, 32).translate(gx, y0 + 0.282, gz), { tile: 1 });
+    part("glass", new THREE.LatheGeometry([[0.078, 0], [0.098, 0.05], [0.104, 0.1], [0.104, 0.13], [0.1, 0.17]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(gx, y0 + 0.294, gz), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.108, 0.108, 0.018, 36).translate(gx, y0 + 0.4, gz), { tile: 1 });
+    let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 70; i++) {
+      const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 0.085, hy = 0.3 + rnd() * 0.07 * (1 - rr / 0.1);
+      const g = new THREE.SphereGeometry(0.0085, 7, 5); g.scale(1, 0.72, 0.58); g.rotateY(rnd() * 3).rotateZ(rnd() * 3);
+      part("beans", g.translate(gx + Math.cos(a) * rr, y0 + 0.28 + (hy - 0.3) + rnd() * 0.02, gz + Math.sin(a) * rr), { tile: 1 });
+    }
+    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.02, 24).rotateX(Math.PI / 2).translate(gx, y0 + 0.19, gz - 0.087), { tile: 1 });
+    part("steel", rodGeometry([gx, y0 + 0.13, gz - 0.085], [gx, y0 + 0.085, gz - 0.125], 0.017), { tile: 1 });
+    slab("steel", [gx - 0.05, gx + 0.05], [y0 + 0.05, y0 + 0.056], [gz - 0.16, gz - 0.09], { tile: 1 }); // the cradle for the portafilter
+  }
+
+  // Curved glass pastry case, 110 x 50 x 50 cm, on an oak base: steel rods on a quarter-round profile, glass sides, front and top, two glass shelves,
+  // a warm strip light, and eight pastries on four plates (three croissants, two muffins, three cookies).
+  {
+    const x0 = 1.2, x1 = 2.3, cx = (x0 + x1) / 2, zb = c.z0 + 0.06, zf = c.z1 - 0.04, base = top + 0.04, Hh = 0.5, R = 0.2, arcSteps = 12;
+    slab("oak", [x0, x1], [top, base], [zb - 0.02, zf + 0.02], { grain: "x" });
+    const profile = [[zb, base], [zb, base + Hh], [zf - R, base + Hh]];
+    for (let i = 1; i <= arcSteps; i++) { const a = (i / arcSteps) * (Math.PI / 2); profile.push([zf - R + R * Math.sin(a), base + Hh - R + R * Math.cos(a)]); }
+    profile.push([zf, base]);
+    const sideShape = new THREE.Shape(profile.map((p) => new THREE.Vector2(p[0], p[1])));
+    for (const x of [x0 + 0.012, x1 - 0.012]) part("glass", new THREE.ShapeGeometry(sideShape, 6).rotateY(-Math.PI / 2).translate(x, 0, 0), { tile: 1 });
+    // The curved front and top: a strip along the profile from the front foot, up and round, to the back top edge.
+    const path = [[zf, base], [zf, base + Hh - R]];
+    for (let i = 1; i <= arcSteps; i++) { const a = (i / arcSteps) * (Math.PI / 2); path.push([zf - R * (1 - Math.cos(a)) - 0, base + Hh - R + R * Math.sin(a)]); }
+    path.push([zb, base + Hh]);
+    const vertices = [], indices = [];
+    path.forEach((p, i) => { vertices.push(x0 + 0.012, p[1], p[0], x1 - 0.012, p[1], p[0]); if (i) { const k = (i - 1) * 2; indices.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); } });
+    const front = new THREE.BufferGeometry(); front.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3)); front.setIndex(indices); front.computeVertexNormals();
+    part("glass", front, { tile: 1 });
+    // Steel frame: rods along the profile at both ends, plus rods across the front foot, the top front edge and the back top edge.
+    const ring = [[zb, base], [zb, base + Hh], ...path.slice(1, path.length - 1).map((p) => [p[0], p[1]]), [zf, base]];
+    for (const x of [x0 + 0.012, x1 - 0.012]) for (let i = 0; i < ring.length - 1; i++) part("black", rodGeometry([x, ring[i][1], ring[i][0]], [x, ring[i + 1][1], ring[i + 1][0]], 0.006), { tile: 1 });
+    for (const p of [[zf, base], [zb, base + Hh], [zf, base + Hh - R]]) part("black", rodGeometry([x0 + 0.012, p[1], p[0]], [x1 - 0.012, p[1], p[0]], 0.006), { tile: 1 });
+    const shelfY = base + 0.25;
+    slab("glass", [x0 + 0.014, x1 - 0.014], [shelfY - 0.003, shelfY + 0.003], [zb + 0.01, zf - 0.015], { tile: 1 });
+    part("steel", rodGeometry([x0 + 0.014, shelfY + 0.006, zf - 0.015], [x1 - 0.014, shelfY + 0.006, zf - 0.015], 0.0045), { tile: 1 });
+    for (const x of [x0 + 0.014, x1 - 0.014]) slab("black", [x - 0.006, x + 0.006], [shelfY - 0.012, shelfY], [zb + 0.01, zf - 0.015], { tile: 1 });
+    // Warm strip light under the top front edge.
+    slab("warm", [x0 + 0.06, x1 - 0.06], [base + Hh - 0.02, base + Hh - 0.012], [zf - R - 0.02, zf - R + 0.03], { tile: 1 });
+    const plates = [[1.52, shelfY + 0.003, 0], [1.98, shelfY + 0.003, 1], [1.5, base, 2], [1.95, base, 3]];
+    const pz = (zb + zf) / 2 + 0.01;
+    for (const [px, py] of plates) part("ceramic", new THREE.CylinderGeometry(0.108, 0.092, 0.01, 28).translate(px, py + 0.005, pz), { tile: 1 });
+    const croissant = (x, y, z, turn) => { // seven lumps along an arc, fat in the middle and thin at the horns
+      for (let i = 0; i < 7; i++) {
+        const t = i / 6, a = (t - 0.5) * 2.3, r = 0.011 + 0.016 * Math.sin(t * Math.PI);
+        const g = new THREE.SphereGeometry(r, 10, 7); g.scale(1.25, 0.95, 1);
+        part("croissant", g.translate(Math.sin(a) * 0.05, r * 0.9, -Math.cos(a) * 0.05 + 0.05).rotateY(turn).translate(x, y, z), { tile: 1 });
+      }
+    };
+    croissant(1.5, shelfY + 0.01, pz - 0.01, 0.4); croissant(1.54, shelfY + 0.036, pz + 0.01, 2.2); croissant(1.99, shelfY + 0.01, pz, 1.1);
+    const muffin = (x, y, z) => {
+      part("muffinCup", new THREE.LatheGeometry([[0.026, 0], [0.037, 0.042]].map((p) => new THREE.Vector2(p[0], p[1])), 16).translate(x, y, z), { tile: 1 });
+      const dome = new THREE.SphereGeometry(0.043, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2); dome.scale(1, 0.85, 1); part("muffin", dome.translate(x, y + 0.038, z), { tile: 1 });
+      for (let i = 0; i < 5; i++) { const a = i * 1.3; part("chip", new THREE.SphereGeometry(0.0055, 6, 5).translate(x + Math.cos(a) * 0.026, y + 0.058 + (i % 2) * 0.004, z + Math.sin(a) * 0.026), { tile: 1 }); }
+    };
+    muffin(1.46, base + 0.01, pz - 0.015); muffin(1.56, base + 0.01, pz + 0.03);
+    const cookie = (x, y, z) => { part("cookie", new THREE.CylinderGeometry(0.036, 0.036, 0.012, 20).translate(x, y + 0.006, z), { tile: 1 }); for (let i = 0; i < 4; i++) part("chip", new THREE.SphereGeometry(0.0055, 6, 5).translate(x + Math.cos(i * 1.7) * 0.02, y + 0.013, z + Math.sin(i * 1.7) * 0.02), { tile: 1 }); };
+    cookie(1.91, base + 0.01, pz - 0.03); cookie(1.99, base + 0.012, pz + 0.025); cookie(2.03, base + 0.01, pz - 0.035);
+    const caseLight = new THREE.PointLight(0xffd7a0, 0.9, 1.3, 2); caseLight.position.set(cx, base + Hh - 0.05, (zb + zf) / 2); scene.add(caseLight);
+  }
+
+  // Robot barista: the ROOMVERSE robot in an olive scarf, standing on a crate behind the counter with one arm out, holding a cup on a saucer.
+  const robot = new THREE.Group(); robot.name = "robot-barista";
+  {
+    const rx = 0.8, rz = -1.2, baseY = 0.86; // the crate lifts it so the upper half clears the 1.05 m counter
+    slab("oak", [rx - 0.3, rx + 0.3], [0, baseY], [rz - 0.3, rz + 0.3], { grain: "y" });
+    slab("oakDark", [rx - 0.31, rx + 0.31], [baseY - 0.02, baseY], [rz - 0.31, rz + 0.31], { tile: 1 });
+    const bodyY = baseY, local = new THREE.Group(); local.position.set(rx, bodyY, rz); local.scale.setScalar(1.15); robot.add(local); // 15% larger than its 60 cm design height so it reads from across the room
+    const add2 = (key, geometry) => { const mesh = new THREE.Mesh(geometry, materials[key]); mesh.castShadow = true; mesh.receiveShadow = true; local.add(mesh); return mesh; };
+    add2("robotBody", eggGeometry());
+    const visor = add2("visor", new THREE.SphereGeometry(1, 28, 16)); visor.scale.set(0.135, 0.058, 0.034); visor.position.set(0, 0.42, eggRadius(0.42) - 0.008);
+    for (const sx of [-1, 1]) { const eye = add2("eyes", new THREE.CircleGeometry(0.0175, 20)); eye.position.set(sx * 0.047, 0.425, eggRadius(0.42) - 0.008 + 0.0345); }
+    const band = add2("terracotta", new THREE.CylinderGeometry(eggRadius(0.19) + 0.004, eggRadius(0.13) + 0.004, 0.06, 40, 1, true)); band.position.y = 0.16; band.material = materials.terracotta; band.material.side = THREE.DoubleSide;
+    const scarf = add2("scarf", new THREE.TorusGeometry(eggRadius(0.325) + 0.004, 0.026, 10, 36)); scarf.rotation.x = Math.PI / 2; scarf.position.y = 0.325; scarf.scale.set(1, 1, 0.8);
+    const knot = add2("scarf", new THREE.SphereGeometry(0.03, 12, 8)); knot.position.set(-0.075, 0.315, eggRadius(0.315) + 0.014);
+    for (const [dx, tilt] of [[-0.05, 0.12], [-0.095, -0.1]]) { const tail = add2("scarf", new THREE.BoxGeometry(0.04, 0.1, 0.012)); tail.position.set(dx - 0.025, 0.245, eggRadius(0.25) + 0.016); tail.rotation.z = tilt; }
+    // Left arm at its side; the right arm reaches out over the counter with the cup.
+    const armL = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.09, 6, 12)); armL.position.set(-eggRadius(0.27) - 0.012, 0.27, 0.02); armL.rotation.z = 0.12;
+    const armR = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.1, 6, 12)); armR.position.set(eggRadius(0.27) - 0.01, 0.285, 0.1); armR.rotation.x = Math.PI / 2 - 0.1; armR.rotation.z = -0.3;
+    const sx = eggRadius(0.27) + 0.02, sz = 0.255; // saucer centre, in the robot's frame
+    const saucer = add2("ceramic", new THREE.CylinderGeometry(0.075, 0.058, 0.012, 28)); saucer.position.set(sx, 0.236, sz);
+    const cup = add2("ceramic", new THREE.LatheGeometry([[0, 0], [0.036, 0], [0.05, 0.07], [0.046, 0.07], [0.033, 0.01], [0]].map((p) => new THREE.Vector2(p[0], p[1] ?? 0)), 24)); cup.position.set(sx, 0.242, sz);
+    const liquid = add2("coffee", new THREE.CircleGeometry(0.044, 24)); liquid.rotation.x = -Math.PI / 2; liquid.position.set(sx, 0.304, sz);
+    scene.add(robot);
+  }
+  flush("section3");
 
   // ---------- lights ----------
   // Track light over the counter: one black rail and four heads. The warmest light in the room is the one on the menus.
@@ -412,11 +566,11 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-2-counter", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-3-hero", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
-        robot: { headTopMm: Math.round((robot.position.y + 0.3) * 1000), aboveCounterMm: Math.round((robot.position.y + 0.3 - COUNTER.height) * 1000) },
+        robot: (() => { const top = new THREE.Box3().setFromObject(robot).max.y; return { headTopMm: Math.round(top * 1000), aboveCounterMm: Math.round((top - COUNTER.height) * 1000) }; })(),
         blockout,
       };
     },
