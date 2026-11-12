@@ -591,7 +591,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const consoleDecor = new THREE.Group(); consoleDecor.name = "tv-console-decor"; scene.add(consoleDecor);
   const shelfDecor = new THREE.Group(); shelfDecor.name = "tv-inset-shelf-decor"; scene.add(shelfDecor);
   let shelfDecorReady = false, shelfArtFile = null, consoleArtTexture = null;
-  const pictureFile = (texture) => texture?.image?.src?.split("?")[0].split("/").pop() ?? null;
+  const pictureFile = (texture) => texture?.image?.src?.split("?")[0].split("/").pop() ?? texture?.userData?.file ?? null; // the rain view is redrawn on a canvas, which has no src
   function buildShelfDecor(art, surface) {
     if (shelfDecorReady) return;
     shelfArtFile = pictureFile(art);
@@ -1096,10 +1096,45 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const viewLoader = new THREE.TextureLoader();
   const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family", golden: "golden", tv: "tech" }; // slow and series night reuse existing paintings; golden hour has its own dusk painting of the same street, sun low on the left like the room's sun (Codex, 2026-11-12)
   const viewReady = {};
+  // Rainy day: the painting already shows a grey sky and a wet street, but no rain was falling and the glass was dry. Falling rain (short strokes leaning one way; these are what read from across the room and on a phone), a few runs down the pane and some beads are drawn once onto the picture when it
+  // loads (the picture plane sits 4 cm behind the frame, where the pane is), so the room gains no mesh, no draw call and no animation loop. Beads and
+  // runs are about three times life size: at true size (3-8 mm) they would be smaller than one screen pixel. Same drops every visit (fixed seed).
+  const rainOnGlass = (image) => {
+    const canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
+    const g = canvas.getContext("2d"), w = canvas.width, h = canvas.height;
+    g.drawImage(image, 0, 0, w, h);
+    g.fillStyle = "rgba(198,210,218,.08)"; g.fillRect(0, 0, w, h); // a wet pane is slightly milky
+    let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const bead = (x, y, r) => { // a drop is a tiny lens: pale body, dark rim, one glint
+      const body = g.createRadialGradient(x, y + r * .25, r * .1, x, y, r);
+      body.addColorStop(0, "rgba(255,255,255,.46)"); body.addColorStop(.7, "rgba(212,224,232,.2)"); body.addColorStop(1, "rgba(28,38,48,.46)");
+      g.fillStyle = body; g.beginPath(); g.ellipse(x, y, r * .86, r, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "rgba(255,255,255,.78)"; g.beginPath(); g.arc(x - r * .3, y - r * .38, Math.max(1, r * .18), 0, Math.PI * 2); g.fill();
+    };
+    g.lineCap = "round";
+    for (let i = 0; i < 620; i++) { // rain in the air outside: short pale strokes, all leaning the same way with the wind
+      const x = rnd() * w * 1.1 - w * .05, y = rnd() * h, len = 70 + rnd() * 110;
+      g.strokeStyle = `rgba(226,236,243,${(.16 + rnd() * .22).toFixed(2)})`; g.lineWidth = 2.6 + rnd() * 2.2;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + len * .17, y + len); g.stroke();
+    }
+    for (let i = 0; i < 22; i++) { // runs: a drop that grew heavy and slid, leaving a thin wet track that wanders a little
+      const x0 = rnd() * w, y0 = rnd() * h * .8, len = 220 + rnd() * 560, width = 8 + rnd() * 5, sway = 6 + rnd() * 12, phase = rnd() * 6;
+      const track = (dx, style, lineWidth) => {
+        const fade = g.createLinearGradient(0, y0, 0, y0 + len); fade.addColorStop(0, "rgba(0,0,0,0)"); fade.addColorStop(1, style);
+        g.strokeStyle = fade; g.lineWidth = lineWidth; g.beginPath();
+        for (let k = 0; k <= 16; k++) { const t = k / 16, x = x0 + dx + Math.sin(phase + t * 4.2) * sway * t, y = y0 + len * t; if (k) g.lineTo(x, y); else g.moveTo(x, y); }
+        g.stroke();
+      };
+      track(2.4, "rgba(24,34,44,.3)", width); track(0, "rgba(236,243,247,.44)", width * .62);
+      bead(x0 + Math.sin(phase + 4.2) * sway, y0 + len, width * 1.25 + rnd() * 5);
+    }
+    for (let i = 0; i < 70; i++) { const r = 6 + rnd() * rnd() * 14; bead(rnd() * w, rnd() * h, r); }
+    return canvas;
+  };
   const VIEWS = Object.fromEntries(Object.entries(VIEW_FILES).map(([m, f]) => [m, () => {
     let settle;
     viewReady[m] = new Promise((resolve) => { settle = resolve; });
-    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => { settle(true); render(); }, undefined, () => settle(false));
+    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => { if (m === "rain") { t.userData.file = `window-${f}-v1.webp`; t.image = rainOnGlass(t.image); t.needsUpdate = true; } settle(true); render(); }, undefined, () => settle(false));
     t.colorSpace = THREE.SRGBColorSpace;
     t.repeat.set(1, .87); t.offset.set(0, m === "golden" ? .015 : .05); // keep the trees and houses (lower middle) in view; the dusk painting sits 3.5% higher so its low sun clears the horizontal glazing bar instead of hiding behind it
     return t;
