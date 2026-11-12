@@ -154,7 +154,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const target = abs ? { yaw: to.yaw, pitch: to.pitch, zoom: to.zoom, pos: to.pos } : { yaw: look0.yaw + to[0], pitch: look0.pitch + to[1], zoom: to[2] ?? 1, pos: home };
     const showWardrobe = (v) => { const w = root.getObjectByName("wardrobe"); if (w) w.visible = v; }; // it stands beside the corner camera and on the arrival walk, so it only exists while you are in the middle
     const apply = (yaw, pitch, zoom, pos) => { look.yaw = yaw; look.pitch = pitch; setZoom(zoom); camera.position.copy(pos); applyLook(); render(); };
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { apply(target.yaw, target.pitch, target.zoom, target.pos); centred = abs; showWardrobe(abs); return Promise.resolve(true); }
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { centred = abs; showWardrobe(abs); apply(target.yaw, target.pitch, target.zoom, target.pos); return Promise.resolve(true); } // hide the wardrobe BEFORE the one render: it stands beside the corner camera, and hiding it afterwards left it filling half of the TV-wall view at desktop width
     const from = { yaw: look.yaw, pitch: look.pitch, zoom: camera.zoom, pos: camera.position.clone() }, dy = wrapPi(target.yaw - from.yaw), t0 = performance.now(), T = abs || centred ? 1100 : 650, run = ++lookRun, ease = (k) => k * k * (3 - 2 * k);
     travelling = abs || centred; if (travelling) showWardrobe(true);
     return new Promise((resolve) => {
