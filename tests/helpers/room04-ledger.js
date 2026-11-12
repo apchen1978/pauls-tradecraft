@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 150076, meshes: 90 }),
+  scene: Object.freeze({ vertices: 186092, meshes: 89 }),
   // Draw calls in the first frame of the opening (morning) view.
-  openingDrawCalls: Object.freeze({ desktop: 98, phone: 87 }),
+  openingDrawCalls: Object.freeze({ desktop: 97, phone: 85 }),
   // Starting caps from the look brief, set from Room 03's live size (109,111 vertices, 133 meshes, 83 / 80 opening draw calls).
   caps: Object.freeze({ vertices: 200000, meshes: 140, desktopCalls: 110, phoneCalls: 98 }), // raised with history lines on 2026-11-13 (Paul: vertices are not rationed while phones run it). Draw calls are what a phone feels, so Room 04 is the heaviest room: Room 03 opens at 85 / 82. If a real phone stutters, merge materials with vertex colours before cutting any visual
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -22,5 +22,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-13", change: "section 4 (story corner): window seat (oak table on a cast pedestal, two bentwood chairs with caned seats, a linen coat draped over one), open notebook and pen, poured cup, hydrangea vase, a floor plant, shelf plates, mugs, jars and a trailing pothos, a paper note, steam, and the lettered house plaque. Small things no longer cast shadows; steam is one Points draw", vertices: 130776, meshes: 77, desktopCalls: 82, phoneCalls: 72 },
     { date: "2026-11-13", change: "section 5 (moods and talk): five moods (morning, midday, golden hour, rain, after closing) that ease the sun, fill, track lights, a warm counter lamp and the street tint; rain drawn over the street painting; the barista robot and the counter note answer taps; no new geometry", vertices: 130776, meshes: 77, desktopCalls: 82, phoneCalls: 72 },
     { date: "2026-11-13", change: "lived-in pass: olive board-and-batten wainscot with oak cap on the right wall, two glowing sconces, an oak wall clock, a rattan drum pendant and a jute rug at the window seat, takeaway cups, a tip jar and a card reader on the counter; the new lamps glow with the mood", vertices: 150076, meshes: 90, desktopCalls: 98, phoneCalls: 87 },
+    { date: "2026-11-13", change: "machine faces the room: espresso machine and grinder move to the back bar with their fronts toward the visitors (gauge, group heads, portafilters, steam wand in view); a second robot barista, three-quarters turned away, steams milk at the wand; each robot is merged by material (the vertex count rises because merged parts are non-indexed)", vertices: 186092, meshes: 89, desktopCalls: 97, phoneCalls: 85 },
   ]),
 });

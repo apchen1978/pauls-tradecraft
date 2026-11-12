@@ -456,49 +456,51 @@ export async function start({ stage, onReady = () => {} }) {
 
   // ---------- hero pieces (section 3) ----------
   const top = c.height; // the stone top, 1.05 m
-  const mx = -1.025, mz = zc; // the espresso machine's centre on the counter
+  // The machine and the grinder stand on the BACK BAR against the brick wall and face the room (Paul, 2026-11-13: the cover shows the machine facing out; the
+  // first build had it facing the wall, so visitors saw only its plain back and never the steam wand). A standing counter is 1.05 m and the bar top 0.90 m,
+  // so everything on the bar is visible over the counter edge from the eye height of both default views.
+  const barTop = BACK_BAR.height, mx = -1.2, mz = BACK + 0.25; // the machine's centre on the bar
 
-  // Espresso machine, 75 x 42 x 50 cm: brushed steel body with black end caps, cup warmer and guard rail on top, two group heads with black portafilters
-  // and a pressure gauge on the barista side, a steam wand on the right end, a drip tray and four feet. The visitor sees the plain steel back panel.
+  // Espresso machine, 75 x 42 x 48 cm, FRONT toward +z: brushed steel body with black end caps, a cup warmer with a guard rail, two group heads with black
+  // portafilters and a pressure gauge, a steam wand at the front right corner, a drip tray and four feet. The back, against the wall, is plain.
+  const MACHINE = { W: 0.75, D: 0.48, H: 0.36 };
+  const machineFront = mz + MACHINE.D / 2, machineY0 = barTop + 0.06;
   {
-    const W = 0.75, D = 0.5, H = 0.36, y0 = top + 0.06, front = mz + D / 2, back = mz - D / 2;
+    const { W, D, H } = MACHINE, y0 = machineY0, front = machineFront;
     part("steel", roundedBox(W - 0.06, H, D - 0.02, 0.03, 0.006).translate(mx, y0 + H / 2, mz), { tile: 1 });
     for (const sign of [-1, 1]) part("black", roundedBox(D, H + 0.02, 0.03, 0.035, 0.005).rotateY(Math.PI / 2).translate(mx + sign * (W / 2 - 0.015), y0 + H / 2, mz), { tile: 1 });
-    slab("steel", [mx - 0.345, mx + 0.345], [y0 + H, y0 + H + 0.012], [mz - 0.23, mz + 0.23], { tile: 1 }); // the cup-warmer plate
+    slab("steel", [mx - 0.345, mx + 0.345], [y0 + H, y0 + H + 0.012], [mz - 0.22, mz + 0.22], { tile: 1 }); // the cup-warmer plate
     for (let i = 0; i < 4; i++) part("ceramic", new THREE.LatheGeometry([[0, 0], [0.03, 0], [0.043, 0.062], [0.039, 0.062], [0.027, 0.008], [0]].map((p) => new THREE.Vector2(p[0], p[1] ?? 0)), 16).translate(mx - 0.24 + i * 0.16, y0 + H + 0.012, mz), { tile: 1 });
-    for (const dz of [-0.2, 0.2]) {
+    for (const dz of [-0.19, 0.19]) {
       part("steel", rodGeometry([mx - 0.33, y0 + H + 0.085, mz + dz], [mx + 0.33, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
       for (const dx of [-0.33, 0.33]) part("steel", rodGeometry([mx + dx, y0 + H + 0.012, mz + dz], [mx + dx, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
     }
-    part("steel", rodGeometry([mx - 0.33, y0 + H + 0.085, mz - 0.2], [mx - 0.33, y0 + H + 0.085, mz + 0.2], 0.005), { tile: 1 });
-    part("steel", rodGeometry([mx + 0.33, y0 + H + 0.085, mz - 0.2], [mx + 0.33, y0 + H + 0.085, mz + 0.2], 0.005), { tile: 1 });
-    // Barista side (toward the back bar): two group heads with portafilters, gauge, buttons.
+    for (const dx of [-0.33, 0.33]) part("steel", rodGeometry([mx + dx, y0 + H + 0.085, mz - 0.19], [mx + dx, y0 + H + 0.085, mz + 0.19], 0.005), { tile: 1 });
+    // Front face: two group heads with portafilters (black handles pointing at the room), a gauge and four buttons.
     for (const dx of [-0.17, 0.17]) {
-      part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.05, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.27, back - 0.02), { tile: 1 });
-      part("black", new THREE.CylinderGeometry(0.031, 0.027, 0.03, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.265, back - 0.06), { tile: 1 });
-      part("black", rodGeometry([mx + dx, y0 + 0.265, back - 0.07], [mx + dx + (dx < 0 ? -0.03 : 0.03), y0 + 0.255, back - 0.2], 0.012), { tile: 1 });
-      slab("steel", [mx + dx - 0.05, mx + dx + 0.05], [y0 + 0.2, y0 + 0.208], [back - 0.04, back - 0.01], { tile: 1 });
+      part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.05, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.27, front + 0.02), { tile: 1 });
+      part("black", new THREE.CylinderGeometry(0.031, 0.027, 0.03, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.265, front + 0.06), { tile: 1 });
+      part("black", rodGeometry([mx + dx, y0 + 0.265, front + 0.07], [mx + dx + (dx < 0 ? -0.03 : 0.03), y0 + 0.255, front + 0.2], 0.012), { tile: 1 });
+      slab("steel", [mx + dx - 0.05, mx + dx + 0.05], [y0 + 0.2, y0 + 0.208], [front + 0.01, front + 0.04], { tile: 1 });
     }
-    part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.014, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, back - 0.016), { tile: 1 });
-    part("ceramic", new THREE.CylinderGeometry(0.028, 0.028, 0.004, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, back - 0.024), { tile: 1 });
-    for (let i = 0; i < 4; i++) part("black", new THREE.CylinderGeometry(0.01, 0.01, 0.008, 12).rotateX(Math.PI / 2).translate(mx - 0.1 + i * 0.07, y0 + 0.33, back - 0.014), { tile: 1 });
-    // Steam wand on the right end: a tap, then a tube that drops and bends toward the barista.
-    part("steel", rodGeometry([mx + W / 2 + 0.002, y0 + 0.24, mz - 0.14], [mx + W / 2 + 0.04, y0 + 0.24, mz - 0.14], 0.007), { tile: 1 });
-    part("steel", rodGeometry([mx + W / 2 + 0.04, y0 + 0.24, mz - 0.14], [mx + W / 2 + 0.04, y0 + 0.07, mz - 0.14], 0.006), { tile: 1 });
-    part("steel", rodGeometry([mx + W / 2 + 0.04, y0 + 0.07, mz - 0.14], [mx + W / 2 + 0.035, y0 + 0.03, mz - 0.18], 0.0055), { tile: 1 });
-    part("black", new THREE.SphereGeometry(0.014, 12, 8).translate(mx + W / 2 + 0.045, y0 + 0.25, mz - 0.14), { tile: 1 });
-    // Customer side: two machined reveal lines break up the steel panel.
-    for (const y of [y0 + 0.12, y0 + 0.25]) slab("black", [mx - 0.32, mx + 0.32], [y, y + 0.004], [front - 0.012, front - 0.009], { tile: 1 });
+    part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.014, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, front + 0.006), { tile: 1 });
+    part("ceramic", new THREE.CylinderGeometry(0.028, 0.028, 0.004, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, front + 0.014), { tile: 1 });
+    for (let i = 0; i < 4; i++) part("black", new THREE.CylinderGeometry(0.01, 0.01, 0.008, 12).rotateX(Math.PI / 2).translate(mx - 0.1 + i * 0.07, y0 + 0.33, front + 0.004), { tile: 1 });
+    // Steam wand at the front right corner: a tap on the front, a tube that runs out and down, a tip in the milk pitcher the barista holds.
+    part("black", new THREE.SphereGeometry(0.014, 12, 8).translate(mx + W / 2 - 0.05, y0 + 0.25, front + 0.01), { tile: 1 });
+    part("steel", rodGeometry([mx + W / 2 - 0.05, y0 + 0.25, front + 0.01], [mx + W / 2 + 0.02, y0 + 0.25, front + 0.06], 0.0065), { tile: 1 });
+    part("steel", rodGeometry([mx + W / 2 + 0.02, y0 + 0.25, front + 0.06], [mx + W / 2 + 0.035, y0 + 0.17, front + 0.12], 0.006), { tile: 1 });
+    part("steel", rodGeometry([mx + W / 2 + 0.035, y0 + 0.17, front + 0.12], [mx + W / 2 + 0.04, y0 + 0.13, front + 0.125], 0.0052), { tile: 1 });
     // Drip tray with a grille, and four feet.
-    slab("steel", [mx - 0.33, mx + 0.33], [top + 0.034, top + 0.058], [mz - 0.22, mz + 0.22], { tile: 1 });
-    for (let i = 0; i < 12; i++) slab("black", [mx - 0.3 + i * 0.05, mx - 0.27 + i * 0.05], [top + 0.058, top + 0.0605], [mz - 0.19, mz + 0.19], { tile: 1 });
-    for (const dx of [-0.31, 0.31]) for (const dz of [-0.19, 0.19]) part("steel", new THREE.CylinderGeometry(0.022, 0.026, 0.036, 14).translate(mx + dx, top + 0.018, mz + dz), { tile: 1 });
+    slab("steel", [mx - 0.33, mx + 0.33], [barTop + 0.034, barTop + 0.058], [mz - 0.2, mz + 0.24], { tile: 1 });
+    for (let i = 0; i < 12; i++) slab("black", [mx - 0.3 + i * 0.05, mx - 0.27 + i * 0.05], [barTop + 0.058, barTop + 0.0605], [mz - 0.17, mz + 0.21], { tile: 1 });
+    for (const dx of [-0.31, 0.31]) for (const dz of [-0.17, 0.19]) part("steel", new THREE.CylinderGeometry(0.022, 0.026, 0.036, 14).translate(mx + dx, barTop + 0.018, mz + dz), { tile: 1 });
   }
 
-  // Grinder, about 22 x 34 x 26 cm: black tapered body, steel collar, a clear hopper of beans, a dial and a chute toward the barista.
+  // Grinder, about 22 x 34 x 26 cm, on the bar to the left of the machine: black tapered body, steel collar, a clear hopper of beans, a dial and a chute toward the room.
   {
-    const gx = -1.81, gz = mz, y0 = top + 0.022, bean = [];
-    part("black", roundedBox(0.26, 0.022, 0.3, 0.014, 0.004).translate(gx, top + 0.011, gz), { tile: 1 });
+    const gx = -2.02, gz = mz + 0.02, y0 = barTop + 0.022;
+    part("black", roundedBox(0.26, 0.022, 0.3, 0.014, 0.004).rotateX(Math.PI / 2).translate(gx, barTop + 0.011, gz), { tile: 1 });
     part("black", new THREE.LatheGeometry([[0.0005, 0], [0.108, 0], [0.104, 0.03], [0.078, 0.27], [0.0005, 0.27]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(gx, y0, gz), { tile: 1 });
     part("steel", new THREE.CylinderGeometry(0.083, 0.083, 0.024, 32).translate(gx, y0 + 0.282, gz), { tile: 1 });
     part("glass", new THREE.LatheGeometry([[0.078, 0], [0.098, 0.05], [0.104, 0.1], [0.104, 0.13], [0.1, 0.17]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(gx, y0 + 0.294, gz), { tile: 1 });
@@ -509,9 +511,9 @@ export async function start({ stage, onReady = () => {} }) {
       const g = new THREE.SphereGeometry(0.0085, 6, 4); g.scale(1, 0.72, 0.58); g.rotateY(rnd() * 3).rotateZ(rnd() * 3);
       part("beans", g.translate(gx + Math.cos(a) * rr, y0 + 0.28 + (hy - 0.3) + rnd() * 0.02, gz + Math.sin(a) * rr), { tile: 1 });
     }
-    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.02, 24).rotateX(Math.PI / 2).translate(gx, y0 + 0.19, gz - 0.087), { tile: 1 });
-    part("steel", rodGeometry([gx, y0 + 0.13, gz - 0.085], [gx, y0 + 0.085, gz - 0.125], 0.017), { tile: 1 });
-    slab("steel", [gx - 0.05, gx + 0.05], [y0 + 0.05, y0 + 0.056], [gz - 0.16, gz - 0.09], { tile: 1 }); // the cradle for the portafilter
+    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.02, 24).rotateX(Math.PI / 2).translate(gx, y0 + 0.19, gz + 0.087), { tile: 1 });
+    part("steel", rodGeometry([gx, y0 + 0.13, gz + 0.085], [gx, y0 + 0.085, gz + 0.125], 0.017), { tile: 1 });
+    slab("steel", [gx - 0.05, gx + 0.05], [y0 + 0.05, y0 + 0.056], [gz + 0.09, gz + 0.16], { tile: 1 }); // the cradle for the portafilter
   }
 
   // Curved glass pastry case, 110 x 50 x 50 cm, on an oak base: steel rods on a quarter-round profile, glass sides, front and top, two glass shelves,
@@ -564,29 +566,71 @@ export async function start({ stage, onReady = () => {} }) {
     const caseLight = new THREE.PointLight(0xffd7a0, 0.9, 1.3, 2); caseLight.position.set(cx, base + Hh - 0.05, (zb + zf) / 2); scene.add(caseLight);
   }
 
-  // Robot barista: the ROOMVERSE robot in an olive scarf, standing on a crate behind the counter with one arm out, holding a cup on a saucer.
+  // Two ROOMVERSE robots work the bar (Paul, 2026-11-13). The GREETER stands on a crate behind the counter by the pastry case, facing the visitors with a cup on a saucer.
+  // The BARISTA stands on a crate in front of the machine, turned three-quarters away from the visitors, and steams milk at the wand: its back is to us, the machine
+  // faces us, so the machine facing out and a robot "inside" the counter work together. Both are 15% over their 60 cm design height so they read from across the room.
   const robot = new THREE.Group(); robot.name = "robot-barista";
-  {
-    const rx = 0.8, rz = -1.2, baseY = 0.86; // the crate lifts it so the upper half clears the 1.05 m counter
-    slab("oak", [rx - 0.3, rx + 0.3], [0, baseY], [rz - 0.3, rz + 0.3], { grain: "y" });
-    slab("oakDark", [rx - 0.31, rx + 0.31], [baseY - 0.02, baseY], [rz - 0.31, rz + 0.31], { tile: 1 });
-    const bodyY = baseY, local = new THREE.Group(); local.position.set(rx, bodyY, rz); local.scale.setScalar(1.15); robot.add(local); // 15% larger than its 60 cm design height so it reads from across the room
+  const ROBOT_SCALE = 1.15;
+  const buildRobot = (group, withScarfTailsOnBack) => {
+    const local = new THREE.Group(); group.add(local);
     const add2 = (key, geometry) => { const mesh = new THREE.Mesh(geometry, materials[key]); mesh.castShadow = true; mesh.receiveShadow = true; local.add(mesh); return mesh; };
     add2("robotBody", eggGeometry());
     const visor = add2("visor", new THREE.SphereGeometry(1, 28, 16)); visor.scale.set(0.135, 0.058, 0.034); visor.position.set(0, 0.42, eggRadius(0.42) - 0.008);
     for (const sx of [-1, 1]) { const eye = add2("eyes", new THREE.CircleGeometry(0.0175, 20)); eye.position.set(sx * 0.047, 0.425, eggRadius(0.42) - 0.008 + 0.0345); }
-    const band = add2("terracotta", new THREE.CylinderGeometry(eggRadius(0.19) + 0.004, eggRadius(0.13) + 0.004, 0.06, 40, 1, true)); band.position.y = 0.16; band.material = materials.terracotta; band.material.side = THREE.DoubleSide;
+    const band = add2("terracotta", new THREE.CylinderGeometry(eggRadius(0.19) + 0.004, eggRadius(0.13) + 0.004, 0.06, 40, 1, true)); band.position.y = 0.16; band.material.side = THREE.DoubleSide;
     const scarf = add2("scarf", new THREE.TorusGeometry(eggRadius(0.325) + 0.004, 0.026, 10, 36)); scarf.rotation.x = Math.PI / 2; scarf.position.y = 0.325; scarf.scale.set(1, 1, 0.8);
     const knot = add2("scarf", new THREE.SphereGeometry(0.03, 12, 8)); knot.position.set(-0.075, 0.315, eggRadius(0.315) + 0.014);
     for (const [dx, tilt] of [[-0.05, 0.12], [-0.095, -0.1]]) { const tail = add2("scarf", new THREE.BoxGeometry(0.04, 0.1, 0.012)); tail.position.set(dx - 0.025, 0.245, eggRadius(0.25) + 0.016); tail.rotation.z = tilt; }
-    // Left arm at its side; the right arm reaches out over the counter with the cup.
+    return { local, add2 };
+  };
+  // Merge a robot's parts by material (the robot still moves as one group), so each robot costs a handful of draw calls instead of a dozen.
+  const consolidateRobot = (local) => {
+    local.updateMatrixWorld(true);
+    const byMaterial = new Map();
+    for (const mesh of [...local.children]) {
+      if (!mesh.isMesh) continue;
+      mesh.updateMatrix();
+      let g = mesh.geometry.clone().applyMatrix4(mesh.matrix); if (g.index) g = g.toNonIndexed();
+      if (!byMaterial.has(mesh.material)) byMaterial.set(mesh.material, []);
+      byMaterial.get(mesh.material).push(g); local.remove(mesh); mesh.geometry.dispose();
+    }
+    for (const [material, list] of byMaterial) { const merged = new THREE.Mesh(mergeGeometries(list), material); merged.castShadow = true; merged.receiveShadow = true; local.add(merged); }
+  };
+  const greeter = buildRobot(robot);
+  {
+    const rx = 0.8, rz = -1.2, baseY = 0.86;
+    slab("oak", [rx - 0.3, rx + 0.3], [0, baseY], [rz - 0.3, rz + 0.3], { grain: "y" });
+    slab("oakDark", [rx - 0.31, rx + 0.31], [baseY - 0.02, baseY], [rz - 0.31, rz + 0.31], { tile: 1 });
+    greeter.local.position.set(rx, baseY, rz); greeter.local.scale.setScalar(ROBOT_SCALE);
+    const { add2 } = greeter;
     const armL = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.09, 6, 12)); armL.position.set(-eggRadius(0.27) - 0.012, 0.27, 0.02); armL.rotation.z = 0.12;
     const armR = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.1, 6, 12)); armR.position.set(eggRadius(0.27) - 0.01, 0.285, 0.1); armR.rotation.x = Math.PI / 2 - 0.1; armR.rotation.z = -0.3;
-    const sx = eggRadius(0.27) + 0.02, sz = 0.255; // saucer centre, in the robot's frame
+    const sx = eggRadius(0.27) + 0.02, sz = 0.255;
     const saucer = add2("ceramic", new THREE.CylinderGeometry(0.075, 0.058, 0.012, 28)); saucer.position.set(sx, 0.236, sz);
     const cup = add2("ceramic", new THREE.LatheGeometry([[0, 0], [0.036, 0], [0.05, 0.07], [0.046, 0.07], [0.033, 0.01], [0]].map((p) => new THREE.Vector2(p[0], p[1] ?? 0)), 24)); cup.position.set(sx, 0.242, sz);
     const liquid = add2("coffee", new THREE.CircleGeometry(0.044, 24)); liquid.rotation.x = -Math.PI / 2; liquid.position.set(sx, 0.304, sz);
+    consolidateRobot(greeter.local);
     scene.add(robot);
+  }
+  const baristaRobot = new THREE.Group(); baristaRobot.name = "robot-barista-machine";
+  const PITCHER = new THREE.Vector3(mx + MACHINE.W / 2 + 0.04, machineY0 + 0.135, machineFront + 0.125); // where the wand tip sits: inside the pitcher
+  {
+    const yaw = -2.35, baseY = 0.86, hand = new THREE.Vector3(0.2, 0.27, 0.27); // the hand, in the robot's own frame
+    const offset = hand.clone().multiplyScalar(ROBOT_SCALE).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+    const rx = PITCHER.x - offset.x, rz = PITCHER.z - offset.z;
+    slab("oak", [rx - 0.3, rx + 0.3], [0, baseY], [rz - 0.3, rz + 0.3], { grain: "y" });
+    slab("oakDark", [rx - 0.31, rx + 0.31], [baseY - 0.02, baseY], [rz - 0.31, rz + 0.31], { tile: 1 });
+    const barista = buildRobot(baristaRobot);
+    barista.local.position.set(rx, baseY, rz); barista.local.rotation.y = yaw; barista.local.scale.setScalar(ROBOT_SCALE);
+    const { add2 } = barista;
+    const armL = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.09, 6, 12)); armL.position.set(-eggRadius(0.27) - 0.012, 0.27, 0.0); armL.rotation.z = 0.12;
+    const armR = add2("robotBody", new THREE.CapsuleGeometry(0.036, 0.12, 6, 12)); armR.position.set(0.2, 0.275, 0.14); armR.rotation.x = Math.PI / 2 - 0.05; // reaching forward with the pitcher
+    consolidateRobot(barista.local);
+    scene.add(baristaRobot);
+    // The milk pitcher in the hand (steel, with a handle) and a white milk surface at its mouth.
+    part("steel", new THREE.LatheGeometry([[0.0005, 0], [0.028, 0], [0.037, 0.08], [0.033, 0.09], [0.0005, 0.09]].map((p) => new THREE.Vector2(p[0], p[1])), 20).translate(PITCHER.x, PITCHER.y - 0.05, PITCHER.z), { tile: 1 });
+    part("steel", new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI).rotateZ(-Math.PI / 2).translate(PITCHER.x + 0.036, PITCHER.y - 0.005, PITCHER.z), { tile: 1 });
+    part("lid", new THREE.CylinderGeometry(0.03, 0.03, 0.003, 20).translate(PITCHER.x, PITCHER.y + 0.036, PITCHER.z), { tile: 1 });
   }
   flush("section3");
 
@@ -767,7 +811,7 @@ export async function start({ stage, onReady = () => {} }) {
   // Steam rising from the barista's cup and from the cup on the window table: a few soft puffs, drifting up and widening.
   const steamTexture = makeSteamTexture();
   const steamPositions = [];
-  for (const [sx, sy, sz] of [[0.8 + (eggRadius(0.27) + 0.02) * 1.15, 0.86 + 0.304 * 1.15, -1.2 + 0.255 * 1.15], [tx(0.13), tableTop + 0.075, tz(-0.06)]]) {
+  for (const [sx, sy, sz] of [[PITCHER.x, PITCHER.y + 0.04, PITCHER.z], [0.8 + (eggRadius(0.27) + 0.02) * 1.15, 0.86 + 0.304 * 1.15, -1.2 + 0.255 * 1.15], [tx(0.13), tableTop + 0.075, tz(-0.06)]]) {
     for (let i = 0; i < 4; i++) steamPositions.push(sx + Math.sin(i * 1.7) * 0.012, sy + 0.05 + i * 0.07, sz + Math.cos(i * 1.3) * 0.01);
   }
   const steamGeometry = new THREE.BufferGeometry(); steamGeometry.setAttribute("position", new THREE.Float32BufferAttribute(steamPositions, 3));
