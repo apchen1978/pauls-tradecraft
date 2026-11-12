@@ -10,6 +10,7 @@ import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 //      skirting, soft reflections. 2. Counter and back bar. 3. Hero pieces (machine, grinder, pastry case, robot). 4. Story corner. 5. Moods and polish.
 // Everything still named "blockout-*" is a plain stand-in that a later section replaces.
 // Section 3 (hero pieces) follows the design sheets Codex drew in card 46: every piece is modelled from rounded profiles, lathes, rods and discs.
+// Section 4 (the story corner) puts a window seat, a draped coat, an open notebook, steaming cups, plants and shelf things where "someone was just here".
 // Section 2 (counter and back bar) is built from many small real parts (frames, panels, mouldings, brackets, handles) merged by material, because
 // thickness, shadow lines and bevels are what make a room read as 3D. Vertices are not rationed (Paul, 2026-11-13); draw calls are, by merging.
 export const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
@@ -128,6 +129,36 @@ function eggGeometry() {
   return new THREE.LatheGeometry(points, 40);
 }
 
+// A tube along a smooth curve through the given points.
+function tubeGeometry(points, radius, segments = 24, radial = 8) {
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p))), segments, radius, radial, false);
+}
+// A drape of cloth: a width x length sheet bent along a side profile [[z, y], ...] (from one free end, over the rail, to the other free end), with wrinkles.
+function drapeGeometry(width, profile, wrinkle = 0.012, seed = 1) {
+  const cols = 14, rows = (profile.length - 1) * 4, positions = [], indices = [];
+  const at = (t) => { const f = t * (profile.length - 1), i = Math.min(profile.length - 2, Math.floor(f)), k = f - i; return [profile[i][0] + (profile[i + 1][0] - profile[i][0]) * k, profile[i][1] + (profile[i + 1][1] - profile[i][1]) * k]; };
+  for (let r = 0; r <= rows; r++) {
+    const t = r / rows, [z, y] = at(t), hang = Math.min(t, 1 - t) < 0.4 ? 1 : 0.3;
+    for (let c = 0; c <= cols; c++) {
+      const u = c / cols - 0.5;
+      const fold = Math.sin(u * 17 + seed * 2 + t * 3.1) * wrinkle * hang + Math.sin(u * 41 + seed) * wrinkle * 0.35 * hang;
+      const narrow = 1 - 0.1 * Math.abs(u) * (1 - hang); // the free ends hang a little narrower
+      positions.push(u * width * narrow + Math.sin(t * 9 + seed) * 0.006 * hang, y, z + fold);
+    }
+  }
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const a = r * (cols + 1) + c, b = a + cols + 1; indices.push(a, b, a + 1, a + 1, b, b + 1); }
+  const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)); geometry.setIndex(indices); geometry.computeVertexNormals();
+  return geometry;
+}
+// A soft round puff for steam.
+function makeSteamTexture() {
+  const canvas = document.createElement("canvas"); canvas.width = 64; canvas.height = 64;
+  const g = canvas.getContext("2d"), grad = g.createRadialGradient(32, 32, 2, 32, 32, 30);
+  grad.addColorStop(0, "rgba(255,255,255,.85)"); grad.addColorStop(0.5, "rgba(255,255,255,.3)"); grad.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
+}
+
 export async function start({ stage, onReady = () => {} }) {
   const scene = new THREE.Scene();
   const compact = window.innerWidth < 500;
@@ -205,6 +236,20 @@ export async function start({ stage, onReady = () => {} }) {
     coffee: new THREE.MeshStandardMaterial({ color: 0x3b2418, roughness: 0.35 }),
     eyes: new THREE.MeshBasicMaterial({ color: 0xffffff }),
     warm: new THREE.MeshBasicMaterial({ color: 0xffe0aa }),
+  });
+  Object.assign(materials, {
+    cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85 }),
+    bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
+    cloth: new THREE.MeshStandardMaterial({ color: 0xded3bf, roughness: 0.96, side: THREE.DoubleSide }),
+    paper: new THREE.MeshStandardMaterial({ color: 0xf6f0e2, roughness: 0.9 }),
+    cover: new THREE.MeshStandardMaterial({ color: 0x5c4630, roughness: 0.8 }),
+    leaf: new THREE.MeshStandardMaterial({ color: 0x5f8a45, roughness: 0.78, side: THREE.DoubleSide }),
+    leafDark: new THREE.MeshStandardMaterial({ color: 0x3f6a33, roughness: 0.8, side: THREE.DoubleSide }),
+    bloom: new THREE.MeshStandardMaterial({ color: 0xf3f1e6, roughness: 0.9 }),
+    soil: new THREE.MeshStandardMaterial({ color: 0x3a2a1e, roughness: 1 }),
+    pot: new THREE.MeshStandardMaterial({ color: 0xf0ebe1, roughness: 0.6 }),
+    iron: new THREE.MeshStandardMaterial({ color: 0x25272a, roughness: 0.5, metalness: 0.35 }),
+    water: new THREE.MeshStandardMaterial({ color: 0xcfe0e4, roughness: 0.05, transparent: true, opacity: 0.45, depthWrite: false }),
   });
   materials.menuA = new THREE.MeshStandardMaterial({ color: 0x2c302f, roughness: 0.96 });
   materials.menuB = new THREE.MeshStandardMaterial({ color: 0x2c302f, roughness: 0.96 });
@@ -291,7 +336,8 @@ export async function start({ stage, onReady = () => {} }) {
     parts.get(key).push(g);
   };
   const slab = (key, [x0, x1], [y0, y1], [z0, z1], options) => part(key, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), options);
-  const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0); parts.clear(); };
+  const noCast = new Set(["leaf", "leafDark", "bloom", "soil", "water", "paper", "cover", "glass", "muffinCup", "muffin", "croissant", "cookie", "chip", "beans", "coffee", "warm", "eyes", "cane"]);
+  const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0, { cast: !noCast.has(key) }); parts.clear(); };
 
   const c = COUNTER, endRadius = (c.z1 - c.z0) / 2, zc = (c.z0 + c.z1) / 2, arcX = c.x1 - endRadius;
   const bodyY0 = 0.10, bodyY1 = c.height - c.top; // a 10 cm recessed toe-kick, then the body up to the stone
@@ -360,8 +406,21 @@ export async function start({ stage, onReady = () => {} }) {
     const board = add(`menu-board-${m.key === "menuA" ? "a" : "b"}`, new THREE.PlaneGeometry(m.w - 2 * fw, m.h - 2 * fw), materials[m.key], m.x, m.y, BACK + 0.012, { cast: false });
     board.position.z = BACK + 0.012;
   }
-  box("blockout-house-plaque", materials.oak, [X0, X0 + 0.02], [1.95, 2.17], [-2.05, -1.25], { cast: false });
-  flush("section2");
+  {
+    const canvas = document.createElement("canvas"); canvas.width = 800; canvas.height = 220;
+    const g = canvas.getContext("2d");
+    const wood = g.createLinearGradient(0, 0, 0, 220); wood.addColorStop(0, "#d9a95f"); wood.addColorStop(1, "#c4893f");
+    g.fillStyle = wood; g.fillRect(0, 0, 800, 220);
+    g.strokeStyle = "rgba(120,70,20,.22)"; g.lineWidth = 2; for (let i = 0; i < 14; i++) { g.beginPath(); g.moveTo(0, 10 + i * 16); g.bezierCurveTo(250, 6 + i * 16, 500, 18 + i * 16, 800, 10 + i * 16); g.stroke(); }
+    g.strokeStyle = "#7a4a1c"; g.lineWidth = 7; g.strokeRect(14, 14, 772, 192); g.lineWidth = 2; g.strokeRect(26, 26, 748, 168);
+    g.fillStyle = "#4a2a10"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = "700 62px Georgia, 'Times New Roman', serif";
+    g.fillText("Christ is the Head", 400, 84); g.fillText("of this House", 400, 150);
+    const face = new THREE.CanvasTexture(canvas); face.colorSpace = THREE.SRGBColorSpace; face.anisotropy = 8;
+    const faceMaterial = new THREE.MeshStandardMaterial({ map: face, roughness: 0.6 });
+    const plaque = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.22, 0.8), [faceMaterial, materials.oak, materials.oak, materials.oak, materials.oak, materials.oak]);
+    plaque.name = "house-plaque"; plaque.position.set(X0 + 0.015, 2.05, -1.65); plaque.castShadow = true; scene.add(plaque);
+  }
+  flush("section2");  flush("section2");
 
   // Soft contact shadows on the floor under the counter and the back bar.
   const contactTexture = makeContactShadowTexture();
@@ -424,7 +483,7 @@ export async function start({ stage, onReady = () => {} }) {
     let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 70; i++) {
       const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 0.085, hy = 0.3 + rnd() * 0.07 * (1 - rr / 0.1);
-      const g = new THREE.SphereGeometry(0.0085, 7, 5); g.scale(1, 0.72, 0.58); g.rotateY(rnd() * 3).rotateZ(rnd() * 3);
+      const g = new THREE.SphereGeometry(0.0085, 6, 4); g.scale(1, 0.72, 0.58); g.rotateY(rnd() * 3).rotateZ(rnd() * 3);
       part("beans", g.translate(gx + Math.cos(a) * rr, y0 + 0.28 + (hy - 0.3) + rnd() * 0.02, gz + Math.sin(a) * rr), { tile: 1 });
     }
     part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.02, 24).rotateX(Math.PI / 2).translate(gx, y0 + 0.19, gz - 0.087), { tile: 1 });
@@ -508,6 +567,130 @@ export async function start({ stage, onReady = () => {} }) {
   }
   flush("section3");
 
+  // ---------- the story corner (section 4) ----------
+  // The window seat stands under the street window: a 60 cm round table, one bentwood chair with a coat over its back (its back is what the visitor sees
+  // from the door) and one beside the table. On the table: a vase of hydrangea, an open notebook and pen, and a cup that has just been poured.
+  const SEAT = { x: -2.42, z: 0.5 };
+  const place = (geometry, x, z, yaw = 0, y = 0) => geometry.rotateY(yaw).translate(x, y, z);
+  const chair = (x, z, yaw, withCoat) => {
+    const P = (key, geometry, options) => part(key, place(geometry, x, z, yaw), options);
+    const R = 0.2, seatY = 0.46;
+    P("bentwood", new THREE.CylinderGeometry(R, R - 0.004, 0.034, 36).translate(0, seatY - 0.01, 0), { tile: 0.6 }); // the seat frame
+    P("cane", new THREE.CylinderGeometry(R - 0.022, R - 0.022, 0.006, 36).translate(0, seatY + 0.009, 0), { tile: 0.2 }); // the woven top
+    P("bentwood", new THREE.TorusGeometry(R - 0.018, 0.008, 8, 36).rotateX(Math.PI / 2).translate(0, seatY + 0.008, 0), { tile: 0.6 });
+    for (const [lx, lz] of [[-0.145, 0.125], [0.145, 0.125]]) P("bentwood", new THREE.CylinderGeometry(0.017, 0.011, seatY - 0.03, 12).translate(lx * 1.08, (seatY - 0.03) / 2, lz * 1.08), { tile: 0.6 });
+    for (const sx of [-1, 1]) {
+      P("bentwood", tubeGeometry([[0.146 * sx, 0, -0.152], [0.142 * sx, 0.24, -0.158], [0.145 * sx, 0.46, -0.16], [0.152 * sx, 0.66, -0.188], [0.142 * sx, 0.84, -0.205], [0.112 * sx, 0.935, -0.21]], 0.0145, 30, 10), { tile: 0.6 });
+    }
+    P("bentwood", tubeGeometry([[-0.112, 0.935, -0.21], [-0.06, 0.968, -0.222], [0, 0.976, -0.226], [0.06, 0.968, -0.222], [0.112, 0.935, -0.21]], 0.0145, 20, 10), { tile: 0.6 }); // the top bow
+    P("bentwood", new THREE.TorusGeometry(0.098, 0.0075, 8, 32).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
+    P("cane", new THREE.CylinderGeometry(0.092, 0.092, 0.004, 28).scale(1, 1, 0.62).rotateX(Math.PI / 2).translate(0, 0.76, -0.196), { tile: 0.2 });
+    P("bentwood", new THREE.TorusGeometry(0.168, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, -0.005), { tile: 0.6 }); // the leg ring
+    if (withCoat) {
+      // A linen coat over the back: a free end on the seat side, up over the bow, and a longer end down the back.
+      const coat = drapeGeometry(0.4, [[-0.17, 0.585], [-0.178, 0.7], [-0.198, 0.88], [-0.222, 0.97], [-0.24, 0.99], [-0.262, 0.975], [-0.27, 0.9], [-0.272, 0.76], [-0.265, 0.6], [-0.27, 0.47]], 0.011, 3);
+      P("cloth", coat, { tile: 1 });
+      P("cloth", new THREE.CylinderGeometry(0.032, 0.032, 0.18, 12).rotateZ(Math.PI / 2).translate(0.2, 0.845, -0.215), { tile: 1 }); // a rolled sleeve over the right post
+    }
+  };
+  chair(SEAT.x, SEAT.z + 0.62, Math.PI, true);
+  chair(SEAT.x + 0.62, SEAT.z, -Math.PI / 2, false);
+  // Table: a 60 cm oak top with a rounded edge on a black cast pedestal and a three-foot base.
+  part("oak", place(new THREE.CylinderGeometry(0.3, 0.3, 0.03, 48).translate(0, 0.725, 0), SEAT.x, SEAT.z), { tile: 0.9 });
+  part("oak", place(new THREE.TorusGeometry(0.3, 0.0105, 8, 48).rotateX(Math.PI / 2).translate(0, 0.725, 0), SEAT.x, SEAT.z), { tile: 0.9 });
+  part("iron", place(new THREE.LatheGeometry([[0.0005, 0.7], [0.04, 0.7], [0.026, 0.64], [0.02, 0.4], [0.034, 0.12], [0.06, 0.05], [0.0005, 0.05]].map((p) => new THREE.Vector2(p[0], p[1])), 24), SEAT.x, SEAT.z), { tile: 1 });
+  part("iron", place(new THREE.CylinderGeometry(0.21, 0.23, 0.02, 40).translate(0, 0.01, 0), SEAT.x, SEAT.z), { tile: 1 });
+  const tableTop = 0.74, tx = (dx) => SEAT.x + dx, tz = (dz) => SEAT.z + dz;
+  // The cup that has just been poured, with a saucer.
+  part("ceramic", new THREE.CylinderGeometry(0.062, 0.05, 0.01, 28).translate(tx(0.13), tableTop + 0.005, tz(-0.06)), { tile: 1 });
+  part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.034, 0], [0.047, 0.066], [0.043, 0.066], [0.031, 0.01], [0.0005, 0.01]].map((p) => new THREE.Vector2(p[0], p[1])), 24).translate(tx(0.13), tableTop + 0.01, tz(-0.06)), { tile: 1 });
+  part("ceramic", new THREE.TorusGeometry(0.019, 0.006, 8, 14, Math.PI * 1.1).rotateZ(-Math.PI * 0.55).translate(tx(0.13) + 0.05, tableTop + 0.05, tz(-0.06)), { tile: 1 });
+  part("coffee", new THREE.CircleGeometry(0.039, 24).rotateX(-Math.PI / 2).translate(tx(0.13), tableTop + 0.071, tz(-0.06)), { tile: 1 });
+  // An open notebook (two page blocks tilted into a shallow V on a dark cover) and a pen lying across it.
+  {
+    const nx = tx(-0.04), nz = tz(0.12), yaw = 0.35;
+    const cover = new THREE.BoxGeometry(0.34, 0.008, 0.23).translate(0, tableTop + 0.004, 0);
+    part("cover", place(cover, nx, nz, yaw), { tile: 1 });
+    for (const side of [-1, 1]) {
+      const pages = new THREE.BoxGeometry(0.155, 0.011, 0.205).rotateZ(side * 0.04).translate(side * 0.082, tableTop + 0.0135, 0);
+      part("paper", place(pages, nx, nz, yaw), { tile: 1 });
+      for (let i = 0; i < 6; i++) part("black", place(new THREE.BoxGeometry(0.11 - (i % 3) * 0.02, 0.0006, 0.0016).translate(side * 0.082 + (i % 2) * 0.004, tableTop + 0.0195 - side * 0.0035, -0.07 + i * 0.027), nx, nz, yaw), { tile: 1 });
+    }
+    part("black", place(new THREE.CylinderGeometry(0.0045, 0.0045, 0.15, 10).rotateZ(Math.PI / 2).rotateY(0.5).translate(0.02, tableTop + 0.0245, 0.05), nx, nz, yaw), { tile: 1 });
+    part("steel", place(new THREE.CylinderGeometry(0.0048, 0.0048, 0.014, 10).rotateZ(Math.PI / 2).rotateY(0.5).translate(0.07, tableTop + 0.0245, 0.028), nx, nz, yaw), { tile: 1 });
+  }
+  // A glass vase of hydrangea: round white blooms on bent stems with big leaves.
+  {
+    const vx = tx(-0.16), vz = tz(-0.08);
+    part("glass", new THREE.LatheGeometry([[0.0005, 0], [0.032, 0], [0.04, 0.05], [0.026, 0.1], [0.022, 0.14], [0.03, 0.155]].map((p) => new THREE.Vector2(p[0], p[1])), 20).translate(vx, tableTop, vz), { tile: 1 });
+    part("water", new THREE.CylinderGeometry(0.036, 0.034, 0.06, 20).translate(vx, tableTop + 0.04, vz), { tile: 1 });
+    let seed = 31; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 5; i++) {
+      const a = i * 1.26 + 0.4, lean = 0.05 + rnd() * 0.05, h = 0.2 + rnd() * 0.06, bx = vx + Math.cos(a) * lean, bz = vz + Math.sin(a) * lean;
+      part("leaf", tubeGeometry([[vx, tableTop + 0.07, vz], [(vx + bx) / 2, tableTop + 0.14, (vz + bz) / 2], [bx, tableTop + h, bz]], 0.0035, 8, 5), { tile: 1 });
+      for (let k = 0; k < 18; k++) { const b = new THREE.SphereGeometry(0.0085 + rnd() * 0.004, 6, 4); part("bloom", b.translate(bx + (rnd() - 0.5) * 0.085, tableTop + h + 0.018 + (rnd() - 0.2) * 0.05, bz + (rnd() - 0.5) * 0.085), { tile: 1 }); }
+      const leaf = new THREE.SphereGeometry(0.036, 8, 4); leaf.scale(1, 0.12, 0.62); part("leafDark", leaf.rotateY(a).translate(vx + Math.cos(a) * (lean + 0.035), tableTop + 0.165 + i * 0.012, vz + Math.sin(a) * (lean + 0.035)), { tile: 1 });
+    }
+  }
+
+  // A floor plant between the counter end and the window: a lathed ceramic pot, soil, and eleven curved stems carrying ninety leaves.
+  {
+    const px = -2.88, pz = -0.62;
+    part("pot", new THREE.LatheGeometry([[0.0005, 0], [0.12, 0], [0.16, 0.2], [0.17, 0.38], [0.158, 0.4], [0.0005, 0.4]].map((p) => new THREE.Vector2(p[0], p[1])), 28).translate(px, 0, pz), { tile: 1 });
+    part("soil", new THREE.CircleGeometry(0.15, 24).rotateX(-Math.PI / 2).translate(px, 0.36, pz), { tile: 1 });
+    let seed = 8; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    part("bentwood", tubeGeometry([[px, 0.36, pz], [px + 0.02, 0.8, pz - 0.01], [px - 0.01, 1.2, pz + 0.01], [px + 0.02, 1.5, pz]], 0.016, 14, 8), { tile: 0.6 });
+    for (let i = 0; i < 9; i++) {
+      const a = i * 0.72 + rnd() * 0.4, base = 0.7 + (i / 9) * 0.78, reach = 0.2 + rnd() * 0.22, rise = 0.12 + rnd() * 0.16;
+      const bx = px + Math.cos(a) * 0.02, bz = pz + Math.sin(a) * 0.02, ex = px + Math.cos(a) * reach, ez = pz + Math.sin(a) * reach, ey = base + rise;
+      part("bentwood", tubeGeometry([[bx, base, bz], [(bx + ex) / 2, base + rise * 0.7, (bz + ez) / 2], [ex, ey, ez]], 0.006, 8, 5), { tile: 0.6 });
+      for (let k = 0; k < 6; k++) {
+        const t = 0.3 + k / 6 * 0.7, lx = bx + (ex - bx) * t, ly = base + (ey - base) * t + 0.015, lz = bz + (ez - bz) * t;
+        const leaf = new THREE.SphereGeometry(0.115, 8, 5); leaf.scale(0.55, 0.05, 1); leaf.translate(0, 0, 0.115);
+        leaf.rotateX(-0.35 - rnd() * 0.3).rotateY(a + (k % 2 ? 1 : -1) * (0.9 + rnd() * 0.6)).rotateZ((rnd() - 0.5) * 0.3);
+        part(k % 3 === 1 ? "leafDark" : "leaf", leaf.translate(lx, ly, lz), { tile: 1 });
+      }
+      const tip = new THREE.SphereGeometry(0.1, 8, 5); tip.scale(0.55, 0.05, 1); tip.translate(0, 0, 0.1); tip.rotateX(-0.2).rotateY(a); part("leaf", tip.translate(ex, ey, ez), { tile: 1 });
+    }
+  }
+
+  // Shelf things: four plates and two mugs on the lower shelf; two jars with oak lids and a trailing pothos on the upper one.
+  {
+    const lower = 1.75 + 0.035, upper = 2.15 + 0.035, zS = BACK + 0.13;
+    for (let i = 0; i < 4; i++) part("ceramic", new THREE.CylinderGeometry(0.095, 0.075, 0.013, 28).translate(-2.3, lower + 0.0065 + i * 0.014, zS), { tile: 1 });
+    for (const [mx2, turn] of [[-1.95, 0], [-1.78, 1]]) {
+      part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.036, 0], [0.04, 0.09], [0.0005, 0.09]].map((p) => new THREE.Vector2(p[0], p[1])), 20).translate(mx2, lower, zS), { tile: 1 });
+      part("ceramic", new THREE.TorusGeometry(0.02, 0.006, 8, 14, Math.PI).rotateZ(-Math.PI / 2 + turn * 0.2).translate(mx2 + 0.042, lower + 0.048, zS), { tile: 1 });
+    }
+    for (const [jx, jh] of [[-2.25, 0.22], [-2.07, 0.17]]) {
+      part("ceramic", new THREE.CylinderGeometry(0.058, 0.062, jh, 24).translate(jx, upper + jh / 2, zS), { tile: 1 });
+      part("oak", new THREE.CylinderGeometry(0.056, 0.056, 0.028, 24).translate(jx, upper + jh + 0.014, zS), { tile: 0.3 });
+    }
+    part("pot", new THREE.LatheGeometry([[0.0005, 0], [0.05, 0], [0.07, 0.11], [0.0005, 0.11]].map((p) => new THREE.Vector2(p[0], p[1])), 20).translate(-1.42, upper, zS), { tile: 1 });
+    let seed = 14; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let v = 0; v < 5; v++) {
+      const vx = -1.42 + (rnd() - 0.5) * 0.1, drop = 0.14 + rnd() * 0.14, lean = (rnd() - 0.5) * 0.2;
+      part("leafDark", tubeGeometry([[vx, upper + 0.1, zS + 0.05], [vx + lean * 0.4, upper + 0.02, zS + 0.1], [vx + lean, upper - drop, zS + 0.12]], 0.0035, 12, 5), { tile: 1 });
+      for (let k = 0; k < 7; k++) { const t = 0.12 + k / 7 * 0.88, leaf = new THREE.SphereGeometry(0.036, 8, 4); leaf.scale(1, 0.1, 0.75); leaf.rotateY(rnd() * 3).rotateZ((rnd() - 0.5) * 0.6); part("leaf", leaf.translate(vx + lean * t, upper + 0.08 - drop * t, zS + 0.07 + 0.05 * t + (rnd() - 0.5) * 0.03), { tile: 1 }); }
+    }
+    for (let k = 0; k < 8; k++) { const leaf = new THREE.SphereGeometry(0.05, 8, 4); leaf.scale(1, 0.1, 0.8); leaf.rotateY(k * 0.8).rotateZ((k % 3 - 1) * 0.35); part("leaf", leaf.translate(-1.42 + Math.cos(k * 0.8) * 0.06, upper + 0.13 + (k % 3) * 0.02, zS + Math.sin(k * 0.8) * 0.06), { tile: 1 }); }
+  }
+
+  // A small paper note leaning against the pastry case foot, like the notes in Rooms 01 to 03 (reading it comes with the interaction in section 5).
+  const note = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.06, 0.003), materials.paper); note.name = "story-note";
+  note.position.set(1.02, top + 0.032, c.z1 - 0.12); note.rotation.set(-0.28, 0.12, 0); note.castShadow = true; scene.add(note);
+  flush("section4");
+
+  // Steam rising from the barista's cup and from the cup on the window table: a few soft puffs, drifting up and widening.
+  const steamTexture = makeSteamTexture();
+  const steamPositions = [];
+  for (const [sx, sy, sz] of [[0.8 + (eggRadius(0.27) + 0.02) * 1.15, 0.86 + 0.304 * 1.15, -1.2 + 0.255 * 1.15], [tx(0.13), tableTop + 0.075, tz(-0.06)]]) {
+    for (let i = 0; i < 4; i++) steamPositions.push(sx + Math.sin(i * 1.7) * 0.012, sy + 0.05 + i * 0.07, sz + Math.cos(i * 1.3) * 0.01);
+  }
+  const steamGeometry = new THREE.BufferGeometry(); steamGeometry.setAttribute("position", new THREE.Float32BufferAttribute(steamPositions, 3));
+  const steam = new THREE.Points(steamGeometry, new THREE.PointsMaterial({ map: steamTexture, size: 0.11, sizeAttenuation: true, transparent: true, opacity: 0.3, depthWrite: false, color: 0xffffff }));
+  steam.name = "steam"; scene.add(steam);
+
   // ---------- lights ----------
   // Track light over the counter: one black rail and four heads. The warmest light in the room is the one on the menus.
   box("track-rail", materials.black, [-1.6, 2.6], [ROOM.height - 0.06, ROOM.height - 0.03], [-0.42, -0.38], { cast: false, receive: false });
@@ -566,7 +749,7 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-3-hero", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-4-story", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },

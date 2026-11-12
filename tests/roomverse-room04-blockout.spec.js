@@ -48,7 +48,7 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
   for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
-  expect(info.stage).toBe("section-3-hero");
+  expect(info.stage).toBe("section-4-story");
 });
 
 test("Room 04 switches language and keeps the choice in the address", async ({ page }) => {
