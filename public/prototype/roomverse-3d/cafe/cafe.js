@@ -29,9 +29,15 @@ const COLORS = Object.freeze({
   steel: 0xd9dddf, stone: 0xeeeae4, plant: 0x5f8a45, terracotta: 0xc4623a, robot: 0xf2f0ea, chalk: 0x2f3334,
 });
 
-// Morning: a low, nearly white sun through the street window. Golden hour and the other moods come after the blockout is agreed.
+// Five moods. Morning is the arrival (Paul, 2026-11-13: A, the white early light); golden hour is the warm look from concept B and stays a choice.
+// Each mood sets the sun, the sky fill, the track lights, a tint on the street painting (until Codex paints one street per mood) and how strongly the steel and glass reflect.
+// sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
-  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, exposure: 1.0, sky: 0xdfe7ee }),
+  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, steam: 0.3 }),
+  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfffaf0, lamp: 0, reflect: 1.1, steam: 0.18 }),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xffc592, lamp: 0.6, reflect: 0.85, steam: 0.36 }),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xc4ccd4, lamp: 0.9, reflect: 0.7, steam: 0.4, rain: true }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0x3b4668, lamp: 3.4, reflect: 0.45, steam: 0.42 }),
 });
 
 // Plank ceiling drawn on a canvas: white boards 14 cm wide with a dark tongue-and-groove line, used as colour AND bump so the grooves catch the light.
@@ -259,7 +265,7 @@ export async function start({ stage, onReady = () => {} }) {
   paint("room04-brick-red-v1.webp", { repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.map = t; materials.brick.color.set(0xffffff); materials.brick.needsUpdate = true; } });
   paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
   paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
-  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; } });
+  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { if (MOODS[currentMood]?.rain) setMood(currentMood); applyLive(); } } });
 
   paint("room04-oak-panel-v1.webp", { then: (t) => { materials.oak.map = t; materials.oak.color.set(0xffffff); materials.oak.needsUpdate = true; materials.oakDeep.map = t; materials.oakDeep.color.set(0xe0bd90); materials.oakDeep.needsUpdate = true; } });
   paint("room04-counter-stone-v1.webp", { then: (t) => { materials.stone.map = t; materials.stone.color.set(0xffffff); materials.stone.needsUpdate = true; } });
@@ -709,21 +715,79 @@ export async function start({ stage, onReady = () => {} }) {
   sun.target.position.set(0.5, 0, -0.6);
   scene.add(sun, sun.target);
 
-  let currentMood = "morning";
+  // A warm lamp pool over the counter for the dim moods (a point light: no draw call).
+  const lamp = new THREE.PointLight(0xffc88a, 0, 3.6, 2); lamp.position.set(0.4, 2.35, -0.55); scene.add(lamp);
+  // The street painting with rain drawn over it, made once the first time the rain mood is chosen: pale falling strokes leaning one way and a few beads.
+  let rainStreet = null;
+  function rainOverStreet() {
+    if (rainStreet || !materials.street.userData.dry) return rainStreet;
+    const image = materials.street.userData.dry.image, canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
+    const g = canvas.getContext("2d"), w = canvas.width, h = canvas.height;
+    g.drawImage(image, 0, 0, w, h); g.fillStyle = "rgba(150,165,180,.22)"; g.fillRect(0, 0, w, h);
+    let seed = 17; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 520; i++) { const x = rnd() * w * 1.1 - w * 0.05, y = rnd() * h, len = 60 + rnd() * 110; g.strokeStyle = `rgba(232,240,246,${(0.14 + rnd() * 0.22).toFixed(2)})`; g.lineWidth = 2 + rnd() * 2.4; g.beginPath(); g.moveTo(x, y); g.lineTo(x + len * 0.17, y + len); g.stroke(); }
+    rainStreet = new THREE.CanvasTexture(canvas); rainStreet.colorSpace = THREE.SRGBColorSpace; rainStreet.anisotropy = maxAnisotropy;
+    return rainStreet;
+  }
+
+  let currentMood = "morning", moodTween = 0;
+  const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const blend = (a, b, k) => a + (b - a) * k;
+  const live = { sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
+  function applyLive() {
+    sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
+    hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
+    ambient.intensity = live.ambient; lamp.intensity = live.lamp;
+    for (const spot of trackLights) { spot.intensity = live.track; spot.color.copy(live.trackColor); }
+    renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street);
+    for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
+    steam.material.opacity = live.steam;
+  }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
     currentMood = name;
-    sun.intensity = look.sun; sun.color.setHex(look.sunColor); sun.position.set(...look.sunPosition);
-    hemi.intensity = look.hemi; hemi.color.setHex(look.hemiSky); hemi.groundColor.setHex(look.hemiGround);
-    ambient.intensity = look.ambient;
-    for (const spot of trackLights) spot.intensity = look.track;
-    renderer.toneMappingExposure = look.exposure;
-    scene.background = new THREE.Color(look.sky); if (!materials.street.map) materials.street.color.setHex(look.sky);
-    render(); return true;
+    const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
+    if (look.rain) { const wet = rainOverStreet(); if (wet) { materials.street.map = wet; materials.street.needsUpdate = true; } }
+    else if (materials.street.userData.dry && materials.street.map !== materials.street.userData.dry) { materials.street.map = materials.street.userData.dry; materials.street.needsUpdate = true; }
+    const from = { sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
+    const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
+    const step = (k) => {
+      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam"]) live[key] = blend(from[key], look[key], k);
+      live.sunColor.copy(from.sunColor).lerp(to.sunColor, k); live.sunPosition.copy(from.sunPosition).lerp(to.sunPosition, k);
+      live.hemiSky.copy(from.hemiSky).lerp(to.hemiSky, k); live.hemiGround.copy(from.hemiGround).lerp(to.hemiGround, k);
+      live.trackColor.copy(from.trackColor).lerp(to.trackColor, k); live.street.copy(from.street).lerp(to.street, k);
+      applyLive(); render();
+    };
+    cancelAnimationFrame(moodTween);
+    if (reducedMotion() || frames === 0) { step(1); return true; } // the first call and reduced motion jump straight to the look
+    const t0 = performance.now(), T = 600;
+    const run = (now) => { const k = Math.min(1, (now - t0) / T), e = k * k * (3 - 2 * k); step(e); if (k < 1) moodTween = requestAnimationFrame(run); };
+    moodTween = requestAnimationFrame(run);
+    return true;
   }
+  // Where the robot's head and the paper note are on screen, in client pixels, so the page can float tap targets and bubbles over them.
+  const projectBox = (object) => {
+    const box = new THREE.Box3().setFromObject(object), rect = stage.getBoundingClientRect();
+    let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity, behind = false;
+    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
+      const p = new THREE.Vector3(x, y, z).project(camera); if (p.z > 1) behind = true;
+      const px = rect.left + (p.x + 1) / 2 * rect.width, py = rect.top + (1 - p.y) / 2 * rect.height;
+      left = Math.min(left, px); right = Math.max(right, px); top = Math.min(top, py); bottom = Math.max(bottom, py);
+    }
+    if (behind || right < rect.left || left > rect.right || bottom < rect.top || top > rect.bottom) return null;
+    return { left, right, top, bottom };
+  };
+  let robotRest = robot.position.y, hopRun = 0;
+  function robotHop() {
+    if (reducedMotion()) return;
+    const run = ++hopRun, t0 = performance.now(), T = 520;
+    const step = (now) => { if (run !== hopRun) return; const k = Math.min(1, (now - t0) / T); robot.position.y = robotRest + Math.sin(k * Math.PI) * 0.045; render(); if (k < 1) requestAnimationFrame(step); else { robot.position.y = robotRest; render(); } };
+    requestAnimationFrame(step);
+  }
+  const onRenderHooks = [];
 
   let frames = 0;
-  function render() { renderer.render(scene, camera); frames++; }
+  function render() { renderer.render(scene, camera); frames++; for (const hook of onRenderHooks) hook(); }
   function resize() {
     const rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return;
     renderer.setSize(rect.width, rect.height, false);
@@ -743,13 +807,17 @@ export async function start({ stage, onReady = () => {} }) {
   const instance = {
     camera, controls, render, resize, setMood,
     moods: () => Object.keys(MOODS),
+    onRender: (hook) => { onRenderHooks.push(hook); },
+    robotScreen: () => projectBox(robot),
+    noteScreen: () => projectBox(note),
+    robotHop,
     info() {
       let vertices = 0, meshes = 0;
       scene.traverse((object) => { if (object.isMesh) { meshes++; vertices += object.geometry.attributes.position.count; } });
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-4-story", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-5-moods", art: [...loadedArt].sort(), mood: currentMood, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
@@ -757,7 +825,8 @@ export async function start({ stage, onReady = () => {} }) {
         blockout,
       };
     },
-    dispose() { renderer.dispose(); },
+    mood: () => currentMood,
+    dispose() { cancelAnimationFrame(moodTween); renderer.dispose(); },
   };
   onReady(instance);
   return instance;
