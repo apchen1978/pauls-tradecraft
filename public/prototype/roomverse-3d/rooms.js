@@ -36,4 +36,16 @@ export const ROOMS = Object.freeze([
     transitionColor: "#6b5bd8",
     listed: true,
   }),
+  Object.freeze({
+    id: "room04",
+    name: Object.freeze({ zh: "Room 04｜上海慢板", en: "Room 04 · Shanghai, Slowly" }),
+    city: Object.freeze({ zh: "上海 · 新天地　正在打造中", en: "Shanghai · Xintiandi, under construction" }),
+    cover: Object.freeze({
+      thumb: "/gallery/assets/roomverse-room04-shanghai-slowly-concept-thumb.webp",
+      mobile: "/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp",
+    }),
+    url: "/prototype/roomverse-3d/cafe/",
+    transitionColor: "#8a4a2b",
+    listed: true,
+  }),
 ]);

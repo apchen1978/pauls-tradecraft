@@ -87,7 +87,7 @@ export default function Showcase() {
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#d3ad62] md:text-sm">{item.tag}</p>
                 <h3 className="mt-3 text-[2.25rem] font-normal leading-[1.15] tracking-[0.04em] md:text-[3.4rem]" style={{ fontFamily: '"Noto Serif TC","Songti TC",serif' }}>{item.title}</h3>
                 <p className="mt-4 max-w-[34em] text-[1.35rem] leading-[1.5] tracking-[0.06em] text-[#f2c48a] md:text-[1.9rem]">{item.hook}</p>
-                <ul className="mx-auto mt-10 grid w-full max-w-[28rem] grid-cols-1 gap-12 md:mx-0 md:mt-14 md:max-w-none md:grid-cols-3 md:gap-9">
+                <ul className="mx-auto mt-10 grid w-full max-w-[28rem] grid-cols-1 gap-12 md:mx-0 md:mt-14 md:max-w-none md:grid-cols-2 md:gap-9 lg:grid-cols-4">
                   {item.rooms.map((room, roomIndex) => {
                     const href = withDemoLang(room.href, lang);
                     return (

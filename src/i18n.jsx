@@ -437,7 +437,7 @@ const dict = {
       startHref: "/prototype/secrets-on-the-corner/",
       items: [
         {
-          title: "三間房，三種光。",
+          title: "一間房，一種光。",
           tag: "ROOMVERSE · 空間幻境　館藏",
           hook: "光一轉，房間就換了心情！",
           bridge: "看一筆生意，和做一個房間，是同一個習慣：先看清楚，再動手。",
@@ -477,8 +477,16 @@ const dict = {
               imageAlt: "灣區風格的開放廚房概念畫：鼠尾草綠櫃體與赤陶紅鍋，橡木餐桌，窗邊的圓背椅和琴葉榕，落地窗外是小庭院。",
               imageWidth: 800, imageHeight: 1000, imageRatio: "4 / 5", objectPosition: "center",
             },
+            {
+              no: "Room 04", name: "上海慢板", light: "梧桐樹下的早晨", wip: "正在打造中",
+              desc: "上海新天地旁一間紅磚小咖啡廳：兩隻機器人咖啡師、蒸汽管、窗邊座位和玻璃門。站進房間中間轉一圈，換五種時段與天氣，也能隨機搭一間自己的咖啡廳。",
+              cta: "走進去看", href: "/prototype/roomverse-3d/cafe/?from=home",
+              image: "/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp",
+              imageAlt: "上海紅磚小咖啡廳的概念畫：蜂蜜橡木吧台，咖啡機正面朝外，一隻機器人咖啡師背對我們打奶泡，另一隻機器人在糕點櫃旁，窗外有梧桐和老房子。",
+              imageWidth: 800, imageHeight: 1000, imageRatio: "4 / 5", objectPosition: "center",
+            },
           ],
-          roomsNote: "目前開放三間房，更多房間陸續打開。",
+          roomsNote: "目前開放四間房，第四間正在打造中，歡迎先來看看；更多房間陸續打開。",
         },
         {
           title: "貿易街 · 一櫃貨出海",
@@ -1401,7 +1409,7 @@ const dict = {
       startHref: "/prototype/secrets-on-the-corner/",
       items: [
         {
-          title: "Three rooms, three lights.",
+          title: "One room, one light.",
           tag: "ROOMVERSE 3D · Gallery",
           hook: "Turn the light, and the room changes its mood!",
           bridge: "Reading a deal and building a room come from the same habit: look closely first, then build.",
@@ -1441,8 +1449,16 @@ const dict = {
               imageAlt: "A Bay Area open-kitchen concept painting: sage-green cabinets and a terracotta pot, an oak dining table, a round-back chair and a fiddle-leaf fig by the window, and a small garden through the glass doors.",
               imageWidth: 800, imageHeight: 1000, imageRatio: "4 / 5", objectPosition: "center",
             },
+            {
+              no: "Room 04", name: "Shanghai, Slowly", light: "Morning under plane trees", wip: "Under construction",
+              desc: "A small red-brick cafe beside Xintiandi in Shanghai: two robot baristas, a steam wand, a window seat and a glass door. Stand in the middle and turn all the way round, switch five times of day and weather, or build a random cafe of your own.",
+              cta: "Step inside", href: "/prototype/roomverse-3d/cafe/?from=home",
+              image: "/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp",
+              imageAlt: "A concept painting of a small red-brick cafe in Shanghai: a honey-oak counter, an espresso machine facing out, a robot barista with its back to us steaming milk, a second robot by the pastry case, and plane trees and old houses outside the window.",
+              imageWidth: 800, imageHeight: 1000, imageRatio: "4 / 5", objectPosition: "center",
+            },
           ],
-          roomsNote: "Three rooms are open for now; more will open.",
+          roomsNote: "Four rooms are open for now, and the fourth is still being built, so come and watch it grow; more will open.",
         },
         {
           title: "Trade Street · One Container Ships",
