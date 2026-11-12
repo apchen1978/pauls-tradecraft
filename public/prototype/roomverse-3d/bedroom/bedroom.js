@@ -207,7 +207,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       hitTarget.setAttribute("aria-label", copy().robotLine || "Follow me, back to the living room.");
     }
     if (!bubble || bubble.hidden) return;
-    bubble.style.left = `${x}px`;
+    // The bubble is centred on its left value, so keep half its own width (plus 8 px) inside the stage: at 390 px a 152 px bubble anchored at 34 px used to hang 42 px off the left edge and lose its first characters.
+    const bubbleHalf = bubble.offsetWidth / 2 + 8;
+    bubble.style.left = `${Math.max(bubbleHalf, Math.min(rect.width - bubbleHalf, x))}px`;
     const bubbleHeight = bubble.offsetHeight;
     const headY = (1 - head.y) * rect.height / 2;
     bubble.style.top = `${Math.max(8, Math.min(rect.height - bubbleHeight - 8, headY - bubbleHeight - 10))}px`;
