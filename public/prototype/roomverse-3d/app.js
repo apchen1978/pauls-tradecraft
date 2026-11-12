@@ -591,7 +591,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const consoleDecor = new THREE.Group(); consoleDecor.name = "tv-console-decor"; scene.add(consoleDecor);
   const shelfDecor = new THREE.Group(); shelfDecor.name = "tv-inset-shelf-decor"; scene.add(shelfDecor);
   let shelfDecorReady = false, shelfArtFile = null, consoleArtTexture = null;
-  const pictureFile = (texture) => texture?.image?.src?.split("?")[0].split("/").pop() ?? texture?.userData?.file ?? null;
+  const pictureFile = (texture) => texture?.image?.src?.split("?")[0].split("/").pop() ?? null;
   function buildShelfDecor(art, surface) {
     if (shelfDecorReady) return;
     shelfArtFile = pictureFile(art);
@@ -1094,36 +1094,14 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   // the view outside changes with the feeling: Codex's paintings of the same street in rain, afternoon sun and night
   // (window/, 1024 x 1536). The window is wider than 2:3, so the picture fills the width and is cropped a little top and bottom.
   const viewLoader = new THREE.TextureLoader();
-  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family", golden: "family", tv: "tech" }; // slow, golden hour and series night reuse existing paintings; golden hour warms the existing daylight view
+  const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family", golden: "golden", tv: "tech" }; // slow and series night reuse existing paintings; golden hour has its own dusk painting of the same street, sun low on the left like the room's sun (Codex, 2026-11-12)
   const viewReady = {};
-  // Golden hour has no painting of its own: it showed the afternoon street (blue sky, white clouds) under a warm tint, so the window read as midday.
-  // Until a dusk painting exists, the afternoon picture is regraded once on a canvas when the mood is first chosen: the sky takes a dusk hue ramp and
-  // keeps its own light and dark (so the clouds stay), the street gets a low warm wash with cooler shade at the bottom, and a soft sun glow sits low
-  // on the left, the side the room's sun comes from.
-  const gradeGoldenView = (image) => {
-    const canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
-    const g = canvas.getContext("2d"), w = canvas.width, h = canvas.height;
-    g.drawImage(image, 0, 0, w, h);
-    const sky = g.createLinearGradient(0, 0, 0, h * .47);
-    sky.addColorStop(0, "#6f78ad"); sky.addColorStop(.42, "#c78f9c"); sky.addColorStop(.8, "#f7a65e"); sky.addColorStop(1, "rgba(247,166,94,0)");
-    g.globalCompositeOperation = "color"; g.fillStyle = sky; g.fillRect(0, 0, w, h * .47);
-    const wash = g.createLinearGradient(0, h * .3, 0, h);
-    wash.addColorStop(0, "rgba(255,168,84,.5)"); wash.addColorStop(1, "rgba(255,150,72,.38)");
-    g.globalCompositeOperation = "soft-light"; g.fillStyle = wash; g.fillRect(0, h * .3, w, h * .7);
-    const shade = g.createLinearGradient(0, h * .45, 0, h);
-    shade.addColorStop(0, "rgba(140,120,140,0)"); shade.addColorStop(1, "rgba(140,120,140,.42)");
-    g.globalCompositeOperation = "multiply"; g.fillStyle = shade; g.fillRect(0, h * .45, w, h * .55);
-    const glow = g.createRadialGradient(w * .16, h * .4, 0, w * .16, h * .4, w * .8);
-    glow.addColorStop(0, "rgba(255,226,170,.9)"); glow.addColorStop(.25, "rgba(255,178,96,.42)"); glow.addColorStop(1, "rgba(255,150,80,0)");
-    g.globalCompositeOperation = "screen"; g.fillStyle = glow; g.fillRect(0, 0, w, h);
-    return canvas;
-  };
   const VIEWS = Object.fromEntries(Object.entries(VIEW_FILES).map(([m, f]) => [m, () => {
     let settle;
     viewReady[m] = new Promise((resolve) => { settle = resolve; });
-    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => { if (m === "golden") { t.userData.file = `window-${f}-v1.webp`; t.image = gradeGoldenView(t.image); t.needsUpdate = true; } settle(true); render(); }, undefined, () => settle(false));
+    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => { settle(true); render(); }, undefined, () => settle(false));
     t.colorSpace = THREE.SRGBColorSpace;
-    t.repeat.set(1, .87); t.offset.set(0, .05); // keep the trees and houses (lower middle) in view
+    t.repeat.set(1, .87); t.offset.set(0, m === "golden" ? .015 : .05); // keep the trees and houses (lower middle) in view; the dusk painting sits 3.5% higher so its low sun clears the horizontal glazing bar instead of hiding behind it
     return t;
   }]));
   const outMat = new THREE.MeshBasicMaterial();
