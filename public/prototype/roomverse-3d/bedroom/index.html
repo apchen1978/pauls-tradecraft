@@ -39,7 +39,7 @@
   .poster small { display: block; width: fit-content; max-width: 88%; margin: 10px auto 0; padding: 5px 12px; border-radius: 999px; background: #fffc; text-align: center; color: #24302c; font-size: 13px; line-height: 1.4; }
   .robot-hit { position: absolute; z-index: 4; width: 64px; height: 64px; padding: 0; border: 0; border-radius: 50%; background: transparent; transform: translate(-50%, -50%); cursor: pointer; touch-action: manipulation; }
   .robot-hit:focus-visible { outline: 3px solid #5a4cc8; outline-offset: 2px; }
-  .robot-bubble { position: absolute; z-index: 5; transform: translateX(-50%); max-width: min(260px, 78%); padding: 9px 13px; border-radius: 14px; background: #fffc; color: #24302c; box-shadow: 0 5px 18px #0003; font-size: 14px; font-weight: 700; line-height: 1.4; text-align: center; pointer-events: none; cursor: default; }
+  .robot-bubble { position: absolute; z-index: 5; transform: translateX(-50%); width: max-content; max-width: min(260px, 78%); padding: 9px 13px; border-radius: 14px; background: #fffc; color: #24302c; box-shadow: 0 5px 18px #0003; font-size: 14px; font-weight: 700; line-height: 1.4; text-align: center; pointer-events: none; cursor: default; }
   .immersive-enter, .immersive-exit, .immersive-door, .immersive-controls { display: none; }
   .portal { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 14px clamp(16px, 3vw, 40px) 0; }
   .portal button { font: inherit; font-weight: 700; font-size: 15px; min-height: 48px; padding: 12px 20px; border: 1px solid #5a4cc8; border-radius: 999px; background: linear-gradient(90deg, #f6f3ff 0%, #ece6ff 100%); color: #3a2f9e; cursor: pointer; }
@@ -133,6 +133,6 @@
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=103"></script>
+<script type="module" src="page.js?v=104"></script>
 </body>
 </html>
