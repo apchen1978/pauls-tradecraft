@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f0e8dc">
+  <title>ROOMVERSE 3D</title>
+  <style>
+    :root { color-scheme: light; --ink:#292c26; --muted:#66685e; --paper:#faf8f2; --brick:#8a4a2b; --line:#d4cebf; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:#f3efe6; color:var(--ink); font-family:system-ui,"Noto Sans TC",sans-serif; }
+    [hidden] { display:none !important; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px clamp(16px,3vw,40px); }
+    .brand { font-size:12px; letter-spacing:.12em; font-weight:800; color:var(--brick); }
+    .header-actions { display:flex; align-items:center; gap:10px; }
+    #otherRooms, #lang { min-height:44px; display:inline-flex; align-items:center; padding:7px 14px; border:1px solid #a9a38f; border-radius:999px; background:transparent; color:var(--brick); font:700 14px system-ui,sans-serif; text-decoration:none; cursor:pointer; }
+    #lang { min-width:44px; justify-content:center; }
+    .intro { max-width:950px; padding:4px clamp(16px,3vw,40px) 14px; }
+    h1 { margin:0; font-size:clamp(26px,4vw,42px); line-height:1.12; letter-spacing:-.025em; color:#3d2a1f; }
+    .subtitle { margin:4px 0 8px; color:var(--brick); font-size:clamp(15px,1.6vw,18px); font-weight:700; }
+    .lead { margin:0; max-width:820px; color:var(--muted); font-size:clamp(14px,1.5vw,17px); line-height:1.65; }
+    .room { position:relative; margin:0 clamp(12px,2vw,28px); height:min(70vh,720px); min-height:480px; overflow:hidden; border-radius:18px; background:#d4c5ae; box-shadow:0 14px 40px #493a241c; }
+    #stage { position:absolute; inset:0; }
+    #stage canvas { display:block; width:100%; height:100%; touch-action:none; }
+    .status { position:absolute; z-index:2; top:50%; left:50%; transform:translate(-50%,-50%); padding:9px 14px; border-radius:999px; background:#fffE; font-size:14px; }
+    .note { padding:12px clamp(16px,3vw,40px) 34px; max-width:900px; color:var(--muted); font-size:12px; line-height:1.6; }
+    a:focus-visible, button:focus-visible { outline:3px solid #b57943; outline-offset:3px; }
+    @media (max-width:768px) {
+      header { padding:10px 14px; }
+      .intro { padding:4px 14px 12px; }
+      .room { margin:0 8px; height:clamp(360px,100vw,450px); min-height:360px; border-radius:14px; }
+      .note { padding:10px 14px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="brand">ROOMVERSE 3D</span>
+    <span class="header-actions">
+      <a id="otherRooms" href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
+      <button id="lang" type="button">EN</button>
+    </span>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="title">
+      <h1 id="title"></h1>
+      <p class="subtitle" id="subtitle"></p>
+      <p class="lead" id="lead"></p>
+    </section>
+    <section class="room" aria-label="Room 04 3D room">
+      <div id="stage"></div>
+      <p id="status" class="status" role="status"></p>
+    </section>
+    <p class="note" id="note"></p>
+  </main>
+  <script type="module" src="page.js?v=1"></script>
+</body>
+</html>
