@@ -7000,12 +7000,15 @@ export async function start({ stage, onReady = () => {} }) {
       pendantCeilingBounce: 0, pendantCeilingBounceVisible: false,
       reveal: 0.72, contactShadow: 0.30, blind: "open", curtainColor: 0xd0bea0, tableware: false, thanksgivingDecor: false, artLight: [0.86, 0.84, 0.82],
     }),
+    // Night (2026-11-12): the room measured as bright as daylight (mean luminance 116 vs 123 at 1440, 136 vs 123 on a phone) while the robot says
+    // "just one small light on". The lamps keep their strength; the fill is lowered so they make a warm pool in a dark room
+    // (exposure 1.20 -> 0.88, hemi 0.55 -> 0.34, ambient 0.26 -> 0.15, ceilingEmissive 0.55 -> 0.20).
     night: Object.freeze({
       ...sharedLook,
-      sun: 0, hemi: 0.55, ambient: 0.26, pendant: 7.0, under: 2.7, side: 2.3,
-      exposure: 1.20, yard: 0xd2dcf0, yardMap: "courtyard-night-moon-v1", globe: 1.55, sky: "night",
+      sun: 0, hemi: 0.34, ambient: 0.15, pendant: 7.0, under: 2.7, side: 2.3,
+      exposure: 0.88, yard: 0xd2dcf0, yardMap: "courtyard-night-moon-v1", globe: 1.55, sky: "night",
       cableCarArtGain: 0.78,
-      floor: 0xc2a77b, jute: 0xd9c99f, ceilingEmissive: 0.55,
+      floor: 0xc2a77b, jute: 0xd9c99f, ceilingEmissive: 0.20,
       warmGlow: 1, wokGlow: 1,
       windowWallBounce: 0, windowWallBounceVisible: false,
       pendantCeilingBounce: 0.05, pendantCeilingBounceVisible: true,
