@@ -34,10 +34,10 @@ const COLORS = Object.freeze({
 // sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
   morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, steam: 0.3 }),
-  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfffaf0, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, steam: 0.18 }),
-  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xffc592, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, steam: 0.36 }),
-  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xc4ccd4, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, steam: 0.4, rain: true }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0x3b4668, lamp: 3.4, reflect: 0.45, pendant: 1.4, shaft: 0, steam: 0.42 }),
+  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, steam: 0.18 }),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, steam: 0.36 }),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, steam: 0.4, rain: true }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0xc4cce6, lamp: 3.4, reflect: 0.45, pendant: 1.4, shaft: 0, steam: 0.42 }),
 });
 
 // The looks (Paul, 2026-11-13: a "random cafe" like the random look of Rooms 01 to 03). Each group swaps colours or tints on existing materials, so a swap costs no
@@ -46,6 +46,7 @@ export const LOOK_GROUPS = Object.freeze({
   brick: Object.freeze({ red: [1, 1, 1], umber: [0.9, 0.78, 0.64], grey: [0.78, 1.75, 2.6], dusty: [1.2, 2.7, 3.9] }),
   counter: Object.freeze({ honey: [1, 1, 1], walnut: [0.55, 0.43, 0.35], pale: [1.1, 1.3, 1.65], grey: [0.95, 1.2, 1.5] }),
   back: Object.freeze({ olive: 0x4d5d3c, navy: 0x2f4560, terracotta: 0xa5563b, charcoal: 0x3a3d3f, sage: 0x88977a }),
+  wainscot: Object.freeze({ same: null, olive: 0x4d5d3c, navy: 0x2f4560, terracotta: 0xa5563b, charcoal: 0x3a3d3f, sage: 0x88977a, cream: 0xe4d8c0, walnut: 0x5a3d2b, oat: 0xc9b896 }),
   wall: Object.freeze({ warm: 0xf1ece2, blush: 0xf0dcd4, mist: 0xdde5e2, butter: 0xf3e6c4, grey: 0xdad8d4 }),
   floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12] }),
   lamp: Object.freeze({ rattan: 0xd9bb82, paper: 0xf2ede2, black: 0x2b2b2c }),
@@ -54,7 +55,9 @@ export const LOOK_GROUPS = Object.freeze({
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4] }),
 });
-export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "rattan", scarf: "olive", chair: "bentwood", wallpaper: "none" });
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "rattan", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same" });
+// What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
+export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"] });
 
 // Plank ceiling drawn on a canvas: white boards 14 cm wide with a dark tongue-and-groove line, used as colour AND bump so the grooves catch the light.
 function makePlankTexture() {
@@ -242,6 +245,7 @@ export async function start({ stage, onReady = () => {} }) {
     oakDeep: new THREE.MeshStandardMaterial({ color: 0xa5773f, roughness: 0.78 }), // the recessed panel fields: a shade darker than the frames around them
     oakDark: new THREE.MeshStandardMaterial({ color: 0x4a3524, roughness: 0.8 }), // the toe-kicks
     olive: new THREE.MeshStandardMaterial({ color: COLORS.olive, roughness: 0.75 }),
+    wainscot: new THREE.MeshStandardMaterial({ color: COLORS.olive, roughness: 0.78 }),
     black: new THREE.MeshStandardMaterial({ color: COLORS.black, roughness: 0.6 }),
     frame: new THREE.MeshStandardMaterial({ color: 0x24272a, roughness: 0.5, metalness: 0.2 }),
     steel: new THREE.MeshStandardMaterial({ color: COLORS.steel, roughness: 0.42, metalness: 0.75 }),
@@ -298,7 +302,7 @@ export async function start({ stage, onReady = () => {} }) {
   paint("room04-brick-red-v1.webp", { repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.map = t; materials.brick.color.set(0xffffff); materials.brick.needsUpdate = true; } });
   paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
   paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
-  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { if (MOODS[currentMood]?.rain) setMood(currentMood); applyLive(); } } });
+  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
 
   paint("room04-oak-panel-v1.webp", { then: (t) => { materials.oak.map = t; materials.oak.color.set(0xffffff); materials.oak.needsUpdate = true; materials.oakDeep.map = t; materials.oakDeep.color.set(0xe0bd90); materials.oakDeep.needsUpdate = true; } });
   paint("room04-counter-stone-v1.webp", { then: (t) => { materials.stone.map = t; materials.stone.color.set(0xffffff); materials.stone.needsUpdate = true; } });
@@ -786,8 +790,8 @@ export async function start({ stage, onReady = () => {} }) {
   {
     // Board-and-batten wainscot on the right wall: olive panel, battens every 30 cm, an oak cap rail and a thin base moulding.
     const wx = X1, z0w = BACK + 0.04, z1w = FRONT + 1.2;
-    slab("olive", [wx - 0.024, wx], [0.11, 1.08], [z0w, z1w], { tile: 1 });
-    for (let z = z0w + 0.15; z < z1w - 0.05; z += 0.3) slab("olive", [wx - 0.036, wx - 0.024], [0.11, 1.08], [z - 0.025, z + 0.025], { tile: 1 });
+    slab("wainscot", [wx - 0.024, wx], [0.11, 1.08], [z0w, z1w], { tile: 1 });
+    for (let z = z0w + 0.15; z < z1w - 0.05; z += 0.3) slab("wainscot", [wx - 0.036, wx - 0.024], [0.11, 1.08], [z - 0.025, z + 0.025], { tile: 1 });
     slab("oak", [wx - 0.06, wx], [1.08, 1.115], [z0w, z1w], { grain: "z" });
     slab("oak", [wx - 0.03, wx], [0.08, 0.11], [z0w, z1w], { grain: "z" });
     // Two wall sconces: a black arm and a drum shade that glows in the dim moods.
@@ -874,8 +878,8 @@ export async function start({ stage, onReady = () => {} }) {
     street2.rotation.y = Math.PI; // faces -z, into the room
     // Olive board-and-batten wainscot on the front wall, either side of the openings, and skirting.
     for (const [a0, a1] of [[X0 + 0.04, WIN.x0], [DOOR.x1, X1 - 0.04]]) {
-      slab("olive", [a0, a1], [0.11, 1.08], [FW - 0.024, FW], { tile: 1 });
-      for (let x = a0 + 0.15; x < a1 - 0.05; x += 0.3) slab("olive", [x - 0.025, x + 0.025], [0.11, 1.08], [FW - 0.036, FW - 0.024], { tile: 1 });
+      slab("wainscot", [a0, a1], [0.11, 1.08], [FW - 0.024, FW], { tile: 1 });
+      for (let x = a0 + 0.15; x < a1 - 0.05; x += 0.3) slab("wainscot", [x - 0.025, x + 0.025], [0.11, 1.08], [FW - 0.036, FW - 0.024], { tile: 1 });
       slab("oak", [a0, a1], [1.08, 1.115], [FW - 0.06, FW], { grain: "x" }); slab("oak", [a0, a1], [0.08, 0.11], [FW - 0.03, FW], { grain: "x" });
     }
     slab("oak", [WIN.x0, WIN.x1], [0.08, 0.12], [FW - 0.03, FW], { grain: "x" }); // the sill under the window
@@ -972,16 +976,34 @@ export async function start({ stage, onReady = () => {} }) {
   // A warm lamp pool over the counter for the dim moods (a point light: no draw call).
   const lamp = new THREE.PointLight(0xffc88a, 0, 3.6, 2); lamp.position.set(0.4, 2.35, -0.55); scene.add(lamp);
   // The street painting with rain drawn over it, made once the first time the rain mood is chosen: pale falling strokes leaning one way and a few beads.
+  // One painted street per mood (Codex, card 47 D): the morning painting for morning and midday, then golden hour, rain and night. The rain painting has no rain in it;
+  // falling rain is drawn over it once, the first time it is needed. Until a painting has loaded the morning one stays.
+  const MOOD_STREET = { morning: "room04-window-xintiandi-morning-v1.webp", noon: "room04-window-xintiandi-morning-v1.webp", golden: "room04-window-xintiandi-golden-v1.webp", rain: "room04-window-xintiandi-rain-v1.webp", closing: "room04-window-xintiandi-night-v1.webp" };
+  const streetTextures = {};
   let rainStreet = null;
-  function rainOverStreet() {
-    if (rainStreet || !materials.street.userData.dry) return rainStreet;
-    const image = materials.street.userData.dry.image, canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
+  function rainOver(texture) {
+    if (rainStreet) return rainStreet;
+    const image = texture.image, canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
     const g = canvas.getContext("2d"), w = canvas.width, h = canvas.height;
-    g.drawImage(image, 0, 0, w, h); g.fillStyle = "rgba(150,165,180,.22)"; g.fillRect(0, 0, w, h);
+    g.drawImage(image, 0, 0, w, h);
     let seed = 17; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 520; i++) { const x = rnd() * w * 1.1 - w * 0.05, y = rnd() * h, len = 60 + rnd() * 110; g.strokeStyle = `rgba(232,240,246,${(0.14 + rnd() * 0.22).toFixed(2)})`; g.lineWidth = 2 + rnd() * 2.4; g.beginPath(); g.moveTo(x, y); g.lineTo(x + len * 0.17, y + len); g.stroke(); }
     rainStreet = new THREE.CanvasTexture(canvas); rainStreet.colorSpace = THREE.SRGBColorSpace; rainStreet.anisotropy = maxAnisotropy;
     return rainStreet;
+  }
+  function streetTexture(name) {
+    const file = MOOD_STREET[name];
+    if (file === MOOD_STREET.morning) return materials.street.userData.dry ?? null;
+    if (!(file in streetTextures)) {
+      streetTextures[file] = null;
+      textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = maxAnisotropy; streetTextures[file] = t; loadedArt.add(file); applyStreet(currentMood); render(); });
+    }
+    return streetTextures[file];
+  }
+  function applyStreet(name) {
+    let t = streetTexture(name) ?? materials.street.userData.dry ?? null; // the morning painting stands in until this mood's painting has loaded
+    if (t && name === "rain" && t !== materials.street.userData.dry) t = rainOver(t);
+    if (t && materials.street.map !== t) { materials.street.map = t; materials.street.needsUpdate = true; }
   }
 
   let currentMood = "morning", moodTween = 0;
@@ -1004,8 +1026,7 @@ export async function start({ stage, onReady = () => {} }) {
     const look = MOODS[name]; if (!look) return false;
     currentMood = name;
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
-    if (look.rain) { const wet = rainOverStreet(); if (wet) { materials.street.map = wet; materials.street.needsUpdate = true; } }
-    else if (materials.street.userData.dry && materials.street.map !== materials.street.userData.dry) { materials.street.map = materials.street.userData.dry; materials.street.needsUpdate = true; }
+    applyStreet(name);
     const from = { shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
     const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
@@ -1025,14 +1046,15 @@ export async function start({ stage, onReady = () => {} }) {
   // ---------- looks ----------
   const currentLook = { ...DEFAULT_LOOK };
   const OAK_BASE = new THREE.Color(0xe0bd90); // the recessed panel fields start a shade deeper than the frames
-  function setLook(group, key) {
+  function setLook(group, key, userPick = false) {
     const options = LOOK_GROUPS[group]; if (!options || !(key in options)) return false;
-    currentLook[group] = key; const v = options[key];
+    currentLook[group] = key; const v = options[key]; if (group === "wainscot" && userPick) wainscotChosen = true;
     if (group === "brick") materials.brick.color.setRGB(...v);
     else if (group === "counter") { materials.oak.color.setRGB(...v); materials.oakDeep.color.setRGB(OAK_BASE.r * v[0], OAK_BASE.g * v[1], OAK_BASE.b * v[2]); }
-    else if (group === "back") materials.olive.color.setHex(v);
+    else if (group === "back") { materials.olive.color.setHex(v); applyWainscot(); }
+    else if (group === "wainscot") applyWainscot();
     else if (group === "wall") { currentLook.wallpaper = "none"; applyWall(); }
-    else if (group === "wallpaper") applyWall();
+    else if (group === "wallpaper") { applyWall(); const pairing = WAINSCOT_FOR_PAPER[key]; if (pairing && !wainscotChosen) { currentLook.wainscot = pairing[0]; applyWainscot(); } else if (!pairing && !wainscotChosen) { currentLook.wainscot = "same"; applyWainscot(); } }
     else if (group === "floor") materials.floor.color.setRGB(...v);
     else if (group === "lamp") { materials.pendantShade.color.setHex(v); materials.sconceGlow.color.setHex(v === 0x2b2b2c ? 0xf3e2c2 : v); }
     else if (group === "scarf") materials.scarf.color.setHex(v);
@@ -1044,11 +1066,15 @@ export async function start({ stage, onReady = () => {} }) {
     const brick = pick("brick");
     const picks = { brick, counter: pick("counter"), back: pick("back"), wall: pick("wall", brick === "grey" ? ["grey", "mist"] : brick === "dusty" ? ["butter"] : []), floor: pick("floor"), lamp: pick("lamp"), scarf: pick("scarf"), chair: pick("chair") };
     for (const [group, key] of Object.entries(picks)) setLook(group, key);
-    if (rng() < 0.4) setLook("wallpaper", pick("wallpaper", ["none"])); // two rooms in five get one of Room 01's wallpapers
+    wainscotChosen = false; setLook("wainscot", "same");
+    if (rng() < 0.4) { const paper = pick("wallpaper", ["none"]); setLook("wallpaper", paper); const options = WAINSCOT_FOR_PAPER[paper]; setLook("wainscot", options[Math.floor(rng() * options.length)]); } // two rooms in five get one of Room 01's wallpapers, with a wainscot that suits it
+    else if (rng() < 0.45) setLook("wainscot", pick("wainscot", ["same"]));
     return { ...currentLook };
   }
-  function reapplyLook() { const paper = currentLook.wallpaper; for (const [group, key] of Object.entries(currentLook)) if (group !== "wallpaper") setLook(group, key); currentLook.wallpaper = paper; applyWall(); } // a texture that loads late must not undo the chosen look
+  function reapplyLook() { const paper = currentLook.wallpaper, wain = currentLook.wainscot; for (const [group, key] of Object.entries(currentLook)) if (group !== "wallpaper" && group !== "wainscot") setLook(group, key); currentLook.wallpaper = paper; currentLook.wainscot = wain; applyWall(); applyWainscot(); } // a texture that loads late must not undo the chosen look
   // The wall is either a painted colour or one of Room 01's wallpapers (a colour choice replaces the paper, as in Room 01).
+  let wainscotChosen = false; // once the visitor picks a wainscot colour themselves, a paper no longer changes it
+  function applyWainscot() { const key = currentLook.wainscot, hex = LOOK_GROUPS.wainscot[key]; materials.wainscot.color.setHex(hex ?? LOOK_GROUPS.back[currentLook.back]); }
   const wallpaperTextures = {};
   function applyWall() {
     const paper = LOOK_GROUPS.wallpaper[currentLook.wallpaper];
@@ -1061,7 +1087,7 @@ export async function start({ stage, onReady = () => {} }) {
     }
     materials.wall.needsUpdate = true;
   }
-  const resetLook = () => { for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); return { ...currentLook }; };
+  const resetLook = () => { wainscotChosen = false; for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); return { ...currentLook }; };
 
   // Where the robot's head and the paper note are on screen, in client pixels, so the page can float tap targets and bubbles over them.
   const projectBox = (object) => {

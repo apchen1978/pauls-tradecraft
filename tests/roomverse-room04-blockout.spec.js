@@ -106,7 +106,7 @@ test("Room 04 can turn all the way round from the middle of the room, and comes 
 test("Room 04 looks: swaps change materials without changing the scene size, wallpapers load, and the random cafe button builds a new one", async ({ page }) => {
   const errors = await open(page, 1440);
   const base = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
-  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "counter", "floor", "lamp", "scarf", "wall", "wallpaper"]);
+  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "counter", "floor", "lamp", "scarf", "wainscot", "wall", "wallpaper"]);
   const groups = await page.evaluate(() => window.__room04.lookGroups());
   expect(groups.wallpaper).toEqual(["none", "stripe", "botanical", "grasscloth", "sagewash"]);
   for (const [group, keys] of Object.entries(groups)) for (const key of keys) {

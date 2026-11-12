@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./cafe.js?v=13";
+import { start, ROOM_TITLE } from "./cafe.js?v=14";
 
 // Room 04 | Shanghai, Slowly. The page: title, the room, five mood buttons, the barista robot (tap it) and a paper note (tap it).
 // Texts marked PROVISIONAL are CC's first drafts; Paul has not chosen the note, the menu or the robot's lines yet.
@@ -18,6 +18,7 @@ const COPY = {
       back: ["後吧台與護牆板", { olive: "橄欖綠", navy: "海軍藍", terracotta: "赭紅", charcoal: "炭灰", sage: "鼠尾草綠" }],
       wall: ["牆面漆色", { warm: "暖白", blush: "霧粉", mist: "霧綠", butter: "奶油黃", grey: "淺灰" }],
       wallpaper: ["壁紙（沿用 Room 01）", { none: "不貼，用漆色", stripe: "細條紋壁紙", botanical: "淡色植紋壁紙", grasscloth: "暖燕麥草織", sagewash: "鼠尾草石灰洗" }],
+      wainscot: ["護牆板（牆下半）", { same: "跟後吧台同色", olive: "橄欖綠", navy: "海軍藍", terracotta: "赭紅", charcoal: "炭灰", sage: "鼠尾草綠", cream: "奶油白", walnut: "胡桃木色", oat: "燕麥米" }],
       floor: ["地板", { greybrown: "灰褐木", warmoak: "暖橡木", walnut: "深胡桃", pale: "淺木" }],
       lamp: ["吊燈與壁燈", { rattan: "藤編", paper: "紙燈罩", black: "黑金屬" }],
       scarf: ["機器人圍巾", { olive: "橄欖綠", terracotta: "赭紅", mustard: "芥黃", navy: "海軍藍", rose: "玫瑰粉" }],
@@ -49,6 +50,7 @@ const COPY = {
       back: ["Back bar and wainscot", { olive: "Olive", navy: "Navy", terracotta: "Terracotta", charcoal: "Charcoal", sage: "Sage" }],
       wall: ["Wall paint", { warm: "Warm white", blush: "Blush", mist: "Mist green", butter: "Butter", grey: "Pale grey" }],
       wallpaper: ["Wallpaper (from Room 01)", { none: "None, use paint", stripe: "Fine-stripe wallpaper", botanical: "Soft botanical wallpaper", grasscloth: "Warm oatmeal grasscloth", sagewash: "Sage limewash" }],
+      wainscot: ["Wainscot (lower wall)", { same: "Same as back bar", olive: "Olive", navy: "Navy", terracotta: "Terracotta", charcoal: "Charcoal", sage: "Sage", cream: "Cream", walnut: "Walnut brown", oat: "Oat" }],
       floor: ["Floor", { greybrown: "Grey-brown", warmoak: "Warm oak", walnut: "Dark walnut", pale: "Pale wood" }],
       lamp: ["Lamps", { rattan: "Rattan", paper: "Paper shade", black: "Black metal" }],
       scarf: ["Robot scarf", { olive: "Olive", terracotta: "Terracotta", mustard: "Mustard", navy: "Navy", rose: "Rose" }],
@@ -70,7 +72,7 @@ const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
 let centerMode = false;
-const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "floor", "lamp", "scarf", "chair"];
+const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "lamp", "scarf", "chair"];
 let look = {};
 function syncLookUrl() {
   const url = new URL(location.href);
@@ -85,7 +87,7 @@ function renderSwaps() {
     wrap.className = "swap-group"; h.textContent = title; row.className = "swap-options"; row.setAttribute("role", "group"); row.setAttribute("aria-label", title);
     for (const [key, label] of Object.entries(options)) {
       const button = document.createElement("button"); button.type = "button"; button.textContent = label; button.dataset.group = group; button.dataset.key = key; button.setAttribute("aria-pressed", String(look[group] === key));
-      button.addEventListener("click", () => { room?.setLook(group, key); look = room.look(); renderSwaps(); syncLookUrl(); });
+      button.addEventListener("click", () => { room?.setLook(group, key, true); look = room.look(); renderSwaps(); syncLookUrl(); });
       row.append(button);
     }
     wrap.append(h, row); return wrap;
