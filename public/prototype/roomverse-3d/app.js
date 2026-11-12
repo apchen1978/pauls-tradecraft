@@ -46,7 +46,7 @@ const MOODS = {
     why: { zh: "白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。", en: "Soft, even daylight with pale wood, linen and one dark accent keeps the room calm, so a Sunday afternoon has nowhere to hurry to." },
     hemi: 1.6, win: 2.2, winCol: "#f4f6f8", lamp: .5, fill: 1.8, out: "#f7f8f6", exposure: 1.08, floor: 0, glow: .04 },
   golden: { zh: "傍晚金色時光", en: "Golden hour",
-    why: { zh: "低角度的夕陽把窗影拉長，剛亮起的暖燈讓傍晚更有回家的感覺。", en: "Low golden sunlight stretches the window shadows while newly lit lamps make the evening feel like home." }, hemi: .95, win: 4.8, winCol: "#ffb866", lamp: 2.5, fill: 1.2, out: "#ffd093", exposure: 1.08, floor: 0, glow: .22, sunY: 1.2, shadowRadius: 4 },
+    why: { zh: "低角度的夕陽把窗影拉長，剛亮起的暖燈讓傍晚更有回家的感覺。", en: "Low golden sunlight stretches the window shadows while newly lit lamps make the evening feel like home." }, hemi: .95, win: 4.8, winCol: "#ffb866", lamp: 2.5, fill: 1.2, out: "#fff0df", exposure: 1.08, floor: 0, glow: .22, sunY: 1.2, shadowRadius: 4 },
   tv: { zh: "追劇夜", en: "Series night",
     why: { zh: "週五晚上，關掉主燈，只留燈帶和一盞暖燈，沙發就是整個世界。", en: "Friday night: ceiling light off, just the warm strips and one lamp; the sofa is the whole world." }, hemi: .62, win: .7, winCol: "#56647f", lamp: 2.5, fill: .55, out: "#c6cad6", exposure: .98, floor: .45, glow: .48 },
 };
@@ -591,7 +591,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const consoleDecor = new THREE.Group(); consoleDecor.name = "tv-console-decor"; scene.add(consoleDecor);
   const shelfDecor = new THREE.Group(); shelfDecor.name = "tv-inset-shelf-decor"; scene.add(shelfDecor);
   let shelfDecorReady = false, shelfArtFile = null, consoleArtTexture = null;
-  const pictureFile = (texture) => texture?.image?.src?.split("?")[0].split("/").pop() ?? null;
+  const pictureFile = (texture) => texture?.image?.src?.split("?")[0].split("/").pop() ?? texture?.userData?.file ?? null;
   function buildShelfDecor(art, surface) {
     if (shelfDecorReady) return;
     shelfArtFile = pictureFile(art);
@@ -1096,10 +1096,32 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const viewLoader = new THREE.TextureLoader();
   const VIEW_FILES = { rain: "rain", family: "family", tech: "tech", chic: "chic", slow: "family", golden: "family", tv: "tech" }; // slow, golden hour and series night reuse existing paintings; golden hour warms the existing daylight view
   const viewReady = {};
+  // Golden hour has no painting of its own: it showed the afternoon street (blue sky, white clouds) under a warm tint, so the window read as midday.
+  // Until a dusk painting exists, the afternoon picture is regraded once on a canvas when the mood is first chosen: the sky takes a dusk hue ramp and
+  // keeps its own light and dark (so the clouds stay), the street gets a low warm wash with cooler shade at the bottom, and a soft sun glow sits low
+  // on the left, the side the room's sun comes from.
+  const gradeGoldenView = (image) => {
+    const canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
+    const g = canvas.getContext("2d"), w = canvas.width, h = canvas.height;
+    g.drawImage(image, 0, 0, w, h);
+    const sky = g.createLinearGradient(0, 0, 0, h * .47);
+    sky.addColorStop(0, "#6f78ad"); sky.addColorStop(.42, "#c78f9c"); sky.addColorStop(.8, "#f7a65e"); sky.addColorStop(1, "rgba(247,166,94,0)");
+    g.globalCompositeOperation = "color"; g.fillStyle = sky; g.fillRect(0, 0, w, h * .47);
+    const wash = g.createLinearGradient(0, h * .3, 0, h);
+    wash.addColorStop(0, "rgba(255,168,84,.5)"); wash.addColorStop(1, "rgba(255,150,72,.38)");
+    g.globalCompositeOperation = "soft-light"; g.fillStyle = wash; g.fillRect(0, h * .3, w, h * .7);
+    const shade = g.createLinearGradient(0, h * .45, 0, h);
+    shade.addColorStop(0, "rgba(140,120,140,0)"); shade.addColorStop(1, "rgba(140,120,140,.42)");
+    g.globalCompositeOperation = "multiply"; g.fillStyle = shade; g.fillRect(0, h * .45, w, h * .55);
+    const glow = g.createRadialGradient(w * .16, h * .4, 0, w * .16, h * .4, w * .8);
+    glow.addColorStop(0, "rgba(255,226,170,.9)"); glow.addColorStop(.25, "rgba(255,178,96,.42)"); glow.addColorStop(1, "rgba(255,150,80,0)");
+    g.globalCompositeOperation = "screen"; g.fillStyle = glow; g.fillRect(0, 0, w, h);
+    return canvas;
+  };
   const VIEWS = Object.fromEntries(Object.entries(VIEW_FILES).map(([m, f]) => [m, () => {
     let settle;
     viewReady[m] = new Promise((resolve) => { settle = resolve; });
-    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => { settle(true); render(); }, undefined, () => settle(false));
+    const t = viewLoader.load(new URL(`./window/window-${f}-v1.webp`, import.meta.url).href, () => { if (m === "golden") { t.userData.file = `window-${f}-v1.webp`; t.image = gradeGoldenView(t.image); t.needsUpdate = true; } settle(true); render(); }, undefined, () => settle(false));
     t.colorSpace = THREE.SRGBColorSpace;
     t.repeat.set(1, .87); t.offset.set(0, .05); // keep the trees and houses (lower middle) in view
     return t;
