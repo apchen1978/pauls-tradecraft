@@ -53,8 +53,10 @@ test("fullscreen room chooser cleans immersive state before leaving and Back ret
   await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
 });
 
-test("keyboard reaches exit before language, with a visible focus outline", async ({ page }) => {
+test("keyboard reaches portfolio home, then other rooms, then language", async ({ page }) => {
   await openRoom(page);
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#portfolioHome")).toBeFocused({ timeout: 2500 });
   await page.keyboard.press("Tab");
   const exit = page.locator("#headerOtherRooms");
   await expect(exit).toBeFocused({ timeout: 2500 });
@@ -91,6 +93,8 @@ test("fullscreen Tab stays in the room after mood selection preserves focus", as
   await page.keyboard.press("Tab");
   // Old: Sunday morning was the last mood. Thanksgiving now follows it.
   await expect(page.locator('#moods button[data-mood="thanksgiving"]')).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#immersivePortfolioHome")).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.locator("#immersiveOtherRooms")).toBeFocused();
   await page.keyboard.press("Tab");

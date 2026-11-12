@@ -11,10 +11,10 @@
     * { box-sizing:border-box; }
     html,body { margin:0; min-height:100%; background:#f3efe6; color:var(--ink); font-family:system-ui,"Noto Sans TC",sans-serif; }
     [hidden] { display:none !important; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px clamp(16px,3vw,40px); }
+    header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 12px; padding:14px clamp(16px,3vw,40px); }
     .brand { font-size:12px; letter-spacing:.12em; font-weight:800; color:var(--brick); }
-    .header-actions { display:flex; align-items:center; gap:10px; }
-    #otherRooms, #lang { min-height:44px; display:inline-flex; align-items:center; padding:7px 14px; border:1px solid #a9a38f; border-radius:999px; background:transparent; color:var(--brick); font:700 14px system-ui,sans-serif; text-decoration:none; cursor:pointer; }
+    .header-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; margin-left:auto; max-width:100%; }
+    #portfolioHome, #otherRooms, #lang { min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; padding:7px 14px; border:1px solid #a9a38f; border-radius:999px; background:transparent; color:var(--brick); font:700 14px system-ui,sans-serif; text-decoration:none; white-space:nowrap; cursor:pointer; }
     #lang { min-width:44px; justify-content:center; }
     .intro { max-width:950px; padding:4px clamp(16px,3vw,40px) 14px; }
     h1 { margin:0; font-size:clamp(26px,4vw,42px); line-height:1.12; letter-spacing:-.025em; color:#3d2a1f; }
@@ -27,7 +27,9 @@
     .note { padding:12px clamp(16px,3vw,40px) 34px; max-width:900px; color:var(--muted); font-size:12px; line-height:1.6; }
     a:focus-visible, button:focus-visible { outline:3px solid #b57943; outline-offset:3px; }
     @media (max-width:768px) {
-      header { padding:10px 14px; }
+      header { align-items:flex-start; padding:10px 14px; }
+      .header-actions { flex:1 1 100%; justify-content:flex-start; }
+      #portfolioHome, #otherRooms { font-size:13px; padding:7px 10px; }
       .intro { padding:4px 14px 12px; }
       .room { margin:0 8px; height:clamp(360px,100vw,450px); min-height:360px; border-radius:14px; }
       .note { padding:10px 14px 28px; }
@@ -38,6 +40,7 @@
   <header>
     <span class="brand">ROOMVERSE 3D</span>
     <span class="header-actions">
+      <a id="portfolioHome" href="/?lang=zh" aria-label="回到作品集首頁">⌂ 作品集首頁</a>
       <a id="otherRooms" href="/prototype/roomverse-3d/?lang=zh">← 其他房間</a>
       <button id="lang" type="button">EN</button>
     </span>
@@ -54,6 +57,6 @@
     </section>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=2"></script>
+  <script type="module" src="page.js?v=3"></script>
 </body>
 </html>

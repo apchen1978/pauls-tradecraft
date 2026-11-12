@@ -5,7 +5,7 @@ const COPY = {
     title: ROOM_TITLE,
     lead: "灣區中世紀現代風的開放廚房與餐區。拖曳畫面，從室內看看木樑、玻璃門與小院。",
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
-    otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", robotLabel: "廚房小機器人：點我看要去哪個房間", robotLine: "我是廚房的小幫手。想去哪個房間？", doorLabel: "房間的門：點一下打開", doorLine: "這扇門通到其他房間。想去哪一間？", robotChoose: "看看其他房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
+    portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁", otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", robotLabel: "廚房小機器人：點我看要去哪個房間", robotLine: "我是廚房的小幫手。想去哪個房間？", doorLabel: "房間的門：點一下打開", doorLine: "這扇門通到其他房間。想去哪一間？", robotChoose: "看看其他房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
     center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", nook: "走近小角落", swapsLabel: "換搭配", randomLook: "隨機搭一間", defaultLook: "預設搭配：霧藍牆、橡木地板、藍米條紋地毯與橡樹街畫", customLook: "目前搭配：自訂組合",
     swaps: {
@@ -32,7 +32,7 @@ const COPY = {
     title: ROOM_TITLE,
     lead: "An open kitchen and dining room inspired by Bay Area mid-century modern homes. Drag to look around the timber beams, glass doors and small garden.",
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
-    otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", robotLabel: "Kitchen robot: tap to choose another room", robotLine: "I look after the kitchen. Where would you like to go?", doorLabel: "Room door: tap to open", doorLine: "This door leads to the other rooms. Where to?", robotChoose: "Explore other rooms", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
+    portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home", otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", robotLabel: "Kitchen robot: tap to choose another room", robotLine: "I look after the kitchen. Where would you like to go?", doorLabel: "Room door: tap to open", doorLine: "This door leads to the other rooms. Where to?", robotChoose: "Explore other rooms", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
     center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", nook: "Closer to the nook", swapsLabel: "Swap the look", randomLook: "Randomize the room", defaultLook: "Default: mist-blue walls, oak plank floor, blue-and-cream rug and the oak-street print", customLook: "Current look: Custom mix",
     swaps: {
@@ -218,6 +218,12 @@ function renderCopy() {
   updateRandomLookStatus();
   renderSwaps();
   document.querySelector('#stage canvas')?.setAttribute('aria-label', copy.canvasLabel);
+  for (const id of ["portfolioHome", "immersivePortfolioHome"]) {
+    const link = $(id);
+    link.textContent = copy.portfolioHome;
+    link.setAttribute("aria-label", copy.portfolioHomeLabel);
+    link.href = `/?lang=${lang}`;
+  }
   for (const id of ["headerOtherRooms", "immersiveOtherRooms"]) {
     const link = $(id);
     link.textContent = copy.otherRooms;

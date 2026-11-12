@@ -7,14 +7,14 @@ const COPY = {
     lead: "先選感覺，再換牆、地毯、窗簾和掛畫。光會跟著變，房間的表情也是。拖一下轉動房間，或點「看電視牆」。",
     enter: "走進 3D 房間", loading: "房間準備中…", failed: "這台裝置打不開 3D，先看看上面的房間圖。",
     note: "插畫示意。以 AI 人機協作完成：家具（沙發、茶几、邊桌、桌燈、落地燈、植物和小機器人）先畫成插畫，再轉成 3D 形狀，顏色取自原插畫；小矮椅和筆電的形狀則由程式生成（小矮椅依插畫的側面輪廓）；窗外景色、掛畫、地毯和壁紙也是插畫；房間、光與互動由程式完成。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
-    home: "← 作品集", portal: "看看其他房間", portalHint: "選一間繼續逛。", lang: "EN", open: "點我變風格 ▸", close: "收起 ◂", fullScreen: "全螢幕", exitFullScreen: "退出",
+    home: "⌂ 作品集首頁", homeLabel: "回到作品集首頁", portal: "看看其他房間", portalHint: "選一間繼續逛。", lang: "EN", open: "點我變風格 ▸", close: "收起 ◂", fullScreen: "全螢幕", exitFullScreen: "退出",
   },
   en: {
     title: "One room, many ways to come home",
     lead: "Pick a feeling, then change the wall, the rug, the curtains and the print. The light changes with it, and so does the room's mood. Drag to turn the room, or tap ‘Turn to the TV wall’.",
     enter: "Step into the 3D room", loading: "Setting up the room…", failed: "3D can't open on this device; the picture above shows the room.",
     note: "Illustrated study, made through human–AI collaboration: the furniture (sofa, coffee table, side table, table lamp, floor lamp, plant and a small robot) was drawn first, turned into 3D shapes and coloured from the drawings; the small low chair and the laptop are shaped in code (the chair from the side outline of its drawing); the views outside, wall prints, rugs and wallpapers are illustrations too; the room, light and interaction are built in code. Not real products; check real colours and textures with samples and on-site light.",
-    home: "← Portfolio", portal: "Explore other rooms", portalHint: "Choose a room to keep exploring.", lang: "中", open: "Tap to restyle ▸", close: "Hide ◂", fullScreen: "Full screen", exitFullScreen: "Exit",
+    home: "⌂ Portfolio home", homeLabel: "Back to portfolio home", portal: "Explore other rooms", portalHint: "Choose a room to keep exploring.", lang: "中", open: "Tap to restyle ▸", close: "Hide ◂", fullScreen: "Full screen", exitFullScreen: "Exit",
   },
 };
 const $ = (id) => document.getElementById(id);
@@ -51,7 +51,7 @@ function text() {
   const c = COPY[lang];
   document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
   $("title").textContent = c.title; $("lead").textContent = c.lead; $("enter").textContent = c.enter;
-  $("note").textContent = c.note; $("home").textContent = c.home; $("home").href = `/?lang=${lang}`; $("lang").textContent = c.lang;
+  $("note").textContent = c.note; $("home").textContent = c.home; $("home").href = `/?lang=${lang}`; $("home").setAttribute("aria-label", c.homeLabel); $("lang").textContent = c.lang;
   $("portalBtn").textContent = c.portal; $("portalHint").textContent = c.portalHint;
   $("travelDoorBtn").textContent = TRAVEL_COPY[lang].button;
   document.querySelectorAll("[data-travel-door-action]").forEach((button) => { button.textContent = TRAVEL_COPY[lang].bubble; });
@@ -80,9 +80,15 @@ travelDoor = initTravelDoor({
   beforeOpen: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.pauseGuideBubble(); },
   afterClose: (trigger) => { if (trigger?.matches?.("[data-travel-door-action]")) room?.resumeGuideBubble(); },
 });
+function placeHomeLink(on) {
+  const link = $("home");
+  if (on) $("immersiveExits").prepend(link);
+  else document.querySelector("header .left").prepend(link);
+}
 function setImmersive(on, pushHistory = true) {
   if (!room || immersive === on) return;
   immersive = on;
+  placeHomeLink(on);
   document.querySelector(".room").classList.toggle("is-immersive", on);
   document.documentElement.classList.toggle("room-immersive", on);
   if (on) {
