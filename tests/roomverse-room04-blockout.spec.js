@@ -36,6 +36,8 @@ for (const [width, key] of [[1440, "desktop"], [390, "phone"]]) {
     expect(info.counter.heightMm).toBe(1050);
     expect(info.window.widthMm / info.window.heightMm).toBeCloseTo(1.5, 5);
     expect(info.robot.aboveCounterMm).toBeGreaterThanOrEqual(350);
+    expect(info.blockout).not.toContain("blockout-robot");
+    expect(info.blockout).not.toContain("blockout-espresso-machine");
     await expect(page.locator("#stage canvas")).toHaveAttribute("aria-label", "Room 04 咖啡廳的 3D 粗模");
     await expect(page.locator("#status")).toBeHidden();
   });
@@ -46,7 +48,7 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
   for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
-  expect(info.stage).toBe("section-2-counter");
+  expect(info.stage).toBe("section-3-hero");
 });
 
 test("Room 04 switches language and keeps the choice in the address", async ({ page }) => {
