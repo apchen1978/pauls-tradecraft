@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 207930, meshes: 96 }),
+  scene: Object.freeze({ vertices: 219638, meshes: 98 }),
   // Draw calls in the first frame of the opening (morning) view.
-  openingDrawCalls: Object.freeze({ desktop: 101, phone: 88 }),
+  openingDrawCalls: Object.freeze({ desktop: 104, phone: 91 }),
   // Starting caps from the look brief, set from Room 03's live size (109,111 vertices, 133 meshes, 83 / 80 opening draw calls).
   caps: Object.freeze({ vertices: 260000, meshes: 140, desktopCalls: 112, phoneCalls: 100 }), // raised with history lines on 2026-11-13 (Paul: vertices are not rationed while phones run it). Draw calls are what a phone feels, so Room 04 is the heaviest room: Room 03 opens at 85 / 82. If a real phone stutters, merge materials with vertex colours before cutting any visual
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -24,5 +24,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-13", change: "lived-in pass: olive board-and-batten wainscot with oak cap on the right wall, two glowing sconces, an oak wall clock, a rattan drum pendant and a jute rug at the window seat, takeaway cups, a tip jar and a card reader on the counter; the new lamps glow with the mood", vertices: 150076, meshes: 90, desktopCalls: 98, phoneCalls: 87 },
     { date: "2026-11-13", change: "machine faces the room: espresso machine and grinder move to the back bar with their fronts toward the visitors (gauge, group heads, portafilters, steam wand in view); a second robot barista, three-quarters turned away, steams milk at the wand; each robot is merged by material (the vertex count rises because merged parts are non-indexed)", vertices: 186092, meshes: 89, desktopCalls: 97, phoneCalls: 85 },
     { date: "2026-11-13", change: "360 degrees, part 1 (Codex card 47, A and C): the front wall behind the visitor with a steel-framed glass door and transom, a floor-to-ceiling street window, olive wainscot, hooks with a coat and a tote, a blank hanging sign, an umbrella stand and a door mat; the painted street behind it; a rattan lamp by the door and two glass globes over the counter; a stand-in-the-middle view that turns all the way round", vertices: 207930, meshes: 96, desktopCalls: 101, phoneCalls: 88 },
+    { date: "2026-11-13", change: "looks and light: nine swap groups (brick, counter wood, back bar, wall paint, Room 01 wallpapers, floor, lamps, robot scarf, chairs) and a random-cafe button, no geometry; sun shafts from the window (one additive mesh) that fade with the mood; the robots stand on floor pedestals behind the counter instead of on crates, the greeter sets a cup down on the counter", vertices: 219638, meshes: 98, desktopCalls: 104, phoneCalls: 91 },
   ]),
 });
