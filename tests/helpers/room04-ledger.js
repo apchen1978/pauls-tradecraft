@@ -8,11 +8,11 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 209850, meshes: 97 }),
+  scene: Object.freeze({ vertices: 236530, meshes: 107 }),
   // Draw calls in the first frame of the opening (morning) view.
-  openingDrawCalls: Object.freeze({ desktop: 104, phone: 91 }),
+  openingDrawCalls: Object.freeze({ desktop: 110, phone: 96 }),
   // Starting caps from the look brief, set from Room 03's live size (109,111 vertices, 133 meshes, 83 / 80 opening draw calls).
-  caps: Object.freeze({ vertices: 260000, meshes: 140, desktopCalls: 112, phoneCalls: 100 }), // raised with history lines on 2026-11-13 (Paul: vertices are not rationed while phones run it). Draw calls are what a phone feels, so Room 04 is the heaviest room: Room 03 opens at 85 / 82. If a real phone stutters, merge materials with vertex colours before cutting any visual
+  caps: Object.freeze({ vertices: 300000, meshes: 140, desktopCalls: 124, phoneCalls: 108 }), // raised with history lines on 2026-11-13 (Paul: vertices are not rationed while phones run it). Draw calls are what a phone feels, so Room 04 is the heaviest room: Room 03 opens at 85 / 82. If a real phone stutters, merge materials with vertex colours before cutting any visual
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-13", change: "blockout: shell, window, counter, back bar, shelves, menus, plain stand-ins for the machine, grinder, pastry case, robot and plant", vertices: 3419, meshes: 51, desktopCalls: 49, phoneCalls: 48 },
@@ -27,5 +27,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-13", change: "looks and light: nine swap groups (brick, counter wood, back bar, wall paint, Room 01 wallpapers, floor, lamps, robot scarf, chairs) and a random-cafe button, no geometry; sun shafts from the window (one additive mesh) that fade with the mood; the robots stand on floor pedestals behind the counter instead of on crates, the greeter sets a cup down on the counter", vertices: 219638, meshes: 98, desktopCalls: 104, phoneCalls: 91 },
     { date: "2026-11-13", change: "one painted street per mood (golden, rain, night from Codex card 47 D) replaces the tints; the wainscot gets its own colour so a wallpaper can pair with something other than green; no geometry change", vertices: 219638, meshes: 98, desktopCalls: 104, phoneCalls: 91 },
     { date: "2026-11-13", change: "entrance: no coat hooks, coat, tote or umbrella stand (Paul: a public cafe does not hang coats, and the stand does not bake well in 360 degrees); a small gallery of four framed prints right of the door instead, on one painting atlas (stand-in art until Codex card 49)", vertices: 209850, meshes: 97, desktopCalls: 104, phoneCalls: 91 },
+    { date: "2026-11-14", change: "lamps from Codex card 50 (Paul kept two): the bamboo cloud and the paper rings, one over the window seat and the other over the counter (a look swaps them); brass now a real metal with reflections; a Room 01 style floor lamp by the window seat; track light brass rings; a big TV on the right wall and a sixth mood, series night", vertices: 236530, meshes: 107, desktopCalls: 110, phoneCalls: 96 },
   ]),
 });

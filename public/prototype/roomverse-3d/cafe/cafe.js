@@ -33,11 +33,12 @@ const COLORS = Object.freeze({
 // Each mood sets the sun, the sky fill, the track lights, a tint on the street painting (until Codex paints one street per mood) and how strongly the steel and glass reflect.
 // sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
-  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, steam: 0.3 }),
-  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, steam: 0.18 }),
-  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, steam: 0.36 }),
-  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, steam: 0.4, rain: true }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0xc4cce6, lamp: 3.4, reflect: 0.45, pendant: 1.4, shaft: 0, steam: 0.42 }),
+  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0, steam: 0.3 }),
+  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0, steam: 0.18 }),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0, steam: 0.36 }),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0, steam: 0.4, rain: true }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0xc4cce6, lamp: 3.4, reflect: 0.45, pendant: 1.4, shaft: 0, tv: 0, steam: 0.42 }),
+  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6b7aa6, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0xb4bde0, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0 }),
 });
 
 // The looks (Paul, 2026-11-13: a "random cafe" like the random look of Rooms 01 to 03). Each group swaps colours or tints on existing materials, so a swap costs no
@@ -49,13 +50,13 @@ export const LOOK_GROUPS = Object.freeze({
   wainscot: Object.freeze({ same: null, olive: 0x4d5d3c, navy: 0x2f4560, terracotta: 0xa5563b, charcoal: 0x3a3d3f, sage: 0x88977a, cream: 0xe4d8c0, walnut: 0x5a3d2b, oat: 0xc9b896 }),
   wall: Object.freeze({ warm: 0xf1ece2, blush: 0xf0dcd4, mist: 0xdde5e2, butter: 0xf3e6c4, grey: 0xdad8d4 }),
   floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12] }),
-  lamp: Object.freeze({ rattan: 0xd9bb82, paper: 0xf2ede2, black: 0x2b2b2c }),
+  lamp: Object.freeze({ bamboo: 1, rings: 2 }), // Codex card 50: the two designs Paul kept. "bamboo": the bamboo cloud over the window seat and paper rings over the counter; "rings": the other way round
   scarf: Object.freeze({ olive: 0x66763f, terracotta: 0xc4623a, mustard: 0xd6a43a, navy: 0x2f4560, rose: 0xd49a96 }),
   chair: Object.freeze({ bentwood: 0x9a6a3a, black: 0x2a2a2c, natural: 0xc9a06a }),
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4] }),
 });
-export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "rattan", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same" });
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same" });
 // What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
 export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"] });
 
@@ -218,6 +219,28 @@ function makePrintAtlas() {
   });
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8; return texture;
 }
+// A diamond weave for the bamboo lamps: tan strands crossing on a darker ground.
+function makeBambooTexture() {
+  const canvas = document.createElement("canvas"); canvas.width = 256; canvas.height = 256;
+  const g = canvas.getContext("2d");
+  g.fillStyle = "#c79a58"; g.fillRect(0, 0, 256, 256);
+  for (let i = -8; i < 24; i++) { g.strokeStyle = i % 2 ? "#e5c58a" : "#d9b270"; g.lineWidth = 5; g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16 + 256, 256); g.stroke(); g.beginPath(); g.moveTo(i * 16 + 256, 0); g.lineTo(i * 16, 256); g.stroke(); }
+  g.strokeStyle = "rgba(90,60,30,.35)"; g.lineWidth = 1.2; for (let i = -8; i < 24; i++) { g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16 + 256, 256); g.stroke(); g.beginPath(); g.moveTo(i * 16 + 256, 0); g.lineTo(i * 16, 256); g.stroke(); }
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(3, 2); texture.anisotropy = 8; return texture;
+}
+// A plane-tree leaf: five lobes, flat and thin, lying in the xz plane with its face down.
+function planeLeafGeometry(size) {
+  const shape = new THREE.Shape();
+  for (let i = 0; i <= 60; i++) { const a = (i / 60) * Math.PI * 2, r = size * (0.42 + 0.58 * Math.pow(Math.abs(Math.cos(2.5 * a)), 1.3)); const x = Math.cos(a) * r, y = Math.sin(a) * r; if (i === 0) shape.moveTo(x, y); else shape.lineTo(x, y); }
+  const g = new THREE.ExtrudeGeometry(shape, { depth: 0.004, bevelEnabled: false, curveSegments: 4 });
+  g.translate(0, 0, -0.002); g.rotateX(Math.PI / 2); g.computeVertexNormals(); return g;
+}
+// Paint a geometry one colour with vertex colours (the lamp glow material takes its colours from them).
+function colorize(geometry, hex) {
+  const g = geometry.index ? geometry.toNonIndexed() : geometry, c = new THREE.Color(hex), n = g.attributes.position.count, colors = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b; }
+  g.setAttribute("color", new THREE.BufferAttribute(colors, 3)); return g;
+}
 // A soft round puff for steam.
 function makeSteamTexture() {
   const canvas = document.createElement("canvas"); canvas.width = 64; canvas.height = 64;
@@ -307,12 +330,16 @@ export async function start({ stage, onReady = () => {} }) {
     warm: new THREE.MeshBasicMaterial({ color: 0xffe0aa }),
   });
   Object.assign(materials, {
+    // The new lamps: one translucent glowing material coloured per part with vertex colours (leaves, globes, rings), and a woven bamboo one.
+    lampGlow: new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.55, emissive: 0xffc77a, emissiveIntensity: 0.12, transparent: true, opacity: 0.93, side: THREE.DoubleSide, depthWrite: false }),
+    floorShade: new THREE.MeshStandardMaterial({ color: 0xf1e8d6, roughness: 0.85, emissive: 0xffc77a, emissiveIntensity: 0.1, side: THREE.DoubleSide }),
+    bamboo: new THREE.MeshStandardMaterial({ color: 0xffffff, map: makeBambooTexture(), roughness: 0.85, emissive: 0xffb866, emissiveIntensity: 0.1, side: THREE.DoubleSide }),
     pendantShade: new THREE.MeshStandardMaterial({ color: 0xd9bb82, roughness: 0.85, emissive: 0xffc77a, emissiveIntensity: 0, side: THREE.DoubleSide }),
     sconceGlow: new THREE.MeshStandardMaterial({ color: 0xf3e2c2, roughness: 0.8, emissive: 0xffc77a, emissiveIntensity: 0, side: THREE.DoubleSide }),
     kraft: new THREE.MeshStandardMaterial({ color: 0xc9a272, roughness: 0.85 }),
     lid: new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.6 }),
     tablet: new THREE.MeshStandardMaterial({ color: 0x1d2a33, roughness: 0.25, emissive: 0x9fc5d6, emissiveIntensity: 0.35 }),
-    gold: new THREE.MeshStandardMaterial({ color: 0xcfa25a, roughness: 0.4, metalness: 0.7 }),
+    gold: new THREE.MeshStandardMaterial({ color: 0xd9b36a, roughness: 0.27, metalness: 1.0 }),
     cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
     cloth: new THREE.MeshStandardMaterial({ color: 0xded3bf, roughness: 0.96, side: THREE.DoubleSide }),
@@ -357,7 +384,7 @@ export async function start({ stage, onReady = () => {} }) {
     const texture = pmrem.fromScene(room, 0.04).texture; pmrem.dispose();
     return texture;
   })();
-  const reflectiveBase = { ceramic: 0.5, visor: 1.2, steel: 1.5, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
+  const reflectiveBase = { gold: 1.9, ceramic: 0.5, visor: 1.2, steel: 1.5, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
   for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
@@ -842,17 +869,7 @@ export async function start({ stage, onReady = () => {} }) {
     part("black", rodGeometry([wx - 0.034, cy, cz], [wx - 0.034, cy - 0.04, cz + 0.13], 0.0035), { tile: 1 });
     part("black", new THREE.CylinderGeometry(0.012, 0.012, 0.014, 12).rotateZ(Math.PI / 2).translate(wx - 0.032, cy, cz), { tile: 1 });
   }
-  {
-    // Rattan drum pendant over the window seat, on a black cord and canopy.
-    const px = SEAT.x + 0.05, pz = SEAT.z + 0.05, py = 1.78;
-    part("black", new THREE.CylinderGeometry(0.003, 0.003, ROOM.height - py - 0.14, 8).translate(px, (ROOM.height + py + 0.14) / 2, pz), { tile: 1 });
-    part("black", new THREE.CylinderGeometry(0.035, 0.05, 0.02, 20).translate(px, ROOM.height - 0.01, pz), { tile: 1 });
-    part("pendantShade", new THREE.CylinderGeometry(0.17, 0.23, 0.26, 36, 1, true).translate(px, py, pz), { tile: 1 });
-    part("black", new THREE.TorusGeometry(0.17, 0.006, 8, 36).rotateX(Math.PI / 2).translate(px, py + 0.13, pz), { tile: 1 });
-    part("black", new THREE.TorusGeometry(0.23, 0.006, 8, 36).rotateX(Math.PI / 2).translate(px, py - 0.13, pz), { tile: 1 });
-    for (let i = 0; i < 18; i++) { const a = (i / 18) * Math.PI * 2; part("black", rodGeometry([px + Math.cos(a) * 0.17, py + 0.13, pz + Math.sin(a) * 0.17], [px + Math.cos(a) * 0.23, py - 0.13, pz + Math.sin(a) * 0.23], 0.0016), { tile: 1 }); }
-    part("warm", new THREE.SphereGeometry(0.035, 12, 8).translate(px, py + 0.03, pz), { tile: 1 });
-  }
+  // (the window pendant is built below with the other lamps)
   {
     // Counter details on the customer side: two stacks of kraft takeaway cups with white lids, a tip jar and a card reader on a stand.
     const cupStack = (x, z, n) => {
@@ -944,23 +961,87 @@ export async function start({ stage, onReady = () => {} }) {
     const wallArt = new THREE.Mesh(mergeGeometries(artGeometries), new THREE.MeshStandardMaterial({ map: makePrintAtlas(), roughness: 0.85 }));
     wallArt.name = "wall-art"; wallArt.receiveShadow = true; scene.add(wallArt);
     slab("cane", [DOOR.x0 + 0.02, DOOR.x1 - 0.02], [0, 0.012], [FW - 0.78, FW - 0.08], { tile: 1 }); // the door mat
-    // From Codex's ceiling plan (card 47, C): a small sister of the window rattan lamp near the door, and two glass globes over the counter.
-    const lampAt = (lx, lz, ly, r, h) => {
-      part("black", new THREE.CylinderGeometry(0.003, 0.003, ROOM.height - ly - h / 2, 8).translate(lx, (ROOM.height + ly + h / 2) / 2, lz), { tile: 1 });
-      part("black", new THREE.CylinderGeometry(0.03, 0.045, 0.02, 20).translate(lx, ROOM.height - 0.01, lz), { tile: 1 });
-      part("pendantShade", new THREE.CylinderGeometry(r * 0.75, r, h, 32, 1, true).translate(lx, ly, lz), { tile: 1 });
-      part("black", new THREE.TorusGeometry(r, 0.005, 8, 32).rotateX(Math.PI / 2).translate(lx, ly - h / 2, lz), { tile: 1 });
-      part("warm", new THREE.SphereGeometry(0.03, 10, 8).translate(lx, ly + 0.02, lz), { tile: 1 });
-    };
-    lampAt(-1.1, 2.9, 2.0, 0.19, 0.2);
-    for (const gx of [-0.4, 0.8]) {
-      part("black", new THREE.CylinderGeometry(0.003, 0.003, ROOM.height - 1.9, 8).translate(gx, (ROOM.height + 1.9) / 2, -0.65), { tile: 1 });
-      part("black", new THREE.CylinderGeometry(0.03, 0.045, 0.02, 20).translate(gx, ROOM.height - 0.01, -0.65), { tile: 1 });
-      part("glass", new THREE.SphereGeometry(0.12, 24, 16).translate(gx, 1.78, -0.65), { tile: 1 });
-      part("warm", new THREE.SphereGeometry(0.045, 12, 8).translate(gx, 1.78, -0.65), { tile: 1 });
-      part("gold", new THREE.CylinderGeometry(0.028, 0.034, 0.05, 14).translate(gx, 1.92, -0.65), { tile: 1 });
-    }
   }
+  // ---------- the lamps (Codex card 50): four designs, each with a glowing part ----------
+  // A window-seat lamp (the plane-leaf branch A or the bamboo cloud C, switched by the "lamp" look), two lattice-and-glass globes over the counter (B), and a stack of paper
+  // rings by the door (D). Each set is merged by material into a few meshes with the glow material taking its colours from vertex colours.
+  const lampSets = { bamboo: new THREE.Group(), rings: new THREE.Group() };
+  const lampCommon = new THREE.Group(); // what does not change with the look: the floor lamp and the track light rings
+  const lampBuilder = () => {
+    const lists = new Map();
+    const lp = (key, geometry) => { const g = geometry.index ? geometry.toNonIndexed() : geometry; if (!lists.has(key)) lists.set(key, []); lists.get(key).push(g); };
+    return { lp, build: (group) => { for (const [key, list] of lists) { const mesh = new THREE.Mesh(mergeGeometries(list), materials[key]); mesh.name = `lamp-${key}`; mesh.castShadow = key !== "lampGlow" && key !== "floorShade" && key !== "bamboo"; group.add(mesh); } } };
+  };
+  const cord = (lp, x, z, y0, y1) => lp("black", new THREE.CylinderGeometry(0.0025, 0.0025, y1 - y0, 6).translate(x, (y0 + y1) / 2, z));
+  const canopy = (lp, x, z, r = 0.04) => lp("black", new THREE.CylinderGeometry(r * 0.7, r, 0.02, 20).translate(x, ROOM.height - 0.01, z));
+  const LX = SEAT.x + 0.05, LZ = SEAT.z + 0.05; // the window seat's lamp hangs over its table
+
+  // D: a stack of paper rings, six tilted rings shrinking upward round a soft core, like a roll of paper opened out. k scales it; (dx, dz, dy) is its bottom ring.
+  const ringsLamp = (lp, dx, dz, dy, k = 1) => {
+    [[0.18, 0], [0.16, 0.05], [0.14, 0.1], [0.115, 0.15], [0.09, 0.2], [0.065, 0.25]].forEach(([r, h], i) => {
+      const ring = new THREE.RingGeometry(r * 0.5 * k, r * k, 44, 1); ring.rotateX(-Math.PI / 2 + (i % 2 ? 0.1 : -0.1)); ring.rotateY(i * 0.9);
+      lp("lampGlow", colorize(ring.translate(dx + (i % 3 - 1) * 0.012 * k, dy + h * k, dz + (i % 2 ? 0.012 : -0.012) * k), i % 2 ? 0xf5ecda : 0xefe3cb));
+    });
+    lp("lampGlow", colorize(new THREE.SphereGeometry(0.05 * k, 16, 12).translate(dx, dy + 0.1 * k, dz), 0xfffaf0));
+    cord(lp, dx, dz, dy + 0.3 * k, ROOM.height); canopy(lp, dx, dz, 0.035 * k + 0.005);
+  };
+  // C: the bamboo cloud: four woven flat ovals at different heights, each on its own black cord from one round canopy, glowing through the weave.
+  const bambooLamp = (lp, cx, cz, k = 1, lift = 0) => {
+    canopy(lp, cx, cz, 0.13 * k);
+    for (const [dx, dz, y, r] of [[-0.12, 0.05, 1.78, 0.27], [0.14, -0.06, 1.9, 0.2], [0.02, 0.17, 2.02, 0.16], [0.0, -0.12, 2.12, 0.11]]) {
+      const shell = new THREE.SphereGeometry(r * k, 28, 12); shell.scale(1, 0.26, 1); const yy = 2.3 - (2.3 - y) * k + lift; lp("bamboo", shell.translate(cx + dx * k, yy, cz + dz * k));
+      cord(lp, cx + dx * k * 0.4, cz + dz * k * 0.4, yy + r * k * 0.26, ROOM.height - 0.02);
+    }
+  };
+  {
+    const { lp, build } = lampBuilder();
+    // A floor lamp in the style of Room 01's: a slim oak pole on a round oak foot, a tall cream drum shade with a brass collar. It stands beside the window seat, so a visitor
+    // sitting there has a lamp of their own, and the glow reaches the window corner.
+    const fx = -2.88, fz = 2.0;
+    lp("oak", new THREE.CylinderGeometry(0.17, 0.18, 0.025, 36).translate(fx, 0.0125, fz));
+    lp("oak", new THREE.CylinderGeometry(0.011, 0.014, 1.38, 12).translate(fx, 0.72, fz));
+    lp("gold", new THREE.CylinderGeometry(0.03, 0.03, 0.03, 16).translate(fx, 1.4, fz));
+    lp("floorShade", new THREE.CylinderGeometry(0.15, 0.19, 0.3, 40, 1, true).translate(fx, 1.56, fz));
+    lp("gold", new THREE.TorusGeometry(0.19, 0.004, 8, 40).rotateX(Math.PI / 2).translate(fx, 1.41, fz)); lp("gold", new THREE.TorusGeometry(0.15, 0.004, 8, 40).rotateX(Math.PI / 2).translate(fx, 1.71, fz));
+    // The track light heads get a thin brass ring each, so the rail matches the brass of the lamps.
+    for (const x of [-1.2, 0.0, 1.2, 2.4]) lp("gold", new THREE.TorusGeometry(0.05, 0.004, 8, 22).rotateX(Math.PI / 2).rotateX(0.5).translate(x, ROOM.height - 0.16 - 0.07 * Math.cos(0.5), -0.4 - 0.07 * Math.sin(0.5)));
+    build(lampCommon);
+  }
+  {
+    // Look "bamboo": the bamboo cloud over the window seat, two paper-ring lamps over the counter.
+    const b = lampBuilder(); bambooLamp(b.lp, LX, LZ, 1);
+    ringsLamp(b.lp, -0.4, -0.65, 1.66, 0.95); ringsLamp(b.lp, 0.8, -0.65, 1.66, 0.95); b.build(lampSets.bamboo);
+  }
+  {
+    // Look "rings": a large paper-ring lamp over the window seat, two small bamboo clouds over the counter.
+    const b = lampBuilder(); ringsLamp(b.lp, LX, LZ, 1.72, 1.45);
+    bambooLamp(b.lp, -0.4, -0.65, 0.5, -0.12); bambooLamp(b.lp, 0.8, -0.65, 0.5, -0.12); b.build(lampSets.rings);
+  }
+  scene.add(lampCommon, ...Object.values(lampSets)); for (const [name, set] of Object.entries(lampSets)) set.visible = name === "bamboo";
+  // A big flat TV on the right wall for series night (like Rooms 01 and 03): a thin black frame, a screen that only glows in the "series" mood, and a cool light that falls
+  // on the wall and the floor. Its picture is a stand-in cinematic still (a night street) until Codex paints one.
+  const tvTexture = (() => {
+    const canvas = document.createElement("canvas"); canvas.width = 1024; canvas.height = 576;
+    const g = canvas.getContext("2d");
+    const sky = g.createLinearGradient(0, 0, 0, 576); sky.addColorStop(0, "#142a3d"); sky.addColorStop(0.55, "#2c5a6b"); sky.addColorStop(1, "#d98b4a"); g.fillStyle = sky; g.fillRect(0, 0, 1024, 576);
+    let seed = 6; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    g.fillStyle = "#0e1822"; for (let i = 0; i < 16; i++) { const w = 40 + rnd() * 70, h = 120 + rnd() * 260; g.fillRect(i * 64 + rnd() * 20, 470 - h, w, h + 120); }
+    for (let i = 0; i < 160; i++) { g.fillStyle = rnd() > 0.35 ? "rgba(255,206,120,.9)" : "rgba(150,220,235,.85)"; g.fillRect(rnd() * 1024, 250 + rnd() * 210, 4 + rnd() * 5, 6 + rnd() * 7); }
+    const road = g.createLinearGradient(0, 470, 0, 576); road.addColorStop(0, "#35465a"); road.addColorStop(1, "#d98b4a"); g.fillStyle = road; g.fillRect(0, 470, 1024, 106);
+    g.fillStyle = "rgba(255,225,170,.6)"; for (let i = 0; i < 9; i++) g.fillRect(470 + (i - 4) * 14 + i * 3, 478 + i * 10, 34 + i * 6, 3);
+    g.fillStyle = "#03060a"; g.fillRect(0, 0, 1024, 54); g.fillRect(0, 522, 1024, 54); // letterbox bars
+    const vignette = g.createRadialGradient(512, 288, 220, 512, 288, 620); vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, "rgba(0,0,0,.5)"); g.fillStyle = vignette; g.fillRect(0, 0, 1024, 576);
+    const t = new THREE.CanvasTexture(canvas); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  })();
+  materials.tvScreen = new THREE.MeshStandardMaterial({ color: 0x07090b, roughness: 0.18, metalness: 0.1, emissive: 0xffffff, emissiveMap: tvTexture, emissiveIntensity: 0 });
+  { const TV = { z0: -0.15, z1: 1.05, y0: 1.16, y1: 1.84 }, TX = X1 - 0.05;
+    box("tv-frame", materials.black, [TX, X1 - 0.005], [TV.y0 - 0.012, TV.y1 + 0.012], [TV.z0 - 0.012, TV.z1 + 0.012], { cast: false });
+    const screen = add("tv-screen", new THREE.PlaneGeometry(TV.z1 - TV.z0, TV.y1 - TV.y0), materials.tvScreen, TX - 0.002, (TV.y0 + TV.y1) / 2, (TV.z0 + TV.z1) / 2, { cast: false, receive: false });
+    screen.rotation.y = -Math.PI / 2;
+    // a slim soundbar under it
+    box("tv-soundbar", materials.black, [TX + 0.005, X1 - 0.005], [TV.y0 - 0.075, TV.y0 - 0.04], [0.05, 0.85], { cast: false });
+  }
+  const tvLight = new THREE.PointLight(0x9fc5ff, 0, 3.6, 2); tvLight.position.set(X1 - 0.8, 1.5, 0.45); scene.add(tvLight);
   const pendantLight = new THREE.PointLight(0xffc88a, 0, 2.6, 2); pendantLight.position.set(SEAT.x + 0.05, 1.7, SEAT.z + 0.05); scene.add(pendantLight);
   flush("polish");
 
@@ -1019,7 +1100,7 @@ export async function start({ stage, onReady = () => {} }) {
   // The street painting with rain drawn over it, made once the first time the rain mood is chosen: pale falling strokes leaning one way and a few beads.
   // One painted street per mood (Codex, card 47 D): the morning painting for morning and midday, then golden hour, rain and night. The rain painting has no rain in it;
   // falling rain is drawn over it once, the first time it is needed. Until a painting has loaded the morning one stays.
-  const MOOD_STREET = { morning: "room04-window-xintiandi-morning-v1.webp", noon: "room04-window-xintiandi-morning-v1.webp", golden: "room04-window-xintiandi-golden-v1.webp", rain: "room04-window-xintiandi-rain-v1.webp", closing: "room04-window-xintiandi-night-v1.webp" };
+  const MOOD_STREET = { series: "room04-window-xintiandi-night-v1.webp", morning: "room04-window-xintiandi-morning-v1.webp", noon: "room04-window-xintiandi-morning-v1.webp", golden: "room04-window-xintiandi-golden-v1.webp", rain: "room04-window-xintiandi-rain-v1.webp", closing: "room04-window-xintiandi-night-v1.webp" };
   const streetTextures = {};
   let rainStreet = null;
   function rainOver(texture) {
@@ -1050,7 +1131,7 @@ export async function start({ stage, onReady = () => {} }) {
   let currentMood = "morning", moodTween = 0;
   const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const blend = (a, b, k) => a + (b - a) * k;
-  const live = { shaft: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
+  const live = { tv: 0, shaft: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
@@ -1059,19 +1140,20 @@ export async function start({ stage, onReady = () => {} }) {
     renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street);
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
     steam.material.opacity = live.steam;
+    materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = live.tv * 2.4;
     sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
     sunShafts.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), SUN_TARGET.clone().sub(live.sunPosition).normalize());
-    materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; pendantLight.intensity = live.pendant * 0.9;
+    materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; materials.lampGlow.emissiveIntensity = 0.12 + live.pendant * 1.1; materials.floorShade.emissiveIntensity = 0.1 + live.pendant * 0.95; materials.bamboo.emissiveIntensity = 0.1 + live.pendant * 0.9; pendantLight.intensity = live.pendant * 0.9;
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
     currentMood = name;
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name);
-    const from = { shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
+    const from = { tv: live.tv, shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
     const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
-      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant", "shaft"]) live[key] = blend(from[key], look[key], k);
+      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant", "shaft", "tv"]) live[key] = blend(from[key], look[key], k);
       live.sunColor.copy(from.sunColor).lerp(to.sunColor, k); live.sunPosition.copy(from.sunPosition).lerp(to.sunPosition, k);
       live.hemiSky.copy(from.hemiSky).lerp(to.hemiSky, k); live.hemiGround.copy(from.hemiGround).lerp(to.hemiGround, k);
       live.trackColor.copy(from.trackColor).lerp(to.trackColor, k); live.street.copy(from.street).lerp(to.street, k);
@@ -1097,7 +1179,7 @@ export async function start({ stage, onReady = () => {} }) {
     else if (group === "wall") { currentLook.wallpaper = "none"; applyWall(); }
     else if (group === "wallpaper") { applyWall(); const pairing = WAINSCOT_FOR_PAPER[key]; if (pairing && !wainscotChosen) { currentLook.wainscot = pairing[0]; applyWainscot(); } else if (!pairing && !wainscotChosen) { currentLook.wainscot = "same"; applyWainscot(); } }
     else if (group === "floor") materials.floor.color.setRGB(...v);
-    else if (group === "lamp") { materials.pendantShade.color.setHex(v); materials.sconceGlow.color.setHex(v === 0x2b2b2c ? 0xf3e2c2 : v); }
+    else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
     else if (group === "scarf") materials.scarf.color.setHex(v);
     else if (group === "chair") materials.bentwood.color.setHex(v);
     render(); return true;
