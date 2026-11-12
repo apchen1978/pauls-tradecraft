@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./cafe.js?v=9";
+import { start, ROOM_TITLE } from "./cafe.js?v=10";
 
 // Room 04 | Shanghai, Slowly. The page: title, the room, five mood buttons, the barista robot (tap it) and a paper note (tap it).
 // Texts marked PROVISIONAL are CC's first drafts; Paul has not chosen the note, the menu or the robot's lines yet.
@@ -11,6 +11,7 @@ const COPY = {
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁",
     loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 上海咖啡廳的 3D 房間", moodsLabel: "選擇時段與天氣",
     robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
+    center: "站到房間中間", orbit: "回到環繞視角", centerHint: "拖曳或用方向鍵，轉一整圈看看。",
     noteTitle: "便條", noteLine: "窗邊的位子留給你，慢慢來。", close: "關閉",
     moods: {
       morning: ["早晨開店", "偏白的早晨光從臨街的窗進來，窗格影子落在吧台和地板上。"],
@@ -29,6 +30,7 @@ const COPY = {
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to the portfolio home page",
     loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D room of the Room 04 Shanghai cafe", moodsLabel: "Choose a time and weather",
     robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
+    center: "Stand in the middle", orbit: "Back to orbit view", centerHint: "Drag, or use the arrow keys, to turn all the way round.",
     noteTitle: "Note", noteLine: "The window seat is yours. Take your time.", close: "Close",
     moods: {
       morning: ["Morning", "Pale early light comes through the street window and draws the panes across the counter and the floor."],
@@ -43,6 +45,7 @@ const COPY = {
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
+let centerMode = false;
 let room = null, mood = "morning", bubbleOwner = "robot", bubbleTimer = 0, moodLineKey = "morning";
 
 function renderMoods() {
@@ -68,6 +71,7 @@ function renderCopy() {
   const others = $("otherRooms"); others.textContent = copy.otherRooms; others.setAttribute("aria-label", copy.otherRoomsLabel); others.href = `/prototype/roomverse-3d/?lang=${lang}`;
   const home = $("portfolioHome"); home.textContent = copy.portfolioHome; home.setAttribute("aria-label", copy.portfolioHomeLabel); home.href = `/?lang=${lang}`;
   $("stage").querySelector("canvas")?.setAttribute("aria-label", copy.canvas);
+  $("centerView").textContent = centerMode ? copy.orbit : copy.center; $("centerView").setAttribute("aria-pressed", String(centerMode));
   $("robotHit").setAttribute("aria-label", copy.robotLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel);
   renderBubble(); renderMoods();
 }
@@ -110,6 +114,10 @@ $("lang").addEventListener("click", () => {
   const url = new URL(location.href); url.searchParams.set("lang", lang); history.replaceState(null, "", url);
   renderCopy();
 });
+$("centerView").addEventListener("click", () => {
+  centerMode = !centerMode; room?.setCenterView(centerMode); closeBubble(); renderCopy();
+  if (centerMode) { $("why").textContent = COPY[lang].centerHint; $("stage").querySelector("canvas")?.focus({ preventScroll: true }); }
+});
 $("robotHit").addEventListener("click", () => openBubble("robot", 7000));
 $("noteHit").addEventListener("click", () => openBubble("note", 9000));
 $("bubble").querySelector("[data-close]").addEventListener("click", closeBubble);
@@ -129,6 +137,7 @@ try {
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
   room.onRender(placeUi);
   $("status").hidden = true;
+  $("centerView").hidden = false;
   placeUi();
   window.__room04 = room; // test hook
 } catch (error) {
