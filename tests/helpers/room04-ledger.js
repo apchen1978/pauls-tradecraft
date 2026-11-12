@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 219638, meshes: 98 }),
+  scene: Object.freeze({ vertices: 209850, meshes: 97 }),
   // Draw calls in the first frame of the opening (morning) view.
   openingDrawCalls: Object.freeze({ desktop: 104, phone: 91 }),
   // Starting caps from the look brief, set from Room 03's live size (109,111 vertices, 133 meshes, 83 / 80 opening draw calls).
@@ -26,5 +26,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-13", change: "360 degrees, part 1 (Codex card 47, A and C): the front wall behind the visitor with a steel-framed glass door and transom, a floor-to-ceiling street window, olive wainscot, hooks with a coat and a tote, a blank hanging sign, an umbrella stand and a door mat; the painted street behind it; a rattan lamp by the door and two glass globes over the counter; a stand-in-the-middle view that turns all the way round", vertices: 207930, meshes: 96, desktopCalls: 101, phoneCalls: 88 },
     { date: "2026-11-13", change: "looks and light: nine swap groups (brick, counter wood, back bar, wall paint, Room 01 wallpapers, floor, lamps, robot scarf, chairs) and a random-cafe button, no geometry; sun shafts from the window (one additive mesh) that fade with the mood; the robots stand on floor pedestals behind the counter instead of on crates, the greeter sets a cup down on the counter", vertices: 219638, meshes: 98, desktopCalls: 104, phoneCalls: 91 },
     { date: "2026-11-13", change: "one painted street per mood (golden, rain, night from Codex card 47 D) replaces the tints; the wainscot gets its own colour so a wallpaper can pair with something other than green; no geometry change", vertices: 219638, meshes: 98, desktopCalls: 104, phoneCalls: 91 },
+    { date: "2026-11-13", change: "entrance: no coat hooks, coat, tote or umbrella stand (Paul: a public cafe does not hang coats, and the stand does not bake well in 360 degrees); a small gallery of four framed prints right of the door instead, on one painting atlas (stand-in art until Codex card 49)", vertices: 209850, meshes: 97, desktopCalls: 104, phoneCalls: 91 },
   ]),
 });

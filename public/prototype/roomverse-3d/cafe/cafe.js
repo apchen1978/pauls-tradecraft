@@ -186,6 +186,38 @@ function makeRugTexture() {
   g.strokeStyle = "#8a6a3e"; g.lineWidth = 9; g.beginPath(); g.arc(256, 256, 236, 0, Math.PI * 2); g.stroke();
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8; return texture;
 }
+// Four small stand-in paintings on one atlas (2 x 2 tiles): a plane-tree street, a Bund dawn, a window shadow and a curl of steam. Codex's real prints (card 49)
+// replace them; the frames and the single draw call stay.
+function makePrintAtlas() {
+  const canvas = document.createElement("canvas"); canvas.width = 1024; canvas.height = 1024;
+  const g = canvas.getContext("2d");
+  let seed = 12; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const tile = (col, row, draw) => { g.save(); g.translate(col * 512, row * 512); g.beginPath(); g.rect(0, 0, 512, 512); g.clip(); draw(); g.restore(); };
+  tile(0, 0, () => { // the street under plane trees, morning
+    const sky = g.createLinearGradient(0, 0, 0, 512); sky.addColorStop(0, "#f6e8cd"); sky.addColorStop(1, "#ecd2a8"); g.fillStyle = sky; g.fillRect(0, 0, 512, 512);
+    g.fillStyle = "#9aa4a8"; g.fillRect(0, 250, 512, 120); g.fillStyle = "#b44e35"; for (let i = 0; i < 6; i++) g.fillRect(20 + i * 80, 270, 54, 14);
+    g.fillStyle = "#c2a67a"; g.fillRect(0, 370, 512, 142);
+    for (const x of [90, 250, 410]) { g.fillStyle = "#cdb48c"; g.fillRect(x - 16, 130, 32, 300); g.fillStyle = "#a9b08a"; for (let i = 0; i < 9; i++) g.fillRect(x - 16 + (i % 2) * 14, 150 + i * 30, 14, 18); }
+    g.fillStyle = "#7d9a3e"; for (let i = 0; i < 70; i++) { g.globalAlpha = 0.55 + rnd() * 0.4; g.beginPath(); g.ellipse(rnd() * 512, rnd() * 190, 30 + rnd() * 34, 18 + rnd() * 20, rnd(), 0, 7); g.fill(); } g.globalAlpha = 1;
+  });
+  tile(1, 0, () => { // the Bund at dawn
+    const sky = g.createLinearGradient(0, 0, 0, 340); sky.addColorStop(0, "#f2b693"); sky.addColorStop(1, "#f8dfc0"); g.fillStyle = sky; g.fillRect(0, 0, 512, 512);
+    g.fillStyle = "#fbe7bd"; g.beginPath(); g.arc(360, 250, 52, 0, 7); g.fill();
+    g.fillStyle = "#54505c"; for (const [x, w, h] of [[20, 50, 80], [74, 36, 120], [114, 60, 70], [180, 24, 170], [208, 40, 110], [252, 56, 90], [312, 30, 140], [346, 44, 75], [394, 66, 100], [464, 40, 60]]) g.fillRect(x, 340 - h, w, h);
+    g.fillRect(193, 150, 4, 30); const water = g.createLinearGradient(0, 340, 0, 512); water.addColorStop(0, "#9ba8b4"); water.addColorStop(1, "#6f8296"); g.fillStyle = water; g.fillRect(0, 340, 512, 172);
+    g.fillStyle = "rgba(251,231,189,.7)"; for (let i = 0; i < 10; i++) g.fillRect(320 + rnd() * 80, 350 + i * 16, 60 + rnd() * 40, 4);
+  });
+  tile(0, 1, () => { // a window's shadow on a cream wall
+    g.fillStyle = "#efe3cc"; g.fillRect(0, 0, 512, 512); g.fillStyle = "rgba(180,87,60,.78)";
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { g.beginPath(); g.moveTo(60 + i * 140 + j * 24, 50 + j * 140); g.lineTo(180 + i * 140 + j * 24, 50 + j * 140); g.lineTo(168 + i * 140 + j * 24, 170 + j * 140); g.lineTo(48 + i * 140 + j * 24, 170 + j * 140); g.fill(); }
+    g.fillStyle = "rgba(77,93,60,.75)"; for (let i = 0; i < 14; i++) { g.beginPath(); g.ellipse(80 + rnd() * 360, 80 + rnd() * 360, 22 + rnd() * 18, 9 + rnd() * 8, rnd() * 3, 0, 7); g.fill(); }
+  });
+  tile(1, 1, () => { // the shape of steam
+    g.fillStyle = "#f1e4cf"; g.fillRect(0, 0, 512, 512); g.lineCap = "round";
+    for (const [col, off, w] of [["#d9a441", 0, 38], ["#b4573c", 46, 30], ["#4d5d3c", 88, 22], ["#a89a8e", 122, 16]]) { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(150 + off, 470); g.bezierCurveTo(60 + off, 360, 250 + off, 300, 170 + off, 210); g.bezierCurveTo(100 + off, 130, 230 + off, 90, 190 + off, 40); g.stroke(); }
+  });
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8; return texture;
+}
 // A soft round puff for steam.
 function makeSteamTexture() {
   const canvas = document.createElement("canvas"); canvas.width = 64; canvas.height = 64;
@@ -883,25 +915,34 @@ export async function start({ stage, onReady = () => {} }) {
       slab("oak", [a0, a1], [1.08, 1.115], [FW - 0.06, FW], { grain: "x" }); slab("oak", [a0, a1], [0.08, 0.11], [FW - 0.03, FW], { grain: "x" });
     }
     slab("oak", [WIN.x0, WIN.x1], [0.08, 0.12], [FW - 0.03, FW], { grain: "x" }); // the sill under the window
-    // Hooks: an oak board with five black coat hooks, a linen coat and a canvas tote.
-    const bx0 = 1.4, bx1 = 2.4;
-    slab("oak", [bx0, bx1], [1.5, 1.56], [FW - 0.03, FW], { grain: "x" });
-    for (let i = 0; i < 5; i++) { const hx2 = bx0 + 0.1 + i * 0.2; part("black", rodGeometry([hx2, 1.53, FW - 0.03], [hx2, 1.53, FW - 0.1], 0.007, 8), { tile: 1 }); part("black", rodGeometry([hx2, 1.53, FW - 0.1], [hx2, 1.58, FW - 0.115], 0.007, 8), { tile: 1 }); part("black", new THREE.SphereGeometry(0.011, 8, 6).translate(hx2, 1.585, FW - 0.116), { tile: 1 }); }
-    const coat = drapeGeometry(0.42, [[FW - 0.115, 1.56], [FW - 0.126, 1.4], [FW - 0.14, 1.0], [FW - 0.15, 0.62]], 0.012, 5); coat.translate(bx0 + 0.3, 0, 0); part("cloth", coat, { tile: 1 });
-    part("cloth", roundedBox(0.34, 0.36, 0.07, 0.03, 0.01).translate(bx0 + 0.8, 1.16, FW - 0.1), { tile: 1 });
-    part("paper", roundedBox(0.3, 0.32, 0.06, 0.03, 0.01).translate(bx0 + 0.8, 1.16, FW - 0.1), { tile: 1 });
-    for (const sx of [-0.07, 0.07]) part("cloth", tubeGeometry([[bx0 + 0.8 + sx, 1.31, FW - 0.1], [bx0 + 0.8 + sx * 0.4, 1.43, FW - 0.108], [bx0 + 0.8, 1.5, FW - 0.115]], 0.006, 10, 5), { tile: 1 });
-    // A blank hanging sign (what it says is for Paul to decide), an umbrella stand with an umbrella, a door mat.
+    // A blank hanging sign (what it says is for Paul to decide) and the door mat. (Paul, 2026-11-13: no coat hooks and no umbrella stand at the door; a public cafe
+    // does not hang visitors' coats, an umbrella stand's rings do not bake well in 360 degrees, and walls, light and small things carry the atmosphere better.)
     slab("black", [1.07, 1.35], [1.84, 1.86], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [1.07, 1.35], [2.0, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 });
     slab("black", [1.07, 1.09], [1.84, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [1.33, 1.35], [1.84, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 });
     slab("paper", [1.09, 1.33], [1.86, 2.0], [FW - 0.012, FW - 0.008], { tile: 1 });
     part("black", rodGeometry([1.12, 2.02, FW - 0.01], [1.21, 2.12, FW - 0.01], 0.003, 6), { tile: 1 }); part("black", rodGeometry([1.3, 2.02, FW - 0.01], [1.21, 2.12, FW - 0.01], 0.003, 6), { tile: 1 });
-    const ux = 1.2, uz = FW - 0.2;
-    for (const y of [0.05, 0.3, 0.55]) part("black", new THREE.TorusGeometry(0.11, 0.006, 6, 24).rotateX(Math.PI / 2).translate(ux, y, uz), { tile: 1 });
-    for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2; part("black", rodGeometry([ux + Math.cos(a) * 0.11, 0.05, uz + Math.sin(a) * 0.11], [ux + Math.cos(a) * 0.11, 0.55, uz + Math.sin(a) * 0.11], 0.0035, 5), { tile: 1 }); }
-    part("black", new THREE.CylinderGeometry(0.11, 0.11, 0.012, 24).translate(ux, 0.006, uz), { tile: 1 });
-    part("black", new THREE.CylinderGeometry(0.024, 0.04, 0.55, 14).translate(ux - 0.02, 0.45, uz + 0.01), { tile: 1 });
-    part("bentwood", tubeGeometry([[ux - 0.02, 0.72, uz + 0.01], [ux - 0.02, 0.8, uz + 0.01], [ux + 0.02, 0.84, uz + 0.01], [ux + 0.05, 0.8, uz + 0.01]], 0.011, 14, 6), { tile: 1 });
+    // A small gallery of framed prints right of the door, like Room 02's posters: four frames (oak, black and brass), each with a linen mat. The four paintings share one atlas.
+    const artGeometries = [], PRINTS = [
+      { x: 1.8, y: 1.8, w: 0.46, h: 0.6, col: 0, row: 0, frame: "oak" },
+      { x: 2.7, y: 2.12, w: 0.7, h: 0.5, col: 1, row: 0, frame: "black" },
+      { x: 2.4, y: 1.45, w: 0.3, h: 0.3, col: 1, row: 1, frame: "oak" },
+      { x: 2.9, y: 1.5, w: 0.3, h: 0.4, col: 0, row: 1, frame: "gold" },
+    ];
+    for (const p of PRINTS) {
+      const fw = 0.035, mat = 0.05, ow = p.w + 2 * (fw + mat), oh = p.h + 2 * (fw + mat), z0 = FW - 0.03;
+      slab(p.frame, [p.x - ow / 2, p.x + ow / 2], [p.y + oh / 2 - fw, p.y + oh / 2], [z0, FW], { grain: "x" }); slab(p.frame, [p.x - ow / 2, p.x + ow / 2], [p.y - oh / 2, p.y - oh / 2 + fw], [z0, FW], { grain: "x" });
+      slab(p.frame, [p.x - ow / 2, p.x - ow / 2 + fw], [p.y - oh / 2 + fw, p.y + oh / 2 - fw], [z0, FW], { grain: "y" }); slab(p.frame, [p.x + ow / 2 - fw, p.x + ow / 2], [p.y - oh / 2 + fw, p.y + oh / 2 - fw], [z0, FW], { grain: "y" });
+      slab("paper", [p.x - ow / 2 + fw, p.x + ow / 2 - fw], [p.y - oh / 2 + fw, p.y + oh / 2 - fw], [z0, z0 + 0.008], { tile: 1 });
+      const art = new THREE.PlaneGeometry(p.w, p.h).rotateY(Math.PI).translate(p.x, p.y, z0 - 0.0005), pos = art.attributes.position, uv = art.attributes.uv;
+      for (let i = 0; i < pos.count; i++) { // seen from inside the room world +x is to the left, so the picture runs the other way; crop the tile to the frame's proportions
+        const u = 1 - (pos.getX(i) - (p.x - p.w / 2)) / p.w, v = (pos.getY(i) - (p.y - p.h / 2)) / p.h;
+        const uc = 0.5 + (u - 0.5) * Math.min(1, p.w / p.h), vc = 0.5 + (v - 0.5) * Math.min(1, p.h / p.w);
+        uv.setXY(i, (p.col + 0.02 + uc * 0.96) * 0.5, 1 - (p.row + 1 - 0.02 - vc * 0.96) * 0.5);
+      }
+      artGeometries.push(art);
+    }
+    const wallArt = new THREE.Mesh(mergeGeometries(artGeometries), new THREE.MeshStandardMaterial({ map: makePrintAtlas(), roughness: 0.85 }));
+    wallArt.name = "wall-art"; wallArt.receiveShadow = true; scene.add(wallArt);
     slab("cane", [DOOR.x0 + 0.02, DOOR.x1 - 0.02], [0, 0.012], [FW - 0.78, FW - 0.08], { tile: 1 }); // the door mat
     // From Codex's ceiling plan (card 47, C): a small sister of the window rattan lamp near the door, and two glass globes over the counter.
     const lampAt = (lx, lz, ly, r, h) => {
