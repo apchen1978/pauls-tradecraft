@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./cafe.js?v=8";
+import { start, ROOM_TITLE } from "./cafe.js?v=9";
 
 // Room 04 | Shanghai, Slowly. The page: title, the room, five mood buttons, the barista robot (tap it) and a paper note (tap it).
 // Texts marked PROVISIONAL are CC's first drafts; Paul has not chosen the note, the menu or the robot's lines yet.
