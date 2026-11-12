@@ -66,7 +66,7 @@ test("travel card header remains visible and closes at the bottom in all three r
     await page.evaluate(async (room) => {
       document.head.insertAdjacentHTML("beforeend", '<link rel="stylesheet" href="/prototype/roomverse-3d/travel-door.css">');
       document.body.innerHTML = '<button id="travelDoorBtn" data-travel-door-trigger>Travel</button>';
-      const { initTravelDoor } = await import("/prototype/roomverse-3d/travel-door.js?v=3");
+      const { initTravelDoor } = await import("/prototype/roomverse-3d/travel-door.js?v=4");
       initTravelDoor({ currentRoom: room, getLang: () => "zh", onChoose: () => {} });
     }, currentRoom);
     const trigger = page.locator("#travelDoorBtn");
@@ -142,18 +142,19 @@ function rgbToHex(rgb) {
   return `#${rgb.match(/\d+/g).slice(0, 3).map((channel) => Number(channel).toString(16).padStart(2, "0")).join("")}`;
 }
 
-test("the shared directory lists three rooms and travel cards include Room 03", async ({ page }) => {
+test("the shared directory lists four rooms and travel cards include Room 03 and the cafe", async ({ page }) => {
   await page.goto(ROOM01);
-  const rooms = await page.evaluate(async () => (await import("/prototype/roomverse-3d/rooms.js?v=2")).ROOMS);
-  expect(rooms).toHaveLength(3);
+  const rooms = await page.evaluate(async () => (await import("/prototype/roomverse-3d/rooms.js?v=3")).ROOMS);
+  expect(rooms).toHaveLength(4);
   expect(rooms.find((room) => room.id === "room03").listed).toBe(true);
-  expect(rooms.filter((room) => room.listed).map((room) => room.id)).toEqual(["room01", "room02", "room03"]);
+  expect(rooms.filter((room) => room.listed).map((room) => room.id)).toEqual(["room01", "room02", "room03", "room04"]);
   await enterRoom01(page);
   await page.locator("#travelDoorBtn").click();
   const dialog = page.getByRole("dialog", { name: "要去哪？" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText(/Room 03/)).toHaveCount(1);
-  await expect(dialog.locator(".travel-door-card")).toHaveCount(2);
+  await expect(dialog.getByText(/Room 04/)).toHaveCount(1);
+  await expect(dialog.locator(".travel-door-card")).toHaveCount(3);
 });
 
 test("Room 01 travel card is bilingual, keyboard dismissible, focus returning, and fits 390/1440", async ({ page }) => {
@@ -177,6 +178,8 @@ test("Room 01 travel card is bilingual, keyboard dismissible, focus returning, a
   await expect(dialog.locator(".travel-door-go").nth(0)).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(dialog.locator(".travel-door-go").nth(1)).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(dialog.locator(".travel-door-go").nth(2)).toBeFocused(); // Room 04 is the third destination from Room 01
   await page.keyboard.press("Tab");
   await expect(dialog.locator(".travel-door-close")).toBeFocused();
   const urlWhileOpen = page.url();

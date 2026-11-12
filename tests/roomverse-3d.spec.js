@@ -502,7 +502,7 @@ test("the Garage light-tech shelf links to the 3D room in the visitor's language
 });
 
 test("homepage Showcase: ROOMVERSE 3D is a formal work with its tag, cover and a link in the visitor's language", async ({ page }) => {
-  for (const [lang, title, tag] of [["zh", "三間房，三種光。", "ROOMVERSE · 空間幻境　館藏"], ["en", "Three rooms, three lights.", "ROOMVERSE 3D · Gallery"]]) {
+  for (const [lang, title, tag] of [["zh", "一間房，一種光。", "ROOMVERSE · 空間幻境　館藏"], ["en", "One room, one light.", "ROOMVERSE 3D · Gallery"]]) {
     for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
       await page.goto(`/?lang=${lang}#showcase`);
@@ -519,7 +519,7 @@ test("homepage Showcase: ROOMVERSE 3D is a formal work with its tag, cover and a
 });
 
 test("homepage Showcase: ROOMVERSE 3D is the first card, with Trade Street beside it", async ({ page }) => {
-  for (const [lang, title, next] of [["zh", "三間房，三種光。", "貿易街"], ["en", "Three rooms, three lights.", "Trade Street"]]) {
+  for (const [lang, title, next] of [["zh", "一間房，一種光。", "貿易街"], ["en", "One room, one light.", "Trade Street"]]) {
     await page.goto(`/?lang=${lang}#showcase`);
     await expect(page.locator("#showcase article").nth(0)).toContainText(title);
     await expect(page.locator("#showcase article").nth(1)).toContainText(next);
