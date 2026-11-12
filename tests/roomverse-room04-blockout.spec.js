@@ -51,10 +51,10 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   expect(info.stage).toBe("section-6-front-wall");
 });
 
-test("Room 04 moods: five buttons, each sets its look inside the draw-call budget, and the robot and the note answer taps", async ({ page }) => {
+test("Room 04 moods: six buttons, each sets its look inside the draw-call budget, and the robot and the note answer taps", async ({ page }) => {
   const errors = await open(page, 1440);
-  await expect(page.locator("#moods button")).toHaveCount(5);
-  for (const mood of ["noon", "golden", "rain", "closing", "morning"]) {
+  await expect(page.locator("#moods button")).toHaveCount(6);
+  for (const mood of ["noon", "golden", "rain", "closing", "series", "morning"]) {
     await page.locator(`#moods button[data-mood="${mood}"]`).click();
     await expect(page.locator(`#moods button[data-mood="${mood}"]`)).toHaveAttribute("aria-pressed", "true");
     const info = await page.evaluate(() => window.__room04.info());
