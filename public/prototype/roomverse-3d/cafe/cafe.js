@@ -257,6 +257,7 @@ export async function start({ stage, onReady = () => {} }) {
 
   // Painted textures (Codex, cards 45 and 46) are given to a material only when they have loaded, so nothing flashes black; until then the material
   // keeps a flat colour of the same family.
+  const afterFirstFrame = [];
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
   let shadowsDirty = true; const dirtyShadows = () => { shadowsDirty = true; };
   const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
@@ -989,7 +990,7 @@ export async function start({ stage, onReady = () => {} }) {
       if (key === "b") loadImages(PRINT_FILES_B, (images) => { atlases.b = drawAtlas(images); if (currentLook.gallery === "b") setGallery("b"); });
     }
     galleryRef.apply = (key) => setGallery(key);
-    loadImages(PRINT_FILES, (images) => {
+    afterFirstFrame.push(() => loadImages(PRINT_FILES, (images) => {
       atlases.a = drawAtlas(images);
       const planes = [];
       for (const pr of PRINTS) {
@@ -1005,7 +1006,7 @@ export async function start({ stage, onReady = () => {} }) {
       wallMaterial = new THREE.MeshStandardMaterial({ map: atlases.a, roughness: 0.85 });
       const art = new THREE.Mesh(mergeGeometries(planes), wallMaterial);
       art.name = "wall-art"; art.receiveShadow = true; scene.add(art); setGallery(currentLook.gallery); render();
-    });
+    }));
     slab("cane", [DOOR.x0 + 0.02, DOOR.x1 - 0.02], [0, 0.012], [FW - 0.78, FW - 0.08], { tile: 1 }); // the door mat
   }
   // ---------- the lamps (Codex card 50): four designs, each with a glowing part ----------
@@ -1104,8 +1105,10 @@ export async function start({ stage, onReady = () => {} }) {
     const dialTexture = (file, then) => textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; loadedArt.add(file); then(t); render(); });
     const dialTech = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.62, emissive: 0xffffff, emissiveIntensity: 0.4 });
     const dialClassic = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
-    dialTexture("room04-clock-a-dial.webp", (t) => { dialTech.map = t; dialTech.emissiveMap = t; dialTech.needsUpdate = true; });
-    dialTexture("room04-clock-b-dial.webp", (t) => { dialClassic.map = t; dialClassic.needsUpdate = true; });
+    afterFirstFrame.push(() => {
+      dialTexture("room04-clock-a-dial.webp", (t) => { dialTech.map = t; dialTech.emissiveMap = t; dialTech.needsUpdate = true; });
+      dialTexture("room04-clock-b-dial.webp", (t) => { dialClassic.map = t; dialClassic.needsUpdate = true; });
+    });
     const handBlack = new THREE.MeshStandardMaterial({ color: 0x15171a, roughness: 0.5 }), handAmber = new THREE.MeshBasicMaterial({ color: 0xf0a63a }), handBlue = new THREE.MeshStandardMaterial({ color: 0x24324f, roughness: 0.4, metalness: 0.6 });
     const amberRing = new THREE.MeshBasicMaterial({ color: 0xf0a63a });
     const woodDial = (() => { // a plain cream dial with hour marks, for the oak clock
@@ -1448,7 +1451,7 @@ export async function start({ stage, onReady = () => {} }) {
     const d = new Date(), s = d.getSeconds(), m = d.getMinutes() + s / 60, h = (d.getHours() % 12) + m / 60;
     for (const { pivot, kind } of clockHands) pivot.rotation.z = -(kind === "hour" ? h / 12 : kind === "minute" ? m / 60 : s / 60) * Math.PI * 2;
   }
-  function render() { updateClockHands(); if (shadowsDirty) { renderer.shadowMap.needsUpdate = true; shadowsDirty = false; } renderer.render(scene, camera); frames++; for (const hook of onRenderHooks) hook(); }
+  function render() { updateClockHands(); if (shadowsDirty) { renderer.shadowMap.needsUpdate = true; shadowsDirty = false; } renderer.render(scene, camera); if (frames === 0) performance.mark("room04-first-render"); frames++; for (const hook of onRenderHooks) hook(); }
   function resize() {
     const rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return;
     renderer.setSize(rect.width, rect.height, false);
@@ -1464,6 +1467,7 @@ export async function start({ stage, onReady = () => {} }) {
   renderer.domElement.addEventListener("webglcontextrestored", () => requestAnimationFrame(() => { setMood(currentMood); resize(); }));
 
   controls.update(); setMood("morning"); resize();
+  requestAnimationFrame(() => requestAnimationFrame(() => afterFirstFrame.forEach((load) => load())));
 
   // Stand in the middle of the room and turn all the way round (the second way to look, like Room 02 and Room 03): the orbit is switched off, the camera walks to the
   // station and a drag, or the arrow keys, turn the head. Leaving restores the exact orbit view.

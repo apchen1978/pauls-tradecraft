@@ -8,7 +8,9 @@ async function open(page, width, lang = "zh") {
   page.on("pageerror", (error) => errors.push(error.message));
   await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
   await page.goto(`${PAGE}?lang=${lang}`);
+  await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
+  await page.waitForFunction((vertices) => window.__room04.info().vertices === vertices, LEDGER.scene.vertices, { timeout: 60000 });
   return errors;
 }
 
@@ -176,5 +178,31 @@ test("Room 04 has named views (overview, counter, window seat) and the overview 
     await page.locator("#centerView").click(); await page.locator("#centerView").click(); await page.waitForTimeout(200);
     expect((await pose()).p).toEqual(win.p);
     expect(errors).toEqual([]);
+  }
+});
+
+
+test("Room 04 poster defers the 3D scene and portal arrivals enter directly", async ({ page }) => {
+  const requests = []; page.on("request", (request) => requests.push(request.url()));
+  await page.goto(PAGE);
+  await expect(page.locator("#poster")).toBeVisible();
+  await expect(page.locator("#enter")).toBeVisible();
+  expect(await page.evaluate(() => Boolean(window.__room04))).toBe(false);
+  expect(requests.some((url) => /\/cafe\.js|\/vendor\/three/.test(url))).toBe(false);
+  await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
+  await expect(page.locator("#poster")).toBeHidden();
+  await page.waitForFunction((vertices) => window.__room04.info().vertices === vertices, LEDGER.scene.vertices, { timeout: 60000 });
+  const deferred = await page.evaluate(() => {
+    const first = performance.getEntriesByName("room04-first-render")[0].startTime;
+    return performance.getEntriesByType("resource").filter((entry) => /room04-print-p[1-8]-|room04-clock-[ab]-dial/.test(entry.name)).map((entry) => entry.startTime > first);
+  });
+  expect(deferred).toHaveLength(10);
+  expect(deferred.every(Boolean)).toBe(true);
+  for (const from of ["room01", "room02", "room03"]) {
+    await page.goto(`${PAGE}?from=${from}`);
+    await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
+    await expect(page.locator("#poster")).toBeHidden();
+    expect(await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("room04-shanghai-slowly-concept-mobile.webp")))).toBe(false);
   }
 });
