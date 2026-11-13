@@ -166,9 +166,9 @@ const ROBOT_HEIGHT = 0.6;
 const eggRadius = (y) => { const t = Math.acos(1 - (2 * Math.min(Math.max(y, 0), ROBOT_HEIGHT)) / ROBOT_HEIGHT); return 0.215 * Math.sin(t) * (1 - 0.2 * (y / ROBOT_HEIGHT - 0.4)); };
 function eggGeometry() {
   const points = [];
-  for (let i = 0; i <= 40; i++) { const y = (ROBOT_HEIGHT * i) / 40; points.push(new THREE.Vector2(Math.max(0.0005, i === 0 ? 0.0005 : eggRadius(y)), y)); }
-  points[0].x = 0.0005; points[40].x = 0.0005;
-  return new THREE.LatheGeometry(points, 40);
+  for (let i = 0; i <= 30; i++) { const y = (ROBOT_HEIGHT * i) / 30; points.push(new THREE.Vector2(Math.max(0.0005, i === 0 ? 0.0005 : eggRadius(y)), y)); }
+  points[0].x = 0.0005; points[30].x = 0.0005;
+  return new THREE.LatheGeometry(points, 32);
 }
 
 // A tube along a smooth curve through the given points.
@@ -302,10 +302,12 @@ export async function start({ stage, onReady = () => {} }) {
     cookie: new THREE.MeshStandardMaterial({ color: 0xc58b4b, roughness: 0.85 }),
     chip: new THREE.MeshStandardMaterial({ color: 0x3a2418, roughness: 0.6 }),
     visor: new THREE.MeshStandardMaterial({ color: 0x17191c, roughness: 0.22, metalness: 0.15 }),
-    robotBody: new THREE.MeshStandardMaterial({ color: 0xf4f2ec, roughness: 0.42 }),
+    // The Room 04 robots are a barista edition of the family: same egg, but a glossy clear-coated shell, dark metal joints and seams, a lit visor and ear modules.
+    robotBody: new THREE.MeshPhysicalMaterial({ color: 0xf6f4ee, roughness: 0.34, clearcoat: 1, clearcoatRoughness: 0.16 }),
+    robotDark: new THREE.MeshStandardMaterial({ color: 0x2c2f34, roughness: 0.38, metalness: 0.65 }),
+    robotGlow: new THREE.MeshBasicMaterial({ vertexColors: true }),
     scarf: new THREE.MeshStandardMaterial({ color: 0x66763f, roughness: 0.92 }),
     coffee: new THREE.MeshStandardMaterial({ color: 0x3b2418, roughness: 0.35 }),
-    eyes: new THREE.MeshBasicMaterial({ color: 0xffffff }),
     warm: new THREE.MeshBasicMaterial({ color: 0xffe0aa }),
   });
   Object.assign(materials, {
@@ -366,7 +368,7 @@ export async function start({ stage, onReady = () => {} }) {
     const texture = pmrem.fromScene(room, 0.04).texture; pmrem.dispose();
     return texture;
   })();
-  const reflectiveBase = { gold: 1.9, ceramic: 0.5, visor: 1.2, steel: 1.5, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
+  const reflectiveBase = { robotBody: 0.7, robotDark: 0.9, gold: 1.9, ceramic: 0.5, visor: 1.2, steel: 1.5, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
   for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
@@ -651,19 +653,43 @@ export async function start({ stage, onReady = () => {} }) {
   const ROBOT_SCALE = 1.15, EGG_BASE = 0.86, ARM_R = 0.036;
   const buildRobot = (group) => {
     const local = new THREE.Group(); group.add(local);
-    const add2 = (key, geometry) => { const mesh = new THREE.Mesh(geometry, materials[key]); mesh.castShadow = true; mesh.receiveShadow = true; local.add(mesh); return mesh; };
+    const add2 = (key, geometry) => { const mesh = new THREE.Mesh(geometry, materials[key]); mesh.castShadow = key !== "robotGlow"; mesh.receiveShadow = true; local.add(mesh); return mesh; };
+    const glow = (geometry, hex) => add2("robotGlow", colorize(geometry, hex));
+    const CYAN = 0xbff0ff, AMBER = 0xffc15a;
     add2("robotBody", eggGeometry());
+    // Panel seams: a ring under the head, a ring above the hips, and a seam down each side, hairline grooves in dark metal.
+    for (const y of [0.075, 0.5]) { const ring = new THREE.TorusGeometry(eggRadius(y) + 0.0015, 0.0013, 4, 40); ring.rotateX(Math.PI / 2); add2("robotDark", ring).position.y = y; }
+    for (const side of [-1, 1]) { const pts = []; for (let i = 0; i <= 14; i++) { const y = 0.08 + (i / 14) * 0.46; pts.push(new THREE.Vector3(side * (eggRadius(y) + 0.0015), y, 0)); } add2("robotDark", new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 16, 0.0012, 4, false)); }
+    // The visor: a dark glass screen with a thin lit rim, two glowing bar eyes.
     const visor = add2("visor", new THREE.SphereGeometry(1, 28, 16)); visor.scale.set(0.135, 0.058, 0.034); visor.position.set(0, 0.42, eggRadius(0.42) - 0.008);
-    for (const sx of [-1, 1]) { const eye = add2("eyes", new THREE.CircleGeometry(0.0175, 20)); eye.position.set(sx * 0.047, 0.425, eggRadius(0.42) - 0.008 + 0.0345); }
+    { const rim = new THREE.TorusGeometry(1, 0.035, 5, 32); rim.scale(0.14, 0.063, 1); rim.translate(0, 0.42, eggRadius(0.42) - 0.008 + 0.014); glow(rim, 0x8fdcf0); }
+    for (const sx of [-1, 1]) { const eye = new THREE.CapsuleGeometry(0.0085, 0.013, 2, 8); eye.translate(sx * 0.047, 0.424, eggRadius(0.42) - 0.008 + 0.0345); glow(eye, CYAN); }
+    // Ear modules like a headset: a dark disc on each side of the head with a lit ring, and a short antenna with an amber tip.
+    for (const sx of [-1, 1]) {
+      const disc = new THREE.CylinderGeometry(0.03, 0.03, 0.022, 14); disc.rotateZ(Math.PI / 2); disc.translate(sx * (eggRadius(0.42) + 0.006), 0.42, -0.006); add2("robotDark", disc);
+      const ring = new THREE.TorusGeometry(0.019, 0.0028, 5, 16); ring.rotateY(Math.PI / 2); ring.translate(sx * (eggRadius(0.42) + 0.0175), 0.42, -0.006); glow(ring, CYAN);
+    }
+    add2("robotDark", new THREE.CylinderGeometry(0.0032, 0.0032, 0.06, 8).translate(0.02, 0.62, -0.01));
+    glow(new THREE.SphereGeometry(0.0095, 12, 8).translate(0.02, 0.655, -0.01), AMBER);
+    // A status strip on the chest: a lit bar and three dots.
+    { const bar = new THREE.CapsuleGeometry(0.0035, 0.046, 3, 8); bar.rotateZ(Math.PI / 2); bar.translate(0, 0.255, eggRadius(0.255) + 0.0015); glow(bar, CYAN);
+      for (const dx of [-0.026, 0, 0.026]) glow(new THREE.CircleGeometry(0.0045, 12).translate(dx, 0.232, eggRadius(0.232) + 0.0015), dx === 0.026 ? AMBER : 0xe8fbff); }
     const band = add2("terracotta", new THREE.CylinderGeometry(eggRadius(0.19) + 0.004, eggRadius(0.13) + 0.004, 0.06, 40, 1, true)); band.position.y = 0.16; band.material.side = THREE.DoubleSide;
     const scarf = add2("scarf", new THREE.TorusGeometry(eggRadius(0.325) + 0.004, 0.026, 10, 36)); scarf.rotation.x = Math.PI / 2; scarf.position.y = 0.325; scarf.scale.set(1, 1, 0.8);
     const knot = add2("scarf", new THREE.SphereGeometry(0.03, 12, 8)); knot.position.set(-0.075, 0.315, eggRadius(0.315) + 0.014);
     for (const [dx, tilt] of [[-0.05, 0.12], [-0.095, -0.1]]) { const tail = add2("scarf", new THREE.BoxGeometry(0.04, 0.1, 0.012)); tail.position.set(dx - 0.025, 0.245, eggRadius(0.25) + 0.016); tail.rotation.z = tilt; }
-    // A limb: a capsule between two points in the robot's own frame.
+    // A limb with real joints: a shoulder ball, an upper arm, an elbow ball, a forearm, a wrist ring and a hand with two fingers.
     const limb = (a, b) => {
-      const from = new THREE.Vector3(...a), to = new THREE.Vector3(...b), length = Math.max(0.01, from.distanceTo(to) - 2 * ARM_R);
-      const g = new THREE.CapsuleGeometry(ARM_R, length, 6, 12); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), to.clone().sub(from).normalize()));
-      g.translate((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2); return add2("robotBody", g);
+      const from = new THREE.Vector3(...a), to = new THREE.Vector3(...b), side = Math.sign(a[0]) || 1;
+      const elbow = from.clone().lerp(to, 0.5).add(new THREE.Vector3(side * 0.035, -0.03, 0.0)), R = 0.028;
+      const seg = (p, q, r) => { const d = q.clone().sub(p), g = new THREE.CapsuleGeometry(r, Math.max(0.005, d.length() - 2 * r), 3, 8); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); const m = p.clone().add(q).multiplyScalar(0.5); g.translate(m.x, m.y, m.z); return g; };
+      add2("robotBody", seg(from, elbow, R)); add2("robotBody", seg(elbow, to, R * 0.92));
+      add2("robotDark", new THREE.SphereGeometry(R * 1.28, 10, 7).translate(from.x, from.y, from.z)); add2("robotDark", new THREE.SphereGeometry(R * 1.12, 10, 7).translate(elbow.x, elbow.y, elbow.z));
+      const dir = to.clone().sub(elbow).normalize(), q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      const wrist = new THREE.TorusGeometry(R * 0.95, 0.006, 5, 12).rotateX(Math.PI / 2).applyQuaternion(q).translate(to.x - dir.x * 0.012, to.y - dir.y * 0.012, to.z - dir.z * 0.012); add2("robotDark", wrist);
+      add2("robotBody", new THREE.SphereGeometry(R * 1.05, 10, 7).translate(to.x + dir.x * 0.01, to.y + dir.y * 0.01, to.z + dir.z * 0.01));
+      for (const f of [-1, 1]) { const finger = seg(to.clone().add(dir.clone().multiplyScalar(0.015)), to.clone().add(dir.clone().multiplyScalar(0.05)).add(new THREE.Vector3(f * 0.014, 0, 0)), 0.0075); add2("robotDark", finger); }
+      return null;
     };
     return { local, add2, limb };
   };
@@ -686,6 +712,7 @@ export async function start({ stage, onReady = () => {} }) {
     part("terracotta", new THREE.TorusGeometry(0.265, 0.006, 8, 48).rotateX(Math.PI / 2).translate(x, 0.043, z), { tile: 1 });
     part("black", new THREE.LatheGeometry([[0.0005, 0.04], [0.17, 0.04], [0.12, 0.14], [0.11, 0.72], [0.14, 0.84], [0.0005, 0.84]].map((p) => new THREE.Vector2(p[0], p[1])), 40).translate(x, 0, z), { tile: 1 });
     part("steel", new THREE.TorusGeometry(0.142, 0.012, 8, 40).rotateX(Math.PI / 2).translate(x, 0.84, z), { tile: 1 });
+    part("steel", new THREE.TorusGeometry(0.118, 0.004, 6, 36).rotateX(Math.PI / 2).translate(x, 0.5, z), { tile: 1 }); // a thin steel band round the column
     const contactMesh = (name, x0, x1, z0, z1, opacity) => { const m = add(name, new THREE.PlaneGeometry(x1 - x0, z1 - z0), new THREE.MeshBasicMaterial({ map: makeContactShadowTexture(), transparent: true, opacity, depthWrite: false, color: 0x000000 }), (x0 + x1) / 2, 0.005, (z0 + z1) / 2, { cast: false, receive: false }); m.rotation.x = -Math.PI / 2; m.renderOrder = 1; };
     contactMesh(`robot-contact-${Math.round(x * 100)}`, x - 0.62, x + 0.62, z - 0.62, z + 0.62, 0.6);
   };
@@ -1489,7 +1516,7 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-9-s-counter", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-10-robots", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
