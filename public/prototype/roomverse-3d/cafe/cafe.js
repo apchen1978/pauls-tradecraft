@@ -44,19 +44,20 @@ const MOODS = Object.freeze({
 // The looks (Paul, 2026-11-13: a "random cafe" like the random look of Rooms 01 to 03). Each group swaps colours or tints on existing materials, so a swap costs no
 // geometry and no draw call. A tint is a multiplier on the painted texture (values above 1 lift a channel), a colour replaces the flat colour.
 export const LOOK_GROUPS = Object.freeze({
-  brick: Object.freeze({ red: [1, 1, 1], umber: [0.9, 0.78, 0.64], grey: [0.78, 1.75, 2.6], dusty: [1.2, 2.7, 3.9] }),
+  brick: Object.freeze({ red: [1, 1, 1], umber: [0.9, 0.78, 0.64], grey: [0.78, 1.75, 2.6], dusty: [1.2, 2.7, 3.9], white: "white", dark: "dark" }), // a string is a painted texture pair from Codex card 51 B (a colour and a height map); an array is a tint of the red brick
   counter: Object.freeze({ honey: [1, 1, 1], walnut: [0.55, 0.43, 0.35], pale: [1.1, 1.3, 1.65], grey: [0.95, 1.2, 1.5] }),
   back: Object.freeze({ olive: 0x4d5d3c, navy: 0x2f4560, terracotta: 0xa5563b, charcoal: 0x3a3d3f, sage: 0x88977a }),
   wainscot: Object.freeze({ same: null, olive: 0x4d5d3c, navy: 0x2f4560, terracotta: 0xa5563b, charcoal: 0x3a3d3f, sage: 0x88977a, cream: 0xe4d8c0, walnut: 0x5a3d2b, oat: 0xc9b896 }),
   wall: Object.freeze({ warm: 0xf1ece2, blush: 0xf0dcd4, mist: 0xdde5e2, butter: 0xf3e6c4, grey: 0xdad8d4 }),
-  floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12] }),
+  floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12], terrazzo: "terrazzo" }), // "terrazzo": Codex card 51 C
   lamp: Object.freeze({ bamboo: 1, rings: 2 }), // Codex card 50: the two designs Paul kept. "bamboo": the bamboo cloud over the window seat and paper rings over the counter; "rings": the other way round
   scarf: Object.freeze({ olive: 0x66763f, terracotta: 0xc4623a, mustard: 0xd6a43a, navy: 0x2f4560, rose: 0xd49a96 }),
   chair: Object.freeze({ bentwood: 0x9a6a3a, black: 0x2a2a2c, natural: 0xc9a06a }),
+  clock: Object.freeze({ tech: 1, classic: 2, wood: 3 }), // the wall clock (Codex card 49): A futuristic, B classical brass, or the round oak one. The hands show the real time.
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4] }),
 });
-export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same" });
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same", clock: "tech" });
 // What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
 export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"] });
 
@@ -187,38 +188,6 @@ function makeRugTexture() {
   g.strokeStyle = "#8a6a3e"; g.lineWidth = 9; g.beginPath(); g.arc(256, 256, 236, 0, Math.PI * 2); g.stroke();
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8; return texture;
 }
-// Four small stand-in paintings on one atlas (2 x 2 tiles): a plane-tree street, a Bund dawn, a window shadow and a curl of steam. Codex's real prints (card 49)
-// replace them; the frames and the single draw call stay.
-function makePrintAtlas() {
-  const canvas = document.createElement("canvas"); canvas.width = 1024; canvas.height = 1024;
-  const g = canvas.getContext("2d");
-  let seed = 12; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const tile = (col, row, draw) => { g.save(); g.translate(col * 512, row * 512); g.beginPath(); g.rect(0, 0, 512, 512); g.clip(); draw(); g.restore(); };
-  tile(0, 0, () => { // the street under plane trees, morning
-    const sky = g.createLinearGradient(0, 0, 0, 512); sky.addColorStop(0, "#f6e8cd"); sky.addColorStop(1, "#ecd2a8"); g.fillStyle = sky; g.fillRect(0, 0, 512, 512);
-    g.fillStyle = "#9aa4a8"; g.fillRect(0, 250, 512, 120); g.fillStyle = "#b44e35"; for (let i = 0; i < 6; i++) g.fillRect(20 + i * 80, 270, 54, 14);
-    g.fillStyle = "#c2a67a"; g.fillRect(0, 370, 512, 142);
-    for (const x of [90, 250, 410]) { g.fillStyle = "#cdb48c"; g.fillRect(x - 16, 130, 32, 300); g.fillStyle = "#a9b08a"; for (let i = 0; i < 9; i++) g.fillRect(x - 16 + (i % 2) * 14, 150 + i * 30, 14, 18); }
-    g.fillStyle = "#7d9a3e"; for (let i = 0; i < 70; i++) { g.globalAlpha = 0.55 + rnd() * 0.4; g.beginPath(); g.ellipse(rnd() * 512, rnd() * 190, 30 + rnd() * 34, 18 + rnd() * 20, rnd(), 0, 7); g.fill(); } g.globalAlpha = 1;
-  });
-  tile(1, 0, () => { // the Bund at dawn
-    const sky = g.createLinearGradient(0, 0, 0, 340); sky.addColorStop(0, "#f2b693"); sky.addColorStop(1, "#f8dfc0"); g.fillStyle = sky; g.fillRect(0, 0, 512, 512);
-    g.fillStyle = "#fbe7bd"; g.beginPath(); g.arc(360, 250, 52, 0, 7); g.fill();
-    g.fillStyle = "#54505c"; for (const [x, w, h] of [[20, 50, 80], [74, 36, 120], [114, 60, 70], [180, 24, 170], [208, 40, 110], [252, 56, 90], [312, 30, 140], [346, 44, 75], [394, 66, 100], [464, 40, 60]]) g.fillRect(x, 340 - h, w, h);
-    g.fillRect(193, 150, 4, 30); const water = g.createLinearGradient(0, 340, 0, 512); water.addColorStop(0, "#9ba8b4"); water.addColorStop(1, "#6f8296"); g.fillStyle = water; g.fillRect(0, 340, 512, 172);
-    g.fillStyle = "rgba(251,231,189,.7)"; for (let i = 0; i < 10; i++) g.fillRect(320 + rnd() * 80, 350 + i * 16, 60 + rnd() * 40, 4);
-  });
-  tile(0, 1, () => { // a window's shadow on a cream wall
-    g.fillStyle = "#efe3cc"; g.fillRect(0, 0, 512, 512); g.fillStyle = "rgba(180,87,60,.78)";
-    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { g.beginPath(); g.moveTo(60 + i * 140 + j * 24, 50 + j * 140); g.lineTo(180 + i * 140 + j * 24, 50 + j * 140); g.lineTo(168 + i * 140 + j * 24, 170 + j * 140); g.lineTo(48 + i * 140 + j * 24, 170 + j * 140); g.fill(); }
-    g.fillStyle = "rgba(77,93,60,.75)"; for (let i = 0; i < 14; i++) { g.beginPath(); g.ellipse(80 + rnd() * 360, 80 + rnd() * 360, 22 + rnd() * 18, 9 + rnd() * 8, rnd() * 3, 0, 7); g.fill(); }
-  });
-  tile(1, 1, () => { // the shape of steam
-    g.fillStyle = "#f1e4cf"; g.fillRect(0, 0, 512, 512); g.lineCap = "round";
-    for (const [col, off, w] of [["#d9a441", 0, 38], ["#b4573c", 46, 30], ["#4d5d3c", 88, 22], ["#a89a8e", 122, 16]]) { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(150 + off, 470); g.bezierCurveTo(60 + off, 360, 250 + off, 300, 170 + off, 210); g.bezierCurveTo(100 + off, 130, 230 + off, 90, 190 + off, 40); g.stroke(); }
-  });
-  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8; return texture;
-}
 // A diamond weave for the bamboo lamps: tan strands crossing on a darker ground.
 function makeBambooTexture() {
   const canvas = document.createElement("canvas"); canvas.width = 256; canvas.height = 256;
@@ -227,13 +196,6 @@ function makeBambooTexture() {
   for (let i = -8; i < 24; i++) { g.strokeStyle = i % 2 ? "#e5c58a" : "#d9b270"; g.lineWidth = 5; g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16 + 256, 256); g.stroke(); g.beginPath(); g.moveTo(i * 16 + 256, 0); g.lineTo(i * 16, 256); g.stroke(); }
   g.strokeStyle = "rgba(90,60,30,.35)"; g.lineWidth = 1.2; for (let i = -8; i < 24; i++) { g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16 + 256, 256); g.stroke(); g.beginPath(); g.moveTo(i * 16 + 256, 0); g.lineTo(i * 16, 256); g.stroke(); }
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(3, 2); texture.anisotropy = 8; return texture;
-}
-// A plane-tree leaf: five lobes, flat and thin, lying in the xz plane with its face down.
-function planeLeafGeometry(size) {
-  const shape = new THREE.Shape();
-  for (let i = 0; i <= 60; i++) { const a = (i / 60) * Math.PI * 2, r = size * (0.42 + 0.58 * Math.pow(Math.abs(Math.cos(2.5 * a)), 1.3)); const x = Math.cos(a) * r, y = Math.sin(a) * r; if (i === 0) shape.moveTo(x, y); else shape.lineTo(x, y); }
-  const g = new THREE.ExtrudeGeometry(shape, { depth: 0.004, bevelEnabled: false, curveSegments: 4 });
-  g.translate(0, 0, -0.002); g.rotateX(Math.PI / 2); g.computeVertexNormals(); return g;
 }
 // Paint a geometry one colour with vertex colours (the lamp glow material takes its colours from them).
 function colorize(geometry, hex) {
@@ -279,6 +241,7 @@ export async function start({ stage, onReady = () => {} }) {
 
   // Painted textures (Codex, cards 45 and 46) are given to a material only when they have loaded, so nothing flashes black; until then the material
   // keeps a flat colour of the same family.
+  const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
   const textureLoader = new THREE.TextureLoader();
   const artBase = new URL("./art/", import.meta.url).href;
   const loadedArt = new Set();
@@ -339,7 +302,7 @@ export async function start({ stage, onReady = () => {} }) {
     kraft: new THREE.MeshStandardMaterial({ color: 0xc9a272, roughness: 0.85 }),
     lid: new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.6 }),
     tablet: new THREE.MeshStandardMaterial({ color: 0x1d2a33, roughness: 0.25, emissive: 0x9fc5d6, emissiveIntensity: 0.35 }),
-    gold: new THREE.MeshStandardMaterial({ color: 0xd9b36a, roughness: 0.27, metalness: 1.0 }),
+    gold: new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: 0.3, metalness: 0.78, emissive: 0x4d3812, emissiveIntensity: 0.7 }), // metalness 1 rendered black here (nothing but the small reflection map to light it), so a little diffuse stays
     cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
     cloth: new THREE.MeshStandardMaterial({ color: 0xded3bf, roughness: 0.96, side: THREE.DoubleSide }),
@@ -358,9 +321,10 @@ export async function start({ stage, onReady = () => {} }) {
   materials.ceiling.bumpMap = materials.ceiling.map;
   materials.ceiling.map.repeat.set(1, (ROOM.depth + 1.2) / (8 * 0.14)); // eight boards of 14 cm per tile
   // Brick: the painted tile covers about 2.2 x 1.1 m. The height map (bright brick face, dark joint) is the relief the low sun rakes across.
-  paint("room04-brick-red-v1.webp", { repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.map = t; materials.brick.color.set(0xffffff); materials.brick.needsUpdate = true; } });
-  paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
-  paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
+  const redBrick = {}, woodFloor = {}; // the first (default) textures, kept so a look can come back to them
+  paint("room04-brick-red-v1.webp", { repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.map = t; materials.brick.map = t; materials.brick.color.set(0xffffff); materials.brick.needsUpdate = true; } });
+  paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.bump = t; materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
+  paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { woodFloor.map = t; materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
   paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
 
   paint("room04-oak-panel-v1.webp", { then: (t) => { materials.oak.map = t; materials.oak.color.set(0xffffff); materials.oak.needsUpdate = true; materials.oakDeep.map = t; materials.oakDeep.color.set(0xe0bd90); materials.oakDeep.needsUpdate = true; } });
@@ -860,14 +824,7 @@ export async function start({ stage, onReady = () => {} }) {
       part("sconceGlow", new THREE.CylinderGeometry(0.075, 0.095, 0.15, 24, 1, true).translate(wx - 0.2, 1.9, sz), { tile: 1 });
       part("black", new THREE.CylinderGeometry(0.078, 0.078, 0.006, 24).translate(wx - 0.2, 1.978, sz), { tile: 1 });
     }
-    // A round oak wall clock.
-    const cz = 0.2, cy = 2.1;
-    part("oak", new THREE.TorusGeometry(0.205, 0.022, 10, 40).rotateY(Math.PI / 2).translate(wx - 0.024, cy, cz), { tile: 0.5 });
-    part("paper", new THREE.CylinderGeometry(0.195, 0.195, 0.012, 40).rotateZ(Math.PI / 2).translate(wx - 0.018, cy, cz), { tile: 1 });
-    for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2, r1 = i % 3 === 0 ? 0.155 : 0.17; part("black", rodGeometry([wx - 0.026, cy + Math.cos(a) * r1, cz + Math.sin(a) * r1], [wx - 0.026, cy + Math.cos(a) * 0.185, cz + Math.sin(a) * 0.185], i % 3 === 0 ? 0.004 : 0.0025), { tile: 1 }); }
-    part("black", rodGeometry([wx - 0.03, cy, cz], [wx - 0.03, cy + 0.085, cz + 0.05], 0.005), { tile: 1 });
-    part("black", rodGeometry([wx - 0.034, cy, cz], [wx - 0.034, cy - 0.04, cz + 0.13], 0.0035), { tile: 1 });
-    part("black", new THREE.CylinderGeometry(0.012, 0.012, 0.014, 12).rotateZ(Math.PI / 2).translate(wx - 0.032, cy, cz), { tile: 1 });
+    // (the wall clock is built below, in three designs)
   }
   // (the window pendant is built below with the other lamps)
   {
@@ -938,28 +895,47 @@ export async function start({ stage, onReady = () => {} }) {
     slab("black", [1.07, 1.09], [1.84, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [1.33, 1.35], [1.84, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 });
     slab("paper", [1.09, 1.33], [1.86, 2.0], [FW - 0.012, FW - 0.008], { tile: 1 });
     part("black", rodGeometry([1.12, 2.02, FW - 0.01], [1.21, 2.12, FW - 0.01], 0.003, 6), { tile: 1 }); part("black", rodGeometry([1.3, 2.02, FW - 0.01], [1.21, 2.12, FW - 0.01], 0.003, 6), { tile: 1 });
-    // A small gallery of framed prints right of the door, like Room 02's posters: four frames (oak, black and brass), each with a linen mat. The four paintings share one atlas.
-    const artGeometries = [], PRINTS = [
-      { x: 1.8, y: 1.8, w: 0.46, h: 0.6, col: 0, row: 0, frame: "oak" },
-      { x: 2.7, y: 2.12, w: 0.7, h: 0.5, col: 1, row: 0, frame: "black" },
-      { x: 2.4, y: 1.45, w: 0.3, h: 0.3, col: 1, row: 1, frame: "oak" },
-      { x: 2.9, y: 1.5, w: 0.3, h: 0.4, col: 0, row: 1, frame: "gold" },
+    // A gallery of eight framed prints (Codex card 49, in the poster style of Room 02): four right of the door and four on the left wall by the window seat. Frames are oak,
+    // black and brass, each with a linen mat. The eight pictures are drawn once onto one atlas, so the whole gallery is one draw call. Until they load, the frames hold the mat only.
+    const PRINT_FILES = ["p1-plane-street", "p2-shikumen-door", "p3-bund-dawn", "p4-coffee-cup", "p5-river-boat", "p6-window-shadow", "p7-bicycle", "p8-steam"].map((n) => `room04-print-${n}.webp`);
+    const PRINT_ASPECT = [0.8, 0.8, 1.25, 1, 1.25, 0.8, 0.8, 1]; // width / height
+    const PRINTS = [ // wall "front": p is x, normal -z. wall "left": p is z, normal +x. h is the picture height in metres.
+      { i: 0, wall: "front", p: 1.8, y: 1.8, h: 0.55, frame: "oak" }, { i: 2, wall: "front", p: 2.7, y: 2.12, h: 0.5, frame: "black" },
+      { i: 3, wall: "front", p: 2.4, y: 1.45, h: 0.3, frame: "oak" }, { i: 5, wall: "front", p: 2.9, y: 1.42, h: 0.375, frame: "gold" },
+      { i: 1, wall: "left", p: 2.4, y: 1.95, h: 0.55, frame: "gold" }, { i: 6, wall: "left", p: 3.15, y: 1.95, h: 0.55, frame: "oak" },
+      { i: 4, wall: "left", p: 2.75, y: 1.15, h: 0.4, frame: "black" }, { i: 7, wall: "left", p: 1.8, y: 1.9, h: 0.28, frame: "oak" },
     ];
-    for (const p of PRINTS) {
-      const fw = 0.035, mat = 0.05, ow = p.w + 2 * (fw + mat), oh = p.h + 2 * (fw + mat), z0 = FW - 0.03;
-      slab(p.frame, [p.x - ow / 2, p.x + ow / 2], [p.y + oh / 2 - fw, p.y + oh / 2], [z0, FW], { grain: "x" }); slab(p.frame, [p.x - ow / 2, p.x + ow / 2], [p.y - oh / 2, p.y - oh / 2 + fw], [z0, FW], { grain: "x" });
-      slab(p.frame, [p.x - ow / 2, p.x - ow / 2 + fw], [p.y - oh / 2 + fw, p.y + oh / 2 - fw], [z0, FW], { grain: "y" }); slab(p.frame, [p.x + ow / 2 - fw, p.x + ow / 2], [p.y - oh / 2 + fw, p.y + oh / 2 - fw], [z0, FW], { grain: "y" });
-      slab("paper", [p.x - ow / 2 + fw, p.x + ow / 2 - fw], [p.y - oh / 2 + fw, p.y + oh / 2 - fw], [z0, z0 + 0.008], { tile: 1 });
-      const art = new THREE.PlaneGeometry(p.w, p.h).rotateY(Math.PI).translate(p.x, p.y, z0 - 0.0005), pos = art.attributes.position, uv = art.attributes.uv;
-      for (let i = 0; i < pos.count; i++) { // seen from inside the room world +x is to the left, so the picture runs the other way; crop the tile to the frame's proportions
-        const u = 1 - (pos.getX(i) - (p.x - p.w / 2)) / p.w, v = (pos.getY(i) - (p.y - p.h / 2)) / p.h;
-        const uc = 0.5 + (u - 0.5) * Math.min(1, p.w / p.h), vc = 0.5 + (v - 0.5) * Math.min(1, p.h / p.w);
-        uv.setXY(i, (p.col + 0.02 + uc * 0.96) * 0.5, 1 - (p.row + 1 - 0.02 - vc * 0.96) * 0.5);
-      }
-      artGeometries.push(art);
+    for (const pr of PRINTS) {
+      const w = pr.h * PRINT_ASPECT[pr.i], fw = 0.035, mat = 0.05, ow = w + 2 * (fw + mat), oh = pr.h + 2 * (fw + mat);
+      const box3 = (key, a0, a1, y0, y1, d0, d1, grain) => (pr.wall === "front" ? slab(key, [a0, a1], [y0, y1], [FW - d1, FW - d0], { grain }) : slab(key, [X0 + d0, X0 + d1], [y0, y1], [a0, a1], { grain }));
+      const a0 = pr.p - ow / 2, a1 = pr.p + ow / 2, y0 = pr.y - oh / 2, y1 = pr.y + oh / 2;
+      box3(pr.frame, a0, a1, y1 - fw, y1, 0, 0.03, "x"); box3(pr.frame, a0, a1, y0, y0 + fw, 0, 0.03, "x");
+      box3(pr.frame, a0, a0 + fw, y0 + fw, y1 - fw, 0, 0.03, "y"); box3(pr.frame, a1 - fw, a1, y0 + fw, y1 - fw, 0, 0.03, "y");
+      box3("paper", a0 + fw, a1 - fw, y0 + fw, y1 - fw, 0, 0.008, "y");
     }
-    const wallArt = new THREE.Mesh(mergeGeometries(artGeometries), new THREE.MeshStandardMaterial({ map: makePrintAtlas(), roughness: 0.85 }));
-    wallArt.name = "wall-art"; wallArt.receiveShadow = true; scene.add(wallArt);
+    const imagesLoaded = []; let pending = PRINT_FILES.length;
+    PRINT_FILES.forEach((file, i) => { const img = new Image(); img.onload = () => { imagesLoaded[i] = img; loadedArt.add(file); if (--pending === 0) buildWallArt(); }; img.src = artBase + file; });
+    function buildWallArt() {
+      const canvas = document.createElement("canvas"); canvas.width = 2048; canvas.height = 1024; const g = canvas.getContext("2d"), rect = [];
+      imagesLoaded.forEach((img, i) => { // each picture drawn to fit its 512 x 512 cell, keeping its own proportions
+        const cx = (i % 4) * 512, cy = Math.floor(i / 4) * 512, pw = PRINT_ASPECT[i] >= 1 ? 512 : Math.round(512 * PRINT_ASPECT[i]), ph = PRINT_ASPECT[i] >= 1 ? Math.round(512 / PRINT_ASPECT[i]) : 512;
+        const ox = cx + (512 - pw) / 2, oy = cy + (512 - ph) / 2; g.drawImage(img, ox, oy, pw, ph); rect[i] = { ox, oy, pw, ph };
+      });
+      const atlas = new THREE.CanvasTexture(canvas); atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = maxAnisotropy;
+      const planes = [];
+      for (const pr of PRINTS) {
+        const w = pr.h * PRINT_ASPECT[pr.i], r = rect[pr.i];
+        const plane = new THREE.PlaneGeometry(w, pr.h), pos = plane.attributes.position, uv = plane.attributes.uv;
+        if (pr.wall === "front") plane.rotateY(Math.PI).translate(pr.p, pr.y, FW - 0.0295); else plane.rotateY(Math.PI / 2).translate(X0 + 0.0295, pr.y, pr.p);
+        for (let k = 0; k < pos.count; k++) {
+          const u = pr.wall === "front" ? 1 - (pos.getX(k) - (pr.p - w / 2)) / w : (pr.p + w / 2 - pos.getZ(k)) / w, v = (pos.getY(k) - (pr.y - pr.h / 2)) / pr.h;
+          uv.setXY(k, (r.ox + u * r.pw) / 2048, 1 - (r.oy + (1 - v) * r.ph) / 1024);
+        }
+        planes.push(plane);
+      }
+      const art = new THREE.Mesh(mergeGeometries(planes), new THREE.MeshStandardMaterial({ map: atlas, roughness: 0.85 }));
+      art.name = "wall-art"; art.receiveShadow = true; scene.add(art); render();
+    }
     slab("cane", [DOOR.x0 + 0.02, DOOR.x1 - 0.02], [0, 0.012], [FW - 0.78, FW - 0.08], { tile: 1 }); // the door mat
   }
   // ---------- the lamps (Codex card 50): four designs, each with a glowing part ----------
@@ -1040,6 +1016,69 @@ export async function start({ stage, onReady = () => {} }) {
     screen.rotation.y = -Math.PI / 2;
     // a slim soundbar under it
     box("tv-soundbar", materials.black, [TX + 0.005, X1 - 0.005], [TV.y0 - 0.075, TV.y0 - 0.04], [0.05, 0.85], { cast: false });
+  }
+  // Codex's three series-night stills (card 51 A), one chosen at random the first time series night is opened; until it loads the stand-in picture stays.
+  const TV_STILLS = ["room04-tv-s1-rain-street.webp", "room04-tv-s2-rooftop.webp", "room04-tv-s3-window.webp"], tvStillCache = {};
+  let tvStillIndex = Math.floor(Math.random() * 3);
+  function applyTvStill(i = tvStillIndex) {
+    tvStillIndex = ((i % 3) + 3) % 3; const file = TV_STILLS[tvStillIndex], index = tvStillIndex;
+    const done = (t) => { if (tvStillIndex === index) { materials.tvScreen.emissiveMap = t; materials.tvScreen.needsUpdate = true; render(); } };
+    if (tvStillCache[file]) { done(tvStillCache[file]); return; }
+    textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; tvStillCache[file] = t; loadedArt.add(file); done(t); });
+  }
+
+  // ---------- the wall clock (Codex card 49): three designs, hands showing the real time ----------
+  const clockSets = { tech: new THREE.Group(), classic: new THREE.Group(), wood: new THREE.Group() };
+  {
+    const CK = { y: 2.3, z: 0.45, R: 0.225 }; // above the TV, 45 cm across
+    const dialTexture = (file, then) => textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; loadedArt.add(file); then(t); render(); });
+    const dialTech = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.62, emissive: 0xffffff, emissiveIntensity: 0.4 });
+    const dialClassic = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
+    dialTexture("room04-clock-a-dial.webp", (t) => { dialTech.map = t; dialTech.emissiveMap = t; dialTech.needsUpdate = true; });
+    dialTexture("room04-clock-b-dial.webp", (t) => { dialClassic.map = t; dialClassic.needsUpdate = true; });
+    const handBlack = new THREE.MeshStandardMaterial({ color: 0x15171a, roughness: 0.5 }), handAmber = new THREE.MeshBasicMaterial({ color: 0xf0a63a }), handBlue = new THREE.MeshStandardMaterial({ color: 0x24324f, roughness: 0.4, metalness: 0.6 });
+    const amberRing = new THREE.MeshBasicMaterial({ color: 0xf0a63a });
+    const woodDial = (() => { // a plain cream dial with hour marks, for the oak clock
+      const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 512; const g = canvas.getContext("2d");
+      g.fillStyle = "#f4ecdc"; g.beginPath(); g.arc(256, 256, 256, 0, 7); g.fill(); g.fillStyle = "#2b2b2c";
+      for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g.save(); g.translate(256, 256); g.rotate(a); g.fillRect(-(i % 3 ? 3 : 6), -236, i % 3 ? 6 : 12, i % 3 ? 28 : 46); g.restore(); }
+      const t = new THREE.CanvasTexture(canvas); t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshStandardMaterial({ map: t, roughness: 0.8 });
+    })();
+    // Local frame of every clock: the face looks along +z, the origin on the wall; the group is turned to face into the room from the right wall.
+    const place = (group) => { group.position.set(X1 - 0.002, CK.y, CK.z); group.rotation.y = -Math.PI / 2; group.visible = false; scene.add(group); };
+    const mesh = (group, geometry, material, z = 0, cast = true) => { const m = new THREE.Mesh(geometry, material); m.position.z += z; m.castShadow = cast; m.receiveShadow = true; group.add(m); return m; };
+    const disc = (r, depth) => new THREE.CylinderGeometry(r, r, depth, 56).rotateX(Math.PI / 2);
+    const hands = (group, z, { hour, minute, second, wHour, wMin, mat, secMat }) => {
+      for (const [kind, len, w, m, dz] of [["hour", hour, wHour, mat, 0], ["minute", minute, wMin, mat, 0.003], ["second", second, 0.0022, secMat ?? mat, 0.006]]) {
+        const pivot = new THREE.Group(); pivot.position.z = z + dz; group.add(pivot);
+        const geometry = new THREE.BoxGeometry(w, len, 0.003); geometry.translate(0, len / 2 - len * 0.14, 0);
+        mesh(pivot, geometry, m, 0, false); clockHands.push({ pivot, kind });
+      }
+      mesh(group, new THREE.CylinderGeometry(0.011, 0.011, 0.012, 16).rotateX(Math.PI / 2), mat, z + 0.004, false);
+    };
+    // A: futuristic. A brushed steel drum 45 mm deep, a matte black dial with amber hour marks, a hairline amber ring and amber second hand.
+    { const g = clockSets.tech; mesh(g, disc(CK.R, 0.045), materials.steel, 0.0225);
+      mesh(g, new THREE.CircleGeometry(CK.R - 0.01, 64), dialTech, 0.0461, false);
+      mesh(g, new THREE.TorusGeometry(CK.R - 0.012, 0.0022, 8, 72), amberRing, 0.0463, false);
+      hands(g, 0.048, { hour: 0.11, minute: 0.17, second: 0.19, wHour: 0.011, wMin: 0.007, mat: handAmber, secMat: handAmber }); place(g); }
+    // B: classical. A brass case 70 mm deep with a beaded bezel, a convex glass dome, an ivory dial, blued-steel hands and a small finial on top.
+    { const g = clockSets.classic; mesh(g, new THREE.CylinderGeometry(CK.R, CK.R, 0.07, 56, 1, true).rotateX(Math.PI / 2), materials.gold, 0.035); mesh(g, new THREE.CircleGeometry(CK.R, 56), materials.gold, 0.002, false);
+      mesh(g, new THREE.TorusGeometry(CK.R - 0.004, 0.012, 10, 64), materials.gold, 0.07);
+      { const studs = []; // 48 beads round the bezel and 8 bolts round the case, one mesh
+        for (let i = 0; i < 48; i++) { const a = (i / 48) * Math.PI * 2; studs.push(new THREE.SphereGeometry(0.0042, 8, 6).translate(Math.cos(a) * (CK.R - 0.022), Math.sin(a) * (CK.R - 0.022), 0.0735)); }
+        for (let i = 0; i < 8; i++) { const a = ((i + 0.5) / 8) * Math.PI * 2; studs.push(new THREE.SphereGeometry(0.0075, 10, 8).translate(Math.cos(a) * CK.R, Math.sin(a) * CK.R, 0.035)); }
+        mesh(g, mergeGeometries(studs.map((x) => (x.index ? x.toNonIndexed() : x))), materials.gold, 0, false); }
+      mesh(g, new THREE.CircleGeometry(CK.R - 0.026, 64), dialClassic, 0.0605, false);
+      hands(g, 0.063, { hour: 0.105, minute: 0.165, second: 0.18, wHour: 0.016, wMin: 0.01, mat: handBlue, secMat: handBlue });
+      const dome = new THREE.SphereGeometry(1, 40, 14, 0, Math.PI * 2, 0, Math.PI / 2); dome.rotateX(Math.PI / 2); dome.scale(CK.R - 0.026, CK.R - 0.026, 0.04);
+      mesh(g, dome, materials.glass, 0.066, false);
+      mesh(g, new THREE.LatheGeometry([[0.0005, 0], [0.026, 0], [0.03, 0.006], [0.018, 0.014], [0.014, 0.03], [0.024, 0.04], [0.026, 0.056], [0.01, 0.074], [0.0005, 0.08]].map((p) => new THREE.Vector2(p[0], p[1])), 20), materials.gold, 0, false).position.set(0, CK.R + 0.004, 0.03);
+      place(g); }
+    // The round oak clock that was here before: an oak ring round a cream dial with plain black hands.
+    { const g = clockSets.wood; mesh(g, new THREE.TorusGeometry(CK.R - 0.02, 0.022, 10, 48), materials.oak, 0.018);
+      mesh(g, new THREE.CircleGeometry(CK.R - 0.02, 56), woodDial, 0.012, false);
+      hands(g, 0.022, { hour: 0.1, minute: 0.15, second: 0.165, wHour: 0.009, wMin: 0.006, mat: handBlack, secMat: handBlack }); place(g); }
+    for (const [name, set] of Object.entries(clockSets)) set.visible = name === DEFAULT_LOOK.clock;
   }
   const tvLight = new THREE.PointLight(0x9fc5ff, 0, 3.6, 2); tvLight.position.set(X1 - 0.8, 1.5, 0.45); scene.add(tvLight);
   const pendantLight = new THREE.PointLight(0xffc88a, 0, 2.6, 2); pendantLight.position.set(SEAT.x + 0.05, 1.7, SEAT.z + 0.05); scene.add(pendantLight);
@@ -1149,7 +1188,7 @@ export async function start({ stage, onReady = () => {} }) {
     const look = MOODS[name]; if (!look) return false;
     currentMood = name;
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
-    applyStreet(name);
+    applyStreet(name); if (name === "series") applyTvStill();
     const from = { tv: live.tv, shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
     const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
@@ -1168,17 +1207,40 @@ export async function start({ stage, onReady = () => {} }) {
   }
   // ---------- looks ----------
   const currentLook = { ...DEFAULT_LOOK };
+  const altTextures = {}; // textures loaded on demand for a look: white and dark brick, terrazzo
+  function altTexture(file, srgb, repeat, then) {
+    if (altTextures[file]) { then(altTextures[file]); return; }
+    textureLoader.load(artBase + file, (t) => {
+      t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = maxAnisotropy; t.repeat.set(...repeat);
+      altTextures[file] = t; loadedArt.add(file); then(t); render();
+    });
+  }
   const OAK_BASE = new THREE.Color(0xe0bd90); // the recessed panel fields start a shade deeper than the frames
   function setLook(group, key, userPick = false) {
     const options = LOOK_GROUPS[group]; if (!options || !(key in options)) return false;
     currentLook[group] = key; const v = options[key]; if (group === "wainscot" && userPick) wainscotChosen = true;
-    if (group === "brick") materials.brick.color.setRGB(...v);
+    if (group === "brick") {
+      if (typeof v === "string") {
+        materials.brick.color.setRGB(1, 1, 1); const BR = [ROOM.width / 2.2, ROOM.height / 1.1];
+        altTexture(`room04-brick-${v}-v1.webp`, true, BR, (t) => { if (currentLook.brick === key) { materials.brick.map = t; materials.brick.needsUpdate = true; } });
+        altTexture(`room04-brick-${v}-height-v1.webp`, false, BR, (t) => { if (currentLook.brick === key) { materials.brick.bumpMap = t; materials.brick.needsUpdate = true; } });
+      } else {
+        if (redBrick.map) materials.brick.map = redBrick.map; if (redBrick.bump) materials.brick.bumpMap = redBrick.bump;
+        materials.brick.color.setRGB(...v); materials.brick.needsUpdate = true;
+      }
+    }
     else if (group === "counter") { materials.oak.color.setRGB(...v); materials.oakDeep.color.setRGB(OAK_BASE.r * v[0], OAK_BASE.g * v[1], OAK_BASE.b * v[2]); }
     else if (group === "back") { materials.olive.color.setHex(v); applyWainscot(); }
     else if (group === "wainscot") applyWainscot();
     else if (group === "wall") { currentLook.wallpaper = "none"; applyWall(); }
     else if (group === "wallpaper") { applyWall(); const pairing = WAINSCOT_FOR_PAPER[key]; if (pairing && !wainscotChosen) { currentLook.wainscot = pairing[0]; applyWainscot(); } else if (!pairing && !wainscotChosen) { currentLook.wainscot = "same"; applyWainscot(); } }
-    else if (group === "floor") materials.floor.color.setRGB(...v);
+    else if (group === "floor") {
+      if (typeof v === "string") {
+        materials.floor.color.setRGB(1, 1, 1);
+        altTexture("room04-floor-terrazzo-v1.webp", true, [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], (t) => { if (currentLook.floor === key) { materials.floor.map = t; materials.floor.needsUpdate = true; } });
+      } else { if (woodFloor.map) materials.floor.map = woodFloor.map; materials.floor.color.setRGB(...v); materials.floor.needsUpdate = true; }
+    }
+    else if (group === "clock") { for (const [name, set] of Object.entries(clockSets)) set.visible = name === key; }
     else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
     else if (group === "scarf") materials.scarf.color.setHex(v);
     else if (group === "chair") materials.bentwood.color.setHex(v);
@@ -1234,7 +1296,12 @@ export async function start({ stage, onReady = () => {} }) {
   const onRenderHooks = [];
 
   let frames = 0;
-  function render() { renderer.render(scene, camera); frames++; for (const hook of onRenderHooks) hook(); }
+  function updateClockHands() {
+    if (!clockHands.length) return;
+    const d = new Date(), s = d.getSeconds(), m = d.getMinutes() + s / 60, h = (d.getHours() % 12) + m / 60;
+    for (const { pivot, kind } of clockHands) pivot.rotation.z = -(kind === "hour" ? h / 12 : kind === "minute" ? m / 60 : s / 60) * Math.PI * 2;
+  }
+  function render() { updateClockHands(); renderer.render(scene, camera); frames++; for (const hook of onRenderHooks) hook(); }
   function resize() {
     const rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return;
     renderer.setSize(rect.width, rect.height, false);
@@ -1296,6 +1363,8 @@ export async function start({ stage, onReady = () => {} }) {
     onRender: (hook) => { onRenderHooks.push(hook); },
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
+    clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
+    setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     robotHop, setCenterView, centerLook, isCenter: () => Boolean(center),
     lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
     info() {
@@ -1304,7 +1373,7 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-6-front-wall", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-7-codex-art", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },

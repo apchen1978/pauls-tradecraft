@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./cafe.js?v=21";
+import { start, ROOM_TITLE } from "./cafe.js?v=22";
 
 // Room 04 | Shanghai, Slowly. The page: title, the room, five mood buttons, the barista robot (tap it) and a paper note (tap it).
 // Texts marked PROVISIONAL are CC's first drafts; Paul has not chosen the note, the menu or the robot's lines yet.
@@ -13,13 +13,14 @@ const COPY = {
     robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
     randomLook: "隨機搭一間咖啡廳", resetLook: "回到預設搭配", swapsTitle: "換搭配", randomDone: "已幫你搭了一間新的咖啡廳。",
     groups: {
-      brick: ["磚牆", { red: "老紅磚", umber: "赭褐磚", grey: "灰磚", dusty: "灰粉磚" }],
+      brick: ["磚牆", { red: "老紅磚", umber: "赭褐磚", grey: "灰磚", dusty: "灰粉磚", white: "白磚（刷白老磚）", dark: "深色老磚" }],
       counter: ["吧台木色", { honey: "蜂蜜橡木", walnut: "胡桃木", pale: "淺橡木", grey: "灰洗橡木" }],
       back: ["後吧台與護牆板", { olive: "橄欖綠", navy: "海軍藍", terracotta: "赭紅", charcoal: "炭灰", sage: "鼠尾草綠" }],
       wall: ["牆面漆色", { warm: "暖白", blush: "霧粉", mist: "霧綠", butter: "奶油黃", grey: "淺灰" }],
       wallpaper: ["壁紙（沿用 Room 01）", { none: "不貼，用漆色", stripe: "細條紋壁紙", botanical: "淡色植紋壁紙", grasscloth: "暖燕麥草織", sagewash: "鼠尾草石灰洗" }],
       wainscot: ["護牆板（牆下半）", { same: "跟後吧台同色", olive: "橄欖綠", navy: "海軍藍", terracotta: "赭紅", charcoal: "炭灰", sage: "鼠尾草綠", cream: "奶油白", walnut: "胡桃木色", oat: "燕麥米" }],
-      floor: ["地板", { greybrown: "灰褐木", warmoak: "暖橡木", walnut: "深胡桃", pale: "淺木" }],
+      floor: ["地板", { greybrown: "灰褐木", warmoak: "暖橡木", walnut: "深胡桃", pale: "淺木", terrazzo: "水磨石" }],
+      clock: ["牆上時鐘（走真實時間）", { tech: "科技感鐘", classic: "古典黃銅鐘", wood: "圓木框鐘" }],
       lamp: ["吊燈（窗邊與吧台）", { bamboo: "窗邊竹編雲朵，吧台紙環", rings: "窗邊紙環，吧台竹編雲朵" }],
       scarf: ["機器人圍巾", { olive: "橄欖綠", terracotta: "赭紅", mustard: "芥黃", navy: "海軍藍", rose: "玫瑰粉" }],
       chair: ["椅子", { bentwood: "曲木", black: "黑色", natural: "原木" }],
@@ -46,13 +47,14 @@ const COPY = {
     robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
     randomLook: "Build me a random cafe", resetLook: "Back to the default look", swapsTitle: "Swap the look", randomDone: "A new cafe, just for you.",
     groups: {
-      brick: ["Brick wall", { red: "Old red brick", umber: "Umber brick", grey: "Grey brick", dusty: "Dusty pink brick" }],
+      brick: ["Brick wall", { red: "Old red brick", umber: "Umber brick", grey: "Grey brick", dusty: "Dusty pink brick", white: "Whitewashed brick", dark: "Dark old brick" }],
       counter: ["Counter wood", { honey: "Honey oak", walnut: "Walnut", pale: "Pale oak", grey: "Grey-washed oak" }],
       back: ["Back bar and wainscot", { olive: "Olive", navy: "Navy", terracotta: "Terracotta", charcoal: "Charcoal", sage: "Sage" }],
       wall: ["Wall paint", { warm: "Warm white", blush: "Blush", mist: "Mist green", butter: "Butter", grey: "Pale grey" }],
       wallpaper: ["Wallpaper (from Room 01)", { none: "None, use paint", stripe: "Fine-stripe wallpaper", botanical: "Soft botanical wallpaper", grasscloth: "Warm oatmeal grasscloth", sagewash: "Sage limewash" }],
       wainscot: ["Wainscot (lower wall)", { same: "Same as back bar", olive: "Olive", navy: "Navy", terracotta: "Terracotta", charcoal: "Charcoal", sage: "Sage", cream: "Cream", walnut: "Walnut brown", oat: "Oat" }],
-      floor: ["Floor", { greybrown: "Grey-brown", warmoak: "Warm oak", walnut: "Dark walnut", pale: "Pale wood" }],
+      floor: ["Floor", { greybrown: "Grey-brown", warmoak: "Warm oak", walnut: "Dark walnut", pale: "Pale wood", terrazzo: "Terrazzo" }],
+      clock: ["Wall clock (shows the real time)", { tech: "Futuristic clock", classic: "Classical brass clock", wood: "Round oak clock" }],
       lamp: ["Pendant lamps (window and counter)", { bamboo: "Bamboo cloud at the window, paper rings at the counter", rings: "Paper rings at the window, bamboo cloud at the counter" }],
       scarf: ["Robot scarf", { olive: "Olive", terracotta: "Terracotta", mustard: "Mustard", navy: "Navy", rose: "Rose" }],
       chair: ["Chairs", { bentwood: "Bentwood", black: "Black", natural: "Natural" }],
@@ -74,7 +76,7 @@ const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
 let centerMode = false;
-const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "lamp", "scarf", "chair"];
+const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "lamp", "clock", "scarf", "chair"];
 let look = {};
 function syncLookUrl() {
   const url = new URL(location.href);
