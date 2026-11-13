@@ -694,6 +694,8 @@ export async function start({ stage, onReady = () => {} }) {
   {
     const { W, D, H } = MACHINE, y0 = machineY0, front = machineFront;
     part("steel", roundedBox(W - 0.06, H, D - 0.02, 0.03, 0.006).translate(mx, y0 + H / 2, mz), { tile: 1 });
+    slab("black", [mx - 0.35, mx + 0.35], [y0 - 0.018, y0 + 0.006], [mz - 0.235, mz + 0.235], { tile: 1 });
+    slab("steel", [mx - 0.34, mx + 0.34], [y0 + H - 0.028, y0 + H - 0.022], [front + 0.006, front + 0.014], { tile: 1 }); // pressed upper edge
     for (const sign of [-1, 1]) part("black", roundedBox(D, H + 0.02, 0.03, 0.035, 0.005).rotateY(Math.PI / 2).translate(mx + sign * (W / 2 - 0.015), y0 + H / 2, mz), { tile: 1 });
     slab("steel", [mx - 0.345, mx + 0.345], [y0 + H, y0 + H + 0.012], [mz - 0.22, mz + 0.22], { tile: 1 }); // the cup-warmer plate
     for (const row of [-0.09, 0.09]) for (let i = 0; i < 3; i++) ceramicCup({ x: mx - 0.22 + i * 0.22 + (row > 0 && i === 1 ? 0.008 : 0), y: y0 + H + 0.012, z: mz + row, saucer: false, spoon: false, detail: "small" });
@@ -706,11 +708,16 @@ export async function start({ stage, onReady = () => {} }) {
     for (const dx of [-0.17, 0.17]) {
       part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.05, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.27, front + 0.02), { tile: 1 });
       part("black", new THREE.CylinderGeometry(0.031, 0.027, 0.03, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.265, front + 0.06), { tile: 1 });
-      part("black", rodGeometry([mx + dx, y0 + 0.265, front + 0.07], [mx + dx + (dx < 0 ? -0.03 : 0.03), y0 + 0.255, front + 0.2], 0.012), { tile: 1 });
-      slab("steel", [mx + dx - 0.05, mx + dx + 0.05], [y0 + 0.2, y0 + 0.208], [front + 0.01, front + 0.04], { tile: 1 });
+      if (dx < 0) part("black", rodGeometry([mx + dx, y0 + 0.265, front + 0.07], [mx + dx - 0.045, y0 + 0.22, front + 0.19], 0.012), { tile: 1 });
+      for (const sx of [-0.019, 0.019]) part("steel", rodGeometry([mx + dx + sx, y0 + 0.222, front + 0.058], [mx + dx + sx, y0 + 0.195, front + 0.078], 0.004, 6), { tile: 1 });
     }
+    // The second portafilter rests on a side cradle, at the same slight downward angle.
+    slab("steel", [mx + 0.24, mx + 0.34], [y0 + 0.13, y0 + 0.138], [front + 0.04, front + 0.11], { tile: 1 });
+    part("steel", new THREE.CylinderGeometry(0.026, 0.026, 0.018, 16).rotateX(Math.PI / 2).translate(mx + 0.29, y0 + 0.15, front + 0.08), { tile: 1 });
+    part("black", rodGeometry([mx + 0.29, y0 + 0.15, front + 0.08], [mx + 0.315, y0 + 0.10, front + 0.19], 0.011), { tile: 1 });
     part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.014, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, front + 0.006), { tile: 1 });
-    part("ceramic", new THREE.CylinderGeometry(0.028, 0.028, 0.004, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, front + 0.014), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.028, 0.028, 0.004, 24).rotateX(Math.PI / 2).translate(mx - 0.27, y0 + 0.31, front + 0.014), { tile: 1 });
+    part("steel", rodGeometry([mx - 0.27, y0 + 0.31, front + 0.018], [mx - 0.257, y0 + 0.327, front + 0.019], 0.002, 5), { tile: 1 });
     for (let i = 0; i < 4; i++) part("black", new THREE.CylinderGeometry(0.01, 0.01, 0.008, 12).rotateX(Math.PI / 2).translate(mx - 0.1 + i * 0.07, y0 + 0.33, front + 0.004), { tile: 1 });
     // Steam wand at the front right corner: a tap on the front, a tube that runs out and down, a tip in the milk pitcher the barista holds.
     part("black", new THREE.SphereGeometry(0.014, 12, 8).translate(mx + W / 2 - 0.05, y0 + 0.25, front + 0.01), { tile: 1 });
@@ -719,7 +726,7 @@ export async function start({ stage, onReady = () => {} }) {
     part("steel", rodGeometry([mx + W / 2 + 0.035, y0 + 0.17, front + 0.12], [mx + W / 2 + 0.04, y0 + 0.13, front + 0.125], 0.0052), { tile: 1 });
     // Drip tray with a grille, and four feet.
     slab("steel", [mx - 0.33, mx + 0.33], [barTop + 0.034, barTop + 0.058], [mz - 0.2, mz + 0.24], { tile: 1 });
-    for (let i = 0; i < 12; i++) slab("black", [mx - 0.3 + i * 0.05, mx - 0.27 + i * 0.05], [barTop + 0.058, barTop + 0.0605], [mz - 0.17, mz + 0.21], { tile: 1 });
+    for (let i = 0; i < 12; i++) slab("black", [mx - 0.3 + i * 0.05, mx - 0.288 + i * 0.05], [barTop + 0.058, barTop + 0.0605], [mz - 0.17, mz + 0.21], { tile: 1 });
     for (const dx of [-0.31, 0.31]) for (const dz of [-0.17, 0.19]) part("steel", new THREE.CylinderGeometry(0.022, 0.026, 0.036, 14).translate(mx + dx, barTop + 0.018, mz + dz), { tile: 1 });
   }
 
