@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#f0e8dc">
   <title>ROOMVERSE 3D</title>
   <script>if (["room01", "room02", "room03"].includes(new URLSearchParams(location.search).get("from"))) document.documentElement.classList.add("arriving");</script>
+  <link rel="stylesheet" href="../travel-door.css?v=3">
   <style>
     :root { color-scheme: light; --ink:#292c26; --muted:#66685e; --paper:#faf8f2; --brick:#8a4a2b; --line:#d4cebf; }
     * { box-sizing:border-box; }
@@ -28,6 +29,20 @@
     .poster:not([hidden]) + .status { top:68%; }
     .poster button { min-height:48px; padding:12px 24px; border:1px solid #fff9; border-radius:999px; background:#3a2a1fe8; color:#fff; font:700 17px system-ui,sans-serif; cursor:pointer; }
     #stage canvas { display:block; width:100%; height:100%; touch-action:none; }
+    .immersive-exit, .immersive-exits, .immersive-controls { display:none; }
+    .immersive-enter, .immersive-exit, #immersiveDoor { min-height:44px; padding:8px 14px; border:1px solid #fffa; border-radius:999px; background:#3a2a1fe8; color:white; font:700 14px system-ui,sans-serif; cursor:pointer; white-space:nowrap; }
+    .immersive-enter { position:absolute; z-index:6; right:12px; bottom:12px; }
+    .room.is-immersive { position:fixed; inset:0; z-index:50; height:100vh; height:100dvh; min-height:0; margin:0; border-radius:0; }
+    .is-immersive .immersive-enter { display:none; }
+    .is-immersive .immersive-exit { display:block; position:absolute; z-index:7; top:calc(8px + env(safe-area-inset-top)); left:calc(8px + env(safe-area-inset-left)); }
+    .is-immersive .immersive-exits { display:flex; gap:6px; position:absolute; z-index:7; top:calc(8px + env(safe-area-inset-top)); right:calc(8px + env(safe-area-inset-right)); }
+    .is-immersive #portfolioHome, .is-immersive #lang { border-color:#fffa; background:#3a2a1fe8; color:white; }
+    .is-immersive .immersive-exits > *, .is-immersive .immersive-exit { min-height:44px; padding:7px 10px; font-size:13px; }
+    .is-immersive .immersive-controls { display:grid; gap:5px; position:absolute; z-index:7; inset:auto 0 0; padding:8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left)); background:#3a2a1fe8; }
+    .is-immersive .view-buttons, .is-immersive .moods { display:flex; position:static; flex-wrap:nowrap; min-width:0; gap:6px; overflow-x:auto; overscroll-behavior-inline:contain; scrollbar-width:none; }
+    .is-immersive .view-buttons button, .is-immersive .moods button { flex:none; white-space:nowrap; }
+    html.room-immersive, html.room-immersive body { overflow:hidden; overscroll-behavior:none; }
+    .room-immersive #moodNote { display:none; }
     .status { position:absolute; z-index:4; top:50%; left:50%; transform:translate(-50%,-50%); padding:9px 14px; border-radius:999px; background:#fffE; font-size:14px; }
     .note { padding:12px clamp(16px,3vw,40px) 34px; max-width:900px; color:var(--muted); font-size:12px; line-height:1.6; }
     .toolbar { margin:12px clamp(12px,2vw,28px) 0; }
@@ -86,10 +101,14 @@
       <div id="stage"></div>
       <div id="poster" class="poster"><button id="enter" type="button">走進咖啡廳</button></div>
       <p id="status" class="status" role="status" hidden></p>
-      <div class="view-buttons"><button class="center-view" data-view="overview" type="button" aria-pressed="true" hidden></button><button class="center-view" data-view="counter" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="window" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="lounge" type="button" aria-pressed="false" hidden></button><button class="center-view" id="centerView" type="button" aria-pressed="false" hidden></button></div>
+      <div class="view-buttons" id="views" role="group"><button class="center-view" data-view="overview" type="button" aria-pressed="true" hidden></button><button class="center-view" data-view="counter" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="window" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="lounge" type="button" aria-pressed="false" hidden></button><button class="center-view" id="centerView" type="button" aria-pressed="false" hidden></button></div>
+      <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
+      <button class="immersive-exit" id="immersiveExit" type="button"></button>
+      <div class="immersive-exits" id="immersiveExits"><button id="immersiveDoor" data-travel-door-trigger type="button"></button></div>
+      <div class="immersive-controls" id="immersiveControls"></div>
       <button class="tap-target" id="robotHit" type="button" hidden></button>
       <button class="tap-target" id="noteHit" type="button" hidden></button>
-      <div class="bubble" id="bubble" role="dialog" hidden><p data-title></p><p data-line></p><a data-travel href="/prototype/roomverse-3d/"></a><button data-close type="button">×</button></div>
+      <div class="bubble" id="bubble" role="dialog" hidden><p data-title></p><p data-line></p><a data-travel data-travel-door-trigger href="/prototype/roomverse-3d/"></a><button data-close type="button">×</button></div>
     </section>
     <section class="toolbar" id="roomControls" aria-label="Room settings" hidden>
       <div class="moods" id="moods" role="group"></div>
@@ -99,6 +118,6 @@
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=30"></script>
+  <script type="module" src="page.js?v=31"></script>
 </body>
 </html>

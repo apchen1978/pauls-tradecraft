@@ -226,3 +226,97 @@ test("Room 04 poster defers the 3D scene and portal arrivals enter directly", as
     expect(await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("room04-shanghai-slowly-concept-mobile.webp")))).toBe(false);
   }
 });
+
+for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  test.describe("Room 04 immersive at " + viewport.width + "px", () => {
+    test.use({ viewport, deviceScaleFactor: viewport.width === 390 ? 2 : 1, hasTouch: viewport.width === 390, reducedMotion: "reduce" });
+    test("keeps the room controls, history and travel usable", async ({ page }) => {
+      await page.goto(PAGE + "?lang=zh&lounge=navy");
+      const enter = page.locator("#immersiveEnter"), exit = page.locator("#immersiveExit");
+      const shell = page.locator(".room"), door = page.locator(".travel-door-dialog");
+      await expect(enter).toBeHidden();
+      await page.locator("#enter").click();
+      await expect(enter).toBeVisible();
+
+      await page.locator("#robotHit").click();
+      await page.locator("#bubble [data-travel]").click();
+      await expect(door).toBeVisible();
+      await expect(door.locator(".travel-door-card")).toHaveCount(3);
+      await door.locator(".travel-door-close").click();
+      await expect(page.locator("#bubble [data-travel]")).toBeFocused();
+      await page.locator("#bubble [data-close]").click();
+
+      await enter.click();
+      await expect(shell).toHaveClass(/is-immersive/);
+      await expect(exit).toBeFocused();
+      await expect(page.locator("#moodNote")).toBeHidden();
+      await expect(page.locator("#immersiveExits #portfolioHome")).toBeVisible();
+      await expect.poll(async () => {
+        const size = await page.locator("#stage canvas").boundingBox();
+        return [Math.round(size.width), Math.round(size.height)];
+      }).toEqual([viewport.width, viewport.height]);
+
+      for (const view of ["counter", "window", "lounge", "overview"]) {
+        const button = page.locator('[data-view="' + view + '"]');
+        await button.click();
+        await expect(button).toHaveAttribute("aria-pressed", "true");
+      }
+      for (const mood of ["noon", "golden", "rain", "closing", "series", "morning", "golden"]) {
+        const button = page.locator('[data-mood="' + mood + '"]');
+        await button.click();
+        await expect(button).toHaveAttribute("aria-pressed", "true");
+      }
+      await page.locator("#noteHit").click();
+      await expect(page.locator("#bubble")).toBeVisible();
+      await page.locator("#bubble [data-close]").click();
+      await page.locator("#centerView").click();
+      await expect(page.locator("#centerView")).toHaveAttribute("aria-pressed", "true");
+      await page.locator("#lang").click();
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      for (const row of ["#views", "#moods"]) {
+        const sizes = await page.locator(row).evaluate((el) => {
+          el.scrollLeft = el.scrollWidth;
+          return { width: el.clientWidth, scrollWidth: el.scrollWidth, left: el.scrollLeft, wrap: getComputedStyle(el).flexWrap };
+        });
+        expect(sizes.wrap).toBe("nowrap");
+        if (viewport.width === 390) {
+          expect(sizes.scrollWidth).toBeGreaterThan(sizes.width);
+          expect(sizes.left).toBeGreaterThan(0);
+        }
+      }
+
+      await exit.click();
+      await expect(enter).toBeFocused();
+      await expect(shell).not.toHaveClass(/is-immersive/);
+      await expect(page.locator("#centerView")).toHaveAttribute("aria-pressed", "true");
+      await expect(page.locator('[data-mood="golden"]')).toHaveAttribute("aria-pressed", "true");
+      await expect(page).toHaveURL(/lang=en/);
+      expect(new URL(page.url()).searchParams.get("lounge")).toBe("navy");
+
+      await page.locator('[data-view="lounge"]').click();
+      await enter.click();
+      await page.locator("#immersiveDoor").click();
+      await expect(door).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(door).toBeHidden();
+      await expect(shell).toHaveClass(/is-immersive/);
+      await page.keyboard.press("Escape");
+      await expect(enter).toBeFocused();
+      await expect(page.locator('[data-view="lounge"]')).toHaveAttribute("aria-pressed", "true");
+
+      await enter.click();
+      await page.goBack();
+      await expect(shell).not.toHaveClass(/is-immersive/);
+      await expect(enter).toBeFocused();
+
+      await enter.click();
+      await page.locator("#immersiveDoor").click();
+      await door.locator(".travel-door-go").first().click();
+      await expect(page).toHaveURL(/from=room04/);
+      await page.goBack();
+      await expect(page).toHaveURL(/\/cafe\//);
+      await expect(shell).not.toHaveClass(/is-immersive/);
+      expect(await page.evaluate(() => history.state?.room04Immersive)).toBeFalsy();
+    });
+  });
+}

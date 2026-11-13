@@ -1,3 +1,5 @@
+import { initTravelDoor } from "../travel-door.js?v=5";
+
 const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
 
 // Room 04 | Shanghai, Slowly. The page: title, the room, five mood buttons, the barista robot (tap it) and a paper note (tap it).
@@ -9,6 +11,7 @@ const COPY = {
     note: "這是想像的房間，不是實際店面。窗外是新天地一帶的街景概念畫。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", lang: "EN", languageLabel: "切換為英文",
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁",
+    fullScreen: "全螢幕", exitFullScreen: "退出", portal: "傳送門", viewsLabel: "選擇視角",
     enter: "走進咖啡廳", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 上海咖啡廳的 3D 房間", moodsLabel: "選擇時段與天氣",
     robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
     randomLook: "隨機搭一間咖啡廳", resetLook: "回到預設搭配", swapsTitle: "換搭配", randomDone: "已幫你搭了一間新的咖啡廳。",
@@ -49,6 +52,7 @@ const COPY = {
     note: "An imagined room, not a real shop. The street outside is a concept painting of the Xintiandi area.",
     otherRooms: "← Other rooms", otherRoomsLabel: "Go to the other ROOMVERSE rooms", lang: "中文", languageLabel: "Switch to Chinese",
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home",
+    fullScreen: "Full screen", exitFullScreen: "Exit", portal: "Travel", viewsLabel: "Choose a view",
     enter: "Step into the cafe", loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D room of the Room 04 Shanghai cafe", moodsLabel: "Choose a time and weather",
     robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
     randomLook: "Build me a random cafe", resetLook: "Back to the default look", swapsTitle: "Swap the look", randomDone: "A new cafe, just for you.",
@@ -93,7 +97,7 @@ let look = {};
 function syncLookUrl() {
   const url = new URL(location.href);
   for (const group of LOOK_KEYS) { if (look[group] && look[group] !== room?.lookDefaults?.[group]) url.searchParams.set(group, look[group]); else url.searchParams.delete(group); }
-  history.replaceState(null, "", url);
+  history.replaceState(history.state, "", url);
 }
 function renderSwaps() {
   const copy = COPY[lang], root = $("swapGroups");
@@ -115,15 +119,20 @@ let room = null, mood = "morning", bubbleOwner = "robot", bubbleTimer = 0, moodL
 function renderMoods() {
   const copy = COPY[lang], group = $("moods");
   group.setAttribute("aria-label", copy.moodsLabel);
+  const scroll = group.scrollLeft;
   group.replaceChildren(...Object.entries(copy.moods).map(([key, [label]]) => {
     const button = document.createElement("button");
     button.type = "button"; button.dataset.mood = key; button.textContent = label; button.setAttribute("aria-pressed", String(key === mood));
     button.addEventListener("click", () => {
       if (mood === key) return;
-      mood = key; room?.setMood(key); renderMoods(); sayMood(key);
+      mood = key; room?.setMood(key);
+      for (const option of group.children) option.setAttribute("aria-pressed", String(option === button));
+      $("why").textContent = copy.moods[key][1];
+      sayMood(key);
     });
     return button;
   }));
+  group.scrollLeft = scroll;
   $("why").textContent = copy.moods[mood][1];
 }
 function renderCopy() {
@@ -131,6 +140,10 @@ function renderCopy() {
   document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
   document.title = `${ROOM_TITLE} · ROOMVERSE 3D`;
   $("enter").textContent = copy.enter;
+  $("immersiveEnter").textContent = copy.fullScreen;
+  $("immersiveExit").textContent = copy.exitFullScreen;
+  $("immersiveDoor").textContent = copy.portal;
+  $("views").setAttribute("aria-label", copy.viewsLabel);
   $("title").textContent = copy.title; $("subtitle").textContent = copy.subtitle; $("lead").textContent = copy.lead; $("note").textContent = copy.note;
   $("lang").textContent = copy.lang; $("lang").setAttribute("aria-label", copy.languageLabel);
   const others = $("otherRooms"); others.textContent = copy.otherRooms; others.setAttribute("aria-label", copy.otherRoomsLabel); others.href = `/prototype/roomverse-3d/?lang=${lang}`;
@@ -159,7 +172,10 @@ function placeUi() {
   if (!anchor) { bubble.hidden = true; return; }
   const stageRect = $("stage").getBoundingClientRect(), half = bubble.offsetWidth / 2 + 8;
   const x = Math.min(stageRect.width - half, Math.max(half, (anchor.left + anchor.right) / 2 - stageRect.left));
-  Object.assign(bubble.style, { left: `${x}px`, top: `${Math.max(8, anchor.top - stageRect.top - 12)}px` });
+  const controlsTop = immersive ? $("immersiveControls").getBoundingClientRect().top - stageRect.top : stageRect.height;
+  const headerBottom = immersive ? $("immersiveExit").getBoundingClientRect().bottom - stageRect.top : 0;
+  const y = Math.min(controlsTop - 8, Math.max(headerBottom + bubble.offsetHeight + 8, anchor.top - stageRect.top - 12));
+  Object.assign(bubble.style, { left: x + "px", top: y + "px" });
 }
 function renderBubble() {
   const copy = COPY[lang], bubble = $("bubble");
@@ -178,8 +194,9 @@ function sayMood(key) { moodLineKey = key; if (!$("bubble").hidden && bubbleOwne
 
 $("lang").addEventListener("click", () => {
   lang = lang === "en" ? "zh" : "en";
-  const url = new URL(location.href); url.searchParams.set("lang", lang); history.replaceState(null, "", url);
+  const url = new URL(location.href); url.searchParams.set("lang", lang); history.replaceState(history.state, "", url);
   renderCopy();
+  placeUi();
 });
 for (const b of document.querySelectorAll("[data-view]")) b.addEventListener("click", () => {
   if (!room) return;
@@ -196,7 +213,83 @@ $("robotHit").addEventListener("click", () => openBubble("robot", 7000));
 $("noteHit").addEventListener("click", () => openBubble("note", 9000));
 $("bubble").querySelector("[data-close]").addEventListener("click", closeBubble);
 $("bubble").addEventListener("pointerenter", () => clearTimeout(bubbleTimer));
-document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !$("bubble").hidden) closeBubble(); });
+const shell = $("stage").parentElement;
+const headerActions = $("portfolioHome").parentElement;
+let immersive = false, exiting = false, destinationUrl = null;
+const travelDoor = initTravelDoor({
+  currentRoom: "room04",
+  getLang: () => lang,
+  beforeOpen: (trigger) => { if (trigger?.matches("[data-travel]")) clearTimeout(bubbleTimer); },
+  onChoose: (_destination, href) => {
+    if (immersive) {
+      destinationUrl = href;
+      exitImmersive();
+    } else location.assign(href);
+  },
+});
+
+function placePortfolioHome(on) {
+  if (on) {
+    $("immersiveExits").prepend($("portfolioHome"));
+    $("immersiveExits").append($("lang"));
+  } else {
+    headerActions.prepend($("portfolioHome"));
+    headerActions.append($("lang"));
+  }
+}
+
+function setImmersive(on) {
+  if (!room || immersive === on) return;
+  immersive = on;
+  placePortfolioHome(on);
+  shell.classList.toggle("is-immersive", on);
+  document.documentElement.classList.toggle("room-immersive", on);
+  for (const section of shell.parentElement.children) if (section !== shell) section.inert = on;
+  headerActions.closest("header").inert = on;
+  if (on) {
+    $("immersiveControls").append($("views"), $("moods"));
+    $("immersiveExit").focus({ preventScroll: true });
+  } else {
+    shell.append($("views"));
+    $("roomControls").append($("moods"));
+    $("immersiveEnter").focus({ preventScroll: true });
+  }
+  room.resize();
+  requestAnimationFrame(() => { room.resize(); placeUi(); });
+}
+
+function exitImmersive() {
+  if (!immersive || exiting) return;
+  exiting = true;
+  history.back();
+}
+
+$("immersiveEnter").addEventListener("click", () => {
+  if (!room || immersive) return;
+  history.pushState({ ...history.state, room04Immersive: true }, "", location.href);
+  setImmersive(true);
+});
+$("immersiveExit").addEventListener("click", exitImmersive);
+addEventListener("popstate", (event) => {
+  exiting = false;
+  const on = Boolean(event.state?.room04Immersive);
+  if (immersive === on) return;
+  const url = new URL(location.href);
+  url.searchParams.set("lang", lang);
+  history.replaceState(event.state, "", url);
+  if (travelDoor.element.open) travelDoor.element.close();
+  setImmersive(on);
+  if (destinationUrl) {
+    const href = destinationUrl;
+    destinationUrl = null;
+    location.assign(href);
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || travelDoor.element.open) return;
+  if (immersive) { event.preventDefault(); exitImmersive(); }
+  else if (!$("bubble").hidden) closeBubble();
+});
 document.addEventListener("keydown", (event) => {
   if ((event.key !== "ArrowRight" && event.key !== "ArrowLeft") || !event.target?.dataset?.mood) return;
   const buttons = [...$("moods").querySelectorAll("button")], i = buttons.indexOf(event.target), next = buttons[(i + (event.key === "ArrowRight" ? 1 : buttons.length - 1)) % buttons.length];
@@ -215,6 +308,7 @@ async function enterRoom() {
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
   room.onRender(placeUi);
+  $("immersiveEnter").hidden = false;
   $("status").hidden = true; $("roomControls").hidden = false; $("moodNote").hidden = false; $("swapActions").hidden = false;
   $("centerView").hidden = false; for (const b of document.querySelectorAll("[data-view]")) b.hidden = false;
   for (const group of LOOK_KEYS) { const key = params.get(group); if (key) room.setLook(group, key); }
