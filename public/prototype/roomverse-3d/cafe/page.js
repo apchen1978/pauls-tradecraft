@@ -25,11 +25,12 @@ const COPY = {
       scarf: ["機器人圍巾", { olive: "橄欖綠", terracotta: "赭紅", mustard: "芥黃", navy: "海軍藍", rose: "玫瑰粉" }],
       chair: ["窗邊椅子", { bentwood: "曲木", black: "黑色", natural: "原木" }],
       stool: ["吧台高腳椅", { bentwood: "曲木藤面", leather: "橡木皮革", metal: "黑金屬", none: "不放" }],
-      rug: ["窗邊地毯", { weave: "黃麻編織（預設）", jute: "黃麻粗編", wool: "深色羊毛回字紋", abstract: "抽象色塊", stripe: "藍灰細條紋" }],
+      lounge: ["Lounge 布色", { terracotta: "赭紅＋芥末黃", olive: "橄欖綠＋奶油", navy: "藏青＋燕麥" }],
+      rug: ["地毯", { weave: "黃麻編織（預設）", jute: "黃麻粗編", wool: "深色羊毛回字紋", abstract: "抽象色塊", stripe: "藍灰細條紋" }],
       menu: ["黑板菜單", { board: "素面黑板", chalk: "粉筆插畫", minimal: "極簡邊框", script: "手寫感版面" }],
       gallery: ["掛畫組", { a: "梧桐街與石庫門", b: "鐵花陽台與夜航渡輪" }],
     },
-    views: { overview: "全景", counter: "吧台", window: "窗邊座位" },
+    views: { overview: "全景", counter: "吧台", window: "窗邊座位", lounge: "Lounge" },
     center: "站到房間中間", orbit: "回到環繞視角", centerHint: "拖曳或用方向鍵，轉一整圈看看。",
     noteTitle: "便條", noteLine: "窗邊的位子留給你，慢慢來。", close: "關閉",
     moods: {
@@ -64,11 +65,12 @@ const COPY = {
       scarf: ["Robot scarf", { olive: "Olive", terracotta: "Terracotta", mustard: "Mustard", navy: "Navy", rose: "Rose" }],
       chair: ["Window chairs", { bentwood: "Bentwood", black: "Black", natural: "Natural" }],
       stool: ["Bar stools", { bentwood: "Bentwood and cane", leather: "Oak and leather", metal: "Black metal", none: "None" }],
-      rug: ["Window rug", { weave: "Jute weave (default)", jute: "Coarse jute", wool: "Dark wool, lattice", abstract: "Abstract blocks", stripe: "Blue-grey stripe" }],
+      lounge: ["Lounge upholstery", { terracotta: "Terracotta and mustard", olive: "Olive and cream", navy: "Navy and oatmeal" }],
+      rug: ["Rugs", { weave: "Jute weave (default)", jute: "Coarse jute", wool: "Dark wool, lattice", abstract: "Abstract blocks", stripe: "Blue-grey stripe" }],
       menu: ["Chalk menus", { board: "Plain board", chalk: "Chalk drawings", minimal: "Minimal frame", script: "Handwritten layout" }],
       gallery: ["Prints", { a: "Plane trees and doorways", b: "Balcony and night ferry" }],
     },
-    views: { overview: "Overview", counter: "The counter", window: "Window seat" },
+    views: { overview: "Overview", counter: "The counter", window: "Window seat", lounge: "Lounge" },
     center: "Stand in the middle", orbit: "Back to orbit view", centerHint: "Drag, or use the arrow keys, to turn all the way round.",
     noteTitle: "Note", noteLine: "The window seat is yours. Take your time.", close: "Close",
     moods: {
@@ -86,7 +88,7 @@ const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
 let centerMode = false, currentView = "overview";
-const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "rug", "lamp", "clock", "stool", "menu", "gallery", "scarf", "chair"];
+const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "rug", "lamp", "clock", "stool", "menu", "gallery", "scarf", "chair", "lounge"];
 let look = {};
 function syncLookUrl() {
   const url = new URL(location.href);
@@ -208,7 +210,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=28");
+  const { start } = await import("./cafe.js?v=29");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
