@@ -1155,10 +1155,26 @@ export async function start({ stage, onReady = () => {} }) {
     slab("oak", [WIN.x0, WIN.x1], [0.08, 0.12], [FW - 0.03, FW], { grain: "x" }); // the sill under the window
     // A blank hanging sign (what it says is for Paul to decide) and the door mat. (Paul, 2026-11-13: no coat hooks and no umbrella stand at the door; a public cafe
     // does not hang visitors' coats, an umbrella stand's rings do not bake well in 360 degrees, and walls, light and small things carry the atmosphere better.)
-    slab("black", [1.07, 1.35], [1.84, 1.86], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [1.07, 1.35], [2.0, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 });
-    slab("black", [1.07, 1.09], [1.84, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [1.33, 1.35], [1.84, 2.02], [FW - 0.012, FW - 0.006], { tile: 1 });
-    slab("paper", [1.09, 1.33], [1.86, 2.0], [FW - 0.012, FW - 0.008], { tile: 1 });
-    part("black", rodGeometry([1.12, 2.02, FW - 0.01], [1.21, 2.12, FW - 0.01], 0.003, 6), { tile: 1 }); part("black", rodGeometry([1.3, 2.02, FW - 0.01], [1.21, 2.12, FW - 0.01], 0.003, 6), { tile: 1 });
+    // The framed notice by the door (Paul: write "Employee of the Month: CC" on it). A slightly larger frame, a certificate drawn on a canvas, a hanging wire.
+    {
+      const sx0 = 1.03, sx1 = 1.39, sy0 = 1.78, sy1 = 2.04, fw2 = 0.014;
+      slab("black", [sx0, sx1], [sy0, sy0 + fw2], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [sx0, sx1], [sy1 - fw2, sy1], [FW - 0.012, FW - 0.006], { tile: 1 });
+      slab("black", [sx0, sx0 + fw2], [sy0, sy1], [FW - 0.012, FW - 0.006], { tile: 1 }); slab("black", [sx1 - fw2, sx1], [sy0, sy1], [FW - 0.012, FW - 0.006], { tile: 1 });
+      part("black", rodGeometry([sx0 + 0.04, sy1, FW - 0.01], [(sx0 + sx1) / 2, sy1 + 0.1, FW - 0.01], 0.003, 6), { tile: 1 }); part("black", rodGeometry([sx1 - 0.04, sy1, FW - 0.01], [(sx0 + sx1) / 2, sy1 + 0.1, FW - 0.01], 0.003, 6), { tile: 1 });
+      const canvas = document.createElement("canvas"); canvas.width = 720; canvas.height = 520; const g = canvas.getContext("2d");
+      g.fillStyle = "#f4ecd8"; g.fillRect(0, 0, 720, 520);
+      g.strokeStyle = "#b8923f"; g.lineWidth = 6; g.strokeRect(22, 22, 676, 476); g.lineWidth = 2; g.strokeRect(36, 36, 648, 448);
+      g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#6b4f1d";
+      g.font = "700 40px Georgia, 'Times New Roman', serif"; g.fillText("EMPLOYEE OF THE MONTH", 360, 96);
+      g.font = "700 54px 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"; g.fillText("本月最佳員工", 360, 170);
+      g.fillStyle = "#2c2a26"; g.font = "700 150px Georgia, 'Times New Roman', serif"; g.fillText("CC", 360, 300);
+      g.strokeStyle = "#b8923f"; g.lineWidth = 3; g.beginPath(); g.moveTo(180, 380); g.lineTo(540, 380); g.stroke();
+      g.fillStyle = "#6b4f1d"; g.font = "500 34px Georgia, 'Times New Roman', serif"; g.fillText("November 2026  ·  2026 年 11 月", 360, 424);
+      g.fillStyle = "#b8923f"; g.font = "700 44px sans-serif"; g.fillText("★  ★  ★", 360, 466);
+      const certificate = new THREE.CanvasTexture(canvas); certificate.colorSpace = THREE.SRGBColorSpace; certificate.anisotropy = 8;
+      const plane = new THREE.PlaneGeometry(sx1 - sx0 - 2 * fw2, sy1 - sy0 - 2 * fw2).rotateY(Math.PI).translate((sx0 + sx1) / 2, (sy0 + sy1) / 2, FW - 0.0125);
+      add("employee-of-the-month", plane, new THREE.MeshStandardMaterial({ map: certificate, roughness: 0.8 }), 0, 0, 0, { cast: false });
+    }
     // A gallery of eight framed prints (Codex card 49, in the poster style of Room 02): four right of the door and four on the left wall by the window seat. Frames are oak,
     // black and brass, each with a linen mat. The eight pictures are drawn once onto one atlas, so the whole gallery is one draw call. Until they load, the frames hold the mat only.
     const PRINT_FILES = ["p1-plane-street", "p2-shikumen-door", "p3-bund-dawn", "p4-coffee-cup", "p5-river-boat", "p6-window-shadow", "p7-bicycle", "p8-steam"].map((n) => `room04-print-${n}.webp`);
@@ -1512,9 +1528,24 @@ export async function start({ stage, onReady = () => {} }) {
       const px = 2.90, pz = 2.43, K = 0.9;
       let seed = 21; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
       const GREENS = [0x7fb24a, 0x5f9a3c, 0x9cc85a, 0x3f8040, 0x4d9a6a, 0x86b83f], NEW = [0xbfdd74, 0xcfe58a], PETALS = [0xe8745a, 0xf0a0b0, 0xf6e3c4, 0xf2b84b];
-      detail(new THREE.LatheGeometry([[0.0005, 0], [0.12, 0], [0.16, 0.2], [0.17, 0.38], [0.158, 0.4], [0.0005, 0.4]].map((p) => new THREE.Vector2(p[0], p[1])), 28).translate(px, 0, pz), 0xc4623a);
-      detail(new THREE.TorusGeometry(0.165, 0.014, 6, 28).rotateX(Math.PI / 2).translate(px, 0.39, pz), 0xa8502e);
-      detail(new THREE.CircleGeometry(0.15, 24).rotateX(-Math.PI / 2).translate(px, 0.36, pz), 0x3a2a1e);
+      // The pot was one flat colour with a closed lid, so it looked like moulded plastic and the soil was never seen. Now: an open pot (outer wall, a rounded rim, the inner wall), colours that
+      // run from a darker foot to a pale mineral bloom near the rim with faint vertical streaks, a rim ring, and dark soil with mulch and pebbles just below the rim.
+      {
+        const pot = colorize(new THREE.LatheGeometry([[0.0005, 0], [0.12, 0], [0.16, 0.2], [0.17, 0.38], [0.165, 0.4], [0.15, 0.402], [0.142, 0.39], [0.138, 0.37], [0.0005, 0.365]].map((p) => new THREE.Vector2(p[0], p[1])), 32).translate(px, 0, pz), 0xc4623a);
+        const pp = pot.attributes.position, pcol = pot.attributes.color, c = new THREE.Color();
+        for (let i = 0; i < pp.count; i++) {
+          const y = pp.getY(i), a = Math.atan2(pp.getZ(i) - pz, pp.getX(i) - px), streak = 0.5 + 0.5 * Math.sin(a * 9 + y * 5) * Math.sin(a * 3.7 + 1.3);
+          c.setHex(y < 0.06 ? 0x9c4a2a : 0xc4623a).lerp(new THREE.Color(0xdcb596), Math.min(1, Math.max(0, (y - 0.26) / 0.14)) * (0.35 + 0.35 * streak)).multiplyScalar(0.93 + 0.1 * streak);
+          pcol.setXYZ(i, c.r, c.g, c.b);
+        }
+        part("loungeDetail", pot);
+      }
+      detail(new THREE.TorusGeometry(0.162, 0.012, 6, 32).rotateX(Math.PI / 2).translate(px, 0.398, pz), 0xb55a36);
+      detail(new THREE.CircleGeometry(0.139, 28).rotateX(-Math.PI / 2).translate(px, 0.384, pz), 0x3a2a1e);
+      for (let m = 0; m < 16; m++) { // mulch chips and a few pale pebbles on the soil
+        const ang = rnd() * Math.PI * 2, rad = Math.sqrt(rnd()) * 0.125, pebble = m % 5 === 0;
+        detail(new THREE.SphereGeometry(pebble ? 0.011 : 0.014 + rnd() * 0.008, 6, 3).scale(1.2, 0.45, 0.9).rotateY(rnd() * 3).translate(px + Math.cos(ang) * rad, 0.388, pz + Math.sin(ang) * rad), pebble ? 0x8f887c : [0x5a4026, 0x4a3320, 0x6b5236][m % 3]);
+      }
       detail(tubeGeometry([[px, 0.36, pz], [px + 0.02, 0.8, pz - 0.01], [px - 0.01, 1.2 * K + 0.1, pz + 0.01], [px + 0.02, 1.5 * K + 0.1, pz]], 0.016, 14, 8), 0x7a5a3a);
       const flower = (x, y, z, scale) => {
         const petal = PETALS[Math.floor(rnd() * PETALS.length)];
