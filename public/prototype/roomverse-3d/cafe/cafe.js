@@ -341,6 +341,7 @@ export async function start({ stage, onReady = () => {} }) {
     glass: new THREE.MeshStandardMaterial({ color: 0xdfeaf0, roughness: 0.08, transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide }),
     pane: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.04, transparent: true, opacity: 0.07, depthWrite: false }),
     street: new THREE.MeshBasicMaterial({ color: MOODS.morning.sky }),
+    streetFront: new THREE.MeshBasicMaterial({ color: MOODS.morning.sky }),
   };
   Object.assign(materials, {
     ceramic: new THREE.MeshStandardMaterial({ color: 0xf5f1ea, roughness: 0.32 }),
@@ -396,7 +397,9 @@ export async function start({ stage, onReady = () => {} }) {
   paint("room04-brick-red-v1.webp", { repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.map = t; materials.brick.map = t; materials.brick.color.set(0xffffff); materials.brick.needsUpdate = true; } });
   paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.bump = t; materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
   paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { woodFloor.map = t; materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
-  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
+  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-window-xintiandi-morning-v1.webp"; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
+  // The front wall is behind the opening camera. Request its first image after the first scene render.
+  setTimeout(() => paint("room04-street-corner-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-street-corner-morning-v1.webp"; materials.streetFront.userData.dry = t; materials.streetFront.map = t; materials.streetFront.color.set(0xffffff); materials.streetFront.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } }), 0);
 
   paint("room04-oak-panel-v1.webp", { then: (t) => { materials.oak.map = t; materials.oak.color.set(0xffffff); materials.oak.needsUpdate = true; materials.oakDeep.map = t; materials.oakDeep.color.set(0xe0bd90); materials.oakDeep.needsUpdate = true; } });
   paint("room04-counter-stone-v1.webp", { then: (t) => { materials.stone.map = t; materials.stone.color.set(0xffffff); materials.stone.needsUpdate = true; } });
@@ -980,7 +983,7 @@ export async function start({ stage, onReady = () => {} }) {
     for (const y of [0.99, 1.51]) part("black", rodGeometry([hx, y, dz - 0.03], [hx, y, dz - 0.07], 0.01, 8), { tile: 1 });
     for (const y of [0.4, 1.1, 1.8]) part("black", new THREE.CylinderGeometry(0.014, 0.014, 0.05, 10).rotateX(Math.PI / 2).translate(DOOR.x0 + 0.02, y, dz - 0.04), { tile: 1 }); // hinge knuckles
     // The street behind it: the painted Xintiandi view, tinted with the mood, on a big plane 1.6 m outside the wall.
-    const street2 = add("front-street-view", new THREE.PlaneGeometry(7.2, 4.8), materials.street, -0.5, 1.6, FW + T + 1.6, { cast: false, receive: false });
+    const street2 = add("front-street-view", new THREE.PlaneGeometry(7.2, 4.8), materials.streetFront, -0.5, 1.6, FW + T + 1.6, { cast: false, receive: false });
     street2.rotation.y = Math.PI; // faces -z, into the room
     // Olive board-and-batten wainscot on the front wall, either side of the openings, and skirting.
     for (const [a0, a1] of [[X0 + 0.04, WIN.x0], [DOOR.x1, X1 - 0.04]]) {
@@ -1446,32 +1449,39 @@ export async function start({ stage, onReady = () => {} }) {
   // The street painting with rain drawn over it, made once the first time the rain mood is chosen: pale falling strokes leaning one way and a few beads.
   // One painted street per mood (Codex, card 47 D): the morning painting for morning and midday, then golden hour, rain and night. The rain painting has no rain in it;
   // falling rain is drawn over it once, the first time it is needed. Until a painting has loaded the morning one stays.
-  const MOOD_STREET = { series: "room04-window-xintiandi-night-v1.webp", morning: "room04-window-xintiandi-morning-v1.webp", noon: "room04-window-xintiandi-morning-v1.webp", golden: "room04-window-xintiandi-golden-v1.webp", rain: "room04-window-xintiandi-rain-v1.webp", closing: "room04-window-xintiandi-night-v1.webp" };
+  const MOOD_STREET = {
+    left: { series: "room04-window-xintiandi-night-v1.webp", morning: "room04-window-xintiandi-morning-v1.webp", noon: "room04-window-xintiandi-morning-v1.webp", golden: "room04-window-xintiandi-golden-v1.webp", rain: "room04-window-xintiandi-rain-v1.webp", closing: "room04-window-xintiandi-night-v1.webp" },
+    front: { series: "room04-street-corner-night-v1.webp", morning: "room04-street-corner-morning-v1.webp", noon: "room04-street-corner-morning-v1.webp", golden: "room04-street-corner-golden-v1.webp", rain: "room04-street-corner-rain-v1.webp", closing: "room04-street-corner-night-v1.webp" },
+  };
   const streetTextures = {};
-  let rainStreet = null;
-  function rainOver(texture) {
-    if (rainStreet) return rainStreet;
+  const rainStreets = {};
+  function rainOver(texture, side) {
+    if (rainStreets[side]) return rainStreets[side];
     const image = texture.image, canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
     const g = canvas.getContext("2d"), w = canvas.width, h = canvas.height;
     g.drawImage(image, 0, 0, w, h);
     let seed = 17; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 520; i++) { const x = rnd() * w * 1.1 - w * 0.05, y = rnd() * h, len = 60 + rnd() * 110; g.strokeStyle = `rgba(232,240,246,${(0.14 + rnd() * 0.22).toFixed(2)})`; g.lineWidth = 2 + rnd() * 2.4; g.beginPath(); g.moveTo(x, y); g.lineTo(x + len * 0.17, y + len); g.stroke(); }
-    rainStreet = new THREE.CanvasTexture(canvas); rainStreet.colorSpace = THREE.SRGBColorSpace; rainStreet.anisotropy = maxAnisotropy;
+    const rainStreet = new THREE.CanvasTexture(canvas); rainStreet.colorSpace = THREE.SRGBColorSpace; rainStreet.anisotropy = maxAnisotropy; rainStreet.userData.file = texture.userData.file;
+    rainStreets[side] = rainStreet;
     return rainStreet;
   }
-  function streetTexture(name) {
-    const file = MOOD_STREET[name];
-    if (file === MOOD_STREET.morning) return materials.street.userData.dry ?? null;
+  function streetTexture(name, side) {
+    const material = side === "left" ? materials.street : materials.streetFront;
+    const file = MOOD_STREET[side][name];
+    if (file === MOOD_STREET[side].morning) return material.userData.dry ?? null;
     if (!(file in streetTextures)) {
       streetTextures[file] = null;
-      textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = maxAnisotropy; streetTextures[file] = t; loadedArt.add(file); applyStreet(currentMood); render(); });
+      textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = maxAnisotropy; t.userData.file = file; streetTextures[file] = t; loadedArt.add(file); applyStreet(currentMood); render(); });
     }
     return streetTextures[file];
   }
   function applyStreet(name) {
-    let t = streetTexture(name) ?? materials.street.userData.dry ?? null; // the morning painting stands in until this mood's painting has loaded
-    if (t && name === "rain" && t !== materials.street.userData.dry) t = rainOver(t);
-    if (t && materials.street.map !== t) { materials.street.map = t; materials.street.needsUpdate = true; }
+    for (const [side, material] of [["left", materials.street], ["front", materials.streetFront]]) {
+      let t = streetTexture(name, side) ?? material.userData.dry ?? null; // each morning painting stands in until that side's new mood loads
+      if (t && name === "rain" && t !== material.userData.dry) t = rainOver(t, side);
+      if (t && material.map !== t) { material.map = t; material.needsUpdate = true; }
+    }
   }
 
   let currentMood = "morning", moodTween = 0;
@@ -1484,7 +1494,7 @@ export async function start({ stage, onReady = () => {} }) {
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
     ambient.intensity = live.ambient; lamp.intensity = live.lamp;
     for (const spot of trackLights) { spot.intensity = live.track; spot.color.copy(live.trackColor); }
-    renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street);
+    renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street); materials.streetFront.color.copy(live.street);
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
     steam.material.opacity = live.steam;
     materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = live.tv * 2.4;
@@ -1751,6 +1761,7 @@ export async function start({ stage, onReady = () => {} }) {
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     robotHop, setView, view: () => viewName, views: () => Object.keys(VIEWS), setCenterView, centerLook, isCenter: () => Boolean(center),
+    streetMaterials: () => ({ separate: materials.street !== materials.streetFront, left: materials.street.map?.userData.file, front: materials.streetFront.map?.userData.file }),
     menuCopy: PROVISIONAL_MENUS, menuTextureKinds: () => [Boolean(materials.menuA.map?.isCanvasTexture), Boolean(materials.menuB.map?.isCanvasTexture)], lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
     info() {
       let vertices = 0, meshes = 0;

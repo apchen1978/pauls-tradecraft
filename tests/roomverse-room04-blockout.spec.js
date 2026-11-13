@@ -77,6 +77,22 @@ test("Room 04 provisional chalk menus have priced items only on the blank boards
   await page.waitForFunction(() => window.__room04.menuTextureKinds().every(Boolean));
 });
 
+test("Room 04 front door and side window use separate streets in all six moods", async ({ page }) => {
+  await open(page, 1440);
+  await page.waitForFunction(() => window.__room04.streetMaterials().front === "room04-street-corner-morning-v1.webp");
+  const initial = await page.evaluate(() => ({ street: window.__room04.streetMaterials(), art: window.__room04.info().art }));
+  expect(initial.street.separate).toBe(true);
+  expect(initial.street.left).toBe("room04-window-xintiandi-morning-v1.webp");
+  expect(initial.art.filter((file) => file.startsWith("room04-street-corner-"))).toEqual(["room04-street-corner-morning-v1.webp"]);
+  for (const [mood, suffix] of [["morning", "morning"], ["noon", "morning"], ["golden", "golden"], ["rain", "rain"], ["closing", "night"], ["series", "night"]]) {
+    await page.evaluate((value) => window.__room04.setMood(value), mood);
+    await page.waitForFunction((value) => window.__room04.streetMaterials().front === `room04-street-corner-${value}-v1.webp`, suffix);
+    const street = await page.evaluate(() => window.__room04.streetMaterials());
+    expect(street.left).toBe(`room04-window-xintiandi-${suffix}-v1.webp`);
+    expect(street.front).not.toBe(street.left);
+  }
+});
+
 test("Room 04 moods: six buttons, each sets its look inside the draw-call budget, and the robot and the note answer taps", async ({ page }) => {
   const errors = await open(page, 1440);
   await expect(page.locator("#moods button")).toHaveCount(6);
