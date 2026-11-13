@@ -341,9 +341,10 @@ export async function start({ stage, onReady = () => {} }) {
     glass: new THREE.MeshStandardMaterial({ color: 0xdfeaf0, roughness: 0.08, transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide }),
     pane: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.04, transparent: true, opacity: 0.07, depthWrite: false }),
     street: new THREE.MeshBasicMaterial({ color: MOODS.morning.sky }),
+    streetFront: new THREE.MeshBasicMaterial({ color: MOODS.morning.sky }),
   };
   Object.assign(materials, {
-    ceramic: new THREE.MeshStandardMaterial({ color: 0xf5f1ea, roughness: 0.32 }),
+    ceramic: new THREE.MeshStandardMaterial({ color: 0xf5f1ea, roughness: 0.26 }),
     beans: new THREE.MeshStandardMaterial({ color: 0x3b2415, roughness: 0.55 }),
     croissant: new THREE.MeshStandardMaterial({ color: 0xd8963d, roughness: 0.7 }),
     muffin: new THREE.MeshStandardMaterial({ color: 0xb87a43, roughness: 0.8 }),
@@ -396,7 +397,9 @@ export async function start({ stage, onReady = () => {} }) {
   paint("room04-brick-red-v1.webp", { repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.map = t; materials.brick.map = t; materials.brick.color.set(0xffffff); materials.brick.needsUpdate = true; } });
   paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.bump = t; materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
   paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { woodFloor.map = t; materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
-  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
+  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-window-xintiandi-morning-v1.webp"; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
+  // The front wall is behind the opening camera. Request its first image after the first scene render.
+  setTimeout(() => paint("room04-street-corner-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-street-corner-morning-v1.webp"; materials.streetFront.userData.dry = t; materials.streetFront.map = t; materials.streetFront.color.set(0xffffff); materials.streetFront.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } }), 0);
 
   paint("room04-oak-panel-v1.webp", { then: (t) => { materials.oak.map = t; materials.oak.color.set(0xffffff); materials.oak.needsUpdate = true; materials.oakDeep.map = t; materials.oakDeep.color.set(0xe0bd90); materials.oakDeep.needsUpdate = true; } });
   paint("room04-counter-stone-v1.webp", { then: (t) => { materials.stone.map = t; materials.stone.color.set(0xffffff); materials.stone.needsUpdate = true; } });
@@ -480,6 +483,50 @@ export async function start({ stage, onReady = () => {} }) {
   const slab = (key, [x0, x1], [y0, y1], [z0, z1], options) => part(key, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), options);
   const noCast = new Set(["leaf", "leafDark", "bloom", "soil", "water", "paper", "cover", "glass", "muffinCup", "muffin", "croissant", "cookie", "chip", "beans", "coffee", "warm", "eyes", "cane", "kraft", "lid", "tablet", "gold", "pendantShade", "sconceGlow"]);
   const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0, { cast: !noCast.has(key) }); parts.clear(); };
+
+  // Card 57: shared real-sized cup forms. Every component joins the existing material batches at flush().
+  const ceramicCup = ({ x, y, z, scale = 1, saucer = true, spoon = saucer, coffee = false, latte = false }) => {
+    const s = scale, points = [[0, 0.002], [0.021, 0.002], [0.024, 0.004], [0.025, 0.008], [0.031, 0.051], [0.0325, 0.054], [0.034, 0.054], [0.034, 0.051], [0.029, 0.05], [0.023, 0.012], [0.019, 0.008], [0, 0.008]];
+    const base = y + (saucer ? 0.009 * s : 0);
+    if (saucer) {
+      const dish = [[0, 0.002], [0.026, 0.002], [0.033, 0.006], [0.049, 0.005], [0.059, 0.009], [0.0625, 0.011], [0.0625, 0.014], [0.058, 0.012], [0.048, 0.008], [0.031, 0.010], [0, 0.010]];
+      part("ceramic", new THREE.LatheGeometry(dish.map(([r, h]) => new THREE.Vector2(r * s, h * s)), 20).translate(x, y, z), { tile: 1 });
+      part("ceramic", new THREE.TorusGeometry(0.027 * s, 0.0025 * s, 6, 20).rotateX(Math.PI / 2).translate(x, y + 0.010 * s, z), { tile: 1 });
+    }
+    part("ceramic", new THREE.LatheGeometry(points.map(([r, h]) => new THREE.Vector2(r * s, h * s)), 24).translate(x, base, z), { tile: 1 });
+    part("ceramic", new THREE.TorusGeometry(0.0318 * s, 0.002 * s, 7, 20).rotateX(Math.PI / 2).translate(x, base + 0.053 * s, z), { tile: 1 });
+    const handle = new THREE.CatmullRomCurve3([[0.031, 0.044], [0.046, 0.045], [0.058, 0.038], [0.059, 0.023], [0.048, 0.015], [0.030, 0.018]].map(([dx, dy]) => new THREE.Vector3(x + dx * s, base + dy * s, z)));
+    part("ceramic", new THREE.TubeGeometry(handle, 12, 0.0045 * s, 6, false), { tile: 1 });
+    if (coffee) {
+      const surface = base + 0.047 * s;
+      part("coffee", new THREE.CircleGeometry(0.0285 * s, 20).rotateX(-Math.PI / 2).translate(x, surface, z), { tile: 1 });
+      part("kraft", new THREE.TorusGeometry(0.027 * s, 0.0015 * s, 5, 20).rotateX(Math.PI / 2).translate(x, surface + 0.0005 * s, z), { tile: 1 });
+      if (latte) {
+        const heart = new THREE.Shape(); heart.moveTo(0, -0.009); heart.bezierCurveTo(-0.018, 0.002, -0.009, 0.013, 0, 0.006); heart.bezierCurveTo(0.009, 0.013, 0.018, 0.002, 0, -0.009);
+        part("ceramic", new THREE.ShapeGeometry(heart).rotateX(-Math.PI / 2).translate(x, surface + 0.0015 * s, z), { tile: 1 });
+      }
+    }
+    if (spoon) {
+      part("steel", rodGeometry([x - 0.025 * s, y + 0.016 * s, z + 0.045 * s], [x + 0.045 * s, y + 0.016 * s, z + 0.045 * s], 0.0018 * s, 6), { tile: 1 });
+      part("steel", new THREE.SphereGeometry(0.009 * s, 10, 6).scale(1.3, 0.25, 0.8).translate(x - 0.026 * s, y + 0.016 * s, z + 0.045 * s), { tile: 1 });
+    }
+  };
+  const takeawayCup = ({ x, y, z, lid = false, sleeve = false }) => {
+    part("kraft", new THREE.CylinderGeometry(0.038, 0.027, 0.09, 16, 1, true).translate(x, y + 0.045, z), { tile: 1 });
+    part("kraft", new THREE.CircleGeometry(0.027, 16).rotateX(-Math.PI / 2).translate(x, y + 0.002, z), { tile: 1 });
+    part("kraft", new THREE.TorusGeometry(0.038, 0.003, 6, 16).rotateX(Math.PI / 2).translate(x, y + 0.09, z), { tile: 1 });
+    for (const [h, r] of [[0.018, 0.029], [0.073, 0.036]]) part("kraft", new THREE.TorusGeometry(r, 0.0008, 4, 16).rotateX(Math.PI / 2).translate(x, y + h, z), { tile: 1 });
+    if (sleeve) {
+      part("cover", new THREE.CylinderGeometry(0.035, 0.032, 0.034, 16, 1, true).translate(x, y + 0.05, z), { tile: 1 });
+      for (let i = 0; i < 14; i++) { const a = i * Math.PI * 2 / 14; part("kraft", rodGeometry([x + 0.034 * Math.cos(a), y + 0.034, z + 0.034 * Math.sin(a)], [x + 0.035 * Math.cos(a), y + 0.066, z + 0.035 * Math.sin(a)], 0.0007, 4), { tile: 1 }); }
+    }
+    if (lid) {
+      part("lid", new THREE.CylinderGeometry(0.041, 0.039, 0.008, 16).translate(x, y + 0.095, z), { tile: 1 });
+      part("lid", new THREE.TorusGeometry(0.0395, 0.003, 6, 16).rotateX(Math.PI / 2).translate(x, y + 0.091, z), { tile: 1 });
+      part("lid", new THREE.BoxGeometry(0.018, 0.001, 0.004).translate(x, y + 0.1, z + 0.022), { tile: 1 });
+      part("coffee", new THREE.CircleGeometry(0.0015, 8).rotateX(-Math.PI / 2).translate(x, y + 0.1006, z - 0.023), { tile: 1 });
+    }
+  };
 
   const c = COUNTER, endRadius = (c.z1 - c.z0) / 2, zc = (c.z0 + c.z1) / 2, arcX = c.x1 - endRadius;
   const bodyY0 = 0.10, bodyY1 = c.height - c.top; // a 10 cm recessed toe-kick, then the body up to the stone
@@ -598,7 +645,7 @@ export async function start({ stage, onReady = () => {} }) {
     part("steel", roundedBox(W - 0.06, H, D - 0.02, 0.03, 0.006).translate(mx, y0 + H / 2, mz), { tile: 1 });
     for (const sign of [-1, 1]) part("black", roundedBox(D, H + 0.02, 0.03, 0.035, 0.005).rotateY(Math.PI / 2).translate(mx + sign * (W / 2 - 0.015), y0 + H / 2, mz), { tile: 1 });
     slab("steel", [mx - 0.345, mx + 0.345], [y0 + H, y0 + H + 0.012], [mz - 0.22, mz + 0.22], { tile: 1 }); // the cup-warmer plate
-    for (let i = 0; i < 4; i++) part("ceramic", new THREE.LatheGeometry([[0, 0], [0.03, 0], [0.043, 0.062], [0.039, 0.062], [0.027, 0.008], [0]].map((p) => new THREE.Vector2(p[0], p[1] ?? 0)), 16).translate(mx - 0.24 + i * 0.16, y0 + H + 0.012, mz), { tile: 1 });
+    for (let i = 0; i < 4; i++) ceramicCup({ x: mx - 0.24 + i * 0.16, y: y0 + H + 0.012, z: mz, saucer: false, spoon: false });
     for (const dz of [-0.19, 0.19]) {
       part("steel", rodGeometry([mx - 0.33, y0 + H + 0.085, mz + dz], [mx + 0.33, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
       for (const dx of [-0.33, 0.33]) part("steel", rodGeometry([mx + dx, y0 + H + 0.012, mz + dz], [mx + dx, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
@@ -778,10 +825,7 @@ export async function start({ stage, onReady = () => {} }) {
     greeter.limb([-0.19, 0.34, 0.03], [-0.235, 0.2, 0.08]); // the left arm rests at its side
     consolidateRobot(greeter.local);
     scene.add(robot);
-    // The cup of coffee on its saucer, standing on the counter.
-    part("ceramic", new THREE.CylinderGeometry(0.075, 0.058, 0.012, 28).translate(GREETER_CUP.x, c.height + 0.006, GREETER_CUP.z), { tile: 1 });
-    part("ceramic", new THREE.LatheGeometry([[0, 0], [0.036, 0], [0.05, 0.07], [0.046, 0.07], [0.033, 0.01], [0]].map((p) => new THREE.Vector2(p[0], p[1] ?? 0)), 24).translate(GREETER_CUP.x, c.height + 0.012, GREETER_CUP.z), { tile: 1 });
-    part("coffee", new THREE.CircleGeometry(0.044, 24).rotateX(-Math.PI / 2).translate(GREETER_CUP.x, c.height + 0.074, GREETER_CUP.z), { tile: 1 });
+    ceramicCup({ x: GREETER_CUP.x, y: c.height, z: GREETER_CUP.z, scale: 1.18, coffee: true, latte: true });
   }
   const baristaRobot = new THREE.Group(); baristaRobot.name = "robot-barista-machine";
   const PITCHER = new THREE.Vector3(mx + MACHINE.W / 2 + 0.04, machineY0 + 0.135, machineFront + 0.125); // where the wand tip sits: inside the pitcher
@@ -828,11 +872,8 @@ export async function start({ stage, onReady = () => {} }) {
   part("iron", place(new THREE.LatheGeometry([[0.0005, 0.7], [0.04, 0.7], [0.026, 0.64], [0.02, 0.4], [0.034, 0.12], [0.06, 0.05], [0.0005, 0.05]].map((p) => new THREE.Vector2(p[0], p[1])), 24), SEAT.x, SEAT.z), { tile: 1 });
   part("iron", place(new THREE.CylinderGeometry(0.21, 0.23, 0.02, 40).translate(0, 0.01, 0), SEAT.x, SEAT.z), { tile: 1 });
   const tableTop = 0.74, tx = (dx) => SEAT.x + dx, tz = (dz) => SEAT.z + dz;
-  // The cup that has just been poured, with a saucer.
-  part("ceramic", new THREE.CylinderGeometry(0.062, 0.05, 0.01, 28).translate(tx(0.13), tableTop + 0.005, tz(-0.06)), { tile: 1 });
-  part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.034, 0], [0.047, 0.066], [0.043, 0.066], [0.031, 0.01], [0.0005, 0.01]].map((p) => new THREE.Vector2(p[0], p[1])), 24).translate(tx(0.13), tableTop + 0.01, tz(-0.06)), { tile: 1 });
-  part("ceramic", new THREE.TorusGeometry(0.019, 0.006, 8, 14, Math.PI * 1.1).rotateZ(-Math.PI * 0.55).translate(tx(0.13) + 0.05, tableTop + 0.05, tz(-0.06)), { tile: 1 });
-  part("coffee", new THREE.CircleGeometry(0.039, 24).rotateX(-Math.PI / 2).translate(tx(0.13), tableTop + 0.071, tz(-0.06)), { tile: 1 });
+  // The window-seat cup uses the same ceramic form as the counter and machine.
+  ceramicCup({ x: tx(0.13), y: tableTop, z: tz(-0.06), scale: 1.1, coffee: true });
   // An open notebook (two page blocks tilted into a shallow V on a dark cover) and a pen lying across it.
   {
     const nx = tx(-0.04), nz = tz(0.12), yaw = 0.35;
@@ -885,10 +926,7 @@ export async function start({ stage, onReady = () => {} }) {
   {
     const lower = 1.75 + 0.035, upper = 2.15 + 0.035, zS = BACK + 0.13;
     for (let i = 0; i < 4; i++) part("ceramic", new THREE.CylinderGeometry(0.095, 0.075, 0.013, 28).translate(-2.3, lower + 0.0065 + i * 0.014, zS), { tile: 1 });
-    for (const [mx2, turn] of [[-1.95, 0], [-1.78, 1]]) {
-      part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.036, 0], [0.04, 0.09], [0.0005, 0.09]].map((p) => new THREE.Vector2(p[0], p[1])), 20).translate(mx2, lower, zS), { tile: 1 });
-      part("ceramic", new THREE.TorusGeometry(0.02, 0.006, 8, 14, Math.PI).rotateZ(-Math.PI / 2 + turn * 0.2).translate(mx2 + 0.042, lower + 0.048, zS), { tile: 1 });
-    }
+    for (const mx2 of [-1.95, -1.78]) ceramicCup({ x: mx2, y: lower, z: zS, scale: 1.35, saucer: false, spoon: false });
     for (const [jx, jh] of [[-2.25, 0.22], [-2.07, 0.17]]) {
       part("ceramic", new THREE.CylinderGeometry(0.058, 0.062, jh, 24).translate(jx, upper + jh / 2, zS), { tile: 1 });
       part("oak", new THREE.CylinderGeometry(0.056, 0.056, 0.028, 24).translate(jx, upper + jh + 0.014, zS), { tile: 0.3 });
@@ -928,12 +966,7 @@ export async function start({ stage, onReady = () => {} }) {
   {
     // Counter details on the customer side: two stacks of kraft takeaway cups with white lids, a tip jar and a card reader on a stand.
     partShift = counterShift(-0.3); // the cups and the tip jar stand on the backward lobe of the wave
-    const cupStack = (x, z, n) => {
-      for (let i = 0; i < n; i++) part("kraft", new THREE.CylinderGeometry(0.037, 0.027, 0.09, 20, 1, true).translate(x, top + 0.045 + i * 0.03, z), { tile: 1 });
-      part("kraft", new THREE.CylinderGeometry(0.027, 0.027, 0.004, 20).translate(x, top + 0.002, z), { tile: 1 });
-      part("lid", new THREE.CylinderGeometry(0.04, 0.04, 0.008, 20).translate(x, top + 0.03 * (n - 1) + 0.094, z), { tile: 1 });
-      part("lid", new THREE.TorusGeometry(0.038, 0.005, 6, 20).rotateX(Math.PI / 2).translate(x, top + 0.03 * (n - 1) + 0.09, z), { tile: 1 });
-    };
+    const cupStack = (x, z, n) => { for (let i = 0; i < n; i++) takeawayCup({ x, y: top + i * 0.03, z, lid: i === n - 1, sleeve: i === n - 1 }); };
     cupStack(-0.42, c.z1 - 0.14, 5); cupStack(-0.3, c.z1 - 0.16, 4);
     part("glass", new THREE.CylinderGeometry(0.06, 0.06, 0.13, 24).translate(-0.12, top + 0.065, c.z1 - 0.13), { tile: 1 });
     part("gold", new THREE.CylinderGeometry(0.057, 0.057, 0.034, 20).translate(-0.12, top + 0.025, c.z1 - 0.13), { tile: 1 });
@@ -980,7 +1013,7 @@ export async function start({ stage, onReady = () => {} }) {
     for (const y of [0.99, 1.51]) part("black", rodGeometry([hx, y, dz - 0.03], [hx, y, dz - 0.07], 0.01, 8), { tile: 1 });
     for (const y of [0.4, 1.1, 1.8]) part("black", new THREE.CylinderGeometry(0.014, 0.014, 0.05, 10).rotateX(Math.PI / 2).translate(DOOR.x0 + 0.02, y, dz - 0.04), { tile: 1 }); // hinge knuckles
     // The street behind it: the painted Xintiandi view, tinted with the mood, on a big plane 1.6 m outside the wall.
-    const street2 = add("front-street-view", new THREE.PlaneGeometry(7.2, 4.8), materials.street, -0.5, 1.6, FW + T + 1.6, { cast: false, receive: false });
+    const street2 = add("front-street-view", new THREE.PlaneGeometry(7.2, 4.8), materials.streetFront, -0.5, 1.6, FW + T + 1.6, { cast: false, receive: false });
     street2.rotation.y = Math.PI; // faces -z, into the room
     // Olive board-and-batten wainscot on the front wall, either side of the openings, and skirting.
     for (const [a0, a1] of [[X0 + 0.04, WIN.x0], [DOOR.x1, X1 - 0.04]]) {
@@ -1309,10 +1342,7 @@ export async function start({ stage, onReady = () => {} }) {
         }
       }
       const cx = tx + 0.145, cz = z + 0.062;
-      disc("ceramic", cx, 0.454, cz, 0.055, 0.008);
-      part("ceramic", new THREE.CylinderGeometry(0.033, 0.026, 0.06, 24, 1, true).translate(cx, 0.488, cz));
-      disc("coffee", cx, 0.509, cz, 0.031, 0.005);
-      part("ceramic", new THREE.TorusGeometry(0.018, 0.0045, 8, 18).translate(cx + 0.032, 0.489, cz));
+      ceramicCup({ x: cx, y: 0.45, z: cz, scale: 1.05, coffee: true });
       boxPart("black", 0.155, 0.013, 0.235, tx - 0.064, 0.4565, z - 0.056);
       boxPart("oakDeep", 0.098, 0.012, 0.068, tx - 0.057, 0.456, z + 0.119);
       boxPart("paper", 0.091, 0.008, 0.062, tx - 0.057, 0.462, z + 0.119);
@@ -1446,32 +1476,39 @@ export async function start({ stage, onReady = () => {} }) {
   // The street painting with rain drawn over it, made once the first time the rain mood is chosen: pale falling strokes leaning one way and a few beads.
   // One painted street per mood (Codex, card 47 D): the morning painting for morning and midday, then golden hour, rain and night. The rain painting has no rain in it;
   // falling rain is drawn over it once, the first time it is needed. Until a painting has loaded the morning one stays.
-  const MOOD_STREET = { series: "room04-window-xintiandi-night-v1.webp", morning: "room04-window-xintiandi-morning-v1.webp", noon: "room04-window-xintiandi-morning-v1.webp", golden: "room04-window-xintiandi-golden-v1.webp", rain: "room04-window-xintiandi-rain-v1.webp", closing: "room04-window-xintiandi-night-v1.webp" };
+  const MOOD_STREET = {
+    left: { series: "room04-window-xintiandi-night-v1.webp", morning: "room04-window-xintiandi-morning-v1.webp", noon: "room04-window-xintiandi-morning-v1.webp", golden: "room04-window-xintiandi-golden-v1.webp", rain: "room04-window-xintiandi-rain-v1.webp", closing: "room04-window-xintiandi-night-v1.webp" },
+    front: { series: "room04-street-corner-night-v1.webp", morning: "room04-street-corner-morning-v1.webp", noon: "room04-street-corner-morning-v1.webp", golden: "room04-street-corner-golden-v1.webp", rain: "room04-street-corner-rain-v1.webp", closing: "room04-street-corner-night-v1.webp" },
+  };
   const streetTextures = {};
-  let rainStreet = null;
-  function rainOver(texture) {
-    if (rainStreet) return rainStreet;
+  const rainStreets = {};
+  function rainOver(texture, side) {
+    if (rainStreets[side]) return rainStreets[side];
     const image = texture.image, canvas = document.createElement("canvas"); canvas.width = image.width; canvas.height = image.height;
     const g = canvas.getContext("2d"), w = canvas.width, h = canvas.height;
     g.drawImage(image, 0, 0, w, h);
     let seed = 17; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 520; i++) { const x = rnd() * w * 1.1 - w * 0.05, y = rnd() * h, len = 60 + rnd() * 110; g.strokeStyle = `rgba(232,240,246,${(0.14 + rnd() * 0.22).toFixed(2)})`; g.lineWidth = 2 + rnd() * 2.4; g.beginPath(); g.moveTo(x, y); g.lineTo(x + len * 0.17, y + len); g.stroke(); }
-    rainStreet = new THREE.CanvasTexture(canvas); rainStreet.colorSpace = THREE.SRGBColorSpace; rainStreet.anisotropy = maxAnisotropy;
+    const rainStreet = new THREE.CanvasTexture(canvas); rainStreet.colorSpace = THREE.SRGBColorSpace; rainStreet.anisotropy = maxAnisotropy; rainStreet.userData.file = texture.userData.file;
+    rainStreets[side] = rainStreet;
     return rainStreet;
   }
-  function streetTexture(name) {
-    const file = MOOD_STREET[name];
-    if (file === MOOD_STREET.morning) return materials.street.userData.dry ?? null;
+  function streetTexture(name, side) {
+    const material = side === "left" ? materials.street : materials.streetFront;
+    const file = MOOD_STREET[side][name];
+    if (file === MOOD_STREET[side].morning) return material.userData.dry ?? null;
     if (!(file in streetTextures)) {
       streetTextures[file] = null;
-      textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = maxAnisotropy; streetTextures[file] = t; loadedArt.add(file); applyStreet(currentMood); render(); });
+      textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = maxAnisotropy; t.userData.file = file; streetTextures[file] = t; loadedArt.add(file); applyStreet(currentMood); render(); });
     }
     return streetTextures[file];
   }
   function applyStreet(name) {
-    let t = streetTexture(name) ?? materials.street.userData.dry ?? null; // the morning painting stands in until this mood's painting has loaded
-    if (t && name === "rain" && t !== materials.street.userData.dry) t = rainOver(t);
-    if (t && materials.street.map !== t) { materials.street.map = t; materials.street.needsUpdate = true; }
+    for (const [side, material] of [["left", materials.street], ["front", materials.streetFront]]) {
+      let t = streetTexture(name, side) ?? material.userData.dry ?? null; // each morning painting stands in until that side's new mood loads
+      if (t && name === "rain" && t !== material.userData.dry) t = rainOver(t, side);
+      if (t && material.map !== t) { material.map = t; material.needsUpdate = true; }
+    }
   }
 
   let currentMood = "morning", moodTween = 0;
@@ -1484,7 +1521,7 @@ export async function start({ stage, onReady = () => {} }) {
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
     ambient.intensity = live.ambient; lamp.intensity = live.lamp;
     for (const spot of trackLights) { spot.intensity = live.track; spot.color.copy(live.trackColor); }
-    renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street);
+    renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street); materials.streetFront.color.copy(live.street);
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
     steam.material.opacity = live.steam;
     materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = live.tv * 2.4;
@@ -1751,6 +1788,7 @@ export async function start({ stage, onReady = () => {} }) {
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     robotHop, setView, view: () => viewName, views: () => Object.keys(VIEWS), setCenterView, centerLook, isCenter: () => Boolean(center),
+    streetMaterials: () => ({ separate: materials.street !== materials.streetFront, left: materials.street.map?.userData.file, front: materials.streetFront.map?.userData.file }),
     menuCopy: PROVISIONAL_MENUS, menuTextureKinds: () => [Boolean(materials.menuA.map?.isCanvasTexture), Boolean(materials.menuB.map?.isCanvasTexture)], lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
     info() {
       let vertices = 0, meshes = 0;
