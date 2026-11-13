@@ -208,7 +208,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=28");
+  const { start } = await import("./cafe.js?v=29");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);

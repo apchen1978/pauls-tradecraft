@@ -1199,7 +1199,7 @@ export async function start({ stage, onReady = () => {} }) {
   // ---------- the bar stools (Codex card 52 A): three designs, four stools along the counter, seat 65 cm ----------
   const stoolSets = { bentwood: new THREE.Group(), leather: new THREE.Group(), metal: new THREE.Group() };
   {
-    const POS = [[-1.55, 0.18, 0.3], [-0.45, 0.2, -0.4], [0.65, 0.18, 0.1], [1.75, 0.2, -0.3]]; // x, z, yaw
+    const POS = [[-1.2, 0.18, 0.3], [-0.45, 0.2, -0.4], [0.65, 0.18, 0.1], [1.75, 0.2, -0.3]]; // x, z, yaw
     const rail = (r, y) => r - (0.055 * y) / 0.63; // the legs splay: 20.5 cm radius at the floor, 15 cm under the seat
     for (const kind of Object.keys(stoolSets)) {
       const lb = lampBuilder();
