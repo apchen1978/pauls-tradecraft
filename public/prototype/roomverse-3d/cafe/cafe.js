@@ -1476,6 +1476,38 @@ export async function start({ stage, onReady = () => {} }) {
     camera.updateMatrixWorld(); render();
   };
   function centerLook(dYaw, dPitch) { if (!center) return; center.yaw += dYaw; center.pitch = Math.min(0.6, Math.max(-0.6, center.pitch + dPitch)); applyCenter(); }
+  // Named orbit views (like Room 02's "look at" buttons): the camera glides to a station and the orbit limits are re-centred on it, so the visitor can still drag around a little.
+  // "overview" is the opening view; "counter" comes close to the machine, pastry case and the barista robot; "window" sits at the street window and the window seat.
+  const VIEWS = {
+    overview: { ...initial, limits: null },
+    counter: compact ? { position: [1.9, 1.5, 1.55], target: [0.2, 1.2, -0.7], fov: 62 } : { position: [1.7, 1.5, 1.45], target: [0.2, 1.22, -0.7], fov: 50 },
+    window: compact ? { position: [0.3, 1.35, 2.1], target: [-2.5, 1.0, 0.5], fov: 66 } : { position: [-0.1, 1.4, 2.0], target: [-2.5, 1.0, 0.5], fov: 54 },
+  };
+  const OVERVIEW_LIMITS = { minDistance: 2.2, maxDistance: 5.2, minPolar: 1.2, maxPolar: 1.62, minAz: -1.05, maxAz: 0.75 };
+  let viewName = "overview", viewRun = 0;
+  const limitsFor = (v) => {
+    if (!v.limits && v === VIEWS.overview) return OVERVIEW_LIMITS;
+    const p = new THREE.Vector3(...v.position), t = new THREE.Vector3(...v.target), d = p.distanceTo(t), off = p.clone().sub(t);
+    const az = Math.atan2(off.x, off.z), pol = Math.acos(off.y / d);
+    return { minDistance: d * 0.7, maxDistance: d * 1.2, minPolar: Math.max(0.6, pol - 0.2), maxPolar: Math.min(1.75, pol + 0.2), minAz: az - 0.45, maxAz: az + 0.45 };
+  };
+  const applyLimits = (l) => { controls.minDistance = l.minDistance; controls.maxDistance = l.maxDistance; controls.minPolarAngle = l.minPolar; controls.maxPolarAngle = l.maxPolar; controls.minAzimuthAngle = l.minAz; controls.maxAzimuthAngle = l.maxAz; };
+  function setView(name, instant = false) {
+    const v = VIEWS[name]; if (!v || center) return false;
+    const run = ++viewRun, from = { p: camera.position.clone(), t: controls.target.clone(), fov: camera.fov }, to = { p: new THREE.Vector3(...v.position), t: new THREE.Vector3(...v.target), fov: v.fov };
+    viewName = name; applyLimits({ minDistance: 0.1, maxDistance: 40, minPolar: 0, maxPolar: Math.PI, minAz: -Infinity, maxAz: Infinity }); // free while gliding, tightened at the end
+    const done = () => { camera.position.copy(to.p); controls.target.copy(to.t); camera.fov = to.fov; camera.updateProjectionMatrix(); applyLimits(limitsFor(v)); controls.update(); render(); };
+    if (instant || reducedMotion()) { done(); return true; }
+    const t0 = performance.now(), T = 800, ease = (k) => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    const step = (now) => {
+      if (run !== viewRun) return;
+      const k = Math.min(1, (now - t0) / T), e = ease(k);
+      camera.position.lerpVectors(from.p, to.p, e); controls.target.lerpVectors(from.t, to.t, e); camera.fov = from.fov + (to.fov - from.fov) * e; camera.updateProjectionMatrix();
+      camera.lookAt(controls.target); render();
+      if (k < 1) requestAnimationFrame(step); else done();
+    };
+    requestAnimationFrame(step); return true;
+  }
   function setCenterView(on) {
     if (on === Boolean(center)) return;
     const canvas = renderer.domElement;
@@ -1528,7 +1560,7 @@ export async function start({ stage, onReady = () => {} }) {
     noteScreen: () => projectBox(note),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
-    robotHop, setCenterView, centerLook, isCenter: () => Boolean(center),
+    robotHop, setView, view: () => viewName, views: () => Object.keys(VIEWS), setCenterView, centerLook, isCenter: () => Boolean(center),
     lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
     info() {
       let vertices = 0, meshes = 0;

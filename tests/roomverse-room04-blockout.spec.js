@@ -151,3 +151,30 @@ test("Room 04 skips the shadow pass when nothing shadow-casting changes", async 
   expect(counts.first).toBeGreaterThan(counts.second);
   expect(counts.first - counts.second).toBeGreaterThan(5);
 });
+
+test("Room 04 has named views (overview, counter, window seat) and the overview comes back exactly", async ({ page }) => {
+  for (const width of [1440, 390]) {
+    const errors = await open(page, width);
+    const pose = () => page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(2)), fov: r.camera.fov, view: r.view() }; });
+    const start = await pose();
+    expect(start.view).toBe("overview");
+    await expect(page.locator('[data-view="overview"]')).toHaveAttribute("aria-pressed", "true");
+    const seen = new Set([start.p.join(",")]);
+    for (const view of ["counter", "window"]) {
+      await page.locator(`[data-view="${view}"]`).click();
+      await page.waitForFunction((v) => window.__room04.view() === v, view);
+      await page.waitForTimeout(1100);
+      await expect(page.locator(`[data-view="${view}"]`)).toHaveAttribute("aria-pressed", "true");
+      const pos = await pose(); expect(pos.view).toBe(view); seen.add(pos.p.join(","));
+    }
+    expect(seen.size, "three different camera stations").toBe(3);
+    await page.locator('[data-view="overview"]').click(); await page.waitForTimeout(1100);
+    const back = await pose(); expect(back.p).toEqual(start.p); expect(back.fov).toBe(start.fov);
+    // Standing in the middle still works from a view, and leaving it returns to that view.
+    await page.locator('[data-view="window"]').click(); await page.waitForTimeout(1100);
+    const win = await pose();
+    await page.locator("#centerView").click(); await page.locator("#centerView").click(); await page.waitForTimeout(200);
+    expect((await pose()).p).toEqual(win.p);
+    expect(errors).toEqual([]);
+  }
+});
