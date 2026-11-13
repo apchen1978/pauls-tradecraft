@@ -379,7 +379,7 @@ export async function start({ stage, onReady = () => {} }) {
   Object.assign(materials, {
     ceramic: new THREE.MeshStandardMaterial({ color: 0xf5f1ea, roughness: 0.26 }),
     beans: new THREE.MeshStandardMaterial({ color: 0x3b2415, roughness: 0.55 }),
-    croissant: new THREE.MeshStandardMaterial({ color: 0xd8963d, roughness: 0.7 }),
+    croissant: new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.7 }),
     muffin: new THREE.MeshStandardMaterial({ color: 0xb87a43, roughness: 0.8 }),
     muffinCup: new THREE.MeshStandardMaterial({ color: 0xe9e0d0, roughness: 0.9, side: THREE.DoubleSide }),
     cookie: new THREE.MeshStandardMaterial({ color: 0xc58b4b, roughness: 0.85 }),
@@ -846,31 +846,87 @@ export async function start({ stage, onReady = () => {} }) {
     const ring = [[zb, base], [zb, base + Hh], ...path.slice(1, path.length - 1).map((p) => [p[0], p[1]]), [zf, base]];
     for (const x of [x0 + 0.012, x1 - 0.012]) for (let i = 0; i < ring.length - 1; i++) part("black", rodGeometry([x, ring[i][1], ring[i][0]], [x, ring[i + 1][1], ring[i + 1][0]], 0.006), { tile: 1 });
     for (const p of [[zf, base], [zb, base + Hh], [zf, base + Hh - R]]) part("black", rodGeometry([x0 + 0.012, p[1], p[0]], [x1 - 0.012, p[1], p[0]], 0.006), { tile: 1 });
-    const shelfY = base + 0.25;
+    const shelfY = base + 0.28;
     slab("glass", [x0 + 0.014, x1 - 0.014], [shelfY - 0.003, shelfY + 0.003], [zb + 0.01, zf - 0.015], { tile: 1 });
     part("steel", rodGeometry([x0 + 0.014, shelfY + 0.006, zf - 0.015], [x1 - 0.014, shelfY + 0.006, zf - 0.015], 0.0045), { tile: 1 });
     for (const x of [x0 + 0.014, x1 - 0.014]) slab("black", [x - 0.006, x + 0.006], [shelfY - 0.012, shelfY], [zb + 0.01, zf - 0.015], { tile: 1 });
     // Warm strip light under the top front edge.
     slab("warm", [x0 + 0.06, x1 - 0.06], [base + Hh - 0.02, base + Hh - 0.012], [zf - R - 0.02, zf - R + 0.03], { tile: 1 });
-    const plates = [[1.52, shelfY + 0.003, 0], [1.98, shelfY + 0.003, 1], [1.5, base, 2], [1.95, base, 3]];
+    const plates = [[1.52, shelfY + 0.003], [1.98, shelfY + 0.003], [1.74, shelfY + 0.024], [2.17, shelfY + 0.018], [1.5, base], [1.95, base]];
     const pz = (zb + zf) / 2 + 0.01;
-    for (const [px, py] of plates) part("ceramic", new THREE.CylinderGeometry(0.108, 0.092, 0.01, 28).translate(px, py + 0.005, pz), { tile: 1 });
-    const croissant = (x, y, z, turn) => { // seven lumps along an arc, fat in the middle and thin at the horns
-      for (let i = 0; i < 7; i++) {
-        const t = i / 6, a = (t - 0.5) * 2.3, r = 0.011 + 0.016 * Math.sin(t * Math.PI);
-        const g = new THREE.SphereGeometry(r, 10, 7); g.scale(1.25, 0.95, 1);
-        part("croissant", g.translate(Math.sin(a) * 0.05, r * 0.9, -Math.cos(a) * 0.05 + 0.05).rotateY(turn).translate(x, y, z), { tile: 1 });
+    for (const [px, py] of plates) {
+      if (py > shelfY + 0.01) part("ceramic", new THREE.CylinderGeometry(0.052, 0.06, py - shelfY, 16).translate(px, shelfY + (py - shelfY) / 2, pz), { tile: 1 });
+      part("ceramic", new THREE.CylinderGeometry(0.09, 0.083, 0.009, 24).translate(px, py + 0.0045, pz), { tile: 1 });
+    }
+    const croissant = (x, y, z, turn) => { // one curved, tapered body with six folded ridges and baked vertex colours
+      const positions = [], colors = [], indices = [], baked = new THREE.Color(), golden = new THREE.Color(0xf2b85f), toasted = new THREE.Color(0xa85b23);
+      const along = 30, around = 10;
+      for (let i = 0; i <= along; i++) {
+        const t = i / along, a = (t - 0.5) * Math.PI * 0.9;
+        const r = 0.0025 + 0.028 * Math.sin(Math.PI * t) * (1 + 0.10 * Math.cos(t * Math.PI * 12));
+        for (let j = 0; j <= around; j++) {
+          const theta = j / around * Math.PI * 2;
+          positions.push((t - 0.5) * 0.16, 0.023 + r * Math.sin(theta), 0.014 - 0.027 * Math.cos(a) + r * Math.cos(theta));
+          baked.copy(golden).lerp(toasted, 0.25 + 0.52 * Math.max(0, Math.cos(t * Math.PI * 12)));
+          colors.push(baked.r, baked.g, baked.b);
+          if (i && j) { const k = i * (around + 1) + j; indices.push(k, k - 1, k - around - 1, k - 1, k - around - 2, k - around - 1); }
+        }
       }
+      const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)); g.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3)); g.setIndex(indices); g.computeVertexNormals();
+      part("croissant", g.rotateY(turn).translate(x, y, z), { tile: 1 });
     };
-    croissant(1.5, shelfY + 0.01, pz - 0.01, 0.4); croissant(1.54, shelfY + 0.036, pz + 0.01, 2.2); croissant(1.99, shelfY + 0.01, pz, 1.1);
+    croissant(1.48, shelfY + 0.009, pz - 0.026, 0.22); croissant(1.56, shelfY + 0.026, pz + 0.022, -0.35); croissant(1.98, shelfY + 0.009, pz, 0.62);
+    const detail = (g, hex) => part("loungeDetail", colorize(g, hex), { tile: 1 });
+    // Fruit tart, two small French tarts and a layered slice fill the raised upper plates.
+    part("cookie", new THREE.CylinderGeometry(0.062, 0.053, 0.025, 20).translate(1.75, shelfY + 0.061, pz), { tile: 1 });
+    part("ceramic", new THREE.CylinderGeometry(0.052, 0.052, 0.008, 20).translate(1.75, shelfY + 0.077, pz), { tile: 1 });
+    for (let i = 0; i < 9; i++) { const a = i * Math.PI * 2 / 9, hex = [0xc53b36, 0x344c81, 0xe9b743][i % 3]; detail(new THREE.SphereGeometry(0.012, 8, 6).translate(1.75 + Math.cos(a) * 0.033, shelfY + 0.087, pz + Math.sin(a) * 0.033), hex); }
+    for (const [x, z] of [[2.125, pz - 0.03], [2.205, pz + 0.025]]) {
+      part("cookie", new THREE.CylinderGeometry(0.032, 0.028, 0.025, 16).translate(x, shelfY + 0.058, z), { tile: 1 });
+      part("ceramic", new THREE.SphereGeometry(0.025, 12, 8).scale(1, 0.65, 1).translate(x, shelfY + 0.078, z), { tile: 1 });
+    }
+    for (const [y, h, hex] of [[0.029, 0.012, 0xe5b57a], [0.042, 0.009, 0xf4e6cf], [0.052, 0.005, 0xb94b49], [0.06, 0.012, 0xe5b57a]]) {
+      detail(new THREE.CylinderGeometry(0.062, 0.062, h, 3).rotateY(Math.PI / 6).translate(2.04, shelfY + y, pz - 0.01), hex);
+    }
+    detail(new THREE.SphereGeometry(0.012, 8, 6).translate(2.04, shelfY + 0.077, pz - 0.01), 0xc53b36);
     const muffin = (x, y, z) => {
       part("muffinCup", new THREE.LatheGeometry([[0.026, 0], [0.037, 0.042]].map((p) => new THREE.Vector2(p[0], p[1])), 16).translate(x, y, z), { tile: 1 });
       const dome = new THREE.SphereGeometry(0.043, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2); dome.scale(1, 0.85, 1); part("muffin", dome.translate(x, y + 0.038, z), { tile: 1 });
       for (let i = 0; i < 5; i++) { const a = i * 1.3; part("chip", new THREE.SphereGeometry(0.0055, 6, 5).translate(x + Math.cos(a) * 0.026, y + 0.058 + (i % 2) * 0.004, z + Math.sin(a) * 0.026), { tile: 1 }); }
     };
     muffin(1.46, base + 0.01, pz - 0.015); muffin(1.56, base + 0.01, pz + 0.03);
+    // Low basket of six dark canelés beside the muffins.
+    part("kraft", new THREE.CylinderGeometry(0.075, 0.068, 0.018, 18).translate(1.78, base + 0.02, pz - 0.065), { tile: 1 });
+    for (let i = 0; i < 6; i++) {
+      const a = i * Math.PI * 2 / 6;
+      part("chip", new THREE.CylinderGeometry(0.018, 0.014, 0.038, 9).translate(1.78 + Math.cos(a) * 0.042, base + 0.049, pz - 0.065 + Math.sin(a) * 0.042), { tile: 1 });
+    }
     const cookie = (x, y, z) => { part("cookie", new THREE.CylinderGeometry(0.036, 0.036, 0.012, 20).translate(x, y + 0.006, z), { tile: 1 }); for (let i = 0; i < 4; i++) part("chip", new THREE.SphereGeometry(0.0055, 6, 5).translate(x + Math.cos(i * 1.7) * 0.02, y + 0.013, z + Math.sin(i * 1.7) * 0.02), { tile: 1 }); };
-    cookie(1.91, base + 0.01, pz - 0.03); cookie(1.99, base + 0.012, pz + 0.025); cookie(2.03, base + 0.01, pz - 0.035);
+    cookie(1.62, base + 0.01, pz + 0.07); cookie(1.68, base + 0.012, pz + 0.08); cookie(1.72, base + 0.01, pz + 0.045);
+    // A compact bottle tray: four generic green sparkling waters and two clear mineral waters.
+    slab("kraft", [1.87, 2.27], [base + 0.01, base + 0.018], [pz - 0.105, pz + 0.105], { tile: 1 });
+    for (let i = 0; i < 6; i++) {
+      const x = 1.94 + (i % 3) * 0.12, z = pz + (i < 3 ? -0.055 : 0.055), green = i < 4;
+      // Bake the geometry into the existing material batches; the fourth bottle leans slightly.
+      const tilt = i === 3 ? 0.09 : 0;
+      const body = new THREE.CylinderGeometry(0.031, 0.031, 0.17, 12).translate(0, 0.085, 0);
+      const neck = new THREE.CylinderGeometry(0.012, 0.022, 0.07, 12).translate(0, 0.205, 0);
+      for (const g of [body, neck]) part(green ? "leafDark" : "glass", g.rotateZ(tilt).translate(x, base + 0.018, z), { tile: 1 });
+      if (green) part("glass", new THREE.CylinderGeometry(0.032, 0.032, 0.168, 12, 1, true).rotateZ(tilt).translate(x, base + 0.103, z), { tile: 1 });
+      part("gold", new THREE.CylinderGeometry(0.014, 0.014, 0.014, 10).rotateZ(tilt).translate(x - Math.sin(tilt) * 0.247, base + 0.265, z), { tile: 1 });
+      if (green) {
+        part("paper", new THREE.CircleGeometry(0.025, 12).scale(0.88, 1.35, 1).translate(x, base + 0.108, z + 0.032), { tile: 1 });
+        slab("terracotta", [x - 0.016, x + 0.016], [base + 0.11, base + 0.112], [z + 0.032, z + 0.034], { tile: 1 });
+      }
+    }
+    // PROVISIONAL Today card, rendered as tiny strokes within the existing chalk/paper batches.
+    slab("chalk", [1.215, 1.345], [shelfY + 0.069, shelfY + 0.161], [zf - 0.047, zf - 0.041], { tile: 1 });
+    const glyphs = { T:["11111","00100","00100","00100","00100"], O:["01110","10001","10001","10001","01110"], D:["11110","10001","10001","10001","11110"], A:["01110","10001","11111","10001","10001"], Y:["10001","01010","00100","00100","00100"], R:["11110","10001","11110","10100","10010"], C:["01111","10000","10000","10000","01111"], K:["10001","10010","11100","10010","10001"], E:["11111","10000","11110","10000","11111"] };
+    for (const [row, word] of ["TODAY", "TART", "CAKE"].entries()) for (const [col, letter] of [...word].entries()) {
+      for (const [py, bits] of glyphs[letter].entries()) for (const [px, bit] of [...bits].entries()) if (bit === "1") {
+        slab("paper", [1.224 + col * 0.021 + px * 0.0026, 1.226 + col * 0.021 + px * 0.0026], [shelfY + 0.141 - row * 0.025 - py * 0.0028, shelfY + 0.143 - row * 0.025 - py * 0.0028], [zf - 0.041, zf - 0.039], { tile: 1 });
+      }
+    }
     const caseLight = new THREE.PointLight(0xffd7a0, 0.9, 1.3, 2); caseLight.position.set(cx, base + Hh - 0.05, (zb + zf) / 2); scene.add(caseLight);
   }
 

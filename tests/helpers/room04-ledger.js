@@ -8,11 +8,11 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 178123, meshes: 127 }),
+  scene: Object.freeze({ vertices: 184854, meshes: 128 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 109, phone: 101 }),
+  openingDrawCalls: Object.freeze({ desktop: 110, phone: 102 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
-  caps: Object.freeze({ vertices: 185000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
+  caps: Object.freeze({ vertices: 200000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-13", change: "blockout: shell, window, counter, back bar, shelves, menus, plain stand-ins for the machine, grinder, pastry case, robot and plant", vertices: 3419, meshes: 51, desktopCalls: 49, phoneCalls: 48 },
@@ -48,5 +48,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "Card 61 steel finish: existing steel material gains a procedural brushed map for colour, roughness and a shallow bump, with stronger environment reflection; material-only change, no geometry", vertices: 177540, meshes: 126, desktopCalls: 109, phoneCalls: 101 },
     { date: "2026-11-14", change: "lounge plant pot: open weathered terracotta with a rim and visible soil, mulch and pebbles; the framed notice by the door reads Employee of the Month: CC (a canvas certificate, one extra mesh outside the opening view)", vertices: 178123, meshes: 127, desktopCalls: 109, phoneCalls: 101 },
     { date: "2026-11-14", change: "default floor is the herringbone (the grey-brown boards load only when a tinted wood look is picked); the random-cafe button is a gold tag that moves into the full-screen view row; texture and layout only, no geometry change", vertices: 178123, meshes: 127, desktopCalls: 109, phoneCalls: 101 },
+    { date: "2026-11-14", change: "pastry case (Codex card 61, re-applied on the current main by CC after the Codex thread failed): crescent croissants, a fruit tart, small tarts, a layered cake slice, canelés, green sparkling-water bottles and clear still-water bottles, a Today chalk sign; vertex cap raised to 200,000 as the card allowed", vertices: 184854, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
   ]),
 });
