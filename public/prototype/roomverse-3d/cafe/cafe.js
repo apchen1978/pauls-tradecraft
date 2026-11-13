@@ -125,7 +125,7 @@ export const LOOK_GROUPS = Object.freeze({
   lounge: Object.freeze({ terracotta: [0xa0523e, 0xc39748], olive: [0x697349, 0xe2d2ab], navy: [0x354c61, 0xc9b99f] }), // PROVISIONAL
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4], planeleaf: ["room04-wallpaper-plane-leaf.webp", 1.5], windowshadow: ["room04-wallpaper-window-shadow.webp", 1.5] }), // the last two are this cafe's own (Codex card 52 C)
 });
-export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", lounge: "terracotta", menu: "board", stool: "bentwood" });
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "herringbone", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", lounge: "terracotta", menu: "board", stool: "bentwood" });
 // What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
 export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"], planeleaf: ["olive", "walnut", "cream"], windowshadow: ["walnut", "charcoal", "olive"] });
 
@@ -429,7 +429,8 @@ export async function start({ stage, onReady = () => {} }) {
   const redBrick = {}, woodFloor = {}; // the first (default) textures, kept so a look can come back to them
   paint("room04-brick-red-v1.webp", { repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.map = t; materials.brick.map = t; materials.brick.color.set(0xffffff); materials.brick.needsUpdate = true; } });
   paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.bump = t; materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
-  paint("room04-floor-greybrown-v1.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { woodFloor.map = t; materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
+  // Paul (2026-11-14): the default floor is the herringbone, which none of Rooms 01 to 03 has. The plain grey-brown boards stay as the tinted wood options and load only when picked.
+  paint("room04-floor-herringbone.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { woodFloor.map = t; materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
   paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-window-xintiandi-morning-v1.webp"; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
   // The front wall is behind the opening camera. Request its first image after the first scene render.
   setTimeout(() => paint("room04-street-corner-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-street-corner-morning-v1.webp"; materials.streetFront.userData.dry = t; materials.streetFront.map = t; materials.streetFront.color.set(0xffffff); materials.streetFront.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } }), 0);
@@ -1815,7 +1816,10 @@ export async function start({ stage, onReady = () => {} }) {
       if (typeof v === "string") {
         materials.floor.color.setRGB(1, 1, 1);
         altTexture(v, true, [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], (t) => { if (currentLook.floor === key) { materials.floor.map = t; materials.floor.needsUpdate = true; } });
-      } else { if (woodFloor.map) materials.floor.map = woodFloor.map; materials.floor.color.setRGB(...v); materials.floor.needsUpdate = true; }
+      } else {
+        materials.floor.color.setRGB(...v); materials.floor.needsUpdate = true;
+        altTexture("room04-floor-greybrown-v1.webp", true, [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], (t) => { if (currentLook.floor === key) { materials.floor.map = t; materials.floor.needsUpdate = true; } });
+      }
     }
     else if (group === "gallery") { galleryRef.apply?.(key); }
     else if (group === "rug") {

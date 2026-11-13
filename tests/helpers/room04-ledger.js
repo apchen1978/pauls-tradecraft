@@ -47,5 +47,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "Card 61 espresso machine: steel upper seam and base, two double-spout heads, one angled mounted handle, a second handle on its side cradle, black gauge face and steel needle, thinner drip grille", vertices: 177540, meshes: 126, desktopCalls: 109, phoneCalls: 101 },
     { date: "2026-11-14", change: "Card 61 steel finish: existing steel material gains a procedural brushed map for colour, roughness and a shallow bump, with stronger environment reflection; material-only change, no geometry", vertices: 177540, meshes: 126, desktopCalls: 109, phoneCalls: 101 },
     { date: "2026-11-14", change: "lounge plant pot: open weathered terracotta with a rim and visible soil, mulch and pebbles; the framed notice by the door reads Employee of the Month: CC (a canvas certificate, one extra mesh outside the opening view)", vertices: 178123, meshes: 127, desktopCalls: 109, phoneCalls: 101 },
+    { date: "2026-11-14", change: "default floor is the herringbone (the grey-brown boards load only when a tinted wood look is picked); the random-cafe button is a gold tag that moves into the full-screen view row; texture and layout only, no geometry change", vertices: 178123, meshes: 127, desktopCalls: 109, phoneCalls: 101 },
   ]),
 });

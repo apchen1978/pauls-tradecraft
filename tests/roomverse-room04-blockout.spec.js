@@ -69,7 +69,7 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   await open(page, 1440);
   await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
-  for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
+  for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-herringbone.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
   expect(info.stage).toBe("section-10-robots");
 });
 
@@ -383,3 +383,23 @@ test("Room 04 grinder: the beans read as a half-full hopper of many pieces", asy
   expect(beans, "individual beans, not a muddy block").toBeGreaterThanOrEqual(150);
   expect(errors).toEqual([]);
 });
+
+for (const width of [1440, 390]) {
+  test(`Room 04 gold random-cafe tag stays on screen in full screen at ${width}px`, async ({ page }) => {
+    const errors = await open(page, width);
+    const tag = page.locator("#randomLook");
+    await expect(tag).toBeVisible();
+    expect(await tag.evaluate((el) => getComputedStyle(el).backgroundImage), "gold gradient").toContain("linear-gradient");
+    await page.locator("#immersiveEnter").click();
+    await expect(tag).toBeVisible();
+    const box = await tag.boundingBox();
+    expect(box.x, "inside the screen, left edge").toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width, "inside the screen, right edge").toBeLessThanOrEqual(width);
+    const before = await page.evaluate(() => JSON.stringify(window.__room04.look()));
+    await tag.click();
+    await expect.poll(() => page.evaluate(() => JSON.stringify(window.__room04.look()))).not.toBe(before);
+    await page.locator("#immersiveExit").click();
+    await expect(page.locator("#swapActions #randomLook")).toHaveCount(1);
+    expect(errors).toEqual([]);
+  });
+}

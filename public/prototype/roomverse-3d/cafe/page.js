@@ -248,8 +248,10 @@ function setImmersive(on) {
   headerActions.closest("header").inert = on;
   if (on) {
     $("immersiveControls").append($("views"), $("moods"));
+    $("views").prepend($("randomLook")); // the gold "build me a random cafe" tag leads the view row, so it stays on screen in full screen
     $("immersiveExit").focus({ preventScroll: true });
   } else {
+    $("swapActions").prepend($("randomLook"));
     shell.append($("views"));
     $("roomControls").append($("moods"));
     $("immersiveEnter").focus({ preventScroll: true });
@@ -303,7 +305,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=41");
+  const { start } = await import("./cafe.js?v=42");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
