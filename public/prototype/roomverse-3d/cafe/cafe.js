@@ -49,6 +49,60 @@ const MOODS = Object.freeze({
   series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6b7aa6, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0xb4bde0, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0 }),
 });
 
+// PROVISIONAL menu wording. Paul can revise this data without changing the lettering function.
+export const PROVISIONAL_MENUS = Object.freeze({
+  coffee: Object.freeze({
+    heading: "Coffee",
+    items: Object.freeze(["Americano 18元", "Espresso 18元", "Cappuccino 24元", "Latte 26元", "Flat White 28元", "Mocha 30元", "Osmanthus Latte 36元"]),
+    footer: "Slow down · 慢慢來",
+  }),
+  other: Object.freeze({
+    heading: "Not coffee",
+    items: Object.freeze(["Apple Juice 22元", "Orange Juice 24元", "Iced Tea 18元", "Hot Chocolate 28元", "Sparkling Water 16元", "Osmanthus Tea 26元", "Daily Cake 32元"]),
+    footer: "Slow down · 慢慢來",
+  }),
+});
+
+function chalkMenuTexture(image, copy) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024; canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.globalCompositeOperation = "source-over";
+  ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "rgba(250,246,231,.93)";
+  ctx.strokeStyle = "rgba(250,246,231,.20)";
+  ctx.lineJoin = "round";
+  const jitter = (x, y, text, font, width) => {
+    ctx.font = font;
+    ctx.lineWidth = width;
+    ctx.strokeText(text, x + 0.5, y + 0.6);
+    ctx.fillText(text, x, y);
+  };
+  jitter(86, 85, copy.heading, "bold 54px Georgia, serif", 1.4);
+  ctx.strokeStyle = "rgba(250,246,231,.52)"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(86, 126); ctx.lineTo(938, 126); ctx.stroke();
+  const rowHeight = copy.items.length > 6 ? 43 : 47;
+  copy.items.forEach((line, index) => {
+    const y = 172 + index * rowHeight;
+    const match = line.match(/^(.*) (\d+元)$/);
+    if (!match) return;
+    jitter(91, y, match[1], "38px Georgia, serif", 1.1);
+    ctx.textAlign = "right";
+    jitter(933, y, match[2], "bold 35px Georgia, serif", 1.1);
+    ctx.textAlign = "left";
+  });
+  ctx.globalAlpha = 0.8;
+  jitter(91, 472, copy.footer, "italic 19px Georgia, serif", 0.8);
+  ctx.restore();
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.anisotropy = 8;
+  return texture;
+}
+
 // The looks (Paul, 2026-11-13: a "random cafe" like the random look of Rooms 01 to 03). Each group swaps colours or tints on existing materials, so a swap costs no
 // geometry and no draw call. A tint is a multiplier on the painted texture (values above 1 lift a channel), a colour replaces the flat colour.
 export const LOOK_GROUPS = Object.freeze({
@@ -346,8 +400,8 @@ export async function start({ stage, onReady = () => {} }) {
 
   paint("room04-oak-panel-v1.webp", { then: (t) => { materials.oak.map = t; materials.oak.color.set(0xffffff); materials.oak.needsUpdate = true; materials.oakDeep.map = t; materials.oakDeep.color.set(0xe0bd90); materials.oakDeep.needsUpdate = true; } });
   paint("room04-counter-stone-v1.webp", { then: (t) => { materials.stone.map = t; materials.stone.color.set(0xffffff); materials.stone.needsUpdate = true; } });
-  paint("room04-menu-board-a-v1.webp", { then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.menuA.map = t; materials.menuA.color.set(0xffffff); materials.menuA.needsUpdate = true; } });
-  paint("room04-menu-board-b-v1.webp", { then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; materials.menuB.map = t; materials.menuB.color.set(0xffffff); materials.menuB.needsUpdate = true; } });
+  paint("room04-menu-board-a-v1.webp", { then: (t) => { materials.menuA.map = chalkMenuTexture(t.image, PROVISIONAL_MENUS.coffee); materials.menuA.color.set(0xffffff); materials.menuA.needsUpdate = true; } });
+  paint("room04-menu-board-b-v1.webp", { then: (t) => { materials.menuB.map = chalkMenuTexture(t.image, PROVISIONAL_MENUS.other); materials.menuB.color.set(0xffffff); materials.menuB.needsUpdate = true; } });
 
   // Soft reflections (the Room 03 recipe): a tiny made-up room (pale ceiling, warm floor, one bright window panel) baked into an environment map and
   // given ONLY to the metals, glass and stone. scene.environment stays unset so walls, wood and brick keep their exact lighting.
@@ -1511,7 +1565,15 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       return true;
     }
-    else if (group === "menu") { altTexture(v[0], true, [1, 1], (t) => { if (currentLook.menu === key) { materials.menuA.map = t; materials.menuA.needsUpdate = true; } }); altTexture(v[1], true, [1, 1], (t) => { if (currentLook.menu === key) { materials.menuB.map = t; materials.menuB.needsUpdate = true; } }); }
+    else if (group === "menu") {
+      const apply = (material, file, copy) => altTexture(file, true, [1, 1], (t) => {
+        if (currentLook.menu !== key) return;
+        material.map = key === "board" ? chalkMenuTexture(t.image, copy) : t;
+        material.needsUpdate = true;
+      });
+      apply(materials.menuA, v[0], PROVISIONAL_MENUS.coffee);
+      apply(materials.menuB, v[1], PROVISIONAL_MENUS.other);
+    }
     else if (group === "stool") { for (const [name, set] of Object.entries(stoolSets)) set.visible = name === key; }
     else if (group === "clock") { for (const [name, set] of Object.entries(clockSets)) set.visible = name === key; }
     else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
@@ -1689,7 +1751,7 @@ export async function start({ stage, onReady = () => {} }) {
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     robotHop, setView, view: () => viewName, views: () => Object.keys(VIEWS), setCenterView, centerLook, isCenter: () => Boolean(center),
-    lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
+    menuCopy: PROVISIONAL_MENUS, menuTextureKinds: () => [Boolean(materials.menuA.map?.isCanvasTexture), Boolean(materials.menuB.map?.isCanvasTexture)], lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
     info() {
       let vertices = 0, meshes = 0;
       scene.traverse((object) => { if (object.isMesh) { meshes++; vertices += object.geometry.attributes.position.count; } });
