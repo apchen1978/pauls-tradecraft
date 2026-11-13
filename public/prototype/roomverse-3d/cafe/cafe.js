@@ -2056,76 +2056,59 @@ export async function start({ stage, onReady = () => {} }) {
   controls.update(); setMood("morning"); resize();
   requestAnimationFrame(() => requestAnimationFrame(() => afterFirstFrame.forEach((load) => load())));
 
-  // Stand in the middle of the room and turn all the way round (the second way to look, like Room 02 and Room 03): the orbit is switched off, the camera walks to the
-  // station and a drag, or the arrow keys, turn the head. Leaving restores the exact orbit view.
-  const CENTER_STATION = new THREE.Vector3(0.1, 1.55, 1.2), CENTER_FOV = compact ? 84 : 72;
-  let center = null, savedOrbit = null, centerDrag = null;
-  // Dragging fires pointer events faster than the screen refreshes, so a drag asks for one render per frame, not one per event.
-  let centerQueued = false;
-  const applyCenter = (now = false) => {
-    const { yaw, pitch } = center;
-    camera.position.copy(CENTER_STATION);
-    camera.lookAt(CENTER_STATION.x + Math.sin(yaw) * Math.cos(pitch), CENTER_STATION.y + Math.sin(pitch), CENTER_STATION.z - Math.cos(yaw) * Math.cos(pitch));
+  // Viewing stations (Paul, 2026-11-14: drop the overview, it let the visitor drift into a blank grey wall; every view is a place to stand, like Rooms 02 and 03). The camera
+  // always stands at a station at eye height and the visitor turns the head all the way round (drag, or the arrow keys); a button glides the camera to another station and
+  // turns it to that station's first focus (the counter, the window seat, the lounge, the middle of the room). The orbit controls are never used.
+  controls.enabled = false;
+  const aim = (position, target) => { const dx = target[0] - position[0], dy = target[1] - position[1], dz = target[2] - position[2]; return { yaw: Math.atan2(dx, -dz), pitch: Math.atan2(dy, Math.hypot(dx, dz)) }; };
+  const station = (position, target, fov) => ({ position: new THREE.Vector3(...position), ...aim(position, target), fov });
+  const STATIONS = {
+    counter: compact ? station([1.9, 1.5, 1.55], [0.2, 1.2, -0.7], 62) : station([1.7, 1.5, 1.45], [0.2, 1.22, -0.7], 50),
+    window: compact ? station([0.3, 1.35, 2.1], [-2.5, 1.0, 0.5], 66) : station([-0.1, 1.4, 2.0], [-2.5, 1.0, 0.5], 54),
+    lounge: compact ? station([-0.55, 1.57, 2.55], [2.32, 0.78, 1.32], 66) : station([0.15, 1.52, 2.85], [2.42, 0.66, 1.44], 58),
+    middle: { position: new THREE.Vector3(0.1, 1.55, 1.2), yaw: Math.PI * 0.82, pitch: -0.04, fov: compact ? 84 : 72 }, // it opens on the front wall: the street window and the glass door
+  };
+  const DEFAULT_STATION = "counter";
+  let viewName = DEFAULT_STATION, viewRun = 0, centerDrag = null, centerQueued = false;
+  const look = { position: STATIONS[DEFAULT_STATION].position.clone(), yaw: STATIONS[DEFAULT_STATION].yaw, pitch: STATIONS[DEFAULT_STATION].pitch, fov: STATIONS[DEFAULT_STATION].fov };
+  const applyLook = (now = false) => {
+    const { position, yaw, pitch, fov } = look;
+    camera.position.copy(position);
+    if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    camera.lookAt(position.x + Math.sin(yaw) * Math.cos(pitch), position.y + Math.sin(pitch), position.z - Math.cos(yaw) * Math.cos(pitch));
     camera.updateMatrixWorld();
+    // Dragging fires pointer events faster than the screen refreshes, so a drag asks for one render per frame, not one per event.
     if (now) { render(); return; }
     if (!centerQueued) { centerQueued = true; requestAnimationFrame(() => { centerQueued = false; render(); }); }
   };
-  function centerLook(dYaw, dPitch) { if (!center) return; center.yaw += dYaw; center.pitch = Math.min(0.6, Math.max(-0.6, center.pitch + dPitch)); applyCenter(); }
-  // Named orbit views (like Room 02's "look at" buttons): the camera glides to a station and the orbit limits are re-centred on it, so the visitor can still drag around a little.
-  // "overview" is the opening view; "counter" comes close to the machine, pastry case and the barista robot; "window" sits at the street window and the window seat.
-  const VIEWS = {
-    overview: { ...initial, limits: null },
-    counter: compact ? { position: [1.9, 1.5, 1.55], target: [0.2, 1.2, -0.7], fov: 62 } : { position: [1.7, 1.5, 1.45], target: [0.2, 1.22, -0.7], fov: 50 },
-    lounge: compact ? { position: [-0.55, 1.57, 2.55], target: [2.32, 0.78, 1.32], fov: 66 } : { position: [0.15, 1.52, 2.85], target: [2.42, 0.66, 1.44], fov: 58 },
-    window: compact ? { position: [0.3, 1.35, 2.1], target: [-2.5, 1.0, 0.5], fov: 66 } : { position: [-0.1, 1.4, 2.0], target: [-2.5, 1.0, 0.5], fov: 54 },
-  };
-  const OVERVIEW_LIMITS = { minDistance: 2.2, maxDistance: 5.2, minPolar: 1.2, maxPolar: 1.62, minAz: -1.05, maxAz: 0.75 };
-  let viewName = "overview", viewRun = 0;
-  const limitsFor = (v) => {
-    if (!v.limits && v === VIEWS.overview) return OVERVIEW_LIMITS;
-    const p = new THREE.Vector3(...v.position), t = new THREE.Vector3(...v.target), d = p.distanceTo(t), off = p.clone().sub(t);
-    const az = Math.atan2(off.x, off.z), pol = Math.acos(off.y / d);
-    return { minDistance: d * 0.7, maxDistance: d * 1.2, minPolar: Math.max(0.6, pol - 0.2), maxPolar: Math.min(1.75, pol + 0.2), minAz: az - 0.45, maxAz: az + 0.45 };
-  };
-  const applyLimits = (l) => { controls.minDistance = l.minDistance; controls.maxDistance = l.maxDistance; controls.minPolarAngle = l.minPolar; controls.maxPolarAngle = l.maxPolar; controls.minAzimuthAngle = l.minAz; controls.maxAzimuthAngle = l.maxAz; };
+  function centerLook(dYaw, dPitch) { look.yaw += dYaw; look.pitch = Math.min(0.6, Math.max(-0.6, look.pitch + dPitch)); applyLook(); }
   function setView(name, instant = false) {
-    const v = VIEWS[name]; if (!v || center) return false;
-    const run = ++viewRun, from = { p: camera.position.clone(), t: controls.target.clone(), fov: camera.fov }, to = { p: new THREE.Vector3(...v.position), t: new THREE.Vector3(...v.target), fov: v.fov };
-    viewName = name; applyLimits({ minDistance: 0.1, maxDistance: 40, minPolar: 0, maxPolar: Math.PI, minAz: -Infinity, maxAz: Infinity }); // free while gliding, tightened at the end
-    const done = () => { camera.position.copy(to.p); controls.target.copy(to.t); camera.fov = to.fov; camera.updateProjectionMatrix(); applyLimits(limitsFor(v)); controls.update(); render(); };
+    const to = STATIONS[name]; if (!to) return false;
+    const run = ++viewRun, from = { position: look.position.clone(), yaw: look.yaw, pitch: look.pitch, fov: look.fov };
+    const turn = ((to.yaw - from.yaw + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; // the short way round
+    viewName = name;
+    const done = () => { look.position.copy(to.position); look.yaw = from.yaw + turn; look.pitch = to.pitch; look.fov = to.fov; applyLook(true); };
     if (instant || reducedMotion()) { done(); return true; }
-    const t0 = performance.now(), T = 800, ease = (k) => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    const t0 = performance.now(), T = 900, ease = (k) => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
     const step = (now) => {
       if (run !== viewRun) return;
       const k = Math.min(1, (now - t0) / T), e = ease(k);
-      camera.position.lerpVectors(from.p, to.p, e); controls.target.lerpVectors(from.t, to.t, e); camera.fov = from.fov + (to.fov - from.fov) * e; camera.updateProjectionMatrix();
-      camera.lookAt(controls.target); render();
+      look.position.lerpVectors(from.position, to.position, e); look.yaw = from.yaw + turn * e; look.pitch = from.pitch + (to.pitch - from.pitch) * e; look.fov = from.fov + (to.fov - from.fov) * e;
+      applyLook(true);
       if (k < 1) requestAnimationFrame(step); else done();
     };
     requestAnimationFrame(step); return true;
   }
-  function setCenterView(on) {
-    if (on === Boolean(center)) return;
-    const canvas = renderer.domElement;
-    if (on) {
-      savedOrbit = { position: camera.position.clone(), target: controls.target.clone(), fov: camera.fov };
-      controls.enabled = false; canvas.tabIndex = 0;
-      center = { yaw: Math.PI * 0.82, pitch: -0.04 }; // it opens on the new front wall: the street window and the glass door
-      camera.fov = CENTER_FOV; camera.updateProjectionMatrix(); applyCenter(true);
-    } else {
-      center = null; centerDrag = null; canvas.tabIndex = -1;
-      camera.position.copy(savedOrbit.position); controls.target.copy(savedOrbit.target); camera.fov = savedOrbit.fov; camera.updateProjectionMatrix();
-      controls.enabled = true; controls.update(); render();
-    }
-  }
+  const setCenterView = (on) => setView(on ? "middle" : DEFAULT_STATION, true); // kept for the tests and older callers
+  renderer.domElement.tabIndex = 0;
+  setView(DEFAULT_STATION, true);
   {
     const canvas = renderer.domElement;
-    canvas.addEventListener("pointerdown", (event) => { if (!center) return; centerDrag = { x: event.clientX, y: event.clientY }; canvas.setPointerCapture?.(event.pointerId); });
-    canvas.addEventListener("pointermove", (event) => { if (!center || !centerDrag) return; const k = (CENTER_FOV * Math.PI / 180) / canvas.clientHeight; centerLook(-(event.clientX - centerDrag.x) * k * 1.1, (event.clientY - centerDrag.y) * k * 0.8); centerDrag = { x: event.clientX, y: event.clientY }; });
+    canvas.addEventListener("pointerdown", (event) => { centerDrag = { x: event.clientX, y: event.clientY }; canvas.setPointerCapture?.(event.pointerId); });
+    canvas.addEventListener("pointermove", (event) => { if (!centerDrag) return; const k = (look.fov * Math.PI / 180) / canvas.clientHeight; centerLook(-(event.clientX - centerDrag.x) * k * 1.1, (event.clientY - centerDrag.y) * k * 0.8); centerDrag = { x: event.clientX, y: event.clientY }; });
     const end = () => { centerDrag = null; };
     canvas.addEventListener("pointerup", end); canvas.addEventListener("pointercancel", end);
     canvas.addEventListener("keydown", (event) => {
-      if (!center) return;
       const step = event.shiftKey ? 0.25 : 0.1;
       if (event.key === "ArrowLeft") centerLook(-step, 0); else if (event.key === "ArrowRight") centerLook(step, 0); else if (event.key === "ArrowUp") centerLook(0, step); else if (event.key === "ArrowDown") centerLook(0, -step); else return;
       event.preventDefault();
@@ -2157,7 +2140,7 @@ export async function start({ stage, onReady = () => {} }) {
     noteScreen: () => projectBox(note),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
-    beansVisible: () => beansMesh?.count ?? 0, robotHop, setView, view: () => viewName, views: () => Object.keys(VIEWS), setCenterView, centerLook, isCenter: () => Boolean(center),
+    beansVisible: () => beansMesh?.count ?? 0, robotHop, setView, view: () => viewName, views: () => Object.keys(STATIONS), setCenterView, centerLook, isCenter: () => viewName === "middle",
     streetMaterials: () => ({ separate: materials.street !== materials.streetFront, left: materials.street.map?.userData.file, front: materials.streetFront.map?.userData.file }),
     menuCopy: PROVISIONAL_MENUS, menuTextureKinds: () => [Boolean(materials.menuA.map?.isCanvasTexture), Boolean(materials.menuB.map?.isCanvasTexture)], lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
     info() {

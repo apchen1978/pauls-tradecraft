@@ -157,19 +157,20 @@ test("Room 04 switches language and keeps the choice in the address", async ({ p
   await expect(page.locator("#otherRooms")).toHaveAttribute("href", "/prototype/roomverse-3d/?lang=en");
 });
 
-test("Room 04 can turn all the way round from the middle of the room, and comes back to the same orbit view", async ({ page }) => {
+test("Room 04 can turn all the way round from the middle of the room, and the counter station comes back exactly", async ({ page }) => {
   const errors = await open(page, 1440);
   const before = await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov }; });
   await page.locator("#centerView").click();
   await expect(page.locator("#centerView")).toHaveAttribute("aria-pressed", "true");
   expect(await page.evaluate(() => window.__room04.isCenter())).toBe(true);
+  await page.waitForTimeout(1100);
   const seen = await page.evaluate(() => {
     const r = window.__room04, out = [];
     for (let i = 0; i < 8; i++) { r.centerLook(Math.PI / 4, 0); const d = r.camera.getWorldDirection(new r.camera.position.constructor()); out.push([+d.x.toFixed(2), +d.z.toFixed(2)]); }
     return out;
   });
   expect(new Set(seen.map((d) => d.join(","))).size, "eight different headings round the circle").toBe(8);
-  await page.locator("#centerView").click();
+  await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(1100);
   const after = await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov, center: r.isCenter() }; });
   expect(after.center).toBe(false);
   expect(after.p).toEqual(before.p);
@@ -230,29 +231,29 @@ test("Room 04 skips the shadow pass when nothing shadow-casting changes", async 
   expect(counts.first - counts.second).toBeGreaterThan(5);
 });
 
-test("Room 04 has named views (overview, counter, window seat, lounge) and the overview comes back exactly", async ({ page }) => {
+test("Room 04 views are standing stations: no overview, the room opens at the counter, and every station turns all the way round", async ({ page }) => {
   for (const width of [1440, 390]) {
     const errors = await open(page, width);
     const pose = () => page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(2)), fov: r.camera.fov, view: r.view() }; });
+    await expect(page.locator('[data-view="overview"]')).toHaveCount(0);
     const start = await pose();
-    expect(start.view).toBe("overview");
-    await expect(page.locator('[data-view="overview"]')).toHaveAttribute("aria-pressed", "true");
+    expect(start.view).toBe("counter");
+    await expect(page.locator('[data-view="counter"]')).toHaveAttribute("aria-pressed", "true");
     const seen = new Set([start.p.join(",")]);
-    for (const view of ["counter", "window", "lounge"]) {
+    for (const view of ["window", "lounge", "middle"]) {
       await page.locator(`[data-view="${view}"]`).click();
       await page.waitForFunction((v) => window.__room04.view() === v, view);
-      await page.waitForTimeout(1100);
+      await page.waitForTimeout(1200);
       await expect(page.locator(`[data-view="${view}"]`)).toHaveAttribute("aria-pressed", "true");
       const pos = await pose(); expect(pos.view).toBe(view); seen.add(pos.p.join(","));
+      // From every station the head turns all the way round: eight different headings, back to the first after a full turn.
+      const headings = await page.evaluate(() => { const r = window.__room04, out = []; for (let i = 0; i < 8; i++) { r.centerLook(Math.PI / 4, 0); const d = r.camera.getWorldDirection(new r.camera.position.constructor()); out.push(d.x.toFixed(2) + "," + d.z.toFixed(2)); } return out; });
+      expect(new Set(headings).size, view + ": eight headings round the circle").toBe(8);
+      expect((await pose()).p, view + ": turning the head does not move the camera").toEqual(pos.p);
     }
-    expect(seen.size, "four distinct orbit camera stations").toBe(4);
-    await page.locator('[data-view="overview"]').click(); await page.waitForTimeout(1100);
+    expect(seen.size, "four distinct stations").toBe(4);
+    await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(1200);
     const back = await pose(); expect(back.p).toEqual(start.p); expect(back.fov).toBe(start.fov);
-    // Standing in the middle still works from a view, and leaving it returns to that view.
-    await page.locator('[data-view="lounge"]').click(); await page.waitForTimeout(1100);
-    const lounge = await pose();
-    await page.locator("#centerView").click(); await page.locator("#centerView").click(); await page.waitForTimeout(200);
-    expect((await pose()).p).toEqual(lounge.p);
     expect(errors).toEqual([]);
   }
 });
@@ -292,7 +293,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
       const shell = page.locator(".room"), door = page.locator(".travel-door-dialog");
       await expect(enter).toBeHidden();
       await page.locator("#enter").click();
-      await expect(enter).toBeVisible();
+      await expect(enter).toBeVisible({ timeout: 30000 }); // the room builds in a few seconds, more on a busy machine
 
       await page.locator("#robotHit").click();
       await page.locator("#bubble [data-travel]").click();
@@ -312,7 +313,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
         return [Math.round(size.width), Math.round(size.height)];
       }).toEqual([viewport.width, viewport.height]);
 
-      for (const view of ["counter", "window", "lounge", "overview"]) {
+      for (const view of ["middle", "window", "lounge", "counter"]) {
         const button = page.locator('[data-view="' + view + '"]');
         await button.click();
         await expect(button).toHaveAttribute("aria-pressed", "true");
