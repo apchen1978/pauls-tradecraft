@@ -1092,14 +1092,21 @@ export async function start({ stage, onReady = () => {} }) {
     P("bentwood", new THREE.CylinderGeometry(R, R - 0.004, 0.034, 36).translate(0, seatY - 0.01, 0), { tile: 0.6 }); // the seat frame
     P("cane", new THREE.CylinderGeometry(R - 0.022, R - 0.022, 0.006, 36).translate(0, seatY + 0.009, 0), { tile: 0.2 }); // the woven top
     P("bentwood", new THREE.TorusGeometry(R - 0.018, 0.008, 8, 36).rotateX(Math.PI / 2).translate(0, seatY + 0.008, 0), { tile: 0.6 });
-    for (const [lx, lz] of [[-0.145, 0.125], [0.145, 0.125]]) P("bentwood", new THREE.CylinderGeometry(0.017, 0.011, seatY - 0.03, 12).translate(lx * 1.08, (seatY - 0.03) / 2, lz * 1.08), { tile: 0.6 });
+    // The legs stand INSIDE the seat's outline and run up into its frame (Paul: legs that only touch the seat's edge look generated; it was the first thing wrong with Room 03's
+    // chairs too). Before, the four legs were centred 0.207 m from the seat's axis on a 0.2 m seat, so they only brushed its rim, and the leg ring (0.168 m) hung inside them.
+    // Now every leg is 0.175 m from the axis, its top is inside the seat frame, a small collar hides the joint, and the ring touches all four legs.
+    for (const [lx, lz] of [[-0.123, 0.123], [0.123, 0.123]]) {
+      P("bentwood", new THREE.CylinderGeometry(0.0185, 0.011, seatY + 0.004, 12).translate(lx, (seatY + 0.004) / 2, lz), { tile: 0.6 });
+      P("bentwood", new THREE.CylinderGeometry(0.0235, 0.0235, 0.012, 12).translate(lx, seatY - 0.034, lz), { tile: 0.6 }); // the collar under the seat frame
+    }
     for (const sx of [-1, 1]) {
-      P("bentwood", tubeGeometry([[0.146 * sx, 0, -0.152], [0.142 * sx, 0.24, -0.158], [0.145 * sx, 0.46, -0.16], [0.152 * sx, 0.66, -0.188], [0.142 * sx, 0.84, -0.205], [0.112 * sx, 0.935, -0.21]], 0.0145, 30, 10), { tile: 0.6 });
+      P("bentwood", tubeGeometry([[0.123 * sx, 0, -0.123], [0.124 * sx, 0.24, -0.126], [0.13 * sx, 0.46, -0.134], [0.152 * sx, 0.66, -0.188], [0.142 * sx, 0.84, -0.205], [0.112 * sx, 0.935, -0.21]], 0.0145, 30, 10), { tile: 0.6 });
+      P("bentwood", new THREE.CylinderGeometry(0.0235, 0.0235, 0.012, 12).translate(0.123 * sx, seatY - 0.034, -0.123), { tile: 0.6 });
     }
     P("bentwood", tubeGeometry([[-0.112, 0.935, -0.21], [-0.06, 0.968, -0.222], [0, 0.976, -0.226], [0.06, 0.968, -0.222], [0.112, 0.935, -0.21]], 0.0145, 20, 10), { tile: 0.6 }); // the top bow
     P("bentwood", new THREE.TorusGeometry(0.098, 0.0075, 8, 32).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
     P("cane", new THREE.CylinderGeometry(0.092, 0.092, 0.004, 28).scale(1, 1, 0.62).rotateX(Math.PI / 2).translate(0, 0.76, -0.196), { tile: 0.2 });
-    P("bentwood", new THREE.TorusGeometry(0.168, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, -0.005), { tile: 0.6 }); // the leg ring
+    P("bentwood", new THREE.TorusGeometry(0.1725, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, 0), { tile: 0.6 }); // the leg ring, touching all four legs
     addContactShadow(x, z, 0.48, 0.48, 0.015);
   };
   chair(SEAT.x, SEAT.z + 0.62, Math.PI);

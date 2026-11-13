@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 186736, meshes: 128 }),
+  scene: Object.freeze({ vertices: 187344, meshes: 128 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 110, phone: 102 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -51,5 +51,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "pastry case (Codex card 61, re-applied on the current main by CC after the Codex thread failed): crescent croissants, a fruit tart, small tarts, a layered cake slice, canelés, green sparkling-water bottles and clear still-water bottles, a Today chalk sign; vertex cap raised to 200,000 as the card allowed", vertices: 184854, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
     { date: "2026-11-14", change: "espresso machine smart panel (Codex #830, re-applied on the current main by CC): taller body (H 0.46, D 0.52) and an angled touch screen with status marks and two indicator lights; one extra draw call", vertices: 185076, meshes: 129, desktopCalls: 111, phoneCalls: 103 },
     { date: "2026-11-14", change: "furniture feel (Codex #835, re-applied on the current main by CC): the banquette seat is three thick rounded cushions with welts, the armchair seat a rounded cushion with a central dip and welt, a fine cane weave bump map, and one merged mesh of soft contact shadows under the furniture, stools and robot bases (one draw call less)", vertices: 186736, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
+    { date: "2026-11-14", change: "window-seat bentwood chairs: the four legs now stand inside the seat outline and run up into its frame with a collar (before they were centred 0.207 m out on a 0.2 m seat, so they only brushed its rim), and the leg ring touches all four legs; rule: a leg must enter the seat footprint", vertices: 187344, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
   ]),
 });
