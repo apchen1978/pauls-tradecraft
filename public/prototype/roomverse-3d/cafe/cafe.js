@@ -1350,7 +1350,73 @@ export async function start({ stage, onReady = () => {} }) {
       for (const y of [0.282, 0.298]) boxPart("black", 0.003, 0.004, 0.012, 3.143, y, 2.73 + offset, 0.002);
     }
 
-    floorPlant("floor-plant-lounge", 2.90, 2.43, 1.2);
+    // The lounge corner's own plant: the hand-built one (Paul liked it), now livelier. Leaves are drawn in a palette of fresh greens from yellow-green to blue-green with paler
+    // new growth at the tips, a terracotta pot, and coral, pink and cream flowers with yellow centres. Everything is vertex-coloured into one batch, so it costs no draw call.
+    {
+      const px = 2.90, pz = 2.43, K = 0.9;
+      let seed = 21; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const GREENS = [0x7fb24a, 0x5f9a3c, 0x9cc85a, 0x3f8040, 0x4d9a6a, 0x86b83f], NEW = [0xbfdd74, 0xcfe58a], PETALS = [0xe8745a, 0xf0a0b0, 0xf6e3c4, 0xf2b84b];
+      detail(new THREE.LatheGeometry([[0.0005, 0], [0.12, 0], [0.16, 0.2], [0.17, 0.38], [0.158, 0.4], [0.0005, 0.4]].map((p) => new THREE.Vector2(p[0], p[1])), 28).translate(px, 0, pz), 0xc4623a);
+      detail(new THREE.TorusGeometry(0.165, 0.014, 6, 28).rotateX(Math.PI / 2).translate(px, 0.39, pz), 0xa8502e);
+      detail(new THREE.CircleGeometry(0.15, 24).rotateX(-Math.PI / 2).translate(px, 0.36, pz), 0x3a2a1e);
+      detail(tubeGeometry([[px, 0.36, pz], [px + 0.02, 0.8, pz - 0.01], [px - 0.01, 1.2 * K + 0.1, pz + 0.01], [px + 0.02, 1.5 * K + 0.1, pz]], 0.016, 14, 8), 0x7a5a3a);
+      const flower = (x, y, z, scale) => {
+        const petal = PETALS[Math.floor(rnd() * PETALS.length)];
+        for (let k = 0; k < 5; k++) {
+          const t = k * Math.PI * 2 / 5, e = new THREE.SphereGeometry(1, 6, 3).scale(0.036 * scale, 0.01 * scale, 0.024 * scale).translate(0.036 * scale, 0, 0).rotateY(t).translate(x, y, z);
+          detail(e, petal);
+        }
+        detail(new THREE.SphereGeometry(0.017 * scale, 6, 4).translate(x, y + 0.008 * scale, z), 0xf2c230);
+      };
+      for (let i = 0; i < 9; i++) {
+        const a = i * 0.72 + rnd() * 0.4, base = (0.7 + (i / 9) * 0.78) * K, reach = (0.2 + rnd() * 0.22) * 1.05, rise = 0.12 + rnd() * 0.16;
+        const bx = px + Math.cos(a) * 0.02, bz = pz + Math.sin(a) * 0.02, ex = px + Math.cos(a) * reach, ez = pz + Math.sin(a) * reach, ey = base + rise;
+        detail(tubeGeometry([[bx, base, bz], [(bx + ex) / 2, base + rise * 0.7, (bz + ez) / 2], [ex, ey, ez]], 0.006, 8, 5), 0x6b8a3c);
+        for (let k = 0; k < 6; k++) {
+          const t = 0.3 + k / 6 * 0.7, lx = bx + (ex - bx) * t, ly = base + (ey - base) * t + 0.015, lz = bz + (ez - bz) * t;
+          const leaf = new THREE.SphereGeometry(0.115, 6, 4); leaf.scale(0.55, 0.05, 1); leaf.translate(0, 0, 0.115);
+          leaf.rotateX(-0.35 - rnd() * 0.3).rotateY(a + (k % 2 ? 1 : -1) * (0.9 + rnd() * 0.6)).rotateZ((rnd() - 0.5) * 0.3);
+          detail(leaf.translate(lx, ly, lz), k >= 4 ? NEW[Math.floor(rnd() * NEW.length)] : GREENS[Math.floor(rnd() * GREENS.length)]);
+        }
+        const tip = new THREE.SphereGeometry(0.1, 6, 4); tip.scale(0.55, 0.05, 1); tip.translate(0, 0, 0.1); tip.rotateX(-0.2).rotateY(a); detail(tip.translate(ex, ey, ez), NEW[i % 2]);
+        if (i % 3 !== 2) flower(ex, ey + 0.06, ez, 1.3 + rnd() * 0.6);
+      }
+    }
+    // Room 01's red-leaf plant (the one beside the red suitcase), small, at the near end of the banquette. Pot, stems, soil and buds are one vertex-coloured mesh, the leaves one
+    // instanced mesh (192 leaves, each with its own tint from green through amber to red): two draw calls.
+    {
+      const group = new THREE.Group(); group.name = "red-leaf-plant"; group.position.set(2.92, 0, 0.02);
+      const potPts = [[0, 0], [.085, 0], [.108, .018], [.13, .075], [.135, .14], [.119, .21], [.084, .265], [.081, .28], [.073, .28], [.072, .265]].map(([x, y]) => new THREE.Vector2(x, y));
+      const pot = new THREE.LatheGeometry(potPts, 24).toNonIndexed(), pp = pot.attributes.position, pc = new Float32Array(pp.count * 3);
+      for (let i = 0; i < pp.count; i++) { const y = pp.getY(i), c = new THREE.Color(y < .028 ? 0xb18c6b : y > .242 ? 0x798771 : 0x879780); c.toArray(pc, i * 3); }
+      pot.setAttribute("color", new THREE.BufferAttribute(pc, 3));
+      const parts = [pot, colorize(new THREE.CircleGeometry(.0725, 24).rotateX(-Math.PI / 2).translate(0, .270, 0), 0x463321)], tips = [], base = new THREE.Vector3(0, .265, 0);
+      for (let i = 0; i < 6; i++) {
+        const a = i * Math.PI * 2 / 6 + .18, r = .095 + (i % 3) * .014, tip = new THREE.Vector3(Math.cos(a) * r, 0.79 + i * .063, Math.sin(a) * r); tips.push(tip);
+        const stem = new THREE.CylinderGeometry(.003, .006, base.distanceTo(tip), 6, 1).toNonIndexed(); stem.rotateZ(Math.PI / 2);
+        const mid = base.clone().add(tip).multiplyScalar(.5), dir = tip.clone().sub(base).normalize();
+        stem.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(-1, 0, 0), dir)); stem.translate(mid.x, mid.y, mid.z); parts.push(colorize(stem, 0x695137));
+      }
+      for (const k of [0, 2, 4]) parts.push(colorize(new THREE.SphereGeometry(.008, 8, 6).translate(tips[k].x, tips[k].y + .022, tips[k].z), 0xd6b77d));
+      const bodies = parts.map((g) => { const n = g.index ? g.toNonIndexed() : g; for (const name of Object.keys(n.attributes)) if (!["position", "normal", "color"].includes(name)) n.deleteAttribute(name); return n; });
+      const body = new THREE.Mesh(mergeGeometries(bodies), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8 })); body.castShadow = true; body.receiveShadow = true; group.add(body);
+      const leaf = new THREE.BufferGeometry(), vs = [], inds = [], steps = 6;
+      for (let j = 0; j <= steps; j++) { const t = j / steps, w = .023 * Math.pow(Math.sin(Math.PI * t), .85); for (const side of [-1, 1]) vs.push(side * w, t * .085, .004 * Math.sin(Math.PI * t)); }
+      for (let j = 0; j < steps; j++) { const k = j * 2; inds.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
+      leaf.setAttribute("position", new THREE.Float32BufferAttribute(vs, 3)); leaf.setIndex(inds); leaf.computeVertexNormals();
+      const leaves = new THREE.InstancedMesh(leaf, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55, side: THREE.DoubleSide }), 6 * 32); leaves.name = "red-leaf-plant-leaves";
+      const dummy = new THREE.Object3D(), green = new THREE.Color("#7f9a45"), orange = new THREE.Color("#c66d2b"), red = new THREE.Color("#922920"); let index = 0;
+      tips.forEach((tip, i) => { const a = i * Math.PI * 2 / 6 + .18; for (let j = 0; j < 32; j++) {
+        const upper = j < 12, theta = (j % 12) * Math.PI / 6 + a + .12 * i, origin = upper ? tip.clone() : base.clone().lerp(tip, .20 + (j - 12) * .038);
+        if (!upper) { origin.x += .012 * Math.cos(theta); origin.z += .012 * Math.sin(theta); }
+        const direction = new THREE.Vector3(Math.cos(theta) * .88, upper ? .45 : .5, Math.sin(theta) * .88).normalize();
+        dummy.position.copy(origin); dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction); dummy.rotateY((i * 7 + j) * .31);
+        const size = (.88 + ((i * 11 + j * 7) % 9) * .04) * 1.1; dummy.scale.set(size, size, size); dummy.updateMatrix(); leaves.setMatrixAt(index, dummy.matrix);
+        const c = (upper ? (j % 3 === 0 ? orange : red) : (j % 3 === 0 ? orange : green)).clone(); c.multiplyScalar(.86 + ((i * 13 + j * 5) % 7) * .025); leaves.setColorAt(index, c); index++;
+      } });
+      leaves.castShadow = true; leaves.receiveShadow = true; leaves.computeBoundingBox(); leaves.computeBoundingSphere(); group.add(leaves);
+      group.scale.set(1.25, 1.25 * 0.85, 1.25); scene.add(group);
+    }
 
     // Small abstract placeholders above the banquette. Card 54 B supplies the prints.
     for (const [z, color, accent] of [[1.47, 0xa36a52, 0x586346], [1.83, 0x64704b, 0xb99457], [2.19, 0x4b6170, 0xa36a52]]) {
