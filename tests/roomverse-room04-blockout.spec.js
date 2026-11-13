@@ -24,6 +24,24 @@ test("the Room 04 ledger is internally consistent", () => {
   expect(LEDGER.scene.meshes).toBeLessThanOrEqual(LEDGER.caps.meshes);
 });
 
+test("Room 04 mood buttons stay fully on the first screen at 1440×900 and on a 390-wide phone", async ({ page }) => {
+  test.setTimeout(180000);
+  for (const width of [1440, 390]) {
+    await open(page, width);
+    const layout = await page.evaluate(() => {
+      const moods = document.querySelector("#moods")?.getBoundingClientRect();
+      return {
+        fullyVisible: Boolean(moods && moods.top >= 0 && moods.bottom <= window.innerHeight - 1),
+        overflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+        bottom: moods?.bottom ?? null,
+        vh: window.innerHeight,
+      };
+    });
+    expect(layout.fullyVisible, `${width}px: the mood bar should be on the first screen (bottom ${layout.bottom} / vh ${layout.vh})`).toBe(true);
+    expect(layout.overflowX, `${width}px: no horizontal page scroll`).toBe(false);
+  }
+});
+
 for (const [width, key] of [[1440, "desktop"], [390, "phone"]]) {
   test(`Room 04 blockout opens at ${width}px inside its budget, with real sizes`, async ({ page }) => {
     const errors = await open(page, width);

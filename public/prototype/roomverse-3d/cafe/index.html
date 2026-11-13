@@ -22,7 +22,8 @@
     h1 { margin:0; font-size:clamp(26px,4vw,42px); line-height:1.12; letter-spacing:-.025em; color:#3d2a1f; }
     .subtitle { margin:4px 0 8px; color:var(--brick); font-size:clamp(15px,1.6vw,18px); font-weight:700; }
     .lead { margin:0; max-width:820px; color:var(--muted); font-size:clamp(14px,1.5vw,17px); line-height:1.65; }
-    .room { position:relative; margin:0 clamp(12px,2vw,28px); height:min(70vh,720px); min-height:480px; overflow:hidden; border-radius:18px; background:#d4c5ae; box-shadow:0 14px 40px #493a241c; }
+    /* 1440×900: 70vh leaves the mood bar just below the fold. Cap height so the six mood buttons stay on the first screen; the 768px rule below still owns the phone. */
+    .room { position:relative; margin:0 clamp(12px,2vw,28px); height:min(70vh, 720px, calc(100dvh - 20rem)); min-height:min(480px, calc(100dvh - 20rem)); overflow:hidden; border-radius:18px; background:#d4c5ae; box-shadow:0 14px 40px #493a241c; }
     #stage { position:absolute; inset:0; }
     .poster { position:absolute; inset:0; z-index:3; display:grid; place-items:center; background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp") center / cover no-repeat, #715744; }
     .arriving .poster { display:none; }
