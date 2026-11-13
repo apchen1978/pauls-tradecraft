@@ -22,6 +22,14 @@ const X0 = -ROOM.width / 2, X1 = ROOM.width / 2, BACK = -ROOM.depth / 2, FRONT =
 const WINDOW = Object.freeze({ z0: -0.9, z1: 1.5, y0: 0.9, y1: 2.5 });
 // The customer counter. 1.05 m is a standing cafe counter; the top overhangs the panelled front by 3 cm.
 const COUNTER = Object.freeze({ x0: -2.2, x1: 2.5, z0: -0.95, z1: -0.35, height: 1.05, top: 0.04 });
+// The shallow S in the middle of the counter (Paul chose it from Codex's card 48): the whole counter line (front and back) swings 0.23 m toward the guests, then 0.23 m
+// toward the barista side, between x = -1.9 and x = 0.5, one smooth wave with no kink at either end. Everything that sits on or beside the counter follows it.
+const S_BAR = Object.freeze({ x0: -1.9, length: 2.4, amplitude: 0.38 });
+function counterShift(x) {
+  const u = (x - S_BAR.x0) / S_BAR.length;
+  if (u <= 0 || u >= 1) return 0;
+  return S_BAR.amplitude * Math.sin(2 * Math.PI * u) * Math.sin(Math.PI * u) ** 2;
+}
 const BACK_BAR = Object.freeze({ x0: -2.6, x1: 3.0, depth: 0.5, height: 0.9, top: 0.03 });
 
 const COLORS = Object.freeze({
@@ -112,11 +120,14 @@ function worldUVs(geometry, tile, grain = "y") {
 }
 
 // A slab whose outline is a rectangle with one half-round end (a counter) or a plain rectangle, standing on y0 with a rounded bullnose edge.
-function footprintGeometry(x0, x1, z0, z1, y0, height, { round = true, bevel = 0 } = {}) {
-  const r = (z1 - z0) / 2, zc = (z0 + z1) / 2, shape = new THREE.Shape();
-  shape.moveTo(x0, -z0);
-  if (round) { shape.lineTo(x1 - r, -z0); shape.absarc(x1 - r, -zc, r, Math.PI / 2, -Math.PI / 2, true); } else { shape.lineTo(x1, -z0); shape.lineTo(x1, -z1); }
-  shape.lineTo(x0, -z1); shape.closePath();
+function footprintGeometry(x0, x1, z0, z1, y0, height, { round = true, bevel = 0, shift = null } = {}) {
+  const r = (z1 - z0) / 2, zc = (z0 + z1) / 2, shape = new THREE.Shape(), sh = shift ?? (() => 0), xe = round ? x1 - r : x1, STEP = shift ? 0.1 : 0.04;
+  shape.moveTo(x0, -(z0 + sh(x0)));
+  for (let x = x0 + STEP; x < xe; x += STEP) shape.lineTo(x, -(z0 + sh(x)));
+  shape.lineTo(xe, -(z0 + sh(xe)));
+  if (round) shape.absarc(x1 - r, -zc, r, Math.PI / 2, -Math.PI / 2, true); else shape.lineTo(x1, -(z1 + sh(x1)));
+  for (let x = xe - STEP; x > x0; x -= STEP) shape.lineTo(x, -(z1 + sh(x)));
+  shape.lineTo(x0, -(z1 + sh(x0))); shape.closePath();
   const geometry = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.001, height - 2 * bevel), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: 28 });
   geometry.rotateX(-Math.PI / 2); geometry.translate(0, y0 + bevel, 0);
   geometry.computeVertexNormals();
@@ -405,8 +416,10 @@ export async function start({ stage, onReady = () => {} }) {
   // ---------- counter and back bar (section 2) ----------
   // Every part below is real-sized geometry in world coordinates, collected per material and merged, so the whole section costs a handful of draw calls.
   const parts = new Map();
+  let partShift = 0; // z shift applied to everything built while it is set (things standing on the curved counter)
   const part = (key, geometry, { tile = 0.9, grain = "y" } = {}) => {
     const g = geometry.index ? geometry.toNonIndexed() : geometry;
+    if (partShift) g.translate(0, 0, partShift);
     worldUVs(g, tile, grain);
     if (!parts.has(key)) parts.set(key, []);
     parts.get(key).push(g);
@@ -418,22 +431,31 @@ export async function start({ stage, onReady = () => {} }) {
   const c = COUNTER, endRadius = (c.z1 - c.z0) / 2, zc = (c.z0 + c.z1) / 2, arcX = c.x1 - endRadius;
   const bodyY0 = 0.10, bodyY1 = c.height - c.top; // a 10 cm recessed toe-kick, then the body up to the stone
   // Plinth, body and stone top follow one outline: a straight run with a half-round right end.
-  part("oakDark", footprintGeometry(c.x0 + 0.04, c.x1 - 0.04, c.z0 + 0.04, c.z1 - 0.04, 0, bodyY0 + 0.01), { tile: 1 });
-  part("oak", footprintGeometry(c.x0, c.x1, c.z0, c.z1, bodyY0, bodyY1 - bodyY0), { tile: 0.9, grain: "y" });
-  part("stone", footprintGeometry(c.x0 - 0.03, c.x1 + 0.03, c.z0 - 0.03, c.z1 + 0.03, bodyY1, c.top, { bevel: 0.013 }), { tile: 1 });
-  // Raised-and-fielded front: stiles and rails 2.2 cm proud of the body, and a 1.2 cm bevel moulding framing each recessed panel.
+  part("oakDark", footprintGeometry(c.x0 + 0.04, c.x1 - 0.04, c.z0 + 0.04, c.z1 - 0.04, 0, bodyY0 + 0.01, { shift: counterShift }), { tile: 1 });
+  part("oak", footprintGeometry(c.x0, c.x1, c.z0, c.z1, bodyY0, bodyY1 - bodyY0, { shift: counterShift }), { tile: 0.9, grain: "y" });
+  part("stone", footprintGeometry(c.x0 - 0.03, c.x1 + 0.03, c.z0 - 0.03, c.z1 + 0.03, bodyY1, c.top, { bevel: 0.013, shift: counterShift }), { tile: 1 });
+  // Raised-and-fielded front: stiles and rails 2.2 cm proud of the body, and a bevel moulding framing each recessed panel. The straight boxes of the first build are now
+  // chains of short boxes (about 10 cm) that follow the curve of the counter front.
   const fz = c.z1, bays = 5, run = arcX - c.x0, bayW = run / bays, stile = 0.07, proud = 0.022;
-  slab("oak", [c.x0, arcX], [bodyY1 - 0.09, bodyY1], [fz, fz + proud], { grain: "x" }); // top rail
-  slab("oak", [c.x0, arcX], [bodyY0, bodyY0 + 0.11], [fz, fz + proud], { grain: "x" }); // bottom rail
+  const frontBox = (key, xa, xb, ya, yb, d0, d1, grain) => { // d0..d1: how far in front of the counter front the box stands
+    const n = Math.max(1, Math.ceil((xb - xa) / 0.16)), len = (xb - xa) / n;
+    for (let i = 0; i < n; i++) {
+      const xs = xa + i * len, xe = xs + len, zs = fz + counterShift(xs), ze = fz + counterShift(xe), dx = xe - xs, dz = ze - zs, L = Math.hypot(dx, dz), phi = -Math.atan2(dz, dx);
+      const g = new THREE.BoxGeometry(L * 1.0006, yb - ya, d1 - d0).rotateY(phi), nx = Math.sin(phi), nz = Math.cos(phi), dm = (d0 + d1) / 2;
+      part(key, g.translate((xs + xe) / 2 + nx * dm, (ya + yb) / 2, (zs + ze) / 2 + nz * dm), { grain });
+    }
+  };
+  frontBox("oak", c.x0, arcX, bodyY1 - 0.09, bodyY1, 0, proud, "x"); // top rail
+  frontBox("oak", c.x0, arcX, bodyY0, bodyY0 + 0.11, 0, proud, "x"); // bottom rail
   for (let i = 0; i <= bays; i++) {
     const x = c.x0 + i * bayW, half = i === 0 || i === bays ? stile : stile / 2;
-    slab("oak", [i === 0 ? x : x - half, i === bays ? x : x + half], [bodyY0 + 0.11, bodyY1 - 0.09], [fz, fz + proud], { grain: "y" });
+    frontBox("oak", i === 0 ? x : x - half, i === bays ? x : x + half, bodyY0 + 0.11, bodyY1 - 0.09, 0, proud, "y");
   }
   for (let i = 0; i < bays; i++) {
     const xa = c.x0 + i * bayW + (i === 0 ? stile : stile / 2), xb = c.x0 + (i + 1) * bayW - (i === bays - 1 ? stile : stile / 2), ya = bodyY0 + 0.11, yb = bodyY1 - 0.09, m = 0.022, d = 0.012;
-    slab("oak", [xa, xb], [ya, ya + m], [fz, fz + d], { grain: "x" }); slab("oak", [xa, xb], [yb - m, yb], [fz, fz + d], { grain: "x" });
-    slab("oak", [xa, xa + m], [ya + m, yb - m], [fz, fz + d], { grain: "y" }); slab("oak", [xb - m, xb], [ya + m, yb - m], [fz, fz + d], { grain: "y" });
-    slab("oakDeep", [xa + m, xb - m], [ya + m, yb - m], [fz, fz + 0.003], { grain: "y" }); // the recessed field
+    frontBox("oak", xa, xb, ya, ya + m, 0, d, "x"); frontBox("oak", xa, xb, yb - m, yb, 0, d, "x");
+    frontBox("oak", xa, xa + m, ya + m, yb - m, 0, d, "y"); frontBox("oak", xb - m, xb, ya + m, yb - m, 0, d, "y");
+    frontBox("oakDeep", xa + m, xb - m, ya + m, yb - m, 0, 0.003, "y"); // the recessed field
   }
   // The half-round end: seven stiles standing on the curve and a top and bottom rail wrapped around it.
   for (let k = 0; k <= 6; k++) {
@@ -443,13 +465,14 @@ export async function start({ stage, onReady = () => {} }) {
   }
   const wrap = (y0, y1) => part("oak", new THREE.CylinderGeometry(endRadius + proud, endRadius + proud, y1 - y0, 36, 1, true, 0, Math.PI).translate(arcX, (y0 + y1) / 2, zc), { grain: "x" });
   wrap(bodyY1 - 0.09, bodyY1); wrap(bodyY0, bodyY0 + 0.11);
-  // A brushed-steel foot rail 20 cm off the floor on four arms: a real bar detail that also throws a long shadow line down the front.
-  const railZ = fz + 0.14, railY = 0.2;
-  part("steel", new THREE.CylinderGeometry(0.024, 0.024, run - 0.5, 20).rotateZ(Math.PI / 2).translate((c.x0 + 0.25 + arcX - 0.25) / 2, railY, railZ), { tile: 1 });
+  // A brushed-steel foot rail 20 cm off the floor on four arms (the rail is a tube along the curve): a real bar detail that also throws a long shadow line down the front.
+  const railD = 0.14, railY = 0.2, railX0 = c.x0 + 0.25, railX1 = arcX - 0.25;
+  { const pts = []; for (let x = railX0; x <= railX1 + 1e-6; x += 0.1) pts.push(new THREE.Vector3(x, railY, fz + railD + counterShift(x)));
+    part("steel", new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 4, 0.024, 12, false), { tile: 1 }); }
   for (const t of [0.04, 0.36, 0.64, 0.96]) {
-    const x = c.x0 + 0.25 + t * (run - 0.5);
-    slab("steel", [x - 0.014, x + 0.014], [railY - 0.014, railY + 0.014], [fz, railZ]);
-    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.012, 16).rotateX(Math.PI / 2).translate(x, railY, fz + 0.006), { tile: 1 });
+    const x = railX0 + t * (railX1 - railX0), d = counterShift(x), zr = fz + railD + d;
+    slab("steel", [x - 0.014, x + 0.014], [railY - 0.014, railY + 0.014], [fz + d, zr]);
+    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.012, 16).rotateX(Math.PI / 2).translate(x, railY, fz + d + 0.006), { tile: 1 });
   }
 
   // Back bar along the brick wall: olive shaker doors on a 10 cm toe-kick under a bullnosed stone top.
@@ -836,6 +859,7 @@ export async function start({ stage, onReady = () => {} }) {
   // (the window pendant is built below with the other lamps)
   {
     // Counter details on the customer side: two stacks of kraft takeaway cups with white lids, a tip jar and a card reader on a stand.
+    partShift = counterShift(-0.3); // the cups and the tip jar stand on the backward lobe of the wave
     const cupStack = (x, z, n) => {
       for (let i = 0; i < n; i++) part("kraft", new THREE.CylinderGeometry(0.037, 0.027, 0.09, 20, 1, true).translate(x, top + 0.045 + i * 0.03, z), { tile: 1 });
       part("kraft", new THREE.CylinderGeometry(0.027, 0.027, 0.004, 20).translate(x, top + 0.002, z), { tile: 1 });
@@ -846,9 +870,10 @@ export async function start({ stage, onReady = () => {} }) {
     part("glass", new THREE.CylinderGeometry(0.06, 0.06, 0.13, 24).translate(-0.12, top + 0.065, c.z1 - 0.13), { tile: 1 });
     part("gold", new THREE.CylinderGeometry(0.057, 0.057, 0.034, 20).translate(-0.12, top + 0.025, c.z1 - 0.13), { tile: 1 });
     for (let i = 0; i < 6; i++) part("gold", new THREE.CylinderGeometry(0.011, 0.011, 0.002, 10).rotateX(Math.PI / 2 - 0.4).translate(-0.12 + (i % 3 - 1) * 0.02, top + 0.045 + Math.floor(i / 3) * 0.018, c.z1 - 0.13 + 0.02), { tile: 1 });
+    partShift = counterShift(0.55);
     part("black", new THREE.CylinderGeometry(0.07, 0.075, 0.012, 24).translate(0.55, top + 0.006, c.z1 - 0.2), { tile: 1 });
     part("black", rodGeometry([0.55, top + 0.012, c.z1 - 0.2], [0.55, top + 0.12, c.z1 - 0.215], 0.012), { tile: 1 });
-    part("tablet", roundedBox(0.2, 0.14, 0.012, 0.012, 0.002).rotateX(-0.32).translate(0.55, top + 0.165, c.z1 - 0.225), { tile: 1 });
+    part("tablet", roundedBox(0.2, 0.14, 0.012, 0.012, 0.002).rotateX(-0.32).translate(0.55, top + 0.165, c.z1 - 0.225), { tile: 1 }); partShift = 0;
   }
   {
     // A round jute rug under the window seat (a standalone mesh: a lid texture on the top face only).
@@ -1105,32 +1130,41 @@ export async function start({ stage, onReady = () => {} }) {
   // and toward the left an open menu folder, a newspaper rack with a folded paper, a tiny succulent and a receipt spike.
   {
     const zc = c.z1 - 0.15, T = top;
+    partShift = counterShift(0.05);
     // napkin dispenser 140 x 90 x 80 mm: a black box with a stack of white napkins showing
     slab("black", [0.05 - 0.07, 0.05 + 0.07], [T, T + 0.08], [zc - 0.045, zc + 0.045], { tile: 1 }); slab("paper", [0.05 - 0.055, 0.05 + 0.055], [T + 0.03, T + 0.092], [zc - 0.035, zc + 0.035], { tile: 1 });
+    partShift = counterShift(0.22);
     // sugar jar: glass, a steel lid, six cubes and a pair of oak tongs
     part("glass", new THREE.CylinderGeometry(0.045, 0.045, 0.11, 24).translate(0.22, T + 0.055, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.048, 0.048, 0.016, 24).translate(0.22, T + 0.118, zc), { tile: 1 }); part("steel", new THREE.SphereGeometry(0.009, 10, 8).translate(0.22, T + 0.134, zc), { tile: 1 });
     for (let i = 0; i < 6; i++) slab("paper", [0.22 - 0.028 + (i % 3) * 0.02, 0.22 - 0.012 + (i % 3) * 0.02], [T + 0.004 + Math.floor(i / 3) * 0.016, T + 0.018 + Math.floor(i / 3) * 0.016], [zc - 0.012, zc + 0.004], { tile: 1 });
     slab("oak", [0.265, 0.33], [T, T + 0.006], [zc + 0.045, zc + 0.052], { tile: 1 });
+    partShift = counterShift(0.38);
     // cream pitcher
     part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.028, 0], [0.036, 0.045], [0.03, 0.085], [0.034, 0.09], [0.0005, 0.09]].map((p) => new THREE.Vector2(p[0], p[1])), 22).translate(0.38, T, zc), { tile: 1 });
     part("ceramic", new THREE.TorusGeometry(0.02, 0.0055, 8, 14, Math.PI).rotateZ(-Math.PI / 2).translate(0.418, T + 0.05, zc), { tile: 1 });
+    partShift = counterShift(0.47);
     // stir-stick holder: a steel cup with twelve oak sticks leaning in it
     part("steel", new THREE.CylinderGeometry(0.029, 0.029, 0.12, 20, 1, true).translate(0.47, T + 0.06, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.029, 0.029, 0.004, 20).translate(0.47, T + 0.002, zc), { tile: 1 });
     for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; part("oak", rodGeometry([0.47 + Math.cos(a) * 0.01, T + 0.01, zc + Math.sin(a) * 0.01], [0.47 + Math.cos(a) * 0.026, T + 0.155, zc + Math.sin(a) * 0.026], 0.0025, 5), { tile: 0.3 }); }
+    partShift = counterShift(-1.45);
     // open menu folder: two brown covers and two cream pages, lying open
     slab("cover", [-1.56, -1.45], [T, T + 0.006], [zc - 0.075, zc + 0.075], { tile: 1 }); slab("cover", [-1.45, -1.34], [T, T + 0.006], [zc - 0.075, zc + 0.075], { tile: 1 });
     slab("paper", [-1.55, -1.455], [T + 0.006, T + 0.009], [zc - 0.068, zc + 0.068], { tile: 1 }); slab("paper", [-1.445, -1.35], [T + 0.006, T + 0.009], [zc - 0.068, zc + 0.068], { tile: 1 });
+    partShift = counterShift(-1.9);
     // newspaper rack: a black wire frame with a folded newspaper, 200 x 90 x 130 mm
     for (const x of [-2.0, -1.8]) for (const dz of [-0.04, 0.04]) part("black", rodGeometry([x, T, zc + dz], [x, T + 0.12, zc + dz], 0.0028, 6), { tile: 1 });
     for (const dz of [-0.04, 0.04]) { part("black", rodGeometry([-2.0, T + 0.12, zc + dz], [-1.8, T + 0.12, zc + dz], 0.0028, 6), { tile: 1 }); part("black", rodGeometry([-2.0, T + 0.005, zc + dz], [-1.8, T + 0.005, zc + dz], 0.0028, 6), { tile: 1 }); }
     slab("paper", [-1.985, -1.815], [T + 0.01, T + 0.115], [zc - 0.012, zc + 0.012], { tile: 1 });
+    partShift = counterShift(-1.12);
     // tiny succulent in a clay pot: a rosette of flat leaves
     part("terracotta", new THREE.LatheGeometry([[0.0005, 0], [0.026, 0], [0.034, 0.06], [0.037, 0.07], [0.0005, 0.07]].map((p) => new THREE.Vector2(p[0], p[1])), 18).translate(-1.12, T, zc), { tile: 1 });
     for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2, ring = i % 2 ? 0.014 : 0.024, leaf = new THREE.SphereGeometry(0.02, 8, 5); leaf.scale(0.55, 0.15, 1); leaf.translate(0, 0, 0.02); leaf.rotateX(-(i % 2 ? 0.8 : 0.4)).rotateY(a); part("leaf", leaf.translate(-1.12 + Math.cos(a) * ring * 0.4, T + 0.075 + (i % 2) * 0.01, zc + Math.sin(a) * ring * 0.4), { tile: 1 }); }
+    partShift = counterShift(-0.9);
     // receipt spike: a steel disc, a pin and a few white slips
     part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.008, 20).translate(-0.9, T + 0.004, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.0025, 0.0025, 0.12, 6).translate(-0.9, T + 0.068, zc), { tile: 1 });
     for (let i = 0; i < 4; i++) slab("paper", [-0.9 - 0.025, -0.9 + 0.025], [T + 0.012 + i * 0.012, T + 0.0138 + i * 0.012], [zc - 0.02 + (i % 2) * 0.006, zc + 0.02 + (i % 2) * 0.006], { tile: 1 });
   }
+  partShift = 0;
   flush("polish");
 
   // ---------- the bar stools (Codex card 52 A): three designs, four stools along the counter, seat 65 cm ----------
@@ -1141,7 +1175,7 @@ export async function start({ stage, onReady = () => {} }) {
     for (const kind of Object.keys(stoolSets)) {
       const lb = lampBuilder();
       for (const [x, z, yaw] of POS) {
-        const at = (g) => g.rotateY(yaw).translate(x, 0, z), lp = lb.lp, legs = (key, top, radius) => { for (let k = 0; k < 4; k++) { const a = (k / 4) * Math.PI * 2 + Math.PI / 4; lp(key, at(rodGeometry([Math.cos(a) * 0.205, 0, Math.sin(a) * 0.205], [Math.cos(a) * 0.15, top, Math.sin(a) * 0.15], radius, 10))); } };
+        const at = (g) => g.rotateY(yaw).translate(x, 0, z + counterShift(x)), lp = lb.lp, legs = (key, top, radius) => { for (let k = 0; k < 4; k++) { const a = (k / 4) * Math.PI * 2 + Math.PI / 4; lp(key, at(rodGeometry([Math.cos(a) * 0.205, 0, Math.sin(a) * 0.205], [Math.cos(a) * 0.15, top, Math.sin(a) * 0.15], radius, 10))); } };
         if (kind === "bentwood") {
           legs("bentwood", 0.63, 0.015);
           lp("cane", at(new THREE.CylinderGeometry(0.19, 0.19, 0.02, 36).translate(0, 0.64, 0))); lp("bentwood", at(new THREE.TorusGeometry(0.19, 0.014, 8, 36).rotateX(Math.PI / 2).translate(0, 0.652, 0)));
@@ -1455,7 +1489,7 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-8-codex-art-2", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-9-s-counter", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
