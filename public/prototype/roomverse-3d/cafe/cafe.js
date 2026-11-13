@@ -1,6 +1,6 @@
 import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
-import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
+import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { loadModel } from "../bedroom/models.js?v=5";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai, just opened for the morning.
@@ -177,7 +177,7 @@ function worldUVs(geometry, tile, grain = "y") {
 
 // A slab whose outline is a rectangle with one half-round end (a counter) or a plain rectangle, standing on y0 with a rounded bullnose edge.
 function footprintGeometry(x0, x1, z0, z1, y0, height, { round = true, bevel = 0, shift = null } = {}) {
-  const r = (z1 - z0) / 2, zc = (z0 + z1) / 2, shape = new THREE.Shape(), sh = shift ?? (() => 0), xe = round ? x1 - r : x1, STEP = shift ? 0.1 : 0.04;
+  const r = (z1 - z0) / 2, zc = (z0 + z1) / 2, shape = new THREE.Shape(), sh = shift ?? (() => 0), xe = round ? x1 - r : x1, STEP = shift ? 0.1 : x1 - x0; // the straight back bar is a plain rectangle; only the S counter needs sample points
   shape.moveTo(x0, -(z0 + sh(x0)));
   for (let x = x0 + STEP; x < xe; x += STEP) shape.lineTo(x, -(z0 + sh(x)));
   shape.lineTo(xe, -(z0 + sh(xe)));
@@ -260,8 +260,23 @@ function makeBambooTexture() {
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(3, 2); texture.anisotropy = 8; return texture;
 }
 // Paint a geometry one colour with vertex colours (the lamp glow material takes its colours from them).
+// A lathe duplicates its seam vertices (different UVs, so two normals): weld them so the body shades as one smooth surface with no vertical line (shared skill lathe-mug-and-granular-pile).
+// The UV is zeroed rather than removed, so the geometry still merges with its batch; part() writes the real UVs afterwards.
+function weldSmooth(geometry) {
+  const count = geometry.attributes.position.count;
+  geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(count * 2), 2));
+  geometry.deleteAttribute("normal");
+  const welded = mergeVertices(geometry); welded.computeVertexNormals(); return welded;
+}
+// Merged batches keep their vertex indices (a smooth lathe or tube shares its vertices), so a batch costs a third of what it did when every geometry was expanded to
+// separate triangles. Non-indexed shapes (extrusions) get a plain 0..n-1 index so they can sit in the same batch. Callers' own geometries are never changed.
+function indexed(geometry) {
+  const g = geometry.index ? geometry.clone() : geometry;
+  if (!g.index) { const n = g.attributes.position.count, index = new (n > 65535 ? Uint32Array : Uint16Array)(n); for (let i = 0; i < n; i++) index[i] = i; g.setIndex(new THREE.BufferAttribute(index, 1)); }
+  return g;
+}
 function colorize(geometry, hex) {
-  const g = geometry.index ? geometry.toNonIndexed() : geometry, c = new THREE.Color(hex), n = g.attributes.position.count, colors = new Float32Array(n * 3);
+  const g = indexed(geometry), c = new THREE.Color(hex), n = g.attributes.position.count, colors = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) { colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b; }
   g.setAttribute("color", new THREE.BufferAttribute(colors, 3)); return g;
 }
@@ -475,13 +490,14 @@ export async function start({ stage, onReady = () => {} }) {
   const parts = new Map();
   let partShift = 0; // z shift applied to everything built while it is set (things standing on the curved counter)
   const part = (key, geometry, { tile = 0.9, grain = "y" } = {}) => {
-    const g = geometry.index ? geometry.toNonIndexed() : geometry;
+    const g = indexed(geometry);
     if (partShift) g.translate(0, 0, partShift);
     worldUVs(g, tile, grain);
     if (!parts.has(key)) parts.set(key, []);
     parts.get(key).push(g);
   };
   const slab = (key, [x0, x1], [y0, y1], [z0, z1], options) => part(key, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), options);
+  let beansMesh = null; // the grinder's beans (an instanced mesh), counted by the tests
   const noCast = new Set(["leaf", "leafDark", "bloom", "soil", "water", "paper", "cover", "glass", "muffinCup", "muffin", "croissant", "cookie", "chip", "beans", "coffee", "warm", "eyes", "cane", "kraft", "lid", "tablet", "gold", "pendantShade", "sconceGlow"]);
   const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0, { cast: !noCast.has(key) }); parts.clear(); };
 
@@ -569,7 +585,7 @@ export async function start({ stage, onReady = () => {} }) {
   // A brushed-steel foot rail 20 cm off the floor on four arms (the rail is a tube along the curve): a real bar detail that also throws a long shadow line down the front.
   const railD = 0.14, railY = 0.2, railX0 = c.x0 + 0.25, railX1 = arcX - 0.25;
   { const pts = []; for (let x = railX0; x <= railX1 + 1e-6; x += 0.1) pts.push(new THREE.Vector3(x, railY, fz + railD + counterShift(x)));
-    part("steel", new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 4, 0.024, 12, false), { tile: 1 }); }
+    part("steel", new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 2, 0.024, 10, false), { tile: 1 }); }
   for (const t of [0.04, 0.36, 0.64, 0.96]) {
     const x = railX0 + t * (railX1 - railX0), d = counterShift(x), zr = fz + railD + d;
     slab("steel", [x - 0.014, x + 0.014], [railY - 0.014, railY + 0.014], [fz + d, zr]);
@@ -679,13 +695,32 @@ export async function start({ stage, onReady = () => {} }) {
     part("black", roundedBox(0.26, 0.022, 0.3, 0.014, 0.004).rotateX(Math.PI / 2).translate(gx, barTop + 0.011, gz), { tile: 1 });
     part("black", new THREE.LatheGeometry([[0.0005, 0], [0.108, 0], [0.104, 0.03], [0.078, 0.27], [0.0005, 0.27]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(gx, y0, gz), { tile: 1 });
     part("steel", new THREE.CylinderGeometry(0.083, 0.083, 0.024, 32).translate(gx, y0 + 0.282, gz), { tile: 1 });
-    part("glass", new THREE.LatheGeometry([[0.078, 0], [0.098, 0.05], [0.104, 0.1], [0.104, 0.13], [0.1, 0.17]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(gx, y0 + 0.294, gz), { tile: 1 });
+    part("glass", weldSmooth(new THREE.LatheGeometry([[0.078, 0], [0.098, 0.05], [0.104, 0.1], [0.104, 0.13], [0.1, 0.17]].map((p) => new THREE.Vector2(p[0], p[1])), 36)).translate(gx, y0 + 0.294, gz), { tile: 1 });
     part("black", new THREE.CylinderGeometry(0.108, 0.108, 0.018, 36).translate(gx, y0 + 0.4, gz), { tile: 1 });
-    let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    for (let i = 0; i < 70; i++) {
-      const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 0.085, hy = 0.3 + rnd() * 0.07 * (1 - rr / 0.1);
-      const g = new THREE.SphereGeometry(0.0085, 6, 4); g.scale(1, 0.72, 0.58); g.rotateY(rnd() * 3).rotateZ(rnd() * 3);
-      part("beans", g.translate(gx + Math.cos(a) * rr, y0 + 0.28 + (hy - 0.3) + rnd() * 0.02, gz + Math.sin(a) * rr), { tile: 1 });
+    // The beans (shared skill lathe-mug-and-granular-pile): half a hopper, in rows with a visible gap between them, rings shrinking toward the wall, a deterministic jitter, two colours
+    // (about two dark to one light), low-poly pills, no shadows, and no solid core (a thin floor disc only). One instanced mesh; the prototype is only 48 vertices.
+    {
+      const noise = (index, salt) => { const v = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453; return v - Math.floor(v); };
+      const wall = (h) => h < 0.05 ? 0.078 + (0.098 - 0.078) * (h / 0.05) : 0.098 + (0.104 - 0.098) * Math.min(1, (h - 0.05) / 0.05); // the hopper's inner radius at height h above its foot
+      const base = y0 + 0.294, matrices = [], tints = [], dark = new THREE.Color(0x3b2415), light = new THREE.Color(0x6a4526);
+      part("black", new THREE.CylinderGeometry(0.076, 0.076, 0.003, 28).translate(gx, base + 0.0015, gz), { tile: 1 }); // the thin floor disc
+      let index = 0;
+      for (let row = 0; row < 7; row++) {
+        const h = 0.014 + row * 0.0125, ringMax = Math.max(0, wall(h) - 0.016 - row * 0.0022);
+        for (let r = 0; r <= ringMax + 1e-6; r += 0.0155) {
+          const count = r === 0 ? 1 : Math.max(5, Math.round((2 * Math.PI * r) / 0.0152));
+          for (let k = 0; k < count; k++, index++) {
+            const angle = (k / count) * Math.PI * 2 + noise(index, 1) * 0.5 + row * 0.7, radius = Math.min(ringMax, r + (noise(index, 2) - 0.5) * 0.004);
+            const size = 0.0058 + noise(index, 3) * 0.0012, lift = (noise(index, 4) - 0.5) * 0.004;
+            const matrix = new THREE.Matrix4().compose(new THREE.Vector3(gx + Math.cos(angle) * radius, base + h + lift, gz + Math.sin(angle) * radius),
+              new THREE.Quaternion().setFromEuler(new THREE.Euler(noise(index, 5) * 3, noise(index, 6) * 6.28, noise(index, 7) * 3)), new THREE.Vector3(size * 1.05, size * 0.82, size * 0.92));
+            matrices.push(matrix); tints.push(noise(index, 8) < 0.34 ? light : dark);
+          }
+        }
+      }
+      const beans = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 7, 5), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 }), matrices.length);
+      matrices.forEach((m, i) => { beans.setMatrixAt(i, m); beans.setColorAt(i, tints[i]); });
+      beans.name = "grinder-beans"; beans.castShadow = false; beans.receiveShadow = false; beans.computeBoundingSphere(); scene.add(beans); beansMesh = beans;
     }
     part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.02, 24).rotateX(Math.PI / 2).translate(gx, y0 + 0.19, gz + 0.087), { tile: 1 });
     part("steel", rodGeometry([gx, y0 + 0.13, gz + 0.085], [gx, y0 + 0.085, gz + 0.125], 0.017), { tile: 1 });
@@ -798,7 +833,7 @@ export async function start({ stage, onReady = () => {} }) {
     for (const mesh of [...local.children]) {
       if (!mesh.isMesh) continue;
       mesh.updateMatrix();
-      let g = mesh.geometry.clone().applyMatrix4(mesh.matrix); if (g.index) g = g.toNonIndexed();
+      const g = indexed(mesh.geometry.clone().applyMatrix4(mesh.matrix));
       if (!byMaterial.has(mesh.material)) byMaterial.set(mesh.material, []);
       byMaterial.get(mesh.material).push(g); local.remove(mesh); mesh.geometry.dispose();
     }
@@ -1078,7 +1113,7 @@ export async function start({ stage, onReady = () => {} }) {
   const lampCommon = new THREE.Group(); // what does not change with the look: the floor lamp and the track light rings
   const lampBuilder = () => {
     const lists = new Map();
-    const lp = (key, geometry) => { const g = geometry.index ? geometry.toNonIndexed() : geometry; if (!lists.has(key)) lists.set(key, []); lists.get(key).push(g); };
+    const lp = (key, geometry) => { const g = indexed(geometry); if (!lists.has(key)) lists.set(key, []); lists.get(key).push(g); };
     return { lp, build: (group) => { for (const [key, list] of lists) { const mesh = new THREE.Mesh(mergeGeometries(list), materials[key]); mesh.name = `lamp-${key}`; mesh.castShadow = key !== "lampGlow" && key !== "floorShade" && key !== "bamboo"; group.add(mesh); } } };
   };
   const cord = (lp, x, z, y0, y1) => lp("black", new THREE.CylinderGeometry(0.0025, 0.0025, y1 - y0, 6).translate(x, (y0 + y1) / 2, z));
@@ -1837,7 +1872,7 @@ export async function start({ stage, onReady = () => {} }) {
     noteScreen: () => projectBox(note),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
-    robotHop, setView, view: () => viewName, views: () => Object.keys(VIEWS), setCenterView, centerLook, isCenter: () => Boolean(center),
+    beansVisible: () => beansMesh?.count ?? 0, robotHop, setView, view: () => viewName, views: () => Object.keys(VIEWS), setCenterView, centerLook, isCenter: () => Boolean(center),
     streetMaterials: () => ({ separate: materials.street !== materials.streetFront, left: materials.street.map?.userData.file, front: materials.streetFront.map?.userData.file }),
     menuCopy: PROVISIONAL_MENUS, menuTextureKinds: () => [Boolean(materials.menuA.map?.isCanvasTexture), Boolean(materials.menuB.map?.isCanvasTexture)], lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),
     info() {

@@ -376,3 +376,10 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     });
   });
 }
+
+test("Room 04 grinder: the beans read as a half-full hopper of many pieces", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const beans = await page.evaluate(() => window.__room04.beansVisible());
+  expect(beans, "individual beans, not a muddy block").toBeGreaterThanOrEqual(150);
+  expect(errors).toEqual([]);
+});
