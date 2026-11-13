@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 177540, meshes: 126 }),
+  scene: Object.freeze({ vertices: 184271, meshes: 127 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 109, phone: 101 }),
+  openingDrawCalls: Object.freeze({ desktop: 110, phone: 102 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 185000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -46,5 +46,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "cards 58 + 53 P2 (Codex, re-applied on the vertex-diet main by CC): two open drawers and a glass-front fridge in the back bar, open shelf tiers on the barista side, a service run (knock box, tamper, brush, kettle and dripper, graded cups, wash basin, water glasses, cloth and hooks, bin), two rows of cups on the warmer, more on the shelves and a tray on the counter", vertices: 177222, meshes: 126, desktopCalls: 109, phoneCalls: 101 },
     { date: "2026-11-14", change: "Card 61 espresso machine: steel upper seam and base, two double-spout heads, one angled mounted handle, a second handle on its side cradle, black gauge face and steel needle, thinner drip grille", vertices: 177540, meshes: 126, desktopCalls: 109, phoneCalls: 101 },
     { date: "2026-11-14", change: "Card 61 steel finish: existing steel material gains a procedural brushed map for colour, roughness and a shallow bump, with stronger environment reflection; material-only change, no geometry", vertices: 177540, meshes: 126, desktopCalls: 109, phoneCalls: 101 },
+    { date: "2026-11-14", change: "Card 61 pastry display: tapered folded croissants, fruit and cream tarts, layered cake, canelé basket, generic sparkling and mineral bottles, raised plates and a provisional Today sign", vertices: 184271, meshes: 127, desktopCalls: 110, phoneCalls: 102 },
   ]),
 });
