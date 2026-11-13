@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 318527, meshes: 143 }),
+  scene: Object.freeze({ vertices: 360503, meshes: 143 }),
   // Draw calls in the first frame of the opening (morning) view.
   openingDrawCalls: Object.freeze({ desktop: 125, phone: 113 }),
   // Starting caps from the look brief, set from Room 03's live size (109,111 vertices, 133 meshes, 83 / 80 opening draw calls).
@@ -30,5 +30,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "lamps from Codex card 50 (Paul kept two): the bamboo cloud and the paper rings, one over the window seat and the other over the counter (a look swaps them); brass now a real metal with reflections; a Room 01 style floor lamp by the window seat; track light brass rings; a big TV on the right wall and a sixth mood, series night", vertices: 236530, meshes: 107, desktopCalls: 110, phoneCalls: 96 },
     { date: "2026-11-14", change: "Codex cards 49 and 51 integrated: eight wall prints on one atlas (front wall and left wall), three clock designs (futuristic, classical brass, round oak) with hands on the real time, three series-night stills, white and dark brick with height maps, terrazzo floor; brass lightened (metalness 0.78 plus a small emissive) because full metal rendered black", vertices: 251711, meshes: 131, desktopCalls: 118, phoneCalls: 106 },
     { date: "2026-11-14", change: "Codex card 52 integrated: four bar stools in three designs (bentwood, oak and leather, black metal) along the counter, eight counter props (napkin dispenser, sugar jar, cream pitcher, stir sticks, menu folder, newspaper rack, succulent, receipt spike), a second set of eight prints, two own wallpapers, herringbone and slate floors, four rugs, three chalk menus; the look swaps cost nothing, the stools and props about 7 draw calls. Caps raised again: Room 04 is the heaviest room by far, so a real-phone frame check is overdue", vertices: 318527, meshes: 143, desktopCalls: 125, phoneCalls: 113 },
+    { date: "2026-11-14", change: "the counter gets the shallow middle S (Paul chose it from card 48): body, plinth and stone top follow one smooth wave of +-0.23 m between x = -1.9 and 0.5, the raised-and-fielded front is built from 16 cm boxes that follow the curve, the foot rail is a tube along it; the stools, cups, tip jar and the eight props follow it too", vertices: 360503, meshes: 143, desktopCalls: 125, phoneCalls: 113 },
   ]),
 });
