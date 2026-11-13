@@ -8,11 +8,11 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 251711, meshes: 131 }),
+  scene: Object.freeze({ vertices: 318527, meshes: 143 }),
   // Draw calls in the first frame of the opening (morning) view.
-  openingDrawCalls: Object.freeze({ desktop: 118, phone: 106 }),
+  openingDrawCalls: Object.freeze({ desktop: 125, phone: 113 }),
   // Starting caps from the look brief, set from Room 03's live size (109,111 vertices, 133 meshes, 83 / 80 opening draw calls).
-  caps: Object.freeze({ vertices: 300000, meshes: 140, desktopCalls: 124, phoneCalls: 108 }), // raised with history lines on 2026-11-13 (Paul: vertices are not rationed while phones run it). Draw calls are what a phone feels, so Room 04 is the heaviest room: Room 03 opens at 85 / 82. If a real phone stutters, merge materials with vertex colours before cutting any visual
+  caps: Object.freeze({ vertices: 380000, meshes: 170, desktopCalls: 136, phoneCalls: 122 }), // raised with history lines on 2026-11-13 (Paul: vertices are not rationed while phones run it). Draw calls are what a phone feels, so Room 04 is the heaviest room: Room 03 opens at 85 / 82. If a real phone stutters, merge materials with vertex colours before cutting any visual
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-13", change: "blockout: shell, window, counter, back bar, shelves, menus, plain stand-ins for the machine, grinder, pastry case, robot and plant", vertices: 3419, meshes: 51, desktopCalls: 49, phoneCalls: 48 },
@@ -29,5 +29,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-13", change: "entrance: no coat hooks, coat, tote or umbrella stand (Paul: a public cafe does not hang coats, and the stand does not bake well in 360 degrees); a small gallery of four framed prints right of the door instead, on one painting atlas (stand-in art until Codex card 49)", vertices: 209850, meshes: 97, desktopCalls: 104, phoneCalls: 91 },
     { date: "2026-11-14", change: "lamps from Codex card 50 (Paul kept two): the bamboo cloud and the paper rings, one over the window seat and the other over the counter (a look swaps them); brass now a real metal with reflections; a Room 01 style floor lamp by the window seat; track light brass rings; a big TV on the right wall and a sixth mood, series night", vertices: 236530, meshes: 107, desktopCalls: 110, phoneCalls: 96 },
     { date: "2026-11-14", change: "Codex cards 49 and 51 integrated: eight wall prints on one atlas (front wall and left wall), three clock designs (futuristic, classical brass, round oak) with hands on the real time, three series-night stills, white and dark brick with height maps, terrazzo floor; brass lightened (metalness 0.78 plus a small emissive) because full metal rendered black", vertices: 251711, meshes: 131, desktopCalls: 118, phoneCalls: 106 },
+    { date: "2026-11-14", change: "Codex card 52 integrated: four bar stools in three designs (bentwood, oak and leather, black metal) along the counter, eight counter props (napkin dispenser, sugar jar, cream pitcher, stir sticks, menu folder, newspaper rack, succulent, receipt spike), a second set of eight prints, two own wallpapers, herringbone and slate floors, four rugs, three chalk menus; the look swaps cost nothing, the stools and props about 7 draw calls. Caps raised again: Room 04 is the heaviest room by far, so a real-phone frame check is overdue", vertices: 318527, meshes: 143, desktopCalls: 125, phoneCalls: 113 },
   ]),
 });

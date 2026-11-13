@@ -49,17 +49,21 @@ export const LOOK_GROUPS = Object.freeze({
   back: Object.freeze({ olive: 0x4d5d3c, navy: 0x2f4560, terracotta: 0xa5563b, charcoal: 0x3a3d3f, sage: 0x88977a }),
   wainscot: Object.freeze({ same: null, olive: 0x4d5d3c, navy: 0x2f4560, terracotta: 0xa5563b, charcoal: 0x3a3d3f, sage: 0x88977a, cream: 0xe4d8c0, walnut: 0x5a3d2b, oat: 0xc9b896 }),
   wall: Object.freeze({ warm: 0xf1ece2, blush: 0xf0dcd4, mist: 0xdde5e2, butter: 0xf3e6c4, grey: 0xdad8d4 }),
-  floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12], terrazzo: "terrazzo" }), // "terrazzo": Codex card 51 C
+  floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12], terrazzo: "room04-floor-terrazzo-v1.webp", herringbone: "room04-floor-herringbone.webp", slate: "room04-floor-slate.webp" }), // strings are painted floor tiles from Codex cards 51 C and 52 F
   lamp: Object.freeze({ bamboo: 1, rings: 2 }), // Codex card 50: the two designs Paul kept. "bamboo": the bamboo cloud over the window seat and paper rings over the counter; "rings": the other way round
   scarf: Object.freeze({ olive: 0x66763f, terracotta: 0xc4623a, mustard: 0xd6a43a, navy: 0x2f4560, rose: 0xd49a96 }),
   chair: Object.freeze({ bentwood: 0x9a6a3a, black: 0x2a2a2c, natural: 0xc9a06a }),
+  gallery: Object.freeze({ a: 1, b: 2 }), // two sets of eight wall prints (Codex cards 49 and 52 G)
+  rug: Object.freeze({ weave: "", jute: "room04-rug-1-jute.webp", wool: "room04-rug-2-wool-lattice.webp", abstract: "room04-rug-3-abstract.webp", stripe: "room04-rug-4-stripe.webp" }), // the round rug at the window seat (Codex card 52 B)
+  menu: Object.freeze({ board: ["room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"], chalk: ["room04-menu-a-chalk-art-big.webp", "room04-menu-a-small.webp"], minimal: ["room04-menu-b-minimal-big.webp", "room04-menu-b-small.webp"], script: ["room04-menu-c-script-big.webp", "room04-menu-c-small.webp"] }), // the two chalk menus (Codex card 52 D)
+  stool: Object.freeze({ bentwood: 1, leather: 2, metal: 3, none: 0 }), // the four bar stools along the counter (Codex card 52 A)
   clock: Object.freeze({ tech: 1, classic: 2, wood: 3 }), // the wall clock (Codex card 49): A futuristic, B classical brass, or the round oak one. The hands show the real time.
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
-  wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4] }),
+  wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4], planeleaf: ["room04-wallpaper-plane-leaf.webp", 1.5], windowshadow: ["room04-wallpaper-window-shadow.webp", 1.5] }), // the last two are this cafe's own (Codex card 52 C)
 });
-export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same", clock: "tech" });
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", menu: "board", stool: "bentwood" });
 // What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
-export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"] });
+export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"], planeleaf: ["olive", "walnut", "cream"], windowshadow: ["walnut", "charcoal", "olive"] });
 
 // Plank ceiling drawn on a canvas: white boards 14 cm wide with a dark tongue-and-groove line, used as colour AND bump so the grooves catch the light.
 function makePlankTexture() {
@@ -241,6 +245,7 @@ export async function start({ stage, onReady = () => {} }) {
 
   // Painted textures (Codex, cards 45 and 46) are given to a material only when they have loaded, so nothing flashes black; until then the material
   // keeps a flat colour of the same family.
+  const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
   const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
   const textureLoader = new THREE.TextureLoader();
   const artBase = new URL("./art/", import.meta.url).href;
@@ -299,6 +304,8 @@ export async function start({ stage, onReady = () => {} }) {
     bamboo: new THREE.MeshStandardMaterial({ color: 0xffffff, map: makeBambooTexture(), roughness: 0.85, emissive: 0xffb866, emissiveIntensity: 0.1, side: THREE.DoubleSide }),
     pendantShade: new THREE.MeshStandardMaterial({ color: 0xd9bb82, roughness: 0.85, emissive: 0xffc77a, emissiveIntensity: 0, side: THREE.DoubleSide }),
     sconceGlow: new THREE.MeshStandardMaterial({ color: 0xf3e2c2, roughness: 0.8, emissive: 0xffc77a, emissiveIntensity: 0, side: THREE.DoubleSide }),
+    leather: new THREE.MeshStandardMaterial({ color: 0xb5583a, roughness: 0.5 }),
+    leatherBlack: new THREE.MeshStandardMaterial({ color: 0x1f2022, roughness: 0.6 }),
     kraft: new THREE.MeshStandardMaterial({ color: 0xc9a272, roughness: 0.85 }),
     lid: new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.6 }),
     tablet: new THREE.MeshStandardMaterial({ color: 0x1d2a33, roughness: 0.25, emissive: 0x9fc5d6, emissiveIntensity: 0.35 }),
@@ -846,7 +853,7 @@ export async function start({ stage, onReady = () => {} }) {
   {
     // A round jute rug under the window seat (a standalone mesh: a lid texture on the top face only).
     const rugTexture = makeRugTexture();
-    const rug = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.014, 56), [new THREE.MeshStandardMaterial({ color: 0xb59868, roughness: 1 }), new THREE.MeshStandardMaterial({ map: rugTexture, roughness: 1 }), new THREE.MeshStandardMaterial({ color: 0x7a6040 })]);
+    const rug = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.014, 56), [new THREE.MeshStandardMaterial({ color: 0xb59868, roughness: 1 }), (rugRef.top = new THREE.MeshStandardMaterial({ map: rugTexture, roughness: 1 }), rugRef.defaultMap = rugTexture, rugRef.top), new THREE.MeshStandardMaterial({ color: 0x7a6040 })]);
     rug.name = "window-rug"; rug.position.set(SEAT.x + 0.2, 0.007, SEAT.z + 0.28); rug.receiveShadow = true; scene.add(rug);
   }
   // ---------- the front wall (behind the visitor): a glass door, a floor-to-ceiling window, hooks, an umbrella stand and a mat (Codex card 47, A) ----------
@@ -913,18 +920,29 @@ export async function start({ stage, onReady = () => {} }) {
       box3(pr.frame, a0, a0 + fw, y0 + fw, y1 - fw, 0, 0.03, "y"); box3(pr.frame, a1 - fw, a1, y0 + fw, y1 - fw, 0, 0.03, "y");
       box3("paper", a0 + fw, a1 - fw, y0 + fw, y1 - fw, 0, 0.008, "y");
     }
-    const imagesLoaded = []; let pending = PRINT_FILES.length;
-    PRINT_FILES.forEach((file, i) => { const img = new Image(); img.onload = () => { imagesLoaded[i] = img; loadedArt.add(file); if (--pending === 0) buildWallArt(); }; img.src = artBase + file; });
-    function buildWallArt() {
-      const canvas = document.createElement("canvas"); canvas.width = 2048; canvas.height = 1024; const g = canvas.getContext("2d"), rect = [];
-      imagesLoaded.forEach((img, i) => { // each picture drawn to fit its 512 x 512 cell, keeping its own proportions
-        const cx = (i % 4) * 512, cy = Math.floor(i / 4) * 512, pw = PRINT_ASPECT[i] >= 1 ? 512 : Math.round(512 * PRINT_ASPECT[i]), ph = PRINT_ASPECT[i] >= 1 ? Math.round(512 / PRINT_ASPECT[i]) : 512;
-        const ox = cx + (512 - pw) / 2, oy = cy + (512 - ph) / 2; g.drawImage(img, ox, oy, pw, ph); rect[i] = { ox, oy, pw, ph };
-      });
-      const atlas = new THREE.CanvasTexture(canvas); atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = maxAnisotropy;
+    const PRINT_FILES_B = ["q1-balcony", "q3-cat", "q2-ferry", "q4-pour-over", "q5-fallen-leaves", "q6-sheets", "q8-eaves", "q7-key-vinyl"].map((n) => `room04-print-${n}.webp`); // in the same slots as set A: portrait, portrait, landscape, square, landscape, portrait, portrait, square
+    const RECTS = PRINT_ASPECT.map((aspect, i) => { // each picture drawn to fit its 512 x 512 cell, keeping its own proportions
+      const cx = (i % 4) * 512, cy = Math.floor(i / 4) * 512, pw = aspect >= 1 ? 512 : Math.round(512 * aspect), ph = aspect >= 1 ? Math.round(512 / aspect) : 512;
+      return { ox: cx + (512 - pw) / 2, oy: cy + (512 - ph) / 2, pw, ph };
+    });
+    const drawAtlas = (images) => {
+      const canvas = document.createElement("canvas"); canvas.width = 2048; canvas.height = 1024; const g = canvas.getContext("2d");
+      images.forEach((img, i) => g.drawImage(img, RECTS[i].ox, RECTS[i].oy, RECTS[i].pw, RECTS[i].ph));
+      const atlas = new THREE.CanvasTexture(canvas); atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = maxAnisotropy; return atlas;
+    };
+    const loadImages = (files, then) => { const images = []; let left = files.length; files.forEach((file, i) => { const img = new Image(); img.onload = () => { images[i] = img; loadedArt.add(file); if (--left === 0) then(images); }; img.src = artBase + file; }); };
+    const atlases = {}; let wallMaterial = null;
+    function setGallery(key) {
+      if (!wallMaterial) return;
+      if (atlases[key]) { wallMaterial.map = atlases[key]; wallMaterial.needsUpdate = true; render(); return; }
+      if (key === "b") loadImages(PRINT_FILES_B, (images) => { atlases.b = drawAtlas(images); if (currentLook.gallery === "b") setGallery("b"); });
+    }
+    galleryRef.apply = (key) => setGallery(key);
+    loadImages(PRINT_FILES, (images) => {
+      atlases.a = drawAtlas(images);
       const planes = [];
       for (const pr of PRINTS) {
-        const w = pr.h * PRINT_ASPECT[pr.i], r = rect[pr.i];
+        const w = pr.h * PRINT_ASPECT[pr.i], r = RECTS[pr.i];
         const plane = new THREE.PlaneGeometry(w, pr.h), pos = plane.attributes.position, uv = plane.attributes.uv;
         if (pr.wall === "front") plane.rotateY(Math.PI).translate(pr.p, pr.y, FW - 0.0295); else plane.rotateY(Math.PI / 2).translate(X0 + 0.0295, pr.y, pr.p);
         for (let k = 0; k < pos.count; k++) {
@@ -933,9 +951,10 @@ export async function start({ stage, onReady = () => {} }) {
         }
         planes.push(plane);
       }
-      const art = new THREE.Mesh(mergeGeometries(planes), new THREE.MeshStandardMaterial({ map: atlas, roughness: 0.85 }));
-      art.name = "wall-art"; art.receiveShadow = true; scene.add(art); render();
-    }
+      wallMaterial = new THREE.MeshStandardMaterial({ map: atlases.a, roughness: 0.85 });
+      const art = new THREE.Mesh(mergeGeometries(planes), wallMaterial);
+      art.name = "wall-art"; art.receiveShadow = true; scene.add(art); setGallery(currentLook.gallery); render();
+    });
     slab("cane", [DOOR.x0 + 0.02, DOOR.x1 - 0.02], [0, 0.012], [FW - 0.78, FW - 0.08], { tile: 1 }); // the door mat
   }
   // ---------- the lamps (Codex card 50): four designs, each with a glowing part ----------
@@ -1082,7 +1101,66 @@ export async function start({ stage, onReady = () => {} }) {
   }
   const tvLight = new THREE.PointLight(0x9fc5ff, 0, 3.6, 2); tvLight.position.set(X1 - 0.8, 1.5, 0.45); scene.add(tvLight);
   const pendantLight = new THREE.PointLight(0xffc88a, 0, 2.6, 2); pendantLight.position.set(SEAT.x + 0.05, 1.7, SEAT.z + 0.05); scene.add(pendantLight);
+  // Counter props (Codex card 52 E), small and real-sized, along the customer side: a napkin dispenser, a glass sugar jar with tongs, a cream pitcher, a stir-stick holder,
+  // and toward the left an open menu folder, a newspaper rack with a folded paper, a tiny succulent and a receipt spike.
+  {
+    const zc = c.z1 - 0.15, T = top;
+    // napkin dispenser 140 x 90 x 80 mm: a black box with a stack of white napkins showing
+    slab("black", [0.05 - 0.07, 0.05 + 0.07], [T, T + 0.08], [zc - 0.045, zc + 0.045], { tile: 1 }); slab("paper", [0.05 - 0.055, 0.05 + 0.055], [T + 0.03, T + 0.092], [zc - 0.035, zc + 0.035], { tile: 1 });
+    // sugar jar: glass, a steel lid, six cubes and a pair of oak tongs
+    part("glass", new THREE.CylinderGeometry(0.045, 0.045, 0.11, 24).translate(0.22, T + 0.055, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.048, 0.048, 0.016, 24).translate(0.22, T + 0.118, zc), { tile: 1 }); part("steel", new THREE.SphereGeometry(0.009, 10, 8).translate(0.22, T + 0.134, zc), { tile: 1 });
+    for (let i = 0; i < 6; i++) slab("paper", [0.22 - 0.028 + (i % 3) * 0.02, 0.22 - 0.012 + (i % 3) * 0.02], [T + 0.004 + Math.floor(i / 3) * 0.016, T + 0.018 + Math.floor(i / 3) * 0.016], [zc - 0.012, zc + 0.004], { tile: 1 });
+    slab("oak", [0.265, 0.33], [T, T + 0.006], [zc + 0.045, zc + 0.052], { tile: 1 });
+    // cream pitcher
+    part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.028, 0], [0.036, 0.045], [0.03, 0.085], [0.034, 0.09], [0.0005, 0.09]].map((p) => new THREE.Vector2(p[0], p[1])), 22).translate(0.38, T, zc), { tile: 1 });
+    part("ceramic", new THREE.TorusGeometry(0.02, 0.0055, 8, 14, Math.PI).rotateZ(-Math.PI / 2).translate(0.418, T + 0.05, zc), { tile: 1 });
+    // stir-stick holder: a steel cup with twelve oak sticks leaning in it
+    part("steel", new THREE.CylinderGeometry(0.029, 0.029, 0.12, 20, 1, true).translate(0.47, T + 0.06, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.029, 0.029, 0.004, 20).translate(0.47, T + 0.002, zc), { tile: 1 });
+    for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; part("oak", rodGeometry([0.47 + Math.cos(a) * 0.01, T + 0.01, zc + Math.sin(a) * 0.01], [0.47 + Math.cos(a) * 0.026, T + 0.155, zc + Math.sin(a) * 0.026], 0.0025, 5), { tile: 0.3 }); }
+    // open menu folder: two brown covers and two cream pages, lying open
+    slab("cover", [-1.56, -1.45], [T, T + 0.006], [zc - 0.075, zc + 0.075], { tile: 1 }); slab("cover", [-1.45, -1.34], [T, T + 0.006], [zc - 0.075, zc + 0.075], { tile: 1 });
+    slab("paper", [-1.55, -1.455], [T + 0.006, T + 0.009], [zc - 0.068, zc + 0.068], { tile: 1 }); slab("paper", [-1.445, -1.35], [T + 0.006, T + 0.009], [zc - 0.068, zc + 0.068], { tile: 1 });
+    // newspaper rack: a black wire frame with a folded newspaper, 200 x 90 x 130 mm
+    for (const x of [-2.0, -1.8]) for (const dz of [-0.04, 0.04]) part("black", rodGeometry([x, T, zc + dz], [x, T + 0.12, zc + dz], 0.0028, 6), { tile: 1 });
+    for (const dz of [-0.04, 0.04]) { part("black", rodGeometry([-2.0, T + 0.12, zc + dz], [-1.8, T + 0.12, zc + dz], 0.0028, 6), { tile: 1 }); part("black", rodGeometry([-2.0, T + 0.005, zc + dz], [-1.8, T + 0.005, zc + dz], 0.0028, 6), { tile: 1 }); }
+    slab("paper", [-1.985, -1.815], [T + 0.01, T + 0.115], [zc - 0.012, zc + 0.012], { tile: 1 });
+    // tiny succulent in a clay pot: a rosette of flat leaves
+    part("terracotta", new THREE.LatheGeometry([[0.0005, 0], [0.026, 0], [0.034, 0.06], [0.037, 0.07], [0.0005, 0.07]].map((p) => new THREE.Vector2(p[0], p[1])), 18).translate(-1.12, T, zc), { tile: 1 });
+    for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2, ring = i % 2 ? 0.014 : 0.024, leaf = new THREE.SphereGeometry(0.02, 8, 5); leaf.scale(0.55, 0.15, 1); leaf.translate(0, 0, 0.02); leaf.rotateX(-(i % 2 ? 0.8 : 0.4)).rotateY(a); part("leaf", leaf.translate(-1.12 + Math.cos(a) * ring * 0.4, T + 0.075 + (i % 2) * 0.01, zc + Math.sin(a) * ring * 0.4), { tile: 1 }); }
+    // receipt spike: a steel disc, a pin and a few white slips
+    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.008, 20).translate(-0.9, T + 0.004, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.0025, 0.0025, 0.12, 6).translate(-0.9, T + 0.068, zc), { tile: 1 });
+    for (let i = 0; i < 4; i++) slab("paper", [-0.9 - 0.025, -0.9 + 0.025], [T + 0.012 + i * 0.012, T + 0.0138 + i * 0.012], [zc - 0.02 + (i % 2) * 0.006, zc + 0.02 + (i % 2) * 0.006], { tile: 1 });
+  }
   flush("polish");
+
+  // ---------- the bar stools (Codex card 52 A): three designs, four stools along the counter, seat 65 cm ----------
+  const stoolSets = { bentwood: new THREE.Group(), leather: new THREE.Group(), metal: new THREE.Group() };
+  {
+    const POS = [[-1.55, 0.18, 0.3], [-0.45, 0.2, -0.4], [0.65, 0.18, 0.1], [1.75, 0.2, -0.3]]; // x, z, yaw
+    const rail = (r, y) => r - (0.055 * y) / 0.63; // the legs splay: 20.5 cm radius at the floor, 15 cm under the seat
+    for (const kind of Object.keys(stoolSets)) {
+      const lb = lampBuilder();
+      for (const [x, z, yaw] of POS) {
+        const at = (g) => g.rotateY(yaw).translate(x, 0, z), lp = lb.lp, legs = (key, top, radius) => { for (let k = 0; k < 4; k++) { const a = (k / 4) * Math.PI * 2 + Math.PI / 4; lp(key, at(rodGeometry([Math.cos(a) * 0.205, 0, Math.sin(a) * 0.205], [Math.cos(a) * 0.15, top, Math.sin(a) * 0.15], radius, 10))); } };
+        if (kind === "bentwood") {
+          legs("bentwood", 0.63, 0.015);
+          lp("cane", at(new THREE.CylinderGeometry(0.19, 0.19, 0.02, 36).translate(0, 0.64, 0))); lp("bentwood", at(new THREE.TorusGeometry(0.19, 0.014, 8, 36).rotateX(Math.PI / 2).translate(0, 0.652, 0)));
+          for (const y of [0.22, 0.42]) lp("bentwood", at(new THREE.TorusGeometry(rail(0.205, y), 0.009, 8, 32).rotateX(Math.PI / 2).translate(0, y, 0)));
+        } else if (kind === "leather") {
+          legs("oak", 0.6, 0.017);
+          lp("oak", at(new THREE.TorusGeometry(rail(0.205, 0.25), 0.011, 8, 32).rotateX(Math.PI / 2).translate(0, 0.25, 0))); lp("oak", at(new THREE.CylinderGeometry(0.175, 0.175, 0.02, 36).translate(0, 0.59, 0)));
+          lp("leather", at(new THREE.LatheGeometry([[0.0005, 0], [0.19, 0], [0.196, 0.02], [0.19, 0.045], [0.15, 0.058], [0.0005, 0.06]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(0, 0.6, 0)));
+        } else {
+          legs("black", 0.62, 0.011);
+          lp("gold", at(new THREE.TorusGeometry(rail(0.205, 0.2), 0.008, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, 0)));
+          lp("black", at(new THREE.CylinderGeometry(0.17, 0.17, 0.014, 36).translate(0, 0.617, 0))); lp("gold", at(new THREE.TorusGeometry(0.172, 0.005, 8, 36).rotateX(Math.PI / 2).translate(0, 0.612, 0)));
+          lp("leatherBlack", at(new THREE.LatheGeometry([[0.0005, 0], [0.19, 0], [0.195, 0.015], [0.19, 0.03], [0.15, 0.04], [0.0005, 0.042]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(0, 0.624, 0)));
+        }
+      }
+      lb.build(stoolSets[kind]);
+    }
+  }
+  scene.add(...Object.values(stoolSets)); for (const [name, set] of Object.entries(stoolSets)) set.visible = name === DEFAULT_LOOK.stool;
 
   // Steam rising from the barista's cup and from the cup on the window table: a few soft puffs, drifting up and widening.
   const steamTexture = makeSteamTexture();
@@ -1237,9 +1315,13 @@ export async function start({ stage, onReady = () => {} }) {
     else if (group === "floor") {
       if (typeof v === "string") {
         materials.floor.color.setRGB(1, 1, 1);
-        altTexture("room04-floor-terrazzo-v1.webp", true, [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], (t) => { if (currentLook.floor === key) { materials.floor.map = t; materials.floor.needsUpdate = true; } });
+        altTexture(v, true, [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], (t) => { if (currentLook.floor === key) { materials.floor.map = t; materials.floor.needsUpdate = true; } });
       } else { if (woodFloor.map) materials.floor.map = woodFloor.map; materials.floor.color.setRGB(...v); materials.floor.needsUpdate = true; }
     }
+    else if (group === "gallery") { galleryRef.apply?.(key); }
+    else if (group === "rug") { if (rugRef.top) { if (!v) { rugRef.top.map = rugRef.defaultMap; rugRef.top.needsUpdate = true; } else altTexture(v, true, [1, 1], (t) => { if (currentLook.rug === key) { rugRef.top.map = t; rugRef.top.needsUpdate = true; } }); } }
+    else if (group === "menu") { altTexture(v[0], true, [1, 1], (t) => { if (currentLook.menu === key) { materials.menuA.map = t; materials.menuA.needsUpdate = true; } }); altTexture(v[1], true, [1, 1], (t) => { if (currentLook.menu === key) { materials.menuB.map = t; materials.menuB.needsUpdate = true; } }); }
+    else if (group === "stool") { for (const [name, set] of Object.entries(stoolSets)) set.visible = name === key; }
     else if (group === "clock") { for (const [name, set] of Object.entries(clockSets)) set.visible = name === key; }
     else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
     else if (group === "scarf") materials.scarf.color.setHex(v);
@@ -1266,7 +1348,7 @@ export async function start({ stage, onReady = () => {} }) {
     if (!paper) { materials.wall.map = null; materials.wall.color.setHex(LOOK_GROUPS.wall[currentLook.wall]); }
     else {
       const [file, size] = paper;
-      const texture = wallpaperTextures[file] ||= textureLoader.load(new URL(`../tex/${file}`, import.meta.url).href, () => render());
+      const texture = wallpaperTextures[file] ||= textureLoader.load(file.startsWith("room04-") ? artBase + file : new URL(`../tex/${file}`, import.meta.url).href, () => render());
       texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = maxAnisotropy; texture.repeat.set(1 / size, 1 / size);
       materials.wall.map = texture; materials.wall.color.setHex(0xffffff);
     }
@@ -1373,7 +1455,7 @@ export async function start({ stage, onReady = () => {} }) {
       render();
       const blockout = []; scene.traverse((object) => { if (object.isMesh && object.name.startsWith("blockout-") && !blockout.includes(object.name)) blockout.push(object.name); });
       return {
-        title: ROOM_TITLE, stage: "section-7-codex-art", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
+        title: ROOM_TITLE, stage: "section-8-codex-art-2", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },

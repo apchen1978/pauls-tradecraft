@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./cafe.js?v=22";
+import { start, ROOM_TITLE } from "./cafe.js?v=23";
 
 // Room 04 | Shanghai, Slowly. The page: title, the room, five mood buttons, the barista robot (tap it) and a paper note (tap it).
 // Texts marked PROVISIONAL are CC's first drafts; Paul has not chosen the note, the menu or the robot's lines yet.
@@ -17,13 +17,17 @@ const COPY = {
       counter: ["吧台木色", { honey: "蜂蜜橡木", walnut: "胡桃木", pale: "淺橡木", grey: "灰洗橡木" }],
       back: ["後吧台與護牆板", { olive: "橄欖綠", navy: "海軍藍", terracotta: "赭紅", charcoal: "炭灰", sage: "鼠尾草綠" }],
       wall: ["牆面漆色", { warm: "暖白", blush: "霧粉", mist: "霧綠", butter: "奶油黃", grey: "淺灰" }],
-      wallpaper: ["壁紙（沿用 Room 01）", { none: "不貼，用漆色", stripe: "細條紋壁紙", botanical: "淡色植紋壁紙", grasscloth: "暖燕麥草織", sagewash: "鼠尾草石灰洗" }],
+      wallpaper: ["壁紙", { none: "不貼，用漆色", stripe: "細條紋（Room 01）", botanical: "淡色植紋（Room 01）", grasscloth: "暖燕麥草織（Room 01）", sagewash: "鼠尾草石灰洗（Room 01）", planeleaf: "梧桐葉（本店專屬）", windowshadow: "窗格光影（本店專屬）" }],
       wainscot: ["護牆板（牆下半）", { same: "跟後吧台同色", olive: "橄欖綠", navy: "海軍藍", terracotta: "赭紅", charcoal: "炭灰", sage: "鼠尾草綠", cream: "奶油白", walnut: "胡桃木色", oat: "燕麥米" }],
-      floor: ["地板", { greybrown: "灰褐木", warmoak: "暖橡木", walnut: "深胡桃", pale: "淺木", terrazzo: "水磨石" }],
+      floor: ["地板", { greybrown: "灰褐木", warmoak: "暖橡木", walnut: "深胡桃", pale: "淺木", terrazzo: "水磨石", herringbone: "人字拼木", slate: "深色石板" }],
       clock: ["牆上時鐘（走真實時間）", { tech: "科技感鐘", classic: "古典黃銅鐘", wood: "圓木框鐘" }],
       lamp: ["吊燈（窗邊與吧台）", { bamboo: "窗邊竹編雲朵，吧台紙環", rings: "窗邊紙環，吧台竹編雲朵" }],
       scarf: ["機器人圍巾", { olive: "橄欖綠", terracotta: "赭紅", mustard: "芥黃", navy: "海軍藍", rose: "玫瑰粉" }],
-      chair: ["椅子", { bentwood: "曲木", black: "黑色", natural: "原木" }],
+      chair: ["窗邊椅子", { bentwood: "曲木", black: "黑色", natural: "原木" }],
+      stool: ["吧台高腳椅", { bentwood: "曲木藤面", leather: "橡木皮革", metal: "黑金屬", none: "不放" }],
+      rug: ["窗邊地毯", { weave: "黃麻編織（預設）", jute: "黃麻粗編", wool: "深色羊毛回字紋", abstract: "抽象色塊", stripe: "藍灰細條紋" }],
+      menu: ["黑板菜單", { board: "素面黑板", chalk: "粉筆插畫", minimal: "極簡邊框", script: "手寫感版面" }],
+      gallery: ["掛畫組", { a: "梧桐街與石庫門", b: "鐵花陽台與夜航渡輪" }],
     },
     center: "站到房間中間", orbit: "回到環繞視角", centerHint: "拖曳或用方向鍵，轉一整圈看看。",
     noteTitle: "便條", noteLine: "窗邊的位子留給你，慢慢來。", close: "關閉",
@@ -51,13 +55,17 @@ const COPY = {
       counter: ["Counter wood", { honey: "Honey oak", walnut: "Walnut", pale: "Pale oak", grey: "Grey-washed oak" }],
       back: ["Back bar and wainscot", { olive: "Olive", navy: "Navy", terracotta: "Terracotta", charcoal: "Charcoal", sage: "Sage" }],
       wall: ["Wall paint", { warm: "Warm white", blush: "Blush", mist: "Mist green", butter: "Butter", grey: "Pale grey" }],
-      wallpaper: ["Wallpaper (from Room 01)", { none: "None, use paint", stripe: "Fine-stripe wallpaper", botanical: "Soft botanical wallpaper", grasscloth: "Warm oatmeal grasscloth", sagewash: "Sage limewash" }],
+      wallpaper: ["Wallpaper", { none: "None, use paint", stripe: "Fine stripe (Room 01)", botanical: "Soft botanical (Room 01)", grasscloth: "Oatmeal grasscloth (Room 01)", sagewash: "Sage limewash (Room 01)", planeleaf: "Plane leaf (this cafe)", windowshadow: "Window shadow (this cafe)" }],
       wainscot: ["Wainscot (lower wall)", { same: "Same as back bar", olive: "Olive", navy: "Navy", terracotta: "Terracotta", charcoal: "Charcoal", sage: "Sage", cream: "Cream", walnut: "Walnut brown", oat: "Oat" }],
-      floor: ["Floor", { greybrown: "Grey-brown", warmoak: "Warm oak", walnut: "Dark walnut", pale: "Pale wood", terrazzo: "Terrazzo" }],
+      floor: ["Floor", { greybrown: "Grey-brown", warmoak: "Warm oak", walnut: "Dark walnut", pale: "Pale wood", terrazzo: "Terrazzo", herringbone: "Herringbone", slate: "Dark slate" }],
       clock: ["Wall clock (shows the real time)", { tech: "Futuristic clock", classic: "Classical brass clock", wood: "Round oak clock" }],
       lamp: ["Pendant lamps (window and counter)", { bamboo: "Bamboo cloud at the window, paper rings at the counter", rings: "Paper rings at the window, bamboo cloud at the counter" }],
       scarf: ["Robot scarf", { olive: "Olive", terracotta: "Terracotta", mustard: "Mustard", navy: "Navy", rose: "Rose" }],
-      chair: ["Chairs", { bentwood: "Bentwood", black: "Black", natural: "Natural" }],
+      chair: ["Window chairs", { bentwood: "Bentwood", black: "Black", natural: "Natural" }],
+      stool: ["Bar stools", { bentwood: "Bentwood and cane", leather: "Oak and leather", metal: "Black metal", none: "None" }],
+      rug: ["Window rug", { weave: "Jute weave (default)", jute: "Coarse jute", wool: "Dark wool, lattice", abstract: "Abstract blocks", stripe: "Blue-grey stripe" }],
+      menu: ["Chalk menus", { board: "Plain board", chalk: "Chalk drawings", minimal: "Minimal frame", script: "Handwritten layout" }],
+      gallery: ["Prints", { a: "Plane trees and doorways", b: "Balcony and night ferry" }],
     },
     center: "Stand in the middle", orbit: "Back to orbit view", centerHint: "Drag, or use the arrow keys, to turn all the way round.",
     noteTitle: "Note", noteLine: "The window seat is yours. Take your time.", close: "Close",
@@ -76,7 +84,7 @@ const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
 let centerMode = false;
-const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "lamp", "clock", "scarf", "chair"];
+const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "rug", "lamp", "clock", "stool", "menu", "gallery", "scarf", "chair"];
 let look = {};
 function syncLookUrl() {
   const url = new URL(location.href);

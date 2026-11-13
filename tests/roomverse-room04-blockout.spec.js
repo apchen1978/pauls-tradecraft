@@ -48,7 +48,7 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
   for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
-  expect(info.stage).toBe("section-7-codex-art");
+  expect(info.stage).toBe("section-8-codex-art-2");
 });
 
 test("Room 04 moods: six buttons, each sets its look inside the draw-call budget, and the robot and the note answer taps", async ({ page }) => {
@@ -120,9 +120,9 @@ test("Room 04 can turn all the way round from the middle of the room, and comes 
 test("Room 04 looks: swaps change materials without changing the scene size, wallpapers load, and the random cafe button builds a new one", async ({ page }) => {
   const errors = await open(page, 1440);
   const base = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
-  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "clock", "counter", "floor", "lamp", "scarf", "wainscot", "wall", "wallpaper"]);
+  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "clock", "counter", "floor", "gallery", "lamp", "menu", "rug", "scarf", "stool", "wainscot", "wall", "wallpaper"]);
   const groups = await page.evaluate(() => window.__room04.lookGroups());
-  expect(groups.wallpaper).toEqual(["none", "stripe", "botanical", "grasscloth", "sagewash"]);
+  expect(groups.wallpaper).toEqual(["none", "stripe", "botanical", "grasscloth", "sagewash", "planeleaf", "windowshadow"]);
   for (const [group, keys] of Object.entries(groups)) for (const key of keys) {
     const ok = await page.evaluate(([g, k]) => window.__room04.setLook(g, k), [group, key]);
     expect(ok, `${group}=${key}`).toBe(true);
