@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 432359, meshes: 124 }),
+  scene: Object.freeze({ vertices: 475433, meshes: 124 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 106, phone: 97 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -38,5 +38,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "Card 55: Room 04 immersive controls and travel door; no scene geometry or normal opening draw-call change", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
     { date: "2026-11-14", change: "Card 56: provisional chalk lettering on the two blank menu boards; texture-only change", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
     { date: "2026-11-14", change: "Card 59: separate four-mood corner street paintings for the front door and window; no geometry or opening draw-call change", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
+    { date: "2026-11-14", change: "Card 57: shared hollow ceramic and takeaway cup forms, detailed rims, saucers, handles, coffee and spoons; all join existing material batches", vertices: 475433, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
   ]),
 });
