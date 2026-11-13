@@ -209,10 +209,27 @@ function footprintGeometry(x0, x1, z0, z1, y0, height, { round = true, bevel = 0
 // A soft dark patch on the floor under a piece of furniture, so it sits on the floor instead of hovering over it.
 function makeContactShadowTexture() {
   const canvas = document.createElement("canvas"); canvas.width = 128; canvas.height = 128;
-  const g = canvas.getContext("2d");
-  g.shadowColor = "rgba(0,0,0,1)"; g.shadowBlur = 22; g.shadowOffsetX = 1000;
-  g.fillStyle = "#000"; g.fillRect(28 - 1000, 28, 72, 72);
+  const g = canvas.getContext("2d"), gradient = g.createRadialGradient(64, 64, 12, 64, 64, 64);
+  gradient.addColorStop(0, "rgba(0,0,0,.32)"); gradient.addColorStop(0.45, "rgba(0,0,0,.17)"); gradient.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = gradient; g.fillRect(0, 0, 128, 128);
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.NoColorSpace;
+  return texture;
+}
+
+// A very fine cross weave for cane surfaces; the height contrast stays low so it reads as texture, not raised wire.
+function makeCaneBumpTexture() {
+  const canvas = document.createElement("canvas"); canvas.width = canvas.height = 256;
+  const g = canvas.getContext("2d");
+  g.fillStyle = "rgb(128,128,128)"; g.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 256; i += 8) {
+    g.fillStyle = "rgb(134,134,134)"; g.fillRect(i + 1, 0, 2, 256); g.fillRect(0, i + 1, 256, 2);
+    g.fillStyle = "rgb(122,122,122)"; g.fillRect(i + 4, 0, 1, 256); g.fillRect(0, i + 4, 256, 1);
+    for (let j = 0; j < 256; j += 16) {
+      g.fillStyle = "rgb(138,138,138)"; g.fillRect(i + ((j / 16) % 2 ? 4 : 0), j + 1, 3, 3);
+    }
+  }
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.NoColorSpace;
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   return texture;
 }
 
@@ -246,6 +263,28 @@ function eggGeometry() {
 // A tube along a smooth curve through the given points.
 function tubeGeometry(points, radius, segments = 24, radial = 8) {
   return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p))), segments, radius, radial, false);
+}
+
+// Broad, softly rounded upholstery with a shallow central dip. The perimeter remains dense enough to hold a clean silhouette at room scale.
+function cushionGeometry(width, height, depth, sag = 0.008) {
+  const geometry = new THREE.SphereGeometry(1, 32, 16), position = geometry.attributes.position;
+  for (let i = 0; i < position.count; i++) {
+    const x = position.getX(i), y = position.getY(i), z = position.getZ(i);
+    const sx = Math.sign(x) * Math.abs(x) ** 0.62, sz = Math.sign(z) * Math.abs(z) ** 0.62;
+    const dip = y > 0 ? sag * Math.exp(-((sx / 0.45) ** 2 + (sz / 0.45) ** 2) * 1.6) * y ** 3 : 0;
+    position.setXYZ(i, sx * width / 2, y * height / 2 - dip, sz * depth / 2);
+  }
+  position.needsUpdate = true; geometry.computeVertexNormals();
+  return geometry;
+}
+
+function cushionWeltGeometry(width, depth, y, x = 0, z = 0, radius = 0.0045) {
+  const points = Array.from({ length: 48 }, (_, i) => {
+    const a = i * Math.PI * 2 / 48, c = Math.cos(a), s = Math.sin(a);
+    return new THREE.Vector3(x + width * 0.495 * Math.sign(c) * Math.abs(c) ** 0.62, y,
+      z + depth * 0.495 * Math.sign(s) * Math.abs(s) ** 0.62);
+  });
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points, true), 48, radius, 6, true);
 }
 // A woven jute rug: concentric rings of slightly different tans with a fine cross-weave.
 function makeRugTexture(rectangular = false) {
@@ -406,7 +445,7 @@ export async function start({ stage, onReady = () => {} }) {
     lid: new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.6 }),
     tablet: new THREE.MeshStandardMaterial({ color: 0x1d2a33, roughness: 0.25, emissive: 0x9fc5d6, emissiveIntensity: 0.35 }),
     gold: new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: 0.3, metalness: 0.78, emissive: 0x4d3812, emissiveIntensity: 0.7 }), // metalness 1 rendered black here (nothing but the small reflection map to light it), so a little diffuse stays
-    cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85 }),
+    cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85, bumpMap: makeCaneBumpTexture(), bumpScale: 0.018 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
     loungeSeat: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], roughness: 0.95 }),
     loungeAccent: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1], roughness: 0.95 }),
@@ -999,14 +1038,17 @@ export async function start({ stage, onReady = () => {} }) {
     for (const [material, list] of byMaterial) { const merged = new THREE.Mesh(mergeGeometries(list), material); merged.castShadow = true; merged.receiveShadow = true; local.add(merged); }
   };
   // The pedestal: a round steel-edged base on the floor with an orange light ring, a tapering dark column, and a collar under the egg.
+  const contactShadowPlanes = [];
+  const addContactShadow = (x, z, width, depth, y = 0.006) => {
+    contactShadowPlanes.push(new THREE.PlaneGeometry(width, depth).rotateX(-Math.PI / 2).translate(x, y, z));
+  };
   const pedestal = (x, z) => {
     part("black", new THREE.CylinderGeometry(0.29, 0.31, 0.04, 40).translate(x, 0.02, z), { tile: 1 });
     part("terracotta", new THREE.TorusGeometry(0.265, 0.006, 8, 48).rotateX(Math.PI / 2).translate(x, 0.043, z), { tile: 1 });
     part("black", new THREE.LatheGeometry([[0.0005, 0.04], [0.17, 0.04], [0.12, 0.14], [0.11, 0.72], [0.14, 0.84], [0.0005, 0.84]].map((p) => new THREE.Vector2(p[0], p[1])), 40).translate(x, 0, z), { tile: 1 });
     part("steel", new THREE.TorusGeometry(0.142, 0.012, 8, 40).rotateX(Math.PI / 2).translate(x, 0.84, z), { tile: 1 });
     part("steel", new THREE.TorusGeometry(0.118, 0.004, 6, 36).rotateX(Math.PI / 2).translate(x, 0.5, z), { tile: 1 }); // a thin steel band round the column
-    const contactMesh = (name, x0, x1, z0, z1, opacity) => { const m = add(name, new THREE.PlaneGeometry(x1 - x0, z1 - z0), new THREE.MeshBasicMaterial({ map: makeContactShadowTexture(), transparent: true, opacity, depthWrite: false, color: 0x000000 }), (x0 + x1) / 2, 0.005, (z0 + z1) / 2, { cast: false, receive: false }); m.rotation.x = -Math.PI / 2; m.renderOrder = 1; };
-    contactMesh(`robot-contact-${Math.round(x * 100)}`, x - 0.62, x + 0.62, z - 0.62, z + 0.62, 0.6);
+    addContactShadow(x, z, 1.24, 1.24);
   };
 
   const RG = { x: 0.8, z: -1.28 }; // the greeter
@@ -1058,6 +1100,7 @@ export async function start({ stage, onReady = () => {} }) {
     P("bentwood", new THREE.TorusGeometry(0.098, 0.0075, 8, 32).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
     P("cane", new THREE.CylinderGeometry(0.092, 0.092, 0.004, 28).scale(1, 1, 0.62).rotateX(Math.PI / 2).translate(0, 0.76, -0.196), { tile: 0.2 });
     P("bentwood", new THREE.TorusGeometry(0.168, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, -0.005), { tile: 0.6 }); // the leg ring
+    addContactShadow(x, z, 0.48, 0.48, 0.015);
   };
   chair(SEAT.x, SEAT.z + 0.62, Math.PI);
   chair(SEAT.x + 0.62, SEAT.z, -Math.PI / 2);
@@ -1490,7 +1533,11 @@ export async function start({ stage, onReady = () => {} }) {
     boxPart("oakDeep", 0.47, 0.07, 1.81, bx + 0.02, 0.035, bz);
     boxPart("oak", 0.55, 0.34, 1.9, bx, 0.23, bz, 0.035);
     boxPart("oak", 0.07, 0.47, 1.9, bx + 0.23, 0.615, bz, 0.025);
-    boxPart("loungeSeat", 0.50, 0.083, 1.85, bx - 0.025, 0.4085, bz, 0.033);
+    const addCushion = (material, width, depth, x, y, z, sag = 0.008) => {
+      part(material, cushionGeometry(width, 0.11, depth, sag).translate(x, y, z));
+      detail(cushionWeltGeometry(width, depth, y + 0.004, x, z), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1]);
+    };
+    for (const dz of [-0.615, 0, 0.615]) addCushion("loungeSeat", 0.51, 0.57, bx - 0.025, 0.412, bz + dz);
     boxPart("loungeSeat", 0.113, 0.37, 1.85, bx + 0.145, 0.657, bz, 0.045);
 
     // Two bulging cloth faces meet at the welt. The lower edge sits on the seat.
@@ -1519,8 +1566,11 @@ export async function start({ stage, onReady = () => {} }) {
         [side * 0.343, 0.63, -0.05], [side * 0.31, 0.59, -0.27]], 0.029));
     }
     chairPart("oak", roundedBox(0.66, 0.09, 0.61, 0.034, 0.012).translate(0, 0.315, 0));
-    chairPart("loungeAccent", roundedBox(0.615, 0.093, 0.55, 0.046, 0.024).translate(0, 0.3615, 0.026));
+    chairPart("loungeAccent", cushionGeometry(0.615, 0.105, 0.55, 0.009).translate(0, 0.377, 0.026));
+    detail(cushionWeltGeometry(0.615, 0.55, 0.381, ax, az - 0.026, 0.0045), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0]);
     chairPart("loungeAccent", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
+    addContactShadow(bx + 0.02, bz, 0.72, 1.96, 0.0135);
+    addContactShadow(ax, az, 0.74, 0.72, 0.0135);
 
     const px = 1.61, pz = 1.52;
     disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
@@ -1569,6 +1619,7 @@ export async function start({ stage, onReady = () => {} }) {
     }
 
     const sx = 2.18, sz = 2.34;
+    addContactShadow(1.61, 1.52, 0.52, 0.52, 0.0135);
     disc("oak", sx, 0.512, sz, 0.165, 0.036);
     disc("oakDeep", sx, 0.023, sz, 0.11, 0.022);
     disc("oakDeep", sx, 0.26, sz, 0.022, 0.48);
@@ -1711,6 +1762,11 @@ export async function start({ stage, onReady = () => {} }) {
     }
   }
   scene.add(...Object.values(stoolSets)); for (const [name, set] of Object.entries(stoolSets)) set.visible = name === DEFAULT_LOOK.stool;
+  for (const [x, z] of [[-1.2, 0.18], [-0.45, 0.2], [0.65, 0.18], [1.75, 0.2]]) addContactShadow(x, z + counterShift(x), 0.46, 0.46);
+  const contactShadows = add("furniture-contact-shadows", mergeGeometries(contactShadowPlanes),
+    new THREE.MeshBasicMaterial({ map: makeContactShadowTexture(), color: 0x000000, transparent: true, opacity: 0.6, depthWrite: false }), 0, 0, 0,
+    { cast: false, receive: false });
+  contactShadows.renderOrder = 1;
 
   // Steam rising from the barista's cup and from the cup on the window table: a few soft puffs, drifting up and widening.
   const steamTexture = makeSteamTexture();

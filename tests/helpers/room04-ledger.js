@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 185076, meshes: 129 }),
+  scene: Object.freeze({ vertices: 186736, meshes: 128 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 111, phone: 103 }),
+  openingDrawCalls: Object.freeze({ desktop: 110, phone: 102 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -50,5 +50,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "default floor is the herringbone (the grey-brown boards load only when a tinted wood look is picked); the random-cafe button is a gold tag that moves into the full-screen view row; texture and layout only, no geometry change", vertices: 178123, meshes: 127, desktopCalls: 109, phoneCalls: 101 },
     { date: "2026-11-14", change: "pastry case (Codex card 61, re-applied on the current main by CC after the Codex thread failed): crescent croissants, a fruit tart, small tarts, a layered cake slice, canelés, green sparkling-water bottles and clear still-water bottles, a Today chalk sign; vertex cap raised to 200,000 as the card allowed", vertices: 184854, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
     { date: "2026-11-14", change: "espresso machine smart panel (Codex #830, re-applied on the current main by CC): taller body (H 0.46, D 0.52) and an angled touch screen with status marks and two indicator lights; one extra draw call", vertices: 185076, meshes: 129, desktopCalls: 111, phoneCalls: 103 },
+    { date: "2026-11-14", change: "furniture feel (Codex #835, re-applied on the current main by CC): the banquette seat is three thick rounded cushions with welts, the armchair seat a rounded cushion with a central dip and welt, a fine cane weave bump map, and one merged mesh of soft contact shadows under the furniture, stools and robot bases (one draw call less)", vertices: 186736, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
   ]),
 });
