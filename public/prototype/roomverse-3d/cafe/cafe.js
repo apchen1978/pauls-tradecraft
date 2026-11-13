@@ -243,6 +243,7 @@ export async function start({ stage, onReady = () => {} }) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.shadowMap.enabled = true;
+  renderer.shadowMap.autoUpdate = false; // the room is almost static, so the shadow map is redrawn only when a mood, a look or the robot's hop changes it (see dirtyShadows)
   renderer.shadowMap.type = THREE.PCFShadowMap;
   stage.replaceChildren(renderer.domElement);
 
@@ -257,6 +258,7 @@ export async function start({ stage, onReady = () => {} }) {
   // Painted textures (Codex, cards 45 and 46) are given to a material only when they have loaded, so nothing flashes black; until then the material
   // keeps a flat colour of the same family.
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
+  let shadowsDirty = true; const dirtyShadows = () => { shadowsDirty = true; };
   const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
   const textureLoader = new THREE.TextureLoader();
   const artBase = new URL("./art/", import.meta.url).href;
@@ -1246,7 +1248,7 @@ export async function start({ stage, onReady = () => {} }) {
   const hemi = new THREE.HemisphereLight(0xffffff, 0xffffff, 1); scene.add(hemi);
   const ambient = new THREE.AmbientLight(0xffffff, 0.2); scene.add(ambient);
   const sun = new THREE.DirectionalLight(0xffffff, 1);
-  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02; sun.shadow.radius = 3;
+  sun.castShadow = true; sun.shadow.mapSize.set(compact ? 1024 : 2048, compact ? 1024 : 2048); sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02; sun.shadow.radius = 3;
   Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 4, bottom: -4, near: 0.5, far: 16 });
   sun.target.position.set(0.5, 0, -0.6);
   scene.add(sun, sun.target);
@@ -1311,6 +1313,7 @@ export async function start({ stage, onReady = () => {} }) {
   const blend = (a, b, k) => a + (b - a) * k;
   const live = { tv: 0, shaft: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
+    dirtyShadows(); // the sun moves and changes with the mood
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
     ambient.intensity = live.ambient; lamp.intensity = live.lamp;
@@ -1387,7 +1390,7 @@ export async function start({ stage, onReady = () => {} }) {
     else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
     else if (group === "scarf") materials.scarf.color.setHex(v);
     else if (group === "chair") materials.bentwood.color.setHex(v);
-    render(); return true;
+    dirtyShadows(); render(); return true;
   }
   function randomLook(rng = Math.random) {
     const pick = (group, except = []) => { const keys = Object.keys(LOOK_GROUPS[group]).filter((k) => !except.includes(k)); return keys[Math.floor(rng() * keys.length)]; };
@@ -1433,7 +1436,7 @@ export async function start({ stage, onReady = () => {} }) {
   function robotHop() {
     if (reducedMotion()) return;
     const run = ++hopRun, t0 = performance.now(), T = 520;
-    const step = (now) => { if (run !== hopRun) return; const k = Math.min(1, (now - t0) / T); robot.position.y = robotRest + Math.sin(k * Math.PI) * 0.045; render(); if (k < 1) requestAnimationFrame(step); else { robot.position.y = robotRest; render(); } };
+    const step = (now) => { if (run !== hopRun) return; dirtyShadows(); const k = Math.min(1, (now - t0) / T); robot.position.y = robotRest + Math.sin(k * Math.PI) * 0.045; render(); if (k < 1) requestAnimationFrame(step); else { robot.position.y = robotRest; render(); } };
     requestAnimationFrame(step);
   }
   const onRenderHooks = [];
@@ -1444,7 +1447,7 @@ export async function start({ stage, onReady = () => {} }) {
     const d = new Date(), s = d.getSeconds(), m = d.getMinutes() + s / 60, h = (d.getHours() % 12) + m / 60;
     for (const { pivot, kind } of clockHands) pivot.rotation.z = -(kind === "hour" ? h / 12 : kind === "minute" ? m / 60 : s / 60) * Math.PI * 2;
   }
-  function render() { updateClockHands(); renderer.render(scene, camera); frames++; for (const hook of onRenderHooks) hook(); }
+  function render() { updateClockHands(); if (shadowsDirty) { renderer.shadowMap.needsUpdate = true; shadowsDirty = false; } renderer.render(scene, camera); frames++; for (const hook of onRenderHooks) hook(); }
   function resize() {
     const rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return;
     renderer.setSize(rect.width, rect.height, false);
@@ -1506,6 +1509,13 @@ export async function start({ stage, onReady = () => {} }) {
     onRender: (hook) => { onRenderHooks.push(hook); },
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
+    benchmark: (frames = 40, everyFrameShadows = false) => {
+      const t0 = performance.now(), start = camera.rotation.y;
+      const gl = renderer.getContext(), pixel = new Uint8Array(4); // reading one pixel back makes each frame finish, so the time is the real GPU time
+      for (let i = 0; i < frames; i++) { camera.rotation.y = start + Math.sin(i / 6) * 0.05; if (everyFrameShadows) shadowsDirty = true; render(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel); }
+      camera.rotation.y = start; render();
+      return (performance.now() - t0) / frames;
+    },
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     robotHop, setCenterView, centerLook, isCenter: () => Boolean(center),
