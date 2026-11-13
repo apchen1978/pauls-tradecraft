@@ -1,6 +1,7 @@
 import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
+import { loadModel } from "../bedroom/models.js?v=5";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai, just opened for the morning.
 // Look brief approved by Paul on 2026-11-13 (arrival = morning white light; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
@@ -901,26 +902,13 @@ export async function start({ stage, onReady = () => {} }) {
     }
   }
 
-  // A floor plant between the counter end and the window: a lathed ceramic pot, soil, and eleven curved stems carrying ninety leaves.
-  {
-    const px = -2.88, pz = -0.62;
-    part("pot", new THREE.LatheGeometry([[0.0005, 0], [0.12, 0], [0.16, 0.2], [0.17, 0.38], [0.158, 0.4], [0.0005, 0.4]].map((p) => new THREE.Vector2(p[0], p[1])), 28).translate(px, 0, pz), { tile: 1 });
-    part("soil", new THREE.CircleGeometry(0.15, 24).rotateX(-Math.PI / 2).translate(px, 0.36, pz), { tile: 1 });
-    let seed = 8; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    part("bentwood", tubeGeometry([[px, 0.36, pz], [px + 0.02, 0.8, pz - 0.01], [px - 0.01, 1.2, pz + 0.01], [px + 0.02, 1.5, pz]], 0.016, 14, 8), { tile: 0.6 });
-    for (let i = 0; i < 9; i++) {
-      const a = i * 0.72 + rnd() * 0.4, base = 0.7 + (i / 9) * 0.78, reach = 0.2 + rnd() * 0.22, rise = 0.12 + rnd() * 0.16;
-      const bx = px + Math.cos(a) * 0.02, bz = pz + Math.sin(a) * 0.02, ex = px + Math.cos(a) * reach, ez = pz + Math.sin(a) * reach, ey = base + rise;
-      part("bentwood", tubeGeometry([[bx, base, bz], [(bx + ex) / 2, base + rise * 0.7, (bz + ez) / 2], [ex, ey, ez]], 0.006, 8, 5), { tile: 0.6 });
-      for (let k = 0; k < 6; k++) {
-        const t = 0.3 + k / 6 * 0.7, lx = bx + (ex - bx) * t, ly = base + (ey - base) * t + 0.015, lz = bz + (ez - bz) * t;
-        const leaf = new THREE.SphereGeometry(0.115, 8, 5); leaf.scale(0.55, 0.05, 1); leaf.translate(0, 0, 0.115);
-        leaf.rotateX(-0.35 - rnd() * 0.3).rotateY(a + (k % 2 ? 1 : -1) * (0.9 + rnd() * 0.6)).rotateZ((rnd() - 0.5) * 0.3);
-        part(k % 3 === 1 ? "leafDark" : "leaf", leaf.translate(lx, ly, lz), { tile: 1 });
-      }
-      const tip = new THREE.SphereGeometry(0.1, 8, 5); tip.scale(0.55, 0.05, 1); tip.translate(0, 0, 0.1); tip.rotateX(-0.2).rotateY(a); part("leaf", tip.translate(ex, ey, ez), { tile: 1 });
-    }
-  }
+  // Floor plants: Room 01's image-to-3D plant (models/plant.glb, also in Room 02), big leaves on a pot, loaded once and cloned. One stands between the counter end and the
+  // window, one in the lounge corner. (Paul, 2026-11-14: the old hand-built plant was not solid enough.) The shadow map is cached, so a loaded plant asks for a redraw.
+  const plantSource = loadModel("plant", { height: 1 }).catch(() => null);
+  const floorPlant = (name, x, z, height) => plantSource.then((src) => {
+    if (!src) return; const g = src.clone(); g.name = name; g.scale.setScalar(height); g.position.set(x, 0, z); scene.add(g); dirtyShadows(); render();
+  });
+  floorPlant("floor-plant-window", -2.88, -0.62, 1.55);
 
   // Shelf things: four plates and two mugs on the lower shelf; two jars with oak lids and a trailing pothos on the upper one.
   {
@@ -1362,16 +1350,7 @@ export async function start({ stage, onReady = () => {} }) {
       for (const y of [0.282, 0.298]) boxPart("black", 0.003, 0.004, 0.012, 3.143, y, 2.73 + offset, 0.002);
     }
 
-    const fx = 2.90, fz = 2.43;
-    disc("ceramic", fx, 0.16, fz, 0.144, 0.32, 0.106);
-    disc("soil", fx, 0.322, fz, 0.131, 0.006);
-    for (let i = 0; i < 8; i++) {
-      const a = i * 2.39996, reach = 0.105 + (i % 3) * 0.033, y = 0.53 + i * 0.05;
-      const x = fx + Math.cos(a) * reach, z = fz + Math.sin(a) * reach;
-      part("leafDark", rodGeometry([fx, 0.321, fz], [x, y, z], 0.005));
-      part(i % 2 ? "leaf" : "leafDark", new THREE.SphereGeometry(1, 16, 8).scale(0.098, 0.008, 0.068)
-        .rotateZ(0.4).rotateY(-a).translate(x, y, z));
-    }
+    floorPlant("floor-plant-lounge", 2.90, 2.43, 1.2);
 
     // Small abstract placeholders above the banquette. Card 54 B supplies the prints.
     for (const [z, color, accent] of [[1.47, 0xa36a52, 0x586346], [1.83, 0x64704b, 0xb99457], [2.19, 0x4b6170, 0xa36a52]]) {
@@ -1695,11 +1674,15 @@ export async function start({ stage, onReady = () => {} }) {
   // station and a drag, or the arrow keys, turn the head. Leaving restores the exact orbit view.
   const CENTER_STATION = new THREE.Vector3(0.1, 1.55, 1.2), CENTER_FOV = compact ? 84 : 72;
   let center = null, savedOrbit = null, centerDrag = null;
-  const applyCenter = () => {
+  // Dragging fires pointer events faster than the screen refreshes, so a drag asks for one render per frame, not one per event.
+  let centerQueued = false;
+  const applyCenter = (now = false) => {
     const { yaw, pitch } = center;
     camera.position.copy(CENTER_STATION);
     camera.lookAt(CENTER_STATION.x + Math.sin(yaw) * Math.cos(pitch), CENTER_STATION.y + Math.sin(pitch), CENTER_STATION.z - Math.cos(yaw) * Math.cos(pitch));
-    camera.updateMatrixWorld(); render();
+    camera.updateMatrixWorld();
+    if (now) { render(); return; }
+    if (!centerQueued) { centerQueued = true; requestAnimationFrame(() => { centerQueued = false; render(); }); }
   };
   function centerLook(dYaw, dPitch) { if (!center) return; center.yaw += dYaw; center.pitch = Math.min(0.6, Math.max(-0.6, center.pitch + dPitch)); applyCenter(); }
   // Named orbit views (like Room 02's "look at" buttons): the camera glides to a station and the orbit limits are re-centred on it, so the visitor can still drag around a little.
@@ -1742,7 +1725,7 @@ export async function start({ stage, onReady = () => {} }) {
       savedOrbit = { position: camera.position.clone(), target: controls.target.clone(), fov: camera.fov };
       controls.enabled = false; canvas.tabIndex = 0;
       center = { yaw: Math.PI * 0.82, pitch: -0.04 }; // it opens on the new front wall: the street window and the glass door
-      camera.fov = CENTER_FOV; camera.updateProjectionMatrix(); applyCenter();
+      camera.fov = CENTER_FOV; camera.updateProjectionMatrix(); applyCenter(true);
     } else {
       center = null; centerDrag = null; canvas.tabIndex = -1;
       camera.position.copy(savedOrbit.position); controls.target.copy(savedOrbit.target); camera.fov = savedOrbit.fov; camera.updateProjectionMatrix();
@@ -1783,6 +1766,7 @@ export async function start({ stage, onReady = () => {} }) {
       return { renderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), vendor: ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR) };
     },
     onRender: (hook) => { onRenderHooks.push(hook); },
+    stats: () => ({ calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, programs: renderer.info.programs?.length ?? 0 }),
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
