@@ -243,6 +243,7 @@ export async function start({ stage, onReady = () => {} }) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.shadowMap.enabled = true;
+  renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   stage.replaceChildren(renderer.domElement);
 
@@ -257,6 +258,7 @@ export async function start({ stage, onReady = () => {} }) {
   // Painted textures (Codex, cards 45 and 46) are given to a material only when they have loaded, so nothing flashes black; until then the material
   // keeps a flat colour of the same family.
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
+  let shadowsDirty = true; const dirtyShadows = () => { shadowsDirty = true; };
   const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
   const textureLoader = new THREE.TextureLoader();
   const artBase = new URL("./art/", import.meta.url).href;
@@ -521,7 +523,6 @@ export async function start({ stage, onReady = () => {} }) {
     const plaque = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.22, 0.8), [faceMaterial, materials.oak, materials.oak, materials.oak, materials.oak, materials.oak]);
     plaque.name = "house-plaque"; plaque.position.set(X0 + 0.015, 2.05, -1.65); plaque.castShadow = true; scene.add(plaque);
   }
-  flush("section2");  flush("section2");
 
   // Soft contact shadows on the floor under the counter and the back bar.
   const contactTexture = makeContactShadowTexture();
@@ -750,7 +751,6 @@ export async function start({ stage, onReady = () => {} }) {
     part("steel", new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI).rotateZ(-Math.PI / 2).translate(PITCHER.x + 0.036, PITCHER.y - 0.005, PITCHER.z), { tile: 1 });
     part("lid", new THREE.CylinderGeometry(0.03, 0.03, 0.003, 20).translate(PITCHER.x, PITCHER.y + 0.036, PITCHER.z), { tile: 1 });
   }
-  flush("section3");
 
   // ---------- the story corner (section 4) ----------
   // The window seat stands under the street window: a 60 cm round table, one bentwood chair with a coat over its back (its back is what the visitor sees
@@ -864,7 +864,6 @@ export async function start({ stage, onReady = () => {} }) {
   // A small paper note leaning against the pastry case foot, like the notes in Rooms 01 to 03 (reading it comes with the interaction in section 5).
   const note = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.06, 0.003), materials.paper); note.name = "story-note";
   note.position.set(1.02, top + 0.032, c.z1 - 0.12); note.rotation.set(-0.28, 0.12, 0); note.castShadow = true; scene.add(note);
-  flush("section4");
 
   // ---------- a more lived-in room (polish pass): wainscot, sconces and a clock on the right wall, a rug and a pendant at the window seat, counter details ----------
   {
@@ -1235,14 +1234,18 @@ export async function start({ stage, onReady = () => {} }) {
 
   // ---------- lights ----------
   // Track light over the counter: one black rail and four heads. The warmest light in the room is the one on the menus.
-  box("track-rail", materials.black, [-1.6, 2.6], [ROOM.height - 0.06, ROOM.height - 0.03], [-0.42, -0.38], { cast: false, receive: false });
+  const trackFixtures = [box("track-rail", materials.black, [-1.6, 2.6], [ROOM.height - 0.06, ROOM.height - 0.03], [-0.42, -0.38], { cast: false, receive: false })];
   const trackLights = [];
   for (const x of [-1.2, 0.0, 1.2, 2.4]) {
-    add("track-head", new THREE.CylinderGeometry(0.045, 0.055, 0.14, 16), materials.black, x, ROOM.height - 0.16, -0.4, { cast: false, receive: false }).rotation.x = 0.5;
+    const head = add("track-head", new THREE.CylinderGeometry(0.045, 0.055, 0.14, 16), materials.black, x, ROOM.height - 0.16, -0.4, { cast: false, receive: false });
+    head.rotation.x = 0.5; trackFixtures.push(head);
     const spot = new THREE.SpotLight(0xffd9a8, 0, 5, 0.55, 0.7, 1.6);
     spot.position.set(x, ROOM.height - 0.2, -0.4); spot.target.position.set(x + 0.1, 1.7, BACK);
     scene.add(spot, spot.target); trackLights.push(spot);
   }
+  // The rail and heads share a material and never move; bake their transforms into one mesh.
+  const trackGeometry = mergeGeometries(trackFixtures.map((mesh) => { mesh.updateMatrix(); const g = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone(); g.applyMatrix4(mesh.matrix); scene.remove(mesh); mesh.geometry.dispose(); return g; }));
+  add("track-fixtures", trackGeometry, materials.black, 0, 0, 0, { cast: false, receive: false });
   const hemi = new THREE.HemisphereLight(0xffffff, 0xffffff, 1); scene.add(hemi);
   const ambient = new THREE.AmbientLight(0xffffff, 0.2); scene.add(ambient);
   const sun = new THREE.DirectionalLight(0xffffff, 1);
@@ -1311,6 +1314,7 @@ export async function start({ stage, onReady = () => {} }) {
   const blend = (a, b, k) => a + (b - a) * k;
   const live = { tv: 0, shaft: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
+    dirtyShadows();
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
     ambient.intensity = live.ambient; lamp.intensity = live.lamp;
@@ -1387,7 +1391,7 @@ export async function start({ stage, onReady = () => {} }) {
     else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
     else if (group === "scarf") materials.scarf.color.setHex(v);
     else if (group === "chair") materials.bentwood.color.setHex(v);
-    render(); return true;
+    dirtyShadows(); render(); return true;
   }
   function randomLook(rng = Math.random) {
     const pick = (group, except = []) => { const keys = Object.keys(LOOK_GROUPS[group]).filter((k) => !except.includes(k)); return keys[Math.floor(rng() * keys.length)]; };
@@ -1433,7 +1437,7 @@ export async function start({ stage, onReady = () => {} }) {
   function robotHop() {
     if (reducedMotion()) return;
     const run = ++hopRun, t0 = performance.now(), T = 520;
-    const step = (now) => { if (run !== hopRun) return; const k = Math.min(1, (now - t0) / T); robot.position.y = robotRest + Math.sin(k * Math.PI) * 0.045; render(); if (k < 1) requestAnimationFrame(step); else { robot.position.y = robotRest; render(); } };
+    const step = (now) => { if (run !== hopRun) return; dirtyShadows(); const k = Math.min(1, (now - t0) / T); robot.position.y = robotRest + Math.sin(k * Math.PI) * 0.045; render(); if (k < 1) requestAnimationFrame(step); else { robot.position.y = robotRest; dirtyShadows(); render(); } };
     requestAnimationFrame(step);
   }
   const onRenderHooks = [];
@@ -1444,7 +1448,7 @@ export async function start({ stage, onReady = () => {} }) {
     const d = new Date(), s = d.getSeconds(), m = d.getMinutes() + s / 60, h = (d.getHours() % 12) + m / 60;
     for (const { pivot, kind } of clockHands) pivot.rotation.z = -(kind === "hour" ? h / 12 : kind === "minute" ? m / 60 : s / 60) * Math.PI * 2;
   }
-  function render() { updateClockHands(); renderer.render(scene, camera); frames++; for (const hook of onRenderHooks) hook(); }
+  function render() { updateClockHands(); if (shadowsDirty) { renderer.shadowMap.needsUpdate = true; shadowsDirty = false; } renderer.render(scene, camera); frames++; for (const hook of onRenderHooks) hook(); }
   function resize() {
     const rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return;
     renderer.setSize(rect.width, rect.height, false);
@@ -1503,6 +1507,22 @@ export async function start({ stage, onReady = () => {} }) {
   const instance = {
     camera, controls, render, resize, setMood,
     moods: () => Object.keys(MOODS),
+    benchmark: (frames = 120) => {
+      const t0 = performance.now(), gl = renderer.getContext(), pixel = new Uint8Array(4);
+      for (let i = 0; i < frames; i++) { render(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel); }
+      return (performance.now() - t0) / frames;
+    },
+    shadowDrawCalls: () => {
+      // Three normally resets render.info between shadow and main passes. Count both passes explicitly.
+      const prior = renderer.info.autoReset; renderer.info.autoReset = false;
+      renderer.info.reset(); dirtyShadows(); render(); const first = renderer.info.render.calls;
+      renderer.info.reset(); render(); const second = renderer.info.render.calls;
+      renderer.info.autoReset = prior; render(); return { first, second };
+    },
+    gpuInfo: () => {
+      const gl = renderer.getContext(), ext = gl.getExtension("WEBGL_debug_renderer_info");
+      return { renderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), vendor: ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR) };
+    },
     onRender: (hook) => { onRenderHooks.push(hook); },
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
