@@ -159,6 +159,22 @@ function makePlasterBump() {
   return texture;
 }
 
+function makeBrushedSteelTexture() {
+  const canvas = document.createElement("canvas"); canvas.width = canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  for (let y = 0; y < 256; y++) {
+    const fine = Math.sin(y * 2.81) * 25 + Math.sin(y * 0.79) * 18 + Math.sin(y * 0.19) * 10;
+    const shade = Math.max(120, Math.min(240, Math.round(180 + fine)));
+    ctx.fillStyle = `rgb(${shade},${shade},${shade})`;
+    ctx.fillRect(0, y, 256, 1);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.NoColorSpace;
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.anisotropy = 8;
+  return texture;
+}
+
 // Texture coordinates in metres, so a grain or a stone vein keeps the same size on every part however it is cut. "grain" is the axis the wood runs along
 // (the texture's grain runs along v); on an end face the two tangent axes are used as they come.
 function worldUVs(geometry, tile, grain = "y") {
@@ -335,6 +351,7 @@ export async function start({ stage, onReady = () => {} }) {
     });
   }
   const plaster = makePlasterBump(); plaster.repeat.set(2, 2);
+  const brushedSteel = makeBrushedSteelTexture();
   const materials = {
     wall: new THREE.MeshStandardMaterial({ color: COLORS.wall, roughness: 0.95, bumpMap: plaster, bumpScale: 0.6 }),
     ceiling: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, map: makePlankTexture(), bumpScale: 1.4, emissive: COLORS.ceiling, emissiveIntensity: 0.16 }), // a ceiling faces away from every light; a little glow stands in for light bounced up off the floor
@@ -347,7 +364,7 @@ export async function start({ stage, onReady = () => {} }) {
     wainscot: new THREE.MeshStandardMaterial({ color: COLORS.olive, roughness: 0.78 }),
     black: new THREE.MeshStandardMaterial({ color: COLORS.black, roughness: 0.6 }),
     frame: new THREE.MeshStandardMaterial({ color: 0x24272a, roughness: 0.5, metalness: 0.2 }),
-    steel: new THREE.MeshStandardMaterial({ color: COLORS.steel, roughness: 0.42, metalness: 0.75 }),
+    steel: new THREE.MeshStandardMaterial({ color: 0xb3b9bc, map: brushedSteel, roughness: 0.35, roughnessMap: brushedSteel, bumpMap: brushedSteel, bumpScale: 0.008, metalness: 0.85 }),
     stone: new THREE.MeshStandardMaterial({ color: COLORS.stone, roughness: 0.5 }),
     trim: new THREE.MeshStandardMaterial({ color: 0xf6f2ea, roughness: 0.7 }),
     chalk: new THREE.MeshStandardMaterial({ color: COLORS.chalk, roughness: 0.95 }),
@@ -438,7 +455,7 @@ export async function start({ stage, onReady = () => {} }) {
     const texture = pmrem.fromScene(room, 0.04).texture; pmrem.dispose();
     return texture;
   })();
-  const reflectiveBase = { robotBody: 0.7, robotDark: 0.9, gold: 1.9, ceramic: 0.5, visor: 1.2, steel: 1.5, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
+  const reflectiveBase = { robotBody: 0.7, robotDark: 0.9, gold: 1.9, ceramic: 0.5, visor: 1.2, steel: 1.65, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
   for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
