@@ -1104,8 +1104,12 @@ export async function start({ stage, onReady = () => {} }) {
       P("bentwood", new THREE.CylinderGeometry(0.0235, 0.0235, 0.012, 12).translate(0.123 * sx, seatY - 0.034, -0.123), { tile: 0.6 });
     }
     P("bentwood", tubeGeometry([[-0.112, 0.935, -0.21], [-0.06, 0.968, -0.222], [0, 0.976, -0.226], [0.06, 0.968, -0.222], [0.112, 0.935, -0.21]], 0.0145, 20, 10), { tile: 0.6 }); // the top bow
-    P("bentwood", new THREE.TorusGeometry(0.098, 0.0075, 8, 32).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
-    P("cane", new THREE.CylinderGeometry(0.092, 0.092, 0.004, 28).scale(1, 1, 0.62).rotateX(Math.PI / 2).translate(0, 0.76, -0.196), { tile: 0.2 });
+    // The oval in the back now spans the full gap between the two posts and runs into them (Paul: the back was not one continuous line, there was a gap). At y = 0.76 the posts
+    // are 0.147 m out with a 0.0145 m tube, so their inner faces are at 0.1325 m; the ring (radius 0.128 + tube 0.0075) now overlaps them. Two short tie rods lock the ring to the
+    // posts at its widest points, and the cane fills the ring.
+    P("bentwood", new THREE.TorusGeometry(0.128, 0.0075, 8, 40).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
+    P("cane", new THREE.CylinderGeometry(0.12, 0.12, 0.004, 32).scale(1, 1, 0.62).rotateX(Math.PI / 2).translate(0, 0.76, -0.196), { tile: 0.2 });
+    for (const sx of [-1, 1]) P("bentwood", rodGeometry([0.118 * sx, 0.76, -0.196], [0.152 * sx, 0.76, -0.196], 0.007, 8), { tile: 0.6 });
     P("bentwood", new THREE.TorusGeometry(0.1725, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, 0), { tile: 0.6 }); // the leg ring, touching all four legs
     addContactShadow(x, z, 0.48, 0.48, 0.015);
   };
