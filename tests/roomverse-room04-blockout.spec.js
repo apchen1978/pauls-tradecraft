@@ -48,7 +48,7 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
   for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-greybrown-v1.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
-  expect(info.stage).toBe("section-6-front-wall");
+  expect(info.stage).toBe("section-7-codex-art");
 });
 
 test("Room 04 moods: six buttons, each sets its look inside the draw-call budget, and the robot and the note answer taps", async ({ page }) => {
@@ -70,6 +70,20 @@ test("Room 04 moods: six buttons, each sets its look inside the draw-call budget
   await expect(page.locator("#noteHit")).toBeVisible();
   await page.locator("#noteHit").click();
   await expect(page.locator("#bubble [data-line]")).toContainText("慢慢來");
+  expect(errors).toEqual([]);
+});
+
+test("Room 04 Codex art: the clock hands show the real time, series night has one of three stills, and the prints load", async ({ page }) => {
+  const errors = await open(page, 1440);
+  await page.waitForFunction(() => window.__room04.info().art.length >= 12, null, { timeout: 60000 });
+  const clock = await page.evaluate(() => window.__room04.clockTime());
+  const now = new Date(), minute = now.getMinutes() + now.getSeconds() / 60;
+  const diff = Math.abs(clock.minute - minute * 6); expect(Math.min(diff, 360 - diff), "minute hand within 12 degrees of the real time").toBeLessThan(12);
+  for (const key of ["classic", "wood", "tech"]) { await page.evaluate((k) => window.__room04.setLook("clock", k), key); expect(await page.evaluate((k) => window.__room04.clocks[k].visible, key)).toBe(true); }
+  await page.locator(`#moods button[data-mood="series"]`).click();
+  const still = await page.evaluate(() => window.__room04.tvStill()); expect([0, 1, 2]).toContain(still);
+  await page.waitForFunction(() => window.__room04.info().art.some((a) => a.startsWith("room04-tv-")), null, { timeout: 30000 });
+  for (const file of ["room04-print-p1-plane-street.webp", "room04-print-p8-steam.webp"]) expect((await page.evaluate(() => window.__room04.info().art))).toContain(file);
   expect(errors).toEqual([]);
 });
 
@@ -106,7 +120,7 @@ test("Room 04 can turn all the way round from the middle of the room, and comes 
 test("Room 04 looks: swaps change materials without changing the scene size, wallpapers load, and the random cafe button builds a new one", async ({ page }) => {
   const errors = await open(page, 1440);
   const base = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
-  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "counter", "floor", "lamp", "scarf", "wainscot", "wall", "wallpaper"]);
+  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "clock", "counter", "floor", "lamp", "scarf", "wainscot", "wall", "wallpaper"]);
   const groups = await page.evaluate(() => window.__room04.lookGroups());
   expect(groups.wallpaper).toEqual(["none", "stripe", "botanical", "grasscloth", "sagewash"]);
   for (const [group, keys] of Object.entries(groups)) for (const key of keys) {
