@@ -1364,11 +1364,21 @@ export async function start({ stage, onReady = () => {} }) {
             [tx + 0.108 * Math.cos(a), 0.418, z + 0.108 * Math.sin(a)], 0.022));
         }
       }
-      const cx = tx + 0.145, cz = z + 0.062;
-      ceramicCup({ x: cx, y: 0.45, z: cz, scale: 1.05, coffee: true });
-      boxPart("black", 0.155, 0.013, 0.235, tx - 0.064, 0.4565, z - 0.056);
-      boxPart("oakDeep", 0.098, 0.012, 0.068, tx - 0.057, 0.456, z + 0.119);
-      boxPart("paper", 0.091, 0.008, 0.062, tx - 0.057, 0.462, z + 0.119);
+      // Different things on the two tables (Paul: two identical sets look fake). Marble table: a tablet turned a little and a card holder. Oak table: a closed notebook with a
+      // pen across it, a smaller phone, and a latte on the other side.
+      const yawBox = (key, w, h, d, x, y, zz, yaw, r = 0.012) => part(key, roundedBox(w, h, d, r, Math.min(r / 2, h / 4), 4).rotateY(yaw).translate(x, y, zz));
+      if (surface === "stone") {
+        ceramicCup({ x: tx + 0.145, y: 0.45, z: z + 0.062, scale: 1.05, coffee: true });
+        yawBox("black", 0.155, 0.013, 0.235, tx - 0.064, 0.4565, z - 0.056, 0.32);
+        yawBox("oakDeep", 0.098, 0.012, 0.068, tx - 0.04, 0.456, z + 0.131, -0.18);
+        yawBox("paper", 0.091, 0.008, 0.062, tx - 0.04, 0.462, z + 0.131, -0.18);
+      } else {
+        ceramicCup({ x: tx - 0.135, y: 0.45, z: z - 0.1, scale: 1.05, coffee: true, latte: true });
+        yawBox("cover", 0.15, 0.018, 0.21, tx + 0.06, 0.4585, z + 0.01, -0.42);
+        yawBox("paper", 0.138, 0.006, 0.198, tx + 0.062, 0.4695, z + 0.011, -0.42, 0.004);
+        part("steel", rodGeometry([tx + 0.02, 0.4815, z + 0.07], [tx + 0.12, 0.4815, z - 0.06], 0.0028, 6), { tile: 1 });
+        yawBox("black", 0.07, 0.008, 0.138, tx + 0.15, 0.454, z + 0.145, 0.55, 0.008);
+      }
     }
 
     const sx = 2.18, sz = 2.34;
@@ -1377,9 +1387,12 @@ export async function start({ stage, onReady = () => {} }) {
     disc("oakDeep", sx, 0.26, sz, 0.022, 0.48);
     boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, 0.535, sz);
     detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, 0.540, sz), 0x627b87);
-    part("black", tubeGeometry([[sx + 0.01, 0.536, sz + 0.063], [sx + 0.025, 0.525, sz + 0.16],
-      [sx + 0.043, 0.09, sz + 0.20], [sx + 0.065, 0.016, sz + 0.26], [2.52, 0.016, 2.73], [2.90, 0.016, 2.73], [3.10, 0.018, 2.73],
-      [3.15, 0.29, 2.73]], 0.003, 56, 6));
+    // One white cable, a single tube with no joints: out of the phone, over the table edge, down to the floor, along it with a little slack, then up the wall base into a plug. White,
+    // so it still reads on a dark rug in the closing and series moods. Over the rug (a flat sheet at y 0.012) it rides at y 0.0175 so it is never buried in it.
+    part("paper", tubeGeometry([[sx + 0.01, 0.540, sz + 0.063], [sx + 0.03, 0.532, sz + 0.14], [sx + 0.05, 0.50, sz + 0.185],
+      [sx + 0.06, 0.25, sz + 0.205], [sx + 0.075, 0.03, sz + 0.25], [sx + 0.11, 0.0175, sz + 0.31], [2.45, 0.0175, 2.6], [2.7, 0.0175, 2.66], [2.9, 0.012, 2.72], [3.04, 0.0065, 2.74],
+      [3.12, 0.007, 2.73], [3.15, 0.06, 2.73], [3.152, 0.2, 2.73], [3.152, 0.27, 2.73]], 0.0045, 120, 8));
+    boxPart("paper", 0.03, 0.045, 0.032, 3.15, 0.292, 2.73, 0.008); // the plug
     boxPart("paper", 0.013, 0.052, 0.168, 3.151, 0.29, 2.73);
     for (const offset of [-0.045, 0, 0.045]) {
       for (const y of [0.282, 0.298]) boxPart("black", 0.003, 0.004, 0.012, 3.143, y, 2.73 + offset, 0.002);
