@@ -33,7 +33,7 @@ const COPY = {
       menu: ["黑板菜單", { board: "素面黑板", chalk: "粉筆插畫", minimal: "極簡邊框", script: "手寫感版面" }],
       gallery: ["掛畫組", { a: "梧桐街與石庫門", b: "鐵花陽台與夜航渡輪" }],
     },
-    views: { overview: "全景", counter: "吧台", window: "窗邊座位", lounge: "Lounge" },
+    views: { counter: "吧台", window: "窗邊座位", lounge: "Lounge", middle: "站到房間中間" },
     center: "站到房間中間", orbit: "回到環繞視角", centerHint: "拖曳或用方向鍵，轉一整圈看看。",
     noteTitle: "便條", noteLine: "窗邊的位子留給你，慢慢來。", close: "關閉",
     moods: {
@@ -74,7 +74,7 @@ const COPY = {
       menu: ["Chalk menus", { board: "Plain board", chalk: "Chalk drawings", minimal: "Minimal frame", script: "Handwritten layout" }],
       gallery: ["Prints", { a: "Plane trees and doorways", b: "Balcony and night ferry" }],
     },
-    views: { overview: "Overview", counter: "The counter", window: "Window seat", lounge: "Lounge" },
+    views: { counter: "The counter", window: "Window seat", lounge: "Lounge", middle: "Stand in the middle" },
     center: "Stand in the middle", orbit: "Back to orbit view", centerHint: "Drag, or use the arrow keys, to turn all the way round.",
     noteTitle: "Note", noteLine: "The window seat is yours. Take your time.", close: "Close",
     moods: {
@@ -91,7 +91,7 @@ const COPY = {
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
-let centerMode = false, currentView = "overview";
+let currentView = "counter"; // every view is a place to stand and turn all the way round; the room opens at the counter
 const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "rug", "lamp", "clock", "stool", "menu", "gallery", "scarf", "chair", "lounge"];
 let look = {};
 function syncLookUrl() {
@@ -149,8 +149,7 @@ function renderCopy() {
   const others = $("otherRooms"); others.textContent = copy.otherRooms; others.setAttribute("aria-label", copy.otherRoomsLabel); others.href = `/prototype/roomverse-3d/?lang=${lang}`;
   const home = $("portfolioHome"); home.textContent = copy.portfolioHome; home.setAttribute("aria-label", copy.portfolioHomeLabel); home.href = `/?lang=${lang}`;
   $("stage").querySelector("canvas")?.setAttribute("aria-label", copy.canvas);
-  for (const b of document.querySelectorAll("[data-view]")) { b.textContent = copy.views[b.dataset.view]; b.setAttribute("aria-pressed", String(!centerMode && b.dataset.view === currentView)); }
-  $("centerView").textContent = centerMode ? copy.orbit : copy.center; $("centerView").setAttribute("aria-pressed", String(centerMode));
+  for (const b of document.querySelectorAll("[data-view]")) { b.textContent = copy.views[b.dataset.view]; b.setAttribute("aria-pressed", String(b.dataset.view === currentView)); }
   $("robotHit").setAttribute("aria-label", copy.robotLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel);
   renderBubble(); renderMoods(); renderSwaps();
   $("resetLook").hidden = !room || lookIsDefault();
@@ -200,12 +199,8 @@ $("lang").addEventListener("click", () => {
 });
 for (const b of document.querySelectorAll("[data-view]")) b.addEventListener("click", () => {
   if (!room) return;
-  if (centerMode) { centerMode = false; room.setCenterView(false); }
   currentView = b.dataset.view; room.setView(currentView); closeBubble(); renderCopy();
-});
-$("centerView").addEventListener("click", () => {
-  centerMode = !centerMode; room?.setCenterView(centerMode); closeBubble(); renderCopy();
-  if (centerMode) { $("why").textContent = COPY[lang].centerHint; $("stage").querySelector("canvas")?.focus({ preventScroll: true }); }
+  $("why").textContent = COPY[lang].centerHint; $("stage").querySelector("canvas")?.focus({ preventScroll: true });
 });
 $("randomLook").addEventListener("click", () => { if (!room) return; room.randomLook(); look = room.look(); renderSwaps(); syncLookUrl(); $("resetLook").hidden = false; $("why").textContent = COPY[lang].randomDone; });
 $("resetLook").addEventListener("click", () => { room.resetLook(); look = room.look(); renderSwaps(); syncLookUrl(); $("resetLook").hidden = true; renderMoods(); });
@@ -305,7 +300,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=47");
+  const { start } = await import("./cafe.js?v=48");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
@@ -313,7 +308,7 @@ async function enterRoom() {
   if (params.get("perf") === "1") perfPanel(room);
   $("immersiveEnter").hidden = false;
   $("status").hidden = true; $("roomControls").hidden = false; $("moodNote").hidden = false; $("swapActions").hidden = false;
-  $("centerView").hidden = false; for (const b of document.querySelectorAll("[data-view]")) b.hidden = false;
+  for (const b of document.querySelectorAll("[data-view]")) b.hidden = false;
   for (const group of LOOK_KEYS) { const key = params.get(group); if (key) room.setLook(group, key); }
   look = room.look(); $("randomLook").disabled = false; $("swaps").hidden = false; renderCopy(); syncLookUrl();
   placeUi();
