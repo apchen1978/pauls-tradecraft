@@ -8,11 +8,11 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 475433, meshes: 124 }),
+  scene: Object.freeze({ vertices: 503693, meshes: 124 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 106, phone: 97 }),
+  openingDrawCalls: Object.freeze({ desktop: 106, phone: 99 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
-  caps: Object.freeze({ vertices: 475560, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
+  caps: Object.freeze({ vertices: 555000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-13", change: "blockout: shell, window, counter, back bar, shelves, menus, plain stand-ins for the machine, grinder, pastry case, robot and plant", vertices: 3419, meshes: 51, desktopCalls: 49, phoneCalls: 48 },
@@ -39,5 +39,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "Card 56: provisional chalk lettering on the two blank menu boards; texture-only change", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
     { date: "2026-11-14", change: "Card 59: separate four-mood corner street paintings for the front door and window; no geometry or opening draw-call change", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
     { date: "2026-11-14", change: "Card 57: shared hollow ceramic and takeaway cup forms, detailed rims, saucers, handles, coffee and spoons; all join existing material batches", vertices: 475433, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
+    { date: "2026-11-14", change: "Card 58 and Card 53 P2: six warming cups, prep tools and shelf crockery, guest tray, wash basin, open storage and glazed mini fridge; static pieces join existing material batches", vertices: 503693, meshes: 124, desktopCalls: 106, phoneCalls: 99 },
   ]),
 });
