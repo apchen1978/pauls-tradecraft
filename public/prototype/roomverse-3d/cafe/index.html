@@ -56,7 +56,8 @@
     .center-view { min-height:44px; padding:9px 14px; border:1px solid #fff9; border-radius:999px; background:#3a2a1fe8; color:#fff; font:700 14px system-ui,"Noto Sans TC",sans-serif; cursor:pointer; }
     .swap-actions { display:flex; flex-wrap:wrap; gap:8px; margin:12px clamp(12px,2vw,28px) 0; }
     .swap-actions button { min-height:44px; padding:9px 16px; border-radius:999px; font:700 14px system-ui,"Noto Sans TC",sans-serif; cursor:pointer; }
-    #randomLook { border:1px solid #6f3a1f; background:#8a4a2b; color:#fffdf8; box-shadow:0 2px 6px #5c2d1a40; }
+    #randomLook { min-height:44px; padding:9px 16px; border-radius:999px; border:1px solid #bd9848; background:linear-gradient(#f8e0a0,#e8c565); color:#34280f; font:800 14px system-ui,"Noto Sans TC",sans-serif; box-shadow:0 2px 8px #7a5a1a55; } /* the gold tag, as in Rooms 01 to 03 */
+    #randomLook:disabled { opacity:.6; cursor:default; }
     #resetLook { border:1px solid #a9a38f; background:var(--paper); color:var(--brick); }
     .swaps { margin:10px clamp(12px,2vw,28px) 0; }
     .swaps summary { min-height:44px; display:flex; align-items:center; cursor:pointer; color:var(--brick); font:700 14px system-ui,"Noto Sans TC",sans-serif; }
@@ -119,6 +120,6 @@
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=43"></script>
+  <script type="module" src="page.js?v=45"></script>
 </body>
 </html>
