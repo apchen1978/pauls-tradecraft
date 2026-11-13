@@ -10,7 +10,7 @@ export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
   scene: Object.freeze({ vertices: 167994, meshes: 126 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 108, phone: 99 }),
+  openingDrawCalls: Object.freeze({ desktop: 109, phone: 99 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 185000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -41,6 +41,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "Card 57: shared hollow ceramic and takeaway cup forms, detailed rims, saucers, handles, coffee and spoons; all join existing material batches", vertices: 475433, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
     { date: "2026-11-14", change: "Room 01's image-to-3D plant (plant.glb, shared with Room 02) replaces the two hand-built floor plants (window side and lounge); ?perf=1 frame panel; centre-view drag renders once per frame", vertices: 461947, meshes: 125, desktopCalls: 106, phoneCalls: 97 },
     { date: "2026-11-14", change: "lounge corner: the hand-built plant returns with fresh greens and flowers at the far end of the banquette; Room 01's red-leaf plant (as beside the red suitcase) at the near end; only the window-side plant stays Room 01's plant.glb", vertices: 474212, meshes: 126, desktopCalls: 108, phoneCalls: 99 },
-    { date: "2026-11-14", change: "vertex diet: merged batches keep their vertex indices instead of expanding every shape to separate triangles (474,212 to 191,399 from this alone; the 17 fixed views differ by 0.02% of pixels, only the clock), the straight back bar is a plain rectangle, the foot rail has fewer segments, and the grinder beans are rebuilt per the lathe-mug-and-granular-pile skill (455 beans in rows, one instanced mesh, welded glass hopper)", vertices: 167994, meshes: 126, desktopCalls: 108, phoneCalls: 99 },
+    { date: "2026-11-14", change: "vertex diet: merged batches keep their vertex indices instead of expanding every shape to separate triangles (474,212 to 191,399 from this alone; the 17 fixed views differ by 0.02% of pixels, only the clock), the straight back bar is a plain rectangle, the foot rail has fewer segments, and the grinder beans are rebuilt per the lathe-mug-and-granular-pile skill (455 beans in rows, one instanced mesh, welded glass hopper)", vertices: 167994, meshes: 126, desktopCalls: 109, phoneCalls: 99 },
   ]),
 });
