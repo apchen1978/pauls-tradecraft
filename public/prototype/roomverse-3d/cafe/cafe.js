@@ -502,18 +502,18 @@ export async function start({ stage, onReady = () => {} }) {
   const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0, { cast: !noCast.has(key) }); parts.clear(); };
 
   // Card 57: shared real-sized cup forms. Every component joins the existing material batches at flush().
-  const ceramicCup = ({ x, y, z, scale = 1, saucer = true, spoon = saucer, coffee = false, latte = false }) => {
-    const s = scale, points = [[0, 0.002], [0.021, 0.002], [0.024, 0.004], [0.025, 0.008], [0.031, 0.051], [0.0325, 0.054], [0.034, 0.054], [0.034, 0.051], [0.029, 0.05], [0.023, 0.012], [0.019, 0.008], [0, 0.008]];
+  const ceramicCup = ({ x, y, z, scale = 1, saucer = true, spoon = saucer, coffee = false, latte = false, material = "ceramic", detail = "close" }) => {
+    const s = scale, small = detail === "small", points = [[0, 0.002], [0.021, 0.002], [0.024, 0.004], [0.025, 0.008], [0.031, 0.051], [0.0325, 0.054], [0.034, 0.054], [0.034, 0.051], [0.029, 0.05], [0.023, 0.012], [0.019, 0.008], [0, 0.008]];
     const base = y + (saucer ? 0.009 * s : 0);
     if (saucer) {
       const dish = [[0, 0.002], [0.026, 0.002], [0.033, 0.006], [0.049, 0.005], [0.059, 0.009], [0.0625, 0.011], [0.0625, 0.014], [0.058, 0.012], [0.048, 0.008], [0.031, 0.010], [0, 0.010]];
-      part("ceramic", new THREE.LatheGeometry(dish.map(([r, h]) => new THREE.Vector2(r * s, h * s)), 20).translate(x, y, z), { tile: 1 });
-      part("ceramic", new THREE.TorusGeometry(0.027 * s, 0.0025 * s, 6, 20).rotateX(Math.PI / 2).translate(x, y + 0.010 * s, z), { tile: 1 });
+      part(material, new THREE.LatheGeometry(dish.map(([r, h]) => new THREE.Vector2(r * s, h * s)), 20).translate(x, y, z), { tile: 1 });
+      part(material, new THREE.TorusGeometry(0.027 * s, 0.0025 * s, 6, 20).rotateX(Math.PI / 2).translate(x, y + 0.010 * s, z), { tile: 1 });
     }
-    part("ceramic", new THREE.LatheGeometry(points.map(([r, h]) => new THREE.Vector2(r * s, h * s)), 24).translate(x, base, z), { tile: 1 });
-    part("ceramic", new THREE.TorusGeometry(0.0318 * s, 0.002 * s, 7, 20).rotateX(Math.PI / 2).translate(x, base + 0.053 * s, z), { tile: 1 });
+    part(material, new THREE.LatheGeometry(points.map(([r, h]) => new THREE.Vector2(r * s, h * s)), small ? 12 : 24).translate(x, base, z), { tile: 1 });
+    part(material, new THREE.TorusGeometry(0.0318 * s, 0.002 * s, small ? 5 : 7, small ? 12 : 20).rotateX(Math.PI / 2).translate(x, base + 0.053 * s, z), { tile: 1 });
     const handle = new THREE.CatmullRomCurve3([[0.031, 0.044], [0.046, 0.045], [0.058, 0.038], [0.059, 0.023], [0.048, 0.015], [0.030, 0.018]].map(([dx, dy]) => new THREE.Vector3(x + dx * s, base + dy * s, z)));
-    part("ceramic", new THREE.TubeGeometry(handle, 12, 0.0045 * s, 6, false), { tile: 1 });
+    part(material, new THREE.TubeGeometry(handle, small ? 8 : 12, 0.0045 * s, small ? 5 : 6, false), { tile: 1 });
     if (coffee) {
       const surface = base + 0.047 * s;
       part("coffee", new THREE.CircleGeometry(0.0285 * s, 20).rotateX(-Math.PI / 2).translate(x, surface, z), { tile: 1 });
@@ -599,6 +599,7 @@ export async function start({ stage, onReady = () => {} }) {
   part("stone", footprintGeometry(bb.x0 - 0.01, bb.x1 + 0.01, BACK, bbFront + 0.025, bbTop, bb.top, { round: false, bevel: 0.009 }), { tile: 1 });
   const doors = 8, doorW = (bb.x1 - bb.x0) / doors, gap = 0.006, doorY0 = 0.11, doorY1 = bbTop - 0.012, fzb = bbFront - 0.02, frameW = 0.062, thick = 0.02;
   for (let i = 0; i < doors; i++) {
+    if (i === 5 || i === 7) continue; // open drawers and a glazed under-counter fridge replace these two doors
     const xa = bb.x0 + i * doorW + gap / 2, xb = bb.x0 + (i + 1) * doorW - gap / 2;
     slab("olive", [xa, xb], [doorY0, doorY0 + frameW], [fzb, fzb + thick]); slab("olive", [xa, xb], [doorY1 - frameW, doorY1], [fzb, fzb + thick]);
     slab("olive", [xa, xa + frameW], [doorY0 + frameW, doorY1 - frameW], [fzb, fzb + thick]); slab("olive", [xb - frameW, xb], [doorY0 + frameW, doorY1 - frameW], [fzb, fzb + thick]);
@@ -606,6 +607,39 @@ export async function start({ stage, onReady = () => {} }) {
     const hx = i % 2 === 0 ? xb - frameW / 2 : xa + frameW / 2; // handles sit beside the meeting edge of each pair
     slab("black", [hx - 0.006, hx + 0.006], [doorY1 - frameW - 0.19, doorY1 - frameW - 0.03], [fzb + thick + 0.02, fzb + thick + 0.032]);
     slab("black", [hx - 0.006, hx + 0.006], [doorY1 - frameW - 0.19, doorY1 - frameW - 0.178], [fzb + thick, fzb + thick + 0.02]); slab("black", [hx - 0.006, hx + 0.006], [doorY1 - frameW - 0.042, doorY1 - frameW - 0.03], [fzb + thick, fzb + thick + 0.02]);
+  }
+  // Card 53 P2: one open drawer bank and a glass-front under-counter fridge. They share the existing cabinet and materials.
+  {
+    const drawerX = [bb.x0 + 5 * doorW + 0.035, bb.x0 + 6 * doorW - 0.035];
+    slab("black", drawerX, [0.13, 0.83], [fzb + 0.012, fzb + 0.017]);
+    for (const y of [0.2, 0.42, 0.64]) {
+      const open = y === 0.42, front = fzb + (open ? 0.15 : 0.035);
+      slab("oak", [drawerX[0] + 0.025, drawerX[1] - 0.025], [y - 0.07, y + 0.07], [front, front + 0.022]);
+      slab("black", [drawerX[0] + 0.19, drawerX[1] - 0.19], [y + 0.037, y + 0.042], [front + 0.022, front + 0.026]);
+      if (open) for (const x of [drawerX[0] + 0.03, drawerX[1] - 0.04]) slab("oak", [x, x + 0.012], [y - 0.06, y + 0.07], [fzb + 0.02, front]);
+    }
+    const fridgeX = [bb.x0 + 7 * doorW + 0.035, bb.x1 - 0.035], front = fzb + 0.075;
+    slab("black", fridgeX, [0.13, 0.82], [fzb + 0.012, fzb + 0.018]);
+    for (const y of [0.37, 0.6]) slab("steel", [fridgeX[0] + 0.04, fridgeX[1] - 0.04], [y, y + 0.009], [fzb + 0.021, fzb + 0.043]);
+    for (const [x, y] of [[2.42, 0.17], [2.56, 0.17], [2.72, 0.17], [2.48, 0.41], [2.64, 0.41]]) {
+      part("glass", new THREE.CylinderGeometry(0.025, 0.029, 0.16, 10).translate(x, y + 0.08, fzb + 0.03), { tile: 1 });
+      part("lid", new THREE.CylinderGeometry(0.024, 0.024, 0.013, 10).translate(x, y + 0.167, fzb + 0.03), { tile: 1 });
+    }
+    slab("pane", [fridgeX[0] + 0.035, fridgeX[1] - 0.035], [0.17, 0.78], [front, front + 0.002]);
+    for (const x of [fridgeX[0], fridgeX[1] - 0.025]) slab("frame", [x, x + 0.025], [0.13, 0.82], [front, front + 0.026]);
+    for (const y of [0.13, 0.795]) slab("frame", fridgeX, [y, y + 0.025], [front, front + 0.026]);
+    slab("steel", [fridgeX[0] + 0.045, fridgeX[0] + 0.055], [0.35, 0.67], [front + 0.026, front + 0.052]);
+  }
+
+  // The barista-facing side of the customer counter gains two open shelf tiers, clear of both robots' floor bases.
+  {
+    const x0 = 1.76, x1 = 2.30, z0 = c.z0 - 0.035; // at least 65 cm from the greeter pedestal edge
+    slab("cover", [x0, x1], [0.16, 0.81], [z0, z0 + 0.004]);
+    for (const x of [x0, x0 + 0.26, x1 - 0.02]) slab("oak", [x, x + 0.02], [0.16, 0.81], [z0 - 0.035, z0 + 0.002]);
+    for (const y of [0.16, 0.48, 0.79]) slab("oak", [x0, x1], [y, y + 0.022], [z0 - 0.05, z0 + 0.004]);
+    for (const x of [1.85, 1.97]) takeawayCup({ x, y: 0.51, z: z0 - 0.015 });
+    for (const x of [1.87, 2.00]) { slab("paper", [x - 0.04, x + 0.04], [0.22, 0.43], [z0 - 0.025, z0 + 0.025]); slab("lid", [x - 0.04, x + 0.04], [0.42, 0.43], [z0 - 0.025, z0 + 0.025]); }
+    slab("kraft", [2.07, 2.25], [0.21, 0.39], [z0 - 0.03, z0 + 0.03]);
   }
 
   // ---------- on the brick wall: two shelves on black brackets, two framed chalk menus, the house plaque ----------
@@ -662,7 +696,7 @@ export async function start({ stage, onReady = () => {} }) {
     part("steel", roundedBox(W - 0.06, H, D - 0.02, 0.03, 0.006).translate(mx, y0 + H / 2, mz), { tile: 1 });
     for (const sign of [-1, 1]) part("black", roundedBox(D, H + 0.02, 0.03, 0.035, 0.005).rotateY(Math.PI / 2).translate(mx + sign * (W / 2 - 0.015), y0 + H / 2, mz), { tile: 1 });
     slab("steel", [mx - 0.345, mx + 0.345], [y0 + H, y0 + H + 0.012], [mz - 0.22, mz + 0.22], { tile: 1 }); // the cup-warmer plate
-    for (let i = 0; i < 4; i++) ceramicCup({ x: mx - 0.24 + i * 0.16, y: y0 + H + 0.012, z: mz, saucer: false, spoon: false });
+    for (const row of [-0.09, 0.09]) for (let i = 0; i < 3; i++) ceramicCup({ x: mx - 0.22 + i * 0.22 + (row > 0 && i === 1 ? 0.008 : 0), y: y0 + H + 0.012, z: mz + row, saucer: false, spoon: false, detail: "small" });
     for (const dz of [-0.19, 0.19]) {
       part("steel", rodGeometry([mx - 0.33, y0 + H + 0.085, mz + dz], [mx + 0.33, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
       for (const dx of [-0.33, 0.33]) part("steel", rodGeometry([mx + dx, y0 + H + 0.012, mz + dz], [mx + dx, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
@@ -725,6 +759,44 @@ export async function start({ stage, onReady = () => {} }) {
     part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.02, 24).rotateX(Math.PI / 2).translate(gx, y0 + 0.19, gz + 0.087), { tile: 1 });
     part("steel", rodGeometry([gx, y0 + 0.13, gz + 0.085], [gx, y0 + 0.085, gz + 0.125], 0.017), { tile: 1 });
     slab("steel", [gx - 0.05, gx + 0.05], [y0 + 0.05, y0 + 0.056], [gz + 0.09, gz + 0.16], { tile: 1 }); // the cradle for the portafilter
+  }
+
+  // Cards 58 + 53 P2: a workable service run between grinder, wash area, prep cups and small glassware.
+  {
+    const z = BACK + 0.25, y = barTop;
+    // Knock box, tamper and brush sit in the small gap between the grinder and machine.
+    part("black", new THREE.CylinderGeometry(0.055, 0.06, 0.09, 14).translate(-1.69, y + 0.045, z + 0.03), { tile: 1 });
+    part("steel", rodGeometry([-1.73, y + 0.07, z - 0.015], [-1.65, y + 0.07, z + 0.075], 0.005, 6), { tile: 1 });
+    part("steel", new THREE.CylinderGeometry(0.026, 0.026, 0.009, 14).translate(-1.72, y + 0.005, z - 0.12), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.013, 0.016, 0.055, 12).translate(-1.72, y + 0.038, z - 0.12), { tile: 1 });
+    part("oak", rodGeometry([-1.57, y + 0.006, z - 0.12], [-1.48, y + 0.006, z - 0.13], 0.003, 5), { tile: 1 });
+    // Pour-over kettle and dripper to the right of the barista robot, kept behind the visitor counter.
+    part("black", new THREE.LatheGeometry([[0, 0], [0.052, 0], [0.06, 0.085], [0.042, 0.12], [0, 0.12]].map(([r, h]) => new THREE.Vector2(r, h)), 18).translate(0.14, y, z), { tile: 1 });
+    part("black", new THREE.TorusGeometry(0.035, 0.006, 6, 16, Math.PI).rotateZ(Math.PI / 2).translate(0.195, y + 0.08, z), { tile: 1 });
+    part("steel", rodGeometry([0.1, y + 0.09, z], [0.02, y + 0.145, z + 0.02], 0.004, 6), { tile: 1 });
+    part("glass", new THREE.CylinderGeometry(0.038, 0.044, 0.08, 14, 1, true).translate(0.36, y + 0.04, z), { tile: 1 });
+    part("steel", new THREE.ConeGeometry(0.052, 0.07, 14, 1, true).rotateX(Math.PI).translate(0.36, y + 0.125, z), { tile: 1 });
+    part("paper", new THREE.ConeGeometry(0.044, 0.063, 14, 1, true).rotateX(Math.PI).translate(0.36, y + 0.13, z), { tile: 1 });
+    // Cups progress from espresso to mug; the third is glass. Handles all face right.
+    for (const [x, scale, material] of [[0.58, 0.9, "ceramic"], [0.72, 1.1, "ceramic"], [0.88, 1.22, "glass"], [1.05, 1.32, "ceramic"]]) ceramicCup({ x, y, z, scale, saucer: false, spoon: false, material, detail: "small" });
+    for (let i = 0; i < 3; i++) part("ceramic", new THREE.LatheGeometry([[0, 0], [0.034, 0], [0.061, 0.008], [0.062, 0.012]].map(([r, h]) => new THREE.Vector2(r, h)), 16).translate(1.2, y + i * 0.012, z), { tile: 1 });
+    part("ceramic", new THREE.CylinderGeometry(0.023, 0.023, 0.075, 12, 1, true).translate(1.34, y + 0.038, z), { tile: 1 });
+    for (let i = 0; i < 5; i++) part("steel", rodGeometry([1.33 + i * 0.004, y + 0.015, z], [1.30 + i * 0.01, y + 0.13, z + 0.006], 0.0015, 5), { tile: 1 });
+    // A shallow dark wash basin with a steel rim, an arched faucet and tap.
+    slab("black", [1.57, 2.11], [y + 0.002, y + 0.006], [z - 0.15, z + 0.15]);
+    for (const x of [1.56, 2.10]) slab("steel", [x, x + 0.012], [y + 0.006, y + 0.025], [z - 0.16, z + 0.16]);
+    for (const zz of [z - 0.16, z + 0.15]) slab("steel", [1.56, 2.11], [y + 0.006, y + 0.025], [zz, zz + 0.012]);
+    part("steel", tubeGeometry([[1.88, y + 0.018, z - 0.2], [1.88, y + 0.18, z - 0.2], [1.88, y + 0.24, z - 0.13], [1.88, y + 0.18, z - 0.055]], 0.009, 16, 6), { tile: 1 });
+    part("steel", new THREE.CylinderGeometry(0.015, 0.015, 0.016, 12).translate(1.77, y + 0.01, z - 0.19), { tile: 1 });
+    // Three water glasses at the far right, spaced away from the wash basin.
+    for (const x of [2.28, 2.47, 2.66]) part("glass", new THREE.CylinderGeometry(0.038, 0.031, 0.085, 12, 1, true).translate(x, y + 0.043, z), { tile: 1 });
+    // A dry wiping cloth and two hooks below the menus, above the countertop.
+    for (const x of [0.52, 0.72]) { part("black", rodGeometry([x, 1.4, BACK + 0.018], [x, 1.4, BACK + 0.07], 0.005, 6), { tile: 1 }); }
+    slab("paper", [0.49, 0.56], [1.2, 1.39], [BACK + 0.07, BACK + 0.083]);
+    slab("leafDark", [0.69, 0.77], [1.24, 1.39], [BACK + 0.07, BACK + 0.083]);
+    // A small lidded waste bin sits beside the back bar, outside the robots' floor clearance.
+    part("steel", new THREE.CylinderGeometry(0.115, 0.105, 0.34, 16, 1, true).translate(2.75, 0.17, -1.44), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.118, 0.118, 0.018, 16).translate(2.75, 0.349, -1.44), { tile: 1 });
   }
 
   // Curved glass pastry case, 110 x 50 x 50 cm, on an oak base: steel rods on a quarter-round profile, glass sides, front and top, two glass shelves,
@@ -950,6 +1022,11 @@ export async function start({ stage, onReady = () => {} }) {
     const lower = 1.75 + 0.035, upper = 2.15 + 0.035, zS = BACK + 0.13;
     for (let i = 0; i < 4; i++) part("ceramic", new THREE.CylinderGeometry(0.095, 0.075, 0.013, 28).translate(-2.3, lower + 0.0065 + i * 0.014, zS), { tile: 1 });
     for (const mx2 of [-1.95, -1.78]) ceramicCup({ x: mx2, y: lower, z: zS, scale: 1.35, saucer: false, spoon: false });
+    for (const [mx2, material] of [[-1.86, "ceramic"], [-1.69, "glass"]]) ceramicCup({ x: mx2, y: upper, z: zS, scale: 1.05, saucer: false, spoon: false, material, detail: "small" });
+    for (let i = 0; i < 2; i++) part("ceramic", new THREE.LatheGeometry([[0, 0], [0.047, 0], [0.06, 0.025], [0.054, 0.03]].map(([r, h]) => new THREE.Vector2(r, h)), 16).translate(-1.5, lower + i * 0.024, zS), { tile: 1 });
+    part("ceramic", new THREE.CylinderGeometry(0.045, 0.045, 0.07, 16).translate(-1.25, lower + 0.035, zS), { tile: 1 });
+    part("oak", new THREE.CylinderGeometry(0.048, 0.048, 0.012, 16).translate(-1.25, lower + 0.076, zS), { tile: 1 });
+    for (let i = 0; i < 5; i++) part("oak", rodGeometry([-1.1 + i * 0.006, lower + 0.012, zS], [-1.1 + i * 0.006, lower + 0.12, zS + 0.005], 0.002, 5), { tile: 1 });
     for (const [jx, jh] of [[-2.25, 0.22], [-2.07, 0.17]]) {
       part("ceramic", new THREE.CylinderGeometry(0.058, 0.062, jh, 24).translate(jx, upper + jh / 2, zS), { tile: 1 });
       part("oak", new THREE.CylinderGeometry(0.056, 0.056, 0.028, 24).translate(jx, upper + jh + 0.014, zS), { tile: 0.3 });
@@ -991,6 +1068,13 @@ export async function start({ stage, onReady = () => {} }) {
     partShift = counterShift(-0.3); // the cups and the tip jar stand on the backward lobe of the wave
     const cupStack = (x, z, n) => { for (let i = 0; i < n; i++) takeawayCup({ x, y: top + i * 0.03, z, lid: i === n - 1, sleeve: i === n - 1 }); };
     cupStack(-0.42, c.z1 - 0.14, 5); cupStack(-0.3, c.z1 - 0.16, 4);
+    partShift = counterShift(-0.92);
+    slab("oak", [-1.14, -0.69], [top, top + 0.018], [c.z1 - 0.28, c.z1 - 0.07], { tile: 1 });
+    for (const x of [-1.03, -0.81]) ceramicCup({ x, y: top + 0.018, z: c.z1 - 0.18, coffee: true });
+    part("ceramic", new THREE.CylinderGeometry(0.06, 0.06, 0.008, 18).translate(-0.57, top + 0.004, c.z1 - 0.2), { tile: 1 });
+    part("cookie", new THREE.SphereGeometry(0.028, 10, 6).scale(1.4, 0.45, 1).translate(-0.57, top + 0.015, c.z1 - 0.2), { tile: 1 });
+    part("steel", rodGeometry([-0.66, top + 0.012, c.z1 - 0.14], [-0.52, top + 0.012, c.z1 - 0.14], 0.002, 6), { tile: 1 });
+    partShift = counterShift(-0.3);
     part("glass", new THREE.CylinderGeometry(0.06, 0.06, 0.13, 24).translate(-0.12, top + 0.065, c.z1 - 0.13), { tile: 1 });
     part("gold", new THREE.CylinderGeometry(0.057, 0.057, 0.034, 20).translate(-0.12, top + 0.025, c.z1 - 0.13), { tile: 1 });
     for (let i = 0; i < 6; i++) part("gold", new THREE.CylinderGeometry(0.011, 0.011, 0.002, 10).rotateX(Math.PI / 2 - 0.4).translate(-0.12 + (i % 3 - 1) * 0.02, top + 0.045 + Math.floor(i / 3) * 0.018, c.z1 - 0.13 + 0.02), { tile: 1 });

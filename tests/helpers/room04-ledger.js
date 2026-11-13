@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 169456, meshes: 126 }),
+  scene: Object.freeze({ vertices: 177222, meshes: 126 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 109, phone: 99 }),
+  openingDrawCalls: Object.freeze({ desktop: 109, phone: 101 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 185000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -43,5 +43,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "lounge corner: the hand-built plant returns with fresh greens and flowers at the far end of the banquette; Room 01's red-leaf plant (as beside the red suitcase) at the near end; only the window-side plant stays Room 01's plant.glb", vertices: 474212, meshes: 126, desktopCalls: 108, phoneCalls: 99 },
     { date: "2026-11-14", change: "vertex diet: merged batches keep their vertex indices instead of expanding every shape to separate triangles (474,212 to 191,399 from this alone; the 17 fixed views differ by 0.02% of pixels, only the clock), the straight back bar is a plain rectangle, the foot rail has fewer segments, and the grinder beans are rebuilt per the lathe-mug-and-granular-pile skill (455 beans in rows, one instanced mesh, welded glass hopper)", vertices: 167994, meshes: 126, desktopCalls: 109, phoneCalls: 99 },
     { date: "2026-11-14", change: "lounge: one unbroken white charging cable from the phone to a plug on the wall (rides above the rug, never buried in it); the two round tables now hold different things (tablet and card holder; notebook, pen, phone and a latte)", vertices: 169456, meshes: 126, desktopCalls: 109, phoneCalls: 99 },
+    { date: "2026-11-14", change: "cards 58 + 53 P2 (Codex, re-applied on the vertex-diet main by CC): two open drawers and a glass-front fridge in the back bar, open shelf tiers on the barista side, a service run (knock box, tamper, brush, kettle and dripper, graded cups, wash basin, water glasses, cloth and hooks, bin), two rows of cups on the warmer, more on the shelves and a tray on the counter", vertices: 177222, meshes: 126, desktopCalls: 109, phoneCalls: 101 },
   ]),
 });
