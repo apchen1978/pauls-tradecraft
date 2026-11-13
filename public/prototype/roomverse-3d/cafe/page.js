@@ -1,10 +1,10 @@
-import { start, ROOM_TITLE } from "./cafe.js?v=18";
+import { start, ROOM_TITLE } from "./cafe.js?v=19";
 
 // Room 04 | Shanghai, Slowly. The page: title, the room, five mood buttons, the barista robot (tap it) and a paper note (tap it).
 // Texts marked PROVISIONAL are CC's first drafts; Paul has not chosen the note, the menu or the robot's lines yet.
 const COPY = {
   zh: {
-    title: ROOM_TITLE, subtitle: "上海慢板",
+    title: ROOM_TITLE, subtitle: "上海·慢板",
     lead: "上海一間紅磚小咖啡廳，早晨剛開店。拖曳畫面看看吧台、菜單牆和臨街的窗；點一下機器人咖啡師和吧台上的小便條。",
     note: "這是想像的房間，不是實際店面。窗外是新天地一帶的街景概念畫。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", lang: "EN", languageLabel: "切換為英文",
