@@ -6,7 +6,7 @@ const PAGE = "/prototype/roomverse-3d/cafe/";
 async function open(page, width, lang = "zh") {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+  await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
   await page.goto(`${PAGE}?lang=${lang}`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
@@ -27,13 +27,15 @@ test("the Room 04 ledger is internally consistent", () => {
 for (const [width, key] of [[1440, "desktop"], [390, "phone"]]) {
   test(`Room 04 blockout opens at ${width}px inside its budget, with real sizes`, async ({ page }) => {
     const errors = await open(page, width);
+    await page.waitForFunction(() => window.__room04.info().art.includes("room04-print-p8-steam.webp"));
     const info = await page.evaluate(() => window.__room04.info());
     expect(errors).toEqual([]);
     expect(info.title).toBe("Room 04｜Shanghai, Slowly");
     expect(info.mood).toBe("morning");
     expect(info.vertices).toBe(LEDGER.scene.vertices);
     expect(info.meshes).toBe(LEDGER.scene.meshes);
-    expect(info.drawCalls, `opening draw calls at ${width}px`).toBeLessThanOrEqual(LEDGER.caps[`${key}Calls`]);
+    expect(info.drawCalls, `settled morning draw calls at ${width}px`).toBe(LEDGER.openingDrawCalls[key]);
+    expect(info.drawCalls).toBeLessThanOrEqual(LEDGER.caps[`${key}Calls`]);
     // A standing cafe counter, a 3:2 street window, and a robot whose upper half clears the counter.
     expect(info.counter.heightMm).toBe(1050);
     expect(info.window.widthMm / info.window.heightMm).toBeCloseTo(1.5, 5);
@@ -122,7 +124,7 @@ test("Room 04 can turn all the way round from the middle of the room, and comes 
 test("Room 04 looks: swaps change materials without changing the scene size, wallpapers load, and the random cafe button builds a new one", async ({ page }) => {
   const errors = await open(page, 1440);
   const base = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
-  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "clock", "counter", "floor", "gallery", "lamp", "menu", "rug", "scarf", "stool", "wainscot", "wall", "wallpaper"]);
+  expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "chair", "clock", "counter", "floor", "gallery", "lamp", "lounge", "menu", "rug", "scarf", "stool", "wainscot", "wall", "wallpaper"]);
   const groups = await page.evaluate(() => window.__room04.lookGroups());
   expect(groups.wallpaper).toEqual(["none", "stripe", "botanical", "grasscloth", "sagewash", "planeleaf", "windowshadow"]);
   for (const [group, keys] of Object.entries(groups)) for (const key of keys) {
@@ -147,6 +149,24 @@ test("Room 04 looks: swaps change materials without changing the scene size, wal
 });
 
 
+test("Room 04 lounge upholstery swaps preserve drawing cost", async ({ page }) => {
+  for (const width of [390, 1440]) {
+    await open(page, width);
+    const summary = await page.evaluate(() => {
+      const r = window.__room04;
+      r.setView("lounge", true);
+      return r.lookGroups().lounge.map((key) => {
+        r.setLook("lounge", key);
+        const { meshes, vertices, drawCalls } = r.info();
+        return { key: r.look().lounge, meshes, vertices, drawCalls };
+      });
+    });
+    expect(summary.map(({ key }) => key)).toEqual(["terracotta", "olive", "navy"]);
+    const [{ meshes, vertices, drawCalls }] = summary;
+    for (const preset of summary) expect(preset).toMatchObject({ meshes, vertices, drawCalls });
+  }
+});
+
 test("Room 04 skips the shadow pass when nothing shadow-casting changes", async ({ page }) => {
   await open(page, 390);
   const counts = await page.evaluate(() => window.__room04.shadowDrawCalls());
@@ -154,7 +174,7 @@ test("Room 04 skips the shadow pass when nothing shadow-casting changes", async 
   expect(counts.first - counts.second).toBeGreaterThan(5);
 });
 
-test("Room 04 has named views (overview, counter, window seat) and the overview comes back exactly", async ({ page }) => {
+test("Room 04 has named views (overview, counter, window seat, lounge) and the overview comes back exactly", async ({ page }) => {
   for (const width of [1440, 390]) {
     const errors = await open(page, width);
     const pose = () => page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(2)), fov: r.camera.fov, view: r.view() }; });
@@ -162,21 +182,21 @@ test("Room 04 has named views (overview, counter, window seat) and the overview 
     expect(start.view).toBe("overview");
     await expect(page.locator('[data-view="overview"]')).toHaveAttribute("aria-pressed", "true");
     const seen = new Set([start.p.join(",")]);
-    for (const view of ["counter", "window"]) {
+    for (const view of ["counter", "window", "lounge"]) {
       await page.locator(`[data-view="${view}"]`).click();
       await page.waitForFunction((v) => window.__room04.view() === v, view);
       await page.waitForTimeout(1100);
       await expect(page.locator(`[data-view="${view}"]`)).toHaveAttribute("aria-pressed", "true");
       const pos = await pose(); expect(pos.view).toBe(view); seen.add(pos.p.join(","));
     }
-    expect(seen.size, "three different camera stations").toBe(3);
+    expect(seen.size, "four distinct orbit camera stations").toBe(4);
     await page.locator('[data-view="overview"]').click(); await page.waitForTimeout(1100);
     const back = await pose(); expect(back.p).toEqual(start.p); expect(back.fov).toBe(start.fov);
     // Standing in the middle still works from a view, and leaving it returns to that view.
-    await page.locator('[data-view="window"]').click(); await page.waitForTimeout(1100);
-    const win = await pose();
+    await page.locator('[data-view="lounge"]').click(); await page.waitForTimeout(1100);
+    const lounge = await pose();
     await page.locator("#centerView").click(); await page.locator("#centerView").click(); await page.waitForTimeout(200);
-    expect((await pose()).p).toEqual(win.p);
+    expect((await pose()).p).toEqual(lounge.p);
     expect(errors).toEqual([]);
   }
 });

@@ -10,7 +10,7 @@ import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 //      skirting, soft reflections. 2. Counter and back bar. 3. Hero pieces (machine, grinder, pastry case, robot). 4. Story corner. 5. Moods and polish.
 // Everything still named "blockout-*" is a plain stand-in that a later section replaces.
 // Section 3 (hero pieces) follows the design sheets Codex drew in card 46: every piece is modelled from rounded profiles, lathes, rods and discs.
-// Section 4 (the story corner) puts a window seat, a draped coat, an open notebook, steaming cups, plants and shelf things where "someone was just here".
+// Section 4 (the story corner) puts a window seat, an open notebook, steaming cups, plants and shelf things where "someone was just here".
 // Section 2 (counter and back bar) is built from many small real parts (frames, panels, mouldings, brackets, handles) merged by material, because
 // thickness, shadow lines and bevels are what make a room read as 3D. Vertices are not rationed (Paul, 2026-11-13); draw calls are, by merging.
 export const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
@@ -67,9 +67,10 @@ export const LOOK_GROUPS = Object.freeze({
   stool: Object.freeze({ bentwood: 1, leather: 2, metal: 3, none: 0 }), // the four bar stools along the counter (Codex card 52 A)
   clock: Object.freeze({ tech: 1, classic: 2, wood: 3 }), // the wall clock (Codex card 49): A futuristic, B classical brass, or the round oak one. The hands show the real time.
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
+  lounge: Object.freeze({ terracotta: [0xa0523e, 0xc39748], olive: [0x697349, 0xe2d2ab], navy: [0x354c61, 0xc9b99f] }), // PROVISIONAL
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4], planeleaf: ["room04-wallpaper-plane-leaf.webp", 1.5], windowshadow: ["room04-wallpaper-window-shadow.webp", 1.5] }), // the last two are this cafe's own (Codex card 52 C)
 });
-export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", menu: "board", stool: "bentwood" });
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "greybrown", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", lounge: "terracotta", menu: "board", stool: "bentwood" });
 // What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
 export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"], planeleaf: ["olive", "walnut", "cream"], windowshadow: ["walnut", "charcoal", "olive"] });
 
@@ -145,11 +146,11 @@ function makeContactShadowTexture() {
 }
 
 // A box with rounded vertical edges: a rounded-rectangle profile (w x h) extruded d deep along +z, centred on the origin.
-function roundedBox(w, h, d, r, bevel = 0) {
+function roundedBox(w, h, d, r, bevel = 0, curveSegments = 8) {
   const shape = new THREE.Shape(), x = w / 2 - bevel, y = h / 2 - bevel, rr = Math.max(0.001, r - bevel);
   shape.moveTo(-x + rr, -y); shape.lineTo(x - rr, -y); shape.quadraticCurveTo(x, -y, x, -y + rr); shape.lineTo(x, y - rr); shape.quadraticCurveTo(x, y, x - rr, y);
   shape.lineTo(-x + rr, y); shape.quadraticCurveTo(-x, y, -x, y - rr); shape.lineTo(-x, -y + rr); shape.quadraticCurveTo(-x, -y, -x + rr, -y);
-  const geometry = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.001, d - 2 * bevel), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: 8 });
+  const geometry = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.001, d - 2 * bevel), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments });
   geometry.translate(0, 0, -(d - 2 * bevel) / 2); geometry.computeVertexNormals();
   return geometry;
 }
@@ -175,29 +176,20 @@ function eggGeometry() {
 function tubeGeometry(points, radius, segments = 24, radial = 8) {
   return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p))), segments, radius, radial, false);
 }
-// A drape of cloth: a width x length sheet bent along a side profile [[z, y], ...] (from one free end, over the rail, to the other free end), with wrinkles.
-function drapeGeometry(width, profile, wrinkle = 0.012, seed = 1) {
-  const cols = 14, rows = (profile.length - 1) * 4, positions = [], indices = [];
-  const at = (t) => { const f = t * (profile.length - 1), i = Math.min(profile.length - 2, Math.floor(f)), k = f - i; return [profile[i][0] + (profile[i + 1][0] - profile[i][0]) * k, profile[i][1] + (profile[i + 1][1] - profile[i][1]) * k]; };
-  for (let r = 0; r <= rows; r++) {
-    const t = r / rows, [z, y] = at(t), hang = Math.min(t, 1 - t) < 0.4 ? 1 : 0.3;
-    for (let c = 0; c <= cols; c++) {
-      const u = c / cols - 0.5;
-      const fold = Math.sin(u * 17 + seed * 2 + t * 3.1) * wrinkle * hang + Math.sin(u * 41 + seed) * wrinkle * 0.35 * hang;
-      const narrow = 1 - 0.1 * Math.abs(u) * (1 - hang); // the free ends hang a little narrower
-      positions.push(u * width * narrow + Math.sin(t * 9 + seed) * 0.006 * hang, y, z + fold);
-    }
-  }
-  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const a = r * (cols + 1) + c, b = a + cols + 1; indices.push(a, b, a + 1, a + 1, b, b + 1); }
-  const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)); geometry.setIndex(indices); geometry.computeVertexNormals();
-  return geometry;
-}
 // A woven jute rug: concentric rings of slightly different tans with a fine cross-weave.
-function makeRugTexture() {
+function makeRugTexture(rectangular = false) {
   const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 512;
   const g = canvas.getContext("2d");
   let seed = 3; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   g.fillStyle = "#c9ad7c"; g.fillRect(0, 0, 512, 512);
+  if (rectangular) {
+    for (let i = 0; i < 512; i += 3) {
+      g.strokeStyle = i % 2 ? "rgba(110,78,46,.15)" : "rgba(255,236,191,.24)";
+      g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 512); g.moveTo(0, i); g.lineTo(512, i); g.stroke();
+    }
+    g.strokeStyle = "#9e7c50"; g.lineWidth = 5; g.strokeRect(13, 10, 486, 492);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8; return texture;
+  }
   for (let r = 250; r > 4; r -= 5) { const k = rnd(); g.strokeStyle = `rgb(${Math.round(188 + k * 30)},${Math.round(158 + k * 28)},${Math.round(104 + k * 22)})`; g.lineWidth = 5; g.beginPath(); g.arc(256, 256, r, 0, Math.PI * 2); g.stroke(); }
   g.strokeStyle = "rgba(95,70,40,.16)"; g.lineWidth = 1; for (let i = 0; i < 90; i++) { g.beginPath(); g.arc(256, 256, 8 + i * 2.7, 0, Math.PI * 2); g.stroke(); }
   g.strokeStyle = "#8a6a3e"; g.lineWidth = 9; g.beginPath(); g.arc(256, 256, 236, 0, Math.PI * 2); g.stroke();
@@ -328,7 +320,9 @@ export async function start({ stage, onReady = () => {} }) {
     gold: new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: 0.3, metalness: 0.78, emissive: 0x4d3812, emissiveIntensity: 0.7 }), // metalness 1 rendered black here (nothing but the small reflection map to light it), so a little diffuse stays
     cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
-    cloth: new THREE.MeshStandardMaterial({ color: 0xded3bf, roughness: 0.96, side: THREE.DoubleSide }),
+    loungeSeat: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], roughness: 0.95 }),
+    loungeAccent: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1], roughness: 0.95 }),
+    loungeDetail: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.87 }),
     paper: new THREE.MeshStandardMaterial({ color: 0xf6f0e2, roughness: 0.9 }),
     cover: new THREE.MeshStandardMaterial({ color: 0x5c4630, roughness: 0.8 }),
     leaf: new THREE.MeshStandardMaterial({ color: 0x5f8a45, roughness: 0.78, side: THREE.DoubleSide }),
@@ -754,11 +748,10 @@ export async function start({ stage, onReady = () => {} }) {
   }
 
   // ---------- the story corner (section 4) ----------
-  // The window seat stands under the street window: a 60 cm round table, one bentwood chair with a coat over its back (its back is what the visitor sees
-  // from the door) and one beside the table. On the table: a vase of hydrangea, an open notebook and pen, and a cup that has just been poured.
+  // The window seat stands under the street window: a 60 cm round table and two bentwood chairs. On the table: a vase of hydrangea, an open notebook and pen, and a cup that has just been poured.
   const SEAT = { x: -2.42, z: 0.5 };
   const place = (geometry, x, z, yaw = 0, y = 0) => geometry.rotateY(yaw).translate(x, y, z);
-  const chair = (x, z, yaw, withCoat) => {
+  const chair = (x, z, yaw) => {
     const P = (key, geometry, options) => part(key, place(geometry, x, z, yaw), options);
     const R = 0.2, seatY = 0.46;
     P("bentwood", new THREE.CylinderGeometry(R, R - 0.004, 0.034, 36).translate(0, seatY - 0.01, 0), { tile: 0.6 }); // the seat frame
@@ -772,15 +765,9 @@ export async function start({ stage, onReady = () => {} }) {
     P("bentwood", new THREE.TorusGeometry(0.098, 0.0075, 8, 32).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
     P("cane", new THREE.CylinderGeometry(0.092, 0.092, 0.004, 28).scale(1, 1, 0.62).rotateX(Math.PI / 2).translate(0, 0.76, -0.196), { tile: 0.2 });
     P("bentwood", new THREE.TorusGeometry(0.168, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, -0.005), { tile: 0.6 }); // the leg ring
-    if (withCoat) {
-      // A linen coat over the back: a free end on the seat side, up over the bow, and a longer end down the back.
-      const coat = drapeGeometry(0.4, [[-0.17, 0.585], [-0.178, 0.7], [-0.198, 0.88], [-0.222, 0.97], [-0.24, 0.99], [-0.262, 0.975], [-0.27, 0.9], [-0.272, 0.76], [-0.265, 0.6], [-0.27, 0.47]], 0.011, 3);
-      P("cloth", coat, { tile: 1 });
-      P("cloth", new THREE.CylinderGeometry(0.032, 0.032, 0.18, 12).rotateZ(Math.PI / 2).translate(0.2, 0.845, -0.215), { tile: 1 }); // a rolled sleeve over the right post
-    }
   };
-  chair(SEAT.x, SEAT.z + 0.62, Math.PI, true);
-  chair(SEAT.x + 0.62, SEAT.z, -Math.PI / 2, false);
+  chair(SEAT.x, SEAT.z + 0.62, Math.PI);
+  chair(SEAT.x + 0.62, SEAT.z, -Math.PI / 2);
   // Table: a 60 cm oak top with a rounded edge on a black cast pedestal and a three-foot base.
   part("oak", place(new THREE.CylinderGeometry(0.3, 0.3, 0.03, 48).translate(0, 0.725, 0), SEAT.x, SEAT.z), { tile: 0.9 });
   part("oak", place(new THREE.TorusGeometry(0.3, 0.0105, 8, 48).rotateX(Math.PI / 2).translate(0, 0.725, 0), SEAT.x, SEAT.z), { tile: 0.9 });
@@ -908,7 +895,7 @@ export async function start({ stage, onReady = () => {} }) {
     const rug = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.014, 56), [new THREE.MeshStandardMaterial({ color: 0xb59868, roughness: 1 }), (rugRef.top = new THREE.MeshStandardMaterial({ map: rugTexture, roughness: 1 }), rugRef.defaultMap = rugTexture, rugRef.top), new THREE.MeshStandardMaterial({ color: 0x7a6040 })]);
     rug.name = "window-rug"; rug.position.set(SEAT.x + 0.2, 0.007, SEAT.z + 0.28); rug.receiveShadow = true; scene.add(rug);
   }
-  // ---------- the front wall (behind the visitor): a glass door, a floor-to-ceiling window, hooks, an umbrella stand and a mat (Codex card 47, A) ----------
+  // ---------- the front wall (behind the visitor): a glass door, a floor-to-ceiling window and a mat (Codex card 47, A) ----------
   {
     const FW = FRONT + 1.2, T = 0.2; // the inner face of the front wall and its thickness
     const WIN = { x0: -1.95, x1: -0.15, y0: 0.12, y1: 2.45 }, DOOR = { x0: 0.0, x1: 0.95, y1: 2.15 }, TOPY = 2.45; // the door leaf is 950 x 2150 under a 300 transom, the window 1800 x 2450
@@ -1194,6 +1181,127 @@ export async function start({ stage, onReady = () => {} }) {
     for (let i = 0; i < 4; i++) slab("paper", [-0.9 - 0.025, -0.9 + 0.025], [T + 0.012 + i * 0.012, T + 0.0138 + i * 0.012], [zc - 0.02 + (i % 2) * 0.006, zc + 0.02 + (i % 2) * 0.006], { tile: 1 });
   }
   partShift = 0;
+
+  // Card 54 A. Build the fixed lounge into the existing static material batches.
+  {
+    const boxPart = (key, w, h, d, x, y, z, r = 0.012) =>
+      part(key, roundedBox(w, h, d, r, Math.min(r / 2, h / 4), 4).translate(x, y, z));
+    const disc = (key, x, y, z, r, h, base = r) =>
+      part(key, new THREE.CylinderGeometry(r, base, h, 32).translate(x, y, z));
+    const detail = (g, color) => part("loungeDetail", colorize(g, color));
+    const bx = 2.86, bz = 1.18;
+    boxPart("oakDeep", 0.47, 0.07, 1.81, bx + 0.02, 0.035, bz);
+    boxPart("oak", 0.55, 0.34, 1.9, bx, 0.23, bz, 0.035);
+    boxPart("oak", 0.07, 0.47, 1.9, bx + 0.23, 0.615, bz, 0.025);
+    boxPart("loungeSeat", 0.50, 0.083, 1.85, bx - 0.025, 0.4085, bz, 0.033);
+    boxPart("loungeSeat", 0.113, 0.37, 1.85, bx + 0.145, 0.657, bz, 0.045);
+
+    // Two bulging cloth faces meet at the welt. The lower edge sits on the seat.
+    for (const [dz, tilt] of [[-0.59, 0.10], [-0.02, -0.12], [0.58, 0.15]]) {
+      const at = (g) => g.rotateZ(tilt).rotateY(-Math.PI / 2).translate(bx + 0.012, 0.62, bz + dz);
+      const edge = (a, r = 1) => [Math.sign(Math.cos(a)) * Math.abs(Math.cos(a)) ** 0.65 * 0.181 * r,
+        Math.sign(Math.sin(a)) * Math.abs(Math.sin(a)) ** 0.65 * 0.17 * r];
+      const pillow = new THREE.SphereGeometry(1, 32, 18);
+      const pos = pillow.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const depth = pos.getY(i);
+        const [x, y] = edge(Math.atan2(-pos.getZ(i), pos.getX(i)), Math.sqrt(Math.max(0, 1 - depth ** 2)));
+        pos.setXYZ(i, x, y, depth * 0.063);
+      }
+      pillow.computeVertexNormals();
+      part("loungeAccent", at(pillow));
+      detail(at(tubeGeometry(Array.from({ length: 33 }, (_, i) => [...edge(i * Math.PI / 16), 0]), 0.0035, 48, 6)), 0x937351);
+    }
+
+    const ax = 1.60, az = 2.28;
+    const chairPart = (key, g) => part(key, place(g, ax, az, Math.PI, 0.012));
+    for (const side of [-1, 1]) {
+      for (const end of [-1, 1]) chairPart("oakDeep", rodGeometry(
+        [side * 0.304, 0.003, end * 0.287], [side * 0.265, 0.35, end * 0.241], 0.025));
+      chairPart("oakDeep", tubeGeometry([[side * 0.31, 0.34, 0.23], [side * 0.343, 0.61, 0.22],
+        [side * 0.343, 0.63, -0.05], [side * 0.31, 0.59, -0.27]], 0.029));
+    }
+    chairPart("oak", roundedBox(0.66, 0.09, 0.61, 0.034, 0.012).translate(0, 0.315, 0));
+    chairPart("loungeAccent", roundedBox(0.615, 0.093, 0.55, 0.046, 0.024).translate(0, 0.3615, 0.026));
+    chairPart("loungeAccent", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
+
+    const px = 1.61, pz = 1.52;
+    disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
+    const profile = [[0, 0.05], [0.18, 0.05], [0.214, 0.075], [0.225, 0.13], [0.225, 0.29],
+      [0.21, 0.333], [0.175, 0.351], [0, 0.36]];
+    detail(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y + 0.012)), 40)
+      .translate(px, 0, pz), 0xa76d45);
+    for (let i = 0; i < 40; i++) {
+      const a = i * Math.PI / 20, x = px + 0.224 * Math.cos(a), z = pz + 0.224 * Math.sin(a);
+      detail(rodGeometry([x, 0.14, z], [x, 0.30, z], 0.003, 4), 0x8e5d3d);
+    }
+
+    const tx = 2.17;
+    for (const [z, surface] of [[0.77, "stone"], [1.48, "oak"]]) {
+      disc(surface, tx, 0.431, z, 0.275, 0.038, 0.265);
+      if (surface === "stone") {
+        disc("oakDeep", tx, 0.022, z, 0.183, 0.022);
+        disc("oak", tx, 0.218, z, 0.082, 0.401, 0.106);
+        for (let i = 0; i < 16; i++) {
+          const a = i * Math.PI / 8;
+          part("oakDeep", rodGeometry([tx + 0.107 * Math.cos(a), 0.037, z + 0.107 * Math.sin(a)],
+            [tx + 0.083 * Math.cos(a), 0.414, z + 0.083 * Math.sin(a)], 0.004, 5));
+        }
+      } else {
+        for (let i = 0; i < 3; i++) {
+          const a = i * Math.PI * 2 / 3;
+          part("oakDeep", rodGeometry([tx + 0.19 * Math.cos(a), 0.012, z + 0.19 * Math.sin(a)],
+            [tx + 0.108 * Math.cos(a), 0.418, z + 0.108 * Math.sin(a)], 0.022));
+        }
+      }
+      const cx = tx + 0.145, cz = z + 0.062;
+      disc("ceramic", cx, 0.454, cz, 0.055, 0.008);
+      part("ceramic", new THREE.CylinderGeometry(0.033, 0.026, 0.06, 24, 1, true).translate(cx, 0.488, cz));
+      disc("coffee", cx, 0.509, cz, 0.031, 0.005);
+      part("ceramic", new THREE.TorusGeometry(0.018, 0.0045, 8, 18).translate(cx + 0.032, 0.489, cz));
+      boxPart("black", 0.155, 0.013, 0.235, tx - 0.064, 0.4565, z - 0.056);
+      boxPart("oakDeep", 0.098, 0.012, 0.068, tx - 0.057, 0.456, z + 0.119);
+      boxPart("paper", 0.091, 0.008, 0.062, tx - 0.057, 0.462, z + 0.119);
+    }
+
+    const sx = 2.18, sz = 2.34;
+    disc("oak", sx, 0.512, sz, 0.165, 0.036);
+    disc("oakDeep", sx, 0.023, sz, 0.11, 0.022);
+    disc("oakDeep", sx, 0.26, sz, 0.022, 0.48);
+    boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, 0.535, sz);
+    detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, 0.540, sz), 0x627b87);
+    part("black", tubeGeometry([[sx + 0.01, 0.536, sz + 0.063], [sx + 0.025, 0.525, sz + 0.16],
+      [sx + 0.043, 0.09, sz + 0.20], [sx + 0.065, 0.016, sz + 0.26], [2.52, 0.016, 2.73], [2.90, 0.016, 2.73], [3.10, 0.018, 2.73],
+      [3.15, 0.29, 2.73]], 0.003, 56, 6));
+    boxPart("paper", 0.013, 0.052, 0.168, 3.151, 0.29, 2.73);
+    for (const offset of [-0.045, 0, 0.045]) {
+      for (const y of [0.282, 0.298]) boxPart("black", 0.003, 0.004, 0.012, 3.143, y, 2.73 + offset, 0.002);
+    }
+
+    const fx = 2.90, fz = 2.43;
+    disc("ceramic", fx, 0.16, fz, 0.144, 0.32, 0.106);
+    disc("soil", fx, 0.322, fz, 0.131, 0.006);
+    for (let i = 0; i < 8; i++) {
+      const a = i * 2.39996, reach = 0.105 + (i % 3) * 0.033, y = 0.53 + i * 0.05;
+      const x = fx + Math.cos(a) * reach, z = fz + Math.sin(a) * reach;
+      part("leafDark", rodGeometry([fx, 0.321, fz], [x, y, z], 0.005));
+      part(i % 2 ? "leaf" : "leafDark", new THREE.SphereGeometry(1, 16, 8).scale(0.098, 0.008, 0.068)
+        .rotateZ(0.4).rotateY(-a).translate(x, y, z));
+    }
+
+    // Small abstract placeholders above the banquette. Card 54 B supplies the prints.
+    for (const [z, color, accent] of [[1.47, 0xa36a52, 0x586346], [1.83, 0x64704b, 0xb99457], [2.19, 0x4b6170, 0xa36a52]]) {
+      boxPart("oakDeep", 0.024, 0.30, 0.30, 3.175, 1.37, z);
+      detail(new THREE.BoxGeometry(0.005, 0.258, 0.258).translate(3.161, 1.37, z), 0xe4d7bb);
+      detail(new THREE.CircleGeometry(0.073, 24).rotateY(-Math.PI / 2).translate(3.157, 1.391, z + 0.028), color);
+      detail(new THREE.BoxGeometry(0.003, 0.041, 0.17).translate(3.156, 1.32, z - 0.02), accent);
+    }
+
+    rugRef.loungeDefault = makeRugTexture(true);
+    rugRef.lounge = new THREE.MeshStandardMaterial({ map: rugRef.loungeDefault, roughness: 1 });
+    add("lounge-rug", new THREE.PlaneGeometry(1.6, 2.4).rotateX(-Math.PI / 2),
+      rugRef.lounge, 2.25, 0.012, 1.48, { cast: false });
+  }
   flush("polish");
 
   // ---------- the bar stools (Codex card 52 A): three designs, four stools along the counter, seat 65 cm ----------
@@ -1387,7 +1495,22 @@ export async function start({ stage, onReady = () => {} }) {
       } else { if (woodFloor.map) materials.floor.map = woodFloor.map; materials.floor.color.setRGB(...v); materials.floor.needsUpdate = true; }
     }
     else if (group === "gallery") { galleryRef.apply?.(key); }
-    else if (group === "rug") { if (rugRef.top) { if (!v) { rugRef.top.map = rugRef.defaultMap; rugRef.top.needsUpdate = true; } else altTexture(v, true, [1, 1], (t) => { if (currentLook.rug === key) { rugRef.top.map = t; rugRef.top.needsUpdate = true; } }); } }
+    else if (group === "rug") {
+      const applyRugs = (map) => {
+        if (currentLook.rug !== key) return;
+        rugRef.top.map = map ?? rugRef.defaultMap;
+        rugRef.lounge.map = map ?? rugRef.loungeDefault;
+        rugRef.top.needsUpdate = rugRef.lounge.needsUpdate = true;
+      };
+      if (v) altTexture(v, true, [1, 1], applyRugs);
+      else applyRugs(null);
+    }
+    else if (group === "lounge") {
+      materials.loungeSeat.color.setHex(v[0]);
+      materials.loungeAccent.color.setHex(v[1]);
+      render();
+      return true;
+    }
     else if (group === "menu") { altTexture(v[0], true, [1, 1], (t) => { if (currentLook.menu === key) { materials.menuA.map = t; materials.menuA.needsUpdate = true; } }); altTexture(v[1], true, [1, 1], (t) => { if (currentLook.menu === key) { materials.menuB.map = t; materials.menuB.needsUpdate = true; } }); }
     else if (group === "stool") { for (const [name, set] of Object.entries(stoolSets)) set.visible = name === key; }
     else if (group === "clock") { for (const [name, set] of Object.entries(clockSets)) set.visible = name === key; }
@@ -1399,7 +1522,7 @@ export async function start({ stage, onReady = () => {} }) {
   function randomLook(rng = Math.random) {
     const pick = (group, except = []) => { const keys = Object.keys(LOOK_GROUPS[group]).filter((k) => !except.includes(k)); return keys[Math.floor(rng() * keys.length)]; };
     const brick = pick("brick");
-    const picks = { brick, counter: pick("counter"), back: pick("back"), wall: pick("wall", brick === "grey" ? ["grey", "mist"] : brick === "dusty" ? ["butter"] : []), floor: pick("floor"), lamp: pick("lamp"), scarf: pick("scarf"), chair: pick("chair") };
+    const picks = { brick, counter: pick("counter"), back: pick("back"), wall: pick("wall", brick === "grey" ? ["grey", "mist"] : brick === "dusty" ? ["butter"] : []), floor: pick("floor"), lamp: pick("lamp"), scarf: pick("scarf"), chair: pick("chair"), lounge: pick("lounge") };
     for (const [group, key] of Object.entries(picks)) setLook(group, key);
     wainscotChosen = false; setLook("wainscot", "same");
     if (rng() < 0.4) { const paper = pick("wallpaper", ["none"]); setLook("wallpaper", paper); const options = WAINSCOT_FOR_PAPER[paper]; setLook("wainscot", options[Math.floor(rng() * options.length)]); } // two rooms in five get one of Room 01's wallpapers, with a wainscot that suits it
@@ -1485,6 +1608,7 @@ export async function start({ stage, onReady = () => {} }) {
   const VIEWS = {
     overview: { ...initial, limits: null },
     counter: compact ? { position: [1.9, 1.5, 1.55], target: [0.2, 1.2, -0.7], fov: 62 } : { position: [1.7, 1.5, 1.45], target: [0.2, 1.22, -0.7], fov: 50 },
+    lounge: compact ? { position: [-0.55, 1.57, 2.55], target: [2.32, 0.78, 1.32], fov: 66 } : { position: [0.15, 1.52, 2.85], target: [2.42, 0.66, 1.44], fov: 58 },
     window: compact ? { position: [0.3, 1.35, 2.1], target: [-2.5, 1.0, 0.5], fov: 66 } : { position: [-0.1, 1.4, 2.0], target: [-2.5, 1.0, 0.5], fov: 54 },
   };
   const OVERVIEW_LIMITS = { minDistance: 2.2, maxDistance: 5.2, minPolar: 1.2, maxPolar: 1.62, minAz: -1.05, maxAz: 0.75 };

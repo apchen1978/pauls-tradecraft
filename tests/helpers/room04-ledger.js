@@ -8,11 +8,11 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 378379, meshes: 121 }),
-  // Draw calls in the first frame of the opening (morning) view.
-  openingDrawCalls: Object.freeze({ desktop: 102, phone: 93 }),
-  // Caps are approximately 10% above the current measured opening scene.
-  caps: Object.freeze({ vertices: 416217, meshes: 134, desktopCalls: 113, phoneCalls: 103 }),
+  scene: Object.freeze({ vertices: 432359, meshes: 124 }),
+  // Draw calls in the opening morning view, with the deferred gallery loaded.
+  openingDrawCalls: Object.freeze({ desktop: 106, phone: 97 }),
+  // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
+  caps: Object.freeze({ vertices: 475560, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-13", change: "blockout: shell, window, counter, back bar, shelves, menus, plain stand-ins for the machine, grinder, pastry case, robot and plant", vertices: 3419, meshes: 51, desktopCalls: 49, phoneCalls: 48 },
@@ -34,5 +34,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "robots, barista edition (Paul: Room 04 robots may differ from Rooms 1 to 3 and should look more real and techy): clear-coated glossy shell, dark metal seams and joints, a lit visor rim, bar eyes, ear modules, an antenna with an amber tip, a chest status strip, articulated arms with shoulder and elbow balls, wrists and two-finger hands; the egg and arms use lower tessellation to stay inside the vertex budget", vertices: 377999, meshes: 145, desktopCalls: 127, phoneCalls: 115 },
     { date: "2026-11-14", change: "cache static shadows; merge static parts by material and combine fixed track fixtures without removing lights", vertices: 378379, meshes: 121, desktopCalls: 102, phoneCalls: 93 },
     { date: "2026-11-14", change: "defer Room 04 entry and load the gallery and clock faces after the first frame; fully loaded geometry unchanged", vertices: 378379, meshes: 121, desktopCalls: 102, phoneCalls: 93 },
+    { date: "2026-11-14", change: "Card 54 A: static lounge, rectangular rug, three upholstery presets and a separate camera view; remove the draped coat", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
   ]),
 });
