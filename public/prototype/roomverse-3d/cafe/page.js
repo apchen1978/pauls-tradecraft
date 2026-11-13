@@ -303,11 +303,12 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=32");
+  const { start } = await import("./cafe.js?v=34");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
   room.onRender(placeUi);
+  if (params.get("perf") === "1") perfPanel(room);
   $("immersiveEnter").hidden = false;
   $("status").hidden = true; $("roomControls").hidden = false; $("moodNote").hidden = false; $("swapActions").hidden = false;
   $("centerView").hidden = false; for (const b of document.querySelectorAll("[data-view]")) b.hidden = false;
@@ -322,3 +323,19 @@ async function enterRoom() {
 }
 $("enter").addEventListener("click", enterRoom);
 if (["room01", "room02", "room03"].includes(params.get("from"))) enterRoom();
+
+// ?perf=1 shows a small panel with real frame times, so a phone can report numbers: the average and the slowest 5% of the last 120 frames
+// (frames are drawn on demand, so only frames close together while turning count), the counts of the last frame, and the time from "enter" to the first render.
+function perfPanel(room) {
+  const box = document.createElement("pre");
+  Object.assign(box.style, { position: "fixed", left: "6px", bottom: "6px", zIndex: "99", margin: "0", padding: "6px 8px", background: "#000c", color: "#9f9", font: "11px/1.35 ui-monospace,monospace", borderRadius: "6px", pointerEvents: "none", whiteSpace: "pre" });
+  document.body.append(box);
+  const gaps = []; let last = 0;
+  room.onRender(() => { const now = performance.now(); if (last && now - last < 250) { gaps.push(now - last); if (gaps.length > 120) gaps.shift(); } last = now; });
+  const mark = (name) => performance.getEntriesByName(name)[0]?.startTime;
+  setInterval(() => {
+    const sorted = [...gaps].sort((a, b) => a - b), avg = gaps.reduce((s, v) => s + v, 0) / (gaps.length || 1), p95 = sorted[Math.floor(sorted.length * 0.95)] ?? 0, st = room.stats();
+    const first = mark("room04-first-render") - mark("room04-enter");
+    box.textContent = "frame avg " + avg.toFixed(1) + " ms  slowest5% " + p95.toFixed(1) + " ms  (" + gaps.length + " frames)\ncalls " + st.calls + "  tris " + st.triangles + "  geo " + st.geometries + "  tex " + st.textures + "  prog " + st.programs + "\nenter to first render " + (Number.isFinite(first) ? first.toFixed(0) + " ms" : "-") + "  dpr " + devicePixelRatio;
+  }, 500);
+}
