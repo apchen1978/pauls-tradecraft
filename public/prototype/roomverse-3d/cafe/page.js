@@ -1,4 +1,4 @@
-import { start, ROOM_TITLE } from "./cafe.js?v=27";
+const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
 
 // Room 04 | Shanghai, Slowly. The page: title, the room, five mood buttons, the barista robot (tap it) and a paper note (tap it).
 // Texts marked PROVISIONAL are CC's first drafts; Paul has not chosen the note, the menu or the robot's lines yet.
@@ -9,7 +9,7 @@ const COPY = {
     note: "這是想像的房間，不是實際店面。窗外是新天地一帶的街景概念畫。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", lang: "EN", languageLabel: "切換為英文",
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁",
-    loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 上海咖啡廳的 3D 房間", moodsLabel: "選擇時段與天氣",
+    enter: "走進咖啡廳", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 上海咖啡廳的 3D 房間", moodsLabel: "選擇時段與天氣",
     robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
     randomLook: "隨機搭一間咖啡廳", resetLook: "回到預設搭配", swapsTitle: "換搭配", randomDone: "已幫你搭了一間新的咖啡廳。",
     groups: {
@@ -47,8 +47,8 @@ const COPY = {
     lead: "A red-brick cafe on a city corner in Shanghai, just opened for the morning. Drag to look at the counter, the menu wall and the street window; tap the barista robot and the little note on the counter.",
     note: "An imagined room, not a real shop. The street outside is a concept painting of the Xintiandi area.",
     otherRooms: "← Other rooms", otherRoomsLabel: "Go to the other ROOMVERSE rooms", lang: "中文", languageLabel: "Switch to Chinese",
-    portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to the portfolio home page",
-    loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D room of the Room 04 Shanghai cafe", moodsLabel: "Choose a time and weather",
+    portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home",
+    enter: "Step into the cafe", loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D room of the Room 04 Shanghai cafe", moodsLabel: "Choose a time and weather",
     robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
     randomLook: "Build me a random cafe", resetLook: "Back to the default look", swapsTitle: "Swap the look", randomDone: "A new cafe, just for you.",
     groups: {
@@ -128,6 +128,7 @@ function renderCopy() {
   const copy = COPY[lang];
   document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
   document.title = `${ROOM_TITLE} · ROOMVERSE 3D`;
+  $("enter").textContent = copy.enter;
   $("title").textContent = copy.title; $("subtitle").textContent = copy.subtitle; $("lead").textContent = copy.lead; $("note").textContent = copy.note;
   $("lang").textContent = copy.lang; $("lang").setAttribute("aria-label", copy.languageLabel);
   const others = $("otherRooms"); others.textContent = copy.otherRooms; others.setAttribute("aria-label", copy.otherRoomsLabel); others.href = `/prototype/roomverse-3d/?lang=${lang}`;
@@ -201,13 +202,18 @@ document.addEventListener("keydown", (event) => {
 });
 
 renderCopy();
-$("status").textContent = COPY[lang].loading;
-try {
+let entering = false;
+async function enterRoom() {
+ if (entering || room) return;
+ entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
+ performance.mark("room04-enter");
+ try {
+  const { start } = await import("./cafe.js?v=28");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
   room.onRender(placeUi);
-  $("status").hidden = true;
+  $("status").hidden = true; $("roomControls").hidden = false; $("moodNote").hidden = false; $("swapActions").hidden = false;
   $("centerView").hidden = false; for (const b of document.querySelectorAll("[data-view]")) b.hidden = false;
   for (const group of LOOK_KEYS) { const key = params.get(group); if (key) room.setLook(group, key); }
   look = room.look(); $("randomLook").disabled = false; $("swaps").hidden = false; renderCopy(); syncLookUrl();
@@ -215,5 +221,8 @@ try {
   window.__room04 = room; // test hook
 } catch (error) {
   console.error(error);
-  $("status").textContent = COPY[lang].failed;
+  $("status").textContent = COPY[lang].failed; $("poster").hidden = false; entering = false;
+ }
 }
+$("enter").addEventListener("click", enterRoom);
+if (["room01", "room02", "room03"].includes(params.get("from"))) enterRoom();
