@@ -706,12 +706,12 @@ export async function start({ stage, onReady = () => {} }) {
 
   // Espresso machine, 75 x 42 x 48 cm, FRONT toward +z: brushed steel body with black end caps, a cup warmer with a guard rail, two group heads with black
   // portafilters and a pressure gauge, a steam wand at the front right corner, a drip tray and four feet. The back, against the wall, is plain.
-  const MACHINE = { W: 0.75, D: 0.48, H: 0.36 };
+  const MACHINE = { W: 0.75, D: 0.52, H: 0.46 };
   const machineFront = mz + MACHINE.D / 2, machineY0 = barTop + 0.06;
   {
     const { W, D, H } = MACHINE, y0 = machineY0, front = machineFront;
     part("steel", roundedBox(W - 0.06, H, D - 0.02, 0.03, 0.006).translate(mx, y0 + H / 2, mz), { tile: 1 });
-    slab("black", [mx - 0.35, mx + 0.35], [y0 - 0.018, y0 + 0.006], [mz - 0.235, mz + 0.235], { tile: 1 });
+    slab("black", [mx - 0.35, mx + 0.35], [y0 - 0.018, y0 + 0.006], [mz - 0.255, mz + 0.255], { tile: 1 });
     slab("steel", [mx - 0.34, mx + 0.34], [y0 + H - 0.028, y0 + H - 0.022], [front + 0.006, front + 0.014], { tile: 1 }); // pressed upper edge
     for (const sign of [-1, 1]) part("black", roundedBox(D, H + 0.02, 0.03, 0.035, 0.005).rotateY(Math.PI / 2).translate(mx + sign * (W / 2 - 0.015), y0 + H / 2, mz), { tile: 1 });
     slab("steel", [mx - 0.345, mx + 0.345], [y0 + H, y0 + H + 0.012], [mz - 0.22, mz + 0.22], { tile: 1 }); // the cup-warmer plate
@@ -721,6 +721,12 @@ export async function start({ stage, onReady = () => {} }) {
       for (const dx of [-0.33, 0.33]) part("steel", rodGeometry([mx + dx, y0 + H + 0.012, mz + dz], [mx + dx, y0 + H + 0.085, mz + dz], 0.005), { tile: 1 });
     }
     for (const dx of [-0.33, 0.33]) part("steel", rodGeometry([mx + dx, y0 + H + 0.085, mz - 0.19], [mx + dx, y0 + H + 0.085, mz + 0.19], 0.005), { tile: 1 });
+    // Angled touch interface on the upper front edge, with two small status indicators.
+    const screenTilt = -Math.PI / 9, screenY = y0 + H - 0.085, screenZ = front + 0.019;
+    part("black", new THREE.BoxGeometry(0.265, 0.125, 0.018).rotateX(screenTilt).translate(mx, screenY, screenZ), { tile: 1 });
+    part("visor", new THREE.BoxGeometry(0.235, 0.098, 0.003).rotateX(screenTilt).translate(mx, screenY, screenZ + 0.012), { tile: 1 });
+    for (const [dx, length] of [[-0.06, 0.06], [0.02, 0.035]]) part("warm", new THREE.BoxGeometry(length, 0.003, 0.001).rotateX(screenTilt).translate(mx + dx, screenY + 0.012, screenZ + 0.015), { tile: 1 });
+    for (const dx of [-0.17, 0.17]) part("warm", new THREE.SphereGeometry(0.008, 8, 6).translate(mx + dx, y0 + H - 0.025, front + 0.011), { tile: 1 });
     // Front face: two group heads with portafilters (black handles pointing at the room), a gauge and four buttons.
     for (const dx of [-0.17, 0.17]) {
       part("steel", new THREE.CylinderGeometry(0.034, 0.034, 0.05, 20).rotateX(Math.PI / 2).translate(mx + dx, y0 + 0.27, front + 0.02), { tile: 1 });
