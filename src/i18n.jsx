@@ -478,7 +478,7 @@ const dict = {
               imageWidth: 800, imageHeight: 1000, imageRatio: "4 / 5", objectPosition: "center",
             },
             {
-              no: "Room 04", name: "上海慢板", light: "梧桐樹下的早晨", wip: "正在打造中",
+              no: "Room 04", name: "上海·慢板", light: "Relax a bit. 來杯咖啡再繼續拼", wip: "正在打造中",
               desc: "上海新天地旁一間紅磚小咖啡廳：兩隻機器人咖啡師、蒸汽管、窗邊座位和玻璃門。站進房間中間轉一圈，換五種時段與天氣，也能隨機搭一間自己的咖啡廳。",
               cta: "走進去看", href: "/prototype/roomverse-3d/cafe/?from=home",
               image: "/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp",
@@ -1450,7 +1450,7 @@ const dict = {
               imageWidth: 800, imageHeight: 1000, imageRatio: "4 / 5", objectPosition: "center",
             },
             {
-              no: "Room 04", name: "Shanghai, Slowly", light: "Morning under plane trees", wip: "Under construction",
+              no: "Room 04", name: "Shanghai, Slowly", light: "Relax a bit. Have a coffee, then keep going.", wip: "Under construction",
               desc: "A small red-brick cafe beside Xintiandi in Shanghai: two robot baristas, a steam wand, a window seat and a glass door. Stand in the middle and turn all the way round, switch five times of day and weather, or build a random cafe of your own.",
               cta: "Step inside", href: "/prototype/roomverse-3d/cafe/?from=home",
               image: "/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp",

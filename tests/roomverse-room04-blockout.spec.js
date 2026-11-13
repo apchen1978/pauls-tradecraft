@@ -75,7 +75,7 @@ test("Room 04 moods: six buttons, each sets its look inside the draw-call budget
 
 test("Room 04 switches language and keeps the choice in the address", async ({ page }) => {
   await open(page, 1440);
-  await expect(page.locator("#subtitle")).toHaveText("上海慢板");
+  await expect(page.locator("#subtitle")).toHaveText("上海·慢板");
   await page.locator("#lang").click();
   await expect(page.locator("#subtitle")).toHaveText("A cafe in Shanghai");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
