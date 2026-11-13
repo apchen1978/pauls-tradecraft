@@ -36,5 +36,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "defer Room 04 entry and load the gallery and clock faces after the first frame; fully loaded geometry unchanged", vertices: 378379, meshes: 121, desktopCalls: 102, phoneCalls: 93 },
     { date: "2026-11-14", change: "Card 54 A: static lounge, rectangular rug, three upholstery presets and a separate camera view; remove the draped coat", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
     { date: "2026-11-14", change: "Card 55: Room 04 immersive controls and travel door; no scene geometry or normal opening draw-call change", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
+    { date: "2026-11-14", change: "Card 56: provisional chalk lettering on the two blank menu boards; texture-only change", vertices: 432359, meshes: 124, desktopCalls: 106, phoneCalls: 97 },
   ]),
 });

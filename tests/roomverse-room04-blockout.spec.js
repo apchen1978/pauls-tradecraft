@@ -55,6 +55,28 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   expect(info.stage).toBe("section-10-robots");
 });
 
+test("Room 04 provisional chalk menus have priced items only on the blank boards", async ({ page }) => {
+  await open(page, 1440);
+  await page.waitForFunction(() => window.__room04.menuTextureKinds().every(Boolean));
+  const menu = await page.evaluate(() => window.__room04.menuCopy);
+  expect(menu.coffee.heading).toBe("Coffee");
+  expect(menu.other.heading).toBe("Not coffee");
+  for (const board of [menu.coffee, menu.other]) {
+    expect(board.items.length).toBeGreaterThanOrEqual(6);
+    expect(board.items.length).toBeLessThanOrEqual(8);
+    for (const line of board.items) {
+      expect(line).toMatch(/^.+ \d+元$/);
+      const price = Number(line.match(/(\d+)元$/)[1]);
+      expect(price).toBeGreaterThanOrEqual(12);
+      expect(price).toBeLessThanOrEqual(40);
+    }
+  }
+  await page.evaluate(() => window.__room04.setLook("menu", "chalk"));
+  await page.waitForFunction(() => window.__room04.menuTextureKinds().every((value) => value === false));
+  await page.evaluate(() => window.__room04.setLook("menu", "board"));
+  await page.waitForFunction(() => window.__room04.menuTextureKinds().every(Boolean));
+});
+
 test("Room 04 moods: six buttons, each sets its look inside the draw-call budget, and the robot and the note answer taps", async ({ page }) => {
   const errors = await open(page, 1440);
   await expect(page.locator("#moods button")).toHaveCount(6);
