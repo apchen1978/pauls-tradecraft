@@ -143,3 +143,11 @@ test("Room 04 looks: swaps change materials without changing the scene size, wal
   expect(await page.evaluate(() => window.__room04.look())).toEqual(base.look);
   expect(errors).toEqual([]);
 });
+
+
+test("Room 04 skips the shadow pass when nothing shadow-casting changes", async ({ page }) => {
+  await open(page, 390);
+  const counts = await page.evaluate(() => window.__room04.shadowDrawCalls());
+  expect(counts.first).toBeGreaterThan(counts.second);
+  expect(counts.first - counts.second).toBeGreaterThan(5);
+});

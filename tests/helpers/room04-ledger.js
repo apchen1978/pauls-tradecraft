@@ -8,11 +8,11 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 377999, meshes: 145 }),
+  scene: Object.freeze({ vertices: 378379, meshes: 121 }),
   // Draw calls in the first frame of the opening (morning) view.
-  openingDrawCalls: Object.freeze({ desktop: 127, phone: 115 }),
-  // Starting caps from the look brief, set from Room 03's live size (109,111 vertices, 133 meshes, 83 / 80 opening draw calls).
-  caps: Object.freeze({ vertices: 380000, meshes: 170, desktopCalls: 136, phoneCalls: 122 }), // raised with history lines on 2026-11-13 (Paul: vertices are not rationed while phones run it). Draw calls are what a phone feels, so Room 04 is the heaviest room: Room 03 opens at 85 / 82. If a real phone stutters, merge materials with vertex colours before cutting any visual
+  openingDrawCalls: Object.freeze({ desktop: 102, phone: 93 }),
+  // Caps are approximately 10% above the current measured opening scene.
+  caps: Object.freeze({ vertices: 416217, meshes: 134, desktopCalls: 113, phoneCalls: 103 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-13", change: "blockout: shell, window, counter, back bar, shelves, menus, plain stand-ins for the machine, grinder, pastry case, robot and plant", vertices: 3419, meshes: 51, desktopCalls: 49, phoneCalls: 48 },
@@ -32,5 +32,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "Codex card 52 integrated: four bar stools in three designs (bentwood, oak and leather, black metal) along the counter, eight counter props (napkin dispenser, sugar jar, cream pitcher, stir sticks, menu folder, newspaper rack, succulent, receipt spike), a second set of eight prints, two own wallpapers, herringbone and slate floors, four rugs, three chalk menus; the look swaps cost nothing, the stools and props about 7 draw calls. Caps raised again: Room 04 is the heaviest room by far, so a real-phone frame check is overdue", vertices: 318527, meshes: 143, desktopCalls: 125, phoneCalls: 113 },
     { date: "2026-11-14", change: "the counter gets the shallow middle S (Paul chose it from card 48): body, plinth and stone top follow one smooth wave of +-0.23 m between x = -1.9 and 0.5, the raised-and-fielded front is built from 16 cm boxes that follow the curve, the foot rail is a tube along it; the stools, cups, tip jar and the eight props follow it too", vertices: 360503, meshes: 143, desktopCalls: 125, phoneCalls: 113 },
     { date: "2026-11-14", change: "robots, barista edition (Paul: Room 04 robots may differ from Rooms 1 to 3 and should look more real and techy): clear-coated glossy shell, dark metal seams and joints, a lit visor rim, bar eyes, ear modules, an antenna with an amber tip, a chest status strip, articulated arms with shoulder and elbow balls, wrists and two-finger hands; the egg and arms use lower tessellation to stay inside the vertex budget", vertices: 377999, meshes: 145, desktopCalls: 127, phoneCalls: 115 },
+    { date: "2026-11-14", change: "cache static shadows; merge static parts by material and combine fixed track fixtures without removing lights", vertices: 378379, meshes: 121, desktopCalls: 102, phoneCalls: 93 },
   ]),
 });
