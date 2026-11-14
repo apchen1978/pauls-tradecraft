@@ -49,10 +49,10 @@ for (const [width, key] of [[1440, "desktop"], [390, "phone"]]) {
     const info = await page.evaluate(() => window.__room04.info());
     expect(errors).toEqual([]);
     expect(info.title).toBe("Room 04｜Shanghai, Slowly");
-    expect(info.mood).toBe("morning");
+    expect(info.mood).toBe("golden"); // the room opens at golden hour
     expect(info.vertices).toBe(LEDGER.scene.vertices);
     expect(info.meshes).toBe(LEDGER.scene.meshes);
-    expect(info.drawCalls, `settled morning draw calls at ${width}px`).toBe(LEDGER.openingDrawCalls[key]);
+    expect(info.drawCalls, `settled golden-hour draw calls at ${width}px`).toBe(LEDGER.openingDrawCalls[key]);
     expect(info.drawCalls).toBeLessThanOrEqual(LEDGER.caps[`${key}Calls`]);
     // A standing cafe counter, a 3:2 street window, and a robot whose upper half clears the counter.
     expect(info.counter.heightMm).toBe(1050);
@@ -69,7 +69,7 @@ test("Room 04 shell: the painted textures load", async ({ page }) => {
   await open(page, 1440);
   await page.waitForFunction(() => window.__room04.info().art.length >= 8, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__room04.info());
-  for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-herringbone.webp", "room04-window-xintiandi-morning-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
+  for (const file of ["room04-brick-red-v1.webp", "room04-brick-red-height-v1.webp", "room04-floor-herringbone.webp", "room04-window-xintiandi-golden-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"]) expect(info.art).toContain(file);
   expect(info.stage).toBe("section-10-robots");
 });
 
@@ -97,11 +97,11 @@ test("Room 04 provisional chalk menus have priced items only on the blank boards
 
 test("Room 04 front door and side window use separate streets in all six moods", async ({ page }) => {
   await open(page, 1440);
-  await page.waitForFunction(() => window.__room04.streetMaterials().front === "room04-street-corner-morning-v1.webp");
+  await page.waitForFunction(() => window.__room04.streetMaterials().front === "room04-street-corner-golden-v1.webp");
   const initial = await page.evaluate(() => ({ street: window.__room04.streetMaterials(), art: window.__room04.info().art }));
   expect(initial.street.separate).toBe(true);
-  expect(initial.street.left).toBe("room04-window-xintiandi-morning-v1.webp");
-  expect(initial.art.filter((file) => file.startsWith("room04-street-corner-"))).toEqual(["room04-street-corner-morning-v1.webp"]);
+  expect(initial.street.left).toBe("room04-window-xintiandi-golden-v1.webp");
+  expect(initial.art.filter((file) => file.startsWith("room04-street-corner-"))).toEqual(["room04-street-corner-golden-v1.webp"]);
   for (const [mood, suffix] of [["morning", "morning"], ["noon", "morning"], ["golden", "golden"], ["rain", "rain"], ["closing", "night"], ["series", "night"]]) {
     await page.evaluate((value) => window.__room04.setMood(value), mood);
     await page.waitForFunction((value) => window.__room04.streetMaterials().front === `room04-street-corner-${value}-v1.webp`, suffix);
