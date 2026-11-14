@@ -496,6 +496,37 @@
     ]
   },
   {
+    "id": "roomverse-room04-shanghai-slowly-concept",
+    "source": "docs/gallery/sources/roomverse-room04-shanghai-slowly-concept-source.webp",
+    "sourceSha256": "8cbf6f1155bfcf2e7e8a5cdf285d7ab9c460caa364e59c6b75af136ba14ea108",
+    "derivatives": [
+      {
+        "file": "roomverse-room04-shanghai-slowly-concept.webp",
+        "width": 1122,
+        "height": 1402,
+        "bytes": 179284,
+        "quality": 26,
+        "sha256": "6b29ab819c723c8fece4d3f88c641f560f9e607a764928d6a4e70e5f86073333"
+      },
+      {
+        "file": "roomverse-room04-shanghai-slowly-concept-mobile.webp",
+        "width": 750,
+        "height": 937,
+        "bytes": 109822,
+        "quality": 36,
+        "sha256": "7cf7094107dd6cca52d1dca9f1a14cc3f1663d0ecc54cce2c6d659620aaad291"
+      },
+      {
+        "file": "roomverse-room04-shanghai-slowly-concept-thumb.webp",
+        "width": 400,
+        "height": 500,
+        "bytes": 39896,
+        "quality": 51,
+        "sha256": "be1a7793cd2d816556d14b2744b870e1c401b71bef90280fb59d8ff8e2a8438f"
+      }
+    ]
+  },
+  {
     "id": "bayarea-redwood-canopy",
     "source": "docs/gallery/sources/room03-human-touch-r1/room03-bay-redwood-canopy-source.png",
     "sourceSha256": "6ef185724e6808d104c8aa3ad043d2db73cc6d6b1cfb52df2a8c061b652f0888",
