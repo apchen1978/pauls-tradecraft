@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 for (const lang of ["zh", "en"]) {
-  test(`home Room 04 link opens the cafe in ${lang}`, async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+  for (const width of [390, 1440]) {
+    test(`home Room 04 link and cover artwork work in ${lang} at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await page.goto(`/?lang=${lang}#showcase`);
     const card = page.locator("#showcase article").first();
     const links = card.locator('a[href*="/prototype/roomverse-3d/cafe/"]');
@@ -10,5 +11,16 @@ for (const lang of ["zh", "en"]) {
     for (let i = 0; i < 2; i++) await expect(links.nth(i)).toHaveAttribute("href", "/prototype/roomverse-3d/cafe/?from=home");
     await expect(card.getByRole("link", { name: lang === "zh" ? "走進去看: 上海·慢板" : "Step inside: Shanghai, Slowly" }))
       .toHaveAttribute("href", "/prototype/roomverse-3d/cafe/?from=home");
+    const room04Image = card.locator(lang === "zh"
+      ? 'img[alt*="上海紅磚小咖啡廳"]'
+      : 'img[alt^="A concept painting of a small red-brick cafe in Shanghai"]');
+    await room04Image.scrollIntoViewIfNeeded();
+    await expect.poll(() => room04Image.getAttribute("src")).toContain("roomverse-room04-shanghai-slowly-concept-mobile.webp");
+    await room04Image.evaluate((image) => image.decode());
+    await page.goto(`/prototype/roomverse-3d/cafe/?lang=${lang}`);
+    const poster = page.locator("#poster");
+    await expect(poster).toHaveCSS("background-image", /roomverse-room04-shanghai-slowly-concept-mobile\.webp/);
+    await expect(poster).toHaveCSS("background-size", /contain/);
   });
+  }
 }
