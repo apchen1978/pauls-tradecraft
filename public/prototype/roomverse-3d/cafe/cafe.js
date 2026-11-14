@@ -2,6 +2,7 @@ import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { loadModel } from "../bedroom/models.js?v=5";
+import { auditRoom04 } from "./physics-audit.js?v=1";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai, just opened for the morning.
 // Look brief approved by Paul on 2026-11-13 (arrival = morning white light; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
@@ -549,12 +550,15 @@ export async function start({ stage, onReady = () => {} }) {
   // Every part below is real-sized geometry in world coordinates, collected per material and merged, so the whole section costs a handful of draw calls.
   const parts = new Map();
   let partShift = 0; // z shift applied to everything built while it is set (things standing on the curved counter)
+  const auditEntries = [];
+  const registerSupport = (name, kind, data) => auditEntries.push({ name, kind, ...data });
   const part = (key, geometry, { tile = 0.9, grain = "y" } = {}) => {
     const g = indexed(geometry);
     if (partShift) g.translate(0, 0, partShift);
     worldUVs(g, tile, grain);
     if (!parts.has(key)) parts.set(key, []);
     parts.get(key).push(g);
+    return g;
   };
   const slab = (key, [x0, x1], [y0, y1], [z0, z1], options) => part(key, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), options);
   let beansMesh = null; // the grinder's beans (an instanced mesh), counted by the tests
@@ -713,7 +717,9 @@ export async function start({ stage, onReady = () => {} }) {
   const menus = [{ x: 0.4, y: 2.0, w: 1.3, h: 0.68, key: "menuA" }, { x: 1.8, y: 2.0, w: 1.3, h: 0.68, key: "menuB" }];
   for (const m of menus) {
     const fw = 0.05, depth = 0.04;
-    slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y + m.h / 2 - fw, m.y + m.h / 2], [BACK, BACK + depth], { grain: "x" }); slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y - m.h / 2, m.y - m.h / 2 + fw], [BACK, BACK + depth], { grain: "x" });
+    const menuTopBar = slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y + m.h / 2 - fw, m.y + m.h / 2], [BACK, BACK + depth], { grain: "x" });
+    menuTopBar.computeBoundingBox(); registerSupport(`${m.key}-frame-wall`, "wall", { back: menuTopBar.boundingBox.min.z, plane: BACK });
+    slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y - m.h / 2, m.y - m.h / 2 + fw], [BACK, BACK + depth], { grain: "x" });
     slab("oak", [m.x - m.w / 2, m.x - m.w / 2 + fw], [m.y - m.h / 2 + fw, m.y + m.h / 2 - fw], [BACK, BACK + depth], { grain: "y" }); slab("oak", [m.x + m.w / 2 - fw, m.x + m.w / 2], [m.y - m.h / 2 + fw, m.y + m.h / 2 - fw], [BACK, BACK + depth], { grain: "y" });
     slab("oak", [m.x - m.w * 0.4, m.x + m.w * 0.4], [m.y - m.h / 2 - 0.02, m.y - m.h / 2], [BACK, BACK + 0.1], { grain: "x" }); // a chalk ledge under each board
     const board = add(`menu-board-${m.key === "menuA" ? "a" : "b"}`, new THREE.PlaneGeometry(m.w - 2 * fw, m.h - 2 * fw), materials[m.key], m.x, m.y, BACK + 0.012, { cast: false });
@@ -749,6 +755,8 @@ export async function start({ stage, onReady = () => {} }) {
   // first build had it facing the wall, so visitors saw only its plain back and never the steam wand). A standing counter is 1.05 m and the bar top 0.90 m,
   // so everything on the bar is visible over the counter edge from the eye height of both default views.
   const barTop = BACK_BAR.height, mx = -1.2, mz = BACK + 0.25; // the machine's centre on the bar
+  const backBarSupport = { shape: "rect", x0: BACK_BAR.x0 - 0.01, x1: BACK_BAR.x1 + 0.01,
+    z0: BACK, z1: BACK + BACK_BAR.depth + 0.025, y: barTop };
 
   // Espresso machine, 75 x 42 x 48 cm, FRONT toward +z: brushed steel body with black end caps, a cup warmer with a guard rail, two group heads with black
   // portafilters and a pressure gauge, a steam wand at the front right corner, a drip tray and four feet. The back, against the wall, is plain.
@@ -806,12 +814,16 @@ export async function start({ stage, onReady = () => {} }) {
     // Drip tray with a grille, and four feet.
     slab("steel", [mx - 0.33, mx + 0.33], [barTop + 0.034, barTop + 0.058], [mz - 0.2, mz + 0.24], { tile: 1 });
     for (let i = 0; i < 12; i++) slab("black", [mx - 0.3 + i * 0.05, mx - 0.288 + i * 0.05], [barTop + 0.058, barTop + 0.0605], [mz - 0.17, mz + 0.21], { tile: 1 });
-    for (const dx of [-0.31, 0.31]) for (const dz of [-0.17, 0.19]) part("steel", new THREE.CylinderGeometry(0.022, 0.026, 0.036, 14).translate(mx + dx, barTop + 0.018, mz + dz), { tile: 1 });
+    for (const dx of [-0.31, 0.31]) for (const dz of [-0.17, 0.19]) {
+      part("steel", new THREE.CylinderGeometry(0.022, 0.026, 0.036, 14).translate(mx + dx, barTop + 0.018, mz + dz), { tile: 1 });
+      registerSupport(`espresso-foot-${dx}-${dz}`, "rest", { base: { x: mx + dx, y: barTop, z: mz + dz, radius: 0.026 }, surface: backBarSupport });
+    }
   }
 
   // Grinder, about 22 x 34 x 26 cm, on the bar to the left of the machine: black tapered body, steel collar, a clear hopper of beans, a dial and a chute toward the room.
   {
     const gx = -2.02, gz = mz + 0.02, y0 = barTop + 0.022;
+    registerSupport("grinder-base", "rest", { base: { x: gx, y: barTop, z: gz, radius: 0.13 }, surface: backBarSupport });
     part("black", roundedBox(0.26, 0.022, 0.3, 0.014, 0.004).rotateX(Math.PI / 2).translate(gx, barTop + 0.011, gz), { tile: 1 });
     part("black", new THREE.LatheGeometry([[0.0005, 0], [0.108, 0], [0.104, 0.03], [0.078, 0.27], [0.0005, 0.27]].map((p) => new THREE.Vector2(p[0], p[1])), 36).translate(gx, y0, gz), { tile: 1 });
     part("steel", new THREE.CylinderGeometry(0.083, 0.083, 0.024, 32).translate(gx, y0 + 0.282, gz), { tile: 1 });
@@ -1103,6 +1115,8 @@ export async function start({ stage, onReady = () => {} }) {
   // A 36 x 28 cm oak turntable on the customer counter, toward the middle of it (Paul: near the main robot, easy to see, and the checkout screen goes over to the pastry case). It stands at the
   // end of the S, where the counter is straight, between the tip jar and the checkout terminal (stand base from x 0.82), with its controls toward the visitor; its footprint stays on the stone top.
   const RECORD = { x: 0.5, z: -0.72, width: 0.36, depth: 0.28, barTop: top, height: 0.11 };
+  registerSupport("record-player-on-counter", "rest", { base: { x: RECORD.x, y: top, z: RECORD.z, radius: RECORD.width / 2 },
+    surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0 + counterShift(RECORD.x), z1: c.z1 + counterShift(RECORD.x), y: top } });
   const recordBaseY = top + 0.002, recordBaseH = 0.067, recordDeckY = recordBaseY + recordBaseH;
   const plinth = new THREE.BoxGeometry(RECORD.width, recordBaseH, RECORD.depth).translate(RECORD.x, recordBaseY + recordBaseH / 2, RECORD.z);
   part("oak", plinth, { tile: 0.45 });
@@ -1186,30 +1200,50 @@ export async function start({ stage, onReady = () => {} }) {
   const SEAT = { x: -2.42, z: 0.5 };
   const place = (geometry, x, z, yaw = 0, y = 0) => geometry.rotateY(yaw).translate(x, y, z);
   const chair = (x, z, yaw) => {
-    const P = (key, geometry, options) => part(key, place(geometry, x, z, yaw), options);
-    const R = 0.2, seatY = 0.46;
-    P("bentwood", new THREE.CylinderGeometry(R, R - 0.004, 0.034, 36).translate(0, seatY - 0.01, 0), { tile: 0.6 }); // the seat frame
+    const P = (key, geometry, options) => { const placed = place(geometry, x, z, yaw); part(key, placed, options); return placed; };
+    const point = (px, py, pz) => { const p = new THREE.Vector3(px, py, pz).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw); return { x: p.x + x, y: p.y, z: p.z + z }; };
+    const chairName = `window-chair-${x.toFixed(2)}-${z.toFixed(2)}`;
+    const R = 0.2, seatY = 0.46, legRingRadius = 0.1725, backOvalRadius = 0.128;
+    const seatFrame = P("bentwood", new THREE.CylinderGeometry(R, R - 0.004, 0.034, 36).translate(0, seatY - 0.01, 0), { tile: 0.6 }); // the seat frame
+    seatFrame.computeBoundingBox();
+    const seatSupport = { shape: "circle", x, z, radius: R - 0.004, y: seatFrame.boundingBox.min.y };
     P("cane", new THREE.CylinderGeometry(R - 0.022, R - 0.022, 0.006, 36).translate(0, seatY + 0.009, 0), { tile: 0.2 }); // the woven top
     P("bentwood", new THREE.TorusGeometry(R - 0.018, 0.008, 8, 36).rotateX(Math.PI / 2).translate(0, seatY + 0.008, 0), { tile: 0.6 });
     // The legs stand INSIDE the seat's outline and run up into its frame (Paul: legs that only touch the seat's edge look generated; it was the first thing wrong with Room 03's
     // chairs too). Before, the four legs were centred 0.207 m from the seat's axis on a 0.2 m seat, so they only brushed its rim, and the leg ring (0.168 m) hung inside them.
     // Now every leg is 0.175 m from the axis, its top is inside the seat frame, a small collar hides the joint, and the ring touches all four legs.
     for (const [lx, lz] of [[-0.123, 0.123], [0.123, 0.123]]) {
-      P("bentwood", new THREE.CylinderGeometry(0.0185, 0.011, seatY + 0.004, 12).translate(lx, (seatY + 0.004) / 2, lz), { tile: 0.6 });
+      const leg = P("bentwood", new THREE.CylinderGeometry(0.0185, 0.011, seatY + 0.004, 12).translate(lx, (seatY + 0.004) / 2, lz), { tile: 0.6 });
+      leg.computeBoundingBox();
+      const tip = point(lx, leg.boundingBox.max.y, lz);
+      registerSupport(`${chairName}-front-${lx}-seat`, "embed", { tip, surface: seatSupport });
+      registerSupport(`${chairName}-front-${lx}-ground`, "ground", { bottomY: leg.boundingBox.min.y });
+      const radial = Math.hypot(lx, lz), ring = point(lx * legRingRadius / radial, 0.2, lz * legRingRadius / radial);
+      registerSupport(`${chairName}-front-${lx}-ring`, "join", { a: point(lx, 0.2, lz), b: ring, radiusA: 0.015, radiusB: 0.0075 });
       P("bentwood", new THREE.CylinderGeometry(0.0235, 0.0235, 0.012, 12).translate(lx, seatY - 0.034, lz), { tile: 0.6 }); // the collar under the seat frame
     }
     for (const sx of [-1, 1]) {
-      P("bentwood", tubeGeometry([[0.123 * sx, 0, -0.123], [0.124 * sx, 0.24, -0.126], [0.13 * sx, 0.46, -0.134], [0.152 * sx, 0.66, -0.188], [0.142 * sx, 0.84, -0.205], [0.112 * sx, 0.935, -0.21]], 0.0145, 30, 10), { tile: 0.6 });
+      const postPoints = [[0.123 * sx, 0, -0.123], [0.124 * sx, 0.24, -0.126], [0.13 * sx, 0.46, -0.134], [0.152 * sx, 0.66, -0.188], [0.142 * sx, 0.84, -0.205], [0.112 * sx, 0.935, -0.21]];
+      const postCurve = new THREE.CatmullRomCurve3(postPoints.map((p) => new THREE.Vector3(...p)));
+      const post = P("bentwood", new THREE.TubeGeometry(postCurve, 30, 0.0145, 10, false), { tile: 0.6 });
+      post.computeBoundingBox();
+      const atRing = postCurve.getPoints(100).reduce((best, p) => Math.abs(p.y - 0.2) < Math.abs(best.y - 0.2) ? p : best),
+        atBack = postCurve.getPoints(100).reduce((best, p) => Math.abs(p.y - 0.76) < Math.abs(best.y - 0.76) ? p : best);
+      registerSupport(`${chairName}-rear-${sx}-seat`, "embed", { tip: point(0.13 * sx, 0.46, -0.134), surface: seatSupport });
+      registerSupport(`${chairName}-rear-${sx}-ground`, "ground", { bottomY: post.boundingBox.min.y });
+      const radial = Math.hypot(atRing.x, atRing.z);
+      registerSupport(`${chairName}-rear-${sx}-ring`, "join", { a: point(atRing.x, atRing.y, atRing.z), b: point(atRing.x * legRingRadius / radial, 0.2, atRing.z * legRingRadius / radial), radiusA: 0.0145, radiusB: 0.0075 });
+      registerSupport(`${chairName}-back-${sx}-oval`, "join", { a: point(atBack.x, atBack.y, atBack.z), b: point(backOvalRadius * sx, 0.76, -0.196), radiusA: 0.0145, radiusB: 0.0075 });
       P("bentwood", new THREE.CylinderGeometry(0.0235, 0.0235, 0.012, 12).translate(0.123 * sx, seatY - 0.034, -0.123), { tile: 0.6 });
     }
     P("bentwood", tubeGeometry([[-0.112, 0.935, -0.21], [-0.06, 0.968, -0.222], [0, 0.976, -0.226], [0.06, 0.968, -0.222], [0.112, 0.935, -0.21]], 0.0145, 20, 10), { tile: 0.6 }); // the top bow
     // The oval in the back now spans the full gap between the two posts and runs into them (Paul: the back was not one continuous line, there was a gap). At y = 0.76 the posts
     // are 0.147 m out with a 0.0145 m tube, so their inner faces are at 0.1325 m; the ring (radius 0.128 + tube 0.0075) now overlaps them. Two short tie rods lock the ring to the
     // posts at its widest points, and the cane fills the ring.
-    P("bentwood", new THREE.TorusGeometry(0.128, 0.0075, 8, 40).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
+    P("bentwood", new THREE.TorusGeometry(backOvalRadius, 0.0075, 8, 40).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
     P("cane", new THREE.CylinderGeometry(0.12, 0.12, 0.004, 32).scale(1, 1, 0.62).rotateX(Math.PI / 2).translate(0, 0.76, -0.196), { tile: 0.2 });
     for (const sx of [-1, 1]) P("bentwood", rodGeometry([0.118 * sx, 0.76, -0.196], [0.152 * sx, 0.76, -0.196], 0.007, 8), { tile: 0.6 });
-    P("bentwood", new THREE.TorusGeometry(0.1725, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, 0), { tile: 0.6 }); // the leg ring, touching all four legs
+    P("bentwood", new THREE.TorusGeometry(legRingRadius, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, 0), { tile: 0.6 }); // the leg ring, touching all four legs
     addContactShadow(x, z, 0.48, 0.48, 0.015);
   };
   chair(SEAT.x, SEAT.z + 0.62, Math.PI);
@@ -1218,7 +1252,8 @@ export async function start({ stage, onReady = () => {} }) {
   part("oak", place(new THREE.CylinderGeometry(0.3, 0.3, 0.03, 48).translate(0, 0.725, 0), SEAT.x, SEAT.z), { tile: 0.9 });
   part("oak", place(new THREE.TorusGeometry(0.3, 0.0105, 8, 48).rotateX(Math.PI / 2).translate(0, 0.725, 0), SEAT.x, SEAT.z), { tile: 0.9 });
   part("iron", place(new THREE.LatheGeometry([[0.0005, 0.7], [0.04, 0.7], [0.026, 0.64], [0.02, 0.4], [0.034, 0.12], [0.06, 0.05], [0.0005, 0.05]].map((p) => new THREE.Vector2(p[0], p[1])), 24), SEAT.x, SEAT.z), { tile: 1 });
-  part("iron", place(new THREE.CylinderGeometry(0.21, 0.23, 0.02, 40).translate(0, 0.01, 0), SEAT.x, SEAT.z), { tile: 1 });
+  const windowTableBase = part("iron", place(new THREE.CylinderGeometry(0.21, 0.23, 0.02, 40).translate(0, 0.01, 0), SEAT.x, SEAT.z), { tile: 1 });
+  windowTableBase.computeBoundingBox(); registerSupport("window-table-base-ground", "ground", { bottomY: windowTableBase.boundingBox.min.y });
   const tableTop = 0.74, tx = (dx) => SEAT.x + dx, tz = (dz) => SEAT.z + dz;
   // The window-seat cup uses the same ceramic form as the counter and machine.
   ceramicCup({ x: tx(0.13), y: tableTop, z: tz(-0.06), scale: 1.1, coffee: true });
@@ -1260,6 +1295,11 @@ export async function start({ stage, onReady = () => {} }) {
   // Shelf things: four plates and two mugs on the lower shelf; two jars with oak lids and a trailing pothos on the upper one.
   {
     const lower = 1.75 + 0.035, upper = 2.15 + 0.035, zS = BACK + 0.13;
+    const shelfSupport = (y) => ({ shape: "rect", x0: -2.5, x1: -1, z0: BACK, z1: BACK + 0.24, y });
+    for (const [x, y, radius] of [[-2.34, upper, 0.056], [-2.17, upper, 0.056], [-2.02, upper, 0.056],
+      [-1.68, upper, 0.043], [-1.54, upper, 0.043], [-2.14, lower, 0.043], [-2.0, lower, 0.043]]) {
+      registerSupport(`shelf-cup-or-canister-${x}-${y}`, "rest", { base: { x, y, z: zS, radius }, surface: shelfSupport(y) });
+    }
     // The shelves, dressed like a real international cafe (Paul: fewer identical white cups; mugs, canisters and colourful tumblers, a few cute things). Everything is vertex-coloured into
     // the existing batch. No brand names or logos anywhere: the souvenir-style mugs carry a city skyline and a wave band only.
     const tint = (g, hex) => part("loungeDetail", colorize(g, hex), { tile: 1 });
@@ -1303,6 +1343,7 @@ export async function start({ stage, onReady = () => {} }) {
     // (y >= shelf top) until its z is past the front edge; the lowest tip is 0.30 m under the shelf top, above the mugs on the lower shelf.
     {
       const potX = -1.42, edgeZ = BACK + 0.24, soilY = upper + 0.098;
+      registerSupport("pothos-pot-on-shelf", "rest", { base: { x: potX, y: upper, z: zS, radius: 0.05 }, surface: shelfSupport(upper) });
       tint(new THREE.LatheGeometry([[0.0005, 0], [0.05, 0], [0.07, 0.11], [0.064, 0.11], [0.0005, 0.1]].map((p) => new THREE.Vector2(p[0], p[1])), 22).translate(potX, upper, zS), 0xf4f0e6);
       tint(new THREE.CircleGeometry(0.064, 20).rotateX(-Math.PI / 2).translate(potX, soilY, zS), 0x3a2a1e);
       let seed = 14; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -1313,6 +1354,8 @@ export async function start({ stage, onReady = () => {} }) {
         const pts = [[vx, soilY - 0.004, zS - 0.005 + (rnd() - 0.5) * 0.02], [vx, upper + 0.125, zS + 0.05], [vx + lean * 0.2, upper + 0.12, zS + 0.088], [vx + lean * 0.4, upper + 0.07, edgeZ + 0.014],
           [vx + lean * 0.7, upper - 0.05, edgeZ + 0.02], [vx + lean, upper - drop, edgeZ + 0.024]];
         const curve = new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(...p)));
+        registerSupport(`pothos-vine-${v}-shelf`, "barrier", { points: curve.getPoints(80).map((p) => ({ x: p.x, y: p.y, z: p.z })), radius: 0.0028,
+          box: { x0: -2.5, x1: -1, y0: 2.15, y1: upper, z0: BACK, z1: BACK + 0.24 } });
         tint(new THREE.TubeGeometry(curve, 16, 0.0028, 5, false), 0x3f6a33);
         for (let k = 0; k < 7; k++) {
           const t = 0.42 + (k / 6) * 0.56, p = curve.getPoint(t), side = k % 2 ? 1 : -1, size = 0.78 + rnd() * 0.5;
@@ -1368,7 +1411,11 @@ export async function start({ stage, onReady = () => {} }) {
         const n1 = Math.sin((i + 1) * 12.9898) * 43758.5453, n2 = Math.sin((i + 1) * 78.233) * 12345.6789, r1 = n1 - Math.floor(n1), r2 = n2 - Math.floor(n2);
         const rb = Math.sqrt((i + 0.5) / 46) * 0.02, a0 = i * 2.39996, h = 0.175 + r2 * 0.03, total = h - baH, atRim = (rimH - baH) / total;
         const maxLean = (0.031 - rb) / atRim, lean = Math.min(0.02, maxLean) * (0.3 + 0.7 * r1), a1 = a0 + (r2 - 0.5) * 0.8; // leans mostly outward, never through the wall
-        part("loungeDetail", colorize(rodGeometry([hx + Math.cos(a0) * rb, top + baH, hz + Math.sin(a0) * rb], [hx + Math.cos(a0) * rb + Math.cos(a1) * lean, top + h, hz + Math.sin(a0) * rb + Math.sin(a1) * lean], 0.0021, 5), strawColors[i % 6]), { tile: 1 });
+        const strawStart = { x: hx + Math.cos(a0) * rb, y: top + baH, z: hz + Math.sin(a0) * rb };
+        const strawEnd = { x: strawStart.x + Math.cos(a1) * lean, y: top + h, z: strawStart.z + Math.sin(a1) * lean };
+        part("loungeDetail", colorize(rodGeometry([strawStart.x, strawStart.y, strawStart.z], [strawEnd.x, strawEnd.y, strawEnd.z], 0.0021, 5), strawColors[i % 6]), { tile: 1 });
+        registerSupport(`straw-${i}-inside-holder`, "rim", { start: { ...strawStart, z: strawStart.z + partShift },
+          end: { ...strawEnd, z: strawEnd.z + partShift }, rim: { x: hx, y: top + rimH, z: hz + partShift, radius: 0.034 }, tubeRadius: 0.0021 });
       }
     }
     partShift = counterShift(-0.92);
@@ -1387,6 +1434,8 @@ export async function start({ stage, onReady = () => {} }) {
     // screen (a canvas, lit like a display), and a contactless pad in front with a cyan ring. It moved from x 0.55 to 0.90 so the record player could take the middle.
     partShift = 0; // the counter is straight here (x > 0.5), and everything built after this point (front wall, prints, doors) must not inherit the S-curve's shift
     const POS_X = 0.9, posZ = c.z1 - 0.2;
+    registerSupport("checkout-on-counter", "rest", { base: { x: POS_X, y: top, z: posZ, radius: 0.078 },
+      surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
     part("black", new THREE.CylinderGeometry(0.068, 0.078, 0.016, 28).translate(POS_X, top + 0.008, posZ), { tile: 1 });
     part("steel", new THREE.CylinderGeometry(0.014, 0.018, 0.1, 14).translate(POS_X, top + 0.066, posZ), { tile: 1 });
     part("steel", rodGeometry([POS_X, top + 0.1, posZ], [POS_X, top + 0.135, posZ - 0.018], 0.011), { tile: 1 });
@@ -1543,7 +1592,10 @@ export async function start({ stage, onReady = () => {} }) {
       const w = pr.h * PRINT_ASPECT[pr.i], fw = 0.035, mat = 0.05, ow = w + 2 * (fw + mat), oh = pr.h + 2 * (fw + mat);
       const box3 = (key, a0, a1, y0, y1, d0, d1, grain) => (pr.wall === "front" ? slab(key, [a0, a1], [y0, y1], [FW - d1, FW - d0], { grain }) : slab(key, [X0 + d0, X0 + d1], [y0, y1], [a0, a1], { grain }));
       const a0 = pr.p - ow / 2, a1 = pr.p + ow / 2, y0 = pr.y - oh / 2, y1 = pr.y + oh / 2;
-      box3(pr.frame, a0, a1, y1 - fw, y1, 0, 0.03, "x"); box3(pr.frame, a0, a1, y0, y0 + fw, 0, 0.03, "x");
+      registerSupport(`wall-print-${pr.i}-frame-shift`, "reset", { value: partShift });
+      const printTopBar = box3(pr.frame, a0, a1, y1 - fw, y1, 0, 0.03, "x");
+      printTopBar.computeBoundingBox(); registerSupport(`wall-print-${pr.i}-wall`, "wall", { back: pr.wall === "front" ? printTopBar.boundingBox.max.z : printTopBar.boundingBox.min.x, plane: pr.wall === "front" ? FW : X0 });
+      box3(pr.frame, a0, a1, y0, y0 + fw, 0, 0.03, "x");
       box3(pr.frame, a0, a0 + fw, y0 + fw, y1 - fw, 0, 0.03, "y"); box3(pr.frame, a1 - fw, a1, y0 + fw, y1 - fw, 0, 0.03, "y");
       box3("paper", a0 + fw, a1 - fw, y0 + fw, y1 - fw, 0, 0.008, "y");
     }
@@ -1781,6 +1833,7 @@ export async function start({ stage, onReady = () => {} }) {
       part(key, new THREE.CylinderGeometry(r, base, h, 32).translate(x, y, z));
     const detail = (g, color) => part("loungeDetail", colorize(g, color));
     const bx = 2.86, bz = 1.18;
+    registerSupport("lounge-banquette-plinth-ground", "ground", { bottomY: 0 });
     boxPart("oakDeep", 0.47, 0.07, 1.81, bx + 0.02, 0.035, bz);
     boxPart("oak", 0.55, 0.34, 1.9, bx, 0.23, bz, 0.035);
     boxPart("oak", 0.07, 0.47, 1.9, bx + 0.23, 0.615, bz, 0.025);
@@ -1810,13 +1863,24 @@ export async function start({ stage, onReady = () => {} }) {
 
     const ax = 1.60, az = 2.28;
     const chairPart = (key, g) => part(key, place(g, ax, az, Math.PI, 0.012));
+    const armchairLegTips = [];
     for (const side of [-1, 1]) {
-      for (const end of [-1, 1]) chairPart("oakDeep", rodGeometry(
-        [side * 0.304, 0.003, end * 0.287], [side * 0.265, 0.35, end * 0.241], 0.025));
+      for (const end of [-1, 1]) {
+        const upper = [side * 0.265, 0.35, end * 0.241];
+        const leg = chairPart("oakDeep", rodGeometry([side * 0.304, 0.003, end * 0.287], upper, 0.025));
+        leg.computeBoundingBox();
+        const label = `lounge-armchair-leg-${side}-${end}`;
+        armchairLegTips.push({ name: `${label}-seat`, tip: { x: ax - upper[0], y: upper[1] + 0.012, z: az - upper[2] } });
+        registerSupport(`${label}-ground`, "ground", { bottomY: leg.boundingBox.min.y });
+      }
       chairPart("oakDeep", tubeGeometry([[side * 0.31, 0.34, 0.23], [side * 0.343, 0.61, 0.22],
         [side * 0.343, 0.63, -0.05], [side * 0.31, 0.59, -0.27]], 0.029));
     }
-    chairPart("oak", roundedBox(0.66, 0.09, 0.61, 0.034, 0.012).translate(0, 0.315, 0));
+    const armchairSeat = chairPart("oak", roundedBox(0.66, 0.09, 0.61, 0.034, 0.012).translate(0, 0.315, 0));
+    armchairSeat.computeBoundingBox();
+    const armchairSupport = { shape: "rect", x0: armchairSeat.boundingBox.min.x, x1: armchairSeat.boundingBox.max.x,
+      z0: armchairSeat.boundingBox.min.z, z1: armchairSeat.boundingBox.max.z, y: armchairSeat.boundingBox.min.y };
+    for (const { name, tip } of armchairLegTips) registerSupport(name, "embed", { tip, surface: armchairSupport });
     chairPart("loungeAccent", cushionGeometry(0.615, 0.105, 0.55, 0.009).translate(0, 0.377, 0.026));
     detail(cushionWeltGeometry(0.615, 0.55, 0.381, ax, az - 0.026, 0.0045), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0]);
     chairPart("loungeAccent", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
@@ -1824,7 +1888,8 @@ export async function start({ stage, onReady = () => {} }) {
     addContactShadow(ax, az, 0.74, 0.72, 0.0135);
 
     const px = 1.61, pz = 1.52;
-    disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
+    const footstoolBase = disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
+    footstoolBase.computeBoundingBox(); registerSupport("lounge-footstool-plinth-ground", "ground", { bottomY: footstoolBase.boundingBox.min.y });
     const profile = [[0, 0.05], [0.18, 0.05], [0.214, 0.075], [0.225, 0.13], [0.225, 0.29],
       [0.21, 0.333], [0.175, 0.351], [0, 0.36]];
     detail(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y + 0.012)), 40)
@@ -1838,7 +1903,10 @@ export async function start({ stage, onReady = () => {} }) {
     for (const [z, surface] of [[0.77, "stone"], [1.48, "oak"]]) {
       disc(surface, tx, 0.431, z, 0.275, 0.038, 0.265);
       if (surface === "stone") {
-        disc("oakDeep", tx, 0.022, z, 0.183, 0.022);
+        const tableBase = disc("oakDeep", tx, 0.022, z, 0.183, 0.022);
+        tableBase.computeBoundingBox(); registerSupport("lounge-stone-table-base-ground", "ground", { bottomY: tableBase.boundingBox.min.y });
+        registerSupport("lounge-stone-table-column-top", "embed", { tip: { x: tx, y: 0.218 + 0.401 / 2, z },
+          surface: { shape: "circle", x: tx, z, radius: 0.265, y: 0.431 - 0.038 / 2 } });
         disc("oak", tx, 0.218, z, 0.082, 0.401, 0.106);
         for (let i = 0; i < 16; i++) {
           const a = i * Math.PI / 8;
@@ -1848,8 +1916,11 @@ export async function start({ stage, onReady = () => {} }) {
       } else {
         for (let i = 0; i < 3; i++) {
           const a = i * Math.PI * 2 / 3;
-          part("oakDeep", rodGeometry([tx + 0.19 * Math.cos(a), 0.012, z + 0.19 * Math.sin(a)],
+          registerSupport(`lounge-oak-table-leg-${i}-top`, "embed", { tip: { x: tx + 0.108 * Math.cos(a), y: 0.418, z: z + 0.108 * Math.sin(a) },
+            surface: { shape: "circle", x: tx, z, radius: 0.265, y: 0.431 - 0.038 / 2 } });
+          const tableLeg = part("oakDeep", rodGeometry([tx + 0.19 * Math.cos(a), 0.012, z + 0.19 * Math.sin(a)],
             [tx + 0.108 * Math.cos(a), 0.418, z + 0.108 * Math.sin(a)], 0.022));
+          tableLeg.computeBoundingBox(); registerSupport(`lounge-oak-table-leg-${i}-ground`, "ground", { bottomY: tableLeg.boundingBox.min.y });
         }
       }
       // Different things on the two tables (Paul: two identical sets look fake). Marble table: a tablet turned a little and a card holder. Oak table: a closed notebook with a
@@ -1872,7 +1943,8 @@ export async function start({ stage, onReady = () => {} }) {
     const sx = 2.18, sz = 2.34;
     addContactShadow(1.61, 1.52, 0.52, 0.52, 0.0135);
     disc("oak", sx, 0.512, sz, 0.165, 0.036);
-    disc("oakDeep", sx, 0.023, sz, 0.11, 0.022);
+    const sideTableBase = disc("oakDeep", sx, 0.023, sz, 0.11, 0.022);
+    sideTableBase.computeBoundingBox(); registerSupport("lounge-side-table-base-ground", "ground", { bottomY: sideTableBase.boundingBox.min.y });
     disc("oakDeep", sx, 0.26, sz, 0.022, 0.48);
     boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, 0.535, sz);
     detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, 0.540, sz), 0x627b87);
@@ -1978,9 +2050,13 @@ export async function start({ stage, onReady = () => {} }) {
       const prints = [[1.33, "../kitchen/art/room03-print-poster-leaf-v1.webp", null], [1.70, "../tex/left-wall-harbor-dusk-v1.webp", [0.75, 0.125]], [2.07, "../kitchen/art/room03-print-poster-sun-v1.webp", null]];
       for (const [z, file, crop] of prints) {
         const bar = (h, d, y, zz) => part("oakDeep", new THREE.BoxGeometry(0.024, h, d).translate(WALL_X - 0.017, y, zz), { tile: 0.5 }); // plain boxes: a frame bar needs no rounded edge at this size
-        bar(FW2, PW + 2 * FW2, PY + PH / 2 + FW2 / 2, z); bar(FW2, PW + 2 * FW2, PY - PH / 2 - FW2 / 2, z); bar(PH, FW2, PY, z - PW / 2 - FW2 / 2); bar(PH, FW2, PY, z + PW / 2 + FW2 / 2);
+        const topBar = bar(FW2, PW + 2 * FW2, PY + PH / 2 + FW2 / 2, z);
+        bar(FW2, PW + 2 * FW2, PY - PH / 2 - FW2 / 2, z); bar(PH, FW2, PY, z - PW / 2 - FW2 / 2); bar(PH, FW2, PY, z + PW / 2 + FW2 / 2);
         const material = new THREE.MeshStandardMaterial({ color: 0xe4d7bb, roughness: 0.85 }); // cream mat until the picture arrives
-        add("lounge-print-" + z, new THREE.PlaneGeometry(PW, PH).rotateY(-Math.PI / 2).translate(WALL_X - 0.0295, PY, z), material, 0, 0, 0, { cast: false });
+        const print = add("lounge-print-" + z, new THREE.PlaneGeometry(PW, PH).rotateY(-Math.PI / 2).translate(WALL_X - 0.0295, PY, z), material, 0, 0, 0, { cast: false });
+        topBar.computeBoundingBox(); print.geometry.computeBoundingBox();
+        registerSupport(`lounge-print-${z}-inside-frame`, "join", { a: { x: print.geometry.boundingBox.min.x, y: print.geometry.boundingBox.max.y, z },
+          b: { x: topBar.boundingBox.min.x, y: topBar.boundingBox.min.y, z: (topBar.boundingBox.min.z + topBar.boundingBox.max.z) / 2 } });
         afterFirstFrame.push(() => textureLoader.load(new URL(file, import.meta.url).href, (t) => {
           t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; if (crop) { t.repeat.set(crop[0], 1); t.offset.set(crop[1], 0); }
           material.map = t; material.color.set(0xffffff); material.needsUpdate = true; render();
@@ -1995,6 +2071,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   // Kyoto-style slow drip tower: its 22 x 18 cm plinth sits fully inside the measured stone top.
   const DRIP = Object.freeze({ x: -2.41, z: BACK + 0.36, width: 0.22, depth: 0.18, height: 0.6, barTop: BACK_BAR.height });
+  registerSupport("drip-tower-on-back-bar", "rest", { base: { x: DRIP.x, y: DRIP.barTop, z: DRIP.z, radius: DRIP.width / 2 }, surface: backBarSupport });
   const dripBaseY = DRIP.barTop, dripBaseThickness = 0.022, dripBaseTop = dripBaseY + dripBaseThickness;
   const dripTopY = dripBaseY + DRIP.height, dripFrameX = [DRIP.x - 0.097, DRIP.x + 0.097];
   const boxAt = (key, width, height, depth, x, y, z, tile = 0.45) => part(key, new THREE.BoxGeometry(width, height, depth).translate(x, y, z), { tile });
@@ -2104,7 +2181,23 @@ export async function start({ stage, onReady = () => {} }) {
     for (const kind of Object.keys(stoolSets)) {
       const lb = lampBuilder();
       for (const [x, z, yaw] of POS) {
-        const at = (g) => g.rotateY(yaw).translate(x, 0, z + counterShift(x)), lp = lb.lp, legs = (key, top, radius) => { for (let k = 0; k < 4; k++) { const a = (k / 4) * Math.PI * 2 + Math.PI / 4; lp(key, at(rodGeometry([Math.cos(a) * 0.205, 0, Math.sin(a) * 0.205], [Math.cos(a) * 0.15, top, Math.sin(a) * 0.15], radius, 10))); } };
+        const at = (g) => g.rotateY(yaw).translate(x, 0, z + counterShift(x)), lp = lb.lp;
+        const atPoint = (r, a, y) => ({ x: x + r * Math.cos(a + yaw), y, z: z + counterShift(x) + r * Math.sin(a + yaw) });
+        const legs = (key, top, radius) => {
+          const seatRadius = kind === "bentwood" ? 0.19 : kind === "leather" ? 0.175 : 0.17;
+          const seatBottom = kind === "bentwood" ? 0.63 : kind === "leather" ? 0.58 : 0.61;
+          const ringY = kind === "bentwood" ? 0.22 : kind === "leather" ? 0.25 : 0.2;
+          for (let k = 0; k < 4; k++) {
+            const a = (k / 4) * Math.PI * 2 + Math.PI / 4;
+            const stoolLeg = at(rodGeometry([Math.cos(a) * 0.205, 0, Math.sin(a) * 0.205], [Math.cos(a) * 0.15, top, Math.sin(a) * 0.15], radius, 10));
+            lp(key, stoolLeg); stoolLeg.computeBoundingBox();
+            const label = `bar-stool-${kind}-${x}-${k}`;
+            registerSupport(`${label}-seat`, "embed", { tip: atPoint(0.15, a, top), surface: { shape: "circle", x, z: z + counterShift(x), radius: seatRadius, y: seatBottom } });
+            registerSupport(`${label}-ground`, "ground", { bottomY: stoolLeg.boundingBox.min.y });
+            registerSupport(`${label}-ring`, "join", { a: atPoint(0.205 + (0.15 - 0.205) * ringY / top, a, ringY),
+              b: atPoint(rail(0.205, ringY), a, ringY), radiusA: radius, radiusB: kind === "leather" ? 0.011 : kind === "bentwood" ? 0.009 : 0.008 });
+          }
+        };
         if (kind === "bentwood") {
           legs("bentwood", 0.63, 0.015);
           lp("cane", at(new THREE.CylinderGeometry(0.19, 0.19, 0.02, 36).translate(0, 0.64, 0))); lp("bentwood", at(new THREE.TorusGeometry(0.19, 0.014, 8, 36).rotateX(Math.PI / 2).translate(0, 0.652, 0)));
@@ -2503,6 +2596,7 @@ export async function start({ stage, onReady = () => {} }) {
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),
     playDrip, stopDrip, dripPlaying: () => dripPlaying,
     dripState: () => ({ playing: dripPlaying, dropsVisible: dripDrops.visible, liquidRiseMm: Math.round((dripLiquid.scale.y * 0.04 - DRIP_INITIAL_LEVEL) * 1000), dropScales: [...dripDropScales], dropPositions: dripDropPositions.map((position) => position.toArray()), renderFrame: frames }),
+    physicsAudit: () => auditRoom04([...auditEntries, { name: "wall-art-part-shift-reset", kind: "reset", value: partShift }]),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     beansVisible: () => beansMesh?.count ?? 0, robotHop, setView, view: () => viewName, views: () => Object.keys(STATIONS), setCenterView, centerLook, isCenter: () => viewName === "middle",
