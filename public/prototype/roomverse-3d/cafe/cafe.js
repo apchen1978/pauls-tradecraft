@@ -1323,6 +1323,7 @@ export async function start({ stage, onReady = () => {} }) {
     part("gold", new THREE.SphereGeometry(0.012, 10, 8).translate(-0.12, top + 0.14, c.z1 - 0.13), { tile: 1 });
     // The checkout terminal (Paul: next to the pastry case, and more high-tech): a slim steel arm on a weighted dark base, a thin-bezel glass screen with a drawn point-of-sale
     // screen (a canvas, lit like a display), and a contactless pad in front with a cyan ring. It moved from x 0.55 to 0.90 so the record player could take the middle.
+    partShift = 0; // the counter is straight here (x > 0.5), and everything built after this point (front wall, prints, doors) must not inherit the S-curve's shift
     const POS_X = 0.9, posZ = c.z1 - 0.2;
     part("black", new THREE.CylinderGeometry(0.068, 0.078, 0.016, 28).translate(POS_X, top + 0.008, posZ), { tile: 1 });
     part("steel", new THREE.CylinderGeometry(0.014, 0.018, 0.1, 14).translate(POS_X, top + 0.066, posZ), { tile: 1 });
@@ -2327,6 +2328,7 @@ export async function start({ stage, onReady = () => {} }) {
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
         robot: (() => { const top = new THREE.Box3().setFromObject(robot).max.y; return { headTopMm: Math.round(top * 1000), aboveCounterMm: Math.round((top - COUNTER.height) * 1000) }; })(),
+        partShiftLeft: partShift, // must be 0 once the room is built: a leftover counter-curve shift moves every wall frame away from its print
         recordPlayer: { widthMm: Math.round(RECORD.width * 1000), depthMm: Math.round(RECORD.depth * 1000), heightMm: Math.round(RECORD.height * 1000), xMm: Math.round(RECORD.x * 1000), zMm: Math.round(RECORD.z * 1000), vertices: platterPivot.children[0].geometry.attributes.position.count + armPivot.children[0].geometry.attributes.position.count, attached: platterPivot.parent === scene && armPivot.parent === scene, playing: recordPlaying },
         blockout,
       };

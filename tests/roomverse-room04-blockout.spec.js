@@ -443,3 +443,11 @@ for (const width of [1440, 390]) {
     expect(errors).toEqual([]);
   });
 }
+
+test("Room 04 builds with no leftover counter shift, so every wall frame stays on its print", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const info = await page.evaluate(() => window.__room04.info());
+  expect(info.partShiftLeft, "a counter-curve shift left switched on would move frames, doors and rugs").toBe(0);
+  expect(info.art.filter((name) => /room04-print-p[1-8]-/.test(name)).length, "the eight prints have loaded").toBe(8);
+  expect(errors).toEqual([]);
+});
