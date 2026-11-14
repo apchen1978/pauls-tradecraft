@@ -224,6 +224,25 @@ test("Room 04 lounge upholstery swaps preserve drawing cost", async ({ page }) =
   }
 });
 
+test("Room 04 lounge plant grows from its soil and stays clear of the wall and banquette", async ({ page }) => {
+  await open(page, 1440);
+  const { loungePlantFit: plant } = await page.evaluate(() => window.__room04.info());
+  expect(plant.stemRoots).toHaveLength(6);
+  for (const root of plant.stemRoots) {
+    expect(root.depthMm).toBe(20);
+    expect(root.radiusMm).toBeLessThanOrEqual(100);
+  }
+  expect(plant.branchJoins).toHaveLength(12);
+  for (const join of plant.branchJoins) {
+    expect(join.distanceMm).toBe(0);
+    expect(join.overlapMm).toBeGreaterThanOrEqual(3);
+  }
+  expect(plant.leafCount).toBe(108);
+  expect(plant.leafPrototypeVertices).toBe(15);
+  expect(plant.leafBoundsMm.xMax).toBeLessThanOrEqual(3195); // right wall is x = 3200 mm
+  expect(plant.leafBoundsMm.zMin).toBeGreaterThan(2150); // banquette ends near z = 2130 mm
+});
+
 test("Room 04 skips the shadow pass when nothing shadow-casting changes", async ({ page }) => {
   await open(page, 390);
   const counts = await page.evaluate(() => window.__room04.shadowDrawCalls());
