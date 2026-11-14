@@ -1065,11 +1065,12 @@ export async function start({ stage, onReady = () => {} }) {
     ceramicCup({ x: GREETER_CUP.x, y: c.height, z: GREETER_CUP.z, scale: 1.18, coffee: true, latte: true });
   }
   const baristaRobot = new THREE.Group(); baristaRobot.name = "robot-barista-machine";
+  let baristaPose = null;
   const PITCHER = new THREE.Vector3(mx + MACHINE.W / 2 + 0.04, machineY0 + 0.135, machineFront + 0.125); // where the wand tip sits: inside the pitcher
   {
     const RB = { x: -0.5, z: -1.62 }, yaw = Math.atan2(PITCHER.x - RB.x, PITCHER.z - RB.z); // it faces the wand
     pedestal(RB.x, RB.z);
-    const barista = buildRobot(baristaRobot);
+    const barista = baristaPose = buildRobot(baristaRobot);
     barista.local.position.set(RB.x, EGG_BASE, RB.z); barista.local.rotation.y = yaw; barista.local.scale.setScalar(ROBOT_SCALE); baristaRobot.updateMatrixWorld(true);
     const hand = barista.local.worldToLocal(PITCHER.clone());
     barista.limb([0.19, 0.36, 0.05], [hand.x, hand.y, hand.z]); // the right arm reaches the pitcher under the wand
@@ -1081,6 +1082,88 @@ export async function start({ stage, onReady = () => {} }) {
     part("steel", new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI).rotateZ(-Math.PI / 2).translate(PITCHER.x + 0.036, PITCHER.y - 0.005, PITCHER.z), { tile: 1 });
     part("lid", new THREE.CylinderGeometry(0.03, 0.03, 0.003, 20).translate(PITCHER.x, PITCHER.y + 0.036, PITCHER.z), { tile: 1 });
   }
+
+  // A 36 x 28 cm oak turntable at the far left of the back bar. The 4 cm gap to the grinder
+  // keeps its controls clear; the whole footprint stays on the stone top and inside its edge.
+  const RECORD = { x: -2.41, z: BACK + 0.36, width: 0.36, depth: 0.28, barTop, height: 0.11 };
+  const recordBaseY = barTop + 0.006, recordBaseH = 0.067, recordDeckY = recordBaseY + recordBaseH;
+  const plinth = new THREE.BoxGeometry(RECORD.width, recordBaseH, RECORD.depth).translate(RECORD.x, recordBaseY + recordBaseH / 2, RECORD.z);
+  part("oak", plinth, { tile: 0.45 });
+  // A recessed dark reveal and a fine oak lid line give the timber body a machined, furniture-like edge.
+  part("oakDeep", new THREE.BoxGeometry(0.344, 0.006, 0.264).translate(RECORD.x, recordBaseY + 0.014, RECORD.z), { tile: 0.5 });
+  part("oak", new THREE.BoxGeometry(0.35, 0.009, 0.274).translate(RECORD.x, recordDeckY - 0.003, RECORD.z), { tile: 0.5 });
+  const platterSupportY = recordDeckY + 0.004;
+  part("steel", new THREE.CylinderGeometry(0.132, 0.132, 0.008, 32).translate(RECORD.x, platterSupportY, RECORD.z), { tile: 1 });
+  const platterPivot = new THREE.Group(); platterPivot.name = "slowly-record-platter-pivot";
+  const platterParts = [
+    colorize(new THREE.CylinderGeometry(0.125, 0.125, 0.006, 28), 0x131416),
+    colorize(new THREE.CylinderGeometry(0.113, 0.113, 0.0015, 28).translate(0, 0.00375, 0), 0x090a0b),
+    colorize(new THREE.TorusGeometry(0.091, 0.00045, 3, 24).rotateX(Math.PI / 2).translate(0, 0.0048, 0), 0x252729),
+    colorize(new THREE.CylinderGeometry(0.023, 0.023, 0.0018, 24).translate(0, 0.005, 0), 0xb77b35),
+  ];
+  const labelMarks = [
+    [[-0.008, 0.0062, 0.005], [0.008, 0.0062, 0.005]], [[-0.009, 0.0062, 0.001], [0.006, 0.0062, 0.001]],
+    [[-0.008, 0.0062, -0.003], [0.008, 0.0062, -0.003]], [[-0.005, 0.0062, -0.007], [0.004, 0.0062, -0.007]],
+  ];
+  for (const [[x0, y, z], [x1, , z1]] of labelMarks) {
+    const mark = new THREE.CatmullRomCurve3([new THREE.Vector3(x0, y, z), new THREE.Vector3(x1, y, z1)]);
+    platterParts.push(colorize(new THREE.TubeGeometry(mark, 1, 0.00065, 4, false), 0x51391f));
+  }
+  const recordPlatter = new THREE.Mesh(mergeGeometries(platterParts), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.52, metalness: 0.08 }));
+  recordPlatter.name = "slowly-record-platter"; recordPlatter.position.set(0, platterSupportY + 0.005, 0); recordPlatter.castShadow = true; recordPlatter.receiveShadow = true;
+  platterPivot.position.set(RECORD.x, 0, RECORD.z);
+  platterPivot.add(recordPlatter); scene.add(platterPivot);
+
+  const armPivot = new THREE.Group(); armPivot.name = "slowly-tonearm-pivot";
+  const armX = RECORD.x + 0.132, armZ = RECORD.z - 0.091, armY = recordDeckY + 0.022;
+  part("steel", new THREE.CylinderGeometry(0.007, 0.009, 0.052, 12).translate(armX, recordDeckY + 0.022, armZ), { tile: 1 }); // spindle enters the oak top
+  part("gold", new THREE.SphereGeometry(0.009, 10, 8).translate(armX, armY + 0.027, armZ), { tile: 1 });
+  armPivot.position.set(armX, armY, armZ);
+  const armCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0, 0.012, 0), new THREE.Vector3(0.025, 0.015, 0.008),
+    new THREE.Vector3(0.068, 0.012, 0.015), new THREE.Vector3(0.113, 0.006, 0.018),
+  ]);
+  const armGeometry = [
+    colorize(new THREE.TubeGeometry(armCurve, 12, 0.0032, 6, false), 0xb9c0c2),
+    colorize(new THREE.BoxGeometry(0.024, 0.006, 0.014).translate(0.122, 0.004, 0.018), 0x28292a),
+    colorize(new THREE.BoxGeometry(0.009, 0.003, 0.004).translate(0.134, 0.001, 0.018), 0xb98543),
+  ];
+  const armMesh = new THREE.Mesh(mergeGeometries(armGeometry), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.34, metalness: 0.78 }));
+  armMesh.name = "slowly-tonearm"; armMesh.castShadow = true; armMesh.receiveShadow = true; armPivot.add(armMesh); armPivot.rotation.y = 0.28; scene.add(armPivot);
+  // Controls are kept low and to the front, in the same timber footprint.
+  part("black", new THREE.CylinderGeometry(0.012, 0.012, 0.008, 16).translate(RECORD.x - 0.145, recordDeckY + 0.006, RECORD.z + 0.091), { tile: 1 });
+  part("gold", new THREE.CylinderGeometry(0.006, 0.006, 0.006, 12).translate(RECORD.x - 0.145, recordDeckY + 0.013, RECORD.z + 0.091), { tile: 1 });
+  part("black", new THREE.BoxGeometry(0.075, 0.003, 0.008).translate(RECORD.x + 0.061, recordDeckY + 0.006, RECORD.z + 0.119), { tile: 1 });
+  part("gold", new THREE.BoxGeometry(0.009, 0.005, 0.012).translate(RECORD.x + 0.064, recordDeckY + 0.009, RECORD.z + 0.119), { tile: 1 });
+  addContactShadow(RECORD.x, RECORD.z, 0.49, 0.39);
+
+  let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
+  const ARM_REST = 0.28, ARM_PLAY = 2.34;
+  const setArm = (value) => { armPivot.rotation.y = value; };
+  const stopRecordPlayback = () => {
+    if (!recordPlaying) return false;
+    recordPlaying = false; clearTimeout(recordTimer); cancelAnimationFrame(recordRaf);
+    recordRaf = 0; setArm(ARM_REST); baristaPose.local.rotation.x = 0; render(); return true;
+  };
+  const playRecord = () => {
+    if (recordPlaying) return false;
+    recordPlaying = true; recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
+    recordTimer = setTimeout(stopRecordPlayback, 30000);
+    const reduced = reducedMotion();
+    const tick = (now) => {
+      if (!recordPlaying) return;
+      const armProgress = Math.min(1, (now - armStart) / 650), eased = armProgress * armProgress * (3 - 2 * armProgress);
+      setArm(armFrom + (armTo - armFrom) * eased);
+      if (!reduced) {
+        platterPivot.rotation.y = ((now - recordStart) / 1000) * Math.PI * 0.3;
+        const nod = Math.max(0, Math.min(1, (now - recordStart - 180) / 1120));
+        baristaPose.local.rotation.x = nod > 0 ? Math.sin(nod * Math.PI * 4) * 0.065 : 0;
+      }
+      render();
+      if (armProgress < 1 || !reduced) recordRaf = requestAnimationFrame(tick); else recordRaf = 0;
+    };
+    recordRaf = requestAnimationFrame(tick); return true;
+  };
 
   // ---------- the story corner (section 4) ----------
   // The window seat stands under the street window: a 60 cm round table and two bentwood chairs. On the table: a vase of hydrangea, an open notebook and pen, and a cup that has just been poured.
@@ -2138,6 +2221,10 @@ export async function start({ stage, onReady = () => {} }) {
     stats: () => ({ calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, programs: renderer.info.programs?.length ?? 0 }),
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
+    recordScreen: () => projectBox(platterPivot),
+    playRecord, stopRecordPlayback,
+    recordPlaying: () => recordPlaying,
+    recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, baristaTilt: baristaPose.local.rotation.x }),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     beansVisible: () => beansMesh?.count ?? 0, robotHop, setView, view: () => viewName, views: () => Object.keys(STATIONS), setCenterView, centerLook, isCenter: () => viewName === "middle",
@@ -2154,6 +2241,7 @@ export async function start({ stage, onReady = () => {} }) {
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
         robot: (() => { const top = new THREE.Box3().setFromObject(robot).max.y; return { headTopMm: Math.round(top * 1000), aboveCounterMm: Math.round((top - COUNTER.height) * 1000) }; })(),
+        recordPlayer: { widthMm: Math.round(RECORD.width * 1000), depthMm: Math.round(RECORD.depth * 1000), heightMm: Math.round(RECORD.height * 1000), xMm: Math.round(RECORD.x * 1000), zMm: Math.round(RECORD.z * 1000), vertices: platterPivot.children[0].geometry.attributes.position.count + armPivot.children[0].geometry.attributes.position.count, attached: platterPivot.parent === scene && armPivot.parent === scene, playing: recordPlaying },
         blockout,
       };
     },

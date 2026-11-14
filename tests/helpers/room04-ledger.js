@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 187744, meshes: 128 }),
+  scene: Object.freeze({ vertices: 189186, meshes: 130 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 96, phone: 91 }),
+  openingDrawCalls: Object.freeze({ desktop: 98, phone: 93 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -54,5 +54,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "window-seat bentwood chairs: the four legs now stand inside the seat outline and run up into its frame with a collar (before they were centred 0.207 m out on a 0.2 m seat, so they only brushed its rim), and the leg ring touches all four legs; rule: a leg must enter the seat footprint", vertices: 187344, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
     { date: "2026-11-14", change: "window-seat chair back: the oval ring now spans the full gap between the two posts and overlaps them, with two short tie rods, so the back is one continuous line (before there was a gap of about 4 cm each side); all other seats checked by their numbers", vertices: 187744, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
     { date: "2026-11-14", change: "views are standing stations (Paul: drop the overview that drifted into blank grey): the room opens at the counter, and the counter, window seat, lounge and the middle of the room each turn all the way round; the opening draw calls are now counted in the counter view, which sees less of the room than the old overview (110/102 became 96/91); no geometry change", vertices: 187744, meshes: 128, desktopCalls: 96, phoneCalls: 91 },
+    { date: "2026-11-15", change: "record player (Codex #840, re-applied on the current main by CC; its overview-camera and fitted-field-of-view changes were dropped because the overview no longer exists): a 36 x 28 x 11 cm oak turntable at the far left of the back bar with a platter and a tonearm that move (two meshes), tap to play for up to 30 s with the barista robot nodding, a Slow tempo line, no sound; +2 opening draw calls", vertices: 189186, meshes: 130, desktopCalls: 98, phoneCalls: 93 },
   ]),
 });
