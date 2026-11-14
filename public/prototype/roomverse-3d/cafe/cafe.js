@@ -2,7 +2,7 @@ import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { loadModel } from "../bedroom/models.js?v=5";
-import { auditRoom04 } from "./physics-audit.js?v=1";
+import { auditRoom04 } from "./physics-audit.js?v=2";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai, just opened for the morning.
 // Look brief approved by Paul on 2026-11-13 (arrival = morning white light; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
@@ -1871,7 +1871,7 @@ export async function start({ stage, onReady = () => {} }) {
         leg.computeBoundingBox();
         const label = `lounge-armchair-leg-${side}-${end}`;
         armchairLegTips.push({ name: `${label}-seat`, tip: { x: ax - upper[0], y: upper[1] + 0.012, z: az - upper[2] } });
-        registerSupport(`${label}-ground`, "ground", { bottomY: leg.boundingBox.min.y });
+        registerSupport(`${label}-ground`, "ground", { bottomY: leg.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
       }
       chairPart("oakDeep", tubeGeometry([[side * 0.31, 0.34, 0.23], [side * 0.343, 0.61, 0.22],
         [side * 0.343, 0.63, -0.05], [side * 0.31, 0.59, -0.27]], 0.029));
@@ -1889,7 +1889,7 @@ export async function start({ stage, onReady = () => {} }) {
 
     const px = 1.61, pz = 1.52;
     const footstoolBase = disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
-    footstoolBase.computeBoundingBox(); registerSupport("lounge-footstool-plinth-ground", "ground", { bottomY: footstoolBase.boundingBox.min.y });
+    footstoolBase.computeBoundingBox(); registerSupport("lounge-footstool-plinth-ground", "ground", { bottomY: footstoolBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
     const profile = [[0, 0.05], [0.18, 0.05], [0.214, 0.075], [0.225, 0.13], [0.225, 0.29],
       [0.21, 0.333], [0.175, 0.351], [0, 0.36]];
     detail(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y + 0.012)), 40)
@@ -1904,7 +1904,7 @@ export async function start({ stage, onReady = () => {} }) {
       disc(surface, tx, 0.431, z, 0.275, 0.038, 0.265);
       if (surface === "stone") {
         const tableBase = disc("oakDeep", tx, 0.022, z, 0.183, 0.022);
-        tableBase.computeBoundingBox(); registerSupport("lounge-stone-table-base-ground", "ground", { bottomY: tableBase.boundingBox.min.y });
+        tableBase.computeBoundingBox(); registerSupport("lounge-stone-table-base-ground", "ground", { bottomY: tableBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
         registerSupport("lounge-stone-table-column-top", "embed", { tip: { x: tx, y: 0.218 + 0.401 / 2, z },
           surface: { shape: "circle", x: tx, z, radius: 0.265, y: 0.431 - 0.038 / 2 } });
         disc("oak", tx, 0.218, z, 0.082, 0.401, 0.106);
@@ -1920,7 +1920,7 @@ export async function start({ stage, onReady = () => {} }) {
             surface: { shape: "circle", x: tx, z, radius: 0.265, y: 0.431 - 0.038 / 2 } });
           const tableLeg = part("oakDeep", rodGeometry([tx + 0.19 * Math.cos(a), 0.012, z + 0.19 * Math.sin(a)],
             [tx + 0.108 * Math.cos(a), 0.418, z + 0.108 * Math.sin(a)], 0.022));
-          tableLeg.computeBoundingBox(); registerSupport(`lounge-oak-table-leg-${i}-ground`, "ground", { bottomY: tableLeg.boundingBox.min.y });
+          tableLeg.computeBoundingBox(); registerSupport(`lounge-oak-table-leg-${i}-ground`, "ground", { bottomY: tableLeg.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
         }
       }
       // Different things on the two tables (Paul: two identical sets look fake). Marble table: a tablet turned a little and a card holder. Oak table: a closed notebook with a
@@ -1944,7 +1944,7 @@ export async function start({ stage, onReady = () => {} }) {
     addContactShadow(1.61, 1.52, 0.52, 0.52, 0.0135);
     disc("oak", sx, 0.512, sz, 0.165, 0.036);
     const sideTableBase = disc("oakDeep", sx, 0.023, sz, 0.11, 0.022);
-    sideTableBase.computeBoundingBox(); registerSupport("lounge-side-table-base-ground", "ground", { bottomY: sideTableBase.boundingBox.min.y });
+    sideTableBase.computeBoundingBox(); registerSupport("lounge-side-table-base-ground", "ground", { bottomY: sideTableBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
     disc("oakDeep", sx, 0.26, sz, 0.022, 0.48);
     boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, 0.535, sz);
     detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, 0.540, sz), 0x627b87);
@@ -2199,7 +2199,7 @@ export async function start({ stage, onReady = () => {} }) {
           }
         };
         if (kind === "bentwood") {
-          legs("bentwood", 0.63, 0.015);
+          legs("bentwood", 0.645, 0.015); // the leg tops run 15 mm into the seat (the seat's underside is at 0.63 m); they used to stop exactly at the underside (embed 0 mm)
           lp("cane", at(new THREE.CylinderGeometry(0.19, 0.19, 0.02, 36).translate(0, 0.64, 0))); lp("bentwood", at(new THREE.TorusGeometry(0.19, 0.014, 8, 36).rotateX(Math.PI / 2).translate(0, 0.652, 0)));
           for (const y of [0.22, 0.42]) lp("bentwood", at(new THREE.TorusGeometry(rail(0.205, y), 0.009, 8, 32).rotateX(Math.PI / 2).translate(0, y, 0)));
         } else if (kind === "leather") {

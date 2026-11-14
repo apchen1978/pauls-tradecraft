@@ -50,9 +50,10 @@ export function auditRoom04(entries) {
         detail: `support inset ${mm(edge)} mm; vertical gap ${mm(gap)} mm (max ±3 mm)` };
     }
     if (kind === "ground") {
-      const gap = entry.bottomY - (entry.floorY ?? 0);
-      return { ok: Math.abs(gap) <= 0.003 + EPS, name,
-        detail: `ground gap ${mm(gap)} mm (max ±3 mm)` };
+      // floorY: the surface the item stands on (0 for the floor, 0.012 for the lounge rug); tolerance: how far it may sit above or sink into it (3 mm; 6 mm on a rug, which has a pile)
+      const gap = entry.bottomY - (entry.floorY ?? 0), tolerance = entry.tolerance ?? 0.003;
+      return { ok: Math.abs(gap) <= tolerance + EPS, name,
+        detail: `ground gap ${mm(gap)} mm (max ±${mm(tolerance)} mm)` };
     }
     if (kind === "wall") {
       const gap = entry.back - entry.plane;

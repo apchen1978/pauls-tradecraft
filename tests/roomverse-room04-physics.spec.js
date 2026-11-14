@@ -20,23 +20,9 @@ test("Room 04 audits registered support, joints, container walls and barriers", 
   }
   for (const check of result.checks) expect(check).toEqual({ ok: expect.any(Boolean), name: expect.any(String), detail: expect.stringContaining("mm") });
   const failures = result.checks.filter(({ ok }) => !ok);
-  // Existing room findings are pinned, not silently waived: any extra finding or changed distance fails.
-  // Card 65-B audits these; a separate scene PR must repair them and remove the corresponding entries.
-  const knownFindings = [
-    ...[-1, 1].flatMap((side) => [-1, 1].map((end) => ({
-      name: `lounge-armchair-leg-${side}-${end}-ground`, detail: "ground gap 10.7 mm (max ±3 mm)",
-    }))),
-    { name: "lounge-footstool-plinth-ground", detail: "ground gap 12 mm (max ±3 mm)" },
-    { name: "lounge-stone-table-base-ground", detail: "ground gap 11 mm (max ±3 mm)" },
-    ...["7.6", "7.8", "7.8"].map((gap, i) => ({
-      name: `lounge-oak-table-leg-${i}-ground`, detail: `ground gap ${gap} mm (max ±3 mm)`,
-    })),
-    { name: "lounge-side-table-base-ground", detail: "ground gap 12 mm (max ±3 mm)" },
-    ...[-1.2, -0.45, 0.65, 1.75].flatMap((x) => [0, 1, 2, 3].map((leg) => ({
-      name: `bar-stool-bentwood-${x}-${leg}-seat`, detail: "support inset 40 mm; vertical embed 0 mm (min 3 mm)",
-    }))),
-  ];
-  expect(failures.map(({ name, detail }) => ({ name, detail })), "pinned existing physical findings").toEqual(knownFindings);
+  // The room passes every audit (the 26 findings #861 pinned are repaired: the bentwood stool legs now run 15 mm into their seats, and the lounge furniture is measured from the rug it
+  // stands on). Any new finding fails this test; if a deliberate exception is ever needed, pin it here with its distance and the reason.
+  expect(failures.map(({ name, detail }) => ({ name, detail })), "no physical findings").toEqual([]);
 });
 
 test("historical bad builds fail the same rules while sound joins pass", async ({ page }) => {
