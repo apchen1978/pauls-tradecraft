@@ -39,7 +39,7 @@ export const ROOMS = Object.freeze([
   Object.freeze({
     id: "room04",
     name: Object.freeze({ zh: "Room 04｜上海·慢板", en: "Room 04 · Shanghai, Slowly" }),
-    city: Object.freeze({ zh: "上海 · 新天地　正在打造中", en: "Shanghai · Xintiandi, under construction" }),
+    city: Object.freeze({ zh: "上海 · 新天地", en: "Shanghai · Xintiandi" }),
     cover: Object.freeze({
       thumb: "/gallery/assets/roomverse-room04-shanghai-slowly-concept-thumb.webp?v=2",
       mobile: "/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp?v=2",

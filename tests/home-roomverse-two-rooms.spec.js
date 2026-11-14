@@ -16,8 +16,8 @@ for (const lang of ["zh", "en"]) {
       await expect(card.getByRole("heading", { level: 4 }).nth(1)).toContainText("Brooklyn Studio");
       await expect(card.getByRole("heading", { level: 4 }).nth(2)).toContainText("Bay Area Kitchen");
       await expect(card.getByRole("heading", { level: 4 }).nth(3)).toContainText(lang === "zh" ? "上海·慢板" : "Shanghai, Slowly");
-      // Paul 2026-11-13: Room 04 is published while it is still being built, and says so on its cover.
-      await expect(card.getByText(lang === "zh" ? "正在打造中" : "Under construction", { exact: true })).toBeVisible();
+      // Paul 2026-11-14: Room 04 is an open fourth room, so it shows like the other rooms with no work-in-progress label.
+      await expect(card.getByText(lang === "zh" ? "正在打造中" : "Under construction")).toHaveCount(0);
       await expect(card.getByText(lang === "zh" ? "目前開放四間房" : "Four rooms are open")).toBeVisible();
       // Paul 2026-10-31: Room 03 is finished, so it shows like the other rooms with no work-in-progress label; the card opens it straight from home.
       await expect(card.getByText(lang === "zh" ? "施工中" : "Work in progress")).toHaveCount(0);
