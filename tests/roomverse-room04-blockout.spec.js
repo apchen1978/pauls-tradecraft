@@ -157,7 +157,7 @@ test("Room 04 switches language and keeps the choice in the address", async ({ p
   await expect(page.locator("#otherRooms")).toHaveAttribute("href", "/prototype/roomverse-3d/?lang=en");
 });
 
-test("Room 04 can turn all the way round from the middle of the room, and the counter station comes back exactly", async ({ page }) => {
+test("Room 04 can turn all the way round from the middle of the room, and the opening (entry) station comes back exactly", async ({ page }) => {
   const errors = await open(page, 1440);
   const before = await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov }; });
   await page.locator("#centerView").click();
@@ -170,8 +170,8 @@ test("Room 04 can turn all the way round from the middle of the room, and the co
     return out;
   });
   expect(new Set(seen.map((d) => d.join(","))).size, "eight different headings round the circle").toBe(8);
-  await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(1100);
-  const after = await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov, center: r.isCenter() }; });
+  await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1100);
+  const after =await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov, center: r.isCenter() }; });
   expect(after.center).toBe(false);
   expect(after.p).toEqual(before.p);
   expect(after.fov).toBe(before.fov);
@@ -250,16 +250,16 @@ test("Room 04 skips the shadow pass when nothing shadow-casting changes", async 
   expect(counts.first - counts.second).toBeGreaterThan(5);
 });
 
-test("Room 04 views are standing stations: no overview, the room opens at the counter, and every station turns all the way round", async ({ page }) => {
+test("Room 04 views are standing stations: no overview, the room opens just inside the door (初體驗), and every station turns all the way round", async ({ page }) => {
   for (const width of [1440, 390]) {
     const errors = await open(page, width);
     const pose = () => page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(2)), fov: r.camera.fov, view: r.view() }; });
     await expect(page.locator('[data-view="overview"]')).toHaveCount(0);
     const start = await pose();
-    expect(start.view).toBe("counter");
-    await expect(page.locator('[data-view="counter"]')).toHaveAttribute("aria-pressed", "true");
+    expect(start.view).toBe("entry");
+    await expect(page.locator('[data-view="entry"]')).toHaveAttribute("aria-pressed", "true");
     const seen = new Set([start.p.join(",")]);
-    for (const view of ["window", "lounge", "entry", "middle"]) {
+    for (const view of ["window", "lounge", "counter", "middle"]) {
       await page.locator(`[data-view="${view}"]`).click();
       await page.waitForFunction((v) => window.__room04.view() === v, view);
       await page.waitForTimeout(1200);
@@ -271,7 +271,7 @@ test("Room 04 views are standing stations: no overview, the room opens at the co
       expect((await pose()).p, view + ": turning the head does not move the camera").toEqual(pos.p);
     }
     expect(seen.size, "five distinct stations").toBe(5);
-    await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(1200);
+    await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1200);
     const back = await pose(); expect(back.p).toEqual(start.p); expect(back.fov).toBe(start.fov);
     expect(errors).toEqual([]);
   }
@@ -412,8 +412,10 @@ test("the Shanghai, Slowly record player fits the budget and plays on demand", a
   expect(info.recordPlayer.vertices, "the platter and tonearm stay within their vertex allowance").toBeLessThanOrEqual(1500);
   expect(info.vertices, "the whole scene stays within the vertex cap with the record player in it").toBeLessThanOrEqual(LEDGER.caps.vertices);
   expect(info.drawCalls).toBeLessThanOrEqual(LEDGER.caps.phoneCalls);
+  // The room now opens at the entry (初體驗); the record player is a counter-view feature, so tap it from the counter.
+  await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(1200);
   const target = page.locator("#recordHit");
-  await expect(target, "the record player is tappable in the opening counter view").toBeVisible();
+  await expect(target, "the record player is tappable in the counter view").toBeVisible();
   const box = await target.boundingBox();
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(390);

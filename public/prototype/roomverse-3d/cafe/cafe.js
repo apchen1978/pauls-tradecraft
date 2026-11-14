@@ -4,8 +4,8 @@ import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js
 import { loadModel } from "../bedroom/models.js?v=5";
 import { auditRoom04 } from "./physics-audit.js?v=2";
 
-// Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai, just opened for the morning.
-// Look brief approved by Paul on 2026-11-13 (arrival = morning white light; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
+// Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai; the room opens at golden hour, standing just inside the door.
+// Look brief approved by Paul on 2026-11-13 (original arrival = morning white light, since changed to golden hour by Paul on 2026-11-15; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
 //
 // Built in sections, each one finished before the next (Paul, 2026-11-13: Room 03's first week was thin and cost a lot of rework):
 //   1. SHELL AND LIGHT: painted brick with real relief, plank ceiling, floor, plaster walls, a window with depth and the painted street,
@@ -39,13 +39,13 @@ const COLORS = Object.freeze({
   steel: 0xd9dddf, stone: 0xeeeae4, plant: 0x5f8a45, terracotta: 0xc4623a, robot: 0xf2f0ea, chalk: 0x2f3334,
 });
 
-// Five moods. Morning is the arrival (Paul, 2026-11-13: A, the white early light); golden hour is the warm look from concept B and stays a choice.
+// Five moods. Golden hour is the arrival (Paul, 2026-11-15; it was morning's white light on 2026-11-13); the others stay a choice.
 // Each mood sets the sun, the sky fill, the track lights, a tint on the street painting (until Codex paints one street per mood) and how strongly the steel and glass reflect.
 // sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
   morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0.34, steam: 0.3 }),
   noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18 }),
-  golden: Object.freeze({ sun: 3.6, sunColor: 0xffb866, sunPosition: [-7.0, 1.5, 1.2], hemi: 0.85, hemiSky: 0xffe2c0, hemiGround: 0xcaa07a, ambient: 0.22, track: 6.5, trackColor: 0xffc98a, exposure: 1.08, sky: 0xf0c9a0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36 }),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36 }),
   rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true }),
   closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0xc4cce6, lamp: 3.4, reflect: 0.45, pendant: 1.4, shaft: 0, tv: 0.34, steam: 0.42 }),
   series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6b7aa6, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0xb4bde0, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0 }),
@@ -2356,7 +2356,7 @@ export async function start({ stage, onReady = () => {} }) {
   const hemi = new THREE.HemisphereLight(0xffffff, 0xffffff, 1); scene.add(hemi);
   const ambient = new THREE.AmbientLight(0xffffff, 0.2); scene.add(ambient);
   const sun = new THREE.DirectionalLight(0xffffff, 1);
-  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02; sun.shadow.radius = 3;
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02; sun.shadow.radius = 4.5;
   Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 4, bottom: -4, near: 0.5, far: 16 });
   sun.target.position.set(0.5, 0, -0.6);
   scene.add(sun, sun.target);
@@ -2625,10 +2625,10 @@ export async function start({ stage, onReady = () => {} }) {
     lounge: compact ? station([-0.55, 1.57, 2.55], [2.32, 0.78, 1.32], 66) : station([0.15, 1.52, 2.85], [2.42, 0.66, 1.44], 58),
     // Just inside the door (Paul, 2026-11-15: a standing view like Rooms 01 and 03, turning smoothly all the way round): the classic first look, the whole counter ahead,
     // the street window on the left, the lounge on the right and the door behind. It stands 0.6 m clear of the front wall so turning to the door never puts the camera in the glass.
-    entry: compact ? station([0.5, 1.55, 1.75], [-0.1, 1.2, -0.8], 80) : station([0.5, 1.55, 1.75], [-0.1, 1.25, -0.8], 70),
+    entry: compact ? station([0.5, 1.55, 1.75], [-0.9, 1.18, -0.55], 72) : station([0.5, 1.55, 1.75], [-0.4, 1.22, -0.7], 64),
     middle: { position: new THREE.Vector3(0.1, 1.55, 1.2), yaw: Math.PI * 0.82, pitch: -0.04, fov: compact ? 84 : 72 }, // it opens on the front wall: the street window and the glass door
   };
-  const DEFAULT_STATION = "counter";
+  const DEFAULT_STATION = "entry";
   let viewName = DEFAULT_STATION, viewRun = 0, centerDrag = null, centerQueued = false;
   const look = { position: STATIONS[DEFAULT_STATION].position.clone(), yaw: STATIONS[DEFAULT_STATION].yaw, pitch: STATIONS[DEFAULT_STATION].pitch, fov: STATIONS[DEFAULT_STATION].fov };
   const applyLook = (now = false) => {
