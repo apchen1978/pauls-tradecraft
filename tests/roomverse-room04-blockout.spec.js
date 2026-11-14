@@ -494,6 +494,58 @@ test("the Kyoto drip tower fits the stone, plays once per drop, and respects red
   expect(errors).toEqual([]);
 });
 
+test("the drip tower responds to ten desktop taps without breaking its animation", async ({ page }) => {
+  test.setTimeout(180000);
+  const errors = await open(page, 1280);
+  const target = page.locator("#dripHit");
+  await expect(target).toBeVisible();
+  for (let tap = 0; tap < 10; tap++) {
+    await target.click();
+    const state = await page.evaluate(() => window.__room04.dripState());
+    expect(state.playing).toBe(tap % 2 === 0);
+    expect(state.dropPositions.flat().every(Number.isFinite)).toBe(true);
+    if (state.playing) {
+      await expect(page.locator("#bubble [data-line]")).toHaveText("冰滴，一滴一滴慢慢來。");
+      expect(state.dropsVisible).toBe(true);
+    }
+  }
+  expect(errors).toEqual([]);
+});
+
+test("a drip animation frame before its start time still has valid drop positions", async ({ page }) => {
+  const errors = await open(page, 1280);
+  await page.evaluate(() => {
+    const original = Object.getOwnPropertyDescriptor(performance, "now");
+    const realNow = performance.now.bind(performance);
+    Object.defineProperty(performance, "now", { configurable: true, value: () => realNow() + 5000 });
+    try { window.__room04.playDrip(); }
+    finally { if (original) Object.defineProperty(performance, "now", original); else delete performance.now; }
+  });
+  await page.waitForTimeout(100);
+  const state = await page.evaluate(() => window.__room04.dripState());
+  expect(state.playing).toBe(true);
+  expect(state.dropsVisible).toBe(true);
+  expect(state.dropPositions.flat().every(Number.isFinite)).toBe(true);
+  expect(errors).toEqual([]);
+  await page.evaluate(() => window.__room04.stopDrip());
+});
+
+test("five mobile view buttons stay on one swipeable row", async ({ page }) => {
+  await open(page, 390);
+  const views = page.locator("#views");
+  const layout = await views.evaluate((row) => ({
+    width: row.clientWidth, scrollWidth: row.scrollWidth,
+    tops: [...row.querySelectorAll("button:not([hidden])")].map((button) => Math.round(button.getBoundingClientRect().top)),
+  }));
+  expect(new Set(layout.tops).size).toBe(1);
+  expect(layout.scrollWidth).toBeGreaterThan(layout.width);
+  await views.evaluate((row) => { row.scrollLeft = row.scrollWidth; });
+  const last = views.locator('[data-view="middle"]');
+  await expect(last).toBeInViewport();
+  await last.click();
+  await expect(last).toHaveAttribute("aria-pressed", "true");
+});
+
 for (const width of [1440, 390]) {
   test(`Room 04 gold random-cafe tag stays on screen in full screen at ${width}px`, async ({ page }) => {
     const errors = await open(page, width);

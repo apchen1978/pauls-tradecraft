@@ -2238,11 +2238,17 @@ export async function start({ stage, onReady = () => {} }) {
   dripDrops.visible = false; dripDrops.castShadow = false; dripDrops.receiveShadow = false; scene.add(dripDrops);
   const dripDropPositions = [new THREE.Vector3(), new THREE.Vector3()], dripDropScales = [0, 0], dripPaths = [upperDripPath, lowerDripPath], dripDropObject = new THREE.Object3D();
   const updateDripDrops = (elapsed) => {
+    const safeElapsed = Math.max(0, Number.isFinite(elapsed) ? elapsed : 0);
     for (let i = 0; i < dripPaths.length; i++) {
-      const phase = (elapsed + i * DRIP_PERIOD / 2) % DRIP_PERIOD, falling = phase < DRIP_DROP_TRAVEL;
+      const phase = (safeElapsed + i * DRIP_PERIOD / 2) % DRIP_PERIOD, falling = phase < DRIP_DROP_TRAVEL;
       const p = falling ? phase / DRIP_DROP_TRAVEL : 0;
+      const point = dripPaths[i].getPointAt(p);
+      if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y) || !Number.isFinite(point.z)) {
+        dripDropScales[i] = 0; dripDropObject.scale.setScalar(0); dripDropObject.updateMatrix(); dripDrops.setMatrixAt(i, dripDropObject.matrix);
+        continue;
+      }
       dripDropScales[i] = falling ? 1 : 0;
-      dripDropPositions[i].copy(dripPaths[i].getPointAt(p)); dripDropObject.position.copy(dripDropPositions[i]); dripDropObject.scale.setScalar(dripDropScales[i]); dripDropObject.updateMatrix();
+      dripDropPositions[i].copy(point); dripDropObject.position.copy(point); dripDropObject.scale.setScalar(dripDropScales[i]); dripDropObject.updateMatrix();
       dripDrops.setMatrixAt(i, dripDropObject.matrix);
     }
     dripDrops.instanceMatrix.needsUpdate = true;
@@ -2269,10 +2275,10 @@ export async function start({ stage, onReady = () => {} }) {
     if (reducedMotion()) {
       dripLiquid.scale.y = (DRIP_INITIAL_LEVEL + DRIP_MAX_RISE) / 0.04; render(); return true;
     }
-    dripDrops.visible = true;
+    updateDripDrops(0); dripDrops.visible = true; render();
     const tick = (now) => {
       if (!dripPlaying) return;
-      const elapsed = Math.min(DRIP_DURATION, now - dripStarted);
+      const elapsed = Math.max(0, Math.min(DRIP_DURATION, now - dripStarted));
       updateDripDrops(elapsed); dripLiquid.scale.y = (DRIP_INITIAL_LEVEL + DRIP_MAX_RISE * elapsed / DRIP_DURATION) / 0.04;
       render(); if (elapsed < DRIP_DURATION) dripRaf = requestAnimationFrame(tick); else dripRaf = 0;
     };
