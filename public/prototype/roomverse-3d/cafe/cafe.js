@@ -709,7 +709,8 @@ export async function start({ stage, onReady = () => {} }) {
     part("oak", new THREE.BoxGeometry(1.5, 0.035, 0.24).translate(-1.75, y + 0.0175, BACK + 0.12), { grain: "x" });
     for (const x of [-2.4, -1.75, -1.1]) { slab("black", [x - 0.008, x + 0.008], [y - 0.16, y], [BACK, BACK + 0.012]); slab("black", [x - 0.008, x + 0.008], [y - 0.012, y], [BACK, BACK + 0.2]); slab("black", [x - 0.008, x + 0.008], [y - 0.16, y - 0.012], [BACK + 0.012, BACK + 0.02]); }
   }
-  const menus = [{ x: 0.35, y: 2.05, w: 1.35, h: 0.68, key: "menuA" }, { x: 1.95, y: 1.85, w: 1.3, h: 0.62, key: "menuB" }];
+  // Two boards of the same size hung level and side by side with a 10 cm gap (Paul: real cafes do not hang two price lists at different heights); their lower edges line up on one chalk ledge height.
+  const menus = [{ x: 0.4, y: 2.0, w: 1.3, h: 0.68, key: "menuA" }, { x: 1.8, y: 2.0, w: 1.3, h: 0.68, key: "menuB" }];
   for (const m of menus) {
     const fw = 0.05, depth = 0.04;
     slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y + m.h / 2 - fw, m.y + m.h / 2], [BACK, BACK + depth], { grain: "x" }); slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y - m.h / 2, m.y - m.h / 2 + fw], [BACK, BACK + depth], { grain: "x" });
