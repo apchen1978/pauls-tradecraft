@@ -25,7 +25,11 @@
     /* 1440×900: 70vh leaves the mood bar just below the fold. Cap height so the six mood buttons stay on the first screen; the 768px rule below still owns the phone. */
     .room { position:relative; margin:0 clamp(12px,2vw,28px); height:min(70vh, 720px, calc(100dvh - 20rem)); min-height:min(480px, calc(100dvh - 20rem)); overflow:hidden; border-radius:18px; background:#d4c5ae; box-shadow:0 14px 40px #493a241c; }
     #stage { position:absolute; inset:0; }
-    .poster { position:absolute; inset:0; z-index:3; display:grid; place-items:center; background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp") center / contain no-repeat, #715744; }
+    /* The painting is a portrait; the room frame is landscape on a desktop. The whole painting shows (contain), and the sides are filled with the same painting, enlarged, blurred and darkened, so there are no flat brown bars. */
+    .poster { position:absolute; inset:0; z-index:3; display:grid; place-items:center; overflow:hidden; background:#715744; }
+    .poster::before { content:""; position:absolute; inset:-8%; background:linear-gradient(#0004,#0007), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp") center / cover no-repeat; filter:blur(26px) saturate(1.15); }
+    .poster::after { content:""; position:absolute; inset:0; background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp") center / contain no-repeat; }
+    .poster > * { position:relative; z-index:1; }
     .arriving .poster { display:none; }
     .poster:not([hidden]) + .status { top:68%; }
     .poster button { min-height:48px; padding:12px 24px; border:1px solid #fff9; border-radius:999px; background:#3a2a1fe8; color:#fff; font:700 17px system-ui,sans-serif; cursor:pointer; }
@@ -122,6 +126,6 @@
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=63"></script>
+  <script type="module" src="page.js?v=64"></script>
 </body>
 </html>

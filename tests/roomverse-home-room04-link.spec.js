@@ -19,8 +19,12 @@ for (const lang of ["zh", "en"]) {
     await room04Image.evaluate((image) => image.decode());
     await page.goto(`/prototype/roomverse-3d/cafe/?lang=${lang}`);
     const poster = page.locator("#poster");
-    await expect(poster).toHaveCSS("background-image", /roomverse-room04-shanghai-slowly-concept-mobile\.webp/);
-    await expect(poster).toHaveCSS("background-size", /contain/);
+    // The whole painting is drawn by ::after (contain); ::before draws the same painting blurred behind it so a desktop frame has no flat bars.
+    const faces = await poster.evaluate((el) => ["::before", "::after"].map((p) => { const css = getComputedStyle(el, p); return { image: css.backgroundImage, size: css.backgroundSize }; }));
+    expect(faces[1].image).toMatch(/roomverse-room04-shanghai-slowly-concept-mobile\.webp/);
+    expect(faces[1].size).toMatch(/contain/);
+    expect(faces[0].image).toMatch(/roomverse-room04-shanghai-slowly-concept-mobile\.webp/);
+    expect(faces[0].size).toMatch(/cover/);
   });
   }
 }
