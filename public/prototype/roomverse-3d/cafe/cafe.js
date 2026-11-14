@@ -595,6 +595,7 @@ export async function start({ stage, onReady = () => {} }) {
   let partShift = 0; // z shift applied to everything built while it is set (things standing on the curved counter)
   const auditEntries = [];
   const registerSupport = (name, kind, data) => auditEntries.push({ name, kind, ...data });
+  let loungePlantFit = null;
   const part = (key, geometry, { tile = 0.9, grain = "y" } = {}) => {
     const g = indexed(geometry);
     if (partShift) g.translate(0, 0, partShift);
@@ -2013,7 +2014,7 @@ export async function start({ stage, onReady = () => {} }) {
     // The lounge corner's own plant: the hand-built one (Paul liked it), now livelier. Leaves are drawn in a palette of fresh greens from yellow-green to blue-green with paler
     // new growth at the tips, a terracotta pot, and coral, pink and cream flowers with yellow centres. Everything is vertex-coloured into one batch, so it costs no draw call.
     {
-      const px = 2.90, pz = 2.43, K = 0.9;
+      const px = 2.90, pz = 2.43;
       let seed = 21; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
       const GREENS = [0x7fb24a, 0x5f9a3c, 0x9cc85a, 0x3f8040, 0x4d9a6a, 0x86b83f], NEW = [0xbfdd74, 0xcfe58a], PETALS = [0xe8745a, 0xf0a0b0, 0xf6e3c4, 0xf2b84b];
       // The pot was one flat colour with a closed lid, so it looked like moulded plastic and the soil was never seen. Now: an open pot (outer wall, a rounded rim, the inner wall), colours that
@@ -2034,7 +2035,7 @@ export async function start({ stage, onReady = () => {} }) {
         const ang = rnd() * Math.PI * 2, rad = Math.sqrt(rnd()) * 0.125, pebble = m % 5 === 0;
         detail(new THREE.SphereGeometry(pebble ? 0.011 : 0.014 + rnd() * 0.008, 6, 3).scale(1.2, 0.45, 0.9).rotateY(rnd() * 3).translate(px + Math.cos(ang) * rad, 0.388, pz + Math.sin(ang) * rad), pebble ? 0x8f887c : [0x5a4026, 0x4a3320, 0x6b5236][m % 3]);
       }
-      detail(tubeGeometry([[px, 0.36, pz], [px + 0.02, 0.8, pz - 0.01], [px - 0.01, 1.2 * K + 0.1, pz + 0.01], [px + 0.02, 1.5 * K + 0.1, pz]], 0.016, 14, 8), 0x7a5a3a);
+      detail(new THREE.LatheGeometry([[0.0005, 0.002], [0.18, 0.002], [0.2, 0.03], [0.2, 0.034], [0.19, 0.034], [0.17, 0.012], [0.0005, 0.012]].map((p) => new THREE.Vector2(p[0], p[1])), 32).translate(px, 0, pz), 0xa84e2c); // a saucer under the pot
       const flower = (x, y, z, scale) => {
         const petal = PETALS[Math.floor(rnd() * PETALS.length)];
         for (let k = 0; k < 5; k++) {
@@ -2043,19 +2044,73 @@ export async function start({ stage, onReady = () => {} }) {
         }
         detail(new THREE.SphereGeometry(0.017 * scale, 6, 4).translate(x, y + 0.008 * scale, z), 0xf2c230);
       };
-      for (let i = 0; i < 9; i++) {
-        const a = i * 0.72 + rnd() * 0.4, base = (0.7 + (i / 9) * 0.78) * K, reach = (0.2 + rnd() * 0.22) * 1.05, rise = 0.12 + rnd() * 0.16;
-        const bx = px + Math.cos(a) * 0.02, bz = pz + Math.sin(a) * 0.02, ex = px + Math.cos(a) * reach, ez = pz + Math.sin(a) * reach, ey = base + rise;
-        detail(tubeGeometry([[bx, base, bz], [(bx + ex) / 2, base + rise * 0.7, (bz + ez) / 2], [ex, ey, ez]], 0.006, 8, 5), 0x6b8a3c);
-        for (let k = 0; k < 6; k++) {
-          const t = 0.3 + k / 6 * 0.7, lx = bx + (ex - bx) * t, ly = base + (ey - base) * t + 0.015, lz = bz + (ez - bz) * t;
-          const leaf = new THREE.SphereGeometry(0.115, 6, 4); leaf.scale(0.55, 0.05, 1); leaf.translate(0, 0, 0.115);
-          leaf.rotateX(-0.35 - rnd() * 0.3).rotateY(a + (k % 2 ? 1 : -1) * (0.9 + rnd() * 0.6)).rotateZ((rnd() - 0.5) * 0.3);
-          detail(leaf.translate(lx, ly, lz), k >= 4 ? NEW[Math.floor(rnd() * NEW.length)] : GREENS[Math.floor(rnd() * GREENS.length)]);
+      // Fifteen shared vertices form a slightly cupped leaf: dark midrib, lighter waved edges and a drooping tip.
+      const leafGeometry = new THREE.BufferGeometry(), leafPositions = [], leafColors = [], leafIndices = [];
+      const midrib = new THREE.Color(0x8ba979), edge = new THREE.Color(0xc7d7a0);
+      for (let row = 0; row < 5; row++) {
+        const t = row / 4, width = 0.07 * Math.sin(Math.PI * t) ** 0.8;
+        for (const side of [-1, 0, 1]) {
+          leafPositions.push(side * width, t * 0.155, 0.024 * Math.sin(Math.PI * t) - 0.024 * t * t - Math.abs(side) * (0.008 + 0.003 * Math.sin(t * Math.PI * 3)));
+          const tint = (side === 0 ? midrib : edge).clone().multiplyScalar(0.93 + 0.07 * t);
+          leafColors.push(tint.r, tint.g, tint.b);
         }
-        const tip = new THREE.SphereGeometry(0.1, 6, 4); tip.scale(0.55, 0.05, 1); tip.translate(0, 0, 0.1); tip.rotateX(-0.2).rotateY(a); detail(tip.translate(ex, ey, ez), NEW[i % 2]);
-        if (i % 3 !== 2) flower(ex, ey + 0.06, ez, 1.3 + rnd() * 0.6);
       }
+      for (let row = 0; row < 4; row++) for (let col = 0; col < 2; col++) {
+        const a = row * 3 + col; leafIndices.push(a, a + 3, a + 1, a + 1, a + 3, a + 4);
+      }
+      leafGeometry.setAttribute("position", new THREE.Float32BufferAttribute(leafPositions, 3));
+      leafGeometry.setAttribute("color", new THREE.Float32BufferAttribute(leafColors, 3));
+      leafGeometry.setIndex(leafIndices); leafGeometry.computeVertexNormals();
+      const leaves = new THREE.InstancedMesh(leafGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide, roughness: 0.62 }), 108);
+      leaves.name = "lounge-corner-plant-leaves"; leaves.castShadow = true; leaves.receiveShadow = true;
+      const leafDummy = new THREE.Object3D(), up = new THREE.Vector3(0, 1, 0);
+      const stemRoots = [], branchJoins = [];
+      let leafIndex = 0;
+      const addLeaf = (anchor, angle, upper, palette) => {
+        const length = upper ? 0.78 + rnd() * 0.27 : 0.99 + rnd() * 0.22;
+        const end = anchor.clone().add(new THREE.Vector3(Math.cos(angle) * 0.155 * length, upper ? 0.07 * length : -0.035 * length, Math.sin(angle) * 0.155 * length));
+        end.x = Math.min(X1 - 0.075, Math.max(2.51, end.x)); end.z = Math.max(2.28, Math.min(2.78, end.z));
+        const reach = end.sub(anchor), actualScale = Math.min(length, reach.length() / 0.155), direction = reach.normalize();
+        leafDummy.position.copy(anchor); leafDummy.quaternion.setFromUnitVectors(up, direction); leafDummy.rotateY((rnd() - 0.5) * 0.9);
+        leafDummy.scale.setScalar(actualScale); leafDummy.updateMatrix(); leaves.setMatrixAt(leafIndex, leafDummy.matrix);
+        leaves.setColorAt(leafIndex, new THREE.Color(palette[Math.floor(rnd() * palette.length)])); leafIndex++;
+      };
+      for (let i = 0; i < 7; i++) {
+        const angle = i * Math.PI * 2 / 7 + 0.17, rootRadius = 0.052 + i * 0.006;
+        const root = new THREE.Vector3(px + Math.cos(angle) * rootRadius, 0.364, pz + Math.sin(angle) * rootRadius);
+        const height = 0.98 + (i % 3) * 0.105;
+        const spread = 0.15 + (i % 2) * 0.045;
+        const mainCurve = new THREE.CatmullRomCurve3([root,
+          new THREE.Vector3(px + Math.cos(angle) * (rootRadius + 0.045), 0.69, pz + Math.sin(angle) * (rootRadius + 0.035)),
+          new THREE.Vector3(Math.min(3.065, px + Math.cos(angle) * (rootRadius + spread * 0.68)), height, Math.max(2.39, pz + Math.sin(angle) * (rootRadius + spread * 0.7))),
+          new THREE.Vector3(Math.min(3.06, px + Math.cos(angle) * (rootRadius + spread)), height + 0.15, Math.max(2.38, pz + Math.sin(angle) * (rootRadius + spread))) ]);
+        const mainRadius = 0.0065 - i * 0.00025, mainSamples = mainCurve.getSpacedPoints(240);
+        detail(new THREE.TubeGeometry(mainCurve, 16, mainRadius, 6, false), 0x735a3b);
+        // Short root collars emerge from below the soil surface and visibly meet each main stem.
+        detail(new THREE.CylinderGeometry(0.009, 0.012, 0.044, 8).translate(root.x, 0.378, root.z), 0x705439);
+        stemRoots.push({ depthMm: Math.round((0.384 - root.y) * 1000), radiusMm: Math.round(rootRadius * 1000) });
+        for (let k = 0; k < 12; k++) {
+          const t = 0.2 + k * 0.066, anchor = mainCurve.getPoint(t);
+          addLeaf(anchor, angle + (k % 2 ? 1 : -1) * (0.7 + rnd() * 0.45), k >= 9, k >= 10 ? NEW : GREENS);
+        }
+        for (let b = 0; b < 2; b++) {
+          const t = 0.47 + b * 0.25, attach = mainCurve.getPoint(t), branchAngle = angle + (b ? 0.76 : -0.76);
+          const tip = new THREE.Vector3(Math.min(3.06, attach.x + Math.cos(branchAngle) * (0.15 + 0.025 * b)), attach.y + 0.13 + b * 0.055,
+            Math.max(2.38, Math.min(2.72, attach.z + Math.sin(branchAngle) * 0.16)));
+          const branchCurve = new THREE.CatmullRomCurve3([attach,
+            attach.clone().lerp(tip, 0.52).add(new THREE.Vector3(0, 0.035, 0)), tip]);
+          detail(new THREE.TubeGeometry(branchCurve, 9, 0.0038, 5, false), 0x6b8a3c);
+          // Measured, not assumed: how far the branch start is from the nearest point on the main stem's centre line, and how deep it therefore sits inside the stem's wall.
+          const startGap = Math.min(...mainSamples.map((point) => point.distanceTo(branchCurve.getPoint(0))));
+          branchJoins.push({ distanceMm: Math.round(startGap * 1000), overlapMm: +((mainRadius - startGap) * 1000).toFixed(1) });
+          for (let k = 0; k < 5; k++) addLeaf(branchCurve.getPoint(0.2 + k * 0.18), branchAngle + (k % 2 ? 0.66 : -0.66), k >= 3, k === 4 ? NEW : GREENS);
+          if (b === 1 && i % 2 === 0) flower(tip.x, tip.y + 0.025, tip.z, 1.15 + rnd() * 0.25);
+        }
+      }
+      leaves.computeBoundingBox(); leaves.computeBoundingSphere(); scene.add(leaves);
+      const leafBox = leaves.boundingBox;
+      loungePlantFit = { stemRoots, branchJoins, leafCount: leafIndex, leafPrototypeVertices: leafGeometry.attributes.position.count,
+        leafBoundsMm: { xMin: Math.round(leafBox.min.x * 1000), xMax: Math.round(leafBox.max.x * 1000), zMin: Math.round(leafBox.min.z * 1000), zMax: Math.round(leafBox.max.z * 1000) } };
     }
     // Room 01's red-leaf plant (the one beside the red suitcase), small, at the near end of the banquette. Pot, stems, soil and buds are one vertex-coloured mesh, the leaves one
     // instanced mesh (192 leaves, each with its own tint from green through amber to red): two draw calls.
@@ -2671,6 +2726,7 @@ export async function start({ stage, onReady = () => {} }) {
         partShiftLeft: partShift, // must be 0 once the room is built: a leftover counter-curve shift moves every wall frame away from its print
         recordPlayer: { widthMm: Math.round(RECORD.width * 1000), depthMm: Math.round(RECORD.depth * 1000), heightMm: Math.round(RECORD.height * 1000), xMm: Math.round(RECORD.x * 1000), zMm: Math.round(RECORD.z * 1000), vertices: platterPivot.children[0].geometry.attributes.position.count + armPivot.children[0].geometry.attributes.position.count, attached: platterPivot.parent === scene && armPivot.parent === scene, playing: recordPlaying },
         dripTower: { widthMm: Math.round(DRIP.width * 1000), depthMm: Math.round(DRIP.depth * 1000), heightMm: Math.round(DRIP.height * 1000), xMm: Math.round(DRIP.x * 1000), zMm: Math.round(DRIP.z * 1000), baseYmm: Math.round(DRIP.barTop * 1000), framePostsInBaseMm: 10, playing: dripPlaying },
+        loungePlantFit,
         blockout,
       };
     },

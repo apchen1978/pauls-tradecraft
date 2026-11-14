@@ -224,6 +224,25 @@ test("Room 04 lounge upholstery swaps preserve drawing cost", async ({ page }) =
   }
 });
 
+test("Room 04 lounge plant grows from its soil and stays clear of the wall and banquette", async ({ page }) => {
+  await open(page, 1440);
+  const { loungePlantFit: plant } = await page.evaluate(() => window.__room04.info());
+  expect(plant.stemRoots).toHaveLength(7);
+  for (const root of plant.stemRoots) {
+    expect(root.depthMm).toBe(20);
+    expect(root.radiusMm).toBeLessThanOrEqual(100);
+  }
+  expect(plant.branchJoins).toHaveLength(14);
+  for (const join of plant.branchJoins) {
+    expect(join.distanceMm, "a branch starts on its main stem's centre line (measured, within sampling error)").toBeLessThanOrEqual(2);
+    expect(join.overlapMm).toBeGreaterThanOrEqual(3);
+  }
+  expect(plant.leafCount).toBe(154);
+  expect(plant.leafPrototypeVertices).toBe(15);
+  expect(plant.leafBoundsMm.xMax).toBeLessThanOrEqual(3195); // right wall is x = 3200 mm
+  expect(plant.leafBoundsMm.zMin).toBeGreaterThan(2150); // banquette ends near z = 2130 mm
+});
+
 test("Room 04 skips the shadow pass when nothing shadow-casting changes", async ({ page }) => {
   await open(page, 390);
   const counts = await page.evaluate(() => window.__room04.shadowDrawCalls());
@@ -451,9 +470,8 @@ test("the Kyoto drip tower fits the stone, plays once per drop, and respects red
   await expect.poll(() => page.evaluate(() => window.__room04.dripState().dropScales.some((scale) => scale > 0))).toBe(true);
   const falling = await page.evaluate(() => window.__room04.dripState());
   expect(falling.dropsVisible).toBe(true);
-  await page.waitForTimeout(150);
-  const moving = await page.evaluate(() => window.__room04.dripState());
-  expect(moving.dropPositions).not.toEqual(falling.dropPositions);
+  // The drops must move between frames. Poll for it rather than sampling once after a fixed delay: a slow (software) renderer may not draw a frame in 150 ms.
+  await expect.poll(() => page.evaluate(() => JSON.stringify(window.__room04.dripState().dropPositions)), { timeout: 10000 }).not.toBe(JSON.stringify(falling.dropPositions));
   await page.waitForTimeout(1400);
   expect((await page.evaluate(() => window.__room04.dripState())).liquidRiseMm).toBeGreaterThan(0);
   await target.click();
