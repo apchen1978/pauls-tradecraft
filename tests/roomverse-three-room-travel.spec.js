@@ -12,6 +12,8 @@ const TITLES = {
   room02: "Room 02｜Brooklyn Studio",
   room03: "Room 03｜Bay Area Kitchen",
 };
+const ROOM04_TITLE = "Room 04｜上海·慢板"; // Room 04 joined the shared chooser: every one of these three rooms now offers the other two AND Room 04 (it is listed, but it is not one of the three rooms this spec drives)
+const CHOOSER_CARDS = 3;
 const QA = process.env.ROOMVERSE_QA_DIR || null;
 
 async function enterRoom(page, room, { from = null, width = 1440 } = {}) {
@@ -38,7 +40,7 @@ async function choose(page, room, destination) {
   await page.locator(triggerFor(room)).click();
   const dialog = page.getByRole("dialog", { name: "要去哪？" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.locator(".travel-door-card")).toHaveCount(2);
+  await expect(dialog.locator(".travel-door-card")).toHaveCount(CHOOSER_CARDS);
   const card = dialog.locator(".travel-door-card").filter({ hasText: TITLES[destination] });
   await expect(card).toBeVisible();
   await card.getByRole("button", { name: "推開那扇門" }).click();
@@ -72,17 +74,18 @@ async function waitForArrival(page, room, from) {
   }
 }
 
-test("each room offers the other two destinations from a shared chooser", async ({ page }) => {
+test("each room offers the other two rooms and Room 04 from a shared chooser", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const current of ["room01", "room02", "room03"]) {
     await enterRoom(page, current);
     await page.locator(triggerFor(current)).click();
     const dialog = page.getByRole("dialog", { name: "要去哪？" });
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator(".travel-door-card")).toHaveCount(2);
+    await expect(dialog.locator(".travel-door-card")).toHaveCount(CHOOSER_CARDS);
     for (const destination of Object.keys(URLS).filter((id) => id !== current)) {
       await expect(dialog.locator(".travel-door-card").filter({ hasText: TITLES[destination] })).toBeVisible();
     }
+    await expect(dialog.locator(".travel-door-card").filter({ hasText: ROOM04_TITLE })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(dialog).not.toBeVisible();
   }
@@ -99,7 +102,7 @@ test("Room 03 door and guide robot both reach the shared chooser", async ({ page
     await page.locator("#robotBubble [data-robot-travel]").click();
     const dialog = page.getByRole("dialog", { name: "要去哪？" });
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator(".travel-door-card")).toHaveCount(2);
+    await expect(dialog.locator(".travel-door-card")).toHaveCount(CHOOSER_CARDS);
     await page.keyboard.press("Escape");
     await expect(dialog).not.toBeVisible();
     await page.keyboard.press("Escape"); // dismiss the anchored bubble before testing the next target
