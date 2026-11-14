@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 190773, meshes: 131 }),
+  scene: Object.freeze({ vertices: 193596, meshes: 133 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 99, phone: 94 }),
+  openingDrawCalls: Object.freeze({ desktop: 100, phone: 96 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -55,5 +55,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "window-seat chair back: the oval ring now spans the full gap between the two posts and overlaps them, with two short tie rods, so the back is one continuous line (before there was a gap of about 4 cm each side); all other seats checked by their numbers", vertices: 187744, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
     { date: "2026-11-14", change: "views are standing stations (Paul: drop the overview that drifted into blank grey): the room opens at the counter, and the counter, window seat, lounge and the middle of the room each turn all the way round; the opening draw calls are now counted in the counter view, which sees less of the room than the old overview (110/102 became 96/91); no geometry change", vertices: 187744, meshes: 128, desktopCalls: 96, phoneCalls: 91 },
     { date: "2026-11-15", change: "record player (Codex #840, re-applied on the current main by CC; its overview-camera and fitted-field-of-view changes were dropped because the overview no longer exists): a 36 x 28 x 11 cm oak turntable at the far left of the back bar with a platter and a tonearm that move (two meshes), tap to play for up to 30 s with the barista robot nodding, a Slow tempo line, no sound; +2 opening draw calls; moved on to the customer counter toward the middle in front of the greeter robot, which nods to the beat; the checkout terminal moved next to the pastry case with a thin-bezel glass screen drawn on a canvas (a point-of-sale UI, lit like a display) and a contactless pad with a cyan ring (+1 draw call); the screen shows the real order (Cappuccino 24 + Daily Cake 32 = 56) in the afternoon and a message in the other moods (SH. 早上好, I love SH., a rainy-day note, Good night, Late show), and the clock time from the wall clock", vertices: 190773, meshes: 131, desktopCalls: 99, phoneCalls: 94 },
+    { date: "2026-11-15", change: "Kyoto slow-drip tower on the back-bar left end: 60 cm oak frame, supported three-stage glass vessels, a 1.4 s staggered drop cycle and an 8 mm coffee-level rise; two moving meshes, added to the existing shadow batch", vertices: 193596, meshes: 133, desktopCalls: 100, phoneCalls: 96 },
   ]),
 });
