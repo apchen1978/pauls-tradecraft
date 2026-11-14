@@ -30,7 +30,7 @@ test("collection: bilingual records, local images, provenance and required-field
   const manifest = JSON.parse(readFileSync(`${QA}/asset-manifest.json`, "utf8"));
   for (const piece of PIECES) {
     expect(manifest.find((p) => p.id === piece.id)?.sourceSha256).toMatch(/^[a-f0-9]{64}$/);
-    for (const key of ["image", "imageSmall", "thumbnail"]) expect(existsSync(resolve("public/gallery", piece[key]))).toBe(true);
+    for (const key of ["image", "imageSmall", "thumbnail"]) expect(existsSync(resolve("public/gallery", piece[key].split("?")[0]))).toBe(true);
     for (const key of ["title", "alt", "caption", "made"]) {
       for (const lang of ["zh", "en"]) {
         const broken = structuredClone(PIECES);
