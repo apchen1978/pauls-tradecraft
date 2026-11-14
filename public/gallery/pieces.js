@@ -100,11 +100,11 @@ export const PIECES = [
   },
   {
     id: "roomverse-room04-shanghai-slowly-concept", date: "2026-11-15", frame: "plain", width: 1122, height: 1402,
-    image: "assets/roomverse-room04-shanghai-slowly-concept.webp", imageSmall: "assets/roomverse-room04-shanghai-slowly-concept-mobile.webp", thumbnail: "assets/roomverse-room04-shanghai-slowly-concept-thumb.webp",
+    image: "assets/roomverse-room04-shanghai-slowly-concept.webp?v=2", imageSmall: "assets/roomverse-room04-shanghai-slowly-concept-mobile.webp?v=2", thumbnail: "assets/roomverse-room04-shanghai-slowly-concept-thumb.webp?v=2",
     title: { zh: "ROOMVERSE 04・上海慢板", en: "ROOMVERSE 04: Shanghai, Slowly" },
-    alt: { zh: "厚塗油畫質感的上海街角紅磚咖啡廳，梧桐樹影落在窗邊圓桌和曲木椅上，兩位白色機器人咖啡師站在木吧台後方；牆上是一塊寫有咖啡品名和價格的黑板。", en: "An impasto-painted red-brick café on a Shanghai corner, with plane-tree shadows over a round window-side table and bentwood chairs; two white robot baristas stand behind the oak counter beneath a chalkboard menu." },
+    alt: { zh: "厚塗油畫質感的上海街角紅磚咖啡廳，梧桐樹影落在窗邊熱咖啡和曲木椅上；木吧台後方兩位白色機器人咖啡師正在遞杯，牆上是一塊寫有咖啡品名和價格的黑板。", en: "An impasto-painted red-brick café on a Shanghai corner, with plane-tree shadows over a steaming coffee cup and bentwood chairs; two white robot baristas share a cup behind the oak counter beneath a chalkboard menu." },
     caption: { zh: "ROOMVERSE 04 的概念畫作：上海梧桐街角的紅磚咖啡廳，早晨光影落在窗與吧台之間。這是想像插畫，不是真實店面。", en: "A concept painting for ROOMVERSE 04: a red-brick café on a Shanghai plane-tree corner, with morning light between the windows and counter. An imagined illustration, not a real café." },
-    made: { zh: "Paul 指定上海紅磚咖啡廳與厚塗筆觸方向；AI 繪製三版構圖草稿，選定街角透窗版本，呈現房間的想像。", en: "Paul set the Shanghai red-brick café and impasto direction. AI created three composition drafts; the street-corner view through the windows was selected as a concept for the room." },
+    made: { zh: "Paul 指定上海紅磚咖啡廳與厚塗筆觸方向；AI 繪製三版構圖草稿，選定街角透窗版本，再以兩版局部精修聚焦窗邊熱咖啡與機器人的遞杯瞬間。", en: "Paul set the Shanghai red-brick café and impasto direction. AI created three composition drafts, selected the street-corner view, then refined it in two variants around a steaming window-side coffee and a quiet handoff between the baristas." },
   },
   {
     id: "room02-la-coast-collection", date: "2026-10-23", frame: "plain", width: 1200, height: 1600,
@@ -208,7 +208,7 @@ export function validatePieces(pieces) {
       }
     }
     for (const field of ["image", "imageSmall", "thumbnail"]) {
-      if (!/^assets\/[a-z0-9-]+\.webp$/.test(piece[field])) throw new Error(`${piece.id}: invalid ${field}`);
+      if (!/^assets\/[a-z0-9-]+\.webp(?:\?v=\d+)?$/.test(piece[field])) throw new Error(`${piece.id}: invalid ${field}`);
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(piece.date) || !["gilt", "plain"].includes(piece.frame) || !(piece.width > 0 && piece.height > 0)) throw new Error(`${piece.id}: invalid painting metadata`);
   }

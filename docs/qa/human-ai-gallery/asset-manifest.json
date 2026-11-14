@@ -498,31 +498,31 @@
   {
     "id": "roomverse-room04-shanghai-slowly-concept",
     "source": "docs/gallery/sources/roomverse-room04-shanghai-slowly-concept-source.webp",
-    "sourceSha256": "8cbf6f1155bfcf2e7e8a5cdf285d7ab9c460caa364e59c6b75af136ba14ea108",
+    "sourceSha256": "b272cb8ffb23aba88b8fbc9e7c5353aebf2ae6270f9205738020f33d1ce465d0",
     "derivatives": [
       {
         "file": "roomverse-room04-shanghai-slowly-concept.webp",
         "width": 1122,
         "height": 1402,
-        "bytes": 179284,
-        "quality": 26,
-        "sha256": "6b29ab819c723c8fece4d3f88c641f560f9e607a764928d6a4e70e5f86073333"
+        "bytes": 179574,
+        "quality": 44,
+        "sha256": "be53c4c26eb2bb265eaf1cc1d46b4fff8ed56eec3746173932aee6a84092c484"
       },
       {
         "file": "roomverse-room04-shanghai-slowly-concept-mobile.webp",
         "width": 750,
         "height": 937,
-        "bytes": 109822,
-        "quality": 36,
-        "sha256": "7cf7094107dd6cca52d1dca9f1a14cc3f1663d0ecc54cce2c6d659620aaad291"
+        "bytes": 109234,
+        "quality": 54,
+        "sha256": "4b2ead156010ab7e570759061c2b8bdc424688d7e10950f5840fb40eb664d93f"
       },
       {
         "file": "roomverse-room04-shanghai-slowly-concept-thumb.webp",
         "width": 400,
         "height": 500,
-        "bytes": 39896,
-        "quality": 51,
-        "sha256": "be1a7793cd2d816556d14b2744b870e1c401b71bef90280fb59d8ff8e2a8438f"
+        "bytes": 39574,
+        "quality": 65,
+        "sha256": "2120cea0dfc9ceef9043b3faa75485448393fe6363ff60cd17d1f017733e0af8"
       }
     ]
   },
