@@ -34,7 +34,7 @@ const COPY = {
       menu: ["黑板菜單", { board: "素面黑板", chalk: "粉筆插畫", minimal: "極簡邊框", script: "手寫感版面" }],
       gallery: ["掛畫組", { a: "梧桐街與石庫門", b: "鐵花陽台與夜航渡輪" }],
     },
-    views: { counter: "吧台", window: "窗邊座位", lounge: "Lounge", entry: "進門第一眼", middle: "站到房間中間" },
+    views: { counter: "吧台", window: "窗邊座位", lounge: "Lounge", entry: "初體驗", middle: "站到房間中間" },
     center: "站到房間中間", orbit: "回到環繞視角", centerHint: "拖曳或用方向鍵，轉一整圈看看。",
     noteTitle: "便條", noteLine: "窗邊的位子留給你，慢慢來。", close: "關閉",
     moods: {
