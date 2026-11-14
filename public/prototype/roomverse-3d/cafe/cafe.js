@@ -2035,6 +2035,7 @@ export async function start({ stage, onReady = () => {} }) {
         const ang = rnd() * Math.PI * 2, rad = Math.sqrt(rnd()) * 0.125, pebble = m % 5 === 0;
         detail(new THREE.SphereGeometry(pebble ? 0.011 : 0.014 + rnd() * 0.008, 6, 3).scale(1.2, 0.45, 0.9).rotateY(rnd() * 3).translate(px + Math.cos(ang) * rad, 0.388, pz + Math.sin(ang) * rad), pebble ? 0x8f887c : [0x5a4026, 0x4a3320, 0x6b5236][m % 3]);
       }
+      detail(new THREE.LatheGeometry([[0.0005, 0.002], [0.18, 0.002], [0.2, 0.03], [0.2, 0.034], [0.19, 0.034], [0.17, 0.012], [0.0005, 0.012]].map((p) => new THREE.Vector2(p[0], p[1])), 32).translate(px, 0, pz), 0xa84e2c); // a saucer under the pot
       const flower = (x, y, z, scale) => {
         const petal = PETALS[Math.floor(rnd() * PETALS.length)];
         for (let k = 0; k < 5; k++) {
@@ -2047,9 +2048,9 @@ export async function start({ stage, onReady = () => {} }) {
       const leafGeometry = new THREE.BufferGeometry(), leafPositions = [], leafColors = [], leafIndices = [];
       const midrib = new THREE.Color(0x8ba979), edge = new THREE.Color(0xc7d7a0);
       for (let row = 0; row < 5; row++) {
-        const t = row / 4, width = 0.057 * Math.sin(Math.PI * t) ** 0.8;
+        const t = row / 4, width = 0.07 * Math.sin(Math.PI * t) ** 0.8;
         for (const side of [-1, 0, 1]) {
-          leafPositions.push(side * width, t * 0.155, 0.018 * Math.sin(Math.PI * t) - 0.02 * t * t - Math.abs(side) * (0.008 + 0.003 * Math.sin(t * Math.PI * 3)));
+          leafPositions.push(side * width, t * 0.155, 0.024 * Math.sin(Math.PI * t) - 0.024 * t * t - Math.abs(side) * (0.008 + 0.003 * Math.sin(t * Math.PI * 3)));
           const tint = (side === 0 ? midrib : edge).clone().multiplyScalar(0.93 + 0.07 * t);
           leafColors.push(tint.r, tint.g, tint.b);
         }
@@ -2074,8 +2075,8 @@ export async function start({ stage, onReady = () => {} }) {
         leafDummy.scale.setScalar(actualScale); leafDummy.updateMatrix(); leaves.setMatrixAt(leafIndex, leafDummy.matrix);
         leaves.setColorAt(leafIndex, new THREE.Color(palette[Math.floor(rnd() * palette.length)])); leafIndex++;
       };
-      for (let i = 0; i < 6; i++) {
-        const angle = i * Math.PI / 3 + 0.17, rootRadius = 0.052 + i * 0.006;
+      for (let i = 0; i < 7; i++) {
+        const angle = i * Math.PI * 2 / 7 + 0.17, rootRadius = 0.052 + i * 0.006;
         const root = new THREE.Vector3(px + Math.cos(angle) * rootRadius, 0.364, pz + Math.sin(angle) * rootRadius);
         const height = 0.98 + (i % 3) * 0.105;
         const spread = 0.15 + (i % 2) * 0.045;
@@ -2083,13 +2084,14 @@ export async function start({ stage, onReady = () => {} }) {
           new THREE.Vector3(px + Math.cos(angle) * (rootRadius + 0.045), 0.69, pz + Math.sin(angle) * (rootRadius + 0.035)),
           new THREE.Vector3(Math.min(3.065, px + Math.cos(angle) * (rootRadius + spread * 0.68)), height, Math.max(2.39, pz + Math.sin(angle) * (rootRadius + spread * 0.7))),
           new THREE.Vector3(Math.min(3.06, px + Math.cos(angle) * (rootRadius + spread)), height + 0.15, Math.max(2.38, pz + Math.sin(angle) * (rootRadius + spread))) ]);
-        detail(new THREE.TubeGeometry(mainCurve, 16, 0.0065 - i * 0.00025, 6, false), 0x735a3b);
+        const mainRadius = 0.0065 - i * 0.00025, mainSamples = mainCurve.getSpacedPoints(240);
+        detail(new THREE.TubeGeometry(mainCurve, 16, mainRadius, 6, false), 0x735a3b);
         // Short root collars emerge from below the soil surface and visibly meet each main stem.
         detail(new THREE.CylinderGeometry(0.009, 0.012, 0.044, 8).translate(root.x, 0.378, root.z), 0x705439);
         stemRoots.push({ depthMm: Math.round((0.384 - root.y) * 1000), radiusMm: Math.round(rootRadius * 1000) });
-        for (let k = 0; k < 10; k++) {
-          const t = 0.22 + k * 0.079, anchor = mainCurve.getPoint(t);
-          addLeaf(anchor, angle + (k % 2 ? 1 : -1) * (0.7 + rnd() * 0.45), k >= 7, k >= 8 ? NEW : GREENS);
+        for (let k = 0; k < 12; k++) {
+          const t = 0.2 + k * 0.066, anchor = mainCurve.getPoint(t);
+          addLeaf(anchor, angle + (k % 2 ? 1 : -1) * (0.7 + rnd() * 0.45), k >= 9, k >= 10 ? NEW : GREENS);
         }
         for (let b = 0; b < 2; b++) {
           const t = 0.47 + b * 0.25, attach = mainCurve.getPoint(t), branchAngle = angle + (b ? 0.76 : -0.76);
@@ -2098,8 +2100,10 @@ export async function start({ stage, onReady = () => {} }) {
           const branchCurve = new THREE.CatmullRomCurve3([attach,
             attach.clone().lerp(tip, 0.52).add(new THREE.Vector3(0, 0.035, 0)), tip]);
           detail(new THREE.TubeGeometry(branchCurve, 9, 0.0038, 5, false), 0x6b8a3c);
-          branchJoins.push({ distanceMm: Math.round(attach.distanceTo(mainCurve.getPoint(t)) * 1000), overlapMm: 10.3 - i * 0.25 });
-          for (let k = 0; k < 4; k++) addLeaf(branchCurve.getPoint(0.26 + k * 0.23), branchAngle + (k % 2 ? 0.66 : -0.66), k >= 2, k === 3 ? NEW : GREENS);
+          // Measured, not assumed: how far the branch start is from the nearest point on the main stem's centre line, and how deep it therefore sits inside the stem's wall.
+          const startGap = Math.min(...mainSamples.map((point) => point.distanceTo(branchCurve.getPoint(0))));
+          branchJoins.push({ distanceMm: Math.round(startGap * 1000), overlapMm: +((mainRadius - startGap) * 1000).toFixed(1) });
+          for (let k = 0; k < 5; k++) addLeaf(branchCurve.getPoint(0.2 + k * 0.18), branchAngle + (k % 2 ? 0.66 : -0.66), k >= 3, k === 4 ? NEW : GREENS);
           if (b === 1 && i % 2 === 0) flower(tip.x, tip.y + 0.025, tip.z, 1.15 + rnd() * 0.25);
         }
       }

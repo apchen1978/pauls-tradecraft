@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 197839, meshes: 139 }),
+  scene: Object.freeze({ vertices: 196946, meshes: 140 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 102, phone: 97 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -68,5 +68,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "the physics audit's 26 findings repaired: the 16 bentwood bar-stool legs run 15 mm into their seats (were exactly at the underside), and the lounge furniture is audited from the rug it stands on (false positives); the audit now passes with no findings", vertices: 197743, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
     { date: "2026-11-15", change: "the door mat becomes a ribbed graphite-taupe mat in a slim brass frame (4 mm and 7 mm above the floor; one extra mesh, behind the opening view so no opening draw call; the phone count drops by one because the old cane batch no longer reaches the door), and the lounge upholstery gets a chunky twill with crushed-velvet patches and a velvet sheen (texture and material only, same shapes)", vertices: 197839, meshes: 137, desktopCalls: 100, phoneCalls: 95 },
     { date: "2026-11-15", change: "three quick wins: the wainscot carries a little of its own colour and its battens a lighter shade (it read as black), the foot rail gets its own deeper brass (the pale brass burnt out to cream in the low sun), and the television plays its still dimly by day (it was a black rectangle); two new material batches, no new geometry", vertices: 197839, meshes: 139, desktopCalls: 102, phoneCalls: 97 },
+    { date: "2026-11-15", change: "lounge plant (Codex card 63, finished by CC): seven stems rooted 20 mm below the soil, 154 cupped glossy leaves as one instanced mesh, a saucer under the pot; branch joins are now measured on the geometry, not hard-coded", vertices: 196946, meshes: 140, desktopCalls: 102, phoneCalls: 97 },
   ]),
 });
