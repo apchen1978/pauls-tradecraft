@@ -1960,16 +1960,17 @@ export async function start({ stage, onReady = () => {} }) {
     new THREE.Vector3(DRIP.x, 1.09, DRIP.z + 0.018), new THREE.Vector3(DRIP.x, dripReceiverY + 0.126, DRIP.z + 0.008),
   ]);
   part("glass", new THREE.TubeGeometry(upperDripPath, 10, 0.0025, 6, false), { tile: 1 });
-  part("glass", new THREE.TubeGeometry(lowerDripPath, 16, 0.0025, 6, false), { tile: 1 });
+  part("loungeDetail", colorize(new THREE.TubeGeometry(lowerDripPath, 16, 0.0022, 6, false), 0x1c0e07), { tile: 1 }); // the tube from the grounds carries the dark brew down
 
   const DRIP_INITIAL_LEVEL = 0.024, DRIP_MAX_RISE = 0.008, DRIP_DURATION = 20000, DRIP_PERIOD = 1400, DRIP_DROP_TRAVEL = 460;
-  const dripLiquidGeometry = colorize(new THREE.CylinderGeometry(0.039, 0.046, 0.04, 20).translate(0, 0.02, 0), 0xb97837);
-  const dripLiquid = new THREE.Mesh(dripLiquidGeometry, materials.croissant);
+  // The coffee in the flask is cold-brew concentrate: nearly black (Paul), glossy like the coffee in the cups, not amber.
+  const dripLiquidGeometry = new THREE.CylinderGeometry(0.039, 0.046, 0.04, 20).translate(0, 0.02, 0);
+  const dripLiquid = new THREE.Mesh(dripLiquidGeometry, new THREE.MeshStandardMaterial({ color: 0x120804, roughness: 0.18, metalness: 0.05 }));
   dripLiquid.name = "slowly-drip-coffee-level"; dripLiquid.position.set(DRIP.x, dripReceiverY + 0.01, DRIP.z); dripLiquid.scale.y = DRIP_INITIAL_LEVEL / 0.04;
   dripLiquid.castShadow = false; dripLiquid.receiveShadow = false; scene.add(dripLiquid);
   const dripDropGeometry = new THREE.SphereGeometry(0.0025, 8, 6), dripDrops = new THREE.InstancedMesh(dripDropGeometry, materials.water, 2);
   dripDrops.name = "slowly-drip-drops"; dripDrops.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  dripDrops.setColorAt(0, new THREE.Color(0xf2fbff)); dripDrops.setColorAt(1, new THREE.Color(0x30190f));
+  dripDrops.setColorAt(0, new THREE.Color(0xf2fbff)); dripDrops.setColorAt(1, new THREE.Color(0x0e0603));
   dripDrops.visible = false; dripDrops.castShadow = false; dripDrops.receiveShadow = false; scene.add(dripDrops);
   const dripDropPositions = [new THREE.Vector3(), new THREE.Vector3()], dripDropScales = [0, 0], dripPaths = [upperDripPath, lowerDripPath], dripDropObject = new THREE.Object3D();
   const updateDripDrops = (elapsed) => {
