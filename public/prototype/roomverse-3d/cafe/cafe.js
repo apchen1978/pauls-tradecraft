@@ -555,6 +555,8 @@ export async function start({ stage, onReady = () => {} }) {
   };
   const slab = (key, [x0, x1], [y0, y1], [z0, z1], options) => part(key, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), options);
   let beansMesh = null; // the grinder's beans (an instanced mesh), counted by the tests
+  let posMood = null; // switches the checkout screen between its order face, the morning greeting and the closing goodbye
+  let posSync = null; // redraws the checkout screen when the minute changes, so it always shows the wall clock's time
   const noCast = new Set(["leaf", "leafDark", "bloom", "soil", "water", "paper", "cover", "glass", "muffinCup", "muffin", "croissant", "cookie", "chip", "beans", "coffee", "warm", "eyes", "cane", "kraft", "lid", "tablet", "gold", "pendantShade", "sconceGlow"]);
   const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0, { cast: !noCast.has(key) }); parts.clear(); };
 
@@ -1065,11 +1067,12 @@ export async function start({ stage, onReady = () => {} }) {
     ceramicCup({ x: GREETER_CUP.x, y: c.height, z: GREETER_CUP.z, scale: 1.18, coffee: true, latte: true });
   }
   const baristaRobot = new THREE.Group(); baristaRobot.name = "robot-barista-machine";
+  let baristaPose = null;
   const PITCHER = new THREE.Vector3(mx + MACHINE.W / 2 + 0.04, machineY0 + 0.135, machineFront + 0.125); // where the wand tip sits: inside the pitcher
   {
     const RB = { x: -0.5, z: -1.62 }, yaw = Math.atan2(PITCHER.x - RB.x, PITCHER.z - RB.z); // it faces the wand
     pedestal(RB.x, RB.z);
-    const barista = buildRobot(baristaRobot);
+    const barista = baristaPose = buildRobot(baristaRobot);
     barista.local.position.set(RB.x, EGG_BASE, RB.z); barista.local.rotation.y = yaw; barista.local.scale.setScalar(ROBOT_SCALE); baristaRobot.updateMatrixWorld(true);
     const hand = barista.local.worldToLocal(PITCHER.clone());
     barista.limb([0.19, 0.36, 0.05], [hand.x, hand.y, hand.z]); // the right arm reaches the pitcher under the wand
@@ -1081,6 +1084,87 @@ export async function start({ stage, onReady = () => {} }) {
     part("steel", new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI).rotateZ(-Math.PI / 2).translate(PITCHER.x + 0.036, PITCHER.y - 0.005, PITCHER.z), { tile: 1 });
     part("lid", new THREE.CylinderGeometry(0.03, 0.03, 0.003, 20).translate(PITCHER.x, PITCHER.y + 0.036, PITCHER.z), { tile: 1 });
   }
+
+  // A 36 x 28 cm oak turntable on the customer counter, toward the middle of it (Paul: near the main robot, easy to see, and the checkout screen goes over to the pastry case). It stands at the
+  // end of the S, where the counter is straight, between the tip jar and the checkout terminal (stand base from x 0.82), with its controls toward the visitor; its footprint stays on the stone top.
+  const RECORD = { x: 0.5, z: -0.72, width: 0.36, depth: 0.28, barTop: top, height: 0.11 };
+  const recordBaseY = top + 0.002, recordBaseH = 0.067, recordDeckY = recordBaseY + recordBaseH;
+  const plinth = new THREE.BoxGeometry(RECORD.width, recordBaseH, RECORD.depth).translate(RECORD.x, recordBaseY + recordBaseH / 2, RECORD.z);
+  part("oak", plinth, { tile: 0.45 });
+  // A recessed dark reveal and a fine oak lid line give the timber body a machined, furniture-like edge.
+  part("oakDeep", new THREE.BoxGeometry(0.344, 0.006, 0.264).translate(RECORD.x, recordBaseY + 0.014, RECORD.z), { tile: 0.5 });
+  part("oak", new THREE.BoxGeometry(0.35, 0.009, 0.274).translate(RECORD.x, recordDeckY - 0.003, RECORD.z), { tile: 0.5 });
+  const platterSupportY = recordDeckY + 0.004;
+  part("steel", new THREE.CylinderGeometry(0.132, 0.132, 0.008, 32).translate(RECORD.x, platterSupportY, RECORD.z), { tile: 1 });
+  const platterPivot = new THREE.Group(); platterPivot.name = "slowly-record-platter-pivot";
+  const platterParts = [
+    colorize(new THREE.CylinderGeometry(0.125, 0.125, 0.006, 28), 0x131416),
+    colorize(new THREE.CylinderGeometry(0.113, 0.113, 0.0015, 28).translate(0, 0.00375, 0), 0x090a0b),
+    colorize(new THREE.TorusGeometry(0.091, 0.00045, 3, 24).rotateX(Math.PI / 2).translate(0, 0.0048, 0), 0x252729),
+    colorize(new THREE.CylinderGeometry(0.023, 0.023, 0.0018, 24).translate(0, 0.005, 0), 0xb77b35),
+  ];
+  const labelMarks = [
+    [[-0.008, 0.0062, 0.005], [0.008, 0.0062, 0.005]], [[-0.009, 0.0062, 0.001], [0.006, 0.0062, 0.001]],
+    [[-0.008, 0.0062, -0.003], [0.008, 0.0062, -0.003]], [[-0.005, 0.0062, -0.007], [0.004, 0.0062, -0.007]],
+  ];
+  for (const [[x0, y, z], [x1, , z1]] of labelMarks) {
+    const mark = new THREE.CatmullRomCurve3([new THREE.Vector3(x0, y, z), new THREE.Vector3(x1, y, z1)]);
+    platterParts.push(colorize(new THREE.TubeGeometry(mark, 1, 0.00065, 4, false), 0x51391f));
+  }
+  const recordPlatter = new THREE.Mesh(mergeGeometries(platterParts), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.52, metalness: 0.08 }));
+  recordPlatter.name = "slowly-record-platter"; recordPlatter.position.set(0, platterSupportY + 0.005, 0); recordPlatter.castShadow = true; recordPlatter.receiveShadow = true;
+  platterPivot.position.set(RECORD.x, 0, RECORD.z);
+  platterPivot.add(recordPlatter); scene.add(platterPivot);
+
+  const armPivot = new THREE.Group(); armPivot.name = "slowly-tonearm-pivot";
+  const armX = RECORD.x + 0.132, armZ = RECORD.z - 0.091, armY = recordDeckY + 0.022;
+  part("steel", new THREE.CylinderGeometry(0.007, 0.009, 0.052, 12).translate(armX, recordDeckY + 0.022, armZ), { tile: 1 }); // spindle enters the oak top
+  part("gold", new THREE.SphereGeometry(0.009, 10, 8).translate(armX, armY + 0.027, armZ), { tile: 1 });
+  armPivot.position.set(armX, armY, armZ);
+  const armCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0, 0.012, 0), new THREE.Vector3(0.025, 0.015, 0.008),
+    new THREE.Vector3(0.068, 0.012, 0.015), new THREE.Vector3(0.113, 0.006, 0.018),
+  ]);
+  const armGeometry = [
+    colorize(new THREE.TubeGeometry(armCurve, 12, 0.0032, 6, false), 0xb9c0c2),
+    colorize(new THREE.BoxGeometry(0.024, 0.006, 0.014).translate(0.122, 0.004, 0.018), 0x28292a),
+    colorize(new THREE.BoxGeometry(0.009, 0.003, 0.004).translate(0.134, 0.001, 0.018), 0xb98543),
+  ];
+  const armMesh = new THREE.Mesh(mergeGeometries(armGeometry), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.34, metalness: 0.78 }));
+  armMesh.name = "slowly-tonearm"; armMesh.castShadow = true; armMesh.receiveShadow = true; armPivot.add(armMesh); armPivot.rotation.y = 0.28; scene.add(armPivot);
+  // Controls are kept low and to the front, in the same timber footprint.
+  part("black", new THREE.CylinderGeometry(0.012, 0.012, 0.008, 16).translate(RECORD.x - 0.145, recordDeckY + 0.006, RECORD.z + 0.091), { tile: 1 });
+  part("gold", new THREE.CylinderGeometry(0.006, 0.006, 0.006, 12).translate(RECORD.x - 0.145, recordDeckY + 0.013, RECORD.z + 0.091), { tile: 1 });
+  part("black", new THREE.BoxGeometry(0.075, 0.003, 0.008).translate(RECORD.x + 0.061, recordDeckY + 0.006, RECORD.z + 0.119), { tile: 1 });
+  part("gold", new THREE.BoxGeometry(0.009, 0.005, 0.012).translate(RECORD.x + 0.064, recordDeckY + 0.009, RECORD.z + 0.119), { tile: 1 });
+
+  let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
+  const ARM_REST = 0.28, ARM_PLAY = 2.34;
+  const setArm = (value) => { armPivot.rotation.y = value; };
+  const stopRecordPlayback = () => {
+    if (!recordPlaying) return false;
+    recordPlaying = false; clearTimeout(recordTimer); cancelAnimationFrame(recordRaf);
+    recordRaf = 0; setArm(ARM_REST); greeter.local.rotation.x = 0; render(); return true;
+  };
+  const playRecord = () => {
+    if (recordPlaying) return false;
+    recordPlaying = true; recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
+    recordTimer = setTimeout(stopRecordPlayback, 30000);
+    const reduced = reducedMotion();
+    const tick = (now) => {
+      if (!recordPlaying) return;
+      const armProgress = Math.min(1, (now - armStart) / 650), eased = armProgress * armProgress * (3 - 2 * armProgress);
+      setArm(armFrom + (armTo - armFrom) * eased);
+      if (!reduced) {
+        platterPivot.rotation.y = ((now - recordStart) / 1000) * Math.PI * 0.3;
+        const nod = Math.max(0, Math.min(1, (now - recordStart - 180) / 1120));
+        greeter.local.rotation.x = nod > 0 ? Math.sin(nod * Math.PI * 4) * 0.065 : 0; // the greeter, the robot beside the player, nods to the beat
+      }
+      render();
+      if (armProgress < 1 || !reduced) recordRaf = requestAnimationFrame(tick); else recordRaf = 0;
+    };
+    recordRaf = requestAnimationFrame(tick); return true;
+  };
 
   // ---------- the story corner (section 4) ----------
   // The window seat stands under the street window: a 60 cm round table and two bentwood chairs. On the table: a vase of hydrangea, an open notebook and pen, and a cup that has just been poured.
@@ -1219,10 +1303,80 @@ export async function start({ stage, onReady = () => {} }) {
     part("glass", new THREE.CylinderGeometry(0.06, 0.06, 0.13, 24).translate(-0.12, top + 0.065, c.z1 - 0.13), { tile: 1 });
     part("gold", new THREE.CylinderGeometry(0.057, 0.057, 0.034, 20).translate(-0.12, top + 0.025, c.z1 - 0.13), { tile: 1 });
     for (let i = 0; i < 6; i++) part("gold", new THREE.CylinderGeometry(0.011, 0.011, 0.002, 10).rotateX(Math.PI / 2 - 0.4).translate(-0.12 + (i % 3 - 1) * 0.02, top + 0.045 + Math.floor(i / 3) * 0.018, c.z1 - 0.13 + 0.02), { tile: 1 });
-    partShift = counterShift(0.55);
-    part("black", new THREE.CylinderGeometry(0.07, 0.075, 0.012, 24).translate(0.55, top + 0.006, c.z1 - 0.2), { tile: 1 });
-    part("black", rodGeometry([0.55, top + 0.012, c.z1 - 0.2], [0.55, top + 0.12, c.z1 - 0.215], 0.012), { tile: 1 });
-    part("tablet", roundedBox(0.2, 0.14, 0.012, 0.012, 0.002).rotateX(-0.32).translate(0.55, top + 0.165, c.z1 - 0.225), { tile: 1 }); partShift = 0;
+    // The checkout terminal (Paul: next to the pastry case, and more high-tech): a slim steel arm on a weighted dark base, a thin-bezel glass screen with a drawn point-of-sale
+    // screen (a canvas, lit like a display), and a contactless pad in front with a cyan ring. It moved from x 0.55 to 0.90 so the record player could take the middle.
+    const POS_X = 0.9, posZ = c.z1 - 0.2;
+    part("black", new THREE.CylinderGeometry(0.068, 0.078, 0.016, 28).translate(POS_X, top + 0.008, posZ), { tile: 1 });
+    part("steel", new THREE.CylinderGeometry(0.014, 0.018, 0.1, 14).translate(POS_X, top + 0.066, posZ), { tile: 1 });
+    part("steel", rodGeometry([POS_X, top + 0.1, posZ], [POS_X, top + 0.135, posZ - 0.018], 0.011), { tile: 1 });
+    part("black", roundedBox(0.234, 0.158, 0.014, 0.014, 0.003).rotateX(-0.32).translate(POS_X, top + 0.172, posZ - 0.025), { tile: 1 });
+    part("black", roundedBox(0.1, 0.014, 0.07, 0.012, 0.003).translate(POS_X + 0.015, top + 0.007, c.z1 - 0.1), { tile: 1 }); // the contactless pad
+    part("robotGlow", colorize(new THREE.TorusGeometry(0.022, 0.0022, 6, 28).rotateX(Math.PI / 2).translate(POS_X + 0.015, top + 0.0155, c.z1 - 0.1), 0xbff0ff), { tile: 1 });
+    {
+      const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 340; const g = canvas.getContext("2d");
+      // The order on the screen is a real one from the chalk menus (Cappuccino 24 + Daily Cake 32 = 56), and the time in the corner is the time on the wall clock: it is redrawn
+      // when the minute changes, every time the room renders (the same place the clock hands are updated).
+      const ORDER = [["Cappuccino", 24], ["Daily Cake", 32]], TOTAL = ORDER.reduce((sum, [, price]) => sum + price, 0);
+      let screenMode = "order"; // the order face shows prices (the afternoon, the checkout hours); every other mood has its own message (Paul: free to compose)
+      const FACES = {
+        morning: { top: "#16314a", bottom: "#0b1a26", title: "SH. 早上好！", sub: "Good morning, Shanghai", bar: "營業中  Open", barA: "#1fc8e8", barB: "#58e0b0", barText: "#04202a", icon: "sun" },
+        golden: { top: "#3a2a1a", bottom: "#140d08", title: "I \u2665 SH.", sub: "黃金時刻  Golden hour", bar: "慢慢來  Take it slow", barA: "#ffb24a", barB: "#ff7a5a", barText: "#2a1204", icon: "skyline" },
+        rain: { top: "#18283a", bottom: "#0a121c", title: "下雨天  Rainy day", sub: "進來坐坐，來杯熱的  Come in, stay warm", bar: "慢慢來  Take your time", barA: "#4aa3d8", barB: "#7cc6e8", barText: "#04202a", icon: "rain" },
+        closing: { top: "#0a0f1f", bottom: "#04060d", title: "晚安  Good night", sub: "明天見，SH.  See you tomorrow", bar: "休息中  Closed", barA: "#3a4a66", barB: "#26304a", barText: "#9fb4cc", icon: "moon" },
+        series: { top: "#1a1030", bottom: "#07040f", title: "追劇夜  Late show", sub: "今晚，慢慢看  Tonight, slowly", bar: "請安靜  Quiet please", barA: "#8a5cd6", barB: "#5c8ad6", barText: "#0c0620", icon: "film" },
+      };
+      const drawFace = (time, face) => {
+        const bg = g.createLinearGradient(0, 0, 0, 340); bg.addColorStop(0, face.top); bg.addColorStop(1, face.bottom); g.fillStyle = bg; g.fillRect(0, 0, 512, 340);
+        g.fillStyle = "#12293a"; g.fillRect(0, 0, 512, 52); g.fillStyle = "#bff0ff"; g.font = "700 26px 'Noto Sans TC', system-ui, sans-serif"; g.textBaseline = "middle"; g.textAlign = "left"; g.fillText("慢板 · Slow Tempo", 18, 27);
+        g.textAlign = "right"; g.fillStyle = "#8fa9ba"; g.font = "600 24px system-ui, sans-serif"; g.fillText(time, 494, 27);
+        g.lineWidth = 6; g.lineCap = "round"; g.lineJoin = "round";
+        if (face.icon === "sun") {
+          g.fillStyle = "#ffc15a"; g.strokeStyle = "#ffc15a"; g.beginPath(); g.arc(256, 118, 30, 0, Math.PI * 2); g.fill();
+          for (let k = 0; k < 10; k++) { const a = (k / 10) * Math.PI * 2; g.beginPath(); g.moveTo(256 + Math.cos(a) * 44, 118 + Math.sin(a) * 44); g.lineTo(256 + Math.cos(a) * 58, 118 + Math.sin(a) * 58); g.stroke(); }
+        } else if (face.icon === "moon") {
+          g.fillStyle = "#e8f6ff"; g.beginPath(); g.arc(256, 118, 36, 0, Math.PI * 2); g.fill(); g.fillStyle = face.top; g.beginPath(); g.arc(274, 108, 32, 0, Math.PI * 2); g.fill();
+          g.fillStyle = "#ffc15a"; g.textAlign = "center"; g.font = "700 30px sans-serif"; g.fillText("\u2726", 340, 92); g.font = "700 20px sans-serif"; g.fillText("\u2726", 176, 140);
+        } else if (face.icon === "skyline") { // the Pearl Tower and a few towers on the river
+          g.fillStyle = "#ffb24a"; g.strokeStyle = "#ffb24a"; g.lineWidth = 5; g.beginPath(); g.moveTo(256, 160); g.lineTo(256, 70); g.stroke();
+          g.beginPath(); g.arc(256, 100, 13, 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(256, 142, 9, 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(256, 66, 5, 0, Math.PI * 2); g.fill();
+          g.fillStyle = "#c97a3a"; for (const [x, w, h] of [[150, 22, 50], [180, 18, 72], [212, 16, 38], [296, 18, 62], [322, 24, 46], [356, 16, 82], [380, 20, 40]]) g.fillRect(x, 160 - h, w, h);
+          g.strokeStyle = "#ffb24a"; g.lineWidth = 3; g.beginPath(); g.moveTo(140, 163); g.lineTo(400, 163); g.stroke();
+        } else if (face.icon === "rain") {
+          g.fillStyle = "#9fb4cc"; g.beginPath(); g.arc(236, 108, 26, 0, Math.PI * 2); g.arc(272, 100, 32, 0, Math.PI * 2); g.arc(306, 112, 22, 0, Math.PI * 2); g.fill(); g.fillRect(236, 108, 70, 28);
+          g.strokeStyle = "#4aa3d8"; g.lineWidth = 5; for (const x of [232, 262, 292, 320]) { g.beginPath(); g.moveTo(x, 148); g.lineTo(x - 8, 172); g.stroke(); }
+        } else if (face.icon === "film") {
+          g.fillStyle = "#e8f6ff"; g.fillRect(204, 86, 104, 64); g.fillStyle = face.top; for (let k = 0; k < 5; k++) { g.fillRect(210 + k * 20, 92, 12, 9); g.fillRect(210 + k * 20, 135, 12, 9); }
+          g.fillStyle = "#8a5cd6"; g.beginPath(); g.moveTo(244, 108); g.lineTo(244, 128); g.lineTo(266, 118); g.closePath(); g.fill();
+        }
+        g.textAlign = "center"; g.fillStyle = "#ffffff"; g.font = "800 50px 'Noto Sans TC', system-ui, sans-serif"; g.fillText(face.title, 256, 206);
+        g.fillStyle = "#bff0ff"; g.font = "600 24px 'Noto Sans TC', system-ui, sans-serif"; g.fillText(face.sub, 256, 254);
+        const bar = g.createLinearGradient(0, 0, 512, 0); bar.addColorStop(0, face.barA); bar.addColorStop(1, face.barB); g.fillStyle = bar; g.beginPath(); g.roundRect(18, 286, 476, 40, 20); g.fill();
+        g.fillStyle = face.barText; g.font = "800 22px 'Noto Sans TC', system-ui, sans-serif"; g.fillText(face.bar, 256, 307);
+      };
+      const drawScreen = (time) => {
+        if (screenMode !== "order") { drawFace(time, FACES[screenMode]); return; }
+        const bg = g.createLinearGradient(0, 0, 0, 340); bg.addColorStop(0, "#0b1a26"); bg.addColorStop(1, "#050b12"); g.fillStyle = bg; g.fillRect(0, 0, 512, 340);
+        g.fillStyle = "#12293a"; g.fillRect(0, 0, 512, 52); g.fillStyle = "#bff0ff"; g.font = "700 26px 'Noto Sans TC', system-ui, sans-serif"; g.textBaseline = "middle"; g.textAlign = "left"; g.fillText("慢板 · Slow Tempo", 18, 27);
+        g.textAlign = "right"; g.fillStyle = "#8fa9ba"; g.font = "600 24px system-ui, sans-serif"; g.fillText(time, 494, 27);
+        g.textAlign = "left"; g.fillStyle = "#8fa9ba"; g.font = "600 20px system-ui, sans-serif"; g.fillText("訂單 Order #0417", 18, 76);
+        ORDER.forEach(([name, price], i) => {
+          const y = 112 + i * 46; g.fillStyle = "#e8f6ff"; g.font = "700 28px system-ui, sans-serif"; g.textAlign = "left"; g.fillText(name + "  x1", 18, y);
+          g.fillStyle = "#ffc15a"; g.textAlign = "right"; g.fillText(price + "元", 494, y);
+        });
+        g.strokeStyle = "#2f7ea6"; g.lineWidth = 2; g.beginPath(); g.moveTo(18, 188); g.lineTo(494, 188); g.stroke();
+        g.fillStyle = "#8fa9ba"; g.font = "600 22px system-ui, sans-serif"; g.textAlign = "left"; g.fillText("合計 Total", 18, 222); g.fillStyle = "#ffffff"; g.font = "800 58px system-ui, sans-serif"; g.textAlign = "right"; g.fillText(TOTAL + "元", 494, 226);
+        const pay = g.createLinearGradient(0, 0, 512, 0); pay.addColorStop(0, "#1fc8e8"); pay.addColorStop(1, "#58e0b0"); g.fillStyle = pay; g.beginPath(); g.roundRect(18, 262, 476, 56, 28); g.fill();
+        g.fillStyle = "#04202a"; g.textAlign = "center"; g.font = "800 28px 'Noto Sans TC', system-ui, sans-serif"; g.fillText("感應付款  Tap to pay", 256, 291);
+        g.strokeStyle = "#04202a"; g.lineWidth = 3; for (const r of [7, 13, 19]) { g.beginPath(); g.arc(70, 290, r, -0.9, 0.9); g.stroke(); } // the contactless mark
+      };
+      const clockTime = () => { const d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+      let shownTime = clockTime(); drawScreen(shownTime);
+      const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+      posSync = () => { const now = clockTime(); if (now !== shownTime) { shownTime = now; drawScreen(now); texture.needsUpdate = true; } };
+      posMood = (name) => { const mode = FACES[name] ? name : "order"; if (mode !== screenMode) { screenMode = mode; drawScreen(shownTime); texture.needsUpdate = true; } };
+      const screen = new THREE.PlaneGeometry(0.212, 0.136).rotateX(-0.32).translate(POS_X, top + 0.174, posZ - 0.025 + 0.0062);
+      add("checkout-screen", screen, new THREE.MeshStandardMaterial({ map: texture, emissiveMap: texture, emissive: 0xffffff, emissiveIntensity: 0.85, roughness: 0.25, color: 0x888888 }), 0, 0, 0, { cast: false });
+    }
   }
   {
     // A round jute rug under the window seat (a standalone mesh: a lid texture on the top face only).
@@ -1893,7 +2047,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
-    currentMood = name;
+    currentMood = name; posMood?.(name);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
     const from = { tv: live.tv, shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
@@ -2034,6 +2188,7 @@ export async function start({ stage, onReady = () => {} }) {
 
   let frames = 0;
   function updateClockHands() {
+    posSync?.();
     if (!clockHands.length) return;
     const d = new Date(), s = d.getSeconds(), m = d.getMinutes() + s / 60, h = (d.getHours() % 12) + m / 60;
     for (const { pivot, kind } of clockHands) pivot.rotation.z = -(kind === "hour" ? h / 12 : kind === "minute" ? m / 60 : s / 60) * Math.PI * 2;
@@ -2138,6 +2293,10 @@ export async function start({ stage, onReady = () => {} }) {
     stats: () => ({ calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, programs: renderer.info.programs?.length ?? 0 }),
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
+    recordScreen: () => projectBox(platterPivot),
+    playRecord, stopRecordPlayback,
+    recordPlaying: () => recordPlaying,
+    recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     beansVisible: () => beansMesh?.count ?? 0, robotHop, setView, view: () => viewName, views: () => Object.keys(STATIONS), setCenterView, centerLook, isCenter: () => viewName === "middle",
@@ -2154,6 +2313,7 @@ export async function start({ stage, onReady = () => {} }) {
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
         robot: (() => { const top = new THREE.Box3().setFromObject(robot).max.y; return { headTopMm: Math.round(top * 1000), aboveCounterMm: Math.round((top - COUNTER.height) * 1000) }; })(),
+        recordPlayer: { widthMm: Math.round(RECORD.width * 1000), depthMm: Math.round(RECORD.depth * 1000), heightMm: Math.round(RECORD.height * 1000), xMm: Math.round(RECORD.x * 1000), zMm: Math.round(RECORD.z * 1000), vertices: platterPivot.children[0].geometry.attributes.position.count + armPivot.children[0].geometry.attributes.position.count, attached: platterPivot.parent === scene && armPivot.parent === scene, playing: recordPlaying },
         blockout,
       };
     },
