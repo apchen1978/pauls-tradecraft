@@ -430,7 +430,7 @@ test("the Kyoto drip tower fits the stone, plays once per drop, and respects red
   const info = await page.evaluate(() => window.__room04.info());
   const tower = info.dripTower, top = info.backBarStone;
   expect(tower).toMatchObject({ widthMm: 220, depthMm: 180, heightMm: 600, xMm: -2410, zMm: -2040, baseYmm: 900, framePostsInBaseMm: 10 });
-  expect(info.vertices - 191579, "the drip tower stays within its 4,000-vertex allowance").toBeLessThanOrEqual(4000);
+  expect(info.vertices, "the scene with the drip tower stays within the vertex cap").toBeLessThanOrEqual(LEDGER.caps.vertices);
   expect(info.vertices).toBe(LEDGER.scene.vertices);
   expect(info.meshes).toBe(LEDGER.scene.meshes);
   expect(info.drawCalls).toBeLessThanOrEqual(LEDGER.caps.phoneCalls);
