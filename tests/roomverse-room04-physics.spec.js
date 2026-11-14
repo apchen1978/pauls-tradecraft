@@ -4,11 +4,11 @@ import { LEDGER } from "./helpers/room04-ledger.js";
 const ROOM = "/prototype/roomverse-3d/cafe/";
 
 test("Room 04 audits registered support, joints, container walls and barriers", async ({ page }) => {
-  test.setTimeout(180000);
+  test.setTimeout(300000);
   await page.goto(ROOM);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
-  await page.waitForFunction((vertices) => window.__room04.info().vertices === vertices, LEDGER.scene.vertices, { timeout: 60000 });
+  await page.waitForFunction((vertices) => window.__room04.info().vertices === vertices, LEDGER.scene.vertices, { timeout: 150000 }); // a CI runner draws in software and loads the deferred prints slowly
   const result = await page.evaluate(() => ({ checks: window.__room04.physicsAudit(), info: window.__room04.info() }));
   expect(result.info.vertices).toBe(LEDGER.scene.vertices);
   expect(result.info.meshes).toBe(LEDGER.scene.meshes);

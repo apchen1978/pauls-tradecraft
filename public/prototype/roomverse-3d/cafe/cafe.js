@@ -474,9 +474,9 @@ export async function start({ stage, onReady = () => {} }) {
   paint("room04-brick-red-height-v1.webp", { srgb: false, repeat: [ROOM.width / 2.2, ROOM.height / 1.1], then: (t) => { redBrick.bump = t; materials.brick.bumpMap = t; materials.brick.bumpScale = 20; materials.brick.needsUpdate = true; } });
   // Paul (2026-11-14): the default floor is the herringbone, which none of Rooms 01 to 03 has. The plain grey-brown boards stay as the tinted wood options and load only when picked.
   paint("room04-floor-herringbone.webp", { repeat: [ROOM.width / 1.2, (ROOM.depth + 1.2) / 1.2], then: (t) => { woodFloor.map = t; materials.floor.map = t; materials.floor.color.set(0xffffff); materials.floor.needsUpdate = true; } });
-  paint("room04-window-xintiandi-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-window-xintiandi-morning-v1.webp"; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
+  paint("room04-window-xintiandi-golden-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-window-xintiandi-golden-v1.webp"; materials.street.userData.dry = t; materials.street.map = t; materials.street.color.set(0xffffff); materials.street.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } });
   // The front wall is behind the opening camera. Request its first image after the first scene render.
-  setTimeout(() => paint("room04-street-corner-morning-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-street-corner-morning-v1.webp"; materials.streetFront.userData.dry = t; materials.streetFront.map = t; materials.streetFront.color.set(0xffffff); materials.streetFront.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } }), 0);
+  setTimeout(() => paint("room04-street-corner-golden-v1.webp", { repeat: [1, 1], then: (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.userData.file = "room04-street-corner-golden-v1.webp"; materials.streetFront.userData.dry = t; materials.streetFront.map = t; materials.streetFront.color.set(0xffffff); materials.streetFront.needsUpdate = true; if (typeof applyLive === "function") { applyStreet(currentMood); applyLive(); } } }), 0);
 
   paint("room04-oak-panel-v1.webp", { then: (t) => { materials.oak.map = t; materials.oak.color.set(0xffffff); materials.oak.needsUpdate = true; materials.oakDeep.map = t; materials.oakDeep.color.set(0xe0bd90); materials.oakDeep.needsUpdate = true; } });
   paint("room04-counter-stone-v1.webp", { then: (t) => { materials.stone.map = t; materials.stone.color.set(0xffffff); materials.stone.needsUpdate = true; } });
@@ -648,14 +648,14 @@ export async function start({ stage, onReady = () => {} }) {
   }
   const wrap = (y0, y1) => part("oak", new THREE.CylinderGeometry(endRadius + proud, endRadius + proud, y1 - y0, 36, 1, true, 0, Math.PI).translate(arcX, (y0 + y1) / 2, zc), { grain: "x" });
   wrap(bodyY1 - 0.09, bodyY1); wrap(bodyY0, bodyY0 + 0.11);
-  // A brushed-steel foot rail 20 cm off the floor on four arms (the rail is a tube along the curve): a real bar detail that also throws a long shadow line down the front.
+  // A brass foot rail (the classic bar detail, and it echoes the brass of the lamps and the fittings; it was pale brushed steel that read as white plastic) 20 cm off the floor on four arms (the rail is a tube along the curve): a real bar detail that also throws a long shadow line down the front.
   const railD = 0.14, railY = 0.2, railX0 = c.x0 + 0.25, railX1 = arcX - 0.25;
   { const pts = []; for (let x = railX0; x <= railX1 + 1e-6; x += 0.1) pts.push(new THREE.Vector3(x, railY, fz + railD + counterShift(x)));
-    part("steel", new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 2, 0.024, 10, false), { tile: 1 }); }
+    part("gold", new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, "centripetal"), pts.length * 6, 0.022, 16, false), { tile: 1 }); }
   for (const t of [0.04, 0.36, 0.64, 0.96]) {
     const x = railX0 + t * (railX1 - railX0), d = counterShift(x), zr = fz + railD + d;
-    slab("steel", [x - 0.014, x + 0.014], [railY - 0.014, railY + 0.014], [fz + d, zr]);
-    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.012, 16).rotateX(Math.PI / 2).translate(x, railY, fz + d + 0.006), { tile: 1 });
+    slab("gold", [x - 0.014, x + 0.014], [railY - 0.014, railY + 0.014], [fz + d, zr]);
+    part("gold", new THREE.CylinderGeometry(0.03, 0.03, 0.012, 16).rotateX(Math.PI / 2).translate(x, railY, fz + d + 0.006), { tile: 1 });
   }
 
   // Back bar along the brick wall: olive shaker doors on a 10 cm toe-kick under a bullnosed stone top.
@@ -779,7 +779,17 @@ export async function start({ stage, onReady = () => {} }) {
     const screenTilt = -Math.PI / 9, screenY = y0 + H - 0.085, screenZ = front + 0.019;
     part("black", new THREE.BoxGeometry(0.265, 0.125, 0.018).rotateX(screenTilt).translate(mx, screenY, screenZ), { tile: 1 });
     part("visor", new THREE.BoxGeometry(0.235, 0.098, 0.003).rotateX(screenTilt).translate(mx, screenY, screenZ + 0.012), { tile: 1 });
-    for (const [dx, length] of [[-0.06, 0.06], [0.02, 0.035]]) part("warm", new THREE.BoxGeometry(length, 0.003, 0.001).rotateX(screenTilt).translate(mx + dx, screenY + 0.012, screenZ + 0.015), { tile: 1 });
+    {
+      const canvas = document.createElement("canvas"); canvas.width = 480; canvas.height = 200; const g = canvas.getContext("2d");
+      const bg = g.createLinearGradient(0, 0, 0, 200); bg.addColorStop(0, "#0c1b27"); bg.addColorStop(1, "#050b12"); g.fillStyle = bg; g.fillRect(0, 0, 480, 200);
+      g.fillStyle = "#bff0ff"; g.font = "700 78px system-ui, sans-serif"; g.textBaseline = "middle"; g.fillText("93\u00b0C", 28, 62);
+      g.fillStyle = "#8fa9ba"; g.font = "600 26px system-ui, sans-serif"; g.textAlign = "right"; g.fillText("ESPRESSO", 452, 44); g.fillStyle = "#58e0b0"; g.fillText("READY", 452, 82); g.textAlign = "left";
+      g.fillStyle = "#16303f"; g.beginPath(); g.roundRect(28, 130, 424, 22, 11); g.fill(); const bar = g.createLinearGradient(28, 0, 452, 0); bar.addColorStop(0, "#ffb24a"); bar.addColorStop(1, "#ffd98a"); g.fillStyle = bar; g.beginPath(); g.roundRect(28, 130, 330, 22, 11); g.fill();
+      g.fillStyle = "#8fa9ba"; g.font = "500 22px system-ui, sans-serif"; g.fillText("Pressure 9 bar   \u00b7   Group 1 / 2", 28, 178);
+      const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+      const lift = new THREE.Vector3(0, Math.sin(Math.PI / 9), Math.cos(Math.PI / 9)).multiplyScalar(0.0145);
+      add("machine-panel-face", new THREE.PlaneGeometry(0.225, 0.094).rotateX(screenTilt).translate(mx + lift.x, screenY + lift.y, screenZ + lift.z), new THREE.MeshStandardMaterial({ map: texture, emissiveMap: texture, emissive: 0xffffff, emissiveIntensity: 0.8, roughness: 0.25, color: 0x888888 }), 0, 0, 0, { cast: false });
+    }
     for (const dx of [-0.17, 0.17]) part("warm", new THREE.SphereGeometry(0.008, 8, 6).translate(mx + dx, y0 + H - 0.025, front + 0.011), { tile: 1 });
     // Front face: two group heads with portafilters (black handles pointing at the room), a gauge and four buttons.
     for (const dx of [-0.17, 0.17]) {
@@ -1494,7 +1504,9 @@ export async function start({ stage, onReady = () => {} }) {
       const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
       posSync = () => { const now = clockTime(); if (now !== shownTime) { shownTime = now; drawScreen(now); texture.needsUpdate = true; } };
       posMood = (name) => { const mode = FACES[name] ? name : "order"; if (mode !== screenMode) { screenMode = mode; drawScreen(shownTime); texture.needsUpdate = true; } };
-      const screen = new THREE.PlaneGeometry(0.212, 0.136).rotateX(-0.32).translate(POS_X, top + 0.174, posZ - 0.025 + 0.0062);
+      // The bezel is 14 mm thick (front face 7 mm out along its tilted normal); the screen sits 2.5 mm in front of that, along the same normal (before it was 0.8 mm behind and the bezel hid it from many angles).
+      const normal = new THREE.Vector3(0, Math.sin(0.32), Math.cos(0.32)).multiplyScalar(0.0095);
+      const screen = new THREE.PlaneGeometry(0.212, 0.136).rotateX(-0.32).translate(POS_X + normal.x, top + 0.174 + normal.y, posZ - 0.025 + normal.z);
       add("checkout-screen", screen, new THREE.MeshStandardMaterial({ map: texture, emissiveMap: texture, emissive: 0xffffff, emissiveIntensity: 0.85, roughness: 0.25, color: 0x888888 }), 0, 0, 0, { cast: false });
     }
   }
@@ -1672,12 +1684,12 @@ export async function start({ stage, onReady = () => {} }) {
   {
     // Look "bamboo": the bamboo cloud over the window seat, two paper-ring lamps over the counter.
     const b = lampBuilder(); bambooLamp(b.lp, LX, LZ, 1);
-    ringsLamp(b.lp, -0.4, -0.65, 1.66, 0.95); ringsLamp(b.lp, 0.8, -0.65, 1.66, 0.95); b.build(lampSets.bamboo);
+    ringsLamp(b.lp, -0.4, -0.65, 2.4, 0.9); ringsLamp(b.lp, 0.8, -0.65, 2.4, 0.9); b.build(lampSets.bamboo); // above the menu boards (their top edge is 2.34 m), not in front of them
   }
   {
     // Look "rings": a large paper-ring lamp over the window seat, two small bamboo clouds over the counter.
     const b = lampBuilder(); ringsLamp(b.lp, LX, LZ, 1.72, 1.45);
-    bambooLamp(b.lp, -0.4, -0.65, 0.5, -0.12); bambooLamp(b.lp, 0.8, -0.65, 0.5, -0.12); b.build(lampSets.rings);
+    bambooLamp(b.lp, -0.4, -0.65, 0.5, 0.26); bambooLamp(b.lp, 0.8, -0.65, 0.5, 0.26); b.build(lampSets.rings);
   }
   scene.add(lampCommon, ...Object.values(lampSets)); for (const [name, set] of Object.entries(lampSets)) set.visible = name === "bamboo";
   // A big flat TV on the right wall for series night (like Rooms 01 and 03): a thin black frame, a screen that only glows in the "series" mood, and a cool light that falls
@@ -1695,7 +1707,14 @@ export async function start({ stage, onReady = () => {} }) {
     const vignette = g.createRadialGradient(512, 288, 220, 512, 288, 620); vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, "rgba(0,0,0,.5)"); g.fillStyle = vignette; g.fillRect(0, 0, 1024, 576);
     const t = new THREE.CanvasTexture(canvas); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
   })();
-  materials.tvScreen = new THREE.MeshStandardMaterial({ color: 0x07090b, roughness: 0.18, metalness: 0.1, emissive: 0xffffff, emissiveMap: tvTexture, emissiveIntensity: 0 });
+  const tvGlass = (() => { // what a switched-off screen shows: dark blue-black glass, a pale diagonal streak of window light and the faint shape of the window panes
+    const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 288; const g = canvas.getContext("2d");
+    const base = g.createLinearGradient(0, 0, 512, 288); base.addColorStop(0, "#1c2733"); base.addColorStop(0.5, "#0d141c"); base.addColorStop(1, "#060a10"); g.fillStyle = base; g.fillRect(0, 0, 512, 288);
+    g.save(); g.translate(110, 0); g.rotate(0.35); const streak = g.createLinearGradient(0, 0, 150, 0); streak.addColorStop(0, "rgba(255,244,225,0)"); streak.addColorStop(0.5, "rgba(255,244,225,.20)"); streak.addColorStop(1, "rgba(255,244,225,0)"); g.fillStyle = streak; g.fillRect(0, -80, 150, 520); g.restore();
+    g.strokeStyle = "rgba(210,225,240,.10)"; g.lineWidth = 3; g.strokeRect(300, 40, 170, 120); g.beginPath(); g.moveTo(385, 40); g.lineTo(385, 160); g.moveTo(300, 100); g.lineTo(470, 100); g.stroke();
+    const t = new THREE.CanvasTexture(canvas); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })();
+  materials.tvScreen = new THREE.MeshStandardMaterial({ color: 0xffffff, map: tvGlass, roughness: 0.16, metalness: 0.1, emissive: 0xffffff, emissiveMap: tvTexture, emissiveIntensity: 0 });
   { const TV = { z0: -0.15, z1: 1.05, y0: 1.16, y1: 1.84 }, TX = X1 - 0.05;
     box("tv-frame", materials.black, [TX, X1 - 0.005], [TV.y0 - 0.012, TV.y1 + 0.012], [TV.z0 - 0.012, TV.z1 + 0.012], { cast: false });
     const screen = add("tv-screen", new THREE.PlaneGeometry(TV.z1 - TV.z0, TV.y1 - TV.y0), materials.tvScreen, TX - 0.002, (TV.y0 + TV.y1) / 2, (TV.z0 + TV.z1) / 2, { cast: false, receive: false });
@@ -2283,7 +2302,7 @@ export async function start({ stage, onReady = () => {} }) {
   function streetTexture(name, side) {
     const material = side === "left" ? materials.street : materials.streetFront;
     const file = MOOD_STREET[side][name];
-    if (file === MOOD_STREET[side].morning) return material.userData.dry ?? null;
+    if (file === MOOD_STREET[side].golden) return material.userData.dry ?? null; // the painting loaded first (the room opens at golden hour) stands in as the base; the morning one loads on demand
     if (!(file in streetTextures)) {
       streetTextures[file] = null;
       textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = maxAnisotropy; t.userData.file = file; streetTextures[file] = t; loadedArt.add(file); applyStreet(currentMood); render(); });
@@ -2298,7 +2317,7 @@ export async function start({ stage, onReady = () => {} }) {
     }
   }
 
-  let currentMood = "morning", moodTween = 0;
+  let currentMood = "golden", moodTween = 0; // the room opens at golden hour (Paul, 2026-11-15): warm raking light on the brick and the honey oak is the best first impression
   const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const blend = (a, b, k) => a + (b - a) * k;
   const live = { tv: 0, shaft: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
@@ -2485,7 +2504,7 @@ export async function start({ stage, onReady = () => {} }) {
   // The room only draws when something changes, so a restored WebGL context (a phone coming back from the background) would stay blank.
   renderer.domElement.addEventListener("webglcontextrestored", () => requestAnimationFrame(() => { setMood(currentMood); resize(); }));
 
-  controls.update(); setMood("morning"); resize();
+  controls.update(); setMood("golden"); resize();
   requestAnimationFrame(() => requestAnimationFrame(() => afterFirstFrame.forEach((load) => load())));
 
   // Viewing stations (Paul, 2026-11-14: drop the overview, it let the visitor drift into a blank grey wall; every view is a place to stand, like Rooms 02 and 03). The camera

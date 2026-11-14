@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 194581, meshes: 135 }),
+  scene: Object.freeze({ vertices: 197743, meshes: 136 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 99, phone: 95 }),
+  openingDrawCalls: Object.freeze({ desktop: 100, phone: 96 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 140, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -63,6 +63,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "the three placeholder abstract prints above the banquette are replaced by pictures we already have (Paul): Room 03's monstera leaf poster, the dusk harbour from Rooms 01 and 02 (cropped 4:3) and Room 03's sun-over-hills poster, in 2.2 cm oak frames; they load after the first frame from the other rooms' folders (no new files); the placeholders' rounded boxes are gone, so vertices go down", vertices: 192572, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
     { date: "2026-11-15", change: "the two chalk menu boards are the same size, level and side by side with a 10 cm gap (they used to differ in size and hang at 2.05 and 1.85 m); layout only, no geometry change", vertices: 192572, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
     { date: "2026-11-15", change: "the two back-bar shelves dressed with variety instead of identical white cups (Paul): coloured mugs, two city-souvenir mugs (navy wave band and a mustard skyline with the Pearl Tower, no lettering), four coloured tumblers with lids and straws, five canisters in different glazes, a stack of coloured plates and books, and a small ceramic cat; all vertex-coloured in the existing batch; the pothos now stands in an open pot with soil and its vines climb over the front rim and hang in front of the shelf edge instead of through the board (physics rule)", vertices: 194581, meshes: 135, desktopCalls: 99, phoneCalls: 95 },
-    { date: "2026-11-14", change: "Card 65-B: registered Room 04 construction relationships for an on-demand physics audit; no scene geometry, mesh or opening draw-call change", vertices: 194581, meshes: 135, desktopCalls: 99, phoneCalls: 95 },
+    { date: "2026-11-15", change: "3D-A: the room now opens at golden hour (the street paintings that load first are the golden ones); the checkout screen sat 0.8 mm behind its bezel and was hidden from many angles, now 2.5 mm in front of it; the espresso machine panel shows 93 C, READY and a progress bar; the pendant lamps over the counter hang above the menu boards instead of in front of the Coffee menu; the lounge TV switched off is dark glass with a window reflection; the foot rail is brass with a denser smooth curve (+2,000 vertices)", vertices: 197743, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
+    { date: "2026-11-15", change: "Card 65-B (Codex #859, re-applied on the current main by CC): registered construction relationships for an on-demand physics audit; no scene geometry, mesh or opening draw-call change", vertices: 197743, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
   ]),
 });

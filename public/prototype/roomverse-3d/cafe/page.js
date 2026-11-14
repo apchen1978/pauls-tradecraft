@@ -116,7 +116,7 @@ function renderSwaps() {
   }));
 }
 function lookIsDefault() { return LOOK_KEYS.every((g) => look[g] === room?.lookDefaults?.[g]); }
-let room = null, mood = "morning", bubbleOwner = "robot", bubbleTimer = 0, recordTimer = 0, dripTimer = 0, moodLineKey = "morning";
+let room = null, mood = "golden", bubbleOwner = "robot", bubbleTimer = 0, recordTimer = 0, dripTimer = 0, moodLineKey = "golden";
 
 function renderMoods() {
   const copy = COPY[lang], group = $("moods");
@@ -320,7 +320,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=61");
+  const { start } = await import("./cafe.js?v=63");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
