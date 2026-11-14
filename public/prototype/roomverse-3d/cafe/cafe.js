@@ -1912,7 +1912,107 @@ export async function start({ stage, onReady = () => {} }) {
     add("lounge-rug", new THREE.PlaneGeometry(1.6, 2.4).rotateX(-Math.PI / 2),
       rugRef.lounge, 2.25, 0.012, 1.48, { cast: false });
   }
+  // Kyoto-style slow drip tower: its 22 x 18 cm plinth sits fully inside the measured stone top.
+  const DRIP = Object.freeze({ x: -2.41, z: BACK + 0.36, width: 0.22, depth: 0.18, height: 0.6, barTop: BACK_BAR.height });
+  const dripBaseY = DRIP.barTop, dripBaseThickness = 0.022, dripBaseTop = dripBaseY + dripBaseThickness;
+  const dripTopY = dripBaseY + DRIP.height, dripFrameX = [DRIP.x - 0.097, DRIP.x + 0.097];
+  const boxAt = (key, width, height, depth, x, y, z, tile = 0.45) => part(key, new THREE.BoxGeometry(width, height, depth).translate(x, y, z), { tile });
+  boxAt("oak", DRIP.width, dripBaseThickness, DRIP.depth, DRIP.x, dripBaseY + dripBaseThickness / 2, DRIP.z);
+  // Both uprights enter the plinth and the top rail; the receiver itself sits on the plinth.
+  for (const x of dripFrameX) boxAt("oak", 0.025, 0.585, 0.025, x, dripBaseY + 0.01 + 0.585 / 2, DRIP.z);
+  boxAt("oak", DRIP.width, 0.035, 0.03, DRIP.x, dripTopY - 0.0175, DRIP.z);
+  // A cross-arm supports the grounds chamber; side arms carry the upper vessel's oak cradle.
+  boxAt("oak", DRIP.width - 0.025, 0.014, 0.022, DRIP.x, 1.185, DRIP.z - 0.058);
+  for (const sign of [-1, 1]) boxAt("oak", 0.064, 0.012, 0.014, DRIP.x + sign * 0.065, 1.343, DRIP.z);
+  part("oak", new THREE.TorusGeometry(0.045, 0.005, 6, 28).rotateX(Math.PI / 2).translate(DRIP.x, 1.343, DRIP.z), { tile: 0.35 });
+
+  const dripWaterY = 1.392, dripPowderBottom = 1.19, dripPowderTop = 1.31, dripReceiverY = dripBaseTop;
+  part("glass", new THREE.SphereGeometry(0.065, 22, 16).translate(DRIP.x, dripWaterY, DRIP.z), { tile: 1 });
+  const reservoirFill = new THREE.LatheGeometry(
+    [[0, -0.049], [0.018, -0.049], [0.033, -0.042], [0.044, -0.027], [0.052, -0.006], [0.054, 0.009], [0.052, 0.013], [0, 0.013]].map(([r, y]) => new THREE.Vector2(r, y)), 20,
+  ).translate(DRIP.x, dripWaterY, DRIP.z);
+  part("water", reservoirFill, { tile: 1 });
+  part("glass", new THREE.CylinderGeometry(0.011, 0.011, 0.036, 12).translate(DRIP.x, dripWaterY - 0.074, DRIP.z), { tile: 1 });
+  part("gold", new THREE.CylinderGeometry(0.006, 0.006, 0.018, 12).translate(DRIP.x, dripWaterY - 0.093, DRIP.z), { tile: 1 });
+  part("gold", new THREE.CylinderGeometry(0.003, 0.003, 0.022, 10).rotateZ(Math.PI / 2).translate(DRIP.x, dripWaterY - 0.091, DRIP.z), { tile: 1 });
+  part("gold", new THREE.SphereGeometry(0.006, 10, 8).translate(DRIP.x + 0.012, dripWaterY - 0.091, DRIP.z), { tile: 1 });
+
+  part("glass", new THREE.CylinderGeometry(0.04, 0.04, dripPowderTop - dripPowderBottom, 22, 1, true).translate(DRIP.x, (dripPowderTop + dripPowderBottom) / 2, DRIP.z), { tile: 1 });
+  for (const y of [dripPowderBottom, dripPowderTop]) part("glass", new THREE.TorusGeometry(0.04, 0.0025, 5, 24).rotateX(Math.PI / 2).translate(DRIP.x, y, DRIP.z), { tile: 1 });
+  part("oak", new THREE.TorusGeometry(0.041, 0.004, 5, 24).rotateX(Math.PI / 2).translate(DRIP.x, dripPowderBottom, DRIP.z), { tile: 0.35 });
+  const coffeeMound = new THREE.LatheGeometry(
+    [[0, 0], [0.024, 0], [0.034, 0.009], [0.036, 0.019], [0.028, 0.028], [0.014, 0.034], [0, 0.036]].map(([r, y]) => new THREE.Vector2(r, y)), 18,
+  ).translate(DRIP.x, dripPowderBottom + 0.003, DRIP.z);
+  part("croissant", colorize(coffeeMound, 0x3a2117), { tile: 0.2 });
+  part("black", new THREE.CircleGeometry(0.037, 20).rotateX(-Math.PI / 2).translate(DRIP.x, dripPowderBottom + 0.002, DRIP.z), { tile: 0.2 });
+
+  const receiverProfile = [
+    [0, 0], [0.025, 0], [0.041, 0.006], [0.05, 0.019], [0.05, 0.047], [0.045, 0.063], [0.031, 0.081], [0.019, 0.091],
+    [0.018, 0.137], [0.016, 0.14], [0.014, 0.137], [0.014, 0.094], [0.024, 0.083], [0.038, 0.064], [0.042, 0.047], [0.042, 0.02], [0.024, 0.01], [0, 0.01],
+  ];
+  part("glass", new THREE.LatheGeometry(receiverProfile.map(([r, y]) => new THREE.Vector2(r, y)), 22).translate(DRIP.x, dripReceiverY, DRIP.z), { tile: 1 });
+  part("glass", new THREE.TorusGeometry(0.018, 0.002, 5, 20).rotateX(Math.PI / 2).translate(DRIP.x, dripReceiverY + 0.139, DRIP.z), { tile: 1 });
+  const upperDripPath = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(DRIP.x, dripWaterY - 0.106, DRIP.z), new THREE.Vector3(DRIP.x, 1.279, DRIP.z), new THREE.Vector3(DRIP.x, 1.258, DRIP.z),
+  ]);
+  const lowerDripPath = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(DRIP.x, dripPowderBottom + 0.002, DRIP.z), new THREE.Vector3(DRIP.x, 1.15, DRIP.z + 0.018),
+    new THREE.Vector3(DRIP.x, 1.09, DRIP.z + 0.018), new THREE.Vector3(DRIP.x, dripReceiverY + 0.126, DRIP.z + 0.008),
+  ]);
+  part("glass", new THREE.TubeGeometry(upperDripPath, 10, 0.0025, 6, false), { tile: 1 });
+  part("glass", new THREE.TubeGeometry(lowerDripPath, 16, 0.0025, 6, false), { tile: 1 });
+
+  const DRIP_INITIAL_LEVEL = 0.024, DRIP_MAX_RISE = 0.008, DRIP_DURATION = 20000, DRIP_PERIOD = 1400, DRIP_DROP_TRAVEL = 460;
+  const dripLiquidGeometry = colorize(new THREE.CylinderGeometry(0.039, 0.046, 0.04, 20).translate(0, 0.02, 0), 0xb97837);
+  const dripLiquid = new THREE.Mesh(dripLiquidGeometry, materials.croissant);
+  dripLiquid.name = "slowly-drip-coffee-level"; dripLiquid.position.set(DRIP.x, dripReceiverY + 0.01, DRIP.z); dripLiquid.scale.y = DRIP_INITIAL_LEVEL / 0.04;
+  dripLiquid.castShadow = false; dripLiquid.receiveShadow = false; scene.add(dripLiquid);
+  const dripDropGeometry = new THREE.SphereGeometry(0.0025, 8, 6), dripDrops = new THREE.InstancedMesh(dripDropGeometry, materials.water, 2);
+  dripDrops.name = "slowly-drip-drops"; dripDrops.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  dripDrops.setColorAt(0, new THREE.Color(0xf2fbff)); dripDrops.setColorAt(1, new THREE.Color(0x30190f));
+  dripDrops.visible = false; dripDrops.castShadow = false; dripDrops.receiveShadow = false; scene.add(dripDrops);
+  const dripDropPositions = [new THREE.Vector3(), new THREE.Vector3()], dripDropScales = [0, 0], dripPaths = [upperDripPath, lowerDripPath], dripDropObject = new THREE.Object3D();
+  const updateDripDrops = (elapsed) => {
+    for (let i = 0; i < dripPaths.length; i++) {
+      const phase = (elapsed + i * DRIP_PERIOD / 2) % DRIP_PERIOD, falling = phase < DRIP_DROP_TRAVEL;
+      const p = falling ? phase / DRIP_DROP_TRAVEL : 0;
+      dripDropScales[i] = falling ? 1 : 0;
+      dripDropPositions[i].copy(dripPaths[i].getPointAt(p)); dripDropObject.position.copy(dripDropPositions[i]); dripDropObject.scale.setScalar(dripDropScales[i]); dripDropObject.updateMatrix();
+      dripDrops.setMatrixAt(i, dripDropObject.matrix);
+    }
+    dripDrops.instanceMatrix.needsUpdate = true;
+  };
+  updateDripDrops(0);
+  const dripBounds = new THREE.Box3(
+    new THREE.Vector3(DRIP.x - DRIP.width / 2, dripBaseY, DRIP.z - DRIP.depth / 2),
+    new THREE.Vector3(DRIP.x + DRIP.width / 2, dripTopY, DRIP.z + DRIP.depth / 2),
+  );
+  addContactShadow(DRIP.x, DRIP.z, 0.31, 0.27, DRIP.barTop + 0.001);
   flush("polish");
+
+  let dripPlaying = false, dripRaf = 0, dripTimer = 0, dripStarted = 0;
+  const dripReset = () => {
+    dripDrops.visible = false; dripLiquid.scale.y = DRIP_INITIAL_LEVEL / 0.04; updateDripDrops(0);
+  };
+  const stopDrip = () => {
+    if (!dripPlaying) return false;
+    dripPlaying = false; clearTimeout(dripTimer); cancelAnimationFrame(dripRaf); dripRaf = 0; dripReset(); render(); return true;
+  };
+  const playDrip = () => {
+    if (dripPlaying) return false;
+    dripPlaying = true; dripStarted = performance.now(); dripTimer = setTimeout(stopDrip, DRIP_DURATION);
+    if (reducedMotion()) {
+      dripLiquid.scale.y = (DRIP_INITIAL_LEVEL + DRIP_MAX_RISE) / 0.04; render(); return true;
+    }
+    dripDrops.visible = true;
+    const tick = (now) => {
+      if (!dripPlaying) return;
+      const elapsed = Math.min(DRIP_DURATION, now - dripStarted);
+      updateDripDrops(elapsed); dripLiquid.scale.y = (DRIP_INITIAL_LEVEL + DRIP_MAX_RISE * elapsed / DRIP_DURATION) / 0.04;
+      render(); if (elapsed < DRIP_DURATION) dripRaf = requestAnimationFrame(tick); else dripRaf = 0;
+    };
+    dripRaf = requestAnimationFrame(tick); return true;
+  };
 
   // ---------- the bar stools (Codex card 52 A): three designs, four stools along the counter, seat 65 cm ----------
   const stoolSets = { bentwood: new THREE.Group(), leather: new THREE.Group(), metal: new THREE.Group() };
@@ -2181,8 +2281,8 @@ export async function start({ stage, onReady = () => {} }) {
   const resetLook = () => { wainscotChosen = false; for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); return { ...currentLook }; };
 
   // Where the robot's head and the paper note are on screen, in client pixels, so the page can float tap targets and bubbles over them.
-  const projectBox = (object) => {
-    const box = new THREE.Box3().setFromObject(object), rect = stage.getBoundingClientRect();
+  const projectBounds = (box) => {
+    const rect = stage.getBoundingClientRect();
     let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity, behind = false;
     for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
       const p = new THREE.Vector3(x, y, z).project(camera); if (p.z > 1) behind = true;
@@ -2192,6 +2292,7 @@ export async function start({ stage, onReady = () => {} }) {
     if (behind || right < rect.left || left > rect.right || bottom < rect.top || top > rect.bottom) return null;
     return { left, right, top, bottom };
   };
+  const projectBox = (object) => projectBounds(new THREE.Box3().setFromObject(object));
   let robotRest = robot.position.y, hopRun = 0;
   function robotHop() {
     if (reducedMotion()) return;
@@ -2309,9 +2410,12 @@ export async function start({ stage, onReady = () => {} }) {
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
     recordScreen: () => projectBox(platterPivot),
+    dripScreen: () => projectBounds(dripBounds),
     playRecord, stopRecordPlayback,
     recordPlaying: () => recordPlaying,
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),
+    playDrip, stopDrip, dripPlaying: () => dripPlaying,
+    dripState: () => ({ playing: dripPlaying, dropsVisible: dripDrops.visible, liquidRiseMm: Math.round((dripLiquid.scale.y * 0.04 - DRIP_INITIAL_LEVEL) * 1000), dropScales: [...dripDropScales], dropPositions: dripDropPositions.map((position) => position.toArray()), renderFrame: frames }),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
     beansVisible: () => beansMesh?.count ?? 0, robotHop, setView, view: () => viewName, views: () => Object.keys(STATIONS), setCenterView, centerLook, isCenter: () => viewName === "middle",
@@ -2326,10 +2430,12 @@ export async function start({ stage, onReady = () => {} }) {
         title: ROOM_TITLE, stage: "section-10-robots", art: [...loadedArt].sort(), mood: currentMood, look: { ...currentLook }, dimensions: { ...ROOM },
         vertices, meshes, drawCalls: renderer.info.render.calls, renderFrame: frames,
         counter: { lengthMm: Math.round((COUNTER.x1 - COUNTER.x0) * 1000), heightMm: Math.round(COUNTER.height * 1000), depthMm: Math.round((COUNTER.z1 - COUNTER.z0) * 1000) },
+        backBarStone: { x0Mm: Math.round((BACK_BAR.x0 - 0.01) * 1000), x1Mm: Math.round((BACK_BAR.x1 + 0.01) * 1000), z0Mm: Math.round(BACK * 1000), z1Mm: Math.round((BACK + BACK_BAR.depth + 0.025) * 1000), topMm: Math.round(BACK_BAR.height * 1000) },
         window: { widthMm: Math.round(wz * 1000), heightMm: Math.round(wy * 1000), sillMm: Math.round(WINDOW.y0 * 1000) },
         robot: (() => { const top = new THREE.Box3().setFromObject(robot).max.y; return { headTopMm: Math.round(top * 1000), aboveCounterMm: Math.round((top - COUNTER.height) * 1000) }; })(),
         partShiftLeft: partShift, // must be 0 once the room is built: a leftover counter-curve shift moves every wall frame away from its print
         recordPlayer: { widthMm: Math.round(RECORD.width * 1000), depthMm: Math.round(RECORD.depth * 1000), heightMm: Math.round(RECORD.height * 1000), xMm: Math.round(RECORD.x * 1000), zMm: Math.round(RECORD.z * 1000), vertices: platterPivot.children[0].geometry.attributes.position.count + armPivot.children[0].geometry.attributes.position.count, attached: platterPivot.parent === scene && armPivot.parent === scene, playing: recordPlaying },
+        dripTower: { widthMm: Math.round(DRIP.width * 1000), depthMm: Math.round(DRIP.depth * 1000), heightMm: Math.round(DRIP.height * 1000), xMm: Math.round(DRIP.x * 1000), zMm: Math.round(DRIP.z * 1000), baseYmm: Math.round(DRIP.barTop * 1000), framePostsInBaseMm: 10, playing: dripPlaying },
         blockout,
       };
     },

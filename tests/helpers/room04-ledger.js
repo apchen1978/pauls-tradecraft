@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 191579, meshes: 131 }),
+  scene: Object.freeze({ vertices: 194402, meshes: 133 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 99, phone: 94 }),
+  openingDrawCalls: Object.freeze({ desktop: 100, phone: 96 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -58,5 +58,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "counter props made solid and coloured instead of see-through glass: the cookie jar (sage ceramic with brass band, lid and knob), the sugar canister (charcoal ceramic), the bottles in the pastry case (deep green and frosted ice-blue); the straw holder moved from in front of the record player to beside the cup stacks (mint enamel cup, 46 straws in kraft, white and pastel green instead of 12)", vertices: 191579, meshes: 131, desktopCalls: 99, phoneCalls: 94 },
     { date: "2026-11-15", change: "straw holder obeys physics: the straws stand nearly upright inside the cup (inside radius 0.034 m; a straw starts within 0.020 m of the axis and is within 0.031 m of it where it crosses the rim, then goes straight on), none passes through the wall; dark brown enamel cup, eco straws in natural browns; rule: nothing may pass through the wall of what holds it", vertices: 191579, meshes: 131, desktopCalls: 99, phoneCalls: 94 },
     { date: "2026-11-15", change: "fix: the checkout-terminal edit in #841 dropped the line that reset the counter-curve shift, so about 350 lines of wall frames, doors and clocks were built shifted along z and the prints no longer sat in their frames (Paul spotted it); the shift is now reset before the terminal and a test asserts it is zero after the build", vertices: 191579, meshes: 131, desktopCalls: 99, phoneCalls: 94 },
+    { date: "2026-11-15", change: "Kyoto cold-drip tower (Codex #844, re-applied on the current main by CC): a 22 x 18 x 60 cm oak frame with a glass water ball, a powder chamber and a receiving flask on the back bar where the record player was (posts run 10 mm into the base), tap to drip for 20 s with the liquid level rising up to 8 mm, no sound; +1 desktop and +2 phone opening draw calls", vertices: 194402, meshes: 133, desktopCalls: 100, phoneCalls: 96 },
   ]),
 });
