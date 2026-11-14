@@ -13,7 +13,7 @@ const COPY = {
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁",
     fullScreen: "全螢幕", exitFullScreen: "退出", portal: "傳送門", viewsLabel: "選擇視角",
     enter: "走進咖啡廳", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 上海咖啡廳的 3D 房間", moodsLabel: "選擇時段與天氣",
-    robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
+    robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", recordLabel: "唱機：點一下播放，再點一下停止", recordLine: "慢板，三十三轉。", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
     randomLook: "隨機搭一間咖啡廳", resetLook: "回到預設搭配", swapsTitle: "換搭配", randomDone: "已幫你搭了一間新的咖啡廳。",
     groups: {
       brick: ["磚牆", { red: "老紅磚", umber: "赭褐磚", grey: "灰磚", dusty: "灰粉磚", white: "白磚（刷白老磚）", dark: "深色老磚" }],
@@ -54,7 +54,7 @@ const COPY = {
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home",
     fullScreen: "Full screen", exitFullScreen: "Exit", portal: "Travel", viewsLabel: "Choose a view",
     enter: "Step into the cafe", loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D room of the Room 04 Shanghai cafe", moodsLabel: "Choose a time and weather",
-    robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
+    robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", recordLabel: "Record player: tap to play, tap again to stop", recordLine: "Slow tempo, thirty-three and a third.", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
     randomLook: "Build me a random cafe", resetLook: "Back to the default look", swapsTitle: "Swap the look", randomDone: "A new cafe, just for you.",
     groups: {
       brick: ["Brick wall", { red: "Old red brick", umber: "Umber brick", grey: "Grey brick", dusty: "Dusty pink brick", white: "Whitewashed brick", dark: "Dark old brick" }],
@@ -114,7 +114,7 @@ function renderSwaps() {
   }));
 }
 function lookIsDefault() { return LOOK_KEYS.every((g) => look[g] === room?.lookDefaults?.[g]); }
-let room = null, mood = "morning", bubbleOwner = "robot", bubbleTimer = 0, moodLineKey = "morning";
+  let room = null, mood = "morning", bubbleOwner = "robot", bubbleTimer = 0, recordTimer = 0, moodLineKey = "morning";
 
 function renderMoods() {
   const copy = COPY[lang], group = $("moods");
@@ -151,7 +151,7 @@ function renderCopy() {
   $("stage").querySelector("canvas")?.setAttribute("aria-label", copy.canvas);
   for (const b of document.querySelectorAll("[data-view]")) { b.textContent = copy.views[b.dataset.view]; b.setAttribute("aria-pressed", String(!centerMode && b.dataset.view === currentView)); }
   $("centerView").textContent = centerMode ? copy.orbit : copy.center; $("centerView").setAttribute("aria-pressed", String(centerMode));
-  $("robotHit").setAttribute("aria-label", copy.robotLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel);
+  $("robotHit").setAttribute("aria-label", copy.robotLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel); $("recordHit").setAttribute("aria-label", copy.recordLabel);
   renderBubble(); renderMoods(); renderSwaps();
   $("resetLook").hidden = !room || lookIsDefault();
 }
@@ -165,9 +165,9 @@ function placeTarget(button, rect) {
 }
 function placeUi() {
   if (!room) return;
-  const robotRect = room.robotScreen(), noteRect = room.noteScreen();
-  placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect);
-  const bubble = $("bubble"), anchor = bubbleOwner === "note" ? noteRect : robotRect;
+  const robotRect = room.robotScreen(), noteRect = room.noteScreen(), recordRect = room.recordScreen();
+  placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect);
+  const bubble = $("bubble"), anchor = bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : robotRect;
   if (bubble.hidden) return;
   if (!anchor) { bubble.hidden = true; return; }
   const stageRect = $("stage").getBoundingClientRect(), half = bubble.offsetWidth / 2 + 8;
@@ -179,7 +179,7 @@ function placeUi() {
 }
 function renderBubble() {
   const copy = COPY[lang], bubble = $("bubble");
-  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
+  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? copy.recordLine : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
   const title = bubble.querySelector("[data-title]"); title.textContent = copy.noteTitle; title.hidden = bubbleOwner !== "note";
   const link = bubble.querySelector("[data-travel]"); link.textContent = copy.robotChoose; link.href = `/prototype/roomverse-3d/?lang=${lang}`; link.hidden = bubbleOwner !== "robot";
   bubble.querySelector("[data-close]").setAttribute("aria-label", copy.close);
@@ -211,6 +211,15 @@ $("randomLook").addEventListener("click", () => { if (!room) return; room.random
 $("resetLook").addEventListener("click", () => { room.resetLook(); look = room.look(); renderSwaps(); syncLookUrl(); $("resetLook").hidden = true; renderMoods(); });
 $("robotHit").addEventListener("click", () => openBubble("robot", 7000));
 $("noteHit").addEventListener("click", () => openBubble("note", 9000));
+$("recordHit").addEventListener("click", () => {
+  if (!room) return;
+  if (room.recordPlaying()) {
+    room.stopRecordPlayback(); clearTimeout(recordTimer); recordTimer = 0; closeBubble();
+    return;
+  }
+  room.playRecord(); openBubble("record", 30000);
+  clearTimeout(recordTimer); recordTimer = setTimeout(() => { room?.stopRecordPlayback(); closeBubble(); recordTimer = 0; }, 30000);
+});
 $("bubble").querySelector("[data-close]").addEventListener("click", closeBubble);
 $("bubble").addEventListener("pointerenter", () => clearTimeout(bubbleTimer));
 const shell = $("stage").parentElement;
@@ -305,7 +314,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=46");
+  const { start } = await import("./cafe.js?v=47");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);

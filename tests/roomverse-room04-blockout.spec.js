@@ -384,6 +384,45 @@ test("Room 04 grinder: the beans read as a half-full hopper of many pieces", asy
   expect(errors).toEqual([]);
 });
 
+test("the Shanghai, Slowly record player fits the budget and plays on demand", async ({ page }) => {
+  test.setTimeout(180000);
+  const errors = await open(page, 390);
+  const info = await page.evaluate(() => window.__room04.info());
+  expect(info.recordPlayer).toMatchObject({ widthMm: 360, depthMm: 280, heightMm: 110, xMm: -2410, zMm: -2040, attached: true });
+  expect(info.recordPlayer.vertices, "the platter and tonearm stay within their vertex allowance").toBeLessThanOrEqual(1500);
+  expect(info.vertices - 187344, "scene growth stays within the record-player budget").toBeLessThanOrEqual(1500);
+  expect(info.drawCalls).toBeLessThanOrEqual(LEDGER.caps.phoneCalls);
+  const target = page.locator("#recordHit");
+  await expect(target, "the record player is tappable in the phone overview").toBeVisible();
+  const box = await target.boundingBox();
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(390);
+
+  await target.click();
+  await expect(page.locator("#bubble [data-line]")).toHaveText("慢板，三十三轉。");
+  await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(true);
+  await page.waitForTimeout(850);
+  const moving = await page.evaluate(() => window.__room04.recordState());
+  expect(moving.platterAngle).not.toBe(0);
+  expect(moving.armAngle).toBeGreaterThan(0.28);
+  expect(Math.abs(moving.baristaTilt)).toBeGreaterThan(0.04);
+  await target.click();
+  await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(false);
+  await page.waitForTimeout(400);
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await target.click();
+  const reducedStart = await page.evaluate(() => window.__room04.recordState());
+  await page.waitForTimeout(800);
+  const reducedEnd = await page.evaluate(() => window.__room04.recordState());
+  expect(reducedEnd.platterAngle).toBe(reducedStart.platterAngle);
+  expect(reducedEnd.armAngle).toBeGreaterThan(0.28);
+  await target.click();
+  await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(false);
+  await page.waitForTimeout(400);
+  expect(errors).toEqual([]);
+});
+
 for (const width of [1440, 390]) {
   test(`Room 04 gold random-cafe tag stays on screen in full screen at ${width}px`, async ({ page }) => {
     const errors = await open(page, width);

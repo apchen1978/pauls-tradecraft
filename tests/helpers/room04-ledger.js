@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 187344, meshes: 128 }),
+  scene: Object.freeze({ vertices: 188786, meshes: 130 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 110, phone: 102 }),
+  openingDrawCalls: Object.freeze({ desktop: 112, phone: 94 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -52,5 +52,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-14", change: "espresso machine smart panel (Codex #830, re-applied on the current main by CC): taller body (H 0.46, D 0.52) and an angled touch screen with status marks and two indicator lights; one extra draw call", vertices: 185076, meshes: 129, desktopCalls: 111, phoneCalls: 103 },
     { date: "2026-11-14", change: "furniture feel (Codex #835, re-applied on the current main by CC): the banquette seat is three thick rounded cushions with welts, the armchair seat a rounded cushion with a central dip and welt, a fine cane weave bump map, and one merged mesh of soft contact shadows under the furniture, stools and robot bases (one draw call less)", vertices: 186736, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
     { date: "2026-11-14", change: "window-seat bentwood chairs: the four legs now stand inside the seat outline and run up into its frame with a collar (before they were centred 0.207 m out on a 0.2 m seat, so they only brushed its rim), and the leg ring touches all four legs; rule: a leg must enter the seat footprint", vertices: 187344, meshes: 128, desktopCalls: 110, phoneCalls: 102 },
+    { date: "2026-11-14", change: "Shanghai, Slowly record player on the far-left back-bar counter: 36 × 28 cm oak plinth, 25 cm record and platter, amber label and vertex-colour marks, steel tonearm and controls; mobile overview reframed to show it, with a tap-to-play/stop interaction", vertices: 188786, meshes: 130, desktopCalls: 112, phoneCalls: 94 },
   ]),
 });
