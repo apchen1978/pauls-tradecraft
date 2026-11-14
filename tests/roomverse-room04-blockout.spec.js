@@ -424,6 +424,58 @@ test("the Shanghai, Slowly record player fits the budget and plays on demand", a
   expect(errors).toEqual([]);
 });
 
+test("the Kyoto drip tower fits the stone, plays once per drop, and respects reduced motion", async ({ page }) => {
+  test.setTimeout(180000);
+  const errors = await open(page, 390);
+  const info = await page.evaluate(() => window.__room04.info());
+  const tower = info.dripTower, top = info.backBarStone;
+  expect(tower).toMatchObject({ widthMm: 220, depthMm: 180, heightMm: 600, xMm: -2410, zMm: -2040, baseYmm: 900, framePostsInBaseMm: 10 });
+  expect(info.vertices - 191579, "the drip tower stays within its 4,000-vertex allowance").toBeLessThanOrEqual(4000);
+  expect(info.vertices).toBe(LEDGER.scene.vertices);
+  expect(info.meshes).toBe(LEDGER.scene.meshes);
+  expect(info.drawCalls).toBeLessThanOrEqual(LEDGER.caps.phoneCalls);
+  expect(tower.xMm - tower.widthMm / 2).toBeGreaterThanOrEqual(top.x0Mm);
+  expect(tower.xMm + tower.widthMm / 2).toBeLessThanOrEqual(top.x1Mm);
+  expect(tower.zMm - tower.depthMm / 2).toBeGreaterThanOrEqual(top.z0Mm);
+  expect(tower.zMm + tower.depthMm / 2).toBeLessThanOrEqual(top.z1Mm);
+  expect(tower.baseYmm).toBe(top.topMm);
+
+  const target = page.locator("#dripHit");
+  await expect(target, "the tower is visible and tappable in the 390px counter station").toBeVisible();
+  const box = await target.boundingBox();
+  expect(box.width).toBeGreaterThanOrEqual(44); expect(box.height).toBeGreaterThanOrEqual(44);
+  expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(390);
+  await target.click();
+  await expect(page.locator("#bubble [data-line]")).toHaveText("冰滴，一滴一滴慢慢來。");
+  await expect.poll(() => page.evaluate(() => window.__room04.dripPlaying())).toBe(true);
+  await expect.poll(() => page.evaluate(() => window.__room04.dripState().dropScales.some((scale) => scale > 0))).toBe(true);
+  const falling = await page.evaluate(() => window.__room04.dripState());
+  expect(falling.dropsVisible).toBe(true);
+  await page.waitForTimeout(150);
+  const moving = await page.evaluate(() => window.__room04.dripState());
+  expect(moving.dropPositions).not.toEqual(falling.dropPositions);
+  await page.waitForTimeout(1400);
+  expect((await page.evaluate(() => window.__room04.dripState())).liquidRiseMm).toBeGreaterThan(0);
+  await target.click();
+  await expect.poll(() => page.evaluate(() => window.__room04.dripPlaying())).toBe(false);
+  const stopped = await page.evaluate(() => window.__room04.dripState());
+  expect(stopped.dropsVisible).toBe(false); expect(stopped.liquidRiseMm).toBe(0);
+  const stoppedFrame = stopped.renderFrame;
+  await page.waitForTimeout(180);
+  expect((await page.evaluate(() => window.__room04.dripState())).renderFrame).toBe(stoppedFrame);
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await target.click();
+  const reduced = await page.evaluate(() => window.__room04.dripState());
+  expect(reduced.playing).toBe(true); expect(reduced.dropsVisible).toBe(false); expect(reduced.liquidRiseMm).toBe(8);
+  await page.waitForTimeout(180);
+  expect((await page.evaluate(() => window.__room04.dripState())).renderFrame).toBe(reduced.renderFrame);
+  await target.click();
+  await expect.poll(() => page.evaluate(() => window.__room04.dripPlaying())).toBe(false);
+  expect((await page.evaluate(() => window.__room04.dripState())).liquidRiseMm).toBe(0);
+  expect(errors).toEqual([]);
+});
+
 for (const width of [1440, 390]) {
   test(`Room 04 gold random-cafe tag stays on screen in full screen at ${width}px`, async ({ page }) => {
     const errors = await open(page, width);
