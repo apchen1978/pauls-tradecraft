@@ -240,7 +240,7 @@ test("Room 04 views are standing stations: no overview, the room opens at the co
     expect(start.view).toBe("counter");
     await expect(page.locator('[data-view="counter"]')).toHaveAttribute("aria-pressed", "true");
     const seen = new Set([start.p.join(",")]);
-    for (const view of ["window", "lounge", "middle"]) {
+    for (const view of ["window", "lounge", "entry", "middle"]) {
       await page.locator(`[data-view="${view}"]`).click();
       await page.waitForFunction((v) => window.__room04.view() === v, view);
       await page.waitForTimeout(1200);
@@ -251,7 +251,7 @@ test("Room 04 views are standing stations: no overview, the room opens at the co
       expect(new Set(headings).size, view + ": eight headings round the circle").toBe(8);
       expect((await pose()).p, view + ": turning the head does not move the camera").toEqual(pos.p);
     }
-    expect(seen.size, "four distinct stations").toBe(4);
+    expect(seen.size, "five distinct stations").toBe(5);
     await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(1200);
     const back = await pose(); expect(back.p).toEqual(start.p); expect(back.fov).toBe(start.fov);
     expect(errors).toEqual([]);
@@ -313,7 +313,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
         return [Math.round(size.width), Math.round(size.height)];
       }).toEqual([viewport.width, viewport.height]);
 
-      for (const view of ["middle", "window", "lounge", "counter"]) {
+      for (const view of ["middle", "entry", "window", "lounge", "counter"]) {
         const button = page.locator('[data-view="' + view + '"]');
         await button.click();
         await expect(button).toHaveAttribute("aria-pressed", "true");
