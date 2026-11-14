@@ -1294,16 +1294,19 @@ export async function start({ stage, onReady = () => {} }) {
     partShift = counterShift(-0.3); // the cups and the tip jar stand on the backward lobe of the wave
     const cupStack = (x, z, n) => { for (let i = 0; i < n; i++) takeawayCup({ x, y: top + i * 0.03, z, lid: i === n - 1, sleeve: i === n - 1 }); };
     cupStack(-0.42, c.z1 - 0.14, 5); cupStack(-0.3, c.z1 - 0.16, 4);
-    // The straw holder beside the cup stacks (Paul: it stood in front of the record player; straws belong by the cups, and there should be many): a mint enamel cup with a solid bottom
-    // and a rim, and 46 straws in kraft, white and pastel green, leaning at different angles.
+    // The straw holder beside the cup stacks: a dark brown enamel cup with a solid bottom and a rim, and 46 eco straws in natural browns standing nearly upright (Paul: a straw never
+    // comes out through the side of its cup; it may lean a little, but it must stay inside the wall). Physics check, by the numbers: the cup's inside radius is 0.034 m at the rim; a straw
+    // starts on the floor of the cup within 0.020 m of the axis and leans so that, where it crosses the rim (49% of its length), it is still within 0.031 m of the axis. Above the rim it keeps
+    // going in a straight line, so nothing passes through the wall.
     {
-      const hx = -0.2, hz = c.z1 - 0.12;
-      part("loungeDetail", colorize(new THREE.LatheGeometry([[0.0005, 0], [0.032, 0], [0.034, 0.004], [0.037, 0.085], [0.0385, 0.092], [0.035, 0.092], [0.0005, 0.012]].map((p) => new THREE.Vector2(p[0], p[1])), 24).translate(hx, top, hz), 0x8fc9b8), { tile: 1 });
-      const strawColors = [0xd9c19a, 0xf4efe4, 0xa9d8b6, 0xd9c19a, 0xf4efe4];
+      const hx = -0.2, hz = c.z1 - 0.12, rimH = 0.092, baH = 0.014;
+      part("loungeDetail", colorize(new THREE.LatheGeometry([[0.0005, 0], [0.032, 0], [0.034, 0.004], [0.037, 0.085], [0.0385, 0.092], [0.035, 0.092], [0.0005, 0.012]].map((p) => new THREE.Vector2(p[0], p[1])), 24).translate(hx, top, hz), 0x4a3a30), { tile: 1 });
+      const strawColors = [0x8a6a45, 0x9c7a50, 0x7a5a38, 0xb08a5a, 0x6e4f33, 0xa88558];
       for (let i = 0; i < 46; i++) {
         const n1 = Math.sin((i + 1) * 12.9898) * 43758.5453, n2 = Math.sin((i + 1) * 78.233) * 12345.6789, r1 = n1 - Math.floor(n1), r2 = n2 - Math.floor(n2);
-        const ring = Math.sqrt((i + 0.5) / 46) * 0.022, a0 = i * 2.39996, lean = 0.004 + r1 * 0.022, a1 = a0 + (r2 - 0.5) * 1.2, h = 0.17 + r2 * 0.03;
-        part("loungeDetail", colorize(rodGeometry([hx + Math.cos(a0) * ring, top + 0.014, hz + Math.sin(a0) * ring], [hx + Math.cos(a0) * ring + Math.cos(a1) * lean * 2.2, top + h, hz + Math.sin(a0) * ring + Math.sin(a1) * lean * 2.2], 0.0021, 5), strawColors[i % 5]), { tile: 1 });
+        const rb = Math.sqrt((i + 0.5) / 46) * 0.02, a0 = i * 2.39996, h = 0.175 + r2 * 0.03, total = h - baH, atRim = (rimH - baH) / total;
+        const maxLean = (0.031 - rb) / atRim, lean = Math.min(0.02, maxLean) * (0.3 + 0.7 * r1), a1 = a0 + (r2 - 0.5) * 0.8; // leans mostly outward, never through the wall
+        part("loungeDetail", colorize(rodGeometry([hx + Math.cos(a0) * rb, top + baH, hz + Math.sin(a0) * rb], [hx + Math.cos(a0) * rb + Math.cos(a1) * lean, top + h, hz + Math.sin(a0) * rb + Math.sin(a1) * lean], 0.0021, 5), strawColors[i % 6]), { tile: 1 });
       }
     }
     partShift = counterShift(-0.92);
