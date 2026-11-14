@@ -8,11 +8,11 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 194402, meshes: 133 }),
+  scene: Object.freeze({ vertices: 192572, meshes: 136 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 100, phone: 96 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
-  caps: Object.freeze({ vertices: 200000, meshes: 134, desktopCalls: 115, phoneCalls: 105 }),
+  caps: Object.freeze({ vertices: 200000, meshes: 140, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-11-13", change: "blockout: shell, window, counter, back bar, shelves, menus, plain stand-ins for the machine, grinder, pastry case, robot and plant", vertices: 3419, meshes: 51, desktopCalls: 49, phoneCalls: 48 },
@@ -60,5 +60,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "fix: the checkout-terminal edit in #841 dropped the line that reset the counter-curve shift, so about 350 lines of wall frames, doors and clocks were built shifted along z and the prints no longer sat in their frames (Paul spotted it); the shift is now reset before the terminal and a test asserts it is zero after the build", vertices: 191579, meshes: 131, desktopCalls: 99, phoneCalls: 94 },
     { date: "2026-11-15", change: "Kyoto cold-drip tower (Codex #844, re-applied on the current main by CC): a 22 x 18 x 60 cm oak frame with a glass water ball, a powder chamber and a receiving flask on the back bar where the record player was (posts run 10 mm into the base), tap to drip for 20 s with the liquid level rising up to 8 mm, no sound; +1 desktop and +2 phone opening draw calls", vertices: 194402, meshes: 133, desktopCalls: 100, phoneCalls: 96 },
     { date: "2026-11-15", change: "ceiling tints as a look group: white planks stay the default (lightest, lifts the herringbone floor and the brick, the morning light's partner), plus warm wood, sage, clay pink and slate blue for the random cafe (white about two in five; no clay over red or dusty brick, no slate over grey brick); a material colour change only, no geometry", vertices: 194402, meshes: 133, desktopCalls: 100, phoneCalls: 96 },
+    { date: "2026-11-15", change: "the three placeholder abstract prints above the banquette are replaced by pictures we already have (Paul): Room 03's monstera leaf poster, the dusk harbour from Rooms 01 and 02 (cropped 4:3) and Room 03's sun-over-hills poster, in 2.2 cm oak frames; they load after the first frame from the other rooms' folders (no new files); the placeholders' rounded boxes are gone, so vertices go down", vertices: 192572, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
   ]),
 });

@@ -1902,12 +1902,22 @@ export async function start({ stage, onReady = () => {} }) {
       group.scale.set(1.25, 1.25 * 0.85, 1.25); scene.add(group);
     }
 
-    // Small abstract placeholders above the banquette. Card 54 B supplies the prints.
-    for (const [z, color, accent] of [[1.47, 0xa36a52, 0x586346], [1.83, 0x64704b, 0xb99457], [2.19, 0x4b6170, 0xa36a52]]) {
-      boxPart("oakDeep", 0.024, 0.30, 0.30, 3.175, 1.37, z);
-      detail(new THREE.BoxGeometry(0.005, 0.258, 0.258).translate(3.161, 1.37, z), 0xe4d7bb);
-      detail(new THREE.CircleGeometry(0.073, 24).rotateY(-Math.PI / 2).translate(3.157, 1.391, z + 0.028), color);
-      detail(new THREE.BoxGeometry(0.003, 0.041, 0.17).translate(3.156, 1.32, z - 0.02), accent);
+    // Three framed prints above the banquette, reused from the other rooms (Paul: pictures we already have): Room 03's monstera leaf poster, the dusk harbour from Rooms 01 and 02
+    // (cropped to 4:3 from its middle) and Room 03's sun-over-hills poster. They share Room 04's palette (terracotta, olive, cream) and cost nothing new to download for visitors who came
+    // through those rooms. Each is a 30 x 22.5 cm picture in a 2.2 cm oak frame, 2.4 cm deep, hung 5 mm off the wall; the pictures load after the first frame.
+    {
+      const PW = 0.30, PH = 0.225, FW2 = 0.022, PY = 1.37, WALL_X = 3.2;
+      const prints = [[1.33, "../kitchen/art/room03-print-poster-leaf-v1.webp", null], [1.70, "../tex/left-wall-harbor-dusk-v1.webp", [0.75, 0.125]], [2.07, "../kitchen/art/room03-print-poster-sun-v1.webp", null]];
+      for (const [z, file, crop] of prints) {
+        const bar = (h, d, y, zz) => part("oakDeep", new THREE.BoxGeometry(0.024, h, d).translate(WALL_X - 0.017, y, zz), { tile: 0.5 }); // plain boxes: a frame bar needs no rounded edge at this size
+        bar(FW2, PW + 2 * FW2, PY + PH / 2 + FW2 / 2, z); bar(FW2, PW + 2 * FW2, PY - PH / 2 - FW2 / 2, z); bar(PH, FW2, PY, z - PW / 2 - FW2 / 2); bar(PH, FW2, PY, z + PW / 2 + FW2 / 2);
+        const material = new THREE.MeshStandardMaterial({ color: 0xe4d7bb, roughness: 0.85 }); // cream mat until the picture arrives
+        add("lounge-print-" + z, new THREE.PlaneGeometry(PW, PH).rotateY(-Math.PI / 2).translate(WALL_X - 0.0295, PY, z), material, 0, 0, 0, { cast: false });
+        afterFirstFrame.push(() => textureLoader.load(new URL(file, import.meta.url).href, (t) => {
+          t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; if (crop) { t.repeat.set(crop[0], 1); t.offset.set(crop[1], 0); }
+          material.map = t; material.color.set(0xffffff); material.needsUpdate = true; render();
+        }));
+      }
     }
 
     rugRef.loungeDefault = makeRugTexture(true);
