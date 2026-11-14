@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 197743, meshes: 136 }),
+  scene: Object.freeze({ vertices: 197839, meshes: 137 }),
   // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 100, phone: 96 }),
+  openingDrawCalls: Object.freeze({ desktop: 100, phone: 95 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 140, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -66,5 +66,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "3D-A: the room now opens at golden hour (the street paintings that load first are the golden ones); the checkout screen sat 0.8 mm behind its bezel and was hidden from many angles, now 2.5 mm in front of it; the espresso machine panel shows 93 C, READY and a progress bar; the pendant lamps over the counter hang above the menu boards instead of in front of the Coffee menu; the lounge TV switched off is dark glass with a window reflection; the foot rail is brass with a denser smooth curve (+2,000 vertices)", vertices: 197743, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
     { date: "2026-11-15", change: "Card 65-B (Codex #859, merged with the current main by CC): registered construction relationships for an on-demand physics audit; no scene geometry, mesh or opening draw-call change", vertices: 197743, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
     { date: "2026-11-15", change: "the physics audit's 26 findings repaired: the 16 bentwood bar-stool legs run 15 mm into their seats (were exactly at the underside), and the lounge furniture is audited from the rug it stands on (false positives); the audit now passes with no findings", vertices: 197743, meshes: 136, desktopCalls: 100, phoneCalls: 96 },
+    { date: "2026-11-15", change: "the door mat becomes a ribbed graphite-taupe mat in a slim brass frame (4 mm and 7 mm above the floor; one extra mesh, behind the opening view so no opening draw call; the phone count drops by one because the old cane batch no longer reaches the door), and the lounge upholstery gets a chunky twill with crushed-velvet patches and a velvet sheen (texture and material only, same shapes)", vertices: 197839, meshes: 137, desktopCalls: 100, phoneCalls: 95 },
   ]),
 });

@@ -237,6 +237,45 @@ function makeCaneBumpTexture() {
   return texture;
 }
 
+// Upholstery cloth (Paul, 2026-11-15: keep the shape, make the surface luxurious): a chunky diagonal twill (about 2 cm ribs, large enough to survive the page's render
+// resolution on a phone) with soft crushed-velvet patches of light and dark 5 to 11 cm across. It is drawn once and used as a bump map and as a light-and-dark variation (the base
+// colour still comes from the lounge look). One texture repeat is 45 cm of cloth (world UVs run 0.9 m per repeat, repeated twice).
+function makeFabricTextures() {
+  const N = 256, canvases = [0, 1].map(() => { const c = document.createElement("canvas"); c.width = c.height = N; return c; });
+  const [bump, map] = canvases.map((c) => { const g = c.getContext("2d"); return { g, image: g.createImageData(N, N) }; });
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const noiseGrid = (cells) => Float32Array.from({ length: cells * cells }, () => rnd());
+  const sample = (grid, cells, x, y) => { // tileable value noise with smooth interpolation
+    const fx = x / N * cells, fy = y / N * cells, x0 = Math.floor(fx), y0 = Math.floor(fy), tx = fx - x0, ty = fy - y0, sx = tx * tx * (3 - 2 * tx), sy = ty * ty * (3 - 2 * ty);
+    const at = (a, b) => grid[(b % cells) * cells + (a % cells)];
+    return (at(x0, y0) * (1 - sx) + at(x0 + 1, y0) * sx) * (1 - sy) + (at(x0, y0 + 1) * (1 - sx) + at(x0 + 1, y0 + 1) * sx) * sy;
+  };
+  const coarse = noiseGrid(4), fine = noiseGrid(8);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const twill = Math.sin(((x + y) % 8) / 8 * Math.PI * 2), patch = sample(coarse, 4, x, y) * 0.55 + sample(fine, 8, x, y) * 0.45 - 0.5, grain = (rnd() - 0.5) * 8, i = (y * N + x) * 4;
+    const b = Math.max(0, Math.min(255, 128 + twill * 34 + patch * 40 + grain)), m = Math.max(0, Math.min(255, 230 + twill * 11 + patch * 34 + grain * 0.6));
+    bump.image.data.set([b, b, b, 255], i); map.image.data.set([m, m, m, 255], i);
+  }
+  bump.g.putImageData(bump.image, 0, 0); map.g.putImageData(map.image, 0, 0);
+  const make = (canvas, colorSpace) => { const t = new THREE.CanvasTexture(canvas); t.colorSpace = colorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2, 2); t.anisotropy = 4; return t; };
+  return { bump: make(canvases[0], THREE.NoColorSpace), map: make(canvases[1], THREE.SRGBColorSpace) };
+}
+
+
+// Entrance mat ribs: broad coir-style ribs running along the mat, drawn as a bump map only (the dark colour is the material's).
+function makeMatRibTexture() {
+  const N = 128, canvas = document.createElement("canvas"); canvas.width = canvas.height = N;
+  const g = canvas.getContext("2d"), image = g.createImageData(N, N);
+  let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const v = Math.max(0, Math.min(255, 128 + Math.sin(y / 16 * Math.PI * 2) * 44 + (rnd() - 0.5) * 22)), i = (y * N + x) * 4;
+    image.data.set([v, v, v, 255], i);
+  }
+  g.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.NoColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  return texture;
+}
+
 // A box with rounded vertical edges: a rounded-rectangle profile (w x h) extruded d deep along +z, centred on the origin.
 function roundedBox(w, h, d, r, bevel = 0, curveSegments = 8) {
   const shape = new THREE.Shape(), x = w / 2 - bevel, y = h / 2 - bevel, rr = Math.max(0.001, r - bevel);
@@ -395,6 +434,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   const plaster = makePlasterBump(); plaster.repeat.set(2, 2);
   const brushedSteel = makeBrushedSteelTexture();
+  const fabric = makeFabricTextures();
   const materials = {
     wall: new THREE.MeshStandardMaterial({ color: COLORS.wall, roughness: 0.95, bumpMap: plaster, bumpScale: 0.6 }),
     ceiling: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, map: makePlankTexture(), bumpScale: 1.4, emissive: COLORS.ceiling, emissiveIntensity: 0.16 }), // a ceiling faces away from every light; a little glow stands in for light bounced up off the floor
@@ -451,8 +491,9 @@ export async function start({ stage, onReady = () => {} }) {
     gold: new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: 0.3, metalness: 0.78, emissive: 0x4d3812, emissiveIntensity: 0.7 }), // metalness 1 rendered black here (nothing but the small reflection map to light it), so a little diffuse stays
     cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85, bumpMap: makeCaneBumpTexture(), bumpScale: 0.018 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
-    loungeSeat: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], roughness: 0.95 }),
-    loungeAccent: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1], roughness: 0.95 }),
+    loungeSeat: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], roughness: 0.9, map: fabric.map, bumpMap: fabric.bump, bumpScale: 6, sheen: 1, sheenRoughness: 0.45, sheenColor: new THREE.Color(0xfff0d8) }),
+    loungeAccent: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1], roughness: 0.9, map: fabric.map, bumpMap: fabric.bump, bumpScale: 6, sheen: 1, sheenRoughness: 0.45, sheenColor: new THREE.Color(0xfff0d8) }),
+    matWeave: new THREE.MeshStandardMaterial({ color: 0x756b60, roughness: 0.97, bumpMap: makeMatRibTexture(), bumpScale: 9 }),
     loungeDetail: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.87 }),
     paper: new THREE.MeshStandardMaterial({ color: 0xf6f0e2, roughness: 0.9 }),
     cover: new THREE.MeshStandardMaterial({ color: 0x5c4630, roughness: 0.8 }),
@@ -564,7 +605,7 @@ export async function start({ stage, onReady = () => {} }) {
   let beansMesh = null; // the grinder's beans (an instanced mesh), counted by the tests
   let posMood = null; // switches the checkout screen between its order face, the morning greeting and the closing goodbye
   let posSync = null; // redraws the checkout screen when the minute changes, so it always shows the wall clock's time
-  const noCast = new Set(["leaf", "leafDark", "bloom", "soil", "water", "paper", "cover", "glass", "muffinCup", "muffin", "croissant", "cookie", "chip", "beans", "coffee", "warm", "eyes", "cane", "kraft", "lid", "tablet", "gold", "pendantShade", "sconceGlow"]);
+  const noCast = new Set(["matWeave", "leaf", "leafDark", "bloom", "soil", "water", "paper", "cover", "glass", "muffinCup", "muffin", "croissant", "cookie", "chip", "beans", "coffee", "warm", "eyes", "cane", "kraft", "lid", "tablet", "gold", "pendantShade", "sconceGlow"]);
   const flush = (prefix) => { for (const [key, list] of parts) add(`${prefix}-${key}`, mergeGeometries(list), materials[key], 0, 0, 0, { cast: !noCast.has(key) }); parts.clear(); };
 
   // Card 57: shared real-sized cup forms. Every component joins the existing material batches at flush().
@@ -1634,7 +1675,14 @@ export async function start({ stage, onReady = () => {} }) {
       const art = new THREE.Mesh(mergeGeometries(planes), wallMaterial);
       art.name = "wall-art"; art.receiveShadow = true; scene.add(art); setGallery(currentLook.gallery); render();
     }));
-    slab("cane", [DOOR.x0 + 0.02, DOOR.x1 - 0.02], [0, 0.012], [FW - 0.78, FW - 0.08], { tile: 1 }); // the door mat
+    // The door mat (Paul, 2026-11-15: more contemporary and international, it read as a flat tan board): a deep graphite ribbed mat set in a slim brass frame, the way a
+    // hotel or a design store lays one at the door. The mat sits 4 mm and the brass 7 mm above the floor (the floor's top is at 0.012).
+    {
+      const MX0 = DOOR.x0 + 0.02, MX1 = DOOR.x1 - 0.02, MZ0 = FW - 0.78, MZ1 = FW - 0.08, F = 0.02;
+      slab("matWeave", [MX0 + F, MX1 - F], [0, 0.016], [MZ0 + F, MZ1 - F], { tile: 0.16 });
+      slab("gold", [MX0, MX1], [0, 0.019], [MZ0, MZ0 + F], { tile: 1 }); slab("gold", [MX0, MX1], [0, 0.019], [MZ1 - F, MZ1], { tile: 1 });
+      slab("gold", [MX0, MX0 + F], [0, 0.019], [MZ0 + F, MZ1 - F], { tile: 1 }); slab("gold", [MX1 - F, MX1], [0, 0.019], [MZ0 + F, MZ1 - F], { tile: 1 });
+    }
   }
   // ---------- the lamps (Codex card 50): four designs, each with a glowing part ----------
   // A window-seat lamp (the plane-leaf branch A or the bamboo cloud C, switched by the "lamp" look), two lattice-and-glass globes over the counter (B), and a stack of paper
