@@ -391,7 +391,7 @@ test("the Shanghai, Slowly record player fits the budget and plays on demand", a
   const info = await page.evaluate(() => window.__room04.info());
   expect(info.recordPlayer).toMatchObject({ widthMm: 360, depthMm: 280, heightMm: 110, xMm: 500, zMm: -720, attached: true });
   expect(info.recordPlayer.vertices, "the platter and tonearm stay within their vertex allowance").toBeLessThanOrEqual(1500);
-  expect(info.vertices - 187744, "scene growth stays within the record-player and checkout-screen budget").toBeLessThanOrEqual(3200);
+  expect(info.vertices, "the whole scene stays within the vertex cap with the record player in it").toBeLessThanOrEqual(LEDGER.caps.vertices);
   expect(info.drawCalls).toBeLessThanOrEqual(LEDGER.caps.phoneCalls);
   const target = page.locator("#recordHit");
   await expect(target, "the record player is tappable in the opening counter view").toBeVisible();

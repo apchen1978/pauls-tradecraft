@@ -958,8 +958,9 @@ export async function start({ stage, onReady = () => {} }) {
       const tilt = i === 3 ? 0.09 : 0;
       const body = new THREE.CylinderGeometry(0.031, 0.031, 0.17, 12).translate(0, 0.085, 0);
       const neck = new THREE.CylinderGeometry(0.012, 0.022, 0.07, 12).translate(0, 0.205, 0);
-      for (const g of [body, neck]) part(green ? "leafDark" : "glass", g.rotateZ(tilt).translate(x, base + 0.018, z), { tile: 1 });
-      if (green) part("glass", new THREE.CylinderGeometry(0.032, 0.032, 0.168, 12, 1, true).rotateZ(tilt).translate(x, base + 0.103, z), { tile: 1 });
+      // Solid, coloured bottles (Paul: the clear ones looked see-through and unreal): deep green glass for the sparkling water, frosted ice-blue for the still water, each with a paler shoulder.
+      body.rotateZ(tilt).translate(x, base + 0.018, z); neck.rotateZ(tilt).translate(x, base + 0.018, z);
+      part("loungeDetail", colorize(body, green ? 0x24603a : 0x9cc4d6)); part("loungeDetail", colorize(neck, green ? 0x3c8a52 : 0xc6e0ea));
       part("gold", new THREE.CylinderGeometry(0.014, 0.014, 0.014, 10).rotateZ(tilt).translate(x - Math.sin(tilt) * 0.247, base + 0.265, z), { tile: 1 });
       if (green) {
         part("paper", new THREE.CircleGeometry(0.025, 12).scale(0.88, 1.35, 1).translate(x, base + 0.108, z + 0.032), { tile: 1 });
@@ -1293,6 +1294,18 @@ export async function start({ stage, onReady = () => {} }) {
     partShift = counterShift(-0.3); // the cups and the tip jar stand on the backward lobe of the wave
     const cupStack = (x, z, n) => { for (let i = 0; i < n; i++) takeawayCup({ x, y: top + i * 0.03, z, lid: i === n - 1, sleeve: i === n - 1 }); };
     cupStack(-0.42, c.z1 - 0.14, 5); cupStack(-0.3, c.z1 - 0.16, 4);
+    // The straw holder beside the cup stacks (Paul: it stood in front of the record player; straws belong by the cups, and there should be many): a mint enamel cup with a solid bottom
+    // and a rim, and 46 straws in kraft, white and pastel green, leaning at different angles.
+    {
+      const hx = -0.2, hz = c.z1 - 0.12;
+      part("loungeDetail", colorize(new THREE.LatheGeometry([[0.0005, 0], [0.032, 0], [0.034, 0.004], [0.037, 0.085], [0.0385, 0.092], [0.035, 0.092], [0.0005, 0.012]].map((p) => new THREE.Vector2(p[0], p[1])), 24).translate(hx, top, hz), 0x8fc9b8), { tile: 1 });
+      const strawColors = [0xd9c19a, 0xf4efe4, 0xa9d8b6, 0xd9c19a, 0xf4efe4];
+      for (let i = 0; i < 46; i++) {
+        const n1 = Math.sin((i + 1) * 12.9898) * 43758.5453, n2 = Math.sin((i + 1) * 78.233) * 12345.6789, r1 = n1 - Math.floor(n1), r2 = n2 - Math.floor(n2);
+        const ring = Math.sqrt((i + 0.5) / 46) * 0.022, a0 = i * 2.39996, lean = 0.004 + r1 * 0.022, a1 = a0 + (r2 - 0.5) * 1.2, h = 0.17 + r2 * 0.03;
+        part("loungeDetail", colorize(rodGeometry([hx + Math.cos(a0) * ring, top + 0.014, hz + Math.sin(a0) * ring], [hx + Math.cos(a0) * ring + Math.cos(a1) * lean * 2.2, top + h, hz + Math.sin(a0) * ring + Math.sin(a1) * lean * 2.2], 0.0021, 5), strawColors[i % 5]), { tile: 1 });
+      }
+    }
     partShift = counterShift(-0.92);
     slab("oak", [-1.14, -0.69], [top, top + 0.018], [c.z1 - 0.28, c.z1 - 0.07], { tile: 1 });
     for (const x of [-1.03, -0.81]) ceramicCup({ x, y: top + 0.018, z: c.z1 - 0.18, coffee: true });
@@ -1300,9 +1313,11 @@ export async function start({ stage, onReady = () => {} }) {
     part("cookie", new THREE.SphereGeometry(0.028, 10, 6).scale(1.4, 0.45, 1).translate(-0.57, top + 0.015, c.z1 - 0.2), { tile: 1 });
     part("steel", rodGeometry([-0.66, top + 0.012, c.z1 - 0.14], [-0.52, top + 0.012, c.z1 - 0.14], 0.002, 6), { tile: 1 });
     partShift = counterShift(-0.3);
-    part("glass", new THREE.CylinderGeometry(0.06, 0.06, 0.13, 24).translate(-0.12, top + 0.065, c.z1 - 0.13), { tile: 1 });
-    part("gold", new THREE.CylinderGeometry(0.057, 0.057, 0.034, 20).translate(-0.12, top + 0.025, c.z1 - 0.13), { tile: 1 });
-    for (let i = 0; i < 6; i++) part("gold", new THREE.CylinderGeometry(0.011, 0.011, 0.002, 10).rotateX(Math.PI / 2 - 0.4).translate(-0.12 + (i % 3 - 1) * 0.02, top + 0.045 + Math.floor(i / 3) * 0.018, c.z1 - 0.13 + 0.02), { tile: 1 });
+    // The cookie jar: a sage-green glazed ceramic jar with a brass band and a brass lid with a knob (Paul: it was clear glass and looked see-through).
+    part("loungeDetail", colorize(new THREE.LatheGeometry([[0.0005, 0], [0.05, 0], [0.062, 0.02], [0.066, 0.07], [0.058, 0.118], [0.0005, 0.118]].map((p) => new THREE.Vector2(p[0], p[1])), 28).translate(-0.12, top, c.z1 - 0.13), 0x6f9a86), { tile: 1 });
+    part("gold", new THREE.TorusGeometry(0.063, 0.004, 6, 28).rotateX(Math.PI / 2).translate(-0.12, top + 0.06, c.z1 - 0.13), { tile: 1 });
+    part("gold", new THREE.CylinderGeometry(0.06, 0.056, 0.012, 28).translate(-0.12, top + 0.124, c.z1 - 0.13), { tile: 1 });
+    part("gold", new THREE.SphereGeometry(0.012, 10, 8).translate(-0.12, top + 0.14, c.z1 - 0.13), { tile: 1 });
     // The checkout terminal (Paul: next to the pastry case, and more high-tech): a slim steel arm on a weighted dark base, a thin-bezel glass screen with a drawn point-of-sale
     // screen (a canvas, lit like a display), and a contactless pad in front with a cyan ring. It moved from x 0.55 to 0.90 so the record player could take the middle.
     const POS_X = 0.9, posZ = c.z1 - 0.2;
@@ -1656,17 +1671,13 @@ export async function start({ stage, onReady = () => {} }) {
     slab("black", [0.05 - 0.07, 0.05 + 0.07], [T, T + 0.08], [zc - 0.045, zc + 0.045], { tile: 1 }); slab("paper", [0.05 - 0.055, 0.05 + 0.055], [T + 0.03, T + 0.092], [zc - 0.035, zc + 0.035], { tile: 1 });
     partShift = counterShift(0.22);
     // sugar jar: glass, a steel lid, six cubes and a pair of oak tongs
-    part("glass", new THREE.CylinderGeometry(0.045, 0.045, 0.11, 24).translate(0.22, T + 0.055, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.048, 0.048, 0.016, 24).translate(0.22, T + 0.118, zc), { tile: 1 }); part("steel", new THREE.SphereGeometry(0.009, 10, 8).translate(0.22, T + 0.134, zc), { tile: 1 });
+    part("loungeDetail", colorize(new THREE.CylinderGeometry(0.045, 0.045, 0.11, 24).translate(0.22, T + 0.055, zc), 0x34424f), { tile: 1 }); // charcoal ceramic, not see-through glass part("steel", new THREE.CylinderGeometry(0.048, 0.048, 0.016, 24).translate(0.22, T + 0.118, zc), { tile: 1 }); part("steel", new THREE.SphereGeometry(0.009, 10, 8).translate(0.22, T + 0.134, zc), { tile: 1 });
     for (let i = 0; i < 6; i++) slab("paper", [0.22 - 0.028 + (i % 3) * 0.02, 0.22 - 0.012 + (i % 3) * 0.02], [T + 0.004 + Math.floor(i / 3) * 0.016, T + 0.018 + Math.floor(i / 3) * 0.016], [zc - 0.012, zc + 0.004], { tile: 1 });
     slab("oak", [0.265, 0.33], [T, T + 0.006], [zc + 0.045, zc + 0.052], { tile: 1 });
     partShift = counterShift(0.38);
     // cream pitcher
     part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.028, 0], [0.036, 0.045], [0.03, 0.085], [0.034, 0.09], [0.0005, 0.09]].map((p) => new THREE.Vector2(p[0], p[1])), 22).translate(0.38, T, zc), { tile: 1 });
     part("ceramic", new THREE.TorusGeometry(0.02, 0.0055, 8, 14, Math.PI).rotateZ(-Math.PI / 2).translate(0.418, T + 0.05, zc), { tile: 1 });
-    partShift = counterShift(0.47);
-    // stir-stick holder: a steel cup with twelve oak sticks leaning in it
-    part("steel", new THREE.CylinderGeometry(0.029, 0.029, 0.12, 20, 1, true).translate(0.47, T + 0.06, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.029, 0.029, 0.004, 20).translate(0.47, T + 0.002, zc), { tile: 1 });
-    for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; part("oak", rodGeometry([0.47 + Math.cos(a) * 0.01, T + 0.01, zc + Math.sin(a) * 0.01], [0.47 + Math.cos(a) * 0.026, T + 0.155, zc + Math.sin(a) * 0.026], 0.0025, 5), { tile: 0.3 }); }
     partShift = counterShift(-1.45);
     // open menu folder: two brown covers and two cream pages, lying open
     slab("cover", [-1.56, -1.45], [T, T + 0.006], [zc - 0.075, zc + 0.075], { tile: 1 }); slab("cover", [-1.45, -1.34], [T, T + 0.006], [zc - 0.075, zc + 0.075], { tile: 1 });
