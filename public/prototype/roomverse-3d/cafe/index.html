@@ -29,6 +29,10 @@
     .poster { position:absolute; inset:0; z-index:3; display:grid; place-items:center; overflow:hidden; background:#715744; }
     .poster::before { content:""; position:absolute; inset:-8%; background:linear-gradient(#0004,#0007), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp?v=2") center / cover no-repeat; filter:blur(26px) saturate(1.15); }
     .poster::after { content:""; position:absolute; inset:0; background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp?v=2") center / contain no-repeat; }
+    @media (min-width:769px) {
+      .poster::before { content:none; }
+      .poster::after { background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-wide.webp?v=1") center / cover no-repeat; }
+    }
     .poster > * { position:relative; z-index:1; }
     .arriving .poster { display:none; }
     .poster:not([hidden]) + .status { top:68%; }
@@ -126,6 +130,6 @@
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
   </main>
-  <script type="module" src="page.js?v=65"></script>
+  <script type="module" src="page.js?v=66"></script>
 </body>
 </html>
