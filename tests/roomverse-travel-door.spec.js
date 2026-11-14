@@ -66,7 +66,7 @@ test("travel card header remains visible and closes at the bottom in all three r
     await page.evaluate(async (room) => {
       document.head.insertAdjacentHTML("beforeend", '<link rel="stylesheet" href="/prototype/roomverse-3d/travel-door.css">');
       document.body.innerHTML = '<button id="travelDoorBtn" data-travel-door-trigger>Travel</button>';
-      const { initTravelDoor } = await import("/prototype/roomverse-3d/travel-door.js?v=5");
+      const { initTravelDoor } = await import("/prototype/roomverse-3d/travel-door.js?v=7");
       initTravelDoor({ currentRoom: room, getLang: () => "zh", onChoose: () => {} });
     }, currentRoom);
     const trigger = page.locator("#travelDoorBtn");
@@ -144,7 +144,7 @@ function rgbToHex(rgb) {
 
 test("the shared directory lists four rooms and travel cards include Room 03 and the cafe", async ({ page }) => {
   await page.goto(ROOM01);
-  const rooms = await page.evaluate(async () => (await import("/prototype/roomverse-3d/rooms.js?v=4")).ROOMS);
+  const rooms = await page.evaluate(async () => (await import("/prototype/roomverse-3d/rooms.js?v=6")).ROOMS);
   expect(rooms).toHaveLength(4);
   expect(rooms.find((room) => room.id === "room03").listed).toBe(true);
   expect(rooms.filter((room) => room.listed).map((room) => room.id)).toEqual(["room01", "room02", "room03", "room04"]);

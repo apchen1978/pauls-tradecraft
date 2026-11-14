@@ -1,4 +1,4 @@
-import { initTravelDoor } from "../travel-door.js?v=6";
+import { initTravelDoor } from "../travel-door.js?v=7";
 
 const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
 
