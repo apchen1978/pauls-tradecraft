@@ -1250,25 +1250,73 @@ export async function start({ stage, onReady = () => {} }) {
   // Shelf things: four plates and two mugs on the lower shelf; two jars with oak lids and a trailing pothos on the upper one.
   {
     const lower = 1.75 + 0.035, upper = 2.15 + 0.035, zS = BACK + 0.13;
-    for (let i = 0; i < 4; i++) part("ceramic", new THREE.CylinderGeometry(0.095, 0.075, 0.013, 28).translate(-2.3, lower + 0.0065 + i * 0.014, zS), { tile: 1 });
-    for (const mx2 of [-1.95, -1.78]) ceramicCup({ x: mx2, y: lower, z: zS, scale: 1.35, saucer: false, spoon: false });
-    for (const [mx2, material] of [[-1.86, "ceramic"], [-1.69, "glass"]]) ceramicCup({ x: mx2, y: upper, z: zS, scale: 1.05, saucer: false, spoon: false, material, detail: "small" });
-    for (let i = 0; i < 2; i++) part("ceramic", new THREE.LatheGeometry([[0, 0], [0.047, 0], [0.06, 0.025], [0.054, 0.03]].map(([r, h]) => new THREE.Vector2(r, h)), 16).translate(-1.5, lower + i * 0.024, zS), { tile: 1 });
-    part("ceramic", new THREE.CylinderGeometry(0.045, 0.045, 0.07, 16).translate(-1.25, lower + 0.035, zS), { tile: 1 });
-    part("oak", new THREE.CylinderGeometry(0.048, 0.048, 0.012, 16).translate(-1.25, lower + 0.076, zS), { tile: 1 });
-    for (let i = 0; i < 5; i++) part("oak", rodGeometry([-1.1 + i * 0.006, lower + 0.012, zS], [-1.1 + i * 0.006, lower + 0.12, zS + 0.005], 0.002, 5), { tile: 1 });
-    for (const [jx, jh] of [[-2.25, 0.22], [-2.07, 0.17]]) {
-      part("ceramic", new THREE.CylinderGeometry(0.058, 0.062, jh, 24).translate(jx, upper + jh / 2, zS), { tile: 1 });
-      part("oak", new THREE.CylinderGeometry(0.056, 0.056, 0.028, 24).translate(jx, upper + jh + 0.014, zS), { tile: 0.3 });
+    // The shelves, dressed like a real international cafe (Paul: fewer identical white cups; mugs, canisters and colourful tumblers, a few cute things). Everything is vertex-coloured into
+    // the existing batch. No brand names or logos anywhere: the souvenir-style mugs carry a city skyline and a wave band only.
+    const tint = (g, hex) => part("loungeDetail", colorize(g, hex), { tile: 1 });
+    const mugProfile = [[0.0005, 0], [0.033, 0], [0.036, 0.004], [0.037, 0.05], [0.0385, 0.058], [0.0345, 0.058], [0.0325, 0.05], [0.032, 0.006], [0.0005, 0.006]];
+    // A squat mug with a handle, in one glaze colour. With skyline: a navy wave band round the foot and a mustard Pearl Tower and two towers on the front (a city souvenir mug, no lettering).
+    const mug = (x, y, color, { skyline = false, handle = 1 } = {}) => {
+      tint(new THREE.LatheGeometry(mugProfile.map(([r, h]) => new THREE.Vector2(r * 1.15, h * 1.15)), 22).translate(x, y, zS), color);
+      tint(new THREE.TorusGeometry(0.0235, 0.0045, 6, 14, Math.PI).rotateZ(-Math.PI / 2 * handle).translate(x + handle * 0.043, y + 0.032, zS), color);
+      if (skyline) {
+        tint(new THREE.CylinderGeometry(0.0384, 0.0384, 0.012, 22, 1, true).translate(x, y + 0.008, zS), 0x24364f);
+        tint(new THREE.BoxGeometry(0.0016, 0.026, 0.0035).translate(x - 0.002, y + 0.034, zS + 0.0432), 0xe0a52c); tint(new THREE.SphereGeometry(0.0045, 8, 6).translate(x - 0.002, y + 0.0345, zS + 0.0436), 0xe0a52c);
+        tint(new THREE.SphereGeometry(0.0028, 6, 5).translate(x - 0.002, y + 0.0455, zS + 0.0436), 0xe0a52c);
+        for (const [dx, h] of [[0.012, 0.018], [0.02, 0.026], [-0.014, 0.014]]) tint(new THREE.BoxGeometry(0.0016, h, 0.006).translate(x + dx, y + 0.014 + h / 2, zS + 0.0428), 0xe0a52c);
+      }
+    };
+    // A reusable tumbler with a coloured lid and a straw: tall tapered body, lid, a drinking hole's rim and a straw standing in it.
+    const tumbler = (x, y, color, lidColor, h = 0.15) => {
+      tint(new THREE.CylinderGeometry(0.036, 0.029, h, 20).translate(x, y + h / 2, zS), color);
+      tint(new THREE.CylinderGeometry(0.0375, 0.0365, 0.012, 20).translate(x, y + h + 0.006, zS), lidColor);
+      tint(new THREE.TorusGeometry(0.0125, 0.0028, 6, 14).rotateX(Math.PI / 2).translate(x + 0.01, y + h + 0.012, zS), lidColor);
+      tint(rodGeometry([x + 0.01, y + h + 0.002, zS], [x + 0.016, y + h + 0.07, zS - 0.004], 0.0028, 6), 0xf4efe4);
+    };
+    const canister = (x, y, h, color, lidColor) => { tint(new THREE.CylinderGeometry(0.052, 0.056, h, 24).translate(x, y + h / 2, zS), color); tint(new THREE.CylinderGeometry(0.05, 0.05, 0.026, 24).translate(x, y + h + 0.013, zS), lidColor); tint(new THREE.SphereGeometry(0.01, 8, 6).translate(x, y + h + 0.03, zS), lidColor); };
+    // lower shelf: a stack of coloured plates, then the mugs and tumblers in a row, a canister, a small ceramic cat
+    [0xc4623a, 0xf0e6d2, 0x6f8a5a, 0xf0e6d2, 0xd9a43a].forEach((c, i) => tint(new THREE.CylinderGeometry(0.092 - i * 0.002, 0.074, 0.013, 28).translate(-2.34, lower + 0.0065 + i * 0.014, zS), c));
+    mug(-2.14, lower, 0xf4f0e6, { skyline: true }); mug(-2.0, lower, 0xc4623a, { handle: -1 }); tumbler(-1.84, lower, 0xe8745a, 0xf6e3c4); tumbler(-1.7, lower, 0x7cc4b0, 0xffffff, 0.165);
+    mug(-1.55, lower, 0xe0a52c); mug(-1.41, lower, 0xf4f0e6, { skyline: true, handle: -1 }); canister(-1.26, lower, 0.1, 0x8aa88f, 0x5a3d2b);
+    { const cx = -1.1; // the cat: a rounded body, a head with two ears, a tail
+      tint(new THREE.SphereGeometry(0.03, 14, 10).scale(1, 1.1, 0.9).translate(cx, lower + 0.033, zS), 0xf4f0e6); tint(new THREE.SphereGeometry(0.02, 12, 9).translate(cx, lower + 0.073, zS + 0.004), 0xf4f0e6);
+      for (const sx of [-1, 1]) tint(new THREE.ConeGeometry(0.0075, 0.016, 6).translate(cx + sx * 0.012, lower + 0.093, zS + 0.002), 0xf4f0e6);
+      tint(new THREE.TorusGeometry(0.018, 0.0045, 6, 12, Math.PI * 1.2).translate(cx - 0.022, lower + 0.03, zS - 0.012), 0xf4f0e6);
+      tint(new THREE.SphereGeometry(0.0028, 6, 5).translate(cx - 0.007, lower + 0.075, zS + 0.0235), 0x3a2f2a); tint(new THREE.SphereGeometry(0.0028, 6, 5).translate(cx + 0.009, lower + 0.075, zS + 0.0235), 0x3a2f2a); }
+    // upper shelf: three canisters in different glazes and heights, a short stack of books, two more mugs, a tumbler with a lid beside the pothos
+    canister(-2.34, upper, 0.2, 0x8aa88f, 0x5a3d2b); canister(-2.17, upper, 0.15, 0xd68b6a, 0x3a2f2a); canister(-2.02, upper, 0.11, 0x34424f, 0xd9a43a);
+    [[0x2f4f6a, 0.2], [0xc4623a, 0.17], [0xe0b64a, 0.19]].forEach(([c, w], i) => tint(new THREE.BoxGeometry(w, 0.026, 0.15).rotateY(i * 0.08 - 0.06).translate(-1.82, upper + 0.013 + i * 0.027, zS), c));
+    mug(-1.68, upper, 0x6f8a5a); mug(-1.54, upper, 0xf0c9c0, { handle: -1 });
+    tumbler(-1.24, upper, 0xf2c230, 0xffffff, 0.14); tint(new THREE.CylinderGeometry(0.03, 0.03, 0.1, 18).translate(-1.1, upper + 0.05, zS), 0xe8745a);
+    // The pothos on the upper shelf (Paul: the leaves did not obey physics; vines hung straight down THROUGH the shelf board). A real trailing pothos stands in an open pot with soil, and its
+    // vines climb out of the soil, drape over the FRONT rim, clear the shelf's front edge (the board is 0.24 m deep, the pot centre 0.13 m in, so the edge is 0.11 m in front of the
+    // centre) and only then hang down, with small heart-shaped leaves on short stalks along them, all facing out. Physics check by the numbers: every vine point is above the board
+    // (y >= shelf top) until its z is past the front edge; the lowest tip is 0.30 m under the shelf top, above the mugs on the lower shelf.
+    {
+      const potX = -1.42, edgeZ = BACK + 0.24, soilY = upper + 0.098;
+      tint(new THREE.LatheGeometry([[0.0005, 0], [0.05, 0], [0.07, 0.11], [0.064, 0.11], [0.0005, 0.1]].map((p) => new THREE.Vector2(p[0], p[1])), 22).translate(potX, upper, zS), 0xf4f0e6);
+      tint(new THREE.CircleGeometry(0.064, 20).rotateX(-Math.PI / 2).translate(potX, soilY, zS), 0x3a2a1e);
+      let seed = 14; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const heart = new THREE.Shape(); heart.moveTo(0, -0.034); heart.bezierCurveTo(-0.034, -0.006, -0.024, 0.028, 0, 0.012); heart.bezierCurveTo(0.024, 0.028, 0.034, -0.006, 0, -0.034); // the tip points down
+      const leafGeo = new THREE.ShapeGeometry(heart, 5);
+      for (let v = 0; v < 5; v++) {
+        const vx = potX + (v - 2) * 0.018 + (rnd() - 0.5) * 0.01, drop = 0.16 + rnd() * 0.14, lean = (rnd() - 0.5) * 0.06;
+        const pts = [[vx, soilY - 0.004, zS - 0.005 + (rnd() - 0.5) * 0.02], [vx, upper + 0.125, zS + 0.05], [vx + lean * 0.2, upper + 0.12, zS + 0.088], [vx + lean * 0.4, upper + 0.07, edgeZ + 0.014],
+          [vx + lean * 0.7, upper - 0.05, edgeZ + 0.02], [vx + lean, upper - drop, edgeZ + 0.024]];
+        const curve = new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(...p)));
+        tint(new THREE.TubeGeometry(curve, 16, 0.0028, 5, false), 0x3f6a33);
+        for (let k = 0; k < 7; k++) {
+          const t = 0.42 + (k / 6) * 0.56, p = curve.getPoint(t), side = k % 2 ? 1 : -1, size = 0.78 + rnd() * 0.5;
+          const leaf = leafGeo.clone().scale(size, size, 1).rotateX(-0.12 - rnd() * 0.12).rotateY(side * (0.3 + rnd() * 0.5)).rotateZ(side * 0.12 * (rnd() + 0.5));
+          tint(leaf.translate(p.x + side * 0.008, p.y - 0.004, p.z + 0.012), k % 3 === 1 ? 0x4f8a3e : 0x356a2c); // a short stalk's worth out from the vine, in front of it
+        }
+      }
+      // the crown: a few leaves standing up from the soil on their own stalks, inside the pot's radius
+      for (let k = 0; k < 8; k++) {
+        const ang = k * 0.8, r = 0.02 + (k % 3) * 0.012, x = potX + Math.cos(ang) * r, z = zS + Math.sin(ang) * r, h = 0.05 + (k % 3) * 0.02;
+        tint(rodGeometry([x, soilY - 0.004, z], [x + Math.cos(ang) * 0.02, soilY + h, z + Math.sin(ang) * 0.02], 0.0022, 5), 0x3f6a33);
+        tint(leafGeo.clone().scale(0.9, 0.9, 1).rotateZ(Math.PI).rotateX(-0.4).rotateY(-ang + Math.PI / 2).translate(x + Math.cos(ang) * 0.022, soilY + h + 0.012, z + Math.sin(ang) * 0.022), k % 2 ? 0x4f8a3e : 0x356a2c);
+      }
     }
-    part("pot", new THREE.LatheGeometry([[0.0005, 0], [0.05, 0], [0.07, 0.11], [0.0005, 0.11]].map((p) => new THREE.Vector2(p[0], p[1])), 20).translate(-1.42, upper, zS), { tile: 1 });
-    let seed = 14; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    for (let v = 0; v < 5; v++) {
-      const vx = -1.42 + (rnd() - 0.5) * 0.1, drop = 0.14 + rnd() * 0.14, lean = (rnd() - 0.5) * 0.2;
-      part("leafDark", tubeGeometry([[vx, upper + 0.1, zS + 0.05], [vx + lean * 0.4, upper + 0.02, zS + 0.1], [vx + lean, upper - drop, zS + 0.12]], 0.0035, 12, 5), { tile: 1 });
-      for (let k = 0; k < 7; k++) { const t = 0.12 + k / 7 * 0.88, leaf = new THREE.SphereGeometry(0.036, 8, 4); leaf.scale(1, 0.1, 0.75); leaf.rotateY(rnd() * 3).rotateZ((rnd() - 0.5) * 0.6); part("leaf", leaf.translate(vx + lean * t, upper + 0.08 - drop * t, zS + 0.07 + 0.05 * t + (rnd() - 0.5) * 0.03), { tile: 1 }); }
-    }
-    for (let k = 0; k < 8; k++) { const leaf = new THREE.SphereGeometry(0.05, 8, 4); leaf.scale(1, 0.1, 0.8); leaf.rotateY(k * 0.8).rotateZ((k % 3 - 1) * 0.35); part("leaf", leaf.translate(-1.42 + Math.cos(k * 0.8) * 0.06, upper + 0.13 + (k % 3) * 0.02, zS + Math.sin(k * 0.8) * 0.06), { tile: 1 }); }
   }
 
   // A small paper note leaning against the pastry case foot, like the notes in Rooms 01 to 03 (reading it comes with the interaction in section 5).
