@@ -28,6 +28,7 @@ const COPY = {
       scarf: ["機器人圍巾", { olive: "橄欖綠", terracotta: "赭紅", mustard: "芥黃", navy: "海軍藍", rose: "玫瑰粉" }],
       chair: ["窗邊椅子", { bentwood: "曲木", black: "黑色", natural: "原木" }],
       stool: ["吧台高腳椅", { bentwood: "曲木藤面", leather: "橡木皮革", metal: "黑金屬", none: "不放" }],
+      ceiling: ["天花板", { white: "白色木板（預設）", warmwood: "暖木色", sage: "鼠尾草綠", clay: "陶土粉", slate: "深藍灰" }],
       lounge: ["Lounge 布色", { terracotta: "赭紅＋芥末黃", olive: "橄欖綠＋奶油", navy: "藏青＋燕麥" }],
       rug: ["地毯", { weave: "黃麻編織（預設）", jute: "黃麻粗編", wool: "深色羊毛回字紋", abstract: "抽象色塊", stripe: "藍灰細條紋" }],
       menu: ["黑板菜單", { board: "素面黑板", chalk: "粉筆插畫", minimal: "極簡邊框", script: "手寫感版面" }],
@@ -69,6 +70,7 @@ const COPY = {
       scarf: ["Robot scarf", { olive: "Olive", terracotta: "Terracotta", mustard: "Mustard", navy: "Navy", rose: "Rose" }],
       chair: ["Window chairs", { bentwood: "Bentwood", black: "Black", natural: "Natural" }],
       stool: ["Bar stools", { bentwood: "Bentwood and cane", leather: "Oak and leather", metal: "Black metal", none: "None" }],
+      ceiling: ["Ceiling", { white: "White planks (default)", warmwood: "Warm wood", sage: "Sage", clay: "Clay pink", slate: "Slate blue" }],
       lounge: ["Lounge upholstery", { terracotta: "Terracotta and mustard", olive: "Olive and cream", navy: "Navy and oatmeal" }],
       rug: ["Rugs", { weave: "Jute weave (default)", jute: "Coarse jute", wool: "Dark wool, lattice", abstract: "Abstract blocks", stripe: "Blue-grey stripe" }],
       menu: ["Chalk menus", { board: "Plain board", chalk: "Chalk drawings", minimal: "Minimal frame", script: "Handwritten layout" }],
@@ -92,7 +94,7 @@ const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
 let currentView = "counter"; // every view is a place to stand and turn all the way round; the room opens at the counter
-const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "rug", "lamp", "clock", "stool", "menu", "gallery", "scarf", "chair", "lounge"];
+const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "rug", "lamp", "clock", "stool", "menu", "gallery", "scarf", "chair", "ceiling", "lounge"];
 let look = {};
 function syncLookUrl() {
   const url = new URL(location.href);
@@ -318,7 +320,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=56");
+  const { start } = await import("./cafe.js?v=57");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
