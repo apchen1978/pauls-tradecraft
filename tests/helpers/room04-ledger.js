@@ -9,8 +9,8 @@
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
   scene: Object.freeze({ vertices: 196946, meshes: 140 }),
-  // Draw calls in the opening morning view, with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 102, phone: 97 }),
+  // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
+  openingDrawCalls: Object.freeze({ desktop: 103, phone: 92 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 140, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -69,5 +69,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "the door mat becomes a ribbed graphite-taupe mat in a slim brass frame (4 mm and 7 mm above the floor; one extra mesh, behind the opening view so no opening draw call; the phone count drops by one because the old cane batch no longer reaches the door), and the lounge upholstery gets a chunky twill with crushed-velvet patches and a velvet sheen (texture and material only, same shapes)", vertices: 197839, meshes: 137, desktopCalls: 100, phoneCalls: 95 },
     { date: "2026-11-15", change: "three quick wins: the wainscot carries a little of its own colour and its battens a lighter shade (it read as black), the foot rail gets its own deeper brass (the pale brass burnt out to cream in the low sun), and the television plays its still dimly by day (it was a black rectangle); two new material batches, no new geometry", vertices: 197839, meshes: 139, desktopCalls: 102, phoneCalls: 97 },
     { date: "2026-11-15", change: "lounge plant (Codex card 63, finished by CC): seven stems rooted 20 mm below the soil, 154 cupped glossy leaves as one instanced mesh, a saucer under the pot; branch joins are now measured on the geometry, not hard-coded", vertices: 196946, meshes: 140, desktopCalls: 102, phoneCalls: 97 },
+    { date: "2026-11-15", change: "the room opens just inside the door (初體驗) in a cooler golden hour: golden sun, sky and bounce colours lose the pumpkin-orange cast, more fill (ambient, hemisphere), lower exposure and track light; the phone entry view turns left so the street window is in the first frame; the shadow edge is softer (radius 4.5); no geometry, no new mesh. The opening draw calls are now counted in the entry view", vertices: 196946, meshes: 140, desktopCalls: 103, phoneCalls: 92 },
   ]),
 });

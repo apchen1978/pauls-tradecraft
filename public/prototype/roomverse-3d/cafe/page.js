@@ -7,7 +7,7 @@ const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
 const COPY = {
   zh: {
     title: ROOM_TITLE, subtitle: "上海·慢板",
-    lead: "上海一家位於城市街角的紅磚咖啡廳，早晨剛開店。拖曳畫面看看吧台、菜單牆和臨街的窗；點一下機器人咖啡師和吧台上的小便條。",
+    lead: "上海一家位於城市街角的紅磚咖啡廳，午後的斜陽正好落在磚牆和蜂蜜色橡木上。拖曳畫面看看吧台、菜單牆和臨街的窗；點一下機器人咖啡師和吧台上的小便條。",
     note: "這是想像的房間，不是實際店面。窗外是新天地一帶的街景概念畫。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", lang: "EN", languageLabel: "切換為英文",
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁",
@@ -49,7 +49,7 @@ const COPY = {
   },
   en: {
     title: ROOM_TITLE, subtitle: "A cafe in Shanghai",
-    lead: "A red-brick cafe on a city corner in Shanghai, just opened for the morning. Drag to look at the counter, the menu wall and the street window; tap the barista robot and the little note on the counter.",
+    lead: "A red-brick cafe on a city corner in Shanghai, with the low afternoon sun on the brick and the honey oak. Drag to look at the counter, the menu wall and the street window; tap the barista robot and the little note on the counter.",
     note: "An imagined room, not a real shop. The street outside is a concept painting of the Xintiandi area.",
     otherRooms: "← Other rooms", otherRoomsLabel: "Go to the other ROOMVERSE rooms", lang: "中文", languageLabel: "Switch to Chinese",
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home",
@@ -93,7 +93,7 @@ const COPY = {
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
-let currentView = "counter"; // every view is a place to stand and turn all the way round; the room opens at the counter
+let currentView = "entry"; // every view is a place to stand and turn all the way round; the room opens just inside the door
 const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "rug", "lamp", "clock", "stool", "menu", "gallery", "scarf", "chair", "ceiling", "lounge"];
 let look = {};
 function syncLookUrl() {
