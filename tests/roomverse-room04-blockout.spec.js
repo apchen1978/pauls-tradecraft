@@ -389,12 +389,12 @@ test("the Shanghai, Slowly record player fits the budget and plays on demand", a
   test.setTimeout(180000);
   const errors = await open(page, 390);
   const info = await page.evaluate(() => window.__room04.info());
-  expect(info.recordPlayer).toMatchObject({ widthMm: 360, depthMm: 280, heightMm: 110, xMm: -2410, zMm: -2040, attached: true });
+  expect(info.recordPlayer).toMatchObject({ widthMm: 360, depthMm: 280, heightMm: 110, xMm: 500, zMm: -720, attached: true });
   expect(info.recordPlayer.vertices, "the platter and tonearm stay within their vertex allowance").toBeLessThanOrEqual(1500);
-  expect(info.vertices - 187744, "scene growth stays within the record-player budget").toBeLessThanOrEqual(1500);
+  expect(info.vertices - 187744, "scene growth stays within the record-player and checkout-screen budget").toBeLessThanOrEqual(3200);
   expect(info.drawCalls).toBeLessThanOrEqual(LEDGER.caps.phoneCalls);
   const target = page.locator("#recordHit");
-  await expect(target, "the record player is tappable in the phone overview").toBeVisible();
+  await expect(target, "the record player is tappable in the opening counter view").toBeVisible();
   const box = await target.boundingBox();
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(390);
@@ -406,7 +406,7 @@ test("the Shanghai, Slowly record player fits the budget and plays on demand", a
   const moving = await page.evaluate(() => window.__room04.recordState());
   expect(moving.platterAngle).not.toBe(0);
   expect(moving.armAngle).toBeGreaterThan(0.28);
-  expect(Math.abs(moving.baristaTilt)).toBeGreaterThan(0.04);
+  expect(Math.abs(moving.robotTilt)).toBeGreaterThan(0.04);
   await target.click();
   await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(false);
   await page.waitForTimeout(400);
