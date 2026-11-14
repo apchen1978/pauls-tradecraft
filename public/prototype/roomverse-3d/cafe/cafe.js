@@ -2517,6 +2517,9 @@ export async function start({ stage, onReady = () => {} }) {
     counter: compact ? station([1.9, 1.5, 1.55], [0.2, 1.2, -0.7], 62) : station([1.7, 1.5, 1.45], [0.2, 1.22, -0.7], 50),
     window: compact ? station([0.3, 1.35, 2.1], [-2.5, 1.0, 0.5], 66) : station([-0.1, 1.4, 2.0], [-2.5, 1.0, 0.5], 54),
     lounge: compact ? station([-0.55, 1.57, 2.55], [2.32, 0.78, 1.32], 66) : station([0.15, 1.52, 2.85], [2.42, 0.66, 1.44], 58),
+    // Just inside the door (Paul, 2026-11-15: a standing view like Rooms 01 and 03, turning smoothly all the way round): the classic first look, the whole counter ahead,
+    // the street window on the left, the lounge on the right and the door behind. It stands 0.6 m clear of the front wall so turning to the door never puts the camera in the glass.
+    entry: compact ? station([0.5, 1.55, 1.75], [-0.1, 1.2, -0.8], 80) : station([0.5, 1.55, 1.75], [-0.1, 1.25, -0.8], 70),
     middle: { position: new THREE.Vector3(0.1, 1.55, 1.2), yaw: Math.PI * 0.82, pitch: -0.04, fov: compact ? 84 : 72 }, // it opens on the front wall: the street window and the glass door
   };
   const DEFAULT_STATION = "counter";
