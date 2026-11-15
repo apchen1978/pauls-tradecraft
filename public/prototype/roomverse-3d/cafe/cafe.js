@@ -129,7 +129,7 @@ export const LOOK_GROUPS = Object.freeze({
   lounge: Object.freeze({ terracotta: [0xa0523e, 0xc39748], olive: [0x697349, 0xe2d2ab], navy: [0x354c61, 0xc9b99f] }), // PROVISIONAL
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4], planeleaf: ["room04-wallpaper-plane-leaf.webp", 1.5], windowshadow: ["room04-wallpaper-window-shadow.webp", 1.5] }), // the last two are this cafe's own (Codex card 52 C)
 });
-export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "herringbone", lamp: "bamboo", scarf: "olive", chair: "bentwood", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", ceiling: "white", lounge: "terracotta", menu: "board", stool: "bentwood" });
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "herringbone", lamp: "bamboo", scarf: "olive", chair: "black", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", ceiling: "white", lounge: "terracotta", menu: "board", stool: "bentwood" });
 // What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
 export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"], planeleaf: ["olive", "walnut", "cream"], windowshadow: ["walnut", "charcoal", "olive"] });
 
@@ -1305,6 +1305,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   grainMap.wrapS = grainMap.wrapT = THREE.RepeatWrapping;
   grainMap.anisotropy = 4;
   materials.windowChair = materials.bentwood.clone();
+  materials.windowChair.color.setHex(LOOK_GROUPS.chair[DEFAULT_LOOK.chair]); // the window chairs open black (Paul, 2026-11-15: the other chairs are all the same warm wood); bentwood and natural stay in the looks
   materials.windowChair.map = grainMap;
   materials.windowChair.bumpMap = grainMap;
   materials.windowChair.bumpScale = 0.001;

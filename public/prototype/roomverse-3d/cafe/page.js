@@ -335,7 +335,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=76");
+  const { start } = await import("./cafe.js?v=77");
   room = await start({ stage: $("stage"), onMenuTap: () => { room?.pokeRobot?.(); openBubble("menu", 7000); } });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
