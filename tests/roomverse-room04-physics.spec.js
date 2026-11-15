@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 import { LEDGER } from "./helpers/room04-ledger.js";
-import { ASSET_VERSIONS } from "./helpers/room04-asset-versions.js";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
@@ -56,20 +55,15 @@ test("historical bad builds fail the same rules while sound joins pass", async (
   for (const result of checks) expect(result.detail).toMatch(/-?\d+(\.\d+)? mm/);
 });
 
-// Cache-busting guard: a phone keeps an old cafe.js or page.js for up to 4 hours unless its ?v= number changes (see tests/helpers/room04-asset-versions.js).
-test("Room 04 cafe.js and page.js bump their ?v= number whenever their content changes", () => {
-  const dir = new URL("../public/prototype/roomverse-3d/cafe/", import.meta.url);
-  const read = (name) => readFileSync(new URL(name, dir), "utf8").replace(/\r\n/g, "\n");
-  const sha = (text) => createHash("sha256").update(text).digest("hex");
-  const page = read("page.js"), html = read("index.html");
-  const cafeVersion = Number(/\.\/cafe\.js\?v=(\d+)/.exec(page)?.[1]), pageVersion = Number(/page\.js\?v=(\d+)/.exec(html)?.[1]);
-  expect(Number.isInteger(cafeVersion), "page.js imports ./cafe.js?v=N").toBe(true);
-  expect(Number.isInteger(pageVersion), "index.html loads page.js?v=M").toBe(true);
-  const now = { "cafe.js": { sha256: sha(read("cafe.js")), version: cafeVersion }, "page.js": { sha256: sha(page.replace(/(\.\/cafe\.js\?v=)\d+/, "$1X")), version: pageVersion } };
-  for (const file of Object.keys(ASSET_VERSIONS)) {
-    const recorded = ASSET_VERSIONS[file];
-    expect(now[file].version, `${file}: the ?v= number must never go down`).toBeGreaterThanOrEqual(recorded.version);
-    expect(now[file].sha256 === recorded.sha256 && now[file].version === recorded.version,
-      `${file} changed or its ?v= number moved without the record being updated. Bump the ?v= number first (cafe.js?v=N in page.js, page.js?v=M in index.html), then set in tests/helpers/room04-asset-versions.js: "${file}": { sha256: "${now[file].sha256}", version: ${now[file].version} }`).toBe(true);
-  }
+// Cache-busting (scripts/vite-auto-asset-versions.mjs): the build rewrites every `?v=auto` in the Room 04 sources to a hash of the target file's final content. This checks the
+// built pages: no placeholder is left, each URL carries the hash of the file it points to, and a change in cafe.js would change page.js's URL (the hash chain).
+test("Room 04 built pages carry content-hash versions, so a changed script always gets a new URL", () => {
+  const dist = new URL("../dist/prototype/roomverse-3d/cafe/", import.meta.url);
+  const read = (name) => readFileSync(new URL(name, dist), "utf8");
+  const hashOf = (text) => createHash("sha1").update(text).digest("hex").slice(0, 10);
+  const html = read("index.html"), page = read("page.js"), cafe = read("cafe.js");
+  for (const [name, text] of [["index.html", html], ["page.js", page], ["cafe.js", cafe]]) expect(text, `${name} has no leftover ?v=auto`).not.toContain("?v=auto");
+  expect(/page\.js\?v=([0-9a-f]{10})/.exec(html)?.[1], "index.html loads page.js by the hash of page.js").toBe(hashOf(page));
+  expect(/\.\/cafe\.js\?v=([0-9a-f]{10})/.exec(page)?.[1], "page.js loads cafe.js by the hash of cafe.js").toBe(hashOf(cafe));
+  expect(/physics-audit\.js\?v=([0-9a-f]{10})/.exec(cafe)?.[1], "cafe.js loads physics-audit.js by its hash").toBe(hashOf(read("physics-audit.js")));
 });

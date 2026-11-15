@@ -1,8 +1,8 @@
 import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
-import { loadModel } from "../bedroom/models.js?v=5";
-import { auditRoom04 } from "./physics-audit.js?v=2";
+import { loadModel } from "../bedroom/models.js?v=auto";
+import { auditRoom04 } from "./physics-audit.js?v=auto";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai; the room opens at golden hour, standing just inside the door.
 // Look brief approved by Paul on 2026-11-13 (original arrival = morning white light, since changed to golden hour by Paul on 2026-11-15; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
