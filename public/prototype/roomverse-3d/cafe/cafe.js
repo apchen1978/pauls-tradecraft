@@ -119,9 +119,9 @@ export const LOOK_GROUPS = Object.freeze({
   floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12], terrazzo: "room04-floor-terrazzo-v1.webp", herringbone: "room04-floor-herringbone.webp", slate: "room04-floor-slate.webp" }), // strings are painted floor tiles from Codex cards 51 C and 52 F
   lamp: Object.freeze({ bamboo: 1, rings: 2 }), // Codex card 50: the two designs Paul kept. "bamboo": the bamboo cloud over the window seat and paper rings over the counter; "rings": the other way round
   scarf: Object.freeze({ olive: 0x66763f, terracotta: 0xc4623a, mustard: 0xd6a43a, navy: 0x2f4560, rose: 0xd49a96 }),
-  chair: Object.freeze({ bentwood: 0x9a6a3a, black: 0x2a2a2c, natural: 0xc9a06a }),
+  chair: Object.freeze({ bentwood: 0x9a6a3a, black: 0x2a2a2c, natural: 0xc9a06a, forest: 0x2f4a3a, terracotta: 0xa5563b, navy: 0x2f4560 }),
   gallery: Object.freeze({ a: 1, b: 2 }), // two sets of eight wall prints (Codex cards 49 and 52 G)
-  rug: Object.freeze({ weave: "", jute: "room04-rug-1-jute.webp", wool: "room04-rug-2-wool-lattice.webp", abstract: "room04-rug-3-abstract.webp", stripe: "room04-rug-4-stripe.webp" }), // the round rug at the window seat (Codex card 52 B)
+  rug: Object.freeze({ weave: "", jute: "room04-rug-1-jute.webp", wool: "room04-rug-2-wool-lattice.webp", abstract: "room04-rug-3-abstract.webp", stripe: "room04-rug-4-stripe.webp", ivory: "../../tex/rug-ivory-v1.webp", medallion: "../../tex/rug-medallion-v1.webp", slate: "../../bedroom/art/room02-a1-living-rug-v1.webp", arches: "../../bedroom/art/room02-rug-modern-v1.webp", oat: "../../bedroom/art/room02-rug-oat-v1.webp" }), // the round rug at the window seat (Codex card 52 B)
   menu: Object.freeze({ board: ["room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"], chalk: ["room04-menu-a-chalk-art-big.webp", "room04-menu-a-small.webp"], minimal: ["room04-menu-b-minimal-big.webp", "room04-menu-b-small.webp"], script: ["room04-menu-c-script-big.webp", "room04-menu-c-small.webp"] }), // the two chalk menus (Codex card 52 D)
   stool: Object.freeze({ bentwood: 1, leather: 2, metal: 3, none: 0 }), // the four bar stools along the counter (Codex card 52 A)
   clock: Object.freeze({ tech: 1, classic: 2, wood: 3 }), // the wall clock (Codex card 49): A futuristic, B classical brass, or the round oak one. The hands show the real time.
@@ -129,6 +129,18 @@ export const LOOK_GROUPS = Object.freeze({
   lounge: Object.freeze({ terracotta: [0xa0523e, 0xc39748], olive: [0x697349, 0xe2d2ab], navy: [0x354c61, 0xc9b99f] }), // PROVISIONAL
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4], planeleaf: ["room04-wallpaper-plane-leaf.webp", 1.5], windowshadow: ["room04-wallpaper-window-shadow.webp", 1.5] }), // the last two are this cafe's own (Codex card 52 C)
 });
+// Rugs borrowed from Rooms 01 and 02 (Paul, 2026-11-15: more fabric, some rectangles, and a different rug for each mood). Each lies under the window seat as a rectangle that was FITTED so that
+// every chair foot and the table base stay on it (the chairs are built to stand on a 14 mm rug), clear of the wall (x -3.15) and of the first bar stool. The chairs and the wall leave no room for
+// a big angle, so each rug is turned a few degrees off the wall. cx, cz: centre; w: length along the rug's own x; d: its other side; yaw: turn in degrees (fit convention: three.js rotation.y = -yaw).
+export const WINDOW_RUG_RECTS = Object.freeze({
+  ivory: Object.freeze({ w: 2.14, d: 1.34, cx: -2.2, cz: 1.16, yaw: 96, side: 0xcdb78f }),
+  medallion: Object.freeze({ w: 2.14, d: 1.34, cx: -2.2, cz: 1.16, yaw: 96, side: 0x6a3a2a }),
+  slate: Object.freeze({ w: 1.42, d: 2.05, cx: -2.06, cz: 1.16, yaw: -9, side: 0x5d6c78 }),
+  arches: Object.freeze({ w: 1.46, d: 2.13, cx: -2.26, cz: 1.16, yaw: 6, side: 0xd7cbb2 }),
+  oat: Object.freeze({ w: 1.36, d: 2.14, cx: -2.2, cz: 1.16, yaw: 6, side: 0xc9b38a }),
+});
+// The rug each mood brings to the window seat, until the visitor picks a rug themselves. Golden hour keeps the round jute weave.
+export const RUG_BY_MOOD = Object.freeze({ morning: "ivory", noon: "arches", golden: "weave", rain: "oat", closing: "medallion", series: "slate" });
 export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "herringbone", lamp: "bamboo", scarf: "olive", chair: "black", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", ceiling: "white", lounge: "terracotta", menu: "board", stool: "bentwood" });
 // What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
 export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"], planeleaf: ["olive", "walnut", "cream"], windowshadow: ["walnut", "charcoal", "olive"] });
@@ -1666,6 +1678,20 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const rugTexture = makeRugTexture();
     const rug = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.014, 56), [new THREE.MeshStandardMaterial({ color: 0xb59868, roughness: 1 }), (rugRef.top = new THREE.MeshStandardMaterial({ map: rugTexture, roughness: 1 }), rugRef.defaultMap = rugTexture, rugRef.top), new THREE.MeshStandardMaterial({ color: 0x7a6040 })]);
     rug.name = "window-rug"; rug.position.set(SEAT.x + 0.2, 0.007, SEAT.z + 0.28); rug.receiveShadow = true; scene.add(rug);
+    // The same mesh can become one of the fitted rectangles (see WINDOW_RUG_RECTS) and back: no new mesh, and a rectangle is two draw groups.
+    rugRef.mesh = rug; rugRef.roundGeometry = rug.geometry; rugRef.roundMaterials = rug.material; rugRef.roundPosition = rug.position.clone();
+    rugRef.rectSide = new THREE.MeshStandardMaterial({ color: 0xc9b38a, roughness: 1 }); rugRef.rectGeometry = {}; rugRef.shape = "round";
+    rugRef.setShape = (key) => {
+      const rect = key ? WINDOW_RUG_RECTS[key] : null;
+      if (!rect) { rug.geometry = rugRef.roundGeometry; rug.material = rugRef.roundMaterials; rug.position.copy(rugRef.roundPosition); rug.rotation.y = 0; rugRef.shape = "round"; return; }
+      if (!rugRef.rectGeometry[key]) {
+        const g = new THREE.BoxGeometry(rect.w, 0.014, rect.d), idx = Array.from(g.index.array);
+        g.setIndex([...idx.slice(12, 18), ...idx.slice(0, 12), ...idx.slice(18)]); g.clearGroups(); g.addGroup(0, 6, 1); g.addGroup(6, 30, 0); // the top first (material 1), then the edges (material 0)
+        rugRef.rectGeometry[key] = g;
+      }
+      rugRef.rectSide.color.setHex(rect.side); rug.geometry = rugRef.rectGeometry[key]; rug.material = [rugRef.rectSide, rugRef.top];
+      rug.position.set(rect.cx, 0.007, rect.cz); rug.rotation.y = -rect.yaw * Math.PI / 180; rugRef.shape = key;
+    };
   }
   // ---------- the front wall (behind the visitor): a glass door, a floor-to-ceiling window and a mat (Codex card 47, A) ----------
   {
@@ -2598,7 +2624,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
-    currentMood = name; posMood?.(name); robotFace.setMood(name);
+    currentMood = name; posMood?.(name); robotFace.setMood(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
     const from = { tv: live.tv, shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
@@ -2657,11 +2683,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     else if (group === "gallery") { galleryRef.apply?.(key); }
     else if (group === "rug") {
+      const rect = WINDOW_RUG_RECTS[key];
+      if (userPick) rugChosen = true;
       const applyRugs = (map) => {
         if (currentLook.rug !== key) return;
         rugRef.top.map = map ?? rugRef.defaultMap;
-        rugRef.lounge.map = map ?? rugRef.loungeDefault;
+        rugRef.lounge.map = rect ? rugRef.loungeDefault : (map ?? rugRef.loungeDefault);
         rugRef.top.needsUpdate = rugRef.lounge.needsUpdate = true;
+        rugRef.setShape(rect ? key : null); dirtyShadows(); render();
       };
       if (v) altTexture(v, true, [1, 1], applyRugs);
       else applyRugs(null);
@@ -2697,7 +2726,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // (no clay above red or dusty brick, no slate above the dark grey brick).
     const ceilingKeys = Object.keys(LOOK_GROUPS.ceiling).filter((k) => !(k === "clay" && (brick === "red" || brick === "dusty")) && !(k === "slate" && brick === "grey"));
     picks.ceiling = rng() < 0.4 ? "white" : ceilingKeys[Math.floor(rng() * ceilingKeys.length)];
-    for (const [group, key] of Object.entries(picks)) setLook(group, key);
+    rugChosen = true; for (const [group, key] of Object.entries(picks)) setLook(group, key);
     wainscotChosen = false; setLook("wainscot", "same");
     if (rng() < 0.4) { const paper = pick("wallpaper", ["none"]); setLook("wallpaper", paper); const options = WAINSCOT_FOR_PAPER[paper]; setLook("wainscot", options[Math.floor(rng() * options.length)]); } // two rooms in five get one of Room 01's wallpapers, with a wainscot that suits it
     else if (rng() < 0.45) setLook("wainscot", pick("wainscot", ["same"]));
@@ -2705,6 +2734,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   function reapplyLook() { const paper = currentLook.wallpaper, wain = currentLook.wainscot; for (const [group, key] of Object.entries(currentLook)) if (group !== "wallpaper" && group !== "wainscot") setLook(group, key); currentLook.wallpaper = paper; currentLook.wainscot = wain; applyWall(); applyWainscot(); } // a texture that loads late must not undo the chosen look
   // The wall is either a painted colour or one of Room 01's wallpapers (a colour choice replaces the paper, as in Room 01).
+  let rugChosen = false; // once the visitor picks a rug (or the random cafe does), the mood stops changing it
   let wainscotChosen = false; // once the visitor picks a wainscot colour themselves, a paper no longer changes it
   function applyWainscot() { const key = currentLook.wainscot, hex = LOOK_GROUPS.wainscot[key]; const c = hex ?? LOOK_GROUPS.back[currentLook.back]; materials.wainscot.color.setHex(c); materials.wainscot.emissive.setHex(c); materials.wainscotTrim.color.setHex(c).lerp(new THREE.Color(0xffffff), 0.07); materials.wainscotTrim.emissive.setHex(c); } // the panelling stands on walls the sun never reaches, so it carries a little of its own colour (it read as black)
   const wallpaperTextures = {};
@@ -2719,7 +2749,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     materials.wall.needsUpdate = true;
   }
-  const resetLook = () => { wainscotChosen = false; for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); return { ...currentLook }; };
+  const resetLook = () => { wainscotChosen = false; rugChosen = false; for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); if (RUG_BY_MOOD[currentMood]) setLook("rug", RUG_BY_MOOD[currentMood]); return { ...currentLook }; };
 
   // Where the robot's head and the paper note are on screen, in client pixels, so the page can float tap targets and bubbles over them.
   const projectBounds = (box) => {
@@ -2868,6 +2898,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     recordScreen: () => projectBox(platterPivot),
     dripScreen: () => projectBounds(dripBounds),
     dustState: () => ({ visible: dust.visible, opacity: dust.material.opacity, count: DUST_COUNT, sample: [dustPositions[0], dustPositions[1], dustPositions[2]] }),
+    rugState: () => ({ look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),

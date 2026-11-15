@@ -26,11 +26,11 @@ const COPY = {
       clock: ["牆上時鐘（走真實時間）", { tech: "科技感鐘", classic: "古典黃銅鐘", wood: "圓木框鐘" }],
       lamp: ["吊燈（窗邊與吧台）", { bamboo: "窗邊竹編雲朵，吧台紙環", rings: "窗邊紙環，吧台竹編雲朵" }],
       scarf: ["機器人圍巾", { olive: "橄欖綠", terracotta: "赭紅", mustard: "芥黃", navy: "海軍藍", rose: "玫瑰粉" }],
-      chair: ["窗邊椅子", { bentwood: "曲木", black: "黑色", natural: "原木" }],
+      chair: ["窗邊椅子", { bentwood: "曲木", black: "黑色（預設）", natural: "原木", forest: "墨綠", terracotta: "赭紅", navy: "海軍藍" }],
       stool: ["吧台高腳椅", { bentwood: "曲木藤面", leather: "橡木皮革", metal: "黑金屬", none: "不放" }],
       ceiling: ["天花板", { white: "白色木板（預設）", warmwood: "暖木色", sage: "鼠尾草綠", clay: "陶土粉", slate: "深藍灰" }],
       lounge: ["Lounge 布色", { terracotta: "赭紅＋芥末黃", olive: "橄欖綠＋奶油", navy: "藏青＋燕麥" }],
-      rug: ["地毯", { weave: "黃麻編織（預設）", jute: "黃麻粗編", wool: "深色羊毛回字紋", abstract: "抽象色塊", stripe: "藍灰細條紋" }],
+      rug: ["地毯（依時段會換）", { weave: "黃麻編織（圓形・黃金時刻）", jute: "黃麻粗編", wool: "深色羊毛回字紋", abstract: "抽象色塊", stripe: "藍灰細條紋", ivory: "象牙細織（Room 01・早晨）", medallion: "赭紅藏青花紋（Room 01・打烊後）", slate: "藍灰橫條（Room 02・追劇夜）", arches: "圓拱色塊（Room 02・午後）", oat: "燕麥流蘇（Room 02・下雨天）" }],
       menu: ["黑板菜單", { board: "素面黑板", chalk: "粉筆插畫", minimal: "極簡邊框", script: "手寫感版面" }],
       gallery: ["掛畫組", { a: "梧桐街與石庫門", b: "鐵花陽台與夜航渡輪" }],
     },
@@ -70,11 +70,11 @@ const COPY = {
       clock: ["Wall clock (shows the real time)", { tech: "Futuristic clock", classic: "Classical brass clock", wood: "Round oak clock" }],
       lamp: ["Pendant lamps (window and counter)", { bamboo: "Bamboo cloud at the window, paper rings at the counter", rings: "Paper rings at the window, bamboo cloud at the counter" }],
       scarf: ["Robot scarf", { olive: "Olive", terracotta: "Terracotta", mustard: "Mustard", navy: "Navy", rose: "Rose" }],
-      chair: ["Window chairs", { bentwood: "Bentwood", black: "Black", natural: "Natural" }],
+      chair: ["Window chairs", { bentwood: "Bentwood", black: "Black (default)", natural: "Natural", forest: "Forest green", terracotta: "Terracotta", navy: "Navy" }],
       stool: ["Bar stools", { bentwood: "Bentwood and cane", leather: "Oak and leather", metal: "Black metal", none: "None" }],
       ceiling: ["Ceiling", { white: "White planks (default)", warmwood: "Warm wood", sage: "Sage", clay: "Clay pink", slate: "Slate blue" }],
       lounge: ["Lounge upholstery", { terracotta: "Terracotta and mustard", olive: "Olive and cream", navy: "Navy and oatmeal" }],
-      rug: ["Rugs", { weave: "Jute weave (default)", jute: "Coarse jute", wool: "Dark wool, lattice", abstract: "Abstract blocks", stripe: "Blue-grey stripe" }],
+      rug: ["Rugs (they change with the mood)", { weave: "Jute weave (round, golden hour)", jute: "Coarse jute", wool: "Dark wool, lattice", abstract: "Abstract blocks", stripe: "Blue-grey stripe", ivory: "Ivory weave (Room 01, morning)", medallion: "Rust and navy medallion (Room 01, after closing)", slate: "Slate stripe (Room 02, series night)", arches: "Arches (Room 02, afternoon)", oat: "Oat with fringe (Room 02, rainy day)" }],
       menu: ["Chalk menus", { board: "Plain board", chalk: "Chalk drawings", minimal: "Minimal frame", script: "Handwritten layout" }],
       gallery: ["Prints", { a: "Plane trees and doorways", b: "Balcony and night ferry" }],
     },
@@ -138,7 +138,7 @@ function renderMoods() {
     button.type = "button"; button.dataset.mood = key; button.textContent = label; button.setAttribute("aria-pressed", String(key === mood));
     button.addEventListener("click", () => {
       if (mood === key) return;
-      mood = key; room?.setMood(key);
+      mood = key; room?.setMood(key); look = room.look(); renderSwaps(); // the mood may bring its own rug, so the swatches follow
       for (const option of group.children) option.setAttribute("aria-pressed", String(option === button));
       $("why").textContent = copy.moods[key][1];
       sayMood(key);
@@ -335,7 +335,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=77");
+  const { start } = await import("./cafe.js?v=78");
   room = await start({ stage: $("stage"), onMenuTap: () => { room?.pokeRobot?.(); openBubble("menu", 7000); } });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
@@ -344,7 +344,7 @@ async function enterRoom() {
   $("immersiveEnter").hidden = false;
   $("status").hidden = true; $("roomControls").hidden = false; $("moodNote").hidden = false; $("swapActions").hidden = false;
   for (const b of document.querySelectorAll("[data-view]")) b.hidden = false;
-  for (const group of LOOK_KEYS) { const key = params.get(group); if (key) room.setLook(group, key); }
+  for (const group of LOOK_KEYS) { const key = params.get(group); if (key) room.setLook(group, key, group === "rug"); }
   look = room.look(); $("randomLook").disabled = false; $("swaps").hidden = false; renderCopy(); syncLookUrl();
   placeUi();
   window.__room04 = room; // test hook

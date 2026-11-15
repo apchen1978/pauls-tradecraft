@@ -642,3 +642,46 @@ test("Room 04 menu boards: a tap on the chalk board makes the robot recommend a 
   await expect(page.locator("#menuHit")).toHaveAttribute("aria-label", /菜單/);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 rugs: each mood brings its rug, a picked rug sticks, and every rectangle keeps both chairs and the table on it", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = await open(page, 1440);
+  const rug = () => page.evaluate(() => window.__room04.rugState());
+  const first = await rug();
+  expect([first.look, first.shape, first.geometry], "golden hour opens on the round jute weave").toEqual(["weave", "round", "CylinderGeometry"]);
+  // The window seat: chair feet (rotated frames) and the table base must stand on the rug, with a margin.
+  const feet = () => {
+    const seat = { x: -2.42, z: 0.5 }, points = [];
+    for (const [cx, cz, yaw] of [[seat.x, seat.z + 0.62, Math.PI], [seat.x + 0.62, seat.z, -Math.PI / 2]]) for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+      const lx = sx * 0.25, lz = sz * 0.25; points.push([cx + lx * Math.cos(yaw) + lz * Math.sin(yaw), cz - lx * Math.sin(yaw) + lz * Math.cos(yaw)]);
+    }
+    for (let a = 0; a < 4; a++) points.push([seat.x + 0.22 * Math.cos(a * Math.PI / 2 + 0.7), seat.z + 0.22 * Math.sin(a * Math.PI / 2 + 0.7)]);
+    return points;
+  };
+  for (const [mood, key] of [["morning", "ivory"], ["noon", "arches"], ["rain", "oat"], ["closing", "medallion"], ["series", "slate"], ["golden", "weave"]]) {
+    await page.locator(`[data-mood="${mood}"]`).click();
+    await expect.poll(async () => (await rug()).shape, { timeout: 30000, message: `${mood} brings ${key}` }).toBe(key === "weave" ? "round" : key);
+    const state = await rug();
+    expect(state.look).toBe(key);
+    if (key === "weave") continue;
+    expect(state.geometry).toBe("BoxGeometry");
+    const r = state.rect, yaw = r.yaw * Math.PI / 180, c = Math.cos(yaw), si = Math.sin(yaw);
+    for (const [px, pz] of feet()) {
+      const dx = px - r.cx, dz = pz - r.cz, lx = dx * c + dz * si, lz = -dx * si + dz * c;
+      expect(Math.abs(lx), `${key}: a chair foot or the table base is off the rug (along)`).toBeLessThanOrEqual(r.w / 2 - 0.04);
+      expect(Math.abs(lz), `${key}: a chair foot or the table base is off the rug (across)`).toBeLessThanOrEqual(r.d / 2 - 0.04);
+    }
+    for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { // clear of the wall (x -3.2) and of the first bar stool
+      const px = r.cx + a * r.w / 2 * c - b * r.d / 2 * si, pz = r.cz + a * r.w / 2 * si + b * r.d / 2 * c;
+      expect(px, `${key}: the rug stays off the wall`).toBeGreaterThan(-3.17);
+      expect(pz, `${key}: the rug stays off the counter stools`).toBeGreaterThan(0);
+    }
+  }
+  // A rug the visitor picks stays through mood changes; reset gives the mood its rug back.
+  await page.evaluate(() => window.__room04.setLook("rug", "stripe", true));
+  await page.locator('[data-mood="rain"]').click(); await page.waitForTimeout(800);
+  expect(await rug(), "the picked rug survives a mood change").toMatchObject({ look: "stripe", chosen: true });
+  await page.evaluate(() => window.__room04.resetLook());
+  await expect.poll(async () => (await rug()).look, { timeout: 30000 }).toBe("oat");
+  expect(errors).toEqual([]);
+});
