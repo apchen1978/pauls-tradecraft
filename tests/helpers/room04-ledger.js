@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 207210, meshes: 141 }),
+  scene: Object.freeze({ vertices: 207302, meshes: 144 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 69, phone: 62 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -83,5 +83,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-16", change: "the lounge plant (Paul): no saucer under the pot (its inner floor lay exactly on the rug surface and flickered on phones) and no flat flowers (the leaves alone read more 3D, and the plain green plant answers the red-leaf plant on the other side of the bench)", vertices: 198551, meshes: 139, desktopCalls: 69, phoneCalls: 62 },
     { date: "2026-11-16", change: "lounge banquette: varied seat widths and sitting dips, welt, two leaning pillows with seams, a draped throw and a solid end return; pillow and throw fabric follow six colourways", vertices: 201093, meshes: 141, desktopCalls: 69, phoneCalls: 62 },
     { date: "2026-11-16", change: "pastry case: eight-millimetre side and curved shell glass, fluted tart crusts with filling, a layered cake wedge, continuous bottle silhouettes, four macarons, two more tartlets and two éclairs; geometry stays in existing material batches", vertices: 207210, meshes: 141, desktopCalls: 69, phoneCalls: 62 },
+    { date: "2026-11-16", change: "lounge (Paul): three magazines with printed covers under the phone on the side table (paper bodies in the paper batch, covers one small mesh), and the tablet on the marble table comes alive like the phone in Room 03: after closing and on series night it lights a notification about every 16 s and throws a soft cool pool on the marble (a screen mesh and a glow mesh); a tap shows day or night lines", vertices: 207302, meshes: 144, desktopCalls: 69, phoneCalls: 62 },
   ]),
 });

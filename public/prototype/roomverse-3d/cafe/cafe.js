@@ -442,6 +442,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const LOUNGE_FILES = ["../../kitchen/art/room03-print-poster-leaf-v1.webp", "../../tex/left-wall-harbor-dusk-v1.webp", "../../kitchen/art/room03-print-poster-sun-v1.webp"]; // relative to art/
   const afterFirstFrame = [];
   const catRef = { group: null }; // the cat, once it has loaded
+  let tabletRig = null; // its lit screen and pulse, built with the lounge
+  const tabletRef = { at: null }; // the tablet on the marble lounge table: where it lies (set where the table is built)
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
   let shadowsDirty = true; const dirtyShadows = () => { shadowsDirty = true; };
   const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
@@ -2234,6 +2236,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       if (surface === "stone") {
         ceramicCup({ x: tx + 0.145, y: 0.45, z: z + 0.062, scale: 1.05, coffee: true });
         yawBox("black", 0.155, 0.013, 0.235, tx - 0.064, 0.4565, z - 0.056, 0.32);
+        tabletRef.at = { x: tx - 0.064, top: 0.4565 + 0.0065, z: z - 0.056, yaw: 0.32, tableTop: 0.45 };
         yawBox("oakDeep", 0.098, 0.012, 0.068, tx - 0.04, 0.456, z + 0.131, -0.18);
         yawBox("paper", 0.091, 0.008, 0.062, tx - 0.04, 0.462, z + 0.131, -0.18);
       } else {
@@ -2251,11 +2254,31 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const sideTableBase = disc("oakDeep", sx, 0.023, sz, 0.11, 0.022);
     sideTableBase.computeBoundingBox(); registerSupport("lounge-side-table-base-ground", "ground", { bottomY: sideTableBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
     disc("oakDeep", sx, 0.26, sz, 0.022, 0.48);
-    boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, 0.535, sz);
-    detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, 0.540, sz), 0x627b87);
+    // Three magazines under the phone (Paul, 2026-11-16: a little everyday life on the side table): paper bodies in the paper batch, the covers one small mesh with a printed picture.
+    const MAG = { w: 0.2, d: 0.26, t: 0.006 }, magTop = 0.530 + 3 * MAG.t, MAG_YAW = [0.12, -0.18, 0.34], coverPlanes = [];
+    MAG_YAW.forEach((yaw, i) => {
+      const y = 0.530 + i * MAG.t;
+      part("paper", new THREE.BoxGeometry(MAG.w, MAG.t - 0.0006, MAG.d).rotateY(yaw).translate(sx + 0.005 * i, y + (MAG.t - 0.0006) / 2, sz - 0.004 * i), { tile: 1 });
+      const plane = new THREE.PlaneGeometry(MAG.w, MAG.d).rotateX(-Math.PI / 2).rotateY(yaw).translate(sx + 0.005 * i, y + MAG.t - 0.0003, sz - 0.004 * i), uv = plane.attributes.uv;
+      for (let k = 0; k < uv.count; k++) uv.setXY(k, (i + 1 - uv.getX(k)) / 3, 1 - uv.getY(k)); // each cover is a third of the picture, turned to read from the bench and armchair side
+      coverPlanes.push(plane);
+    });
+    registerSupport("lounge-magazines-on-side-table", "rest", { base: { x: sx, y: 0.530, z: sz, radius: 0.06 }, surface: { shape: "circle", x: sx, z: sz, radius: 0.165, y: 0.530 } });
+    { const canvas = document.createElement("canvas"); canvas.width = 768; canvas.height = 340; const g = canvas.getContext("2d");
+      const covers = [["#c8553d", "#f4e9d8", "SLOWLY", "上海慢生活", "#2f4560"], ["#2f4560", "#f2c94c", "COFFEE & CO", "No. 27 · 手沖專題", "#f4e9d8"], ["#f1e4cf", "#7a4422", "城市漫步", "City Walk", "#66763f"]];
+      covers.forEach(([bg, title, a, b, accent], i) => {
+        const x = i * 256; g.fillStyle = bg; g.fillRect(x, 0, 256, 340);
+        g.fillStyle = accent; g.globalAlpha = 0.85; g.beginPath(); g.arc(x + 170, 210, 70, 0, Math.PI * 2); g.fill(); g.globalAlpha = 1;
+        g.fillStyle = title; g.font = "bold 40px Georgia, serif"; g.fillText(a, x + 18, 64, 220);
+        g.font = "22px sans-serif"; g.fillText(b, x + 18, 100, 220); g.fillRect(x + 18, 300, 120, 6);
+      });
+      const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = maxAnisotropy;
+      add("lounge-magazine-covers", mergeGeometries(coverPlanes), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55 }), 0, 0, 0, { cast: false }); }
+    boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, magTop + 0.005, sz);
+    detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, magTop + 0.010, sz), 0x627b87);
     // One white cable, a single tube with no joints: out of the phone, over the table edge, down to the floor, along it with a little slack, then up the wall base into a plug. White,
     // so it still reads on a dark rug in the closing and series moods. Over the rug (a flat sheet at y 0.012) it rides at y 0.0175 so it is never buried in it.
-    part("paper", tubeGeometry([[sx + 0.01, 0.540, sz + 0.063], [sx + 0.03, 0.532, sz + 0.14], [sx + 0.05, 0.50, sz + 0.185],
+    part("paper", tubeGeometry([[sx + 0.01, magTop + 0.005, sz + 0.063], [sx + 0.03, magTop - 0.003, sz + 0.14], [sx + 0.05, 0.50, sz + 0.185],
       [sx + 0.06, 0.25, sz + 0.205], [sx + 0.075, 0.03, sz + 0.25], [sx + 0.11, 0.0175, sz + 0.31], [2.45, 0.0175, 2.6], [2.7, 0.0175, 2.66], [2.9, 0.012, 2.72], [3.04, 0.0065, 2.74],
       [3.12, 0.007, 2.73], [3.15, 0.06, 2.73], [3.152, 0.2, 2.73], [3.152, 0.27, 2.73]], 0.0045, 120, 8));
     boxPart("paper", 0.03, 0.045, 0.032, 3.15, 0.292, 2.73, 0.008); // the plug
@@ -2416,6 +2439,50 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       }
     }
 
+    // The tablet on the marble lounge table (Paul, 2026-11-16: like the phone in Room 03): after closing and on series night it lights a notification about every 16 s and
+    // throws a soft cool pool on the marble; a tap shows its message (page.js). The room renders on demand, so the pulse draws its own frames (ambient: not counted, rests when idle).
+    tabletRig = (() => {
+      const at = tabletRef.at; if (!at) return null;
+      const canvas = document.createElement("canvas"); canvas.width = 160; canvas.height = 240; const g = canvas.getContext("2d");
+      g.fillStyle = "#03050a"; g.fillRect(0, 0, 160, 240);
+      g.fillStyle = "#e9e1cf"; g.beginPath(); g.roundRect(12, 40, 136, 46, 10); g.fill();
+      g.fillStyle = "#c8553d"; g.beginPath(); g.arc(32, 63, 9, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#5a5246"; g.fillRect(50, 54, 82, 6); g.fillRect(50, 67, 56, 5);
+      g.fillStyle = "#8a8ea0"; g.font = "bold 30px sans-serif"; g.fillText("22:41", 42, 150);
+      const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace;
+      const screenMat = new THREE.MeshStandardMaterial({ color: 0x05070a, roughness: 0.18, metalness: 0.2, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0 });
+      const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.139, 0.217).rotateX(-Math.PI / 2).rotateY(at.yaw), screenMat);
+      screen.name = "lounge-tablet-screen"; screen.position.set(at.x, at.top + 0.0006, at.z); scene.add(screen);
+      const gcv = document.createElement("canvas"); gcv.width = gcv.height = 64; const gx = gcv.getContext("2d"), gg = gx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      gg.addColorStop(0, "rgba(255,255,255,1)"); gg.addColorStop(0.4, "rgba(255,255,255,.4)"); gg.addColorStop(1, "rgba(255,255,255,0)"); gx.fillStyle = gg; gx.fillRect(0, 0, 64, 64);
+      const glowMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(gcv), color: 0xa9c2ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(0.46, 0.46).rotateX(-Math.PI / 2), glowMat);
+      glow.name = "lounge-tablet-glow"; glow.position.set(at.x, at.tableTop + 0.012, at.z); glow.visible = false; glow.renderOrder = 2; scene.add(glow);
+      const IDLE = 0.04, NOTIFY = 1.15, GLOW = 0.75;
+      let timer = 0, run = 0, night = false;
+      const stop = () => { clearTimeout(timer); timer = 0; run += 1; };
+      const fire = () => {
+        const id = ++run, t0 = performance.now();
+        const step = (now) => {
+          if (id !== run) return;
+          const t = (now - t0) / 1000, k = t < 0.5 ? t / 0.5 : t < 2.4 ? 1 : Math.max(0, 1 - (t - 2.4));
+          screenMat.emissiveIntensity = IDLE + (NOTIFY - IDLE) * k; glowMat.opacity = GLOW * k; renderAmbient();
+          if (t < 3.4) requestAnimationFrame(step); else { screenMat.emissiveIntensity = IDLE; glowMat.opacity = 0; renderAmbient(); }
+        };
+        requestAnimationFrame(step);
+      };
+      const schedule = (delay) => { timer = setTimeout(() => { if (!document.hidden && performance.now() - lastActive < 30000) fire(); schedule(16000); }, delay); };
+      return {
+        screen,
+        apply(name) {
+          stop(); night = name === "closing" || name === "series"; glow.visible = night;
+          screenMat.emissiveIntensity = night ? (reducedMotion() ? NOTIFY : IDLE) : 0; glowMat.opacity = night && reducedMotion() ? GLOW * 0.6 : 0;
+          if (night && !reducedMotion()) schedule(2500);
+        },
+        poke() { if (night && !reducedMotion()) fire(); },
+        state: () => ({ night, screen: screenMat.emissiveIntensity, glow: glowMat.opacity, x: at.x, y: at.top, z: at.z }),
+      };
+    })();
     // ---------- the cat's corner (Paul, 2026-11-15: in the corner to the left of the door, where nothing stood) ----------
     // An orange-and-white tabby sleeps curled in a rattan basket with a cushion; a food bowl and a water bowl stand on a mat beside it. The basket, cushion, mat, bowls, kibble and water are
     // ordinary parts of the existing batches (no mesh of their own); only the cat (cat.js, an image-to-3D shape drawn with a shader) is one new mesh, loaded after the first frame.
@@ -2790,7 +2857,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
-    currentMood = name; posMood?.(name); robotFace.setMood(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
+    currentMood = name; posMood?.(name); robotFace.setMood(name); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
     const from = { tv: live.tv, shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
@@ -3094,6 +3161,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     recordScreen: () => projectBox(platterPivot),
     dripScreen: () => projectBounds(dripBounds),
     dustState: () => ({ visible: dust.visible, opacity: dust.material.opacity, count: DUST_COUNT, sample: [dustPositions[0], dustPositions[1], dustPositions[2]] }),
+    tabletScreen: () => (tabletRig ? projectBox(tabletRig.screen) : null), tabletState: () => tabletRig?.state() ?? null, pokeTablet: () => tabletRig?.poke(),
     catScreen: () => (catRef.group ? projectBox(catRef.group) : null),
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),

@@ -781,3 +781,18 @@ test("Room 04 the robot at the machine answers a tap too, and on a phone the ent
   expect(await page.locator("#bubble [data-line]").textContent(), "the next tap says something else").not.toBe(first);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 lounge tablet: dark by day, lit at night with a pulse, and a tap shows day or night lines", async ({ page }) => {
+  const errors = await open(page, 1440);
+  await page.locator('[data-view="lounge"]').click(); await page.waitForTimeout(1500);
+  expect((await page.evaluate(() => window.__room04.tabletState())).night, "golden hour is not night").toBe(false);
+  await page.locator("#tabletHit").click();
+  await expect(page.locator("#bubble [data-line]")).toContainText("天氣");
+  await page.locator('[data-mood="series"]').click(); await page.waitForTimeout(800);
+  expect((await page.evaluate(() => window.__room04.tabletState())).night).toBe(true);
+  await page.evaluate(() => window.__room04.pokeTablet());
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.tabletState())).glow, { timeout: 3000, message: "the pulse throws light on the marble" }).toBeGreaterThan(0.3);
+  await page.locator("#tabletHit").click();
+  await expect(page.locator("#bubble [data-line]"), "a night line").toHaveText(/歌單|末班|明天見|追劇/);
+  expect(errors).toEqual([]);
+});
