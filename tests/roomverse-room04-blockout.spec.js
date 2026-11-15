@@ -197,7 +197,8 @@ test("Room 04 looks: swaps change materials without changing the scene size, wal
   await page.locator("#randomLook").click();
   await expect(page.locator("#resetLook")).toBeVisible();
   const after = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
-  expect(after.v, "a look swap adds no geometry").toBe(base.v);
+  const rugDelta = await page.evaluate(() => { const r = window.__room04.rugState(); return r.vertices - r.roundVertices; }); // the random cafe may lay a rectangular rug (a box instead of the round cylinder)
+  expect(after.v - rugDelta, "a look swap adds no geometry (apart from the rug's own shape)").toBe(base.v);
   expect(after.m).toBe(base.m);
   expect(after.d).toBeLessThanOrEqual(base.d + 1);
   await page.locator("#resetLook").click();
@@ -718,6 +719,23 @@ test("Room 04 cat's corner: the cat loads into its basket, the bowls stand on th
   const info = await page.evaluate(() => window.__room04.info());
   expect(info.vertices, "vertices stay under the cap").toBeLessThanOrEqual(LEDGER.caps.vertices);
   expect(info.meshes, "meshes stay under the cap").toBeLessThanOrEqual(LEDGER.caps.meshes);
-  expect(info.meshes, "the cat is the only new mesh").toBe(LEDGER.scene.meshes);
+  expect(info.meshes, "the cat and the kibble are the only meshes of the corner").toBe(LEDGER.scene.meshes);
+  expect(errors).toEqual([]);
+});
+
+test("Room 04 cat answers a tap with a line in its bubble", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = await open(page, 1440);
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.catState())).loaded, { timeout: 30000 }).toBe(true);
+  await page.locator('[data-view="middle"]').click(); await page.waitForTimeout(1500);
+  for (let i = 0; i < 2; i++) await page.evaluate(() => window.__room04.centerLook(Math.PI / 4, 0)); // face the corner left of the door
+  await page.evaluate(() => window.__room04.centerLook(0, -0.3)); await page.waitForTimeout(600);
+  await expect(page.locator("#catHit")).toBeVisible();
+  await page.locator("#catHit").click();
+  await expect(page.locator("#bubble")).toBeVisible();
+  const first = await page.locator("#bubble [data-line]").textContent();
+  expect(["喵～ 😺", "呼嚕呼嚕… 😽"]).toContain(first);
+  await page.locator("#catHit").click();
+  expect(await page.locator("#bubble [data-line]").textContent(), "the next tap says something else").not.toBe(first);
   expect(errors).toEqual([]);
 });
