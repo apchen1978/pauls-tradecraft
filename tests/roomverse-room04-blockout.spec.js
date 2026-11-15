@@ -728,8 +728,7 @@ test("Room 04 cat answers a tap with a line in its bubble", async ({ page }) => 
   const errors = await open(page, 1440);
   await expect.poll(async () => (await page.evaluate(() => window.__room04.catState())).loaded, { timeout: 30000 }).toBe(true);
   await page.locator('[data-view="middle"]').click(); await page.waitForTimeout(1500);
-  for (let i = 0; i < 2; i++) await page.evaluate(() => window.__room04.centerLook(Math.PI / 4, 0)); // face the corner left of the door
-  await page.evaluate(() => window.__room04.centerLook(0, -0.3)); await page.waitForTimeout(600);
+  await page.waitForTimeout(600); // the middle station opens on the corner left of the door, where the cat sleeps
   await expect(page.locator("#catHit")).toBeVisible();
   await page.locator("#catHit").click();
   await expect(page.locator("#bubble")).toBeVisible();
