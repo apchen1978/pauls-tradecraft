@@ -2192,7 +2192,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         const ang = rnd() * Math.PI * 2, rad = Math.sqrt(rnd()) * 0.125, pebble = m % 5 === 0;
         detail(new THREE.SphereGeometry(pebble ? 0.011 : 0.014 + rnd() * 0.008, 6, 3).scale(1.2, 0.45, 0.9).rotateY(rnd() * 3).translate(px + Math.cos(ang) * rad, 0.388, pz + Math.sin(ang) * rad), pebble ? 0x8f887c : [0x5a4026, 0x4a3320, 0x6b5236][m % 3]);
       }
-      detail(new THREE.LatheGeometry([[0.0005, 0.002], [0.18, 0.002], [0.2, 0.03], [0.2, 0.034], [0.19, 0.034], [0.17, 0.012], [0.0005, 0.012]].map((p) => new THREE.Vector2(p[0], p[1])), 32).translate(px, 0, pz), 0xa84e2c); // a saucer under the pot
+      // (no saucer: its inner floor lay exactly on the Lounge rug's surface and flickered on phones; Paul, 2026-11-16)
       const flower = (x, y, z, scale) => {
         const petal = PETALS[Math.floor(rnd() * PETALS.length)];
         for (let k = 0; k < 5; k++) {
@@ -2261,7 +2261,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
           const startGap = Math.min(...mainSamples.map((point) => point.distanceTo(branchCurve.getPoint(0))));
           branchJoins.push({ distanceMm: Math.round(startGap * 1000), overlapMm: +((mainRadius - startGap) * 1000).toFixed(1) });
           for (let k = 0; k < 5; k++) addLeaf(branchCurve.getPoint(0.2 + k * 0.18), branchAngle + (k % 2 ? 0.66 : -0.66), k >= 3, k === 4 ? NEW : GREENS);
-          if (b === 1 && i % 2 === 0) flower(tip.x, tip.y + 0.025, tip.z, 1.15 + rnd() * 0.25);
+          if (b === 1 && i % 2 === 0) rnd(); // the flat flowers were removed (Paul, 2026-11-16: the leaves alone read more 3D); one draw kept so the leaves below keep their places
         }
       }
       leaves.computeBoundingBox(); leaves.computeBoundingSphere(); scene.add(leaves);

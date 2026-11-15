@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 199482, meshes: 139 }),
+  scene: Object.freeze({ vertices: 198551, meshes: 139 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 69, phone: 62 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -80,5 +80,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "the kibble (Paul: it must be visible, pellets like coffee beans): the 22 loose pieces become one low mound that fills the food bowl and heaps 6 mm over its rim, wearing a painted texture of about 260 brown pellets with a crease and a highlight each (also its bump map); its own small mesh (105 vertices, 132 fewer than before) because it needs its own picture. The food bowl is now white and the water bowl terracotta, so the kibble reads from across the room", vertices: 199482, meshes: 139, desktopCalls: 105, phoneCalls: 94 },
     { date: "2026-11-16", change: "the room opens in the middle station, facing the corner with the cat, both street windows and the window seat (Paul); a full swipe turns about 125 degrees instead of 200 (Paul: smooth but a little fast). The opening view draws fewer things (the counter and the lounge are behind), so the opening draw calls drop; the scene is unchanged", vertices: 199482, meshes: 139, desktopCalls: 69, phoneCalls: 62 },
     { date: "2026-11-16", change: "caps raised by Paul (vertices 200,000 -> 230,000, meshes 140 -> 150); the floor lamp by the window seat now lights its corner after dark (a point light under the shade that follows its glow: off by day, strongest after closing), so the cat, its basket and bowls show at night; no geometry, no draw call", vertices: 199482, meshes: 139, desktopCalls: 69, phoneCalls: 62 },
+    { date: "2026-11-16", change: "the lounge plant (Paul): no saucer under the pot (its inner floor lay exactly on the rug surface and flickered on phones) and no flat flowers (the leaves alone read more 3D, and the plain green plant answers the red-leaf plant on the other side of the bench)", vertices: 198551, meshes: 139, desktopCalls: 69, phoneCalls: 62 },
   ]),
 });
