@@ -766,3 +766,18 @@ test("Room 04 turning: a swipe across a phone turns about 125 degrees and glides
   expect(Math.abs((await yaw()) - lifted), "a flick glides on").toBeGreaterThan(0.02);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 the robot at the machine answers a tap too, and on a phone the entry view shows both robots whole", async ({ page }) => {
+  const errors = await open(page, 390);
+  await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1500);
+  const sides = await page.evaluate(() => { const st = document.getElementById("stage").getBoundingClientRect(), a = window.__room04.robotScreen(), b = window.__room04.baristaScreen(); return { w: st.width, a: [a.left - st.left, a.right - st.left], b: [b.left - st.left, b.right - st.left] }; });
+  for (const [name, [l, r]] of [["greeter", sides.a], ["barista", sides.b]]) { expect(l, `${name} is whole on the left`).toBeGreaterThanOrEqual(0); expect(r, `${name} is whole on the right`).toBeLessThanOrEqual(sides.w); }
+  await expect(page.locator("#baristaHit")).toBeVisible();
+  await page.locator("#baristaHit").click();
+  await expect(page.locator("#bubble")).toBeVisible();
+  const first = await page.locator("#bubble [data-line]").textContent();
+  expect(first).toContain("奶泡");
+  await page.locator("#baristaHit").click();
+  expect(await page.locator("#bubble [data-line]").textContent(), "the next tap says something else").not.toBe(first);
+  expect(errors).toEqual([]);
+});
