@@ -11,7 +11,7 @@
 //   2. Paste the new fingerprint(s) and version(s) the failure message prints into this file.
 // Do not update the fingerprint without bumping the version: a stale number is what hides the new room from phones.
 export const ASSET_VERSIONS = Object.freeze({
-  "cafe.js": Object.freeze({ sha256: "3404d2831b6c22f6a5587a9fb03dc6dbb5161e007966a313f25b3554e4a15a4a", version: 69 }),
+  "cafe.js": Object.freeze({ sha256: "397382aa28b81837bb24a6f6f28a078341cff53548a99bae93445dd76c813f68", version: 70 }),
   // page.js is fingerprinted with its own cafe.js?v=N token masked, so bumping N does not by itself change the fingerprint.
-  "page.js": Object.freeze({ sha256: "edd7f134f63ffd8bf117d27fc170c2e4dc01be9e373ee00854157f093b7ee788", version: 77 }),
+  "page.js": Object.freeze({ sha256: "edd7f134f63ffd8bf117d27fc170c2e4dc01be9e373ee00854157f093b7ee788", version: 78 }),
 });
