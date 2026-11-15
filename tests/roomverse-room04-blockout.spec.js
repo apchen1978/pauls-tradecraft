@@ -575,3 +575,22 @@ test("Room 04 builds with no leftover counter shift, so every wall frame stays o
   expect(info.art.filter((name) => /room04-print-p[1-8]-/.test(name)).length, "the eight prints have loaded").toBe(8);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 robot faces: friendly by default, sleepy after closing, happy while the record plays, and a tap makes the robot blink", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const face = () => page.evaluate(() => window.__room04.robotFaceState());
+  expect((await face()).state).toBe("default");
+  expect((await page.evaluate(() => window.__room04.info())).meshes, "a face is a texture, not a mesh").toBe(LEDGER.scene.meshes);
+  await page.locator('[data-mood="closing"]').click(); await page.waitForTimeout(600);
+  expect((await face()).state).toBe("sleepy");
+  await page.locator('[data-mood="golden"]').click(); await page.waitForTimeout(600);
+  expect((await face()).state).toBe("default");
+  await page.evaluate(() => window.__room04.playRecord());
+  expect((await face()).state, "the record makes the robot smile").toBe("happy");
+  await page.evaluate(() => window.__room04.stopRecordPlayback());
+  expect((await face()).state).toBe("default");
+  await page.evaluate(() => window.__room04.pokeRobot());
+  expect((await face()).blink, "a tap makes the robot blink").toBe(true);
+  await expect.poll(async () => (await face()).blink, { timeout: 3000 }).toBe(false);
+  expect(errors).toEqual([]);
+});

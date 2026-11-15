@@ -206,7 +206,7 @@ for (const b of document.querySelectorAll("[data-view]")) b.addEventListener("cl
 });
 $("randomLook").addEventListener("click", () => { if (!room) return; room.randomLook(); look = room.look(); renderSwaps(); syncLookUrl(); $("resetLook").hidden = false; $("why").textContent = COPY[lang].randomDone; });
 $("resetLook").addEventListener("click", () => { room.resetLook(); look = room.look(); renderSwaps(); syncLookUrl(); $("resetLook").hidden = true; renderMoods(); });
-$("robotHit").addEventListener("click", () => openBubble("robot", 7000));
+$("robotHit").addEventListener("click", () => { room?.pokeRobot?.(); openBubble("robot", 7000); });
 $("recordHit").addEventListener("click", () => {
   if (!room) return;
   if (room.recordPlaying()) {
@@ -320,7 +320,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=72");
+  const { start } = await import("./cafe.js?v=73");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
