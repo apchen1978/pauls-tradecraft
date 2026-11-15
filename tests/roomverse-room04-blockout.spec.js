@@ -532,21 +532,28 @@ test("a drip animation frame before its start time still has valid drop position
   await page.evaluate(() => window.__room04.stopDrip());
 });
 
-test("five mobile view buttons stay on one swipeable row", async ({ page }) => {
-  await open(page, 390);
-  const views = page.locator("#views");
-  const layout = await views.evaluate((row) => ({
-    width: row.clientWidth, scrollWidth: row.scrollWidth,
-    tops: [...row.querySelectorAll("button:not([hidden])")].map((button) => Math.round(button.getBoundingClientRect().top)),
-  }));
-  expect(new Set(layout.tops).size).toBe(1);
-  expect(layout.scrollWidth).toBeGreaterThan(layout.width);
-  await views.evaluate((row) => { row.scrollLeft = row.scrollWidth; });
-  const last = views.locator('[data-view="middle"]');
-  await expect(last).toBeInViewport();
-  await last.click();
-  await expect(last).toHaveAttribute("aria-pressed", "true");
-});
+for (const width of [390, 360]) {
+  test(`mobile view row gives a subtle sideways scroll hint at ${width}px`, async ({ page }) => {
+    const errors = await open(page, width);
+    const views = page.locator("#views");
+    const layout = await views.evaluate((row) => ({
+      width: row.clientWidth, scrollWidth: row.scrollWidth,
+      tops: [...row.querySelectorAll("button:not([hidden])")].map((button) => Math.round(button.getBoundingClientRect().top)),
+      fade: getComputedStyle(row, "::after").backgroundImage,
+    }));
+    expect(new Set(layout.tops).size).toBe(1);
+    expect(layout.scrollWidth).toBeGreaterThan(layout.width);
+    expect(layout.fade).toContain("linear-gradient");
+
+    await views.evaluate((row) => { row.scrollLeft = row.scrollWidth; });
+    const last = views.locator('[data-view="middle"]');
+    await expect(last).toBeInViewport();
+    await last.click();
+    await expect(last).toHaveAttribute("aria-pressed", "true");
+    await views.evaluate((row) => { row.scrollLeft = 0; });
+    expect(errors).toEqual([]);
+  });
+}
 
 for (const width of [1440, 390]) {
   test(`Room 04 gold random-cafe tag stays on screen in full screen at ${width}px`, async ({ page }) => {
