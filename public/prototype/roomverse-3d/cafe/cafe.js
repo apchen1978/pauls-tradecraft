@@ -47,7 +47,7 @@ const MOODS = Object.freeze({
   noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18 }),
   golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36 }),
   rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 11.0, trackColor: 0xffc27a, exposure: 1.12, sky: 0x2c3550, street: 0xc4cce6, lamp: 3.4, reflect: 0.45, pendant: 1.4, shaft: 0, tv: 0.34, steam: 0.42 }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.5, hemiSky: 0x7a8bb4, hemiGround: 0x453f4a, ambient: 0.16, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0xc4cce6, lamp: 3.0, reflect: 0.45, pendant: 2.3, shaft: 0, tv: 0.34, steam: 0.42 }),
   series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6b7aa6, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0xb4bde0, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0 }),
 });
 
@@ -542,7 +542,52 @@ export async function start({ stage, onReady = () => {} }) {
     const texture = pmrem.fromScene(room, 0.04).texture; pmrem.dispose();
     return texture;
   })();
-  const reflectiveBase = { robotBody: 0.7, robotDark: 0.9, gold: 1.9, ceramic: 0.5, visor: 1.2, steel: 1.65, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
+  // The robots' faces (Paul, 2026-11-15: the bar eyes looked stiff). The eyes and smile are drawn on the visor's own texture, so a face costs no extra mesh: warm cream eyes with a
+  // soft glow, a small smile, a slow blink and an occasional sideways glance. Closing and series night make them sleepy; while the record plays they smile with happy arcs.
+  const FACE_W = 512, FACE_H = 220, FACE_INK = "#fff0d2", FACE_GLOW = "#ffc98a";
+  const faceCanvas = document.createElement("canvas"); faceCanvas.width = FACE_W; faceCanvas.height = FACE_H;
+  const faceCtx = faceCanvas.getContext("2d");
+  const faceTexture = new THREE.CanvasTexture(faceCanvas); faceTexture.colorSpace = THREE.SRGBColorSpace;
+  const drawFace = (state, blink, gaze) => {
+    const g = faceCtx, cy = 96, gx = gaze * 7;
+    g.clearRect(0, 0, FACE_W, FACE_H); g.fillStyle = "#000"; g.fillRect(0, 0, FACE_W, FACE_H);
+    g.save(); g.shadowColor = FACE_GLOW; g.shadowBlur = 18; g.strokeStyle = FACE_INK; g.fillStyle = FACE_INK; g.lineCap = "round";
+    for (const sx of [-1, 1]) {
+      const x = FACE_W / 2 + sx * 70 + gx;
+      if (blink && state !== "happy") { g.lineWidth = 8; g.beginPath(); g.moveTo(x - 17, cy + 4); g.lineTo(x + 17, cy + 4); g.stroke(); }
+      else if (state === "happy") { g.lineWidth = 10; g.beginPath(); g.arc(x, cy + 16, 22, Math.PI * 1.1, Math.PI * 1.9); g.stroke(); }
+      else if (state === "sleepy") { g.beginPath(); g.ellipse(x, cy + 8, 18, 14, 0, 0, Math.PI); g.closePath(); g.fill(); }
+      else { g.beginPath(); g.roundRect(x - 16, cy - 30, 32, 62, 16); g.fill(); }
+    }
+    g.lineWidth = state === "happy" ? 9 : 7; g.beginPath();
+    if (state === "happy") g.arc(FACE_W / 2 + gx * 0.4, 138, 34, Math.PI * 0.12, Math.PI * 0.88);
+    else if (state === "sleepy") g.arc(FACE_W / 2 + gx * 0.4, 152, 17, Math.PI * 0.18, Math.PI * 0.82);
+    else g.arc(FACE_W / 2 + gx * 0.4, 146, 26, Math.PI * 0.15, Math.PI * 0.85);
+    g.stroke(); g.restore(); faceTexture.needsUpdate = true;
+  };
+  drawFace("default", false, 0);
+  materials.robotVisor = new THREE.MeshStandardMaterial({ color: 0x17191c, roughness: 0.22, metalness: 0.15, emissive: 0xffffff, emissiveMap: faceTexture, emissiveIntensity: 1 });
+  const robotFace = (() => {
+    let mood = "default", music = false, blink = false, gaze = 0, timer = 0, live = false;
+    const state = () => (music ? "happy" : mood);
+    const refresh = () => { drawFace(state(), blink, gaze); if (live) render(); };
+    const schedule = () => {
+      clearTimeout(timer); if (!live || reducedMotion()) return;
+      timer = setTimeout(() => { if (document.hidden) schedule(); else blinkOnce(); }, 2600 + Math.random() * 3400);
+    };
+    const blinkOnce = () => {
+      blink = true; gaze = Math.random() < 0.4 ? (Math.random() < 0.5 ? -1 : 1) : 0; refresh();
+      setTimeout(() => { blink = false; refresh(); schedule(); }, 140);
+    };
+    return {
+      start: () => { live = true; schedule(); },
+      setMood: (name) => { const next = name === "closing" || name === "series" ? "sleepy" : "default"; if (next !== mood) { mood = next; refresh(); } },
+      setMusic: (on) => { if (on !== music) { music = on; refresh(); } },
+      poke: () => { if (live && !reducedMotion() && !blink) blinkOnce(); },
+      state: () => ({ state: state(), blink, gaze }),
+    };
+  })();
+  const reflectiveBase = { robotBody: 0.7, robotDark: 0.9, gold: 1.9, ceramic: 0.5, visor: 1.2, robotVisor: 1.2, steel: 1.65, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
   for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
@@ -1064,10 +1109,11 @@ export async function start({ stage, onReady = () => {} }) {
     // Panel seams: a ring under the head, a ring above the hips, and a seam down each side, hairline grooves in dark metal.
     for (const y of [0.075, 0.5]) { const ring = new THREE.TorusGeometry(eggRadius(y) + 0.0015, 0.0013, 4, 40); ring.rotateX(Math.PI / 2); add2("robotDark", ring).position.y = y; }
     for (const side of [-1, 1]) { const pts = []; for (let i = 0; i <= 14; i++) { const y = 0.08 + (i / 14) * 0.46; pts.push(new THREE.Vector3(side * (eggRadius(y) + 0.0015), y, 0)); } add2("robotDark", new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 16, 0.0012, 4, false)); }
-    // The visor: a dark glass screen with a thin lit rim, two glowing bar eyes.
-    const visor = add2("visor", new THREE.SphereGeometry(1, 28, 16)); visor.scale.set(0.135, 0.058, 0.034); visor.position.set(0, 0.42, eggRadius(0.42) - 0.008);
-    { const rim = new THREE.TorusGeometry(1, 0.035, 5, 32); rim.scale(0.14, 0.063, 1); rim.translate(0, 0.42, eggRadius(0.42) - 0.008 + 0.014); glow(rim, 0x8fdcf0); }
-    for (const sx of [-1, 1]) { const eye = new THREE.CapsuleGeometry(0.0085, 0.013, 2, 8); eye.translate(sx * 0.047, 0.424, eggRadius(0.42) - 0.008 + 0.0345); glow(eye, CYAN); }
+    // The visor: a dark glass screen with a hairline warm rim. The face (eyes and smile) is its own texture, projected flat from the front (see robotFace above).
+    const visorGeometry = new THREE.SphereGeometry(1, 28, 16);
+    { const vp = visorGeometry.attributes.position, vu = visorGeometry.attributes.uv; for (let i = 0; i < vp.count; i++) vu.setXY(i, 0.5 + 0.5 * vp.getX(i), 0.5 + 0.5 * vp.getY(i)); }
+    const visor = add2("robotVisor", visorGeometry); visor.scale.set(0.135, 0.058, 0.034); visor.position.set(0, 0.42, eggRadius(0.42) - 0.008);
+    { const rim = new THREE.TorusGeometry(1, 0.014, 5, 32); rim.scale(0.14, 0.063, 1); rim.translate(0, 0.42, eggRadius(0.42) - 0.008 + 0.014); glow(rim, 0xffd9a0); }
     // Ear modules like a headset: a dark disc on each side of the head with a lit ring, and a short antenna with an amber tip.
     for (const sx of [-1, 1]) {
       const disc = new THREE.CylinderGeometry(0.03, 0.03, 0.022, 14); disc.rotateZ(Math.PI / 2); disc.translate(sx * (eggRadius(0.42) + 0.006), 0.42, -0.006); add2("robotDark", disc);
@@ -1216,12 +1262,12 @@ export async function start({ stage, onReady = () => {} }) {
   const setArm = (value) => { armPivot.rotation.y = value; };
   const stopRecordPlayback = () => {
     if (!recordPlaying) return false;
-    recordPlaying = false; clearTimeout(recordTimer); cancelAnimationFrame(recordRaf);
+    recordPlaying = false; robotFace.setMusic(false); clearTimeout(recordTimer); cancelAnimationFrame(recordRaf);
     recordRaf = 0; setArm(ARM_REST); greeter.local.rotation.x = 0; render(); return true;
   };
   const playRecord = () => {
     if (recordPlaying) return false;
-    recordPlaying = true; recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
+    recordPlaying = true; robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
     recordTimer = setTimeout(stopRecordPlayback, 30000);
     const reduced = reducedMotion();
     const tick = (now) => {
@@ -2511,7 +2557,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
-    currentMood = name; posMood?.(name);
+    currentMood = name; posMood?.(name); robotFace.setMood(name);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
     const from = { tv: live.tv, shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
@@ -2679,7 +2725,7 @@ export async function start({ stage, onReady = () => {} }) {
   renderer.domElement.addEventListener("webglcontextrestored", () => requestAnimationFrame(() => { setMood(currentMood); resize(); }));
 
   controls.update(); setMood("golden"); resize();
-  requestAnimationFrame(() => requestAnimationFrame(() => afterFirstFrame.forEach((load) => load())));
+  requestAnimationFrame(() => requestAnimationFrame(() => { afterFirstFrame.forEach((load) => load()); robotFace.start(); }));
 
   // Viewing stations (Paul, 2026-11-14: drop the overview, it let the visitor drift into a blank grey wall; every view is a place to stand, like Rooms 02 and 03). The camera
   // always stands at a station at eye height and the visitor turns the head all the way round (drag, or the arrow keys); a button glides the camera to another station and
@@ -2768,7 +2814,7 @@ export async function start({ stage, onReady = () => {} }) {
     noteScreen: () => projectBox(note),
     recordScreen: () => projectBox(platterPivot),
     dripScreen: () => projectBounds(dripBounds),
-    playRecord, stopRecordPlayback,
+    playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),
     playDrip, stopDrip, dripPlaying: () => dripPlaying,
