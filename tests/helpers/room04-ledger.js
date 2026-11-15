@@ -10,7 +10,7 @@ export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
   scene: Object.freeze({ vertices: 196048, meshes: 140 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 103, phone: 92 }),
+  openingDrawCalls: Object.freeze({ desktop: 104, phone: 93 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   caps: Object.freeze({ vertices: 200000, meshes: 140, desktopCalls: 115, phoneCalls: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
@@ -73,5 +73,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "the bare front-wall panel between the corner and the street window gets a painting: the AI Lab open-horizon picture (a bright workspace opening onto the bay, with a small robot), reused from the AI Gallery, 47 x 84 cm in a black frame with a linen mat; it is the ninth cell of the wall-print atlas (now 2048 x 1536), so the frame and picture merge into the existing batches: no new mesh and no new draw call", vertices: 197070, meshes: 140, desktopCalls: 103, phoneCalls: 92 },
     { date: "2026-11-15", change: "window bentwood chairs: continuous rear bow and open inner arch, rounded cane-seat frame, splayed front feet and fitted stretcher; procedural beech grain in the existing chair batch", vertices: 196408, meshes: 140, desktopCalls: 103, phoneCalls: 92 },
     { date: "2026-11-15", change: "robot faces (Paul: the bar eyes looked stiff): the eyes and a small smile are drawn on the visor's own texture (planar-projected, emissive, warm cream) instead of two bar-eye meshes, with a hairline warm rim; they blink every few seconds, glance sideways now and then, go sleepy after closing and series night, smile with happy arcs while the record plays, and blink when the robot is tapped; the face is a texture on the existing visor mesh, so no new mesh", vertices: 196048, meshes: 140, desktopCalls: 103, phoneCalls: 92 },
+    { date: "2026-11-15", change: "dust motes in the window light: 90 slow soft points (48 on a phone) drifting along the sun shafts, one Points draw that is a child of the shafts and is only drawn while a shaft is visible (morning, midday, golden hour; not in rain, closing or series night); it moves at about 10 frames a second only while drawn, the tab is visible, reduced motion is off and the visitor touched the room in the last 30 s (those frames are not counted in renderFrame); Points are not meshes, so the mesh count is unchanged and the opening draw calls rise by one", vertices: 196048, meshes: 140, desktopCalls: 104, phoneCalls: 93 },
   ]),
 });
