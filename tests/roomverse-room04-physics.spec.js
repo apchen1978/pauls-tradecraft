@@ -8,6 +8,9 @@ const ROOM = "/prototype/roomverse-3d/cafe/";
 
 test("Room 04 audits registered support, joints, container walls and barriers", async ({ page }) => {
   test.setTimeout(300000);
+  // The audit reads geometry, not pixels, and the phone layout builds the same room. A phone-sized canvas keeps a CI runner (which draws in software) from spending
+  // minutes on frames before the deferred prints finish loading; at 1440 px this test timed out on most CI runs, including PRs that did not touch the room.
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(ROOM);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
