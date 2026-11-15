@@ -20,7 +20,7 @@ test("Room 04 audits registered support, joints, container walls and barriers", 
   expect(result.checks.length).toBeGreaterThan(100);
   expect(new Set(result.checks.map(({ name }) => name)).size).toBe(result.checks.length);
   for (const prefix of ["window-chair", "bar-stool-bentwood", "bar-stool-leather", "bar-stool-metal", "lounge-",
-    "pothos-vine", "straw-", "wall-print", "menu", "espresso-foot", "grinder-", "record-player", "drip-tower", "checkout-"]) {
+    "pothos-vine", "straw-", "wall-print", "menu", "espresso-foot", "grinder-", "record-player", "drip-tower", "checkout-", "cat-"]) {
     expect(result.checks.some(({ name }) => name.startsWith(prefix)), `registered ${prefix}`).toBe(true);
   }
   for (const check of result.checks) expect(check).toEqual({ ok: expect.any(Boolean), name: expect.any(String), detail: expect.stringContaining("mm") });

@@ -704,3 +704,20 @@ test("Room 04 random cafe: it picks a different rug each time and the next mood 
   await expect.poll(async () => (await rug()).look, { timeout: 30000 }).toBe("oat");
   expect(errors).toEqual([]);
 });
+
+test("Room 04 cat's corner: the cat loads into its basket, the bowls stand on the mat, and the whole corner stays inside the budget", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = await open(page, 1440);
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.catState())).loaded, { timeout: 30000 }).toBe(true);
+  const cat = await page.evaluate(() => window.__room04.catState());
+  expect(Math.hypot(cat.x - cat.nook[0], cat.z - cat.nook[1]), "the cat lies in the middle of its basket").toBeLessThan(0.01);
+  expect(cat.cushionTop - cat.y, "the cat sinks a few millimetres into the cushion").toBeGreaterThan(0.003);
+  expect(cat.cushionTop - cat.y).toBeLessThan(0.012);
+  expect(cat.widthM, "a curled adult cat is 35 to 50 cm across").toBeGreaterThanOrEqual(0.35);
+  expect(cat.widthM).toBeLessThanOrEqual(0.50);
+  const info = await page.evaluate(() => window.__room04.info());
+  expect(info.vertices, "vertices stay under the cap").toBeLessThanOrEqual(LEDGER.caps.vertices);
+  expect(info.meshes, "meshes stay under the cap").toBeLessThanOrEqual(LEDGER.caps.meshes);
+  expect(info.meshes, "the cat is the only new mesh").toBe(LEDGER.scene.meshes);
+  expect(errors).toEqual([]);
+});

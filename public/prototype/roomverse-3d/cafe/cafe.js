@@ -434,6 +434,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const LOUNGE_PRINTS = [{ i: 9, z: 1.33 }, { i: 10, z: 1.7 }, { i: 11, z: 2.07 }], LOUNGE_PRINT_GEOM = Object.freeze({ PW: 0.30, PH: 0.225, PY: 1.37, WALL_X: 3.2 });
   const LOUNGE_FILES = ["../../kitchen/art/room03-print-poster-leaf-v1.webp", "../../tex/left-wall-harbor-dusk-v1.webp", "../../kitchen/art/room03-print-poster-sun-v1.webp"]; // relative to art/
   const afterFirstFrame = [];
+  const catRef = { group: null }; // the cat, once it has loaded
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
   let shadowsDirty = true; const dirtyShadows = () => { shadowsDirty = true; };
   const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
@@ -2316,6 +2317,44 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       }
     }
 
+    // ---------- the cat's corner (Paul, 2026-11-15: in the corner to the left of the door, where nothing stood) ----------
+    // An orange-and-white tabby sleeps curled in a rattan basket with a cushion; a food bowl and a water bowl stand on a mat beside it. The basket, cushion, mat, bowls, kibble and water are
+    // ordinary parts of the existing batches (no mesh of their own); only the cat (cat.js, an image-to-3D shape drawn with a shader) is one new mesh, loaded after the first frame.
+    // Dimensions (after NS): basket 70 cm across and 17 cm high, cushion 60 cm across, cat 46 cm across and 19 cm high (a big adult curled up; the model as exported is 40 cm); food bowl 15 cm, water bowl 17.5 cm.
+    const CAT_NOOK = { x: -2.70, z: 3.12 }, NOOK_FLOOR = 0.012, CAT_YAW = 2.16, NS = 1.15; // NS: the corner is 15% over the first build (Paul: it read too small from across the room); the cat is then 46 cm across, a big tabby, still a real size // yaw: the cat faces into the room (towards +x and -z)
+    const BASKET_FLOOR_TOP = NOOK_FLOOR + 0.02 * NS, CUSHION_TOP = BASKET_FLOOR_TOP + 0.05 * NS, CAT_BOTTOM = CUSHION_TOP - 0.008; // the cat sinks 8 mm into the cushion
+    const lathe = (profile, segments, x, y, z) => new THREE.LatheGeometry(profile.map(([r, h]) => new THREE.Vector2(r * NS, h * NS)), segments).translate(x, y, z);
+    part("cane", lathe([[0, 0], [0.26, 0], [0.29, 0.012], [0.305, 0.075], [0.30, 0.138], [0.29, 0.15], [0.278, 0.14], [0.283, 0.075], [0.268, 0.032], [0, 0.02]], 28, CAT_NOOK.x, NOOK_FLOOR, CAT_NOOK.z), { tile: 0.35 });
+    part("loungeSeat", lathe([[0, 0], [0.25, 0], [0.262, 0.012], [0.26, 0.036], [0.24, 0.05], [0, 0.052]], 28, CAT_NOOK.x, BASKET_FLOOR_TOP, CAT_NOOK.z), { tile: 0.5 });
+    registerSupport("cat-basket-ground", "ground", { bottomY: NOOK_FLOOR, floorY: NOOK_FLOOR });
+    registerSupport("cat-cushion-in-basket", "ground", { bottomY: BASKET_FLOOR_TOP, floorY: BASKET_FLOOR_TOP });
+    registerSupport("cat-on-cushion", "ground", { bottomY: CAT_BOTTOM, floorY: CUSHION_TOP, tolerance: 0.010 }); // it lies in the soft cushion, 8 mm deep
+    // the mat and the two bowls (right of the basket, in front of the street window)
+    const MAT = { x: -2.06, z: 3.30, w: 0.48, d: 0.30, t: 0.004 }, MAT_TOP = NOOK_FLOOR + MAT.t;
+    part("olive", new THREE.BoxGeometry(MAT.w, MAT.t, MAT.d).translate(MAT.x, NOOK_FLOOR + MAT.t / 2, MAT.z), { tile: 0.6 });
+    registerSupport("cat-mat-ground", "ground", { bottomY: NOOK_FLOOR, floorY: NOOK_FLOOR });
+    const matSurface = { shape: "rect", x0: MAT.x - MAT.w / 2, x1: MAT.x + MAT.w / 2, z0: MAT.z - MAT.d / 2, z1: MAT.z + MAT.d / 2, y: MAT_TOP };
+    const BOWL = [[0, 0], [0.046, 0], [0.060, 0.010], [0.066, 0.040], [0.063, 0.046], [0.056, 0.044], [0.054, 0.014], [0, 0.010]]; // outer wall, rolled rim, inner wall, inner floor
+    const foodBowl = { x: -2.17, z: 3.30, scale: 1 }, waterBowl = { x: -1.955, z: 3.30, scale: 1.15 };
+    for (const [name, key, bowl] of [["food", "terracotta", foodBowl], ["water", "ceramic", waterBowl]]) {
+      part(key, lathe(BOWL.map(([r, h]) => [r * bowl.scale, h * bowl.scale]), 22, bowl.x, MAT_TOP, bowl.z), { tile: 0.5 });
+      registerSupport(`cat-${name}-bowl-on-mat`, "rest", { base: { x: bowl.x, y: MAT_TOP, z: bowl.z, radius: 0.046 * bowl.scale * NS }, surface: matSurface });
+    }
+    // kibble: a small mound of 22 pieces on the inner floor of the food bowl, its top 5 mm or more under the rim
+    { const floorY = MAT_TOP + 0.010 * foodBowl.scale * NS;
+      for (let i = 0; i < 22; i++) {
+        const a = i * 2.399963, rr = 0.030 * Math.sqrt((i + 0.5) / 22), lift = (1 - rr / 0.030) * 0.011;
+        part("cookie", new THREE.OctahedronGeometry(0.0048).rotateY(i * 0.7).translate(foodBowl.x + Math.cos(a) * rr, floorY + 0.0045 + lift, foodBowl.z + Math.sin(a) * rr), { tile: 1 });
+      }
+      registerSupport("cat-kibble-in-bowl", "rest", { base: { x: foodBowl.x, y: floorY + 0.0003, z: foodBowl.z, radius: 0.030 }, surface: { shape: "circle", x: foodBowl.x, z: foodBowl.z, radius: 0.054, y: floorY } });
+    }
+    // water: a clear disc 8 mm under the rim of the water bowl
+    part("water", new THREE.CylinderGeometry(0.066 * NS, 0.066 * NS, 0.004, 20).translate(waterBowl.x, MAT_TOP + 0.046 * waterBowl.scale * NS - 0.008, waterBowl.z), { tile: 1 });
+    // the cat itself: one mesh, loaded after the first frame
+    afterFirstFrame.push(() => import("./cat.js?v=auto").then(({ loadCat }) => loadCat()).then((cat) => {
+      cat.position.set(CAT_NOOK.x, CAT_BOTTOM, CAT_NOOK.z); cat.rotation.y = CAT_YAW; cat.scale.setScalar(NS); scene.add(cat); catRef.group = cat; catRef.cushionTop = CUSHION_TOP; catRef.scale = NS; dirtyShadows(); render();
+    }).catch((error) => console.warn("the cat did not load", error)));
+
     rugRef.loungeDefault = makeRugTexture(true);
     rugRef.lounge = new THREE.MeshStandardMaterial({ map: rugRef.loungeDefault, roughness: 1 });
     add("lounge-rug", new THREE.PlaneGeometry(1.6, 2.4).rotateX(-Math.PI / 2),
@@ -2909,6 +2948,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     recordScreen: () => projectBox(platterPivot),
     dripScreen: () => projectBounds(dripBounds),
     dustState: () => ({ visible: dust.visible, opacity: dust.material.opacity, count: DUST_COUNT, sample: [dustPositions[0], dustPositions[1], dustPositions[2]] }),
+    catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
