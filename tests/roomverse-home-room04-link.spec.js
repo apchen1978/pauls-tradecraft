@@ -15,7 +15,7 @@ for (const lang of ["zh", "en"]) {
         ? 'img[alt*="上海紅磚咖啡廳窗邊的年輕人"]'
         : 'img[alt^="A young person works at a laptop by the window of a red-brick Shanghai cafe"]');
       await room04Image.scrollIntoViewIfNeeded();
-      await expect.poll(() => room04Image.getAttribute("src")).toContain("roomverse-room04-shanghai-slowly-cover-v3-thumb.webp?v=1");
+      await expect.poll(() => room04Image.getAttribute("src")).toContain("roomverse-room04-shanghai-slowly-cover-v3-thumb.webp?v=2");
       await room04Image.evaluate((image) => image.decode());
       await page.goto(`/prototype/roomverse-3d/cafe/?lang=${lang}`);
       const poster = page.locator("#poster");
@@ -24,13 +24,13 @@ for (const lang of ["zh", "en"]) {
         return { image: css.backgroundImage, size: css.backgroundSize, content: css.content };
       }));
       if (width >= 769) {
-        expect(faces[1].image).toMatch(/roomverse-room04-shanghai-slowly-cover-v3-wide\.webp\?v=1/);
+        expect(faces[1].image).toMatch(/roomverse-room04-shanghai-slowly-cover-v3-wide\.webp\?v=2/);
         expect(faces[1].size).toMatch(/cover/);
         expect(faces[0].content).toBe("none");
       } else {
-        expect(faces[1].image).toMatch(/roomverse-room04-shanghai-slowly-cover-v3-mobile\.webp\?v=1/);
+        expect(faces[1].image).toMatch(/roomverse-room04-shanghai-slowly-cover-v3-mobile\.webp\?v=2/);
         expect(faces[1].size).toMatch(/contain/);
-        expect(faces[0].image).toMatch(/roomverse-room04-shanghai-slowly-cover-v3-mobile\.webp\?v=1/);
+        expect(faces[0].image).toMatch(/roomverse-room04-shanghai-slowly-cover-v3-mobile\.webp\?v=2/);
         expect(faces[0].size).toMatch(/cover/);
       }
     });
