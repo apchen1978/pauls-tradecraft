@@ -127,12 +127,12 @@ export const LOOK_GROUPS = Object.freeze({
   clock: Object.freeze({ tech: 1, classic: 2, wood: 3 }), // the wall clock (Codex card 49): A futuristic, B classical brass, or the round oak one. The hands show the real time.
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
   lounge: Object.freeze({
-    terracotta: [0xa0523e, 0xc39748, 0xd5b18a, 0xe0c8aa],
-    olive: [0x697349, 0xe2d2ab, 0xb88467, 0xe8d9bd],
-    navy: [0x354c61, 0xc9b99f, 0xb27d6b, 0xd9cbb8],
-    plum: [0x65454d, 0xcaa48f, 0xd6bca8, 0xe4d5c6],
-    sage: [0x78907a, 0xd8c5a5, 0xb8795e, 0xeee0c8],
-    cocoa: [0x765744, 0xc6a982, 0x8b9b9a, 0xe2d3b8],
+    terracotta: [0xa0523e, 0xc39748, 0xd5b18a, 0xe0c8aa, 0x3d7379],
+    olive: [0x697349, 0xe2d2ab, 0xb88467, 0xe8d9bd, 0xb9822f],
+    navy: [0x354c61, 0xc9b99f, 0xb27d6b, 0xd9cbb8, 0xb5583d],
+    plum: [0x65454d, 0xcaa48f, 0xd6bca8, 0xe4d5c6, 0x4f7a72],
+    sage: [0x78907a, 0xd8c5a5, 0xb8795e, 0xeee0c8, 0x34495e],
+    cocoa: [0x765744, 0xc6a982, 0x8b9b9a, 0xe2d3b8, 0x76803f],
   }),
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4], planeleaf: ["room04-wallpaper-plane-leaf.webp", 1.5], windowshadow: ["room04-wallpaper-window-shadow.webp", 1.5] }), // the last two are this cafe's own (Codex card 52 C)
 });
@@ -617,6 +617,12 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   })();
   const reflectiveBase = { robotBody: 0.7, robotDark: 0.9, gold: 1.9, ceramic: 0.5, visor: 1.2, robotVisor: 1.2, steel: 1.65, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
   for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
+  // The Lounge wall as a feature wall (Paul, 2026-11-16: a designer's hand): the same plaster and the same look as the other walls, one step deeper and warmer (multiplied by a clay tint), so the
+  // olive wainscot, the oak rail and the pictures sit against a colour instead of a flat grey-white. A wallpaper look shows as it is on every wall.
+  // The armchair has its own fabric (Paul, 2026-11-16: sofa and chair melted together): the pillows stay mustard, the banquette burgundy, the armchair a cool petrol blue-green.
+  materials.loungeChair = materials.loungeAccent.clone(); materials.loungeChair.color.setHex(LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][4]);
+  const CLAY_TINT = new THREE.Color(0xe6cfb2);
+  materials.wallFeature = materials.wall.clone(); materials.wallFeature.color.copy(materials.wall.color).multiply(CLAY_TINT);
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
     const mesh = new THREE.Mesh(geometry, material);
@@ -624,7 +630,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     scene.add(mesh); return mesh;
   };
   const box = (name, material, [x0, x1], [y0, y1], [z0, z1], options) => {
-    if (material !== materials.wall) return add(name, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), material, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, options);
+    if (material !== materials.wall && material !== materials.wallFeature) return add(name, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), material, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, options);
     const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); worldUVs(g, 1);
     return add(name, g, material, 0, 0, 0, options);
   };
@@ -634,7 +640,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   box("floor", materials.floor, [X0, X1], [-0.05, 0], [BACK, FRONT + 1.2], { cast: false });
   box("ceiling", materials.ceiling, [X0, X1], [ROOM.height, ROOM.height + 0.05], [BACK, FRONT + 1.2], { receive: false });
   box("brick-wall", materials.brick, [X0, X1], [0, ROOM.height], [BACK - 0.1, BACK]);
-  box("right-wall", materials.wall, [X1, X1 + 0.1], [0, ROOM.height], [BACK, FRONT + 1.2]);
+  box("right-wall", materials.wallFeature, [X1, X1 + 0.1], [0, ROOM.height], [BACK, FRONT + 1.2]);
   // The left wall is four pieces around the window opening, so the sun really comes through the hole and the wall shades the rest.
   box("left-wall-below", materials.wall, [X0 - LEFT_WALL, X0], [0, WINDOW.y0], [BACK, FRONT + 1.2]);
   box("left-wall-above", materials.wall, [X0 - LEFT_WALL, X0], [WINDOW.y1, ROOM.height], [BACK, FRONT + 1.2]);
@@ -2215,9 +2221,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const armchairSupport = { shape: "rect", x0: armchairSeat.boundingBox.min.x, x1: armchairSeat.boundingBox.max.x,
       z0: armchairSeat.boundingBox.min.z, z1: armchairSeat.boundingBox.max.z, y: armchairSeat.boundingBox.min.y };
     for (const { name, tip } of armchairLegTips) registerSupport(name, "embed", { tip, surface: armchairSupport });
-    chairPart("loungeAccent", cushionGeometry(0.615, 0.105, 0.55, 0.009).translate(0, 0.377, 0.026));
+    chairPart("loungeChair", cushionGeometry(0.615, 0.105, 0.55, 0.009).translate(0, 0.377, 0.026));
     detail(cushionWeltGeometry(0.615, 0.55, 0.381, ax, az - 0.026, 0.0045), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0]);
-    chairPart("loungeAccent", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
+    chairPart("loungeChair", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
     addContactShadow(bx + 0.02, bz, 0.72, 1.96, 0.0135);
     addContactShadow(ax, az, 0.74, 0.72, 0.0135);
 
@@ -2227,10 +2233,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const profile = [[0, 0.05], [0.18, 0.05], [0.214, 0.075], [0.225, 0.13], [0.225, 0.29],
       [0.21, 0.333], [0.175, 0.351], [0, 0.36]];
     detail(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y + 0.012)), 40)
-      .translate(px, 0, pz), 0xa76d45);
+      .translate(px, 0, pz), 0xc4963f);
     for (let i = 0; i < 40; i++) {
       const a = i * Math.PI / 20, x = px + 0.224 * Math.cos(a), z = pz + 0.224 * Math.sin(a);
-      detail(rodGeometry([x, 0.14, z], [x, 0.30, z], 0.003, 4), 0x8e5d3d);
+      detail(rodGeometry([x, 0.14, z], [x, 0.30, z], 0.003, 4), 0xa57a2c);
     }
 
     const tx = 2.17;
@@ -2567,6 +2573,12 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
 
     rugRef.loungeDefault = makeRugTexture(true);
     rugRef.lounge = new THREE.MeshStandardMaterial({ map: rugRef.loungeDefault, roughness: 1 });
+    // The Lounge rug opens as the terracotta, olive and cream geometric rug (Paul, 2026-11-16: more colour and a designer's hand): it repeats the wainscot, the pouf and the armchair. It
+    // loads after the first frame (the jute weave shows until then). A rug picked from the older four still dresses both rugs, and the new rectangles leave this one alone.
+    afterFirstFrame.push(() => altTexture(LOOK_GROUPS.rug.abstract, true, [1, 1], (t) => {
+      rugRef.loungeDefault = t;
+      if (!LOOK_GROUPS.rug[currentLook.rug] || WINDOW_RUG_RECTS[currentLook.rug] || currentLook.rug === "weave") { rugRef.lounge.map = t; rugRef.lounge.needsUpdate = true; render(); }
+    }));
     add("lounge-rug", new THREE.PlaneGeometry(1.6, 2.4).rotateX(-Math.PI / 2),
       rugRef.lounge, 2.25, 0.012, 1.48, { cast: false });
   }
@@ -2961,6 +2973,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       materials.loungeAccent.color.setHex(v[1]);
       materials.loungePillow.color.setHex(v[2]);
       materials.loungeThrow.color.setHex(v[3]);
+      materials.loungeChair.color.setHex(v[4]);
       render();
       return true;
     }
@@ -3002,14 +3015,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const wallpaperTextures = {};
   function applyWall() {
     const paper = LOOK_GROUPS.wallpaper[currentLook.wallpaper];
-    if (!paper) { materials.wall.map = null; materials.wall.color.setHex(LOOK_GROUPS.wall[currentLook.wall]); }
+    if (!paper) { materials.wall.map = null; materials.wall.color.setHex(LOOK_GROUPS.wall[currentLook.wall]); materials.wallFeature.map = null; materials.wallFeature.color.copy(materials.wall.color).multiply(CLAY_TINT); }
     else {
       const [file, size] = paper;
       const texture = wallpaperTextures[file] ||= textureLoader.load(file.startsWith("room04-") ? artBase + file : new URL(`../tex/${file}`, import.meta.url).href, () => render());
       texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = maxAnisotropy; texture.repeat.set(1 / size, 1 / size);
-      materials.wall.map = texture; materials.wall.color.setHex(0xffffff);
+      materials.wall.map = texture; materials.wall.color.setHex(0xffffff); materials.wallFeature.map = texture; materials.wallFeature.color.setHex(0xffffff);
     }
-    materials.wall.needsUpdate = true;
+    materials.wall.needsUpdate = true; materials.wallFeature.needsUpdate = true;
   }
   const resetLook = () => { wainscotChosen = false; rugChosen = false; for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); if (RUG_BY_MOOD[currentMood]) setLook("rug", RUG_BY_MOOD[currentMood]); return { ...currentLook }; };
 
