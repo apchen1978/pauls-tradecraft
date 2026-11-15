@@ -2882,7 +2882,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     entry: compact ? station([0.5, 1.55, 1.75], [-0.9, 1.18, -0.55], 72) : station([0.5, 1.55, 1.75], [-0.4, 1.22, -0.7], 64),
     middle: { position: new THREE.Vector3(0.1, 1.55, 1.2), yaw: Math.PI * 1.28, pitch: -0.22, fov: compact ? 84 : 72 }, // it opens on the corner left of the door (Paul, 2026-11-16: the old view of the front wall was mostly the back of a lounge chair): both street windows, the gallery wall, the cat asleep in its basket and the window seat
   };
-  const DEFAULT_STATION = "entry";
+  const DEFAULT_STATION = "middle"; // Paul, 2026-11-16: the room opens on the corner with the cat, both street windows and the window seat
   let viewName = DEFAULT_STATION, viewRun = 0, centerDrag = null, centerQueued = false, glideRun = 0; // glideRun: a new drag or view ends the glide after a swipe
   const look = { position: STATIONS[DEFAULT_STATION].position.clone(), yaw: STATIONS[DEFAULT_STATION].yaw, pitch: STATIONS[DEFAULT_STATION].pitch, fov: STATIONS[DEFAULT_STATION].fov };
   const applyLook = (now = false) => {
@@ -2926,10 +2926,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const hit = pickRay.intersectObjects(candidates, false)[0];
       if (hit && menuBoardMeshes.includes(hit.object)) onMenuTap();
     };
-    // Turning the head (Paul, 2026-11-16: it turned too slowly and too little, above all on a phone). A swipe across the whole canvas turns about 200 degrees whatever the screen
+    // Turning the head (Paul, 2026-11-16: it turned too slowly and too little, above all on a phone). A swipe across the whole canvas turns about 125 degrees whatever the screen
     // width (before, the turn was tied to the canvas height, so a phone swipe turned only about 80 degrees). After the finger lifts, the turn glides on and slows down, like the
     // orbiting rooms 01 to 03; a new touch, a new view or reduced motion stops it.
-    const YAW_PER_SWIPE = 200 * Math.PI / 180;
+    const YAW_PER_SWIPE = 125 * Math.PI / 180; // Paul, 2026-11-16: 200 degrees was smooth but a little fast; about 37% slower lets the eye follow
     let yawVelocity = 0, lastMove = 0; // radians per millisecond, smoothed over the last moves
     const glide = () => {
       if (reducedMotion() || Math.abs(yawVelocity) < 0.0002) return;
