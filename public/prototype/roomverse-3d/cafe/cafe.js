@@ -2336,17 +2336,34 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const matSurface = { shape: "rect", x0: MAT.x - MAT.w / 2, x1: MAT.x + MAT.w / 2, z0: MAT.z - MAT.d / 2, z1: MAT.z + MAT.d / 2, y: MAT_TOP };
     const BOWL = [[0, 0], [0.046, 0], [0.060, 0.010], [0.066, 0.040], [0.063, 0.046], [0.056, 0.044], [0.054, 0.014], [0, 0.010]]; // outer wall, rolled rim, inner wall, inner floor
     const foodBowl = { x: -2.17, z: 3.30, scale: 1 }, waterBowl = { x: -1.955, z: 3.30, scale: 1.15 };
-    for (const [name, key, bowl] of [["food", "terracotta", foodBowl], ["water", "ceramic", waterBowl]]) {
+    for (const [name, key, bowl] of [["food", "ceramic", foodBowl], ["water", "terracotta", waterBowl]]) { // brown kibble reads best in a white bowl
       part(key, lathe(BOWL.map(([r, h]) => [r * bowl.scale, h * bowl.scale]), 22, bowl.x, MAT_TOP, bowl.z), { tile: 0.5 });
       registerSupport(`cat-${name}-bowl-on-mat`, "rest", { base: { x: bowl.x, y: MAT_TOP, z: bowl.z, radius: 0.046 * bowl.scale * NS }, surface: matSurface });
     }
     // kibble: a small mound of 22 pieces on the inner floor of the food bowl, its top 5 mm or more under the rim
     { const floorY = MAT_TOP + 0.010 * foodBowl.scale * NS;
-      for (let i = 0; i < 22; i++) {
-        const a = i * 2.399963, rr = 0.030 * Math.sqrt((i + 0.5) / 22), lift = (1 - rr / 0.030) * 0.011;
-        part("cookie", new THREE.OctahedronGeometry(0.0048).rotateY(i * 0.7).translate(foodBowl.x + Math.cos(a) * rr, floorY + 0.0045 + lift, foodBowl.z + Math.sin(a) * rr), { tile: 1 });
-      }
-      registerSupport("cat-kibble-in-bowl", "rest", { base: { x: foodBowl.x, y: floorY + 0.0003, z: foodBowl.z, radius: 0.030 }, surface: { shape: "circle", x: foodBowl.x, z: foodBowl.z, radius: 0.054, y: floorY } });
+      // A full bowl of dry food (Paul: the kibble must be visible, small pellets like coffee beans). One low mound that fills the bowl and heaps 6 mm over the rim in the middle,
+      // wearing a painted texture of about 260 brown pellets with a crease and a highlight each, and the same picture as a bump map for relief. It is one small mesh of its own
+      // (105 vertices, fewer than the 22 loose pieces it replaces) because it needs its own picture.
+      const rimY = MAT_TOP + 0.046 * foodBowl.scale * NS, inner = 0.054 * foodBowl.scale * NS + 0.006, top = rimY + 0.006;
+      const mound = new THREE.LatheGeometry([[inner, floorY + 0.004], [0.050, top - 0.018], [0.036, top - 0.008], [0.018, top - 0.002], [0, top]].map(([r, h]) => new THREE.Vector2(r, h - floorY)), 20).translate(foodBowl.x, floorY, foodBowl.z);
+      { const pos = mound.attributes.position, uv = mound.attributes.uv; for (let i = 0; i < pos.count; i++) uv.setXY(i, 0.5 + (pos.getX(i) - foodBowl.x) / (2 * inner), 0.5 + (pos.getZ(i) - foodBowl.z) / (2 * inner)); }
+      const kibbleTexture = (() => {
+        const canvas = document.createElement("canvas"); canvas.width = canvas.height = 256; const g = canvas.getContext("2d");
+        g.fillStyle = "#3a200f"; g.fillRect(0, 0, 256, 256);
+        let seed = 68; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        for (let i = 0; i < 260; i++) {
+          const x = rnd() * 256, y = rnd() * 256, a = rnd() * Math.PI, rx = 7 + rnd() * 3, ry = 5 + rnd() * 2, tone = rnd();
+          g.save(); g.translate(x, y); g.rotate(a);
+          g.fillStyle = tone < 0.33 ? "#7a4422" : tone < 0.66 ? "#8c5129" : "#6a3a1c"; g.beginPath(); g.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); g.fill();
+          g.fillStyle = "rgba(255,214,160,.28)"; g.beginPath(); g.ellipse(-rx * 0.3, -ry * 0.35, rx * 0.45, ry * 0.32, 0, 0, Math.PI * 2); g.fill(); // a highlight
+          g.strokeStyle = "rgba(30,14,5,.75)"; g.lineWidth = 1.3; g.beginPath(); g.moveTo(-rx * 0.7, 0); g.quadraticCurveTo(0, ry * 0.25, rx * 0.7, 0); g.stroke(); // the crease of a bean
+          g.restore();
+        }
+        const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = maxAnisotropy; return texture;
+      })();
+      add("cat-kibble", mound, new THREE.MeshStandardMaterial({ map: kibbleTexture, bumpMap: kibbleTexture, bumpScale: 1.4, roughness: 0.62 }), 0, 0, 0, { cast: false });
+      registerSupport("cat-kibble-in-bowl", "rest", { base: { x: foodBowl.x, y: floorY + 0.0003, z: foodBowl.z, radius: inner - 0.002 }, surface: { shape: "circle", x: foodBowl.x, z: foodBowl.z, radius: inner + 0.002, y: floorY } });
     }
     // water: a clear disc 8 mm under the rim of the water bowl
     part("water", new THREE.CylinderGeometry(0.066 * NS, 0.066 * NS, 0.004, 20).translate(waterBowl.x, MAT_TOP + 0.046 * waterBowl.scale * NS - 0.008, waterBowl.z), { tile: 1 });
@@ -2948,8 +2965,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     recordScreen: () => projectBox(platterPivot),
     dripScreen: () => projectBounds(dripBounds),
     dustState: () => ({ visible: dust.visible, opacity: dust.material.opacity, count: DUST_COUNT, sample: [dustPositions[0], dustPositions[1], dustPositions[2]] }),
+    catScreen: () => (catRef.group ? projectBox(catRef.group) : null),
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
-    rugState: () => ({ look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
+    rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),
