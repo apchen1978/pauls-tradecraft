@@ -300,7 +300,7 @@ test("Room 04 poster defers the 3D scene and portal arrivals enter directly", as
     await page.goto(`${PAGE}?from=${from}`);
     await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
     await expect(page.locator("#poster")).toBeHidden();
-    expect(await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("room04-shanghai-slowly-concept-mobile.webp")))).toBe(false);
+    expect(await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("room04-shanghai-slowly-cover-v3-mobile.webp")))).toBe(false);
   }
 });
 
