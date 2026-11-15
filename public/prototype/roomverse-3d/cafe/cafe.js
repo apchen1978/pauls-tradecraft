@@ -1243,51 +1243,111 @@ export async function start({ stage, onReady = () => {} }) {
   // The window seat stands under the street window: a 60 cm round table and two bentwood chairs. On the table: a vase of hydrangea, an open notebook and pen, and a cup that has just been poured.
   const SEAT = { x: -2.42, z: 0.5 };
   const place = (geometry, x, z, yaw = 0, y = 0) => geometry.rotateY(yaw).translate(x, y, z);
+  // Longitudinal beech grain, shared by both chairs.
+  const chairGrain = document.createElement("canvas");
+  chairGrain.width = chairGrain.height = 128;
+  const grainContext = chairGrain.getContext("2d");
+  const grainImage = grainContext.createImageData(chairGrain.width, chairGrain.height);
+  for (let y = 0; y < chairGrain.height; y++) for (let x = 0; x < chairGrain.width; x++) {
+    const u = x * Math.PI * 2 / chairGrain.width, v = y * Math.PI * 2 / chairGrain.height;
+    const fibre = u + 0.011 * Math.sin(v + 2 * u) + 0.006 * Math.sin(2 * v - 3 * u);
+    const tone = Math.round(242 + 5 * Math.sin(7 * fibre) + 4 * Math.sin(19 * fibre) + 3 * Math.sin(43 * fibre));
+    grainImage.data.set([tone, tone, tone, 255], (y * chairGrain.width + x) * 4);
+  }
+  grainContext.putImageData(grainImage, 0, 0);
+  const grainMap = new THREE.CanvasTexture(chairGrain);
+  grainMap.wrapS = grainMap.wrapT = THREE.RepeatWrapping;
+  grainMap.anisotropy = 4;
+  materials.windowChair = materials.bentwood.clone();
+  materials.windowChair.map = grainMap;
+  materials.windowChair.bumpMap = grainMap;
+  materials.windowChair.bumpScale = 0.001;
+  materials.windowChair.roughness = 0.49;
+
   const chair = (x, z, yaw) => {
-    const P = (key, geometry, options) => { const placed = place(geometry, x, z, yaw); part(key, placed, options); return placed; };
-    const point = (px, py, pz) => { const p = new THREE.Vector3(px, py, pz).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw); return { x: p.x + x, y: p.y, z: p.z + z }; };
+    const vector = (xyz) => new THREE.Vector3(...xyz);
+    const axis = new THREE.Vector3(0, 1, 0), origin = new THREE.Vector3(x, 0, z);
+    const point = (p) => p.clone().applyAxisAngle(axis, yaw).add(origin);
     const chairName = `window-chair-${x.toFixed(2)}-${z.toFixed(2)}`;
-    const R = 0.2, seatY = 0.46, legRingRadius = 0.1725, backOvalRadius = 0.128;
-    const seatFrame = P("bentwood", new THREE.CylinderGeometry(R, R - 0.004, 0.034, 36).translate(0, seatY - 0.01, 0), { tile: 0.6 }); // the seat frame
-    seatFrame.computeBoundingBox();
-    const seatSupport = { shape: "circle", x, z, radius: R - 0.004, y: seatFrame.boundingBox.min.y };
-    P("cane", new THREE.CylinderGeometry(R - 0.022, R - 0.022, 0.006, 36).translate(0, seatY + 0.009, 0), { tile: 0.2 }); // the woven top
-    P("bentwood", new THREE.TorusGeometry(R - 0.018, 0.008, 8, 36).rotateX(Math.PI / 2).translate(0, seatY + 0.008, 0), { tile: 0.6 });
-    // The legs stand INSIDE the seat's outline and run up into its frame (Paul: legs that only touch the seat's edge look generated; it was the first thing wrong with Room 03's
-    // chairs too). Before, the four legs were centred 0.207 m from the seat's axis on a 0.2 m seat, so they only brushed its rim, and the leg ring (0.168 m) hung inside them.
-    // Now every leg is 0.175 m from the axis, its top is inside the seat frame, a small collar hides the joint, and the ring touches all four legs.
-    for (const [lx, lz] of [[-0.123, 0.123], [0.123, 0.123]]) {
-      const leg = P("bentwood", new THREE.CylinderGeometry(0.0185, 0.011, seatY + 0.004, 12).translate(lx, (seatY + 0.004) / 2, lz), { tile: 0.6 });
-      leg.computeBoundingBox();
-      const tip = point(lx, leg.boundingBox.max.y, lz);
-      registerSupport(`${chairName}-front-${lx}-seat`, "embed", { tip, surface: seatSupport });
-      registerSupport(`${chairName}-front-${lx}-ground`, "ground", { bottomY: leg.boundingBox.min.y });
-      const radial = Math.hypot(lx, lz), ring = point(lx * legRingRadius / radial, 0.2, lz * legRingRadius / radial);
-      registerSupport(`${chairName}-front-${lx}-ring`, "join", { a: point(lx, 0.2, lz), b: ring, radiusA: 0.015, radiusB: 0.0075 });
-      P("bentwood", new THREE.CylinderGeometry(0.0235, 0.0235, 0.012, 12).translate(lx, seatY - 0.034, lz), { tile: 0.6 }); // the collar under the seat frame
+    const seatY = 0.46, frameY = seatY - 0.02, frameRadius = 0.182, frameTube = 0.022;
+    const rugTop = 0.014, ringY = 0.235, ringRadius = 0.187, ringTube = 0.0085;
+    const outerTube = 0.017, innerTube = 0.012, radialSegments = 10;
+    const wood = (geometry, turnGrain = true) => {
+      const uv = geometry.attributes.uv;
+      const mergedPart = part("windowChair", place(geometry, x, z, yaw));
+      // Follow the bend with the grain. Tubes and toruses follow u; legs follow v.
+      if (turnGrain) for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getY(i), uv.getX(i));
+      mergedPart.setAttribute("uv", uv);
+      return mergedPart;
+    };
+    const bullnose = (radius, tube, segments, height, scaleY = 1) =>
+      new THREE.TorusGeometry(radius, tube, radialSegments, segments).rotateX(-Math.PI / 2).scale(1, scaleY, 1).translate(0, height, 0);
+    const join = (label, a, b, radiusA, radiusB) =>
+      registerSupport(`${chairName}-${label}`, "join", { a: point(a), b: point(b), radiusA, radiusB });
+    const onRing = (p, radius, height) => new THREE.Vector3(p.x, 0, p.z).setLength(radius).setY(height);
+    const seatJoint = (label, p, radius) => join(label, p, onRing(p, frameRadius, frameY), radius, 0.018);
+    const ground = (label, bottomY) =>
+      registerSupport(`${chairName}-${label}-ground`, "ground", { bottomY, floorY: rugTop });
+    const ringJoint = (label, p, radius) => join(label, p, onRing(p, ringRadius, ringY), radius, ringTube);
+
+    // With ten sides the highest ring vertex is at sin(72°).
+    const frameScaleY = (seatY - frameY) / (frameTube * Math.sin(Math.PI * 0.4));
+    wood(bullnose(frameRadius, frameTube, 52, frameY, frameScaleY));
+    // The cane wraps into the inner edge of the seat; only the upper face is visible.
+    const caneProfile = [[0, 0.442], [0.174, 0.442], [0.174, 0.451], [0.12, 0.449], [0, 0.446]];
+    const cane = new THREE.LatheGeometry(caneProfile.map(([r, y]) => new THREE.Vector2(r, y)), 52);
+    part("cane", place(cane, x, z, yaw), { tile: 0.2 });
+    seatJoint("cane-frame", vector([0.174, 0.451, 0]), 0);
+    wood(bullnose(ringRadius, ringTube, 40, ringY));
+
+    for (const side of [-1, 1]) {
+      const top = vector([0.128 * side, frameY, 0.128]);
+      const foot = vector([0.15 * side, rugTop, 0.15]);
+      const height = top.y - foot.y;
+      const leg = new THREE.CylinderGeometry(0.015, 0.01, height, radialSegments);
+      const vertices = leg.attributes.position;
+      // Shear the taper by 4.2 degrees, keeping a flat sole on the rug.
+      for (let i = 0; i < vertices.count; i++) {
+        const t = vertices.getY(i) / height + 0.5;
+        vertices.setXYZ(i, vertices.getX(i) + THREE.MathUtils.lerp(foot.x, top.x, t),
+          vertices.getY(i) + (foot.y + top.y) / 2, vertices.getZ(i) + THREE.MathUtils.lerp(foot.z, top.z, t));
+      }
+      // Transform normals by the inverse transpose of the shear to keep the round shading and UV seam.
+      const normals = leg.attributes.normal;
+      for (let i = 0; i < normals.count; i++) {
+        const normal = new THREE.Vector3().fromBufferAttribute(normals, i);
+        normal.y -= (normal.x * (top.x - foot.x) + normal.z * (top.z - foot.z)) / height;
+        normal.normalize();
+        normals.setXYZ(i, normal.x, normal.y, normal.z);
+      }
+      const geometry = wood(leg, false);
+      geometry.computeBoundingBox();
+      const ringT = (ringY - foot.y) / height;
+      ground(`front-${side}`, geometry.boundingBox.min.y);
+      seatJoint(`front-${side}-seat`, top, 0.015);
+      ringJoint(`front-${side}-ring`, foot.clone().lerp(top, ringT), THREE.MathUtils.lerp(0.01, 0.015, ringT));
     }
-    for (const sx of [-1, 1]) {
-      const postPoints = [[0.123 * sx, 0, -0.123], [0.124 * sx, 0.24, -0.126], [0.13 * sx, 0.46, -0.134], [0.152 * sx, 0.66, -0.188], [0.142 * sx, 0.84, -0.205], [0.112 * sx, 0.935, -0.21]];
-      const postCurve = new THREE.CatmullRomCurve3(postPoints.map((p) => new THREE.Vector3(...p)));
-      const post = P("bentwood", new THREE.TubeGeometry(postCurve, 30, 0.0145, 10, false), { tile: 0.6 });
-      post.computeBoundingBox();
-      const atRing = postCurve.getPoints(100).reduce((best, p) => Math.abs(p.y - 0.2) < Math.abs(best.y - 0.2) ? p : best),
-        atBack = postCurve.getPoints(100).reduce((best, p) => Math.abs(p.y - 0.76) < Math.abs(best.y - 0.76) ? p : best);
-      registerSupport(`${chairName}-rear-${sx}-seat`, "embed", { tip: point(0.13 * sx, 0.46, -0.134), surface: seatSupport });
-      registerSupport(`${chairName}-rear-${sx}-ground`, "ground", { bottomY: post.boundingBox.min.y });
-      const radial = Math.hypot(atRing.x, atRing.z);
-      registerSupport(`${chairName}-rear-${sx}-ring`, "join", { a: point(atRing.x, atRing.y, atRing.z), b: point(atRing.x * legRingRadius / radial, 0.2, atRing.z * legRingRadius / radial), radiusA: 0.0145, radiusB: 0.0075 });
-      registerSupport(`${chairName}-back-${sx}-oval`, "join", { a: point(atBack.x, atBack.y, atBack.z), b: point(backOvalRadius * sx, 0.76, -0.196), radiusA: 0.0145, radiusB: 0.0075 });
-      P("bentwood", new THREE.CylinderGeometry(0.0235, 0.0235, 0.012, 12).translate(0.123 * sx, seatY - 0.034, -0.123), { tile: 0.6 });
+
+    const rear = [[-0.14, rugTop, -0.145], [-0.14, 0.075, -0.145], [-0.133, ringY, -0.137],
+      [-0.127, frameY, -0.132], [-0.157, 0.63, -0.167], [-0.177, 0.79, -0.192],
+      [-0.169, 0.878, -0.204], [-0.118, 0.933, -0.217], [-0.063, 0.951, -0.223]];
+    const reflect = ([px, y, pz]) => [-px, y, pz];
+    const crown = [0, 0.955, -0.226];
+    const outerSegments = 80;
+    const outer = wood(tubeGeometry([...rear, crown, ...rear.map(reflect).reverse()], outerTube, outerSegments, radialSegments));
+    const innerFoot = [-0.091, frameY, -0.158];
+    const innerCrown = [0, 0.928, crown[2]];
+    const inner = [innerFoot, [-0.119, 0.602, -0.157], [-0.129, 0.755, -0.18], [-0.109, 0.866, -0.205], [-0.057, 0.913, -0.22]];
+    wood(tubeGeometry([...inner, innerCrown, ...inner.map(reflect).reverse()], innerTube, 44, radialSegments));
+    join("inner-to-outer-crown", vector(innerCrown), vector(crown), innerTube, outerTube);
+    for (const [label, mirror, segment] of [["left", vector, 0], ["right", (p) => vector(reflect(p)), outerSegments]]) {
+      const end = segment * (radialSegments + 1);
+      const sole = Array.from({ length: radialSegments + 1 }, (_, i) => outer.attributes.position.getY(end + i));
+      ground(`rear-${label}`, Math.min(...sole));
+      seatJoint(`rear-${label}-seat`, mirror(rear[3]), outerTube);
+      ringJoint(`rear-${label}-ring`, mirror(rear[2]), outerTube);
+      seatJoint(`inner-${label}-seat`, mirror(innerFoot), innerTube);
     }
-    P("bentwood", tubeGeometry([[-0.112, 0.935, -0.21], [-0.06, 0.968, -0.222], [0, 0.976, -0.226], [0.06, 0.968, -0.222], [0.112, 0.935, -0.21]], 0.0145, 20, 10), { tile: 0.6 }); // the top bow
-    // The oval in the back now spans the full gap between the two posts and runs into them (Paul: the back was not one continuous line, there was a gap). At y = 0.76 the posts
-    // are 0.147 m out with a 0.0145 m tube, so their inner faces are at 0.1325 m; the ring (radius 0.128 + tube 0.0075) now overlaps them. Two short tie rods lock the ring to the
-    // posts at its widest points, and the cane fills the ring.
-    P("bentwood", new THREE.TorusGeometry(backOvalRadius, 0.0075, 8, 40).scale(1, 0.62, 1).translate(0, 0.76, -0.196), { tile: 0.6 }); // the oval ring in the back
-    P("cane", new THREE.CylinderGeometry(0.12, 0.12, 0.004, 32).scale(1, 1, 0.62).rotateX(Math.PI / 2).translate(0, 0.76, -0.196), { tile: 0.2 });
-    for (const sx of [-1, 1]) P("bentwood", rodGeometry([0.118 * sx, 0.76, -0.196], [0.152 * sx, 0.76, -0.196], 0.007, 8), { tile: 0.6 });
-    P("bentwood", new THREE.TorusGeometry(legRingRadius, 0.0075, 8, 36).rotateX(Math.PI / 2).translate(0, 0.2, 0), { tile: 0.6 }); // the leg ring, touching all four legs
     addContactShadow(x, z, 0.48, 0.48, 0.015);
   };
   chair(SEAT.x, SEAT.z + 0.62, Math.PI);
@@ -2539,7 +2599,7 @@ export async function start({ stage, onReady = () => {} }) {
     else if (group === "clock") { for (const [name, set] of Object.entries(clockSets)) set.visible = name === key; }
     else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
     else if (group === "scarf") materials.scarf.color.setHex(v);
-    else if (group === "chair") materials.bentwood.color.setHex(v);
+    else if (group === "chair") materials.windowChair.color.setHex(v);
     dirtyShadows(); render(); return true;
   }
   function randomLook(rng = Math.random) {
