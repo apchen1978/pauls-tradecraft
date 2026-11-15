@@ -28,4 +28,4 @@ The two extra meshes are the pillow and throw fabric batches. The owner approved
 
 Ran `npm run build` and the five targeted Room 04 Playwright checks selected with `-g "Room 04 audits|content-hash versions|ledger is|lounge upholstery|Room 04 looks"`: scene ledger, Lounge look swaps, all-look consistency, support physics audit, and built asset hash chain. Did not run the full Room 04 suite, unrelated Playwright suites, `npm test`, or site-wide checks, per the request to run only tests for this Room 04 change. The build emitted its existing large-chunk warning.
 
-The current build resolves `page.js?v=efa5ad1c4c` and `cafe.js?v=1dfb3bd251` through the repository's automatic content-hash pipeline. These hashes will be rechecked in CI because a subsequent edit changes them.
+The build rebased on current `main` resolves `page.js?v=fc56a18d52` and `cafe.js?v=d7a02e7696` through the repository's automatic content-hash pipeline. These hashes will be rechecked in CI because a subsequent edit changes them.
