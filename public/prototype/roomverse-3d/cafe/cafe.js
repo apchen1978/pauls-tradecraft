@@ -1995,6 +1995,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   const tvLight = new THREE.PointLight(0x9fc5ff, 0, 3.6, 2); tvLight.position.set(X1 - 0.8, 1.5, 0.45); scene.add(tvLight);
   const pendantLight = new THREE.PointLight(0xffc88a, 0, 2.6, 2); pendantLight.position.set(SEAT.x + 0.05, 1.7, SEAT.z + 0.05); scene.add(pendantLight);
+  // The floor lamp by the window seat really lights its corner after dark (Paul, 2026-11-16: the cat's corner went black at night while the shade glowed). A point light just under
+  // the shade, aimed by its short range at the floor round the lamp, the basket and the bowls; it follows the shade's glow and is off by day. No draw call.
+  const floorLampLight = new THREE.PointLight(0xffbf7a, 0, 2.4, 1.6); floorLampLight.position.set(-2.88, 1.36, 2.0); scene.add(floorLampLight);
   // Counter props (Codex card 52 E), small and real-sized, along the customer side: a napkin dispenser, a glass sugar jar with tongs, a cream pitcher, a stir-stick holder,
   // and toward the left an open menu folder, a newspaper rack with a folded paper, a tiny succulent and a receipt spike.
   {
@@ -2687,7 +2690,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
     dust.material.opacity = Math.min(1, live.shaft * 6); dust.material.color.copy(live.sunColor); dust.visible = dust.material.opacity > 0.03;
     sunShafts.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), SUN_TARGET.clone().sub(live.sunPosition).normalize());
-    materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; materials.lampGlow.emissiveIntensity = 0.12 + live.pendant * 1.1; materials.floorShade.emissiveIntensity = 0.1 + live.pendant * 0.95; materials.bamboo.emissiveIntensity = 0.1 + live.pendant * 0.9; pendantLight.intensity = live.pendant * 0.9;
+    materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; materials.lampGlow.emissiveIntensity = 0.12 + live.pendant * 1.1; materials.floorShade.emissiveIntensity = 0.1 + live.pendant * 0.95; materials.bamboo.emissiveIntensity = 0.1 + live.pendant * 0.9; pendantLight.intensity = live.pendant * 0.9; floorLampLight.intensity = Math.max(0, live.pendant - 0.3) * 1.9;
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
@@ -2994,6 +2997,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     catScreen: () => (catRef.group ? projectBox(catRef.group) : null),
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
+    floorLampLight: () => floorLampLight.intensity,
     lookYaw: () => look.yaw, glideRunning: () => glideRun,
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
