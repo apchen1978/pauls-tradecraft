@@ -1815,6 +1815,33 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const plane = new THREE.PlaneGeometry(sx1 - sx0 - 2 * fw2, sy1 - sy0 - 2 * fw2).rotateY(Math.PI).translate((sx0 + sx1) / 2, (sy0 + sy1) / 2, FW - 0.0125);
       add("employee-of-the-month", plane, new THREE.MeshStandardMaterial({ map: certificate, roughness: 0.8 }), 0, 0, 0, { cast: false });
     }
+    // The "I ♥ SH" poster (Paul, 2026-11-16: a well-known little Shanghai image): hung under the framed Employee of the Month notice by the door, between it and the wainscot cap. An original
+    // drawing, not a copy of any billboard or sticker: black slab-serif letters on warm paper and a red heart filled with a small art-deco lattice. The picture is a canvas (no file), one
+    // mesh; the black frame joins the existing black batch.
+    {
+      const PW2 = 0.30, PH2 = 0.40, fw3 = 0.016, cx2 = 1.21, cy2 = 1.42, z0 = FW - 0.020, z1 = FW - 0.002;
+      const ox0 = cx2 - PW2 / 2 - fw3, ox1 = cx2 + PW2 / 2 + fw3, oy0 = cy2 - PH2 / 2 - fw3, oy1 = cy2 + PH2 / 2 + fw3;
+      const frame = [slab("black", [ox0, ox1], [oy0, oy0 + fw3], [z0, z1], { tile: 1 }), slab("black", [ox0, ox1], [oy1 - fw3, oy1], [z0, z1], { tile: 1 }),
+        slab("black", [ox0, ox0 + fw3], [oy0 + fw3, oy1 - fw3], [z0, z1], { tile: 1 }), slab("black", [ox1 - fw3, ox1], [oy0 + fw3, oy1 - fw3], [z0, z1], { tile: 1 })];
+      frame[0].computeBoundingBox(); registerSupport("sh-poster-frame-wall", "wall", { back: frame[0].boundingBox.max.z, plane: FW });
+      const canvas = document.createElement("canvas"); canvas.width = 480; canvas.height = 640; const g = canvas.getContext("2d");
+      g.fillStyle = "#f3e9d6"; g.fillRect(0, 0, 480, 640);
+      g.fillStyle = "#1c1a18"; g.textBaseline = "alphabetic";
+      g.font = "900 270px 'Courier New', 'Rockwell', Georgia, serif"; g.fillText("I", 34, 262);
+      // the heart: two lobes and a point, filled red, with a cream lattice of small diamonds and dots
+      const heart = () => { g.beginPath(); g.moveTo(330, 268); g.bezierCurveTo(212, 190, 212, 62, 290, 56); g.bezierCurveTo(318, 54, 330, 78, 330, 92);
+        g.bezierCurveTo(330, 78, 342, 54, 370, 56); g.bezierCurveTo(448, 62, 448, 190, 330, 268); g.closePath(); };
+      heart(); g.fillStyle = "#d63a2e"; g.fill();
+      g.save(); heart(); g.clip(); g.strokeStyle = "#f6dcc0"; g.lineWidth = 2.4; g.fillStyle = "#f6dcc0";
+      for (let k = -12; k <= 12; k++) { g.beginPath(); g.moveTo(330 + k * 26 - 160, 20); g.lineTo(330 + k * 26 + 160, 320); g.stroke(); g.beginPath(); g.moveTo(330 + k * 26 + 160, 20); g.lineTo(330 + k * 26 - 160, 320); g.stroke(); }
+      for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) { const x = 330 + (c - 4) * 26 + (r % 2 ? 13 : 0), y = 60 + r * 26; g.beginPath(); g.arc(x, y, 3.2, 0, Math.PI * 2); g.fill(); }
+      g.restore(); heart(); g.lineWidth = 5; g.strokeStyle = "#9d2a20"; g.stroke();
+      g.fillStyle = "#1c1a18"; g.font = "900 330px 'Courier New', 'Rockwell', Georgia, serif";
+      const w = g.measureText("SH").width, k = Math.min(1, 410 / w); g.save(); g.translate(34, 572); g.scale(k, 1); g.fillText("SH", 0, 0); g.restore();
+      g.font = "italic 700 28px Georgia, serif"; g.fillStyle = "#6b5a46"; g.textAlign = "center"; g.fillText("Shanghai, Slowly Café", 240, 618, 410);
+      const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+      add("sh-poster", new THREE.PlaneGeometry(PW2, PH2).rotateY(Math.PI).translate(cx2, cy2, FW - 0.0165), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.78 }), 0, 0, 0, { cast: false });
+    }
     // A gallery of eight framed prints (Codex card 49, in the poster style of Room 02): four right of the door and four on the left wall by the window seat. Frames are oak,
     // black and brass, each with a linen mat. The eight pictures are drawn once onto one atlas, so the whole gallery is one draw call. Until they load, the frames hold the mat only.
     const PRINT_FILES = ["p1-plane-street", "p2-shikumen-door", "p3-bund-dawn", "p4-coffee-cup", "p5-river-boat", "p6-window-shadow", "p7-bicycle", "p8-steam", "ai-open-horizon"].map((n) => `room04-print-${n}.webp`);
