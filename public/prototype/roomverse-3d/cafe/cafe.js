@@ -2721,12 +2721,12 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   function randomLook(rng = Math.random) {
     const pick = (group, except = []) => { const keys = Object.keys(LOOK_GROUPS[group]).filter((k) => !except.includes(k)); return keys[Math.floor(rng() * keys.length)]; };
     const brick = pick("brick");
-    const picks = { brick, counter: pick("counter"), back: pick("back"), wall: pick("wall", brick === "grey" ? ["grey", "mist"] : brick === "dusty" ? ["butter"] : []), floor: pick("floor"), lamp: pick("lamp"), scarf: pick("scarf"), chair: pick("chair"), lounge: pick("lounge") };
+    const picks = { brick, counter: pick("counter"), back: pick("back"), wall: pick("wall", brick === "grey" ? ["grey", "mist"] : brick === "dusty" ? ["butter"] : []), floor: pick("floor"), lamp: pick("lamp"), scarf: pick("scarf"), chair: pick("chair"), lounge: pick("lounge"), rug: pick("rug", [currentLook.rug]) };
     // The ceiling is chosen like a designer would: white about two times in five (it suits the herringbone floor and the morning light), and the other four tints never fight the brick
     // (no clay above red or dusty brick, no slate above the dark grey brick).
     const ceilingKeys = Object.keys(LOOK_GROUPS.ceiling).filter((k) => !(k === "clay" && (brick === "red" || brick === "dusty")) && !(k === "slate" && brick === "grey"));
     picks.ceiling = rng() < 0.4 ? "white" : ceilingKeys[Math.floor(rng() * ceilingKeys.length)];
-    rugChosen = true; for (const [group, key] of Object.entries(picks)) setLook(group, key);
+    for (const [group, key] of Object.entries(picks)) setLook(group, key); // the rug is a random pick too, but only a rug chosen by hand in the panel stops the moods from changing it
     wainscotChosen = false; setLook("wainscot", "same");
     if (rng() < 0.4) { const paper = pick("wallpaper", ["none"]); setLook("wallpaper", paper); const options = WAINSCOT_FOR_PAPER[paper]; setLook("wainscot", options[Math.floor(rng() * options.length)]); } // two rooms in five get one of Room 01's wallpapers, with a wainscot that suits it
     else if (rng() < 0.45) setLook("wainscot", pick("wainscot", ["same"]));
