@@ -625,3 +625,20 @@ test("Room 04 dust motes drift in the window light only while a shaft is visible
   expect((await dust()).visible, "no sun shaft in the rain").toBe(false);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 menu boards: a tap on the chalk board makes the robot recommend a drink for the mood, a drag does not", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const boardPoint = async () => page.evaluate(() => { const r = window.__room04.menuScreen(); return r ? { x: r.left + (r.right - r.left) * 0.24, y: (r.top + r.bottom) / 2 } : null; });
+  const point = await boardPoint();
+  expect(point, "the menu boards are in the opening view").not.toBeNull();
+  await page.mouse.move(point.x, point.y); await page.mouse.down(); await page.mouse.move(point.x + 70, point.y + 5, { steps: 6 }); await page.mouse.up();
+  await expect(page.locator("#bubble"), "a drag across the board is not a tap").toBeHidden();
+  const p2 = await boardPoint();
+  await page.mouse.click(p2.x, p2.y);
+  await expect(page.locator("#bubble [data-line]")).toContainText("Osmanthus Latte"); // golden hour
+  await page.locator('[data-mood="rain"]').click(); await page.waitForTimeout(500);
+  const p3 = await boardPoint(); await page.mouse.click(p3.x, p3.y);
+  await expect(page.locator("#bubble [data-line]")).toContainText("Hot Chocolate");
+  await expect(page.locator("#menuHit")).toHaveAttribute("aria-label", /菜單/);
+  expect(errors).toEqual([]);
+});

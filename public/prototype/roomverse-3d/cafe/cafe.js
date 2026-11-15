@@ -387,7 +387,7 @@ function makeSteamTexture() {
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
 }
 
-export async function start({ stage, onReady = () => {} }) {
+export async function start({ stage, onReady = () => {}, onMenuTap = () => {} }) {
   const scene = new THREE.Scene();
   const compact = window.innerWidth < 500;
   // Desktop stands at the door, facing the counter a little from the left. The phone stands at the left end and looks ALONG the counter,
@@ -803,7 +803,7 @@ export async function start({ stage, onReady = () => {} }) {
     for (const x of [-2.4, -1.75, -1.1]) { slab("black", [x - 0.008, x + 0.008], [y - 0.16, y], [BACK, BACK + 0.012]); slab("black", [x - 0.008, x + 0.008], [y - 0.012, y], [BACK, BACK + 0.2]); slab("black", [x - 0.008, x + 0.008], [y - 0.16, y - 0.012], [BACK + 0.012, BACK + 0.02]); }
   }
   // Two boards of the same size hung level and side by side with a 10 cm gap (Paul: real cafes do not hang two price lists at different heights); their lower edges line up on one chalk ledge height.
-  const menus = [{ x: 0.4, y: 2.0, w: 1.3, h: 0.68, key: "menuA" }, { x: 1.8, y: 2.0, w: 1.3, h: 0.68, key: "menuB" }];
+  const menus = [{ x: 0.4, y: 2.0, w: 1.3, h: 0.68, key: "menuA" }, { x: 1.8, y: 2.0, w: 1.3, h: 0.68, key: "menuB" }], menuBoardMeshes = [];
   for (const m of menus) {
     const fw = 0.05, depth = 0.04;
     const menuTopBar = slab("oak", [m.x - m.w / 2, m.x + m.w / 2], [m.y + m.h / 2 - fw, m.y + m.h / 2], [BACK, BACK + depth], { grain: "x" });
@@ -812,7 +812,7 @@ export async function start({ stage, onReady = () => {} }) {
     slab("oak", [m.x - m.w / 2, m.x - m.w / 2 + fw], [m.y - m.h / 2 + fw, m.y + m.h / 2 - fw], [BACK, BACK + depth], { grain: "y" }); slab("oak", [m.x + m.w / 2 - fw, m.x + m.w / 2], [m.y - m.h / 2 + fw, m.y + m.h / 2 - fw], [BACK, BACK + depth], { grain: "y" });
     slab("oak", [m.x - m.w * 0.4, m.x + m.w * 0.4], [m.y - m.h / 2 - 0.02, m.y - m.h / 2], [BACK, BACK + 0.1], { grain: "x" }); // a chalk ledge under each board
     const board = add(`menu-board-${m.key === "menuA" ? "a" : "b"}`, new THREE.PlaneGeometry(m.w - 2 * fw, m.h - 2 * fw), materials[m.key], m.x, m.y, BACK + 0.012, { cast: false });
-    board.position.z = BACK + 0.012;
+    board.position.z = BACK + 0.012; menuBoardMeshes.push(board);
   }
   {
     const canvas = document.createElement("canvas"); canvas.width = 800; canvas.height = 220;
@@ -2820,10 +2820,19 @@ export async function start({ stage, onReady = () => {} }) {
   setView(DEFAULT_STATION, true);
   {
     const canvas = renderer.domElement;
-    canvas.addEventListener("pointerdown", (event) => { centerDrag = { x: event.clientX, y: event.clientY }; canvas.setPointerCapture?.(event.pointerId); });
+    // A tap (not a drag) on a chalk menu board: the robot picks a drink for the mood. The ray must reach the board first, so the counter and the robots in front of it still win.
+    let tapStart = null; const pickRay = new THREE.Raycaster();
+    const tapOnMenu = (event) => {
+      const rect = canvas.getBoundingClientRect(); pickRay.setFromCamera(new THREE.Vector2(((event.clientX - rect.left) / rect.width) * 2 - 1, -(((event.clientY - rect.top) / rect.height) * 2 - 1)), camera);
+      const candidates = []; scene.traverse((o) => { if (o.isMesh && o.visible && o.name !== "sun-shafts") candidates.push(o); });
+      const hit = pickRay.intersectObjects(candidates, false)[0];
+      if (hit && menuBoardMeshes.includes(hit.object)) onMenuTap();
+    };
+    canvas.addEventListener("pointerdown", (event) => { centerDrag = { x: event.clientX, y: event.clientY }; tapStart = { x: event.clientX, y: event.clientY }; canvas.setPointerCapture?.(event.pointerId); });
     canvas.addEventListener("pointermove", (event) => { if (!centerDrag) return; const k = (look.fov * Math.PI / 180) / canvas.clientHeight; centerLook(-(event.clientX - centerDrag.x) * k * 1.1, (event.clientY - centerDrag.y) * k * 0.8); centerDrag = { x: event.clientX, y: event.clientY }; });
     const end = () => { centerDrag = null; };
-    canvas.addEventListener("pointerup", end); canvas.addEventListener("pointercancel", end);
+    canvas.addEventListener("pointerup", (event) => { const start0 = tapStart; tapStart = null; end(); if (start0 && Math.hypot(event.clientX - start0.x, event.clientY - start0.y) < 8) tapOnMenu(event); });
+    canvas.addEventListener("pointercancel", () => { tapStart = null; end(); });
     canvas.addEventListener("keydown", (event) => {
       const step = event.shiftKey ? 0.25 : 0.1;
       if (event.key === "ArrowLeft") centerLook(-step, 0); else if (event.key === "ArrowRight") centerLook(step, 0); else if (event.key === "ArrowUp") centerLook(0, step); else if (event.key === "ArrowDown") centerLook(0, -step); else return;
@@ -2852,6 +2861,7 @@ export async function start({ stage, onReady = () => {} }) {
     },
     onRender: (hook) => { onRenderHooks.push(hook); },
     stats: () => ({ calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, programs: renderer.info.programs?.length ?? 0 }),
+    menuScreen: () => projectBounds(new THREE.Box3(new THREE.Vector3(-0.25, 1.66, BACK), new THREE.Vector3(2.45, 2.34, BACK + 0.05))), // the two chalk menu boards
     robotScreen: () => projectBox(robot),
     noteScreen: () => projectBox(note),
     recordScreen: () => projectBox(platterPivot),
