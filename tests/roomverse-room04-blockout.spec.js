@@ -221,7 +221,7 @@ test("Room 04 lounge upholstery swaps preserve drawing cost", async ({ page }) =
         return { key: r.look().lounge, meshes, vertices, drawCalls };
       });
     });
-    expect(summary.map(({ key }) => key)).toEqual(["terracotta", "olive", "navy"]);
+    expect(summary.map(({ key }) => key)).toEqual(["terracotta", "olive", "navy", "plum", "sage", "cocoa"]);
     const [{ meshes, vertices, drawCalls }] = summary;
     for (const preset of summary) expect(preset).toMatchObject({ meshes, vertices, drawCalls });
   }

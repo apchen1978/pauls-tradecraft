@@ -126,7 +126,14 @@ export const LOOK_GROUPS = Object.freeze({
   stool: Object.freeze({ bentwood: 1, leather: 2, metal: 3, none: 0 }), // the four bar stools along the counter (Codex card 52 A)
   clock: Object.freeze({ tech: 1, classic: 2, wood: 3 }), // the wall clock (Codex card 49): A futuristic, B classical brass, or the round oak one. The hands show the real time.
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
-  lounge: Object.freeze({ terracotta: [0xa0523e, 0xc39748], olive: [0x697349, 0xe2d2ab], navy: [0x354c61, 0xc9b99f] }), // PROVISIONAL
+  lounge: Object.freeze({
+    terracotta: [0xa0523e, 0xc39748, 0xd5b18a, 0xe0c8aa],
+    olive: [0x697349, 0xe2d2ab, 0xb88467, 0xe8d9bd],
+    navy: [0x354c61, 0xc9b99f, 0xb27d6b, 0xd9cbb8],
+    plum: [0x65454d, 0xcaa48f, 0xd6bca8, 0xe4d5c6],
+    sage: [0x78907a, 0xd8c5a5, 0xb8795e, 0xeee0c8],
+    cocoa: [0x765744, 0xc6a982, 0x8b9b9a, 0xe2d3b8],
+  }),
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4], planeleaf: ["room04-wallpaper-plane-leaf.webp", 1.5], windowshadow: ["room04-wallpaper-window-shadow.webp", 1.5] }), // the last two are this cafe's own (Codex card 52 C)
 });
 // Rugs borrowed from Rooms 01 and 02 (Paul, 2026-11-15: more fabric, some rectangles, and a different rug for each mood). Each lies under the window seat as a rectangle that was FITTED so that
@@ -510,8 +517,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     gold: new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: 0.3, metalness: 0.78, emissive: 0x4d3812, emissiveIntensity: 0.7 }), // metalness 1 rendered black here (nothing but the small reflection map to light it), so a little diffuse stays
     cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85, bumpMap: makeCaneBumpTexture(), bumpScale: 0.018 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
-    loungeSeat: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], roughness: 0.9, map: fabric.map, bumpMap: fabric.bump, bumpScale: 6, sheen: 1, sheenRoughness: 0.45, sheenColor: new THREE.Color(0xfff0d8) }),
+    loungeSeat: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], vertexColors: true, roughness: 0.91, map: fabric.map, bumpMap: fabric.bump, bumpScale: 5, sheen: 1, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xfff0d8) }),
     loungeAccent: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1], roughness: 0.9, map: fabric.map, bumpMap: fabric.bump, bumpScale: 6, sheen: 1, sheenRoughness: 0.45, sheenColor: new THREE.Color(0xfff0d8) }),
+    loungePillow: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][2], vertexColors: true, roughness: 0.94, map: fabric.map, bumpMap: fabric.bump, bumpScale: 4, sheen: 0.35 }),
+    loungeThrow: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][3], roughness: 0.97, map: fabric.map, bumpMap: fabric.bump, bumpScale: 3 }),
     matWeave: new THREE.MeshStandardMaterial({ color: 0x756b60, roughness: 0.97, bumpMap: makeMatRibTexture(), bumpScale: 9 }),
     loungeDetail: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.87 }),
     paper: new THREE.MeshStandardMaterial({ color: 0xf6f0e2, roughness: 0.9 }),
@@ -2045,13 +2054,19 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     registerSupport("lounge-banquette-plinth-ground", "ground", { bottomY: 0 });
     boxPart("oakDeep", 0.47, 0.07, 1.81, bx + 0.02, 0.035, bz);
     boxPart("oak", 0.55, 0.34, 1.9, bx, 0.23, bz, 0.035);
+    // The exposed end has a solid upholstered return, rather than a flat sheet.
+    boxPart("oakDeep", 0.48, 0.29, 0.045, bx, 0.245, bz - 0.925, 0.016);
     boxPart("oak", 0.07, 0.47, 1.9, bx + 0.23, 0.615, bz, 0.025);
-    const addCushion = (material, width, depth, x, y, z, sag = 0.008) => {
-      part(material, cushionGeometry(width, 0.11, depth, sag).translate(x, y, z));
-      detail(cushionWeltGeometry(width, depth, y + 0.004, x, z), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1]);
+    const addCushion = (width, height, depth, x, y, z, sag, tone) => {
+      part("loungeSeat", colorize(cushionGeometry(width, height, depth, sag).translate(x, y, z), tone));
+      detail(cushionWeltGeometry(width, depth, y + 0.003, x, z, 0.0038), 0xb88a68);
     };
-    for (const dz of [-0.615, 0, 0.615]) addCushion("loungeSeat", 0.51, 0.57, bx - 0.025, 0.412, bz + dz);
-    boxPart("loungeSeat", 0.113, 0.37, 1.85, bx + 0.145, 0.657, bz, 0.045);
+    [
+      [-0.614, 0.502, 0.108, 0.566, 0.010, 0xf8f5f0],
+      [0.002, 0.514, 0.103, 0.573, 0.016, 0xffffff],
+      [0.617, 0.507, 0.112, 0.558, 0.012, 0xf2eee9],
+    ].forEach(([dz, w, h, d, sag, tone]) => addCushion(w, h, d, bx - 0.025, 0.412, bz + dz, sag, tone));
+    part("loungeSeat", colorize(roundedBox(0.113, 0.37, 1.85, 0.045, 0.0225, 4).translate(bx + 0.145, 0.657, bz), 0xf7f2ed));
 
     // Two bulging cloth faces meet at the welt. The lower edge sits on the seat.
     for (const [dz, tilt] of [[-0.59, 0.10], [-0.02, -0.12], [0.58, 0.15]]) {
@@ -2069,6 +2084,43 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       part("loungeAccent", at(pillow));
       detail(at(tubeGeometry(Array.from({ length: 33 }, (_, i) => [...edge(i * Math.PI / 16), 0]), 0.0035, 48, 6)), 0x937351);
     }
+
+    // Loose pillows sink into the seat/back corner; their seams follow the same pose.
+    for (const [z, lean, shade] of [[bz - 0.61, -0.22, 0xc6a878], [bz + 0.58, 0.17, 0xb9a180]]) {
+      const pose = (g) => g.rotateZ(lean).rotateY(-Math.PI / 2).translate(bx - 0.14, 0.565, z);
+      const pillow = new THREE.SphereGeometry(1, 32, 18), points = pillow.attributes.position;
+      for (let i = 0; i < points.count; i++) {
+        const x = points.getX(i), y = points.getY(i), d = points.getZ(i);
+        points.setXYZ(i, 0.139 * Math.sign(x) * Math.abs(x) ** 0.58,
+          0.132 * Math.sign(y) * Math.abs(y) ** 0.58, d * 0.048);
+      }
+      pillow.computeVertexNormals();
+      part("loungePillow", colorize(pose(pillow), shade === 0xc6a878 ? 0xffffff : 0xf2e9df));
+      const edge = Array.from({ length: 33 }, (_, i) => {
+        const a = i * Math.PI / 16;
+        return [0.139 * Math.sign(Math.cos(a)) * Math.abs(Math.cos(a)) ** 0.58,
+          0.132 * Math.sign(Math.sin(a)) * Math.abs(Math.sin(a)) ** 0.58, 0];
+      });
+      detail(pose(tubeGeometry(edge, 0.003, 40, 5)), 0xe4c8a4);
+    }
+
+    // A narrow throw follows the seat dip and falls over the front edge.
+    const throwPositions = [], throwIndices = [];
+    for (let row = 0; row <= 10; row++) {
+      const u = row / 10, x = bx - 0.335 + u * 0.365;
+      for (let col = 0; col <= 7; col++) {
+        const v = col / 7, z = bz + 0.39 + v * 0.36;
+        const drop = Math.max(0, (0.13 - u) / 0.13);
+        throwPositions.push(x, 0.469 - drop * 0.095 + 0.004 * Math.sin(v * 15 + u * 5) - 0.006 * Math.sin(u * Math.PI), z);
+        if (row < 10 && col < 7) {
+          const a = row * 8 + col; throwIndices.push(a, a + 1, a + 8, a + 1, a + 9, a + 8);
+        }
+      }
+    }
+    const throwCloth = new THREE.BufferGeometry();
+    throwCloth.setAttribute("position", new THREE.Float32BufferAttribute(throwPositions, 3));
+    throwCloth.setIndex(throwIndices); throwCloth.computeVertexNormals();
+    part("loungeThrow", throwCloth);
 
     const ax = 1.60, az = 2.28;
     const chairPart = (key, g) => part(key, place(g, ax, az, Math.PI, 0.012));
@@ -2328,7 +2380,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const BASKET_FLOOR_TOP = NOOK_FLOOR + 0.02 * NS, CUSHION_TOP = BASKET_FLOOR_TOP + 0.05 * NS, CAT_BOTTOM = CUSHION_TOP - 0.008; // the cat sinks 8 mm into the cushion
     const lathe = (profile, segments, x, y, z) => new THREE.LatheGeometry(profile.map(([r, h]) => new THREE.Vector2(r * NS, h * NS)), segments).translate(x, y, z);
     part("cane", lathe([[0, 0], [0.26, 0], [0.29, 0.012], [0.305, 0.075], [0.30, 0.138], [0.29, 0.15], [0.278, 0.14], [0.283, 0.075], [0.268, 0.032], [0, 0.02]], 28, CAT_NOOK.x, NOOK_FLOOR, CAT_NOOK.z), { tile: 0.35 });
-    part("loungeSeat", lathe([[0, 0], [0.25, 0], [0.262, 0.012], [0.26, 0.036], [0.24, 0.05], [0, 0.052]], 28, CAT_NOOK.x, BASKET_FLOOR_TOP, CAT_NOOK.z), { tile: 0.5 });
+    part("loungeSeat", colorize(lathe([[0, 0], [0.25, 0], [0.262, 0.012], [0.26, 0.036], [0.24, 0.05], [0, 0.052]], 28, CAT_NOOK.x, BASKET_FLOOR_TOP, CAT_NOOK.z), 0xffffff), { tile: 0.5 });
     registerSupport("cat-basket-ground", "ground", { bottomY: NOOK_FLOOR, floorY: NOOK_FLOOR });
     registerSupport("cat-cushion-in-basket", "ground", { bottomY: BASKET_FLOOR_TOP, floorY: BASKET_FLOOR_TOP });
     registerSupport("cat-on-cushion", "ground", { bottomY: CAT_BOTTOM, floorY: CUSHION_TOP, tolerance: 0.010 }); // it lies in the soft cushion, 8 mm deep
@@ -2769,6 +2821,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     else if (group === "lounge") {
       materials.loungeSeat.color.setHex(v[0]);
       materials.loungeAccent.color.setHex(v[1]);
+      materials.loungePillow.color.setHex(v[2]);
+      materials.loungeThrow.color.setHex(v[3]);
       render();
       return true;
     }
