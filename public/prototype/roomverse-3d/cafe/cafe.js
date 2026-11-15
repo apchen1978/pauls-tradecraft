@@ -429,6 +429,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
 
   // Painted textures (Codex, cards 45 and 46) are given to a material only when they have loaded, so nothing flashes black; until then the material
   // keeps a flat colour of the same family.
+  // The three Lounge prints (Room 03's leaf poster, the dusk harbour from Rooms 01 and 02 cropped to 4:3 from its middle, Room 03's sun poster) are cells 9 to 11 of the wall-print atlas, so they
+  // cost no mesh and no draw call of their own (Paul, 2026-11-15, to free mesh slots). Frames are built with the Lounge, the pictures join the atlas mesh.
+  const LOUNGE_PRINTS = [{ i: 9, z: 1.33 }, { i: 10, z: 1.7 }, { i: 11, z: 2.07 }], LOUNGE_PRINT_GEOM = Object.freeze({ PW: 0.30, PH: 0.225, PY: 1.37, WALL_X: 3.2 });
+  const LOUNGE_FILES = ["../../kitchen/art/room03-print-poster-leaf-v1.webp", "../../tex/left-wall-harbor-dusk-v1.webp", "../../kitchen/art/room03-print-poster-sun-v1.webp"]; // relative to art/
   const afterFirstFrame = [];
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
   let shadowsDirty = true; const dirtyShadows = () => { shadowsDirty = true; };
@@ -1758,7 +1762,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // A gallery of eight framed prints (Codex card 49, in the poster style of Room 02): four right of the door and four on the left wall by the window seat. Frames are oak,
     // black and brass, each with a linen mat. The eight pictures are drawn once onto one atlas, so the whole gallery is one draw call. Until they load, the frames hold the mat only.
     const PRINT_FILES = ["p1-plane-street", "p2-shikumen-door", "p3-bund-dawn", "p4-coffee-cup", "p5-river-boat", "p6-window-shadow", "p7-bicycle", "p8-steam", "ai-open-horizon"].map((n) => `room04-print-${n}.webp`);
-    const PRINT_ASPECT = [0.8, 0.8, 1.25, 1, 1.25, 0.8, 0.8, 1, 16 / 9]; // width / height; the ninth is the AI Lab "open horizon" painting (Paul, 2026-11-15), reused from the AI Gallery
+    const PRINT_ASPECT = [0.8, 0.8, 1.25, 1, 1.25, 0.8, 0.8, 1, 16 / 9, 4 / 3, 4 / 3, 4 / 3]; // width / height; the ninth is the AI Lab "open horizon" painting (Paul, 2026-11-15), reused from the AI Gallery
     const PRINTS = [ // wall "front": p is x, normal -z. wall "left": p is z, normal +x. h is the picture height in metres.
       { i: 0, wall: "front", p: 1.8, y: 1.8, h: 0.55, frame: "oak" }, { i: 2, wall: "front", p: 2.7, y: 2.12, h: 0.5, frame: "black" },
       { i: 3, wall: "front", p: 2.4, y: 1.45, h: 0.3, frame: "oak" }, { i: 5, wall: "front", p: 2.9, y: 1.42, h: 0.375, frame: "gold" },
@@ -1779,15 +1783,20 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     const PRINT_FILES_B = ["q1-balcony", "q3-cat", "q2-ferry", "q4-pour-over", "q5-fallen-leaves", "q6-sheets", "q8-eaves", "q7-key-vinyl", "ai-open-horizon"].map((n) => `room04-print-${n}.webp`); // in the same slots as set A: portrait, portrait, landscape, square, landscape, portrait, portrait, square
     const RECTS = PRINT_ASPECT.map((aspect, i) => { // each picture drawn to fit its 512 x 512 cell, keeping its own proportions
+      if (i >= 9) return { ox: 1024 + (i - 9) * 341 + 10, oy: 1032, pw: 320, ph: 240 }; // the three Lounge prints (4:3) share the free 1024 x 512 strip, each in a 341 x 256 slot with a margin
       if (i === 8) return { ox: 0, oy: 1024, pw: 1024, ph: 576 }; // the wide ninth picture has its own 1024 x 576 cell under the eight square cells
       const cx = (i % 4) * 512, cy = Math.floor(i / 4) * 512, pw = aspect >= 1 ? 512 : Math.round(512 * aspect), ph = aspect >= 1 ? Math.round(512 / aspect) : 512;
       return { ox: cx + (512 - pw) / 2, oy: cy + (512 - ph) / 2, pw, ph };
     });
     const drawAtlas = (images) => {
       const canvas = document.createElement("canvas"); canvas.width = 2048; canvas.height = 1536; const g = canvas.getContext("2d");
-      images.forEach((img, i) => g.drawImage(img, RECTS[i].ox, RECTS[i].oy, RECTS[i].pw, RECTS[i].ph));
+      images.forEach((img, i) => {
+        if (i === 10) g.drawImage(img, img.width * 0.125, 0, img.width * 0.75, img.height, RECTS[i].ox, RECTS[i].oy, RECTS[i].pw, RECTS[i].ph); // the harbour: its middle 75 % is 4:3
+        else g.drawImage(img, RECTS[i].ox, RECTS[i].oy, RECTS[i].pw, RECTS[i].ph);
+      });
       const atlas = new THREE.CanvasTexture(canvas); atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = maxAnisotropy; return atlas;
     };
+    PRINT_FILES.push(...LOUNGE_FILES); PRINT_FILES_B.push(...LOUNGE_FILES); // both gallery sets carry the same three Lounge prints
     const loadImages = (files, then) => { const images = []; let left = files.length; files.forEach((file, i) => { const img = new Image(); img.onload = () => { images[i] = img; loadedArt.add(file); if (--left === 0) then(images); }; img.src = artBase + file; }); };
     const atlases = {}; let wallMaterial = null;
     function setGallery(key) {
@@ -1805,6 +1814,15 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         if (pr.wall === "front") plane.rotateY(Math.PI).translate(pr.p, pr.y, FW - 0.0295); else plane.rotateY(Math.PI / 2).translate(X0 + 0.0295, pr.y, pr.p);
         for (let k = 0; k < pos.count; k++) {
           const u = pr.wall === "front" ? 1 - (pos.getX(k) - (pr.p - w / 2)) / w : (pr.p + w / 2 - pos.getZ(k)) / w, v = (pos.getY(k) - (pr.y - pr.h / 2)) / pr.h;
+          uv.setXY(k, (r.ox + u * r.pw) / 2048, 1 - (r.oy + (1 - v) * r.ph) / 1536);
+        }
+        planes.push(plane);
+      }
+            for (const lp of LOUNGE_PRINTS) { // the Lounge prints, on the right wall (normal -x, u runs along +z)
+        const { PW, PH, PY, WALL_X } = LOUNGE_PRINT_GEOM, r = RECTS[lp.i];
+        const plane = new THREE.PlaneGeometry(PW, PH).rotateY(-Math.PI / 2).translate(WALL_X - 0.0295, PY, lp.z), pos = plane.attributes.position, uv = plane.attributes.uv;
+        for (let k = 0; k < pos.count; k++) {
+          const u = (pos.getZ(k) - (lp.z - PW / 2)) / PW, v = (pos.getY(k) - (PY - PH / 2)) / PH;
           uv.setXY(k, (r.ox + u * r.pw) / 2048, 1 - (r.oy + (1 - v) * r.ph) / 1536);
         }
         planes.push(plane);
@@ -2287,21 +2305,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // (cropped to 4:3 from its middle) and Room 03's sun-over-hills poster. They share Room 04's palette (terracotta, olive, cream) and cost nothing new to download for visitors who came
     // through those rooms. Each is a 30 x 22.5 cm picture in a 2.2 cm oak frame, 2.4 cm deep, hung 5 mm off the wall; the pictures load after the first frame.
     {
-      const PW = 0.30, PH = 0.225, FW2 = 0.022, PY = 1.37, WALL_X = 3.2;
-      const prints = [[1.33, "../kitchen/art/room03-print-poster-leaf-v1.webp", null], [1.70, "../tex/left-wall-harbor-dusk-v1.webp", [0.75, 0.125]], [2.07, "../kitchen/art/room03-print-poster-sun-v1.webp", null]];
-      for (const [z, file, crop] of prints) {
+      const { PW, PH, PY, WALL_X } = LOUNGE_PRINT_GEOM, FW2 = 0.022;
+      for (const { z } of LOUNGE_PRINTS) {
         const bar = (h, d, y, zz) => part("oakDeep", new THREE.BoxGeometry(0.024, h, d).translate(WALL_X - 0.017, y, zz), { tile: 0.5 }); // plain boxes: a frame bar needs no rounded edge at this size
         const topBar = bar(FW2, PW + 2 * FW2, PY + PH / 2 + FW2 / 2, z);
         bar(FW2, PW + 2 * FW2, PY - PH / 2 - FW2 / 2, z); bar(PH, FW2, PY, z - PW / 2 - FW2 / 2); bar(PH, FW2, PY, z + PW / 2 + FW2 / 2);
-        const material = new THREE.MeshStandardMaterial({ color: 0xe4d7bb, roughness: 0.85 }); // cream mat until the picture arrives
-        const print = add("lounge-print-" + z, new THREE.PlaneGeometry(PW, PH).rotateY(-Math.PI / 2).translate(WALL_X - 0.0295, PY, z), material, 0, 0, 0, { cast: false });
-        topBar.computeBoundingBox(); print.geometry.computeBoundingBox();
-        registerSupport(`lounge-print-${z}-inside-frame`, "join", { a: { x: print.geometry.boundingBox.min.x, y: print.geometry.boundingBox.max.y, z },
+        topBar.computeBoundingBox(); // the picture plane (in the atlas mesh) lies 29.5 mm off the wall, its top edge at PY + PH / 2
+        registerSupport(`lounge-print-${z}-inside-frame`, "join", { a: { x: WALL_X - 0.0295, y: PY + PH / 2, z },
           b: { x: topBar.boundingBox.min.x, y: topBar.boundingBox.min.y, z: (topBar.boundingBox.min.z + topBar.boundingBox.max.z) / 2 } });
-        afterFirstFrame.push(() => textureLoader.load(new URL(file, import.meta.url).href, (t) => {
-          t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; if (crop) { t.repeat.set(crop[0], 1); t.offset.set(crop[1], 0); }
-          material.map = t; material.color.set(0xffffff); material.needsUpdate = true; render();
-        }));
       }
     }
 

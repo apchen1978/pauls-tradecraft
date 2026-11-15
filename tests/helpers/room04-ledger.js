@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 196048, meshes: 140 }),
+  scene: Object.freeze({ vertices: 196048, meshes: 137 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 104, phone: 93 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -74,5 +74,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-15", change: "window bentwood chairs: continuous rear bow and open inner arch, rounded cane-seat frame, splayed front feet and fitted stretcher; procedural beech grain in the existing chair batch", vertices: 196408, meshes: 140, desktopCalls: 103, phoneCalls: 92 },
     { date: "2026-11-15", change: "robot faces (Paul: the bar eyes looked stiff): the eyes and a small smile are drawn on the visor's own texture (planar-projected, emissive, warm cream) instead of two bar-eye meshes, with a hairline warm rim; they blink every few seconds, glance sideways now and then, go sleepy after closing and series night, smile with happy arcs while the record plays, and blink when the robot is tapped; the face is a texture on the existing visor mesh, so no new mesh", vertices: 196048, meshes: 140, desktopCalls: 103, phoneCalls: 92 },
     { date: "2026-11-15", change: "dust motes in the window light: 90 slow soft points (48 on a phone) drifting along the sun shafts, one Points draw that is a child of the shafts and is only drawn while a shaft is visible (morning, midday, golden hour; not in rain, closing or series night); it moves at about 10 frames a second only while drawn, the tab is visible, reduced motion is off and the visitor touched the room in the last 30 s (those frames are not counted in renderFrame); Points are not meshes, so the mesh count is unchanged and the opening draw calls rise by one", vertices: 196048, meshes: 140, desktopCalls: 104, phoneCalls: 93 },
+    { date: "2026-11-15", change: "the three Lounge prints (Room 03 leaf poster, the dusk harbour, Room 03 sun poster) become cells 10 to 12 of the wall-print atlas (the free 1024 x 512 strip), so they are drawn by the existing wall-art mesh: 3 meshes and 3 draw calls fewer, same pictures, frames and places (frees mesh slots for the cat); no change to the vertex count (each picture is still 4 vertices)", vertices: 196048, meshes: 137, desktopCalls: 104, phoneCalls: 93 },
   ]),
 });
