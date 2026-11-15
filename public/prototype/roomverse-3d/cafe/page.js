@@ -7,8 +7,8 @@ const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
 const COPY = {
   zh: {
     title: ROOM_TITLE, subtitle: "上海·慢板",
-    lead: "上海一家位於城市街角的紅磚咖啡廳，午後的斜陽正好落在磚牆和蜂蜜色橡木上。拖曳畫面看看吧台、菜單牆和臨街的窗；點一下機器人咖啡師和吧台上的小便條。",
-    note: "這是想像的房間，不是實際店面。窗外是新天地一帶的街景概念畫。",
+    lead: "上海街角的紅磚咖啡廳，午後的光斜斜落在磚牆和橡木吧台上，窗邊的位子留給你。拖曳轉頭，點點黑板、機器人、唱片機和冰滴塔，再換個時段，看光怎麼變。",
+    note: "這是想像的房間，不是實際店面。封面和窗外的新天地街景，是 Paul 與 AI 一起畫的概念畫。",
     otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", lang: "EN", languageLabel: "切換為英文",
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁",
     fullScreen: "全螢幕", exitFullScreen: "退出", portal: "傳送門", viewsLabel: "選擇視角",
@@ -51,8 +51,8 @@ const COPY = {
   },
   en: {
     title: ROOM_TITLE, subtitle: "A cafe in Shanghai",
-    lead: "A red-brick cafe on a city corner in Shanghai, with the low afternoon sun on the brick and the honey oak. Drag to look at the counter, the menu wall and the street window; tap the barista robot and the little note on the counter.",
-    note: "An imagined room, not a real shop. The street outside is a concept painting of the Xintiandi area.",
+    lead: "A red-brick cafe on a Shanghai corner. The afternoon light slants across the brick and the oak counter, and the window seat is saved for you. Drag to look around, tap the menu boards, the robots, the record player and the cold-drip tower, then change the time of day and watch the light change.",
+    note: "An imagined room, not a real shop. The cover and the Xintiandi street outside the window are concept paintings made by Paul together with AI.",
     otherRooms: "← Other rooms", otherRoomsLabel: "Go to the other ROOMVERSE rooms", lang: "中文", languageLabel: "Switch to Chinese",
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home",
     fullScreen: "Full screen", exitFullScreen: "Exit", portal: "Travel", viewsLabel: "Choose a view",

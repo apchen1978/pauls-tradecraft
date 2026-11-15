@@ -13,5 +13,5 @@
 export const ASSET_VERSIONS = Object.freeze({
   "cafe.js": Object.freeze({ sha256: "5e371494bbfe9616f5f87895a808ea0f0125df169f0250ec33017ed099a5a366", version: 77 }),
   // page.js is fingerprinted with its own cafe.js?v=N token masked, so bumping N does not by itself change the fingerprint.
-  "page.js": Object.freeze({ sha256: "f996c0f6049d3eeb9230b212d3d2abe9dcc14c21c91e5f7f721acc05bd872092", version: 85 }),
+  "page.js": Object.freeze({ sha256: "1a7c0b5143ee26e441c730b37c13672757979db1d5818d94ed4b5ad16cc0ada5", version: 86 }),
 });
