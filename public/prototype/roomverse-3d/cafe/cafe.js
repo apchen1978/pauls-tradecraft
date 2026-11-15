@@ -2880,7 +2880,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // Just inside the door (Paul, 2026-11-15: a standing view like Rooms 01 and 03, turning smoothly all the way round): the classic first look, the whole counter ahead,
     // the street window on the left, the lounge on the right and the door behind. It stands 0.6 m clear of the front wall so turning to the door never puts the camera in the glass.
     entry: compact ? station([0.5, 1.55, 1.75], [-0.9, 1.18, -0.55], 72) : station([0.5, 1.55, 1.75], [-0.4, 1.22, -0.7], 64),
-    middle: { position: new THREE.Vector3(0.1, 1.55, 1.2), yaw: Math.PI * 0.82, pitch: -0.04, fov: compact ? 84 : 72 }, // it opens on the front wall: the street window and the glass door
+    middle: { position: new THREE.Vector3(0.1, 1.55, 1.2), yaw: Math.PI * 1.28, pitch: -0.22, fov: compact ? 84 : 72 }, // it opens on the corner left of the door (Paul, 2026-11-16: the old view of the front wall was mostly the back of a lounge chair): both street windows, the gallery wall, the cat asleep in its basket and the window seat
   };
   const DEFAULT_STATION = "entry";
   let viewName = DEFAULT_STATION, viewRun = 0, centerDrag = null, centerQueued = false, glideRun = 0; // glideRun: a new drag or view ends the glide after a swipe
