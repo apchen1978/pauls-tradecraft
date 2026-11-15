@@ -28,4 +28,4 @@ The extra detail remains in existing material batches. The scene remains below t
 
 Ran `npm run build` and the five relevant Room 04 Playwright checks: scene ledger, six-mood draw-call budget, physics audit, historical physics fixtures, and built content-hash versions. Did not run unrelated site or Room 04 tests. The build has the existing large-chunk warning.
 
-Built script versions: `page.js?v=6bac0285bf` → `cafe.js?v=ed72d75106`. These are content hashes, so deployment hashes must be checked from the published page and its exact versioned script response.
+Built script versions after updating from `main`: `page.js?v=17b174c97e` → `cafe.js?v=9db94cba78`. These are content hashes, so deployment hashes must be checked from the published page and its exact versioned script response.
