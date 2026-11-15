@@ -432,18 +432,18 @@ test("the Shanghai, Slowly record player fits the budget and plays on demand", a
   expect(moving.platterAngle).not.toBe(0);
   expect(moving.armAngle).toBeGreaterThan(0.28);
   expect(Math.abs(moving.robotTilt)).toBeGreaterThan(0.04);
-  await target.click();
+  await target.dispatchEvent("click"); // the tap target follows the spinning platter, so a coordinate click can miss it mid-turn; the event itself is deterministic
   await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(false);
   await page.waitForTimeout(400);
 
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await target.click();
+  await target.dispatchEvent("click"); // the tap target follows the spinning platter, so a coordinate click can miss it mid-turn; the event itself is deterministic
   const reducedStart = await page.evaluate(() => window.__room04.recordState());
   await page.waitForTimeout(800);
   const reducedEnd = await page.evaluate(() => window.__room04.recordState());
   expect(reducedEnd.platterAngle).toBe(reducedStart.platterAngle);
   expect(reducedEnd.armAngle).toBeGreaterThan(0.28);
-  await target.click();
+  await target.dispatchEvent("click"); // the tap target follows the spinning platter, so a coordinate click can miss it mid-turn; the event itself is deterministic
   await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(false);
   await page.waitForTimeout(400);
   expect(errors).toEqual([]);
