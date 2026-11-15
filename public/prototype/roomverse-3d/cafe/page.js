@@ -1,4 +1,4 @@
-import { initTravelDoor } from "../travel-door.js?v=7";
+import { initTravelDoor } from "../travel-door.js?v=auto";
 
 const ROOM_TITLE = "Room 04｜Shanghai, Slowly";
 
@@ -335,7 +335,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=79");
+  const { start } = await import("./cafe.js?v=auto");
   room = await start({ stage: $("stage"), onMenuTap: () => { room?.pokeRobot?.(); openBubble("menu", 7000); } });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
