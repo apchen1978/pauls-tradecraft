@@ -570,10 +570,10 @@ export async function start({ stage, onReady = () => {} }) {
   const robotFace = (() => {
     let mood = "default", music = false, blink = false, gaze = 0, timer = 0, live = false;
     const state = () => (music ? "happy" : mood);
-    const refresh = () => { drawFace(state(), blink, gaze); if (live) render(); };
+    const refresh = () => { drawFace(state(), blink, gaze); if (live) renderAmbient(); };
     const schedule = () => {
       clearTimeout(timer); if (!live || reducedMotion()) return;
-      timer = setTimeout(() => { if (document.hidden) schedule(); else blinkOnce(); }, 2600 + Math.random() * 3400);
+      timer = setTimeout(() => { if (document.hidden || performance.now() - lastActive > 30000) schedule(); else blinkOnce(); }, 2600 + Math.random() * 3400);
     };
     const blinkOnce = () => {
       blink = true; gaze = Math.random() < 0.4 ? (Math.random() < 0.5 ? -1 : 1) : 0; refresh();
@@ -2497,6 +2497,45 @@ export async function start({ stage, onReady = () => {} }) {
   const sunShafts = new THREE.Mesh(mergeGeometries(shaftParts.map((g) => (g.index ? g.toNonIndexed() : g))), new THREE.MeshBasicMaterial({ map: shaftTexture, color: 0xfff3e6, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
   sunShafts.name = "sun-shafts"; sunShafts.position.set(X0 - 0.02, 1.7, 0.3); sunShafts.renderOrder = 2; sunShafts.frustumCulled = false; scene.add(sunShafts);
 
+  // Dust motes drifting slowly through the window light (the slow tempo of the room). One Points draw, a child of the sun shafts so it follows the light's direction, and only drawn
+  // while a shaft is visible (morning, midday, golden hour). It moves at about 10 frames a second, only while it is drawn, the tab is visible, reduced motion is off and the visitor has touched the room in the last 30 seconds (an idle room settles: no dust, no blinking).
+  const DUST_COUNT = compact ? 48 : 90, DUST_X0 = 0.4, DUST_RANGE = 4.4;
+  const dustBase = new Float32Array(DUST_COUNT * 3), dustSpeed = new Float32Array(DUST_COUNT), dustPhase = new Float32Array(DUST_COUNT);
+  const dustPositions = new Float32Array(DUST_COUNT * 3), dustColors = new Float32Array(DUST_COUNT * 4);
+  { let seed = 20261115; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }; // fixed seed: the same dust every visit
+    for (let i = 0; i < DUST_COUNT; i++) {
+      dustBase[i * 3] = rnd() * DUST_RANGE; dustBase[i * 3 + 1] = (rnd() - 0.5) * 1.3; dustBase[i * 3 + 2] = [-0.8, 0, 0.8][i % 3] + (rnd() - 0.5) * 0.8;
+      dustSpeed[i] = 0.014 + rnd() * 0.02; dustPhase[i] = rnd() * Math.PI * 2;
+    } }
+  const dustTexture = (() => {
+    const canvas = document.createElement("canvas"); canvas.width = 32; canvas.height = 32;
+    const g = canvas.getContext("2d"), grad = g.createRadialGradient(16, 16, 0, 16, 16, 15);
+    grad.addColorStop(0, "rgba(255,255,255,1)"); grad.addColorStop(0.35, "rgba(255,255,255,.5)"); grad.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = grad; g.fillRect(0, 0, 32, 32);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
+  })();
+  const dustGeometry = new THREE.BufferGeometry();
+  dustGeometry.setAttribute("position", new THREE.BufferAttribute(dustPositions, 3)); dustGeometry.setAttribute("color", new THREE.BufferAttribute(dustColors, 4));
+  const dust = new THREE.Points(dustGeometry, new THREE.PointsMaterial({ map: dustTexture, size: 0.042, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, vertexColors: true }));
+  dust.name = "dust-motes"; dust.renderOrder = 3; dust.frustumCulled = false; dust.visible = false; sunShafts.add(dust);
+  let dustTime = 0;
+  const stepDust = (dt) => {
+    dustTime += dt;
+    for (let i = 0; i < DUST_COUNT; i++) {
+      const along = (dustBase[i * 3] + dustSpeed[i] * dustTime) % DUST_RANGE, wobble = dustTime * 0.3 + dustPhase[i];
+      dustPositions[i * 3] = DUST_X0 + along; dustPositions[i * 3 + 1] = dustBase[i * 3 + 1] + Math.sin(wobble) * 0.05; dustPositions[i * 3 + 2] = dustBase[i * 3 + 2] + Math.cos(wobble * 0.8) * 0.05;
+      const edge = Math.min(1, along / 0.5, (DUST_RANGE - along) / 0.5), twinkle = 0.65 + 0.35 * Math.sin(dustTime * 0.9 + dustPhase[i] * 3);
+      dustColors[i * 4] = dustColors[i * 4 + 1] = dustColors[i * 4 + 2] = 1; dustColors[i * 4 + 3] = Math.max(0, edge) * twinkle;
+    }
+    dustGeometry.attributes.position.needsUpdate = true; dustGeometry.attributes.color.needsUpdate = true;
+  };
+  stepDust(0);
+  let dustLast = 0;
+  const dustTimer = () => {
+    if (!dust.visible || document.hidden || reducedMotion() || performance.now() - lastActive > 30000) { dustLast = 0; return; }
+    const now = performance.now(); stepDust(dustLast ? Math.min(0.25, (now - dustLast) / 1000) : 0.1); dustLast = now; renderAmbient();
+  };
+
   // A warm lamp pool over the counter for the dim moods (a point light: no draw call).
   const lamp = new THREE.PointLight(0xffc88a, 0, 3.6, 2); lamp.position.set(0.4, 2.35, -0.55); scene.add(lamp);
   // The street painting with rain drawn over it, made once the first time the rain mood is chosen: pale falling strokes leaning one way and a few beads.
@@ -2552,6 +2591,7 @@ export async function start({ stage, onReady = () => {} }) {
     steam.material.opacity = live.steam;
     materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = Math.max(0, live.tv - 0.4) * 4; // by day the screen plays dimly (a cafe television is never a black hole) and lights nothing; on series night it lights the lounge
     sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
+    dust.material.opacity = Math.min(1, live.shaft * 6); dust.material.color.copy(live.sunColor); dust.visible = dust.material.opacity > 0.03;
     sunShafts.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), SUN_TARGET.clone().sub(live.sunPosition).normalize());
     materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; materials.lampGlow.emissiveIntensity = 0.12 + live.pendant * 1.1; materials.floorShade.emissiveIntensity = 0.1 + live.pendant * 0.95; materials.bamboo.emissiveIntensity = 0.1 + live.pendant * 0.9; pendantLight.intensity = live.pendant * 0.9;
   }
@@ -2702,6 +2742,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   const onRenderHooks = [];
 
+  let ambientRender = false, lastActive = performance.now(); // the dust motes render on their own; those frames are not counted, and the dust rests 30 s after the last real interaction
   let frames = 0;
   function updateClockHands() {
     posSync?.();
@@ -2709,7 +2750,8 @@ export async function start({ stage, onReady = () => {} }) {
     const d = new Date(), s = d.getSeconds(), m = d.getMinutes() + s / 60, h = (d.getHours() % 12) + m / 60;
     for (const { pivot, kind } of clockHands) pivot.rotation.z = -(kind === "hour" ? h / 12 : kind === "minute" ? m / 60 : s / 60) * Math.PI * 2;
   }
-  function render() { updateClockHands(); if (shadowsDirty) { renderer.shadowMap.needsUpdate = true; shadowsDirty = false; } renderer.render(scene, camera); if (frames === 0) performance.mark("room04-first-render"); frames++; for (const hook of onRenderHooks) hook(); }
+  function renderAmbient() { ambientRender = true; try { render(); } finally { ambientRender = false; } } // the blink and the dust: drawn, but not counted as activity or frames
+  function render() { if (!ambientRender) lastActive = performance.now(); updateClockHands(); if (shadowsDirty) { renderer.shadowMap.needsUpdate = true; shadowsDirty = false; } renderer.render(scene, camera); if (frames === 0) performance.mark("room04-first-render"); if (!ambientRender) frames++; for (const hook of onRenderHooks) hook(); }
   function resize() {
     const rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return;
     renderer.setSize(rect.width, rect.height, false);
@@ -2725,7 +2767,7 @@ export async function start({ stage, onReady = () => {} }) {
   renderer.domElement.addEventListener("webglcontextrestored", () => requestAnimationFrame(() => { setMood(currentMood); resize(); }));
 
   controls.update(); setMood("golden"); resize();
-  requestAnimationFrame(() => requestAnimationFrame(() => { afterFirstFrame.forEach((load) => load()); robotFace.start(); }));
+  requestAnimationFrame(() => requestAnimationFrame(() => { afterFirstFrame.forEach((load) => load()); robotFace.start(); setInterval(dustTimer, 100); }));
 
   // Viewing stations (Paul, 2026-11-14: drop the overview, it let the visitor drift into a blank grey wall; every view is a place to stand, like Rooms 02 and 03). The camera
   // always stands at a station at eye height and the visitor turns the head all the way round (drag, or the arrow keys); a button glides the camera to another station and
@@ -2814,6 +2856,7 @@ export async function start({ stage, onReady = () => {} }) {
     noteScreen: () => projectBox(note),
     recordScreen: () => projectBox(platterPivot),
     dripScreen: () => projectBounds(dripBounds),
+    dustState: () => ({ visible: dust.visible, opacity: dust.material.opacity, count: DUST_COUNT, sample: [dustPositions[0], dustPositions[1], dustPositions[2]] }),
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),

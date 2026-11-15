@@ -610,3 +610,18 @@ test("Room 04 robot faces: friendly by default, sleepy after closing, happy whil
   await expect.poll(async () => (await face()).blink, { timeout: 3000 }).toBe(false);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 dust motes drift in the window light only while a shaft is visible, and cost no mesh", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const dust = () => page.evaluate(() => window.__room04.dustState());
+  const golden = await dust();
+  expect(golden.visible, "golden hour has window light").toBe(true);
+  expect(golden.count).toBeGreaterThan(40);
+  await expect.poll(async () => (await dust()).sample[0], { timeout: 4000, message: "the motes move" }).not.toBe(golden.sample[0]);
+  expect((await page.evaluate(() => window.__room04.info())).meshes, "dust is Points, not a mesh").toBe(LEDGER.scene.meshes);
+  await page.locator('[data-mood="closing"]').click(); await page.waitForTimeout(1500);
+  expect((await dust()).visible, "no window light after closing, so no dust").toBe(false);
+  await page.locator('[data-mood="rain"]').click(); await page.waitForTimeout(1500);
+  expect((await dust()).visible, "no sun shaft in the rain").toBe(false);
+  expect(errors).toEqual([]);
+});
