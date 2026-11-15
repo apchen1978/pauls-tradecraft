@@ -27,11 +27,11 @@
     #stage { position:absolute; inset:0; }
     /* The painting is a portrait; the room frame is landscape on a desktop. The whole painting shows (contain), and the sides are filled with the same painting, enlarged, blurred and darkened, so there are no flat brown bars. */
     .poster { position:absolute; inset:0; z-index:3; display:grid; place-items:center; overflow:hidden; background:#715744; }
-    .poster::before { content:""; position:absolute; inset:-8%; background:linear-gradient(#0004,#0007), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp?v=2") center / cover no-repeat; filter:blur(26px) saturate(1.15); }
-    .poster::after { content:""; position:absolute; inset:0; background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp?v=2") center / contain no-repeat; }
+    .poster::before { content:""; position:absolute; inset:-8%; background:linear-gradient(#0004,#0007), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-v3-mobile.webp?v=2") center / cover no-repeat; filter:blur(26px) saturate(1.15); }
+    .poster::after { content:""; position:absolute; inset:0; background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-v3-mobile.webp?v=2") center / contain no-repeat; }
     @media (min-width:769px) {
       .poster::before { content:none; }
-      .poster::after { background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-wide.webp?v=1") center / cover no-repeat; }
+      .poster::after { background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-v3-wide.webp?v=2") center / cover no-repeat; }
     }
     .poster > * { position:relative; z-index:1; }
     .arriving .poster { display:none; }
