@@ -106,7 +106,7 @@ viewButtons.addEventListener("scroll", updateViewScrollHint, { passive: true });
 window.addEventListener("resize", updateViewScrollHint);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
-let currentView = "entry"; // every view is a place to stand and turn all the way round; the room opens just inside the door
+let currentView = "middle"; // every view is a place to stand and turn all the way round; the room opens in the middle, facing the corner with the cat
 const LOOK_KEYS = ["brick", "counter", "back", "wall", "wallpaper", "wainscot", "floor", "rug", "lamp", "clock", "stool", "menu", "gallery", "scarf", "chair", "ceiling", "lounge"];
 let look = {};
 function syncLookUrl() {

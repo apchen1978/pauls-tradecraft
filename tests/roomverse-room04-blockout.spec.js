@@ -121,6 +121,7 @@ test("Room 04 moods: six buttons, each sets its look inside the draw-call budget
     expect(info.mood).toBe(mood);
     expect(info.drawCalls, `${mood} draw calls`).toBeLessThanOrEqual(LEDGER.caps.desktopCalls);
   }
+  await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1300); // the room opens in the middle (Paul, 2026-11-16); the counter is seen from the entry
   await expect(page.locator("#robotHit")).toBeVisible();
   await page.locator("#robotHit").click();
   await expect(page.locator("#bubble")).toBeVisible();
@@ -157,7 +158,7 @@ test("Room 04 switches language and keeps the choice in the address", async ({ p
   await expect(page.locator("#otherRooms")).toHaveAttribute("href", "/prototype/roomverse-3d/?lang=en");
 });
 
-test("Room 04 can turn all the way round from the middle of the room, and the opening (entry) station comes back exactly", async ({ page }) => {
+test("Room 04 can turn all the way round from the middle of the room, and the opening station (the middle) comes back exactly", async ({ page }) => {
   const errors = await open(page, 1440);
   const before = await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov }; });
   await page.locator("#centerView").click();
@@ -171,8 +172,9 @@ test("Room 04 can turn all the way round from the middle of the room, and the op
   });
   expect(new Set(seen.map((d) => d.join(","))).size, "eight different headings round the circle").toBe(8);
   await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1100);
+  await page.locator('[data-view="middle"]').click(); await page.waitForTimeout(1100);
   const after =await page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(3)), fov: r.camera.fov, center: r.isCenter() }; });
-  expect(after.center).toBe(false);
+  expect(after.center).toBe(true);
   expect(after.p).toEqual(before.p);
   expect(after.fov).toBe(before.fov);
   expect(errors).toEqual([]);
@@ -251,16 +253,16 @@ test("Room 04 skips the shadow pass when nothing shadow-casting changes", async 
   expect(counts.first - counts.second).toBeGreaterThan(5);
 });
 
-test("Room 04 views are standing stations: no overview, the room opens just inside the door (初體驗), and every station turns all the way round", async ({ page }) => {
+test("Room 04 views are standing stations: no overview, the room opens in the middle of the room, and every station turns all the way round", async ({ page }) => {
   for (const width of [1440, 390]) {
     const errors = await open(page, width);
     const pose = () => page.evaluate(() => { const r = window.__room04; return { p: r.camera.position.toArray().map((v) => +v.toFixed(2)), fov: r.camera.fov, view: r.view() }; });
     await expect(page.locator('[data-view="overview"]')).toHaveCount(0);
     const start = await pose();
-    expect(start.view).toBe("entry");
-    await expect(page.locator('[data-view="entry"]')).toHaveAttribute("aria-pressed", "true");
+    expect(start.view).toBe("middle");
+    await expect(page.locator('[data-view="middle"]')).toHaveAttribute("aria-pressed", "true");
     const seen = new Set([start.p.join(",")]);
-    for (const view of ["window", "lounge", "counter", "middle"]) {
+    for (const view of ["window", "lounge", "counter", "entry"]) {
       await page.locator(`[data-view="${view}"]`).click();
       await page.waitForFunction((v) => window.__room04.view() === v, view);
       await page.waitForTimeout(1200);
@@ -272,7 +274,7 @@ test("Room 04 views are standing stations: no overview, the room opens just insi
       expect((await pose()).p, view + ": turning the head does not move the camera").toEqual(pos.p);
     }
     expect(seen.size, "five distinct stations").toBe(5);
-    await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1200);
+    await page.locator('[data-view="middle"]').click(); await page.waitForTimeout(1200);
     const back = await pose(); expect(back.p).toEqual(start.p); expect(back.fov).toBe(start.fov);
     expect(errors).toEqual([]);
   }
@@ -314,6 +316,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
       await expect(enter).toBeHidden();
       await page.locator("#enter").click();
       await expect(enter).toBeVisible({ timeout: 30000 }); // the room builds in a few seconds, more on a busy machine
+      await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1300); // the room opens in the middle (Paul, 2026-11-16); the counter is seen from the entry
 
       await page.locator("#robotHit").click();
       await page.locator("#bubble [data-travel]").click();
@@ -462,6 +465,7 @@ test("the Kyoto drip tower fits the stone, plays once per drop, and respects red
   expect(tower.zMm + tower.depthMm / 2).toBeLessThanOrEqual(top.z1Mm);
   expect(tower.baseYmm).toBe(top.topMm);
 
+  await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(1300);
   const target = page.locator("#dripHit");
   await expect(target, "the tower is visible and tappable in the 390px counter station").toBeVisible();
   const box = await target.boundingBox();
@@ -500,6 +504,7 @@ test("the Kyoto drip tower fits the stone, plays once per drop, and respects red
 test("the drip tower responds to ten desktop taps without breaking its animation", async ({ page }) => {
   test.setTimeout(180000);
   const errors = await open(page, 1280);
+  await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1300); // the room opens in the middle (Paul, 2026-11-16); the counter is seen from the entry
   const target = page.locator("#dripHit");
   await expect(target).toBeVisible();
   for (let tap = 0; tap < 10; tap++) {
@@ -630,8 +635,9 @@ test("Room 04 dust motes drift in the window light only while a shaft is visible
 test("Room 04 menu boards: a tap on the chalk board makes the robot recommend a drink for the mood, a drag does not", async ({ page }) => {
   const errors = await open(page, 1440);
   const boardPoint = async () => page.evaluate(() => { const r = window.__room04.menuScreen(); return r ? { x: r.left + (r.right - r.left) * 0.24, y: (r.top + r.bottom) / 2 } : null; });
+  await page.locator('[data-view="entry"]').click(); await page.waitForTimeout(1300); // the room opens in the middle (Paul, 2026-11-16); the counter is seen from the entry
   const point = await boardPoint();
-  expect(point, "the menu boards are in the opening view").not.toBeNull();
+  expect(point, "the menu boards are in the entry view").not.toBeNull();
   await page.mouse.move(point.x, point.y); await page.mouse.down(); await page.mouse.move(point.x + 70, point.y + 5, { steps: 6 }); await page.mouse.up();
   await expect(page.locator("#bubble"), "a drag across the board is not a tap").toBeHidden();
   const p2 = await boardPoint();
@@ -739,7 +745,7 @@ test("Room 04 cat answers a tap with a line in its bubble", async ({ page }) => 
   expect(errors).toEqual([]);
 });
 
-test("Room 04 turning: a swipe across a phone turns about 200 degrees and glides on after the finger lifts", async ({ page }) => {
+test("Room 04 turning: a swipe across a phone turns about 125 degrees and glides on after the finger lifts", async ({ page }) => {
   const errors = await open(page, 390);
   const canvas = page.locator("#stage canvas"), box = await canvas.boundingBox();
   const yaw = () => page.evaluate(() => window.__room04.lookYaw());
@@ -749,8 +755,8 @@ test("Room 04 turning: a swipe across a phone turns about 200 degrees and glides
   await page.mouse.move(box.x + box.width - 10, y); await page.mouse.down();
   await page.mouse.move(box.x + 10, y, { steps: 20 }); await page.waitForTimeout(250); await page.mouse.up();
   const turned = Math.abs((await yaw()) - a0) * 180 / Math.PI;
-  expect(turned, "a full swipe on a phone turns well over 150 degrees").toBeGreaterThan(150);
-  expect(turned).toBeLessThan(230);
+  expect(turned, "a full swipe on a phone turns about 125 degrees").toBeGreaterThan(95);
+  expect(turned).toBeLessThan(145);
   await page.waitForTimeout(400);
   expect(Math.abs((await yaw()) - a0) * 180 / Math.PI - turned, "a drag that stopped does not glide").toBeLessThan(1);
   // a quick flick keeps turning after the finger lifts
