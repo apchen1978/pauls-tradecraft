@@ -685,3 +685,22 @@ test("Room 04 rugs: each mood brings its rug, a picked rug sticks, and every rec
   await expect.poll(async () => (await rug()).look, { timeout: 30000 }).toBe("oat");
   expect(errors).toEqual([]);
 });
+
+test("Room 04 random cafe: it picks a different rug each time and the next mood change still brings the mood's rug", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = await open(page, 1440);
+  const rug = () => page.evaluate(() => window.__room04.rugState());
+  const seen = new Set([(await rug()).look]);
+  for (let i = 0; i < 6; i++) {
+    const before = (await rug()).look;
+    await page.evaluate(() => window.__room04.randomLook());
+    const after = await rug();
+    expect(after.look, "the random cafe changes the rug").not.toBe(before);
+    expect(after.chosen, "a random rug does not lock the rug").toBe(false);
+    seen.add(after.look);
+  }
+  expect(seen.size, "the random cafe visits several rugs").toBeGreaterThan(2);
+  await page.locator('[data-mood="rain"]').click();
+  await expect.poll(async () => (await rug()).look, { timeout: 30000 }).toBe("oat");
+  expect(errors).toEqual([]);
+});
