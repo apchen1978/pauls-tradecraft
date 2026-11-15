@@ -45,6 +45,8 @@ const COPY = {
       closing: ["打烊後", "窗外轉成藍調，只剩軌道燈和吧台上的一盞暖燈。"],
       series: ["追劇夜", "右牆的大螢幕亮起，燈調暗，窗外是夜晚的街；一個人的白領夜，或約幾個朋友。"],
     },
+    menuLabel: "菜單：點一下，聽聽現在的推薦",
+    menuPick: { morning: "早晨先來一杯 Flat White，慢慢醒。", noon: "午後來杯 Iced Tea，配一塊 Daily Cake。", golden: "這個光，我推薦 Osmanthus Latte。", rain: "下雨天，一杯熱的 Hot Chocolate。", closing: "打烊前最後一杯：Osmanthus Tea。", series: "追劇夜：Mocha，配一塊 Daily Cake。" },
     robotMood: { morning: "早安，剛開店。", noon: "午後的客人比較慢。", golden: "這個光，咖啡會更好喝。", rain: "下雨天，多點一杯熱的吧。", closing: "打烊了，但你可以再坐一會。", series: "今晚追哪一部？我去煮杯熱的。" },
   },
   en: {
@@ -87,6 +89,8 @@ const COPY = {
       closing: ["After closing", "The street turns blue; only the track lights and one warm lamp over the counter stay on."],
       series: ["Series night", "The big screen on the right wall lights up, the lamps dim and the street outside is night: a white-collar evening alone, or with a few friends."],
     },
+    menuLabel: "Menu: tap to hear the pick for right now",
+    menuPick: { morning: "Morning: a Flat White, to wake up slowly.", noon: "Afternoon: an Iced Tea with a slice of the Daily Cake.", golden: "In this light, I recommend the Osmanthus Latte.", rain: "A rainy day: a hot Hot Chocolate.", closing: "Last call: an Osmanthus Tea.", series: "Series night: a Mocha with the Daily Cake." },
     robotMood: { morning: "Good morning, just opened.", noon: "The afternoon crowd is slow.", golden: "Coffee tastes better in this light.", rain: "Rainy day: another hot one?", closing: "We're closed, but stay a while.", series: "What are we watching tonight? I'll make something hot." },
   },
 };
@@ -159,7 +163,7 @@ function renderCopy() {
   const home = $("portfolioHome"); home.textContent = copy.portfolioHome; home.setAttribute("aria-label", copy.portfolioHomeLabel); home.href = `/?lang=${lang}`;
   $("stage").querySelector("canvas")?.setAttribute("aria-label", copy.canvas);
   for (const b of document.querySelectorAll("[data-view]")) { b.textContent = copy.views[b.dataset.view]; b.setAttribute("aria-pressed", String(b.dataset.view === currentView)); }
-  $("robotHit").setAttribute("aria-label", copy.robotLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel); $("recordHit").setAttribute("aria-label", copy.recordLabel); $("dripHit").setAttribute("aria-label", copy.dripLabel);
+  $("robotHit").setAttribute("aria-label", copy.robotLabel); $("menuHit").setAttribute("aria-label", copy.menuLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel); $("recordHit").setAttribute("aria-label", copy.recordLabel); $("dripHit").setAttribute("aria-label", copy.dripLabel);
   renderBubble(); renderMoods(); renderSwaps();
   $("resetLook").hidden = !room || lookIsDefault();
   updateViewScrollHint();
@@ -174,9 +178,11 @@ function placeTarget(button, rect) {
 }
 function placeUi() {
   if (!room) return;
-  const robotRect = room.robotScreen(), noteRect = room.noteScreen(), recordRect = room.recordScreen(), dripRect = room.dripScreen();
-  placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect); placeTarget($("dripHit"), dripRect);
-  const bubble = $("bubble"), anchor = bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
+  const robotRect = room.robotScreen(), menuBox = room.menuScreen(), noteRect = room.noteScreen(), recordRect = room.recordScreen(), dripRect = room.dripScreen();
+  const menuRect = menuBox && { left: (menuBox.left + menuBox.right) / 2, right: (menuBox.left + menuBox.right) / 2, top: (menuBox.top + menuBox.bottom) / 2, bottom: (menuBox.top + menuBox.bottom) / 2 };
+  // the small keyboard / screen-reader button sits between the two boards; the boards themselves take taps on the canvas
+  placeTarget($("menuHit"), menuRect); placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect); placeTarget($("dripHit"), dripRect);
+  const bubble = $("bubble"), anchor = bubbleOwner === "menu" ? menuRect : bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
   if (bubble.hidden) return;
   if (!anchor) { bubble.hidden = true; return; }
   const stageRect = $("stage").getBoundingClientRect(), half = bubble.offsetWidth / 2 + 8;
@@ -188,7 +194,7 @@ function placeUi() {
 }
 function renderBubble() {
   const copy = COPY[lang], bubble = $("bubble");
-  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? copy.recordLine : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
+  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? copy.recordLine : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "menu" ? copy.menuPick[mood] : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
   const title = bubble.querySelector("[data-title]"); title.textContent = copy.noteTitle; title.hidden = bubbleOwner !== "note";
   const link = bubble.querySelector("[data-travel]"); link.textContent = copy.robotChoose; link.href = `/prototype/roomverse-3d/?lang=${lang}`; link.hidden = bubbleOwner !== "robot";
   bubble.querySelector("[data-close]").setAttribute("aria-label", copy.close);
@@ -215,6 +221,7 @@ for (const b of document.querySelectorAll("[data-view]")) b.addEventListener("cl
 $("randomLook").addEventListener("click", () => { if (!room) return; room.randomLook(); look = room.look(); renderSwaps(); syncLookUrl(); $("resetLook").hidden = false; $("why").textContent = COPY[lang].randomDone; });
 $("resetLook").addEventListener("click", () => { room.resetLook(); look = room.look(); renderSwaps(); syncLookUrl(); $("resetLook").hidden = true; renderMoods(); });
 $("robotHit").addEventListener("click", () => { room?.pokeRobot?.(); openBubble("robot", 7000); });
+$("menuHit").addEventListener("click", () => { room?.pokeRobot?.(); openBubble("menu", 7000); }); // tap the menu boards: the robot picks a drink for the mood
 $("recordHit").addEventListener("click", () => {
   if (!room) return;
   if (room.recordPlaying()) {
@@ -328,8 +335,8 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=75");
-  room = await start({ stage: $("stage") });
+  const { start } = await import("./cafe.js?v=76");
+  room = await start({ stage: $("stage"), onMenuTap: () => { room?.pokeRobot?.(); openBubble("menu", 7000); } });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
   room.onRender(placeUi);
