@@ -45,6 +45,7 @@ const COPY = {
       closing: ["打烊後", "窗外轉成藍調，只剩軌道燈和吧台上的一盞暖燈。"],
       series: ["追劇夜", "右牆的大螢幕亮起，燈調暗，窗外是夜晚的街；一個人的白領夜，或約幾個朋友。"],
     },
+    baristaLabel: "咖啡機旁的機器人：點我說話", baristaLines: ["嗶嗶，正在打奶泡，等我一下 ☕", "今天的豆子是雲南的，帶一點果香。", "拉花練了三千次，這杯是愛心。❤️", "蒸氣好燙，請別靠太近喔。", "另一隻負責招呼，我負責手藝。🤖", "你聽，奶泡的聲音像下雨。"],
     catLabel: "橘貓：點一下牠", catLines: ["喵～ 😺", "呼嚕呼嚕… 😽", "（翻個身，繼續睡）😴", "別吵，我在曬太陽 😼", "喵？是要開罐罐了嗎 🐟", "這個墊子是我的。😸"],
     menuLabel: "菜單：點一下，聽聽現在的推薦",
     menuPick: { morning: "早晨先來一杯 Flat White，慢慢醒。", noon: "午後來杯 Iced Tea，配一塊 Daily Cake。", golden: "這個光，我推薦 Osmanthus Latte。", rain: "下雨天，一杯熱的 Hot Chocolate。", closing: "打烊前最後一杯：Osmanthus Tea。", series: "追劇夜：Mocha，配一塊 Daily Cake。" },
@@ -90,6 +91,7 @@ const COPY = {
       closing: ["After closing", "The street turns blue; only the track lights and one warm lamp over the counter stay on."],
       series: ["Series night", "The big screen on the right wall lights up, the lamps dim and the street outside is night: a white-collar evening alone, or with a few friends."],
     },
+    baristaLabel: "The robot at the machine: tap to talk", baristaLines: ["Beep, steaming the milk, one moment ☕", "Today's beans are from Yunnan, a little fruity.", "Three thousand practice pours: this one is a heart. ❤️", "The steam is hot, please stand back a little.", "The other one greets you, I do the craft. 🤖", "Listen: the milk sounds like rain."],
     catLabel: "The ginger cat: tap it", catLines: ["Meow~ 😺", "Purr, purr... 😽", "(rolls over, back to sleep) 😴", "Shh, I am sunbathing. 😼", "Meow? Is it tin time? 🐟", "This cushion is mine. 😸"],
     menuLabel: "Menu: tap to hear the pick for right now",
     menuPick: { morning: "Morning: a Flat White, to wake up slowly.", noon: "Afternoon: an Iced Tea with a slice of the Daily Cake.", golden: "In this light, I recommend the Osmanthus Latte.", rain: "A rainy day: a hot Hot Chocolate.", closing: "Last call: an Osmanthus Tea.", series: "Series night: a Mocha with the Daily Cake." },
@@ -129,7 +131,7 @@ function renderSwaps() {
   }));
 }
 function lookIsDefault() { return LOOK_KEYS.every((g) => look[g] === room?.lookDefaults?.[g]); }
-let catLine = -1;
+let catLine = -1, baristaLine = -1;
 let room = null, mood = "golden", bubbleOwner = "robot", bubbleTimer = 0, recordTimer = 0, dripTimer = 0, moodLineKey = "golden";
 
 function renderMoods() {
@@ -166,7 +168,7 @@ function renderCopy() {
   const home = $("portfolioHome"); home.textContent = copy.portfolioHome; home.setAttribute("aria-label", copy.portfolioHomeLabel); home.href = `/?lang=${lang}`;
   $("stage").querySelector("canvas")?.setAttribute("aria-label", copy.canvas);
   for (const b of document.querySelectorAll("[data-view]")) { b.textContent = copy.views[b.dataset.view]; b.setAttribute("aria-pressed", String(b.dataset.view === currentView)); }
-  $("robotHit").setAttribute("aria-label", copy.robotLabel); $("menuHit").setAttribute("aria-label", copy.menuLabel); $("catHit").setAttribute("aria-label", copy.catLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel); $("recordHit").setAttribute("aria-label", copy.recordLabel); $("dripHit").setAttribute("aria-label", copy.dripLabel);
+  $("robotHit").setAttribute("aria-label", copy.robotLabel); $("menuHit").setAttribute("aria-label", copy.menuLabel); $("catHit").setAttribute("aria-label", copy.catLabel); $("baristaHit").setAttribute("aria-label", copy.baristaLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel); $("recordHit").setAttribute("aria-label", copy.recordLabel); $("dripHit").setAttribute("aria-label", copy.dripLabel);
   renderBubble(); renderMoods(); renderSwaps();
   $("resetLook").hidden = !room || lookIsDefault();
   updateViewScrollHint();
@@ -181,11 +183,11 @@ function placeTarget(button, rect) {
 }
 function placeUi() {
   if (!room) return;
-  const robotRect = room.robotScreen(), catRect = room.catScreen ? room.catScreen() : null, menuBox = room.menuScreen(), noteRect = room.noteScreen(), recordRect = room.recordScreen(), dripRect = room.dripScreen();
+  const robotRect = room.robotScreen(), catRect = room.catScreen ? room.catScreen() : null, baristaRect = room.baristaScreen ? room.baristaScreen() : null, menuBox = room.menuScreen(), noteRect = room.noteScreen(), recordRect = room.recordScreen(), dripRect = room.dripScreen();
   const menuRect = menuBox && { left: (menuBox.left + menuBox.right) / 2, right: (menuBox.left + menuBox.right) / 2, top: (menuBox.top + menuBox.bottom) / 2, bottom: (menuBox.top + menuBox.bottom) / 2 };
   // the small keyboard / screen-reader button sits between the two boards; the boards themselves take taps on the canvas
-  placeTarget($("catHit"), catRect); placeTarget($("menuHit"), menuRect); placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect); placeTarget($("dripHit"), dripRect);
-  const bubble = $("bubble"), anchor = bubbleOwner === "cat" ? catRect : bubbleOwner === "menu" ? menuRect : bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
+  placeTarget($("catHit"), catRect); placeTarget($("baristaHit"), baristaRect); placeTarget($("menuHit"), menuRect); placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect); placeTarget($("dripHit"), dripRect);
+  const bubble = $("bubble"), anchor = bubbleOwner === "barista" ? baristaRect : bubbleOwner === "cat" ? catRect : bubbleOwner === "menu" ? menuRect : bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
   if (bubble.hidden) return;
   if (!anchor) { bubble.hidden = true; return; }
   const stageRect = $("stage").getBoundingClientRect(), half = bubble.offsetWidth / 2 + 8;
@@ -197,7 +199,7 @@ function placeUi() {
 }
 function renderBubble() {
   const copy = COPY[lang], bubble = $("bubble");
-  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? copy.recordLine : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "cat" ? copy.catLines[catLine % copy.catLines.length] : bubbleOwner === "menu" ? copy.menuPick[mood] : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
+  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? copy.recordLine : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "barista" ? copy.baristaLines[baristaLine % copy.baristaLines.length] : bubbleOwner === "cat" ? copy.catLines[catLine % copy.catLines.length] : bubbleOwner === "menu" ? copy.menuPick[mood] : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
   const title = bubble.querySelector("[data-title]"); title.textContent = copy.noteTitle; title.hidden = bubbleOwner !== "note";
   const link = bubble.querySelector("[data-travel]"); link.textContent = copy.robotChoose; link.href = `/prototype/roomverse-3d/?lang=${lang}`; link.hidden = bubbleOwner !== "robot";
   bubble.querySelector("[data-close]").setAttribute("aria-label", copy.close);
@@ -226,6 +228,7 @@ $("resetLook").addEventListener("click", () => { room.resetLook(); look = room.l
 $("robotHit").addEventListener("click", () => { room?.pokeRobot?.(); openBubble("robot", 7000); });
 $("menuHit").addEventListener("click", () => { room?.pokeRobot?.(); openBubble("menu", 7000); }); // tap the menu boards: the robot picks a drink for the mood
 $("catHit").addEventListener("click", () => { catLine += 1; openBubble("cat", 5000); }); // the cat answers a tap, a different line each time
+$("baristaHit").addEventListener("click", () => { baristaLine += 1; room?.pokeRobot?.(); openBubble("barista", 6000); }); // the robot at the machine answers too, a different line each time
 $("recordHit").addEventListener("click", () => {
   if (!room) return;
   if (room.recordPlaying()) {

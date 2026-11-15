@@ -2978,9 +2978,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     counter: compact ? station([1.9, 1.5, 1.55], [0.2, 1.2, -0.7], 62) : station([1.7, 1.5, 1.45], [0.2, 1.22, -0.7], 50),
     window: compact ? station([0.3, 1.35, 2.1], [-2.5, 1.0, 0.5], 66) : station([-0.1, 1.4, 2.0], [-2.5, 1.0, 0.5], 54),
     lounge: compact ? station([-0.55, 1.57, 2.55], [2.32, 0.78, 1.32], 66) : station([0.15, 1.52, 2.85], [2.42, 0.66, 1.44], 58),
+    // On a phone it faces the counter so both robots and both menu boards are whole (Paul, 2026-11-16: the greeter was cut in half; the room now opens in the middle, which shows the windows).
     // Just inside the door (Paul, 2026-11-15: a standing view like Rooms 01 and 03, turning smoothly all the way round): the classic first look, the whole counter ahead,
     // the street window on the left, the lounge on the right and the door behind. It stands 0.6 m clear of the front wall so turning to the door never puts the camera in the glass.
-    entry: compact ? station([0.5, 1.55, 1.75], [-0.9, 1.18, -0.55], 72) : station([0.5, 1.55, 1.75], [-0.4, 1.22, -0.7], 64),
+    entry: compact ? station([0.5, 1.55, 1.75], [-0.2, 1.18, -0.7], 72) : station([0.5, 1.55, 1.75], [-0.4, 1.22, -0.7], 64),
     middle: { position: new THREE.Vector3(0.1, 1.55, 1.2), yaw: Math.PI * 1.28, pitch: -0.22, fov: compact ? 84 : 72 }, // it opens on the corner left of the door (Paul, 2026-11-16: the old view of the front wall was mostly the back of a lounge chair): both street windows, the gallery wall, the cat asleep in its basket and the window seat
   };
   const DEFAULT_STATION = "middle"; // Paul, 2026-11-16: the room opens on the corner with the cat, both street windows and the window seat
@@ -3088,6 +3089,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     stats: () => ({ calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, programs: renderer.info.programs?.length ?? 0 }),
     menuScreen: () => projectBounds(new THREE.Box3(new THREE.Vector3(-0.25, 1.66, BACK), new THREE.Vector3(2.45, 2.34, BACK + 0.05))), // the two chalk menu boards
     robotScreen: () => projectBox(robot),
+    baristaScreen: () => projectBox(baristaRobot),
     noteScreen: () => projectBox(note),
     recordScreen: () => projectBox(platterPivot),
     dripScreen: () => projectBounds(dripBounds),
