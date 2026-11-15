@@ -2883,7 +2883,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     middle: { position: new THREE.Vector3(0.1, 1.55, 1.2), yaw: Math.PI * 0.82, pitch: -0.04, fov: compact ? 84 : 72 }, // it opens on the front wall: the street window and the glass door
   };
   const DEFAULT_STATION = "entry";
-  let viewName = DEFAULT_STATION, viewRun = 0, centerDrag = null, centerQueued = false;
+  let viewName = DEFAULT_STATION, viewRun = 0, centerDrag = null, centerQueued = false, glideRun = 0; // glideRun: a new drag or view ends the glide after a swipe
   const look = { position: STATIONS[DEFAULT_STATION].position.clone(), yaw: STATIONS[DEFAULT_STATION].yaw, pitch: STATIONS[DEFAULT_STATION].pitch, fov: STATIONS[DEFAULT_STATION].fov };
   const applyLook = (now = false) => {
     const { position, yaw, pitch, fov } = look;
@@ -2898,7 +2898,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   function centerLook(dYaw, dPitch) { look.yaw += dYaw; look.pitch = Math.min(0.6, Math.max(-0.6, look.pitch + dPitch)); applyLook(); }
   function setView(name, instant = false) {
     const to = STATIONS[name]; if (!to) return false;
-    const run = ++viewRun, from = { position: look.position.clone(), yaw: look.yaw, pitch: look.pitch, fov: look.fov };
+    const run = ++viewRun, from = { position: look.position.clone(), yaw: look.yaw, pitch: look.pitch, fov: look.fov }; glideRun++;
     const turn = ((to.yaw - from.yaw + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; // the short way round
     viewName = name;
     const done = () => { look.position.copy(to.position); look.yaw = from.yaw + turn; look.pitch = to.pitch; look.fov = to.fov; applyLook(true); };
@@ -2926,10 +2926,36 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const hit = pickRay.intersectObjects(candidates, false)[0];
       if (hit && menuBoardMeshes.includes(hit.object)) onMenuTap();
     };
-    canvas.addEventListener("pointerdown", (event) => { centerDrag = { x: event.clientX, y: event.clientY }; tapStart = { x: event.clientX, y: event.clientY }; canvas.setPointerCapture?.(event.pointerId); });
-    canvas.addEventListener("pointermove", (event) => { if (!centerDrag) return; const k = (look.fov * Math.PI / 180) / canvas.clientHeight; centerLook(-(event.clientX - centerDrag.x) * k * 1.1, (event.clientY - centerDrag.y) * k * 0.8); centerDrag = { x: event.clientX, y: event.clientY }; });
+    // Turning the head (Paul, 2026-11-16: it turned too slowly and too little, above all on a phone). A swipe across the whole canvas turns about 200 degrees whatever the screen
+    // width (before, the turn was tied to the canvas height, so a phone swipe turned only about 80 degrees). After the finger lifts, the turn glides on and slows down, like the
+    // orbiting rooms 01 to 03; a new touch, a new view or reduced motion stops it.
+    const YAW_PER_SWIPE = 200 * Math.PI / 180;
+    let yawVelocity = 0, lastMove = 0; // radians per millisecond, smoothed over the last moves
+    const glide = () => {
+      if (reducedMotion() || Math.abs(yawVelocity) < 0.0002) return;
+      const run = ++glideRun; let last = performance.now(), v = yawVelocity;
+      const step = (now) => {
+        if (run !== glideRun) return;
+        const dt = Math.min(48, now - last); last = now; centerLook(v * dt, 0); v *= Math.exp(-dt / 320);
+        if (Math.abs(v) > 0.00003) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    canvas.addEventListener("pointerdown", (event) => { glideRun++; yawVelocity = 0; lastMove = performance.now(); centerDrag = { x: event.clientX, y: event.clientY }; tapStart = { x: event.clientX, y: event.clientY }; canvas.setPointerCapture?.(event.pointerId); });
+    canvas.addEventListener("pointermove", (event) => {
+      if (!centerDrag) return;
+      const yawPerPx = YAW_PER_SWIPE / Math.max(320, canvas.clientWidth), pitchPerPx = (look.fov * Math.PI / 180) / canvas.clientHeight * 0.8;
+      const dYaw = -(event.clientX - centerDrag.x) * yawPerPx, now = performance.now(), dt = Math.max(1, now - lastMove);
+      centerLook(dYaw, (event.clientY - centerDrag.y) * pitchPerPx);
+      yawVelocity = 0.65 * (dYaw / dt) + 0.35 * yawVelocity; lastMove = now;
+      centerDrag = { x: event.clientX, y: event.clientY };
+    });
     const end = () => { centerDrag = null; };
-    canvas.addEventListener("pointerup", (event) => { const start0 = tapStart; tapStart = null; end(); if (start0 && Math.hypot(event.clientX - start0.x, event.clientY - start0.y) < 8) tapOnMenu(event); });
+    canvas.addEventListener("pointerup", (event) => {
+      const start0 = tapStart; tapStart = null; end();
+      if (start0 && Math.hypot(event.clientX - start0.x, event.clientY - start0.y) < 8) { tapOnMenu(event); return; }
+      if (performance.now() - lastMove < 90) glide(); // only a swipe that is still moving when the finger lifts glides on
+    });
     canvas.addEventListener("pointercancel", () => { tapStart = null; end(); });
     canvas.addEventListener("keydown", (event) => {
       const step = event.shiftKey ? 0.25 : 0.1;
@@ -2968,6 +2994,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     catScreen: () => (catRef.group ? projectBox(catRef.group) : null),
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
+    lookYaw: () => look.yaw, glideRunning: () => glideRun,
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),

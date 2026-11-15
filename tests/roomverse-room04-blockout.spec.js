@@ -739,3 +739,25 @@ test("Room 04 cat answers a tap with a line in its bubble", async ({ page }) => 
   expect(await page.locator("#bubble [data-line]").textContent(), "the next tap says something else").not.toBe(first);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 turning: a swipe across a phone turns about 200 degrees and glides on after the finger lifts", async ({ page }) => {
+  const errors = await open(page, 390);
+  const canvas = page.locator("#stage canvas"), box = await canvas.boundingBox();
+  const yaw = () => page.evaluate(() => window.__room04.lookYaw());
+  const y = box.y + box.height * 0.82; // the floor: clear of the robot and other tap targets
+  // a slow, careful drag across the canvas (the finger stops before lifting): about 200 degrees, no glide
+  const a0 = await yaw();
+  await page.mouse.move(box.x + box.width - 10, y); await page.mouse.down();
+  await page.mouse.move(box.x + 10, y, { steps: 20 }); await page.waitForTimeout(250); await page.mouse.up();
+  const turned = Math.abs((await yaw()) - a0) * 180 / Math.PI;
+  expect(turned, "a full swipe on a phone turns well over 150 degrees").toBeGreaterThan(150);
+  expect(turned).toBeLessThan(230);
+  await page.waitForTimeout(400);
+  expect(Math.abs((await yaw()) - a0) * 180 / Math.PI - turned, "a drag that stopped does not glide").toBeLessThan(1);
+  // a quick flick keeps turning after the finger lifts
+  await page.mouse.move(box.x + box.width / 2 + 60, y); await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 - 60, y, { steps: 4 }); await page.mouse.up();
+  const lifted = await yaw(); await page.waitForTimeout(600);
+  expect(Math.abs((await yaw()) - lifted), "a flick glides on").toBeGreaterThan(0.02);
+  expect(errors).toEqual([]);
+});
