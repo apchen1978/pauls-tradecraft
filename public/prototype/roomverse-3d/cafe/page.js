@@ -91,6 +91,13 @@ const COPY = {
   },
 };
 const $ = (id) => document.getElementById(id);
+const viewButtons = $("views");
+function updateViewScrollHint() {
+  const canScroll = viewButtons.scrollWidth > viewButtons.clientWidth + 1;
+  viewButtons.classList.toggle("has-more", canScroll && viewButtons.scrollLeft <= 8);
+}
+viewButtons.addEventListener("scroll", updateViewScrollHint, { passive: true });
+window.addEventListener("resize", updateViewScrollHint);
 const params = new URLSearchParams(location.search);
 let lang = params.get("lang") === "en" ? "en" : "zh";
 let currentView = "entry"; // every view is a place to stand and turn all the way round; the room opens just inside the door
@@ -155,6 +162,7 @@ function renderCopy() {
   $("robotHit").setAttribute("aria-label", copy.robotLabel); $("noteHit").setAttribute("aria-label", copy.noteLabel); $("recordHit").setAttribute("aria-label", copy.recordLabel); $("dripHit").setAttribute("aria-label", copy.dripLabel);
   renderBubble(); renderMoods(); renderSwaps();
   $("resetLook").hidden = !room || lookIsDefault();
+  updateViewScrollHint();
 }
 
 // Room tap targets and one shared bubble float over the 3D view and follow their anchors on screen.
@@ -320,7 +328,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=73");
+  const { start } = await import("./cafe.js?v=74");
   room = await start({ stage: $("stage") });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);

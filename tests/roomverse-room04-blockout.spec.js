@@ -544,10 +544,19 @@ for (const width of [390, 360]) {
     expect(new Set(layout.tops).size).toBe(1);
     expect(layout.scrollWidth).toBeGreaterThan(layout.width);
     expect(layout.fade).toContain("linear-gradient");
+    await expect(views).toHaveClass(/has-more/);
 
+    await views.evaluate((row) => { row.scrollLeft = 12; });
+    await expect(views).not.toHaveClass(/has-more/);
+    await expect.poll(() => views.evaluate((row) => getComputedStyle(row, "::after").content)).toBe("none");
     await views.evaluate((row) => { row.scrollLeft = row.scrollWidth; });
     const last = views.locator('[data-view="middle"]');
     await expect(last).toBeInViewport();
+    expect(await last.evaluate((button) => {
+      const rect = button.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.left + Math.min(8, rect.width / 2), rect.top + rect.height / 2);
+      return hit === button || button.contains(hit);
+    })).toBe(true);
     await last.click();
     await expect(last).toHaveAttribute("aria-pressed", "true");
     await views.evaluate((row) => { row.scrollLeft = 0; });
