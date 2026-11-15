@@ -1021,13 +1021,27 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (let i = 1; i <= arcSteps; i++) { const a = (i / arcSteps) * (Math.PI / 2); profile.push([zf - R + R * Math.sin(a), base + Hh - R + R * Math.cos(a)]); }
     profile.push([zf, base]);
     const sideShape = new THREE.Shape(profile.map((p) => new THREE.Vector2(p[0], p[1])));
-    for (const x of [x0 + 0.012, x1 - 0.012]) part("glass", new THREE.ShapeGeometry(sideShape, 6).rotateY(-Math.PI / 2).translate(x, 0, 0), { tile: 1 });
+    // Eight-millimetre side panes: the edge catches light at oblique angles.
+    for (const x of [x0 + 0.016, x1 - 0.008]) part("glass", new THREE.ExtrudeGeometry(sideShape,
+      { depth: 0.008, bevelEnabled: false, curveSegments: 6 }).rotateY(-Math.PI / 2).translate(x, 0, 0), { tile: 1 });
     // The curved front and top: a strip along the profile from the front foot, up and round, to the back top edge.
     const path = [[zf, base], [zf, base + Hh - R]];
     for (let i = 1; i <= arcSteps; i++) { const a = (i / arcSteps) * (Math.PI / 2); path.push([zf - R * (1 - Math.cos(a)) - 0, base + Hh - R + R * Math.sin(a)]); }
     path.push([zb, base + Hh]);
     const vertices = [], indices = [];
-    path.forEach((p, i) => { vertices.push(x0 + 0.012, p[1], p[0], x1 - 0.012, p[1], p[0]); if (i) { const k = (i - 1) * 2; indices.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); } });
+    path.forEach((p, i) => {
+      vertices.push(x0 + 0.012, p[1], p[0], x1 - 0.012, p[1], p[0],
+        x0 + 0.012, p[1], p[0] - 0.008, x1 - 0.012, p[1], p[0] - 0.008);
+      if (i) {
+        const k = (i - 1) * 4;
+        indices.push(k, k + 1, k + 4, k + 1, k + 5, k + 4,
+          k + 2, k + 6, k + 3, k + 3, k + 6, k + 7,
+          k, k + 4, k + 2, k + 2, k + 4, k + 6,
+          k + 1, k + 3, k + 5, k + 3, k + 7, k + 5);
+      }
+    });
+    const end = (path.length - 1) * 4;
+    indices.push(0, 2, 1, 1, 2, 3, end, end + 1, end + 2, end + 1, end + 3, end + 2);
     const front = new THREE.BufferGeometry(); front.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3)); front.setIndex(indices); front.computeVertexNormals();
     part("glass", front, { tile: 1 });
     // Steel frame: rods along the profile at both ends, plus rods across the front foot, the top front edge and the back top edge.
@@ -1040,7 +1054,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const x of [x0 + 0.014, x1 - 0.014]) slab("black", [x - 0.006, x + 0.006], [shelfY - 0.012, shelfY], [zb + 0.01, zf - 0.015], { tile: 1 });
     // Warm strip light under the top front edge.
     slab("warm", [x0 + 0.06, x1 - 0.06], [base + Hh - 0.02, base + Hh - 0.012], [zf - R - 0.02, zf - R + 0.03], { tile: 1 });
-    const plates = [[1.52, shelfY + 0.003], [1.98, shelfY + 0.003], [1.74, shelfY + 0.024], [2.17, shelfY + 0.018], [1.5, base], [1.95, base]];
+    const plates = [[1.32, shelfY + 0.003], [1.52, shelfY + 0.003], [1.98, shelfY + 0.003], [1.74, shelfY + 0.024], [2.17, shelfY + 0.018], [1.5, base], [1.95, base]];
     const pz = (zb + zf) / 2 + 0.01;
     for (const [px, py] of plates) {
       if (py > shelfY + 0.01) part("ceramic", new THREE.CylinderGeometry(0.052, 0.06, py - shelfY, 16).translate(px, shelfY + (py - shelfY) / 2, pz), { tile: 1 });
@@ -1065,18 +1079,41 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     };
     croissant(1.48, shelfY + 0.009, pz - 0.026, 0.22); croissant(1.56, shelfY + 0.026, pz + 0.022, -0.35); croissant(1.98, shelfY + 0.009, pz, 0.62);
     const detail = (g, hex) => part("loungeDetail", colorize(g, hex), { tile: 1 });
-    // Fruit tart, two small French tarts and a layered slice fill the raised upper plates.
-    part("cookie", new THREE.CylinderGeometry(0.062, 0.053, 0.025, 20).translate(1.75, shelfY + 0.061, pz), { tile: 1 });
-    part("ceramic", new THREE.CylinderGeometry(0.052, 0.052, 0.008, 20).translate(1.75, shelfY + 0.077, pz), { tile: 1 });
-    for (let i = 0; i < 9; i++) { const a = i * Math.PI * 2 / 9, hex = [0xc53b36, 0x344c81, 0xe9b743][i % 3]; detail(new THREE.SphereGeometry(0.012, 8, 6).translate(1.75 + Math.cos(a) * 0.033, shelfY + 0.087, pz + Math.sin(a) * 0.033), hex); }
-    for (const [x, z] of [[2.125, pz - 0.03], [2.205, pz + 0.025]]) {
-      part("cookie", new THREE.CylinderGeometry(0.032, 0.028, 0.025, 16).translate(x, shelfY + 0.058, z), { tile: 1 });
-      part("ceramic", new THREE.SphereGeometry(0.025, 12, 8).scale(1, 0.65, 1).translate(x, shelfY + 0.078, z), { tile: 1 });
+    // Four small macarons on their own plate add colour without hiding the larger pastries.
+    for (const [mx, mz, shell] of [[1.286, pz - 0.027, 0xc98684], [1.344, pz - 0.027, 0x8da98b],
+      [1.286, pz + 0.031, 0xd2a25e], [1.344, pz + 0.031, 0x9b839f]]) {
+      for (const [dy, h, color] of [[0.008, 0.008, shell], [0.014, 0.004, 0xf3e6d0], [0.020, 0.008, shell]])
+        detail(new THREE.CylinderGeometry(0.023, 0.023, h, 16).translate(mx, shelfY + dy, mz), color);
     }
+    // Fruit tart, two small French tarts and a layered slice fill the raised upper plates.
+    const tart = (x, y, z, radius) => {
+      part("cookie", new THREE.CylinderGeometry(radius, radius * 0.86, 0.026, 24).translate(x, y, z), { tile: 1 });
+      part("ceramic", new THREE.CylinderGeometry(radius * 0.83, radius * 0.83, 0.006, 24).translate(x, y + 0.015, z), { tile: 1 });
+      const rim = Array.from({ length: 33 }, (_, i) => {
+        const a = i * Math.PI / 16, r = radius * (0.93 + 0.035 * Math.cos(a * 12));
+        return [x + Math.cos(a) * r, y + 0.014 + 0.0015 * Math.cos(a * 12), z + Math.sin(a) * r];
+      });
+      part("cookie", tubeGeometry(rim, 0.006, 48, 6), { tile: 1 });
+    };
+    tart(1.75, shelfY + 0.061, pz, 0.062);
+    for (let i = 0; i < 9; i++) { const a = i * Math.PI * 2 / 9, hex = [0xc53b36, 0x344c81, 0xe9b743][i % 3]; detail(new THREE.SphereGeometry(0.012, 8, 6).translate(1.75 + Math.cos(a) * 0.033, shelfY + 0.087, pz + Math.sin(a) * 0.033), hex); }
+    for (const [x, z] of [[2.13, pz - 0.036], [2.20, pz - 0.036], [2.13, pz + 0.035], [2.20, pz + 0.035]]) {
+      tart(x, shelfY + 0.058, z, 0.026);
+      part("ceramic", new THREE.SphereGeometry(0.021, 12, 8).scale(1, 0.65, 1).translate(x, shelfY + 0.078, z), { tile: 1 });
+    }
+    // A cut wedge shows its sponge, cream and fruit layers on both exposed faces.
+    const cakeOutline = new THREE.Shape();
+    cakeOutline.moveTo(-0.057, 0.039); cakeOutline.lineTo(0.057, 0.039);
+    cakeOutline.lineTo(0.006, -0.073); cakeOutline.quadraticCurveTo(0, -0.080, -0.006, -0.073);
+    cakeOutline.closePath();
     for (const [y, h, hex] of [[0.029, 0.012, 0xe5b57a], [0.042, 0.009, 0xf4e6cf], [0.052, 0.005, 0xb94b49], [0.06, 0.012, 0xe5b57a]]) {
-      detail(new THREE.CylinderGeometry(0.062, 0.062, h, 3).rotateY(Math.PI / 6).translate(2.04, shelfY + y, pz - 0.01), hex);
+      const layer = new THREE.ExtrudeGeometry(cakeOutline, { depth: h, bevelEnabled: true,
+        bevelSize: 0.001, bevelThickness: 0.001, bevelSegments: 1, curveSegments: 4 });
+      detail(layer.rotateX(-Math.PI / 2).translate(2.04, shelfY + y - h / 2, pz - 0.01), hex);
     }
     detail(new THREE.SphereGeometry(0.012, 8, 6).translate(2.04, shelfY + 0.077, pz - 0.01), 0xc53b36);
+    for (const [dx, dz] of [[-0.022, -0.01], [0.022, 0.008]])
+      detail(new THREE.SphereGeometry(0.009, 8, 6).scale(1.3, 0.65, 1).translate(2.04 + dx, shelfY + 0.073, pz + dz - 0.01), 0xf6ead7);
     const muffin = (x, y, z) => {
       part("muffinCup", new THREE.LatheGeometry([[0.026, 0], [0.037, 0.042]].map((p) => new THREE.Vector2(p[0], p[1])), 16).translate(x, y, z), { tile: 1 });
       const dome = new THREE.SphereGeometry(0.043, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2); dome.scale(1, 0.85, 1); part("muffin", dome.translate(x, y + 0.038, z), { tile: 1 });
@@ -1091,17 +1128,24 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     const cookie = (x, y, z) => { part("cookie", new THREE.CylinderGeometry(0.036, 0.036, 0.012, 20).translate(x, y + 0.006, z), { tile: 1 }); for (let i = 0; i < 4; i++) part("chip", new THREE.SphereGeometry(0.0055, 6, 5).translate(x + Math.cos(i * 1.7) * 0.02, y + 0.013, z + Math.sin(i * 1.7) * 0.02), { tile: 1 }); };
     cookie(1.62, base + 0.01, pz + 0.07); cookie(1.68, base + 0.012, pz + 0.08); cookie(1.72, base + 0.01, pz + 0.045);
+    // Two petite éclairs sit at the front of the lower shelf, clear of the bottle tray.
+    for (const [ex, glaze] of [[1.78, 0x8a4d34], [1.84, 0xe9d3a5]]) {
+      part("cookie", new THREE.CapsuleGeometry(0.012, 0.044, 4, 8).rotateZ(Math.PI / 2).translate(ex, base + 0.019, pz + 0.13), { tile: 1 });
+      detail(new THREE.SphereGeometry(1, 12, 8).scale(0.034, 0.004, 0.011).translate(ex, base + 0.031, pz + 0.13), glaze);
+    }
     // A compact bottle tray: four generic green sparkling waters and two clear mineral waters.
     slab("kraft", [1.87, 2.27], [base + 0.01, base + 0.018], [pz - 0.105, pz + 0.105], { tile: 1 });
     for (let i = 0; i < 6; i++) {
       const x = 1.94 + (i % 3) * 0.12, z = pz + (i < 3 ? -0.055 : 0.055), green = i < 4;
       // Bake the geometry into the existing material batches; the fourth bottle leans slightly.
       const tilt = i === 3 ? 0.09 : 0;
-      const body = new THREE.CylinderGeometry(0.031, 0.031, 0.17, 12).translate(0, 0.085, 0);
-      const neck = new THREE.CylinderGeometry(0.012, 0.022, 0.07, 12).translate(0, 0.205, 0);
-      // Solid, coloured bottles (Paul: the clear ones looked see-through and unreal): deep green glass for the sparkling water, frosted ice-blue for the still water, each with a paler shoulder.
-      body.rotateZ(tilt).translate(x, base + 0.018, z); neck.rotateZ(tilt).translate(x, base + 0.018, z);
-      part("loungeDetail", colorize(body, green ? 0x24603a : 0x9cc4d6)); part("loungeDetail", colorize(neck, green ? 0x3c8a52 : 0xc6e0ea));
+      // One continuous bottle profile gives the foot, shoulder, neck and rolled lip real silhouettes.
+      const bottle = new THREE.LatheGeometry([[0.018, 0], [0.027, 0.004], [0.031, 0.012],
+        [0.031, 0.152], [0.028, 0.171], [0.014, 0.19], [0.012, 0.202],
+        [0.012, 0.236], [0.015, 0.241], [0.015, 0.246], [0.011, 0.247]]
+        .map(([r, h]) => new THREE.Vector2(r, h)), 16);
+      bottle.rotateZ(tilt).translate(x, base + 0.018, z);
+      part("loungeDetail", colorize(bottle, green ? 0x286443 : 0x9cc4d6));
       part("gold", new THREE.CylinderGeometry(0.014, 0.014, 0.014, 10).rotateZ(tilt).translate(x - Math.sin(tilt) * 0.247, base + 0.265, z), { tile: 1 });
       if (green) {
         part("paper", new THREE.CircleGeometry(0.025, 12).scale(0.88, 1.35, 1).translate(x, base + 0.108, z + 0.032), { tile: 1 });
