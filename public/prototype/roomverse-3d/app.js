@@ -3003,7 +3003,7 @@ let lanternMat = null;
   }
   function showGuideLine() {
     bubbleTarget = guidePivot;
-    robotBubble.querySelector("[data-bubble-copy]").textContent = GUIDE_LINE[state.lang]; robotCustomLine = null;
+    robotBubble.querySelector("[data-bubble-copy]").textContent = GUIDE_LINE[state.lang]; robotCustomLine = null; setBubbleCover(null);
     const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = false;
     robotBubble.hidden = false;
     clearTimeout(robotBubbleTimer); clearTimeout(robotTurnTimer);
@@ -3023,7 +3023,7 @@ let lanternMat = null;
   }
   function showRobotMood(mood) {
     bubbleTarget = robotObj;
-    robotBubble.querySelector("[data-bubble-copy]").textContent = ROBOT_MOOD_LINES[mood][state.lang]; robotCustomLine = null;
+    robotBubble.querySelector("[data-bubble-copy]").textContent = ROBOT_MOOD_LINES[mood][state.lang]; robotCustomLine = null; setBubbleCover(null);
     const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = true;
     robotBubble.hidden = false;
     clearTimeout(robotBubbleTimer);
@@ -3031,8 +3031,9 @@ let lanternMat = null;
     robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; }, 3000);
     render();
   }
-  function showRobotLine(copy, ms) { // the little robot says a line of its own (the music hint)
-    bubbleTarget = robotObj; robotCustomLine = copy;
+  function setBubbleCover(src) { const cover = robotBubble.querySelector("[data-cover]"); if (!cover) return; cover.hidden = !src; if (src) cover.src = src; } // a record cover above the robot's line (the music), or none
+  function showRobotLine(copy, ms, cover) { // the little robot says a line of its own (the music hint, and the DJ's announcements with a cover)
+    bubbleTarget = robotObj; robotCustomLine = copy; setBubbleCover(cover || null);
     robotBubble.querySelector("[data-bubble-copy]").textContent = copy[state.lang] || copy.zh;
     const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = true;
     robotBubble.hidden = false; clearTimeout(robotBubbleTimer); clearTimeout(robotTurnTimer);
@@ -3084,29 +3085,40 @@ let lanternMat = null;
   // The speakers by the TV play music (Paul, 2026-11-16): tap a speaker, quiet original piano pieces made in the browser (sound.js). A second tap stops it; each new start plays the next piece.
   const roomMusic = createRoomMusic();
   let musicTrack = -1, musicTimer = 0, musicHinted = false, lastTouch = performance.now(), musicStopped = false, musicAuto = false;
-  const musicOptions = { playlist: true, onTrack: (index) => { musicTrack = index; if (roomMusic.state().playing) showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[index], 5000); } }; // the two pieces follow one another; each change shows its line
+  const musicOptions = { playlist: true, fade: 0.5, onTrack: (index) => { musicTrack = index; if (roomMusic.state().playing) announceMusic(index); } }; // the two pieces follow one another; each change shows its line
   const MUSIC_LINES = {
-    zh: ["♪ 窗邊的午後。🎹 明亮的鋼琴，開著聲音聽聽看。點喇叭就停。", "♪ 追劇夜。🎬 電影感的配樂，低音沉穩。點喇叭就停。"],
-    en: ["♪ Afternoon at the window. 🎹 Bright piano, turn the sound on. Tap a speaker to stop.", "♪ Series night. 🎬 A cinematic score with a deep bass. Tap a speaker to stop."],
+    zh: ["♪ 窗邊的午後。🎹 明亮的鋼琴。再點我，就換下一首！", "♪ 追劇夜。🎬 電影感的配樂，低音沉穩。再點我，就換下一首！"],
+    en: ["♪ Afternoon at the window. 🎹 Bright piano. Tap me again for the next one!", "♪ Series night. 🎬 A cinematic score with a deep bass. Tap me again for the next one!"],
     auto: { zh: "♪ 電視喇叭輕輕放著音樂。點喇叭可以關掉。", en: "♪ Music from the TV speakers. Tap a speaker to turn it off." },
-    hint: { zh: "點一下電視螢幕或旁邊的喇叭，就有音樂喔 🎵", en: "Tap the TV screen or a speaker and some music will play 🎵" },
+    hint: { zh: "點一下我、電視螢幕或旁邊的喇叭，就有音樂喔 🎵", en: "Tap me, the TV screen or a speaker and some music will play 🎵" },
   };
+  const MUSIC_COVERS = ["./cafe/art/room04-record-cover-0-v1.webp", "./cafe/art/room04-record-cover-2-v1.webp"]; // Room 04's covers: 慢板 (the day piece) and 夜色外灘 (for series night)
+  function announceMusic(track) { // the robot says which piece is playing, with its cover (a caption if the robot is not in view)
+    const copy = { zh: MUSIC_LINES.zh[track], en: MUSIC_LINES.en[track] };
+    if (!robotSleeping && robotInView()) showRobotLine(copy, 7000, new URL(MUSIC_COVERS[track], import.meta.url).href); else showCaption(copy[state.lang] || copy.zh, 6000);
+  }
+  function djTap() { // the window-side robot is the DJ (Paul, 2026-11-17): a tap starts the music, and each next tap changes the piece
+    musicHinted = true; musicStopped = false; musicAuto = true;
+    musicTrack = roomMusic.state().playing ? (musicTrack === 0 ? 1 : 0) : (state.mood === "tv" ? 1 : 0);
+    roomMusic.start(musicTrack, musicOptions); announceMusic(musicTrack);
+  }
   const showCaption = (text, ms) => { noteCaption.textContent = text; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, ms); };
   function toggleMusic() {
     musicHinted = true;
     if (roomMusic.state().playing) { roomMusic.stop(); musicStopped = true; /* switched off by hand: it never starts by itself again */ clearTimeout(musicTimer); noteCaption.style.opacity = "0"; return; }
     musicTrack = state.mood === "tv" ? 1 : 0; // series night plays the cinematic piece, every other mood the bright one
-    if (roomMusic.start(musicTrack, musicOptions)) { showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[musicTrack], 6000); } /* no time limit */
+    if (roomMusic.start(musicTrack, musicOptions)) { announceMusic(musicTrack); } /* no time limit */
   }
   // Series night and the TV wall (Paul, 2026-11-16): when the mood is series night, or the TV wall is the view, the speakers start the quiet piano by themselves, once per visit, from the visitor's
   // next tap or drag (browsers only allow sound after one). It starts the slow piece, stops after 60 s like the other start, and never starts again once the visitor has switched it off.
   function autoMusic() {
     if (musicAuto || musicStopped || roomMusic.state().playing || document.hidden || (state.mood !== "tv" && currentView !== "tv")) return;
     musicAuto = true; musicHinted = true; musicTrack = state.mood === "tv" ? 1 : 0;
-    if (roomMusic.start(musicTrack, musicOptions)) { showCaption((MUSIC_LINES.auto[state.lang] || MUSIC_LINES.auto.zh), 7000); } /* no time limit */
+    if (roomMusic.start(musicTrack, musicOptions)) { announceMusic(musicTrack); } /* no time limit */
   }
   window.addEventListener("pointerup", () => autoMusic(), { passive: true });
-  musicSync = () => { if (!roomMusic.state().playing) return; const want = state.mood === "tv" ? 1 : 0; if (want === musicTrack) return; musicTrack = want; roomMusic.start(want, musicOptions); showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[want], 5000); }; // switching to series night while music plays changes it to the cinematic piece, and back again
+  let musicNightMood = state.mood === "tv"; // the mood the music last followed
+  musicSync = () => { const night = state.mood === "tv"; if (night === musicNightMood) return; musicNightMood = night; if (!roomMusic.state().playing) return; musicTrack = night ? 1 : 0; roomMusic.start(musicTrack, musicOptions); announceMusic(musicTrack); }; // entering or leaving series night while music plays changes the piece; a piece picked with the robot stays until then
   window.addEventListener("click", () => autoMusic(), { passive: true }); // the view and mood buttons change the state in their own click handlers, which run before this one
   document.addEventListener("visibilitychange", () => { if (document.hidden) { roomMusic.stop(); clearTimeout(musicTimer); } });
   window.addEventListener("pointerdown", () => { lastTouch = performance.now(); }, { passive: true });
@@ -3159,7 +3171,7 @@ let lanternMat = null;
     const pivot = hitGuide ? guidePivot : robotPivot, home = hitGuide ? guideHome : robotHome;
     hopping = true;
     const hop = ++hopRun;
-    if (hitGuide) showGuideLine();
+    if (hitGuide) showGuideLine(); else djTap();
     const look = Math.atan2(camera.position.x - pivot.position.x, camera.position.z - pivot.position.z); // the robot faces +z
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now(), T = 1400;
     const step = (now) => {
@@ -4037,6 +4049,7 @@ let lanternMat = null;
     speakerScreen() { const g = scene.getObjectByName("tv-wall-speakers"); if (!g) return null; scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = g.localToWorld(g.userData.unitBoxes[0].getCenter(new THREE.Vector3())).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: where the left speaker is on screen
     freezeAmbient(on = true) { ambientFrozen = on; },
     lanternInfo: () => { const globe = scene.getObjectByName("living-room-lantern"); return { fill: fill.position.toArray(), globe: globe ? globe.position.toArray() : null }; }, // QA: the room's fill light must sit at the lantern's centre
+    robotPoint() { robotObj.updateWorldMatrix(true, true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = new THREE.Box3().setFromObject(robotObj).getCenter(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the window-side robot on screen
     tvScreenPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = new THREE.Box3().setFromObject(tvScreen).getCenter(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the TV screen on screen
     wallInfo: () => ({ wall: state.wall, backRepeat: wallMat.map ? wallMat.map.repeat.x : null, backMap: Boolean(wallMat.map), sideMap: Boolean(sideMat.map), entrySideMap: Boolean(entrySideMat.map) }),
     dustState: () => ({ visible: dustPoints.visible, opacity: dustPoints.material.opacity, count: DUST_COUNT, beam: sunBeam.visible }),

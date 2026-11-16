@@ -157,6 +157,8 @@
   .robot-bubble { pointer-events: auto; }
   .robot-bubble [data-travel-door-action] { display: block; min-height: 44px; margin: 7px auto 0; padding: 8px 12px; border: 1px solid #aab5aa; border-radius: 999px; background: #fbfaf6; color: #315c5d; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
   .robot-bubble [data-travel-door-action]:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
+  .robot-bubble [data-cover] { display: block; width: 64px; height: 64px; margin: 0 auto 6px; border-radius: 6px; object-fit: cover; box-shadow: 0 2px 8px #0003; }
+  .robot-bubble [data-cover][hidden] { display: none; }
 </style>
 
 </head>
@@ -176,7 +178,7 @@
 </aside>
 <section class="room" aria-labelledby="title">
   <div class="room-toolbar" id="roomToolbar" role="group" hidden></div>
-  <div id="stage"><div class="robot-bubble" id="robotBubble" hidden><span data-bubble-copy aria-live="polite"></span><button class="travel-door-trigger" data-travel-door-trigger data-travel-door-action type="button" hidden></button></div><button class="immersive-enter" id="immersiveEnter" type="button" hidden></button></div>
+  <div id="stage"><div class="robot-bubble" id="robotBubble" hidden><img data-cover width="64" height="64" alt="" hidden><span data-bubble-copy aria-live="polite"></span><button class="travel-door-trigger" data-travel-door-trigger data-travel-door-action type="button" hidden></button></div><button class="immersive-enter" id="immersiveEnter" type="button" hidden></button></div>
   <div class="poster" id="poster"><button id="enter" type="button"></button></div>
   <p class="status" id="status" hidden></p>
   <button class="panel-toggle" id="panelToggle" type="button" aria-controls="panel" aria-expanded="false" hidden></button>
