@@ -199,7 +199,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     wine: { zh: "深酒紅", en: "Deep wine", paint: "#875b5e" },
     // size = metres per tile (the wall's UVs are in metres); about 5 x 3 tiles on the back wall
     stripe: { zh: "細條紋壁紙", en: "Fine-stripe wallpaper", size: 1.0, tex: image("wallpaper-stripe-v1", true) },
-    botanical: { zh: "淡色植紋壁紙", en: "Soft botanical wallpaper", size: 1.5, tex: image("wallpaper-botanical-v1", true) },
+    botanical: { zh: "淡色植紋壁紙", en: "Soft botanical wallpaper", size: 1.8, tex: image("wallpaper-botanical-v1", true) },
     grasscloth: { zh: "暖燕麥草織", en: "Warm oatmeal grasscloth", size: 2.2, tex: image("wallpaper-grasscloth-oat-v1", true) },
     sagewash: { zh: "鼠尾草石灰洗", en: "Sage limewash", size: 2.4, tex: image("wallpaper-sage-limewash-v1", true) },
   };
@@ -2320,9 +2320,9 @@ let lanternMat = null;
   })();
 
   // ---------- state + panel ----------
-  const state = { mood: "golden", wall: "original", rug: "stripe", curtain: "linen", print: "ridge", lang };
+  const state = { mood: "golden", wall: "original", rug: "stripe", curtain: "linen", print: "ridge", lang }; let musicSync = null; // set once the music is built: it keeps the music in step with the mood
   robotBubble = document.getElementById("robotBubble");
-  let robotSleeping = false, robotIdleTimer = 0, robotBubbleTimer = 0, robotTurnTimer = 0, robotTurnFrame = 0;
+  let robotSleeping = false, robotIdleTimer = 0, robotBubbleTimer = 0, robotTurnTimer = 0, robotTurnFrame = 0, robotCustomLine = null;
   let directorStillOpen = false;
   const cache = {};
   const CURTAINS = {
@@ -2409,7 +2409,7 @@ let lanternMat = null;
     if (key === "mood" && !wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[value];
     state[key] = value;
     if (key === "mood" && previous !== value) showRobotMood(value);
-    apply();
+    apply(); musicSync?.();
   }
   function toUrl() {
     const u = new URL(location.href);
@@ -2581,7 +2581,7 @@ let lanternMat = null;
     if (next.wall === before.wall && next.rug === before.rug && next.curtain === before.curtain && next.print === before.print) next = draw();
     wallWasChosen = true; printWasChosen = true;
     state.wall = next.wall; state.rug = next.rug; state.curtain = next.curtain; state.print = next.print;
-    apply(); toUrl();
+    apply(); musicSync?.(); toUrl();
   }
 
   // Original 3D postcard, retained for QA and as the fallback if a new feeling lacks illustration.
@@ -3003,7 +3003,7 @@ let lanternMat = null;
   }
   function showGuideLine() {
     bubbleTarget = guidePivot;
-    robotBubble.querySelector("[data-bubble-copy]").textContent = GUIDE_LINE[state.lang];
+    robotBubble.querySelector("[data-bubble-copy]").textContent = GUIDE_LINE[state.lang]; robotCustomLine = null;
     const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = false;
     robotBubble.hidden = false;
     clearTimeout(robotBubbleTimer); clearTimeout(robotTurnTimer);
@@ -3023,13 +3023,26 @@ let lanternMat = null;
   }
   function showRobotMood(mood) {
     bubbleTarget = robotObj;
-    robotBubble.querySelector("[data-bubble-copy]").textContent = ROBOT_MOOD_LINES[mood][state.lang];
+    robotBubble.querySelector("[data-bubble-copy]").textContent = ROBOT_MOOD_LINES[mood][state.lang]; robotCustomLine = null;
     const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = true;
     robotBubble.hidden = false;
     clearTimeout(robotBubbleTimer);
     clearTimeout(robotTurnTimer);
     robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; }, 3000);
     render();
+  }
+  function showRobotLine(copy, ms) { // the little robot says a line of its own (the music hint)
+    bubbleTarget = robotObj; robotCustomLine = copy;
+    robotBubble.querySelector("[data-bubble-copy]").textContent = copy[state.lang] || copy.zh;
+    const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = true;
+    robotBubble.hidden = false; clearTimeout(robotBubbleTimer); clearTimeout(robotTurnTimer);
+    robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; robotCustomLine = null; }, ms);
+    render();
+  }
+  function robotInView() { // is the little robot on screen, so that its speech bubble points at something?
+    robotObj.updateWorldMatrix(true, true); const bounds = new THREE.Box3().setFromObject(robotObj);
+    const head = new THREE.Vector3((bounds.min.x + bounds.max.x) / 2, bounds.max.y, (bounds.min.z + bounds.max.z) / 2).project(camera);
+    return head.z < 1 && head.x > -1.25 && head.x < 0.92 && head.y > -0.8 && head.y < 0.92; // partly cut off at the left edge still counts: the bubble stays inside the picture
   }
   function wakeRobot() {
     clearTimeout(robotIdleTimer);
@@ -3076,7 +3089,7 @@ let lanternMat = null;
     zh: ["♪ 窗邊的午後。🎹 明亮的鋼琴，開著聲音聽聽看。點喇叭就停。", "♪ 追劇夜。🎬 電影感的配樂，低音沉穩。點喇叭就停。"],
     en: ["♪ Afternoon at the window. 🎹 Bright piano, turn the sound on. Tap a speaker to stop.", "♪ Series night. 🎬 A cinematic score with a deep bass. Tap a speaker to stop."],
     auto: { zh: "♪ 電視喇叭輕輕放著音樂。點喇叭可以關掉。", en: "♪ Music from the TV speakers. Tap a speaker to turn it off." },
-    hint: { zh: "電視櫃旁的喇叭會唱歌，點一下聽聽看 🎶", en: "The speakers by the TV can play music: tap one 🎶" },
+    hint: { zh: "點一下電視螢幕或旁邊的喇叭，就有音樂喔 🎵", en: "Tap the TV screen or a speaker and some music will play 🎵" },
   };
   const showCaption = (text, ms) => { noteCaption.textContent = text; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, ms); };
   function toggleMusic() {
@@ -3093,6 +3106,7 @@ let lanternMat = null;
     if (roomMusic.start(musicTrack, musicOptions)) { showCaption((MUSIC_LINES.auto[state.lang] || MUSIC_LINES.auto.zh), 7000); } /* no time limit */
   }
   window.addEventListener("pointerup", () => autoMusic(), { passive: true });
+  musicSync = () => { if (!roomMusic.state().playing) return; const want = state.mood === "tv" ? 1 : 0; if (want === musicTrack) return; musicTrack = want; roomMusic.start(want, musicOptions); showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[want], 5000); }; // switching to series night while music plays changes it to the cinematic piece, and back again
   window.addEventListener("click", () => autoMusic(), { passive: true }); // the view and mood buttons change the state in their own click handlers, which run before this one
   document.addEventListener("visibilitychange", () => { if (document.hidden) { roomMusic.stop(); clearTimeout(musicTimer); } });
   window.addEventListener("pointerdown", () => { lastTouch = performance.now(); }, { passive: true });
@@ -3101,7 +3115,7 @@ let lanternMat = null;
     let cost = 0;
     try {
       const now = performance.now();
-      if (!musicHinted && !intro && !director && now - lastTouch > 9000 && now - lastTouch < 30000 && !document.hidden && noteCaption.style.opacity === "0") { musicHinted = true; showCaption(MUSIC_LINES.hint[state.lang] || MUSIC_LINES.hint.zh, 5200); }
+      if (!musicHinted && !intro && !director && now - lastTouch > 9000 && now - lastTouch < 30000 && !document.hidden && noteCaption.style.opacity === "0" && robotBubble.hidden) { musicHinted = true; if (!robotSleeping && robotInView()) showRobotLine(MUSIC_LINES.hint, 6500); else showCaption(MUSIC_LINES.hint[state.lang] || MUSIC_LINES.hint.zh, 5200); }
       if (ambientFrozen || !dustPoints.visible || document.hidden || still || now - lastTouch > 30000) dustLast = 0;
       else {
         const dt = dustLast ? Math.min(.25, (now - dustLast) / 1000) : .1; dustLast = now;
@@ -3139,6 +3153,7 @@ let lanternMat = null;
     if (!robotBubble || robotBubble.hidden) { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); if (c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 34) { showPlantNote(); return; } }
     const speakerPair = scene.getObjectByName("tv-wall-speakers"); // tapping a speaker (the ray, or within 40 px of one on screen) plays the music
     if (speakerPair && (ray.intersectObject(speakerPair, true).length || speakerPair.userData.unitBoxes.some((box) => { const c = speakerPair.localToWorld(box.getCenter(new THREE.Vector3())).project(camera); return c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 40; }))) { toggleMusic(); return; }
+    if (ray.intersectObject(tvScreen, false).length) { toggleMusic(); return; } // a tap on the TV screen starts (or stops) the music too
     const hitGuide = ray.intersectObject(guidePivot, true).length > 0;
     if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) onTravelChoice(); return; } // tapping the door opens the shared destination chooser
     const pivot = hitGuide ? guidePivot : robotPivot, home = hitGuide ? guideHome : robotHome;
@@ -4016,13 +4031,14 @@ let lanternMat = null;
       });
       return { meshes, vertices, triangles, drawCalls: renderer.info.render.calls, robotLoaded: robotObj.children.length > 0 }; // drawCalls: the last rendered frame (QA, for the Room 01 ledger)
     },
-    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
+    setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : robotCustomLine ? (robotCustomLine[l] || robotCustomLine.zh) : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
     speakerScreen() { const g = scene.getObjectByName("tv-wall-speakers"); if (!g) return null; scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = g.localToWorld(g.userData.unitBoxes[0].getCenter(new THREE.Vector3())).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: where the left speaker is on screen
     freezeAmbient(on = true) { ambientFrozen = on; },
     lanternInfo: () => { const globe = scene.getObjectByName("living-room-lantern"); return { fill: fill.position.toArray(), globe: globe ? globe.position.toArray() : null }; }, // QA: the room's fill light must sit at the lantern's centre
-    wallInfo: () => ({ wall: state.wall, backMap: Boolean(wallMat.map), sideMap: Boolean(sideMat.map), entrySideMap: Boolean(entrySideMat.map) }),
+    tvScreenPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = new THREE.Box3().setFromObject(tvScreen).getCenter(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the TV screen on screen
+    wallInfo: () => ({ wall: state.wall, backRepeat: wallMat.map ? wallMat.map.repeat.x : null, backMap: Boolean(wallMat.map), sideMap: Boolean(sideMat.map), entrySideMap: Boolean(entrySideMat.map) }),
     dustState: () => ({ visible: dustPoints.visible, opacity: dustPoints.material.opacity, count: DUST_COUNT, beam: sunBeam.visible }),
     robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.querySelector("[data-bubble-copy]").textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
     guideRobot() { scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(guidePivot), c = b.getCenter(new THREE.Vector3()).project(camera); return { min: b.min.toArray(), max: b.max.toArray(), ndc: { x: c.x, y: c.y, z: c.z }, bubble: !robotBubble.hidden && bubbleTarget === guidePivot, phrase: robotBubble.querySelector("[data-bubble-copy]").textContent }; }, // local QA only
