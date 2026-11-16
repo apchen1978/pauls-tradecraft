@@ -524,7 +524,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     tapClient = [event.clientX, event.clientY];
     const story = storyAt();
     if (story === "vinyl-corner") { // the record corner: a tap starts the music, the next tap stops it
-      if (recordMusic.state().playing) { recordMusic.stop(); showPropStory("vinyl-corner"); } else showPropStory(recordMusic.start() ? "vinyl-music" : "vinyl-corner");
+      if (recordMusic.state().playing) { recordMusic.stop(); showPropStory("vinyl-corner"); } else { const started = recordMusic.start(); if (started) vinylFound = true; showPropStory(started ? "vinyl-music" : "vinyl-corner"); }
       return;
     }
     if (story) showPropStory(story === "bedside-phone" && mood === "series" ? "bedside-phone-lit" : story);
@@ -537,7 +537,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     "bedside-pocket": { zh: "床邊口袋：眼鏡盒和充電盤，是睡前最後一個動作。", en: "The bedside pocket: glasses case and charging puck, the last thing before sleep." },
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
     "vinyl-music": { zh: "♪ 布魯克林窗台。🎹 鋼琴和老派節拍。再點一下就停。", en: "♪ Brooklyn Windowsill. 🎹 Piano over a dusty beat. Tap again to stop." },
-    "hint-vinyl": { zh: "點一下：窗邊的唱片機，有音樂。", en: "Tap: the record player by the window, for some music." },
+    "hint-vinyl": { zh: "點一下發光圈裡的唱片機，有音樂喔 🎵", en: "Tap the record player in the glowing ring for some music 🎵" },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
     "bedside-phone": { zh: "手機面朝下放著，今晚不想被打擾。", en: "The phone lies face down; not to be disturbed tonight." },
     "hint-work": { zh: "點一下：螢幕邊的小便條。", en: "Tap: the little note on the monitor." },
@@ -550,7 +550,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   Object.assign(storyCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
   stage.append(storyCaption);
   const recordMusic = createRoomRecord(); // the record by the window (Paul, 2026-11-17: Room 02 plays one Brooklyn piece when its record corner is tapped)
-  let storyTimer = 0, storyKey = null, vinylHinted = false;
+  let storyTimer = 0, storyKey = null, vinylFound = false, vinylHintAt = -1e9, vinylRing = null; const vinylReadyAt = performance.now(); // vinylFound: the visitor has started the music, so the hints stop
   function showPropStory(key) {
     const story = PROP_STORIES[key]; if (!story) return;
     storyKey = key; storyCaption.textContent = story[lang] || story.zh; storyCaption.style.opacity = "1";
@@ -2185,7 +2185,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     camera.fov = camera.aspect < .8 ? 82 : 60;
     camera.updateProjectionMatrix();
   }
-  const render = () => { renderer.render(scene, camera); positionRobotBubble(); }; renderSoon = render;
+  const render = () => { renderer.render(scene, camera); positionRobotBubble(); positionVinylRing(); }; renderSoon = render;
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
   resize(); render(); ready = true;
   setMood("focus");
@@ -2299,8 +2299,30 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
   document.addEventListener("visibilitychange", () => { if (document.hidden) recordMusic.stop(); }); // the music stops when the page is hidden
-  setTimeout(() => { if (!vinylHinted && lookName === "center" && storyKey === null && !recordMusic.state().playing) { vinylHinted = true; showPropStory("hint-vinyl"); } }, 9000); // a quiet hint once, if the visitor has not found the record player
+  // The record corner hint (Paul, 2026-11-17: the music is good; make sure visitors find the record player): while the visitor has not started it, a soft pulsing ring marks the turntable whenever it is on
+  // screen (after a few seconds), and the hint line comes back every half minute. Both stop for good once the music has been started.
+  vinylRing = document.createElement("div"); vinylRing.id = "vinylRing"; vinylRing.setAttribute("aria-hidden", "true"); vinylRing.hidden = true;
+  const ringStyle = document.createElement("style"); ringStyle.textContent = "#vinylRing { position:absolute; z-index:3; width:64px; height:64px; margin:-32px 0 0 -32px; border:4px solid #ffe2a8; border-radius:50%; background:radial-gradient(circle, rgba(255,214,150,.38) 0, rgba(255,214,150,0) 70%); box-shadow:0 0 0 2px rgba(96,52,12,.7), 0 0 18px 5px rgba(255,190,90,.85), inset 0 0 12px rgba(255,200,120,.7); pointer-events:none; animation:vinylPulse 1.9s ease-out infinite; } #vinylRing[hidden] { display:none; } @keyframes vinylPulse { 0% { transform:scale(.72); opacity:1; } 80% { transform:scale(1.35); opacity:0; } 100% { transform:scale(1.35); opacity:0; } } @media (prefers-reduced-motion: reduce) { #vinylRing { animation:none; } }";
+  document.head.append(ringStyle); stage.append(vinylRing);
+  function vinylScreen() { // where the turntable is on screen: { x, y } in stage pixels, or null if it is out of view
+    const turntable = root.getObjectByName("turntable-plinth") ?? root.getObjectByName("vinyl-corner"); if (!turntable) return null;
+    scene.updateMatrixWorld(true); const c = new THREE.Box3().setFromObject(turntable).getCenter(new THREE.Vector3()).project(camera), rect = stage.getBoundingClientRect();
+    if (c.z >= 1 || Math.abs(c.x) > 0.9 || Math.abs(c.y) > 0.9) return null;
+    return { x: ((c.x + 1) / 2) * rect.width, y: ((1 - c.y) / 2) * rect.height };
+  }
+  function positionVinylRing() {
+    if (!vinylRing) return; // the ring is built near the end of start(); the first frames come before it
+    const show = !vinylFound && performance.now() - vinylReadyAt > 5000 && !document.hidden, spot = show ? vinylScreen() : null;
+    vinylRing.hidden = !spot; if (spot) { vinylRing.style.left = `${spot.x}px`; vinylRing.style.top = `${spot.y}px`; }
+  }
+  setInterval(() => { // keeps the ring in step even when nothing else is drawing, and repeats the hint line
+    if (vinylFound || document.hidden) { positionVinylRing(); return; }
+    positionVinylRing();
+    const now = performance.now();
+    if (now - vinylReadyAt > 6000 && now - vinylHintAt > 32000 && storyKey === null && !vinylRing.hidden) { vinylHintAt = now; showPropStory("hint-vinyl"); }
+  }, 1200);
   return {
+    vinylRing: () => ({ visible: !vinylRing.hidden, found: vinylFound }), // QA: the hint ring
     recordState: () => recordMusic.state(), stopRecord: () => recordMusic.stop(),
     vinylPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = el.getBoundingClientRect(), c = new THREE.Box3().setFromObject(root.getObjectByName("turntable-plinth") ?? root.getObjectByName("vinyl-corner")).getCenter(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the turntable on screen
     tvState() { // local QA only
