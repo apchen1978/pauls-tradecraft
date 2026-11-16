@@ -1533,3 +1533,36 @@ test("Room 01 light and music: dust motes drift in strong sun only, a tap on a s
   await page.evaluate(() => window.__room.stopMusic());
   expect(errors).toEqual([]);
 });
+
+test("Room 01 series night: the TV speakers start the quiet piano on the next tap, and never again once the visitor switched them off", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=tv&view=tv`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.speakerScreen()))?.front, { timeout: 20000, message: "the speakers load" }).toBe(true);
+  await page.waitForTimeout(800);
+  const state = () => page.evaluate(() => window.__room.musicState());
+  await page.locator("h1").click(); // any next tap in series night
+  await expect.poll(async () => (await state()).playing, { timeout: 6000 }).toBe(true);
+  expect((await state()).title).toBe("週日慢慢過");
+  await expect(page.locator("#plantNote")).toContainText("電視喇叭");
+  const spot = await page.evaluate(() => window.__room.speakerScreen());
+  await page.mouse.click(spot.x, spot.y); // switch it off by hand
+  await expect.poll(async () => (await state()).playing).toBe(false);
+  await page.locator("h1").click(); await page.waitForTimeout(800);
+  expect((await state()).playing, "it does not start again by itself").toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 TV wall: turning to it with the view button starts the piano in a day mood too, and the window view does not", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room); await page.waitForTimeout(2200);
+  await page.locator("h1").click(); await page.waitForTimeout(600);
+  expect((await page.evaluate(() => window.__room.musicState())).playing, "no music in the window view by day").toBe(false);
+  await page.locator(".camera-tv").evaluate((button) => button.click()); // the view button (also reachable on a phone)
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing, { timeout: 6000 }).toBe(true);
+  await page.evaluate(() => window.__room.stopMusic());
+  expect(errors).toEqual([]);
+});
