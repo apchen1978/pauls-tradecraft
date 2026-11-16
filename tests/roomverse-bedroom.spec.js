@@ -1125,3 +1125,21 @@ test("Room 02 the record player by the window plays one Brooklyn piece on a real
   await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing).toBe(false);
   expect(errors).toEqual([]);
 });
+
+test("Room 02 a glowing ring and a hint line point visitors to the record player until they start the music", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__bedroom, null, { timeout: 60000 });
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.vinylPoint())).front, { timeout: 20000 }).toBe(true);
+  await expect(page.locator("#vinylRing"), "the ring marks the record player after a few seconds").toBeVisible({ timeout: 20000 });
+  await expect(page.locator("#propStory"), "and the hint line says where to tap").toContainText("唱片機", { timeout: 20000 });
+  const ring = await page.locator("#vinylRing").boundingBox(), spot = await page.evaluate(() => window.__bedroom.vinylPoint());
+  expect(Math.abs(ring.x + ring.width / 2 - spot.x) < 80 && Math.abs(ring.y + ring.height / 2 - spot.y) < 80, "the ring sits on the turntable").toBe(true);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { timeout: 8000 }).toBe(true);
+  await expect(page.locator("#vinylRing"), "the ring goes away once the music has been started").toBeHidden();
+  expect((await page.evaluate(() => window.__bedroom.vinylRing())).found).toBe(true);
+  await page.evaluate(() => window.__bedroom.stopRecord());
+  expect(errors).toEqual([]);
+});
