@@ -3138,7 +3138,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const aim = (position, target) => { const dx = target[0] - position[0], dy = target[1] - position[1], dz = target[2] - position[2]; return { yaw: Math.atan2(dx, -dz), pitch: Math.atan2(dy, Math.hypot(dx, dz)) }; };
   const station = (position, target, fov) => ({ position: new THREE.Vector3(...position), ...aim(position, target), fov });
   const STATIONS = {
-    counter: compact ? station([1.9, 1.5, 1.55], [0.2, 1.2, -0.7], 62) : station([1.7, 1.5, 1.45], [0.2, 1.22, -0.7], 50),
+    counter: compact ? station([1.9, 1.5, 1.55], [0.65, 1.52, -0.7], 62) : station([1.7, 1.5, 1.45], [0.2, 1.52, -0.7], 50),
     window: compact ? station([0.3, 1.35, 2.1], [-2.5, 1.0, 0.5], 66) : station([-0.1, 1.4, 2.0], [-2.5, 1.0, 0.5], 54),
     lounge: compact ? station([-0.55, 1.57, 2.55], [2.32, 0.78, 1.32], 66) : station([0.15, 1.52, 2.85], [2.42, 0.66, 1.44], 58),
     // On a phone it faces the counter so both robots and both menu boards are whole (Paul, 2026-11-16: the greeter was cut in half; the room now opens in the middle, which shows the windows).
