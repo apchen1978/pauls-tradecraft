@@ -2825,8 +2825,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const frame = () => { g.beginPath(); g.roundRect(34, 30, 956, 324, 46); g.stroke(); };
     tube(frame, "#27c8ff", "#27c8ff", 10); tube(frame, "#d8f6ff", "#27c8ff", 3.5);
     g.textAlign = "center"; g.textBaseline = "middle";
-    const text = (str, y, size, family) => { const draw = () => { g.font = size + "px " + family; g.strokeText(str, 512, y); }; tube(draw, "#ff2a5f", "#ff2a5f", 13); tube(draw, "#ff8fae", "#ff2a5f", 7); tube(draw, "#ffe9ee", "#ff4d7e", 2.6); };
-    text("上海慢板", 150, "700 150", "'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif");
+    const text = (str, y, size, family, x = 512) => { const draw = () => { g.font = size + "px " + family; g.strokeText(str, x, y); }; tube(draw, "#ff2a5f", "#ff2a5f", 13); tube(draw, "#ff8fae", "#ff2a5f", 7); tube(draw, "#ffe9ee", "#ff4d7e", 2.6); };
+    const cjk = "'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif";
+    // 上海 • 慢板 (Paul, 2026-11-16): a solid dot between the two words sets them as a pair, a quick tempo against a slow one
+    text("上海", 150, "700 150", cjk, 317); text("慢板", 150, "700 150", cjk, 707);
+    { const dot = () => { g.beginPath(); g.arc(512, 150, 10, 0, Math.PI * 2); g.stroke(); }; tube(dot, "#ff2a5f", "#ff2a5f", 20); tube(dot, "#ff8fae", "#ff2a5f", 14); tube(dot, "#ffe9ee", "#ff4d7e", 8); }
     text("SHANGHAI · SLOWLY · CAFÉ", 272, "700 54", "Georgia,'Times New Roman',serif");
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
     const mesh = add("neon-sign", new THREE.PlaneGeometry(1.3, 0.4875), new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }), 1.1, 2.68, BACK + 0.03, { cast: false, receive: false });

@@ -1566,3 +1566,14 @@ test("Room 01 TV wall: turning to it with the view button starts the piano in a 
   await page.evaluate(() => window.__room.stopMusic());
   expect(errors).toEqual([]);
 });
+
+test("Room 01 the lantern is the light source: the room's fill light sits at the centre of the paper globe", async ({ page }) => {
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  const info = await page.evaluate(() => window.__room.lanternInfo());
+  expect(info.globe, "the lantern exists").not.toBeNull();
+  for (let axis = 0; axis < 3; axis++) expect(info.fill[axis], `fill light axis ${axis}`).toBeCloseTo(info.globe[axis], 3);
+  expect(info.globe[1]).toBeGreaterThan(1.9); expect(info.globe[1]).toBeLessThan(2.7); // it hangs from the ceiling, above head height
+  expect(errors).toEqual([]);
+});
