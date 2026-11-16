@@ -219,6 +219,8 @@ function placeUi() {
 function renderBubble() {
   const copy = COPY[lang], bubble = $("bubble");
   bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? copy.recordLines[recordTrackShown] : bubbleOwner === "recordHint" ? copy.recordHint : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "tablet" ? (mood === "closing" || mood === "series" ? copy.tabletNight[tabletLine % copy.tabletNight.length] : copy.tabletDay[tabletLine % copy.tabletDay.length]) : bubbleOwner === "barista" ? copy.baristaLines[baristaLine % copy.baristaLines.length] : bubbleOwner === "cat" ? copy.catLines[catLine % copy.catLines.length] : bubbleOwner === "menu" ? copy.menuPick[mood] : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
+  const cover = bubble.querySelector("[data-cover]"); // the record's cover (Codex card 69, C1 to C3) shows while a record plays
+  cover.hidden = bubbleOwner !== "record"; if (!cover.hidden) { cover.src = new URL(`./art/room04-record-cover-${recordTrackShown}-v1.webp`, import.meta.url).href; cover.alt = copy.recordLines[recordTrackShown].replace(/^♪ /, "").split("。")[0]; }
   const title = bubble.querySelector("[data-title]"); title.textContent = copy.noteTitle; title.hidden = bubbleOwner !== "note";
   const link = bubble.querySelector("[data-travel]"); link.textContent = copy.robotChoose; link.href = `/prototype/roomverse-3d/?lang=${lang}`; link.hidden = bubbleOwner !== "robot";
   bubble.querySelector("[data-close]").setAttribute("aria-label", copy.close);
