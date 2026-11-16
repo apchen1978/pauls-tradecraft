@@ -848,3 +848,20 @@ test("Room 04 the record player: a hint to tap it (not in late-night moods), two
   await page.locator("#recordHit").dispatchEvent("click");
   expect(errors).toEqual([]);
 });
+
+test("Room 04 Shanghai night and slow day: the neon sign glows at night only, and a third record starts first at night", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = await open(page, 1440, "zh");
+  const vibe = () => page.evaluate(() => window.__room04.vibeState());
+  await page.evaluate(() => window.__room04.setMood("golden"));
+  await expect.poll(async () => (await vibe()).neonVisible, { message: "no neon by day" }).toBe(false);
+  await page.evaluate(() => window.__room04.setMood("closing"));
+  await expect.poll(async () => (await vibe()).neon, { timeout: 6000, message: "the neon is on at night" }).toBeGreaterThan(0.8);
+  await page.evaluate(() => window.__room04.playRecord()); // the first start at night plays the third record
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).title, { timeout: 6000 }).toBe("夜色外灘");
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).notes, { timeout: 12000 }).toBeGreaterThan(8);
+  await page.evaluate(() => window.__room04.stopRecordPlayback());
+  await page.evaluate(() => window.__room04.setMood("rain"));
+  await expect.poll(async () => (await vibe()).neonVisible, { timeout: 6000, message: "the neon glows in the rain too" }).toBe(true);
+  expect(errors).toEqual([]);
+});
